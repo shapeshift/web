@@ -5,6 +5,7 @@ import type { MarketData } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import isEmpty from 'lodash/isEmpty'
+import { matchSorter } from 'match-sorter'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
@@ -13,10 +14,11 @@ import {
   selectChainIdParamFromFilter,
   selectIncludeEarnBalancesParamFromFilter,
   selectIncludeRewardsBalancesParamFromFilter,
+  selectSearchQueryFromFilter,
 } from 'state/selectors'
+import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import { getFeeAssetByChainId } from 'state/slices/assetsSlice/utils'
 
-import { selectAssets } from '../../assetsSlice/selectors'
-import { selectMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
 import type {
   AggregatedOpportunitiesByAssetIdReturn,
   AggregatedOpportunitiesByProviderReturn,
@@ -25,6 +27,8 @@ import type {
   StakingEarnOpportunityType,
 } from '../types'
 import { getUnderlyingAssetIdsBalances } from '../utils'
+import { selectAssets } from './../../assetsSlice/selectors'
+import { selectMarketDataSortedByMarketCap } from './../../marketDataSlice/selectors'
 import { selectAggregatedEarnUserLpOpportunities } from './lpSelectors'
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
@@ -289,6 +293,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
   selectIncludeEarnBalancesParamFromFilter,
   selectIncludeRewardsBalancesParamFromFilter,
   selectChainIdParamFromFilter,
+  selectSearchQueryFromFilter,
   (
     userStakingOpportunites,
     userLpOpportunities,
@@ -297,11 +302,81 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     includeEarnBalances,
     includeRewardsBalances,
     chainId,
+    searchQuery,
   ): AggregatedOpportunitiesByProviderReturn[] => {
     if (isEmpty(marketData)) return []
     const totalFiatAmountByProvider = {} as Record<DefiProvider, BN>
     const projectedAnnualizedYieldByProvider = {} as Record<DefiProvider, BN>
     const combined = [...userStakingOpportunites, ...userLpOpportunities]
+
+    /**
+     * we want to be able to search on...
+     * - provider "thorch" for THORChain, "unis" for Uniswap
+     * - asset name (vault/underlying/rewards) e.g. idle 'senior tr' for Idle Senior TR, 'usdc' will match too
+     * - chain "opt" for Optimism
+     *
+     * https://github.com/kentcdodds/match-sorter#advanced-options
+     *
+     * we are using the function style advanced filtering of match-sorter to map
+     * - assetId -> asset name
+     * - chainId -> chain name
+     * - rewardAssetIds[] - asset name[]
+     * - underlyingAssetIds[] - asset name[]
+     *
+     * - if we include a search term, we want to match on any of these
+     * - if we don't include a search term, return all
+     *
+     * the search should resolve more broadly than narrowly, e.g.
+     * i search for "compound" - i should see all compound vaults, not just the one i'm looking for
+     */
+
+    const searchOpportunities = <T extends LpEarnOpportunityType | StakingEarnOpportunityType>(
+      searchQuery: string | undefined,
+      combined: T[],
+      assets: AssetsById,
+    ): T[] => {
+      if (!searchQuery) return combined
+
+      return matchSorter(combined, searchQuery, {
+        keys: [
+          'name',
+          'provider',
+          'opportunityName',
+          'version',
+          ({ assetId }) => [assets[assetId]?.name, assets[assetId]?.symbol].join(' '),
+          ({ underlyingAssetId }) =>
+            [assets[underlyingAssetId]?.name, assets[underlyingAssetId]?.symbol].join(' '),
+          ({ chainId }) => {
+            const maybeFeeAsset = getFeeAssetByChainId(assets, chainId)
+            if (!maybeFeeAsset) return ''
+            const { name, symbol, networkName } = maybeFeeAsset
+            return [name, symbol, networkName].join(' ')
+          },
+          item =>
+            item.rewardAssetIds
+              .map((id: AssetId) => {
+                const maybeAsset = assets[id]
+                if (!maybeAsset) return ''
+                const { name, symbol } = maybeAsset
+                return [name, symbol].join(' ')
+              })
+              .join(' '),
+          item =>
+            item.underlyingAssetIds
+              .map((id: AssetId) => {
+                const maybeAsset = assets[id]
+                if (!maybeAsset) return ''
+                const { name, symbol } = maybeAsset
+                return [name, symbol].join(' ')
+              })
+              .join(' '),
+          item => (item?.tags ?? []).join(' '),
+        ],
+        threshold: matchSorter.rankings.CONTAINS,
+      })
+    }
+
+    const filtered = searchOpportunities(searchQuery, combined, assets)
 
     const makeEmptyPayload = (provider: DefiProvider): AggregatedOpportunitiesByProviderReturn => ({
       provider,
@@ -325,7 +400,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       [DefiProvider.ThorchainSavers]: makeEmptyPayload(DefiProvider.ThorchainSavers),
     } as const
 
-    const isActiveStakingByFilter = combined.reduce<Record<DefiProvider, boolean>>((acc, cur) => {
+    const isActiveStakingByFilter = filtered.reduce<Record<DefiProvider, boolean>>((acc, cur) => {
       const { provider } = cur
 
       if (chainId && chainId !== cur.chainId) return acc
@@ -349,7 +424,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       return acc
     }, {} as Record<DefiProvider, boolean>)
 
-    const byProvider = combined.reduce<
+    const byProvider = filtered.reduce<
       Record<DefiProvider, AggregatedOpportunitiesByProviderReturn>
     >((acc, cur) => {
       const { provider } = cur

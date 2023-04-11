@@ -21,7 +21,7 @@ export const selectWalletAccountIds = createDeepEqualOutputSelector(
   (walletId, walletById): AccountId[] => (walletId && walletById[walletId]) ?? [],
 )
 
-export const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
+export const selectPortfolioAccountBalancesBaseUnit = createDeepEqualOutputSelector(
   selectWalletAccountIds,
   (state: ReduxState): PortfolioAccountBalancesById => state.portfolio.accountBalances.byId,
   (walletAccountIds, accountBalancesById) =>
@@ -30,8 +30,8 @@ export const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
     ),
 )
 
-export const selectPortfolioAssetBalances = createDeepEqualOutputSelector(
-  selectPortfolioAccountBalances,
+export const selectPortfolioAssetBalancesBaseUnit = createDeepEqualOutputSelector(
+  selectPortfolioAccountBalancesBaseUnit,
   (accountBalancesById): Record<AssetId, string> =>
     Object.values(accountBalancesById).reduce<Record<AssetId, string>>((acc, byAccountId) => {
       Object.entries(byAccountId).forEach(
@@ -42,9 +42,9 @@ export const selectPortfolioAssetBalances = createDeepEqualOutputSelector(
     }, {}),
 )
 
-export const selectPortfolioCryptoBalanceByFilter = createCachedSelector(
-  selectPortfolioAccountBalances,
-  selectPortfolioAssetBalances,
+export const selectPortfolioCryptoBalanceBaseUnitByFilter = createCachedSelector(
+  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAssetBalancesBaseUnit,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   (accountBalances, assetBalances, accountId, assetId): string => {
@@ -53,10 +53,10 @@ export const selectPortfolioCryptoBalanceByFilter = createCachedSelector(
   },
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
-export const selectPortfolioCryptoHumanBalanceByFilter = createCachedSelector(
+export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelector(
   selectAssets,
-  selectPortfolioAccountBalances,
-  selectPortfolioAssetBalances,
+  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAssetBalancesBaseUnit,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   (assets, accountBalances, assetBalances, accountId, assetId): string | undefined => {
@@ -70,7 +70,7 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createCachedSelector(
 export const selectPortfolioFiatBalances = createDeepEqualOutputSelector(
   selectAssets,
   selectMarketDataSortedByMarketCap,
-  selectPortfolioAssetBalances,
+  selectPortfolioAssetBalancesBaseUnit,
   selectBalanceThreshold,
   (assetsById, marketData, balances, balanceThreshold) =>
     Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId, baseUnitBalance]) => {

@@ -30,7 +30,7 @@ jobs:
           restore-keys: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
 
       - name: Yarn Install
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
   call-pr-workflow:
     name: Call

@@ -1,0 +1,17 @@
+diff --git a/src/crypto.js b/src/crypto.js
+index e7dd596bdd78cc36c3bdfb7bb32a3bf9de3413c5..212ca83084509aaabc89dabb11014445b2d237dc 100644
+--- a/src/crypto.js
++++ b/src/crypto.js
+@@ -30,6 +30,11 @@ function hash160(buffer) {
+ }
+ exports.hash160 = hash160;
+ function hash256(buffer) {
+-  return sha256(sha256(buffer));
++  const out = sha256(sha256(buffer));
++  out[Symbol.for("hdwallet_isolation_digest_source_hint")] = {
++    preimage: buffer,
++    algorithm: "hash256",
++  };
++  return out;
+ }
+ exports.hash256 = hash256;

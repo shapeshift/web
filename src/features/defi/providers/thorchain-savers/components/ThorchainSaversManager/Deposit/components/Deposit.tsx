@@ -35,6 +35,7 @@ import {
   fromThorBaseUnit,
   getThorchainSaversDepositQuote,
   isAboveDepositDustThreshold,
+  makeDaysToBreakEven,
   THORCHAIN_SAVERS_DUST_THRESHOLDS,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -44,7 +45,7 @@ import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -119,7 +120,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const balanceFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   // user info
   const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
 
   const getOutboundFeeCryptoBaseUnit = useCallback(async (): Promise<string> => {
@@ -361,6 +362,7 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   useEffect(() => {
+    if (!opportunityData?.apy) return
     if (!(accountId && inputValues && asset)) return
     const { cryptoAmount } = inputValues
     const amountCryptoBaseUnit = bnOrZero(cryptoAmount).times(bn(10).pow(asset.precision))
@@ -373,22 +375,22 @@ export const Deposit: React.FC<DepositProps> = ({
         asset,
         amountCryptoBaseUnit,
       })
-      const { slippage_bps, expected_amount_out } = quote
-      const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
-
-      // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
-      const cryptoSlippageAmountPrecision = bnOrZero(cryptoAmount).times(percentage).div(100)
+      const { slippage_bps, expected_amount_out: expectedAmountOutThorBaseUnit } = quote
+      const slippagePercentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
+      // slippage going into position - 0.007 ETH for 5 ETH deposit
+      // This is NOT the same as the total THOR fees, which include the deposit fee in addition to the slippage
+      const cryptoSlippageAmountPrecision = bnOrZero(cryptoAmount)
+        .times(slippagePercentage)
+        .div(100)
       setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
 
       // daily upside
-      const dailyEarnAmount = bnOrZero(fromThorBaseUnit(expected_amount_out))
-        .times(opportunityData?.apy ?? 0)
-        .div(365)
-
-      const daysToBreakEven = cryptoSlippageAmountPrecision
-        .div(dailyEarnAmount)
-        .toFixed(0)
-        .toString()
+      const daysToBreakEven = makeDaysToBreakEven({
+        expectedAmountOutThorBaseUnit,
+        amountCryptoBaseUnit,
+        asset,
+        apy: opportunityData?.apy,
+      })
       setDaysToBreakEven(daysToBreakEven)
       setQuoteLoading(false)
     })

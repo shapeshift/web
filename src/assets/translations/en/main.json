@@ -6,11 +6,16 @@
     "error": "Error",
     "cancel": "Cancel",
     "close": "Close",
+    "new": "New",
     "continue": "Continue",
+    "reward": "Reward",
+    "claimable": "Claimable",
     "approve": "Approve",
     "confirm": "Confirm",
+    "activity": "Activity",
     "reject": "Reject",
     "connected": "Connected",
+    "value": "Value",
     "created": "Created %{date}",
     "noResultsFound": "No results found.",
     "noResultsBody": "There were no results for %{searchQuery}. Try a new search.",
@@ -289,6 +294,7 @@
       },
       "overview": {
         "underlyingTokens": "Underlying Tokens",
+        "underlyingToken": "Underlying Token",
         "availableRewards": "Available Rewards",
         "about": "About",
         "tvl": "TVL",
@@ -353,6 +359,7 @@
     "validatorMoniker": "%{moniker} Validator",
     "stakedAmount": "Staked Amount",
     "unstakeFrom": "Unstake From",
+    "underlyingAsset": "Underlying Asset",
     "gasFee": "Gas Fee",
     "provider": "Provider",
     "currentTvl": "Current TVL",
@@ -1919,5 +1926,22 @@
         "cta": "Create one"
       }
     }
+  },
+  "nft": {
+    "floorPrice": "Floor Price",
+    "lastPrice": "Last Price",
+    "overview": "Overview",
+    "properties": "Properties",
+    "collection": "Collection",
+    "tokenId": "Token ID",
+    "address": "Address",
+    "chain": "Chain",
+    "standard": "Standard",
+    "description": "Description",
+    "details": "Details",
+    "attributes": "Attributes",
+    "aboutCollection": "About %{collectionName}",
+    "emptyTitle": "Where did all the NFTs go?",
+    "emptyBody": "Don't worry, we've sent out a search party to bring back more amazing NFTs. In the meantime, feel free to stare at this blank space and ponder the meaning of existence."
   }
 }

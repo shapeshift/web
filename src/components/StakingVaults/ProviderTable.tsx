@@ -19,7 +19,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { ResultsEmpty } from './ResultsEmpty'
+import { ResultsEmpty } from '../ResultsEmpty'
 import { SearchEmpty } from './SearchEmpty'
 
 export type RowProps = Row<AggregatedOpportunitiesByProviderReturn>
@@ -103,19 +103,6 @@ export const ProviderTable: React.FC<ProviderTableProps> = ({
         ),
       },
       {
-        Header: translate('defi.claimableRewards'),
-        accessor: 'fiatRewardsAmount',
-        display: { base: 'none', md: 'table-cell' },
-        Cell: ({ row }: { row: RowProps }) => {
-          const hasRewards = bnOrZero(row.original.fiatRewardsAmount).gt(0)
-          return hasRewards ? (
-            <Amount.Fiat value={row.original.fiatRewardsAmount} />
-          ) : (
-            <RawText variant='sub-text'>-</RawText>
-          )
-        },
-      },
-      {
         Header: () => null,
         id: 'expander',
         textAlign: 'right',
@@ -165,7 +152,7 @@ export const ProviderTable: React.FC<ProviderTableProps> = ({
         <ProviderDetails key={original.provider} {...original} />
       )}
       renderEmptyComponent={() =>
-        searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty />
+        searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty ctaHref='/earn' />
       }
       initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
     />

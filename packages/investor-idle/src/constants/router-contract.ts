@@ -1,0 +1,2 @@
+export const referralAddress = '0x90A48D5CF7343B08dA12E067680B4C6dbfE551Be'
+export const ssRouterContractAddress = '0x4aac17d48e4ccb4e1c53cafbe4934fee899009c4'

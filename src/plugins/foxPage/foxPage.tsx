@@ -40,7 +40,7 @@ import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
   selectAssets,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioFiatBalanceByAssetId,
   selectSelectedLocale,
 } from 'state/slices/selectors'
@@ -113,9 +113,9 @@ export const FoxPage = () => {
   const fiatBalanceFoxy =
     useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, foxyFilter)) ?? '0'
   const cryptoHumanBalanceFox =
-    useAppSelector(s => selectPortfolioCryptoHumanBalanceByFilter(s, foxFilter)) ?? '0'
+    useAppSelector(s => selectPortfolioCryptoPrecisionBalanceByFilter(s, foxFilter)) ?? '0'
   const cryptoHumanBalanceFoxy =
-    useAppSelector(s => selectPortfolioCryptoHumanBalanceByFilter(s, foxyFilter)) ?? '0'
+    useAppSelector(s => selectPortfolioCryptoPrecisionBalanceByFilter(s, foxyFilter)) ?? '0'
 
   const fiatBalances = useMemo(
     () => [fiatBalanceFox, fiatBalanceFoxy],

@@ -46,6 +46,7 @@ import {
   fromThorBaseUnit,
   getThorchainSaversDepositQuote,
   getThorchainSaversPosition,
+  makeDaysToBreakEven,
   toThorBaseUnit,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
@@ -54,7 +55,7 @@ import {
   selectAssets,
   selectMarketDataById,
   selectPortfolioAccountMetadataByAccountId,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
@@ -127,13 +128,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const assetBalanceCryptoBaseUnit = useAppSelector(s =>
-    selectPortfolioCryptoBalanceByFilter(s, assetBalanceFilter),
+    selectPortfolioCryptoBalanceBaseUnitByFilter(s, assetBalanceFilter),
   )
 
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
   useEffect(() => {
     ;(async () => {
+      if (!opportunity?.apy) return
       if (!(accountId && state?.deposit.cryptoAmount && asset)) return
       if (depositFeeCryptoBaseUnit) return
 
@@ -150,31 +152,30 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
 
-      const { expected_amount_out, slippage_bps } = quote
+      const { expected_amount_out: expectedAmountOutThorBaseUnit, slippage_bps } = quote
 
-      setDepositFeeCryptoBaseUnit(
-        toBaseUnit(
-          fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expected_amount_out)),
-          asset.precision,
-        ),
+      // Total downside
+      const depositFeeCryptoPrecision = fromThorBaseUnit(
+        amountCryptoThorBaseUnit.minus(expectedAmountOutThorBaseUnit),
       )
-      const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
 
-      // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
+      setDepositFeeCryptoBaseUnit(toBaseUnit(depositFeeCryptoPrecision, asset.precision))
+
+      const slippagePercentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
+
+      // slippage going into position - e.g. 0.007 ETH for 5 ETH deposit
+      // This is NOT the same as the total THOR fees, which include the deposit fee in addition to the slippage
       const cryptoSlippageAmountPrecision = bnOrZero(state?.deposit.cryptoAmount)
-        .times(percentage)
+        .times(slippagePercentage)
         .div(100)
       setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
 
-      // daily upside
-      const dailyEarnAmount = bnOrZero(fromThorBaseUnit(expected_amount_out))
-        .times(opportunity?.apy ?? 0)
-        .div(365)
-
-      const daysToBreakEven = cryptoSlippageAmountPrecision
-        .div(dailyEarnAmount)
-        .toFixed(0)
-        .toString()
+      const daysToBreakEven = makeDaysToBreakEven({
+        amountCryptoBaseUnit,
+        asset,
+        apy: opportunity.apy,
+        expectedAmountOutThorBaseUnit,
+      })
       setDaysToBreakEven(daysToBreakEven)
     })()
   }, [accountId, asset, depositFeeCryptoBaseUnit, opportunity?.apy, state?.deposit.cryptoAmount])
@@ -271,7 +272,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         // React reconciliation algorithm makes it so this wouldn't change until the next time this is fired
         // But the balance actually changes from the gas fees of the reconciliation Tx if it's fired
         // So the next time we fire the actual send Tx, we should deduct from the udpated balance
-        const assetBalanceCryptoBaseUnit = selectPortfolioCryptoBalanceByFilter(
+        const assetBalanceCryptoBaseUnit = selectPortfolioCryptoBalanceBaseUnitByFilter(
           store.getState(),
           assetBalanceFilter,
         )

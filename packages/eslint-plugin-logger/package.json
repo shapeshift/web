@@ -1,0 +1,24 @@
+{
+  "name": "@shapeshiftoss/eslint-plugin-logger",
+  "version": "1.1.0",
+  "license": "MIT",
+  "description": "An eslint plugin disallowing console.* in favor of their moduleLogger equivalent",
+  "repository": "https://github.com/shapeshift/web",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn run -T tsc --build",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "dev": "yarn run -T tsc --build --watch"
+  },
+  "devDependencies": {
+    "@types/eslint-scope": "^3.7.4",
+    "@typescript-eslint/utils": "^5.33.1"
+  }
+}

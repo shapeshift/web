@@ -11,7 +11,7 @@ import { GlobalFilter } from './GlobalFilter'
 import type { PositionTableProps } from './PositionTable'
 import { PositionTable } from './PositionTable'
 import type { ProviderTableProps } from './ProviderTable'
-import { ProviderTable } from './ProviderTable'
+import { WalletProviderTable } from './WalletProviderTable'
 
 type DefiEarnProps = {
   positionTableProps?: Omit<PositionTableProps, 'searchQuery'>
@@ -37,19 +37,12 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
   return (
     <Flex width='full' flexDir='column' gap={6}>
       {header && header}
-      <Tabs isLazy variant='soft-rounded' size='sm'>
-        <Flex
-          justifyContent='space-between'
-          alignItems='center'
-          px={4}
-          gap={4}
-          flexWrap='wrap'
-          {...rest}
-        >
+      <Tabs isLazy lazyBehavior='keepMounted' variant='soft-rounded' size='sm'>
+        <Flex justifyContent='space-between' alignItems='center' gap={4} flexWrap='wrap' {...rest}>
           <Flex flex={{ base: '1 0 auto', md: 1 }} width={{ base: 'full' }}>
             <TabList m={0} width={{ base: 'full', md: 'auto' }}>
-              <Tab flex={{ base: 1, md: 'auto' }}>{translate('defi.byAsset')}</Tab>
               <Tab flex={{ base: 1, md: 'auto' }}>{translate('defi.byProvider')}</Tab>
+              <Tab flex={{ base: 1, md: 'auto' }}>{translate('defi.byAsset')}</Tab>
             </TabList>
           </Flex>
           <ChainDropdown
@@ -64,16 +57,16 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
           </Flex>
         </Flex>
         <TabPanels>
-          <TabPanel>
-            <PositionTable
+          <TabPanel px={0}>
+            <WalletProviderTable
               chainId={selectedChainId}
               searchQuery={searchQuery}
               includeEarnBalances={Boolean(includeEarnBalances)}
               includeRewardsBalances={Boolean(includeRewardsBalances)}
             />
           </TabPanel>
-          <TabPanel>
-            <ProviderTable
+          <TabPanel px={0}>
+            <PositionTable
               chainId={selectedChainId}
               searchQuery={searchQuery}
               includeEarnBalances={Boolean(includeEarnBalances)}

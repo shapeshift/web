@@ -191,7 +191,7 @@ export const ButtonStyle: ComponentStyleConfig = {
       const { colorScheme: c } = props
       return {
         py: 4,
-        px: 2,
+        px: 0,
         height: 'auto',
         lineHeight: 'normal',
         verticalAlign: 'baseline',

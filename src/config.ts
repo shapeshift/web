@@ -12,6 +12,7 @@ const { cleanEnv, str, url, num } = envalid
 // note env vars must be prefixed with REACT_APP_
 const validators = {
   REACT_APP_LOG_LEVEL: str({ default: 'info' }),
+  REACT_APP_REDUX_WINDOW: bool({ default: false }),
   REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: url(),
   REACT_APP_UNCHAINED_ETHEREUM_WS_URL: url(),
   REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL: url(),
@@ -64,6 +65,7 @@ const validators = {
   REACT_APP_FEATURE_LIVESUPPORT: bool({ default: false }),
   REACT_APP_FEATURE_LIFI_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
+  REACT_APP_FEATURE_JAYPEGZ: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_SEND: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_LP: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_LP_ADDITIONAL_POOLS: bool({ default: false }),

@@ -10,6 +10,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { PositionDetails } from 'components/EarnDashboard/components/PositionDetails/PositionDetails'
 import { ReactTable } from 'components/ReactTable/ReactTable'
+import { ResultsEmpty } from 'components/ResultsEmpty'
 import { RawText } from 'components/Text'
 import { isEthAddress } from 'lib/address/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -23,7 +24,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { ResultsEmpty } from './ResultsEmpty'
 import { SearchEmpty } from './SearchEmpty'
 
 export type RowProps = Row<AggregatedOpportunitiesByAssetIdReturn>
@@ -114,19 +114,6 @@ export const PositionTable: React.FC<PositionTableProps> = ({
         ),
       },
       {
-        Header: translate('defi.claimableRewards'),
-        accessor: 'fiatRewardsAmount',
-        display: { base: 'none', md: 'table-cell' },
-        Cell: ({ row }: { row: RowProps }) => {
-          const hasRewards = bnOrZero(row.original.fiatRewardsAmount).gt(0)
-          return hasRewards ? (
-            <Amount.Fiat value={row.original.fiatRewardsAmount} />
-          ) : (
-            <RawText variant='sub-text'>-</RawText>
-          )
-        },
-      },
-      {
         Header: () => null,
         id: 'expander',
         textAlign: 'right',
@@ -186,7 +173,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
         <PositionDetails key={original.assetId} {...original} />
       )}
       renderEmptyComponent={() =>
-        searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty />
+        searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty ctaHref='/earn' />
       }
       initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
     />

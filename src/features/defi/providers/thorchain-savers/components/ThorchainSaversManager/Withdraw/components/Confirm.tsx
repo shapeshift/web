@@ -51,7 +51,7 @@ import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
-  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -81,7 +81,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
     null,
   )
-  const [daysToBreakEven, setDaysToBreakEven] = useState<string | null>(null)
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
@@ -146,7 +145,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     [accountId, asset?.assetId],
   )
   const assetBalance = useAppSelector(s =>
-    selectPortfolioCryptoHumanBalanceByFilter(s, assetBalanceFilter),
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, assetBalanceFilter),
   )
 
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
@@ -203,17 +202,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           .times(percentage)
           .div(100)
         setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
-
-        // daily upside
-        const dailyEarnAmount = bnOrZero(fromThorBaseUnit(expected_amount_out))
-          .times(opportunity?.apy ?? 0)
-          .div(365)
-
-        const daysToBreakEven = cryptoSlippageAmountPrecision
-          .div(dailyEarnAmount)
-          .toFixed(0)
-          .toString()
-        setDaysToBreakEven(daysToBreakEven)
       } catch (e) {
         moduleLogger.error({ fn: 'useEffect', e }, 'Error getting savers withdraw quote')
       } finally {
@@ -635,21 +623,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           <Row.Label>{translate('common.slippage')}</Row.Label>
           <Row.Value>
             <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
-          </Row.Value>
-        </Row>
-        <Row variant='gutter'>
-          <Row.Label>
-            <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
-              {translate('defi.modals.saversVaults.timeToBreakEven.title')}
-            </HelperTooltip>
-          </Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={!quoteLoading}>
-              {translate(
-                `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
-                { amount: daysToBreakEven ?? '0' },
-              )}
-            </Skeleton>
           </Row.Value>
         </Row>
         <Row variant='gutter'>

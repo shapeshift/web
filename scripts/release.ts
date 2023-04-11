@@ -111,7 +111,7 @@ const doRegularRelease = async () => {
   exit()
 }
 
-const doHotfixRelease = async () => {
+const doHotfixRelease = () => {
   exit(chalk.yellow('Unimplemented. PRs welcome!'))
   // TODO(0xdef1cafe): implement hotfix release
   // 1. ask if we want to merge currently checked out branch to main
@@ -143,7 +143,7 @@ const isReleaseInProgress = async (): Promise<boolean> => {
 }
 
 const createRelease = async () => {
-  ;(await inquireReleaseType()) === 'Regular' ? await doRegularRelease() : await doHotfixRelease()
+  ;(await inquireReleaseType()) === 'Regular' ? await doRegularRelease() : doHotfixRelease()
 }
 
 const mergeRelease = async () => {

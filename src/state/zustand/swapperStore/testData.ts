@@ -34,6 +34,7 @@ const mockActions: SwapperAction = {
   updateSellAssetFiatRate(): void {},
   updateTrade(): void {},
   handleAssetSelection(): void {},
+  updateTradeAmountsFromQuote(): void {},
 }
 
 export const baseSwapperState: SwapperState = {

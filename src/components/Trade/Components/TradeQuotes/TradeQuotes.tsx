@@ -1,7 +1,7 @@
 import { Collapse, Flex } from '@chakra-ui/react'
+import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectSellAmountBeforeFeesBuyAssetBaseUnit } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectActiveSwapperWithMetadata,
   selectAvailableSwappersWithMetadata,
@@ -27,25 +27,25 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
   const bestQuote = availableSwappersWithMetadata?.[0]?.quote
   const bestBuyAmountCryptoPrecision =
     bestQuote && fromBaseUnit(bestQuote.buyAmountCryptoBaseUnit, bestQuote.buyAsset.precision)
+  const bestBuyAmountCryptoPrecisionAfterSlippage = bnOrZero(bestBuyAmountCryptoPrecision)
+    .times(bn(1).minus(bnOrZero(bestQuote?.recommendedSlippage ?? DEFAULT_SLIPPAGE)))
+    .toString()
   const bestBuyAssetTradeFeeCryptoPrecision =
     buyAssetFiatRate && bestQuote
       ? bnOrZero(bestQuote.feeData.buyAssetTradeFeeUsd).div(buyAssetFiatRate)
       : undefined
   const bestTotalReceiveAmountCryptoPrecision = bestBuyAssetTradeFeeCryptoPrecision
-    ? bnOrZero(bestBuyAmountCryptoPrecision).minus(bestBuyAssetTradeFeeCryptoPrecision).toString()
+    ? bnOrZero(bestBuyAmountCryptoPrecisionAfterSlippage)
+        .minus(bestBuyAssetTradeFeeCryptoPrecision)
+        .toString()
     : undefined
-
-  const sellAmountBeforeFeesBuyAssetBaseUnit = useSwapperStore(
-    selectSellAmountBeforeFeesBuyAssetBaseUnit,
-  )
 
   const quotes = availableSwappersWithMetadata
     ? availableSwappersWithMetadata.map((swapperWithMetadata, i) => {
         const quote = swapperWithMetadata.quote
-        const buyAmountBeforeFeesCryptoPrecision =
-          sellAmountBeforeFeesBuyAssetBaseUnit && buyAsset
-            ? fromBaseUnit(sellAmountBeforeFeesBuyAssetBaseUnit, buyAsset.precision)
-            : undefined
+        const buyAmountBeforeFeesCryptoPrecision = buyAsset
+          ? fromBaseUnit(quote.buyAmountCryptoBaseUnit, buyAsset.precision)
+          : undefined
 
         const buyAssetTradeFeeBuyAssetCryptoPrecision = buyAssetFiatRate
           ? bnOrZero(quote.feeData.buyAssetTradeFeeUsd).div(buyAssetFiatRate)
@@ -58,6 +58,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
         const totalReceiveAmountCryptoPrecision = bnOrZero(buyAmountBeforeFeesCryptoPrecision)
           .minus(buyAssetTradeFeeBuyAssetCryptoPrecision ?? 0)
           .minus(sellAssetTradeFeeBuyCryptoPrecision ?? 0)
+          .times(bn(1).minus(bnOrZero(quote.recommendedSlippage ?? DEFAULT_SLIPPAGE)))
           .toString()
 
         const isActive = activeSwapperName === swapperWithMetadata.swapper.name

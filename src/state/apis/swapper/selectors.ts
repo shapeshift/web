@@ -31,13 +31,7 @@ export const selectAvailableSwapperApiMostRecentQueryTimestamp = (state: ReduxSt
     return null
   }
 
-  return queries.reduce((maxTimestamp: number | null, query) => {
-    if (query && query.startedTimeStamp) {
-      return maxTimestamp === null
-        ? query.startedTimeStamp
-        : Math.max(maxTimestamp, query.startedTimeStamp)
-    }
+  const startedTimeStamps = queries.map(query => query?.startedTimeStamp).filter(Boolean)
 
-    return maxTimestamp
-  }, null)
+  return startedTimeStamps.length > 0 ? Math.max(...startedTimeStamps) : null
 }

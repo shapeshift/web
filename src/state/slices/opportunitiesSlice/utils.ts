@@ -1,6 +1,6 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type { MarketData } from '@shapeshiftoss/types'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -54,6 +54,19 @@ export const filterUserStakingIdByStakingIdCompareFn = (
 // That may be a L1 AssetId (THOR savers), or a smart contract account, which for all intent and purposes is an ERC20 i.e an asset
 export const toOpportunityId = (...[args]: Parameters<typeof toAssetId>) =>
   toAssetId(args) as OpportunityId
+
+export const opportunityIdToChainId = (opportunityId: OpportunityId): ChainId => {
+  // an OpportunityId can be an AssetId or AccountId, try fromAssetId first, and if it throws
+  // it's an AccountId
+  try {
+    const { chainId } = fromAssetId(opportunityId)
+    return chainId
+  } catch (e) {
+    // we're pretty confident it's an AccountId now
+    const { chainId } = fromAccountId(opportunityId)
+    return chainId
+  }
+}
 
 type GetUnderlyingAssetIdsBalancesArgs = {
   assetId: AssetId

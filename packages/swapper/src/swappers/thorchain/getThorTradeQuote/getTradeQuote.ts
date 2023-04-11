@@ -68,7 +68,13 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         },
       )
 
-    const rate = await getTradeRate(sellAsset, buyAsset.assetId, sellAmountCryptoBaseUnit, deps)
+    const rate = await getTradeRate({
+      sellAsset,
+      buyAssetId: buyAsset.assetId,
+      sellAmountCryptoBaseUnit,
+      receiveAddress,
+      deps,
+    })
 
     const buyAmountCryptoBaseUnit = toBaseUnit(
       bnOrZero(fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)).times(rate),

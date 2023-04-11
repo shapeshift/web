@@ -1,5 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
@@ -28,7 +30,7 @@ import type {
   OpportunityId,
   UserStakingId,
 } from './types'
-import { deserializeUserStakingId } from './utils'
+import { deserializeUserStakingId, opportunityIdToChainId } from './utils'
 
 export const initialState: OpportunitiesState = {
   lp: {
@@ -51,7 +53,11 @@ const moduleLogger = logger.child({ namespace: ['opportunitiesSlice'] })
 
 // tsc is drunk, extracting this makes it happy
 const getOpportunityIds = (
-  { defiProvider, defiType }: Pick<GetOpportunityMetadataInput, 'defiProvider' | 'defiType'>,
+  {
+    accountId,
+    defiProvider,
+    defiType,
+  }: Pick<GetOpportunityMetadataInput, 'defiProvider' | 'defiType'> & { accountId?: AccountId },
   { getState }: { getState: ReduxApi['getState'] },
 ): OpportunityId[] | undefined => {
   const selectOpportunityIds = opportunitiesApi.endpoints.getOpportunityIds.select({
@@ -60,7 +66,15 @@ const getOpportunityIds = (
   })
   const { data: opportunityIds } = selectOpportunityIds(getState() as any)
 
-  return opportunityIds
+  // if we're not passed an AccountId, return all opportunityIds
+  if (!accountId) return opportunityIds
+
+  // if we're passed an AccountId, use it as a filter
+  const { chainId: accountChainId } = fromAccountId(accountId)
+
+  return opportunityIds?.filter(
+    opportunityId => opportunityIdToChainId(opportunityId) === accountChainId,
+  )
 }
 
 export const opportunities = createSlice({
@@ -204,6 +218,22 @@ export const opportunitiesApi = createApi({
             throw new Error(`resolver for ${DefiProvider.UniV2}::${defiType} not implemented`)
           }
 
+          const { chainId: accountChainId } = fromAccountId(accountId)
+          const opportunityChainId = opportunityIdToChainId(opportunityId)
+          if (opportunityChainId !== accountChainId) {
+            const byAccountId: OpportunityDataById = {
+              [accountId]: [],
+            }
+
+            const data = {
+              byAccountId,
+              type: opportunityType,
+            }
+
+            dispatch(opportunities.actions.upsertOpportunityAccounts(data))
+            return { data }
+          }
+
           const resolved = await resolver({
             opportunityId,
             opportunityType,
@@ -216,9 +246,9 @@ export const opportunitiesApi = createApi({
             dispatch(opportunities.actions.upsertUserStakingOpportunities(resolved.data))
           }
 
-          const byAccountId = {
+          const byAccountId: OpportunityDataById = {
             [accountId]: [opportunityId],
-          } as OpportunityDataById
+          }
 
           const data = {
             byAccountId,
@@ -251,7 +281,10 @@ export const opportunitiesApi = createApi({
         { dispatch, getState },
       ) => {
         try {
-          const opportunityIds = getOpportunityIds({ defiProvider, defiType }, { getState })
+          const opportunityIds = getOpportunityIds(
+            { accountId, defiProvider, defiType },
+            { getState },
+          )
 
           if (!opportunityIds) {
             throw new Error("Can't select staking OpportunityIds")

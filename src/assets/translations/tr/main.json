@@ -94,7 +94,8 @@
     "needAsset": "%{asset}'e mi ihtiyacınız var?",
     "buyNow": "Şimdi al",
     "manage": "Yönet",
-    "selectedAccount": "Bir Hesap Seçin"
+    "selectedAccount": "Bir Hesap Seçin",
+    "allChains": "Tüm Zincirler"
   },
   "consentBanner": {
     "body": {
@@ -221,7 +222,8 @@
       "triggerButton": "Cüzdanı Bağla",
       "switchWallet": "Cüzdan Sağlayıcıyı Değiştir",
       "disconnect": "Bağlantıyı kes",
-      "disconnected": "(Bağlantı kesildi)"
+      "disconnected": "(Bağlantı kesildi)",
+      "connecting": "Bağlanıyor..."
     }
   },
   "defi": {
@@ -392,6 +394,11 @@
     "earnBody": "Varlıklarınızı stake ederek veya bir DeFi stratejisine yatırarak pasif gelir elde edin.",
     "clickHereToEarn": "ETH-FOX likidite havuzu belirteçlerinizi biriktirerek %{apr} APR* kazanmak için burayı tıklayın",
     "overview": "Genel Bakış",
+    "myPositions": "Pozisyonlarım",
+    "myPositionsBody": "Aktif pozisyonlarınız burada görünecektir.",
+    "myRewards": "Ödüllerim",
+    "myRewardsBody": "Talep edilebilir ödüllere sahip aktif pozisyonlarınız burada görünecektir.",
+    "viewAllPositions": "Tüm Pozisyonları Görüntüle",
     "liquidityPools": "Likidite Havuzları",
     "stakingVaults": "Staking ve Kasalar",
     "farming": "Çiftçilik",
@@ -402,12 +409,13 @@
     "poolValue": "Havuz Değeri",
     "yearn": "Yearn Finance",
     "totalValue": "Toplam Değer",
-    "byPosition": "Pozisyona Göre",
+    "byAsset": "Varlığa Göre",
     "byProvider": "Sağlayıcıya Göre",
     "claimableRewards": "Talep Edilebilir Ödüller",
     "reawrds": "Ödüller",
     "stakingPosition": "Staking Pozisyonu",
     "liquidityPool": "Likidite Havuzu",
+    "noActivePositions": "Aktif Pozisyon Yok",
     "emptyEarn": "Kazanç fırsatları burada görünecektir.",
     "empty": {
       "farming": {
@@ -1470,6 +1478,7 @@
         "trade": "Takas"
       },
       "accountTokens": "Hesap Jetonları",
+      "relatedAssets": "İlgili Varlıklar",
       "showTokens": "Jetonları Göster (%{amount})",
       "hideTokens": "Jetonları Gizle (%{amount})",
       "underlyingAssets": "Temel Varlıklar",

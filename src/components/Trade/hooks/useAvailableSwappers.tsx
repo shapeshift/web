@@ -4,11 +4,14 @@ import type {
 } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
+import { selectAvailableSwapperApiMostRecentQueryTimestamp } from 'state/apis/swapper/selectors'
 import { selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -17,6 +20,8 @@ import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 // A helper hook to get the available swappers from the RTK API, mapping the SwapperTypes to swappers
 export const useAvailableSwappers = () => {
+  const [currentRequestStartedTimeStamp, setCurrentRequestStartedTimeStamp] = useState<number>()
+
   // Form hooks
   const { tradeQuoteArgs } = useTradeQuoteService()
 
@@ -30,6 +35,7 @@ export const useAvailableSwappers = () => {
   const sellAsset = useSwapperStore(selectSellAsset)
   const updateFees = useSwapperStore(state => state.updateFees)
   const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
+  const mostRecentQueryStart = useSelector(selectAvailableSwapperApiMostRecentQueryTimestamp)
 
   // Constants
   const buyAssetId = buyAsset?.assetId
@@ -49,17 +55,21 @@ export const useAvailableSwappers = () => {
 
   useEffect(() => {
     ;(async () => {
-      const availableSwapperTypesWithQuoteMetadata =
+      const availableSwapperTypesWithQuoteMetadataResponse =
         tradeQuoteArgs && feeAsset
-          ? (
-              await dispatch(
-                getAvailableSwappers.initiate({
-                  ...tradeQuoteArgs,
-                  feeAsset,
-                }),
-              )
-            ).data
+          ? await dispatch(
+              getAvailableSwappers.initiate({
+                ...tradeQuoteArgs,
+                feeAsset,
+              }),
+            )
           : undefined
+
+      const availableSwapperTypesWithQuoteMetadata =
+        availableSwapperTypesWithQuoteMetadataResponse?.data
+      setCurrentRequestStartedTimeStamp(
+        availableSwapperTypesWithQuoteMetadataResponse?.startedTimeStamp,
+      )
 
       const swapperManager = await getSwapperManager(featureFlags)
       const swappers = swapperManager.swappers
@@ -89,13 +99,18 @@ export const useAvailableSwappers = () => {
     featureFlags,
     feeAsset,
     getAvailableSwappers,
+    mostRecentQueryStart,
     sellAssetId,
     tradeQuoteArgs,
   ])
 
   useEffect(() => {
     ;(async () => {
-      if (!swappersWithQuoteMetadata) return
+      const isCurrentResponseFresh = bnOrZero(currentRequestStartedTimeStamp).gte(
+        mostRecentQueryStart ?? 0,
+      )
+
+      if (!swappersWithQuoteMetadata || !isCurrentResponseFresh) return
       /*
         The available swappers endpoint returns all available swappers for a given trade pair, ordered by rate, including halted.
         A halted swapper may well have the best rate, but we don't want to show it unless there are none other available.
@@ -157,9 +172,11 @@ export const useAvailableSwappers = () => {
     })()
   }, [
     buyAssetId,
+    currentRequestStartedTimeStamp,
     dispatch,
     feeAsset,
     getIsTradingActive,
+    mostRecentQueryStart,
     sellAssetId,
     swappersWithQuoteMetadata,
     updateActiveSwapperWithMetadata,

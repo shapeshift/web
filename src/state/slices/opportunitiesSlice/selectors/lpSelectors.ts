@@ -7,7 +7,11 @@ import { toBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAccountIdParamFromFilter, selectLpIdParamFromFilter } from 'state/selectors'
+import {
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  selectLpIdParamFromFilter,
+} from 'state/selectors'
 
 import { selectAssets } from '../../assetsSlice/selectors'
 import {
@@ -226,7 +230,6 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
 
     for (const [lpId, opportunityMetadata] of Object.entries(lpOpportunitiesById)) {
       if (!opportunityMetadata) continue
-
       const marketDataPrice = marketData[lpId as AssetId]?.price
       const aggregatedLpAssetBalance = portfolioAssetBalancesById[lpId]
 
@@ -279,46 +282,103 @@ export const selectActiveAggregatedEarnUserLpOpportunities = createDeepEqualOutp
     ),
 )
 
-export const selectAllEarnUserLpOpportunitiesByAccountId = createSelector(
+// export const selectAllEarnUserLpOpportunitiesByAccountId = createSelector(
+//   selectLpOpportunitiesByAccountId,
+//   selectLpOpportunitiesById,
+//   selectPortfolioAccountBalancesBaseUnit,
+//   selectAssets,
+//   selectMarketDataSortedByMarketCap,
+//   selectAccountIdParamFromFilter,
+//   (
+//     lpOpportunitiesByAccountId,
+//     lpOpportunitiesById,
+//     portfolioAssetBalancesById,
+//     assets,
+//     marketData,
+//     accountId,
+//   ): LpEarnOpportunityType[] => {
+//     if (!accountId) return []
+//     const accountOpportunities = lpOpportunitiesByAccountId[accountId]
+//     const opportunities: LpEarnOpportunityType[] = []
+
+//     if (!accountOpportunities?.length) return []
+
+//     accountOpportunities.forEach(lpId => {
+//       const opportunityMetaData = lpOpportunitiesById[lpId]
+//       if (!opportunityMetaData) return
+//       const lpAssetBalanceCryptoBaseUnit = portfolioAssetBalancesById[accountId as string][lpId]
+//       if (lpAssetBalanceCryptoBaseUnit === '0') return
+
+//       if (opportunity) {
+//         opportunities.push(opportunity)
+//       }
+//     })
+
+//     return opportunities
+//   },
+// )
+export const selectAllEarnUserLpOpportunitiesByAccountId = createDeepEqualOutputSelector(
   selectLpOpportunitiesByAccountId,
   selectLpOpportunitiesById,
-  selectPortfolioAccountBalancesBaseUnit,
+  selectAssetIdParamFromFilter,
+  selectAccountIdParamFromFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectAssets,
   selectMarketDataSortedByMarketCap,
-  selectAccountIdParamFromFilter,
   (
     lpOpportunitiesByAccountId,
     lpOpportunitiesById,
-    cryptoBalancesByAccountIdAboveThreshold,
+    assetId,
+    accountId,
+    lpAssetBalanceCryptoBaseUnit,
     assets,
     marketData,
-    accountId,
   ): LpEarnOpportunityType[] => {
-    console.info(accountId)
-    console.info(lpOpportunitiesByAccountId)
-    if (!accountId) return []
-    const accountOpportunities = lpOpportunitiesByAccountId[accountId]
+    if (!assetId) return []
+
     const opportunities: LpEarnOpportunityType[] = []
+    for (const [lpId, opportunityMetadata] of Object.entries(lpOpportunitiesById)) {
+      const marketDataPrice = marketData[lpId as AssetId]?.price
 
-    if (!accountOpportunities?.length) return []
-
-    accountOpportunities.forEach(lpId => {
-      const lpAssetBalanceCryptoBaseUnit =
-        cryptoBalancesByAccountIdAboveThreshold[accountId as string][lpId]
-      if (lpAssetBalanceCryptoBaseUnit === '0') return
-      const opportunity = selectEarnUserLpOpportunity.resultFunc(
-        lpOpportunitiesById,
-        lpId,
-        lpAssetBalanceCryptoBaseUnit,
-        assets,
-        marketData,
-      )
-
-      if (opportunity) {
-        opportunities.push(opportunity)
+      if (!opportunityMetadata) return []
+      if (!opportunityMetadata.underlyingAssetIds.length) return []
+      if (!opportunityMetadata.underlyingAssetIds.includes(assetId)) return []
+      if (accountId) {
+        const accountLpById = lpOpportunitiesByAccountId[accountId]
+        if (accountLpById && !accountLpById.includes(lpId)) return []
       }
-    })
 
+      const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
+        opportunityMetadata?.underlyingAssetIds.map((assetId, i) =>
+          bnOrZero(lpAssetBalanceCryptoBaseUnit)
+            .times(opportunityMetadata?.underlyingAssetRatiosBaseUnit[i])
+            .div(bn(10).pow(bnOrZero(assets[assetId]?.precision)))
+            .toFixed(6),
+        )
+
+      const opportunity = {
+        ...opportunityMetadata,
+        opportunityName: opportunityMetadata.name,
+        isLoaded: true,
+        contractAddress: fromAssetId(lpId as AssetId).assetReference,
+        chainId: fromAssetId(lpId as AssetId).chainId,
+        underlyingToken0AmountCryptoBaseUnit,
+        underlyingToken1AmountCryptoBaseUnit,
+        cryptoAmountBaseUnit: lpAssetBalanceCryptoBaseUnit,
+        cryptoAmountPrecision: bnOrZero(lpAssetBalanceCryptoBaseUnit)
+          .div(bn(10).pow(bnOrZero(assets[opportunityMetadata?.assetId]?.precision)))
+          .toFixed(),
+        fiatAmount: bnOrZero(lpAssetBalanceCryptoBaseUnit)
+          .div(bn(10).pow(bnOrZero(assets[opportunityMetadata?.assetId]?.precision)))
+          .times(marketDataPrice ?? '0')
+          .toString(),
+        icons: opportunityMetadata.underlyingAssetIds
+          .map(assetId => assets[assetId]?.icon)
+          .map(icon => icon ?? ''),
+      }
+
+      opportunities.push(opportunity)
+    }
     return opportunities
   },
 )

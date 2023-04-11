@@ -13,6 +13,7 @@ import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAccountIdsByAssetIdAboveBalanceThreshold,
   selectAllEarnUserLpOpportunitiesByAccountId,
+  selectAllEarnUserStakingOpportunitiesByAccountId,
   selectAssets,
   selectCryptoHumanBalanceIncludingStakingByFilter,
   selectFiatBalanceIncludingStakingByFilter,
@@ -32,7 +33,7 @@ type EquityProps = {
 
 enum AssetEquityType {
   Account = 'Account',
-  Staking = 'Staking',
+  Staking = 'staking',
   LP = 'lp',
   Reward = 'Reward',
 }
@@ -56,10 +57,18 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   // const lpOpportunities = useAppSelector(state =>
   //   selectAllEarnUserLpOpportunitiesByAccountId(state, { accountId }),
   // )
-  const test = useAppSelector(state =>
-    selectAllEarnUserLpOpportunitiesByAccountId(state, { accountId }),
+  const filter = useMemo(() => {
+    return {
+      assetId,
+      ...(accountId ? { accountId } : {}),
+    }
+  }, [accountId, assetId])
+  const lpOpportunities = useAppSelector(state =>
+    selectAllEarnUserLpOpportunitiesByAccountId(state, filter),
   )
-  console.info('fak', test)
+  const stakingOpportunities = useAppSelector(state =>
+    selectAllEarnUserStakingOpportunitiesByAccountId(state, { accountId }),
+  )
 
   const equityItems = useMemo(() => {
     const accounts = accountIds.map(accountId => {
@@ -73,7 +82,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
         color: '#3761F9',
       }
     })
-    const staking = test.map(stakingOpportunity => {
+    const staking = stakingOpportunities.map(stakingOpportunity => {
       return {
         id: stakingOpportunity.id,
         type: stakingOpportunity.type,
@@ -83,10 +92,27 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
         color: DefiProviderMetadata[stakingOpportunity.provider].color,
       }
     })
-    return [...accounts, ...staking].sort((a, b) =>
+    const lp = lpOpportunities.map(stakingOpportunity => {
+      return {
+        id: stakingOpportunity.id,
+        type: stakingOpportunity.type,
+        fiatAmount: stakingOpportunity.fiatAmount,
+        allocation: bnOrZero(stakingOpportunity.fiatAmount).div(fiatBalance).times(100).toString(),
+        provider: stakingOpportunity.provider,
+        color: DefiProviderMetadata[stakingOpportunity.provider].color,
+      }
+    })
+    return [...accounts, ...lp, ...staking].sort((a, b) =>
       bnOrZero(b.fiatAmount).minus(a.fiatAmount).toNumber(),
     )
-  }, [accountIds, assetId, fiatBalance, portfolioFiatBalances, test])
+  }, [
+    accountIds,
+    assetId,
+    fiatBalance,
+    lpOpportunities,
+    portfolioFiatBalances,
+    stakingOpportunities,
+  ])
   /*
 
     enum AssetEquityType {

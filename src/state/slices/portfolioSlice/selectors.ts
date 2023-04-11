@@ -164,8 +164,10 @@ export const selectPortfolioFiatBalancesByAccount = createDeepEqualOutputSelecto
   (assetsById, accounts, marketData) => {
     return Object.entries(accounts).reduce(
       (acc, [accountId, balanceObj]) => {
+        const portfolioEarnAssetIdsDuplicates = [foxEthLpAssetId, foxyAssetId]
         acc[accountId] = Object.entries(balanceObj).reduce(
           (acc, [assetId, cryptoBalance]) => {
+            if (portfolioEarnAssetIdsDuplicates.includes(assetId)) return acc
             const asset = assetsById[assetId]
             if (!asset) return acc
             const precision = asset.precision

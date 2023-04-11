@@ -14,11 +14,11 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type StakingRowProps = {
+type EquityStakingRowProps = {
   opportunityId: OpportunityId
   assetId: AssetId
 }
-export const StakingRow: React.FC<StakingRowProps> = ({ opportunityId, assetId }) => {
+export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({ opportunityId, assetId }) => {
   const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
   const opportunity = stakingOpportunities.find(opportunity => opportunity.id === opportunityId)
   const asset = useAppSelector(state => selectAssetById(state, assetId))

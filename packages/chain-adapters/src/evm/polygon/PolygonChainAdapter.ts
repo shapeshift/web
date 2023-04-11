@@ -17,7 +17,7 @@ const DEFAULT_CHAIN_ID = KnownChainIds.PolygonMainnet
 export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PolygonMainnet> {
   public static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
-    coinType: Number(ASSET_REFERENCE.BnbSmartChain),
+    coinType: Number(ASSET_REFERENCE.Polygon),
     accountNumber: 0,
   }
 
@@ -45,7 +45,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PolygonMainnet> {
 
   getName() {
     const enumIndex = Object.values(ChainAdapterDisplayName).indexOf(
-      ChainAdapterDisplayName.BnbSmartChain,
+      ChainAdapterDisplayName.Polygon,
     )
     return Object.keys(ChainAdapterDisplayName)[enumIndex]
   }

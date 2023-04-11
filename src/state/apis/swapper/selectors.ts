@@ -21,3 +21,23 @@ export const selectSwapperApiTradingActivePending = (state: ReduxState) =>
 
 export const selectSwapperQueriesInitiated = (state: ReduxState) =>
   Object.keys(state.swapperApi.queries).length
+
+export const selectAvailableSwapperApiMostRecentQueryTimestamp = (state: ReduxState) => {
+  const queries = Object.values(state.swapperApi.queries).filter(
+    query => query?.endpointName === 'getAvailableSwappers',
+  )
+
+  if (queries.length === 0) {
+    return null
+  }
+
+  return queries.reduce((maxTimestamp: number | null, query) => {
+    if (query && query.startedTimeStamp) {
+      return maxTimestamp === null
+        ? query.startedTimeStamp
+        : Math.max(maxTimestamp, query.startedTimeStamp)
+    }
+
+    return maxTimestamp
+  }, null)
+}

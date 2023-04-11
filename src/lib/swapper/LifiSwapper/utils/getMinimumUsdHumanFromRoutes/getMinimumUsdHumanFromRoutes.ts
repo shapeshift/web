@@ -1,8 +1,8 @@
 import type { BridgeDefinition as LifiBridgeDefinition, Route as LifiRoute } from '@lifi/sdk'
 import { BigNumber } from 'lib/bignumber/bignumber'
-import { getMinimumAmountFromStep } from 'lib/swapper/LifiSwapper/utils/getMinimumAmountFromStep/getMinimumAmountFromStep'
+import { getMinimumUsdHumanFromStep } from 'lib/swapper/LifiSwapper/utils/getMinimumUsdHumanFromStep/getMinimumUsdHumanFromStep'
 
-export const getMinimumAmountFromRoutes = (
+export const getMinimumUsdHumanFromRoutes = (
   lifiRoutes: LifiRoute[],
   lifiBridges: LifiBridgeDefinition[],
 ): BigNumber | undefined => {
@@ -10,7 +10,7 @@ export const getMinimumAmountFromRoutes = (
 
   for (const route of lifiRoutes) {
     const routeValues: BigNumber[] = route.steps
-      .map(step => getMinimumAmountFromStep(step, lifiBridges))
+      .map(step => getMinimumUsdHumanFromStep(step, lifiBridges))
       .filter((value): value is BigNumber => value !== undefined)
 
     if (routeValues.length === 0) continue

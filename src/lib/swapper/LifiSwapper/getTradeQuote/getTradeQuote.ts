@@ -11,14 +11,7 @@ import { fromChainId } from '@shapeshiftoss/caip'
 import type { GetEvmTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
-import {
-  BigNumber,
-  bn,
-  bnOrZero,
-  convertPrecision,
-  fromHuman,
-  toHuman,
-} from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero, convertPrecision, fromHuman } from 'lib/bignumber/bignumber'
 import {
   DEFAULT_SOURCE,
   MAX_LIFI_TRADE,
@@ -27,7 +20,7 @@ import {
 } from 'lib/swapper/LifiSwapper/utils/constants'
 import { getAssetBalance } from 'lib/swapper/LifiSwapper/utils/getAssetBalance/getAssetBalance'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
-import { getMinimumAmountFromRoutes } from 'lib/swapper/LifiSwapper/utils/getMinimumAmountFromRoutes/getMinimumAmountFromRoutes'
+import { getMinimumUsdHumanFromRoutes } from 'lib/swapper/LifiSwapper/utils/getMinimumUsdHumanFromRoutes/getMinimumUsdHumanFromRoutes'
 import { transformLifiFeeData } from 'lib/swapper/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from 'lib/swapper/LifiSwapper/utils/types'
 import { selectMarketDataById } from 'state/slices/selectors'
@@ -141,10 +134,11 @@ export async function getTradeQuote(
 
   const selectedRoute = lifiRoutesResponse.routes[SELECTED_ROUTE_INDEX]
 
-  const minimumCryptoHuman = toHuman({
-    value: getMinimumAmountFromRoutes(lifiRoutesResponse.routes, lifiBridges) ?? Infinity,
-    inputPrecision: sellLifiToken.decimals,
-  }).toString()
+  const minimumUsdHuman = getMinimumUsdHumanFromRoutes(lifiRoutesResponse.routes, lifiBridges)
+  const minimumCryptoHuman =
+    minimumUsdHuman && sellLifiToken.priceUSD
+      ? minimumUsdHuman.dividedBy(sellLifiToken.priceUSD).toString()
+      : '0'
 
   // for the rate to be valid, both amounts must be converted to the same precision
   const estimateRate = convertPrecision({

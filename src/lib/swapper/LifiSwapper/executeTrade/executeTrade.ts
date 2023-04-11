@@ -5,12 +5,12 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { TradeResult } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import type { providers } from 'ethers'
+import { clone } from 'lodash'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { SELECTED_ROUTE_INDEX } from 'lib/swapper/LifiSwapper/utils/constants'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
 import type { LifiExecuteTradeInput } from 'lib/swapper/LifiSwapper/utils/types'
 import { isEvmChainAdapter } from 'lib/utils'
-import { clone } from 'lodash'
 
 const createBuildSendTxInput = async (
   lifi: Lifi,

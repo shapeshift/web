@@ -85,7 +85,7 @@ export const zapperApi = createApi({
         const data = zapperV2AppTokensData.reduce<GetZapperAppBalancesOutput>(
           (acc, appTokenData) => {
             const assetId = toAssetId({
-              chainId: zapperNetworkToChainId(appTokenData.network)!,
+              chainId: zapperNetworkToChainId(appTokenData.network),
               assetNamespace: 'erc20', // TODO: bep20
               assetReference: appTokenData.address,
             })
@@ -100,14 +100,14 @@ export const zapperApi = createApi({
         const zapperAssets = zapperV2AppTokensData.reduce<AssetsState>(
           (acc, appTokenData) => {
             const assetId = toAssetId({
-              chainId: zapperNetworkToChainId(appTokenData.network)!,
+              chainId: zapperNetworkToChainId(appTokenData.network),
               assetNamespace: 'erc20', // TODO: bep20
               assetReference: appTokenData.address,
             })
 
             const underlyingAssets = appTokenData.tokens.map(token => {
               const assetId = toAssetId({
-                chainId: zapperNetworkToChainId(appTokenData.network)!,
+                chainId: zapperNetworkToChainId(appTokenData.network),
                 assetNamespace: 'erc20', // TODO: bep20
                 assetReference: token.address,
               })
@@ -213,7 +213,7 @@ export const zapper = createApi({
 
         const data = zapperV2AppTokensData.map(appTokenData =>
           toAssetId({
-            chainId: zapperNetworkToChainId(appTokenData.network)!,
+            chainId: zapperNetworkToChainId(appTokenData.network),
             assetNamespace: 'erc20', // TODO: bep20
             assetReference: appTokenData.address,
           }),

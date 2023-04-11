@@ -22,7 +22,7 @@ export enum SupportedZapperNetwork {
   // Evmos = 'evmos',
 }
 
-export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Partial<Record<SupportedZapperNetwork, ChainId>> = {
+export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Record<SupportedZapperNetwork, ChainId> = {
   [SupportedZapperNetwork.Avalanche]: avalancheChainId,
   [SupportedZapperNetwork.BinanceSmartChain]: bscChainId,
   [SupportedZapperNetwork.Ethereum]: ethChainId,
@@ -33,7 +33,7 @@ export const CHAIN_ID_TO_ZAPPER_NETWORK_MAP = invert(ZAPPER_NETWORKS_TO_CHAIN_ID
   Record<ChainId, SupportedZapperNetwork>
 >
 
-export const zapperNetworkToChainId = (network: SupportedZapperNetwork): ChainId | undefined =>
+export const zapperNetworkToChainId = (network: SupportedZapperNetwork): ChainId =>
   ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[network]
 
 export const chainIdToZapperNetwork = (chainId: ChainId): SupportedZapperNetwork | undefined =>

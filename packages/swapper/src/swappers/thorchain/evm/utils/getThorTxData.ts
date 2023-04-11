@@ -53,6 +53,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
       slippageTolerance,
       deps,
       buyAssetTradeFeeUsd,
+      receiveAddress: destinationAddress,
     })
 
     const memo = makeSwapMemo({

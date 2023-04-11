@@ -58,6 +58,7 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
     slippageTolerance,
     deps,
     buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
+    receiveAddress: destinationAddress,
   })
 
   const memo = makeSwapMemo({

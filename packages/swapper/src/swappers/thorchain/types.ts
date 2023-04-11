@@ -26,6 +26,26 @@ export type ThornodePoolResponse = {
   synth_units: string
 }
 
+export type ThornodeQuoteResponse =
+  | {
+      expected_amount_out: string
+      expiry: string
+      fees: {
+        affiliate: string
+        asset: string
+        outbound: string
+      }
+      inbound_address: string
+      memo: string
+      notes: string
+      outbound_delay_blocks: number
+      outbound_delay_seconds: number
+      router: string
+      slippage_bps: number
+      warning: string
+    }
+  | { error: string }
+
 type MidgardCoins = {
   asset: string
 }[]

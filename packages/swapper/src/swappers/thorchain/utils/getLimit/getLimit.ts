@@ -14,6 +14,7 @@ import { getUsdRate } from '../getUsdRate/getUsdRate'
 import { isRune } from '../isRune/isRune'
 
 export type GetLimitArgs = {
+  receiveAddress: string
   buyAssetId: string
   sellAsset: Asset
   sellAmountCryptoBaseUnit: string
@@ -25,12 +26,19 @@ export type GetLimitArgs = {
 export const getLimit = async ({
   sellAsset,
   buyAssetId,
+  receiveAddress,
   sellAmountCryptoBaseUnit,
   deps,
   slippageTolerance,
   buyAssetTradeFeeUsd,
 }: GetLimitArgs): Promise<string> => {
-  const tradeRate = await getTradeRate(sellAsset, buyAssetId, sellAmountCryptoBaseUnit, deps)
+  const tradeRate = await getTradeRate({
+    sellAsset,
+    buyAssetId,
+    sellAmountCryptoBaseUnit,
+    receiveAddress,
+    deps,
+  })
   const sellAssetChainFeeAssetId = deps.adapterManager.get(sellAsset.chainId)?.getFeeAssetId()
   const buyAssetChainFeeAssetId = deps.adapterManager
     .get(fromAssetId(buyAssetId).chainId)

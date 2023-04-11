@@ -59,7 +59,7 @@ describe('getTradeQuote', () => {
         case '/lcd/thorchain/inbound_addresses':
           return Promise.resolve({ data: mockInboundAddresses })
         default:
-          // '/lcd/thorchain/swap' fallthrough
+          // '/lcd/thorchain/quote/swap/<swapQueryParams>' fallthrough
           return Promise.resolve({
             data: {
               dust_threshold: '10000',

@@ -19,19 +19,19 @@ export default function register(): Plugins {
             [
               KnownChainIds.PolygonMainnet,
               () => {
-                const http = new unchained.bnbsmartchain.V1Api(
-                  new unchained.bnbsmartchain.Configuration({
-                    basePath: getConfig().REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL,
+                const http = new unchained.polygon.V1Api(
+                  new unchained.polygon.Configuration({
+                    basePath: getConfig().REACT_APP_UNCHAINED_POLYGON_HTTP_URL,
                   }),
                 )
 
-                const ws = new unchained.ws.Client<unchained.bnbsmartchain.Tx>(
+                const ws = new unchained.ws.Client<unchained.polygon.Tx>(
                   getConfig().REACT_APP_UNCHAINED_BNBSMARTCHAIN_WS_URL,
                 )
 
                 return new polygon.ChainAdapter({
                   providers: { http, ws },
-                  rpcUrl: getConfig().REACT_APP_BNBSMARTCHAIN_NODE_URL,
+                  rpcUrl: getConfig().REACT_APP_POLYGON_NODE_URL,
                 }) as unknown as ChainAdapter<ChainId> // FIXME: this is silly
               },
             ],

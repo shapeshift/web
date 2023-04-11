@@ -94,7 +94,8 @@
     "needAsset": "Brauchen Sie %{asset}?",
     "buyNow": "Kaufe jetzt",
     "manage": "Verwalten",
-    "selectedAccount": "Ausgewähltes Konto"
+    "selectedAccount": "Ausgewähltes Konto",
+    "allChains": "All Blockchains"
   },
   "consentBanner": {
     "body": {
@@ -221,7 +222,8 @@
       "triggerButton": "Wallet verbinden",
       "switchWallet": "Wallet-Anbieter wechseln",
       "disconnect": "Trennen",
-      "disconnected": "(Getrennt)"
+      "disconnected": "(Getrennt)",
+      "connecting": "Verbinde..."
     }
   },
   "defi": {
@@ -392,6 +394,11 @@
     "earnBody": "Verdienen Sie passives Einkommen, indem Sie Ihr Guthaben einsetzen oder in eine DeFi-Strategie einzahlen.",
     "clickHereToEarn": "Klicken Sie hier, um %{apr} APR* zu verdienen, indem Sie Ihre ETH-FOX-Liquiditätspool-Token farmen",
     "overview": "Übersicht",
+    "myPositions": "Meine Positionen",
+    "myPositionsBody": "Ihre aktiven Positionen werden hier angezeigt.",
+    "myRewards": "Meine Belohnungen",
+    "myRewardsBody": "Ihre aktiven Positionen mit beanspruchbaren Prämien werden hier angezeigt.",
+    "viewAllPositions": "Alle Positionen anzeigen",
     "liquidityPools": "Liquidity Pools",
     "stakingVaults": "Staking & Vaults",
     "farming": "Farming",
@@ -402,12 +409,13 @@
     "poolValue": "Poolwert",
     "yearn": "Yearn Finance",
     "totalValue": "Gesamtwert",
-    "byPosition": "Nach Position",
+    "byAsset": "Nach Vermögenswert",
     "byProvider": "Nach Anbieter",
     "claimableRewards": "Forderbare Belohnungen",
     "reawrds": "Belohnungen",
     "stakingPosition": "Stake Position",
     "liquidityPool": "Liquidity Pool",
+    "noActivePositions": "Keine aktiven Positionen",
     "emptyEarn": "Hier werden Verdienstmöglichkeiten angezeigt.",
     "empty": {
       "farming": {
@@ -1470,6 +1478,7 @@
         "trade": "Handeln"
       },
       "accountTokens": "Konto-Token",
+      "relatedAssets": "Zugehörige Vermögenswerte",
       "showTokens": "zeige Token (%{amount})",
       "hideTokens": "verstecke Token (%{amount})",
       "underlyingAssets": "Basiswerte",

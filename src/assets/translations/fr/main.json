@@ -6,11 +6,16 @@
     "error": "Erreur",
     "cancel": "Annuler",
     "close": "Fermer",
+    "new": "Nouveau",
     "continue": "Continuer",
+    "reward": "Récompense",
+    "claimable": "Réclamable",
     "approve": "Autoriser",
     "confirm": "Confirmer",
+    "activity": "Activité",
     "reject": "Rejeter",
     "connected": "Connecté",
+    "value": "Valeur",
     "created": "Créé %{date}",
     "noResultsFound": "Aucun résultat trouvé.",
     "noResultsBody": "Il n'y a pas de résultat pour %{searchQuery}. Essayez une nouvelle recherche.",
@@ -289,6 +294,7 @@
       },
       "overview": {
         "underlyingTokens": "Jetons sous-jacents",
+        "underlyingToken": "Jeton sous-jacent",
         "availableRewards": "Récompenses disponibles",
         "about": "À propos",
         "tvl": "TVL",
@@ -310,6 +316,7 @@
       "saversVaults": {
         "description": "Gagnez du rendement sur vos %{asset} grâce aux THORChain Savers Vaults. Il n'y a pas de temps de blocage et les récompenses s'accumulent automatiquement. Le rendement sur THORChain provient des frais d'échange et des récompenses de blocs. Le rendement unilatéral est plafonné à la moitié du rendement bilatéral des fournisseurs de liquidité.",
         "vaultCap": "Plafond du Vault",
+        "vaultCapTooltip": "Capacité maximale actuelle pour ce Vault",
         "haltedTitle": "Les dépôts sont temporairement suspendus.",
         "haltedDescription": "Veuillez tweeter @THORChain pour augmenter les plafonds !",
         "estimatedFee": "Frais estimés",
@@ -352,6 +359,7 @@
     "validatorMoniker": "Validateur %{moniker}",
     "stakedAmount": "Montant misé",
     "unstakeFrom": "Démiser de",
+    "underlyingAsset": "Actif sous-jacent",
     "gasFee": "Frais de carburant",
     "provider": "Fournisseur",
     "currentTvl": "TVL actuelle",
@@ -955,6 +963,7 @@
       }
     },
     "approve": {
+      "header": "Autoriser %{spenderName} à utiliser vos %{asset}",
       "shapeshiftRouterName": "Routeur ShapeShift DAO",
       "body": "a besoin de votre permission pour utiliser vos %{asset}",
       "learnMore": "Pourquoi dois-je faire cela ?",
@@ -1917,5 +1926,22 @@
         "cta": "En créer un"
       }
     }
+  },
+  "nft": {
+    "floorPrice": "Prix plancher",
+    "lastPrice": "Dernier prix",
+    "overview": "Vue d'ensemble",
+    "properties": "Propriétés",
+    "collection": "Collection",
+    "tokenId": "ID du jeton",
+    "address": "Adresse",
+    "chain": "Chaîne",
+    "standard": "Standard",
+    "description": "Description",
+    "details": "Détails",
+    "attributes": "Attributs",
+    "aboutCollection": "Informations sur %{collectionName}",
+    "emptyTitle": "Où sont passés tous les NFT ?",
+    "emptyBody": "Ne vous inquiétez pas, nous avons envoyé une équipe de recherche pour ramener plus de NFT incroyables. En attendant, n'hésitez pas à regarder cet espace vide et à réfléchir au sens de l'existence."
   }
 }

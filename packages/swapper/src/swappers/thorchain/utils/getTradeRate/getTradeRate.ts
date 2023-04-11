@@ -36,7 +36,6 @@ export const getTradeRate = async ({
   receiveAddress: string
   deps: ThorchainSwapperDeps
 }): Promise<string> => {
-  // TODO(gomes): is this still valid?
   // we can't get a quote for a zero amount so use getPriceRatio between pools instead
   if (bnOrZero(sellAmountCryptoBaseUnit).eq(0)) {
     return getPriceRatio(deps, {
@@ -73,6 +72,15 @@ export const getTradeRate = async ({
   const { data } = await thorService.get<ThornodeQuoteResponse>(
     `${deps.daemonUrl}/lcd/thorchain/quote/swap?amount=${sellAmountCryptoThorBaseUnit}&from_asset=${sellPoolId}&to_asset=${buyPoolId}&destination=${receiveAddress}`,
   )
+
+  // There was an error getting a quote from the thorchain api. This could be because e.g the amount being swapped is too small
+  // Fallback to returning a rate based on pools data
+  if ('error' in data) {
+    return getPriceRatio(deps, {
+      sellAssetId: sellAsset.assetId,
+      buyAssetId,
+    })
+  }
 
   const { slippage_bps, fees, expected_amount_out: expectedAmountOutThorBaseUnit } = data
 

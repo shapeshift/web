@@ -1,9 +1,13 @@
 import { Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
+import { CircleIcon } from 'components/Icons/Circle'
+import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import {
@@ -19,7 +23,7 @@ import { useAppSelector } from 'state/store'
 
 import { EquityAccountRow } from './EquityAccountRow'
 import { EquityLpRow } from './EquityLpRow'
-import { StakingRow } from './StakingRow'
+import { EquityStakingRow } from './EquityStakingRow'
 
 type EquityProps = {
   assetId: AssetId
@@ -59,10 +63,14 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
 
   const equityItems = useMemo(() => {
     const accounts = accountIds.map(accountId => {
+      const fiatAmount = portfolioFiatBalances[accountId][assetId]
       return {
         id: accountId,
         type: AssetEquityType.Account,
-        fiatAmount: portfolioFiatBalances[accountId][assetId],
+        fiatAmount,
+        provider: 'wallet',
+        allocation: bnOrZero(fiatAmount).div(fiatBalance).times(100).toString(),
+        color: '#3761F9',
       }
     })
     const staking = test.map(stakingOpportunity => {
@@ -70,12 +78,15 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
         id: stakingOpportunity.id,
         type: stakingOpportunity.type,
         fiatAmount: stakingOpportunity.fiatAmount,
+        allocation: bnOrZero(stakingOpportunity.fiatAmount).div(fiatBalance).times(100).toString(),
+        provider: stakingOpportunity.provider,
+        color: DefiProviderMetadata[stakingOpportunity.provider].color,
       }
     })
     return [...accounts, ...staking].sort((a, b) =>
       bnOrZero(b.fiatAmount).minus(a.fiatAmount).toNumber(),
     )
-  }, [accountIds, assetId, portfolioFiatBalances, test])
+  }, [accountIds, assetId, fiatBalance, portfolioFiatBalances, test])
   /*
 
     enum AssetEquityType {
@@ -98,7 +109,11 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
       switch (item.type) {
         case AssetEquityType.Staking:
           return (
-            <StakingRow key={item.id} assetId={assetId} opportunityId={item.id as OpportunityId} />
+            <EquityStakingRow
+              key={item.id}
+              assetId={assetId}
+              opportunityId={item.id as OpportunityId}
+            />
           )
         case AssetEquityType.LP:
           return (
@@ -121,10 +136,34 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   if (!asset) return null
   return (
     <Card variant='default'>
-      <Card.Header>
-        <Card.Heading>{translate('assets.assetCards.equity')}</Card.Heading>
-        <Amount.Fiat fontSize='xl' value={fiatBalance} />
-        <Amount.Crypto variant='sub-text' value={cryptoHumanBalance} symbol={asset.symbol} />
+      <Card.Header display='flex' gap={4} alignItems='center'>
+        <Flex flexDir='column' flex={1}>
+          <Card.Heading>{translate('assets.assetCards.equity')}</Card.Heading>
+          <Amount.Fiat fontSize='xl' value={fiatBalance} />
+          <Amount.Crypto variant='sub-text' value={cryptoHumanBalance} symbol={asset.symbol} />
+        </Flex>
+        <Flex flex={1} flexDir='column' gap={2}>
+          <Flex
+            bg='gray.700'
+            height='10px'
+            borderRadius='lg'
+            overflow='hidden'
+            gap={1}
+            width='full'
+          >
+            {equityItems.map(item => (
+              <Flex width={`${item.allocation}%`} bg={item.color} />
+            ))}
+          </Flex>
+          <Flex gap={4}>
+            {equityItems.map(item => (
+              <Flex gap={1} alignItems='center'>
+                <CircleIcon boxSize='8px' color={item.color} />
+                <RawText fontSize='xs'>{item.provider}</RawText>
+              </Flex>
+            ))}
+          </Flex>
+        </Flex>
       </Card.Header>
       <Card.Body pt={0} pb={2}>
         <Stack spacing={0} mt={2} mx={-4}>

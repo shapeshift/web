@@ -1,4 +1,5 @@
 import { QueryStatus } from '@reduxjs/toolkit/query'
+import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 
 export const selectSwapperApiPending = (state: ReduxState) =>
@@ -31,7 +32,7 @@ export const selectAvailableSwapperApiMostRecentQueryTimestamp = (state: ReduxSt
     return null
   }
 
-  const startedTimeStamps = queries.map(query => query?.startedTimeStamp).filter(Boolean)
+  const startedTimeStamps = queries.map(query => query?.startedTimeStamp).filter(isSome)
 
   return startedTimeStamps.length > 0 ? Math.max(...startedTimeStamps) : null
 }

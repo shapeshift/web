@@ -7,7 +7,7 @@ import { toBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectLpIdParamFromFilter } from 'state/selectors'
+import { selectAccountIdParamFromFilter, selectLpIdParamFromFilter } from 'state/selectors'
 
 import { selectAssets } from '../../assetsSlice/selectors'
 import {
@@ -277,4 +277,48 @@ export const selectActiveAggregatedEarnUserLpOpportunities = createDeepEqualOutp
     aggregatedUserStakingOpportunities.filter(opportunity =>
       bnOrZero(opportunity.fiatAmount).gt(0),
     ),
+)
+
+export const selectAllEarnUserLpOpportunitiesByAccountId = createSelector(
+  selectLpOpportunitiesByAccountId,
+  selectLpOpportunitiesById,
+  selectPortfolioAccountBalancesBaseUnit,
+  selectAssets,
+  selectMarketDataSortedByMarketCap,
+  selectAccountIdParamFromFilter,
+  (
+    lpOpportunitiesByAccountId,
+    lpOpportunitiesById,
+    cryptoBalancesByAccountIdAboveThreshold,
+    assets,
+    marketData,
+    accountId,
+  ): LpEarnOpportunityType[] => {
+    console.info(accountId)
+    console.info(lpOpportunitiesByAccountId)
+    if (!accountId) return []
+    const accountOpportunities = lpOpportunitiesByAccountId[accountId]
+    const opportunities: LpEarnOpportunityType[] = []
+
+    if (!accountOpportunities?.length) return []
+
+    accountOpportunities.forEach(lpId => {
+      const lpAssetBalanceCryptoBaseUnit =
+        cryptoBalancesByAccountIdAboveThreshold[accountId as string][lpId]
+      if (lpAssetBalanceCryptoBaseUnit === '0') return
+      const opportunity = selectEarnUserLpOpportunity.resultFunc(
+        lpOpportunitiesById,
+        lpId,
+        lpAssetBalanceCryptoBaseUnit,
+        assets,
+        marketData,
+      )
+
+      if (opportunity) {
+        opportunities.push(opportunity)
+      }
+    })
+
+    return opportunities
+  },
 )

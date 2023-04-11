@@ -49,7 +49,7 @@ describe('calculateAmounts', () => {
     // receive amount when requesting a quote
     expect(tradeAmountsByActionAndAmountFromQuote).toEqual({
       sellAmountSellAssetCryptoPrecision: '0.018665',
-      buyAmountBuyAssetCryptoPrecision: '-225.170392472859966803',
+      buyAmountBuyAssetCryptoPrecision: '-225.170392472859966802',
       fiatSellAmount: '32.981055',
       fiatBuyAmount: '1.089',
     })

@@ -27,6 +27,9 @@ export const approvalNeeded = async ({
 
   const { assetReference: sellAssetErc20Address } = fromAssetId(sellAsset.assetId)
 
+  // native assets do not require approval
+  if (sellAsset.assetId === adapter.getFeeAssetId()) return { approvalNeeded: false }
+
   try {
     const receiveAddress = await adapter.getAddress({ accountNumber, wallet })
 

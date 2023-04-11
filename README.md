@@ -48,6 +48,10 @@ If you are using Linux and macOS it works out of the box following these steps:
 
 1. Clone the repo
 
+    > On Windows, _[Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/)_ (WSL) is required. Make sure to store your clone of the repo on the WSL filesystem in order to avoid issues with line endings.
+    >
+    > Please do not ask our Engineering team for further help with WSL.
+
 2. Make sure you are using the right Node.js version. This can optionally be done using a version manager like `nvm`:
 
     ```sh
@@ -71,17 +75,15 @@ If you are using Linux and macOS it works out of the box following these steps:
     yarn build
     ```
 
-6. Run `yarn env dev` to generate a `.env` file
+6. Run `yarn env dev` to generate a `.env` file.
 
-    > ⚠️ On Windows, _[Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/)_ (WSL) is required but **WE DO NOT SUPPORT THIS ENVIRONMENT, SO USE IT AT YOUR OWN RISK**.
-    >
-    > If you do use WSL, make sure to store your clone of the repo on the WSL filesystem in order to avoid issues with line endings and to enjoy better performance.
-    >
-    > **Please do NOT ask our Engineering team for further help with WSL.**
+7. Other recommended configurations:
 
-7. (optional) Other configuration:
+    To use the `.git-blame-ignore-revs` file to ignore specific commits, update the project's git configuration by running:
 
-    To use the `.git-blame-ignore-revs` file to ignore specific commits, update the project's git configuration by running `git config --local blame.ignoreRevsFile .git-blame-ignore-revs`.
+    ```sh
+    git config --local blame.ignoreRevsFile .git-blame-ignore-revs
+    ```
 
 ### Commands
 

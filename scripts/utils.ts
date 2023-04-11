@@ -13,8 +13,7 @@ export const getLatestSemverTag = async (): Promise<string> => {
   return tag
 }
 
-export const getHeadShortCommitHash = async (): Promise<string> =>
-  git().revparse(['--short', 'HEAD'])
+export const getHeadShortCommitHash = (): Promise<string> => git().revparse(['--short', 'HEAD'])
 
 export const getSemverTags = async (): Promise<string[]> => {
   // safety in case we pick up other tags from other packages

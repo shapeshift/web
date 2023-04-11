@@ -30,7 +30,7 @@ export const Routes = () => {
   const { appRoutes } = useBrowserRouter()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
   const [shouldRedirectDemoRoute, setShouldRedirectDemoRoute] = useState(false)
-  const { lang } = useQuery()
+  const { lang } = useQuery<{ lang: string }>()
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const matchDemoPath = matchPath<{ appRoute: string }>(location.pathname, {
     path: ['/demo/:appRoute(.+)', '/demo'],

@@ -17,11 +17,11 @@ const VALID_BRANCHES = ['develop', 'release', 'main', 'private', 'yeet'] as cons
 type Branch = typeof VALID_BRANCHES[number]
 
 const BRANCH_TO_ENVIRONMENT: Record<Branch, Environment> = {
-  'develop': 'develop',
-  'yeet': 'develop',
-  'release': 'app',
-  'main': 'app',
-  'private': 'private',
+  develop: 'develop',
+  yeet: 'develop',
+  release: 'app',
+  main: 'app',
+  private: 'private',
 }
 
 const getSerializedEnvVars = (environment: Environment) => {
@@ -72,7 +72,10 @@ const getSpecifiedEnvironment = (): Environment => {
     return targetEnvironment
   } else {
     const specifiedEnvironment = args[0] as Environment
-    assert(VALID_ENVIRONMENTS.includes(specifiedEnvironment), `invalid environment: ${specifiedEnvironment}`)
+    assert(
+      VALID_ENVIRONMENTS.includes(specifiedEnvironment),
+      `invalid environment: ${specifiedEnvironment}`,
+    )
     return specifiedEnvironment
   }
 }

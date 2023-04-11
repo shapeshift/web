@@ -1,0 +1,1 @@
+export const ssRouterContractAddress = '0x6a1e73f12018d8e5f966ce794aa2921941feb17e'

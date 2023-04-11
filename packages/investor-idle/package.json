@@ -1,0 +1,33 @@
+{
+  "name": "@shapeshiftoss/investor-idle",
+  "version": "2.7.0",
+  "description": "An api layer for interaction with the ShapeShift Idle Router Contract and the Idle Vault contracts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "lib": "dist",
+    "src": "src"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn run -T tsc --build",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "dev": "yarn run -T tsc --build --watch",
+    "cli": "yarn build && yarn node dist/idlecli.js"
+  },
+  "dependencies": {
+    "@ethersproject/providers": "^5.5.3",
+    "@shapeshiftoss/caip": "workspace:^",
+    "@shapeshiftoss/chain-adapters": "workspace:^",
+    "@shapeshiftoss/investor": "workspace:^",
+    "@shapeshiftoss/logger": "workspace:^",
+    "@shapeshiftoss/types": "workspace:^",
+    "web3-core": "1.7.4",
+    "web3-utils": "1.7.4"
+  }
+}

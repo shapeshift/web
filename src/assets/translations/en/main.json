@@ -1484,6 +1484,7 @@
         "sell": "Sell",
         "trade": "Trade"
       },
+      "equity": "Equity",
       "accountTokens": "Account Tokens",
       "relatedAssets": "Related Assets",
       "showTokens": "Show Tokens (%{amount})",

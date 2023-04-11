@@ -198,6 +198,13 @@ export type AggregatedOpportunitiesByAssetIdReturn = {
   opportunities: Record<DefiType, OpportunityId[]>
 }
 
+export type AggregatedOpportunitiesByFilterReturn = {
+  id: OpportunityId
+  type: string
+  fiatAmount: string
+  cryptoBalancePrecision: string
+}
+
 export type AggregatedOpportunitiesByProviderReturn = {
   provider: DefiProvider
   apy: string

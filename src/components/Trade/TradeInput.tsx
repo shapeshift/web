@@ -16,6 +16,7 @@ import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
+import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
@@ -28,23 +29,29 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import {
   selectSwapperApiPending,
   selectSwapperApiTradeQuotePending,
   selectSwapperApiUsdRatesPending,
   selectSwapperQueriesInitiated,
 } from 'state/apis/swapper/selectors'
-import { selectAssets, selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
+import {
+  selectAssets,
+  selectFeeAssetByChainId,
+  selectFeeAssetById,
+} from 'state/slices/assetsSlice/selectors'
 import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 import {
-  selectBuyAmountBeforeFeesBuyAssetCryptoPrecision,
+  selectQuoteBuyAmountCryptoPrecision,
   selectTotalTradeFeeBuyAssetCryptoPrecision,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
+  selectAction,
   selectBuyAmountCryptoPrecision,
   selectBuyAmountFiat,
   selectBuyAsset,
@@ -52,6 +59,7 @@ import {
   selectCheckApprovalNeededForWallet,
   selectFeeAssetFiatRate,
   selectFees,
+  selectIsSendMax,
   selectQuote,
   selectReceiveAddress,
   selectSellAmountCryptoPrecision,
@@ -81,6 +89,9 @@ export const TradeInput = () => {
   const [showQuotes, toggleShowQuotes] = useToggle(false)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const isTradeRatesEnabled = useFeatureFlag('TradeRates')
+  const { getAvailableSwappers } = getSwappersApi.endpoints
+  const { tradeQuoteArgs } = useTradeQuoteService()
+  const dispatch = useAppDispatch()
 
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
 
@@ -105,22 +116,21 @@ export const TradeInput = () => {
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
+  const sellAssetChainId = sellAsset?.chainId
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAssetChainId ?? ''))
   const buyAmountCryptoPrecision = useSwapperStore(selectBuyAmountCryptoPrecision)
   const sellAmountCryptoPrecision = useSwapperStore(selectSellAmountCryptoPrecision)
-  const updateSellAmountCryptoPrecision = useSwapperStore(
-    state => state.updateSellAmountCryptoPrecision,
-  )
+  const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
   const swapperSupportsCrossAccountTrade = useSwapperStore(selectSwapperSupportsCrossAccountTrade)
   const checkApprovalNeeded = useSwapperStore(selectCheckApprovalNeededForWallet)
   const handleSwitchAssets = useSwapperStore(state => state.handleSwitchAssets)
   const handleInputAmountChange = useSwapperStore(state => state.handleInputAmountChange)
-  const buyAmountBeforeFeesBuyAssetCryptoPrecision = useSwapperStore(
-    selectBuyAmountBeforeFeesBuyAssetCryptoPrecision,
-  )
+  const quoteBuyAmountCryptoPrecision = useSwapperStore(selectQuoteBuyAmountCryptoPrecision)
   const totalTradeFeeBuyAssetCryptoPrecision = useSwapperStore(
     selectTotalTradeFeeBuyAssetCryptoPrecision,
   )
-
+  const action = useSwapperStore(selectAction)
+  const isSendMax = useSwapperStore(selectIsSendMax)
   const { getTrade, getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
   const translate = useTranslate()
   const history = useHistory()
@@ -200,29 +210,53 @@ export const TradeInput = () => {
     [updateAction, updateIsSendMax, updateAmount, handleInputAmountChange],
   )
 
-  const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(() => {
+  const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {
     if (!(sellAsset && activeQuote)) return
-    const maxSendAmount = getSendMaxAmount(
-      sellAsset,
-      sellFeeAsset,
-      activeQuote,
-      sellAssetBalanceCrypto,
-    )
-    updateSellAmountCryptoPrecision(maxSendAmount)
+
+    // Network fee is a function of the sell amount, so we need a quote for an arbitrarily high sell amount to ensure
+    // we get a workable max amount
+    const availableSwapperTypesWithQuoteMetadata =
+      tradeQuoteArgs && feeAsset
+        ? (
+            await dispatch(
+              getAvailableSwappers.initiate({
+                ...tradeQuoteArgs,
+                sellAmountBeforeFeesCryptoBaseUnit: '10000000', // arbitrarily high sell amount for max send quote
+                feeAsset,
+              }),
+            )
+          ).data
+        : undefined
+
+    const maxQuote = availableSwapperTypesWithQuoteMetadata?.[0]?.quote
+
+    const maxSendAmount = maxQuote
+      ? bnOrZero(getSendMaxAmount(sellAsset, sellFeeAsset, maxQuote, sellAssetBalanceCrypto))
+          .times(0.99) // reduce the computed amount by 1% to ensure we don't exceed the max
+          .toFixed()
+      : '0'
     updateAction(TradeAmountInputField.SELL_CRYPTO)
     updateIsSendMax(true)
     updateAmount(maxSendAmount)
     handleInputAmountChange()
+
+    if (availableSwapperTypesWithQuoteMetadata) {
+      updateTradeAmountsFromQuote()
+    }
   }, [
     sellAsset,
     activeQuote,
     sellFeeAsset,
     sellAssetBalanceCrypto,
-    updateSellAmountCryptoPrecision,
     updateAction,
     updateIsSendMax,
+    tradeQuoteArgs,
+    feeAsset,
+    dispatch,
+    getAvailableSwappers,
     updateAmount,
     handleInputAmountChange,
+    updateTradeAmountsFromQuote,
   ])
   const onSubmit = useCallback(async () => {
     setIsLoading(true)
@@ -470,6 +504,17 @@ export const TradeInput = () => {
     [isSwapperApiPending, quoteAvailableForCurrentAssetPair, isSwapperApiInitiated],
   )
 
+  const isSellAction = useMemo(() => {
+    return (
+      action === TradeAmountInputField.SELL_CRYPTO || action === TradeAmountInputField.SELL_FIAT
+    )
+  }, [action])
+
+  const receiveAmountLoading = useMemo(
+    () => isSwapperApiPending && isSellAction,
+    [isSwapperApiPending, isSellAction],
+  )
+
   return (
     <SlideTransition>
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -520,10 +565,12 @@ export const TradeInput = () => {
             onChange={onSellAssetInputChange}
             percentOptions={[1]}
             onPercentOptionClick={handleSendMax}
-            showFiatSkeleton={isUsdRatesPending}
+            showInputSkeleton={isSwapperApiPending && isSendMax}
+            showFiatSkeleton={isUsdRatesPending || (isSwapperApiPending && isSendMax)}
             label={translate('trade.youPay')}
           />
           <TradeAssetInput
+            isReadOnly={true}
             accountId={buyAssetAccountId}
             assetId={buyAsset?.assetId}
             assetSymbol={buyAsset?.symbol ?? ''}
@@ -532,8 +579,8 @@ export const TradeInput = () => {
             fiatAmount={positiveOrZero(fiatBuyAmount).toFixed(2)}
             onChange={onBuyAssetInputChange}
             percentOptions={[1]}
-            showInputSkeleton={tradeStateLoading}
-            showFiatSkeleton={tradeStateLoading}
+            showInputSkeleton={receiveAmountLoading}
+            showFiatSkeleton={receiveAmountLoading}
             label={translate('trade.youGet')}
             rightRegion={
               isTradeRatesEnabled ? (
@@ -567,7 +614,7 @@ export const TradeInput = () => {
               isLoading={tradeStateLoading}
               symbol={buyAsset?.symbol ?? ''}
               amount={buyAmountCryptoPrecision ?? ''}
-              beforeFees={buyAmountBeforeFeesBuyAssetCryptoPrecision ?? ''}
+              beforeFees={quoteBuyAmountCryptoPrecision ?? ''}
               protocolFee={totalTradeFeeBuyAssetCryptoPrecision ?? ''}
               shapeShiftFee='0'
               slippage={slippage}

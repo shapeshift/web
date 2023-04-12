@@ -70,9 +70,14 @@ export const transformLifiFeeData = async ({
   return {
     networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit.toString(), // UI shows this next to the gas icon
     chainSpecific: {
-      estimatedGas: APPROVAL_GAS_LIMIT, // the gas amount for the erc20 interaction approval tx
       gasPriceCryptoBaseUnit,
       approvalFeeCryptoBaseUnit, // the total gas for the erc20 interaction approval tx - this appears to be redundant
+      // TODO: add gasPriceCryptoBaseUnit so approvals are not displayed as 0
+      // gasPriceCryptoBaseUnit: gas price for approval
+
+      // lifi handles approval gas internally but need to set a gas limit so the
+      // approval limit isnt exceeded when the trade is executed.
+      estimatedGasCryptoBaseUnit: APPROVAL_GAS_LIMIT,
     },
     // UI shows the sum of these as "protocol fee"
     buyAssetTradeFeeUsd: buyAssetTradeFeeUsd.toString(),

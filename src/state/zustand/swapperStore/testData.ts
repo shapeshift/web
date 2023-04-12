@@ -151,7 +151,7 @@ export const baseSwapperState: SwapperState = {
     chainSpecific: {
       approvalFeeCryptoBaseUnit: '1800000000000000',
       gasPriceCryptoBaseUnit: '18000000000',
-      estimatedGas: '100000',
+      estimatedGasCryptoBaseUnit: '100000',
       totalFee: '0.0036',
     },
     tradeFeeSource: 'THORChain',

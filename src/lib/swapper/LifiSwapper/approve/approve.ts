@@ -1,16 +1,16 @@
-import type { EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ApproveAmountInput, ApproveInfiniteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { erc20Abi } from '@shapeshiftoss/swapper/dist/swappers/utils/abi/erc20-abi'
-import { APPROVAL_GAS_LIMIT } from '@shapeshiftoss/swapper/dist/swappers/utils/constants'
 import { grantAllowance } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { MAX_ALLOWANCE } from 'lib/swapper/LifiSwapper/utils/constants'
+import { isEvmChainAdapter } from 'lib/utils'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 
 const grantAllowanceForAmount = async (
-  { quote, wallet }: ApproveInfiniteInput<EvmChainId>,
+  { quote, wallet }: ApproveAmountInput<EvmChainId>,
   approvalAmountCryptoBaseUnit: string,
 ) => {
   const chainId = quote.sellAsset.chainId
@@ -19,37 +19,38 @@ const grantAllowanceForAmount = async (
   const web3 = getWeb3InstanceByChainId(chainId)
 
   if (!isEvmChainId(chainId)) {
-    throw new SwapError('[approvalNeeded] - only EVM chains are supported', {
+    throw new SwapError('[grantAllowanceForAmount] - only EVM chains are supported', {
       code: SwapErrorType.UNSUPPORTED_CHAIN,
       details: { chainId },
     })
   }
 
   if (adapter === undefined) {
-    throw new SwapError('[approvalNeeded] - getChainAdapterManager returned undefined', {
+    throw new SwapError('[grantAllowanceForAmount] - getChainAdapterManager returned undefined', {
       code: SwapErrorType.UNSUPPORTED_CHAIN,
       details: { chainId },
+    })
+  }
+
+  if (!isEvmChainAdapter(adapter)) {
+    throw new SwapError('[grantAllowanceForAmount] - non-EVM chain adapter detected', {
+      code: SwapErrorType.EXECUTE_TRADE_FAILED,
+      details: {
+        chainAdapterName: adapter.getDisplayName(),
+        chainId: adapter.getChainId(),
+      },
     })
   }
 
   const approvalQuote: TradeQuote<EvmChainId> = {
     ...quote,
     sellAmountBeforeFeesCryptoBaseUnit: approvalAmountCryptoBaseUnit,
-    feeData: {
-      ...quote.feeData,
-      chainSpecific: {
-        ...quote.feeData.chainSpecific,
-        // lifi handles approval gas internally but need to set a gas limit so the
-        // approval limit isnt exceeded when the trade is executed.
-        // TODO: see if there is a better way than just hardcoding an arbitrary limit
-        estimatedGas: APPROVAL_GAS_LIMIT,
-      },
-    },
   }
+
   return await grantAllowance({
     quote: approvalQuote,
     wallet,
-    adapter: adapter as unknown as EvmChainAdapter,
+    adapter,
     erc20Abi,
     web3,
   })

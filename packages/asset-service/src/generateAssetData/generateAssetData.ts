@@ -93,7 +93,7 @@ const generateAssetData = async () => {
     }
 
     // mark any polygon assets that also exist on other evm chains
-    if (chainId === KnownChainIds.PolygonMainnet && isNotUniqueAsset(asset)) {
+    if (chainId === KnownChainIds.PolygonMainnet && asset.assetId !== polygonAssetId && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on Polygon`
     }
 

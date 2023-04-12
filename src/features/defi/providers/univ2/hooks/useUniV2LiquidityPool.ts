@@ -139,7 +139,7 @@ export const useUniV2LiquidityPool = ({
     [lpContractAddress, skip],
   )
 
-  const makeAddLiquidtyData = useCallback(
+  const makeAddLiquidityData = useCallback(
     ({ token0Amount, token1Amount }: { token0Amount: string; token1Amount: string }) => {
       if (!uniswapRouterContract) throw new Error('Uniswap router contract instance is undefined')
       const deadline = Date.now() + 1000 * 60 * 10 // 10 minutes from now
@@ -213,7 +213,7 @@ export const useUniV2LiquidityPool = ({
           .toFixed(0)
         const value = bnOrZero(ethValue).isZero() ? '0' : ethValue
 
-        const data = makeAddLiquidtyData({
+        const data = makeAddLiquidityData({
           token0Amount,
           token1Amount,
         })
@@ -296,7 +296,7 @@ export const useUniV2LiquidityPool = ({
       asset0,
       assetId0OrWeth,
       assetId1OrWeth,
-      makeAddLiquidtyData,
+      makeAddLiquidityData,
       skip,
       supportedEvmChainIds,
       uniswapRouterContract,

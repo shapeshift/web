@@ -59,14 +59,35 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PolygonMainnet> {
   }
 
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
-    const { gasPrice } = await this.api.getGasFees()
+    const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await this.api.getGasFees()
 
-    const scalars = { fast: bn(1), average: bn(1), slow: bn(1) }
+    const scalars = { fast: bn(1.2), average: bn(1), slow: bn(0.8) }
 
     return {
-      fast: { gasPrice: calcFee(gasPrice, 'fast', scalars) },
-      average: { gasPrice: calcFee(gasPrice, 'average', scalars) },
-      slow: { gasPrice: calcFee(gasPrice, 'slow', scalars) },
+      fast: {
+        gasPrice: calcFee(gasPrice, 'fast', scalars),
+        ...(maxFeePerGas &&
+          maxPriorityFeePerGas && {
+            maxFeePerGas: calcFee(maxFeePerGas, 'fast', scalars),
+            maxPriorityFeePerGas: calcFee(maxPriorityFeePerGas, 'fast', scalars),
+          }),
+      },
+      average: {
+        gasPrice: calcFee(gasPrice, 'average', scalars),
+        ...(maxFeePerGas &&
+          maxPriorityFeePerGas && {
+            maxFeePerGas: calcFee(maxFeePerGas, 'average', scalars),
+            maxPriorityFeePerGas: calcFee(maxPriorityFeePerGas, 'average', scalars),
+          }),
+      },
+      slow: {
+        gasPrice: calcFee(gasPrice, 'slow', scalars),
+        ...(maxFeePerGas &&
+          maxPriorityFeePerGas && {
+            maxFeePerGas: calcFee(maxFeePerGas, 'slow', scalars),
+            maxPriorityFeePerGas: calcFee(maxPriorityFeePerGas, 'slow', scalars),
+          }),
+      },
     }
   }
 

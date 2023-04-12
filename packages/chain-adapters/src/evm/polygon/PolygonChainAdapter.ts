@@ -61,7 +61,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PolygonMainnet> {
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
     const { gasPrice } = await this.api.getGasFees()
 
-    const scalars = { fast: bn(1), average: bn(1), slow: bn(1) }
+    const scalars = { fast: bn(1.2), average: bn(1), slow: bn(0.8) }
 
     return {
       fast: { gasPrice: calcFee(gasPrice, 'fast', scalars) },

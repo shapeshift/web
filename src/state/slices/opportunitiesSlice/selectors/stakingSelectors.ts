@@ -23,7 +23,6 @@ import {
 
 import { selectAssetByFilter, selectAssets } from '../../assetsSlice/selectors'
 import {
-  selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioFiatBalances,
   selectWalletAccountIds,

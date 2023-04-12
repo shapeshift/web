@@ -205,7 +205,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
               networkFeeCryptoBaseUnit: feeData.fast.txFee,
               buyAssetTradeFeeUsd,
               sellAssetTradeFeeUsd: '0',
-              chainSpecific: { estimatedGas: feeData.fast.chainSpecific.gasLimit },
+              chainSpecific: { estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit },
             },
           }
         })()

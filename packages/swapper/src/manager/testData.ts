@@ -78,7 +78,7 @@ export const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   buyAmountCryptoBaseUnit: '23448326921811747', // 0.023 ETH
   feeData: {
     chainSpecific: {
-      estimatedGas: '100000',
+      estimatedGasCryptoBaseUnit: '100000',
       approvalFeeCryptoBaseUnit: '700000',
       gasPriceCryptoBaseUnit: '7',
     },
@@ -98,7 +98,7 @@ export const goodTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   buyAmountCryptoBaseUnit: '23000000000000000', // 0.023 ETH
   feeData: {
     chainSpecific: {
-      estimatedGas: '100000',
+      estimatedGasCryptoBaseUnit: '100000',
       approvalFeeCryptoBaseUnit: '700000',
       gasPriceCryptoBaseUnit: '7',
     },
@@ -114,7 +114,7 @@ export const badTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   buyAmountCryptoBaseUnit: '21000000000000000', // 0.021 ETH
   feeData: {
     chainSpecific: {
-      estimatedGas: '100000',
+      estimatedGasCryptoBaseUnit: '100000',
       approvalFeeCryptoBaseUnit: '700000',
       gasPriceCryptoBaseUnit: '7',
     },

@@ -24,7 +24,7 @@ export async function zrxExecuteTrade<T extends ZrxSupportedChainId>(
       to: trade.depositAddress,
       chainSpecific: {
         gasPrice: numberToHex(trade.feeData?.chainSpecific?.gasPriceCryptoBaseUnit || 0),
-        gasLimit: numberToHex(trade.feeData?.chainSpecific?.estimatedGas || 0),
+        gasLimit: numberToHex(trade.feeData?.chainSpecific?.estimatedGasCryptoBaseUnit || 0),
       },
       accountNumber,
     })

@@ -122,7 +122,7 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
       depositAddress: to,
       feeData: {
         chainSpecific: {
-          estimatedGas: estimatedGas.toString(),
+          estimatedGasCryptoBaseUnit: estimatedGas.toString(),
           gasPriceCryptoBaseUnit,
           approvalFeeCryptoBaseUnit: approvalRequired ? approvalFee : undefined,
         },

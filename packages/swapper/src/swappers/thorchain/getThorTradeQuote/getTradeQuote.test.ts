@@ -19,13 +19,13 @@ const mockedAxios = jest.mocked(thorService)
 
 const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '59.658672054814851787728',
-  maximum: '100000000000000000000000000',
+  maximumCryptoHuman: '100000000000000000000000000',
   sellAmountBeforeFeesCryptoBaseUnit: '10000000000000000000', // 10 FOX
   allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
   buyAmountCryptoBaseUnit: '4633547338118093212830055',
   feeData: {
     chainSpecific: {
-      estimatedGas: '100000',
+      estimatedGasCryptoBaseUnit: '100000',
       approvalFeeCryptoBaseUnit: '700000',
       gasPriceCryptoBaseUnit: '7',
     },

@@ -215,7 +215,7 @@ describe('CowSwapper', () => {
         rate: '14716.04718939437505555958',
         feeData: {
           chainSpecific: {
-            estimatedGas: '100000',
+            estimatedGasCryptoBaseUnit: '100000',
             gasPriceCryptoBaseUnit: '79036500000',
           },
           buyAssetTradeFeeUsd: '0',

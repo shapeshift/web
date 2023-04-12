@@ -1,5 +1,4 @@
 import type {
-  BridgeDefinition as LifiBridgeDefinition,
   ChainId as LifiChainId,
   ChainKey as LifiChainKey,
   Token as LifiToken,
@@ -18,7 +17,6 @@ import type {
   BuyAssetBySellIdInput,
   GetEvmTradeQuoteInput,
   Swapper,
-  TradeQuote,
   TradeResult,
   TradeTxs,
 } from '@shapeshiftoss/swapper'
@@ -34,13 +32,16 @@ import { getUsdRate } from 'lib/swapper/LifiSwapper/getUsdRate/getUsdRate'
 import { createLifiAssetMap } from 'lib/swapper/LifiSwapper/utils/createLifiAssetMap/createLifiAssetMap'
 import { createLifiChainMap } from 'lib/swapper/LifiSwapper/utils/createLifiChainMap/createLifiChainMap'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
-import type { LifiExecuteTradeInput, LifiTrade } from 'lib/swapper/LifiSwapper/utils/types'
+import type {
+  LifiExecuteTradeInput,
+  LifiTrade,
+  LifiTradeQuote,
+} from 'lib/swapper/LifiSwapper/utils/types'
 
 export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SwapperName.LIFI
   private lifiChainMap: Map<ChainId, LifiChainKey> = new Map()
   private lifiAssetMap: Map<AssetId, LifiToken> = new Map()
-  private lifiBridges: LifiBridgeDefinition[] = []
 
   /** perform any necessary async initialization */
   async initialize(): Promise<void> {
@@ -48,14 +49,13 @@ export class LifiSwapper implements Swapper<EvmChainId> {
       chainId => Number(fromChainId(chainId).chainReference) as LifiChainId,
     )
 
-    const { bridges, chains, tokens } = await getLifi().getPossibilities({
-      include: ['bridges', 'chains', 'tokens'],
+    const { chains, tokens } = await getLifi().getPossibilities({
+      include: ['chains', 'tokens'],
       chains: supportedChainRefs,
     })
 
     if (chains !== undefined) this.lifiChainMap = createLifiChainMap(chains)
     if (tokens !== undefined) this.lifiAssetMap = createLifiAssetMap(tokens)
-    if (bridges !== undefined) this.lifiBridges = bridges
   }
 
   /** Returns the swapper type */
@@ -67,14 +67,14 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Builds a trade with definitive rate & txData that can be executed with executeTrade
    **/
   async buildTrade(input: BuildTradeInput): Promise<LifiTrade> {
-    return await buildTrade(input, this.lifiAssetMap, this.lifiChainMap, this.lifiBridges)
+    return await buildTrade(input, this.lifiAssetMap, this.lifiChainMap)
   }
 
   /**
    * Get a trade quote
    */
-  async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<TradeQuote<EvmChainId>> {
-    return await getTradeQuote(input, this.lifiAssetMap, this.lifiChainMap, this.lifiBridges)
+  async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<LifiTradeQuote> {
+    return await getTradeQuote(input, this.lifiAssetMap, this.lifiChainMap)
   }
 
   /**

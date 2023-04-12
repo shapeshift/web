@@ -1,35 +1,21 @@
-import type {
-  BridgeDefinition,
-  ChainKey,
-  LifiError,
-  RoutesRequest,
-  Token as LifiToken,
-} from '@lifi/sdk'
+import type { ChainKey, LifiError, RoutesRequest, Token as LifiToken } from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { GetEvmTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
-import { BigNumber, bn, bnOrZero, convertPrecision, fromHuman } from 'lib/bignumber/bignumber'
-import {
-  MAX_LIFI_TRADE,
-  MIN_AMOUNT_THRESHOLD_USD_HUMAN,
-  SELECTED_ROUTE_INDEX,
-} from 'lib/swapper/LifiSwapper/utils/constants'
+import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { MAX_LIFI_TRADE, SELECTED_ROUTE_INDEX } from 'lib/swapper/LifiSwapper/utils/constants'
 import { getAssetBalance } from 'lib/swapper/LifiSwapper/utils/getAssetBalance/getAssetBalance'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
-import { getMinimumUsdHumanFromRoutes } from 'lib/swapper/LifiSwapper/utils/getMinimumUsdHumanFromRoutes/getMinimumUsdHumanFromRoutes'
 import { transformLifiFeeData } from 'lib/swapper/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from 'lib/swapper/LifiSwapper/utils/types'
-import { selectMarketDataById } from 'state/slices/selectors'
-import { store } from 'state/store'
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
   lifiAssetMap: Map<AssetId, LifiToken>,
   lifiChainMap: Map<ChainId, ChainKey>,
-  lifiBridges: BridgeDefinition[],
 ): Promise<LifiTradeQuote> {
   const {
     chainId,
@@ -77,24 +63,6 @@ export async function getTradeQuote(
         outputPrecision: sellLifiToken.decimals,
       })
 
-  // handle quotes that dont meet the minimum amount
-  const { price } = selectMarketDataById(store.getState(), sellAsset.assetId)
-  const minimumAmountThresholdCryptoHuman = bn(MIN_AMOUNT_THRESHOLD_USD_HUMAN).dividedBy(price)
-  const minimumAmountThresholdCryptoLifi = fromHuman({
-    value: minimumAmountThresholdCryptoHuman,
-    outputPrecision: sellAsset.precision,
-  })
-
-  // LiFi cannot provide minimum trade amounts up front because the bridges and exchanges vary it
-  // constantly. We can determine what the minimum amount from a successful request though, but
-  // for a request to succeed the requested amount must be over the minimum.
-  const thresholdedAmountCryptoLifi = BigNumber.max(
-    fromAmountCryptoLifiPrecision,
-    minimumAmountThresholdCryptoLifi,
-  )
-    .integerValue()
-    .toString()
-
   const lifi = getLifi()
 
   const routesRequest: RoutesRequest = {
@@ -104,7 +72,7 @@ export async function getTradeQuote(
     toTokenAddress: buyLifiToken.address,
     fromAddress: receiveAddress,
     toAddress: receiveAddress,
-    fromAmount: thresholdedAmountCryptoLifi,
+    fromAmount: fromAmountCryptoLifiPrecision.toString(),
     // as recommended by lifi, dodo is denied until they fix their gas estimates
     // TODO: convert this config to .env variable
     options: {
@@ -116,7 +84,7 @@ export async function getTradeQuote(
     },
   }
 
-  const lifiRoutesResponse = await lifi.getRoutes(routesRequest).catch((e: LifiError) => {
+  const routesResponse = await lifi.getRoutes(routesRequest).catch((e: LifiError) => {
     const code = (() => {
       switch (e.code) {
         case LifiErrorCode.ValidationError:
@@ -131,27 +99,28 @@ export async function getTradeQuote(
     throw new SwapError(`[getTradeQuote] ${e.message}`, { code })
   })
 
-  const selectedRoute = lifiRoutesResponse.routes[SELECTED_ROUTE_INDEX]
+  const selectedLifiRoute = routesResponse.routes[SELECTED_ROUTE_INDEX]
 
-  const minimumUsdHuman = getMinimumUsdHumanFromRoutes(lifiRoutesResponse.routes, lifiBridges)
-  const minimumCryptoHuman =
-    minimumUsdHuman && sellLifiToken.priceUSD
-      ? minimumUsdHuman.dividedBy(sellLifiToken.priceUSD).toString()
-      : '0'
+  if (selectedLifiRoute === undefined) {
+    throw new SwapError('[getTradeQuote] no route found', {
+      code: SwapErrorType.TRADE_QUOTE_FAILED,
+    })
+  }
+
+  const minimumCryptoHuman = '0'
 
   // for the rate to be valid, both amounts must be converted to the same precision
   const estimateRate = convertPrecision({
-    value: selectedRoute.toAmountMin,
+    value: selectedLifiRoute.toAmountMin,
     inputPrecision: buyLifiToken.decimals,
     outputPrecision: sellLifiToken.decimals,
   })
-    .dividedBy(bn(selectedRoute.fromAmount))
+    .dividedBy(bn(selectedLifiRoute.fromAmount))
     .toString()
 
-  // TODO: ask lifi if there could be more than 1 approval
   const allowanceContract = (() => {
     const uniqueApprovalAddresses = new Set(
-      selectedRoute.steps
+      selectedLifiRoute.steps
         .map(step => step.estimate.approvalAddress)
         .filter(approvalAddress => approvalAddress !== undefined),
     )
@@ -168,19 +137,19 @@ export async function getTradeQuote(
     return [...uniqueApprovalAddresses.values()][0]
   })()
 
-  const maxSlippage = BigNumber.max(...selectedRoute.steps.map(step => step.action.slippage))
+  const maxSlippage = BigNumber.max(...selectedLifiRoute.steps.map(step => step.action.slippage))
 
   const feeData = transformLifiFeeData({
     buyLifiToken,
     chainId,
     lifiAssetMap,
-    selectedRoute,
+    selectedRoute: selectedLifiRoute,
   })
 
   return {
     accountNumber,
     allowanceContract,
-    buyAmountCryptoBaseUnit: bnOrZero(selectedRoute.toAmountMin).toString(),
+    buyAmountCryptoBaseUnit: bnOrZero(selectedLifiRoute.toAmountMin).toString(),
     buyAsset,
     feeData,
     maximum: MAX_LIFI_TRADE,
@@ -189,14 +158,9 @@ export async function getTradeQuote(
     recommendedSlippage: maxSlippage.toString(),
     sellAmountBeforeFeesCryptoBaseUnit,
     sellAsset,
-    sources: [{ name: `${selectedRoute.steps[0].tool} (${SwapperName.LIFI})`, proportion: '1' }],
-
-    // the following are required due to minimumCryptoHuman logical requirements downstream
-    // TODO: Determine whether we can delete logic surrounding minimum amounts and instead lean on error
-    // handling in the UI so we can re-use the routes response downstream to avoid another fetch
-    routesRequest: {
-      ...routesRequest,
-      fromAmount: fromAmountCryptoLifiPrecision.toString(),
-    },
+    sources: [
+      { name: `${selectedLifiRoute.steps[0].tool} (${SwapperName.LIFI})`, proportion: '1' },
+    ],
+    selectedLifiRoute,
   }
 }

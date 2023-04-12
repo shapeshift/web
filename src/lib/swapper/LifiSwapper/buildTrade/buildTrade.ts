@@ -1,16 +1,16 @@
-import type { BridgeDefinition, ChainKey, Token } from '@lifi/sdk'
+import type { ChainKey, Token } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { BuildTradeInput } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { getTradeQuote } from 'lib/swapper/LifiSwapper/getTradeQuote/getTradeQuote'
 import { isGetEvmTradeQuoteInput } from 'lib/swapper/LifiSwapper/utils/isGetEvmTradeQuoteInput/isGetEvmTradeQuoteInput'
-import type { LifiTrade } from 'lib/swapper/LifiSwapper/utils/types'
+
+import type { LifiTrade } from '../utils/types'
 
 export const buildTrade = async (
   input: BuildTradeInput,
   lifiAssetMap: Map<AssetId, Token>,
   lifiChainMap: Map<ChainId, ChainKey>,
-  lifiBridges: BridgeDefinition[],
 ): Promise<LifiTrade> => {
   if (!isGetEvmTradeQuoteInput(input)) {
     throw new SwapError('[buildTrade] - only EVM chains are supported', {
@@ -30,8 +30,8 @@ export const buildTrade = async (
     buyAsset,
     sellAsset,
     accountNumber,
-    routesRequest,
-  } = await getTradeQuote(input, lifiAssetMap, lifiChainMap, lifiBridges)
+    selectedLifiRoute,
+  } = await getTradeQuote(input, lifiAssetMap, lifiChainMap)
 
   return {
     buyAmountCryptoBaseUnit,
@@ -42,7 +42,7 @@ export const buildTrade = async (
     buyAsset,
     sellAsset,
     accountNumber,
-    routesRequest,
     receiveAddress: input.receiveAddress,
+    selectedLifiRoute,
   }
 }

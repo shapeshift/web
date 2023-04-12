@@ -27,8 +27,8 @@ export const getCowSwapMinMax = async (
     const minimum = bn(MIN_COWSWAP_VALUE_USD).dividedBy(bnOrZero(usdRate)).toString() // $10 worth of the sell token.
     const maximum = MAX_COWSWAP_TRADE // Arbitrarily large value. 10e+28 here.
     return {
-      minimum,
-      maximum,
+      minimumAmountCryptoHuman: minimum,
+      maximumAmountCryptoHuman: maximum,
     }
   } catch (e) {
     if (e instanceof SwapError) throw e

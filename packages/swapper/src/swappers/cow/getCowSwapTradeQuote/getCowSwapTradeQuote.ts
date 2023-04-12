@@ -61,9 +61,15 @@ export async function getCowSwapTradeQuote(
 
     const buyToken =
       buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
-    const { minimum, maximum } = await getCowSwapMinMax(deps, sellAsset, buyAsset)
+    const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = await getCowSwapMinMax(
+      deps,
+      sellAsset,
+      buyAsset,
+    )
 
-    const minQuoteSellAmount = bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision))
+    const minQuoteSellAmount = bnOrZero(minimumAmountCryptoHuman).times(
+      bn(10).exponentiatedBy(sellAsset.precision),
+    )
     const isSellAmountBelowMinimum = bnOrZero(sellAmountBeforeFeesCryptoBaseUnit).lt(
       minQuoteSellAmount,
     )
@@ -163,8 +169,8 @@ export async function getCowSwapTradeQuote(
 
     return {
       rate,
-      minimumCryptoHuman: minimum,
-      maximum,
+      minimumCryptoHuman: minimumAmountCryptoHuman,
+      maximum: maximumAmountCryptoHuman,
       feeData: {
         networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
         chainSpecific: {

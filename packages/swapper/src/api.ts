@@ -180,8 +180,8 @@ export type SwapSource = {
 }
 
 export interface MinMaxOutput {
-  minimum: string
-  maximum: string
+  minimumAmountCryptoHuman: string
+  maximumAmountCryptoHuman: string
 }
 
 export type ApprovalNeededOutput = {

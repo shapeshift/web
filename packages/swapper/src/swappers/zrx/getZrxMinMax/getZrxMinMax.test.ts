@@ -13,8 +13,8 @@ jest.mock('../utils/helpers/helpers', () => ({
 describe('getZrxMinMax', () => {
   it('returns minimum and maximum', async () => {
     const minMax = await getZrxMinMax(FOX, WETH)
-    expect(minMax.minimum).toBe('1')
-    expect(minMax.maximum).toBe(MAX_ZRX_TRADE)
+    expect(minMax.minimumAmountCryptoHuman).toBe('1')
+    expect(minMax.maximumAmountCryptoHuman).toBe(MAX_ZRX_TRADE)
   })
 
   it('fails on invalid evm asset', async () => {

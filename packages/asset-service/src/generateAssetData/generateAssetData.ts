@@ -24,7 +24,7 @@ const generateAssetData = async () => {
   const avalancheAssets = await avalanche.getAssets()
   const optimismAssets = await optimism.getAssets()
   const bnbsmartchainAssets = await bnbsmartchain.getAssets()
-  const polygonchainAssets = await polygon.getAssets()
+  const polygonAssets = await polygon.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [

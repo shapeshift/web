@@ -31,7 +31,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PolygonMainnet> {
       defaultBIP44Params: ChainAdapter.defaultBIP44Params,
       parser: new unchained.polygon.TransactionParser({
         assetId: polygonAssetId,
-        chainId: DEFAULT_CHAIN_ID,
+        chainId: args.chainId ?? DEFAULT_CHAIN_ID,
         rpcUrl: args.rpcUrl,
       }),
       ...args,

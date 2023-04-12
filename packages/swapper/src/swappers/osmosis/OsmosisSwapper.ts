@@ -110,12 +110,12 @@ export class OsmosisSwapper implements Swapper<ChainId> {
   async getMinMax(input: { sellAsset: Asset }): Promise<MinMaxOutput> {
     const { sellAsset } = input
     const usdRate = await this.getUsdRate({ ...sellAsset })
-    const minimum = bn(1).dividedBy(bnOrZero(usdRate)).toString()
-    const maximum = MAX_SWAPPER_SELL
+    const minimumAmountCryptoHuman = bn(1).dividedBy(bnOrZero(usdRate)).toString()
+    const maximumAmountCryptoHuman = MAX_SWAPPER_SELL
 
     return {
-      minimumAmountCryptoHuman: minimum,
-      maximumAmountCryptoHuman: maximum,
+      minimumAmountCryptoHuman,
+      maximumAmountCryptoHuman,
     }
   }
 

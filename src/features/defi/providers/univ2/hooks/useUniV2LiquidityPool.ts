@@ -324,7 +324,7 @@ export const useUniV2LiquidityPool = ({
       const lpAmountBaseUnit = bnOrZero(lpAmount)
         .times(bn(10).exponentiatedBy(lpAsset.precision))
         .toFixed(0)
-      const deadline = Date.now() + 1200000
+      const deadline = Date.now() + 1200000 // 20 minutes from now
       const to = fromAccountId(accountId).account
       if ([assetId0OrWeth, assetId1OrWeth].includes(wethAssetId)) {
         const otherAssetContractAddress =
@@ -576,7 +576,7 @@ export const useUniV2LiquidityPool = ({
     async ({ token0Amount, token1Amount }: { token0Amount: string; token1Amount: string }) => {
       if (skip || !accountId || !uniswapRouterContract) return
       // https://docs.uniswap.org/contracts/v2/reference/smart-contracts/router-02#addliquidityeth
-      const deadline = Date.now() + 1200000
+      const deadline = Date.now() + 1200000 // 20 minutes from now
       if ([assetId0OrWeth, assetId1OrWeth].includes(wethAssetId)) {
         const otherAssetContractAddress =
           assetId0OrWeth === wethAssetId ? asset1ContractAddress : asset0ContractAddress

@@ -6,12 +6,14 @@ import { useSelector } from 'react-redux'
 import { generatePath, Link } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
+  selectMarketDataById,
   selectPortfolioAccountMetadata,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioFiatBalanceByAssetId,
+  selectPortfolioAccountsCryptoHumanBalancesExcludeStaking,
+  selectPortfolioAccountsFiatBalancesExcludeStaking,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -21,7 +23,7 @@ import { useAppSelector } from 'state/store'
 
 type EquityAccountRowProps = {
   accountId: AccountId
-  assetId?: AssetId
+  assetId: AssetId
 }
 
 export const EquityAccountRow = ({ accountId, assetId }: EquityAccountRowProps) => {
@@ -29,6 +31,7 @@ export const EquityAccountRow = ({ accountId, assetId }: EquityAccountRowProps) 
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const rowAssetId = assetId ? assetId : feeAssetId
   const asset = useAppSelector(state => selectAssetById(state, rowAssetId ?? ''))
+  const marketData = useAppSelector(state => selectMarketDataById(state, rowAssetId ?? ''))
 
   const accountMetadata = useSelector(selectPortfolioAccountMetadata)
 
@@ -38,10 +41,11 @@ export const EquityAccountRow = ({ accountId, assetId }: EquityAccountRowProps) 
   )
 
   const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
-
-  const cryptoHumanBalance =
-    useAppSelector(s => selectPortfolioCryptoPrecisionBalanceByFilter(s, filter)) ?? '0'
-  const fiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, filter)) ?? '0'
+  const cryptoBalances = useSelector(selectPortfolioAccountsCryptoHumanBalancesExcludeStaking)
+  const cryptoHumanBalance = cryptoBalances?.[accountId]?.[assetId]
+  const fiatBalance = useMemo(() => {
+    return bnOrZero(cryptoHumanBalance).times(marketData.price).toString()
+  }, [cryptoHumanBalance, marketData.price])
   const path = generatePath(
     assetId ? '/accounts/:accountId/:assetId' : '/accounts/:accountId',
     filter,

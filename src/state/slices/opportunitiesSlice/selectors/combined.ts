@@ -26,7 +26,7 @@ import type {
   OpportunityId,
   StakingEarnOpportunityType,
 } from '../types'
-import { getUnderlyingAssetIdsBalances } from '../utils'
+import { getOpportunityAccessor, getUnderlyingAssetIdsBalances } from '../utils'
 import { selectAssets } from './../../assetsSlice/selectors'
 import { selectMarketDataSortedByMarketCap } from './../../marketDataSlice/selectors'
 import { selectAggregatedEarnUserLpOpportunities } from './lpSelectors'
@@ -34,10 +34,6 @@ import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectUserStakingOpportunitiesWithMetadataByFilter,
 } from './stakingSelectors'
-
-type GetOpportunityAccessorArgs = { provider: DefiProvider; type: DefiType }
-type GetOpportunityAccessorReturn = 'underlyingAssetId' | 'underlyingAssetIds'
-type GetOpportunityAccessor = (args: GetOpportunityAccessorArgs) => GetOpportunityAccessorReturn
 
 const makeClaimableStakingRewardsAmountFiat = ({
   assets,
@@ -72,15 +68,6 @@ const makeClaimableStakingRewardsAmountFiat = ({
 
   return rewardsAmountFiat
 }
-const getOpportunityAccessor: GetOpportunityAccessor = ({ provider, type }) => {
-  if (type === DefiType.Staking) {
-    if (provider === DefiProvider.EthFoxStaking) {
-      return 'underlyingAssetId'
-    }
-  }
-  return 'underlyingAssetIds'
-}
-
 export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputSelector(
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAggregatedEarnUserLpOpportunities,

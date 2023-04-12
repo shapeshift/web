@@ -475,6 +475,22 @@ export const selectPortfolioAccountsCryptoHumanBalancesIncludingStaking =
     },
   )
 
+export const selectPortfolioAccountsCryptoHumanBalancesExcludeStaking =
+  createDeepEqualOutputSelector(
+    selectAssets,
+    selectPortfolioAccountBalancesBaseUnit,
+    (assets, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
+      return Object.entries(portfolioAccountsCryptoBalances).reduce((acc, [accountId, account]) => {
+        acc[accountId] = Object.entries(account).reduce((innerAcc, [assetId, cryptoBalance]) => {
+          const asset = assets[assetId]
+          if (asset) innerAcc[assetId] = fromBaseUnit(cryptoBalance, asset.precision)
+          return innerAcc
+        }, cloneDeep(account))
+        return acc
+      }, cloneDeep(portfolioAccountsCryptoBalances))
+    },
+  )
+
 /**
  * this returns the same shape as the input selector selectPortfolioAccountsCryptoBalancesIncludingStaking
  * but with values converted into fiat, and sorted by fiat at all levels
@@ -483,6 +499,51 @@ export const selectPortfolioAccountsFiatBalancesIncludingStaking = createDeepEqu
   selectAssets,
   selectMarketDataSortedByMarketCap,
   selectPortfolioAccountsCryptoBalancesIncludingStaking,
+  (assets, marketData, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
+    const fiatAccountEntries = Object.entries(portfolioAccountsCryptoBalances).reduce<{
+      [k: AccountId]: { [k: AssetId]: string }
+    }>((acc, [accountId, account]) => {
+      const entries: [AssetId, BigNumber][] = Object.entries(account).map(
+        ([assetId, cryptoBalance]) => {
+          const asset = assets?.[assetId]
+          if (!asset) return [assetId, bn(0)]
+          const { precision } = asset
+          const price = marketData[assetId]?.price ?? 0
+          return [assetId, bnOrZero(fromBaseUnit(cryptoBalance, precision)).times(price)]
+        },
+      )
+
+      const fiatAccountSorted = Object.fromEntries(
+        entries
+          .sort(([, a], [, b]) => (a.gt(b) ? -1 : 1))
+          .map(([assetId, fiatBalance]) => [assetId, fiatBalance.toFixed(2)]),
+      )
+      acc[accountId] = fiatAccountSorted
+      return acc
+    }, {})
+
+    const sumValues: (obj: Record<AssetId, string>) => number = obj =>
+      sum(values(obj).map(toNumber))
+
+    return (
+      entries(fiatAccountEntries)
+        // sum each account
+        .map<[string, number]>(([accountId, account]) => [accountId, sumValues(account)])
+        // sort by account balance
+        .sort(([, sumA], [, sumB]) => (sumA > sumB ? -1 : 1))
+        // return sorted accounts
+        .reduce<PortfolioAccountBalancesById>((acc, [accountId]) => {
+          acc[accountId] = fiatAccountEntries[accountId]
+          return acc
+        }, {})
+    )
+  },
+)
+
+export const selectPortfolioAccountsFiatBalancesExcludeStaking = createDeepEqualOutputSelector(
+  selectAssets,
+  selectMarketDataSortedByMarketCap,
+  selectPortfolioAccountsCryptoHumanBalancesExcludeStaking,
   (assets, marketData, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
     const fiatAccountEntries = Object.entries(portfolioAccountsCryptoBalances).reduce<{
       [k: AccountId]: { [k: AssetId]: string }

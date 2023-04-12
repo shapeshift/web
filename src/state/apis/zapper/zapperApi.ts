@@ -8,6 +8,7 @@ import qs from 'qs'
 import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssets } from 'state/slices/selectors'
@@ -101,7 +102,7 @@ export const zapperApi = createApi({
           {},
         )
 
-        const assets = selectAssets(getState() as any)
+        const assets = selectAssets(getState() as ReduxState)
         const zapperAssets = zapperV2AppTokensData.reduce<AssetsState>(
           (acc, appTokenData) => {
             // This will never happen in this particular case because zodios will fail if e.g appTokenData.network is undefined

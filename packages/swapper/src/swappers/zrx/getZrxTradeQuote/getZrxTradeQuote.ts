@@ -39,13 +39,13 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       sellAsset,
       buyAsset,
     )
-    const minQuotesellAmountCryptoBaseUnit = bnOrZero(minimumAmountCryptoHuman).times(
+    const minQuoteSellAmountCryptoBaseUnit = bnOrZero(minimumAmountCryptoHuman).times(
       bn(10).exponentiatedBy(sellAsset.precision),
     )
 
     const normalizedSellAmount = normalizeAmount(
       bnOrZero(sellAmountCryptoBaseUnit).eq(0)
-        ? minQuotesellAmountCryptoBaseUnit
+        ? minQuoteSellAmountCryptoBaseUnit
         : sellAmountCryptoBaseUnit,
     )
     const baseUrl = baseUrlFromChainId(buyAsset.chainId)

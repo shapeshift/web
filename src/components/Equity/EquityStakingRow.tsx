@@ -1,6 +1,5 @@
 import { Button, Flex } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { assetIdToCoinCap } from '@shapeshiftoss/caip/src/adapters'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import React from 'react'
 import { Amount } from 'components/Amount/Amount'

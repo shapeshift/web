@@ -8,7 +8,6 @@ import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
-import { AssetAccounts } from './AssetAccounts/AssetAccounts'
 import { AssetChart } from './AssetHeader/AssetChart'
 import { AssetDescription } from './AssetHeader/AssetDescription'
 import { AssetHeader } from './AssetHeader/AssetHeader'
@@ -43,7 +42,6 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           <Equity assetId={assetId} accountId={accountId} />
           {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}
           <RelatedAssets assetId={assetId} />
-          <AssetAccounts assetId={assetId} accountId={accountId} />
           <EarnOpportunities assetId={assetId} accountId={accountId} />
           <UnderlyingToken assetId={assetId} accountId={accountId} />
           <AssetTransactionHistory limit={10} assetId={assetId} accountId={accountId} />

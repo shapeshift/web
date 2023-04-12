@@ -710,14 +710,14 @@ export const selectAllEarnUserStakingOpportunitiesByAccountId = createSelector(
 
 export const selectAllEarnUserStakingOpportunitiesByFilter = createSelector(
   selectAggregatedEarnUserStakingOpportunities,
-  selectPortfolioAccountBalancesBaseUnit,
+  selectUserStakingOpportunitiesById,
   selectAssets,
   selectMarketDataSortedByMarketCap,
   selectAssetIdParamFromFilter,
   selectAccountIdParamFromFilter,
   (
     aggregatedUserStakingOpportunities,
-    portfolioAccountBalanceById,
+    userStakingOpportunitiesById,
     assets,
     marketData,
     assetId,
@@ -731,10 +731,14 @@ export const selectAllEarnUserStakingOpportunitiesByFilter = createSelector(
       })
       const underlyingAssetIds = [userStakingOpportunity[depositKey]].flat()
       if (underlyingAssetIds && assetId && underlyingAssetIds.includes(assetId)) {
-        const opportunityBalance = accountId
-          ? portfolioAccountBalanceById[accountId][userStakingOpportunity.id]
-          : userStakingOpportunity.cryptoAmountBaseUnit
-        if (bnOrZero(opportunityBalance).eq(0)) continue
+        let opportunityBalance = userStakingOpportunity.stakedAmountCryptoBaseUnit
+
+        if (accountId) {
+          const userStakingId = serializeUserStakingId(accountId, userStakingOpportunity.id)
+          const userOpportunity = userStakingOpportunitiesById[userStakingId]
+          opportunityBalance = userOpportunity?.stakedAmountCryptoBaseUnit ?? '0'
+        }
+
         const asset = assets[userStakingOpportunity.assetId]
         const underlyingAsset = assets[userStakingOpportunity.underlyingAssetId]
         const marketDataPrice = marketData[asset?.assetId ?? underlyingAsset?.assetId ?? '']?.price
@@ -745,16 +749,11 @@ export const selectAllEarnUserStakingOpportunitiesByFilter = createSelector(
             .times(marketDataPrice ?? '0')
             .toString(),
         }
-        opportunities.push(opportunity)
+        if (bnOrZero(opportunityBalance).gt(0)) {
+          opportunities.push(opportunity)
+        }
       }
     }
     return opportunities
   },
 )
-
-/*
-
-      const opportunityBalance = accountId
-        ? portfolioAccountBalanceById[accountId][stakingId]
-        : portfolioAssetBalancesById[stakingId]
-*/

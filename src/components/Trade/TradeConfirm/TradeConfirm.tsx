@@ -6,6 +6,7 @@ import {
   AlertTitle,
   Box,
   Button,
+  Checkbox,
   Divider,
   Flex,
   Link,
@@ -30,6 +31,7 @@ import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
@@ -83,6 +85,7 @@ export const TradeConfirm = () => {
   } = useFormContext()
   const translate = useTranslate()
   const [swapper, setSwapper] = useState<Swapper<ChainId>>()
+  const [shouldDonate, toggleShouldDonate] = useToggle(true)
 
   const {
     number: { toFiat },
@@ -332,14 +335,17 @@ export const TradeConfirm = () => {
         <Row>
           <HelperTooltip label={translate('trade.tooltip.donation')}>
             <Row.Label>
-              <Text translation='trade.donation' />
+              <Checkbox isChecked={shouldDonate} onChange={toggleShouldDonate}>
+                <Text translation='trade.donation' />
+              </Checkbox>
             </Row.Label>
           </HelperTooltip>
+          {/* TODO: Replace the networkFeeFiat value below with the 30bps amount added */}
           <Row.Value>{toFiat(networkFeeFiat.toNumber())}</Row.Value>
         </Row>
       </Stack>
     ),
-    [networkFeeFiat, toFiat, translate],
+    [networkFeeFiat, shouldDonate, toFiat, toggleShouldDonate, translate],
   )
 
   const isTHORChainSwap = useMemo(

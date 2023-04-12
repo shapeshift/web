@@ -18,7 +18,7 @@ export type PortfolioAccounts = {
 
 // aggregated balances across all accounts in a portfolio for the same asset
 // balance in base units of asset
-export type AssetBalancesById = Record<AssetId, string>
+export type AssetBalancesById = PartialRecord<AssetId, string>
 
 export type PortfolioAccountBalancesById = {
   [k: AccountId]: AssetBalancesById

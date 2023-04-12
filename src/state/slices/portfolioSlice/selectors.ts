@@ -465,8 +465,7 @@ export const selectPortfolioAccountsCryptoHumanBalancesIncludingStaking =
       return Object.entries(portfolioAccountsCryptoBalances).reduce((acc, [accountId, account]) => {
         acc[accountId] = Object.entries(account).reduce((innerAcc, [assetId, cryptoBalance]) => {
           const asset = assets[assetId]
-          if (asset)
-            innerAcc[assetId] = fromBaseUnit(cryptoBalance, asset.precision, asset.precision)
+          if (asset) innerAcc[assetId] = fromBaseUnit(cryptoBalance, asset.precision)
           return innerAcc
         }, cloneDeep(account))
         return acc

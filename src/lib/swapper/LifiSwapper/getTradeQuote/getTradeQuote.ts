@@ -9,11 +9,10 @@ import { LifiErrorCode } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { GetEvmTradeQuoteInput } from '@shapeshiftoss/swapper'
-import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
+import { SwapError, SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { BigNumber, bn, bnOrZero, convertPrecision, fromHuman } from 'lib/bignumber/bignumber'
 import {
-  DEFAULT_SOURCE,
   MAX_LIFI_TRADE,
   MIN_AMOUNT_THRESHOLD_USD_HUMAN,
   SELECTED_ROUTE_INDEX,
@@ -142,7 +141,7 @@ export async function getTradeQuote(
 
   // for the rate to be valid, both amounts must be converted to the same precision
   const estimateRate = convertPrecision({
-    value: selectedRoute.toAmount,
+    value: selectedRoute.toAmountMin,
     inputPrecision: buyLifiToken.decimals,
     outputPrecision: sellLifiToken.decimals,
   })
@@ -181,7 +180,7 @@ export async function getTradeQuote(
   return {
     accountNumber,
     allowanceContract,
-    buyAmountCryptoBaseUnit: bnOrZero(selectedRoute.toAmount).toString(),
+    buyAmountCryptoBaseUnit: bnOrZero(selectedRoute.toAmountMin).toString(),
     buyAsset,
     feeData,
     maximum: MAX_LIFI_TRADE,
@@ -190,7 +189,7 @@ export async function getTradeQuote(
     recommendedSlippage: maxSlippage.toString(),
     sellAmountBeforeFeesCryptoBaseUnit,
     sellAsset,
-    sources: DEFAULT_SOURCE, // TODO: use selected route steps to create sources
+    sources: [{ name: `${selectedRoute.steps[0].tool} (${SwapperName.LIFI})`, proportion: '1' }],
 
     // the following are required due to minimumCryptoHuman logical requirements downstream
     // TODO: Determine whether we can delete logic surrounding minimum amounts and instead lean on error

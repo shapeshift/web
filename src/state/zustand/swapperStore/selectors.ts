@@ -13,6 +13,7 @@ import {
 import type { BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { toBaseUnit } from 'lib/math'
+import { assertUnreachable } from 'lib/utils'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import type { SwapperState } from 'state/zustand/swapperStore/types'
 
@@ -62,15 +63,21 @@ export const selectQuote = (state: SwapperState): TradeQuote<ChainId> | undefine
    */
 export const selectSwapperSupportsCrossAccountTrade = (state: SwapperState): boolean => {
   const activeSwapper = state.activeSwapperWithMetadata?.swapper
-  switch (activeSwapper?.name) {
+  const swapperName = activeSwapper?.name
+
+  if (swapperName === undefined) return false
+
+  switch (swapperName) {
     case SwapperName.Thorchain:
     case SwapperName.Osmosis:
+    case SwapperName.LIFI:
       return true
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
+    case SwapperName.Test:
       return false
     default:
-      return false
+      assertUnreachable(swapperName)
   }
 }
 

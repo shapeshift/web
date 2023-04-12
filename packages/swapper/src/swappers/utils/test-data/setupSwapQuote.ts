@@ -16,7 +16,7 @@ export const setupQuote = () => {
     allowanceContract: 'allowanceContractAddress',
     accountNumber: 0,
     minimumCryptoHuman: '0',
-    maximum: '999999999999',
+    maximumCryptoHuman: '999999999999',
     feeData: {
       chainSpecific: {},
       sellAssetTradeFeeUsd: '0',

@@ -8,32 +8,22 @@ import type {
 import { LifiErrorCode } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { GetEvmTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
+import type { GetEvmTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
-import {
-  BigNumber,
-  bn,
-  bnOrZero,
-  convertPrecision,
-  fromHuman,
-  toHuman,
-} from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero, convertPrecision, fromHuman } from 'lib/bignumber/bignumber'
 import {
   DEFAULT_SOURCE,
   MAX_LIFI_TRADE,
   MIN_AMOUNT_THRESHOLD_USD_HUMAN,
   SELECTED_ROUTE_INDEX,
 } from 'lib/swapper/LifiSwapper/utils/constants'
+import { getAssetBalance } from 'lib/swapper/LifiSwapper/utils/getAssetBalance/getAssetBalance'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
-import { getMinimumAmountFromRoutes } from 'lib/swapper/LifiSwapper/utils/getMinimumAmountFromRoutes/getMinimumAmountFromRoutes'
+import { getMinimumUsdHumanFromRoutes } from 'lib/swapper/LifiSwapper/utils/getMinimumUsdHumanFromRoutes/getMinimumUsdHumanFromRoutes'
 import { transformLifiFeeData } from 'lib/swapper/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
-import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
-import {
-  selectAccountIdByAccountNumberAndChainId,
-  selectMarketDataById,
-} from 'state/slices/selectors'
+import type { LifiTradeQuote } from 'lib/swapper/LifiSwapper/utils/types'
+import { selectMarketDataById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 export async function getTradeQuote(
@@ -41,7 +31,7 @@ export async function getTradeQuote(
   lifiAssetMap: Map<AssetId, LifiToken>,
   lifiChainMap: Map<ChainId, ChainKey>,
   lifiBridges: BridgeDefinition[],
-): Promise<TradeQuote<EvmChainId>> {
+): Promise<LifiTradeQuote> {
   const {
     chainId,
     sellAsset,
@@ -52,60 +42,41 @@ export async function getTradeQuote(
     accountNumber,
   } = input
 
-  const fromLifiChainKey = lifiChainMap.get(sellAsset.chainId)
-  const toLifiChainKey = lifiChainMap.get(buyAsset.chainId)
-  const fromLifiToken = lifiAssetMap.get(sellAsset.assetId)
-  const toLifiToken = lifiAssetMap.get(buyAsset.assetId)
+  const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
+  const buyLifiChainKey = lifiChainMap.get(buyAsset.chainId)
+  const sellLifiToken = lifiAssetMap.get(sellAsset.assetId)
+  const buyLifiToken = lifiAssetMap.get(buyAsset.assetId)
 
-  if (fromLifiChainKey === undefined || fromLifiToken === undefined) {
+  if (sellLifiChainKey === undefined || sellLifiToken === undefined) {
     throw new SwapError(
       `[getTradeQuote] asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
       { code: SwapErrorType.UNSUPPORTED_PAIR },
     )
   }
-  if (toLifiChainKey === undefined || toLifiToken === undefined) {
+  if (buyLifiChainKey === undefined || buyLifiToken === undefined) {
     throw new SwapError(
       `[getTradeQuote] asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
       { code: SwapErrorType.UNSUPPORTED_PAIR },
     )
   }
-  if (fromLifiChainKey === toLifiChainKey) {
+  if (sellLifiChainKey === buyLifiChainKey) {
     throw new SwapError('[getTradeQuote] same chains swaps not supported', {
       code: SwapErrorType.UNSUPPORTED_PAIR,
     })
   }
 
-  const fromAmountCryptoLifiPrecision: BigNumber = (() => {
-    if (sendMax) {
-      const accountId = selectAccountIdByAccountNumberAndChainId(store.getState(), {
+  const fromAmountCryptoLifiPrecision: BigNumber = sendMax
+    ? getAssetBalance({
+        asset: sellAsset,
         accountNumber,
         chainId,
+        outputPrecision: sellLifiToken.decimals,
       })
-
-      if (accountId === undefined) {
-        throw new SwapError('[getTradeQuote] no account id found', {
-          code: SwapErrorType.TRADE_QUOTE_FAILED,
-        })
-      }
-
-      const balance = selectPortfolioCryptoBalanceBaseUnitByFilter(store.getState(), {
-        accountId,
-        assetId: sellAsset.assetId,
-      })
-
-      return convertPrecision({
-        value: balance,
+    : convertPrecision({
+        value: sellAmountBeforeFeesCryptoBaseUnit,
         inputPrecision: sellAsset.precision,
-        outputPrecision: fromLifiToken.decimals,
+        outputPrecision: sellLifiToken.decimals,
       })
-    }
-
-    return convertPrecision({
-      value: sellAmountBeforeFeesCryptoBaseUnit,
-      inputPrecision: sellAsset.precision,
-      outputPrecision: fromLifiToken.decimals,
-    })
-  })()
 
   // handle quotes that dont meet the minimum amount
   const { price } = selectMarketDataById(store.getState(), sellAsset.assetId)
@@ -130,12 +101,20 @@ export async function getTradeQuote(
   const routesRequest: RoutesRequest = {
     fromChainId: Number(fromChainId(sellAsset.chainId).chainReference),
     toChainId: Number(fromChainId(buyAsset.chainId).chainReference),
-    fromTokenAddress: fromLifiToken.address,
-    toTokenAddress: toLifiToken.address,
+    fromTokenAddress: sellLifiToken.address,
+    toTokenAddress: buyLifiToken.address,
     fromAddress: receiveAddress,
     toAddress: receiveAddress,
     fromAmount: thresholdedAmountCryptoLifi,
-    options: { slippage: Number(DEFAULT_SLIPPAGE) },
+    // as recommended by lifi, dodo is denied until they fix their gas estimates
+    // TODO: convert this config to .env variable
+    options: {
+      slippage: Number(DEFAULT_SLIPPAGE),
+      exchanges: { deny: ['dodo'] },
+      // as recommended by lifi, allowSwitchChain must be false to ensure single-hop transactions.
+      // This must remain disabled until our application supports multi-hop swaps
+      allowSwitchChain: false,
+    },
   }
 
   const lifiRoutesResponse = await lifi.getRoutes(routesRequest).catch((e: LifiError) => {
@@ -155,16 +134,17 @@ export async function getTradeQuote(
 
   const selectedRoute = lifiRoutesResponse.routes[SELECTED_ROUTE_INDEX]
 
-  const minimumCryptoHuman = toHuman({
-    value: getMinimumAmountFromRoutes(lifiRoutesResponse.routes, lifiBridges) ?? Infinity,
-    inputPrecision: fromLifiToken.decimals,
-  }).toString()
+  const minimumUsdHuman = getMinimumUsdHumanFromRoutes(lifiRoutesResponse.routes, lifiBridges)
+  const minimumCryptoHuman =
+    minimumUsdHuman && sellLifiToken.priceUSD
+      ? minimumUsdHuman.dividedBy(sellLifiToken.priceUSD).toString()
+      : '0'
 
   // for the rate to be valid, both amounts must be converted to the same precision
   const estimateRate = convertPrecision({
     value: selectedRoute.toAmount,
-    inputPrecision: toLifiToken.decimals,
-    outputPrecision: fromLifiToken.decimals,
+    inputPrecision: buyLifiToken.decimals,
+    outputPrecision: sellLifiToken.decimals,
   })
     .dividedBy(bn(selectedRoute.fromAmount))
     .toString()
@@ -191,23 +171,33 @@ export async function getTradeQuote(
 
   const maxSlippage = BigNumber.max(...selectedRoute.steps.map(step => step.action.slippage))
 
+  const feeData = transformLifiFeeData({
+    buyLifiToken,
+    chainId,
+    lifiAssetMap,
+    selectedRoute,
+  })
+
   return {
     accountNumber,
     allowanceContract,
     buyAmountCryptoBaseUnit: bnOrZero(selectedRoute.toAmount).toString(),
     buyAsset,
-    feeData: transformLifiFeeData(
-      lifiRoutesResponse,
-      SELECTED_ROUTE_INDEX,
-      toLifiToken.address,
-      fromLifiToken.address,
-    ),
-    maximum: MAX_LIFI_TRADE,
+    feeData,
+    maximumCryptoHuman: MAX_LIFI_TRADE,
     minimumCryptoHuman,
     rate: estimateRate,
     recommendedSlippage: maxSlippage.toString(),
     sellAmountBeforeFeesCryptoBaseUnit,
     sellAsset,
     sources: DEFAULT_SOURCE, // TODO: use selected route steps to create sources
+
+    // the following are required due to minimumCryptoHuman logical requirements downstream
+    // TODO: Determine whether we can delete logic surrounding minimum amounts and instead lean on error
+    // handling in the UI so we can re-use the routes response downstream to avoid another fetch
+    routesRequest: {
+      ...routesRequest,
+      fromAmount: fromAmountCryptoLifiPrecision.toString(),
+    },
   }
 }

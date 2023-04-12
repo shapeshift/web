@@ -6,6 +6,5 @@ export class ErrorWithCause<T extends { cause?: unknown } | undefined = undefine
     this.name = this.constructor.name
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.cause = options?.cause as any
-    Error.captureStackTrace(this, this.constructor)
   }
 }

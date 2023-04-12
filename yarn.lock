@@ -6385,6 +6385,7 @@ __metadata:
     "@testing-library/user-event": ^14.2.1
     "@typechain/ethers-v5": ^10.1.1
     "@types/bignumber.js": ^5.0.0
+    "@types/bip21": ^2.0.0
     "@types/bs58check": ^2.1.0
     "@types/circular-dependency-plugin": ^5.0.5
     "@types/d3-array": ^3.0.1
@@ -6429,6 +6430,7 @@ __metadata:
     assert: ^2.0.0
     axios: ^0.26.1
     bignumber.js: ^9.1.1
+    bip21: ^2.0.3
     bip39: ^3.0.4
     browserify-fs: ^1.0.0
     browserify-zlib: ^0.2.0
@@ -7241,6 +7243,13 @@ __metadata:
   dependencies:
     bignumber.js: "*"
   checksum: f31a196da8b93d35c30879f4cc449e1099057ef27514554d2a5c80e2b1ba8cb8925919a2d92700d723ea959cb8b9d66f2917eea4f98a36f9f5d9e24c10c9c36f
+  languageName: node
+  linkType: hard
+
+"@types/bip21@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@types/bip21@npm:2.0.0"
+  checksum: 35d6b7eba4a55ec2868932d3a0ff29d88ffee005a80c3868c07e83ce59218e6cddc32ee767fb420942cab93cc131014ad7e88a768012cfc140ee7faf132b2cb0
   languageName: node
   linkType: hard
 
@@ -11046,6 +11055,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bip21@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "bip21@npm:2.0.3"
+  dependencies:
+    qs: ^6.3.0
+  checksum: 130943afa51e922ecd8f18f2537637f284f4bd10b40d344b7404a3b88180cb5ed0b199e8dad4f46cefaf77c65da9305a2a25d76c4239040bd002f64d091a2ad1
+  languageName: node
+  linkType: hard
+
 "bip32@npm:^2.0.4, bip32@npm:^2.0.5":
   version: 2.0.6
   resolution: "bip32@npm:2.0.6"
@@ -11806,9 +11824,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30001297, caniuse-lite@npm:^1.0.30001332":
-  version: 1.0.30001418
-  resolution: "caniuse-lite@npm:1.0.30001418"
-  checksum: 03380a9ba50b1abd0081e76bfdf331bfb2c28f2277ce5eead5b83960c4db9f1fbbd84a536efa6f8f1fe2c038bc01129d6c42d17f8323fe99a016a5da3829c4bc
+  version: 1.0.30001477
+  resolution: "caniuse-lite@npm:1.0.30001477"
+  checksum: 22db0feccf43b0c16a46bb59b4e26ae05011f41c6947f1dd176d5056e0db58c3415a5ff7ee5a60903a6bda7311b71705d1d29fc4c43a8b8a1bdeef8c1d93f6a8
   languageName: node
   linkType: hard
 
@@ -23720,6 +23738,15 @@ pvutils@latest:
   dependencies:
     side-channel: ^1.0.4
   checksum: 6e1f29dd5385f7488ec74ac7b6c92f4d09a90408882d0c208414a34dd33badc1a621019d4c799a3df15ab9b1d0292f97c1dd71dc7c045e69f81a8064e5af7297
+  languageName: node
+  linkType: hard
+
+"qs@npm:^6.3.0":
+  version: 6.11.1
+  resolution: "qs@npm:6.11.1"
+  dependencies:
+    side-channel: ^1.0.4
+  checksum: 82ee78ef12a16f3372fae5b64f76f8aedecb000feea882bbff1af146c147f6eb66b08f9c3f34d7e076f28563586956318b9b2ca41141846cdd6d5ad6f241d52f
   languageName: node
   linkType: hard
 

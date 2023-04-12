@@ -11,25 +11,25 @@ type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
   T,
   {
     [KnownChainIds.EthereumMainnet]: {
-      estimatedGas?: string
+      estimatedGasCryptoBaseUnit?: string
       gasPriceCryptoBaseUnit?: string
       approvalFeeCryptoBaseUnit?: string
       totalFee?: string
     }
     [KnownChainIds.AvalancheMainnet]: {
-      estimatedGas?: string
+      estimatedGasCryptoBaseUnit?: string
       gasPriceCryptoBaseUnit?: string
       approvalFeeCryptoBaseUnit?: string
       totalFee?: string
     }
     [KnownChainIds.OptimismMainnet]: {
-      estimatedGas?: string
+      estimatedGasCryptoBaseUnit?: string
       gasPriceCryptoBaseUnit?: string
       approvalFeeCryptoBaseUnit?: string
       totalFee?: string
     }
     [KnownChainIds.BnbSmartChainMainnet]: {
-      estimatedGas?: string
+      estimatedGasCryptoBaseUnit?: string
       gasPriceCryptoBaseUnit?: string
       approvalFeeCryptoBaseUnit?: string
       totalFee?: string
@@ -51,10 +51,10 @@ type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
       satsPerByte: string
     }
     [KnownChainIds.CosmosMainnet]: {
-      estimatedGas: string
+      estimatedGasCryptoBaseUnit: string
     }
     [KnownChainIds.ThorchainMainnet]: {
-      estimatedGas: string
+      estimatedGasCryptoBaseUnit: string
     }
   }
 >
@@ -137,7 +137,7 @@ interface TradeBase<C extends ChainId> {
 export interface TradeQuote<C extends ChainId> extends TradeBase<C> {
   allowanceContract: string
   minimumCryptoHuman: string
-  maximum: string
+  maximumCryptoHuman: string
   recommendedSlippage?: string
 
   /** @deprecated Use minimumCryptoHuman instead */
@@ -180,8 +180,8 @@ export type SwapSource = {
 }
 
 export interface MinMaxOutput {
-  minimum: string
-  maximum: string
+  minimumAmountCryptoHuman: string
+  maximumAmountCryptoHuman: string
 }
 
 export type ApprovalNeededOutput = {

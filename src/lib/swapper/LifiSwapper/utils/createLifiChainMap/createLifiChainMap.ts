@@ -3,7 +3,9 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, isChainReference, toChainId } from '@shapeshiftoss/caip'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 
-export const createLifiChainMap = (lifiChains: LifiEVMChain[]): Map<ChainId, LifiChainKey> => {
+export const createLifiChainMap = (
+  lifiChains: Pick<LifiEVMChain, 'key' | 'id'>[],
+): Map<ChainId, LifiChainKey> => {
   return new Map(
     lifiChains.map(({ id, key }) => {
       const chainReference = (() => {

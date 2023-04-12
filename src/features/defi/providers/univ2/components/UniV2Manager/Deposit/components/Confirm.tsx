@@ -106,8 +106,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     if (!state) return '0'
     // If any of the assets are ETH, return the amount of ETH needed
     // Else return 0 (no ETH needed)
-    if (assetId0 === ethAssetId) return state.deposit.asset1CryptoAmount
-    if (assetId1 === ethAssetId) return state.deposit.asset0CryptoAmount
+    if (assetId0 === ethAssetId) return state.deposit.asset0CryptoAmount
+    if (assetId1 === ethAssetId) return state.deposit.asset1CryptoAmount
 
     return '0'
   })()

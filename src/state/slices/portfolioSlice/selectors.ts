@@ -227,12 +227,9 @@ export const selectPortfolioFiatBalanceByFilter = createCachedSelector(
     if (!assetId && accountId) {
       const accountBalances = portfolioAccountFiatbalances[accountId]
       const totalAccountBalances =
-        Object.values(accountBalances).reduce(
-          (totalBalance: string, fiatBalance: string | undefined) => {
-            return bnOrZero(totalBalance).plus(bnOrZero(fiatBalance)).toFixed(2)
-          },
-          '0',
-        ) ?? '0'
+        Object.values(accountBalances).reduce((totalBalance, fiatBalance) => {
+          return bnOrZero(totalBalance).plus(bnOrZero(fiatBalance)).toFixed(2)
+        }, '0') ?? '0'
       return totalAccountBalances
     }
     return '0'

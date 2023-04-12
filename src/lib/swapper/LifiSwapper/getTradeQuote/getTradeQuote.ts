@@ -151,7 +151,7 @@ export async function getTradeQuote(
     buyAmountCryptoBaseUnit: bnOrZero(selectedLifiRoute.toAmountMin).toString(),
     buyAsset,
     feeData,
-    maximum: MAX_LIFI_TRADE,
+    maximumCryptoHuman: MAX_LIFI_TRADE,
     minimumCryptoHuman: getMinimumCryptoHuman(sellAsset).toString(),
     rate: estimateRate,
     recommendedSlippage: maxSlippage.toString(),

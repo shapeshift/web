@@ -1,4 +1,4 @@
-import { Flex, Stack } from '@chakra-ui/react'
+import { Flex, Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
@@ -40,6 +40,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   const translate = useTranslate()
   const assets = useAppSelector(selectAssets)
   const asset = assets[assetId]
+  const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
   const accountIds = useAppSelector(state =>
     selectAccountIdsByAssetIdAboveBalanceThreshold(state, { assetId }),
   )
@@ -123,22 +124,32 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
               key={item.id}
               assetId={assetId}
               opportunityId={item.id as OpportunityId}
+              allocation={item.allocation}
+              color={item.color}
             />
           )
         case AssetEquityType.LP:
           return (
-            <EquityLpRow key={item.id} assetId={assetId} opportunityId={item.id as OpportunityId} />
+            <EquityLpRow
+              key={item.id}
+              assetId={assetId}
+              opportunityId={item.id as OpportunityId}
+              allocation={item.allocation}
+              color={item.color}
+            />
           )
         case AssetEquityType.Account:
           return (
-            <EquityAccountRow key={item.id} assetId={assetId} accountId={item.id as AccountId} />
+            <EquityAccountRow
+              key={item.id}
+              assetId={assetId}
+              accountId={item.id as AccountId}
+              allocation={item.allocation}
+              color={item.color}
+            />
           )
         default:
-          return (
-            <Flex key={item.id}>
-              {item.type} {item.fiatAmount}
-            </Flex>
-          )
+          return null
       }
     })
   }, [assetId, equityItems])
@@ -152,31 +163,14 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
           <Amount.Fiat fontSize='xl' value={fiatBalance} />
           <Amount.Crypto variant='sub-text' value={cryptoHumanBalance} symbol={asset.symbol} />
         </Flex>
-        <Flex flex={1} flexDir='column' gap={2}>
-          <Flex
-            bg='gray.700'
-            height='10px'
-            borderRadius='lg'
-            overflow='hidden'
-            gap={1}
-            width='full'
-          >
-            {equityItems.map(item => (
-              <Flex key={`allocation-${item.id}`} width={`${item.allocation}%`} bg={item.color} />
-            ))}
-          </Flex>
-          <Flex gap={4} flexWrap='wrap'>
-            {equityItems.map(item => (
-              <Flex gap={1} alignItems='center' key={`key-${item.id}`}>
-                <CircleIcon boxSize='8px' color={item.color} />
-                <RawText fontSize='xs'>{item.provider}</RawText>
-              </Flex>
-            ))}
-          </Flex>
-        </Flex>
       </Card.Header>
       <Card.Body pt={0} pb={2}>
-        <Stack spacing={0} mt={2} mx={-4}>
+        <Stack
+          spacing={0}
+          mt={2}
+          mx={-4}
+          divider={<StackDivider borderColor={borderColor} style={{ marginLeft: 14 }} />}
+        >
           {renderEquityRows}
         </Stack>
       </Card.Body>

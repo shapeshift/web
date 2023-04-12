@@ -1,11 +1,9 @@
-import { Avatar, Button, Flex } from '@chakra-ui/react'
+import { Avatar } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { generatePath, Link } from 'react-router-dom'
-import { Amount } from 'components/Amount/Amount'
-import { RawText } from 'components/Text'
+import { generatePath, useHistory } from 'react-router-dom'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import {
@@ -16,6 +14,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { EquityRow } from './EquityRow'
+
 // This can maybe be combined with the other AccountRow component once we know how the data works
 // src/components/AccountRow
 // Link url should be the account page /Accounts/[account] or whatever the route is
@@ -23,10 +23,18 @@ import { useAppSelector } from 'state/store'
 type EquityAccountRowProps = {
   accountId: AccountId
   assetId: AssetId
+  allocation?: string
+  color?: string
 }
 
-export const EquityAccountRow = ({ accountId, assetId }: EquityAccountRowProps) => {
+export const EquityAccountRow = ({
+  accountId,
+  assetId,
+  allocation,
+  color,
+}: EquityAccountRowProps) => {
   const translate = useTranslate()
+  const history = useHistory()
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const rowAssetId = assetId ? assetId : feeAssetId
   const asset = useAppSelector(state => selectAssetById(state, rowAssetId ?? ''))
@@ -50,34 +58,24 @@ export const EquityAccountRow = ({ accountId, assetId }: EquityAccountRowProps) 
     filter,
   )
 
+  const handleClick = useCallback(() => {
+    history.push(path)
+  }, [history, path])
+
   if (!asset) return null
   return (
-    <Button
-      variant='ghost'
-      as={Link}
-      to={path}
-      height='auto'
-      py={4}
-      justifyContent='flex-start'
-      alignItems='center'
-      display='flex'
-      gap={4}
-    >
-      <Avatar bg={`${asset.color}20`} color={asset.color} size='sm' name={`# ${accountNumber}`} />
-      <Flex flexDir='column' alignItems='flex-start'>
-        <RawText fontWeight='bold' color='chakra-body-text'>
-          {translate('accounts.accountNumber', { accountNumber })}
-        </RawText>
-        <Flex fontWeight='medium' fontSize='sm' gap={1}>
-          <Amount.Fiat value={fiatBalance} color='chakra-body-text' />
-          <Amount.Crypto
-            value={cryptoHumanBalance}
-            symbol={asset.symbol}
-            _before={{ content: "'('" }}
-            _after={{ content: "')'" }}
-          />
-        </Flex>
-      </Flex>
-    </Button>
+    <EquityRow
+      onClick={handleClick}
+      imageComponent={
+        <Avatar bg={`${asset.color}20`} color={asset.color} size='sm' name={`# ${accountNumber}`} />
+      }
+      label={translate('accounts.accountNumber', { accountNumber })}
+      allocation={allocation}
+      color={color}
+      fiatAmount={fiatBalance}
+      cryptoAmount={cryptoHumanBalance}
+      symbol={asset.symbol}
+      subText='Wallet'
+    />
   )
 }

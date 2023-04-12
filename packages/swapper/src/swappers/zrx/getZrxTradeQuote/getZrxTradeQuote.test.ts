@@ -45,7 +45,7 @@ describe('getZrxTradeQuote', () => {
     const quote = await swapper.getTradeQuote(quoteInput)
     expect(quote.feeData).toStrictEqual({
       chainSpecific: {
-        estimatedGas: '1500000',
+        estimatedGasCryptoBaseUnit: '1500000',
         gasPriceCryptoBaseUnit: '1000',
         approvalFeeCryptoBaseUnit: '100000000',
       },
@@ -92,7 +92,7 @@ describe('getZrxTradeQuote', () => {
     const quote = await swapper.getTradeQuote(quoteInput)
     expect(quote?.feeData).toStrictEqual({
       chainSpecific: {
-        estimatedGas: '0',
+        estimatedGasCryptoBaseUnit: '0',
         approvalFeeCryptoBaseUnit: '0',
         gasPriceCryptoBaseUnit: undefined,
       },

@@ -78,7 +78,7 @@ export const transformLifiFeeData = ({
 
       // lifi handles approval gas internally but need to set a gas limit so the
       // approval limit isnt exceeded when the trade is executed.
-      estimatedGas: APPROVAL_GAS_LIMIT,
+      estimatedGasCryptoBaseUnit: APPROVAL_GAS_LIMIT,
       approvalFeeCryptoBaseUnit: approvalFeeCryptoBaseUnit.toString(),
     },
     // UI shows the sum of these as "protocol fee"

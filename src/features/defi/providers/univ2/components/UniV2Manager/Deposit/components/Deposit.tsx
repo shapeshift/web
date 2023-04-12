@@ -1,6 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethers } from 'ethers'
 import type { DepositValues } from 'features/defi/components/Deposit/PairDeposit'
 import { PairDeposit } from 'features/defi/components/Deposit/PairDeposit'
 import type {
@@ -189,13 +190,15 @@ export const Deposit: React.FC<DepositProps> = ({
         onNext(DefiStep.Confirm)
         dispatch({ type: UniV2DepositActionType.SET_LOADING, payload: false })
       } else {
+        const asset0ContractAddress = ethers.utils.getAddress(fromAssetId(assetId0).assetReference)
+        const asset1ContractAddress = ethers.utils.getAddress(fromAssetId(assetId1).assetReference)
         // While the naive approach would be to think both assets approve() calls are going to result in the same gas estimation,
         // this is not necesssarly true. Some ERC-20s approve() might have a bit more logic, and thus require more gas.
         // e.g https://github.com/Uniswap/governance/blob/eabd8c71ad01f61fb54ed6945162021ee419998e/contracts/Uni.sol#L119
         const asset0EstimatedGasCrypto =
-          assetId0 !== ethAssetId && (await getApproveGasData(fromAssetId(assetId0).assetReference))
+          assetId0 !== ethAssetId && (await getApproveGasData(asset0ContractAddress))
         const asset1EstimatedGasCrypto =
-          assetId1 !== ethAssetId && (await getApproveGasData(fromAssetId(assetId1).assetReference))
+          assetId1 !== ethAssetId && (await getApproveGasData(asset1ContractAddress))
         if (!(asset0EstimatedGasCrypto || asset1EstimatedGasCrypto)) return
 
         if (!isAsset0AllowanceGranted && asset0EstimatedGasCrypto) {

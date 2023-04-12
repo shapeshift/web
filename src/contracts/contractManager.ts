@@ -68,7 +68,7 @@ export const getOrCreateContractByType = <T extends ContractType>({
   address,
   type,
 }: {
-  address: string
+  address: `0x${string}`
   type: T
 }): KnownContractByType<T> => {
   const definedContract = definedContracts.find(contract => contract.address === address)
@@ -77,7 +77,6 @@ export const getOrCreateContractByType = <T extends ContractType>({
   const typechainContract = CONTRACT_TYPE_TO_TYPECHAIN_CONTRACT[type]
   const ethersProvider = getEthersProvider()
   const contract = typechainContract.connect(address, ethersProvider)
-  // @ts-ignore temp ignore
   definedContracts.push({ contract, address })
   return contract as KnownContractByType<T>
 }

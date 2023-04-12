@@ -19,6 +19,7 @@ import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { Address } from 'wagmi'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -101,11 +102,11 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
 
   const asset0ContractAddress = useMemo(() => {
-    if (assetId0 === ethAssetId) return ''
+    if (assetId0 === ethAssetId) return undefined
     return ethers.utils.getAddress(fromAssetId(assetId0).assetReference)
   }, [assetId0])
   const asset1ContractAddress = useMemo(() => {
-    if (assetId1 === ethAssetId) return ''
+    if (assetId1 === ethAssetId) return undefined
     return ethers.utils.getAddress(fromAssetId(assetId1).assetReference)
   }, [assetId1])
   const neededApprovals = [
@@ -139,7 +140,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const toast = useToast()
 
   const handleApprove = useCallback(
-    async (contractAddress: string) => {
+    async (contractAddress: Address) => {
       if (!dispatch || !state?.deposit || !lpOpportunity || !wallet || !supportsETH(wallet)) return
       contractAddress === asset0ContractAddress
         ? setApprove0Loading(true)
@@ -298,7 +299,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
 
   const approvalElements = useMemo(
     () => [
-      ...(!isAsset0AllowanceGranted
+      ...(asset0ContractAddress && !isAsset0AllowanceGranted
         ? [
             <>
               <Text>{`${neededApprovals.indexOf(asset0ContractAddress) + 1} out of ${
@@ -321,13 +322,13 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
                 providerIcon={DefiProviderMetadata[lpOpportunity!.provider].icon}
                 learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
                 onCancel={() => onNext(DefiStep.Info)}
-                onConfirm={() => handleApprove(asset0ContractAddress ?? '')}
+                onConfirm={() => handleApprove(asset0ContractAddress)}
                 spenderContractAddress={UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS!}
               />
             </>,
           ]
         : []),
-      ...(!isAsset1AllowanceGranted
+      ...(asset1ContractAddress && !isAsset1AllowanceGranted
         ? [
             <>
               <Text>{`${neededApprovals.indexOf(asset1ContractAddress) + 1} out of ${
@@ -350,7 +351,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
                 providerIcon={DefiProviderMetadata[lpOpportunity!.provider].icon}
                 learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
                 onCancel={() => onNext(DefiStep.Info)}
-                onConfirm={() => handleApprove(asset1ContractAddress ?? '')}
+                onConfirm={() => handleApprove(asset1ContractAddress)}
                 spenderContractAddress={UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS}
               />
             </>,

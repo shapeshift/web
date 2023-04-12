@@ -12,6 +12,7 @@ import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
+import type { Address } from 'wagmi'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -106,6 +107,7 @@ export const useUniV2LiquidityPool = ({
   )
 
   const asset0Contract = useMemo(
+    // TODO(gomes): remove casting and make getOrCreateContract handle generic ERC-20s as input
     () =>
       skip
         ? null
@@ -117,6 +119,7 @@ export const useUniV2LiquidityPool = ({
   )
 
   const asset1Contract = useMemo(
+    // TODO(gomes): remove casting and make getOrCreateContract handle generic ERC-20s as input
     () =>
       skip
         ? null
@@ -128,6 +131,7 @@ export const useUniV2LiquidityPool = ({
   )
 
   const uniV2LPContract = useMemo(
+    // TODO(gomes): remove casting and make getOrCreateContract handle generic ERC-20s as input
     () =>
       skip
         ? null
@@ -545,7 +549,7 @@ export const useUniV2LiquidityPool = ({
   }, [skip, uniV2LPContract, accountId])
 
   const getApproveGasData = useCallback(
-    async (contractAddress: string) => {
+    async (contractAddress: Address) => {
       if (skip) return
       const contract = getOrCreateContractByType({
         address: contractAddress,
@@ -687,7 +691,7 @@ export const useUniV2LiquidityPool = ({
   )
 
   const approveAsset = useCallback(
-    async (contractAddress: string) => {
+    async (contractAddress: Address) => {
       if (skip || !wallet || !isNumber(accountNumber)) return
       const contract = getOrCreateContractByType({
         address: contractAddress,

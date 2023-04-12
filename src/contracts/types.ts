@@ -31,5 +31,5 @@ export type KnownContractAddress =
 
 export type DefinedContract = {
   contract: KnownContractByAddress<KnownContractAddress>
-  address: KnownContractAddress
+  address: KnownContractAddress | `0x${string}`
 }

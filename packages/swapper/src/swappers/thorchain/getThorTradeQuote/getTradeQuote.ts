@@ -123,7 +123,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
     const commonQuoteFields: CommonQuoteFields = {
       rate,
-      maximum: MAX_THORCHAIN_TRADE,
+      maximumCryptoHuman: MAX_THORCHAIN_TRADE,
       sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
       buyAmountCryptoBaseUnit,
       sources: [{ name: SwapperName.Thorchain, proportion: '1' }],

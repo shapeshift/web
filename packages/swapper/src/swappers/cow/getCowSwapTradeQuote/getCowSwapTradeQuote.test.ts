@@ -42,10 +42,16 @@ jest.mock('../getCowSwapMinMax/getCowSwapMinMax', () => {
   return {
     getCowSwapMinMax: (_args: CowSwapperDeps, sellAsset: Asset) => {
       if (sellAsset.assetId === FOX.assetId) {
-        return { minimum: '229.09507445589919816724', maximum: '100000000000000000000000000' }
+        return {
+          minimumAmountCryptoHuman: '229.09507445589919816724',
+          maximumAmountCryptoHuman: '100000000000000000000000000',
+        }
       }
 
-      return { minimum: '0.011624', maximum: '100000000000000000000000000' }
+      return {
+        minimumAmountCryptoHuman: '0.011624',
+        maximumAmountCryptoHuman: '100000000000000000000000000',
+      }
     },
   }
 })
@@ -119,7 +125,7 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
 const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   rate: '14716.04718939437505555958', // 14716 FOX per WETH
   minimumCryptoHuman: '0.011624',
-  maximum: '100000000000000000000000000',
+  maximumCryptoHuman: '100000000000000000000000000',
   feeData: {
     chainSpecific: {
       estimatedGas: '100000',
@@ -142,7 +148,7 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
 const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
   rate: '0.00004995640398295996',
   minimumCryptoHuman: '229.09507445589919816724',
-  maximum: '100000000000000000000000000',
+  maximumCryptoHuman: '100000000000000000000000000',
   feeData: {
     chainSpecific: {
       estimatedGas: '100000',
@@ -165,7 +171,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
 const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   rate: '14716.04718939437523468382', // 14716 FOX per WETH
   minimumCryptoHuman: '0.011624',
-  maximum: '100000000000000000000000000',
+  maximumCryptoHuman: '100000000000000000000000000',
   feeData: {
     chainSpecific: {
       estimatedGas: '100000',

@@ -1,6 +1,5 @@
 import { Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -13,11 +12,10 @@ import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAccountIdsByAssetIdAboveBalanceThreshold,
   selectAllEarnUserLpOpportunitiesByAccountId,
-  selectAllEarnUserStakingOpportunitiesByAccountId,
+  selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssets,
   selectCryptoHumanBalanceIncludingStakingByFilter,
   selectFiatBalanceIncludingStakingByFilter,
-  selectMarketDataSortedByMarketCap,
   selectPortfolioFiatBalancesByAccount,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -42,9 +40,12 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   const translate = useTranslate()
   const assets = useAppSelector(selectAssets)
   const asset = assets[assetId]
-  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
   const accountIds = useAppSelector(state =>
     selectAccountIdsByAssetIdAboveBalanceThreshold(state, { assetId }),
+  )
+  const activeAccountList = useMemo(
+    () => (accountId ? accountIds.filter(listAccount => listAccount === accountId) : accountIds),
+    [accountId, accountIds],
   )
   const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const fiatBalance = useAppSelector(s =>
@@ -54,9 +55,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     selectCryptoHumanBalanceIncludingStakingByFilter(s, opportunitiesFilter),
   )
   const portfolioFiatBalances = useAppSelector(selectPortfolioFiatBalancesByAccount)
-  // const lpOpportunities = useAppSelector(state =>
-  //   selectAllEarnUserLpOpportunitiesByAccountId(state, { accountId }),
-  // )
+
   const filter = useMemo(() => {
     return {
       assetId,
@@ -67,11 +66,11 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     selectAllEarnUserLpOpportunitiesByAccountId(state, filter),
   )
   const stakingOpportunities = useAppSelector(state =>
-    selectAllEarnUserStakingOpportunitiesByAccountId(state, { accountId }),
+    selectAllEarnUserStakingOpportunitiesByFilter(state, filter),
   )
 
   const equityItems = useMemo(() => {
-    const accounts = accountIds.map(accountId => {
+    const accounts = activeAccountList.map(accountId => {
       const fiatAmount = portfolioFiatBalances[accountId][assetId]
       return {
         id: accountId,
@@ -79,7 +78,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
         fiatAmount,
         provider: 'wallet',
         allocation: bnOrZero(fiatAmount).div(fiatBalance).times(100).toString(),
-        color: '#3761F9',
+        color: asset?.color,
       }
     })
     const staking = stakingOpportunities.map(stakingOpportunity => {
@@ -106,30 +105,15 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
       bnOrZero(b.fiatAmount).minus(a.fiatAmount).toNumber(),
     )
   }, [
-    accountIds,
+    activeAccountList,
+    asset?.color,
     assetId,
     fiatBalance,
     lpOpportunities,
     portfolioFiatBalances,
     stakingOpportunities,
   ])
-  /*
 
-    enum AssetEquityType {
-      Account = 'Account',
-      Staking = 'Staking,
-      LP = 'LP',
-      Reward = 'Reward
-    }
-    const data = [
-      {
-        type: AssetEquityType.Account,
-        id: '',
-        fiatAmount: ''
-      }
-    ]
-
-  */
   const renderEquityRows = useMemo(() => {
     return equityItems.map(item => {
       switch (item.type) {
@@ -178,12 +162,12 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
             width='full'
           >
             {equityItems.map(item => (
-              <Flex width={`${item.allocation}%`} bg={item.color} />
+              <Flex key={`allocation-${item.id}`} width={`${item.allocation}%`} bg={item.color} />
             ))}
           </Flex>
-          <Flex gap={4}>
+          <Flex gap={4} flexWrap='wrap'>
             {equityItems.map(item => (
-              <Flex gap={1} alignItems='center'>
+              <Flex gap={1} alignItems='center' key={`key-${item.id}`}>
                 <CircleIcon boxSize='8px' color={item.color} />
                 <RawText fontSize='xs'>{item.provider}</RawText>
               </Flex>

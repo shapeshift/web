@@ -282,103 +282,73 @@ export const selectActiveAggregatedEarnUserLpOpportunities = createDeepEqualOutp
     ),
 )
 
-// export const selectAllEarnUserLpOpportunitiesByAccountId = createSelector(
-//   selectLpOpportunitiesByAccountId,
-//   selectLpOpportunitiesById,
-//   selectPortfolioAccountBalancesBaseUnit,
-//   selectAssets,
-//   selectMarketDataSortedByMarketCap,
-//   selectAccountIdParamFromFilter,
-//   (
-//     lpOpportunitiesByAccountId,
-//     lpOpportunitiesById,
-//     portfolioAssetBalancesById,
-//     assets,
-//     marketData,
-//     accountId,
-//   ): LpEarnOpportunityType[] => {
-//     if (!accountId) return []
-//     const accountOpportunities = lpOpportunitiesByAccountId[accountId]
-//     const opportunities: LpEarnOpportunityType[] = []
-
-//     if (!accountOpportunities?.length) return []
-
-//     accountOpportunities.forEach(lpId => {
-//       const opportunityMetaData = lpOpportunitiesById[lpId]
-//       if (!opportunityMetaData) return
-//       const lpAssetBalanceCryptoBaseUnit = portfolioAssetBalancesById[accountId as string][lpId]
-//       if (lpAssetBalanceCryptoBaseUnit === '0') return
-
-//       if (opportunity) {
-//         opportunities.push(opportunity)
-//       }
-//     })
-
-//     return opportunities
-//   },
-// )
-export const selectAllEarnUserLpOpportunitiesByAccountId = createDeepEqualOutputSelector(
-  selectLpOpportunitiesByAccountId,
+export const selectAllEarnUserLpOpportunitiesByAccountId = createSelector(
   selectLpOpportunitiesById,
-  selectAssetIdParamFromFilter,
-  selectAccountIdParamFromFilter,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAssetBalancesBaseUnit,
   selectAssets,
   selectMarketDataSortedByMarketCap,
+  selectAssetIdParamFromFilter,
+  selectAccountIdParamFromFilter,
   (
-    lpOpportunitiesByAccountId,
     lpOpportunitiesById,
-    assetId,
-    accountId,
-    lpAssetBalanceCryptoBaseUnit,
+    portfolioAccountBalanceById,
+    portfolioAssetBalancesById,
     assets,
     marketData,
+    assetId,
+    accountId,
   ): LpEarnOpportunityType[] => {
     if (!assetId) return []
-
-    const opportunities: LpEarnOpportunityType[] = []
-    for (const [lpId, opportunityMetadata] of Object.entries(lpOpportunitiesById)) {
-      const marketDataPrice = marketData[lpId as AssetId]?.price
-
-      if (!opportunityMetadata) return []
-      if (!opportunityMetadata.underlyingAssetIds.length) return []
-      if (!opportunityMetadata.underlyingAssetIds.includes(assetId)) return []
-      if (accountId) {
-        const accountLpById = lpOpportunitiesByAccountId[accountId]
-        if (accountLpById && !accountLpById.includes(lpId)) return []
-      }
-
-      const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
-        opportunityMetadata?.underlyingAssetIds.map((assetId, i) =>
-          bnOrZero(lpAssetBalanceCryptoBaseUnit)
-            .times(opportunityMetadata?.underlyingAssetRatiosBaseUnit[i])
-            .div(bn(10).pow(bnOrZero(assets[assetId]?.precision)))
-            .toFixed(6),
-        )
-
-      const opportunity = {
-        ...opportunityMetadata,
-        opportunityName: opportunityMetadata.name,
-        isLoaded: true,
-        contractAddress: fromAssetId(lpId as AssetId).assetReference,
-        chainId: fromAssetId(lpId as AssetId).chainId,
-        underlyingToken0AmountCryptoBaseUnit,
-        underlyingToken1AmountCryptoBaseUnit,
-        cryptoAmountBaseUnit: lpAssetBalanceCryptoBaseUnit,
-        cryptoAmountPrecision: bnOrZero(lpAssetBalanceCryptoBaseUnit)
-          .div(bn(10).pow(bnOrZero(assets[opportunityMetadata?.assetId]?.precision)))
-          .toFixed(),
-        fiatAmount: bnOrZero(lpAssetBalanceCryptoBaseUnit)
-          .div(bn(10).pow(bnOrZero(assets[opportunityMetadata?.assetId]?.precision)))
-          .times(marketDataPrice ?? '0')
-          .toString(),
-        icons: opportunityMetadata.underlyingAssetIds
-          .map(assetId => assets[assetId]?.icon)
-          .map(icon => icon ?? ''),
-      }
-
-      opportunities.push(opportunity)
-    }
+    const opportunities: LpEarnOpportunityType[] = Object.entries(lpOpportunitiesById).reduce(
+      (opportunities: LpEarnOpportunityType[], [lpId, opportunityMetadata]) => {
+        if (!opportunityMetadata) return opportunities
+        const marketDataPrice = marketData[lpId as AssetId]?.price
+        let opportunityBalance = portfolioAssetBalancesById[lpId]
+        if (accountId) {
+          opportunityBalance = portfolioAccountBalanceById[accountId][lpId]
+        }
+        if (bnOrZero(opportunityBalance).eq(0)) return opportunities
+        if (
+          opportunityMetadata?.underlyingAssetIds.length &&
+          opportunityMetadata.underlyingAssetIds.includes(assetId)
+        ) {
+          const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
+            opportunityMetadata.underlyingAssetIds.map((assetId, i) =>
+              bnOrZero(opportunityBalance)
+                .times(opportunityMetadata?.underlyingAssetRatiosBaseUnit[i] ?? '0')
+                .div(bn(10).pow(bnOrZero(assets[assetId]?.precision)))
+                .toFixed(6)
+                .toString(),
+            )
+          /* Transform data into LpEarnOpportunityType */
+          const opportunity: LpEarnOpportunityType = {
+            ...opportunityMetadata,
+            isLoaded: true,
+            chainId: fromAssetId(lpId as AssetId).chainId,
+            underlyingToken0AmountCryptoBaseUnit,
+            underlyingToken1AmountCryptoBaseUnit,
+            cryptoAmountPrecision: bnOrZero(opportunityBalance)
+              .div(bn(10).pow(assets[lpId]?.precision ?? '0'))
+              .toString(),
+            // TODO(gomes): use base unit as source of truth, conversions back and forth are unsafe
+            cryptoAmountBaseUnit: opportunityBalance,
+            fiatAmount: bnOrZero(opportunityBalance)
+              .times(marketDataPrice ?? '0')
+              .div(bn(10).pow(assets[lpId]?.precision ?? '0'))
+              .toString(),
+            icons: opportunityMetadata.underlyingAssetIds
+              .map(assetId => assets[assetId]?.icon)
+              .map(icon => icon ?? ''),
+            opportunityName: opportunityMetadata.name,
+            rewardAddress: '',
+          }
+          opportunities.push(opportunity)
+        }
+        return opportunities
+      },
+      [],
+    )
     return opportunities
   },
 )

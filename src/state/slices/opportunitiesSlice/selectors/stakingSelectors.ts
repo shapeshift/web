@@ -46,6 +46,7 @@ import type {
 import {
   deserializeUserStakingId,
   filterUserStakingIdByStakingIdCompareFn,
+  getOpportunityAccessor,
   isActiveStakingEarnOpportunity,
   isActiveStakingOpportunity,
   isFoxEthStakingAssetId,
@@ -706,3 +707,54 @@ export const selectAllEarnUserStakingOpportunitiesByAccountId = createSelector(
     return opportunities
   },
 )
+
+export const selectAllEarnUserStakingOpportunitiesByFilter = createSelector(
+  selectAggregatedEarnUserStakingOpportunities,
+  selectPortfolioAccountBalancesBaseUnit,
+  selectAssets,
+  selectMarketDataSortedByMarketCap,
+  selectAssetIdParamFromFilter,
+  selectAccountIdParamFromFilter,
+  (
+    aggregatedUserStakingOpportunities,
+    portfolioAccountBalanceById,
+    assets,
+    marketData,
+    assetId,
+    accountId,
+  ): StakingEarnOpportunityType[] => {
+    const opportunities: StakingEarnOpportunityType[] = []
+    for (const userStakingOpportunity of aggregatedUserStakingOpportunities) {
+      const depositKey = getOpportunityAccessor({
+        provider: userStakingOpportunity.provider,
+        type: userStakingOpportunity.type,
+      })
+      const underlyingAssetIds = [userStakingOpportunity[depositKey]].flat()
+      if (underlyingAssetIds && assetId && underlyingAssetIds.includes(assetId)) {
+        const opportunityBalance = accountId
+          ? portfolioAccountBalanceById[accountId][userStakingOpportunity.id]
+          : userStakingOpportunity.cryptoAmountBaseUnit
+        if (bnOrZero(opportunityBalance).eq(0)) continue
+        const asset = assets[userStakingOpportunity.assetId]
+        const underlyingAsset = assets[userStakingOpportunity.underlyingAssetId]
+        const marketDataPrice = marketData[asset?.assetId ?? underlyingAsset?.assetId ?? '']?.price
+        const opportunity = {
+          ...userStakingOpportunity,
+          fiatAmount: bnOrZero(opportunityBalance)
+            .div(bn(10).pow(bnOrZero(asset?.precision ?? underlyingAsset?.precision)))
+            .times(marketDataPrice ?? '0')
+            .toString(),
+        }
+        opportunities.push(opportunity)
+      }
+    }
+    return opportunities
+  },
+)
+
+/*
+
+      const opportunityBalance = accountId
+        ? portfolioAccountBalanceById[accountId][stakingId]
+        : portfolioAssetBalancesById[stakingId]
+*/

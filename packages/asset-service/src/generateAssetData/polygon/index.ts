@@ -5,7 +5,7 @@ import { polygon } from '../baseAssets'
 import * as coingecko from '../coingecko'
 
 export const getAssets = async () => {
-  const assets = await coingecko.getAssets(bscChainId)
+  const assets = await coingecko.getAssets(polygonChainId)
   return [...assets, polygon].map(asset => ({
     ...asset,
     icon:

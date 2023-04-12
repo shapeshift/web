@@ -26,18 +26,9 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const moduleLogger = logger.child({ namespace: ['useUniV2LiquidityPool'] })
+import { calculateSlippageMargin } from '../utils'
 
-function calculateSlippageMargin(amount: string | null, precision: number) {
-  if (!amount) throw new Error('Amount not given for slippage')
-  const percentage = 3
-  const remainingPercentage = (100 - percentage) / 100
-  return bnOrZero(amount)
-    .times(bn(10).exponentiatedBy(precision))
-    .times(bnOrZero(remainingPercentage))
-    .decimalPlaces(0)
-    .toFixed()
-}
+const moduleLogger = logger.child({ namespace: ['useUniV2LiquidityPool'] })
 
 type UseUniV2LiquidityPoolOptions = {
   skip?: boolean

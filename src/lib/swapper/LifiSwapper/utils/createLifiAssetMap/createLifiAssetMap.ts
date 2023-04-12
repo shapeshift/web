@@ -40,6 +40,11 @@ export const createLifiAssetMap = (lifiTokens: LifiToken[]): Map<AssetId, LifiTo
               assetReference: ASSET_REFERENCE.Optimism,
               assetNamespace: ASSET_NAMESPACE.slip44,
             }
+          case CHAIN_REFERENCE.BnbSmartChainMainnet:
+            return {
+              assetReference: ASSET_REFERENCE.BnbSmartChain,
+              assetNamespace: ASSET_NAMESPACE.slip44,
+            }
           default:
             throw new SwapError(
               `[createLifiAssetMap] chainId '${lifiToken.chainId}' not supported`,

@@ -13,10 +13,9 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 
 - [Helpful Docs](#helpful-docs)
 - [Resources](#resources)
-- [Dependencies](#dependencies)
+- [Requirements](#requirements)
 - [Developer Onboarding](#developer-onboarding)
 - [Commands](#commands)
-- [Linking local dependencies](#linking)
 - [Debugging](#debugging)
 
 ## Helpful Docs
@@ -34,11 +33,10 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 
 - [shapeshift](https://shapeshift.com/developer-portal)
 
-## Dependencies
-- [hdwallet](https://github.com/shapeshift/hdwallet)
-- [unchained](https://github.com/shapeshift/unchained)
-- [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) (optional; must be installed manually)
+## Requirements
 
+- [Node.js](https://nodejs.org/). Use a node version manager like `nvm` or check `.nvmrc` for the version.
+- [OpenJDK](https://openjdk.java.net/install/). Required for [openapi-generator-cli](https://openapi-generator.tech/docs/installation/) to generate API clients from OpenAPI specs.
 
 ## Debugging
 
@@ -50,36 +48,42 @@ If you are using Linux and macOS it works out of the box following these steps:
 
 1. Clone the repo
 
-2. (optional) Make sure you're using the right Node.js version.
+    > On Windows, _[Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/)_ (WSL) is required. Make sure to store your clone of the repo on the WSL filesystem in order to avoid issues with line endings.
+    >
+    > Please do not ask our Engineering team for further help with WSL.
 
-  ```sh
-  nvm use
-  ```
+2. Make sure you are using the right Node.js version. This can optionally be done using a version manager like `nvm`:
 
-3. Install Dependencies:
+    ```sh
+    nvm use
+    ```
 
-  ```sh
-  # This is short for `yarn install`; be sure to use `yarn install --immutable` instead if you're setting up a CI pipeline or trying to duplicate a historical build.
-  yarn
-  ```
+3. Install [OpenJDK](https://openjdk.java.net/install/).
 
-3. Build Packages:
+    > On MacOS if you have [installed](https://openapi-generator.tech/docs/installation/) `openapi-generator-cli`, it will be installed automatically.
 
-  ```sh
-  yarn build
-  ```
+4. Install Dependencies:
 
-4. Run `yarn env dev` to generate a `.env` file
+    ```sh
+    yarn
+    ```
 
-> ⚠️ On Windows, _[Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/)_ (WSL) is required but **WE DO NOT SUPPORT THIS ENVIRONMENT, SO USE IT AT YOUR OWN RISK**.
->
-> If you do use WSL, make sure to store your clone of the repo on the WSL filesystem in order to avoid issues with line endings and to enjoy better performance.
->
-> **Please do NOT ask our Engineering team for further help with WSL.**
+    > This is short for `yarn install` ; be sure to use `yarn install --immutable` instead if you're setting up a CI pipeline or trying to duplicate a historical build.
+5. Build Packages:
 
-5. Other configuration (optional):
+    ```sh
+    yarn build
+    ```
 
-To use the `.git-blame-ignore-revs` file to ignore specific commits, update the project's git configuration by running `git config --local blame.ignoreRevsFile .git-blame-ignore-revs`. 
+6. Run `yarn env dev` to generate a `.env` file.
+
+7. Other recommended configurations:
+
+    To use the `.git-blame-ignore-revs` file to ignore specific commits, update the project's git configuration by running:
+
+    ```sh
+    git config --local blame.ignoreRevsFile .git-blame-ignore-revs
+    ```
 
 ### Commands
 
@@ -91,7 +95,7 @@ yarn dev
 
 > It opens [http://localhost:3000](http://localhost:3000) to view it in the browser and the page will reload if you make edits.
 >
-> You will also see any lint errors in the console.
+> You will also see any lint errors in the console.  
 
 <br/>
 
@@ -112,6 +116,7 @@ To start Cypress E2E testing with GUI:
 ```sh
 yarn test:cypress
 ```
+
 or, to start it in headless mode:
 
 ```sh

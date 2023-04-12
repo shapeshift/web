@@ -101,7 +101,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
         accountNumber: input.accountNumber,
         allowanceContract: '',
         minimumCryptoHuman: minimumCryptoHuman.toString(),
-        maximum: MAX_LIFI_TRADE,
+        maximumCryptoHuman: MAX_LIFI_TRADE,
       }
     }
 

@@ -100,6 +100,30 @@ export const Withdraw: React.FC<
     async (formValues: FoxyWithdrawValues) => {
       if (!(accountAddress && dispatch && rewardId && foxyApi && bip44Params)) return
 
+      const getApproveGasEstimateCryptoBaseUnit = async () => {
+        if (!accountAddress) return
+
+        try {
+          const [gasLimit, gasPrice] = await Promise.all([
+            foxyApi.estimateApproveGas({
+              tokenContractAddress: rewardId,
+              contractAddress,
+              userAddress: accountAddress,
+            }),
+            foxyApi.getGasPrice(),
+          ])
+          return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
+        } catch (error) {
+          moduleLogger.error(error, { fn: 'getApproveEstimate' }, 'getApproveEstimate error')
+          toast({
+            position: 'top-right',
+            description: translate('common.somethingWentWrongBody'),
+            title: translate('common.somethingWentWrong'),
+            status: 'error',
+          })
+        }
+      }
+
       const getWithdrawGasEstimateCryptoBaseUnit = async (withdraw: FoxyWithdrawValues) => {
         if (!accountAddress) return
 
@@ -146,17 +170,41 @@ export const Withdraw: React.FC<
         payload: true,
       })
       try {
-        const estimatedGasCryptoBaseUnit = await getWithdrawGasEstimateCryptoBaseUnit(formValues)
-        if (!estimatedGasCryptoBaseUnit) return
-        dispatch({
-          type: FoxyWithdrawActionType.SET_WITHDRAW,
-          payload: { estimatedGasCryptoBaseUnit },
+        // Check is approval is required for user address
+        const _allowance = await foxyApi.allowance({
+          tokenContractAddress: rewardId,
+          contractAddress,
+          userAddress: accountAddress,
         })
-        onNext(DefiStep.Confirm)
-        dispatch({
-          type: FoxyWithdrawActionType.SET_LOADING,
-          payload: false,
-        })
+
+        const allowance = bnOrZero(bn(_allowance).div(bn(10).pow(asset.precision)))
+
+        // Skip approval step if user allowance is greater than or equal requested deposit amount
+        if (allowance.gte(formValues.cryptoAmount)) {
+          const estimatedGasCryptoBaseUnit = await getWithdrawGasEstimateCryptoBaseUnit(formValues)
+          if (!estimatedGasCryptoBaseUnit) return
+          dispatch({
+            type: FoxyWithdrawActionType.SET_WITHDRAW,
+            payload: { estimatedGasCryptoBaseUnit },
+          })
+          onNext(DefiStep.Confirm)
+          dispatch({
+            type: FoxyWithdrawActionType.SET_LOADING,
+            payload: false,
+          })
+        } else {
+          const estimatedGasCryptoBaseUnit = await getApproveGasEstimateCryptoBaseUnit()
+          if (!estimatedGasCryptoBaseUnit) return
+          dispatch({
+            type: FoxyWithdrawActionType.SET_APPROVE,
+            payload: { estimatedGasCryptoBaseUnit },
+          })
+          onNext(DefiStep.Approve)
+          dispatch({
+            type: FoxyWithdrawActionType.SET_LOADING,
+            payload: false,
+          })
+        }
       } catch (error) {
         moduleLogger.error({ fn: 'handleContinue', error }, 'Error with withdraw')
         dispatch({

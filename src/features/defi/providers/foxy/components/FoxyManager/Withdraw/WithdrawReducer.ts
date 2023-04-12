@@ -20,6 +20,7 @@ export const initialState: FoxyWithdrawState = {
     apy: '',
   },
   loading: false,
+  approve: {},
   withdraw: {
     fiatAmount: '',
     cryptoAmount: '',
@@ -35,6 +36,8 @@ export const reducer = (state: FoxyWithdrawState, action: FoxyWithdrawActions) =
   switch (action.type) {
     case FoxyWithdrawActionType.SET_OPPORTUNITY:
       return { ...state, foxyOpportunity: { ...state.foxyOpportunity, ...action.payload } }
+    case FoxyWithdrawActionType.SET_APPROVE:
+      return { ...state, approve: action.payload }
     case FoxyWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
     case FoxyWithdrawActionType.SET_LOADING:

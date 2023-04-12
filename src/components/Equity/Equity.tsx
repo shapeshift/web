@@ -5,8 +5,6 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
-import { CircleIcon } from 'components/Icons/Circle'
-import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import {

@@ -106,7 +106,6 @@ export const useUniV2LiquidityPool = ({
   )
 
   const asset0Contract = useMemo(
-    // TODO(gomes): remove casting and make getOrCreateContract handle generic ERC-20s as input
     () =>
       skip
         ? null
@@ -118,7 +117,6 @@ export const useUniV2LiquidityPool = ({
   )
 
   const asset1Contract = useMemo(
-    // TODO(gomes): remove casting and make getOrCreateContract handle generic ERC-20s as input
     () =>
       skip
         ? null
@@ -130,7 +128,6 @@ export const useUniV2LiquidityPool = ({
   )
 
   const uniV2LPContract = useMemo(
-    // TODO(gomes): remove casting and make getOrCreateContract handle generic ERC-20s as input
     () =>
       skip
         ? null

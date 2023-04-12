@@ -4,7 +4,7 @@ import type { ExecuteTradeInput } from '@shapeshiftoss/swapper'
 import type { Trade, TradeQuote } from '@shapeshiftoss/swapper/dist/api'
 
 export interface LifiTrade extends Trade<EvmChainId> {
-  selectedLifiRoute: Route
+  selectedLifiRoute?: Route
 }
 
 export interface LifiExecuteTradeInput extends Omit<ExecuteTradeInput<EvmChainId>, 'trade'> {
@@ -12,5 +12,5 @@ export interface LifiExecuteTradeInput extends Omit<ExecuteTradeInput<EvmChainId
 }
 
 export interface LifiTradeQuote extends TradeQuote<EvmChainId> {
-  selectedLifiRoute: Route
+  selectedLifiRoute?: Route
 }

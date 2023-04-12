@@ -80,6 +80,12 @@ export const executeTrade = async ({
       })
     }
 
+    if (selectedLifiRoute === undefined) {
+      throw new SwapError('[executeTrade] - no selected route was provided', {
+        code: SwapErrorType.EXECUTE_TRADE_FAILED,
+      })
+    }
+
     if (!isEvmChainAdapter(adapter)) {
       throw new SwapError('[executeTrade] - non-EVM chain adapter detected', {
         code: SwapErrorType.EXECUTE_TRADE_FAILED,

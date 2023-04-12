@@ -9,6 +9,7 @@ import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumb
 import { MAX_LIFI_TRADE, SELECTED_ROUTE_INDEX } from 'lib/swapper/LifiSwapper/utils/constants'
 import { getAssetBalance } from 'lib/swapper/LifiSwapper/utils/getAssetBalance/getAssetBalance'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
+import { getMinimumCryptoHuman } from 'lib/swapper/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
 import { transformLifiFeeData } from 'lib/swapper/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from 'lib/swapper/LifiSwapper/utils/types'
 
@@ -107,8 +108,6 @@ export async function getTradeQuote(
     })
   }
 
-  const minimumCryptoHuman = '0'
-
   // for the rate to be valid, both amounts must be converted to the same precision
   const estimateRate = convertPrecision({
     value: selectedLifiRoute.toAmountMin,
@@ -153,7 +152,7 @@ export async function getTradeQuote(
     buyAsset,
     feeData,
     maximum: MAX_LIFI_TRADE,
-    minimumCryptoHuman,
+    minimumCryptoHuman: getMinimumCryptoHuman(sellAsset).toString(),
     rate: estimateRate,
     recommendedSlippage: maxSlippage.toString(),
     sellAmountBeforeFeesCryptoBaseUnit,

@@ -21,6 +21,8 @@ import type {
   TradeTxs,
 } from '@shapeshiftoss/swapper'
 import { SwapperName, SwapperType } from '@shapeshiftoss/swapper'
+import { bn } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
 import { approvalNeeded } from 'lib/swapper/LifiSwapper/approvalNeeded/approvalNeeded'
 import { approveAmount, approveInfinite } from 'lib/swapper/LifiSwapper/approve/approve'
 import { buildTrade } from 'lib/swapper/LifiSwapper/buildTrade/buildTrade'
@@ -29,9 +31,11 @@ import { filterAssetIdsBySellable } from 'lib/swapper/LifiSwapper/filterAssetIds
 import { filterBuyAssetsBySellAssetId } from 'lib/swapper/LifiSwapper/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { getTradeQuote } from 'lib/swapper/LifiSwapper/getTradeQuote/getTradeQuote'
 import { getUsdRate } from 'lib/swapper/LifiSwapper/getUsdRate/getUsdRate'
+import { MAX_LIFI_TRADE } from 'lib/swapper/LifiSwapper/utils/constants'
 import { createLifiAssetMap } from 'lib/swapper/LifiSwapper/utils/createLifiAssetMap/createLifiAssetMap'
 import { createLifiChainMap } from 'lib/swapper/LifiSwapper/utils/createLifiChainMap/createLifiChainMap'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
+import { getMinimumCryptoHuman } from 'lib/swapper/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
 import type {
   LifiExecuteTradeInput,
   LifiTrade,
@@ -74,6 +78,33 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get a trade quote
    */
   async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<LifiTradeQuote> {
+    const minimumCryptoHuman = getMinimumCryptoHuman(input.sellAsset)
+    const minSellAmount = toBaseUnit(minimumCryptoHuman, input.sellAsset.precision)
+    const isBelowMinSellAmount = bn(input.sellAmountBeforeFeesCryptoBaseUnit).lt(minSellAmount)
+
+    // TEMP: return an empty quote to allow the UI to render state where buy amount is below minimum
+    // TODO: remove this when we implement monadic error handling for swapper
+    // https://github.com/shapeshift/web/issues/4237
+    if (isBelowMinSellAmount) {
+      return {
+        buyAmountCryptoBaseUnit: '0',
+        sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
+        feeData: {
+          networkFeeCryptoBaseUnit: '0',
+          buyAssetTradeFeeUsd: '0',
+          chainSpecific: {},
+        },
+        rate: '0',
+        sources: [],
+        buyAsset: input.buyAsset,
+        sellAsset: input.sellAsset,
+        accountNumber: input.accountNumber,
+        allowanceContract: '',
+        minimumCryptoHuman: minimumCryptoHuman.toString(),
+        maximum: MAX_LIFI_TRADE,
+      }
+    }
+
     return await getTradeQuote(input, this.lifiAssetMap, this.lifiChainMap)
   }
 

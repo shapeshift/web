@@ -145,7 +145,7 @@ export const Withdraw: React.FC<
         } catch (error) {
           moduleLogger.error(
             { fn: 'getWithdrawGasEstimate', error },
-            'Error getting deposit gas estimate',
+            'Error getting withdraw gas estimate',
           )
           const fundsError =
             error instanceof Error && error.message.includes('Not enough funds in reserve')

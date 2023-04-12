@@ -326,6 +326,29 @@ export const TradeConfirm = () => {
     )
   }, [handleBack, tradeStatus])
 
+  const donationOption: JSX.Element = useMemo(
+    () => (
+      <Stack spacing={4}>
+        <Row>
+          <HelperTooltip label={translate('trade.tooltip.donation')}>
+            <Row.Label>
+              <Text translation='trade.donation' />
+            </Row.Label>
+          </HelperTooltip>
+          <Row.Value>{toFiat(networkFeeFiat.toNumber())}</Row.Value>
+        </Row>
+      </Stack>
+    ),
+    [networkFeeFiat, toFiat, translate],
+  )
+
+  const isTHORChainSwap = useMemo(
+    () => fees?.tradeFeeSource === SwapperName.Thorchain,
+    [fees?.tradeFeeSource],
+  )
+
+  const shouldShowDonationOption = useMemo(() => isTHORChainSwap, [isTHORChainSwap])
+
   const tradeWarning: JSX.Element | null = useMemo(() => {
     if (!trade) return null
 
@@ -510,6 +533,7 @@ export const TradeConfirm = () => {
                   </Flex>
                 )}
               </Stack>
+              {shouldShowDonationOption && donationOption}
             </Stack>
           </Card.Body>
           {footer}

@@ -11,25 +11,25 @@ type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
   T,
   {
     [KnownChainIds.EthereumMainnet]: {
-      estimatedGas?: string
+      estimatedGasCryptoBaseUnit?: string
       gasPriceCryptoBaseUnit?: string
       approvalFeeCryptoBaseUnit?: string
       totalFee?: string
     }
     [KnownChainIds.AvalancheMainnet]: {
-      estimatedGas?: string
+      estimatedGasCryptoBaseUnit?: string
       gasPriceCryptoBaseUnit?: string
       approvalFeeCryptoBaseUnit?: string
       totalFee?: string
     }
     [KnownChainIds.OptimismMainnet]: {
-      estimatedGas?: string
+      estimatedGasCryptoBaseUnit?: string
       gasPriceCryptoBaseUnit?: string
       approvalFeeCryptoBaseUnit?: string
       totalFee?: string
     }
     [KnownChainIds.BnbSmartChainMainnet]: {
-      estimatedGas?: string
+      estimatedGasCryptoBaseUnit?: string
       gasPriceCryptoBaseUnit?: string
       approvalFeeCryptoBaseUnit?: string
       totalFee?: string
@@ -51,10 +51,10 @@ type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
       satsPerByte: string
     }
     [KnownChainIds.CosmosMainnet]: {
-      estimatedGas: string
+      estimatedGasCryptoBaseUnit: string
     }
     [KnownChainIds.ThorchainMainnet]: {
-      estimatedGas: string
+      estimatedGasCryptoBaseUnit: string
     }
   }
 >

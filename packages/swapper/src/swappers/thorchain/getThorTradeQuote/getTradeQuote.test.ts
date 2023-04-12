@@ -25,7 +25,7 @@ const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   buyAmountCryptoBaseUnit: '4633547338118093212830055',
   feeData: {
     chainSpecific: {
-      estimatedGas: '100000',
+      estimatedGasCryptoBaseUnit: '100000',
       approvalFeeCryptoBaseUnit: '700000',
       gasPriceCryptoBaseUnit: '7',
     },

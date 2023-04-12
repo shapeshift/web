@@ -98,7 +98,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       maximum,
       feeData: {
         chainSpecific: {
-          estimatedGas: estimatedGas.toString(),
+          estimatedGasCryptoBaseUnit: estimatedGas.toString(),
           gasPriceCryptoBaseUnit,
           approvalFeeCryptoBaseUnit,
         },

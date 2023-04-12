@@ -55,7 +55,7 @@ const cowTradeEthToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '14716.04718939437505555958',
   feeData: {
     chainSpecific: {
-      estimatedGas: '100000',
+      estimatedGasCryptoBaseUnit: '100000',
       gasPriceCryptoBaseUnit: '79036500000',
     },
     buyAssetTradeFeeUsd: '0',
@@ -77,7 +77,7 @@ const cowTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '14716.04718939437505555958',
   feeData: {
     chainSpecific: {
-      estimatedGas: '100000',
+      estimatedGasCryptoBaseUnit: '100000',
       gasPriceCryptoBaseUnit: '79036500000',
     },
     buyAssetTradeFeeUsd: '0',
@@ -99,7 +99,7 @@ const cowTradeFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '0.00004995640398295996',
   feeData: {
     chainSpecific: {
-      estimatedGas: '100000',
+      estimatedGasCryptoBaseUnit: '100000',
       gasPriceCryptoBaseUnit: '79036500000',
     },
     buyAssetTradeFeeUsd: '5.3955565850972847808512',

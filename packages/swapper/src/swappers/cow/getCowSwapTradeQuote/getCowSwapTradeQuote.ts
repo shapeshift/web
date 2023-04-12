@@ -61,9 +61,15 @@ export async function getCowSwapTradeQuote(
 
     const buyToken =
       buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
-    const { minimum, maximum } = await getCowSwapMinMax(deps, sellAsset, buyAsset)
+    const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = await getCowSwapMinMax(
+      deps,
+      sellAsset,
+      buyAsset,
+    )
 
-    const minQuoteSellAmount = bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision))
+    const minQuoteSellAmount = bnOrZero(minimumAmountCryptoHuman).times(
+      bn(10).exponentiatedBy(sellAsset.precision),
+    )
     const isSellAmountBelowMinimum = bnOrZero(sellAmountBeforeFeesCryptoBaseUnit).lt(
       minQuoteSellAmount,
     )
@@ -112,6 +118,10 @@ export async function getCowSwapTradeQuote(
       },
     } = quoteResponse
 
+    const quoteSellAmountPlusFeesCryptoBaseUnit = bnOrZero(sellAmountCryptoBaseUnit).plus(
+      feeAmountInSellTokenCryptoBaseUnit,
+    )
+
     const buyCryptoAmount = bn(buyAmountCryptoBaseUnit).div(
       bn(10).exponentiatedBy(buyAsset.precision),
     )
@@ -142,7 +152,9 @@ export async function getCowSwapTradeQuote(
 
     const feeData = feeDataOptions['fast']
 
-    const isQuoteSellAmountBelowMinimum = bnOrZero(sellAmountCryptoBaseUnit).lt(minQuoteSellAmount)
+    const isQuoteSellAmountBelowMinimum = bnOrZero(quoteSellAmountPlusFeesCryptoBaseUnit).lt(
+      minQuoteSellAmount,
+    )
     // If isQuoteSellAmountBelowMinimum we don't want to replace it with normalizedSellAmount
     // The purpose of this was to get a quote from CowSwap even with small amounts
     const quoteSellAmountCryptoBaseUnit = isQuoteSellAmountBelowMinimum
@@ -157,12 +169,12 @@ export async function getCowSwapTradeQuote(
 
     return {
       rate,
-      minimumCryptoHuman: minimum,
-      maximum,
+      minimumCryptoHuman: minimumAmountCryptoHuman,
+      maximumCryptoHuman: maximumAmountCryptoHuman,
       feeData: {
         networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
         chainSpecific: {
-          estimatedGas: feeData.chainSpecific.gasLimit,
+          estimatedGasCryptoBaseUnit: feeData.chainSpecific.gasLimit,
           gasPriceCryptoBaseUnit: feeData.chainSpecific.gasPrice,
           approvalFeeCryptoBaseUnit: bnOrZero(feeData.chainSpecific.gasLimit)
             .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))

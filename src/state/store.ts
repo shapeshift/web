@@ -115,7 +115,7 @@ export const createStore = () =>
     reducer: persistedReducer,
     enhancers: existingEnhancers => {
       // Add the autobatch enhancer to the store setup
-      return existingEnhancers.concat(autoBatchEnhancer({ type: 'tick' }))
+      return existingEnhancers.concat(autoBatchEnhancer())
     },
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({

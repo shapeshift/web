@@ -6,6 +6,7 @@ import { getConfig } from 'config'
 import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import qs from 'qs'
 import { logger } from 'lib/logger'
+import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
@@ -84,8 +85,12 @@ export const zapperApi = createApi({
 
         const data = zapperV2AppTokensData.reduce<GetZapperAppBalancesOutput>(
           (acc, appTokenData) => {
+            // This will never happen in this particular case because zodios will fail if e.g appTokenData.network is undefined
+            // But zapperNetworkToChainId returns ChainId | undefined, as we may be calling it with invalid, casted "valid network"
+            const chainId = zapperNetworkToChainId(appTokenData.network)
+            if (!chainId) return acc
             const assetId = toAssetId({
-              chainId: zapperNetworkToChainId(appTokenData.network),
+              chainId,
               assetNamespace: 'erc20', // TODO: bep20
               assetReference: appTokenData.address,
             })
@@ -99,15 +104,19 @@ export const zapperApi = createApi({
         const assets = selectAssets(getState() as any)
         const zapperAssets = zapperV2AppTokensData.reduce<AssetsState>(
           (acc, appTokenData) => {
+            // This will never happen in this particular case because zodios will fail if e.g appTokenData.network is undefined
+            // But zapperNetworkToChainId returns ChainId | undefined, as we may be calling it with invalid, casted "valid network"
+            const chainId = zapperNetworkToChainId(appTokenData.network)
+            if (!chainId) return acc
             const assetId = toAssetId({
-              chainId: zapperNetworkToChainId(appTokenData.network),
+              chainId,
               assetNamespace: 'erc20', // TODO: bep20
               assetReference: appTokenData.address,
             })
 
             const underlyingAssets = appTokenData.tokens.map(token => {
               const assetId = toAssetId({
-                chainId: zapperNetworkToChainId(appTokenData.network),
+                chainId,
                 assetNamespace: 'erc20', // TODO: bep20
                 assetReference: token.address,
               })
@@ -211,13 +220,20 @@ export const zapper = createApi({
 
         const zapperV2AppTokensData = Object.values(maybeZapperV2AppTokensData.data)
 
-        const data = zapperV2AppTokensData.map(appTokenData =>
-          toAssetId({
-            chainId: zapperNetworkToChainId(appTokenData.network),
-            assetNamespace: 'erc20', // TODO: bep20
-            assetReference: appTokenData.address,
-          }),
-        )
+        const data = zapperV2AppTokensData
+          .map(appTokenData => {
+            // This will never happen in this particular case because zodios will fail if e.g appTokenData.network is undefined
+            // But zapperNetworkToChainId returns ChainId | undefined, as we may be calling it with invalid, casted "valid network"
+            const chainId = zapperNetworkToChainId(appTokenData.network)
+            if (!chainId) return undefined
+
+            return toAssetId({
+              chainId,
+              assetNamespace: 'erc20', // TODO: bep20
+              assetReference: appTokenData.address,
+            })
+          })
+          .filter(isSome)
 
         return { data }
       },

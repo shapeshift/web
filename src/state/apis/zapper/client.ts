@@ -33,7 +33,7 @@ export const CHAIN_ID_TO_ZAPPER_NETWORK_MAP = invert(ZAPPER_NETWORKS_TO_CHAIN_ID
   Record<ChainId, SupportedZapperNetwork>
 >
 
-export const zapperNetworkToChainId = (network: SupportedZapperNetwork): ChainId =>
+export const zapperNetworkToChainId = (network: SupportedZapperNetwork): ChainId | undefined =>
   ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[network]
 
 export const chainIdToZapperNetwork = (chainId: ChainId): SupportedZapperNetwork | undefined =>

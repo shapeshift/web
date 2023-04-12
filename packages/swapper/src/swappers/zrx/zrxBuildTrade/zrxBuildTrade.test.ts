@@ -92,7 +92,7 @@ describe('zrxBuildTrade', () => {
     feeData: {
       chainSpecific: {
         approvalFeeCryptoBaseUnit: '123600000',
-        estimatedGas: '1235',
+        estimatedGasCryptoBaseUnit: '1235',
         gasPriceCryptoBaseUnit: '1236',
       },
       networkFeeCryptoBaseUnit: (
@@ -164,7 +164,7 @@ describe('zrxBuildTrade', () => {
           .multipliedBy(gasPriceCryptoBaseUnit)
           .toString(),
         gasPriceCryptoBaseUnit,
-        estimatedGas,
+        estimatedGasCryptoBaseUnit: estimatedGas,
       },
       buyAssetTradeFeeUsd: '0',
       sellAssetTradeFeeUsd: '0',

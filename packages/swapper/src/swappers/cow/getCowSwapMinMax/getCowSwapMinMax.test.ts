@@ -17,16 +17,16 @@ const DEPS = {
 }
 
 describe('getCowSwapMinMax', () => {
-  it('returns minimum and maximum', async () => {
+  it('returns minimumAmountCryptoHuman and maximumAmountCryptoHuman', async () => {
     const minMax = await getCowSwapMinMax(DEPS, FOX, WETH)
-    expect(minMax.minimum).toBe('80')
-    expect(minMax.maximum).toBe(MAX_COWSWAP_TRADE)
+    expect(minMax.minimumAmountCryptoHuman).toBe('80')
+    expect(minMax.maximumAmountCryptoHuman).toBe(MAX_COWSWAP_TRADE)
   })
 
-  it('returns minimum and maximum for ETH as buy asset', async () => {
+  it('returns minimumAmountCryptoHuman and maximumAmountCryptoHuman for ETH as buy asset', async () => {
     const minMax = await getCowSwapMinMax(DEPS, FOX, ETH)
-    expect(minMax.minimum).toBe('80')
-    expect(minMax.maximum).toBe(MAX_COWSWAP_TRADE)
+    expect(minMax.minimumAmountCryptoHuman).toBe('80')
+    expect(minMax.maximumAmountCryptoHuman).toBe(MAX_COWSWAP_TRADE)
   })
 
   it('fails on non erc 20 sell assets and non ETH-mainnet buy assets', async () => {

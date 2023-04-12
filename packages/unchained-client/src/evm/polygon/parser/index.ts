@@ -11,7 +11,6 @@ export const ZRX_POLYGON_PROXY_CONTRACT = '0xdef1c0ded9bec7f1a1670819833240f027b
 export class TransactionParser extends BaseTransactionParser<Tx> {
   constructor(args: TransactionParserArgs) {
     super(args)
-    this.assetId = polygonAssetId
 
     this.registerParsers([
       new erc20.Parser({ chainId: this.chainId, provider: this.provider }),

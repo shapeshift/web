@@ -40,7 +40,7 @@ describe('accountIdToFeeAssetId', () => {
     expect(result).toEqual(bscAssetId)
   })
   it('can get polygon feeAssetId from accountId', () => {
-    const accountId = 'eip155:56:0xdef1cafe'
+    const accountId = 'eip155:137:0xdef1cafe'
     const result = accountIdToFeeAssetId(accountId)
     expect(result).toEqual(polygonAssetId)
   })

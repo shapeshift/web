@@ -663,51 +663,6 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
   },
 )
 
-export const selectAllEarnUserStakingOpportunitiesByAccountId = createSelector(
-  selectUserStakingOpportunitiesById,
-  selectStakingOpportunitiesById,
-  selectStakingOpportunitiesByAccountId,
-  selectPortfolioAccountBalancesBaseUnit,
-  selectAssets,
-  selectMarketDataSortedByMarketCap,
-  selectAccountIdParamFromFilter,
-  (
-    userStakingOpportunitiesById,
-    stakingOpportunitiesById,
-    stakingOpportunitiesByAccountId,
-    cryptoBalancesByAccountIdAboveThreshold,
-    assets,
-    marketData,
-    accountId,
-  ): StakingEarnOpportunityType[] => {
-    if (!accountId) return []
-    const accountOpportunities = stakingOpportunitiesByAccountId[accountId]
-    const opportunities: StakingEarnOpportunityType[] = []
-    accountOpportunities?.forEach(stakingId => {
-      const stakingAssetBalanceCryptoBaseUnit =
-        cryptoBalancesByAccountIdAboveThreshold[accountId as string][stakingId]
-      if (stakingAssetBalanceCryptoBaseUnit === '0') return
-
-      const userStakingId = serializeUserStakingId(accountId, stakingId)
-      const opportunityWithMetaData = selectUserStakingOpportunityByUserStakingId.resultFunc(
-        userStakingOpportunitiesById,
-        userStakingId,
-        stakingId,
-        stakingOpportunitiesById,
-      )
-      const opportunity = selectEarnUserStakingOpportunityByUserStakingId.resultFunc(
-        opportunityWithMetaData,
-        marketData,
-        assets,
-      )
-      if (opportunity) {
-        opportunities.push(opportunity)
-      }
-    })
-    return opportunities
-  },
-)
-
 export const selectAllEarnUserStakingOpportunitiesByFilter = createSelector(
   selectAggregatedEarnUserStakingOpportunities,
   selectUserStakingOpportunitiesById,

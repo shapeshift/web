@@ -128,7 +128,7 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
     const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
       opportunityMetadata.underlyingAssetIds.map((assetId, i) =>
         bnOrZero(aggregatedLpAssetBalance)
-          .times(opportunityMetadata?.underlyingAssetRatiosBaseUnit[i] ?? '0')
+          .times(opportunityMetadata?.underlyingAssetRatiosBaseUnit[i])
           .div(bn(10).pow(bnOrZero(assets[assetId]?.precision)))
           .toFixed(6)
           .toString(),
@@ -143,7 +143,7 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
       underlyingToken1AmountCryptoBaseUnit,
       cryptoAmountPrecision: aggregatedLpAssetBalance,
       // TODO(gomes): use base unit as source of truth, conversions back and forth are unsafe
-      cryptoAmountBaseUnit: toBaseUnit(aggregatedLpAssetBalance, lpAsset.precision ?? 0),
+      cryptoAmountBaseUnit: toBaseUnit(aggregatedLpAssetBalance, lpAsset.precision),
       fiatAmount: bnOrZero(aggregatedLpAssetBalance)
         .times(marketDataPrice ?? '0')
         .toString(),
@@ -251,6 +251,10 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
     for (const [lpId, opportunityMetadata] of Object.entries(lpOpportunitiesById)) {
       if (!opportunityMetadata) continue
 
+      const lpAsset = assets[lpId as AssetId]
+
+      if (!lpAsset) continue
+
       const marketDataPrice = marketData[lpId as AssetId]?.price
       const aggregatedLpAssetBalance = portfolioAssetBalancesById[lpId]
 
@@ -259,7 +263,7 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
       const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
         opportunityMetadata.underlyingAssetIds.map((assetId, i) =>
           bnOrZero(aggregatedLpAssetBalance)
-            .times(opportunityMetadata?.underlyingAssetRatiosBaseUnit[i] ?? '0')
+            .times(opportunityMetadata?.underlyingAssetRatiosBaseUnit[i])
             .div(bn(10).pow(bnOrZero(assets[assetId]?.precision)))
             .toFixed()
             .toString(),
@@ -273,13 +277,13 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
         underlyingToken0AmountCryptoBaseUnit,
         underlyingToken1AmountCryptoBaseUnit,
         cryptoAmountPrecision: bnOrZero(aggregatedLpAssetBalance)
-          .div(bn(10).pow(assets[lpId]?.precision ?? '0'))
+          .div(bn(10).pow(lpAsset.precision))
           .toString(),
         // TODO(gomes): use base unit as source of truth, conversions back and forth are unsafe
         cryptoAmountBaseUnit: aggregatedLpAssetBalance,
         fiatAmount: bnOrZero(aggregatedLpAssetBalance)
           .times(marketDataPrice ?? '0')
-          .div(bn(10).pow(assets[lpId]?.precision ?? '0'))
+          .div(bn(10).pow(lpAsset.precision))
           .toString(),
         icons: opportunityMetadata.underlyingAssetIds
           .map(assetId => assets[assetId]?.icon)

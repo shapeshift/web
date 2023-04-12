@@ -21,7 +21,7 @@ import type {
   TradeTxs,
 } from '@shapeshiftoss/swapper'
 import { SwapperName, SwapperType } from '@shapeshiftoss/swapper'
-import { bn } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { approvalNeeded } from 'lib/swapper/LifiSwapper/approvalNeeded/approvalNeeded'
 import { approveAmount, approveInfinite } from 'lib/swapper/LifiSwapper/approve/approve'
@@ -79,8 +79,10 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    */
   async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<LifiTradeQuote> {
     const minimumCryptoHuman = getMinimumCryptoHuman(input.sellAsset)
-    const minSellAmount = toBaseUnit(minimumCryptoHuman, input.sellAsset.precision)
-    const isBelowMinSellAmount = bn(input.sellAmountBeforeFeesCryptoBaseUnit).lt(minSellAmount)
+    const minimumSellAmountBaseUnit = toBaseUnit(minimumCryptoHuman, input.sellAsset.precision)
+    const isBelowMinSellAmount = bnOrZero(input.sellAmountBeforeFeesCryptoBaseUnit).lt(
+      minimumSellAmountBaseUnit,
+    )
 
     // TEMP: return an empty quote to allow the UI to render state where buy amount is below minimum
     // TODO: remove this when we implement monadic error handling for swapper

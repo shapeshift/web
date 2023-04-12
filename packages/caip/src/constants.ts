@@ -128,6 +128,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.AvalancheCChain,
     CHAIN_REFERENCE.OptimismMainnet,
     CHAIN_REFERENCE.BnbSmartChainMainnet,
+    CHAIN_REFERENCE.PolygonMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,

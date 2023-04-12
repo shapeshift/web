@@ -153,7 +153,6 @@ export const polygon: Asset = {
   assetId: caip.polygonAssetId,
   chainId: caip.polygonChainId,
   name: 'Polygon',
-  networkName: 'Polygon',
   symbol: 'MATIC',
   precision: 18,
   color: '#8f00ff',

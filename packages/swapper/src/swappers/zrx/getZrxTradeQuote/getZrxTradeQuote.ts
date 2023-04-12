@@ -98,7 +98,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     const tradeQuote: TradeQuote<ZrxSupportedChainId> = {
       rate,
       minimumCryptoHuman: minimumAmountCryptoHuman,
-      maximum: maximumAmountCryptoHuman,
+      maximumCryptoHuman: maximumAmountCryptoHuman,
       feeData: {
         chainSpecific: {
           estimatedGas: estimatedGas.toString(),

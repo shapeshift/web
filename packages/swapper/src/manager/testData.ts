@@ -72,7 +72,7 @@ export const getThorchainSwapper = () => new ThorchainSwapper(thorchainSwapperDe
 
 export const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '60',
-  maximum: '1000000000000000000000',
+  maximumCryptoHuman: '1000000000000000000000',
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000', // 1000 FOX
   allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
   buyAmountCryptoBaseUnit: '23448326921811747', // 0.023 ETH

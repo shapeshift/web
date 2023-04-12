@@ -11,7 +11,7 @@ jest.mock('../utils/helpers/helpers', () => ({
 }))
 
 describe('getZrxMinMax', () => {
-  it('returns minimum and maximum', async () => {
+  it('returns minimumAmountCryptoHuman and maximumAmountCryptoHuman', async () => {
     const minMax = await getZrxMinMax(FOX, WETH)
     expect(minMax.minimumAmountCryptoHuman).toBe('1')
     expect(minMax.maximumAmountCryptoHuman).toBe(MAX_ZRX_TRADE)

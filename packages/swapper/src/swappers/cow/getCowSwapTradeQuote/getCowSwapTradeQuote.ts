@@ -170,7 +170,7 @@ export async function getCowSwapTradeQuote(
     return {
       rate,
       minimumCryptoHuman: minimumAmountCryptoHuman,
-      maximum: maximumAmountCryptoHuman,
+      maximumCryptoHuman: maximumAmountCryptoHuman,
       feeData: {
         networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
         chainSpecific: {

@@ -248,7 +248,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         sellAssetTradeFeeUsd: '0',
         buyAssetTradeFeeUsd,
       },
-      maximum: maximumAmountCryptoHuman,
+      maximumCryptoHuman: maximumAmountCryptoHuman,
       minimumCryptoHuman: minimumAmountCryptoHuman, // TODO(gomes): shorthand?
       accountNumber,
       rate,

@@ -127,7 +127,7 @@ export const grantAllowance = async <T extends EvmChainId>({
       chainSpecific: {
         tokenContractAddress: sellAssetErc20Address,
         gasPrice: numberToHex(quote.feeData?.chainSpecific?.gasPriceCryptoBaseUnit || 0),
-        gasLimit: numberToHex(quote.feeData?.chainSpecific?.estimatedGas || 0),
+        gasLimit: numberToHex(quote.feeData?.chainSpecific?.estimatedGasCryptoBaseUnit || 0),
       },
     })
 

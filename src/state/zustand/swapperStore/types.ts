@@ -66,6 +66,7 @@ export type SwapperAction = {
   handleInputAmountChange: () => void
   handleAssetSelection: (handleAssetSelectionInput: HandleAssetSelectionInput) => void
   updateFees: (sellFeeAsset: Asset) => void
+  updateTradeAmountsFromQuote: () => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1

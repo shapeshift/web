@@ -29,7 +29,7 @@ import { SEO } from 'components/Layout/Seo'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -301,7 +301,9 @@ export const FoxPage = () => {
                   apy={foxyAprData?.foxyApr ?? ''}
                   tvl={bnOrZero(foxyEarnOpportunityData?.tvl).toString()}
                   isLoaded={Boolean(foxyEarnOpportunityData && !isFoxyAprLoading)}
-                  balance={cryptoHumanBalances[selectedAssetIndex]}
+                  balance={bnOrZero(foxyEarnOpportunityData?.cryptoAmountBaseUnit)
+                    .div(bn(10).pow(assetFoxy.precision))
+                    .toFixed()}
                   onClick={handleOpportunityClick}
                 />
 

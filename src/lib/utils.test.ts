@@ -1,4 +1,22 @@
+import type { ChainId } from '@shapeshiftoss/caip'
+import {
+  cosmosAssetId,
+  cosmosChainId,
+  ethChainId,
+  foxAssetId,
+  foxyAssetId,
+  osmosisAssetId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
+
 import { fauxmesAccountId } from '../state/slices/opportunitiesSlice/mocks'
+import type {
+  LpId,
+  OpportunityId,
+  StakingId,
+  ValidatorId,
+} from '../state/slices/opportunitiesSlice/types'
+import { opportunityIdToChainId } from '../state/slices/opportunitiesSlice/utils'
 import {
   deepUpsertArray,
   hashCode,
@@ -9,6 +27,38 @@ import {
 } from './utils'
 
 describe('lib/utils', () => {
+  describe('opportunityIdToChainId', () => {
+    test('returns the correct chain ID for an LpId', () => {
+      const lpId: LpId = foxAssetId
+      const result: ChainId = opportunityIdToChainId(lpId)
+      expect(result).toEqual(ethChainId)
+    })
+
+    test('returns the correct chain ID for a StakingId', () => {
+      const stakingId: StakingId = foxyAssetId
+      const result: ChainId = opportunityIdToChainId(stakingId)
+      expect(result).toEqual(ethChainId)
+    })
+
+    test('returns the correct chain ID for a ValidatorId', () => {
+      const validatorId: ValidatorId = fauxmesAccountId
+      const result: ChainId = opportunityIdToChainId(validatorId)
+      expect(result).toEqual(ethChainId)
+    })
+
+    test('returns the correct chain ID for a Cosmos asset ID', () => {
+      const cosmosOpportunityId: OpportunityId = cosmosAssetId
+      const result: ChainId = opportunityIdToChainId(cosmosOpportunityId)
+      expect(result).toEqual(cosmosChainId)
+    })
+
+    test('returns the correct chain ID for an Osmosis asset ID', () => {
+      const osmosisOpportunityId: OpportunityId = osmosisAssetId
+      const result: ChainId = opportunityIdToChainId(osmosisOpportunityId)
+      expect(result).toEqual(osmosisChainId)
+    })
+  })
+
   describe('deepUpsertArray', () => {
     const l1Key = 'l1Key'
     const l2Key = 'l2Key'

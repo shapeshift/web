@@ -34,6 +34,7 @@ const mockActions: SwapperAction = {
   updateSellAssetFiatRate(): void {},
   updateTrade(): void {},
   handleAssetSelection(): void {},
+  updateTradeAmountsFromQuote(): void {},
 }
 
 export const baseSwapperState: SwapperState = {
@@ -58,7 +59,7 @@ export const baseSwapperState: SwapperState = {
       quote: {
         rate: '52652.792329231222224912',
         minimumCryptoHuman: '0.000565612596529604',
-        maximum: '100000000000000000000000000',
+        maximumCryptoHuman: '100000000000000000000000000',
         feeData: {
           networkFeeCryptoBaseUnit: '2997000000000000',
           buyAssetTradeFeeUsd: '0',
@@ -85,7 +86,7 @@ export const baseSwapperState: SwapperState = {
       } as Swapper<ChainId>,
       quote: {
         rate: '52867.94647736405036163943',
-        maximum: '100000000000000000000000000',
+        maximumCryptoHuman: '100000000000000000000000000',
         sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
         buyAmountCryptoBaseUnit: '986780221000000000000',
         sources: [
@@ -115,7 +116,7 @@ export const baseSwapperState: SwapperState = {
     } as Swapper<ChainId>,
     quote: {
       rate: '52867.94647736405036163943',
-      maximum: '100000000000000000000000000',
+      maximumCryptoHuman: '100000000000000000000000000',
       sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
       buyAmountCryptoBaseUnit: '986780221000000000000',
       sources: [
@@ -150,7 +151,7 @@ export const baseSwapperState: SwapperState = {
     chainSpecific: {
       approvalFeeCryptoBaseUnit: '1800000000000000',
       gasPriceCryptoBaseUnit: '18000000000',
-      estimatedGas: '100000',
+      estimatedGasCryptoBaseUnit: '100000',
       totalFee: '0.0036',
     },
     tradeFeeSource: 'THORChain',

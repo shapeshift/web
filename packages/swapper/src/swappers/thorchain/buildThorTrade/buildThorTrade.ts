@@ -65,7 +65,8 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
           (quote as TradeQuote<ThorEvmSupportedChainId>).feeData.chainSpecific
             ?.gasPriceCryptoBaseUnit ?? '0',
         gasLimit:
-          (quote as TradeQuote<ThorEvmSupportedChainId>).feeData.chainSpecific?.estimatedGas ?? '0',
+          (quote as TradeQuote<ThorEvmSupportedChainId>).feeData.chainSpecific
+            ?.estimatedGasCryptoBaseUnit ?? '0',
         buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
       })
 

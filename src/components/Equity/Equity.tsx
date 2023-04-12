@@ -70,7 +70,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
 
   const equityItems = useMemo(() => {
     const accounts = activeAccountList.map(accountId => {
-      const fiatAmount = portfolioFiatBalances[accountId][assetId]
+      const fiatAmount = bnOrZero(portfolioFiatBalances[accountId][assetId]).toString()
       return {
         id: accountId,
         type: AssetEquityType.Account,

@@ -392,7 +392,7 @@ export const useUniV2LiquidityPool = ({
         const result = await (async () => {
           if (supportedEvmChainIds.includes(adapterType)) {
             if (!supportsETH(wallet))
-              throw new Error(`addLiquidity: wallet does not support ethereum`)
+              throw new Error(`removeLiquidity: wallet does not support ethereum`)
             const fees = estimatedFees.average as FeeData<EvmChainId>
             const {
               chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
@@ -402,7 +402,7 @@ export const useUniV2LiquidityPool = ({
               maxFeePerGas !== undefined &&
               maxPriorityFeePerGas !== undefined
             if (!shouldUseEIP1559Fees && gasPrice === undefined) {
-              throw new Error(`addLiquidity: missing gasPrice for non-EIP-1559 tx`)
+              throw new Error(`removeLiquidity: missing gasPrice for non-EIP-1559 tx`)
             }
             const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
             return await adapter.buildCustomTx({
@@ -415,7 +415,7 @@ export const useUniV2LiquidityPool = ({
               ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
             })
           } else {
-            throw new Error(`addLiquidity: wallet does not support ethereum`)
+            throw new Error(`removeLiquidity: wallet does not support ethereum`)
           }
         })()
         const txToSign = result.txToSign
@@ -700,7 +700,7 @@ export const useUniV2LiquidityPool = ({
         chainSpecific: { gasPrice, gasLimit },
       } = fees
       if (gasPrice === undefined) {
-        throw new Error(`approve: missing gasPrice for non-EIP-1559 tx`)
+        throw new Error(`approveAsset: missing gasPrice for non-EIP-1559 tx`)
       }
       const result = await adapter.buildCustomTx({
         to: contract!.address,

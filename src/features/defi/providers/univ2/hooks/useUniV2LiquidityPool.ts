@@ -193,7 +193,7 @@ export const useUniV2LiquidityPool = ({
       try {
         if (skip || !accountId || !isNumber(accountNumber) || !uniswapRouterContract || !wallet)
           return
-        if (!adapter) throw new Error(`addLiquidityEth: no adapter available for ${asset0.chainId}`)
+        if (!adapter) throw new Error(`addLiquidity: no adapter available for ${asset0.chainId}`)
         const maybeEthAmount = (() => {
           if (assetId0OrWeth === wethAssetId) return token0Amount
           if (assetId1OrWeth === wethAssetId) return token1Amount
@@ -369,7 +369,7 @@ export const useUniV2LiquidityPool = ({
           return
         const chainAdapterManager = getChainAdapterManager()
         const adapter = chainAdapterManager.get(asset0.chainId) as unknown as ethereum.ChainAdapter
-        if (!adapter) throw new Error(`addLiquidityEth: no adapter available for ${asset0.chainId}`)
+        if (!adapter) throw new Error(`removeLiquidity: no adapter available for ${asset0.chainId}`)
 
         const data = makeRemoveLiquidityData({
           asset0ContractAddress,

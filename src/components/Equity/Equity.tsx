@@ -148,7 +148,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     <Card variant='default'>
       <Card.Header display='flex' gap={4} alignItems='center'>
         <Flex flexDir='column' flex={1}>
-          <Card.Heading>{translate('assets.assetCards.equity')}</Card.Heading>
+          <Card.Heading>{translate('common.balance')}</Card.Heading>
           <Amount.Fiat fontSize='xl' value={fiatBalance} />
           <Amount.Crypto variant='sub-text' value={cryptoHumanBalance} symbol={asset.symbol} />
         </Flex>

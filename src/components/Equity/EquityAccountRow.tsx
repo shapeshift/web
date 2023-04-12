@@ -13,7 +13,6 @@ import {
   selectMarketDataById,
   selectPortfolioAccountMetadata,
   selectPortfolioAccountsCryptoHumanBalancesExcludeStaking,
-  selectPortfolioAccountsFiatBalancesExcludeStaking,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

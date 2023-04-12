@@ -137,7 +137,7 @@ interface TradeBase<C extends ChainId> {
 export interface TradeQuote<C extends ChainId> extends TradeBase<C> {
   allowanceContract: string
   minimumCryptoHuman: string
-  maximum: string
+  maximumCryptoHuman: string
   recommendedSlippage?: string
 
   /** @deprecated Use minimumCryptoHuman instead */
@@ -180,8 +180,8 @@ export type SwapSource = {
 }
 
 export interface MinMaxOutput {
-  minimum: string
-  maximum: string
+  minimumAmountCryptoHuman: string
+  maximumAmountCryptoHuman: string
 }
 
 export type ApprovalNeededOutput = {

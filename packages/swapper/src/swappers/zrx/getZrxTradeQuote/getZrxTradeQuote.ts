@@ -35,14 +35,17 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     const buyToken = assetToToken(buyAsset)
     const sellToken = assetToToken(sellAsset)
 
-    const { minimum, maximum } = await getZrxMinMax(sellAsset, buyAsset)
-    const minQuotesellAmountCryptoBaseUnit = bnOrZero(minimum).times(
+    const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = await getZrxMinMax(
+      sellAsset,
+      buyAsset,
+    )
+    const minQuoteSellAmountCryptoBaseUnit = bnOrZero(minimumAmountCryptoHuman).times(
       bn(10).exponentiatedBy(sellAsset.precision),
     )
 
     const normalizedSellAmount = normalizeAmount(
       bnOrZero(sellAmountCryptoBaseUnit).eq(0)
-        ? minQuotesellAmountCryptoBaseUnit
+        ? minQuoteSellAmountCryptoBaseUnit
         : sellAmountCryptoBaseUnit,
     )
     const baseUrl = baseUrlFromChainId(buyAsset.chainId)
@@ -94,8 +97,8 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
 
     const tradeQuote: TradeQuote<ZrxSupportedChainId> = {
       rate,
-      minimumCryptoHuman: minimum,
-      maximum,
+      minimumCryptoHuman: minimumAmountCryptoHuman,
+      maximumCryptoHuman: maximumAmountCryptoHuman,
       feeData: {
         chainSpecific: {
           estimatedGasCryptoBaseUnit: estimatedGas.toString(),

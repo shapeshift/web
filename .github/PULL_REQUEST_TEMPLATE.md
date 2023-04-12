@@ -2,13 +2,6 @@
 
 <!-- Please describe your changes -->
 
-## Notice
-
-<!-- Before submitting a pull request, please make sure you have answered the following: -->
-
-- [ ] Have you followed the guidelines in our [Contributing]('https://github.com/shapeshift/web/blob/develop/CONTRIBUTING.md) guide?
-- [ ] Have you checked to ensure there aren't other open [Pull Requests](https://github.com/shapeshift/web/pulls) for the same update/change?
-
 ## Pull Request Type
 
 - [ ] :bug: Bug fix (Non-breaking Change: Fixes an issue)

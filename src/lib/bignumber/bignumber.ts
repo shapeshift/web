@@ -30,6 +30,14 @@ export const convertPrecision = ({
     .multipliedBy(bn(10).exponentiatedBy(outputPrecision))
 }
 
+export const toPrecision = ({
+  value,
+  inputPrecision,
+}: {
+  value: BigNumber.Value
+  inputPrecision: number
+}): BigNumber => convertPrecision({ value, inputPrecision, outputPrecision: 0 })
+
 export const baseUnitToHuman = ({
   value,
   inputPrecision,
@@ -37,7 +45,7 @@ export const baseUnitToHuman = ({
   value: BigNumber.Value
   inputPrecision: number
 }) => {
-  const precisionAmount = convertPrecision({ value, inputPrecision, outputPrecision: 0 })
+  const precisionAmount = toPrecision({ value, inputPrecision })
   // trimming to 6 decimals is what we call "human amount"
   return precisionAmount.decimalPlaces(6)
 }

@@ -6,11 +6,16 @@
     "error": "Erro",
     "cancel": "Cancelar",
     "close": "Fechar",
+    "new": "Novo",
     "continue": "Continuar",
+    "reward": "Recompensa",
+    "claimable": "Resgatável",
     "approve": "Aprovar",
     "confirm": "Confirmar",
+    "activity": "Atividade",
     "reject": "Rejeitar",
     "connected": "Conectado",
+    "value": "Valor",
     "created": "Criado em %{date}",
     "noResultsFound": "Nenhum resultado encontrado.",
     "noResultsBody": "Não há resultados para %{searchQuery}. Tente novamente.",
@@ -289,6 +294,7 @@
       },
       "overview": {
         "underlyingTokens": "Tokens em Stake",
+        "underlyingToken": "Token subjacente",
         "availableRewards": "Recompensas Disponíveis",
         "about": "Sobre",
         "tvl": "TVL",
@@ -310,6 +316,7 @@
       "saversVaults": {
         "description": "Ganhe recompensas em seu %{asset} através da THORChain Savers Vaults. Não precisa travá-lo e os incentivos são acumulados automaticamente. As recompensas na THORChain vem de taxas de swap e recompensas de blocos. O ganho do single-sided é limitado à metade do ganho obtido pelos provedores de liquidez em pools double-sided.",
         "vaultCap": "Limite da Vault",
+        "vaultCapTooltip": "Capacidade máxima atual para este cofre",
         "haltedTitle": "Depósitos estão temporariamente desabilitados. ",
         "haltedDescription": "Por favor, twitte em @THORChain para aumentar o limite!",
         "estimatedFee": "Taxa estimada",
@@ -352,6 +359,7 @@
     "validatorMoniker": "Validador de %{moniker}",
     "stakedAmount": "Valor Depositado",
     "unstakeFrom": "Retirar de",
+    "underlyingAsset": "Ativo subjacente",
     "gasFee": "Taxa de gás",
     "provider": "Deposite",
     "currentTvl": "TVL Atual",
@@ -955,6 +963,7 @@
       }
     },
     "approve": {
+      "header": "Permitir %{spenderName} usar o seu %{asset}",
       "shapeshiftRouterName": "Roteador ShapeShift DAO",
       "body": "Precisamos de sua permissão para utilizar %{asset}",
       "learnMore": "Por que isso é necessário?",
@@ -1917,5 +1926,22 @@
         "cta": "Crie um"
       }
     }
+  },
+  "nft": {
+    "floorPrice": "Floor Price",
+    "lastPrice": "Último preço",
+    "overview": "Visão geral",
+    "properties": "Propriedades",
+    "collection": "Coleção",
+    "tokenId": "Token ID",
+    "address": "Endereço",
+    "chain": "Rede",
+    "standard": "Padrão",
+    "description": "Descrição",
+    "details": "Detalhes",
+    "attributes": "Atributos",
+    "aboutCollection": "Sobre %{collectionName}",
+    "emptyTitle": "Para onde foram todos os NFTs?",
+    "emptyBody": "Não se preocupe, enviamos uma equipe de busca para trazer mais NFTs incríveis. Enquanto isso, sinta-se à vontade para olhar para este espaço em branco e refletir sobre o significado da existência."
   }
 }

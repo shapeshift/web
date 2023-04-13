@@ -14,6 +14,7 @@ import {
 import { AnimatePresence } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import { Link, useHistory } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -24,7 +25,9 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsAnyApiFetching } from 'hooks/useIsAnyApiFetching/useIsAnyApiFetching'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectPortfolioLoadingStatus } from 'state/slices/selectors'
 
+import { DegradedStateBanner } from './DegradedStateBanner'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
 import { Notifications } from './NavBar/Notifications'
@@ -33,6 +36,7 @@ import { SideNavContent } from './SideNavContent'
 
 export const Header = () => {
   const { onToggle, isOpen, onClose } = useDisclosure()
+  const isDegradedState = useSelector(selectPortfolioLoadingStatus) === 'error'
   const isLoading = useIsAnyApiFetching()
 
   const history = useHistory()
@@ -149,6 +153,7 @@ export const Header = () => {
               <AssetSearch assetListAsDropdown formProps={{ mb: 0, px: 0 }} />
             </HStack>
             <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
+              {isDegradedState && <DegradedStateBanner />}
               <Box display={{ base: 'none', md: 'block' }}>
                 <UserMenu />
               </Box>

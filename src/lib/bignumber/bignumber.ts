@@ -30,19 +30,14 @@ export const convertPrecision = ({
     .multipliedBy(bn(10).exponentiatedBy(outputPrecision))
 }
 
-// copilot write JSDoc docs for this function
-
 /**
  * Converts a base unit amount to a human readable amount
  * @example
- * toHuman({ value: '123456789', inputPrecision: 18 })
- * // => 0.123456
- * @example
- * toHuman({ value: '123456789', inputPrecision: 6 })
- * // => 1234.56789
- * @example
- * toHuman({ value: '123456789', inputPrecision: 0 })
- * // => 123456789
+ * toHuman({ value: '123459900000000000', inputPrecision: 18 })
+ * // => 0.12346
+ * * @example
+ * toHuman({ value: '12345000000', inputPrecision: 6 })
+ * // => 12345
  */
 export const toHuman = ({
   value,

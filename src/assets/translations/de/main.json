@@ -6,11 +6,16 @@
     "error": "Fehler",
     "cancel": "Abbrechen",
     "close": "Schließen",
+    "new": "Neu",
     "continue": "Fortsetzen",
+    "reward": "Belohnung",
+    "claimable": "Beanspruchbar",
     "approve": "Genehmigen",
     "confirm": "Bestätigen",
+    "activity": "Aktivität",
     "reject": "Ablehnen",
     "connected": "Verbunden",
+    "value": "Wert",
     "created": "Erstellt %{date}",
     "noResultsFound": "Keine Ergebnisse gefunden.",
     "noResultsBody": "Keine Ergebnisse für %{searchQuery}. Versuchen Sie neue Suche.",
@@ -289,6 +294,7 @@
       },
       "overview": {
         "underlyingTokens": "Zugrunde liegende Token",
+        "underlyingToken": "Zugrundeliegender Token",
         "availableRewards": "Verfügbare Belohnungen",
         "about": "Über",
         "tvl": "TVL",
@@ -310,6 +316,7 @@
       "saversVaults": {
         "description": "Verdienen Sie Rendite auf Ihr %{asset} durch die THORChain Savers Vaults. Es gibt keine Sperrzeit und Belohnungen werden automatisch angesammelt. Die Rendite auf THORChain ergibt sich aus Swap-Gebühren und Blockbelohnungen. Die einseitige Rendite ist auf die Hälfte der doppelseitigen Rendite der Liquiditätsanbieter begrenzt.",
         "vaultCap": "Tresorobergrenze",
+        "vaultCapTooltip": "Akt. max. Kapazität für diesen Tresor",
         "haltedTitle": "Einzahlungen sind vorübergehend gestoppt.",
         "haltedDescription": "Bitte twittern Sie an @THORChain, um die Obergrenzen zu erhöhen!",
         "estimatedFee": "Geschätzte Gebühr",
@@ -352,6 +359,7 @@
     "validatorMoniker": "%{moniker} Prüfer",
     "stakedAmount": "Staking Betrag",
     "unstakeFrom": "Staking beenden von",
+    "underlyingAsset": "Zugrundeliegender Vermögenswert",
     "gasFee": "Gasgebühr",
     "provider": "Anbieter",
     "currentTvl": "Aktuelle TVL",
@@ -955,6 +963,7 @@
       }
     },
     "approve": {
+      "header": "Erlaube %{spenderName}, deine %{asset} zu verwenden",
       "shapeshiftRouterName": "ShapeShift DAO Router",
       "body": "benötigt Ihre Erlaubnis, um Ihr %{asset} zu verwenden",
       "learnMore": "Warum muss ich das tun?",
@@ -1917,5 +1926,22 @@
         "cta": "Erstelle einen"
       }
     }
+  },
+  "nft": {
+    "floorPrice": "niedrigster Preis",
+    "lastPrice": "Letzter Preis",
+    "overview": "Übersicht",
+    "properties": "Eigenschaften",
+    "collection": "Sammlung",
+    "tokenId": "Token ID",
+    "address": "Addresse",
+    "chain": "Kette",
+    "standard": "Standard",
+    "description": "Beschreibung",
+    "details": "Details",
+    "attributes": "Eigenschaften",
+    "aboutCollection": "über %{collectionName}",
+    "emptyTitle": "Wo sind all die NFTs hin?",
+    "emptyBody": "Keine Sorge, wir haben einen Suchtrupp ausgesandt, um noch mehr erstaunliche NFTs zurückzubringen. Nutzen Sie bis dahin die Zeit auf diese leere Stelle zu starren und über den Sinn des Daseins nachzudenken;-)"
   }
 }

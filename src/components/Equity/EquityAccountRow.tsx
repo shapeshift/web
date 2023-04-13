@@ -10,7 +10,7 @@ import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioAccountMetadata,
-  selectPortfolioAccountsCryptoHumanBalancesExcludeStaking,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -48,8 +48,9 @@ export const EquityAccountRow = ({
   )
 
   const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
-  const cryptoBalances = useSelector(selectPortfolioAccountsCryptoHumanBalancesExcludeStaking)
-  const cryptoHumanBalance = cryptoBalances?.[accountId]?.[assetId]
+  const cryptoHumanBalance = bnOrZero(
+    useAppSelector(state => selectPortfolioCryptoPrecisionBalanceByFilter(state, filter)),
+  ).toString()
   const fiatBalance = useMemo(() => {
     return bnOrZero(cryptoHumanBalance).times(marketData.price).toString()
   }, [cryptoHumanBalance, marketData.price])

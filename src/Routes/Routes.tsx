@@ -101,9 +101,7 @@ export const Routes = () => {
           ) : null
         }}
       </Route>
-      <Layout>
-        <Switch>{privateRoutesList}</Switch>
-      </Layout>
+
       <Route path='/connect-wallet'>
         <ConnectWallet />
       </Route>
@@ -122,6 +120,9 @@ export const Routes = () => {
           <Flags />
         </Layout>
       </Route>
+      <Layout>
+        <Switch>{privateRoutesList}</Switch>
+      </Layout>
       <Redirect from='/' to='/dashboard' />
       <Route>
         <NotFound />

@@ -20,6 +20,8 @@ export const SideNav = () => {
         right='0'
         height={'100vh'}
         position='sticky'
+        borderRightWidth={1}
+        borderColor='rgba(255,255,255,.05)'
         bg={bgColor}
         top={0}
         maxWidth='xs'

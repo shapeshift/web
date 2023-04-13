@@ -66,7 +66,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   if (!assetId) return null
 
   return (
-    <Container width='full' maxWidth='container.xl' px={{ base: 4, xl: 8 }} pb={4} pt={6}>
+    <Container width='full' maxWidth='container.4xl' px={{ base: 4, xl: 16 }} pb={4} pt={6}>
       <Flex alignItems='center' flexDir={{ base: 'column', lg: 'row' }} flex={1}>
         <SEO title={`${asset.symbol} - ${formattedPrice}`} description={asset.description} />
         <Flex alignItems='center' mr='auto' flex={1}>

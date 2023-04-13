@@ -4,6 +4,7 @@ import { ethAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useParams } from 'react-router'
+import foxPageBg from 'assets/foxpage-bg.png'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { RecentTransactions } from 'pages/Dashboard/RecentTransactions'
@@ -37,13 +38,17 @@ export const Trade = () => {
   }, [assetSubId, chainId])
   return (
     <Main
-      py={0}
+      pt='4.5rem'
+      mt='-4.5rem'
       px={0}
       display='flex'
       flex={1}
       width='full'
       hideBreadcrumbs
-      titleComponent={<TradeHeader />}
+      bgImage={foxPageBg}
+      backgroundSize='contain'
+      backgroundPosition='top center'
+      backgroundRepeat='no-repeat'
     >
       <Stack alignSelf='stretch' flex={1} minHeight={0} spacing={0}>
         <Container

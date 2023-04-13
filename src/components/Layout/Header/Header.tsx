@@ -103,15 +103,15 @@ export const Header = () => {
         position='sticky'
         zIndex='banner'
         ref={ref}
-        bg={y > height ? bg : undefined}
-        transitionDuration='500ms'
+        bg={y > height ? bg : 'transparent'}
+        transitionDuration='200ms'
         transitionProperty='all'
         transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
         top={0}
         paddingTop={{ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }}
       >
         <HStack height='4.5rem' width='full' px={4}>
-          <HStack width='full' margin='0 auto' px={{ base: 0, md: 4 }} spacing={0} columnGap={4}>
+          <HStack width='full' margin='0 auto' px={{ base: 0, md: 12 }} spacing={0} columnGap={4}>
             <Box flex={1} display={{ base: 'block', md: 'none' }}>
               <IconButton
                 aria-label='Open menu'

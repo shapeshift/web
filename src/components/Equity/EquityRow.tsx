@@ -7,8 +7,8 @@ import { RawText } from 'components/Text'
 
 type EquityRowBaseProps = {
   label: string
-  fiatAmount: string
-  cryptoAmount: string
+  fiatAmount?: string
+  cryptoAmount?: string
   symbol: string
   color?: string
   allocation?: string
@@ -92,10 +92,10 @@ export const EquityRow: React.FC<EquityRowProps> = ({
           <Amount.Fiat
             fontSize={{ base: 'sm', md: 'md' }}
             color='chakra-body-text'
-            value={fiatAmount}
+            value={bnOrZero(fiatAmount).toString()}
           />
           <Amount.Crypto
-            value={cryptoAmount}
+            value={bnOrZero(cryptoAmount).toString()}
             symbol={symbol}
             fontSize={{ base: 'xs', md: 'sm' }}
             lineHeight={1}

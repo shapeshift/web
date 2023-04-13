@@ -306,7 +306,7 @@ export const selectAllEarnUserLpOpportunitiesByAccountId = createSelector(
         const marketDataPrice = marketData[lpId as AssetId]?.price
         let opportunityBalance = portfolioAssetBalancesById[lpId]
         if (accountId) {
-          opportunityBalance = portfolioAccountBalanceById[accountId][lpId]
+          opportunityBalance = portfolioAccountBalanceById[accountId][lpId] ?? '0'
         }
         if (bnOrZero(opportunityBalance).eq(0)) return opportunities
         if (

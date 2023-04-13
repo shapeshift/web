@@ -17,7 +17,6 @@ import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useIsAnyApiFetching } from 'hooks/useIsAnyApiFetching/useIsAnyApiFetching'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ChainMenu } from './NavBar/ChainMenu'
@@ -28,7 +27,6 @@ import { SideNavContent } from './SideNavContent'
 
 export const Header = () => {
   const { onToggle, isOpen, onClose } = useDisclosure()
-  const isLoading = useIsAnyApiFetching()
 
   const history = useHistory()
   const bg = useColorModeValue('white', 'gray.800')

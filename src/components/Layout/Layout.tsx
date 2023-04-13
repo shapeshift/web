@@ -103,7 +103,7 @@ export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
         >
           <>
             <Header />
-            {/* {isDegradedState && <DegradedStateBanner />} */}
+            {isDegradedState && <DegradedStateBanner />}
             {children}
           </>
         </Container>

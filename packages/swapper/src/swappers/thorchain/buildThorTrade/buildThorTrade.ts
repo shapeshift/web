@@ -39,6 +39,11 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
     } = input
 
     const quote = await getThorTradeQuote({ deps, input })
+
+    // TODO: Make Either<T, U> a Left | Right or a discriminated union so we can check for if (quote.error) instead of !('data' in quote)
+    if (!('data' in quote)) {
+      throw quote.error
+    }
     const sellAdapter = deps.adapterManager.get(sellAsset.chainId)
 
     if (!sellAdapter)
@@ -62,12 +67,12 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
         destinationAddress,
         deps,
         gasPriceCryptoBaseUnit:
-          (quote as TradeQuote<ThorEvmSupportedChainId>).feeData.chainSpecific
+          (quote.data as TradeQuote<ThorEvmSupportedChainId>).feeData.chainSpecific
             ?.gasPriceCryptoBaseUnit ?? '0',
         gasLimit:
-          (quote as TradeQuote<ThorEvmSupportedChainId>).feeData.chainSpecific
+          (quote.data as TradeQuote<ThorEvmSupportedChainId>).feeData.chainSpecific
             ?.estimatedGasCryptoBaseUnit ?? '0',
-        buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
+        buyAssetTradeFeeUsd: quote.data.feeData.buyAssetTradeFeeUsd,
       })
 
       return {
@@ -85,7 +90,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
         slippageTolerance,
         destinationAddress,
         xpub: (input as GetUtxoTradeQuoteInput).xpub,
-        buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
+        buyAssetTradeFeeUsd: quote.data.feeData.buyAssetTradeFeeUsd,
       })
 
       const buildTxResponse = await (
@@ -97,7 +102,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
         accountNumber,
         chainSpecific: {
           accountType: (input as GetUtxoTradeQuoteInput).accountType,
-          satoshiPerByte: (quote as TradeQuote<ThorUtxoSupportedChainId>).feeData.chainSpecific
+          satoshiPerByte: (quote.data as TradeQuote<ThorUtxoSupportedChainId>).feeData.chainSpecific
             .satsPerByte,
           opReturnData,
         },
@@ -122,7 +127,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
         buyAsset,
         wallet,
         destinationAddress,
-        quote: quote as TradeQuote<ThorCosmosSdkSupportedChainId>,
+        quote: quote.data as TradeQuote<ThorCosmosSdkSupportedChainId>,
       })
 
       return {

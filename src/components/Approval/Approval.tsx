@@ -90,7 +90,7 @@ export const Approval = () => {
 
   const approvalFeeCryptoHuman = baseUnitToHuman({
     value: bnOrZero(fees?.chainSpecific?.approvalFeeCryptoBaseUnit),
-    inputPrecision: sellFeeAsset?.precision ?? 0,
+    inputExponent: sellFeeAsset?.precision ?? 0,
   })
 
   const approveContract = useCallback(async () => {

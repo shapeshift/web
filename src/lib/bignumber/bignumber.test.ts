@@ -1,10 +1,10 @@
 import {
   baseUnitToHuman,
+  baseUnitToPrecision,
   BigNumber,
   bn,
   bnOrZero,
   convertPrecision,
-  toPrecision,
 } from './bignumber'
 
 describe('bignumber', () => {
@@ -116,11 +116,11 @@ describe('bignumber', () => {
     })
   })
 
-  describe('toPrecision', () => {
+  describe('baseUnitToPrecision', () => {
     it('converts BigNumber value with inputPrecision 8 to a precision amount', () => {
       const value = '123456789012345'
       const inputPrecision = 8
-      const result = toPrecision({ value, inputPrecision })
+      const result = baseUnitToPrecision({ value, inputPrecision })
 
       expect(result.toFixed()).toBe('1234567.89012345')
     })
@@ -128,7 +128,7 @@ describe('bignumber', () => {
     it('converts BigNumber value with inputPrecision 6 to a precision amount', () => {
       const value = '12345000000'
       const inputPrecision = 6
-      const result = toPrecision({ value, inputPrecision })
+      const result = baseUnitToPrecision({ value, inputPrecision })
 
       expect(result.toFixed()).toBe('12345')
     })
@@ -136,7 +136,7 @@ describe('bignumber', () => {
     it('converts BigNumber value with inputPrecision 18 to a precision amount', () => {
       const value = '100000000000000000000'
       const inputPrecision = 18
-      const result = toPrecision({ value, inputPrecision })
+      const result = baseUnitToPrecision({ value, inputPrecision })
 
       expect(result.toFixed()).toBe('100')
     })
@@ -144,7 +144,7 @@ describe('bignumber', () => {
     it('converts BigNumber value with decimals and inputPrecision 6 to a precision amount', () => {
       const value = '1234567890123456'
       const inputPrecision = 6
-      const result = toPrecision({ value, inputPrecision })
+      const result = baseUnitToPrecision({ value, inputPrecision })
 
       expect(result.toFixed()).toBe('1234567890.123456')
     })
@@ -152,7 +152,7 @@ describe('bignumber', () => {
     it('converts small BigNumber value with inputPrecision 8 to a precision amount', () => {
       const value = '123456789'
       const inputPrecision = 8
-      const result = toPrecision({ value, inputPrecision })
+      const result = baseUnitToPrecision({ value, inputPrecision })
 
       expect(result.toFixed()).toBe('1.23456789')
     })
@@ -160,7 +160,7 @@ describe('bignumber', () => {
     it('converts small BigNumber value with inputPrecision 6 to a precision amount', () => {
       const value = '100'
       const inputPrecision = 6
-      const result = toPrecision({ value, inputPrecision })
+      const result = baseUnitToPrecision({ value, inputPrecision })
 
       expect(result.toFixed()).toBe('0.0001')
     })
@@ -168,7 +168,7 @@ describe('bignumber', () => {
   it('does not round up when converting value with maximum decimals and inputPrecision 8', () => {
     const value = '123456789012345678'
     const inputPrecision = 8
-    const result = toPrecision({ value, inputPrecision })
+    const result = baseUnitToPrecision({ value, inputPrecision })
 
     expect(result.toFixed(8)).toBe('1234567890.12345678')
   })
@@ -176,7 +176,7 @@ describe('bignumber', () => {
   it('does not round down when converting value with maximum decimals and inputPrecision 18', () => {
     const value = '123456789012345678901234567890123456'
     const inputPrecision = 18
-    const result = toPrecision({ value, inputPrecision })
+    const result = baseUnitToPrecision({ value, inputPrecision })
 
     expect(result.toFixed(18)).toBe('123456789012345678.901234567890123456')
   })

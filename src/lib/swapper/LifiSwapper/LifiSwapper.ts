@@ -1,6 +1,7 @@
 import type {
   ChainId as LifiChainId,
   ChainKey as LifiChainKey,
+  GetStatusRequest,
   Token as LifiToken,
 } from '@lifi/sdk'
 import type { Asset } from '@shapeshiftoss/asset-service'
@@ -46,6 +47,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SwapperName.LIFI
   private lifiChainMap: Map<ChainId, LifiChainKey> = new Map()
   private lifiAssetMap: Map<AssetId, LifiToken> = new Map()
+  private executedTrades: Map<string, GetStatusRequest> = new Map()
 
   /** perform any necessary async initialization */
   async initialize(): Promise<void> {
@@ -121,7 +123,9 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Execute a trade built with buildTrade by signing and broadcasting
    */
   async executeTrade(input: LifiExecuteTradeInput): Promise<TradeResult> {
-    return await executeTrade(input)
+    const { tradeResult, getStatusRequest } = await executeTrade(input)
+    this.executedTrades.set(tradeResult.tradeId, getStatusRequest)
+    return tradeResult
   }
 
   /**
@@ -164,10 +168,17 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get transactions related to a trade
    */
   async getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
-    // the tradeId is currently a lifi route ID
-    return await Promise.resolve({
+    const getStatusRequest = this.executedTrades.get(tradeResult.tradeId)
+
+    if (getStatusRequest === undefined) {
+      return { sellTxid: tradeResult.tradeId }
+    }
+
+    const statusResponse = await getLifi().getStatus(getStatusRequest)
+
+    return {
       sellTxid: tradeResult.tradeId,
-      buyTxid: tradeResult.tradeId,
-    })
+      buyTxid: statusResponse.receiving?.txHash,
+    }
   }
 }

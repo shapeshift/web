@@ -1,5 +1,5 @@
 import type Lifi from '@lifi/sdk/dist/Lifi'
-import type { Route } from '@lifi/sdk/dist/types'
+import type { GetStatusRequest, Route } from '@lifi/sdk/dist/types'
 import type { BuildSendTxInput, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { TradeResult } from '@shapeshiftoss/swapper'
@@ -63,7 +63,10 @@ const createBuildSendTxInput = async (
 export const executeTrade = async ({
   trade,
   wallet,
-}: LifiExecuteTradeInput): Promise<TradeResult> => {
+}: LifiExecuteTradeInput): Promise<{
+  tradeResult: TradeResult
+  getStatusRequest: GetStatusRequest
+}> => {
   try {
     const lifi = getLifi()
 
@@ -105,24 +108,37 @@ export const executeTrade = async ({
 
     const { txToSign } = await adapter.buildSendTransaction(buildSendTxInput)
 
-    if (wallet.supportsOfflineSigning()) {
-      const signedTx = await adapter.signTransaction({ txToSign, wallet })
+    const txHash = await (async () => {
+      if (wallet.supportsOfflineSigning()) {
+        const signedTx = await adapter.signTransaction({ txToSign, wallet })
 
-      const txid = await adapter.broadcastTransaction(signedTx)
+        const txid = await adapter.broadcastTransaction(signedTx)
 
-      return { tradeId: txid }
-    } else if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
-      const txid = await adapter.signAndBroadcastTransaction?.({
-        txToSign,
-        wallet,
-      })
+        return txid
+      }
 
-      return { tradeId: txid }
-    } else {
-      throw new SwapError('[executeTrade]', {
+      if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
+        const txid = await adapter.signAndBroadcastTransaction?.({
+          txToSign,
+          wallet,
+        })
+
+        return txid
+      }
+
+      throw new SwapError('[executeTrade] - sign and broadcast failed', {
         code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
       })
+    })()
+
+    const getStatusRequest: GetStatusRequest = {
+      txHash,
+      bridge: selectedLifiRoute.steps[0].tool,
+      fromChain: selectedLifiRoute.fromChainId,
+      toChain: selectedLifiRoute.toChainId,
     }
+
+    return { tradeResult: { tradeId: txHash }, getStatusRequest }
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[executeTrade]', {

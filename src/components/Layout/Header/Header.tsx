@@ -130,16 +130,16 @@ export const Header = () => {
             </HStack>
             <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
               {isDegradedState && <DegradedStateBanner />}
-              <Box display={{ base: 'none', md: 'block' }}>
-                <UserMenu />
-              </Box>
               {isWalletConnectToDappsEnabled && (
                 <Box display={{ base: 'none', md: 'block' }}>
                   <WalletConnectToDappsHeaderButton />
                 </Box>
               )}
-              <ChainMenu display={{ base: 'none', md: 'block' }} />
               <Notifications />
+              <ChainMenu display={{ base: 'none', md: 'block' }} />
+              <Box display={{ base: 'none', md: 'block' }}>
+                <UserMenu />
+              </Box>
             </Flex>
           </HStack>
         </HStack>

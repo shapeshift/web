@@ -9,6 +9,7 @@ import type {
   ApprovalNeededOutput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
+  Either,
   ExecuteTradeInput,
   GetTradeQuoteInput,
   MinMaxOutput,
@@ -208,7 +209,9 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     }
   }
 
-  async getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<ChainId>> {
+  async getTradeQuote(
+    input: GetTradeQuoteInput,
+  ): Promise<Either<{ data: TradeQuote<ChainId> }, { error: typeof SwapError }>> {
     const {
       accountNumber,
       sellAsset,
@@ -242,21 +245,23 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const fee = feeData.fast.txFee
 
     return {
-      buyAsset,
-      feeData: {
-        networkFeeCryptoBaseUnit: fee,
-        sellAssetTradeFeeUsd: '0',
-        buyAssetTradeFeeUsd,
+      data: {
+        buyAsset,
+        feeData: {
+          networkFeeCryptoBaseUnit: fee,
+          sellAssetTradeFeeUsd: '0',
+          buyAssetTradeFeeUsd,
+        },
+        maximumCryptoHuman: maximumAmountCryptoHuman,
+        minimumCryptoHuman: minimumAmountCryptoHuman, // TODO(gomes): shorthand?
+        accountNumber,
+        rate,
+        sellAsset,
+        sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+        buyAmountCryptoBaseUnit,
+        sources: DEFAULT_SOURCE,
+        allowanceContract: '',
       },
-      maximumCryptoHuman: maximumAmountCryptoHuman,
-      minimumCryptoHuman: minimumAmountCryptoHuman, // TODO(gomes): shorthand?
-      accountNumber,
-      rate,
-      sellAsset,
-      sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-      buyAmountCryptoBaseUnit,
-      sources: DEFAULT_SOURCE,
-      allowanceContract: '',
     }
   }
 

@@ -243,6 +243,9 @@ export enum SwapErrorType {
   TRADE_FAILED = 'TRADE_FAILED',
   RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED = 'RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED',
 }
+// TODO(gomes): better home for this bad boi
+export type Either<T, U> = T | U
+
 export interface Swapper<T extends ChainId> {
   /** Human-readable swapper name */
   readonly name: SwapperName
@@ -261,7 +264,9 @@ export interface Swapper<T extends ChainId> {
   /**
    * Get a trade quote
    */
-  getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<T>>
+  getTradeQuote(
+    input: GetTradeQuoteInput,
+  ): Promise<Either<{ data: TradeQuote<T> }, { error: typeof SwapError }>>
 
   /**
    * Get the usd rate from either the assets symbol or tokenId

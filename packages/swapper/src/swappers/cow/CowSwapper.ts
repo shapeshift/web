@@ -12,8 +12,10 @@ import type {
   ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
+  Either,
   ExecuteTradeInput,
   GetTradeQuoteInput,
+  SwapError,
   Swapper,
   TradeQuote,
   TradeResult,
@@ -52,7 +54,11 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     return cowBuildTrade(this.deps, args)
   }
 
-  getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> {
+  getTradeQuote(
+    input: GetTradeQuoteInput,
+  ): Promise<
+    Either<{ data: TradeQuote<KnownChainIds.EthereumMainnet> }, { error: typeof SwapError }>
+  > {
     return getCowSwapTradeQuote(this.deps, input)
   }
 

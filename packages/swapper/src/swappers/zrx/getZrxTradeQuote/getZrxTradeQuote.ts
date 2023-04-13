@@ -1,6 +1,6 @@
 import type { AxiosResponse } from 'axios'
 
-import type { GetEvmTradeQuoteInput, SwapSource, TradeQuote } from '../../../api'
+import type { Either, GetEvmTradeQuoteInput, SwapSource, TradeQuote } from '../../../api'
 import { SwapError, SwapErrorType } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
@@ -14,7 +14,7 @@ import type { ZrxSupportedChainId } from '../ZrxSwapper'
 
 export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   input: GetEvmTradeQuoteInput,
-): Promise<TradeQuote<T>> {
+): Promise<Either<{ data: TradeQuote<T> }, { error: typeof SwapError }>> {
   try {
     const {
       sellAsset,
@@ -117,7 +117,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       sellAsset,
       accountNumber,
     }
-    return tradeQuote as TradeQuote<T>
+    return { data: tradeQuote as TradeQuote<T> }
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[getZrxTradeQuote]', { cause: e, code: SwapErrorType.TRADE_QUOTE_FAILED })

@@ -17,6 +17,7 @@ import type {
   ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
+  Either,
   ExecuteTradeInput,
   GetTradeQuoteInput,
   Swapper,
@@ -165,7 +166,9 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     return buildTrade({ deps: this.deps, input })
   }
 
-  getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<ChainId>> {
+  getTradeQuote(
+    input: GetTradeQuoteInput,
+  ): Promise<Either<{ data: TradeQuote<ChainId> }, { error: typeof SwapError }>> {
     return getThorTradeQuote({ deps: this.deps, input })
   }
 

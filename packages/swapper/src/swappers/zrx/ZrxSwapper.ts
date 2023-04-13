@@ -11,6 +11,7 @@ import type {
   ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
+  Either,
   GetEvmTradeQuoteInput,
   Swapper,
   TradeQuote,
@@ -70,7 +71,9 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     return zrxBuildTrade<T>(this.deps, args)
   }
 
-  getTradeQuote(input: GetEvmTradeQuoteInput): Promise<TradeQuote<T>> {
+  getTradeQuote(
+    input: GetEvmTradeQuoteInput,
+  ): Promise<Either<{ data: TradeQuote<T> }, { error: typeof SwapError }>> {
     return getZrxTradeQuote<T>(input)
   }
 

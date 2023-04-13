@@ -3,7 +3,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { AxiosError, AxiosResponse } from 'axios'
 import axios from 'axios'
 
-import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
+import type { Either, GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapError, SwapErrorType } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { getApproveContractData, normalizeIntegerAmount } from '../../utils/helpers/helpers'
@@ -25,7 +25,9 @@ import { getNowPlusThirtyMinutesTimestamp, getUsdRate } from '../utils/helpers/h
 export async function getCowSwapTradeQuote(
   deps: CowSwapperDeps,
   input: GetTradeQuoteInput,
-): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> {
+): Promise<
+  Either<{ data: TradeQuote<KnownChainIds.EthereumMainnet> }, { error: typeof SwapError }>
+> {
   try {
     const {
       sellAsset,
@@ -168,28 +170,30 @@ export async function getCowSwapTradeQuote(
       : buyAmountCryptoBaseUnit
 
     return {
-      rate,
-      minimumCryptoHuman: minimumAmountCryptoHuman,
-      maximumCryptoHuman: maximumAmountCryptoHuman,
-      feeData: {
-        networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
-        chainSpecific: {
-          estimatedGasCryptoBaseUnit: feeData.chainSpecific.gasLimit,
-          gasPriceCryptoBaseUnit: feeData.chainSpecific.gasPrice,
-          approvalFeeCryptoBaseUnit: bnOrZero(feeData.chainSpecific.gasLimit)
-            .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
-            .toString(),
+      data: {
+        rate,
+        minimumCryptoHuman: minimumAmountCryptoHuman,
+        maximumCryptoHuman: maximumAmountCryptoHuman,
+        feeData: {
+          networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
+          chainSpecific: {
+            estimatedGasCryptoBaseUnit: feeData.chainSpecific.gasLimit,
+            gasPriceCryptoBaseUnit: feeData.chainSpecific.gasPrice,
+            approvalFeeCryptoBaseUnit: bnOrZero(feeData.chainSpecific.gasLimit)
+              .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
+              .toString(),
+          },
+          buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
+          sellAssetTradeFeeUsd,
         },
-        buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
-        sellAssetTradeFeeUsd,
+        sellAmountBeforeFeesCryptoBaseUnit: quoteSellAmountCryptoBaseUnit,
+        buyAmountCryptoBaseUnit: quoteBuyAmountCryptoBaseUnit,
+        sources: DEFAULT_SOURCE,
+        allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
+        buyAsset,
+        sellAsset,
+        accountNumber,
       },
-      sellAmountBeforeFeesCryptoBaseUnit: quoteSellAmountCryptoBaseUnit,
-      buyAmountCryptoBaseUnit: quoteBuyAmountCryptoBaseUnit,
-      sources: DEFAULT_SOURCE,
-      allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
-      buyAsset,
-      sellAsset,
-      accountNumber,
     }
   } catch (e) {
     if (

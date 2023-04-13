@@ -6,7 +6,7 @@ import type {
   UtxoBaseAdapter,
 } from '@shapeshiftoss/chain-adapters'
 
-import type { GetTradeQuoteInput, GetUtxoTradeQuoteInput, TradeQuote } from '../../../api'
+import type { Either, GetTradeQuoteInput, GetUtxoTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapError, SwapErrorType, SwapperName } from '../../../api'
 import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../utils/bignumber'
 import { DEFAULT_SLIPPAGE } from '../../utils/constants'
@@ -38,7 +38,11 @@ type GetThorTradeQuoteInput = {
   input: GetTradeQuoteInput
 }
 
-type GetThorTradeQuoteReturn = Promise<TradeQuote<ChainId>>
+// TODO(gomes): akschually implement said monadic error handling
+// This only returns left for now
+type GetThorTradeQuoteReturn = Promise<
+  Either<{ data: TradeQuote<ChainId> }, { error: typeof SwapError }>
+>
 
 type GetThorTradeQuote = (args: GetThorTradeQuoteInput) => GetThorTradeQuoteReturn
 
@@ -137,7 +141,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm:
-        return (async (): Promise<TradeQuote<ThorEvmSupportedChainId>> => {
+        return (async (): Promise<{ data: TradeQuote<ThorEvmSupportedChainId> }> => {
           const sellChainFeeAssetId = sellAdapter.getFeeAssetId()
           const evmAddressData = await getInboundAddressDataForChain(
             deps.daemonUrl,
@@ -157,14 +161,16 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           })
 
           return {
-            ...commonQuoteFields,
-            allowanceContract: router,
-            feeData,
+            data: {
+              ...commonQuoteFields,
+              allowanceContract: router,
+              feeData,
+            },
           }
         })()
 
       case CHAIN_NAMESPACE.Utxo:
-        return (async (): Promise<TradeQuote<ThorUtxoSupportedChainId>> => {
+        return (async (): Promise<{ data: TradeQuote<ThorUtxoSupportedChainId> }> => {
           const { vault, opReturnData, pubkey } = await getThorTxInfo({
             deps,
             sellAsset,
@@ -187,25 +193,29 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           })
 
           return {
-            ...commonQuoteFields,
-            allowanceContract: '0x0', // not applicable to bitcoin
-            feeData,
+            data: {
+              ...commonQuoteFields,
+              allowanceContract: '0x0', // not applicable to bitcoin
+              feeData,
+            },
           }
         })()
       case CHAIN_NAMESPACE.CosmosSdk:
-        return (async (): Promise<TradeQuote<ThorCosmosSdkSupportedChainId>> => {
+        return (async (): Promise<{ data: TradeQuote<ThorCosmosSdkSupportedChainId> }> => {
           const feeData = await (
             sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
           ).getFeeData({})
 
           return {
-            ...commonQuoteFields,
-            allowanceContract: '0x0', // not applicable to cosmos
-            feeData: {
-              networkFeeCryptoBaseUnit: feeData.fast.txFee,
-              buyAssetTradeFeeUsd,
-              sellAssetTradeFeeUsd: '0',
-              chainSpecific: { estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit },
+            data: {
+              ...commonQuoteFields,
+              allowanceContract: '0x0', // not applicable to cosmos
+              feeData: {
+                networkFeeCryptoBaseUnit: feeData.fast.txFee,
+                buyAssetTradeFeeUsd,
+                sellAssetTradeFeeUsd: '0',
+                chainSpecific: { estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit },
+              },
             },
           }
         })()

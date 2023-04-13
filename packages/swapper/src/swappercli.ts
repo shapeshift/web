@@ -186,7 +186,7 @@ const main = async (): Promise<void> => {
   console.info(`${buyAsset.name} using receive addr ${buyAssetReceiveAddr}`)
   let quote
   try {
-    quote = await swapper.getTradeQuote({
+    const maybeQuote = await swapper.getTradeQuote({
       chainId: sellAsset.chainId as UtxoChainId,
       sellAsset,
       buyAsset,
@@ -197,6 +197,8 @@ const main = async (): Promise<void> => {
       xpub: publicKey?.xpub || '',
       receiveAddress: buyAssetReceiveAddr,
     })
+    if ('error' in maybeQuote) throw maybeQuote.error
+    if ('data' in maybeQuote) quote = maybeQuote.data
   } catch (e) {
     console.error(e)
     return

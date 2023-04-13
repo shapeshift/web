@@ -77,7 +77,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
 
       return {
         chainId: sellAsset.chainId as ThorEvmSupportedChainId,
-        ...quote,
+        ...quote.data,
         receiveAddress: destinationAddress,
         txData: ethTradeTx.txToSign,
       }
@@ -111,7 +111,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
 
       return {
         chainId: sellAsset.chainId as ThorUtxoSupportedChainId,
-        ...quote,
+        ...quote.data,
         receiveAddress: destinationAddress,
         txData: buildTxResponse.txToSign,
       }
@@ -132,7 +132,7 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
 
       return {
         chainId: sellAsset.chainId as ThorCosmosSdkSupportedChainId,
-        ...quote,
+        ...quote.data,
         receiveAddress: destinationAddress,
         txData,
       }

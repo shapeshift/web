@@ -6,7 +6,6 @@ import type {
   BuyAssetBySellIdInput,
   Swapper,
   Trade,
-  TradeQuote,
   TradeResult,
   TradeTxs,
 } from '../../api'
@@ -68,7 +67,7 @@ export class TestSwapper implements Swapper<ChainId> {
     throw new Error('TestSwapper: buildTrade unimplemented')
   }
 
-  getTradeQuote(): Promise<TradeQuote<ChainId>> {
+  getTradeQuote(): Promise<{ error: typeof SwapError }> {
     throw new Error('TestSwapper: getTradeQuote unimplemented')
   }
 

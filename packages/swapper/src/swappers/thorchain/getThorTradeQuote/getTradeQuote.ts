@@ -68,7 +68,13 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         },
       )
 
-    const rate = await getTradeRate(sellAsset, buyAsset.assetId, sellAmountCryptoBaseUnit, deps)
+    const rate = await getTradeRate({
+      sellAsset,
+      buyAssetId: buyAsset.assetId,
+      sellAmountCryptoBaseUnit,
+      receiveAddress,
+      deps,
+    })
 
     const buyAmountCryptoBaseUnit = toBaseUnit(
       bnOrZero(fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)).times(rate),
@@ -117,7 +123,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
     const commonQuoteFields: CommonQuoteFields = {
       rate,
-      maximum: MAX_THORCHAIN_TRADE,
+      maximumCryptoHuman: MAX_THORCHAIN_TRADE,
       sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
       buyAmountCryptoBaseUnit,
       sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
@@ -199,7 +205,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
               networkFeeCryptoBaseUnit: feeData.fast.txFee,
               buyAssetTradeFeeUsd,
               sellAssetTradeFeeUsd: '0',
-              chainSpecific: { estimatedGas: feeData.fast.chainSpecific.gasLimit },
+              chainSpecific: { estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit },
             },
           }
         })()

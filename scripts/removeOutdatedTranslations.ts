@@ -71,8 +71,8 @@ function saveJSONFile(filePath: string, data: any) {
 }
 
 // Utility function to recursively compare two objects
-function compareObjects(obj1: any, obj2: any, path = '') {
-  const diffs = []
+function compareObjects(obj1: any, obj2: any, path = ''): string[] {
+  const diffs: string[] = []
 
   for (const key in obj1) {
     if (!obj1.hasOwnProperty(key)) {

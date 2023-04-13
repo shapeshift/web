@@ -1,28 +1,37 @@
-import type { RoutesResponse } from '@lifi/sdk'
+import type { Route, Token } from '@lifi/sdk'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { QuoteFeeData } from '@shapeshiftoss/swapper'
-import { bn, bnOrZero, fromHuman, toHuman } from 'lib/bignumber/bignumber'
+import { APPROVAL_GAS_LIMIT } from '@shapeshiftoss/swapper/dist/swappers/utils/constants'
+import { bn, bnOrZero, toHuman } from 'lib/bignumber/bignumber'
 import { LIFI_GAS_FEE_BASE } from 'lib/swapper/LifiSwapper/utils/constants'
+import { getFeeAssets } from 'lib/swapper/LifiSwapper/utils/getFeeAssets/getFeeAssets'
+import { processGasCosts } from 'lib/swapper/LifiSwapper/utils/processGasCosts/processGasCosts'
 
-// NOTE: fees are denoted in the sell asset
-export const transformLifiFeeData = (
-  lifiRoutesResponse: RoutesResponse,
-  selectedRouteIndex: number,
-  buyAssetAddress: string,
-  sellAssetAddress: string,
-): QuoteFeeData<EvmChainId> => {
-  const selectedRoute = lifiRoutesResponse.routes[selectedRouteIndex]
+export const transformLifiFeeData = ({
+  buyLifiToken,
+  chainId,
+  lifiAssetMap,
+  selectedRoute,
+}: {
+  buyLifiToken: Token
+  chainId: ChainId
+  lifiAssetMap: Map<AssetId, Token>
+  selectedRoute: Route
+}): QuoteFeeData<EvmChainId> => {
   const allRouteGasCosts = selectedRoute.steps.flatMap(step => step.estimate.gasCosts ?? [])
   const allRouteFeeCosts = selectedRoute.steps.flatMap(step => step.estimate.feeCosts ?? [])
 
   const buyAssetRouteFeeCosts = allRouteFeeCosts.filter(
-    feeCost => feeCost.token.address === buyAssetAddress,
-  )
-  const sellAssetRouteFeeCosts = allRouteFeeCosts.filter(
-    feeCost => feeCost.token.address === sellAssetAddress,
+    feeCost => feeCost.token.address === buyLifiToken.address,
   )
 
-  // this is the sum of all `feeCosts` against the buy asset in USD
+  // all fees that are not the buy asset (there may be multiple different tokens)
+  const sellAssetRouteFeeCosts = allRouteFeeCosts.filter(
+    feeCost => feeCost.token.address !== buyLifiToken.address,
+  )
+
+  // this is the sum of all `feeCost` against the buy asset in USD
   // need to manually convert them to USD because lifi rounds to the nearest dollar
   const buyAssetTradeFeeUsd =
     buyAssetRouteFeeCosts
@@ -33,9 +42,9 @@ export const transformLifiFeeData = (
       )
       .reduce((acc, amountUsd) => acc.plus(amountUsd), bn(0)) ?? bn(0)
 
-  // this is the sum of all `feeCosts` against the sell asset in USD
+  // this is the sum of all `feeCost` against the sell asset in USD
   // need to manually convert them to USD because lifi rounds to the nearest dollar
-  const sellAssetTradeFeeUsd =
+  const initialSellAssetTradeFeeUsd =
     sellAssetRouteFeeCosts
       .map(feeCost =>
         toHuman({ value: feeCost.amount, inputPrecision: feeCost.token.decimals }).multipliedBy(
@@ -44,10 +53,14 @@ export const transformLifiFeeData = (
       )
       .reduce((acc, amountUsd) => acc.plus(amountUsd), bn(0)) ?? bn(0)
 
-  const networkFeeCryptoBaseUnit = fromHuman({
-    value: selectedRoute.gasCostUSD ?? '0',
-    outputPrecision: selectedRoute.fromToken.decimals,
-  }).dividedBy(bnOrZero(selectedRoute.fromToken.priceUSD))
+  const { feeAsset, lifiFeeAsset } = getFeeAssets(chainId, lifiAssetMap)
+
+  const { networkFeeCryptoBaseUnit, sellAssetTradeFeeUsd } = processGasCosts({
+    feeAsset,
+    lifiFeeAsset,
+    allRouteGasCosts,
+    initialSellAssetTradeFeeUsd,
+  })
 
   // the sum of all 'APPROVE' gas fees
   // TODO: validate this with lifi
@@ -58,14 +71,18 @@ export const transformLifiFeeData = (
     bn(0)
 
   return {
-    networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit.toString(), // UI shows this as $4.59 next to the gas icon
+    networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit.toString(), // UI shows this next to the gas icon
     chainSpecific: {
-      // the following are not required because gas is hardcoded downstream during approval
-      // estimatedGas: gas limit for approval
+      // TODO: add gasPriceCryptoBaseUnit so approvals are not displayed as 0
       // gasPriceCryptoBaseUnit: gas price for approval
+
+      // lifi handles approval gas internally but need to set a gas limit so the
+      // approval limit isnt exceeded when the trade is executed.
+      estimatedGasCryptoBaseUnit: APPROVAL_GAS_LIMIT,
       approvalFeeCryptoBaseUnit: approvalFeeCryptoBaseUnit.toString(),
     },
-    buyAssetTradeFeeUsd: buyAssetTradeFeeUsd.toString(), // UI shows as "protocol fee"
+    // UI shows the sum of these as "protocol fee"
+    buyAssetTradeFeeUsd: buyAssetTradeFeeUsd.toString(),
     sellAssetTradeFeeUsd: sellAssetTradeFeeUsd.toString(),
   }
 }

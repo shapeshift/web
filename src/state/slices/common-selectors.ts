@@ -48,7 +48,7 @@ export const selectPortfolioCryptoBalanceBaseUnitByFilter = createCachedSelector
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   (accountBalances, assetBalances, accountId, assetId): string => {
-    if (accountId && assetId) return accountBalances?.[accountId]?.[assetId]
+    if (accountId && assetId) return accountBalances?.[accountId]?.[assetId] ?? '0'
     return assetId ? assetBalances[assetId] : '0'
   },
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')

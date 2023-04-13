@@ -13,8 +13,9 @@ export type TradeProps = {
 }
 
 export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
-  const { getDefaultAssets, defaultAssetIdPair } = useDefaultAssets(defaultBuyAssetId)
+  const { defaultAssets, defaultAssetIdPair } = useDefaultAssets(defaultBuyAssetId)
   const location = useLocation()
+
   const [hasSetDefaultValues, setHasSetDefaultValues] = useState<boolean>(false)
 
   const methods = useForm({ mode: 'onChange' })
@@ -40,35 +41,32 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
   useEffect(() => setHasSetDefaultValues(false), [location])
 
   useEffect(() => {
-    if (hasSetDefaultValues) return
-    ;(async () => {
-      const result = await getDefaultAssets()
-      if (!result) return
-      const { buyAsset, sellAsset } = result
-      updateAction(TradeAmountInputField.SELL_FIAT)
-      updateIsExactAllowance(false)
-      updateBuyAsset(buyAsset)
-      updateBuyAmountCryptoPrecision('0')
-      updateAmount('0')
-      updateSellAsset(sellAsset)
-      updateSellAmountCryptoPrecision('0')
-      updateFiatBuyAmount('0')
-      updateFiatSellAmount('0')
-      updateSellAssetFiatRate(undefined)
-      updateBuyAssetFiatRate(undefined)
-      updateFeeAssetFiatRate(undefined)
-      const defaultAssetsAreChainDefaults =
-        sellAsset?.assetId === defaultAssetIdPair?.sellAssetId &&
-        buyAsset?.assetId === defaultAssetIdPair?.buyAssetId
-      if (!defaultAssetsAreChainDefaults && defaultAssetIdPair) {
-        // If the default assets are the chain defaults then keep this useEffect active as we might not have stabilized
-        // Else, we know the default values have been set, so don't run this again unless the route changes
-        setHasSetDefaultValues(true)
-      }
-    })()
+    if (hasSetDefaultValues || !defaultAssets) return
+
+    const { buyAsset, sellAsset } = defaultAssets
+    updateAction(TradeAmountInputField.SELL_FIAT)
+    updateIsExactAllowance(false)
+    updateBuyAsset(buyAsset)
+    updateBuyAmountCryptoPrecision('0')
+    updateAmount('0')
+    updateSellAsset(sellAsset)
+    updateSellAmountCryptoPrecision('0')
+    updateFiatBuyAmount('0')
+    updateFiatSellAmount('0')
+    updateSellAssetFiatRate(undefined)
+    updateBuyAssetFiatRate(undefined)
+    updateFeeAssetFiatRate(undefined)
+    const defaultAssetsAreChainDefaults =
+      sellAsset?.assetId === defaultAssetIdPair?.sellAssetId &&
+      buyAsset?.assetId === defaultAssetIdPair?.buyAssetId
+    if (!defaultAssetsAreChainDefaults && defaultAssetIdPair) {
+      // If the default assets are the chain defaults then keep this useEffect active as we might not have stabilized
+      // Else, we know the default values have been set, so don't run this again unless the route changes
+      setHasSetDefaultValues(true)
+    }
   }, [
     defaultBuyAssetId,
-    getDefaultAssets,
+    defaultAssets,
     methods,
     location,
     hasSetDefaultValues,

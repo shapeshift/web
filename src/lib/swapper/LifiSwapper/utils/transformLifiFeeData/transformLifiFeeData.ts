@@ -1,10 +1,12 @@
 import type { Route, Token } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { QuoteFeeData } from '@shapeshiftoss/swapper'
+import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { APPROVAL_GAS_LIMIT } from '@shapeshiftoss/swapper/dist/swappers/utils/constants'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { baseUnitToHuman, baseUnitToPrecision, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getEvmChainAdapter } from 'lib/swapper/LifiSwapper/utils/getEvmChainAdapter'
 import { getFeeAssets } from 'lib/swapper/LifiSwapper/utils/getFeeAssets/getFeeAssets'
 import { processGasCosts } from 'lib/swapper/LifiSwapper/utils/processGasCosts/processGasCosts'
 
@@ -19,6 +21,13 @@ export const transformLifiFeeData = async ({
   lifiAssetMap: Map<AssetId, Token>
   selectedRoute: Route
 }): Promise<QuoteFeeData<EvmChainId>> => {
+  if (!isEvmChainId(chainId)) {
+    throw new SwapError("[transformLifiFeeData] - chainId isn't an EVM ChainId", {
+      code: SwapErrorType.UNSUPPORTED_CHAIN,
+      details: { chainId },
+    })
+  }
+
   const allRouteGasCosts = selectedRoute.steps.flatMap(step => step.estimate.gasCosts ?? [])
   const allRouteFeeCosts = selectedRoute.steps.flatMap(step => step.estimate.feeCosts ?? [])
 
@@ -64,7 +73,10 @@ export const transformLifiFeeData = async ({
     initialSellAssetTradeFeeUsd,
   })
 
-  const adapter = getEvmChainAdapter(chainId)
+  const chainAdapterManager = getChainAdapterManager()
+  // We guard against !isEvmChainId(chainId) above, so this cast is safe
+  const adapter = chainAdapterManager.get(chainId) as unknown as EvmBaseAdapter<EvmChainId>
+
   const gasFeeData = await adapter.getGasFeeData()
   const gasPriceCryptoBaseUnit = gasFeeData.fast.gasPrice
   const approvalFeeCryptoBaseUnit = bn(APPROVAL_GAS_LIMIT).times(gasPriceCryptoBaseUnit).toString()

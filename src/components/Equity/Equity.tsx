@@ -90,14 +90,14 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
         color: DefiProviderMetadata[stakingOpportunity.provider].color,
       }
     })
-    const lp = lpOpportunities.map(stakingOpportunity => {
+    const lp = lpOpportunities.map(lpOpportunity => {
       return {
-        id: stakingOpportunity.id,
-        type: stakingOpportunity.type,
-        fiatAmount: stakingOpportunity.fiatAmount,
-        allocation: bnOrZero(stakingOpportunity.fiatAmount).div(fiatBalance).times(100).toString(),
-        provider: stakingOpportunity.provider,
-        color: DefiProviderMetadata[stakingOpportunity.provider].color,
+        id: lpOpportunity.id,
+        type: lpOpportunity.type,
+        fiatAmount: lpOpportunity.fiatAmount,
+        allocation: bnOrZero(lpOpportunity.fiatAmount).div(fiatBalance).times(100).toString(),
+        provider: lpOpportunity.provider,
+        color: DefiProviderMetadata[lpOpportunity.provider].color,
       }
     })
     return [...accounts, ...lp, ...staking].sort((a, b) =>

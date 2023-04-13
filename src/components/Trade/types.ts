@@ -2,6 +2,7 @@ import { type Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { type ChainId } from '@shapeshiftoss/caip'
 import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { SwapperName } from '@shapeshiftoss/swapper'
 import {
   type BuildTradeInput,
   type GetTradeQuoteInput,
@@ -20,7 +21,7 @@ export enum TradeAmountInputField {
 }
 
 export type DisplayFeeData<C extends ChainId> = Omit<QuoteFeeData<C>, 'networkFee'> & {
-  tradeFeeSource: string
+  tradeFeeSource: SwapperName
   networkFeeCryptoHuman: string
 }
 
@@ -62,7 +63,7 @@ export type BuildTradeInputCommonArgs = Pick<
 export type GetFormFeesArgs = {
   trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>
   sellAsset: Asset
-  tradeFeeSource: string
+  tradeFeeSource: SwapperName
   feeAsset: Asset
 }
 

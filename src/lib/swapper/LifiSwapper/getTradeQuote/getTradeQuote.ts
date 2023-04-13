@@ -60,8 +60,8 @@ export async function getTradeQuote(
       })
     : convertPrecision({
         value: sellAmountBeforeFeesCryptoBaseUnit,
-        inputPrecision: sellAsset.precision,
-        outputPrecision: sellLifiToken.decimals,
+        inputExponent: sellAsset.precision,
+        outputExponent: sellLifiToken.decimals,
       })
 
   const lifi = getLifi()
@@ -111,8 +111,8 @@ export async function getTradeQuote(
   // for the rate to be valid, both amounts must be converted to the same precision
   const estimateRate = convertPrecision({
     value: selectedLifiRoute.toAmountMin,
-    inputPrecision: buyLifiToken.decimals,
-    outputPrecision: sellLifiToken.decimals,
+    inputExponent: buyLifiToken.decimals,
+    outputExponent: sellLifiToken.decimals,
   })
     .dividedBy(bn(selectedLifiRoute.fromAmount))
     .toString()

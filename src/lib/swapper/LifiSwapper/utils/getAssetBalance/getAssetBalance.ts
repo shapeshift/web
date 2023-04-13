@@ -35,7 +35,7 @@ export const getAssetBalance = ({
 
   return convertPrecision({
     value: balance,
-    inputPrecision: asset.precision,
-    outputPrecision,
+    inputExponent: asset.precision,
+    outputExponent: outputPrecision,
   })
 }

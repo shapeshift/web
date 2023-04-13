@@ -3,7 +3,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { QuoteFeeData } from '@shapeshiftoss/swapper'
 import { APPROVAL_GAS_LIMIT } from '@shapeshiftoss/swapper/dist/swappers/utils/constants'
-import { baseUnitToHuman, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { baseUnitToHuman, bn, bnOrZero, toPrecision } from 'lib/bignumber/bignumber'
 import { getEvmChainAdapter } from 'lib/swapper/LifiSwapper/utils/getEvmChainAdapter'
 import { getFeeAssets } from 'lib/swapper/LifiSwapper/utils/getFeeAssets/getFeeAssets'
 import { processGasCosts } from 'lib/swapper/LifiSwapper/utils/processGasCosts/processGasCosts'
@@ -48,10 +48,9 @@ export const transformLifiFeeData = async ({
   const initialSellAssetTradeFeeUsd =
     sellAssetRouteFeeCosts
       .map(feeCost =>
-        baseUnitToHuman({
-          value: feeCost.amount,
-          inputPrecision: feeCost.token.decimals,
-        }).multipliedBy(bnOrZero(feeCost.token.priceUSD)),
+        toPrecision({ value: feeCost.amount, inputPrecision: feeCost.token.decimals }).multipliedBy(
+          bnOrZero(feeCost.token.priceUSD),
+        ),
       )
       .reduce((acc, amountUsd) => acc.plus(amountUsd), bn(0)) ?? bn(0)
 

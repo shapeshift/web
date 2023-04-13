@@ -10,15 +10,19 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
+import { useViewportScroll } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectPortfolioLoadingStatus } from 'state/slices/selectors'
 
+import { DegradedStateBanner } from './DegradedStateBanner'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
 import { Notifications } from './NavBar/Notifications'
@@ -27,14 +31,20 @@ import { SideNavContent } from './SideNavContent'
 
 export const Header = () => {
   const { onToggle, isOpen, onClose } = useDisclosure()
-
+  const isDegradedState = useSelector(selectPortfolioLoadingStatus) === 'error'
   const history = useHistory()
-  const bg = useColorModeValue('white', 'gray.800')
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
   const {
     state: { isDemoWallet },
     dispatch,
   } = useWallet()
+  const bg = useColorModeValue('gray.100', 'gray.800')
+  const ref = useRef<HTMLDivElement>(null)
+  const [y, setY] = useState(0)
+  const { height = 0 } = ref.current?.getBoundingClientRect() ?? {}
+  const { scrollY } = useViewportScroll()
+  useEffect(() => {
+    return scrollY.onChange(() => setY(scrollY.get()))
+  }, [scrollY])
 
   const isWalletConnectToDappsV1Enabled = useFeatureFlag('WalletConnectToDapps')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
@@ -89,17 +99,18 @@ export const Header = () => {
       )}
       <Flex
         direction='column'
-        bg={bg}
         width='full'
         position='sticky'
         zIndex='banner'
+        ref={ref}
+        bg={y > height ? bg : undefined}
         transitionDuration='500ms'
         transitionProperty='all'
         transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
         top={0}
         paddingTop={{ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }}
       >
-        <HStack height='4.5rem' width='full' px={4} borderBottomWidth={1} borderColor={borderColor}>
+        <HStack height='4.5rem' width='full' px={4}>
           <HStack width='full' margin='0 auto' px={{ base: 0, md: 4 }} spacing={0} columnGap={4}>
             <Box flex={1} display={{ base: 'block', md: 'none' }}>
               <IconButton
@@ -118,6 +129,7 @@ export const Header = () => {
               <AssetSearch assetListAsDropdown formProps={{ mb: 0, px: 0 }} />
             </HStack>
             <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
+              {isDegradedState && <DegradedStateBanner />}
               <Box display={{ base: 'none', md: 'block' }}>
                 <UserMenu />
               </Box>

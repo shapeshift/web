@@ -9,23 +9,25 @@ import { useIsAnyApiFetching } from 'hooks/useIsAnyApiFetching/useIsAnyApiFetchi
 import { SideNavContent } from './SideNavContent'
 
 export const SideNav = () => {
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
   const isLoading = useIsAnyApiFetching()
+  const bgColor = useColorModeValue('white', 'blackAlpha.300')
+  const shadow = useColorModeValue('lg', 'none')
   return (
     <>
       <chakra.header
         paddingTop={`env(safe-area-inset-top)`}
-        borderRightWidth={1}
-        borderColor={borderColor}
         left='0'
         right='0'
         height={'100vh'}
         position='sticky'
+        bg={bgColor}
         top={0}
         maxWidth='xs'
         flex={{ base: 'inherit', '2xl': '1 1 0%' }}
         display={{ base: 'none', md: 'flex' }}
+        boxShadow={shadow}
         flexDir='column'
+        zIndex='modal'
       >
         <Flex justifyContent={{ base: 'center', md: 'flex-start' }} pt={4} px={8}>
           <Link to='/'>

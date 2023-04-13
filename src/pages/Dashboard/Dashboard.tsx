@@ -20,6 +20,7 @@ export const Dashboard = () => {
   const translate = useTranslate()
   const isDefiDashboardEnabled = useFeatureFlag('DefiDashboard')
   const { path } = useRouteMatch()
+  const isNftsEnabled = useFeatureFlag('Jaypegz')
 
   if (isDefiDashboardEnabled)
     return (
@@ -41,9 +42,12 @@ export const Dashboard = () => {
           <Route exact path={`${path}/activity`}>
             <TransactionHistory />
           </Route>
-          <Route exact path={`${path}/nfts`}>
-            <NftTable />
-          </Route>
+          {isNftsEnabled && (
+            <Route exact path={`${path}/nfts`}>
+              <NftTable />
+            </Route>
+          )}
+
           <Route>
             <RawText>Not found</RawText>
           </Route>

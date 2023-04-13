@@ -10,6 +10,7 @@ import { Amount } from 'components/Amount/Amount'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
@@ -23,7 +24,17 @@ import { useAppSelector } from 'state/store'
 
 import { DashboardTab } from './DashboardTab'
 
+type TabItem = {
+  label: string
+  path: string
+  color: string
+  exact?: boolean
+  fiatAmount?: string
+  hide?: boolean
+}
+
 export const DashboardHeader = () => {
+  const isNftsEnabled = useFeatureFlag('Jaypegz')
   const walletId = useAppSelector(selectWalletId)
   const location = useLocation()
   const { send, receive } = useModal()
@@ -50,6 +61,7 @@ export const DashboardHeader = () => {
     [claimableRewardsFiatBalance, earnFiatBalance, portfolioTotalFiatBalance],
   )
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const bgColor = useColorModeValue('white', 'blackAlpha.100')
 
   useEffect(() => {
     if (activeRef.current) {
@@ -57,7 +69,7 @@ export const DashboardHeader = () => {
     }
   }, [location])
 
-  const NavItems = useMemo(() => {
+  const NavItems: TabItem[] = useMemo(() => {
     return [
       {
         label: 'common.overview',
@@ -87,6 +99,7 @@ export const DashboardHeader = () => {
         label: 'NFTs',
         path: '/dashboard/nfts',
         color: 'pink',
+        hide: !isNftsEnabled,
       },
       {
         label: 'navBar.activity',
@@ -94,10 +107,10 @@ export const DashboardHeader = () => {
         color: 'blue',
       },
     ]
-  }, [claimableRewardsFiatBalance, earnFiatBalance, portfolioTotalFiatBalance])
+  }, [claimableRewardsFiatBalance, earnFiatBalance, isNftsEnabled, portfolioTotalFiatBalance])
 
   const renderNavItems = useMemo(() => {
-    return NavItems.map(navItem => (
+    return NavItems.filter(item => !item.hide).map(navItem => (
       <DashboardTab
         key={navItem.label}
         label={navItem.label}
@@ -128,7 +141,7 @@ export const DashboardHeader = () => {
   }, [history])
 
   return (
-    <Stack spacing={0} borderColor={borderColor} bg='blackAlpha.100'>
+    <Stack spacing={0} borderColor={borderColor} bg={bgColor} pt='4.5rem' mt='-4.5rem'>
       <Container
         width='full'
         display='flex'
@@ -162,7 +175,7 @@ export const DashboardHeader = () => {
             {translate('common.receive')}
           </Button>
           <Button onClick={handleTradeClick} leftIcon={<IoSwapVerticalSharp />}>
-            {translate('common.trade')}
+            {translate('navBar.trade')}
           </Button>
         </Flex>
       </Container>

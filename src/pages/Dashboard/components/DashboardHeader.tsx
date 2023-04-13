@@ -128,7 +128,7 @@ export const DashboardHeader = () => {
   }, [history])
 
   return (
-    <Stack spacing={0} borderColor={borderColor}>
+    <Stack spacing={0} borderColor={borderColor} bg='blackAlpha.100'>
       <Container
         width='full'
         display='flex'
@@ -168,7 +168,7 @@ export const DashboardHeader = () => {
       </Container>
       <Flex
         flexDir={{ base: 'column', md: 'row' }}
-        borderBottomWidth={1}
+        borderBottomWidth={0}
         borderColor={borderColor}
         marginBottom='-1px'
         gap={8}

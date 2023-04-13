@@ -36,9 +36,12 @@ export const DashboardTab = forwardRef<DashboardTabProps, 'button'>(
         variant='tab'
         ref={ref}
         flexShrink={0}
+        py={6}
         onClick={handleClick}
         isActive={isActive}
         borderBottomWidth={4}
+        iconSpacing={4}
+        letterSpacing='0.012em'
         fontWeight='bold'
         _active={{ borderColor: `${color}.500`, color: 'chakra-body-text' }}
         {...(fiatAmount && {

@@ -88,7 +88,6 @@ export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
   const isDegradedState = useSelector(selectPortfolioLoadingStatus) === 'error'
   return (
     <>
-      <Header />
       <Flex maxWidth='container.3xl' margin='0 auto' pb={{ base: '72px', md: 0 }}>
         <SideNav />
         <Container
@@ -103,7 +102,8 @@ export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
           {...rest}
         >
           <>
-            {isDegradedState && <DegradedStateBanner />}
+            <Header />
+            {/* {isDegradedState && <DegradedStateBanner />} */}
             {children}
           </>
         </Container>

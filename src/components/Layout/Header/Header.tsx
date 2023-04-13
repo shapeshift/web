@@ -1,7 +1,6 @@
 import { HamburgerIcon, InfoIcon } from '@chakra-ui/icons'
 import {
   Box,
-  Center,
   Drawer,
   DrawerContent,
   DrawerOverlay,
@@ -11,14 +10,10 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
-import { AnimatePresence } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback, useEffect } from 'react'
-import { Link, useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { SlideTransitionY } from 'components/SlideTransitionY'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -123,23 +118,6 @@ export const Header = () => {
                 icon={<HamburgerIcon />}
               />
             </Box>
-            <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
-              <Link to='/'>
-                <AnimatePresence exitBeforeEnter initial={true}>
-                  {isLoading ? (
-                    <SlideTransitionY key='loader'>
-                      <Center boxSize='7'>
-                        <CircularProgress size={7} />
-                      </Center>
-                    </SlideTransitionY>
-                  ) : (
-                    <SlideTransitionY key='logo'>
-                      <FoxIcon boxSize='7' />
-                    </SlideTransitionY>
-                  )}
-                </AnimatePresence>
-              </Link>
-            </Flex>
             <HStack
               width='100%'
               flex={1}

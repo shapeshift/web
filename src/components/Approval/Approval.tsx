@@ -31,7 +31,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero, toHuman } from 'lib/bignumber/bignumber'
+import { baseUnitToHuman, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -88,7 +88,7 @@ export const Approval = () => {
     moduleLogger.debug({ fees }, 'chainSpecific undefined for fees')
   }
 
-  const approvalFeeCryptoHuman = toHuman({
+  const approvalFeeCryptoHuman = baseUnitToHuman({
     value: bnOrZero(fees?.chainSpecific?.approvalFeeCryptoBaseUnit),
     inputPrecision: sellFeeAsset?.precision ?? 0,
   })

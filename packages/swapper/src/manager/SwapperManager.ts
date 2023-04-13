@@ -96,11 +96,12 @@ export class SwapperManager {
       await Promise.allSettled(
         supportedSwappers.map(async swapper => {
           const quote = await swapper.getTradeQuote(args)
-          const ratio = await getRatioFromQuote(quote, swapper, feeAsset)
+          if ('error' in quote) throw quote.error
+          const ratio = await getRatioFromQuote(quote.data, swapper, feeAsset)
 
           return {
             swapper,
-            quote,
+            quote: quote.data,
             inputOutputRatio: ratio,
           }
         }),

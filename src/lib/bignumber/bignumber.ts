@@ -49,11 +49,3 @@ export const baseUnitToHuman = ({
   // trimming to 6 decimals is what we call "human amount"
   return precisionAmount.decimalPlaces(6)
 }
-
-export const fromHuman = ({
-  value,
-  outputExponent,
-}: {
-  value: BigNumber.Value
-  outputExponent: number
-}) => convertPrecision({ value, outputExponent })

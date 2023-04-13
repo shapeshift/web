@@ -14,13 +14,14 @@ import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import { selectAvailableSwapperApiMostRecentQueryTimestamp } from 'state/apis/swapper/selectors'
 import { selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 import { selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 // A helper hook to get the available swappers from the RTK API, mapping the SwapperTypes to swappers
 export const useAvailableSwappers = () => {
   const [currentRequestStartedTimeStamp, setCurrentRequestStartedTimeStamp] = useState<number>()
+  const [isCachedResult, setIsCachedResult] = useState(false)
 
   // Form hooks
   const { tradeQuoteArgs } = useTradeQuoteService()
@@ -53,8 +54,21 @@ export const useAvailableSwappers = () => {
   const featureFlags = useAppSelector(selectFeatureFlags)
   const { getAvailableSwappers } = getSwappersApi.endpoints
 
+  /*
+     This effect is responsible for fetching the available swappers for a given trade pair and corresponding args.
+     We track if the result is cached to know whether to apply the race condition check - we don't mind if a cached
+     result is not fresh (to a small some degree), but we do if a non-cached result is not fresh.
+   */
   useEffect(() => {
     ;(async () => {
+      const cachedResponseSelector =
+        feeAsset && tradeQuoteArgs
+          ? getAvailableSwappers.select({ ...tradeQuoteArgs, feeAsset })
+          : undefined
+      const isCachedResultAvailableForArgs = cachedResponseSelector
+        ? cachedResponseSelector(store.getState()).status === 'fulfilled'
+        : false
+      setIsCachedResult(isCachedResultAvailableForArgs)
       const availableSwapperTypesWithQuoteMetadataResponse =
         tradeQuoteArgs && feeAsset
           ? await dispatch(
@@ -110,7 +124,8 @@ export const useAvailableSwappers = () => {
         mostRecentQueryStart ?? 0,
       )
 
-      if (!swappersWithQuoteMetadata || !isCurrentResponseFresh) return
+      // Early return if we don't have a response, or the response didn't come from the cache, but is stale (race condition).
+      if (!swappersWithQuoteMetadata || (!isCurrentResponseFresh && !isCachedResult)) return
       /*
         The available swappers endpoint returns all available swappers for a given trade pair, ordered by rate, including halted.
         A halted swapper may well have the best rate, but we don't want to show it unless there are none other available.
@@ -176,6 +191,7 @@ export const useAvailableSwappers = () => {
     dispatch,
     feeAsset,
     getIsTradingActive,
+    isCachedResult,
     mostRecentQueryStart,
     sellAssetId,
     swappersWithQuoteMetadata,

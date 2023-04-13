@@ -4,11 +4,11 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { QuoteFeeData } from '@shapeshiftoss/swapper'
 import { APPROVAL_GAS_LIMIT } from '@shapeshiftoss/swapper/dist/swappers/utils/constants'
 import { bn, bnOrZero, toHuman } from 'lib/bignumber/bignumber'
-import { LIFI_GAS_FEE_BASE } from 'lib/swapper/LifiSwapper/utils/constants'
+import { getEvmChainAdapter } from 'lib/swapper/LifiSwapper/utils/getEvmChainAdapter'
 import { getFeeAssets } from 'lib/swapper/LifiSwapper/utils/getFeeAssets/getFeeAssets'
 import { processGasCosts } from 'lib/swapper/LifiSwapper/utils/processGasCosts/processGasCosts'
 
-export const transformLifiFeeData = ({
+export const transformLifiFeeData = async ({
   buyLifiToken,
   chainId,
   lifiAssetMap,
@@ -18,7 +18,7 @@ export const transformLifiFeeData = ({
   chainId: ChainId
   lifiAssetMap: Map<AssetId, Token>
   selectedRoute: Route
-}): QuoteFeeData<EvmChainId> => {
+}): Promise<QuoteFeeData<EvmChainId>> => {
   const allRouteGasCosts = selectedRoute.steps.flatMap(step => step.estimate.gasCosts ?? [])
   const allRouteFeeCosts = selectedRoute.steps.flatMap(step => step.estimate.feeCosts ?? [])
 
@@ -62,24 +62,22 @@ export const transformLifiFeeData = ({
     initialSellAssetTradeFeeUsd,
   })
 
-  // the sum of all 'APPROVE' gas fees
-  // TODO: validate this with lifi
-  const approvalFeeCryptoBaseUnit =
-    allRouteGasCosts
-      .filter(gasCost => gasCost.type === 'APPROVE')
-      .reduce((a, v) => (v.estimate ? a.plus(bn(v.estimate, LIFI_GAS_FEE_BASE)) : a), bn(0)) ??
-    bn(0)
+  const adapter = getEvmChainAdapter(chainId)
+  const gasFeeData = await adapter.getGasFeeData()
+  const gasPriceCryptoBaseUnit = gasFeeData.fast.gasPrice
+  const approvalFeeCryptoBaseUnit = bn(APPROVAL_GAS_LIMIT).times(gasPriceCryptoBaseUnit).toString()
 
   return {
     networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit.toString(), // UI shows this next to the gas icon
     chainSpecific: {
+      gasPriceCryptoBaseUnit,
+      approvalFeeCryptoBaseUnit, // the total gas for the erc20 interaction approval tx - this appears to be redundant
       // TODO: add gasPriceCryptoBaseUnit so approvals are not displayed as 0
       // gasPriceCryptoBaseUnit: gas price for approval
 
       // lifi handles approval gas internally but need to set a gas limit so the
       // approval limit isnt exceeded when the trade is executed.
       estimatedGasCryptoBaseUnit: APPROVAL_GAS_LIMIT,
-      approvalFeeCryptoBaseUnit: approvalFeeCryptoBaseUnit.toString(),
     },
     // UI shows the sum of these as "protocol fee"
     buyAssetTradeFeeUsd: buyAssetTradeFeeUsd.toString(),

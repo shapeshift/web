@@ -51,7 +51,7 @@ export async function getTradeQuote(
     })
   }
 
-  const fromAmountLifiCryptoPrecision: BigNumber = sendMax
+  const fromAmountCryptoBaseUnit: BigNumber = sendMax
     ? getAssetBalance({
         asset: sellAsset,
         accountNumber,
@@ -73,7 +73,7 @@ export async function getTradeQuote(
     toTokenAddress: buyLifiToken.address,
     fromAddress: receiveAddress,
     toAddress: receiveAddress,
-    fromAmount: fromAmountLifiCryptoPrecision.toString(),
+    fromAmount: fromAmountCryptoBaseUnit.toString(),
     // as recommended by lifi, dodo is denied until they fix their gas estimates
     // TODO: convert this config to .env variable
     options: {

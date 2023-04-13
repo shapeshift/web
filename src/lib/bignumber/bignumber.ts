@@ -30,13 +30,31 @@ export const convertPrecision = ({
     .multipliedBy(bn(10).exponentiatedBy(outputPrecision))
 }
 
+// copilot write JSDoc docs for this function
+
+/**
+ * Converts a BigNumber to a human readable amount
+ * @example
+ * toHuman({ value: '123456789', inputPrecision: 18 })
+ * // => 0.123456
+ * @example
+ * toHuman({ value: '123456789', inputPrecision: 6 })
+ * // => 1234.56789
+ * @example
+ * toHuman({ value: '123456789', inputPrecision: 0 })
+ * // => 123456789
+ */
 export const toHuman = ({
   value,
   inputPrecision,
 }: {
   value: BigNumber.Value
   inputPrecision: number
-}) => convertPrecision({ value, inputPrecision, outputPrecision: 0 })
+}) => {
+  const precisionAmount = convertPrecision({ value, inputPrecision, outputPrecision: 0 })
+  // trimming to 6 decimals is what we call "human amount"
+  return precisionAmount.decimalPlaces(6)
+}
 
 export const fromHuman = ({
   value,

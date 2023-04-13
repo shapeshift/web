@@ -1,4 +1,5 @@
 import { usePrevious } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import {
   type AssetId,
   cosmosChainId,
@@ -10,14 +11,15 @@ import {
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsETH, supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import isEqual from 'lodash/isEqual'
+import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import {
   getDefaultAssetIdPairByChainId,
   getReceiveAddress,
 } from 'components/Trade/hooks/useSwapper/utils'
-import { type AssetIdTradePair } from 'components/Trade/types'
+import { useDeepOutputMemo } from 'hooks/useDeepOutputMemo/useDeepOutputMemo'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getUsdRatesApi } from 'state/apis/swapper/getUsdRatesApi'
@@ -41,7 +43,6 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
   // Hooks
   const wallet = useWallet().state.wallet
   const { connectedEvmChainId } = useEvm()
-  const [defaultAssetIdPair, setDefaultAssetIdPair] = useState<AssetIdTradePair>()
   const featureFlags = useAppSelector(selectFeatureFlags)
   const assets = useSelector(selectAssets)
   const dispatch = useAppDispatch()
@@ -50,6 +51,7 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
   const activeSwapperType = useSwapperStore(
     state => state.activeSwapperWithMetadata?.swapper,
   )?.getType()
+  const [defaultAssets, setDefaultAssets] = useState<{ buyAsset?: Asset; sellAsset?: Asset }>()
 
   // Constants
   const { getUsdRates } = getUsdRatesApi.endpoints
@@ -64,13 +66,13 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     if (supportsOsmosis(wallet)) return osmosisChainId
   }, [connectedEvmChainId, wallet])
 
-  useEffect(() => {
+  const defaultAssetIdPair = useDeepOutputMemo(() => {
     // Use the ChainId of the route's AssetId if we have one, else use the wallet's fallback ChainId
     const maybeBuyAssetChainId = routeBuyAssetId
       ? fromAssetId(routeBuyAssetId).chainId
       : maybeWalletChainId
     const defaultAssetIdPair = getDefaultAssetIdPairByChainId(maybeBuyAssetChainId, featureFlags)
-    setDefaultAssetIdPair(defaultAssetIdPair)
+    return defaultAssetIdPair
   }, [featureFlags, maybeWalletChainId, routeBuyAssetId])
 
   const sellAssetAccountIds = useAppSelector(state =>
@@ -106,80 +108,85 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     [previousBuyAssetId],
   )
 
-  const getDefaultAssets = useCallback(async () => {
-    if (buyChainId !== previousBuyChainId) return
+  useEffect(() => {
+    ;(async () => {
+      if (buyChainId !== previousBuyChainId) return
 
-    const maybeBuyAssetChainId = routeBuyAssetId
-      ? fromAssetId(routeBuyAssetId).chainId
-      : maybeWalletChainId
-    const defaultAssetIdPair = getDefaultAssetIdPairByChainId(maybeBuyAssetChainId, featureFlags)
+      const maybeBuyAssetChainId = routeBuyAssetId
+        ? fromAssetId(routeBuyAssetId).chainId
+        : maybeWalletChainId
+      const defaultAssetIdPair = getDefaultAssetIdPairByChainId(maybeBuyAssetChainId, featureFlags)
 
-    const buyAsset = buyAssetId ? assets[buyAssetId] : undefined
-    const sellAsset = assets[defaultAssetIdPair?.sellAssetId]
+      const buyAsset = buyAssetId ? assets[buyAssetId] : undefined
+      const sellAsset = assets[defaultAssetIdPair?.sellAssetId]
 
-    const receiveAddress =
-      buyAsset && sellAccountMetadata
-        ? await getReceiveAddress({
-            asset: buyAsset,
-            wallet,
-            accountMetadata: sellAccountMetadata,
-          })
-        : undefined
+      const receiveAddress =
+        buyAsset && sellAccountMetadata
+          ? await getReceiveAddress({
+              asset: buyAsset,
+              wallet,
+              accountMetadata: sellAccountMetadata,
+            })
+          : undefined
 
-    // We can't use useTradeQuoteService() here because we don't yet have any form state to compute from
-    const tradeQuoteArgs =
-      sellAsset && buyAsset && wallet && sellAccountMetadata && receiveAddress
-        ? await getTradeQuoteArgs({
-            sellAsset,
-            buyAsset,
-            isSendMax: false,
-            sellAmountBeforeFeesCryptoPrecision: '0',
-            wallet,
-            receiveAddress,
-            sellAccountType: sellAccountMetadata.accountType,
-            sellAccountNumber: sellAccountMetadata.bip44Params.accountNumber,
-          })
-        : undefined
+      // We can't use useTradeQuoteService() here because we don't yet have any form state to compute from
+      const tradeQuoteArgs =
+        sellAsset && buyAsset && wallet && sellAccountMetadata && receiveAddress
+          ? await getTradeQuoteArgs({
+              sellAsset,
+              buyAsset,
+              isSendMax: false,
+              sellAmountBeforeFeesCryptoPrecision: '0',
+              wallet,
+              receiveAddress,
+              sellAccountType: sellAccountMetadata.accountType,
+              sellAccountNumber: sellAccountMetadata.bip44Params.accountNumber,
+            })
+          : undefined
 
-    // We don't use this response except as a hack to see if the asset pair is supported
-    const buyAssetFiatRateData =
-      tradeQuoteArgs &&
-      activeSwapperType &&
-      (
-        await dispatch(
-          getUsdRates.initiate({
-            feeAssetId: defaultAssetIdPair.buyAssetId,
-            tradeQuoteArgs,
-            swapperType: activeSwapperType,
-          }),
-        )
-      ).data
+      // We don't use this response except as a hack to see if the asset pair is supported
+      const buyAssetFiatRateData =
+        tradeQuoteArgs &&
+        activeSwapperType &&
+        (
+          await dispatch(
+            getUsdRates.initiate({
+              feeAssetId: defaultAssetIdPair.buyAssetId,
+              tradeQuoteArgs,
+              swapperType: activeSwapperType,
+            }),
+          )
+        ).data
 
-    // TODO: update Swapper to have an proper way to validate a pair is supported.
-    const assetPair = (() => {
-      switch (true) {
-        // If the swapper supports the buy asset with the default sell asset, use that pair
-        case !!(buyAssetFiatRateData && buyAssetId && defaultAssetIdPair):
-          return {
-            buyAsset: assets[buyAssetId!],
-            sellAsset: assets[defaultAssetIdPair!.sellAssetId],
-          }
-        // If the swapper supports the default buy asset with the default sell asset, use the default pair
-        case !!defaultAssetIdPair:
-          return {
-            buyAsset: assets[defaultAssetIdPair!.buyAssetId],
-            sellAsset: assets[defaultAssetIdPair!.sellAssetId],
-          }
-        // Use FOX/ETH as a fallback, though only if we have a response confirming the defaults aren't supported
-        default:
-          return {
-            buyAsset: assets[foxAssetId],
-            sellAsset: assets[ethAssetId],
-          }
+      // TODO: update Swapper to have an proper way to validate a pair is supported.
+      const assetPair = (() => {
+        switch (true) {
+          // If the swapper supports the buy asset with the default sell asset, use that pair
+          case !!(buyAssetFiatRateData && buyAssetId && defaultAssetIdPair):
+            return {
+              buyAsset: assets[buyAssetId!],
+              sellAsset: assets[defaultAssetIdPair!.sellAssetId],
+            }
+          // If the swapper supports the default buy asset with the default sell asset, use the default pair
+          case !!defaultAssetIdPair:
+            return {
+              buyAsset: assets[defaultAssetIdPair!.buyAssetId],
+              sellAsset: assets[defaultAssetIdPair!.sellAssetId],
+            }
+          // Use FOX/ETH as a fallback, though only if we have a response confirming the defaults aren't supported
+          default:
+            return {
+              buyAsset: assets[foxAssetId],
+              sellAsset: assets[ethAssetId],
+            }
+        }
+      })()
+
+      if (!assetPair || !wallet) {
+        setDefaultAssets(undefined)
+        return
       }
-    })()
 
-    if (assetPair && wallet) {
       const buyAccountIds = walletAccountIds.filter(
         accountId => fromAccountId(accountId).chainId === assetPair.buyAsset?.chainId,
       )
@@ -195,15 +202,19 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
       const buyAssetAccountChainId = fromAccountId(firstBuyAccountId).chainId
       if (buyAssetChainId !== buyAssetAccountChainId) return
 
-      const receiveAddress = await getReceiveAddress({
+      const buyAssetReceiveAddress = await getReceiveAddress({
         asset: assetPair.buyAsset,
         wallet,
         accountMetadata,
       })
-      const buyAsset = receiveAddress ? assetPair.buyAsset : assets[foxAssetId]
-      const sellAsset = receiveAddress ? assetPair.sellAsset : assets[ethAssetId]
-      return { sellAsset, buyAsset }
-    }
+
+      const result = {
+        buyAsset: buyAssetReceiveAddress ? assetPair.buyAsset : assets[foxAssetId],
+        sellAsset: buyAssetReceiveAddress ? assetPair.sellAsset : assets[ethAssetId],
+      }
+
+      if (!isEqual(result, defaultAssets)) setDefaultAssets(result)
+    })()
     // Don't run when activeSwapperTypeChanges
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -222,5 +233,5 @@ export const useDefaultAssets = (routeBuyAssetId?: AssetId) => {
     portfolioAccountMetaData,
   ])
 
-  return { getDefaultAssets, defaultAssetIdPair }
+  return { defaultAssets, defaultAssetIdPair }
 }

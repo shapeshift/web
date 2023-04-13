@@ -481,7 +481,7 @@ export const selectPortfolioAccountsCryptoHumanBalancesExcludeStaking =
       return Object.entries(portfolioAccountsCryptoBalances).reduce((acc, [accountId, account]) => {
         acc[accountId] = Object.entries(account).reduce((innerAcc, [assetId, cryptoBalance]) => {
           const asset = assets[assetId]
-          if (asset) innerAcc[assetId] = fromBaseUnit(cryptoBalance, asset.precision)
+          if (asset) innerAcc[assetId] = fromBaseUnit(bnOrZero(cryptoBalance), asset.precision)
           return innerAcc
         }, cloneDeep(account))
         return acc
@@ -552,7 +552,7 @@ export const selectPortfolioAccountsFiatBalancesExcludeStaking = createDeepEqual
           if (!asset) return [assetId, bn(0)]
           const { precision } = asset
           const price = marketData[assetId]?.price ?? 0
-          return [assetId, bnOrZero(fromBaseUnit(cryptoBalance, precision)).times(price)]
+          return [assetId, bnOrZero(fromBaseUnit(bnOrZero(cryptoBalance), precision)).times(price)]
         },
       )
 

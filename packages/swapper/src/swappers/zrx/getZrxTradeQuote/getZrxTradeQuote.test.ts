@@ -43,7 +43,9 @@ describe('getZrxTradeQuote', () => {
       }),
     )
     const quote = await swapper.getTradeQuote(quoteInput)
-    expect(quote.feeData).toStrictEqual({
+    expect('data' in quote).toBeTruthy()
+    if (!('data' in quote)) return // TS doesn't narrow the Either<T, U> down after the previous check
+    expect(quote.data!.feeData).toStrictEqual({
       chainSpecific: {
         estimatedGasCryptoBaseUnit: '1500000',
         gasPriceCryptoBaseUnit: '1000',
@@ -53,7 +55,7 @@ describe('getZrxTradeQuote', () => {
       networkFeeCryptoBaseUnit: '1500000000',
       sellAssetTradeFeeUsd: '0',
     })
-    expect(quote.rate).toBe('100')
+    expect(quote.data.rate).toBe('100')
   })
 
   it('quote fails with a bad zrx response with no error indicated', async () => {
@@ -90,7 +92,11 @@ describe('getZrxTradeQuote', () => {
       }),
     )
     const quote = await swapper.getTradeQuote(quoteInput)
-    expect(quote?.feeData).toStrictEqual({
+
+    expect('data' in quote).toBeTruthy()
+    if (!('data' in quote)) return // TS doesn't narrow the Either<T, U> down after the previous check
+
+    expect(quote.data.feeData).toStrictEqual({
       chainSpecific: {
         estimatedGasCryptoBaseUnit: '0',
         approvalFeeCryptoBaseUnit: '0',
@@ -137,7 +143,11 @@ describe('getZrxTradeQuote', () => {
       ...quoteInput,
       sellAmountBeforeFeesCryptoBaseUnit: '0',
     })
-    expect(quote?.sellAmountBeforeFeesCryptoBaseUnit).toBe(
+
+    expect('data' in quote).toBeTruthy()
+    if (!('data' in quote)) return // TS doesn't narrow the Either<T, U> down after the previous check
+
+    expect(quote.data.sellAmountBeforeFeesCryptoBaseUnit).toBe(
       bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision)).toString(),
     )
   })

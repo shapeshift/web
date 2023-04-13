@@ -38,7 +38,7 @@ export const transformLifiFeeData = async ({
       .map(feeCost =>
         baseUnitToHuman({
           value: feeCost.amount,
-          inputPrecision: feeCost.token.decimals,
+          inputExponent: feeCost.token.decimals,
         }).multipliedBy(bnOrZero(feeCost.token.priceUSD)),
       )
       .reduce((acc, amountUsd) => acc.plus(amountUsd), bn(0)) ?? bn(0)
@@ -50,7 +50,7 @@ export const transformLifiFeeData = async ({
       .map(feeCost =>
         baseUnitToPrecision({
           value: feeCost.amount,
-          inputPrecision: feeCost.token.decimals,
+          inputExponent: feeCost.token.decimals,
         }).multipliedBy(bnOrZero(feeCost.token.priceUSD)),
       )
       .reduce((acc, amountUsd) => acc.plus(amountUsd), bn(0)) ?? bn(0)

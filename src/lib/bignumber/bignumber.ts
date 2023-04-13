@@ -33,7 +33,7 @@ export const convertPrecision = ({
 // copilot write JSDoc docs for this function
 
 /**
- * Converts a BigNumber to a human readable amount
+ * Converts a base unit amount to a human readable amount
  * @example
  * toHuman({ value: '123456789', inputPrecision: 18 })
  * // => 0.123456

@@ -6,11 +6,16 @@
     "error": "Hata",
     "cancel": "İptal",
     "close": "Kapat",
+    "new": "Yeni",
     "continue": "Devam et",
+    "reward": "Ödül",
+    "claimable": "Toplanabilir",
     "approve": "Onayla",
     "confirm": "Onaylayın",
+    "activity": "Aktivite",
     "reject": "İptal",
     "connected": "Bağlandı",
+    "value": "Değer",
     "created": "Yaratıldı %{date}",
     "noResultsFound": "Sonuç bulunamadı.",
     "noResultsBody": "%{searchQuery} için sonuç bulunamadı. Yeni bir arama yapmayı deneyin.",
@@ -289,6 +294,7 @@
       },
       "overview": {
         "underlyingTokens": "Temel Jetonlar",
+        "underlyingToken": "Temel Belirteç",
         "availableRewards": "Kullanılabilir Ödüller",
         "about": "Hakkında",
         "tvl": "TVL",
@@ -310,6 +316,7 @@
       "saversVaults": {
         "description": "THORChain Saver Vaults aracılığıyla %{asset} üzerinden getiri kazanın. Kilitlenme süresi yoktur ve ödüller otomatik olarak biriktirilir. THORChain'de getiri, takas ücretleri ve blok ödüllerinden gelir. Tek taraflı getiri, likidite sağlayıcılarının çift taraflı getirisinin yarısı ile sınırlandırılmıştır.",
         "vaultCap": "Kasa Üst Limiti",
+        "vaultCapTooltip": "Bu kasa için mevcut maksimum kapasite",
         "haltedTitle": "Para yatırma işlemleri geçici olarak durdurulmuştur.",
         "haltedDescription": "Lütfen @THORChain adresine tweet atarak üst sınırınızı yükseltin!",
         "estimatedFee": "Tahmini Ücret",
@@ -352,6 +359,7 @@
     "validatorMoniker": "%{moniker} Doğrulayıcı",
     "stakedAmount": "Stake Edilmiş Miktar",
     "unstakeFrom": "Şuradan Stake'i kaldır:",
+    "underlyingAsset": "Temel Varlık",
     "gasFee": "Gas Ücreti",
     "provider": "Sağlayıcı",
     "currentTvl": "Mevcut TVL",
@@ -955,6 +963,7 @@
       }
     },
     "approve": {
+      "header": "%{spenderName}'ın %{asset} öğenizi kullanmasına izin verin",
       "shapeshiftRouterName": "ShapeShift DAO Yönlendirici",
       "body": "%{asset} kullanımınız için izniniz gerekiyor",
       "learnMore": "Bunu neden yapmam gerekiyor?",
@@ -1917,5 +1926,22 @@
         "cta": "Bir tane yaratın"
       }
     }
+  },
+  "nft": {
+    "floorPrice": "Taban Fiyat",
+    "lastPrice": "Son fiyat",
+    "overview": "Genel Bakış",
+    "properties": "Özellikler",
+    "collection": "Koleksiyon",
+    "tokenId": "Token ID",
+    "address": "Adres",
+    "chain": "Zincir",
+    "standard": "Standart",
+    "description": "Açıklama",
+    "details": "Detaylar",
+    "attributes": "Özellikler",
+    "aboutCollection": "%{collectionName} Hakkında",
+    "emptyTitle": "Tüm NFT'ler nereye gitti?",
+    "emptyBody": "Endişelenmeyin, daha harika NFT'leri geri getirmek için bir arama grubu gönderdik. Bu arada, bu boşluğa bakıp varoluşun anlamını düşünmekten çekinmeyin."
   }
 }

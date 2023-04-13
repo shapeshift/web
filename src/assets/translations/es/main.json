@@ -1930,7 +1930,7 @@
   "nft": {
     "floorPrice": "Precio Base",
     "lastPrice": "Ultimo Precio",
-    "overview": "Descripción",
+    "overview": "Visión general",
     "properties": "Propiedades",
     "collection": "Colección",
     "tokenId": "ID Token",

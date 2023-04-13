@@ -17,28 +17,30 @@ jest.mock('../utils/getUsdRate/getUsdRate')
 
 const mockedAxios = jest.mocked(thorService)
 
-const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  minimumCryptoHuman: '59.658672054814851787728',
-  maximumCryptoHuman: '100000000000000000000000000',
-  sellAmountBeforeFeesCryptoBaseUnit: '10000000000000000000', // 10 FOX
-  allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-  buyAmountCryptoBaseUnit: '4633547338118093212830055',
-  feeData: {
-    chainSpecific: {
-      estimatedGasCryptoBaseUnit: '100000',
-      approvalFeeCryptoBaseUnit: '700000',
-      gasPriceCryptoBaseUnit: '7',
+const expectedQuoteResponse: { data: TradeQuote<KnownChainIds.EthereumMainnet> } = {
+  data: {
+    minimumCryptoHuman: '59.658672054814851787728',
+    maximumCryptoHuman: '100000000000000000000000000',
+    sellAmountBeforeFeesCryptoBaseUnit: '10000000000000000000', // 10 FOX
+    allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
+    buyAmountCryptoBaseUnit: '4633547338118093212830055',
+    feeData: {
+      chainSpecific: {
+        estimatedGasCryptoBaseUnit: '100000',
+        approvalFeeCryptoBaseUnit: '700000',
+        gasPriceCryptoBaseUnit: '7',
+      },
+      buyAssetTradeFeeUsd: '7.656',
+      sellAssetTradeFeeUsd: '0',
+      networkFeeCryptoBaseUnit: '700000',
     },
-    buyAssetTradeFeeUsd: '7.656',
-    sellAssetTradeFeeUsd: '0',
-    networkFeeCryptoBaseUnit: '700000',
+    rate: '463354.73381180932128300549',
+    sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
+    buyAsset: ETH,
+    sellAsset: FOX,
+    accountNumber: 0,
+    recommendedSlippage: '0.00000608624714961082',
   },
-  rate: '463354.73381180932128300549',
-  sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
-  buyAsset: ETH,
-  sellAsset: FOX,
-  accountNumber: 0,
-  recommendedSlippage: '0.00000608624714961082',
 }
 
 describe('getTradeQuote', () => {

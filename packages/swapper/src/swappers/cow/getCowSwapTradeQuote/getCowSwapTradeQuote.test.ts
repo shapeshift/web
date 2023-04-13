@@ -122,74 +122,81 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
   validTo: 1656797787,
 }
 
-const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  rate: '14716.04718939437505555958', // 14716 FOX per WETH
-  minimumCryptoHuman: '0.011624',
-  maximumCryptoHuman: '100000000000000000000000000',
-  feeData: {
-    chainSpecific: {
-      estimatedGasCryptoBaseUnit: '100000',
-      gasPriceCryptoBaseUnit: '79036500000',
-      approvalFeeCryptoBaseUnit: '7903650000000000',
+const expectedTradeQuoteWethToFox: { data: TradeQuote<KnownChainIds.EthereumMainnet> } = {
+  data: {
+    rate: '14716.04718939437505555958', // 14716 FOX per WETH
+    minimumCryptoHuman: '0.011624',
+    maximumCryptoHuman: '100000000000000000000000000',
+    feeData: {
+      chainSpecific: {
+        estimatedGasCryptoBaseUnit: '100000',
+        gasPriceCryptoBaseUnit: '79036500000',
+        approvalFeeCryptoBaseUnit: '7903650000000000',
+      },
+      buyAssetTradeFeeUsd: '0',
+      sellAssetTradeFeeUsd: '17.95954294012756741283729339486489192096',
+      networkFeeCryptoBaseUnit: '0',
     },
-    buyAssetTradeFeeUsd: '0',
-    sellAssetTradeFeeUsd: '17.95954294012756741283729339486489192096',
-    networkFeeCryptoBaseUnit: '0',
+    sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
+    buyAmountCryptoBaseUnit: '14501811818247595090576', // 14501 FOX
+    sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
+    allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
+    buyAsset: FOX,
+    sellAsset: WETH,
+    accountNumber: 0,
   },
-  sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
-  buyAmountCryptoBaseUnit: '14501811818247595090576', // 14501 FOX
-  sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
-  allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
-  buyAsset: FOX,
-  sellAsset: WETH,
-  accountNumber: 0,
 }
 
-const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  rate: '0.00004995640398295996',
-  minimumCryptoHuman: '229.09507445589919816724',
-  maximumCryptoHuman: '100000000000000000000000000',
-  feeData: {
-    chainSpecific: {
-      estimatedGasCryptoBaseUnit: '100000',
-      gasPriceCryptoBaseUnit: '79036500000',
-      approvalFeeCryptoBaseUnit: '7903650000000000',
+const expectedTradeQuoteFoxToEth: { data: TradeQuote<KnownChainIds.EthereumMainnet> } = {
+  data: {
+    rate: '0.00004995640398295996',
+    minimumCryptoHuman: '229.09507445589919816724',
+    maximumCryptoHuman: '100000000000000000000000000',
+    feeData: {
+      chainSpecific: {
+        estimatedGasCryptoBaseUnit: '100000',
+        gasPriceCryptoBaseUnit: '79036500000',
+        approvalFeeCryptoBaseUnit: '7903650000000000',
+      },
+      buyAssetTradeFeeUsd: '0',
+      sellAssetTradeFeeUsd: '5.3955565850972847808512',
+      networkFeeCryptoBaseUnit: '0',
     },
-    buyAssetTradeFeeUsd: '0',
-    sellAssetTradeFeeUsd: '5.3955565850972847808512',
-    networkFeeCryptoBaseUnit: '0',
+    sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
+    buyAmountCryptoBaseUnit: '46868859830863283',
+    sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
+    allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
+    buyAsset: ETH,
+    sellAsset: FOX,
+    accountNumber: 0,
   },
-  sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
-  buyAmountCryptoBaseUnit: '46868859830863283',
-  sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
-  allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
-  buyAsset: ETH,
-  sellAsset: FOX,
-  accountNumber: 0,
 }
 
-const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  rate: '14716.04718939437523468382', // 14716 FOX per WETH
-  minimumCryptoHuman: '0.011624',
-  maximumCryptoHuman: '100000000000000000000000000',
-  feeData: {
-    chainSpecific: {
-      estimatedGasCryptoBaseUnit: '100000',
-      gasPriceCryptoBaseUnit: '79036500000',
-      approvalFeeCryptoBaseUnit: '7903650000000000',
+const expectedTradeQuoteSmallAmountWethToFox: { data: TradeQuote<KnownChainIds.EthereumMainnet> } =
+  {
+    data: {
+      rate: '14716.04718939437523468382', // 14716 FOX per WETH
+      minimumCryptoHuman: '0.011624',
+      maximumCryptoHuman: '100000000000000000000000000',
+      feeData: {
+        chainSpecific: {
+          estimatedGasCryptoBaseUnit: '100000',
+          gasPriceCryptoBaseUnit: '79036500000',
+          approvalFeeCryptoBaseUnit: '7903650000000000',
+        },
+        buyAssetTradeFeeUsd: '0',
+        sellAssetTradeFeeUsd: '1.79595429401274711874033728120645035672',
+        networkFeeCryptoBaseUnit: '0',
+      },
+      sellAmountBeforeFeesCryptoBaseUnit: '1000000000000',
+      buyAmountCryptoBaseUnit: '0', // 0 FOX
+      sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
+      allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
+      buyAsset: FOX,
+      sellAsset: WETH,
+      accountNumber: 0,
     },
-    buyAssetTradeFeeUsd: '0',
-    sellAssetTradeFeeUsd: '1.79595429401274711874033728120645035672',
-    networkFeeCryptoBaseUnit: '0',
-  },
-  sellAmountBeforeFeesCryptoBaseUnit: '1000000000000',
-  buyAmountCryptoBaseUnit: '0', // 0 FOX
-  sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
-  allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
-  buyAsset: FOX,
-  sellAsset: WETH,
-  accountNumber: 0,
-}
+  }
 
 const deps: CowSwapperDeps = {
   apiUrl: 'https://api.cow.fi/mainnet/api',

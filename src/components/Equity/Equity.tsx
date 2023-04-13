@@ -47,7 +47,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     [accountId, accountIds],
   )
   const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
-  const fiatBalance = useAppSelector(s =>
+  const totalFiatBalance = useAppSelector(s =>
     selectFiatBalanceIncludingStakingByFilter(s, opportunitiesFilter),
   )
   const cryptoHumanBalance = useAppSelector(s =>
@@ -71,31 +71,40 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   const equityItems = useMemo(() => {
     const accounts = activeAccountList.map(accountId => {
       const fiatAmount = bnOrZero(portfolioFiatBalances[accountId][assetId]).toString()
+      const allocation = bnOrZero(
+        bnOrZero(portfolioFiatBalances[accountId][assetId]).div(totalFiatBalance).times(100),
+      ).toString()
       return {
         id: accountId,
         type: AssetEquityType.Account,
         fiatAmount,
         provider: 'wallet',
-        allocation: bnOrZero(fiatAmount).div(fiatBalance).times(100).toString(),
+        allocation,
         color: asset?.color,
       }
     })
     const staking = stakingOpportunities.map(stakingOpportunity => {
+      const allocation = bnOrZero(
+        bnOrZero(stakingOpportunity.fiatAmount).div(totalFiatBalance).times(100),
+      ).toString()
       return {
         id: stakingOpportunity.id,
         type: stakingOpportunity.type,
         fiatAmount: stakingOpportunity.fiatAmount,
-        allocation: bnOrZero(stakingOpportunity.fiatAmount).div(fiatBalance).times(100).toString(),
+        allocation,
         provider: stakingOpportunity.provider,
         color: DefiProviderMetadata[stakingOpportunity.provider].color,
       }
     })
     const lp = lpOpportunities.map(lpOpportunity => {
+      const allocation = bnOrZero(
+        bnOrZero(lpOpportunity.fiatAmount).div(totalFiatBalance).times(100),
+      ).toString()
       return {
         id: lpOpportunity.id,
         type: lpOpportunity.type,
         fiatAmount: lpOpportunity.fiatAmount,
-        allocation: bnOrZero(lpOpportunity.fiatAmount).div(fiatBalance).times(100).toString(),
+        allocation,
         provider: lpOpportunity.provider,
         color: DefiProviderMetadata[lpOpportunity.provider].color,
       }
@@ -107,7 +116,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     activeAccountList,
     asset?.color,
     assetId,
-    fiatBalance,
+    totalFiatBalance,
     lpOpportunities,
     portfolioFiatBalances,
     stakingOpportunities,
@@ -158,7 +167,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
       <Card.Header display='flex' gap={4} alignItems='center'>
         <Flex flexDir='column' flex={1}>
           <Card.Heading>{translate('common.balance')}</Card.Heading>
-          <Amount.Fiat fontSize='xl' value={fiatBalance} />
+          <Amount.Fiat fontSize='xl' value={totalFiatBalance} />
           <Amount.Crypto variant='sub-text' value={cryptoHumanBalance} symbol={asset.symbol} />
         </Flex>
       </Card.Header>

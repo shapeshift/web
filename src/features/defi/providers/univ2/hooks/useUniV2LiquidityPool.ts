@@ -199,10 +199,9 @@ export const useUniV2LiquidityPool = ({
           if (assetId1OrWeth === wethAssetId) return token1Amount
           return '0'
         })()
-        const ethValue = bnOrZero(maybeEthAmount)
+        const value = bnOrZero(maybeEthAmount)
           .times(bn(10).exponentiatedBy(weth.precision))
           .toFixed(0)
-        const value = bnOrZero(ethValue).isZero() ? '0' : ethValue
 
         const data = makeAddLiquidityData({
           token0Amount,
@@ -238,7 +237,7 @@ export const useUniV2LiquidityPool = ({
             return await adapter.buildCustomTx({
               to: contractAddress,
               // the ETH value need to be starting with 0x and be base 16
-              value: value === '0' ? '0' : '0x' + bnOrZero(value).toString(16),
+              value: '0x' + bnOrZero(value).toString(16),
               wallet,
               data,
               gasLimit,
@@ -383,7 +382,7 @@ export const useUniV2LiquidityPool = ({
         const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
         const estimatedFees = await adapter.getFeeData({
           to: contractAddress,
-          value: '0',
+          value: '0x0',
           chainSpecific: {
             contractData: data,
             from: fromAccountId(accountId).account,
@@ -407,7 +406,7 @@ export const useUniV2LiquidityPool = ({
             const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
             return await adapter.buildCustomTx({
               to: contractAddress,
-              value: '0x00',
+              value: '0x0',
               wallet,
               data,
               gasLimit,
@@ -550,7 +549,7 @@ export const useUniV2LiquidityPool = ({
         ])
         const fees = await adapter.getFeeData({
           to: contract.address,
-          value: '0',
+          value: '0x0',
           chainSpecific: {
             contractData: data,
             from: fromAccountId(accountId).account,
@@ -621,7 +620,7 @@ export const useUniV2LiquidityPool = ({
         ])
         const estimatedFees = await adapter.getFeeData({
           to: contractAddress,
-          value: '0', // 0 ETH since these are ERC20 <-> ERC20 pools
+          value: '0x0', // 0 ETH since these are ERC20 <-> ERC20 pools
           chainSpecific: {
             contractData: data,
             from: accountAddress,
@@ -659,7 +658,7 @@ export const useUniV2LiquidityPool = ({
       const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
       const estimatedFees = await adapter.getFeeData({
         to: contractAddress,
-        value: '0',
+        value: '0x0',
         chainSpecific: {
           contractData: data,
           from: fromAccountId(accountId).account,
@@ -704,7 +703,7 @@ export const useUniV2LiquidityPool = ({
       }
       const result = await adapter.buildCustomTx({
         to: contract!.address,
-        value: '0',
+        value: '0x0',
         wallet,
         data,
         gasLimit,

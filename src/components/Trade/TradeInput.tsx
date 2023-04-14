@@ -202,7 +202,7 @@ export const TradeInput = () => {
 
   const handleInputChange = useCallback(
     (inputAction: TradeAmountInputField, inputAmount: string) => {
-      // No-op ff nothing material has changed
+      // No-op if nothing material has changed
       if (inputAction === action && inputAmount === amount) return
       updateAction(inputAction)
       // If we've overridden the input we are no longer in sendMax mode

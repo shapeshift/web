@@ -7,6 +7,32 @@ import type { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshifto
 
 export const SwapError = createErrorClass('SwapError')
 
+export type SwapErrorMonad<T = any> = {
+  name: 'SwapError'
+  message: string
+  cause?: unknown
+  details?: T
+  code?: string
+}
+
+export const makeSwapErrorMonad = <T>({
+  details,
+  cause,
+  code,
+  message,
+}: {
+  message: string
+  details?: T
+  cause?: unknown
+  code?: string
+}): SwapErrorMonad<T> => ({
+  name: 'SwapError',
+  message,
+  details,
+  cause,
+  code,
+})
+
 type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
   T,
   {

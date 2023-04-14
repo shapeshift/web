@@ -6380,6 +6380,7 @@ __metadata:
     "@shapeshiftoss/swapper": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
+    "@sniptt/monads": ^0.5.10
     "@testing-library/jest-dom": ^5.16.4
     "@testing-library/react": ^13.3.0
     "@testing-library/user-event": ^14.2.1
@@ -6562,6 +6563,13 @@ __metadata:
   dependencies:
     "@sinonjs/commons": ^1.7.0
   checksum: 09b5a158ce013a6c37613258bad79ca4efeb99b1f59c41c73cca36cac00b258aefcf46eeea970fccf06b989414d86fe9f54c1102272c0c3bdd51a313cea80949
+  languageName: node
+  linkType: hard
+
+"@sniptt/monads@npm:^0.5.10":
+  version: 0.5.10
+  resolution: "@sniptt/monads@npm:0.5.10"
+  checksum: a176bd5c7f0333431803568848e602dcc1420efbdb5d48eb038c479b0f19a47da7b0bffc604605742878f02f255dee49542c053599381269c2e15b7a3905e434
   languageName: node
   linkType: hard
 

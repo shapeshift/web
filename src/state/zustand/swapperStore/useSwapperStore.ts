@@ -1,7 +1,10 @@
+import { localAssetData } from '@shapeshiftoss/asset-service'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { TradeAmountInputField } from 'components/Trade/types'
+import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import {
   clearAmounts,
   handleAssetSelection,
@@ -35,6 +38,8 @@ export const useSwapperStore = (() => {
           isSendMax: false,
           buyAmountCryptoPrecision: '0',
           sellAmountCryptoPrecision: '0',
+          buyAsset: localAssetData[foxAssetId] ?? defaultAsset,
+          sellAsset: localAssetData[ethAssetId] ?? defaultAsset,
 
           // Actions
           updateSelectedSellAssetAccountId: createUpdateAction(set, 'selectedSellAssetAccountId'),

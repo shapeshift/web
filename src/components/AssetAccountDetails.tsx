@@ -1,11 +1,12 @@
 import { Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import type { Route } from 'Routes/helpers'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
-import { selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectFeeAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'
@@ -28,6 +29,19 @@ type AssetDetailsProps = {
 export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const assetIds = useMemo(() => [assetId], [assetId])
+
+  const clearAmounts = useSwapperStore(state => state.clearAmounts)
+  const updateBuyAsset = useSwapperStore(state => state.updateBuyAsset)
+
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
+  const buyAsset = useAppSelector(state => selectAssetById(state, assetId))
+
+  useEffect(() => {
+    const buyAssetWithFallback = buyAsset ?? feeAsset
+    if (buyAssetWithFallback) updateBuyAsset(buyAssetWithFallback)
+    clearAmounts()
+  }, [buyAsset, clearAmounts, feeAsset, updateBuyAsset])
+
   return (
     <Main titleComponent={<AssetHeader assetId={assetId} accountId={accountId} />}>
       <Stack
@@ -53,7 +67,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           maxWidth={{ base: 'full', xl: 'sm' }}
           gap={4}
         >
-          <TradeCard defaultBuyAssetId={assetId} display={{ base: 'none', md: 'block' }} />
+          <TradeCard display={{ base: 'none', md: 'block' }} />
           {marketData && <AssetMarketData assetId={assetId} />}
           <AssetDescription assetId={assetId} />
         </Flex>

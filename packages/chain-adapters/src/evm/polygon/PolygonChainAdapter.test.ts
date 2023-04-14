@@ -1,7 +1,7 @@
 // Allow explicit any since this is a test file
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * Test BscChainAdapter
+ * Test PolygonChainAdapter
  * @group unit
  */
 import { ASSET_REFERENCE, fromChainId, polygonAssetId, polygonChainId } from '@shapeshiftoss/caip'
@@ -45,11 +45,14 @@ const value = 400
 const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress: string }) =>
   merge({ gasPrice, gasLimit }, chainSpecificAdditionalProps)
 
-const makeGetGasFeesMockedResponse = (overrideArgs?: { gasPrice?: string; l1GasPrice?: string }) =>
-  merge({ gasPrice: '5', l1GasPrice: '10' }, overrideArgs)
+const makeGetGasFeesMockedResponse = (overrideArgs?: {
+  gasPrice?: string
+  maxFeePerGas?: string
+  maxPriorityFeePerGas?: string
+}) => merge({ gasPrice: '5', maxFeePerGas: '300', maxPriorityFeePerGas: '10' }, overrideArgs)
 
-const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string; l1GasLimit?: string }) =>
-  merge({ gasLimit: '21000', l1GasLimit: '3500' }, overrideArgs)
+const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string }) =>
+  merge({ gasLimit: '21000' }, overrideArgs)
 
 const makeGetAccountMockResponse = (balance: {
   balance: string
@@ -129,22 +132,28 @@ describe('PolygonChainAdapter', () => {
             chainSpecific: {
               gasLimit: '21000',
               gasPrice: '5',
+              maxFeePerGas: '300',
+              maxPriorityFeePerGas: '10',
             },
-            txFee: '140000',
+            txFee: '105000',
           },
           fast: {
             chainSpecific: {
               gasLimit: '21000',
               gasPrice: '6',
+              maxFeePerGas: '360',
+              maxPriorityFeePerGas: '12',
             },
-            txFee: '161000',
+            txFee: '126000',
           },
           slow: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '5',
+              gasPrice: '4',
+              maxFeePerGas: '240',
+              maxPriorityFeePerGas: '8',
             },
-            txFee: '140000',
+            txFee: '84000',
           },
         }),
       )
@@ -164,9 +173,21 @@ describe('PolygonChainAdapter', () => {
 
       expect(data).toEqual(
         expect.objectContaining({
-          average: { gasPrice: '5' },
-          fast: { gasPrice: '5' },
-          slow: { gasPrice: '5' },
+          average: {
+            gasPrice: '5',
+            maxFeePerGas: '300',
+            maxPriorityFeePerGas: '10',
+          },
+          fast: {
+            gasPrice: '6',
+            maxFeePerGas: '360',
+            maxPriorityFeePerGas: '12',
+          },
+          slow: {
+            gasPrice: '4',
+            maxFeePerGas: '240',
+            maxPriorityFeePerGas: '8',
+          },
         }),
       )
     })
@@ -379,7 +400,7 @@ describe('PolygonChainAdapter', () => {
         accountNumber,
         value,
         chainSpecific: makeChainSpecific({ tokenContractAddress: contractAddress }),
-      } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
+      } as unknown as BuildSendTxInput<KnownChainIds.PolygonMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
         `${adapter.getName()}ChainAdapter: to is required`,
@@ -394,7 +415,7 @@ describe('PolygonChainAdapter', () => {
         accountNumber,
         to: EOA_ADDRESS,
         chainSpecific: makeChainSpecific(),
-      } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
+      } as unknown as BuildSendTxInput<KnownChainIds.PolygonMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
         `${adapter.getName()}ChainAdapter: value is required`,
@@ -420,7 +441,7 @@ describe('PolygonChainAdapter', () => {
         to: EOA_ADDRESS,
         value,
         chainSpecific: makeChainSpecific(),
-      } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
+      } as unknown as BuildSendTxInput<KnownChainIds.PolygonMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
@@ -455,7 +476,7 @@ describe('PolygonChainAdapter', () => {
         value,
         chainSpecific: makeChainSpecific(),
         sendMax: true,
-      } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
+      } as unknown as BuildSendTxInput<KnownChainIds.PolygonMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('no balance')
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
@@ -482,7 +503,7 @@ describe('PolygonChainAdapter', () => {
         value,
         chainSpecific: makeChainSpecific(),
         sendMax: true,
-      } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
+      } as unknown as BuildSendTxInput<KnownChainIds.PolygonMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
@@ -518,7 +539,7 @@ describe('PolygonChainAdapter', () => {
         to: ZERO_ADDRESS,
         value,
         chainSpecific: makeChainSpecific({ tokenContractAddress: contractAddress }),
-      } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
+      } as unknown as BuildSendTxInput<KnownChainIds.PolygonMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
@@ -555,7 +576,7 @@ describe('PolygonChainAdapter', () => {
         value,
         chainSpecific: makeChainSpecific({ tokenContractAddress: contractAddress }),
         sendMax: true,
-      } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
+      } as unknown as BuildSendTxInput<KnownChainIds.PolygonMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
@@ -592,7 +613,7 @@ describe('PolygonChainAdapter', () => {
         value,
         chainSpecific: makeChainSpecific({ tokenContractAddress: contractAddress }),
         sendMax: true,
-      } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
+      } as unknown as BuildSendTxInput<KnownChainIds.PolygonMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('no balance')
 
@@ -605,14 +626,14 @@ describe('PolygonChainAdapter', () => {
 
     it('should return the correct coinType', async () => {
       const result = adapter.getBIP44Params({ accountNumber: 0 })
-      expect(result.coinType).toStrictEqual(Number(ASSET_REFERENCE.BnbSmartChain))
+      expect(result.coinType).toStrictEqual(Number(ASSET_REFERENCE.Polygon))
     })
 
     it('should respect accountNumber', async () => {
       const testCases: BIP44Params[] = [
-        { purpose: 44, coinType: Number(ASSET_REFERENCE.BnbSmartChain), accountNumber: 0 },
-        { purpose: 44, coinType: Number(ASSET_REFERENCE.BnbSmartChain), accountNumber: 1 },
-        { purpose: 44, coinType: Number(ASSET_REFERENCE.BnbSmartChain), accountNumber: 2 },
+        { purpose: 44, coinType: Number(ASSET_REFERENCE.Polygon), accountNumber: 0 },
+        { purpose: 44, coinType: Number(ASSET_REFERENCE.Polygon), accountNumber: 1 },
+        { purpose: 44, coinType: Number(ASSET_REFERENCE.Polygon), accountNumber: 2 },
       ]
 
       testCases.forEach(expected => {

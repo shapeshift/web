@@ -16,7 +16,7 @@
     "build": "yarn clean && yarn run -T tsc --build",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "dev": "yarn run -T tsc --build --watch",
-    "generate": "yarn generate:coingecko && yarn generate:coincap && yarn generate:yearn && yarn generate:osmosis",
+    "generate": "yarn build && yarn generate:coingecko && yarn generate:coincap && yarn generate:yearn && yarn generate:osmosis",
     "generate:coingecko": "yarn node dist/adapters/coingecko/generate.js",
     "generate:coincap": "yarn node dist/adapters/coincap/generate.js",
     "generate:yearn": "yarn node dist/adapters/yearn/generate.js",

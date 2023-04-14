@@ -67,7 +67,7 @@ export const buildTrade = async ({
     const quote = maybeQuote.unwrap()
 
     if (chainNamespace === CHAIN_NAMESPACE.Evm) {
-      const ethTradeTx = await makeTradeTx({
+      const maybeEthTradeTx = await makeTradeTx({
         wallet,
         slippageTolerance,
         accountNumber,
@@ -85,6 +85,9 @@ export const buildTrade = async ({
             ?.estimatedGasCryptoBaseUnit ?? '0',
         buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
       })
+
+      if (maybeEthTradeTx.isErr()) return Err(maybeEthTradeTx.unwrapErr())
+      const ethTradeTx = maybeEthTradeTx.unwrap()
 
       return Ok({
         chainId: sellAsset.chainId as ThorEvmSupportedChainId,

@@ -13,13 +13,37 @@ import flow from 'lodash/flow'
 const VALID_ENVIRONMENTS = ['dev', 'develop', 'app', 'private'] as const
 type Environment = typeof VALID_ENVIRONMENTS[number]
 
-const VALID_BRANCHES = ['develop', 'release', 'main', 'private', 'yeet'] as const
+const VALID_BRANCHES = [
+  'develop',
+  'release',
+  'main',
+  'private',
+  'yeet',
+  'beard',
+  'juice',
+  'wood',
+  'gome',
+  'cafe',
+] as const
 type Branch = typeof VALID_BRANCHES[number]
 
+/**
+ * the keys of this object are mapped to subdomains in cloudflare
+ * e.g. yeet.shapeshift.com
+ * the values of this object are the names of the .env files
+ * e.g. .env.develop
+ */
 const BRANCH_TO_ENVIRONMENT: Record<Branch, Environment> = {
+  // environments for individual devs
+  beard: 'develop',
+  juice: 'develop',
+  wood: 'develop',
+  gome: 'develop',
+  cafe: 'develop',
+  yeet: 'develop', // free for all
   develop: 'develop',
-  yeet: 'develop',
-  release: 'app',
+  release: 'app', // for operations testing production releases
+  // production environments
   main: 'app',
   private: 'private',
 }

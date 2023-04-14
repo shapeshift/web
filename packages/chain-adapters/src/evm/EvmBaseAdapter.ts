@@ -6,6 +6,7 @@ import {
   supportsBSC,
   supportsETH,
   supportsOptimism,
+  supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -152,7 +153,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       case Number(fromChainId(KnownChainIds.OptimismMainnet).chainReference):
         return supportsOptimism(wallet)
       case Number(fromChainId(KnownChainIds.PolygonMainnet).chainReference):
-        return false
+        return supportsPolygon(wallet)
       default:
         return false
     }

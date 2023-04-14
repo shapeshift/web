@@ -1,5 +1,5 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Button, Flex, Progress } from '@chakra-ui/react'
+import { Box, Button, Flex, Progress } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { Amount } from 'components/Amount/Amount'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
@@ -65,8 +65,8 @@ export const EquityRow: React.FC<EquityRowProps> = ({
             {label}
           </RawText>
           <Flex alignItems='center' gap={1} flex={1}>
-            <Flex flex={1} height='0.875rem' alignItems='center'>
-              <Progress
+            <Flex flex={1} height='0.875rem' alignItems='center' gap={2}>
+              {/* <Progress
                 size='xs'
                 flex={1}
                 isAnimated
@@ -78,13 +78,20 @@ export const EquityRow: React.FC<EquityRowProps> = ({
                   },
                 }}
                 value={bnOrZero(allocation).toNumber()}
+              /> */}
+              <Box
+                height='4px'
+                minWidth='4px'
+                width={`${bnOrZero(allocation).toString()}%`}
+                bgColor={color}
+                borderRadius='lg'
+              />
+              <Amount.Percent
+                display={{ base: 'none', md: 'inline-block' }}
+                value={bnOrZero(allocation).times(0.01).toString()}
+                fontSize='xs'
               />
             </Flex>
-            <Amount.Percent
-              display={{ base: 'none', md: 'inline-block' }}
-              value={bnOrZero(allocation).times(0.01).toString()}
-              fontSize='xs'
-            />
           </Flex>
         </Flex>
 

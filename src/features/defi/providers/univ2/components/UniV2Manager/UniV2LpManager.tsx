@@ -13,7 +13,7 @@ import { UniV2Deposit } from './Deposit/UniV2Deposit'
 import { UniV2Overview } from './Overview/UniV2Overview'
 import { UniV2Withdraw } from './Withdraw/UniV2Withdraw'
 
-export const FoxEthLpManager = () => {
+export const UniV2LpManager = () => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { modal } = query
   const [lpAccountId, setLpAccountId] = useState<AccountId | undefined>()

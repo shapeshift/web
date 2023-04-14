@@ -1,4 +1,4 @@
-import { bscChainId } from '@shapeshiftoss/caip'
+import { polygonChainId } from '@shapeshiftoss/caip'
 
 import { getRenderedIdenticonBase64 } from '../../service/GenerateAssetIcon'
 import { polygon } from '../baseAssets'

@@ -22,6 +22,7 @@ import {
   supportsETH,
   supportsOptimism,
   supportsOsmosis,
+  supportsPolygon,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import { logger } from 'lib/logger'
@@ -39,7 +40,7 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
     case dogeChainId:
     case polygonChainId:
       // TODO patch when HDWallet is updated
-      return false
+      return supportsPolygon(wallet)
     case ltcChainId:
       return supportsBTC(wallet)
     case ethChainId:

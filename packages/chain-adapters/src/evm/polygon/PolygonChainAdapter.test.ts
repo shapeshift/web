@@ -5,22 +5,20 @@
  * @group unit
  */
 import { ASSET_REFERENCE, fromChainId, polygonAssetId, polygonChainId } from '@shapeshiftoss/caip'
-import { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
-import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
-import unchained from '@shapeshiftoss/unchained-client'
+import type { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
+import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { BIP44Params } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import type unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
 import { numberToHex } from 'web3-utils'
 
-import {
-  BuildSendTxInput,
-  SignMessageInput,
-  SignTxInput,
-  ValidAddressResultType,
-} from '../../types'
+import type { BuildSendTxInput, SignMessageInput, SignTxInput } from '../../types'
+import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
 import { bn } from '../../utils/bignumber'
-import { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
+import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as polygon from './PolygonChainAdapter'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -47,11 +45,11 @@ const value = 400
 const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress: string }) =>
   merge({ gasPrice, gasLimit }, chainSpecificAdditionalProps)
 
-const makeGetGasFeesMockedResponse = (overrideArgs?: { gasPrice?: string }) =>
-  merge({ gasPrice: '5' }, overrideArgs)
+const makeGetGasFeesMockedResponse = (overrideArgs?: { gasPrice?: string; l1GasPrice?: string }) =>
+  merge({ gasPrice: '5', l1GasPrice: '10' }, overrideArgs)
 
-const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string }) =>
-  merge({ gasLimit: '21000' }, overrideArgs)
+const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string; l1GasLimit?: string }) =>
+  merge({ gasLimit: '21000', l1GasLimit: '3500' }, overrideArgs)
 
 const makeGetAccountMockResponse = (balance: {
   balance: string
@@ -62,9 +60,9 @@ const makeGetAccountMockResponse = (balance: {
   nonce: 2,
   tokens: [
     {
-      assetId: `eip155:56/bep20:${contractAddress}`,
+      assetId: `eip155:137/erc20:${contractAddress}`,
       balance: balance.tokenBalance,
-      type: 'BEP20',
+      type: 'ERC20',
       contract: contractAddress,
     },
   ],
@@ -85,7 +83,7 @@ const makeChainAdapterArgs = (overrideArgs?: {
     overrideArgs,
   )
 
-describe('BscChainAdapter', () => {
+describe('PolygonChainAdapter', () => {
   describe('constructor', () => {
     it('should return chainAdapter with mainnet chainId if called with no chainId', () => {
       const adapter = new polygon.ChainAdapter(makeChainAdapterArgs())
@@ -93,7 +91,7 @@ describe('BscChainAdapter', () => {
     })
 
     it('should return chainAdapter with valid chainId if called with valid chainId', () => {
-      const args = makeChainAdapterArgs({ chainId: KnownChainIds.BnbSmartChainMainnet })
+      const args = makeChainAdapterArgs({ chainId: KnownChainIds.PolygonMainnet })
       const adapter = new polygon.ChainAdapter(args)
       expect(adapter.getChainId()).toEqual(polygonChainId)
     })
@@ -132,21 +130,21 @@ describe('BscChainAdapter', () => {
               gasLimit: '21000',
               gasPrice: '5',
             },
-            txFee: '105000',
+            txFee: '140000',
           },
           fast: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '5',
+              gasPrice: '6',
             },
-            txFee: '105000',
+            txFee: '161000',
           },
           slow: {
             chainSpecific: {
               gasLimit: '21000',
               gasPrice: '5',
             },
-            txFee: '105000',
+            txFee: '140000',
           },
         }),
       )
@@ -617,7 +615,7 @@ describe('BscChainAdapter', () => {
         { purpose: 44, coinType: Number(ASSET_REFERENCE.BnbSmartChain), accountNumber: 2 },
       ]
 
-      testCases.forEach((expected) => {
+      testCases.forEach(expected => {
         const result = adapter.getBIP44Params({ accountNumber: expected.accountNumber })
         expect(result).toStrictEqual(expected)
       })

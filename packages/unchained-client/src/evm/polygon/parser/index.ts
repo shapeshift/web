@@ -1,5 +1,3 @@
-import { polygonAssetId } from '@shapeshiftoss/caip'
-
 import type { Tx } from '../../../generated/optimism'
 import type { TransactionParserArgs } from '../../parser'
 import { BaseTransactionParser } from '../../parser'

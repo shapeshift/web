@@ -1,7 +1,7 @@
 /* eslint-disable @shapeshiftoss/logger/no-native-console */
 import 'dotenv/config'
 
-import { avalancheAssetId, ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { avalancheAssetId, ethAssetId, fromAssetId, polygonAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import fs from 'fs'
 import merge from 'lodash/merge'
@@ -39,7 +39,7 @@ const generateAssetData = async () => {
     ...avalancheAssets,
     ...optimismAssets,
     ...bnbsmartchainAssets,
-    ...polygonchainAssets,
+    ...polygonAssets,
   ]
 
   // remove blacklisted assets
@@ -53,7 +53,7 @@ const generateAssetData = async () => {
     [KnownChainIds.AvalancheMainnet]: avalancheAssets.map(asset => asset.name),
     [KnownChainIds.OptimismMainnet]: optimismAssets.map(asset => asset.name),
     [KnownChainIds.BnbSmartChainMainnet]: bnbsmartchainAssets.map(asset => asset.name),
-    [KnownChainIds.PolygonMainnet]: polygonchainAssets.map(asset => asset.name),
+    [KnownChainIds.PolygonMainnet]: polygonAssets.map(asset => asset.name),
   }
 
   const isNotUniqueAsset = (asset: Asset) => {
@@ -93,7 +93,11 @@ const generateAssetData = async () => {
     }
 
     // mark any polygon assets that also exist on other evm chains
-    if (chainId === KnownChainIds.PolygonMainnet && asset.assetId !== polygonAssetId && isNotUniqueAsset(asset)) {
+    if (
+      chainId === KnownChainIds.PolygonMainnet &&
+      asset.assetId !== polygonAssetId &&
+      isNotUniqueAsset(asset)
+    ) {
       asset.name = `${asset.name} on Polygon`
     }
 

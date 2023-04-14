@@ -35,7 +35,7 @@ type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
       totalFee?: string
     }
     [KnownChainIds.PolygonMainnet]: {
-      estimatedGas?: string
+      estimatedGasCryptoBaseUnit?: string
       gasPriceCryptoBaseUnit?: string
       approvalFeeCryptoBaseUnit?: string
       totalFee?: string

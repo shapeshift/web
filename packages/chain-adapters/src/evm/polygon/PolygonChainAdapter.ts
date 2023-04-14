@@ -92,24 +92,30 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PolygonMainnet> {
   }
 
   async getFeeData(
-    input: GetFeeDataInput<KnownChainIds.PolygonMainnet>,
-  ): Promise<FeeDataEstimate<KnownChainIds.PolygonMainnet>> {
+    input: GetFeeDataInput<KnownChainIds.OptimismMainnet>,
+  ): Promise<FeeDataEstimate<KnownChainIds.OptimismMainnet>> {
     const req = await this.buildEstimateGasRequest(input)
 
-    const { gasLimit } = await this.api.estimateGas(req)
-    const { fast, average, slow } = await this.getGasFeeData()
+    const { gasLimit, l1GasLimit } = await this.api.estimateGas(req)
+    const { fast, average, slow, l1GasPrice } = await this.getGasFeeData()
 
     return {
       fast: {
-        txFee: bnOrZero(bn(fast.gasPrice).times(gasLimit)).toPrecision(),
+        txFee: bnOrZero(
+          bn(fast.gasPrice).times(gasLimit).plus(bn(l1GasPrice).times(l1GasLimit)),
+        ).toPrecision(),
         chainSpecific: { gasLimit, ...fast },
       },
       average: {
-        txFee: bnOrZero(bn(average.gasPrice).times(gasLimit)).toPrecision(),
+        txFee: bnOrZero(
+          bn(average.gasPrice).times(gasLimit).plus(bn(l1GasPrice).times(l1GasLimit)),
+        ).toPrecision(),
         chainSpecific: { gasLimit, ...average },
       },
       slow: {
-        txFee: bnOrZero(bn(slow.gasPrice).times(gasLimit)).toPrecision(),
+        txFee: bnOrZero(
+          bn(slow.gasPrice).times(gasLimit).plus(bn(l1GasPrice).times(l1GasLimit)),
+        ).toPrecision(),
         chainSpecific: { gasLimit, ...slow },
       },
     }

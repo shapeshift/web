@@ -192,7 +192,7 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Osmosis,
       })
-      expect(assetIdToCoingecko(assetId)).toEqual('osmosis')
+      expect(assetIdToCoingecko(assetId)).toEqual('polygon-pos')
     })
   })
 

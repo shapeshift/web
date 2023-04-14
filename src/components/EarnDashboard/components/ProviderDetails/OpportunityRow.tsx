@@ -112,10 +112,10 @@ export const OpportunityRow: React.FC<
     ]
 
     return subText.map((element, index) => (
-      <>
+      <Flex key={`subtext-${index}`} alignItems='center' gap={1}>
         {index > 0 && <RawText>•</RawText>}
         {element}
-      </>
+      </Flex>
     ))
   }, [apy, cryptoAmountBaseUnit, type])
 

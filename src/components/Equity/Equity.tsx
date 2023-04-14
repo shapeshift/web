@@ -89,7 +89,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
       ).toString()
       return {
         id: stakingOpportunity.id,
-        type: stakingOpportunity.type,
+        type: AssetEquityType.Staking,
         fiatAmount: stakingOpportunity.fiatAmount,
         allocation,
         provider: stakingOpportunity.provider,
@@ -102,7 +102,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
       ).toString()
       return {
         id: lpOpportunity.id,
-        type: lpOpportunity.type,
+        type: AssetEquityType.LP,
         fiatAmount: lpOpportunity.fiatAmount,
         allocation,
         provider: lpOpportunity.provider,

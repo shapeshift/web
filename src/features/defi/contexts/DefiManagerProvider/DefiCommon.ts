@@ -6,6 +6,11 @@ export enum DefiType {
   Staking = 'staking',
 }
 
+export const DefiTypeDisplayName = {
+  [DefiType.LiquidityPool]: 'LP',
+  [DefiType.Staking]: 'Staking',
+}
+
 export enum DefiProvider {
   Idle = 'idle',
   Yearn = 'yearn',

@@ -1,5 +1,8 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiProviderMetadata,
+  DefiTypeDisplayName,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import React, { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
@@ -45,7 +48,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
       icon={DefiProviderMetadata[opportunity.provider].icon}
       label={opportunity.provider}
       symbol={asset.symbol}
-      subText={opportunity.version ?? opportunity.type}
+      subText={opportunity.version ?? DefiTypeDisplayName[opportunity.type]}
       cryptoBalancePrecision={bnOrZero(opportunity.cryptoAmountBaseUnit)
         .div(bn(10).pow(asset.precision))
         .toFixed(asset.precision)}

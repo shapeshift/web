@@ -9,6 +9,7 @@ import type {
   UtxoBaseAdapter,
 } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
 import type Web3 from 'web3'
 
 import type {
@@ -19,6 +20,7 @@ import type {
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
   GetTradeQuoteInput,
+  SwapErrorMonad,
   Swapper,
   Trade,
   TradeQuote,
@@ -165,7 +167,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     return buildTrade({ deps: this.deps, input })
   }
 
-  getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<ChainId>> {
+  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote<ChainId>, SwapErrorMonad>> {
     return getThorTradeQuote({ deps: this.deps, input })
   }
 

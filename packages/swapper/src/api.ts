@@ -4,6 +4,7 @@ import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/c
 import { createErrorClass } from '@shapeshiftoss/errors'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
 
 export const SwapError = createErrorClass('SwapError')
 
@@ -288,8 +289,7 @@ export interface Swapper<T extends ChainId> {
   /**
    * Get a trade quote
    */
-  getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<T>>
-
+  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote<ChainId>, SwapErrorMonad>>
   /**
    * Get the usd rate from either the assets symbol or tokenId
    */

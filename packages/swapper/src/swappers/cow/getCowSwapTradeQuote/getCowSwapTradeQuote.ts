@@ -1,10 +1,12 @@
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError, AxiosResponse } from 'axios'
 import axios from 'axios'
 
-import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
-import { SwapError, SwapErrorType } from '../../../api'
+import type { GetTradeQuoteInput, SwapErrorMonad, TradeQuote } from '../../../api'
+import { makeSwapErrorMonad, SwapError, SwapErrorType } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { getApproveContractData, normalizeIntegerAmount } from '../../utils/helpers/helpers'
 import type { CowSwapperDeps } from '../CowSwapper'
@@ -25,7 +27,7 @@ import { getNowPlusThirtyMinutesTimestamp, getUsdRate } from '../utils/helpers/h
 export async function getCowSwapTradeQuote(
   deps: CowSwapperDeps,
   input: GetTradeQuoteInput,
-): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> {
+): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorMonad>> {
   try {
     const {
       sellAsset,
@@ -167,7 +169,7 @@ export async function getCowSwapTradeQuote(
       ? '0'
       : buyAmountCryptoBaseUnit
 
-    return {
+    return Ok({
       rate,
       minimumCryptoHuman: minimumAmountCryptoHuman,
       maximumCryptoHuman: maximumAmountCryptoHuman,
@@ -190,7 +192,8 @@ export async function getCowSwapTradeQuote(
       buyAsset,
       sellAsset,
       accountNumber,
-    }
+    })
+    // TODO(gomes): scrutinize what can throw above and don't throw, because monads
   } catch (e) {
     if (
       axios.isAxiosError(e) &&
@@ -198,15 +201,28 @@ export async function getCowSwapTradeQuote(
       (e as AxiosError<{ errorType: string }>).response?.data.errorType ===
         'SellAmountDoesNotCoverFee'
     ) {
-      throw new SwapError('[getCowSwapTradeQuote]', {
-        cause: e,
-        code: SwapErrorType.TRADE_QUOTE_INPUT_LOWER_THAN_FEES,
-      })
+      return Err(
+        makeSwapErrorMonad({
+          message: '[getCowSwapTradeQuote]',
+          cause: e,
+          code: SwapErrorType.TRADE_QUOTE_INPUT_LOWER_THAN_FEES,
+        }),
+      )
     }
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[getCowSwapTradeQuote]', {
-      cause: e,
-      code: SwapErrorType.TRADE_QUOTE_FAILED,
-    })
+    if (e instanceof SwapError)
+      return Err(
+        makeSwapErrorMonad({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
+    return Err(
+      makeSwapErrorMonad({
+        message: '[getCowSwapTradeQuote]',
+        cause: e,
+        code: SwapErrorType.TRADE_QUOTE_FAILED,
+      }),
+    )
   }
 }

@@ -3,6 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
 import type Web3 from 'web3'
 
 import type {
@@ -14,6 +15,7 @@ import type {
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
   GetTradeQuoteInput,
+  SwapErrorMonad,
   Swapper,
   TradeQuote,
   TradeResult,
@@ -52,7 +54,9 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     return cowBuildTrade(this.deps, args)
   }
 
-  getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> {
+  getTradeQuote(
+    input: GetTradeQuoteInput,
+  ): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorMonad>> {
     return getCowSwapTradeQuote(this.deps, input)
   }
 

@@ -1,8 +1,9 @@
-import { Flex, Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
+import { Flex, Skeleton, Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -15,11 +16,13 @@ import {
   selectCryptoHumanBalanceIncludingStakingByFilter,
   selectFiatBalanceIncludingStakingByFilter,
   selectPortfolioFiatBalancesByAccount,
+  selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { EquityAccountRow } from './EquityAccountRow'
 import { EquityLpRow } from './EquityLpRow'
+import { EquityRowLoading } from './EquityRow'
 import { EquityStakingRow } from './EquityStakingRow'
 
 type EquityProps = {
@@ -36,6 +39,7 @@ enum AssetEquityType {
 
 export const Equity = ({ assetId, accountId }: EquityProps) => {
   const translate = useTranslate()
+  const portfolioLoading = useSelector(selectPortfolioLoading)
   const assets = useAppSelector(selectAssets)
   const asset = assets[assetId]
   const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
@@ -123,6 +127,10 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   ])
 
   const renderEquityRows = useMemo(() => {
+    if (portfolioLoading)
+      return Array.from({ length: 4 }).map((_, index) => (
+        <EquityRowLoading key={`eq-row-loading-${index}`} />
+      ))
     return equityItems.map(item => {
       switch (item.type) {
         case AssetEquityType.Staking:
@@ -161,16 +169,21 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
           return null
       }
     })
-  }, [accountId, assetId, equityItems])
+  }, [accountId, assetId, equityItems, portfolioLoading])
 
   if (!asset) return null
+
   return (
     <Card variant='default'>
       <Card.Header display='flex' gap={4} alignItems='center'>
         <Flex flexDir='column' flex={1}>
           <Card.Heading>{translate('common.balance')}</Card.Heading>
-          <Amount.Fiat fontSize='xl' value={totalFiatBalance} />
-          <Amount.Crypto variant='sub-text' value={cryptoHumanBalance} symbol={asset.symbol} />
+          <Skeleton isLoaded={!portfolioLoading}>
+            <Amount.Fiat fontSize='xl' value={totalFiatBalance} />
+          </Skeleton>
+          <Skeleton isLoaded={!portfolioLoading}>
+            <Amount.Crypto variant='sub-text' value={cryptoHumanBalance} symbol={asset.symbol} />
+          </Skeleton>
         </Flex>
       </Card.Header>
       <Card.Body pt={0} pb={2}>

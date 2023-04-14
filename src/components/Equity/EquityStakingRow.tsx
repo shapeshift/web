@@ -9,6 +9,7 @@ import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssetById,
+  selectOpportunityApiPending,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -28,6 +29,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
   allocation,
   color,
 }) => {
+  const isLoading = useAppSelector(selectOpportunityApiPending)
   const filter = useMemo(() => {
     return {
       assetId,
@@ -50,6 +52,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
       symbol={asset.symbol}
       subText={opportunity.version ?? DefiTypeDisplayName[opportunity.type]}
       apy={opportunity.apy}
+      isLoading={isLoading}
       cryptoBalancePrecision={bnOrZero(opportunity.cryptoAmountBaseUnit)
         .div(bn(10).pow(asset.precision))
         .toFixed(asset.precision)}

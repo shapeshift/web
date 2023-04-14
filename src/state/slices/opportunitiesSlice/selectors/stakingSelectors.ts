@@ -663,7 +663,7 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
 )
 
 export const selectAllEarnUserStakingOpportunitiesByFilter = createSelector(
-  selectAggregatedEarnUserStakingOpportunities,
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectUserStakingOpportunitiesById,
   selectAssets,
   selectMarketDataSortedByMarketCap,

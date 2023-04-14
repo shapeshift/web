@@ -3,6 +3,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { avalanche, bnbsmartchain, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
 
 import type {
   ApprovalNeededInput,
@@ -12,6 +13,7 @@ import type {
   BuildTradeInput,
   BuyAssetBySellIdInput,
   GetEvmTradeQuoteInput,
+  SwapErrorMonad,
   Swapper,
   TradeQuote,
   TradeResult,
@@ -70,7 +72,7 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     return zrxBuildTrade<T>(this.deps, args)
   }
 
-  getTradeQuote(input: GetEvmTradeQuoteInput): Promise<TradeQuote<T>> {
+  getTradeQuote(input: GetEvmTradeQuoteInput): Promise<Result<TradeQuote<T>, SwapErrorMonad>> {
     return getZrxTradeQuote<T>(input)
   }
 

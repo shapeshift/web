@@ -361,6 +361,12 @@ const reactAppRewireConfig = {
         output: {
           pathinfo: false,
         },
+        watchOptions: {
+          ignored: [
+            // ignore changes to packages .ts files - yarn workspace builds these via tsc --watch
+            path.join(buildPath, 'packages/*/src/**/*'),
+          ],
+        },
       })
 
       // https://webpack.js.org/guides/build-performance/#avoid-production-specific-tooling

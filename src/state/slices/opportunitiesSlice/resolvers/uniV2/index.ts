@@ -194,7 +194,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
     const token1PoolRatio = token1ReservesBaseUnit.div(totalSupplyBaseUnit).toString()
     // Amount of token 0 in liquidity pool
     const token0ReservesCryptoPrecision = bnOrZero(token0ReservesBaseUnit?.toString()).div(
-      bn(10).pow(token0Decimals ?? 18),
+      bn(10).pow(token0Decimals),
     )
 
     const totalLiquidityFiat = zapperAppBalanceData
@@ -202,7 +202,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
       : token0ReservesCryptoPrecision.times(token0Price).times(2)
     const tvl = totalLiquidityFiat.toString()
     const price = bnOrZero(tvl)
-      .div(bnOrZero(totalSupplyBaseUnit.toString()).div(bn(10).pow(18)))
+      .div(bnOrZero(totalSupplyBaseUnit.toString()).div(bn(10).pow(lpAsset.precision)))
       .toString()
 
     lpMarketDataById[opportunityId] = { price, marketCap: '0', volume: '0', changePercent24Hr: 0 }
@@ -217,8 +217,8 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
       underlyingAssetId: opportunityId,
       underlyingAssetIds,
       underlyingAssetRatiosBaseUnit: [
-        toBaseUnit(token0PoolRatio.toString(), token0Decimals ?? 18),
-        toBaseUnit(token1PoolRatio.toString(), token1Decimals ?? 18),
+        toBaseUnit(token0PoolRatio.toString(), token0Decimals),
+        toBaseUnit(token1PoolRatio.toString(), token1Decimals),
       ] as const,
       name: `${assets.byId[underlyingAssetIds[0]]?.symbol}/${
         assets.byId[underlyingAssetIds[1]]?.symbol

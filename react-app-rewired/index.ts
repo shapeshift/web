@@ -90,7 +90,9 @@ const reactAppRewireConfig = {
           Buffer: ['buffer/', 'Buffer'],
           process: ['process/browser.js'],
         }),
-        progressPlugin,
+        // only show build progress for production builds
+        // saves about 1 second on hot reloads in development
+        ...(isProduction ? [progressPlugin] : []),
       ],
     })
 
@@ -118,11 +120,13 @@ const reactAppRewireConfig = {
     )
 
     // Webpack uses MD4 by default, but SHA-256 can be verified with standard tooling.
-    _.merge(config, {
-      output: {
-        hashFunction: 'sha256',
-      },
-    })
+    // md4 400% faster for development
+    isProduction &&
+      _.merge(config, {
+        output: {
+          hashFunction: 'sha256',
+        },
+      })
 
     // Ignore warnings raised by source-map-loader. Some third party packages ship misconfigured
     // sourcemap paths and cause many spurious warnings.
@@ -162,19 +166,21 @@ const reactAppRewireConfig = {
     // Generate and embed Subresource Integrity (SRI) attributes for all files.
     // Automatically embeds SRI hashes when generating the embedded webpack loaders
     // for split code.
-    _.merge(config, {
-      output: {
-        // This is the default, but the SRI spec requires it to be set explicitly.
-        crossOriginLoading: 'anonymous',
-      },
-      // SubresourceIntegrityPlugin automatically disables itself in development.
-      plugins: [
-        ...(config.plugins ?? []),
-        new SubresourceIntegrityPlugin({
-          hashFuncNames: ['sha256'],
-        }),
-      ],
-    })
+    // costs about 1 second in development, disable
+    isProduction &&
+      _.merge(config, {
+        output: {
+          // This is the default, but the SRI spec requires it to be set explicitly.
+          crossOriginLoading: 'anonymous',
+        },
+        // SubresourceIntegrityPlugin automatically disables itself in development.
+        plugins: [
+          ...(config.plugins ?? []),
+          new SubresourceIntegrityPlugin({
+            hashFuncNames: ['sha256'],
+          }),
+        ],
+      })
 
     _.merge(config, {
       plugins: [
@@ -340,6 +346,37 @@ const reactAppRewireConfig = {
       }
     })
 
+    if (isDevelopment) {
+      _.merge(config, {
+        // https://webpack.js.org/configuration/cache/#cache
+        // do not enable in memory cache - filesystem is actually faster
+        optimization: {
+          removeAvailableModules: false,
+          removeEmptyChunks: false,
+          splitChunks: false,
+        },
+        // fastest source map hot reload in development https://webpack.js.org/guides/build-performance/#development
+        devtool: 'eval-cheap-module-source-map',
+        // https://webpack.js.org/guides/build-performance/#output-without-path-info
+        output: {
+          pathinfo: false,
+        },
+        watchOptions: {
+          ignored: [
+            // ignore changes to packages .ts files - yarn workspace builds these via tsc --watch
+            path.join(buildPath, 'packages/*/src/**/*'),
+          ],
+        },
+      })
+
+      // https://webpack.js.org/guides/build-performance/#avoid-production-specific-tooling
+      // have to mutate these out last because something else is adding them in
+      if (config.optimization) {
+        config.optimization.minimize = false
+        config.optimization.minimizer = []
+      }
+    }
+
     return config
   },
   jest: (config: Config.InitialOptions) => {
@@ -353,6 +390,10 @@ const reactAppRewireConfig = {
     return (...args) => {
       const config = configFunction(...args)
       config.headers = headers
+      // enable hot module replacement! (HMR)
+      config.hot = true
+      // disable compression
+      config.compress = false
       return config
     }
   },

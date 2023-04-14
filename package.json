@@ -250,7 +250,7 @@
     "pify": "^5.0.0",
     "prettier": "^2.3.2",
     "react-app-rewired": "^2.1.9",
-    "react-scripts": "^5.0.0",
+    "react-scripts": "^5.0.1",
     "reselect-tools": "^0.0.7",
     "simple-git": "^3.16.0",
     "ssri": "^8.0.1",

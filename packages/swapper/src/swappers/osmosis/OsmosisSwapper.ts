@@ -4,6 +4,8 @@ import { cosmosAssetId, cosmosChainId, osmosisAssetId, osmosisChainId } from '@s
 import type { cosmos } from '@shapeshiftoss/chain-adapters'
 import { osmosis } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 
 import type {
   ApprovalNeededOutput,
@@ -12,6 +14,7 @@ import type {
   ExecuteTradeInput,
   GetTradeQuoteInput,
   MinMaxOutput,
+  SwapErrorMonad,
   Swapper,
   Trade,
   TradeQuote,
@@ -208,13 +211,16 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     }
   }
 
-  async getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<ChainId>> {
+  async getTradeQuote(
+    input: GetTradeQuoteInput,
+  ): Promise<Result<TradeQuote<ChainId>, SwapErrorMonad>> {
     const {
       accountNumber,
       sellAsset,
       buyAsset,
       sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
     } = input
+    // TODO(gomes): Don't throw
     if (!sellAmountCryptoBaseUnit) {
       throw new SwapError('sellAmount is required', {
         code: SwapErrorType.RESPONSE_ERROR,
@@ -233,6 +239,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       | osmosis.ChainAdapter
       | undefined
 
+    // TODO(gomes): don't throw
     if (!osmosisAdapter)
       throw new SwapError('Failed to get Osmosis adapter', {
         code: SwapErrorType.TRADE_QUOTE_FAILED,
@@ -241,7 +248,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const feeData = await osmosisAdapter.getFeeData({})
     const fee = feeData.fast.txFee
 
-    return {
+    return Ok({
       buyAsset,
       feeData: {
         networkFeeCryptoBaseUnit: fee,
@@ -257,7 +264,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       buyAmountCryptoBaseUnit,
       sources: DEFAULT_SOURCE,
       allowanceContract: '',
-    }
+    })
   }
 
   async executeTrade({ trade, wallet }: ExecuteTradeInput<ChainId>): Promise<OsmosisTradeResult> {

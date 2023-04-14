@@ -4,6 +4,7 @@ import { AssetService } from '@shapeshiftoss/asset-service'
 import { CHAIN_NAMESPACE, ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { ethereum, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { bitcoin } from '@shapeshiftoss/chain-adapters'
+import type { PublicKey } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
@@ -163,7 +164,7 @@ const main = async (): Promise<void> => {
   }
 
   const { chainNamespace: sellChainNamespace } = fromAssetId(sellAsset.assetId)
-  let publicKey
+  let publicKey: PublicKey | undefined
   if (sellChainNamespace === CHAIN_NAMESPACE.Utxo) {
     if (!utxoAccountType) {
       throw new Error('utxoAccountType must be defined')
@@ -184,55 +185,51 @@ const main = async (): Promise<void> => {
     accountNumber,
   })
   console.info(`${buyAsset.name} using receive addr ${buyAssetReceiveAddr}`)
-  let quote
-  try {
-    quote = await swapper.getTradeQuote({
-      chainId: sellAsset.chainId as UtxoChainId,
-      sellAsset,
-      buyAsset,
-      sellAmountBeforeFeesCryptoBaseUnit,
-      sendMax: false,
-      accountType: utxoAccountType || bitcoin.ChainAdapter.defaultUtxoAccountType,
-      accountNumber,
-      xpub: publicKey?.xpub || '',
-      receiveAddress: buyAssetReceiveAddr,
-    })
-  } catch (e) {
-    console.error(e)
-    return
-  }
+  const quote = await swapper.getTradeQuote({
+    chainId: sellAsset.chainId as UtxoChainId,
+    sellAsset,
+    buyAsset,
+    sellAmountBeforeFeesCryptoBaseUnit,
+    sendMax: false,
+    accountType: utxoAccountType || bitcoin.ChainAdapter.defaultUtxoAccountType,
+    accountNumber,
+    xpub: publicKey?.xpub || '',
+    receiveAddress: buyAssetReceiveAddr,
+  })
+  return quote.match({
+    ok: async quote => {
+      const buyAmountCryptoPrecision = fromBaseUnit(
+        quote.buyAmountCryptoBaseUnit || '0',
+        buyAsset.precision,
+      )
+      const answer = readline.question(
+        `Swap ${sellAmountBeforeFeesCryptoPrecision} ${
+          sellAsset.symbol
+        } for ${buyAmountCryptoPrecision} ${buyAsset.symbol} on ${swapper.getType()}? (y/n): `,
+      )
+      if (answer === 'y') {
+        const trade = await swapper.buildTrade({
+          chainId: sellAsset.chainId as UtxoChainId,
+          wallet,
+          buyAsset,
+          sendMax: false,
+          sellAmountBeforeFeesCryptoBaseUnit,
+          sellAsset,
+          receiveAddress: buyAssetReceiveAddr,
+          accountType: utxoAccountType || bitcoin.ChainAdapter.defaultUtxoAccountType,
+          accountNumber,
+          xpub: publicKey?.xpub || '',
+        })
 
-  if (!quote) {
-    console.warn('no quote returned')
-    return
-  }
-
-  const buyAmountCryptoPrecision = fromBaseUnit(
-    quote.buyAmountCryptoBaseUnit || '0',
-    buyAsset.precision,
-  )
-  const answer = readline.question(
-    `Swap ${sellAmountBeforeFeesCryptoPrecision} ${
-      sellAsset.symbol
-    } for ${buyAmountCryptoPrecision} ${buyAsset.symbol} on ${swapper.getType()}? (y/n): `,
-  )
-  if (answer === 'y') {
-    const trade = await swapper.buildTrade({
-      chainId: sellAsset.chainId as UtxoChainId,
-      wallet,
-      buyAsset,
-      sendMax: false,
-      sellAmountBeforeFeesCryptoBaseUnit,
-      sellAsset,
-      receiveAddress: buyAssetReceiveAddr,
-      accountType: utxoAccountType || bitcoin.ChainAdapter.defaultUtxoAccountType,
-      accountNumber,
-      xpub: publicKey?.xpub || '',
-    })
-
-    const tradeResult = await swapper.executeTrade({ trade, wallet })
-    console.info('broadcast tx with id: ', tradeResult.tradeId)
-  }
+        const tradeResult = await swapper.executeTrade({ trade, wallet })
+        console.info('broadcast tx with id: ', tradeResult.tradeId)
+      }
+    },
+    err: e => {
+      console.error(e)
+      return Promise.resolve()
+    },
+  })
 }
 
 main().then(() => console.info('Done'))

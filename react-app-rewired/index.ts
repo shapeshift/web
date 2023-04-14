@@ -61,8 +61,6 @@ const reactAppRewireConfig = {
 
     // Initialize top-level arrays just in case they're missing for some reason.
     _.merge(config, {
-      // fastest source map hot reload in development https://webpack.js.org/guides/build-performance/#development
-      devtool: 'eval-cheap-module-source-map',
       plugins: [],
       ignoreWarnings: [],
     })
@@ -104,17 +102,6 @@ const reactAppRewireConfig = {
     // CRA's "The bundle size is significantly larger than recommended" warning.
     _.merge(
       config,
-      isDevelopment
-        ? {
-            // https://webpack.js.org/configuration/cache/#cache
-            // do not enable in memory cache - filesystem is actually faster
-            optimization: {
-              removeAvailableModules: false,
-              removeEmptyChunks: false,
-              splitChunks: false,
-            },
-          }
-        : {},
       isProduction
         ? {
             optimization: {
@@ -133,11 +120,13 @@ const reactAppRewireConfig = {
     )
 
     // Webpack uses MD4 by default, but SHA-256 can be verified with standard tooling.
-    _.merge(config, {
-      output: {
-        hashFunction: 'sha256',
-      },
-    })
+    // md4 400% faster for development
+    isProduction &&
+      _.merge(config, {
+        output: {
+          hashFunction: 'sha256',
+        },
+      })
 
     // Ignore warnings raised by source-map-loader. Some third party packages ship misconfigured
     // sourcemap paths and cause many spurious warnings.
@@ -357,6 +346,35 @@ const reactAppRewireConfig = {
       }
     })
 
+    if (isDevelopment) {
+      _.merge(config, {
+        // https://webpack.js.org/configuration/cache/#cache
+        // do not enable in memory cache - filesystem is actually faster
+        optimization: {
+          removeAvailableModules: false,
+          removeEmptyChunks: false,
+          splitChunks: false,
+        },
+        // fastest source map hot reload in development https://webpack.js.org/guides/build-performance/#development
+        devtool: 'eval-cheap-module-source-map',
+        // https://webpack.js.org/guides/build-performance/#output-without-path-info
+        output: {
+          pathinfo: false,
+        },
+        plugins: [],
+        ignoreWarnings: [],
+      })
+
+      // https://webpack.js.org/guides/build-performance/#avoid-production-specific-tooling
+      // have to mutate these out last because something else is adding them in
+      if (config.optimization) {
+        config.optimization.minimize = false
+        config.optimization.minimizer = []
+      }
+    }
+
+    console.info(config)
+    // process.exit(1)
     return config
   },
   jest: (config: Config.InitialOptions) => {
@@ -370,6 +388,10 @@ const reactAppRewireConfig = {
     return (...args) => {
       const config = configFunction(...args)
       config.headers = headers
+      // enable hot module replacement! (HMR)
+      config.hot = true
+      // disable compression
+      config.compress = false
       return config
     }
   },

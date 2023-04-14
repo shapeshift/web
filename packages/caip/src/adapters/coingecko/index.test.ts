@@ -109,11 +109,18 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'bep20',
         assetReference: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
       })
+      const usdcPolygon = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.PolygonMainnet,
+        assetNamespace,
+        assetReference: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+      })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([
         usdcEth,
         usdcAvalanche,
         usdcOptimism,
         usdcBsc,
+        usdcPolygon,
       ])
     })
   })
@@ -167,6 +174,18 @@ describe('adapters:coingecko', () => {
     it('can get CoinGecko id for osmosis AssetId', () => {
       const chainNamespace = CHAIN_NAMESPACE.CosmosSdk
       const chainReference = CHAIN_REFERENCE.OsmosisMainnet
+      const assetId = toAssetId({
+        chainNamespace,
+        chainReference,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Osmosis,
+      })
+      expect(assetIdToCoingecko(assetId)).toEqual('osmosis')
+    })
+
+    it('can get CoinGecko id for polygon AssetId', () => {
+      const chainNamespace = CHAIN_NAMESPACE.Evm
+      const chainReference = CHAIN_REFERENCE.PolygonMainnet
       const assetId = toAssetId({
         chainNamespace,
         chainReference,

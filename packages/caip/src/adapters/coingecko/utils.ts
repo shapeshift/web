@@ -22,6 +22,8 @@ import {
   optimismAssetId,
   optimismChainId,
   osmosisChainId,
+  polygonAssetId,
+  polygonChainId,
   thorchainChainId,
 } from '../../constants'
 import {
@@ -31,6 +33,7 @@ import {
   dogecoinAssetMap,
   litecoinAssetMap,
   osmosisAssetMap,
+  polygonAssetMap,
   thorchainAssetMap,
 } from '../../utils'
 import { CoingeckoAssetPlatform } from '.'
@@ -105,6 +108,23 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      console.log(platforms)
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Polygon)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.PolygonMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Polygon],
+          })
+          prev[polygonChainId][assetId] = id
+        } catch (err) {
+          console.log('failed to create polygon assetId', err)
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -112,6 +132,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [avalancheChainId]: { [avalancheAssetId]: 'avalanche-2' },
       [optimismChainId]: { [optimismAssetId]: 'ethereum' },
       [bscChainId]: { [bscAssetId]: 'binancecoin' },
+      [polygonChainId]: { [polygonAssetId]: 'polygon' },
     },
   )
 
@@ -124,6 +145,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
     [cosmosChainId]: cosmosAssetMap,
     [osmosisChainId]: osmosisAssetMap,
     [thorchainChainId]: thorchainAssetMap,
+    [polygonChainId]: polygonAssetMap,
   }
 }
 

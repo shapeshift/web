@@ -13,7 +13,7 @@ export enum CoingeckoAssetPlatform {
   Ethereum = 'ethereum',
   Cosmos = 'cosmos',
   Osmosis = 'osmosis',
-  Polygon = 'polygon',
+  Polygon = 'polygon-pos',
   Avalanche = 'avalanche',
   Thorchain = 'thorchain',
   Optimism = 'optimistic-ethereum',

@@ -22,7 +22,6 @@ import type {
   GetTradeQuoteInput,
   SwapErrorMonad,
   Swapper,
-  Trade,
   TradeQuote,
   TradeResult,
   TradeTxs,
@@ -163,7 +162,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     return this.supportedSellAssetIds
   }
 
-  buildTrade(input: BuildTradeInput): Promise<Trade<ChainId>> {
+  buildTrade(input: BuildTradeInput): Promise<Result<ThorTrade<ChainId>, SwapErrorMonad>> {
     return buildTrade({ deps: this.deps, input })
   }
 

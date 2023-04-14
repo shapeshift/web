@@ -1,6 +1,9 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 
+import type { SwapErrorMonad } from '../../../../api'
 import { SwapError, SwapErrorType } from '../../../../api'
 import type { ThorchainSwapperDeps } from '../../types'
 import { getInboundAddressDataForChain } from '../../utils/getInboundAddressDataForChain'
@@ -18,10 +21,15 @@ type GetBtcThorTxInfoArgs = {
   buyAssetTradeFeeUsd: string
 }
 
-type GetBtcThorTxInfoReturn = Promise<{
-  data: string
-  router: string
-}>
+type GetBtcThorTxInfoReturn = Promise<
+  Result<
+    {
+      data: string
+      router: string
+    },
+    SwapErrorMonad
+  >
+>
 
 type GetBtcThorTxInfo = (args: GetBtcThorTxInfoArgs) => GetBtcThorTxInfoReturn
 
@@ -41,12 +49,13 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
     const router = inboundAddress?.router
     const vault = inboundAddress?.address
     if (!inboundAddress || !router || !vault)
+      // TODO(gomes): handle monadically
       throw new SwapError(`[getPriceRatio]: inboundAddress not found for ETH`, {
         code: SwapErrorType.RESPONSE_ERROR,
         details: { inboundAddress },
       })
 
-    const limit = await getLimit({
+    const maybeLimit = await getLimit({
       buyAssetId: buyAsset.assetId,
       sellAmountCryptoBaseUnit,
       sellAsset,
@@ -56,11 +65,15 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
       receiveAddress: destinationAddress,
     })
 
+    if (maybeLimit.isErr()) return Err(maybeLimit.unwrapErr())
+    const limit = maybeLimit.unwrap()
+
     const memo = makeSwapMemo({
       buyAssetId: buyAsset.assetId,
       destinationAddress,
       limit,
     })
+
     const data = deposit(
       router,
       vault,
@@ -69,8 +82,9 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
       memo,
     )
 
-    return { data, router }
+    return Ok({ data, router })
   } catch (e) {
+    // TODO(gomes): handle monadically
     if (e instanceof SwapError) throw e
     throw new SwapError('[getThorTxInfo]', { cause: e, code: SwapErrorType.TRADE_QUOTE_FAILED })
   }

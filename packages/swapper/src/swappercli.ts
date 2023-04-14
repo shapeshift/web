@@ -208,7 +208,7 @@ const main = async (): Promise<void> => {
         } for ${buyAmountCryptoPrecision} ${buyAsset.symbol} on ${swapper.getType()}? (y/n): `,
       )
       if (answer === 'y') {
-        const trade = await swapper.buildTrade({
+        const maybeTrade = await swapper.buildTrade({
           chainId: sellAsset.chainId as UtxoChainId,
           wallet,
           buyAsset,
@@ -221,8 +221,15 @@ const main = async (): Promise<void> => {
           xpub: publicKey?.xpub || '',
         })
 
-        const tradeResult = await swapper.executeTrade({ trade, wallet })
-        console.info('broadcast tx with id: ', tradeResult.tradeId)
+        maybeTrade.match<void | Promise<void>>({
+          ok: async trade => {
+            const tradeResult = await swapper.executeTrade({ trade, wallet })
+            console.info('broadcast tx with id: ', tradeResult.tradeId)
+          },
+          err: e => {
+            console.error(e)
+          },
+        })
       }
     },
     err: e => {

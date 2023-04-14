@@ -155,7 +155,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     return this.supportedAssetIds
   }
 
-  async buildTrade(args: BuildTradeInput): Promise<Trade<ChainId>> {
+  async buildTrade(args: BuildTradeInput): Promise<Result<Trade<ChainId>, SwapErrorMonad>> {
     const {
       sellAsset,
       buyAsset,
@@ -185,6 +185,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       | osmosis.ChainAdapter
       | undefined
 
+    // TODO(gomes): don't throw
     if (!osmosisAdapter)
       throw new SwapError('Failed to get Osmosis adapter', {
         code: SwapErrorType.BUILD_TRADE_FAILED,
@@ -193,7 +194,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const feeData = await osmosisAdapter.getFeeData({})
     const fee = feeData.fast.txFee
 
-    return {
+    return Ok({
       buyAmountCryptoBaseUnit,
       buyAsset,
       feeData: {
@@ -208,7 +209,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       accountNumber,
       receiveAccountNumber,
       sources: [{ name: SwapperName.Osmosis, proportion: '100' }],
-    }
+    })
   }
 
   async getTradeQuote(

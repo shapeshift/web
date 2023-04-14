@@ -68,7 +68,7 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     }
   }
 
-  buildTrade(args: BuildTradeInput): Promise<ZrxTrade<T>> {
+  buildTrade(args: BuildTradeInput): Promise<Result<ZrxTrade<T>, SwapErrorMonad>> {
     return zrxBuildTrade<T>(this.deps, args)
   }
 

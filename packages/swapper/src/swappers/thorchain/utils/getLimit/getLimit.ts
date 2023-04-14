@@ -1,7 +1,10 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 import max from 'lodash/max'
 
+import type { SwapErrorMonad } from '../../../../api'
 import { SwapError, SwapErrorType } from '../../../../api'
 import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../../utils/bignumber'
 import { ALLOWABLE_MARKET_MOVEMENT } from '../../../utils/constants'
@@ -31,19 +34,27 @@ export const getLimit = async ({
   deps,
   slippageTolerance,
   buyAssetTradeFeeUsd,
-}: GetLimitArgs): Promise<string> => {
-  const tradeRate = await getTradeRate({
+}: GetLimitArgs): Promise<Result<string, SwapErrorMonad>> => {
+  const maybeTradeRate = await getTradeRate({
     sellAsset,
     buyAssetId,
     sellAmountCryptoBaseUnit,
     receiveAddress,
     deps,
   })
+
+  // Bubble up the Err monad if we can't get a trade rate
+  if (maybeTradeRate.isErr()) {
+    return maybeTradeRate
+  }
+
+  const tradeRate = maybeTradeRate.unwrap()
   const sellAssetChainFeeAssetId = deps.adapterManager.get(sellAsset.chainId)?.getFeeAssetId()
   const buyAssetChainFeeAssetId = deps.adapterManager
     .get(fromAssetId(buyAssetId).chainId)
     ?.getFeeAssetId()
   if (!sellAssetChainFeeAssetId || !buyAssetChainFeeAssetId) {
+    // TODO(gomes): don't throw
     throw new SwapError('[getLimit]: no sellAssetChainFeeAsset or buyAssetChainFeeAssetId', {
       code: SwapErrorType.BUILD_TRADE_FAILED,
       details: { sellAssetChainFeeAssetId, buyAssetChainFeeAssetId },
@@ -60,6 +71,7 @@ export const getLimit = async ({
   const isValidSlippageRange =
     bnOrZero(slippageTolerance).gte(0) && bnOrZero(slippageTolerance).lte(1)
   if (bnOrZero(expectedBuyAmountCryptoPrecision8).lt(0) || !isValidSlippageRange)
+    // TODO(gomes): don't throw
     throw new SwapError('[getLimit]: bad expected buy amount or bad slippage tolerance', {
       code: SwapErrorType.BUILD_TRADE_FAILED,
       details: { expectedBuyAmountCryptoPrecision8, slippageTolerance },
@@ -116,7 +128,10 @@ export const getLimit = async ({
   // expectedBuyAmountAfterHighestFeeCryptoPrecision8 can be negative if the sell asset has a higher inbound_fee
   // (a refund) than the buy asset's inbound_fee + buy amount.
   // I.e. we've come this far - we don't have enough to refund, so the limit can slide all the way to 0.
-  return expectedBuyAmountAfterHighestFeeCryptoPrecision8.isPositive()
-    ? expectedBuyAmountAfterHighestFeeCryptoPrecision8.toString()
-    : '0'
+
+  return Ok(
+    expectedBuyAmountAfterHighestFeeCryptoPrecision8.isPositive()
+      ? expectedBuyAmountAfterHighestFeeCryptoPrecision8.toString()
+      : '0',
+  )
 }

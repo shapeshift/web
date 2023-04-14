@@ -2,11 +2,13 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { cosmosAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkBaseAdapter, thorchain } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { CosmosSignTx, HDWallet, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 
-import type { TradeQuote } from '../../../api'
-import { SwapError, SwapErrorType } from '../../../api'
+import type { SwapErrorMonad, TradeQuote } from '../../../api'
+import { makeSwapErrorMonad, SwapError, SwapErrorType } from '../../../api'
 import type { ThorCosmosSdkSupportedChainId } from '../ThorchainSwapper'
 import type { ThorchainSwapperDeps } from '../types'
 import { getInboundAddressDataForChain } from '../utils/getInboundAddressDataForChain'
@@ -27,7 +29,9 @@ type GetCosmosTxDataInput = {
   sellAdapter: CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
 }
 
-export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
+export const getCosmosTxData = async (
+  input: GetCosmosTxDataInput,
+): Promise<Result<ThorchainSignTx | CosmosSignTx, SwapErrorMonad>> => {
   const {
     accountNumber,
     deps,
@@ -51,7 +55,7 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
       details: { chainId: input.chainId },
     })
 
-  const limit = await getLimit({
+  const maybeLimit = await getLimit({
     buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit,
     sellAsset,
@@ -61,48 +65,60 @@ export const getCosmosTxData = async (input: GetCosmosTxDataInput) => {
     receiveAddress: destinationAddress,
   })
 
+  if (maybeLimit.isErr()) return Err(maybeLimit.unwrapErr())
+
+  const limit = maybeLimit.unwrap()
   const memo = makeSwapMemo({
     buyAssetId: buyAsset.assetId,
     destinationAddress,
     limit,
   })
 
-  const builtTxResponse = await (() => {
+  const maybeBuiltTxResponse = (() => {
     switch (true) {
       case fromThorAsset:
-        return (sellAdapter as unknown as thorchain.ChainAdapter).buildDepositTransaction({
-          accountNumber,
-          value: sellAmountCryptoBaseUnit,
-          wallet,
-          memo,
-          chainSpecific: {
-            gas: quote.feeData.chainSpecific.estimatedGasCryptoBaseUnit,
-            fee: quote.feeData.networkFeeCryptoBaseUnit,
-          },
-        })
+        return Ok(
+          (sellAdapter as unknown as thorchain.ChainAdapter).buildDepositTransaction({
+            accountNumber,
+            value: sellAmountCryptoBaseUnit,
+            wallet,
+            memo,
+            chainSpecific: {
+              gas: quote.feeData.chainSpecific.estimatedGasCryptoBaseUnit,
+              fee: quote.feeData.networkFeeCryptoBaseUnit,
+            },
+          }),
+        )
       default:
         if (!vault)
-          throw new SwapError('[buildTrade]: no vault for chain', {
-            code: SwapErrorType.BUILD_TRADE_FAILED,
-            fn: 'buildTrade',
-            details: { chainId: input.chainId },
-          })
-        return (
-          sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
-        ).buildSendTransaction({
-          accountNumber,
-          value: sellAmountCryptoBaseUnit,
-          wallet,
-          to: vault,
-          memo,
-          chainSpecific: {
-            gas: (quote as TradeQuote<ThorCosmosSdkSupportedChainId>).feeData.chainSpecific
-              .estimatedGasCryptoBaseUnit,
-            fee: quote.feeData.networkFeeCryptoBaseUnit,
-          },
-        })
+          return Err(
+            makeSwapErrorMonad({
+              message: '[buildTrade]: no vault for chain',
+              code: SwapErrorType.BUILD_TRADE_FAILED,
+              details: { chainId: input.chainId },
+            }),
+          )
+        return Ok(
+          (
+            sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
+          ).buildSendTransaction({
+            accountNumber,
+            value: sellAmountCryptoBaseUnit,
+            wallet,
+            to: vault,
+            memo,
+            chainSpecific: {
+              gas: (quote as TradeQuote<ThorCosmosSdkSupportedChainId>).feeData.chainSpecific
+                .estimatedGasCryptoBaseUnit,
+              fee: quote.feeData.networkFeeCryptoBaseUnit,
+            },
+          }),
+        )
     }
   })()
 
-  return builtTxResponse.txToSign
+  if (maybeBuiltTxResponse.isErr()) return Err(maybeBuiltTxResponse.unwrapErr())
+  const builtTxResponse = await maybeBuiltTxResponse.unwrap()
+
+  return Ok(builtTxResponse.txToSign)
 }

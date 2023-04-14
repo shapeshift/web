@@ -2,6 +2,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { Err } from '@sniptt/monads'
 import { numberToHex } from 'web3-utils'
 
 import { SwapError, SwapErrorType } from '../../../api'
@@ -56,7 +57,7 @@ export const makeTradeTx = async ({
     const { assetNamespace } = fromAssetId(sellAsset.assetId)
     const isErc20Trade = assetNamespace === 'erc20'
 
-    const { data, router } = await getThorTxInfo({
+    const maybeThorTxInfo = await getThorTxInfo({
       deps,
       sellAsset,
       buyAsset,
@@ -65,6 +66,12 @@ export const makeTradeTx = async ({
       destinationAddress,
       buyAssetTradeFeeUsd,
     })
+
+    if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
+
+    const thorTxInfo = maybeThorTxInfo.unwrap()
+
+    const { data, router } = thorTxInfo
 
     return adapter.buildCustomTx({
       wallet,

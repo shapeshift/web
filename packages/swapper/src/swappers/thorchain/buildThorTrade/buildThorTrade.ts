@@ -5,9 +5,16 @@ import type {
   EvmBaseAdapter,
   UtxoBaseAdapter,
 } from '@shapeshiftoss/chain-adapters'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 
-import type { BuildTradeInput, GetUtxoTradeQuoteInput, TradeQuote } from '../../../api'
-import { SwapError, SwapErrorType } from '../../../api'
+import type {
+  BuildTradeInput,
+  GetUtxoTradeQuoteInput,
+  SwapErrorMonad,
+  TradeQuote,
+} from '../../../api'
+import { makeSwapErrorMonad, SwapError, SwapErrorType } from '../../../api'
 import { DEFAULT_SLIPPAGE } from '../../utils/constants'
 import { getCosmosTxData } from '../cosmossdk/getCosmosTxData'
 import { makeTradeTx } from '../evm/makeTradeTx'
@@ -25,7 +32,10 @@ type BuildTradeArgs = {
   input: BuildTradeInput
 }
 
-export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorTrade<ChainId>> => {
+export const buildTrade = async ({
+  deps,
+  input,
+}: BuildTradeArgs): Promise<Result<ThorTrade<ChainId>, SwapErrorMonad>> => {
   try {
     const {
       buyAsset,
@@ -38,17 +48,23 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
       sendMax,
     } = input
 
-    const quote = await getThorTradeQuote({ deps, input })
+    const { chainNamespace } = fromAssetId(sellAsset.assetId)
     const sellAdapter = deps.adapterManager.get(sellAsset.chainId)
 
     if (!sellAdapter)
-      throw new SwapError('[buildTrade]: unsupported sell asset', {
-        code: SwapErrorType.BUILD_TRADE_FAILED,
-        fn: 'buildTrade',
-        details: { sellAsset },
-      })
+      return Err(
+        makeSwapErrorMonad({
+          message: '[buildTrade]: unsupported sell asset',
+          code: SwapErrorType.BUILD_TRADE_FAILED,
+          details: { sellAsset },
+        }),
+      )
 
-    const { chainNamespace } = fromAssetId(sellAsset.assetId)
+    const maybeQuote = await getThorTradeQuote({ deps, input })
+
+    if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
+
+    const quote = maybeQuote.unwrap()
 
     if (chainNamespace === CHAIN_NAMESPACE.Evm) {
       const ethTradeTx = await makeTradeTx({
@@ -70,12 +86,12 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
         buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
       })
 
-      return {
+      return Ok({
         chainId: sellAsset.chainId as ThorEvmSupportedChainId,
         ...quote,
         receiveAddress: destinationAddress,
         txData: ethTradeTx.txToSign,
-      }
+      })
     } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
       const { vault, opReturnData } = await getThorTxInfo({
         deps,
@@ -104,14 +120,14 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
         sendMax,
       })
 
-      return {
+      return Ok({
         chainId: sellAsset.chainId as ThorUtxoSupportedChainId,
         ...quote,
         receiveAddress: destinationAddress,
         txData: buildTxResponse.txToSign,
-      }
+      })
     } else if (chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
-      const txData = await getCosmosTxData({
+      const maybeTxData = await getCosmosTxData({
         accountNumber,
         deps,
         sellAdapter: sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>,
@@ -125,25 +141,40 @@ export const buildTrade = async ({ deps, input }: BuildTradeArgs): Promise<ThorT
         quote: quote as TradeQuote<ThorCosmosSdkSupportedChainId>,
       })
 
-      return {
+      if (maybeTxData.isErr()) return Err(maybeTxData.unwrapErr())
+      const txData = maybeTxData.unwrap()
+
+      return Ok({
         chainId: sellAsset.chainId as ThorCosmosSdkSupportedChainId,
         ...quote,
         receiveAddress: destinationAddress,
         txData,
-      }
-    } else {
-      throw new SwapError('[buildTrade]: unsupported chain id', {
-        code: SwapErrorType.BUILD_TRADE_FAILED,
-        fn: 'buildTrade',
-        details: { sellAsset },
       })
+    } else {
+      return Err(
+        makeSwapErrorMonad({
+          message: '[buildTrade]: unsupported chain id',
+          code: SwapErrorType.BUILD_TRADE_FAILED,
+          details: { sellAsset },
+        }),
+      )
     }
+    // TODO(gomes): once again, scrutinize where we can throw and don't.
   } catch (e) {
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[buildTrade]: error building trade', {
-      code: SwapErrorType.BUILD_TRADE_FAILED,
-      fn: 'buildTrade',
-      cause: e,
-    })
+    if (e instanceof SwapError)
+      return Err(
+        makeSwapErrorMonad({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
+    return Err(
+      makeSwapErrorMonad({
+        message: '[buildTrade]: error building trade',
+        code: SwapErrorType.BUILD_TRADE_FAILED,
+        cause: e,
+      }),
+    )
   }
 }

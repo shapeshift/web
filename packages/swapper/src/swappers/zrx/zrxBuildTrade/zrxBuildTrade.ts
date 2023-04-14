@@ -1,7 +1,9 @@
+import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import * as rax from 'retry-axios'
 
-import type { BuildTradeInput } from '../../../api'
+import type { BuildTradeInput, SwapErrorMonad } from '../../../api'
 import { SwapError, SwapErrorType } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bnOrZero } from '../../utils/bignumber'
@@ -17,7 +19,7 @@ import type { ZrxSupportedChainId } from '../ZrxSwapper'
 export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
   { adapter, web3 }: ZrxSwapperDeps,
   input: BuildTradeInput,
-): Promise<ZrxTrade<T>> {
+): Promise<Result<ZrxTrade<T>, SwapErrorMonad>> {
   const {
     sellAsset,
     buyAsset,
@@ -135,8 +137,9 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
       buyAmountCryptoBaseUnit,
       sources: sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
     }
-    return trade as ZrxTrade<T>
+    return Ok(trade as ZrxTrade<T>)
   } catch (e) {
+    // TODO(gomes): don't throw
     if (e instanceof SwapError) throw e
     throw new SwapError('[zrxBuildTrade]', {
       code: SwapErrorType.BUILD_TRADE_FAILED,

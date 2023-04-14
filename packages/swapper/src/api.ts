@@ -284,8 +284,7 @@ export interface Swapper<T extends ChainId> {
   /**
    * Get builds a trade with definitive rate & txData that can be executed with executeTrade
    **/
-  buildTrade(args: BuildTradeInput): Promise<Trade<T>>
-
+  buildTrade(args: BuildTradeInput): Promise<Result<Trade<T>, SwapErrorMonad>>
   /**
    * Get a trade quote
    */

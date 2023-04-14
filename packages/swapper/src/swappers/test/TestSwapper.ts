@@ -1,9 +1,11 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { Result } from '@sniptt/monads'
 
 import type {
   ApprovalNeededOutput,
   BuyAssetBySellIdInput,
+  SwapErrorMonad,
   Swapper,
   Trade,
   TradeQuote,
@@ -64,11 +66,11 @@ export class TestSwapper implements Swapper<ChainId> {
     return this.supportAssets
   }
 
-  buildTrade(): Promise<Trade<ChainId>> {
+  buildTrade(): Promise<Result<Trade<ChainId>, SwapErrorMonad>> {
     throw new Error('TestSwapper: buildTrade unimplemented')
   }
 
-  getTradeQuote(): Promise<TradeQuote<ChainId>> {
+  getTradeQuote(): Promise<Result<TradeQuote<ChainId>, SwapErrorMonad>> {
     throw new Error('TestSwapper: getTradeQuote unimplemented')
   }
 

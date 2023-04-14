@@ -50,7 +50,9 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     return SwapperType.CowSwap
   }
 
-  buildTrade(args: BuildTradeInput): Promise<CowTrade<KnownChainIds.EthereumMainnet>> {
+  buildTrade(
+    args: BuildTradeInput,
+  ): Promise<Result<CowTrade<KnownChainIds.EthereumMainnet>, SwapErrorMonad>> {
     return cowBuildTrade(this.deps, args)
   }
 

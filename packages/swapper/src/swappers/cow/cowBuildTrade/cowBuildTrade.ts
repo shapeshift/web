@@ -1,8 +1,10 @@
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
-import type { BuildTradeInput } from '../../../api'
+import type { BuildTradeInput, SwapErrorMonad } from '../../../api'
 import { SwapError, SwapErrorType } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bn, bnOrZero } from '../../utils/bignumber'
@@ -22,7 +24,7 @@ import { getNowPlusThirtyMinutesTimestamp, getUsdRate } from '../utils/helpers/h
 export async function cowBuildTrade(
   deps: CowSwapperDeps,
   input: BuildTradeInput,
-): Promise<CowTrade<KnownChainIds.EthereumMainnet>> {
+): Promise<Result<CowTrade<KnownChainIds.EthereumMainnet>, SwapErrorMonad>> {
   try {
     const {
       sellAsset,
@@ -162,8 +164,9 @@ export async function cowBuildTrade(
         .toString()
     }
 
-    return trade
+    return Ok(trade)
   } catch (e) {
+    // TODO(gomes): don't throw
     if (e instanceof SwapError) throw e
     throw new SwapError('[cowBuildTrade]', {
       cause: e,

@@ -43,14 +43,14 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
     marketData,
   })
 
-  if (!opportunity || !asset) return null
+  if (!opportunity || !asset || !underlyingBalances[assetId]) return null
 
   return (
     <EquityRow
-      image={DefiProviderMetadata[opportunity.provider].icon}
+      icon={DefiProviderMetadata[opportunity.provider].icon}
       label={opportunity.provider}
       fiatAmount={underlyingBalances[assetId]?.fiatAmount}
-      cryptoAmount={underlyingBalances[assetId]?.cryptoBalancePrecision}
+      cryptoBalancePrecision={underlyingBalances[assetId]?.cryptoBalancePrecision}
       symbol={asset.symbol}
       allocation={allocation}
       color={color}

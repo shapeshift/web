@@ -67,14 +67,14 @@ export const EquityAccountRow = ({
   return (
     <EquityRow
       onClick={handleClick}
-      imageComponent={
+      icon={
         <Avatar bg={`${asset.color}20`} color={asset.color} size='sm' name={`# ${accountNumber}`} />
       }
       label={translate('accounts.accountNumber', { accountNumber })}
       allocation={allocation}
       color={color}
       fiatAmount={fiatBalance}
-      cryptoAmount={cryptoHumanBalance}
+      cryptoBalancePrecision={cryptoHumanBalance}
       symbol={asset.symbol}
       subText='Wallet'
     />

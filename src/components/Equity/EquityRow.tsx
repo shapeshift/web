@@ -8,25 +8,21 @@ import { RawText } from 'components/Text'
 type EquityRowBaseProps = {
   label: string
   fiatAmount?: string
-  cryptoAmount?: string
+  cryptoBalancePrecision?: string
   symbol: string
   color?: string
   allocation?: string
   subText?: string
+  icon?: string | JSX.Element
 } & ButtonProps
 
-type ImageRequired =
-  | { image: string; imageComponent?: JSX.Element }
-  | { image?: string; imageComponent: JSX.Element }
-
-type EquityRowProps = EquityRowBaseProps & ImageRequired
+type EquityRowProps = EquityRowBaseProps
 
 export const EquityRow: React.FC<EquityRowProps> = ({
   label,
-  image,
-  imageComponent,
+  icon,
   fiatAmount,
-  cryptoAmount,
+  cryptoBalancePrecision,
   allocation,
   color,
   symbol,
@@ -46,8 +42,7 @@ export const EquityRow: React.FC<EquityRowProps> = ({
       gap={4}
       {...rest}
     >
-      {image && <LazyLoadAvatar src={image} />}
-      {imageComponent && imageComponent}
+      {typeof icon === 'string' ? <LazyLoadAvatar src={icon} /> : icon}
       <Flex flex={1} alignItems='flex-start' justifyContent='space-between' gap={4}>
         <Flex flexDir='column' flex={1} gap={1} textAlign='left'>
           <RawText
@@ -66,19 +61,6 @@ export const EquityRow: React.FC<EquityRowProps> = ({
           </RawText>
           <Flex alignItems='center' gap={1} flex={1}>
             <Flex flex={1} height='0.875rem' alignItems='center' gap={2}>
-              {/* <Progress
-                size='xs'
-                flex={1}
-                isAnimated
-                borderRadius='lg'
-                sx={{
-                  '& > div': {
-                    background: color,
-                    marginTop: '1px',
-                  },
-                }}
-                value={bnOrZero(allocation).toNumber()}
-              /> */}
               <Box
                 height='4px'
                 minWidth='4px'
@@ -102,7 +84,7 @@ export const EquityRow: React.FC<EquityRowProps> = ({
             value={bnOrZero(fiatAmount).toString()}
           />
           <Amount.Crypto
-            value={bnOrZero(cryptoAmount).toString()}
+            value={bnOrZero(cryptoBalancePrecision).toString()}
             symbol={symbol}
             fontSize={{ base: 'xs', md: 'sm' }}
             lineHeight={1}

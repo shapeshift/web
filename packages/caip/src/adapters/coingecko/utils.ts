@@ -33,7 +33,6 @@ import {
   dogecoinAssetMap,
   litecoinAssetMap,
   osmosisAssetMap,
-  polygonAssetMap,
   thorchainAssetMap,
 } from '../../utils'
 import { CoingeckoAssetPlatform } from '.'
@@ -132,7 +131,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [avalancheChainId]: { [avalancheAssetId]: 'avalanche-2' },
       [optimismChainId]: { [optimismAssetId]: 'ethereum' },
       [bscChainId]: { [bscAssetId]: 'binancecoin' },
-      [polygonChainId]: { [polygonAssetId]: 'polygon' },
+      [polygonChainId]: { [polygonAssetId]: 'matic-network' },
     },
   )
 
@@ -145,7 +144,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
     [cosmosChainId]: cosmosAssetMap,
     [osmosisChainId]: osmosisAssetMap,
     [thorchainChainId]: thorchainAssetMap,
-    [polygonChainId]: polygonAssetMap,
   }
 }
 

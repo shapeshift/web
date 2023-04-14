@@ -52,11 +52,13 @@ export const mockStore: ReduxState = {
     featureFlags: {
       Jaypegz: false,
       Optimism: false,
+      Polygon: false,
       BnbSmartChain: false,
       ZrxAvalancheSwap: false,
       ZrxBnbSmartChain: false,
       ZrxEthereumSwap: false,
       ZrxOptimismSwap: false,
+      ZrxPolygonSwap: false,
       OsmosisSend: false,
       OsmosisStaking: false,
       OsmosisLP: false,

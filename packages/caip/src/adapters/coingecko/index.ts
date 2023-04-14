@@ -13,6 +13,7 @@ export enum CoingeckoAssetPlatform {
   Ethereum = 'ethereum',
   Cosmos = 'cosmos',
   Osmosis = 'osmosis',
+  Polygon = 'polygon',
   Avalanche = 'avalanche',
   Thorchain = 'thorchain',
   Optimism = 'optimistic-ethereum',
@@ -56,6 +57,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Optimism
         case CHAIN_REFERENCE.BnbSmartChainMainnet:
           return CoingeckoAssetPlatform.BnbSmartChain
+        case CHAIN_REFERENCE.PolygonMainnet:
+          return CoingeckoAssetPlatform.Polygon
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,

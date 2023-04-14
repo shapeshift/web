@@ -127,11 +127,11 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
         interval: 15000,
         maxAttempts: 30,
       })
-      // Get deposit gas estimate
+      // Get withdraw gas estimate
       const gasData = await getWithdrawGasData(
         state.withdraw.lpAmount,
-        state.withdraw.asset1Amount,
         state.withdraw.asset0Amount,
+        state.withdraw.asset1Amount,
       )
       if (!gasData) return
       const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
@@ -153,7 +153,10 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
+      moduleLogger.error(
+        { fn: 'handleApprove', error },
+        'Error getting withdraw approval gas estimate',
+      )
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

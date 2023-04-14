@@ -172,7 +172,10 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
           ? setIsAsset0AllowanceGranted(true)
           : setIsAsset1AllowanceGranted(true)
       } catch (error) {
-        moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
+        moduleLogger.error(
+          { fn: 'handleApprove', error },
+          'Error getting deposit approval gas estimate',
+        )
         toast({
           position: 'top-right',
           description: translate('common.transactionFailedBody'),

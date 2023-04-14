@@ -6,7 +6,6 @@ import { fetchUniV2PairData, getOrCreateContractByType } from 'contracts/contrac
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import memoize from 'lodash/memoize'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
@@ -40,7 +39,13 @@ import { calculateAPRFromToken0 } from './utils'
 
 const ethersProvider = getEthersProvider()
 
-const getBlockNumber = memoize(async () => await ethersProvider.getBlockNumber())
+let _blockNumber: number | null = null
+const getBlockNumber = async () => {
+  if (_blockNumber) return _blockNumber
+  const blockNumber = await ethersProvider.getBlockNumber()
+  _blockNumber = blockNumber
+  return blockNumber
+}
 
 export const uniV2LpOpportunitiesMetadataResolver = async ({
   opportunityIds,

@@ -33,8 +33,8 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   const asset = useAppSelector(s => selectAssetById(s, assetId))
   const cryptoBalances = useSelector(selectPortfolioAccountsCryptoHumanBalancesIncludingStaking)
   const fiatBalances = useSelector(selectPortfolioAccountsFiatBalancesIncludingStaking)
-  const cryptoBalance = cryptoBalances?.[accountId]?.[assetId]
-  const fiatBalance = fiatBalances?.[accountId]?.[assetId]
+  const cryptoBalance = cryptoBalances?.[accountId]?.[assetId] ?? '0'
+  const fiatBalance = fiatBalances?.[accountId]?.[assetId] ?? '0'
   const { icon, name, symbol } = asset ?? {}
 
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])

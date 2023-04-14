@@ -1,7 +1,7 @@
 import type {
-  BridgeDefinition as LifiBridgeDefinition,
   ChainId as LifiChainId,
   ChainKey as LifiChainKey,
+  GetStatusRequest,
   Token as LifiToken,
 } from '@lifi/sdk'
 import type { Asset } from '@shapeshiftoss/asset-service'
@@ -18,11 +18,12 @@ import type {
   BuyAssetBySellIdInput,
   GetEvmTradeQuoteInput,
   Swapper,
-  TradeQuote,
   TradeResult,
   TradeTxs,
 } from '@shapeshiftoss/swapper'
 import { SwapperName, SwapperType } from '@shapeshiftoss/swapper'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
 import { approvalNeeded } from 'lib/swapper/LifiSwapper/approvalNeeded/approvalNeeded'
 import { approveAmount, approveInfinite } from 'lib/swapper/LifiSwapper/approve/approve'
 import { buildTrade } from 'lib/swapper/LifiSwapper/buildTrade/buildTrade'
@@ -31,16 +32,22 @@ import { filterAssetIdsBySellable } from 'lib/swapper/LifiSwapper/filterAssetIds
 import { filterBuyAssetsBySellAssetId } from 'lib/swapper/LifiSwapper/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { getTradeQuote } from 'lib/swapper/LifiSwapper/getTradeQuote/getTradeQuote'
 import { getUsdRate } from 'lib/swapper/LifiSwapper/getUsdRate/getUsdRate'
+import { MAX_LIFI_TRADE } from 'lib/swapper/LifiSwapper/utils/constants'
 import { createLifiAssetMap } from 'lib/swapper/LifiSwapper/utils/createLifiAssetMap/createLifiAssetMap'
 import { createLifiChainMap } from 'lib/swapper/LifiSwapper/utils/createLifiChainMap/createLifiChainMap'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
-import type { LifiExecuteTradeInput, LifiTrade } from 'lib/swapper/LifiSwapper/utils/types'
+import { getMinimumCryptoHuman } from 'lib/swapper/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
+import type {
+  LifiExecuteTradeInput,
+  LifiTrade,
+  LifiTradeQuote,
+} from 'lib/swapper/LifiSwapper/utils/types'
 
 export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SwapperName.LIFI
   private lifiChainMap: Map<ChainId, LifiChainKey> = new Map()
   private lifiAssetMap: Map<AssetId, LifiToken> = new Map()
-  private lifiBridges: LifiBridgeDefinition[] = []
+  private executedTrades: Map<string, GetStatusRequest> = new Map()
 
   /** perform any necessary async initialization */
   async initialize(): Promise<void> {
@@ -48,14 +55,13 @@ export class LifiSwapper implements Swapper<EvmChainId> {
       chainId => Number(fromChainId(chainId).chainReference) as LifiChainId,
     )
 
-    const { bridges, chains, tokens } = await getLifi().getPossibilities({
-      include: ['bridges', 'chains', 'tokens'],
+    const { chains, tokens } = await getLifi().getPossibilities({
+      include: ['chains', 'tokens'],
       chains: supportedChainRefs,
     })
 
     if (chains !== undefined) this.lifiChainMap = createLifiChainMap(chains)
     if (tokens !== undefined) this.lifiAssetMap = createLifiAssetMap(tokens)
-    if (bridges !== undefined) this.lifiBridges = bridges
   }
 
   /** Returns the swapper type */
@@ -67,14 +73,43 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Builds a trade with definitive rate & txData that can be executed with executeTrade
    **/
   async buildTrade(input: BuildTradeInput): Promise<LifiTrade> {
-    return await buildTrade(input, this.lifiAssetMap, this.lifiChainMap, this.lifiBridges)
+    return await buildTrade(input, this.lifiAssetMap, this.lifiChainMap)
   }
 
   /**
    * Get a trade quote
    */
-  async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<TradeQuote<EvmChainId>> {
-    return await getTradeQuote(input, this.lifiAssetMap, this.lifiChainMap, this.lifiBridges)
+  async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<LifiTradeQuote> {
+    const minimumCryptoHuman = getMinimumCryptoHuman(input.sellAsset)
+    const minimumSellAmountBaseUnit = toBaseUnit(minimumCryptoHuman, input.sellAsset.precision)
+    const isBelowMinSellAmount = bnOrZero(input.sellAmountBeforeFeesCryptoBaseUnit).lt(
+      minimumSellAmountBaseUnit,
+    )
+
+    // TEMP: return an empty quote to allow the UI to render state where buy amount is below minimum
+    // TODO: remove this when we implement monadic error handling for swapper
+    // https://github.com/shapeshift/web/issues/4237
+    if (isBelowMinSellAmount) {
+      return {
+        buyAmountCryptoBaseUnit: '0',
+        sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
+        feeData: {
+          networkFeeCryptoBaseUnit: '0',
+          buyAssetTradeFeeUsd: '0',
+          chainSpecific: {},
+        },
+        rate: '0',
+        sources: [],
+        buyAsset: input.buyAsset,
+        sellAsset: input.sellAsset,
+        accountNumber: input.accountNumber,
+        allowanceContract: '',
+        minimumCryptoHuman: minimumCryptoHuman.toString(),
+        maximumCryptoHuman: MAX_LIFI_TRADE,
+      }
+    }
+
+    return await getTradeQuote(input, this.lifiAssetMap, this.lifiChainMap)
   }
 
   /**
@@ -88,7 +123,9 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Execute a trade built with buildTrade by signing and broadcasting
    */
   async executeTrade(input: LifiExecuteTradeInput): Promise<TradeResult> {
-    return await executeTrade(input)
+    const { tradeResult, getStatusRequest } = await executeTrade(input)
+    this.executedTrades.set(tradeResult.tradeId, getStatusRequest)
+    return tradeResult
   }
 
   /**
@@ -131,10 +168,17 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get transactions related to a trade
    */
   async getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
-    // the tradeId is currently a lifi route ID
-    return await Promise.resolve({
+    const getStatusRequest = this.executedTrades.get(tradeResult.tradeId)
+
+    if (getStatusRequest === undefined) {
+      return { sellTxid: tradeResult.tradeId }
+    }
+
+    const statusResponse = await getLifi().getStatus(getStatusRequest)
+
+    return {
       sellTxid: tradeResult.tradeId,
-      buyTxid: tradeResult.tradeId,
-    })
+      buyTxid: statusResponse.receiving?.txHash,
+    }
   }
 }

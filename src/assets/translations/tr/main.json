@@ -6,11 +6,16 @@
     "error": "Hata",
     "cancel": "İptal",
     "close": "Kapat",
+    "new": "Yeni",
     "continue": "Devam et",
+    "reward": "Ödül",
+    "claimable": "Toplanabilir",
     "approve": "Onayla",
     "confirm": "Onaylayın",
+    "activity": "Aktivite",
     "reject": "İptal",
     "connected": "Bağlandı",
+    "value": "Değer",
     "created": "Yaratıldı %{date}",
     "noResultsFound": "Sonuç bulunamadı.",
     "noResultsBody": "%{searchQuery} için sonuç bulunamadı. Yeni bir arama yapmayı deneyin.",
@@ -94,7 +99,8 @@
     "needAsset": "%{asset}'e mi ihtiyacınız var?",
     "buyNow": "Şimdi al",
     "manage": "Yönet",
-    "selectedAccount": "Bir Hesap Seçin"
+    "selectedAccount": "Bir Hesap Seçin",
+    "allChains": "Tüm Zincirler"
   },
   "consentBanner": {
     "body": {
@@ -221,7 +227,8 @@
       "triggerButton": "Cüzdanı Bağla",
       "switchWallet": "Cüzdan Sağlayıcıyı Değiştir",
       "disconnect": "Bağlantıyı kes",
-      "disconnected": "(Bağlantı kesildi)"
+      "disconnected": "(Bağlantı kesildi)",
+      "connecting": "Bağlanıyor..."
     }
   },
   "defi": {
@@ -287,6 +294,7 @@
       },
       "overview": {
         "underlyingTokens": "Temel Jetonlar",
+        "underlyingToken": "Temel Belirteç",
         "availableRewards": "Kullanılabilir Ödüller",
         "about": "Hakkında",
         "tvl": "TVL",
@@ -308,7 +316,7 @@
       "saversVaults": {
         "description": "THORChain Saver Vaults aracılığıyla %{asset} üzerinden getiri kazanın. Kilitlenme süresi yoktur ve ödüller otomatik olarak biriktirilir. THORChain'de getiri, takas ücretleri ve blok ödüllerinden gelir. Tek taraflı getiri, likidite sağlayıcılarının çift taraflı getirisinin yarısı ile sınırlandırılmıştır.",
         "vaultCap": "Kasa Üst Limiti",
-        "vaultCapTooltip": "Kasa üst limitleri hakkında bir şey",
+        "vaultCapTooltip": "Bu kasa için mevcut maksimum kapasite",
         "haltedTitle": "Para yatırma işlemleri geçici olarak durdurulmuştur.",
         "haltedDescription": "Lütfen @THORChain adresine tweet atarak üst sınırınızı yükseltin!",
         "estimatedFee": "Tahmini Ücret",
@@ -351,6 +359,7 @@
     "validatorMoniker": "%{moniker} Doğrulayıcı",
     "stakedAmount": "Stake Edilmiş Miktar",
     "unstakeFrom": "Şuradan Stake'i kaldır:",
+    "underlyingAsset": "Temel Varlık",
     "gasFee": "Gas Ücreti",
     "provider": "Sağlayıcı",
     "currentTvl": "Mevcut TVL",
@@ -392,6 +401,11 @@
     "earnBody": "Varlıklarınızı stake ederek veya bir DeFi stratejisine yatırarak pasif gelir elde edin.",
     "clickHereToEarn": "ETH-FOX likidite havuzu belirteçlerinizi biriktirerek %{apr} APR* kazanmak için burayı tıklayın",
     "overview": "Genel Bakış",
+    "myPositions": "Pozisyonlarım",
+    "myPositionsBody": "Aktif pozisyonlarınız burada görünecektir.",
+    "myRewards": "Ödüllerim",
+    "myRewardsBody": "Talep edilebilir ödüllere sahip aktif pozisyonlarınız burada görünecektir.",
+    "viewAllPositions": "Tüm Pozisyonları Görüntüle",
     "liquidityPools": "Likidite Havuzları",
     "stakingVaults": "Staking ve Kasalar",
     "farming": "Çiftçilik",
@@ -402,12 +416,13 @@
     "poolValue": "Havuz Değeri",
     "yearn": "Yearn Finance",
     "totalValue": "Toplam Değer",
-    "byPosition": "Pozisyona Göre",
+    "byAsset": "Varlığa Göre",
     "byProvider": "Sağlayıcıya Göre",
     "claimableRewards": "Talep Edilebilir Ödüller",
     "reawrds": "Ödüller",
     "stakingPosition": "Staking Pozisyonu",
     "liquidityPool": "Likidite Havuzu",
+    "noActivePositions": "Aktif Pozisyon Yok",
     "emptyEarn": "Kazanç fırsatları burada görünecektir.",
     "empty": {
       "farming": {
@@ -948,7 +963,7 @@
       }
     },
     "approve": {
-      "header": "ShapeShift DAO Router'ın %{asset} varlığınızı kullanmasına izin verin",
+      "header": "%{spenderName}'ın %{asset} öğenizi kullanmasına izin verin",
       "shapeshiftRouterName": "ShapeShift DAO Yönlendirici",
       "body": "%{asset} kullanımınız için izniniz gerekiyor",
       "learnMore": "Bunu neden yapmam gerekiyor?",
@@ -1470,6 +1485,7 @@
         "trade": "Takas"
       },
       "accountTokens": "Hesap Jetonları",
+      "relatedAssets": "İlgili Varlıklar",
       "showTokens": "Jetonları Göster (%{amount})",
       "hideTokens": "Jetonları Gizle (%{amount})",
       "underlyingAssets": "Temel Varlıklar",
@@ -1910,5 +1926,22 @@
         "cta": "Bir tane yaratın"
       }
     }
+  },
+  "nft": {
+    "floorPrice": "Taban Fiyat",
+    "lastPrice": "Son fiyat",
+    "overview": "Genel Bakış",
+    "properties": "Özellikler",
+    "collection": "Koleksiyon",
+    "tokenId": "Token ID",
+    "address": "Adres",
+    "chain": "Zincir",
+    "standard": "Standart",
+    "description": "Açıklama",
+    "details": "Detaylar",
+    "attributes": "Özellikler",
+    "aboutCollection": "%{collectionName} Hakkında",
+    "emptyTitle": "Tüm NFT'ler nereye gitti?",
+    "emptyBody": "Endişelenmeyin, daha harika NFT'leri geri getirmek için bir arama grubu gönderdik. Bu arada, bu boşluğa bakıp varoluşun anlamını düşünmekten çekinmeyin."
   }
 }

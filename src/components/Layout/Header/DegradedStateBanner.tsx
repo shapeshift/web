@@ -44,7 +44,7 @@ export const DegradedStateBanner = () => {
     )
   }, [portfolioLoadingStatusGranular])
 
-  const erroredAccountNames = useMemo(() => {
+  const erroredAccounts = useMemo(() => {
     const initial = { names: [], icons: [] }
     if (isEmpty(assets)) return initial
     if (!erroredAccountIds.length) return initial // yay
@@ -78,17 +78,17 @@ export const DegradedStateBanner = () => {
   const renderIcons = useMemo(() => {
     return (
       <Flex gap={2} flexWrap='wrap'>
-        {erroredAccountNames.icons.map((icon, index) => (
+        {erroredAccounts.icons.map((icon, index) => (
           <Tag py={1} height='auto' alignItems='center' fontSize='sm' gap={2}>
             <LazyLoadAvatar src={icon} size='2xs' />
-            <RawText>{erroredAccountNames.names[index]}</RawText>
+            <RawText>{erroredAccounts.names[index]}</RawText>
           </Tag>
         ))}
       </Flex>
     )
-  }, [erroredAccountNames])
+  }, [erroredAccounts])
 
-  if (!erroredAccountNames?.names?.length) return null
+  if (!erroredAccounts?.names?.length) return null
 
   return (
     <Popover>

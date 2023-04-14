@@ -32,6 +32,7 @@ import { SideNavContent } from './SideNavContent'
 export const Header = () => {
   const { onToggle, isOpen, onClose } = useDisclosure()
   const isDegradedState = useSelector(selectPortfolioLoadingStatus) === 'error'
+
   const history = useHistory()
   const {
     state: { isDemoWallet },

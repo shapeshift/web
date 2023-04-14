@@ -31,7 +31,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { baseUnitToHuman, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -88,9 +88,10 @@ export const Approval = () => {
     moduleLogger.debug({ fees }, 'chainSpecific undefined for fees')
   }
 
-  const approvalFeeCryptoPrecision = bnOrZero(
-    fees?.chainSpecific?.approvalFeeCryptoBaseUnit ?? '0',
-  ).div(bn(10).pow(sellFeeAsset?.precision ?? 0))
+  const approvalFeeCryptoHuman = baseUnitToHuman({
+    value: bnOrZero(fees?.chainSpecific?.approvalFeeCryptoBaseUnit),
+    inputExponent: sellFeeAsset?.precision ?? 0,
+  })
 
   const approveContract = useCallback(async () => {
     if (!activeQuote) {
@@ -272,10 +273,10 @@ export const Approval = () => {
                 </Row.Label>
                 <Row.Value textAlign='right'>
                   <RawText>
-                    {toFiat(approvalFeeCryptoPrecision.times(feeAssetFiatRate ?? 1).toString())}
+                    {toFiat(approvalFeeCryptoHuman.times(feeAssetFiatRate ?? 1).toString())}
                   </RawText>
                   <RawText color='gray.500'>
-                    {toCrypto(approvalFeeCryptoPrecision.toNumber(), sellFeeAsset?.symbol)}
+                    {toCrypto(approvalFeeCryptoHuman.toNumber(), sellFeeAsset?.symbol)}
                   </RawText>
                 </Row.Value>
               </Row>

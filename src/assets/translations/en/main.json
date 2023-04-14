@@ -682,6 +682,7 @@
       "buyAssetMiddleSentence": "buy asset",
       "notEnoughEth": "Not enough ETH for the gas fee on this transaction.",
       "amountTooSmall": "Minimum: %{minLimit}",
+      "amountTooSmallOrInvalidTradePair": "Amount too low or no route",
       "sellAmountDoesNotCoverFee": "Sell amount lower than fee",
       "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
       "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",

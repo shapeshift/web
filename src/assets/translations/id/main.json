@@ -516,7 +516,6 @@
       }
     },
     "approve": {
-      "header": "Izinkan ShapeShift DAO Router untuk menghabiskan %{asset}",
       "shapeshiftRouterName": "ShapeShift DAO Router",
       "body": "Kami membutuhkan izin Anda untuk menggunakan %{asset}",
       "learnMore": "Mengapa saya perlu melakukan ini??",

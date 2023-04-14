@@ -1,5 +1,5 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Box, Button, Flex, Progress } from '@chakra-ui/react'
+import { Box, Button, Flex } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { Amount } from 'components/Amount/Amount'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'

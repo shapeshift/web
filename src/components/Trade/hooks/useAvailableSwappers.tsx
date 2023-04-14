@@ -1,3 +1,4 @@
+import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type {
   GetSwappersWithQuoteMetadataReturn,
   SwapperWithQuoteMetadata,
@@ -66,7 +67,9 @@ export const useAvailableSwappers = () => {
           ? getAvailableSwappers.select({ ...tradeQuoteArgs, feeAsset })
           : undefined
       const isCachedResultAvailableForArgs = cachedResponseSelector
-        ? cachedResponseSelector(store.getState()).status === 'fulfilled'
+        ? [QueryStatus.fulfilled, QueryStatus.pending].includes(
+            cachedResponseSelector(store.getState())?.status,
+          )
         : false
       setIsCachedResult(isCachedResultAvailableForArgs)
       const availableSwapperTypesWithQuoteMetadataResponse =

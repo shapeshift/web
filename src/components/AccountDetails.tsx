@@ -44,7 +44,7 @@ export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
           maxWidth={{ base: 'full', xl: 'sm' }}
           gap={4}
         >
-          <TradeCard defaultBuyAssetId={assetId} display={{ base: 'none', md: 'block' }} />
+          <TradeCard display={{ base: 'none', md: 'block' }} />
         </Flex>
       </Stack>
     </Main>

@@ -29,8 +29,8 @@ type EquityProps = {
 
 enum AssetEquityType {
   Account = 'Account',
-  Staking = 'staking',
-  LP = 'lp',
+  Staking = 'Staking',
+  LP = 'LP',
   Reward = 'Reward',
 }
 

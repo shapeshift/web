@@ -30,7 +30,7 @@ import {
   THORCHAIN_FIXED_PRECISION,
 } from '../utils/constants'
 import { getInboundAddressDataForChain } from '../utils/getInboundAddressDataForChain'
-import { getTradeRate } from '../utils/getTradeRate/getTradeRate'
+import { getTradeRate, getTradeRateBelowMinimum } from '../utils/getTradeRate/getTradeRate'
 import { getUsdRate } from '../utils/getUsdRate/getUsdRate'
 import { isRune } from '../utils/isRune/isRune'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
@@ -83,12 +83,25 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         }),
       )
 
-    const rate = await getTradeRate({
+    const quoteRate = await getTradeRate({
       sellAsset,
       buyAssetId: buyAsset.assetId,
       sellAmountCryptoBaseUnit,
       receiveAddress,
       deps,
+    })
+
+    const rate = await quoteRate.match<Promise<string> | string>({
+      ok: rate => rate,
+      // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
+      // Though realistically, TRADE_BELOW_MINIMUM is the only one we should really be seeing here,
+      // safety never hurts
+      err: _err =>
+        getTradeRateBelowMinimum({
+          sellAssetId: sellAsset.assetId,
+          buyAssetId: buyAsset.assetId,
+          deps,
+        }),
     })
 
     const buyAmountCryptoBaseUnit = toBaseUnit(

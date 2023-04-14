@@ -9,6 +9,7 @@ import { makeSwapErrorMonad, SwapError, SwapErrorType } from '../../../../api'
 import type { BN } from '../../../utils/bignumber'
 import { bn, bnOrZero, toBaseUnit } from '../../../utils/bignumber'
 import type { ThorchainSwapperDeps, ThornodePoolResponse, ThornodeQuoteResponse } from '../../types'
+import { getPriceRatio } from '../getPriceRatio/getPriceRatio'
 import { isRune } from '../isRune/isRune'
 import { thorService } from '../thorService'
 
@@ -85,11 +86,6 @@ export const getTradeRate = async ({
   // Massages the error so we know whether it is a below minimum error, or a more generic THOR quote response error
   if ('error' in data) {
     if (/not enough fee/.test(data.error)) {
-      // TODO(gomes): move me on the consumer with a match() on the error
-      // return getPriceRatio(deps, {
-      // sellAssetId: sellAsset.assetId,
-      // buyAssetId,
-      // })
       return Err(
         makeSwapErrorMonad({
           message: `[getTradeRate]: Sell amount is below the THOR minimum, cannot get a trade rate from Thorchain.`,
@@ -124,3 +120,20 @@ export const getTradeRate = async ({
     expectedAmountPlusFeesAndSlippageCryptoThorBaseUnit.div(sellAmountCryptoThorBaseUnit).toFixed(),
   )
 }
+
+// getTradeRate gets an *actual* trade rate from quote
+// In case it fails, we handle the error on the consumer and call this guy instead, which returns a price ratio from THOR pools instead
+// TODO(gomes): should this return a Result also?
+export const getTradeRateBelowMinimum = ({
+  sellAssetId,
+  buyAssetId,
+  deps,
+}: {
+  sellAssetId: AssetId
+  buyAssetId: AssetId
+  deps: ThorchainSwapperDeps
+}) =>
+  getPriceRatio(deps, {
+    sellAssetId,
+    buyAssetId,
+  })

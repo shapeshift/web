@@ -382,7 +382,7 @@ export const useUniV2LiquidityPool = ({
         const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
         const estimatedFees = await adapter.getFeeData({
           to: contractAddress,
-          value: '0x0',
+          value: '0',
           chainSpecific: {
             contractData: data,
             from: fromAccountId(accountId).account,
@@ -549,7 +549,7 @@ export const useUniV2LiquidityPool = ({
         ])
         const fees = await adapter.getFeeData({
           to: contract.address,
-          value: '0x0',
+          value: '0',
           chainSpecific: {
             contractData: data,
             from: fromAccountId(accountId).account,
@@ -620,7 +620,7 @@ export const useUniV2LiquidityPool = ({
         ])
         const estimatedFees = await adapter.getFeeData({
           to: contractAddress,
-          value: '0x0', // 0 ETH since these are ERC20 <-> ERC20 pools
+          value: '0', // 0 ETH since these are ERC20 <-> ERC20 pools
           chainSpecific: {
             contractData: data,
             from: accountAddress,
@@ -658,7 +658,7 @@ export const useUniV2LiquidityPool = ({
       const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
       const estimatedFees = await adapter.getFeeData({
         to: contractAddress,
-        value: '0x0',
+        value: '0',
         chainSpecific: {
           contractData: data,
           from: fromAccountId(accountId).account,

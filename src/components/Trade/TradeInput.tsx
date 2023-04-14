@@ -52,6 +52,7 @@ import {
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectAction,
+  selectAmount,
   selectBuyAmountCryptoPrecision,
   selectBuyAmountFiat,
   selectBuyAsset,
@@ -130,6 +131,7 @@ export const TradeInput = () => {
     selectTotalTradeFeeBuyAssetCryptoPrecision,
   )
   const action = useSwapperStore(selectAction)
+  const amount = useSwapperStore(selectAmount)
   const isSendMax = useSwapperStore(selectIsSendMax)
   const { getTrade, getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
   const translate = useTranslate()
@@ -199,15 +201,17 @@ export const TradeInput = () => {
   const hasValidSellAmount = bnOrZero(sellAmountCryptoPrecision).gt(0)
 
   const handleInputChange = useCallback(
-    (action: TradeAmountInputField, amount: string) => {
-      updateAction(action)
+    (inputAction: TradeAmountInputField, inputAmount: string) => {
+      // No-op if nothing material has changed
+      if (inputAction === action && inputAmount === amount) return
+      updateAction(inputAction)
       // If we've overridden the input we are no longer in sendMax mode
       updateIsSendMax(false)
-      updateAmount(amount)
+      updateAmount(inputAmount)
 
       handleInputAmountChange()
     },
-    [updateAction, updateIsSendMax, updateAmount, handleInputAmountChange],
+    [action, amount, updateAction, updateIsSendMax, updateAmount, handleInputAmountChange],
   )
 
   const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {

@@ -1,10 +1,10 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import React from 'react'
+import React, { useMemo } from 'react'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
 import {
-  selectAggregatedEarnUserLpOpportunities,
+  selectAllEarnUserLpOpportunitiesByFilters,
   selectAssetById,
   selectAssets,
   selectMarketDataSortedByMarketCap,
@@ -16,18 +16,28 @@ import { EquityRow } from './EquityRow'
 type EquityLpRowProps = {
   opportunityId: OpportunityId
   assetId: AssetId
+  accountId?: AccountId
   allocation?: string
   color?: string
 }
 export const EquityLpRow: React.FC<EquityLpRowProps> = ({
   opportunityId,
   assetId,
+  accountId,
   allocation,
   color,
 }) => {
   const assets = useAppSelector(selectAssets)
   const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
-  const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
+  const filter = useMemo(() => {
+    return {
+      assetId,
+      ...(accountId ? { accountId } : {}),
+    }
+  }, [accountId, assetId])
+  const lpOpportunities = useAppSelector(state =>
+    selectAllEarnUserLpOpportunitiesByFilters(state, filter),
+  )
   const opportunity = lpOpportunities.find(opportunity => opportunity.id === opportunityId)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 

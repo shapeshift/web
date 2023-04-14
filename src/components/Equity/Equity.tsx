@@ -133,6 +133,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
               opportunityId={item.id as OpportunityId}
               allocation={item.allocation}
               color={item.color}
+              accountId={accountId}
             />
           )
         case AssetEquityType.LP:
@@ -143,6 +144,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
               opportunityId={item.id as OpportunityId}
               allocation={item.allocation}
               color={item.color}
+              accountId={accountId}
             />
           )
         case AssetEquityType.Account:
@@ -159,7 +161,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
           return null
       }
     })
-  }, [assetId, equityItems])
+  }, [accountId, assetId, equityItems])
 
   if (!asset) return null
   return (

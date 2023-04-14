@@ -698,6 +698,7 @@ export const selectAllEarnUserStakingOpportunitiesByFilter = createSelector(
         const marketDataPrice = marketData[asset?.assetId ?? underlyingAsset?.assetId ?? '']?.price
         const opportunity = {
           ...userStakingOpportunity,
+          stakedAmountCryptoBaseUnit: opportunityBalance,
           fiatAmount: bnOrZero(opportunityBalance)
             .div(bn(10).pow(bnOrZero(asset?.precision ?? underlyingAsset?.precision)))
             .times(marketDataPrice ?? '0')

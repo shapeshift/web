@@ -1,10 +1,10 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAggregatedEarnUserStakingOpportunities,
+  selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssetById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -14,16 +14,26 @@ import { EquityRow } from './EquityRow'
 type EquityStakingRowProps = {
   opportunityId: OpportunityId
   assetId: AssetId
+  accountId?: AccountId
   allocation?: string
   color?: string
 }
 export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
   opportunityId,
   assetId,
+  accountId,
   allocation,
   color,
 }) => {
-  const stakingOpportunities = useAppSelector(selectAggregatedEarnUserStakingOpportunities)
+  const filter = useMemo(() => {
+    return {
+      assetId,
+      ...(accountId ? { accountId } : {}),
+    }
+  }, [accountId, assetId])
+  const stakingOpportunities = useAppSelector(state =>
+    selectAllEarnUserStakingOpportunitiesByFilter(state, filter),
+  )
   const opportunity = stakingOpportunities.find(opportunity => opportunity.id === opportunityId)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!opportunity || !asset) return null

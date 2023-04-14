@@ -90,7 +90,9 @@ const reactAppRewireConfig = {
           Buffer: ['buffer/', 'Buffer'],
           process: ['process/browser.js'],
         }),
-        progressPlugin,
+        // only show build progress for production builds
+        // saves about 1 second on hot reloads in development
+        ...(isProduction ? [progressPlugin] : []),
       ],
     })
 

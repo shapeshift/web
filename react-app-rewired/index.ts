@@ -61,6 +61,8 @@ const reactAppRewireConfig = {
 
     // Initialize top-level arrays just in case they're missing for some reason.
     _.merge(config, {
+      // fastest source map hot reload in development https://webpack.js.org/guides/build-performance/#development
+      devtool: 'eval-cheap-module-source-map',
       plugins: [],
       ignoreWarnings: [],
     })

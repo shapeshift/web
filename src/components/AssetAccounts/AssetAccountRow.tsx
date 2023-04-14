@@ -56,7 +56,7 @@ export const AssetAccountRow = ({
 
   const cryptoHumanBalance =
     useAppSelector(s => selectPortfolioCryptoPrecisionBalanceByFilter(s, filter)) ?? '0'
-  const fiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, filter)) ?? '0'
+  const fiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByFilter(s, filter)) ?? '0'
   const allocation =
     useAppSelector(state =>
       selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId }),

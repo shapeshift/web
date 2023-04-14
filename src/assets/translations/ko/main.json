@@ -541,7 +541,6 @@
       }
     },
     "approve": {
-      "header": "ShapeShift DAO 라우터가 %{asset} 에 사용할 수 있도록 허용하기",
       "body": "사용자의 %{asset} 에 접근하기 위해 사용자의 허가가 필요합니다.",
       "learnMore": "왜 이 작업이 필요한가요?",
       "depositFee": "입금 시에는 별도의 가스비가 발생합니다.",

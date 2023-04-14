@@ -4,7 +4,7 @@ import axios from 'axios'
 import Polyglot from 'node-polyglot'
 
 import { descriptions } from './descriptions'
-import localAssetData from './generatedAssetData.json'
+import { localAssetData } from './localAssetData'
 
 type DescriptionData = Readonly<{ description: string; isTrusted?: boolean }>
 

@@ -1,7 +1,8 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { btcChainId, ethChainId } from '@shapeshiftoss/caip'
+import { bchChainId, btcChainId, dogeChainId, ethChainId, ltcChainId } from '@shapeshiftoss/caip'
 import type { Address } from '@wagmi/core'
-import { parse } from 'eth-url-parser'
+import bip21 from 'bip21'
+import { parse as parseEthUrl } from 'eth-url-parser'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { resolveEnsDomain, validateEnsDomain } from 'lib/address/ens'
 import {
@@ -22,12 +23,22 @@ type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]
 }
 
-// @TODO: Implement BIP21
-const parseMaybeUrlByChainId: Identity<ParseAddressInputArgs> = ({ assetId, chainId, value }) => {
+const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
+  [ethChainId]: 'ethereum',
+  [btcChainId]: 'bitcoin',
+  [bchChainId]: 'bitcoincash',
+  [dogeChainId]: 'dogecoin',
+  [ltcChainId]: 'litecoin',
+}
+export const parseMaybeUrlByChainId: Identity<ParseAddressInputArgs> = ({
+  assetId,
+  chainId,
+  value,
+}) => {
   switch (chainId) {
     case ethChainId:
       try {
-        const parsedUrl = parse(value)
+        const parsedUrl = parseEthUrl(value)
 
         return {
           assetId,
@@ -38,6 +49,26 @@ const parseMaybeUrlByChainId: Identity<ParseAddressInputArgs> = ({ assetId, chai
         moduleLogger.trace(error, 'cannot parse eip681 address')
       }
       break
+    case btcChainId:
+    case bchChainId:
+    case dogeChainId:
+    case ltcChainId:
+      try {
+        const urnScheme = CHAIN_ID_TO_URN_SCHEME[chainId]
+        const parsedUrl = bip21.decode(value, urnScheme)
+        return {
+          assetId,
+          value: parsedUrl.address,
+          chainId,
+        }
+      } catch (error) {
+        moduleLogger.trace(error, 'Cannot parse BIP-21 address')
+        return {
+          assetId,
+          value,
+          chainId,
+        }
+      }
     default:
       return { assetId, chainId, value }
   }

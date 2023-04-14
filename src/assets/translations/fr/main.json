@@ -6,11 +6,16 @@
     "error": "Erreur",
     "cancel": "Annuler",
     "close": "Fermer",
+    "new": "Nouveau",
     "continue": "Continuer",
+    "reward": "Récompense",
+    "claimable": "Réclamable",
     "approve": "Autoriser",
     "confirm": "Confirmer",
+    "activity": "Activité",
     "reject": "Rejeter",
     "connected": "Connecté",
+    "value": "Valeur",
     "created": "Créé %{date}",
     "noResultsFound": "Aucun résultat trouvé.",
     "noResultsBody": "Il n'y a pas de résultat pour %{searchQuery}. Essayez une nouvelle recherche.",
@@ -94,7 +99,8 @@
     "needAsset": "Besoin de %{asset} ?",
     "buyNow": "Acheter maintenant",
     "manage": "Gérer",
-    "selectedAccount": "Compte sélectionné"
+    "selectedAccount": "Compte sélectionné",
+    "allChains": "Toutes les chaînes"
   },
   "consentBanner": {
     "body": {
@@ -221,7 +227,8 @@
       "triggerButton": "Connecter un porte-monnaie",
       "switchWallet": "Changer de porte-monnaie",
       "disconnect": "Déconnecter",
-      "disconnected": "(Déconnecté)"
+      "disconnected": "(Déconnecté)",
+      "connecting": "Connexion..."
     }
   },
   "defi": {
@@ -287,6 +294,7 @@
       },
       "overview": {
         "underlyingTokens": "Jetons sous-jacents",
+        "underlyingToken": "Jeton sous-jacent",
         "availableRewards": "Récompenses disponibles",
         "about": "À propos",
         "tvl": "TVL",
@@ -308,7 +316,7 @@
       "saversVaults": {
         "description": "Gagnez du rendement sur vos %{asset} grâce aux THORChain Savers Vaults. Il n'y a pas de temps de blocage et les récompenses s'accumulent automatiquement. Le rendement sur THORChain provient des frais d'échange et des récompenses de blocs. Le rendement unilatéral est plafonné à la moitié du rendement bilatéral des fournisseurs de liquidité.",
         "vaultCap": "Plafond du Vault",
-        "vaultCapTooltip": "Quelque chose à propos des plafonds de Vaults",
+        "vaultCapTooltip": "Capacité maximale actuelle pour ce Vault",
         "haltedTitle": "Les dépôts sont temporairement suspendus.",
         "haltedDescription": "Veuillez tweeter @THORChain pour augmenter les plafonds !",
         "estimatedFee": "Frais estimés",
@@ -351,6 +359,7 @@
     "validatorMoniker": "Validateur %{moniker}",
     "stakedAmount": "Montant misé",
     "unstakeFrom": "Démiser de",
+    "underlyingAsset": "Actif sous-jacent",
     "gasFee": "Frais de carburant",
     "provider": "Fournisseur",
     "currentTvl": "TVL actuelle",
@@ -392,6 +401,11 @@
     "earnBody": "Gagnez des revenus passifs en misant vos actifs ou en les déposant dans une stratégie DeFi.",
     "clickHereToEarn": "Cliquez ici pour gagner %{apr} d'APR* avec le farming de vos jetons de pool de liquidités ETH-FOX",
     "overview": "Vue d'ensemble",
+    "myPositions": "Mes positions",
+    "myPositionsBody": "Vos positions actives apparaîtront ici.",
+    "myRewards": "Mes récompenses",
+    "myRewardsBody": "Vos positions actives avec des récompenses réclamables apparaîtront ici.",
+    "viewAllPositions": "Voir toutes les positions",
     "liquidityPools": "Pools de liquidité",
     "stakingVaults": "Mises et Coffres-forts",
     "farming": "Farming",
@@ -402,12 +416,13 @@
     "poolValue": "Valeur du pool",
     "yearn": "Yearn Finance",
     "totalValue": "Valeur totale",
-    "byPosition": "Par position",
+    "byAsset": "Par actif",
     "byProvider": "Par fournisseur",
     "claimableRewards": "Récompenses réclamables",
     "reawrds": "Récompenses",
     "stakingPosition": "Position de mises",
     "liquidityPool": "Pool de liquidités",
+    "noActivePositions": "Aucune position active",
     "emptyEarn": "Les opportunités de gains apparaîtront ici.",
     "empty": {
       "farming": {
@@ -948,7 +963,7 @@
       }
     },
     "approve": {
-      "header": "Autoriser le Routeur ShapeShift DAO à dépenser vos %{asset}",
+      "header": "Autoriser %{spenderName} à utiliser vos %{asset}",
       "shapeshiftRouterName": "Routeur ShapeShift DAO",
       "body": "a besoin de votre permission pour utiliser vos %{asset}",
       "learnMore": "Pourquoi dois-je faire cela ?",
@@ -1470,6 +1485,7 @@
         "trade": "Échanger"
       },
       "accountTokens": "Jetons du compte",
+      "relatedAssets": "Actifs connexes",
       "showTokens": "Montrer les jetons (%{amount})",
       "hideTokens": "Cacher les jetons (%{amount})",
       "underlyingAssets": "Actifs sous-jacents",
@@ -1910,5 +1926,22 @@
         "cta": "En créer un"
       }
     }
+  },
+  "nft": {
+    "floorPrice": "Prix plancher",
+    "lastPrice": "Dernier prix",
+    "overview": "Vue d'ensemble",
+    "properties": "Propriétés",
+    "collection": "Collection",
+    "tokenId": "ID du jeton",
+    "address": "Adresse",
+    "chain": "Chaîne",
+    "standard": "Standard",
+    "description": "Description",
+    "details": "Détails",
+    "attributes": "Attributs",
+    "aboutCollection": "Informations sur %{collectionName}",
+    "emptyTitle": "Où sont passés tous les NFT ?",
+    "emptyBody": "Ne vous inquiétez pas, nous avons envoyé une équipe de recherche pour ramener plus de NFT incroyables. En attendant, n'hésitez pas à regarder cet espace vide et à réfléchir au sens de l'existence."
   }
 }

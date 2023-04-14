@@ -1,14 +1,16 @@
 import type { Route, Token } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { QuoteFeeData } from '@shapeshiftoss/swapper'
+import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { APPROVAL_GAS_LIMIT } from '@shapeshiftoss/swapper/dist/swappers/utils/constants'
-import { bn, bnOrZero, toHuman } from 'lib/bignumber/bignumber'
-import { LIFI_GAS_FEE_BASE } from 'lib/swapper/LifiSwapper/utils/constants'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { baseUnitToHuman, baseUnitToPrecision, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getFeeAssets } from 'lib/swapper/LifiSwapper/utils/getFeeAssets/getFeeAssets'
 import { processGasCosts } from 'lib/swapper/LifiSwapper/utils/processGasCosts/processGasCosts'
 
-export const transformLifiFeeData = ({
+export const transformLifiFeeData = async ({
   buyLifiToken,
   chainId,
   lifiAssetMap,
@@ -18,7 +20,14 @@ export const transformLifiFeeData = ({
   chainId: ChainId
   lifiAssetMap: Map<AssetId, Token>
   selectedRoute: Route
-}): QuoteFeeData<EvmChainId> => {
+}): Promise<QuoteFeeData<EvmChainId>> => {
+  if (!isEvmChainId(chainId)) {
+    throw new SwapError("[transformLifiFeeData] - chainId isn't an EVM ChainId", {
+      code: SwapErrorType.UNSUPPORTED_CHAIN,
+      details: { chainId },
+    })
+  }
+
   const allRouteGasCosts = selectedRoute.steps.flatMap(step => step.estimate.gasCosts ?? [])
   const allRouteFeeCosts = selectedRoute.steps.flatMap(step => step.estimate.feeCosts ?? [])
 
@@ -36,9 +45,10 @@ export const transformLifiFeeData = ({
   const buyAssetTradeFeeUsd =
     buyAssetRouteFeeCosts
       .map(feeCost =>
-        toHuman({ value: feeCost.amount, inputPrecision: feeCost.token.decimals }).multipliedBy(
-          bnOrZero(feeCost.token.priceUSD),
-        ),
+        baseUnitToHuman({
+          value: feeCost.amount,
+          inputExponent: feeCost.token.decimals,
+        }).multipliedBy(bnOrZero(feeCost.token.priceUSD)),
       )
       .reduce((acc, amountUsd) => acc.plus(amountUsd), bn(0)) ?? bn(0)
 
@@ -47,9 +57,10 @@ export const transformLifiFeeData = ({
   const initialSellAssetTradeFeeUsd =
     sellAssetRouteFeeCosts
       .map(feeCost =>
-        toHuman({ value: feeCost.amount, inputPrecision: feeCost.token.decimals }).multipliedBy(
-          bnOrZero(feeCost.token.priceUSD),
-        ),
+        baseUnitToPrecision({
+          value: feeCost.amount,
+          inputExponent: feeCost.token.decimals,
+        }).multipliedBy(bnOrZero(feeCost.token.priceUSD)),
       )
       .reduce((acc, amountUsd) => acc.plus(amountUsd), bn(0)) ?? bn(0)
 
@@ -62,24 +73,25 @@ export const transformLifiFeeData = ({
     initialSellAssetTradeFeeUsd,
   })
 
-  // the sum of all 'APPROVE' gas fees
-  // TODO: validate this with lifi
-  const approvalFeeCryptoBaseUnit =
-    allRouteGasCosts
-      .filter(gasCost => gasCost.type === 'APPROVE')
-      .reduce((a, v) => (v.estimate ? a.plus(bn(v.estimate, LIFI_GAS_FEE_BASE)) : a), bn(0)) ??
-    bn(0)
+  const chainAdapterManager = getChainAdapterManager()
+  // We guard against !isEvmChainId(chainId) above, so this cast is safe
+  const adapter = chainAdapterManager.get(chainId) as unknown as EvmBaseAdapter<EvmChainId>
+
+  const gasFeeData = await adapter.getGasFeeData()
+  const gasPriceCryptoBaseUnit = gasFeeData.fast.gasPrice
+  const approvalFeeCryptoBaseUnit = bn(APPROVAL_GAS_LIMIT).times(gasPriceCryptoBaseUnit).toString()
 
   return {
     networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit.toString(), // UI shows this next to the gas icon
     chainSpecific: {
+      gasPriceCryptoBaseUnit,
+      approvalFeeCryptoBaseUnit, // the total gas for the erc20 interaction approval tx - this appears to be redundant
       // TODO: add gasPriceCryptoBaseUnit so approvals are not displayed as 0
       // gasPriceCryptoBaseUnit: gas price for approval
 
       // lifi handles approval gas internally but need to set a gas limit so the
       // approval limit isnt exceeded when the trade is executed.
       estimatedGasCryptoBaseUnit: APPROVAL_GAS_LIMIT,
-      approvalFeeCryptoBaseUnit: approvalFeeCryptoBaseUnit.toString(),
     },
     // UI shows the sum of these as "protocol fee"
     buyAssetTradeFeeUsd: buyAssetTradeFeeUsd.toString(),

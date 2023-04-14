@@ -17,7 +17,7 @@ import {
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import type { EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import type { Trade, TradeQuote } from '@shapeshiftoss/swapper'
+import type { SwapperName, Trade, TradeQuote } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { GetReceiveAddressArgs } from 'components/Trade/types'
 import {
@@ -63,7 +63,7 @@ export const getSendMaxAmount = (
 const getEvmFees = <T extends EvmChainId>(
   trade: Trade<T> | TradeQuote<T>,
   feeAsset: Asset,
-  tradeFeeSource: string,
+  tradeFeeSource: SwapperName,
 ): DisplayFeeData<EvmChainId> => {
   const networkFeeCryptoPrecision = bnOrZero(trade?.feeData?.networkFeeCryptoBaseUnit)
     .div(bn(10).exponentiatedBy(feeAsset.precision))

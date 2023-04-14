@@ -361,8 +361,6 @@ const reactAppRewireConfig = {
         output: {
           pathinfo: false,
         },
-        plugins: [],
-        ignoreWarnings: [],
       })
 
       // https://webpack.js.org/guides/build-performance/#avoid-production-specific-tooling
@@ -373,8 +371,6 @@ const reactAppRewireConfig = {
       }
     }
 
-    console.info(config)
-    // process.exit(1)
     return config
   },
   jest: (config: Config.InitialOptions) => {

@@ -104,6 +104,17 @@ const reactAppRewireConfig = {
     // CRA's "The bundle size is significantly larger than recommended" warning.
     _.merge(
       config,
+      isDevelopment
+        ? {
+            // https://webpack.js.org/configuration/cache/#cache
+            // do not enable in memory cache - filesystem is actually faster
+            optimization: {
+              removeAvailableModules: false,
+              removeEmptyChunks: false,
+              splitChunks: false,
+            },
+          }
+        : {},
       isProduction
         ? {
             optimization: {

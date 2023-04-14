@@ -425,7 +425,11 @@ export const TradeInput = () => {
           assetSymbol: sellFeeAsset?.symbol ?? translate('trade.errors.sellAssetMiddleSentence'),
         },
       ]
-    if (isBelowMinSellAmount) return ['trade.errors.amountTooSmall', { minLimit }]
+    if (isBelowMinSellAmount) {
+      return activeSwapper.name === SwapperName.LIFI
+        ? 'trade.errors.amountTooSmallOrInvalidTradePair'
+        : ['trade.errors.amountTooSmall', { minLimit }]
+    }
     if (feesExceedsSellAmount) return 'trade.errors.sellAmountDoesNotCoverFee'
     if (isTradeQuotePending && quoteAvailableForCurrentAssetPair) return 'trade.updatingQuote'
     if (!receiveAddress)

@@ -12,8 +12,8 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   buyAssetAccountId?: AccountId
   buyAmountCryptoPrecision: string
   sellAmountCryptoPrecision: string
-  sellAsset?: Asset
-  buyAsset?: Asset
+  sellAsset: Asset
+  buyAsset: Asset
   sellAmountFiat: string
   buyAmountFiat: string
   sellAssetFiatRate?: string

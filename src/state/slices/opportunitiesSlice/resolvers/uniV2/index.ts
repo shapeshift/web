@@ -161,6 +161,8 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
     const underlyingAssetIds = [assetId0, assetId1] as const
     const lpAsset = assets.byId[opportunityId]
 
+    if (!lpAsset) continue
+
     if (bnOrZero(token0MarketData?.price).isZero()) {
       continue
     }
@@ -184,10 +186,10 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
 
     const token0ReservesBaseUnit = bnOrZero(
       bnOrZero(bnOrZero(token0Reserves.toString()).toString()),
-    ).times(bn(10).pow(lpAsset?.precision ?? 18))
+    ).times(bn(10).pow(lpAsset.precision))
     const token1ReservesBaseUnit = bnOrZero(
       bnOrZero(bnOrZero(token1Reserves?.toString()).toString()),
-    ).times(bn(10).pow(lpAsset?.precision ?? 18))
+    ).times(bn(10).pow(lpAsset.precision))
     const token0PoolRatio = token0ReservesBaseUnit.div(totalSupplyBaseUnit).toString()
     const token1PoolRatio = token1ReservesBaseUnit.div(totalSupplyBaseUnit).toString()
     // Amount of token 0 in liquidity pool

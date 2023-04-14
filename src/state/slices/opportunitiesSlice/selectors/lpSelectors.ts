@@ -171,8 +171,8 @@ export const selectHighestBalanceAccountIdByLpId = createSelector(
         // Note that this may not hold true for the concept of "LPing" on other chains, hence the type assertion
         // In case we get an LpId that's not an AssetId, we'll have to implement custom logic for it
         // This is NOT a full LP abstraction, and for all intents and purposes is assuming the LP as token i.e an AssetId in portfolio, not an IOU
-        bn(b[lpId as AssetId])
-          .minus(a[lpId as AssetId])
+        bnOrZero(b[lpId as AssetId])
+          .minus(bnOrZero(a[lpId as AssetId]))
           .toNumber(),
       )[0]
 

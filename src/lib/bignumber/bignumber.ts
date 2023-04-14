@@ -18,30 +18,34 @@ export const positiveOrZero = (n: BigNumber.Value | null | undefined): BN => {
 
 export const convertPrecision = ({
   value,
-  inputPrecision,
-  outputPrecision,
+  inputExponent = 0,
+  outputExponent = 0,
 }: {
   value: BigNumber.Value
-  inputPrecision: number
-  outputPrecision: number
+  inputExponent?: number
+  outputExponent?: number
 }): BigNumber => {
   return bnOrZero(value)
-    .dividedBy(bn(10).exponentiatedBy(inputPrecision))
-    .multipliedBy(bn(10).exponentiatedBy(outputPrecision))
+    .dividedBy(bn(10).exponentiatedBy(inputExponent))
+    .multipliedBy(bn(10).exponentiatedBy(outputExponent))
 }
 
-export const toHuman = ({
+export const baseUnitToPrecision = ({
   value,
-  inputPrecision,
+  inputExponent,
 }: {
   value: BigNumber.Value
-  inputPrecision: number
-}) => convertPrecision({ value, inputPrecision, outputPrecision: 0 })
+  inputExponent: number
+}): BigNumber => convertPrecision({ value, inputExponent })
 
-export const fromHuman = ({
+export const baseUnitToHuman = ({
   value,
-  outputPrecision,
+  inputExponent,
 }: {
   value: BigNumber.Value
-  outputPrecision: number
-}) => convertPrecision({ value, inputPrecision: 0, outputPrecision })
+  inputExponent: number
+}) => {
+  const precisionAmount = baseUnitToPrecision({ value, inputExponent })
+  // trimming to 6 decimals is what we call "human amount"
+  return precisionAmount.decimalPlaces(6)
+}

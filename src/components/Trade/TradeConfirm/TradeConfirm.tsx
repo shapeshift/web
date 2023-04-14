@@ -16,7 +16,7 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Swapper } from '@shapeshiftoss/swapper'
-import { type TradeTxs, isRune } from '@shapeshiftoss/swapper'
+import { type TradeTxs, isRune, SwapperName } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -328,9 +328,13 @@ export const TradeConfirm = () => {
   const tradeWarning: JSX.Element | null = useMemo(() => {
     if (!trade) return null
 
+    const isSlowSwapper =
+      fees &&
+      [SwapperName.Thorchain, SwapperName.CowSwap, SwapperName.LIFI].includes(fees.tradeFeeSource)
+
     const tradeWarningElement = (
       <Flex direction='column' gap={2}>
-        {(fees?.tradeFeeSource === 'THORChain' || fees?.tradeFeeSource === 'CoW Swap') && (
+        {isSlowSwapper && (
           <Alert status='info' width='auto' fontSize='sm'>
             <AlertIcon />
             <Stack spacing={0}>
@@ -359,7 +363,7 @@ export const TradeConfirm = () => {
       (child: JSX.Element | false) => !!child,
     )
     return shouldRenderWarnings ? tradeWarningElement : null
-  }, [fees?.tradeFeeSource, trade, translate])
+  }, [fees, trade, translate])
 
   const sendReceiveSummary: JSX.Element | null = useMemo(
     () =>

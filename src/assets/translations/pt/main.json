@@ -6,11 +6,16 @@
     "error": "Erro",
     "cancel": "Cancelar",
     "close": "Fechar",
+    "new": "Novo",
     "continue": "Continuar",
+    "reward": "Recompensa",
+    "claimable": "Resgatável",
     "approve": "Aprovar",
     "confirm": "Confirmar",
+    "activity": "Atividade",
     "reject": "Rejeitar",
     "connected": "Conectado",
+    "value": "Valor",
     "created": "Criado em %{date}",
     "noResultsFound": "Nenhum resultado encontrado.",
     "noResultsBody": "Não há resultados para %{searchQuery}. Tente novamente.",
@@ -94,7 +99,8 @@
     "needAsset": "Precisa de algum %{asset}?",
     "buyNow": "Comprar agora",
     "manage": "Gerenciar",
-    "selectedAccount": "Conta selecionada"
+    "selectedAccount": "Conta selecionada",
+    "allChains": "Todas as redes"
   },
   "consentBanner": {
     "body": {
@@ -221,7 +227,8 @@
       "triggerButton": "Conectar Carteira",
       "switchWallet": "Trocar de Carteira",
       "disconnect": "Desconectar",
-      "disconnected": "(Sem conexão)"
+      "disconnected": "(Sem conexão)",
+      "connecting": "Conectando..."
     }
   },
   "defi": {
@@ -287,6 +294,7 @@
       },
       "overview": {
         "underlyingTokens": "Tokens em Stake",
+        "underlyingToken": "Token subjacente",
         "availableRewards": "Recompensas Disponíveis",
         "about": "Sobre",
         "tvl": "TVL",
@@ -308,7 +316,7 @@
       "saversVaults": {
         "description": "Ganhe recompensas em seu %{asset} através da THORChain Savers Vaults. Não precisa travá-lo e os incentivos são acumulados automaticamente. As recompensas na THORChain vem de taxas de swap e recompensas de blocos. O ganho do single-sided é limitado à metade do ganho obtido pelos provedores de liquidez em pools double-sided.",
         "vaultCap": "Limite da Vault",
-        "vaultCapTooltip": "Algo sobre o limite das vaults",
+        "vaultCapTooltip": "Capacidade máxima atual para este cofre",
         "haltedTitle": "Depósitos estão temporariamente desabilitados. ",
         "haltedDescription": "Por favor, twitte em @THORChain para aumentar o limite!",
         "estimatedFee": "Taxa estimada",
@@ -351,6 +359,7 @@
     "validatorMoniker": "Validador de %{moniker}",
     "stakedAmount": "Valor Depositado",
     "unstakeFrom": "Retirar de",
+    "underlyingAsset": "Ativo subjacente",
     "gasFee": "Taxa de gás",
     "provider": "Deposite",
     "currentTvl": "TVL Atual",
@@ -392,6 +401,11 @@
     "earnBody": "Deposite seus ativos em estratégias DeFi de renda passiva.",
     "clickHereToEarn": "Clique aqui para ganhar %{apr} APR* farmando na sua pool de ETH-FOX",
     "overview": "Visão Geral",
+    "myPositions": "Minhas Posições",
+    "myPositionsBody": "Suas posições ativas aparecerão aqui.",
+    "myRewards": "Minhas recompensas",
+    "myRewardsBody": "Suas posições ativas com recompensas resgatáveis aparecerão aqui.",
+    "viewAllPositions": "Ver todas as posições",
     "liquidityPools": "Pools de Liquidez",
     "stakingVaults": "Poupança e Cofres",
     "farming": "Farming",
@@ -402,12 +416,13 @@
     "poolValue": "Valor da Pool",
     "yearn": "Yearn Finance",
     "totalValue": "Valor total",
-    "byPosition": "Por posição",
+    "byAsset": "Por ativo",
     "byProvider": "Por Provedor de Liquidez",
     "claimableRewards": "Recompensas Resgatáveis",
     "reawrds": "Recompensas",
     "stakingPosition": "Posição em Stake",
     "liquidityPool": "Pool de Liquidez",
+    "noActivePositions": "Nenhuma posição ativa",
     "emptyEarn": "As oportunidades de ganhos aparecerão aqui.",
     "empty": {
       "farming": {
@@ -948,7 +963,7 @@
       }
     },
     "approve": {
-      "header": "Permita que o Router da ShapeShift DAO utilize %{asset}",
+      "header": "Permitir %{spenderName} usar o seu %{asset}",
       "shapeshiftRouterName": "Roteador ShapeShift DAO",
       "body": "Precisamos de sua permissão para utilizar %{asset}",
       "learnMore": "Por que isso é necessário?",
@@ -1470,6 +1485,7 @@
         "trade": "Trocar"
       },
       "accountTokens": "Meus Tokens",
+      "relatedAssets": "Ativos Relacionados",
       "showTokens": "Mostrar Tokens (%{amount})",
       "hideTokens": "Esconder Tokens (%{amount})",
       "underlyingAssets": "Ativos subjacentes",
@@ -1910,5 +1926,22 @@
         "cta": "Crie um"
       }
     }
+  },
+  "nft": {
+    "floorPrice": "Floor Price",
+    "lastPrice": "Último preço",
+    "overview": "Visão geral",
+    "properties": "Propriedades",
+    "collection": "Coleção",
+    "tokenId": "Token ID",
+    "address": "Endereço",
+    "chain": "Rede",
+    "standard": "Padrão",
+    "description": "Descrição",
+    "details": "Detalhes",
+    "attributes": "Atributos",
+    "aboutCollection": "Sobre %{collectionName}",
+    "emptyTitle": "Para onde foram todos os NFTs?",
+    "emptyBody": "Não se preocupe, enviamos uma equipe de busca para trazer mais NFTs incríveis. Enquanto isso, sinta-se à vontade para olhar para este espaço em branco e refletir sobre o significado da existência."
   }
 }

@@ -6,11 +6,16 @@
     "error": "Fehler",
     "cancel": "Abbrechen",
     "close": "Schließen",
+    "new": "Neu",
     "continue": "Fortsetzen",
+    "reward": "Belohnung",
+    "claimable": "Beanspruchbar",
     "approve": "Genehmigen",
     "confirm": "Bestätigen",
+    "activity": "Aktivität",
     "reject": "Ablehnen",
     "connected": "Verbunden",
+    "value": "Wert",
     "created": "Erstellt %{date}",
     "noResultsFound": "Keine Ergebnisse gefunden.",
     "noResultsBody": "Keine Ergebnisse für %{searchQuery}. Versuchen Sie neue Suche.",
@@ -94,7 +99,8 @@
     "needAsset": "Brauchen Sie %{asset}?",
     "buyNow": "Kaufe jetzt",
     "manage": "Verwalten",
-    "selectedAccount": "Ausgewähltes Konto"
+    "selectedAccount": "Ausgewähltes Konto",
+    "allChains": "All Blockchains"
   },
   "consentBanner": {
     "body": {
@@ -221,7 +227,8 @@
       "triggerButton": "Wallet verbinden",
       "switchWallet": "Wallet-Anbieter wechseln",
       "disconnect": "Trennen",
-      "disconnected": "(Getrennt)"
+      "disconnected": "(Getrennt)",
+      "connecting": "Verbinde..."
     }
   },
   "defi": {
@@ -287,6 +294,7 @@
       },
       "overview": {
         "underlyingTokens": "Zugrunde liegende Token",
+        "underlyingToken": "Zugrundeliegender Token",
         "availableRewards": "Verfügbare Belohnungen",
         "about": "Über",
         "tvl": "TVL",
@@ -308,7 +316,7 @@
       "saversVaults": {
         "description": "Verdienen Sie Rendite auf Ihr %{asset} durch die THORChain Savers Vaults. Es gibt keine Sperrzeit und Belohnungen werden automatisch angesammelt. Die Rendite auf THORChain ergibt sich aus Swap-Gebühren und Blockbelohnungen. Die einseitige Rendite ist auf die Hälfte der doppelseitigen Rendite der Liquiditätsanbieter begrenzt.",
         "vaultCap": "Tresorobergrenze",
-        "vaultCapTooltip": "Etwas über Tresorobergrenzen",
+        "vaultCapTooltip": "Akt. max. Kapazität für diesen Tresor",
         "haltedTitle": "Einzahlungen sind vorübergehend gestoppt.",
         "haltedDescription": "Bitte twittern Sie an @THORChain, um die Obergrenzen zu erhöhen!",
         "estimatedFee": "Geschätzte Gebühr",
@@ -351,6 +359,7 @@
     "validatorMoniker": "%{moniker} Prüfer",
     "stakedAmount": "Staking Betrag",
     "unstakeFrom": "Staking beenden von",
+    "underlyingAsset": "Zugrundeliegender Vermögenswert",
     "gasFee": "Gasgebühr",
     "provider": "Anbieter",
     "currentTvl": "Aktuelle TVL",
@@ -392,6 +401,11 @@
     "earnBody": "Verdienen Sie passives Einkommen, indem Sie Ihr Guthaben einsetzen oder in eine DeFi-Strategie einzahlen.",
     "clickHereToEarn": "Klicken Sie hier, um %{apr} APR* zu verdienen, indem Sie Ihre ETH-FOX-Liquiditätspool-Token farmen",
     "overview": "Übersicht",
+    "myPositions": "Meine Positionen",
+    "myPositionsBody": "Ihre aktiven Positionen werden hier angezeigt.",
+    "myRewards": "Meine Belohnungen",
+    "myRewardsBody": "Ihre aktiven Positionen mit beanspruchbaren Prämien werden hier angezeigt.",
+    "viewAllPositions": "Alle Positionen anzeigen",
     "liquidityPools": "Liquidity Pools",
     "stakingVaults": "Staking & Vaults",
     "farming": "Farming",
@@ -402,12 +416,13 @@
     "poolValue": "Poolwert",
     "yearn": "Yearn Finance",
     "totalValue": "Gesamtwert",
-    "byPosition": "Nach Position",
+    "byAsset": "Nach Vermögenswert",
     "byProvider": "Nach Anbieter",
     "claimableRewards": "Forderbare Belohnungen",
     "reawrds": "Belohnungen",
     "stakingPosition": "Stake Position",
     "liquidityPool": "Liquidity Pool",
+    "noActivePositions": "Keine aktiven Positionen",
     "emptyEarn": "Hier werden Verdienstmöglichkeiten angezeigt.",
     "empty": {
       "farming": {
@@ -948,7 +963,7 @@
       }
     },
     "approve": {
-      "header": "ShapeShift DAO-Router erlauben, Ihr %{asset} zu verwenden",
+      "header": "Erlaube %{spenderName}, deine %{asset} zu verwenden",
       "shapeshiftRouterName": "ShapeShift DAO Router",
       "body": "benötigt Ihre Erlaubnis, um Ihr %{asset} zu verwenden",
       "learnMore": "Warum muss ich das tun?",
@@ -1470,6 +1485,7 @@
         "trade": "Handeln"
       },
       "accountTokens": "Konto-Token",
+      "relatedAssets": "Zugehörige Vermögenswerte",
       "showTokens": "zeige Token (%{amount})",
       "hideTokens": "verstecke Token (%{amount})",
       "underlyingAssets": "Basiswerte",
@@ -1910,5 +1926,22 @@
         "cta": "Erstelle einen"
       }
     }
+  },
+  "nft": {
+    "floorPrice": "niedrigster Preis",
+    "lastPrice": "Letzter Preis",
+    "overview": "Übersicht",
+    "properties": "Eigenschaften",
+    "collection": "Sammlung",
+    "tokenId": "Token ID",
+    "address": "Addresse",
+    "chain": "Kette",
+    "standard": "Standard",
+    "description": "Beschreibung",
+    "details": "Details",
+    "attributes": "Eigenschaften",
+    "aboutCollection": "über %{collectionName}",
+    "emptyTitle": "Wo sind all die NFTs hin?",
+    "emptyBody": "Keine Sorge, wir haben einen Suchtrupp ausgesandt, um noch mehr erstaunliche NFTs zurückzubringen. Nutzen Sie bis dahin die Zeit auf diese leere Stelle zu starren und über den Sinn des Daseins nachzudenken;-)"
   }
 }

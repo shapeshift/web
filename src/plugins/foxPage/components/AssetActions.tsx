@@ -169,7 +169,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
               </Stack>
             </TabPanel>
             <TabPanel textAlign='center' p={0}>
-              {isFoxAsset && <TradeCard defaultBuyAssetId={assetId} />}
+              {isFoxAsset && <TradeCard />}
               {!isFoxAsset && (
                 <Stack width='full' p={6}>
                   <SkeletonText isLoaded={Boolean(description?.length)} noOfLines={3}>

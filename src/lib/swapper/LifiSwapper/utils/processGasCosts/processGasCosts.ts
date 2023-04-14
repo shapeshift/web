@@ -18,8 +18,8 @@ const processNetworkFee = ({
 
   return convertPrecision({
     value: networkFeeCryptoLifiPrecision,
-    inputPrecision: lifiFeeAsset.decimals,
-    outputPrecision: feeAsset.precision,
+    inputExponent: lifiFeeAsset.decimals,
+    outputExponent: feeAsset.precision,
   })
 }
 

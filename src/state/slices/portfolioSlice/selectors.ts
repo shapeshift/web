@@ -170,7 +170,7 @@ export const selectPortfolioFiatBalancesByAccount = createDeepEqualOutputSelecto
             if (!asset) return acc
             const precision = asset.precision
             const price = marketData[assetId]?.price ?? 0
-            const cryptoValue = fromBaseUnit(cryptoBalance, precision)
+            const cryptoValue = fromBaseUnit(bnOrZero(cryptoBalance), precision)
             const fiatBalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
             acc[assetId] = fiatBalance
 
@@ -226,12 +226,10 @@ export const selectPortfolioFiatBalanceByFilter = createCachedSelector(
     if (assetId && accountId) return portfolioAccountFiatbalances?.[accountId]?.[assetId] ?? '0'
     if (!assetId && accountId) {
       const accountBalances = portfolioAccountFiatbalances[accountId]
-      const totalAccountBalances = Object.values(accountBalances).reduce(
-        (totalBalance: string, fiatBalance: string) => {
-          return bnOrZero(totalBalance).plus(fiatBalance).toFixed(2)
-        },
-        '0',
-      )
+      const totalAccountBalances =
+        Object.values(accountBalances).reduce((totalBalance, fiatBalance) => {
+          return bnOrZero(totalBalance).plus(bnOrZero(fiatBalance)).toFixed(2)
+        }, '0') ?? '0'
       return totalAccountBalances
     }
     return '0'
@@ -319,11 +317,11 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
         if (!asset) return acc
         const precision = asset.precision
         const price = marketData[assetId]?.price
-        const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
+        const cryptoValue = fromBaseUnit(bnOrZero(baseUnitBalance), precision)
         const assetFiatBalance = bnOrZero(cryptoValue).times(bnOrZero(price))
         if (assetFiatBalance.lt(bnOrZero(balanceThreshold))) return acc
         // if it's above the threshold set the original object key and value to result
-        acc[assetId] = baseUnitBalance
+        acc[assetId] = baseUnitBalance ?? '0'
         return acc
       }, {})
       return aboveThresholdBalances
@@ -346,7 +344,7 @@ export const selectPortfolioAssetAccountBalancesSortedFiat = createDeepEqualOutp
           .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
           .reduce<{ [k: AssetId]: string }>((acc, [assetId, assetFiatBalance]) => {
             if (bnOrZero(assetFiatBalance).lt(bnOrZero(balanceThreshold))) return acc
-            acc[assetId] = assetFiatBalance
+            acc[assetId] = assetFiatBalance ?? '0'
             return acc
           }, {})
 
@@ -387,7 +385,7 @@ export const selectPortfolioAllocationPercentByFilter = createCachedSelector(
       [k: AccountId]: number
     }>((acc, [currentAccountId, assetAccountFiatBalance]) => {
       const allocation = bnOrZero(
-        bn(assetAccountFiatBalance[assetId]).div(totalAssetFiatBalance).times(100),
+        bnOrZero(assetAccountFiatBalance[assetId]).div(totalAssetFiatBalance).times(100),
       ).toNumber()
 
       acc[currentAccountId] = allocation
@@ -465,7 +463,7 @@ export const selectPortfolioAccountsCryptoHumanBalancesIncludingStaking =
       return Object.entries(portfolioAccountsCryptoBalances).reduce((acc, [accountId, account]) => {
         acc[accountId] = Object.entries(account).reduce((innerAcc, [assetId, cryptoBalance]) => {
           const asset = assets[assetId]
-          if (asset) innerAcc[assetId] = fromBaseUnit(cryptoBalance, asset.precision)
+          if (asset) innerAcc[assetId] = fromBaseUnit(bnOrZero(cryptoBalance), asset.precision)
           return innerAcc
         }, cloneDeep(account))
         return acc
@@ -491,7 +489,7 @@ export const selectPortfolioAccountsFiatBalancesIncludingStaking = createDeepEqu
           if (!asset) return [assetId, bn(0)]
           const { precision } = asset
           const price = marketData[assetId]?.price ?? 0
-          return [assetId, bnOrZero(fromBaseUnit(cryptoBalance, precision, precision)).times(price)]
+          return [assetId, bnOrZero(fromBaseUnit(bnOrZero(cryptoBalance), precision)).times(price)]
         },
       )
 
@@ -643,7 +641,7 @@ export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelect
         if (accounts.includes(accountId)) {
           const totalAccountFiatBalance = Object.values(balanceObj).reduce(
             (totalBalance, currentBalance) => {
-              return bnOrZero(bn(totalBalance).plus(bn(currentBalance)))
+              return bnOrZero(bn(totalBalance).plus(bnOrZero(currentBalance)))
             },
             bnOrZero('0'),
           )

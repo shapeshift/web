@@ -1,5 +1,4 @@
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -13,11 +12,7 @@ import { Trade } from 'components/Trade/Trade'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
-type TradeCardProps = {
-  defaultBuyAssetId?: AssetId
-} & CardProps
-
-export const TradeCard = ({ defaultBuyAssetId, ...rest }: TradeCardProps) => {
+export const TradeCard = (props: CardProps) => {
   const { Axelar } = useSelector(selectFeatureFlags)
   const {
     state: { wallet },
@@ -32,7 +27,7 @@ export const TradeCard = ({ defaultBuyAssetId, ...rest }: TradeCardProps) => {
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
-      <Card flex={1} {...rest}>
+      <Card flex={1} {...props}>
         <Tabs isFitted variant='enclosed'>
           {Axelar && (
             <TabList>
@@ -47,7 +42,7 @@ export const TradeCard = ({ defaultBuyAssetId, ...rest }: TradeCardProps) => {
 
           <TabPanels>
             <TabPanel py={4} px={6}>
-              <Trade defaultBuyAssetId={defaultBuyAssetId} />
+              <Trade />
             </TabPanel>
             {Axelar && (
               <TabPanel py={4} px={6}>

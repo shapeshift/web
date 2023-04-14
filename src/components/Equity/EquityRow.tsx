@@ -1,9 +1,11 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Box, Button, Flex } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { Box, Button, Flex, Stack, Tag } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
+import { opportunityRowGrid } from 'components/EarnDashboard/components/ProviderDetails/OpportunityTableHeader'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type EquityRowBaseProps = {
   label: string
@@ -14,6 +16,7 @@ type EquityRowBaseProps = {
   allocation?: string
   subText?: string
   icon?: string | JSX.Element
+  apy?: string
 } & ButtonProps
 
 type EquityRowProps = EquityRowBaseProps
@@ -27,10 +30,19 @@ export const EquityRow: React.FC<EquityRowProps> = ({
   color,
   symbol,
   subText,
+  apy,
   ...rest
 }) => {
-  const labelParts = [label]
-  if (subText) labelParts.push(subText)
+  const labelJoined = useMemo(() => {
+    const labelElement = <RawText>{label}</RawText>
+    const subTextElement = <RawText>{subText}</RawText>
+    const subTextParts = [labelElement, ...(subText ? [subTextElement] : [])]
+    return subTextParts.map((element, index) => (
+      <Flex key={`subtext-${index}`} alignItems='center' gap={1}>
+        {element}
+      </Flex>
+    ))
+  }, [label, subText])
   return (
     <Button
       height='auto'
@@ -38,20 +50,25 @@ export const EquityRow: React.FC<EquityRowProps> = ({
       variant='ghost'
       justifyContent='flex-start'
       alignItems='center'
-      display='flex'
+      display='grid'
+      gridTemplateColumns={opportunityRowGrid}
       gap={4}
       {...rest}
     >
-      {typeof icon === 'string' ? <LazyLoadAvatar src={icon} /> : icon}
       <Flex flex={1} alignItems='flex-start' justifyContent='space-between' gap={4}>
+        {typeof icon === 'string' ? <LazyLoadAvatar src={icon} /> : icon}
         <Flex flexDir='column' flex={1} gap={1} textAlign='left'>
-          <RawText
+          <Stack
+            direction='row'
+            display={{ base: 'none', md: 'flex' }}
+            gap={1}
             color='chakra-body-text'
-            fontSize={{ base: 'sm', md: 'md' }}
-            display={{ base: 'none', md: 'inline-block' }}
+            fontSize={{ base: 'xs', md: 'sm' }}
+            lineHeight='shorter'
+            divider={<RawText> • </RawText>}
           >
-            {labelParts.join(' • ')}
-          </RawText>
+            {labelJoined}
+          </Stack>
           <RawText
             color='chakra-body-text'
             fontSize={{ base: 'sm', md: 'md' }}
@@ -76,20 +93,26 @@ export const EquityRow: React.FC<EquityRowProps> = ({
             </Flex>
           </Flex>
         </Flex>
-
-        <Flex flex={1} flexDir='column' alignItems='flex-end' fontWeight='medium' gap={1}>
-          <Amount.Fiat
-            fontSize={{ base: 'sm', md: 'md' }}
-            color='chakra-body-text'
-            value={bnOrZero(fiatAmount).toString()}
-          />
-          <Amount.Crypto
-            value={bnOrZero(cryptoBalancePrecision).toString()}
-            symbol={symbol}
-            fontSize={{ base: 'xs', md: 'sm' }}
-            lineHeight={1}
-          />
-        </Flex>
+      </Flex>
+      <Flex justifyContent='center' display={{ base: 'none', md: 'flex' }}>
+        {apy && (
+          <Tag colorScheme='green' size='sm'>
+            <Amount.Percent value={apy} suffix='APY' />
+          </Tag>
+        )}
+      </Flex>
+      <Flex flex={1} flexDir='column' alignItems='flex-end' fontWeight='medium' gap={1}>
+        <Amount.Fiat
+          fontSize={{ base: 'sm', md: 'md' }}
+          color='chakra-body-text'
+          value={bnOrZero(fiatAmount).toString()}
+        />
+        <Amount.Crypto
+          value={bnOrZero(cryptoBalancePrecision).toString()}
+          symbol={symbol}
+          fontSize={{ base: 'xs', md: 'sm' }}
+          lineHeight={1}
+        />
       </Flex>
     </Button>
   )

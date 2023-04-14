@@ -49,6 +49,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
       label={opportunity.provider}
       symbol={asset.symbol}
       subText={opportunity.version ?? DefiTypeDisplayName[opportunity.type]}
+      apy={opportunity.apy}
       cryptoBalancePrecision={bnOrZero(opportunity.cryptoAmountBaseUnit)
         .div(bn(10).pow(asset.precision))
         .toFixed(asset.precision)}

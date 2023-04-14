@@ -64,6 +64,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
       symbol={asset.symbol}
       allocation={allocation}
       color={color}
+      apy={opportunity.apy}
       subText={opportunity.opportunityName}
     />
   )

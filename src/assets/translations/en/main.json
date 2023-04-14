@@ -100,7 +100,8 @@
     "buyNow": "Buy Now",
     "manage": "Manage",
     "selectedAccount": "Selected Account",
-    "allChains": "All Chains"
+    "allChains": "All Chains",
+    "wallet": "Wallet"
   },
   "consentBanner": {
     "body": {

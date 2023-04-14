@@ -4,6 +4,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { generatePath, useHistory } from 'react-router-dom'
+import { AccountsIcon } from 'components/Icons/Accounts'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import {
@@ -68,7 +69,13 @@ export const EquityAccountRow = ({
     <EquityRow
       onClick={handleClick}
       icon={
-        <Avatar bg={`${asset.color}20`} color={asset.color} size='sm' name={`# ${accountNumber}`} />
+        <Avatar
+          bg={`${asset.color}30`}
+          color={asset.color}
+          size='sm'
+          borderRadius='lg'
+          icon={<AccountsIcon boxSize='18px' />}
+        />
       }
       label={translate('accounts.accountNumber', { accountNumber })}
       allocation={allocation}
@@ -76,7 +83,7 @@ export const EquityAccountRow = ({
       fiatAmount={fiatBalance}
       cryptoBalancePrecision={cryptoHumanBalance}
       symbol={asset.symbol}
-      subText='Wallet'
+      subText={translate('common.wallet')}
     />
   )
 }

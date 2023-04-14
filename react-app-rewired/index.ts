@@ -166,19 +166,21 @@ const reactAppRewireConfig = {
     // Generate and embed Subresource Integrity (SRI) attributes for all files.
     // Automatically embeds SRI hashes when generating the embedded webpack loaders
     // for split code.
-    _.merge(config, {
-      output: {
-        // This is the default, but the SRI spec requires it to be set explicitly.
-        crossOriginLoading: 'anonymous',
-      },
-      // SubresourceIntegrityPlugin automatically disables itself in development.
-      plugins: [
-        ...(config.plugins ?? []),
-        new SubresourceIntegrityPlugin({
-          hashFuncNames: ['sha256'],
-        }),
-      ],
-    })
+    // costs about 1 second in development, disable
+    isProduction &&
+      _.merge(config, {
+        output: {
+          // This is the default, but the SRI spec requires it to be set explicitly.
+          crossOriginLoading: 'anonymous',
+        },
+        // SubresourceIntegrityPlugin automatically disables itself in development.
+        plugins: [
+          ...(config.plugins ?? []),
+          new SubresourceIntegrityPlugin({
+            hashFuncNames: ['sha256'],
+          }),
+        ],
+      })
 
     _.merge(config, {
       plugins: [

@@ -1,12 +1,14 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 
-import { SwapError, SwapErrorType } from '../../../../api'
+import type { SwapErrorMonad } from '../../../../api'
+import { makeSwapErrorMonad, SwapError, SwapErrorType } from '../../../../api'
 import type { BN } from '../../../utils/bignumber'
 import { bn, bnOrZero, toBaseUnit } from '../../../utils/bignumber'
 import type { ThorchainSwapperDeps, ThornodePoolResponse, ThornodeQuoteResponse } from '../../types'
-import { getPriceRatio } from '../getPriceRatio/getPriceRatio'
 import { isRune } from '../isRune/isRune'
 import { thorService } from '../thorService'
 
@@ -35,13 +37,21 @@ export const getTradeRate = async ({
   sellAmountCryptoBaseUnit: string
   receiveAddress: string
   deps: ThorchainSwapperDeps
-}): Promise<string> => {
+}): Promise<Result<string, SwapErrorMonad>> => {
   // we can't get a quote for a zero amount so use getPriceRatio between pools instead
   if (bnOrZero(sellAmountCryptoBaseUnit).eq(0)) {
-    return getPriceRatio(deps, {
-      sellAssetId: sellAsset.assetId,
-      buyAssetId,
-    })
+    return Err(
+      makeSwapErrorMonad({
+        message: `[getTradeRate]: Sell amount is zero, cannot get a trade rate from Thorchain.`,
+        code: SwapErrorType.TRADE_BELOW_MINIMUM,
+        details: { sellAssetId: sellAsset.assetId, buyAssetId },
+      }),
+    )
+    // TODO(gomes): move me on the consumer with a match() on the error
+    // return getPriceRatio(deps, {
+    // sellAssetId: sellAsset.assetId,
+    // buyAssetId,
+    // })
   }
 
   const buyPoolId = adapters.assetIdToPoolAssetId({ assetId: buyAssetId })
@@ -72,31 +82,45 @@ export const getTradeRate = async ({
   const { data } = await thorService.get<ThornodeQuoteResponse>(
     `${deps.daemonUrl}/lcd/thorchain/quote/swap?amount=${sellAmountCryptoThorBaseUnit}&from_asset=${sellPoolId}&to_asset=${buyPoolId}&destination=${receiveAddress}`,
   )
-
-  // There was an error getting a quote from the thorchain api. This could be because e.g the amount being swapped is too small
-  // Fallback to returning a rate based on pools data
+  // Massages the error so we know whether it is a below minimum error, or a more generic THOR quote response error
   if ('error' in data) {
-    return getPriceRatio(deps, {
-      sellAssetId: sellAsset.assetId,
-      buyAssetId,
-    })
+    if (/not enough fee/.test(data.error)) {
+      // TODO(gomes): move me on the consumer with a match() on the error
+      // return getPriceRatio(deps, {
+      // sellAssetId: sellAsset.assetId,
+      // buyAssetId,
+      // })
+      return Err(
+        makeSwapErrorMonad({
+          message: `[getTradeRate]: Sell amount is below the THOR minimum, cannot get a trade rate from Thorchain.`,
+          code: SwapErrorType.TRADE_BELOW_MINIMUM,
+          details: { sellAssetId: sellAsset.assetId, buyAssetId },
+        }),
+      )
+    }
+
+    return Err(
+      makeSwapErrorMonad({
+        message: `[getTradeRate]: THORChain quote returned an error: ${data.error}`,
+        code: SwapErrorType.TRADE_QUOTE_FAILED,
+        details: { sellAssetId: sellAsset.assetId, buyAssetId },
+      }),
+    )
   }
 
-  const { slippage_bps, fees, expected_amount_out: expectedAmountOutThorBaseUnit } = data
+  // No error in response, meaning we have a valid quote
 
+  const { slippage_bps, fees, expected_amount_out: expectedAmountOutThorBaseUnit } = data
   // Add back the outbound fees
   const expectedAmountPlusFeesCryptoThorBaseUnit = bn(expectedAmountOutThorBaseUnit).plus(
     fees.outbound,
   )
-
   // Calculate the slippage percentage
   const slippagePercentage = bn(slippage_bps).div(10000)
-
   // Find the original amount before fees and slippage
   const expectedAmountPlusFeesAndSlippageCryptoThorBaseUnit =
     expectedAmountPlusFeesCryptoThorBaseUnit.div(bn(1).minus(slippagePercentage))
-
-  return expectedAmountPlusFeesAndSlippageCryptoThorBaseUnit
-    .div(sellAmountCryptoThorBaseUnit)
-    .toFixed()
+  return Ok(
+    expectedAmountPlusFeesAndSlippageCryptoThorBaseUnit.div(sellAmountCryptoThorBaseUnit).toFixed(),
+  )
 }

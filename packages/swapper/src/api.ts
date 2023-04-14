@@ -268,6 +268,7 @@ export enum SwapErrorType {
   GET_TRADE_TXS_FAILED = 'GET_TRADE_TXS_FAILED',
   TRADE_FAILED = 'TRADE_FAILED',
   RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED = 'RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED',
+  TRADE_BELOW_MINIMUM = 'TRADE_BELOW_MINIMUM',
 }
 export interface Swapper<T extends ChainId> {
   /** Human-readable swapper name */

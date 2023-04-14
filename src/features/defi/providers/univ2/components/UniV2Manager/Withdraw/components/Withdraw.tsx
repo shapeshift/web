@@ -130,9 +130,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, filter),
   )
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(lpAsset?.precision))
+  if (!state || !dispatch || !uniV2Opportunity?.icons || !lpAsset) return null
 
-  if (!state || !dispatch || !uniV2Opportunity?.icons) return null
+  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(lpAsset.precision))
 
   const getWithdrawGasEstimateCryptoPrecision = async (withdraw: WithdrawValues) => {
     try {
@@ -216,7 +216,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   }
 
   const handlePercentClick = (percent: number) => {
-    const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent).toString()
+    const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent).toFixed()
     const fiatAmount = bnOrZero(fiatAmountAvailable).times(percent).toString()
 
     setValue(Field.FiatAmount, fiatAmount, { shouldValidate: true })
@@ -273,7 +273,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         accountId={accountId}
         asset={lpAsset}
         icons={uniV2Opportunity.icons}
-        cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+        cryptoAmountAvailable={cryptoAmountAvailable.toFixed()}
         cryptoInputValidation={{
           required: true,
           validate: { validateCryptoAmount },

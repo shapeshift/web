@@ -86,6 +86,9 @@ export const getTradeRate = async ({
   // Massages the error so we know whether it is a below minimum error, or a more generic THOR quote response error
   if ('error' in data) {
     if (/not enough fee/.test(data.error)) {
+      // TODO(gomes): How much do we want to bubble the error property up?
+      // In other words, is the consumer calling getTradeRateBelowMinimum() in case of a sell amount below minimum enough,
+      // or do we need to bubble the error up all the way so "web" is aware that the rate that was gotten was a below minimum one?
       return Err(
         makeSwapErrorMonad({
           message: `[getTradeRate]: Sell amount is below the THOR minimum, cannot get a trade rate from Thorchain.`,

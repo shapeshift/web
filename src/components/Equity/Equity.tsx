@@ -9,7 +9,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAccountIdsByAssetIdAboveBalanceThreshold,
-  selectAllEarnUserLpOpportunitiesByAccountId,
+  selectAllEarnUserLpOpportunitiesByFilters,
   selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssets,
   selectCryptoHumanBalanceIncludingStakingByFilter,
@@ -62,7 +62,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     }
   }, [accountId, assetId])
   const lpOpportunities = useAppSelector(state =>
-    selectAllEarnUserLpOpportunitiesByAccountId(state, filter),
+    selectAllEarnUserLpOpportunitiesByFilters(state, filter),
   )
   const stakingOpportunities = useAppSelector(state =>
     selectAllEarnUserStakingOpportunitiesByFilter(state, filter),

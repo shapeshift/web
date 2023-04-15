@@ -1,5 +1,8 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 
+import type { SwapErrorMonad } from '../../../../api'
 import { SwapError, SwapErrorType } from '../../../../api'
 import type { ThorchainSwapperDeps } from '../../types'
 import { getInboundAddressDataForChain } from '../../utils/getInboundAddressDataForChain'
@@ -16,11 +19,16 @@ type GetThorTxInfoArgs = {
   xpub: string
   buyAssetTradeFeeUsd: string
 }
-type GetThorTxInfoReturn = Promise<{
-  opReturnData: string
-  vault: string
-  pubkey: string
-}>
+type GetThorTxInfoReturn = Promise<
+  Result<
+    {
+      opReturnData: string
+      vault: string
+      pubkey: string
+    },
+    SwapErrorMonad
+  >
+>
 type GetThorTxInfo = (args: GetThorTxInfoArgs) => GetThorTxInfoReturn
 
 export const getThorTxInfo: GetThorTxInfo = async ({
@@ -47,7 +55,7 @@ export const getThorTxInfo: GetThorTxInfo = async ({
         details: { inboundAddress, sellAsset },
       })
 
-    const limit = await getLimit({
+    const maybeLimit = await getLimit({
       buyAssetId: buyAsset.assetId,
       sellAmountCryptoBaseUnit,
       sellAsset,
@@ -57,18 +65,22 @@ export const getThorTxInfo: GetThorTxInfo = async ({
       receiveAddress: destinationAddress,
     })
 
+    if (maybeLimit.isErr()) return Err(maybeLimit.unwrapErr())
+    const limit = maybeLimit.unwrap()
+
     const memo = makeSwapMemo({
       buyAssetId: buyAsset.assetId,
       destinationAddress,
       limit,
     })
 
-    return {
+    return Ok({
       opReturnData: memo,
       vault,
       pubkey: xpub,
-    }
+    })
   } catch (e) {
+    // TODO(gomes): don't throw
     if (e instanceof SwapError) throw e
     throw new SwapError('[getThorTxInfo]', { cause: e, code: SwapErrorType.TRADE_QUOTE_FAILED })
   }

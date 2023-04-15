@@ -42,7 +42,9 @@ describe('getZrxTradeQuote', () => {
         data: { price: '100', gasPrice: '1000', estimatedGas: '1000000' },
       }),
     )
-    const quote = await swapper.getTradeQuote(quoteInput)
+    const maybeQuote = await swapper.getTradeQuote(quoteInput)
+    expect(maybeQuote.isErr()).toBe(false)
+    const quote = maybeQuote.unwrap()
     expect(quote.feeData).toStrictEqual({
       chainSpecific: {
         estimatedGasCryptoBaseUnit: '1500000',
@@ -89,7 +91,10 @@ describe('getZrxTradeQuote', () => {
         data: { price: '100' },
       }),
     )
-    const quote = await swapper.getTradeQuote(quoteInput)
+    const maybeQuote = await swapper.getTradeQuote(quoteInput)
+    expect(maybeQuote.isErr()).toBe(false)
+    const quote = maybeQuote.unwrap()
+
     expect(quote?.feeData).toStrictEqual({
       chainSpecific: {
         estimatedGasCryptoBaseUnit: '0',
@@ -133,10 +138,14 @@ describe('getZrxTradeQuote', () => {
       Promise.resolve({ data: { sellAmount: '20000000000000000000' } }),
     )
     const minimum = '20'
-    const quote = await swapper.getTradeQuote({
+    const maybeQuote = await swapper.getTradeQuote({
       ...quoteInput,
       sellAmountBeforeFeesCryptoBaseUnit: '0',
     })
+
+    expect(maybeQuote.isErr()).toBe(false)
+    const quote = maybeQuote.unwrap()
+
     expect(quote?.sellAmountBeforeFeesCryptoBaseUnit).toBe(
       bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision)).toString(),
     )

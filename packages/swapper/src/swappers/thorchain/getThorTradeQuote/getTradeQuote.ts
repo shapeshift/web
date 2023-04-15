@@ -197,7 +197,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
       case CHAIN_NAMESPACE.Utxo:
         return (async (): Promise<Result<TradeQuote<ThorUtxoSupportedChainId>, SwapErrorMonad>> => {
-          const { vault, opReturnData, pubkey } = await getThorTxInfo({
+          const maybeThorTxInfo = await getThorTxInfo({
             deps,
             sellAsset,
             buyAsset,
@@ -207,6 +207,10 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             xpub: (input as GetUtxoTradeQuoteInput).xpub,
             buyAssetTradeFeeUsd,
           })
+
+          if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
+          const thorTxInfo = maybeThorTxInfo.unwrap()
+          const { vault, opReturnData, pubkey } = thorTxInfo
 
           const feeData = await getUtxoTxFees({
             sellAmountCryptoBaseUnit,

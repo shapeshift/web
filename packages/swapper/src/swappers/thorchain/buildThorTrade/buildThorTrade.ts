@@ -96,7 +96,7 @@ export const buildTrade = async ({
         txData: ethTradeTx.txToSign,
       })
     } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
-      const { vault, opReturnData } = await getThorTxInfo({
+      const maybethorTxInfo = await getThorTxInfo({
         deps,
         sellAsset,
         buyAsset,
@@ -106,6 +106,9 @@ export const buildTrade = async ({
         xpub: (input as GetUtxoTradeQuoteInput).xpub,
         buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
       })
+
+      if (maybethorTxInfo.isErr()) return Err(maybethorTxInfo.unwrapErr())
+      const { vault, opReturnData } = maybethorTxInfo.unwrap()
 
       const buildTxResponse = await (
         sellAdapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>

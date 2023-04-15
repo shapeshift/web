@@ -1,4 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { sortBy } from 'lodash'
 import uniq from 'lodash/uniq'
 
@@ -11,7 +13,7 @@ import type {
   Swapper,
   SwapperWithQuoteMetadata,
 } from '..'
-import type { SwapperType } from '../api'
+import type { SwapErrorMonad, SwapperType } from '../api'
 import { SwapError, SwapErrorType } from '../api'
 import { isFulfilled } from '../typeGuards'
 import { getRatioFromQuote } from './utils'
@@ -92,25 +94,33 @@ export class SwapperManager {
       buyAssetId: buyAsset.assetId,
     })
 
-    const settledSwapperDetailRequests: PromiseSettledResult<SwapperWithQuoteMetadata>[] =
-      await Promise.allSettled(
-        supportedSwappers.map(async swapper => {
-          const quote = await swapper.getTradeQuote(args)
-          const ratio = await getRatioFromQuote(quote, swapper, feeAsset)
+    const settledSwapperDetailRequests: PromiseSettledResult<
+      Result<SwapperWithQuoteMetadata, SwapErrorMonad>
+      // TODO(gomes): do we still need allSettled? Can we use Promise.all? This should never reject anymore
+      // as long as we scutinize the error-handling flow
+    >[] = await Promise.allSettled(
+      supportedSwappers.map(async swapper => {
+        const maybeQuote = await swapper.getTradeQuote(args)
 
-          return {
-            swapper,
-            quote,
-            inputOutputRatio: ratio,
-          }
-        }),
-      )
+        if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
+        const quote = maybeQuote.unwrap()
+
+        const ratio = await getRatioFromQuote(quote, swapper, feeAsset)
+
+        return Ok({
+          swapper,
+          quote,
+          inputOutputRatio: ratio,
+        })
+      }),
+    )
 
     // Swappers with quote and ratio details, sorted by descending input output ratio (best to worst)
     const swappersWithDetail: SwapperWithQuoteMetadata[] = sortBy(
       settledSwapperDetailRequests
         .filter(isFulfilled)
-        .map(swapperDetailRequest => swapperDetailRequest.value),
+        .filter(settledSwapperDetailRequests => settledSwapperDetailRequests.value.isOk())
+        .map(swapperDetailRequest => swapperDetailRequest.value.unwrap()),
       ['inputOutputRatio'],
     ).reverse()
 

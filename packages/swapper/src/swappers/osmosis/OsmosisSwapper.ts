@@ -20,6 +20,7 @@ import type {
 import { SwapError, SwapErrorType, SwapperName, SwapperType } from '../../api'
 import { bn, bnOrZero } from '../utils/bignumber'
 import {
+  atomOnOsmosisAssetId,
   COSMO_OSMO_CHANNEL,
   DEFAULT_SOURCE,
   MAX_SWAPPER_SELL,
@@ -51,7 +52,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
   constructor(deps: OsmoSwapperDeps) {
     this.deps = deps
-    this.supportedAssetIds = [cosmosAssetId, osmosisAssetId]
+    this.supportedAssetIds = [cosmosAssetId, osmosisAssetId, atomOnOsmosisAssetId]
   }
 
   async getTradeTxs(tradeResult: OsmosisTradeResult): Promise<TradeTxs> {

@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { Err, Ok } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 
 import type { Swapper, SwapperWithQuoteMetadata } from '../api'
 import { SwapperType } from '../api'

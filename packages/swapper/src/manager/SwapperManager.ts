@@ -3,7 +3,6 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { sortBy } from 'lodash'
 import uniq from 'lodash/uniq'
-import util from 'util'
 
 import type {
   BuyAssetBySellIdInput,

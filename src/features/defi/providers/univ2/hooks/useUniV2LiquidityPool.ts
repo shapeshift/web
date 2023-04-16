@@ -222,10 +222,17 @@ export const useUniV2LiquidityPool = ({
           if (supportedEvmChainIds.includes(adapterType)) {
             if (!supportsETH(wallet))
               throw new Error(`addLiquidity: wallet does not support ethereum`)
-            const fees = estimatedFees.average as FeeData<EvmChainId>
+            const fees = estimatedFees.fast as FeeData<EvmChainId>
             const {
-              chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
+              chainSpecific: {
+                gasPrice,
+                gasLimit: gasLimitBase,
+                maxFeePerGas,
+                maxPriorityFeePerGas,
+              },
             } = fees
+
+            const gasLimit = bnOrZero(gasLimitBase).times(1.1).toFixed(0)
             const shouldUseEIP1559Fees =
               (await wallet.ethSupportsEIP1559()) &&
               maxFeePerGas !== undefined &&
@@ -392,10 +399,18 @@ export const useUniV2LiquidityPool = ({
           if (supportedEvmChainIds.includes(adapterType)) {
             if (!supportsETH(wallet))
               throw new Error(`removeLiquidity: wallet does not support ethereum`)
-            const fees = estimatedFees.average as FeeData<EvmChainId>
+            const fees = estimatedFees.fast as FeeData<EvmChainId>
             const {
-              chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
+              chainSpecific: {
+                gasPrice,
+                gasLimit: gasLimitBase,
+                maxFeePerGas,
+                maxPriorityFeePerGas,
+              },
             } = fees
+            // Gas limit tends to be too low and make Txs revert
+            // So we artificially bump it by 10% to ensure Txs go through
+            const gasLimit = bnOrZero(gasLimitBase).times(1.1).toFixed(0)
             const shouldUseEIP1559Fees =
               (await wallet.ethSupportsEIP1559()) &&
               maxFeePerGas !== undefined &&
@@ -664,6 +679,11 @@ export const useUniV2LiquidityPool = ({
           from: fromAccountId(accountId).account,
         },
       })
+
+      const gasLimitBase = estimatedFees.fast.chainSpecific.gasLimit
+      const gasLimit = bnOrZero(gasLimitBase).times(1.1).toFixed(0)
+      estimatedFees.fast.chainSpecific.gasLimit = gasLimit
+
       return estimatedFees
     },
     [

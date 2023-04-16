@@ -10,7 +10,7 @@ import * as fs from 'fs'
 import readline from 'readline'
 import util from 'util'
 interface StringRecord {
-  [key: string]: string | StringRecord;
+  [key: string]: string | StringRecord
 }
 
 // Set the current dir to the repo root (makes it easier for git commands)
@@ -21,6 +21,14 @@ const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 })
+
+const countWordsArray = (strings: string[]): number => {
+  return strings.reduce((count, str) => count + countWords(str), 0)
+}
+
+const countWords = (str: string): number => {
+  return str.trim().split(/\s+/).length
+}
 
 rl.question('Which revision sould we compare: ', commitId => {
   const currentFileContent = fs.readFileSync('src/assets/translations/en/main.json', 'utf8')
@@ -42,21 +50,14 @@ rl.question('Which revision sould we compare: ', commitId => {
 const findModifiedStrings = (prev: StringRecord, curr: StringRecord): string[] => {
   const modifiedStrings: string[] = []
   for (const key in curr) {
-    const currentValue = curr[key]
-    const previousValue = prev[key]
+    const currentValue = curr?.[key]
+    const previousValue = prev?.[key]
     if (typeof currentValue === 'string' && previousValue !== currentValue) {
       modifiedStrings.push(currentValue)
     } else if (typeof currentValue !== 'string' && typeof previousValue !== 'string') {
       const nestedModifiedStrings = findModifiedStrings(previousValue, currentValue)
       modifiedStrings.push(...nestedModifiedStrings)
     }
+  }
   return modifiedStrings
-}
-
-const countWordsArray = (strings: string[]): number => {
-  return strings.reduce((count, str) => count + countWords(str), 0)
-}
-
-const countWords = (str: string): number => {
-  return str.trim().split(/\s+/).length
 }

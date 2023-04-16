@@ -9,6 +9,9 @@ import { execSync } from 'child_process'
 import * as fs from 'fs'
 import readline from 'readline'
 import util from 'util'
+interface StringRecord {
+  [key: string]: string | StringRecord;
+}
 
 // Set the current dir to the repo root (makes it easier for git commands)
 const repoPath: string = execSync('git rev-parse --show-toplevel').toString().trim()
@@ -21,11 +24,11 @@ const rl = readline.createInterface({
 
 rl.question('Which revision sould we compare: ', commitId => {
   const currentFileContent = fs.readFileSync('src/assets/translations/en/main.json', 'utf8')
-  const currentStrings = JSON.parse(currentFileContent)
+  const currentStrings: StringRecord = JSON.parse(currentFileContent)
   const previousFileContent = execSync(
     `git show ${commitId}:src/assets/translations/en/main.json`,
   ).toString()
-  const previousStrings = JSON.parse(previousFileContent)
+  const previousStrings: StringRecord = JSON.parse(previousFileContent)
   const modifiedStrings = findModifiedStrings(previousStrings, currentStrings)
   console.log(`${util.inspect(modifiedStrings, { maxArrayLength: 1000 })}`)
   const wordCount = countWordsArray(modifiedStrings)
@@ -36,26 +39,24 @@ rl.question('Which revision sould we compare: ', commitId => {
   rl.close()
 })
 
-function findModifiedStrings(prev: any, curr: any, path: string[] = []): string[] {
+const findModifiedStrings = (prev: StringRecord, curr: StringRecord): string[] => {
   const modifiedStrings: string[] = []
   for (const key in curr) {
-    const newPath = [...path, key]
-    if (typeof curr[key] === 'string') {
-      if (!prev || !prev.hasOwnProperty(key) || prev[key] !== curr[key]) {
-        modifiedStrings.push(curr[key])
-      }
-    } else {
-      const nestedModifiedStrings = findModifiedStrings(prev?.[key] ?? null, curr[key], newPath)
+    const currentValue = curr[key]
+    const previousValue = prev[key]
+    if (typeof currentValue === 'string' && previousValue !== currentValue) {
+      modifiedStrings.push(currentValue)
+    } else if (typeof currentValue !== 'string' && typeof previousValue !== 'string') {
+      const nestedModifiedStrings = findModifiedStrings(previousValue, currentValue)
       modifiedStrings.push(...nestedModifiedStrings)
     }
-  }
   return modifiedStrings
 }
 
-function countWordsArray(strings: string[]): number {
+const countWordsArray = (strings: string[]): number => {
   return strings.reduce((count, str) => count + countWords(str), 0)
 }
 
-function countWords(str: string): number {
+const countWords = (str: string): number => {
   return str.trim().split(/\s+/).length
 }

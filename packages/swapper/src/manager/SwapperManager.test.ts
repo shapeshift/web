@@ -229,7 +229,7 @@ describe('SwapperManager', () => {
       const cowSwapperGetUsdTradeQuoteMock = jest
         .spyOn(cowSwapper, 'getTradeQuote')
         // TODO(gomes): is mocking OK(badTradeQuote), in other words what's the intent of this?
-        // This previously mocked rejection with a bad trade quote which seems wrong - if there's a rejection, means we should bail?
+        // This previously mocked resolution with a bad trade quote which seems wrong - if there's a "bad" trade quote, means we should bail and not return it?
         .mockImplementation(jest.fn().mockResolvedValueOnce(Ok(badTradeQuote)))
 
       const zrxEthereumSwapperGetUsdTradeQuoteMock = jest
@@ -255,7 +255,6 @@ describe('SwapperManager', () => {
         .addSwapper(zrxBscSwapper)
 
       const { quoteInput } = setupQuote()
-      debugger
       const swappers = await swapperManager.getSwappersWithQuoteMetadata({
         ...quoteInput,
         feeAsset: ETH,

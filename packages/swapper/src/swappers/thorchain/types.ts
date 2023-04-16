@@ -26,7 +26,7 @@ export type ThornodePoolResponse = {
   synth_units: string
 }
 
-export type ThornodeQuoteResponseOk = {
+export type ThornodeQuoteResponseSuccess = {
   expected_amount_out: string
   expiry: string
   fees: {
@@ -45,7 +45,7 @@ export type ThornodeQuoteResponseOk = {
 }
 
 type ThornodeQuoteResponseError = { error: string }
-export type ThornodeQuoteResponse = ThornodeQuoteResponseOk | ThornodeQuoteResponseError
+export type ThornodeQuoteResponse = ThornodeQuoteResponseSuccess | ThornodeQuoteResponseError
 
 type MidgardCoins = {
   asset: string

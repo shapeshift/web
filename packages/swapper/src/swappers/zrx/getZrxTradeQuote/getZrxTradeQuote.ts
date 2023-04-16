@@ -73,6 +73,14 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       },
     )
 
+    if (!quoteResponse.data)
+      return Err(
+        makeSwapErrorMonad({
+          message: '[getZrxTradeQuote] Bad ZRX response, no data was returned',
+          code: SwapErrorType.TRADE_QUOTE_FAILED,
+        }),
+      )
+
     const {
       data: {
         estimatedGas: estimatedGasResponse,

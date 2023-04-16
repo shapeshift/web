@@ -1,3 +1,4 @@
+import { btcChainId, ethChainId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { AxiosStatic } from 'axios'
@@ -58,29 +59,43 @@ describe('getZrxTradeQuote', () => {
     expect(quote.rate).toBe('100')
   })
 
-  it('quote fails with a bad zrx response with no error indicated', async () => {
+  it('returns an Err with a bad zrx response with no error indicated', async () => {
     const { quoteInput } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(undefined))
-    await expect(
-      swapper.getTradeQuote({
-        ...quoteInput,
-      }),
-    ).rejects.toThrow('[getZrxTradeQuote]')
+    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({}))
+    const maybeTradeQuote = await swapper.getTradeQuote({
+      ...quoteInput,
+    })
+
+    expect(maybeTradeQuote.isErr()).toBe(true)
+    expect(maybeTradeQuote.unwrapErr()).toMatchObject({
+      cause: undefined,
+      code: 'TRADE_QUOTE_FAILED',
+      details: undefined,
+      message: '[getZrxTradeQuote] Bad ZRX response, no data was returned',
+      name: 'SwapError',
+    })
   })
 
-  it('quote fails with on errored zrx response', async () => {
+  it('returns an Err with on errored zrx response', async () => {
     const { quoteInput } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     ;(zrxService.get as jest.Mock<unknown>).mockRejectedValue({
       response: { data: { code: 502, reason: 'Failed to do some stuff' } },
     } as never)
 
-    await expect(
-      swapper.getTradeQuote({
-        ...quoteInput,
-      }),
-    ).rejects.toThrow('[getZrxTradeQuote]')
+    const maybeTradeQuote = await swapper.getTradeQuote({
+      ...quoteInput,
+    })
+
+    expect(maybeTradeQuote.isErr()).toBe(true)
+    expect(maybeTradeQuote.unwrapErr()).toMatchObject({
+      cause: { response: { data: { code: 502, reason: 'Failed to do some stuff' } } },
+      code: 'TRADE_QUOTE_FAILED',
+      details: undefined,
+      message: '[getZrxTradeQuote]',
+      name: 'SwapError',
+    })
   })
 
   it('returns quote without fee data', async () => {
@@ -107,28 +122,50 @@ describe('getZrxTradeQuote', () => {
     })
   })
 
-  it('fails on non ethereum chain for buyAsset', async () => {
+  it('returns an Err on non ethereum chain for buyAsset', async () => {
     const { quoteInput, buyAsset } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve())
-    await expect(
-      swapper.getTradeQuote({
-        ...quoteInput,
-        buyAsset: { ...buyAsset, chainId: 'bip122:000000000019d6689c085ae165831e93' },
-      }),
-    ).rejects.toThrow('[getZrxTradeQuote]')
+    const maybeTradeQuote = await swapper.getTradeQuote({
+      ...quoteInput,
+      buyAsset: { ...buyAsset, chainId: btcChainId },
+    })
+
+    expect(maybeTradeQuote.isErr()).toBe(true)
+    expect(maybeTradeQuote.unwrapErr()).toMatchObject({
+      cause: undefined,
+      code: 'UNSUPPORTED_PAIR',
+      details: {
+        buyAssetChainId: btcChainId,
+        sellAssetChainId: ethChainId,
+      },
+      message:
+        '[getZrxTradeQuote] - Both assets need to be on the same supported EVM chain to use Zrx',
+      name: 'SwapError',
+    })
   })
 
-  it('fails on non ethereum chain for sellAsset', async () => {
+  it('returns an Err on non ethereum chain for sellAsset', async () => {
     const { quoteInput, sellAsset } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve())
-    await expect(
-      swapper.getTradeQuote({
-        ...quoteInput,
-        sellAsset: { ...sellAsset, chainId: 'bip122:000000000019d6689c085ae165831e93' },
-      }),
-    ).rejects.toThrow('[getZrxTradeQuote]')
+    const maybeTradeQuote = await swapper.getTradeQuote({
+      ...quoteInput,
+      sellAsset: { ...sellAsset, chainId: btcChainId },
+    })
+
+    expect(maybeTradeQuote.isErr()).toBe(true)
+    expect(maybeTradeQuote.unwrapErr()).toMatchObject({
+      cause: undefined,
+      code: 'UNSUPPORTED_PAIR',
+      details: {
+        buyAssetChainId: ethChainId,
+        sellAssetChainId: btcChainId,
+      },
+      message:
+        '[getZrxTradeQuote] - Both assets need to be on the same supported EVM chain to use Zrx',
+      name: 'SwapError',
+    })
   })
 
   it('use minQuoteSellAmount when sellAmount is 0', async () => {

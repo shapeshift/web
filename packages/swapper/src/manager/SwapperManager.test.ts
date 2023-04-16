@@ -1,4 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import { Err, Ok } from '@sniptt/monads'
 
 import type { Swapper, SwapperWithQuoteMetadata } from '../api'
 import { SwapperType } from '../api'
@@ -227,11 +228,13 @@ describe('SwapperManager', () => {
 
       const cowSwapperGetUsdTradeQuoteMock = jest
         .spyOn(cowSwapper, 'getTradeQuote')
-        .mockImplementation(jest.fn().mockResolvedValueOnce(badTradeQuote))
+        // TODO(gomes): is mocking OK(badTradeQuote), in other words what's the intent of this?
+        // This previously mocked rejection with a bad trade quote which seems wrong - if there's a rejection, means we should bail?
+        .mockImplementation(jest.fn().mockResolvedValueOnce(Ok(badTradeQuote)))
 
       const zrxEthereumSwapperGetUsdTradeQuoteMock = jest
         .spyOn(zrxEthereumSwapper, 'getTradeQuote')
-        .mockImplementation(jest.fn().mockResolvedValueOnce(goodTradeQuote))
+        .mockImplementation(jest.fn().mockResolvedValueOnce(Ok(goodTradeQuote)))
 
       const zrxAvalancheSwapperGetUsdTradeQuoteMock = jest.spyOn(
         zrxAvalancheSwapper,
@@ -252,6 +255,7 @@ describe('SwapperManager', () => {
         .addSwapper(zrxBscSwapper)
 
       const { quoteInput } = setupQuote()
+      debugger
       const swappers = await swapperManager.getSwappersWithQuoteMetadata({
         ...quoteInput,
         feeAsset: ETH,

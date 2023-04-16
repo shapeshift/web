@@ -232,9 +232,10 @@ describe('cowBuildTrade', () => {
       }),
     )
 
-    const trade = await cowBuildTrade(deps, tradeInput)
+    const maybeBuiltTrade = await cowBuildTrade(deps, tradeInput)
 
-    expect(trade).toEqual(expectedTradeWethToFox)
+    expect(maybeBuiltTrade.isOk()).toBe(true)
+    expect(maybeBuiltTrade.unwrap()).toEqual(expectedTradeWethToFox)
     expect(cowService.post).toHaveBeenCalledWith(
       'https://api.cow.fi/mainnet/api/v1/quote/',
       expectedApiInputWethToFox,
@@ -269,9 +270,12 @@ describe('cowBuildTrade', () => {
       }),
     )
 
-    const trade = await cowBuildTrade(deps, tradeInput)
+    const maybeBuiltTrade = await cowBuildTrade(deps, tradeInput)
+    expect(maybeBuiltTrade.isOk()).toBe(true)
 
-    expect(trade).toEqual(expectedTradeQuoteWbtcToWethWithApprovalFeeCryptoBaseUnit)
+    expect(maybeBuiltTrade.unwrap()).toEqual(
+      expectedTradeQuoteWbtcToWethWithApprovalFeeCryptoBaseUnit,
+    )
     expect(cowService.post).toHaveBeenCalledWith(
       'https://api.cow.fi/mainnet/api/v1/quote/',
       expectedApiInputWbtcToWeth,
@@ -306,9 +310,10 @@ describe('cowBuildTrade', () => {
       }),
     )
 
-    const trade = await cowBuildTrade(deps, tradeInput)
+    const maybeBuiltTrade = await cowBuildTrade(deps, tradeInput)
+    expect(maybeBuiltTrade.isOk()).toBe(true)
 
-    expect(trade).toEqual(expectedTradeQuoteFoxToEth)
+    expect(maybeBuiltTrade.unwrap()).toEqual(expectedTradeQuoteFoxToEth)
     expect(cowService.post).toHaveBeenCalledWith(
       'https://api.cow.fi/mainnet/api/v1/quote/',
       expectedApiInputFoxToEth,

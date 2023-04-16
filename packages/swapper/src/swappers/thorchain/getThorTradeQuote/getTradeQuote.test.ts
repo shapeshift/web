@@ -94,7 +94,8 @@ describe('getTradeQuote', () => {
       sellAsset: FOX,
     }
 
-    const tradeQuote = await getThorTradeQuote({ deps, input })
-    expect(tradeQuote).toEqual(expectedQuoteResponse)
+    const maybeTradeQuote = await getThorTradeQuote({ deps, input })
+    expect(maybeTradeQuote.isOk()).toBe(true)
+    expect(maybeTradeQuote.unwrap()).toEqual(expectedQuoteResponse)
   })
 })

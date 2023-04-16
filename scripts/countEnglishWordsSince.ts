@@ -50,7 +50,7 @@ rl.question('Which revision sould we compare: ', commitId => {
 const findModifiedStrings = (prev: StringRecord, curr: StringRecord): string[] => {
   const modifiedStrings: string[] = []
   for (const key in curr) {
-    const currentValue = curr?.[key]
+    const currentValue = curr[key]
     const previousValue = prev?.[key]
     if (typeof currentValue === 'string' && previousValue !== currentValue) {
       modifiedStrings.push(currentValue)

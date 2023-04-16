@@ -1,7 +1,7 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
-import { Ok } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import max from 'lodash/max'
 
 import type { SwapErrorMonad } from '../../../../api'
@@ -45,7 +45,7 @@ export const getLimit = async ({
 
   // Bubble up the Err monad if we can't get a trade rate
   if (maybeTradeRate.isErr()) {
-    return maybeTradeRate
+    return Err(maybeTradeRate.unwrapErr())
   }
 
   const tradeRate = maybeTradeRate.unwrap()

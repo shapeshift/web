@@ -113,7 +113,7 @@ describe('getLimit', () => {
       .mockReturnValueOnce(Promise.resolve('14.51')) // sellFeeAssetUsdRate (RUNE)
       .mockReturnValueOnce(Promise.resolve('0.04')) // buyAssetUsdRate (FOX)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
-      Ok(Promise.resolve('38.68447363336979738738')),
+      Promise.resolve(Ok('38.68447363336979738738')),
     )
     ;(getInboundAddressDataForChain as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(undefined),

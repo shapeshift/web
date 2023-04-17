@@ -92,8 +92,8 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PolygonMainnet> {
   }
 
   async getFeeData(
-    input: GetFeeDataInput<KnownChainIds.BnbSmartChainMainnet>,
-  ): Promise<FeeDataEstimate<KnownChainIds.BnbSmartChainMainnet>> {
+    input: GetFeeDataInput<KnownChainIds.PolygonMainnet>,
+  ): Promise<FeeDataEstimate<KnownChainIds.PolygonMainnet>> {
     const req = await this.buildEstimateGasRequest(input)
 
     const { gasLimit } = await this.api.estimateGas(req)

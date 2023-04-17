@@ -1,7 +1,13 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { avalanche, bnbsmartchain, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
+import type {
+  avalanche,
+  bnbsmartchain,
+  ethereum,
+  optimism,
+  polygon,
+} from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import type {
@@ -32,12 +38,14 @@ export type ZrxSupportedChainId =
   | KnownChainIds.AvalancheMainnet
   | KnownChainIds.OptimismMainnet
   | KnownChainIds.BnbSmartChainMainnet
+  | KnownChainIds.PolygonMainnet
 
 export type ZrxSupportedChainAdapter =
   | ethereum.ChainAdapter
   | avalanche.ChainAdapter
   | optimism.ChainAdapter
   | bnbsmartchain.ChainAdapter
+  | polygon.ChainAdapter
 
 export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
   readonly name = SwapperName.Zrx
@@ -59,6 +67,8 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
         return SwapperType.ZrxOptimism
       case KnownChainIds.BnbSmartChainMainnet:
         return SwapperType.ZrxBnbSmartChain
+      case KnownChainIds.PolygonMainnet:
+        return SwapperType.ZrxPolygon
       default:
         throw new SwapError('[getType]', {
           code: SwapErrorType.UNSUPPORTED_CHAIN,

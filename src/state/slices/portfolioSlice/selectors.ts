@@ -14,6 +14,7 @@ import {
   ltcAssetId,
   optimismAssetId,
   osmosisAssetId,
+  polygonAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import type { BIP44Params } from '@shapeshiftoss/types'
@@ -86,6 +87,7 @@ export const FEE_ASSET_IDS = [
   avalancheAssetId,
   optimismAssetId,
   bscAssetId,
+  polygonAssetId,
 ]
 
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(

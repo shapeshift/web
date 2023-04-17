@@ -127,10 +127,12 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Execute a trade built with buildTrade by signing and broadcasting
    */
-  async executeTrade(input: LifiExecuteTradeInput): Promise<TradeResult> {
+  async executeTrade(input: LifiExecuteTradeInput): Promise<Result<TradeResult, SwapErrorMonad>> {
     const { tradeResult, getStatusRequest } = await executeTrade(input)
     this.executedTrades.set(tradeResult.tradeId, getStatusRequest)
-    return tradeResult
+    // TODO(gomes): is this actually ok? Should we return a Result monad as well
+    // in ./executeTrade/executeTrade ?
+    return Ok(tradeResult)
   }
 
   /**
@@ -172,18 +174,18 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Get transactions related to a trade
    */
-  async getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
+  async getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorMonad>> {
     const getStatusRequest = this.executedTrades.get(tradeResult.tradeId)
 
     if (getStatusRequest === undefined) {
-      return { sellTxid: tradeResult.tradeId }
+      return Ok({ sellTxid: tradeResult.tradeId })
     }
 
     const statusResponse = await getLifi().getStatus(getStatusRequest)
 
-    return {
+    return Ok({
       sellTxid: tradeResult.tradeId,
       buyTxid: statusResponse.receiving?.txHash,
-    }
+    })
   }
 }

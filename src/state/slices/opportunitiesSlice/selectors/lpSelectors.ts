@@ -282,7 +282,7 @@ export const selectActiveAggregatedEarnUserLpOpportunities = createDeepEqualOutp
     ),
 )
 
-export const selectAllEarnUserLpOpportunitiesByFilters = createSelector(
+export const selectAllEarnUserLpOpportunitiesByFilter = createSelector(
   selectLpOpportunitiesById,
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,

@@ -3,7 +3,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
-import type { SwapErrorMonad } from '../../../../api'
+import type { SwapErrorRight } from '../../../../api'
 import { SwapError, SwapErrorType } from '../../../../api'
 import type { ThorchainSwapperDeps } from '../../types'
 import { getInboundAddressDataForChain } from '../../utils/getInboundAddressDataForChain'
@@ -27,7 +27,7 @@ type GetBtcThorTxInfoReturn = Promise<
       data: string
       router: string
     },
-    SwapErrorMonad
+    SwapErrorRight
   >
 >
 

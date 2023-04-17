@@ -2,7 +2,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
-import type { SwapErrorMonad } from '../../../../api'
+import type { SwapErrorRight } from '../../../../api'
 import { SwapError, SwapErrorType } from '../../../../api'
 import type { ThorchainSwapperDeps } from '../../types'
 import { getInboundAddressDataForChain } from '../../utils/getInboundAddressDataForChain'
@@ -26,7 +26,7 @@ type GetThorTxInfoReturn = Promise<
       vault: string
       pubkey: string
     },
-    SwapErrorMonad
+    SwapErrorRight
   >
 >
 type GetThorTxInfo = (args: GetThorTxInfoArgs) => GetThorTxInfoReturn

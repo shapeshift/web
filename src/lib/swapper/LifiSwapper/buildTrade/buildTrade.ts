@@ -1,6 +1,6 @@
 import type { ChainKey, Token } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { BuildTradeInput, SwapErrorMonad } from '@shapeshiftoss/swapper'
+import type { BuildTradeInput, SwapErrorRight } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -13,7 +13,7 @@ export const buildTrade = async (
   input: BuildTradeInput,
   lifiAssetMap: Map<AssetId, Token>,
   lifiChainMap: Map<ChainId, ChainKey>,
-): Promise<Result<LifiTrade, SwapErrorMonad>> => {
+): Promise<Result<LifiTrade, SwapErrorRight>> => {
   if (!isGetEvmTradeQuoteInput(input)) {
     throw new SwapError('[buildTrade] - only EVM chains are supported', {
       code: SwapErrorType.UNSUPPORTED_CHAIN,

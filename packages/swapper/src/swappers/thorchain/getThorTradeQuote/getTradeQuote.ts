@@ -11,10 +11,10 @@ import { Err, Ok } from '@sniptt/monads'
 import type {
   GetTradeQuoteInput,
   GetUtxoTradeQuoteInput,
-  SwapErrorMonad,
+  SwapErrorRight,
   TradeQuote,
 } from '../../../api'
-import { makeSwapErrorMonad, SwapError, SwapErrorType, SwapperName } from '../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from '../../../api'
 import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../utils/bignumber'
 import { DEFAULT_SLIPPAGE } from '../../utils/constants'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from '../constants'
@@ -45,7 +45,7 @@ type GetThorTradeQuoteInput = {
   input: GetTradeQuoteInput
 }
 
-type GetThorTradeQuoteReturn = Promise<Result<TradeQuote<ChainId>, SwapErrorMonad>>
+type GetThorTradeQuoteReturn = Promise<Result<TradeQuote<ChainId>, SwapErrorRight>>
 
 type GetThorTradeQuote = (args: GetThorTradeQuoteInput) => GetThorTradeQuoteReturn
 
@@ -68,7 +68,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     const buyAdapter = deps.adapterManager.get(buyAssetChainId)
     if (!sellAdapter || !buyAdapter)
       return Err(
-        makeSwapErrorMonad({
+        makeSwapErrorRight({
           message: `[getThorTradeQuote] - No chain adapter found for ${chainId} or ${buyAssetChainId}.`,
           code: SwapErrorType.UNSUPPORTED_CHAIN,
           details: { sellAssetChainId: chainId, buyAssetChainId },
@@ -158,7 +158,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm:
         return (async (): Promise<
-          Promise<Result<TradeQuote<ThorEvmSupportedChainId>, SwapErrorMonad>>
+          Promise<Result<TradeQuote<ThorEvmSupportedChainId>, SwapErrorRight>>
         > => {
           const sellChainFeeAssetId = sellAdapter.getFeeAssetId()
           const evmAddressData = await getInboundAddressDataForChain(
@@ -169,7 +169,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           const router = evmAddressData?.router
           if (!router)
             return Err(
-              makeSwapErrorMonad({
+              makeSwapErrorRight({
                 message: `[getThorTradeQuote] No router address found for ${sellChainFeeAssetId}`,
               }),
             )
@@ -188,7 +188,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         })()
 
       case CHAIN_NAMESPACE.Utxo:
-        return (async (): Promise<Result<TradeQuote<ThorUtxoSupportedChainId>, SwapErrorMonad>> => {
+        return (async (): Promise<Result<TradeQuote<ThorUtxoSupportedChainId>, SwapErrorRight>> => {
           const maybeThorTxInfo = await getThorTxInfo({
             deps,
             sellAsset,
@@ -222,7 +222,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         })()
       case CHAIN_NAMESPACE.CosmosSdk:
         return (async (): Promise<
-          Result<TradeQuote<ThorCosmosSdkSupportedChainId>, SwapErrorMonad>
+          Result<TradeQuote<ThorCosmosSdkSupportedChainId>, SwapErrorRight>
         > => {
           const feeData = await (
             sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
@@ -241,7 +241,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         })()
       default:
         return Err(
-          makeSwapErrorMonad({
+          makeSwapErrorRight({
             message: '[getThorTradeQuote] - Asset chainId is not supported.',
             code: SwapErrorType.UNSUPPORTED_CHAIN,
             details: { chainId },
@@ -252,14 +252,14 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     // TODO: We shouldn't nee to catch anymore, since there should never be errors in the first place 🎉
     if (e instanceof SwapError)
       return Err(
-        makeSwapErrorMonad({
+        makeSwapErrorRight({
           message: e.message,
           code: e.code,
           details: e.details,
         }),
       )
     return Err(
-      makeSwapErrorMonad({
+      makeSwapErrorRight({
         message: '[getThorTradeQuote]',
         cause: e,
         code: SwapErrorType.TRADE_QUOTE_FAILED,

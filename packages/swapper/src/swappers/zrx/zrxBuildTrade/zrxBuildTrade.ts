@@ -3,7 +3,7 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import * as rax from 'retry-axios'
 
-import type { BuildTradeInput, SwapErrorMonad } from '../../../api'
+import type { BuildTradeInput, SwapErrorRight } from '../../../api'
 import { SwapError, SwapErrorType } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bnOrZero } from '../../utils/bignumber'
@@ -19,7 +19,7 @@ import type { ZrxSupportedChainId } from '../ZrxSwapper'
 export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
   { adapter, web3 }: ZrxSwapperDeps,
   input: BuildTradeInput,
-): Promise<Result<ZrxTrade<T>, SwapErrorMonad>> {
+): Promise<Result<ZrxTrade<T>, SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,

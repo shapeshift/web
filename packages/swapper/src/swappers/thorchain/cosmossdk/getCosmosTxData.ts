@@ -7,8 +7,8 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
-import type { SwapErrorMonad, TradeQuote } from '../../../api'
-import { makeSwapErrorMonad, SwapError, SwapErrorType } from '../../../api'
+import type { SwapErrorRight, TradeQuote } from '../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../api'
 import type { ThorCosmosSdkSupportedChainId } from '../ThorchainSwapper'
 import type { ThorchainSwapperDeps } from '../types'
 import { getInboundAddressDataForChain } from '../utils/getInboundAddressDataForChain'
@@ -31,7 +31,7 @@ type GetCosmosTxDataInput = {
 
 export const getCosmosTxData = async (
   input: GetCosmosTxDataInput,
-): Promise<Result<ThorchainSignTx | CosmosSignTx, SwapErrorMonad>> => {
+): Promise<Result<ThorchainSignTx | CosmosSignTx, SwapErrorRight>> => {
   const {
     accountNumber,
     deps,
@@ -92,7 +92,7 @@ export const getCosmosTxData = async (
       default:
         if (!vault)
           return Err(
-            makeSwapErrorMonad({
+            makeSwapErrorRight({
               message: '[buildTrade]: no vault for chain',
               code: SwapErrorType.BUILD_TRADE_FAILED,
               details: { chainId: input.chainId },

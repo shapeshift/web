@@ -21,7 +21,7 @@ import type {
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
   GetTradeQuoteInput,
-  SwapErrorMonad,
+  SwapErrorRight,
   Swapper,
   TradeQuote,
   TradeResult,
@@ -163,17 +163,17 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     return this.supportedSellAssetIds
   }
 
-  buildTrade(input: BuildTradeInput): Promise<Result<ThorTrade<ChainId>, SwapErrorMonad>> {
+  buildTrade(input: BuildTradeInput): Promise<Result<ThorTrade<ChainId>, SwapErrorRight>> {
     return buildTrade({ deps: this.deps, input })
   }
 
-  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote<ChainId>, SwapErrorMonad>> {
+  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>> {
     return getThorTradeQuote({ deps: this.deps, input })
   }
 
   async executeTrade(
     args: ExecuteTradeInput<ChainId>,
-  ): Promise<Result<TradeResult, SwapErrorMonad>> {
+  ): Promise<Result<TradeResult, SwapErrorRight>> {
     try {
       const { trade, wallet } = args
 
@@ -235,7 +235,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     }
   }
 
-  async getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorMonad>> {
+  async getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
     try {
       const midgardTxid = tradeResult.tradeId.startsWith('0x')
         ? tradeResult.tradeId.slice(2)

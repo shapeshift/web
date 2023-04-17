@@ -11,10 +11,10 @@ import { Err, Ok } from '@sniptt/monads'
 import type {
   BuildTradeInput,
   GetUtxoTradeQuoteInput,
-  SwapErrorMonad,
+  SwapErrorRight,
   TradeQuote,
 } from '../../../api'
-import { makeSwapErrorMonad, SwapError, SwapErrorType } from '../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../api'
 import { DEFAULT_SLIPPAGE } from '../../utils/constants'
 import { getCosmosTxData } from '../cosmossdk/getCosmosTxData'
 import { makeTradeTx } from '../evm/makeTradeTx'
@@ -35,7 +35,7 @@ type BuildTradeArgs = {
 export const buildTrade = async ({
   deps,
   input,
-}: BuildTradeArgs): Promise<Result<ThorTrade<ChainId>, SwapErrorMonad>> => {
+}: BuildTradeArgs): Promise<Result<ThorTrade<ChainId>, SwapErrorRight>> => {
   try {
     const {
       buyAsset,
@@ -53,7 +53,7 @@ export const buildTrade = async ({
 
     if (!sellAdapter)
       return Err(
-        makeSwapErrorMonad({
+        makeSwapErrorRight({
           message: '[buildTrade]: unsupported sell asset',
           code: SwapErrorType.BUILD_TRADE_FAILED,
           details: { sellAsset },
@@ -158,7 +158,7 @@ export const buildTrade = async ({
       })
     } else {
       return Err(
-        makeSwapErrorMonad({
+        makeSwapErrorRight({
           message: '[buildTrade]: unsupported chain id',
           code: SwapErrorType.BUILD_TRADE_FAILED,
           details: { sellAsset },
@@ -169,14 +169,14 @@ export const buildTrade = async ({
   } catch (e) {
     if (e instanceof SwapError)
       return Err(
-        makeSwapErrorMonad({
+        makeSwapErrorRight({
           message: e.message,
           code: e.code,
           details: e.details,
         }),
       )
     return Err(
-      makeSwapErrorMonad({
+      makeSwapErrorRight({
         message: '[buildTrade]: error building trade',
         code: SwapErrorType.BUILD_TRADE_FAILED,
         cause: e,

@@ -5,7 +5,7 @@ import type { Result } from '@sniptt/monads'
 import type {
   ApprovalNeededOutput,
   BuyAssetBySellIdInput,
-  SwapErrorMonad,
+  SwapErrorRight,
   Swapper,
   Trade,
   TradeQuote,
@@ -66,19 +66,19 @@ export class TestSwapper implements Swapper<ChainId> {
     return this.supportAssets
   }
 
-  buildTrade(): Promise<Result<Trade<ChainId>, SwapErrorMonad>> {
+  buildTrade(): Promise<Result<Trade<ChainId>, SwapErrorRight>> {
     throw new Error('TestSwapper: buildTrade unimplemented')
   }
 
-  getTradeQuote(): Promise<Result<TradeQuote<ChainId>, SwapErrorMonad>> {
+  getTradeQuote(): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>> {
     throw new Error('TestSwapper: getTradeQuote unimplemented')
   }
 
-  executeTrade(): Promise<Result<TradeResult, SwapErrorMonad>> {
+  executeTrade(): Promise<Result<TradeResult, SwapErrorRight>> {
     throw new Error('TestSwapper: executeTrade unimplemented')
   }
 
-  getTradeTxs(): Promise<Result<TradeTxs, SwapErrorMonad>> {
+  getTradeTxs(): Promise<Result<TradeTxs, SwapErrorRight>> {
     throw new Error('TestSwapper: executeTrade unimplemented')
   }
 }

@@ -8,7 +8,7 @@ import type { Result } from '@sniptt/monads'
 
 export const SwapError = createErrorClass('SwapError')
 
-export type SwapErrorMonad<T = any> = {
+export type SwapErrorRight<T = any> = {
   name: 'SwapError'
   message: string
   cause?: unknown
@@ -16,7 +16,7 @@ export type SwapErrorMonad<T = any> = {
   code?: string
 }
 
-export const makeSwapErrorMonad = <T>({
+export const makeSwapErrorRight = <T>({
   details,
   cause,
   code,
@@ -26,7 +26,7 @@ export const makeSwapErrorMonad = <T>({
   details?: T
   cause?: unknown
   code?: string
-}): SwapErrorMonad<T> => ({
+}): SwapErrorRight<T> => ({
   name: 'SwapError',
   message,
   details,
@@ -284,11 +284,11 @@ export interface Swapper<T extends ChainId> {
   /**
    * Get builds a trade with definitive rate & txData that can be executed with executeTrade
    **/
-  buildTrade(args: BuildTradeInput): Promise<Result<Trade<T>, SwapErrorMonad>>
+  buildTrade(args: BuildTradeInput): Promise<Result<Trade<T>, SwapErrorRight>>
   /**
    * Get a trade quote
    */
-  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote<ChainId>, SwapErrorMonad>>
+  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>>
   /**
    * Get the usd rate from either the assets symbol or tokenId
    */
@@ -297,7 +297,7 @@ export interface Swapper<T extends ChainId> {
   /**
    * Execute a trade built with buildTrade by signing and broadcasting
    */
-  executeTrade(args: ExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorMonad>>
+  executeTrade(args: ExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>>
 
   /**
    * Get a boolean if a quote needs approval
@@ -328,5 +328,5 @@ export interface Swapper<T extends ChainId> {
   /**
    * Get transactions related to a trade
    */
-  getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorMonad>>
+  getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>>
 }

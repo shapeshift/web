@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { SwapErrorMonad, Trade, TradeQuote } from '@shapeshiftoss/swapper'
+import type { SwapErrorRight, Trade, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
@@ -103,7 +103,7 @@ type SelectGetTradeForWalletArgs = {
   sellAccountMetadata: AccountMetadata
 }
 
-type SelectGetTradeForWalletReturn = Promise<Result<Trade<ChainId>, SwapErrorMonad>>
+type SelectGetTradeForWalletReturn = Promise<Result<Trade<ChainId>, SwapErrorRight>>
 
 export const selectGetTradeForWallet = (
   state: SwapperState,

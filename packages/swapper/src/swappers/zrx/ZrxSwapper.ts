@@ -14,7 +14,7 @@ import type {
   BuildTradeInput,
   BuyAssetBySellIdInput,
   GetEvmTradeQuoteInput,
-  SwapErrorMonad,
+  SwapErrorRight,
   Swapper,
   TradeQuote,
   TradeResult,
@@ -69,11 +69,11 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     }
   }
 
-  buildTrade(args: BuildTradeInput): Promise<Result<ZrxTrade<T>, SwapErrorMonad>> {
+  buildTrade(args: BuildTradeInput): Promise<Result<ZrxTrade<T>, SwapErrorRight>> {
     return zrxBuildTrade<T>(this.deps, args)
   }
 
-  getTradeQuote(input: GetEvmTradeQuoteInput): Promise<Result<TradeQuote<T>, SwapErrorMonad>> {
+  getTradeQuote(input: GetEvmTradeQuoteInput): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
     return getZrxTradeQuote<T>(input)
   }
 
@@ -81,7 +81,7 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     return getUsdRate(input)
   }
 
-  executeTrade(args: ZrxExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorMonad>> {
+  executeTrade(args: ZrxExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>> {
     return zrxExecuteTrade<T>(this.deps, args)
   }
 
@@ -113,7 +113,7 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     )
   }
 
-  getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorMonad>> {
+  getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
     return Promise.resolve(
       Ok({
         sellTxid: tradeResult.tradeId,

@@ -4,7 +4,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import max from 'lodash/max'
 
-import type { SwapErrorMonad } from '../../../../api'
+import type { SwapErrorRight } from '../../../../api'
 import { SwapError, SwapErrorType } from '../../../../api'
 import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../../utils/bignumber'
 import { ALLOWABLE_MARKET_MOVEMENT } from '../../../utils/constants'
@@ -34,7 +34,7 @@ export const getLimit = async ({
   deps,
   slippageTolerance,
   buyAssetTradeFeeUsd,
-}: GetLimitArgs): Promise<Result<string, SwapErrorMonad>> => {
+}: GetLimitArgs): Promise<Result<string, SwapErrorRight>> => {
   const maybeTradeRate = await getTradeRate({
     sellAsset,
     buyAssetId,

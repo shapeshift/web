@@ -2,8 +2,8 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
-import type { GetEvmTradeQuoteInput, SwapErrorMonad, SwapSource, TradeQuote } from '../../../api'
-import { makeSwapErrorMonad, SwapError, SwapErrorType } from '../../../api'
+import type { GetEvmTradeQuoteInput, SwapErrorRight, SwapSource, TradeQuote } from '../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 import { normalizeAmount } from '../../utils/helpers/helpers'
@@ -16,7 +16,7 @@ import type { ZrxSupportedChainId } from '../ZrxSwapper'
 
 export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   input: GetEvmTradeQuoteInput,
-): Promise<Result<TradeQuote<T>, SwapErrorMonad>> {
+): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
   try {
     const {
       sellAsset,
@@ -75,7 +75,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
 
     if (!quoteResponse.data)
       return Err(
-        makeSwapErrorMonad({
+        makeSwapErrorRight({
           message: '[getZrxTradeQuote] Bad ZRX response, no data was returned',
           code: SwapErrorType.TRADE_QUOTE_FAILED,
         }),
@@ -132,14 +132,14 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     // TODO(gomes): scrutinize what can throw above and don't throw, because monads
     if (e instanceof SwapError)
       return Err(
-        makeSwapErrorMonad({
+        makeSwapErrorRight({
           message: e.message,
           code: e.code,
           details: e.details,
         }),
       )
     return Err(
-      makeSwapErrorMonad({
+      makeSwapErrorRight({
         message: '[getZrxTradeQuote]',
         cause: e,
         code: SwapErrorType.TRADE_QUOTE_FAILED,

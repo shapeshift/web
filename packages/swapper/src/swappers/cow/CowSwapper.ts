@@ -15,7 +15,7 @@ import type {
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
   GetTradeQuoteInput,
-  SwapErrorMonad,
+  SwapErrorRight,
   Swapper,
   TradeQuote,
   TradeResult,
@@ -52,13 +52,13 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
 
   buildTrade(
     args: BuildTradeInput,
-  ): Promise<Result<CowTrade<KnownChainIds.EthereumMainnet>, SwapErrorMonad>> {
+  ): Promise<Result<CowTrade<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
     return cowBuildTrade(this.deps, args)
   }
 
   getTradeQuote(
     input: GetTradeQuoteInput,
-  ): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorMonad>> {
+  ): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
     return getCowSwapTradeQuote(this.deps, input)
   }
 
@@ -68,7 +68,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
 
   executeTrade(
     args: ExecuteTradeInput<KnownChainIds.EthereumMainnet>,
-  ): Promise<Result<TradeResult, SwapErrorMonad>> {
+  ): Promise<Result<TradeResult, SwapErrorRight>> {
     return cowExecuteTrade(this.deps, args)
   }
 
@@ -113,7 +113,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     })
   }
 
-  getTradeTxs(args: TradeResult): Promise<Result<TradeTxs, SwapErrorMonad>> {
+  getTradeTxs(args: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
     return cowGetTradeTxs(this.deps, args)
   }
 }

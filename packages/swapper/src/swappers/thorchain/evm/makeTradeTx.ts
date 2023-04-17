@@ -6,7 +6,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { numberToHex } from 'web3-utils'
 
-import type { SwapErrorMonad } from '../../../api'
+import type { SwapErrorRight } from '../../../api'
 import { SwapError, SwapErrorType } from '../../../api'
 import type { ThorEvmSupportedChainId } from '../ThorchainSwapper'
 import type { ThorchainSwapperDeps } from '../types'
@@ -57,7 +57,7 @@ export const makeTradeTx = async ({
     {
       txToSign: ETHSignTx
     },
-    SwapErrorMonad
+    SwapErrorRight
   >
 > => {
   try {

@@ -13,7 +13,7 @@ import type {
   Swapper,
   SwapperWithQuoteMetadata,
 } from '..'
-import type { SwapErrorMonad, SwapperType } from '../api'
+import type { SwapErrorRight, SwapperType } from '../api'
 import { SwapError, SwapErrorType } from '../api'
 import { getRatioFromQuote } from './utils'
 
@@ -93,7 +93,7 @@ export class SwapperManager {
       buyAssetId: buyAsset.assetId,
     })
 
-    const resolvedSwapperDetailRequests: Result<SwapperWithQuoteMetadata, SwapErrorMonad>[] =
+    const resolvedSwapperDetailRequests: Result<SwapperWithQuoteMetadata, SwapErrorRight>[] =
       await Promise.all(
         supportedSwappers.map(async swapper => {
           const maybeQuote = await swapper.getTradeQuote(args)

@@ -2,8 +2,8 @@ import type { ChainKey, LifiError, RoutesRequest, Token as LifiToken } from '@li
 import { LifiErrorCode } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { GetEvmTradeQuoteInput, SwapErrorMonad } from '@shapeshiftoss/swapper'
-import { makeSwapErrorMonad, SwapError, SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
+import type { GetEvmTradeQuoteInput, SwapErrorRight } from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
@@ -19,7 +19,7 @@ export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
   lifiAssetMap: Map<AssetId, LifiToken>,
   lifiChainMap: Map<ChainId, ChainKey>,
-): Promise<Result<LifiTradeQuote, SwapErrorMonad>> {
+): Promise<Result<LifiTradeQuote, SwapErrorRight>> {
   try {
     const {
       chainId,
@@ -170,14 +170,14 @@ export async function getTradeQuote(
     // TODO(gomes): this is a temporary shim from the old error handling to monads, remove try/catch
     if (e instanceof SwapError)
       return Err(
-        makeSwapErrorMonad({
+        makeSwapErrorRight({
           message: e.message,
           code: e.code,
           details: e.details,
         }),
       )
     return Err(
-      makeSwapErrorMonad({
+      makeSwapErrorRight({
         message: '[getTradeQuote]',
         cause: e,
         code: SwapErrorType.TRADE_QUOTE_FAILED,

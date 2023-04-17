@@ -8,7 +8,7 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { ethers } from 'ethers'
 
-import type { ExecuteTradeInput, SwapErrorMonad, TradeResult } from '../../../api'
+import type { ExecuteTradeInput, SwapErrorRight, TradeResult } from '../../../api'
 import { SwapError, SwapErrorType } from '../../../api'
 import type { CowSwapperDeps } from '../CowSwapper'
 import type { CowTrade } from '../types'
@@ -27,7 +27,7 @@ import { domain, getNowPlusThirtyMinutesTimestamp, hashOrder } from '../utils/he
 export async function cowExecuteTrade(
   { apiUrl, adapter }: CowSwapperDeps,
   { trade, wallet }: ExecuteTradeInput<KnownChainIds.EthereumMainnet>,
-): Promise<Result<TradeResult, SwapErrorMonad>> {
+): Promise<Result<TradeResult, SwapErrorRight>> {
   const cowTrade = trade as CowTrade<KnownChainIds.EthereumMainnet>
   const {
     sellAsset,

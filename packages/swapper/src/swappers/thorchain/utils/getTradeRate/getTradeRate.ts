@@ -4,8 +4,8 @@ import { adapters } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
-import type { SwapErrorMonad } from '../../../../api'
-import { makeSwapErrorMonad, SwapError, SwapErrorType } from '../../../../api'
+import type { SwapErrorRight } from '../../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../../api'
 import type { BN } from '../../../utils/bignumber'
 import { bn, bnOrZero, toBaseUnit } from '../../../utils/bignumber'
 import type { ThorchainSwapperDeps, ThornodePoolResponse, ThornodeQuoteResponse } from '../../types'
@@ -38,11 +38,11 @@ export const getTradeRate = async ({
   sellAmountCryptoBaseUnit: string
   receiveAddress: string
   deps: ThorchainSwapperDeps
-}): Promise<Result<string, SwapErrorMonad>> => {
+}): Promise<Result<string, SwapErrorRight>> => {
   // we can't get a quote for a zero amount so use getPriceRatio between pools instead
   if (bnOrZero(sellAmountCryptoBaseUnit).eq(0)) {
     return Err(
-      makeSwapErrorMonad({
+      makeSwapErrorRight({
         message: `[getTradeRate]: Sell amount is zero, cannot get a trade rate from Thorchain.`,
         code: SwapErrorType.TRADE_BELOW_MINIMUM,
         details: { sellAssetId: sellAsset.assetId, buyAssetId },
@@ -85,7 +85,7 @@ export const getTradeRate = async ({
       // In other words, is the consumer calling getTradeRateBelowMinimum() in case of a sell amount below minimum enough,
       // or do we need to bubble the error up all the way so "web" is aware that the rate that was gotten was a below minimum one?
       return Err(
-        makeSwapErrorMonad({
+        makeSwapErrorRight({
           message: `[getTradeRate]: Sell amount is below the THOR minimum, cannot get a trade rate from Thorchain.`,
           code: SwapErrorType.TRADE_BELOW_MINIMUM,
           details: { sellAssetId: sellAsset.assetId, buyAssetId },
@@ -94,7 +94,7 @@ export const getTradeRate = async ({
     }
 
     return Err(
-      makeSwapErrorMonad({
+      makeSwapErrorRight({
         message: `[getTradeRate]: THORChain quote returned an error: ${data.error}`,
         code: SwapErrorType.TRADE_QUOTE_FAILED,
         details: { sellAssetId: sellAsset.assetId, buyAssetId },

@@ -1,7 +1,7 @@
 import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
 
-import type { SwapErrorMonad, TradeResult, TradeTxs } from '../../../api'
+import type { SwapErrorRight, TradeResult, TradeTxs } from '../../../api'
 import { SwapError, SwapErrorType } from '../../../api'
 import type { CowSwapperDeps } from '../CowSwapper'
 import type { CowSwapGetOrdersResponse, CowSwapGetTradesResponse } from '../types'
@@ -11,7 +11,7 @@ import { cowService } from '../utils/cowService'
 export async function cowGetTradeTxs(
   deps: CowSwapperDeps,
   input: TradeResult,
-): Promise<Result<TradeTxs, SwapErrorMonad>> {
+): Promise<Result<TradeTxs, SwapErrorRight>> {
   try {
     const getOrdersResponse = await cowService.get<CowSwapGetOrdersResponse>(
       `${deps.apiUrl}/v1/orders/${input.tradeId}`,

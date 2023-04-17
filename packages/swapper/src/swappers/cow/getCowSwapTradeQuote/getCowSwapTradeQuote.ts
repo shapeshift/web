@@ -5,8 +5,8 @@ import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError, AxiosResponse } from 'axios'
 import axios from 'axios'
 
-import type { GetTradeQuoteInput, SwapErrorMonad, TradeQuote } from '../../../api'
-import { makeSwapErrorMonad, SwapError, SwapErrorType } from '../../../api'
+import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from '../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { getApproveContractData, normalizeIntegerAmount } from '../../utils/helpers/helpers'
 import type { CowSwapperDeps } from '../CowSwapper'
@@ -27,7 +27,7 @@ import { getNowPlusThirtyMinutesTimestamp, getUsdRate } from '../utils/helpers/h
 export async function getCowSwapTradeQuote(
   deps: CowSwapperDeps,
   input: GetTradeQuoteInput,
-): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorMonad>> {
+): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
   try {
     const {
       sellAsset,
@@ -202,7 +202,7 @@ export async function getCowSwapTradeQuote(
         'SellAmountDoesNotCoverFee'
     ) {
       return Err(
-        makeSwapErrorMonad({
+        makeSwapErrorRight({
           message: '[getCowSwapTradeQuote]',
           cause: e,
           code: SwapErrorType.TRADE_QUOTE_INPUT_LOWER_THAN_FEES,
@@ -211,14 +211,14 @@ export async function getCowSwapTradeQuote(
     }
     if (e instanceof SwapError)
       return Err(
-        makeSwapErrorMonad({
+        makeSwapErrorRight({
           message: e.message,
           code: e.code,
           details: e.details,
         }),
       )
     return Err(
-      makeSwapErrorMonad({
+      makeSwapErrorRight({
         message: '[getCowSwapTradeQuote]',
         cause: e,
         code: SwapErrorType.TRADE_QUOTE_FAILED,

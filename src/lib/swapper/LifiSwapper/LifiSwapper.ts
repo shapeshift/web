@@ -17,7 +17,7 @@ import type {
   BuildTradeInput,
   BuyAssetBySellIdInput,
   GetEvmTradeQuoteInput,
-  SwapErrorMonad,
+  SwapErrorRight,
   Swapper,
   TradeResult,
   TradeTxs,
@@ -75,7 +75,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Builds a trade with definitive rate & txData that can be executed with executeTrade
    **/
-  async buildTrade(input: BuildTradeInput): Promise<Result<LifiTrade, SwapErrorMonad>> {
+  async buildTrade(input: BuildTradeInput): Promise<Result<LifiTrade, SwapErrorRight>> {
     return await buildTrade(input, this.lifiAssetMap, this.lifiChainMap)
   }
 
@@ -84,7 +84,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    */
   async getTradeQuote(
     input: GetEvmTradeQuoteInput,
-  ): Promise<Result<LifiTradeQuote, SwapErrorMonad>> {
+  ): Promise<Result<LifiTradeQuote, SwapErrorRight>> {
     const minimumCryptoHuman = getMinimumCryptoHuman(input.sellAsset)
     const minimumSellAmountBaseUnit = toBaseUnit(minimumCryptoHuman, input.sellAsset.precision)
     const isBelowMinSellAmount = bnOrZero(input.sellAmountBeforeFeesCryptoBaseUnit).lt(
@@ -127,7 +127,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Execute a trade built with buildTrade by signing and broadcasting
    */
-  async executeTrade(input: LifiExecuteTradeInput): Promise<Result<TradeResult, SwapErrorMonad>> {
+  async executeTrade(input: LifiExecuteTradeInput): Promise<Result<TradeResult, SwapErrorRight>> {
     const { tradeResult, getStatusRequest } = await executeTrade(input)
     this.executedTrades.set(tradeResult.tradeId, getStatusRequest)
     // TODO(gomes): is this actually ok? Should we return a Result monad as well
@@ -174,7 +174,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Get transactions related to a trade
    */
-  async getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorMonad>> {
+  async getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
     const getStatusRequest = this.executedTrades.get(tradeResult.tradeId)
 
     if (getStatusRequest === undefined) {

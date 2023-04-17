@@ -2,7 +2,7 @@ import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
 import { numberToHex } from 'web3-utils'
 
-import type { SwapErrorMonad, TradeResult } from '../../../api'
+import type { SwapErrorRight, TradeResult } from '../../../api'
 import { SwapError, SwapErrorType } from '../../../api'
 import type { ZrxExecuteTradeInput, ZrxSwapperDeps } from '../types'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
@@ -11,7 +11,7 @@ import type { ZrxSupportedChainId } from '../ZrxSwapper'
 export async function zrxExecuteTrade<T extends ZrxSupportedChainId>(
   { adapter }: ZrxSwapperDeps,
   { trade, wallet }: ZrxExecuteTradeInput<T>,
-): Promise<Result<TradeResult, SwapErrorMonad>> {
+): Promise<Result<TradeResult, SwapErrorRight>> {
   const { accountNumber, sellAsset } = trade
 
   try {

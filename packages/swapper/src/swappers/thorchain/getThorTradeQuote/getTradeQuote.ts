@@ -45,14 +45,6 @@ type GetThorTradeQuoteInput = {
   input: GetTradeQuoteInput
 }
 
-// TODO(gomes): This is to avoid plumbing actual monadic errors (i.e NotAnError, just a regular object) through
-// since we currently throw SwapErrors all over the domain. We'll now return them instead of throwing them
-// Since SwapError is a subclass of Error, we can access its code and details property the same as if it was a regular object
-// Which means that we will eventually be able to
-// 0. Remove SwapErrorInstance 1. change the definition of SwapError to be a regular object
-// 2. grep for SwapError and replace `new SwapError()` with `{ code: '...', details: '...' }`
-// 3. ???
-// 4. profit
 type GetThorTradeQuoteReturn = Promise<Result<TradeQuote<ChainId>, SwapErrorMonad>>
 
 type GetThorTradeQuote = (args: GetThorTradeQuoteInput) => GetThorTradeQuoteReturn

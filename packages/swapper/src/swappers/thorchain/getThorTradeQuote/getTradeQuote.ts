@@ -91,8 +91,8 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       deps,
     })
 
-    const rate = await quoteRate.match<Promise<string> | string>({
-      ok: rate => rate,
+    const rate = await quoteRate.match({
+      ok: rate => Promise.resolve(rate),
       // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
       // Though realistically, TRADE_BELOW_MINIMUM is the only one we should really be seeing here,
       // safety never hurts

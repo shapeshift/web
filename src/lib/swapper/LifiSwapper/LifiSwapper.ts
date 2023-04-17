@@ -17,11 +17,14 @@ import type {
   BuildTradeInput,
   BuyAssetBySellIdInput,
   GetEvmTradeQuoteInput,
+  SwapErrorMonad,
   Swapper,
   TradeResult,
   TradeTxs,
 } from '@shapeshiftoss/swapper'
 import { SwapperName, SwapperType } from '@shapeshiftoss/swapper'
+import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { approvalNeeded } from 'lib/swapper/LifiSwapper/approvalNeeded/approvalNeeded'
@@ -72,14 +75,16 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Builds a trade with definitive rate & txData that can be executed with executeTrade
    **/
-  async buildTrade(input: BuildTradeInput): Promise<LifiTrade> {
+  async buildTrade(input: BuildTradeInput): Promise<Result<LifiTrade, SwapErrorMonad>> {
     return await buildTrade(input, this.lifiAssetMap, this.lifiChainMap)
   }
 
   /**
    * Get a trade quote
    */
-  async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<LifiTradeQuote> {
+  async getTradeQuote(
+    input: GetEvmTradeQuoteInput,
+  ): Promise<Result<LifiTradeQuote, SwapErrorMonad>> {
     const minimumCryptoHuman = getMinimumCryptoHuman(input.sellAsset)
     const minimumSellAmountBaseUnit = toBaseUnit(minimumCryptoHuman, input.sellAsset.precision)
     const isBelowMinSellAmount = bnOrZero(input.sellAmountBeforeFeesCryptoBaseUnit).lt(
@@ -87,10 +92,10 @@ export class LifiSwapper implements Swapper<EvmChainId> {
     )
 
     // TEMP: return an empty quote to allow the UI to render state where buy amount is below minimum
-    // TODO: remove this when we implement monadic error handling for swapper
+    // TODO(gomes): the guts of this, obviously handle properly before opening me
     // https://github.com/shapeshift/web/issues/4237
     if (isBelowMinSellAmount) {
-      return {
+      return Ok({
         buyAmountCryptoBaseUnit: '0',
         sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
         feeData: {
@@ -106,7 +111,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
         allowanceContract: '',
         minimumCryptoHuman: minimumCryptoHuman.toString(),
         maximumCryptoHuman: MAX_LIFI_TRADE,
-      }
+      })
     }
 
     return await getTradeQuote(input, this.lifiAssetMap, this.lifiChainMap)

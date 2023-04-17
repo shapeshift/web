@@ -2,8 +2,10 @@ import type { ChainKey, LifiError, RoutesRequest, Token as LifiToken } from '@li
 import { LifiErrorCode } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { GetEvmTradeQuoteInput } from '@shapeshiftoss/swapper'
-import { SwapError, SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
+import type { GetEvmTradeQuoteInput, SwapErrorMonad } from '@shapeshiftoss/swapper'
+import { makeSwapErrorMonad, SwapError, SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { MAX_LIFI_TRADE, SELECTED_ROUTE_INDEX } from 'lib/swapper/LifiSwapper/utils/constants'
@@ -17,149 +19,170 @@ export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
   lifiAssetMap: Map<AssetId, LifiToken>,
   lifiChainMap: Map<ChainId, ChainKey>,
-): Promise<LifiTradeQuote> {
-  const {
-    chainId,
-    sellAsset,
-    buyAsset,
-    sellAmountBeforeFeesCryptoBaseUnit,
-    sendMax,
-    receiveAddress,
-    accountNumber,
-  } = input
+): Promise<Result<LifiTradeQuote, SwapErrorMonad>> {
+  try {
+    const {
+      chainId,
+      sellAsset,
+      buyAsset,
+      sellAmountBeforeFeesCryptoBaseUnit,
+      sendMax,
+      receiveAddress,
+      accountNumber,
+    } = input
 
-  const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
-  const buyLifiChainKey = lifiChainMap.get(buyAsset.chainId)
-  const sellLifiToken = lifiAssetMap.get(sellAsset.assetId)
-  const buyLifiToken = lifiAssetMap.get(buyAsset.assetId)
+    const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
+    const buyLifiChainKey = lifiChainMap.get(buyAsset.chainId)
+    const sellLifiToken = lifiAssetMap.get(sellAsset.assetId)
+    const buyLifiToken = lifiAssetMap.get(buyAsset.assetId)
 
-  if (sellLifiChainKey === undefined || sellLifiToken === undefined) {
-    throw new SwapError(
-      `[getTradeQuote] asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
-      { code: SwapErrorType.UNSUPPORTED_PAIR },
-    )
-  }
-  if (buyLifiChainKey === undefined || buyLifiToken === undefined) {
-    throw new SwapError(
-      `[getTradeQuote] asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
-      { code: SwapErrorType.UNSUPPORTED_PAIR },
-    )
-  }
-  if (sellLifiChainKey === buyLifiChainKey) {
-    throw new SwapError('[getTradeQuote] same chains swaps not supported', {
-      code: SwapErrorType.UNSUPPORTED_PAIR,
-    })
-  }
-
-  const fromAmountCryptoBaseUnit: BigNumber = sendMax
-    ? getAssetBalance({
-        asset: sellAsset,
-        accountNumber,
-        chainId,
-        outputPrecision: sellLifiToken.decimals,
-      })
-    : convertPrecision({
-        value: sellAmountBeforeFeesCryptoBaseUnit,
-        inputExponent: sellAsset.precision,
-        outputExponent: sellLifiToken.decimals,
-      })
-
-  const lifi = getLifi()
-
-  const routesRequest: RoutesRequest = {
-    fromChainId: Number(fromChainId(sellAsset.chainId).chainReference),
-    toChainId: Number(fromChainId(buyAsset.chainId).chainReference),
-    fromTokenAddress: sellLifiToken.address,
-    toTokenAddress: buyLifiToken.address,
-    fromAddress: receiveAddress,
-    toAddress: receiveAddress,
-    fromAmount: fromAmountCryptoBaseUnit.toString(),
-    // as recommended by lifi, dodo is denied until they fix their gas estimates
-    // TODO: convert this config to .env variable
-    options: {
-      slippage: Number(DEFAULT_SLIPPAGE),
-      exchanges: { deny: ['dodo'] },
-      // as recommended by lifi, allowSwitchChain must be false to ensure single-hop transactions.
-      // This must remain disabled until our application supports multi-hop swaps
-      allowSwitchChain: false,
-    },
-  }
-
-  const routesResponse = await lifi.getRoutes(routesRequest).catch((e: LifiError) => {
-    const code = (() => {
-      switch (e.code) {
-        case LifiErrorCode.ValidationError:
-          return SwapErrorType.VALIDATION_FAILED
-        case LifiErrorCode.InternalError:
-        case LifiErrorCode.Timeout:
-          return SwapErrorType.RESPONSE_ERROR
-        default:
-          return SwapErrorType.TRADE_QUOTE_FAILED
-      }
-    })()
-    throw new SwapError(`[getTradeQuote] ${e.message}`, { code })
-  })
-
-  const selectedLifiRoute = routesResponse.routes[SELECTED_ROUTE_INDEX]
-
-  if (selectedLifiRoute === undefined) {
-    throw new SwapError('[getTradeQuote] no route found', {
-      code: SwapErrorType.TRADE_QUOTE_FAILED,
-    })
-  }
-
-  // for the rate to be valid, both amounts must be converted to the same precision
-  const estimateRate = convertPrecision({
-    value: selectedLifiRoute.toAmountMin,
-    inputExponent: buyLifiToken.decimals,
-    outputExponent: sellLifiToken.decimals,
-  })
-    .dividedBy(bn(selectedLifiRoute.fromAmount))
-    .toString()
-
-  const allowanceContract = (() => {
-    const uniqueApprovalAddresses = new Set(
-      selectedLifiRoute.steps
-        .map(step => step.estimate.approvalAddress)
-        .filter(approvalAddress => approvalAddress !== undefined),
-    )
-
-    if (uniqueApprovalAddresses.size !== 1) {
+    if (sellLifiChainKey === undefined || sellLifiToken === undefined) {
       throw new SwapError(
-        `[getTradeQuote] expected exactly 1 approval address, found ${uniqueApprovalAddresses.size}`,
-        {
-          code: SwapErrorType.TRADE_QUOTE_FAILED,
-        },
+        `[getTradeQuote] asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
+        { code: SwapErrorType.UNSUPPORTED_PAIR },
       )
     }
+    if (buyLifiChainKey === undefined || buyLifiToken === undefined) {
+      throw new SwapError(
+        `[getTradeQuote] asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
+        { code: SwapErrorType.UNSUPPORTED_PAIR },
+      )
+    }
+    if (sellLifiChainKey === buyLifiChainKey) {
+      throw new SwapError('[getTradeQuote] same chains swaps not supported', {
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+      })
+    }
 
-    return [...uniqueApprovalAddresses.values()][0]
-  })()
+    const fromAmountCryptoBaseUnit: BigNumber = sendMax
+      ? getAssetBalance({
+          asset: sellAsset,
+          accountNumber,
+          chainId,
+          outputPrecision: sellLifiToken.decimals,
+        })
+      : convertPrecision({
+          value: sellAmountBeforeFeesCryptoBaseUnit,
+          inputExponent: sellAsset.precision,
+          outputExponent: sellLifiToken.decimals,
+        })
 
-  const maxSlippage = BigNumber.max(...selectedLifiRoute.steps.map(step => step.action.slippage))
+    const lifi = getLifi()
 
-  const feeData = await transformLifiFeeData({
-    buyLifiToken,
-    chainId,
-    lifiAssetMap,
-    selectedRoute: selectedLifiRoute,
-  })
+    const routesRequest: RoutesRequest = {
+      fromChainId: Number(fromChainId(sellAsset.chainId).chainReference),
+      toChainId: Number(fromChainId(buyAsset.chainId).chainReference),
+      fromTokenAddress: sellLifiToken.address,
+      toTokenAddress: buyLifiToken.address,
+      fromAddress: receiveAddress,
+      toAddress: receiveAddress,
+      fromAmount: fromAmountCryptoBaseUnit.toString(),
+      // as recommended by lifi, dodo is denied until they fix their gas estimates
+      // TODO: convert this config to .env variable
+      options: {
+        slippage: Number(DEFAULT_SLIPPAGE),
+        exchanges: { deny: ['dodo'] },
+        // as recommended by lifi, allowSwitchChain must be false to ensure single-hop transactions.
+        // This must remain disabled until our application supports multi-hop swaps
+        allowSwitchChain: false,
+      },
+    }
 
-  return {
-    accountNumber,
-    allowanceContract,
-    buyAmountCryptoBaseUnit: bnOrZero(selectedLifiRoute.toAmountMin).toString(),
-    buyAsset,
-    feeData,
-    maximumCryptoHuman: MAX_LIFI_TRADE,
-    minimumCryptoHuman: getMinimumCryptoHuman(sellAsset).toString(),
-    rate: estimateRate,
-    recommendedSlippage: maxSlippage.toString(),
-    sellAmountBeforeFeesCryptoBaseUnit,
-    sellAsset,
-    sources: [
-      { name: `${selectedLifiRoute.steps[0].tool} (${SwapperName.LIFI})`, proportion: '1' },
-    ],
-    selectedLifiRoute,
+    const routesResponse = await lifi.getRoutes(routesRequest).catch((e: LifiError) => {
+      const code = (() => {
+        switch (e.code) {
+          case LifiErrorCode.ValidationError:
+            return SwapErrorType.VALIDATION_FAILED
+          case LifiErrorCode.InternalError:
+          case LifiErrorCode.Timeout:
+            return SwapErrorType.RESPONSE_ERROR
+          default:
+            return SwapErrorType.TRADE_QUOTE_FAILED
+        }
+      })()
+      throw new SwapError(`[getTradeQuote] ${e.message}`, { code })
+    })
+
+    const selectedLifiRoute = routesResponse.routes[SELECTED_ROUTE_INDEX]
+
+    if (selectedLifiRoute === undefined) {
+      throw new SwapError('[getTradeQuote] no route found', {
+        code: SwapErrorType.TRADE_QUOTE_FAILED,
+      })
+    }
+
+    // for the rate to be valid, both amounts must be converted to the same precision
+    const estimateRate = convertPrecision({
+      value: selectedLifiRoute.toAmountMin,
+      inputExponent: buyLifiToken.decimals,
+      outputExponent: sellLifiToken.decimals,
+    })
+      .dividedBy(bn(selectedLifiRoute.fromAmount))
+      .toString()
+
+    const allowanceContract = (() => {
+      const uniqueApprovalAddresses = new Set(
+        selectedLifiRoute.steps
+          .map(step => step.estimate.approvalAddress)
+          .filter(approvalAddress => approvalAddress !== undefined),
+      )
+
+      if (uniqueApprovalAddresses.size !== 1) {
+        throw new SwapError(
+          `[getTradeQuote] expected exactly 1 approval address, found ${uniqueApprovalAddresses.size}`,
+          {
+            code: SwapErrorType.TRADE_QUOTE_FAILED,
+          },
+        )
+      }
+
+      return [...uniqueApprovalAddresses.values()][0]
+    })()
+
+    const maxSlippage = BigNumber.max(...selectedLifiRoute.steps.map(step => step.action.slippage))
+
+    const feeData = await transformLifiFeeData({
+      buyLifiToken,
+      chainId,
+      lifiAssetMap,
+      selectedRoute: selectedLifiRoute,
+    })
+
+    // TODO(gomes): intermediary error-handling within this module function calls
+    return Ok({
+      accountNumber,
+      allowanceContract,
+      buyAmountCryptoBaseUnit: bnOrZero(selectedLifiRoute.toAmountMin).toString(),
+      buyAsset,
+      feeData,
+      maximumCryptoHuman: MAX_LIFI_TRADE,
+      minimumCryptoHuman: getMinimumCryptoHuman(sellAsset).toString(),
+      rate: estimateRate,
+      recommendedSlippage: maxSlippage.toString(),
+      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAsset,
+      sources: [
+        { name: `${selectedLifiRoute.steps[0].tool} (${SwapperName.LIFI})`, proportion: '1' },
+      ],
+      selectedLifiRoute,
+    })
+  } catch (e) {
+    // TODO(gomes): this is a temporary shim from the old error handling to monads, remove try/catch
+    if (e instanceof SwapError)
+      if (e instanceof SwapError)
+        return Err(
+          makeSwapErrorMonad({
+            message: e.message,
+            code: e.code,
+            details: e.details,
+          }),
+        )
+    return Err(
+      makeSwapErrorMonad({
+        message: '[getTradeQuote]',
+        cause: e,
+        code: SwapErrorType.TRADE_QUOTE_FAILED,
+      }),
+    )
   }
 }

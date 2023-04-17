@@ -1,7 +1,9 @@
 import type { ChainKey, Token } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { BuildTradeInput } from '@shapeshiftoss/swapper'
+import type { BuildTradeInput, SwapErrorMonad } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { getTradeQuote } from 'lib/swapper/LifiSwapper/getTradeQuote/getTradeQuote'
 import { isGetEvmTradeQuoteInput } from 'lib/swapper/LifiSwapper/utils/isGetEvmTradeQuoteInput/isGetEvmTradeQuoteInput'
 
@@ -11,7 +13,7 @@ export const buildTrade = async (
   input: BuildTradeInput,
   lifiAssetMap: Map<AssetId, Token>,
   lifiChainMap: Map<ChainId, ChainKey>,
-): Promise<LifiTrade> => {
+): Promise<Result<LifiTrade, SwapErrorMonad>> => {
   if (!isGetEvmTradeQuoteInput(input)) {
     throw new SwapError('[buildTrade] - only EVM chains are supported', {
       code: SwapErrorType.UNSUPPORTED_CHAIN,
@@ -19,6 +21,8 @@ export const buildTrade = async (
     })
   }
 
+  const maybeTradeQuote = await getTradeQuote(input, lifiAssetMap, lifiChainMap)
+  if (maybeTradeQuote.isErr()) return Err(maybeTradeQuote.unwrapErr())
   // TODO: determine whether we should be fetching another quote like below or modify `executeTrade.ts`
   // to allow passing the existing quote in.
   const {
@@ -31,9 +35,9 @@ export const buildTrade = async (
     sellAsset,
     accountNumber,
     selectedLifiRoute,
-  } = await getTradeQuote(input, lifiAssetMap, lifiChainMap)
+  } = maybeTradeQuote.unwrap()
 
-  return {
+  return Ok({
     buyAmountCryptoBaseUnit,
     sellAmountBeforeFeesCryptoBaseUnit,
     feeData,
@@ -44,5 +48,5 @@ export const buildTrade = async (
     accountNumber,
     receiveAddress: input.receiveAddress,
     selectedLifiRoute,
-  }
+  })
 }

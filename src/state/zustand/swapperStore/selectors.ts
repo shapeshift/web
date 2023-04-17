@@ -1,9 +1,10 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { Trade, TradeQuote } from '@shapeshiftoss/swapper'
+import type { SwapErrorMonad, Trade, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { BIP44Params } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import {
   isCosmosSdkSwap,
@@ -102,7 +103,7 @@ type SelectGetTradeForWalletArgs = {
   sellAccountMetadata: AccountMetadata
 }
 
-type SelectGetTradeForWalletReturn = Promise<Trade<ChainId> | undefined>
+type SelectGetTradeForWalletReturn = Promise<Result<Trade<ChainId>, SwapErrorMonad>>
 
 export const selectGetTradeForWallet = (
   state: SwapperState,

@@ -4,14 +4,14 @@ import { FoxyManager } from 'features/defi/providers/foxy/components/FoxyManager
 import { IdleManager } from 'features/defi/providers/idle/components/IdleManager/IdleManager'
 import { OsmosisManager } from 'features/defi/providers/osmosis/components/OsmosisManager/OsmosisManager'
 import { ThorchainSaversManager } from 'features/defi/providers/thorchain-savers/components/ThorchainSaversManager/ThorchainSaversManager'
-import { FoxEthLpManager } from 'features/defi/providers/univ2/components/UniV2Manager/UniV2LpManager'
+import { UniV2LpManager } from 'features/defi/providers/univ2/components/UniV2Manager/UniV2LpManager'
 import { YearnManager } from 'features/defi/providers/yearn/components/YearnManager/YearnManager'
 
 import { DefiProvider, DefiType } from './DefiCommon'
 
 export const DefiProviderToDefiModuleResolverByDeFiType = {
   [`${DefiProvider.UniV2}`]: {
-    [`${DefiType.LiquidityPool}`]: FoxEthLpManager,
+    [`${DefiType.LiquidityPool}`]: UniV2LpManager,
   },
   [`${DefiProvider.EthFoxStaking}`]: {
     [`${DefiType.Staking}`]: FoxFarmingManager,

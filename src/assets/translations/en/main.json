@@ -971,7 +971,8 @@
       "depositFee": "There will be a separate gas fee to deposit.",
       "estimatedGas": "Estimated Gas Fee",
       "confirm": "Confirm",
-      "reject": "Reject"
+      "reject": "Reject",
+      "approved": "Approved"
     },
     "confirm": {
       "withdraw": {

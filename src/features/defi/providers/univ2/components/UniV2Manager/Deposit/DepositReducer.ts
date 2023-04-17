@@ -4,7 +4,8 @@ import { UniV2DepositActionType } from './DepositCommon'
 export const initialState: UniV2DepositState = {
   txid: null,
   loading: false,
-  approve: {},
+  approve0: {},
+  approve1: {},
   deposit: {
     asset1FiatAmount: '',
     asset1CryptoAmount: '',
@@ -20,8 +21,10 @@ export const reducer = (
   action: UniV2DepositActions,
 ): UniV2DepositState => {
   switch (action.type) {
-    case UniV2DepositActionType.SET_APPROVE:
-      return { ...state, approve: action.payload }
+    case UniV2DepositActionType.SET_APPROVE_0:
+      return { ...state, approve0: action.payload }
+    case UniV2DepositActionType.SET_APPROVE_1:
+      return { ...state, approve1: action.payload }
     case UniV2DepositActionType.SET_DEPOSIT:
       return { ...state, deposit: { ...state.deposit, ...action.payload } }
     case UniV2DepositActionType.SET_LOADING:

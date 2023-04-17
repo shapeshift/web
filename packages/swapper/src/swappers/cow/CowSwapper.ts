@@ -66,7 +66,9 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     return getUsdRate(this.deps, input)
   }
 
-  executeTrade(args: ExecuteTradeInput<KnownChainIds.EthereumMainnet>): Promise<TradeResult> {
+  executeTrade(
+    args: ExecuteTradeInput<KnownChainIds.EthereumMainnet>,
+  ): Promise<Result<TradeResult, SwapErrorMonad>> {
     return cowExecuteTrade(this.deps, args)
   }
 
@@ -111,7 +113,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     })
   }
 
-  getTradeTxs(args: TradeResult): Promise<TradeTxs> {
+  getTradeTxs(args: TradeResult): Promise<Result<TradeTxs, SwapErrorMonad>> {
     return cowGetTradeTxs(this.deps, args)
   }
 }

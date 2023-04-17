@@ -10,6 +10,7 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 import type Web3 from 'web3'
 
 import type {
@@ -170,7 +171,9 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     return getThorTradeQuote({ deps: this.deps, input })
   }
 
-  async executeTrade(args: ExecuteTradeInput<ChainId>): Promise<TradeResult> {
+  async executeTrade(
+    args: ExecuteTradeInput<ChainId>,
+  ): Promise<Result<TradeResult, SwapErrorMonad>> {
     try {
       const { trade, wallet } = args
 
@@ -191,11 +194,11 @@ export class ThorchainSwapper implements Swapper<ChainId> {
           .txData as SignTx<ThorEvmSupportedChainId>
         if (wallet.supportsBroadcast()) {
           const tradeId = await evmAdapter.signAndBroadcastTransaction({ txToSign, wallet })
-          return { tradeId }
+          return Ok({ tradeId })
         }
         const signedTx = await evmAdapter.signTransaction({ txToSign, wallet })
         const tradeId = await adapter.broadcastTransaction(signedTx)
-        return { tradeId }
+        return Ok({ tradeId })
       } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
         const signedTx = await (
           adapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
@@ -205,7 +208,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
           wallet,
         })
         const txid = await adapter.broadcastTransaction(signedTx)
-        return { tradeId: txid }
+        return Ok({ tradeId: txid })
       } else if (chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
         const signedTx = await (
           adapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
@@ -215,8 +218,9 @@ export class ThorchainSwapper implements Swapper<ChainId> {
           wallet,
         })
         const txid = await adapter.broadcastTransaction(signedTx)
-        return { tradeId: txid }
+        return Ok({ tradeId: txid })
       } else {
+        // TODO(gomes): don't throw in this module
         throw new SwapError('[executeTrade]: unsupported trade', {
           code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
           fn: 'executeTrade',
@@ -231,7 +235,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     }
   }
 
-  async getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
+  async getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorMonad>> {
     try {
       const midgardTxid = tradeResult.tradeId.startsWith('0x')
         ? tradeResult.tradeId.slice(2)
@@ -262,10 +266,10 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         return isEvmCoinAsset ? `0x${buyTxid}` : buyTxid
       })().toLowerCase()
 
-      return {
+      return Ok({
         sellTxid: tradeResult.tradeId,
         buyTxid: standardBuyTxid,
-      }
+      })
     } catch (e) {
       if (e instanceof SwapError) throw e
       throw new SwapError('[getTradeTxs]: error', {

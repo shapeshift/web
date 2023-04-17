@@ -74,11 +74,11 @@ export class TestSwapper implements Swapper<ChainId> {
     throw new Error('TestSwapper: getTradeQuote unimplemented')
   }
 
-  executeTrade(): Promise<TradeResult> {
+  executeTrade(): Promise<Result<TradeResult, SwapErrorMonad>> {
     throw new Error('TestSwapper: executeTrade unimplemented')
   }
 
-  getTradeTxs(): Promise<TradeTxs> {
+  getTradeTxs(): Promise<Result<TradeTxs, SwapErrorMonad>> {
     throw new Error('TestSwapper: executeTrade unimplemented')
   }
 }

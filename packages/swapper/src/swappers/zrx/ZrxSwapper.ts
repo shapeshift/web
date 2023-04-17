@@ -4,6 +4,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { avalanche, bnbsmartchain, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 
 import type {
   ApprovalNeededInput,
@@ -80,7 +81,7 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     return getUsdRate(input)
   }
 
-  executeTrade(args: ZrxExecuteTradeInput<T>): Promise<TradeResult> {
+  executeTrade(args: ZrxExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorMonad>> {
     return zrxExecuteTrade<T>(this.deps, args)
   }
 
@@ -112,10 +113,12 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     )
   }
 
-  getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
-    return Promise.resolve({
-      sellTxid: tradeResult.tradeId,
-      buyTxid: tradeResult.tradeId,
-    })
+  getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorMonad>> {
+    return Promise.resolve(
+      Ok({
+        sellTxid: tradeResult.tradeId,
+        buyTxid: tradeResult.tradeId,
+      }),
+    )
   }
 }

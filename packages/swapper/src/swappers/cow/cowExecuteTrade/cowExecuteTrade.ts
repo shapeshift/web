@@ -3,10 +3,12 @@ import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { ethers } from 'ethers'
 
-import type { ExecuteTradeInput, TradeResult } from '../../../api'
+import type { ExecuteTradeInput, SwapErrorMonad, TradeResult } from '../../../api'
 import { SwapError, SwapErrorType } from '../../../api'
 import type { CowSwapperDeps } from '../CowSwapper'
 import type { CowTrade } from '../types'
@@ -25,7 +27,7 @@ import { domain, getNowPlusThirtyMinutesTimestamp, hashOrder } from '../utils/he
 export async function cowExecuteTrade(
   { apiUrl, adapter }: CowSwapperDeps,
   { trade, wallet }: ExecuteTradeInput<KnownChainIds.EthereumMainnet>,
-): Promise<TradeResult> {
+): Promise<Result<TradeResult, SwapErrorMonad>> {
   const cowTrade = trade as CowTrade<KnownChainIds.EthereumMainnet>
   const {
     sellAsset,
@@ -125,8 +127,9 @@ export async function cowExecuteTrade(
       },
     )
 
-    return { tradeId: ordersResponse.data }
+    return Ok({ tradeId: ordersResponse.data })
   } catch (e) {
+    // TODO(gomes): don't throw in this module
     if (e instanceof SwapError) throw e
     throw new SwapError('[cowExecuteTrade]', {
       cause: e,

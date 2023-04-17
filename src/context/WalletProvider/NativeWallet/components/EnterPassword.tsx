@@ -39,7 +39,7 @@ export const EnterPassword = () => {
     setError,
     handleSubmit,
     register,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
   } = useForm<NativeWalletValues>({ mode: 'onChange', shouldUnregister: true })
 
   const handleShowClick = () => setShowPw(!showPw)
@@ -150,6 +150,7 @@ export const EnterPassword = () => {
             width='full'
             type='submit'
             isLoading={isSubmitting}
+            isDisabled={!isValid}
             data-test='wallet-password-submit-button'
           >
             <Text translation={'walletProvider.shapeShift.password.button'} />

@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -34,6 +34,7 @@ export const Address = () => {
   const translate = useTranslate()
   const {
     setValue,
+    trigger,
     formState: { errors },
   } = useFormContext<SendInput>()
   const address = useWatch<SendInput, SendFormFields.To>({ name: SendFormFields.To })
@@ -41,6 +42,10 @@ export const Address = () => {
   const { send } = useModal()
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const isYatFeatureEnabled = useFeatureFlag('Yat')
+
+  useEffect(() => {
+    trigger(SendFormFields.Input)
+  }, [trigger])
 
   if (!asset) return null
   const { chainId } = asset

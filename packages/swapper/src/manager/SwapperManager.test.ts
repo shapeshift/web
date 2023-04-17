@@ -228,8 +228,8 @@ describe('SwapperManager', () => {
 
       const cowSwapperGetUsdTradeQuoteMock = jest
         .spyOn(cowSwapper, 'getTradeQuote')
-        // TODO(gomes): is mocking OK(badTradeQuote), in other words what's the intent of this?
-        // This previously mocked resolution with a bad trade quote which seems wrong - if there's a "bad" trade quote, means we should bail and not return it?
+        // TODO(gomes): is mocking OK(badTradeQuote) what we actually want here, in other words what's the intent of this?
+        // This previously mocked resolution with a bad trade quote which seems wrong - if there's a "bad" trade quote, means we should bail and not return it, but an Err instead?
         .mockImplementation(jest.fn().mockResolvedValueOnce(Ok(badTradeQuote)))
 
       const zrxEthereumSwapperGetUsdTradeQuoteMock = jest

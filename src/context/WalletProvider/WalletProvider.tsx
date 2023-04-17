@@ -5,7 +5,6 @@ import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import * as native from '@shapeshiftoss/hdwallet-native'
-import type { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import type { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
@@ -161,7 +160,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           deviceId,
           meta: {
             label: action.payload.meta?.label ?? '',
-            address: (action.payload.wallet as MetaMaskHDWallet | PortisHDWallet).ethAddress ?? '',
+            address: (action.payload.wallet as MetaMaskHDWallet).ethAddress ?? '',
           },
         },
       }
@@ -696,10 +695,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         const adapters: Adapters = new Map()
         for (const keyManager of Object.values(KeyManager)) {
           try {
-            type KeyManagerOptions =
-              | undefined
-              | { portisAppId: string }
-              | WalletConnectProviderConfig
+            type KeyManagerOptions = undefined | WalletConnectProviderConfig
 
             type GetKeyManagerOptions = (keyManager: KeyManager) => KeyManagerOptions
 

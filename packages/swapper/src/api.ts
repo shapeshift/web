@@ -8,25 +8,25 @@ import type { Result } from '@sniptt/monads'
 
 export const SwapError = createErrorClass('SwapError')
 
-export type SwapErrorRight<T = any> = {
+export type SwapErrorRight = {
   name: 'SwapError'
   message: string
   cause?: unknown
-  details?: T
+  details?: unknown
   code?: string
 }
 
-export const makeSwapErrorRight = <T>({
+export const makeSwapErrorRight = ({
   details,
   cause,
   code,
   message,
 }: {
   message: string
-  details?: T
+  details?: unknown
   cause?: unknown
   code?: string
-}): SwapErrorRight<T> => ({
+}): SwapErrorRight => ({
   name: 'SwapError',
   message,
   details,

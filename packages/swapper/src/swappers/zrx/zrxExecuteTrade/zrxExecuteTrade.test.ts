@@ -51,11 +51,12 @@ describe('ZrxExecuteTrade', () => {
   }
 
   it('returns txid if offline signing is supported', async () => {
-    expect(
-      await zrxExecuteTrade<KnownChainIds.EthereumMainnet>(deps, {
-        ...execTradeInput,
-      }),
-    ).toEqual({ tradeId: txid })
+    const maybeTradeResult = await zrxExecuteTrade<KnownChainIds.EthereumMainnet>(deps, {
+      ...execTradeInput,
+    })
+    expect(maybeTradeResult.isErr()).toBe(false)
+
+    expect(maybeTradeResult.unwrap()).toEqual({ tradeId: txid })
   })
 
   it('returns txid if offline signing is unsupported', async () => {
@@ -64,10 +65,12 @@ describe('ZrxExecuteTrade', () => {
       supportsBroadcast: jest.fn(() => true),
     } as unknown as HDWallet
 
-    expect(
-      await zrxExecuteTrade<KnownChainIds.EthereumMainnet>(deps, {
-        ...execTradeInput,
-      }),
-    ).toEqual({ tradeId: txid })
+    const maybeTradeResult = await zrxExecuteTrade<KnownChainIds.EthereumMainnet>(deps, {
+      ...execTradeInput,
+    })
+    expect(maybeTradeResult.isErr()).toBe(false)
+    const tradeResult = maybeTradeResult.unwrap()
+
+    expect(tradeResult).toEqual({ tradeId: txid })
   })
 })

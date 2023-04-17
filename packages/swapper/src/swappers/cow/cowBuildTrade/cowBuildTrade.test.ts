@@ -199,9 +199,15 @@ describe('cowBuildTrade', () => {
       receiveAddress: '',
     }
 
-    await expect(cowBuildTrade(deps, tradeInput)).rejects.toThrow(
-      '[cowBuildTrade] - Sell asset needs to be ERC-20 to use CowSwap',
-    )
+    const maybeCowBuildTrade = await cowBuildTrade(deps, tradeInput)
+    expect(maybeCowBuildTrade.isErr()).toBe(true)
+    expect(maybeCowBuildTrade.unwrapErr()).toMatchObject({
+      cause: undefined,
+      code: 'UNSUPPORTED_PAIR',
+      details: { sellAssetNamespace: 'slip44' },
+      message: '[cowBuildTrade] - Sell asset needs to be ERC-20 to use CowSwap',
+      name: 'SwapError',
+    })
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade when selling WETH', async () => {

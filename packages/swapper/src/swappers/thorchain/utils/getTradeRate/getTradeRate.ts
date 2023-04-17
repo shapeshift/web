@@ -48,11 +48,6 @@ export const getTradeRate = async ({
         details: { sellAssetId: sellAsset.assetId, buyAssetId },
       }),
     )
-    // TODO(gomes): move me on the consumer with a match() on the error
-    // return getPriceRatio(deps, {
-    // sellAssetId: sellAsset.assetId,
-    // buyAssetId,
-    // })
   }
 
   const buyPoolId = adapters.assetIdToPoolAssetId({ assetId: buyAssetId })

@@ -656,6 +656,15 @@ export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelect
   },
 )((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
 
+export const selectAccountIdsByAssetIdAboveBalanceThresholdByFilter = createDeepEqualOutputSelector(
+  selectAccountIdsByAssetIdAboveBalanceThreshold,
+  selectAccountIdParamFromFilter,
+  (accountIdsAboveThreshold, accountId): AccountId[] =>
+    accountId
+      ? accountIdsAboveThreshold.filter(listAccount => listAccount === accountId)
+      : accountIdsAboveThreshold,
+)
+
 export type AccountRowData = {
   name: string
   icon: string

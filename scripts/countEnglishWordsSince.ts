@@ -22,12 +22,12 @@ const rl = readline.createInterface({
   output: process.stdout,
 })
 
-const countWordsArray = (strings: string[]): number => {
-  return strings.reduce((count, str) => count + countWords(str), 0)
-}
+const countWordsArray = (strings: string[]): number =>
+  strings.reduce((count, str) => count + countWords(str), 0)
 
 const countWords = (str: string): number => {
-  return str.trim().split(/\s+/).length
+  const trimmedStr = str.trim()
+  return trimmedStr.length === 0 ? 0 : trimmedStr.split(/\s+/).length
 }
 
 rl.question('Which revision sould we compare: ', commitId => {

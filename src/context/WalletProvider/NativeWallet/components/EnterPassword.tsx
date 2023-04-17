@@ -150,7 +150,7 @@ export const EnterPassword = () => {
             width='full'
             type='submit'
             isLoading={isSubmitting}
-            disabled={!isValid}
+            isDisabled={!isValid}
             data-test='wallet-password-submit-button'
           >
             <Text translation={'walletProvider.shapeShift.password.button'} />

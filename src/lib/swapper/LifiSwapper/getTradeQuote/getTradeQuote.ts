@@ -169,14 +169,13 @@ export async function getTradeQuote(
   } catch (e) {
     // TODO(gomes): this is a temporary shim from the old error handling to monads, remove try/catch
     if (e instanceof SwapError)
-      if (e instanceof SwapError)
-        return Err(
-          makeSwapErrorMonad({
-            message: e.message,
-            code: e.code,
-            details: e.details,
-          }),
-        )
+      return Err(
+        makeSwapErrorMonad({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
     return Err(
       makeSwapErrorMonad({
         message: '[getTradeQuote]',

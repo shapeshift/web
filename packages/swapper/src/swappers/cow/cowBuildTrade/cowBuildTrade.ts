@@ -1,11 +1,11 @@
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
-import { Ok } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
 import type { BuildTradeInput, SwapErrorMonad } from '../../../api'
-import { SwapError, SwapErrorType } from '../../../api'
+import { makeSwapErrorMonad, SwapError, SwapErrorType } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { getApproveContractData, isApprovalRequired } from '../../utils/helpers/helpers'
@@ -166,11 +166,20 @@ export async function cowBuildTrade(
 
     return Ok(trade)
   } catch (e) {
-    // TODO(gomes): don't throw
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[cowBuildTrade]', {
-      cause: e,
-      code: SwapErrorType.TRADE_QUOTE_FAILED,
-    })
+    if (e instanceof SwapError)
+      return Err(
+        makeSwapErrorMonad({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
+    return Err(
+      makeSwapErrorMonad({
+        message: '[cowBuildTrade]',
+        cause: e,
+        code: SwapErrorType.TRADE_QUOTE_FAILED,
+      }),
+    )
   }
 }

@@ -297,7 +297,7 @@ export interface Swapper<T extends ChainId> {
   /**
    * Execute a trade built with buildTrade by signing and broadcasting
    */
-  executeTrade(args: ExecuteTradeInput<T>): Promise<TradeResult>
+  executeTrade(args: ExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorMonad>>
 
   /**
    * Get a boolean if a quote needs approval
@@ -328,5 +328,5 @@ export interface Swapper<T extends ChainId> {
   /**
    * Get transactions related to a trade
    */
-  getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs>
+  getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorMonad>>
 }

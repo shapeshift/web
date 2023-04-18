@@ -26,7 +26,7 @@ export default function register(): Plugins {
                 )
 
                 const ws = new unchained.ws.Client<unchained.polygon.Tx>(
-                  getConfig().REACT_APP_UNCHAINED_BNBSMARTCHAIN_WS_URL,
+                  getConfig().REACT_APP_UNCHAINED_POLYGON_HTTP_WS_URL,
                 )
 
                 return new polygon.ChainAdapter({

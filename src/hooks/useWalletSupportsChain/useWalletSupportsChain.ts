@@ -39,7 +39,6 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
     case bchChainId:
     case dogeChainId:
     case polygonChainId:
-      // TODO patch when HDWallet is updated
       return supportsPolygon(wallet)
     case ltcChainId:
       return supportsBTC(wallet)

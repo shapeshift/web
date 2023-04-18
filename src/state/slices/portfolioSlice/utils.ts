@@ -20,7 +20,7 @@ import {
   toAccountId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { HDWallet, supportsPolygon } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsAvalanche,
   supportsBSC,
@@ -262,9 +262,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsOptimism(wallet)
     case bscChainId:
       return supportsBSC(wallet)
-    // TODO fix when wallet is done
-    // case polygonChainId:
-    // return supportsPolygon(wallet)
+    case polygonChainId:
+      return supportsPolygon(wallet)
     case btcChainId:
     case ltcChainId:
     case dogeChainId:

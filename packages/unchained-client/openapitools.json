@@ -123,7 +123,7 @@
         }
       },
       "polygon": {
-        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/344fe7496a302760c40f18ec3bfcba588e0f5a7e/node/coinstacks/polygon/api/src/swagger.json",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/polygon/api/src/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/polygon",
         "enablePostProcessFile": true,

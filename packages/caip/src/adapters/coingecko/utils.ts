@@ -107,8 +107,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
-      console.log(platforms)
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Polygon)) {
         try {
           const assetId = toAssetId({
@@ -119,7 +117,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           })
           prev[polygonChainId][assetId] = id
         } catch (err) {
-          console.log('failed to create polygon assetId', err)
           // unable to create assetId, skip token
         }
       }

@@ -40,12 +40,8 @@ const generatedCoingeckoToAssetIdsMap: Record<CoinGeckoId, AssetId[]> = invertBy
 export const coingeckoToAssetIds = (id: CoinGeckoId): AssetId[] =>
   generatedCoingeckoToAssetIdsMap[id]
 
-export const assetIdToCoingecko = (assetId: AssetId): CoinGeckoId | undefined =>{
-  const qq = generatedAssetIdToCoingeckoMap[toLower(assetId)]
-  console.log(`QQ: ${assetId}`)
-  return qq
-}
-  
+export const assetIdToCoingecko = (assetId: AssetId): CoinGeckoId | undefined =>
+  generatedAssetIdToCoingeckoMap[toLower(assetId)]
 
 // https://www.coingecko.com/en/api/documentation - See asset_platforms
 export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
@@ -99,7 +95,6 @@ export const makeCoingeckoUrlParts = (
 
 export const makeCoingeckoAssetUrl = (assetId: AssetId, apiKey?: string): string | undefined => {
   const id = assetIdToCoingecko(assetId)
-  console.log(`CG ID: ${id}`)
   if (!id) return
 
   const { baseUrl, maybeApiKeyQueryParam } = makeCoingeckoUrlParts(apiKey)

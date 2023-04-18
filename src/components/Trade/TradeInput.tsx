@@ -493,10 +493,20 @@ export const TradeInput = () => {
     }
   }, [isBelowMinSellAmount, feesExceedsSellAmount])
 
+  const handleSellAssetClick = useCallback(
+    (asset: Asset) => handleAssetClick(asset, AssetClickAction.Sell),
+    [handleAssetClick],
+  )
+
+  const handleBuyAssetClick = useCallback(
+    (asset: Asset) => handleAssetClick(asset, AssetClickAction.Sell),
+    [handleAssetClick],
+  )
+
   const handleInputAssetClick = useCallback(
     (action: AssetClickAction) => {
       assetSearch.open({
-        onClick: (asset: Asset) => handleAssetClick(asset, action),
+        onClick: action === AssetClickAction.Sell ? handleSellAssetClick : handleBuyAssetClick,
         title: action === AssetClickAction.Sell ? 'trade.tradeFrom' : 'trade.tradeTo',
         filterBy:
           action === AssetClickAction.Sell
@@ -504,7 +514,13 @@ export const TradeInput = () => {
             : getSupportedBuyAssetsFromSellAsset,
       })
     },
-    [assetSearch, getSupportedBuyAssetsFromSellAsset, getSupportedSellableAssets, handleAssetClick],
+    [
+      assetSearch,
+      getSupportedBuyAssetsFromSellAsset,
+      getSupportedSellableAssets,
+      handleSellAssetClick,
+      handleBuyAssetClick,
+    ],
   )
 
   const tradeStateLoading = useMemo(

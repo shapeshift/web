@@ -6,6 +6,7 @@ import {
   ethAssetId,
   fromAssetId,
   optimismAssetId,
+  polygonAssetId,
 } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -206,6 +207,8 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
       return assetId === optimismAssetId
     case KnownChainIds.BnbSmartChainMainnet:
       return assetId === bscAssetId
+    case KnownChainIds.PolygonMainnet:
+      return assetId === polygonAssetId
     default:
       return false
   }

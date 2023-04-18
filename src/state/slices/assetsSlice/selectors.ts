@@ -2,14 +2,14 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import cloneDeep from 'lodash/cloneDeep'
-import sortBy from 'lodash/sortBy'
+import orderBy from 'lodash/orderBy'
 import createCachedSelector from 're-reselect'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssetIdParamFromFilter } from 'state/selectors'
-import { selectCryptoMarketDataIdsSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
+import { selectMarketDataSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
 
 import { assetIdToFeeAssetId } from '../portfolioSlice/utils'
 import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'
@@ -39,28 +39,17 @@ export const selectAssetIds = (state: ReduxState) => state.assets.ids
 
 export const selectAssetsByMarketCap = createDeepEqualOutputSelector(
   selectAssets,
-  selectCryptoMarketDataIdsSortedByMarketCap,
-  (assetsByIdOriginal, sortedMarketDataIds): Asset[] => {
-    const assetById = cloneDeep(assetsByIdOriginal)
-    // we only prefetch market data for some
-    // and want this to be fairly performant so do some mutatey things
-    // market data ids are already sorted by market cap
-    const sortedWithMarketCap = sortedMarketDataIds.reduce<Asset[]>((acc, cur) => {
-      const asset = assetById[cur]
-      if (!asset) return acc
-      acc.push(asset)
-      delete assetById[cur]
-      return acc
-    }, [])
-    const remainingSortedNoMarketCap = sortBy(Object.values(assetById), ['name', 'symbol'])
-    return [...sortedWithMarketCap, ...remainingSortedNoMarketCap].filter(isSome)
-  },
-)
+  selectMarketDataSortedByMarketCap,
+  (assets, cryptoMarketData): Asset[] => {
+    const selectAssetMarketCap = (asset: Asset) =>
+      bnOrZero(cryptoMarketData[asset.assetId]?.marketCap).toNumber()
+    const selectAssetName = (asset: Asset) => asset.name
 
-export const selectAssetsByMarketCapById = createSelector(
-  selectAssetsByMarketCap,
-  assetsByMarketCap => {
-    return new Map(assetsByMarketCap.map(asset => [asset.assetId, asset]))
+    return orderBy(
+      Object.values(assets).filter(isSome),
+      [selectAssetMarketCap, selectAssetName],
+      ['desc', 'asc'],
+    )
   },
 )
 

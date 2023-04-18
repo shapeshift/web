@@ -39,7 +39,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 }) => {
   const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
-  const assetsByMarketCapById = useSelector(selectSortedAssetsById)
+  const sortedAssetsById = useSelector(selectSortedAssetsById)
   const [accountId, setAccountId] = useState<AccountId | undefined>(selectedAccountId)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
@@ -53,13 +53,13 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 
   const buyAssets = useMemo(() => {
     const buyAssetIds = ramps?.buyAssetIds ?? []
-    return buyAssetIds.map(assetId => assetsByMarketCapById.get(assetId)!)
-  }, [ramps?.buyAssetIds, assetsByMarketCapById])
+    return buyAssetIds.map(assetId => sortedAssetsById.get(assetId)!)
+  }, [ramps?.buyAssetIds, sortedAssetsById])
 
   const sellAssets = useMemo(() => {
     const sellAssetIds = ramps?.sellAssetIds ?? []
-    return sellAssetIds.map(assetId => assetsByMarketCapById.get(assetId)!)
-  }, [ramps?.sellAssetIds, assetsByMarketCapById])
+    return sellAssetIds.map(assetId => sortedAssetsById.get(assetId)!)
+  }, [ramps?.sellAssetIds, sortedAssetsById])
 
   const handleIsSelectingAsset = useCallback(
     (fiatRampAction: FiatRampAction) => {

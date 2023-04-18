@@ -124,11 +124,11 @@ export const selectSortedAssets = createSelector(
   selectPortfolioFiatBalances,
   selectPortfolioFiatBalancesByAccount,
   selectMarketDataSortedByMarketCap,
-  (assets, portfolioFiatBalances, marketData) => {
+  (assets, portfolioFiatBalances, cryptoMarketData) => {
     const selectAssetFiatBalance = (asset: Asset) =>
       bnOrZero(portfolioFiatBalances[asset.assetId]).toNumber()
     const selectAssetMarketCap = (asset: Asset) =>
-      bnOrZero(marketData[asset.assetId]?.marketCap).toNumber()
+      bnOrZero(cryptoMarketData[asset.assetId]?.marketCap).toNumber()
     const selectAssetName = (asset: Asset) => asset.name
 
     return orderBy(

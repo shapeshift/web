@@ -37,6 +37,7 @@ export const useSwapper = () => {
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const getTradeForWallet = useSwapperStore(selectGetTradeForWallet)
+  const affiliateBps = useSwapperStore(state => state.affiliateBps)
 
   // Selectors
   const flags = useSelector(selectFeatureFlags)
@@ -127,13 +128,15 @@ export const useSwapper = () => {
       sellAccountBip44Params,
       sellAccountMetadata,
       buyAccountBip44Params,
+      affiliateBps,
     })
   }, [
     wallet,
-    getTradeForWallet,
     sellAccountBip44Params,
-    sellAccountMetadata,
     buyAccountBip44Params,
+    sellAccountMetadata,
+    getTradeForWallet,
+    affiliateBps,
   ])
 
   useEffect(() => {

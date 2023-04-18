@@ -98,20 +98,25 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   )
   const updateFees = useSwapperStore(state => state.updateFees)
   const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
+  const setSwapperDefaultAffiliateBps = useSwapperStore(
+    state => state.setSwapperDefaultAffiliateBps,
+  )
 
   const handleSwapperSelection = useCallback(
     (activeSwapperWithMetadata: SwapperWithQuoteMetadata) => {
       updateActiveSwapperWithMetadata(activeSwapperWithMetadata)
+      setSwapperDefaultAffiliateBps()
       if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
       updateFees(sellFeeAsset)
       updateTradeAmountsFromQuote()
     },
     [
-      updateTradeAmountsFromQuote,
-      sellAsset?.assetId,
-      sellFeeAsset,
       updateActiveSwapperWithMetadata,
+      setSwapperDefaultAffiliateBps,
+      sellFeeAsset,
+      sellAsset?.assetId,
       updateFees,
+      updateTradeAmountsFromQuote,
     ],
   )
 

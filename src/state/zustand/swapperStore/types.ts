@@ -70,6 +70,7 @@ export type SwapperAction = {
   updateFees: (sellFeeAsset: Asset) => void
   updateTradeAmountsFromQuote: () => void
   updateAffiliateBps: (affiliateBps: string) => void
+  setSwapperDefaultAffiliateBps: () => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1

@@ -6,7 +6,7 @@ import {
   selectTradeAmountsByActionAndAmount,
   selectTradeAmountsByActionAndAmountFromQuote,
 } from 'state/zustand/swapperStore/amountSelectors'
-import { selectQuote } from 'state/zustand/swapperStore/selectors'
+import { selectQuote, selectSwapperDefaultAffiliateBps } from 'state/zustand/swapperStore/selectors'
 import type { SetSwapperStoreAction, SwapperState } from 'state/zustand/swapperStore/types'
 
 export const toggleIsExactAllowance =
@@ -186,4 +186,15 @@ export const updateTradeAmountsFromQuote = (set: SetSwapperStoreAction<SwapperSt
     },
     false,
     `swapper/updateTradeAmountsFromQuote`,
+  )
+
+export const setSwapperDefaultAffiliateBps = (set: SetSwapperStoreAction<SwapperState>) => () =>
+  set(
+    draft => {
+      const swapperDefaultAffiliateBps = selectSwapperDefaultAffiliateBps(draft)
+      draft.affiliateBps = swapperDefaultAffiliateBps
+      return draft
+    },
+    false,
+    `swapper/setSwapperDefaultAffiliateBps`,
   )

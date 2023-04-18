@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
+import { AssetEquityType } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
   selectCryptoHumanBalanceIncludingStakingByFilter,
@@ -23,13 +24,6 @@ import { EquityStakingRow } from './EquityStakingRow'
 type EquityProps = {
   assetId: AssetId
   accountId?: AccountId
-}
-
-enum AssetEquityType {
-  Account = 'Account',
-  Staking = 'Staking',
-  LP = 'LP',
-  Reward = 'Reward',
 }
 
 export const Equity = ({ assetId, accountId }: EquityProps) => {

@@ -147,15 +147,12 @@ export const buildTrade = async ({
         quote: quote as TradeQuote<ThorCosmosSdkSupportedChainId>,
       })
 
-      if (maybeTxData.isErr()) return Err(maybeTxData.unwrapErr())
-      const txData = maybeTxData.unwrap()
-
-      return Ok({
+      return maybeTxData.map(txData => ({
         chainId: sellAsset.chainId as ThorCosmosSdkSupportedChainId,
         ...quote,
         receiveAddress: destinationAddress,
         txData,
-      })
+      }))
     } else {
       return Err(
         makeSwapErrorRight({

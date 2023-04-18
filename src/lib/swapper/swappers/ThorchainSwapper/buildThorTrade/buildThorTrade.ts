@@ -78,6 +78,7 @@ export const buildTrade = async ({
         destinationAddress,
         feeData: quote.feeData as QuoteFeeData<ThorEvmSupportedChainId>,
         deps,
+        affiliateBps: '0', // FIXME
       })
 
       return maybeEthTradeTx.map(ethTradeTx => ({
@@ -96,6 +97,7 @@ export const buildTrade = async ({
         destinationAddress,
         xpub: (input as GetUtxoTradeQuoteInput).xpub,
         buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
+        affiliateBps: '0', // FIXME
       })
 
       if (maybethorTxInfo.isErr()) return Err(maybethorTxInfo.unwrapErr())

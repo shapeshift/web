@@ -34,4 +34,20 @@
   },
   "include": ["src/**/*", "src/**/*.json", "packages/**/*", "packages/**/*.json", "cypress/**/*"],
   "exclude": ["dist", "node_modules", "**/*.test.ts", "**/*.spec.ts", "**/__mocks__", "**/*.js"],
+  "references": [
+    { "path": "./packages/asset-service" },
+    { "path": "./packages/caip" },
+    { "path": "./packages/chain-adapters" },
+    { "path": "./packages/errors" },
+    { "path": "./packages/eslint-plugin-logger" },
+    { "path": "./packages/investor" },
+    { "path": "./packages/investor-foxy" },
+    { "path": "./packages/investor-idle" },
+    { "path": "./packages/investor-yearn" },
+    { "path": "./packages/logger" },
+    { "path": "./packages/market-service" },
+    { "path": "./packages/swapper" },
+    { "path": "./packages/types" },
+    { "path": "./packages/unchained-client" },
+  ]
 }

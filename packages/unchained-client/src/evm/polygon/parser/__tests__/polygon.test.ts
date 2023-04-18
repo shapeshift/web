@@ -2,7 +2,7 @@ import { polygonAssetId, polygonChainId } from '@shapeshiftoss/caip'
 
 import { Dex, Trade, TradeType, Transfer, TransferType, TxStatus } from '../../../../types'
 import type { ParsedTx } from '../../../parser'
-import { TransactionParser } from '../index'
+import { TransactionParser, ZRX_POLYGON_PROXY_CONTRACT } from '../index'
 // import erc20Approve from './mockData/erc20Approve'
 // import ethSelfSend from './mockData/ethSelfSend'
 import ethStandard from './mockData/ethStandard'
@@ -13,6 +13,7 @@ import tokenStandard from './mockData/tokenStandard'
 // import zrxTradeOpToEth from './mockData/zrxTradeOpToEth'
 import zrxTradeUsdcToMatic from './mockData/zrxTradeUsdcToMatic'
 import zrxTradeMaticToEth from './mockData/zrxTradeMaticToEth'
+import zrxTradeEthToMatic from './mockData/zrxTradeEthToMatic'
 
 const txParser = new TransactionParser({
   rpcUrl: '',
@@ -455,54 +456,56 @@ describe('parseTx', () => {
   //   })
   // })
 
-  // describe('zrx trade', () => {
-  //   it('should be able to parse eth -> token', async () => {
-  //     const { tx } = zrxTradeEthToUsdc
-  //     const address = '0x5e2f658E1677b38fF8D5E6B847A4B377F9C80F60'
-  //     const trade: Trade = { dexName: Dex.Zrx, type: TradeType.Trade }
+  describe('zrx trade', () => {
+    it('should be able to parse eth -> token', async () => {
+      const { tx } = zrxTradeEthToMatic
+      const address = '0xB1889e16CF7569D41705c9dacC55F3ff46182Fd2'
+      const trade: Trade = { dexName: Dex.Zrx, type: TradeType.Trade }
 
-  //     const sellTransfer: Transfer = {
-  //       assetId: polygonAssetId,
-  //       components: [{ value: '34100000000000000' }],
-  //       from: address,
-  //       to: ZRX_POLYGON_PROXY_CONTRACT,
-  //       token: undefined,
-  //       totalValue: '34100000000000000',
-  //       type: TransferType.Send,
-  //     }
+      const sellTransfer: Transfer = {
+        assetId: 'eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
+        components: [{ value: '18584222436627066' }],
+        from: address,
+        to: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
+        token: weth,
+        totalValue: '18584222436627066',
+        type: TransferType.Send,
+      }
 
-  //     const buyTransfer: Transfer = {
-  //       assetId: 'eip155:137/erc20:0x7f5c764cbc14f9669b88837ca1490cca17c31607',
-  //       components: [{ value: '53869470' }],
-  //       from: '0xA3128d9b7Cca7d5Af29780a56abEec12B05a6740',
-  //       to: address,
-  //       token: usdcToken,
-  //       totalValue: '53869470',
-  //       type: TransferType.Receive,
-  //     }
+      const buyTransfer: Transfer = {
+        assetId: polygonAssetId,
+        components: [{ value: '33234499956238748695' }],
+        from: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
+        to: address,
+        token: undefined,
+        totalValue: '33234499956238748695',
+        type: TransferType.Receive,
+      }
 
-  //     const expected: ParsedTx = {
-  //       txid: tx.txid,
-  //       blockHeight: tx.blockHeight,
-  //       blockTime: tx.timestamp,
-  //       blockHash: tx.blockHash,
-  //       address,
-  //       chainId: polygonChainId,
-  //       confirmations: tx.confirmations,
-  //       data: { parser: 'zrx' },
-  //       status: TxStatus.Confirmed,
-  //       fee: {
-  //         value: '357031000000',
-  //         assetId: polygonAssetId,
-  //       },
-  //       transfers: [sellTransfer, buyTransfer],
-  //       trade,
-  //     }
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        address,
+        chainId: polygonChainId,
+        confirmations: tx.confirmations,
+        data: { parser: 'zrx' },
+        status: TxStatus.Confirmed,
+        fee: {
+          value: '58627128284278820',
+          assetId: polygonAssetId,
+        },
+        transfers: [sellTransfer, buyTransfer],
+        trade,
+      }
 
-  //     const actual = await txParser.parse(tx, address)
+      const actual = await txParser.parse(tx, address)
 
-  //     expect(actual).toEqual(expected)
-  //   })
+      console.log(actual)
+
+      expect(actual).toEqual(expected)
+    })
 
     it('should be able to parse token -> matic', async () => {
       const { tx } = zrxTradeMaticToEth
@@ -513,7 +516,7 @@ describe('parseTx', () => {
         assetId: 'eip155:137/slip44:60',
         components: [{ value: '105000000000000000000' }],
         from: address,
-        to: '0xDef1C0ded9bec7F1a1670819833240f027b25EfF',
+        to: ZRX_POLYGON_PROXY_CONTRACT,
         token: undefined,
         totalValue: '105000000000000000000',
         type: TransferType.Send,
@@ -560,7 +563,7 @@ describe('parseTx', () => {
         assetId: 'eip155:137/slip44:60',
         components: [{ value: '6982000000000000000' }],
         from: address,
-        to: '0xDef1C0ded9bec7F1a1670819833240f027b25EfF',
+        to: ZRX_POLYGON_PROXY_CONTRACT,
         token: maticToken,
         totalValue: '6982000000000000000',
         type: TransferType.Send,
@@ -598,3 +601,4 @@ describe('parseTx', () => {
       expect(actual).toEqual(expected)
     })
   })
+})

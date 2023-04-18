@@ -1,4 +1,3 @@
-import merge from 'lodash/merge'
 import noop from 'lodash/noop'
 import React, { useCallback, useMemo, useReducer } from 'react'
 import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'

@@ -57,6 +57,13 @@ export const selectAssetsByMarketCap = createDeepEqualOutputSelector(
   },
 )
 
+export const selectAssetsByMarketCapById = createSelector(
+  selectAssetsByMarketCap,
+  assetsByMarketCap => {
+    return new Map(assetsByMarketCap.map(asset => [asset.assetId, asset]))
+  },
+)
+
 export const selectChainIdsByMarketCap = createDeepEqualOutputSelector(
   selectAssetsByMarketCap,
   (sortedAssets: Asset[]): ChainId[] =>

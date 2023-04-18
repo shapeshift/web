@@ -17,7 +17,6 @@ import { Card } from 'components/Card/Card'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import {
-  selectAssetsByMarketCap,
   selectChainIdsByMarketCap,
   selectMarketDataSortedByMarketCap,
   selectPortfolioFiatBalances,
@@ -42,8 +41,8 @@ export enum AssetSearchOrder {
 }
 
 export type AssetSearchProps = {
+  assets: Asset[]
   onClick?: (asset: Asset) => void
-  filterBy?: (asset: Asset[]) => Asset[] | undefined
   sortOrder?: AssetSearchOrder
   disableUnsupported?: boolean
   accountId?: AccountId
@@ -53,8 +52,8 @@ export type AssetSearchProps = {
 }
 
 export const AssetSearch: FC<AssetSearchProps> = ({
+  assets,
   onClick,
-  filterBy,
   disableUnsupported,
   sortOrder = AssetSearchOrder.UserBalanceMarketCap,
   accountId,
@@ -64,25 +63,17 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 }) => {
   const translate = useTranslate()
   const history = useHistory()
-  const assets = useSelector(selectAssetsByMarketCap)
   const portfolioFiatBalances = useSelector(selectPortfolioFiatBalances)
   const portfolioFiatBalancesByAccount = useSelector(selectPortfolioFiatBalancesByAccount)
   const chainIdsByMarketCap = useSelector(selectChainIdsByMarketCap)
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
 
   /**
-   * the initial list of assets to display in the search results, without search terms
-   * or filters applied
-   */
-  const inputAssets = useMemo(() => filterBy?.(assets) ?? assets, [assets, filterBy])
-
-  /**
    * assets filtered by selected chain ids
    */
   const filteredAssets = useMemo(
-    () =>
-      activeChain === 'All' ? inputAssets : inputAssets.filter(a => a.chainId === activeChain),
-    [activeChain, inputAssets],
+    () => (activeChain === 'All' ? assets : assets.filter(a => a.chainId === activeChain)),
+    [activeChain, assets],
   )
 
   const [isFocused, setIsFocused] = useState(false)
@@ -173,8 +164,8 @@ export const AssetSearch: FC<AssetSearchProps> = ({
    * derived from the output of the filterBy function, sorted by market cap
    */
   const filteredChainIdsByMarketCap: ChainId[] = useMemo(
-    () => intersection(chainIdsByMarketCap, uniq(inputAssets.map(a => a.chainId))),
-    [chainIdsByMarketCap, inputAssets],
+    () => intersection(chainIdsByMarketCap, uniq(assets.map(a => a.chainId))),
+    [chainIdsByMarketCap, assets],
   )
 
   const inputProps: InputProps = {

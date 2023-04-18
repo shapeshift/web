@@ -3,10 +3,12 @@ import type { FlexProps } from '@chakra-ui/react'
 import { Box, Flex, IconButton, Link, Stack, useMediaQuery } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { CircleQuestionIcon } from 'components/Icons/CircleQuestion'
 import { DiscordIcon } from 'components/Icons/Discord'
 import { useModal } from 'hooks/useModal/useModal'
+import { selectAssetsByMarketCap } from 'state/slices/selectors'
 import { breakpoints } from 'theme/theme'
 
 import { useFeatureFlag } from '../../../hooks/useFeatureFlag/useFeatureFlag'
@@ -28,6 +30,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
   const isWalletConnectToDappsV1Enabled = useFeatureFlag('WalletConnectToDapps')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isLiveSupportEnabled = useFeatureFlag('LiveSupport')
+  const assetsByMarketCap = useSelector(selectAssetsByMarketCap)
   const isWalletConnectToDappsEnabled =
     isWalletConnectToDappsV1Enabled || isWalletConnectToDappsV2Enabled
 
@@ -70,7 +73,11 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
             </Box>
           )}
           <Box width='full'>
-            <AssetSearch assetListAsDropdown formProps={{ px: 0, mb: 0 }} />
+            <AssetSearch
+              assetListAsDropdown
+              formProps={{ px: 0, mb: 0 }}
+              assets={assetsByMarketCap}
+            />
           </Box>
         </Flex>
       )}

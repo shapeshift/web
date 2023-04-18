@@ -25,7 +25,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsAnyApiFetching } from 'hooks/useIsAnyApiFetching/useIsAnyApiFetching'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectPortfolioLoadingStatus } from 'state/slices/selectors'
+import { selectAssetsByMarketCap, selectPortfolioLoadingStatus } from 'state/slices/selectors'
 
 import { DegradedStateBanner } from './DegradedStateBanner'
 import { ChainMenu } from './NavBar/ChainMenu'
@@ -37,6 +37,7 @@ import { SideNavContent } from './SideNavContent'
 export const Header = () => {
   const { onToggle, isOpen, onClose } = useDisclosure()
   const isDegradedState = useSelector(selectPortfolioLoadingStatus) === 'error'
+  const assetsByMarketCap = useSelector(selectAssetsByMarketCap)
   const isLoading = useIsAnyApiFetching()
 
   const history = useHistory()
@@ -150,7 +151,11 @@ export const Header = () => {
               justifyContent='center'
               display={{ base: 'none', md: 'block' }}
             >
-              <AssetSearch assetListAsDropdown formProps={{ mb: 0, px: 0 }} />
+              <AssetSearch
+                assetListAsDropdown
+                formProps={{ mb: 0, px: 0 }}
+                assets={assetsByMarketCap}
+              />
             </HStack>
             <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
               {isDegradedState && <DegradedStateBanner />}

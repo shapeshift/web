@@ -24,14 +24,14 @@ import { EquityRow } from './EquityRow'
 type EquityAccountRowProps = {
   accountId: AccountId
   assetId: AssetId
-  allocation?: string
+  totalFiatBalance?: string
   color?: string
 }
 
 export const EquityAccountRow = ({
   accountId,
   assetId,
-  allocation,
+  totalFiatBalance,
   color,
 }: EquityAccountRowProps) => {
   const translate = useTranslate()
@@ -78,7 +78,7 @@ export const EquityAccountRow = ({
         />
       }
       label={translate('accounts.accountNumber', { accountNumber })}
-      allocation={allocation}
+      totalFiatBalance={totalFiatBalance}
       color={color}
       fiatAmount={fiatBalance}
       cryptoBalancePrecision={cryptoHumanBalance}

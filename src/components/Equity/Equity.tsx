@@ -5,14 +5,19 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
-import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
+import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
+import type { LpId, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { AssetEquityType } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
-  selectCryptoHumanBalanceIncludingStakingByFilter,
-  selectEquityRowsfromFilter,
-  selectFiatBalanceIncludingStakingByFilter,
+  selectEquitiesFromFilter,
+  selectEquityTotalBalance,
+  selectMarketDataById,
+  selectOpportunityApiPending,
   selectPortfolioLoading,
+  selectUnderlyingLpAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -20,6 +25,7 @@ import { EquityAccountRow } from './EquityAccountRow'
 import { EquityLpRow } from './EquityLpRow'
 import { EquityRowLoading } from './EquityRow'
 import { EquityStakingRow } from './EquityStakingRow'
+import { UnderlyingAsset } from './UnderlyingAsset'
 
 type EquityProps = {
   assetId: AssetId
@@ -29,8 +35,11 @@ type EquityProps = {
 export const Equity = ({ assetId, accountId }: EquityProps) => {
   const translate = useTranslate()
   const portfolioLoading = useSelector(selectPortfolioLoading)
+  const opportunitiesLoading = useAppSelector(selectOpportunityApiPending)
+  const isLoading = portfolioLoading || opportunitiesLoading
   const assets = useAppSelector(selectAssets)
   const asset = assets[assetId]
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
   const filter = useMemo(() => {
     return {
@@ -39,12 +48,29 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     }
   }, [accountId, assetId])
 
-  const totalFiatBalance = useAppSelector(s => selectFiatBalanceIncludingStakingByFilter(s, filter))
-  const cryptoHumanBalance = useAppSelector(s =>
-    selectCryptoHumanBalanceIncludingStakingByFilter(s, filter),
+  const totalEquityBalance = useAppSelector(state => selectEquityTotalBalance(state, filter))
+  const equityRows = useAppSelector(state => selectEquitiesFromFilter(state, filter))
+
+  const lpAssetBalanceFilter = useMemo(
+    () => ({
+      assetId,
+      accountId,
+      lpId: assetId as LpId,
+    }),
+    [accountId, assetId],
   )
 
-  const equityRows = useAppSelector(state => selectEquityRowsfromFilter(state, filter))
+  const underlyingAssetsWithBalancesAndIcons = useAppSelector(state =>
+    selectUnderlyingLpAssetsWithBalancesAndIcons(state, lpAssetBalanceFilter),
+  )
+
+  const totalCryptoHumanBalance = useMemo(() => {
+    return fromBaseUnit(bnOrZero(totalEquityBalance.cryptoAmountBaseUnit), asset?.precision ?? 0)
+  }, [asset?.precision, totalEquityBalance.cryptoAmountBaseUnit])
+
+  const totalFiatBalance = useMemo(() => {
+    return bnOrZero(totalCryptoHumanBalance).times(marketData.price).toString()
+  }, [marketData.price, totalCryptoHumanBalance])
 
   const renderEquityRows = useMemo(() => {
     if (portfolioLoading)
@@ -59,7 +85,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
               key={item.id}
               assetId={assetId}
               opportunityId={item.id as OpportunityId}
-              allocation={item.allocation}
+              totalFiatBalance={totalFiatBalance}
               color={item.color}
               accountId={accountId}
             />
@@ -70,7 +96,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
               key={item.id}
               assetId={assetId}
               opportunityId={item.id as OpportunityId}
-              allocation={item.allocation}
+              totalFiatBalance={totalFiatBalance}
               color={item.color}
               accountId={accountId}
             />
@@ -81,7 +107,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
               key={item.id}
               assetId={assetId}
               accountId={item.id as AccountId}
-              allocation={item.allocation}
+              totalFiatBalance={totalFiatBalance}
               color={item.color}
             />
           )
@@ -89,7 +115,21 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
           return null
       }
     })
-  }, [accountId, assetId, equityRows, portfolioLoading])
+  }, [accountId, assetId, equityRows, portfolioLoading, totalFiatBalance])
+
+  const renderUnderlyingAssets = useMemo(() => {
+    if (!underlyingAssetsWithBalancesAndIcons?.length) return
+    return (
+      <Flex flexDir='column' mt={4}>
+        {underlyingAssetsWithBalancesAndIcons.map(underlyingAsset => (
+          <UnderlyingAsset
+            key={`equity-underlying-${underlyingAsset.assetId}`}
+            {...underlyingAsset}
+          />
+        ))}
+      </Flex>
+    )
+  }, [underlyingAssetsWithBalancesAndIcons])
 
   if (!asset) return null
 
@@ -97,13 +137,21 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     <Card variant='default'>
       <Card.Header display='flex' gap={4} alignItems='center'>
         <Flex flexDir='column' flex={1}>
-          <Card.Heading>{translate('common.balance')}</Card.Heading>
-          <Skeleton isLoaded={!portfolioLoading}>
-            <Amount.Fiat fontSize='xl' value={totalFiatBalance} />
-          </Skeleton>
-          <Skeleton isLoaded={!portfolioLoading}>
-            <Amount.Crypto variant='sub-text' value={cryptoHumanBalance} symbol={asset.symbol} />
-          </Skeleton>
+          <Card.Heading>{translate('common.allocation')}</Card.Heading>
+          <Flex flexDir='column' gap={1}>
+            <Skeleton isLoaded={!isLoading}>
+              <Amount.Fiat fontSize='xl' value={totalFiatBalance} lineHeight={1} />
+            </Skeleton>
+            <Skeleton isLoaded={!isLoading}>
+              <Amount.Crypto
+                variant='sub-text'
+                value={totalCryptoHumanBalance}
+                symbol={asset.symbol}
+                lineHeight={1}
+              />
+            </Skeleton>
+          </Flex>
+          {renderUnderlyingAssets}
         </Flex>
       </Card.Header>
       <Card.Body pt={0} pb={2}>

@@ -13,7 +13,7 @@ type EquityRowBaseProps = {
   cryptoBalancePrecision?: string
   symbol: string
   color?: string
-  allocation?: string
+  totalFiatBalance?: string
   subText?: string
   icon?: string | JSX.Element
   apy?: string
@@ -66,8 +66,8 @@ export const EquityRow: React.FC<EquityRowProps> = ({
   label,
   icon,
   fiatAmount,
+  totalFiatBalance,
   cryptoBalancePrecision,
-  allocation,
   color,
   symbol,
   subText,
@@ -85,6 +85,8 @@ export const EquityRow: React.FC<EquityRowProps> = ({
       </Flex>
     ))
   }, [label, subText])
+
+  const allocation = bnOrZero(fiatAmount).div(bnOrZero(totalFiatBalance)).times(100).toString()
 
   if (isLoading) return <EquityRowLoading />
   return (

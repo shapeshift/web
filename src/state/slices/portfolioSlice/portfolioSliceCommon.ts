@@ -97,11 +97,16 @@ export enum AssetEquityType {
   Reward = 'Reward',
 }
 
-export type EquityRow = {
+export type AssetEquity = {
   id: string
   type: AssetEquityType
   fiatAmount: string
+  cryptoAmountBaseUnit: string
   provider: string
-  allocation: string
   color?: string
+}
+
+export type AssetEquityBalance = {
+  fiatAmount: string
+  cryptoAmountBaseUnit: string
 }

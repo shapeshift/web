@@ -15,6 +15,7 @@
     "activity": "Activity",
     "reject": "Reject",
     "connected": "Connected",
+    "allocation": "Allocation",
     "value": "Value",
     "created": "Created %{date}",
     "noResultsFound": "No results found.",

@@ -3,12 +3,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isSome } from 'lib/utils'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
+  selectAssets,
   selectBIP44ParamsByAccountId,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
-  selectSortedAssetsById,
+  selectSortedAssetIds,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
@@ -38,7 +40,8 @@ export const useSwapper = () => {
 
   // Selectors
   const flags = useSelector(selectFeatureFlags)
-  const assetsByMarketCapById = useSelector(selectSortedAssetsById)
+  const sortedAssetIds = useSelector(selectSortedAssetIds)
+  const assets = useSelector(selectAssets)
 
   // Hooks
   const [swapperManager, setSwapperManager] = useState<SwapperManager>()
@@ -49,23 +52,23 @@ export const useSwapper = () => {
     if (!swapperManager) return []
 
     const sellableAssetIds = swapperManager.getSupportedSellableAssetIds({
-      assetIds: Array.from(assetsByMarketCapById.keys()),
+      assetIds: sortedAssetIds,
     })
 
-    return sellableAssetIds.map(assetId => assetsByMarketCapById.get(assetId)!)
-  }, [assetsByMarketCapById, swapperManager])
+    return sellableAssetIds.map(assetId => assets[assetId]).filter(isSome)
+  }, [assets, sortedAssetIds, swapperManager])
 
   const supportedBuyAssetsByMarketCap = useMemo(() => {
     const sellAssetId = sellAsset?.assetId
     if (sellAssetId === undefined || !swapperManager) return []
 
     const buyableAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
-      assetIds: Array.from(assetsByMarketCapById.keys()),
+      assetIds: sortedAssetIds,
       sellAssetId,
     })
 
-    return buyableAssetIds.map(assetId => assetsByMarketCapById.get(assetId)!)
-  }, [assetsByMarketCapById, swapperManager, sellAsset])
+    return buyableAssetIds.map(assetId => assets[assetId]).filter(isSome)
+  }, [assets, sellAsset?.assetId, sortedAssetIds, swapperManager])
 
   const sellAssetAccountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetId(state, { assetId: sellAsset?.assetId ?? '' }),

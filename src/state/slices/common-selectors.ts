@@ -1,4 +1,3 @@
-import { createSelector } from '@reduxjs/toolkit'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import orderBy from 'lodash/orderBy'
@@ -90,7 +89,7 @@ export const selectPortfolioFiatBalances = createDeepEqualOutputSelector(
     }, {}),
 )
 
-export const selectPortfolioFiatBalancesByAccount = createDeepEqualOutputSelector(
+export const selectPortfolioFiatBalancesByAccountId = createDeepEqualOutputSelector(
   selectAssets,
   selectPortfolioAccountBalancesBaseUnit,
   selectMarketDataSortedByMarketCap,
@@ -124,21 +123,21 @@ export const selectSortedAssets = createDeepEqualOutputSelector(
   selectPortfolioFiatBalances,
   selectMarketDataSortedByMarketCap,
   (assets, portfolioFiatBalances, cryptoMarketData) => {
-    const selectAssetFiatBalance = (asset: Asset) =>
+    const getAssetFiatBalance = (asset: Asset) =>
       bnOrZero(portfolioFiatBalances[asset.assetId]).toNumber()
-    const selectAssetMarketCap = (asset: Asset) =>
+    const getAssetMarketCap = (asset: Asset) =>
       bnOrZero(cryptoMarketData[asset.assetId]?.marketCap).toNumber()
-    const selectAssetName = (asset: Asset) => asset.name
+    const getAssetName = (asset: Asset) => asset.name
 
     return orderBy(
       Object.values(assets).filter(isSome),
-      [selectAssetFiatBalance, selectAssetMarketCap, selectAssetName],
+      [getAssetFiatBalance, getAssetMarketCap, getAssetName],
       ['desc', 'desc', 'asc'],
     )
   },
 )
 
-export const selectSortedAssetsById = createSelector(
+export const selectSortedAssetIds = createDeepEqualOutputSelector(
   selectSortedAssets,
-  sortedAssets => new Map(sortedAssets.map(asset => [asset.assetId, asset])),
+  sortedAssets => sortedAssets.map(asset => asset.assetId),
 )

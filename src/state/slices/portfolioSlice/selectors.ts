@@ -57,7 +57,7 @@ import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioFiatBalances,
-  selectPortfolioFiatBalancesByAccount,
+  selectPortfolioFiatBalancesByAccountId,
   selectWalletAccountIds,
   selectWalletId,
   selectWalletName,
@@ -190,7 +190,7 @@ export const selectPortfolioFiatBalanceByAssetId = createCachedSelector(
 
 export const selectPortfolioFiatBalanceByFilter = createCachedSelector(
   selectPortfolioFiatBalances,
-  selectPortfolioFiatBalancesByAccount,
+  selectPortfolioFiatBalancesByAccountId,
   selectAssetIdParamFromFilter,
   selectAccountIdParamFromFilter,
   (portfolioAssetFiatBalances, portfolioAccountFiatbalances, assetId, accountId): string => {
@@ -307,7 +307,7 @@ export const selectPortfolioLoading = createSelector(
 )
 
 export const selectPortfolioAssetAccountBalancesSortedFiat = createDeepEqualOutputSelector(
-  selectPortfolioFiatBalancesByAccount,
+  selectPortfolioFiatBalancesByAccountId,
   selectBalanceThreshold,
   (portfolioFiatAccountBalances, balanceThreshold): PortfolioAccountBalancesById => {
     return Object.entries(portfolioFiatAccountBalances).reduce<PortfolioAccountBalancesById>(
@@ -346,7 +346,7 @@ export const selectHighestFiatBalanceAccountByAssetId = createCachedSelector(
 
 export const selectPortfolioAllocationPercentByFilter = createCachedSelector(
   selectPortfolioFiatBalances,
-  selectPortfolioFiatBalancesByAccount,
+  selectPortfolioFiatBalancesByAccountId,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   (assetFiatBalances, assetFiatBalancesByAccount, accountId, assetId): number | undefined => {
@@ -604,7 +604,7 @@ export const selectAccountIdsByAssetId = createCachedSelector(
 export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelector(
   selectPortfolioAccounts,
   selectAssetIdParamFromFilter,
-  selectPortfolioFiatBalancesByAccount,
+  selectPortfolioFiatBalancesByAccountId,
   selectBalanceThreshold,
   (portfolioAccounts, assetId, accountBalances, balanceThreshold) => {
     const accounts = findAccountsByAssetId(portfolioAccounts, assetId)

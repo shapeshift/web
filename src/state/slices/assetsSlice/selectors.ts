@@ -41,13 +41,13 @@ export const selectAssetsByMarketCap = createDeepEqualOutputSelector(
   selectAssets,
   selectMarketDataSortedByMarketCap,
   (assets, cryptoMarketData): Asset[] => {
-    const selectAssetMarketCap = (asset: Asset) =>
+    const getAssetMarketCap = (asset: Asset) =>
       bnOrZero(cryptoMarketData[asset.assetId]?.marketCap).toNumber()
-    const selectAssetName = (asset: Asset) => asset.name
+    const getAssetName = (asset: Asset) => asset.name
 
     return orderBy(
       Object.values(assets).filter(isSome),
-      [selectAssetMarketCap, selectAssetName],
+      [getAssetMarketCap, getAssetName],
       ['desc', 'asc'],
     )
   },

@@ -13,8 +13,8 @@ import type { PartialRecord } from 'lib/utils'
 import { isSome } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import {
+  selectAssets,
   selectPortfolioAccountMetadata,
-  selectSortedAssetsById,
   selectWalletAccountIds,
 } from 'state/slices/selectors'
 
@@ -40,7 +40,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 }) => {
   const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
-  const sortedAssetsById = useSelector(selectSortedAssetsById)
+  const assets = useSelector(selectAssets)
   const [accountId, setAccountId] = useState<AccountId | undefined>(selectedAccountId)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
@@ -54,13 +54,13 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 
   const buyAssets: Asset[] = useMemo(() => {
     const buyAssetIds = ramps?.buyAssetIds ?? []
-    return buyAssetIds.map(assetId => sortedAssetsById.get(assetId)).filter(isSome)
-  }, [ramps?.buyAssetIds, sortedAssetsById])
+    return buyAssetIds.map(assetId => assets[assetId]).filter(isSome)
+  }, [ramps?.buyAssetIds, assets])
 
   const sellAssets: Asset[] = useMemo(() => {
     const sellAssetIds = ramps?.sellAssetIds ?? []
-    return sellAssetIds.map(assetId => sortedAssetsById.get(assetId)).filter(isSome)
-  }, [ramps?.sellAssetIds, sortedAssetsById])
+    return sellAssetIds.map(assetId => assets[assetId]).filter(isSome)
+  }, [ramps?.sellAssetIds, assets])
 
   const handleIsSelectingAsset = useCallback(
     (fiatRampAction: FiatRampAction) => {

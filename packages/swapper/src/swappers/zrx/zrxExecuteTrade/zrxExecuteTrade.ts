@@ -4,8 +4,8 @@ import { numberToHex } from 'web3-utils'
 
 import type { SwapErrorRight, TradeResult } from '../../../api'
 import { SwapError, SwapErrorType } from '../../../api'
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { ZrxExecuteTradeInput, ZrxSwapperDeps } from '../types'
-import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import type { ZrxSupportedChainId } from '../ZrxSwapper'
 
 export async function zrxExecuteTrade<T extends ZrxSupportedChainId>(

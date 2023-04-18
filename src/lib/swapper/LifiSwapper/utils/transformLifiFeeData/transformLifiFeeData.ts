@@ -1,5 +1,6 @@
-import type { Route, Token } from '@lifi/sdk'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { Route } from '@lifi/sdk'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { QuoteFeeData } from '@shapeshiftoss/swapper'
@@ -7,18 +8,17 @@ import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { APPROVAL_GAS_LIMIT } from '@shapeshiftoss/swapper/dist/swappers/utils/constants'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { baseUnitToHuman, baseUnitToPrecision, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getEvmAssetAddress } from 'lib/swapper/LifiSwapper/utils/getAssetAddress/getAssetAddress'
 import { getFeeAssets } from 'lib/swapper/LifiSwapper/utils/getFeeAssets/getFeeAssets'
 import { processGasCosts } from 'lib/swapper/LifiSwapper/utils/processGasCosts/processGasCosts'
 
 export const transformLifiFeeData = async ({
-  buyLifiToken,
+  buyAsset,
   chainId,
-  lifiAssetMap,
   selectedRoute,
 }: {
-  buyLifiToken: Token
+  buyAsset: Asset
   chainId: ChainId
-  lifiAssetMap: Map<AssetId, Token>
   selectedRoute: Route
 }): Promise<QuoteFeeData<EvmChainId>> => {
   if (!isEvmChainId(chainId)) {
@@ -31,13 +31,15 @@ export const transformLifiFeeData = async ({
   const allRouteGasCosts = selectedRoute.steps.flatMap(step => step.estimate.gasCosts ?? [])
   const allRouteFeeCosts = selectedRoute.steps.flatMap(step => step.estimate.feeCosts ?? [])
 
+  const buyAssetAddress = getEvmAssetAddress(buyAsset)
+
   const buyAssetRouteFeeCosts = allRouteFeeCosts.filter(
-    feeCost => feeCost.token.address === buyLifiToken.address,
+    feeCost => feeCost.token.address === buyAssetAddress,
   )
 
   // all fees that are not the buy asset (there may be multiple different tokens)
   const sellAssetRouteFeeCosts = allRouteFeeCosts.filter(
-    feeCost => feeCost.token.address !== buyLifiToken.address,
+    feeCost => feeCost.token.address !== buyAssetAddress,
   )
 
   // this is the sum of all `feeCost` against the buy asset in USD
@@ -64,11 +66,10 @@ export const transformLifiFeeData = async ({
       )
       .reduce((acc, amountUsd) => acc.plus(amountUsd), bn(0)) ?? bn(0)
 
-  const { feeAsset, lifiFeeAsset } = getFeeAssets(chainId, lifiAssetMap)
+  const feeAsset = getFeeAssets(chainId)
 
   const { networkFeeCryptoBaseUnit, sellAssetTradeFeeUsd } = processGasCosts({
     feeAsset,
-    lifiFeeAsset,
     allRouteGasCosts,
     initialSellAssetTradeFeeUsd,
   })

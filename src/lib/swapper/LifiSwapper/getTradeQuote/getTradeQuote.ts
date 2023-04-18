@@ -1,6 +1,6 @@
-import type { ChainKey, LifiError, RoutesRequest, Token as LifiToken } from '@lifi/sdk'
+import type { ChainKey, LifiError, RoutesRequest } from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { GetEvmTradeQuoteInput, SwapErrorRight } from '@shapeshiftoss/swapper'
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
@@ -9,6 +9,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { MAX_LIFI_TRADE, SELECTED_ROUTE_INDEX } from 'lib/swapper/LifiSwapper/utils/constants'
+import { getEvmAssetAddress } from 'lib/swapper/LifiSwapper/utils/getAssetAddress/getAssetAddress'
 import { getAssetBalance } from 'lib/swapper/LifiSwapper/utils/getAssetBalance/getAssetBalance'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
 import { getMinimumCryptoHuman } from 'lib/swapper/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
@@ -17,7 +18,6 @@ import type { LifiTradeQuote } from 'lib/swapper/LifiSwapper/utils/types'
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
-  lifiAssetMap: Map<AssetId, LifiToken>,
   lifiChainMap: Map<ChainId, ChainKey>,
 ): Promise<Result<LifiTradeQuote, SwapErrorRight>> {
   try {
@@ -33,16 +33,14 @@ export async function getTradeQuote(
 
     const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
     const buyLifiChainKey = lifiChainMap.get(buyAsset.chainId)
-    const sellLifiToken = lifiAssetMap.get(sellAsset.assetId)
-    const buyLifiToken = lifiAssetMap.get(buyAsset.assetId)
 
-    if (sellLifiChainKey === undefined || sellLifiToken === undefined) {
+    if (sellLifiChainKey === undefined) {
       throw new SwapError(
         `[getTradeQuote] asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
         { code: SwapErrorType.UNSUPPORTED_PAIR },
       )
     }
-    if (buyLifiChainKey === undefined || buyLifiToken === undefined) {
+    if (buyLifiChainKey === undefined) {
       throw new SwapError(
         `[getTradeQuote] asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
         { code: SwapErrorType.UNSUPPORTED_PAIR },
@@ -54,29 +52,23 @@ export async function getTradeQuote(
       })
     }
 
-    const fromAmountCryptoBaseUnit: BigNumber = sendMax
+    const fromAmountCryptoBaseUnit: string = sendMax
       ? getAssetBalance({
           asset: sellAsset,
           accountNumber,
           chainId,
-          outputPrecision: sellLifiToken.decimals,
         })
-      : convertPrecision({
-          value: sellAmountBeforeFeesCryptoBaseUnit,
-          inputExponent: sellAsset.precision,
-          outputExponent: sellLifiToken.decimals,
-        })
-
+      : sellAmountBeforeFeesCryptoBaseUnit
     const lifi = getLifi()
 
     const routesRequest: RoutesRequest = {
       fromChainId: Number(fromChainId(sellAsset.chainId).chainReference),
       toChainId: Number(fromChainId(buyAsset.chainId).chainReference),
-      fromTokenAddress: sellLifiToken.address,
-      toTokenAddress: buyLifiToken.address,
+      fromTokenAddress: getEvmAssetAddress(sellAsset),
+      toTokenAddress: getEvmAssetAddress(buyAsset),
       fromAddress: receiveAddress,
       toAddress: receiveAddress,
-      fromAmount: fromAmountCryptoBaseUnit.toString(),
+      fromAmount: fromAmountCryptoBaseUnit,
       // as recommended by lifi, dodo is denied until they fix their gas estimates
       // TODO: convert this config to .env variable
       options: {
@@ -114,8 +106,8 @@ export async function getTradeQuote(
     // for the rate to be valid, both amounts must be converted to the same precision
     const estimateRate = convertPrecision({
       value: selectedLifiRoute.toAmountMin,
-      inputExponent: buyLifiToken.decimals,
-      outputExponent: sellLifiToken.decimals,
+      inputExponent: buyAsset.precision,
+      outputExponent: sellAsset.precision,
     })
       .dividedBy(bn(selectedLifiRoute.fromAmount))
       .toString()
@@ -142,9 +134,8 @@ export async function getTradeQuote(
     const maxSlippage = BigNumber.max(...selectedLifiRoute.steps.map(step => step.action.slippage))
 
     const feeData = await transformLifiFeeData({
-      buyLifiToken,
+      buyAsset,
       chainId,
-      lifiAssetMap,
       selectedRoute: selectedLifiRoute,
     })
 

@@ -112,7 +112,15 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
           pairAssetId: opportunityId,
         })
 
-        return { token0Decimals, token1Decimals, token0Reserves, token0Address, token1Address }
+        return {
+          apr,
+          token0Address,
+          token0Decimals,
+          token0Reserves,
+          token1Reserves,
+          token1Address,
+          token1Decimals,
+        }
       }
 
       token0Decimals = zapperAppBalanceData.tokens[0].decimals
@@ -190,10 +198,10 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
         : (await uniV2LPContract.totalSupply()).toString()
 
     const token0ReservesBaseUnit = bnOrZero(
-      bnOrZero(bnOrZero(token0Reserves.toString()).toString()),
+      bnOrZero(bnOrZero(token0Reserves.toFixed()).toString()),
     ).times(bn(10).pow(lpAsset.precision))
     const token1ReservesBaseUnit = bnOrZero(
-      bnOrZero(bnOrZero(token1Reserves?.toString()).toString()),
+      bnOrZero(bnOrZero(token1Reserves?.toFixed()).toString()),
     ).times(bn(10).pow(lpAsset.precision))
     const token0PoolRatio = token0ReservesBaseUnit.div(totalSupplyBaseUnit).toString()
     const token1PoolRatio = token1ReservesBaseUnit.div(totalSupplyBaseUnit).toString()

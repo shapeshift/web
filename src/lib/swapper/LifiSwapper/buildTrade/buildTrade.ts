@@ -1,5 +1,5 @@
-import type { ChainKey, Token } from '@lifi/sdk'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { ChainKey } from '@lifi/sdk'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { BuildTradeInput, SwapErrorRight } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
@@ -11,7 +11,6 @@ import type { LifiTrade } from '../utils/types'
 
 export const buildTrade = async (
   input: BuildTradeInput,
-  lifiAssetMap: Map<AssetId, Token>,
   lifiChainMap: Map<ChainId, ChainKey>,
 ): Promise<Result<LifiTrade, SwapErrorRight>> => {
   if (!isGetEvmTradeQuoteInput(input)) {
@@ -21,7 +20,7 @@ export const buildTrade = async (
     })
   }
 
-  const maybeTradeQuote = await getTradeQuote(input, lifiAssetMap, lifiChainMap)
+  const maybeTradeQuote = await getTradeQuote(input, lifiChainMap)
   if (maybeTradeQuote.isErr()) return Err(maybeTradeQuote.unwrapErr())
   // TODO: determine whether we should be fetching another quote like below or modify `executeTrade.ts`
   // to allow passing the existing quote in.

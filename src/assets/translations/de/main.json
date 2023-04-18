@@ -1233,21 +1233,6 @@
         "button": "Öffnen"
       }
     },
-    "portis": {
-      "errors": {
-        "unknown": "Bei der Kommunikation mit Portis ist ein unerwarteter Fehler aufgetreten",
-        "connectFailure": "Portis Wallet kann nicht verbunden werden"
-      },
-      "connect": {
-        "header": "Portis Koppeln",
-        "body": "Klicken Sie auf Koppeln und wählen Sie dann Portis aus dem Popup-Fenster aus",
-        "button": "Koppeln"
-      },
-      "failure": {
-        "header": "Fehler",
-        "body": "Portis Wallet kann nicht verbunden werden"
-      }
-    },
     "walletConnect": {
       "errors": {
         "unknown": "Bei der Kommunikation mit WalletConnect ist ein unerwarteter Fehler aufgetreten",

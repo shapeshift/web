@@ -1233,21 +1233,6 @@
         "button": "Ouvrir"
       }
     },
-    "portis": {
-      "errors": {
-        "unknown": "Une erreur inattendue s'est produite lors de la communication avec Portis",
-        "connectFailure": "Impossible de connecter le porte-monnaie Portis."
-      },
-      "connect": {
-        "header": "Appairer Portis",
-        "body": "Cliquez sur Appairer et connectez-vous à Portis à partir de la fenêtre popup",
-        "button": "Appairer"
-      },
-      "failure": {
-        "header": "Erreur",
-        "body": "Impossible de se connecter au porte-monnaie Portis"
-      }
-    },
     "walletConnect": {
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec WalletConnect",

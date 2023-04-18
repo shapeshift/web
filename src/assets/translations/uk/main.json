@@ -1233,21 +1233,6 @@
         "button": "Відкрити"
       }
     },
-    "portis": {
-      "errors": {
-        "unknown": "Виникла несподівана помилка при взаємодії з Portis",
-        "connectFailure": "Не вдається підключити гаманець Portis"
-      },
-      "connect": {
-        "header": "Під'єднати Portis",
-        "body": "Натисніть Під'єднати та виберіть Portis у спливаючому вікні",
-        "button": "Під'єднати "
-      },
-      "failure": {
-        "header": "Помилка",
-        "body": "Не вдається під'єднати гаманець Portis"
-      }
-    },
     "walletConnect": {
       "errors": {
         "unknown": "Виникла несподівана помилка при взаємодії з WalletConnect",

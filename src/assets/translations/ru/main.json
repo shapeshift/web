@@ -1233,21 +1233,6 @@
         "button": "Открыть"
       }
     },
-    "portis": {
-      "errors": {
-        "unknown": "Возникла непредвиденная ошибка при соединении с Portis",
-        "connectFailure": "Невозможно подключить кошелек Portis"
-      },
-      "connect": {
-        "header": "Подключить Portis",
-        "body": "Нажмите подключить, затем выберите Portis во всплывающем окне",
-        "button": "Подключить"
-      },
-      "failure": {
-        "header": "Ошибка",
-        "body": "Невозможно подключить кошелек Portis"
-      }
-    },
     "walletConnect": {
       "errors": {
         "unknown": "Возникла непредвиденная ошибка при соединении с WalletConnect",

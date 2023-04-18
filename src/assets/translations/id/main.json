@@ -712,21 +712,6 @@
         "button": "Buka"
       }
     },
-    "portis": {
-      "errors": {
-        "unknown": "Terjadi kesalahan tak terduga saat berkomunikasi dengan Portis",
-        "connectFailure": "Tidak dapat menghubungkan dompet Portis"
-      },
-      "connect": {
-        "header": "Pasangkan Portis",
-        "body": "Klik Pasangkan lalu pilih Portis dari jendela popup",
-        "button": "Pasangkan"
-      },
-      "failure": {
-        "header": "Kesalahan",
-        "body": "Tidak dapat menghubungkan dompet Portis"
-      }
-    },
     "shapeShift": {
       "load": {
         "error": {

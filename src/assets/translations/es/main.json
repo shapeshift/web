@@ -1233,21 +1233,6 @@
         "button": "Abrir"
       }
     },
-    "portis": {
-      "errors": {
-        "unknown": "Ocurrió un error inesperado al comunicarse con Portis",
-        "connectFailure": "No se puede conectar la billetera Portis"
-      },
-      "connect": {
-        "header": "Emparejar Portis",
-        "body": "Haga clic en Emparejar y luego seleccione Portis en la ventana emergente",
-        "button": "Emparejar"
-      },
-      "failure": {
-        "header": "Error",
-        "body": "No se puede conectar la billetera Portis"
-      }
-    },
     "walletConnect": {
       "errors": {
         "unknown": "Ocurrió un error inesperado al comunicarse con WalletConnect",

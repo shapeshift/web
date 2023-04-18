@@ -1233,21 +1233,6 @@
         "button": "Abrir"
       }
     },
-    "portis": {
-      "errors": {
-        "unknown": "Ocorreu um erro inesperado na comunicação com a Portis",
-        "connectFailure": "Não foi possível conectar sua carteira Portis"
-      },
-      "connect": {
-        "header": "Emparelhar Portis",
-        "body": "Clique em Emparelhar e conecte sua carteira Portis na janela pop-up",
-        "button": "Emparelhar"
-      },
-      "failure": {
-        "header": "Erro",
-        "body": "Não foi possível conectar sua carteira Portis"
-      }
-    },
     "walletConnect": {
       "errors": {
         "unknown": "Ocorreu um erro inesperado na comunicação com a WalletConnect",

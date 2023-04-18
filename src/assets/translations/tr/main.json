@@ -1233,21 +1233,6 @@
         "button": "Aç"
       }
     },
-    "portis": {
-      "errors": {
-        "unknown": "Portis ile iletişim kurulurken beklenmeyen bir hata oluştu",
-        "connectFailure": "Portis cüzdanına bağlanılamıyor"
-      },
-      "connect": {
-        "header": "Portis'le Eşle",
-        "body": "Eşleştir'e tıklayın ve açılan pencereden Portis'i seçin",
-        "button": "Eşle"
-      },
-      "failure": {
-        "header": "Hata",
-        "body": "Portis cüzdanına bağlanılamıyor"
-      }
-    },
     "walletConnect": {
       "errors": {
         "unknown": "WalletConnect ile iletişim kurulurken beklenmeyen bir hata oluştu",

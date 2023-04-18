@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
@@ -82,14 +82,20 @@ export const opportunities = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    upsertOpportunityMetadata: (
-      draftState,
-      { payload }: { payload: GetOpportunityMetadataOutput },
-    ) => {
-      const payloadIds = Object.keys(payload.byId) as OpportunityId[]
+    upsertOpportunityMetadata: {
+      reducer: (draftState, { payload }: { payload: GetOpportunityMetadataOutput }) => {
+        const payloadIds = Object.keys(payload.byId) as OpportunityId[]
 
-      draftState[payload.type].byId = Object.assign({}, draftState[payload.type].byId, payload.byId)
-      draftState[payload.type].ids = uniq([...draftState[payload.type].ids, ...payloadIds])
+        draftState[payload.type].byId = Object.assign(
+          {},
+          draftState[payload.type].byId,
+          payload.byId,
+        )
+        draftState[payload.type].ids = uniq([...draftState[payload.type].ids, ...payloadIds])
+      },
+      // Use the `prepareAutoBatched` utility to automatically
+      // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
+      prepare: prepareAutoBatched<GetOpportunityMetadataOutput>(),
     },
     upsertOpportunityAccounts: (
       draftState,

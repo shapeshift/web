@@ -143,7 +143,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           statusText: StatusTextEnum.success,
           statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
           statusBody: translate('modals.deposit.status.success', {
-            opportunity: `FOX/ETH LP`,
+            // This should never be undefined but might as well
+            opportunity: earnUserLpOpportunity?.name ?? 'UniSwap V2',
           }),
           statusBg: 'green.500',
         }

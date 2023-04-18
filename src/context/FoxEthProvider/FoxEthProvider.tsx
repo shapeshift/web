@@ -1,23 +1,13 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import { fetchAllStakingOpportunitiesUserData } from 'state/slices/opportunitiesSlice/thunks'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
-import {
-  selectAssetById,
-  selectBIP44ParamsByAccountId,
-  selectStakingAccountIds,
-  selectTxById,
-} from 'state/slices/selectors'
+import { selectAssetById, selectStakingAccountIds, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -30,38 +20,25 @@ type FoxEthProviderProps = {
 type IFoxEthContext = {
   farmingAccountId: AccountId | undefined
   setFarmingAccountId: (accountId: AccountId | undefined) => void
-  lpAccountId: AccountId | undefined
-  setLpAccountId: (accountId: AccountId | undefined) => void
+  // TODO(gomes): now that LP is gone, how about we remove this whole hook
   onOngoingFarmingTxIdChange: (txid: string, contractAddress?: string) => void
-  onOngoingLpTxIdChange: (txid: string, contractAddress?: string) => void
 }
 
 const FoxEthContext = createContext<IFoxEthContext>({
-  lpAccountId: undefined,
   farmingAccountId: undefined,
-  setLpAccountId: _accountId => {},
   setFarmingAccountId: _accountId => {},
   onOngoingFarmingTxIdChange: (_txid: string) => Promise.resolve(),
-  onOngoingLpTxIdChange: (_txid: string) => Promise.resolve(),
 })
 
 export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
-  const {
-    state: { wallet },
-  } = useWallet()
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   if (!ethAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
 
   const dispatch = useAppDispatch()
 
-  const chainAdapterManager = getChainAdapterManager()
-  const adapter = chainAdapterManager.get(
-    ethAsset.chainId,
-  ) as ChainAdapter<KnownChainIds.EthereumMainnet>
   const [ongoingTxId, setOngoingTxId] = useState<string | null>(null)
   const [ongoingTxContractAddress, setOngoingTxContractAddress] = useState<string | null>(null)
   const [farmingAccountId, setFarmingAccountId] = useState<AccountId | undefined>()
-  const [lpAccountId, setLpAccountId] = useState<AccountId | undefined>()
 
   const stakingAccountIds = useAppSelector(selectStakingAccountIds)
 
@@ -74,49 +51,22 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     )
   }, [stakingAccountIds])
 
-  const lpAccountFilter = useMemo(() => ({ accountId: lpAccountId }), [lpAccountId])
-  const lpBip44Params = useAppSelector(state =>
-    selectBIP44ParamsByAccountId(state, lpAccountFilter),
-  )
-
-  useEffect(() => {
-    // Get initial account 0 address from wallet, TODO: nuke it?
-    if (wallet && adapter && lpBip44Params) {
-      ;(async () => {
-        if (!supportsETH(wallet)) return
-        const { accountNumber } = lpBip44Params
-        const address = await adapter.getAddress({ wallet, accountNumber })
-        // eth.getAddress and similar return a checksummed address, but the account part of state opportunities' AccountId isn't checksummed
-        // using the checksum version would make us unable to do Txid lookup
-        setLpAccountId(toAccountId({ chainId: ethChainId, account: address }))
-      })()
-    }
-  }, [adapter, wallet, lpBip44Params])
-
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 
   const handleOngoingTxIdChange = useCallback(
-    (type: 'farming' | 'lp', txid: string, contractAddress?: string) => {
-      if (!(farmingAccountId || lpAccountId)) return
-      const accountId = type === 'farming' ? farmingAccountId : lpAccountId
+    (_type: 'farming', txid: string, contractAddress?: string) => {
+      const accountId = farmingAccountId
       if (!accountId) return
       const accountAddress = fromAccountId(accountId).account
       setOngoingTxId(serializeTxIndex(accountId ?? '', txid, accountAddress))
       if (contractAddress) setOngoingTxContractAddress(contractAddress)
     },
-    [lpAccountId, farmingAccountId],
+    [farmingAccountId],
   )
 
   const handleOngoingFarmingTxIdChange = useCallback(
     (txid: string, contractAddress?: string) => {
       handleOngoingTxIdChange('farming', txid, contractAddress)
-    },
-    [handleOngoingTxIdChange],
-  )
-
-  const handleOngoingLpTxIdChange = useCallback(
-    (txid: string, contractAddress?: string) => {
-      handleOngoingTxIdChange('lp', txid, contractAddress)
     },
     [handleOngoingTxIdChange],
   )
@@ -160,19 +110,10 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   const value = useMemo(
     () => ({
       farmingAccountId,
-      lpAccountId,
-      onOngoingLpTxIdChange: handleOngoingLpTxIdChange,
       onOngoingFarmingTxIdChange: handleOngoingFarmingTxIdChange,
       setFarmingAccountId,
-      setLpAccountId,
     }),
-    [
-      farmingAccountId,
-      handleOngoingFarmingTxIdChange,
-      handleOngoingLpTxIdChange,
-      lpAccountId,
-      setLpAccountId,
-    ],
+    [farmingAccountId, handleOngoingFarmingTxIdChange],
   )
 
   return <FoxEthContext.Provider value={value}>{children}</FoxEthContext.Provider>

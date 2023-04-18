@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, ethAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -17,7 +17,6 @@ import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -46,7 +45,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const mixpanel = getMixPanel()
-  const { lpAccountId, onOngoingLpTxIdChange } = useFoxEth()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
 
@@ -68,7 +66,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
 
   const { addLiquidity } = useUniV2LiquidityPool({
-    accountId: lpAccountId ?? '',
+    accountId: accountId ?? '',
     assetId0,
     assetId1,
     lpAssetId,
@@ -103,9 +101,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
+  const ethAmount: string = (() => {
+    // This should never happen, but just in case
+    if (!state) return '0'
+    // If any of the assets are ETH, return the amount of ETH needed
+    // Else return 0 (no ETH needed)
+    if (assetId0 === ethAssetId) return state.deposit.asset0CryptoAmount
+    if (assetId1 === ethAssetId) return state.deposit.asset1CryptoAmount
+
+    return '0'
+  })()
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalanceCryptoHuman)
     .minus(bnOrZero(state?.deposit.estimatedGasCryptoPrecision))
-    .minus(bnOrZero(state?.deposit.asset0CryptoAmount))
+    .minus(ethAmount)
     .gte(0)
 
   useEffect(() => {
@@ -124,13 +132,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         return
 
       dispatch({ type: UniV2DepositActionType.SET_LOADING, payload: true })
-      const txid = await addLiquidity(
-        state.deposit.asset0CryptoAmount,
-        state.deposit.asset1CryptoAmount,
-      )
+      const txid = await addLiquidity({
+        token0Amount: state.deposit.asset0CryptoAmount,
+        token1Amount: state.deposit.asset1CryptoAmount,
+      })
       if (!txid) throw new Error('addLiquidity failed')
       dispatch({ type: UniV2DepositActionType.SET_TXID, payload: txid })
-      onOngoingLpTxIdChange(txid)
       onNext(DefiStep.Status)
       trackOpportunityEvent(
         MixPanelEvents.DepositConfirm,
@@ -177,20 +184,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>
-              <AssetIcon size='xs' src={asset1.icon} />
-              <RawText>{asset1.name}</RawText>
-            </Stack>
-            <Row.Value>
-              <Amount.Crypto value={state.deposit.asset1CryptoAmount} symbol={asset1.symbol} />
-            </Row.Value>
-          </Row>
-          <Row px={0} fontWeight='medium'>
-            <Stack direction='row' alignItems='center'>
               <AssetIcon size='xs' src={asset0.icon} />
               <RawText>{asset0.name}</RawText>
             </Stack>
             <Row.Value>
               <Amount.Crypto value={state.deposit.asset0CryptoAmount} symbol={asset0.symbol} />
+            </Row.Value>
+          </Row>
+          <Row px={0} fontWeight='medium'>
+            <Stack direction='row' alignItems='center'>
+              <AssetIcon size='xs' src={asset1.icon} />
+              <RawText>{asset1.name}</RawText>
+            </Stack>
+            <Row.Value>
+              <Amount.Crypto value={state.deposit.asset1CryptoAmount} symbol={asset1.symbol} />
             </Row.Value>
           </Row>
         </Row>

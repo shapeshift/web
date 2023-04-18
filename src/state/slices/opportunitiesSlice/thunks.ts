@@ -3,25 +3,22 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { store } from 'state/store'
 
-import { foxEthLpAssetIds, foxEthStakingIds } from '../opportunitiesSlice/constants'
+import { foxEthStakingIds } from '../opportunitiesSlice/constants'
 import { opportunitiesApi } from '../opportunitiesSlice/opportunitiesSlice'
 
 export const fetchAllLpOpportunitiesMetadata = async (options?: StartQueryActionCreatorOptions) => {
-  const { getOpportunityMetadata, getOpportunitiesMetadata } = opportunitiesApi.endpoints
+  const { getOpportunitiesMetadata } = opportunitiesApi.endpoints
 
   await Promise.allSettled([
-    ...foxEthLpAssetIds.map(opportunityId =>
-      store.dispatch(
-        getOpportunityMetadata.initiate(
-          {
-            opportunityId,
-            opportunityType: DefiType.LiquidityPool,
-            defiType: DefiType.LiquidityPool,
-            defiProvider: DefiProvider.UniV2,
-          },
-          // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-          { forceRefetch: false, ...options },
-        ),
+    store.dispatch(
+      opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
+        {
+          defiType: DefiType.LiquidityPool,
+          defiProvider: DefiProvider.UniV2,
+          opportunityType: DefiType.LiquidityPool,
+        },
+        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+        { forceRefetch: false, ...options },
       ),
     ),
     store.dispatch(
@@ -257,31 +254,11 @@ export const fetchAllStakingOpportunitiesUserData = async (
   ])
 }
 
-export const fetchAllLpOpportunitiesUserdata = async (
-  accountId: AccountId,
-  options?: StartQueryActionCreatorOptions,
-) => {
-  const { getOpportunityUserData } = opportunitiesApi.endpoints
-
-  await Promise.allSettled([
-    ...foxEthLpAssetIds.map(
-      async opportunityId =>
-        await store.dispatch(
-          getOpportunityUserData.initiate(
-            {
-              accountId,
-              opportunityId,
-              opportunityType: DefiType.LiquidityPool,
-              defiType: DefiType.LiquidityPool,
-              defiProvider: DefiProvider.UniV2,
-            },
-            // Any previous query without portfolio loaded will be rejected, the first succesful one will be cached
-            { forceRefetch: false, ...options },
-          ),
-        ),
-    ),
-  ])
-}
+export const fetchAllLpOpportunitiesUserdata = (
+  _accountId: AccountId,
+  _options?: StartQueryActionCreatorOptions,
+  // User data for all our current LP opportunities is held as a portfolio balance, there's no need to fetch it
+) => Promise.resolve()
 
 export const fetchAllOpportunitiesUserData = (
   accountId: AccountId,

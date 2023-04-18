@@ -1,5 +1,5 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Avatar, Button, Flex, ListItem, Stack } from '@chakra-ui/react'
+import { Button, Flex, ListItem, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import { generatePath } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
+import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 import {
   selectPortfolioAccountsCryptoHumanBalancesIncludingStaking,
@@ -50,6 +51,11 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
     [isUtxoAccount, accountId],
   )
 
+  const assetIdOrIconSrcProps = useMemo(
+    () => (asset?.icons ? { assetId } : { src: icon }),
+    [asset?.icons, assetId, icon],
+  )
+
   return (
     <ListItem>
       <Button
@@ -60,7 +66,7 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
         iconSpacing={4}
         data-test='account-asset-row-button'
         fontSize={{ base: 'sm', md: 'md' }}
-        leftIcon={<Avatar size='sm' src={icon} />}
+        leftIcon={<AssetIcon size='sm' {...assetIdOrIconSrcProps} />}
         onClick={() =>
           history.push(generatePath('/dashboard/accounts/:accountId/:assetId', filter))
         }

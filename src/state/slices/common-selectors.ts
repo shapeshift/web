@@ -122,7 +122,6 @@ export const selectPortfolioFiatBalancesByAccount = createDeepEqualOutputSelecto
 export const selectSortedAssets = createDeepEqualOutputSelector(
   selectAssets,
   selectPortfolioFiatBalances,
-  selectPortfolioFiatBalancesByAccount,
   selectMarketDataSortedByMarketCap,
   (assets, portfolioFiatBalances, cryptoMarketData) => {
     const selectAssetFiatBalance = (asset: Asset) =>

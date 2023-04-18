@@ -55,16 +55,16 @@ export const useSwapper = () => {
     return sellableAssetIds.map(assetId => assetsByMarketCapById.get(assetId)!)
   }, [assetsByMarketCapById, swapperManager])
 
-  const supportedBuyAssetsByMaketCap = useMemo(() => {
+  const supportedBuyAssetsByMarketCap = useMemo(() => {
     const sellAssetId = sellAsset?.assetId
     if (sellAssetId === undefined || !swapperManager) return []
 
-    const sellableAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
+    const buyableAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
       assetIds: Array.from(assetsByMarketCapById.keys()),
       sellAssetId,
     })
 
-    return sellableAssetIds.map(assetId => assetsByMarketCapById.get(assetId)!)
+    return buyableAssetIds.map(assetId => assetsByMarketCapById.get(assetId)!)
   }, [assetsByMarketCapById, swapperManager, sellAsset])
 
   const sellAssetAccountIds = useAppSelector(state =>
@@ -132,12 +132,12 @@ export const useSwapper = () => {
   useEffect(() => {
     if (!flags) return
 
-    getSwapperManager(flags).then(swapperManager => setSwapperManager(swapperManager))
+    getSwapperManager(flags).then(setSwapperManager)
   }, [flags])
 
   return {
     supportedSellAssetsByMarketCap,
-    supportedBuyAssetsByMaketCap,
+    supportedBuyAssetsByMarketCap,
     getTrade,
     approve,
   }

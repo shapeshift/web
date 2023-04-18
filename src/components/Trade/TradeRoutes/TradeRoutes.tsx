@@ -13,7 +13,7 @@ import { TradeInput } from '../TradeInput'
 import { TradeRoutePaths } from '../types'
 
 export const TradeRoutes = () => {
-  const { supportedSellAssetsByMarketCap, supportedBuyAssetsByMaketCap } = useSwapper()
+  const { supportedSellAssetsByMarketCap, supportedBuyAssetsByMarketCap } = useSwapper()
   const location = useLocation()
   const { handleAssetClick } = useTradeRoutes()
 
@@ -38,7 +38,7 @@ export const TradeRoutes = () => {
           render={(props: RouteComponentProps) => (
             <SelectAsset
               onClick={handleAssetClickWithAction(AssetClickAction.Buy)}
-              assets={supportedBuyAssetsByMaketCap}
+              assets={supportedBuyAssetsByMarketCap}
               {...props}
             />
           )}

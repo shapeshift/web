@@ -133,7 +133,7 @@ export const TradeInput = () => {
   const action = useSwapperStore(selectAction)
   const amount = useSwapperStore(selectAmount)
   const isSendMax = useSwapperStore(selectIsSendMax)
-  const { getTrade, supportedSellAssetsByMarketCap, supportedBuyAssetsByMaketCap } = useSwapper()
+  const { getTrade, supportedSellAssetsByMarketCap, supportedBuyAssetsByMarketCap } = useSwapper()
   const translate = useTranslate()
   const history = useHistory()
   const mixpanel = getMixPanel()
@@ -511,12 +511,12 @@ export const TradeInput = () => {
         assets:
           action === AssetClickAction.Sell
             ? supportedSellAssetsByMarketCap
-            : supportedBuyAssetsByMaketCap,
+            : supportedBuyAssetsByMarketCap,
       })
     },
     [
       assetSearch,
-      supportedBuyAssetsByMaketCap,
+      supportedBuyAssetsByMarketCap,
       supportedSellAssetsByMarketCap,
       handleSellAssetClick,
       handleBuyAssetClick,

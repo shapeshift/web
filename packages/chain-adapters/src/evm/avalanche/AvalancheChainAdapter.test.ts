@@ -140,7 +140,7 @@ describe('AvalancheChainAdapter', () => {
               maxFeePerGas: '300',
               maxPriorityFeePerGas: '10',
             },
-            txFee: '105000',
+            txFee: '3255000',
           },
           fast: {
             chainSpecific: {
@@ -149,7 +149,7 @@ describe('AvalancheChainAdapter', () => {
               maxFeePerGas: '360',
               maxPriorityFeePerGas: '12',
             },
-            txFee: '126000',
+            txFee: '3906000',
           },
           slow: {
             chainSpecific: {
@@ -158,7 +158,7 @@ describe('AvalancheChainAdapter', () => {
               maxFeePerGas: '240',
               maxPriorityFeePerGas: '8',
             },
-            txFee: '84000',
+            txFee: '2604000',
           },
         }),
       )

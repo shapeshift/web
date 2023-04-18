@@ -1,12 +1,6 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import {
-  avalancheAssetId,
-  bscAssetId,
-  ethAssetId,
-  fromAssetId,
-  optimismAssetId,
-} from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { AxiosResponse } from 'axios'
 
@@ -46,22 +40,6 @@ export const usdcContractAddressFromChainId = (chainId: ChainId): string => {
       throw new SwapError(`usdcContractFromChainId] - Unsupported chainId: ${chainId}`, {
         code: SwapErrorType.UNSUPPORTED_CHAIN,
       })
-  }
-}
-
-export const isNativeEvmAsset = (assetId: AssetId): boolean => {
-  const { chainId } = fromAssetId(assetId)
-  switch (chainId) {
-    case KnownChainIds.EthereumMainnet:
-      return assetId === ethAssetId
-    case KnownChainIds.AvalancheMainnet:
-      return assetId === avalancheAssetId
-    case KnownChainIds.OptimismMainnet:
-      return assetId === optimismAssetId
-    case KnownChainIds.BnbSmartChainMainnet:
-      return assetId === bscAssetId
-    default:
-      return false
   }
 }
 

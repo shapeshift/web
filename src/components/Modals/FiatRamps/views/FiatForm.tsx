@@ -10,6 +10,7 @@ import type { ParseAddressInputReturn } from 'lib/address/address'
 import { parseAddressInput } from 'lib/address/address'
 import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
+import { isSome } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import {
   selectPortfolioAccountMetadata,
@@ -51,14 +52,14 @@ export const FiatForm: React.FC<FiatFormProps> = ({
   const { data: ramps } = useGetFiatRampsQuery()
   const { assetSearch } = useModal()
 
-  const buyAssets = useMemo(() => {
+  const buyAssets: Asset[] = useMemo(() => {
     const buyAssetIds = ramps?.buyAssetIds ?? []
-    return buyAssetIds.map(assetId => sortedAssetsById.get(assetId)!)
+    return buyAssetIds.map(assetId => sortedAssetsById.get(assetId)).filter(isSome)
   }, [ramps?.buyAssetIds, sortedAssetsById])
 
-  const sellAssets = useMemo(() => {
+  const sellAssets: Asset[] = useMemo(() => {
     const sellAssetIds = ramps?.sellAssetIds ?? []
-    return sellAssetIds.map(assetId => sortedAssetsById.get(assetId)!)
+    return sellAssetIds.map(assetId => sortedAssetsById.get(assetId)).filter(isSome)
   }, [ramps?.sellAssetIds, sortedAssetsById])
 
   const handleIsSelectingAsset = useCallback(

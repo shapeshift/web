@@ -40,6 +40,7 @@ export const useSwapperStore = (() => {
           sellAmountCryptoPrecision: '0',
           buyAsset: localAssetData[foxAssetId] ?? defaultAsset,
           sellAsset: localAssetData[ethAssetId] ?? defaultAsset,
+          affiliateBps: '0',
 
           // Actions
           updateSelectedSellAssetAccountId: createUpdateAction(set, 'selectedSellAssetAccountId'),
@@ -74,6 +75,7 @@ export const useSwapperStore = (() => {
           handleInputAmountChange: handleInputAmountChange(set),
           handleAssetSelection: handleAssetSelection(set),
           updateTradeAmountsFromQuote: updateTradeAmountsFromQuote(set),
+          updateAffiliateBps: createUpdateAction(set, 'affiliateBps'),
         }),
         { name: 'SwapperStore' },
       ),

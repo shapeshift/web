@@ -30,6 +30,7 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   activeSwapperWithMetadata?: SwapperWithQuoteMetadata
   availableSwappersWithMetadata?: SwapperWithQuoteMetadata[]
   selectedCurrencyToUsdRate?: string
+  affiliateBps: string
 }
 
 type HandleAssetSelectionInput = { asset: Asset; action: AssetClickAction }
@@ -68,6 +69,7 @@ export type SwapperAction = {
   handleAssetSelection: (handleAssetSelectionInput: HandleAssetSelectionInput) => void
   updateFees: (sellFeeAsset: Asset) => void
   updateTradeAmountsFromQuote: () => void
+  updateAffiliateBps: (affiliateBps: string) => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1

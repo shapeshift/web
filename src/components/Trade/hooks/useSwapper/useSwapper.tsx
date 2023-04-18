@@ -3,12 +3,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectAssetsByMarketCapById } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
   selectBIP44ParamsByAccountId,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
+  selectSortedAssetsById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
@@ -38,7 +38,7 @@ export const useSwapper = () => {
 
   // Selectors
   const flags = useSelector(selectFeatureFlags)
-  const assetsByMarketCapById = useSelector(selectAssetsByMarketCapById)
+  const assetsByMarketCapById = useSelector(selectSortedAssetsById)
 
   // Hooks
   const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())

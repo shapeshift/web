@@ -57,6 +57,7 @@ import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioFiatBalances,
+  selectPortfolioFiatBalancesByAccount,
   selectWalletAccountIds,
   selectWalletId,
   selectWalletName,
@@ -154,35 +155,6 @@ export const selectPortfolioLoadingStatus = createSelector(
     if (vals.every(val => val === 'loading')) return 'loading'
     if (vals.some(val => val === 'error')) return 'error'
     return 'success'
-  },
-)
-
-export const selectPortfolioFiatBalancesByAccount = createDeepEqualOutputSelector(
-  selectAssets,
-  selectPortfolioAccountBalancesBaseUnit,
-  selectMarketDataSortedByMarketCap,
-  (assetsById, accounts, marketData) => {
-    return Object.entries(accounts).reduce(
-      (acc, [accountId, balanceObj]) => {
-        acc[accountId] = Object.entries(balanceObj).reduce(
-          (acc, [assetId, cryptoBalance]) => {
-            const asset = assetsById[assetId]
-            if (!asset) return acc
-            const precision = asset.precision
-            const price = marketData[assetId]?.price ?? 0
-            const cryptoValue = fromBaseUnit(bnOrZero(cryptoBalance), precision)
-            const fiatBalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
-            acc[assetId] = fiatBalance
-
-            return acc
-          },
-          { ...balanceObj },
-        )
-
-        return acc
-      },
-      { ...accounts },
-    )
   },
 )
 

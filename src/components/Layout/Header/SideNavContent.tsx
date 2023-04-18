@@ -8,7 +8,7 @@ import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { CircleQuestionIcon } from 'components/Icons/CircleQuestion'
 import { DiscordIcon } from 'components/Icons/Discord'
 import { useModal } from 'hooks/useModal/useModal'
-import { selectAssetsByMarketCap } from 'state/slices/selectors'
+import { selectSortedAssets } from 'state/slices/selectors'
 import { breakpoints } from 'theme/theme'
 
 import { useFeatureFlag } from '../../../hooks/useFeatureFlag/useFeatureFlag'
@@ -30,7 +30,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
   const isWalletConnectToDappsV1Enabled = useFeatureFlag('WalletConnectToDapps')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isLiveSupportEnabled = useFeatureFlag('LiveSupport')
-  const assetsByMarketCap = useSelector(selectAssetsByMarketCap)
+  const sortedAssets = useSelector(selectSortedAssets)
   const isWalletConnectToDappsEnabled =
     isWalletConnectToDappsV1Enabled || isWalletConnectToDappsV2Enabled
 
@@ -73,11 +73,7 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
             </Box>
           )}
           <Box width='full'>
-            <AssetSearch
-              assetListAsDropdown
-              formProps={{ px: 0, mb: 0 }}
-              assets={assetsByMarketCap}
-            />
+            <AssetSearch assetListAsDropdown formProps={{ px: 0, mb: 0 }} assets={sortedAssets} />
           </Box>
         </Flex>
       )}

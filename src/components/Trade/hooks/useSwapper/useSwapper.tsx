@@ -1,4 +1,4 @@
-import { SwapperManager } from '@shapeshiftoss/swapper'
+import type { SwapperManager } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
@@ -41,11 +41,13 @@ export const useSwapper = () => {
   const assetsByMarketCapById = useSelector(selectSortedAssetsById)
 
   // Hooks
-  const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
+  const [swapperManager, setSwapperManager] = useState<SwapperManager>()
   const wallet = useWallet().state.wallet
 
   // Selectors
   const supportedSellAssetsByMarketCap = useMemo(() => {
+    if (!swapperManager) return []
+
     const sellableAssetIds = swapperManager.getSupportedSellableAssetIds({
       assetIds: Array.from(assetsByMarketCapById.keys()),
     })
@@ -55,7 +57,7 @@ export const useSwapper = () => {
 
   const supportedBuyAssetsByMaketCap = useMemo(() => {
     const sellAssetId = sellAsset?.assetId
-    if (sellAssetId === undefined) return []
+    if (sellAssetId === undefined || !swapperManager) return []
 
     const sellableAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
       assetIds: Array.from(assetsByMarketCapById.keys()),
@@ -128,15 +130,14 @@ export const useSwapper = () => {
   ])
 
   useEffect(() => {
-    ;(async () => {
-      flags && setSwapperManager(await getSwapperManager(flags))
-    })()
+    if (!flags) return
+
+    getSwapperManager(flags).then(swapperManager => setSwapperManager(swapperManager))
   }, [flags])
 
   return {
     supportedSellAssetsByMarketCap,
     supportedBuyAssetsByMaketCap,
-    swapperManager,
     getTrade,
     approve,
   }

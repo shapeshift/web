@@ -4,7 +4,7 @@ import React, { useMemo } from 'react'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
 import {
-  selectAllEarnUserLpOpportunitiesByFilters,
+  selectAllEarnUserLpOpportunitiesByFilter,
   selectAssetById,
   selectAssets,
   selectMarketDataSortedByMarketCap,
@@ -38,7 +38,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
     }
   }, [accountId, assetId])
   const lpOpportunities = useAppSelector(state =>
-    selectAllEarnUserLpOpportunitiesByFilters(state, filter),
+    selectAllEarnUserLpOpportunitiesByFilter(state, filter),
   )
   const opportunity = lpOpportunities.find(opportunity => opportunity.id === opportunityId)
   const asset = useAppSelector(state => selectAssetById(state, assetId))

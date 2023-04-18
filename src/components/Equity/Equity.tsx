@@ -9,8 +9,8 @@ import { Card } from 'components/Card/Card'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAccountIdsByAssetIdAboveBalanceThreshold,
-  selectAllEarnUserLpOpportunitiesByFilters,
+  selectAccountIdsByAssetIdAboveBalanceThresholdByFilter,
+  selectAllEarnUserLpOpportunitiesByFilter,
   selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssets,
   selectCryptoHumanBalanceIncludingStakingByFilter,
@@ -44,11 +44,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   const asset = assets[assetId]
   const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
   const accountIds = useAppSelector(state =>
-    selectAccountIdsByAssetIdAboveBalanceThreshold(state, { assetId }),
-  )
-  const activeAccountList = useMemo(
-    () => (accountId ? accountIds.filter(listAccount => listAccount === accountId) : accountIds),
-    [accountId, accountIds],
+    selectAccountIdsByAssetIdAboveBalanceThresholdByFilter(state, { assetId }),
   )
   const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const totalFiatBalance = useAppSelector(s =>
@@ -66,14 +62,14 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     }
   }, [accountId, assetId])
   const lpOpportunities = useAppSelector(state =>
-    selectAllEarnUserLpOpportunitiesByFilters(state, filter),
+    selectAllEarnUserLpOpportunitiesByFilter(state, filter),
   )
   const stakingOpportunities = useAppSelector(state =>
     selectAllEarnUserStakingOpportunitiesByFilter(state, filter),
   )
 
   const equityItems = useMemo(() => {
-    const accounts = activeAccountList.map(accountId => {
+    const accounts = accountIds.map(accountId => {
       const fiatAmount = bnOrZero(portfolioFiatBalances[accountId][assetId]).toString()
       const allocation = bnOrZero(
         bnOrZero(portfolioFiatBalances[accountId][assetId]).div(totalFiatBalance).times(100),
@@ -117,13 +113,13 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
       bnOrZero(b.fiatAmount).minus(a.fiatAmount).toNumber(),
     )
   }, [
-    activeAccountList,
-    asset?.color,
-    assetId,
-    totalFiatBalance,
+    accountIds,
+    stakingOpportunities,
     lpOpportunities,
     portfolioFiatBalances,
-    stakingOpportunities,
+    assetId,
+    totalFiatBalance,
+    asset?.color,
   ])
 
   const renderEquityRows = useMemo(() => {

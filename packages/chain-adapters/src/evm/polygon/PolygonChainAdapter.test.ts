@@ -10,7 +10,7 @@ import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type unchained from '@shapeshiftoss/unchained-client'
+import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
 import { numberToHex } from 'web3-utils'
 
@@ -39,7 +39,7 @@ const getWallet = async (): Promise<ETHWallet> => {
 
 const gasPrice = '42'
 const gasLimit = '42000'
-const contractAddress = '0xcdb8edee795ef990b6e1715a9e4569b375716bc61d7ea1bff224a4d174e9d14c'
+const contractAddress = '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d'
 const value = 400
 
 const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress: string }) =>

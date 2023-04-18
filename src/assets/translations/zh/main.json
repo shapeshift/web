@@ -703,21 +703,6 @@
         "button": "打开"
       }
     },
-    "portis": {
-      "errors": {
-        "unknown": "与您的 Portis 通讯出现未知错误",
-        "connectFailure": "无法连接 Portis"
-      },
-      "connect": {
-        "header": "与 Portis 配对",
-        "body": "点击配对并在弹窗中选择 Portis",
-        "button": "配对"
-      },
-      "failure": {
-        "header": "错误",
-        "body": "无法连接 Portis"
-      }
-    },
     "shapeShift": {
       "load": {
         "error": {

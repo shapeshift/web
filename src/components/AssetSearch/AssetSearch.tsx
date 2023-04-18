@@ -69,10 +69,6 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const portfolioFiatBalancesByAccount = useSelector(selectPortfolioFiatBalancesByAccount)
   const chainIdsByMarketCap = useSelector(selectChainIdsByMarketCap)
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
-  const assetsBySelectedChain = useMemo(
-    () => (activeChain === 'All' ? assets : assets.filter(a => a.chainId === activeChain)),
-    [activeChain, assets],
-  )
 
   /**
    * the initial list of assets to display in the search results, without search terms
@@ -84,8 +80,9 @@ export const AssetSearch: FC<AssetSearchProps> = ({
    * assets filtered by selected chain ids
    */
   const filteredAssets = useMemo(
-    () => (filterBy ? filterBy(assetsBySelectedChain) : assetsBySelectedChain) ?? [],
-    [filterBy, assetsBySelectedChain],
+    () =>
+      activeChain === 'All' ? inputAssets : inputAssets.filter(a => a.chainId === activeChain),
+    [activeChain, inputAssets],
   )
 
   const [isFocused, setIsFocused] = useState(false)

@@ -307,7 +307,7 @@ describe('PolygonChainAdapter', () => {
       const adapter = new polygon.ChainAdapter(makeChainAdapterArgs())
       const wallet = await getWallet()
 
-      wallet.ethSendTx = async () => null
+      wallet.ethSendTx = async () => await Promise.resolve(null)
 
       const tx = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
 
@@ -320,9 +320,10 @@ describe('PolygonChainAdapter', () => {
       const adapter = new polygon.ChainAdapter(makeChainAdapterArgs())
       const wallet = await getWallet()
 
-      wallet.ethSendTx = async () => ({
-        hash: '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
-      })
+      wallet.ethSendTx = async () =>
+        await Promise.resolve({
+          hash: '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
+        })
 
       const tx = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
 
@@ -354,7 +355,7 @@ describe('PolygonChainAdapter', () => {
       const adapter = new polygon.ChainAdapter(makeChainAdapterArgs())
       const wallet = await getWallet()
 
-      wallet.ethSignMessage = async () => null
+      wallet.ethSignMessage = async () => await Promise.resolve(null)
 
       const message: SignMessageInput<ETHSignMessage> = {
         wallet,
@@ -433,7 +434,7 @@ describe('PolygonChainAdapter', () => {
       const adapter = new polygon.ChainAdapter(args)
 
       const wallet = await getWallet()
-      wallet.ethGetAddress = async () => ZERO_ADDRESS
+      wallet.ethGetAddress = async () => await Promise.resolve(ZERO_ADDRESS)
 
       const tx = {
         wallet,
@@ -624,12 +625,12 @@ describe('PolygonChainAdapter', () => {
   describe('getBIP44Params', () => {
     const adapter = new polygon.ChainAdapter(makeChainAdapterArgs())
 
-    it('should return the correct coinType', async () => {
+    it('should return the correct coinType', () => {
       const result = adapter.getBIP44Params({ accountNumber: 0 })
       expect(result.coinType).toStrictEqual(Number(ASSET_REFERENCE.Polygon))
     })
 
-    it('should respect accountNumber', async () => {
+    it('should respect accountNumber', () => {
       const testCases: BIP44Params[] = [
         { purpose: 44, coinType: Number(ASSET_REFERENCE.Polygon), accountNumber: 0 },
         { purpose: 44, coinType: Number(ASSET_REFERENCE.Polygon), accountNumber: 1 },
@@ -642,7 +643,7 @@ describe('PolygonChainAdapter', () => {
       })
     })
 
-    it('should throw for negative accountNumber', async () => {
+    it('should throw for negative accountNumber', () => {
       expect(() => {
         adapter.getBIP44Params({ accountNumber: -1 })
       }).toThrow('accountNumber must be >= 0')

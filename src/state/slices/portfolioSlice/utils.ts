@@ -28,8 +28,8 @@ import {
   supportsCosmos,
   supportsETH,
   supportsOptimism,
+  supportsPolygon,
   supportsThorchain,
-  supportsPolygon
 } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'

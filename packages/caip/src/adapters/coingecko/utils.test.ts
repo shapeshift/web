@@ -116,7 +116,7 @@ describe('adapters:coingecko:utils', () => {
         makeOsmosisMockCoingeckoResponse(),
         makeThorchainMockCoingeckoResponse(),
         makeAvalancheMockCoingeckoResponse(),
-        makePolygonMockCoingeckoResponse()
+        makePolygonMockCoingeckoResponse(),
       ])
       const expected = {
         'bip122:000000000019d6689c085ae165831e93': {
@@ -157,8 +157,8 @@ describe('adapters:coingecko:utils', () => {
           'eip155:10/slip44:60': 'ethereum',
           'eip155:10/erc20:0x4200000000000000000000000000000000000006': 'weth',
         },
-        "eip155:137": {
-          "eip155:137/slip44:60": "matic-network",
+        'eip155:137': {
+          'eip155:137/slip44:60': 'matic-network',
           'eip155:137/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': 'weth',
         },
       }

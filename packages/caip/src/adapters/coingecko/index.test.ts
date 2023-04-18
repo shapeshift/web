@@ -47,8 +47,18 @@ describe('adapters:coingecko', () => {
 
     it('can get AssetIds id for FOX', () => {
       const assetNamespace = 'erc20'
-      const assetId = toAssetId({ chainNamespace: CHAIN_NAMESPACE.Evm, chainReference: CHAIN_REFERENCE.EthereumMainnet, assetNamespace, assetReference: '0xc770eefad204b5180df6a14ee197d99d808ee52d' })
-      const foxOnPolygonAssetId = toAssetId({ chainNamespace: CHAIN_NAMESPACE.Evm, chainReference: CHAIN_REFERENCE.PolygonMainnet, assetNamespace, assetReference: '0x65a05db8322701724c197af82c9cae41195b0aa8' })
+      const assetId = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.EthereumMainnet,
+        assetNamespace,
+        assetReference: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+      })
+      const foxOnPolygonAssetId = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.PolygonMainnet,
+        assetNamespace,
+        assetReference: '0x65a05db8322701724c197af82c9cae41195b0aa8',
+      })
       expect(coingeckoToAssetIds('shapeshift-fox-token')).toEqual([assetId, foxOnPolygonAssetId])
     })
 

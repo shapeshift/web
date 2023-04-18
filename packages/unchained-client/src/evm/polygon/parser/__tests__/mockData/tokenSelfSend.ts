@@ -2,33 +2,33 @@ import type { Tx } from '../../../../../generated/avalanche'
 import { mempoolMock } from './mempoolMock'
 
 export const tokenStandard: Tx = {
-  txid: '0xf8f377cc404b2662ba7538e20948725230edc96646d66172a9837c367bbec1e8',
-  blockHash: '0x32529396971608df5c0d3644d53a3064368bbcfe40e57291e7a3aeb0163b3edc',
-  blockHeight: 61387586,
-  timestamp: 1673040990,
-  status: 1,
-  from: '0xBcDdd1333982B26956Bf83D6fb704bC28Dfe4aBA',
-  to: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0',
-  confirmations: 477,
+  txid: '0xf7e768e0ed801742f376a113171fa9c3ac648ebcdc624ce212c99f257070051c',
+  blockHeight: -1,
+  timestamp: 1681847732,
+  status: -1,
+  from: '0xfA8a5D52aFCCAF40A0999ab9347D1Ba7Edc5395b',
+  to: '0xfA8a5D52aFCCAF40A0999ab9347D1Ba7Edc5395b',
+  confirmations: 0,
   value: '0',
-  fee: '57124000000',
-  gasLimit: '9000000',
-  gasUsed: '57124',
-  gasPrice: '1000000',
+  fee: '0',
+  gasLimit: '70898',
+  gasUsed: '0',
+  gasPrice: '315414796957',
   inputData:
-    '0xa9059cbb000000000000000000000000a1f55ac63e174fabaf93e6b2854da6d85c9fdc50000000000000000000000000000000000000000000000001144925a0b9314fc6',
+    '0xa9059cbb000000000000000000000000ae5f1d2309272557a4f2a3c954f51af12104a2ce0000000000000000000000000000000000000000000000000000000029b92700',
   tokenTransfers: [
     {
-      contract: '0x4200000000000000000000000000000000000042',
-      decimals: 18,
-      name: 'MATIC',
-      symbol: 'MATIC',
+      contract: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+      decimals: 6,
+      name: 'USDCoin(PoS)',
+      symbol: 'USDC',
       type: 'ERC20',
-      from: '0xBcDdd1333982B26956Bf83D6fb704bC28Dfe4aBA',
-      to: '0xBcDdd1333982B26956Bf83D6fb704bC28Dfe4aBA',
-      value: '19908484999999999942',
+      from: '0xfA8a5D52aFCCAF40A0999ab9347D1Ba7Edc5395b',
+      to: '0xfA8a5D52aFCCAF40A0999ab9347D1Ba7Edc5395b',
+      value: '700000000',
     },
   ],
+  internalTxs: [],
 }
 
 export default {

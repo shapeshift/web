@@ -37,13 +37,8 @@ const generatedCoingeckoToAssetIdsMap: Record<CoinGeckoId, AssetId[]> = invertBy
   generatedAssetIdToCoingeckoMap,
 )
 
-export const coingeckoToAssetIds = (id: CoinGeckoId): AssetId[] =>{
-  var qq = generatedCoingeckoToAssetIdsMap[id]
-  console.log(id)
-  console.log(qq)
-  return qq
-}
-  
+export const coingeckoToAssetIds = (id: CoinGeckoId): AssetId[] =>
+  generatedCoingeckoToAssetIdsMap[id]
 
 export const assetIdToCoingecko = (assetId: AssetId): CoinGeckoId | undefined =>
   generatedAssetIdToCoingeckoMap[toLower(assetId)]

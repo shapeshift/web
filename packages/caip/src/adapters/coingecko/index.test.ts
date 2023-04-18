@@ -192,7 +192,7 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Polygon,
       })
-      expect(assetIdToCoingecko(assetId)).toEqual('polygon-pos')
+      expect(assetIdToCoingecko(assetId)).toEqual('matic-network')
     })
   })
 

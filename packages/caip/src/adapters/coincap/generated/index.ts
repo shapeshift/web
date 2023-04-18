@@ -7,4 +7,5 @@ import cosmos from './cosmos_cosmoshub-4/adapter.json'
 import osmosis from './cosmos_osmosis-1/adapter.json'
 import thorchain from './cosmos_thorchain-mainnet-v1/adapter.json'
 
+
 export { bitcoin, bitcoincash, dogecoin, litecoin, ethereum, cosmos, osmosis, thorchain }

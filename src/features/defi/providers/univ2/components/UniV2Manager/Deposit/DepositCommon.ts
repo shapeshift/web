@@ -16,21 +16,27 @@ type UniV2DepositValues = DepositValues &
   }
 
 export type UniV2DepositState = {
-  approve: EstimatedGas
+  approve0: EstimatedGas
+  approve1: EstimatedGas
   deposit: UniV2DepositValues
   loading: boolean
   txid: string | null
 }
 
 export enum UniV2DepositActionType {
-  SET_APPROVE = 'SET_APPROVE',
+  SET_APPROVE_0 = 'SET_APPROVE_0',
+  SET_APPROVE_1 = 'SET_APPROVE_1',
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
 }
 
-type SetApprove = {
-  type: UniV2DepositActionType.SET_APPROVE
+type SetApprove0 = {
+  type: UniV2DepositActionType.SET_APPROVE_0
+  payload: EstimatedGas
+}
+type SetApprove1 = {
+  type: UniV2DepositActionType.SET_APPROVE_1
   payload: EstimatedGas
 }
 
@@ -49,4 +55,4 @@ type SetTxid = {
   payload: string
 }
 
-export type UniV2DepositActions = SetApprove | SetDeposit | SetLoading | SetTxid
+export type UniV2DepositActions = SetApprove0 | SetApprove1 | SetDeposit | SetLoading | SetTxid

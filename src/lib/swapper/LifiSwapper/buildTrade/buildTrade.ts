@@ -1,5 +1,5 @@
-import type { ChainKey, Token } from '@lifi/sdk'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { ChainKey } from '@lifi/sdk'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { BuildTradeInput } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { getTradeQuote } from 'lib/swapper/LifiSwapper/getTradeQuote/getTradeQuote'
@@ -9,7 +9,6 @@ import type { LifiTrade } from '../utils/types'
 
 export const buildTrade = async (
   input: BuildTradeInput,
-  lifiAssetMap: Map<AssetId, Token>,
   lifiChainMap: Map<ChainId, ChainKey>,
 ): Promise<LifiTrade> => {
   if (!isGetEvmTradeQuoteInput(input)) {
@@ -31,7 +30,7 @@ export const buildTrade = async (
     sellAsset,
     accountNumber,
     selectedLifiRoute,
-  } = await getTradeQuote(input, lifiAssetMap, lifiChainMap)
+  } = await getTradeQuote(input, lifiChainMap)
 
   return {
     buyAmountCryptoBaseUnit,

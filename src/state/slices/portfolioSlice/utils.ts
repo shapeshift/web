@@ -295,5 +295,5 @@ export const genericBalanceIncludingStakingByFilter = (
     }, {})
   return Object.values(totalByAccountId)
     .reduce((acc, accountBalance) => acc.plus(accountBalance), bn(0))
-    .toString()
+    .toFixed()
 }

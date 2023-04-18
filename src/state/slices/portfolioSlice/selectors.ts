@@ -17,6 +17,7 @@ import {
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import type { BIP44Params } from '@shapeshiftoss/types'
+import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
 import keys from 'lodash/keys'
@@ -47,6 +48,8 @@ import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
 import {
   selectAggregatedEarnUserStakingOpportunities,
+  selectAllEarnUserLpOpportunitiesByFilter,
+  selectAllEarnUserStakingOpportunitiesByFilter,
   selectStakingOpportunitiesById,
   selectUserStakingOpportunitiesById,
 } from 'state/slices/opportunitiesSlice/selectors'
@@ -821,5 +824,86 @@ export const selectAccountIdByAccountNumberAndChainId = createSelector(
       if (accountNumber !== accountMetadata[accountId].bip44Params.accountNumber) return false
       return true
     })
+  },
+)
+
+enum AssetEquityType {
+  Account = 'Account',
+  Staking = 'Staking',
+  LP = 'LP',
+  Reward = 'Reward',
+}
+
+type EquityRow = {
+  id: string
+  type: AssetEquityType
+  fiatAmount: string
+  provider: string
+  allocation: string
+  color?: string
+}
+
+export const selectEquityRowsfromFilter = createDeepEqualOutputSelector(
+  selectAccountIdsByAssetIdAboveBalanceThresholdByFilter,
+  selectPortfolioFiatBalancesByAccount,
+  selectFiatBalanceIncludingStakingByFilter,
+  selectAllEarnUserLpOpportunitiesByFilter,
+  selectAllEarnUserStakingOpportunitiesByFilter,
+  selectAssets,
+  selectAssetIdParamFromFilter,
+  (
+    accountIds,
+    portfolioFiatBalances,
+    totalFiatBalance,
+    lpOpportunities,
+    stakingOpportunities,
+    assets,
+    assetId,
+  ): EquityRow[] => {
+    if (!assetId) return []
+    const asset = assets[assetId]
+    const accounts = accountIds.map(accountId => {
+      const fiatAmount = bnOrZero(portfolioFiatBalances[accountId][assetId]).toString()
+      const allocation = bnOrZero(
+        bnOrZero(portfolioFiatBalances[accountId][assetId]).div(totalFiatBalance).times(100),
+      ).toString()
+      return {
+        id: accountId,
+        type: AssetEquityType.Account,
+        fiatAmount,
+        provider: 'wallet',
+        allocation,
+        color: asset?.color,
+      }
+    })
+    const staking = stakingOpportunities.map(stakingOpportunity => {
+      const allocation = bnOrZero(
+        bnOrZero(stakingOpportunity.fiatAmount).div(totalFiatBalance).times(100),
+      ).toString()
+      return {
+        id: stakingOpportunity.id,
+        type: AssetEquityType.Staking,
+        fiatAmount: stakingOpportunity.fiatAmount,
+        allocation,
+        provider: stakingOpportunity.provider,
+        color: DefiProviderMetadata[stakingOpportunity.provider].color,
+      }
+    })
+    const lp = lpOpportunities.map(lpOpportunity => {
+      const allocation = bnOrZero(
+        bnOrZero(lpOpportunity.fiatAmount).div(totalFiatBalance).times(100),
+      ).toString()
+      return {
+        id: lpOpportunity.id,
+        type: AssetEquityType.LP,
+        fiatAmount: lpOpportunity.fiatAmount,
+        allocation,
+        provider: lpOpportunity.provider,
+        color: DefiProviderMetadata[lpOpportunity.provider].color,
+      }
+    })
+    return [...accounts, ...lp, ...staking].sort((a, b) =>
+      bnOrZero(b.fiatAmount).minus(a.fiatAmount).toNumber(),
+    )
   },
 )

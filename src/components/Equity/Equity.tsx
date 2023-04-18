@@ -1,21 +1,16 @@
 import { Flex, Skeleton, Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAccountIdsByAssetIdAboveBalanceThresholdByFilter,
-  selectAllEarnUserLpOpportunitiesByFilter,
-  selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssets,
   selectCryptoHumanBalanceIncludingStakingByFilter,
+  selectEquityRowsfromFilter,
   selectFiatBalanceIncludingStakingByFilter,
-  selectPortfolioFiatBalancesByAccount,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -43,91 +38,26 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   const assets = useAppSelector(selectAssets)
   const asset = assets[assetId]
   const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
-  const accountIds = useAppSelector(state =>
-    selectAccountIdsByAssetIdAboveBalanceThresholdByFilter(state, { assetId }),
-  )
-  const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
-  const totalFiatBalance = useAppSelector(s =>
-    selectFiatBalanceIncludingStakingByFilter(s, opportunitiesFilter),
-  )
-  const cryptoHumanBalance = useAppSelector(s =>
-    selectCryptoHumanBalanceIncludingStakingByFilter(s, opportunitiesFilter),
-  )
-  const portfolioFiatBalances = useAppSelector(selectPortfolioFiatBalancesByAccount)
-
   const filter = useMemo(() => {
     return {
       assetId,
       ...(accountId ? { accountId } : {}),
     }
   }, [accountId, assetId])
-  const lpOpportunities = useAppSelector(state =>
-    selectAllEarnUserLpOpportunitiesByFilter(state, filter),
-  )
-  const stakingOpportunities = useAppSelector(state =>
-    selectAllEarnUserStakingOpportunitiesByFilter(state, filter),
+
+  const totalFiatBalance = useAppSelector(s => selectFiatBalanceIncludingStakingByFilter(s, filter))
+  const cryptoHumanBalance = useAppSelector(s =>
+    selectCryptoHumanBalanceIncludingStakingByFilter(s, filter),
   )
 
-  const equityItems = useMemo(() => {
-    const accounts = accountIds.map(accountId => {
-      const fiatAmount = bnOrZero(portfolioFiatBalances[accountId][assetId]).toString()
-      const allocation = bnOrZero(
-        bnOrZero(portfolioFiatBalances[accountId][assetId]).div(totalFiatBalance).times(100),
-      ).toString()
-      return {
-        id: accountId,
-        type: AssetEquityType.Account,
-        fiatAmount,
-        provider: 'wallet',
-        allocation,
-        color: asset?.color,
-      }
-    })
-    const staking = stakingOpportunities.map(stakingOpportunity => {
-      const allocation = bnOrZero(
-        bnOrZero(stakingOpportunity.fiatAmount).div(totalFiatBalance).times(100),
-      ).toString()
-      return {
-        id: stakingOpportunity.id,
-        type: AssetEquityType.Staking,
-        fiatAmount: stakingOpportunity.fiatAmount,
-        allocation,
-        provider: stakingOpportunity.provider,
-        color: DefiProviderMetadata[stakingOpportunity.provider].color,
-      }
-    })
-    const lp = lpOpportunities.map(lpOpportunity => {
-      const allocation = bnOrZero(
-        bnOrZero(lpOpportunity.fiatAmount).div(totalFiatBalance).times(100),
-      ).toString()
-      return {
-        id: lpOpportunity.id,
-        type: AssetEquityType.LP,
-        fiatAmount: lpOpportunity.fiatAmount,
-        allocation,
-        provider: lpOpportunity.provider,
-        color: DefiProviderMetadata[lpOpportunity.provider].color,
-      }
-    })
-    return [...accounts, ...lp, ...staking].sort((a, b) =>
-      bnOrZero(b.fiatAmount).minus(a.fiatAmount).toNumber(),
-    )
-  }, [
-    accountIds,
-    stakingOpportunities,
-    lpOpportunities,
-    portfolioFiatBalances,
-    assetId,
-    totalFiatBalance,
-    asset?.color,
-  ])
+  const equityRows = useAppSelector(state => selectEquityRowsfromFilter(state, filter))
 
   const renderEquityRows = useMemo(() => {
     if (portfolioLoading)
       return Array.from({ length: 4 }).map((_, index) => (
         <EquityRowLoading key={`eq-row-loading-${index}`} />
       ))
-    return equityItems.map(item => {
+    return equityRows.map(item => {
       switch (item.type) {
         case AssetEquityType.Staking:
           return (
@@ -165,7 +95,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
           return null
       }
     })
-  }, [accountId, assetId, equityItems, portfolioLoading])
+  }, [accountId, assetId, equityRows, portfolioLoading])
 
   if (!asset) return null
 

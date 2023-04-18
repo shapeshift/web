@@ -119,7 +119,7 @@ export const selectPortfolioFiatBalancesByAccount = createDeepEqualOutputSelecto
   },
 )
 
-export const selectSortedAssets = createSelector(
+export const selectSortedAssets = createDeepEqualOutputSelector(
   selectAssets,
   selectPortfolioFiatBalances,
   selectPortfolioFiatBalancesByAccount,

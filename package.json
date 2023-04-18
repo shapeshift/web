@@ -95,8 +95,6 @@
     "@shapeshiftoss/hdwallet-metamask": "^1.46.2",
     "@shapeshiftoss/hdwallet-native": "^1.46.2",
     "@shapeshiftoss/hdwallet-native-vault": "^1.46.2",
-    "@shapeshiftoss/hdwallet-portis": "^1.46.2",
-    "@shapeshiftoss/hdwallet-tallyho": "^1.46.2",
     "@shapeshiftoss/hdwallet-walletconnect": "^1.46.2",
     "@shapeshiftoss/hdwallet-xdefi": "^1.46.2",
     "@shapeshiftoss/investor-foxy": "workspace:^",

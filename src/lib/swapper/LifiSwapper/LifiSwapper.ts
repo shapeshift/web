@@ -1,9 +1,4 @@
-import type {
-  ChainId as LifiChainId,
-  ChainKey as LifiChainKey,
-  GetStatusRequest,
-  Token as LifiToken,
-} from '@lifi/sdk'
+import type { ChainId as LifiChainId, ChainKey as LifiChainKey, GetStatusRequest } from '@lifi/sdk'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
@@ -33,7 +28,6 @@ import { filterBuyAssetsBySellAssetId } from 'lib/swapper/LifiSwapper/filterBuyA
 import { getTradeQuote } from 'lib/swapper/LifiSwapper/getTradeQuote/getTradeQuote'
 import { getUsdRate } from 'lib/swapper/LifiSwapper/getUsdRate/getUsdRate'
 import { MAX_LIFI_TRADE } from 'lib/swapper/LifiSwapper/utils/constants'
-import { createLifiAssetMap } from 'lib/swapper/LifiSwapper/utils/createLifiAssetMap/createLifiAssetMap'
 import { createLifiChainMap } from 'lib/swapper/LifiSwapper/utils/createLifiChainMap/createLifiChainMap'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
 import { getMinimumCryptoHuman } from 'lib/swapper/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
@@ -46,7 +40,6 @@ import type {
 export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SwapperName.LIFI
   private lifiChainMap: Map<ChainId, LifiChainKey> = new Map()
-  private lifiAssetMap: Map<AssetId, LifiToken> = new Map()
   private executedTrades: Map<string, GetStatusRequest> = new Map()
 
   /** perform any necessary async initialization */
@@ -55,13 +48,12 @@ export class LifiSwapper implements Swapper<EvmChainId> {
       chainId => Number(fromChainId(chainId).chainReference) as LifiChainId,
     )
 
-    const { chains, tokens } = await getLifi().getPossibilities({
-      include: ['chains', 'tokens'],
+    const { chains } = await getLifi().getPossibilities({
+      include: ['chains'],
       chains: supportedChainRefs,
     })
 
     if (chains !== undefined) this.lifiChainMap = createLifiChainMap(chains)
-    if (tokens !== undefined) this.lifiAssetMap = createLifiAssetMap(tokens)
   }
 
   /** Returns the swapper type */
@@ -73,7 +65,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Builds a trade with definitive rate & txData that can be executed with executeTrade
    **/
   async buildTrade(input: BuildTradeInput): Promise<LifiTrade> {
-    return await buildTrade(input, this.lifiAssetMap, this.lifiChainMap)
+    return await buildTrade(input, this.lifiChainMap)
   }
 
   /**
@@ -109,14 +101,14 @@ export class LifiSwapper implements Swapper<EvmChainId> {
       }
     }
 
-    return await getTradeQuote(input, this.lifiAssetMap, this.lifiChainMap)
+    return await getTradeQuote(input, this.lifiChainMap)
   }
 
   /**
    * Get the usd rate from either the assets symbol or tokenId
    */
   async getUsdRate(asset: Asset): Promise<string> {
-    return await getUsdRate(asset, this.lifiAssetMap, this.lifiChainMap, getLifi())
+    return await getUsdRate(asset, this.lifiChainMap, getLifi())
   }
 
   /**
@@ -154,14 +146,14 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get supported buyAssetId's by sellAssetId
    */
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
-    return filterBuyAssetsBySellAssetId(input, this.lifiAssetMap)
+    return filterBuyAssetsBySellAssetId(input)
   }
 
   /**
    * Get supported sell AssetIds
    */
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    return filterAssetIdsBySellable(assetIds, this.lifiAssetMap)
+    return filterAssetIdsBySellable(assetIds)
   }
 
   /**

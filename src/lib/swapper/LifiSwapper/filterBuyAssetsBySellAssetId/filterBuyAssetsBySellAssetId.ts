@@ -1,4 +1,3 @@
-import type { Token as LifiToken } from '@lifi/sdk'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
@@ -6,10 +5,9 @@ import type { BuyAssetBySellIdInput } from '@shapeshiftoss/swapper'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-export function filterBuyAssetsBySellAssetId(
-  input: BuyAssetBySellIdInput,
-  lifiTokenMap: Map<AssetId, LifiToken>,
-): AssetId[] {
+// we dont perform a lookup to lifi's supported assets because they support far more assets than we do
+// so the overhead in performing the fetch to lifi isnt worth the time
+export function filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
   const { assetIds = [], sellAssetId } = input
 
   const assets = selectAssets(store.getState())
@@ -25,8 +23,7 @@ export function filterBuyAssetsBySellAssetId(
     return (
       buyAsset.chainId !== sellAsset.chainId && // no same-chain swaps
       evmChainIds.includes(buyAsset.chainId as EvmChainId) &&
-      evmChainIds.includes(sellAsset.chainId as EvmChainId) &&
-      lifiTokenMap.has(assetId)
+      evmChainIds.includes(sellAsset.chainId as EvmChainId)
     )
   })
 

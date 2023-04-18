@@ -1,14 +1,12 @@
-import type { Token as LifiToken } from '@lifi/sdk'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-export function filterAssetIdsBySellable(
-  assetIds: AssetId[],
-  lifiTokenMap: Map<AssetId, LifiToken>,
-): AssetId[] {
+// we dont perform a lookup to lifi's supported assets because they support far more assets than we do
+// so the overhead in performing the fetch to lifi isnt worth the time
+export function filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
   const assets = selectAssets(store.getState())
   const result = assetIds.filter(assetId => {
     const asset = assets[assetId]
@@ -17,7 +15,7 @@ export function filterAssetIdsBySellable(
 
     const { chainId } = asset
 
-    return evmChainIds.includes(chainId as EvmChainId) && lifiTokenMap.has(assetId)
+    return evmChainIds.includes(chainId as EvmChainId)
   })
 
   return result

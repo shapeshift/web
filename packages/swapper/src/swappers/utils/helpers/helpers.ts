@@ -1,7 +1,15 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import {
+  avalancheAssetId,
+  bscAssetId,
+  ethAssetId,
+  fromAssetId,
+  optimismAssetId,
+} from '@shapeshiftoss/caip'
 import type { EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type Web3 from 'web3'
 import type { AbiItem } from 'web3-utils'
 import { numberToHex } from 'web3-utils'
@@ -185,4 +193,20 @@ export const getApproveContractData = ({
 }: GetApproveContractDataArgs): string => {
   const contract = new web3.eth.Contract(erc20AbiImported, contractAddress)
   return contract.methods.approve(spenderAddress, MAX_ALLOWANCE).encodeABI()
+}
+
+export const isNativeEvmAsset = (assetId: AssetId): boolean => {
+  const { chainId } = fromAssetId(assetId)
+  switch (chainId) {
+    case KnownChainIds.EthereumMainnet:
+      return assetId === ethAssetId
+    case KnownChainIds.AvalancheMainnet:
+      return assetId === avalancheAssetId
+    case KnownChainIds.OptimismMainnet:
+      return assetId === optimismAssetId
+    case KnownChainIds.BnbSmartChainMainnet:
+      return assetId === bscAssetId
+    default:
+      return false
+  }
 }

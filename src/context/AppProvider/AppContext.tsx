@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bchChainId,
@@ -12,6 +12,8 @@ import {
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import difference from 'lodash/difference'
 import pull from 'lodash/pull'
 import React, { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -25,8 +27,9 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { setTimeoutAsync } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
-import { zapperApi } from 'state/apis/zapper/zapperApi'
+import { zapper } from 'state/apis/zapper/zapperApi'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
@@ -34,6 +37,7 @@ import {
   useFindByFiatSymbolQuery,
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import {
   fetchAllOpportunitiesIds,
   fetchAllOpportunitiesMetadata,
@@ -62,6 +66,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
  * for some time as reselect does a really good job of memoizing things
  *
  */
+
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast()
   const translate = useTranslate()
@@ -174,9 +179,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       // and ensure the queryFn runs resulting in dispatches occuring to update client state
       const options = { forceRefetch: true }
 
-      if (DynamicLpAssets) {
-        await dispatch(zapperApi.endpoints.getZapperUniV2PoolAssetIds.initiate())
-      }
+      const maybeFetchZapperData = DynamicLpAssets
+        ? dispatch(zapper.endpoints.getZapperUniV2PoolAssetIds.initiate())
+        : () => setTimeoutAsync(0)
+
+      await maybeFetchZapperData
       await fetchAllOpportunitiesIds()
       await fetchAllOpportunitiesMetadata()
 
@@ -221,22 +228,34 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       })
     })()
   }, [
-    dispatch,
     portfolioLoadingStatus,
     portfolioAccounts,
-    portfolioAssetIds,
-    wallet,
-    requestedAccountIds,
     DynamicLpAssets,
+    dispatch,
+    requestedAccountIds,
+    portfolioAssetIds,
   ])
+
+  const uniV2LpIdsData = useAppSelector(
+    opportunitiesApi.endpoints.getOpportunityIds.select({
+      defiType: DefiType.LiquidityPool,
+      defiProvider: DefiProvider.UniV2,
+    }),
+  )
 
   // once the portfolio is loaded, fetch market data for all portfolio assets
   // start refetch timer to keep market data up to date
   useEffect(() => {
     if (portfolioLoadingStatus === 'loading') return
 
+    // Exclude assets for which we are unable to get market data
+    // We would fire query thunks / XHRs that would slow down the app
+    // We insert price data for these as resolver-level, and are unable to get market data
+    const excluded: AssetId[] = [...(uniV2LpIdsData.data ?? [])]
+    const portfolioAssetIdsExcludeNoMarketData = difference(portfolioAssetIds, excluded)
+
     const fetchMarketData = () =>
-      portfolioAssetIds.forEach(assetId => {
+      portfolioAssetIdsExcludeNoMarketData.forEach(assetId => {
         dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
         const timeframe = DEFAULT_HISTORY_TIMEFRAME
         const payload = { assetId, timeframe }
@@ -246,7 +265,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     fetchMarketData() // fetch every time assetIds change
     const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
     return () => clearInterval(interval) // clear interval when portfolioAssetIds change
-  }, [dispatch, portfolioLoadingStatus, portfolioAssetIds])
+  }, [dispatch, portfolioLoadingStatus, portfolioAssetIds, uniV2LpIdsData.data])
 
   /**
    * fetch forex spot and history for user's selected currency

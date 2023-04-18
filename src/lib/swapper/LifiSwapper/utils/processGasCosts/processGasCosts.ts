@@ -1,39 +1,38 @@
-import type { GasCost, Token } from '@lifi/sdk'
+import type { GasCost } from '@lifi/sdk'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getEvmAssetAddress } from 'lib/swapper/LifiSwapper/utils/getAssetAddress/getAssetAddress'
 
 const processNetworkFee = ({
   allRouteGasCosts,
   feeAsset,
-  lifiFeeAsset,
 }: {
   allRouteGasCosts: GasCost[]
   feeAsset: Asset
-  lifiFeeAsset: Token
 }) => {
+  const feeAssetAddress = getEvmAssetAddress(feeAsset)
+
   const networkFeeCryptoLifiPrecision = allRouteGasCosts
-    .filter(gasCost => gasCost.token.address === lifiFeeAsset.address)
+    .filter(gasCost => gasCost.token.address === feeAssetAddress)
     .reduce((acc, gasCost) => acc.plus(bnOrZero(gasCost.amount)), bn(0))
 
-  return convertPrecision({
-    value: networkFeeCryptoLifiPrecision,
-    inputExponent: lifiFeeAsset.decimals,
-    outputExponent: feeAsset.precision,
-  })
+  return networkFeeCryptoLifiPrecision
 }
 
 const processTradeFee = ({
   allRouteGasCosts,
   initialSellAssetTradeFeeUsd,
-  lifiFeeAsset,
+  feeAsset,
 }: {
   allRouteGasCosts: GasCost[]
   initialSellAssetTradeFeeUsd: BigNumber
-  lifiFeeAsset: Token
+  feeAsset: Asset
 }) => {
+  const feeAssetAddress = getEvmAssetAddress(feeAsset)
+
   const nonFeeAssetGasCosts = allRouteGasCosts
-    .filter(gasCost => gasCost.token.address !== lifiFeeAsset?.address)
+    .filter(gasCost => gasCost.token.address !== feeAssetAddress)
     .reduce((acc, gasCost) => acc.plus(bnOrZero(gasCost.amountUSD)), bn(0))
 
   return initialSellAssetTradeFeeUsd.plus(nonFeeAssetGasCosts)
@@ -48,23 +47,20 @@ export const processGasCosts = ({
   allRouteGasCosts,
   initialSellAssetTradeFeeUsd,
   feeAsset,
-  lifiFeeAsset,
 }: {
   allRouteGasCosts: GasCost[]
   initialSellAssetTradeFeeUsd: BigNumber
   feeAsset: Asset
-  lifiFeeAsset: Token
 }) => {
   return {
     networkFeeCryptoBaseUnit: processNetworkFee({
       allRouteGasCosts,
       feeAsset,
-      lifiFeeAsset,
     }),
     sellAssetTradeFeeUsd: processTradeFee({
       allRouteGasCosts,
       initialSellAssetTradeFeeUsd,
-      lifiFeeAsset,
+      feeAsset,
     }),
   }
 }

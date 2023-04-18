@@ -71,9 +71,11 @@ import type {
   AccountMetadata,
   AccountMetadataById,
   AssetBalancesById,
+  EquityRow,
   PortfolioAccountBalancesById,
   PortfolioAccounts,
 } from './portfolioSliceCommon'
+import { AssetEquityType } from './portfolioSliceCommon'
 import { findAccountsByAssetId } from './utils'
 
 // We should prob change this once we add more chains
@@ -826,22 +828,6 @@ export const selectAccountIdByAccountNumberAndChainId = createSelector(
     })
   },
 )
-
-enum AssetEquityType {
-  Account = 'Account',
-  Staking = 'Staking',
-  LP = 'LP',
-  Reward = 'Reward',
-}
-
-type EquityRow = {
-  id: string
-  type: AssetEquityType
-  fiatAmount: string
-  provider: string
-  allocation: string
-  color?: string
-}
 
 export const selectEquityRowsfromFilter = createDeepEqualOutputSelector(
   selectAccountIdsByAssetIdAboveBalanceThresholdByFilter,

@@ -6,13 +6,13 @@ import { TransactionParser } from '../index'
 // import erc20Approve from './mockData/erc20Approve'
 // import ethSelfSend from './mockData/ethSelfSend'
 import ethStandard from './mockData/ethStandard'
-import { wmaticToken as maticToken, usdcToken } from './mockData/tokens'
+import { wmaticToken as maticToken, usdcToken, weth } from './mockData/tokens'
 // import tokenSelfSend from './mockData/tokenSelfSend'
 import tokenStandard from './mockData/tokenStandard'
 // import zrxTradeEthToUsdc from './mockData/zrxTradeEthToUsdc'
 // import zrxTradeOpToEth from './mockData/zrxTradeOpToEth'
-import zrxTradeUsdcToOp from './mockData/zrxTradeUsdcToMatic'
 import zrxTradeUsdcToMatic from './mockData/zrxTradeUsdcToMatic'
+import zrxTradeMaticToEth from './mockData/zrxTradeMaticToEth'
 
 const txParser = new TransactionParser({
   rpcUrl: '',
@@ -504,52 +504,52 @@ describe('parseTx', () => {
   //     expect(actual).toEqual(expected)
   //   })
 
-  //   it('should be able to parse token -> eth', async () => {
-  //     const { tx } = zrxTradeOpToEth
-  //     const address = '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C'
-  //     const trade: Trade = { dexName: Dex.Zrx, type: TradeType.Trade }
+    it('should be able to parse token -> matic', async () => {
+      const { tx } = zrxTradeMaticToEth
+      const address = '0xB42D57F10F05100d856De8d7bF9d76F8FEE01EeF'
+      const trade: Trade = { dexName: Dex.Zrx, type: TradeType.Trade }
 
-  //     const sellTransfer: Transfer = {
-  //       assetId: 'eip155:137/erc20:0x4200000000000000000000000000000000000042',
-  //       components: [{ value: '500000000000000000' }],
-  //       from: address,
-  //       to: '0xA3128d9b7Cca7d5Af29780a56abEec12B05a6740',
-  //       token: maticToken,
-  //       totalValue: '500000000000000000',
-  //       type: TransferType.Send,
-  //     }
+      const sellTransfer: Transfer = {
+        assetId: 'eip155:137/slip44:60',
+        components: [{ value: '105000000000000000000' }],
+        from: address,
+        to: '0xDef1C0ded9bec7F1a1670819833240f027b25EfF',
+        token: undefined,
+        totalValue: '105000000000000000000',
+        type: TransferType.Send,
+      }
 
-  //     const buyTransfer: Transfer = {
-  //       assetId: polygonAssetId,
-  //       components: [{ value: '692386565390547' }],
-  //       from: '0xA3128d9b7Cca7d5Af29780a56abEec12B05a6740',
-  //       to: address,
-  //       totalValue: '692386565390547',
-  //       type: TransferType.Receive,
-  //     }
+      const buyTransfer: Transfer = {
+        assetId: 'eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
+        components: [{ value: '58656209302271987' }],
+        from: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
+        to: address,
+        token: weth,
+        totalValue: '58656209302271987',
+        type: TransferType.Receive,
+      }
 
-  //     const expected: ParsedTx = {
-  //       txid: tx.txid,
-  //       blockHeight: tx.blockHeight,
-  //       blockTime: tx.timestamp,
-  //       blockHash: tx.blockHash,
-  //       address,
-  //       chainId: polygonChainId,
-  //       confirmations: tx.confirmations,
-  //       data: { parser: 'zrx' },
-  //       status: TxStatus.Confirmed,
-  //       fee: {
-  //         value: '571214858294392',
-  //         assetId: polygonAssetId,
-  //       },
-  //       transfers: [sellTransfer, buyTransfer],
-  //       trade,
-  //     }
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        address,
+        chainId: polygonChainId,
+        confirmations: tx.confirmations,
+        data: { parser: 'zrx' },
+        status: TxStatus.Confirmed,
+        fee: {
+          value: '69742464000000000',
+          assetId: 'eip155:137/slip44:60',
+        },
+        transfers: [sellTransfer, buyTransfer],
+        trade,
+      }
 
-  //     const actual = await txParser.parse(tx, address)
-
-  //     expect(actual).toEqual(expected)
-  //   })
+      const actual = await txParser.parse(tx, address)
+      expect(actual).toEqual(expected)
+    })
 
     it('should be able to parse token -> token', async () => {
       const { tx } = zrxTradeUsdcToMatic

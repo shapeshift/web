@@ -1,10 +1,10 @@
 import type { Result } from '@sniptt/monads'
-import { Ok } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import * as rax from 'retry-axios'
 
 import type { BuildTradeInput, SwapErrorRight } from '../../../api'
-import { SwapError, SwapErrorType } from '../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT, DEFAULT_SLIPPAGE } from '../../utils/constants'
@@ -32,10 +32,13 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
     const adapterChainId = adapter.getChainId()
 
     if (buyAsset.chainId !== adapterChainId) {
-      throw new SwapError(`[zrxBuildTrade] - buyAsset must be on chainId ${adapterChainId}`, {
-        code: SwapErrorType.VALIDATION_FAILED,
-        details: { chainId: sellAsset.chainId },
-      })
+      return Err(
+        makeSwapErrorRight({
+          message: `[zrxBuildTrade] - buyAsset must be on chainId ${adapterChainId}`,
+          code: SwapErrorType.VALIDATION_FAILED,
+          details: { chainId: sellAsset.chainId },
+        }),
+      )
     }
 
     const slippagePercentage = slippage ? bnOrZero(slippage).toString() : DEFAULT_SLIPPAGE
@@ -139,10 +142,20 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
     }
     return Ok(trade as ZrxTrade<T>)
   } catch (e) {
-    // TODO(gomes): don't throw
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[zrxBuildTrade]', {
-      code: SwapErrorType.BUILD_TRADE_FAILED,
-    })
+    if (e instanceof SwapError)
+      return Err(
+        makeSwapErrorRight({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
+    return Err(
+      makeSwapErrorRight({
+        message: '[[zrxBuildTrade]]',
+        cause: e,
+        code: SwapErrorType.BUILD_TRADE_FAILED,
+      }),
+    )
   }
 }

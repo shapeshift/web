@@ -10,7 +10,7 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
-import { Ok } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type Web3 from 'web3'
 
 import type {
@@ -27,7 +27,7 @@ import type {
   TradeResult,
   TradeTxs,
 } from '../../api'
-import { SwapError, SwapErrorType, SwapperName, SwapperType } from '../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName, SwapperType } from '../../api'
 import { buildTrade } from './buildThorTrade/buildThorTrade'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { thorTradeApprovalNeeded } from './thorTradeApprovalNeeded/thorTradeApprovalNeeded'
@@ -119,11 +119,16 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         this.sellSupportedChainIds[chainId] && this.supportedSellAssetIds.push(assetId)
         this.buySupportedChainIds[chainId] && this.supportedBuyAssetIds.push(assetId)
       })
-    } catch (e) {
-      throw new SwapError('[thorchainInitialize]: initialize failed to set supportedAssetIds', {
-        code: SwapErrorType.INITIALIZE_FAILED,
-        cause: e,
-      })
+
+      return Ok(undefined)
+    } catch (e: unknown) {
+      return Err(
+        makeSwapErrorRight({
+          message: '[thorchainInitialize]: initialize failed to set supportedAssetIds',
+          code: SwapErrorType.INITIALIZE_FAILED,
+          cause: (e as Error)?.message,
+        }),
+      )
     }
   }
 
@@ -220,11 +225,12 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         const txid = await adapter.broadcastTransaction(signedTx)
         return Ok({ tradeId: txid })
       } else {
-        // TODO(gomes): don't throw in this module
-        throw new SwapError('[executeTrade]: unsupported trade', {
-          code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
-          fn: 'executeTrade',
-        })
+        return Err(
+          makeSwapErrorRight({
+            message: '[executeTrade]: unsupported trade',
+            code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
+          }),
+        )
       }
     } catch (e) {
       if (e instanceof SwapError) throw e

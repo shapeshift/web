@@ -1,8 +1,8 @@
 import type { Result } from '@sniptt/monads'
-import { Ok } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 
 import type { SwapErrorRight, TradeResult, TradeTxs } from '../../../api'
-import { SwapError, SwapErrorType } from '../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../api'
 import type { CowSwapperDeps } from '../CowSwapper'
 import type { CowSwapGetOrdersResponse, CowSwapGetTradesResponse } from '../types'
 import { ORDER_STATUS_FULFILLED } from '../utils/constants'
@@ -36,11 +36,20 @@ export async function cowGetTradeTxs(
       buyTxid: getTradesResponse.data[0].txHash,
     })
   } catch (e) {
-    // TODO(gomes): don't throw in this module
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[cowGetTradeTxs]', {
-      cause: e,
-      code: SwapErrorType.GET_TRADE_TXS_FAILED,
-    })
+    if (e instanceof SwapError)
+      return Err(
+        makeSwapErrorRight({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
+    return Err(
+      makeSwapErrorRight({
+        message: '[cowGetTradeTxs]',
+        cause: e,
+        code: SwapErrorType.GET_TRADE_TXS_FAILED,
+      }),
+    )
   }
 }

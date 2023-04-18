@@ -4,12 +4,12 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
-import { Ok } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { ethers } from 'ethers'
 
 import type { ExecuteTradeInput, SwapErrorRight, TradeResult } from '../../../api'
-import { SwapError, SwapErrorType } from '../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../api'
 import type { CowSwapperDeps } from '../CowSwapper'
 import type { CowTrade } from '../types'
 import {
@@ -129,11 +129,20 @@ export async function cowExecuteTrade(
 
     return Ok({ tradeId: ordersResponse.data })
   } catch (e) {
-    // TODO(gomes): don't throw in this module
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[cowExecuteTrade]', {
-      cause: e,
-      code: SwapErrorType.EXECUTE_TRADE_FAILED,
-    })
+    if (e instanceof SwapError)
+      return Err(
+        makeSwapErrorRight({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
+    return Err(
+      makeSwapErrorRight({
+        message: '[cowExecuteTrade]',
+        cause: e,
+        code: SwapErrorType.EXECUTE_TRADE_FAILED,
+      }),
+    )
   }
 }

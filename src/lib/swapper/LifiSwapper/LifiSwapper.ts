@@ -46,7 +46,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   private executedTrades: Map<string, GetStatusRequest> = new Map()
 
   /** perform any necessary async initialization */
-  async initialize(): Promise<void> {
+  async initialize(): Promise<Result<unknown, SwapErrorRight>> {
     const supportedChainRefs = evmChainIds.map(
       chainId => Number(fromChainId(chainId).chainReference) as LifiChainId,
     )
@@ -57,6 +57,8 @@ export class LifiSwapper implements Swapper<EvmChainId> {
     })
 
     if (chains !== undefined) this.lifiChainMap = createLifiChainMap(chains)
+
+    return Ok(undefined)
   }
 
   /** Returns the swapper type */

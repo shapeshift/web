@@ -276,7 +276,7 @@ export interface Swapper<T extends ChainId> {
   readonly name: SwapperName
 
   /** perform any necessary async initialization */
-  initialize?(): Promise<void>
+  initialize?(): Promise<Result<unknown, SwapErrorRight>>
 
   /** Returns the swapper type */
   getType(): SwapperType

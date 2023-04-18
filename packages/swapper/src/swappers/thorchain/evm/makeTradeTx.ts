@@ -7,7 +7,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { numberToHex } from 'web3-utils'
 
 import type { SwapErrorRight } from '../../../api'
-import { SwapError, SwapErrorType } from '../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../api'
 import type { ThorEvmSupportedChainId } from '../ThorchainSwapper'
 import type { ThorchainSwapperDeps } from '../types'
 import { getThorTxInfo } from './utils/getThorTxData'
@@ -94,11 +94,20 @@ export const makeTradeTx = async ({
       }),
     )
   } catch (e) {
-    // TODO(gomes): don't throw
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[makeTradeTx]: error making trade tx', {
-      code: SwapErrorType.BUILD_TRADE_FAILED,
-      cause: e,
-    })
+    if (e instanceof SwapError)
+      return Err(
+        makeSwapErrorRight({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
+    return Err(
+      makeSwapErrorRight({
+        message: '[makeTradeTx]: error making trade tx',
+        cause: e,
+        code: SwapErrorType.BUILD_TRADE_FAILED,
+      }),
+    )
   }
 }

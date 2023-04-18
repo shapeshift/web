@@ -3,7 +3,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import type { SwapErrorRight } from '../../../../api'
-import { SwapError, SwapErrorType } from '../../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../../api'
 import type { ThorchainSwapperDeps } from '../../types'
 import { getInboundAddressDataForChain } from '../../utils/getInboundAddressDataForChain'
 import { getLimit } from '../../utils/getLimit/getLimit'
@@ -80,8 +80,20 @@ export const getThorTxInfo: GetThorTxInfo = async ({
       pubkey: xpub,
     })
   } catch (e) {
-    // TODO(gomes): don't throw
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[getThorTxInfo]', { cause: e, code: SwapErrorType.TRADE_QUOTE_FAILED })
+    if (e instanceof SwapError)
+      return Err(
+        makeSwapErrorRight({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
+    return Err(
+      makeSwapErrorRight({
+        message: '[getThorTxInfo]',
+        cause: e,
+        code: SwapErrorType.TRADE_QUOTE_FAILED,
+      }),
+    )
   }
 }

@@ -5,7 +5,7 @@ import { Err, Ok } from '@sniptt/monads'
 import max from 'lodash/max'
 
 import type { SwapErrorRight } from '../../../../api'
-import { SwapError, SwapErrorType } from '../../../../api'
+import { makeSwapErrorRight, SwapErrorType } from '../../../../api'
 import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../../utils/bignumber'
 import { ALLOWABLE_MARKET_MOVEMENT } from '../../../utils/constants'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from '../../constants'
@@ -54,11 +54,13 @@ export const getLimit = async ({
     .get(fromAssetId(buyAssetId).chainId)
     ?.getFeeAssetId()
   if (!sellAssetChainFeeAssetId || !buyAssetChainFeeAssetId) {
-    // TODO(gomes): don't throw
-    throw new SwapError('[getLimit]: no sellAssetChainFeeAsset or buyAssetChainFeeAssetId', {
-      code: SwapErrorType.BUILD_TRADE_FAILED,
-      details: { sellAssetChainFeeAssetId, buyAssetChainFeeAssetId },
-    })
+    return Err(
+      makeSwapErrorRight({
+        message: '[getLimit]: no sellAssetChainFeeAsset or buyAssetChainFeeAssetId',
+        code: SwapErrorType.BUILD_TRADE_FAILED,
+        details: { sellAssetChainFeeAssetId, buyAssetChainFeeAssetId },
+      }),
+    )
   }
 
   const sellFeeAssetUsdRate = await getUsdRate(deps.daemonUrl, sellAssetChainFeeAssetId)
@@ -71,11 +73,13 @@ export const getLimit = async ({
   const isValidSlippageRange =
     bnOrZero(slippageTolerance).gte(0) && bnOrZero(slippageTolerance).lte(1)
   if (bnOrZero(expectedBuyAmountCryptoPrecision8).lt(0) || !isValidSlippageRange)
-    // TODO(gomes): don't throw
-    throw new SwapError('[getLimit]: bad expected buy amount or bad slippage tolerance', {
-      code: SwapErrorType.BUILD_TRADE_FAILED,
-      details: { expectedBuyAmountCryptoPrecision8, slippageTolerance },
-    })
+    return Err(
+      makeSwapErrorRight({
+        message: '[getLimit]: bad expected buy amount or bad slippage tolerance',
+        code: SwapErrorType.BUILD_TRADE_FAILED,
+        details: { expectedBuyAmountCryptoPrecision8, slippageTolerance },
+      }),
+    )
 
   const buyAssetTradeFeeCryptoPrecision8 = toBaseUnit(
     bnOrZero(buyAssetTradeFeeUsd).div(buyAssetUsdRate),

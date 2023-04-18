@@ -1,6 +1,7 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 
 import type {
   ApprovalNeededOutput,
@@ -24,7 +25,10 @@ export class TestSwapper implements Swapper<ChainId> {
 
   // noop for test
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  async initialize() {}
+  async initialize() {
+    const res = await Promise.resolve(undefined)
+    return Ok(res)
+  }
 
   getType() {
     return SwapperType.Test

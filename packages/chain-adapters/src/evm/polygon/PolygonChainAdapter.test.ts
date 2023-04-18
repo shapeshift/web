@@ -39,7 +39,7 @@ const getWallet = async (): Promise<ETHWallet> => {
 
 const gasPrice = '42'
 const gasLimit = '42000'
-const contractAddress = '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d'
+const contractAddress = '0xcdb8edee795ef990b6e1715a9e4569b375716bc61d7ea1bff224a4d174e9d14c'
 const value = 400
 
 const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress: string }) =>

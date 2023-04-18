@@ -185,7 +185,7 @@ describe('parseTx', () => {
             type: TransferType.Send,
             from: address,
             to: '0xA1f55aC63e174fAbaF93e6b2854Da6D85C9FDC50',
-            assetId: 'eip155:137/erc20:0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0',
+            assetId: 'eip155:137/erc20:0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0',
             totalValue: '19908484999999999942',
             components: [{ value: '19908484999999999942' }],
             token: maticToken,

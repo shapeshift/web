@@ -19,6 +19,7 @@ const makeWethMockCoingeckoResponse = () => ({
     'optimistic-ethereum': '0x4200000000000000000000000000000000000006',
     avalanche: '0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
     'binance-smart-chain': '0x2170ed0880ac9a755fd29b2688956bd959f933f8',
+    'polygon-pos': '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   },
 })
 
@@ -58,6 +59,13 @@ const makeOsmosisMockCoingeckoResponse = () => ({
   id: 'osmosis',
   symbol: 'osmo',
   name: 'osmosis',
+  platforms: {},
+})
+
+const makePolygonMockCoingeckoResponse = () => ({
+  id: 'polygon-pos',
+  symbol: 'matic',
+  name: 'Polygon',
   platforms: {},
 })
 
@@ -108,6 +116,7 @@ describe('adapters:coingecko:utils', () => {
         makeOsmosisMockCoingeckoResponse(),
         makeThorchainMockCoingeckoResponse(),
         makeAvalancheMockCoingeckoResponse(),
+        makePolygonMockCoingeckoResponse()
       ])
       const expected = {
         'bip122:000000000019d6689c085ae165831e93': {
@@ -147,6 +156,10 @@ describe('adapters:coingecko:utils', () => {
         'eip155:10': {
           'eip155:10/slip44:60': 'ethereum',
           'eip155:10/erc20:0x4200000000000000000000000000000000000006': 'weth',
+        },
+        "eip155:137": {
+          "eip155:137/slip44:60": "matic-network",
+          'eip155:137/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': 'weth',
         },
       }
       expect(result).toEqual(expected)

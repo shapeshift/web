@@ -20,7 +20,7 @@ import {
   toAccountId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
-import { HDWallet, supportsPolygon } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsAvalanche,
   supportsBSC,
@@ -29,6 +29,7 @@ import {
   supportsETH,
   supportsOptimism,
   supportsThorchain,
+  supportsPolygon
 } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'

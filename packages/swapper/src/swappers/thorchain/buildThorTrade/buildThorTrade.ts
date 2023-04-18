@@ -86,15 +86,12 @@ export const buildTrade = async ({
         buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
       })
 
-      if (maybeEthTradeTx.isErr()) return Err(maybeEthTradeTx.unwrapErr())
-      const ethTradeTx = maybeEthTradeTx.unwrap()
-
-      return Ok({
+      return maybeEthTradeTx.map(ethTradeTx => ({
         chainId: sellAsset.chainId as ThorEvmSupportedChainId,
         ...quote,
         receiveAddress: destinationAddress,
         txData: ethTradeTx.txToSign,
-      })
+      }))
     } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
       const maybethorTxInfo = await getThorTxInfo({
         deps,

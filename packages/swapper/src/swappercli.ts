@@ -224,8 +224,12 @@ const main = async (): Promise<void> => {
         maybeTrade.match<void | Promise<void>>({
           ok: async trade => {
             const tradeResult = await swapper.executeTrade({ trade, wallet })
-            if (tradeResult.isErr()) return console.error(tradeResult.unwrapErr())
-            return console.info('broadcast tx with id: ', tradeResult.unwrap().tradeId)
+            return tradeResult.match({
+              ok: tradeResult => console.info('broadcast tx with id: ', tradeResult.tradeId),
+              err: e => {
+                console.error(e)
+              },
+            })
           },
           err: e => {
             console.error(e)

@@ -8,7 +8,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import type { SwapErrorRight, TradeQuote } from '../../../api'
-import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../api'
+import { makeSwapErrorRight, SwapErrorType } from '../../../api'
 import type { ThorCosmosSdkSupportedChainId } from '../ThorchainSwapper'
 import type { ThorchainSwapperDeps } from '../types'
 import { getInboundAddressDataForChain } from '../utils/getInboundAddressDataForChain'
@@ -49,11 +49,13 @@ export const getCosmosTxData = async (
   const vault = gaiaAddressData?.address
 
   if (!vault && !fromThorAsset)
-    throw new SwapError('[buildTrade]: no vault for chain', {
-      code: SwapErrorType.BUILD_TRADE_FAILED,
-      fn: 'buildTrade',
-      details: { chainId: input.chainId },
-    })
+    return Err(
+      makeSwapErrorRight({
+        message: '[buildTrade]: no vault for chain',
+        code: SwapErrorType.BUILD_TRADE_FAILED,
+        details: { chainId: input.chainId },
+      }),
+    )
 
   const maybeLimit = await getLimit({
     buyAssetId: buyAsset.assetId,

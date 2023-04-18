@@ -1,10 +1,10 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
-import { Err, Ok } from '@sniptt/monads'
+import { Err } from '@sniptt/monads'
 
 import type { SwapErrorRight } from '../../../../api'
-import { SwapError, SwapErrorType } from '../../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../../api'
 import type { ThorchainSwapperDeps } from '../../types'
 import { getInboundAddressDataForChain } from '../../utils/getInboundAddressDataForChain'
 import { getLimit } from '../../utils/getLimit/getLimit'
@@ -49,11 +49,13 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
     const router = inboundAddress?.router
     const vault = inboundAddress?.address
     if (!inboundAddress || !router || !vault)
-      // TODO(gomes): handle monadically
-      throw new SwapError(`[getPriceRatio]: inboundAddress not found for ETH`, {
-        code: SwapErrorType.RESPONSE_ERROR,
-        details: { inboundAddress },
-      })
+      return Err(
+        makeSwapErrorRight({
+          message: `[getPriceRatio]: inboundAddress not found for ETH`,
+          code: SwapErrorType.RESPONSE_ERROR,
+          details: { inboundAddress },
+        }),
+      )
 
     const maybeLimit = await getLimit({
       buyAssetId: buyAsset.assetId,
@@ -65,27 +67,38 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
       receiveAddress: destinationAddress,
     })
 
-    if (maybeLimit.isErr()) return Err(maybeLimit.unwrapErr())
-    const limit = maybeLimit.unwrap()
+    return maybeLimit.map(limit => {
+      const memo = makeSwapMemo({
+        buyAssetId: buyAsset.assetId,
+        destinationAddress,
+        limit,
+      })
 
-    const memo = makeSwapMemo({
-      buyAssetId: buyAsset.assetId,
-      destinationAddress,
-      limit,
+      const data = deposit(
+        router,
+        vault,
+        isErc20Trade ? assetReference : '0x0000000000000000000000000000000000000000',
+        sellAmountCryptoBaseUnit,
+        memo,
+      )
+
+      return { data, router }
     })
-
-    const data = deposit(
-      router,
-      vault,
-      isErc20Trade ? assetReference : '0x0000000000000000000000000000000000000000',
-      sellAmountCryptoBaseUnit,
-      memo,
-    )
-
-    return Ok({ data, router })
   } catch (e) {
-    // TODO(gomes): handle monadically
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[getThorTxInfo]', { cause: e, code: SwapErrorType.TRADE_QUOTE_FAILED })
+    if (e instanceof SwapError)
+      return Err(
+        makeSwapErrorRight({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
+    return Err(
+      makeSwapErrorRight({
+        message: '[getThorTxInfo]',
+        cause: e,
+        code: SwapErrorType.TRADE_QUOTE_FAILED,
+      }),
+    )
   }
 }

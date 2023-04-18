@@ -1,6 +1,6 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { Result } from '@sniptt/monads'
-import { Err, Ok } from '@sniptt/monads'
+import { Err } from '@sniptt/monads'
 
 import type { SwapErrorRight } from '../../../../api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../../api'
@@ -65,19 +65,18 @@ export const getThorTxInfo: GetThorTxInfo = async ({
       receiveAddress: destinationAddress,
     })
 
-    if (maybeLimit.isErr()) return Err(maybeLimit.unwrapErr())
-    const limit = maybeLimit.unwrap()
+    return maybeLimit.map(limit => {
+      const memo = makeSwapMemo({
+        buyAssetId: buyAsset.assetId,
+        destinationAddress,
+        limit,
+      })
 
-    const memo = makeSwapMemo({
-      buyAssetId: buyAsset.assetId,
-      destinationAddress,
-      limit,
-    })
-
-    return Ok({
-      opReturnData: memo,
-      vault,
-      pubkey: xpub,
+      return {
+        opReturnData: memo,
+        vault,
+        pubkey: xpub,
+      }
     })
   } catch (e) {
     if (e instanceof SwapError)

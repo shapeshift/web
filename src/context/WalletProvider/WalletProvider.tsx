@@ -85,7 +85,7 @@ const initialDeviceState: DeviceState = {
   isUpdatingPin: false,
   isDeviceLoading: false,
 }
-export type MetaMaskLikeProvider = providers.Web3Provider & { isTally?: boolean }
+export type MetaMaskLikeProvider = providers.Web3Provider
 
 // A subset of wallets which have an EIP-1193-like provider
 export type KeyManagerWithProvider =
@@ -464,13 +464,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             case KeyManager.MetaMask:
-              //Handle refresh bug - when a user changes TallyHo to default, is connected to MM and refreshs the page
-              if (
-                localWalletType === 'metamask' &&
-                (window?.ethereum as MetaMaskLikeProvider)?.isTally
-              )
-                disconnect()
-
               const localMetaMaskWallet = await state.adapters
                 .get(KeyManager.MetaMask)?.[0]
                 ?.pairDevice()

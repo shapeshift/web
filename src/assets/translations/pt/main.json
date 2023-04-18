@@ -1192,8 +1192,7 @@
       "errors": {
         "unknown": "Ocorreu um erro inesperado na comunicação com sua carteira MetaMask",
         "connectFailure": "Não foi possível conectar a carteira MetaMask",
-        "multipleWallets": "Encontramos a rede Ethereum Mainnet, mas não em sua MetaMask. Você possui múltiplas carteiras instaladas?",
-        "tallyInstalledAndSetToDefault": "Detectamos que você tem a Tally Ho instalado e definida como Padrão. Se você preferir usar a MetaMask, altere as configurações em Tally Ho e atualize a página."
+        "multipleWallets": "Encontramos a rede Ethereum Mainnet, mas não em sua MetaMask. Você possui múltiplas carteiras instaladas?"
       },
       "connect": {
         "header": "Emparelhar MetaMask",
@@ -1208,44 +1207,6 @@
         "header": "Conecte sua carteira MetaMask",
         "body": "Clique para autenticar a plataforma ShapeShift em sua carteira MetaMask",
         "button": "Abrir"
-      }
-    },
-    "tallyHo": {
-      "errors": {
-        "unknown": "Ocorreu um erro inesperado na comunicação com Tally Ho",
-        "connectFailure": "Não foi possível conectar a carteira Tally Ho",
-        "network": "Tally Ho não está definida para Ethereum Mainnet",
-        "multipleWallets": "O provedor de Ethereum detectado não é Tally Ho. Você possui várias carteiras instaladas?",
-        "tallyNotInstalledOrSetToDefault": "Detectamos que a Tally Ho não está instalada ou não está definida como padrão. Se você deseja usar a Tally Ho, instale-a ou defina-a como sua carteira padrão e atualize a página."
-      },
-      "connect": {
-        "header": "Emparelhar Tally",
-        "body": "Clique em Emparelhar e faça login em Tally Ho na janela pop-up",
-        "button": "Emparelhar\n"
-      },
-      "failure": {
-        "header": "Erro",
-        "body": "Não foi possível conectar a carteira Tally Ho"
-      },
-      "redirect": {
-        "header": "Abrir no aplicativo Tally Ho",
-        "body": "Clique para abrir o painel ShapeShift em Tally Ho",
-        "button": "Abrir"
-      }
-    },
-    "portis": {
-      "errors": {
-        "unknown": "Ocorreu um erro inesperado na comunicação com a Portis",
-        "connectFailure": "Não foi possível conectar sua carteira Portis"
-      },
-      "connect": {
-        "header": "Emparelhar Portis",
-        "body": "Clique em Emparelhar e conecte sua carteira Portis na janela pop-up",
-        "button": "Emparelhar"
-      },
-      "failure": {
-        "header": "Erro",
-        "body": "Não foi possível conectar sua carteira Portis"
       }
     },
     "walletConnect": {

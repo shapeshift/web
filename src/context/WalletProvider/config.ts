@@ -53,13 +53,7 @@ import { NativeStart } from './NativeWallet/components/NativeStart'
 import { NativeSuccess } from './NativeWallet/components/NativeSuccess'
 import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase'
 import { NativeConfig } from './NativeWallet/config'
-import { PortisConnect } from './Portis/components/Connect'
-import { PortisFailure } from './Portis/components/Failure'
-import { PortisConfig } from './Portis/config'
 import { KeepKeyRoutes } from './routes'
-import { TallyHoConnect } from './TallyHo/components/Connect'
-import { TallyHoFailure } from './TallyHo/components/Failure'
-import { TallyHoConfig } from './TallyHo/config'
 import { WalletConnectConnect } from './WalletConnect/components/Connect'
 import { WalletConnectFailure } from './WalletConnect/components/Failure'
 import { WalletConnectConfig } from './WalletConnect/config'
@@ -144,20 +138,6 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     routes: [
       { path: '/metamask/connect', component: MetaMaskConnect },
       { path: '/metamask/failure', component: MetaMaskFailure },
-    ],
-  },
-  [KeyManager.Portis]: {
-    ...PortisConfig,
-    routes: [
-      { path: '/portis/connect', component: PortisConnect },
-      { path: '/portis/failure', component: PortisFailure },
-    ],
-  },
-  [KeyManager.TallyHo]: {
-    ...TallyHoConfig,
-    routes: [
-      { path: '/tallyho/connect', component: TallyHoConnect },
-      { path: '/tallyho/failure', component: TallyHoFailure },
     ],
   },
   [KeyManager.XDefi]: {

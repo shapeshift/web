@@ -42,7 +42,7 @@ export const SelectModal = () => {
             // So not all of the supported wallets will have an initialized adapter
             wallets.map(walletType => {
               const option = SUPPORTED_WALLETS[walletType]
-              // some wallets (e.g. tally ho, keepkey etc) do not exist on mobile
+              // some wallets (e.g. keepkey) do not exist on mobile
 
               const isSupported = (() => {
                 if (isMobileApp) {

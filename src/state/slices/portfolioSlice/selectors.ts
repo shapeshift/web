@@ -59,7 +59,6 @@ import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioFiatBalances,
   selectWalletAccountIds,
   selectWalletId,

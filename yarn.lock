@@ -6125,17 +6125,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-tallyho@npm:^1.46.2":
-  version: 1.46.2
-  resolution: "@shapeshiftoss/hdwallet-tallyho@npm:1.46.2"
-  dependencies:
-    "@shapeshiftoss/hdwallet-core": 1.46.2
-    lodash: ^4.17.21
-    tallyho-onboarding: ^1.0.2
-  checksum: 4f1519fbcac9b4fec41bd12060fff69fc7e3b8ad9b7fd773d569637df6c188c481c2fb444aec33546c2aa487e591301924deea3b3faf9e942ec50e298a2855ef
-  languageName: node
-  linkType: hard
-
 "@shapeshiftoss/hdwallet-walletconnect@npm:^1.46.2":
   version: 1.46.2
   resolution: "@shapeshiftoss/hdwallet-walletconnect@npm:1.46.2"
@@ -6339,7 +6328,6 @@ __metadata:
     "@shapeshiftoss/hdwallet-metamask": ^1.46.2
     "@shapeshiftoss/hdwallet-native": ^1.46.2
     "@shapeshiftoss/hdwallet-native-vault": ^1.46.2
-    "@shapeshiftoss/hdwallet-tallyho": ^1.46.2
     "@shapeshiftoss/hdwallet-walletconnect": ^1.46.2
     "@shapeshiftoss/hdwallet-xdefi": ^1.46.2
     "@shapeshiftoss/investor-foxy": "workspace:^"
@@ -26655,15 +26643,6 @@ pvutils@latest:
     tailwind: lib/cli.js
     tailwindcss: lib/cli.js
   checksum: 2e7fdd11561e619770f656821c4b6850fdef633777c1f56fc815e566fc3fe6ec707df0966e90764ef9f452be0d0ee54daa0541002918eada590def3788a30f08
-  languageName: node
-  linkType: hard
-
-"tallyho-onboarding@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "tallyho-onboarding@npm:1.0.2"
-  dependencies:
-    bowser: ^2.9.0
-  checksum: 53f4a120ff896c198ec8e6747e6032fa3e73ee3e80c102a00f0305ca80258827f1682f97a5497bff50257001dbcaa8b538393bf0d0cc350389452e7b465df351
   languageName: node
   linkType: hard
 

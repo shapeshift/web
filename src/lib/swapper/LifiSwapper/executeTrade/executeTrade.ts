@@ -4,6 +4,10 @@ import type { BuildSendTxInput, EvmChainId } from '@shapeshiftoss/chain-adapters
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { TradeResult } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
+import type { SwapErrorRight } from '@shapeshiftoss/swapper/src'
+import { makeSwapErrorRight } from '@shapeshiftoss/swapper/src'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type { providers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
@@ -15,7 +19,7 @@ const createBuildSendTxInput = async (
   wallet: HDWallet,
   accountNumber: number,
   selectedLifiRoute: Route,
-): Promise<BuildSendTxInput<EvmChainId>> => {
+): Promise<Result<BuildSendTxInput<EvmChainId>, SwapErrorRight>> => {
   // the 0th step is used because its the first in the route, and this must be signed by the owner
   const startStep = selectedLifiRoute.steps[0]
 
@@ -39,13 +43,16 @@ const createBuildSendTxInput = async (
     gasLimit === undefined ||
     data === undefined
   ) {
-    throw new SwapError('[createBuildSendTxInput] - incomplete or undefined transaction request', {
-      code: SwapErrorType.EXECUTE_TRADE_FAILED,
-      details: { transactionRequest },
-    })
+    return Err(
+      makeSwapErrorRight({
+        message: '[createBuildSendTxInput] - incomplete or undefined transaction request',
+        code: SwapErrorType.EXECUTE_TRADE_FAILED,
+        details: { transactionRequest },
+      }),
+    )
   }
 
-  return {
+  return Ok({
     value: value.toString(),
     wallet,
     to,
@@ -57,16 +64,21 @@ const createBuildSendTxInput = async (
     },
     accountNumber,
     memo: data.toString(),
-  }
+  })
 }
 
 export const executeTrade = async ({
   trade,
   wallet,
-}: LifiExecuteTradeInput): Promise<{
-  tradeResult: TradeResult
-  getStatusRequest: GetStatusRequest
-}> => {
+}: LifiExecuteTradeInput): Promise<
+  Result<
+    {
+      tradeResult: TradeResult
+      getStatusRequest: GetStatusRequest
+    },
+    SwapErrorRight
+  >
+> => {
   try {
     const lifi = getLifi()
 
@@ -106,15 +118,17 @@ export const executeTrade = async ({
       selectedLifiRoute,
     )
 
-    const { txToSign } = await adapter.buildSendTransaction(buildSendTxInput)
+    if (buildSendTxInput.isErr()) return Err(buildSendTxInput.unwrapErr())
 
-    const txHash = await (async () => {
+    const { txToSign } = await adapter.buildSendTransaction(buildSendTxInput.unwrap())
+
+    const maybeTxHash: Result<string, SwapErrorRight> = await (async () => {
       if (wallet.supportsOfflineSigning()) {
         const signedTx = await adapter.signTransaction({ txToSign, wallet })
 
         const txid = await adapter.broadcastTransaction(signedTx)
 
-        return txid
+        return Ok(txid)
       }
 
       if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
@@ -123,27 +137,42 @@ export const executeTrade = async ({
           wallet,
         })
 
-        return txid
+        return Ok(txid)
       }
 
-      throw new SwapError('[executeTrade] - sign and broadcast failed', {
-        code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
-      })
+      return Err(
+        makeSwapErrorRight({
+          message: '[executeTrade] - sign and broadcast failed',
+          code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
+        }),
+      )
     })()
 
-    const getStatusRequest: GetStatusRequest = {
-      txHash,
-      bridge: selectedLifiRoute.steps[0].tool,
-      fromChain: selectedLifiRoute.fromChainId,
-      toChain: selectedLifiRoute.toChainId,
-    }
+    return maybeTxHash.map(txHash => {
+      const getStatusRequest: GetStatusRequest = {
+        txHash,
+        bridge: selectedLifiRoute.steps[0].tool,
+        fromChain: selectedLifiRoute.fromChainId,
+        toChain: selectedLifiRoute.toChainId,
+      }
 
-    return { tradeResult: { tradeId: txHash }, getStatusRequest }
-  } catch (e) {
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[executeTrade]', {
-      cause: e,
-      code: SwapErrorType.EXECUTE_TRADE_FAILED,
+      return { tradeResult: { tradeId: txHash }, getStatusRequest }
     })
+  } catch (e) {
+    if (e instanceof SwapError)
+      return Err(
+        makeSwapErrorRight({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
+    return Err(
+      makeSwapErrorRight({
+        message: '[executeTrade]',
+        cause: e,
+        code: SwapErrorType.EXECUTE_TRADE_FAILED,
+      }),
+    )
   }
 }

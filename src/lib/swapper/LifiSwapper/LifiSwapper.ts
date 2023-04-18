@@ -125,11 +125,13 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Execute a trade built with buildTrade by signing and broadcasting
    */
   async executeTrade(input: LifiExecuteTradeInput): Promise<Result<TradeResult, SwapErrorRight>> {
-    const { tradeResult, getStatusRequest } = await executeTrade(input)
-    this.executedTrades.set(tradeResult.tradeId, getStatusRequest)
-    // TODO(gomes): is this actually ok? Should we return a Result monad as well
-    // in ./executeTrade/executeTrade ?
-    return Ok(tradeResult)
+    const maybeExecutedTrade = await executeTrade(input)
+
+    return maybeExecutedTrade.map(executedTrade => {
+      const { tradeResult, getStatusRequest } = executedTrade
+      this.executedTrades.set(tradeResult.tradeId, getStatusRequest)
+      return tradeResult
+    })
   }
 
   /**

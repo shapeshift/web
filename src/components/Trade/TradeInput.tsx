@@ -499,7 +499,7 @@ export const TradeInput = () => {
   )
 
   const handleBuyAssetClick = useCallback(
-    (asset: Asset) => handleAssetClick(asset, AssetClickAction.Sell),
+    (asset: Asset) => handleAssetClick(asset, AssetClickAction.Buy),
     [handleAssetClick],
   )
 

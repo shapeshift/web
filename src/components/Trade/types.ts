@@ -58,6 +58,7 @@ export type BuildTradeInputCommonArgs = Pick<
   | 'receiveAddress'
   | 'wallet'
   | 'slippage'
+  | 'affiliateBps'
 >
 
 export type GetFormFeesArgs = {

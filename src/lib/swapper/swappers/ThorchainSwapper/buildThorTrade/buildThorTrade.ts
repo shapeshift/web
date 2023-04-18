@@ -46,6 +46,7 @@ export const buildTrade = async ({
       slippage: slippageTolerance = DEFAULT_SLIPPAGE,
       wallet,
       sendMax,
+      affiliateBps,
     } = input
 
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
@@ -78,7 +79,7 @@ export const buildTrade = async ({
         destinationAddress,
         feeData: quote.feeData as QuoteFeeData<ThorEvmSupportedChainId>,
         deps,
-        affiliateBps: '0', // FIXME
+        affiliateBps: affiliateBps ?? '0',
       })
 
       return maybeEthTradeTx.map(ethTradeTx => ({
@@ -97,7 +98,7 @@ export const buildTrade = async ({
         destinationAddress,
         xpub: (input as GetUtxoTradeQuoteInput).xpub,
         buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
-        affiliateBps: '0', // FIXME
+        affiliateBps: affiliateBps ?? '0',
       })
 
       if (maybethorTxInfo.isErr()) return Err(maybethorTxInfo.unwrapErr())

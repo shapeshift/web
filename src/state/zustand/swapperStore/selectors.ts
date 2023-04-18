@@ -135,6 +135,7 @@ export const selectGetTradeForWallet = (
     sellAccountMetadata,
     sellAccountBip44Params,
     buyAccountBip44Params,
+    affiliateBps,
   }: SelectGetTradeForWalletArgs): SelectGetTradeForWalletReturn => {
     const activeSwapper = state.activeSwapperWithMetadata?.swapper
     const activeQuote = state.activeSwapperWithMetadata?.quote
@@ -163,6 +164,7 @@ export const selectGetTradeForWallet = (
       sendMax: state.isSendMax,
       receiveAddress,
       slippage: selectSlippage(state),
+      affiliateBps,
     }
 
     if (isUtxoSwap(sellAsset.chainId)) {

@@ -1192,8 +1192,7 @@
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec MetaMask",
         "connectFailure": "Impossible de se connecter au porte-monnaie MetaMask",
-        "multipleWallets": "Le fournisseur Ethereum détecté n'est pas MetaMask. Avez-vous plusieurs porte-monnaie installés ?",
-        "tallyInstalledAndSetToDefault": "Nous avons détecté que vous avez installé Tally Ho et qu'il est défini par défaut. Si vous préférez utiliser MetaMask à la place, veuillez modifier les paramètres dans Tally Ho et actualiser la page."
+        "multipleWallets": "Le fournisseur Ethereum détecté n'est pas MetaMask. Avez-vous plusieurs porte-monnaie installés ?"
       },
       "connect": {
         "header": "Appairer MetaMask",
@@ -1207,29 +1206,6 @@
       "redirect": {
         "header": "Ouvrir dans l'app MetaMask",
         "body": "Cliquez pour ouvrir le tableau de bord de ShapeShift dans MetaMask",
-        "button": "Ouvrir"
-      }
-    },
-    "tallyHo": {
-      "errors": {
-        "unknown": "Une erreur inattendue s'est produite lors de la communication avec Tally Ho",
-        "connectFailure": "Impossible de connecter le porte-monnaie Tally Ho",
-        "network": "Tally Ho n'est pas réglé sur Ethereum Mainnet",
-        "multipleWallets": "Le fournisseur Ethereum détecté n'est pas Tally Ho. Avez-vous plusieurs porte-monnaie installés ?",
-        "tallyNotInstalledOrSetToDefault": "Nous avons détecté que Tally Ho n'est pas installé ou n'est pas défini par défaut. Si vous souhaitez utiliser Tally Ho, veuillez l'installer ou le définir comme votre porte-monnaie par défaut et actualiser la page."
-      },
-      "connect": {
-        "header": "Appairer Tally",
-        "body": "Cliquez sur Appairer et connectez-vous à Tally Ho à partir de la fenêtre popup",
-        "button": "Appairer"
-      },
-      "failure": {
-        "header": "Erreur",
-        "body": "Impossible de connecter le porte-monnaie Tally Ho"
-      },
-      "redirect": {
-        "header": "Ouvrir dans l'app Tally Ho",
-        "body": "Cliquez pour ouvrir le tableau de bord de ShapeShift dans Tally Ho.",
         "button": "Ouvrir"
       }
     },

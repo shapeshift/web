@@ -1192,8 +1192,7 @@
       "errors": {
         "unknown": "Ocurrió un error inesperado al comunicarse con MetaMask",
         "connectFailure": "No se puede conectar la billetera MetaMask",
-        "multipleWallets": "El proveedor de Ethereum detectado no es MetaMask. ¿Tienes varias carteras instaladas?",
-        "tallyInstalledAndSetToDefault": "Hemos detectado que tiene Tally Ho instalado y configurado como Predeterminado. Si prefiere usar MetaMask en su lugar, cambie la configuración en Tally Ho y actualice la página."
+        "multipleWallets": "El proveedor de Ethereum detectado no es MetaMask. ¿Tienes varias carteras instaladas?"
       },
       "connect": {
         "header": "Emparejar MetaMask",
@@ -1207,29 +1206,6 @@
       "redirect": {
         "header": "Abrir en la aplicación MetaMask",
         "body": "Haga clic para abrir el panel de ShapeShift en MetaMask",
-        "button": "Abrir"
-      }
-    },
-    "tallyHo": {
-      "errors": {
-        "unknown": "Ocurrió un error inesperado al comunicarse con Tally Ho",
-        "connectFailure": "No se puede conectar la Billetera Tally Ho",
-        "network": "Tally Ho no está configurado para Ethereum Mainnet",
-        "multipleWallets": "El proveedor de Ethereum detectado no es Tally Ho. ¿Tienes varias carteras instaladas?",
-        "tallyNotInstalledOrSetToDefault": "Hemos detectado que Tally Ho no está instalado o no está configurado como predeterminado. Si desea utilizar Tally Ho, instálelo o configúrelo como su billetera predeterminada y actualice la página."
-      },
-      "connect": {
-        "header": "Emparejar Tally",
-        "body": "Haga clic en Emparejar e inicie sesión en Tally Ho desde la ventana emergente",
-        "button": "Emparejar"
-      },
-      "failure": {
-        "header": "Error",
-        "body": "No se puede conectar la billetera Tally Ho"
-      },
-      "redirect": {
-        "header": "Abrir en la aplicación Tally Ho",
-        "body": "Haga clic para abrir el panel ShapeShift en Tally Ho",
         "button": "Abrir"
       }
     },

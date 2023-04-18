@@ -1,12 +1,11 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { IconButton, ModalBody, ModalCloseButton, ModalHeader, Stack } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { SlideTransition } from 'components/SlideTransition'
 import { selectSortedAssets } from 'state/slices/selectors'
-
-export type Asset = {}
 
 type SelectAssetsProps = {
   onClick(asset: Asset): void

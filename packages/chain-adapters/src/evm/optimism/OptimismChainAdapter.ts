@@ -84,19 +84,19 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.OptimismMainnet> 
       fast: {
         txFee: bnOrZero(
           bn(fast.gasPrice).times(gasLimit).plus(bn(l1GasPrice).times(l1GasLimit)),
-        ).toPrecision(),
+        ).toFixed(0),
         chainSpecific: { gasLimit, ...fast },
       },
       average: {
         txFee: bnOrZero(
           bn(average.gasPrice).times(gasLimit).plus(bn(l1GasPrice).times(l1GasLimit)),
-        ).toPrecision(),
+        ).toFixed(0),
         chainSpecific: { gasLimit, ...average },
       },
       slow: {
         txFee: bnOrZero(
           bn(slow.gasPrice).times(gasLimit).plus(bn(l1GasPrice).times(l1GasLimit)),
-        ).toPrecision(),
+        ).toFixed(0),
         chainSpecific: { gasLimit, ...slow },
       },
     }

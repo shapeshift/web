@@ -16,6 +16,7 @@ import { bn, bnOrZero, calcFee } from '../../utils'
 import type { ChainAdapterArgs } from '../EvmBaseAdapter'
 import { EvmBaseAdapter } from '../EvmBaseAdapter'
 import type { GasFeeDataEstimate } from '../types'
+import { getEip1559GasPrice, getTxFee } from '../utils'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.EthereumMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.EthereumMainnet
@@ -114,18 +115,19 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
 
     const { gasLimit } = await this.api.estimateGas(req)
     const { fast, average, slow } = await this.getGasFeeData()
+    const eip1559GasPrice = getEip1559GasPrice({ fast, average, slow })
 
     return {
       fast: {
-        txFee: bnOrZero(bn(fast.gasPrice).times(gasLimit)).toPrecision(),
+        txFee: getTxFee(gasLimit, fast.gasPrice, eip1559GasPrice.fast),
         chainSpecific: { gasLimit, ...fast },
       },
       average: {
-        txFee: bnOrZero(bn(average.gasPrice).times(gasLimit)).toPrecision(),
+        txFee: getTxFee(gasLimit, average.gasPrice, eip1559GasPrice.average),
         chainSpecific: { gasLimit, ...average },
       },
       slow: {
-        txFee: bnOrZero(bn(slow.gasPrice).times(gasLimit)).toPrecision(),
+        txFee: getTxFee(gasLimit, slow.gasPrice, eip1559GasPrice.slow),
         chainSpecific: { gasLimit, ...slow },
       },
     }

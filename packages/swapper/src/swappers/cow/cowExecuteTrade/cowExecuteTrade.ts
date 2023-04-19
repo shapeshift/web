@@ -3,11 +3,13 @@ import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { ethers } from 'ethers'
 
-import type { ExecuteTradeInput, TradeResult } from '../../../api'
-import { SwapError, SwapErrorType } from '../../../api'
+import type { ExecuteTradeInput, SwapErrorRight, TradeResult } from '../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../api'
 import type { CowSwapperDeps } from '../CowSwapper'
 import type { CowTrade } from '../types'
 import {
@@ -25,7 +27,7 @@ import { domain, getNowPlusThirtyMinutesTimestamp, hashOrder } from '../utils/he
 export async function cowExecuteTrade(
   { apiUrl, adapter }: CowSwapperDeps,
   { trade, wallet }: ExecuteTradeInput<KnownChainIds.EthereumMainnet>,
-): Promise<TradeResult> {
+): Promise<Result<TradeResult, SwapErrorRight>> {
   const cowTrade = trade as CowTrade<KnownChainIds.EthereumMainnet>
   const {
     sellAsset,
@@ -125,12 +127,22 @@ export async function cowExecuteTrade(
       },
     )
 
-    return { tradeId: ordersResponse.data }
+    return Ok({ tradeId: ordersResponse.data })
   } catch (e) {
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[cowExecuteTrade]', {
-      cause: e,
-      code: SwapErrorType.EXECUTE_TRADE_FAILED,
-    })
+    if (e instanceof SwapError)
+      return Err(
+        makeSwapErrorRight({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
+    return Err(
+      makeSwapErrorRight({
+        message: '[cowExecuteTrade]',
+        cause: e,
+        code: SwapErrorType.EXECUTE_TRADE_FAILED,
+      }),
+    )
   }
 }

@@ -9,11 +9,11 @@ import { TradeRoutePaths } from './types'
 import { WithBackButton } from './WithBackButton'
 
 type SelectAssetProps = {
+  assets: Asset[]
   onClick: (asset: Asset) => void
-  filterBy: (assets: Asset[]) => Asset[] | undefined
 } & RouteComponentProps
 
-export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history, filterBy }) => {
+export const SelectAsset: React.FC<SelectAssetProps> = ({ assets, onClick, history }) => {
   const handleBack = () => {
     history.push(TradeRoutePaths.Input)
   }
@@ -29,7 +29,7 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history, filt
           </WithBackButton>
         </Card.Header>
         <Card.Body p={0} height='400px' display='flex' flexDir='column'>
-          <AssetSearch onClick={onClick} filterBy={filterBy} />
+          <AssetSearch assets={assets} onClick={onClick} />
         </Card.Body>
       </Card>
     </SlideTransition>

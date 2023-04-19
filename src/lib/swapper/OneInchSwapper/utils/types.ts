@@ -1,16 +1,19 @@
-
 export type OneInchQuoteApiInput = {
-    fromTokenAddress: string
-    toTokenAddress: string
-    amount: string
+  fromTokenAddress: string
+  toTokenAddress: string
+  amount: string
+}
+
+export type OneInchSpenderResponse = {
+  address: string
 }
 
 export type OneInchTokenResponse = {
-    symbol: string
-    name: string
-    address: string
-    decimals: number
-    logoURI: string
+  symbol: string
+  name: string
+  address: string
+  decimals: number
+  logoURI: string
 }
 
 export type OneInchQuoteResponse = {
@@ -19,8 +22,7 @@ export type OneInchQuoteResponse = {
   toTokenAmount: string
   fromTokenAmount: string
   estimatedGas: string
-}   
-
+}
 
 export type OneInchSwapperDeps = {
   apiUrl: string

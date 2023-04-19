@@ -18,6 +18,8 @@ import { cowBuildTrade } from './cowBuildTrade'
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mock('../utils/cowService')
 jest.mock('../utils/helpers/helpers', () => {
+  const { WETH, ETH, FOX } = require('../../utils/test-data/assets') // Move the import inside the factory function
+
   return {
     ...jest.requireActual('../utils/helpers/helpers'),
     getNowPlusThirtyMinutesTimestamp: () => 1656797787,
@@ -36,6 +38,8 @@ jest.mock('../utils/helpers/helpers', () => {
 })
 
 jest.mock('../../utils/helpers/helpers', () => {
+  const { WBTC } = require('../../utils/test-data/assets') // Move the import inside the factory function
+
   return {
     ...jest.requireActual('../../utils/helpers/helpers'),
     isApprovalRequired: (args: IsApprovalRequiredArgs) => args.sellAsset.assetId === WBTC.assetId,

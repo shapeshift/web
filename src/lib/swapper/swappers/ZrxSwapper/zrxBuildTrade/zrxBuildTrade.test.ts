@@ -4,9 +4,9 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import type { AxiosStatic } from 'axios'
 import Web3 from 'web3'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { BuildTradeInput, QuoteFeeData } from '../../../api'
-import { bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 import type { ZrxTrade } from '../types'
 import { setupZrxTradeQuoteResponse } from '../utils/test-data/setupZrxSwapQuote'
@@ -16,12 +16,14 @@ import { zrxBuildTrade } from './zrxBuildTrade'
 
 jest.mock('web3')
 
-const axios: AxiosStatic = jest.createMockFromModule('axios')
-axios.create = jest.fn(() => axios)
+jest.mock('lib/swapper/swappers/ZrxSwapper/utils/zrxService', () => {
+  const axios: AxiosStatic = jest.createMockFromModule('axios')
+  axios.create = jest.fn(() => axios)
 
-jest.mock('../utils/zrxService', () => ({
-  zrxServiceFactory: () => axios.create(),
-}))
+  return {
+    zrxServiceFactory: () => axios.create(),
+  }
+})
 
 // @ts-ignore
 Web3.mockImplementation(() => ({

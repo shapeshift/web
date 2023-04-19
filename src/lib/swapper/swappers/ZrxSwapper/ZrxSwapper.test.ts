@@ -16,11 +16,11 @@ import { zrxExecuteTrade } from './zrxExecuteTrade/zrxExecuteTrade'
 import { ZrxSwapper } from './ZrxSwapper'
 
 jest.mock('./utils/helpers/helpers')
-jest.mock('../zrx/zrxExecuteTrade/zrxExecuteTrade', () => ({
+jest.mock('lib/swapper/swappers/ZrxSwapper/zrxExecuteTrade/zrxExecuteTrade', () => ({
   zrxExecuteTrade: jest.fn(),
 }))
 
-jest.mock('../zrx/zrxBuildTrade/zrxBuildTrade', () => ({
+jest.mock('lib/swapper/swappers/ZrxSwapper/zrxBuildTrade/zrxBuildTrade', () => ({
   zrxBuildTrade: jest.fn(),
 }))
 

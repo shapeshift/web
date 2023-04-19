@@ -3,20 +3,22 @@ import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { AxiosStatic } from 'axios'
 import type Web3 from 'web3'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
-import { bn, bnOrZero } from '../../utils/bignumber'
 import { normalizeAmount } from '../../utils/helpers/helpers'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { baseUrlFromChainId } from '../utils/helpers/helpers'
 import { zrxServiceFactory } from '../utils/zrxService'
 import { ZrxSwapper } from '../ZrxSwapper'
 
-const axios: AxiosStatic = jest.createMockFromModule('axios')
-axios.create = jest.fn(() => axios)
+jest.mock('lib/swapper/swappers/ZrxSwapper/utils/zrxService', () => {
+  const axios: AxiosStatic = jest.createMockFromModule('axios')
+  axios.create = jest.fn(() => axios)
 
-jest.mock('../utils/zrxService', () => ({
-  zrxServiceFactory: () => axios.create(),
-}))
+  return {
+    zrxServiceFactory: () => axios.create(),
+  }
+})
 
 const zrxService = zrxServiceFactory('https://api.0x.org/')
 

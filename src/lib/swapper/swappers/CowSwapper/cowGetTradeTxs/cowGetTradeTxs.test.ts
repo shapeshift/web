@@ -9,6 +9,10 @@ import { cowGetTradeTxs } from './cowGetTradeTxs'
 jest.mock('../utils/cowService')
 
 describe('cowGetTradeTxs', () => {
+  beforeEach(() => {
+    jest.resetAllMocks()
+  })
+
   it('should call cowService with correct parameters and return an empty string if the order is not fulfilled', async () => {
     const deps: CowSwapperDeps = {
       apiUrl: 'https://api.cow.fi/mainnet/api',

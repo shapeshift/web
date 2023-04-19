@@ -15,6 +15,8 @@ import { getCowSwapTradeQuote } from './getCowSwapTradeQuote'
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mock('../utils/cowService')
 jest.mock('../utils/helpers/helpers', () => {
+  const { WETH, ETH, FOX } = require('../../utils/test-data/assets') // Move the import inside the factory function
+
   return {
     getNowPlusThirtyMinutesTimestamp: () => 1656797787,
     getUsdRate: (_args: CowSwapperDeps, input: Asset) => {
@@ -39,6 +41,8 @@ jest.mock('../../utils/helpers/helpers', () => {
 })
 
 jest.mock('../getCowSwapMinMax/getCowSwapMinMax', () => {
+  const { FOX } = require('../../utils/test-data/assets') // Move the import inside the factory function
+
   return {
     getCowSwapMinMax: (_args: CowSwapperDeps, sellAsset: Asset) => {
       if (sellAsset.assetId === FOX.assetId) {

@@ -1,6 +1,6 @@
 import { btcAssetId, ethAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { bn } from 'lib/bignumber/bignumber'
 
-import { bn } from '../../utils/bignumber'
 import { getSwapOutput } from '../utils/getTradeRate/getTradeRate'
 import {
   btcThornodePool,

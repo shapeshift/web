@@ -1,12 +1,13 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import Web3 from 'web3'
+import { setupDeps } from 'lib/swapper/swappers/utils/test-data/setupDeps'
+import { setupQuote } from 'lib/swapper/swappers/utils/test-data/setupSwapQuote'
 
-import { setupDeps } from '../../utils/test-data/setupDeps'
-import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { cowApproveAmount, cowApproveInfinite } from './cowApprove'
 
 jest.mock('web3')
-jest.mock('../../utils/helpers/helpers', () => ({
+
+jest.mock('lib/swapper/swappers/utils/helpers/helpers', () => ({
   grantAllowance: jest.fn(() => 'grantAllowanceTxId'),
 }))
 

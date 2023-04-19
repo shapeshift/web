@@ -4,12 +4,14 @@ import { FOX, WETH } from '../../../utils/test-data/assets'
 import { zrxServiceFactory } from '../zrxService'
 import { getUsdRate } from './helpers'
 
-const axios: AxiosStatic = jest.createMockFromModule('axios')
-axios.create = jest.fn(() => axios)
+jest.mock('lib/swapper/swappers/ZrxSwapper/utils/zrxService', () => {
+  const axios: AxiosStatic = jest.createMockFromModule('axios')
+  axios.create = jest.fn(() => axios)
 
-jest.mock('../zrxService', () => ({
-  zrxServiceFactory: () => axios.create(),
-}))
+  return {
+    zrxServiceFactory: () => axios.create(),
+  }
+})
 
 const zrxService = zrxServiceFactory('https://api.0x.org/')
 

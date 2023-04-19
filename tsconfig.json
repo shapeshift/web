@@ -33,7 +33,7 @@
     "jsx": "react-jsx",
   },
   "include": ["src/**/*", "src/**/*.json", "packages/**/*", "packages/**/*.json", "cypress/**/*"],
-  "exclude": ["dist", "node_modules", "**/*.test.ts", "**/*.spec.ts", "**/__mocks__", "**/*.js"],
+  "exclude": ["dist", "node_modules", "**/__mocks__", "**/*.js"],
   "references": [
     { "path": "./packages/asset-service" },
     { "path": "./packages/caip" },

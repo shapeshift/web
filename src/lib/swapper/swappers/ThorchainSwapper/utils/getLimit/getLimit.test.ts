@@ -36,6 +36,10 @@ const thorchainSwapperDeps: ThorchainSwapperDeps = {
 }
 
 describe('getLimit', () => {
+  beforeEach(() => {
+    jest.resetAllMocks()
+  })
+
   it('should get limit when sell asset is EVM fee asset and buy asset is a UTXO', async () => {
     ;(getUsdRate as jest.Mock<unknown>)
       .mockReturnValueOnce(Promise.resolve('1595')) // sellFeeAssetUsdRate (ETH)

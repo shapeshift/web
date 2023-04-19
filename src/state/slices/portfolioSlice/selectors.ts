@@ -72,8 +72,8 @@ import type {
   AccountMetadata,
   AccountMetadataById,
   AssetBalancesById,
-  AssetEquity,
   AssetEquityBalance,
+  AssetEquityItem,
   PortfolioAccountBalancesById,
   PortfolioAccounts,
 } from './portfolioSliceCommon'
@@ -802,7 +802,7 @@ export const selectAccountIdByAccountNumberAndChainId = createSelector(
   },
 )
 
-export const selectEquitiesFromFilter = createDeepEqualOutputSelector(
+export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
   selectAccountIdsByAssetIdAboveBalanceThresholdByFilter,
   selectPortfolioFiatBalancesByAccountId,
   selectPortfolioAccountBalancesBaseUnit,
@@ -818,7 +818,7 @@ export const selectEquitiesFromFilter = createDeepEqualOutputSelector(
     stakingOpportunities,
     assets,
     assetId,
-  ): AssetEquity[] => {
+  ): AssetEquityItem[] => {
     if (!assetId) return []
     const asset = assets[assetId]
     const accounts = accountIds.map(accountId => {
@@ -885,7 +885,7 @@ export const selectEquitiesFromFilter = createDeepEqualOutputSelector(
 )
 
 export const selectEquityTotalBalance = createDeepEqualOutputSelector(
-  selectEquitiesFromFilter,
+  selectAssetEquityItemsByFilter,
   (assetEquities): AssetEquityBalance => {
     const initial = {
       fiatAmount: '0',

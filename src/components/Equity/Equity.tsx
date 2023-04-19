@@ -8,8 +8,8 @@ import { Card } from 'components/Card/Card'
 import type { LpId, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { AssetEquityType } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
+  selectAssetEquityItemsByFilter,
   selectAssets,
-  selectEquitiesFromFilter,
   selectEquityTotalBalance,
   selectOpportunityApiPending,
   selectPortfolioLoading,
@@ -44,7 +44,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   }, [accountId, assetId])
 
   const totalEquityBalance = useAppSelector(state => selectEquityTotalBalance(state, filter))
-  const equityRows = useAppSelector(state => selectEquitiesFromFilter(state, filter))
+  const equityRows = useAppSelector(state => selectAssetEquityItemsByFilter(state, filter))
 
   const { amountCryptoPrecision: totalCryptoHumanBalance, fiatAmount: totalFiatBalance } =
     totalEquityBalance

@@ -97,7 +97,7 @@ export enum AssetEquityType {
   Reward = 'Reward',
 }
 
-export type AssetEquity = {
+export type AssetEquityItem = {
   id: string
   type: AssetEquityType
   fiatAmount: string

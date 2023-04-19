@@ -102,7 +102,7 @@ export const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   accountNumber: 0,
 }
 
-export const goodTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
+export const bestTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   ...tradeQuote,
   buyAmountCryptoBaseUnit: '23000000000000000', // 0.023 ETH
   feeData: {
@@ -118,7 +118,7 @@ export const goodTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   buyAsset: WETH,
 }
 
-export const badTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
+export const suboptimalTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   ...tradeQuote,
   buyAmountCryptoBaseUnit: '21000000000000000', // 0.021 ETH
   feeData: {

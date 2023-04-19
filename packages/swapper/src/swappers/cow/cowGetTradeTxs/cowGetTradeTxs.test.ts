@@ -28,8 +28,10 @@ describe('cowGetTradeTxs', () => {
       }),
     )
 
-    const result = await cowGetTradeTxs(deps, input)
+    const maybeResult = await cowGetTradeTxs(deps, input)
 
+    expect(maybeResult.isErr()).toBe(false)
+    const result = maybeResult.unwrap()
     expect(result).toEqual({ sellTxid: '' })
     expect(cowService.get).toHaveBeenCalledWith(
       'https://api.cow.fi/mainnet/api/v1/orders/tradeId1112345',
@@ -62,8 +64,10 @@ describe('cowGetTradeTxs', () => {
         }),
       )
 
-    const result = await cowGetTradeTxs(deps, input)
+    const maybeResult = await cowGetTradeTxs(deps, input)
 
+    expect(maybeResult.isErr()).toBe(false)
+    const result = maybeResult.unwrap()
     expect(result).toEqual({ sellTxid: 'tradeId1112345', buyTxid: '123txHash456' })
     expect(cowService.get).toHaveBeenNthCalledWith(
       1,

@@ -177,7 +177,9 @@ describe('cowExecuteTrade', () => {
       }),
     )
 
-    const trade = await cowExecuteTrade(deps, tradeInput)
+    const maybeTrade = await cowExecuteTrade(deps, tradeInput)
+    expect(maybeTrade.isErr()).toBe(false)
+    const trade = maybeTrade.unwrap()
 
     expect(trade).toEqual({
       tradeId:
@@ -222,8 +224,10 @@ describe('cowExecuteTrade', () => {
       }),
     )
 
-    const trade = await cowExecuteTrade(deps, tradeInput)
+    const maybeTrade = await cowExecuteTrade(deps, tradeInput)
 
+    expect(maybeTrade.isErr()).toBe(false)
+    const trade = maybeTrade.unwrap()
     expect(trade).toEqual({
       tradeId:
         '0xe476dadc86e768e4602bc872d4a7d50b03a4c2a609b37bf741f26baa578146bd0ea983f21f58f0e1a29ed653bcfc8afac4fec2a462c2e26f',

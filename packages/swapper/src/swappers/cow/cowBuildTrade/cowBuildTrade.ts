@@ -1,9 +1,11 @@
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
-import type { BuildTradeInput } from '../../../api'
-import { SwapError, SwapErrorType } from '../../../api'
+import type { BuildTradeInput, SwapErrorRight } from '../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../api'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20Allowance-abi'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { getApproveContractData, isApprovalRequired } from '../../utils/helpers/helpers'
@@ -22,7 +24,7 @@ import { getNowPlusThirtyMinutesTimestamp, getUsdRate } from '../utils/helpers/h
 export async function cowBuildTrade(
   deps: CowSwapperDeps,
   input: BuildTradeInput,
-): Promise<CowTrade<KnownChainIds.EthereumMainnet>> {
+): Promise<Result<CowTrade<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
   try {
     const {
       sellAsset,
@@ -162,12 +164,22 @@ export async function cowBuildTrade(
         .toString()
     }
 
-    return trade
+    return Ok(trade)
   } catch (e) {
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[cowBuildTrade]', {
-      cause: e,
-      code: SwapErrorType.TRADE_QUOTE_FAILED,
-    })
+    if (e instanceof SwapError)
+      return Err(
+        makeSwapErrorRight({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
+    return Err(
+      makeSwapErrorRight({
+        message: '[cowBuildTrade]',
+        cause: e,
+        code: SwapErrorType.TRADE_QUOTE_FAILED,
+      }),
+    )
   }
 }

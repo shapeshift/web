@@ -42,7 +42,7 @@ async function run() {
         // Remove excluded entry
         newData.splice(index, 1)
       } else {
-        // Merge overriding data
+        // Replace with overriding entry
         newData.splice(index, 1, newObject)
       }
     }

@@ -804,7 +804,7 @@ export const selectAccountIdByAccountNumberAndChainId = createSelector(
 
 export const selectEquitiesFromFilter = createDeepEqualOutputSelector(
   selectAccountIdsByAssetIdAboveBalanceThresholdByFilter,
-  selectPortfolioFiatBalancesByAccount,
+  selectPortfolioFiatBalancesByAccountId,
   selectPortfolioAccountBalancesBaseUnit,
   selectAllEarnUserLpOpportunitiesByFilter,
   selectAllEarnUserStakingOpportunitiesByFilter,

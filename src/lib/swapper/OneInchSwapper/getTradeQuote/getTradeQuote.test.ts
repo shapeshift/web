@@ -13,7 +13,6 @@ jest.mock('../getUsdRate/getUsdRate', () => ({
 }))
 
 const fastGasPrice = '15000000000' // 15 gwei
-
 jest.mock('../../../../../../web/src/context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => {
     return {

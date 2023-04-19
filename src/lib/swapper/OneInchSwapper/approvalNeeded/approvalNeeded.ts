@@ -46,13 +46,12 @@ export const approvalNeeded = async (
       tokenAddress: sellAssetErc20Address,
       walletAddress: receiveAddress,
     }
+    const { chainReference } = fromChainId(sellAsset.chainId)
 
-    const { chainReference } = fromChainId(sellAsset.ChainId)
     const allowanceResponse: AxiosResponse<OneInchAllowanceResponse> = await axios.get(
       `${deps.apiUrl}/${chainReference}/approve/allowance`,
       { params: apiInput },
     )
-
     const allowanceOnChain = bnOrZero(allowanceResponse.data.allowance)
 
     return {

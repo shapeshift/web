@@ -7,21 +7,31 @@ import { setupQuote } from '../../../../../packages/swapper/src/swappers/utils/t
 import type { OneInchSwapperDeps } from '../utils/types'
 import { approvalNeeded } from './approvalNeeded'
 
-// jest.mock('axios')
-// const mockAxios = axios as jest.Mocked<typeof axios>
+jest.mock('axios')
+const mockAxios = axios as jest.Mocked<typeof axios>
+
+const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+jest.mock('../../../../../../web/src/context/PluginProvider/chainAdapterSingleton', () => ({
+  getChainAdapterManager: () => {
+    return {
+      get: () => ({
+        getAddress: () => walletAddress,
+      }),
+    }
+  },
+}))
 
 describe('approvalNeeded', () => {
   const deps: OneInchSwapperDeps = {
     apiUrl: 'https://api.1inch.io/v5.0',
   }
-  const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
   const wallet = {
     ethGetAddress: jest.fn(() => Promise.resolve(walletAddress)),
   } as unknown as HDWallet
 
   const { tradeQuote, sellAsset } = setupQuote()
 
-  it('returns the correct boolean based on existing approvals', async () => {
+  it('returns false  when existing approval is in place', async () => {
     const allowanceOnChain = '50'
     const data = { allowanceTarget: '10' }
     const input: ApprovalNeededInput<KnownChainIds.EthereumMainnet> = {
@@ -37,14 +47,59 @@ describe('approvalNeeded', () => {
       },
       wallet,
     }
-    // TODO: need to mock getting an eth address from the chain adapter?
 
-    // mockAxios.get.mockImplementationOnce(() => ({
-    //   data: { allowance: allowanceOnChain },
-    // }))
+    mockAxios.get.mockImplementationOnce(() => ({
+      data: { allowance: allowanceOnChain },
+    }))
 
-    expect(await approvalNeeded(deps, input)).toBe({
-      approvalNeeded: false,
-    })
+    expect((await approvalNeeded(deps, input)).approvalNeeded).toBe(false)
+  })
+
+  it('returns true when existing approval is in place but too low', async () => {
+    const allowanceOnChain = '9'
+    const data = { allowanceTarget: '10' }
+    const input: ApprovalNeededInput<KnownChainIds.EthereumMainnet> = {
+      quote: {
+        ...tradeQuote,
+        sellAmountBeforeFeesCryptoBaseUnit: '10',
+        feeData: {
+          chainSpecific: { gasPriceCryptoBaseUnit: '1000' },
+          buyAssetTradeFeeUsd: '0',
+          sellAssetTradeFeeUsd: '0',
+          networkFeeCryptoBaseUnit: '0',
+        },
+      },
+      wallet,
+    }
+
+    mockAxios.get.mockImplementationOnce(() => ({
+      data: { allowance: allowanceOnChain },
+    }))
+
+    expect((await approvalNeeded(deps, input)).approvalNeeded).toBe(true)
+  })
+
+  it('returns true when no approval is in place', async () => {
+    const allowanceOnChain = '0'
+    const data = { allowanceTarget: '10' }
+    const input: ApprovalNeededInput<KnownChainIds.EthereumMainnet> = {
+      quote: {
+        ...tradeQuote,
+        sellAmountBeforeFeesCryptoBaseUnit: '10',
+        feeData: {
+          chainSpecific: { gasPriceCryptoBaseUnit: '1000' },
+          buyAssetTradeFeeUsd: '0',
+          sellAssetTradeFeeUsd: '0',
+          networkFeeCryptoBaseUnit: '0',
+        },
+      },
+      wallet,
+    }
+
+    mockAxios.get.mockImplementationOnce(() => ({
+      data: { allowance: allowanceOnChain },
+    }))
+
+    expect((await approvalNeeded(deps, input)).approvalNeeded).toBe(true)
   })
 })

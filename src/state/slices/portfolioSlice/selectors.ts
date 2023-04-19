@@ -868,7 +868,7 @@ export const selectEquitiesFromFilter = createDeepEqualOutputSelector(
         id: stakingOpportunity.id,
         type: AssetEquityType.Staking,
         fiatAmount: stakingOpportunity.fiatAmount,
-        cryptoAmountBaseUnit: stakingOpportunity.cryptoAmountBaseUnit,
+        cryptoAmountBaseUnit: bnOrZero(stakingOpportunity.cryptoAmountBaseUnit).toString(),
         provider: stakingOpportunity.provider,
         color: DefiProviderMetadata[stakingOpportunity.provider].color,
       }
@@ -878,7 +878,7 @@ export const selectEquitiesFromFilter = createDeepEqualOutputSelector(
         id: lpOpportunity.id,
         type: AssetEquityType.LP,
         fiatAmount: lpOpportunity.fiatAmount,
-        cryptoAmountBaseUnit: lpOpportunity.cryptoAmountBaseUnit,
+        cryptoAmountBaseUnit: bnOrZero(lpOpportunity.cryptoAmountBaseUnit).toString(),
         provider: lpOpportunity.provider,
         color: DefiProviderMetadata[lpOpportunity.provider].color,
       }

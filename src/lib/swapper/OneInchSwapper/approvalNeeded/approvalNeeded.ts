@@ -4,7 +4,7 @@ import type { ApprovalNeededInput, ApprovalNeededOutput } from '@shapeshiftoss/s
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { getChainAdapterManager } from '../../../../../../web/src/context/PluginProvider/chainAdapterSingleton'
 
 import { bnOrZero } from '../../../../lib/bignumber/bignumber'
 import type {
@@ -31,9 +31,6 @@ export const approvalNeeded = async (
   }
 
   const { assetReference: sellAssetErc20Address } = fromAssetId(sellAsset.assetId)
-
-  // native assets do not require approval
-  if (sellAsset.assetId === adapter.getFeeAssetId()) return { approvalNeeded: false }
 
   try {
     const receiveAddress = await adapter.getAddress({ accountNumber, wallet: input.wallet })

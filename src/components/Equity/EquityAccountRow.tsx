@@ -2,24 +2,19 @@ import { Avatar } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { generatePath, useHistory } from 'react-router-dom'
 import { AccountsIcon } from 'components/Icons/Accounts'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import {
+  selectAccountNumberByAccountId,
   selectAssetById,
-  selectMarketDataById,
-  selectPortfolioAccountMetadata,
   selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioFiatBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { EquityRow } from './EquityRow'
-
-// This can maybe be combined with the other AccountRow component once we know how the data works
-// src/components/AccountRow
-// Link url should be the account page /Accounts/[account] or whatever the route is
 
 type EquityAccountRowProps = {
   accountId: AccountId
@@ -39,22 +34,14 @@ export const EquityAccountRow = ({
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const rowAssetId = assetId ? assetId : feeAssetId
   const asset = useAppSelector(state => selectAssetById(state, rowAssetId ?? ''))
-  const marketData = useAppSelector(state => selectMarketDataById(state, rowAssetId ?? ''))
-
-  const accountMetadata = useSelector(selectPortfolioAccountMetadata)
-
-  const accountNumber: number | undefined = useMemo(
-    () => accountId && accountMetadata[accountId]?.bip44Params?.accountNumber,
-    [accountId, accountMetadata],
-  )
 
   const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
+  const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
   const cryptoHumanBalance = bnOrZero(
     useAppSelector(state => selectPortfolioCryptoPrecisionBalanceByFilter(state, filter)),
   ).toString()
-  const fiatBalance = useMemo(() => {
-    return bnOrZero(cryptoHumanBalance).times(marketData.price).toString()
-  }, [cryptoHumanBalance, marketData.price])
+  const fiatBalance = useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, filter))
+
   const path = generatePath(
     assetId ? '/accounts/:accountId/:assetId' : '/accounts/:accountId',
     filter,

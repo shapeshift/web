@@ -5,15 +5,12 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 import type { LpId, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { AssetEquityType } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
   selectEquitiesFromFilter,
   selectEquityTotalBalance,
-  selectMarketDataById,
   selectOpportunityApiPending,
   selectPortfolioLoading,
   selectUnderlyingLpAssetsWithBalancesAndIcons,
@@ -38,7 +35,6 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   const isLoading = portfolioLoading || opportunitiesLoading
   const assets = useAppSelector(selectAssets)
   const asset = assets[assetId]
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
   const filter = useMemo(() => {
     return {
@@ -49,6 +45,9 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
 
   const totalEquityBalance = useAppSelector(state => selectEquityTotalBalance(state, filter))
   const equityRows = useAppSelector(state => selectEquitiesFromFilter(state, filter))
+
+  const { amountCryptoPrecision: totalCryptoHumanBalance, fiatAmount: totalFiatBalance } =
+    totalEquityBalance
 
   const lpAssetBalanceFilter = useMemo(
     () => ({
@@ -62,14 +61,6 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   const underlyingAssetsWithBalancesAndIcons = useAppSelector(state =>
     selectUnderlyingLpAssetsWithBalancesAndIcons(state, lpAssetBalanceFilter),
   )
-
-  const totalCryptoHumanBalance = useMemo(() => {
-    return fromBaseUnit(bnOrZero(totalEquityBalance.cryptoAmountBaseUnit), asset?.precision ?? 0)
-  }, [asset?.precision, totalEquityBalance.cryptoAmountBaseUnit])
-
-  const totalFiatBalance = useMemo(() => {
-    return bnOrZero(totalCryptoHumanBalance).times(marketData.price).toString()
-  }, [marketData.price, totalCryptoHumanBalance])
 
   const renderEquityRows = useMemo(() => {
     if (portfolioLoading)

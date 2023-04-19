@@ -663,7 +663,7 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
   },
 )
 
-export const selectAllEarnUserStakingOpportunitiesByFilter = createSelector(
+export const selectAllEarnUserStakingOpportunitiesByFilter = createDeepEqualOutputSelector(
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectUserStakingOpportunitiesById,
   selectAssets,

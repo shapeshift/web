@@ -101,7 +101,7 @@ export type AssetEquity = {
   id: string
   type: AssetEquityType
   fiatAmount: string
-  cryptoAmountBaseUnit: string
+  amountCryptoPrecision: string
   provider: string
   color?: string
   underlyingAssetId?: AssetId
@@ -109,5 +109,5 @@ export type AssetEquity = {
 
 export type AssetEquityBalance = {
   fiatAmount: string
-  cryptoAmountBaseUnit: string
+  amountCryptoPrecision: string
 }

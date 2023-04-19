@@ -826,12 +826,16 @@ export const selectEquitiesFromFilter = createDeepEqualOutputSelector(
       const cryptoAmountBaseUnit = bnOrZero(
         portfolioCryptoBalancesBaseUnit[accountId][assetId],
       ).toString()
+      const amountCryptoPrecision = fromBaseUnit(
+        bnOrZero(cryptoAmountBaseUnit),
+        asset?.precision ?? 0,
+      )
       return {
         id: accountId,
         type: AssetEquityType.Account,
         fiatAmount,
         provider: 'wallet',
-        cryptoAmountBaseUnit,
+        amountCryptoPrecision,
         color: asset?.color,
       }
     })
@@ -845,46 +849,56 @@ export const selectEquitiesFromFilter = createDeepEqualOutputSelector(
         inputExponent: underlyingAssetPrecision,
         outputExponent: asset?.precision ?? 0,
       }).toString()
+      const amountCryptoPrecision = fromBaseUnit(
+        bnOrZero(cryptoAmountBaseUnit),
+        asset?.precision ?? 0,
+      )
       return {
         id: stakingOpportunity.id,
         type: AssetEquityType.Staking,
         fiatAmount: stakingOpportunity.fiatAmount,
-        cryptoAmountBaseUnit,
+        amountCryptoPrecision,
         underlyingAssetId: stakingOpportunity.underlyingAssetId,
         provider: stakingOpportunity.provider,
         color: DefiProviderMetadata[stakingOpportunity.provider].color,
       }
     })
     const lp = lpOpportunities.map(lpOpportunity => {
+      const amountCryptoPrecision = fromBaseUnit(
+        bnOrZero(lpOpportunity.cryptoAmountBaseUnit),
+        asset?.precision ?? 0,
+      )
       return {
         id: lpOpportunity.id,
         type: AssetEquityType.LP,
         fiatAmount: lpOpportunity.fiatAmount,
-        cryptoAmountBaseUnit: bnOrZero(lpOpportunity.cryptoAmountBaseUnit).toString(),
+        amountCryptoPrecision,
         provider: lpOpportunity.provider,
         color: DefiProviderMetadata[lpOpportunity.provider].color,
       }
     })
-    return [...accounts, ...lp, ...staking].sort((a, b) =>
-      bnOrZero(b.fiatAmount).minus(a.fiatAmount).toNumber(),
-    )
+    return accounts
+      .concat(lp)
+      .concat(staking)
+      .sort((a, b) => bnOrZero(b.fiatAmount).minus(a.fiatAmount).toNumber())
   },
 )
 
 export const selectEquityTotalBalance = createDeepEqualOutputSelector(
   selectEquitiesFromFilter,
   (assetEquities): AssetEquityBalance => {
+    const initial = {
+      fiatAmount: '0',
+      amountCryptoPrecision: '0',
+    }
     return assetEquities.reduce(
       (sum, item) => ({
         fiatAmount: bnOrZero(item.fiatAmount).plus(bnOrZero(sum.fiatAmount)).toString(),
-        cryptoAmountBaseUnit: bnOrZero(item.cryptoAmountBaseUnit)
-          .plus(bnOrZero(sum.cryptoAmountBaseUnit))
+        amountCryptoPrecision: bnOrZero(item.amountCryptoPrecision)
+          .plus(bnOrZero(sum.amountCryptoPrecision))
           .toString(),
       }),
-      {
-        fiatAmount: '0',
-        cryptoAmountBaseUnit: '0',
-      },
+      initial,
     )
   },
 )

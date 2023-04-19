@@ -83,7 +83,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
       MixPanelEvents.ClickOpportunity,
       {
         opportunity,
-        element: 'Table Row',
+        element: 'Equity Staking Row',
       },
       assets,
     )

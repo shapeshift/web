@@ -93,7 +93,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
       MixPanelEvents.ClickOpportunity,
       {
         opportunity,
-        element: 'Table Row',
+        element: 'Equity LP Row',
       },
       assets,
     )

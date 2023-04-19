@@ -12,6 +12,20 @@ jest.mock('../getUsdRate/getUsdRate', () => ({
   getUsdRate: () => '0.02000',
 }))
 
+const fastGasPrice = '15000000000' // 15 gwei
+
+jest.mock('../../../../../../web/src/context/PluginProvider/chainAdapterSingleton', () => ({
+  getChainAdapterManager: () => {
+    return {
+      get: () => ({
+        getGasFeeData: () => ({
+          fast: { gasPrice: fastGasPrice },
+        }),
+      }),
+    }
+  },
+}))
+
 describe('getTradeQuote', () => {
   const deps: OneInchSwapperDeps = {
     apiUrl: 'https://api.1inch.io/v5.0',
@@ -71,5 +85,6 @@ describe('getTradeQuote', () => {
     expect(quote.maximumCryptoHuman).toBe(MAX_ONEINCH_TRADE)
     expect(quote.minimumCryptoHuman).toBe('50')
     expect(quote.sources).toEqual(DEFAULT_SOURCE)
+    expect(quote.feeData.chainSpecific.gasPriceCryptoBaseUnit).toBe(fastGasPrice)
   })
 })

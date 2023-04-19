@@ -1,11 +1,13 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { GasFeeDataEstimate } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import type { GetEvmTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
 
+import { getChainAdapterManager } from '../../../../../../web/src/context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from '../../../../lib/bignumber/bignumber'
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
 import { APPROVAL_GAS_LIMIT, DEFAULT_SOURCE } from '../utils/constants'
@@ -52,8 +54,19 @@ export async function getTradeQuote(
   const allowanceContract = await getApprovalAddress(deps, chainId)
   const minMax = await getMinMax(deps, sellAsset, buyAsset)
 
+  const chainAdapterManager = getChainAdapterManager()
+  // We guard against !isEvmChainId(chainId) above, so this cast is safe
+  const adapter = chainAdapterManager.get(chainId) as unknown as EvmBaseAdapter<EvmChainId>
+  if (adapter === undefined) {
+    throw new SwapError('[getTradeQuote] - getChainAdapterManager returned undefined', {
+      code: SwapErrorType.UNSUPPORTED_NAMESPACE,
+      details: { chainId: sellAsset.chainId },
+    })
+  }
+  const gasFeeData: GasFeeDataEstimate = await adapter.getGasFeeData()
+
   const estimatedGas = bnOrZero(quoteResponse.data.estimatedGas).times(1.5) // added buffer
-  const gasPriceCryptoBaseUnit = bnOrZero('20000000000') // TODO: where to get gas price? hardcoding for now to 20 gwei
+  const gasPriceCryptoBaseUnit = gasFeeData.fast.gasPrice
   const fee = estimatedGas.multipliedBy(gasPriceCryptoBaseUnit).toString()
 
   const approvalFeeCryptoBaseUnit = bnOrZero(APPROVAL_GAS_LIMIT)

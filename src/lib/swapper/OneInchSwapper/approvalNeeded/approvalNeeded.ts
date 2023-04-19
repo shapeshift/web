@@ -4,8 +4,8 @@ import type { ApprovalNeededInput, ApprovalNeededOutput } from '@shapeshiftoss/s
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
-import { getChainAdapterManager } from '../../../../../../web/src/context/PluginProvider/chainAdapterSingleton'
 
+import { getChainAdapterManager } from '../../../../../../web/src/context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from '../../../../lib/bignumber/bignumber'
 import type {
   OneInchAllowanceApiInput,

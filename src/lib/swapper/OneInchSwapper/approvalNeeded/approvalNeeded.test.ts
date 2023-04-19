@@ -1,11 +1,11 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { ApprovalNeededInput } from '@shapeshiftoss/swapper'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import axios from 'axios'
 
+import { setupQuote } from '../../../../../packages/swapper/src/swappers/utils/test-data/setupSwapQuote'
 import type { OneInchSwapperDeps } from '../utils/types'
 import { approvalNeeded } from './approvalNeeded'
-import { ApprovalNeededInput } from '@shapeshiftoss/swapper'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { setupQuote } from '../../../../../packages/swapper/src/swappers/utils/test-data/setupSwapQuote'
 
 // jest.mock('axios')
 // const mockAxios = axios as jest.Mocked<typeof axios>
@@ -22,7 +22,6 @@ describe('approvalNeeded', () => {
   const { tradeQuote, sellAsset } = setupQuote()
 
   it('returns the correct boolean based on existing approvals', async () => {
-    
     const allowanceOnChain = '50'
     const data = { allowanceTarget: '10' }
     const input: ApprovalNeededInput<KnownChainIds.EthereumMainnet> = {
@@ -45,7 +44,7 @@ describe('approvalNeeded', () => {
     // }))
 
     expect(await approvalNeeded(deps, input)).toBe({
-        approvalNeeded: false
-      })
+      approvalNeeded: false,
+    })
   })
 })

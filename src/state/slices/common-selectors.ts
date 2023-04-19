@@ -80,6 +80,7 @@ export const selectPortfolioFiatBalances = createDeepEqualOutputSelector(
       const asset = assetsById[assetId]
       if (!asset) return acc
       const precision = asset.precision
+      if (!precision) return acc
       const price = marketData[assetId]?.price
       const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
       const assetFiatBalance = bnOrZero(cryptoValue).times(bnOrZero(price))

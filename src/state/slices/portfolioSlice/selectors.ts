@@ -30,7 +30,7 @@ import { createCachedSelector } from 're-reselect'
 import type { BridgeAsset } from 'components/Bridge/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { isMobile } from 'lib/globals'
 import { fromBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
@@ -864,11 +864,21 @@ export const selectEquitiesFromFilter = createDeepEqualOutputSelector(
       }
     })
     const staking = stakingOpportunities.map(stakingOpportunity => {
+      // Because the underlying assets can have different precisions
+      // We need to convert it to the asset we are viewing to get correct amounts to sum together.
+      const underlyingAssetPrecision =
+        assets[stakingOpportunity.assetId]?.precision ?? asset?.precision
+      const cryptoAmountBaseUnit = convertPrecision({
+        value: bnOrZero(stakingOpportunity.cryptoAmountBaseUnit),
+        inputExponent: underlyingAssetPrecision,
+        outputExponent: asset?.precision ?? 0,
+      }).toString()
       return {
         id: stakingOpportunity.id,
         type: AssetEquityType.Staking,
         fiatAmount: stakingOpportunity.fiatAmount,
-        cryptoAmountBaseUnit: bnOrZero(stakingOpportunity.cryptoAmountBaseUnit).toString(),
+        cryptoAmountBaseUnit,
+        underlyingAssetId: stakingOpportunity.underlyingAssetId,
         provider: stakingOpportunity.provider,
         color: DefiProviderMetadata[stakingOpportunity.provider].color,
       }

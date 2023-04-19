@@ -104,6 +104,7 @@ export type AssetEquity = {
   cryptoAmountBaseUnit: string
   provider: string
   color?: string
+  underlyingAssetId?: AssetId
 }
 
 export type AssetEquityBalance = {

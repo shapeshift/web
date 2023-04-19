@@ -56,6 +56,8 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
     selectAllEarnUserStakingOpportunitiesByFilter(state, filter),
   )
   const opportunity = stakingOpportunities.find(opportunity => opportunity.id === opportunityId)
+  const underlyingAssetId = opportunity?.underlyingAssetId
+  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId ?? ''))
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
@@ -117,8 +119,8 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
       apy={opportunity.apy}
       isLoading={isLoading}
       cryptoBalancePrecision={bnOrZero(opportunity.cryptoAmountBaseUnit)
-        .div(bn(10).pow(asset.precision))
-        .toFixed(asset.precision)}
+        .div(bn(10).pow(underlyingAsset?.precision ?? asset.precision))
+        .toFixed(underlyingAsset?.precision ?? asset.precision)}
     />
   )
 }

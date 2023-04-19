@@ -1,7 +1,9 @@
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
-import type { GetEvmTradeQuoteInput, SwapSource, TradeQuote } from '../../../api'
-import { SwapError, SwapErrorType } from '../../../api'
+import type { GetEvmTradeQuoteInput, SwapErrorRight, SwapSource, TradeQuote } from '../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../api'
 import { bn, bnOrZero } from '../../utils/bignumber'
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 import { normalizeAmount } from '../../utils/helpers/helpers'
@@ -14,7 +16,7 @@ import type { ZrxSupportedChainId } from '../ZrxSwapper'
 
 export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   input: GetEvmTradeQuoteInput,
-): Promise<TradeQuote<T>> {
+): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
   try {
     const {
       sellAsset,
@@ -71,6 +73,14 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       },
     )
 
+    if (!quoteResponse.data)
+      return Err(
+        makeSwapErrorRight({
+          message: '[getZrxTradeQuote] Bad ZRX response, no data was returned',
+          code: SwapErrorType.TRADE_QUOTE_FAILED,
+        }),
+      )
+
     const {
       data: {
         estimatedGas: estimatedGasResponse,
@@ -117,9 +127,23 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       sellAsset,
       accountNumber,
     }
-    return tradeQuote as TradeQuote<T>
+    return Ok(tradeQuote as TradeQuote<T>)
   } catch (e) {
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[getZrxTradeQuote]', { cause: e, code: SwapErrorType.TRADE_QUOTE_FAILED })
+    // TODO(gomes): scrutinize what can throw above and don't throw, because monads
+    if (e instanceof SwapError)
+      return Err(
+        makeSwapErrorRight({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
+    return Err(
+      makeSwapErrorRight({
+        message: '[getZrxTradeQuote]',
+        cause: e,
+        code: SwapErrorType.TRADE_QUOTE_FAILED,
+      }),
+    )
   }
 }

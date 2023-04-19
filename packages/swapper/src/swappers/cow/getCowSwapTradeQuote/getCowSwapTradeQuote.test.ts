@@ -214,9 +214,15 @@ describe('getCowTradeQuote', () => {
       receiveAddress: '',
     }
 
-    await expect(getCowSwapTradeQuote(deps, input)).rejects.toThrow(
-      '[getCowSwapTradeQuote] - Sell asset needs to be ERC-20 to use CowSwap',
-    )
+    const maybeTradeQuote = await getCowSwapTradeQuote(deps, input)
+    expect(maybeTradeQuote.isErr()).toBe(true)
+    expect(maybeTradeQuote.unwrapErr()).toMatchObject({
+      cause: undefined,
+      code: 'UNSUPPORTED_PAIR',
+      details: { sellAssetNamespace: 'slip44' },
+      message: '[getCowSwapTradeQuote] - Sell asset needs to be ERC-20 to use CowSwap',
+      name: 'SwapError',
+    })
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade quote when selling WETH', async () => {
@@ -246,9 +252,10 @@ describe('getCowTradeQuote', () => {
       }),
     )
 
-    const trade = await getCowSwapTradeQuote(deps, input)
+    const maybeTradeQuote = await getCowSwapTradeQuote(deps, input)
 
-    expect(trade).toEqual(expectedTradeQuoteWethToFox)
+    expect(maybeTradeQuote.isOk()).toBe(true)
+    expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteWethToFox)
     expect(cowService.post).toHaveBeenCalledWith(
       'https://api.cow.fi/mainnet/api/v1/quote/',
       expectedApiInputWethToFox,
@@ -282,9 +289,10 @@ describe('getCowTradeQuote', () => {
       }),
     )
 
-    const trade = await getCowSwapTradeQuote(deps, input)
+    const maybeTradeQuote = await getCowSwapTradeQuote(deps, input)
 
-    expect(trade).toEqual(expectedTradeQuoteFoxToEth)
+    expect(maybeTradeQuote.isOk()).toBe(true)
+    expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteFoxToEth)
     expect(cowService.post).toHaveBeenCalledWith(
       'https://api.cow.fi/mainnet/api/v1/quote/',
       expectedApiInputFoxToEth,
@@ -318,9 +326,10 @@ describe('getCowTradeQuote', () => {
       }),
     )
 
-    const trade = await getCowSwapTradeQuote(deps, input)
+    const maybeTradeQuote = await getCowSwapTradeQuote(deps, input)
 
-    expect(trade).toEqual(expectedTradeQuoteSmallAmountWethToFox)
+    expect(maybeTradeQuote.isOk()).toBe(true)
+    expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteSmallAmountWethToFox)
     expect(cowService.post).toHaveBeenCalledWith(
       'https://api.cow.fi/mainnet/api/v1/quote/',
       expectedApiInputSmallAmountWethToFox,

@@ -23,7 +23,7 @@ export const BondProtocolCta = () => {
         <Text color='gray.500' translation='plugins.foxPage.bondProtocol.body' />
         <Button
           as={Link}
-          href='https://app.bondprotocol.finance/#/market/1/70'
+          href='https://app.bondprotocol.finance/#/market/1/90'
           isExternal
           colorScheme='blue'
           onClick={handleClick}

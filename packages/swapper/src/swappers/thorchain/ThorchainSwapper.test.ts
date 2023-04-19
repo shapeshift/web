@@ -30,9 +30,15 @@ describe('ThorchainSwapper', () => {
         throw new Error('midgard failed')
       })
 
-      await expect(swapper.initialize()).rejects.toThrow(
-        '[thorchainInitialize]: initialize failed to set supportedAssetIds',
-      )
+      const maybeInitializedSwapper = await swapper.initialize()
+      expect(maybeInitializedSwapper.isErr()).toBe(true)
+      expect(maybeInitializedSwapper.unwrapErr()).toMatchObject({
+        cause: 'midgard failed',
+        code: 'INITIALIZE_FAILED',
+        details: undefined,
+        message: '[thorchainInitialize]: initialize failed to set supportedAssetIds',
+        name: 'SwapError',
+      })
     })
   })
 })

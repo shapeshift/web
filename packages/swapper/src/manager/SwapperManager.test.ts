@@ -1,4 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import { Ok } from '@sniptt/monads'
 
 import type { Swapper, SwapperWithQuoteMetadata } from '../api'
 import { SwapperType } from '../api'
@@ -7,14 +8,14 @@ import { ETH } from '../swappers/utils/test-data/assets'
 import { setupQuote } from '../swappers/utils/test-data/setupSwapQuote'
 import { SwapperManager } from './SwapperManager'
 import {
-  badTradeQuote,
+  bestTradeQuote,
   getCowSwapper,
   getThorchainSwapper,
   getZrxAvalancheSwapper,
   getZrxBscwapper,
   getZrxEthereumSwapper,
   getZrxOptimismSwapper,
-  goodTradeQuote,
+  suboptimalTradeQuote,
 } from './testData'
 
 const zrxEthereumSwapper = getZrxEthereumSwapper()
@@ -227,11 +228,11 @@ describe('SwapperManager', () => {
 
       const cowSwapperGetUsdTradeQuoteMock = jest
         .spyOn(cowSwapper, 'getTradeQuote')
-        .mockImplementation(jest.fn().mockResolvedValueOnce(badTradeQuote))
+        .mockImplementation(jest.fn().mockResolvedValueOnce(Ok(suboptimalTradeQuote)))
 
       const zrxEthereumSwapperGetUsdTradeQuoteMock = jest
         .spyOn(zrxEthereumSwapper, 'getTradeQuote')
-        .mockImplementation(jest.fn().mockResolvedValueOnce(goodTradeQuote))
+        .mockImplementation(jest.fn().mockResolvedValueOnce(Ok(bestTradeQuote)))
 
       const zrxAvalancheSwapperGetUsdTradeQuoteMock = jest.spyOn(
         zrxAvalancheSwapper,
@@ -259,12 +260,12 @@ describe('SwapperManager', () => {
       const expectedSwappers: SwapperWithQuoteMetadata[] = [
         {
           swapper: zrxEthereumSwapper,
-          quote: goodTradeQuote,
+          quote: bestTradeQuote,
           inputOutputRatio: 0.5030325781663417,
         },
         {
           swapper: cowSwapper,
-          quote: badTradeQuote,
+          quote: suboptimalTradeQuote,
           inputOutputRatio: 0.3433182480125743,
         },
       ]

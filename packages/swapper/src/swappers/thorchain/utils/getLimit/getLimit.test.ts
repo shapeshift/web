@@ -7,6 +7,7 @@ import {
   thorchainChainId,
 } from '@shapeshiftoss/caip'
 import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { Ok } from '@sniptt/monads'
 import type Web3 from 'web3'
 
 import { DEFAULT_SLIPPAGE } from '../../../utils/constants'
@@ -39,7 +40,9 @@ describe('getLimit', () => {
     ;(getUsdRate as jest.Mock<unknown>)
       .mockReturnValueOnce(Promise.resolve('1595')) // sellFeeAssetUsdRate (ETH)
       .mockReturnValueOnce(Promise.resolve('20683')) // buyAssetUsdRate (BTC)
-    ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(Promise.resolve('0.07714399680893498205'))
+    ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve(Ok('0.07714399680893498205')),
+    )
     ;(getInboundAddressDataForChain as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(mockInboundAddresses.find(address => address.chain === 'ETH')),
     )
@@ -52,15 +55,18 @@ describe('getLimit', () => {
       slippageTolerance: DEFAULT_SLIPPAGE,
       buyAssetTradeFeeUsd: '6.2049517907881932',
     }
-    const limit = await getLimit(getLimitArgs)
-    expect(limit).toBe('592056')
+    const maybeLimit = await getLimit(getLimitArgs)
+    expect(maybeLimit.isOk()).toBe(true)
+    expect(maybeLimit.unwrap()).toBe('592056')
   })
 
   it('should get limit when sell asset is EVM non-fee asset and buy asset is a UTXO', async () => {
     ;(getUsdRate as jest.Mock<unknown>)
       .mockReturnValueOnce(Promise.resolve('1595')) // sellFeeAssetUsdRate (ETH)
       .mockReturnValueOnce(Promise.resolve('20683')) // buyAssetUsdRate (BTC)
-    ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(Promise.resolve('0.00000199048641810579'))
+    ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve(Ok('0.00000199048641810579')),
+    )
     ;(getInboundAddressDataForChain as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(mockInboundAddresses.find(address => address.chain === 'ETH')),
     )
@@ -73,15 +79,18 @@ describe('getLimit', () => {
       slippageTolerance: DEFAULT_SLIPPAGE,
       buyAssetTradeFeeUsd: '6.2049517907881932',
     }
-    const limit = await getLimit(getLimitArgs)
-    expect(limit).toBe('59316')
+    const maybeLimit = await getLimit(getLimitArgs)
+    expect(maybeLimit.isOk()).toBe(true)
+    expect(maybeLimit.unwrap()).toBe('59316')
   })
 
   it('should get limit when buy asset is RUNE and sell asset is not', async () => {
     ;(getUsdRate as jest.Mock<unknown>)
       .mockReturnValueOnce(Promise.resolve('1595')) // sellFeeAssetUsdRate (ETH)
       .mockReturnValueOnce(Promise.resolve('14.51')) // buyAssetUsdRate (RUNE)
-    ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(Promise.resolve('0.02583433052665346349'))
+    ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve(Ok('0.02583433052665346349')),
+    )
     ;(getInboundAddressDataForChain as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(mockInboundAddresses.find(address => address.chain === 'ETH')),
     )
@@ -94,8 +103,9 @@ describe('getLimit', () => {
       slippageTolerance: DEFAULT_SLIPPAGE,
       buyAssetTradeFeeUsd: '0.0318228582',
     }
-    const limit = await getLimit(getLimitArgs)
-    expect(limit).toBe('2459464864')
+    const maybeLimit = await getLimit(getLimitArgs)
+    expect(maybeLimit.isOk()).toBe(true)
+    expect(maybeLimit.unwrap()).toBe('2459464864')
   })
 
   it('should get limit when sell asset is RUNE and buy asset is not', async () => {
@@ -103,7 +113,7 @@ describe('getLimit', () => {
       .mockReturnValueOnce(Promise.resolve('14.51')) // sellFeeAssetUsdRate (RUNE)
       .mockReturnValueOnce(Promise.resolve('0.04')) // buyAssetUsdRate (FOX)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve('38.68447363336979738738'),
+      Promise.resolve(Ok('38.68447363336979738738')),
     )
     ;(getInboundAddressDataForChain as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(undefined),
@@ -117,7 +127,8 @@ describe('getLimit', () => {
       slippageTolerance: DEFAULT_SLIPPAGE,
       buyAssetTradeFeeUsd: '0.0000000026',
     }
-    const limit = await getLimit(getLimitArgs)
-    expect(limit).toBe('37051458730')
+    const maybeLimit = await getLimit(getLimitArgs)
+    expect(maybeLimit.isOk()).toBe(true)
+    expect(maybeLimit.unwrap()).toBe('37051458730')
   })
 })

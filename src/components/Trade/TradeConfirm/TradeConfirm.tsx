@@ -197,6 +197,9 @@ export const TradeConfirm = () => {
     if (!(swapper && trade)) return null
     const compositeBuyAsset = getMaybeCompositeAssetSymbol(trade.buyAsset.assetId, assets)
     const compositeSellAsset = getMaybeCompositeAssetSymbol(trade.sellAsset.assetId, assets)
+    // mixpanel paranoia seeing impossibly high values
+    if (!trade?.sellAsset?.precision) return
+    if (!trade?.buyAsset?.precision) return
     const buyAmountCryptoPrecision = fromBaseUnit(
       buyAmountBeforeFeesBaseUnit,
       trade.sellAsset.precision,

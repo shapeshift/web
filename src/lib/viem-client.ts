@@ -1,6 +1,6 @@
+import { mainnet } from '@wagmi/chains'
 import { getConfig } from 'config'
 import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
 
 export const viemClient = createPublicClient({
   chain: mainnet,

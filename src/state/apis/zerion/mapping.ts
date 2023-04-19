@@ -22,7 +22,6 @@ export const ZERION_CHAINS = [
   // 'arbitrum',
   // 'aurora',
   // 'fantom',
-
   // 'solana',
   // 'xdai',
 ] as const

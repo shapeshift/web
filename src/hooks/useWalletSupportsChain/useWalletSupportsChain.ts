@@ -38,8 +38,6 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
     case btcChainId:
     case bchChainId:
     case dogeChainId:
-    case polygonChainId:
-      return supportsPolygon(wallet)
     case ltcChainId:
       return supportsBTC(wallet)
     case ethChainId:
@@ -50,6 +48,8 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
       return supportsOptimism(wallet)
     case bscChainId:
       return supportsBSC(wallet)
+    case polygonChainId:
+      return supportsPolygon(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case osmosisChainId:

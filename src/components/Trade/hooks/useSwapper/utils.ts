@@ -185,7 +185,7 @@ export const getDefaultAssetIdPairByChainId = (
         ? {
             sellAssetId: polygonAssetId,
             // USDC on Polygon
-            buyAssetId: 'eip155:137/erc20:0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+            buyAssetId: 'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
           }
         : ethFoxPair
     case KnownChainIds.CosmosMainnet:

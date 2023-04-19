@@ -4,7 +4,6 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, useHistory } from 'react-router-dom'
 import { AccountsIcon } from 'components/Icons/Accounts'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
@@ -37,9 +36,9 @@ export const EquityAccountRow = ({
 
   const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
-  const cryptoHumanBalance = bnOrZero(
-    useAppSelector(state => selectPortfolioCryptoPrecisionBalanceByFilter(state, filter)),
-  ).toString()
+  const cryptoHumanBalance = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, filter),
+  )
   const fiatBalance = useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, filter))
 
   const path = generatePath(

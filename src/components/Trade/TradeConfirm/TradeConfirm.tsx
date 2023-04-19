@@ -251,14 +251,16 @@ export const TradeConfirm = () => {
       }
 
       const result = await swapper.executeTrade({ trade, wallet })
-      setSellTradeId(result.tradeId)
+      // TODO(gomes): should we we throw so the catch clause handles this?
+      if (result.isErr()) return
+      setSellTradeId(result.unwrap().tradeId)
 
       // Poll until we have a "buy" txid
       // This means the trade is just about finished
       const txs = await poll({
         fn: async () => {
           try {
-            return { ...(await swapper.getTradeTxs(result)) }
+            return { ...(await swapper.getTradeTxs(result.unwrap())) }
           } catch (e) {
             return { sellTxid: '', buyTxid: '', e }
           }

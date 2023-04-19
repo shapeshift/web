@@ -3,6 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
 import type Web3 from 'web3'
 
 import type {
@@ -14,6 +15,7 @@ import type {
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
   GetTradeQuoteInput,
+  SwapErrorRight,
   Swapper,
   TradeQuote,
   TradeResult,
@@ -48,11 +50,15 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     return SwapperType.CowSwap
   }
 
-  buildTrade(args: BuildTradeInput): Promise<CowTrade<KnownChainIds.EthereumMainnet>> {
+  buildTrade(
+    args: BuildTradeInput,
+  ): Promise<Result<CowTrade<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
     return cowBuildTrade(this.deps, args)
   }
 
-  getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<KnownChainIds.EthereumMainnet>> {
+  getTradeQuote(
+    input: GetTradeQuoteInput,
+  ): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
     return getCowSwapTradeQuote(this.deps, input)
   }
 
@@ -60,7 +66,9 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     return getUsdRate(this.deps, input)
   }
 
-  executeTrade(args: ExecuteTradeInput<KnownChainIds.EthereumMainnet>): Promise<TradeResult> {
+  executeTrade(
+    args: ExecuteTradeInput<KnownChainIds.EthereumMainnet>,
+  ): Promise<Result<TradeResult, SwapErrorRight>> {
     return cowExecuteTrade(this.deps, args)
   }
 
@@ -105,7 +113,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     })
   }
 
-  getTradeTxs(args: TradeResult): Promise<TradeTxs> {
+  getTradeTxs(args: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
     return cowGetTradeTxs(this.deps, args)
   }
 }

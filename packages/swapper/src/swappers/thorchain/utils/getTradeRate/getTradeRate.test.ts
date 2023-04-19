@@ -41,7 +41,7 @@ describe('getTradeRate', () => {
 
     const receiveAddress = '0xFooBar'
 
-    const rate = await getTradeRate({
+    const maybeTradeRate = await getTradeRate({
       sellAsset: ETH,
       buyAssetId: FOX.assetId,
       sellAmountCryptoBaseUnit: '1000000000000000000000000',
@@ -49,7 +49,8 @@ describe('getTradeRate', () => {
       deps,
     })
     const expectedRate = '0.00001727627203157549'
-    expect(rate).toEqual(expectedRate)
+    expect(maybeTradeRate.isOk()).toBe(true)
+    expect(maybeTradeRate.unwrap()).toEqual(expectedRate)
   })
 
   it('should calculate a correct rate for trading FOX to ETH', async () => {
@@ -77,7 +78,7 @@ describe('getTradeRate', () => {
 
     const receiveAddress = '0xFooBar'
 
-    const rate = await getTradeRate({
+    const maybeTradeRate = await getTradeRate({
       sellAsset: FOX,
       buyAssetId: ETH.assetId,
       sellAmountCryptoBaseUnit: '100000000000',
@@ -85,7 +86,8 @@ describe('getTradeRate', () => {
       deps,
     })
     const expectedRate = '188875.98759875987598759876'
-    expect(rate).toEqual(expectedRate)
+    expect(maybeTradeRate.isOk()).toBe(true)
+    expect(maybeTradeRate.unwrap()).toEqual(expectedRate)
   })
 
   it('should calculate a correct rate for trading FOX to BTC', async () => {
@@ -113,7 +115,7 @@ describe('getTradeRate', () => {
 
     const receiveAddress = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
 
-    const rate = await getTradeRate({
+    const maybeTradeRate = await getTradeRate({
       sellAsset: FOX,
       buyAssetId: BTC.assetId,
       sellAmountCryptoBaseUnit: '100000000000',
@@ -121,7 +123,8 @@ describe('getTradeRate', () => {
       deps,
     })
     const expectedRate = '12372.23722372237223722372'
-    expect(rate).toEqual(expectedRate)
+    expect(maybeTradeRate.isOk()).toBe(true)
+    expect(maybeTradeRate.unwrap()).toEqual(expectedRate)
   })
 
   it('should calculate a correct rate for trading BTC to FOX', async () => {
@@ -151,7 +154,7 @@ describe('getTradeRate', () => {
 
     const receiveAddress = '0xFooBar'
 
-    const rate = await getTradeRate({
+    const maybeRate = await getTradeRate({
       sellAsset: BTC,
       buyAssetId: FOX.assetId,
       sellAmountCryptoBaseUnit: '1000000000',
@@ -159,7 +162,8 @@ describe('getTradeRate', () => {
       deps,
     })
     const expectedRate = '463354.73381180932128300549'
-    expect(rate).toEqual(expectedRate)
+    expect(maybeRate.isOk()).toBe(true)
+    expect(maybeRate.unwrap()).toEqual(expectedRate)
   })
 
   it('should throw if trying to calculate a rate for an unsupported asset', async () => {

@@ -132,7 +132,11 @@ export const Approval = () => {
         approvalInterval.current && clearInterval(approvalInterval.current)
 
         const trade = await getTrade()
-        updateTrade(trade)
+        if (trade.isErr()) {
+          // Actually throw so we can catch the error and show the error toast
+          throw new Error(trade.unwrapErr().message)
+        }
+        updateTrade(trade.unwrap())
         history.push({ pathname: TradeRoutePaths.Confirm })
       }, 5000)
     } catch (e) {

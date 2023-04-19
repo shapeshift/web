@@ -284,7 +284,8 @@ export const TradeInput = () => {
         return
       }
       const trade = await getTrade()
-      updateTrade(trade)
+      if (trade.isErr()) throw new Error(trade.unwrapErr().message)
+      updateTrade(trade.unwrap())
       history.push({ pathname: TradeRoutePaths.Confirm })
     } catch (e) {
       moduleLogger.error(e, 'onSubmit error')

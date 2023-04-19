@@ -36,7 +36,6 @@ describe('getUsdRate', () => {
           },
           toTokenAmount: '304775163721065276710',
           fromTokenAmount: '10000000',
-          protocols: [[[Array], [Array]]],
           estimatedGas: 306779,
         },
       }

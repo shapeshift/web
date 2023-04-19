@@ -4,6 +4,15 @@ export type OneInchQuoteApiInput = {
   amount: string
 }
 
+export type OneInchAllowanceApiInput = {
+  tokenAddress: string
+  walletAddress: string
+}
+
+export type OneInchAllowanceResponse = {
+  allowance: string
+}
+
 export type OneInchSpenderResponse = {
   address: string
 }

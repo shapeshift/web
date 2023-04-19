@@ -1,9 +1,12 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 
 import type {
   ApprovalNeededOutput,
   BuyAssetBySellIdInput,
+  SwapErrorRight,
   Swapper,
   Trade,
   TradeQuote,
@@ -22,7 +25,10 @@ export class TestSwapper implements Swapper<ChainId> {
 
   // noop for test
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  async initialize() {}
+  async initialize() {
+    const res = await Promise.resolve(undefined)
+    return Ok(res)
+  }
 
   getType() {
     return SwapperType.Test
@@ -64,19 +70,19 @@ export class TestSwapper implements Swapper<ChainId> {
     return this.supportAssets
   }
 
-  buildTrade(): Promise<Trade<ChainId>> {
+  buildTrade(): Promise<Result<Trade<ChainId>, SwapErrorRight>> {
     throw new Error('TestSwapper: buildTrade unimplemented')
   }
 
-  getTradeQuote(): Promise<TradeQuote<ChainId>> {
+  getTradeQuote(): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>> {
     throw new Error('TestSwapper: getTradeQuote unimplemented')
   }
 
-  executeTrade(): Promise<TradeResult> {
+  executeTrade(): Promise<Result<TradeResult, SwapErrorRight>> {
     throw new Error('TestSwapper: executeTrade unimplemented')
   }
 
-  getTradeTxs(): Promise<TradeTxs> {
+  getTradeTxs(): Promise<Result<TradeTxs, SwapErrorRight>> {
     throw new Error('TestSwapper: executeTrade unimplemented')
   }
 }

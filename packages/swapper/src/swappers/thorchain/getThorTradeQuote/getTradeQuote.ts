@@ -5,9 +5,16 @@ import type {
   EvmBaseAdapter,
   UtxoBaseAdapter,
 } from '@shapeshiftoss/chain-adapters'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 
-import type { GetTradeQuoteInput, GetUtxoTradeQuoteInput, TradeQuote } from '../../../api'
-import { SwapError, SwapErrorType, SwapperName } from '../../../api'
+import type {
+  GetTradeQuoteInput,
+  GetUtxoTradeQuoteInput,
+  SwapErrorRight,
+  TradeQuote,
+} from '../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from '../../../api'
 import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from '../../utils/bignumber'
 import { DEFAULT_SLIPPAGE } from '../../utils/constants'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from '../constants'
@@ -23,7 +30,7 @@ import {
   THORCHAIN_FIXED_PRECISION,
 } from '../utils/constants'
 import { getInboundAddressDataForChain } from '../utils/getInboundAddressDataForChain'
-import { getTradeRate } from '../utils/getTradeRate/getTradeRate'
+import { getTradeRate, getTradeRateBelowMinimum } from '../utils/getTradeRate/getTradeRate'
 import { getUsdRate } from '../utils/getUsdRate/getUsdRate'
 import { isRune } from '../utils/isRune/isRune'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
@@ -38,7 +45,7 @@ type GetThorTradeQuoteInput = {
   input: GetTradeQuoteInput
 }
 
-type GetThorTradeQuoteReturn = Promise<TradeQuote<ChainId>>
+type GetThorTradeQuoteReturn = Promise<Result<TradeQuote<ChainId>, SwapErrorRight>>
 
 type GetThorTradeQuote = (args: GetThorTradeQuoteInput) => GetThorTradeQuoteReturn
 
@@ -60,20 +67,33 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     const sellAdapter = deps.adapterManager.get(chainId)
     const buyAdapter = deps.adapterManager.get(buyAssetChainId)
     if (!sellAdapter || !buyAdapter)
-      throw new SwapError(
-        `[getThorTradeQuote] - No chain adapter found for ${chainId} or ${buyAssetChainId}.`,
-        {
+      return Err(
+        makeSwapErrorRight({
+          message: `[getThorTradeQuote] - No chain adapter found for ${chainId} or ${buyAssetChainId}.`,
           code: SwapErrorType.UNSUPPORTED_CHAIN,
           details: { sellAssetChainId: chainId, buyAssetChainId },
-        },
+        }),
       )
 
-    const rate = await getTradeRate({
+    const quoteRate = await getTradeRate({
       sellAsset,
       buyAssetId: buyAsset.assetId,
       sellAmountCryptoBaseUnit,
       receiveAddress,
       deps,
+    })
+
+    const rate = await quoteRate.match({
+      ok: rate => Promise.resolve(rate),
+      // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
+      // Though realistically, TRADE_BELOW_MINIMUM is the only one we should really be seeing here,
+      // safety never hurts
+      err: _err =>
+        getTradeRateBelowMinimum({
+          sellAssetId: sellAsset.assetId,
+          buyAssetId: buyAsset.assetId,
+          deps,
+        }),
     })
 
     const buyAmountCryptoBaseUnit = toBaseUnit(
@@ -137,7 +157,9 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm:
-        return (async (): Promise<TradeQuote<ThorEvmSupportedChainId>> => {
+        return (async (): Promise<
+          Promise<Result<TradeQuote<ThorEvmSupportedChainId>, SwapErrorRight>>
+        > => {
           const sellChainFeeAssetId = sellAdapter.getFeeAssetId()
           const evmAddressData = await getInboundAddressDataForChain(
             deps.daemonUrl,
@@ -146,8 +168,10 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           )
           const router = evmAddressData?.router
           if (!router)
-            throw new SwapError(
-              `[getThorTradeQuote] No router address found for ${sellChainFeeAssetId}`,
+            return Err(
+              makeSwapErrorRight({
+                message: `[getThorTradeQuote] No router address found for ${sellChainFeeAssetId}`,
+              }),
             )
 
           const feeData = await getEvmTxFees({
@@ -156,16 +180,16 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             buyAssetTradeFeeUsd,
           })
 
-          return {
+          return Ok({
             ...commonQuoteFields,
             allowanceContract: router,
             feeData,
-          }
+          })
         })()
 
       case CHAIN_NAMESPACE.Utxo:
-        return (async (): Promise<TradeQuote<ThorUtxoSupportedChainId>> => {
-          const { vault, opReturnData, pubkey } = await getThorTxInfo({
+        return (async (): Promise<Result<TradeQuote<ThorUtxoSupportedChainId>, SwapErrorRight>> => {
+          const maybeThorTxInfo = await getThorTxInfo({
             deps,
             sellAsset,
             buyAsset,
@@ -175,6 +199,10 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             xpub: (input as GetUtxoTradeQuoteInput).xpub,
             buyAssetTradeFeeUsd,
           })
+
+          if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
+          const thorTxInfo = maybeThorTxInfo.unwrap()
+          const { vault, opReturnData, pubkey } = thorTxInfo
 
           const feeData = await getUtxoTxFees({
             sellAmountCryptoBaseUnit,
@@ -186,19 +214,21 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             sendMax,
           })
 
-          return {
+          return Ok({
             ...commonQuoteFields,
             allowanceContract: '0x0', // not applicable to bitcoin
             feeData,
-          }
+          })
         })()
       case CHAIN_NAMESPACE.CosmosSdk:
-        return (async (): Promise<TradeQuote<ThorCosmosSdkSupportedChainId>> => {
+        return (async (): Promise<
+          Result<TradeQuote<ThorCosmosSdkSupportedChainId>, SwapErrorRight>
+        > => {
           const feeData = await (
             sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
           ).getFeeData({})
 
-          return {
+          return Ok({
             ...commonQuoteFields,
             allowanceContract: '0x0', // not applicable to cosmos
             feeData: {
@@ -207,19 +237,33 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
               sellAssetTradeFeeUsd: '0',
               chainSpecific: { estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit },
             },
-          }
+          })
         })()
       default:
-        throw new SwapError('[getThorTradeQuote] - Asset chainId is not supported.', {
-          code: SwapErrorType.UNSUPPORTED_CHAIN,
-          details: { chainId },
-        })
+        return Err(
+          makeSwapErrorRight({
+            message: '[getThorTradeQuote] - Asset chainId is not supported.',
+            code: SwapErrorType.UNSUPPORTED_CHAIN,
+            details: { chainId },
+          }),
+        )
     }
   } catch (e) {
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[getThorTradeQuote]', {
-      cause: e,
-      code: SwapErrorType.TRADE_QUOTE_FAILED,
-    })
+    // TODO: We shouldn't nee to catch anymore, since there should never be errors in the first place 🎉
+    if (e instanceof SwapError)
+      return Err(
+        makeSwapErrorRight({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
+    return Err(
+      makeSwapErrorRight({
+        message: '[getThorTradeQuote]',
+        cause: e,
+        code: SwapErrorType.TRADE_QUOTE_FAILED,
+      }),
+    )
   }
 }

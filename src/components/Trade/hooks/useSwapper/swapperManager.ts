@@ -1,5 +1,17 @@
-import { avalancheChainId, bscChainId, ethChainId, optimismChainId, polygonChainId } from '@shapeshiftoss/caip'
-import type { avalanche, bnbsmartchain, ethereum, optimism, polygon } from '@shapeshiftoss/chain-adapters'
+import {
+  avalancheChainId,
+  bscChainId,
+  ethChainId,
+  optimismChainId,
+  polygonChainId,
+} from '@shapeshiftoss/caip'
+import type {
+  avalanche,
+  bnbsmartchain,
+  ethereum,
+  optimism,
+  polygon,
+} from '@shapeshiftoss/chain-adapters'
 import {
   CowSwapper,
   OsmosisSwapper,

@@ -17,7 +17,7 @@ export const generateTrustWalletUrl = (assetId: AssetId) => {
     url += `/assets/`
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm:
-          url += Web3.utils.toChecksumAddress(assetReference)
+        url += Web3.utils.toChecksumAddress(assetReference)
         break
       default:
     }

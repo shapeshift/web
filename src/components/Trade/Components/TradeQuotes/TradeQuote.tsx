@@ -1,22 +1,17 @@
-import {
-  Avatar,
-  Flex,
-  Skeleton,
-  SkeletonCircle,
-  Stack,
-  Tag,
-  useColorModeValue,
-} from '@chakra-ui/react'
+import { Flex, Skeleton, SkeletonCircle, Stack, Tag, useColorModeValue } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { SwapperWithQuoteMetadata } from '@shapeshiftoss/swapper'
+import { SwapperType } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
+import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
 import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { assertUnreachable } from 'lib/utils'
 import { selectFeeAssetByChainId, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
@@ -26,6 +21,12 @@ import {
   selectSellAsset,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
+
+import ZrxIcon from './0x-icon.png'
+import CowIcon from './cow-icon.png'
+import LiFiIcon from './lifi-icon.png'
+import OsmosisIcon from './osmosis-icon.png'
+import THORChainIcon from './thorchain-icon.png'
 
 const TradeQuoteLoading = () => {
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
@@ -64,7 +65,6 @@ type TradeQuoteLoadedProps = {
   isActive?: boolean
   isBest?: boolean
   quoteDifference: string
-  protocolIcon?: string
   swapperWithMetadata: SwapperWithQuoteMetadata
   totalReceiveAmountCryptoPrecision: string | undefined
 }
@@ -73,7 +73,6 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   isActive,
   isBest,
   quoteDifference,
-  protocolIcon,
   swapperWithMetadata,
   totalReceiveAmountCryptoPrecision,
 }) => {
@@ -161,6 +160,29 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     return borderColor
   })()
 
+  const protocolIcon = useMemo(() => {
+    const swapperType = swapperWithMetadata.swapper.getType()
+    switch (swapperType) {
+      case SwapperType.Osmosis:
+        return OsmosisIcon
+      case SwapperType.LIFI:
+        return LiFiIcon
+      case SwapperType.CowSwap:
+        return CowIcon
+      case SwapperType.ZrxAvalanche:
+      case SwapperType.ZrxBnbSmartChain:
+      case SwapperType.ZrxEthereum:
+      case SwapperType.ZrxOptimism:
+        return ZrxIcon
+      case SwapperType.Thorchain:
+        return THORChainIcon
+      case SwapperType.Test:
+        return ''
+      default:
+        assertUnreachable(swapperType)
+    }
+  }, [swapperWithMetadata])
+
   return networkFeeFiat && totalReceiveAmountCryptoPrecision ? (
     <Flex
       borderWidth={1}
@@ -197,7 +219,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       </Flex>
       <Flex justifyContent='space-between' alignItems='center'>
         <Flex gap={2} alignItems='center'>
-          <Avatar size='xs' src={protocolIcon} />
+          <LazyLoadAvatar size='xs' src={protocolIcon} />
           <RawText>{protocol}</RawText>
         </Flex>
         <Amount.Crypto

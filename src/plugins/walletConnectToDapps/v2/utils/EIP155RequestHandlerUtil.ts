@@ -94,7 +94,7 @@ export const approveEIP155Request = async ({
         accountNumber,
         to: sendTransaction.to,
         data: sendTransaction.data,
-        value: sendTransaction.value ?? convertNumberToHex(0),
+        value: sendTransaction.value ?? '0',
         gasLimit:
           (customTransactionData.gasLimit
             ? convertNumberToHex(customTransactionData.gasLimit)

@@ -110,7 +110,7 @@ export const useApprovalHandler = (wcAccountId: AccountId | undefined) => {
         accountNumber,
         to: tx.to,
         data: tx.data,
-        value: tx.value ?? convertNumberToHex(0),
+        value: tx.value ?? '0',
         gasLimit:
           (approveData.gasLimit ? convertNumberToHex(approveData.gasLimit) : tx.gas) ??
           convertNumberToHex(90000), // https://docs.walletconnect.com/1.0/json-rpc-api-methods/ethereum#eth_sendtransaction

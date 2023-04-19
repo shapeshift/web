@@ -81,10 +81,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
 
   useEffect(() => {
     if (asset.chainId !== KnownChainIds.EthereumMainnet || !receiveAddress) return
-    ;(async () => {
-      const ensName = await viemClient.getEnsName({ address: receiveAddress as Address })
-      setEnsName(ensName)
-    })()
+    viemClient.getEnsName({ address: receiveAddress as Address }).then(setEnsName)
   }, [asset.chainId, receiveAddress])
 
   const handleVerify = async () => {

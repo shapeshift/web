@@ -70,10 +70,7 @@ const WalletButton: FC<WalletButtonProps> = ({
   const [ensName, setEnsName] = useState<string | null>('')
 
   useEffect(() => {
-    ;(async () => {
-      const ensName = await viemClient.getEnsName({ address: walletInfo?.meta?.address as Address })
-      setEnsName(ensName)
-    })()
+    viemClient.getEnsName({ address: walletInfo?.meta?.address as Address }).then(setEnsName)
   }, [walletInfo?.meta?.address])
 
   useEffect(() => {

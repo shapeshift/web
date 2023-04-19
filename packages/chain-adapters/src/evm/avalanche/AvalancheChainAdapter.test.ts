@@ -52,9 +52,43 @@ const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress
 
 const makeGetGasFeesMockedResponse = (overrideArgs?: {
   gasPrice?: string
-  maxFeePerGas?: string
-  maxPriorityFeePerGas?: string
-}) => merge({ gasPrice: '5', maxFeePerGas: '300', maxPriorityFeePerGas: '10' }, overrideArgs)
+  slow: {
+    gasPrice?: string
+    maxFeePerGas?: string
+    maxPriorityFeePerGas?: string
+  }
+  average: {
+    gasPrice?: string
+    maxFeePerGas?: string
+    maxPriorityFeePerGas?: string
+  }
+  fast: {
+    gasPrice?: string
+    maxFeePerGas?: string
+    maxPriorityFeePerGas?: string
+  }
+}) =>
+  merge(
+    {
+      gasPrice: '5',
+      slow: {
+        gasPrice: '5',
+        maxFeePerGas: '240',
+        maxPriorityFeePerGas: '8',
+      },
+      average: {
+        gasPrice: '5',
+        maxFeePerGas: '300',
+        maxPriorityFeePerGas: '10',
+      },
+      fast: {
+        gasPrice: '5',
+        maxFeePerGas: '360',
+        maxPriorityFeePerGas: '12',
+      },
+    },
+    overrideArgs,
+  )
 
 const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string }) =>
   merge({ gasLimit: '21000' }, overrideArgs)
@@ -140,7 +174,7 @@ describe('AvalancheChainAdapter', () => {
               maxFeePerGas: '300',
               maxPriorityFeePerGas: '10',
             },
-            txFee: '105000',
+            txFee: '6300000',
           },
           fast: {
             chainSpecific: {
@@ -149,7 +183,7 @@ describe('AvalancheChainAdapter', () => {
               maxFeePerGas: '360',
               maxPriorityFeePerGas: '12',
             },
-            txFee: '126000',
+            txFee: '7560000',
           },
           slow: {
             chainSpecific: {
@@ -158,7 +192,7 @@ describe('AvalancheChainAdapter', () => {
               maxFeePerGas: '240',
               maxPriorityFeePerGas: '8',
             },
-            txFee: '84000',
+            txFee: '5040000',
           },
         }),
       )

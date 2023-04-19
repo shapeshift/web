@@ -9,6 +9,8 @@ import type {
   polygon,
 } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 
 import type {
   ApprovalNeededInput,
@@ -18,6 +20,7 @@ import type {
   BuildTradeInput,
   BuyAssetBySellIdInput,
   GetEvmTradeQuoteInput,
+  SwapErrorRight,
   Swapper,
   TradeQuote,
   TradeResult,
@@ -76,11 +79,11 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     }
   }
 
-  buildTrade(args: BuildTradeInput): Promise<ZrxTrade<T>> {
+  buildTrade(args: BuildTradeInput): Promise<Result<ZrxTrade<T>, SwapErrorRight>> {
     return zrxBuildTrade<T>(this.deps, args)
   }
 
-  getTradeQuote(input: GetEvmTradeQuoteInput): Promise<TradeQuote<T>> {
+  getTradeQuote(input: GetEvmTradeQuoteInput): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
     return getZrxTradeQuote<T>(input)
   }
 
@@ -88,7 +91,7 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     return getUsdRate(input)
   }
 
-  executeTrade(args: ZrxExecuteTradeInput<T>): Promise<TradeResult> {
+  executeTrade(args: ZrxExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>> {
     return zrxExecuteTrade<T>(this.deps, args)
   }
 
@@ -120,10 +123,12 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     )
   }
 
-  getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
-    return Promise.resolve({
-      sellTxid: tradeResult.tradeId,
-      buyTxid: tradeResult.tradeId,
-    })
+  getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
+    return Promise.resolve(
+      Ok({
+        sellTxid: tradeResult.tradeId,
+        buyTxid: tradeResult.tradeId,
+      }),
+    )
   }
 }

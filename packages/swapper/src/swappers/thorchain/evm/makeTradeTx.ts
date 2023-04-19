@@ -2,9 +2,11 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { numberToHex } from 'web3-utils'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 
-import { SwapError, SwapErrorType } from '../../../api'
+import type { SwapErrorRight } from '../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../api'
 import type { ThorEvmSupportedChainId } from '../ThorchainSwapper'
 import type { ThorchainSwapperDeps } from '../types'
 import { getThorTxInfo } from './utils/getThorTxData'
@@ -49,14 +51,19 @@ export const makeTradeTx = async ({
   deps,
   gasLimit,
   buyAssetTradeFeeUsd,
-}: MakeTradeTxArgs): Promise<{
-  txToSign: ETHSignTx
-}> => {
+}: MakeTradeTxArgs): Promise<
+  Result<
+    {
+      txToSign: ETHSignTx
+    },
+    SwapErrorRight
+  >
+> => {
   try {
     const { assetNamespace } = fromAssetId(sellAsset.assetId)
     const isErc20Trade = assetNamespace === 'erc20'
 
-    const { data, router } = await getThorTxInfo({
+    const maybeThorTxInfo = await getThorTxInfo({
       deps,
       sellAsset,
       buyAsset,
@@ -66,22 +73,40 @@ export const makeTradeTx = async ({
       buyAssetTradeFeeUsd,
     })
 
-    return adapter.buildCustomTx({
-      wallet,
-      accountNumber,
-      to: router,
-      gasLimit,
-      ...(gasPriceCryptoBaseUnit !== undefined
-        ? { gasPrice: gasPriceCryptoBaseUnit }
-        : { maxFeePerGas, maxPriorityFeePerGas }),
-      value: isErc20Trade ? '0x0' : numberToHex(sellAmountCryptoBaseUnit),
-      data,
-    })
+    if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
+
+    const thorTxInfo = maybeThorTxInfo.unwrap()
+
+    const { data, router } = thorTxInfo
+
+    return Ok(
+      await adapter.buildCustomTx({
+        wallet,
+        accountNumber,
+        to: router,
+        gasLimit,
+        ...(gasPriceCryptoBaseUnit !== undefined
+          ? { gasPrice: gasPriceCryptoBaseUnit }
+          : { maxFeePerGas, maxPriorityFeePerGas }),
+        value: isErc20Trade ? '0' : sellAmountCryptoBaseUnit,
+        data,
+      }),
+    )
   } catch (e) {
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[makeTradeTx]: error making trade tx', {
-      code: SwapErrorType.BUILD_TRADE_FAILED,
-      cause: e,
-    })
+    if (e instanceof SwapError)
+      return Err(
+        makeSwapErrorRight({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
+    return Err(
+      makeSwapErrorRight({
+        message: '[makeTradeTx]: error making trade tx',
+        cause: e,
+        code: SwapErrorType.BUILD_TRADE_FAILED,
+      }),
+    )
   }
 }

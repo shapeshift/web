@@ -4,8 +4,35 @@ import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/c
 import { createErrorClass } from '@shapeshiftoss/errors'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
 
 export const SwapError = createErrorClass('SwapError')
+
+export type SwapErrorRight = {
+  name: 'SwapError'
+  message: string
+  cause?: unknown
+  details?: unknown
+  code?: string
+}
+
+export const makeSwapErrorRight = ({
+  details,
+  cause,
+  code,
+  message,
+}: {
+  message: string
+  details?: unknown
+  cause?: unknown
+  code?: string
+}): SwapErrorRight => ({
+  name: 'SwapError',
+  message,
+  details,
+  cause,
+  code,
+})
 
 type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
   T,
@@ -249,13 +276,14 @@ export enum SwapErrorType {
   GET_TRADE_TXS_FAILED = 'GET_TRADE_TXS_FAILED',
   TRADE_FAILED = 'TRADE_FAILED',
   RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED = 'RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED',
+  TRADE_BELOW_MINIMUM = 'TRADE_BELOW_MINIMUM',
 }
 export interface Swapper<T extends ChainId> {
   /** Human-readable swapper name */
   readonly name: SwapperName
 
   /** perform any necessary async initialization */
-  initialize?(): Promise<void>
+  initialize?(): Promise<Result<unknown, SwapErrorRight>>
 
   /** Returns the swapper type */
   getType(): SwapperType
@@ -263,13 +291,11 @@ export interface Swapper<T extends ChainId> {
   /**
    * Get builds a trade with definitive rate & txData that can be executed with executeTrade
    **/
-  buildTrade(args: BuildTradeInput): Promise<Trade<T>>
-
+  buildTrade(args: BuildTradeInput): Promise<Result<Trade<T>, SwapErrorRight>>
   /**
    * Get a trade quote
    */
-  getTradeQuote(input: GetTradeQuoteInput): Promise<TradeQuote<T>>
-
+  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>>
   /**
    * Get the usd rate from either the assets symbol or tokenId
    */
@@ -278,7 +304,7 @@ export interface Swapper<T extends ChainId> {
   /**
    * Execute a trade built with buildTrade by signing and broadcasting
    */
-  executeTrade(args: ExecuteTradeInput<T>): Promise<TradeResult>
+  executeTrade(args: ExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>>
 
   /**
    * Get a boolean if a quote needs approval
@@ -309,5 +335,5 @@ export interface Swapper<T extends ChainId> {
   /**
    * Get transactions related to a trade
    */
-  getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs>
+  getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>>
 }

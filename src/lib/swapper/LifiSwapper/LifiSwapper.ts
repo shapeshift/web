@@ -12,11 +12,14 @@ import type {
   BuildTradeInput,
   BuyAssetBySellIdInput,
   GetEvmTradeQuoteInput,
+  SwapErrorRight,
   Swapper,
   TradeResult,
   TradeTxs,
 } from '@shapeshiftoss/swapper'
 import { SwapperName, SwapperType } from '@shapeshiftoss/swapper'
+import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { approvalNeeded } from 'lib/swapper/LifiSwapper/approvalNeeded/approvalNeeded'
@@ -43,7 +46,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   private executedTrades: Map<string, GetStatusRequest> = new Map()
 
   /** perform any necessary async initialization */
-  async initialize(): Promise<void> {
+  async initialize(): Promise<Result<unknown, SwapErrorRight>> {
     const supportedChainRefs = evmChainIds.map(
       chainId => Number(fromChainId(chainId).chainReference) as LifiChainId,
     )
@@ -54,6 +57,8 @@ export class LifiSwapper implements Swapper<EvmChainId> {
     })
 
     if (chains !== undefined) this.lifiChainMap = createLifiChainMap(chains)
+
+    return Ok(undefined)
   }
 
   /** Returns the swapper type */
@@ -64,14 +69,16 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Builds a trade with definitive rate & txData that can be executed with executeTrade
    **/
-  async buildTrade(input: BuildTradeInput): Promise<LifiTrade> {
+  async buildTrade(input: BuildTradeInput): Promise<Result<LifiTrade, SwapErrorRight>> {
     return await buildTrade(input, this.lifiChainMap)
   }
 
   /**
    * Get a trade quote
    */
-  async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<LifiTradeQuote> {
+  async getTradeQuote(
+    input: GetEvmTradeQuoteInput,
+  ): Promise<Result<LifiTradeQuote, SwapErrorRight>> {
     const minimumCryptoHuman = getMinimumCryptoHuman(input.sellAsset)
     const minimumSellAmountBaseUnit = toBaseUnit(minimumCryptoHuman, input.sellAsset.precision)
     const isBelowMinSellAmount = bnOrZero(input.sellAmountBeforeFeesCryptoBaseUnit).lt(
@@ -79,10 +86,13 @@ export class LifiSwapper implements Swapper<EvmChainId> {
     )
 
     // TEMP: return an empty quote to allow the UI to render state where buy amount is below minimum
-    // TODO: remove this when we implement monadic error handling for swapper
+    // TODO(gomes): the guts of this, handle properly in a follow-up after monads PR is merged
+    // This is currently the same flow as before, but we may want to e.g propagate the below minimum error all the way to the client
+    // then let the client return the same Ok() value, except it is now fully aware of the fact this isn't a quote from an actual rate
+    // but rather a "mock" quote from a minimum sell amount.
     // https://github.com/shapeshift/web/issues/4237
     if (isBelowMinSellAmount) {
-      return {
+      return Ok({
         buyAmountCryptoBaseUnit: '0',
         sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
         feeData: {
@@ -98,7 +108,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
         allowanceContract: '',
         minimumCryptoHuman: minimumCryptoHuman.toString(),
         maximumCryptoHuman: MAX_LIFI_TRADE,
-      }
+      })
     }
 
     return await getTradeQuote(input, this.lifiChainMap)
@@ -114,10 +124,14 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Execute a trade built with buildTrade by signing and broadcasting
    */
-  async executeTrade(input: LifiExecuteTradeInput): Promise<TradeResult> {
-    const { tradeResult, getStatusRequest } = await executeTrade(input)
-    this.executedTrades.set(tradeResult.tradeId, getStatusRequest)
-    return tradeResult
+  async executeTrade(input: LifiExecuteTradeInput): Promise<Result<TradeResult, SwapErrorRight>> {
+    const maybeExecutedTrade = await executeTrade(input)
+
+    return maybeExecutedTrade.map(executedTrade => {
+      const { tradeResult, getStatusRequest } = executedTrade
+      this.executedTrades.set(tradeResult.tradeId, getStatusRequest)
+      return tradeResult
+    })
   }
 
   /**
@@ -159,18 +173,18 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Get transactions related to a trade
    */
-  async getTradeTxs(tradeResult: TradeResult): Promise<TradeTxs> {
+  async getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
     const getStatusRequest = this.executedTrades.get(tradeResult.tradeId)
 
     if (getStatusRequest === undefined) {
-      return { sellTxid: tradeResult.tradeId }
+      return Ok({ sellTxid: tradeResult.tradeId })
     }
 
     const statusResponse = await getLifi().getStatus(getStatusRequest)
 
-    return {
+    return Ok({
       sellTxid: tradeResult.tradeId,
       buyTxid: statusResponse.receiving?.txHash,
-    }
+    })
   }
 }

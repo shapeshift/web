@@ -156,7 +156,7 @@ export const polygon: Asset = {
   symbol: 'MATIC',
   precision: 18,
   color: '#8f00ff',
-  icon: 'https://assets.coingecko.com/coins/images/4713/thumb/matic-token-icon.png?1624446912',
+  icon: 'https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png?1624446912',
   explorer: 'https://polygonscan.com/',
   explorerAddressLink: 'https://polygonscan.com/address/',
   explorerTxLink: 'https://polygonscan.com/tx/',

@@ -1,6 +1,5 @@
-import merge from 'lodash/merge'
 import noop from 'lodash/noop'
-import React, { useMemo, useReducer } from 'react'
+import React, { useCallback, useMemo, useReducer } from 'react'
 import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
 import { AssetSearchModal } from 'components/Modals/AssetSearch/AssetSearchModal'
@@ -129,27 +128,32 @@ export function createModalProvider<M extends {}>({
   return ({ children }: ModalProviderProps) => {
     const [state, dispatch] = useReducer(instanceReducer, instanceInitialState)
 
-    const openFactory = useMemo(
-      () => (name: keyof M) => (props: ModalProps<M>) =>
-        dispatch({ type: OPEN_MODAL, name, props }),
+    const openFactory = useCallback(
+      (name: keyof M) => (props: ModalProps<M>) => dispatch({ type: OPEN_MODAL, name, props }),
       [],
     )
 
-    const closeFactory = useMemo(
-      () => (name: keyof M) => () => dispatch({ type: CLOSE_MODAL, name }),
+    const closeFactory = useCallback(
+      (name: keyof M) => () => dispatch({ type: CLOSE_MODAL, name }),
       [],
     )
 
-    const value = useMemo(() => {
+    const callbacks = useMemo(() => {
       const modalKeys = Object.keys(instanceInitialState) as (keyof M)[]
-      const fns = modalKeys.reduce((acc, cur) => {
+      return modalKeys.reduce((acc, cur) => {
         const open = openFactory(cur)
         const close = closeFactory(cur)
         return { ...acc, [cur]: { open, close } }
+      }, {} as Record<keyof M, { open: (props: ModalProps<M>) => void; close: () => void }>)
+    }, [openFactory, closeFactory])
+
+    const value = useMemo(() => {
+      const modalKeys = Object.keys(instanceInitialState) as (keyof M)[]
+      return modalKeys.reduce((acc, cur) => {
+        const { open, close } = callbacks[cur]
+        return { ...acc, [cur]: { ...acc[cur], open, close } }
       }, state)
-      const result = merge(state, fns)
-      return result
-    }, [state, openFactory, closeFactory])
+    }, [state, callbacks])
 
     return (
       <InstanceModalContext.Provider value={value}>

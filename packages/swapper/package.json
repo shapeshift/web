@@ -15,8 +15,7 @@
   "scripts": {
     "build": "yarn clean && yarn run -T tsc --build",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "dev": "yarn run -T tsc --build --watch",
-    "cli": "yarn build && yarn run ./dist/swappercli.js"
+    "dev": "yarn run -T tsc --build --watch"
   },
   "dependencies": {
     "@shapeshiftoss/asset-service": "workspace:^",

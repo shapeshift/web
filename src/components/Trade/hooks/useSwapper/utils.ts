@@ -36,8 +36,8 @@ const moduleLogger = logger.child({ namespace: ['useSwapper', 'utils'] })
 
 // Pure functions
 export const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
-  const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
-  return assets.filter(asset => assetIdMap[asset.assetId])
+  const assetIdSet = new Set(...assetIds)
+  return assets.filter(asset => assetIdSet.has(asset.assetId))
 }
 
 export const getSendMaxAmount = (

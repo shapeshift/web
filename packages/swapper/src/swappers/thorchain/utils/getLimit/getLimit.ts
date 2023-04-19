@@ -12,7 +12,7 @@ import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from '../../constants'
 import type { ThorchainSwapperDeps } from '../../types'
 import { THORCHAIN_FIXED_PRECISION } from '../constants'
 import { getInboundAddressDataForChain } from '../getInboundAddressDataForChain'
-import { getTradeRate } from '../getTradeRate/getTradeRate'
+import { getTradeRate, getTradeRateBelowMinimum } from '../getTradeRate/getTradeRate'
 import { getUsdRate } from '../getUsdRate/getUsdRate'
 import { isRune } from '../isRune/isRune'
 
@@ -43,12 +43,21 @@ export const getLimit = async ({
     deps,
   })
 
-  // Bubble up the Err monad if we can't get a trade rate
-  if (maybeTradeRate.isErr()) {
-    return Err(maybeTradeRate.unwrapErr())
-  }
+  // TODO(gomes): grep for maybeTradeRate.match() and bubble the error up
+  // For now, we're just doing the same flow as before and returning either an actual rate or a minimum
+  const tradeRate = await maybeTradeRate.match({
+    ok: rate => Promise.resolve(rate),
+    // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
+    // Though realistically, TRADE_BELOW_MINIMUM is the only one we should really be seeing here,
+    // safety never hurts
+    err: _err =>
+      getTradeRateBelowMinimum({
+        sellAssetId: sellAsset.assetId,
+        buyAssetId,
+        deps,
+      }),
+  })
 
-  const tradeRate = maybeTradeRate.unwrap()
   const sellAssetChainFeeAssetId = deps.adapterManager.get(sellAsset.chainId)?.getFeeAssetId()
   const buyAssetChainFeeAssetId = deps.adapterManager
     .get(fromAssetId(buyAssetId).chainId)

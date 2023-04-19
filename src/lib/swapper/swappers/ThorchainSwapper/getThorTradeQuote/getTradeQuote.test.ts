@@ -15,7 +15,7 @@ import { getThorTradeQuote } from './getTradeQuote'
 jest.mock('../utils/thorService')
 jest.mock('../utils/getUsdRate/getUsdRate')
 
-const mockedAxios = jest.mocked(thorService)
+const mockedAxios = thorService as jest.Mocked<typeof thorService>
 
 const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '59.658672054814851787728',

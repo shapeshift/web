@@ -4,7 +4,7 @@ import { getUsdRate } from './getUsdRate'
 
 jest.mock('../thorService')
 
-const mockedAxios = jest.mocked(thorService)
+const mockedAxios = thorService as jest.Mocked<typeof thorService>
 
 describe('getUsdRate', () => {
   it('should return USD rate of given Thorchain asset', async () => {

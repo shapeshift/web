@@ -13,7 +13,7 @@ import { getDoubleSwapSlippage, getSingleSwapSlippage, getSlippage } from './get
 
 jest.mock('../utils/thorService')
 
-const mockedAxios = jest.mocked(thorService)
+const mockedAxios = thorService as jest.Mocked<typeof thorService>
 
 describe('getSlippage', () => {
   const expectedBtcRuneSlippage = bn('0.00109735998697522801')

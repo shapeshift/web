@@ -29,31 +29,31 @@ import {
 describe('lib/utils', () => {
   describe('opportunityIdToChainId', () => {
     test('returns the correct chain ID for an LpId', () => {
-      const lpId: LpId = foxAssetId
+      const lpId: LpId = foxAssetId as LpId
       const result: ChainId = opportunityIdToChainId(lpId)
       expect(result).toEqual(ethChainId)
     })
 
     test('returns the correct chain ID for a StakingId', () => {
-      const stakingId: StakingId = foxyAssetId
+      const stakingId: StakingId = foxyAssetId as StakingId
       const result: ChainId = opportunityIdToChainId(stakingId)
       expect(result).toEqual(ethChainId)
     })
 
     test('returns the correct chain ID for a ValidatorId', () => {
-      const validatorId: ValidatorId = fauxmesAccountId
+      const validatorId: ValidatorId = fauxmesAccountId as ValidatorId
       const result: ChainId = opportunityIdToChainId(validatorId)
       expect(result).toEqual(ethChainId)
     })
 
     test('returns the correct chain ID for a Cosmos asset ID', () => {
-      const cosmosOpportunityId: OpportunityId = cosmosAssetId
+      const cosmosOpportunityId: OpportunityId = cosmosAssetId as OpportunityId
       const result: ChainId = opportunityIdToChainId(cosmosOpportunityId)
       expect(result).toEqual(cosmosChainId)
     })
 
     test('returns the correct chain ID for an Osmosis asset ID', () => {
-      const osmosisOpportunityId: OpportunityId = osmosisAssetId
+      const osmosisOpportunityId: OpportunityId = osmosisAssetId as OpportunityId
       const result: ChainId = opportunityIdToChainId(osmosisOpportunityId)
       expect(result).toEqual(osmosisChainId)
     })

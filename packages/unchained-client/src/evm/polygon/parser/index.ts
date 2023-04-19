@@ -1,4 +1,4 @@
-import type { Tx } from '../../../generated/optimism'
+import type { Tx } from '../../../generated/polygon'
 import type { TransactionParserArgs } from '../../parser'
 import { BaseTransactionParser } from '../../parser'
 import * as erc20 from '../../parser/erc20'

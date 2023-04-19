@@ -8,7 +8,7 @@ import type { AxiosResponse } from 'axios'
 import axios from 'axios'
 
 import { getChainAdapterManager } from '../../../../../../web/src/context/PluginProvider/chainAdapterSingleton'
-import { bnOrZero } from '../../../../lib/bignumber/bignumber'
+import { bn, bnOrZero } from '../../../../lib/bignumber/bignumber'
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
 import { APPROVAL_GAS_LIMIT, DEFAULT_SOURCE } from '../utils/constants'
 import { getMinMax, getRate } from '../utils/helpers'
@@ -69,7 +69,7 @@ export async function getTradeQuote(
   const gasPriceCryptoBaseUnit = gasFeeData.fast.gasPrice
   const fee = estimatedGas.multipliedBy(gasPriceCryptoBaseUnit).toString()
 
-  const approvalFeeCryptoBaseUnit = bnOrZero(APPROVAL_GAS_LIMIT)
+  const approvalFeeCryptoBaseUnit = bn(APPROVAL_GAS_LIMIT)
     .multipliedBy(bnOrZero(gasPriceCryptoBaseUnit))
     .toFixed()
 

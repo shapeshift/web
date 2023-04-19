@@ -1,3 +1,4 @@
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type {
   avalanche,
   bnbsmartchain,
@@ -22,9 +23,11 @@ import type {
 import { SwapperName, SwapperType, Trade } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 
+import { approvalNeeded } from './approvalNeeded/approvalNeeded'
+import { buildTrade } from './buildTrade/buildTrade'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getUsdRate } from './getUsdRate/getUsdRate'
-import type { OneInchSwapperDeps } from './utils/types'
+import type { OneInchSwapperDeps, OneInchTrade } from './utils/types'
 
 export type OneInchSupportedChainId =
   | KnownChainIds.EthereumMainnet
@@ -64,11 +67,15 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
     return await getTradeQuote(this.deps, input)
   }
 
-  async getUsdRate(input: GetTradeQuoteInput): Promise<string> {
+  async getUsdRate(input: Asset): Promise<string> {
     return await getUsdRate(this.deps, input)
   }
 
-  async approvalNeeded(args: ApprovalNeededInput<T>): Promise<ApprovalNeededOutput> {
-    return { approvalNeeded: false }
+  async approvalNeeded(input: ApprovalNeededInput<EvmChainId>): Promise<ApprovalNeededOutput> {
+    return await approvalNeeded(this.deps, input)
+  }
+
+  async buildTrade(input: BuildTradeInput): Promise<OneInchTrade<EvmChainId>> {
+    return await buildTrade(this.deps, input)
   }
 }

@@ -7,9 +7,9 @@ import type BigNumber from 'bignumber.js'
 import { bn, bnOrZero } from '../../../../lib/bignumber/bignumber'
 import { getUsdRate } from '../getUsdRate/getUsdRate'
 import { MAX_ONEINCH_TRADE, MIN_ONEINCH_VALUE_USD } from '../utils/constants'
-import type { OneInchQuoteResponse, OneInchSwapperDeps } from './types'
+import type { OneInchBaseResponse, OneInchSwapperDeps } from './types'
 
-export const getRate = (quoteResponse: OneInchQuoteResponse): BigNumber => {
+export const getRate = (quoteResponse: OneInchBaseResponse): BigNumber => {
   const fromTokenAmountDecimal = bn(quoteResponse.fromTokenAmount).div(
     bn(10).pow(quoteResponse.fromToken.decimals),
   )

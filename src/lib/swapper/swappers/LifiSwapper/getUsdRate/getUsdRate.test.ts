@@ -4,9 +4,9 @@ import { ChainId as LifiChainId, ChainKey as LifiChainKey } from '@lifi/types'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE } from '@shapeshiftoss/caip'
-import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
+import { SwapError, SwapErrorType } from '../../../../swapper/api'
 import { getUsdRate } from './getUsdRate'
 
 describe('getUsdRate', () => {

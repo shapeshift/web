@@ -3,14 +3,14 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { QuoteFeeData } from '@shapeshiftoss/swapper'
-import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
-import { APPROVAL_GAS_LIMIT } from '@shapeshiftoss/swapper/dist/swappers/utils/constants'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { baseUnitToHuman, baseUnitToPrecision, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { QuoteFeeData } from 'lib/swapper/api'
+import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { getEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetAddress/getAssetAddress'
 import { getFeeAssets } from 'lib/swapper/swappers/LifiSwapper/utils/getFeeAssets/getFeeAssets'
 import { processGasCosts } from 'lib/swapper/swappers/LifiSwapper/utils/processGasCosts/processGasCosts'
+import { APPROVAL_GAS_LIMIT } from 'lib/swapper/swappers/utils/constants'
 
 export const transformLifiFeeData = async ({
   buyAsset,

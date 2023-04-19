@@ -4,6 +4,10 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
 import type {
   ApprovalNeededInput,
   ApprovalNeededOutput,
@@ -16,12 +20,8 @@ import type {
   Swapper,
   TradeResult,
   TradeTxs,
-} from '@shapeshiftoss/swapper'
-import { SwapperName, SwapperType } from '@shapeshiftoss/swapper'
-import type { Result } from '@sniptt/monads'
-import { Ok } from '@sniptt/monads'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
+} from 'lib/swapper/api'
+import { SwapperName, SwapperType } from 'lib/swapper/api'
 import { approvalNeeded } from 'lib/swapper/swappers/LifiSwapper/approvalNeeded/approvalNeeded'
 import { approveAmount, approveInfinite } from 'lib/swapper/swappers/LifiSwapper/approve/approve'
 import { buildTrade } from 'lib/swapper/swappers/LifiSwapper/buildTrade/buildTrade'

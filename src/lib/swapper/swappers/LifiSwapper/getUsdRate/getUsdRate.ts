@@ -2,7 +2,7 @@ import type { ChainKey, LifiError, Token as LifiToken } from '@lifi/sdk'
 import type LIFI from '@lifi/sdk'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
+import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { getEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetAddress/getAssetAddress'
 
 export async function getUsdRate(

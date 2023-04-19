@@ -1,9 +1,9 @@
 import type { ChainKey } from '@lifi/sdk'
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { BuildTradeInput, SwapErrorRight } from '@shapeshiftoss/swapper'
-import { makeSwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
+import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { getTradeQuote } from 'lib/swapper/swappers/LifiSwapper/getTradeQuote/getTradeQuote'
 import { isGetEvmTradeQuoteInput } from 'lib/swapper/swappers/LifiSwapper/utils/isGetEvmTradeQuoteInput/isGetEvmTradeQuoteInput'
 

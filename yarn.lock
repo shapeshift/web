@@ -6243,24 +6243,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/swapper@workspace:^, @shapeshiftoss/swapper@workspace:packages/swapper":
-  version: 0.0.0-use.local
-  resolution: "@shapeshiftoss/swapper@workspace:packages/swapper"
-  dependencies:
-    "@shapeshiftoss/asset-service": "workspace:^"
-    "@shapeshiftoss/caip": "workspace:^"
-    "@shapeshiftoss/chain-adapters": "workspace:^"
-    "@shapeshiftoss/errors": "workspace:^"
-    "@shapeshiftoss/logger": "workspace:^"
-    "@shapeshiftoss/types": "workspace:^"
-    "@types/readline-sync": ^1.4.4
-    axios-cache-adapter: ^2.7.3
-    readline-sync: ^1.4.10
-    retry-axios: ^2.6.0
-    web3-utils: 1.7.4
-  languageName: unknown
-  linkType: soft
-
 "@shapeshiftoss/types@npm:3.1.3":
   version: 3.1.3
   resolution: "@shapeshiftoss/types@npm:3.1.3"
@@ -6335,7 +6317,6 @@ __metadata:
     "@shapeshiftoss/investor-yearn": "workspace:^"
     "@shapeshiftoss/logger": "workspace:^"
     "@shapeshiftoss/market-service": "workspace:^"
-    "@shapeshiftoss/swapper": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@sniptt/monads": ^0.5.10
@@ -6388,6 +6369,7 @@ __metadata:
     allsettled-polyfill: ^1.0.4
     assert: ^2.0.0
     axios: ^0.26.1
+    axios-cache-adapter: ^2.7.3
     bignumber.js: ^9.1.1
     bip21: ^2.0.3
     bip39: ^3.0.4
@@ -6468,6 +6450,7 @@ __metadata:
     reselect: ^4.1.6
     reselect-tools: ^0.0.7
     resize-observer-polyfill: ^1.5.1
+    retry-axios: ^2.6.0
     simple-git: ^3.16.0
     simplex-noise: ^3.0.1
     ssri: ^8.0.1

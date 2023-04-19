@@ -1,6 +1,6 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId, isAssetReference } from '@shapeshiftoss/caip'
-import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
+import { isNativeEvmAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
 
 import { DEFAULT_LIFI_TOKEN_ADDRESS } from '../constants'
 

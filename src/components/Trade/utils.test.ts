@@ -1,9 +1,9 @@
 import { btcAssetId } from '@shapeshiftoss/caip'
-import { getInboundAddressDataForChain, SwapperName } from '@shapeshiftoss/swapper'
 import { isTradingActive } from 'components/Trade/utils'
+import { getInboundAddressDataForChain, SwapperName } from 'lib/swapper/api'
 
-jest.mock('@shapeshiftoss/swapper', () => ({
-  ...jest.requireActual('@shapeshiftoss/swapper'),
+jest.mock('lib/swapper/api', () => ({
+  ...jest.requireActual('lib/swapper/api'),
   getInboundAddressDataForChain: jest.fn(),
 }))
 

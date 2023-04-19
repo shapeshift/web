@@ -1,6 +1,6 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
+import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
 import { selectAccountIdByAccountNumberAndChainId } from 'state/slices/selectors'
 import { store } from 'state/store'

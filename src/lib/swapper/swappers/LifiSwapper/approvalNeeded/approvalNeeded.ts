@@ -1,11 +1,11 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { ApprovalNeededInput, ApprovalNeededOutput } from '@shapeshiftoss/swapper'
-import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
-import { erc20AllowanceAbi } from '@shapeshiftoss/swapper/dist/swappers/utils/abi/erc20Allowance-abi'
-import { getERC20Allowance } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { ApprovalNeededInput, ApprovalNeededOutput } from 'lib/swapper/api'
+import { SwapError, SwapErrorType } from 'lib/swapper/api'
+import { erc20AllowanceAbi } from 'lib/swapper/swappers/utils/abi/erc20Allowance-abi'
+import { getERC20Allowance } from 'lib/swapper/swappers/utils/helpers/helpers'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 
 export const approvalNeeded = async ({

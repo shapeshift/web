@@ -1,9 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { SwapperManager } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { SwapperManager } from 'lib/swapper/manager/SwapperManager'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
   selectAssetIds,

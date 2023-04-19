@@ -2,12 +2,12 @@ import type { ChainKey, LifiError, RoutesRequest } from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { GetEvmTradeQuoteInput, SwapErrorRight } from '@shapeshiftoss/swapper'
-import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import type { GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import {
   MAX_LIFI_TRADE,
   SELECTED_ROUTE_INDEX,

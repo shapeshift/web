@@ -110,7 +110,7 @@ export const useFoxFarming = (
             }
             return await adapter.buildCustomTx({
               to: contractAddress,
-              value: '0x00',
+              value: '0',
               wallet,
               data,
               gasLimit,
@@ -214,7 +214,7 @@ export const useFoxFarming = (
             }
             return await adapter.buildCustomTx({
               to: contractAddress,
-              value: '0x00',
+              value: '0',
               wallet,
               data,
               gasLimit,
@@ -371,7 +371,7 @@ export const useFoxFarming = (
     }
     const result = await adapter.buildCustomTx({
       to: uniV2LPContract.address,
-      value: '0x00',
+      value: '0',
       wallet,
       data,
       gasLimit,
@@ -455,7 +455,7 @@ export const useFoxFarming = (
     }
     const result = await adapter.buildCustomTx({
       to: contractAddress,
-      value: '0x00',
+      value: '0',
       wallet,
       data,
       gasLimit,

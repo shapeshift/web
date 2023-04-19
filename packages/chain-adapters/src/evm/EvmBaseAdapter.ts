@@ -37,6 +37,7 @@ import type {
 import { ValidAddressResultType } from '../types'
 import {
   chainIdToChainLabel,
+  convertNumberToHex,
   getAssetNamespace,
   toAddressNList,
   toRootDerivationPath,
@@ -547,7 +548,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       const bip44Params = this.getBIP44Params({ accountNumber })
       const txToSign = {
         addressNList: toAddressNList(bip44Params),
-        value,
+        value: convertNumberToHex(value),
         to,
         chainId: Number(fromChainId(this.chainId).chainReference),
         data,

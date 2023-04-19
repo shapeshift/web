@@ -58,6 +58,7 @@ import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioFiatBalances,
+  selectPortfolioFiatBalancesByAccountId,
   selectWalletAccountIds,
   selectWalletId,
   selectWalletName,
@@ -159,35 +160,6 @@ export const selectPortfolioLoadingStatus = createSelector(
   },
 )
 
-export const selectPortfolioFiatBalancesByAccount = createDeepEqualOutputSelector(
-  selectAssets,
-  selectPortfolioAccountBalancesBaseUnit,
-  selectMarketDataSortedByMarketCap,
-  (assetsById, accounts, marketData) => {
-    return Object.entries(accounts).reduce(
-      (acc, [accountId, balanceObj]) => {
-        acc[accountId] = Object.entries(balanceObj).reduce(
-          (acc, [assetId, cryptoBalance]) => {
-            const asset = assetsById[assetId]
-            if (!asset) return acc
-            const precision = asset.precision
-            const price = marketData[assetId]?.price ?? 0
-            const cryptoValue = fromBaseUnit(bnOrZero(cryptoBalance), precision)
-            const fiatBalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
-            acc[assetId] = fiatBalance
-
-            return acc
-          },
-          { ...balanceObj },
-        )
-
-        return acc
-      },
-      { ...accounts },
-    )
-  },
-)
-
 export const selectPortfolioTotalFiatBalance = createSelector(
   selectPortfolioFiatBalances,
   (portfolioFiatBalances): string =>
@@ -220,7 +192,7 @@ export const selectPortfolioFiatBalanceByAssetId = createCachedSelector(
 
 export const selectPortfolioFiatBalanceByFilter = createCachedSelector(
   selectPortfolioFiatBalances,
-  selectPortfolioFiatBalancesByAccount,
+  selectPortfolioFiatBalancesByAccountId,
   selectAssetIdParamFromFilter,
   selectAccountIdParamFromFilter,
   (portfolioAssetFiatBalances, portfolioAccountFiatbalances, assetId, accountId): string => {
@@ -337,7 +309,7 @@ export const selectPortfolioLoading = createSelector(
 )
 
 export const selectPortfolioAssetAccountBalancesSortedFiat = createDeepEqualOutputSelector(
-  selectPortfolioFiatBalancesByAccount,
+  selectPortfolioFiatBalancesByAccountId,
   selectBalanceThreshold,
   (portfolioFiatAccountBalances, balanceThreshold): PortfolioAccountBalancesById => {
     return Object.entries(portfolioFiatAccountBalances).reduce<PortfolioAccountBalancesById>(
@@ -376,7 +348,7 @@ export const selectHighestFiatBalanceAccountByAssetId = createCachedSelector(
 
 export const selectPortfolioAllocationPercentByFilter = createCachedSelector(
   selectPortfolioFiatBalances,
-  selectPortfolioFiatBalancesByAccount,
+  selectPortfolioFiatBalancesByAccountId,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   (assetFiatBalances, assetFiatBalancesByAccount, accountId, assetId): number | undefined => {
@@ -634,7 +606,7 @@ export const selectAccountIdsByAssetId = createCachedSelector(
 export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelector(
   selectPortfolioAccounts,
   selectAssetIdParamFromFilter,
-  selectPortfolioFiatBalancesByAccount,
+  selectPortfolioFiatBalancesByAccountId,
   selectBalanceThreshold,
   (portfolioAccounts, assetId, accountBalances, balanceThreshold) => {
     const accounts = findAccountsByAssetId(portfolioAccounts, assetId)

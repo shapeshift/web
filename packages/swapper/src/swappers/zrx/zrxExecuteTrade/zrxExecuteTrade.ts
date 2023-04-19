@@ -1,15 +1,17 @@
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { numberToHex } from 'web3-utils'
 
-import type { TradeResult } from '../../../api'
-import { SwapError, SwapErrorType } from '../../../api'
+import type { SwapErrorRight, TradeResult } from '../../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from '../../../api'
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { ZrxExecuteTradeInput, ZrxSwapperDeps } from '../types'
-import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import type { ZrxSupportedChainId } from '../ZrxSwapper'
 
 export async function zrxExecuteTrade<T extends ZrxSupportedChainId>(
   { adapter }: ZrxSwapperDeps,
   { trade, wallet }: ZrxExecuteTradeInput<T>,
-): Promise<TradeResult> {
+): Promise<Result<TradeResult, SwapErrorRight>> {
   const { accountNumber, sellAsset } = trade
 
   try {
@@ -38,24 +40,34 @@ export async function zrxExecuteTrade<T extends ZrxSupportedChainId>(
 
       const txid = await adapter.broadcastTransaction(signedTx)
 
-      return { tradeId: txid }
+      return Ok({ tradeId: txid })
     } else if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
       const txid = await adapter.signAndBroadcastTransaction?.({
         txToSign: txWithQuoteData,
         wallet,
       })
 
-      return { tradeId: txid }
+      return Ok({ tradeId: txid })
     } else {
       throw new SwapError('[zrxExecuteTrade]', {
         code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
       })
     }
   } catch (e) {
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[zrxExecuteTrade]', {
-      cause: e,
-      code: SwapErrorType.EXECUTE_TRADE_FAILED,
-    })
+    if (e instanceof SwapError)
+      return Err(
+        makeSwapErrorRight({
+          message: e.message,
+          code: e.code,
+          details: e.details,
+        }),
+      )
+    return Err(
+      makeSwapErrorRight({
+        message: '[zrxExecuteTrade]',
+        cause: e,
+        code: SwapErrorType.EXECUTE_TRADE_FAILED,
+      }),
+    )
   }
 }

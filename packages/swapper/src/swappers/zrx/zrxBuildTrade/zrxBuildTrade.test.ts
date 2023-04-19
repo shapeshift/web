@@ -118,7 +118,9 @@ describe('zrxBuildTrade', () => {
     }))
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
-    expect(await zrxBuildTrade(deps, { ...buildTradeInput })).toEqual({
+    const maybeBuiltTrade = await zrxBuildTrade(deps, { ...buildTradeInput })
+    expect(maybeBuiltTrade.isOk()).toBe(true)
+    expect(maybeBuiltTrade.unwrap()).toEqual({
       ...buildTradeResponse,
       buyAsset,
     })
@@ -140,7 +142,9 @@ describe('zrxBuildTrade', () => {
     }))
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
-    expect(await zrxBuildTrade(deps, { ...buildTradeInput })).toEqual({
+    const maybeBuiltTrade = await zrxBuildTrade(deps, { ...buildTradeInput })
+    expect(maybeBuiltTrade.isOk()).toBe(true)
+    expect(maybeBuiltTrade.unwrap()).toEqual({
       ...buildTradeResponse,
       rate: price,
       buyAsset,
@@ -173,7 +177,9 @@ describe('zrxBuildTrade', () => {
         .toString(),
     }
 
-    expect(await zrxBuildTrade(deps, { ...buildTradeInput, wallet })).toEqual({
+    const maybeBuiltTrade = await zrxBuildTrade(deps, { ...buildTradeInput, wallet })
+    expect(maybeBuiltTrade.isOk()).toBe(true)
+    expect(maybeBuiltTrade.unwrap()).toEqual({
       ...buildTradeResponse,
       feeData: expectedFeeData,
       buyAsset,

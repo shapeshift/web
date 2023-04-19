@@ -11,6 +11,7 @@ import { RawText } from 'components/Text'
 import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { assertUnreachable } from 'lib/utils'
 import { selectFeeAssetByChainId, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
@@ -160,7 +161,8 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   })()
 
   const protocolIcon = useMemo(() => {
-    switch (swapperWithMetadata.swapper.getType()) {
+    const swapperType = swapperWithMetadata.swapper.getType()
+    switch (swapperType) {
       case SwapperType.Osmosis:
         return OsmosisIcon
       case SwapperType.LIFI:
@@ -175,8 +177,9 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       case SwapperType.Thorchain:
         return THORChainIcon
       case SwapperType.Test:
-      default:
         return ''
+      default:
+        assertUnreachable(swapperType)
     }
   }, [swapperWithMetadata])
 

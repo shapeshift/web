@@ -133,7 +133,7 @@ export const TradeInput = () => {
   const action = useSwapperStore(selectAction)
   const amount = useSwapperStore(selectAmount)
   const isSendMax = useSwapperStore(selectIsSendMax)
-  const { getTrade, getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
+  const { getTrade, supportedSellAssetsByMarketCap, supportedBuyAssetsByMarketCap } = useSwapper()
   const translate = useTranslate()
   const history = useHistory()
   const mixpanel = getMixPanel()
@@ -494,18 +494,34 @@ export const TradeInput = () => {
     }
   }, [isBelowMinSellAmount, feesExceedsSellAmount])
 
+  const handleSellAssetClick = useCallback(
+    (asset: Asset) => handleAssetClick(asset, AssetClickAction.Sell),
+    [handleAssetClick],
+  )
+
+  const handleBuyAssetClick = useCallback(
+    (asset: Asset) => handleAssetClick(asset, AssetClickAction.Buy),
+    [handleAssetClick],
+  )
+
   const handleInputAssetClick = useCallback(
     (action: AssetClickAction) => {
       assetSearch.open({
-        onClick: (asset: Asset) => handleAssetClick(asset, action),
+        onClick: action === AssetClickAction.Sell ? handleSellAssetClick : handleBuyAssetClick,
         title: action === AssetClickAction.Sell ? 'trade.tradeFrom' : 'trade.tradeTo',
-        filterBy:
+        assets:
           action === AssetClickAction.Sell
-            ? getSupportedSellableAssets
-            : getSupportedBuyAssetsFromSellAsset,
+            ? supportedSellAssetsByMarketCap
+            : supportedBuyAssetsByMarketCap,
       })
     },
-    [assetSearch, getSupportedBuyAssetsFromSellAsset, getSupportedSellableAssets, handleAssetClick],
+    [
+      assetSearch,
+      supportedBuyAssetsByMarketCap,
+      supportedSellAssetsByMarketCap,
+      handleSellAssetClick,
+      handleBuyAssetClick,
+    ],
   )
 
   const tradeStateLoading = useMemo(

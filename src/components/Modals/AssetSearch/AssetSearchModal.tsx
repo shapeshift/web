@@ -24,7 +24,7 @@ interface AssetSearchModalProps extends AssetSearchProps {
 
 export const AssetSearchModal: FC<AssetSearchModalProps> = ({
   onClick,
-  filterBy,
+  assets,
   disableUnsupported,
   title = 'common.selectAsset',
 }) => {
@@ -54,7 +54,7 @@ export const AssetSearchModal: FC<AssetSearchModalProps> = ({
         <ModalBody px={2} pt={0} pb={0} display='flex' flexDir='column'>
           <AssetSearch
             onClick={handleClick}
-            filterBy={filterBy}
+            assets={assets}
             disableUnsupported={disableUnsupported}
           />
         </ModalBody>

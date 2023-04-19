@@ -10,8 +10,13 @@ import type { ParseAddressInputReturn } from 'lib/address/address'
 import { parseAddressInput } from 'lib/address/address'
 import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
+import { isSome } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
-import { selectPortfolioAccountMetadata, selectWalletAccountIds } from 'state/slices/selectors'
+import {
+  selectAssets,
+  selectPortfolioAccountMetadata,
+  selectWalletAccountIds,
+} from 'state/slices/selectors'
 
 import { FiatRampAction } from '../FiatRampsCommon'
 import { Overview } from './Overview'
@@ -35,6 +40,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 }) => {
   const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
+  const assets = useSelector(selectAssets)
   const [accountId, setAccountId] = useState<AccountId | undefined>(selectedAccountId)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
@@ -46,18 +52,27 @@ export const FiatForm: React.FC<FiatFormProps> = ({
   const { data: ramps } = useGetFiatRampsQuery()
   const { assetSearch } = useModal()
 
+  const buyAssets: Asset[] = useMemo(() => {
+    const buyAssetIds = ramps?.buyAssetIds ?? []
+    return buyAssetIds.map(assetId => assets[assetId]).filter(isSome)
+  }, [ramps?.buyAssetIds, assets])
+
+  const sellAssets: Asset[] = useMemo(() => {
+    const sellAssetIds = ramps?.sellAssetIds ?? []
+    return sellAssetIds.map(assetId => assets[assetId]).filter(isSome)
+  }, [ramps?.sellAssetIds, assets])
+
   const handleIsSelectingAsset = useCallback(
     (fiatRampAction: FiatRampAction) => {
       if (!wallet) return
-      const assetIds =
-        (fiatRampAction === FiatRampAction.Buy ? ramps?.buyAssetIds : ramps?.sellAssetIds) ?? []
+
       assetSearch.open({
         onClick: (asset: Asset) => setSelectedAssetId(asset.assetId),
-        filterBy: (assets: Asset[]) => assets.filter(asset => assetIds.includes(asset.assetId)),
+        assets: fiatRampAction === FiatRampAction.Buy ? buyAssets : sellAssets,
         disableUnsupported: true,
       })
     },
-    [assetSearch, ramps?.buyAssetIds, ramps?.sellAssetIds, wallet],
+    [wallet, assetSearch, buyAssets, sellAssets],
   )
 
   /**

@@ -6,7 +6,7 @@
     "storageDir": "~/.openapitools",
     "generators": {
       "avalanche": {
-        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/a801502f213dfb0c6f74a294706622228b55686c/node/coinstacks/avalanche/api/src/swagger.json",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/avalanche/api/src/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/avalanche",
         "enablePostProcessFile": true,
@@ -45,7 +45,7 @@
         }
       },
       "bnbsmartchain": {
-        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/a801502f213dfb0c6f74a294706622228b55686c/node/coinstacks/bnbsmartchain/api/src/swagger.json",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/bnbsmartchain/api/src/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/bnbsmartchain",
         "enablePostProcessFile": true,
@@ -84,7 +84,7 @@
         }
       },
       "ethereum": {
-        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/a801502f213dfb0c6f74a294706622228b55686c/node/coinstacks/ethereum/api/src/swagger.json",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/ethereum/api/src/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/ethereum",
         "enablePostProcessFile": true,
@@ -110,7 +110,7 @@
         }
       },
       "optimism": {
-        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/a801502f213dfb0c6f74a294706622228b55686c/node/coinstacks/optimism/api/src/swagger.json",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/optimism/api/src/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/optimism",
         "enablePostProcessFile": true,

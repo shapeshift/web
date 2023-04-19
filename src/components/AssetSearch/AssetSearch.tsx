@@ -14,7 +14,8 @@ import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { logger } from 'lib/logger'
-import { selectChainIdsByMarketCap } from 'state/slices/selectors'
+import { selectChainIdsByMarketCap, selectSortedAssets } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { AssetList } from './AssetList'
 import { ChainList } from './Chains/ChainList'
@@ -33,7 +34,7 @@ export enum AssetSearchOrder {
 }
 
 export type AssetSearchProps = {
-  assets: Asset[]
+  assets?: Asset[]
   onClick?: (asset: Asset) => void
   disableUnsupported?: boolean
   assetListAsDropdown?: boolean
@@ -42,7 +43,7 @@ export type AssetSearchProps = {
 }
 
 export const AssetSearch: FC<AssetSearchProps> = ({
-  assets,
+  assets: selectedAssets,
   onClick,
   disableUnsupported,
   assetListAsDropdown,
@@ -54,6 +55,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 
   const chainIdsByMarketCap = useSelector(selectChainIdsByMarketCap)
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
+  const assets = useAppSelector(state => selectedAssets ?? selectSortedAssets(state))
 
   /**
    * assets filtered by selected chain ids

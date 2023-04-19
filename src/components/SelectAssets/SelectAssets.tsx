@@ -2,10 +2,8 @@ import { ArrowBackIcon } from '@chakra-ui/icons'
 import { IconButton, ModalBody, ModalCloseButton, ModalHeader, Stack } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { SlideTransition } from 'components/SlideTransition'
-import { selectSortedAssets } from 'state/slices/selectors'
 
 type SelectAssetsProps = {
   onClick(asset: Asset): void
@@ -14,7 +12,6 @@ type SelectAssetsProps = {
 
 export const SelectAssets = ({ onClick, onBack: handleBack }: SelectAssetsProps) => {
   const translate = useTranslate()
-  const sortedAssets = useSelector(selectSortedAssets)
   return (
     <SlideTransition>
       <Stack direction='row' width='full' alignItems='center' px={4}>
@@ -33,7 +30,7 @@ export const SelectAssets = ({ onClick, onBack: handleBack }: SelectAssetsProps)
         <ModalCloseButton position='static' />
       </Stack>
       <ModalBody height='600px' px={2} display='flex' flexDir='column'>
-        <AssetSearch onClick={onClick} assets={sortedAssets} />
+        <AssetSearch onClick={onClick} />
       </ModalBody>
     </SlideTransition>
   )

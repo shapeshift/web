@@ -17,11 +17,7 @@ export const generateTrustWalletUrl = (assetId: AssetId) => {
     url += `/assets/`
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm:
-        // Skip checksum if we're hitting an EVM chain's native asset
-        // since native assets don't have an address
-        if (assetReference !== '60') {
           url += Web3.utils.toChecksumAddress(assetReference)
-        }
         break
       default:
     }

@@ -8,13 +8,16 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
-import { MAX_LIFI_TRADE, SELECTED_ROUTE_INDEX } from 'lib/swapper/LifiSwapper/utils/constants'
-import { getEvmAssetAddress } from 'lib/swapper/LifiSwapper/utils/getAssetAddress/getAssetAddress'
-import { getAssetBalance } from 'lib/swapper/LifiSwapper/utils/getAssetBalance/getAssetBalance'
-import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
-import { getMinimumCryptoHuman } from 'lib/swapper/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
-import { transformLifiFeeData } from 'lib/swapper/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
-import type { LifiTradeQuote } from 'lib/swapper/LifiSwapper/utils/types'
+import {
+  MAX_LIFI_TRADE,
+  SELECTED_ROUTE_INDEX,
+} from 'lib/swapper/swappers/LifiSwapper/utils/constants'
+import { getEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetAddress/getAssetAddress'
+import { getAssetBalance } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetBalance/getAssetBalance'
+import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
+import { getMinimumCryptoHuman } from 'lib/swapper/swappers/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
+import { transformLifiFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
+import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,

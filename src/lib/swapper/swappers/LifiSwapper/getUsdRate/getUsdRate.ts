@@ -3,7 +3,7 @@ import type LIFI from '@lifi/sdk'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
-import { getEvmAssetAddress } from 'lib/swapper/LifiSwapper/utils/getAssetAddress/getAssetAddress'
+import { getEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetAddress/getAssetAddress'
 
 export async function getUsdRate(
   asset: Asset,

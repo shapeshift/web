@@ -5,7 +5,7 @@ import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { erc20Abi } from '@shapeshiftoss/swapper/dist/swappers/utils/abi/erc20-abi'
 import { grantAllowance } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { MAX_ALLOWANCE } from 'lib/swapper/LifiSwapper/utils/constants'
+import { MAX_ALLOWANCE } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
 import { isEvmChainAdapter } from 'lib/utils'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 

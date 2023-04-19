@@ -4,8 +4,8 @@ import type { BuildTradeInput, SwapErrorRight } from '@shapeshiftoss/swapper'
 import { makeSwapErrorRight, SwapErrorType } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
-import { getTradeQuote } from 'lib/swapper/LifiSwapper/getTradeQuote/getTradeQuote'
-import { isGetEvmTradeQuoteInput } from 'lib/swapper/LifiSwapper/utils/isGetEvmTradeQuoteInput/isGetEvmTradeQuoteInput'
+import { getTradeQuote } from 'lib/swapper/swappers/LifiSwapper/getTradeQuote/getTradeQuote'
+import { isGetEvmTradeQuoteInput } from 'lib/swapper/swappers/LifiSwapper/utils/isGetEvmTradeQuoteInput/isGetEvmTradeQuoteInput'
 
 import type { LifiTrade } from '../utils/types'
 

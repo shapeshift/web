@@ -8,8 +8,8 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { providers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
-import type { LifiExecuteTradeInput } from 'lib/swapper/LifiSwapper/utils/types'
+import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
+import type { LifiExecuteTradeInput } from 'lib/swapper/swappers/LifiSwapper/utils/types'
 import { isEvmChainAdapter } from 'lib/utils'
 
 const createBuildSendTxInput = async (

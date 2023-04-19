@@ -8,9 +8,9 @@ import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import { APPROVAL_GAS_LIMIT } from '@shapeshiftoss/swapper/dist/swappers/utils/constants'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { baseUnitToHuman, baseUnitToPrecision, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getEvmAssetAddress } from 'lib/swapper/LifiSwapper/utils/getAssetAddress/getAssetAddress'
-import { getFeeAssets } from 'lib/swapper/LifiSwapper/utils/getFeeAssets/getFeeAssets'
-import { processGasCosts } from 'lib/swapper/LifiSwapper/utils/processGasCosts/processGasCosts'
+import { getEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetAddress/getAssetAddress'
+import { getFeeAssets } from 'lib/swapper/swappers/LifiSwapper/utils/getFeeAssets/getFeeAssets'
+import { processGasCosts } from 'lib/swapper/swappers/LifiSwapper/utils/processGasCosts/processGasCosts'
 
 export const transformLifiFeeData = async ({
   buyAsset,

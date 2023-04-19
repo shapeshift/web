@@ -1,7 +1,7 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn } from 'lib/bignumber/bignumber'
-import { MIN_AMOUNT_THRESHOLD_USD_HUMAN } from 'lib/swapper/LifiSwapper/utils/constants'
+import { MIN_AMOUNT_THRESHOLD_USD_HUMAN } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { store } from 'state/store'
 

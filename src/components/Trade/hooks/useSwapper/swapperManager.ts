@@ -10,7 +10,7 @@ import {
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { LifiSwapper } from 'lib/swapper/LifiSwapper/LifiSwapper'
+import { LifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 

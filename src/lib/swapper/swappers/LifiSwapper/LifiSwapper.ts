@@ -22,23 +22,23 @@ import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
-import { approvalNeeded } from 'lib/swapper/LifiSwapper/approvalNeeded/approvalNeeded'
-import { approveAmount, approveInfinite } from 'lib/swapper/LifiSwapper/approve/approve'
-import { buildTrade } from 'lib/swapper/LifiSwapper/buildTrade/buildTrade'
-import { executeTrade } from 'lib/swapper/LifiSwapper/executeTrade/executeTrade'
-import { filterAssetIdsBySellable } from 'lib/swapper/LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
-import { filterBuyAssetsBySellAssetId } from 'lib/swapper/LifiSwapper/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
-import { getTradeQuote } from 'lib/swapper/LifiSwapper/getTradeQuote/getTradeQuote'
-import { getUsdRate } from 'lib/swapper/LifiSwapper/getUsdRate/getUsdRate'
-import { MAX_LIFI_TRADE } from 'lib/swapper/LifiSwapper/utils/constants'
-import { createLifiChainMap } from 'lib/swapper/LifiSwapper/utils/createLifiChainMap/createLifiChainMap'
-import { getLifi } from 'lib/swapper/LifiSwapper/utils/getLifi'
-import { getMinimumCryptoHuman } from 'lib/swapper/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
+import { approvalNeeded } from 'lib/swapper/swappers/LifiSwapper/approvalNeeded/approvalNeeded'
+import { approveAmount, approveInfinite } from 'lib/swapper/swappers/LifiSwapper/approve/approve'
+import { buildTrade } from 'lib/swapper/swappers/LifiSwapper/buildTrade/buildTrade'
+import { executeTrade } from 'lib/swapper/swappers/LifiSwapper/executeTrade/executeTrade'
+import { filterAssetIdsBySellable } from 'lib/swapper/swappers/LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
+import { filterBuyAssetsBySellAssetId } from 'lib/swapper/swappers/LifiSwapper/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
+import { getTradeQuote } from 'lib/swapper/swappers/LifiSwapper/getTradeQuote/getTradeQuote'
+import { getUsdRate } from 'lib/swapper/swappers/LifiSwapper/getUsdRate/getUsdRate'
+import { MAX_LIFI_TRADE } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
+import { createLifiChainMap } from 'lib/swapper/swappers/LifiSwapper/utils/createLifiChainMap/createLifiChainMap'
+import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
+import { getMinimumCryptoHuman } from 'lib/swapper/swappers/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
 import type {
   LifiExecuteTradeInput,
   LifiTrade,
   LifiTradeQuote,
-} from 'lib/swapper/LifiSwapper/utils/types'
+} from 'lib/swapper/swappers/LifiSwapper/utils/types'
 
 export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SwapperName.LIFI

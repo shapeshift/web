@@ -1,12 +1,14 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { GetEvmTradeQuoteInput, QuoteFeeData, TradeQuote } from '@shapeshiftoss/swapper'
+import type { GetEvmTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
 
+import { bnOrZero } from '../../../../lib/bignumber/bignumber'
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
+import { APPROVAL_GAS_LIMIT, DEFAULT_SOURCE } from '../utils/constants'
 import { getMinMax, getRate } from '../utils/helpers'
 import type { OneInchQuoteApiInput, OneInchQuoteResponse, OneInchSwapperDeps } from '../utils/types'
 
@@ -14,15 +16,7 @@ export async function getTradeQuote(
   deps: OneInchSwapperDeps,
   input: GetEvmTradeQuoteInput,
 ): Promise<TradeQuote<EvmChainId>> {
-  const {
-    chainId,
-    sellAsset,
-    buyAsset,
-    sellAmountBeforeFeesCryptoBaseUnit,
-    sendMax,
-    receiveAddress,
-    accountNumber,
-  } = input
+  const { chainId, sellAsset, buyAsset, sellAmountBeforeFeesCryptoBaseUnit, accountNumber } = input
 
   if (sellAsset.chainId !== buyAsset.chainId) {
     throw new SwapError('[getTradeQuote] cross chain swaps not supported', {
@@ -58,7 +52,14 @@ export async function getTradeQuote(
   const allowanceContract = await getApprovalAddress(deps, chainId)
   const minMax = await getMinMax(deps, sellAsset, buyAsset)
 
-  const feeData = {} as QuoteFeeData<EvmChainId> //FIXME
+  const estimatedGas = bnOrZero(quoteResponse.data.estimatedGas).times(1.5) // added buffer
+  const gasPriceCryptoBaseUnit = bnOrZero('20000000000') // TODO: where to get gas price? hardcoding for now to 20 gwei
+  const fee = estimatedGas.multipliedBy(gasPriceCryptoBaseUnit).toString()
+
+  const approvalFeeCryptoBaseUnit = bnOrZero(APPROVAL_GAS_LIMIT)
+    .multipliedBy(bnOrZero(gasPriceCryptoBaseUnit))
+    .toFixed()
+
   return {
     rate,
     buyAsset,
@@ -69,7 +70,16 @@ export async function getTradeQuote(
     sellAmountBeforeFeesCryptoBaseUnit,
     maximumCryptoHuman: minMax.maximumAmountCryptoHuman,
     minimumCryptoHuman: minMax.minimumAmountCryptoHuman,
-    feeData, // FIXME
-    sources: [], // FIXME
+    feeData: {
+      buyAssetTradeFeeUsd: '0',
+      sellAssetTradeFeeUsd: '0',
+      networkFeeCryptoBaseUnit: fee,
+      chainSpecific: {
+        estimatedGasCryptoBaseUnit: estimatedGas.toString(),
+        gasPriceCryptoBaseUnit,
+        approvalFeeCryptoBaseUnit,
+      },
+    },
+    sources: DEFAULT_SOURCE,
   }
 }

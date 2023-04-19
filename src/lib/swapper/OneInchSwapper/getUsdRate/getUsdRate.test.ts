@@ -11,7 +11,6 @@ describe('getUsdRate', () => {
   const deps: OneInchSwapperDeps = {
     apiUrl: 'https://api.1inch.io/v5.0',
   }
-  const quoteURL = `${deps.apiUrl}/1/quote`
 
   it('returns the correct rate', async () => {
     mockAxios.get.mockImplementation(() => {

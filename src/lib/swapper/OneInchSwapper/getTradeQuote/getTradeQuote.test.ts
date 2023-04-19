@@ -1,8 +1,7 @@
 import axios from 'axios'
 
 import { setupQuote } from '../../../../../packages/swapper/src/swappers/utils/test-data/setupSwapQuote'
-import { MAX_ONEINCH_TRADE } from '../utils/constants'
-import { getRate } from '../utils/helpers'
+import { DEFAULT_SOURCE, MAX_ONEINCH_TRADE } from '../utils/constants'
 import type { OneInchSwapperDeps } from '../utils/types'
 import { getTradeQuote } from './getTradeQuote'
 
@@ -71,5 +70,6 @@ describe('getTradeQuote', () => {
     expect(quote.allowanceContract).toBe('0x1111111254eeb25477b68fb85ed929f73a960583')
     expect(quote.maximumCryptoHuman).toBe(MAX_ONEINCH_TRADE)
     expect(quote.minimumCryptoHuman).toBe('50')
+    expect(quote.sources).toEqual(DEFAULT_SOURCE)
   })
 })

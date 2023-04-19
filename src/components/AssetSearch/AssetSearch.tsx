@@ -25,14 +25,6 @@ const moduleLogger = logger.child({
   namespace: ['AssetSearch'],
 })
 
-export enum AssetSearchOrder {
-  MarketCap = 'marketCap',
-  UserBalance = 'userBalance',
-  UserBalanceMarketCap = 'userBalanceMarketCap',
-  Volume = 'volume',
-  ChangePercent24h = 'changePercent24h',
-}
-
 export type AssetSearchProps = {
   assets?: Asset[]
   onClick?: (asset: Asset) => void

@@ -1,14 +1,13 @@
-import { EVMChain } from '@lifi/sdk'
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { FeeData } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GetEvmTradeQuoteInput, QuoteFeeData, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
-import { bnOrZero } from '../../../../lib/bignumber/bignumber'
-import type { AxiosError, AxiosResponse } from 'axios'
+import type { AxiosResponse } from 'axios'
 import axios from 'axios'
 
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
+import { getMinMax, getRate } from '../utils/helpers'
 import type { OneInchQuoteApiInput, OneInchQuoteResponse, OneInchSwapperDeps } from '../utils/types'
 
 export async function getTradeQuote(
@@ -31,7 +30,16 @@ export async function getTradeQuote(
     })
   }
 
-  //TODO: how does this work for ETH or maybe 1inch only supports weth...
+  if (
+    !isEvmChainId(chainId) ||
+    !isEvmChainId(sellAsset.chainId) ||
+    !isEvmChainId(buyAsset.chainId)
+  ) {
+    throw new SwapError('[getTradeQuote] invalid chainId', {
+      code: SwapErrorType.UNSUPPORTED_CHAIN,
+    })
+  }
+
   const { assetReference: fromAssetAddress } = fromAssetId(sellAsset.assetId)
   const { assetReference: toAssetAddress } = fromAssetId(buyAsset.assetId)
 
@@ -46,18 +54,11 @@ export async function getTradeQuote(
     { params: apiInput },
   )
 
-  const fromTokenAmountDecimal = bnOrZero(quoteResponse.data.fromTokenAmount).div(
-    bnOrZero(10).pow(quoteResponse.data.fromToken.decimals),
-  )
-  const toTokenAmountDecimal = bnOrZero(quoteResponse.data.toTokenAmount).div(
-    bnOrZero(10).pow(quoteResponse.data.toToken.decimals),
-  )
-
-  const rate = toTokenAmountDecimal.div(fromTokenAmountDecimal).toString()
+  const rate = getRate(quoteResponse.data).toString()
   const allowanceContract = await getApprovalAddress(deps, chainId)
+  const minMax = await getMinMax(deps, sellAsset, buyAsset)
 
   const feeData = {} as QuoteFeeData<EvmChainId> //FIXME
-
   return {
     rate,
     buyAsset,
@@ -66,9 +67,9 @@ export async function getTradeQuote(
     allowanceContract,
     buyAmountCryptoBaseUnit: quoteResponse.data.toTokenAmount,
     sellAmountBeforeFeesCryptoBaseUnit,
-    feeData,
-    maximumCryptoHuman: '0', // FIXME
-    minimumCryptoHuman: '0', // FIXME
+    maximumCryptoHuman: minMax.maximumAmountCryptoHuman,
+    minimumCryptoHuman: minMax.minimumAmountCryptoHuman,
+    feeData, // FIXME
     sources: [], // FIXME
   }
 }

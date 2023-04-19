@@ -1,13 +1,12 @@
 import { ChevronDownIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import { Button, ButtonGroup, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
-import type { Address } from '@wagmi/core'
 import type { FC } from 'react'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter } from 'react-router-dom'
-import { useEnsName } from 'wagmi'
+import type { Address } from 'viem'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { WalletConnectedMenu } from 'components/Layout/Header/NavBar/WalletConnectedMenu'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
@@ -16,6 +15,7 @@ import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { viemClient } from 'lib/viem-client'
 
 export const entries = [WalletConnectedRoutes.Connected]
 
@@ -67,36 +67,34 @@ const WalletButton: FC<WalletButtonProps> = ({
   const [walletLabel, setWalletLabel] = useState('')
   const [shouldShorten, setShouldShorten] = useState(true)
   const bgColor = useColorModeValue('gray.200', 'gray.800')
+  const [ensName, setEnsName] = useState<string | null>('')
 
-  const {
-    data: ensName,
-    isSuccess: isEnsNameLoaded,
-    isLoading: isEnsNameLoading,
-  } = useEnsName({
-    address: walletInfo?.meta?.address as Address,
-    cacheTime: Infinity, // Cache a given ENS reverse resolution response infinitely for the lifetime of a tab / until app reload
-    staleTime: Infinity, // Cache a given ENS reverse resolution query infinitely for the lifetime of a tab / until app reload
-  })
+  useEffect(() => {
+    ;(async () => {
+      const ensName = await viemClient.getEnsName({ address: walletInfo?.meta?.address as Address })
+      setEnsName(ensName)
+    })()
+  }, [walletInfo?.meta?.address])
 
   useEffect(() => {
     setWalletLabel('')
     setShouldShorten(true)
-    if (!walletInfo || !walletInfo.meta || isEnsNameLoading) return setWalletLabel('')
+    if (!walletInfo || !walletInfo.meta) return setWalletLabel('')
     // Wallet has a native label, we don't care about ENS name here
     if (!walletInfo?.meta?.address && walletInfo.meta.label) {
       setShouldShorten(false)
       return setWalletLabel(walletInfo.meta.label)
     }
 
-    // ENS successfully fetched. Set ENS name as label
-    if (isEnsNameLoaded && ensName) {
+    // ENS is registered for address and is successfully fetched. Set ENS name as label
+    if (ensName) {
       setShouldShorten(false)
       return setWalletLabel(ensName!)
     }
 
     // No label or ENS name, set regular wallet address as label
     return setWalletLabel(walletInfo?.meta?.address ?? '')
-  }, [ensName, isEnsNameLoading, isEnsNameLoaded, walletInfo])
+  }, [ensName, walletInfo])
 
   return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (
     <MenuButton

@@ -1,8 +1,8 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { bchChainId, btcChainId, dogeChainId, ethChainId, ltcChainId } from '@shapeshiftoss/caip'
-import type { Address } from '@wagmi/core'
 import bip21 from 'bip21'
 import { parse as parseEthUrl } from 'eth-url-parser'
+import type { Address } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { resolveEnsDomain, validateEnsDomain } from 'lib/address/ens'
 import {

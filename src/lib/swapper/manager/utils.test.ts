@@ -18,6 +18,6 @@ describe('getRatioFromQuote', () => {
     } as unknown as Swapper<ChainId>
     const feeAsset: Asset = ETH
     const result = await getRatioFromQuote(quote, swapper, feeAsset)
-    expect(result).toBe(0.5162031488156889)
+    expect(result).toBe(0.5162013781611758)
   })
 })

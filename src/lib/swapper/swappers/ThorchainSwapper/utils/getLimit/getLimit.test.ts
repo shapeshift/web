@@ -61,7 +61,7 @@ describe('getLimit', () => {
     }
     const maybeLimit = await getLimit(getLimitArgs)
     expect(maybeLimit.isOk()).toBe(true)
-    expect(maybeLimit.unwrap()).toBe('592056')
+    expect(maybeLimit.unwrap()).toBe('592064')
   })
 
   it('should get limit when sell asset is EVM non-fee asset and buy asset is a UTXO', async () => {
@@ -109,7 +109,7 @@ describe('getLimit', () => {
     }
     const maybeLimit = await getLimit(getLimitArgs)
     expect(maybeLimit.isOk()).toBe(true)
-    expect(maybeLimit.unwrap()).toBe('2459464864')
+    expect(maybeLimit.unwrap()).toBe('2459464890')
   })
 
   it('should get limit when sell asset is RUNE and buy asset is not', async () => {
@@ -133,6 +133,6 @@ describe('getLimit', () => {
     }
     const maybeLimit = await getLimit(getLimitArgs)
     expect(maybeLimit.isOk()).toBe(true)
-    expect(maybeLimit.unwrap()).toBe('37051458730')
+    expect(maybeLimit.unwrap()).toBe('37051458738')
   })
 })

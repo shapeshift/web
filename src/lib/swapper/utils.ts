@@ -1,7 +1,6 @@
 import { AssertionError } from 'assert'
 import type { ISetupCache } from 'axios-cache-adapter'
 import { setupCache } from 'axios-cache-adapter'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 
 // asserts x is type doesn't work when using arrow functions
 export function assertIsDefined<T>(val: T): asserts val is NonNullable<T> {
@@ -22,17 +21,4 @@ export const createCache = (maxAge: number, cachedUrls: string[]): ISetupCache =
     readOnError: false,
     readHeaders: false,
   })
-}
-
-// TODO: replace this with lib/bignumber/bignumber fromBaseUnit
-// requries validating use of `toFixed` in new implementation
-export const fromBaseUnit = (
-  value: BigNumber.Value,
-  decimals: number,
-  displayDecimals = 6,
-): string => {
-  return bnOrZero(value)
-    .div(`1e+${decimals}`)
-    .decimalPlaces(displayDecimals, BigNumber.ROUND_DOWN)
-    .toString()
 }

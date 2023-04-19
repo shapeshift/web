@@ -263,12 +263,12 @@ describe('SwapperManager', () => {
         {
           swapper: zrxEthereumSwapper,
           quote: bestTradeQuote,
-          inputOutputRatio: 0.5030325781663417,
+          inputOutputRatio: 0.5030214870725355,
         },
         {
           swapper: cowSwapper,
           quote: suboptimalTradeQuote,
-          inputOutputRatio: 0.3433182480125743,
+          inputOutputRatio: 0.3433113435170952,
         },
       ]
       expect(swappers).toEqual(expectedSwappers)

@@ -3,6 +3,8 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import max from 'lodash/max'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers/ThorchainSwapper/constants'
@@ -15,7 +17,6 @@ import {
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/getTradeRate/getTradeRate'
 import { getUsdRate } from 'lib/swapper/swappers/ThorchainSwapper/utils/getUsdRate/getUsdRate'
 import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
-import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from 'lib/swapper/swappers/utils/bignumber'
 import { ALLOWABLE_MARKET_MOVEMENT } from 'lib/swapper/swappers/utils/constants'
 
 export type GetLimitArgs = {

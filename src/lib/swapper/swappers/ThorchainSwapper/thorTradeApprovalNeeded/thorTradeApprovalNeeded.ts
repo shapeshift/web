@@ -1,10 +1,10 @@
 import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ApprovalNeededInput, ApprovalNeededOutput } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { erc20AllowanceAbi } from 'lib/swapper/swappers/utils/abi/erc20Allowance-abi'
-import { bnOrZero } from 'lib/swapper/swappers/utils/bignumber'
 import { getERC20Allowance } from 'lib/swapper/swappers/utils/helpers/helpers'
 
 export const thorTradeApprovalNeeded = async ({

@@ -7,6 +7,8 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type {
   GetTradeQuoteInput,
   GetUtxoTradeQuoteInput,
@@ -37,7 +39,6 @@ import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRun
 import { getEvmTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
-import { bn, bnOrZero, fromBaseUnit, toBaseUnit } from 'lib/swapper/swappers/utils/bignumber'
 import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
 
 type CommonQuoteFields = Omit<TradeQuote<ChainId>, 'allowanceContract' | 'feeData'>

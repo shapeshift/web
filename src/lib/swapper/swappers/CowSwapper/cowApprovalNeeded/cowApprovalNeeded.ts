@@ -1,11 +1,11 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ApprovalNeededInput, ApprovalNeededOutput } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { COW_SWAP_VAULT_RELAYER_ADDRESS } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { erc20AllowanceAbi } from 'lib/swapper/swappers/utils/abi/erc20Allowance-abi'
-import { bnOrZero } from 'lib/swapper/swappers/utils/bignumber'
 import { getERC20Allowance } from 'lib/swapper/swappers/utils/helpers/helpers'
 
 export async function cowApprovalNeeded(

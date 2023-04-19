@@ -1,9 +1,9 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
-
-import type { Swapper, TradeQuote } from '../api'
-import { bnOrZero, fromBaseUnit } from '../swappers/utils/bignumber'
-import { isFulfilled } from '../typeGuards'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
+import type { Swapper, TradeQuote } from 'lib/swapper/api'
+import { isFulfilled } from 'lib/swapper/typeGuards'
 
 /*
   The ratio is calculated by dividing the total fiat value of the receive amount

@@ -3,6 +3,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
@@ -20,7 +21,6 @@ import {
   getUsdRate,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import { erc20AllowanceAbi } from 'lib/swapper/swappers/utils/abi/erc20Allowance-abi'
-import { bn, bnOrZero } from 'lib/swapper/swappers/utils/bignumber'
 import {
   getApproveContractData,
   isApprovalRequired,

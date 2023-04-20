@@ -94,11 +94,9 @@ export const approveEIP155Request = async ({
         accountNumber,
         to: sendTransaction.to,
         data: sendTransaction.data,
-        value: sendTransaction.value ?? convertNumberToHex(0),
-        gasLimit:
-          (customTransactionData.gasLimit
-            ? convertNumberToHex(customTransactionData.gasLimit)
-            : sendTransaction.gasLimit) ?? convertNumberToHex(90000), // https://docs.walletconnect.com/2.0/advanced/rpc-reference/ethereum-rpc#eth_sendtransaction
+        value: sendTransaction.value ?? '0',
+        // https://docs.walletconnect.com/2.0/advanced/rpc-reference/ethereum-rpc#eth_sendtransaction
+        gasLimit: customTransactionData.gasLimit ?? sendTransaction.gasLimit ?? '90000',
         ...gasData,
       })
       const txToSign = {

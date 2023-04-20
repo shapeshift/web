@@ -536,7 +536,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       const bip44Params = this.getBIP44Params({ accountNumber })
       const txToSign = {
         addressNList: toAddressNList(bip44Params),
-        value,
+        value: numberToHex(value),
         to,
         chainId: Number(fromChainId(this.chainId).chainReference),
         data,

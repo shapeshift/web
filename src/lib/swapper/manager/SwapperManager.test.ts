@@ -162,9 +162,9 @@ describe('SwapperManager', () => {
     })
 
     it('should return unique assetIds', () => {
-      const assetIds = [BTC.assetId, WETH.assetId, FOX.assetId, FOX.assetId]
+      const assetIds = [BTC.assetId, WETH.assetId, WETH.assetId, FOX.assetId]
 
-      const sellAssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
+      const sellAssetId = FOX.assetId
       const swapperManager = new SwapperManager()
       swapperManager.addSwapper(zrxEthereumSwapper)
 

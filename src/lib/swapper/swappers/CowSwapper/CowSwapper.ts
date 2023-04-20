@@ -1,6 +1,6 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
@@ -33,6 +33,8 @@ import { getCowSwapTradeQuote } from 'lib/swapper/swappers/CowSwapper/getCowSwap
 import type { CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 import { COWSWAP_UNSUPPORTED_ASSETS } from 'lib/swapper/swappers/CowSwapper/utils/blacklist'
 import { getUsdRate } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
+import { selectAssets } from 'state/slices/selectors'
+import { store } from 'state/store'
 
 export type CowSwapperDeps = {
   apiUrl: string
@@ -90,8 +92,13 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
     const { assetIds = [], sellAssetId } = args
+    const assets = selectAssets(store.getState())
+    const sellAsset = assets[sellAssetId]
+
     if (
-      fromAssetId(sellAssetId).assetNamespace !== 'erc20' ||
+      sellAsset === undefined ||
+      sellAsset.chainId !== KnownChainIds.EthereumMainnet ||
+      sellAssetId === ethAssetId || // can sell erc20 only
       COWSWAP_UNSUPPORTED_ASSETS.includes(sellAssetId)
     )
       return []
@@ -99,20 +106,20 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     return assetIds.filter(
       id =>
         id !== sellAssetId &&
-        fromAssetId(id).chainId === KnownChainIds.EthereumMainnet &&
+        assets[id]?.chainId === KnownChainIds.EthereumMainnet &&
         !COWSWAP_UNSUPPORTED_ASSETS.includes(id),
     )
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    return assetIds.filter(id => {
-      const { chainId, assetNamespace } = fromAssetId(id)
-      return (
-        chainId === KnownChainIds.EthereumMainnet &&
-        assetNamespace === ASSET_NAMESPACE.erc20 &&
-        !COWSWAP_UNSUPPORTED_ASSETS.includes(id)
-      )
-    })
+    const assets = selectAssets(store.getState())
+
+    return assetIds.filter(
+      id =>
+        assets[id]?.chainId === KnownChainIds.EthereumMainnet &&
+        id !== ethAssetId && // can sell erc20 only
+        !COWSWAP_UNSUPPORTED_ASSETS.includes(id),
+    )
   }
 
   getTradeTxs(args: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {

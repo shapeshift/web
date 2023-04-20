@@ -35,6 +35,8 @@ import { getUsdRate } from './getUsdRate/getUsdRate'
 import type { OneInchSwapperDeps, OneInchTrade } from './utils/types'
 import { AssetId } from '@shapeshiftoss/caip'
 import { approveAmount, approveInfinite } from '../LifiSwapper/approve/approve'
+import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
+import { filterAssetIdsBySellable } from '../LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
 
 export type OneInchSupportedChainId =
   | KnownChainIds.EthereumMainnet
@@ -93,11 +95,11 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    throw new Error('Method not implemented.')
+    return filterAssetIdsBySellable(assetIds) // we can use lifis implementation for this also
   }
 
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
-    throw new Error('Method not implemented.')
+    return filterBuyAssetsBySellAssetId(input)
   }
 
   getTradeTxs(input: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {

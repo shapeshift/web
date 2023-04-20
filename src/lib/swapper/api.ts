@@ -61,6 +61,12 @@ type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
       approvalFeeCryptoBaseUnit?: string
       totalFee?: string
     }
+    [KnownChainIds.PolygonMainnet]: {
+      estimatedGasCryptoBaseUnit?: string
+      gasPriceCryptoBaseUnit?: string
+      approvalFeeCryptoBaseUnit?: string
+      totalFee?: string
+    }
     [KnownChainIds.BitcoinMainnet]: {
       byteCount: string
       satsPerByte: string
@@ -229,6 +235,7 @@ export enum SwapperType {
   ZrxAvalanche = '0xAvalanche',
   ZrxOptimism = '0xOptimism',
   ZrxBnbSmartChain = '0xBnbSmartChain',
+  ZrxPolygon = '0xPolygon',
   Thorchain = 'Thorchain',
   Osmosis = 'Osmosis',
   CowSwap = 'CoW Swap',

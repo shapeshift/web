@@ -1,6 +1,5 @@
 import type { AssetReference } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { QuoteFeeData } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
@@ -20,35 +19,27 @@ export const getEvmTxFees = async ({
   buyAssetTradeFeeUsd,
 }: GetEvmTxFeesArgs): Promise<QuoteFeeData<ThorEvmSupportedChainId>> => {
   try {
-    const gasFeeData = await adapter.getGasFeeData()
+    const { average: fee } = await adapter.getGasFeeData()
 
     // this is a good value to cover all thortrades out of EVMs
     // in the future we may want to look at doing this more precisely and in a future-proof way
     // TODO: calculate this dynamically
-    const gasLimit = THOR_EVM_GAS_LIMIT
+    const txFee = bn(THOR_EVM_GAS_LIMIT).times(bnOrZero(fee.maxFeePerGas ?? fee.gasPrice))
 
-    const feeDataOptions = {
-      fast: {
-        txFee: bn(gasLimit).times(gasFeeData[FeeDataKey.Fast].gasPrice).toString(),
-        chainSpecific: {
-          gasPrice: gasFeeData[FeeDataKey.Fast].gasPrice,
-          gasLimit,
-        },
-      },
-    }
-
-    const feeData = feeDataOptions['fast']
+    const approvalFee =
+      sellAssetReference &&
+      bnOrZero(APPROVAL_GAS_LIMIT)
+        .multipliedBy(bnOrZero(fee.maxFeePerGas ?? fee.gasPrice))
+        .toString()
 
     return {
-      networkFeeCryptoBaseUnit: feeData.txFee,
+      networkFeeCryptoBaseUnit: txFee.toFixed(0),
       chainSpecific: {
-        estimatedGasCryptoBaseUnit: feeData.chainSpecific.gasLimit,
-        gasPriceCryptoBaseUnit: feeData.chainSpecific.gasPrice,
-        approvalFeeCryptoBaseUnit:
-          sellAssetReference &&
-          bnOrZero(APPROVAL_GAS_LIMIT)
-            .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
-            .toString(),
+        estimatedGasCryptoBaseUnit: THOR_EVM_GAS_LIMIT,
+        gasPriceCryptoBaseUnit: fee.gasPrice,
+        maxFeePerGas: fee.maxFeePerGas,
+        maxPriorityFeePerGas: fee.maxPriorityFeePerGas,
+        approvalFeeCryptoBaseUnit: approvalFee,
       },
       buyAssetTradeFeeUsd,
       sellAssetTradeFeeUsd: '0',

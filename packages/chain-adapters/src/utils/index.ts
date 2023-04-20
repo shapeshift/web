@@ -1,8 +1,6 @@
 import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, CHAIN_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
-import { utils } from 'ethers'
-
-import { bnOrZero } from './bignumber'
+import { BigNumber } from 'ethers'
 
 export * from './bignumber'
 export * from './bip44'
@@ -44,6 +42,7 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
         case CHAIN_REFERENCE.AvalancheCChain:
         case CHAIN_REFERENCE.OptimismMainnet:
         case CHAIN_REFERENCE.BnbSmartChainMainnet:
+        case CHAIN_REFERENCE.PolygonMainnet:
           return 'ethereum' // all evm chains use the same validator (https://github.com/christsim/multicoin-address-validator/blob/master/src/ethereum_validator.js)
         default:
           throw new Error(
@@ -70,5 +69,4 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
   }
 }
 
-export const convertNumberToHex = (value: string): string =>
-  utils.hexlify(utils.hexlify(bnOrZero(value).toNumber()))
+export const convertNumberToHex = (value: string): string => BigNumber.from(value).toHexString()

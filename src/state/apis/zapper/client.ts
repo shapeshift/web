@@ -5,13 +5,13 @@ import { invert } from 'lodash'
 import { z } from 'zod'
 
 export enum SupportedZapperNetwork {
-  Ethereum = 'ethereum',
-  // Polygon = 'polygon',
-  Optimism = 'optimism',
-  // Gnosis = 'gnosis',
-  BinanceSmartChain = 'binance-smart-chain',
-  // Fantom = 'fantom',
   Avalanche = 'avalanche',
+  BinanceSmartChain = 'binance-smart-chain',
+  Ethereum = 'ethereum',
+  Optimism = 'optimism',
+  // Polygon = 'polygon',
+  // Gnosis = 'gnosis',
+  // Fantom = 'fantom',
   // Artbitrum = 'arbitrum',
   // Celo = 'celo',
   // Harmony = 'harmony',

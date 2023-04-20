@@ -81,15 +81,15 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BnbSmartChainMain
 
     return {
       fast: {
-        txFee: bnOrZero(bn(fast.gasPrice).times(gasLimit)).toPrecision(),
+        txFee: bnOrZero(bn(fast.gasPrice).times(gasLimit)).toFixed(0),
         chainSpecific: { gasLimit, ...fast },
       },
       average: {
-        txFee: bnOrZero(bn(average.gasPrice).times(gasLimit)).toPrecision(),
+        txFee: bnOrZero(bn(average.gasPrice).times(gasLimit)).toFixed(0),
         chainSpecific: { gasLimit, ...average },
       },
       slow: {
-        txFee: bnOrZero(bn(slow.gasPrice).times(gasLimit)).toPrecision(),
+        txFee: bnOrZero(bn(slow.gasPrice).times(gasLimit)).toFixed(0),
         chainSpecific: { gasLimit, ...slow },
       },
     }

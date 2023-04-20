@@ -33,7 +33,7 @@ describe('buildTrade', () => {
 
   it('should return a valid trade', async () => {
     mockAxios.get.mockImplementation(async () => {
-      return {
+      return await Promise.resolve({
         data: {
           fromToken: {
             symbol: 'FOX',
@@ -63,7 +63,7 @@ describe('buildTrade', () => {
             gasPrice: '64777718603',
           },
         },
-      }
+      })
     })
     const buildTradeMaybe = await buildTrade(deps, { ...buildTradeInput })
     const buildTradeOut = buildTradeMaybe.unwrap()

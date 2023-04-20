@@ -47,9 +47,12 @@ describe('approvalNeeded', () => {
       wallet,
     }
 
-    mockAxios.get.mockImplementationOnce(async () => ({
-      data: { allowance: allowanceOnChain },
-    }))
+    mockAxios.get.mockImplementationOnce(
+      async () =>
+        await Promise.resolve({
+          data: { allowance: allowanceOnChain },
+        }),
+    )
 
     expect((await approvalNeeded(deps, input)).approvalNeeded).toBe(false)
   })
@@ -70,9 +73,12 @@ describe('approvalNeeded', () => {
       wallet,
     }
 
-    mockAxios.get.mockImplementationOnce(async () => ({
-      data: { allowance: allowanceOnChain },
-    }))
+    mockAxios.get.mockImplementationOnce(
+      async () =>
+        await Promise.resolve({
+          data: { allowance: allowanceOnChain },
+        }),
+    )
 
     expect((await approvalNeeded(deps, input)).approvalNeeded).toBe(true)
   })
@@ -93,9 +99,12 @@ describe('approvalNeeded', () => {
       wallet,
     }
 
-    mockAxios.get.mockImplementationOnce(async () => ({
-      data: { allowance: allowanceOnChain },
-    }))
+    mockAxios.get.mockImplementationOnce(
+      async () =>
+        await Promise.resolve({
+          data: { allowance: allowanceOnChain },
+        }),
+    )
 
     expect((await approvalNeeded(deps, input)).approvalNeeded).toBe(true)
   })

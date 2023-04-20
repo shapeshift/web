@@ -13,8 +13,8 @@ describe('getUsdRate', () => {
   }
 
   it('returns the correct rate', async () => {
-    await mockAxios.get.mockImplementation(async () => {
-      return {
+    mockAxios.get.mockImplementation(async () => {
+      return await Promise.resolve({
         data: {
           fromToken: {
             symbol: 'USDC',
@@ -38,7 +38,7 @@ describe('getUsdRate', () => {
           fromTokenAmount: '10000000',
           estimatedGas: 306779,
         },
-      }
+      })
     })
 
     const sellAsset = { ...FOX }

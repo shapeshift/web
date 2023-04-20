@@ -13,22 +13,28 @@ describe('getApprovalAddress', () => {
   }
 
   it('returns the correct address for the given chainId', async () => {
-    mockAxios.get.mockImplementationOnce(async () => ({
-      data: { address: '0x1111111254eeb25477b68fb85ed929f73a960583' },
-    }))
+    mockAxios.get.mockImplementationOnce(
+      async () =>
+        await Promise.resolve({
+          data: { address: '0x1111111254eeb25477b68fb85ed929f73a960583' },
+        }),
+    )
     expect(await getApprovalAddress(deps, KnownChainIds.EthereumMainnet)).toBe(
       '0x1111111254eeb25477b68fb85ed929f73a960583',
     )
   })
 
   it('returns undefined if chainId is not supported', async () => {
-    mockAxios.get.mockImplementationOnce(async () => ({
-      data: {
-        statusCode: 404,
-        message: 'Cannot GET /v5.0/500/approve/spender',
-        error: 'Not Found',
-      },
-    }))
+    mockAxios.get.mockImplementationOnce(
+      async () =>
+        await Promise.resolve({
+          data: {
+            statusCode: 404,
+            message: 'Cannot GET /v5.0/500/approve/spender',
+            error: 'Not Found',
+          },
+        }),
+    )
     expect(await getApprovalAddress(deps, KnownChainIds.BnbSmartChainMainnet)).toBe(undefined)
   })
 })

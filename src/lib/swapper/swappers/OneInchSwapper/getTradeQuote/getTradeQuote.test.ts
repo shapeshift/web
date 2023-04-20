@@ -36,9 +36,11 @@ describe('getTradeQuote', () => {
     mockAxios.get.mockImplementation(async url => {
       switch (url) {
         case approvalURL:
-          return { data: { address: '0x1111111254eeb25477b68fb85ed929f73a960583' } }
+          return await Promise.resolve({
+            data: { address: '0x1111111254eeb25477b68fb85ed929f73a960583' },
+          })
         case quoteURL:
-          return {
+          return await Promise.resolve({
             data: {
               fromToken: {
                 symbol: 'FOX',
@@ -73,7 +75,9 @@ describe('getTradeQuote', () => {
               ],
               estimatedGas: 189386,
             },
-          }
+          })
+        default:
+          return await Promise.resolve({})
       }
     })
 

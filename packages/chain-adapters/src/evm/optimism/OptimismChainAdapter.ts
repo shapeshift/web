@@ -80,23 +80,19 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.OptimismMainnet> 
     const { gasLimit, l1GasLimit } = await this.api.estimateGas(req)
     const { fast, average, slow, l1GasPrice } = await this.getGasFeeData()
 
+    const l1Fee = bn(l1GasPrice).times(l1GasLimit)
+
     return {
       fast: {
-        txFee: bnOrZero(
-          bn(fast.gasPrice).times(gasLimit).plus(bn(l1GasPrice).times(l1GasLimit)),
-        ).toPrecision(),
+        txFee: bnOrZero(bn(fast.gasPrice).times(gasLimit).plus(l1Fee)).toFixed(0),
         chainSpecific: { gasLimit, ...fast },
       },
       average: {
-        txFee: bnOrZero(
-          bn(average.gasPrice).times(gasLimit).plus(bn(l1GasPrice).times(l1GasLimit)),
-        ).toPrecision(),
+        txFee: bnOrZero(bn(average.gasPrice).times(gasLimit).plus(l1Fee)).toFixed(0),
         chainSpecific: { gasLimit, ...average },
       },
       slow: {
-        txFee: bnOrZero(
-          bn(slow.gasPrice).times(gasLimit).plus(bn(l1GasPrice).times(l1GasLimit)),
-        ).toPrecision(),
+        txFee: bnOrZero(bn(slow.gasPrice).times(gasLimit).plus(l1Fee)).toFixed(0),
         chainSpecific: { gasLimit, ...slow },
       },
     }

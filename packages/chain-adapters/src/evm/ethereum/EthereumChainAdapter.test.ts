@@ -74,14 +74,40 @@ describe('EthereumChainAdapter', () => {
 
   const makeGetGasFeesMockedResponse = (overrideArgs?: {
     gasPrice?: string
-    maxFeePerGas?: string
-    maxPriorityFeePerGas?: string
+    slow: {
+      gasPrice?: string
+      maxFeePerGas?: string
+      maxPriorityFeePerGas?: string
+    }
+    average: {
+      gasPrice?: string
+      maxFeePerGas?: string
+      maxPriorityFeePerGas?: string
+    }
+    fast: {
+      gasPrice?: string
+      maxFeePerGas?: string
+      maxPriorityFeePerGas?: string
+    }
   }) =>
     merge(
       {
         gasPrice: '1',
-        maxFeePerGas: '300',
-        maxPriorityFeePerGas: '10',
+        slow: {
+          gasPrice: '1',
+          maxFeePerGas: '274',
+          maxPriorityFeePerGas: '10',
+        },
+        average: {
+          gasPrice: '1',
+          maxFeePerGas: '300',
+          maxPriorityFeePerGas: '10',
+        },
+        fast: {
+          gasPrice: '1',
+          maxFeePerGas: '335',
+          maxPriorityFeePerGas: '12',
+        },
       },
       overrideArgs,
     )

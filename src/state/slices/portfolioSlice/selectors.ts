@@ -873,7 +873,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
         underlyingAssetIds: lpOpportunity.underlyingAssetIds,
         underlyingAssetRatiosBaseUnit: lpOpportunity.underlyingAssetRatiosBaseUnit,
         cryptoAmountBaseUnit: lpOpportunity.cryptoAmountBaseUnit,
-        assetId,
+        assetId: lpOpportunity.id,
         assets,
         marketData,
       })

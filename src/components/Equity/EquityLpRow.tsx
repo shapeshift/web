@@ -66,7 +66,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
     underlyingAssetIds: opportunity.underlyingAssetIds,
     underlyingAssetRatiosBaseUnit: opportunity.underlyingAssetRatiosBaseUnit,
     cryptoAmountBaseUnit: opportunity.cryptoAmountBaseUnit,
-    assetId,
+    assetId: opportunity.id,
     assets,
     marketData,
   })

@@ -2,10 +2,10 @@ import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type Web3 from 'web3'
+import { BTC, ETH, FOX, WBTC, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 
 import type { TradeResult } from '../../api'
 import { SwapperName, SwapperType } from '../../api'
-import { BTC, ETH, FOX, WBTC, WETH } from '../utils/test-data/assets'
 import { setupBuildTrade, setupQuote } from '../utils/test-data/setupSwapQuote'
 import { cowApprovalNeeded } from './cowApprovalNeeded/cowApprovalNeeded'
 import { cowApproveAmount, cowApproveInfinite } from './cowApprove/cowApprove'
@@ -19,6 +19,19 @@ import type { CowTrade } from './types'
 import { getUsdRate } from './utils/helpers/helpers'
 
 jest.mock('./utils/helpers/helpers')
+jest.mock('state/slices/selectors', () => {
+  const { BTC, ETH, FOX, WBTC, WETH } = require('lib/swapper/swappers/utils/test-data/assets') // Move the import inside the factory function
+
+  return {
+    selectAssets: () => ({
+      [BTC.assetId]: BTC,
+      [ETH.assetId]: ETH,
+      [FOX.assetId]: FOX,
+      [WBTC.assetId]: WBTC,
+      [WETH.assetId]: WETH,
+    }),
+  }
+})
 
 jest.mock('./cowApprovalNeeded/cowApprovalNeeded', () => ({
   cowApprovalNeeded: jest.fn(),

@@ -12,8 +12,9 @@ import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swap
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
+import { getMinMax } from '../getMinMax/getMinMax'
 import { APPROVAL_GAS_LIMIT, DEFAULT_SOURCE } from '../utils/constants'
-import { getMinMax, getRate } from '../utils/helpers'
+import { getRate } from '../utils/helpers'
 import type { OneInchQuoteApiInput, OneInchQuoteResponse, OneInchSwapperDeps } from '../utils/types'
 
 export async function getTradeQuote(

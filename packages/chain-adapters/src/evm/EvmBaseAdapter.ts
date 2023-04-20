@@ -37,7 +37,6 @@ import type {
 import { ValidAddressResultType } from '../types'
 import {
   chainIdToChainLabel,
-  convertNumberToHex,
   getAssetNamespace,
   toAddressNList,
   toRootDerivationPath,

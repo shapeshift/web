@@ -218,14 +218,17 @@ export const grantAllowance = async <T extends EvmChainId>({
   const erc20Contract = new web3.eth.Contract(erc20Abi, erc20ContractAddress)
   const inputData = erc20Contract.methods.approve(spender, approvalAmount).encodeABI()
 
-  // hardcoded approval gas limit for now
-  feeData.chainSpecific.estimatedGasCryptoBaseUnit = APPROVAL_GAS_LIMIT
-
   try {
     const txid = await buildAndBroadcast({
       accountNumber,
       adapter,
-      feeData,
+      feeData: {
+        ...feeData,
+        chainSpecific: {
+          ...feeData.chainSpecific,
+          estimatedGasCryptoBaseUnit: APPROVAL_GAS_LIMIT,
+        },
+      },
       to: erc20ContractAddress,
       value: '0',
       wallet,

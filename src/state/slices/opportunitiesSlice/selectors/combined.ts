@@ -513,7 +513,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
     const results = withEarnBalances.concat(withRewardsBalances)
 
-    const sortedResults = orderBy(results, [getTotalProviderBalance, getApy], ['asc', 'desc'])
+    const sortedResults = orderBy(results, [getTotalProviderBalance, getApy], ['desc', 'desc'])
 
     return sortedResults
   },

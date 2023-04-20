@@ -8,6 +8,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { OneInchExecuteTradeInput } from '../utils/types'
 
 export async function executeTrade(
@@ -37,8 +38,8 @@ export async function executeTrade(
   }
 
   // TODO: in the future we could extend this to convert eth to WETH.
-  if (sellAssetNamespace !== 'erc20' || buyAssetNamespace !== 'erc20') {
-    throw new SwapError('[executeTrade] - assets need to be ERC-20 to use 1inch', {
+  if (isNativeEvmAsset(sellAsset.assetId) || isNativeEvmAsset(buyAsset.assetId)) {
+    throw new SwapError('[executeTrade] - no support for native assets', {
       code: SwapErrorType.UNSUPPORTED_PAIR,
       details: { sellAssetNamespace, buyAssetNamespace },
     })

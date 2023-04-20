@@ -63,7 +63,7 @@ export async function getTradeQuote(
     toTokenAddress: toAssetAddress,
     amount: sellAmountBeforeFeesCryptoBaseUnit,
   }
-  console.log('apiInput', apiInput)
+  
   const { chainReference } = fromChainId(chainId)
   const quoteResponse: AxiosResponse<OneInchQuoteResponse> = await axios.get(
     `${deps.apiUrl}/${chainReference}/quote`,

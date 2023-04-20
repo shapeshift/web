@@ -16,7 +16,7 @@ export const getUsdRate = async (deps: OneInchSwapperDeps, sellAsset: Asset): Pr
 
   const toTokenAddress = isNativeEvmAsset(sellAsset.assetId)
     ? fromAssetId(getNativeWrappedAssetId(chainId)).assetReference
-    : sellAssetContractAddress //TODO: we need to extend this for all chains!
+    : sellAssetContractAddress
 
   // 1inch doesn't provide an API for getting the required input amount from an output,
   // so instead we flip this, selling 10 USDC for the asset and we can invert prior to returning
@@ -26,6 +26,7 @@ export const getUsdRate = async (deps: OneInchSwapperDeps, sellAsset: Asset): Pr
     toTokenAddress,
     amount: '10000000', // 10 USDC
   }
+
   const { chainReference } = fromChainId(chainId)
   const quoteResponse: AxiosResponse<OneInchQuoteResponse> = await axios.get(
     `${deps.apiUrl}/${chainReference}/quote`,

@@ -30,7 +30,7 @@ export type FeatureFlags = {
   TradeRates: boolean
   Cowswap: boolean
   ZrxAvalancheSwap: boolean
-  ZrxBnbSmartChain: boolean
+  ZrxBnbSmartChainSwap: boolean
   ZrxPolygonSwap: boolean
   ZrxEthereumSwap: boolean
   ZrxOptimismSwap: boolean
@@ -84,7 +84,7 @@ const initialState: Preferences = {
     TradeRates: getConfig().REACT_APP_FEATURE_TRADE_RATES,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
     ZrxAvalancheSwap: getConfig().REACT_APP_FEATURE_ZRX_AVALANCHE,
-    ZrxBnbSmartChain: getConfig().REACT_APP_FEATURE_ZRX_BNBSMARTCHAIN,
+    ZrxBnbSmartChainSwap: getConfig().REACT_APP_FEATURE_ZRX_BNBSMARTCHAIN,
     ZrxPolygonSwap: getConfig().REACT_APP_FEATURE_ZRX_POLYGON,
     ZrxEthereumSwap: getConfig().REACT_APP_FEATURE_ZRX_ETHEREUM,
     ZrxOptimismSwap: getConfig().REACT_APP_FEATURE_ZRX_OPTIMISM,

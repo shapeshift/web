@@ -56,7 +56,7 @@ export const mockStore: ReduxState = {
       Polygon: false,
       BnbSmartChain: false,
       ZrxAvalancheSwap: false,
-      ZrxBnbSmartChain: false,
+      ZrxBnbSmartChainSwap: false,
       ZrxEthereumSwap: false,
       ZrxOptimismSwap: false,
       ZrxPolygonSwap: false,

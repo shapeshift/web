@@ -88,7 +88,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     _swapperManager.addSwapper(zrxOptimismSwapper)
   }
 
-  if (flags.ZrxBnbSmartChain) {
+  if (flags.ZrxBnbSmartChainSwap) {
     const bscWeb3 = getWeb3InstanceByChainId(bscChainId)
 
     const bscChainAdapter = adapterManager.get(

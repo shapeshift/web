@@ -50,10 +50,7 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
     'eip155:1/erc20:0xdb25f211ab05b1c97d595516f45794528a807ad8',
     'eip155:137/erc20:0xe111178a87a3bff0c8d18decba5798827539ae99',
   ],
-  EURT: [
-    'eip155:1/erc20:0xc581b735a1688071a1746c968e0798d642ede491',
-    'eip155:137/erc20:0x7bdf330f423ea880ff95fc41a280fd5ecfd3d09f',
-  ],
+  EURT: ['eip155:1/erc20:0xc581b735a1688071a1746c968e0798d642ede491'],
   agEUR: [
     'eip155:1/erc20:0x1a7e4e63778b4f12a199c062f3efdd288afcbce8',
     'eip155:137/erc20:0xe0b52e49357fd4daf2c15e02058dce6bc0057db4',
@@ -63,10 +60,7 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
     'eip155:43114/erc20:0xd24c2ad096400b6fbcd2ad8b24e7acbc21a1da64',
     'eip155:137/erc20:0x45c32fa6df82ead1e2ef74d17b76547eddfaff89',
   ],
-  UST: [
-    'eip155:1/erc20:0xa693b19d2931d498c5b318df961919bb4aee87a5',
-    'eip155:137/erc20:0xe6469ba6d2fd6130788e0ea9c0a0515900563b59',
-  ],
+  UST: ['eip155:1/erc20:0xa693b19d2931d498c5b318df961919bb4aee87a5'],
   EUROC: ['eip155:1/erc20:0x1abaea1f7c830bd89acc67ec4af516284b1bc33c'],
   LUSD: ['eip155:1/erc20:0x5f98805a4e8be255a32880fdec7f6728c6568ba0'],
   XCHF: ['eip155:1/erc20:0xb4272071ecadd69d933adcd19ca99fe80664fc08'],

@@ -173,7 +173,7 @@ export const getDefaultAssetIdPairByChainId = (
           }
         : ethFoxPair
     case KnownChainIds.BnbSmartChainMainnet:
-      return featureFlags.ZrxBnbSmartChain
+      return featureFlags.ZrxBnbSmartChainSwap
         ? {
             sellAssetId: bscAssetId,
             // BUSD

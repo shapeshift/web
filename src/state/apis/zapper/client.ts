@@ -1,11 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import {
-  avalancheChainId,
-  bscChainId,
-  ethChainId,
-  optimismChainId,
-  polygonChainId,
-} from '@shapeshiftoss/caip'
+import { avalancheChainId, bscChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
 import { type ZodiosOptions, makeApi, Zodios } from '@zodios/core'
 import { invert } from 'lodash'
 import { z } from 'zod'
@@ -15,7 +9,7 @@ export enum SupportedZapperNetwork {
   BinanceSmartChain = 'binance-smart-chain',
   Ethereum = 'ethereum',
   Optimism = 'optimism',
-  Polygon = 'polygon',
+  // Polygon = 'polygon',
   // Gnosis = 'gnosis',
   // Fantom = 'fantom',
   // Artbitrum = 'arbitrum',
@@ -33,7 +27,6 @@ export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Record<SupportedZapperNetwork, Cha
   [SupportedZapperNetwork.BinanceSmartChain]: bscChainId,
   [SupportedZapperNetwork.Ethereum]: ethChainId,
   [SupportedZapperNetwork.Optimism]: optimismChainId,
-  [SupportedZapperNetwork.Polygon]: polygonChainId,
 } as const
 
 export const CHAIN_ID_TO_ZAPPER_NETWORK_MAP = invert(ZAPPER_NETWORKS_TO_CHAIN_ID_MAP) as Partial<

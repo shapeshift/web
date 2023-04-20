@@ -766,7 +766,7 @@ describe('EthereumChainAdapter', () => {
       const expectedOutput = {
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          value: '0x7b',
+          value: '123',
           to: '0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F',
           chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
           data: '0x420',
@@ -807,7 +807,7 @@ describe('EthereumChainAdapter', () => {
       const expectedOutput = {
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          value: '0x7b',
+          value: '123',
           to: '0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F',
           chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
           data: '0x420',

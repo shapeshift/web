@@ -28,6 +28,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -86,6 +87,7 @@ export const TradeConfirm = () => {
   const translate = useTranslate()
   const [swapper, setSwapper] = useState<Swapper<ChainId>>()
   const [shouldDonate, toggleShouldDonate] = useToggle(true)
+  const [isReloadingTrade, setIsReloadingTrade] = useState(false)
 
   const {
     number: { toFiat },
@@ -95,6 +97,8 @@ export const TradeConfirm = () => {
     state: { isConnected, wallet },
     dispatch: walletDispatch,
   } = useWallet()
+
+  const { getTrade } = useSwapper()
 
   const trade = useSwapperStore(selectTrade)
   const fees = useSwapperStore(selectFees)
@@ -121,6 +125,38 @@ export const TradeConfirm = () => {
 
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
   const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const setSwapperDefaultAffiliateBps = useSwapperStore(
+    state => state.setSwapperDefaultAffiliateBps,
+  )
+  const updateAffiliateBps = useSwapperStore(state => state.updateAffiliateBps)
+
+  const handleDonationToggle = useCallback(async () => {
+    setIsReloadingTrade(true)
+    if (shouldDonate) {
+      updateAffiliateBps('0')
+    } else {
+      setSwapperDefaultAffiliateBps()
+    }
+    // Refresh trade
+    try {
+      const trade = await getTrade()
+      if (trade.isErr()) {
+        // Actually throw so we can catch the error and show the error toast
+        throw new Error(trade.unwrapErr().message)
+      }
+      updateTrade(trade.unwrap())
+      toggleShouldDonate()
+    } finally {
+      setIsReloadingTrade(false)
+    }
+  }, [
+    getTrade,
+    setSwapperDefaultAffiliateBps,
+    shouldDonate,
+    toggleShouldDonate,
+    updateAffiliateBps,
+    updateTrade,
+  ])
 
   const parsedBuyTxId = useMemo(() => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(
@@ -335,17 +371,17 @@ export const TradeConfirm = () => {
         <Row>
           <HelperTooltip label={translate('trade.tooltip.donation')}>
             <Row.Label>
-              <Checkbox isChecked={shouldDonate} onChange={toggleShouldDonate}>
+              <Checkbox isChecked={shouldDonate} onChange={handleDonationToggle}>
                 <Text translation='trade.donation' />
               </Checkbox>
             </Row.Label>
           </HelperTooltip>
-          {/* TODO: Replace the networkFeeFiat value below with the 30bps amount added */}
+          {/* FIXME: Replace the networkFeeFiat value below with the 30bps amount added */}
           <Row.Value>{toFiat(networkFeeFiat.toNumber())}</Row.Value>
         </Row>
       </Stack>
     ),
-    [networkFeeFiat, shouldDonate, toFiat, toggleShouldDonate, translate],
+    [handleDonationToggle, networkFeeFiat, shouldDonate, toFiat, translate],
   )
 
   const isTHORChainSwap = useMemo(
@@ -452,6 +488,7 @@ export const TradeConfirm = () => {
             mt={6}
             data-test='trade-form-confirm-and-trade-button'
             type='submit'
+            isLoading={isReloadingTrade}
           >
             <Text translation='trade.confirmAndTrade' />
           </Button>

@@ -34,6 +34,7 @@ import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getUsdRate } from './getUsdRate/getUsdRate'
 import type { OneInchSwapperDeps, OneInchTrade } from './utils/types'
 import { AssetId } from '@shapeshiftoss/caip'
+import { approveAmount, approveInfinite } from '../LifiSwapper/approve/approve'
 
 export type OneInchSupportedChainId =
   | KnownChainIds.EthereumMainnet
@@ -80,11 +81,11 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
   }
 
   approveAmount(input: ApproveAmountInput<EvmChainId>): Promise<string> {
-    throw new Error('Method not implemented.')
+    return approveAmount(input) // NOTE: should we abstract the lifi implementation into a base class, it should work the same for all EVM based swappers
   }
 
   approveInfinite(input: ApproveInfiniteInput<EvmChainId>): Promise<string> {
-    throw new Error('Method not implemented.')
+    return approveInfinite(input) 
   }
 
   executeTrade(input: ExecuteTradeInput<EvmChainId>): Promise<Result<TradeResult, SwapErrorRight>> {

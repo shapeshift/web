@@ -37,7 +37,15 @@ async function run() {
 
   overrideData.forEach((newObject: any) => {
     const index = newData.findIndex((existingObject: any) => existingObject.id === newObject.id)
-    if (index !== -1) newData.splice(index, 1, newObject)
+    if (index !== -1) {
+      if (newObject.category.toLowerCase() === 'exclude') {
+        // Remove excluded entry
+        newData.splice(index, 1)
+      } else {
+        // Replace with overriding entry
+        newData.splice(index, 1, newObject)
+      }
+    }
   })
 
   fs.writeFileSync(

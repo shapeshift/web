@@ -1,11 +1,11 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import axios from 'axios'
+import type { ApprovalNeededInput } from 'lib/swapper/api'
 
+import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import type { OneInchSwapperDeps } from '../utils/types'
 import { approvalNeeded } from './approvalNeeded'
-import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import { ApprovalNeededInput } from 'lib/swapper/api'
 
 jest.mock('axios')
 const mockAxios = axios as jest.Mocked<typeof axios>

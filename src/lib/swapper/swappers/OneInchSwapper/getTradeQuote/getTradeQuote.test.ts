@@ -1,9 +1,9 @@
 import axios from 'axios'
 
+import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { DEFAULT_SOURCE, MAX_ONEINCH_TRADE } from '../utils/constants'
 import type { OneInchSwapperDeps } from '../utils/types'
 import { getTradeQuote } from './getTradeQuote'
-import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 
 jest.mock('axios')
 const mockAxios = axios as jest.Mocked<typeof axios>
@@ -33,7 +33,7 @@ describe('getTradeQuote', () => {
   const approvalURL = `${deps.apiUrl}/1/approve/spender`
 
   it('returns the correct quote', async () => {
-    mockAxios.get.mockImplementation(async url =>  {
+    mockAxios.get.mockImplementation(async url => {
       switch (url) {
         case approvalURL:
           return { data: { address: '0x1111111254eeb25477b68fb85ed929f73a960583' } }

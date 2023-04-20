@@ -1,8 +1,8 @@
 import axios from 'axios'
 
+import { FOX } from '../../utils/test-data/assets'
 import type { OneInchSwapperDeps } from '../utils/types'
 import { getUsdRate } from './getUsdRate'
-import { FOX } from '../../utils/test-data/assets'
 
 jest.mock('axios')
 const mockAxios = axios as jest.Mocked<typeof axios>
@@ -13,7 +13,7 @@ describe('getUsdRate', () => {
   }
 
   it('returns the correct rate', async () => {
-    mockAxios.get.mockImplementation(async () => {
+    await mockAxios.get.mockImplementation(async () => {
       return {
         data: {
           fromToken: {

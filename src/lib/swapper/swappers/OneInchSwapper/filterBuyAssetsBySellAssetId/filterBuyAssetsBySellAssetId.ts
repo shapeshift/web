@@ -20,9 +20,7 @@ export function filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): Asse
 
     // same-chain swaps and evm only
     return (
-      buyAsset.chainId === sellAsset.chainId && 
-      evmChainIds.includes(buyAsset.chainId as EvmChainId) &&
-      evmChainIds.includes(sellAsset.chainId as EvmChainId)
+      buyAsset.chainId === sellAsset.chainId && evmChainIds.includes(buyAsset.chainId as EvmChainId)
     )
   })
 

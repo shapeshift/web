@@ -22,7 +22,7 @@ describe('getApprovalAddress', () => {
   })
 
   it('returns undefined if chainId is not supported', async () => {
-    mockAxios.get.mockImplementationOnce(async() => ({
+    mockAxios.get.mockImplementationOnce(async () => ({
       data: {
         statusCode: 404,
         message: 'Cannot GET /v5.0/500/approve/spender',

@@ -2,11 +2,11 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
+import { bn } from 'lib/bignumber/bignumber'
 
+import { usdcContractAddressFromChainId } from '../../ZrxSwapper/utils/helpers/helpers'
 import { getRate } from '../utils/helpers'
 import type { OneInchQuoteApiInput, OneInchQuoteResponse, OneInchSwapperDeps } from '../utils/types'
-import { usdcContractAddressFromChainId } from '../../ZrxSwapper/utils/helpers/helpers'
-import { bn } from 'lib/bignumber/bignumber'
 
 export const getUsdRate = async (deps: OneInchSwapperDeps, sellAsset: Asset): Promise<string> => {
   const usdcContractAddress = usdcContractAddressFromChainId(sellAsset.chainId)

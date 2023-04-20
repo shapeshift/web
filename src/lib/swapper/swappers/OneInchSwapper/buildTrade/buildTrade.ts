@@ -1,8 +1,13 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { Result } from '@sniptt/monads/build'
+import { Ok } from '@sniptt/monads/build'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
+import { SwapError, SwapErrorType } from 'lib/swapper/api'
 
 import { DEFAULT_SLIPPAGE, DEFAULT_SOURCE, REFERRAL_ADDRESS } from '../utils/constants'
 import { getRate } from '../utils/helpers'
@@ -12,9 +17,6 @@ import type {
   OneInchSwapResponse,
   OneInchTrade,
 } from '../utils/types'
-import { BuildTradeInput, SwapError, SwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { Ok, Result } from '@sniptt/monads/build'
 
 export const buildTrade = async (
   deps: OneInchSwapperDeps,
@@ -104,7 +106,7 @@ export const buildTrade = async (
       tx: swapResponse.data.tx,
     }
 
-    return Ok(trade) 
+    return Ok(trade)
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[buildTrade]', {

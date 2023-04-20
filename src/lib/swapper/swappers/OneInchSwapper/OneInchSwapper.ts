@@ -1,4 +1,5 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type {
   avalanche,
   bnbsmartchain,
@@ -6,7 +7,9 @@ import type {
   EvmChainId,
   optimism,
 } from '@shapeshiftoss/chain-adapters'
-import {
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import type {
   ApprovalNeededInput,
   ApprovalNeededOutput,
   ApproveAmountInput,
@@ -15,28 +18,22 @@ import {
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
   GetEvmTradeQuoteInput,
-  GetTradeQuoteInput,
   SwapErrorRight,
   Swapper,
-  SwapperName,
-  SwapperType,
   TradeQuote,
   TradeResult,
   TradeTxs,
 } from 'lib/swapper/api'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import type { Result } from '@sniptt/monads'
+import { GetTradeQuoteInput, SwapperName, SwapperType } from 'lib/swapper/api'
 
-
+import { approveAmount, approveInfinite } from '../LifiSwapper/approve/approve'
+import { filterAssetIdsBySellable } from '../LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { approvalNeeded } from './approvalNeeded/approvalNeeded'
 import { buildTrade } from './buildTrade/buildTrade'
+import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getUsdRate } from './getUsdRate/getUsdRate'
 import type { OneInchSwapperDeps, OneInchTrade } from './utils/types'
-import { AssetId } from '@shapeshiftoss/caip'
-import { approveAmount, approveInfinite } from '../LifiSwapper/approve/approve'
-import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
-import { filterAssetIdsBySellable } from '../LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
 
 export type OneInchSupportedChainId =
   | KnownChainIds.EthereumMainnet
@@ -66,7 +63,9 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
   /**
    * Get a trade quote
    */
-  async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<Result<TradeQuote<EvmChainId>, SwapErrorRight>> {
+  async getTradeQuote(
+    input: GetEvmTradeQuoteInput,
+  ): Promise<Result<TradeQuote<EvmChainId>, SwapErrorRight>> {
     return await getTradeQuote(this.deps, input)
   }
 
@@ -78,7 +77,9 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
     return await approvalNeeded(this.deps, input)
   }
 
-  async buildTrade(input: BuildTradeInput): Promise<Result<OneInchTrade<EvmChainId>, SwapErrorRight>> {
+  async buildTrade(
+    input: BuildTradeInput,
+  ): Promise<Result<OneInchTrade<EvmChainId>, SwapErrorRight>> {
     return await buildTrade(this.deps, input)
   }
 
@@ -87,7 +88,7 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
   }
 
   approveInfinite(input: ApproveInfiniteInput<EvmChainId>): Promise<string> {
-    return approveInfinite(input) 
+    return approveInfinite(input)
   }
 
   executeTrade(input: ExecuteTradeInput<EvmChainId>): Promise<Result<TradeResult, SwapErrorRight>> {
@@ -105,5 +106,4 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
   getTradeTxs(input: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
     throw new Error('Method not implemented.')
   }
-
 }

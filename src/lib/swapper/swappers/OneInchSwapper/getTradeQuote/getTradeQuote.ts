@@ -2,17 +2,19 @@ import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GasFeeDataEstimate } from '@shapeshiftoss/chain-adapters/src/evm/types'
+import type { Result } from '@sniptt/monads/build'
+import { Ok } from '@sniptt/monads/build'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
+import { SwapError, SwapErrorType } from 'lib/swapper/api'
 
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
 import { APPROVAL_GAS_LIMIT, DEFAULT_SOURCE } from '../utils/constants'
 import { getMinMax, getRate } from '../utils/helpers'
 import type { OneInchQuoteApiInput, OneInchQuoteResponse, OneInchSwapperDeps } from '../utils/types'
-import { GetEvmTradeQuoteInput, SwapError, SwapErrorRight, SwapErrorType, TradeQuote } from 'lib/swapper/api'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { Ok, Result } from '@sniptt/monads/build'
 
 export async function getTradeQuote(
   deps: OneInchSwapperDeps,

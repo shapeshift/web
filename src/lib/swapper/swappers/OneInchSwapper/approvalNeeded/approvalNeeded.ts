@@ -2,15 +2,16 @@ import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { ApprovalNeededInput, ApprovalNeededOutput } from 'lib/swapper/api'
+import { SwapError, SwapErrorType } from 'lib/swapper/api'
 
 import type {
   OneInchAllowanceApiInput,
   OneInchAllowanceResponse,
   OneInchSwapperDeps,
 } from '../utils/types'
-import { ApprovalNeededInput, ApprovalNeededOutput, SwapError, SwapErrorType } from 'lib/swapper/api'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
 export const approvalNeeded = async (
   deps: OneInchSwapperDeps,

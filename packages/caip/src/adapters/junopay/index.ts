@@ -3,7 +3,13 @@ import invert from 'lodash/invert'
 import toLower from 'lodash/toLower'
 
 import type { AssetId } from '../../assetId/assetId'
-import { avalancheAssetId, btcAssetId, cosmosAssetId, ethAssetId } from '../../constants'
+import {
+  avalancheAssetId,
+  btcAssetId,
+  cosmosAssetId,
+  ethAssetId,
+  polygonAssetId,
+} from '../../constants'
 
 // source data https://docs.juno.finance/developers/reference/onjuno-pay/onjuno-pay-integration-guide
 const assetIdToJunoPayTickerMap: Record<AssetId, string> = {
@@ -11,6 +17,7 @@ const assetIdToJunoPayTickerMap: Record<AssetId, string> = {
   [btcAssetId]: 'btc',
   [cosmosAssetId]: 'atom',
   [ethAssetId]: 'eth',
+  [polygonAssetId]: 'matic',
   'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': 'aave',
   'eip155:1/erc20:0xbb0e17ef65f82ab018d8edd776e8dd940327b28b': 'axs',
   'eip155:1/erc20:0x4d224452801aced8b2f0aebe155379bb5d594381': 'ape',

@@ -129,7 +129,7 @@ export const optimism: Asset = {
   color: '#5C6BC0',
   networkColor: '#FC0424',
   icon: 'https://assets.coincap.io/assets/icons/256/eth.png',
-  networkIcon: 'https://assets.coingecko.com/coins/images/25244/thumb/Optimism.png?1660904599',
+  networkIcon: 'https://assets.coingecko.com/coins/images/25244/large/Optimism.png?1660904599',
   explorer: 'https://optimistic.etherscan.io',
   explorerAddressLink: 'https://optimistic.etherscan.io/address/',
   explorerTxLink: 'https://optimistic.etherscan.io/tx/',
@@ -143,8 +143,21 @@ export const bnbsmartchain: Asset = {
   symbol: 'BNB',
   precision: 18,
   color: '#F0B90B',
-  icon: 'https://assets.coingecko.com/coins/images/825/thumb/bnb-icon2_2x.png?1644979850',
+  icon: 'https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png?1644979850',
   explorer: 'https://bscscan.com',
   explorerAddressLink: 'https://bscscan.com/address/',
   explorerTxLink: 'https://bscscan.com/tx/',
+}
+
+export const polygon: Asset = {
+  assetId: caip.polygonAssetId,
+  chainId: caip.polygonChainId,
+  name: 'Polygon',
+  symbol: 'MATIC',
+  precision: 18,
+  color: '#8f00ff',
+  icon: 'https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png?1624446912',
+  explorer: 'https://polygonscan.com/',
+  explorerAddressLink: 'https://polygonscan.com/address/',
+  explorerTxLink: 'https://polygonscan.com/tx/',
 }

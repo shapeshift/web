@@ -5,6 +5,7 @@ import {
   bscChainId,
   ethChainId,
   optimismChainId,
+  polygonChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
 
@@ -16,11 +17,11 @@ export const ZERION_CHAINS = [
   'binance-smart-chain',
   'ethereum',
   'optimism',
+  'polygon',
   // not yet
   // 'arbitrum',
   // 'aurora',
   // 'fantom',
-  // 'polygon',
   // 'solana',
   // 'xdai',
 ] as const
@@ -32,6 +33,7 @@ export const ZERION_CHAINS_MAP: Record<ZerionChainId, ChainId> = {
   'binance-smart-chain': bscChainId,
   ethereum: ethChainId,
   optimism: optimismChainId,
+  polygon: polygonChainId,
 }
 
 export const zerionChainIdToChainId = (chainId: ZerionChainId): ChainId | undefined =>

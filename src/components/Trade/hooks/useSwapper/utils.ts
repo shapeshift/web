@@ -14,6 +14,7 @@ import {
   ltcAssetId,
   optimismAssetId,
   osmosisAssetId,
+  polygonAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import type { EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
@@ -172,11 +173,19 @@ export const getDefaultAssetIdPairByChainId = (
           }
         : ethFoxPair
     case KnownChainIds.BnbSmartChainMainnet:
-      return featureFlags.ZrxBnbSmartChain
+      return featureFlags.ZrxBnbSmartChainSwap
         ? {
             sellAssetId: bscAssetId,
             // BUSD
             buyAssetId: 'eip155:56/bep20:0xe9e7cea3dedca5984780bafc599bd69add087d56',
+          }
+        : ethFoxPair
+    case KnownChainIds.PolygonMainnet:
+      return featureFlags.ZrxPolygonSwap
+        ? {
+            sellAssetId: polygonAssetId,
+            // USDC on Polygon
+            buyAssetId: 'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
           }
         : ethFoxPair
     case KnownChainIds.CosmosMainnet:

@@ -1,31 +1,25 @@
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { ApproveAmountInput, ApproveInfiniteInput, TradeQuote } from 'lib/swapper/api'
+import type { ApproveAmountInput, ApproveInfiniteInput } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
-import { erc20Abi } from 'lib/swapper/swappers/utils/abi/erc20-abi'
 import { grantAllowance } from 'lib/swapper/swappers/utils/helpers/helpers'
 import { isEvmChainAdapter } from 'lib/utils'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 
-const grantAllowanceForAmount = async (
+const grantAllowanceForAmount = (
   { quote, wallet }: ApproveAmountInput<EvmChainId>,
   approvalAmountCryptoBaseUnit: string,
 ) => {
-  const chainId = quote.sellAsset.chainId
+  const { accountNumber, allowanceContract, feeData, sellAsset } = quote
+
+  const chainId = sellAsset.chainId
   const adapterManager = getChainAdapterManager()
   const adapter = adapterManager.get(chainId)
   const web3 = getWeb3InstanceByChainId(chainId)
 
-  if (!isEvmChainId(chainId)) {
-    throw new SwapError('[grantAllowanceForAmount] - only EVM chains are supported', {
-      code: SwapErrorType.UNSUPPORTED_CHAIN,
-      details: { chainId },
-    })
-  }
-
-  if (adapter === undefined) {
+  if (!adapter) {
     throw new SwapError('[grantAllowanceForAmount] - getChainAdapterManager returned undefined', {
       code: SwapErrorType.UNSUPPORTED_CHAIN,
       details: { chainId },
@@ -42,16 +36,14 @@ const grantAllowanceForAmount = async (
     })
   }
 
-  const approvalQuote: TradeQuote<EvmChainId> = {
-    ...quote,
-    sellAmountBeforeFeesCryptoBaseUnit: approvalAmountCryptoBaseUnit,
-  }
-
-  return await grantAllowance({
-    quote: approvalQuote,
+  return grantAllowance({
+    accountNumber,
+    spender: allowanceContract,
+    feeData,
+    approvalAmount: approvalAmountCryptoBaseUnit,
+    erc20ContractAddress: fromAssetId(sellAsset.assetId).assetReference,
     wallet,
     adapter,
-    erc20Abi,
     web3,
   })
 }

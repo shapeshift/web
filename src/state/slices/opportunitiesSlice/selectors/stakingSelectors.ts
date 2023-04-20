@@ -3,6 +3,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import uniqBy from 'lodash/uniqBy'
 import type { BN } from 'lib/bignumber/bignumber'
@@ -526,7 +527,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
         ({ contractAddress, assetId, id }) => contractAddress ?? assetId ?? id,
       )
 
-      return aggregatedEarnUserStakingOpportunitiesIncludeEmpty.filter(opportunity => {
+      const results = aggregatedEarnUserStakingOpportunitiesIncludeEmpty.filter(opportunity => {
         if (opportunity?.expired) {
           return (
             bnOrZero(opportunity.stakedAmountCryptoBaseUnit).gt(0) ||
@@ -538,6 +539,11 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
 
         return true
       })
+      const getTotalProviderBalance = (opportunity: StakingEarnOpportunityType) =>
+        bnOrZero(opportunity.fiatAmount).toNumber()
+      const getApy = (opportunity: StakingEarnOpportunityType) =>
+        bnOrZero(opportunity.apy).toNumber()
+      return orderBy(results, [getTotalProviderBalance, getApy], ['desc', 'desc'])
     },
   )
 

@@ -16,6 +16,7 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { Err } from '@sniptt/monads'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -38,7 +39,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import type { Swapper } from 'lib/swapper/api'
-import { type TradeTxs, SwapperName } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
 import { assertUnreachable } from 'lib/utils'
 import { selectAssets, selectFeeAssetByChainId, selectTxStatusById } from 'state/slices/selectors'
@@ -262,19 +263,13 @@ export const TradeConfirm = () => {
       // Poll until we have a "buy" txid
       // This means the trade is just about finished
       const txs = await poll({
-        fn: async () => {
-          try {
-            return { ...(await swapper.getTradeTxs(result.unwrap())) }
-          } catch (e) {
-            return { sellTxid: '', buyTxid: '', e }
-          }
-        },
-        validate: (txs: TradeTxs & { e: Error }) => !!txs.buyTxid || !!txs.e,
+        fn: () => swapper.getTradeTxs(result.unwrap()).catch(e => Err(e)),
+        validate: txsResult => txsResult.isOk() && !!txsResult.unwrap().buyTxid,
         interval: 10000, // 10 seconds
         maxAttempts: 300, // Lots of attempts because some trade are slow (thorchain to bitcoin)
       })
-      if (txs.e) throw txs.e
-      setBuyTxid(txs.buyTxid ?? '')
+      if (txs.isErr()) throw txs.err()
+      setBuyTxid(txs.unwrap().buyTxid ?? '')
     } catch (e) {
       showErrorToast(e)
       clearAmounts()

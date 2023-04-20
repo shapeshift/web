@@ -4,7 +4,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { avalanche, bnbsmartchain, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
-import { Ok } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type {
   ApprovalNeededInput,
   ApprovalNeededOutput,
@@ -19,7 +19,13 @@ import type {
   TradeResult,
   TradeTxs,
 } from 'lib/swapper/api'
-import { SwapError, SwapErrorType, SwapperName, SwapperType } from 'lib/swapper/api'
+import {
+  makeSwapErrorRight,
+  SwapError,
+  SwapErrorType,
+  SwapperName,
+  SwapperType,
+} from 'lib/swapper/api'
 import { getZrxTradeQuote } from 'lib/swapper/swappers/ZrxSwapper/getZrxTradeQuote/getZrxTradeQuote'
 import type {
   ZrxExecuteTradeInput,
@@ -75,12 +81,38 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     }
   }
 
-  buildTrade(args: BuildTradeInput): Promise<Result<ZrxTrade<T>, SwapErrorRight>> {
-    return zrxBuildTrade<T>(this.deps, args)
+  async buildTrade(input: BuildTradeInput): Promise<Result<ZrxTrade<T>, SwapErrorRight>> {
+    if (input.buyAsset.chainId !== this.chainId || input.sellAsset.chainId !== this.chainId) {
+      return Err(
+        makeSwapErrorRight({
+          message: `[Zrx.buildTrade] - both assets must be on chainId ${this.chainId}`,
+          code: SwapErrorType.VALIDATION_FAILED,
+          details: {
+            buyAssetChainId: input.buyAsset.chainId,
+            sellAssetChainId: input.sellAsset.chainId,
+          },
+        }),
+      )
+    }
+    return await zrxBuildTrade<T>(this.deps, input)
   }
 
-  getTradeQuote(input: GetEvmTradeQuoteInput): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
-    return getZrxTradeQuote<T>(input)
+  async getTradeQuote(
+    input: GetEvmTradeQuoteInput,
+  ): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
+    if (input.buyAsset.chainId !== this.chainId || input.sellAsset.chainId !== this.chainId) {
+      return Err(
+        makeSwapErrorRight({
+          message: `[Zrx.getTradeQuote] - both assets must be on chainId ${this.chainId}`,
+          code: SwapErrorType.VALIDATION_FAILED,
+          details: {
+            buyAssetChainId: input.buyAsset.chainId,
+            sellAssetChainId: input.sellAsset.chainId,
+          },
+        }),
+      )
+    }
+    return await getZrxTradeQuote<T>(this.deps, input)
   }
 
   getUsdRate(input: Asset): Promise<string> {

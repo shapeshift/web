@@ -1,16 +1,14 @@
 import { avalancheChainId, bscChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
 import type { avalanche, bnbsmartchain, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
-import {
-  CowSwapper,
-  OsmosisSwapper,
-  SwapperManager,
-  ThorchainSwapper,
-  ZrxSwapper,
-} from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { LifiSwapper } from 'lib/swapper/LifiSwapper/LifiSwapper'
+import { SwapperManager } from 'lib/swapper/manager/SwapperManager'
+import { CowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
+import { LifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper'
+import { OsmosisSwapper } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapper'
+import { ThorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
+import { ZrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 

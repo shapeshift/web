@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { GetTradeQuoteInput, SwapperType } from '@shapeshiftoss/swapper'
 import type { GetTradeQuoteInputArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
+import type { GetTradeQuoteInput, SwapperType } from 'lib/swapper/api'
 import { isFulfilled } from 'lib/utils'
 import { getUsdRateApi } from 'state/apis/swapper/getUsdRateApi'
 import { swapperApi } from 'state/apis/swapper/swapperApi'

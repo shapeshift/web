@@ -214,12 +214,12 @@ export const selectPortfolioFiatBalanceByFilter = createCachedSelector(
   },
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
-export const selectFirstAccountIdByChainId = createSelector(
+export const selectFirstAccountIdByChainId = createCachedSelector(
   selectWalletAccountIds,
   (_s: ReduxState, chainId: ChainId) => chainId,
   (accountIds, chainId): AccountId | undefined =>
     accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)[0],
-)
+)((_s: ReduxState, chainId) => chainId ?? 'chainId')
 
 /**
  * selects portfolio account ids that *can* contain an assetId

@@ -2,7 +2,6 @@ import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, Flex, IconButton, Stack, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -29,6 +28,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { SwapperName } from 'lib/swapper/api'
 import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import {
   selectSwapperApiPending,
@@ -284,7 +284,7 @@ export const TradeInput = () => {
         return
       }
       const trade = await getTrade()
-      if (trade.isErr()) throw new Error(trade.unwrapErr().message)
+      if (trade.isErr()) throw trade.unwrapErr()
       updateTrade(trade.unwrap())
       history.push({ pathname: TradeRoutePaths.Confirm })
     } catch (e) {

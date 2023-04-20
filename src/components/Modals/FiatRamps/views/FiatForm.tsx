@@ -10,11 +10,10 @@ import type { ParseAddressInputReturn } from 'lib/address/address'
 import { parseAddressInput } from 'lib/address/address'
 import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
-import { isSome } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import {
-  selectAssets,
   selectPortfolioAccountMetadata,
+  selectSortedAssets,
   selectWalletAccountIds,
 } from 'state/slices/selectors'
 
@@ -40,7 +39,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 }) => {
   const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
-  const assets = useSelector(selectAssets)
+  const sortedAssets = useSelector(selectSortedAssets)
   const [accountId, setAccountId] = useState<AccountId | undefined>(selectedAccountId)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
@@ -53,14 +52,14 @@ export const FiatForm: React.FC<FiatFormProps> = ({
   const { assetSearch } = useModal()
 
   const buyAssets: Asset[] = useMemo(() => {
-    const buyAssetIds = ramps?.buyAssetIds ?? []
-    return buyAssetIds.map(assetId => assets[assetId]).filter(isSome)
-  }, [ramps?.buyAssetIds, assets])
+    const buyAssetIdsSet = new Set(ramps?.buyAssetIds ?? [])
+    return sortedAssets.filter(asset => buyAssetIdsSet.has(asset.assetId))
+  }, [ramps?.buyAssetIds, sortedAssets])
 
   const sellAssets: Asset[] = useMemo(() => {
-    const sellAssetIds = ramps?.sellAssetIds ?? []
-    return sellAssetIds.map(assetId => assets[assetId]).filter(isSome)
-  }, [ramps?.sellAssetIds, assets])
+    const sellAssetIdsSet = new Set(ramps?.sellAssetIds ?? [])
+    return sortedAssets.filter(asset => sellAssetIdsSet.has(asset.assetId))
+  }, [ramps?.sellAssetIds, sortedAssets])
 
   const handleIsSelectingAsset = useCallback(
     (fiatRampAction: FiatRampAction) => {

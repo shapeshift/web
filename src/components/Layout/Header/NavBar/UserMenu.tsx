@@ -70,7 +70,8 @@ const WalletButton: FC<WalletButtonProps> = ({
   const [ensName, setEnsName] = useState<string | null>('')
 
   useEffect(() => {
-    viemClient.getEnsName({ address: walletInfo?.meta?.address as Address }).then(setEnsName)
+    if (!walletInfo?.meta?.address) return
+    viemClient.getEnsName({ address: walletInfo.meta.address as Address }).then(setEnsName)
   }, [walletInfo?.meta?.address])
 
   useEffect(() => {

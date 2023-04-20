@@ -381,6 +381,7 @@ const reactAppRewireConfig = {
   },
   jest: (config: Config.InitialOptions) => {
     config.transformIgnorePatterns = [
+      '/node_modules/(?!(viem)/)',
       '/node_modules/(?!(@wagmi)/)',
       '^.+\\.module\\.(css|sass|scss)$',
     ]

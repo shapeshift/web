@@ -114,7 +114,7 @@ describe('parseTx', () => {
       expect(expected).toEqual(actual)
     })
 
-    it('should be able to parse eth receive', async () => {
+    it('should be able to parse MATIC receive', async () => {
       const { tx } = maticStandard
       const address = '0x7DE23FDA0C4243E9588CCe39819d53854965Ad77'
 

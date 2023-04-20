@@ -6,10 +6,11 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 
 import type { FeeDataEstimate, GetFeeDataInput } from '../../types'
 import { ChainAdapterDisplayName } from '../../types'
-import { bn, bnOrZero, calcFee } from '../../utils'
+import { bn, calcFee } from '../../utils'
 import type { ChainAdapterArgs } from '../EvmBaseAdapter'
 import { EvmBaseAdapter } from '../EvmBaseAdapter'
 import type { GasFeeDataEstimate } from '../types'
+import { getTxFee } from '../utils'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.PolygonMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.PolygonMainnet
@@ -59,34 +60,25 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PolygonMainnet> {
   }
 
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
-    const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = await this.api.getGasFees()
+    const { gasPrice, fast, average, slow } = await this.api.getGasFees()
 
     const scalars = { fast: bn(1.2), average: bn(1), slow: bn(0.8) }
 
     return {
       fast: {
         gasPrice: calcFee(gasPrice, 'fast', scalars),
-        ...(maxFeePerGas &&
-          maxPriorityFeePerGas && {
-            maxFeePerGas: calcFee(maxFeePerGas, 'fast', scalars),
-            maxPriorityFeePerGas: calcFee(maxPriorityFeePerGas, 'fast', scalars),
-          }),
+        maxFeePerGas: fast.maxFeePerGas,
+        maxPriorityFeePerGas: fast.maxPriorityFeePerGas,
       },
       average: {
         gasPrice: calcFee(gasPrice, 'average', scalars),
-        ...(maxFeePerGas &&
-          maxPriorityFeePerGas && {
-            maxFeePerGas: calcFee(maxFeePerGas, 'average', scalars),
-            maxPriorityFeePerGas: calcFee(maxPriorityFeePerGas, 'average', scalars),
-          }),
+        maxFeePerGas: average.maxFeePerGas,
+        maxPriorityFeePerGas: average.maxPriorityFeePerGas,
       },
       slow: {
         gasPrice: calcFee(gasPrice, 'slow', scalars),
-        ...(maxFeePerGas &&
-          maxPriorityFeePerGas && {
-            maxFeePerGas: calcFee(maxFeePerGas, 'slow', scalars),
-            maxPriorityFeePerGas: calcFee(maxPriorityFeePerGas, 'slow', scalars),
-          }),
+        maxFeePerGas: slow.maxFeePerGas,
+        maxPriorityFeePerGas: slow.maxPriorityFeePerGas,
       },
     }
   }
@@ -101,15 +93,15 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PolygonMainnet> {
 
     return {
       fast: {
-        txFee: bnOrZero(bn(fast.gasPrice).times(gasLimit)).toPrecision(),
+        txFee: getTxFee({ gasLimit, ...fast }),
         chainSpecific: { gasLimit, ...fast },
       },
       average: {
-        txFee: bnOrZero(bn(average.gasPrice).times(gasLimit)).toPrecision(),
+        txFee: getTxFee({ gasLimit, ...average }),
         chainSpecific: { gasLimit, ...average },
       },
       slow: {
-        txFee: bnOrZero(bn(slow.gasPrice).times(gasLimit)).toPrecision(),
+        txFee: getTxFee({ gasLimit, ...slow }),
         chainSpecific: { gasLimit, ...slow },
       },
     }

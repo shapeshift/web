@@ -22,7 +22,7 @@ const txParser = new TransactionParser({
 
 describe('parseTx', () => {
   describe('standard', () => {
-    it('should be able to parse eth mempool send', async () => {
+    it('should be able to parse matic mempool send', async () => {
       const { txMempool } = maticStandard
       const address = '0xC070A61D043189D99bbf4baA58226bf0991c7b11'
 
@@ -51,7 +51,7 @@ describe('parseTx', () => {
       expect(expected).toEqual(actual)
     })
 
-    it('should be able to parse MATIC send', async () => {
+    it('should be able to parse matic send', async () => {
       const { tx } = maticStandard
       const address = '0xC070A61D043189D99bbf4baA58226bf0991c7b11'
 
@@ -85,7 +85,7 @@ describe('parseTx', () => {
       expect(expected).toEqual(actual)
     })
 
-    it('should be able to parse MATIC mempool receive', async () => {
+    it('should be able to parse matic mempool receive', async () => {
       const { txMempool } = maticStandard
       const address = '0x7DE23FDA0C4243E9588CCe39819d53854965Ad77'
 
@@ -114,7 +114,7 @@ describe('parseTx', () => {
       expect(expected).toEqual(actual)
     })
 
-    it('should be able to parse MATIC receive', async () => {
+    it('should be able to parse matic receive', async () => {
       const { tx } = maticStandard
       const address = '0x7DE23FDA0C4243E9588CCe39819d53854965Ad77'
 
@@ -252,7 +252,7 @@ describe('parseTx', () => {
   })
 
   describe('self send', () => {
-    it('should be able to parse eth mempool', async () => {
+    it('should be able to parse matic mempool', async () => {
       const { txMempool } = maticSelfSend
       const address = '0xC070A61D043189D99bbf4baA58226bf0991c7b11'
 
@@ -289,7 +289,7 @@ describe('parseTx', () => {
       expect(expected).toEqual(actual)
     })
 
-    it('should be able to parse eth', async () => {
+    it('should be able to parse matic', async () => {
       const { tx } = maticSelfSend
       const address = '0xC070A61D043189D99bbf4baA58226bf0991c7b11'
 

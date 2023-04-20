@@ -1,7 +1,7 @@
 import type { Tx } from '../../../../../generated/polygon'
 import { mempoolMock } from './mempoolMock'
 
-const ethSelfSend: Tx = {
+const maticSelfSend: Tx = {
   txid: '0x6eb5d329b6d37dd3bd3bfb517d3d21c88f09f9fe77572b8ebe5730873cc12581',
   blockHash: '0xcee8f3c4a91d119d3d1c2dbe43dd18fa5ae4060d987ca9d2362e929f2caa4dfa',
   blockHeight: 41688283,
@@ -18,6 +18,6 @@ const ethSelfSend: Tx = {
 }
 
 export default {
-  tx: ethSelfSend,
-  txMempool: mempoolMock(ethSelfSend),
+  tx: maticSelfSend,
+  txMempool: mempoolMock(maticSelfSend),
 }

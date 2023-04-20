@@ -17,7 +17,6 @@ import {
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import type { EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import type { SwapperName, Trade, TradeQuote } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { GetReceiveAddressArgs } from 'components/Trade/types'
 import {
@@ -29,6 +28,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
+import type { SwapperName, Trade, TradeQuote } from 'lib/swapper/api'
 import { type FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 const moduleLogger = logger.child({ namespace: ['useSwapper', 'utils'] })

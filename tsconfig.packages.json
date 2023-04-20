@@ -20,7 +20,6 @@
     { "path": "./packages/investor-yearn" },
     { "path": "./packages/logger" },
     { "path": "./packages/market-service" },
-    { "path": "./packages/swapper" },
     { "path": "./packages/types" },
     { "path": "./packages/unchained-client" },
   ]

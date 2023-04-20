@@ -41,7 +41,7 @@ describe('makeBuckets', () => {
 
 describe('bucketTxs', () => {
   beforeAll(() => {
-    jest.useFakeTimers('modern')
+    jest.useFakeTimers()
     jest.setSystemTime(new Date(mockedDate))
   })
 
@@ -76,7 +76,7 @@ describe('bucketTxs', () => {
 
 describe('calculateBucketPrices', () => {
   beforeAll(() => {
-    jest.useFakeTimers('modern')
+    jest.useFakeTimers()
     jest.setSystemTime(new Date(mockedDate))
   })
 

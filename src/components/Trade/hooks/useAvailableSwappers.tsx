@@ -1,11 +1,8 @@
-import type {
-  GetSwappersWithQuoteMetadataReturn,
-  SwapperWithQuoteMetadata,
-} from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import { useEffect, useState } from 'react'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
+import type { GetSwappersWithQuoteMetadataReturn, SwapperWithQuoteMetadata } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 import { isSome } from 'lib/utils'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'

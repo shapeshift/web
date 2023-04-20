@@ -33,7 +33,7 @@
     "jsx": "react-jsx",
   },
   "include": ["src/**/*", "src/**/*.json", "packages/**/*", "packages/**/*.json", "cypress/**/*"],
-  "exclude": ["dist", "node_modules", "**/*.test.ts", "**/*.spec.ts", "**/__mocks__", "**/*.js"],
+  "exclude": ["dist", "node_modules", "**/__mocks__", "**/*.js"],
   "references": [
     { "path": "./packages/asset-service" },
     { "path": "./packages/caip" },
@@ -46,7 +46,6 @@
     { "path": "./packages/investor-yearn" },
     { "path": "./packages/logger" },
     { "path": "./packages/market-service" },
-    { "path": "./packages/swapper" },
     { "path": "./packages/types" },
     { "path": "./packages/unchained-client" },
   ]

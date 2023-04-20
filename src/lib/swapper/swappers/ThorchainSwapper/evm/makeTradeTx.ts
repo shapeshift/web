@@ -1,17 +1,18 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { numberToHex } from 'web3-utils'
-import type { SwapErrorRight } from 'lib/swapper/api'
+import type { QuoteFeeData, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
 import type { ThorEvmSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
 
-type MakeTradeTxArgs = {
+import { getFees } from '../../utils/helpers/helpers'
+
+type MakeTradeTxArgs<T extends EvmChainId> = {
   wallet: HDWallet
   accountNumber: number
   sellAmountCryptoBaseUnit: string
@@ -20,21 +21,9 @@ type MakeTradeTxArgs = {
   destinationAddress: string
   adapter: EvmBaseAdapter<ThorEvmSupportedChainId>
   slippageTolerance: string
+  feeData: QuoteFeeData<T>
   deps: ThorchainSwapperDeps
-  gasLimit: string
-  buyAssetTradeFeeUsd: string
-} & (
-  | {
-      gasPriceCryptoBaseUnit: string
-      maxFeePerGas?: never
-      maxPriorityFeePerGas?: never
-    }
-  | {
-      gasPriceCryptoBaseUnit?: never
-      maxFeePerGas: string
-      maxPriorityFeePerGas: string
-    }
-)
+}
 
 export const makeTradeTx = async ({
   wallet,
@@ -44,14 +33,10 @@ export const makeTradeTx = async ({
   sellAsset,
   destinationAddress,
   adapter,
-  maxFeePerGas,
-  maxPriorityFeePerGas,
-  gasPriceCryptoBaseUnit,
   slippageTolerance,
+  feeData,
   deps,
-  gasLimit,
-  buyAssetTradeFeeUsd,
-}: MakeTradeTxArgs): Promise<
+}: MakeTradeTxArgs<EvmChainId>): Promise<
   Result<
     {
       txToSign: ETHSignTx
@@ -70,7 +55,7 @@ export const makeTradeTx = async ({
       sellAmountCryptoBaseUnit,
       slippageTolerance,
       destinationAddress,
-      buyAssetTradeFeeUsd,
+      buyAssetTradeFeeUsd: feeData.buyAssetTradeFeeUsd,
     })
 
     if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
@@ -84,12 +69,9 @@ export const makeTradeTx = async ({
         wallet,
         accountNumber,
         to: router,
-        gasLimit,
-        ...(gasPriceCryptoBaseUnit !== undefined
-          ? { gasPrice: gasPriceCryptoBaseUnit }
-          : { maxFeePerGas, maxPriorityFeePerGas }),
-        value: isErc20Trade ? '0x0' : numberToHex(sellAmountCryptoBaseUnit),
+        value: isErc20Trade ? '0' : sellAmountCryptoBaseUnit,
         data,
+        ...(await getFees({ wallet, feeData })),
       }),
     )
   } catch (e) {

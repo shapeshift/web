@@ -1,9 +1,10 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
-import type { CowTrade, SwapperWithQuoteMetadata, Trade } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import type { DisplayFeeData, TradeAmountInputField } from 'components/Trade/types'
+import type { SwapperWithQuoteMetadata, Trade } from 'lib/swapper/api'
+import type { CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 
 export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   selectedSellAssetAccountId?: AccountId

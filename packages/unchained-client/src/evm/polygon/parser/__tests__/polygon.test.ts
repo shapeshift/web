@@ -85,7 +85,7 @@ describe('parseTx', () => {
       expect(expected).toEqual(actual)
     })
 
-    it('should be able to parse eth mempool receive', async () => {
+    it('should be able to parse MATIC mempool receive', async () => {
       const { txMempool } = maticStandard
       const address = '0x7DE23FDA0C4243E9588CCe39819d53854965Ad77'
 

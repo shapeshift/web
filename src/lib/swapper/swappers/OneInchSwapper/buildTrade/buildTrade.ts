@@ -12,13 +12,14 @@ import type {
   OneInchSwapResponse,
   OneInchTrade,
 } from '../utils/types'
-import { BuildTradeInput, SwapError, SwapErrorType } from 'lib/swapper/api'
+import { BuildTradeInput, SwapError, SwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { Ok, Result } from '@sniptt/monads/build'
 
 export const buildTrade = async (
   deps: OneInchSwapperDeps,
   input: BuildTradeInput,
-): Promise<OneInchTrade<EvmChainId>> => {
+): Promise<Result<OneInchTrade<EvmChainId>, SwapErrorRight>> => {
   try {
     const {
       chainId,
@@ -103,7 +104,7 @@ export const buildTrade = async (
       tx: swapResponse.data.tx,
     }
 
-    return trade
+    return Ok(trade) 
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[buildTrade]', {

@@ -78,7 +78,8 @@ describe('getTradeQuote', () => {
     })
 
     const { quoteInput } = setupQuote()
-    const quote = await getTradeQuote(deps, quoteInput)
+    const maybeQuote = await getTradeQuote(deps, quoteInput)
+    const quote = maybeQuote.unwrap()
     expect(quote.rate).toBe('0.000016426735042245')
     expect(quote.allowanceContract).toBe('0x1111111254eeb25477b68fb85ed929f73a960583')
     expect(quote.maximumCryptoHuman).toBe(MAX_ONEINCH_TRADE)

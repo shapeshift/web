@@ -65,7 +65,8 @@ describe('buildTrade', () => {
         },
       }
     })
-    const buildTradeOut = await buildTrade(deps, { ...buildTradeInput })
+    const buildTradeMaybe = await buildTrade(deps, { ...buildTradeInput })
+    const buildTradeOut = buildTradeMaybe.unwrap()
     expect(buildTradeOut.buyAmountCryptoBaseUnit).toEqual('16502150590853')
     expect(buildTradeOut.sellAmountBeforeFeesCryptoBaseUnit).toEqual('1000000000000000000')
     expect(buildTradeOut.feeData.networkFeeCryptoBaseUnit).toEqual('32388859301500') // gas * gasPrice

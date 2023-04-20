@@ -15,6 +15,7 @@ import {
   BuyAssetBySellIdInput,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
+  SwapErrorRight,
   Swapper,
   SwapperName,
   SwapperType,
@@ -23,6 +24,8 @@ import {
   TradeTxs,
 } from 'lib/swapper/api'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+
 
 import { approvalNeeded } from './approvalNeeded/approvalNeeded'
 import { buildTrade } from './buildTrade/buildTrade'
@@ -42,18 +45,13 @@ export type OneInchSupportedChainAdapter =
   | optimism.ChainAdapter
   | avalanche.ChainAdapter
 
-//export class OneInchSwapper implements Swapper<EvmChainId> {
-export class OneInchSwapper {
+export class OneInchSwapper implements Swapper<EvmChainId> {
+//export class OneInchSwapper {
   readonly name = SwapperName.OneInch
   deps: OneInchSwapperDeps
 
   constructor(deps: OneInchSwapperDeps) {
     this.deps = deps
-  }
-
-  /** perform any necessary async initialization */
-  async initialize(): Promise<void> {
-    // no-op
   }
 
   /** Returns the swapper type */
@@ -64,7 +62,7 @@ export class OneInchSwapper {
   /**
    * Get a trade quote
    */
-  async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<TradeQuote<EvmChainId>> {
+  async getTradeQuote(input: GetEvmTradeQuoteInput): Promise<Result<TradeQuote<EvmChainId>, SwapErrorRight>> {
     return await getTradeQuote(this.deps, input)
   }
 
@@ -76,7 +74,7 @@ export class OneInchSwapper {
     return await approvalNeeded(this.deps, input)
   }
 
-  async buildTrade(input: BuildTradeInput): Promise<OneInchTrade<EvmChainId>> {
+  async buildTrade(input: BuildTradeInput): Promise<Result<OneInchTrade<EvmChainId>, SwapErrorRight>> {
     return await buildTrade(this.deps, input)
   }
 }

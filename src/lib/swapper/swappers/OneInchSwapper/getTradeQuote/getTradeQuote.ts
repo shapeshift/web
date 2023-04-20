@@ -9,14 +9,15 @@ import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
 import { APPROVAL_GAS_LIMIT, DEFAULT_SOURCE } from '../utils/constants'
 import { getMinMax, getRate } from '../utils/helpers'
 import type { OneInchQuoteApiInput, OneInchQuoteResponse, OneInchSwapperDeps } from '../utils/types'
-import { GetEvmTradeQuoteInput, SwapError, SwapErrorType, TradeQuote } from 'lib/swapper/api'
+import { GetEvmTradeQuoteInput, SwapError, SwapErrorRight, SwapErrorType, TradeQuote } from 'lib/swapper/api'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { Ok, Result } from '@sniptt/monads/build'
 
 export async function getTradeQuote(
   deps: OneInchSwapperDeps,
   input: GetEvmTradeQuoteInput,
-): Promise<TradeQuote<EvmChainId>> {
+): Promise<Result<TradeQuote<EvmChainId>, SwapErrorRight>> {
   const { chainId, sellAsset, buyAsset, sellAmountBeforeFeesCryptoBaseUnit, accountNumber } = input
 
   if (sellAsset.chainId !== buyAsset.chainId) {
@@ -72,7 +73,7 @@ export async function getTradeQuote(
     .multipliedBy(bnOrZero(gasPriceCryptoBaseUnit))
     .toFixed()
 
-  return {
+  return Ok({
     rate,
     buyAsset,
     sellAsset,
@@ -93,5 +94,5 @@ export async function getTradeQuote(
       },
     },
     sources: DEFAULT_SOURCE,
-  }
+  })
 }

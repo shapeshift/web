@@ -11,6 +11,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
 import { getMinMax } from '../getMinMax/getMinMax'
 import { APPROVAL_GAS_LIMIT, DEFAULT_SOURCE } from '../utils/constants'
@@ -39,6 +40,21 @@ export async function getTradeQuote(
     })
   }
 
+  if (isNativeEvmAsset(sellAsset.assetId) || isNativeEvmAsset(buyAsset.assetId)) {
+    throw new SwapError('[getTradeQuote] 1inch swapper only supports ERC20s', {
+      code: SwapErrorType.UNSUPPORTED_CHAIN,
+    })
+  }
+
+  if (sellAmountBeforeFeesCryptoBaseUnit === '0') {
+    throw new SwapError(
+      '[getTradeQuote] sellAmountBeforeFeesCryptoBaseUnit must be greater than 0',
+      {
+        code: SwapErrorType.TRADE_BELOW_MINIMUM,
+      },
+    )
+  }
+
   const { assetReference: fromAssetAddress } = fromAssetId(sellAsset.assetId)
   const { assetReference: toAssetAddress } = fromAssetId(buyAsset.assetId)
 
@@ -47,6 +63,7 @@ export async function getTradeQuote(
     toTokenAddress: toAssetAddress,
     amount: sellAmountBeforeFeesCryptoBaseUnit,
   }
+  console.log('apiInput', apiInput)
   const { chainReference } = fromChainId(chainId)
   const quoteResponse: AxiosResponse<OneInchQuoteResponse> = await axios.get(
     `${deps.apiUrl}/${chainReference}/quote`,

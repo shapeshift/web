@@ -7,18 +7,20 @@ import {
   fromAssetId,
   optimismAssetId,
 } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { evm, EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type Web3 from 'web3'
 import type { AbiItem } from 'web3-utils'
-import { numberToHex } from 'web3-utils'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { TradeQuote } from 'lib/swapper/api'
+import type { QuoteFeeData } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/CowSwapper/utils/constants'
-import { erc20Abi as erc20AbiImported } from 'lib/swapper/swappers/utils/abi/erc20-abi'
+import { erc20Abi } from 'lib/swapper/swappers/utils/abi/erc20-abi'
+
+import { APPROVAL_GAS_LIMIT } from '../constants'
 
 export type IsApprovalRequiredArgs = {
   adapter: EvmChainAdapter
@@ -45,11 +47,19 @@ export type GetApproveContractDataArgs = {
 }
 
 type GrantAllowanceArgs<T extends EvmChainId> = {
-  quote: TradeQuote<T>
+  accountNumber: number
+  approvalAmount: string
+  spender: string
+  erc20ContractAddress: string
+  feeData: QuoteFeeData<T>
   wallet: HDWallet
   adapter: EvmChainAdapter
-  erc20Abi: AbiItem[]
   web3: Web3
+}
+
+type GetFeesArgs<T extends EvmChainId> = {
+  wallet: HDWallet
+  feeData: QuoteFeeData<T>
 }
 
 export const getERC20Allowance = ({
@@ -109,57 +119,118 @@ export const isApprovalRequired = async ({
   }
 }
 
-export const grantAllowance = async <T extends EvmChainId>({
-  quote,
+export const getFees = async <T extends EvmChainId>({
   wallet,
+  feeData,
+}: GetFeesArgs<T>): Promise<evm.Fees & { gasLimit: string }> => {
+  if (!supportsETH(wallet)) {
+    throw new SwapError('[getFees]', {
+      cause: 'eth wallet required',
+      code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
+      details: { wallet },
+    })
+  }
+
+  const gasLimit = feeData.chainSpecific.estimatedGasCryptoBaseUnit
+  const gasPrice = feeData.chainSpecific.gasPriceCryptoBaseUnit
+  const maxFeePerGas = feeData.chainSpecific.maxFeePerGas
+  const maxPriorityFeePerGas = feeData.chainSpecific.maxPriorityFeePerGas
+
+  if (!gasLimit) {
+    throw new SwapError('[getFees]', {
+      cause: 'gasLimit is required',
+      code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
+    })
+  }
+
+  const eip1559Support = await wallet.ethSupportsEIP1559()
+
+  if (eip1559Support && maxFeePerGas && maxPriorityFeePerGas)
+    return { gasLimit, maxFeePerGas, maxPriorityFeePerGas }
+  if (gasPrice) return { gasLimit, gasPrice }
+
+  throw new SwapError('[getFees]', {
+    cause: 'legacy gas or eip1559 gas required',
+    code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
+  })
+}
+
+export const buildAndBroadcast = async <T extends EvmChainId>({
+  accountNumber,
   adapter,
-  erc20Abi,
-  web3,
-}: GrantAllowanceArgs<T>): Promise<string> => {
+  data,
+  feeData,
+  to,
+  value,
+  wallet,
+}: {
+  accountNumber: number
+  adapter: EvmChainAdapter
+  data?: string
+  feeData: QuoteFeeData<T>
+  to: string
+  value: string
+  wallet: HDWallet
+}) => {
   try {
-    const { assetReference: sellAssetErc20Address } = fromAssetId(quote.sellAsset.assetId)
-
-    const erc20Contract = new web3.eth.Contract(erc20Abi, sellAssetErc20Address)
-    const approveTx = erc20Contract.methods
-      .approve(quote.allowanceContract, quote.sellAmountBeforeFeesCryptoBaseUnit)
-      .encodeABI()
-
-    const { accountNumber } = quote
-
-    const { txToSign } = await adapter.buildSendTransaction({
+    const { txToSign } = await adapter.buildCustomTx({
       wallet,
-      to: sellAssetErc20Address,
+      to,
       accountNumber,
-      value: '0',
-      chainSpecific: {
-        tokenContractAddress: sellAssetErc20Address,
-        gasPrice: numberToHex(quote.feeData?.chainSpecific?.gasPriceCryptoBaseUnit || 0),
-        gasLimit: numberToHex(quote.feeData?.chainSpecific?.estimatedGasCryptoBaseUnit || 0),
-      },
+      value,
+      data: data ?? '0x',
+      ...(await getFees({ wallet, feeData })),
     })
 
-    const grantAllowanceTxToSign = {
-      ...txToSign,
-      data: approveTx,
-    }
     if (wallet.supportsOfflineSigning()) {
-      const signedTx = await adapter.signTransaction({ txToSign: grantAllowanceTxToSign, wallet })
-
-      const broadcastedTxId = await adapter.broadcastTransaction(signedTx)
-
-      return broadcastedTxId
+      const signedTx = await adapter.signTransaction({ txToSign, wallet })
+      const txid = await adapter.broadcastTransaction(signedTx)
+      return txid
     } else if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
-      const broadcastedTxId = await adapter.signAndBroadcastTransaction?.({
-        txToSign: grantAllowanceTxToSign,
-        wallet,
-      })
-
-      return broadcastedTxId
+      const txid = await adapter.signAndBroadcastTransaction({ txToSign, wallet })
+      return txid
     } else {
-      throw new SwapError('[grantAllowance] - invalid HDWallet config', {
+      throw new SwapError('[buildAndBroadcast]', {
+        cause: 'no broadcast support',
         code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
       })
     }
+  } catch (e) {
+    if (e instanceof SwapError) throw e
+    throw new SwapError('[buildAndBroadcast]', {
+      cause: e,
+      code: SwapErrorType.GRANT_ALLOWANCE_FAILED,
+    })
+  }
+}
+
+export const grantAllowance = async <T extends EvmChainId>({
+  feeData,
+  accountNumber,
+  approvalAmount,
+  spender,
+  erc20ContractAddress,
+  wallet,
+  adapter,
+  web3,
+}: GrantAllowanceArgs<T>): Promise<string> => {
+  const erc20Contract = new web3.eth.Contract(erc20Abi, erc20ContractAddress)
+  const inputData = erc20Contract.methods.approve(spender, approvalAmount).encodeABI()
+
+  // hardcoded approval gas limit for now
+  feeData.chainSpecific.estimatedGasCryptoBaseUnit = APPROVAL_GAS_LIMIT
+
+  try {
+    const txid = await buildAndBroadcast({
+      accountNumber,
+      adapter,
+      feeData,
+      to: erc20ContractAddress,
+      value: '0',
+      wallet,
+      data: inputData,
+    })
+    return txid
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[grantAllowance]', {
@@ -190,7 +261,7 @@ export const getApproveContractData = ({
   spenderAddress,
   contractAddress,
 }: GetApproveContractDataArgs): string => {
-  const contract = new web3.eth.Contract(erc20AbiImported, contractAddress)
+  const contract = new web3.eth.Contract(erc20Abi, contractAddress)
   return contract.methods.approve(spenderAddress, MAX_ALLOWANCE).encodeABI()
 }
 

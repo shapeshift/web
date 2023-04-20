@@ -9,10 +9,10 @@ export type OneInchQuoteApiInput = {
 
 export type OneInchSwapApiInput = OneInchQuoteApiInput & {
   slippage: number
+  fromAddress: string
   referrerAddress: string
   allowPartialFill: boolean
-  // gasLimit: number
-  // gasPrice: number
+  disableEstimate: boolean
 }
 
 export type OneInchAllowanceApiInput = {
@@ -41,14 +41,7 @@ export type OneInchQuoteResponse = OneInchBaseResponse & {
 }
 
 export type OneInchSwapResponse = OneInchBaseResponse & {
-  tx: {
-    from: string
-    to: string
-    data: string
-    value: string
-    gasPrice: string
-    gas: string
-  }
+  tx: EvmTransaction
 }
 
 export type OneInchBaseResponse = {
@@ -62,6 +55,15 @@ export type OneInchSwapperDeps = {
   apiUrl: string
 }
 
+export type EvmTransaction = {
+  from: string
+  to: string
+  data: string
+  value: string
+  gasPrice: string
+  gas: string
+}
+
 export interface OneInchTrade<T extends EvmChainId> extends Trade<T> {
-  txData: string
+  tx: EvmTransaction
 }

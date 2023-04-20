@@ -29,7 +29,7 @@ describe('approvalNeeded', () => {
     ethGetAddress: jest.fn(() => Promise.resolve(walletAddress)),
   } as unknown as HDWallet
 
-  const { tradeQuote, sellAsset } = setupQuote()
+  const { tradeQuote } = setupQuote()
 
   it('returns false  when existing approval is in place', async () => {
     const allowanceOnChain = '50'

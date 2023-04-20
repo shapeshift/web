@@ -61,10 +61,12 @@ export const buildTrade = async (
   const swapApiInput: OneInchSwapApiInput = {
     fromTokenAddress: fromAssetAddress,
     toTokenAddress: toAssetAddress,
+    fromAddress: receiveAddress,
     amount: sellAmountBeforeFeesCryptoBaseUnit,
     slippage: slippagePercentage,
     allowPartialFill: false,
     referrerAddress: REFERRAL_ADDRESS,
+    disableEstimate: true,
     // TODO: unsure if we should set gas limits here or let 1inch return their defaults
   }
 
@@ -73,9 +75,6 @@ export const buildTrade = async (
     `${deps.apiUrl}/${chainReference}/swap`,
     { params: swapApiInput },
   )
-
-  console.log(swapResponse.data)
-
   const fee = bnOrZero(swapResponse.data.tx.gasPrice).times(bnOrZero(swapResponse.data.tx.gas))
 
   const trade: OneInchTrade<EvmChainId> = {
@@ -97,7 +96,7 @@ export const buildTrade = async (
     accountNumber,
     receiveAddress,
     sources: DEFAULT_SOURCE,
-    txData: swapResponse.data.tx.data,
+    tx: swapResponse.data.tx,
   }
 
   //TODO: check if approval is needed and add fee!

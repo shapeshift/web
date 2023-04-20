@@ -1,13 +1,4 @@
-import {
-  Collapse,
-  Flex,
-  List,
-  ListItem,
-  Skeleton,
-  SkeletonCircle,
-  Tag,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Flex, List, ListItem, Skeleton, SkeletonCircle, Tag } from '@chakra-ui/react'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
@@ -29,24 +20,20 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   opportunities: { staking, lp },
   isLoading,
 }) => {
-  const { onToggle, isOpen } = useDisclosure()
   const { icon } = DefiProviderMetadata[provider]
   const isLoaded = !isLoading
   return (
     <Card variant='default'>
       <Card.Header
         display='flex'
-        bg='chakra-body-bg'
-        borderBottomWidth={isOpen ? 1 : 0}
         flexDir={{ base: 'column', md: 'row' }}
         gap={4}
         alignItems={{ base: 'flex-start', md: 'center' }}
         fontSize={{ base: 'md', md: 'xl' }}
         fontWeight='bold'
-        position={isOpen ? 'sticky' : 'relative'}
-        top={isOpen ? '72px' : 0}
+        position='sticky'
+        top='71px'
         zIndex='sticky'
-        onClick={onToggle}
       >
         <Flex
           width='full'
@@ -74,12 +61,10 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
           display={{ base: 'block', md: 'none' }}
         />
       </Card.Header>
-      <Collapse in={isOpen} unmountOnExit={true}>
-        <Card.Body px={0} pb={2} pt={0}>
-          <WalletStakingByAsset ids={staking} />
-          <WalletLpByAsset ids={lp} />
-        </Card.Body>
-      </Collapse>
+      <Card.Body px={0} pb={2} pt={0}>
+        <WalletStakingByAsset ids={staking} />
+        <WalletLpByAsset ids={lp} />
+      </Card.Body>
     </Card>
   )
 }

@@ -4,6 +4,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { orderBy } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import { matchSorter } from 'match-sorter'
 import type { BN } from 'lib/bignumber/bignumber'
@@ -491,9 +492,16 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       if (cur.opportunities.lp.length || cur.opportunities.staking.length) acc.push(cur)
       return acc
     }, [])
-
-    if (!includeEarnBalances && !includeRewardsBalances)
-      return Object.values(aggregatedEarnOpportunitiesByProvider)
+    const getTotalProviderBalance = (opportunity: AggregatedOpportunitiesByProviderReturn) =>
+      bnOrZero(opportunity.netProviderFiatAmount).toNumber()
+    const getApy = (opportunity: AggregatedOpportunitiesByProviderReturn) =>
+      bnOrZero(opportunity.apy).toNumber()
+    const sortedList = orderBy(
+      aggregatedEarnOpportunitiesByProvider,
+      [getTotalProviderBalance, getApy],
+      ['desc', 'desc'],
+    )
+    if (!includeEarnBalances && !includeRewardsBalances) return sortedList
 
     const withEarnBalances = Object.values(aggregatedEarnOpportunitiesByProvider).filter(
       opportunity => Boolean(includeEarnBalances && bnOrZero(opportunity.fiatAmount).gt(0)),
@@ -503,10 +511,10 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
         Boolean(includeRewardsBalances && bnOrZero(opportunity.fiatRewardsAmount).gt(0)),
     )
 
-    return withEarnBalances
-      .concat(withRewardsBalances)
-      .sort((a, b) =>
-        bnOrZero(b.netProviderFiatAmount).minus(bnOrZero(a.netProviderFiatAmount)).toNumber(),
-      )
+    const results = withEarnBalances.concat(withRewardsBalances)
+
+    const sortedResults = orderBy(results, [getTotalProviderBalance, getApy], ['asc', 'desc'])
+
+    return sortedResults
   },
 )

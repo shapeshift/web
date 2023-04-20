@@ -1,6 +1,5 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import type { avalanche, bnbsmartchain, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
@@ -35,6 +34,8 @@ import {
 } from 'lib/swapper/swappers/ZrxSwapper/zrxApprove/zrxApprove'
 import { zrxBuildTrade } from 'lib/swapper/swappers/ZrxSwapper/zrxBuildTrade/zrxBuildTrade'
 import { zrxExecuteTrade } from 'lib/swapper/swappers/ZrxSwapper/zrxExecuteTrade/zrxExecuteTrade'
+import { selectAssets } from 'state/slices/selectors'
+import { store } from 'state/store'
 
 export type ZrxSupportedChainId =
   | KnownChainIds.EthereumMainnet
@@ -105,17 +106,19 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
     const { assetIds = [], sellAssetId } = args
+    const assets = selectAssets(store.getState())
     return assetIds.filter(
       id =>
-        fromAssetId(id).chainId === this.chainId &&
-        fromAssetId(sellAssetId).chainId === this.chainId &&
+        assets[id]?.chainId === this.chainId &&
+        assets[sellAssetId]?.chainId === this.chainId &&
         !UNSUPPORTED_ASSETS.includes(id),
     )
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[] = []): AssetId[] {
+    const assets = selectAssets(store.getState())
     return assetIds.filter(
-      id => fromAssetId(id).chainId === this.chainId && !UNSUPPORTED_ASSETS.includes(id),
+      id => assets[id]?.chainId === this.chainId && !UNSUPPORTED_ASSETS.includes(id),
     )
   }
 

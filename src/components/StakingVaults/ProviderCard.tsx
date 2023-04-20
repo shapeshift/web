@@ -36,6 +36,8 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
       <Card.Header
         display='flex'
         bg={headerBg}
+        borderTopLeftRadius={{ base: 0, md: '2xl' }}
+        borderTopRightRadius={{ base: '0', md: '2xl' }}
         flexDir={{ base: 'column', md: 'row' }}
         gap={4}
         alignItems={{ base: 'flex-start', md: 'center' }}

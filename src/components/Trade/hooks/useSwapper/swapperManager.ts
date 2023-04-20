@@ -6,6 +6,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { SwapperManager } from 'lib/swapper/manager/SwapperManager'
 import { CowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { LifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper'
+import { OneInchSwapper } from 'lib/swapper/swappers/OneInchSwapper/OneInchSwapper'
 import { OsmosisSwapper } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapper'
 import { ThorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { ZrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
@@ -116,6 +117,12 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     const lifiSwapper = new LifiSwapper()
     await lifiSwapper.initialize()
     _swapperManager.addSwapper(lifiSwapper)
+  }
+
+  if (flags.OneInch) {
+    const oneInchApiUrl = getConfig().REACT_APP_ONE_INCH_API_URL
+    const oneInchSwapper = new OneInchSwapper({ apiUrl: oneInchApiUrl })
+    _swapperManager.addSwapper(oneInchSwapper)
   }
 
   return _swapperManager

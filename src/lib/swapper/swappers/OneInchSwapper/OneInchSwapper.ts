@@ -93,7 +93,7 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
   executeTrade(
     input: OneInchExecuteTradeInput<EvmChainId>,
   ): Promise<Result<TradeResult, SwapErrorRight>> {
-    return executeTrade(this.deps, input)
+    return executeTrade(input)
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {

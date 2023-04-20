@@ -67,7 +67,6 @@ export type EvmTransaction = {
 
 export interface OneInchTrade<T extends EvmChainId> extends Trade<T> {
   tx: EvmTransaction
-  routerAddress: string
 }
 
 export type OneInchExecuteTradeInput<T extends EvmChainId> = {

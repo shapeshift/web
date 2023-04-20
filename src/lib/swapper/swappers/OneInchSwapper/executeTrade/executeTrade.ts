@@ -8,10 +8,9 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 
-import type { OneInchExecuteTradeInput, OneInchSwapperDeps } from '../utils/types'
+import type { OneInchExecuteTradeInput } from '../utils/types'
 
 export async function executeTrade(
-  deps: OneInchSwapperDeps,
   input: OneInchExecuteTradeInput<EvmChainId>,
 ): Promise<Result<TradeResult, SwapErrorRight>> {
   const { sellAsset, buyAsset } = input.trade
@@ -60,7 +59,7 @@ export async function executeTrade(
     const buildTxResponse = await adapter.buildSendTransaction({
       value: '0', // ERC20, so don't send any ETH with the tx
       wallet: input.wallet,
-      to: input.trade.routerAddress,
+      to: input.trade.tx.to,
       chainSpecific: {
         gasPrice: numberToHex(input.trade.feeData?.chainSpecific?.gasPriceCryptoBaseUnit || 0),
         gasLimit: numberToHex(input.trade.feeData?.chainSpecific?.estimatedGasCryptoBaseUnit || 0),

@@ -1,10 +1,11 @@
+import { useDisclosure } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
+import { AssetSearchModal } from 'components/Modals/AssetSearch/AssetSearchModal'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ParseAddressInputReturn } from 'lib/address/address'
 import { parseAddressInput } from 'lib/address/address'
@@ -28,13 +29,11 @@ type AddressesByAccountId = PartialRecord<AccountId, Partial<ParseAddressInputRe
 
 type FiatFormProps = {
   assetId: AssetId
-  fiatRampAction: FiatRampAction
   accountId?: AccountId
 }
 
 export const FiatForm: React.FC<FiatFormProps> = ({
   assetId = ethAssetId,
-  fiatRampAction,
   accountId: selectedAccountId,
 }) => {
   const walletAccountIds = useSelector(selectWalletAccountIds)
@@ -43,13 +42,13 @@ export const FiatForm: React.FC<FiatFormProps> = ({
   const [accountId, setAccountId] = useState<AccountId | undefined>(selectedAccountId)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
+  const [assetsToSearch, setAssetsToSearch] = useState<Asset[]>([])
 
   const {
     state: { wallet, isDemoWallet },
   } = useWallet()
 
   const { data: ramps } = useGetFiatRampsQuery()
-  const { assetSearch } = useModal()
 
   const buyAssets: Asset[] = useMemo(() => {
     const buyAssetIdsSet = new Set(ramps?.buyAssetIds ?? [])
@@ -61,18 +60,25 @@ export const FiatForm: React.FC<FiatFormProps> = ({
     return sortedAssets.filter(asset => sellAssetIdsSet.has(asset.assetId))
   }, [ramps?.sellAssetIds, sortedAssets])
 
+  const {
+    isOpen: isAssetSearchModalOpen,
+    onOpen: onOpenAssetSearchModal,
+    onClose: handleCloseAssetSearchModal,
+  } = useDisclosure()
+
   const handleIsSelectingAsset = useCallback(
     (fiatRampAction: FiatRampAction) => {
       if (!wallet) return
 
-      assetSearch.open({
-        onClick: (asset: Asset) => setSelectedAssetId(asset.assetId),
-        assets: fiatRampAction === FiatRampAction.Buy ? buyAssets : sellAssets,
-        disableUnsupported: true,
-      })
+      setAssetsToSearch(fiatRampAction === FiatRampAction.Buy ? buyAssets : sellAssets)
+      onOpenAssetSearchModal()
     },
-    [wallet, assetSearch, buyAssets, sellAssets],
+    [wallet, buyAssets, sellAssets, onOpenAssetSearchModal],
   )
+
+  const handleAssetClick = useCallback((asset: Asset) => {
+    setSelectedAssetId(asset.assetId)
+  }, [])
 
   /**
    * preload all addresses, and reverse resolved vanity addresses for all account ids
@@ -141,14 +147,21 @@ export const FiatForm: React.FC<FiatFormProps> = ({
   }, [addressByAccountId, accountId])
 
   return (
-    <Overview
-      assetId={selectedAssetId ?? assetId}
-      handleIsSelectingAsset={handleIsSelectingAsset}
-      defaultAction={fiatRampAction}
-      address={address}
-      vanityAddress={vanityAddress}
-      handleAccountIdChange={setAccountId}
-      accountId={accountId}
-    />
+    <>
+      <Overview
+        assetId={selectedAssetId ?? assetId}
+        handleIsSelectingAsset={handleIsSelectingAsset}
+        address={address}
+        vanityAddress={vanityAddress}
+        handleAccountIdChange={setAccountId}
+        accountId={accountId}
+      />
+      <AssetSearchModal
+        assets={assetsToSearch}
+        isOpen={isAssetSearchModalOpen}
+        onClick={handleAssetClick}
+        onClose={handleCloseAssetSearchModal}
+      />
+    </>
   )
 }

@@ -6,7 +6,6 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import SaversVaultTop from 'assets/savers-vault-top.png'
 import { AssetIcon } from 'components/AssetIcon'
-import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { RawText, Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -37,7 +36,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
   )
 
   const handleAssetBuyClick = useCallback(() => {
-    openFiatRamp({ assetId, fiatRampAction: FiatRampAction.Buy })
+    openFiatRamp({ assetId })
   }, [assetId, openFiatRamp])
 
   const renderFooter = useMemo(() => {

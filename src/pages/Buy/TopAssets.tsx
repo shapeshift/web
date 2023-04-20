@@ -5,7 +5,6 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
-import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
@@ -81,10 +80,7 @@ export const TopAssets: React.FC = () => {
     [],
   )
 
-  const handleClick = useCallback(
-    (assetId: AssetId) => fiatRamps.open({ assetId, fiatRampAction: FiatRampAction.Buy }),
-    [fiatRamps],
-  )
+  const handleClick = useCallback((assetId: AssetId) => fiatRamps.open({ assetId }), [fiatRamps])
 
   return (
     <Box>

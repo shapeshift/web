@@ -5,7 +5,6 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
-import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -26,7 +25,6 @@ export const FoxTokenHolders = () => {
   const handleBuySellClick = useCallback(() => {
     fiatRamps.open({
       assetId: foxAssetId,
-      fiatRampAction: FiatRampAction.Buy,
     })
   }, [fiatRamps])
 

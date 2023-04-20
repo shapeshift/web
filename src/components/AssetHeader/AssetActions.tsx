@@ -8,7 +8,6 @@ import { FaCreditCard } from 'react-icons/fa'
 import { IoSwapVertical } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -62,7 +61,6 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
   const handleBuySellClick = useCallback(() => {
     fiatRamps.open({
       assetId: assetSupportsBuy ? assetId : ethAssetId,
-      fiatRampAction: FiatRampAction.Buy,
       accountId,
     })
   }, [accountId, assetId, assetSupportsBuy, fiatRamps])

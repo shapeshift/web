@@ -2,7 +2,6 @@ import noop from 'lodash/noop'
 import React, { useCallback, useMemo, useReducer } from 'react'
 import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
-import { AssetSearchModal } from 'components/Modals/AssetSearch/AssetSearchModal'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRampsModal'
 import { LiveSupportModal } from 'components/Modals/LiveSupport/LiveSupport'
 import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcomeModal'
@@ -28,7 +27,6 @@ const MODALS = {
   backupNativePassphrase: BackupPassphraseModal,
   mobileWelcomeModal: MobileWelcomeModal,
   addAccount: AddAccountModal,
-  assetSearch: AssetSearchModal,
   popup: PopupWindowModal,
   nativeOnboard: NativeOnboarding,
   liveSupport: LiveSupportModal,

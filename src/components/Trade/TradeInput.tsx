@@ -1,6 +1,13 @@
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Button, Flex, IconButton, Stack, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
+import {
+  Button,
+  Flex,
+  IconButton,
+  Stack,
+  useColorModeValue,
+  useDisclosure,
+  useMediaQuery,
+} from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
@@ -9,6 +16,7 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import { AssetSearchModal } from 'components/Modals/AssetSearch/AssetSearchModal'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
@@ -18,7 +26,6 @@ import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -140,7 +147,6 @@ export const TradeInput = () => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const { handleSubmit } = useFormContext()
   const wallet = useWallet().state.wallet
-  const { assetSearch } = useModal()
   const { handleAssetClick } = useTradeRoutes()
 
   // Selectors
@@ -494,35 +500,26 @@ export const TradeInput = () => {
     }
   }, [isBelowMinSellAmount, feesExceedsSellAmount])
 
-  const handleSellAssetClick = useCallback(
-    (asset: Asset) => handleAssetClick(asset, AssetClickAction.Sell),
-    [handleAssetClick],
-  )
+  const {
+    isOpen: isSellAssetSearchModalOpen,
+    onOpen: onOpenSellAssetSearchModal,
+    onClose: handleCloseSellAssetSearchModal,
+  } = useDisclosure()
+  const {
+    isOpen: isBuyAssetSearchModalOpen,
+    onOpen: onOpenBuyAssetSearchModal,
+    onClose: handleCloseBuyAssetSearchModal,
+  } = useDisclosure()
 
-  const handleBuyAssetClick = useCallback(
-    (asset: Asset) => handleAssetClick(asset, AssetClickAction.Buy),
-    [handleAssetClick],
-  )
+  const handleSellAssetClick = useCallback(() => {
+    handleAssetClick(sellAsset, AssetClickAction.Sell)
+    onOpenSellAssetSearchModal()
+  }, [sellAsset, handleAssetClick, onOpenSellAssetSearchModal])
 
-  const handleInputAssetClick = useCallback(
-    (action: AssetClickAction) => {
-      assetSearch.open({
-        onClick: action === AssetClickAction.Sell ? handleSellAssetClick : handleBuyAssetClick,
-        title: action === AssetClickAction.Sell ? 'trade.tradeFrom' : 'trade.tradeTo',
-        assets:
-          action === AssetClickAction.Sell
-            ? supportedSellAssetsByMarketCap
-            : supportedBuyAssetsByMarketCap,
-      })
-    },
-    [
-      assetSearch,
-      supportedBuyAssetsByMarketCap,
-      supportedSellAssetsByMarketCap,
-      handleSellAssetClick,
-      handleBuyAssetClick,
-    ],
-  )
+  const handleBuyAssetClick = useCallback(() => {
+    handleAssetClick(buyAsset, AssetClickAction.Buy)
+    onOpenBuyAssetSearchModal()
+  }, [buyAsset, handleAssetClick, onOpenBuyAssetSearchModal])
 
   const tradeStateLoading = useMemo(
     () => (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) || !isSwapperApiInitiated,
@@ -541,123 +538,139 @@ export const TradeInput = () => {
   )
 
   return (
-    <SlideTransition>
-      <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={2}>
-          <Flex alignItems='center' flexDir={{ base: 'column', md: 'row' }} width='full'>
-            <TradeAssetSelect
+    <>
+      <SlideTransition>
+        <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
+          <Stack spacing={2}>
+            <Flex alignItems='center' flexDir={{ base: 'column', md: 'row' }} width='full'>
+              <TradeAssetSelect
+                accountId={sellAssetAccountId}
+                onAccountIdChange={handleSellAccountIdChange}
+                assetId={sellAsset?.assetId}
+                onAssetClick={handleSellAssetClick}
+                label={translate('trade.from')}
+              />
+              <IconButton
+                onClick={handleSwitchAssets}
+                isRound
+                mx={{ base: 0, md: -3 }}
+                my={{ base: -3, md: 0 }}
+                size='sm'
+                position='relative'
+                borderColor={useColorModeValue('gray.100', 'gray.750')}
+                borderWidth={1}
+                boxShadow={`0 0 0 3px var(${useColorModeValue(
+                  '--chakra-colors-white',
+                  '--chakra-colors-gray-785',
+                )})`}
+                bg={useColorModeValue('white', 'gray.850')}
+                zIndex={1}
+                aria-label='Switch Assets'
+                icon={isLargerThanMd ? <ArrowForwardIcon /> : <ArrowDownIcon />}
+              />
+              <TradeAssetSelect
+                accountId={buyAssetAccountId}
+                assetId={buyAsset?.assetId}
+                onAssetClick={handleBuyAssetClick}
+                onAccountIdChange={handleBuyAccountIdChange}
+                accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
+                label={translate('trade.to')}
+              />
+            </Flex>
+            <TradeAssetInput
               accountId={sellAssetAccountId}
-              onAccountIdChange={handleSellAccountIdChange}
               assetId={sellAsset?.assetId}
-              onAssetClick={() => handleInputAssetClick(AssetClickAction.Sell)}
-              label={translate('trade.from')}
+              assetSymbol={sellAsset?.symbol ?? ''}
+              assetIcon={sellAsset?.icon ?? ''}
+              cryptoAmount={positiveOrZero(sellAmountCryptoPrecision).toString()}
+              fiatAmount={positiveOrZero(fiatSellAmount).toFixed(2)}
+              isSendMaxDisabled={tradeStateLoading}
+              onChange={onSellAssetInputChange}
+              percentOptions={[1]}
+              onPercentOptionClick={handleSendMax}
+              showInputSkeleton={isSwapperApiPending && isSendMax}
+              showFiatSkeleton={isUsdRatesPending || (isSwapperApiPending && isSendMax)}
+              label={translate('trade.youPay')}
             />
-            <IconButton
-              onClick={handleSwitchAssets}
-              isRound
-              mx={{ base: 0, md: -3 }}
-              my={{ base: -3, md: 0 }}
-              size='sm'
-              position='relative'
-              borderColor={useColorModeValue('gray.100', 'gray.750')}
-              borderWidth={1}
-              boxShadow={`0 0 0 3px var(${useColorModeValue(
-                '--chakra-colors-white',
-                '--chakra-colors-gray-785',
-              )})`}
-              bg={useColorModeValue('white', 'gray.850')}
-              zIndex={1}
-              aria-label='Switch Assets'
-              icon={isLargerThanMd ? <ArrowForwardIcon /> : <ArrowDownIcon />}
-            />
-            <TradeAssetSelect
+            <TradeAssetInput
+              isReadOnly={true}
               accountId={buyAssetAccountId}
               assetId={buyAsset?.assetId}
-              onAssetClick={() => handleInputAssetClick(AssetClickAction.Buy)}
-              onAccountIdChange={handleBuyAccountIdChange}
-              accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
-              label={translate('trade.to')}
-            />
-          </Flex>
-          <TradeAssetInput
-            accountId={sellAssetAccountId}
-            assetId={sellAsset?.assetId}
-            assetSymbol={sellAsset?.symbol ?? ''}
-            assetIcon={sellAsset?.icon ?? ''}
-            cryptoAmount={positiveOrZero(sellAmountCryptoPrecision).toString()}
-            fiatAmount={positiveOrZero(fiatSellAmount).toFixed(2)}
-            isSendMaxDisabled={tradeStateLoading}
-            onChange={onSellAssetInputChange}
-            percentOptions={[1]}
-            onPercentOptionClick={handleSendMax}
-            showInputSkeleton={isSwapperApiPending && isSendMax}
-            showFiatSkeleton={isUsdRatesPending || (isSwapperApiPending && isSendMax)}
-            label={translate('trade.youPay')}
-          />
-          <TradeAssetInput
-            isReadOnly={true}
-            accountId={buyAssetAccountId}
-            assetId={buyAsset?.assetId}
-            assetSymbol={buyAsset?.symbol ?? ''}
-            assetIcon={buyAsset?.icon ?? ''}
-            cryptoAmount={positiveOrZero(buyAmountCryptoPrecision).toString()}
-            fiatAmount={positiveOrZero(fiatBuyAmount).toFixed(2)}
-            onChange={onBuyAssetInputChange}
-            percentOptions={[1]}
-            showInputSkeleton={receiveAmountLoading}
-            showFiatSkeleton={receiveAmountLoading}
-            label={translate('trade.youGet')}
-            rightRegion={
-              isTradeRatesEnabled ? (
-                <IconButton
-                  size='sm'
-                  icon={showQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
-                  aria-label='Expand Quotes'
-                  onClick={toggleShowQuotes}
-                />
-              ) : (
-                <></>
-              )
-            }
-          >
-            {isTradeRatesEnabled && (
-              <TradeQuotes isOpen={showQuotes} isLoading={tradeStateLoading} />
-            )}
-          </TradeAssetInput>
-        </Stack>
-        <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
-          <RateGasRow
-            sellSymbol={sellAsset?.symbol}
-            buySymbol={buyAsset?.symbol}
-            gasFee={gasFeeFiat}
-            rate={activeQuote?.rate}
-            isLoading={tradeStateLoading}
-            isError={!walletSupportsTradeAssetChains}
-          />
-          {walletSupportsTradeAssetChains && !sellAmountTooSmall ? (
-            <ReceiveSummary
+              assetSymbol={buyAsset?.symbol ?? ''}
+              assetIcon={buyAsset?.icon ?? ''}
+              cryptoAmount={positiveOrZero(buyAmountCryptoPrecision).toString()}
+              fiatAmount={positiveOrZero(fiatBuyAmount).toFixed(2)}
+              onChange={onBuyAssetInputChange}
+              percentOptions={[1]}
+              showInputSkeleton={receiveAmountLoading}
+              showFiatSkeleton={receiveAmountLoading}
+              label={translate('trade.youGet')}
+              rightRegion={
+                isTradeRatesEnabled ? (
+                  <IconButton
+                    size='sm'
+                    icon={showQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                    aria-label='Expand Quotes'
+                    onClick={toggleShowQuotes}
+                  />
+                ) : (
+                  <></>
+                )
+              }
+            >
+              {isTradeRatesEnabled && (
+                <TradeQuotes isOpen={showQuotes} isLoading={tradeStateLoading} />
+              )}
+            </TradeAssetInput>
+          </Stack>
+          <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
+            <RateGasRow
+              sellSymbol={sellAsset?.symbol}
+              buySymbol={buyAsset?.symbol}
+              gasFee={gasFeeFiat}
+              rate={activeQuote?.rate}
               isLoading={tradeStateLoading}
-              symbol={buyAsset?.symbol ?? ''}
-              amount={buyAmountCryptoPrecision ?? ''}
-              beforeFees={quoteBuyAmountCryptoPrecision ?? ''}
-              protocolFee={totalTradeFeeBuyAssetCryptoPrecision ?? ''}
-              shapeShiftFee='0'
-              slippage={slippage}
-              swapperName={swapperName}
+              isError={!walletSupportsTradeAssetChains}
             />
-          ) : null}
+            {walletSupportsTradeAssetChains && !sellAmountTooSmall ? (
+              <ReceiveSummary
+                isLoading={tradeStateLoading}
+                symbol={buyAsset?.symbol ?? ''}
+                amount={buyAmountCryptoPrecision ?? ''}
+                beforeFees={quoteBuyAmountCryptoPrecision ?? ''}
+                protocolFee={totalTradeFeeBuyAssetCryptoPrecision ?? ''}
+                shapeShiftFee='0'
+                slippage={slippage}
+                swapperName={swapperName}
+              />
+            ) : null}
+          </Stack>
+          <Button
+            type='submit'
+            colorScheme={hasError ? 'red' : 'blue'}
+            size='lg-multiline'
+            data-test='trade-form-preview-button'
+            isDisabled={hasError || isSwapperApiPending || !hasValidSellAmount || !activeQuote}
+            isLoading={isLoading}
+          >
+            <Text translation={getErrorTranslationKey()} />
+          </Button>
         </Stack>
-        <Button
-          type='submit'
-          colorScheme={hasError ? 'red' : 'blue'}
-          size='lg-multiline'
-          data-test='trade-form-preview-button'
-          isDisabled={hasError || isSwapperApiPending || !hasValidSellAmount || !activeQuote}
-          isLoading={isLoading}
-        >
-          <Text translation={getErrorTranslationKey()} />
-        </Button>
-      </Stack>
-    </SlideTransition>
+      </SlideTransition>
+      <AssetSearchModal
+        assets={supportedSellAssetsByMarketCap}
+        isOpen={isSellAssetSearchModalOpen}
+        title='trade.tradeFrom'
+        onClick={handleSellAssetClick}
+        onClose={handleCloseSellAssetSearchModal}
+      />
+      <AssetSearchModal
+        assets={supportedBuyAssetsByMarketCap}
+        isOpen={isBuyAssetSearchModalOpen}
+        title='trade.tradeTo'
+        onClick={handleBuyAssetClick}
+        onClose={handleCloseBuyAssetSearchModal}
+      />
+    </>
   )
 }

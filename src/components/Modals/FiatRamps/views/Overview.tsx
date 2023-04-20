@@ -58,21 +58,19 @@ type OverviewProps = {
   address: string
   vanityAddress: string
   assetId: AssetId
-  defaultAction: FiatRampAction
   handleIsSelectingAsset: (fiatRampAction: FiatRampAction) => void
   handleAccountIdChange: (accountId: AccountId) => void
 }
 
 export const Overview: React.FC<OverviewProps> = ({
   handleIsSelectingAsset,
-  defaultAction = FiatRampAction.Buy,
   assetId,
   handleAccountIdChange,
   accountId,
   address,
   vanityAddress,
 }) => {
-  const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
+  const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(FiatRampAction.Buy)
   const [fiatCurrency, setFiatCurrency] = useState<CommonFiatCurrencies>('USD')
   const { popup } = useModal()
   const selectedLocale = useAppSelector(selectSelectedLocale)

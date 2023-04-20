@@ -22,7 +22,6 @@ import JuniorTrancheIcon from 'assets/junior-tranche.svg'
 import SeniorTrancheIcon from 'assets/senior-tranche.svg'
 import { AssetIcon } from 'components/AssetIcon'
 import { Carousel } from 'components/Carousel/Carousel'
-import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
@@ -115,7 +114,7 @@ export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
   )
 
   const handleAssetBuyClick = useCallback(() => {
-    openFiatRamp({ assetId, fiatRampAction: FiatRampAction.Buy })
+    openFiatRamp({ assetId })
   }, [assetId, openFiatRamp])
 
   const renderFooter = useMemo(() => {

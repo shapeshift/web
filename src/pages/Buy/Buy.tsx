@@ -9,7 +9,6 @@ import FoxPane from 'assets/fox-cta-pane.png'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
-import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { FiatForm } from 'components/Modals/FiatRamps/views/FiatForm'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -85,7 +84,7 @@ export const Buy = () => {
             </Flex>
             <Box flexBasis='400px'>
               <Card mx={{ base: -4, md: 0 }}>
-                <FiatForm assetId={selectedAssetId} fiatRampAction={FiatRampAction.Buy} />
+                <FiatForm assetId={selectedAssetId} />
               </Card>
             </Box>
           </Flex>

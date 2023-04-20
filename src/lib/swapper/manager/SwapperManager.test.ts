@@ -1,6 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { Ok } from '@sniptt/monads'
-import { BTC, ETH, FOX, WBTC, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
+import { BSC, BTC, ETH, FOX, WBTC, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 
 import type { Swapper, SwapperWithQuoteMetadata } from '../api'
 import { SwapperType } from '../api'
@@ -28,7 +28,7 @@ const cowSwapper = getCowSwapper()
 const thorchainSwapper = getThorchainSwapper()
 
 jest.mock('state/slices/selectors', () => {
-  const { BTC, ETH, FOX, WBTC, WETH } = require('lib/swapper/swappers/utils/test-data/assets') // Move the import inside the factory function
+  const { BSC, BTC, ETH, FOX, WBTC, WETH } = require('lib/swapper/swappers/utils/test-data/assets') // Move the import inside the factory function
 
   return {
     selectAssets: () => ({
@@ -37,6 +37,7 @@ jest.mock('state/slices/selectors', () => {
       [FOX.assetId]: FOX,
       [WBTC.assetId]: WBTC,
       [WETH.assetId]: WETH,
+      [BSC.assetId]: BSC,
     }),
   }
 })
@@ -175,7 +176,7 @@ describe('SwapperManager', () => {
   })
 
   describe('getSupportedSellableAssets', () => {
-    it('should return an array of supported sell assetIds', () => {
+    it('should return an array of supported sell assetIds zrx eth mainnet', () => {
       const assetIds = [BTC.assetId, WETH.assetId, FOX.assetId]
 
       const swapperManager = new SwapperManager()
@@ -185,6 +186,15 @@ describe('SwapperManager', () => {
         WETH.assetId,
         FOX.assetId,
       ])
+    })
+
+    it('should return an array of supported sell assetIds zrx bsc', () => {
+      const assetIds = [BSC.assetId, FOX.assetId]
+
+      const swapperManager = new SwapperManager()
+      swapperManager.addSwapper(zrxBscSwapper)
+
+      expect(swapperManager.getSupportedSellableAssetIds({ assetIds })).toStrictEqual([BSC.assetId])
     })
 
     it('should return unique assetIds', () => {

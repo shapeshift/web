@@ -1,13 +1,12 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { MinMaxOutput } from '@shapeshiftoss/swapper'
-import { SwapError, SwapErrorType } from '@shapeshiftoss/swapper'
+import { MinMaxOutput, SwapError, SwapErrorType } from 'lib/swapper/api'
 import type BigNumber from 'bignumber.js'
 
-import { bn, bnOrZero } from '../../../../lib/bignumber/bignumber'
 import { getUsdRate } from '../getUsdRate/getUsdRate'
 import { MAX_ONEINCH_TRADE, MIN_ONEINCH_VALUE_USD } from '../utils/constants'
 import type { OneInchBaseResponse, OneInchSwapperDeps } from './types'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 export const getRate = (quoteResponse: OneInchBaseResponse): BigNumber => {
   const fromTokenAmountDecimal = bn(quoteResponse.fromTokenAmount).div(

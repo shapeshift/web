@@ -13,7 +13,7 @@ describe('getApprovalAddress', () => {
   }
 
   it('returns the correct address for the given chainId', async () => {
-    mockAxios.get.mockImplementationOnce(() => ({
+    mockAxios.get.mockImplementationOnce(async () => ({
       data: { address: '0x1111111254eeb25477b68fb85ed929f73a960583' },
     }))
     expect(await getApprovalAddress(deps, KnownChainIds.EthereumMainnet)).toBe(
@@ -22,7 +22,7 @@ describe('getApprovalAddress', () => {
   })
 
   it('returns undefined if chainId is not supported', async () => {
-    mockAxios.get.mockImplementationOnce(() => ({
+    mockAxios.get.mockImplementationOnce(async() => ({
       data: {
         statusCode: 404,
         message: 'Cannot GET /v5.0/500/approve/spender',

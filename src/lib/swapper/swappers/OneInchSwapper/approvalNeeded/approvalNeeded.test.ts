@@ -1,17 +1,17 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { ApprovalNeededInput } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import axios from 'axios'
 
-import { setupQuote } from '../../../../../packages/swapper/src/swappers/utils/test-data/setupSwapQuote'
 import type { OneInchSwapperDeps } from '../utils/types'
 import { approvalNeeded } from './approvalNeeded'
+import { setupQuote } from '../../utils/test-data/setupSwapQuote'
+import { ApprovalNeededInput } from 'lib/swapper/api'
 
 jest.mock('axios')
 const mockAxios = axios as jest.Mocked<typeof axios>
 
 const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
-jest.mock('../../../../../../web/src/context/PluginProvider/chainAdapterSingleton', () => ({
+jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => {
     return {
       get: () => ({
@@ -33,7 +33,6 @@ describe('approvalNeeded', () => {
 
   it('returns false  when existing approval is in place', async () => {
     const allowanceOnChain = '50'
-    const data = { allowanceTarget: '10' }
     const input: ApprovalNeededInput<KnownChainIds.EthereumMainnet> = {
       quote: {
         ...tradeQuote,
@@ -48,7 +47,7 @@ describe('approvalNeeded', () => {
       wallet,
     }
 
-    mockAxios.get.mockImplementationOnce(() => ({
+    mockAxios.get.mockImplementationOnce(async () => ({
       data: { allowance: allowanceOnChain },
     }))
 
@@ -57,7 +56,6 @@ describe('approvalNeeded', () => {
 
   it('returns true when existing approval is in place but too low', async () => {
     const allowanceOnChain = '9'
-    const data = { allowanceTarget: '10' }
     const input: ApprovalNeededInput<KnownChainIds.EthereumMainnet> = {
       quote: {
         ...tradeQuote,
@@ -72,7 +70,7 @@ describe('approvalNeeded', () => {
       wallet,
     }
 
-    mockAxios.get.mockImplementationOnce(() => ({
+    mockAxios.get.mockImplementationOnce(async () => ({
       data: { allowance: allowanceOnChain },
     }))
 
@@ -81,7 +79,6 @@ describe('approvalNeeded', () => {
 
   it('returns true when no approval is in place', async () => {
     const allowanceOnChain = '0'
-    const data = { allowanceTarget: '10' }
     const input: ApprovalNeededInput<KnownChainIds.EthereumMainnet> = {
       quote: {
         ...tradeQuote,
@@ -96,7 +93,7 @@ describe('approvalNeeded', () => {
       wallet,
     }
 
-    mockAxios.get.mockImplementationOnce(() => ({
+    mockAxios.get.mockImplementationOnce(async () => ({
       data: { allowance: allowanceOnChain },
     }))
 

@@ -1,4 +1,4 @@
-import { FOX, WETH } from '../../../../../packages/swapper/src/swappers/utils/test-data/assets'
+import { FOX, WETH } from '../../utils/test-data/assets'
 import type { OneInchSwapperDeps } from '../utils/types'
 import { getMinMax } from './helpers'
 

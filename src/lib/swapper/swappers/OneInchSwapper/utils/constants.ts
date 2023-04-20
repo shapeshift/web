@@ -1,5 +1,4 @@
-import type { SwapSource } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { SwapSource, SwapperName } from "lib/swapper/api"
 
 export const APPROVAL_GAS_LIMIT = '100000'
 export const MAX_ONEINCH_TRADE = '100000000000000000000000000'

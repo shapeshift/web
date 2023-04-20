@@ -6,7 +6,7 @@ import type {
   EvmChainId,
   optimism,
 } from '@shapeshiftoss/chain-adapters'
-import type {
+import {
   ApprovalNeededInput,
   ApprovalNeededOutput,
   ApproveAmountInput,
@@ -16,11 +16,12 @@ import type {
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
   Swapper,
+  SwapperName,
+  SwapperType,
   TradeQuote,
   TradeResult,
   TradeTxs,
-} from '@shapeshiftoss/swapper'
-import { SwapperName, SwapperType, Trade } from '@shapeshiftoss/swapper'
+} from 'lib/swapper/api'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 
 import { approvalNeeded } from './approvalNeeded/approvalNeeded'
@@ -41,8 +42,8 @@ export type OneInchSupportedChainAdapter =
   | optimism.ChainAdapter
   | avalanche.ChainAdapter
 
-export class OneInchSwapper implements Swapper<EvmChainId> {
-  //export class OneInchSwapper {
+//export class OneInchSwapper implements Swapper<EvmChainId> {
+export class OneInchSwapper {
   readonly name = SwapperName.OneInch
   deps: OneInchSwapperDeps
 

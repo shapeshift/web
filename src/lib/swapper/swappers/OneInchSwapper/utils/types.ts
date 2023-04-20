@@ -1,5 +1,5 @@
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Trade } from '@shapeshiftoss/swapper'
+import { Trade } from 'lib/swapper/api'
 
 export type OneInchQuoteApiInput = {
   fromTokenAddress: string

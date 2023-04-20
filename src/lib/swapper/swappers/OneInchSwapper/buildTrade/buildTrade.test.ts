@@ -1,11 +1,11 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { ApprovalNeededInput, BuildTradeInput } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import axios from 'axios'
 
-import { setupQuote } from '../../../../../packages/swapper/src/swappers/utils/test-data/setupSwapQuote'
 import type { OneInchSwapperDeps } from '../utils/types'
 import { buildTrade } from './buildTrade'
+import { setupQuote } from '../../utils/test-data/setupSwapQuote'
+import { BuildTradeInput } from 'lib/swapper/api'
 
 jest.mock('axios')
 const mockAxios = axios as jest.Mocked<typeof axios>
@@ -18,7 +18,7 @@ describe('buildTrade', () => {
   const wallet = {
     ethGetAddress: jest.fn(() => Promise.resolve(walletAddress)),
   } as unknown as HDWallet
-  const { tradeQuote, buyAsset, sellAsset } = setupQuote()
+  const { buyAsset, sellAsset } = setupQuote()
 
   const buildTradeInput: BuildTradeInput = {
     chainId: KnownChainIds.EthereumMainnet,
@@ -32,7 +32,7 @@ describe('buildTrade', () => {
   }
 
   it('should return a valid trade', async () => {
-    mockAxios.get.mockImplementation(() => {
+    mockAxios.get.mockImplementation(async () => {
       return {
         data: {
           fromToken: {

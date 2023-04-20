@@ -367,6 +367,12 @@ const reactAppRewireConfig = {
             path.join(buildPath, 'packages/*/src/**/*'),
           ],
         },
+        stats: {
+          preset: 'minimal',
+          assets: false,
+          modules: false,
+          timings: true,
+        },
       })
 
       // https://webpack.js.org/guides/build-performance/#avoid-production-specific-tooling

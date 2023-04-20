@@ -67,7 +67,10 @@ import {
 } from '../common-selectors'
 import { foxEthLpAssetId, foxEthStakingIds } from '../opportunitiesSlice/constants'
 import type { StakingId, UserStakingId } from '../opportunitiesSlice/types'
-import { deserializeUserStakingId } from '../opportunitiesSlice/utils'
+import {
+  deserializeUserStakingId,
+  getUnderlyingAssetIdsBalances,
+} from '../opportunitiesSlice/utils'
 import type {
   AccountMetadata,
   AccountMetadataById,
@@ -809,6 +812,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
   selectAllEarnUserLpOpportunitiesByFilter,
   selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssets,
+  selectMarketDataSortedByMarketCap,
   selectAssetIdParamFromFilter,
   (
     accountIds,
@@ -817,6 +821,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
     lpOpportunities,
     stakingOpportunities,
     assets,
+    marketData,
     assetId,
   ): AssetEquityItem[] => {
     if (!assetId) return []
@@ -864,15 +869,19 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
       }
     })
     const lp = lpOpportunities.map(lpOpportunity => {
-      const amountCryptoPrecision = fromBaseUnit(
-        bnOrZero(lpOpportunity.cryptoAmountBaseUnit),
-        asset?.precision ?? 0,
-      )
+      const underlyingBalances = getUnderlyingAssetIdsBalances({
+        underlyingAssetIds: lpOpportunity.underlyingAssetIds,
+        underlyingAssetRatiosBaseUnit: lpOpportunity.underlyingAssetRatiosBaseUnit,
+        cryptoAmountBaseUnit: lpOpportunity.cryptoAmountBaseUnit,
+        assetId,
+        assets,
+        marketData,
+      })
       return {
         id: lpOpportunity.id,
         type: AssetEquityType.LP,
-        fiatAmount: lpOpportunity.fiatAmount,
-        amountCryptoPrecision,
+        fiatAmount: underlyingBalances[assetId].fiatAmount,
+        amountCryptoPrecision: underlyingBalances[assetId].cryptoBalancePrecision,
         provider: lpOpportunity.provider,
         color: DefiProviderMetadata[lpOpportunity.provider].color,
       }

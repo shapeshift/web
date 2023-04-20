@@ -1,4 +1,5 @@
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Trade } from 'lib/swapper/api'
 
 export type OneInchQuoteApiInput = {
@@ -66,4 +67,10 @@ export type EvmTransaction = {
 
 export interface OneInchTrade<T extends EvmChainId> extends Trade<T> {
   tx: EvmTransaction
+  routerAddress: string
+}
+
+export type OneInchExecuteTradeInput<T extends EvmChainId> = {
+  trade: OneInchTrade<T>
+  wallet: HDWallet
 }

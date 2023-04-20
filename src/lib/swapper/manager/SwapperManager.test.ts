@@ -1,11 +1,11 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { Ok } from '@sniptt/monads'
+import { BTC, ETH, FOX, WBTC, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 
 import type { Swapper, SwapperWithQuoteMetadata } from '../api'
 import { SwapperType } from '../api'
 import { CowSwapper } from '../swappers/CowSwapper/CowSwapper'
 import { ThorchainSwapper } from '../swappers/ThorchainSwapper/ThorchainSwapper'
-import { ETH } from '../swappers/utils/test-data/assets'
 import { setupQuote } from '../swappers/utils/test-data/setupSwapQuote'
 import { ZrxSwapper } from '../swappers/ZrxSwapper/ZrxSwapper'
 import { SwapperManager } from './SwapperManager'
@@ -26,6 +26,20 @@ const zrxOptimismSwapper = getZrxOptimismSwapper()
 const zrxBscSwapper = getZrxBscwapper()
 const cowSwapper = getCowSwapper()
 const thorchainSwapper = getThorchainSwapper()
+
+jest.mock('state/slices/selectors', () => {
+  const { BTC, ETH, FOX, WBTC, WETH } = require('lib/swapper/swappers/utils/test-data/assets') // Move the import inside the factory function
+
+  return {
+    selectAssets: () => ({
+      [BTC.assetId]: BTC,
+      [ETH.assetId]: ETH,
+      [FOX.assetId]: FOX,
+      [WBTC.assetId]: WBTC,
+      [WETH.assetId]: WETH,
+    }),
+  }
+})
 
 describe('SwapperManager', () => {
   describe('constructor', () => {
@@ -114,8 +128,8 @@ describe('SwapperManager', () => {
 
   describe('getSwapperByPair', () => {
     it('should return swapper(s) that support all assets given', () => {
-      const sellAssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d' // FOX
-      const buyAssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' // USDC
+      const sellAssetId = FOX.assetId
+      const buyAssetId = WBTC.assetId
       const swapperManager = new SwapperManager()
 
       swapperManager.addSwapper(zrxEthereumSwapper).addSwapper(thorchainSwapper)
@@ -136,28 +150,19 @@ describe('SwapperManager', () => {
 
   describe('getSupportedBuyAssetIdsFromSellId', () => {
     it('should return an array of supported buy assetIds given a sell asset Id', () => {
-      const assetIds = [
-        'bip122:000000000019d6689c085ae165831e93/slip44:0',
-        'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9', // Aave
-        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d', // Fox
-      ]
+      const assetIds = [BTC.assetId, WETH.assetId, FOX.assetId]
 
-      const sellAssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
+      const sellAssetId = FOX.assetId
       const swapperManager = new SwapperManager()
       swapperManager.addSwapper(zrxEthereumSwapper)
 
       expect(
         swapperManager.getSupportedBuyAssetIdsFromSellId({ sellAssetId, assetIds }),
-      ).toStrictEqual(assetIds.slice(-2))
+      ).toStrictEqual([WETH.assetId, FOX.assetId])
     })
 
     it('should return unique assetIds', () => {
-      const assetIds = [
-        'bip122:000000000019d6689c085ae165831e93/slip44:0',
-        'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9', // Aave
-        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d', // Fox
-        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d', // Fox (duplicate)
-      ]
+      const assetIds = [BTC.assetId, WETH.assetId, FOX.assetId, FOX.assetId]
 
       const sellAssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
       const swapperManager = new SwapperManager()
@@ -165,40 +170,33 @@ describe('SwapperManager', () => {
 
       expect(
         swapperManager.getSupportedBuyAssetIdsFromSellId({ sellAssetId, assetIds }),
-      ).toStrictEqual(assetIds.slice(1, 3))
+      ).toStrictEqual([WETH.assetId, FOX.assetId])
     })
   })
 
   describe('getSupportedSellableAssets', () => {
     it('should return an array of supported sell assetIds', () => {
-      const assetIds = [
-        'bip122:000000000019d6689c085ae165831e93/slip44:0',
-        'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9', // Aave
-        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d', // Fox
-      ]
+      const assetIds = [BTC.assetId, WETH.assetId, FOX.assetId]
 
       const swapperManager = new SwapperManager()
       swapperManager.addSwapper(zrxEthereumSwapper)
 
-      expect(swapperManager.getSupportedSellableAssetIds({ assetIds })).toStrictEqual(
-        assetIds.slice(-2),
-      )
+      expect(swapperManager.getSupportedSellableAssetIds({ assetIds })).toStrictEqual([
+        WETH.assetId,
+        FOX.assetId,
+      ])
     })
 
     it('should return unique assetIds', () => {
-      const assetIds = [
-        'bip122:000000000019d6689c085ae165831e93/slip44:0',
-        'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9', // Aave
-        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d', // Fox
-        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d', // Fox (duplicate)
-      ]
+      const assetIds = [BTC.assetId, WETH.assetId, FOX.assetId, FOX.assetId]
 
       const swapperManager = new SwapperManager()
       swapperManager.addSwapper(zrxEthereumSwapper)
 
-      expect(swapperManager.getSupportedSellableAssetIds({ assetIds })).toStrictEqual(
-        assetIds.slice(1, 3),
-      )
+      expect(swapperManager.getSupportedSellableAssetIds({ assetIds })).toStrictEqual([
+        WETH.assetId,
+        FOX.assetId,
+      ])
     })
   })
 

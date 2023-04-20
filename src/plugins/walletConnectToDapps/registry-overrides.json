@@ -12,5 +12,19 @@
 		"homepage": "https://snapshot.org/",
 		"name": "Snapshot",
 		"image": "https://explorer-api.walletconnect.com/v3/logo/md/b96552e9-6c7d-467c-bb37-486224d77e00?projectId=2f05ae7f1116030fde2d36508f472bfb"
+	},
+	{
+		"category": "dapp",
+		"id": "44ff1e444b11207673bb2e832138afa0062e4618659189b9207990a7767dccdf",
+		"homepage": "https://polygon.technology/",
+		"name": "Polygon Network (MATIC)",
+		"image": "https://explorer-api.walletconnect.com/v3/logo/md/4f85c13e-39ce-4353-fca7-cbdcffe14f00?projectId=2f05ae7f1116030fde2d36508f472bfb"
+	},
+	{
+		"category": "exclude",
+		"id": "38c16286d8c924bb05f01056a8862357e80fbdbad7570dc40aed95a57c3e4de1",
+		"homepage": "https://shapeshift.com",
+		"name": "ShapeShift",
+		"image": "https://explorer-api.walletconnect.com/v3/logo/md/70b73b01-bd10-4a32-4f81-73327ef20e00?projectId=2f05ae7f1116030fde2d36508f472bfb"
 	}
 ]

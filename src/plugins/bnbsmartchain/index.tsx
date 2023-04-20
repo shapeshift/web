@@ -13,7 +13,7 @@ export default function register(): Plugins {
       'bscChainAdapter',
       {
         name: 'bscChainAdapter',
-        featureFlag: ['BnbSmartChain', 'ZrxBnbSmartChain'],
+        featureFlag: ['BnbSmartChain', 'ZrxBnbSmartChainSwap'],
         providers: {
           chainAdapters: [
             [

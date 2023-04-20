@@ -11,7 +11,11 @@ import { parseAddressInput } from 'lib/address/address'
 import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
-import { selectPortfolioAccountMetadata, selectWalletAccountIds } from 'state/slices/selectors'
+import {
+  selectPortfolioAccountMetadata,
+  selectSortedAssets,
+  selectWalletAccountIds,
+} from 'state/slices/selectors'
 
 import { FiatRampAction } from '../FiatRampsCommon'
 import { Overview } from './Overview'
@@ -35,6 +39,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 }) => {
   const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
+  const sortedAssets = useSelector(selectSortedAssets)
   const [accountId, setAccountId] = useState<AccountId | undefined>(selectedAccountId)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
@@ -46,18 +51,27 @@ export const FiatForm: React.FC<FiatFormProps> = ({
   const { data: ramps } = useGetFiatRampsQuery()
   const { assetSearch } = useModal()
 
+  const buyAssets: Asset[] = useMemo(() => {
+    const buyAssetIdsSet = new Set(ramps?.buyAssetIds ?? [])
+    return sortedAssets.filter(asset => buyAssetIdsSet.has(asset.assetId))
+  }, [ramps?.buyAssetIds, sortedAssets])
+
+  const sellAssets: Asset[] = useMemo(() => {
+    const sellAssetIdsSet = new Set(ramps?.sellAssetIds ?? [])
+    return sortedAssets.filter(asset => sellAssetIdsSet.has(asset.assetId))
+  }, [ramps?.sellAssetIds, sortedAssets])
+
   const handleIsSelectingAsset = useCallback(
     (fiatRampAction: FiatRampAction) => {
       if (!wallet) return
-      const assetIds =
-        (fiatRampAction === FiatRampAction.Buy ? ramps?.buyAssetIds : ramps?.sellAssetIds) ?? []
+
       assetSearch.open({
         onClick: (asset: Asset) => setSelectedAssetId(asset.assetId),
-        filterBy: (assets: Asset[]) => assets.filter(asset => assetIds.includes(asset.assetId)),
+        assets: fiatRampAction === FiatRampAction.Buy ? buyAssets : sellAssets,
         disableUnsupported: true,
       })
     },
-    [assetSearch, ramps?.buyAssetIds, ramps?.sellAssetIds, wallet],
+    [wallet, assetSearch, buyAssets, sellAssets],
   )
 
   /**

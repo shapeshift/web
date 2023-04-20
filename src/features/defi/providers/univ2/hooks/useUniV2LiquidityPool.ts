@@ -12,7 +12,7 @@ import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
-import type { Address } from 'wagmi'
+import type { Address } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -243,8 +243,7 @@ export const useUniV2LiquidityPool = ({
             const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
             return await adapter.buildCustomTx({
               to: contractAddress,
-              // the ETH value need to be starting with 0x and be base 16
-              value: '0x' + bnOrZero(value).toString(16),
+              value,
               wallet,
               data,
               gasLimit,
@@ -421,7 +420,7 @@ export const useUniV2LiquidityPool = ({
             const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
             return await adapter.buildCustomTx({
               to: contractAddress,
-              value: '0x0',
+              value: '0',
               wallet,
               data,
               gasLimit,
@@ -723,7 +722,7 @@ export const useUniV2LiquidityPool = ({
       }
       const result = await adapter.buildCustomTx({
         to: contract!.address,
-        value: '0x0',
+        value: '0',
         wallet,
         data,
         gasLimit,

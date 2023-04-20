@@ -6,6 +6,7 @@ import {
   supportsBSC,
   supportsETH,
   supportsOptimism,
+  supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -36,12 +37,13 @@ import type {
 import { ValidAddressResultType } from '../types'
 import {
   chainIdToChainLabel,
+  convertNumberToHex,
   getAssetNamespace,
   toAddressNList,
   toRootDerivationPath,
 } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
-import type { avalanche, bnbsmartchain, ethereum, optimism } from '.'
+import type { avalanche, bnbsmartchain, ethereum, optimism, polygon } from '.'
 import type { BuildCustomTxInput, EstimateGasRequest, Fees, GasFeeDataEstimate } from './types'
 import { getErc20Data } from './utils'
 
@@ -50,6 +52,7 @@ export const evmChainIds = [
   KnownChainIds.AvalancheMainnet,
   KnownChainIds.OptimismMainnet,
   KnownChainIds.BnbSmartChainMainnet,
+  KnownChainIds.PolygonMainnet,
 ] as const
 
 export type EvmChainId = typeof evmChainIds[number]
@@ -59,6 +62,7 @@ export type EvmChainAdapter =
   | avalanche.ChainAdapter
   | optimism.ChainAdapter
   | bnbsmartchain.ChainAdapter
+  | polygon.ChainAdapter
 
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,
@@ -71,6 +75,7 @@ type EvmApi =
   | unchained.avalanche.V1Api
   | unchained.optimism.V1Api
   | unchained.bnbsmartchain.V1Api
+  | unchained.polygon.V1Api
 
 export interface ChainAdapterArgs<T = EvmApi> {
   chainId?: EvmChainId
@@ -148,6 +153,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         return supportsETH(wallet)
       case Number(fromChainId(KnownChainIds.OptimismMainnet).chainReference):
         return supportsOptimism(wallet)
+      case Number(fromChainId(KnownChainIds.PolygonMainnet).chainReference):
+        return supportsPolygon(wallet)
       default:
         return false
     }
@@ -180,6 +187,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'BNB',
         symbol: 'BNB',
         explorer: 'https://bscscan.com',
+      },
+      [KnownChainIds.PolygonMainnet]: {
+        name: 'Polygon',
+        symbol: 'MATIC',
+        explorer: 'https://polygonscan.com/',
       },
       [KnownChainIds.EthereumMainnet]: {
         name: 'Ethereum',
@@ -536,7 +548,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       const bip44Params = this.getBIP44Params({ accountNumber })
       const txToSign = {
         addressNList: toAddressNList(bip44Params),
-        value,
+        value: convertNumberToHex(value),
         to,
         chainId: Number(fromChainId(this.chainId).chainReference),
         data,

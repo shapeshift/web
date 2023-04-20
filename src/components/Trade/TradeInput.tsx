@@ -2,7 +2,6 @@ import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, Flex, IconButton, Stack, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -29,6 +28,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { SwapperName } from 'lib/swapper/api'
 import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import {
   selectSwapperApiPending,
@@ -133,7 +133,7 @@ export const TradeInput = () => {
   const action = useSwapperStore(selectAction)
   const amount = useSwapperStore(selectAmount)
   const isSendMax = useSwapperStore(selectIsSendMax)
-  const { getTrade, getSupportedSellableAssets, getSupportedBuyAssetsFromSellAsset } = useSwapper()
+  const { getTrade, supportedSellAssetsByMarketCap, supportedBuyAssetsByMarketCap } = useSwapper()
   const translate = useTranslate()
   const history = useHistory()
   const mixpanel = getMixPanel()
@@ -284,7 +284,8 @@ export const TradeInput = () => {
         return
       }
       const trade = await getTrade()
-      updateTrade(trade)
+      if (trade.isErr()) throw trade.unwrapErr()
+      updateTrade(trade.unwrap())
       history.push({ pathname: TradeRoutePaths.Confirm })
     } catch (e) {
       moduleLogger.error(e, 'onSubmit error')
@@ -493,18 +494,34 @@ export const TradeInput = () => {
     }
   }, [isBelowMinSellAmount, feesExceedsSellAmount])
 
+  const handleSellAssetClick = useCallback(
+    (asset: Asset) => handleAssetClick(asset, AssetClickAction.Sell),
+    [handleAssetClick],
+  )
+
+  const handleBuyAssetClick = useCallback(
+    (asset: Asset) => handleAssetClick(asset, AssetClickAction.Buy),
+    [handleAssetClick],
+  )
+
   const handleInputAssetClick = useCallback(
     (action: AssetClickAction) => {
       assetSearch.open({
-        onClick: (asset: Asset) => handleAssetClick(asset, action),
+        onClick: action === AssetClickAction.Sell ? handleSellAssetClick : handleBuyAssetClick,
         title: action === AssetClickAction.Sell ? 'trade.tradeFrom' : 'trade.tradeTo',
-        filterBy:
+        assets:
           action === AssetClickAction.Sell
-            ? getSupportedSellableAssets
-            : getSupportedBuyAssetsFromSellAsset,
+            ? supportedSellAssetsByMarketCap
+            : supportedBuyAssetsByMarketCap,
       })
     },
-    [assetSearch, getSupportedBuyAssetsFromSellAsset, getSupportedSellableAssets, handleAssetClick],
+    [
+      assetSearch,
+      supportedBuyAssetsByMarketCap,
+      supportedSellAssetsByMarketCap,
+      handleSellAssetClick,
+      handleBuyAssetClick,
+    ],
   )
 
   const tradeStateLoading = useMemo(

@@ -1,16 +1,16 @@
-import { type Asset } from '@shapeshiftoss/asset-service'
-import { SwapperManager } from '@shapeshiftoss/swapper'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
-import { filterAssetsByIds } from 'components/Trade/hooks/useSwapper/utils'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectAssetIds } from 'state/slices/assetsSlice/selectors'
+import type { SwapperManager } from 'lib/swapper/manager/SwapperManager'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
+  selectAssetIds,
   selectBIP44ParamsByAccountId,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
+  selectSortedAssets,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
@@ -41,24 +41,39 @@ export const useSwapper = () => {
   // Selectors
   const flags = useSelector(selectFeatureFlags)
   const assetIds = useSelector(selectAssetIds)
+  const sortedAssets = useSelector(selectSortedAssets)
 
   // Hooks
-  const [swapperManager, setSwapperManager] = useState<SwapperManager>(() => new SwapperManager())
+  const [swapperManager, setSwapperManager] = useState<SwapperManager>()
   const wallet = useWallet().state.wallet
 
-  // Callbacks
-  const getSupportedSellableAssets = useCallback(
-    (assets: Asset[]) => {
-      const sellableAssetIds = swapperManager.getSupportedSellableAssetIds({
-        assetIds,
-      })
-
-      return filterAssetsByIds(assets, sellableAssetIds)
-    },
-    [assetIds, swapperManager],
-  )
-
   // Selectors
+  const supportedSellAssetsByMarketCap = useMemo(() => {
+    if (!swapperManager) return []
+
+    const sellableAssetIds = swapperManager.getSupportedSellableAssetIds({
+      assetIds,
+    })
+
+    const sellableAssetIdsSet: Set<AssetId> = new Set(sellableAssetIds)
+
+    return sortedAssets.filter(asset => sellableAssetIdsSet.has(asset.assetId))
+  }, [sortedAssets, assetIds, swapperManager])
+
+  const supportedBuyAssetsByMarketCap = useMemo(() => {
+    const sellAssetId = sellAsset?.assetId
+    if (sellAssetId === undefined || !swapperManager) return []
+
+    const buyableAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
+      assetIds,
+      sellAssetId,
+    })
+
+    const buyableAssetIdsSet: Set<AssetId> = new Set(buyableAssetIds)
+
+    return sortedAssets.filter(asset => buyableAssetIdsSet.has(asset.assetId))
+  }, [sortedAssets, sellAsset?.assetId, assetIds, swapperManager])
+
   const sellAssetAccountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetId(state, { assetId: sellAsset?.assetId ?? '' }),
   )
@@ -85,21 +100,6 @@ export const useSwapper = () => {
 
   const buyAccountBip44Params = useAppSelector(state =>
     selectBIP44ParamsByAccountId(state, buyAccountFilter),
-  )
-
-  const getSupportedBuyAssetsFromSellAsset = useCallback(
-    (assets: Asset[]): Asset[] | undefined => {
-      const sellAssetId = sellAsset?.assetId
-      const assetIds = assets.map(asset => asset.assetId)
-      const supportedBuyAssetIds = sellAssetId
-        ? swapperManager.getSupportedBuyAssetIdsFromSellId({
-            assetIds,
-            sellAssetId,
-          })
-        : undefined
-      return supportedBuyAssetIds ? filterAssetsByIds(assets, supportedBuyAssetIds) : undefined
-    },
-    [swapperManager, sellAsset],
   )
 
   const approve = useCallback(async (): Promise<string> => {
@@ -137,15 +137,14 @@ export const useSwapper = () => {
   ])
 
   useEffect(() => {
-    ;(async () => {
-      flags && setSwapperManager(await getSwapperManager(flags))
-    })()
+    if (!flags) return
+
+    getSwapperManager(flags).then(setSwapperManager)
   }, [flags])
 
   return {
-    getSupportedSellableAssets,
-    getSupportedBuyAssetsFromSellAsset,
-    swapperManager,
+    supportedSellAssetsByMarketCap,
+    supportedBuyAssetsByMarketCap,
     getTrade,
     approve,
   }

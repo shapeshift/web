@@ -6,6 +6,7 @@ import {
   supportsBSC,
   supportsETH,
   supportsOptimism,
+  supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { AccountMetadataById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
@@ -38,6 +39,10 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
 
       if (chainReference === CHAIN_REFERENCE.BnbSmartChainMainnet) {
         if (!supportsBSC(wallet)) continue
+      }
+
+      if (chainReference === CHAIN_REFERENCE.PolygonMainnet) {
+        if (!supportsPolygon(wallet)) continue
       }
 
       const bip44Params = adapter.getBIP44Params({ accountNumber })

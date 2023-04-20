@@ -1,11 +1,11 @@
 import type { SkipToken } from '@reduxjs/toolkit/query'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { type GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { useEffect, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { type GetTradeQuoteInput } from 'lib/swapper/api'
 import {
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,

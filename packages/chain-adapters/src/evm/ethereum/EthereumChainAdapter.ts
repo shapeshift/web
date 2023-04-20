@@ -12,10 +12,11 @@ import type {
   ZrxGasApiResponse,
 } from '../../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../../types'
-import { bn, bnOrZero, calcFee } from '../../utils'
+import { bnOrZero } from '../../utils'
 import type { ChainAdapterArgs } from '../EvmBaseAdapter'
 import { EvmBaseAdapter } from '../EvmBaseAdapter'
 import type { GasFeeDataEstimate } from '../types'
+import { getTxFee } from '../utils'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.EthereumMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.EthereumMainnet
@@ -71,38 +72,23 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
 
     if (!medianFees) throw new TypeError('ETH Gas Fees should always exist')
 
-    const { maxFeePerGas, maxPriorityFeePerGas } = await this.api.getGasFees()
-
-    const scalars = {
-      fast: bnOrZero(bn(medianFees.fast).dividedBy(medianFees.standard)),
-      average: bn(1),
-      slow: bnOrZero(bn(medianFees.low).dividedBy(medianFees.standard)),
-    }
+    const { fast, average, slow } = await this.api.getGasFees()
 
     return {
       fast: {
         gasPrice: bnOrZero(medianFees.fast).toString(),
-        ...(maxFeePerGas &&
-          maxPriorityFeePerGas && {
-            maxFeePerGas: calcFee(maxFeePerGas, 'fast', scalars),
-            maxPriorityFeePerGas: calcFee(maxPriorityFeePerGas, 'fast', scalars),
-          }),
+        maxFeePerGas: fast.maxFeePerGas,
+        maxPriorityFeePerGas: fast.maxPriorityFeePerGas,
       },
       average: {
         gasPrice: bnOrZero(medianFees.standard).toString(),
-        ...(maxFeePerGas &&
-          maxPriorityFeePerGas && {
-            maxFeePerGas: calcFee(maxFeePerGas, 'average', scalars),
-            maxPriorityFeePerGas: calcFee(maxPriorityFeePerGas, 'average', scalars),
-          }),
+        maxFeePerGas: average.maxFeePerGas,
+        maxPriorityFeePerGas: average.maxPriorityFeePerGas,
       },
       slow: {
         gasPrice: bnOrZero(medianFees.low).toString(),
-        ...(maxFeePerGas &&
-          maxPriorityFeePerGas && {
-            maxFeePerGas: calcFee(maxFeePerGas, 'slow', scalars),
-            maxPriorityFeePerGas: calcFee(maxPriorityFeePerGas, 'slow', scalars),
-          }),
+        maxFeePerGas: slow.maxFeePerGas,
+        maxPriorityFeePerGas: slow.maxPriorityFeePerGas,
       },
     }
   }
@@ -117,15 +103,15 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
 
     return {
       fast: {
-        txFee: bnOrZero(bn(fast.gasPrice).times(gasLimit)).toPrecision(),
+        txFee: getTxFee({ gasLimit, ...fast }),
         chainSpecific: { gasLimit, ...fast },
       },
       average: {
-        txFee: bnOrZero(bn(average.gasPrice).times(gasLimit)).toPrecision(),
+        txFee: getTxFee({ gasLimit, ...average }),
         chainSpecific: { gasLimit, ...average },
       },
       slow: {
-        txFee: bnOrZero(bn(slow.gasPrice).times(gasLimit)).toPrecision(),
+        txFee: getTxFee({ gasLimit, ...slow }),
         chainSpecific: { gasLimit, ...slow },
       },
     }

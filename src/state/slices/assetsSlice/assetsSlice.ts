@@ -4,7 +4,13 @@ import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { AssetService, getRenderedIdenticonBase64 } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { bscChainId, fromAssetId, optimismChainId, osmosisChainId } from '@shapeshiftoss/caip'
+import {
+  bscChainId,
+  fromAssetId,
+  optimismChainId,
+  osmosisChainId,
+  polygonChainId,
+} from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import type { PartialRecord } from 'lib/utils'
 import { sha256 } from 'lib/utils'
@@ -130,6 +136,7 @@ export const assetApi = createApi({
           (prev, [assetId, asset]) => {
             if (!flags.Optimism && asset.chainId === optimismChainId) return prev
             if (!flags.BnbSmartChain && asset.chainId === bscChainId) return prev
+            if (!flags.Polygon && asset.chainId === polygonChainId) return prev
             if (
               !flags.OsmosisSend &&
               !flags.OsmosisStaking &&

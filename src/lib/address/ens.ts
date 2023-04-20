@@ -1,7 +1,6 @@
-import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
-import type { Address } from '@wagmi/core'
-import { fetchEnsAddress, fetchEnsName } from '@wagmi/core'
 import memoize from 'lodash/memoize'
+import type { Address } from 'viem'
+import { viemClient } from 'lib/viem-client'
 
 import type {
   ResolveVanityAddress,
@@ -17,9 +16,8 @@ export const validateEnsDomain: ValidateVanityAddress = ({ value }) =>
   Promise.resolve(/^([0-9A-Z]([-0-9A-Z]*[0-9A-Z])?\.)+eth$/i.test(value))
 
 export const ensLookup = memoize(async (domain: string): Promise<ResolveVanityAddressReturn> => {
-  const address = await fetchEnsAddress({
+  const address = await viemClient.getEnsAddress({
     name: domain,
-    chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
   })
   if (!address) return ''
   return address
@@ -29,9 +27,8 @@ export const ensReverseLookup = memoize(
   async (
     address: Address,
   ): Promise<{ name: string; error: false } | { name: null; error: true }> => {
-    const lookupName = await fetchEnsName({
+    const lookupName = await viemClient.getEnsName({
       address,
-      chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
     })
     if (!lookupName) return { name: null, error: true }
     return { name: lookupName, error: false }

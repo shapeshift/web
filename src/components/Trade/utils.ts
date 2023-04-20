@@ -1,7 +1,9 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { getInboundAddressDataForChain, isRune, SwapperName } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { getConfig } from 'config'
+import { SwapperName } from 'lib/swapper/api'
+import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
+import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
 
 export const isTradingActive = async (
   assetId: AssetId | undefined,

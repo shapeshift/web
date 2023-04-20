@@ -10,6 +10,7 @@ import {
   ltcChainId,
   optimismChainId,
   osmosisChainId,
+  polygonChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -21,6 +22,7 @@ import {
   supportsETH,
   supportsOptimism,
   supportsOsmosis,
+  supportsPolygon,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import { logger } from 'lib/logger'
@@ -46,6 +48,8 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
       return supportsOptimism(wallet)
     case bscChainId:
       return supportsBSC(wallet)
+    case polygonChainId:
+      return supportsPolygon(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case osmosisChainId:

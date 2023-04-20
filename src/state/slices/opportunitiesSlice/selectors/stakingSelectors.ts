@@ -524,7 +524,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
       const aggregatedEarnUserStakingOpportunitiesIncludeEmpty = uniqBy(
         [...aggregatedEarnUserStakingOpportunities, ...emptyEarnOpportunitiesTypes],
         ({ contractAddress, assetId, id }) => contractAddress ?? assetId ?? id,
-      )
+      ).sort((a, b) => bnOrZero(b.fiatAmount).minus(a.fiatAmount).toNumber())
 
       return aggregatedEarnUserStakingOpportunitiesIncludeEmpty.filter(opportunity => {
         if (opportunity?.expired) {

@@ -1,8 +1,8 @@
-import { Box, Flex } from '@chakra-ui/react'
+import { Box, Button, Flex } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import type { Row } from 'react-table'
@@ -28,6 +28,7 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
   const location = useLocation()
   const history = useHistory()
   const translate = useTranslate()
+  const [showMore, setShowMore] = useState(false)
   const {
     state: { isConnected, isDemoWallet },
     dispatch,
@@ -35,7 +36,6 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
   const assets = useAppSelector(selectAssets)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
   const filteredDown = lpOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
-
   const groupedItems = useMemo(() => {
     const groups = filteredDown.reduce(
       (entryMap, currentItem) =>
@@ -47,6 +47,13 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
     )
     return Array.from(groups.entries())
   }, [filteredDown])
+
+  const firstSet = useMemo(() => {
+    return groupedItems.slice(0, 20)
+  }, [groupedItems])
+  const secondSet = useMemo(() => {
+    return groupedItems.slice(20, undefined)
+  }, [groupedItems])
 
   const handleClick = useCallback(
     (opportunity: LpEarnOpportunityType, action: DefiAction) => {
@@ -97,7 +104,7 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
   const renderRows = useMemo(() => {
     return (
       <Flex flexDir='column' gap={2}>
-        {groupedItems.map(group => {
+        {firstSet.map(group => {
           const [name, values] = group
           return (
             <Box key={name}>
@@ -122,13 +129,45 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
         })}
       </Flex>
     )
-  }, [groupedItems, handleClick, translate])
+  }, [firstSet, handleClick, translate])
+
+  const renderSecondSet = useMemo(() => {
+    return (
+      <Flex flexDir='column' gap={2}>
+        {secondSet.map(group => {
+          const [name, values] = group
+          return (
+            <Box key={name}>
+              <OpportunityTableHeader>
+                <RawText>{name}</RawText>
+                <RawText display={{ base: 'none', md: 'block' }}>
+                  {translate('common.balance')}
+                </RawText>
+                <RawText>{translate('common.value')}</RawText>
+              </OpportunityTableHeader>
+              <Flex px={{ base: 0, md: 2 }} flexDirection='column'>
+                {values.map((opportunity: LpEarnOpportunityType) => (
+                  <OpportunityRow
+                    key={opportunity.id}
+                    onClick={handleClick}
+                    opportunity={opportunity}
+                  />
+                ))}
+              </Flex>
+            </Box>
+          )
+        })}
+      </Flex>
+    )
+  }, [secondSet, handleClick, translate])
 
   if (!filteredDown.length) return null
 
   return (
     <Flex flexDir='column' gap={8}>
       {renderRows}
+      <Button onClick={() => setShowMore(true)}>Show More</Button>
+      {showMore && renderSecondSet}
     </Flex>
   )
 }

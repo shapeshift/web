@@ -383,6 +383,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       apy: '0',
       fiatAmount: '0',
       fiatRewardsAmount: '0',
+      netProviderFiatAmount: '0',
       opportunities: {
         lp: [],
         staking: [],
@@ -461,14 +462,16 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       if (isActiveOpportunityByFilter) {
         acc[provider].opportunities.staking.push(cur.id)
       }
-
-      acc[provider].fiatRewardsAmount = bnOrZero(maybeStakingRewardsAmountFiat)
+      const fiatRewardsAmount = bnOrZero(maybeStakingRewardsAmountFiat)
         .plus(acc[provider].fiatRewardsAmount)
         .toFixed(2)
-
-      acc[provider].fiatAmount = bnOrZero(acc[provider].fiatAmount)
+      acc[provider].fiatRewardsAmount = fiatRewardsAmount
+      const fiatAmount = bnOrZero(acc[provider].fiatAmount)
         .plus(bnOrZero(cur.fiatAmount))
         .toFixed(2)
+      acc[provider].fiatAmount = fiatAmount
+
+      acc[provider].netProviderFiatAmount = bnOrZero(fiatAmount).plus(fiatRewardsAmount).toFixed(2)
 
       return acc
     }, initial)
@@ -500,6 +503,10 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
         Boolean(includeRewardsBalances && bnOrZero(opportunity.fiatRewardsAmount).gt(0)),
     )
 
-    return [...withEarnBalances, ...withRewardsBalances]
+    return withEarnBalances
+      .concat(withRewardsBalances)
+      .sort((a, b) =>
+        bnOrZero(b.netProviderFiatAmount).minus(bnOrZero(a.netProviderFiatAmount)).toNumber(),
+      )
   },
 )

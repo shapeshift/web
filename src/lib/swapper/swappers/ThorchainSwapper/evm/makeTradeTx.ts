@@ -4,6 +4,7 @@ import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { numberToHex } from 'web3-utils'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
@@ -87,7 +88,7 @@ export const makeTradeTx = async ({
         ...(gasPriceCryptoBaseUnit !== undefined
           ? { gasPrice: gasPriceCryptoBaseUnit }
           : { maxFeePerGas, maxPriorityFeePerGas }),
-        value: isErc20Trade ? '0' : sellAmountCryptoBaseUnit,
+        value: isErc20Trade ? '0x0' : numberToHex(sellAmountCryptoBaseUnit),
         data,
       }),
     )

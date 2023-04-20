@@ -243,7 +243,8 @@ export const useUniV2LiquidityPool = ({
             const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
             return await adapter.buildCustomTx({
               to: contractAddress,
-              value,
+              // the ETH value need to be starting with 0x and be base 16
+              value: '0x' + bnOrZero(value).toString(16),
               wallet,
               data,
               gasLimit,
@@ -420,7 +421,7 @@ export const useUniV2LiquidityPool = ({
             const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
             return await adapter.buildCustomTx({
               to: contractAddress,
-              value: '0',
+              value: '0x0',
               wallet,
               data,
               gasLimit,
@@ -722,7 +723,7 @@ export const useUniV2LiquidityPool = ({
       }
       const result = await adapter.buildCustomTx({
         to: contract!.address,
-        value: '0',
+        value: '0x0',
         wallet,
         data,
         gasLimit,

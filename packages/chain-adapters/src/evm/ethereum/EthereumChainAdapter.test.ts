@@ -74,14 +74,40 @@ describe('EthereumChainAdapter', () => {
 
   const makeGetGasFeesMockedResponse = (overrideArgs?: {
     gasPrice?: string
-    maxFeePerGas?: string
-    maxPriorityFeePerGas?: string
+    slow: {
+      gasPrice?: string
+      maxFeePerGas?: string
+      maxPriorityFeePerGas?: string
+    }
+    average: {
+      gasPrice?: string
+      maxFeePerGas?: string
+      maxPriorityFeePerGas?: string
+    }
+    fast: {
+      gasPrice?: string
+      maxFeePerGas?: string
+      maxPriorityFeePerGas?: string
+    }
   }) =>
     merge(
       {
         gasPrice: '1',
-        maxFeePerGas: '300',
-        maxPriorityFeePerGas: '10',
+        slow: {
+          gasPrice: '1',
+          maxFeePerGas: '274',
+          maxPriorityFeePerGas: '10',
+        },
+        average: {
+          gasPrice: '1',
+          maxFeePerGas: '300',
+          maxPriorityFeePerGas: '10',
+        },
+        fast: {
+          gasPrice: '1',
+          maxFeePerGas: '335',
+          maxPriorityFeePerGas: '12',
+        },
       },
       overrideArgs,
     )
@@ -740,7 +766,7 @@ describe('EthereumChainAdapter', () => {
       const expectedOutput = {
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          value: '0x7b',
+          value: '123',
           to: '0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F',
           chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
           data: '0x420',
@@ -781,7 +807,7 @@ describe('EthereumChainAdapter', () => {
       const expectedOutput = {
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          value: '0x7b',
+          value: '123',
           to: '0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F',
           chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
           data: '0x420',

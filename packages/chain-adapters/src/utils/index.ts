@@ -1,8 +1,5 @@
 import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, CHAIN_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
-import { utils } from 'ethers'
-
-import { bnOrZero } from './bignumber'
 
 export * from './bignumber'
 export * from './bip44'
@@ -70,6 +67,3 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
       throw new Error(`chainNamespace ${chainNamespace} not supported.`)
   }
 }
-
-export const convertNumberToHex = (value: string): string =>
-  utils.hexlify(utils.hexlify(bnOrZero(value).toNumber()))

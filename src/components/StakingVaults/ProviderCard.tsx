@@ -1,4 +1,12 @@
-import { Flex, List, ListItem, Skeleton, SkeletonCircle, Tag } from '@chakra-ui/react'
+import {
+  Flex,
+  List,
+  ListItem,
+  Skeleton,
+  SkeletonCircle,
+  Tag,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
@@ -20,12 +28,14 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   opportunities: { staking, lp },
   isLoading,
 }) => {
+  const headerBg = useColorModeValue('white', 'gray.785')
   const { icon } = DefiProviderMetadata[provider]
   const isLoaded = !isLoading
   return (
     <Card variant='default'>
       <Card.Header
         display='flex'
+        bg={headerBg}
         flexDir={{ base: 'column', md: 'row' }}
         gap={4}
         alignItems={{ base: 'flex-start', md: 'center' }}

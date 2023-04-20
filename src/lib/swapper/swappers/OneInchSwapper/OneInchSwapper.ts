@@ -13,6 +13,7 @@ import {
   ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
+  ExecuteTradeInput,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
   SwapErrorRight,
@@ -32,6 +33,7 @@ import { buildTrade } from './buildTrade/buildTrade'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getUsdRate } from './getUsdRate/getUsdRate'
 import type { OneInchSwapperDeps, OneInchTrade } from './utils/types'
+import { AssetId } from '@shapeshiftoss/caip'
 
 export type OneInchSupportedChainId =
   | KnownChainIds.EthereumMainnet
@@ -46,7 +48,6 @@ export type OneInchSupportedChainAdapter =
   | avalanche.ChainAdapter
 
 export class OneInchSwapper implements Swapper<EvmChainId> {
-//export class OneInchSwapper {
   readonly name = SwapperName.OneInch
   deps: OneInchSwapperDeps
 
@@ -77,4 +78,29 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
   async buildTrade(input: BuildTradeInput): Promise<Result<OneInchTrade<EvmChainId>, SwapErrorRight>> {
     return await buildTrade(this.deps, input)
   }
+
+  approveAmount(input: ApproveAmountInput<EvmChainId>): Promise<string> {
+    throw new Error('Method not implemented.')
+  }
+
+  approveInfinite(input: ApproveInfiniteInput<EvmChainId>): Promise<string> {
+    throw new Error('Method not implemented.')
+  }
+
+  executeTrade(input: ExecuteTradeInput<EvmChainId>): Promise<Result<TradeResult, SwapErrorRight>> {
+    throw new Error('Method not implemented.')
+  }
+
+  filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
+    throw new Error('Method not implemented.')
+  }
+
+  filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
+    throw new Error('Method not implemented.')
+  }
+
+  getTradeTxs(input: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
+    throw new Error('Method not implemented.')
+  }
+
 }

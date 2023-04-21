@@ -424,9 +424,18 @@ export const selectPortfolioAccountsCryptoBalancesIncludingStaking = createDeepE
       (acc, [accountId, account]) => {
         if (!acc[accountId]) acc[accountId] = {}
         Object.entries(account).forEach(([assetId, balance]) => {
-          acc[accountId][assetId] = bnOrZero(balance)
-            .plus(bnOrZero(stakingBalances[accountId]?.[assetId]))
-            .toString()
+          const accountAssetStakingBalance = stakingBalances[accountId]?.[assetId]
+          // TODO(gomes): This is a temporary fix until we figure out the DeFi heuristics for isDefiOpportunity or similarly named property
+          // i.e a property that will allow us to know whether or not a wallet asset is exclusively used as a DeFi opportunity
+          // This is obviously a suboptimal fix as if you stake the exact same amount (to the smallest base unit) of an asset as you have in your wallet,
+          // it would not be counted in crypto (and hence fiat) total
+          if (accountAssetStakingBalance === balance) {
+            acc[accountId][assetId] = bnOrZero(balance).toString()
+          } else {
+            acc[accountId][assetId] = bnOrZero(balance)
+              .plus(bnOrZero(accountAssetStakingBalance))
+              .toString()
+          }
         })
         return acc
       },

@@ -84,7 +84,6 @@ describe('getLimit', () => {
       slippageTolerance: DEFAULT_SLIPPAGE,
       buyAssetTradeFeeUsd: '6.2049517907881932',
     }
-    debugger
     const maybeLimit = await getLimit(getLimitArgs)
     expect(maybeLimit.isOk()).toBe(true)
     expect(maybeLimit.unwrap()).toBe('59316')

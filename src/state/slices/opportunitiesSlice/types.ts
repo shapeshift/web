@@ -210,6 +210,7 @@ export type AggregatedOpportunitiesByProviderReturn = {
   apy: string
   fiatAmount: string
   fiatRewardsAmount: string
+  netProviderFiatAmount: string
   opportunities: Record<DefiType, OpportunityId[]>
 }
 

@@ -23,6 +23,7 @@ import {
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import ZrxIcon from './0x-icon.png'
+import OneInchIcon from './1inch-icon.png'
 import CowIcon from './cow-icon.png'
 import LiFiIcon from './lifi-icon.png'
 import OsmosisIcon from './osmosis-icon.png'
@@ -173,9 +174,12 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       case SwapperType.ZrxBnbSmartChain:
       case SwapperType.ZrxEthereum:
       case SwapperType.ZrxOptimism:
+      case SwapperType.ZrxPolygon:
         return ZrxIcon
       case SwapperType.Thorchain:
         return THORChainIcon
+      case SwapperType.OneInch:
+        return OneInchIcon
       case SwapperType.Test:
         return ''
       default:

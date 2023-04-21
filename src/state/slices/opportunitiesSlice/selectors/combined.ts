@@ -4,6 +4,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { orderBy } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import { matchSorter } from 'match-sorter'
 import type { BN } from 'lib/bignumber/bignumber'
@@ -370,6 +371,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       apy: '0',
       fiatAmount: '0',
       fiatRewardsAmount: '0',
+      netProviderFiatAmount: '0',
       opportunities: {
         lp: [],
         staking: [],
@@ -448,14 +450,16 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       if (isActiveOpportunityByFilter) {
         acc[provider].opportunities.staking.push(cur.id)
       }
-
-      acc[provider].fiatRewardsAmount = bnOrZero(maybeStakingRewardsAmountFiat)
+      const fiatRewardsAmount = bnOrZero(maybeStakingRewardsAmountFiat)
         .plus(acc[provider].fiatRewardsAmount)
         .toFixed(2)
-
-      acc[provider].fiatAmount = bnOrZero(acc[provider].fiatAmount)
+      acc[provider].fiatRewardsAmount = fiatRewardsAmount
+      const fiatAmount = bnOrZero(acc[provider].fiatAmount)
         .plus(bnOrZero(cur.fiatAmount))
         .toFixed(2)
+      acc[provider].fiatAmount = fiatAmount
+
+      acc[provider].netProviderFiatAmount = bnOrZero(fiatAmount).plus(fiatRewardsAmount).toFixed(2)
 
       return acc
     }, initial)
@@ -475,9 +479,16 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       if (cur.opportunities.lp.length || cur.opportunities.staking.length) acc.push(cur)
       return acc
     }, [])
-
-    if (!includeEarnBalances && !includeRewardsBalances)
-      return Object.values(aggregatedEarnOpportunitiesByProvider)
+    const getTotalProviderBalance = (opportunity: AggregatedOpportunitiesByProviderReturn) =>
+      bnOrZero(opportunity.netProviderFiatAmount).toNumber()
+    const getApy = (opportunity: AggregatedOpportunitiesByProviderReturn) =>
+      bnOrZero(opportunity.apy).toNumber()
+    const sortedList = orderBy(
+      aggregatedEarnOpportunitiesByProvider,
+      [getTotalProviderBalance, getApy],
+      ['desc', 'desc'],
+    )
+    if (!includeEarnBalances && !includeRewardsBalances) return sortedList
 
     const withEarnBalances = Object.values(aggregatedEarnOpportunitiesByProvider).filter(
       opportunity => Boolean(includeEarnBalances && bnOrZero(opportunity.fiatAmount).gt(0)),
@@ -487,6 +498,10 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
         Boolean(includeRewardsBalances && bnOrZero(opportunity.fiatRewardsAmount).gt(0)),
     )
 
-    return [...withEarnBalances, ...withRewardsBalances]
+    const results = withEarnBalances.concat(withRewardsBalances)
+
+    const sortedResults = orderBy(results, [getTotalProviderBalance, getApy], ['desc', 'desc'])
+
+    return sortedResults
   },
 )

@@ -35,7 +35,6 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
   const assets = useAppSelector(selectAssets)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
   const filteredDown = lpOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
-
   const groupedItems = useMemo(() => {
     const groups = filteredDown.reduce(
       (entryMap, currentItem) =>

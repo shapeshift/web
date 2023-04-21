@@ -12,6 +12,7 @@ import * as bnbsmartchain from './bnbsmartchain'
 import * as ethereum from './ethereum'
 import * as optimism from './optimism'
 import * as osmosis from './osmosis'
+import * as polygon from './polygon'
 import { setColors } from './setColors'
 import { filterOutBlacklistedAssets } from './utils'
 
@@ -23,6 +24,7 @@ const generateColorMap = async () => {
   const avalancheAssets = await avalanche.getAssets()
   const optimismAssets = await optimism.getAssets()
   const bnbsmartchainAssets = await bnbsmartchain.getAssets()
+  const polygonAssets = await polygon.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -37,6 +39,7 @@ const generateColorMap = async () => {
     ...avalancheAssets,
     ...optimismAssets,
     ...bnbsmartchainAssets,
+    ...polygonAssets,
   ]
   // remove blacklisted assets
   const filteredAssetData = filterOutBlacklistedAssets(unfilteredAssetData)

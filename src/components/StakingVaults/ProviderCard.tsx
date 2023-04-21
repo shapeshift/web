@@ -1,5 +1,12 @@
-import { Flex, List, ListItem, Skeleton, SkeletonCircle, Tag } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import {
+  Flex,
+  List,
+  ListItem,
+  Skeleton,
+  SkeletonCircle,
+  Tag,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
@@ -16,24 +23,29 @@ type ProviderCardProps = {
 
 export const ProviderCard: React.FC<ProviderCardProps> = ({
   provider,
-  fiatAmount,
   apy,
-  fiatRewardsAmount,
+  netProviderFiatAmount,
   opportunities: { staking, lp },
   isLoading,
 }) => {
+  const headerBg = useColorModeValue('white', 'gray.785')
   const { icon } = DefiProviderMetadata[provider]
-  const netProviderFiatAmount = bnOrZero(fiatAmount).plus(fiatRewardsAmount).toString()
   const isLoaded = !isLoading
   return (
     <Card variant='default'>
       <Card.Header
         display='flex'
+        bg={headerBg}
+        borderTopLeftRadius={{ base: 0, md: '2xl' }}
+        borderTopRightRadius={{ base: '0', md: '2xl' }}
         flexDir={{ base: 'column', md: 'row' }}
         gap={4}
         alignItems={{ base: 'flex-start', md: 'center' }}
         fontSize={{ base: 'md', md: 'xl' }}
         fontWeight='bold'
+        position='sticky'
+        top='71px'
+        zIndex='sticky'
       >
         <Flex
           width='full'

@@ -143,7 +143,7 @@ export async function getCowSwapTradeQuote(
       contractAddress: sellAssetErc20Address,
     })
 
-    const [feeDataOptions, sellAssetUsdRate] = await Promise.all([
+    const [{ average }, sellAssetUsdRate] = await Promise.all([
       adapter.getFeeData({
         to: sellAssetErc20Address,
         value: '0',
@@ -152,12 +152,13 @@ export async function getCowSwapTradeQuote(
       getUsdRate(deps, sellAsset),
     ])
 
+    // estimated fees for approval transaction
+    const { txFee, chainSpecific: fee } = average
+
     const sellAssetTradeFeeUsd = bnOrZero(feeAmountInSellTokenCryptoBaseUnit)
       .div(bn(10).exponentiatedBy(sellAsset.precision))
       .multipliedBy(bnOrZero(sellAssetUsdRate))
       .toString()
-
-    const feeData = feeDataOptions['fast']
 
     const isQuoteSellAmountBelowMinimum = bnOrZero(quoteSellAmountPlusFeesCryptoBaseUnit).lt(
       minQuoteSellAmount,
@@ -181,11 +182,11 @@ export async function getCowSwapTradeQuote(
       feeData: {
         networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
         chainSpecific: {
-          estimatedGasCryptoBaseUnit: feeData.chainSpecific.gasLimit,
-          gasPriceCryptoBaseUnit: feeData.chainSpecific.gasPrice,
-          approvalFeeCryptoBaseUnit: bnOrZero(feeData.chainSpecific.gasLimit)
-            .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
-            .toString(),
+          estimatedGasCryptoBaseUnit: fee.gasLimit,
+          gasPriceCryptoBaseUnit: fee.gasPrice,
+          maxFeePerGas: fee.maxFeePerGas,
+          maxPriorityFeePerGas: fee.maxPriorityFeePerGas,
+          approvalFeeCryptoBaseUnit: txFee,
         },
         buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
         sellAssetTradeFeeUsd,

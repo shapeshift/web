@@ -28,9 +28,9 @@ export const getEvmTxFees = async ({
 
     const approvalFee =
       sellAssetReference &&
-      bnOrZero(APPROVAL_GAS_LIMIT)
-        .multipliedBy(bnOrZero(fee.maxFeePerGas ?? fee.gasPrice))
-        .toString()
+      bn(APPROVAL_GAS_LIMIT)
+        .times(bnOrZero(fee.maxFeePerGas ?? fee.gasPrice))
+        .toFixed(0)
 
     return {
       networkFeeCryptoBaseUnit: txFee.toFixed(0),

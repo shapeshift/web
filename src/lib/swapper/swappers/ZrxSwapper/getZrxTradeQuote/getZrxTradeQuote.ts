@@ -65,9 +65,9 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
 
     // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
     // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
-    const approvalFeeCryptoBaseUnit = bnOrZero(APPROVAL_GAS_LIMIT)
-      .multipliedBy(bnOrZero(fee.maxFeePerGas ?? price.gasPrice))
-      .toString()
+    const approvalFeeCryptoBaseUnit = bn(APPROVAL_GAS_LIMIT)
+      .times(bnOrZero(fee.maxFeePerGas ?? price.gasPrice))
+      .toFixed(0)
 
     const useSellAmount = !!sellAmountBeforeFeesCryptoBaseUnit
     const rate = useSellAmount ? price.price : bn(1).div(price.price).toString()

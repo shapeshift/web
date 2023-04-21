@@ -268,7 +268,7 @@ export const TradeConfirm = () => {
         interval: 10000, // 10 seconds
         maxAttempts: 300, // Lots of attempts because some trade are slow (thorchain to bitcoin)
       })
-      if (txs.isErr()) throw txs.err()
+      if (txs.isErr()) throw txs.unwrapErr()
       setBuyTxid(txs.unwrap().buyTxid ?? '')
     } catch (e) {
       showErrorToast(e)

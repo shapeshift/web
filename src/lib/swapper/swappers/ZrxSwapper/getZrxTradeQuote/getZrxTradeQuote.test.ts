@@ -10,7 +10,7 @@ import type { SwapErrorRight } from 'lib/swapper/api'
 
 import { normalizeAmount } from '../../utils/helpers/helpers'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import { baseUrlFromChainId } from '../utils/helpers/helpers'
+import { baseUrlFromChainId, getUsdRate } from '../utils/helpers/helpers'
 import { zrxServiceFactory } from '../utils/zrxService'
 import { ZrxSwapper } from '../ZrxSwapper'
 
@@ -23,10 +23,6 @@ jest.mock('lib/swapper/swappers/ZrxSwapper/utils/zrxService', () => {
   }
 })
 
-jest.mock('lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers', () => ({
-  getUsdRate: jest.fn(() => Promise.resolve(mockOk(1))),
-}))
-
 const zrxService = zrxServiceFactory('https://api.0x.org/')
 
 jest.mock('../utils/helpers/helpers')
@@ -36,6 +32,7 @@ jest.mock('../utils/zrxService')
 const mockOk = Ok as jest.MockedFunction<typeof Ok>
 describe('getZrxTradeQuote', () => {
   const sellAmount = '1000000000000000000'
+  ;(getUsdRate as jest.Mock<Result<string, SwapErrorRight>>).mockReturnValue(mockOk('1'))
   ;(normalizeAmount as jest.Mock<string>).mockReturnValue(sellAmount)
   ;(baseUrlFromChainId as jest.Mock<Result<string, SwapErrorRight>>).mockReturnValue(
     mockOk('https://api.0x.org/'),
@@ -89,7 +86,7 @@ describe('getZrxTradeQuote', () => {
     })
   })
 
-  it('returns an Err with on errored zrx response', async () => {
+  it('returns an Err on errored zrx response', async () => {
     const { quoteInput } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     ;(zrxService.get as jest.Mock<unknown>).mockRejectedValue({

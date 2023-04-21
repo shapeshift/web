@@ -318,7 +318,14 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
           isChange: true,
         }
       })
-
+      if (this.coinName === 'BitcoinCash') {
+        for (let i = 0; i < signTxOutputs.length; i++) {
+          let output = signTxOutputs[i]
+          if (output.address && !output.address.startsWith('bitcoincash:')) {
+            output.address = 'bitcoincash:' + output.address
+          }
+        }
+      }
       const txToSign = {
         coin: this.coinName,
         inputs: signTxInputs,

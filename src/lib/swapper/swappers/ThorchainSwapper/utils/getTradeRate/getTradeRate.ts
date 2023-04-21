@@ -39,12 +39,14 @@ export const getTradeRate = async ({
   buyAssetId,
   sellAmountCryptoBaseUnit,
   receiveAddress,
+  affiliateBps,
   deps,
 }: {
   sellAsset: Asset
   buyAssetId: AssetId
   sellAmountCryptoBaseUnit: string
   receiveAddress: string
+  affiliateBps: string
   deps: ThorchainSwapperDeps
 }): Promise<Result<string, SwapErrorRight>> => {
   // we can't get a quote for a zero amount so use getPriceRatio between pools instead
@@ -86,7 +88,7 @@ export const getTradeRate = async ({
   )
 
   const { data } = await thorService.get<ThornodeQuoteResponse>(
-    `${deps.daemonUrl}/lcd/thorchain/quote/swap?amount=${sellAmountCryptoThorBaseUnit}&from_asset=${sellPoolId}&to_asset=${buyPoolId}&destination=${receiveAddress}`,
+    `${deps.daemonUrl}/lcd/thorchain/quote/swap?amount=${sellAmountCryptoThorBaseUnit}&from_asset=${sellPoolId}&to_asset=${buyPoolId}&destination=${receiveAddress}&affiliate_bps=${affiliateBps}&affiliate=ss`,
   )
   // Massages the error so we know whether it is a below minimum error, or a more generic THOR quote response error
   if ('error' in data) {

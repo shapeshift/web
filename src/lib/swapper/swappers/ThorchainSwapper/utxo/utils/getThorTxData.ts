@@ -64,6 +64,7 @@ export const getThorTxInfo: GetThorTxInfo = async ({
       deps,
       buyAssetTradeFeeUsd,
       receiveAddress: destinationAddress,
+      affiliateBps,
     })
 
     return maybeLimit.map(limit => {

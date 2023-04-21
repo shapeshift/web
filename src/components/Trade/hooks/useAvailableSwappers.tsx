@@ -188,6 +188,7 @@ export const useAvailableSwappers = () => {
     getIsTradingActive,
     mostRecentRequestStartedTimeStamp,
     sellAssetId,
+    setSwapperDefaultAffiliateBps,
     swappersWithQuoteMetadataAndTimestamp,
     updateActiveSwapperWithMetadata,
     updateAvailableSwappersWithMetadata,

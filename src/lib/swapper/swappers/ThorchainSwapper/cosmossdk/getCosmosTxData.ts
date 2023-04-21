@@ -26,6 +26,7 @@ type GetCosmosTxDataInput = {
   quote: TradeQuote<ThorCosmosSdkSupportedChainId>
   chainId: ChainId
   sellAdapter: CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
+  affiliateBps: string
 }
 
 export const getCosmosTxData = async (
@@ -42,6 +43,7 @@ export const getCosmosTxData = async (
     quote,
     wallet,
     sellAdapter,
+    affiliateBps,
   } = input
   const fromThorAsset = sellAsset.chainId === KnownChainIds.ThorchainMainnet
   const gaiaAddressData = await getInboundAddressDataForChain(deps.daemonUrl, cosmosAssetId)
@@ -64,6 +66,7 @@ export const getCosmosTxData = async (
     deps,
     buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
     receiveAddress: destinationAddress,
+    affiliateBps,
   })
 
   if (maybeLimit.isErr()) return Err(maybeLimit.unwrapErr())

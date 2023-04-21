@@ -5,10 +5,12 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import {
   selectAction,
+  selectAffiliateBps,
   selectAmount,
   selectBuyAsset,
   selectBuyAssetFiatRate,
   selectSelectedCurrencyToUsdRate,
+  selectSellAmountFiat,
   selectSellAsset,
   selectSellAssetFiatRate,
   selectSlippage,
@@ -562,5 +564,14 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
       default:
         return defaultReturn
     }
+  },
+)
+
+export const selectDonationAmountFiat = createSelector(
+  selectSellAmountFiat,
+  selectAffiliateBps,
+  (sellAmountFiat, affiliateBps): string | undefined => {
+    const affiliatePercentage = bnOrZero(affiliateBps).div(10000)
+    return bnOrZero(sellAmountFiat).times(affiliatePercentage).toFixed()
   },
 )

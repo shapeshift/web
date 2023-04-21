@@ -46,7 +46,7 @@ export const buildTrade = async ({
       slippage: slippageTolerance = DEFAULT_SLIPPAGE,
       wallet,
       sendMax,
-      affiliateBps,
+      affiliateBps = '0',
     } = input
 
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
@@ -139,6 +139,7 @@ export const buildTrade = async ({
         wallet,
         destinationAddress,
         quote: quote as TradeQuote<ThorCosmosSdkSupportedChainId>,
+        affiliateBps,
       })
 
       return maybeTxData.map(txData => ({

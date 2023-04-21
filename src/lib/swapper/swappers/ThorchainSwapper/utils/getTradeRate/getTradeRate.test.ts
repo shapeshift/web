@@ -5,6 +5,7 @@ import { BTC, ETH, FOX, UNSUPPORTED } from '../../../utils/test-data/assets'
 import type { ThorchainSwapperDeps } from '../../types'
 import { thorService } from '../thorService'
 import { getTradeRate } from './getTradeRate'
+
 jest.mock('../thorService')
 
 describe('getTradeRate', () => {
@@ -47,6 +48,7 @@ describe('getTradeRate', () => {
       sellAmountCryptoBaseUnit: '1000000000000000000000000',
       receiveAddress,
       deps,
+      affiliateBps: '0',
     })
     const expectedRate = '0.00001727627203157549'
     expect(maybeTradeRate.isOk()).toBe(true)
@@ -84,6 +86,7 @@ describe('getTradeRate', () => {
       sellAmountCryptoBaseUnit: '100000000000',
       receiveAddress,
       deps,
+      affiliateBps: '0',
     })
     const expectedRate = '188875.98759875987598759876'
     expect(maybeTradeRate.isOk()).toBe(true)
@@ -121,6 +124,7 @@ describe('getTradeRate', () => {
       sellAmountCryptoBaseUnit: '100000000000',
       receiveAddress,
       deps,
+      affiliateBps: '0',
     })
     const expectedRate = '12372.23722372237223722372'
     expect(maybeTradeRate.isOk()).toBe(true)
@@ -160,6 +164,7 @@ describe('getTradeRate', () => {
       sellAmountCryptoBaseUnit: '1000000000',
       receiveAddress,
       deps,
+      affiliateBps: '0',
     })
     const expectedRate = '463354.73381180932128300549'
     expect(maybeRate.isOk()).toBe(true)
@@ -180,6 +185,7 @@ describe('getTradeRate', () => {
         sellAmountCryptoBaseUnit: '1000000000000000000',
         receiveAddress,
         deps,
+        affiliateBps: '0',
       }),
     ).rejects.toThrow(`[getTradeRate]: No sellPoolId for asset ${UNSUPPORTED.assetId}`)
   })

@@ -58,6 +58,7 @@ describe('getLimit', () => {
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
       buyAssetTradeFeeUsd: '6.2049517907881932',
+      affiliateBps: '0',
     }
     const maybeLimit = await getLimit(getLimitArgs)
     expect(maybeLimit.isOk()).toBe(true)
@@ -82,6 +83,7 @@ describe('getLimit', () => {
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
       buyAssetTradeFeeUsd: '6.2049517907881932',
+      affiliateBps: '0',
     }
     const maybeLimit = await getLimit(getLimitArgs)
     expect(maybeLimit.isOk()).toBe(true)
@@ -106,6 +108,7 @@ describe('getLimit', () => {
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
       buyAssetTradeFeeUsd: '0.0318228582',
+      affiliateBps: '0',
     }
     const maybeLimit = await getLimit(getLimitArgs)
     expect(maybeLimit.isOk()).toBe(true)
@@ -130,6 +133,7 @@ describe('getLimit', () => {
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
       buyAssetTradeFeeUsd: '0.0000000026',
+      affiliateBps: '0',
     }
     const maybeLimit = await getLimit(getLimitArgs)
     expect(maybeLimit.isOk()).toBe(true)

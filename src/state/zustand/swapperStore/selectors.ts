@@ -49,9 +49,9 @@ export const selectAvailableSwappersWithMetadata = (state: SwapperState) =>
   state.availableSwappersWithMetadata
 export const selectSelectedCurrencyToUsdRate = (state: SwapperState) =>
   state.selectedCurrencyToUsdRate
-
 export const selectSlippage = (state: SwapperState): string =>
   state.activeSwapperWithMetadata?.quote.recommendedSlippage ?? DEFAULT_SLIPPAGE
+export const selectAffiliateBps = (state: SwapperState): string => state.affiliateBps
 
 export const selectQuote = (state: SwapperState): TradeQuote<ChainId> | undefined =>
   state.activeSwapperWithMetadata?.quote
@@ -96,6 +96,7 @@ export const selectSwapperDefaultAffiliateBps = (state: SwapperState): string =>
     case SwapperName.LIFI:
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
+    case SwapperName.OneInch:
     case SwapperName.Test:
       return '0'
     default:

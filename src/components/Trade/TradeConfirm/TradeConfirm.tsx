@@ -50,6 +50,7 @@ import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 import {
   selectBuyAmountBeforeFeesBaseUnit,
+  selectDonationAmountFiat,
   selectQuoteBuyAmountCryptoPrecision,
   selectSellAmountBeforeFeesBaseUnitByAction,
   selectSellAmountBeforeFeesFiat,
@@ -129,14 +130,20 @@ export const TradeConfirm = () => {
     state => state.setSwapperDefaultAffiliateBps,
   )
   const updateAffiliateBps = useSwapperStore(state => state.updateAffiliateBps)
+  const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
+  const updateFees = useSwapperStore(state => state.updateFees)
 
   const handleDonationToggle = useCallback(async () => {
+    if (!defaultFeeAsset) {
+      throw new Error('No default fee asset')
+    }
     setIsReloadingTrade(true)
     if (shouldDonate) {
       updateAffiliateBps('0')
     } else {
       setSwapperDefaultAffiliateBps()
     }
+    toggleShouldDonate()
     // Refresh trade
     try {
       const trade = await getTrade()
@@ -145,17 +152,21 @@ export const TradeConfirm = () => {
         throw new Error(trade.unwrapErr().message)
       }
       updateTrade(trade.unwrap())
-      toggleShouldDonate()
+      updateFees(defaultFeeAsset)
+      updateTradeAmountsFromQuote()
     } finally {
       setIsReloadingTrade(false)
     }
   }, [
+    defaultFeeAsset,
     getTrade,
     setSwapperDefaultAffiliateBps,
     shouldDonate,
     toggleShouldDonate,
     updateAffiliateBps,
+    updateFees,
     updateTrade,
+    updateTradeAmountsFromQuote,
   ])
 
   const parsedBuyTxId = useMemo(() => {
@@ -326,6 +337,7 @@ export const TradeConfirm = () => {
   }, [clearAmounts, history, sellTradeId, updateTrade])
 
   const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman).times(feeAssetFiatRate ?? 1)
+  const donationAmountFiat = useSwapperStore(selectDonationAmountFiat)
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const networkFeeToTradeRatioPercentage = networkFeeFiat
@@ -376,12 +388,11 @@ export const TradeConfirm = () => {
               </Checkbox>
             </Row.Label>
           </HelperTooltip>
-          {/* FIXME: Replace the networkFeeFiat value below with the 30bps amount added */}
-          <Row.Value>{toFiat(networkFeeFiat.toNumber())}</Row.Value>
+          <Row.Value>{toFiat(donationAmountFiat ?? '0')}</Row.Value>
         </Row>
       </Stack>
     ),
-    [handleDonationToggle, networkFeeFiat, shouldDonate, toFiat, translate],
+    [donationAmountFiat, handleDonationToggle, shouldDonate, toFiat, translate],
   )
 
   const isTHORChainSwap = useMemo(
@@ -495,7 +506,7 @@ export const TradeConfirm = () => {
         )}
       </Card.Footer>
     ),
-    [isSubmitting, sellTradeId],
+    [isReloadingTrade, isSubmitting, sellTradeId],
   )
 
   if (!trade) return null

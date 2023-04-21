@@ -182,15 +182,17 @@ export const buildAndBroadcast = async ({
       const signedTx = await adapter.signTransaction({ txToSign, wallet })
       const txid = await adapter.broadcastTransaction(signedTx)
       return txid
-    } else if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
+    }
+
+    if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
       const txid = await adapter.signAndBroadcastTransaction({ txToSign, wallet })
       return txid
-    } else {
-      throw new SwapError('[buildAndBroadcast]', {
-        cause: 'no broadcast support',
-        code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
-      })
     }
+
+    throw new SwapError('[buildAndBroadcast]', {
+      cause: 'no broadcast support',
+      code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
+    })
   } catch (e) {
     if (e instanceof SwapError) throw e
     throw new SwapError('[buildAndBroadcast]', {

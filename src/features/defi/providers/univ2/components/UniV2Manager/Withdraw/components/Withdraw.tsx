@@ -81,7 +81,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const assetId0 = uniV2Opportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = uniV2Opportunity?.underlyingAssetIds[1] ?? ''
 
-  const { lpAllowance, getApproveGasData, getWithdrawGasData } = useUniV2LiquidityPool({
+  const { lpAllowance, getApproveFeeData: getApproveGasData, getWithdrawFeeData: getWithdrawGasData } = useUniV2LiquidityPool({
     accountId: accountId ?? '',
     assetId0: uniV2Opportunity?.underlyingAssetIds[0] ?? '',
     assetId1: uniV2Opportunity?.underlyingAssetIds[1] ?? '',

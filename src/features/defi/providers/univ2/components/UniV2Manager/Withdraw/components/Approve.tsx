@@ -77,7 +77,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
 
-  const { approveAsset, lpAllowance, getWithdrawGasData } = useUniV2LiquidityPool({
+  const { approveAsset, lpAllowance, getWithdrawFeeData: getWithdrawGasData } = useUniV2LiquidityPool({
     accountId: accountId ?? '',
     assetId0: lpOpportunity?.underlyingAssetIds[0] ?? '',
     assetId1: lpOpportunity?.underlyingAssetIds[1] ?? '',

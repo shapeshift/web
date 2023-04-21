@@ -113,7 +113,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     isApprove0Needed && asset0ContractAddress,
     isApprove1Needed && asset1ContractAddress,
   ].filter(Boolean)
-  const { approveAsset, asset0Allowance, asset1Allowance, getDepositGasDataCryptoBaseUnit } =
+  const { approveAsset, asset0Allowance, asset1Allowance, getDepositFeeData: getDepositGasDataCryptoBaseUnit } =
     useUniV2LiquidityPool({
       accountId: accountId ?? '',
       lpAssetId,

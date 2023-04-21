@@ -38,15 +38,15 @@ export const canCoverTxFees = ({
   return bnOrZero(feeAssetBalanceCryptoHuman).minus(bnOrZero(estimatedGasCryptoPrecision)).gte(0)
 }
 
-type GetFeesArgs = {
+type GetFeesFromFeeDataArgs = {
   wallet: HDWallet
   feeData: evm.FeeData
 }
 
-export const getFees = async ({
+export const getFeesFromFeeData = async ({
   wallet,
   feeData: { gasLimit, gasPrice, maxFeePerGas, maxPriorityFeePerGas },
-}: GetFeesArgs): Promise<evm.Fees & { gasLimit: string }> => {
+}: GetFeesFromFeeDataArgs): Promise<evm.Fees & { gasLimit: string }> => {
   if (!supportsETH(wallet)) throw new Error('wallet has no evm support')
   if (!gasLimit) throw new Error('gasLimit is required')
 
@@ -63,7 +63,7 @@ export const getFees = async ({
   throw new Error('legacy gas or eip1559 gas required')
 }
 
-type BuildAndBroadcastArgs = GetFeesArgs & {
+type BuildAndBroadcastArgs = GetFeesFromFeeDataArgs & {
   accountNumber: number
   adapter: EvmChainAdapter
   data?: string
@@ -86,7 +86,7 @@ export const buildAndBroadcast = async ({
     accountNumber,
     value,
     data: data ?? '0x',
-    ...(await getFees({ wallet, feeData })),
+    ...(await getFeesFromFeeData({ wallet, feeData })),
   })
 
   if (wallet.supportsOfflineSigning()) {

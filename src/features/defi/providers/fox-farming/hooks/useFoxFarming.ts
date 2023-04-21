@@ -68,17 +68,15 @@ export const useFoxFarming = (
 
   const stake = useCallback(
     async (lpAmount: string) => {
-      if (skip) return
-      if (!farmingAccountId) return
-      if (!isValidAccountNumber(accountNumber)) return
-      if (!foxFarmingContract) return
-      if (!wallet) return
-
-      if (!adapter) {
-        throw new Error(`addLiquidityEth: no adapter available for ${ethAsset.chainId}`)
-      }
-
       try {
+        if (skip) return
+        if (!farmingAccountId) return
+        if (!isValidAccountNumber(accountNumber)) return
+        if (!foxFarmingContract) return
+        if (!wallet) return
+
+        if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
+
         const data = foxFarmingContract.interface.encodeFunctionData('stake', [
           bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
         ])
@@ -104,7 +102,7 @@ export const useFoxFarming = (
 
         return txid
       } catch (err) {
-        moduleLogger.warn(err, 'useFoxFarming:stake error')
+        moduleLogger.error(err, 'failed to stake')
       }
     },
     [
@@ -122,17 +120,15 @@ export const useFoxFarming = (
 
   const unstake = useCallback(
     async (lpAmount: string, isExiting: boolean) => {
-      if (skip) return
-      if (!farmingAccountId) return
-      if (!isValidAccountNumber(accountNumber)) return
-      if (!foxFarmingContract) return
-      if (!wallet) return
-
-      if (!adapter) {
-        throw new Error(`foxFarmingUnstake: no adapter available for ${ethAsset.chainId}`)
-      }
-
       try {
+        if (skip) return
+        if (!farmingAccountId) return
+        if (!isValidAccountNumber(accountNumber)) return
+        if (!foxFarmingContract) return
+        if (!wallet) return
+
+        if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
+
         const data = isExiting
           ? foxFarmingContract.interface.encodeFunctionData('exit')
           : foxFarmingContract.interface.encodeFunctionData('withdraw', [
@@ -160,7 +156,7 @@ export const useFoxFarming = (
 
         return txid
       } catch (err) {
-        moduleLogger.warn(err, 'useFoxFarming:unstake error')
+        moduleLogger.error(err, 'failed to unstake')
       }
     },
     [
@@ -297,33 +293,27 @@ export const useFoxFarming = (
   const approve = useCallback(async () => {
     if (!wallet || !isValidAccountNumber(accountNumber) || !uniV2LPContract) return
 
-    if (!adapter) {
-      throw new Error(`approve: no adapter available for ${ethAsset.chainId}`)
-    }
+    if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
-    try {
-      const data = uniV2LPContract.interface.encodeFunctionData('approve', [
-        contractAddress,
-        MaxUint256,
-      ])
+    const data = uniV2LPContract.interface.encodeFunctionData('approve', [
+      contractAddress,
+      MaxUint256,
+    ])
 
-      const feeData = await getApproveFeeData()
-      if (!feeData) return
+    const feeData = await getApproveFeeData()
+    if (!feeData) return
 
-      const txid = await buildAndBroadcast({
-        accountNumber,
-        adapter,
-        feeData: feeData.average.chainSpecific,
-        to: uniV2LPContract.address,
-        value: '0',
-        wallet,
-        data,
-      })
+    const txid = await buildAndBroadcast({
+      accountNumber,
+      adapter,
+      feeData: feeData.average.chainSpecific,
+      to: uniV2LPContract.address,
+      value: '0',
+      wallet,
+      data,
+    })
 
-      return txid
-    } catch (err) {
-      moduleLogger.warn(err, 'useFoxFarming:approve error')
-    }
+    return txid
   }, [
     accountNumber,
     adapter,
@@ -341,37 +331,31 @@ export const useFoxFarming = (
     if (!foxFarmingContract) return
     if (!farmingAccountId) return
 
-    if (!adapter) {
-      throw new Error(`claimRewards: no adapter available for ${ethAsset.chainId}`)
-    }
+    if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
-    try {
-      const data = foxFarmingContract.interface.encodeFunctionData('getReward')
-      const farmingAccountAddress = fromAccountId(farmingAccountId).account
+    const data = foxFarmingContract.interface.encodeFunctionData('getReward')
+    const farmingAccountAddress = fromAccountId(farmingAccountId).account
 
-      const { average } = await adapter.getFeeData({
-        to: contractAddress,
-        value: '0',
-        chainSpecific: {
-          contractData: data,
-          from: farmingAccountAddress,
-        },
-      })
+    const { average } = await adapter.getFeeData({
+      to: contractAddress,
+      value: '0',
+      chainSpecific: {
+        contractData: data,
+        from: farmingAccountAddress,
+      },
+    })
 
-      const txid = await buildAndBroadcast({
-        accountNumber,
-        adapter,
-        feeData: average.chainSpecific,
-        to: contractAddress,
-        value: '0',
-        wallet,
-        data,
-      })
+    const txid = await buildAndBroadcast({
+      accountNumber,
+      adapter,
+      feeData: average.chainSpecific,
+      to: contractAddress,
+      value: '0',
+      wallet,
+      data,
+    })
 
-      return txid
-    } catch (err) {
-      moduleLogger.warn(err, 'useFoxFarming:approve error')
-    }
+    return txid
   }, [
     accountNumber,
     adapter,

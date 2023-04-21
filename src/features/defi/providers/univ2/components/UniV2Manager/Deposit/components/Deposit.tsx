@@ -73,7 +73,7 @@ export const Deposit: React.FC<DepositProps> = ({
   })
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
-  const { asset0Allowance, asset1Allowance, getApproveGasData, getDepositGasDataCryptoBaseUnit } =
+  const { asset0Allowance, asset1Allowance, getApproveFeeData: getApproveGasData, getDepositFeeData: getDepositGasDataCryptoBaseUnit } =
     useUniV2LiquidityPool({
       accountId: accountId ?? '',
       lpAssetId,

@@ -115,10 +115,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
             assetNamespace: 'erc20',
             assetReference: platforms[CoingeckoAssetPlatform.Polygon],
           })
-          // Don't include matic token on matic, as it's effectively an alias to the native token
-          if (assetId !== 'eip155:137/erc20:0x0000000000000000000000000000000000001010') {
-            prev[polygonChainId][assetId] = id
-          }
+          prev[polygonChainId][assetId] = id
         } catch (err) {
           // unable to create assetId, skip token
         }

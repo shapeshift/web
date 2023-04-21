@@ -121,12 +121,14 @@ export const Routes = () => {
         </Layout>
       </Route>
       <Layout>
-        <Switch>{privateRoutesList}</Switch>
+        <Switch>
+          {privateRoutesList}
+          <Redirect from='/' to='/dashboard' />
+          <Route>
+            <NotFound />
+          </Route>
+        </Switch>
       </Layout>
-      <Redirect from='/' to='/dashboard' />
-      <Route>
-        <NotFound />
-      </Route>
     </Switch>
   )
 }

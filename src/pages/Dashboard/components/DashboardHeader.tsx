@@ -1,6 +1,5 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, Container, Flex, Skeleton, Stack, useColorModeValue } from '@chakra-ui/react'
-import { getRenderedIdenticonBase64 } from '@shapeshiftoss/asset-service'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { IoSwapVerticalSharp } from 'react-icons/io5'
@@ -13,6 +12,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
 import {
   selectClaimableRewards,
   selectEarnBalancesFiatAmountFull,
@@ -125,7 +125,7 @@ export const DashboardHeader = () => {
 
   const walletImage = useMemo(() => {
     if (!walletId) return ''
-    return getRenderedIdenticonBase64(`${walletId}ifyoudriveatruckdriveitlikeyouhaveafarm`)
+    return makeBlockiesUrl(`${walletId}ifyoudriveatruckdriveitlikeyouhaveafarm`)
   }, [walletId])
 
   const handleSendClick = useCallback(() => {

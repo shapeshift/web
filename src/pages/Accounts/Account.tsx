@@ -26,10 +26,15 @@ export const Account = () => {
   if (!feeAsset) return null
 
   return (
-    <Flex flexDir='column'>
+    <Flex flexDir='column' width='full'>
       <Switch>
         <Route exact path={`${path}`}>
-          <AssetHeader assetId={feeAssetId} accountId={accountId} />
+          <AssetHeader
+            assetId={feeAssetId}
+            accountId={accountId}
+            maxWidth='full'
+            px={{ base: 4, md: 0 }}
+          />
           <AccountDetails assetId={feeAsset.assetId} accountId={accountId} />
         </Route>
         <Route exact path={`${path}/transactions`}>

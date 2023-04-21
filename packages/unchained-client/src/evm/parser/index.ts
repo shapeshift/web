@@ -150,6 +150,15 @@ export class BaseTransactionParser<T extends Tx> {
           })
         }
 
+        // alias matic token on matic to native asset as they are the same
+        if (transfer.contract === '0x0000000000000000000000000000000000001010') {
+          return toAssetId({
+            chainId: this.chainId,
+            assetNamespace: 'slip44',
+            assetReference: ASSET_REFERENCE.Polygon,
+          })
+        }
+
         const assetNamespace = (() => {
           switch (transfer.type) {
             case 'ERC20':

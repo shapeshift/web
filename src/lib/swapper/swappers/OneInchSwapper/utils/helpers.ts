@@ -22,6 +22,7 @@ export const getNativeWrappedAssetId = (chainId: ChainId): AssetId => {
       return WETH_ASSET_ID
     case KnownChainIds.BnbSmartChainMainnet:
       return WBNB_ASSET_ID
+    // TODO: We should double check that the fee calculations work correctly on optimism and using this wETH contract.
     case KnownChainIds.OptimismMainnet:
       return WOP_ASSET_ID
     case KnownChainIds.AvalancheMainnet:

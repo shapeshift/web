@@ -8,6 +8,7 @@ export type OneInchQuoteApiInput = {
   amount: string
 }
 
+// https://docs.1inch.io/docs/aggregation-protocol/api/swap-params/
 export type OneInchSwapApiInput = OneInchQuoteApiInput & {
   slippage: number
   fromAddress: string

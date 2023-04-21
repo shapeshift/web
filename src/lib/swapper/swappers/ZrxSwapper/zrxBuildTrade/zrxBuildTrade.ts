@@ -15,6 +15,7 @@ import type {
 import { applyAxiosRetry } from 'lib/swapper/swappers/ZrxSwapper/utils/applyAxiosRetry'
 import { AFFILIATE_ADDRESS, DEFAULT_SOURCE } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
 import {
+  assertValidTradePair,
   assetToToken,
   baseUrlFromChainId,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
@@ -25,33 +26,30 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
   { adapter }: ZrxSwapperDeps,
   input: BuildTradeInput,
 ): Promise<Result<ZrxTrade<T>, SwapErrorRight>> {
-  const {
-    sellAsset,
-    buyAsset,
-    sellAmountBeforeFeesCryptoBaseUnit,
-    slippage,
-    accountNumber,
-    receiveAddress,
-  } = input
-
-  const baseUrl = baseUrlFromChainId(buyAsset.chainId)
-  const zrxService = applyAxiosRetry(zrxServiceFactory(baseUrl), {
-    statusCodesToRetry: [[400, 400]],
-    shouldRetry: err => {
-      const cfg = rax.getConfig(err)
-      const retryAttempt = cfg?.currentRetryAttempt ?? 0
-      const retry = cfg?.retry ?? 3
-      // ensure max retries is always respected
-      if (retryAttempt >= retry) return false
-      // retry if 0x returns error code 111 Gas estimation failed
-      if (err?.response?.data?.code === 111) return true
-
-      // Handle the request based on your other config options, e.g. `statusCodesToRetry`
-      return rax.shouldRetryRequest(err)
-    },
-  })
-
   try {
+    const { sellAsset, buyAsset, slippage, accountNumber, receiveAddress } = input
+    const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
+
+    const assertion = assertValidTradePair({ adapter, buyAsset, sellAsset })
+    if (assertion.isErr()) return Err(assertion.unwrapErr())
+
+    const baseUrl = baseUrlFromChainId(buyAsset.chainId)
+    const zrxService = applyAxiosRetry(zrxServiceFactory(baseUrl), {
+      statusCodesToRetry: [[400, 400]],
+      shouldRetry: err => {
+        const cfg = rax.getConfig(err)
+        const retryAttempt = cfg?.currentRetryAttempt ?? 0
+        const retry = cfg?.retry ?? 3
+        // ensure max retries is always respected
+        if (retryAttempt >= retry) return false
+        // retry if 0x returns error code 111 Gas estimation failed
+        if (err?.response?.data?.code === 111) return true
+
+        // Handle the request based on your other config options, e.g. `statusCodesToRetry`
+        return rax.shouldRetryRequest(err)
+      },
+    })
+
     // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-quote
     const { data: quote }: AxiosResponse<ZrxQuoteResponse> = await zrxService.get<ZrxQuoteResponse>(
       '/swap/v1/quote',
@@ -59,7 +57,7 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
         params: {
           buyToken: assetToToken(buyAsset),
           sellToken: assetToToken(sellAsset),
-          sellAmount: normalizeAmount(sellAmountBeforeFeesCryptoBaseUnit),
+          sellAmount: normalizeAmount(sellAmount),
           takerAddress: receiveAddress,
           slippagePercentage: slippage ? bnOrZero(slippage).toString() : DEFAULT_SLIPPAGE,
           affiliateAddress: AFFILIATE_ADDRESS,
@@ -116,7 +114,7 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
       )
     return Err(
       makeSwapErrorRight({
-        message: '[[zrxBuildTrade]]',
+        message: '[zrxBuildTrade]',
         cause: e,
         code: SwapErrorType.BUILD_TRADE_FAILED,
       }),

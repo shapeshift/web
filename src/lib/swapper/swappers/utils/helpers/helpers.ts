@@ -128,7 +128,7 @@ export const getFeesFromFeeData = async ({
   feeData,
 }: GetFeesFromFeeDataArgs): Promise<evm.Fees & { gasLimit: string }> => {
   if (!supportsETH(wallet)) {
-    throw new SwapError('[getFees]', {
+    throw new SwapError('[getFeesFromFeeData]', {
       cause: 'eth wallet required',
       code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
       details: { wallet },
@@ -141,7 +141,7 @@ export const getFeesFromFeeData = async ({
   const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas
 
   if (!gasLimit) {
-    throw new SwapError('[getFees]', {
+    throw new SwapError('[getFeesFromFeeData]', {
       cause: 'gasLimit is required',
       code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
     })
@@ -153,7 +153,7 @@ export const getFeesFromFeeData = async ({
     return { gasLimit, maxFeePerGas, maxPriorityFeePerGas }
   if (gasPrice) return { gasLimit, gasPrice }
 
-  throw new SwapError('[getFees]', {
+  throw new SwapError('[getFeesFromFeeData]', {
     cause: 'legacy gas or eip1559 gas required',
     code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
   })
@@ -195,7 +195,7 @@ export const buildAndBroadcast = async ({
     if (e instanceof SwapError) throw e
     throw new SwapError('[buildAndBroadcast]', {
       cause: e,
-      code: SwapErrorType.GRANT_ALLOWANCE_FAILED,
+      code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
     })
   }
 }

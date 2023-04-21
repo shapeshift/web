@@ -273,6 +273,35 @@
     "react-dom@^18.2.0": "patch:react-dom@npm%3A18.2.0#./.yarn/patches/react-dom-npm-18.2.0-dd675bca1c.patch"
   },
   "jest": {
-    "resetMocks": false
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      ".d.ts",
+      ".js",
+      "__mocks__",
+      "mockData"
+    ],
+    "clearMocks": true,
+    "resetMocks": false,
+    "roots": [
+      "<rootDir>"
+    ],
+    "collectCoverage": false,
+    "setupFiles": [
+      "<rootDir>/.jest/setup.js"
+    ],
+    "moduleNameMapper": {
+      "^@shapeshiftoss\\/([^/ ]+)": [
+        "@shapeshiftoss/$1",
+        "@shapeshiftoss/$1/src"
+      ]
+    },
+    "globals": {
+      "ts-jest": {
+        "sourceMap": true,
+        "isolatedModules": true
+      }
+    }
   }
 }

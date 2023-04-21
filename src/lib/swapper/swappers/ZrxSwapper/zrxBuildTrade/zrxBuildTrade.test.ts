@@ -4,10 +4,9 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import type { AxiosStatic } from 'axios'
 import Web3 from 'web3'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { BuildTradeInput, QuoteFeeData } from '../../../api'
-import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
+import { feeData } from '../../utils/test-data/setupDeps'
 import type { ZrxTrade } from '../types'
 import { setupZrxTradeQuoteResponse } from '../utils/test-data/setupZrxSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'
@@ -53,6 +52,7 @@ const setup = () => {
     },
     rpcUrl: ethNodeUrl,
   })
+  adapter.getFeeData = () => Promise.resolve(feeData)
   const zrxService = zrxServiceFactory('https://api.0x.org/')
 
   return { web3Instance, adapter, zrxService }
@@ -93,13 +93,12 @@ describe('zrxBuildTrade', () => {
     rate: quoteResponse.price,
     feeData: {
       chainSpecific: {
-        approvalFeeCryptoBaseUnit: '123600000',
         estimatedGasCryptoBaseUnit: '1235',
-        gasPriceCryptoBaseUnit: '1236',
+        gasPriceCryptoBaseUnit: '79036500000',
+        maxFeePerGas: '216214758112',
+        maxPriorityFeePerGas: '2982734547',
       },
-      networkFeeCryptoBaseUnit: (
-        Number(quoteResponse.gas) * Number(quoteResponse.gasPrice)
-      ).toString(),
+      networkFeeCryptoBaseUnit: '4080654495000000',
       sellAssetTradeFeeUsd: '0',
       buyAssetTradeFeeUsd: '0',
     },
@@ -154,29 +153,24 @@ describe('zrxBuildTrade', () => {
   })
 
   it('should return a quote response with gasPrice multiplied by estimatedGas', async () => {
-    const gasPriceCryptoBaseUnit = '10000'
-    const estimatedGas = '100'
     const data = {
       ...quoteResponse,
       allowanceTarget: 'allowanceTargetAddress',
-      gas: estimatedGas,
-      gasPrice: gasPriceCryptoBaseUnit,
+      gas: '100',
+      gasPrice: '10000',
     }
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
     const expectedFeeData: QuoteFeeData<ZrxSupportedChainId> = {
       chainSpecific: {
-        approvalFeeCryptoBaseUnit: bnOrZero(APPROVAL_GAS_LIMIT)
-          .multipliedBy(gasPriceCryptoBaseUnit)
-          .toString(),
-        gasPriceCryptoBaseUnit,
-        estimatedGasCryptoBaseUnit: estimatedGas,
+        gasPriceCryptoBaseUnit: '79036500000',
+        estimatedGasCryptoBaseUnit: '100',
+        maxFeePerGas: '216214758112',
+        maxPriorityFeePerGas: '2982734547',
       },
       buyAssetTradeFeeUsd: '0',
       sellAssetTradeFeeUsd: '0',
-      networkFeeCryptoBaseUnit: bnOrZero(gasPriceCryptoBaseUnit)
-        .multipliedBy(estimatedGas)
-        .toString(),
+      networkFeeCryptoBaseUnit: '4080654495000000',
     }
 
     const maybeBuiltTrade = await zrxBuildTrade(deps, { ...buildTradeInput, wallet })

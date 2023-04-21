@@ -9,6 +9,7 @@ import { getZrxMinMax } from 'lib/swapper/swappers/ZrxSwapper/getZrxMinMax/getZr
 import type { ZrxPriceResponse, ZrxSwapperDeps } from 'lib/swapper/swappers/ZrxSwapper/types'
 import { AFFILIATE_ADDRESS, DEFAULT_SOURCE } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
 import {
+  assertValidTradePair,
   assetToToken,
   baseUrlFromChainId,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
@@ -19,13 +20,16 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   { adapter }: ZrxSwapperDeps,
   input: GetEvmTradeQuoteInput,
 ): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
-  const { sellAsset, buyAsset, sellAmountBeforeFeesCryptoBaseUnit, accountNumber, receiveAddress } =
-    input
-
-  const baseUrl = baseUrlFromChainId(buyAsset.chainId)
-  const zrxService = zrxServiceFactory(baseUrl)
-
   try {
+    const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
+    const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
+
+    const assertion = assertValidTradePair({ adapter, buyAsset, sellAsset })
+    if (assertion.isErr()) return Err(assertion.unwrapErr())
+
+    const baseUrl = baseUrlFromChainId(buyAsset.chainId)
+    const zrxService = zrxServiceFactory(baseUrl)
+
     const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = await getZrxMinMax(
       sellAsset,
       buyAsset,
@@ -35,9 +39,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     )
 
     const normalizedSellAmount = normalizeAmount(
-      bnOrZero(sellAmountBeforeFeesCryptoBaseUnit).eq(0)
-        ? minQuoteSellAmountCryptoBaseUnit
-        : sellAmountBeforeFeesCryptoBaseUnit,
+      bnOrZero(sellAmount).eq(0) ? minQuoteSellAmountCryptoBaseUnit : sellAmount,
     )
 
     // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-price
@@ -69,9 +71,10 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       .times(bnOrZero(fee.maxFeePerGas ?? price.gasPrice))
       .toFixed(0)
 
-    const useSellAmount = !!sellAmountBeforeFeesCryptoBaseUnit
+    const useSellAmount = !!sellAmount
     const rate = useSellAmount ? price.price : bn(1).div(price.price).toString()
-    const txFee = bn(price.gas).times(bnOrZero(fee.maxFeePerGas ?? price.gasPrice))
+    const gasLimit = bnOrZero(price.gas)
+    const txFee = gasLimit.times(bnOrZero(fee.maxFeePerGas ?? price.gasPrice))
 
     const tradeQuote: TradeQuote<ZrxSupportedChainId> = {
       buyAsset,
@@ -82,7 +85,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       maximumCryptoHuman: maximumAmountCryptoHuman,
       feeData: {
         chainSpecific: {
-          estimatedGasCryptoBaseUnit: price.gas,
+          estimatedGasCryptoBaseUnit: gasLimit.toFixed(0),
           gasPriceCryptoBaseUnit: fee.gasPrice,
           maxFeePerGas: fee.maxFeePerGas,
           maxPriorityFeePerGas: fee.maxPriorityFeePerGas,

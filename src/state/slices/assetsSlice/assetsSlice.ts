@@ -2,7 +2,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { Asset } from '@shapeshiftoss/asset-service'
-import { AssetService, getRenderedIdenticonBase64 } from '@shapeshiftoss/asset-service'
+import { AssetService } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   bscChainId,
@@ -79,10 +79,8 @@ export const makeAsset = (minimalAsset: MinimalAsset): Asset => {
     return fromAssetId(assetId).chainId
   })()
 
-  const icon = (() => {
-    if (minimalAsset.icon) return minimalAsset.icon
-    return getRenderedIdenticonBase64(assetId)
-  })()
+  // currently, dynamic assets are LP pairs, and they have two icon urls and are rendered differently
+  const icon = minimalAsset?.icon ?? ''
 
   type ExplorerLinks = Pick<Asset, 'explorer' | 'explorerTxLink' | 'explorerAddressLink'>
 
@@ -97,13 +95,7 @@ export const makeAsset = (minimalAsset: MinimalAsset): Asset => {
     }
   })()
 
-  return {
-    ...minimalAsset,
-    ...explorerLinks,
-    chainId,
-    color,
-    icon,
-  }
+  return Object.assign({}, minimalAsset, explorerLinks, { chainId, color, icon })
 }
 
 export const assets = createSlice({

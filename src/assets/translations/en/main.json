@@ -15,6 +15,7 @@
     "activity": "Activity",
     "reject": "Reject",
     "connected": "Connected",
+    "allocation": "Allocation",
     "value": "Value",
     "created": "Created %{date}",
     "noResultsFound": "No results found.",
@@ -55,7 +56,6 @@
     "retryQuestion": "Retry?",
     "transactionFailed": "Transaction Failed",
     "transactionFailedBody": "Transaction Failed",
-    "liveSupport": "Support",
     "submitFeedback": "Submit Feedback",
     "send": "Send",
     "receive": "Receive",
@@ -100,7 +100,8 @@
     "buyNow": "Buy Now",
     "manage": "Manage",
     "selectedAccount": "Selected Account",
-    "allChains": "All Chains"
+    "allChains": "All Chains",
+    "wallet": "Wallet"
   },
   "consentBanner": {
     "body": {
@@ -1450,6 +1451,7 @@
         "sell": "Sell",
         "trade": "Trade"
       },
+      "equity": "Equity",
       "accountTokens": "Account Tokens",
       "relatedAssets": "Related Assets",
       "showTokens": "Show Tokens (%{amount})",

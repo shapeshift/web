@@ -76,6 +76,7 @@ export const selectSwapperSupportsCrossAccountTrade = (state: SwapperState): boo
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
     case SwapperName.Test:
+    case SwapperName.OneInch:
       return false
     default:
       assertUnreachable(swapperName)

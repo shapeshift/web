@@ -9,11 +9,11 @@ import { useAppSelector } from 'state/store'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
-import { AssetAccounts } from './AssetAccounts/AssetAccounts'
 import { AssetChart } from './AssetHeader/AssetChart'
 import { AssetDescription } from './AssetHeader/AssetDescription'
 import { AssetHeader } from './AssetHeader/AssetHeader'
 import { AssetMarketData } from './AssetHeader/AssetMarketData'
+import { Equity } from './Equity/Equity'
 import { Main } from './Layout/Main'
 import { MaybeChartUnavailable } from './MaybeChartUnavailable'
 import { RelatedAssets } from './RelatedAssets/RelatedAssets'
@@ -53,9 +53,9 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <AssetChart accountId={accountId} assetId={assetId} isLoaded={true} />
           <MaybeChartUnavailable assetIds={assetIds} />
+          <Equity assetId={assetId} accountId={accountId} />
           {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}
           <RelatedAssets assetId={assetId} />
-          <AssetAccounts assetId={assetId} accountId={accountId} />
           <EarnOpportunities assetId={assetId} accountId={accountId} />
           <UnderlyingToken assetId={assetId} accountId={accountId} />
           <AssetTransactionHistory limit={10} assetId={assetId} accountId={accountId} />

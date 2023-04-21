@@ -4,7 +4,6 @@ import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
 import { AssetSearchModal } from 'components/Modals/AssetSearch/AssetSearchModal'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRampsModal'
-import { LiveSupportModal } from 'components/Modals/LiveSupport/LiveSupport'
 import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcomeModal'
 import { NativeOnboarding } from 'components/Modals/NativeOnboarding/NativeOnboarding'
 import { NftModal } from 'components/Modals/Nfts/NftModal'
@@ -31,7 +30,6 @@ const MODALS = {
   assetSearch: AssetSearchModal,
   popup: PopupWindowModal,
   nativeOnboard: NativeOnboarding,
-  liveSupport: LiveSupportModal,
   nft: NftModal,
 }
 
@@ -158,9 +156,9 @@ export function createModalProvider<M extends {}>({
     return (
       <InstanceModalContext.Provider value={value}>
         {children}
-        {Object.values(value).map((Modal: any, key) => (
-          <Modal.Component key={key} {...Modal.props} />
-        ))}
+        {Object.values(value).map((Modal: any, key) => {
+          return Modal.isOpen && <Modal.Component key={key} {...Modal.props} />
+        })}
       </InstanceModalContext.Provider>
     )
   }

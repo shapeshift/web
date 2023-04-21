@@ -20,6 +20,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
@@ -145,8 +146,8 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
       const address = userAddress
       await poll({
         fn: () => yearnOpportunity.allowance(address),
-        validate: (result: string) => {
-          const allowance = bnOrZero(result).div(bn(10).pow(underlyingAsset?.precision))
+        validate: (result: BigNumber) => {
+          const allowance = result.div(bn(10).pow(underlyingAsset?.precision))
           return bnOrZero(allowance).gte(state.deposit.cryptoAmount)
         },
         interval: 15000,

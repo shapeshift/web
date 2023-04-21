@@ -79,7 +79,6 @@ export const mockStore: ReduxState = {
       ArkeoAirdrop: false,
       TradeRates: false,
       Mixpanel: false,
-      LiveSupport: false,
       LifiSwap: false,
       FoxBondCTA: false,
       DynamicLpAssets: false,

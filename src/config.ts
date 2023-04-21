@@ -64,7 +64,6 @@ const validators = {
   REACT_APP_ZERION_API_KEY: str(),
   REACT_APP_FEATURE_DEFI_DASHBOARD: bool({ default: false }),
   REACT_APP_ZAPPER_API_KEY: str(),
-  REACT_APP_FEATURE_LIVESUPPORT: bool({ default: false }),
   REACT_APP_FEATURE_LIFI_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_JAYPEGZ: bool({ default: false }),

@@ -144,6 +144,10 @@ const validators = {
   REACT_APP_FEATURE_MIXPANEL: bool({ default: false }),
   REACT_APP_FEATURE_FOX_BOND_CTA: bool({ default: false }),
   REACT_APP_FEATURE_DYNAMIC_LP_ASSETS: bool({ default: false }),
+  REACT_APP_FEATURE_ONE_INCH: bool({ default: false }),
+  REACT_APP_ONE_INCH_API_URL: url({
+    default: 'https://api.1inch.io/v5.0',
+  }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

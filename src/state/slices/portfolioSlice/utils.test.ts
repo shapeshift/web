@@ -1,4 +1,10 @@
-import { avalancheAssetId, bscAssetId, ethAssetId, optimismAssetId } from '@shapeshiftoss/caip'
+import {
+  avalancheAssetId,
+  bscAssetId,
+  ethAssetId,
+  optimismAssetId,
+  polygonAssetId,
+} from '@shapeshiftoss/caip'
 import { mockChainAdapters } from 'test/mocks/portfolio'
 
 import {
@@ -32,6 +38,11 @@ describe('accountIdToFeeAssetId', () => {
     const accountId = 'eip155:56:0xdef1cafe'
     const result = accountIdToFeeAssetId(accountId)
     expect(result).toEqual(bscAssetId)
+  })
+  it('can get polygon feeAssetId from accountId', () => {
+    const accountId = 'eip155:137:0xdef1cafe'
+    const result = accountIdToFeeAssetId(accountId)
+    expect(result).toEqual(polygonAssetId)
   })
 })
 

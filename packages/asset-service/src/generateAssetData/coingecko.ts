@@ -6,12 +6,13 @@ import {
   bscChainId,
   ethChainId,
   optimismChainId,
+  polygonChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
 import axios from 'axios'
 
 import type { Asset } from '../service/AssetService'
-import { avax, bnbsmartchain, ethereum, optimism } from './baseAssets'
+import { avax, bnbsmartchain, ethereum, optimism, polygon } from './baseAssets'
 import { colorMap } from './colorMap'
 
 type Token = {
@@ -64,6 +65,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: bnbsmartchain.explorer,
           explorerAddressLink: bnbsmartchain.explorerAddressLink,
           explorerTxLink: bnbsmartchain.explorerTxLink,
+        }
+      case polygonChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: polygon.explorer,
+          explorerAddressLink: polygon.explorerAddressLink,
+          explorerTxLink: polygon.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)

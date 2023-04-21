@@ -174,6 +174,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       case SwapperType.ZrxBnbSmartChain:
       case SwapperType.ZrxEthereum:
       case SwapperType.ZrxOptimism:
+      case SwapperType.ZrxPolygon:
         return ZrxIcon
       case SwapperType.Thorchain:
         return THORChainIcon

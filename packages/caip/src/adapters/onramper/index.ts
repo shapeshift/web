@@ -10,6 +10,7 @@ import {
   ethAssetId,
   ltcAssetId,
   optimismAssetId,
+  polygonAssetId,
 } from '../../constants'
 
 type OnRamperTokenId = string
@@ -23,6 +24,7 @@ export const AssetIdToOnRamperIdMap: Record<AssetId, OnRamperTokenId[]> = {
   [ltcAssetId]: ['LTC'],
   [bchAssetId]: ['BCH'],
   [optimismAssetId]: ['ETH_OPTIMISM'],
+  [polygonAssetId]: ['MATIC'],
   'eip155:1/erc20:0x111111111117dc0aa78b770fa6a738034120c302': ['1INCH'],
   'eip155:1/erc20:0xbcca60bb61934080951369a648fb03df4f96263c': ['AUSDC'],
   'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': ['AAVE_ECR20'],

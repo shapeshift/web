@@ -1,5 +1,17 @@
-import { avalancheChainId, bscChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
-import type { avalanche, bnbsmartchain, ethereum, optimism } from '@shapeshiftoss/chain-adapters'
+import {
+  avalancheChainId,
+  bscChainId,
+  ethChainId,
+  optimismChainId,
+  polygonChainId,
+} from '@shapeshiftoss/caip'
+import type {
+  avalanche,
+  bnbsmartchain,
+  ethereum,
+  optimism,
+  polygon,
+} from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -77,7 +89,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
     _swapperManager.addSwapper(zrxOptimismSwapper)
   }
 
-  if (flags.ZrxBnbSmartChain) {
+  if (flags.ZrxBnbSmartChainSwap) {
     const bscWeb3 = getWeb3InstanceByChainId(bscChainId)
 
     const bscChainAdapter = adapterManager.get(
@@ -89,6 +101,20 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
       adapter: bscChainAdapter,
     })
     _swapperManager.addSwapper(zrxBscSwapper)
+  }
+
+  if (flags.ZrxPolygonSwap) {
+    const polygonWeb3 = getWeb3InstanceByChainId(polygonChainId)
+
+    const polygonChainAdatper = adapterManager.get(
+      KnownChainIds.PolygonMainnet,
+    ) as unknown as polygon.ChainAdapter
+
+    const zrxPolygonSwapper = new ZrxSwapper({
+      web3: polygonWeb3,
+      adapter: polygonChainAdatper,
+    })
+    _swapperManager.addSwapper(zrxPolygonSwapper)
   }
 
   if (flags.ThorSwap) {

@@ -39,53 +39,6 @@ export const routes: NestedRoute[] = [
       },
     ],
   },
-  // {
-  //   path: '/accounts',
-  //   label: 'navBar.accounts',
-  //   main: Accounts,
-  //   icon: <AccountsIcon />,
-  //   category: RouteCategory.Wallet,
-  //   mobileNav: true,
-  //   priority: 1,
-  //   routes: [
-  //     {
-  //       path: '/:accountId',
-  //       label: 'Account Details',
-  //       main: null,
-  //       hide: true,
-  //       routes: [
-  //         {
-  //           path: '/',
-  //           label: 'navBar.overview',
-  //           main: Account,
-  //         },
-  //         {
-  //           path: '/transactions',
-  //           label: 'navBar.transactions',
-  //           main: AccountTxHistory,
-  //         },
-  //         {
-  //           path: '/:assetId',
-  //           label: 'navBar.overview',
-  //           main: null,
-  //           hide: true,
-  //           routes: [
-  //             {
-  //               path: '/',
-  //               main: AccountToken,
-  //               label: 'navBar.overview',
-  //             },
-  //             {
-  //               path: '/transactions',
-  //               main: AccountTokenTxHistory,
-  //               label: 'navBar.transactions',
-  //             },
-  //           ],
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // },
   {
     path: '/assets',
     label: 'navBar.assets',

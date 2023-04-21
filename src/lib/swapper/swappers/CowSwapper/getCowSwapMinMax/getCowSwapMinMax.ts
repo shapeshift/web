@@ -1,9 +1,11 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import { Err } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { MinMaxOutput } from 'lib/swapper/api'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
+import type { MinMaxOutput, SwapErrorRight } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import {
   MAX_COWSWAP_TRADE,
@@ -15,27 +17,38 @@ export const getCowSwapMinMax = async (
   deps: CowSwapperDeps,
   sellAsset: Asset,
   buyAsset: Asset,
-): Promise<MinMaxOutput> => {
+): Promise<Result<MinMaxOutput, SwapErrorRight>> => {
   try {
     const { assetNamespace: sellAssetNamespace } = fromAssetId(sellAsset.assetId)
     const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
 
     if (sellAssetNamespace !== 'erc20' || buyAssetChainId !== KnownChainIds.EthereumMainnet) {
-      throw new SwapError('[getCowSwapMinMax]', { code: SwapErrorType.UNSUPPORTED_PAIR })
+      return Err(
+        makeSwapErrorRight({ message: '[getCowSwapMinMax]', code: SwapErrorType.UNSUPPORTED_PAIR }),
+      )
     }
 
-    const usdRate = await getUsdRate(deps, sellAsset)
+    const maybeUsdRate = await getUsdRate(deps, sellAsset)
 
-    const minimumAmountCryptoHuman = bn(MIN_COWSWAP_VALUE_USD)
-      .dividedBy(bnOrZero(usdRate))
-      .toString() // $10 worth of the sell token.
-    const maximumAmountCryptoHuman = MAX_COWSWAP_TRADE // Arbitrarily large value. 10e+28 here.
-    return {
-      minimumAmountCryptoHuman,
-      maximumAmountCryptoHuman,
-    }
+    return maybeUsdRate.map(usdRate => {
+      const minimumAmountCryptoHuman = bn(MIN_COWSWAP_VALUE_USD)
+        .dividedBy(bnOrZero(usdRate))
+        .toString() // $10 worth of the sell token.
+      const maximumAmountCryptoHuman = MAX_COWSWAP_TRADE // Arbitrarily large value. 10e+28 here.
+      return {
+        minimumAmountCryptoHuman,
+        maximumAmountCryptoHuman,
+      }
+    })
   } catch (e) {
+    // TODO(gomes): figure out what the heck is throwing above - we shouldn't throw anymore - perhaps it's the tests?
     if (e instanceof SwapError) throw e
-    throw new SwapError('[getCowSwapMinMax]', { cause: e, code: SwapErrorType.MIN_MAX_FAILED })
+    return Err(
+      makeSwapErrorRight({
+        message: '[getCowSwapMinMax]',
+        cause: e,
+        code: SwapErrorType.MIN_MAX_FAILED,
+      }),
+    )
   }
 }

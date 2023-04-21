@@ -2,10 +2,13 @@ import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-si
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { AssetService } from '@shapeshiftoss/asset-service'
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { ethers } from 'ethers'
 import { bn } from 'lib/bignumber/bignumber'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
+import type { SwapErrorRight } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
 import {
@@ -79,20 +82,27 @@ export const getNowPlusThirtyMinutesTimestamp = (): number => {
   return Math.round(ts.getTime() / 1000)
 }
 
-export const getUsdRate = async ({ apiUrl }: CowSwapperDeps, input: Asset): Promise<string> => {
+export const getUsdRate = async (
+  { apiUrl }: CowSwapperDeps,
+  input: Asset,
+): Promise<Result<string, SwapErrorRight>> => {
   // Replacing ETH by WETH specifically for CowSwap in order to get an usd rate when called with ETH as feeAsset
   const asset = input.assetId !== ethAssetId ? input : new AssetService().getAll()[WETH_ASSET_ID]
   const { assetReference: erc20Address, assetNamespace } = fromAssetId(asset.assetId)
 
   if (assetNamespace !== 'erc20') {
-    throw new SwapError('[getUsdRate] - unsupported asset namespace', {
-      code: SwapErrorType.USD_RATE_FAILED,
-      details: { assetNamespace },
-    })
+    return Err(
+      makeSwapErrorRight({
+        message: '[getUsdRate] - unsupported asset namespace',
+        code: SwapErrorType.USD_RATE_FAILED,
+        details: { assetNamespace },
+      }),
+    )
   }
 
   if (erc20Address === USDC_CONTRACT_ADDRESS) {
-    return '1'
+    // Note, this isn't guaranteed to be true as USDC might depeg to anything less than a dollar
+    return Ok('1')
   }
 
   // rate is imprecise for low $ values, hence asking for $1000
@@ -147,8 +157,9 @@ export const getUsdRate = async ({ apiUrl }: CowSwapperDeps, input: Asset): Prom
       })
 
     // dividing $1000 by amount of sell token received
-    return bn(buyAmountInDollars).div(sellAmountCryptoPrecision).toString()
+    return Ok(bn(buyAmountInDollars).div(sellAmountCryptoPrecision).toString())
   } catch (e) {
+    // TODO(gomes): check if anything still throws here before opening
     if (e instanceof SwapError) throw e
     throw new SwapError('[getUsdRate]', {
       cause: e,

@@ -70,7 +70,7 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
     return getTradeQuote(this.deps, input)
   }
 
-  getUsdRate(input: Asset): Promise<string> {
+  getUsdRate(input: Asset): Promise<Result<string, SwapErrorRight>> {
     return getUsdRate(this.deps, input)
   }
 

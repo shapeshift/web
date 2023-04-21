@@ -94,7 +94,7 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     return getZrxTradeQuote<T>(input)
   }
 
-  getUsdRate(input: Asset): Promise<string> {
+  getUsdRate(input: Asset): Promise<Result<string, SwapErrorRight>> {
     return getUsdRate(input)
   }
 

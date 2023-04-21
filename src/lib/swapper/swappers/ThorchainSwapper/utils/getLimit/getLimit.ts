@@ -75,8 +75,14 @@ export const getLimit = async ({
     )
   }
 
-  const sellFeeAssetUsdRate = await getUsdRate(deps.daemonUrl, sellAssetChainFeeAssetId)
-  const buyAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAssetId)
+  const maybeBuyAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAssetId)
+  if (maybeBuyAssetUsdRate.isErr()) return Err(maybeBuyAssetUsdRate.unwrapErr())
+  const buyAssetUsdRate = maybeBuyAssetUsdRate.unwrap()
+
+  const maybeSellFeeAssetUsdRate = await getUsdRate(deps.daemonUrl, sellAssetChainFeeAssetId)
+  if (maybeBuyAssetUsdRate.isErr()) return Err(maybeSellFeeAssetUsdRate.unwrapErr())
+  const sellFeeAssetUsdRate = maybeSellFeeAssetUsdRate.unwrap()
+
   const expectedBuyAmountCryptoPrecision8 = toBaseUnit(
     fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit).times(tradeRate), sellAsset.precision),
     THORCHAIN_FIXED_PRECISION,

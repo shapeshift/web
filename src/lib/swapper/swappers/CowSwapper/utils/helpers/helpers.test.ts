@@ -38,7 +38,9 @@ describe('utils', () => {
         }),
       )
 
-      const rate = await getUsdRate(cowSwapperDeps, FOX)
+      const maybeRate = await getUsdRate(cowSwapperDeps, FOX)
+      expect(maybeRate.isErr()).toBe(false)
+      const rate = maybeRate.unwrap()
       expect(parseFloat(rate)).toBeCloseTo(0.129834198, 9)
       expect(cowService.post).toHaveBeenCalledWith(
         'https://api.cow.fi/mainnet/api/v1/quote/',
@@ -60,7 +62,9 @@ describe('utils', () => {
           },
         }),
       )
-      const rate = await getUsdRate(cowSwapperDeps, WBTC)
+      const maybeRate = await getUsdRate(cowSwapperDeps, WBTC)
+      expect(maybeRate.isErr()).toBe(false)
+      const rate = maybeRate.unwrap()
       expect(parseFloat(rate)).toBeCloseTo(29987.13851629, 9)
       expect(cowService.post).toHaveBeenCalledWith(
         'https://api.cow.fi/mainnet/api/v1/quote/',
@@ -83,7 +87,9 @@ describe('utils', () => {
         }),
       )
 
-      const rate = await getUsdRate(cowSwapperDeps, ETH)
+      const maybeRate = await getUsdRate(cowSwapperDeps, ETH)
+      expect(maybeRate.isErr()).toBe(false)
+      const rate = maybeRate.unwrap()
       expect(parseFloat(rate)).toBeCloseTo(1094.381925769, 9)
       expect(cowService.post).toHaveBeenCalledWith(
         'https://api.cow.fi/mainnet/api/v1/quote/',
@@ -97,14 +103,18 @@ describe('utils', () => {
 
     it('gets the usd rate of USDC without calling api', async () => {
       const rate = await getUsdRate(cowSwapperDeps, USDC)
-      expect(rate).toEqual('1')
+      expect(rate.unwrap()).toEqual('1')
       expect(cowService.get).not.toHaveBeenCalled()
     })
 
     it('should fail when called with non-erc20 asset', async () => {
-      await expect(getUsdRate(cowSwapperDeps, BTC)).rejects.toThrow(
-        '[getUsdRate] - unsupported asset namespace',
-      )
+      expect((await getUsdRate(cowSwapperDeps, BTC)).unwrapErr()).toMatchObject({
+        cause: undefined,
+        code: 'USD_RATE_FAILED',
+        details: { assetNamespace: 'slip44' },
+        message: '[getUsdRate] - unsupported asset namespace',
+        name: 'SwapError',
+      })
     })
 
     it('should fail when api is returning 0 as token amount', async () => {

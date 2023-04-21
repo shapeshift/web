@@ -66,7 +66,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     return getCowSwapTradeQuote(this.deps, input)
   }
 
-  getUsdRate(input: Asset): Promise<string> {
+  getUsdRate(input: Asset): Promise<Result<string, SwapErrorRight>> {
     return getUsdRate(this.deps, input)
   }
 

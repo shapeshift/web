@@ -8,7 +8,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { ethers } from 'ethers'
 import type { ExecuteTradeInput, SwapErrorRight, TradeResult } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import type { CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 import {
@@ -48,17 +48,23 @@ export async function cowExecuteTrade(
   )
 
   if (sellAssetNamespace !== 'erc20') {
-    throw new SwapError('[cowExecuteTrade] - Sell asset needs to be ERC-20 to use CowSwap', {
-      code: SwapErrorType.UNSUPPORTED_PAIR,
-      details: { sellAssetNamespace },
-    })
+    return Err(
+      makeSwapErrorRight({
+        message: '[cowExecuteTrade] - Sell asset needs to be ERC-20 to use CowSwap',
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+        details: { sellAssetNamespace },
+      }),
+    )
   }
 
   if (buyAssetChainId !== KnownChainIds.EthereumMainnet) {
-    throw new SwapError('[cowExecuteTrade] - Buy asset needs to be on ETH mainnet to use CowSwap', {
-      code: SwapErrorType.UNSUPPORTED_PAIR,
-      details: { buyAssetChainId },
-    })
+    return Err(
+      makeSwapErrorRight({
+        message: '[cowExecuteTrade] - Buy asset needs to be on ETH mainnet to use CowSwap',
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+        details: { buyAssetChainId },
+      }),
+    )
   }
 
   const buyToken =
@@ -132,14 +138,6 @@ export async function cowExecuteTrade(
 
     return Ok({ tradeId: ordersResponse.data })
   } catch (e) {
-    if (e instanceof SwapError)
-      return Err(
-        makeSwapErrorRight({
-          message: e.message,
-          code: e.code,
-          details: e.details,
-        }),
-      )
     return Err(
       makeSwapErrorRight({
         message: '[cowExecuteTrade]',

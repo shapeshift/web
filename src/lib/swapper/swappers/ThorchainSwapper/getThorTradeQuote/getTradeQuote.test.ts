@@ -1,4 +1,5 @@
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { Ok } from '@sniptt/monads/build'
 import type Web3 from 'web3'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
@@ -16,6 +17,7 @@ jest.mock('../utils/thorService')
 jest.mock('../utils/getUsdRate/getUsdRate')
 
 const mockedAxios = thorService as jest.Mocked<typeof thorService>
+const mockOk = Ok as jest.Mocked<typeof Ok>
 
 const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '59.658672054814851787728',
@@ -84,8 +86,8 @@ describe('getTradeQuote', () => {
       }
     })
     ;(getUsdRate as jest.Mock<unknown>)
-      .mockReturnValueOnce(Promise.resolve('0.15399605260336216')) // sellAsset
-      .mockReturnValueOnce(Promise.resolve('1595')) // buyAsset
+      .mockReturnValueOnce(Promise.resolve(mockOk('0.15399605260336216'))) // sellAsset
+      .mockReturnValueOnce(Promise.resolve(mockOk('1595'))) // buyAsset
 
     const input: GetTradeQuoteInput = {
       ...quoteInput,

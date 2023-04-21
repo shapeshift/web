@@ -1,6 +1,7 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { Ok } from '@sniptt/monads'
 import type Web3 from 'web3'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
@@ -12,6 +13,7 @@ import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote'
 
+const mockOk = Ok as jest.MockedFunction<typeof Ok>
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mock('../utils/cowService')
 jest.mock('../utils/helpers/helpers', () => {
@@ -21,14 +23,14 @@ jest.mock('../utils/helpers/helpers', () => {
     getNowPlusThirtyMinutesTimestamp: () => 1656797787,
     getUsdRate: (_args: CowSwapperDeps, input: Asset) => {
       if (input.assetId === WETH.assetId || input.assetId === ETH.assetId) {
-        return Promise.resolve('1233.65940923824103061992')
+        return Promise.resolve(mockOk('1233.65940923824103061992'))
       }
 
       if (input.assetId === FOX.assetId) {
-        return Promise.resolve('0.0873')
+        return Promise.resolve(mockOk('0.0873'))
       }
 
-      return Promise.resolve('20978.38')
+      return Promise.resolve(mockOk('20978.38'))
     },
   }
 })
@@ -46,16 +48,16 @@ jest.mock('../getCowSwapMinMax/getCowSwapMinMax', () => {
   return {
     getCowSwapMinMax: (_args: CowSwapperDeps, sellAsset: Asset) => {
       if (sellAsset.assetId === FOX.assetId) {
-        return {
+        return mockOk({
           minimumAmountCryptoHuman: '229.09507445589919816724',
           maximumAmountCryptoHuman: '100000000000000000000000000',
-        }
+        })
       }
 
-      return {
+      return mockOk({
         minimumAmountCryptoHuman: '0.011624',
         maximumAmountCryptoHuman: '100000000000000000000000000',
-      }
+      })
     },
   }
 })
@@ -332,7 +334,7 @@ describe('getCowTradeQuote', () => {
 
     const maybeTradeQuote = await getCowSwapTradeQuote(deps, input)
 
-    expect(maybeTradeQuote.isOk()).toBe(true)
+    expect(maybeTradeQuote.isErr()).toBe(false)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteSmallAmountWethToFox)
     expect(cowService.post).toHaveBeenCalledWith(
       'https://api.cow.fi/mainnet/api/v1/quote/',

@@ -1,18 +1,24 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
 import { bn } from 'lib/bignumber/bignumber'
+import type { SwapErrorRight } from 'lib/swapper/api'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { usdcContractAddressFromChainId } from '../../ZrxSwapper/utils/helpers/helpers'
 import { getNativeWrappedAssetId, getRate } from '../utils/helpers'
 import type { OneInchQuoteApiInput, OneInchQuoteResponse, OneInchSwapperDeps } from '../utils/types'
 
-export const getUsdRate = async (deps: OneInchSwapperDeps, sellAsset: Asset): Promise<string> => {
+export const getUsdRate = async (
+  deps: OneInchSwapperDeps,
+  sellAsset: Asset,
+): Promise<Result<string, SwapErrorRight>> => {
   const usdcContractAddress = usdcContractAddressFromChainId(sellAsset.chainId)
   const { assetReference: sellAssetContractAddress, chainId } = fromAssetId(sellAsset.assetId)
-  if (sellAssetContractAddress === usdcContractAddress) return '1'
+  if (sellAssetContractAddress === usdcContractAddress) return Ok('1')
 
   const toTokenAddress = isNativeEvmAsset(sellAsset.assetId)
     ? fromAssetId(getNativeWrappedAssetId(chainId)).assetReference
@@ -32,5 +38,5 @@ export const getUsdRate = async (deps: OneInchSwapperDeps, sellAsset: Asset): Pr
     `${deps.apiUrl}/${chainReference}/quote`,
     { params: apiInput },
   )
-  return bn(1).div(getRate(quoteResponse.data)).toString() // invert the rate
+  return Ok(bn(1).div(getRate(quoteResponse.data)).toString()) // invert the rate
 }

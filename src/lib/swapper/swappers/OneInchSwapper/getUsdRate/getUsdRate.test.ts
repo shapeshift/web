@@ -43,6 +43,7 @@ describe('getUsdRate', () => {
 
     const sellAsset = { ...FOX }
     const usdRate = await getUsdRate(deps, sellAsset)
-    expect(usdRate).toEqual('0.03281107252279961839')
+    expect(usdRate.isErr()).toBe(false)
+    expect(usdRate.unwrap()).toEqual('0.03281107252279961839')
   })
 })

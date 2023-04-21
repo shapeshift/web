@@ -3,7 +3,6 @@ import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GasFeeDataEstimate } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import type { Result } from '@sniptt/monads/build'
-import { Ok } from '@sniptt/monads/build'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -72,7 +71,7 @@ export async function getTradeQuote(
 
   const rate = getRate(quoteResponse.data).toString()
   const allowanceContract = await getApprovalAddress(deps, chainId)
-  const minMax = await getMinMax(deps, sellAsset, buyAsset)
+  const maybeMinMax = await getMinMax(deps, sellAsset, buyAsset)
 
   const chainAdapterManager = getChainAdapterManager()
   // We guard against !isEvmChainId(chainId) above, so this cast is safe
@@ -93,7 +92,7 @@ export async function getTradeQuote(
     .multipliedBy(bnOrZero(gasPriceCryptoBaseUnit))
     .toFixed()
 
-  return Ok({
+  return maybeMinMax.map(minMax => ({
     rate,
     buyAsset,
     sellAsset,
@@ -114,5 +113,5 @@ export async function getTradeQuote(
       },
     },
     sources: DEFAULT_SOURCE,
-  })
+  }))
 }

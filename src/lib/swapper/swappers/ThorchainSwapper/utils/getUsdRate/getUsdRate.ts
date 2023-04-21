@@ -1,8 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type BigNumber from 'bignumber.js'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
+import type { SwapErrorRight } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
@@ -17,7 +20,7 @@ const USD_POOLS = Object.freeze([
 ])
 
 // calculate rune usd price from a usd pool (ex. USDC_POOL)
-const getRuneUsdPrice = async (daemonUrl: string): Promise<BigNumber> => {
+const getRuneUsdPrice = async (daemonUrl: string): Promise<Result<BigNumber, SwapErrorRight>> => {
   const { data } = await thorService.get<ThornodePoolResponse[]>(`${daemonUrl}/lcd/thorchain/pools`)
 
   const availableUsdPools = data.filter(
@@ -43,60 +46,69 @@ const getRuneUsdPrice = async (daemonUrl: string): Promise<BigNumber> => {
   )
 
   if (!numPools) {
-    throw new SwapError('[getUsdRate]: no available usd pools', {
-      code: SwapErrorType.USD_RATE_FAILED,
-    })
+    return Err(
+      makeSwapErrorRight({
+        message: '[getUsdRate]: no available usd pools',
+        code: SwapErrorType.USD_RATE_FAILED,
+      }),
+    )
   }
 
   // aggregatedRuneUsdPrice / numPools = averageRuneUsdPrice
-  return aggregatedRuneUsdPrice.div(numPools)
+  return Ok(aggregatedRuneUsdPrice.div(numPools))
 }
 
-export const getUsdRate = async (daemonUrl: string, assetId: AssetId): Promise<string> => {
-  try {
-    if (isRune(assetId)) {
-      const runeUsdPrice = await getRuneUsdPrice(daemonUrl)
-      return runeUsdPrice.toFixed(PRECISION)
-    }
+export const getUsdRate = async (
+  daemonUrl: string,
+  assetId: AssetId,
+): Promise<Result<string, SwapErrorRight>> => {
+  if (isRune(assetId)) {
+    const maybeRuneUsdPrice = await getRuneUsdPrice(daemonUrl)
+    return maybeRuneUsdPrice.map(runeUsdPrice => runeUsdPrice.toFixed(PRECISION))
+  }
 
-    const poolId = adapters.assetIdToPoolAssetId({ assetId })
-    if (!poolId) {
-      throw new SwapError(`[getUsdRate]: no pool found for assetId: ${assetId}`, {
+  const poolId = adapters.assetIdToPoolAssetId({ assetId })
+  if (!poolId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getUsdRate]: no pool found for assetId: ${assetId}`,
         code: SwapErrorType.USD_RATE_FAILED,
-      })
-    }
-
-    const { data } = await thorService.get<ThornodePoolResponse>(
-      `${daemonUrl}/lcd/thorchain/pool/${poolId}`,
+      }),
     )
+  }
 
-    if (data.status !== 'Available') {
-      throw new SwapError('[getUsdRate]: pool is no longer available', {
+  const { data } = await thorService.get<ThornodePoolResponse>(
+    `${daemonUrl}/lcd/thorchain/pool/${poolId}`,
+  )
+
+  if (data.status !== 'Available') {
+    return Err(
+      makeSwapErrorRight({
+        message: '[getUsdRate]: pool is no longer available',
         code: SwapErrorType.USD_RATE_FAILED,
-      })
-    }
+      }),
+    )
+  }
 
-    const assetBalance = bnOrZero(data.balance_asset)
-    const runeBalance = bnOrZero(data.balance_rune)
+  const assetBalance = bnOrZero(data.balance_asset)
+  const runeBalance = bnOrZero(data.balance_rune)
 
-    if (assetBalance.isZero() || runeBalance.isZero()) {
-      throw new SwapError('[getUsdRate]: pool has a zero balance', {
+  if (assetBalance.isZero() || runeBalance.isZero()) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[getUsdRate]: pool has a zero balance',
         code: SwapErrorType.USD_RATE_FAILED,
-      })
-    }
+      }),
+    )
+  }
 
-    const runeUsdPrice = await getRuneUsdPrice(daemonUrl)
+  const maybeRuneUsdPrice = await getRuneUsdPrice(daemonUrl)
 
+  return maybeRuneUsdPrice.map(runeUsdPrice => {
     // runeBalance / assetBalance = assetPriceInRune
     const assetPriceInRune = runeBalance.div(assetBalance)
 
     // runeUsdPrice * assetPriceInRune = assetUsdPrice
     return runeUsdPrice.times(assetPriceInRune).toFixed(PRECISION)
-  } catch (e) {
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[getUsdRate]: Thorchain getUsdRate failed', {
-      code: SwapErrorType.USD_RATE_FAILED,
-      cause: e,
-    })
-  }
+  })
 }

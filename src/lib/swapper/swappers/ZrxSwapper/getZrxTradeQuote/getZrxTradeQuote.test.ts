@@ -1,9 +1,12 @@
 import { btcChainId, ethChainId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 import type Web3 from 'web3'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { SwapErrorRight } from 'lib/swapper/api'
 
 import { normalizeAmount } from '../../utils/helpers/helpers'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
@@ -20,16 +23,23 @@ jest.mock('lib/swapper/swappers/ZrxSwapper/utils/zrxService', () => {
   }
 })
 
+jest.mock('lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers', () => ({
+  getUsdRate: jest.fn(() => Promise.resolve(mockOk(1))),
+}))
+
 const zrxService = zrxServiceFactory('https://api.0x.org/')
 
 jest.mock('../utils/helpers/helpers')
 jest.mock('../../utils/helpers/helpers')
 jest.mock('../utils/zrxService')
 
+const mockOk = Ok as jest.MockedFunction<typeof Ok>
 describe('getZrxTradeQuote', () => {
   const sellAmount = '1000000000000000000'
   ;(normalizeAmount as jest.Mock<string>).mockReturnValue(sellAmount)
-  ;(baseUrlFromChainId as jest.Mock<string>).mockReturnValue('https://api.0x.org/')
+  ;(baseUrlFromChainId as jest.Mock<Result<string, SwapErrorRight>>).mockReturnValue(
+    mockOk('https://api.0x.org/'),
+  )
   const zrxSwapperDeps = {
     web3: {} as Web3,
     adapter: {
@@ -176,6 +186,7 @@ describe('getZrxTradeQuote', () => {
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve({ data: { sellAmount: '20000000000000000000' } }),
     )
+
     const minimum = '20'
     const maybeQuote = await swapper.getTradeQuote({
       ...quoteInput,

@@ -136,7 +136,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     return SwapperType.Thorchain
   }
 
-  getUsdRate({ assetId }: Pick<Asset, 'assetId'>): Promise<string> {
+  getUsdRate({ assetId }: Pick<Asset, 'assetId'>): Promise<Result<string, SwapErrorRight>> {
     return getUsdRate(this.daemonUrl, assetId)
   }
 

@@ -100,7 +100,9 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     }
   }
 
-  async getUsdRate(input: Pick<Asset, 'symbol' | 'assetId'>): Promise<string> {
+  async getUsdRate(
+    input: Pick<Asset, 'symbol' | 'assetId'>,
+  ): Promise<Result<string, SwapErrorRight>> {
     const { symbol } = input
 
     const sellAssetSymbol = symbol
@@ -115,22 +117,25 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
     if (sellAssetSymbol !== 'OSMO') {
       const { rate } = await getRateInfo(sellAssetSymbol, 'OSMO', sellAmount, this.deps.osmoUrl)
-      return bnOrZero(rate).times(osmoRate).toString()
+      return Ok(bnOrZero(rate).times(osmoRate).toString())
     }
 
-    return osmoRate
+    return Ok(osmoRate)
   }
 
-  async getMinMax(input: { sellAsset: Asset }): Promise<MinMaxOutput> {
+  async getMinMax(input: { sellAsset: Asset }): Promise<Result<MinMaxOutput, SwapErrorRight>> {
     const { sellAsset } = input
-    const usdRate = await this.getUsdRate({ ...sellAsset })
-    const minimumAmountCryptoHuman = bn(1).dividedBy(bnOrZero(usdRate)).toString()
-    const maximumAmountCryptoHuman = MAX_SWAPPER_SELL
+    const maybeUsddRate = await this.getUsdRate({ ...sellAsset })
 
-    return {
-      minimumAmountCryptoHuman,
-      maximumAmountCryptoHuman,
-    }
+    return maybeUsddRate.map(usdRate => {
+      const minimumAmountCryptoHuman = bn(1).dividedBy(bnOrZero(usdRate)).toString()
+      const maximumAmountCryptoHuman = MAX_SWAPPER_SELL
+
+      return {
+        minimumAmountCryptoHuman,
+        maximumAmountCryptoHuman,
+      }
+    })
   }
 
   approvalNeeded(): Promise<ApprovalNeededOutput> {
@@ -253,7 +258,9 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       this.deps.osmoUrl,
     )
 
-    const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = await this.getMinMax(input)
+    const maybeMinMax = await this.getMinMax(input)
+    if (maybeMinMax.isErr()) return Err(maybeMinMax.unwrapErr())
+    const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = maybeMinMax.unwrap()
 
     const osmosisAdapter = this.deps.adapterManager.get(osmosisChainId) as
       | osmosis.ChainAdapter

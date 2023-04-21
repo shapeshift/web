@@ -1,12 +1,12 @@
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
-import { Err, Ok } from '@sniptt/monads'
+import { Err } from '@sniptt/monads'
 import type { AxiosError, AxiosResponse } from 'axios'
 import axios from 'axios'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { getCowSwapMinMax } from 'lib/swapper/swappers/CowSwapper/getCowSwapMinMax/getCowSwapMinMax'
 import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
@@ -50,29 +50,31 @@ export async function getCowSwapTradeQuote(
     )
 
     if (sellAssetNamespace !== 'erc20') {
-      throw new SwapError('[getCowSwapTradeQuote] - Sell asset needs to be ERC-20 to use CowSwap', {
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { sellAssetNamespace },
-      })
+      return Err(
+        makeSwapErrorRight({
+          message: '[getCowSwapTradeQuote] - Sell asset needs to be ERC-20 to use CowSwap',
+          code: SwapErrorType.UNSUPPORTED_PAIR,
+          details: { sellAssetNamespace },
+        }),
+      )
     }
 
     if (buyAssetChainId !== KnownChainIds.EthereumMainnet) {
-      throw new SwapError(
-        '[getCowSwapTradeQuote] - Buy asset needs to be on ETH mainnet to use CowSwap',
-        {
+      return Err(
+        makeSwapErrorRight({
+          message: '[getCowSwapTradeQuote] - Buy asset needs to be on ETH mainnet to use CowSwap',
           code: SwapErrorType.UNSUPPORTED_PAIR,
           details: { buyAssetChainId },
-        },
+        }),
       )
     }
 
     const buyToken =
       buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
-    const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = await getCowSwapMinMax(
-      deps,
-      sellAsset,
-      buyAsset,
-    )
+    const maybeCowSwapMinMax = await getCowSwapMinMax(deps, sellAsset, buyAsset)
+
+    if (maybeCowSwapMinMax.isErr()) return Err(maybeCowSwapMinMax.unwrapErr())
+    const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = maybeCowSwapMinMax.unwrap()
 
     const minQuoteSellAmount = bnOrZero(minimumAmountCryptoHuman).times(
       bn(10).exponentiatedBy(sellAsset.precision),
@@ -143,7 +145,7 @@ export async function getCowSwapTradeQuote(
       contractAddress: sellAssetErc20Address,
     })
 
-    const [feeDataOptions, sellAssetUsdRate] = await Promise.all([
+    const [feeDataOptions, maybeSellAssetUsdRate] = await Promise.all([
       adapter.getFeeData({
         to: sellAssetErc20Address,
         value: '0',
@@ -152,54 +154,57 @@ export async function getCowSwapTradeQuote(
       getUsdRate(deps, sellAsset),
     ])
 
-    const sellAssetTradeFeeUsd = bnOrZero(feeAmountInSellTokenCryptoBaseUnit)
-      .div(bn(10).exponentiatedBy(sellAsset.precision))
-      .multipliedBy(bnOrZero(sellAssetUsdRate))
-      .toString()
+    return maybeSellAssetUsdRate.map(sellAssetUsdRate => {
+      const sellAssetTradeFeeUsd = bnOrZero(feeAmountInSellTokenCryptoBaseUnit)
+        .div(bn(10).exponentiatedBy(sellAsset.precision))
+        .multipliedBy(bnOrZero(sellAssetUsdRate))
+        .toString()
 
-    const feeData = feeDataOptions['fast']
+      const feeData = feeDataOptions['fast']
 
-    const isQuoteSellAmountBelowMinimum = bnOrZero(quoteSellAmountPlusFeesCryptoBaseUnit).lt(
-      minQuoteSellAmount,
-    )
-    // If isQuoteSellAmountBelowMinimum we don't want to replace it with normalizedSellAmount
-    // The purpose of this was to get a quote from CowSwap even with small amounts
-    const quoteSellAmountCryptoBaseUnit = isQuoteSellAmountBelowMinimum
-      ? sellAmountBeforeFeesCryptoBaseUnit
-      : normalizedSellAmountCryptoBaseUnit
+      const isQuoteSellAmountBelowMinimum = bnOrZero(quoteSellAmountPlusFeesCryptoBaseUnit).lt(
+        minQuoteSellAmount,
+      )
+      // If isQuoteSellAmountBelowMinimum we don't want to replace it with normalizedSellAmount
+      // The purpose of this was to get a quote from CowSwap even with small amounts
+      const quoteSellAmountCryptoBaseUnit = isQuoteSellAmountBelowMinimum
+        ? sellAmountBeforeFeesCryptoBaseUnit
+        : normalizedSellAmountCryptoBaseUnit
 
-    // Similarly, if isQuoteSellAmountBelowMinimum we can't use the buy amount from the quote
-    // because we aren't actually selling the minimum amount (we are attempting to sell an amount less than it)
-    const quoteBuyAmountCryptoBaseUnit = isQuoteSellAmountBelowMinimum
-      ? '0'
-      : buyAmountCryptoBaseUnit
+      // Similarly, if isQuoteSellAmountBelowMinimum we can't use the buy amount from the quote
+      // because we aren't actually selling the minimum amount (we are attempting to sell an amount less than it)
+      const quoteBuyAmountCryptoBaseUnit = isQuoteSellAmountBelowMinimum
+        ? '0'
+        : buyAmountCryptoBaseUnit
 
-    return Ok({
-      rate,
-      minimumCryptoHuman: minimumAmountCryptoHuman,
-      maximumCryptoHuman: maximumAmountCryptoHuman,
-      feeData: {
-        networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
-        chainSpecific: {
-          estimatedGasCryptoBaseUnit: feeData.chainSpecific.gasLimit,
-          gasPriceCryptoBaseUnit: feeData.chainSpecific.gasPrice,
-          approvalFeeCryptoBaseUnit: bnOrZero(feeData.chainSpecific.gasLimit)
-            .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
-            .toString(),
+      return {
+        rate,
+        minimumCryptoHuman: minimumAmountCryptoHuman,
+        maximumCryptoHuman: maximumAmountCryptoHuman,
+        feeData: {
+          networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
+          chainSpecific: {
+            estimatedGasCryptoBaseUnit: feeData.chainSpecific.gasLimit,
+            gasPriceCryptoBaseUnit: feeData.chainSpecific.gasPrice,
+            approvalFeeCryptoBaseUnit: bnOrZero(feeData.chainSpecific.gasLimit)
+              .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
+              .toString(),
+          },
+          buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
+          sellAssetTradeFeeUsd,
         },
-        buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
-        sellAssetTradeFeeUsd,
-      },
-      sellAmountBeforeFeesCryptoBaseUnit: quoteSellAmountCryptoBaseUnit,
-      buyAmountCryptoBaseUnit: quoteBuyAmountCryptoBaseUnit,
-      sources: DEFAULT_SOURCE,
-      allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
-      buyAsset,
-      sellAsset,
-      accountNumber,
+        sellAmountBeforeFeesCryptoBaseUnit: quoteSellAmountCryptoBaseUnit,
+        buyAmountCryptoBaseUnit: quoteBuyAmountCryptoBaseUnit,
+        sources: DEFAULT_SOURCE,
+        allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
+        buyAsset,
+        sellAsset,
+        accountNumber,
+      }
     })
     // TODO(gomes): scrutinize what can throw above and don't throw, because monads
   } catch (e) {
+    // This should now be the only akschual error, and gonna monad it before opening this PR as well
     if (
       axios.isAxiosError(e) &&
       e.response?.status === 400 &&
@@ -214,14 +219,7 @@ export async function getCowSwapTradeQuote(
         }),
       )
     }
-    if (e instanceof SwapError)
-      return Err(
-        makeSwapErrorRight({
-          message: e.message,
-          code: e.code,
-          details: e.details,
-        }),
-      )
+    // This should never happen as all errors should be axios errors now but it may
     return Err(
       makeSwapErrorRight({
         message: '[getCowSwapTradeQuote]',

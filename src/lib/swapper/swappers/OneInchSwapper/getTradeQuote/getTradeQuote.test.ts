@@ -1,3 +1,4 @@
+import { Ok } from '@sniptt/monads/build'
 import axios from 'axios'
 
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
@@ -7,9 +8,10 @@ import { getTradeQuote } from './getTradeQuote'
 
 jest.mock('axios')
 const mockAxios = axios as jest.Mocked<typeof axios>
+const mockOk = Ok as jest.Mocked<typeof Ok>
 
 jest.mock('../getUsdRate/getUsdRate', () => ({
-  getUsdRate: () => '0.02000',
+  getUsdRate: () => mockOk('0.02000'),
 }))
 
 const fastGasPrice = '15000000000' // 15 gwei

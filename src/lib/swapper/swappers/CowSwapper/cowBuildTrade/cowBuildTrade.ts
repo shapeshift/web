@@ -5,7 +5,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import type { CowSwapQuoteResponse, CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 import {
@@ -47,17 +47,23 @@ export async function cowBuildTrade(
     )
 
     if (sellAssetNamespace !== 'erc20') {
-      throw new SwapError('[cowBuildTrade] - Sell asset needs to be ERC-20 to use CowSwap', {
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { sellAssetNamespace },
-      })
+      return Err(
+        makeSwapErrorRight({
+          message: '[cowBuildTrade] - Sell asset needs to be ERC-20 to use CowSwap',
+          code: SwapErrorType.UNSUPPORTED_PAIR,
+          details: { sellAssetNamespace },
+        }),
+      )
     }
 
     if (buyAssetChainId !== KnownChainIds.EthereumMainnet) {
-      throw new SwapError('[cowBuildTrade] - Buy asset needs to be on ETH mainnet to use CowSwap', {
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { buyAssetChainId },
-      })
+      return Err(
+        makeSwapErrorRight({
+          message: '[cowBuildTrade] - Buy asset needs to be on ETH mainnet to use CowSwap',
+          code: SwapErrorType.UNSUPPORTED_PAIR,
+          details: { buyAssetChainId },
+        }),
+      )
     }
 
     const buyToken =
@@ -101,7 +107,10 @@ export async function cowBuildTrade(
       },
     } = quoteResponse
 
-    const sellAssetUsdRate = await getUsdRate(deps, sellAsset)
+    const maybeSellAssetUsdRate = await getUsdRate(deps, sellAsset)
+    if (maybeSellAssetUsdRate.isErr()) return Err(maybeSellAssetUsdRate.unwrapErr())
+    const sellAssetUsdRate = maybeSellAssetUsdRate.unwrap()
+
     const sellAssetTradeFeeUsd = bnOrZero(feeAmountInSellTokenCryptoBaseUnit)
       .div(bn(10).exponentiatedBy(sellAsset.precision))
       .multipliedBy(bnOrZero(sellAssetUsdRate))
@@ -171,14 +180,6 @@ export async function cowBuildTrade(
 
     return Ok(trade)
   } catch (e) {
-    if (e instanceof SwapError)
-      return Err(
-        makeSwapErrorRight({
-          message: e.message,
-          code: e.code,
-          details: e.details,
-        }),
-      )
     return Err(
       makeSwapErrorRight({
         message: '[cowBuildTrade]',

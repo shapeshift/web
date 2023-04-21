@@ -160,9 +160,13 @@ describe('cowExecuteTrade', () => {
       wallet: {} as HDWallet,
     }
 
-    await expect(cowExecuteTrade(deps, tradeInput)).rejects.toThrow(
-      '[cowExecuteTrade] - Sell asset needs to be ERC-20 to use CowSwap',
-    )
+    expect((await cowExecuteTrade(deps, tradeInput)).unwrapErr()).toMatchObject({
+      cause: undefined,
+      code: 'UNSUPPORTED_PAIR',
+      details: { sellAssetNamespace: 'slip44' },
+      message: '[cowExecuteTrade] - Sell asset needs to be ERC-20 to use CowSwap',
+      name: 'SwapError',
+    })
   })
 
   it('should call cowService with correct parameters and return the order uid when selling WETH', async () => {

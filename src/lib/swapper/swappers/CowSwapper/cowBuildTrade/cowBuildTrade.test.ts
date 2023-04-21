@@ -2,6 +2,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { Ok } from '@sniptt/monads'
 import type Web3 from 'web3'
 
 import type { BuildTradeInput } from '../../../api'
@@ -15,6 +16,7 @@ import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { cowBuildTrade } from './cowBuildTrade'
 
+const mockOk = Ok as jest.MockedFunction<typeof Ok>
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mock('../utils/cowService')
 jest.mock('../utils/helpers/helpers', () => {
@@ -25,14 +27,14 @@ jest.mock('../utils/helpers/helpers', () => {
     getNowPlusThirtyMinutesTimestamp: () => 1656797787,
     getUsdRate: (_args: CowSwapperDeps, input: Asset) => {
       if (input.assetId === WETH.assetId || input.assetId === ETH.assetId) {
-        return Promise.resolve('1233.65940923824103061992')
+        return Promise.resolve(mockOk('1233.65940923824103061992'))
       }
 
       if (input.assetId === FOX.assetId) {
-        return Promise.resolve('0.0873')
+        return Promise.resolve(mockOk('0.0873'))
       }
 
-      return Promise.resolve('20978.38')
+      return Promise.resolve(mockOk('20978.38'))
     },
   }
 })

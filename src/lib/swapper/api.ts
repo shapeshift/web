@@ -301,7 +301,7 @@ export interface Swapper<T extends ChainId> {
   /**
    * Get the usd rate from either the assets symbol or tokenId
    */
-  getUsdRate(input: Asset): Promise<string>
+  getUsdRate(input: Asset): Promise<Result<string, SwapErrorRight>>
 
   /**
    * Execute a trade built with buildTrade by signing and broadcasting

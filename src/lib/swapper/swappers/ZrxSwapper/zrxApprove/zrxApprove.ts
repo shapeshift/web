@@ -13,12 +13,12 @@ const grantAllowanceForAmount = <T extends ZrxSupportedChainId>(
 ) => {
   const { accountNumber, allowanceContract, feeData, sellAsset } = quote
 
-  return grantAllowance<T>({
+  return grantAllowance({
     accountNumber,
     spender: allowanceContract,
-    feeData,
+    feeData: feeData.chainSpecific,
     approvalAmount,
-    erc20ContractAddress: fromAssetId(sellAsset.assetId).assetReference,
+    to: fromAssetId(sellAsset.assetId).assetReference,
     wallet,
     adapter,
     web3,

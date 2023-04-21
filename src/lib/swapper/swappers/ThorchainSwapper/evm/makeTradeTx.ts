@@ -10,7 +10,7 @@ import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/g
 import type { ThorEvmSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
 
-import { getFees } from '../../utils/helpers/helpers'
+import { getFeesFromFeeData } from '../../utils/helpers/helpers'
 
 type MakeTradeTxArgs<T extends EvmChainId> = {
   wallet: HDWallet
@@ -71,7 +71,7 @@ export const makeTradeTx = async ({
         to: router,
         value: isErc20Trade ? '0' : sellAmountCryptoBaseUnit,
         data,
-        ...(await getFees({ wallet, feeData })),
+        ...(await getFeesFromFeeData({ wallet, feeData: feeData.chainSpecific })),
       }),
     )
   } catch (e) {

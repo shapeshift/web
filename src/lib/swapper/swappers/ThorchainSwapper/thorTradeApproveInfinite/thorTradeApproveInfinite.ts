@@ -25,12 +25,12 @@ export const thorTradeApproveInfinite = ({
     )
   }
 
-  return grantAllowance<KnownChainIds.EthereumMainnet>({
+  return grantAllowance({
     accountNumber: quote.accountNumber,
     spender: quote.allowanceContract,
-    feeData: quote.feeData,
+    feeData: quote.feeData.chainSpecific,
     approvalAmount: MAX_ALLOWANCE,
-    erc20ContractAddress: fromAssetId(quote.sellAsset.assetId).assetReference,
+    to: fromAssetId(quote.sellAsset.assetId).assetReference,
     wallet,
     adapter,
     web3,

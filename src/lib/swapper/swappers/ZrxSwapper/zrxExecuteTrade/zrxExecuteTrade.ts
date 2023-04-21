@@ -17,7 +17,7 @@ export async function zrxExecuteTrade<T extends ZrxSupportedChainId>(
     const txid = await buildAndBroadcast({
       accountNumber,
       adapter,
-      feeData,
+      feeData: feeData.chainSpecific,
       to: depositAddress,
       value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountBeforeFeesCryptoBaseUnit : '0',
       wallet,

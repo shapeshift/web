@@ -11,11 +11,11 @@ export function cowApproveInfinite(
 ): Promise<string> {
   const { accountNumber, allowanceContract, feeData, sellAsset } = quote
 
-  return grantAllowance<KnownChainIds.EthereumMainnet>({
+  return grantAllowance({
     accountNumber,
     approvalAmount: MAX_ALLOWANCE,
-    erc20ContractAddress: fromAssetId(sellAsset.assetId).assetReference,
-    feeData,
+    to: fromAssetId(sellAsset.assetId).assetReference,
+    feeData: feeData.chainSpecific,
     spender: allowanceContract,
     wallet,
     adapter,
@@ -29,11 +29,11 @@ export function cowApproveAmount(
 ) {
   const { accountNumber, allowanceContract, feeData, sellAsset } = quote
 
-  return grantAllowance<KnownChainIds.EthereumMainnet>({
+  return grantAllowance({
     accountNumber,
     approvalAmount: amount ?? quote.sellAmountBeforeFeesCryptoBaseUnit,
-    erc20ContractAddress: fromAssetId(sellAsset.assetId).assetReference,
-    feeData,
+    to: fromAssetId(sellAsset.assetId).assetReference,
+    feeData: feeData.chainSpecific,
     spender: allowanceContract,
     wallet,
     adapter,

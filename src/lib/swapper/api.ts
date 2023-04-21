@@ -34,7 +34,7 @@ export const makeSwapErrorRight = ({
   code,
 })
 
-type EvmFeeData = {
+export type EvmFeeData = {
   estimatedGasCryptoBaseUnit?: string
   gasPriceCryptoBaseUnit?: string
   approvalFeeCryptoBaseUnit?: string
@@ -43,12 +43,12 @@ type EvmFeeData = {
   maxPriorityFeePerGas?: string
 }
 
-type UtxoFeeData = {
+export type UtxoFeeData = {
   byteCount: string
   satsPerByte: string
 }
 
-type CosmosSdkFeeData = {
+export type CosmosSdkFeeData = {
   estimatedGasCryptoBaseUnit: string
 }
 

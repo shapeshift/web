@@ -39,9 +39,9 @@ const grantAllowanceForAmount = (
   return grantAllowance({
     accountNumber,
     spender: allowanceContract,
-    feeData,
+    feeData: feeData.chainSpecific,
     approvalAmount: approvalAmountCryptoBaseUnit,
-    erc20ContractAddress: fromAssetId(sellAsset.assetId).assetReference,
+    to: fromAssetId(sellAsset.assetId).assetReference,
     wallet,
     adapter,
     web3,

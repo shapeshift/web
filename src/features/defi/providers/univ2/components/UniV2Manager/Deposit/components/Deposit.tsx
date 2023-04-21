@@ -73,7 +73,7 @@ export const Deposit: React.FC<DepositProps> = ({
   })
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
-  const { asset0Allowance, asset1Allowance, getApproveFeeData: getApproveGasData, getDepositFeeData: getDepositGasDataCryptoBaseUnit } =
+  const { asset0Allowance, asset1Allowance, getApproveFeeData, getDepositFeeData } =
     useUniV2LiquidityPool({
       accountId: accountId ?? '',
       lpAssetId,
@@ -118,7 +118,7 @@ export const Deposit: React.FC<DepositProps> = ({
     if (!feeAsset) return
     const { cryptoAmount0: token0Amount, cryptoAmount1: token1Amount } = deposit
     try {
-      const gasData = await getDepositGasDataCryptoBaseUnit({
+      const gasData = await getDepositFeeData({
         token0Amount,
         token1Amount,
       })
@@ -202,9 +202,9 @@ export const Deposit: React.FC<DepositProps> = ({
         // this is not necesssarly true. Some ERC-20s approve() might have a bit more logic, and thus require more gas.
         // e.g https://github.com/Uniswap/governance/blob/eabd8c71ad01f61fb54ed6945162021ee419998e/contracts/Uni.sol#L119
         const asset0EstimatedGasCrypto =
-          assetId0 !== ethAssetId && (await getApproveGasData(asset0ContractAddress!))
+          assetId0 !== ethAssetId && (await getApproveFeeData(asset0ContractAddress!))
         const asset1EstimatedGasCrypto =
-          assetId1 !== ethAssetId && (await getApproveGasData(asset1ContractAddress!))
+          assetId1 !== ethAssetId && (await getApproveFeeData(asset1ContractAddress!))
         if (!(asset0EstimatedGasCrypto || asset1EstimatedGasCrypto)) return
 
         if (!isAsset0AllowanceGranted && asset0EstimatedGasCrypto) {

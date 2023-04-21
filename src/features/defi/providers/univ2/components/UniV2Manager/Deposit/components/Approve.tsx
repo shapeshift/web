@@ -113,7 +113,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     isApprove0Needed && asset0ContractAddress,
     isApprove1Needed && asset1ContractAddress,
   ].filter(Boolean)
-  const { approveAsset, asset0Allowance, asset1Allowance, getDepositFeeData: getDepositGasDataCryptoBaseUnit } =
+  const { approveAsset, asset0Allowance, asset1Allowance, getDepositFeeData } =
     useUniV2LiquidityPool({
       accountId: accountId ?? '',
       lpAssetId,
@@ -242,7 +242,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       if (!(isApprove0Needed || isApprove1Needed)) return
       if (isAsset0AllowanceGranted && isAsset1AllowanceGranted) {
         // Get deposit gas estimate
-        const gasData = await getDepositGasDataCryptoBaseUnit({
+        const gasData = await getDepositFeeData({
           token0Amount: state.deposit.asset0CryptoAmount,
           token1Amount: state.deposit.asset1CryptoAmount,
         })
@@ -290,7 +290,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     assets,
     dispatch,
     feeAsset.precision,
-    getDepositGasDataCryptoBaseUnit,
+    getDepositFeeData,
     isApprove0Needed,
     isApprove1Needed,
     isAsset0AllowanceGranted,

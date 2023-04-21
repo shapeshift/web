@@ -70,7 +70,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
-  const { getUnstakeGasData, allowance, getApproveGasData } = useFoxFarming(contractAddress)
+  const { getUnstakeFeeData, allowance, getApproveFeeData } = useFoxFarming(contractAddress)
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
 
@@ -108,7 +108,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
 
   const getWithdrawGasEstimate = async () => {
     try {
-      const fee = await getUnstakeGasData(amountAvailableCryptoPrecision.toFixed(), true)
+      const fee = await getUnstakeFeeData(amountAvailableCryptoPrecision.toFixed(), true)
       if (!fee) return
       return bnOrZero(fee.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
     } catch (error) {
@@ -162,7 +162,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
         assets,
       )
     } else {
-      const estimatedGasCrypto = await getApproveGasData()
+      const estimatedGasCrypto = await getApproveFeeData()
       if (!estimatedGasCrypto) return
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_APPROVE,

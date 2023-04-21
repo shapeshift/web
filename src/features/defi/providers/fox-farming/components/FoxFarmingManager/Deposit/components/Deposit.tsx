@@ -95,8 +95,8 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const {
     allowance: foxFarmingAllowance,
-    getStakeGasData,
-    getApproveGasData,
+    getStakeFeeData,
+    getApproveFeeData,
   } = useFoxFarming(contractAddress)
 
   const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
@@ -132,7 +132,7 @@ export const Deposit: React.FC<DepositProps> = ({
       ): Promise<string | undefined> => {
         if (!assetReference) return
         try {
-          const gasData = await getStakeGasData(deposit.cryptoAmount)
+          const gasData = await getStakeFeeData(deposit.cryptoAmount)
           if (!gasData) return
           return bnOrZero(gasData.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
         } catch (error) {
@@ -180,7 +180,7 @@ export const Deposit: React.FC<DepositProps> = ({
             assets,
           )
         } else {
-          const estimatedGasCryptoBaseUnit = await getApproveGasData()
+          const estimatedGasCryptoBaseUnit = await getApproveFeeData()
           if (!estimatedGasCryptoBaseUnit) return
           dispatch({
             type: FoxFarmingDepositActionType.SET_APPROVE,
@@ -210,14 +210,14 @@ export const Deposit: React.FC<DepositProps> = ({
       feeAsset,
       foxFarmingOpportunity,
       assetReference,
-      getStakeGasData,
+      getStakeFeeData,
       toast,
       translate,
       asset,
       foxFarmingAllowance,
       onNext,
       assets,
-      getApproveGasData,
+      getApproveFeeData,
     ],
   )
 

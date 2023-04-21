@@ -29,7 +29,13 @@ const AccountHeader = () => {
   const { open } = addAccount
 
   return (
-    <Stack direction='row' justifyContent='space-between' alignItems='center' pb={6}>
+    <Stack
+      px={{ base: 4, md: 0 }}
+      direction='row'
+      justifyContent='space-between'
+      alignItems='center'
+      pb={6}
+    >
       <SEO title={translate('accounts.accounts')} />
       <Heading fontSize='xl'>
         <Text translation='accounts.accounts' />

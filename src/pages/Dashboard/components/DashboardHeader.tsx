@@ -151,12 +151,14 @@ export const DashboardHeader = () => {
         pb={4}
         alignItems='center'
         justifyContent='space-between'
-        gap={{ base: 2, md: 6 }}
+        gap={{ base: 4, md: 6 }}
         flexDir={{ base: 'column', md: 'row' }}
       >
-        <Flex alignItems='center' gap={4}>
-          {walletId && <LazyLoadAvatar borderRadius='xl' size='xl' src={walletImage} />}
-          <Flex flexDir='column'>
+        <Flex alignItems='center' flexDir={{ base: 'column', md: 'row' }} gap={4}>
+          {walletId && (
+            <LazyLoadAvatar borderRadius='xl' size={{ base: 'md', md: 'xl' }} src={walletImage} />
+          )}
+          <Flex flexDir='column' alignItems={{ base: 'center', md: 'flex-start' }}>
             <Text fontWeight='semibold' translation='defi.netWorth' color='gray.500' />
             <Skeleton isLoaded={!loading}>
               <Amount.Fiat lineHeight='shorter' value={netWorth} fontSize='4xl' fontWeight='bold' />

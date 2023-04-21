@@ -89,3 +89,25 @@ export const initialState: Portfolio = {
     ids: [],
   },
 }
+
+export enum AssetEquityType {
+  Account = 'Account',
+  Staking = 'Staking',
+  LP = 'LP',
+  Reward = 'Reward',
+}
+
+export type AssetEquityItem = {
+  id: string
+  type: AssetEquityType
+  fiatAmount: string
+  amountCryptoPrecision: string
+  provider: string
+  color?: string
+  underlyingAssetId?: AssetId
+}
+
+export type AssetEquityBalance = {
+  fiatAmount: string
+  amountCryptoPrecision: string
+}

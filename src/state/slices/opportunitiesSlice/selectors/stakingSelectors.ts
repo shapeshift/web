@@ -46,10 +46,12 @@ import type {
 import {
   deserializeUserStakingId,
   filterUserStakingIdByStakingIdCompareFn,
+  getOpportunityAccessor,
   isActiveStakingEarnOpportunity,
   isActiveStakingOpportunity,
   isFoxEthStakingAssetId,
   makeOpportunityIcons,
+  serializeUserStakingId,
   supportsUndelegations,
 } from '../utils'
 
@@ -664,5 +666,56 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
           : undefined
       })
       .filter(isSome)
+  },
+)
+
+export const selectAllEarnUserStakingOpportunitiesByFilter = createDeepEqualOutputSelector(
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  selectUserStakingOpportunitiesById,
+  selectAssets,
+  selectMarketDataSortedByMarketCap,
+  selectAssetIdParamFromFilter,
+  selectAccountIdParamFromFilter,
+  (
+    aggregatedUserStakingOpportunities,
+    userStakingOpportunitiesById,
+    assets,
+    marketData,
+    assetId,
+    accountId,
+  ): StakingEarnOpportunityType[] => {
+    const opportunities: StakingEarnOpportunityType[] = []
+    for (const userStakingOpportunity of aggregatedUserStakingOpportunities) {
+      const depositKey = getOpportunityAccessor({
+        provider: userStakingOpportunity.provider,
+        type: userStakingOpportunity.type,
+      })
+      const underlyingAssetIds = [userStakingOpportunity[depositKey]].flat()
+      if (underlyingAssetIds && assetId && underlyingAssetIds.includes(assetId)) {
+        let opportunityBalance = userStakingOpportunity.stakedAmountCryptoBaseUnit
+
+        if (accountId) {
+          const userStakingId = serializeUserStakingId(accountId, userStakingOpportunity.id)
+          const userOpportunity = userStakingOpportunitiesById[userStakingId]
+          opportunityBalance = userOpportunity?.stakedAmountCryptoBaseUnit ?? '0'
+        }
+
+        const asset = assets[userStakingOpportunity.assetId]
+        const underlyingAsset = assets[userStakingOpportunity.underlyingAssetId]
+        const marketDataPrice = marketData[asset?.assetId ?? underlyingAsset?.assetId ?? '']?.price
+        const opportunity = {
+          ...userStakingOpportunity,
+          stakedAmountCryptoBaseUnit: opportunityBalance,
+          fiatAmount: bnOrZero(opportunityBalance)
+            .div(bn(10).pow(bnOrZero(asset?.precision ?? underlyingAsset?.precision)))
+            .times(marketDataPrice ?? '0')
+            .toString(),
+        }
+        if (bnOrZero(opportunityBalance).gt(0)) {
+          opportunities.push(opportunity)
+        }
+      }
+    }
+    return opportunities
   },
 )

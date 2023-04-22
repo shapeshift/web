@@ -32,7 +32,9 @@ jest.mock('../utils/zrxService')
 const mockOk = Ok as jest.MockedFunction<typeof Ok>
 describe('getZrxTradeQuote', () => {
   const sellAmount = '1000000000000000000'
-  ;(getUsdRate as jest.Mock<Result<string, SwapErrorRight>>).mockReturnValue(mockOk('1'))
+  ;(getUsdRate as jest.Mock<Promise<Result<string, SwapErrorRight>>>).mockReturnValue(
+    Promise.resolve(mockOk('1')),
+  )
   ;(normalizeAmount as jest.Mock<string>).mockReturnValue(sellAmount)
   ;(baseUrlFromChainId as jest.Mock<Result<string, SwapErrorRight>>).mockReturnValue(
     mockOk('https://api.0x.org/'),

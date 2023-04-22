@@ -123,13 +123,13 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
   const buyAssetChainFeeAssetId = buyAdapter.getFeeAssetId()
 
-  const maybeBuyFeeAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAssetChainFeeAssetId)
-  if (maybeBuyFeeAssetUsdRate.isErr()) return Err(maybeBuyFeeAssetUsdRate.unwrapErr())
-  const buyFeeAssetUsdRate = maybeBuyFeeAssetUsdRate.unwrap()
-
   const maybeSellAssetUsdRate = await getUsdRate(deps.daemonUrl, sellAsset.assetId)
   if (maybeSellAssetUsdRate.isErr()) return Err(maybeSellAssetUsdRate.unwrapErr())
   const sellAssetUsdRate = maybeSellAssetUsdRate.unwrap()
+
+  const maybeBuyFeeAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAssetChainFeeAssetId)
+  if (maybeBuyFeeAssetUsdRate.isErr()) return Err(maybeBuyFeeAssetUsdRate.unwrapErr())
+  const buyFeeAssetUsdRate = maybeBuyFeeAssetUsdRate.unwrap()
 
   const buyAssetTradeFeeUsd = bn(buyFeeAssetUsdRate)
     .times(estimatedBuyAssetTradeFeeFeeAssetCryptoHuman)

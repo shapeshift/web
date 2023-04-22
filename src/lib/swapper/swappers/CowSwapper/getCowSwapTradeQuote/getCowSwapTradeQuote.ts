@@ -2,8 +2,7 @@ import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
-import type { AxiosError, AxiosResponse } from 'axios'
-import axios from 'axios'
+import type { AxiosResponse } from 'axios'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
@@ -202,29 +201,19 @@ export async function getCowSwapTradeQuote(
         accountNumber,
       }
     })
-    // TODO(gomes): scrutinize what can throw above and don't throw, because monads
   } catch (e) {
     // This should now be the only akschual error, and gonna monad it before opening this PR as well
-    if (
-      axios.isAxiosError(e) &&
-      e.response?.status === 400 &&
-      (e as AxiosError<{ errorType: string }>).response?.data.errorType ===
-        'SellAmountDoesNotCoverFee'
-    ) {
-      return Err(
-        makeSwapErrorRight({
-          message: '[getCowSwapTradeQuote]',
-          cause: e,
-          code: SwapErrorType.TRADE_QUOTE_INPUT_LOWER_THAN_FEES,
-        }),
-      )
-    }
-    // This should never happen as all errors should be axios errors now but it may
+    // if (
+    // axios.isAxiosError(e) &&
+    // e.response?.status === 400 &&
+    // (e as AxiosError<{ errorType: string }>).response?.data.errorType ===
+    // 'SellAmountDoesNotCoverFee'
+    // )
     return Err(
       makeSwapErrorRight({
         message: '[getCowSwapTradeQuote]',
         cause: e,
-        code: SwapErrorType.TRADE_QUOTE_FAILED,
+        code: SwapErrorType.TRADE_QUOTE_INPUT_LOWER_THAN_FEES,
       }),
     )
   }

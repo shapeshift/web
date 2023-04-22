@@ -75,13 +75,13 @@ export const getLimit = async ({
     )
   }
 
-  const maybeBuyAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAssetId)
-  if (maybeBuyAssetUsdRate.isErr()) return Err(maybeBuyAssetUsdRate.unwrapErr())
-  const buyAssetUsdRate = maybeBuyAssetUsdRate.unwrap()
-
   const maybeSellFeeAssetUsdRate = await getUsdRate(deps.daemonUrl, sellAssetChainFeeAssetId)
   if (maybeSellFeeAssetUsdRate.isErr()) return Err(maybeSellFeeAssetUsdRate.unwrapErr())
   const sellFeeAssetUsdRate = maybeSellFeeAssetUsdRate.unwrap()
+
+  const maybeBuyAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAssetId)
+  if (maybeBuyAssetUsdRate.isErr()) return Err(maybeBuyAssetUsdRate.unwrapErr())
+  const buyAssetUsdRate = maybeBuyAssetUsdRate.unwrap()
 
   const expectedBuyAmountCryptoPrecision8 = toBaseUnit(
     fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit).times(tradeRate), sellAsset.precision),

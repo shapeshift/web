@@ -264,6 +264,12 @@ export class FoxyApi {
         },
       })
 
+      const {
+        chainSpecific: { gasLimit: gasLimitBase },
+      } = estimatedFees.fast
+      const safeGasLimit = bnOrZero(gasLimitBase).times('1.05').toFixed(0)
+      estimatedFees.fast.chainSpecific.gasLimit = safeGasLimit
+
       return estimatedFees
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
@@ -288,6 +294,13 @@ export class FoxyApi {
           from: userAddress,
         },
       })
+
+      const {
+        chainSpecific: { gasLimit: gasLimitBase },
+      } = estimatedFees.fast
+      const safeGasLimit = bnOrZero(gasLimitBase).times('1.05').toFixed(0)
+      estimatedFees.fast.chainSpecific.gasLimit = safeGasLimit
+
       return estimatedFees
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
@@ -315,6 +328,13 @@ export class FoxyApi {
           from: userAddress,
         },
       })
+
+      const {
+        chainSpecific: { gasLimit: gasLimitBase },
+      } = estimatedFees.fast
+      const safeGasLimit = bnOrZero(gasLimitBase).times('1.05').toFixed(0)
+      estimatedFees.fast.chainSpecific.gasLimit = safeGasLimit
+
       return estimatedFees
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
@@ -343,6 +363,13 @@ export class FoxyApi {
           from: userAddress,
         },
       })
+
+      const {
+        chainSpecific: { gasLimit: gasLimitBase },
+      } = estimatedFees.fast
+      const safeGasLimit = bnOrZero(gasLimitBase).times('1.05').toFixed(0)
+      estimatedFees.fast.chainSpecific.gasLimit = safeGasLimit
+
       return estimatedFees
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
@@ -376,6 +403,13 @@ export class FoxyApi {
           from: userAddress,
         },
       })
+
+      const {
+        chainSpecific: { gasLimit: gasLimitBase },
+      } = estimatedFees.fast
+      const safeGasLimit = bnOrZero(gasLimitBase).times('1.05').toFixed(0)
+      estimatedFees.fast.chainSpecific.gasLimit = safeGasLimit
+
       return estimatedFees
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
@@ -403,6 +437,12 @@ export class FoxyApi {
           from: userAddress,
         },
       })
+
+      const {
+        chainSpecific: { gasLimit: gasLimitBase },
+      } = estimatedFees.fast
+      const safeGasLimit = bnOrZero(gasLimitBase).times('1.05').toFixed(0)
+      estimatedFees.fast.chainSpecific.gasLimit = safeGasLimit
 
       return estimatedFees
     } catch (e) {
@@ -432,6 +472,12 @@ export class FoxyApi {
           from: userAddress,
         },
       })
+
+      const {
+        chainSpecific: { gasLimit: gasLimitBase },
+      } = estimatedFees.fast
+      const safeGasLimit = bnOrZero(gasLimitBase).times('1.05').toFixed(0)
+      estimatedFees.fast.chainSpecific.gasLimit = safeGasLimit
 
       return estimatedFees
     } catch (e) {

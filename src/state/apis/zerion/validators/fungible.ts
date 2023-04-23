@@ -69,18 +69,19 @@ const RelationshipsSchema = z.object({
   chart_year: ChartSchema,
 })
 
+const LinksSchema = z.object({
+  self: z.string(),
+})
+
 const DataSchema = z.array(
   z.object({
     type: z.string(),
     id: z.string(),
     attributes: AttributesSchema,
     relationships: RelationshipsSchema,
+    links: LinksSchema.optional(),
   }),
 )
-
-const LinksSchema = z.object({
-  self: z.string(),
-})
 
 export const zerionFungiblesSchema = z.object({
   links: LinksSchema,

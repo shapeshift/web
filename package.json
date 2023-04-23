@@ -115,7 +115,6 @@
     "@walletconnect/web3-provider": "^1.8.0",
     "@walletconnect/web3wallet": "^1.2.0",
     "@wherever/react-notification-feed": "^0.3.16",
-    "@zodios/core": "^10.8.0",
     "allsettled-polyfill": "^1.0.4",
     "axios": "^0.26.1",
     "axios-cache-adapter": "^2.7.3",

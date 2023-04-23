@@ -99,8 +99,6 @@ export const zapperApi = createApi({
         if (zapperV2AppTokensData.success) {
           const parsedData = zapperV2AppTokensData.data.reduce<GetZapperAppBalancesOutput>(
             (acc, appTokenData) => {
-              // This will never happen in this particular case because zodios will fail if e.g appTokenData.network is undefined
-              // But zapperNetworkToChainId returns ChainId | undefined, as we may be calling it with invalid, casted "valid network"
               const chainId = zapperNetworkToChainId(appTokenData.network)
               if (!chainId) return acc
               const assetId = toAssetId({

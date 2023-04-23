@@ -6353,7 +6353,6 @@ __metadata:
     "@walletconnect/web3wallet": ^1.2.0
     "@welldone-software/why-did-you-render": ^7.0.1
     "@wherever/react-notification-feed": ^0.3.16
-    "@zodios/core": ^10.8.0
     allsettled-polyfill: ^1.0.4
     assert: ^2.0.0
     axios: ^0.26.1
@@ -9519,16 +9518,6 @@ __metadata:
   version: 0.1.0
   resolution: "@zag-js/focus-visible@npm:0.1.0"
   checksum: d3ff93ff696a9287731f3b3f3d5d734b697576ec626eb683252f074baeca46770f931ddb52c8cf08854a6a3c422182a3aaf588c30736b7f26fb3f1e9d6e35ef5
-  languageName: node
-  linkType: hard
-
-"@zodios/core@npm:^10.8.0":
-  version: 10.8.0
-  resolution: "@zodios/core@npm:10.8.0"
-  peerDependencies:
-    axios: ^0.x || ^1.0.0
-    zod: ^3.x
-  checksum: 071fba4d3d1f0082a414e13f84ca754cf5b60c0ddebd0845865c70328c7aee055fe623462dd1ae11342e3acb8849eb6d089de3571c1d6421a4d358f2c223d61f
   languageName: node
   linkType: hard
 

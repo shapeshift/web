@@ -482,8 +482,32 @@ const ZapperDataPropsSchema = z.object({
   liquidity: z.number(),
 })
 
-// TODO: no any - we have to retype this at type-level because recursion loses types
-const ZapperTokenBaseSchema: Type<any> = z.intersection(
+// Redeclared as a type since we lose type inference on the type below because of z.lazy() recursion
+type ZapperTokenBase = {
+  type: 'base-token' | 'app-token'
+  network: SupportedZapperNetwork
+  address: string
+  decimals: number
+  symbol: string
+  price: number
+} & {
+  key?: string
+  type?: string
+  appId?: ZapperAppId
+  groupId?: string
+  network?: SupportedZapperNetwork
+  address?: string
+  price?: number
+  supply?: number
+  symbol?: string
+  decimals?: number
+  dataProps?: Infer<typeof ZapperDataPropsSchema>
+  displayProps?: Infer<typeof ZapperDisplayPropsSchema>
+  pricePerShare?: (string | number)[]
+  tokens?: ZapperTokenBase[]
+}
+
+const ZapperTokenBaseSchema: Type<ZapperTokenBase> = z.intersection(
   z.object({
     type: z.literals('base-token', 'app-token'),
     network: SupportedZapperNetworks,

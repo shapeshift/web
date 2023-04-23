@@ -113,7 +113,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
         payload: {
           txStatus: transactionReceipt.status ? 'success' : 'failed',
           usedGasFeeCryptoBaseUnit: bnOrZero(
-            bn(gasPrice).times(transactionReceipt.gasUsed),
+            bn(gasPrice).times(transactionReceipt.gasUsed.toString()),
           ).toFixed(0),
         },
       })

@@ -1,6 +1,6 @@
-import type { AbiItem } from 'web3-utils'
+import type { ContractInterface } from 'ethers/lib/ethers'
 
-export const foxyAbi: AbiItem[] = [
+export const foxyAbi: ContractInterface = [
   {
     inputs: [],
     stateMutability: 'nonpayable',

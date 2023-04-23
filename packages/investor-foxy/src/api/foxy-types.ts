@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params, WithdrawType } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
-import type { Contract } from 'web3-eth-contract'
+import type ethers from 'ethers'
 
 export type FoxyAddressesType = {
   staking: string
@@ -149,7 +149,7 @@ export type RebaseHistory = {
 }
 
 export type StakingContract = {
-  stakingContract: Contract
+  stakingContract: ethers.ethers.Contract
 }
 
 // this comment only exists to publish this package - delete me if you see me

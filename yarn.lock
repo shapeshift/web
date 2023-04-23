@@ -4180,7 +4180,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/providers@npm:5.7.2, @ethersproject/providers@npm:^5.5.3":
+"@ethersproject/providers@npm:5.7.2, @ethersproject/providers@npm:^5.5.3, @ethersproject/providers@npm:^5.7.2":
   version: 5.7.2
   resolution: "@ethersproject/providers@npm:5.7.2"
   dependencies:
@@ -6140,12 +6140,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/investor-foxy@workspace:packages/investor-foxy"
   dependencies:
-    "@ethersproject/providers": ^5.5.3
+    "@ethersproject/providers": ^5.7.2
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/logger": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@types/readline-sync": ^1.4.4
+    ethers: ^5.7.2
     readline-sync: ^1.4.10
     web3-core: 1.7.4
     web3-utils: 1.7.4

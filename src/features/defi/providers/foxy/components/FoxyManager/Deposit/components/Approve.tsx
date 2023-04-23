@@ -68,17 +68,18 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     async (deposit: DepositValues) => {
       if (!accountAddress || !assetReference || !foxyApi) return
       try {
-        const [gasLimit, gasPrice] = await Promise.all([
-          foxyApi.estimateDepositGas({
-            tokenContractAddress: assetReference,
-            contractAddress,
-            amountDesired: bnOrZero(deposit.cryptoAmount)
-              .times(bn(10).pow(asset.precision))
-              .decimalPlaces(0),
-            userAddress: accountAddress,
-          }),
-          foxyApi.getGasPrice(),
-        ])
+        const feeDataEstimate = await foxyApi.estimateDepositGas({
+          tokenContractAddress: assetReference,
+          contractAddress,
+          amountDesired: bnOrZero(deposit.cryptoAmount)
+            .times(bn(10).pow(asset.precision))
+            .decimalPlaces(0),
+          userAddress: accountAddress,
+        })
+
+        const {
+          chainSpecific: { gasPrice, gasLimit },
+        } = feeDataEstimate.fast
         return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
       } catch (error) {
         moduleLogger.error(

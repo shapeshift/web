@@ -69,14 +69,16 @@ export const Deposit: React.FC<DepositProps> = ({
       const getApproveGasEstimate = async () => {
         if (!accountAddress || !assetReference || !foxyApi) return
         try {
-          const [gasLimit, gasPrice] = await Promise.all([
-            foxyApi.estimateApproveGas({
-              tokenContractAddress: assetReference,
-              contractAddress,
-              userAddress: accountAddress,
-            }),
-            foxyApi.getGasPrice(),
-          ])
+          const feeDataEstimate = await foxyApi.estimateApproveGas({
+            tokenContractAddress: assetReference,
+            contractAddress,
+            userAddress: accountAddress,
+          })
+
+          const {
+            chainSpecific: { gasPrice, gasLimit },
+          } = feeDataEstimate.fast
+
           return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
         } catch (error) {
           moduleLogger.error(
@@ -95,17 +97,19 @@ export const Deposit: React.FC<DepositProps> = ({
       const getDepositGasEstimateCryptoBaseUnit = async (deposit: DepositValues) => {
         if (!accountAddress || !assetReference || !foxyApi) return
         try {
-          const [gasLimit, gasPrice] = await Promise.all([
-            foxyApi.estimateDepositGas({
-              tokenContractAddress: assetReference,
-              contractAddress,
-              amountDesired: bnOrZero(deposit.cryptoAmount)
-                .times(`1e+${asset.precision}`)
-                .decimalPlaces(0),
-              userAddress: accountAddress,
-            }),
-            foxyApi.getGasPrice(),
-          ])
+          const feeDataEstimate = await foxyApi.estimateDepositGas({
+            tokenContractAddress: assetReference,
+            contractAddress,
+            amountDesired: bnOrZero(deposit.cryptoAmount)
+              .times(`1e+${asset.precision}`)
+              .decimalPlaces(0),
+            userAddress: accountAddress,
+          })
+
+          const {
+            chainSpecific: { gasPrice, gasLimit },
+          } = feeDataEstimate.fast
+
           return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
         } catch (error) {
           moduleLogger.error(

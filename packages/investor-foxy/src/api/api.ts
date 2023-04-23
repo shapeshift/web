@@ -422,7 +422,6 @@ export class FoxyApi {
     try {
       const data = stakingContract.interface.encodeFunctionData('stake(uint256)', [
         this.normalizeAmount(amountDesired),
-        userAddress,
       ])
 
       const estimatedFees = await this.adapter.getFeeData({

@@ -1,5 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
+  ASSET_REFERENCE,
   cosmosAssetId,
   cosmosChainId,
   ethChainId,
@@ -18,11 +19,21 @@ import type {
 } from '../state/slices/opportunitiesSlice/types'
 import { opportunityIdToChainId } from '../state/slices/opportunitiesSlice/utils'
 import {
+  assertIsDefined,
   deepUpsertArray,
   hashCode,
+  isFulfilled,
+  isNonEmpty,
+  isOsmosisLpAsset,
+  isRejected,
+  isSome,
+  isToken,
+  isUrl,
   isValidAccountNumber,
   partitionCompare,
   partitionCompareWith,
+  sha256,
+  tokenOrUndefined,
   upsertArray,
 } from './utils'
 
@@ -228,6 +239,166 @@ describe('lib/utils', () => {
       const result = hashCode(str)
       const expected = hashCode(str)
       expect(result).toEqual(expected)
+    })
+  })
+
+  describe('isOsmosisLpAsset', () => {
+    it('should return true for osmosis lp asset', () => {
+      const assetReference = 'gamm/pool/1'
+      expect(isOsmosisLpAsset(assetReference)).toBe(true)
+    })
+  })
+  describe('isToken', () => {
+    it('should return false for non-token', () => {
+      const atomOsmoAssetReference = 'gamm/pool/1'
+      expect(isToken(atomOsmoAssetReference)).toBe(false)
+      const ethAssetReference = ASSET_REFERENCE.Ethereum
+      expect(isToken(ethAssetReference)).toBe(false)
+    })
+    it('should return true for token', () => {
+      expect(isToken('0x470e8de2ebaef52014a47cb5e6af86884947f08c')).toBe(true)
+    })
+  })
+  describe('tokenOrUndefined', () => {
+    it('should return undefined for non-token', () => {
+      const assetReference = 'gamm/pool/1'
+      expect(tokenOrUndefined(assetReference)).toBeUndefined()
+    })
+    it('should return token for token', () => {
+      const assetReference = '0x470e8de2ebaef52014a47cb5e6af86884947f08c'
+      expect(tokenOrUndefined(assetReference)).toBe(assetReference)
+    })
+  })
+
+  describe('isSome', () => {
+    it('should return true for some', () => {
+      expect(isSome(1)).toBe(true)
+    })
+    it('should return false for none', () => {
+      expect(isSome(null)).toBe(false)
+      expect(isSome(undefined)).toBe(false)
+    })
+  })
+
+  describe('isFulfilled', () => {
+    const fulfilledResult = Promise.resolve('fulfilled')
+    const rejectedResult = Promise.reject('rejected')
+
+    it('should return true for fulfilled', async () => {
+      const results = await Promise.allSettled([fulfilledResult, rejectedResult])
+      expect(isFulfilled(results[0])).toBe(true)
+    })
+    it('should return false for rejected', async () => {
+      const results = await Promise.allSettled([fulfilledResult, rejectedResult])
+      expect(isFulfilled(results[1])).toBe(false)
+    })
+  })
+
+  describe('isRejected', () => {
+    it('correctly identifies rejected promises', async () => {
+      const fulfilledResult = Promise.resolve('fulfilled')
+      const rejectedResult = Promise.reject('rejected')
+
+      const results = await Promise.allSettled([fulfilledResult, rejectedResult])
+
+      expect(isRejected(results[0])).toBe(false)
+      expect(isRejected(results[1])).toBe(true)
+    })
+  })
+
+  describe('sha256', () => {
+    it('returns the correct sha256 hash for a given input', () => {
+      const input = 'Hello, World!'
+      const expectedHash = 'dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f'
+
+      expect(sha256(input)).toEqual(expectedHash)
+    })
+
+    it('returns a different hash for an incorrect input', () => {
+      const input = 'Hello, World!'
+      const incorrectInput = 'Goodbye, World!'
+      const incorrectHash = sha256(incorrectInput)
+
+      expect(sha256(input)).not.toEqual(incorrectHash)
+    })
+  })
+
+  describe('assertIsDefined', () => {
+    it('should not throw an error for defined values', () => {
+      const definedValue = 'Hello, World!'
+
+      expect(() => {
+        assertIsDefined(definedValue)
+      }).not.toThrow()
+    })
+
+    it('should throw an error for undefined values', () => {
+      const undefinedValue = undefined
+
+      expect(() => {
+        assertIsDefined(undefinedValue)
+      }).toThrow('unexpected undefined or null')
+    })
+
+    it('should throw an error for null values', () => {
+      const nullValue = null
+
+      expect(() => {
+        assertIsDefined(nullValue)
+      }).toThrow('unexpected undefined or null')
+    })
+  })
+  describe('isNonEmpty', () => {
+    it('returns true for non-empty strings', () => {
+      const input = 'Hello, World!'
+      expect(isNonEmpty(input)).toBe(true)
+    })
+
+    it('returns false for empty strings', () => {
+      const input = ''
+      expect(isNonEmpty(input)).toBe(false)
+    })
+
+    it('returns true for non-empty arrays', () => {
+      const input = [1, 2, 3]
+      expect(isNonEmpty(input)).toBe(true)
+    })
+
+    it('returns false for empty arrays', () => {
+      const input: any[] = []
+      expect(isNonEmpty(input)).toBe(false)
+    })
+
+    it('returns true for non-empty sets', () => {
+      const input = new Set([1, 2, 3])
+      expect(isNonEmpty(input)).toBe(true)
+    })
+
+    it('returns false for empty sets', () => {
+      const input = new Set()
+      expect(isNonEmpty(input)).toBe(false)
+    })
+  })
+
+  describe('isUrl', () => {
+    it('returns true for valid URLs', () => {
+      const validUrl = 'https://www.example.com'
+      expect(isUrl(validUrl)).toBe(true)
+    })
+
+    it('returns false for invalid URLs', () => {
+      const invalidUrl = 'invalid_url'
+      expect(isUrl(invalidUrl)).toBe(false)
+    })
+
+    it('returns true for URLs with special characters', () => {
+      const specialCharsUrl = 'https://www.example.com/path?query=string#fragment'
+      expect(isUrl(specialCharsUrl)).toBe(true)
+    })
+
+    it('returns false for URLs without a protocol', () => {
+      const noProtocolUrl = 'www.example.com'
+      expect(isUrl(noProtocolUrl)).toBe(false)
     })
   })
 })

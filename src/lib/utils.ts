@@ -161,7 +161,18 @@ export const isEvmChainAdapter = <T extends ChainId>(
 }
 
 // Predicates, to be used with myzod's `withPredicate`, or without if you feel like it
-export const isNonEmpty = (x: string) => Boolean(x.length)
+
+export const isNonEmpty = (x: string | any[] | Set<any>) => {
+  // Array.prototype.length || String.prototype.length for arrays and strings
+  if (typeof x === 'string' || Array.isArray(x)) {
+    return Boolean(x.length)
+  }
+  // Set.prototype.size for sets
+  if (x instanceof Set) {
+    return Boolean(x.size)
+  }
+  return false
+}
 export const isUrl = (x: string) => {
   try {
     new URL(x)

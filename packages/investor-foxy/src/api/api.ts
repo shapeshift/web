@@ -1,7 +1,7 @@
 import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { ChainAdapter, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { Logger } from '@shapeshiftoss/logger'
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import axios from 'axios'
@@ -181,22 +181,15 @@ export class FoxyApi {
     return liquidityReserveContract
   }
 
-  private async getGasPriceAndNonce(
-    userAddress: string,
-  ): Promise<{ nonce: string; gasPrice: string }> {
+  private async getNonce(userAddress: string): Promise<{ nonce: string }> {
     let nonce
     try {
       nonce = (await this.provider.getTransactionCount(userAddress)).toString()
     } catch (e) {
       throw new Error(`Get nonce Error: ${e}`)
     }
-    let gasPrice: string
-    try {
-      gasPrice = (await this.provider.getGasPrice()).toString()
-    } catch (e) {
-      throw new Error(`Get gasPrice Error: ${e}`)
-    }
-    return { nonce, gasPrice }
+
+    return { nonce }
   }
 
   async getFoxyOpportunities() {
@@ -251,7 +244,9 @@ export class FoxyApi {
     return this.provider.getTransactionReceipt(txid)
   }
 
-  async estimateClaimWithdrawGas(input: ClaimWithdrawal): Promise<string> {
+  async estimateClaimWithdrawGas(
+    input: ClaimWithdrawal,
+  ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
     const { claimAddress, userAddress, contractAddress } = input
     const addressToClaim = claimAddress ?? userAddress
     this.verifyAddresses([addressToClaim, userAddress, contractAddress])
@@ -259,32 +254,49 @@ export class FoxyApi {
     const stakingContract = this.getStakingContract(contractAddress)
 
     try {
-      const estimatedGas = await stakingContract.estimateGas.claimWithdraw(addressToClaim, {
-        from: userAddress,
+      const data = stakingContract.interface.encodeFunctionData('claimWithdraw', [addressToClaim])
+      const estimatedFees = await this.adapter.getFeeData({
+        to: contractAddress,
+        value: '0',
+        chainSpecific: {
+          contractData: data,
+          from: userAddress,
+        },
       })
-      return estimatedGas.toString()
+
+      return estimatedFees
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
     }
   }
 
-  async estimateSendWithdrawalRequestsGas(input: TxInputWithoutAmountAndWallet): Promise<string> {
+  async estimateSendWithdrawalRequestsGas(
+    input: TxInputWithoutAmountAndWallet,
+  ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
     const { userAddress, contractAddress } = input
     this.verifyAddresses([userAddress, contractAddress])
 
     const stakingContract = this.getStakingContract(contractAddress)
 
     try {
-      const estimatedGas = await stakingContract.estimateGas.sendWithdrawalRequests([], {
-        from: userAddress,
+      const data = stakingContract.interface.encodeFunctionData('sendWithdrawalRequests', [])
+      const estimatedFees = await this.adapter.getFeeData({
+        to: contractAddress,
+        value: '0',
+        chainSpecific: {
+          contractData: data,
+          from: userAddress,
+        },
       })
-      return estimatedGas.toString()
+      return estimatedFees
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
     }
   }
 
-  async estimateAddLiquidityGas(input: EstimateGasTxInput): Promise<string> {
+  async estimateAddLiquidityGas(
+    input: EstimateGasTxInput,
+  ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
     const { amountDesired, userAddress, contractAddress } = input
     this.verifyAddresses([userAddress, contractAddress])
     if (!amountDesired.gt(0)) throw new Error('Must send valid amount')
@@ -292,17 +304,26 @@ export class FoxyApi {
     const liquidityReserveContract = this.getLiquidityReserveContract(contractAddress)
 
     try {
-      const estimatedGas = await liquidityReserveContract.estimateGas.addLiquidity(
+      const data = liquidityReserveContract.interface.encodeFunctionData('addLiquidity', [
         this.normalizeAmount(amountDesired),
-        { from: userAddress },
-      )
-      return estimatedGas.toString()
+      ])
+      const estimatedFees = await this.adapter.getFeeData({
+        to: contractAddress,
+        value: '0',
+        chainSpecific: {
+          contractData: data,
+          from: userAddress,
+        },
+      })
+      return estimatedFees
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
     }
   }
 
-  async estimateRemoveLiquidityGas(input: EstimateGasTxInput): Promise<string> {
+  async estimateRemoveLiquidityGas(
+    input: EstimateGasTxInput,
+  ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
     const { amountDesired, userAddress, contractAddress } = input
     this.verifyAddresses([userAddress, contractAddress])
     if (!amountDesired.gt(0)) throw new Error('Must send valid amount')
@@ -310,17 +331,27 @@ export class FoxyApi {
     const liquidityReserveContract = this.getLiquidityReserveContract(contractAddress)
 
     try {
-      const estimatedGas = await liquidityReserveContract.estimateGas.removeLiquidity(
+      const data = liquidityReserveContract.encodeFunctionData('removeLiquidity', [
         this.normalizeAmount(amountDesired),
-        { from: userAddress },
-      )
-      return estimatedGas.toString()
+      ])
+
+      const estimatedFees = await this.adapter.getFeeData({
+        to: contractAddress,
+        value: '0',
+        chainSpecific: {
+          contractData: data,
+          from: userAddress,
+        },
+      })
+      return estimatedFees
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
     }
   }
 
-  async estimateWithdrawGas(input: WithdrawEstimateGasInput): Promise<string> {
+  async estimateWithdrawGas(
+    input: WithdrawEstimateGasInput,
+  ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
     const { amountDesired, userAddress, contractAddress, type } = input
     this.verifyAddresses([userAddress, contractAddress])
 
@@ -330,38 +361,58 @@ export class FoxyApi {
     if (isDelayed && !amountDesired.gt(0)) throw new Error('Must send valid amount')
 
     try {
-      const estimatedGas = isDelayed
-        ? await stakingContract.estimateGas['unstake(uint256,bool)'](
+      const data = isDelayed
+        ? stakingContract.interface.encodeFunctionData('unstake(uint256,bool)', [
             this.normalizeAmount(amountDesired),
             true,
-            { from: userAddress },
-          )
-        : await stakingContract.estimateGas.instantUnstake(true, { from: userAddress })
-      return estimatedGas.toString()
+          ])
+        : stakingContract.interface.encodeFunctionData('instantUnstake', [true])
+
+      const estimatedFees = await this.adapter.getFeeData({
+        to: contractAddress,
+        value: '0',
+        chainSpecific: {
+          contractData: data,
+          from: userAddress,
+        },
+      })
+      return estimatedFees
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
     }
   }
 
-  async estimateApproveGas(input: EstimateGasApproveInput): Promise<string> {
+  async estimateApproveGas(
+    input: EstimateGasApproveInput,
+  ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
     const { userAddress, tokenContractAddress, contractAddress } = input
     this.verifyAddresses([userAddress, contractAddress, tokenContractAddress])
 
     const depositTokenContract = new ethers.Contract(tokenContractAddress, erc20Abi, this.provider)
 
     try {
-      const estimatedGas = await depositTokenContract.estimateGas.approve(
+      const data = depositTokenContract.interface.encodeFunctionData('approve', [
         contractAddress,
         MAX_ALLOWANCE,
-        { from: userAddress },
-      )
-      return estimatedGas.toString()
+      ])
+      const estimatedFees = await this.adapter.getFeeData({
+        to: contractAddress,
+        value: '0',
+        chainSpecific: {
+          contractData: data,
+          from: userAddress,
+        },
+      })
+
+      return estimatedFees
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
     }
   }
 
-  async estimateDepositGas(input: EstimateGasTxInput): Promise<string> {
+  async estimateDepositGas(
+    input: EstimateGasTxInput,
+  ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
     const { amountDesired, userAddress, contractAddress } = input
     this.verifyAddresses([userAddress, contractAddress])
     if (!amountDesired.gt(0)) throw new Error('Must send valid amount')
@@ -369,11 +420,21 @@ export class FoxyApi {
     const stakingContract = this.getStakingContract(contractAddress)
 
     try {
-      const estimatedGas = await stakingContract.estimateGas['stake(uint256)'](
+      const data = stakingContract.interface.encodeFunctionData('stake(uint256)', [
         this.normalizeAmount(amountDesired),
-        { from: userAddress },
-      )
-      return estimatedGas.toString()
+        userAddress,
+      ])
+
+      const estimatedFees = await this.adapter.getFeeData({
+        to: contractAddress,
+        value: '0',
+        chainSpecific: {
+          contractData: data,
+          from: userAddress,
+        },
+      })
+
+      return estimatedFees
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
     }
@@ -392,9 +453,9 @@ export class FoxyApi {
     this.verifyAddresses([userAddress, contractAddress, tokenContractAddress])
     if (!wallet) throw new Error('Missing inputs')
 
-    let estimatedGas: string
+    let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
     try {
-      estimatedGas = await this.estimateApproveGas(input)
+      estimatedFees = await this.estimateApproveGas(input)
     } catch (e) {
       throw new Error(`Estimate Gas Error: ${e}`)
     }
@@ -404,14 +465,13 @@ export class FoxyApi {
       amount ? numberToHex(bnOrZero(amount).toString()) : MAX_ALLOWANCE,
     ])
 
-    const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
+    const { nonce } = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
       chainId: chainReferenceAsNumber,
       data,
-      estimatedGas,
-      gasPrice,
+      estimatedFees,
       nonce,
       to: tokenContractAddress,
       value: '0',
@@ -451,9 +511,9 @@ export class FoxyApi {
     if (!amountDesired.gt(0)) throw new Error('Must send valid amount')
     if (!wallet) throw new Error('Missing inputs')
 
-    let estimatedGas: string
+    let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
     try {
-      estimatedGas = await this.estimateDepositGas(input)
+      estimatedFees = await this.estimateDepositGas(input)
     } catch (e) {
       throw new Error(`Estimate Gas Error: ${e}`)
     }
@@ -465,14 +525,13 @@ export class FoxyApi {
       userAddress,
     ])
 
-    const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
+    const { nonce } = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
       chainId: chainReferenceAsNumber,
       data,
-      estimatedGas,
-      gasPrice,
+      estimatedFees,
       nonce,
       to: contractAddress,
       value: '0',
@@ -493,9 +552,9 @@ export class FoxyApi {
     this.verifyAddresses([userAddress, contractAddress])
     if (!wallet) throw new Error('Missing inputs')
 
-    let estimatedGas: string
+    let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
     try {
-      estimatedGas = await this.estimateWithdrawGas(input)
+      estimatedFees = await this.estimateWithdrawGas(input)
     } catch (e) {
       throw new Error(`Estimate Gas Error: ${e}`)
     }
@@ -512,14 +571,13 @@ export class FoxyApi {
       : ['instantUnstake', ['true']]
     const data: string = stakingContract.interface.encodeFunctionData(...stakingContractCallInput)
 
-    const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
+    const { nonce } = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
       chainId: chainReferenceAsNumber,
       data,
-      estimatedGas,
-      gasPrice,
+      estimatedFees,
       nonce,
       to: contractAddress,
       value: '0',
@@ -614,9 +672,9 @@ export class FoxyApi {
     this.verifyAddresses([userAddress, contractAddress, addressToClaim])
     if (!wallet) throw new Error('Missing inputs')
 
-    let estimatedGas: string
+    let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
     try {
-      estimatedGas = await this.estimateClaimWithdrawGas(input)
+      estimatedFees = await this.estimateClaimWithdrawGas(input)
     } catch (e) {
       throw new Error(`Estimate Gas Error: ${e}`)
     }
@@ -630,14 +688,13 @@ export class FoxyApi {
       addressToClaim,
     ])
 
-    const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
+    const { nonce } = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
       chainId: chainReferenceAsNumber,
       data,
-      estimatedGas,
-      gasPrice,
+      estimatedFees,
       nonce,
       to: contractAddress,
       value: '0',
@@ -726,9 +783,9 @@ export class FoxyApi {
     this.verifyAddresses([userAddress, contractAddress])
     if (!wallet || !contractAddress) throw new Error('Missing inputs')
 
-    let estimatedGas: string
+    let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
     try {
-      estimatedGas = await this.estimateSendWithdrawalRequestsGas(input)
+      estimatedFees = await this.estimateSendWithdrawalRequestsGas(input)
     } catch (e) {
       throw new Error(`Estimate Gas Error: ${e}`)
     }
@@ -739,14 +796,13 @@ export class FoxyApi {
     if (!canSendRequest) throw new Error('Not ready to send request')
 
     const data: string = stakingContract.interface.encodeFunctionData('sendWithdrawalRequests')
-    const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
+    const { nonce } = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
       chainId: chainReferenceAsNumber,
       data,
-      estimatedGas,
-      gasPrice,
+      estimatedFees,
       nonce,
       to: contractAddress,
       value: '0',
@@ -770,9 +826,9 @@ export class FoxyApi {
 
     if (!wallet) throw new Error('Missing inputs')
 
-    let estimatedGas: string
+    let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
     try {
-      estimatedGas = await this.estimateAddLiquidityGas(input)
+      estimatedFees = await this.estimateAddLiquidityGas(input)
     } catch (e) {
       throw new Error(`Estimate Gas Error: ${e}`)
     }
@@ -783,14 +839,13 @@ export class FoxyApi {
       this.normalizeAmount(amountDesired),
     ])
 
-    const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
+    const { nonce } = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
       chainId: chainReferenceAsNumber,
       data,
-      estimatedGas,
-      gasPrice,
+      estimatedFees,
       nonce,
       to: contractAddress,
       value: '0',
@@ -813,9 +868,9 @@ export class FoxyApi {
     if (!amountDesired.gt(0)) throw new Error('Must send valid amount')
     if (!wallet) throw new Error('Missing inputs')
 
-    let estimatedGas: string
+    let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
     try {
-      estimatedGas = await this.estimateRemoveLiquidityGas(input)
+      estimatedFees = await this.estimateRemoveLiquidityGas(input)
     } catch (e) {
       throw new Error(`Estimate Gas Error: ${e}`)
     }
@@ -826,14 +881,13 @@ export class FoxyApi {
       this.normalizeAmount(amountDesired),
     ])
 
-    const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
+    const { nonce } = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
       chainId: chainReferenceAsNumber,
       data,
-      estimatedGas,
-      gasPrice,
+      estimatedFees,
       nonce,
       to: contractAddress,
       value: '0',

@@ -1,14 +1,16 @@
+import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import { numberToHex } from 'web3-utils'
+
+import { bnOrZero } from './bignumber'
 
 type BuildTxToSignInput = {
   bip44Params: BIP44Params
   chainId: number
   data: string
-  estimatedGas: string
-  gasPrice: string
+  estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
   nonce: string
   value: string
   to: string
@@ -18,8 +20,7 @@ export const buildTxToSign = ({
   bip44Params,
   chainId = 1,
   data,
-  estimatedGas,
-  gasPrice,
+  estimatedFees,
   nonce,
   to,
   value,
@@ -30,6 +31,6 @@ export const buildTxToSign = ({
   chainId, // TODO: implement for multiple chains
   data,
   nonce: numberToHex(nonce),
-  gasPrice: numberToHex(gasPrice),
-  gasLimit: numberToHex(estimatedGas),
+  gasPrice: numberToHex(bnOrZero(estimatedFees.fast.chainSpecific.gasPrice).toString()),
+  gasLimit: numberToHex(bnOrZero(estimatedFees.fast.chainSpecific.gasLimit).toString()),
 })

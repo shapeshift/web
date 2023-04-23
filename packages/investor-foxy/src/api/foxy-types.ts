@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params, WithdrawType } from '@shapeshiftoss/types'
+import type { BIP44Params, KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
 import type ethers from 'ethers'
 
@@ -102,8 +103,7 @@ export type SignAndBroadcastPayload = {
   bip44Params: BIP44Params
   chainId: number
   data: string
-  estimatedGas: string
-  gasPrice: string
+  estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
   nonce: string
   to: string
   value: string

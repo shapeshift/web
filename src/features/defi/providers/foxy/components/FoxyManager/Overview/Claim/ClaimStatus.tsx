@@ -1,13 +1,13 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import type { ethers } from 'ethers'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import isNil from 'lodash/isNil'
 import { useCallback, useEffect, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
-import type { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -121,7 +121,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
       try {
         const transactionReceipt = await poll({
           fn: () => foxyApi.getTxReceipt({ txid }),
-          validate: (result: TransactionReceipt) => !isNil(result),
+          validate: (result: ethers.providers.TransactionReceipt) => !isNil(result),
           interval: 15000,
           maxAttempts: 30,
         })

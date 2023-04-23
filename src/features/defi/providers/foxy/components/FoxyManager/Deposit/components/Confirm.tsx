@@ -1,6 +1,7 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import type { ethers } from 'ethers'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -8,7 +9,6 @@ import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManage
 import isNil from 'lodash/isNil'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -99,7 +99,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
       const transactionReceipt = await poll({
         fn: () => foxyApi.getTxReceipt({ txid }),
-        validate: (result: TransactionReceipt) => !isNil(result),
+        validate: (result: ethers.providers.TransactionReceipt) => !isNil(result),
         interval: 15000,
         maxAttempts: 30,
       })

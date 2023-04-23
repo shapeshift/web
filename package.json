@@ -146,6 +146,7 @@
     "lodash": "^4.17.21",
     "match-sorter": "^6.3.0",
     "mixpanel-browser": "^2.45.0",
+    "myzod": "^1.10.0",
     "node-polyglot": "^2.4.0",
     "os-browserify": "^0.3.0",
     "qr-image": "^3.2.0",
@@ -181,7 +182,6 @@
     "viem": "^0.3.3",
     "web-vitals": "^2.1.4",
     "web3": "1.7.4",
-    "zod": "^3.21.4",
     "zustand": "^4.3.6"
   },
   "devDependencies": {

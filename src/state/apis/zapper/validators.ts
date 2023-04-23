@@ -1,7 +1,19 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { avalancheChainId, bscChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
 import { invert } from 'lodash'
-import { z } from 'zod'
+import type { Infer } from 'myzod'
+import z from 'myzod'
+
+// Predicates
+const isNonEmpty = (x: string) => Boolean(x.length)
+const isUrl = (x: string) => {
+  try {
+    new URL(x)
+    return true
+  } catch {
+    return false
+  }
+}
 
 export enum SupportedZapperNetwork {
   Avalanche = 'avalanche',
@@ -38,7 +50,7 @@ export const zapperNetworkToChainId = (network: SupportedZapperNetwork): ChainId
 export const chainIdToZapperNetwork = (chainId: ChainId): SupportedZapperNetwork | undefined =>
   CHAIN_ID_TO_ZAPPER_NETWORK_MAP[chainId]
 
-const SupportedZapperNetworks = z.nativeEnum(SupportedZapperNetwork)
+const SupportedZapperNetworks = z.enum(SupportedZapperNetwork)
 
 export enum ZapperAppId {
   AaveAmm = 'aave-amm',
@@ -443,7 +455,7 @@ export enum ZapperAppId {
   Zora = 'zora',
 }
 
-const ZapperAppIdSchema = z.nativeEnum(ZapperAppId)
+const ZapperAppIdSchema = z.enum(ZapperAppId)
 const ZapperDisplayValue = z.union([
   z.object({
     type: z.string(),
@@ -487,7 +499,7 @@ const ZapperDataPropsSchema = z.object({
   apy: z.number(),
   fee: z.number().optional(),
   volume: z.number().optional(),
-  reserves: z.array(z.number(), z.number()),
+  reserves: z.tuple([z.number(), z.number()]),
   liquidity: z.number(),
 })
 
@@ -528,7 +540,7 @@ const ZapperAssetWithBalancesSchema = z.union([
 const ZapperProductSchema = z.object({
   label: z.string(),
   assets: z.array(z.union([ZapperAssetBaseSchema, ZapperAssetWithBalancesSchema])),
-  meta: z.array(z.any()),
+  meta: z.array(z.unknown()),
 })
 
 const ZapperV2AppBalance = z.object({
@@ -570,8 +582,8 @@ const mediaSchema = z.object({
   type: z.string(),
   originalUrl: z
     .string()
-    .url()
-    .refine(url => {
+    .withPredicate(isUrl)
+    .withPredicate(url => {
       const mediaFileType = getMediaFileType(url)
       if (!mediaFileType) return false
       return MEDIA_FILETYPE.includes(mediaFileType as MediaFileType)
@@ -581,19 +593,19 @@ const mediaSchema = z.object({
 const socialLinkSchema = z.object({
   name: z.string(),
   label: z.string(),
-  url: z.string().url(),
-  logoUrl: z.string().url(),
+  url: z.string().withPredicate(isUrl),
+  logoUrl: z.string(),
 })
 
 const statsSchema = z.object({
   hourlyVolumeEth: z.number(),
-  hourlyVolumeEthPercentChange: z.nullable(z.number()),
+  hourlyVolumeEthPercentChange: z.number().nullable(),
   dailyVolumeEth: z.number(),
-  dailyVolumeEthPercentChange: z.nullable(z.number()),
+  dailyVolumeEthPercentChange: z.number().nullable(),
   weeklyVolumeEth: z.number(),
-  weeklyVolumeEthPercentChange: z.nullable(z.number()),
+  weeklyVolumeEthPercentChange: z.number().nullable(),
   monthlyVolumeEth: z.number(),
-  monthlyVolumeEthPercentChange: z.nullable(z.number()),
+  monthlyVolumeEthPercentChange: z.number().nullable(),
   totalVolumeEth: z.number(),
 })
 
@@ -618,20 +630,20 @@ const nftCollectionSchema = z.object({
   collection: fullCollectionSchema,
 })
 
-const cursorSchema = z.string().nonempty()
+const cursorSchema = z.string().withPredicate(isNonEmpty)
 
 const v2NftBalancesCollectionsSchema = z.object({
   items: z.array(nftCollectionSchema),
   cursor: cursorSchema.optional(),
 })
 
-const optionalUrl = z.union([z.string().url().nullish(), z.literal('')])
+const optionalUrl = z.union([z.string().withPredicate(isUrl).optional().nullable(), z.literal('')])
 
 const collectionSchema = z.object({
   address: z.string().optional(),
   network: z.string().optional(),
   name: z.string().optional(),
-  nftStandard: z.string().nonempty(),
+  nftStandard: z.string().withPredicate(isNonEmpty),
   type: z.string().optional(),
   floorPriceEth: z.string().optional().nullable(),
   logoImageUrl: optionalUrl,
@@ -639,18 +651,18 @@ const collectionSchema = z.object({
 })
 
 const tokenSchema = z.object({
-  id: z.string().nonempty(),
-  name: z.string().nonempty(),
-  tokenId: z.string().nonempty(),
+  id: z.string().withPredicate(isNonEmpty),
+  name: z.string().withPredicate(isNonEmpty),
+  tokenId: z.string().withPredicate(isNonEmpty),
   lastSaleEth: z.string().nullable(),
-  rarityRank: z.number().int().nullable(),
+  rarityRank: z.number().nullable(),
   estimatedValueEth: z.number().nullable(),
   medias: z.array(mediaSchema),
   collection: collectionSchema,
 })
 
 const userNftItemSchema = z.object({
-  balance: z.string().nonempty(),
+  balance: z.string().withPredicate(isNonEmpty),
   token: tokenSchema,
 })
 
@@ -661,24 +673,24 @@ const userNftTokenSchema = z.object({
 
 // const ZapperGroupIdSchema = z.nativeEnum(ZapperGroupId)
 
-export type V2NftUserItem = z.infer<typeof userNftItemSchema>
+export type V2NftUserItem = Infer<typeof userNftItemSchema>
 
-export type V2BalancesAppsResponseType = z.infer<typeof V2BalancesAppsResponse>
+export type V2BalancesAppsResponseType = Infer<typeof V2BalancesAppsResponse>
 const V2BalancesAppsResponse = z.array(ZapperV2AppBalance)
 
-export type ZapperAssetBase = z.infer<typeof ZapperAssetBaseSchema>
+export type ZapperAssetBase = Infer<typeof ZapperAssetBaseSchema>
 export const V2AppTokensResponse = z.array(ZapperAssetBaseSchema)
-export type V2AppTokensResponseType = z.infer<typeof V2AppTokensResponse>
+export type V2AppTokensResponseType = Infer<typeof V2AppTokensResponse>
 
 const V2NftUserTokensResponse = userNftTokenSchema
-export type V2NftUserTokensResponseType = z.infer<typeof V2NftUserTokensResponse>
+export type V2NftUserTokensResponseType = Infer<typeof V2NftUserTokensResponse>
 
-export type V2NftCollectionType = z.infer<typeof nftCollectionSchema>
+export type V2NftCollectionType = Infer<typeof nftCollectionSchema>
 
 const V2NftBalancesCollectionsResponse = v2NftBalancesCollectionsSchema
-export type V2NftBalancesCollectionsResponseType = z.infer<typeof V2NftBalancesCollectionsResponse>
+export type V2NftBalancesCollectionsResponseType = Infer<typeof V2NftBalancesCollectionsResponse>
 
-export type V2ZapperNft = z.infer<typeof tokenSchema>
+export type V2ZapperNft = Infer<typeof tokenSchema>
 
 // Legacy of using zodios, not consumed anymore but kept as API reference
 // const endpoints = [

@@ -6403,6 +6403,7 @@ __metadata:
     mixpanel-browser: ^2.45.0
     msw: ^0.36.5
     multiformats: ^9.6.3
+    myzod: ^1.10.0
     node-polyglot: ^2.4.0
     os-browserify: ^0.3.0
     patch-package: ^6.4.7
@@ -6455,7 +6456,6 @@ __metadata:
     web3: 1.7.4
     webpack: 5.76.0
     webpack-subresource-integrity: ^5.0.0
-    zod: ^3.21.4
     zustand: ^4.3.6
   peerDependencies:
     lit-html: ^2.6.1
@@ -20855,6 +20855,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"myzod@npm:^1.10.0":
+  version: 1.10.0
+  resolution: "myzod@npm:1.10.0"
+  checksum: a5d4eee5fed4205683a2e6b4557f7537979f098bd2b6040051fbc5a30d2bd6dcdf8fa20b16703ff8c56c69763bc226505d0c3155ac0bc7969e36773901d9af04
+  languageName: node
+  linkType: hard
+
 "nan@npm:^2.13.2, nan@npm:^2.14.0, nan@npm:^2.2.1":
   version: 2.15.0
   resolution: "nan@npm:2.15.0"
@@ -29275,13 +29282,6 @@ pvutils@latest:
   version: 0.8.15
   resolution: "zen-observable@npm:0.8.15"
   checksum: b7289084bc1fc74a559b7259faa23d3214b14b538a8843d2b001a35e27147833f4107590b1b44bf5bc7f6dfe6f488660d3a3725f268e09b3925b3476153b7821
-  languageName: node
-  linkType: hard
-
-"zod@npm:^3.21.4":
-  version: 3.21.4
-  resolution: "zod@npm:3.21.4"
-  checksum: f185ba87342ff16f7a06686767c2b2a7af41110c7edf7c1974095d8db7a73792696bcb4a00853de0d2edeb34a5b2ea6a55871bc864227dace682a0a28de33e1f
   languageName: node
   linkType: hard
 

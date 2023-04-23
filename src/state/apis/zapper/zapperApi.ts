@@ -93,82 +93,77 @@ export const zapperApi = createApi({
           networks: evmNetworks,
         }
         const payload = { ...options, params, headers, url }
-        const { data } = await axios.request({ ...payload })
-        const zapperV2AppTokensData = V2AppTokensResponse.safeParse(data)
+        const { data: res } = await axios.request({ ...payload })
+        const zapperV2AppTokensData = V2AppTokensResponse.parse(res)
 
-        if (zapperV2AppTokensData.success) {
-          const parsedData = zapperV2AppTokensData.data.reduce<GetZapperAppBalancesOutput>(
-            (acc, appTokenData) => {
-              const chainId = zapperNetworkToChainId(appTokenData.network)
-              if (!chainId) return acc
+        const parsedData = zapperV2AppTokensData.reduce<GetZapperAppBalancesOutput>(
+          (acc, appTokenData) => {
+            const chainId = zapperNetworkToChainId(appTokenData.network)
+            if (!chainId) return acc
+            const assetId = toAssetId({
+              chainId,
+              assetNamespace: 'erc20', // TODO: bep20
+              assetReference: appTokenData.address,
+            })
+
+            acc[assetId] = appTokenData
+            return acc
+          },
+          {},
+        )
+
+        const assets = selectAssets(getState() as ReduxState)
+        const zapperAssets = zapperV2AppTokensData.reduce<AssetsState>(
+          (acc, appTokenData) => {
+            // This will never happen in this particular case because zodios will fail if e.g appTokenData.network is undefined
+            // But zapperNetworkToChainId returns ChainId | undefined, as we may be calling it with invalid, casted "valid network"
+            const chainId = zapperNetworkToChainId(appTokenData.network)
+            if (!chainId) return acc
+            const assetId = toAssetId({
+              chainId,
+              assetNamespace: 'erc20', // TODO: bep20
+              assetReference: appTokenData.address,
+            })
+
+            const underlyingAssets = appTokenData.tokens.map(token => {
               const assetId = toAssetId({
                 chainId,
                 assetNamespace: 'erc20', // TODO: bep20
-                assetReference: appTokenData.address,
+                assetReference: token.address,
               })
+              const asset =
+                token.address.toLowerCase() === WETH_TOKEN_CONTRACT_ADDRESS.toLowerCase()
+                  ? assets[ethAssetId]
+                  : assets[assetId]
 
-              acc[assetId] = appTokenData
-              return acc
-            },
-            {},
-          )
+              return asset
+            })
 
-          const assets = selectAssets(getState() as ReduxState)
-          const zapperAssets = zapperV2AppTokensData.data.reduce<AssetsState>(
-            (acc, appTokenData) => {
-              // This will never happen in this particular case because zodios will fail if e.g appTokenData.network is undefined
-              // But zapperNetworkToChainId returns ChainId | undefined, as we may be calling it with invalid, casted "valid network"
-              const chainId = zapperNetworkToChainId(appTokenData.network)
-              if (!chainId) return acc
-              const assetId = toAssetId({
-                chainId,
-                assetNamespace: 'erc20', // TODO: bep20
-                assetReference: appTokenData.address,
-              })
+            const name = underlyingAssets.every(asset => asset && asset.symbol)
+              ? `${underlyingAssets.map(asset => asset?.symbol).join('/')} Pool`
+              : appTokenData.displayProps.label.replace('WETH', 'ETH')
+            const icons = underlyingAssets.map((underlyingAsset, i) => {
+              return underlyingAsset?.icon ?? appTokenData.displayProps.images[i]
+            })
 
-              const underlyingAssets = appTokenData.tokens.map(token => {
-                const assetId = toAssetId({
-                  chainId,
-                  assetNamespace: 'erc20', // TODO: bep20
-                  assetReference: token.address,
-                })
-                const asset =
-                  token.address.toLowerCase() === WETH_TOKEN_CONTRACT_ADDRESS.toLowerCase()
-                    ? assets[ethAssetId]
-                    : assets[assetId]
+            acc.byId[assetId] = makeAsset({
+              assetId,
+              symbol: appTokenData.symbol,
+              // WETH should be displayed as ETH in the UI due to the way UNI-V2 works
+              // ETH is used for depositing/withdrawing, but WETH is used under the hood
+              name,
+              precision: appTokenData.decimals,
+              icons,
+            })
+            acc.ids.push(assetId)
+            return acc
+          },
+          { byId: {}, ids: [] },
+        )
 
-                return asset
-              })
+        dispatch(assetsSlice.actions.upsertAssets(zapperAssets))
 
-              const name = underlyingAssets.every(asset => asset && asset.symbol)
-                ? `${underlyingAssets.map(asset => asset?.symbol).join('/')} Pool`
-                : appTokenData.displayProps.label.replace('WETH', 'ETH')
-              const icons = underlyingAssets.map((underlyingAsset, i) => {
-                return underlyingAsset?.icon ?? appTokenData.displayProps.images[i]
-              })
-
-              acc.byId[assetId] = makeAsset({
-                assetId,
-                symbol: appTokenData.symbol,
-                // WETH should be displayed as ETH in the UI due to the way UNI-V2 works
-                // ETH is used for depositing/withdrawing, but WETH is used under the hood
-                name,
-                precision: appTokenData.decimals,
-                icons,
-              })
-              acc.ids.push(assetId)
-              return acc
-            },
-            { byId: {}, ids: [] },
-          )
-
-          dispatch(assetsSlice.actions.upsertAssets(zapperAssets))
-
-          return { data: parsedData }
-        } else {
-          moduleLogger.warn(zapperV2AppTokensData.error, '')
-          return { error: { error: zapperV2AppTokensData.error } }
-        }
+        return { data: parsedData }
       },
     }),
     getZapperNftUserTokens: build.query<V2NftUserItem[], GetZapperNftUserTokensInput>({

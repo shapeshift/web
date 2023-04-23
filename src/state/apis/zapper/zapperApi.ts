@@ -2,6 +2,8 @@ import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { AxiosRequestConfig } from 'axios'
+import axios from 'axios'
 import { getConfig } from 'config'
 import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import qs from 'qs'
@@ -13,14 +15,20 @@ import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssets } from 'state/slices/selectors'
 
-import type { V2NftCollectionType, V2NftUserItem, ZapperAssetBase } from './client'
+import type {
+  V2NftBalancesCollectionsResponseType,
+  V2NftCollectionType,
+  V2NftUserItem,
+  V2NftUserTokensResponseType,
+  ZapperAssetBase,
+} from './validators'
 import {
   chainIdToZapperNetwork,
-  createApiClient,
+  V2AppTokensResponse,
   ZapperAppId,
   ZapperGroupId,
   zapperNetworkToChainId,
-} from './client'
+} from './validators'
 
 const moduleLogger = logger.child({ namespace: ['zapperApi'] })
 
@@ -31,12 +39,21 @@ const authorization = `Basic ${Buffer.from(
   'binary',
 ).toString('base64')}`
 
+const options: AxiosRequestConfig = {
+  method: 'GET' as const,
+  baseURL: ZAPPER_BASE_URL,
+  headers: {
+    accept: 'application/json',
+    authorization,
+  },
+  // Encode query params with arrayFormat: 'repeat' because zapper api expects it
+  paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
+}
+
 const headers = {
   accept: 'application/json',
   authorization,
 }
-
-const zapperClient = createApiClient(ZAPPER_BASE_URL)
 
 export type GetZapperUniV2PoolAssetIdsOutput = AssetId[]
 export type GetZapperAppBalancesOutput = Record<AssetId, ZapperAssetBase>
@@ -70,90 +87,90 @@ export const zapperApi = createApi({
       queryFn: async (_, { dispatch, getState }) => {
         const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
 
-        const zapperV2AppTokensData = await zapperClient.getV2AppTokens({
-          params: {
-            // Only get uniswap v2 pools for now
-            appSlug: ZapperAppId.UniswapV2,
-          },
-          headers,
-          // Encode query params with arrayFormat: 'repeat' because zapper api expects it
-          paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
-          queries: {
-            groupId: ZapperGroupId.Pool,
-            networks: evmNetworks,
-          },
-        })
+        const url = `/v2/apps/${ZapperAppId.UniswapV2}/tokens`
+        const params = {
+          groupId: ZapperGroupId.Pool,
+          networks: evmNetworks,
+        }
+        const payload = { ...options, params, headers, url }
+        const { data } = await axios.request({ ...payload })
+        const zapperV2AppTokensData = V2AppTokensResponse.safeParse(data)
 
-        const data = zapperV2AppTokensData.reduce<GetZapperAppBalancesOutput>(
-          (acc, appTokenData) => {
-            // This will never happen in this particular case because zodios will fail if e.g appTokenData.network is undefined
-            // But zapperNetworkToChainId returns ChainId | undefined, as we may be calling it with invalid, casted "valid network"
-            const chainId = zapperNetworkToChainId(appTokenData.network)
-            if (!chainId) return acc
-            const assetId = toAssetId({
-              chainId,
-              assetNamespace: 'erc20', // TODO: bep20
-              assetReference: appTokenData.address,
-            })
-
-            acc[assetId] = appTokenData
-            return acc
-          },
-          {},
-        )
-
-        const assets = selectAssets(getState() as ReduxState)
-        const zapperAssets = zapperV2AppTokensData.reduce<AssetsState>(
-          (acc, appTokenData) => {
-            // This will never happen in this particular case because zodios will fail if e.g appTokenData.network is undefined
-            // But zapperNetworkToChainId returns ChainId | undefined, as we may be calling it with invalid, casted "valid network"
-            const chainId = zapperNetworkToChainId(appTokenData.network)
-            if (!chainId) return acc
-            const assetId = toAssetId({
-              chainId,
-              assetNamespace: 'erc20', // TODO: bep20
-              assetReference: appTokenData.address,
-            })
-
-            const underlyingAssets = appTokenData.tokens.map(token => {
+        if (zapperV2AppTokensData.success) {
+          const parsedData = zapperV2AppTokensData.data.reduce<GetZapperAppBalancesOutput>(
+            (acc, appTokenData) => {
+              // This will never happen in this particular case because zodios will fail if e.g appTokenData.network is undefined
+              // But zapperNetworkToChainId returns ChainId | undefined, as we may be calling it with invalid, casted "valid network"
+              const chainId = zapperNetworkToChainId(appTokenData.network)
+              if (!chainId) return acc
               const assetId = toAssetId({
                 chainId,
                 assetNamespace: 'erc20', // TODO: bep20
-                assetReference: token.address,
+                assetReference: appTokenData.address,
               })
-              const asset =
-                token.address.toLowerCase() === WETH_TOKEN_CONTRACT_ADDRESS.toLowerCase()
-                  ? assets[ethAssetId]
-                  : assets[assetId]
 
-              return asset
-            })
+              acc[assetId] = appTokenData
+              return acc
+            },
+            {},
+          )
 
-            const name = underlyingAssets.every(asset => asset && asset.symbol)
-              ? `${underlyingAssets.map(asset => asset?.symbol).join('/')} Pool`
-              : appTokenData.displayProps.label.replace('WETH', 'ETH')
-            const icons = underlyingAssets.map((underlyingAsset, i) => {
-              return underlyingAsset?.icon ?? appTokenData.displayProps.images[i]
-            })
+          const assets = selectAssets(getState() as ReduxState)
+          const zapperAssets = zapperV2AppTokensData.data.reduce<AssetsState>(
+            (acc, appTokenData) => {
+              // This will never happen in this particular case because zodios will fail if e.g appTokenData.network is undefined
+              // But zapperNetworkToChainId returns ChainId | undefined, as we may be calling it with invalid, casted "valid network"
+              const chainId = zapperNetworkToChainId(appTokenData.network)
+              if (!chainId) return acc
+              const assetId = toAssetId({
+                chainId,
+                assetNamespace: 'erc20', // TODO: bep20
+                assetReference: appTokenData.address,
+              })
 
-            acc.byId[assetId] = makeAsset({
-              assetId,
-              symbol: appTokenData.symbol,
-              // WETH should be displayed as ETH in the UI due to the way UNI-V2 works
-              // ETH is used for depositing/withdrawing, but WETH is used under the hood
-              name,
-              precision: appTokenData.decimals,
-              icons,
-            })
-            acc.ids.push(assetId)
-            return acc
-          },
-          { byId: {}, ids: [] },
-        )
+              const underlyingAssets = appTokenData.tokens.map(token => {
+                const assetId = toAssetId({
+                  chainId,
+                  assetNamespace: 'erc20', // TODO: bep20
+                  assetReference: token.address,
+                })
+                const asset =
+                  token.address.toLowerCase() === WETH_TOKEN_CONTRACT_ADDRESS.toLowerCase()
+                    ? assets[ethAssetId]
+                    : assets[assetId]
 
-        dispatch(assetsSlice.actions.upsertAssets(zapperAssets))
+                return asset
+              })
 
-        return { data }
+              const name = underlyingAssets.every(asset => asset && asset.symbol)
+                ? `${underlyingAssets.map(asset => asset?.symbol).join('/')} Pool`
+                : appTokenData.displayProps.label.replace('WETH', 'ETH')
+              const icons = underlyingAssets.map((underlyingAsset, i) => {
+                return underlyingAsset?.icon ?? appTokenData.displayProps.images[i]
+              })
+
+              acc.byId[assetId] = makeAsset({
+                assetId,
+                symbol: appTokenData.symbol,
+                // WETH should be displayed as ETH in the UI due to the way UNI-V2 works
+                // ETH is used for depositing/withdrawing, but WETH is used under the hood
+                name,
+                precision: appTokenData.decimals,
+                icons,
+              })
+              acc.ids.push(assetId)
+              return acc
+            },
+            { byId: {}, ids: [] },
+          )
+
+          dispatch(assetsSlice.actions.upsertAssets(zapperAssets))
+
+          return { data: parsedData }
+        } else {
+          moduleLogger.warn(zapperV2AppTokensData.error, '')
+          return { error: { error: zapperV2AppTokensData.error } }
+        }
       },
     }),
     getZapperNftUserTokens: build.query<V2NftUserItem[], GetZapperNftUserTokensInput>({
@@ -171,12 +188,12 @@ export const zapperApi = createApi({
           const limit = 100
           while (true) {
             try {
-              const res = await zapperClient.getV2NftUserTokens({
-                // Encode query params with arrayFormat: 'repeat' because zapper api expects it
-                paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
-                headers,
-                queries: { userAddress, limit: limit.toString() },
-              })
+              const url = `/v2/nft/user/tokens`
+              const params = {
+                userAddress,
+              }
+              const payload = { ...options, params, headers, url }
+              const { data: res } = await axios.request<V2NftUserTokensResponseType>({ ...payload })
               if (!res?.items?.length) break
               if (res?.items?.length) data = data.concat(res.items)
               if (res?.items?.length < limit) break
@@ -192,13 +209,16 @@ export const zapperApi = createApi({
     getZapperCollections: build.query<V2NftCollectionType[], GetZapperCollectionsInput>({
       queryFn: async ({ accountIds, collectionAddresses }) => {
         const addresses = accountIdsToEvmAddresses(accountIds)
-        const { items: data } = await zapperClient.getV2NftBalancesCollections({
-          headers,
-          // yes this is actually how the api expects it
-          queries: {
-            'addresses[]': addresses,
-            'collectionAddresses[]': collectionAddresses,
-          },
+        const params = {
+          'addresses[]': addresses,
+          'collectionAddresses[]': collectionAddresses,
+        }
+        const url = `/v2/nft/balances/collections`
+        const payload = { ...options, params, headers, url }
+        const {
+          data: { items: data },
+        } = await axios.request<V2NftBalancesCollectionsResponseType>({
+          ...payload,
         })
         return { data }
       },
@@ -223,8 +243,6 @@ export const zapper = createApi({
 
         const data = zapperV2AppTokensData
           .map(appTokenData => {
-            // This will never happen in this particular case because zodios will fail if e.g appTokenData.network is undefined
-            // But zapperNetworkToChainId returns ChainId | undefined, as we may be calling it with invalid, casted "valid network"
             const chainId = zapperNetworkToChainId(appTokenData.network)
             if (!chainId) return undefined
 

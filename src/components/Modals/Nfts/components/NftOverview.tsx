@@ -13,8 +13,8 @@ import type {
   SupportedZapperNetwork,
   V2NftCollectionType,
   V2ZapperNft,
-} from 'state/apis/zapper/client'
-import { ZAPPER_NETWORKS_TO_CHAIN_ID_MAP } from 'state/apis/zapper/client'
+} from 'state/apis/zapper/validators'
+import { ZAPPER_NETWORKS_TO_CHAIN_ID_MAP } from 'state/apis/zapper/validators'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
 

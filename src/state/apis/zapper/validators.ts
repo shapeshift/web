@@ -3,17 +3,7 @@ import { avalancheChainId, bscChainId, ethChainId, optimismChainId } from '@shap
 import { invert } from 'lodash'
 import type { Infer } from 'myzod'
 import z from 'myzod'
-
-// Predicates
-const isNonEmpty = (x: string) => Boolean(x.length)
-const isUrl = (x: string) => {
-  try {
-    new URL(x)
-    return true
-  } catch {
-    return false
-  }
-}
+import { isNonEmpty, isUrl } from 'lib/utils'
 
 export enum SupportedZapperNetwork {
   Avalanche = 'avalanche',

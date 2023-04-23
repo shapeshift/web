@@ -159,3 +159,14 @@ export const isEvmChainAdapter = <T extends ChainId>(
 ): chainAdapter is EvmChainAdapter => {
   return evmChainIds.includes(chainAdapter.getChainId() as EvmChainId)
 }
+
+// Predicates, to be used with myzod's `withPredicate`, or without if you feel like it
+export const isNonEmpty = (x: string) => Boolean(x.length)
+export const isUrl = (x: string) => {
+  try {
+    new URL(x)
+    return true
+  } catch {
+    return false
+  }
+}

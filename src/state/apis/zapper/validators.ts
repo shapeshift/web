@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { avalancheChainId, bscChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
 import { invert } from 'lodash'
-import type { Infer } from 'myzod'
+import type { Infer, Type } from 'myzod'
 import z from 'myzod'
 import { isNonEmpty, isUrl } from 'lib/utils'
 
@@ -466,15 +466,55 @@ const ZapperDisplayPropsSchema = z.object({
   ),
   secondaryLabel: ZapperDisplayValue.optional(),
   tertiaryLabel: ZapperDisplayValue.optional(),
+  balanceDisplayMode: z.string().optional(),
+  labelDetailed: z.string().optional(),
 })
 
-const ZapperTokenBaseSchema = z.object({
-  network: SupportedZapperNetworks,
-  address: z.string(),
-  decimals: z.number(),
-  symbol: z.string(),
-  price: z.number(),
+const ZapperDataPropsSchema = z.object({
+  apy: z.number(),
+  isDebt: z.boolean().optional(),
+  exchangeable: z.boolean().optional(),
+  exchangeRate: z.number().optional(),
+  fee: z.number().optional(),
+  volume: z.number().optional(),
+  // Realistically a z.tuple() of 1/2 assets, but you never know
+  reserves: z.array(z.number()),
+  liquidity: z.number(),
 })
+
+// TODO: no any - we have to retype this at type-level because recursion loses types
+const ZapperTokenBaseSchema: Type<any> = z.intersection(
+  z.object({
+    type: z.literals('base-token', 'app-token'),
+    network: SupportedZapperNetworks,
+    address: z.string(),
+    decimals: z.number(),
+    symbol: z.string(),
+    price: z.number(),
+  }),
+  // ZapperAssetBaseSchema redeclared here because of circular dependencies
+  // A Zapper token can itself be a staking asset, meaning it will contain some/all properties from ZapperAssetBaseSchema
+  // e.g stETH/WETH is a staking asset, but stETH itself is a staking asset with ETH as an underlying asset
+  // Note how tokens is different from ZapperAssetBaseSchema - we use z.lazy() to recursively reference ZapperTokenBaseSchema
+  z.object({
+    key: z.string().optional(),
+    type: z.string().optional(),
+    appId: ZapperAppIdSchema.optional(),
+    groupId: z.string().optional(),
+    network: SupportedZapperNetworks.optional(),
+    address: z.string().optional(),
+    price: z.number().optional(),
+    supply: z.number().optional(),
+    symbol: z.string().optional(),
+    decimals: z.number().optional(),
+    dataProps: ZapperDataPropsSchema.optional(),
+    displayProps: ZapperDisplayPropsSchema.optional(),
+    pricePerShare: z.array(z.union([z.string(), z.number()])).optional(),
+    // Note, we lose tsc validation here but this *does* validate at runtime
+    // https://github.com/davidmdm/myzod#lazy
+    tokens: z.array(z.lazy(() => ZapperTokenBaseSchema)).optional(),
+  }),
+)
 
 const ZapperTokenWithBalancesSchema = z.union([
   ZapperTokenBaseSchema,
@@ -484,14 +524,6 @@ const ZapperTokenWithBalancesSchema = z.union([
     balanceUSD: z.number(),
   }),
 ])
-
-const ZapperDataPropsSchema = z.object({
-  apy: z.number(),
-  fee: z.number().optional(),
-  volume: z.number().optional(),
-  reserves: z.tuple([z.number(), z.number()]),
-  liquidity: z.number(),
-})
 
 const ZapperAssetBaseSchema = z.object({
   key: z.string(),

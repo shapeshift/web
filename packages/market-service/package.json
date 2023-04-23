@@ -18,7 +18,7 @@
     "dev": "yarn run -T tsc --build --watch"
   },
   "dependencies": {
-    "@ethersproject/providers": "^5.5.3",
+    "@ethersproject/providers": "^5.7.2",
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "workspace:^",
     "@shapeshiftoss/investor-foxy": "workspace:^",

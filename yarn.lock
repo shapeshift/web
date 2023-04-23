@@ -4180,7 +4180,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/providers@npm:5.7.2, @ethersproject/providers@npm:^5.5.3, @ethersproject/providers@npm:^5.7.2":
+"@ethersproject/providers@npm:5.7.2, @ethersproject/providers@npm:^5.7.2":
   version: 5.7.2
   resolution: "@ethersproject/providers@npm:5.7.2"
   dependencies:
@@ -5830,7 +5830,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/asset-service@workspace:packages/asset-service"
   dependencies:
-    "@ethersproject/providers": ^5.5.3
+    "@ethersproject/providers": ^5.7.2
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/investor-idle": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
@@ -6157,7 +6157,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/investor-idle@workspace:packages/investor-idle"
   dependencies:
-    "@ethersproject/providers": ^5.5.3
+    "@ethersproject/providers": ^5.7.2
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/investor": "workspace:^"
@@ -6172,7 +6172,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/investor-yearn@workspace:packages/investor-yearn"
   dependencies:
-    "@ethersproject/providers": ^5.5.3
+    "@ethersproject/providers": ^5.7.2
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/investor": "workspace:^"
@@ -6202,7 +6202,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/market-service@workspace:packages/market-service"
   dependencies:
-    "@ethersproject/providers": ^5.5.3
+    "@ethersproject/providers": ^5.7.2
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/investor-foxy": "workspace:^"
@@ -6385,7 +6385,7 @@ __metadata:
     eslint-plugin-prettier: ^4.0.0
     eslint-plugin-simple-import-sort: ^7.0.0
     eth-url-parser: ^1.0.4
-    ethers: ^5.5.3
+    ethers: ^5.7.2
     fast-json-stable-stringify: ^2.1.0
     framer-motion: ^6.3.11
     friendly-challenge: 0.9.2
@@ -15431,7 +15431,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^5.4.7, ethers@npm:^5.5.3, ethers@npm:^5.6.5, ethers@npm:^5.6.9, ethers@npm:^5.7.0, ethers@npm:^5.7.2":
+"ethers@npm:^5.4.7, ethers@npm:^5.6.5, ethers@npm:^5.6.9, ethers@npm:^5.7.0, ethers@npm:^5.7.2":
   version: 5.7.2
   resolution: "ethers@npm:5.7.2"
   dependencies:

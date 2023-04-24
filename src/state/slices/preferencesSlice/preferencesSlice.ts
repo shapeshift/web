@@ -35,11 +35,11 @@ export type FeatureFlags = {
   ZrxEthereumSwap: boolean
   ZrxOptimismSwap: boolean
   Mixpanel: boolean
-  LiveSupport: boolean
   LifiSwap: boolean
   FoxBondCTA: boolean
   DynamicLpAssets: boolean
   Jaypegz: boolean
+  OneInch: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -90,9 +90,9 @@ const initialState: Preferences = {
     ZrxOptimismSwap: getConfig().REACT_APP_FEATURE_ZRX_OPTIMISM,
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
     Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
-    LiveSupport: getConfig().REACT_APP_FEATURE_LIVESUPPORT,
     FoxBondCTA: getConfig().REACT_APP_FEATURE_FOX_BOND_CTA,
     DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
+    OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

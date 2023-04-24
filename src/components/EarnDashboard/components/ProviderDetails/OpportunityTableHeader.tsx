@@ -8,6 +8,7 @@ export const opportunityRowGrid: GridProps['gridTemplateColumns'] = {
 
 export const OpportunityTableHeader: React.FC<SimpleGridProps> = props => {
   const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
+  const bg = useColorModeValue('white', 'gray.785')
   return (
     <SimpleGrid
       gridTemplateColumns={{
@@ -15,6 +16,10 @@ export const OpportunityTableHeader: React.FC<SimpleGridProps> = props => {
         md: '1fr repeat(2, 170px)',
       }}
       color='gray.500'
+      bg={bg}
+      zIndex='docked'
+      position='sticky'
+      top={{ base: 'calc(71px + 107px)', md: '135px' }}
       textTransform='uppercase'
       fontSize='xs'
       letterSpacing='0.02em'

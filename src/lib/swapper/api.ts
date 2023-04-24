@@ -205,6 +205,7 @@ export enum SwapperName {
   Zrx = '0x',
   Test = 'Test',
   LIFI = 'LI.FI',
+  OneInch = '1INCH',
 }
 
 export enum SwapperType {
@@ -218,6 +219,7 @@ export enum SwapperType {
   CowSwap = 'CoW Swap',
   Test = 'Test',
   LIFI = 'LI.FI',
+  OneInch = '1INCH',
 }
 
 export type TradeTxs = {

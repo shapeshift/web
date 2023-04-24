@@ -22,7 +22,7 @@ const validators = {
   REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL: url(),
   REACT_APP_UNCHAINED_BNBSMARTCHAIN_WS_URL: url(),
   REACT_APP_UNCHAINED_POLYGON_HTTP_URL: url(),
-  REACT_APP_UNCHAINED_POLYGON_HTTP_WS_URL: url(),
+  REACT_APP_UNCHAINED_POLYGON_WS_URL: url(),
   REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: url(),
   REACT_APP_UNCHAINED_BITCOIN_WS_URL: url(),
   REACT_APP_UNCHAINED_BITCOINCASH_HTTP_URL: url(),
@@ -64,7 +64,6 @@ const validators = {
   REACT_APP_ZERION_API_KEY: str(),
   REACT_APP_FEATURE_DEFI_DASHBOARD: bool({ default: false }),
   REACT_APP_ZAPPER_API_KEY: str(),
-  REACT_APP_FEATURE_LIVESUPPORT: bool({ default: false }),
   REACT_APP_FEATURE_LIFI_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_JAYPEGZ: bool({ default: false }),
@@ -144,6 +143,10 @@ const validators = {
   REACT_APP_FEATURE_MIXPANEL: bool({ default: false }),
   REACT_APP_FEATURE_FOX_BOND_CTA: bool({ default: false }),
   REACT_APP_FEATURE_DYNAMIC_LP_ASSETS: bool({ default: false }),
+  REACT_APP_FEATURE_ONE_INCH: bool({ default: false }),
+  REACT_APP_ONE_INCH_API_URL: url({
+    default: 'https://api.1inch.io/v5.0',
+  }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

@@ -79,7 +79,14 @@ export const DegradedStateBanner = () => {
     return (
       <Flex gap={2} flexWrap='wrap'>
         {erroredAccounts.icons.map((icon, index) => (
-          <Tag py={1} height='auto' alignItems='center' fontSize='sm' gap={2}>
+          <Tag
+            key={`account-icon-${index}`}
+            py={1}
+            height='auto'
+            alignItems='center'
+            fontSize='sm'
+            gap={2}
+          >
             <LazyLoadAvatar src={icon} size='2xs' />
             <RawText>{erroredAccounts.names[index]}</RawText>
           </Tag>

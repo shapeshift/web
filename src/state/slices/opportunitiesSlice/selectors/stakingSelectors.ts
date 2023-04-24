@@ -3,6 +3,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import uniqBy from 'lodash/uniqBy'
 import type { BN } from 'lib/bignumber/bignumber'
@@ -45,10 +46,12 @@ import type {
 import {
   deserializeUserStakingId,
   filterUserStakingIdByStakingIdCompareFn,
+  getOpportunityAccessor,
   isActiveStakingEarnOpportunity,
   isActiveStakingOpportunity,
   isFoxEthStakingAssetId,
   makeOpportunityIcons,
+  serializeUserStakingId,
   supportsUndelegations,
 } from '../utils'
 
@@ -526,7 +529,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
         ({ contractAddress, assetId, id }) => contractAddress ?? assetId ?? id,
       )
 
-      return aggregatedEarnUserStakingOpportunitiesIncludeEmpty.filter(opportunity => {
+      const results = aggregatedEarnUserStakingOpportunitiesIncludeEmpty.filter(opportunity => {
         if (opportunity?.expired) {
           return (
             bnOrZero(opportunity.stakedAmountCryptoBaseUnit).gt(0) ||
@@ -538,6 +541,11 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
 
         return true
       })
+      const getTotalProviderBalance = (opportunity: StakingEarnOpportunityType) =>
+        bnOrZero(opportunity.fiatAmount).toNumber()
+      const getApy = (opportunity: StakingEarnOpportunityType) =>
+        bnOrZero(opportunity.apy).toNumber()
+      return orderBy(results, [getTotalProviderBalance, getApy], ['desc', 'desc'])
     },
   )
 
@@ -658,5 +666,56 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
           : undefined
       })
       .filter(isSome)
+  },
+)
+
+export const selectAllEarnUserStakingOpportunitiesByFilter = createDeepEqualOutputSelector(
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  selectUserStakingOpportunitiesById,
+  selectAssets,
+  selectMarketDataSortedByMarketCap,
+  selectAssetIdParamFromFilter,
+  selectAccountIdParamFromFilter,
+  (
+    aggregatedUserStakingOpportunities,
+    userStakingOpportunitiesById,
+    assets,
+    marketData,
+    assetId,
+    accountId,
+  ): StakingEarnOpportunityType[] => {
+    const opportunities: StakingEarnOpportunityType[] = []
+    for (const userStakingOpportunity of aggregatedUserStakingOpportunities) {
+      const depositKey = getOpportunityAccessor({
+        provider: userStakingOpportunity.provider,
+        type: userStakingOpportunity.type,
+      })
+      const underlyingAssetIds = [userStakingOpportunity[depositKey]].flat()
+      if (underlyingAssetIds && assetId && underlyingAssetIds.includes(assetId)) {
+        let opportunityBalance = userStakingOpportunity.stakedAmountCryptoBaseUnit
+
+        if (accountId) {
+          const userStakingId = serializeUserStakingId(accountId, userStakingOpportunity.id)
+          const userOpportunity = userStakingOpportunitiesById[userStakingId]
+          opportunityBalance = userOpportunity?.stakedAmountCryptoBaseUnit ?? '0'
+        }
+
+        const asset = assets[userStakingOpportunity.assetId]
+        const underlyingAsset = assets[userStakingOpportunity.underlyingAssetId]
+        const marketDataPrice = marketData[asset?.assetId ?? underlyingAsset?.assetId ?? '']?.price
+        const opportunity = {
+          ...userStakingOpportunity,
+          stakedAmountCryptoBaseUnit: opportunityBalance,
+          fiatAmount: bnOrZero(opportunityBalance)
+            .div(bn(10).pow(bnOrZero(asset?.precision ?? underlyingAsset?.precision)))
+            .times(marketDataPrice ?? '0')
+            .toString(),
+        }
+        if (bnOrZero(opportunityBalance).gt(0)) {
+          opportunities.push(opportunity)
+        }
+      }
+    }
+    return opportunities
   },
 )

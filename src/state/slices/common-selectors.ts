@@ -62,8 +62,8 @@ export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelecto
   selectPortfolioAssetBalancesBaseUnit,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
-  (assets, accountBalances, assetBalances, accountId, assetId): string | undefined => {
-    if (!assetId) return
+  (assets, accountBalances, assetBalances, accountId, assetId): string => {
+    if (!assetId) return '0'
     const precision = assets?.[assetId]?.precision ?? 0
     if (accountId) return fromBaseUnit(bnOrZero(accountBalances?.[accountId]?.[assetId]), precision)
     return fromBaseUnit(bnOrZero(assetBalances[assetId]), precision)

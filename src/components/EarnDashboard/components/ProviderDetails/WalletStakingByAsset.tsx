@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react'
+import { Box, Flex } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
@@ -109,7 +109,7 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
         {groupedItems.map(group => {
           const [name, values] = group
           return (
-            <>
+            <Box key={`group-${name}`}>
               <OpportunityTableHeader>
                 <RawText>{name}</RawText>
                 <RawText display={{ base: 'none', md: 'block' }}>
@@ -120,13 +120,13 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
               <Flex px={{ base: 0, md: 2 }} flexDirection='column'>
                 {values.map((opportunity: StakingEarnOpportunityType) => (
                   <OpportunityRow
-                    key={opportunity.id}
+                    key={`${opportunity.provider}-${opportunity.assetId}`}
                     onClick={handleClick}
                     opportunity={opportunity}
                   />
                 ))}
               </Flex>
-            </>
+            </Box>
           )
         })}
       </Flex>

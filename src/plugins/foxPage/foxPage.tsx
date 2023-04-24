@@ -134,14 +134,14 @@ export const FoxPage = () => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const mobileTabBg = useColorModeValue('gray.100', 'gray.750')
   const description =
-    selectedAsset?.assetId === foxAssetId
+    selectedAsset.assetId === foxAssetId
       ? translate('plugins.foxPage.foxDescription') // FOX has a custom description, other assets can use the asset-service one
-      : selectedAsset?.description
+      : selectedAsset.description
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   // TODO(gomes): Export a similar RTK select() query, consumed to determine wallet + staking balance loaded
   const getAssetDescriptionQuery = useGetAssetDescriptionQuery({
-    assetId: selectedAsset?.assetId,
+    assetId: selectedAsset.assetId,
     selectedLocale,
   })
   const isAssetDescriptionLoaded = !getAssetDescriptionQuery.isLoading

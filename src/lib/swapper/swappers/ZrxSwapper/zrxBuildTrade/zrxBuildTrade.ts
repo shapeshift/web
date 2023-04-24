@@ -61,6 +61,7 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
    * }
    */
 
+  // @ts-ignore figure out how to fix me
   const zrxRetry = applyAxiosRetry(zrxService, {
     statusCodesToRetry: [[400, 400]],
     shouldRetry: err => {

@@ -576,13 +576,6 @@ const ZapperAssetWithBalancesSchema = z.union([
   }),
 ])
 
-// const GasPricesResponse = z.object({
-// standard: z.object({}).partial(),
-// fast: z.object({}).partial(),
-// instant: z.object({}).partial(),
-// eip1559: z.boolean(),
-// })
-
 const ZapperProductSchema = z.object({
   label: z.string(),
   assets: z.array(z.union([ZapperAssetBaseSchema, ZapperAssetWithBalancesSchema])),

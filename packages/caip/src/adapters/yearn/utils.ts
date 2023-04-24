@@ -1,5 +1,5 @@
-import { JsonRpcBatchProvider } from '@ethersproject/providers'
 /* eslint-disable @shapeshiftoss/logger/no-native-console */
+import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import type { Token, Vault } from '@yfi/sdk'
 import { Yearn } from '@yfi/sdk'
 import fs from 'fs'

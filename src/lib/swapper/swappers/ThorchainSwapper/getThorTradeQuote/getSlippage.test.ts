@@ -1,6 +1,9 @@
 import { btcAssetId, ethAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { Ok } from '@sniptt/monads'
+import type { AxiosResponse } from 'axios'
 import { bn } from 'lib/bignumber/bignumber'
 
+import type { InboundAddressResponse, ThornodePoolResponse } from '../ThorchainSwapper'
 import { getSwapOutput } from '../utils/getTradeRate/getTradeRate'
 import {
   btcThornodePool,
@@ -23,11 +26,18 @@ describe('getSlippage', () => {
     mockedAxios.get.mockImplementation(url => {
       switch (url) {
         case '/lcd/thorchain/pools':
-          return Promise.resolve({ data: thornodePools })
+          return Promise.resolve(
+            Ok({ data: thornodePools } as unknown as AxiosResponse<ThornodePoolResponse, any>),
+          )
         case '/lcd/thorchain/inbound_addresses':
-          return Promise.resolve({ data: mockInboundAddresses })
+          return Promise.resolve(
+            Ok({ data: mockInboundAddresses } as unknown as AxiosResponse<
+              InboundAddressResponse,
+              any
+            >),
+          )
         default:
-          return Promise.resolve({ data: undefined })
+          return Promise.resolve(Ok({ data: undefined } as unknown as AxiosResponse<any, any>))
       }
     })
   })
@@ -72,7 +82,7 @@ describe('getSlippage', () => {
         buyAssetId: ethAssetId,
         sellAssetId: btcAssetId,
       })
-      expect(slippage.toPrecision()).toEqual(
+      expect(slippage.unwrap().toPrecision()).toEqual(
         expectedBtcRuneSlippage.plus(expectedRuneEthSlippage).toPrecision(),
       )
     })
@@ -84,7 +94,7 @@ describe('getSlippage', () => {
         buyAssetId: ethAssetId,
         sellAssetId: thorchainAssetId,
       })
-      expect(slippage.toPrecision()).toEqual('1.6161699588038e-7')
+      expect(slippage.unwrap().toPrecision()).toEqual('1.6161699588038e-7')
     })
 
     it('should return slippage for ETH -> RUNE single swap', async () => {
@@ -94,7 +104,7 @@ describe('getSlippage', () => {
         buyAssetId: thorchainAssetId,
         sellAssetId: ethAssetId,
       })
-      expect(slippage.toPrecision()).toEqual('0.00010927540718746784')
+      expect(slippage.unwrap().toPrecision()).toEqual('0.00010927540718746784')
     })
   })
 })

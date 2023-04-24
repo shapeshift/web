@@ -181,7 +181,7 @@ export class FoxyApi {
     return liquidityReserveContract
   }
 
-  private async getNonce(userAddress: string): Promise<{ nonce: string }> {
+  private async getNonce(userAddress: string): Promise<string> {
     let nonce
     try {
       nonce = (await this.provider.getTransactionCount(userAddress)).toString()
@@ -189,7 +189,7 @@ export class FoxyApi {
       throw new Error(`Get nonce Error: ${e}`)
     }
 
-    return { nonce }
+    return nonce
   }
 
   async getFoxyOpportunities() {
@@ -505,7 +505,7 @@ export class FoxyApi {
       amount ? numberToHex(bnOrZero(amount).toString()) : MAX_ALLOWANCE,
     ])
 
-    const { nonce } = await this.getNonce(userAddress)
+    const nonce = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
@@ -565,7 +565,7 @@ export class FoxyApi {
       userAddress,
     ])
 
-    const { nonce } = await this.getNonce(userAddress)
+    const nonce = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
@@ -611,7 +611,7 @@ export class FoxyApi {
       : ['instantUnstake', ['true']]
     const data: string = stakingContract.interface.encodeFunctionData(...stakingContractCallInput)
 
-    const { nonce } = await this.getNonce(userAddress)
+    const nonce = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
@@ -728,7 +728,7 @@ export class FoxyApi {
       addressToClaim,
     ])
 
-    const { nonce } = await this.getNonce(userAddress)
+    const nonce = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
@@ -836,7 +836,7 @@ export class FoxyApi {
     if (!canSendRequest) throw new Error('Not ready to send request')
 
     const data: string = stakingContract.interface.encodeFunctionData('sendWithdrawalRequests')
-    const { nonce } = await this.getNonce(userAddress)
+    const nonce = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
@@ -879,7 +879,7 @@ export class FoxyApi {
       this.normalizeAmount(amountDesired),
     ])
 
-    const { nonce } = await this.getNonce(userAddress)
+    const nonce = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
@@ -921,7 +921,7 @@ export class FoxyApi {
       this.normalizeAmount(amountDesired),
     ])
 
-    const { nonce } = await this.getNonce(userAddress)
+    const nonce = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,

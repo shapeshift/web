@@ -8,7 +8,6 @@ import axios from 'axios'
 import type { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 import { toLower } from 'lodash'
-import { numberToHex } from 'web3-utils'
 
 import { erc20Abi } from '../abi/erc20-abi'
 import { foxyAbi } from '../abi/foxy-abi'
@@ -509,7 +508,7 @@ export class FoxyApi {
     const depositTokenContract = new ethers.Contract(tokenContractAddress, erc20Abi, this.provider)
     const data: string = depositTokenContract.interface.encodeFunctionData('approve', [
       contractAddress,
-      amount ? numberToHex(bnOrZero(amount).toString()) : MAX_ALLOWANCE,
+      amount ? this.normalizeAmount(bnOrZero(amount)) : MAX_ALLOWANCE,
     ])
 
     const chainReferenceAsNumber = Number(this.ethereumChainReference)

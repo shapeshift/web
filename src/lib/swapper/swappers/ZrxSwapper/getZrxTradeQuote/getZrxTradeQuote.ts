@@ -1,6 +1,6 @@
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import { APPROVAL_GAS_LIMIT } from 'lib/swapper/swappers/utils/constants'
@@ -43,7 +43,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     )
 
     // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-price
-    const { data: price } = await zrxService.get<ZrxPriceResponse>('/swap/v1/price', {
+    const { data } = await zrxService.get<ZrxPriceResponse>('/swap/v1/price', {
       params: {
         buyToken: assetToToken(buyAsset),
         sellToken: assetToToken(sellAsset),
@@ -54,7 +54,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       },
     })
 
-    if (!price) {
+    if (!data.price) {
       return Err(
         makeSwapErrorRight({
           message: '[getZrxTradeQuote] Bad ZRX response, no data was returned',
@@ -63,18 +63,19 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       )
     }
 
-    const { average: fee } = await adapter.getGasFeeData()
+    const { average, fast } = await adapter.getGasFeeData()
+
+    // use worst case gas price for all fee display values
+    const maxGasPrice = bnOrZero(BigNumber.max(fast.maxFeePerGas ?? 0, fast.gasPrice))
 
     // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
     // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
-    const approvalFeeCryptoBaseUnit = bn(APPROVAL_GAS_LIMIT)
-      .times(bnOrZero(fee.maxFeePerGas ?? price.gasPrice))
-      .toFixed(0)
+    const approvalFeeCryptoBaseUnit = bn(APPROVAL_GAS_LIMIT).times(maxGasPrice).toFixed(0)
 
     const useSellAmount = !!sellAmount
-    const rate = useSellAmount ? price.price : bn(1).div(price.price).toString()
-    const gasLimit = bnOrZero(price.gas)
-    const txFee = gasLimit.times(bnOrZero(fee.maxFeePerGas ?? price.gasPrice))
+    const rate = useSellAmount ? data.price : bn(1).div(data.price).toString()
+    const gasLimit = bnOrZero(data.gas)
+    const txFee = gasLimit.times(maxGasPrice)
 
     const tradeQuote: TradeQuote<ZrxSupportedChainId> = {
       buyAsset,
@@ -86,19 +87,19 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       feeData: {
         chainSpecific: {
           estimatedGasCryptoBaseUnit: gasLimit.toFixed(0),
-          gasPriceCryptoBaseUnit: fee.gasPrice,
-          maxFeePerGas: fee.maxFeePerGas,
-          maxPriorityFeePerGas: fee.maxPriorityFeePerGas,
+          gasPriceCryptoBaseUnit: fast.gasPrice, // fast gas price since it is underestimated currently
+          maxFeePerGas: average.maxFeePerGas,
+          maxPriorityFeePerGas: average.maxPriorityFeePerGas,
           approvalFeeCryptoBaseUnit,
         },
         networkFeeCryptoBaseUnit: txFee.toFixed(0),
         buyAssetTradeFeeUsd: '0',
         sellAssetTradeFeeUsd: '0',
       },
-      allowanceContract: price.allowanceTarget,
-      buyAmountCryptoBaseUnit: price.buyAmount,
-      sellAmountBeforeFeesCryptoBaseUnit: price.sellAmount,
-      sources: price.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
+      allowanceContract: data.allowanceTarget,
+      buyAmountCryptoBaseUnit: data.buyAmount,
+      sellAmountBeforeFeesCryptoBaseUnit: data.sellAmount,
+      sources: data.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
     }
 
     return Ok(tradeQuote as TradeQuote<T>)

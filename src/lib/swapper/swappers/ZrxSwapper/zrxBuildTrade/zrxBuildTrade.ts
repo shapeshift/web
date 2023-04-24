@@ -66,7 +66,7 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
       },
     )
 
-    const { average: feeData } = await adapter.getFeeData({
+    const { average, fast } = await adapter.getFeeData({
       to: quote.to,
       value: quote.value,
       chainSpecific: {
@@ -75,8 +75,6 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
         contractData: quote.data,
       },
     })
-
-    const { chainSpecific: fee, txFee } = feeData
 
     const trade: ZrxTrade<ZrxSupportedChainId> = {
       sellAsset,
@@ -88,11 +86,11 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
       feeData: {
         chainSpecific: {
           estimatedGasCryptoBaseUnit: quote.gas,
-          gasPriceCryptoBaseUnit: fee.gasPrice,
-          maxFeePerGas: fee.maxFeePerGas,
-          maxPriorityFeePerGas: fee.maxPriorityFeePerGas,
+          gasPriceCryptoBaseUnit: fast.chainSpecific.gasPrice, // fast gas price since it is underestimated currently
+          maxFeePerGas: average.chainSpecific.maxFeePerGas,
+          maxPriorityFeePerGas: average.chainSpecific.maxPriorityFeePerGas,
         },
-        networkFeeCryptoBaseUnit: txFee,
+        networkFeeCryptoBaseUnit: fast.txFee, // worst case fee for display purposes
         buyAssetTradeFeeUsd: '0',
         sellAssetTradeFeeUsd: '0',
       },

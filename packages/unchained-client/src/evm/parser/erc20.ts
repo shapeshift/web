@@ -1,3 +1,4 @@
+import type { JsonRpcBatchProvider } from '@ethersproject/providers'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { BigNumber } from 'ethers'
@@ -16,11 +17,11 @@ export interface TxMetadata extends BaseTxMetadata {
 
 interface ParserArgs {
   chainId: ChainId
-  provider: ethers.providers.JsonRpcProvider
+  provider: JsonRpcBatchProvider
 }
 
 export class Parser<T extends Tx> implements SubParser<T> {
-  provider: ethers.providers.JsonRpcProvider
+  provider: JsonRpcBatchProvider
 
   readonly chainId: ChainId
   readonly abiInterface = new ethers.utils.Interface(ERC20_ABI)

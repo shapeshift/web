@@ -1,3 +1,4 @@
+import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, ASSET_REFERENCE, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
@@ -21,14 +22,13 @@ export class BaseTransactionParser<T extends Tx> {
   chainId: ChainId
   assetId: AssetId
 
-  protected readonly provider: ethers.providers.JsonRpcProvider
-
+  protected readonly provider: JsonRpcBatchProvider
   private parsers: SubParser<T>[] = []
 
   constructor(args: TransactionParserArgs) {
     this.chainId = args.chainId
     this.assetId = args.assetId
-    this.provider = new ethers.providers.JsonRpcProvider(args.rpcUrl)
+    this.provider = new JsonRpcBatchProvider(args.rpcUrl)
   }
 
   /**

@@ -155,7 +155,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
       onCancel={() => onNext(DefiStep.Info)}
       headerText='modals.confirm.withdraw.header'
       onConfirm={handleConfirm}
-      isDisabled={!hasEnoughBalanceForGas}
+      isDisabled={false}
       loading={state.loading}
       loadingText={translate('common.confirm')}
     >

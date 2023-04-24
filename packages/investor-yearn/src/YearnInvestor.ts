@@ -1,4 +1,4 @@
-import { JsonRpcProvider } from '@ethersproject/providers'
+import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { Investor } from '@shapeshiftoss/investor'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -31,7 +31,7 @@ export class YearnInvestor implements Investor<PreparedTransaction, VaultMetadat
 
   constructor({ chainAdapter, dryRun, providerUrl, network = 1 }: ConstructorArgs) {
     const httpProvider = new Web3.providers.HttpProvider(providerUrl)
-    const jsonRpcProvider = new JsonRpcProvider(providerUrl)
+    const jsonRpcProvider = new JsonRpcBatchProvider(providerUrl)
 
     const web3 = new Web3(httpProvider)
     this.#deps = Object.freeze({

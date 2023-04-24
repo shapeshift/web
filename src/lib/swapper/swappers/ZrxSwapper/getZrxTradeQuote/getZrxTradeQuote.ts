@@ -54,7 +54,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       },
     })
 
-    if (!data.price) {
+    if (!data) {
       return Err(
         makeSwapErrorRight({
           message: '[getZrxTradeQuote] Bad ZRX response, no data was returned',

@@ -29,7 +29,6 @@
     "js-pixel-fonts": "^1.5.0"
   },
   "devDependencies": {
-    "@ethersproject/providers": "^5.7.2",
     "@yfi/sdk": "^1.2.0",
     "colorthief": "^2.3.2"
   }

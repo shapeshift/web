@@ -21,7 +21,6 @@
     "cli": "yarn build && yarn node dist/idlecli.js"
   },
   "dependencies": {
-    "@ethersproject/providers": "^5.7.2",
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "workspace:^",
     "@shapeshiftoss/investor": "workspace:^",

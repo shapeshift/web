@@ -4180,7 +4180,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/providers@npm:5.7.2, @ethersproject/providers@npm:^5.7.2":
+"@ethersproject/providers@npm:5.7.2":
   version: 5.7.2
   resolution: "@ethersproject/providers@npm:5.7.2"
   dependencies:
@@ -5830,7 +5830,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/asset-service@workspace:packages/asset-service"
   dependencies:
-    "@ethersproject/providers": ^5.7.2
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/investor-idle": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
@@ -6140,13 +6139,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/investor-foxy@workspace:packages/investor-foxy"
   dependencies:
-    "@ethersproject/providers": ^5.7.2
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/logger": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@types/readline-sync": ^1.4.4
-    ethers: ^5.7.2
     readline-sync: ^1.4.10
   languageName: unknown
   linkType: soft
@@ -6155,7 +6152,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/investor-idle@workspace:packages/investor-idle"
   dependencies:
-    "@ethersproject/providers": ^5.7.2
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/investor": "workspace:^"
@@ -6170,7 +6166,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/investor-yearn@workspace:packages/investor-yearn"
   dependencies:
-    "@ethersproject/providers": ^5.7.2
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/investor": "workspace:^"
@@ -6200,7 +6195,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/market-service@workspace:packages/market-service"
   dependencies:
-    "@ethersproject/providers": ^5.7.2
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/investor-foxy": "workspace:^"
@@ -6273,6 +6267,7 @@ __metadata:
     "@commitlint/config-conventional": ^15.0.0
     "@emotion/react": ^11.9.3
     "@emotion/styled": ^11.9.3
+    "@ethersproject/providers": 5.7.2
     "@formatjs/intl-getcanonicallocales": ^2.0.2
     "@formatjs/intl-locale": ^3.0.2
     "@formatjs/intl-numberformat": ^8.0.2

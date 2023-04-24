@@ -21,12 +21,10 @@
     "cli": "yarn build && yarn node dist/foxycli.js"
   },
   "dependencies": {
-    "@ethersproject/providers": "^5.7.2",
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "workspace:^",
     "@shapeshiftoss/logger": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",
-    "ethers": "^5.7.2",
     "readline-sync": "^1.4.10"
   },
   "devDependencies": {

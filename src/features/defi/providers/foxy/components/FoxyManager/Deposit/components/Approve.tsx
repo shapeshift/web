@@ -68,7 +68,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     async (deposit: DepositValues) => {
       if (!accountAddress || !assetReference || !foxyApi) return
       try {
-        const feeDataEstimate = await foxyApi.estimateDepositGas({
+        const feeDataEstimate = await foxyApi.estimateDepositFees({
           tokenContractAddress: assetReference,
           contractAddress,
           amountDesired: bnOrZero(deposit.cryptoAmount)

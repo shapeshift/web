@@ -32,8 +32,9 @@ import type {
   CanClaimWithdrawParams,
   ClaimWithdrawal,
   ContractAddressInput,
-  EstimateGasApproveInput,
-  EstimateGasTxInput,
+  EstimateApproveFeesInput,
+  EstimateFeesTxInput,
+  EstimateWithdrawFeesInput,
   FoxyAddressesType,
   FoxyOpportunityInputData,
   GetTokeRewardAmount,
@@ -47,7 +48,6 @@ import type {
   TxInputWithoutAmount,
   TxInputWithoutAmountAndWallet,
   TxReceipt,
-  WithdrawEstimateGasInput,
   WithdrawInfo,
   WithdrawInput,
 } from './foxy-types'
@@ -239,7 +239,7 @@ export class FoxyApi {
     return this.provider.getTransactionReceipt(txid)
   }
 
-  async estimateClaimWithdrawGas(
+  async estimateClaimWithdrawFees(
     input: ClaimWithdrawal,
   ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
     const { claimAddress, userAddress, contractAddress } = input
@@ -271,7 +271,7 @@ export class FoxyApi {
     }
   }
 
-  async estimateSendWithdrawalRequestsGas(
+  async estimateSendWithdrawalRequestsFees(
     input: TxInputWithoutAmountAndWallet,
   ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
     const { userAddress, contractAddress } = input
@@ -302,8 +302,8 @@ export class FoxyApi {
     }
   }
 
-  async estimateAddLiquidityGas(
-    input: EstimateGasTxInput,
+  async estimateAddLiquidityFees(
+    input: EstimateFeesTxInput,
   ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
     const { amountDesired, userAddress, contractAddress } = input
     this.verifyAddresses([userAddress, contractAddress])
@@ -336,8 +336,8 @@ export class FoxyApi {
     }
   }
 
-  async estimateRemoveLiquidityGas(
-    input: EstimateGasTxInput,
+  async estimateRemoveLiquidityFees(
+    input: EstimateFeesTxInput,
   ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
     const { amountDesired, userAddress, contractAddress } = input
     this.verifyAddresses([userAddress, contractAddress])
@@ -371,8 +371,8 @@ export class FoxyApi {
     }
   }
 
-  async estimateWithdrawGas(
-    input: WithdrawEstimateGasInput,
+  async estimateWithdrawFees(
+    input: EstimateWithdrawFeesInput,
   ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
     const { amountDesired, userAddress, contractAddress, type } = input
     this.verifyAddresses([userAddress, contractAddress])
@@ -411,8 +411,8 @@ export class FoxyApi {
     }
   }
 
-  async estimateApproveGas(
-    input: EstimateGasApproveInput,
+  async estimateApproveFees(
+    input: EstimateApproveFeesInput,
   ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
     const { userAddress, tokenContractAddress, contractAddress } = input
     this.verifyAddresses([userAddress, contractAddress, tokenContractAddress])
@@ -445,8 +445,8 @@ export class FoxyApi {
     }
   }
 
-  async estimateDepositGas(
-    input: EstimateGasTxInput,
+  async estimateDepositFees(
+    input: EstimateFeesTxInput,
   ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
     const { amountDesired, userAddress, contractAddress } = input
     this.verifyAddresses([userAddress, contractAddress])
@@ -495,7 +495,7 @@ export class FoxyApi {
 
     let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
     try {
-      estimatedFees = await this.estimateApproveGas(input)
+      estimatedFees = await this.estimateApproveFees(input)
     } catch (e) {
       throw new Error(`Estimate Gas Error: ${e}`)
     }
@@ -553,7 +553,7 @@ export class FoxyApi {
 
     let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
     try {
-      estimatedFees = await this.estimateDepositGas(input)
+      estimatedFees = await this.estimateDepositFees(input)
     } catch (e) {
       throw new Error(`Estimate Gas Error: ${e}`)
     }
@@ -594,7 +594,7 @@ export class FoxyApi {
 
     let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
     try {
-      estimatedFees = await this.estimateWithdrawGas(input)
+      estimatedFees = await this.estimateWithdrawFees(input)
     } catch (e) {
       throw new Error(`Estimate Gas Error: ${e}`)
     }
@@ -714,7 +714,7 @@ export class FoxyApi {
 
     let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
     try {
-      estimatedFees = await this.estimateClaimWithdrawGas(input)
+      estimatedFees = await this.estimateClaimWithdrawFees(input)
     } catch (e) {
       throw new Error(`Estimate Gas Error: ${e}`)
     }
@@ -825,7 +825,7 @@ export class FoxyApi {
 
     let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
     try {
-      estimatedFees = await this.estimateSendWithdrawalRequestsGas(input)
+      estimatedFees = await this.estimateSendWithdrawalRequestsFees(input)
     } catch (e) {
       throw new Error(`Estimate Gas Error: ${e}`)
     }
@@ -868,7 +868,7 @@ export class FoxyApi {
 
     let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
     try {
-      estimatedFees = await this.estimateAddLiquidityGas(input)
+      estimatedFees = await this.estimateAddLiquidityFees(input)
     } catch (e) {
       throw new Error(`Estimate Gas Error: ${e}`)
     }
@@ -910,7 +910,7 @@ export class FoxyApi {
 
     let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
     try {
-      estimatedFees = await this.estimateRemoveLiquidityGas(input)
+      estimatedFees = await this.estimateRemoveLiquidityFees(input)
     } catch (e) {
       throw new Error(`Estimate Gas Error: ${e}`)
     }

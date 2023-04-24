@@ -147,7 +147,7 @@ export const ClaimConfirm = ({
         })
         setUserAddress(userAddress)
         const [feeDataEstimate, canClaimWithdraw] = await Promise.all([
-          foxyApi.estimateClaimWithdrawGas({
+          foxyApi.estimateClaimWithdrawFees({
             claimAddress: userAddress,
             userAddress,
             contractAddress,

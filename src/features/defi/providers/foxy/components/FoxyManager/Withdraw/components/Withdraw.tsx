@@ -104,7 +104,7 @@ export const Withdraw: React.FC<
         if (!accountAddress) return
 
         try {
-          const feeDataEstimate = await foxyApi.estimateApproveGas({
+          const feeDataEstimate = await foxyApi.estimateApproveFees({
             tokenContractAddress: rewardId,
             contractAddress,
             userAddress: accountAddress,
@@ -130,7 +130,7 @@ export const Withdraw: React.FC<
         if (!accountAddress) return
 
         try {
-          const feeDataEstimate = await foxyApi.estimateWithdrawGas({
+          const feeDataEstimate = await foxyApi.estimateWithdrawFees({
             tokenContractAddress: rewardId,
             contractAddress,
             amountDesired: bnOrZero(

@@ -31,7 +31,7 @@ export type ApproveInput = {
   wallet: HDWallet
 }
 
-export type EstimateGasApproveInput = Pick<
+export type EstimateApproveFeesInput = Pick<
   ApproveInput,
   'userAddress' | 'tokenContractAddress' | 'contractAddress'
 >
@@ -58,7 +58,7 @@ export type WithdrawInput = Omit<TxInput, 'amountDesired'> & {
   amountDesired?: BigNumber
 }
 
-export type WithdrawEstimateGasInput = Omit<WithdrawInput, 'wallet'>
+export type EstimateWithdrawFeesInput = Omit<WithdrawInput, 'wallet'>
 
 export type FoxyOpportunityInputData = {
   tvl: BigNumber
@@ -70,7 +70,7 @@ export type FoxyOpportunityInputData = {
   liquidityReserve: string
 }
 
-export type EstimateGasTxInput = Pick<
+export type EstimateFeesTxInput = Pick<
   TxInput,
   'tokenContractAddress' | 'contractAddress' | 'userAddress' | 'amountDesired'
 >

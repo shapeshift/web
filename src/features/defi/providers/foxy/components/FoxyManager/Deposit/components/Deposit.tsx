@@ -69,7 +69,7 @@ export const Deposit: React.FC<DepositProps> = ({
       const getApproveGasEstimate = async () => {
         if (!accountAddress || !assetReference || !foxyApi) return
         try {
-          const feeDataEstimate = await foxyApi.estimateApproveGas({
+          const feeDataEstimate = await foxyApi.estimateApproveFees({
             tokenContractAddress: assetReference,
             contractAddress,
             userAddress: accountAddress,
@@ -97,7 +97,7 @@ export const Deposit: React.FC<DepositProps> = ({
       const getDepositGasEstimateCryptoBaseUnit = async (deposit: DepositValues) => {
         if (!accountAddress || !assetReference || !foxyApi) return
         try {
-          const feeDataEstimate = await foxyApi.estimateDepositGas({
+          const feeDataEstimate = await foxyApi.estimateDepositFees({
             tokenContractAddress: assetReference,
             contractAddress,
             amountDesired: bnOrZero(deposit.cryptoAmount)

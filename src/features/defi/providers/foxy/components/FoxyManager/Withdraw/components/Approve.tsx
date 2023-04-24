@@ -67,7 +67,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       if (!(rewardId && userAddress && state?.withdraw && foxyApi && dispatch && bip44Params))
         return
       try {
-        const feeDataEstimate = await foxyApi.estimateWithdrawGas({
+        const feeDataEstimate = await foxyApi.estimateWithdrawFees({
           tokenContractAddress: rewardId,
           contractAddress,
           amountDesired: bnOrZero(

@@ -1,4 +1,3 @@
-import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { getConfig } from 'config'
 import { ethers } from 'ethers'
@@ -15,7 +14,7 @@ export const useGetAbi = (
 
   const { to: contractAddress, data } = transactionParams
   const provider = useMemo(
-    () => new JsonRpcBatchProvider(getConfig().REACT_APP_ETHEREUM_NODE_URL),
+    () => new ethers.providers.JsonRpcBatchProvider(getConfig().REACT_APP_ETHEREUM_NODE_URL),
     [],
   )
 

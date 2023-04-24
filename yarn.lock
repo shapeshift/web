@@ -6267,7 +6267,6 @@ __metadata:
     "@commitlint/config-conventional": ^15.0.0
     "@emotion/react": ^11.9.3
     "@emotion/styled": ^11.9.3
-    "@ethersproject/providers": 5.7.2
     "@formatjs/intl-getcanonicallocales": ^2.0.2
     "@formatjs/intl-locale": ^3.0.2
     "@formatjs/intl-numberformat": ^8.0.2

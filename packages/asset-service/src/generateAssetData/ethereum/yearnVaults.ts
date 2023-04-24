@@ -1,7 +1,7 @@
-import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Token, Vault } from '@yfi/sdk'
 import { Yearn } from '@yfi/sdk'
+import { ethers } from 'ethers'
 import toLower from 'lodash/toLower'
 
 import type { Asset } from '../../service/AssetService'
@@ -9,7 +9,7 @@ import { ethereum } from '../baseAssets'
 import { colorMap } from '../colorMap'
 
 const network = 1 // 1 for mainnet
-const provider = new JsonRpcBatchProvider(process.env.ETHEREUM_NODE_URL)
+const provider = new ethers.providers.JsonRpcBatchProvider(process.env.ETHEREUM_NODE_URL)
 export const yearnSdk = new Yearn(network, { provider })
 
 const explorerData = {

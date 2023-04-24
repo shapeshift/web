@@ -1,4 +1,3 @@
-import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
@@ -86,9 +85,9 @@ const TOKE_IPFS_URL = 'https://ipfs.tokemaklabs.xyz/ipfs'
 
 export class FoxyApi {
   public adapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
-  public provider: JsonRpcBatchProvider
+  public provider: ethers.providers.JsonRpcBatchProvider
   private providerUrl: string
-  public jsonRpcProvider: JsonRpcBatchProvider
+  public jsonRpcProvider: ethers.providers.JsonRpcBatchProvider
   private foxyStakingContracts: ethers.Contract[]
   private liquidityReserveContracts: ethers.Contract[]
   private readonly ethereumChainReference: ChainReference
@@ -101,8 +100,8 @@ export class FoxyApi {
     chainReference = CHAIN_REFERENCE.EthereumMainnet,
   }: ConstructorArgs) {
     this.adapter = adapter
-    this.provider = new JsonRpcBatchProvider(providerUrl)
-    this.jsonRpcProvider = new JsonRpcBatchProvider(providerUrl)
+    this.provider = new ethers.providers.JsonRpcBatchProvider(providerUrl)
+    this.jsonRpcProvider = new ethers.providers.JsonRpcBatchProvider(providerUrl)
     this.foxyStakingContracts = foxyAddresses.map(
       addresses => new ethers.Contract(addresses.staking, foxyStakingAbi, this.provider),
     )

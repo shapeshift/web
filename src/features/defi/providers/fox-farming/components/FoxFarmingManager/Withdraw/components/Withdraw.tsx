@@ -95,9 +95,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const getWithdrawGasEstimateCryptoPrecision = useCallback(
     async (withdraw: WithdrawValues) => {
       try {
-        const fee = await getUnstakeFeeData(withdraw.cryptoAmount, isExiting)
-        if (!fee) return
-        return bnOrZero(fee.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
+        const feeData = await getUnstakeFeeData(withdraw.cryptoAmount, isExiting)
+        if (!feeData) return
+        return bnOrZero(feeData.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
       } catch (error) {
         // TODO: handle client side errors maybe add a toast?
         moduleLogger.error(error, 'FoxFarmingWithdraw:getWithdrawGasEstimate error:')
@@ -147,12 +147,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           assets,
         )
       } else {
-        const estimatedGasCrypto = await getApproveFeeData()
-        if (!estimatedGasCrypto) return
+        const feeData = await getApproveFeeData()
+        if (!feeData) return
         dispatch({
           type: FoxFarmingWithdrawActionType.SET_APPROVE,
           payload: {
-            estimatedGasCryptoPrecision: bnOrZero(estimatedGasCrypto.average.txFee)
+            estimatedGasCryptoPrecision: bnOrZero(feeData.txFee)
               .div(bn(10).pow(feeAsset.precision))
               .toPrecision(),
           },

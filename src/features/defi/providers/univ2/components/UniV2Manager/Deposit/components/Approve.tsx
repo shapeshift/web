@@ -241,13 +241,12 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       if (!(state && dispatch && lpOpportunity)) return
       if (!(isApprove0Needed || isApprove1Needed)) return
       if (isAsset0AllowanceGranted && isAsset1AllowanceGranted) {
-        // Get deposit gas estimate
-        const gasData = await getDepositFeeData({
+        const feeData = await getDepositFeeData({
           token0Amount: state.deposit.asset0CryptoAmount,
           token1Amount: state.deposit.asset1CryptoAmount,
         })
-        if (!gasData) return
-        const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
+        if (!feeData) return
+        const estimatedGasCryptoPrecision = bnOrZero(feeData.txFee)
           .div(bn(10).pow(feeAsset.precision))
           .toPrecision()
         dispatch({

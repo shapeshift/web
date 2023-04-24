@@ -6,7 +6,7 @@ import {
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
 } from 'contracts/constants'
 import { getOrCreateContractByAddress } from 'contracts/contractManager'
-import { buildAndBroadcast } from 'features/defi/helpers/utils'
+import { buildAndBroadcast, getFeeDataFromEstimate } from 'features/defi/helpers/utils'
 import { useCallback, useMemo } from 'react'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -81,7 +81,7 @@ export const useFoxFarming = (
           bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
         ])
 
-        const { average } = await adapter.getFeeData({
+        const feeData = await adapter.getFeeData({
           to: contractAddress,
           value: '0',
           chainSpecific: {
@@ -93,7 +93,7 @@ export const useFoxFarming = (
         const txid = await buildAndBroadcast({
           accountNumber,
           adapter,
-          feeData: average.chainSpecific,
+          feeData: getFeeDataFromEstimate(feeData).chainSpecific,
           to: contractAddress,
           value: '0',
           wallet,
@@ -135,7 +135,7 @@ export const useFoxFarming = (
               bnOrZero(lpAmount).times(bnOrZero(10).exponentiatedBy(lpAsset.precision)).toFixed(0),
             ])
 
-        const { average } = await adapter.getFeeData({
+        const feeData = await adapter.getFeeData({
           to: contractAddress,
           value: '0',
           chainSpecific: {
@@ -147,7 +147,7 @@ export const useFoxFarming = (
         const txid = await buildAndBroadcast({
           accountNumber,
           adapter,
-          feeData: average.chainSpecific,
+          feeData: getFeeDataFromEstimate(feeData).chainSpecific,
           to: contractAddress,
           value: '0',
           wallet,
@@ -201,7 +201,7 @@ export const useFoxFarming = (
       },
     })
 
-    return feeData
+    return getFeeDataFromEstimate(feeData)
   }, [adapter, farmingAccountId, contractAddress, uniV2LPContract])
 
   const getStakeFeeData = useCallback(
@@ -223,7 +223,7 @@ export const useFoxFarming = (
         },
       })
 
-      return feeData
+      return getFeeDataFromEstimate(feeData)
     },
     [
       adapter,
@@ -257,7 +257,7 @@ export const useFoxFarming = (
         },
       })
 
-      return feeData
+      return getFeeDataFromEstimate(feeData)
     },
     [
       adapter,
@@ -285,7 +285,7 @@ export const useFoxFarming = (
         },
       })
 
-      return feeData
+      return getFeeDataFromEstimate(feeData)
     },
     [adapter, contractAddress, foxFarmingContract],
   )
@@ -306,7 +306,7 @@ export const useFoxFarming = (
     const txid = await buildAndBroadcast({
       accountNumber,
       adapter,
-      feeData: feeData.average.chainSpecific,
+      feeData: feeData.chainSpecific,
       to: uniV2LPContract.address,
       value: '0',
       wallet,
@@ -336,7 +336,7 @@ export const useFoxFarming = (
     const data = foxFarmingContract.interface.encodeFunctionData('getReward')
     const farmingAccountAddress = fromAccountId(farmingAccountId).account
 
-    const { average } = await adapter.getFeeData({
+    const feeData = await adapter.getFeeData({
       to: contractAddress,
       value: '0',
       chainSpecific: {
@@ -348,7 +348,7 @@ export const useFoxFarming = (
     const txid = await buildAndBroadcast({
       accountNumber,
       adapter,
-      feeData: average.chainSpecific,
+      feeData: getFeeDataFromEstimate(feeData).chainSpecific,
       to: contractAddress,
       value: '0',
       wallet,

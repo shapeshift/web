@@ -136,13 +136,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const getWithdrawGasEstimateCryptoPrecision = async (withdraw: WithdrawValues) => {
     try {
-      const fee = await getWithdrawFeeData(
+      const feeData = await getWithdrawFeeData(
         withdraw.cryptoAmount,
         asset0AmountCryptoPrecision,
         asset1AmountCryptoPrecision,
       )
-      if (!fee) return
-      return bnOrZero(fee.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
+      if (!feeData) return
+      return bnOrZero(feeData.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       moduleLogger.error(error, 'UniV2Withdraw:getWithdrawGasEstimate error:')
@@ -196,12 +196,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: false })
     } else {
       const lpAssetContractAddress = ethers.utils.getAddress(fromAssetId(lpAssetId).assetReference)
-      const estimatedGasCryptoPrecision = await getApproveFeeData(lpAssetContractAddress)
-      if (!estimatedGasCryptoPrecision) return
+      const feeData = await getApproveFeeData(lpAssetContractAddress)
+      if (!feeData) return
       dispatch({
         type: UniV2WithdrawActionType.SET_APPROVE,
         payload: {
-          estimatedGasCryptoPrecision: bnOrZero(estimatedGasCryptoPrecision.average.txFee)
+          estimatedGasCryptoPrecision: bnOrZero(feeData.txFee)
             .div(bn(10).pow(feeAsset.precision))
             .toPrecision(),
         },

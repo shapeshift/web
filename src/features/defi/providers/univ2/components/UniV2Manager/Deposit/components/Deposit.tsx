@@ -118,12 +118,12 @@ export const Deposit: React.FC<DepositProps> = ({
     if (!feeAsset) return
     const { cryptoAmount0: token0Amount, cryptoAmount1: token1Amount } = deposit
     try {
-      const gasData = await getDepositFeeData({
+      const feeData = await getDepositFeeData({
         token0Amount,
         token1Amount,
       })
-      if (!gasData) return
-      return bnOrZero(gasData.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
+      if (!feeData) return
+      return bnOrZero(feeData.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
     } catch (error) {
       moduleLogger.error(
         { fn: 'getDepositGasEstimateCryptoPrecision', error },
@@ -201,28 +201,28 @@ export const Deposit: React.FC<DepositProps> = ({
         // While the naive approach would be to think both assets approve() calls are going to result in the same gas estimation,
         // this is not necesssarly true. Some ERC-20s approve() might have a bit more logic, and thus require more gas.
         // e.g https://github.com/Uniswap/governance/blob/eabd8c71ad01f61fb54ed6945162021ee419998e/contracts/Uni.sol#L119
-        const asset0EstimatedGasCrypto =
+        const asset0FeeData =
           assetId0 !== ethAssetId && (await getApproveFeeData(asset0ContractAddress!))
-        const asset1EstimatedGasCrypto =
+        const asset1FeeData =
           assetId1 !== ethAssetId && (await getApproveFeeData(asset1ContractAddress!))
-        if (!(asset0EstimatedGasCrypto || asset1EstimatedGasCrypto)) return
+        if (!(asset0FeeData || asset1FeeData)) return
 
-        if (!isAsset0AllowanceGranted && asset0EstimatedGasCrypto) {
+        if (!isAsset0AllowanceGranted && asset0FeeData) {
           dispatch({
             type: UniV2DepositActionType.SET_APPROVE_0,
             payload: {
-              estimatedGasCryptoPrecision: bnOrZero(asset0EstimatedGasCrypto.average.txFee)
+              estimatedGasCryptoPrecision: bnOrZero(asset0FeeData.txFee)
                 .div(bn(10).pow(feeAsset.precision))
                 .toPrecision(),
             },
           })
         }
 
-        if (!isAsset1AllowanceGranted && asset1EstimatedGasCrypto) {
+        if (!isAsset1AllowanceGranted && asset1FeeData) {
           dispatch({
             type: UniV2DepositActionType.SET_APPROVE_1,
             payload: {
-              estimatedGasCryptoPrecision: bnOrZero(asset1EstimatedGasCrypto.average.txFee)
+              estimatedGasCryptoPrecision: bnOrZero(asset1FeeData.txFee)
                 .div(bn(10).pow(feeAsset.precision))
                 .toPrecision(),
             },

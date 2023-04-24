@@ -127,14 +127,13 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
         interval: 15000,
         maxAttempts: 30,
       })
-      // Get withdraw gas estimate
-      const gasData = await getWithdrawFeeData(
+      const feeData = await getWithdrawFeeData(
         state.withdraw.lpAmount,
         state.withdraw.asset0Amount,
         state.withdraw.asset1Amount,
       )
-      if (!gasData) return
-      const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
+      if (!feeData) return
+      const estimatedGasCryptoPrecision = bnOrZero(feeData.txFee)
         .div(bn(10).pow(feeAsset.precision))
         .toPrecision()
       dispatch({

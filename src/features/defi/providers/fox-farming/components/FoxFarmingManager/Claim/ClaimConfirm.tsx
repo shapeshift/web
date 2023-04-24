@@ -156,9 +156,9 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
           !(walletState.wallet && feeAsset && feeMarketData && foxFarmingContract && accountAddress)
         )
           return
-        const gasEstimate = await getClaimFeeData(accountAddress)
-        if (!gasEstimate) throw new Error('Gas estimation failed')
-        const estimatedGasCrypto = bnOrZero(gasEstimate.average.txFee)
+        const feeData = await getClaimFeeData(accountAddress)
+        if (!feeData) throw new Error('Gas estimation failed')
+        const estimatedGasCrypto = bnOrZero(feeData.txFee)
           .div(`1e${feeAsset.precision}`)
           .toPrecision()
         setCanClaim(true)

@@ -9,7 +9,7 @@ import {
 import { getOrCreateContractByAddress, getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
-import { buildAndBroadcast } from 'features/defi/helpers/utils'
+import { buildAndBroadcast, getFeeDataFromEstimate } from 'features/defi/helpers/utils'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
 import type { Address } from 'viem'
@@ -206,7 +206,7 @@ export const useUniV2LiquidityPool = ({
         const data = makeAddLiquidityData({ token0Amount, token1Amount })
         const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
 
-        const { average } = await adapter.getFeeData({
+        const feeData = await adapter.getFeeData({
           to: contractAddress,
           value,
           chainSpecific: {
@@ -218,7 +218,7 @@ export const useUniV2LiquidityPool = ({
         const txid = await buildAndBroadcast({
           accountNumber,
           adapter,
-          feeData: average.chainSpecific,
+          feeData: getFeeDataFromEstimate(feeData).chainSpecific,
           to: contractAddress,
           value: '0',
           wallet,
@@ -332,7 +332,7 @@ export const useUniV2LiquidityPool = ({
 
         const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
 
-        const { average } = await adapter.getFeeData({
+        const feeData = await adapter.getFeeData({
           to: contractAddress,
           value: '0',
           chainSpecific: {
@@ -344,7 +344,7 @@ export const useUniV2LiquidityPool = ({
         const txid = await buildAndBroadcast({
           accountNumber,
           adapter,
-          feeData: average.chainSpecific,
+          feeData: getFeeDataFromEstimate(feeData).chainSpecific,
           to: contractAddress,
           value: '0',
           wallet,
@@ -471,7 +471,7 @@ export const useUniV2LiquidityPool = ({
         },
       })
 
-      return feeData
+      return getFeeDataFromEstimate(feeData)
     },
     [skip, adapter, accountId],
   )
@@ -518,7 +518,7 @@ export const useUniV2LiquidityPool = ({
           },
         })
 
-        return feeData
+        return getFeeDataFromEstimate(feeData)
       } else {
         const accountAddress = fromAccountId(accountId).account
         const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
@@ -546,7 +546,7 @@ export const useUniV2LiquidityPool = ({
           },
         })
 
-        return feeData
+        return getFeeDataFromEstimate(feeData)
       }
     },
     [
@@ -587,7 +587,7 @@ export const useUniV2LiquidityPool = ({
         },
       })
 
-      return feeData
+      return getFeeDataFromEstimate(feeData)
     },
     [
       skip,
@@ -625,7 +625,7 @@ export const useUniV2LiquidityPool = ({
       const txid = await buildAndBroadcast({
         accountNumber,
         adapter,
-        feeData: feeData.average.chainSpecific,
+        feeData: feeData.chainSpecific,
         to: contractAddress,
         value: '0',
         wallet,

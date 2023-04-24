@@ -107,9 +107,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         maxAttempts: 30,
       })
       // Get withdraw gas estimate
-      const gasData = await getUnstakeFeeData(state.withdraw.lpAmount, state.withdraw.isExiting)
-      if (!gasData) return
-      const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
+      const feeData = await getUnstakeFeeData(state.withdraw.lpAmount, state.withdraw.isExiting)
+      if (!feeData) return
+      const estimatedGasCrypto = bnOrZero(feeData.txFee)
         .div(bn(10).pow(underlyingAsset?.precision ?? 0))
         .toPrecision()
       dispatch({

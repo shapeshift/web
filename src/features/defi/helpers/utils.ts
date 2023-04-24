@@ -1,7 +1,13 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
-import type { evm, EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type {
+  evm,
+  EvmChainAdapter,
+  EvmChainId,
+  FeeData,
+  FeeDataEstimate,
+} from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -37,6 +43,19 @@ export const canCoverTxFees = ({
 
   return bnOrZero(feeAssetBalanceCryptoHuman).minus(bnOrZero(estimatedGasCryptoPrecision)).gte(0)
 }
+
+export const getFeeDataFromEstimate = ({
+  average,
+  fast,
+}: FeeDataEstimate<EvmChainId>): FeeData<EvmChainId> => ({
+  txFee: fast.txFee, // use worst case tx fee for display purposes
+  chainSpecific: {
+    gasLimit: average.chainSpecific.gasLimit, // average and fast gasLimit values are the same
+    gasPrice: fast.chainSpecific.gasPrice, // fast gas price since it is underestimated currently
+    maxFeePerGas: average.chainSpecific.maxFeePerGas,
+    maxPriorityFeePerGas: average.chainSpecific.maxPriorityFeePerGas,
+  },
+})
 
 type GetFeesFromFeeDataArgs = {
   wallet: HDWallet

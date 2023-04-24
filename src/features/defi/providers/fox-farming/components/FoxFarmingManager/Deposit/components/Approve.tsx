@@ -109,9 +109,9 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
         maxAttempts: 30,
       })
       // Get deposit gas estimate
-      const gasData = await getStakeFeeData(state.deposit.cryptoAmount)
-      if (!gasData) return
-      const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
+      const feeData = await getStakeFeeData(state.deposit.cryptoAmount)
+      if (!feeData) return
+      const estimatedGasCryptoPrecision = bnOrZero(feeData.txFee)
         .div(bn(10).pow(feeAsset.precision))
         .toPrecision()
       dispatch({

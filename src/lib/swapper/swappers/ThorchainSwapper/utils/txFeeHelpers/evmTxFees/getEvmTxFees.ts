@@ -1,6 +1,6 @@
 import type { AssetReference } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { QuoteFeeData } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { ThorEvmSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
@@ -19,26 +19,25 @@ export const getEvmTxFees = async ({
   buyAssetTradeFeeUsd,
 }: GetEvmTxFeesArgs): Promise<QuoteFeeData<ThorEvmSupportedChainId>> => {
   try {
-    const { average: fee } = await adapter.getGasFeeData()
+    const { average, fast } = await adapter.getGasFeeData()
+
+    // use worst case gas price for all fee display values
+    const maxGasPrice = bnOrZero(BigNumber.max(fast.maxFeePerGas ?? 0, fast.gasPrice))
 
     // this is a good value to cover all thortrades out of EVMs
     // in the future we may want to look at doing this more precisely and in a future-proof way
     // TODO: calculate this dynamically
-    const txFee = bn(THOR_EVM_GAS_LIMIT).times(bnOrZero(fee.maxFeePerGas ?? fee.gasPrice))
+    const txFee = bn(THOR_EVM_GAS_LIMIT).times(maxGasPrice)
 
-    const approvalFee =
-      sellAssetReference &&
-      bn(APPROVAL_GAS_LIMIT)
-        .times(bnOrZero(fee.maxFeePerGas ?? fee.gasPrice))
-        .toFixed(0)
+    const approvalFee = sellAssetReference && bn(APPROVAL_GAS_LIMIT).times(maxGasPrice).toFixed(0)
 
     return {
       networkFeeCryptoBaseUnit: txFee.toFixed(0),
       chainSpecific: {
         estimatedGasCryptoBaseUnit: THOR_EVM_GAS_LIMIT,
-        gasPriceCryptoBaseUnit: fee.gasPrice,
-        maxFeePerGas: fee.maxFeePerGas,
-        maxPriorityFeePerGas: fee.maxPriorityFeePerGas,
+        gasPriceCryptoBaseUnit: fast.gasPrice, // fast gas price since it is underestimated currently
+        maxFeePerGas: average.maxFeePerGas,
+        maxPriorityFeePerGas: average.maxPriorityFeePerGas,
         approvalFeeCryptoBaseUnit: approvalFee,
       },
       buyAssetTradeFeeUsd,

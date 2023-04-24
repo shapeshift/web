@@ -2,6 +2,7 @@ import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { ethers } from 'ethers'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -85,6 +86,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
       const chainAdapterManager = getChainAdapterManager()
       const adapter = chainAdapterManager.get(ethChainId) as unknown as EvmBaseAdapter<EvmChainId>
+
+      if (!supportsETH(walletState.wallet))
+        throw new Error(`handleDeposit: wallet does not support ethereum`)
 
       const [txid, gasFees] = await Promise.all([
         foxyApi.deposit({

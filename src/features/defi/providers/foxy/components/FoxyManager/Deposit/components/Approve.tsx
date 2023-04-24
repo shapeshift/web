@@ -1,6 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
@@ -112,6 +113,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       return
     try {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
+
+      if (!supportsETH(walletState.wallet))
+        throw new Error(`handleApprove: wallet does not support ethereum`)
+
       await foxyApi.approve({
         tokenContractAddress: assetReference,
         contractAddress,

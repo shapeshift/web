@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params, KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
 import type ethers from 'ethers'
@@ -28,7 +28,7 @@ export type ApproveInput = {
   tokenContractAddress: string
   contractAddress: string
   userAddress: string
-  wallet: HDWallet
+  wallet: ETHWallet
 }
 
 export type EstimateApproveFeesInput = Pick<
@@ -42,7 +42,7 @@ export type TxInput = {
   tokenContractAddress?: string
   userAddress: string
   contractAddress: string
-  wallet: HDWallet
+  wallet: ETHWallet
   amountDesired: BigNumber
 }
 
@@ -111,7 +111,7 @@ export type SignAndBroadcastPayload = {
 
 export type SignAndBroadcastTx = {
   payload: SignAndBroadcastPayload
-  wallet: HDWallet
+  wallet: ETHWallet
   dryRun: boolean
 }
 

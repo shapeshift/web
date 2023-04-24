@@ -2,6 +2,7 @@ import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { WithdrawType } from '@shapeshiftoss/types'
 import type { ethers } from 'ethers'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -90,6 +91,9 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
 
       const chainAdapterManager = getChainAdapterManager()
       const adapter = chainAdapterManager.get(ethChainId) as unknown as EvmBaseAdapter<EvmChainId>
+
+      if (!supportsETH(walletState.wallet))
+        throw new Error(`handleConfirm: wallet does not support ethereum`)
 
       const [txid, gasFees] = await Promise.all([
         foxyApi.withdraw({

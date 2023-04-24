@@ -1,7 +1,7 @@
 import { JsonRpcBatchProvider } from '@ethersproject/providers'
 import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import type { ChainAdapter, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import type { EvmBaseAdapter, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { Logger } from '@shapeshiftoss/logger'
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import axios from 'axios'
@@ -24,7 +24,7 @@ import {
   tokePoolAddress,
   tokeRewardHashAddress,
 } from '../constants'
-import { bn, bnOrZero, buildTxToSign } from '../utils'
+import { bn, bnOrZero } from '../utils'
 import type {
   AllowanceInput,
   ApproveInput,
@@ -62,7 +62,7 @@ type EthereumChainReference =
   | typeof CHAIN_REFERENCE.EthereumRopsten
 
 export type ConstructorArgs = {
-  adapter: ChainAdapter<KnownChainIds.EthereumMainnet>
+  adapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
   providerUrl: string
   foxyAddresses: FoxyAddressesType
   chainReference?: EthereumChainReference
@@ -86,7 +86,7 @@ export const transformData = ({ tvl, apy, expired, ...contractData }: FoxyOpport
 const TOKE_IPFS_URL = 'https://ipfs.tokemaklabs.xyz/ipfs'
 
 export class FoxyApi {
-  public adapter: ChainAdapter<KnownChainIds.EthereumMainnet>
+  public adapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
   public provider: JsonRpcBatchProvider
   private providerUrl: string
   public jsonRpcProvider: JsonRpcBatchProvider
@@ -125,9 +125,27 @@ export class FoxyApi {
     return ethers.BigNumber.from(amount.toFixed())
   }
 
+  // TODO(gomes): This is rank. Move me to web for sanity sake.
   private async signAndBroadcastTx(input: SignAndBroadcastTx): Promise<string> {
     const { payload, wallet, dryRun } = input
-    const txToSign = buildTxToSign(payload)
+
+    const {
+      chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
+    } = payload.estimatedFees.fast
+    const shouldUseEIP1559Fees =
+      (await wallet.ethSupportsEIP1559()) &&
+      maxFeePerGas !== undefined &&
+      maxPriorityFeePerGas !== undefined
+
+    const { txToSign } = await this.adapter.buildCustomTx({
+      to: payload.to,
+      value: payload.value,
+      gasLimit,
+      wallet,
+      data: payload.data,
+      accountNumber: payload.bip44Params.accountNumber,
+      ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
+    })
     if (wallet.supportsOfflineSigning()) {
       const signedTx = await this.adapter.signTransaction({ txToSign, wallet })
       if (dryRun) return signedTx

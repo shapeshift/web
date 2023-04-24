@@ -1,6 +1,9 @@
+import type { Result } from '@sniptt/monads/build/result/result'
 import { AssertionError } from 'assert'
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import type { ISetupCache } from 'axios-cache-adapter'
 import { setupCache } from 'axios-cache-adapter'
+import { AsyncResultOf } from 'lib/utils'
 
 // asserts x is type doesn't work when using arrow functions
 export function assertIsDefined<T>(val: T): asserts val is NonNullable<T> {
@@ -22,3 +25,37 @@ export const createCache = (maxAge: number, cachedUrls: string[]): ISetupCache =
     readHeaders: false,
   })
 }
+
+// https://github.com/microsoft/TypeScript/issues/20846#issuecomment-353412767
+// "new Proxy" is typed as `new <T extends object>(target: T, handler: ProxyHandler<T>): T;`
+// i.e same return type as the target object being trapped, but we're akschually returning a monadic flavor of the target object
+interface ProxyHandler<T extends object, TOut extends object> {
+  get?<K extends keyof TOut>(target: T, p: K, receiver: TOut): TOut[K]
+  set?<K extends keyof TOut>(target: T, p: K, value: TOut[K], receiver: TOut): boolean
+}
+interface ProxyConstructor {
+  new <T extends object, TOut extends object>(target: T, handler: ProxyHandler<T, TOut>): TOut
+}
+declare var Proxy: ProxyConstructor
+
+export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance) =>
+  new Proxy<
+    AxiosInstance,
+    {
+      get: <T = any>(
+        url: string,
+        config?: AxiosRequestConfig<any>,
+      ) => Promise<Result<AxiosResponse<T, any>, Error>>
+      post: <T = any>(
+        url: string,
+        data: any,
+        config?: AxiosRequestConfig<any>,
+      ) => Promise<Result<AxiosResponse<T, any>, Error>>
+    }
+  >(service, {
+    get: (trappedAxios, method: 'get' | 'post') => {
+      const originalMethodPromise = trappedAxios[method]
+      return (...args: [url: string, dataOrConfig?: any, dataOrConfig?: any]) =>
+        AsyncResultOf(originalMethodPromise(...args))
+    },
+  })

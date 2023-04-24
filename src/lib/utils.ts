@@ -6,6 +6,8 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import crypto from 'crypto-browserify'
 import { isNull } from 'lodash'
 import difference from 'lodash/difference'
@@ -158,4 +160,13 @@ export const isEvmChainAdapter = <T extends ChainId>(
   chainAdapter: ChainAdapter<T> | EvmChainAdapter,
 ): chainAdapter is EvmChainAdapter => {
   return evmChainIds.includes(chainAdapter.getChainId() as EvmChainId)
+}
+
+// https://github.com/sniptt-official/monads/issues/111
+export const AsyncResultOf = async <T>(promise: Promise<T>): Promise<Result<T, Error>> => {
+  try {
+    return Ok(await promise)
+  } catch (err) {
+    return Err(err as Error)
+  }
 }

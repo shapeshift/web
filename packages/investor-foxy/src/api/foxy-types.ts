@@ -3,7 +3,7 @@ import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params, KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
-import type ethers from 'ethers'
+import type { Contract } from 'ethers'
 
 export type FoxyAddressesType = {
   staking: string
@@ -148,7 +148,7 @@ export type RebaseHistory = {
 }
 
 export type StakingContract = {
-  stakingContract: ethers.ethers.Contract
+  stakingContract: Contract
 }
 
 // this comment only exists to publish this package - delete me if you see me

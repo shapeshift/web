@@ -85,18 +85,17 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     deps,
   })
 
-  const rate = quoteRate
-    .mapErr(_err =>
-      // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
-      // Though realistically, TRADE_BELOW_MINIMUM is the only one we should really be seeing here,
-      // safety never hurts
-      getTradeRateBelowMinimum({
-        sellAssetId: sellAsset.assetId,
-        buyAssetId: buyAsset.assetId,
-        deps,
-      }),
-    )
-    .unwrap()
+  const tradeRateBelowMinimum = await getTradeRateBelowMinimum({
+    sellAssetId: sellAsset.assetId,
+    buyAssetId: buyAsset.assetId,
+    deps,
+  })
+  const rate = quoteRate.unwrapOr(
+    // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
+    // Though realistically, TRADE_BELOW_MINIMUM is the only one we should really be seeing here,
+    // safety never hurts
+    tradeRateBelowMinimum.unwrap(),
+  )
 
   const buyAmountCryptoBaseUnit = toBaseUnit(
     bnOrZero(fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)).times(rate),

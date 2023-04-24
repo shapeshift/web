@@ -125,7 +125,7 @@ export class FoxyApi {
     return ethers.BigNumber.from(amount.toFixed())
   }
 
-  // TODO(gomes): This is rank. Move me to web for sanity sake.
+  // TODO(gomes): This is rank and should really belong in web for sanity sake.
   private async signAndBroadcastTx(input: SignAndBroadcastTx): Promise<string> {
     const { payload, wallet, dryRun } = input
 
@@ -197,17 +197,6 @@ export class FoxyApi {
     )
     if (!liquidityReserveContract) throw new Error('Not a valid reserve contract address')
     return liquidityReserveContract
-  }
-
-  private async getNonce(userAddress: string): Promise<string> {
-    let nonce
-    try {
-      nonce = (await this.provider.getTransactionCount(userAddress)).toString()
-    } catch (e) {
-      throw new Error(`Get nonce Error: ${e}`)
-    }
-
-    return nonce
   }
 
   async getFoxyOpportunities() {
@@ -523,14 +512,12 @@ export class FoxyApi {
       amount ? numberToHex(bnOrZero(amount).toString()) : MAX_ALLOWANCE,
     ])
 
-    const nonce = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
       chainId: chainReferenceAsNumber,
       data,
       estimatedFees,
-      nonce,
       to: tokenContractAddress,
       value: '0',
     }
@@ -583,14 +570,12 @@ export class FoxyApi {
       userAddress,
     ])
 
-    const nonce = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
       chainId: chainReferenceAsNumber,
       data,
       estimatedFees,
-      nonce,
       to: contractAddress,
       value: '0',
     }
@@ -629,14 +614,12 @@ export class FoxyApi {
       : ['instantUnstake', ['true']]
     const data: string = stakingContract.interface.encodeFunctionData(...stakingContractCallInput)
 
-    const nonce = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
       chainId: chainReferenceAsNumber,
       data,
       estimatedFees,
-      nonce,
       to: contractAddress,
       value: '0',
     }
@@ -746,14 +729,12 @@ export class FoxyApi {
       addressToClaim,
     ])
 
-    const nonce = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
       chainId: chainReferenceAsNumber,
       data,
       estimatedFees,
-      nonce,
       to: contractAddress,
       value: '0',
     }
@@ -854,14 +835,12 @@ export class FoxyApi {
     if (!canSendRequest) throw new Error('Not ready to send request')
 
     const data: string = stakingContract.interface.encodeFunctionData('sendWithdrawalRequests')
-    const nonce = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
       chainId: chainReferenceAsNumber,
       data,
       estimatedFees,
-      nonce,
       to: contractAddress,
       value: '0',
     }
@@ -897,14 +876,12 @@ export class FoxyApi {
       this.normalizeAmount(amountDesired),
     ])
 
-    const nonce = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
       chainId: chainReferenceAsNumber,
       data,
       estimatedFees,
-      nonce,
       to: contractAddress,
       value: '0',
     }
@@ -939,14 +916,12 @@ export class FoxyApi {
       this.normalizeAmount(amountDesired),
     ])
 
-    const nonce = await this.getNonce(userAddress)
     const chainReferenceAsNumber = Number(this.ethereumChainReference)
     const payload = {
       bip44Params,
       chainId: chainReferenceAsNumber,
       data,
       estimatedFees,
-      nonce,
       to: contractAddress,
       value: '0',
     }

@@ -104,7 +104,6 @@ export type SignAndBroadcastPayload = {
   chainId: number
   data: string
   estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
-  nonce: string
   to: string
   value: string
 }

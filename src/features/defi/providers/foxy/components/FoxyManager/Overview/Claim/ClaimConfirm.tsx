@@ -146,7 +146,7 @@ export const ClaimConfirm = ({
           accountNumber,
         })
         setUserAddress(userAddress)
-        const [gasLimit, gasPrice, canClaimWithdraw] = await Promise.all([
+        const [feeDataEstimate, canClaimWithdraw] = await Promise.all([
           foxyApi.estimateClaimWithdrawGas({
             claimAddress: userAddress,
             userAddress,
@@ -154,9 +154,12 @@ export const ClaimConfirm = ({
             wallet: walletState.wallet,
             bip44Params,
           }),
-          foxyApi.getGasPrice(),
           foxyApi.canClaimWithdraw({ contractAddress, userAddress }),
         ])
+
+        const {
+          chainSpecific: { gasPrice, gasLimit },
+        } = feeDataEstimate.fast
 
         setCanClaim(canClaimWithdraw)
         const gasEstimate = bnOrZero(gasPrice).times(gasLimit).toFixed(0)

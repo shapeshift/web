@@ -67,19 +67,21 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       if (!(rewardId && userAddress && state?.withdraw && foxyApi && dispatch && bip44Params))
         return
       try {
-        const [gasLimit, gasPrice] = await Promise.all([
-          foxyApi.estimateWithdrawGas({
-            tokenContractAddress: rewardId,
-            contractAddress,
-            amountDesired: bnOrZero(
-              bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
-            ).decimalPlaces(0),
-            userAddress,
-            type: state.withdraw.withdrawType,
-            bip44Params,
-          }),
-          foxyApi.getGasPrice(),
-        ])
+        const feeDataEstimate = await foxyApi.estimateWithdrawGas({
+          tokenContractAddress: rewardId,
+          contractAddress,
+          amountDesired: bnOrZero(
+            bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
+          ).decimalPlaces(0),
+          userAddress,
+          type: state.withdraw.withdrawType,
+          bip44Params,
+        })
+
+        const {
+          chainSpecific: { gasPrice, gasLimit },
+        } = feeDataEstimate.fast
+
         const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
         return returVal
       } catch (error) {

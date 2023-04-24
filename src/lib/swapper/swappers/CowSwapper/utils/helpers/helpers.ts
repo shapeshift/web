@@ -4,11 +4,10 @@ import { AssetService } from '@shapeshiftoss/asset-service'
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { AxiosResponse } from 'axios'
 import { ethers } from 'ethers'
 import { bn } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
 import {
@@ -111,36 +110,38 @@ export const getUsdRate = async (
     .times(bn(10).exponentiatedBy(USDC_ASSET_PRECISION))
     .toString()
 
-  try {
-    const apiInput: CowSwapBuyQuoteApiInput = {
-      sellToken: erc20Address,
-      buyToken: USDC_CONTRACT_ADDRESS,
-      receiver: DEFAULT_ADDRESS,
-      validTo: getNowPlusThirtyMinutesTimestamp(),
-      appData: DEFAULT_APP_DATA,
-      partiallyFillable: false,
-      from: DEFAULT_ADDRESS,
-      kind: ORDER_KIND_BUY,
-      buyAmountAfterFee: buyAmount,
-    }
+  const apiInput: CowSwapBuyQuoteApiInput = {
+    sellToken: erc20Address,
+    buyToken: USDC_CONTRACT_ADDRESS,
+    receiver: DEFAULT_ADDRESS,
+    validTo: getNowPlusThirtyMinutesTimestamp(),
+    appData: DEFAULT_APP_DATA,
+    partiallyFillable: false,
+    from: DEFAULT_ADDRESS,
+    kind: ORDER_KIND_BUY,
+    buyAmountAfterFee: buyAmount,
+  }
 
-    /**
-     * /v1/quote
-     * params: {
-     * sellToken: contract address of token to sell
-     * buyToken: contractAddress of token to buy
-     * receiver: receiver address can be defaulted to "0x0000000000000000000000000000000000000000"
-     * validTo: time duration during which quote is valid (eg : 1654851610 as timestamp)
-     * appData: appData for the CowSwap quote that can be used later, can be defaulted to "0x0000000000000000000000000000000000000000000000000000000000000000"
-     * partiallyFillable: false
-     * from: sender address can be defaulted to "0x0000000000000000000000000000000000000000"
-     * kind: "sell" or "buy"
-     * sellAmountBeforeFee / buyAmountAfterFee: amount in base unit
-     * }
-     */
-    const quoteResponse: AxiosResponse<CowSwapQuoteResponse> =
-      await cowService.post<CowSwapQuoteResponse>(`${apiUrl}/v1/quote/`, apiInput)
+  /**
+   * /v1/quote
+   * params: {
+   * sellToken: contract address of token to sell
+   * buyToken: contractAddress of token to buy
+   * receiver: receiver address can be defaulted to "0x0000000000000000000000000000000000000000"
+   * validTo: time duration during which quote is valid (eg : 1654851610 as timestamp)
+   * appData: appData for the CowSwap quote that can be used later, can be defaulted to "0x0000000000000000000000000000000000000000000000000000000000000000"
+   * partiallyFillable: false
+   * from: sender address can be defaulted to "0x0000000000000000000000000000000000000000"
+   * kind: "sell" or "buy"
+   * sellAmountBeforeFee / buyAmountAfterFee: amount in base unit
+   * }
+   */
+  const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
+    `${apiUrl}/v1/quote/`,
+    apiInput,
+  )
 
+  return maybeQuoteResponse.andThen<string>(quoteResponse => {
     const {
       data: {
         quote: { sellAmount: sellAmountCryptoBaseUnit },
@@ -152,20 +153,16 @@ export const getUsdRate = async (
     )
 
     if (!sellAmountCryptoPrecision.gt(0))
-      throw new SwapError('[getUsdRate] - Failed to get sell token amount', {
-        code: SwapErrorType.RESPONSE_ERROR,
-      })
+      return Err(
+        makeSwapErrorRight({
+          message: '[getUsdRate] - Failed to get sell token amount',
+          code: SwapErrorType.RESPONSE_ERROR,
+        }),
+      )
 
     // dividing $1000 by amount of sell token received
     return Ok(bn(buyAmountInDollars).div(sellAmountCryptoPrecision).toString())
-  } catch (e) {
-    // TODO(gomes): check if anything still throws here before opening
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[getUsdRate]', {
-      cause: e,
-      code: SwapErrorType.USD_RATE_FAILED,
-    })
-  }
+  })
 }
 
 export const hashTypedData = (

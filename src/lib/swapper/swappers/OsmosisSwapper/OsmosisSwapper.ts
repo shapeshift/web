@@ -108,16 +108,20 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const sellAssetSymbol = symbol
     const buyAssetSymbol = 'USDC'
     const sellAmount = '1'
-    const { rate: osmoRate } = await getRateInfo(
+    const maybeOsmoRateInfo = await getRateInfo(
       'OSMO',
       buyAssetSymbol,
       sellAmount,
       this.deps.osmoUrl,
     )
 
+    if (maybeOsmoRateInfo.isErr()) return Err(maybeOsmoRateInfo.unwrapErr())
+    const { rate: osmoRate } = maybeOsmoRateInfo.unwrap()
+
     if (sellAssetSymbol !== 'OSMO') {
-      const { rate } = await getRateInfo(sellAssetSymbol, 'OSMO', sellAmount, this.deps.osmoUrl)
-      return Ok(bnOrZero(rate).times(osmoRate).toString())
+      return (await getRateInfo(sellAssetSymbol, 'OSMO', sellAmount, this.deps.osmoUrl)).map(
+        ({ rate }) => bnOrZero(rate).times(osmoRate).toString(),
+      )
     }
 
     return Ok(osmoRate)
@@ -190,12 +194,15 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       )
     }
 
-    const { buyAssetTradeFeeUsd, rate, buyAmountCryptoBaseUnit } = await getRateInfo(
+    const maybeRateInfo = await getRateInfo(
       sellAsset.symbol,
       buyAsset.symbol,
       sellAmountCryptoBaseUnit !== '0' ? sellAmountCryptoBaseUnit : '1',
       this.deps.osmoUrl,
     )
+
+    if (!maybeRateInfo.isOk()) return Err(maybeRateInfo.unwrapErr())
+    const { buyAssetTradeFeeUsd, rate, buyAmountCryptoBaseUnit } = maybeRateInfo.unwrap()
 
     //convert amount to base
     const sellAmountCryptoBase = String(bnOrZero(sellAmountCryptoBaseUnit).dp(0))
@@ -251,12 +258,15 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       )
     }
 
-    const { buyAssetTradeFeeUsd, rate, buyAmountCryptoBaseUnit } = await getRateInfo(
+    const maybeRateInfo = await getRateInfo(
       sellAsset.symbol,
       buyAsset.symbol,
       sellAmountCryptoBaseUnit !== '0' ? sellAmountCryptoBaseUnit : '1',
       this.deps.osmoUrl,
     )
+
+    if (maybeRateInfo.isErr()) return Err(maybeRateInfo.unwrapErr())
+    const { buyAssetTradeFeeUsd, rate, buyAmountCryptoBaseUnit } = maybeRateInfo.unwrap()
 
     const maybeMinMax = await this.getMinMax(input)
     if (maybeMinMax.isErr()) return Err(maybeMinMax.unwrapErr())

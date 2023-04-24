@@ -2,7 +2,6 @@ import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { AxiosResponse } from 'axios'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
@@ -84,8 +83,9 @@ export async function cowBuildTrade(
      * sellAmountBeforeFee / buyAmountAfterFee: amount in base unit
      * }
      */
-    const quoteResponse: AxiosResponse<CowSwapQuoteResponse> =
-      await cowService.post<CowSwapQuoteResponse>(`${deps.apiUrl}/v1/quote/`, {
+    const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
+      `${deps.apiUrl}/v1/quote/`,
+      {
         sellToken: sellAssetErc20Address,
         buyToken,
         receiver: receiveAddress,
@@ -95,7 +95,10 @@ export async function cowBuildTrade(
         from: receiveAddress,
         kind: ORDER_KIND_SELL,
         sellAmountBeforeFee: sellAmountExcludeFeeCryptoBaseUnit,
-      })
+      },
+    )
+
+    if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())
 
     const {
       data: {
@@ -105,7 +108,7 @@ export async function cowBuildTrade(
           feeAmount: feeAmountInSellTokenCryptoBaseUnit,
         },
       },
-    } = quoteResponse
+    } = maybeQuoteResponse.unwrap()
 
     const maybeSellAssetUsdRate = await getUsdRate(deps, sellAsset)
     if (maybeSellAssetUsdRate.isErr()) return Err(maybeSellAssetUsdRate.unwrapErr())

@@ -2,7 +2,6 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 import type { SwapErrorRight } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { getLimit } from 'lib/swapper/swappers/ThorchainSwapper/utils/getLimit/getLimit'
@@ -40,58 +39,37 @@ export const getThorTxInfo: GetThorTxInfo = async ({
   xpub,
   buyAssetTradeFeeUsd,
 }) => {
-  try {
-    const inboundAddress = await getInboundAddressDataForChain(
-      deps.daemonUrl,
-      sellAsset.assetId,
-      false,
-    )
-    const vault = inboundAddress?.address
+  const maybeInboundAddress = await getInboundAddressDataForChain(
+    deps.daemonUrl,
+    sellAsset.assetId,
+    false,
+  )
 
-    if (!vault)
-      throw new SwapError(`[getThorTxInfo]: vault not found for asset`, {
-        code: SwapErrorType.RESPONSE_ERROR,
-        details: { inboundAddress, sellAsset },
-      })
+  if (maybeInboundAddress.isErr()) return Err(maybeInboundAddress.unwrapErr())
+  const inboundAddress = maybeInboundAddress.unwrap()
+  const vault = inboundAddress.address
 
-    const maybeLimit = await getLimit({
+  const maybeLimit = await getLimit({
+    buyAssetId: buyAsset.assetId,
+    sellAmountCryptoBaseUnit,
+    sellAsset,
+    slippageTolerance,
+    deps,
+    buyAssetTradeFeeUsd,
+    receiveAddress: destinationAddress,
+  })
+
+  return maybeLimit.map(limit => {
+    const memo = makeSwapMemo({
       buyAssetId: buyAsset.assetId,
-      sellAmountCryptoBaseUnit,
-      sellAsset,
-      slippageTolerance,
-      deps,
-      buyAssetTradeFeeUsd,
-      receiveAddress: destinationAddress,
+      destinationAddress,
+      limit,
     })
 
-    return maybeLimit.map(limit => {
-      const memo = makeSwapMemo({
-        buyAssetId: buyAsset.assetId,
-        destinationAddress,
-        limit,
-      })
-
-      return {
-        opReturnData: memo,
-        vault,
-        pubkey: xpub,
-      }
-    })
-  } catch (e) {
-    if (e instanceof SwapError)
-      return Err(
-        makeSwapErrorRight({
-          message: e.message,
-          code: e.code,
-          details: e.details,
-        }),
-      )
-    return Err(
-      makeSwapErrorRight({
-        message: '[getThorTxInfo]',
-        cause: e,
-        code: SwapErrorType.TRADE_QUOTE_FAILED,
-      }),
-    )
-  }
+    return {
+      opReturnData: memo,
+      vault,
+      pubkey: xpub,
+    }
+  })
 }

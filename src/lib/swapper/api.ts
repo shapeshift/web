@@ -279,6 +279,12 @@ export enum SwapErrorType {
   TRADE_FAILED = 'TRADE_FAILED',
   RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED = 'RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED',
   TRADE_BELOW_MINIMUM = 'TRADE_BELOW_MINIMUM',
+  // Catch-all for XHRs that can fail
+  QUERY_FAILED = 'QUERY_FAILED',
+  // Catch-all for missing input e.g AssetId missing when making a request
+  MISSING_INPUT = 'MISSING_INPUT',
+  // Catch-all for happy responses, but entity not found according to our criteria
+  NOT_FOUND = 'NOT_FOUND',
 }
 export interface Swapper<T extends ChainId> {
   /** Human-readable swapper name */

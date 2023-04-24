@@ -1,6 +1,6 @@
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
-import { createCache } from 'lib/swapper/utils'
+import { createCache, makeSwapperAxiosServiceMonadic } from 'lib/swapper/utils'
 
 const maxAge = 3 * 1000 // 3 seconds
 const cachedUrls = ['/osmosis/gamm/v1beta1/pools']
@@ -15,4 +15,5 @@ const axiosConfig: AxiosRequestConfig = {
   adapter: cache.adapter,
 }
 
-export const osmoService = axios.create(axiosConfig)
+const osmoServiceBase = axios.create(axiosConfig)
+export const osmoService = makeSwapperAxiosServiceMonadic(osmoServiceBase)

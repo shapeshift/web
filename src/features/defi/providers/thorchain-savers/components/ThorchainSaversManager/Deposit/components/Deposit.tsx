@@ -129,15 +129,19 @@ export const Deposit: React.FC<DepositProps> = ({
     // We only want to display the outbound fee as a minimum for assets which have a zero dust threshold i.e EVM and Cosmos assets
     if (!bn(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId]).isZero()) return '0'
     const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-    const inboundAddressData = await getInboundAddressDataForChain(daemonUrl, assetId)
+    const maybeInboundAddressData = await getInboundAddressDataForChain(daemonUrl, assetId)
 
-    if (!inboundAddressData) return '0'
+    return maybeInboundAddressData
+      .mapErr(_err => '0')
+      .map(({ outbound_fee }) => {
+        const outboundFeeCryptoBaseUnit = toBaseUnit(
+          fromThorBaseUnit(outbound_fee),
+          asset.precision,
+        )
 
-    const { outbound_fee } = inboundAddressData
-
-    const outboundFeeCryptoBaseUnit = toBaseUnit(fromThorBaseUnit(outbound_fee), asset.precision)
-
-    return outboundFeeCryptoBaseUnit
+        return outboundFeeCryptoBaseUnit
+      })
+      .unwrap()
   }, [asset.precision, assetId])
 
   useEffect(() => {

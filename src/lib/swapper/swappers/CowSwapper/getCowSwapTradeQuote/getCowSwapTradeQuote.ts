@@ -2,7 +2,6 @@ import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
-import type { AxiosResponse } from 'axios'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
@@ -113,8 +112,12 @@ export async function getCowSwapTradeQuote(
      * sellAmountBeforeFee / buyAmountAfterFee: amount in base unit
      * }
      */
-    const quoteResponse: AxiosResponse<CowSwapQuoteResponse> =
-      await cowService.post<CowSwapQuoteResponse>(`${deps.apiUrl}/v1/quote/`, apiInput)
+    const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
+      `${deps.apiUrl}/v1/quote/`,
+      apiInput,
+    )
+
+    if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())
 
     const {
       data: {
@@ -124,7 +127,7 @@ export async function getCowSwapTradeQuote(
           feeAmount: feeAmountInSellTokenCryptoBaseUnit,
         },
       },
-    } = quoteResponse
+    } = maybeQuoteResponse.unwrap()
 
     const quoteSellAmountPlusFeesCryptoBaseUnit = bnOrZero(sellAmountCryptoBaseUnit).plus(
       feeAmountInSellTokenCryptoBaseUnit,

@@ -1,6 +1,7 @@
-import type { AxiosInstance, AxiosRequestConfig } from 'axios'
+import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
-import { createCache } from 'lib/swapper/utils'
+import type { MonadicSwapperAxiosService } from 'lib/swapper/utils'
+import { createCache, makeSwapperAxiosServiceMonadic } from 'lib/swapper/utils'
 
 const maxAge = 5 * 1000 // 5 seconds
 const cachedUrls = ['/swap/v1/price']
@@ -15,5 +16,7 @@ const axiosConfig: AxiosRequestConfig = {
   adapter: cache.adapter,
 }
 
-export const zrxServiceFactory = (baseUrl: string): AxiosInstance =>
-  axios.create({ ...axiosConfig, baseURL: baseUrl })
+export const zrxServiceFactory = (baseUrl: string): MonadicSwapperAxiosService => {
+  const axiosInstance = axios.create({ ...axiosConfig, baseURL: baseUrl })
+  return makeSwapperAxiosServiceMonadic(axiosInstance)
+}

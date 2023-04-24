@@ -11,7 +11,6 @@ import {
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { AxiosResponse } from 'axios'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
@@ -92,26 +91,27 @@ export const getUsdRate = async (sellAsset: Asset): Promise<Result<string, SwapE
   const maybeBaseUrl = baseUrlFromChainId(sellAsset.chainId)
   if (maybeBaseUrl.isErr()) return Err(maybeBaseUrl.unwrapErr())
   const zrxService = zrxServiceFactory(maybeBaseUrl.unwrap())
-  const rateResponse: AxiosResponse<ZrxPriceResponse> = await zrxService.get<ZrxPriceResponse>(
-    '/swap/v1/price',
-    {
-      params: {
-        buyToken: usdcContractAddress,
-        buyAmount: '1000000000', // rate is imprecise for low $ values, hence asking for $1000
-        sellToken: assetToToken(sellAsset),
-      },
+  const maybeRateResponse = await zrxService.get<ZrxPriceResponse>('/swap/v1/price', {
+    params: {
+      buyToken: usdcContractAddress,
+      buyAmount: '1000000000', // rate is imprecise for low $ values, hence asking for $1000
+      sellToken: assetToToken(sellAsset),
     },
-  )
+  })
 
-  const price = bnOrZero(rateResponse.data?.price)
-
-  if (!price.gt(0))
-    return Err(
-      makeSwapErrorRight({
-        message: '[getUsdRate] - Failed to get price data',
-        code: SwapErrorType.RESPONSE_ERROR,
-      }),
-    )
-
-  return Ok(bn(1).dividedBy(price).toString())
+  return maybeRateResponse
+    .map(rateResponse => {
+      const price = bnOrZero(rateResponse.data?.price)
+      return price
+    })
+    .andThen<string>(price => {
+      if (!price.gt(0))
+        return Err(
+          makeSwapErrorRight({
+            message: '[getUsdRate] - Failed to get price data',
+            code: SwapErrorType.RESPONSE_ERROR,
+          }),
+        )
+      return Ok(bn(1).dividedBy(price).toString())
+    })
 }

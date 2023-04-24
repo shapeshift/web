@@ -1,6 +1,5 @@
 import type { Result } from '@sniptt/monads'
-import { Err, Ok } from '@sniptt/monads'
-import type { AxiosError, AxiosResponse } from 'axios'
+import { Err } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, SwapSource, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
@@ -70,85 +69,61 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
    *   buyAmount?: integer string value of the smallest increment of the buy token
    * }
    */
-  const maybeQuoteResponse: Result<
-    AxiosResponse<ZrxPriceResponse>,
-    SwapErrorRight
-  > = await zrxService
-    .get<ZrxPriceResponse>('/swap/v1/price', {
+  return (
+    await zrxService.get<ZrxPriceResponse>('/swap/v1/price', {
       params: {
         sellToken,
         buyToken,
         sellAmount: normalizedSellAmount,
       },
     })
-    // TODO(gomes): make services themselves monadic so we can bubble errors up from them
-    .then(response => Ok(response))
-    .catch((error: AxiosError) =>
-      Err(
-        makeSwapErrorRight({
-          message: '[getZrxTradeQuote]',
-          cause: error,
-          code: SwapErrorType.TRADE_QUOTE_FAILED,
-        }),
-      ),
-    )
-
-  if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())
-  const quoteResponse = maybeQuoteResponse.unwrap()
-
-  if (!quoteResponse.data)
-    return Err(
-      makeSwapErrorRight({
-        message: '[getZrxTradeQuote] Bad ZRX response, no data was returned',
-        code: SwapErrorType.TRADE_QUOTE_FAILED,
-      }),
-    )
-
-  const {
-    data: {
-      estimatedGas: estimatedGasResponse,
-      gasPrice: gasPriceCryptoBaseUnit,
-      price,
-      sellAmount: sellAmountResponse,
-      buyAmount,
-      sources,
-      allowanceTarget,
-    },
-  } = quoteResponse
-
-  const useSellAmount = !!sellAmountCryptoBaseUnit
-  const rate = useSellAmount ? price : bn(1).div(price).toString()
-
-  const estimatedGas = bnOrZero(estimatedGasResponse).times(1.5)
-  const fee = estimatedGas.multipliedBy(bnOrZero(gasPriceCryptoBaseUnit)).toString()
-
-  // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
-  // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
-  const approvalFeeCryptoBaseUnit = bnOrZero(APPROVAL_GAS_LIMIT)
-    .multipliedBy(bnOrZero(gasPriceCryptoBaseUnit))
-    .toFixed()
-
-  const tradeQuote: TradeQuote<ZrxSupportedChainId> = {
-    rate,
-    minimumCryptoHuman: minimumAmountCryptoHuman,
-    maximumCryptoHuman: maximumAmountCryptoHuman,
-    feeData: {
-      chainSpecific: {
-        estimatedGasCryptoBaseUnit: estimatedGas.toString(),
-        gasPriceCryptoBaseUnit,
-        approvalFeeCryptoBaseUnit,
+  ).map(quoteResponse => {
+    const {
+      data: {
+        estimatedGas: estimatedGasResponse,
+        gasPrice: gasPriceCryptoBaseUnit,
+        price,
+        sellAmount: sellAmountResponse,
+        buyAmount,
+        sources,
+        allowanceTarget,
       },
-      networkFeeCryptoBaseUnit: fee,
-      buyAssetTradeFeeUsd: '0',
-      sellAssetTradeFeeUsd: '0',
-    },
-    sellAmountBeforeFeesCryptoBaseUnit: sellAmountResponse,
-    buyAmountCryptoBaseUnit: buyAmount,
-    sources: sources?.filter((s: SwapSource) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
-    allowanceContract: allowanceTarget,
-    buyAsset,
-    sellAsset,
-    accountNumber,
-  }
-  return Ok(tradeQuote as TradeQuote<T>)
+    } = quoteResponse
+
+    const useSellAmount = !!sellAmountCryptoBaseUnit
+    const rate = useSellAmount ? price : bn(1).div(price).toString()
+
+    const estimatedGas = bnOrZero(estimatedGasResponse).times(1.5)
+    const fee = estimatedGas.multipliedBy(bnOrZero(gasPriceCryptoBaseUnit)).toString()
+
+    // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
+    // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
+    const approvalFeeCryptoBaseUnit = bnOrZero(APPROVAL_GAS_LIMIT)
+      .multipliedBy(bnOrZero(gasPriceCryptoBaseUnit))
+      .toFixed()
+
+    const tradeQuote: TradeQuote<ZrxSupportedChainId> = {
+      rate,
+      minimumCryptoHuman: minimumAmountCryptoHuman,
+      maximumCryptoHuman: maximumAmountCryptoHuman,
+      feeData: {
+        chainSpecific: {
+          estimatedGasCryptoBaseUnit: estimatedGas.toString(),
+          gasPriceCryptoBaseUnit,
+          approvalFeeCryptoBaseUnit,
+        },
+        networkFeeCryptoBaseUnit: fee,
+        buyAssetTradeFeeUsd: '0',
+        sellAssetTradeFeeUsd: '0',
+      },
+      sellAmountBeforeFeesCryptoBaseUnit: sellAmountResponse,
+      buyAmountCryptoBaseUnit: buyAmount,
+      sources: sources?.filter((s: SwapSource) => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
+      allowanceContract: allowanceTarget,
+      buyAsset,
+      sellAsset,
+      accountNumber,
+    }
+    return tradeQuote as TradeQuote<T>
+  })
 }

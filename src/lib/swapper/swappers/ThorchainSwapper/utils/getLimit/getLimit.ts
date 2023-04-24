@@ -46,20 +46,16 @@ export const getLimit = async ({
     deps,
   })
 
-  // TODO(gomes): grep for maybeTradeRate.match() and bubble the error up
-  // For now, we're just doing the same flow as before and returning either an actual rate or a minimum
-  const tradeRate = await maybeTradeRate.match({
-    ok: rate => Promise.resolve(rate),
+  const tradeRate = maybeTradeRate.mapErr(_err =>
     // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
     // Though realistically, TRADE_BELOW_MINIMUM is the only one we should really be seeing here,
     // safety never hurts
-    err: _err =>
-      getTradeRateBelowMinimum({
-        sellAssetId: sellAsset.assetId,
-        buyAssetId,
-        deps,
-      }),
-  })
+    getTradeRateBelowMinimum({
+      sellAssetId: sellAsset.assetId,
+      buyAssetId,
+      deps,
+    }),
+  )
 
   const sellAssetChainFeeAssetId = deps.adapterManager.get(sellAsset.chainId)?.getFeeAssetId()
   const buyAssetChainFeeAssetId = deps.adapterManager
@@ -84,7 +80,7 @@ export const getLimit = async ({
   const buyAssetUsdRate = maybeBuyAssetUsdRate.unwrap()
 
   const expectedBuyAmountCryptoPrecision8 = toBaseUnit(
-    fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit).times(tradeRate), sellAsset.precision),
+    fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit).times(tradeRate.unwrap()), sellAsset.precision),
     THORCHAIN_FIXED_PRECISION,
   )
 
@@ -119,7 +115,7 @@ export const getLimit = async ({
       // Else the return fee is the outbound fee of the sell asset's chain
       default: {
         const sellAssetTradeFeeCryptoHuman = fromBaseUnit(
-          bnOrZero(sellAssetAddressData?.outbound_fee),
+          bnOrZero(sellAssetAddressData.unwrap().outbound_fee),
           THORCHAIN_FIXED_PRECISION,
         )
         const sellAssetTradeFeeUsd = bnOrZero(sellAssetTradeFeeCryptoHuman).times(

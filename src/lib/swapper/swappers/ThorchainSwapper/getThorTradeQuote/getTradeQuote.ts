@@ -85,18 +85,18 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     deps,
   })
 
-  const rate = await quoteRate.match({
-    ok: rate => Promise.resolve(rate),
-    // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
-    // Though realistically, TRADE_BELOW_MINIMUM is the only one we should really be seeing here,
-    // safety never hurts
-    err: _err =>
+  const rate = quoteRate
+    .mapErr(_err =>
+      // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
+      // Though realistically, TRADE_BELOW_MINIMUM is the only one we should really be seeing here,
+      // safety never hurts
       getTradeRateBelowMinimum({
         sellAssetId: sellAsset.assetId,
         buyAssetId: buyAsset.assetId,
         deps,
       }),
-  })
+    )
+    .unwrap()
 
   const buyAmountCryptoBaseUnit = toBaseUnit(
     bnOrZero(fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)).times(rate),
@@ -110,16 +110,18 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     THORCHAIN_FIXED_PRECISION,
   )
 
-  const recommendedSlippage = await getSlippage({
+  const maybeRecommendedSlippage = await getSlippage({
     inputAmountThorPrecision: bn(sellAmountThorPrecision),
     daemonUrl: deps.daemonUrl,
     buyAssetId: buyAsset.assetId,
     sellAssetId: sellAsset.assetId,
   })
 
+  if (maybeRecommendedSlippage.isErr()) return Err(maybeRecommendedSlippage.unwrapErr())
+
   const estimatedBuyAssetTradeFeeFeeAssetCryptoHuman = isRune(buyAsset.assetId)
     ? RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN.toString()
-    : fromBaseUnit(bnOrZero(buyAssetAddressData?.outbound_fee), THORCHAIN_FIXED_PRECISION)
+    : fromBaseUnit(bnOrZero(buyAssetAddressData.unwrap().outbound_fee), THORCHAIN_FIXED_PRECISION)
 
   const buyAssetChainFeeAssetId = buyAdapter.getFeeAssetId()
 
@@ -155,7 +157,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     sellAsset,
     accountNumber,
     minimumCryptoHuman: minimumSellAssetAmountPaddedCryptoHuman,
-    recommendedSlippage: recommendedSlippage.toPrecision(),
+    recommendedSlippage: maybeRecommendedSlippage.unwrap().toPrecision(),
   }
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
@@ -165,12 +167,14 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         Promise<Result<TradeQuote<ThorEvmSupportedChainId>, SwapErrorRight>>
       > => {
         const sellChainFeeAssetId = sellAdapter.getFeeAssetId()
-        const evmAddressData = await getInboundAddressDataForChain(
+        const maybeEvmAddressData = await getInboundAddressDataForChain(
           deps.daemonUrl,
           sellChainFeeAssetId,
           false,
         )
-        const router = evmAddressData?.router
+        if (maybeEvmAddressData.isErr())
+          return Promise.resolve(Err(maybeEvmAddressData.unwrapErr()))
+        const { router } = maybeEvmAddressData.unwrap()
         if (!router)
           return Err(
             makeSwapErrorRight({

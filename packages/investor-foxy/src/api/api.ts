@@ -431,7 +431,7 @@ export class FoxyApi {
         MAX_ALLOWANCE,
       ])
       const estimatedFees = await this.adapter.getFeeData({
-        to: contractAddress,
+        to: tokenContractAddress,
         value: '0',
         chainSpecific: {
           contractData: data,

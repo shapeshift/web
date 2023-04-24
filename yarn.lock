@@ -6148,8 +6148,6 @@ __metadata:
     "@types/readline-sync": ^1.4.4
     ethers: ^5.7.2
     readline-sync: ^1.4.10
-    web3-core: 1.7.4
-    web3-utils: 1.7.4
   languageName: unknown
   linkType: soft
 

@@ -1,6 +1,7 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { AxiosAdapter } from 'axios'
+import { Ok } from '@sniptt/monads'
+import type { AxiosAdapter, AxiosStatic } from 'axios'
 import Web3 from 'web3'
 
 import type { ApprovalNeededInput } from '../../../api'
@@ -33,6 +34,15 @@ Web3.mockImplementation(() => ({
     })),
   },
 }))
+
+jest.mock('../utils/zrxService', () => {
+  const axios: AxiosStatic = jest.createMockFromModule('axios')
+  axios.create = jest.fn(() => axios)
+
+  return {
+    zrxServiceFactory: () => axios.create(),
+  }
+})
 
 describe('zrxApprovalNeeded', () => {
   const deps = setupDeps()
@@ -85,7 +95,7 @@ describe('zrxApprovalNeeded', () => {
         })),
       },
     }))
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
+    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({ data })))
 
     expect(await zrxApprovalNeeded(deps, input)).toEqual({
       approvalNeeded: false,

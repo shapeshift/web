@@ -1,3 +1,4 @@
+import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 
 import { FOX, WETH } from '../../../utils/test-data/assets'
@@ -19,7 +20,7 @@ describe('utils', () => {
   describe('getUsdRate', () => {
     it('getUsdRate gets the usd rate of the symbol', async () => {
       ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
-        Promise.resolve({ data: { price: '2' } }),
+        Promise.resolve(Ok({ data: { price: '2' } })),
       )
       const rate = await getUsdRate(FOX)
       expect(rate.unwrap()).toBe('0.5')
@@ -32,7 +33,7 @@ describe('utils', () => {
       })
     })
     it('getUsdRate fails', async () => {
-      ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data: {} }))
+      ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Ok(Promise.resolve({ data: {} })))
       expect((await getUsdRate(WETH)).unwrapErr()).toMatchObject({
         cause: undefined,
         code: 'RESPONSE_ERROR',

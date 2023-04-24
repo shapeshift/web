@@ -14,7 +14,7 @@ import { DEFAULT_SLIPPAGE } from '../../../utils/constants'
 import { BTC, ETH, FOX, RUNE } from '../../../utils/test-data/assets'
 import type { ThorchainSwapperDeps } from '../../types'
 import { getInboundAddressDataForChain } from '../getInboundAddressDataForChain'
-import { getTradeRate } from '../getTradeRate/getTradeRate'
+import { getTradeRate, getTradeRateBelowMinimum } from '../getTradeRate/getTradeRate'
 import { getUsdRate } from '../getUsdRate/getUsdRate'
 import { mockInboundAddresses } from '../test-data/responses'
 import type { GetLimitArgs } from './getLimit'
@@ -48,8 +48,11 @@ describe('getLimit', () => {
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(mockOk('0.07714399680893498205')),
     )
+    ;(getTradeRateBelowMinimum as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve(mockOk('42.22')),
+    )
     ;(getInboundAddressDataForChain as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(mockInboundAddresses.find(address => address.chain === 'ETH')),
+      Promise.resolve(mockOk(mockInboundAddresses.find(address => address.chain === 'ETH'))),
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: ETH,
@@ -72,8 +75,11 @@ describe('getLimit', () => {
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(mockOk('0.00000199048641810579')),
     )
+    ;(getTradeRateBelowMinimum as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve(mockOk('42.22')),
+    )
     ;(getInboundAddressDataForChain as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(mockInboundAddresses.find(address => address.chain === 'ETH')),
+      Promise.resolve(mockOk(mockInboundAddresses.find(address => address.chain === 'ETH'))),
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: FOX,
@@ -96,8 +102,11 @@ describe('getLimit', () => {
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(mockOk('0.02583433052665346349')),
     )
+    ;(getTradeRateBelowMinimum as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve(mockOk('42.22')),
+    )
     ;(getInboundAddressDataForChain as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(mockInboundAddresses.find(address => address.chain === 'ETH')),
+      Promise.resolve(mockOk(mockInboundAddresses.find(address => address.chain === 'ETH'))),
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: FOX,
@@ -120,8 +129,11 @@ describe('getLimit', () => {
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(mockOk('38.68447363336979738738')),
     )
+    ;(getTradeRateBelowMinimum as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve(mockOk('42.22')),
+    )
     ;(getInboundAddressDataForChain as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(undefined),
+      Promise.resolve(mockOk(undefined)),
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: RUNE,

@@ -50,10 +50,10 @@ export const getFeesFromFeeData = async ({
   if (!supportsETH(wallet)) throw new Error('wallet has no evm support')
   if (!gasLimit) throw new Error('gasLimit is required')
 
-  const eip1559Support = await wallet.ethSupportsEIP1559()
+  const supportsEip1559 = await wallet.ethSupportsEIP1559()
 
   // use eip1559 fees if able
-  if (eip1559Support && maxFeePerGas && maxPriorityFeePerGas) {
+  if (supportsEip1559 && maxFeePerGas && maxPriorityFeePerGas) {
     return { gasLimit, maxFeePerGas, maxPriorityFeePerGas }
   }
 

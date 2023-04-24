@@ -55,12 +55,12 @@ type GetFeesFromFeeDataArgs = {
 type BuildAndBroadcastArgs = GetFeesFromFeeDataArgs & {
   accountNumber: number
   adapter: EvmChainAdapter
-  data?: string
+  data: string
   to: string
   value: string
 }
 
-type GrantAllowanceArgs = Omit<BuildAndBroadcastArgs, 'value'> & {
+type GrantAllowanceArgs = Omit<BuildAndBroadcastArgs, 'data' | 'value'> & {
   approvalAmount: string
   spender: string
   web3: Web3
@@ -174,7 +174,7 @@ export const buildAndBroadcast = async ({
       to,
       accountNumber,
       value,
-      data: data ?? '0x',
+      data,
       ...(await getFeesFromFeeData({ wallet, feeData })),
     })
 

@@ -66,7 +66,7 @@ export const getFeesFromFeeData = async ({
 type BuildAndBroadcastArgs = GetFeesFromFeeDataArgs & {
   accountNumber: number
   adapter: EvmChainAdapter
-  data?: string
+  data: string
   to: string
   value: string
 }
@@ -85,7 +85,7 @@ export const buildAndBroadcast = async ({
     to,
     accountNumber,
     value,
-    data: data ?? '0x',
+    data,
     ...(await getFeesFromFeeData({ wallet, feeData })),
   })
 

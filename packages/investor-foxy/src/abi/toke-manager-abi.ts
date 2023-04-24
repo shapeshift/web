@@ -1,4 +1,4 @@
-import type { ContractInterface } from 'ethers/lib/ethers'
+import type { ContractInterface } from 'ethers'
 
 export const tokeManagerAbi: ContractInterface = [
   { inputs: [], stateMutability: 'nonpayable', type: 'constructor' },

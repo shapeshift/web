@@ -1,6 +1,7 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { WithdrawType } from '@shapeshiftoss/types'
 import type { ethers } from 'ethers'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
@@ -15,6 +16,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -85,7 +87,11 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
       )
         return
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
-      const [txid, gasPrice] = await Promise.all([
+
+      const chainAdapterManager = getChainAdapterManager()
+      const adapter = chainAdapterManager.get(ethChainId) as unknown as EvmBaseAdapter<EvmChainId>
+
+      const [txid, gasFees] = await Promise.all([
         foxyApi.withdraw({
           tokenContractAddress: rewardId,
           userAddress: accountAddress,
@@ -97,7 +103,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
           type: state.withdraw.withdrawType,
           bip44Params,
         }),
-        foxyApi.getGasPrice(),
+        adapter.getGasFeeData(),
       ])
       dispatch({ type: FoxyWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
@@ -113,7 +119,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
         payload: {
           txStatus: transactionReceipt.status ? 'success' : 'failed',
           usedGasFeeCryptoBaseUnit: bnOrZero(
-            bn(gasPrice).times(transactionReceipt.gasUsed.toString()),
+            bn(gasFees.fast.gasPrice).times(transactionReceipt.gasUsed.toString()),
           ).toFixed(0),
         },
       })

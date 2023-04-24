@@ -1,6 +1,7 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ethers } from 'ethers'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import isNil from 'lodash/isNil'
@@ -16,6 +17,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -125,7 +127,11 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
           interval: 15000,
           maxAttempts: 30,
         })
-        const gasPrice = await foxyApi.getGasPrice()
+
+        const chainAdapterManager = getChainAdapterManager()
+        const adapter = chainAdapterManager.get(ethChainId) as unknown as EvmBaseAdapter<EvmChainId>
+
+        const gasFees = await adapter.getGasFeeData()
 
         if (transactionReceipt.status) {
           refetchFoxyBalances()
@@ -134,7 +140,9 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
         setState({
           ...state,
           txStatus: transactionReceipt.status ? TxStatus.SUCCESS : TxStatus.FAILED,
-          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed.toString()).toFixed(0),
+          usedGasFee: bnOrZero(gasFees.fast.gasPrice)
+            .times(transactionReceipt.gasUsed.toString())
+            .toFixed(0),
         })
       } catch (error) {
         moduleLogger.error(error, 'ClaimStatus error')

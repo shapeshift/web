@@ -234,11 +234,6 @@ export class FoxyApi {
     }
   }
 
-  async getGasPrice(): Promise<string> {
-    const gasPrice = await this.provider.getGasPrice()
-    return gasPrice.toString()
-  }
-
   getTxReceipt({ txid }: TxReceipt): Promise<ethers.providers.TransactionReceipt> {
     if (!txid) throw new Error('Must pass txid')
     return this.provider.getTransactionReceipt(txid)

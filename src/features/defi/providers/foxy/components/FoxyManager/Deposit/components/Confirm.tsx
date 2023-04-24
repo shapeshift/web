@@ -1,6 +1,7 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ethers } from 'ethers'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -14,6 +15,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -81,7 +83,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       return
     try {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
-      const [txid, gasPrice] = await Promise.all([
+      const chainAdapterManager = getChainAdapterManager()
+      const adapter = chainAdapterManager.get(ethChainId) as unknown as EvmBaseAdapter<EvmChainId>
+
+      const [txid, gasFees] = await Promise.all([
         foxyApi.deposit({
           amountDesired: bnOrZero(state?.deposit.cryptoAmount)
             .times(bn(10).pow(asset.precision))
@@ -92,7 +97,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           wallet: walletState.wallet,
           bip44Params,
         }),
-        foxyApi.getGasPrice(),
+        adapter.getGasFeeData(),
       ])
       dispatch({ type: FoxyDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
@@ -107,7 +112,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         type: FoxyDepositActionType.SET_DEPOSIT,
         payload: {
           txStatus: transactionReceipt.status ? 'success' : 'failed',
-          usedGasFeeCryptoBaseUnit: bnOrZero(gasPrice)
+          usedGasFeeCryptoBaseUnit: bnOrZero(gasFees.fast.gasPrice)
             .times(transactionReceipt.gasUsed.toString())
             .toFixed(0),
         },

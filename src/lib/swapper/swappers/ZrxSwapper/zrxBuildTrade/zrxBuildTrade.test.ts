@@ -98,7 +98,7 @@ describe('zrxBuildTrade', () => {
         maxFeePerGas: '216214758112',
         maxPriorityFeePerGas: '2982734547',
       },
-      networkFeeCryptoBaseUnit: '4080654495000000',
+      networkFeeCryptoBaseUnit: '21621475811200000',
       sellAssetTradeFeeUsd: '0',
       buyAssetTradeFeeUsd: '0',
     },
@@ -170,7 +170,7 @@ describe('zrxBuildTrade', () => {
       },
       buyAssetTradeFeeUsd: '0',
       sellAssetTradeFeeUsd: '0',
-      networkFeeCryptoBaseUnit: '4080654495000000',
+      networkFeeCryptoBaseUnit: '21621475811200000',
     }
 
     const maybeBuiltTrade = await zrxBuildTrade(deps, { ...buildTradeInput, wallet })

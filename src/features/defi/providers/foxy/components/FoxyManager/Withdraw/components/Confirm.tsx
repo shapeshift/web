@@ -1,7 +1,6 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
-import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { WithdrawType } from '@shapeshiftoss/types'
 import type { ethers } from 'ethers'
@@ -17,7 +16,6 @@ import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -89,26 +87,20 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
         return
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
 
-      const chainAdapterManager = getChainAdapterManager()
-      const adapter = chainAdapterManager.get(ethChainId) as unknown as EvmBaseAdapter<EvmChainId>
-
       if (!supportsETH(walletState.wallet))
         throw new Error(`handleConfirm: wallet does not support ethereum`)
 
-      const [txid, gasFees] = await Promise.all([
-        foxyApi.withdraw({
-          tokenContractAddress: rewardId,
-          userAddress: accountAddress,
-          contractAddress,
-          wallet: walletState.wallet,
-          amountDesired: bnOrZero(state.withdraw.cryptoAmount)
-            .times(bn(10).pow(underlyingAsset.precision))
-            .decimalPlaces(0),
-          type: state.withdraw.withdrawType,
-          bip44Params,
-        }),
-        adapter.getGasFeeData(),
-      ])
+      const txid = await foxyApi.withdraw({
+        tokenContractAddress: rewardId,
+        userAddress: accountAddress,
+        contractAddress,
+        wallet: walletState.wallet,
+        amountDesired: bnOrZero(state.withdraw.cryptoAmount)
+          .times(bn(10).pow(underlyingAsset.precision))
+          .decimalPlaces(0),
+        type: state.withdraw.withdrawType,
+        bip44Params,
+      })
       dispatch({ type: FoxyWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
 
@@ -122,9 +114,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
         type: FoxyWithdrawActionType.SET_WITHDRAW,
         payload: {
           txStatus: transactionReceipt.status ? 'success' : 'failed',
-          usedGasFeeCryptoBaseUnit: bnOrZero(
-            bn(gasFees.fast.gasPrice).times(transactionReceipt.gasUsed.toString()),
-          ).toFixed(0),
+          usedGasFeeCryptoBaseUnit: transactionReceipt.gasUsed.toString(),
         },
       })
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: false })

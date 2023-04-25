@@ -220,7 +220,7 @@ export const useUniV2LiquidityPool = ({
           adapter,
           feeData: getFeeDataFromEstimate(feeData).chainSpecific,
           to: contractAddress,
-          value: '0',
+          value,
           wallet,
           data,
         })

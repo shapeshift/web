@@ -198,31 +198,33 @@ export const Deposit: React.FC<DepositProps> = ({
           assetId1 !== ethAssetId
             ? ethers.utils.getAddress(fromAssetId(assetId1).assetReference)
             : undefined
+
         // While the naive approach would be to think both assets approve() calls are going to result in the same gas estimation,
         // this is not necesssarly true. Some ERC-20s approve() might have a bit more logic, and thus require more gas.
         // e.g https://github.com/Uniswap/governance/blob/eabd8c71ad01f61fb54ed6945162021ee419998e/contracts/Uni.sol#L119
-        const asset0FeeData =
-          assetId0 !== ethAssetId && (await getApproveFeeData(asset0ContractAddress!))
-        const asset1FeeData =
-          assetId1 !== ethAssetId && (await getApproveFeeData(asset1ContractAddress!))
-        if (!(asset0FeeData || asset1FeeData)) return
+        const asset0ApprovalFee =
+          asset0ContractAddress && bnOrZero((await getApproveFeeData(asset0ContractAddress))?.txFee)
+        const asset1ApprovalFee =
+          asset1ContractAddress && bnOrZero((await getApproveFeeData(asset1ContractAddress))?.txFee)
 
-        if (!isAsset0AllowanceGranted && asset0FeeData) {
+        if (!(asset0ApprovalFee || asset1ApprovalFee)) return
+
+        if (!isAsset0AllowanceGranted && asset0ApprovalFee) {
           dispatch({
             type: UniV2DepositActionType.SET_APPROVE_0,
             payload: {
-              estimatedGasCryptoPrecision: bnOrZero(asset0FeeData.txFee)
+              estimatedGasCryptoPrecision: bnOrZero(asset0ApprovalFee)
                 .div(bn(10).pow(feeAsset.precision))
                 .toPrecision(),
             },
           })
         }
 
-        if (!isAsset1AllowanceGranted && asset1FeeData) {
+        if (!isAsset1AllowanceGranted && asset1ApprovalFee) {
           dispatch({
             type: UniV2DepositActionType.SET_APPROVE_1,
             payload: {
-              estimatedGasCryptoPrecision: bnOrZero(asset1FeeData.txFee)
+              estimatedGasCryptoPrecision: bnOrZero(asset1ApprovalFee)
                 .div(bn(10).pow(feeAsset.precision))
                 .toPrecision(),
             },

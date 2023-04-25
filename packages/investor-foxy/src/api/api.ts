@@ -950,8 +950,10 @@ export class FoxyApi {
     }
     const liquidityReserveContract = this.getLiquidityReserveContract(liquidityReserveAddress)
     try {
-      const feeInBasisPoints = await liquidityReserveContract.fee()
-      return bnOrZero(feeInBasisPoints.div(10000).toString()) // convert from basis points to decimal percentage
+      // ethers BigNumber doesn't support floats, so we have to convert it to a regular bn first
+      // to be able to get a float bignumber.js as an output
+      const feeInBasisPoints = bnOrZero((await liquidityReserveContract.fee()).toString())
+      return feeInBasisPoints.div(10000) // convert from basis points to decimal percentage
     } catch (e) {
       throw new Error(`Failed to get instantUnstake fee ${e}`)
     }

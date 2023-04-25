@@ -255,7 +255,7 @@ export class FoxyApi {
 
     try {
       const data = stakingContract.interface.encodeFunctionData('claimWithdraw', [addressToClaim])
-      const estimatedFees = await this.adapter.getFeeData({
+      const feeData = await this.adapter.getFeeData({
         to: contractAddress,
         value: '0',
         chainSpecific: {
@@ -266,11 +266,11 @@ export class FoxyApi {
 
       const {
         chainSpecific: { gasLimit: gasLimitBase },
-      } = estimatedFees.fast
+      } = feeData.fast
       const safeGasLimit = bnOrZero(gasLimitBase).times('1.05').toFixed(0)
-      estimatedFees.fast.chainSpecific.gasLimit = safeGasLimit
+      feeData.fast.chainSpecific.gasLimit = safeGasLimit
 
-      return estimatedFees
+      return feeData
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
     }
@@ -286,7 +286,7 @@ export class FoxyApi {
 
     try {
       const data = stakingContract.interface.encodeFunctionData('sendWithdrawalRequests', [])
-      const estimatedFees = await this.adapter.getFeeData({
+      const feeData = await this.adapter.getFeeData({
         to: contractAddress,
         value: '0',
         chainSpecific: {
@@ -297,11 +297,11 @@ export class FoxyApi {
 
       const {
         chainSpecific: { gasLimit: gasLimitBase },
-      } = estimatedFees.fast
+      } = feeData.fast
       const safeGasLimit = bnOrZero(gasLimitBase).times('1.05').toFixed(0)
-      estimatedFees.fast.chainSpecific.gasLimit = safeGasLimit
+      feeData.fast.chainSpecific.gasLimit = safeGasLimit
 
-      return estimatedFees
+      return feeData
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
     }
@@ -320,7 +320,7 @@ export class FoxyApi {
       const data = liquidityReserveContract.interface.encodeFunctionData('addLiquidity', [
         this.normalizeAmount(amountDesired),
       ])
-      const estimatedFees = await this.adapter.getFeeData({
+      const feeData = await this.adapter.getFeeData({
         to: contractAddress,
         value: '0',
         chainSpecific: {
@@ -331,11 +331,11 @@ export class FoxyApi {
 
       const {
         chainSpecific: { gasLimit: gasLimitBase },
-      } = estimatedFees.fast
+      } = feeData.fast
       const safeGasLimit = bnOrZero(gasLimitBase).times('1.05').toFixed(0)
-      estimatedFees.fast.chainSpecific.gasLimit = safeGasLimit
+      feeData.fast.chainSpecific.gasLimit = safeGasLimit
 
-      return estimatedFees
+      return feeData
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
     }
@@ -355,7 +355,7 @@ export class FoxyApi {
         this.normalizeAmount(amountDesired),
       ])
 
-      const estimatedFees = await this.adapter.getFeeData({
+      const feeData = await this.adapter.getFeeData({
         to: contractAddress,
         value: '0',
         chainSpecific: {
@@ -366,11 +366,11 @@ export class FoxyApi {
 
       const {
         chainSpecific: { gasLimit: gasLimitBase },
-      } = estimatedFees.fast
+      } = feeData.fast
       const safeGasLimit = bnOrZero(gasLimitBase).times('1.05').toFixed(0)
-      estimatedFees.fast.chainSpecific.gasLimit = safeGasLimit
+      feeData.fast.chainSpecific.gasLimit = safeGasLimit
 
-      return estimatedFees
+      return feeData
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
     }
@@ -395,7 +395,7 @@ export class FoxyApi {
           ])
         : stakingContract.interface.encodeFunctionData('instantUnstake', [true])
 
-      const estimatedFees = await this.adapter.getFeeData({
+      const feeData = await this.adapter.getFeeData({
         to: contractAddress,
         value: '0',
         chainSpecific: {
@@ -406,11 +406,11 @@ export class FoxyApi {
 
       const {
         chainSpecific: { gasLimit: gasLimitBase },
-      } = estimatedFees.fast
+      } = feeData.fast
       const safeGasLimit = bnOrZero(gasLimitBase).times('1.05').toFixed(0)
-      estimatedFees.fast.chainSpecific.gasLimit = safeGasLimit
+      feeData.fast.chainSpecific.gasLimit = safeGasLimit
 
-      return estimatedFees
+      return feeData
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
     }
@@ -429,7 +429,7 @@ export class FoxyApi {
         contractAddress,
         MAX_ALLOWANCE,
       ])
-      const estimatedFees = await this.adapter.getFeeData({
+      const feeData = await this.adapter.getFeeData({
         to: tokenContractAddress,
         value: '0',
         chainSpecific: {
@@ -440,11 +440,11 @@ export class FoxyApi {
 
       const {
         chainSpecific: { gasLimit: gasLimitBase },
-      } = estimatedFees.fast
+      } = feeData.fast
       const safeGasLimit = bnOrZero(gasLimitBase).times('1.05').toFixed(0)
-      estimatedFees.fast.chainSpecific.gasLimit = safeGasLimit
+      feeData.fast.chainSpecific.gasLimit = safeGasLimit
 
-      return estimatedFees
+      return feeData
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
     }
@@ -464,7 +464,7 @@ export class FoxyApi {
         this.normalizeAmount(amountDesired),
       ])
 
-      const estimatedFees = await this.adapter.getFeeData({
+      const feeData = await this.adapter.getFeeData({
         to: contractAddress,
         value: '0',
         chainSpecific: {
@@ -475,11 +475,11 @@ export class FoxyApi {
 
       const {
         chainSpecific: { gasLimit: gasLimitBase },
-      } = estimatedFees.fast
+      } = feeData.fast
       const safeGasLimit = bnOrZero(gasLimitBase).times('1.05').toFixed(0)
-      estimatedFees.fast.chainSpecific.gasLimit = safeGasLimit
+      feeData.fast.chainSpecific.gasLimit = safeGasLimit
 
-      return estimatedFees
+      return feeData
     } catch (e) {
       throw new Error(`Failed to get gas ${e}`)
     }

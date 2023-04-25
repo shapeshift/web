@@ -21,8 +21,8 @@ export const getEvmTxFees = async ({
   try {
     const { average, fast } = await adapter.getGasFeeData()
 
-    // use worst case gas price for all fee display values
-    const maxGasPrice = bnOrZero(BigNumber.max(fast.maxFeePerGas ?? 0, fast.gasPrice))
+    // use worst case average eip1559 vs fast legacy
+    const maxGasPrice = bnOrZero(BigNumber.max(average.maxFeePerGas ?? 0, fast.gasPrice))
 
     // this is a good value to cover all thortrades out of EVMs
     // in the future we may want to look at doing this more precisely and in a future-proof way

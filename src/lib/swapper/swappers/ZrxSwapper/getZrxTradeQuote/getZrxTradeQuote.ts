@@ -65,8 +65,8 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
 
     const { average, fast } = await adapter.getGasFeeData()
 
-    // use worst case gas price for all fee display values
-    const maxGasPrice = bnOrZero(BigNumber.max(fast.maxFeePerGas ?? 0, fast.gasPrice))
+    // use worst case average eip1559 vs fast legacy
+    const maxGasPrice = bnOrZero(BigNumber.max(average.maxFeePerGas ?? 0, fast.gasPrice))
 
     // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
     // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.

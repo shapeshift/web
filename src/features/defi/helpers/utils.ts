@@ -10,7 +10,7 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectPortfolioCryptoPrecisionBalanceByFilter } from 'state/slices/selectors'
 import { store } from 'state/store'
 
@@ -48,7 +48,10 @@ export const getFeeDataFromEstimate = ({
   average,
   fast,
 }: FeeDataEstimate<EvmChainId>): FeeData<EvmChainId> => ({
-  txFee: fast.txFee, // use worst case tx fee for display purposes
+  txFee: BigNumber.max(
+    average.txFee,
+    bnOrZero(bn(fast.chainSpecific.gasPrice).times(average.chainSpecific.gasLimit)),
+  ).toFixed(0), // use worst case average eip1559 vs fast legacy
   chainSpecific: {
     gasLimit: average.chainSpecific.gasLimit, // average and fast gasLimit values are the same
     gasPrice: fast.chainSpecific.gasPrice, // fast gas price since it is underestimated currently

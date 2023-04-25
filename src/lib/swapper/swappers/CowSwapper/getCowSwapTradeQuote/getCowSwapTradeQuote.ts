@@ -162,7 +162,7 @@ export async function getCowSwapTradeQuote(
           gasPriceCryptoBaseUnit: fast.chainSpecific.gasPrice, // fast gas price since it is underestimated currently
           maxFeePerGas: average.chainSpecific.maxFeePerGas,
           maxPriorityFeePerGas: average.chainSpecific.maxPriorityFeePerGas,
-          approvalFeeCryptoBaseUnit: fast.txFee, // worst case fee for display purposes
+          approvalFeeCryptoBaseUnit: fast.txFee, // use worst case fast fee
         },
         buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
         sellAssetTradeFeeUsd,

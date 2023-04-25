@@ -5038,30 +5038,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keepkey/hdwallet-keepkey-rest@npm:1.40.12":
-  version: 1.40.12
-  resolution: "@keepkey/hdwallet-keepkey-rest@npm:1.40.12"
+"@keepkey/hdwallet-keepkey-rest@npm:1.40.25":
+  version: 1.40.25
+  resolution: "@keepkey/hdwallet-keepkey-rest@npm:1.40.25"
   dependencies:
-    "@keepkey/keepkey-sdk": 0.2.25
+    "@keepkey/keepkey-sdk": ^0.2.41
     lodash: ^4.17.21
     semver: ^6.3.0
   peerDependencies:
     "@shapeshiftoss/hdwallet-core": 1.41.0
-  checksum: 766ce6b94bcda2e8e7788374d8ead218944f6155be11c5a02e7ce8219bd12079a64c7ca7ae16640f77ef62abbf3b9ce212d9818803e419cbc4d58d5df134dd0f
+  checksum: 004c6bfd17f0039ce5fe8c0370c7d7c47e98eb226956ecfe7c211fc935bd67c2cd7a188951c968745f39d3eda089674100039e3180294cc690f86c1189b3cdd7
   languageName: node
   linkType: hard
 
-"@keepkey/keepkey-sdk@npm:0.2.25":
-  version: 0.2.25
-  resolution: "@keepkey/keepkey-sdk@npm:0.2.25"
-  checksum: 50363a594644defe4cc85371533ed5ec761abc2ea207b213b4ac5e5cfb62038cad7e569131b9260fb96f7a426e226e75d78c41b5243270e237154840a7c8f886
-  languageName: node
-  linkType: hard
-
-"@keepkey/keepkey-sdk@npm:0.2.26":
-  version: 0.2.26
-  resolution: "@keepkey/keepkey-sdk@npm:0.2.26"
-  checksum: 5e37360799c93d64ad5edf7e0f86021152c35a239f34e41fc79e31091475e183495a2398ca8171fabe941cb5e83636da8bcfb0089227ce0d15c4fa69b03e4dee
+"@keepkey/keepkey-sdk@npm:0.2.41, @keepkey/keepkey-sdk@npm:^0.2.41":
+  version: 0.2.41
+  resolution: "@keepkey/keepkey-sdk@npm:0.2.41"
+  checksum: b40856dcba1330a8aff4dd58072cd38e1506bfc1260b882c6ce421df1c83095110ba3136a048a58232a69b61b8b3f05d6636f9ca3cf0d6e7e676f3ac46e9680a
   languageName: node
   linkType: hard
 
@@ -6279,8 +6272,8 @@ __metadata:
     "@formatjs/intl-numberformat": ^8.0.2
     "@formatjs/intl-pluralrules": ^5.0.2
     "@jest/types": ^27.1.0
-    "@keepkey/hdwallet-keepkey-rest": 1.40.12
-    "@keepkey/keepkey-sdk": 0.2.26
+    "@keepkey/hdwallet-keepkey-rest": 1.40.25
+    "@keepkey/keepkey-sdk": 0.2.41
     "@keplr-wallet/types": ^0.10.5
     "@lifi/sdk": ^1.7.2
     "@metamask/detect-provider": ^1.2.0

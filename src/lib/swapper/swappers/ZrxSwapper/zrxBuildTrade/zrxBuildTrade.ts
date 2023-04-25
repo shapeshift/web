@@ -71,7 +71,6 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
       value: quote.value,
       chainSpecific: {
         from: receiveAddress,
-        contractAddress: quote.to,
         contractData: quote.data,
       },
     })

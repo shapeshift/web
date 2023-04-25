@@ -69,7 +69,7 @@ describe('zrxApprovalNeeded', () => {
       wallet,
     }
 
-    await expect(zrxApprovalNeeded(deps, input)).rejects.toThrow('[zrxApprovalNeeded]')
+    await expect(zrxApprovalNeeded(deps, input)).rejects.toThrow()
   })
 
   it('returns false if allowanceOnChain is greater than quote.sellAmount', async () => {

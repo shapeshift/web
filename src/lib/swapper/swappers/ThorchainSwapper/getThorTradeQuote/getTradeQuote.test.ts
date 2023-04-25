@@ -42,6 +42,8 @@ const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
       estimatedGasCryptoBaseUnit: '100000',
       approvalFeeCryptoBaseUnit: '700000',
       gasPriceCryptoBaseUnit: '7',
+      maxFeePerGas: '5',
+      maxPriorityFeePerGas: '6',
     },
     buyAssetTradeFeeUsd: '7.656',
     sellAssetTradeFeeUsd: '0',

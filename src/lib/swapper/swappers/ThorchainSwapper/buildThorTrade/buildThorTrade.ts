@@ -10,6 +10,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type {
   BuildTradeInput,
   GetUtxoTradeQuoteInput,
+  QuoteFeeData,
   SwapErrorRight,
   TradeQuote,
 } from 'lib/swapper/api'
@@ -74,14 +75,8 @@ export const buildTrade = async ({
       adapter: sellAdapter as unknown as EvmBaseAdapter<ThorEvmSupportedChainId>,
       sellAmountCryptoBaseUnit,
       destinationAddress,
+      feeData: quote.feeData as QuoteFeeData<ThorEvmSupportedChainId>,
       deps,
-      gasPriceCryptoBaseUnit:
-        (quote as TradeQuote<ThorEvmSupportedChainId>).feeData.chainSpecific
-          ?.gasPriceCryptoBaseUnit ?? '0',
-      gasLimit:
-        (quote as TradeQuote<ThorEvmSupportedChainId>).feeData.chainSpecific
-          ?.estimatedGasCryptoBaseUnit ?? '0',
-      buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
     })
 
     return maybeEthTradeTx.map(ethTradeTx => ({

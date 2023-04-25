@@ -2,6 +2,7 @@ import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 
+import { gasFeeData } from '../../utils/test-data/setupDeps'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import type { ZrxExecuteTradeInput, ZrxSwapperDeps, ZrxTrade } from '../types'
 import { zrxExecuteTrade } from './zrxExecuteTrade'
@@ -10,14 +11,17 @@ describe('ZrxExecuteTrade', () => {
   const { sellAsset, buyAsset } = setupQuote()
   const txid = '0xffaac3dd529171e8a9a2adaf36b0344877c4894720d65dfd86e4b3a56c5a857e'
   let wallet = {
+    _supportsETH: true,
     supportsOfflineSigning: jest.fn(() => true),
+    ethSupportsEIP1559: jest.fn(() => false),
   } as unknown as HDWallet
 
   const adapter = {
-    buildSendTransaction: jest.fn(() => Promise.resolve({ txToSign: '0000000000000000' })),
+    buildCustomTx: jest.fn(() => Promise.resolve({ txToSign: '0000000000000000' })),
     signTransaction: jest.fn(() => Promise.resolve('0000000000000000000')),
     broadcastTransaction: jest.fn(() => Promise.resolve(txid)),
     signAndBroadcastTransaction: jest.fn(() => Promise.resolve(txid)),
+    getGasFeeData: jest.fn(() => Promise.resolve(gasFeeData)),
   } as unknown as ChainAdapter<'eip155:1'>
 
   const deps = { adapter } as unknown as ZrxSwapperDeps

@@ -17,6 +17,8 @@ import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { ZrxPriceResponse } from 'lib/swapper/swappers/ZrxSwapper/types'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
 
+import type { ZrxSupportedChainAdapter } from '../../ZrxSwapper'
+
 export const baseUrlFromChainId = (chainId: string): Result<string, SwapErrorRight> => {
   switch (chainId) {
     case KnownChainIds.EthereumMainnet:
@@ -114,4 +116,29 @@ export const getUsdRate = async (sellAsset: Asset): Promise<Result<string, SwapE
         )
       return Ok(bn(1).dividedBy(price).toString())
     })
+}
+
+export const assertValidTradePair = ({
+  buyAsset,
+  sellAsset,
+  adapter,
+}: {
+  buyAsset: Asset
+  sellAsset: Asset
+  adapter: ZrxSupportedChainAdapter
+}): Result<boolean, SwapErrorRight> => {
+  const chainId = adapter.getChainId()
+
+  if (buyAsset.chainId === chainId && sellAsset.chainId === chainId) return Ok(true)
+
+  return Err(
+    makeSwapErrorRight({
+      message: `[assertValidTradePair] - both assets must be on chainId ${chainId}`,
+      code: SwapErrorType.UNSUPPORTED_PAIR,
+      details: {
+        buyAssetChainId: buyAsset.chainId,
+        sellAssetChainId: sellAsset.chainId,
+      },
+    }),
+  )
 }

@@ -1,8 +1,8 @@
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import Web3 from 'web3'
 
 import { bn } from '../../../../bignumber/bignumber'
-import { erc20Abi } from '../abi/erc20-abi'
 import { erc20AllowanceAbi } from '../abi/erc20Allowance-abi'
 import { setupDeps } from '../test-data/setupDeps'
 import { setupQuote } from '../test-data/setupSwapQuote'
@@ -97,14 +97,14 @@ describe('utils', () => {
   describe('grantAllowance', () => {
     const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
     const wallet = {
+      _supportsETH: true,
+      ethSupportsEIP1559: jest.fn(() => false),
       supportsOfflineSigning: jest.fn(() => true),
       ethGetAddress: jest.fn(() => Promise.resolve(walletAddress)),
     } as unknown as HDWallet
 
     it('should return a txid', async () => {
-      const quote = {
-        ...tradeQuote,
-      }
+      const { accountNumber, allowanceContract: spender, feeData, sellAsset } = tradeQuote
       ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
         methods: {
           approve: jest.fn(() => ({
@@ -114,11 +114,21 @@ describe('utils', () => {
           })),
         },
       }))
-      ;(adapter.buildSendTransaction as jest.Mock).mockResolvedValueOnce({ txToSign: {} })
+      ;(adapter.buildCustomTx as jest.Mock).mockResolvedValueOnce({ txToSign: {} })
+      ;(adapter.signTransaction as jest.Mock).mockResolvedValueOnce('signedTx')
       ;(adapter.broadcastTransaction as jest.Mock).mockResolvedValueOnce('broadcastedTx')
-      expect(await grantAllowance({ quote, wallet, adapter, erc20Abi, web3 })).toEqual(
-        'broadcastedTx',
-      )
+      expect(
+        await grantAllowance({
+          accountNumber,
+          feeData: feeData.chainSpecific,
+          spender,
+          to: fromAssetId(sellAsset.assetId).assetReference,
+          approvalAmount: tradeQuote.sellAmountBeforeFeesCryptoBaseUnit,
+          wallet,
+          adapter,
+          web3,
+        }),
+      ).toEqual('broadcastedTx')
     })
   })
 

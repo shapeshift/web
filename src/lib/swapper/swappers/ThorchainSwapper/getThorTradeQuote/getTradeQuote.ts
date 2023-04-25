@@ -19,6 +19,7 @@ import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { getSlippage } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getSlippage'
 import type {
+  ThorChainId,
   ThorCosmosSdkSupportedChainId,
   ThorEvmSupportedChainId,
   ThorUtxoSupportedChainId,
@@ -48,7 +49,7 @@ type GetThorTradeQuoteInput = {
   input: GetTradeQuoteInput
 }
 
-type GetThorTradeQuoteReturn = Promise<Result<TradeQuote<ChainId>, SwapErrorRight>>
+type GetThorTradeQuoteReturn = Promise<Result<TradeQuote<ThorChainId>, SwapErrorRight>>
 
 type GetThorTradeQuote = (args: GetThorTradeQuoteInput) => GetThorTradeQuoteReturn
 

@@ -76,11 +76,10 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
   }, [handleAccountIdChange, maybeAccountId])
 
   const opportunityDataFilter = useMemo(() => {
+    const userStakingAccountId = accountId ?? highestBalanceAccountId ?? ''
+    if (!userStakingAccountId) return undefined
     return {
-      userStakingId: serializeUserStakingId(
-        accountId ?? highestBalanceAccountId ?? '',
-        assetId as StakingId,
-      ),
+      userStakingId: serializeUserStakingId(userStakingAccountId, assetId as StakingId),
     }
   }, [accountId, assetId, highestBalanceAccountId])
 

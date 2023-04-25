@@ -172,13 +172,9 @@ export class FoxyApi {
   }
 
   private verifyAddresses(addresses: string[]) {
-    try {
-      addresses.forEach(address => {
-        this.checksumAddress(address)
-      })
-    } catch (e) {
-      throw new Error(`Verify Address: ${e}`)
-    }
+    addresses.forEach(address => {
+      this.checksumAddress(address)
+    })
   }
 
   private getStakingContract(contractAddress: string): ethers.Contract {
@@ -498,12 +494,7 @@ export class FoxyApi {
     this.verifyAddresses([userAddress, contractAddress, tokenContractAddress])
     if (!wallet) throw new Error('Missing inputs')
 
-    let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
-    try {
-      estimatedFees = await this.estimateApproveFees(input)
-    } catch (e) {
-      throw new Error(`Estimate Gas Error: ${e}`)
-    }
+    const estimatedFees = await this.estimateApproveFees(input)
     const depositTokenContract = new ethers.Contract(tokenContractAddress, erc20Abi, this.provider)
     const data: string = depositTokenContract.interface.encodeFunctionData('approve', [
       contractAddress,
@@ -532,12 +523,7 @@ export class FoxyApi {
       this.provider,
     )
 
-    let allowance
-    try {
-      allowance = await depositTokenContract.allowance(userAddress, contractAddress)
-    } catch (e) {
-      throw new Error(`Failed to get allowance ${e}`)
-    }
+    const allowance = await depositTokenContract.allowance(userAddress, contractAddress)
     return allowance.toString()
   }
 
@@ -554,12 +540,7 @@ export class FoxyApi {
     if (!amountDesired.gt(0)) throw new Error('Must send valid amount')
     if (!wallet) throw new Error('Missing inputs')
 
-    let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
-    try {
-      estimatedFees = await this.estimateDepositFees(input)
-    } catch (e) {
-      throw new Error(`Estimate Gas Error: ${e}`)
-    }
+    const estimatedFees = await this.estimateDepositFees(input)
 
     const stakingContract = this.getStakingContract(contractAddress)
 
@@ -593,12 +574,7 @@ export class FoxyApi {
     this.verifyAddresses([userAddress, contractAddress])
     if (!wallet) throw new Error('Missing inputs')
 
-    let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
-    try {
-      estimatedFees = await this.estimateWithdrawFees(input)
-    } catch (e) {
-      throw new Error(`Estimate Gas Error: ${e}`)
-    }
+    const estimatedFees = await this.estimateWithdrawFees(input)
 
     const stakingContract = this.getStakingContract(contractAddress)
 
@@ -711,12 +687,7 @@ export class FoxyApi {
     this.verifyAddresses([userAddress, contractAddress, addressToClaim])
     if (!wallet) throw new Error('Missing inputs')
 
-    let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
-    try {
-      estimatedFees = await this.estimateClaimWithdrawFees(input)
-    } catch (e) {
-      throw new Error(`Estimate Gas Error: ${e}`)
-    }
+    const estimatedFees = await this.estimateClaimWithdrawFees(input)
 
     const stakingContract = this.getStakingContract(contractAddress)
 
@@ -820,12 +791,7 @@ export class FoxyApi {
     this.verifyAddresses([userAddress, contractAddress])
     if (!wallet || !contractAddress) throw new Error('Missing inputs')
 
-    let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
-    try {
-      estimatedFees = await this.estimateSendWithdrawalRequestsFees(input)
-    } catch (e) {
-      throw new Error(`Estimate Gas Error: ${e}`)
-    }
+    const estimatedFees = await this.estimateSendWithdrawalRequestsFees(input)
 
     const stakingContract = this.getStakingContract(contractAddress)
 
@@ -861,13 +827,7 @@ export class FoxyApi {
 
     if (!wallet) throw new Error('Missing inputs')
 
-    let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
-    try {
-      estimatedFees = await this.estimateAddLiquidityFees(input)
-    } catch (e) {
-      throw new Error(`Estimate Gas Error: ${e}`)
-    }
-
+    const estimatedFees = await this.estimateAddLiquidityFees(input)
     const liquidityReserveContract = this.getLiquidityReserveContract(contractAddress)
 
     const data: string = liquidityReserveContract.interface.encodeFunctionData('addLiquidity', [
@@ -901,12 +861,7 @@ export class FoxyApi {
     if (!amountDesired.gt(0)) throw new Error('Must send valid amount')
     if (!wallet) throw new Error('Missing inputs')
 
-    let estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
-    try {
-      estimatedFees = await this.estimateRemoveLiquidityFees(input)
-    } catch (e) {
-      throw new Error(`Estimate Gas Error: ${e}`)
-    }
+    const estimatedFees = await this.estimateRemoveLiquidityFees(input)
 
     const liquidityReserveContract = this.getLiquidityReserveContract(contractAddress)
 

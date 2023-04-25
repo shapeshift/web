@@ -1,6 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, ASSET_REFERENCE, ethChainId, toAssetId } from '@shapeshiftoss/caip'
-import { Logger } from '@shapeshiftoss/logger'
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
@@ -11,11 +10,6 @@ import type { ParsedTx, SubParser, Tx, TxSpecific } from './types'
 
 export * from './types'
 export * from './utils'
-
-const logger = new Logger({
-  namespace: ['unchained-client', 'evm', 'parser'],
-  level: process.env.LOG_LEVEL,
-})
 
 export interface TransactionParserArgs {
   chainId: ChainId
@@ -170,7 +164,6 @@ export class BaseTransactionParser<T extends Tx> {
             case 'BEP721':
               return ASSET_NAMESPACE.bep721
             default:
-              logger.warn(`unsupported asset namespace: ${transfer.type}`)
               return
           }
         })()

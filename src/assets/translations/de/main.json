@@ -47,7 +47,6 @@
     "or": "oder",
     "somethingWentWrong": "Etwas ist schief gelaufen",
     "somethingWentWrongBody": "Etwas ist schief gelaufen",
-    "accountError": "Fehler beim Laden der Konten für %{erroredAccountNames}.",
     "degradedState": "Die App befindet sich in einem heruntergestuften Zustand",
     "degradedInfo": "Für einige Konten können keine Daten abgerufen werden.",
     "success": "Erfolgreich",

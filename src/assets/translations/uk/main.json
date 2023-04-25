@@ -47,7 +47,6 @@
     "or": "або",
     "somethingWentWrong": "Щось пішло не так.",
     "somethingWentWrongBody": "Щось пішло не так.",
-    "accountError": "Тимчасово не вдається отримати дані для наступних ланцюжків: %{erroredAccountNames}.",
     "degradedState": "Додаток знаходиться в неробочому стані",
     "degradedInfo": "Не вдалося отримати дані для деяких рахунків.",
     "success": "Успішно",

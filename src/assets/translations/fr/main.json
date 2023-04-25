@@ -47,7 +47,6 @@
     "or": "ou",
     "somethingWentWrong": "Il y a eu un problème",
     "somethingWentWrongBody": "Il y a eu un problème",
-    "accountError": "Erreur lors du chargement des comptes pour %{erroredAccountNames}.",
     "degradedState": "L'app est dans un état dégradé",
     "degradedInfo": "Impossible de récupérer les données de certains comptes.",
     "success": "Succès",

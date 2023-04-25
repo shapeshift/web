@@ -47,7 +47,6 @@
     "or": "ou",
     "somethingWentWrong": "Algo de errado aconteceu",
     "somethingWentWrongBody": "Algo de errado aconteceu",
-    "accountError": "Erro no carregamento de contas para %{erroredAccountNames}.",
     "degradedState": "Este aplicativo foi descontinuado.",
     "degradedInfo": "Incapaz de encontrar dados de algumas contas. ",
     "success": "Sucesso",

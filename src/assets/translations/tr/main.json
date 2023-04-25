@@ -47,7 +47,6 @@
     "or": "veya",
     "somethingWentWrong": "Bir şeyler ters gitti",
     "somethingWentWrongBody": "Bir şeyler ters gitti",
-    "accountError": "Bu ağ için veriler gösterilemiyor: %{erroredAccountNames}.",
     "degradedState": "Uygulama bozulmuş",
     "degradedInfo": "Bazı hesaplar için veri gösterilemiyor.",
     "success": "Başarılı",

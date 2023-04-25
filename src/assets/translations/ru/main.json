@@ -47,7 +47,6 @@
     "or": "или",
     "somethingWentWrong": "Что-то пошло не так",
     "somethingWentWrongBody": " Что-то пошло не так",
-    "accountError": "Ошибка загрузки аккаунтов для %{erroredAccountNames}.",
     "degradedState": "Приложение находится в поврежденном состоянии",
     "degradedInfo": "Невозможно получить данные для некоторых аккаунтов.",
     "success": "Успех",

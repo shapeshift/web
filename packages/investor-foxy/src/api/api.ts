@@ -718,57 +718,57 @@ export class FoxyApi {
       this.provider,
     )
 
-    const requestWithdrawalAmount = await (() => {
+    const requestWithdrawalAmount = await (async () => {
       try {
-        return stakingContract.requestWithdrawalAmount()
+        return (await stakingContract.requestWithdrawalAmount()).toString()
       } catch (e) {
         logger.error(e, 'failed to get requestWithdrawalAmount')
         return 0
       }
     })()
 
-    const timeLeftToRequestWithdrawal = await (() => {
+    const timeLeftToRequestWithdrawal: string = await (async () => {
       try {
-        return stakingContract.timeLeftToRequestWithdrawal()
+        return (await stakingContract.timeLeftToRequestWithdrawal()).toString()
       } catch (e) {
         logger.error(e, 'failed to get timeLeftToRequestWithdrawal')
-        return 0
+        return '0'
       }
     })()
 
-    const lastTokeCycleIndex = await (() => {
+    const lastTokeCycleIndex: string = await (async () => {
       try {
-        return stakingContract.methods.lastTokeCycleIndex().call()
+        return (await stakingContract.lastTokeCycleIndex()).toString()
       } catch (err) {
         logger.error(err, 'failed to get lastTokeCycleIndex')
-        return 0
+        return '0'
       }
     })()
 
-    const duration = await (() => {
+    const duration: string = await (async () => {
       try {
-        return tokeManagerContract.getCycleDuration()
+        return (await tokeManagerContract.getCycleDuration()).toString()
       } catch (e) {
         logger.error(e, 'failed to get cycleDuration')
-        return 0
+        return '0'
       }
     })()
 
-    const currentCycleIndex = await (() => {
+    const currentCycleIndex: string = await (async () => {
       try {
-        return tokeManagerContract.getCurrentCycleIndex()
+        return (await tokeManagerContract.getCurrentCycleIndex()).toString()
       } catch (e) {
         logger.error(e, 'failed to get currentCycleIndex')
-        return 0
+        return '0'
       }
     })()
 
-    const currentCycleStart = await (() => {
+    const currentCycleStart: string = await (async () => {
       try {
-        return tokeManagerContract.getCurrentCycle()
+        return (await tokeManagerContract.getCurrentCycle()).toString()
       } catch (e) {
         logger.error(e, 'failed to get currentCycle')
-        return 0
+        return '0'
       }
     })()
 
@@ -931,7 +931,7 @@ export class FoxyApi {
     const contract = new ethers.Contract(tokenContractAddress, erc20Abi, this.provider)
     try {
       const balance = await contract.balanceOf(userAddress)
-      return bnOrZero(balance)
+      return bnOrZero(balance.toString())
     } catch (e) {
       throw new Error(`Failed to get balance: ${e}`)
     }
@@ -951,7 +951,7 @@ export class FoxyApi {
     const liquidityReserveContract = this.getLiquidityReserveContract(liquidityReserveAddress)
     try {
       const feeInBasisPoints = await liquidityReserveContract.fee()
-      return bnOrZero(feeInBasisPoints).div(10000) // convert from basis points to decimal percentage
+      return bnOrZero(feeInBasisPoints.div(10000).toString()) // convert from basis points to decimal percentage
     } catch (e) {
       throw new Error(`Failed to get instantUnstake fee ${e}`)
     }
@@ -963,7 +963,7 @@ export class FoxyApi {
 
     try {
       const totalSupply = await contract.totalSupply()
-      return bnOrZero(totalSupply)
+      return bnOrZero(totalSupply.toString())
     } catch (e) {
       throw new Error(`Failed to get totalSupply: ${e}`)
     }
@@ -985,7 +985,7 @@ export class FoxyApi {
 
     try {
       const balance = await contract.circulatingSupply()
-      return bnOrZero(balance)
+      return bnOrZero(balance.toString())
     } catch (e) {
       throw new Error(`Failed to get tvl: ${e}`)
     }
@@ -1137,14 +1137,14 @@ export class FoxyApi {
             })
 
             // unstake events can trigger rebases, if they do, adjust the amount to not include that unstake's transfer amount
-            const preRebaseBalanceResult = bnOrZero(unadjustedPreRebaseBalance)
-              .minus(unstakedTransferAmount)
-              .plus(stakedTransferAmount)
+            const preRebaseBalanceResult = bnOrZero(unadjustedPreRebaseBalance.toString())
+              .minus(unstakedTransferAmount.toString())
+              .plus(stakedTransferAmount.toString())
               .toString()
 
             return {
               preRebaseBalance: preRebaseBalanceResult,
-              postRebaseBalance: postRebaseBalanceResult,
+              postRebaseBalance: postRebaseBalanceResult.toString() as string,
             }
           } catch (e) {
             logger.error(e, 'failed to get balance of address')

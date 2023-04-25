@@ -44,7 +44,7 @@ enum TxStatus {
 
 type ClaimState = {
   txStatus: TxStatus
-  usedGasFee?: string
+  usedGasFeeCryptoBaseUnit?: string
 }
 
 const StatusInfo = {
@@ -133,14 +133,16 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
         setState({
           ...state,
           txStatus: transactionReceipt.status ? TxStatus.SUCCESS : TxStatus.FAILED,
-          usedGasFee: transactionReceipt.gasUsed.toString(),
+          usedGasFeeCryptoBaseUnit: transactionReceipt.effectiveGasPrice
+            .mul(transactionReceipt.gasUsed)
+            .toString(),
         })
       } catch (error) {
         moduleLogger.error(error, 'ClaimStatus error')
         setState({
           ...state,
           txStatus: TxStatus.FAILED,
-          usedGasFee: estimatedGas,
+          usedGasFeeCryptoBaseUnit: estimatedGas,
         })
       }
     })()
@@ -219,7 +221,9 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
                 <Amount.Fiat
                   fontWeight='bold'
                   value={bnOrZero(
-                    state.txStatus === TxStatus.PENDING ? estimatedGas : state.usedGasFee,
+                    state.txStatus === TxStatus.PENDING
+                      ? estimatedGas
+                      : state.usedGasFeeCryptoBaseUnit,
                   )
                     .div(`1e+${feeAsset.precision}`)
                     .times(feeMarketData.price)
@@ -228,7 +232,9 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
                 <Amount.Crypto
                   color='gray.500'
                   value={bnOrZero(
-                    state.txStatus === TxStatus.PENDING ? estimatedGas : state.usedGasFee,
+                    state.txStatus === TxStatus.PENDING
+                      ? estimatedGas
+                      : state.usedGasFeeCryptoBaseUnit,
                   )
                     .div(`1e+${feeAsset.precision}`)
                     .toFixed(5)}

@@ -114,7 +114,9 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
         type: FoxyWithdrawActionType.SET_WITHDRAW,
         payload: {
           txStatus: transactionReceipt.status ? 'success' : 'failed',
-          usedGasFeeCryptoBaseUnit: transactionReceipt.gasUsed.toString(),
+          usedGasFeeCryptoBaseUnit: transactionReceipt.effectiveGasPrice
+            .mul(transactionReceipt.gasUsed)
+            .toString(),
         },
       })
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: false })

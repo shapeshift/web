@@ -1,7 +1,7 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Result } from '@sniptt/monads/build'
+import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads/build'
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'

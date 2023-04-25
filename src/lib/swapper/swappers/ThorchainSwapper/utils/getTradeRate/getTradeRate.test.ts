@@ -12,7 +12,7 @@ jest.mock('../thorService', () => {
   axios.create = jest.fn(() => axios)
 
   return {
-    thorService: () => axios.create(),
+    thorService: axios.create(),
   }
 })
 

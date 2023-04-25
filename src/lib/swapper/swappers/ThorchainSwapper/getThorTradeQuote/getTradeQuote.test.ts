@@ -1,6 +1,6 @@
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { Ok } from '@sniptt/monads/build'
-import type { AxiosResponse } from 'axios'
+import { Ok } from '@sniptt/monads'
+import type { AxiosResponse, AxiosStatic } from 'axios'
 import type Web3 from 'web3'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
@@ -19,10 +19,16 @@ import { setupThorswapDeps } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
 import { getThorTradeQuote } from './getTradeQuote'
 
-jest.mock('../utils/thorService')
+jest.mock('../utils/thorService', () => {
+  const axios: AxiosStatic = jest.createMockFromModule('axios')
+  axios.create = jest.fn(() => axios)
+
+  return {
+    thorService: axios.create(),
+  }
+})
 jest.mock('../utils/getUsdRate/getUsdRate')
 
-const mockedAxios = thorService as jest.Mocked<typeof thorService>
 const mockOk = Ok as jest.Mocked<typeof Ok>
 
 const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
@@ -60,7 +66,7 @@ describe('getTradeQuote', () => {
   }
 
   it('should get a thorchain quote for a thorchain trade', async () => {
-    mockedAxios.get.mockImplementation(url => {
+    ;(thorService.get as unknown as jest.Mock<unknown>).mockImplementation(url => {
       switch (url) {
         case '/lcd/thorchain/pools':
           return Promise.resolve(

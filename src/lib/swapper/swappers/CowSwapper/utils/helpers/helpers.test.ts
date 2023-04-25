@@ -1,4 +1,6 @@
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
+import { Err, Ok } from '@sniptt/monads'
+import type { AxiosStatic } from 'axios'
 import type Web3 from 'web3'
 
 import { BTC, ETH, FOX, USDC, WBTC } from '../../../utils/test-data/assets'
@@ -8,7 +10,14 @@ import { cowService } from '../cowService'
 import type { CowSwapOrder } from './helpers'
 import { domain, getNowPlusThirtyMinutesTimestamp, getUsdRate, hashOrder } from './helpers'
 
-jest.mock('../cowService')
+jest.mock('../cowService', () => {
+  const axios: AxiosStatic = jest.createMockFromModule('axios')
+  axios.create = jest.fn(() => axios)
+
+  return {
+    cowService: axios.create(),
+  }
+})
 
 const expectedQuoteInputForUsdRate = {
   receiver: DEFAULT_ADDRESS,
@@ -28,14 +37,16 @@ describe('utils', () => {
 
   describe('getUsdRate', () => {
     it('gets the usd rate of FOX', async () => {
-      ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
-        Promise.resolve({
-          data: {
-            quote: {
-              sellAmount: '7702130994619175777719',
+      ;(cowService.post as jest.Mock<unknown>).mockReturnValueOnce(
+        Promise.resolve(
+          Ok({
+            data: {
+              quote: {
+                sellAmount: '7702130994619175777719',
+              },
             },
-          },
-        }),
+          }),
+        ),
       )
 
       const maybeRate = await getUsdRate(cowSwapperDeps, FOX)
@@ -53,14 +64,16 @@ describe('utils', () => {
     })
 
     it('gets the usd rate of WBTC', async () => {
-      ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
-        Promise.resolve({
-          data: {
-            quote: {
-              sellAmount: '3334763',
+      ;(cowService.post as jest.Mock<unknown>).mockReturnValueOnce(
+        Promise.resolve(
+          Ok({
+            data: {
+              quote: {
+                sellAmount: '3334763',
+              },
             },
-          },
-        }),
+          }),
+        ),
       )
       const maybeRate = await getUsdRate(cowSwapperDeps, WBTC)
       expect(maybeRate.isErr()).toBe(false)
@@ -77,14 +90,16 @@ describe('utils', () => {
     })
 
     it('should get the rate of WETH when called with ETH', async () => {
-      ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
-        Promise.resolve({
-          data: {
-            quote: {
-              sellAmount: '913757780947770826',
+      ;(cowService.post as jest.Mock<unknown>).mockReturnValueOnce(
+        Promise.resolve(
+          Ok({
+            data: {
+              quote: {
+                sellAmount: '913757780947770826',
+              },
             },
-          },
-        }),
+          }),
+        ),
       )
 
       const maybeRate = await getUsdRate(cowSwapperDeps, ETH)
@@ -118,25 +133,33 @@ describe('utils', () => {
     })
 
     it('should fail when api is returning 0 as token amount', async () => {
-      ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
-        Promise.resolve({
-          data: {
-            quote: {
-              sellAmount: '0',
+      ;(cowService.post as jest.Mock<unknown>).mockReturnValueOnce(
+        Promise.resolve(
+          Ok({
+            data: {
+              quote: {
+                sellAmount: '0',
+              },
             },
-          },
-        }),
+          }),
+        ),
       )
-      await expect(getUsdRate(cowSwapperDeps, FOX)).rejects.toThrow(
-        '[getUsdRate] - Failed to get sell token amount',
-      )
+      const maybeUsdRate = await getUsdRate(cowSwapperDeps, FOX)
+      expect(maybeUsdRate.isErr()).toBe(true)
+      expect(maybeUsdRate.unwrapErr()).toMatchObject({
+        message: '[getUsdRate] - Failed to get sell token amount',
+      })
     })
 
-    it('should fail when axios is throwing an error', async () => {
-      ;(cowService.get as jest.Mock<unknown>).mockImplementation(() => {
-        throw new Error('unexpected error')
+    it('should bubble up monadic axios errors', async () => {
+      ;(cowService.post as jest.Mock<unknown>).mockReturnValueOnce(
+        Err({ message: 'unexpected error' }),
+      )
+      const maybeUsdRate = await getUsdRate(cowSwapperDeps, FOX)
+      expect(maybeUsdRate.isErr()).toBe(true)
+      expect(maybeUsdRate.unwrapErr()).toMatchObject({
+        message: 'unexpected error',
       })
-      await expect(getUsdRate(cowSwapperDeps, FOX)).rejects.toThrow('[getUsdRate]')
     })
   })
 

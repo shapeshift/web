@@ -2,6 +2,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
+import type { AxiosStatic } from 'axios'
 import type Web3 from 'web3'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
@@ -15,7 +16,14 @@ import { getCowSwapTradeQuote } from './getCowSwapTradeQuote'
 
 const mockOk = Ok as jest.MockedFunction<typeof Ok>
 jest.mock('@shapeshiftoss/chain-adapters')
-jest.mock('../utils/cowService')
+jest.mock('../utils/cowService', () => {
+  const axios: AxiosStatic = jest.createMockFromModule('axios')
+  axios.create = jest.fn(() => axios)
+
+  return {
+    cowService: axios.create(),
+  }
+})
 jest.mock('../utils/helpers/helpers', () => {
   const { WETH, ETH, FOX } = require('../../utils/test-data/assets') // Move the import inside the factory function
 
@@ -243,19 +251,21 @@ describe('getCowTradeQuote', () => {
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({
-        data: {
-          quote: {
-            ...expectedApiInputWethToFox,
-            sellAmountBeforeFee: undefined,
-            sellAmount: '985442057341242012',
-            buyAmount: '14501811818247595090576',
-            feeAmount: '14557942658757988',
-            sellTokenBalance: 'erc20',
-            buyTokenBalance: 'erc20',
+      Promise.resolve(
+        Ok({
+          data: {
+            quote: {
+              ...expectedApiInputWethToFox,
+              sellAmountBeforeFee: undefined,
+              sellAmount: '985442057341242012',
+              buyAmount: '14501811818247595090576',
+              feeAmount: '14557942658757988',
+              sellTokenBalance: 'erc20',
+              buyTokenBalance: 'erc20',
+            },
           },
-        },
-      }),
+        }),
+      ),
     )
 
     const maybeTradeQuote = await getCowSwapTradeQuote(deps, input)
@@ -280,19 +290,21 @@ describe('getCowTradeQuote', () => {
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({
-        data: {
-          quote: {
-            ...expectedApiInputFoxToEth,
-            sellAmountBeforeFee: undefined,
-            sellAmount: '938195228120306016256',
-            buyAmount: '46868859830863283',
-            feeAmount: '61804771879693983744',
-            sellTokenBalance: 'erc20',
-            buyTokenBalance: 'erc20',
+      Promise.resolve(
+        Ok({
+          data: {
+            quote: {
+              ...expectedApiInputFoxToEth,
+              sellAmountBeforeFee: undefined,
+              sellAmount: '938195228120306016256',
+              buyAmount: '46868859830863283',
+              feeAmount: '61804771879693983744',
+              sellTokenBalance: 'erc20',
+              buyTokenBalance: 'erc20',
+            },
           },
-        },
-      }),
+        }),
+      ),
     )
 
     const maybeTradeQuote = await getCowSwapTradeQuote(deps, input)
@@ -317,19 +329,21 @@ describe('getCowTradeQuote', () => {
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({
-        data: {
-          quote: {
-            ...expectedApiInputSmallAmountWethToFox,
-            sellAmountBeforeFee: undefined,
-            sellAmount: '9854420573412420',
-            buyAmount: '145018118182475950905',
-            feeAmount: '1455794265875791',
-            sellTokenBalance: 'erc20',
-            buyTokenBalance: 'erc20',
+      Promise.resolve(
+        Ok({
+          data: {
+            quote: {
+              ...expectedApiInputSmallAmountWethToFox,
+              sellAmountBeforeFee: undefined,
+              sellAmount: '9854420573412420',
+              buyAmount: '145018118182475950905',
+              feeAmount: '1455794265875791',
+              sellTokenBalance: 'erc20',
+              buyTokenBalance: 'erc20',
+            },
           },
-        },
-      }),
+        }),
+      ),
     )
 
     const maybeTradeQuote = await getCowSwapTradeQuote(deps, input)

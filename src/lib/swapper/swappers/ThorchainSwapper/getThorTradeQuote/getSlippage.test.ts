@@ -1,6 +1,6 @@
 import { btcAssetId, ethAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { Ok } from '@sniptt/monads'
-import type { AxiosResponse } from 'axios'
+import type { AxiosResponse, AxiosStatic } from 'axios'
 import { bn } from 'lib/bignumber/bignumber'
 
 import type { InboundAddressResponse, ThornodePoolResponse } from '../ThorchainSwapper'
@@ -14,16 +14,21 @@ import {
 import { thorService } from '../utils/thorService'
 import { getDoubleSwapSlippage, getSingleSwapSlippage, getSlippage } from './getSlippage'
 
-jest.mock('../utils/thorService')
+jest.mock('../utils/thorService', () => {
+  const axios: AxiosStatic = jest.createMockFromModule('axios')
+  axios.create = jest.fn(() => axios)
 
-const mockedAxios = thorService as jest.Mocked<typeof thorService>
+  return {
+    thorService: { get: jest.fn() },
+  }
+})
 
 describe('getSlippage', () => {
   const expectedBtcRuneSlippage = bn('0.00109735998697522801')
   const expectedRuneEthSlippage = bn('0.00165514439633167301')
 
   beforeEach(() => {
-    mockedAxios.get.mockImplementation(url => {
+    ;(thorService.get as unknown as jest.Mock<unknown>).mockImplementation(url => {
       switch (url) {
         case '/lcd/thorchain/pools':
           return Promise.resolve(

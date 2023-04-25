@@ -1,12 +1,19 @@
 import { Ok } from '@sniptt/monads'
-import type { AxiosResponse } from 'axios'
+import type { AxiosResponse, AxiosStatic } from 'axios'
 
 import type { ThornodePoolResponse } from '../../ThorchainSwapper'
 import { foxThornodePool, usdcThornodePool } from '../test-data/responses'
 import { thorService } from '../thorService'
 import { getUsdRate } from './getUsdRate'
 
-jest.mock('../thorService')
+jest.mock('../thorService', () => {
+  const axios: AxiosStatic = jest.createMockFromModule('axios')
+  axios.create = jest.fn(() => axios)
+
+  return {
+    thorService: axios.create(),
+  }
+})
 
 const mockedAxios = thorService as jest.Mocked<typeof thorService>
 

@@ -1,4 +1,4 @@
-import { Ok } from '@sniptt/monads/build'
+import { Ok } from '@sniptt/monads'
 import axios from 'axios'
 
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'

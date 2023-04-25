@@ -3,6 +3,7 @@ import type { ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
+import type { AxiosStatic } from 'axios'
 import type Web3 from 'web3'
 
 import type { BuildTradeInput } from '../../../api'
@@ -18,7 +19,14 @@ import { cowBuildTrade } from './cowBuildTrade'
 
 const mockOk = Ok as jest.MockedFunction<typeof Ok>
 jest.mock('@shapeshiftoss/chain-adapters')
-jest.mock('../utils/cowService')
+jest.mock('../utils/cowService', () => {
+  const axios: AxiosStatic = jest.createMockFromModule('axios')
+  axios.create = jest.fn(() => axios)
+
+  return {
+    cowService: axios.create(),
+  }
+})
 jest.mock('../utils/helpers/helpers', () => {
   const { WETH, ETH, FOX } = require('../../utils/test-data/assets') // Move the import inside the factory function
 
@@ -229,19 +237,21 @@ describe('cowBuildTrade', () => {
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({
-        data: {
-          quote: {
-            ...expectedApiInputWethToFox,
-            sellAmountBeforeFee: undefined,
-            sellAmount: '985442057341242012',
-            buyAmount: '14501811818247595090576',
-            feeAmount: '14557942658757988',
-            sellTokenBalance: 'erc20',
-            buyTokenBalance: 'erc20',
+      Promise.resolve(
+        Ok({
+          data: {
+            quote: {
+              ...expectedApiInputWethToFox,
+              sellAmountBeforeFee: undefined,
+              sellAmount: '985442057341242012',
+              buyAmount: '14501811818247595090576',
+              feeAmount: '14557942658757988',
+              sellTokenBalance: 'erc20',
+              buyTokenBalance: 'erc20',
+            },
           },
-        },
-      }),
+        }),
+      ),
     )
 
     const maybeBuiltTrade = await cowBuildTrade(deps, tradeInput)
@@ -267,19 +277,21 @@ describe('cowBuildTrade', () => {
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({
-        data: {
-          quote: {
-            ...expectedApiInputWbtcToWeth,
-            sellAmountBeforeFee: undefined,
-            sellAmount: '99982762',
-            buyAmount: '19136098853078932263',
-            feeAmount: '17238',
-            sellTokenBalance: 'erc20',
-            buyTokenBalance: 'erc20',
+      Promise.resolve(
+        Ok({
+          data: {
+            quote: {
+              ...expectedApiInputWbtcToWeth,
+              sellAmountBeforeFee: undefined,
+              sellAmount: '99982762',
+              buyAmount: '19136098853078932263',
+              feeAmount: '17238',
+              sellTokenBalance: 'erc20',
+              buyTokenBalance: 'erc20',
+            },
           },
-        },
-      }),
+        }),
+      ),
     )
 
     const maybeBuiltTrade = await cowBuildTrade(deps, tradeInput)
@@ -307,19 +319,21 @@ describe('cowBuildTrade', () => {
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({
-        data: {
-          quote: {
-            ...expectedApiInputFoxToEth,
-            sellAmountBeforeFee: undefined,
-            sellAmount: '938195228120306016256',
-            buyAmount: '46868859830863283',
-            feeAmount: '61804771879693983744',
-            sellTokenBalance: 'erc20',
-            buyTokenBalance: 'erc20',
+      Promise.resolve(
+        Ok({
+          data: {
+            quote: {
+              ...expectedApiInputFoxToEth,
+              sellAmountBeforeFee: undefined,
+              sellAmount: '938195228120306016256',
+              buyAmount: '46868859830863283',
+              feeAmount: '61804771879693983744',
+              sellTokenBalance: 'erc20',
+              buyTokenBalance: 'erc20',
+            },
           },
-        },
-      }),
+        }),
+      ),
     )
 
     const maybeBuiltTrade = await cowBuildTrade(deps, tradeInput)

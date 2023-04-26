@@ -13,7 +13,8 @@ import { ethereum } from '../baseAssets'
 import * as coingecko from '../coingecko'
 import { getIdleTokens } from './idleVaults'
 import { getUniswapV2Pools } from './uniswapV2Pools'
-import { getUnderlyingVaultTokens, getYearnVaults, getZapperTokens } from './yearnVaults'
+// Yearn SDK is currently rugged upstream
+// import { getUnderlyingVaultTokens, getYearnVaults, getZapperTokens } from './yearnVaults'
 
 const foxyToken: Asset = {
   assetId: toAssetId({
@@ -33,22 +34,21 @@ const foxyToken: Asset = {
 }
 
 export const getAssets = async (): Promise<Asset[]> => {
-  const [ethTokens, yearnVaults, zapperTokens, underlyingTokens, uniV2PoolTokens, idleTokens] =
-    await Promise.all([
-      coingecko.getAssets(ethChainId),
-      getYearnVaults(),
-      getZapperTokens(),
-      getUnderlyingVaultTokens(),
-      getUniswapV2Pools(),
-      getIdleTokens(),
-    ])
+  const [ethTokens, uniV2PoolTokens, idleTokens] = await Promise.all([
+    coingecko.getAssets(ethChainId),
+    // getYearnVaults(),
+    // getZapperTokens(),
+    // getUnderlyingVaultTokens(),
+    getUniswapV2Pools(),
+    getIdleTokens(),
+  ])
 
   const ethAssets = [
     foxyToken,
     ...ethTokens,
-    ...yearnVaults,
-    ...zapperTokens,
-    ...underlyingTokens,
+    // ...yearnVaults,
+    // ...zapperTokens,
+    // ...underlyingTokens,
     ...uniV2PoolTokens,
     ...idleTokens,
   ]

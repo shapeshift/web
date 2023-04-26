@@ -9,8 +9,10 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -25,16 +27,22 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
+import {
+  serializeUserStakingId,
+  supportsUndelegations,
+} from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
+  selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type ClaimConfirmProps = {
   accountId: AccountId | undefined
-  assetId: AssetId
+  stakingAssetId: AssetId
   amount?: string
   contractAddress: string
   chainId: ChainId
@@ -47,7 +55,7 @@ const moduleLogger = logger.child({
 
 export const ClaimConfirm = ({
   accountId,
-  assetId,
+  stakingAssetId,
   amount,
   contractAddress,
   chainId,
@@ -56,7 +64,6 @@ export const ClaimConfirm = ({
   const [userAddress, setUserAddress] = useState<string>('')
   const [estimatedGas, setEstimatedGas] = useState<string>('0')
   const [loading, setLoading] = useState<boolean>(false)
-  const [canClaim, setCanClaim] = useState<boolean>(false)
   const foxyApi = getFoxyApi()
   const { state: walletState } = useWallet()
   const translate = useTranslate()
@@ -66,8 +73,8 @@ export const ClaimConfirm = ({
   const chainAdapterManager = getChainAdapterManager()
 
   // Asset Info
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
@@ -76,7 +83,7 @@ export const ClaimConfirm = ({
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
 
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
+  if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   const toast = useToast()
@@ -85,14 +92,49 @@ export const ClaimConfirm = ({
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 
   const cryptoHumanBalance = useMemo(
-    () => bnOrZero(claimAmount).div(`1e+${asset.precision}`),
-    [asset.precision, claimAmount],
+    () => bnOrZero(claimAmount).div(`1e+${stakingAsset.precision}`),
+    [stakingAsset.precision, claimAmount],
+  )
+  // The highest level AssetId/OpportunityId, in this case of the single FOXy contract
+  const assetId = toAssetId({
+    chainId,
+    assetNamespace: ASSET_NAMESPACE.erc20,
+    assetReference: contractAddress,
+  })
+  const opportunityDataFilter = useMemo(() => {
+    if (!accountId) return undefined
+    return {
+      userStakingId: serializeUserStakingId(accountId, assetId as StakingId),
+    }
+  }, [accountId, assetId])
+
+  const foxyEarnOpportunityData = useAppSelector(state =>
+    opportunityDataFilter
+      ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
+      : undefined,
+  )
+
+  const undelegations = useMemo(
+    () =>
+      foxyEarnOpportunityData && supportsUndelegations(foxyEarnOpportunityData)
+        ? foxyEarnOpportunityData.undelegations
+        : undefined,
+    [foxyEarnOpportunityData],
+  )
+
+  const hasPendingUndelegation = Boolean(
+    undelegations &&
+      undelegations.some(undelegation =>
+        dayjs().isAfter(dayjs(undelegation.completionTime).unix()),
+      ),
   )
 
   const handleConfirm = useCallback(async () => {
     if (!(walletState.wallet && contractAddress && userAddress && foxyApi && bip44Params)) return
     setLoading(true)
     try {
+      if (!supportsETH(walletState.wallet))
+        throw new Error(`handleConfirm: wallet does not support ethereum`)
       const txid = await foxyApi.claimWithdraw({
         claimAddress: userAddress,
         userAddress,
@@ -102,7 +144,7 @@ export const ClaimConfirm = ({
       })
       history.push('/status', {
         txid,
-        assetId,
+        assetId: stakingAssetId,
         amount,
         userAddress,
         estimatedGas,
@@ -121,7 +163,7 @@ export const ClaimConfirm = ({
     }
   }, [
     amount,
-    assetId,
+    stakingAssetId,
     bip44Params,
     chainId,
     contractAddress,
@@ -140,25 +182,27 @@ export const ClaimConfirm = ({
       try {
         const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
         if (!(walletState.wallet && contractAddress && foxyApi && chainAdapter)) return
+        if (!supportsETH(walletState.wallet))
+          throw new Error(`ClaimConfirm::useEffect: wallet does not support ethereum`)
+
         const { accountNumber } = bip44Params
         const userAddress = await chainAdapter.getAddress({
           wallet: walletState.wallet,
           accountNumber,
         })
         setUserAddress(userAddress)
-        const [gasLimit, gasPrice, canClaimWithdraw] = await Promise.all([
-          foxyApi.estimateClaimWithdrawGas({
-            claimAddress: userAddress,
-            userAddress,
-            contractAddress,
-            wallet: walletState.wallet,
-            bip44Params,
-          }),
-          foxyApi.getGasPrice(),
-          foxyApi.canClaimWithdraw({ contractAddress, userAddress }),
-        ])
+        const feeDataEstimate = await foxyApi.estimateClaimWithdrawFees({
+          claimAddress: userAddress,
+          userAddress,
+          contractAddress,
+          wallet: walletState.wallet,
+          bip44Params,
+        })
 
-        setCanClaim(canClaimWithdraw)
+        const {
+          chainSpecific: { gasPrice, gasLimit },
+        } = feeDataEstimate.fast
+
         const gasEstimate = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
         setEstimatedGas(gasEstimate)
       } catch (error) {
@@ -182,12 +226,12 @@ export const ClaimConfirm = ({
         <Stack alignItems='center' justifyContent='center' py={8}>
           <Text color='gray.500' translation='defi.modals.claim.claimAmount' />
           <Stack direction='row' alignItems='center' justifyContent='center'>
-            <AssetIcon boxSize='10' src={asset.icon} />
+            <AssetIcon boxSize='10' src={stakingAsset.icon} />
             <Amount.Crypto
               fontSize='3xl'
               fontWeight='medium'
               value={cryptoHumanBalance.toString()}
-              symbol={asset?.symbol}
+              symbol={stakingAsset?.symbol}
             />
           </Stack>
           <Amount.Fiat
@@ -208,7 +252,7 @@ export const ClaimConfirm = ({
                 <Link
                   isExternal
                   color='blue.500'
-                  href={`${asset?.explorerAddressLink}${userAddress}`}
+                  href={`${stakingAsset?.explorerAddressLink}${userAddress}`}
                 >
                   <MiddleEllipsis value={userAddress} />
                 </Link>
@@ -251,7 +295,7 @@ export const ClaimConfirm = ({
             <Button
               size='lg'
               colorScheme='blue'
-              isDisabled={!canClaim}
+              isDisabled={!hasPendingUndelegation}
               onClick={handleConfirm}
               isLoading={loading}
             >

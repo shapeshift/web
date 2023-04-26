@@ -2,7 +2,7 @@ import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { AxiosError, AxiosResponse } from 'axios'
+import type { AxiosError } from 'axios'
 import axios from 'axios'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
@@ -34,17 +34,13 @@ export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
 ): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
   try {
-    const {
-      sellAsset,
-      buyAsset,
-      sellAmountBeforeFeesCryptoBaseUnit,
-      accountNumber,
-      receiveAddress,
-    } = input
     const { adapter, web3 } = deps
+    const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
+    const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
 
     const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
       fromAssetId(sellAsset.assetId)
+
     const { assetReference: buyAssetErc20Address, chainId: buyAssetChainId } = fromAssetId(
       buyAsset.assetId,
     )
@@ -68,6 +64,7 @@ export async function getCowSwapTradeQuote(
 
     const buyToken =
       buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
+
     const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = await getCowSwapMinMax(
       deps,
       sellAsset,
@@ -77,16 +74,15 @@ export async function getCowSwapTradeQuote(
     const minQuoteSellAmount = bnOrZero(minimumAmountCryptoHuman).times(
       bn(10).exponentiatedBy(sellAsset.precision),
     )
-    const isSellAmountBelowMinimum = bnOrZero(sellAmountBeforeFeesCryptoBaseUnit).lt(
-      minQuoteSellAmount,
-    )
+    const isSellAmountBelowMinimum = bnOrZero(sellAmount).lt(minQuoteSellAmount)
 
     // making sure we do not have decimals for cowswap api (can happen at least from minQuoteSellAmount)
     const normalizedSellAmountCryptoBaseUnit = normalizeIntegerAmount(
-      isSellAmountBelowMinimum ? minQuoteSellAmount : sellAmountBeforeFeesCryptoBaseUnit,
+      isSellAmountBelowMinimum ? minQuoteSellAmount : sellAmount,
     )
 
-    const apiInput: CowSwapSellQuoteApiInput = {
+    // https://api.cow.fi/docs/#/default/post_api_v1_quote
+    const { data } = await cowService.post<CowSwapQuoteResponse>(`${deps.apiUrl}/v1/quote/`, {
       sellToken: sellAssetErc20Address,
       buyToken,
       receiver: DEFAULT_ADDRESS,
@@ -96,34 +92,15 @@ export async function getCowSwapTradeQuote(
       from: DEFAULT_ADDRESS,
       kind: ORDER_KIND_SELL,
       sellAmountBeforeFee: normalizedSellAmountCryptoBaseUnit,
-    }
-
-    /**
-     * /v1/quote
-     * params: {
-     * sellToken: contract address of token to sell
-     * buyToken: contractAddress of token to buy
-     * receiver: receiver address can be defaulted to "0x0000000000000000000000000000000000000000"
-     * validTo: time duration during which quote is valid (eg : 1654851610 as timestamp)
-     * appData: appData for the CowSwap quote that can be used later, can be defaulted to "0x0000000000000000000000000000000000000000000000000000000000000000"
-     * partiallyFillable: false
-     * from: sender address can be defaulted to "0x0000000000000000000000000000000000000000"
-     * kind: "sell" or "buy"
-     * sellAmountBeforeFee / buyAmountAfterFee: amount in base unit
-     * }
-     */
-    const quoteResponse: AxiosResponse<CowSwapQuoteResponse> =
-      await cowService.post<CowSwapQuoteResponse>(`${deps.apiUrl}/v1/quote/`, apiInput)
+    } as CowSwapSellQuoteApiInput)
 
     const {
-      data: {
-        quote: {
-          buyAmount: buyAmountCryptoBaseUnit,
-          sellAmount: sellAmountCryptoBaseUnit,
-          feeAmount: feeAmountInSellTokenCryptoBaseUnit,
-        },
+      quote: {
+        buyAmount: buyAmountCryptoBaseUnit,
+        sellAmount: sellAmountCryptoBaseUnit,
+        feeAmount: feeAmountInSellTokenCryptoBaseUnit,
       },
-    } = quoteResponse
+    } = data
 
     const quoteSellAmountPlusFeesCryptoBaseUnit = bnOrZero(sellAmountCryptoBaseUnit).plus(
       feeAmountInSellTokenCryptoBaseUnit,
@@ -137,17 +114,17 @@ export async function getCowSwapTradeQuote(
     )
     const rate = buyCryptoAmount.div(sellCryptoAmount).toString()
 
-    const data = getApproveContractData({
+    const approveData = getApproveContractData({
       web3,
       spenderAddress: COW_SWAP_VAULT_RELAYER_ADDRESS,
       contractAddress: sellAssetErc20Address,
     })
 
-    const [feeDataOptions, sellAssetUsdRate] = await Promise.all([
+    const [feeData, sellAssetUsdRate] = await Promise.all([
       adapter.getFeeData({
         to: sellAssetErc20Address,
         value: '0',
-        chainSpecific: { from: receiveAddress, contractData: data },
+        chainSpecific: { from: receiveAddress, contractData: approveData },
       }),
       getUsdRate(deps, sellAsset),
     ])
@@ -157,15 +134,13 @@ export async function getCowSwapTradeQuote(
       .multipliedBy(bnOrZero(sellAssetUsdRate))
       .toString()
 
-    const feeData = feeDataOptions['fast']
-
     const isQuoteSellAmountBelowMinimum = bnOrZero(quoteSellAmountPlusFeesCryptoBaseUnit).lt(
       minQuoteSellAmount,
     )
     // If isQuoteSellAmountBelowMinimum we don't want to replace it with normalizedSellAmount
     // The purpose of this was to get a quote from CowSwap even with small amounts
     const quoteSellAmountCryptoBaseUnit = isQuoteSellAmountBelowMinimum
-      ? sellAmountBeforeFeesCryptoBaseUnit
+      ? sellAmount
       : normalizedSellAmountCryptoBaseUnit
 
     // Similarly, if isQuoteSellAmountBelowMinimum we can't use the buy amount from the quote
@@ -174,6 +149,8 @@ export async function getCowSwapTradeQuote(
       ? '0'
       : buyAmountCryptoBaseUnit
 
+    const { average, fast } = feeData
+
     return Ok({
       rate,
       minimumCryptoHuman: minimumAmountCryptoHuman,
@@ -181,11 +158,11 @@ export async function getCowSwapTradeQuote(
       feeData: {
         networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
         chainSpecific: {
-          estimatedGasCryptoBaseUnit: feeData.chainSpecific.gasLimit,
-          gasPriceCryptoBaseUnit: feeData.chainSpecific.gasPrice,
-          approvalFeeCryptoBaseUnit: bnOrZero(feeData.chainSpecific.gasLimit)
-            .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
-            .toString(),
+          estimatedGasCryptoBaseUnit: average.chainSpecific.gasLimit,
+          gasPriceCryptoBaseUnit: fast.chainSpecific.gasPrice, // fast gas price since it is underestimated currently
+          maxFeePerGas: average.chainSpecific.maxFeePerGas,
+          maxPriorityFeePerGas: average.chainSpecific.maxPriorityFeePerGas,
+          approvalFeeCryptoBaseUnit: fast.txFee, // use worst case fast fee
         },
         buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
         sellAssetTradeFeeUsd,

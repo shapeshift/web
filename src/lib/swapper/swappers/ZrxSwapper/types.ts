@@ -8,6 +8,8 @@ import type {
 
 export type ZrxCommonResponse = {
   price: string
+  estimatedGas: string
+  gas: string
   gasPrice: string
   buyAmount: string
   sellAmount: string
@@ -15,14 +17,12 @@ export type ZrxCommonResponse = {
   sources: SwapSource[]
 }
 
-export type ZrxPriceResponse = ZrxCommonResponse & {
-  estimatedGas: string
-}
+export type ZrxPriceResponse = ZrxCommonResponse
 
 export type ZrxQuoteResponse = ZrxCommonResponse & {
   to: string
   data: string
-  gas: string
+  value: string
 }
 
 export interface ZrxTrade<T extends ZrxSupportedChainId> extends Trade<T> {

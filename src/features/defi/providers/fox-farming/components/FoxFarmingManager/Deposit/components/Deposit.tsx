@@ -95,8 +95,8 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const {
     allowance: foxFarmingAllowance,
-    getStakeGasData,
-    getApproveGasData,
+    getStakeFeeData,
+    getApproveFeeData,
   } = useFoxFarming(contractAddress)
 
   const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
@@ -132,9 +132,9 @@ export const Deposit: React.FC<DepositProps> = ({
       ): Promise<string | undefined> => {
         if (!assetReference) return
         try {
-          const gasData = await getStakeGasData(deposit.cryptoAmount)
-          if (!gasData) return
-          return bnOrZero(gasData.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
+          const feeData = await getStakeFeeData(deposit.cryptoAmount)
+          if (!feeData) return
+          return bnOrZero(feeData.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
         } catch (error) {
           moduleLogger.error(
             { fn: 'getDepositGasEstimateCryptoPrecision', error },
@@ -180,12 +180,12 @@ export const Deposit: React.FC<DepositProps> = ({
             assets,
           )
         } else {
-          const estimatedGasCryptoBaseUnit = await getApproveGasData()
-          if (!estimatedGasCryptoBaseUnit) return
+          const feeData = await getApproveFeeData()
+          if (!feeData) return
           dispatch({
             type: FoxFarmingDepositActionType.SET_APPROVE,
             payload: {
-              estimatedGasCryptoPrecision: bnOrZero(estimatedGasCryptoBaseUnit.average.txFee)
+              estimatedGasCryptoPrecision: bnOrZero(feeData.txFee)
                 .div(bn(10).pow(feeAsset.precision))
                 .toPrecision(),
             },
@@ -210,14 +210,14 @@ export const Deposit: React.FC<DepositProps> = ({
       feeAsset,
       foxFarmingOpportunity,
       assetReference,
-      getStakeGasData,
+      getStakeFeeData,
       toast,
       translate,
       asset,
       foxFarmingAllowance,
       onNext,
       assets,
-      getApproveGasData,
+      getApproveFeeData,
     ],
   )
 

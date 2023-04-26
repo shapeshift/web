@@ -661,6 +661,7 @@ const fullCollectionSchema = z.object({
   openseaId: z.string().nullable(),
   socialLinks: z.array(socialLinkSchema),
   stats: statsSchema,
+  type: z.string(),
 })
 
 const nftCollectionSchema = z.object({
@@ -724,7 +725,7 @@ export type V2NftUserTokensResponseType = Infer<typeof V2NftUserTokensResponse>
 
 export type V2NftCollectionType = Infer<typeof nftCollectionSchema>
 
-const V2NftBalancesCollectionsResponse = v2NftBalancesCollectionsSchema
+export const V2NftBalancesCollectionsResponse = v2NftBalancesCollectionsSchema
 export type V2NftBalancesCollectionsResponseType = Infer<typeof V2NftBalancesCollectionsResponse>
 
 export type V2ZapperNft = Infer<typeof tokenSchema>

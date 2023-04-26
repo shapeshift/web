@@ -25,6 +25,7 @@ import type {
 import {
   chainIdToZapperNetwork,
   V2AppTokensResponse,
+  V2NftBalancesCollectionsResponse,
   ZapperAppId,
   ZapperGroupId,
   zapperNetworkToChainId,
@@ -208,12 +209,12 @@ export const zapperApi = createApi({
         }
         const url = `/v2/nft/balances/collections`
         const payload = { ...options, params, headers, url }
-        const {
-          data: { items: data },
-        } = await axios.request<V2NftBalancesCollectionsResponseType>({
+        const { data } = await axios.request<V2NftBalancesCollectionsResponseType>({
           ...payload,
         })
-        return { data }
+
+        const { items: validatedData } = V2NftBalancesCollectionsResponse.parse(data)
+        return { data: validatedData }
       },
     }),
   }),

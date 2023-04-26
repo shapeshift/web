@@ -290,13 +290,14 @@ export const Deposit: React.FC<DepositProps> = ({
     })
   }
 
-  if (!accountId) return null
+  if (!accountId || !lpOpportunity) return null
   return (
     <PairDeposit
       accountId={accountId}
       asset0={asset0}
       asset1={asset1}
       icons={lpOpportunity?.icons}
+      underlyingAssetRatiosBaseUnit={lpOpportunity.underlyingAssetRatiosBaseUnit}
       destAsset={lpAsset}
       apy={lpOpportunity?.apy?.toString() ?? ''}
       cryptoAmountAvailable0={asset0CryptoAmountAvailable.toPrecision()}

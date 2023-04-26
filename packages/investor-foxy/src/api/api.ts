@@ -907,12 +907,14 @@ export class FoxyApi {
     } catch (e) {
       throw new Error(`Failed to get block number: ${e}`)
     }
-    const epochsLeft = bnOrZero(coolDownInfo.endEpoch).minus(epoch.number) // epochs left until can claim
+    const epochsLeft = bnOrZero(coolDownInfo.endEpoch.toString()).minus(epoch.number.toString()) // epochs left until can claim
     const blocksLeftInCurrentEpoch =
-      epochsLeft.gt(0) && epoch.endBlock > currentBlock ? epoch.endBlock - currentBlock : 0 // calculate time remaining in current epoch
+      epochsLeft.gt(0) && epoch.endBlock.gt(currentBlock)
+        ? epoch.endBlock.sub(currentBlock).toString()
+        : '0' // calculate time remaining in current epoch
     const blocksLeftInFutureEpochs = epochsLeft.minus(1).gt(0)
-      ? epochsLeft.minus(1).times(epoch.length)
-      : 0 // don't count current epoch
+      ? epochsLeft.minus(1).times(epoch.length).toString()
+      : '0' // don't count current epoch
     const blocksUntilClaimable = bnOrZero(blocksLeftInCurrentEpoch).plus(blocksLeftInFutureEpochs) // total blocks left until can claim
     const secondsUntilClaimable = blocksUntilClaimable.times(13) // average block time is 13 seconds to get total seconds
     const currentDate = new Date()
@@ -995,20 +997,10 @@ export class FoxyApi {
     this.verifyAddresses([userAddress, contractAddress])
     const stakingContract = this.getStakingContract(contractAddress)
 
-    let coolDownInfo: [amount: string, gons: string, expiry: string]
-    try {
-      coolDownInfo = (await stakingContract.coolDownInfo(userAddress)).map(
-        (info: ethers.BigNumber) => info.toString(),
-      )
-    } catch (e) {
-      throw new Error(`Failed to get coolDowninfo: ${e}`)
-    }
-    let releaseTime
-    try {
-      releaseTime = await this.getTimeUntilClaimable(input)
-    } catch (e) {
-      throw new Error(`Failed to getTimeUntilClaimable: ${e}`)
-    }
+    const coolDownInfo: [amount: string, gons: string, expiry: string] = (
+      await stakingContract.coolDownInfo(userAddress)
+    ).map((info: ethers.BigNumber) => info.toString())
+    const releaseTime = await this.getTimeUntilClaimable(input)
 
     const [amount, gons, expiry] = coolDownInfo
     return {

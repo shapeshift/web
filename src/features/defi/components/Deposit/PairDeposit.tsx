@@ -139,10 +139,10 @@ export const PairDeposit = ({
     (inputAmount: string, inputIsForAsset0: boolean) => {
       const inputAssetRatio = bnOrZero(underlyingAssetRatiosBaseUnit[inputIsForAsset0 ? 0 : 1])
       const otherAssetRatio = bnOrZero(underlyingAssetRatiosBaseUnit[inputIsForAsset0 ? 1 : 0])
-      const inputAmountInBaseUnit = bnOrZero(inputAmount).times(
+      const inputAmountCryptoBaseUnit = bnOrZero(inputAmount).times(
         bnOrZero(10).pow(bnOrZero(inputIsForAsset0 ? asset0.precision : asset1.precision)),
       )
-      const otherAmountInBaseUnit = inputAmountInBaseUnit
+      const otherAmountInBaseUnit = inputAmountCryptoBaseUnit
         .times(otherAssetRatio)
         .div(inputAssetRatio)
       const otherAmount = otherAmountInBaseUnit

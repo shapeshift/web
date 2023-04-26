@@ -57,7 +57,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     chainId,
     receiveAddress,
     sendMax,
-    affiliateBps = '0',
+    affiliateBps,
   } = input
 
   try {
@@ -226,7 +226,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             destinationAddress: receiveAddress,
             xpub: (input as GetUtxoTradeQuoteInput).xpub,
             buyAssetTradeFeeUsd,
-            affiliateBps: '0', // FIXME
+            affiliateBps,
           })
 
           if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())

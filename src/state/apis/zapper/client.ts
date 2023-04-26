@@ -5,13 +5,13 @@ import { invert } from 'lodash'
 import { z } from 'zod'
 
 export enum SupportedZapperNetwork {
-  Ethereum = 'ethereum',
-  // Polygon = 'polygon',
-  Optimism = 'optimism',
-  // Gnosis = 'gnosis',
-  BinanceSmartChain = 'binance-smart-chain',
-  // Fantom = 'fantom',
   Avalanche = 'avalanche',
+  BinanceSmartChain = 'binance-smart-chain',
+  Ethereum = 'ethereum',
+  Optimism = 'optimism',
+  // Polygon = 'polygon',
+  // Gnosis = 'gnosis',
+  // Fantom = 'fantom',
   // Artbitrum = 'arbitrum',
   // Celo = 'celo',
   // Harmony = 'harmony',
@@ -22,7 +22,7 @@ export enum SupportedZapperNetwork {
   // Evmos = 'evmos',
 }
 
-export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Partial<Record<SupportedZapperNetwork, ChainId>> = {
+export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Record<SupportedZapperNetwork, ChainId> = {
   [SupportedZapperNetwork.Avalanche]: avalancheChainId,
   [SupportedZapperNetwork.BinanceSmartChain]: bscChainId,
   [SupportedZapperNetwork.Ethereum]: ethChainId,
@@ -667,6 +667,7 @@ export type V2NftUserItem = z.infer<typeof userNftItemSchema>
 export type V2BalancesAppsResponseType = z.infer<typeof V2BalancesAppsResponse>
 const V2BalancesAppsResponse = z.array(ZapperV2AppBalance)
 
+export type ZapperAssetBase = z.infer<typeof ZapperAssetBaseSchema>
 const V2AppTokensResponse = z.array(ZapperAssetBaseSchema)
 export type V2AppTokensResponseType = z.infer<typeof V2AppTokensResponse>
 

@@ -1,6 +1,6 @@
-import type { SwapSource } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import { Dex } from '@shapeshiftoss/unchained-client'
+import type { SwapSource } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 
 type GetBaseUrl = {
   name: SwapSource['name'] | Dex | undefined

@@ -14,10 +14,10 @@ import {
   ltcAssetId,
   optimismAssetId,
   osmosisAssetId,
+  polygonAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import type { EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import type { SwapperName, Trade, TradeQuote } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { GetReceiveAddressArgs } from 'components/Trade/types'
 import {
@@ -29,14 +29,15 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
+import type { SwapperName, Trade, TradeQuote } from 'lib/swapper/api'
 import { type FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 const moduleLogger = logger.child({ namespace: ['useSwapper', 'utils'] })
 
 // Pure functions
 export const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
-  const assetIdMap = Object.fromEntries(assetIds.map(assetId => [assetId, true]))
-  return assets.filter(asset => assetIdMap[asset.assetId])
+  const assetIdSet = new Set(...assetIds)
+  return assets.filter(asset => assetIdSet.has(asset.assetId))
 }
 
 export const getSendMaxAmount = (
@@ -172,11 +173,19 @@ export const getDefaultAssetIdPairByChainId = (
           }
         : ethFoxPair
     case KnownChainIds.BnbSmartChainMainnet:
-      return featureFlags.ZrxBnbSmartChain
+      return featureFlags.ZrxBnbSmartChainSwap
         ? {
             sellAssetId: bscAssetId,
             // BUSD
             buyAssetId: 'eip155:56/bep20:0xe9e7cea3dedca5984780bafc599bd69add087d56',
+          }
+        : ethFoxPair
+    case KnownChainIds.PolygonMainnet:
+      return featureFlags.ZrxPolygonSwap
+        ? {
+            sellAssetId: polygonAssetId,
+            // USDC on Polygon
+            buyAssetId: 'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
           }
         : ethFoxPair
     case KnownChainIds.CosmosMainnet:

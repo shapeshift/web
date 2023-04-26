@@ -1,9 +1,8 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { Trade, TradeQuote } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import type { BIP44Params } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import {
   isCosmosSdkSwap,
@@ -13,6 +12,8 @@ import {
 import type { BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { toBaseUnit } from 'lib/math'
+import type { SwapErrorRight, Trade, TradeQuote } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import type { SwapperState } from 'state/zustand/swapperStore/types'
@@ -75,6 +76,7 @@ export const selectSwapperSupportsCrossAccountTrade = (state: SwapperState): boo
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
     case SwapperName.Test:
+    case SwapperName.OneInch:
       return false
     default:
       assertUnreachable(swapperName)
@@ -102,7 +104,7 @@ type SelectGetTradeForWalletArgs = {
   sellAccountMetadata: AccountMetadata
 }
 
-type SelectGetTradeForWalletReturn = Promise<Trade<ChainId> | undefined>
+type SelectGetTradeForWalletReturn = Promise<Result<Trade<ChainId>, SwapErrorRight>>
 
 export const selectGetTradeForWallet = (
   state: SwapperState,

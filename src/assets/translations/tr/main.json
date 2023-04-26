@@ -55,7 +55,6 @@
     "retryQuestion": "Tekrar dene?",
     "transactionFailed": "İşlem Başarısız",
     "transactionFailedBody": "İşlem Başarısız",
-    "liveSupport": "Destek",
     "submitFeedback": "Geri Bildirim Gönder",
     "send": "Gönder",
     "receive": "Al",
@@ -1192,8 +1191,7 @@
       "errors": {
         "unknown": "MetaMask ile iletişim kurulurken beklenmeyen bir hata oluştu",
         "connectFailure": "MetaMask cüzdanına bağlanılamıyor",
-        "multipleWallets": "Tespit edilen Ethereum sağlayıcısı MetaMask değil. Yüklü birden fazla cüzdanınız var mı?",
-        "tallyInstalledAndSetToDefault": "Tally Ho'nun kurulu olduğunu ve Varsayılan olarak ayarlandığını tespit ettik. Bunun yerine MetaMask kullanmayı tercih ederseniz, lütfen Tally Ho'daki ayarları değiştirin ve sayfayı yenileyin."
+        "multipleWallets": "Tespit edilen Ethereum sağlayıcısı MetaMask değil. Yüklü birden fazla cüzdanınız var mı?"
       },
       "connect": {
         "header": "MetaMask'la Eşleştir",
@@ -1208,44 +1206,6 @@
         "header": "MetaMask Uygulamasında Aç",
         "body": "ShapeShift panosunu MetaMask'ta açmak için tıklayın",
         "button": "Aç"
-      }
-    },
-    "tallyHo": {
-      "errors": {
-        "unknown": "Tally Ho ile iletişim kurulurken beklenmeyen bir hata oluştu",
-        "connectFailure": "Tally Ho cüzdanına bağlanılamıyor",
-        "network": "Tally Ho, Ethereum Mainnet'e ayarlı değil",
-        "multipleWallets": "Tespit edilen Ethereum sağlayıcısı Tally Ho değil. Yüklü birden fazla cüzdanınız var mı?",
-        "tallyNotInstalledOrSetToDefault": "Tally Ho'nun yüklenmediğini veya varsayılan olarak ayarlanmadığını tespit ettik. Tally Ho'yu kullanmak istiyorsanız, lütfen kurun veya varsayılan cüzdanınız olarak ayarlayın ve sayfayı yenileyin."
-      },
-      "connect": {
-        "header": "Tally ile Eşle",
-        "body": "Eşleştir'e tıklayın ve açılır pencereden Tally Ho'da oturum açın",
-        "button": "Eşle"
-      },
-      "failure": {
-        "header": "Hata",
-        "body": "Tally Ho cüzdanına bağlanılamıyor"
-      },
-      "redirect": {
-        "header": "Tally Ho Uygulamasında Aç",
-        "body": "Tally Ho'da ShapeShift kontrol panelini açmak için tıklayın",
-        "button": "Aç"
-      }
-    },
-    "portis": {
-      "errors": {
-        "unknown": "Portis ile iletişim kurulurken beklenmeyen bir hata oluştu",
-        "connectFailure": "Portis cüzdanına bağlanılamıyor"
-      },
-      "connect": {
-        "header": "Portis'le Eşle",
-        "body": "Eşleştir'e tıklayın ve açılan pencereden Portis'i seçin",
-        "button": "Eşle"
-      },
-      "failure": {
-        "header": "Hata",
-        "body": "Portis cüzdanına bağlanılamıyor"
       }
     },
     "walletConnect": {

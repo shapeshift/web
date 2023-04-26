@@ -1,6 +1,6 @@
 type PollArgs<T> = {
   fn(): Promise<T>
-  validate(result: unknown): boolean
+  validate(result: Awaited<T>): boolean
   interval: number
   maxAttempts: number
 }

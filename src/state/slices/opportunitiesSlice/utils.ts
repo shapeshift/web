@@ -3,7 +3,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type { MarketData } from '@shapeshiftoss/types'
-import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 
@@ -213,4 +213,16 @@ export const makeDefiProviderDisplayName: MakeDefiProviderDisplayName = ({
     default:
       return provider
   }
+}
+type GetOpportunityAccessorArgs = { provider: DefiProvider; type: DefiType }
+type GetOpportunityAccessorReturn = 'underlyingAssetId' | 'underlyingAssetIds'
+type GetOpportunityAccessor = (args: GetOpportunityAccessorArgs) => GetOpportunityAccessorReturn
+
+export const getOpportunityAccessor: GetOpportunityAccessor = ({ provider, type }) => {
+  if (type === DefiType.Staking) {
+    if (provider === DefiProvider.EthFoxStaking) {
+      return 'underlyingAssetId'
+    }
+  }
+  return 'underlyingAssetIds'
 }

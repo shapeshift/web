@@ -22,11 +22,10 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { Address } from '@wagmi/core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { useEnsName } from 'wagmi'
+import type { Address } from 'viem'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -34,6 +33,7 @@ import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { viemClient } from 'lib/viem-client'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -47,7 +47,7 @@ type ReceivePropsType = {
 export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { state } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string | undefined>()
-  const [ensReceiveAddress, setEnsReceiveAddress] = useState<string>('')
+  const [ensName, setEnsName] = useState<string | null>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | null>(accountId ?? null)
   const chainAdapterManager = getChainAdapterManager()
@@ -62,14 +62,6 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   )
   const accountType = accountMetadata?.accountType
   const bip44Params = accountMetadata?.bip44Params
-
-  const { data: ensName, isSuccess: isEnsNameLoaded } = useEnsName({
-    address: receiveAddress as Address,
-    enabled: asset.chainId === KnownChainIds.EthereumMainnet,
-    cacheTime: Infinity, // Cache a given ENS reverse resolution response infinitely for the lifetime of a tab / until app reload
-    staleTime: Infinity, // Cache a given ENS reverse resolution query infinitely for the lifetime of a tab / until app reload
-  })
-
   useEffect(() => {
     ;(async () => {
       if (!(wallet && chainAdapter)) return
@@ -85,21 +77,12 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
       })
       setReceiveAddress(selectedAccountAddress)
     })()
-  }, [
-    setReceiveAddress,
-    setEnsReceiveAddress,
-    accountType,
-    asset,
-    wallet,
-    chainAdapter,
-    bip44Params,
-  ])
+  }, [setReceiveAddress, setEnsName, accountType, asset, wallet, chainAdapter, bip44Params])
 
   useEffect(() => {
-    if (isEnsNameLoaded && ensName) {
-      setEnsReceiveAddress(ensName)
-    }
-  }, [ensName, isEnsNameLoaded])
+    if (asset.chainId !== KnownChainIds.EthereumMainnet || !receiveAddress) return
+    viemClient.getEnsName({ address: receiveAddress as Address }).then(setEnsName)
+  }, [asset.chainId, receiveAddress])
 
   const handleVerify = async () => {
     if (!(wallet && chainAdapter && receiveAddress && bip44Params)) return
@@ -188,9 +171,9 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
               buttonProps={{ variant: 'solid', width: 'full', mt: 4 }}
             />
             <Flex justifyContent='center'>
-              {ensReceiveAddress && (
+              {ensName && (
                 <Tag bg={bg} borderRadius='full' color='gray.500' mt={8} pl={4} pr={4}>
-                  {ensReceiveAddress}
+                  {ensName}
                 </Tag>
               )}
             </Flex>

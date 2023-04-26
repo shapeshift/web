@@ -15,9 +15,8 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
-import type { Swapper } from '@shapeshiftoss/swapper'
-import { type TradeTxs, isRune, SwapperName } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { Err } from '@sniptt/monads'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -39,6 +38,9 @@ import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
+import type { Swapper } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
+import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
 import { assertUnreachable } from 'lib/utils'
 import { selectAssets, selectFeeAssetByChainId, selectTxStatusById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -197,6 +199,9 @@ export const TradeConfirm = () => {
     if (!(swapper && trade)) return null
     const compositeBuyAsset = getMaybeCompositeAssetSymbol(trade.buyAsset.assetId, assets)
     const compositeSellAsset = getMaybeCompositeAssetSymbol(trade.sellAsset.assetId, assets)
+    // mixpanel paranoia seeing impossibly high values
+    if (!trade?.sellAsset?.precision) return
+    if (!trade?.buyAsset?.precision) return
     const buyAmountCryptoPrecision = fromBaseUnit(
       buyAmountBeforeFeesBaseUnit,
       trade.sellAsset.precision,
@@ -251,24 +256,20 @@ export const TradeConfirm = () => {
       }
 
       const result = await swapper.executeTrade({ trade, wallet })
-      setSellTradeId(result.tradeId)
+      // TODO(gomes): should we we throw so the catch clause handles this?
+      if (result.isErr()) return
+      setSellTradeId(result.unwrap().tradeId)
 
       // Poll until we have a "buy" txid
       // This means the trade is just about finished
       const txs = await poll({
-        fn: async () => {
-          try {
-            return { ...(await swapper.getTradeTxs(result)) }
-          } catch (e) {
-            return { sellTxid: '', buyTxid: '', e }
-          }
-        },
-        validate: (txs: TradeTxs & { e: Error }) => !!txs.buyTxid || !!txs.e,
+        fn: () => swapper.getTradeTxs(result.unwrap()).catch(e => Err(e)),
+        validate: txsResult => txsResult.isOk() && !!txsResult.unwrap().buyTxid,
         interval: 10000, // 10 seconds
         maxAttempts: 300, // Lots of attempts because some trade are slow (thorchain to bitcoin)
       })
-      if (txs.e) throw txs.e
-      setBuyTxid(txs.buyTxid ?? '')
+      if (txs.isErr()) throw txs.unwrapErr()
+      setBuyTxid(txs.unwrap().buyTxid ?? '')
     } catch (e) {
       showErrorToast(e)
       clearAmounts()

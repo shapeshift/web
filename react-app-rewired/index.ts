@@ -367,6 +367,12 @@ const reactAppRewireConfig = {
             path.join(buildPath, 'packages/*/src/**/*'),
           ],
         },
+        stats: {
+          preset: 'minimal',
+          assets: false,
+          modules: false,
+          timings: true,
+        },
       })
 
       // https://webpack.js.org/guides/build-performance/#avoid-production-specific-tooling
@@ -381,6 +387,7 @@ const reactAppRewireConfig = {
   },
   jest: (config: Config.InitialOptions) => {
     config.transformIgnorePatterns = [
+      '/node_modules/(?!(viem)/)',
       '/node_modules/(?!(@wagmi)/)',
       '^.+\\.module\\.(css|sass|scss)$',
     ]

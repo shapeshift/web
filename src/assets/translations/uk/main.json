@@ -55,7 +55,6 @@
     "retryQuestion": "Спробувати ще раз?",
     "transactionFailed": "Транзакція не вдалася",
     "transactionFailedBody": "Транзакція не вдалася",
-    "liveSupport": "Підтримка",
     "submitFeedback": "Залишити відгук",
     "send": "Надіслати",
     "receive": "Отримати",
@@ -1192,8 +1191,7 @@
       "errors": {
         "unknown": "Виникла несподівана помилка при взаємодії з MetaMask",
         "connectFailure": "Не вдається підключити гаманець MetaMask",
-        "multipleWallets": "Виявлений постачальник Ethereum не є MetaMask. У вас встановлено декілька гаманців?",
-        "tallyInstalledAndSetToDefault": "Ми виявили, що у вас встановлено Tally Ho і встановлено налаштування за замовчуванням. Якщо ви бажаєте використовувати MetaMask, будь ласка, змініть налаштування в Tally Ho та оновіть сторінку."
+        "multipleWallets": "Виявлений постачальник Ethereum не є MetaMask. У вас встановлено декілька гаманців?"
       },
       "connect": {
         "header": "Під'єднати MetaMask",
@@ -1208,44 +1206,6 @@
         "header": "Відкрийте у програмі MetaMask",
         "body": "Натисніть, щоб відкрити панель ShapeShift в MetaMask",
         "button": "Відкрити"
-      }
-    },
-    "tallyHo": {
-      "errors": {
-        "unknown": "Виникла несподівана помилка при взаємодії з Tally Ho",
-        "connectFailure": "Не вдається підключити гаманець Tally Ho",
-        "network": "Tally Ho не налаштований на Ethereum Mainnet",
-        "multipleWallets": "Виявлений постачальник послуг Ethereum - це не Tally Ho. У вас встановлено декілька гаманців?",
-        "tallyNotInstalledOrSetToDefault": "Ми виявили, що Tally Ho або не встановлено, або не встановлено за замовчуванням. Якщо ви бажаєте використовувати Tally Ho, будь ласка, встановіть його або зробіть його гаманцем за замовчуванням та оновіть сторінку."
-      },
-      "connect": {
-        "header": "Під'єднати Tally",
-        "body": "Натисніть Під'єднати та увійдіть в Tally Ho у спливаючому вікні",
-        "button": "Під'єднати"
-      },
-      "failure": {
-        "header": "Помилка",
-        "body": "Не вдається під'єднати гаманець Tally Ho"
-      },
-      "redirect": {
-        "header": "Відкрити в додатку Tally Ho",
-        "body": "Натисніть, щоб відкрити інформаційну панель ShapeShift в Tally Ho",
-        "button": "Відкрити"
-      }
-    },
-    "portis": {
-      "errors": {
-        "unknown": "Виникла несподівана помилка при взаємодії з Portis",
-        "connectFailure": "Не вдається підключити гаманець Portis"
-      },
-      "connect": {
-        "header": "Під'єднати Portis",
-        "body": "Натисніть Під'єднати та виберіть Portis у спливаючому вікні",
-        "button": "Під'єднати "
-      },
-      "failure": {
-        "header": "Помилка",
-        "body": "Не вдається під'єднати гаманець Portis"
       }
     },
     "walletConnect": {

@@ -24,6 +24,7 @@ type ApproveProps = {
   estimatedGasFeeCryptoPrecision: string
   fiatEstimatedGasFee: string
   isExactAllowance?: boolean
+  isApproved?: boolean
   learnMoreLink?: string
   loading: boolean
   loadingText?: string
@@ -43,6 +44,7 @@ export const Approve = ({
   feeAsset,
   fiatEstimatedGasFee,
   icons,
+  isApproved,
   isExactAllowance,
   learnMoreLink,
   loading,
@@ -141,15 +143,15 @@ export const Approve = ({
         <Stack justifyContent='space-between'>
           <Button
             onClick={() => (isConnected ? onConfirm() : handleWalletModalOpen())}
-            disabled={disabled || loading}
+            disabled={isApproved || disabled || loading}
             size='lg'
-            colorScheme='blue'
+            colorScheme={isApproved ? 'green' : 'blue'}
             width='full'
             data-test='defi-modal-approve-button'
             isLoading={loading}
             loadingText={loadingText}
           >
-            {translate('modals.approve.confirm')}
+            {translate(!isApproved ? 'common.approve' : 'modals.approve.approved')}
           </Button>
           <Button onClick={onCancel} size='lg' width='full' colorScheme='gray' isDisabled={loading}>
             {translate('modals.approve.reject')}

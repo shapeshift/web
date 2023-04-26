@@ -28,7 +28,7 @@ import {
 } from './thorchainsavers'
 import {
   uniV2LpLpOpportunityIdsResolver,
-  uniV2LpMetadataResolver,
+  uniV2LpOpportunitiesMetadataResolver,
   uniV2LpUserDataResolver,
 } from './uniV2'
 import {
@@ -38,15 +38,15 @@ import {
 } from './yearn'
 
 export const DefiProviderToMetadataResolverByDeFiType = {
-  [`${DefiProvider.UniV2}`]: {
-    [`${DefiType.LiquidityPool}`]: uniV2LpMetadataResolver,
-  },
   [`${DefiProvider.EthFoxStaking}`]: {
     [`${DefiType.Staking}`]: ethFoxStakingMetadataResolver,
   },
 }
 
 export const DefiProviderToOpportunitiesMetadataResolverByDeFiType = {
+  [`${DefiProvider.UniV2}`]: {
+    [`${DefiType.LiquidityPool}`]: uniV2LpOpportunitiesMetadataResolver,
+  },
   [`${DefiProvider.Idle}`]: {
     [`${DefiType.Staking}`]: idleStakingOpportunitiesMetadataResolver,
   },

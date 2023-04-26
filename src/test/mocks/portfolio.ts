@@ -6,6 +6,7 @@ import {
   ethAssetId,
   optimismAssetId,
   osmosisAssetId,
+  polygonAssetId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -75,6 +76,13 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => bscAssetId,
       getDisplayName: () => 'Binance Smart Chain',
+    },
+  ],
+  [
+    KnownChainIds.PolygonMainnet,
+    {
+      getFeeAssetId: () => polygonAssetId,
+      getDisplayName: () => 'Polygon',
     },
   ],
   [

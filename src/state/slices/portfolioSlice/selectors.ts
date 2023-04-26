@@ -14,9 +14,11 @@ import {
   ltcAssetId,
   optimismAssetId,
   osmosisAssetId,
+  polygonAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import type { BIP44Params } from '@shapeshiftoss/types'
+import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
 import keys from 'lodash/keys'
@@ -29,7 +31,7 @@ import { createCachedSelector } from 're-reselect'
 import type { BridgeAsset } from 'components/Bridge/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { isMobile } from 'lib/globals'
 import { fromBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
@@ -47,6 +49,8 @@ import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
 import {
   selectAggregatedEarnUserStakingOpportunities,
+  selectAllEarnUserLpOpportunitiesByFilter,
+  selectAllEarnUserStakingOpportunitiesByFilter,
   selectStakingOpportunitiesById,
   selectUserStakingOpportunitiesById,
 } from 'state/slices/opportunitiesSlice/selectors'
@@ -57,20 +61,27 @@ import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioFiatBalances,
+  selectPortfolioFiatBalancesByAccountId,
   selectWalletAccountIds,
   selectWalletId,
   selectWalletName,
 } from '../common-selectors'
 import { foxEthLpAssetId, foxEthStakingIds } from '../opportunitiesSlice/constants'
 import type { StakingId, UserStakingId } from '../opportunitiesSlice/types'
-import { deserializeUserStakingId } from '../opportunitiesSlice/utils'
+import {
+  deserializeUserStakingId,
+  getUnderlyingAssetIdsBalances,
+} from '../opportunitiesSlice/utils'
 import type {
   AccountMetadata,
   AccountMetadataById,
   AssetBalancesById,
+  AssetEquityBalance,
+  AssetEquityItem,
   PortfolioAccountBalancesById,
   PortfolioAccounts,
 } from './portfolioSliceCommon'
+import { AssetEquityType } from './portfolioSliceCommon'
 import { findAccountsByAssetId } from './utils'
 
 // We should prob change this once we add more chains
@@ -86,6 +97,7 @@ export const FEE_ASSET_IDS = [
   avalancheAssetId,
   optimismAssetId,
   bscAssetId,
+  polygonAssetId,
 ]
 
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(
@@ -157,35 +169,6 @@ export const selectPortfolioLoadingStatus = createSelector(
   },
 )
 
-export const selectPortfolioFiatBalancesByAccount = createDeepEqualOutputSelector(
-  selectAssets,
-  selectPortfolioAccountBalancesBaseUnit,
-  selectMarketDataSortedByMarketCap,
-  (assetsById, accounts, marketData) => {
-    return Object.entries(accounts).reduce(
-      (acc, [accountId, balanceObj]) => {
-        acc[accountId] = Object.entries(balanceObj).reduce(
-          (acc, [assetId, cryptoBalance]) => {
-            const asset = assetsById[assetId]
-            if (!asset) return acc
-            const precision = asset.precision
-            const price = marketData[assetId]?.price ?? 0
-            const cryptoValue = fromBaseUnit(bnOrZero(cryptoBalance), precision)
-            const fiatBalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
-            acc[assetId] = fiatBalance
-
-            return acc
-          },
-          { ...balanceObj },
-        )
-
-        return acc
-      },
-      { ...accounts },
-    )
-  },
-)
-
 export const selectPortfolioTotalFiatBalance = createSelector(
   selectPortfolioFiatBalances,
   (portfolioFiatBalances): string =>
@@ -218,7 +201,7 @@ export const selectPortfolioFiatBalanceByAssetId = createCachedSelector(
 
 export const selectPortfolioFiatBalanceByFilter = createCachedSelector(
   selectPortfolioFiatBalances,
-  selectPortfolioFiatBalancesByAccount,
+  selectPortfolioFiatBalancesByAccountId,
   selectAssetIdParamFromFilter,
   selectAccountIdParamFromFilter,
   (portfolioAssetFiatBalances, portfolioAccountFiatbalances, assetId, accountId): string => {
@@ -236,12 +219,12 @@ export const selectPortfolioFiatBalanceByFilter = createCachedSelector(
   },
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
-export const selectFirstAccountIdByChainId = createSelector(
+export const selectFirstAccountIdByChainId = createCachedSelector(
   selectWalletAccountIds,
   (_s: ReduxState, chainId: ChainId) => chainId,
   (accountIds, chainId): AccountId | undefined =>
     accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)[0],
-)
+)((_s: ReduxState, chainId) => chainId ?? 'chainId')
 
 /**
  * selects portfolio account ids that *can* contain an assetId
@@ -335,7 +318,7 @@ export const selectPortfolioLoading = createSelector(
 )
 
 export const selectPortfolioAssetAccountBalancesSortedFiat = createDeepEqualOutputSelector(
-  selectPortfolioFiatBalancesByAccount,
+  selectPortfolioFiatBalancesByAccountId,
   selectBalanceThreshold,
   (portfolioFiatAccountBalances, balanceThreshold): PortfolioAccountBalancesById => {
     return Object.entries(portfolioFiatAccountBalances).reduce<PortfolioAccountBalancesById>(
@@ -374,7 +357,7 @@ export const selectHighestFiatBalanceAccountByAssetId = createCachedSelector(
 
 export const selectPortfolioAllocationPercentByFilter = createCachedSelector(
   selectPortfolioFiatBalances,
-  selectPortfolioFiatBalancesByAccount,
+  selectPortfolioFiatBalancesByAccountId,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   (assetFiatBalances, assetFiatBalancesByAccount, accountId, assetId): number | undefined => {
@@ -441,9 +424,18 @@ export const selectPortfolioAccountsCryptoBalancesIncludingStaking = createDeepE
       (acc, [accountId, account]) => {
         if (!acc[accountId]) acc[accountId] = {}
         Object.entries(account).forEach(([assetId, balance]) => {
-          acc[accountId][assetId] = bnOrZero(balance)
-            .plus(bnOrZero(stakingBalances[accountId]?.[assetId]))
-            .toString()
+          const accountAssetStakingBalance = stakingBalances[accountId]?.[assetId]
+          // TODO(gomes): This is a temporary fix until we figure out the DeFi heuristics for isDefiOpportunity or similarly named property
+          // i.e a property that will allow us to know whether or not a wallet asset is exclusively used as a DeFi opportunity
+          // This is obviously a suboptimal fix as if you stake the exact same amount (to the smallest base unit) of an asset as you have in your wallet,
+          // it would not be counted in crypto (and hence fiat) total
+          if (accountAssetStakingBalance === balance) {
+            acc[accountId][assetId] = bnOrZero(balance).toString()
+          } else {
+            acc[accountId][assetId] = bnOrZero(balance)
+              .plus(bnOrZero(accountAssetStakingBalance))
+              .toString()
+          }
         })
         return acc
       },
@@ -632,7 +624,7 @@ export const selectAccountIdsByAssetId = createCachedSelector(
 export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelector(
   selectPortfolioAccounts,
   selectAssetIdParamFromFilter,
-  selectPortfolioFiatBalancesByAccount,
+  selectPortfolioFiatBalancesByAccountId,
   selectBalanceThreshold,
   (portfolioAccounts, assetId, accountBalances, balanceThreshold) => {
     const accounts = findAccountsByAssetId(portfolioAccounts, assetId)
@@ -655,6 +647,15 @@ export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelect
     return aboveThreshold
   },
 )((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
+
+export const selectAccountIdsByAssetIdAboveBalanceThresholdByFilter = createDeepEqualOutputSelector(
+  selectAccountIdsByAssetIdAboveBalanceThreshold,
+  selectAccountIdParamFromFilter,
+  (accountIdsAboveThreshold, accountId): AccountId[] =>
+    accountId
+      ? accountIdsAboveThreshold.filter(listAccount => listAccount === accountId)
+      : accountIdsAboveThreshold,
+)
 
 export type AccountRowData = {
   name: string
@@ -812,5 +813,112 @@ export const selectAccountIdByAccountNumberAndChainId = createSelector(
       if (accountNumber !== accountMetadata[accountId].bip44Params.accountNumber) return false
       return true
     })
+  },
+)
+
+export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
+  selectAccountIdsByAssetIdAboveBalanceThresholdByFilter,
+  selectPortfolioFiatBalancesByAccountId,
+  selectPortfolioAccountBalancesBaseUnit,
+  selectAllEarnUserLpOpportunitiesByFilter,
+  selectAllEarnUserStakingOpportunitiesByFilter,
+  selectAssets,
+  selectMarketDataSortedByMarketCap,
+  selectAssetIdParamFromFilter,
+  (
+    accountIds,
+    portfolioFiatBalances,
+    portfolioCryptoBalancesBaseUnit,
+    lpOpportunities,
+    stakingOpportunities,
+    assets,
+    marketData,
+    assetId,
+  ): AssetEquityItem[] => {
+    if (!assetId) return []
+    const asset = assets[assetId]
+    const accounts = accountIds.map(accountId => {
+      const fiatAmount = bnOrZero(portfolioFiatBalances[accountId][assetId]).toString()
+      const cryptoAmountBaseUnit = bnOrZero(
+        portfolioCryptoBalancesBaseUnit[accountId][assetId],
+      ).toString()
+      const amountCryptoPrecision = fromBaseUnit(
+        bnOrZero(cryptoAmountBaseUnit),
+        asset?.precision ?? 0,
+      )
+      return {
+        id: accountId,
+        type: AssetEquityType.Account,
+        fiatAmount,
+        provider: 'wallet',
+        amountCryptoPrecision,
+        color: asset?.color,
+      }
+    })
+    const staking = stakingOpportunities.map(stakingOpportunity => {
+      // Because the underlying assets can have different precisions
+      // We need to convert it to the asset we are viewing to get correct amounts to sum together.
+      const underlyingAssetPrecision =
+        assets[stakingOpportunity.assetId]?.precision ?? asset?.precision
+      const cryptoAmountBaseUnit = convertPrecision({
+        value: bnOrZero(stakingOpportunity.cryptoAmountBaseUnit),
+        inputExponent: underlyingAssetPrecision,
+        outputExponent: asset?.precision ?? 0,
+      }).toString()
+      const amountCryptoPrecision = fromBaseUnit(
+        bnOrZero(cryptoAmountBaseUnit),
+        asset?.precision ?? 0,
+      )
+      return {
+        id: stakingOpportunity.id,
+        type: AssetEquityType.Staking,
+        fiatAmount: stakingOpportunity.fiatAmount,
+        amountCryptoPrecision,
+        underlyingAssetId: stakingOpportunity.underlyingAssetId,
+        provider: stakingOpportunity.provider,
+        color: DefiProviderMetadata[stakingOpportunity.provider].color,
+      }
+    })
+    const lp = lpOpportunities.map(lpOpportunity => {
+      const underlyingBalances = getUnderlyingAssetIdsBalances({
+        underlyingAssetIds: lpOpportunity.underlyingAssetIds,
+        underlyingAssetRatiosBaseUnit: lpOpportunity.underlyingAssetRatiosBaseUnit,
+        cryptoAmountBaseUnit: lpOpportunity.cryptoAmountBaseUnit,
+        assetId: lpOpportunity.id,
+        assets,
+        marketData,
+      })
+      return {
+        id: lpOpportunity.id,
+        type: AssetEquityType.LP,
+        fiatAmount: underlyingBalances[assetId].fiatAmount,
+        amountCryptoPrecision: underlyingBalances[assetId].cryptoBalancePrecision,
+        provider: lpOpportunity.provider,
+        color: DefiProviderMetadata[lpOpportunity.provider].color,
+      }
+    })
+    return accounts
+      .concat(lp)
+      .concat(staking)
+      .sort((a, b) => bnOrZero(b.fiatAmount).minus(a.fiatAmount).toNumber())
+  },
+)
+
+export const selectEquityTotalBalance = createDeepEqualOutputSelector(
+  selectAssetEquityItemsByFilter,
+  (assetEquities): AssetEquityBalance => {
+    const initial = {
+      fiatAmount: '0',
+      amountCryptoPrecision: '0',
+    }
+    return assetEquities.reduce(
+      (sum, item) => ({
+        fiatAmount: bnOrZero(item.fiatAmount).plus(bnOrZero(sum.fiatAmount)).toString(),
+        amountCryptoPrecision: bnOrZero(item.amountCryptoPrecision)
+          .plus(bnOrZero(sum.amountCryptoPrecision))
+          .toString(),
+      }),
+      initial,
+    )
   },
 )

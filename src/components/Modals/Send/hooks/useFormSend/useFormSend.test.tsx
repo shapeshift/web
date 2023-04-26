@@ -49,6 +49,7 @@ const mockEvmChainIds = [
   KnownChainIds.AvalancheMainnet,
   KnownChainIds.OptimismMainnet,
   KnownChainIds.BnbSmartChainMainnet,
+  KnownChainIds.PolygonMainnet,
 ]
 jest.mock('hooks/useEvm/useEvm', () => ({
   ...jest.requireActual('hooks/useEvm/useEvm'),

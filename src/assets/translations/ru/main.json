@@ -55,7 +55,6 @@
     "retryQuestion": "Повторить?",
     "transactionFailed": "Ошибка транзакции",
     "transactionFailedBody": "Сбой транзакции",
-    "liveSupport": "Поддержка",
     "submitFeedback": "Обратная связь",
     "send": "Отправить",
     "receive": "Получить",
@@ -1192,8 +1191,7 @@
       "errors": {
         "unknown": "Произошла непредвиденная ошибка при соединении с MetaMask",
         "connectFailure": "Невозможно подключиться к кошельку MetaMask",
-        "multipleWallets": "Обнаруженный Ethereum-провайдер не относится к MetaMask. У вас установлено несколько кошельков?",
-        "tallyInstalledAndSetToDefault": "Мы обнаружили, что у вас по умолчанию установлен Tally Ho. Если вы хотите использовать MetaMask вместо этого, пожалуйста, измените настройки в Tally Ho и обновите страницу."
+        "multipleWallets": "Обнаруженный Ethereum-провайдер не относится к MetaMask. У вас установлено несколько кошельков?"
       },
       "connect": {
         "header": "Подключить MetaMask",
@@ -1208,44 +1206,6 @@
         "header": "Открыто в приложении MetaMask",
         "body": "Нажмите, чтобы открыть приборную панель ShapeShift в MetaMask",
         "button": "Открыть"
-      }
-    },
-    "tallyHo": {
-      "errors": {
-        "unknown": "Возникла непредвиденная ошибка при взаимодействии с Tally Ho",
-        "connectFailure": "Невозможно подключить кошелек Tally Ho",
-        "network": "Tally Ho не настроена на Ethereum Mainnet",
-        "multipleWallets": "Обнаруженный поставщик Ethereum не является Tally Ho. У вас установлено несколько кошельков?",
-        "tallyNotInstalledOrSetToDefault": "Мы обнаружили, что Tally Ho либо не установлен, либо не установлен по умолчанию. Если вы хотите использовать Tally Ho, пожалуйста, установите его или установите его в качестве кошелька по умолчанию и обновите страницу."
-      },
-      "connect": {
-        "header": "Подключить Tally",
-        "body": "Нажмите Подключить и войдите в Tally Ho из всплывающего окна",
-        "button": "Подключить"
-      },
-      "failure": {
-        "header": "Ошибка",
-        "body": "Невозможно подключить кошелек Tally Ho"
-      },
-      "redirect": {
-        "header": "Открыть в приложении Tally Ho",
-        "body": "Нажмите, чтобы открыть информационную панель ShapeShift в Tally Ho",
-        "button": "Открыть"
-      }
-    },
-    "portis": {
-      "errors": {
-        "unknown": "Возникла непредвиденная ошибка при соединении с Portis",
-        "connectFailure": "Невозможно подключить кошелек Portis"
-      },
-      "connect": {
-        "header": "Подключить Portis",
-        "body": "Нажмите подключить, затем выберите Portis во всплывающем окне",
-        "button": "Подключить"
-      },
-      "failure": {
-        "header": "Ошибка",
-        "body": "Невозможно подключить кошелек Portis"
       }
     },
     "walletConnect": {

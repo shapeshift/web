@@ -15,6 +15,7 @@ import {
   ltcChainId,
   optimismChainId,
   osmosisChainId,
+  polygonChainId,
   thorchainChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
@@ -27,6 +28,7 @@ import {
   supportsCosmos,
   supportsETH,
   supportsOptimism,
+  supportsPolygon,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -62,6 +64,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case avalancheChainId:
     case optimismChainId:
     case ethChainId:
+    case polygonChainId:
     case bscChainId:
       // this will be the 0x account
       return firstFourLastFour(pubkey)
@@ -260,6 +263,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsOptimism(wallet)
     case bscChainId:
       return supportsBSC(wallet)
+    case polygonChainId:
+      return supportsPolygon(wallet)
     case btcChainId:
     case ltcChainId:
     case dogeChainId:
@@ -290,5 +295,5 @@ export const genericBalanceIncludingStakingByFilter = (
     }, {})
   return Object.values(totalByAccountId)
     .reduce((acc, accountBalance) => acc.plus(accountBalance), bn(0))
-    .toString()
+    .toFixed()
 }

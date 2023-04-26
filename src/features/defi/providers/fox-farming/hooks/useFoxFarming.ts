@@ -6,7 +6,7 @@ import {
   ETH_FOX_POOL_CONTRACT_ADDRESS,
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
 } from 'contracts/constants'
-import { getOrCreateContract } from 'contracts/contractManager'
+import { getOrCreateContractByAddress } from 'contracts/contractManager'
 import { useCallback, useMemo } from 'react'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -54,17 +54,17 @@ export const useFoxFarming = (
   const adapter = chainAdapterManager.get(ethAsset.chainId) as unknown as ethereum.ChainAdapter
 
   const uniswapRouterContract = useMemo(
-    () => (skip ? null : getOrCreateContract(UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS)),
+    () => (skip ? null : getOrCreateContractByAddress(UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS)),
     [skip],
   )
 
   const foxFarmingContract = useMemo(
-    () => (skip ? null : getOrCreateContract(contractAddress)),
+    () => (skip ? null : getOrCreateContractByAddress(contractAddress)),
     [contractAddress, skip],
   )
 
   const uniV2LPContract = useMemo(
-    () => (skip ? null : getOrCreateContract(ETH_FOX_POOL_CONTRACT_ADDRESS)),
+    () => (skip ? null : getOrCreateContractByAddress(ETH_FOX_POOL_CONTRACT_ADDRESS)),
     [skip],
   )
 
@@ -110,7 +110,7 @@ export const useFoxFarming = (
             }
             return await adapter.buildCustomTx({
               to: contractAddress,
-              value: '0x00',
+              value: '0',
               wallet,
               data,
               gasLimit,
@@ -214,7 +214,7 @@ export const useFoxFarming = (
             }
             return await adapter.buildCustomTx({
               to: contractAddress,
-              value: '0x00',
+              value: '0',
               wallet,
               data,
               gasLimit,
@@ -371,7 +371,7 @@ export const useFoxFarming = (
     }
     const result = await adapter.buildCustomTx({
       to: uniV2LPContract.address,
-      value: '0x00',
+      value: '0',
       wallet,
       data,
       gasLimit,
@@ -455,7 +455,7 @@ export const useFoxFarming = (
     }
     const result = await adapter.buildCustomTx({
       to: contractAddress,
-      value: '0x00',
+      value: '0',
       wallet,
       data,
       gasLimit,

@@ -44,7 +44,6 @@ export const getAssets = async (): Promise<Asset[]> => {
     ])
 
   const ethAssets = [
-    ethereum,
     foxyToken,
     ...ethTokens,
     ...yearnVaults,

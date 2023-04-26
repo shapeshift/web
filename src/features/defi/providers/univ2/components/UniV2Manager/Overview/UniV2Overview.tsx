@@ -17,9 +17,9 @@ import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectEarnUserLpOpportunity,
+  selectFiatBalanceIncludingStakingByFilter,
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByLpId,
-  selectPortfolioFiatBalanceByFilter,
   selectSelectedLocale,
   selectUnderlyingLpAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
@@ -70,8 +70,8 @@ export const UniV2Overview: React.FC<UniV2OverviewProps> = ({
   )
 
   const lpAsset = useMemo(
-    () => earnLpOpportunity?.underlyingAssetId && assets[earnLpOpportunity?.underlyingAssetId],
-    [assets, earnLpOpportunity?.underlyingAssetId],
+    () => earnLpOpportunity?.assetId && assets[earnLpOpportunity?.assetId],
+    [assets, earnLpOpportunity?.assetId],
   )
 
   const underlyingAssetsFiatBalanceFilter = useMemo(
@@ -83,7 +83,7 @@ export const UniV2Overview: React.FC<UniV2OverviewProps> = ({
   )
 
   const underlyingAssetsFiatBalance = useAppSelector(state =>
-    selectPortfolioFiatBalanceByFilter(state, underlyingAssetsFiatBalanceFilter),
+    selectFiatBalanceIncludingStakingByFilter(state, underlyingAssetsFiatBalanceFilter),
   )
 
   const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))

@@ -55,7 +55,6 @@
     "retryQuestion": "Wiederholen?",
     "transactionFailed": "Transaktion fehlgeschlagen",
     "transactionFailedBody": "Transaktion fehlgeschlagen",
-    "liveSupport": "Support",
     "submitFeedback": "Feedback senden",
     "send": "Senden",
     "receive": "Empfangen ",
@@ -1192,8 +1191,7 @@
       "errors": {
         "unknown": "Bei der Kommunikation mit MetaMask ist ein unerwarteter Fehler aufgetreten",
         "connectFailure": "MetaMask Wallet kann nicht verbunden werden",
-        "multipleWallets": "Erkannter Ethereum-Anbieter ist nicht MetaMask. Hast du mehrere Wallets installiert?",
-        "tallyInstalledAndSetToDefault": "Wir haben festgestellt, dass Sie Tally Ho installiert und auf Standard gesetzt haben. Wenn Sie stattdessen lieber MetaMask verwenden möchten, ändern Sie bitte die Einstellungen in Tally Ho und aktualisieren Sie die Seite."
+        "multipleWallets": "Erkannter Ethereum-Anbieter ist nicht MetaMask. Hast du mehrere Wallets installiert?"
       },
       "connect": {
         "header": "mit MetaMask verbinden",
@@ -1208,44 +1206,6 @@
         "header": "In der MetaMask Applikation \n öffnen",
         "body": "Klicken Sie hier, um das ShapeShift Dashboard in MetaMask zu öffnen",
         "button": "Öffnen"
-      }
-    },
-    "tallyHo": {
-      "errors": {
-        "unknown": "Bei der Kommunikation mit Tally Ho ist ein unerwarteter Fehler aufgetreten",
-        "connectFailure": "Tally Ho Wallet kann nicht verbunden werden",
-        "network": "Tally Ho ist nicht auf Ethereum Mainnet eingestellt",
-        "multipleWallets": "Erkannter Ethereum-Anbieter ist nicht Tally Ho. Hast du mehrere Wallets installiert?",
-        "tallyNotInstalledOrSetToDefault": "Wir haben festgestellt, dass Tally Ho entweder nicht installiert oder nicht auf Standard eingestellt ist. Wenn Sie Tally Ho verwenden möchten, installieren Sie es bitte oder legen Sie es als Ihre Standard-Wallet fest und aktualisieren Sie die Seite."
-      },
-      "connect": {
-        "header": "Tally koppeln",
-        "body": "Klicken Sie im Popup-Fenster auf Koppeln und melden Sie sich bei Tally Ho an",
-        "button": "Koppeln"
-      },
-      "failure": {
-        "header": "Fehler",
-        "body": "Tally Ho Wallet kann nicht verbunden werden"
-      },
-      "redirect": {
-        "header": "In der Tally Ho-App öffnen",
-        "body": "Klicken Sie hier, um das ShapeShift-Dashboard in Tally Ho zu öffnen",
-        "button": "Öffnen"
-      }
-    },
-    "portis": {
-      "errors": {
-        "unknown": "Bei der Kommunikation mit Portis ist ein unerwarteter Fehler aufgetreten",
-        "connectFailure": "Portis Wallet kann nicht verbunden werden"
-      },
-      "connect": {
-        "header": "Portis Koppeln",
-        "body": "Klicken Sie auf Koppeln und wählen Sie dann Portis aus dem Popup-Fenster aus",
-        "button": "Koppeln"
-      },
-      "failure": {
-        "header": "Fehler",
-        "body": "Portis Wallet kann nicht verbunden werden"
       }
     },
     "walletConnect": {

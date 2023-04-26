@@ -5,7 +5,6 @@ import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import * as native from '@shapeshiftoss/hdwallet-native'
-import type { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import type { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
@@ -86,11 +85,10 @@ const initialDeviceState: DeviceState = {
   isUpdatingPin: false,
   isDeviceLoading: false,
 }
-export type MetaMaskLikeProvider = providers.Web3Provider & { isTally?: boolean }
+export type MetaMaskLikeProvider = providers.Web3Provider
 
 // A subset of wallets which have an EIP-1193-like provider
 export type KeyManagerWithProvider =
-  | KeyManager.TallyHo
   | KeyManager.XDefi
   | KeyManager.MetaMask
   | KeyManager.WalletConnect
@@ -140,12 +138,7 @@ export const isKeyManagerWithProvider = (
 ): keyManager is KeyManagerWithProvider =>
   Boolean(
     keyManager &&
-      [
-        KeyManager.TallyHo,
-        KeyManager.XDefi,
-        KeyManager.MetaMask,
-        KeyManager.WalletConnect,
-      ].includes(keyManager),
+      [KeyManager.XDefi, KeyManager.MetaMask, KeyManager.WalletConnect].includes(keyManager),
   )
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -167,7 +160,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           deviceId,
           meta: {
             label: action.payload.meta?.label ?? '',
-            address: (action.payload.wallet as MetaMaskHDWallet | PortisHDWallet).ethAddress ?? '',
+            address: (action.payload.wallet as MetaMaskHDWallet).ethAddress ?? '',
           },
         },
       }
@@ -334,12 +327,6 @@ const reducer = (state: InitialState, action: ActionTypes) => {
 const getInitialState = () => {
   const localWalletType = getLocalWalletType()
   const localWalletDeviceId = getLocalWalletDeviceId()
-  //Handle Tally Default bug - When user toggles TallyHo default button before disconnecting connected wallet
-  if (
-    (localWalletType === 'metamask' && (window?.ethereum as MetaMaskLikeProvider)?.isTally) ||
-    (localWalletType === 'tallyho' && window?.ethereum?.isMetaMask)
-  )
-    return initialState
   if (localWalletType && localWalletDeviceId) {
     /**
      * set isLoadingLocalWallet->true to bypass splash screen
@@ -476,41 +463,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
-            case KeyManager.Portis:
-              const localPortisWallet = await state.adapters
-                .get(KeyManager.Portis)?.[0]
-                ?.pairDevice()
-              if (localPortisWallet) {
-                const { name, icon } = SUPPORTED_WALLETS[KeyManager.Portis]
-                try {
-                  await localPortisWallet.initialize()
-                  const deviceId = await localPortisWallet.getDeviceID()
-                  dispatch({
-                    type: WalletActions.SET_WALLET,
-                    payload: {
-                      wallet: localPortisWallet,
-                      name,
-                      icon,
-                      deviceId,
-                    },
-                  })
-                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-                } catch (e) {
-                  disconnect()
-                }
-              } else {
-                disconnect()
-              }
-              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-              break
             case KeyManager.MetaMask:
-              //Handle refresh bug - when a user changes TallyHo to default, is connected to MM and refreshs the page
-              if (
-                localWalletType === 'metamask' &&
-                (window?.ethereum as MetaMaskLikeProvider)?.isTally
-              )
-                disconnect()
-
               const localMetaMaskWallet = await state.adapters
                 .get(KeyManager.MetaMask)?.[0]
                 ?.pairDevice()
@@ -529,35 +482,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                     },
                   })
                   dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
-                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-                } catch (e) {
-                  disconnect()
-                }
-              } else {
-                disconnect()
-              }
-              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-              break
-            case KeyManager.TallyHo:
-              //Handle refresh bug - when a user changes TallyHo from default, is connected to TallyHo and refreshs the page
-              if (localWalletType === 'tallyho' && window?.ethereum?.isMetaMask) disconnect()
-              const localTallyHoWallet = await state.adapters
-                .get(KeyManager.TallyHo)?.[0]
-                ?.pairDevice()
-              if (localTallyHoWallet) {
-                const { name, icon } = SUPPORTED_WALLETS[KeyManager.TallyHo]
-                try {
-                  await localTallyHoWallet.initialize()
-                  const deviceId = await localTallyHoWallet.getDeviceID()
-                  dispatch({
-                    type: WalletActions.SET_WALLET,
-                    payload: {
-                      wallet: localTallyHoWallet,
-                      name,
-                      icon,
-                      deviceId,
-                    },
-                  })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } catch (e) {
                   disconnect()
@@ -712,7 +636,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       if (!walletType) return
       try {
         const maybeProvider = await (async (): Promise<InitialState['provider']> => {
-          if ([KeyManager.MetaMask, KeyManager.TallyHo].includes(walletType)) {
+          if (KeyManager.MetaMask === walletType) {
             return (await detectEthereumProvider()) as MetaMaskLikeProvider
           }
           if (walletType === KeyManager.XDefi) {
@@ -764,17 +688,12 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         const adapters: Adapters = new Map()
         for (const keyManager of Object.values(KeyManager)) {
           try {
-            type KeyManagerOptions =
-              | undefined
-              | { portisAppId: string }
-              | WalletConnectProviderConfig
+            type KeyManagerOptions = undefined | WalletConnectProviderConfig
 
             type GetKeyManagerOptions = (keyManager: KeyManager) => KeyManagerOptions
 
             const getKeyManagerOptions: GetKeyManagerOptions = keyManager => {
               switch (keyManager) {
-                case 'portis':
-                  return { portisAppId: getConfig().REACT_APP_PORTIS_DAPP_ID }
                 case 'walletconnect':
                   return {
                     rpc: {

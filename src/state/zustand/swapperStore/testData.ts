@@ -1,8 +1,8 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { Swapper } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import { ETH, FOX } from 'test/constants'
 import { TradeAmountInputField } from 'components/Trade/types'
+import type { Swapper } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 import type { SwapperAction, SwapperState } from 'state/zustand/swapperStore/types'
 
 const mockActions: SwapperAction = {

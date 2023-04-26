@@ -1,8 +1,9 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS } from 'contracts/constants'
+import { ethers } from 'ethers'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type {
@@ -19,7 +20,6 @@ import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUn
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
-import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -53,7 +53,6 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()
   const mixpanel = getMixPanel()
-  const { lpAccountId } = useFoxEth()
 
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
@@ -78,8 +77,8 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
 
-  const { approve, allowance, getWithdrawGasData } = useUniV2LiquidityPool({
-    accountId: lpAccountId ?? '',
+  const { approveAsset, lpAllowance, getWithdrawGasData } = useUniV2LiquidityPool({
+    accountId: accountId ?? '',
     assetId0: lpOpportunity?.underlyingAssetIds[0] ?? '',
     assetId1: lpOpportunity?.underlyingAssetIds[1] ?? '',
     lpAssetId,
@@ -105,25 +104,34 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const toast = useToast()
 
   const handleApprove = useCallback(async () => {
-    if (!dispatch || !state?.withdraw || !lpOpportunity || !wallet || !supportsETH(wallet)) return
+    if (
+      !dispatch ||
+      !lpAsset ||
+      !state?.withdraw ||
+      !lpOpportunity ||
+      !wallet ||
+      !supportsETH(wallet)
+    )
+      return
 
     try {
       dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: true })
-      await approve(true)
+      const lpAssetContractAddress = ethers.utils.getAddress(fromAssetId(lpAssetId).assetReference)
+      await approveAsset(lpAssetContractAddress)
       await poll({
-        fn: () => allowance(true),
+        fn: () => lpAllowance(),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(bn(10).pow(asset1.precision))
-          return bnOrZero(allowance).gte(bnOrZero(state.withdraw.lpAmount))
+          const lpAllowance = bnOrZero(result).div(bn(10).pow(lpAsset.precision))
+          return bnOrZero(lpAllowance).gte(bnOrZero(state.withdraw.lpAmount))
         },
         interval: 15000,
         maxAttempts: 30,
       })
-      // Get deposit gas estimate
+      // Get withdraw gas estimate
       const gasData = await getWithdrawGasData(
         state.withdraw.lpAmount,
-        state.withdraw.asset1Amount,
         state.withdraw.asset0Amount,
+        state.withdraw.asset1Amount,
       )
       if (!gasData) return
       const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
@@ -145,7 +153,10 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
+      moduleLogger.error(
+        { fn: 'handleApprove', error },
+        'Error getting withdraw approval gas estimate',
+      )
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -157,16 +168,17 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     }
   }, [
     dispatch,
+    lpAsset,
     state?.withdraw,
     lpOpportunity,
     wallet,
-    approve,
+    approveAsset,
+    lpAssetId,
     getWithdrawGasData,
     feeAsset.precision,
     onNext,
     assets,
-    allowance,
-    asset1.precision,
+    lpAllowance,
     toast,
     translate,
   ])

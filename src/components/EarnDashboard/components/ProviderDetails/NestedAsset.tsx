@@ -36,10 +36,10 @@ export const NestedAsset: React.FC<NestedAssetProps> = ({
     const claimableElement = <Text color='green.200' translation='common.claimable' />
     const subText = [typeElement, ...(isClaimableRewards ? [claimableElement] : [])]
     return subText.map((element, index) => (
-      <>
+      <Flex gap={1} alignItems='center' key={`subText-${index}`}>
         {index > 0 && <RawText>•</RawText>}
         {element}
-      </>
+      </Flex>
     ))
   }, [isClaimableRewards, type])
 

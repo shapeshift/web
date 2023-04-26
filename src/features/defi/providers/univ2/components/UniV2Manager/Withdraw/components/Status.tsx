@@ -93,12 +93,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         payload: {
           txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
           usedGasFeeCryptoPrecision: confirmedTransaction.fee
-            ? bnOrZero(confirmedTransaction.fee.value).div(bn(10).pow(asset0.precision)).toString()
+            ? bnOrZero(confirmedTransaction.fee.value).div(bn(10).pow(lpAsset.precision)).toFixed()
             : '0',
         },
       })
     }
-  }, [confirmedTransaction, dispatch, asset0.precision])
+  }, [confirmedTransaction, dispatch, asset0.precision, lpAsset.precision])
 
   const handleViewPosition = () => {
     browserHistory.push('/earn')

@@ -63,7 +63,7 @@ export const marketData = createSlice({
       reducer: (state, { payload }: { payload: MarketDataById<AssetId> }) => {
         state.crypto.byId = merge(state.crypto.byId, payload) // upsert
         // upsert unique
-        state.crypto.ids = Array.from(new Set(state.crypto.ids.concat(Object.keys(payload))))
+        state.crypto.ids = Object.keys(state.crypto.byId)
       },
 
       // Use the `prepareAutoBatched` utility to automatically

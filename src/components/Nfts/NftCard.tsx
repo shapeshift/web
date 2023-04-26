@@ -16,8 +16,8 @@ import { DiamondIcon } from 'components/Icons/DiamondIcon'
 import { useModal } from 'hooks/useModal/useModal'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import type { V2ZapperNft } from 'state/apis/zapper/client'
-import { getMediaType } from 'state/apis/zapper/client'
+import type { V2ZapperNft } from 'state/apis/zapper/validators'
+import { getMediaType } from 'state/apis/zapper/validators'
 
 type NftCardProps = {
   zapperNft: V2ZapperNft

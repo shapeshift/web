@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
 import { markdownLinkToHTML } from 'lib/utils'
-import type { V2NftCollectionType } from 'state/apis/zapper/client'
+import type { V2NftCollectionType } from 'state/apis/zapper/validators'
 
 type NftCollectionProps = {
   zapperCollection?: V2NftCollectionType[]

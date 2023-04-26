@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -93,6 +94,8 @@ export const ClaimConfirm = ({
     if (!(walletState.wallet && contractAddress && userAddress && foxyApi && bip44Params)) return
     setLoading(true)
     try {
+      if (!supportsETH(walletState.wallet))
+        throw new Error(`handleConfirm: wallet does not support ethereum`)
       const txid = await foxyApi.claimWithdraw({
         claimAddress: userAddress,
         userAddress,
@@ -140,23 +143,29 @@ export const ClaimConfirm = ({
       try {
         const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
         if (!(walletState.wallet && contractAddress && foxyApi && chainAdapter)) return
+        if (!supportsETH(walletState.wallet))
+          throw new Error(`ClaimConfirm::useEffect: wallet does not support ethereum`)
+
         const { accountNumber } = bip44Params
         const userAddress = await chainAdapter.getAddress({
           wallet: walletState.wallet,
           accountNumber,
         })
         setUserAddress(userAddress)
-        const [gasLimit, gasPrice, canClaimWithdraw] = await Promise.all([
-          foxyApi.estimateClaimWithdrawGas({
+        const [feeDataEstimate, canClaimWithdraw] = await Promise.all([
+          foxyApi.estimateClaimWithdrawFees({
             claimAddress: userAddress,
             userAddress,
             contractAddress,
             wallet: walletState.wallet,
             bip44Params,
           }),
-          foxyApi.getGasPrice(),
           foxyApi.canClaimWithdraw({ contractAddress, userAddress }),
         ])
+
+        const {
+          chainSpecific: { gasPrice, gasLimit },
+        } = feeDataEstimate.fast
 
         setCanClaim(canClaimWithdraw)
         const gasEstimate = bnOrZero(gasPrice).times(gasLimit).toFixed(0)

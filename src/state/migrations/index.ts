@@ -32,4 +32,5 @@ export const migrations = {
   15: clearOpportunitiesAgain,
   16: clearOpportunitiesAgain,
   17: clearOpportunitiesAgain,
+  18: clearOpportunitiesAgain,
 }

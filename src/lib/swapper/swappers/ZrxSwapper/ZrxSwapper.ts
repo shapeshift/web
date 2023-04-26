@@ -86,12 +86,12 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     }
   }
 
-  buildTrade(args: BuildTradeInput): Promise<Result<ZrxTrade<T>, SwapErrorRight>> {
-    return zrxBuildTrade<T>(this.deps, args)
+  buildTrade(input: BuildTradeInput): Promise<Result<ZrxTrade<T>, SwapErrorRight>> {
+    return zrxBuildTrade<T>(this.deps, input)
   }
 
   getTradeQuote(input: GetEvmTradeQuoteInput): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
-    return getZrxTradeQuote<T>(input)
+    return getZrxTradeQuote<T>(this.deps, input)
   }
 
   getUsdRate(input: Asset): Promise<string> {

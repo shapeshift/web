@@ -1,6 +1,6 @@
-import type { AbiItem } from 'web3-utils'
+import type { ContractInterface } from 'ethers'
 
-export const tokePoolAbi: AbiItem[] = [
+export const tokePoolAbi: ContractInterface = [
   {
     anonymous: false,
     inputs: [

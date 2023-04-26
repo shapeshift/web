@@ -1,6 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
@@ -68,17 +69,18 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     async (deposit: DepositValues) => {
       if (!accountAddress || !assetReference || !foxyApi) return
       try {
-        const [gasLimit, gasPrice] = await Promise.all([
-          foxyApi.estimateDepositGas({
-            tokenContractAddress: assetReference,
-            contractAddress,
-            amountDesired: bnOrZero(deposit.cryptoAmount)
-              .times(bn(10).pow(asset.precision))
-              .decimalPlaces(0),
-            userAddress: accountAddress,
-          }),
-          foxyApi.getGasPrice(),
-        ])
+        const feeDataEstimate = await foxyApi.estimateDepositFees({
+          tokenContractAddress: assetReference,
+          contractAddress,
+          amountDesired: bnOrZero(deposit.cryptoAmount)
+            .times(bn(10).pow(asset.precision))
+            .decimalPlaces(0),
+          userAddress: accountAddress,
+        })
+
+        const {
+          chainSpecific: { gasPrice, gasLimit },
+        } = feeDataEstimate.fast
         return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
       } catch (error) {
         moduleLogger.error(
@@ -111,6 +113,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       return
     try {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
+
+      if (!supportsETH(walletState.wallet))
+        throw new Error(`handleApprove: wallet does not support ethereum`)
+
       await foxyApi.approve({
         tokenContractAddress: assetReference,
         contractAddress,

@@ -1,4 +1,3 @@
-// import { JsonRpcProvider } from '@ethersproject/providers'
 import { Logger } from '@shapeshiftoss/logger'
 import type {
   FindAllMarketArgs,

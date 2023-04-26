@@ -10,6 +10,7 @@ import {
   Divider,
   Flex,
   Link,
+  Skeleton,
   Stack,
   StackDivider,
   useColorModeValue,
@@ -467,6 +468,7 @@ export const TradeConfirm = () => {
             slippage={slippage}
             fiatAmount={positiveOrZero(fiatBuyAmount).toFixed(2)}
             swapperName={swapper?.name ?? ''}
+            isLoading={isReloadingTrade}
           />
         </Stack>
       ) : null,
@@ -481,6 +483,7 @@ export const TradeConfirm = () => {
       slippage,
       fiatBuyAmount,
       swapper?.name,
+      isReloadingTrade,
     ],
   )
 
@@ -548,14 +551,16 @@ export const TradeConfirm = () => {
                       <Text translation='trade.rate' />
                     </Row.Label>
                   </HelperTooltip>
-                  <Box textAlign='right'>
-                    <RawText>{`1 ${trade.sellAsset.symbol} = ${firstNonZeroDecimal(
-                      bnOrZero(trade.rate),
-                    )} ${trade.buyAsset?.symbol}`}</RawText>
-                    {!!fees?.tradeFeeSource && (
-                      <RawText color='gray.500'>@{fees?.tradeFeeSource}</RawText>
-                    )}
-                  </Box>
+                  <Skeleton isLoaded={!isReloadingTrade}>
+                    <Box textAlign='right'>
+                      <RawText>{`1 ${trade.sellAsset.symbol} = ${firstNonZeroDecimal(
+                        bnOrZero(trade.rate),
+                      )} ${trade.buyAsset?.symbol}`}</RawText>
+                      {!!fees?.tradeFeeSource && (
+                        <RawText color='gray.500'>@{fees?.tradeFeeSource}</RawText>
+                      )}
+                    </Box>
+                  </Skeleton>
                 </Row>
                 <Row>
                   <HelperTooltip label={translate('trade.tooltip.minerFee')}>

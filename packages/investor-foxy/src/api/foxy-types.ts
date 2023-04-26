@@ -1,8 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params, WithdrawType } from '@shapeshiftoss/types'
+import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import type { BIP44Params, KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
-import type { Contract } from 'web3-eth-contract'
+import type { Contract } from 'ethers'
 
 export type FoxyAddressesType = {
   staking: string
@@ -27,10 +28,10 @@ export type ApproveInput = {
   tokenContractAddress: string
   contractAddress: string
   userAddress: string
-  wallet: HDWallet
+  wallet: ETHWallet
 }
 
-export type EstimateGasApproveInput = Pick<
+export type EstimateApproveFeesInput = Pick<
   ApproveInput,
   'userAddress' | 'tokenContractAddress' | 'contractAddress'
 >
@@ -41,7 +42,7 @@ export type TxInput = {
   tokenContractAddress?: string
   userAddress: string
   contractAddress: string
-  wallet: HDWallet
+  wallet: ETHWallet
   amountDesired: BigNumber
 }
 
@@ -57,7 +58,7 @@ export type WithdrawInput = Omit<TxInput, 'amountDesired'> & {
   amountDesired?: BigNumber
 }
 
-export type WithdrawEstimateGasInput = Omit<WithdrawInput, 'wallet'>
+export type EstimateWithdrawFeesInput = Omit<WithdrawInput, 'wallet'>
 
 export type FoxyOpportunityInputData = {
   tvl: BigNumber
@@ -69,7 +70,7 @@ export type FoxyOpportunityInputData = {
   liquidityReserve: string
 }
 
-export type EstimateGasTxInput = Pick<
+export type EstimateFeesTxInput = Pick<
   TxInput,
   'tokenContractAddress' | 'contractAddress' | 'userAddress' | 'amountDesired'
 >
@@ -102,16 +103,14 @@ export type SignAndBroadcastPayload = {
   bip44Params: BIP44Params
   chainId: number
   data: string
-  estimatedGas: string
-  gasPrice: string
-  nonce: string
+  estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>
   to: string
   value: string
 }
 
 export type SignAndBroadcastTx = {
   payload: SignAndBroadcastPayload
-  wallet: HDWallet
+  wallet: ETHWallet
   dryRun: boolean
 }
 

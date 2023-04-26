@@ -134,7 +134,9 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
     chainSpecific: {
       estimatedGasCryptoBaseUnit: '100000',
       gasPriceCryptoBaseUnit: '79036500000',
-      approvalFeeCryptoBaseUnit: '7903650000000000',
+      approvalFeeCryptoBaseUnit: '4080654495000000',
+      maxFeePerGas: '216214758112',
+      maxPriorityFeePerGas: '2982734547',
     },
     buyAssetTradeFeeUsd: '0',
     sellAssetTradeFeeUsd: '17.95954294012756741283729339486489192096',
@@ -157,7 +159,9 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
     chainSpecific: {
       estimatedGasCryptoBaseUnit: '100000',
       gasPriceCryptoBaseUnit: '79036500000',
-      approvalFeeCryptoBaseUnit: '7903650000000000',
+      approvalFeeCryptoBaseUnit: '4080654495000000',
+      maxFeePerGas: '216214758112',
+      maxPriorityFeePerGas: '2982734547',
     },
     buyAssetTradeFeeUsd: '0',
     sellAssetTradeFeeUsd: '5.3955565850972847808512',
@@ -180,7 +184,9 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
     chainSpecific: {
       estimatedGasCryptoBaseUnit: '100000',
       gasPriceCryptoBaseUnit: '79036500000',
-      approvalFeeCryptoBaseUnit: '7903650000000000',
+      approvalFeeCryptoBaseUnit: '4080654495000000',
+      maxFeePerGas: '216214758112',
+      maxPriorityFeePerGas: '2982734547',
     },
     buyAssetTradeFeeUsd: '0',
     sellAssetTradeFeeUsd: '1.79595429401274711874033728120645035672',

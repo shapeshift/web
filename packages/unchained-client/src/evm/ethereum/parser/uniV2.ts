@@ -23,12 +23,11 @@ export interface TxMetadata extends BaseTxMetadata {
 
 export interface ParserArgs {
   chainId: ChainId
-  provider: ethers.providers.JsonRpcProvider
+  provider: ethers.providers.JsonRpcBatchProvider
 }
 
 export class Parser implements SubParser<Tx> {
-  provider: ethers.providers.JsonRpcProvider
-
+  provider: ethers.providers.JsonRpcBatchProvider
   readonly chainId: ChainId
   readonly wethContract: string
   readonly abiInterface = new ethers.utils.Interface(UNIV2_ABI)

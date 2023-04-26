@@ -53,7 +53,6 @@ type DepositProps = {
   onBack?(): void
   onCancel(): void
   underlyingAssetRatiosBaseUnit: LpEarnOpportunityType['underlyingAssetRatiosBaseUnit']
-  syncPair?: boolean
   icons?: string[]
 }
 
@@ -92,7 +91,6 @@ export const PairDeposit = ({
   onAccountIdChange: handleAccountIdChange,
   onContinue,
   percentOptions,
-  syncPair = true,
   icons,
 }: DepositProps) => {
   const translate = useTranslate()
@@ -203,36 +201,32 @@ export const PairDeposit = ({
     [calculateOtherAssetAmount, marketData0, marketData1, setValue],
   )
 
-  const handlePercentClick = useCallback(
-    (percent: number, isForAsset0: boolean) => {
-      const assetMarketData = isForAsset0 ? marketData0 : marketData1
-      const fiatField = isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
-      const cryptoField = isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
-      const cryptoAmount = bnOrZero(
-        isForAsset0 ? cryptoAmountAvailable0 : cryptoAmountAvailable1,
-      ).times(percent)
-      const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
-      setValue(fiatField, fiatAmount.toString(), {
-        shouldValidate: true,
-      })
-      setValue(cryptoField, cryptoAmount.toString(), {
-        shouldValidate: true,
-      })
-      if (syncPair) {
-        // for keeping inputs synced
-        const otherFiatInput = !isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
-        const otherCryptoInput = !isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
-        const otherAssetMarketData = !isForAsset0 ? marketData0 : marketData1
-        setValue(otherFiatInput, fiatAmount.toString(), {
-          shouldValidate: true,
-        })
-        setValue(otherCryptoInput, fiatAmount.div(otherAssetMarketData.price).toString(), {
-          shouldValidate: true,
-        })
-      }
-    },
-    [cryptoAmountAvailable0, cryptoAmountAvailable1, marketData0, marketData1, setValue, syncPair],
-  )
+  const handlePercentClick = (percent: number, isForAsset0: boolean) => {
+    const assetMarketData = isForAsset0 ? marketData0 : marketData1
+    const fiatField = isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
+    const cryptoField = isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
+
+    const otherFiatInput = !isForAsset0 ? Field.FiatAmount0 : Field.FiatAmount1
+    const otherCryptoInput = !isForAsset0 ? Field.CryptoAmount0 : Field.CryptoAmount1
+    const otherAssetMarketData = !isForAsset0 ? marketData0 : marketData1
+
+    const cryptoAmount = bnOrZero(
+      isForAsset0 ? cryptoAmountAvailable0 : cryptoAmountAvailable1,
+    ).times(percent)
+    const fiatAmount = bnOrZero(cryptoAmount).times(assetMarketData.price)
+    setValue(fiatField, fiatAmount.toString(), {
+      shouldValidate: true,
+    })
+    setValue(cryptoField, cryptoAmount.toString(), {
+      shouldValidate: true,
+    })
+
+    const otherCryptoValue = calculateOtherAssetAmount(cryptoAmount.toString(), isForAsset0)
+    setValue(otherCryptoInput, otherCryptoValue, { shouldValidate: true })
+
+    const otherFiatValue = bnOrZero(otherCryptoValue).times(otherAssetMarketData.price).toString()
+    setValue(otherFiatInput, otherFiatValue, { shouldValidate: true })
+  }
 
   const onSubmit = (values: DepositValues) => {
     onContinue(values)

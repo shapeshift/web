@@ -1,6 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
@@ -67,19 +68,21 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       if (!(rewardId && userAddress && state?.withdraw && foxyApi && dispatch && bip44Params))
         return
       try {
-        const [gasLimit, gasPrice] = await Promise.all([
-          foxyApi.estimateWithdrawGas({
-            tokenContractAddress: rewardId,
-            contractAddress,
-            amountDesired: bnOrZero(
-              bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
-            ).decimalPlaces(0),
-            userAddress,
-            type: state.withdraw.withdrawType,
-            bip44Params,
-          }),
-          foxyApi.getGasPrice(),
-        ])
+        const feeDataEstimate = await foxyApi.estimateWithdrawFees({
+          tokenContractAddress: rewardId,
+          contractAddress,
+          amountDesired: bnOrZero(
+            bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
+          ).decimalPlaces(0),
+          userAddress,
+          type: state.withdraw.withdrawType,
+          bip44Params,
+        })
+
+        const {
+          chainSpecific: { gasPrice, gasLimit },
+        } = feeDataEstimate.fast
+
         const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
         return returVal
       } catch (error) {
@@ -123,7 +126,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       )
     )
       return
+
     try {
+      if (!supportsETH(walletState.wallet))
+        throw new Error(`handleApprove: wallet does not support ethereum`)
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
       await foxyApi.approve({
         tokenContractAddress: rewardId,

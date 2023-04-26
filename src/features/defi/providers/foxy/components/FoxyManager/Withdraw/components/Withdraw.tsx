@@ -104,14 +104,16 @@ export const Withdraw: React.FC<
         if (!accountAddress) return
 
         try {
-          const [gasLimit, gasPrice] = await Promise.all([
-            foxyApi.estimateApproveGas({
-              tokenContractAddress: rewardId,
-              contractAddress,
-              userAddress: accountAddress,
-            }),
-            foxyApi.getGasPrice(),
-          ])
+          const feeDataEstimate = await foxyApi.estimateApproveFees({
+            tokenContractAddress: rewardId,
+            contractAddress,
+            userAddress: accountAddress,
+          })
+
+          const {
+            chainSpecific: { gasPrice, gasLimit },
+          } = feeDataEstimate.fast
+
           return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
         } catch (error) {
           moduleLogger.error(error, { fn: 'getApproveEstimate' }, 'getApproveEstimate error')
@@ -128,19 +130,21 @@ export const Withdraw: React.FC<
         if (!accountAddress) return
 
         try {
-          const [gasLimit, gasPrice] = await Promise.all([
-            foxyApi.estimateWithdrawGas({
-              tokenContractAddress: rewardId,
-              contractAddress,
-              amountDesired: bnOrZero(
-                bn(withdraw.cryptoAmount).times(bn(10).pow(asset.precision)),
-              ).decimalPlaces(0),
-              userAddress: accountAddress,
-              type: withdraw.withdrawType,
-              bip44Params,
-            }),
-            foxyApi.getGasPrice(),
-          ])
+          const feeDataEstimate = await foxyApi.estimateWithdrawFees({
+            tokenContractAddress: rewardId,
+            contractAddress,
+            amountDesired: bnOrZero(
+              bn(withdraw.cryptoAmount).times(bn(10).pow(asset.precision)),
+            ).decimalPlaces(0),
+            userAddress: accountAddress,
+            type: withdraw.withdrawType,
+            bip44Params,
+          })
+
+          const {
+            chainSpecific: { gasPrice, gasLimit },
+          } = feeDataEstimate.fast
+
           return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
         } catch (error) {
           moduleLogger.error(

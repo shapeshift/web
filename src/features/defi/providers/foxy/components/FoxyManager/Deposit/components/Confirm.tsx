@@ -1,6 +1,8 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { ethers } from 'ethers'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -8,7 +10,6 @@ import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManage
 import isNil from 'lodash/isNil'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -81,33 +82,36 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       return
     try {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
-      const [txid, gasPrice] = await Promise.all([
-        foxyApi.deposit({
-          amountDesired: bnOrZero(state?.deposit.cryptoAmount)
-            .times(bn(10).pow(asset.precision))
-            .decimalPlaces(0),
-          tokenContractAddress: assetReference,
-          userAddress: accountAddress,
-          contractAddress,
-          wallet: walletState.wallet,
-          bip44Params,
-        }),
-        foxyApi.getGasPrice(),
-      ])
+
+      if (!supportsETH(walletState.wallet))
+        throw new Error(`handleDeposit: wallet does not support ethereum`)
+
+      const txid = await foxyApi.deposit({
+        amountDesired: bnOrZero(state?.deposit.cryptoAmount)
+          .times(bn(10).pow(asset.precision))
+          .decimalPlaces(0),
+        tokenContractAddress: assetReference,
+        userAddress: accountAddress,
+        contractAddress,
+        wallet: walletState.wallet,
+        bip44Params,
+      })
       dispatch({ type: FoxyDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
 
       const transactionReceipt = await poll({
         fn: () => foxyApi.getTxReceipt({ txid }),
-        validate: (result: TransactionReceipt) => !isNil(result),
+        validate: (result: ethers.providers.TransactionReceipt) => !isNil(result),
         interval: 15000,
         maxAttempts: 30,
       })
       dispatch({
         type: FoxyDepositActionType.SET_DEPOSIT,
         payload: {
-          txStatus: transactionReceipt.status === true ? 'success' : 'failed',
-          usedGasFeeCryptoBaseUnit: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
+          txStatus: transactionReceipt.status ? 'success' : 'failed',
+          usedGasFeeCryptoBaseUnit: transactionReceipt.effectiveGasPrice
+            .mul(transactionReceipt.gasUsed)
+            .toString(),
         },
       })
     } catch (error) {

@@ -1,8 +1,7 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type { ethereum, EvmChainId, FeeData } from '@shapeshiftoss/chain-adapters'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import {
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
   WETH_TOKEN_CONTRACT_ADDRESS,
@@ -10,11 +9,11 @@ import {
 import { getOrCreateContractByAddress, getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
+import { buildAndBroadcast, getFeeDataFromEstimate } from 'features/defi/helpers/utils'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
 import type { Address } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -52,7 +51,6 @@ export const useUniV2LiquidityPool = ({
   assetId1: AssetId
   lpAssetId: AssetId
 } & UseUniV2LiquidityPoolOptions) => {
-  const { supportedEvmChainIds } = useEvm()
   const assetId0OrWeth = assetId0 === ethAssetId ? wethAssetId : assetId0
   const assetId1OrWeth = assetId1 === ethAssetId ? wethAssetId : assetId1
 
@@ -67,16 +65,15 @@ export const useUniV2LiquidityPool = ({
   if (!weth) throw new Error(`Asset not found for AssetId ${wethAssetId}`)
 
   const filter = useMemo(() => ({ accountId }), [accountId])
-
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
-
-  const {
-    state: { wallet },
-  } = useWallet()
+  const wallet = useWallet().state.wallet
   const asset0Price = useAppSelector(state => selectMarketDataById(state, assetId0OrWeth)).price
 
   const chainAdapterManager = getChainAdapterManager()
-  const adapter = chainAdapterManager.get(ethChainId) as unknown as ethereum.ChainAdapter
+  const adapter = chainAdapterManager.get(ethChainId) as unknown as
+    | ethereum.ChainAdapter
+    | undefined
+
   const uniswapRouterContract = useMemo(
     () => (skip ? null : getOrCreateContractByAddress(UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS)),
     [skip],
@@ -193,24 +190,23 @@ export const useUniV2LiquidityPool = ({
       try {
         if (skip || !accountId || !isNumber(accountNumber) || !uniswapRouterContract || !wallet)
           return
-        if (!adapter) throw new Error(`addLiquidity: no adapter available for ${asset0.chainId}`)
+
+        if (!adapter) throw new Error(`no adapter available for ${asset0.chainId}`)
+
         const maybeEthAmount = (() => {
           if (assetId0OrWeth === wethAssetId) return token0Amount
           if (assetId1OrWeth === wethAssetId) return token1Amount
           return '0'
         })()
+
         const value = bnOrZero(maybeEthAmount)
           .times(bn(10).exponentiatedBy(weth.precision))
           .toFixed(0)
 
-        const data = makeAddLiquidityData({
-          token0Amount,
-          token1Amount,
-        })
-
-        const adapterType = adapter.getChainId()
+        const data = makeAddLiquidityData({ token0Amount, token1Amount })
         const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-        const estimatedFees = await adapter.getFeeData({
+
+        const feeData = await adapter.getFeeData({
           to: contractAddress,
           value,
           chainSpecific: {
@@ -218,71 +214,20 @@ export const useUniV2LiquidityPool = ({
             from: fromAccountId(accountId).account,
           },
         })
-        const result = await (async () => {
-          if (supportedEvmChainIds.includes(adapterType)) {
-            if (!supportsETH(wallet))
-              throw new Error(`addLiquidity: wallet does not support ethereum`)
-            const fees = estimatedFees.fast as FeeData<EvmChainId>
-            const {
-              chainSpecific: {
-                gasPrice,
-                gasLimit: gasLimitBase,
-                maxFeePerGas,
-                maxPriorityFeePerGas,
-              },
-            } = fees
 
-            const gasLimit = bnOrZero(gasLimitBase).times(1.1).toFixed(0)
-            const shouldUseEIP1559Fees =
-              (await wallet.ethSupportsEIP1559()) &&
-              maxFeePerGas !== undefined &&
-              maxPriorityFeePerGas !== undefined
-            if (!shouldUseEIP1559Fees && gasPrice === undefined) {
-              throw new Error(`addLiquidity: missing gasPrice for non-EIP-1559 tx`)
-            }
-            const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-            return await adapter.buildCustomTx({
-              to: contractAddress,
-              value,
-              wallet,
-              data,
-              gasLimit,
-              accountNumber,
-              ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
-            })
-          } else {
-            throw new Error(`addLiquidity: wallet does not support ethereum`)
-          }
-        })()
-        const txToSign = result.txToSign
+        const txid = await buildAndBroadcast({
+          accountNumber,
+          adapter,
+          feeData: getFeeDataFromEstimate(feeData).chainSpecific,
+          to: contractAddress,
+          value,
+          wallet,
+          data,
+        })
 
-        const broadcastTXID = await (async () => {
-          if (wallet.supportsOfflineSigning()) {
-            const signedTx = await adapter.signTransaction({
-              txToSign,
-              wallet,
-            })
-            return adapter.broadcastTransaction(signedTx)
-          } else if (wallet.supportsBroadcast()) {
-            /**
-             * signAndBroadcastTransaction is an optional method on the HDWallet interface.
-             * Check and see if it exists; if so, call and make sure a txhash is returned
-             */
-            if (!adapter.signAndBroadcastTransaction) {
-              throw new Error('signAndBroadcastTransaction undefined for wallet')
-            }
-            return adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
-          } else {
-            throw new Error('Bad hdwallet config')
-          }
-        })()
-
-        if (!broadcastTXID) {
-          throw new Error('Broadcast failed')
-        }
-        return broadcastTXID
-      } catch (error) {
-        moduleLogger.warn(error, 'useUniV2LiquidityPool:addLiquidity error')
+        return txid
+      } catch (err) {
+        moduleLogger.error(err, 'failed to addLiquidity')
       }
     },
     [
@@ -294,7 +239,6 @@ export const useUniV2LiquidityPool = ({
       assetId1OrWeth,
       makeAddLiquidityData,
       skip,
-      supportedEvmChainIds,
       uniswapRouterContract,
       wallet,
       weth,
@@ -320,8 +264,10 @@ export const useUniV2LiquidityPool = ({
       const lpAmountBaseUnit = bnOrZero(lpAmount)
         .times(bn(10).exponentiatedBy(lpAsset.precision))
         .toFixed(0)
+
       const deadline = Date.now() + 1200000 // 20 minutes from now
       const to = fromAccountId(accountId).account
+
       if ([assetId0OrWeth, assetId1OrWeth].includes(wethAssetId)) {
         const otherAssetContractAddress =
           assetId0OrWeth === wethAssetId ? asset1ContractAddress : asset0ContractAddress
@@ -359,6 +305,7 @@ export const useUniV2LiquidityPool = ({
       weth.precision,
     ],
   )
+
   const removeLiquidity = useCallback(
     async ({
       lpAmount,
@@ -372,9 +319,8 @@ export const useUniV2LiquidityPool = ({
       try {
         if (skip || !accountId || !isNumber(accountNumber) || !uniswapRouterContract || !wallet)
           return
-        const chainAdapterManager = getChainAdapterManager()
-        const adapter = chainAdapterManager.get(asset0.chainId) as unknown as ethereum.ChainAdapter
-        if (!adapter) throw new Error(`removeLiquidity: no adapter available for ${asset0.chainId}`)
+
+        if (!adapter) throw new Error(`no adapter available for ${asset0.chainId}`)
 
         const data = makeRemoveLiquidityData({
           asset0ContractAddress,
@@ -384,9 +330,9 @@ export const useUniV2LiquidityPool = ({
           asset0Amount,
         })
 
-        const adapterType = adapter.getChainId()
         const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-        const estimatedFees = await adapter.getFeeData({
+
+        const feeData = await adapter.getFeeData({
           to: contractAddress,
           value: '0',
           chainSpecific: {
@@ -394,75 +340,24 @@ export const useUniV2LiquidityPool = ({
             from: fromAccountId(accountId).account,
           },
         })
-        const result = await (async () => {
-          if (supportedEvmChainIds.includes(adapterType)) {
-            if (!supportsETH(wallet))
-              throw new Error(`removeLiquidity: wallet does not support ethereum`)
-            const fees = estimatedFees.fast as FeeData<EvmChainId>
-            const {
-              chainSpecific: {
-                gasPrice,
-                gasLimit: gasLimitBase,
-                maxFeePerGas,
-                maxPriorityFeePerGas,
-              },
-            } = fees
-            // Gas limit tends to be too low and make Txs revert
-            // So we artificially bump it by 10% to ensure Txs go through
-            const gasLimit = bnOrZero(gasLimitBase).times(1.1).toFixed(0)
-            const shouldUseEIP1559Fees =
-              (await wallet.ethSupportsEIP1559()) &&
-              maxFeePerGas !== undefined &&
-              maxPriorityFeePerGas !== undefined
-            if (!shouldUseEIP1559Fees && gasPrice === undefined) {
-              throw new Error(`removeLiquidity: missing gasPrice for non-EIP-1559 tx`)
-            }
-            const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-            return await adapter.buildCustomTx({
-              to: contractAddress,
-              value: '0',
-              wallet,
-              data,
-              gasLimit,
-              accountNumber,
-              ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
-            })
-          } else {
-            throw new Error(`removeLiquidity: wallet does not support ethereum`)
-          }
-        })()
-        const txToSign = result.txToSign
 
-        const broadcastTXID = await (async () => {
-          if (wallet.supportsOfflineSigning()) {
-            const signedTx = await adapter.signTransaction({
-              txToSign,
-              wallet,
-            })
-            return adapter.broadcastTransaction(signedTx)
-          } else if (wallet.supportsBroadcast()) {
-            /**
-             * signAndBroadcastTransaction is an optional method on the HDWallet interface.
-             * Check and see if it exists; if so, call and make sure a txhash is returned
-             */
-            if (!adapter.signAndBroadcastTransaction) {
-              throw new Error('signAndBroadcastTransaction undefined for wallet')
-            }
-            return adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
-          } else {
-            throw new Error('Bad hdwallet config')
-          }
-        })()
+        const txid = await buildAndBroadcast({
+          accountNumber,
+          adapter,
+          feeData: getFeeDataFromEstimate(feeData).chainSpecific,
+          to: contractAddress,
+          value: '0',
+          wallet,
+          data,
+        })
 
-        if (!broadcastTXID) {
-          throw new Error('Broadcast failed')
-        }
-        return broadcastTXID
-      } catch (error) {
-        moduleLogger.warn(error, 'useUniV2LiquidityPool:remoLiquidity error')
+        return txid
+      } catch (err) {
+        moduleLogger.error(err, 'failed to removeLiquidity')
       }
     },
     [
+      adapter,
       skip,
       accountId,
       accountNumber,
@@ -472,12 +367,12 @@ export const useUniV2LiquidityPool = ({
       makeRemoveLiquidityData,
       asset0ContractAddress,
       asset1ContractAddress,
-      supportedEvmChainIds,
     ],
   )
 
   const calculateHoldings = useCallback(async () => {
     if (skip || !uniV2LPContract || !accountId) return
+
     const balance = await uniV2LPContract.balanceOf(fromAccountId(accountId).account)
     const totalSupply = await uniV2LPContract.totalSupply()
     const reserves = await uniV2LPContract.getReserves()
@@ -498,89 +393,96 @@ export const useUniV2LiquidityPool = ({
   }, [skip, uniV2LPContract, accountId, asset0.precision, asset1.precision])
 
   const getLpTVL = useCallback(async () => {
-    if (uniV2LPContract) {
-      const reserves = await uniV2LPContract.getReserves()
-      // Amount of Eth in liquidity pool
-      const ethInReserve = bnOrZero(reserves?.[0]?.toString()).div(bn(10).pow(asset0.precision))
+    if (!uniV2LPContract) return
 
-      // Total market cap of liquidity pool in usdc.
-      // Multiplied by 2 to show equal amount of eth and fox.
-      const totalLiquidity = ethInReserve.times(asset0Price).times(2)
-      return totalLiquidity.toString()
-    }
+    const reserves = await uniV2LPContract.getReserves()
+    // Amount of Eth in liquidity pool
+    const ethInReserve = bnOrZero(reserves?.[0]?.toString()).div(bn(10).pow(asset0.precision))
+
+    // Total market cap of liquidity pool in usdc.
+    // Multiplied by 2 to show equal amount of eth and fox.
+    const totalLiquidity = ethInReserve.times(asset0Price).times(2)
+    return totalLiquidity.toString()
   }, [asset0.precision, asset0Price, uniV2LPContract])
 
   const getLpTokenPrice = useCallback(async () => {
-    if (!skip && uniV2LPContract) {
-      const tvl = await getLpTVL()
-      const totalSupply = await uniV2LPContract.totalSupply()
-      return bnOrZero(tvl).div(bnOrZero(totalSupply.toString()).div(bn(10).pow(lpAsset.precision)))
-    }
+    if (skip || !uniV2LPContract) return
+
+    const tvl = await getLpTVL()
+    const totalSupply = await uniV2LPContract.totalSupply()
+
+    return bnOrZero(tvl).div(bnOrZero(totalSupply.toString()).div(bn(10).pow(lpAsset.precision)))
   }, [skip, getLpTVL, lpAsset.precision, uniV2LPContract])
 
   // TODO(gomes): consolidate me
   const asset0Allowance = useCallback(async () => {
-    if (skip) return
-    const contract = asset0Contract
-    if (!accountId || !contract) return
+    if (skip || !accountId || !asset0Contract) return
+
     const accountAddress = fromAccountId(accountId).account
     const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-    const _allowance = await contract.allowance(accountAddress, contractAddress)
+    const _allowance = await asset0Contract.allowance(accountAddress, contractAddress)
+
     return _allowance.toString()
   }, [skip, asset0Contract, accountId])
 
   const asset1Allowance = useCallback(async () => {
-    if (skip) return
-    const contract = asset1Contract
-    if (!accountId || !contract) return
+    if (skip || !accountId || !asset1Contract) return
+
     const accountAddress = fromAccountId(accountId).account
     const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-    const _allowance = await contract.allowance(accountAddress, contractAddress)
+    const _allowance = await asset1Contract.allowance(accountAddress, contractAddress)
+
     return _allowance.toString()
   }, [skip, asset1Contract, accountId])
 
   const lpAllowance = useCallback(async () => {
-    if (skip) return
-    const contract = uniV2LPContract
-    if (!accountId || !contract) return
+    if (skip || !accountId || !uniV2LPContract) return
+
     const accountAddress = fromAccountId(accountId).account
     const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-    const _allowance = await contract.allowance(accountAddress, contractAddress)
+    const _allowance = await uniV2LPContract.allowance(accountAddress, contractAddress)
+
     return _allowance.toString()
   }, [skip, uniV2LPContract, accountId])
 
-  const getApproveGasData = useCallback(
+  const getApproveFeeData = useCallback(
     async (contractAddress: Address) => {
-      if (skip) return
+      if (skip || !adapter || !accountId) return
+
       const contract = getOrCreateContractByType({
         address: contractAddress,
         type: ContractType.ERC20,
       })
-      if (adapter && accountId && contract) {
-        const data = contract.interface.encodeFunctionData('approve', [
-          fromAssetId(uniswapV2Router02AssetId).assetReference,
-          MaxUint256,
-        ])
-        const fees = await adapter.getFeeData({
-          to: contract.address,
-          value: '0',
-          chainSpecific: {
-            contractData: data,
-            from: fromAccountId(accountId).account,
-            contractAddress: contract.address,
-          },
-        })
-        return fees
-      }
+
+      if (!contract) return
+
+      const data = contract.interface.encodeFunctionData('approve', [
+        fromAssetId(uniswapV2Router02AssetId).assetReference,
+        MaxUint256,
+      ])
+
+      const feeData = await adapter.getFeeData({
+        to: contract.address,
+        value: '0',
+        chainSpecific: {
+          contractData: data,
+          from: fromAccountId(accountId).account,
+        },
+      })
+
+      return getFeeDataFromEstimate(feeData)
     },
     [skip, adapter, accountId],
   )
 
-  const getDepositGasDataCryptoBaseUnit = useCallback(
+  const getDepositFeeData = useCallback(
     async ({ token0Amount, token1Amount }: { token0Amount: string; token1Amount: string }) => {
-      if (skip || !accountId || !uniswapRouterContract) return
+      if (skip || !adapter || !accountId || !uniswapRouterContract) return
+
       // https://docs.uniswap.org/contracts/v2/reference/smart-contracts/router-02#addliquidityeth
       const deadline = Date.now() + 1200000 // 20 minutes from now
+
+      // TODO(gomes): consolidate branching, surely we can do better
       if ([assetId0OrWeth, assetId1OrWeth].includes(wethAssetId)) {
         const otherAssetContractAddress =
           assetId0OrWeth === wethAssetId ? asset1ContractAddress : asset0ContractAddress
@@ -605,7 +507,8 @@ export const useUniV2LiquidityPool = ({
           accountAddress,
           deadline,
         ])
-        const estimatedFees = await adapter.getFeeData({
+
+        const feeData = await adapter.getFeeData({
           to: contractAddress,
           value: ethValueBaseUnit,
           chainSpecific: {
@@ -613,8 +516,8 @@ export const useUniV2LiquidityPool = ({
             from: accountAddress,
           },
         })
-        return estimatedFees
-        // TODO(gomes): consolidate branching, surely we can do better
+
+        return getFeeDataFromEstimate(feeData)
       } else {
         const accountAddress = fromAccountId(accountId).account
         const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
@@ -632,7 +535,8 @@ export const useUniV2LiquidityPool = ({
           accountAddress,
           deadline,
         ])
-        const estimatedFees = await adapter.getFeeData({
+
+        const feeData = await adapter.getFeeData({
           to: contractAddress,
           value: '0', // 0 ETH since these are ERC20 <-> ERC20 pools
           chainSpecific: {
@@ -640,7 +544,8 @@ export const useUniV2LiquidityPool = ({
             from: accountAddress,
           },
         })
-        return estimatedFees
+
+        return getFeeDataFromEstimate(feeData)
       }
     },
     [
@@ -658,9 +563,10 @@ export const useUniV2LiquidityPool = ({
     ],
   )
 
-  const getWithdrawGasData = useCallback(
+  const getWithdrawFeeData = useCallback(
     async (lpAmount: string, asset0Amount: string, asset1Amount: string) => {
-      if (skip || !accountId || !uniswapRouterContract) return
+      if (skip || !adapter || !accountId || !uniswapRouterContract) return
+
       const data = makeRemoveLiquidityData({
         lpAmount,
         asset0Amount,
@@ -670,7 +576,8 @@ export const useUniV2LiquidityPool = ({
       })
 
       const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-      const estimatedFees = await adapter.getFeeData({
+
+      const feeData = await adapter.getFeeData({
         to: contractAddress,
         value: '0',
         chainSpecific: {
@@ -679,11 +586,7 @@ export const useUniV2LiquidityPool = ({
         },
       })
 
-      const gasLimitBase = estimatedFees.fast.chainSpecific.gasLimit
-      const gasLimit = bnOrZero(gasLimitBase).times(1.1).toFixed(0)
-      estimatedFees.fast.chainSpecific.gasLimit = gasLimit
-
-      return estimatedFees
+      return getFeeDataFromEstimate(feeData)
     },
     [
       skip,
@@ -699,6 +602,9 @@ export const useUniV2LiquidityPool = ({
   const approveAsset = useCallback(
     async (contractAddress: Address) => {
       if (skip || !wallet || !isNumber(accountNumber)) return
+
+      if (!adapter) throw new Error(`no adapter available for ${ethChainId}`)
+
       const contract = getOrCreateContractByType({
         address: contractAddress,
         type: ContractType.ERC20,
@@ -711,49 +617,23 @@ export const useUniV2LiquidityPool = ({
         uniV2ContractAddress,
         MaxUint256,
       ])
-      const gasData = await getApproveGasData(contractAddress)
-      if (!gasData) return
-      const fees = gasData.fast as FeeData<EvmChainId>
-      const {
-        chainSpecific: { gasPrice, gasLimit },
-      } = fees
-      if (gasPrice === undefined) {
-        throw new Error(`approveAsset: missing gasPrice for non-EIP-1559 tx`)
-      }
-      const result = await adapter.buildCustomTx({
-        to: contract!.address,
+
+      const feeData = await getApproveFeeData(contractAddress)
+      if (!feeData) return
+
+      const txid = await buildAndBroadcast({
+        accountNumber,
+        adapter,
+        feeData: feeData.chainSpecific,
+        to: contractAddress,
         value: '0',
         wallet,
         data,
-        gasLimit,
-        accountNumber,
-        gasPrice,
       })
-      const txToSign = result.txToSign
 
-      const broadcastTXID = await (async () => {
-        if (wallet.supportsOfflineSigning()) {
-          const signedTx = await adapter.signTransaction({
-            txToSign,
-            wallet,
-          })
-          return adapter.broadcastTransaction(signedTx)
-        } else if (wallet.supportsBroadcast()) {
-          /**
-           * signAndBroadcastTransaction is an optional method on the HDWallet interface.
-           * Check and see if it exists; if so, call and make sure a txhash is returned
-           */
-          if (!adapter.signAndBroadcastTransaction) {
-            throw new Error('signAndBroadcastTransaction undefined for wallet')
-          }
-          return adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
-        } else {
-          throw new Error('Bad hdwallet config')
-        }
-      })()
-      return broadcastTXID
+      return txid
     },
-    [accountNumber, adapter, getApproveGasData, skip, wallet],
+    [accountNumber, adapter, getApproveFeeData, skip, wallet],
   )
 
   return {
@@ -763,10 +643,10 @@ export const useUniV2LiquidityPool = ({
     asset1Allowance,
     approveAsset,
     calculateHoldings,
-    getApproveGasData,
-    getDepositGasDataCryptoBaseUnit,
+    getApproveFeeData,
+    getDepositFeeData,
     getLpTVL,
-    getWithdrawGasData,
+    getWithdrawFeeData,
     removeLiquidity,
     getLpTokenPrice,
   }

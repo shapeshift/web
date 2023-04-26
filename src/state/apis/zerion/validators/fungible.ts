@@ -1,4 +1,5 @@
-import * as z from 'zod'
+import type { Infer } from 'myzod'
+import z from 'myzod'
 
 const IconSchema = z.object({
   url: z.string(),
@@ -16,7 +17,7 @@ const ImplementationSchema = z.object({
   decimals: z.number(),
 })
 
-export type ZerionImplementation = z.infer<typeof ImplementationSchema>
+export type ZerionImplementation = Infer<typeof ImplementationSchema>
 
 const ChangesSchema = z.object({
   percent_1d: z.number(),
@@ -68,22 +69,23 @@ const RelationshipsSchema = z.object({
   chart_year: ChartSchema,
 })
 
+const LinksSchema = z.object({
+  self: z.string(),
+})
+
 const DataSchema = z.array(
   z.object({
     type: z.string(),
     id: z.string(),
     attributes: AttributesSchema,
     relationships: RelationshipsSchema,
+    links: LinksSchema.optional(),
   }),
 )
-
-const LinksSchema = z.object({
-  self: z.string(),
-})
 
 export const zerionFungiblesSchema = z.object({
   links: LinksSchema,
   data: DataSchema,
 })
 
-export type ZerionFungiblesSchema = z.TypeOf<typeof zerionFungiblesSchema>
+export type ZerionFungiblesSchema = Infer<typeof zerionFungiblesSchema>

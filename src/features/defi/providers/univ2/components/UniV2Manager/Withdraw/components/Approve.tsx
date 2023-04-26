@@ -77,7 +77,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
 
-  const { approveAsset, lpAllowance, getWithdrawGasData } = useUniV2LiquidityPool({
+  const { approveAsset, lpAllowance, getWithdrawFeeData } = useUniV2LiquidityPool({
     accountId: accountId ?? '',
     assetId0: lpOpportunity?.underlyingAssetIds[0] ?? '',
     assetId1: lpOpportunity?.underlyingAssetIds[1] ?? '',
@@ -127,14 +127,13 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
         interval: 15000,
         maxAttempts: 30,
       })
-      // Get withdraw gas estimate
-      const gasData = await getWithdrawGasData(
+      const feeData = await getWithdrawFeeData(
         state.withdraw.lpAmount,
         state.withdraw.asset0Amount,
         state.withdraw.asset1Amount,
       )
-      if (!gasData) return
-      const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
+      if (!feeData) return
+      const estimatedGasCryptoPrecision = bnOrZero(feeData.txFee)
         .div(bn(10).pow(feeAsset.precision))
         .toPrecision()
       dispatch({
@@ -174,7 +173,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     wallet,
     approveAsset,
     lpAssetId,
-    getWithdrawGasData,
+    getWithdrawFeeData,
     feeAsset.precision,
     onNext,
     assets,

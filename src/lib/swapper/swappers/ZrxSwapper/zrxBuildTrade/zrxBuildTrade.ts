@@ -2,12 +2,11 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import * as rax from 'retry-axios'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
-import { erc20AllowanceAbi } from 'lib/swapper/swappers/utils/abi/erc20Allowance-abi'
-import { APPROVAL_GAS_LIMIT, DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
-import { isApprovalRequired, normalizeAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
+import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
+import { normalizeAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
 import type {
   ZrxQuoteResponse,
   ZrxSwapperDeps,
@@ -16,6 +15,7 @@ import type {
 import { applyAxiosRetry } from 'lib/swapper/swappers/ZrxSwapper/utils/applyAxiosRetry'
 import { AFFILIATE_ADDRESS, DEFAULT_SOURCE } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
 import {
+  assertValidTradePair,
   assetToToken,
   baseUrlFromChainId,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
@@ -23,45 +23,18 @@ import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxServ
 import type { ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
 
 export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
-  { adapter, web3 }: ZrxSwapperDeps,
+  { adapter }: ZrxSwapperDeps,
   input: BuildTradeInput,
 ): Promise<Result<ZrxTrade<T>, SwapErrorRight>> {
-  const {
-    sellAsset,
-    buyAsset,
-    sellAmountBeforeFeesCryptoBaseUnit: sellAmountExcludeFeeCryptoBaseUnit,
-    slippage,
-    accountNumber,
-    receiveAddress,
-  } = input
   try {
-    const adapterChainId = adapter.getChainId()
+    const { sellAsset, buyAsset, slippage, accountNumber, receiveAddress } = input
+    const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
 
-    if (buyAsset.chainId !== adapterChainId) {
-      return Err(
-        makeSwapErrorRight({
-          message: `[zrxBuildTrade] - buyAsset must be on chainId ${adapterChainId}`,
-          code: SwapErrorType.VALIDATION_FAILED,
-          details: { chainId: sellAsset.chainId },
-        }),
-      )
-    }
-
-    const slippagePercentage = slippage ? bnOrZero(slippage).toString() : DEFAULT_SLIPPAGE
+    const assertion = assertValidTradePair({ adapter, buyAsset, sellAsset })
+    if (assertion.isErr()) return Err(assertion.unwrapErr())
 
     const baseUrl = baseUrlFromChainId(buyAsset.chainId)
-    const zrxService = zrxServiceFactory(baseUrl)
-
-    /**
-     * /swap/v1/quote
-     * params: {
-     *   sellToken: contract address (or symbol) of token to sell
-     *   buyToken: contractAddress (or symbol) of token to buy
-     *   sellAmount?: integer string value of the smallest increment of the sell token
-     * }
-     */
-
-    const zrxRetry = applyAxiosRetry(zrxService, {
+    const zrxService = applyAxiosRetry(zrxServiceFactory(baseUrl), {
       statusCodesToRetry: [[400, 400]],
       shouldRetry: err => {
         const cfg = rax.getConfig(err)
@@ -76,76 +49,64 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
         return rax.shouldRetryRequest(err)
       },
     })
-    const quoteResponse: AxiosResponse<ZrxQuoteResponse> = await zrxRetry.get<ZrxQuoteResponse>(
+
+    // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-quote
+    const { data: quote }: AxiosResponse<ZrxQuoteResponse> = await zrxService.get<ZrxQuoteResponse>(
       '/swap/v1/quote',
       {
         params: {
           buyToken: assetToToken(buyAsset),
           sellToken: assetToToken(sellAsset),
-          sellAmount: normalizeAmount(sellAmountExcludeFeeCryptoBaseUnit),
+          sellAmount: normalizeAmount(sellAmount),
           takerAddress: receiveAddress,
-          slippagePercentage,
-          skipValidation: false,
+          slippagePercentage: slippage ? bnOrZero(slippage).toString() : DEFAULT_SLIPPAGE,
           affiliateAddress: AFFILIATE_ADDRESS,
+          skipValidation: false,
         },
       },
     )
 
-    const {
-      data: {
-        allowanceTarget,
-        sellAmount,
-        gasPrice: gasPriceCryptoBaseUnit,
-        gas: gasCryptoBaseUnit,
-        price,
-        to,
-        buyAmount: buyAmountCryptoBaseUnit,
-        data: txData,
-        sources,
+    const { average, fast } = await adapter.getFeeData({
+      to: quote.to,
+      value: quote.value,
+      chainSpecific: {
+        from: receiveAddress,
+        contractData: quote.data,
       },
-    } = quoteResponse
-
-    const estimatedGas = bnOrZero(gasCryptoBaseUnit || 0)
-    const networkFee = bnOrZero(estimatedGas)
-      .multipliedBy(bnOrZero(gasPriceCryptoBaseUnit))
-      .toString()
-
-    const approvalRequired = await isApprovalRequired({
-      adapter,
-      sellAsset,
-      allowanceContract: allowanceTarget,
-      receiveAddress,
-      sellAmountExcludeFeeCryptoBaseUnit,
-      web3,
-      erc20AllowanceAbi,
     })
 
-    const approvalFee = bnOrZero(APPROVAL_GAS_LIMIT)
-      .multipliedBy(bnOrZero(gasPriceCryptoBaseUnit))
-      .toString()
+    // use worst case average eip1559 vs fast legacy
+    const maxGasPrice = BigNumber.max(
+      average.chainSpecific.maxFeePerGas ?? 0,
+      fast.chainSpecific.gasPrice,
+    )
+
+    const txFee = bnOrZero(bn(fast.chainSpecific.gasLimit).times(maxGasPrice))
 
     const trade: ZrxTrade<ZrxSupportedChainId> = {
       sellAsset,
       buyAsset,
       accountNumber,
       receiveAddress,
-      rate: price,
-      depositAddress: to,
+      rate: quote.price,
+      depositAddress: quote.to,
       feeData: {
         chainSpecific: {
-          estimatedGasCryptoBaseUnit: estimatedGas.toString(),
-          gasPriceCryptoBaseUnit,
-          approvalFeeCryptoBaseUnit: approvalRequired ? approvalFee : undefined,
+          estimatedGasCryptoBaseUnit: quote.gas,
+          gasPriceCryptoBaseUnit: fast.chainSpecific.gasPrice, // fast gas price since it is underestimated currently
+          maxFeePerGas: average.chainSpecific.maxFeePerGas,
+          maxPriorityFeePerGas: average.chainSpecific.maxPriorityFeePerGas,
         },
-        networkFeeCryptoBaseUnit: networkFee,
+        networkFeeCryptoBaseUnit: txFee.toFixed(0),
         buyAssetTradeFeeUsd: '0',
         sellAssetTradeFeeUsd: '0',
       },
-      txData,
-      sellAmountBeforeFeesCryptoBaseUnit: sellAmount,
-      buyAmountCryptoBaseUnit,
-      sources: sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
+      txData: quote.data,
+      buyAmountCryptoBaseUnit: quote.buyAmount,
+      sellAmountBeforeFeesCryptoBaseUnit: quote.sellAmount,
+      sources: quote.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
     }
+
     return Ok(trade as ZrxTrade<T>)
   } catch (e) {
     if (e instanceof SwapError)
@@ -158,7 +119,7 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
       )
     return Err(
       makeSwapErrorRight({
-        message: '[[zrxBuildTrade]]',
+        message: '[zrxBuildTrade]',
         cause: e,
         code: SwapErrorType.BUILD_TRADE_FAILED,
       }),

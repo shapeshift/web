@@ -658,15 +658,12 @@ export class FoxyApi {
       }
     })()
 
-    const epochExpired = epoch.number >= coolDownInfo.endEpoch
-    const coolDownValid =
-      !bnOrZero(coolDownInfo.endEpoch).eq(0) && !bnOrZero(coolDownInfo.amount).eq(0)
+    const epochExpired = epoch.number.gte(coolDownInfo.endEpoch)
+    const coolDownValid = !coolDownInfo.endEpoch.isZero() && !coolDownInfo.amount.isZero()
 
-    const pastTokeCycleIndex = bnOrZero(requestedWithdrawals.minCycle).lte(currentCycleIndex)
-    const stakingTokenAvailableWithTokemak = bnOrZero(requestedWithdrawals.amount).plus(
-      withdrawalAmount,
-    )
-    const stakingTokenAvailable = bnOrZero(withdrawalAmount).gte(coolDownInfo.amount)
+    const pastTokeCycleIndex = requestedWithdrawals.minCycle.lte(currentCycleIndex)
+    const stakingTokenAvailableWithTokemak = requestedWithdrawals.amount.add(withdrawalAmount)
+    const stakingTokenAvailable = withdrawalAmount.gte(coolDownInfo.amount)
     const validCycleAndAmount =
       (pastTokeCycleIndex && stakingTokenAvailableWithTokemak.gte(coolDownInfo.amount)) ||
       stakingTokenAvailable

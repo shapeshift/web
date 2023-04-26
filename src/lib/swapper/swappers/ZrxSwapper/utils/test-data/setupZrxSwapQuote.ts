@@ -12,7 +12,9 @@ export const setupZrxTradeQuoteResponse = () => {
     to: '0x123',
     data: '0x1234',
     gas: '1235',
+    estimatedGas: '1235',
     gasPrice: '1236',
+    value: '0',
     sources: [],
     buyAmount: '',
   }

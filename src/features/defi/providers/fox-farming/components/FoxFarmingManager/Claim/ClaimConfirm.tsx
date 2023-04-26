@@ -70,7 +70,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
-  const { claimRewards, getClaimGasData, foxFarmingContract } = useFoxFarming(contractAddress)
+  const { claimRewards, getClaimFeeData, foxFarmingContract } = useFoxFarming(contractAddress)
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { onOngoingFarmingTxIdChange } = useFoxEth()
@@ -156,9 +156,9 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
           !(walletState.wallet && feeAsset && feeMarketData && foxFarmingContract && accountAddress)
         )
           return
-        const gasEstimate = await getClaimGasData(accountAddress)
-        if (!gasEstimate) throw new Error('Gas estimation failed')
-        const estimatedGasCrypto = bnOrZero(gasEstimate.average.txFee)
+        const feeData = await getClaimFeeData(accountAddress)
+        if (!feeData) throw new Error('Gas estimation failed')
+        const estimatedGasCrypto = bnOrZero(feeData.txFee)
           .div(`1e${feeAsset.precision}`)
           .toPrecision()
         setCanClaim(true)
@@ -174,7 +174,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
     feeAsset.precision,
     feeMarketData,
     feeMarketData.price,
-    getClaimGasData,
+    getClaimFeeData,
     walletState.wallet,
     foxFarmingContract,
   ])

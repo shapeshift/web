@@ -70,7 +70,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
-  const { getUnstakeGasData, allowance, getApproveGasData } = useFoxFarming(contractAddress)
+  const { getUnstakeFeeData, allowance, getApproveFeeData } = useFoxFarming(contractAddress)
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
 
@@ -108,9 +108,9 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
 
   const getWithdrawGasEstimate = async () => {
     try {
-      const fee = await getUnstakeGasData(amountAvailableCryptoPrecision.toFixed(), true)
-      if (!fee) return
-      return bnOrZero(fee.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
+      const feeData = await getUnstakeFeeData(amountAvailableCryptoPrecision.toFixed(), true)
+      if (!feeData) return
+      return bnOrZero(feeData.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       moduleLogger.error(
@@ -162,12 +162,12 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
         assets,
       )
     } else {
-      const estimatedGasCrypto = await getApproveGasData()
-      if (!estimatedGasCrypto) return
+      const feeData = await getApproveFeeData()
+      if (!feeData) return
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_APPROVE,
         payload: {
-          estimatedGasCryptoPrecision: bnOrZero(estimatedGasCrypto.average.txFee)
+          estimatedGasCryptoPrecision: bnOrZero(feeData.txFee)
             .div(bn(10).pow(feeAsset.precision))
             .toPrecision(),
         },

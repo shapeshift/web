@@ -1,8 +1,8 @@
-import { JsonRpcProvider } from '@ethersproject/providers'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { Investor } from '@shapeshiftoss/investor'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { type ChainId, type VaultMetadata, Yearn } from '@yfi/sdk'
+import { ethers } from 'ethers'
 import { find } from 'lodash'
 import filter from 'lodash/filter'
 import Web3 from 'web3'
@@ -31,7 +31,7 @@ export class YearnInvestor implements Investor<PreparedTransaction, VaultMetadat
 
   constructor({ chainAdapter, dryRun, providerUrl, network = 1 }: ConstructorArgs) {
     const httpProvider = new Web3.providers.HttpProvider(providerUrl)
-    const jsonRpcProvider = new JsonRpcProvider(providerUrl)
+    const jsonRpcProvider = new ethers.providers.JsonRpcBatchProvider(providerUrl)
 
     const web3 = new Web3(httpProvider)
     this.#deps = Object.freeze({

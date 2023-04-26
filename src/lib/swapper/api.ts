@@ -34,61 +34,38 @@ export const makeSwapErrorRight = ({
   code,
 })
 
+export type EvmFeeData = {
+  estimatedGasCryptoBaseUnit?: string
+  gasPriceCryptoBaseUnit?: string
+  approvalFeeCryptoBaseUnit?: string
+  totalFee?: string
+  maxFeePerGas?: string
+  maxPriorityFeePerGas?: string
+}
+
+export type UtxoFeeData = {
+  byteCount: string
+  satsPerByte: string
+}
+
+export type CosmosSdkFeeData = {
+  estimatedGasCryptoBaseUnit: string
+}
+
 type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
   T,
   {
-    [KnownChainIds.EthereumMainnet]: {
-      estimatedGasCryptoBaseUnit?: string
-      gasPriceCryptoBaseUnit?: string
-      approvalFeeCryptoBaseUnit?: string
-      totalFee?: string
-    }
-    [KnownChainIds.AvalancheMainnet]: {
-      estimatedGasCryptoBaseUnit?: string
-      gasPriceCryptoBaseUnit?: string
-      approvalFeeCryptoBaseUnit?: string
-      totalFee?: string
-    }
-    [KnownChainIds.OptimismMainnet]: {
-      estimatedGasCryptoBaseUnit?: string
-      gasPriceCryptoBaseUnit?: string
-      approvalFeeCryptoBaseUnit?: string
-      totalFee?: string
-    }
-    [KnownChainIds.BnbSmartChainMainnet]: {
-      estimatedGasCryptoBaseUnit?: string
-      gasPriceCryptoBaseUnit?: string
-      approvalFeeCryptoBaseUnit?: string
-      totalFee?: string
-    }
-    [KnownChainIds.PolygonMainnet]: {
-      estimatedGasCryptoBaseUnit?: string
-      gasPriceCryptoBaseUnit?: string
-      approvalFeeCryptoBaseUnit?: string
-      totalFee?: string
-    }
-    [KnownChainIds.BitcoinMainnet]: {
-      byteCount: string
-      satsPerByte: string
-    }
-    [KnownChainIds.DogecoinMainnet]: {
-      byteCount: string
-      satsPerByte: string
-    }
-    [KnownChainIds.LitecoinMainnet]: {
-      byteCount: string
-      satsPerByte: string
-    }
-    [KnownChainIds.BitcoinCashMainnet]: {
-      byteCount: string
-      satsPerByte: string
-    }
-    [KnownChainIds.CosmosMainnet]: {
-      estimatedGasCryptoBaseUnit: string
-    }
-    [KnownChainIds.ThorchainMainnet]: {
-      estimatedGasCryptoBaseUnit: string
-    }
+    [KnownChainIds.EthereumMainnet]: EvmFeeData
+    [KnownChainIds.AvalancheMainnet]: EvmFeeData
+    [KnownChainIds.OptimismMainnet]: EvmFeeData
+    [KnownChainIds.BnbSmartChainMainnet]: EvmFeeData
+    [KnownChainIds.PolygonMainnet]: EvmFeeData
+    [KnownChainIds.BitcoinMainnet]: UtxoFeeData
+    [KnownChainIds.DogecoinMainnet]: UtxoFeeData
+    [KnownChainIds.LitecoinMainnet]: UtxoFeeData
+    [KnownChainIds.BitcoinCashMainnet]: UtxoFeeData
+    [KnownChainIds.CosmosMainnet]: CosmosSdkFeeData
+    [KnownChainIds.ThorchainMainnet]: CosmosSdkFeeData
   }
 >
 

@@ -264,10 +264,27 @@ export const selectSellAmountPlusFeesFiat = createSelector(
   },
 )
 
-export const selectQuoteSellAmountBeforeFeesSellAssetBaseUnit = createSelector(
+export const selectTradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit = createSelector(
   (state: SwapperState) =>
     state.activeSwapperWithMetadata?.quote?.sellAmountBeforeFeesCryptoBaseUnit,
-  (quoteSellAmountBeforeFeesBaseUnit): string | undefined => quoteSellAmountBeforeFeesBaseUnit,
+  (state: SwapperState) => state.trade?.sellAmountBeforeFeesCryptoBaseUnit,
+  (quoteSellAmountBeforeFeesBaseUnit, tradeSellAmountBeforeFeesBaseUnit): string | undefined =>
+    // Use the trade amount if we have it, otherwise use the quote amount
+    tradeSellAmountBeforeFeesBaseUnit ?? quoteSellAmountBeforeFeesBaseUnit,
+)
+
+export const selectTradeOrQuoteBuyAmountCryptoBaseUnit = createSelector(
+  (state: SwapperState) => state.activeSwapperWithMetadata?.quote?.buyAmountCryptoBaseUnit,
+  (state: SwapperState) => state.trade?.buyAmountCryptoBaseUnit,
+  (quoteBuyAmountBeforeFeesBaseUnit, tradeBuyAmountBeforeFeesBaseUnit): string | undefined =>
+    // Use the trade amount if we have it, otherwise use the quote amount
+    tradeBuyAmountBeforeFeesBaseUnit ?? quoteBuyAmountBeforeFeesBaseUnit,
+)
+
+export const selectQuoteSellAmountBeforeFeesSellAssetBaseUnit = createSelector(
+  selectTradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit,
+  (tradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit): string | undefined =>
+    tradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit,
 )
 
 export const selectQuoteSellAmountPlusFeesBaseUnit = createSelector(
@@ -331,11 +348,11 @@ export const selectBuyAmountAfterFeesFiat = createSelector(
 )
 
 export const selectQuoteBuyAmountCryptoPrecision = createSelector(
-  (state: SwapperState) => state.activeSwapperWithMetadata?.quote?.buyAmountCryptoBaseUnit,
+  selectTradeOrQuoteBuyAmountCryptoBaseUnit,
   (state: SwapperState) => state.buyAsset?.precision,
-  (quoteBuyAmountCryptoBaseUnit, buyAssetPrecision): string | undefined => {
-    if (!quoteBuyAmountCryptoBaseUnit || !buyAssetPrecision) return undefined
-    return fromBaseUnit(quoteBuyAmountCryptoBaseUnit, buyAssetPrecision)
+  (tradeOrQuoteBuyAmountCryptoBaseUnit, buyAssetPrecision): string | undefined => {
+    if (!tradeOrQuoteBuyAmountCryptoBaseUnit || !buyAssetPrecision) return undefined
+    return fromBaseUnit(tradeOrQuoteBuyAmountCryptoBaseUnit, buyAssetPrecision)
   },
 )
 

@@ -76,6 +76,7 @@ export const getCosmosTxData = async (
     buyAssetId: buyAsset.assetId,
     destinationAddress,
     limit,
+    affiliateBps,
   })
 
   const maybeBuiltTxResponse = (() => {

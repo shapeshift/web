@@ -2,6 +2,7 @@ import { ethereum } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
+import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 import Web3 from 'web3'
 
@@ -117,7 +118,7 @@ describe('zrxBuildTrade', () => {
         })),
       },
     }))
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
+    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({ data })))
 
     const maybeBuiltTrade = await zrxBuildTrade(deps, { ...buildTradeInput })
     expect(maybeBuiltTrade.isOk()).toBe(true)
@@ -141,7 +142,7 @@ describe('zrxBuildTrade', () => {
         })),
       },
     }))
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
+    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({ data })))
 
     const maybeBuiltTrade = await zrxBuildTrade(deps, { ...buildTradeInput })
     expect(maybeBuiltTrade.isOk()).toBe(true)
@@ -159,7 +160,7 @@ describe('zrxBuildTrade', () => {
       gas: '100',
       gasPrice: '10000',
     }
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
+    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({ data })))
 
     const expectedFeeData: QuoteFeeData<ZrxSupportedChainId> = {
       chainSpecific: {

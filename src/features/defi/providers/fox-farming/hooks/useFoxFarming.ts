@@ -197,7 +197,6 @@ export const useFoxFarming = (
       chainSpecific: {
         contractData: data,
         from: farmingAccountAddress,
-        contractAddress: uniV2LPContract.address,
       },
     })
 

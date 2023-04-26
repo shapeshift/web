@@ -311,8 +311,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         }),
       )
 
-    debugger
-
     const isToOsmosisNetworkAsset = buyAsset.chainId === osmosisChainId
     const isFromOsmosisNetworkAsset = sellAsset.chainId === osmosisChainId
 
@@ -426,18 +424,19 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const signed = await osmosisAdapter.signTransaction(signTxInput)
     const tradeId = await osmosisAdapter.broadcastTransaction(signed)
 
+    const pollResult = await pollForComplete(tradeId, this.deps.osmoUrl)
+    if (pollResult !== 'success')
+      return Err(
+        makeSwapErrorRight({
+          message: 'osmo swap failed',
+          code: SwapErrorType.EXECUTE_TRADE_FAILED,
+        }),
+      )
+
     if (!isToOsmosisNetworkAsset) {
       /** If the buy asset is not on the Osmosis Network, we need to bridge the
        * asset from the Osmosis network to the buy asset network.
        */
-      const pollResult = await pollForComplete(tradeId, this.deps.osmoUrl)
-      if (pollResult !== 'success')
-        return Err(
-          makeSwapErrorRight({
-            message: 'osmo swap failed',
-            code: SwapErrorType.EXECUTE_TRADE_FAILED,
-          }),
-        )
 
       const amount = await pollForAtomChannelBalance(sellAddress, this.deps.osmoUrl)
       const transfer = {
@@ -480,6 +479,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       })
     }
 
-    return Ok({ tradeId, previousCosmosTxid: cosmosIbcTradeId })
+    return Ok({ tradeId, previousCosmosTxid: isFromOsmosisNetworkAsset ? '' : cosmosIbcTradeId })
   }
 }

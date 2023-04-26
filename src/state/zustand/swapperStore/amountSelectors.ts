@@ -572,6 +572,7 @@ export const selectDonationAmountFiat = createSelector(
   selectAffiliateBps,
   (sellAmountFiat, affiliateBps): string | undefined => {
     const affiliatePercentage = bnOrZero(affiliateBps).div(10000)
+    // The donation amount is a percentage of the sell amount
     return bnOrZero(sellAmountFiat).times(affiliatePercentage).toFixed()
   },
 )

@@ -21,6 +21,7 @@ import {
   selectQuote,
   selectSellAsset,
   selectSellAssetAccountId,
+  selectSwapperDefaultAffiliateBps,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
@@ -37,7 +38,7 @@ export const useSwapper = () => {
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const getTradeForWallet = useSwapperStore(selectGetTradeForWallet)
-  const affiliateBps = useSwapperStore(state => state.affiliateBps)
+  const defaultAffiliateBps = useSwapperStore(selectSwapperDefaultAffiliateBps)
 
   // Selectors
   const flags = useSelector(selectFeatureFlags)
@@ -117,27 +118,31 @@ export const useSwapper = () => {
     return txid
   }, [activeSwapper, isExactAllowance, activeQuote, wallet])
 
-  const getTrade = useCallback(async () => {
-    if (!wallet) throw new Error('no wallet available')
-    if (!sellAccountBip44Params) throw new Error('Missing sellAccountBip44Params')
-    if (!buyAccountBip44Params) throw new Error('Missing buyAccountBip44Params')
-    if (!sellAccountMetadata) throw new Error('Missing sellAccountMetadata')
+  const getTrade = useCallback(
+    async ({ affiliateBps }: { affiliateBps?: string } = {}) => {
+      if (!wallet) throw new Error('no wallet available')
+      if (!sellAccountBip44Params) throw new Error('Missing sellAccountBip44Params')
+      if (!buyAccountBip44Params) throw new Error('Missing buyAccountBip44Params')
+      if (!sellAccountMetadata) throw new Error('Missing sellAccountMetadata')
 
-    return await getTradeForWallet({
+      const trade = await getTradeForWallet({
+        wallet,
+        sellAccountBip44Params,
+        sellAccountMetadata,
+        buyAccountBip44Params,
+        affiliateBps: affiliateBps ?? defaultAffiliateBps,
+      })
+      return trade
+    },
+    [
       wallet,
       sellAccountBip44Params,
-      sellAccountMetadata,
       buyAccountBip44Params,
-      affiliateBps,
-    })
-  }, [
-    wallet,
-    sellAccountBip44Params,
-    buyAccountBip44Params,
-    sellAccountMetadata,
-    getTradeForWallet,
-    affiliateBps,
-  ])
+      sellAccountMetadata,
+      getTradeForWallet,
+      defaultAffiliateBps,
+    ],
+  )
 
   useEffect(() => {
     if (!flags) return

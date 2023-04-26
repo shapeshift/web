@@ -64,6 +64,7 @@ import {
   selectFees,
   selectSellAssetAccountId,
   selectSlippage,
+  selectSwapperDefaultAffiliateBps,
   selectTrade,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
@@ -126,27 +127,22 @@ export const TradeConfirm = () => {
 
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
   const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
-  const setSwapperDefaultAffiliateBps = useSwapperStore(
-    state => state.setSwapperDefaultAffiliateBps,
-  )
   const updateAffiliateBps = useSwapperStore(state => state.updateAffiliateBps)
   const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
   const updateFees = useSwapperStore(state => state.updateFees)
+  const defaultAffiliateBps = useSwapperStore(selectSwapperDefaultAffiliateBps)
 
   const handleDonationToggle = useCallback(async () => {
     if (!defaultFeeAsset) {
       throw new Error('No default fee asset')
     }
     setIsReloadingTrade(true)
-    if (shouldDonate) {
-      updateAffiliateBps('0')
-    } else {
-      setSwapperDefaultAffiliateBps()
-    }
+    const newAffiliateBps = shouldDonate ? '0' : defaultAffiliateBps
+    updateAffiliateBps(newAffiliateBps)
     toggleShouldDonate()
     // Refresh trade
     try {
-      const trade = await getTrade()
+      const trade = await getTrade({ affiliateBps: newAffiliateBps })
       if (trade.isErr()) {
         // Actually throw so we can catch the error and show the error toast
         throw new Error(trade.unwrapErr().message)
@@ -158,9 +154,9 @@ export const TradeConfirm = () => {
       setIsReloadingTrade(false)
     }
   }, [
+    defaultAffiliateBps,
     defaultFeeAsset,
     getTrade,
-    setSwapperDefaultAffiliateBps,
     shouldDonate,
     toggleShouldDonate,
     updateAffiliateBps,

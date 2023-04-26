@@ -8,6 +8,7 @@ import type { PromoItem } from 'components/Promo/types'
 import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
 
 import { RecentTransactions } from './RecentTransactions'
+import { TradeCard } from './TradeCard'
 
 const promoData: PromoItem[] = [
   {
@@ -66,6 +67,7 @@ const promoData: PromoItem[] = [
 export const DashboardSidebar = () => {
   return (
     <Flex width='full' flexDir='column' gap={6}>
+      <TradeCard display={{ base: 'none', xl: 'block' }} />
       <PromoCard data={promoData} />
       <EligibleCarousel display={{ base: 'none', md: 'flex' }} />
       <RecentTransactions limit={8} viewMoreLink />

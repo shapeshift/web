@@ -9,7 +9,7 @@ export const WalletDashboard = () => {
       <Stack spacing={4} flex='1 1 0%' width='full'>
         <Portfolio />
       </Stack>
-      <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
+      <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'md' }} spacing={4}>
         <DashboardSidebar />
       </Stack>
     </Stack>

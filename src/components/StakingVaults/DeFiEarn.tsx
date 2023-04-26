@@ -4,6 +4,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ChainDropdown } from 'components/AssetSearch/Chains/ChainDropdown'
+import { useQuery } from 'hooks/useQuery/useQuery'
 import { selectPortfolioChainIdsSortedFiat } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -29,7 +30,8 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
   header,
   ...rest
 }) => {
-  const [searchQuery, setSearchQuery] = useState('')
+  const { q } = useQuery<{ q: string }>()
+  const [searchQuery, setSearchQuery] = useState(q ?? '')
   const translate = useTranslate()
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>()
   const portfolioChainIds = useAppSelector(selectPortfolioChainIdsSortedFiat)

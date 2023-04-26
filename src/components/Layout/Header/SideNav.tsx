@@ -1,15 +1,9 @@
-import { Center, chakra, Flex, useColorModeValue } from '@chakra-ui/react'
-import { AnimatePresence } from 'framer-motion'
-import { Link } from 'react-router-dom'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { SlideTransitionY } from 'components/SlideTransitionY'
-import { useIsAnyApiFetching } from 'hooks/useIsAnyApiFetching/useIsAnyApiFetching'
+import { chakra, Flex, useColorModeValue } from '@chakra-ui/react'
 
+import { AppLoadingIcon } from './AppLoadingIcon'
 import { SideNavContent } from './SideNavContent'
 
 export const SideNav = () => {
-  const isLoading = useIsAnyApiFetching()
   const bgColor = useColorModeValue('white', 'blackAlpha.300')
   const shadow = useColorModeValue('lg', 'none')
   return (
@@ -32,21 +26,7 @@ export const SideNav = () => {
         zIndex='modal'
       >
         <Flex justifyContent={{ base: 'center', md: 'flex-start' }} pt={4} px={8}>
-          <Link to='/'>
-            <AnimatePresence exitBeforeEnter initial={true}>
-              {isLoading ? (
-                <SlideTransitionY key='loader'>
-                  <Center boxSize='7'>
-                    <CircularProgress size={7} />
-                  </Center>
-                </SlideTransitionY>
-              ) : (
-                <SlideTransitionY key='logo'>
-                  <FoxIcon boxSize='7' />
-                </SlideTransitionY>
-              )}
-            </AnimatePresence>
-          </Link>
+          <AppLoadingIcon />
         </Flex>
         <SideNavContent isCompact={true} />
       </chakra.header>

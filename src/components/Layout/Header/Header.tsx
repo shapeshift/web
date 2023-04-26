@@ -22,6 +22,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectPortfolioLoadingStatus } from 'state/slices/selectors'
 
+import { AppLoadingIcon } from './AppLoadingIcon'
 import { DegradedStateBanner } from './DegradedStateBanner'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
@@ -129,6 +130,9 @@ export const Header = () => {
             >
               <AssetSearch assetListAsDropdown formProps={{ mb: 0, px: 0 }} />
             </HStack>
+            <Box display={{ base: 'block', md: 'none' }} mx='auto'>
+              <AppLoadingIcon />
+            </Box>
             <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
               {isDegradedState && <DegradedStateBanner />}
               {isWalletConnectToDappsEnabled && (

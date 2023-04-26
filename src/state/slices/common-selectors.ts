@@ -64,7 +64,10 @@ export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelecto
   selectAssetIdParamFromFilter,
   (assets, accountBalances, assetBalances, accountId, assetId): string => {
     if (!assetId) return '0'
-    const precision = assets?.[assetId]?.precision ?? 0
+    const precision = assets?.[assetId]?.precision
+    // to avoid megabillion phantom balances in mixpanel, return 0 rather than base unit value
+    // if we don't have a precision for the asset
+    if (!precision) return '0'
     if (accountId) return fromBaseUnit(bnOrZero(accountBalances?.[accountId]?.[assetId]), precision)
     return fromBaseUnit(bnOrZero(assetBalances[assetId]), precision)
   },

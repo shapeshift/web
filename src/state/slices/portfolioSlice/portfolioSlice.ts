@@ -4,6 +4,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import merge from 'lodash/merge'
+import uniq from 'lodash/uniq'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { logger } from 'lib/logger'
@@ -54,16 +55,16 @@ export const portfolio = createSlice({
       }
     },
     upsertAccountMetadata: {
-      reducer: (state, { payload }: { payload: AccountMetadataById }) => {
-        state.accountMetadata.byId = merge(state.accountMetadata.byId, payload)
-        state.accountMetadata.ids = Object.keys(state.accountMetadata.byId)
+      reducer: (draftState, { payload }: { payload: AccountMetadataById }) => {
+        draftState.accountMetadata.byId = merge(draftState.accountMetadata.byId, payload)
+        draftState.accountMetadata.ids = Object.keys(draftState.accountMetadata.byId)
 
-        if (!state.walletId) return // realistically, at this point, we should have a walletId set
-        const existingWalletAccountIds = state.wallet.byId[state.walletId] ?? []
+        if (!draftState.walletId) return // realistically, at this point, we should have a walletId set
+        const existingWalletAccountIds = draftState.wallet.byId[draftState.walletId] ?? []
         const newWalletAccountIds = Object.keys(payload)
         // keep an index of what account ids belong to this wallet
-        state.wallet.byId[state.walletId] = Array.from(
-          new Set(existingWalletAccountIds.concat(newWalletAccountIds)),
+        draftState.wallet.byId[draftState.walletId] = uniq(
+          existingWalletAccountIds.concat(newWalletAccountIds),
         )
       },
 
@@ -72,18 +73,17 @@ export const portfolio = createSlice({
       prepare: prepareAutoBatched<AccountMetadataById>(),
     },
     upsertPortfolio: {
-      reducer: (state, { payload }: { payload: Portfolio }) => {
+      reducer: (draftState, { payload }: { payload: Portfolio }) => {
         moduleLogger.debug('upserting portfolio')
         // upsert all
-        state.accounts.byId = merge(state.accounts.byId, payload.accounts.byId)
-        const accountIds = Array.from(new Set(state.accounts.ids.concat(payload.accounts.ids)))
-        state.accounts.ids = accountIds
+        draftState.accounts.byId = merge(draftState.accounts.byId, payload.accounts.byId)
+        draftState.accounts.ids = Object.keys(draftState.accounts.byId)
 
-        state.accountBalances.byId = merge(state.accountBalances.byId, payload.accountBalances.byId)
-        const accountBalanceIds = Array.from(
-          new Set(state.accountBalances.ids.concat(payload.accountBalances.ids)),
+        draftState.accountBalances.byId = merge(
+          draftState.accountBalances.byId,
+          payload.accountBalances.byId,
         )
-        state.accountBalances.ids = accountBalanceIds
+        draftState.accountBalances.ids = Object.keys(draftState.accountBalances.byId)
       },
 
       // Use the `prepareAutoBatched` utility to automatically

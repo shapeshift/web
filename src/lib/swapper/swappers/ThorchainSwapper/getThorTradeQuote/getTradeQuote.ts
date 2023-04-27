@@ -123,13 +123,13 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     const fees = quote.isOk() ? quote.unwrap().fees : undefined
 
     const buyAssetTradeFeeBuyAssetCryptoHuman = fees
-      ? fromBaseUnit(bnOrZero(fees.outbound), buyAsset.precision)
+      ? fromBaseUnit(bnOrZero(fees.outbound), THORCHAIN_FIXED_PRECISION)
       : await getInboundAddressDataForChain(deps.daemonUrl, buyAsset.assetId).then(data =>
           fromBaseUnit(bnOrZero(data?.outbound_fee), THORCHAIN_FIXED_PRECISION),
         )
 
     const sellAssetTradeFeeBuyAssetCryptoHuman = fees
-      ? fromBaseUnit(bnOrZero(fees.affiliate), buyAsset.precision)
+      ? fromBaseUnit(bnOrZero(fees.affiliate), THORCHAIN_FIXED_PRECISION)
       : '0'
 
     // If we have a quote, we can use the quote's expected amount out. If not it's either a 0-value trade or an error, so use '0'.
@@ -151,15 +151,13 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       }
     })()
 
-    const buyAssetChainFeeAssetId = buyAdapter.getFeeAssetId()
-
     const sellAssetUsdRate = await getUsdRate(deps.daemonUrl, sellAsset.assetId)
-    const buyFeeAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAssetChainFeeAssetId)
+    const buyAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAsset.assetId)
 
-    const buyAssetTradeFeeUsd = bn(buyFeeAssetUsdRate)
+    const buyAssetTradeFeeUsd = bn(buyAssetUsdRate)
       .times(buyAssetTradeFeeBuyAssetCryptoHuman)
       .toString()
-    const sellAssetTradeFeeUsd = bn(buyFeeAssetUsdRate)
+    const sellAssetTradeFeeUsd = bn(buyAssetUsdRate)
       .times(sellAssetTradeFeeBuyAssetCryptoHuman)
       .toString()
 

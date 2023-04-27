@@ -2,22 +2,29 @@
 import type { evm } from '@shapeshiftoss/common-api'
 import dotenv from 'dotenv'
 import express from 'express'
+import { readFileSync } from 'fs'
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware'
-import path from 'path'
 import Web3 from 'web3'
 import { hexToNumber, numberToHex } from 'web3-utils'
 import type { RawData, WebSocket as WebSocketClient } from 'ws'
 import WebSocket, { WebSocketServer } from 'ws'
 
 import { corsMiddleware } from './middleware/cors'
+import {
+  PROXY_UNCHAINED_ETHEREUM_HTTP_PORT,
+  PROXY_UNCHAINED_ETHEREUM_WS_PORT,
+} from './utils/constants'
+import { getTenderlyRpcUrl } from './utils/getTenderlyRpcUrl'
 import { estimateGas, getBalance, getTransactionByHash, sendTransaction } from './utils/rpcHelpers'
 import type { EstimateGasParams } from './utils/types'
 
-dotenv.config({ path: path.join(__dirname, '.env') })
+const { REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL, REACT_APP_UNCHAINED_ETHEREUM_WS_URL } = dotenv.parse(
+  readFileSync('.env'),
+)
 
-const httpPort = Number(process.env.PROXY_UNCHAINED_ETHEREUM_HTTP_PORT)
-const websocketPort = Number(process.env.PROXY_UNCHAINED_ETHEREUM_WS_PORT)
-const provider = new Web3.providers.HttpProvider(process.env.PROXY_TENDERLY_ETHEREUM_HTTP_URL!)
+const httpPort = Number(PROXY_UNCHAINED_ETHEREUM_HTTP_PORT)
+const websocketPort = Number(PROXY_UNCHAINED_ETHEREUM_WS_PORT)
+const provider = new Web3.providers.HttpProvider(getTenderlyRpcUrl())
 let subscriptionDetails: { subscriptionId: string; address: string } | undefined
 let clientWebsocket: WebSocketClient | undefined
 
@@ -51,14 +58,14 @@ const sendTxViaWebSocket = async (txId: string): Promise<void> => {
   clientWebsocket?.send(JSON.stringify(message))
 }
 
-const unchainedWebsocket = new WebSocket(process.env.PROXY_UNCHAINED_ETHEREUM_WS_URL!, {
+const unchainedWebsocket = new WebSocket(REACT_APP_UNCHAINED_ETHEREUM_WS_URL, {
   handshakeTimeout: 5000,
 })
 unchainedWebsocket.on('ping', val => unchainedWebsocket.pong(val))
 unchainedWebsocket.on('error', error => console.error('[websocket:unchained]', error))
 unchainedWebsocket.on('connection', () =>
   console.log(
-    `[websocket:unchained] connected to unchained at ${process.env.PROXY_UNCHAINED_ETHEREUM_WS_URL}`,
+    `[websocket:unchained] connected to unchained at ${REACT_APP_UNCHAINED_ETHEREUM_WS_URL}`,
   ),
 )
 
@@ -93,7 +100,7 @@ app.use(express.json())
 
 app.use(
   createProxyMiddleware(['!/api/v1/account/*', '!/api/v1/send', '!/api/v1/gas/estimate'], {
-    target: process.env.PROXY_UNCHAINED_ETHEREUM_HTTP_URL,
+    target: REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
     changeOrigin: true,
     onProxyReq: fixRequestBody,
     followRedirects: true,

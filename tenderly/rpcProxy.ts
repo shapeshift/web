@@ -1,17 +1,19 @@
 import dotenv from 'dotenv'
 import type { Request } from 'express'
 import express from 'express'
+import { readFileSync } from 'fs'
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware'
-import path from 'path'
 import url from 'url'
 
 import { corsMiddleware } from './middleware/cors'
 import { createThrottleMiddleware } from './middleware/throttle'
+import { PROXY_ETHEREUM_NODE_PORT } from './utils/constants'
+import { getTenderlyRpcUrl } from './utils/getTenderlyRpcUrl'
 
-dotenv.config({ path: path.join(__dirname, '.env') })
+const { REACT_APP_ETHEREUM_NODE_URL } = dotenv.parse(readFileSync('.env'))
 
-const port = Number(process.env.PROXY_ETHEREUM_NODE_PORT!)
-const tenderlyRpcUrl = url.parse(process.env.PROXY_TENDERLY_ETHEREUM_HTTP_URL!)
+const port = Number(PROXY_ETHEREUM_NODE_PORT)
+const tenderlyRpcUrl = url.parse(getTenderlyRpcUrl())
 
 // only forward transaction calls to tenderly
 const tenderlyFilter = (_path: string, req: Request): boolean => {
@@ -35,7 +37,7 @@ const tenderlyProxy = createProxyMiddleware(tenderlyFilter, {
 })
 
 const defaultProxy = createProxyMiddleware(defaultFilter, {
-  target: process.env.PROXY_ETHEREUM_NODE_URL,
+  target: REACT_APP_ETHEREUM_NODE_URL,
   changeOrigin: true,
   onProxyReq: fixRequestBody,
   followRedirects: true,

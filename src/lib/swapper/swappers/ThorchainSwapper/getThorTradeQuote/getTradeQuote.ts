@@ -123,13 +123,13 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     const fees = quote.isOk() ? quote.unwrap().fees : undefined
 
     const buyAssetTradeFeeBuyAssetCryptoHuman = fees
-      ? fromBaseUnit(bnOrZero(fees.outbound), THORCHAIN_FIXED_PRECISION)
+      ? fromBaseUnit(bnOrZero(fees.outbound), buyAsset.precision)
       : await getInboundAddressDataForChain(deps.daemonUrl, buyAsset.assetId).then(data =>
           fromBaseUnit(bnOrZero(data?.outbound_fee), THORCHAIN_FIXED_PRECISION),
         )
 
     const sellAssetTradeFeeBuyAssetCryptoHuman = fees
-      ? fromBaseUnit(bnOrZero(fees.affiliate), THORCHAIN_FIXED_PRECISION)
+      ? fromBaseUnit(bnOrZero(fees.affiliate), buyAsset.precision)
       : '0'
 
     // If we have a quote, we can use the quote's expected amount out. If not it's either a 0-value trade or an error, so use '0'.
@@ -165,11 +165,11 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
     const minimumSellAssetAmountCryptoHuman = bn(sellAssetUsdRate).isGreaterThan(0)
       ? bnOrZero(buyAssetTradeFeeUsd).div(sellAssetUsdRate)
-      : 0 // We don't have a valid rate for the sell asset, there is no sane minimum
+      : bn(0) // We don't have a valid rate for the sell asset, there is no sane minimum
 
     // minimum is tradeFee padded by an amount to be sure they get something back
     // usually it will be slightly more than the amount because sellAssetTradeFee is already a high estimate
-    const minimumSellAssetAmountPaddedCryptoHuman = bnOrZero(minimumSellAssetAmountCryptoHuman)
+    const minimumSellAssetAmountPaddedCryptoHuman = minimumSellAssetAmountCryptoHuman
       .times(THOR_MINIMUM_PADDING)
       .toString()
 

@@ -7,6 +7,7 @@ import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { AccountBalance } from './AccountToken/AccountBalance'
 import { AccountToken } from './AccountToken/AccountToken'
 import { AccountTokenTxHistory } from './AccountToken/AccountTokenTxHistory'
 import { AccountTxHistory } from './AccountTxHistory'
@@ -29,12 +30,6 @@ export const Account = () => {
     <Flex flexDir='column' width='full'>
       <Switch>
         <Route exact path={`${path}`}>
-          <AssetHeader
-            assetId={feeAssetId}
-            accountId={accountId}
-            maxWidth='full'
-            px={{ base: 4, md: 0 }}
-          />
           <AccountDetails assetId={feeAsset.assetId} accountId={accountId} />
         </Route>
         <Route exact path={`${path}/transactions`}>

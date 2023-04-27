@@ -27,9 +27,16 @@ import { useAppSelector } from 'state/store'
 type AccountBalanceProps = {
   assetId: AssetId
   accountId: AccountId
+  backPath?: string
+  backLabel?: string
 }
 
-export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, accountId }) => {
+export const AccountBalance: React.FC<AccountBalanceProps> = ({
+  assetId,
+  accountId,
+  backPath,
+  backLabel,
+}) => {
   const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
@@ -49,9 +56,9 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, account
         <Button
           size='sm'
           leftIcon={<ArrowBackIcon />}
-          onClick={() => history.push(`/dashboard/accounts/${accountId}`)}
+          onClick={() => history.push(backPath ?? `/dashboard/accounts/${accountId}`)}
         >
-          {accountLabel}
+          {backLabel ?? accountLabel}
         </Button>
         <Flex alignItems='center' gap={2}>
           <LazyLoadAvatar src={asset.icon} />

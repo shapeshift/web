@@ -1,8 +1,9 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { avalancheChainId, bscChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
-import { type ZodiosOptions, makeApi, Zodios } from '@zodios/core'
 import { invert } from 'lodash'
-import { z } from 'zod'
+import type { Infer, Type } from 'myzod'
+import z from 'myzod'
+import { isNonEmpty, isUrl } from 'lib/utils'
 
 export enum SupportedZapperNetwork {
   Avalanche = 'avalanche',
@@ -39,7 +40,7 @@ export const zapperNetworkToChainId = (network: SupportedZapperNetwork): ChainId
 export const chainIdToZapperNetwork = (chainId: ChainId): SupportedZapperNetwork | undefined =>
   CHAIN_ID_TO_ZAPPER_NETWORK_MAP[chainId]
 
-const SupportedZapperNetworks = z.nativeEnum(SupportedZapperNetwork)
+const SupportedZapperNetworks = z.enum(SupportedZapperNetwork)
 
 export enum ZapperAppId {
   AaveAmm = 'aave-amm',
@@ -444,7 +445,7 @@ export enum ZapperAppId {
   Zora = 'zora',
 }
 
-const ZapperAppIdSchema = z.nativeEnum(ZapperAppId)
+const ZapperAppIdSchema = z.enum(ZapperAppId)
 const ZapperDisplayValue = z.union([
   z.object({
     type: z.string(),
@@ -465,15 +466,79 @@ const ZapperDisplayPropsSchema = z.object({
   ),
   secondaryLabel: ZapperDisplayValue.optional(),
   tertiaryLabel: ZapperDisplayValue.optional(),
+  balanceDisplayMode: z.string().optional(),
+  labelDetailed: z.string().optional(),
 })
 
-const ZapperTokenBaseSchema = z.object({
-  network: SupportedZapperNetworks,
-  address: z.string(),
-  decimals: z.number(),
-  symbol: z.string(),
-  price: z.number(),
+const ZapperDataPropsSchema = z.object({
+  apy: z.number(),
+  isDebt: z.boolean().optional(),
+  exchangeable: z.boolean().optional(),
+  exchangeRate: z.number().optional(),
+  fee: z.number().optional(),
+  volume: z.number().optional(),
+  // Realistically a z.tuple() of 1/2 assets, but you never know
+  reserves: z.array(z.number()),
+  liquidity: z.number(),
 })
+
+// Redeclared as a type since we lose type inference on the type below because of z.lazy() recursion
+type ZapperTokenBase = {
+  type: 'base-token' | 'app-token'
+  network: SupportedZapperNetwork
+  address: string
+  decimals: number
+  symbol: string
+  price: number
+} & {
+  key?: string
+  type?: string
+  appId?: ZapperAppId
+  groupId?: string
+  network?: SupportedZapperNetwork
+  address?: string
+  price?: number
+  supply?: number
+  symbol?: string
+  decimals?: number
+  dataProps?: Infer<typeof ZapperDataPropsSchema>
+  displayProps?: Infer<typeof ZapperDisplayPropsSchema>
+  pricePerShare?: (string | number)[]
+  tokens?: ZapperTokenBase[]
+}
+
+const ZapperTokenBaseSchema: Type<ZapperTokenBase> = z.intersection(
+  z.object({
+    type: z.literals('base-token', 'app-token'),
+    network: SupportedZapperNetworks,
+    address: z.string(),
+    decimals: z.number(),
+    symbol: z.string(),
+    price: z.number(),
+  }),
+  // ZapperAssetBaseSchema redeclared here because of circular dependencies
+  // A Zapper token can itself be a staking asset, meaning it will contain some/all properties from ZapperAssetBaseSchema
+  // e.g stETH/WETH is a staking asset, but stETH itself is a staking asset with ETH as an underlying asset
+  // Note how tokens is different from ZapperAssetBaseSchema - we use z.lazy() to recursively reference ZapperTokenBaseSchema
+  z.object({
+    key: z.string().optional(),
+    type: z.string().optional(),
+    appId: ZapperAppIdSchema.optional(),
+    groupId: z.string().optional(),
+    network: SupportedZapperNetworks.optional(),
+    address: z.string().optional(),
+    price: z.number().optional(),
+    supply: z.number().optional(),
+    symbol: z.string().optional(),
+    decimals: z.number().optional(),
+    dataProps: ZapperDataPropsSchema.optional(),
+    displayProps: ZapperDisplayPropsSchema.optional(),
+    pricePerShare: z.array(z.union([z.string(), z.number()])).optional(),
+    // Note, we lose tsc validation here but this *does* validate at runtime
+    // https://github.com/davidmdm/myzod#lazy
+    tokens: z.array(z.lazy(() => ZapperTokenBaseSchema)).optional(),
+  }),
+)
 
 const ZapperTokenWithBalancesSchema = z.union([
   ZapperTokenBaseSchema,
@@ -483,14 +548,6 @@ const ZapperTokenWithBalancesSchema = z.union([
     balanceUSD: z.number(),
   }),
 ])
-
-const ZapperDataPropsSchema = z.object({
-  apy: z.number(),
-  fee: z.number().optional(),
-  volume: z.number().optional(),
-  reserves: z.array(z.number(), z.number()),
-  liquidity: z.number(),
-})
 
 const ZapperAssetBaseSchema = z.object({
   key: z.string(),
@@ -519,17 +576,10 @@ const ZapperAssetWithBalancesSchema = z.union([
   }),
 ])
 
-const GasPricesResponse = z.object({
-  standard: z.object({}).partial(),
-  fast: z.object({}).partial(),
-  instant: z.object({}).partial(),
-  eip1559: z.boolean(),
-})
-
 const ZapperProductSchema = z.object({
   label: z.string(),
   assets: z.array(z.union([ZapperAssetBaseSchema, ZapperAssetWithBalancesSchema])),
-  meta: z.array(z.any()),
+  meta: z.array(z.unknown()),
 })
 
 const ZapperV2AppBalance = z.object({
@@ -571,8 +621,8 @@ const mediaSchema = z.object({
   type: z.string(),
   originalUrl: z
     .string()
-    .url()
-    .refine(url => {
+    .withPredicate(isUrl)
+    .withPredicate(url => {
       const mediaFileType = getMediaFileType(url)
       if (!mediaFileType) return false
       return MEDIA_FILETYPE.includes(mediaFileType as MediaFileType)
@@ -582,19 +632,19 @@ const mediaSchema = z.object({
 const socialLinkSchema = z.object({
   name: z.string(),
   label: z.string(),
-  url: z.string().url(),
-  logoUrl: z.string().url(),
+  url: z.string().withPredicate(isUrl),
+  logoUrl: z.string(),
 })
 
 const statsSchema = z.object({
   hourlyVolumeEth: z.number(),
-  hourlyVolumeEthPercentChange: z.nullable(z.number()),
+  hourlyVolumeEthPercentChange: z.number().nullable(),
   dailyVolumeEth: z.number(),
-  dailyVolumeEthPercentChange: z.nullable(z.number()),
+  dailyVolumeEthPercentChange: z.number().nullable(),
   weeklyVolumeEth: z.number(),
-  weeklyVolumeEthPercentChange: z.nullable(z.number()),
+  weeklyVolumeEthPercentChange: z.number().nullable(),
   monthlyVolumeEth: z.number(),
-  monthlyVolumeEthPercentChange: z.nullable(z.number()),
+  monthlyVolumeEthPercentChange: z.number().nullable(),
   totalVolumeEth: z.number(),
 })
 
@@ -611,6 +661,7 @@ const fullCollectionSchema = z.object({
   openseaId: z.string().nullable(),
   socialLinks: z.array(socialLinkSchema),
   stats: statsSchema,
+  type: z.string(),
 })
 
 const nftCollectionSchema = z.object({
@@ -619,20 +670,20 @@ const nftCollectionSchema = z.object({
   collection: fullCollectionSchema,
 })
 
-const cursorSchema = z.string().nonempty()
+const cursorSchema = z.string().withPredicate(isNonEmpty)
 
 const v2NftBalancesCollectionsSchema = z.object({
   items: z.array(nftCollectionSchema),
   cursor: cursorSchema.optional(),
 })
 
-const optionalUrl = z.union([z.string().url().nullish(), z.literal('')])
+const optionalUrl = z.union([z.string().withPredicate(isUrl).optional().nullable(), z.literal('')])
 
 const collectionSchema = z.object({
   address: z.string().optional(),
   network: z.string().optional(),
   name: z.string().optional(),
-  nftStandard: z.string().nonempty(),
+  nftStandard: z.string().withPredicate(isNonEmpty),
   type: z.string().optional(),
   floorPriceEth: z.string().optional().nullable(),
   logoImageUrl: optionalUrl,
@@ -640,18 +691,18 @@ const collectionSchema = z.object({
 })
 
 const tokenSchema = z.object({
-  id: z.string().nonempty(),
-  name: z.string().nonempty(),
-  tokenId: z.string().nonempty(),
+  id: z.string().withPredicate(isNonEmpty),
+  name: z.string().withPredicate(isNonEmpty),
+  tokenId: z.string().withPredicate(isNonEmpty),
   lastSaleEth: z.string().nullable(),
-  rarityRank: z.number().int().nullable(),
+  rarityRank: z.number().nullable(),
   estimatedValueEth: z.number().nullable(),
   medias: z.array(mediaSchema),
   collection: collectionSchema,
 })
 
 const userNftItemSchema = z.object({
-  balance: z.string().nonempty(),
+  balance: z.string().withPredicate(isNonEmpty),
   token: tokenSchema,
 })
 
@@ -660,603 +711,21 @@ const userNftTokenSchema = z.object({
   items: z.array(userNftItemSchema).optional(),
 })
 
-const ZapperGroupIdSchema = z.nativeEnum(ZapperGroupId)
+export type V2NftUserItem = Infer<typeof userNftItemSchema>
 
-export type V2NftUserItem = z.infer<typeof userNftItemSchema>
-
-export type V2BalancesAppsResponseType = z.infer<typeof V2BalancesAppsResponse>
+export type V2BalancesAppsResponseType = Infer<typeof V2BalancesAppsResponse>
 const V2BalancesAppsResponse = z.array(ZapperV2AppBalance)
 
-export type ZapperAssetBase = z.infer<typeof ZapperAssetBaseSchema>
-const V2AppTokensResponse = z.array(ZapperAssetBaseSchema)
-export type V2AppTokensResponseType = z.infer<typeof V2AppTokensResponse>
+export type ZapperAssetBase = Infer<typeof ZapperAssetBaseSchema>
+export const V2AppTokensResponse = z.array(ZapperAssetBaseSchema)
+export type V2AppTokensResponseType = Infer<typeof V2AppTokensResponse>
 
 const V2NftUserTokensResponse = userNftTokenSchema
-export type V2NftUserTokensResponseType = z.infer<typeof V2NftUserTokensResponse>
+export type V2NftUserTokensResponseType = Infer<typeof V2NftUserTokensResponse>
 
-export type V2NftCollectionType = z.infer<typeof nftCollectionSchema>
+export type V2NftCollectionType = Infer<typeof nftCollectionSchema>
 
-const V2NftBalancesCollectionsResponse = v2NftBalancesCollectionsSchema
-export type V2NftBalancesCollectionsResponseType = z.infer<typeof V2NftBalancesCollectionsResponse>
+export const V2NftBalancesCollectionsResponse = v2NftBalancesCollectionsSchema
+export type V2NftBalancesCollectionsResponseType = Infer<typeof V2NftBalancesCollectionsResponse>
 
-export type V2ZapperNft = z.infer<typeof tokenSchema>
-
-const endpoints = makeApi([
-  {
-    method: 'get',
-    path: '/v2/api-clients/points',
-    description: `Get stats about the API client points`,
-    requestFormat: 'json',
-    response: z.void(),
-  },
-  {
-    method: 'get',
-    path: '/v2/apps',
-    requestFormat: 'json',
-    response: z.void(),
-  },
-  {
-    method: 'get',
-    path: '/v2/apps/:appSlug',
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'appSlug',
-        type: 'Path',
-        schema: z.string(),
-      },
-    ],
-    response: z.void(),
-  },
-  {
-    method: 'get',
-    path: '/v2/apps/:appSlug/balances',
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'appSlug',
-        type: 'Path',
-        schema: z.string(),
-      },
-      {
-        name: 'addresses[]',
-        type: 'Query',
-        schema: z.array(z.string()),
-      },
-      {
-        name: 'network',
-        type: 'Query',
-        schema: SupportedZapperNetworks.optional(),
-      },
-    ],
-    response: z.void(),
-  },
-  {
-    method: 'get',
-    path: '/v2/apps/:appSlug/positions',
-    description: `Retrieve positions (non-tokenized) for a given application`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'appSlug',
-        type: 'Path',
-        schema: z.string(),
-      },
-      {
-        name: 'network',
-        type: 'Query',
-        schema: SupportedZapperNetworks,
-      },
-      {
-        name: 'groupId',
-        type: 'Query',
-        schema: z.string(),
-      },
-    ],
-    response: z.void(),
-  },
-  {
-    method: 'get',
-    path: '/v2/apps/:appSlug/tokens',
-    alias: 'getV2AppTokens',
-    description: `Retrieve tokens for a given application`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'appSlug',
-        type: 'Path',
-        schema: z.string(),
-      },
-      {
-        name: 'networks',
-        type: 'Query',
-        schema: z.array(SupportedZapperNetworks.optional()),
-      },
-      {
-        name: 'groupId',
-        type: 'Query',
-        schema: ZapperGroupIdSchema,
-      },
-    ],
-    response: V2AppTokensResponse,
-  },
-  {
-    method: 'get',
-    path: '/v2/balances/apps',
-    description: `Gets the app balances for a set of addresses and set of networks.`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'addresses',
-        type: 'Query',
-        schema: z.array(z.string()),
-      },
-      {
-        name: 'networks',
-        type: 'Query',
-        schema: z.array(SupportedZapperNetworks.optional()),
-      },
-    ],
-    response: V2BalancesAppsResponse,
-  },
-  {
-    method: 'post',
-    path: '/v2/balances/apps',
-    description: `Recomputes the app balances for a set of addresses and set of networks.`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'addresses',
-        type: 'Query',
-        schema: z.array(z.string()),
-      },
-      {
-        name: 'networks',
-        type: 'Query',
-        schema: z.array(SupportedZapperNetworks.optional()),
-      },
-    ],
-    response: z.object({
-      jobId: z.string(),
-    }),
-  },
-  {
-    method: 'get',
-    path: '/v2/balances/job-status',
-    description: `Gets the status of a single balance computation job.`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'jobId',
-        type: 'Query',
-        schema: z.string(),
-      },
-    ],
-    response: z.void(),
-  },
-  {
-    method: 'get',
-    path: '/v2/balances/tokens',
-    description: `Gets the token balances for a set of addresses and set of networks.`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'addresses[]',
-        type: 'Query',
-        schema: z.array(z.string()),
-      },
-      {
-        name: 'networks[]',
-        type: 'Query',
-        schema: z.array(SupportedZapperNetworks).optional(),
-      },
-    ],
-    response: z.void(),
-  },
-  {
-    method: 'post',
-    path: '/v2/balances/tokens',
-    description: `Recomputes the token balances for a set of addresses and set of networks.`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'addresses[]',
-        type: 'Query',
-        schema: z.array(z.string()),
-      },
-      {
-        name: 'networks[]',
-        type: 'Query',
-        schema: z.array(SupportedZapperNetworks).optional(),
-      },
-    ],
-    response: z.void(),
-  },
-  {
-    method: 'get',
-    path: '/v2/exchange/price',
-    description: `Returns data about the amount received if a trade would be made. **Should be called whenever a price needs to be calculated.**`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'gasPrice',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'maxFeePerGas',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'maxPriorityFeePerGas',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'sellTokenAddress',
-        type: 'Query',
-        schema: z.string(),
-      },
-      {
-        name: 'buyTokenAddress',
-        type: 'Query',
-        schema: z.string(),
-      },
-      {
-        name: 'sellAmount',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'buyAmount',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'ownerAddress',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'slippagePercentage',
-        type: 'Query',
-        schema: z.number().optional(),
-      },
-      {
-        name: 'network',
-        type: 'Query',
-        schema: SupportedZapperNetworks.optional().default(SupportedZapperNetwork.Ethereum),
-      },
-    ],
-    response: z.void(),
-  },
-  {
-    method: 'get',
-    path: '/v2/exchange/quote',
-    description: `Returns both the relative price for a trade as well as the call data used to sumbit a transaction for a trade. **Should only be called when a trade is ready to be submitted.**`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'gasPrice',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'maxFeePerGas',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'maxPriorityFeePerGas',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'sellTokenAddress',
-        type: 'Query',
-        schema: z.string(),
-      },
-      {
-        name: 'buyTokenAddress',
-        type: 'Query',
-        schema: z.string(),
-      },
-      {
-        name: 'sellAmount',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'buyAmount',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'ownerAddress',
-        type: 'Query',
-        schema: z.string(),
-      },
-      {
-        name: 'slippagePercentage',
-        type: 'Query',
-        schema: z.number(),
-      },
-      {
-        name: 'network',
-        type: 'Query',
-        schema: SupportedZapperNetworks.optional().default(SupportedZapperNetwork.Ethereum),
-      },
-    ],
-    response: z.void(),
-  },
-  {
-    method: 'get',
-    path: '/v2/exchange/supported',
-    description: `Returns the exchanges supported by Zapper API.`,
-    requestFormat: 'json',
-    response: z.void(),
-  },
-  {
-    method: 'get',
-    path: '/v2/gas-prices',
-    description: `Retrieve a gas price aggregated from multiple different sources`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'network',
-        type: 'Query',
-        schema: SupportedZapperNetworks.optional().default(SupportedZapperNetwork.Ethereum),
-      },
-      {
-        name: 'eip1559',
-        type: 'Query',
-        schema: z.boolean(),
-      },
-    ],
-    response: GasPricesResponse,
-  },
-  {
-    method: 'get',
-    path: '/v2/nft/balances/collections',
-    alias: 'getV2NftBalancesCollections',
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'addresses[]',
-        type: 'Query',
-        schema: z.array(z.string()),
-      },
-      {
-        name: 'minCollectionValueUsd',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'search',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'collectionAddresses[]',
-        type: 'Query',
-        schema: z.array(z.string()).optional(),
-      },
-      {
-        name: 'network',
-        type: 'Query',
-        schema: SupportedZapperNetworks.optional(),
-      },
-      {
-        name: 'limit',
-        type: 'Query',
-        schema: z.string().optional().default('25'),
-      },
-      {
-        name: 'cursor',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-    ],
-    response: V2NftBalancesCollectionsResponse,
-  },
-  {
-    method: 'get',
-    path: '/v2/nft/balances/collections-totals',
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'addresses[]',
-        type: 'Query',
-        schema: z.array(z.string()),
-      },
-      {
-        name: 'minCollectionValueUsd',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'search',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'collectionAddresses[]',
-        type: 'Query',
-        schema: z.array(z.string()).optional(),
-      },
-      {
-        name: 'network',
-        type: 'Query',
-        schema: SupportedZapperNetworks.optional(),
-      },
-    ],
-    response: z.void(),
-  },
-  {
-    method: 'get',
-    path: '/v2/nft/balances/net-worth',
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'addresses[]',
-        type: 'Query',
-        schema: z.array(z.string()),
-      },
-    ],
-    response: z.void(),
-  },
-  {
-    method: 'get',
-    path: '/v2/nft/balances/tokens',
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'addresses[]',
-        type: 'Query',
-        schema: z.array(z.string()),
-      },
-      {
-        name: 'minEstimatedValueUsd',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'search',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'collectionAddresses[]',
-        type: 'Query',
-        schema: z.array(z.string()).optional(),
-      },
-      {
-        name: 'network',
-        type: 'Query',
-        schema: SupportedZapperNetworks.optional(),
-      },
-      {
-        name: 'limit',
-        type: 'Query',
-        schema: z.string().optional().default('25'),
-      },
-      {
-        name: 'cursor',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-    ],
-    response: z.void(),
-  },
-  {
-    method: 'get',
-    path: '/v2/nft/balances/tokens-totals',
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'addresses[]',
-        type: 'Query',
-        schema: z.array(z.string()),
-      },
-      {
-        name: 'minEstimatedValueUsd',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'search',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'collectionAddresses[]',
-        type: 'Query',
-        schema: z.array(z.string()).optional(),
-      },
-      {
-        name: 'network',
-        type: 'Query',
-        schema: SupportedZapperNetworks.optional(),
-      },
-    ],
-    response: z.void(),
-  },
-  {
-    method: 'get',
-    path: '/v2/nft/collection/tokens',
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'collectionAddress',
-        type: 'Query',
-        schema: z.string(),
-      },
-      {
-        name: 'network',
-        type: 'Query',
-        schema: SupportedZapperNetworks,
-      },
-      {
-        name: 'cursor',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-      {
-        name: 'tokenIds[]',
-        type: 'Query',
-        schema: z.array(z.string()).optional(),
-      },
-    ],
-    response: z.void(),
-  },
-  {
-    method: 'get',
-    path: '/v2/nft/user/tokens',
-    requestFormat: 'json',
-    alias: 'getV2NftUserTokens',
-    parameters: [
-      {
-        name: 'userAddress',
-        type: 'Query',
-        schema: z.string(),
-      },
-      {
-        name: 'network',
-        type: 'Query',
-        schema: SupportedZapperNetworks.optional(),
-      },
-      {
-        name: 'limit',
-        type: 'Query',
-        schema: z.string().optional().default('50'),
-      },
-      {
-        name: 'cursor',
-        type: 'Query',
-        schema: z.string().optional(),
-      },
-    ],
-    response: V2NftUserTokensResponse,
-  },
-  {
-    method: 'get',
-    path: '/v2/prices',
-    description: `Retrieve supported tokens and their prices`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'network',
-        type: 'Query',
-        schema: SupportedZapperNetworks.optional(),
-      },
-    ],
-    response: z.void(),
-  },
-])
-
-export const api = new Zodios(endpoints)
-
-export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
-  return new Zodios(baseUrl, endpoints, options)
-}
+export type V2ZapperNft = Infer<typeof tokenSchema>

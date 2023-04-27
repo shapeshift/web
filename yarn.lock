@@ -5038,30 +5038,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keepkey/hdwallet-keepkey-rest@npm:1.40.12":
-  version: 1.40.12
-  resolution: "@keepkey/hdwallet-keepkey-rest@npm:1.40.12"
+"@keepkey/hdwallet-keepkey-rest@npm:1.40.25":
+  version: 1.40.25
+  resolution: "@keepkey/hdwallet-keepkey-rest@npm:1.40.25"
   dependencies:
-    "@keepkey/keepkey-sdk": 0.2.25
+    "@keepkey/keepkey-sdk": ^0.2.41
     lodash: ^4.17.21
     semver: ^6.3.0
   peerDependencies:
     "@shapeshiftoss/hdwallet-core": 1.41.0
-  checksum: 766ce6b94bcda2e8e7788374d8ead218944f6155be11c5a02e7ce8219bd12079a64c7ca7ae16640f77ef62abbf3b9ce212d9818803e419cbc4d58d5df134dd0f
+  checksum: 004c6bfd17f0039ce5fe8c0370c7d7c47e98eb226956ecfe7c211fc935bd67c2cd7a188951c968745f39d3eda089674100039e3180294cc690f86c1189b3cdd7
   languageName: node
   linkType: hard
 
-"@keepkey/keepkey-sdk@npm:0.2.25":
-  version: 0.2.25
-  resolution: "@keepkey/keepkey-sdk@npm:0.2.25"
-  checksum: 50363a594644defe4cc85371533ed5ec761abc2ea207b213b4ac5e5cfb62038cad7e569131b9260fb96f7a426e226e75d78c41b5243270e237154840a7c8f886
-  languageName: node
-  linkType: hard
-
-"@keepkey/keepkey-sdk@npm:0.2.26":
-  version: 0.2.26
-  resolution: "@keepkey/keepkey-sdk@npm:0.2.26"
-  checksum: 5e37360799c93d64ad5edf7e0f86021152c35a239f34e41fc79e31091475e183495a2398ca8171fabe941cb5e83636da8bcfb0089227ce0d15c4fa69b03e4dee
+"@keepkey/keepkey-sdk@npm:0.2.41, @keepkey/keepkey-sdk@npm:^0.2.41":
+  version: 0.2.41
+  resolution: "@keepkey/keepkey-sdk@npm:0.2.41"
+  checksum: b40856dcba1330a8aff4dd58072cd38e1506bfc1260b882c6ce421df1c83095110ba3136a048a58232a69b61b8b3f05d6636f9ca3cf0d6e7e676f3ac46e9680a
   languageName: node
   linkType: hard
 
@@ -6272,8 +6265,8 @@ __metadata:
     "@formatjs/intl-numberformat": ^8.0.2
     "@formatjs/intl-pluralrules": ^5.0.2
     "@jest/types": ^27.1.0
-    "@keepkey/hdwallet-keepkey-rest": 1.40.12
-    "@keepkey/keepkey-sdk": 0.2.26
+    "@keepkey/hdwallet-keepkey-rest": 1.40.25
+    "@keepkey/keepkey-sdk": 0.2.41
     "@keplr-wallet/types": ^0.10.5
     "@lifi/sdk": ^1.7.2
     "@metamask/detect-provider": ^1.2.0
@@ -6346,7 +6339,6 @@ __metadata:
     "@walletconnect/web3wallet": ^1.2.0
     "@welldone-software/why-did-you-render": ^7.0.1
     "@wherever/react-notification-feed": ^0.3.16
-    "@zodios/core": ^10.8.0
     allsettled-polyfill: ^1.0.4
     assert: ^2.0.0
     axios: ^0.26.1
@@ -6397,6 +6389,7 @@ __metadata:
     mixpanel-browser: ^2.45.0
     msw: ^0.36.5
     multiformats: ^9.6.3
+    myzod: ^1.10.0
     node-polyglot: ^2.4.0
     os-browserify: ^0.3.0
     patch-package: ^6.4.7
@@ -6449,7 +6442,6 @@ __metadata:
     web3: 1.7.4
     webpack: 5.76.0
     webpack-subresource-integrity: ^5.0.0
-    zod: ^3.21.4
     zustand: ^4.3.6
   peerDependencies:
     lit-html: ^2.6.1
@@ -9512,16 +9504,6 @@ __metadata:
   version: 0.1.0
   resolution: "@zag-js/focus-visible@npm:0.1.0"
   checksum: d3ff93ff696a9287731f3b3f3d5d734b697576ec626eb683252f074baeca46770f931ddb52c8cf08854a6a3c422182a3aaf588c30736b7f26fb3f1e9d6e35ef5
-  languageName: node
-  linkType: hard
-
-"@zodios/core@npm:^10.8.0":
-  version: 10.8.0
-  resolution: "@zodios/core@npm:10.8.0"
-  peerDependencies:
-    axios: ^0.x || ^1.0.0
-    zod: ^3.x
-  checksum: 071fba4d3d1f0082a414e13f84ca754cf5b60c0ddebd0845865c70328c7aee055fe623462dd1ae11342e3acb8849eb6d089de3571c1d6421a4d358f2c223d61f
   languageName: node
   linkType: hard
 
@@ -20859,6 +20841,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"myzod@npm:^1.10.0":
+  version: 1.10.0
+  resolution: "myzod@npm:1.10.0"
+  checksum: a5d4eee5fed4205683a2e6b4557f7537979f098bd2b6040051fbc5a30d2bd6dcdf8fa20b16703ff8c56c69763bc226505d0c3155ac0bc7969e36773901d9af04
+  languageName: node
+  linkType: hard
+
 "nan@npm:^2.13.2, nan@npm:^2.14.0, nan@npm:^2.2.1":
   version: 2.15.0
   resolution: "nan@npm:2.15.0"
@@ -29279,13 +29268,6 @@ pvutils@latest:
   version: 0.8.15
   resolution: "zen-observable@npm:0.8.15"
   checksum: b7289084bc1fc74a559b7259faa23d3214b14b538a8843d2b001a35e27147833f4107590b1b44bf5bc7f6dfe6f488660d3a3725f268e09b3925b3476153b7821
-  languageName: node
-  linkType: hard
-
-"zod@npm:^3.21.4":
-  version: 3.21.4
-  resolution: "zod@npm:3.21.4"
-  checksum: f185ba87342ff16f7a06686767c2b2a7af41110c7edf7c1974095d8db7a73792696bcb4a00853de0d2edeb34a5b2ea6a55871bc864227dace682a0a28de33e1f
   languageName: node
   linkType: hard
 

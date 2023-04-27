@@ -113,7 +113,7 @@ export const Header = () => {
         paddingTop={{ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }}
       >
         <HStack height='4.5rem' width='full' px={4}>
-          <HStack width='full' margin='0 auto' px={{ base: 0, md: 12 }} spacing={0} columnGap={4}>
+          <HStack width='full' margin='0 auto' px={{ base: 0, xl: 12 }} spacing={0} columnGap={4}>
             <Box flex={1} display={{ base: 'block', md: 'none' }}>
               <IconButton
                 aria-label='Open menu'

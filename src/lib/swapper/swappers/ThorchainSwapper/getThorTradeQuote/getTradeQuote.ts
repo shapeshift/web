@@ -17,7 +17,6 @@ import type {
 } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers/ThorchainSwapper/constants'
-import { getSlippage } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getSlippage'
 import type {
   ThorChainId,
   ThorCosmosSdkSupportedChainId,
@@ -31,10 +30,8 @@ import {
   THORCHAIN_FIXED_PRECISION,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
-import {
-  getTradeRate,
-  getTradeRateBelowMinimum,
-} from 'lib/swapper/swappers/ThorchainSwapper/utils/getTradeRate/getTradeRate'
+import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
+import { getTradeRateBelowMinimum } from 'lib/swapper/swappers/ThorchainSwapper/utils/getTradeRate/getTradeRate'
 import { getUsdRate } from 'lib/swapper/swappers/ThorchainSwapper/utils/getUsdRate/getUsdRate'
 import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
 import { getEvmTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/evmTxFees/getEvmTxFees'
@@ -79,7 +76,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         }),
       )
 
-    const quoteRate = await getTradeRate({
+    const quote = await getQuote({
       sellAsset,
       buyAssetId: buyAsset.assetId,
       sellAmountCryptoBaseUnit,
@@ -87,8 +84,33 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       deps,
     })
 
-    const rate = await quoteRate.match({
-      ok: rate => Promise.resolve(rate),
+    const slippagePercentage = quote.isOk()
+      ? bn(quote.unwrap().slippage_bps).div(1000).toString()
+      : bn(DEFAULT_SLIPPAGE).times(100)
+
+    const rate = await quote.match({
+      ok: quote => {
+        const THOR_PRECISION = 8
+        const expectedAmountOutThorBaseUnit = quote.expected_amount_out
+        // Add back the outbound fees
+        const expectedAmountPlusFeesCryptoThorBaseUnit = bn(expectedAmountOutThorBaseUnit).plus(
+          quote.fees.outbound,
+        )
+        const expectedAmountPlusFeesAndSlippageCryptoThorBaseUnit =
+          expectedAmountPlusFeesCryptoThorBaseUnit.div(bn(1).minus(slippagePercentage))
+        const sellAmountCryptoPrecision = bn(sellAmountCryptoBaseUnit).div(
+          bn(10).pow(sellAsset.precision),
+        )
+        // All thorchain pool amounts are base 8 regardless of token precision
+        const sellAmountCryptoThorBaseUnit = bn(
+          toBaseUnit(sellAmountCryptoPrecision, THOR_PRECISION),
+        )
+        return Promise.resolve(
+          expectedAmountPlusFeesAndSlippageCryptoThorBaseUnit
+            .div(sellAmountCryptoThorBaseUnit)
+            .toFixed(),
+        )
+      },
       // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
       // Though realistically, TRADE_BELOW_MINIMUM is the only one we should really be seeing here,
       // safety never hurts
@@ -109,18 +131,6 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       deps.daemonUrl,
       buyAsset.assetId,
     )
-
-    const sellAmountThorPrecision = toBaseUnit(
-      fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision),
-      THORCHAIN_FIXED_PRECISION,
-    )
-
-    const recommendedSlippage = await getSlippage({
-      inputAmountThorPrecision: bn(sellAmountThorPrecision),
-      daemonUrl: deps.daemonUrl,
-      buyAssetId: buyAsset.assetId,
-      sellAssetId: sellAsset.assetId,
-    })
 
     const estimatedBuyAssetTradeFeeFeeAssetCryptoHuman = isRune(buyAsset.assetId)
       ? RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN.toString()
@@ -155,7 +165,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       sellAsset,
       accountNumber,
       minimumCryptoHuman: minimumSellAssetAmountPaddedCryptoHuman,
-      recommendedSlippage: recommendedSlippage.toPrecision(),
+      recommendedSlippage: bn(slippagePercentage).div(100).toString(),
     }
 
     const { chainNamespace } = fromAssetId(sellAsset.assetId)

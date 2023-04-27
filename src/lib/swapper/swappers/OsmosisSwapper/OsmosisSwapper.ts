@@ -142,8 +142,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     })
   }
 
-  approvalNeeded(): Promise<ApprovalNeededOutput> {
-    return Promise.resolve({ approvalNeeded: false })
+  approvalNeeded(): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
+    return Promise.resolve(Ok({ approvalNeeded: false }))
   }
 
   approveInfinite(): Promise<string> {

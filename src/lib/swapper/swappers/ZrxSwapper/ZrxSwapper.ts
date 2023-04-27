@@ -102,7 +102,9 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     return zrxExecuteTrade<T>(this.deps, args)
   }
 
-  approvalNeeded(args: ApprovalNeededInput<T>): Promise<ApprovalNeededOutput> {
+  approvalNeeded(
+    args: ApprovalNeededInput<T>,
+  ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
     return zrxApprovalNeeded<T>(this.deps, args)
   }
 

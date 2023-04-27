@@ -294,7 +294,9 @@ export interface Swapper<T extends ChainId> {
   /**
    * Get a boolean if a quote needs approval
    */
-  approvalNeeded(args: ApprovalNeededInput<T>): Promise<ApprovalNeededOutput>
+  approvalNeeded(
+    args: ApprovalNeededInput<T>,
+  ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>>
 
   /**
    * Get the txid of an approve infinite transaction

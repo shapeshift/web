@@ -137,7 +137,9 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Get a boolean if a quote needs approval
    */
-  async approvalNeeded(input: ApprovalNeededInput<EvmChainId>): Promise<ApprovalNeededOutput> {
+  async approvalNeeded(
+    input: ApprovalNeededInput<EvmChainId>,
+  ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
     return await approvalNeeded(input)
   }
 

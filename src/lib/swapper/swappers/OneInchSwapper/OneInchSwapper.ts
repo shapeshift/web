@@ -74,7 +74,9 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
     return getUsdRate(this.deps, input)
   }
 
-  approvalNeeded(input: ApprovalNeededInput<EvmChainId>): Promise<ApprovalNeededOutput> {
+  approvalNeeded(
+    input: ApprovalNeededInput<EvmChainId>,
+  ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
     return approvalNeeded(this.deps, input)
   }
 

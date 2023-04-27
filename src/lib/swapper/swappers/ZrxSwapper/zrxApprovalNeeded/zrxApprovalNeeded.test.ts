@@ -60,7 +60,9 @@ describe('zrxApprovalNeeded', () => {
       wallet,
     }
 
-    expect(await zrxApprovalNeeded(deps, input)).toEqual({ approvalNeeded: false })
+    const maybeApprovalNeeded = await zrxApprovalNeeded(deps, input)
+    expect(maybeApprovalNeeded.isOk()).toBe(true)
+    expect(maybeApprovalNeeded.unwrap()).toEqual({ approvalNeeded: false })
   })
 
   it('throws an error if sellAsset chain is not ETH', async () => {
@@ -69,7 +71,15 @@ describe('zrxApprovalNeeded', () => {
       wallet,
     }
 
-    await expect(zrxApprovalNeeded(deps, input)).rejects.toThrow()
+    const maybeApprovalNeeded = await zrxApprovalNeeded(deps, input)
+    expect(maybeApprovalNeeded.isErr()).toBe(true)
+    expect(maybeApprovalNeeded.unwrapErr()).toMatchObject({
+      cause: undefined,
+      code: 'UNSUPPORTED_PAIR',
+      details: { buyAssetChainId: 'eip155:1', sellAssetChainId: '' },
+      message: '[assertValidTradePair] - both assets must be on chainId eip155:1',
+      name: 'SwapError',
+    })
   })
 
   it('returns false if allowanceOnChain is greater than quote.sellAmount', async () => {
@@ -97,7 +107,9 @@ describe('zrxApprovalNeeded', () => {
     }))
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({ data })))
 
-    expect(await zrxApprovalNeeded(deps, input)).toEqual({
+    const maybeApprovalNeeded = await zrxApprovalNeeded(deps, input)
+    expect(maybeApprovalNeeded.isOk()).toBe(true)
+    expect(maybeApprovalNeeded.unwrap()).toEqual({
       approvalNeeded: false,
     })
   })
@@ -127,7 +139,9 @@ describe('zrxApprovalNeeded', () => {
     }))
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
-    expect(await zrxApprovalNeeded(deps, input)).toEqual({
+    const maybeApprovalNeeded = await zrxApprovalNeeded(deps, input)
+    expect(maybeApprovalNeeded.isOk()).toBe(true)
+    expect(maybeApprovalNeeded.unwrap()).toEqual({
       approvalNeeded: true,
     })
   })

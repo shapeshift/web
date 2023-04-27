@@ -40,12 +40,20 @@ describe('cowApprovalNeeded', () => {
       wallet: {} as HDWallet,
     }
 
-    await expect(cowApprovalNeeded(args, input1)).rejects.toThrow(
-      '[cowApprovalNeeded] - unsupported asset namespace',
-    )
-    await expect(cowApprovalNeeded(args, input2)).rejects.toThrow(
-      '[cowApprovalNeeded] - unsupported asset namespace',
-    )
+    expect((await cowApprovalNeeded(args, input1)).unwrapErr()).toMatchObject({
+      cause: undefined,
+      code: 'UNSUPPORTED_NAMESPACE',
+      details: { assetNamespace: 'slip44' },
+      message: '[cowApprovalNeeded] - unsupported asset namespace',
+      name: 'SwapError',
+    })
+    expect((await cowApprovalNeeded(args, input2)).unwrapErr()).toMatchObject({
+      cause: undefined,
+      code: 'UNSUPPORTED_NAMESPACE',
+      details: { assetNamespace: 'slip44' },
+      message: '[cowApprovalNeeded] - unsupported asset namespace',
+      name: 'SwapError',
+    })
   })
 
   it('returns false if allowanceOnChain is greater than quote.sellAmount', async () => {
@@ -66,7 +74,9 @@ describe('cowApprovalNeeded', () => {
       },
     }))
 
-    expect(await cowApprovalNeeded(args, input)).toEqual({
+    const maybeApprovalNeeded = await cowApprovalNeeded(args, input)
+    expect(maybeApprovalNeeded.isOk()).toBe(true)
+    expect(maybeApprovalNeeded.unwrap()).toEqual({
       approvalNeeded: false,
     })
     expect(mockedAllowance).toHaveBeenCalledTimes(1)
@@ -95,7 +105,9 @@ describe('cowApprovalNeeded', () => {
       },
     }))
 
-    expect(await cowApprovalNeeded(args, input)).toEqual({
+    const maybeApprovalNeeded = await cowApprovalNeeded(args, input)
+    expect(maybeApprovalNeeded.isErr()).toBe(false)
+    expect(maybeApprovalNeeded.unwrap()).toEqual({
       approvalNeeded: true,
     })
     expect(mockedAllowance).toHaveBeenCalledTimes(1)

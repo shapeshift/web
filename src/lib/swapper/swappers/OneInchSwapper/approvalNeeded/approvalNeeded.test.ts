@@ -54,7 +54,7 @@ describe('approvalNeeded', () => {
         }),
     )
 
-    expect((await approvalNeeded(deps, input)).approvalNeeded).toBe(false)
+    expect((await approvalNeeded(deps, input)).unwrap().approvalNeeded).toBe(false)
   })
 
   it('returns true when existing approval is in place but too low', async () => {
@@ -80,7 +80,7 @@ describe('approvalNeeded', () => {
         }),
     )
 
-    expect((await approvalNeeded(deps, input)).approvalNeeded).toBe(true)
+    expect((await approvalNeeded(deps, input)).unwrap().approvalNeeded).toBe(true)
   })
 
   it('returns true when no approval is in place', async () => {
@@ -106,6 +106,6 @@ describe('approvalNeeded', () => {
         }),
     )
 
-    expect((await approvalNeeded(deps, input)).approvalNeeded).toBe(true)
+    expect((await approvalNeeded(deps, input)).unwrap().approvalNeeded).toBe(true)
   })
 })

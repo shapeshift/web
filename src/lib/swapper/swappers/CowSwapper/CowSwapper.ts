@@ -78,7 +78,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
 
   approvalNeeded(
     args: ApprovalNeededInput<KnownChainIds.EthereumMainnet>,
-  ): Promise<ApprovalNeededOutput> {
+  ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
     return cowApprovalNeeded(this.deps, args)
   }
 

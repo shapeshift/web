@@ -92,7 +92,9 @@ export const selectCheckApprovalNeededForWallet = (
     if (!activeSwapper) throw new Error('No swapper available')
     if (!activeQuote) throw new Error('No quote available')
 
-    const { approvalNeeded } = await activeSwapper.approvalNeeded({ quote: activeQuote, wallet })
+    const { approvalNeeded } = (
+      await activeSwapper.approvalNeeded({ quote: activeQuote, wallet })
+    ).unwrap()
     return approvalNeeded
   }
 }

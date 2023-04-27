@@ -142,7 +142,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
 
   approvalNeeded(
     input: ApprovalNeededInput<ThorEvmSupportedChainId>,
-  ): Promise<ApprovalNeededOutput> {
+  ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
     return thorTradeApprovalNeeded({ deps: this.deps, input })
   }
 

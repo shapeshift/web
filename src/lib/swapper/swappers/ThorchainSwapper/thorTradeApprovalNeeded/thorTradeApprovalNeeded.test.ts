@@ -24,7 +24,9 @@ describe('thorTradeApprovalNeeded', () => {
       wallet,
     }
 
-    expect(await thorTradeApprovalNeeded({ deps, input })).toEqual({ approvalNeeded: false })
+    expect((await thorTradeApprovalNeeded({ deps, input })).unwrap()).toEqual({
+      approvalNeeded: false,
+    })
   })
 
   it('returns false if allowanceOnChain is greater than quote.sellAmount', async () => {
@@ -44,7 +46,7 @@ describe('thorTradeApprovalNeeded', () => {
     }
     ;(getERC20Allowance as jest.Mock<unknown>).mockImplementation(() => allowanceOnChain)
 
-    expect(await thorTradeApprovalNeeded({ deps, input })).toEqual({
+    expect((await thorTradeApprovalNeeded({ deps, input })).unwrap()).toEqual({
       approvalNeeded: false,
     })
   })
@@ -66,7 +68,9 @@ describe('thorTradeApprovalNeeded', () => {
     }
     ;(getERC20Allowance as jest.Mock<unknown>).mockImplementation(() => allowanceOnChain)
 
-    expect(await thorTradeApprovalNeeded({ deps, input })).toEqual({
+    const maybeApprovalNeeded = await thorTradeApprovalNeeded({ deps, input })
+    expect(maybeApprovalNeeded.isOk()).toBe(true)
+    expect(maybeApprovalNeeded.unwrap()).toEqual({
       approvalNeeded: true,
     })
   })

@@ -45,7 +45,7 @@ export class TestSwapper implements Swapper<ChainId> {
     throw new Error('TestSwapper: getUsdRate unimplemented')
   }
 
-  approvalNeeded(): Promise<ApprovalNeededOutput> {
+  approvalNeeded(): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
     throw new Error('TestSwapper: approvalNeeded unimplemented')
   }
 

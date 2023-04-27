@@ -200,7 +200,7 @@ export const ReactTable = <T extends {}>({
       {(canNextPage || canPreviousPage) && (
         <Tfoot>
           <Tr>
-            <Td colSpan={visibleColumns.length} py={0}>
+            <Td colSpan={visibleColumns.length} style={{ paddingLeft: 4, paddingRight: 4 }}>
               <Flex width='full' justifyContent='space-between' alignItems='center'>
                 <IconButton
                   icon={<ArrowBackIcon />}

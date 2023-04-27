@@ -23,6 +23,7 @@ const NftGrid: React.FC<SimpleGridProps> = props => (
       md: 'repeat(3, 1fr)',
       lg: 'repeat(4, 1fr)',
     }}
+    px={{ base: 4, xl: 0 }}
     {...props}
   />
 )
@@ -75,7 +76,7 @@ export const NftTable = () => {
 
   return (
     <>
-      <Box mb={4}>
+      <Box mb={4} px={{ base: 4, xl: 0 }}>
         <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
       </Box>
       {isSearching && !renderNftCards?.length ? (

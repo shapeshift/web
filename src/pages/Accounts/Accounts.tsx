@@ -30,7 +30,7 @@ const AccountHeader = () => {
 
   return (
     <Stack
-      px={{ base: 4, md: 0 }}
+      px={{ base: 4, xl: 0 }}
       direction='row'
       justifyContent='space-between'
       alignItems='center'

@@ -61,8 +61,7 @@ export const marketData = createSlice({
     clear: () => initialState,
     setCryptoMarketData: {
       reducer: (state, { payload }: { payload: MarketDataById<AssetId> }) => {
-        state.crypto.byId = merge(state.crypto.byId, payload) // upsert
-        // upsert unique
+        state.crypto.byId = Object.assign(state.crypto.byId, payload) // upsert
         state.crypto.ids = Object.keys(state.crypto.byId)
       },
 

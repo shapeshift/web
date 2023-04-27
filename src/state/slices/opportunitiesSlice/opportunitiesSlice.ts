@@ -3,7 +3,6 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import merge from 'lodash/merge'
 import { PURGE } from 'redux-persist'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -83,11 +82,7 @@ export const opportunities = createSlice({
     clear: () => initialState,
     upsertOpportunityMetadata: {
       reducer: (draftState, { payload }: { payload: GetOpportunityMetadataOutput }) => {
-        draftState[payload.type].byId = Object.assign(
-          {},
-          draftState[payload.type].byId,
-          payload.byId,
-        )
+        draftState[payload.type].byId = Object.assign(draftState[payload.type].byId, payload.byId)
         draftState[payload.type].ids = Object.keys(draftState[payload.type].byId)
       },
       // Use the `prepareAutoBatched` utility to automatically
@@ -96,7 +91,7 @@ export const opportunities = createSlice({
     },
     upsertOpportunityAccounts: {
       reducer: (draftState, { payload }: { payload: GetOpportunityUserDataOutput }) => {
-        draftState[payload.type].byAccountId = merge(
+        draftState[payload.type].byAccountId = Object.assign(
           draftState[payload.type].byAccountId,
           payload.byAccountId,
         )
@@ -107,7 +102,7 @@ export const opportunities = createSlice({
     },
     upsertUserStakingOpportunities: {
       reducer: (draftState, { payload }: { payload: GetOpportunityUserStakingDataOutput }) => {
-        draftState.userStaking.byId = merge(draftState.userStaking.byId, payload.byId)
+        draftState.userStaking.byId = Object.assign(draftState.userStaking.byId, payload.byId)
         draftState.userStaking.ids = Object.keys(draftState.userStaking.byId) as UserStakingId[]
       },
 

@@ -467,7 +467,6 @@ export const useUniV2LiquidityPool = ({
         chainSpecific: {
           contractData: data,
           from: fromAccountId(accountId).account,
-          contractAddress: contract.address,
         },
       })
 

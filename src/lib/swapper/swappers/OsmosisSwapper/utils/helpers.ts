@@ -3,11 +3,12 @@ import { osmosis, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet, Osmosis } from '@shapeshiftoss/hdwallet-core'
 import { Logger } from '@shapeshiftoss/logger'
 import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { find } from 'lodash'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { OsmosisSupportedChainAdapter } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapper'
 import { OSMOSIS_PRECISION } from 'lib/swapper/swappers/OsmosisSwapper/utils/constants'
 import { osmoService } from 'lib/swapper/swappers/OsmosisSwapper/utils/osmoService'
@@ -29,6 +30,12 @@ export const symbolDenomMapping = {
   OSMO: 'uosmo',
   ATOM: 'ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
   USDC: 'ibc/D189335C6E4A68B513C10AB227BF1C1D38C746766278BA3EEB4FB14124F1D858',
+}
+
+type FindPoolOutput = {
+  pool: PoolInfo
+  sellAssetIndex: number
+  buyAssetIndex: number
 }
 
 const txStatus = async (txid: string, baseUrl: string): Promise<string> => {
@@ -118,16 +125,7 @@ const findPool = async (
   sellAssetSymbol: string,
   buyAssetSymbol: string,
   osmoUrl: string,
-): Promise<
-  Result<
-    {
-      pool: any
-      sellAssetIndex: number
-      buyAssetIndex: number
-    },
-    SwapErrorRight
-  >
-> => {
+): Promise<Result<FindPoolOutput, SwapErrorRight>> => {
   const sellAssetDenom = symbolDenomMapping[sellAssetSymbol as keyof SymbolDenomMapping]
   const buyAssetDenom = symbolDenomMapping[buyAssetSymbol as keyof SymbolDenomMapping]
 
@@ -135,7 +133,7 @@ const findPool = async (
 
   const maybePoolsResponse = await osmoService.get(poolsUrl)
 
-  return maybePoolsResponse.map(poolsResponse => {
+  return maybePoolsResponse.andThen<FindPoolOutput>(poolsResponse => {
     const foundPool = find(poolsResponse.data.pools, pool => {
       const token0Denom = pool.pool_assets[0].token.denom
       const token1Denom = pool.pool_assets[1].token.denom
@@ -146,9 +144,9 @@ const findPool = async (
     })
 
     if (!foundPool)
-      throw new SwapError('could not find pool', {
-        code: SwapErrorType.POOL_NOT_FOUND,
-      })
+      return Err(
+        makeSwapErrorRight({ message: 'could not find pool', code: SwapErrorType.POOL_NOT_FOUND }),
+      )
 
     const { sellAssetIndex, buyAssetIndex } = (() => {
       if (foundPool.pool_assets[0].token.denom === sellAssetDenom) {
@@ -158,7 +156,7 @@ const findPool = async (
       }
     })()
 
-    return { pool: foundPool, sellAssetIndex, buyAssetIndex }
+    return Ok({ pool: foundPool, sellAssetIndex, buyAssetIndex })
   })
 }
 

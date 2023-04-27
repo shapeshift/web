@@ -16,7 +16,6 @@ import type {
   TradeQuote,
 } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
-import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type {
   ThorChainId,
   ThorCosmosSdkSupportedChainId,
@@ -33,7 +32,6 @@ import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwa
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
 import { getTradeRateBelowMinimum } from 'lib/swapper/swappers/ThorchainSwapper/utils/getTradeRate/getTradeRate'
 import { getUsdRate } from 'lib/swapper/swappers/ThorchainSwapper/utils/getUsdRate/getUsdRate'
-import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
 import { getEvmTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
@@ -122,28 +120,32 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         }),
     })
 
-    const buyAmountCryptoBaseUnit = toBaseUnit(
-      bnOrZero(fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)).times(rate),
-      buyAsset.precision,
-    )
+    // If we have a quote, we can use the quote's expected amount out. If not it's either a 0-value trade or an error, so use '0'.
+    const buyAmountCryptoBaseUnit = quote.isOk()
+      ? toBaseUnit(
+          fromBaseUnit(quote.unwrap().expected_amount_out, THORCHAIN_FIXED_PRECISION),
+          buyAsset.precision,
+        )
+      : '0'
 
-    const buyAssetAddressData = await getInboundAddressDataForChain(
-      deps.daemonUrl,
-      buyAsset.assetId,
-    )
+    const fees = quote.isOk() ? quote.unwrap().fees : undefined
 
-    const estimatedBuyAssetTradeFeeFeeAssetCryptoHuman = isRune(buyAsset.assetId)
-      ? RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN.toString()
-      : fromBaseUnit(bnOrZero(buyAssetAddressData?.outbound_fee), THORCHAIN_FIXED_PRECISION)
+    const buyAssetTradeFeeCryptoHuman = fees
+      ? fromBaseUnit(bnOrZero(fees.outbound), THORCHAIN_FIXED_PRECISION)
+      : await getInboundAddressDataForChain(deps.daemonUrl, buyAsset.assetId).then(data =>
+          fromBaseUnit(bnOrZero(data?.outbound_fee), THORCHAIN_FIXED_PRECISION),
+        )
+
+    // const estimatedBuyAssetTradeFeeFeeAssetCryptoHuman = isRune(buyAsset.assetId)
+    //   ? RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN.toString()
+    //   : fromBaseUnit(bnOrZero(buyAssetAddressData?.outbound_fee), THORCHAIN_FIXED_PRECISION)
 
     const buyAssetChainFeeAssetId = buyAdapter.getFeeAssetId()
 
     const sellAssetUsdRate = await getUsdRate(deps.daemonUrl, sellAsset.assetId)
     const buyFeeAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAssetChainFeeAssetId)
 
-    const buyAssetTradeFeeUsd = bn(buyFeeAssetUsdRate)
-      .times(estimatedBuyAssetTradeFeeFeeAssetCryptoHuman)
-      .toString()
+    const buyAssetTradeFeeUsd = bn(buyFeeAssetUsdRate).times(buyAssetTradeFeeCryptoHuman).toString()
 
     const minimumSellAssetAmountCryptoHuman = bn(sellAssetUsdRate).isGreaterThan(0)
       ? bnOrZero(buyAssetTradeFeeUsd).div(sellAssetUsdRate)

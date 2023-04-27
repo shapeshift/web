@@ -12,10 +12,9 @@ import type {
   ThornodeQuoteResponse,
   ThornodeQuoteResponseSuccess,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 
 import { thorService } from '../thorService'
-
-const THOR_PRECISION = 8
 
 export const getQuote = async ({
   sellAsset,
@@ -39,7 +38,9 @@ export const getQuote = async ({
     bn(10).pow(sellAsset.precision),
   )
   // All THORChain pool amounts are base 8 regardless of token precision
-  const sellAmountCryptoThorBaseUnit = bn(toBaseUnit(sellAmountCryptoPrecision, THOR_PRECISION))
+  const sellAmountCryptoThorBaseUnit = bn(
+    toBaseUnit(sellAmountCryptoPrecision, THORCHAIN_FIXED_PRECISION),
+  )
 
   const { data } = await thorService.get<ThornodeQuoteResponse>(
     `${deps.daemonUrl}/lcd/thorchain/quote/swap?amount=${sellAmountCryptoThorBaseUnit}&from_asset=${sellPoolId}&to_asset=${buyPoolId}&destination=${receiveAddress}&affiliate_bps=${affiliateBps}&affiliate=ss`,

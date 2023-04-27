@@ -120,32 +120,48 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         }),
     })
 
-    // If we have a quote, we can use the quote's expected amount out. If not it's either a 0-value trade or an error, so use '0'.
-    const buyAmountCryptoBaseUnit = quote.isOk()
-      ? toBaseUnit(
-          fromBaseUnit(quote.unwrap().expected_amount_out, THORCHAIN_FIXED_PRECISION),
-          buyAsset.precision,
-        )
-      : '0'
-
     const fees = quote.isOk() ? quote.unwrap().fees : undefined
 
-    const buyAssetTradeFeeCryptoHuman = fees
+    const buyAssetTradeFeeBuyAssetCryptoHuman = fees
       ? fromBaseUnit(bnOrZero(fees.outbound), THORCHAIN_FIXED_PRECISION)
       : await getInboundAddressDataForChain(deps.daemonUrl, buyAsset.assetId).then(data =>
           fromBaseUnit(bnOrZero(data?.outbound_fee), THORCHAIN_FIXED_PRECISION),
         )
 
-    // const estimatedBuyAssetTradeFeeFeeAssetCryptoHuman = isRune(buyAsset.assetId)
-    //   ? RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN.toString()
-    //   : fromBaseUnit(bnOrZero(buyAssetAddressData?.outbound_fee), THORCHAIN_FIXED_PRECISION)
+    const sellAssetTradeFeeBuyAssetCryptoHuman = fees
+      ? fromBaseUnit(bnOrZero(fees.affiliate), THORCHAIN_FIXED_PRECISION)
+      : '0'
+
+    // If we have a quote, we can use the quote's expected amount out. If not it's either a 0-value trade or an error, so use '0'.
+    // Because the rate includes fees, we need to add them back on to get the "before fees" amount
+    const buyAmountCryptoBaseUnit = (() => {
+      if (quote.isOk()) {
+        const unwrappedQuote = quote.unwrap()
+        const expectedAmountOutThorBaseUnit = unwrappedQuote.expected_amount_out
+        // Add back the outbound fees
+        const expectedAmountPlusFeesCryptoThorBaseUnit = bn(expectedAmountOutThorBaseUnit)
+          .plus(unwrappedQuote.fees.outbound)
+          .plus(unwrappedQuote.fees.affiliate)
+        return toBaseUnit(
+          fromBaseUnit(expectedAmountPlusFeesCryptoThorBaseUnit, THORCHAIN_FIXED_PRECISION),
+          buyAsset.precision,
+        )
+      } else {
+        return '0'
+      }
+    })()
 
     const buyAssetChainFeeAssetId = buyAdapter.getFeeAssetId()
 
     const sellAssetUsdRate = await getUsdRate(deps.daemonUrl, sellAsset.assetId)
     const buyFeeAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAssetChainFeeAssetId)
 
-    const buyAssetTradeFeeUsd = bn(buyFeeAssetUsdRate).times(buyAssetTradeFeeCryptoHuman).toString()
+    const buyAssetTradeFeeUsd = bn(buyFeeAssetUsdRate)
+      .times(buyAssetTradeFeeBuyAssetCryptoHuman)
+      .toString()
+    const sellAssetTradeFeeUsd = bn(buyFeeAssetUsdRate)
+      .times(sellAssetTradeFeeBuyAssetCryptoHuman)
+      .toString()
 
     const minimumSellAssetAmountCryptoHuman = bn(sellAssetUsdRate).isGreaterThan(0)
       ? bnOrZero(buyAssetTradeFeeUsd).div(sellAssetUsdRate)
@@ -194,6 +210,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             adapter: sellAdapter as unknown as EvmBaseAdapter<ThorEvmSupportedChainId>,
             sellAssetReference,
             buyAssetTradeFeeUsd,
+            sellAssetTradeFeeUsd,
           })
 
           return Ok({
@@ -227,6 +244,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             pubkey,
             sellAdapter: sellAdapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>,
             buyAssetTradeFeeUsd,
+            sellAssetTradeFeeUsd,
             sendMax,
           })
 
@@ -250,7 +268,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             feeData: {
               networkFeeCryptoBaseUnit: feeData.fast.txFee,
               buyAssetTradeFeeUsd,
-              sellAssetTradeFeeUsd: '0',
+              sellAssetTradeFeeUsd,
               chainSpecific: { estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit },
             },
           })

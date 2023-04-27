@@ -57,25 +57,27 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const [approve1Loading, setApprove1Loading] = useState<boolean>(false)
 
   const isApprove0Needed = useMemo(
-    () => Boolean(state?.approve0?.estimatedGasCryptoPrecision),
-    [state?.approve0?.estimatedGasCryptoPrecision],
+    () => Boolean(approve0?.estimatedGasCryptoPrecision),
+    [approve0?.estimatedGasCryptoPrecision],
   )
   const isApprove1Needed = useMemo(
-    () => Boolean(state?.approve1?.estimatedGasCryptoPrecision),
-    [state?.approve1?.estimatedGasCryptoPrecision],
+    () => Boolean(approve1?.estimatedGasCryptoPrecision),
+    [approve1?.estimatedGasCryptoPrecision],
   )
 
-  // Initially set to true optimistically, see the comments in the useEffect below
-  const [isAsset0AllowanceGranted, setIsAsset0AllowanceGranted] = useState<boolean>(true)
-  const [isAsset1AllowanceGranted, setIsAsset1AllowanceGranted] = useState<boolean>(true)
+  const [isAsset0AllowanceGranted, setIsAsset0AllowanceGranted] = useState<boolean>(false)
+  const [isAsset1AllowanceGranted, setIsAsset1AllowanceGranted] = useState<boolean>(false)
 
   useEffect(() => {
+    // Handles the modal renders when the modal isn't actually displayed
+    // This is because of our current modals routing where we have to bail until they're ready and displayed
+    if (!(approve0 || approve1)) return
     // We could theoretically do the same as an initial state field value
     // However routing is tricky and this component re-renders every step, no matter the current step
     // This gives us additional safety
     setIsAsset0AllowanceGranted(!isApprove0Needed)
     setIsAsset1AllowanceGranted(!isApprove1Needed)
-  }, [isApprove0Needed, isApprove1Needed])
+  }, [approve0, approve1, isApprove0Needed, isApprove1Needed])
 
   const estimatedGasCryptoPrecision =
     approve0?.estimatedGasCryptoPrecision ?? approve1?.estimatedGasCryptoPrecision

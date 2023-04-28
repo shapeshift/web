@@ -56,14 +56,14 @@ describe('getZrxTradeQuote', () => {
     const quote = maybeQuote.unwrap()
     expect(quote.feeData).toStrictEqual({
       chainSpecific: {
-        estimatedGasCryptoBaseUnit: '1000000',
+        estimatedGasCryptoBaseUnit: '1200000',
         gasPriceCryptoBaseUnit: '79036500000',
         approvalFeeCryptoBaseUnit: '7903650000000000',
         maxFeePerGas: '216214758112',
         maxPriorityFeePerGas: '2982734547',
       },
       buyAssetTradeFeeUsd: '0',
-      networkFeeCryptoBaseUnit: '79036500000000000',
+      networkFeeCryptoBaseUnit: '94843800000000000',
       sellAssetTradeFeeUsd: '0',
     })
     expect(quote.rate).toBe('100')

@@ -27,6 +27,26 @@ describe('makeSwapMemo', () => {
     })
     expect(memo).toEqual('s:BTC.BTC:bc1qkw9g3tgv6m2gwc4x4hvdefcwt0uxeedfgag27h:420:ss:0')
   })
+
+  it('should make a trade with affiliate fees', () => {
+    const memo = makeSwapMemo({
+      buyAssetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+      destinationAddress: 'bc1qkw9g3tgv6m2gwc4x4hvdefcwt0uxeedfgag27h',
+      limit: '420',
+      affiliateBps: '1000',
+    })
+    expect(memo).toEqual('s:BTC.BTC:bc1qkw9g3tgv6m2gwc4x4hvdefcwt0uxeedfgag27h:420:ss:1000')
+  })
+
+  it('should make a trade with passing a 0 affiliate fee', () => {
+    const memo = makeSwapMemo({
+      buyAssetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+      destinationAddress: 'bc1qkw9g3tgv6m2gwc4x4hvdefcwt0uxeedfgag27h',
+      limit: '420',
+      affiliateBps: '0',
+    })
+    expect(memo).toEqual('s:BTC.BTC:bc1qkw9g3tgv6m2gwc4x4hvdefcwt0uxeedfgag27h:420:ss:0')
+  })
 })
 
 describe('abbreviateThorAssetId', () => {

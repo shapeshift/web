@@ -189,4 +189,43 @@ describe('getTradeRate', () => {
       }),
     ).rejects.toThrow(`[getTradeRate]: No sellPoolId for asset ${UNSUPPORTED.assetId}`)
   })
+
+  it('should ignore affiliate fees when calculating the rate', async () => {
+    ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve({
+        data: {
+          expected_amount_out: '1575048772',
+          expiry: 1681129306,
+          fees: {
+            affiliate: '390000',
+            asset: 'ETH.ETH',
+            outbound: '720000',
+          },
+          inbound_address: '0xInboundAddress',
+          memo: '=:ETH.ETH:0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986',
+          notes:
+            'Base Asset: Send the inbound_address the asset with the memo encoded in hex in the data field. Tokens: First approve router to spend tokens from user: asset.approve(router, amount). Then call router.depositWithExpiry(inbound_address, asset, amount, memo, expiry). Asset is the token contract address. Amount should be in native asset decimals (eg 1e18 for most tokens). Do not send to or from contract addresses.',
+          outbound_delay_blocks: 183,
+          outbound_delay_seconds: 2196,
+          router: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
+          slippage_bps: 879,
+          warning: 'Do not cache this response. Do not send funds after the expiry.',
+        },
+      }),
+    )
+
+    const receiveAddress = '0xFooBar'
+
+    const maybeTradeRate = await getTradeRate({
+      sellAsset: ETH,
+      buyAssetId: FOX.assetId,
+      sellAmountCryptoBaseUnit: '1000000000000000000000000',
+      receiveAddress,
+      deps,
+      affiliateBps: '100',
+    })
+    const expectedRate = '0.00001727627203157549'
+    expect(maybeTradeRate.isOk()).toBe(true)
+    expect(maybeTradeRate.unwrap()).toEqual(expectedRate)
+  })
 })

@@ -69,6 +69,10 @@ describe('assertIsValidMemo', () => {
     expect(() =>
       assertIsValidMemo('s:ETH.USDC-B48:0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741:420:ss:0'),
     ).not.toThrow()
+
+    expect(() =>
+      assertIsValidMemo('s:ETH.USDC-B48:0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741:420:ss:300'),
+    ).not.toThrow()
   })
 
   it('should throw on invalid memo', () => {
@@ -82,6 +86,12 @@ describe('assertIsValidMemo', () => {
 
     expect(() =>
       assertIsValidMemo('s:BTC.BTC:0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741:420:ss:0'),
+    ).toThrow()
+    expect(() =>
+      assertIsValidMemo('s:ETH.USDC-B48:0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741:420:ss:9999'),
+    ).toThrow()
+    expect(() =>
+      assertIsValidMemo('s:ETH.USDC-B48:0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741:420:xx:10'),
     ).toThrow()
   })
 })

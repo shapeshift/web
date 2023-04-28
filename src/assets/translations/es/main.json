@@ -15,6 +15,7 @@
     "activity": "Actividad",
     "reject": "Rechazar",
     "connected": "Conectado",
+    "allocation": "Asignación",
     "value": "Valor",
     "created": "Creado %{date}",
     "noResultsFound": "No se han encontrado resultados.",
@@ -47,6 +48,7 @@
     "or": "ó",
     "somethingWentWrong": "Algo salió mal",
     "somethingWentWrongBody": "Algo salió mal",
+    "accountError": "Temporalmente no se puede obtener datos para las cadenas:",
     "degradedState": "La aplicación está en un estado degradado",
     "degradedInfo": "No se pueden obtener los datos de algunas cuentas.",
     "success": "Éxito",
@@ -98,7 +100,8 @@
     "buyNow": "Comprar ahora",
     "manage": "Administre",
     "selectedAccount": "Cuenta Seleccionada",
-    "allChains": "Todas las cadenas"
+    "allChains": "Todas las cadenas",
+    "wallet": "Billetera"
   },
   "consentBanner": {
     "body": {
@@ -677,6 +680,7 @@
       "buyAssetMiddleSentence": "comprar activo",
       "notEnoughEth": "No hay suficiente ETH para la tarifa de gas en esta transacción.",
       "amountTooSmall": "Mínimo: %{minLimit}",
+      "amountTooSmallOrInvalidTradePair": "Cantidad muy baja o sin ruta",
       "sellAmountDoesNotCoverFee": "Cantidad de venta inferior a la tarifa",
       "negativeMax": "No hay suficientes fondos para la tarifa del minero en esta transacción. Tarifa de minero estimada %{estimatedMinerFee}",
       "invalidMax": "Monto inválido. El monto máximo de negociación para este par es %{maxLimit}.",
@@ -968,7 +972,8 @@
       "depositFee": "Habrá una tarifa de gas por separado para depositar.",
       "estimatedGas": "Tarifa Estimada de Gas",
       "confirm": "Confirmar",
-      "reject": "Rechazar"
+      "reject": "Rechazar",
+      "approved": "Aprobada"
     },
     "confirm": {
       "withdraw": {
@@ -1443,6 +1448,7 @@
         "sell": "Vender",
         "trade": "Intercambiar"
       },
+      "equity": "Equidad",
       "accountTokens": "Tokens de la Cuenta",
       "relatedAssets": "Activos Relacionados",
       "showTokens": "Mostrar Tokens (%{amount})",

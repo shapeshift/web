@@ -83,7 +83,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     })
 
     const slippagePercentage = quote.isOk()
-      ? bn(quote.unwrap().slippage_bps).div(1000).toString()
+      ? bn(quote.unwrap().slippage_bps).div(1000)
       : bn(DEFAULT_SLIPPAGE).times(100)
 
     const rate = await quote.match({
@@ -94,8 +94,6 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         const expectedAmountPlusFeesCryptoThorBaseUnit = bn(expectedAmountOutThorBaseUnit).plus(
           quote.fees.outbound,
         )
-        const expectedAmountPlusFeesAndSlippageCryptoThorBaseUnit =
-          expectedAmountPlusFeesCryptoThorBaseUnit.div(bn(1).minus(slippagePercentage))
         const sellAmountCryptoPrecision = bn(sellAmountCryptoBaseUnit).div(
           bn(10).pow(sellAsset.precision),
         )
@@ -103,10 +101,9 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         const sellAmountCryptoThorBaseUnit = bn(
           toBaseUnit(sellAmountCryptoPrecision, THOR_PRECISION),
         )
+
         return Promise.resolve(
-          expectedAmountPlusFeesAndSlippageCryptoThorBaseUnit
-            .div(sellAmountCryptoThorBaseUnit)
-            .toFixed(),
+          expectedAmountPlusFeesCryptoThorBaseUnit.div(sellAmountCryptoThorBaseUnit).toFixed(),
         )
       },
       // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
@@ -181,7 +178,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       sellAsset,
       accountNumber,
       minimumCryptoHuman: minimumSellAssetAmountPaddedCryptoHuman,
-      recommendedSlippage: bn(slippagePercentage).div(100).toString(),
+      recommendedSlippage: slippagePercentage.div(100).toString(),
     }
 
     const { chainNamespace } = fromAssetId(sellAsset.assetId)

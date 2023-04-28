@@ -152,7 +152,6 @@ export const baseSwapperState: SwapperState = {
       approvalFeeCryptoBaseUnit: '1800000000000000',
       gasPriceCryptoBaseUnit: '18000000000',
       estimatedGasCryptoBaseUnit: '100000',
-      totalFee: '0.0036',
     },
     tradeFeeSource: SwapperName.Thorchain,
     buyAssetTradeFeeUsd: '8.5196229516043797526224',

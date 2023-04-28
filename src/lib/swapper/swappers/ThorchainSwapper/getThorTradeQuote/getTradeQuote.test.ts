@@ -18,11 +18,11 @@ jest.mock('../utils/getUsdRate/getUsdRate')
 const mockedAxios = thorService as jest.Mocked<typeof thorService>
 
 const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  minimumCryptoHuman: '59.658672054814851787728',
+  minimumCryptoHuman: '149.14668013703712946932',
   maximumCryptoHuman: '100000000000000000000000000',
-  sellAmountBeforeFeesCryptoBaseUnit: '10000000000000000000', // 10 FOX
+  sellAmountBeforeFeesCryptoBaseUnit: '713014679420',
   allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-  buyAmountCryptoBaseUnit: '4633547338118093212830055',
+  buyAmountCryptoBaseUnit: '114321610000000000',
   feeData: {
     chainSpecific: {
       estimatedGasCryptoBaseUnit: '100000',
@@ -31,16 +31,16 @@ const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
       maxFeePerGas: '5',
       maxPriorityFeePerGas: '6',
     },
-    buyAssetTradeFeeUsd: '7.656',
+    buyAssetTradeFeeUsd: '19.14',
     sellAssetTradeFeeUsd: '0',
     networkFeeCryptoBaseUnit: '700000',
   },
-  rate: '463354.73381180932128300549',
+  rate: '144114.94366197183098591549',
   sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
   buyAsset: ETH,
   sellAsset: FOX,
   accountNumber: 0,
-  recommendedSlippage: '0.00000608624714961082',
+  recommendedSlippage: '0.04357',
 }
 
 describe('getTradeQuote', () => {
@@ -65,12 +65,12 @@ describe('getTradeQuote', () => {
           return Promise.resolve({
             data: {
               dust_threshold: '10000',
-              expected_amount_out: '261454522054192',
+              expected_amount_out: '10232161',
               expiry: 1681132269,
               fees: {
                 affiliate: '0',
-                asset: 'ETH.FOX-0XC770EEFAD204B5180DF6A14EE197D99D808EE52D',
-                outbound: '16554235812',
+                asset: 'ETH.ETH',
+                outbound: '1200000',
               },
               inbound_address: 'bc1qucjrczghvwl5d66klz6npv7tshkpwpzlw0zzj8',
               inbound_confirmation_blocks: 2,
@@ -81,6 +81,7 @@ describe('getTradeQuote', () => {
               outbound_delay_seconds: 6900,
               slippage_bps: 4357,
               warning: 'Do not cache this response. Do not send funds after the expiry.',
+              memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6::ss:0',
             },
           })
       }
@@ -91,7 +92,7 @@ describe('getTradeQuote', () => {
 
     const input: GetTradeQuoteInput = {
       ...quoteInput,
-      sellAmountBeforeFeesCryptoBaseUnit: '10000000000000000000', // 10 FOX
+      sellAmountBeforeFeesCryptoBaseUnit: '713014679420',
       buyAsset: ETH,
       sellAsset: FOX,
     }

@@ -14,14 +14,17 @@ import { corsMiddleware } from './middleware/cors'
 import {
   PROXY_UNCHAINED_ETHEREUM_HTTP_PORT,
   PROXY_UNCHAINED_ETHEREUM_WS_PORT,
+  SUPPORTED_TOKEN_ADDRESSES,
 } from './utils/constants'
 import { getTenderlyRpcUrl } from './utils/getTenderlyRpcUrl'
+import { getTokenBalance } from './utils/getTokenBalance'
 import { estimateGas, getBalance, getTransactionByHash, sendTransaction } from './utils/rpcHelpers'
 
 const { REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL, REACT_APP_UNCHAINED_ETHEREUM_WS_URL } = dotenv.parse(
   readFileSync('.env.dev'),
 )
 
+const web3 = new Web3()
 const httpPort = Number(PROXY_UNCHAINED_ETHEREUM_HTTP_PORT)
 const websocketPort = Number(PROXY_UNCHAINED_ETHEREUM_WS_PORT)
 const provider = new Web3.providers.HttpProvider(getTenderlyRpcUrl())
@@ -112,15 +115,17 @@ app.use(
 app.get('/api/v1/account/:pubkey', async (req, res) => {
   const balance = await getBalance(provider, req.params.pubkey)
 
-  res.json({
+  const result: evm.Account = {
     balance,
-    unconfirmedBalance: 0,
+    unconfirmedBalance: '0',
     nonce: 0,
     pubkey: req.params.pubkey,
-    tokens: [
-      // TODO: fetch token balances
-    ],
-  })
+    tokens: await Promise.all(
+      SUPPORTED_TOKEN_ADDRESSES.map(contract => getTokenBalance(web3, contract)),
+    ),
+  }
+
+  res.json(result)
 })
 
 app.post('/api/v1/send', async (req, res) => {

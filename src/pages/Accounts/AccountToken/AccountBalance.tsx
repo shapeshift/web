@@ -77,6 +77,8 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
         </Flex>
         <AssetActions assetId={assetId} accountId={accountId} cryptoBalance={cryptoHumanBalance} />
       </Card.Body>
+      {/* 
+      @TODO: Hide for now until we have the data to hook this up
       <Card.Footer
         bg={footerBg}
         display='flex'
@@ -107,7 +109,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
             </StatNumber>
           </Stat>
         </StatGroup>
-      </Card.Footer>
+      </Card.Footer> */}
     </Card>
   )
 }

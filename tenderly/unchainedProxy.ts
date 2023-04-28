@@ -19,7 +19,7 @@ import { getTenderlyRpcUrl } from './utils/getTenderlyRpcUrl'
 import { estimateGas, getBalance, getTransactionByHash, sendTransaction } from './utils/rpcHelpers'
 
 const { REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL, REACT_APP_UNCHAINED_ETHEREUM_WS_URL } = dotenv.parse(
-  readFileSync('.env'),
+  readFileSync('.env.dev'),
 )
 
 const httpPort = Number(PROXY_UNCHAINED_ETHEREUM_HTTP_PORT)

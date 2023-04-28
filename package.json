@@ -20,7 +20,7 @@
     "dev": "yarn concurrently -n \"packages,web\" \"yarn dev:packages\" \"yarn dev:web\"",
     "dev:web": "BROWSER=none NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false CYPRESS_RELAXED_SECURITY=true yarn react-app-rewired start",
     "dev:web:linked": "GENERATE_SOURCEMAP=false BROWSER=none yarn dev:web",
-    "dev:web:tenderly": "REACT_APP_ETHEREUM_NODE_URL=http://localhost:8080 REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL=http://localhost:8081 REACT_APP_UNCHAINED_ETHEREUM_WS_URL=ws://localhost:8082 yarn dev:web",
+    "dev:web:tenderly": "yarn env e2e && yarn dev:web",
     "tenderly:spawn": "tenderly devnet spawn-rpc --template \"e2e-latest\" --project \"project\" --output json 2> ./tenderly/.tenderly.json",
     "tenderly:rpc-proxy": "yarn ts-node --skipProject ./tenderly/rpcProxy.ts",
     "tenderly:unchained-proxy": "yarn ts-node --skipProject ./tenderly/unchainedProxy.ts",

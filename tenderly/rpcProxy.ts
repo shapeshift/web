@@ -10,7 +10,7 @@ import { createThrottleMiddleware } from './middleware/throttle'
 import { PROXY_ETHEREUM_NODE_PORT } from './utils/constants'
 import { getTenderlyRpcUrl } from './utils/getTenderlyRpcUrl'
 
-const { REACT_APP_ETHEREUM_NODE_URL } = dotenv.parse(readFileSync('.env'))
+const { REACT_APP_ETHEREUM_NODE_URL } = dotenv.parse(readFileSync('.env.dev'))
 
 const port = Number(PROXY_ETHEREUM_NODE_PORT)
 const tenderlyRpcUrl = url.parse(getTenderlyRpcUrl())

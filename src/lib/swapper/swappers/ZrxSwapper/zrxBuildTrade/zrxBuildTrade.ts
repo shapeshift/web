@@ -2,7 +2,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import * as rax from 'retry-axios'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
@@ -66,7 +66,7 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
       },
     )
 
-    const { average, fast } = await adapter.getFeeData({
+    const { average } = await adapter.getFeeData({
       to: quote.to,
       value: quote.value,
       chainSpecific: {
@@ -74,14 +74,6 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
         contractData: quote.data,
       },
     })
-
-    // use worst case average eip1559 vs fast legacy
-    const maxGasPrice = BigNumber.max(
-      average.chainSpecific.maxFeePerGas ?? 0,
-      fast.chainSpecific.gasPrice,
-    )
-
-    const txFee = bnOrZero(bn(fast.chainSpecific.gasLimit).times(maxGasPrice))
 
     const trade: ZrxTrade<ZrxSupportedChainId> = {
       sellAsset,
@@ -93,11 +85,11 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
       feeData: {
         chainSpecific: {
           estimatedGasCryptoBaseUnit: quote.gas,
-          gasPriceCryptoBaseUnit: fast.chainSpecific.gasPrice, // fast gas price since it is underestimated currently
+          gasPriceCryptoBaseUnit: average.chainSpecific.gasPrice,
           maxFeePerGas: average.chainSpecific.maxFeePerGas,
           maxPriorityFeePerGas: average.chainSpecific.maxPriorityFeePerGas,
         },
-        networkFeeCryptoBaseUnit: txFee.toFixed(0),
+        networkFeeCryptoBaseUnit: average.txFee,
         buyAssetTradeFeeUsd: '0',
         sellAssetTradeFeeUsd: '0',
       },

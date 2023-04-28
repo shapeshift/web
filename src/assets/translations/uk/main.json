@@ -15,6 +15,7 @@
     "activity": "Активність",
     "reject": "Відхилити",
     "connected": "Підключений",
+    "allocation": "Розподіл",
     "value": "Вартість",
     "created": "Створений %{date}",
     "noResultsFound": "Нічого не знайдено.",
@@ -47,7 +48,7 @@
     "or": "або",
     "somethingWentWrong": "Щось пішло не так.",
     "somethingWentWrongBody": "Щось пішло не так.",
-    "accountError": "Тимчасово не вдається отримати дані для наступних ланцюжків: %{erroredAccountNames}.",
+    "accountError": "Тимчасово не вдається отримати дані для наступних мереж:",
     "degradedState": "Додаток знаходиться в неробочому стані",
     "degradedInfo": "Не вдалося отримати дані для деяких рахунків.",
     "success": "Успішно",
@@ -99,7 +100,8 @@
     "buyNow": "Купити зараз",
     "manage": "Управління",
     "selectedAccount": "Обраний акаунт",
-    "allChains": "Всі мережі"
+    "allChains": "Всі мережі",
+    "wallet": "Гаманець"
   },
   "consentBanner": {
     "body": {
@@ -678,6 +680,7 @@
       "buyAssetMiddleSentence": "купити актив",
       "notEnoughEth": "Недостатньо ETH для оплати комісії.",
       "amountTooSmall": "Мінімум: %{minLimit}",
+      "amountTooSmallOrInvalidTradePair": "Занадто мала сума або відсутній маршрут",
       "sellAmountDoesNotCoverFee": "Сума продажу менша за комісію",
       "negativeMax": "Недостатньо коштів для сплати майнерської комісії за даною транзакцією. Приблизна комісія  %{estimatedMinerFee}",
       "invalidMax": "Невірна сума. Максимальна сума угоди по даній парі становить %{maxLimit}.",
@@ -969,7 +972,8 @@
       "depositFee": "Плата за газ буде сплачуватися окремо.",
       "estimatedGas": "Розрахункова комісія за газ",
       "confirm": "Підтвердити",
-      "reject": "Відхилити"
+      "reject": "Відхилити",
+      "approved": "Схвалено"
     },
     "confirm": {
       "withdraw": {
@@ -1444,6 +1448,7 @@
         "sell": "Продати",
         "trade": "Обмін"
       },
+      "equity": "Капітал",
       "accountTokens": "Токени на аккаунті",
       "relatedAssets": "Пов'язані активи",
       "showTokens": "Показати токени (%{amount})",

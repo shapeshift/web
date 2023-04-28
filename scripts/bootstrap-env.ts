@@ -10,7 +10,7 @@ import flow from 'lodash/flow'
  * - dev is the local environment. .env.local automatically gets picked up by dotenv
  * - the release environment uses the app configuration
  */
-const VALID_ENVIRONMENTS = ['dev', 'develop', 'app', 'private'] as const
+const VALID_ENVIRONMENTS = ['dev', 'develop', 'app', 'private', 'e2e'] as const
 type Environment = typeof VALID_ENVIRONMENTS[number]
 
 const VALID_BRANCHES = [

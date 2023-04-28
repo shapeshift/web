@@ -45,6 +45,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
           alignItems='center'
           gap={4}
           flexWrap='wrap'
+          flexDir={{ base: 'column', md: 'row' }}
           px={{ base: 4, xl: 0 }}
           {...rest}
         >

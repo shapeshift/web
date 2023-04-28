@@ -3,18 +3,17 @@ import { Button, forwardRef, Tag } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, useHistory, useLocation } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
 
 type DashboardTabProps = {
   label: string
   path: string
   color: string
-  fiatAmount?: string
+  rightElement?: JSX.Element
   exact?: boolean
 } & ButtonProps
 
 export const DashboardTab = forwardRef<DashboardTabProps, 'button'>(
-  ({ path, color, label, fiatAmount, exact, ...rest }, ref) => {
+  ({ path, color, label, rightElement, exact, ...rest }, ref) => {
     const history = useHistory()
     const location = useLocation()
     const translate = useTranslate()
@@ -44,12 +43,8 @@ export const DashboardTab = forwardRef<DashboardTabProps, 'button'>(
         letterSpacing='0.012em'
         fontWeight='bold'
         _active={{ borderColor: `${color}.500`, color: 'chakra-body-text' }}
-        {...(fiatAmount && {
-          rightIcon: (
-            <Tag colorScheme={color}>
-              <Amount.Fiat value={fiatAmount} />
-            </Tag>
-          ),
+        {...(rightElement && {
+          rightIcon: <Tag colorScheme={color}>{rightElement}</Tag>,
         })}
         {...rest}
       >

@@ -29,7 +29,7 @@ type TabItem = {
   path: string
   color: string
   exact?: boolean
-  fiatAmount?: string
+  rightElement?: JSX.Element
   hide?: boolean
 }
 
@@ -81,24 +81,25 @@ export const DashboardHeader = () => {
         label: 'navBar.wallet',
         path: '/dashboard/accounts',
         color: 'blue',
-        fiatAmount: portfolioTotalFiatBalance,
+        rightElement: <Amount.Fiat value={portfolioTotalFiatBalance} />,
       },
       {
         label: 'navBar.earn',
         path: '/dashboard/earn',
         color: 'purple',
-        fiatAmount: earnFiatBalance,
+        rightElement: <Amount.Fiat value={earnFiatBalance} />,
       },
       {
         label: 'navBar.rewards',
         path: '/dashboard/rewards',
         color: 'green',
-        fiatAmount: claimableRewardsFiatBalance,
+        rightElement: <Amount.Fiat value={claimableRewardsFiatBalance} />,
       },
       {
         label: 'NFTs',
         path: '/dashboard/nfts',
         color: 'pink',
+        rightElement: translate('common.new'),
         hide: !isNftsEnabled,
       },
       {
@@ -107,7 +108,13 @@ export const DashboardHeader = () => {
         color: 'blue',
       },
     ]
-  }, [claimableRewardsFiatBalance, earnFiatBalance, isNftsEnabled, portfolioTotalFiatBalance])
+  }, [
+    claimableRewardsFiatBalance,
+    earnFiatBalance,
+    isNftsEnabled,
+    portfolioTotalFiatBalance,
+    translate,
+  ])
 
   const renderNavItems = useMemo(() => {
     return NavItems.filter(item => !item.hide).map(navItem => (
@@ -117,7 +124,7 @@ export const DashboardHeader = () => {
         path={navItem.path}
         ref={location.pathname === navItem.path ? activeRef : null}
         color={navItem.color}
-        fiatAmount={navItem.fiatAmount}
+        rightElement={navItem.rightElement}
         exact={navItem.exact}
       />
     ))

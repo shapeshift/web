@@ -15,6 +15,7 @@
     "activity": "Aktivität",
     "reject": "Ablehnen",
     "connected": "Verbunden",
+    "allocation": "Zuweisung",
     "value": "Wert",
     "created": "Erstellt %{date}",
     "noResultsFound": "Keine Ergebnisse gefunden.",
@@ -47,6 +48,7 @@
     "or": "oder",
     "somethingWentWrong": "Etwas ist schief gelaufen",
     "somethingWentWrongBody": "Etwas ist schief gelaufen",
+    "accountError": "Für die folgenden Ketten können vorübergehend keine Daten abgerufen werden:",
     "degradedState": "Die App befindet sich in einem heruntergestuften Zustand",
     "degradedInfo": "Für einige Konten können keine Daten abgerufen werden.",
     "success": "Erfolgreich",
@@ -98,7 +100,8 @@
     "buyNow": "Kaufe jetzt",
     "manage": "Verwalten",
     "selectedAccount": "Ausgewähltes Konto",
-    "allChains": "All Blockchains"
+    "allChains": "All Blockchains",
+    "wallet": "Wallet"
   },
   "consentBanner": {
     "body": {
@@ -677,6 +680,7 @@
       "buyAssetMiddleSentence": "Vermögenswerte kaufen",
       "notEnoughEth": "Nicht genug ETH für die Gasgebühr bei dieser Transaktion.",
       "amountTooSmall": "Minimum: %{minLimit}",
+      "amountTooSmallOrInvalidTradePair": "Betrag zu gering oder keine Paarung",
       "sellAmountDoesNotCoverFee": "Verkaufsbetrag niedriger als die Gebühr",
       "negativeMax": "Nicht genügend Kapital für die Miner-Gebühr für diese Transaktion. Geschätzte Minergebühr %{estimatedMinerFee}",
       "invalidMax": "Ungültige Menge. Der maximale Handelsbetrag für dieses Paar beträgt %{maxLimit}.",
@@ -968,7 +972,8 @@
       "depositFee": "Es wird eine separate Gasgebühr zu hinterlegen sein.",
       "estimatedGas": "Geschätzte Gasgebühr",
       "confirm": "Bestätigen",
-      "reject": "Ablehnen"
+      "reject": "Ablehnen",
+      "approved": "Genehmigt"
     },
     "confirm": {
       "withdraw": {
@@ -1443,6 +1448,7 @@
         "sell": "Verkaufen",
         "trade": "Handeln"
       },
+      "equity": "Eigenkapital",
       "accountTokens": "Konto-Token",
       "relatedAssets": "Zugehörige Vermögenswerte",
       "showTokens": "zeige Token (%{amount})",

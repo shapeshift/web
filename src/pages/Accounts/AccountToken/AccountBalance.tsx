@@ -58,7 +58,13 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           <RawText fontWeight='bold'>{asset.name}</RawText>
         </Flex>
       </Card.Header>
-      <Card.Body gap={4} fontWeight='bold' display='flex' alignItems='flex-start'>
+      <Card.Body
+        gap={4}
+        fontWeight='bold'
+        display='flex'
+        flexDir={{ base: 'column', md: 'row' }}
+        alignItems='flex-start'
+      >
         <Flex flexDir='column'>
           <Amount.Crypto
             color='gray.500'

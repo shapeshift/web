@@ -1,9 +1,11 @@
+import { memoize } from 'lodash'
+
 import type { BlockiesOptions } from './blockies'
 import { buildBlockiesOptions, createImageData } from './blockies'
 
 const imgData: Record<string, string> = Object.create(null)
 
-export const makeBlockiesUrl = (address: string, size = 8, caseSensitive = false, scale = 10) => {
+const generateBlockiesUrl = (address: string, size = 8, caseSensitive = false, scale = 10) => {
   if (!address) throw new Error('Address is required')
   if (!caseSensitive) address = address.toLowerCase()
 
@@ -47,3 +49,5 @@ export const makeBlockiesUrl = (address: string, size = 8, caseSensitive = false
 
   return base64Url
 }
+
+export const makeBlockiesUrl = memoize(generateBlockiesUrl)

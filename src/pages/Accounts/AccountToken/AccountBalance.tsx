@@ -1,13 +1,5 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import {
-  Button,
-  Flex,
-  Stat,
-  StatGroup,
-  StatLabel,
-  StatNumber,
-  useColorModeValue,
-} from '@chakra-ui/react'
+import { Button, Flex } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router'
@@ -40,7 +32,8 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
   const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
-  const footerBg = useColorModeValue('white.100', 'rgba(255,255,255,.02)')
+  // Add back in once we add the performance stuff in
+  // const footerBg = useColorModeValue('white.100', 'rgba(255,255,255,.02)')
 
   const fiatBalance = useAppSelector(s =>
     selectFiatBalanceIncludingStakingByFilter(s, opportunitiesFilter),

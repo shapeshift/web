@@ -11,12 +11,14 @@ type GetEvmTxFeesArgs = {
   adapter: EvmBaseAdapter<ThorEvmSupportedChainId>
   sellAssetReference: AssetReference | string
   buyAssetTradeFeeUsd: string
+  sellAssetTradeFeeUsd: string
 }
 
 export const getEvmTxFees = async ({
   adapter,
   sellAssetReference,
   buyAssetTradeFeeUsd,
+  sellAssetTradeFeeUsd,
 }: GetEvmTxFeesArgs): Promise<QuoteFeeData<ThorEvmSupportedChainId>> => {
   try {
     const { average, fast } = await adapter.getGasFeeData()
@@ -41,7 +43,7 @@ export const getEvmTxFees = async ({
         approvalFeeCryptoBaseUnit: approvalFee,
       },
       buyAssetTradeFeeUsd,
-      sellAssetTradeFeeUsd: '0',
+      sellAssetTradeFeeUsd,
     }
   } catch (e) {
     if (e instanceof SwapError) throw e

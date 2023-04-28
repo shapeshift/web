@@ -45,3 +45,6 @@ yarn-error.log*
 
 # typechain codegen contracts
 src/contracts/__generated/**/*
+
+# tenderly
+tenderly/.tenderly.json

@@ -94,6 +94,7 @@ const styles = {
       flexDirection: 'column',
       alignItems: 'stretch',
     },
+    '--shapeshift-header-bg': mode('white', 'blackAlpha.100')(props),
   }),
 }
 
@@ -141,6 +142,7 @@ export const theme = extendTheme({
     container: {
       '2xl': '1440px',
       '3xl': '1600px',
+      '4xl': '1955px',
     },
   },
   shadows: {

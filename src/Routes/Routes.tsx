@@ -76,10 +76,9 @@ export const Routes = () => {
           <PrivateRoute
             key={isUnstableRoute ? Date.now() : 'privateRoute'}
             path={route.path}
-            exact
             hasWallet={hasWallet}
           >
-            <Layout>{MainComponent && <MainComponent />}</Layout>
+            {MainComponent && <MainComponent />}
           </PrivateRoute>
         )
       }),
@@ -102,7 +101,7 @@ export const Routes = () => {
           ) : null
         }}
       </Route>
-      {privateRoutesList}
+
       <Route path='/connect-wallet'>
         <ConnectWallet />
       </Route>
@@ -121,10 +120,15 @@ export const Routes = () => {
           <Flags />
         </Layout>
       </Route>
-      <Redirect from='/' to='/dashboard' />
-      <Route>
-        <NotFound />
-      </Route>
+      <Layout>
+        <Switch>
+          {privateRoutesList}
+          <Redirect from='/' to='/dashboard' />
+          <Route>
+            <NotFound />
+          </Route>
+        </Switch>
+      </Layout>
     </Switch>
   )
 }

@@ -2,6 +2,7 @@ import { CloseIcon, EditIcon, SettingsIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
 import { Box, Flex, IconButton, Link, Stack, useMediaQuery } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { DiscordIcon } from 'components/Icons/Discord'
@@ -28,10 +29,13 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
   const isWalletConnectToDappsEnabled =
     isWalletConnectToDappsV1Enabled || isWalletConnectToDappsV2Enabled
 
-  const handleClick = (onClick?: () => void) => {
-    onClose && onClose()
-    onClick && onClick()
-  }
+  const handleClick = useCallback(
+    (onClick?: () => void) => {
+      onClose && onClose()
+      onClick && onClick()
+    },
+    [onClose],
+  )
 
   return (
     <Flex

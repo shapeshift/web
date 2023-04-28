@@ -3,10 +3,21 @@ import { Avatar, SkeletonCircle } from '@chakra-ui/react'
 import { useState } from 'react'
 
 export type LazyLoadAvatarProps = SkeletonProps & Pick<AvatarProps, 'src' | 'size'>
-export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({ src, size = 'sm', ...rest }) => {
+export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({
+  src,
+  size = 'sm',
+  borderRadius,
+  ...rest
+}) => {
   const [imageLoaded, setImageLoaded] = useState(false)
   return (
-    <SkeletonCircle isLoaded={imageLoaded} width='auto' height='auto' {...rest}>
+    <SkeletonCircle
+      isLoaded={imageLoaded}
+      width='auto'
+      height='auto'
+      borderRadius={borderRadius}
+      {...rest}
+    >
       <Avatar
         bg='transparent'
         loading='lazy'
@@ -14,6 +25,7 @@ export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({ src, size = 'sm'
         src={src}
         size={size}
         icon={<></>}
+        borderRadius={borderRadius}
       />
     </SkeletonCircle>
   )

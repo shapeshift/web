@@ -9,11 +9,11 @@ import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
 import { ReceiveRoutes } from './ReceiveCommon'
 
 type ReceiveRouterProps = {
-  asset: Asset
+  asset?: Asset
   accountId?: AccountId
 }
 export const ReceiveRouter = ({ asset, accountId }: ReceiveRouterProps) => {
-  const [selectedAsset, setSelectedAsset] = useState<Asset>(asset)
+  const [selectedAsset, setSelectedAsset] = useState<Asset | undefined>(asset ?? undefined)
   const location = useLocation()
   const history = useHistory()
 

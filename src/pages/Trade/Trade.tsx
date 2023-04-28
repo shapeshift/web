@@ -1,30 +1,23 @@
-import { Box, Container, Heading, Stack } from '@chakra-ui/react'
-import { useTranslate } from 'react-polyglot'
+import { Container, Stack } from '@chakra-ui/react'
+import foxPageBg from 'assets/foxpage-bg.png'
 import { Main } from 'components/Layout/Main'
-import { SEO } from 'components/Layout/Seo'
 import { RecentTransactions } from 'pages/Dashboard/RecentTransactions'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
-
-const TradeHeader = () => {
-  const translate = useTranslate()
-  return (
-    <Box pb={6}>
-      <SEO title={translate('trade.trade')} />
-      <Heading>{translate('trade.trade')}</Heading>
-    </Box>
-  )
-}
 
 export const Trade = () => {
   return (
     <Main
-      py={0}
+      pt='4.5rem'
+      mt='-4.5rem'
       px={0}
       display='flex'
       flex={1}
       width='full'
       hideBreadcrumbs
-      titleComponent={<TradeHeader />}
+      bgImage={foxPageBg}
+      backgroundSize='contain'
+      backgroundPosition='top center'
+      backgroundRepeat='no-repeat'
     >
       <Stack alignSelf='stretch' flex={1} minHeight={0} spacing={0}>
         <Container

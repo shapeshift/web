@@ -47,7 +47,7 @@ export const Main: React.FC<MainProps> = ({
           shadow={y > height ? 'sm' : undefined}
         >
           <>
-            <Container maxW='container.xl' px={{ base: 4, xl: 8 }} pt={4}>
+            <Container maxW='container.4xl' px={{ base: 4, xl: 16 }} pt={4}>
               <Stack>
                 {!hideBreadcrumbs && (
                   <HStack width='full' justifyContent='space-between'>
@@ -63,7 +63,7 @@ export const Main: React.FC<MainProps> = ({
         </Box>
       )}
       {headerComponent}
-      <Container maxW='container.xl' py={8} px={{ base: 0, xl: 8 }} {...rest}>
+      <Container maxW='container.4xl' py={8} px={{ base: 0, xl: 4, '2xl': 16 }} {...rest}>
         {children}
       </Container>
     </Page>

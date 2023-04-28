@@ -44,6 +44,43 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
     return Array.from(groups.entries())
   }, [isLargerThanMd, pluginRoutes])
 
+  const renderNavGroups = useMemo(() => {
+    return navItemGroups.map((group, id) => {
+      const [name, values] = group
+      return (
+        <Stack key={id}>
+          {name && (
+            <Text
+              px={4}
+              color={groupColor}
+              fontSize='xs'
+              textTransform='uppercase'
+              fontWeight='bold'
+              letterSpacing='wider'
+              display={{ base: isCompact ? 'none' : 'block', '2xl': 'block' }}
+              translation={`navBar.${name}`}
+            />
+          )}
+          {values.map((item: Route, id: number) => (
+            <MainNavLink
+              isCompact={isCompact}
+              as={ReactRouterLink}
+              key={id}
+              leftIcon={item.icon}
+              href={item.path}
+              to={item.path}
+              size='lg'
+              onClick={onClick}
+              label={translate(item.label)}
+              aria-label={translate(item.label)}
+              data-test={`navigation-${item.label.split('.')[1]}-button`}
+            />
+          ))}
+        </Stack>
+      )
+    })
+  }, [groupColor, isCompact, navItemGroups, onClick, translate])
+
   return (
     <Stack
       width='full'
@@ -52,40 +89,7 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
       divider={<Divider borderColor={dividerColor} />}
       {...rest}
     >
-      {navItemGroups.map((group, id) => {
-        const [name, values] = group
-        return (
-          <Stack key={id}>
-            {name && (
-              <Text
-                px={4}
-                color={groupColor}
-                fontSize='xs'
-                textTransform='uppercase'
-                fontWeight='bold'
-                letterSpacing='wider'
-                display={{ base: isCompact ? 'none' : 'block', '2xl': 'block' }}
-                translation={`navBar.${name}`}
-              />
-            )}
-            {values.map((item: Route, id: number) => (
-              <MainNavLink
-                isCompact={isCompact}
-                as={ReactRouterLink}
-                key={id}
-                leftIcon={item.icon}
-                href={item.path}
-                to={item.path}
-                size='lg'
-                onClick={onClick}
-                label={translate(item.label)}
-                aria-label={translate(item.label)}
-                data-test={`navigation-${item.label.split('.')[1]}-button`}
-              />
-            ))}
-          </Stack>
-        )
-      })}
+      {renderNavGroups}
       {isYatFeatureEnabled && <YatBanner isCompact={isCompact} />}
     </Stack>
   )

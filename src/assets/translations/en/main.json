@@ -481,6 +481,8 @@
   },
   "navBar": {
     "home": "Home",
+    "activity": "Activity",
+    "myWallet": "My Wallet",
     "dashboard": "Dashboard",
     "dashboardShort": "Dashboard",
     "assets": "Assets",
@@ -501,6 +503,7 @@
     "clickToConnect": "Click to connect a wallet",
     "wallet": "Wallet",
     "explore": "Explore",
+    "rewards": "Rewards",
     "trade": "Trade",
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",

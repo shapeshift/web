@@ -1,27 +1,32 @@
-import { chakra, useColorModeValue } from '@chakra-ui/react'
+import { chakra, Flex, useColorModeValue } from '@chakra-ui/react'
 
+import { AppLoadingIcon } from './AppLoadingIcon'
 import { SideNavContent } from './SideNavContent'
 
 export const SideNav = () => {
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const top = '4.5rem'
+  const bgColor = useColorModeValue('white', 'blackAlpha.300')
+  const shadow = useColorModeValue('lg', 'none')
   return (
-    <>
-      <chakra.header
-        paddingTop={`env(safe-area-inset-top)`}
-        borderRightWidth={1}
-        borderColor={borderColor}
-        left='0'
-        right='0'
-        height={`calc(100vh - ${top})`}
-        position='sticky'
-        top={top}
-        maxWidth='xs'
-        flex={{ base: 'inherit', '2xl': '1 1 0%' }}
-        display={{ base: 'none', md: 'flex' }}
-      >
-        <SideNavContent isCompact={true} />
-      </chakra.header>
-    </>
+    <chakra.header
+      paddingTop={`env(safe-area-inset-top)`}
+      left='0'
+      right='0'
+      height={'100vh'}
+      position='sticky'
+      borderRightWidth={1}
+      borderColor='rgba(255,255,255,.05)'
+      bg={bgColor}
+      top={0}
+      width={{ base: 'auto', '2xl': 'sm' }}
+      display={{ base: 'none', md: 'flex' }}
+      boxShadow={shadow}
+      flexDir='column'
+      zIndex='modal'
+    >
+      <Flex justifyContent={{ base: 'center', md: 'flex-start' }} pt={4} px={8}>
+        <AppLoadingIcon />
+      </Flex>
+      <SideNavContent isCompact={true} />
+    </chakra.header>
   )
 }

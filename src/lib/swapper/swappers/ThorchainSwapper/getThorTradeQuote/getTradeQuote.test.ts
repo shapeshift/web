@@ -35,7 +35,7 @@ const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
     sellAssetTradeFeeUsd: '0',
     networkFeeCryptoBaseUnit: '700000',
   },
-  rate: '161016.35211267605633802817',
+  rate: '144114.94366197183098591549',
   sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
   buyAsset: ETH,
   sellAsset: FOX,

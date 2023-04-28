@@ -15,6 +15,7 @@
     "activity": "Aktivite",
     "reject": "İptal",
     "connected": "Bağlandı",
+    "allocation": "Dağılım",
     "value": "Değer",
     "created": "Yaratıldı %{date}",
     "noResultsFound": "Sonuç bulunamadı.",
@@ -47,6 +48,7 @@
     "or": "veya",
     "somethingWentWrong": "Bir şeyler ters gitti",
     "somethingWentWrongBody": "Bir şeyler ters gitti",
+    "accountError": "Aşağıdaki zincirler için veriler geçici olarak getirilemiyor:",
     "degradedState": "Uygulama bozulmuş",
     "degradedInfo": "Bazı hesaplar için veri gösterilemiyor.",
     "success": "Başarılı",
@@ -98,7 +100,8 @@
     "buyNow": "Şimdi al",
     "manage": "Yönet",
     "selectedAccount": "Bir Hesap Seçin",
-    "allChains": "Tüm Zincirler"
+    "allChains": "Tüm Zincirler",
+    "wallet": "Cüzdan"
   },
   "consentBanner": {
     "body": {
@@ -677,6 +680,7 @@
       "buyAssetMiddleSentence": "varlık satın al",
       "notEnoughEth": "Bu işlemdeki gaz ücreti için yeterli ETH yok.",
       "amountTooSmall": "Minimum: %{minLimit}",
+      "amountTooSmallOrInvalidTradePair": "Tutar çok düşük veya rota yok",
       "sellAmountDoesNotCoverFee": "Ücretten daha düşük satış tutarı",
       "negativeMax": "Bu işlemde madenci ücreti için yeterli para yok. Tahmini madenci ücreti %{estimatedMinerFee}",
       "invalidMax": "Geçersiz Tutar. Bu çift için maksimum ticaret miktarı %{maxLimit}'tir.",
@@ -968,7 +972,8 @@
       "depositFee": "Yatırmak için ayrı bir gaz ücreti gerekecektir.",
       "estimatedGas": "Tahmini Gaz Ücreti",
       "confirm": "Doğrula",
-      "reject": "Reddet"
+      "reject": "Reddet",
+      "approved": "Onaylandı"
     },
     "confirm": {
       "withdraw": {
@@ -1443,6 +1448,7 @@
         "sell": "Sat",
         "trade": "Takas"
       },
+      "equity": "Özsermaye",
       "accountTokens": "Hesap Jetonları",
       "relatedAssets": "İlgili Varlıklar",
       "showTokens": "Jetonları Göster (%{amount})",

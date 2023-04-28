@@ -58,12 +58,12 @@ describe('getZrxTradeQuote', () => {
       chainSpecific: {
         estimatedGasCryptoBaseUnit: '1000000',
         gasPriceCryptoBaseUnit: '79036500000',
-        approvalFeeCryptoBaseUnit: '21621475811200000',
+        approvalFeeCryptoBaseUnit: '7903650000000000',
         maxFeePerGas: '216214758112',
         maxPriorityFeePerGas: '2982734547',
       },
       buyAssetTradeFeeUsd: '0',
-      networkFeeCryptoBaseUnit: '216214758112000000',
+      networkFeeCryptoBaseUnit: '79036500000000000',
       sellAssetTradeFeeUsd: '0',
     })
     expect(quote.rate).toBe('100')
@@ -115,7 +115,7 @@ describe('getZrxTradeQuote', () => {
     expect(quote?.feeData).toStrictEqual({
       chainSpecific: {
         estimatedGasCryptoBaseUnit: '0',
-        approvalFeeCryptoBaseUnit: '21621475811200000',
+        approvalFeeCryptoBaseUnit: '7903650000000000',
         gasPriceCryptoBaseUnit: '79036500000',
         maxFeePerGas: '216214758112',
         maxPriorityFeePerGas: '2982734547',

@@ -4,6 +4,7 @@ import { Box, Flex, IconButton, Link, Stack, useMediaQuery } from '@chakra-ui/re
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { DiscordIcon } from 'components/Icons/Discord'
 import { useModal } from 'hooks/useModal/useModal'
 import { breakpoints } from 'theme/theme'
@@ -69,9 +70,9 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
               <WalletConnectToDappsHeaderButton />
             </Box>
           )}
-          {/* <Box width='full'>
+          <Box width='full'>
             <AssetSearch assetListAsDropdown formProps={{ px: 0, mb: 0 }} />
-          </Box> */}
+          </Box>
         </Flex>
       )}
 

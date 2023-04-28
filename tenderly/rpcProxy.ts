@@ -34,6 +34,7 @@ const tenderlyProxy = createProxyMiddleware(tenderlyFilter, {
   changeOrigin: true,
   onProxyReq: fixRequestBody,
   followRedirects: true,
+  logLevel: 'error',
 })
 
 const defaultProxy = createProxyMiddleware(defaultFilter, {
@@ -41,6 +42,7 @@ const defaultProxy = createProxyMiddleware(defaultFilter, {
   changeOrigin: true,
   onProxyReq: fixRequestBody,
   followRedirects: true,
+  logLevel: 'error',
 })
 
 const app = express()

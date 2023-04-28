@@ -105,6 +105,7 @@ app.use(
     changeOrigin: true,
     onProxyReq: fixRequestBody,
     followRedirects: true,
+    logLevel: 'error',
   }),
 )
 

@@ -43,7 +43,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
   }, [buyAsset, clearAmounts, feeAsset, updateBuyAsset])
 
   return (
-    <Main titleComponent={<AssetHeader assetId={assetId} accountId={accountId} />}>
+    <Main headerComponent={<AssetHeader assetId={assetId} accountId={accountId} />}>
       <Stack
         alignItems='flex-start'
         spacing={4}
@@ -64,7 +64,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           flexDir='column'
           flex='1 1 0%'
           width='full'
-          maxWidth={{ base: 'full', xl: 'sm' }}
+          maxWidth={{ base: 'full', xl: 'md' }}
           gap={4}
         >
           <TradeCard display={{ base: 'none', md: 'block' }} />

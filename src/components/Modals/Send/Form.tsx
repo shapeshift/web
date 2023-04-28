@@ -3,7 +3,7 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
@@ -36,7 +36,7 @@ export type SendInput<T extends ChainId = ChainId> = {
 }
 
 type SendFormProps = {
-  asset: Asset
+  asset?: Asset
   accountId?: AccountId
 }
 
@@ -45,7 +45,9 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
   const history = useHistory()
   const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
-  const marketData = useAppSelector(state => selectMarketDataById(state, initialAsset.assetId))
+  const marketData = useAppSelector(state =>
+    selectMarketDataById(state, initialAsset?.assetId ?? ''),
+  )
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
@@ -92,6 +94,12 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
     },
     [history, methods],
   )
+
+  useEffect(() => {
+    if (!initialAsset) {
+      history.push(SendRoutes.Select)
+    }
+  }, [history, initialAsset])
 
   return (
     <FormProvider {...methods}>

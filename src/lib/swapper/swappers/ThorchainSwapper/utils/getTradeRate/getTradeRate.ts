@@ -3,6 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import qs from 'qs'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
@@ -13,7 +14,10 @@ import type {
   ThornodePoolResponse,
   ThornodeQuoteResponse,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
-import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
+import {
+  THORCHAIN_AFFILIATE_NAME,
+  THORCHAIN_FIXED_PRECISION,
+} from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 
 import { getPriceRatio } from '../getPriceRatio/getPriceRatio'
 import { isRune } from '../isRune/isRune'
@@ -87,9 +91,19 @@ export const getTradeRate = async ({
     toBaseUnit(sellAmountCryptoPrecision, THORCHAIN_FIXED_PRECISION),
   )
 
+  const queryString = qs.stringify({
+    amount: sellAmountCryptoThorBaseUnit.toString(),
+    from_asset: sellPoolId,
+    to_asset: buyPoolId,
+    destination: receiveAddress,
+    affiliate_bps: affiliateBps,
+    affiliate: THORCHAIN_AFFILIATE_NAME,
+  })
+
   const { data } = await thorService.get<ThornodeQuoteResponse>(
-    `${deps.daemonUrl}/lcd/thorchain/quote/swap?amount=${sellAmountCryptoThorBaseUnit}&from_asset=${sellPoolId}&to_asset=${buyPoolId}&destination=${receiveAddress}&affiliate_bps=${affiliateBps}&affiliate=ss`,
+    `${deps.daemonUrl}/lcd/thorchain/quote/swap?${queryString}`,
   )
+
   // Massages the error so we know whether it is a below minimum error, or a more generic THOR quote response error
   if ('error' in data) {
     if (/not enough fee/.test(data.error)) {

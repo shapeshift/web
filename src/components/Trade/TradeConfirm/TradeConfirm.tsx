@@ -397,7 +397,7 @@ export const TradeConfirm = () => {
     [fees?.tradeFeeSource],
   )
 
-  const shouldShowDonationOption = useMemo(() => isTHORChainSwap, [isTHORChainSwap])
+  const shouldShowDonationOption = isTHORChainSwap
 
   const tradeWarning: JSX.Element | null = useMemo(() => {
     if (!trade) return null

@@ -12,6 +12,7 @@ type GetUtxoTxFeesInput = {
   sellAdapter: UtxoBaseAdapter<ThorUtxoSupportedChainId>
   pubkey: string
   buyAssetTradeFeeUsd: string
+  sellAssetTradeFeeUsd: string
   sendMax: boolean
 }
 
@@ -22,6 +23,7 @@ export const getUtxoTxFees = async ({
   sellAdapter,
   pubkey,
   buyAssetTradeFeeUsd,
+  sellAssetTradeFeeUsd,
   sendMax,
 }: GetUtxoTxFeesInput): Promise<QuoteFeeData<ThorUtxoSupportedChainId>> => {
   try {
@@ -48,7 +50,7 @@ export const getUtxoTxFees = async ({
     return {
       networkFeeCryptoBaseUnit: networkFee,
       buyAssetTradeFeeUsd,
-      sellAssetTradeFeeUsd: '0',
+      sellAssetTradeFeeUsd,
       chainSpecific: {
         satsPerByte,
         byteCount: bn(feeData.txFee)

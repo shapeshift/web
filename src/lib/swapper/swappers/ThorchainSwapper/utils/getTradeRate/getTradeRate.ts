@@ -13,12 +13,11 @@ import type {
   ThornodePoolResponse,
   ThornodeQuoteResponse,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 
 import { getPriceRatio } from '../getPriceRatio/getPriceRatio'
 import { isRune } from '../isRune/isRune'
 import { thorService } from '../thorService'
-
-const THOR_PRECISION = 8
 
 export const getSwapOutput = (
   inputAmount: BigNumber,
@@ -82,7 +81,9 @@ export const getTradeRate = async ({
     bn(10).pow(sellAsset.precision),
   )
   // All thorchain pool amounts are base 8 regardless of token precision
-  const sellAmountCryptoThorBaseUnit = bn(toBaseUnit(sellAmountCryptoPrecision, THOR_PRECISION))
+  const sellAmountCryptoThorBaseUnit = bn(
+    toBaseUnit(sellAmountCryptoPrecision, THORCHAIN_FIXED_PRECISION),
+  )
 
   return (
     await thorService.get<ThornodeQuoteResponse>(

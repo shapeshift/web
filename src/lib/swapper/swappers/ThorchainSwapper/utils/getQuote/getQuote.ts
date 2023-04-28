@@ -55,9 +55,14 @@ export const getQuote = async ({
     affiliate_bps: affiliateBps,
     affiliate: THORCHAIN_AFFILIATE_NAME,
   })
-  const { data } = await thorService.get<ThornodeQuoteResponse>(
-    `${deps.daemonUrl}/lcd/thorchain/quote/swap?${queryString}`,
-  )
+  const maybeData = (
+    await thorService.get<ThornodeQuoteResponse>(
+      `${deps.daemonUrl}/lcd/thorchain/quote/swap?${queryString}`,
+    )
+  ).map(({ data }) => data)
+
+  if (maybeData.isErr()) return Err(maybeData.unwrapErr())
+  const data = maybeData.unwrap()
 
   if ('error' in data && /not enough fee/.test(data.error)) {
     // TODO(gomes): How much do we want to bubble the error property up?

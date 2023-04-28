@@ -64,7 +64,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           flexDir='column'
           flex='1 1 0%'
           width='full'
-          maxWidth={{ base: 'full', xl: 'md' }}
+          maxWidth={{ base: 'full', xl: 'sm' }}
           gap={4}
         >
           <TradeCard display={{ base: 'none', md: 'block' }} />

@@ -15,6 +15,7 @@
     "activity": "Atividade",
     "reject": "Rejeitar",
     "connected": "Conectado",
+    "allocation": "Alocação",
     "value": "Valor",
     "created": "Criado em %{date}",
     "noResultsFound": "Nenhum resultado encontrado.",
@@ -47,6 +48,7 @@
     "or": "ou",
     "somethingWentWrong": "Algo de errado aconteceu",
     "somethingWentWrongBody": "Algo de errado aconteceu",
+    "accountError": "Temporariamente incapaz de buscar dados para as seguintes redes:",
     "degradedState": "Este aplicativo foi descontinuado.",
     "degradedInfo": "Incapaz de encontrar dados de algumas contas. ",
     "success": "Sucesso",
@@ -98,7 +100,8 @@
     "buyNow": "Comprar agora",
     "manage": "Gerenciar",
     "selectedAccount": "Conta selecionada",
-    "allChains": "Todas as redes"
+    "allChains": "Todas as redes",
+    "wallet": "Carteira"
   },
   "consentBanner": {
     "body": {
@@ -677,6 +680,7 @@
       "buyAssetMiddleSentence": "comprar ativo",
       "notEnoughEth": "Saldo ETH insuficiente para a efetivar Taxa da Rede.",
       "amountTooSmall": "Valor insuficiente. O valor mínimo de negociação para este par é %{minLimit}.",
+      "amountTooSmallOrInvalidTradePair": "Valor muito baixo ou sem liquidez",
       "sellAmountDoesNotCoverFee": "Quantidade muito pequena. O valor de venda para este par é menor do que a taxa.",
       "negativeMax": "Não há fundos suficientes para efetivr a taxa de mineração. Taxa de mineração %{estimatedMinerFee}",
       "invalidMax": "Montante inválido. O valor máximo de negociação para este par é %{maxLimit}.",

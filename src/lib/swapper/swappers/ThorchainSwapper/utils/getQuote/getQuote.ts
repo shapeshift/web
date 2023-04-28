@@ -4,7 +4,7 @@ import { adapters } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import qs from 'qs'
-import { bn } from 'lib/bignumber/bignumber'
+import { baseUnitToPrecision, bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
@@ -38,9 +38,10 @@ export const getQuote = async ({
   const buyPoolId = adapters.assetIdToPoolAssetId({ assetId: buyAssetId })
   const sellPoolId = adapters.assetIdToPoolAssetId({ assetId: sellAsset.assetId })
 
-  const sellAmountCryptoPrecision = bn(sellAmountCryptoBaseUnit).div(
-    bn(10).pow(sellAsset.precision),
-  )
+  const sellAmountCryptoPrecision = baseUnitToPrecision({
+    value: sellAmountCryptoBaseUnit,
+    inputExponent: sellAsset.precision,
+  })
   // All THORChain pool amounts are base 8 regardless of token precision
   const sellAmountCryptoThorBaseUnit = bn(
     toBaseUnit(sellAmountCryptoPrecision, THORCHAIN_FIXED_PRECISION),

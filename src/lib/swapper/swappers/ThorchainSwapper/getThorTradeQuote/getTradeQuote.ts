@@ -7,7 +7,7 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { baseUnitToPrecision, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type {
   GetTradeQuoteInput,
@@ -90,9 +90,10 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       ok: quote => {
         const THOR_PRECISION = 8
         const expectedAmountOutThorBaseUnit = quote.expected_amount_out
-        const sellAmountCryptoPrecision = bn(sellAmountCryptoBaseUnit).div(
-          bn(10).pow(sellAsset.precision),
-        )
+        const sellAmountCryptoPrecision = baseUnitToPrecision({
+          value: sellAmountCryptoBaseUnit,
+          inputExponent: sellAsset.precision,
+        })
         // All thorchain pool amounts are base 8 regardless of token precision
         const sellAmountCryptoThorBaseUnit = bn(
           toBaseUnit(sellAmountCryptoPrecision, THOR_PRECISION),

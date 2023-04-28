@@ -972,7 +972,8 @@
       "depositFee": "Haverá incidência de taxa ao depositar.",
       "estimatedGas": "Taxa Estimada da Rede",
       "confirm": "Confirmar",
-      "reject": "Rejeitar"
+      "reject": "Rejeitar",
+      "approved": "Aprovado"
     },
     "confirm": {
       "withdraw": {
@@ -1447,6 +1448,7 @@
         "sell": "Vender",
         "trade": "Trocar"
       },
+      "equity": "Participação",
       "accountTokens": "Meus Tokens",
       "relatedAssets": "Ativos Relacionados",
       "showTokens": "Mostrar Tokens (%{amount})",

@@ -136,9 +136,11 @@ app.post('/api/v1/send', async (req, res) => {
 
 app.get('/api/v1/gas/estimate', async (req, res) => {
   req.query.value = numberToHex(req.query.value as string)
-  const gasLimit = await estimateGas(provider, req.query as unknown as Transaction)
+  const result: evm.GasEstimate = {
+    gasLimit: await estimateGas(provider, req.query as unknown as Transaction),
+  }
 
-  res.json({ gasLimit })
+  res.json(result)
 })
 
 app.listen(httpPort, () => {

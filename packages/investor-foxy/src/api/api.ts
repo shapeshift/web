@@ -658,15 +658,12 @@ export class FoxyApi {
       }
     })()
 
-    const epochExpired = epoch.number >= coolDownInfo.endEpoch
-    const coolDownValid =
-      !bnOrZero(coolDownInfo.endEpoch).eq(0) && !bnOrZero(coolDownInfo.amount).eq(0)
+    const epochExpired = epoch.number.gte(coolDownInfo.endEpoch)
+    const coolDownValid = !coolDownInfo.endEpoch.isZero() && !coolDownInfo.amount.isZero()
 
-    const pastTokeCycleIndex = bnOrZero(requestedWithdrawals.minCycle).lte(currentCycleIndex)
-    const stakingTokenAvailableWithTokemak = bnOrZero(requestedWithdrawals.amount).plus(
-      withdrawalAmount,
-    )
-    const stakingTokenAvailable = bnOrZero(withdrawalAmount).gte(coolDownInfo.amount)
+    const pastTokeCycleIndex = requestedWithdrawals.minCycle.lte(currentCycleIndex)
+    const stakingTokenAvailableWithTokemak = requestedWithdrawals.amount.add(withdrawalAmount)
+    const stakingTokenAvailable = withdrawalAmount.gte(coolDownInfo.amount)
     const validCycleAndAmount =
       (pastTokeCycleIndex && stakingTokenAvailableWithTokemak.gte(coolDownInfo.amount)) ||
       stakingTokenAvailable
@@ -718,57 +715,57 @@ export class FoxyApi {
       this.provider,
     )
 
-    const requestWithdrawalAmount = await (() => {
+    const requestWithdrawalAmount = await (async () => {
       try {
-        return stakingContract.requestWithdrawalAmount()
+        return (await stakingContract.requestWithdrawalAmount()).toString()
       } catch (e) {
         logger.error(e, 'failed to get requestWithdrawalAmount')
         return 0
       }
     })()
 
-    const timeLeftToRequestWithdrawal = await (() => {
+    const timeLeftToRequestWithdrawal: string = await (async () => {
       try {
-        return stakingContract.timeLeftToRequestWithdrawal()
+        return (await stakingContract.timeLeftToRequestWithdrawal()).toString()
       } catch (e) {
         logger.error(e, 'failed to get timeLeftToRequestWithdrawal')
-        return 0
+        return '0'
       }
     })()
 
-    const lastTokeCycleIndex = await (() => {
+    const lastTokeCycleIndex: string = await (async () => {
       try {
-        return stakingContract.methods.lastTokeCycleIndex().call()
+        return (await stakingContract.lastTokeCycleIndex()).toString()
       } catch (err) {
         logger.error(err, 'failed to get lastTokeCycleIndex')
-        return 0
+        return '0'
       }
     })()
 
-    const duration = await (() => {
+    const duration: string = await (async () => {
       try {
-        return tokeManagerContract.getCycleDuration()
+        return (await tokeManagerContract.getCycleDuration()).toString()
       } catch (e) {
         logger.error(e, 'failed to get cycleDuration')
-        return 0
+        return '0'
       }
     })()
 
-    const currentCycleIndex = await (() => {
+    const currentCycleIndex: string = await (async () => {
       try {
-        return tokeManagerContract.getCurrentCycleIndex()
+        return (await tokeManagerContract.getCurrentCycleIndex()).toString()
       } catch (e) {
         logger.error(e, 'failed to get currentCycleIndex')
-        return 0
+        return '0'
       }
     })()
 
-    const currentCycleStart = await (() => {
+    const currentCycleStart: string = await (async () => {
       try {
-        return tokeManagerContract.getCurrentCycle()
+        return (await tokeManagerContract.getCurrentCycle()).toString()
       } catch (e) {
         logger.error(e, 'failed to get currentCycle')
-        return 0
+        return '0'
       }
     })()
 
@@ -910,12 +907,14 @@ export class FoxyApi {
     } catch (e) {
       throw new Error(`Failed to get block number: ${e}`)
     }
-    const epochsLeft = bnOrZero(coolDownInfo.endEpoch).minus(epoch.number) // epochs left until can claim
+    const epochsLeft = bnOrZero(coolDownInfo.endEpoch.toString()).minus(epoch.number.toString()) // epochs left until can claim
     const blocksLeftInCurrentEpoch =
-      epochsLeft.gt(0) && epoch.endBlock > currentBlock ? epoch.endBlock - currentBlock : 0 // calculate time remaining in current epoch
+      epochsLeft.gt(0) && epoch.endBlock.gt(currentBlock)
+        ? epoch.endBlock.sub(currentBlock).toString()
+        : '0' // calculate time remaining in current epoch
     const blocksLeftInFutureEpochs = epochsLeft.minus(1).gt(0)
-      ? epochsLeft.minus(1).times(epoch.length)
-      : 0 // don't count current epoch
+      ? epochsLeft.minus(1).times(epoch.length).toString()
+      : '0' // don't count current epoch
     const blocksUntilClaimable = bnOrZero(blocksLeftInCurrentEpoch).plus(blocksLeftInFutureEpochs) // total blocks left until can claim
     const secondsUntilClaimable = blocksUntilClaimable.times(13) // average block time is 13 seconds to get total seconds
     const currentDate = new Date()
@@ -931,7 +930,7 @@ export class FoxyApi {
     const contract = new ethers.Contract(tokenContractAddress, erc20Abi, this.provider)
     try {
       const balance = await contract.balanceOf(userAddress)
-      return bnOrZero(balance)
+      return bnOrZero(balance.toString())
     } catch (e) {
       throw new Error(`Failed to get balance: ${e}`)
     }
@@ -950,8 +949,10 @@ export class FoxyApi {
     }
     const liquidityReserveContract = this.getLiquidityReserveContract(liquidityReserveAddress)
     try {
-      const feeInBasisPoints = await liquidityReserveContract.fee()
-      return bnOrZero(feeInBasisPoints).div(10000) // convert from basis points to decimal percentage
+      // ethers BigNumber doesn't support floats, so we have to convert it to a regular bn first
+      // to be able to get a float bignumber.js as an output
+      const feeInBasisPoints = bnOrZero((await liquidityReserveContract.fee()).toString())
+      return feeInBasisPoints.div(10000) // convert from basis points to decimal percentage
     } catch (e) {
       throw new Error(`Failed to get instantUnstake fee ${e}`)
     }
@@ -963,7 +964,7 @@ export class FoxyApi {
 
     try {
       const totalSupply = await contract.totalSupply()
-      return bnOrZero(totalSupply)
+      return bnOrZero(totalSupply.toString())
     } catch (e) {
       throw new Error(`Failed to get totalSupply: ${e}`)
     }
@@ -985,7 +986,7 @@ export class FoxyApi {
 
     try {
       const balance = await contract.circulatingSupply()
-      return bnOrZero(balance)
+      return bnOrZero(balance.toString())
     } catch (e) {
       throw new Error(`Failed to get tvl: ${e}`)
     }
@@ -996,20 +997,10 @@ export class FoxyApi {
     this.verifyAddresses([userAddress, contractAddress])
     const stakingContract = this.getStakingContract(contractAddress)
 
-    let coolDownInfo: [amount: string, gons: string, expiry: string]
-    try {
-      coolDownInfo = (await stakingContract.coolDownInfo(userAddress)).map(
-        (info: ethers.BigNumber) => info.toString(),
-      )
-    } catch (e) {
-      throw new Error(`Failed to get coolDowninfo: ${e}`)
-    }
-    let releaseTime
-    try {
-      releaseTime = await this.getTimeUntilClaimable(input)
-    } catch (e) {
-      throw new Error(`Failed to getTimeUntilClaimable: ${e}`)
-    }
+    const coolDownInfo: [amount: string, gons: string, expiry: string] = (
+      await stakingContract.coolDownInfo(userAddress)
+    ).map((info: ethers.BigNumber) => info.toString())
+    const releaseTime = await this.getTimeUntilClaimable(input)
 
     const [amount, gons, expiry] = coolDownInfo
     return {
@@ -1137,14 +1128,14 @@ export class FoxyApi {
             })
 
             // unstake events can trigger rebases, if they do, adjust the amount to not include that unstake's transfer amount
-            const preRebaseBalanceResult = bnOrZero(unadjustedPreRebaseBalance)
-              .minus(unstakedTransferAmount)
-              .plus(stakedTransferAmount)
+            const preRebaseBalanceResult = bnOrZero(unadjustedPreRebaseBalance.toString())
+              .minus(unstakedTransferAmount.toString())
+              .plus(stakedTransferAmount.toString())
               .toString()
 
             return {
               preRebaseBalance: preRebaseBalanceResult,
-              postRebaseBalance: postRebaseBalanceResult,
+              postRebaseBalance: postRebaseBalanceResult.toString() as string,
             }
           } catch (e) {
             logger.error(e, 'failed to get balance of address')

@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
@@ -12,13 +12,14 @@ import type {
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import qs from 'qs'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
@@ -29,7 +30,6 @@ import {
 import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
-  selectHasClaimByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
   selectSelectedLocale,
@@ -49,13 +49,20 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chainId, assetReference } = query
-  const { stakingAsset, underlyingAsset: rewardAsset, stakingAssetId } = useFoxyQuery()
+  const { chainId } = query
+  const {
+    contractAddress,
+    stakingAsset,
+    underlyingAsset: rewardAsset,
+    stakingAssetId,
+  } = useFoxyQuery()
+  const foxyApi = getFoxyApi()
+  const [canClaim, setCanClaim] = useState<boolean>(false)
   // The highest level AssetId/OpportunityId, in this case of the single FOXy contract
   const assetId = toAssetId({
     chainId,
     assetNamespace: ASSET_NAMESPACE.erc20,
-    assetReference,
+    assetReference: contractAddress,
   })
 
   const highestBalanceAccountIdFilter = useMemo(
@@ -70,17 +77,28 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
 
   const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
   const maybeAccountId = accountId ?? highestBalanceAccountId ?? defaultAccountId
+
   useEffect(() => {
     if (!maybeAccountId) return
     handleAccountIdChange(maybeAccountId)
   }, [handleAccountIdChange, maybeAccountId])
 
+  useEffect(() => {
+    if (!maybeAccountId) return
+    ;(async () => {
+      const canClaimWithdraw = await foxyApi.canClaimWithdraw({
+        contractAddress,
+        userAddress: fromAccountId(maybeAccountId).account,
+      })
+      setCanClaim(canClaimWithdraw)
+    })()
+  }, [contractAddress, foxyApi, maybeAccountId])
+
   const opportunityDataFilter = useMemo(() => {
+    const userStakingAccountId = accountId ?? highestBalanceAccountId ?? ''
+    if (!userStakingAccountId) return undefined
     return {
-      userStakingId: serializeUserStakingId(
-        accountId ?? highestBalanceAccountId ?? '',
-        assetId as StakingId,
-      ),
+      userStakingId: serializeUserStakingId(userStakingAccountId, assetId as StakingId),
     }
   }, [accountId, assetId, highestBalanceAccountId])
 
@@ -88,10 +106,6 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     opportunityDataFilter
       ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
       : undefined,
-  )
-
-  const hasClaimableRewards = useAppSelector(state =>
-    opportunityDataFilter ? selectHasClaimByUserStakingId(state, opportunityDataFilter) : undefined,
   )
 
   const undelegations = useMemo(
@@ -122,7 +136,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
       ),
   )
 
-  const claimDisabled = !hasClaimableRewards && !hasAvailableUndelegation
+  const claimDisabled = !canClaim && !hasAvailableUndelegation
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
@@ -139,7 +153,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
 
   if (
     bnOrZero(foxyEarnOpportunityData?.stakedAmountCryptoBaseUnit).eq(0) &&
-    !hasClaimableRewards &&
+    !canClaim &&
     !hasPendingUndelegation &&
     !hasAvailableUndelegation
   ) {

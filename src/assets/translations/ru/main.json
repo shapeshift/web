@@ -15,6 +15,7 @@
     "activity": "Активность",
     "reject": "Отклонить",
     "connected": "Подключен",
+    "allocation": "Распределение",
     "value": "Стоимость",
     "created": "Создан %{date}",
     "noResultsFound": "Результатов не найдено.",
@@ -47,7 +48,7 @@
     "or": "или",
     "somethingWentWrong": "Что-то пошло не так",
     "somethingWentWrongBody": " Что-то пошло не так",
-    "accountError": "Ошибка загрузки аккаунтов для %{erroredAccountNames}.",
+    "accountError": "Временно не удается получить данные для следующих сетей:",
     "degradedState": "Приложение находится в поврежденном состоянии",
     "degradedInfo": "Невозможно получить данные для некоторых аккаунтов.",
     "success": "Успех",
@@ -99,7 +100,8 @@
     "buyNow": "Купить сейчас",
     "manage": "Управлять",
     "selectedAccount": "Выбранный счет",
-    "allChains": "Все сети"
+    "allChains": "Все сети",
+    "wallet": "Кошелек"
   },
   "consentBanner": {
     "body": {
@@ -678,6 +680,7 @@
       "buyAssetMiddleSentence": "покупаемый актив",
       "notEnoughEth": "Недостаточно ETH для оплаты комиссии за газ в этой транзакции.",
       "amountTooSmall": "Минимум: %{minLimit}",
+      "amountTooSmallOrInvalidTradePair": "Слишком низкая сумма или отсутствие маршрута",
       "sellAmountDoesNotCoverFee": "Сумма продажи меньше, чем комиссия",
       "negativeMax": "Недостаточно средств для оплаты комиссии майнера по этой транзакции. Расчетная комиссия майнера %{estimatedMinerFee}",
       "invalidMax": "Неверная сумма. Максимальная сумма для торгов по этой паре %{maxLimit}.",
@@ -969,7 +972,8 @@
       "depositFee": "За пополнение счета взимается отдельная плата за газ.",
       "estimatedGas": "Предполагаемая плата за газ",
       "confirm": "Подтвердить",
-      "reject": "Отклонить"
+      "reject": "Отклонить",
+      "approved": "Утверждено"
     },
     "confirm": {
       "withdraw": {
@@ -1444,6 +1448,7 @@
         "sell": "Продать",
         "trade": "Торговля"
       },
+      "equity": "Капитал",
       "accountTokens": "Токены аккаунта",
       "relatedAssets": "Похожие активы",
       "showTokens": "Показать токены (%{amount})",

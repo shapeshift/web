@@ -17,7 +17,7 @@ export const SideNav = () => {
       borderColor='rgba(255,255,255,.05)'
       bg={bgColor}
       top={0}
-      width={{ base: 'auto', '2xl': 'sm' }}
+      width={{ base: 'auto', '2xl': 'xs' }}
       display={{ base: 'none', md: 'flex' }}
       boxShadow={shadow}
       flexDir='column'

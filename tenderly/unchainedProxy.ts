@@ -5,6 +5,7 @@ import express from 'express'
 import { readFileSync } from 'fs'
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware'
 import Web3 from 'web3'
+import type { Transaction } from 'web3-types'
 import { hexToNumber, numberToHex } from 'web3-utils'
 import type { RawData, WebSocket as WebSocketClient } from 'ws'
 import WebSocket, { WebSocketServer } from 'ws'
@@ -16,7 +17,6 @@ import {
 } from './utils/constants'
 import { getTenderlyRpcUrl } from './utils/getTenderlyRpcUrl'
 import { estimateGas, getBalance, getTransactionByHash, sendTransaction } from './utils/rpcHelpers'
-import type { EstimateGasParams } from './utils/types'
 
 const { REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL, REACT_APP_UNCHAINED_ETHEREUM_WS_URL } = dotenv.parse(
   readFileSync('.env'),
@@ -36,21 +36,22 @@ const captureSubscriptionDetails = (rawData: RawData) => {
   subscriptionDetails = { subscriptionId, address: data.addresses[0] }
 }
 
-const sendTxViaWebSocket = async (txId: string): Promise<void> => {
-  const result = await getTransactionByHash(provider, txId)
+const sendTxViaWebSocket = async (txid: string): Promise<void> => {
+  const result = await getTransactionByHash(provider, txid)
 
+  // for safety we coalesce to '0x0' for optionals but in practice should never be the case
   const data: evm.Tx = {
-    txid: txId,
-    blockHash: result.blockHash,
-    blockHeight: hexToNumber(result.blockNumber ?? '0x0'),
+    txid,
+    blockHash: result.blockHash?.toString() ?? '0x0',
+    blockHeight: hexToNumber(result.blockNumber?.toString() ?? '0x0'),
     timestamp: Date.now() / 1000, // assume now
     from: result.from,
-    to: result.to,
+    to: result.to!, // 'to' address is only missing for contract creation
     confirmations: 10, // assume 10 confirmations
-    value: result.value,
-    fee: result.maxFeePerGas,
-    gasLimit: result.gas,
-    gasPrice: result.gasPrice,
+    value: result.value?.toString() ?? '0x0',
+    fee: result.maxFeePerGas?.toString() ?? '0x0',
+    gasLimit: result.gas?.toString() ?? '0x0',
+    gasPrice: result.gasPrice?.toString() ?? '0x0',
     status: 1, // asumme success
   }
 
@@ -134,7 +135,7 @@ app.post('/api/v1/send', async (req, res) => {
 
 app.get('/api/v1/gas/estimate', async (req, res) => {
   req.query.value = numberToHex(req.query.value as string)
-  const gasLimit = await estimateGas(provider, req.query as unknown as EstimateGasParams)
+  const gasLimit = await estimateGas(provider, req.query as unknown as Transaction)
 
   res.json({ gasLimit })
 })

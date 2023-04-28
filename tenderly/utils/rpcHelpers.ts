@@ -1,9 +1,8 @@
 import { promisify } from 'util'
 import type { HttpProvider } from 'web3-core'
 import type { JsonRpcResponse } from 'web3-core-helpers'
+import type { Transaction, TransactionInfo } from 'web3-types'
 import { hexToNumberString } from 'web3-utils'
-
-import type { EstimateGasParams, Transaction } from './types'
 
 export type Callback<T> = (error: Error | null, result?: T) => void
 
@@ -43,10 +42,7 @@ export const sendTransaction = (provider: HttpProvider, rawHexData: string): Pro
   return rpcCall(provider, 'eth_sendRawTransaction', [rawHexData])
 }
 
-export const estimateGas = async (
-  provider: HttpProvider,
-  params: EstimateGasParams,
-): Promise<string> => {
+export const estimateGas = async (provider: HttpProvider, params: Transaction): Promise<string> => {
   const result = await rpcCall(provider, 'eth_estimateGas', [params])
   return hexToNumberString(result)
 }
@@ -54,6 +50,6 @@ export const estimateGas = async (
 export const getTransactionByHash = (
   provider: HttpProvider,
   txId: string,
-): Promise<Transaction> => {
+): Promise<TransactionInfo> => {
   return rpcCall(provider, 'eth_getTransactionByHash', [txId])
 }

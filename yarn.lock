@@ -6445,6 +6445,7 @@ __metadata:
     viem: ^0.3.3
     web-vitals: ^2.1.4
     web3: 1.7.4
+    web3-types: ^0.1.0-alpha.0
     webpack: 5.76.0
     webpack-subresource-integrity: ^5.0.0
     zustand: ^4.3.6
@@ -28211,6 +28212,13 @@ pvutils@latest:
     web3-core-subscriptions: 1.7.4
     web3-net: 1.7.4
   checksum: debdd0f8fae5ca82c14ed9cc59872a2fa63a800804ac4b355f4f9b1a030e0b1cc298b6fc6367e7d6312f5702bc1b42f419e541beed4289d4d0ff411bde6154cb
+  languageName: node
+  linkType: hard
+
+"web3-types@npm:^0.1.0-alpha.0":
+  version: 0.1.0-alpha.0
+  resolution: "web3-types@npm:0.1.0-alpha.0"
+  checksum: 122a7b679c76350f26a29bdb8a8734834f2d06c084ab361ef7042bc4c2760dfc933cd3340e473095e422b8ed29ff03e81d095bf3dc07cdc202dff08e514783ba
   languageName: node
   linkType: hard
 

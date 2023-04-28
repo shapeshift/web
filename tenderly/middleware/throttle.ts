@@ -1,14 +1,4 @@
-import type { RequestHandler } from 'express'
-import type { ParamsDictionary } from 'express-serve-static-core'
-import type { ParsedQs } from 'qs'
-
-export const createThrottleMiddleware = <
-  P = ParamsDictionary,
-  ResBody = any,
-  ReqBody = any,
-  ReqQuery = ParsedQs,
-  Locals extends Record<string, any> = Record<string, any>,
->({
+export const createThrottleMiddleware = ({
   capacity,
   costPerReq,
   drainPerInterval,
@@ -18,7 +8,7 @@ export const createThrottleMiddleware = <
   costPerReq: number
   drainPerInterval: number
   intervalMs: number
-}): RequestHandler<P, ResBody, ReqBody, ReqQuery, Locals> => {
+}) => {
   const throttle = () => {
     let currentLevel = 0
 

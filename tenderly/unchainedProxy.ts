@@ -129,7 +129,7 @@ app.post('/api/v1/send', async (req, res) => {
   // emulate unchained websocket by fetching tx from tenderly and jamming it into the websocket
   setTimeout(() => {
     if (txId) sendTxViaWebSocket(txId)
-  }, 1000)
+  }, 10000)
 
   res.json(txId)
 })

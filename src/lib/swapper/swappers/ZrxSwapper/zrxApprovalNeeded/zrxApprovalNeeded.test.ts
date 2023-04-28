@@ -10,7 +10,7 @@ import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'
 import { zrxApprovalNeeded } from './zrxApprovalNeeded'
 
-const zrxService = zrxServiceFactory('https://api.0x.org/')
+const zrxService = zrxServiceFactory({ baseUrl: 'https://api.0x.org/' })
 
 jest.mock('web3')
 jest.mock('axios', () => ({

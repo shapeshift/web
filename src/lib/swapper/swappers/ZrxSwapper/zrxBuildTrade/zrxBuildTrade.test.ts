@@ -54,7 +54,7 @@ const setup = () => {
     rpcUrl: ethNodeUrl,
   })
   adapter.getFeeData = () => Promise.resolve(feeData)
-  const zrxService = zrxServiceFactory('https://api.0x.org/')
+  const zrxService = zrxServiceFactory({ baseUrl: 'https://api.0x.org/' })
 
   return { web3Instance, adapter, zrxService }
 }

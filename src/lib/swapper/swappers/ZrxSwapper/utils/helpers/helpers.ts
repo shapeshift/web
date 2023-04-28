@@ -92,7 +92,7 @@ export const getUsdRate = async (sellAsset: Asset): Promise<Result<string, SwapE
 
   const maybeBaseUrl = baseUrlFromChainId(sellAsset.chainId)
   if (maybeBaseUrl.isErr()) return Err(maybeBaseUrl.unwrapErr())
-  const zrxService = zrxServiceFactory(maybeBaseUrl.unwrap())
+  const zrxService = zrxServiceFactory({ baseUrl: maybeBaseUrl.unwrap() })
   const maybeRateResponse = await zrxService.get<ZrxPriceResponse>('/swap/v1/price', {
     params: {
       buyToken: usdcContractAddress,

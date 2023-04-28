@@ -27,7 +27,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
 
   const maybeBaseUrl = baseUrlFromChainId(buyAsset.chainId)
   if (maybeBaseUrl.isErr()) return Err(maybeBaseUrl.unwrapErr())
-  const zrxService = zrxServiceFactory(maybeBaseUrl.unwrap())
+  const zrxService = zrxServiceFactory({ baseUrl: maybeBaseUrl.unwrap() })
 
   const maybeZrxMinMax = await getZrxMinMax(sellAsset, buyAsset)
   if (maybeZrxMinMax.isErr()) {

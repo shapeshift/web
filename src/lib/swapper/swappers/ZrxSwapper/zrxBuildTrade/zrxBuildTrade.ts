@@ -1,5 +1,6 @@
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { AxiosInstance } from 'axios'
 import * as rax from 'retry-axios'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
@@ -10,7 +11,7 @@ import type {
   ZrxSwapperDeps,
   ZrxTrade,
 } from 'lib/swapper/swappers/ZrxSwapper/types'
-import { applyAxiosRetry } from 'lib/swapper/swappers/ZrxSwapper/utils/applyAxiosRetry'
+import { withAxiosRetry } from 'lib/swapper/swappers/ZrxSwapper/utils/applyAxiosRetry'
 import { AFFILIATE_ADDRESS, DEFAULT_SOURCE } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
 import {
   assertValidTradePair,
@@ -19,7 +20,6 @@ import {
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
 import type { ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
-import type { MonadicSwapperAxiosService } from 'lib/swapper/utils'
 
 export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
   { adapter }: ZrxSwapperDeps,
@@ -33,22 +33,28 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
 
   const maybeBaseUrl = baseUrlFromChainId(buyAsset.chainId)
   if (maybeBaseUrl.isErr()) return Err(maybeBaseUrl.unwrapErr())
-  // @ts-ignore figure out how to fix me
-  const zrxService = applyAxiosRetry(zrxServiceFactory(maybeBaseUrl.unwrap()), {
-    statusCodesToRetry: [[400, 400]],
-    shouldRetry: err => {
-      const cfg = rax.getConfig(err)
-      const retryAttempt = cfg?.currentRetryAttempt ?? 0
-      const retry = cfg?.retry ?? 3
-      // ensure max retries is always respected
-      if (retryAttempt >= retry) return false
-      // retry if 0x returns error code 111 Gas estimation failed
-      if (err?.response?.data?.code === 111) return true
+  // TODO(gomes): Is this the right way to do the higher-order dance here?
+  const withZrxAxiosRetry = (baseService: AxiosInstance) =>
+    withAxiosRetry(baseService, {
+      statusCodesToRetry: [[400, 400]],
+      shouldRetry: err => {
+        const cfg = rax.getConfig(err)
+        const retryAttempt = cfg?.currentRetryAttempt ?? 0
+        const retry = cfg?.retry ?? 3
+        // ensure max retries is always respected
+        if (retryAttempt >= retry) return false
+        // retry if 0x returns error code 111 Gas estimation failed
+        if (err?.response?.data?.code === 111) return true
 
-      // Handle the request based on your other config options, e.g. `statusCodesToRetry`
-      return rax.shouldRetryRequest(err)
-    },
-  }) as MonadicSwapperAxiosService
+        // Handle the request based on your other config options, e.g. `statusCodesToRetry`
+        return rax.shouldRetryRequest(err)
+      },
+    })
+  const zrxService = zrxServiceFactory({
+    baseUrl: maybeBaseUrl.unwrap(),
+    wrapper: withZrxAxiosRetry,
+  })
+  // as MonadicSwapperAxiosService
 
   // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-quote
   const maybeQuoteResponse = await zrxService.get<ZrxQuoteResponse>('/swap/v1/quote', {

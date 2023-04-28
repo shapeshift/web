@@ -25,7 +25,7 @@ jest.mock('lib/swapper/swappers/ZrxSwapper/utils/zrxService', () => {
   }
 })
 
-const zrxService = zrxServiceFactory('https://api.0x.org/')
+const zrxService = zrxServiceFactory({ baseUrl: 'https://api.0x.org/' })
 
 jest.mock('../utils/helpers/helpers', () => ({
   ...jest.requireActual('../utils/helpers/helpers'),

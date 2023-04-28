@@ -1,3 +1,5 @@
+import type { NextFunction } from 'express-serve-static-core'
+
 export const createThrottleMiddleware = ({
   capacity,
   costPerReq,
@@ -9,23 +11,21 @@ export const createThrottleMiddleware = ({
   drainPerInterval: number
   intervalMs: number
 }) => {
-  const throttle = () => {
-    let currentLevel = 0
+  let currentLevel = 0
 
-    setInterval(() => {
-      currentLevel = Math.max(0, currentLevel - drainPerInterval)
-    }, intervalMs)
+  setInterval(() => {
+    currentLevel = Math.max(0, currentLevel - drainPerInterval)
+  }, intervalMs)
 
-    return async () => {
-      let isFull = currentLevel + costPerReq >= capacity
-      while (isFull) {
-        await new Promise(resolve => setTimeout(resolve, intervalMs))
-        isFull = currentLevel + costPerReq >= capacity
-      }
+  const throttle = async () => {
+    let isFull = currentLevel + costPerReq >= capacity
+    while (isFull) {
+      await new Promise(resolve => setTimeout(resolve, intervalMs))
+      isFull = currentLevel + costPerReq >= capacity
     }
   }
 
-  return async (_req, _res, next) => {
+  return async (_req: unknown, _res: unknown, next: NextFunction) => {
     await throttle()
     next()
   }

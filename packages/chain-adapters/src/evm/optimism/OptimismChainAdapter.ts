@@ -14,6 +14,10 @@ import type { GasFeeDataEstimate } from '../types'
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.OptimismMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.OptimismMainnet
 
+export const isOptimismChainAdapter = (adapter: unknown): adapter is ChainAdapter => {
+  return (adapter as ChainAdapter).getType() === KnownChainIds.OptimismMainnet
+}
+
 export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.OptimismMainnet> {
   public static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,

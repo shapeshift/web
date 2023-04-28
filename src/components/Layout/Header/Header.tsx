@@ -10,7 +10,7 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
-import { useViewportScroll } from 'framer-motion'
+import { useScroll } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -43,7 +43,7 @@ export const Header = () => {
   const ref = useRef<HTMLDivElement>(null)
   const [y, setY] = useState(0)
   const { height = 0 } = ref.current?.getBoundingClientRect() ?? {}
-  const { scrollY } = useViewportScroll()
+  const { scrollY } = useScroll()
   useEffect(() => {
     return scrollY.onChange(() => setY(scrollY.get()))
   }, [scrollY])

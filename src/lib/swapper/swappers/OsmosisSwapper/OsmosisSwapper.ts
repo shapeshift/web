@@ -28,6 +28,7 @@ import {
   SwapperType,
 } from 'lib/swapper/api'
 import {
+  atomOnOsmosisAssetId,
   COSMO_OSMO_CHANNEL,
   DEFAULT_SOURCE,
   MAX_SWAPPER_SELL,
@@ -62,7 +63,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
   constructor(deps: OsmoSwapperDeps) {
     this.deps = deps
-    this.supportedAssetIds = [cosmosAssetId, osmosisAssetId]
+    this.supportedAssetIds = [cosmosAssetId, osmosisAssetId, atomOnOsmosisAssetId]
   }
 
   async getTradeTxs(tradeResult: OsmosisTradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
@@ -310,7 +311,9 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         }),
       )
 
-    const isFromOsmo = sellAsset.assetId === osmosisAssetId
+    const buyAssetIsOnOsmosisNetwork = buyAsset.chainId === osmosisChainId
+    const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
+
     const sellAssetDenom = symbolDenomMapping[sellAsset.symbol as keyof SymbolDenomMapping]
     const buyAssetDenom = symbolDenomMapping[buyAsset.symbol as keyof SymbolDenomMapping]
     let ibcSellAmount
@@ -338,7 +341,17 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     let sellAddress
     let cosmosIbcTradeId = ''
 
-    if (!isFromOsmo) {
+    if (sellAssetIsOnOsmosisNetwork) {
+      sellAddress = await osmosisAdapter.getAddress({ wallet, accountNumber })
+
+      if (!sellAddress)
+        throw new SwapError('failed to get osmoAddress', {
+          code: SwapErrorType.EXECUTE_TRADE_FAILED,
+        })
+    } else {
+      /** If the sell asset is not on the Osmosis network, we need to bridge the
+       * asset to the Osmosis network first in order to perform a swap on Osmosis DEX.
+       */
       sellAddress = await cosmosAdapter.getAddress({ wallet, accountNumber })
 
       if (!sellAddress)
@@ -392,23 +405,14 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       // delay to ensure all nodes we interact with are up to date at this point
       // seeing intermittent bugs that suggest the balances and sequence numbers were sometimes off
       await new Promise(resolve => setTimeout(resolve, 5000))
-    } else {
-      sellAddress = await osmosisAdapter.getAddress({ wallet, accountNumber })
-
-      if (!sellAddress)
-        return Err(
-          makeSwapErrorRight({
-            message: 'failed to get osmoAddress',
-            code: SwapErrorType.EXECUTE_TRADE_FAILED,
-          }),
-        )
     }
 
-    const osmoAddress = isFromOsmo ? sellAddress : receiveAddress
-    const cosmosAddress = isFromOsmo ? receiveAddress : sellAddress
+    /** Execute the swap on Osmosis DEX */
+    const osmoAddress = sellAssetIsOnOsmosisNetwork ? sellAddress : receiveAddress
+    const cosmosAddress = sellAssetIsOnOsmosisNetwork ? receiveAddress : sellAddress
     const signTxInput = await buildTradeTx({
       osmoAddress,
-      accountNumber: isFromOsmo ? accountNumber : receiveAccountNumber,
+      accountNumber: sellAssetIsOnOsmosisNetwork ? accountNumber : receiveAccountNumber,
       adapter: osmosisAdapter,
       buyAssetDenom,
       sellAssetDenom,
@@ -420,15 +424,19 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const signed = await osmosisAdapter.signTransaction(signTxInput)
     const tradeId = await osmosisAdapter.broadcastTransaction(signed)
 
-    if (isFromOsmo) {
-      const pollResult = await pollForComplete(tradeId, this.deps.osmoUrl)
-      if (pollResult !== 'success')
-        return Err(
-          makeSwapErrorRight({
-            message: 'osmo swap failed',
-            code: SwapErrorType.EXECUTE_TRADE_FAILED,
-          }),
-        )
+    const pollResult = await pollForComplete(tradeId, this.deps.osmoUrl)
+    if (pollResult !== 'success')
+      return Err(
+        makeSwapErrorRight({
+          message: 'osmo swap failed',
+          code: SwapErrorType.EXECUTE_TRADE_FAILED,
+        }),
+      )
+
+    if (!buyAssetIsOnOsmosisNetwork) {
+      /** If the buy asset is not on the Osmosis Network, we need to bridge the
+       * asset from the Osmosis network to the buy asset network.
+       */
 
       const amount = await pollForAtomChannelBalance(sellAddress, this.deps.osmoUrl)
       const transfer = {
@@ -471,6 +479,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       })
     }
 
-    return Ok({ tradeId, previousCosmosTxid: cosmosIbcTradeId })
+    return Ok({ tradeId, previousCosmosTxid: sellAssetIsOnOsmosisNetwork ? '' : cosmosIbcTradeId })
   }
 }

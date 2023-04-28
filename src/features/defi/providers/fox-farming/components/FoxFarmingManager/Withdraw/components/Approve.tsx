@@ -67,7 +67,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
-  const { allowance, approve, getUnstakeGasData } = useFoxFarming(contractAddress)
+  const { allowance, approve, getUnstakeFeeData } = useFoxFarming(contractAddress)
   const toast = useToast()
   const assets = useAppSelector(selectAssets)
 
@@ -107,9 +107,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         maxAttempts: 30,
       })
       // Get withdraw gas estimate
-      const gasData = await getUnstakeGasData(state.withdraw.lpAmount, state.withdraw.isExiting)
-      if (!gasData) return
-      const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
+      const feeData = await getUnstakeFeeData(state.withdraw.lpAmount, state.withdraw.isExiting)
+      if (!feeData) return
+      const estimatedGasCrypto = bnOrZero(feeData.txFee)
         .div(bn(10).pow(underlyingAsset?.precision ?? 0))
         .toPrecision()
       dispatch({
@@ -145,7 +145,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     opportunity,
     wallet,
     approve,
-    getUnstakeGasData,
+    getUnstakeFeeData,
     underlyingAsset?.precision,
     onNext,
     assets,

@@ -44,20 +44,15 @@ export const zerionApi = createApi({
           const filter = { params: { 'filter[implementation_address]': assetReference } }
           const url = '/fungibles/' // trailing slash is important!
           const payload = { ...options, ...filter, url }
-          const { data } = await axios.request(payload)
-          const validationResult = zerionFungiblesSchema.safeParse(data)
-          if (validationResult.success) {
-            const implementations = validationResult.data.data?.[0]?.attributes?.implementations
-            const data =
-              implementations
-                ?.map(zerionImplementationToMaybeAssetId)
-                .filter(isSome)
-                .filter(id => id !== assetId) ?? [] // don't show input assetId in list of related assetIds
-            return { data }
-          } else {
-            moduleLogger.warn(validationResult.error, '')
-            return { error: { error: validationResult.error } }
-          }
+          const { data: res } = await axios.request(payload)
+          const validationResult = zerionFungiblesSchema.parse(res)
+          const implementations = validationResult.data?.[0]?.attributes?.implementations
+          const data =
+            implementations
+              ?.map(zerionImplementationToMaybeAssetId)
+              .filter(isSome)
+              .filter(id => id !== assetId) ?? [] // don't show input assetId in list of related assetIds
+          return { data }
         } catch (e) {
           moduleLogger.warn(e, '')
           return { error: { error: e } }

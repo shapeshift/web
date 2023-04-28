@@ -1,7 +1,6 @@
 import type { AssetReference } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { QuoteFeeData } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { ThorEvmSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
@@ -12,46 +11,39 @@ type GetEvmTxFeesArgs = {
   adapter: EvmBaseAdapter<ThorEvmSupportedChainId>
   sellAssetReference: AssetReference | string
   buyAssetTradeFeeUsd: string
+  sellAssetTradeFeeUsd: string
 }
 
 export const getEvmTxFees = async ({
   adapter,
   sellAssetReference,
   buyAssetTradeFeeUsd,
+  sellAssetTradeFeeUsd,
 }: GetEvmTxFeesArgs): Promise<QuoteFeeData<ThorEvmSupportedChainId>> => {
   try {
-    const gasFeeData = await adapter.getGasFeeData()
+    const { average, fast } = await adapter.getGasFeeData()
+
+    // use worst case average eip1559 vs fast legacy
+    const maxGasPrice = bnOrZero(BigNumber.max(average.maxFeePerGas ?? 0, fast.gasPrice))
 
     // this is a good value to cover all thortrades out of EVMs
     // in the future we may want to look at doing this more precisely and in a future-proof way
     // TODO: calculate this dynamically
-    const gasLimit = THOR_EVM_GAS_LIMIT
+    const txFee = bn(THOR_EVM_GAS_LIMIT).times(maxGasPrice)
 
-    const feeDataOptions = {
-      fast: {
-        txFee: bn(gasLimit).times(gasFeeData[FeeDataKey.Fast].gasPrice).toString(),
-        chainSpecific: {
-          gasPrice: gasFeeData[FeeDataKey.Fast].gasPrice,
-          gasLimit,
-        },
-      },
-    }
-
-    const feeData = feeDataOptions['fast']
+    const approvalFee = sellAssetReference && bn(APPROVAL_GAS_LIMIT).times(maxGasPrice).toFixed(0)
 
     return {
-      networkFeeCryptoBaseUnit: feeData.txFee,
+      networkFeeCryptoBaseUnit: txFee.toFixed(0),
       chainSpecific: {
-        estimatedGasCryptoBaseUnit: feeData.chainSpecific.gasLimit,
-        gasPriceCryptoBaseUnit: feeData.chainSpecific.gasPrice,
-        approvalFeeCryptoBaseUnit:
-          sellAssetReference &&
-          bnOrZero(APPROVAL_GAS_LIMIT)
-            .multipliedBy(bnOrZero(feeData.chainSpecific.gasPrice))
-            .toString(),
+        estimatedGasCryptoBaseUnit: THOR_EVM_GAS_LIMIT,
+        gasPriceCryptoBaseUnit: fast.gasPrice, // fast gas price since it is underestimated currently
+        maxFeePerGas: average.maxFeePerGas,
+        maxPriorityFeePerGas: average.maxPriorityFeePerGas,
+        approvalFeeCryptoBaseUnit: approvalFee,
       },
       buyAssetTradeFeeUsd,
-      sellAssetTradeFeeUsd: '0',
+      sellAssetTradeFeeUsd,
     }
   } catch (e) {
     if (e instanceof SwapError) throw e

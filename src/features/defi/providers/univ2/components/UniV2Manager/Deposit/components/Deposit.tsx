@@ -73,7 +73,7 @@ export const Deposit: React.FC<DepositProps> = ({
   })
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
-  const { asset0Allowance, asset1Allowance, getApproveGasData, getDepositGasDataCryptoBaseUnit } =
+  const { asset0Allowance, asset1Allowance, getApproveFeeData, getDepositFeeData } =
     useUniV2LiquidityPool({
       accountId: accountId ?? '',
       lpAssetId,
@@ -118,12 +118,12 @@ export const Deposit: React.FC<DepositProps> = ({
     if (!feeAsset) return
     const { cryptoAmount0: token0Amount, cryptoAmount1: token1Amount } = deposit
     try {
-      const gasData = await getDepositGasDataCryptoBaseUnit({
+      const feeData = await getDepositFeeData({
         token0Amount,
         token1Amount,
       })
-      if (!gasData) return
-      return bnOrZero(gasData.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
+      if (!feeData) return
+      return bnOrZero(feeData.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
     } catch (error) {
       moduleLogger.error(
         { fn: 'getDepositGasEstimateCryptoPrecision', error },
@@ -198,31 +198,33 @@ export const Deposit: React.FC<DepositProps> = ({
           assetId1 !== ethAssetId
             ? ethers.utils.getAddress(fromAssetId(assetId1).assetReference)
             : undefined
+
         // While the naive approach would be to think both assets approve() calls are going to result in the same gas estimation,
         // this is not necesssarly true. Some ERC-20s approve() might have a bit more logic, and thus require more gas.
         // e.g https://github.com/Uniswap/governance/blob/eabd8c71ad01f61fb54ed6945162021ee419998e/contracts/Uni.sol#L119
-        const asset0EstimatedGasCrypto =
-          assetId0 !== ethAssetId && (await getApproveGasData(asset0ContractAddress!))
-        const asset1EstimatedGasCrypto =
-          assetId1 !== ethAssetId && (await getApproveGasData(asset1ContractAddress!))
-        if (!(asset0EstimatedGasCrypto || asset1EstimatedGasCrypto)) return
+        const asset0ApprovalFee =
+          asset0ContractAddress && bnOrZero((await getApproveFeeData(asset0ContractAddress))?.txFee)
+        const asset1ApprovalFee =
+          asset1ContractAddress && bnOrZero((await getApproveFeeData(asset1ContractAddress))?.txFee)
 
-        if (!isAsset0AllowanceGranted && asset0EstimatedGasCrypto) {
+        if (!(asset0ApprovalFee || asset1ApprovalFee)) return
+
+        if (!isAsset0AllowanceGranted && asset0ApprovalFee) {
           dispatch({
             type: UniV2DepositActionType.SET_APPROVE_0,
             payload: {
-              estimatedGasCryptoPrecision: bnOrZero(asset0EstimatedGasCrypto.average.txFee)
+              estimatedGasCryptoPrecision: bnOrZero(asset0ApprovalFee)
                 .div(bn(10).pow(feeAsset.precision))
                 .toPrecision(),
             },
           })
         }
 
-        if (!isAsset1AllowanceGranted && asset1EstimatedGasCrypto) {
+        if (!isAsset1AllowanceGranted && asset1ApprovalFee) {
           dispatch({
             type: UniV2DepositActionType.SET_APPROVE_1,
             payload: {
-              estimatedGasCryptoPrecision: bnOrZero(asset1EstimatedGasCrypto.average.txFee)
+              estimatedGasCryptoPrecision: bnOrZero(asset1ApprovalFee)
                 .div(bn(10).pow(feeAsset.precision))
                 .toPrecision(),
             },
@@ -288,13 +290,14 @@ export const Deposit: React.FC<DepositProps> = ({
     })
   }
 
-  if (!accountId) return null
+  if (!accountId || !lpOpportunity) return null
   return (
     <PairDeposit
       accountId={accountId}
       asset0={asset0}
       asset1={asset1}
       icons={lpOpportunity?.icons}
+      underlyingAssetRatiosBaseUnit={lpOpportunity.underlyingAssetRatiosBaseUnit}
       destAsset={lpAsset}
       apy={lpOpportunity?.apy?.toString() ?? ''}
       cryptoAmountAvailable0={asset0CryptoAmountAvailable.toPrecision()}

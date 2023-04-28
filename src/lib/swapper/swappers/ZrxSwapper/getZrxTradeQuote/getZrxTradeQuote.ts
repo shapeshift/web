@@ -71,7 +71,10 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
 
     const useSellAmount = !!sellAmount
     const rate = useSellAmount ? data.price : bn(1).div(data.price).toString()
-    const gasLimit = bnOrZero(data.gas)
+
+    // add gas limit buffer to account for the fact we perform all of our validation on the trade quote estimations
+    // which are inaccurate and not what we use for the tx to broadcast
+    const gasLimit = bnOrZero(data.gas).times(1.2)
 
     // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
     // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.

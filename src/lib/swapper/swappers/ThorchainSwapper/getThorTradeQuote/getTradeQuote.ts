@@ -90,10 +90,6 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       ok: quote => {
         const THOR_PRECISION = 8
         const expectedAmountOutThorBaseUnit = quote.expected_amount_out
-        // Add back the outbound fees
-        const expectedAmountPlusFeesCryptoThorBaseUnit = bn(expectedAmountOutThorBaseUnit).plus(
-          quote.fees.outbound,
-        )
         const sellAmountCryptoPrecision = bn(sellAmountCryptoBaseUnit).div(
           bn(10).pow(sellAsset.precision),
         )
@@ -103,7 +99,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         )
 
         return Promise.resolve(
-          expectedAmountPlusFeesCryptoThorBaseUnit.div(sellAmountCryptoThorBaseUnit).toFixed(),
+          bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed(),
         )
       },
       // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
@@ -130,7 +126,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       : '0'
 
     // If we have a quote, we can use the quote's expected amount out. If not it's either a 0-value trade or an error, so use '0'.
-    // Because the rate includes fees, we need to add them back on to get the "before fees" amount
+    // Because the expected_amount_out is the amount after fees, we need to add them back on to get the "before fees" amount
     const buyAmountCryptoBaseUnit = (() => {
       if (quote.isOk()) {
         const unwrappedQuote = quote.unwrap()
@@ -139,6 +135,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         const expectedAmountPlusFeesCryptoThorBaseUnit = bn(expectedAmountOutThorBaseUnit)
           .plus(unwrappedQuote.fees.outbound)
           .plus(unwrappedQuote.fees.affiliate)
+
         return toBaseUnit(
           fromBaseUnit(expectedAmountPlusFeesCryptoThorBaseUnit, THORCHAIN_FIXED_PRECISION),
           buyAsset.precision,

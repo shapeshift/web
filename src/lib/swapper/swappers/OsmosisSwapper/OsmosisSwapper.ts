@@ -311,8 +311,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         }),
       )
 
-    const isToOsmosisNetworkAsset = buyAsset.chainId === osmosisChainId
-    const isFromOsmosisNetworkAsset = sellAsset.chainId === osmosisChainId
+    const buyAssetIsOnOsmosisNetwork = buyAsset.chainId === osmosisChainId
+    const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
 
     const sellAssetDenom = symbolDenomMapping[sellAsset.symbol as keyof SymbolDenomMapping]
     const buyAssetDenom = symbolDenomMapping[buyAsset.symbol as keyof SymbolDenomMapping]
@@ -341,7 +341,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     let sellAddress
     let cosmosIbcTradeId = ''
 
-    if (isFromOsmosisNetworkAsset) {
+    if (sellAssetIsOnOsmosisNetwork) {
       sellAddress = await osmosisAdapter.getAddress({ wallet, accountNumber })
 
       if (!sellAddress)
@@ -408,11 +408,11 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     }
 
     /** Execute the swap on Osmosis DEX */
-    const osmoAddress = isFromOsmosisNetworkAsset ? sellAddress : receiveAddress
-    const cosmosAddress = isFromOsmosisNetworkAsset ? receiveAddress : sellAddress
+    const osmoAddress = sellAssetIsOnOsmosisNetwork ? sellAddress : receiveAddress
+    const cosmosAddress = sellAssetIsOnOsmosisNetwork ? receiveAddress : sellAddress
     const signTxInput = await buildTradeTx({
       osmoAddress,
-      accountNumber: isFromOsmosisNetworkAsset ? accountNumber : receiveAccountNumber,
+      accountNumber: sellAssetIsOnOsmosisNetwork ? accountNumber : receiveAccountNumber,
       adapter: osmosisAdapter,
       buyAssetDenom,
       sellAssetDenom,
@@ -433,7 +433,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         }),
       )
 
-    if (!isToOsmosisNetworkAsset) {
+    if (!buyAssetIsOnOsmosisNetwork) {
       /** If the buy asset is not on the Osmosis Network, we need to bridge the
        * asset from the Osmosis network to the buy asset network.
        */
@@ -479,6 +479,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       })
     }
 
-    return Ok({ tradeId, previousCosmosTxid: isFromOsmosisNetworkAsset ? '' : cosmosIbcTradeId })
+    return Ok({ tradeId, previousCosmosTxid: sellAssetIsOnOsmosisNetwork ? '' : cosmosIbcTradeId })
   }
 }

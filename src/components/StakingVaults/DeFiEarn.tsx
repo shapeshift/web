@@ -30,7 +30,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
   header,
   ...rest
 }) => {
-  const { q } = useQuery<{ q: string }>()
+  const { q } = useQuery<{ q?: string }>()
   const [searchQuery, setSearchQuery] = useState(q ?? '')
   const translate = useTranslate()
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>()

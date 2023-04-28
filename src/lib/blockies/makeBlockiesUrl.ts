@@ -1,25 +1,17 @@
 import type { BlockiesOptions } from './blockies'
-import { buildOpts, createImageData } from './blockies'
+import { buildBlockiesOptions, createImageData } from './blockies'
 
-const store: Record<string, string> = Object.create(null)
+const imgData: Record<string, string> = Object.create(null)
 
-const _btoa =
-  btoa || window?.btoa || ((str: string) => Buffer.from(str, 'binary').toString('base64'))
-
-export const makeBlockiesUrl = function (
-  address: string,
-  size = 8,
-  caseSensitive = false,
-  scale = 10,
-) {
+export const makeBlockiesUrl = (address: string, size = 8, caseSensitive = false, scale = 10) => {
   if (!address) throw new Error('Address is required')
   if (!caseSensitive) address = address.toLowerCase()
 
-  if (store[`${size}:${address}`]) {
-    return store[`${size}:${address}`]
+  if (imgData[`${size}:${address}`]) {
+    return imgData[`${size}:${address}`]
   }
 
-  const opts: BlockiesOptions = buildOpts({ seed: address, size, scale })
+  const opts: BlockiesOptions = buildBlockiesOptions({ seed: address, size, scale })
   const imageData: number[] = createImageData(opts.size)
 
   const width = size * scale
@@ -49,9 +41,9 @@ export const makeBlockiesUrl = function (
       </g>
     </svg>`
 
-  const base64Url = `data:image/svg+xml;base64,${_btoa(svgMarkup)}`
+  const base64Url = `data:image/svg+xml;base64,${btoa(svgMarkup)}`
 
-  store[`${size}:${address}`] = base64Url
+  imgData[`${size}:${address}`] = base64Url
 
   return base64Url
 }

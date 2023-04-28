@@ -15,6 +15,7 @@
     "activity": "Activité",
     "reject": "Rejeter",
     "connected": "Connecté",
+    "allocation": "Répartition",
     "value": "Valeur",
     "created": "Créé %{date}",
     "noResultsFound": "Aucun résultat trouvé.",
@@ -47,6 +48,7 @@
     "or": "ou",
     "somethingWentWrong": "Il y a eu un problème",
     "somethingWentWrongBody": "Il y a eu un problème",
+    "accountError": "Temporairement impossible de récupérer les données pour les chaînes suivantes :",
     "degradedState": "L'app est dans un état dégradé",
     "degradedInfo": "Impossible de récupérer les données de certains comptes.",
     "success": "Succès",
@@ -98,7 +100,8 @@
     "buyNow": "Acheter maintenant",
     "manage": "Gérer",
     "selectedAccount": "Compte sélectionné",
-    "allChains": "Toutes les chaînes"
+    "allChains": "Toutes les chaînes",
+    "wallet": "Porte-monnaie"
   },
   "consentBanner": {
     "body": {
@@ -677,6 +680,7 @@
       "buyAssetMiddleSentence": "actif à acheter",
       "notEnoughEth": "Solde ETH insuffisant pour les frais de carburant sur cette transaction.",
       "amountTooSmall": "Minimum : %{minLimit}",
+      "amountTooSmallOrInvalidTradePair": "Montant trop bas ou pas d'itinéraire",
       "sellAmountDoesNotCoverFee": "Montant à vendre inférieur aux frais",
       "negativeMax": "Fonds insuffisants pour les frais de minage sur cette transaction. Frais de minage estimés : %{estimatedMinerFee}",
       "invalidMax": "Montant invalide. Le montant maximal de la transaction pour cette paire est de %{maxLimit}.",
@@ -968,7 +972,8 @@
       "depositFee": "Il y aura des frais de carburant séparés à déposer.",
       "estimatedGas": "Frais de carburant estimés",
       "confirm": "Confirmer",
-      "reject": "Rejeter"
+      "reject": "Rejeter",
+      "approved": "Approuvé"
     },
     "confirm": {
       "withdraw": {
@@ -1443,6 +1448,7 @@
         "sell": "Vendre",
         "trade": "Échanger"
       },
+      "equity": "Fonds propres",
       "accountTokens": "Jetons du compte",
       "relatedAssets": "Actifs connexes",
       "showTokens": "Montrer les jetons (%{amount})",

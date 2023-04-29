@@ -173,7 +173,7 @@ export const DashboardHeader = () => {
             </Skeleton>
           </Flex>
         </Flex>
-        <Flex gap={4}>
+        <Flex gap={4} flexWrap={'wrap'} justifyContent={'center'}>
           <Button isDisabled={!isConnected} onClick={handleSendClick} leftIcon={<ArrowUpIcon />}>
             {translate('common.send')}
           </Button>

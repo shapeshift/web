@@ -68,8 +68,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, assetId)).price)
 
-  // TODO: Who tf wrote this, this is wrong
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
+  const chainAdapterManager = getChainAdapterManager()
+  const feeAssetId = chainAdapterManager.get(fromAssetId(assetId).chainId)?.getFeeAssetId()
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, feeAssetId ?? ''))
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -102,7 +103,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     ),
   )
 
-  const chainAdapterManager = getChainAdapterManager()
   const {
     state: { wallet },
   } = useWallet()

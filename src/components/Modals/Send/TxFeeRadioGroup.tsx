@@ -48,11 +48,11 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
     rules: { required: true },
     defaultValue: FeeDataKey.Average,
   })
-  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
+  const assetId = useWatch<SendInput, SendFormFields.AssetId>({ name: SendFormFields.AssetId })
   const activeFee = useWatch<SendInput, SendFormFields.FeeType>({ name: SendFormFields.FeeType })
   const bg = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.assetId))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
 
   if (!fees) {
     return (

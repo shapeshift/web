@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
@@ -11,7 +10,11 @@ import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
 import { parseMaybeUrl } from 'lib/address/address'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectMarketDataById, selectSelectedCurrency } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectMarketDataById,
+  selectSelectedCurrency,
+} from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
@@ -63,7 +66,10 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   })
 
   const handleAssetSelect = useCallback(
-    (asset: Asset) => {
+    (assetId: AssetId) => {
+      const asset = selectAssetById(store.getState(), assetId ?? '')
+      // This should never happen, but tsc
+      if (!asset) return
       // methods.setValue(SendFormFields.AssetId, { ...asset, ...marketData })
       methods.setValue(SendFormFields.Input, '')
       methods.setValue(SendFormFields.AccountId, '')

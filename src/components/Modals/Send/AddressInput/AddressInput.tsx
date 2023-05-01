@@ -6,6 +6,8 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { QRCodeIcon } from 'components/Icons/QRCode'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
@@ -15,11 +17,14 @@ type AddressInputProps = {
 }
 
 export const AddressInput = ({ rules }: AddressInputProps) => {
-  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
+  const assetId = useWatch<SendInput, SendFormFields.AssetId>({
+    name: SendFormFields.AssetId,
+  })
   const history = useHistory()
   const translate = useTranslate()
   const isYatFeatureEnabled = useFeatureFlag('Yat')
-  const isYatSupportedChain = asset.chainId === ethChainId // yat only supports eth mainnet
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const isYatSupportedChain = asset?.chainId === ethChainId // yat only supports eth mainnet
 
   const handleQrClick = () => {
     history.push(SendRoutes.Scan)
@@ -36,13 +41,13 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
             onChange={onChange}
             placeholder={translate(
               isYatFeatureEnabled && isYatSupportedChain
-                ? 'modals.send.addressInput'
-                : 'modals.send.tokenAddress',
+                ? 'modals.qrCode.addressInput'
+                : 'modals.qrCode.tokenAddress',
             )}
             size='lg'
             value={value}
             variant='filled'
-            data-test='send-address-input'
+            data-test='qrCode-address-input'
             // Because the InputRightElement is hover the input, we need to let this space free
             pe={10}
           />
@@ -52,7 +57,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
       />
       <InputRightElement>
         <IconButton
-          aria-label={translate('modals.send.scanQrCode')}
+          aria-label={translate('modals.qrCode.scanQrCode')}
           icon={<QRCodeIcon />}
           onClick={handleQrClick}
           size='sm'

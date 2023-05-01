@@ -114,7 +114,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     const { cryptoAmount, to, sendMax, accountId } = getValues()
     if (!wallet) throw new Error('No wallet connected')
-    return estimateFees({ cryptoAmount, asset, to, sendMax, accountId, contractAddress })
+    return estimateFees({
+      cryptoAmount,
+      assetId: asset.assetId,
+      to,
+      sendMax,
+      accountId,
+      contractAddress,
+    })
   }, [asset, contractAddress, getValues, wallet])
 
   const debouncedSetEstimatedFormFees = useMemo(() => {

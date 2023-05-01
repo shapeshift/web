@@ -26,7 +26,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectFeeAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../Form'
@@ -49,25 +49,16 @@ export const Confirm = () => {
   } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
-  const {
-    accountId,
-    to,
-    asset,
-    cryptoAmount,
-    cryptoSymbol,
-    feeType,
-    fiatAmount,
-    memo,
-    vanityAddress,
-  } = useWatch({
-    control,
-  }) as Partial<SendInput>
+  const { accountId, to, assetId, cryptoAmount, feeType, fiatAmount, memo, vanityAddress } =
+    useWatch({
+      control,
+    }) as Partial<SendInput>
   const { fees } = useSendFees()
 
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset?.assetId ?? ''))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
   const showMemoRow = useMemo(
-    () => Boolean(asset && fromAssetId(asset.assetId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk),
-    [asset],
+    () => Boolean(assetId && fromAssetId(assetId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk),
+    [assetId],
   )
 
   const amountWithFees = useMemo(() => {
@@ -82,10 +73,12 @@ export const Confirm = () => {
 
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+
   // We don't want this firing -- but need it for typing
   const handleAccountChange = () => {}
 
-  if (!(to && asset?.name && cryptoSymbol && cryptoAmount && fiatAmount && feeType)) return null
+  if (!(to && asset?.name && cryptoAmount && fiatAmount && feeType)) return null
 
   return (
     <SlideTransition>
@@ -111,7 +104,7 @@ export const Confirm = () => {
             fontWeight='bold'
             lineHeight='shorter'
             textTransform='uppercase'
-            symbol={cryptoSymbol}
+            symbol={asset.symbol}
             value={cryptoAmount}
           />
           <Amount.Fiat color='gray.500' fontSize='xl' lineHeight='short' value={fiatAmount} />
@@ -186,7 +179,7 @@ export const Confirm = () => {
               <Amount.Crypto
                 textTransform='uppercase'
                 maximumFractionDigits={6}
-                symbol={cryptoSymbol}
+                symbol={asset.symbol}
                 value={cryptoAmount}
               />
               <Amount.Crypto prefix='+' value={cryptoAmountFee} symbol={feeAsset?.symbol ?? ''} />

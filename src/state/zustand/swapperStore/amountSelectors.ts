@@ -16,6 +16,7 @@ import {
   selectSlippage,
 } from 'state/zustand/swapperStore/selectors'
 import type { SwapperState } from 'state/zustand/swapperStore/types'
+import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
 
 const selectAssetPriceRatio = createSelector(
   selectBuyAssetFiatRate,
@@ -281,14 +282,8 @@ export const selectTradeOrQuoteBuyAmountCryptoBaseUnit = createSelector(
     tradeBuyAmountBeforeFeesBaseUnit ?? quoteBuyAmountBeforeFeesBaseUnit,
 )
 
-export const selectQuoteSellAmountBeforeFeesSellAssetBaseUnit = createSelector(
-  selectTradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit,
-  (tradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit): string | undefined =>
-    tradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit,
-)
-
 export const selectQuoteSellAmountPlusFeesBaseUnit = createSelector(
-  selectQuoteSellAmountBeforeFeesSellAssetBaseUnit,
+  selectTradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit,
   selectSellAssetTradeFeeSellAssetBaseUnit,
   (
     quoteSellAmountBeforeFeesSellAssetBaseUnit,
@@ -587,8 +582,8 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
 export const selectDonationAmountFiat = createSelector(
   selectSellAmountFiat,
   selectAffiliateBps,
-  (sellAmountFiat, affiliateBps): string | undefined => {
-    const affiliatePercentage = bnOrZero(affiliateBps).div(10000)
+  (sellAmountFiat, affiliateBps): string => {
+    const affiliatePercentage = convertBasisPointsToPercentage(affiliateBps)
     // The donation amount is a percentage of the sell amount
     return bnOrZero(sellAmountFiat).times(affiliatePercentage).toFixed()
   },

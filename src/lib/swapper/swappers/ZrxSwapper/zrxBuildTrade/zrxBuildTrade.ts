@@ -54,7 +54,6 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
     baseUrl: maybeBaseUrl.unwrap(),
     wrapper: withZrxAxiosRetry,
   })
-  // as MonadicSwapperAxiosService
 
   // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-quote
   const maybeQuoteResponse = await zrxService.get<ZrxQuoteResponse>('/swap/v1/quote', {

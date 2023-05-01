@@ -42,8 +42,8 @@ const promoData: PromoItem[] = [
     body: 'promo.savers.body',
     cta: 'promo.savers.cta',
     image: SaversVaultTop,
-    startDate: '2023-02-25 8:00 AM',
-    endDate: '2023-03-01 8:00 AM',
+    startDate: '2023-04-27 8:00 AM',
+    endDate: '2023-05-18 8:00 AM',
     id: 'promo-savers-doge',
     href: '?provider=THORChain%20Savers&type=staking&chainId=bip122%3A00000000001a91e3dace36e2be3bf030&assetNamespace=slip44&assetReference=3&modal=overview',
     walletRequired: true,
@@ -67,8 +67,8 @@ const promoData: PromoItem[] = [
 export const DashboardSidebar = () => {
   return (
     <Flex width='full' flexDir='column' gap={6}>
-      <TradeCard display={{ base: 'none', xl: 'block' }} />
       <PromoCard data={promoData} />
+      <TradeCard display={{ base: 'none', xl: 'block' }} />
       <EligibleCarousel display={{ base: 'none', md: 'flex' }} />
       <RecentTransactions limit={8} viewMoreLink />
     </Flex>

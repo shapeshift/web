@@ -1,6 +1,6 @@
 import type { AssetReference } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn } from 'lib/bignumber/bignumber'
 import type { QuoteFeeData } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { ThorEvmSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
@@ -21,23 +21,21 @@ export const getEvmTxFees = async ({
   sellAssetTradeFeeUsd,
 }: GetEvmTxFeesArgs): Promise<QuoteFeeData<ThorEvmSupportedChainId>> => {
   try {
-    const { average, fast } = await adapter.getGasFeeData()
-
-    // use worst case average eip1559 vs fast legacy
-    const maxGasPrice = bnOrZero(BigNumber.max(average.maxFeePerGas ?? 0, fast.gasPrice))
+    const { average } = await adapter.getGasFeeData()
 
     // this is a good value to cover all thortrades out of EVMs
     // in the future we may want to look at doing this more precisely and in a future-proof way
     // TODO: calculate this dynamically
-    const txFee = bn(THOR_EVM_GAS_LIMIT).times(maxGasPrice)
+    const txFee = bn(THOR_EVM_GAS_LIMIT).times(average.gasPrice)
 
-    const approvalFee = sellAssetReference && bn(APPROVAL_GAS_LIMIT).times(maxGasPrice).toFixed(0)
+    const approvalFee =
+      sellAssetReference && bn(APPROVAL_GAS_LIMIT).times(average.gasPrice).toFixed(0)
 
     return {
       networkFeeCryptoBaseUnit: txFee.toFixed(0),
       chainSpecific: {
         estimatedGasCryptoBaseUnit: THOR_EVM_GAS_LIMIT,
-        gasPriceCryptoBaseUnit: fast.gasPrice, // fast gas price since it is underestimated currently
+        gasPriceCryptoBaseUnit: average.gasPrice,
         maxFeePerGas: average.maxFeePerGas,
         maxPriorityFeePerGas: average.maxPriorityFeePerGas,
         approvalFeeCryptoBaseUnit: approvalFee,

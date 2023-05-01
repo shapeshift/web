@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -15,6 +16,12 @@ import type { SendInput } from '../../Form'
 import { SendFormFields } from '../../SendCommon'
 import { useFormSend } from './useFormSend'
 
+const mockEthAsset = {
+  name: 'Ethereum',
+  symbol: 'ETH',
+  precision: 18,
+} as Asset
+
 jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),
   selectPortfolioAccountMetadataByAccountId: () => ({
@@ -24,6 +31,8 @@ jest.mock('state/slices/selectors', () => ({
       accountNumber: 0,
     },
   }),
+  selectAssetById: () => mockEthAsset,
+  selectMarketDataById: () => ({ price: '2000' }),
 }))
 
 jest.mock('@chakra-ui/react', () => ({
@@ -149,6 +158,7 @@ describe.each([
       ...mockAdapter,
       getType: () => KnownChainIds.EthereumMainnet,
       getChainId: () => KnownChainIds.EthereumMainnet,
+      getFeeAssetId: () => ethAssetId,
     }
 
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
@@ -199,6 +209,7 @@ describe.each([
       ...mockAdapter,
       getType: () => KnownChainIds.EthereumMainnet,
       getChainId: () => KnownChainIds.EthereumMainnet,
+      getFeeAssetId: () => ethAssetId,
     }
 
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
@@ -244,6 +255,7 @@ describe.each([
       ...mockAdapter,
       getType: () => KnownChainIds.EthereumMainnet,
       getChainId: () => KnownChainIds.EthereumMainnet,
+      getFeeAssetId: () => ethAssetId,
     }
 
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
@@ -295,6 +307,7 @@ describe.each([
       ...mockAdapter,
       getType: () => KnownChainIds.EthereumMainnet,
       getChainId: () => KnownChainIds.EthereumMainnet,
+      getFeeAssetId: () => ethAssetId,
     }
 
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
@@ -335,6 +348,7 @@ describe.each([
       ...mockAdapter,
       getType: () => KnownChainIds.EthereumMainnet,
       getChainId: () => KnownChainIds.EthereumMainnet,
+      getFeeAssetId: () => ethAssetId,
     }
 
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(

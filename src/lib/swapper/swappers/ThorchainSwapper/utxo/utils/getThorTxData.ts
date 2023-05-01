@@ -17,6 +17,7 @@ type GetThorTxInfoArgs = {
   destinationAddress: string
   xpub: string
   buyAssetTradeFeeUsd: string
+  affiliateBps: string
 }
 type GetThorTxInfoReturn = Promise<
   Result<
@@ -39,6 +40,7 @@ export const getThorTxInfo: GetThorTxInfo = async ({
   destinationAddress,
   xpub,
   buyAssetTradeFeeUsd,
+  affiliateBps,
 }) => {
   try {
     const inboundAddress = await getInboundAddressDataForChain(
@@ -62,6 +64,7 @@ export const getThorTxInfo: GetThorTxInfo = async ({
       deps,
       buyAssetTradeFeeUsd,
       receiveAddress: destinationAddress,
+      affiliateBps,
     })
 
     return maybeLimit.map(limit => {
@@ -69,6 +72,7 @@ export const getThorTxInfo: GetThorTxInfo = async ({
         buyAssetId: buyAsset.assetId,
         destinationAddress,
         limit,
+        affiliateBps,
       })
 
       return {

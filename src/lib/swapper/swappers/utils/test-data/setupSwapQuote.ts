@@ -38,6 +38,7 @@ export const setupQuote = () => {
     accountNumber: 0,
     sendMax: false,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+    affiliateBps: '0',
   }
   return { quoteInput, tradeQuote, buyAsset, sellAsset }
 }
@@ -54,6 +55,7 @@ export const setupBuildTrade = () => {
     sellAsset,
     wallet: {} as HDWallet,
     receiveAddress: '',
+    affiliateBps: '0',
   }
   return { buildTradeInput, buyAsset, sellAsset }
 }

@@ -106,6 +106,7 @@ type CommonTradeInput = {
   receiveAddress: string
   accountNumber: number
   receiveAccountNumber?: number
+  affiliateBps: string
 }
 
 export type GetEvmTradeQuoteInput = CommonTradeInput & {

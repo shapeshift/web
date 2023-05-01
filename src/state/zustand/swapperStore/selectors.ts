@@ -49,9 +49,9 @@ export const selectAvailableSwappersWithMetadata = (state: SwapperState) =>
   state.availableSwappersWithMetadata
 export const selectSelectedCurrencyToUsdRate = (state: SwapperState) =>
   state.selectedCurrencyToUsdRate
-
 export const selectSlippage = (state: SwapperState): string =>
   state.activeSwapperWithMetadata?.quote.recommendedSlippage ?? DEFAULT_SLIPPAGE
+export const selectAffiliateBps = (state: SwapperState): string => state.activeAffiliateBps
 
 export const selectQuote = (state: SwapperState): TradeQuote<ChainId> | undefined =>
   state.activeSwapperWithMetadata?.quote
@@ -83,6 +83,27 @@ export const selectSwapperSupportsCrossAccountTrade = (state: SwapperState): boo
   }
 }
 
+export const selectSwapperDefaultAffiliateBps = (state: SwapperState): string => {
+  const activeSwapper = state.activeSwapperWithMetadata?.swapper
+  const swapperName = activeSwapper?.name
+
+  if (swapperName === undefined) return '0'
+
+  switch (swapperName) {
+    case SwapperName.Thorchain:
+      return '30'
+    case SwapperName.Osmosis:
+    case SwapperName.LIFI:
+    case SwapperName.Zrx:
+    case SwapperName.CowSwap:
+    case SwapperName.OneInch:
+    case SwapperName.Test:
+      return '0'
+    default:
+      assertUnreachable(swapperName)
+  }
+}
+
 export const selectCheckApprovalNeededForWallet = (
   state: SwapperState,
 ): ((wallet: HDWallet) => Promise<boolean>) => {
@@ -102,6 +123,7 @@ type SelectGetTradeForWalletArgs = {
   sellAccountBip44Params: BIP44Params
   buyAccountBip44Params: BIP44Params
   sellAccountMetadata: AccountMetadata
+  affiliateBps: string
 }
 
 type SelectGetTradeForWalletReturn = Promise<Result<Trade<ChainId>, SwapErrorRight>>
@@ -114,6 +136,7 @@ export const selectGetTradeForWallet = (
     sellAccountMetadata,
     sellAccountBip44Params,
     buyAccountBip44Params,
+    affiliateBps,
   }: SelectGetTradeForWalletArgs): SelectGetTradeForWalletReturn => {
     const activeSwapper = state.activeSwapperWithMetadata?.swapper
     const activeQuote = state.activeSwapperWithMetadata?.quote
@@ -142,6 +165,7 @@ export const selectGetTradeForWallet = (
       sendMax: state.isSendMax,
       receiveAddress,
       slippage: selectSlippage(state),
+      affiliateBps,
     }
 
     if (isUtxoSwap(sellAsset.chainId)) {

@@ -57,6 +57,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     chainId,
     receiveAddress,
     sendMax,
+    affiliateBps,
   } = input
 
   try {
@@ -80,6 +81,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       sellAmountCryptoBaseUnit,
       receiveAddress,
       deps,
+      affiliateBps,
     })
 
     const slippagePercentage = quote.isOk()
@@ -224,6 +226,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
             destinationAddress: receiveAddress,
             xpub: (input as GetUtxoTradeQuoteInput).xpub,
             buyAssetTradeFeeUsd,
+            affiliateBps,
           })
 
           if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())

@@ -18,6 +18,7 @@ type GetBtcThorTxInfoArgs = {
   slippageTolerance: string
   destinationAddress: string
   buyAssetTradeFeeUsd: string
+  affiliateBps: string
 }
 
 type GetBtcThorTxInfoReturn = Promise<
@@ -40,6 +41,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
   slippageTolerance,
   destinationAddress,
   buyAssetTradeFeeUsd,
+  affiliateBps,
 }) => {
   try {
     const { assetReference, assetNamespace } = fromAssetId(sellAsset.assetId)
@@ -64,6 +66,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
       deps,
       buyAssetTradeFeeUsd,
       receiveAddress: destinationAddress,
+      affiliateBps,
     })
 
     return maybeLimit.map(limit => {
@@ -71,6 +74,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
         buyAssetId: buyAsset.assetId,
         destinationAddress,
         limit,
+        affiliateBps,
       })
 
       const data = deposit(

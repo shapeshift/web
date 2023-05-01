@@ -1,9 +1,6 @@
 import { adapters, thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
-import {
-  THORCHAIN_AFFILIATE_BIPS,
-  THORCHAIN_AFFILIATE_NAME,
-} from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
+import { THORCHAIN_AFFILIATE_NAME } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { assertIsValidMemo } from 'lib/swapper/swappers/ThorchainSwapper/utils/makeSwapMemo/assertIsValidMemo'
 
 /**
@@ -46,6 +43,7 @@ type MakeSwapMemoArgs = {
   buyAssetId: string
   destinationAddress: string
   limit: string
+  affiliateBps: string
 }
 type MakeSwapMemo = (args: MakeSwapMemoArgs) => string
 
@@ -55,7 +53,12 @@ const runeThorId = 'RUNE'
  * @returns thorchain memo shortened to a max of 80 characters as described:
  * https://dev.thorchain.org/thorchain-dev/memos#mechanism-for-transaction-intent
  */
-export const makeSwapMemo: MakeSwapMemo = ({ buyAssetId, destinationAddress, limit }): string => {
+export const makeSwapMemo: MakeSwapMemo = ({
+  buyAssetId,
+  destinationAddress,
+  limit,
+  affiliateBps,
+}): string => {
   const isRune = buyAssetId === thorchainAssetId
   const fullThorAssetId = isRune
     ? runeThorId
@@ -77,7 +80,7 @@ export const makeSwapMemo: MakeSwapMemo = ({ buyAssetId, destinationAddress, lim
 
   const abbreviatedThorAssetId = abbreviateThorAssetId(fullThorAssetId)
 
-  const memo = `s:${abbreviatedThorAssetId}:${parsedDestinationAddress}:${limit}:${THORCHAIN_AFFILIATE_NAME}:${THORCHAIN_AFFILIATE_BIPS}`
+  const memo = `s:${abbreviatedThorAssetId}:${parsedDestinationAddress}:${limit}:${THORCHAIN_AFFILIATE_NAME}:${affiliateBps}`
   assertIsValidMemo(memo)
 
   return memo

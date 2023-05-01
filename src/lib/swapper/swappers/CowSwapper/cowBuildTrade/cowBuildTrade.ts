@@ -14,7 +14,6 @@ import {
   ORDER_KIND_SELL,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
-import type { CowSwapSellQuoteApiInput } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import {
   getNowPlusThirtyMinutesTimestamp,
   getUsdRate,

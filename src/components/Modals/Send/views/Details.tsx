@@ -19,7 +19,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip/dist/constants'
 import isNil from 'lodash/isNil'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -79,6 +79,11 @@ export const Details = () => {
   const {
     state: { wallet },
   } = useWallet()
+
+  useEffect(() => {
+    // Initial setting of cryptoAmount in case of a QR-code set amount
+    handleInputChange(cryptoAmount ?? '0')
+  }, [cryptoAmount, handleInputChange])
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 

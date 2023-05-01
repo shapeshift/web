@@ -97,7 +97,7 @@ export const parseMaybeUrl = async ({ value }: { value: string }): Promise<Parse
         return {
           chainId,
           value,
-          assetId, // You can add logic to retrieve assetId if needed
+          assetId,
           amountCryptoPrecision: maybeUrl.amountCryptoPrecision,
         }
       }
@@ -109,7 +109,7 @@ export const parseMaybeUrl = async ({ value }: { value: string }): Promise<Parse
         return {
           chainId,
           value,
-          assetId, // You can add logic to retrieve assetId if needed
+          assetId,
         }
       }
     } catch (error) {

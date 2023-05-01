@@ -8,8 +8,8 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import type { QrCodeInput } from './Form'
-import { QrCodeFormFields } from './QrCodeCommon'
+import type { SendInput } from './Form'
+import { SendFormFields } from './QrCodeCommon'
 import type { FeePrice } from './views/Confirm'
 
 type TxFeeRadioGroupProps = {
@@ -43,18 +43,18 @@ export function getFeeTranslation(key: FeeDataKey): string {
 const feesOrder: FeeDataKey[] = [FeeDataKey.Slow, FeeDataKey.Average, FeeDataKey.Fast]
 
 export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
-  const { control } = useFormContext<QrCodeInput>()
+  const { control } = useFormContext<SendInput>()
   const { field } = useController({
-    name: QrCodeFormFields.FeeType,
+    name: SendFormFields.FeeType,
     control,
     rules: { required: true },
     defaultValue: FeeDataKey.Average,
   })
-  const assetId = useWatch<QrCodeInput, QrCodeFormFields.AssetId>({
-    name: QrCodeFormFields.AssetId,
+  const assetId = useWatch<SendInput, SendFormFields.AssetId>({
+    name: SendFormFields.AssetId,
   })
-  const activeFee = useWatch<QrCodeInput, QrCodeFormFields.FeeType>({
-    name: QrCodeFormFields.FeeType,
+  const activeFee = useWatch<SendInput, SendFormFields.FeeType>({
+    name: SendFormFields.FeeType,
   })
   const bg = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')

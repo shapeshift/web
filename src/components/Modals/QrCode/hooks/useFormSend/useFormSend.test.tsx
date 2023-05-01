@@ -11,8 +11,8 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensLookup } from 'lib/address/ens'
 
-import type { QrCodeInput } from '../../Form'
-import { QrCodeFormFields } from '../../QrCodeCommon'
+import type { SendInput } from '../../Form'
+import { SendFormFields } from '../../QrCodeCommon'
 import { useFormSend } from './useFormSend'
 
 jest.mock('state/slices/selectors', () => ({
@@ -58,15 +58,15 @@ jest.mock('hooks/useEvm/useEvm', () => ({
 
 jest.mock('lib/address/ens')
 
-const formData: QrCodeInput<KnownChainIds.EthereumMainnet> = {
-  [QrCodeFormFields.Input]: '',
-  [QrCodeFormFields.From]: '',
-  [QrCodeFormFields.To]: EthSend.address,
-  [QrCodeFormFields.VanityAddress]: '',
-  [QrCodeFormFields.AssetId]: ethAssetId,
-  [QrCodeFormFields.AmountFieldError]: '',
-  [QrCodeFormFields.FeeType]: FeeDataKey.Average,
-  [QrCodeFormFields.EstimatedFees]: {
+const formData: SendInput<KnownChainIds.EthereumMainnet> = {
+  [SendFormFields.Input]: '',
+  [SendFormFields.From]: '',
+  [SendFormFields.To]: EthSend.address,
+  [SendFormFields.VanityAddress]: '',
+  [SendFormFields.AssetId]: ethAssetId,
+  [SendFormFields.AmountFieldError]: '',
+  [SendFormFields.FeeType]: FeeDataKey.Average,
+  [SendFormFields.EstimatedFees]: {
     [FeeDataKey.Slow]: {
       txFee: '3100000000000000',
       chainSpecific: {
@@ -95,14 +95,14 @@ const formData: QrCodeInput<KnownChainIds.EthereumMainnet> = {
       },
     },
   },
-  [QrCodeFormFields.CryptoAmount]: '1',
-  [QrCodeFormFields.FiatAmount]: '3500',
-  [QrCodeFormFields.FiatSymbol]: 'USD',
-  [QrCodeFormFields.SendMax]: false,
-  [QrCodeFormFields.AccountId]: 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb',
+  [SendFormFields.CryptoAmount]: '1',
+  [SendFormFields.FiatAmount]: '3500',
+  [SendFormFields.FiatSymbol]: 'USD',
+  [SendFormFields.SendMax]: false,
+  [SendFormFields.AccountId]: 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb',
 }
 
-const formDataEnsAddress = { ...formData, [QrCodeFormFields.To]: 'willywonka.eth' }
+const formDataEnsAddress = { ...formData, [SendFormFields.To]: 'willywonka.eth' }
 
 const textTxToSign = {
   addressNList: [2147483692, 2147483708, 2147483648, 0, 0],

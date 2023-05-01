@@ -6,7 +6,7 @@ export enum QrCodeRoutes {
   Scan = '/qrCode/scan',
 }
 
-export enum QrCodeFormFields {
+export enum SendFormFields {
   Input = 'input', // the raw field input on the address input
   Memo = 'memo', // an optional memo, used only on chains supporting it e.g Cosmos SDK chains
   To = 'to', // a valid on-chain address

@@ -27,8 +27,8 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AddressInput } from '../AddressInput/AddressInput'
-import type { QrCodeInput } from '../Form'
-import { QrCodeFormFields, QrCodeRoutes } from '../QrCodeCommon'
+import type { SendInput } from '../Form'
+import { QrCodeRoutes, SendFormFields } from '../QrCodeCommon'
 
 export const Address = () => {
   const [isValidating, setIsValidating] = useState(false)
@@ -38,17 +38,17 @@ export const Address = () => {
     setValue,
     trigger,
     formState: { errors },
-  } = useFormContext<QrCodeInput>()
-  const address = useWatch<QrCodeInput, QrCodeFormFields.To>({ name: QrCodeFormFields.To })
-  const input = useWatch<QrCodeInput, QrCodeFormFields.Input>({ name: QrCodeFormFields.Input })
+  } = useFormContext<SendInput>()
+  const address = useWatch<SendInput, SendFormFields.To>({ name: SendFormFields.To })
+  const input = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
   const { send } = useModal()
-  const assetId = useWatch<QrCodeInput, QrCodeFormFields.AssetId>({
-    name: QrCodeFormFields.AssetId,
+  const assetId = useWatch<SendInput, SendFormFields.AssetId>({
+    name: SendFormFields.AssetId,
   })
   const isYatFeatureEnabled = useFeatureFlag('Yat')
 
   useEffect(() => {
-    trigger(QrCodeFormFields.Input)
+    trigger(SendFormFields.Input)
   }, [trigger])
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -57,7 +57,7 @@ export const Address = () => {
   const { chainId } = asset
   const isYatSupportedChain = chainId === ethChainId // yat only supports eth mainnet
   const handleNext = () => history.push(QrCodeRoutes.Details)
-  const addressError = get(errors, `${QrCodeFormFields.Input}.message`, null)
+  const addressError = get(errors, `${SendFormFields.Input}.message`, null)
 
   return (
     <SlideTransition>
@@ -94,8 +94,8 @@ export const Address = () => {
                 validateAddress: async (rawInput: string) => {
                   const value = rawInput.trim() // trim leading/trailing spaces
                   // clear previous values
-                  setValue(QrCodeFormFields.To, '')
-                  setValue(QrCodeFormFields.VanityAddress, '')
+                  setValue(SendFormFields.To, '')
+                  setValue(SendFormFields.VanityAddress, '')
                   setIsValidating(true)
                   const { assetId } = asset
                   // this does not throw, everything inside is handled
@@ -103,8 +103,8 @@ export const Address = () => {
                   const { address, vanityAddress } = await parseAddressInput(parseAddressInputArgs)
                   setIsValidating(false)
                   // set returned values
-                  setValue(QrCodeFormFields.To, address)
-                  setValue(QrCodeFormFields.VanityAddress, vanityAddress)
+                  setValue(SendFormFields.To, address)
+                  setValue(SendFormFields.VanityAddress, vanityAddress)
                   const invalidMessage =
                     isYatFeatureEnabled && isYatSupportedChain
                       ? 'common.invalidAddressOrYat'

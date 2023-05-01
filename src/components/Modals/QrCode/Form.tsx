@@ -15,26 +15,26 @@ import { selectMarketDataById, selectSelectedCurrency } from 'state/slices/selec
 import { store, useAppSelector } from 'state/store'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
-import { QrCodeFormFields, QrCodeRoutes } from './QrCodeCommon'
+import { QrCodeRoutes, SendFormFields } from './QrCodeCommon'
 import { Address } from './views/Address'
 import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
 
-export type QrCodeInput<T extends ChainId = ChainId> = {
-  [QrCodeFormFields.AccountId]: AccountId
-  [QrCodeFormFields.To]: string
-  [QrCodeFormFields.From]: string
-  [QrCodeFormFields.AmountFieldError]: string | [string, { asset: string }]
-  [QrCodeFormFields.AssetId]: AssetId
-  [QrCodeFormFields.CryptoAmount]: string
-  [QrCodeFormFields.EstimatedFees]: FeeDataEstimate<T>
-  [QrCodeFormFields.FeeType]: FeeDataKey
-  [QrCodeFormFields.FiatAmount]: string
-  [QrCodeFormFields.FiatSymbol]: string
-  [QrCodeFormFields.Input]: string
-  [QrCodeFormFields.Memo]?: string
-  [QrCodeFormFields.SendMax]: boolean
-  [QrCodeFormFields.VanityAddress]: string
+export type SendInput<T extends ChainId = ChainId> = {
+  [SendFormFields.AccountId]: AccountId
+  [SendFormFields.To]: string
+  [SendFormFields.From]: string
+  [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
+  [SendFormFields.AssetId]: AssetId
+  [SendFormFields.CryptoAmount]: string
+  [SendFormFields.EstimatedFees]: FeeDataEstimate<T>
+  [SendFormFields.FeeType]: FeeDataKey
+  [SendFormFields.FiatAmount]: string
+  [SendFormFields.FiatSymbol]: string
+  [SendFormFields.Input]: string
+  [SendFormFields.Memo]?: string
+  [SendFormFields.SendMax]: boolean
+  [SendFormFields.VanityAddress]: string
 }
 
 type QrCodeFormProps = {
@@ -48,7 +48,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
-  const methods = useForm<QrCodeInput>({
+  const methods = useForm<SendInput>({
     mode: 'onChange',
     defaultValues: {
       accountId,
@@ -64,13 +64,13 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
 
   const handleAssetSelect = useCallback(
     (asset: Asset) => {
-      // methods.setValue(QrCodeFormFields.AssetId, { ...asset, ...marketData })
-      methods.setValue(QrCodeFormFields.Input, '')
-      methods.setValue(QrCodeFormFields.AccountId, '')
-      methods.setValue(QrCodeFormFields.CryptoAmount, '')
-      methods.setValue(QrCodeFormFields.AssetId, asset.assetId)
-      methods.setValue(QrCodeFormFields.FiatAmount, '')
-      methods.setValue(QrCodeFormFields.FiatSymbol, selectedCurrency)
+      // methods.setValue(SendFormFields.AssetId, { ...asset, ...marketData })
+      methods.setValue(SendFormFields.Input, '')
+      methods.setValue(SendFormFields.AccountId, '')
+      methods.setValue(SendFormFields.CryptoAmount, '')
+      methods.setValue(SendFormFields.AssetId, asset.assetId)
+      methods.setValue(SendFormFields.FiatAmount, '')
+      methods.setValue(SendFormFields.FiatSymbol, selectedCurrency)
 
       history.push(QrCodeRoutes.Address)
     },
@@ -93,14 +93,14 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
         // - If there is a valid asset (i.e UTXO, or ETH, but not ERC-20s because they're unsafe), populates the asset and goes directly to the address step
         // If no valid asset is found, it should go to the select asset step
         const maybeUrlResult = await parseMaybeUrl({ value: decodedText })
-        methods.setValue(QrCodeFormFields.AssetId, maybeUrlResult.assetId ?? '')
-        methods.setValue(QrCodeFormFields.Input, decodedText.trim())
-        methods.setValue(QrCodeFormFields.AssetId, maybeUrlResult.assetId ?? '')
+        methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
+        methods.setValue(SendFormFields.Input, decodedText.trim())
+        methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
         if (maybeUrlResult.amountCryptoPrecision) {
           const marketData = selectMarketDataById(store.getState(), maybeUrlResult.assetId ?? '')
-          methods.setValue(QrCodeFormFields.CryptoAmount, maybeUrlResult.amountCryptoPrecision)
+          methods.setValue(SendFormFields.CryptoAmount, maybeUrlResult.amountCryptoPrecision)
           methods.setValue(
-            QrCodeFormFields.FiatAmount,
+            SendFormFields.FiatAmount,
             bnOrZero(maybeUrlResult.amountCryptoPrecision).times(marketData.price).toString(),
           )
         }

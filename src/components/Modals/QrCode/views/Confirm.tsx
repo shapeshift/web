@@ -29,7 +29,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import type { QrCodeInput } from '../Form'
+import type { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
 import { QrCodeRoutes } from '../QrCodeCommon'
 import { TxFeeRadioGroup } from '../TxFeeRadioGroup'
@@ -46,13 +46,13 @@ export const Confirm = () => {
   const {
     control,
     formState: { isSubmitting },
-  } = useFormContext<QrCodeInput>()
+  } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
   const { accountId, to, assetId, cryptoAmount, feeType, fiatAmount, memo, vanityAddress } =
     useWatch({
       control,
-    }) as Partial<QrCodeInput>
+    }) as Partial<SendInput>
   const { fees } = useSendFees()
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))

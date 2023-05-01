@@ -32,7 +32,7 @@ import { isOsmosisLpAsset, tokenOrUndefined } from 'lib/utils'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-import type { QrCodeInput } from './Form'
+import type { SendInput } from './Form'
 
 export type EstimateFeesInput = {
   cryptoAmount: string
@@ -99,7 +99,7 @@ export const handleSend = async ({
   sendInput,
   wallet,
 }: {
-  sendInput: QrCodeInput
+  sendInput: SendInput
   wallet: HDWallet
 }): Promise<string> => {
   const chainAdapterManager = getChainAdapterManager()
@@ -197,7 +197,7 @@ export const handleSend = async ({
         const { accountNumber } = bip44Params
         const params = {
           to,
-          memo: (sendInput as QrCodeInput<CosmosSdkChainId>).memo,
+          memo: (sendInput as SendInput<CosmosSdkChainId>).memo,
           value,
           wallet,
           accountNumber,

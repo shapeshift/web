@@ -8,7 +8,7 @@ import { logger } from 'lib/logger'
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-import type { QrCodeInput } from '../../Form'
+import type { SendInput } from '../../Form'
 import { handleSend } from '../../utils'
 
 const moduleLogger = logger.child({ namespace: ['Modals', 'Send', 'Hooks', 'UseFormSend'] })
@@ -22,7 +22,7 @@ export const useFormSend = () => {
   } = useWallet()
 
   const handleFormSend = useCallback(
-    async (sendInput: QrCodeInput) => {
+    async (sendInput: SendInput) => {
       try {
         const asset = selectAssetById(store.getState(), sendInput.assetId)
         if (!asset) throw new Error(`No asset found for assetId ${sendInput.assetId}`)

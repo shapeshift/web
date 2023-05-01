@@ -36,29 +36,29 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import type { QrCodeInput } from '../Form'
+import type { SendInput } from '../Form'
 import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
-import { QrCodeFormFields, QrCodeRoutes } from '../QrCodeCommon'
+import { QrCodeRoutes, SendFormFields } from '../QrCodeCommon'
 import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
 const MAX_COSMOS_SDK_MEMO_LENGTH = 256
 
 export const Details = () => {
-  const { control, setValue } = useFormContext<QrCodeInput>()
+  const { control, setValue } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
 
   const { accountId, amountFieldError, assetId, cryptoAmount, fiatAmount, fiatSymbol, memo } =
     useWatch({
       control,
-    }) as Partial<QrCodeInput>
+    }) as Partial<SendInput>
 
   const handleAccountChange = useCallback(
     (accountId: AccountId) => {
-      setValue(QrCodeFormFields.AccountId, accountId)
+      setValue(SendFormFields.AccountId, accountId)
       // TODO(gomes): this will break account change things, fix me
-      if (!cryptoAmount) setValue(QrCodeFormFields.CryptoAmount, '')
-      if (!fiatAmount) setValue(QrCodeFormFields.FiatAmount, '')
+      if (!cryptoAmount) setValue(SendFormFields.CryptoAmount, '')
+      if (!fiatAmount) setValue(SendFormFields.FiatAmount, '')
     },
     [cryptoAmount, fiatAmount, setValue],
   )
@@ -126,7 +126,7 @@ export const Details = () => {
           isLoaded={!balancesLoading}
           cryptoAmountAvailable={cryptoHumanBalance.toString()}
           fiatAmountAvailable={fiatBalance.toString()}
-          showCrypto={fieldName === QrCodeFormFields.CryptoAmount}
+          showCrypto={fieldName === SendFormFields.CryptoAmount}
           onClick={() => history.push('/send/select')}
           mb={2}
         />
@@ -144,7 +144,7 @@ export const Details = () => {
               textTransform='uppercase'
               _hover={{ color: 'gray.400', transition: '.2s color ease' }}
             >
-              {fieldName === QrCodeFormFields.FiatAmount ? (
+              {fieldName === SendFormFields.FiatAmount ? (
                 <Amount.Crypto value={cryptoAmount} symbol={asset.symbol} prefix='≈' />
               ) : (
                 <Flex>
@@ -153,10 +153,10 @@ export const Details = () => {
               )}
             </FormHelperText>
           </Box>
-          {fieldName === QrCodeFormFields.CryptoAmount && (
+          {fieldName === SendFormFields.CryptoAmount && (
             <TokenRow
               control={control}
-              fieldName={QrCodeFormFields.CryptoAmount}
+              fieldName={SendFormFields.CryptoAmount}
               onInputChange={handleInputChange}
               inputLeftElement={
                 <Button
@@ -181,10 +181,10 @@ export const Details = () => {
               data-test='send-modal-crypto-input'
             />
           )}
-          {fieldName === QrCodeFormFields.FiatAmount && (
+          {fieldName === SendFormFields.FiatAmount && (
             <TokenRow
               control={control}
-              fieldName={QrCodeFormFields.FiatAmount}
+              fieldName={SendFormFields.FiatAmount}
               onInputChange={handleInputChange}
               inputLeftElement={
                 <Button
@@ -245,7 +245,7 @@ export const Details = () => {
               </FormHelperText>
             </Box>
             <Controller
-              name={QrCodeFormFields.Memo}
+              name={SendFormFields.Memo}
               render={({ field: { onChange, value } }) => (
                 <Input
                   size='lg'

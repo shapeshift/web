@@ -9,16 +9,16 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import type { QrCodeInput } from '../Form'
-import { QrCodeFormFields, QrCodeRoutes } from '../QrCodeCommon'
+import type { SendInput } from '../Form'
+import { QrCodeRoutes, SendFormFields } from '../QrCodeCommon'
 
 type AddressInputProps = {
   rules: ControllerProps['rules']
 }
 
 export const AddressInput = ({ rules }: AddressInputProps) => {
-  const assetId = useWatch<QrCodeInput, QrCodeFormFields.AssetId>({
-    name: QrCodeFormFields.AssetId,
+  const assetId = useWatch<SendInput, SendFormFields.AssetId>({
+    name: SendFormFields.AssetId,
   })
   const history = useHistory()
   const translate = useTranslate()
@@ -52,7 +52,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
             pe={10}
           />
         )}
-        name={QrCodeFormFields.Input}
+        name={SendFormFields.Input}
         rules={rules}
       />
       <InputRightElement>

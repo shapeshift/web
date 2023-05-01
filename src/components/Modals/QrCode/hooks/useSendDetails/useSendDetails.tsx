@@ -28,10 +28,10 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import type { QrCodeInput } from '../../Form'
-import { QrCodeFormFields, QrCodeRoutes } from '../../QrCodeCommon'
+import type { SendInput } from '../../Form'
+import { QrCodeRoutes, SendFormFields } from '../../QrCodeCommon'
 
-type AmountFieldName = QrCodeFormFields.FiatAmount | QrCodeFormFields.CryptoAmount
+type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.CryptoAmount
 
 type UseSendDetailsReturnType = {
   balancesLoading: boolean
@@ -52,18 +52,18 @@ const moduleLogger = logger.child({
 // TODO(0xdef1cafe): this whole thing needs to be refactored to be account focused, not asset focused
 // i.e. you don't send from an asset, you send from an account containing an asset
 export const useSendDetails = (): UseSendDetailsReturnType => {
-  const [fieldName, setFieldName] = useState<AmountFieldName>(QrCodeFormFields.CryptoAmount)
+  const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.CryptoAmount)
   const [loading, setLoading] = useState<boolean>(false)
   const history = useHistory()
-  const { getValues, setValue } = useFormContext<QrCodeInput>()
-  const assetId = useWatch<QrCodeInput, QrCodeFormFields.AssetId>({
-    name: QrCodeFormFields.AssetId,
+  const { getValues, setValue } = useFormContext<SendInput>()
+  const assetId = useWatch<SendInput, SendFormFields.AssetId>({
+    name: SendFormFields.AssetId,
   })
-  const address = useWatch<QrCodeInput, QrCodeFormFields.To>({
-    name: QrCodeFormFields.To,
+  const address = useWatch<SendInput, SendFormFields.To>({
+    name: SendFormFields.To,
   })
-  const accountId = useWatch<QrCodeInput, QrCodeFormFields.AccountId>({
-    name: QrCodeFormFields.AccountId,
+  const accountId = useWatch<SendInput, SendFormFields.AccountId>({
+    name: SendFormFields.AccountId,
   })
 
   const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, assetId)).price)
@@ -154,7 +154,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           .isPositive()
 
         if (!hasEnoughNativeTokenForGas) {
-          setValue(QrCodeFormFields.AmountFieldError, [
+          setValue(SendFormFields.AmountFieldError, [
             'modals.send.errors.notEnoughNativeToken',
             { asset: feeAsset.symbol },
           ])
@@ -164,8 +164,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         // Remove existing error messages because the send amount is valid
         if (estimatedFees !== undefined) {
-          setValue(QrCodeFormFields.AmountFieldError, '')
-          setValue(QrCodeFormFields.EstimatedFees, estimatedFees)
+          setValue(SendFormFields.AmountFieldError, '')
+          setValue(SendFormFields.EstimatedFees, estimatedFees)
         }
       },
       1000,
@@ -195,11 +195,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       'Send Max',
     )
     // Clear existing amount errors.
-    setValue(QrCodeFormFields.AmountFieldError, '')
+    setValue(SendFormFields.AmountFieldError, '')
 
     if (feeAsset.assetId !== assetId) {
-      setValue(QrCodeFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
-      setValue(QrCodeFormFields.FiatAmount, fiatBalance.toFixed(2))
+      setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
+      setValue(SendFormFields.FiatAmount, fiatBalance.toFixed(2))
       setLoading(true)
 
       try {
@@ -207,12 +207,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         const estimatedFees = await estimateFormFees()
 
         if (nativeAssetBalance.minus(estimatedFees.fast.txFee).isNegative()) {
-          setValue(QrCodeFormFields.AmountFieldError, [
+          setValue(SendFormFields.AmountFieldError, [
             'modals.send.errors.notEnoughNativeToken',
             { asset: feeAsset.symbol },
           ])
         } else {
-          setValue(QrCodeFormFields.EstimatedFees, estimatedFees)
+          setValue(SendFormFields.EstimatedFees, estimatedFees)
         }
 
         fnLogger.trace({ estimatedFees }, 'Estimated Fees')
@@ -224,7 +224,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }
 
     if (assetBalance && wallet) {
-      setValue(QrCodeFormFields.SendMax, true)
+      setValue(SendFormFields.SendMax, true)
       setLoading(true)
       const to = address
 
@@ -271,7 +271,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         })()
         fnLogger.trace({ fastFee, adapterFees }, 'Adapter Fees')
 
-        setValue(QrCodeFormFields.EstimatedFees, adapterFees)
+        setValue(SendFormFields.EstimatedFees, adapterFees)
 
         const networkFee = bnOrZero(bn(fastFee).div(`1e${feeAsset.precision}`))
 
@@ -283,14 +283,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           .isPositive()
 
         if (!hasEnoughNativeTokenForGas) {
-          setValue(QrCodeFormFields.AmountFieldError, [
+          setValue(SendFormFields.AmountFieldError, [
             'modals.send.errors.notEnoughNativeToken',
             { asset: feeAsset.symbol },
           ])
         }
 
-        setValue(QrCodeFormFields.CryptoAmount, maxCrypto.toPrecision())
-        setValue(QrCodeFormFields.FiatAmount, maxFiat.toFixed(2))
+        setValue(SendFormFields.CryptoAmount, maxCrypto.toPrecision())
+        setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
 
         fnLogger.trace(
           { networkFee, maxCrypto, maxFiat, hasEnoughNativeTokenForGas, nativeAssetBalance },
@@ -316,26 +316,26 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
    */
   const handleInputChange = useCallback(
     async (inputValue: string) => {
-      setValue(QrCodeFormFields.SendMax, false)
+      setValue(SendFormFields.SendMax, false)
 
       const key =
-        fieldName !== QrCodeFormFields.FiatAmount
-          ? QrCodeFormFields.FiatAmount
-          : QrCodeFormFields.CryptoAmount
+        fieldName !== SendFormFields.FiatAmount
+          ? SendFormFields.FiatAmount
+          : SendFormFields.CryptoAmount
 
       try {
         if (inputValue === '') {
           // Cancel any pending requests
           debouncedSetEstimatedFormFees.cancel()
           // Don't show an error message when the input is empty
-          setValue(QrCodeFormFields.AmountFieldError, '')
+          setValue(SendFormFields.AmountFieldError, '')
           // Set value of the other input to an empty string as well
           setValue(key, '') // TODO: this shouldn't be a thing, using a single amount field
           return
         }
 
         const amount =
-          fieldName === QrCodeFormFields.FiatAmount
+          fieldName === SendFormFields.FiatAmount
             ? bnOrZero(bn(inputValue).div(price)).toString()
             : bnOrZero(bn(inputValue).times(price)).toString()
 
@@ -356,7 +356,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         })()
       } catch (e) {
         if (e instanceof Error) {
-          setValue(QrCodeFormFields.AmountFieldError, e.message)
+          setValue(SendFormFields.AmountFieldError, e.message)
         }
       } finally {
         setLoading(false)
@@ -368,9 +368,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const toggleCurrency = () => {
     setFieldName(
-      fieldName === QrCodeFormFields.FiatAmount
-        ? QrCodeFormFields.CryptoAmount
-        : QrCodeFormFields.FiatAmount,
+      fieldName === SendFormFields.FiatAmount
+        ? SendFormFields.CryptoAmount
+        : SendFormFields.FiatAmount,
     )
   }
 

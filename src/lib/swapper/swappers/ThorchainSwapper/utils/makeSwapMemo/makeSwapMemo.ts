@@ -43,7 +43,7 @@ type MakeSwapMemoArgs = {
   buyAssetId: string
   destinationAddress: string
   limit: string
-  affiliateBps?: string
+  affiliateBps: string
 }
 type MakeSwapMemo = (args: MakeSwapMemoArgs) => string
 
@@ -80,9 +80,7 @@ export const makeSwapMemo: MakeSwapMemo = ({
 
   const abbreviatedThorAssetId = abbreviateThorAssetId(fullThorAssetId)
 
-  const memo = `s:${abbreviatedThorAssetId}:${parsedDestinationAddress}:${limit}:${THORCHAIN_AFFILIATE_NAME}:${
-    affiliateBps ?? '0'
-  }`
+  const memo = `s:${abbreviatedThorAssetId}:${parsedDestinationAddress}:${limit}:${THORCHAIN_AFFILIATE_NAME}:${affiliateBps}`
   assertIsValidMemo(memo)
 
   return memo

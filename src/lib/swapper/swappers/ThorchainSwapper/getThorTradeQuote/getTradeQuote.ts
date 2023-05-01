@@ -226,7 +226,6 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           ...commonQuoteFields,
           allowanceContract: router,
           feeData,
-          affiliateBps,
         })
       })()
 

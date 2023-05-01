@@ -54,12 +54,15 @@ export const getLimit = async ({
     buyAssetId,
     deps,
   })
-  const tradeRate = maybeTradeRate.unwrapOr(
-    // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
-    // Though realistically, TRADE_BELOW_MINIMUM is the only one we should really be seeing here,
-    // safety never hurts
-    tradeRateBelowMinimum.unwrap(),
-  )
+  const maybeTradeRateOrMinimum = maybeTradeRate.match({
+    ok: tradeRate => Ok(tradeRate),
+    err: () => tradeRateBelowMinimum,
+  })
+
+  // This should not happen but it may - we should be able to get either a trade rate, or a minimum as a default
+  if (maybeTradeRateOrMinimum.isErr()) return Err(maybeTradeRateOrMinimum.unwrapErr())
+  const tradeRateOrMinimum = maybeTradeRateOrMinimum.unwrap()
+
   const sellAssetChainFeeAssetId = deps.adapterManager.get(sellAsset.chainId)?.getFeeAssetId()
   const buyAssetChainFeeAssetId = deps.adapterManager
     .get(fromAssetId(buyAssetId).chainId)
@@ -83,7 +86,7 @@ export const getLimit = async ({
   const buyAssetUsdRate = maybeBuyAssetUsdRate.unwrap()
 
   const expectedBuyAmountCryptoPrecision8 = toBaseUnit(
-    fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit).times(tradeRate), sellAsset.precision),
+    fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit).times(tradeRateOrMinimum), sellAsset.precision),
     THORCHAIN_FIXED_PRECISION,
   )
 

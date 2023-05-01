@@ -108,29 +108,37 @@ export const getLimit = async ({
     sellAsset.assetId,
   )
 
-  const refundFeeBuyAssetCryptoPrecision8 = (() => {
+  const maybeRefundFeeBuyAssetCryptoPrecision8: Result<string, SwapErrorRight> = (() => {
     switch (true) {
       // If the sell asset is on THOR the return fee is fixed at 0.02 RUNE
       case isRune(sellAsset.assetId): {
         const runeFeeUsd = RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN.times(sellFeeAssetUsdRate)
-        return toBaseUnit(bnOrZero(runeFeeUsd).div(buyAssetUsdRate), THORCHAIN_FIXED_PRECISION)
+        return Ok(toBaseUnit(bnOrZero(runeFeeUsd).div(buyAssetUsdRate), THORCHAIN_FIXED_PRECISION))
       }
       // Else the return fee is the outbound fee of the sell asset's chain
       default: {
-        const sellAssetTradeFeeCryptoHuman = fromBaseUnit(
-          bnOrZero(sellAssetAddressData.unwrap().outbound_fee),
-          THORCHAIN_FIXED_PRECISION,
-        )
-        const sellAssetTradeFeeUsd = bnOrZero(sellAssetTradeFeeCryptoHuman).times(
-          sellFeeAssetUsdRate,
-        )
-        return toBaseUnit(
-          bnOrZero(sellAssetTradeFeeUsd).div(buyAssetUsdRate),
-          THORCHAIN_FIXED_PRECISION,
-        )
+        return sellAssetAddressData.andThen(sellAssetAddressData => {
+          const sellAssetTradeFeeCryptoHuman = fromBaseUnit(
+            bnOrZero(sellAssetAddressData.outbound_fee),
+            THORCHAIN_FIXED_PRECISION,
+          )
+          const sellAssetTradeFeeUsd = bnOrZero(sellAssetTradeFeeCryptoHuman).times(
+            sellFeeAssetUsdRate,
+          )
+          return Ok(
+            toBaseUnit(
+              bnOrZero(sellAssetTradeFeeUsd).div(buyAssetUsdRate),
+              THORCHAIN_FIXED_PRECISION,
+            ),
+          )
+        })
       }
     }
   })()
+
+  if (maybeRefundFeeBuyAssetCryptoPrecision8.isErr())
+    return Err(maybeRefundFeeBuyAssetCryptoPrecision8.unwrapErr())
+  const refundFeeBuyAssetCryptoPrecision8 = maybeRefundFeeBuyAssetCryptoPrecision8.unwrap()
 
   const highestPossibleFeeCryptoPrecision8 = max([
     // both fees are denominated in buy asset crypto precision 8

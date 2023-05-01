@@ -18,11 +18,11 @@ import {
 import { store, useAppSelector } from 'state/store'
 
 import { useFormSend } from '../Send/hooks/useFormSend/useFormSend'
-import { SendFormFields } from '../Send/SendCommon'
+import { SendFormFields, SendRoutes } from '../Send/SendCommon'
+import { Confirm } from '../Send/views/Confirm'
 import { Details } from '../Send/views/Details'
 import { QrCodeRoutes } from './QrCodeCommon'
 import { Address } from './views/Address'
-import { Confirm } from './views/Confirm'
 
 export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.AccountId]: AccountId
@@ -94,7 +94,6 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
         // - Parse the address, amount and asset. This should also exhaust URI parsers (EVM and UTXO currently) and set the amount/asset if applicable
         // - If there is a valid asset (i.e UTXO, or ETH, but not ERC-20s because they're unsafe), populates the asset and goes directly to the address step
         // If no valid asset is found, it should go to the select asset step
-        debugger
         const maybeUrlResult = await parseMaybeUrl({ value: decodedText })
         methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
         methods.setValue(SendFormFields.Input, decodedText.trim())
@@ -143,7 +142,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             <Route path={QrCodeRoutes.Scan}>
               <QrCodeScanner onSuccess={handleQrSuccess} onBack={handleBack} />
             </Route>
-            <Route path={QrCodeRoutes.Confirm}>
+            <Route path={SendRoutes.Confirm}>
               <Confirm />
             </Route>
             <Redirect exact from='/' to={QrCodeRoutes.Scan} />

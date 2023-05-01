@@ -56,10 +56,11 @@ export const Details = () => {
   const handleAccountChange = useCallback(
     (accountId: AccountId) => {
       setValue(SendFormFields.AccountId, accountId)
-      setValue(SendFormFields.CryptoAmount, '')
-      setValue(SendFormFields.FiatAmount, '')
+      // TODO(gomes): find better heuristics for these - this will rug resetting crypto/fiat amount on AccountId change
+      if (!cryptoAmount) setValue(SendFormFields.CryptoAmount, '')
+      if (!fiatAmount) setValue(SendFormFields.FiatAmount, '')
     },
-    [setValue],
+    [cryptoAmount, fiatAmount, setValue],
   )
 
   const { send } = useModal()

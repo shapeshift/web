@@ -119,7 +119,6 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
     [history, methods],
   )
 
-  // TODO: Remove me
   useEffect(() => {
     history.push(QrCodeRoutes.Scan)
   }, [history])

@@ -16,7 +16,6 @@ type ReceiveRouterProps = {
 }
 export const ReceiveRouter = ({ assetId, accountId }: ReceiveRouterProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
-  // TODO(gomes): wtf, do we need this still
   const [selectedAsset, setSelectedAsset] = useState<Asset | undefined>(asset)
   const location = useLocation()
   const history = useHistory()

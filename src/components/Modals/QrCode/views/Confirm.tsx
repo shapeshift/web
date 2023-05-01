@@ -22,6 +22,7 @@ import { useHistory } from 'react-router-dom'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { useSendFees } from 'components/Modals/Send/hooks/useSendFees/useSendFees'
 import { TxFeeRadioGroup } from 'components/Modals/Send/TxFeeRadioGroup'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -31,7 +32,6 @@ import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../Form'
-import { useSendFees } from '../hooks/useSendFees/useSendFees'
 import { QrCodeRoutes } from '../QrCodeCommon'
 
 export type FeePrice = {

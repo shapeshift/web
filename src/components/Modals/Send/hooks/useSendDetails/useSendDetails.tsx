@@ -111,10 +111,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const contractAddress = tokenOrUndefined(assetReference)
 
   const estimateFormFees = useCallback((): Promise<FeeDataEstimate<ChainId>> => {
+    if (!asset) throw new Error('No asset found')
+
     const { cryptoAmount, assetId, to, sendMax, accountId } = getValues()
     if (!wallet) throw new Error('No wallet connected')
     return estimateFees({ cryptoAmount, assetId, to, sendMax, accountId, contractAddress })
-  }, [contractAddress, getValues, wallet])
+  }, [asset, contractAddress, getValues, wallet])
 
   const debouncedSetEstimatedFormFees = useMemo(() => {
     return debounce(

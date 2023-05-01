@@ -27,7 +27,9 @@ import { useHistory } from 'react-router-dom'
 import { AccountCard } from 'components/AccountCard'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
+import { useSendDetails } from 'components/Modals/Send/hooks/useSendDetails/useSendDetails'
 import { SendFormFields } from 'components/Modals/Send/SendCommon'
+import { SendMaxButton } from 'components/Modals/Send/SendMaxButton/SendMaxButton'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TokenRow } from 'components/TokenRow/TokenRow'
@@ -38,9 +40,7 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../Form'
-import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
 import { QrCodeRoutes } from '../QrCodeCommon'
-import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
 const MAX_COSMOS_SDK_MEMO_LENGTH = 256
 

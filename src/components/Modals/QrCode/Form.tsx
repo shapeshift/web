@@ -17,8 +17,8 @@ import {
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
+import { useFormSend } from '../Send/hooks/useFormSend/useFormSend'
 import { SendFormFields } from '../Send/SendCommon'
-import { useFormSend } from './hooks/useFormSend/useFormSend'
 import { QrCodeRoutes } from './QrCodeCommon'
 import { Address } from './views/Address'
 import { Confirm } from './views/Confirm'

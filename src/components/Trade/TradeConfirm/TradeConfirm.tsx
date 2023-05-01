@@ -380,7 +380,11 @@ export const TradeConfirm = () => {
         <Row>
           <HelperTooltip label={translate('trade.tooltip.donation')}>
             <Row.Label>
-              <Checkbox isChecked={!hasUserOptedOutOfDonation} onChange={handleDonationToggle}>
+              <Checkbox
+                isChecked={!hasUserOptedOutOfDonation}
+                onChange={handleDonationToggle}
+                isDisabled={isSubmitting || isReloadingTrade}
+              >
                 <Text translation='trade.donation' />
               </Checkbox>
             </Row.Label>
@@ -389,7 +393,15 @@ export const TradeConfirm = () => {
         </Row>
       </Stack>
     ),
-    [donationAmountFiat, handleDonationToggle, hasUserOptedOutOfDonation, toFiat, translate],
+    [
+      donationAmountFiat,
+      handleDonationToggle,
+      hasUserOptedOutOfDonation,
+      isReloadingTrade,
+      isSubmitting,
+      toFiat,
+      translate,
+    ],
   )
 
   const isTHORChainSwap = useMemo(

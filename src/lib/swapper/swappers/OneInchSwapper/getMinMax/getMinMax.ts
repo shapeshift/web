@@ -1,7 +1,7 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
-import { Err } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { MinMaxOutput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
@@ -27,14 +27,14 @@ export const getMinMax = async (
 
   const maybeUsdRate = await getUsdRate(deps, sellAsset)
 
-  return maybeUsdRate.map(usdRate => {
+  return maybeUsdRate.andThen(usdRate => {
     const minimumAmountCryptoHuman = bn(MIN_ONEINCH_VALUE_USD)
       .dividedBy(bnOrZero(usdRate))
       .toString() // $1 worth of the sell token.
     const maximumAmountCryptoHuman = MAX_ONEINCH_TRADE // Arbitrarily large value. 10e+28 here.
-    return {
+    return Ok({
       minimumAmountCryptoHuman,
       maximumAmountCryptoHuman,
-    }
+    })
   })
 }

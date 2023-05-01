@@ -101,21 +101,17 @@ export const getUsdRate = async (sellAsset: Asset): Promise<Result<string, SwapE
     },
   })
 
-  return maybeRateResponse
-    .map(rateResponse => {
-      const price = bnOrZero(rateResponse.data?.price)
-      return price
-    })
-    .andThen<string>(price => {
-      if (!price.gt(0))
-        return Err(
-          makeSwapErrorRight({
-            message: '[getUsdRate] - Failed to get price data',
-            code: SwapErrorType.RESPONSE_ERROR,
-          }),
-        )
-      return Ok(bn(1).dividedBy(price).toString())
-    })
+  return maybeRateResponse.andThen<string>(rateResponse => {
+    const price = bnOrZero(rateResponse.data?.price)
+    if (!price.gt(0))
+      return Err(
+        makeSwapErrorRight({
+          message: '[getUsdRate] - Failed to get price data',
+          code: SwapErrorType.RESPONSE_ERROR,
+        }),
+      )
+    return Ok(bn(1).dividedBy(price).toString())
+  })
 }
 
 export const assertValidTradePair = ({

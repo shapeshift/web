@@ -1,5 +1,5 @@
 import type { Result } from '@sniptt/monads'
-import { Err } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { APPROVAL_GAS_LIMIT } from 'lib/swapper/swappers/utils/constants'
@@ -57,7 +57,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
         skipValidation: true,
       },
     })
-  ).map(({ data }) => {
+  ).andThen(({ data }) => {
     // use worst case average eip1559 vs fast legacy
     const maxGasPrice = bnOrZero(BigNumber.max(average.maxFeePerGas ?? 0, fast.gasPrice))
 
@@ -95,6 +95,6 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       sources: data.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
     }
 
-    return tradeQuote as TradeQuote<T>
+    return Ok(tradeQuote as TradeQuote<T>)
   })
 }

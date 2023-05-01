@@ -1,7 +1,7 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
-import { Err } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { deposit } from 'lib/swapper/swappers/ThorchainSwapper/evm/routerCalldata'
@@ -71,7 +71,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
     affiliateBps,
   })
 
-  return maybeLimit.map(limit => {
+  return maybeLimit.andThen(limit => {
     const memo = makeSwapMemo({
       buyAssetId: buyAsset.assetId,
       destinationAddress,
@@ -87,6 +87,6 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
       memo,
     )
 
-    return { data, router }
+    return Ok({ data, router })
   })
 }

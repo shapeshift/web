@@ -3,7 +3,7 @@ import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GasFeeDataEstimate } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import type { Result } from '@sniptt/monads'
-import { Err } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
@@ -111,26 +111,28 @@ export async function getTradeQuote(
     .multipliedBy(bnOrZero(gasPriceCryptoBaseUnit))
     .toFixed()
 
-  return maybeMinMax.map(minMax => ({
-    rate,
-    buyAsset,
-    sellAsset,
-    accountNumber,
-    allowanceContract,
-    buyAmountCryptoBaseUnit: quoteResponse.data.toTokenAmount,
-    sellAmountBeforeFeesCryptoBaseUnit,
-    maximumCryptoHuman: minMax.maximumAmountCryptoHuman,
-    minimumCryptoHuman: minMax.minimumAmountCryptoHuman,
-    feeData: {
-      buyAssetTradeFeeUsd: '0',
-      sellAssetTradeFeeUsd: '0',
-      networkFeeCryptoBaseUnit: fee,
-      chainSpecific: {
-        estimatedGasCryptoBaseUnit: estimatedGas.toString(),
-        gasPriceCryptoBaseUnit,
-        approvalFeeCryptoBaseUnit,
+  return maybeMinMax.andThen(minMax =>
+    Ok({
+      rate,
+      buyAsset,
+      sellAsset,
+      accountNumber,
+      allowanceContract,
+      buyAmountCryptoBaseUnit: quoteResponse.data.toTokenAmount,
+      sellAmountBeforeFeesCryptoBaseUnit,
+      maximumCryptoHuman: minMax.maximumAmountCryptoHuman,
+      minimumCryptoHuman: minMax.minimumAmountCryptoHuman,
+      feeData: {
+        buyAssetTradeFeeUsd: '0',
+        sellAssetTradeFeeUsd: '0',
+        networkFeeCryptoBaseUnit: fee,
+        chainSpecific: {
+          estimatedGasCryptoBaseUnit: estimatedGas.toString(),
+          gasPriceCryptoBaseUnit,
+          approvalFeeCryptoBaseUnit,
+        },
       },
-    },
-    sources: DEFAULT_SOURCE,
-  }))
+      sources: DEFAULT_SOURCE,
+    }),
+  )
 }

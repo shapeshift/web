@@ -122,6 +122,7 @@ export const TradeInput = () => {
   const buyAmountCryptoPrecision = useSwapperStore(selectBuyAmountCryptoPrecision)
   const sellAmountCryptoPrecision = useSwapperStore(selectSellAmountCryptoPrecision)
   const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
+  const updateFees = useSwapperStore(state => state.updateFees)
   const swapperSupportsCrossAccountTrade = useSwapperStore(selectSwapperSupportsCrossAccountTrade)
   const checkApprovalNeeded = useSwapperStore(selectCheckApprovalNeededForWallet)
   const handleSwitchAssets = useSwapperStore(state => state.handleSwitchAssets)
@@ -286,6 +287,8 @@ export const TradeInput = () => {
       const trade = await getTrade()
       if (trade.isErr()) throw trade.unwrapErr()
       updateTrade(trade.unwrap())
+      feeAsset && updateFees(feeAsset)
+      updateTradeAmountsFromQuote()
       history.push({ pathname: TradeRoutePaths.Confirm })
     } catch (e) {
       moduleLogger.error(e, 'onSubmit error')
@@ -297,6 +300,7 @@ export const TradeInput = () => {
     buyAmountCryptoPrecision,
     buyAsset,
     checkApprovalNeeded,
+    feeAsset,
     fiatSellAmount,
     getTrade,
     history,
@@ -304,7 +308,9 @@ export const TradeInput = () => {
     sellAmountCryptoPrecision,
     sellAsset,
     swapperName,
+    updateFees,
     updateTrade,
+    updateTradeAmountsFromQuote,
     wallet,
   ])
 

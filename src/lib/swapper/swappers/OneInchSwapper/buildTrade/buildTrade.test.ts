@@ -29,6 +29,7 @@ describe('buildTrade', () => {
     accountNumber: 0,
     wallet,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+    affiliateBps: '0',
   }
 
   it('should return a valid trade', async () => {

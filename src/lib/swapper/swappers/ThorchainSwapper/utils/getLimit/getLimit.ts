@@ -27,6 +27,7 @@ export type GetLimitArgs = {
   deps: ThorchainSwapperDeps
   slippageTolerance: string
   buyAssetTradeFeeUsd: string
+  affiliateBps: string
 }
 
 export const getLimit = async ({
@@ -37,6 +38,7 @@ export const getLimit = async ({
   deps,
   slippageTolerance,
   buyAssetTradeFeeUsd,
+  affiliateBps,
 }: GetLimitArgs): Promise<Result<string, SwapErrorRight>> => {
   const maybeTradeRate = await getTradeRate({
     sellAsset,
@@ -44,6 +46,7 @@ export const getLimit = async ({
     sellAmountCryptoBaseUnit,
     receiveAddress,
     deps,
+    affiliateBps,
   })
 
   const tradeRateBelowMinimum = await getTradeRateBelowMinimum({

@@ -1,10 +1,8 @@
-import { Flex, Heading } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
-import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
-import { Text } from 'components/Text'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { isSome } from 'lib/utils'
 import { selectTxIdsBasedOnSearchTermAndFilters } from 'state/slices/selectors'
@@ -41,27 +39,22 @@ export const TransactionHistory = () => {
   }, [handleInputChange, resetFilters])
 
   return (
-    <Main>
+    <Card>
       <SEO title={translate('transactionHistory.transactionHistory')} />
-      <Heading mb={{ base: 1, md: 4 }} ml={4} fontSize={['md', 'lg', '3xl']}>
-        <Text translation='transactionHistory.transactionHistory' />
-      </Heading>
-      <Card>
-        <Card.Heading p={[2, 3, 6]}>
-          <Flex justifyContent='space-between'>
-            <Flex>
-              <TransactionHistorySearch ref={inputRef} handleInputChange={handleInputChange} />
-              <TransactionHistoryFilter
-                resetFilters={handleReset}
-                setFilters={setFilters}
-                hasAppliedFilter={!!Object.values(filters).filter(isSome).length}
-              />
-            </Flex>
-            <DownloadButton txIds={txIds} />
+      <Card.Heading p={[2, 3, 6]}>
+        <Flex justifyContent='space-between'>
+          <Flex>
+            <TransactionHistorySearch ref={inputRef} handleInputChange={handleInputChange} />
+            <TransactionHistoryFilter
+              resetFilters={handleReset}
+              setFilters={setFilters}
+              hasAppliedFilter={!!Object.values(filters).filter(isSome).length}
+            />
           </Flex>
-        </Card.Heading>
-        <TransactionHistoryList txIds={txIds} />
-      </Card>
-    </Main>
+          <DownloadButton txIds={txIds} />
+        </Flex>
+      </Card.Heading>
+      <TransactionHistoryList txIds={txIds} />
+    </Card>
   )
 }

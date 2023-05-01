@@ -55,7 +55,7 @@ export const DappRegistryGrid: FC = () => {
   const maxPage = Math.floor(filteredListings.length / PAGE_SIZE)
 
   return (
-    <Box>
+    <Box px={{ base: 4, xl: 0 }}>
       <Flex
         justifyContent='space-between'
         flexDir={{ base: 'column', md: 'row' }}

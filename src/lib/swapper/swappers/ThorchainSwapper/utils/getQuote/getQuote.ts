@@ -32,7 +32,7 @@ export const getQuote = async ({
   buyAssetId: AssetId
   sellAmountCryptoBaseUnit: string
   receiveAddress: string
-  affiliateBps?: string
+  affiliateBps: string
   deps: ThorchainSwapperDeps
 }): Promise<Result<ThornodeQuoteResponseSuccess, SwapErrorRight>> => {
   const buyPoolId = adapters.assetIdToPoolAssetId({ assetId: buyAssetId })

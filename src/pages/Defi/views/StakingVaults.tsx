@@ -17,7 +17,7 @@ const DefiHeader = () => {
 
 export const StakingVaults = () => {
   return (
-    <Main titleComponent={<DefiHeader />}>
+    <Main titleComponent={<DefiHeader />} hideBreadcrumbs>
       <SEO title={'Earn'} description={'Earn'} />
       <EligibleSlider />
       <DeFiEarn mt={6} />

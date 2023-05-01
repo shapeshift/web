@@ -107,11 +107,11 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       updateTradeAmountsFromQuote()
     },
     [
-      updateTradeAmountsFromQuote,
-      sellAsset?.assetId,
-      sellFeeAsset,
       updateActiveSwapperWithMetadata,
+      sellFeeAsset,
+      sellAsset?.assetId,
       updateFees,
+      updateTradeAmountsFromQuote,
     ],
   )
 

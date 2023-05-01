@@ -57,6 +57,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     chainId,
     receiveAddress,
     sendMax,
+    affiliateBps,
   } = input
 
   const { assetReference: sellAssetReference } = fromAssetId(sellAsset.assetId)
@@ -78,6 +79,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit,
     receiveAddress,
+    affiliateBps,
     deps,
   })
 
@@ -224,6 +226,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           ...commonQuoteFields,
           allowanceContract: router,
           feeData,
+          affiliateBps,
         })
       })()
 
@@ -238,6 +241,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           destinationAddress: receiveAddress,
           xpub: (input as GetUtxoTradeQuoteInput).xpub,
           buyAssetTradeFeeUsd,
+          affiliateBps,
         })
 
         if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())

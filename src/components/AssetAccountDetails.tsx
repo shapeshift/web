@@ -43,7 +43,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
   }, [buyAsset, clearAmounts, feeAsset, updateBuyAsset])
 
   return (
-    <Main titleComponent={<AssetHeader assetId={assetId} accountId={accountId} />}>
+    <Main headerComponent={<AssetHeader assetId={assetId} accountId={accountId} />}>
       <Stack
         alignItems='flex-start'
         spacing={4}

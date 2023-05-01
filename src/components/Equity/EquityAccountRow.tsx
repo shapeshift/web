@@ -42,7 +42,7 @@ export const EquityAccountRow = ({
   const fiatBalance = useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, filter))
 
   const path = generatePath(
-    assetId ? '/accounts/:accountId/:assetId' : '/accounts/:accountId',
+    assetId ? '/dashboard/accounts/:accountId/:assetId' : '/dashboard/accounts/:accountId',
     filter,
   )
 

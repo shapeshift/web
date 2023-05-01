@@ -201,6 +201,7 @@ describe('cowBuildTrade', () => {
       accountNumber: 0,
       wallet: {} as HDWallet,
       receiveAddress: '',
+      affiliateBps: '0',
     }
 
     const maybeCowBuildTrade = await cowBuildTrade(deps, tradeInput)
@@ -224,6 +225,7 @@ describe('cowBuildTrade', () => {
       accountNumber: 0,
       wallet: {} as HDWallet,
       receiveAddress: '',
+      affiliateBps: '0',
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -264,6 +266,7 @@ describe('cowBuildTrade', () => {
       accountNumber: 0,
       wallet: {} as HDWallet,
       receiveAddress: '',
+      affiliateBps: '0',
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -306,6 +309,7 @@ describe('cowBuildTrade', () => {
       accountNumber: 0,
       wallet: {} as HDWallet,
       receiveAddress: '',
+      affiliateBps: '0',
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(

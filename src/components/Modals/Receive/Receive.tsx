@@ -10,7 +10,7 @@ import { ReceiveRouter } from './ReceiveRouter'
 export const entries = [ReceiveRoutes.Info, ReceiveRoutes.Select]
 
 type ReceivePropsType = {
-  asset: Asset
+  asset?: Asset
   accountId?: AccountId
 }
 

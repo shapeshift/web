@@ -232,6 +232,7 @@ describe('getCowTradeQuote', () => {
       sendMax: true,
       accountNumber: 0,
       receiveAddress: '',
+      affiliateBps: '0',
     }
 
     const maybeTradeQuote = await getCowSwapTradeQuote(deps, input)
@@ -254,6 +255,7 @@ describe('getCowTradeQuote', () => {
       sendMax: true,
       accountNumber: 0,
       receiveAddress: '',
+      affiliateBps: '0',
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -293,6 +295,7 @@ describe('getCowTradeQuote', () => {
       sendMax: true,
       accountNumber: 0,
       receiveAddress: '',
+      affiliateBps: '0',
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -332,6 +335,7 @@ describe('getCowTradeQuote', () => {
       sendMax: true,
       accountNumber: 0,
       receiveAddress: '',
+      affiliateBps: '0',
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(

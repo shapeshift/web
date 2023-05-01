@@ -50,10 +50,15 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
 
   return (
     <Menu {...menuProps}>
-      <MenuButton as={Button} rightIcon={<ChevronDownIcon />} {...buttonProps}>
+      <MenuButton
+        width={{ base: 'full', md: 'auto' }}
+        as={Button}
+        rightIcon={<ChevronDownIcon />}
+        {...buttonProps}
+      >
         {chainId ? <ChainRow chainId={chainId} /> : translate('common.allChains')}
       </MenuButton>
-      <MenuList>
+      <MenuList zIndex='banner'>
         <MenuOptionGroup type='radio' value={chainId} onChange={value => onClick(value as ChainId)}>
           {showAll && (
             <MenuItemOption value=''>

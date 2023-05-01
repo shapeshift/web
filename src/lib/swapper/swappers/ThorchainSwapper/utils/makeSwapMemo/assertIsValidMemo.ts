@@ -12,6 +12,7 @@ import {
 } from '@shapeshiftoss/caip'
 import { chainIdToChainLabel } from '@shapeshiftoss/chain-adapters'
 import WAValidator from 'multicoin-address-validator'
+import { bn } from 'lib/bignumber/bignumber'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { THORCHAIN_AFFILIATE_NAME } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 
@@ -75,7 +76,7 @@ export const assertIsValidMemo = (memo: string): void => {
   }
 
   // Check if limit is a valid number
-  if (isNaN(parseFloat(limit)) || !isFinite(parseFloat(limit))) {
+  if (!bn(limit).isInteger()) {
     throw new SwapError(`[makeSwapMemo] - limit ${limit} is not a valid number`, {
       code: SwapErrorType.MAKE_MEMO_FAILED,
     })
@@ -93,7 +94,7 @@ export const assertIsValidMemo = (memo: string): void => {
 
   // Check if affiliateBps is a number between and including 0 and 1000 (the valid range for THORSwap)
   const affiliateBpsNum = parseFloat(affiliateBps)
-  if (isNaN(affiliateBpsNum) || affiliateBpsNum < 0 || affiliateBpsNum > 1000) {
+  if (!bn(limit).isInteger() || bn(affiliateBpsNum).lt(0) || bn(affiliateBpsNum).gt(1000)) {
     throw new SwapError(
       `[makeSwapMemo] - affiliateBps ${affiliateBps} is not a number between 0 and 1000`,
       {

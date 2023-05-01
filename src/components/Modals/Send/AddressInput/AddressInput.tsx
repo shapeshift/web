@@ -41,8 +41,8 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
             onChange={onChange}
             placeholder={translate(
               isYatFeatureEnabled && isYatSupportedChain
-                ? 'modals.qrCode.addressInput'
-                : 'modals.qrCode.tokenAddress',
+                ? 'modals.send.addressInput'
+                : 'modals.send.tokenAddress',
             )}
             size='lg'
             value={value}
@@ -57,7 +57,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
       />
       <InputRightElement>
         <IconButton
-          aria-label={translate('modals.qrCode.scanQrCode')}
+          aria-label={translate('modals.send.scanQrCode')}
           icon={<QRCodeIcon />}
           onClick={handleQrClick}
           size='sm'

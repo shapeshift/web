@@ -6,13 +6,13 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
 import { EthSend } from 'test/mocks/txs'
+import { SendFormFields } from 'components/Modals/Send/SendCommon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensLookup } from 'lib/address/ens'
 
 import type { SendInput } from '../../Form'
-import { SendFormFields } from '../../QrCodeCommon'
 import { useFormSend } from './useFormSend'
 
 jest.mock('state/slices/selectors', () => ({

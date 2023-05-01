@@ -11,6 +11,7 @@ import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
+import { SendFormFields } from 'components/Modals/Send/SendCommon'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -29,7 +30,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../../Form'
-import { QrCodeRoutes, SendFormFields } from '../../QrCodeCommon'
+import { QrCodeRoutes } from '../../QrCodeCommon'
 
 type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.CryptoAmount
 

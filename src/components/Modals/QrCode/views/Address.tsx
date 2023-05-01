@@ -18,6 +18,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { YatBanner } from 'components/Banners/YatBanner'
 import { AddressInput } from 'components/Modals/Send/AddressInput/AddressInput'
+import { SendFormFields } from 'components/Modals/Send/SendCommon'
 import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -28,7 +29,7 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../Form'
-import { QrCodeRoutes, SendFormFields } from '../QrCodeCommon'
+import { QrCodeRoutes } from '../QrCodeCommon'
 
 export const Address = () => {
   const [isValidating, setIsValidating] = useState(false)

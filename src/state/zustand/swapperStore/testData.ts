@@ -36,7 +36,6 @@ const mockActions: SwapperAction = {
   handleAssetSelection(): void {},
   updateTradeAmountsFromQuote(): void {},
   updateActiveAffiliateBps(): void {},
-  setSwapperDefaultAffiliateBps(): void {},
 }
 
 export const baseSwapperState: SwapperState = {

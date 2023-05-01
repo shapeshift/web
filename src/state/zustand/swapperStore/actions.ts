@@ -188,13 +188,16 @@ export const updateTradeAmountsFromQuote = (set: SetSwapperStoreAction<SwapperSt
     `swapper/updateTradeAmountsFromQuote`,
   )
 
-export const setSwapperDefaultAffiliateBps = (set: SetSwapperStoreAction<SwapperState>) => () =>
-  set(
-    draft => {
-      const swapperDefaultAffiliateBps = selectSwapperDefaultAffiliateBps(draft)
-      draft.activeAffiliateBps = swapperDefaultAffiliateBps
-      return draft
-    },
-    false,
-    `swapper/setSwapperDefaultAffiliateBps`,
-  )
+export const updateActiveSwapperWithMetadata =
+  (set: SetSwapperStoreAction<SwapperState>): SwapperState['updateActiveSwapperWithMetadata'] =>
+  updateActiveSwapperWithMetadata =>
+    set(
+      draft => {
+        draft.activeSwapperWithMetadata = updateActiveSwapperWithMetadata
+        const swapperDefaultAffiliateBps = selectSwapperDefaultAffiliateBps(draft)
+        draft.activeAffiliateBps = swapperDefaultAffiliateBps
+        return draft
+      },
+      false,
+      `swapper/updateActiveSwapperWithMetadata`,
+    )

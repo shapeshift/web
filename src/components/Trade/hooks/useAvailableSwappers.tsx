@@ -32,9 +32,6 @@ export const useAvailableSwappers = () => {
   const sellAsset = useSwapperStore(selectSellAsset)
   const updateFees = useSwapperStore(state => state.updateFees)
   const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
-  const setSwapperDefaultAffiliateBps = useSwapperStore(
-    state => state.setSwapperDefaultAffiliateBps,
-  )
 
   // Constants
   const buyAssetId = buyAsset?.assetId
@@ -177,7 +174,6 @@ export const useAvailableSwappers = () => {
       const activeSwapperWithQuoteMetadata = swappersToDisplay?.[0]
       updateAvailableSwappersWithMetadata(swappersToDisplay)
       updateActiveSwapperWithMetadata(activeSwapperWithQuoteMetadata)
-      setSwapperDefaultAffiliateBps()
       updateTradeAmountsFromQuote()
       feeAsset && updateFees(feeAsset)
     })()
@@ -188,7 +184,6 @@ export const useAvailableSwappers = () => {
     getIsTradingActive,
     mostRecentRequestStartedTimeStamp,
     sellAssetId,
-    setSwapperDefaultAffiliateBps,
     swappersWithQuoteMetadataAndTimestamp,
     updateActiveSwapperWithMetadata,
     updateAvailableSwappersWithMetadata,

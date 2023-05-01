@@ -10,8 +10,8 @@ import {
   handleAssetSelection,
   handleInputAmountChange,
   handleSwitchAssets,
-  setSwapperDefaultAffiliateBps,
   toggleIsExactAllowance,
+  updateActiveSwapperWithMetadata,
   updateFees,
   updateTradeAmountsFromQuote,
 } from 'state/zustand/swapperStore/actions'
@@ -66,7 +66,7 @@ export const useSwapperStore = (() => {
           updateReceiveAddress: createUpdateAction(set, 'receiveAddress'),
           updateFees: updateFees(set),
           updateTrade: createUpdateAction(set, 'trade'),
-          updateActiveSwapperWithMetadata: createUpdateAction(set, 'activeSwapperWithMetadata'),
+          updateActiveSwapperWithMetadata: updateActiveSwapperWithMetadata(set),
           updateAvailableSwappersWithMetadata: createUpdateAction(
             set,
             'availableSwappersWithMetadata',
@@ -77,7 +77,6 @@ export const useSwapperStore = (() => {
           handleAssetSelection: handleAssetSelection(set),
           updateTradeAmountsFromQuote: updateTradeAmountsFromQuote(set),
           updateActiveAffiliateBps: createUpdateAction(set, 'activeAffiliateBps'),
-          setSwapperDefaultAffiliateBps: setSwapperDefaultAffiliateBps(set),
         }),
         { name: 'SwapperStore' },
       ),

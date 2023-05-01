@@ -2,6 +2,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { handleSend } from 'components/Modals/Send/utils'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
@@ -9,7 +10,6 @@ import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 import type { SendInput } from '../../Form'
-import { handleSend } from '../../utils'
 
 const moduleLogger = logger.child({ namespace: ['Modals', 'Send', 'Hooks', 'UseFormSend'] })
 

@@ -71,16 +71,11 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
       // This should never happen, but tsc
       if (!asset) return
       // methods.setValue(SendFormFields.AssetId, { ...asset, ...marketData })
-      methods.setValue(SendFormFields.Input, '')
-      methods.setValue(SendFormFields.AccountId, '')
-      methods.setValue(SendFormFields.CryptoAmount, '')
       methods.setValue(SendFormFields.AssetId, asset.assetId)
-      methods.setValue(SendFormFields.FiatAmount, '')
-      methods.setValue(SendFormFields.FiatSymbol, selectedCurrency)
 
       history.push(QrCodeRoutes.Address)
     },
-    [history, methods, selectedCurrency],
+    [history, methods],
   )
 
   const handleBack = useCallback(() => {
@@ -98,6 +93,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
         // - Parse the address, amount and asset. This should also exhaust URI parsers (EVM and UTXO currently) and set the amount/asset if applicable
         // - If there is a valid asset (i.e UTXO, or ETH, but not ERC-20s because they're unsafe), populates the asset and goes directly to the address step
         // If no valid asset is found, it should go to the select asset step
+        debugger
         const maybeUrlResult = await parseMaybeUrl({ value: decodedText })
         methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
         methods.setValue(SendFormFields.Input, decodedText.trim())

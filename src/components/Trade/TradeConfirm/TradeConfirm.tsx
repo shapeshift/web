@@ -241,6 +241,8 @@ export const TradeConfirm = () => {
 
   const { showErrorToast } = useErrorHandler()
 
+  const donationAmountFiat = useSwapperStore(selectDonationAmountFiat)
+
   // Track these data here so we don't have to do this again for the other states
   const eventData = useMemo(() => {
     if (!(swapper && trade)) return null
@@ -262,12 +264,14 @@ export const TradeConfirm = () => {
       sellAsset: compositeSellAsset,
       fiatAmount: sellAmountBeforeFeesFiat,
       swapperName: swapper.name,
+      donationAmountFiat,
       [compositeBuyAsset]: buyAmountCryptoPrecision,
       [compositeSellAsset]: sellAmountCryptoPrecision,
     }
   }, [
     assets,
     buyAmountBeforeFeesBaseUnit,
+    donationAmountFiat,
     sellAmountBeforeFeesBaseUnit,
     sellAmountBeforeFeesFiat,
     swapper,
@@ -334,7 +338,6 @@ export const TradeConfirm = () => {
   }, [clearAmounts, history, sellTradeId, updateTrade])
 
   const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman).times(feeAssetFiatRate ?? 1)
-  const donationAmountFiat = useSwapperStore(selectDonationAmountFiat)
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const networkFeeToTradeRatioPercentage = networkFeeFiat

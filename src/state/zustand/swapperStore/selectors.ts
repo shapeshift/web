@@ -3,6 +3,7 @@ import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import {
   isCosmosSdkSwap,
@@ -106,17 +107,16 @@ export const selectSwapperDefaultAffiliateBps = (state: SwapperState): string =>
 
 export const selectCheckApprovalNeededForWallet = (
   state: SwapperState,
-): ((wallet: HDWallet) => Promise<boolean>) => {
-  return async (wallet: HDWallet): Promise<boolean> => {
+): ((wallet: HDWallet) => Promise<Result<boolean, SwapErrorRight>>) => {
+  return async (wallet: HDWallet): Promise<Result<boolean, SwapErrorRight>> => {
     const activeSwapper = state.activeSwapperWithMetadata?.swapper
     const activeQuote = state.activeSwapperWithMetadata?.quote
     if (!activeSwapper) throw new Error('No swapper available')
     if (!activeQuote) throw new Error('No quote available')
 
-    const { approvalNeeded } = (
-      await activeSwapper.approvalNeeded({ quote: activeQuote, wallet })
-    ).unwrap()
-    return approvalNeeded
+    return (await activeSwapper.approvalNeeded({ quote: activeQuote, wallet })).andThen(
+      ({ approvalNeeded }) => Ok(approvalNeeded),
+    )
   }
 }
 

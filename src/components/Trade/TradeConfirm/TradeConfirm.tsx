@@ -89,7 +89,7 @@ export const TradeConfirm = () => {
   } = useFormContext()
   const translate = useTranslate()
   const [swapper, setSwapper] = useState<Swapper<ChainId>>()
-  const [shouldDonate, toggleShouldDonate] = useToggle(true)
+  const [hasUserOptedOutOfDonation, toggleHasUserOptedOutOfDonation] = useToggle(false)
   const [isReloadingTrade, setIsReloadingTrade] = useState(false)
 
   const {
@@ -128,7 +128,7 @@ export const TradeConfirm = () => {
 
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
   const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
-  const updateAffiliateBps = useSwapperStore(state => state.updateAffiliateBps)
+  const updateActiveAffiliateBps = useSwapperStore(state => state.updateActiveAffiliateBps)
   const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
   const updateFees = useSwapperStore(state => state.updateFees)
   const defaultAffiliateBps = useSwapperStore(selectSwapperDefaultAffiliateBps)
@@ -138,9 +138,9 @@ export const TradeConfirm = () => {
       throw new Error('No default fee asset')
     }
     setIsReloadingTrade(true)
-    const newAffiliateBps = shouldDonate ? '0' : defaultAffiliateBps
-    updateAffiliateBps(newAffiliateBps)
-    toggleShouldDonate()
+    const newAffiliateBps = hasUserOptedOutOfDonation ? defaultAffiliateBps : '0'
+    updateActiveAffiliateBps(newAffiliateBps)
+    toggleHasUserOptedOutOfDonation()
     // Refresh trade
     try {
       const trade = await getTrade({ affiliateBps: newAffiliateBps })
@@ -158,9 +158,9 @@ export const TradeConfirm = () => {
     defaultAffiliateBps,
     defaultFeeAsset,
     getTrade,
-    shouldDonate,
-    toggleShouldDonate,
-    updateAffiliateBps,
+    hasUserOptedOutOfDonation,
+    toggleHasUserOptedOutOfDonation,
+    updateActiveAffiliateBps,
     updateFees,
     updateTrade,
     updateTradeAmountsFromQuote,
@@ -380,7 +380,7 @@ export const TradeConfirm = () => {
         <Row>
           <HelperTooltip label={translate('trade.tooltip.donation')}>
             <Row.Label>
-              <Checkbox isChecked={shouldDonate} onChange={handleDonationToggle}>
+              <Checkbox isChecked={!hasUserOptedOutOfDonation} onChange={handleDonationToggle}>
                 <Text translation='trade.donation' />
               </Checkbox>
             </Row.Label>
@@ -389,7 +389,7 @@ export const TradeConfirm = () => {
         </Row>
       </Stack>
     ),
-    [donationAmountFiat, handleDonationToggle, shouldDonate, toFiat, translate],
+    [donationAmountFiat, handleDonationToggle, hasUserOptedOutOfDonation, toFiat, translate],
   )
 
   const isTHORChainSwap = useMemo(

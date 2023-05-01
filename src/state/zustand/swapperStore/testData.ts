@@ -35,7 +35,7 @@ const mockActions: SwapperAction = {
   updateTrade(): void {},
   handleAssetSelection(): void {},
   updateTradeAmountsFromQuote(): void {},
-  updateAffiliateBps(): void {},
+  updateActiveAffiliateBps(): void {},
   setSwapperDefaultAffiliateBps(): void {},
 }
 
@@ -53,7 +53,7 @@ export const baseSwapperState: SwapperState = {
   selectedCurrencyToUsdRate: '1',
   sellAssetAccountId: 'eip155:1:0x32dbc9cf9e8fbcebe1e0a2ecf05ed86ca3096cb6',
   buyAssetAccountId: 'eip155:1:0x32dbc9cf9e8fbcebe1e0a2ecf05ed86ca3096cb6',
-  affiliateBps: '0',
+  activeAffiliateBps: '0',
   availableSwappersWithMetadata: [
     {
       swapper: {

@@ -192,7 +192,7 @@ export const setSwapperDefaultAffiliateBps = (set: SetSwapperStoreAction<Swapper
   set(
     draft => {
       const swapperDefaultAffiliateBps = selectSwapperDefaultAffiliateBps(draft)
-      draft.affiliateBps = swapperDefaultAffiliateBps
+      draft.activeAffiliateBps = swapperDefaultAffiliateBps
       return draft
     },
     false,

@@ -149,7 +149,7 @@ export async function getCowSwapTradeQuote(
       ? '0'
       : buyAmountCryptoBaseUnit
 
-    const { average, fast } = feeData
+    const { average } = feeData
 
     return Ok({
       rate,
@@ -159,10 +159,10 @@ export async function getCowSwapTradeQuote(
         networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
         chainSpecific: {
           estimatedGasCryptoBaseUnit: average.chainSpecific.gasLimit,
-          gasPriceCryptoBaseUnit: fast.chainSpecific.gasPrice, // fast gas price since it is underestimated currently
+          gasPriceCryptoBaseUnit: average.chainSpecific.gasPrice,
           maxFeePerGas: average.chainSpecific.maxFeePerGas,
           maxPriorityFeePerGas: average.chainSpecific.maxPriorityFeePerGas,
-          approvalFeeCryptoBaseUnit: fast.txFee, // use worst case fast fee
+          approvalFeeCryptoBaseUnit: average.txFee,
         },
         buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
         sellAssetTradeFeeUsd,

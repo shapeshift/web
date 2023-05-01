@@ -38,7 +38,6 @@ export type EvmFeeData = {
   estimatedGasCryptoBaseUnit?: string
   gasPriceCryptoBaseUnit?: string
   approvalFeeCryptoBaseUnit?: string
-  totalFee?: string
   maxFeePerGas?: string
   maxPriorityFeePerGas?: string
 }

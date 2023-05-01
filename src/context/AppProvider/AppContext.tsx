@@ -251,20 +251,19 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // Exclude assets for which we are unable to get market data
     // We would fire query thunks / XHRs that would slow down the app
     // We insert price data for these as resolver-level, and are unable to get market data
-    const excluded: AssetId[] = [...(uniV2LpIdsData.data ?? [])]
+    const excluded: AssetId[] = uniV2LpIdsData.data ?? []
     const portfolioAssetIdsExcludeNoMarketData = difference(portfolioAssetIds, excluded)
 
-    const fetchMarketData = () =>
-      portfolioAssetIdsExcludeNoMarketData.forEach(assetId => {
-        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
-        const timeframe = DEFAULT_HISTORY_TIMEFRAME
-        const payload = { assetId, timeframe }
-        dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload))
-      })
+    // https://redux-toolkit.js.org/rtk-query/api/created-api/endpoints#initiate
+    const pollingInterval = 1000 * 2 * 60 // refetch data every two minutes
+    const opts = { subscriptionOptions: { pollingInterval } }
+    const timeframe = DEFAULT_HISTORY_TIMEFRAME
 
-    fetchMarketData() // fetch every time assetIds change
-    const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
-    return () => clearInterval(interval) // clear interval when portfolioAssetIds change
+    portfolioAssetIdsExcludeNoMarketData.forEach(assetId => {
+      dispatch(marketApi.endpoints.findByAssetId.initiate(assetId, opts))
+      const payload = { assetId, timeframe }
+      dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload, opts))
+    })
   }, [dispatch, portfolioLoadingStatus, portfolioAssetIds, uniV2LpIdsData.data])
 
   /**

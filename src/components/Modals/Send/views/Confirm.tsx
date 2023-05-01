@@ -54,7 +54,6 @@ export const Confirm = () => {
       control,
     }) as Partial<SendInput>
   const { fees } = useSendFees()
-  debugger
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
   const showMemoRow = useMemo(

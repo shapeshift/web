@@ -199,8 +199,8 @@ export const getRateInfo = async (
   osmoUrl: string,
 ): Promise<Result<PoolRateInfo, SwapErrorRight>> => {
   const maybePool = await findPool(sellAsset, buyAsset, osmoUrl)
-  return maybePool.map(({ pool, sellAssetIndex, buyAssetIndex }) =>
-    getPoolRateInfo(sellAmount, pool, sellAssetIndex, buyAssetIndex),
+  return maybePool.andThen(({ pool, sellAssetIndex, buyAssetIndex }) =>
+    Ok(getPoolRateInfo(sellAmount, pool, sellAssetIndex, buyAssetIndex)),
   )
 }
 

@@ -106,7 +106,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     try {
       return (
         await thorService.get<ThornodePoolResponse[]>(`${this.deps.daemonUrl}/lcd/thorchain/pools`)
-      ).map(({ data: allPools }) => {
+      ).andThen(({ data: allPools }) => {
         const availablePools = allPools.filter(pool => pool.status === 'Available')
 
         availablePools.forEach(pool => {
@@ -119,7 +119,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
           this.buySupportedChainIds[chainId] && this.supportedBuyAssetIds.push(assetId)
         })
 
-        return undefined
+        return Ok(undefined)
       })
     } catch (e: unknown) {
       return Err(

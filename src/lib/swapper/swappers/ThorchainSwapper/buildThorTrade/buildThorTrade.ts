@@ -81,12 +81,14 @@ export const buildTrade = async ({
       affiliateBps,
     })
 
-    return maybeEthTradeTx.map(ethTradeTx => ({
-      chainId: sellAsset.chainId as ThorEvmSupportedChainId,
-      ...quote,
-      receiveAddress: destinationAddress,
-      txData: ethTradeTx.txToSign,
-    }))
+    return maybeEthTradeTx.andThen(ethTradeTx =>
+      Ok({
+        chainId: sellAsset.chainId as ThorEvmSupportedChainId,
+        ...quote,
+        receiveAddress: destinationAddress,
+        txData: ethTradeTx.txToSign,
+      }),
+    )
   } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
     const maybeThorTxInfo = await getThorTxInfo({
       deps,
@@ -141,12 +143,14 @@ export const buildTrade = async ({
       affiliateBps,
     })
 
-    return maybeTxData.map(txData => ({
-      chainId: sellAsset.chainId as ThorCosmosSdkSupportedChainId,
-      ...quote,
-      receiveAddress: destinationAddress,
-      txData,
-    }))
+    return maybeTxData.andThen(txData =>
+      Ok({
+        chainId: sellAsset.chainId as ThorCosmosSdkSupportedChainId,
+        ...quote,
+        receiveAddress: destinationAddress,
+        txData,
+      }),
+    )
   } else {
     return Err(
       makeSwapErrorRight({

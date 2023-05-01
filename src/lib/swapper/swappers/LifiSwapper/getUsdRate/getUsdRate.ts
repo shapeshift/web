@@ -32,5 +32,5 @@ export async function getUsdRate(
       )
     })
 
-  return token.map(token => token.priceUSD ?? '0')
+  return token.andThen(token => Ok(token.priceUSD ?? '0'))
 }

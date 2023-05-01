@@ -4,7 +4,7 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
-import { Err } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { ethers } from 'ethers'
 import type { ExecuteTradeInput, SwapErrorRight, TradeResult } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
@@ -131,5 +131,5 @@ export async function cowExecuteTrade(
     from: trade.receiveAddress,
   })
 
-  return maybeOrdersResponse.map(({ data: tradeId }) => ({ tradeId }))
+  return maybeOrdersResponse.andThen(({ data: tradeId }) => Ok({ tradeId }))
 }

@@ -59,7 +59,7 @@ export const getQuote = async ({
     await thorService.get<ThornodeQuoteResponse>(
       `${deps.daemonUrl}/lcd/thorchain/quote/swap?${queryString}`,
     )
-  ).map(({ data }) => data)
+  ).andThen(({ data }) => Ok(data))
 
   if (maybeData.isErr()) return Err(maybeData.unwrapErr())
   const data = maybeData.unwrap()

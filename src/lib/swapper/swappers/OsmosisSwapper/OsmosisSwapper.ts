@@ -120,8 +120,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const { rate: osmoRate } = maybeOsmoRateInfo.unwrap()
 
     if (sellAssetSymbol !== 'OSMO') {
-      return (await getRateInfo(sellAssetSymbol, 'OSMO', sellAmount, this.deps.osmoUrl)).map(
-        ({ rate }) => bnOrZero(rate).times(osmoRate).toString(),
+      return (await getRateInfo(sellAssetSymbol, 'OSMO', sellAmount, this.deps.osmoUrl)).andThen(
+        ({ rate }) => Ok(bnOrZero(rate).times(osmoRate).toString()),
       )
     }
 
@@ -132,14 +132,14 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const { sellAsset } = input
     const maybeUsdRate = await this.getUsdRate({ ...sellAsset })
 
-    return maybeUsdRate.map(usdRate => {
+    return maybeUsdRate.andThen(usdRate => {
       const minimumAmountCryptoHuman = bn(1).dividedBy(bnOrZero(usdRate)).toString()
       const maximumAmountCryptoHuman = MAX_SWAPPER_SELL
 
-      return {
+      return Ok({
         minimumAmountCryptoHuman,
         maximumAmountCryptoHuman,
-      }
+      })
     })
   }
 

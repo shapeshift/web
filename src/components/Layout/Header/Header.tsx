@@ -24,6 +24,7 @@ import { selectPortfolioLoadingStatus } from 'state/slices/selectors'
 
 import { AppLoadingIcon } from './AppLoadingIcon'
 import { DegradedStateBanner } from './DegradedStateBanner'
+import { GlobalSeachButton } from './GlobalSearch/GlobalSearchButton'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
 import { Notifications } from './NavBar/Notifications'
@@ -122,14 +123,15 @@ export const Header = () => {
                 icon={<HamburgerIcon />}
               />
             </Box>
-            <HStack
+            {/* <HStack
               width='100%'
               flex={1}
               justifyContent='center'
               display={{ base: 'none', md: 'block' }}
             >
               <AssetSearch assetListAsDropdown formProps={{ mb: 0, px: 0 }} />
-            </HStack>
+            </HStack> */}
+            <GlobalSeachButton />
             <Box display={{ base: 'block', md: 'none' }} mx='auto'>
               <AppLoadingIcon />
             </Box>

@@ -1,4 +1,5 @@
 import { SearchIcon } from '@chakra-ui/icons'
+import type { InputProps } from '@chakra-ui/react'
 import {
   IconButton,
   Input,
@@ -13,8 +14,12 @@ import { FaTimes } from 'react-icons/fa'
 type GlobalFilterProps = {
   setSearchQuery: (filterValue: any) => void
   searchQuery: any
-}
-export const GlobalFilter: React.FC<GlobalFilterProps> = ({ setSearchQuery, searchQuery = '' }) => {
+} & InputProps
+export const GlobalFilter: React.FC<GlobalFilterProps> = ({
+  setSearchQuery,
+  searchQuery = '',
+  ...rest
+}) => {
   const [value, setValue] = useState(searchQuery)
   const [loading, setLoading] = useState(false)
 
@@ -51,6 +56,7 @@ export const GlobalFilter: React.FC<GlobalFilterProps> = ({ setSearchQuery, sear
         placeholder='Search'
         onChange={e => handleChange(e.target.value)}
         value={value}
+        {...rest}
       />
       {value && (
         <InputRightElement>

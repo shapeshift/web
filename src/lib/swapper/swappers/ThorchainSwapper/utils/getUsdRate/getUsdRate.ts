@@ -70,7 +70,7 @@ export const getUsdRate = async (
 ): Promise<Result<string, SwapErrorRight>> => {
   if (isRune(assetId)) {
     const maybeRuneUsdPrice = await getRuneUsdPrice(daemonUrl)
-    return maybeRuneUsdPrice.map(runeUsdPrice => runeUsdPrice.toFixed(PRECISION))
+    return maybeRuneUsdPrice.andThen(runeUsdPrice => Ok(runeUsdPrice.toFixed(PRECISION)))
   }
 
   const poolId = adapters.assetIdToPoolAssetId({ assetId })
@@ -114,11 +114,11 @@ export const getUsdRate = async (
 
   const maybeRuneUsdPrice = await getRuneUsdPrice(daemonUrl)
 
-  return maybeRuneUsdPrice.map(runeUsdPrice => {
+  return maybeRuneUsdPrice.andThen(runeUsdPrice => {
     // runeBalance / assetBalance = assetPriceInRune
     const assetPriceInRune = runeBalance.div(assetBalance)
 
     // runeUsdPrice * assetPriceInRune = assetUsdPrice
-    return runeUsdPrice.times(assetPriceInRune).toFixed(PRECISION)
+    return Ok(runeUsdPrice.times(assetPriceInRune).toFixed(PRECISION))
   })
 }

@@ -74,7 +74,7 @@ export async function cowBuildTrade(
       from: receiveAddress,
       kind: ORDER_KIND_SELL,
       sellAmountBeforeFee: sellAmount,
-    } as CowSwapSellQuoteApiInput,
+    },
   )
 
   if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())

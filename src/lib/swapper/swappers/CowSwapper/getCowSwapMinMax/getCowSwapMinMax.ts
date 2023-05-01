@@ -2,7 +2,7 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
-import { Err } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { MinMaxOutput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
@@ -29,14 +29,14 @@ export const getCowSwapMinMax = async (
 
   const maybeUsdRate = await getUsdRate(deps, sellAsset)
 
-  return maybeUsdRate.map(usdRate => {
+  return maybeUsdRate.andThen(usdRate => {
     const minimumAmountCryptoHuman = bn(MIN_COWSWAP_VALUE_USD)
       .dividedBy(bnOrZero(usdRate))
       .toString() // $10 worth of the sell token.
     const maximumAmountCryptoHuman = MAX_COWSWAP_TRADE // Arbitrarily large value. 10e+28 here.
-    return {
+    return Ok({
       minimumAmountCryptoHuman,
       maximumAmountCryptoHuman,
-    }
+    })
   })
 }

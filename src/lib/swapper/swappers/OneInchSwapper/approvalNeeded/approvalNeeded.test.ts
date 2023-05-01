@@ -1,14 +1,22 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import axios from 'axios'
+import { Ok } from '@sniptt/monads'
+import type { AxiosStatic } from 'axios'
 import type { ApprovalNeededInput } from 'lib/swapper/api'
 
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
+import { oneInchService } from '../utils/oneInchService'
 import type { OneInchSwapperDeps } from '../utils/types'
 import { approvalNeeded } from './approvalNeeded'
 
-jest.mock('axios')
-const mockAxios = axios as jest.Mocked<typeof axios>
+jest.mock('../utils/oneInchService', () => {
+  const axios: AxiosStatic = jest.createMockFromModule('axios')
+  axios.create = jest.fn(() => axios)
+
+  return {
+    oneInchService: axios.create(),
+  }
+})
 
 const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
@@ -47,11 +55,12 @@ describe('approvalNeeded', () => {
       wallet,
     }
 
-    mockAxios.get.mockImplementationOnce(
-      async () =>
-        await Promise.resolve({
+    ;(oneInchService.get as jest.Mock<unknown>).mockReturnValueOnce(
+      Promise.resolve(
+        Ok({
           data: { allowance: allowanceOnChain },
         }),
+      ),
     )
 
     expect((await approvalNeeded(deps, input)).unwrap().approvalNeeded).toBe(false)
@@ -73,11 +82,12 @@ describe('approvalNeeded', () => {
       wallet,
     }
 
-    mockAxios.get.mockImplementationOnce(
-      async () =>
-        await Promise.resolve({
+    ;(oneInchService.get as jest.Mock<unknown>).mockReturnValueOnce(
+      Promise.resolve(
+        Ok({
           data: { allowance: allowanceOnChain },
         }),
+      ),
     )
 
     expect((await approvalNeeded(deps, input)).unwrap().approvalNeeded).toBe(true)
@@ -99,11 +109,12 @@ describe('approvalNeeded', () => {
       wallet,
     }
 
-    mockAxios.get.mockImplementationOnce(
-      async () =>
-        await Promise.resolve({
+    ;(oneInchService.get as jest.Mock<unknown>).mockReturnValueOnce(
+      Promise.resolve(
+        Ok({
           data: { allowance: allowanceOnChain },
         }),
+      ),
     )
 
     expect((await approvalNeeded(deps, input)).unwrap().approvalNeeded).toBe(true)

@@ -2,13 +2,12 @@ import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { AxiosResponse } from 'axios'
-import axios from 'axios'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ApprovalNeededInput, ApprovalNeededOutput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 
+import { oneInchService } from '../utils/oneInchService'
 import type {
   OneInchAllowanceApiInput,
   OneInchAllowanceResponse,
@@ -55,13 +54,16 @@ export const approvalNeeded = async (
   }
   const { chainReference } = fromChainId(sellAsset.chainId)
 
-  const allowanceResponse: AxiosResponse<OneInchAllowanceResponse> = await axios.get(
+  const maybeAllowanceResponse = await oneInchService.get<OneInchAllowanceResponse>(
     `${deps.apiUrl}/${chainReference}/approve/allowance`,
     { params: apiInput },
   )
-  const allowanceOnChain = bnOrZero(allowanceResponse.data.allowance)
 
-  return Ok({
-    approvalNeeded: allowanceOnChain.lt(bnOrZero(sellAmountBeforeFeesCryptoBaseUnit)),
+  return maybeAllowanceResponse.andThen(allowanceResponse => {
+    const allowanceOnChain = bnOrZero(allowanceResponse.data.allowance)
+
+    return Ok({
+      approvalNeeded: allowanceOnChain.lt(bnOrZero(sellAmountBeforeFeesCryptoBaseUnit)),
+    })
   })
 }

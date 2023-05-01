@@ -3,14 +3,13 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { AxiosResponse } from 'axios'
-import axios from 'axios'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 
 import { DEFAULT_SLIPPAGE, DEFAULT_SOURCE, REFERRAL_ADDRESS } from '../utils/constants'
 import { getRate } from '../utils/helpers'
+import { oneInchService } from '../utils/oneInchService'
 import type {
   OneInchSwapApiInput,
   OneInchSwapperDeps,
@@ -78,38 +77,41 @@ export const buildTrade = async (
   }
 
   const { chainReference } = fromChainId(chainId)
-  const swapResponse: AxiosResponse<OneInchSwapResponse> = await axios.get(
+  const maybeSwapResponse = await oneInchService.get<OneInchSwapResponse>(
     `${deps.apiUrl}/${chainReference}/swap`,
     { params: swapApiInput },
   )
-  const fee = bnOrZero(swapResponse.data.tx.gasPrice).times(bnOrZero(swapResponse.data.tx.gas))
 
-  // Note: 1inch will not return a response to the above API if the needed approval is not in place.
-  // this behavior can be disabled by setting `disableEstimate` to true, but the documentation
-  // is unclear on what other checks are disabled when that is set to true.
-  // I believe this is fine since we shouldn't be building trade transactions if no approval is in place
-  // but this may need to be altered after additional testing
-  const trade: OneInchTrade<EvmChainId> = {
-    rate: getRate(swapResponse.data).toString(),
-    feeData: {
-      buyAssetTradeFeeUsd: '0',
-      sellAssetTradeFeeUsd: '0',
-      networkFeeCryptoBaseUnit: fee.toString(),
-      chainSpecific: {
-        estimatedGasCryptoBaseUnit: swapResponse.data.tx.gas,
-        gasPriceCryptoBaseUnit: swapResponse.data.tx.gasPrice,
-        approvalFeeCryptoBaseUnit: '0',
+  return maybeSwapResponse.andThen(swapResponse => {
+    const fee = bnOrZero(swapResponse.data.tx.gasPrice).times(bnOrZero(swapResponse.data.tx.gas))
+
+    // Note: 1inch will not return a response to the above API if the needed approval is not in place.
+    // this behavior can be disabled by setting `disableEstimate` to true, but the documentation
+    // is unclear on what other checks are disabled when that is set to true.
+    // I believe this is fine since we shouldn't be building trade transactions if no approval is in place
+    // but this may need to be altered after additional testing
+    const trade: OneInchTrade<EvmChainId> = {
+      rate: getRate(swapResponse.data).toString(),
+      feeData: {
+        buyAssetTradeFeeUsd: '0',
+        sellAssetTradeFeeUsd: '0',
+        networkFeeCryptoBaseUnit: fee.toString(),
+        chainSpecific: {
+          estimatedGasCryptoBaseUnit: swapResponse.data.tx.gas,
+          gasPriceCryptoBaseUnit: swapResponse.data.tx.gasPrice,
+          approvalFeeCryptoBaseUnit: '0',
+        },
       },
-    },
-    sellAsset,
-    sellAmountBeforeFeesCryptoBaseUnit,
-    buyAsset,
-    buyAmountCryptoBaseUnit: swapResponse.data.toTokenAmount,
-    accountNumber,
-    receiveAddress,
-    sources: DEFAULT_SOURCE,
-    tx: swapResponse.data.tx,
-  }
+      sellAsset,
+      sellAmountBeforeFeesCryptoBaseUnit,
+      buyAsset,
+      buyAmountCryptoBaseUnit: swapResponse.data.toTokenAmount,
+      accountNumber,
+      receiveAddress,
+      sources: DEFAULT_SOURCE,
+      tx: swapResponse.data.tx,
+    }
 
-  return Ok(trade)
+    return Ok(trade)
+  })
 }

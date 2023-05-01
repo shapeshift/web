@@ -33,10 +33,10 @@ export async function cowGetTradeTxs(
     `${deps.apiUrl}/v1/trades/?orderUid=${input.tradeId}`,
   )
 
-  return maybeGetTradesResponse.map(getTradesResponse => {
-    return {
+  return maybeGetTradesResponse.andThen(getTradesResponse =>
+    Ok({
       sellTxid: input.tradeId,
       buyTxid: getTradesResponse.data[0].txHash,
-    }
-  })
+    }),
+  )
 }

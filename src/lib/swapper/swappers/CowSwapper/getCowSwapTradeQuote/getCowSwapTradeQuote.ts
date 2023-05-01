@@ -1,7 +1,7 @@
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
-import { Err } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
@@ -136,7 +136,7 @@ export async function getCowSwapTradeQuote(
     getUsdRate(deps, sellAsset),
   ])
 
-  return maybeSellAssetUsdRate.map(sellAssetUsdRate => {
+  return maybeSellAssetUsdRate.andThen(sellAssetUsdRate => {
     const sellAssetTradeFeeUsd = bnOrZero(feeAmountInSellTokenCryptoBaseUnit)
       .div(bn(10).exponentiatedBy(sellAsset.precision))
       .multipliedBy(bnOrZero(sellAssetUsdRate))
@@ -159,7 +159,7 @@ export async function getCowSwapTradeQuote(
 
     const { average, fast } = feeData
 
-    return {
+    return Ok({
       rate,
       minimumCryptoHuman: minimumAmountCryptoHuman,
       maximumCryptoHuman: maximumAmountCryptoHuman,
@@ -182,6 +182,6 @@ export async function getCowSwapTradeQuote(
       buyAsset,
       sellAsset,
       accountNumber,
-    }
+    })
   })
 }

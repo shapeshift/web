@@ -4,8 +4,6 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GasFeeDataEstimate } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
-import type { AxiosResponse } from 'axios'
-import axios from 'axios'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
@@ -16,6 +14,7 @@ import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
 import { getMinMax } from '../getMinMax/getMinMax'
 import { APPROVAL_GAS_LIMIT, DEFAULT_SOURCE } from '../utils/constants'
 import { getRate } from '../utils/helpers'
+import { oneInchService } from '../utils/oneInchService'
 import type { OneInchQuoteApiInput, OneInchQuoteResponse, OneInchSwapperDeps } from '../utils/types'
 
 export async function getTradeQuote(
@@ -74,13 +73,20 @@ export async function getTradeQuote(
   }
 
   const { chainReference } = fromChainId(chainId)
-  const quoteResponse: AxiosResponse<OneInchQuoteResponse> = await axios.get(
+  const maybeQuoteResponse = await oneInchService.get<OneInchQuoteResponse>(
     `${deps.apiUrl}/${chainReference}/quote`,
     { params: apiInput },
   )
 
+  if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())
+  const quoteResponse = maybeQuoteResponse.unwrap()
+
   const rate = getRate(quoteResponse.data).toString()
-  const allowanceContract = await getApprovalAddress(deps, chainId)
+
+  const maybeAllowanceContract = await getApprovalAddress(deps, chainId)
+  if (maybeAllowanceContract.isErr()) return Err(maybeAllowanceContract.unwrapErr())
+  const allowanceContract = maybeAllowanceContract.unwrap()
+
   const maybeMinMax = await getMinMax(deps, sellAsset, buyAsset)
 
   const chainAdapterManager = getChainAdapterManager()

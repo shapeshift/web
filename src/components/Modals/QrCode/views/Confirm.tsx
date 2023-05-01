@@ -78,6 +78,7 @@ export const Confirm = () => {
   // We don't want this firing -- but need it for typing
   const handleAccountChange = () => {}
 
+  debugger
   if (!(to && asset && cryptoAmount && fiatAmount && feeType)) return null
 
   return (

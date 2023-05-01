@@ -19,10 +19,10 @@ import { store, useAppSelector } from 'state/store'
 
 import { useFormSend } from '../Send/hooks/useFormSend/useFormSend'
 import { SendFormFields } from '../Send/SendCommon'
+import { Details } from '../Send/views/Details'
 import { QrCodeRoutes } from './QrCodeCommon'
 import { Address } from './views/Address'
 import { Confirm } from './views/Confirm'
-import { Details } from './views/Details'
 
 export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.AccountId]: AccountId

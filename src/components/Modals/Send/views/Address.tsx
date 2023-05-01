@@ -91,9 +91,6 @@ export const Address = () => {
               validate: {
                 validateAddress: async (rawInput: string) => {
                   const value = rawInput.trim() // trim leading/trailing spaces
-                  // clear previous values
-                  setValue(SendFormFields.To, '')
-                  setValue(SendFormFields.VanityAddress, '')
                   setIsValidating(true)
                   const { assetId } = asset
                   // this does not throw, everything inside is handled

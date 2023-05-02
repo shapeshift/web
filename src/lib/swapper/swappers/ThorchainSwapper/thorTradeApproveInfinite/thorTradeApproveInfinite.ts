@@ -4,8 +4,9 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { ApproveInfiniteInput } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
-import { MAX_ALLOWANCE } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { grantAllowance } from 'lib/swapper/swappers/utils/helpers/helpers'
+
+import { MAX_ALLOWANCE } from '../../utils/constants'
 
 export const thorTradeApproveInfinite = ({
   deps: { adapterManager, web3 },

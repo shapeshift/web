@@ -8,7 +8,7 @@ import {
   optimismAssetId,
   polygonAssetId,
 } from '@shapeshiftoss/caip'
-import type { evm, EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { evm, EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -16,12 +16,11 @@ import type Web3 from 'web3'
 import type { AbiItem } from 'web3-utils'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { EvmFeeData } from 'lib/swapper/api'
+import type { EvmFeeData, GetTradeQuoteInput, TradeQuote } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
-import { MAX_ALLOWANCE } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { erc20Abi } from 'lib/swapper/swappers/utils/abi/erc20-abi'
 
-import { APPROVAL_GAS_LIMIT } from '../constants'
+import { APPROVAL_GAS_LIMIT, MAX_ALLOWANCE } from '../constants'
 
 export type IsApprovalRequiredArgs = {
   adapter: EvmChainAdapter
@@ -275,5 +274,29 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
       return assetId === polygonAssetId
     default:
       return false
+  }
+}
+
+export const createEmptyEvmTradeQuote = (
+  input: GetTradeQuoteInput,
+  minimumCryptoHuman: string,
+  maximumCryptoHuman: string,
+): TradeQuote<EvmChainId> => {
+  return {
+    buyAmountCryptoBaseUnit: '0',
+    sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
+    feeData: {
+      networkFeeCryptoBaseUnit: '0',
+      buyAssetTradeFeeUsd: '0',
+      chainSpecific: {},
+    },
+    rate: '0',
+    sources: [],
+    buyAsset: input.buyAsset,
+    sellAsset: input.sellAsset,
+    accountNumber: input.accountNumber,
+    allowanceContract: '',
+    minimumCryptoHuman,
+    maximumCryptoHuman,
   }
 }

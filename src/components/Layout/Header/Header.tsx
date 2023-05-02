@@ -15,7 +15,6 @@ import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/c
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'

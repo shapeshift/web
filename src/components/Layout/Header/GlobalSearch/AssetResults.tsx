@@ -1,19 +1,38 @@
-import { ListItem } from '@chakra-ui/react'
+import { List } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { selectAssetsByMarketCap } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import type { GlobalSearchResult } from 'state/slices/search-selectors'
 
-export const AssetResults = () => {
-  const assets = useAppSelector(selectAssetsByMarketCap)
-  const firstTen = assets.slice(0, 10)
-  const results = firstTen
+import { AssetResult } from './AssetResultRow'
+import { ListItemSection } from './ListItemSection'
+
+type AssetResultsProps = {
+  results: GlobalSearchResult[]
+  activeIndex?: number
+  startingIndex: number
+  onClick: (arg: GlobalSearchResult) => void
+}
+
+export const AssetResults: React.FC<AssetResultsProps> = ({
+  results,
+  activeIndex,
+  onClick,
+  startingIndex,
+}) => {
   const renderItems = useMemo(() => {
-    return results.map(asset => <ListItem>{asset.name}</ListItem>)
-  }, [results])
+    return results.map((item, index) => (
+      <AssetResult
+        key={`result-assets-${index}`}
+        index={index + startingIndex}
+        activeIndex={activeIndex}
+        assetId={item.id}
+        onClick={onClick}
+      />
+    ))
+  }, [activeIndex, onClick, results, startingIndex])
   return (
     <>
-      <ListItem tabIndex={-1}>Assets</ListItem>
-      {renderItems}
+      <ListItemSection title='Assets' />
+      <List px={2}>{renderItems}</List>
     </>
   )
 }

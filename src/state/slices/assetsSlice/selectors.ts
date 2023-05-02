@@ -3,12 +3,13 @@ import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import orderBy from 'lodash/orderBy'
+import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAssetIdParamFromFilter } from 'state/selectors'
+import { selectAssetIdParamFromFilter, selectSearchQueryFromFilter } from 'state/selectors'
 import { selectMarketDataSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
 
 import { assetIdToFeeAssetId } from '../portfolioSlice/utils'
@@ -76,3 +77,15 @@ export const selectFeeAssetById = createCachedSelector(
   (_state: ReduxState, assetId: AssetId) => assetId,
   (assetsById, assetId): Asset | undefined => getFeeAssetByAssetId(assetsById, assetId),
 )((_s: ReduxState, assetId: AssetId) => assetId ?? 'assetId')
+
+export const selectAssetsBySearchQuery = createDeepEqualOutputSelector(
+  selectAssetsByMarketCap,
+  selectSearchQueryFromFilter,
+  (sortedAssets: Asset[], searchQuery?: string): Asset[] => {
+    if (!searchQuery) return []
+    return matchSorter(sortedAssets, searchQuery, {
+      keys: ['name', 'symbol', 'assetId'],
+      threshold: matchSorter.rankings.CONTAINS,
+    })
+  },
+)

@@ -18,10 +18,9 @@ import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { EvmFeeData, GetTradeQuoteInput, TradeQuote } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
-import { MAX_ALLOWANCE } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { erc20Abi } from 'lib/swapper/swappers/utils/abi/erc20-abi'
 
-import { APPROVAL_GAS_LIMIT } from '../constants'
+import { APPROVAL_GAS_LIMIT, MAX_ALLOWANCE } from '../constants'
 
 export type IsApprovalRequiredArgs = {
   adapter: EvmChainAdapter

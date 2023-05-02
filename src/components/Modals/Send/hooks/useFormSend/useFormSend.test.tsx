@@ -1,11 +1,11 @@
 import { useToast } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
+import { ethereum } from 'test/mocks/assets'
 import { EthSend } from 'test/mocks/txs'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
@@ -16,14 +16,6 @@ import type { SendInput } from '../../Form'
 import { SendFormFields } from '../../SendCommon'
 import { useFormSend } from './useFormSend'
 
-const mockEthAsset = {
-  name: 'Ethereum',
-  symbol: 'ETH',
-  precision: 18,
-  assetId: ethAssetId,
-  chainId: ethChainId,
-} as Asset
-
 jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),
   selectPortfolioAccountMetadataByAccountId: () => ({
@@ -33,7 +25,7 @@ jest.mock('state/slices/selectors', () => ({
       accountNumber: 0,
     },
   }),
-  selectAssetById: jest.fn(() => mockEthAsset),
+  selectAssetById: jest.fn(() => ethereum),
   selectMarketDataById: () => ({ price: '2000' }),
 }))
 

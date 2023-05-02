@@ -5,6 +5,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { renderHook, waitFor } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { ethereum } from 'test/mocks/assets'
 import { TestProviders } from 'test/TestProviders'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ReduxState } from 'state/reducer'
@@ -15,9 +16,9 @@ jest.mock('react-hook-form')
 jest.mock('hooks/useWallet/useWallet')
 jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),
-  selectAssetById: (_state: ReduxState, _id: AssetId) => mockEthAsset,
-  selectFeeAssetById: (_state: ReduxState, _id: AssetId) => mockEthAsset,
-  selectMarketDataById: () => mockEthAsset,
+  selectAssetById: (_state: ReduxState, _id: AssetId) => ethereum,
+  selectFeeAssetById: (_state: ReduxState, _id: AssetId) => ethereum,
+  selectMarketDataById: () => ethereum,
 }))
 
 const fees = {
@@ -42,16 +43,6 @@ const fees = {
       gasLimit: '123456700',
     },
   },
-}
-
-type MockAsset = Record<string, string | number>
-
-const mockEthAsset: MockAsset = {
-  name: 'Ethereum',
-  network: 'ethereum',
-  price: 3500,
-  symbol: 'eth',
-  precision: 18,
 }
 
 type SetupProps = {

@@ -21,7 +21,7 @@ export const useSendFees = () => {
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
 
   const asset = useAppSelector(state => selectFeeAssetById(state, assetId))
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
+  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   const {
     state: { wallet },
   } = useWallet()

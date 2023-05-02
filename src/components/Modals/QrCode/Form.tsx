@@ -70,7 +70,6 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
       const asset = selectAssetById(store.getState(), assetId ?? '')
       // This should never happen, but tsc
       if (!asset) return
-      // methods.setValue(SendFormFields.AssetId, { ...asset, ...marketData })
       methods.setValue(SendFormFields.AssetId, asset.assetId)
 
       history.push(SendRoutes.Address)

@@ -125,10 +125,9 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         data => Ok(fromBaseUnit(bnOrZero(data?.outbound_fee), THORCHAIN_FIXED_PRECISION)),
       )
 
-  // This should never happen, but it may
-  if (maybeBuyAssetTradeFeeBuyAssetCryptoHuman.isErr())
-    return Err(maybeBuyAssetTradeFeeBuyAssetCryptoHuman.unwrapErr())
-  const buyAssetTradeFeeBuyAssetCryptoHuman = maybeBuyAssetTradeFeeBuyAssetCryptoHuman.unwrap()
+  const buyAssetTradeFeeBuyAssetCryptoHuman = maybeBuyAssetTradeFeeBuyAssetCryptoHuman.isErr()
+    ? '0'
+    : maybeBuyAssetTradeFeeBuyAssetCryptoHuman.unwrap()
 
   const sellAssetTradeFeeBuyAssetCryptoHuman = fees
     ? fromBaseUnit(bnOrZero(fees.affiliate), THORCHAIN_FIXED_PRECISION)

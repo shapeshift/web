@@ -7,6 +7,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { Text } from 'components/Text'
+import { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import { useModal } from 'hooks/useModal/useModal'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -22,19 +23,19 @@ export const FoxTokenHolders = () => {
   const { fiatRamps } = useModal()
 
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
-  const updateBuyAsset = useSwapperStore(state => state.updateBuyAsset)
+  const handleAssetSelection = useSwapperStore(state => state.handleAssetSelection)
   const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
 
   const handleClick = useCallback(() => {
     // set the trade input to fox buy
     if (foxAsset) {
-      updateBuyAsset(foxAsset)
+      handleAssetSelection({ asset: foxAsset, action: AssetClickAction.Buy })
       clearAmounts()
     }
 
     getMixPanel()?.track(MixPanelEvents.Click, { element: 'Fox Token Holders Button' })
     history.push('/trade/eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d')
-  }, [history, clearAmounts, updateBuyAsset, foxAsset])
+  }, [history, clearAmounts, handleAssetSelection, foxAsset])
 
   const handleBuySellClick = useCallback(() => {
     fiatRamps.open({

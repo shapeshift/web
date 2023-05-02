@@ -9,6 +9,7 @@ import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { Text } from 'components/Text/Text'
+import { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import { Trade } from 'components/Trade/Trade'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -34,7 +35,7 @@ export const TradeCard = ({ defaultBuyAssetId, ...cardProps }: TradeCardProps) =
   )
 
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
-  const updateBuyAsset = useSwapperStore(state => state.updateBuyAsset)
+  const handleAssetSelection = useSwapperStore(state => state.handleAssetSelection)
   const defaultBuyAsset = useAppSelector(state =>
     defaultBuyAssetId ? selectAssetById(state, defaultBuyAssetId) : undefined,
   )
@@ -42,9 +43,9 @@ export const TradeCard = ({ defaultBuyAssetId, ...cardProps }: TradeCardProps) =
   useEffect(() => {
     if (!defaultBuyAsset) return
 
-    updateBuyAsset(defaultBuyAsset)
+    handleAssetSelection({ asset: defaultBuyAsset, action: AssetClickAction.Buy })
     clearAmounts()
-  }, [defaultBuyAsset, clearAmounts, updateBuyAsset])
+  }, [defaultBuyAsset, clearAmounts, handleAssetSelection])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>

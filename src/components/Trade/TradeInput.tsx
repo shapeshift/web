@@ -435,7 +435,7 @@ export const TradeInput = () => {
         },
       ]
     if (isBelowMinSellAmount) {
-      return activeSwapper.name === SwapperName.LIFI
+      return [SwapperName.LIFI, SwapperName.OneInch].includes(activeSwapper.name)
         ? 'trade.errors.amountTooSmallOrInvalidTradePair'
         : ['trade.errors.amountTooSmall', { minLimit }]
     }

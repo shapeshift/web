@@ -59,8 +59,6 @@ export type SwapperAction = {
   updateAvailableSwappersWithMetadata: (
     availableSwappersWithMetadata: SwapperStore['availableSwappersWithMetadata'],
   ) => void
-  updateSellAsset: (sellAsset: SwapperStore['sellAsset']) => void
-  updateBuyAsset: (buyAsset: SwapperStore['buyAsset']) => void
   updateBuyAmountCryptoPrecision: (buyAmountCryptoPrecision: string) => void
   updateSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
   handleSwitchAssets: () => void

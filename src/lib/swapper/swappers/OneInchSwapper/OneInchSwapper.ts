@@ -120,7 +120,7 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
   }
 
   approveAmount(input: ApproveAmountInput<EvmChainId>): Promise<string> {
-    return approveAmount(input) // NOTE: should we abstract the lifi implementation into a base class, it should work the same for all EVM based swappers
+    return approveAmount(input)
   }
 
   approveInfinite(input: ApproveInfiniteInput<EvmChainId>): Promise<string> {
@@ -134,7 +134,7 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    return filterEvmAssetIdsBySellable(assetIds) // we can use lifis implementation for this also
+    return filterEvmAssetIdsBySellable(assetIds)
   }
 
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {

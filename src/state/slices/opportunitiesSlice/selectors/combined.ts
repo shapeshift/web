@@ -4,7 +4,6 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { orderBy } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import { matchSorter } from 'match-sorter'
 import type { BN } from 'lib/bignumber/bignumber'
@@ -295,7 +294,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     if (isEmpty(marketData)) return []
     const totalFiatAmountByProvider = {} as Record<DefiProvider, BN>
     const projectedAnnualizedYieldByProvider = {} as Record<DefiProvider, BN>
-    const combined = [...userStakingOpportunites, ...userLpOpportunities]
+    const combined = userStakingOpportunites.concat(userLpOpportunities)
 
     /**
      * we want to be able to search on...
@@ -479,14 +478,22 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       if (cur.opportunities.lp.length || cur.opportunities.staking.length) acc.push(cur)
       return acc
     }, [])
-    const getApy = (opportunity: AggregatedOpportunitiesByProviderReturn) =>
-      bnOrZero(opportunity.apy).toNumber()
 
     const sortedListByFiatAmount = aggregatedEarnOpportunitiesByProvider.sort((a, b) =>
       bnOrZero(a.netProviderFiatAmount).gte(bnOrZero(b.netProviderFiatAmount)) ? -1 : 1,
     )
-    const sortedList = orderBy(sortedListByFiatAmount, [getApy], ['desc', 'desc'])
-    if (!includeEarnBalances && !includeRewardsBalances) return sortedList
+
+    const activeOpportunities = sortedListByFiatAmount.filter(opportunity =>
+      bnOrZero(opportunity.netProviderFiatAmount).gt(0),
+    )
+    const inactiveOpportunities = sortedListByFiatAmount
+      .filter(opportunity => bnOrZero(opportunity.netProviderFiatAmount).eq(0))
+      .sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
+
+    const sortedListByFiatAmountAndApy = activeOpportunities.concat(inactiveOpportunities)
+
+    // No further filtering needed, we want to show all opportunities
+    if (!includeEarnBalances && !includeRewardsBalances) return sortedListByFiatAmountAndApy
 
     const withEarnBalances = Object.values(aggregatedEarnOpportunitiesByProvider).filter(
       opportunity => Boolean(includeEarnBalances && bnOrZero(opportunity.fiatAmount).gt(0)),
@@ -502,8 +509,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       bnOrZero(a.netProviderFiatAmount).gte(bnOrZero(b.netProviderFiatAmount)) ? -1 : 1,
     )
 
-    const sortedResults = orderBy(sortedResultsByNetProviderFiatAmount, [getApy], ['desc', 'desc'])
-
-    return sortedResults
+    // No sorting by APY needed for the inactive chunks, since there are no active opportunities
+    return sortedResultsByNetProviderFiatAmount
   },
 )

@@ -22,7 +22,6 @@ import { SendFormFields, SendRoutes } from '../Send/SendCommon'
 import { Address } from '../Send/views/Address'
 import { Confirm } from '../Send/views/Confirm'
 import { Details } from '../Send/views/Details'
-import { QrCodeRoutes } from './QrCodeCommon'
 
 export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.AccountId]: AccountId
@@ -74,7 +73,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
       // methods.setValue(SendFormFields.AssetId, { ...asset, ...marketData })
       methods.setValue(SendFormFields.AssetId, asset.assetId)
 
-      history.push(QrCodeRoutes.Address)
+      history.push(SendRoutes.Address)
     },
     [history, methods],
   )
@@ -112,15 +111,15 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
         // Others might do dangerous tricks in the way they represent an asset, using various parameters to do so
         // There's also the fact that we will assume the AssetId to be the native one of the first chain we managed to validate the address
         // Which may not be the chain the user wants to send, or they may want to send a token - so we should always ask the user to select the asset
-        if (maybeUrlResult.assetId === ethAssetId) return history.push(QrCodeRoutes.Select)
-        history.push(QrCodeRoutes.Address)
+        if (maybeUrlResult.assetId === ethAssetId) return history.push(SendRoutes.Select)
+        history.push(SendRoutes.Address)
       })()
     },
     [history, methods],
   )
 
   useEffect(() => {
-    history.push(QrCodeRoutes.Scan)
+    history.push(SendRoutes.Scan)
   }, [history])
 
   return (
@@ -129,22 +128,22 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
       <form onSubmit={methods.handleSubmit(handleFormSend)} onKeyDown={checkKeyDown}>
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
-            <Route path={QrCodeRoutes.Select}>
+            <Route path={SendRoutes.Select}>
               <SelectAssetRouter onBack={handleBack} onClick={handleAssetSelect} />
             </Route>
-            <Route path={QrCodeRoutes.Address}>
+            <Route path={SendRoutes.Address}>
               <Address />
             </Route>
-            <Route path={QrCodeRoutes.Details}>
+            <Route path={SendRoutes.Details}>
               <Details />
             </Route>
-            <Route path={QrCodeRoutes.Scan}>
+            <Route path={SendRoutes.Scan}>
               <QrCodeScanner onSuccess={handleQrSuccess} onBack={handleBack} />
             </Route>
             <Route path={SendRoutes.Confirm}>
               <Confirm />
             </Route>
-            <Redirect exact from='/' to={QrCodeRoutes.Scan} />
+            <Redirect exact from='/' to={SendRoutes.Scan} />
           </Switch>
         </AnimatePresence>
       </form>

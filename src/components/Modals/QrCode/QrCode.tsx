@@ -4,10 +4,10 @@ import { useRef } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { useModal } from 'hooks/useModal/useModal'
 
+import { SendRoutes } from '../Send/SendCommon'
 import { Form } from './Form'
-import { QrCodeRoutes } from './QrCodeCommon'
 
-export const entries = Object.values(QrCodeRoutes)
+export const entries = Object.values(SendRoutes)
 
 type QrCodeModalProps = {
   assetId?: AssetId

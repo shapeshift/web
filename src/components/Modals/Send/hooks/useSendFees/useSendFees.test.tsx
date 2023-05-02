@@ -1,4 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { renderHook, waitFor } from '@testing-library/react'
@@ -54,16 +55,16 @@ const mockEthAsset: MockAsset = {
 }
 
 type SetupProps = {
-  asset: MockAsset
+  assetId: AssetId
   estimatedFees: Record<string, unknown>
   wallet: HDWallet | null | undefined
 }
 
-const setup = ({ asset = {}, estimatedFees = {}, wallet }: SetupProps) => {
+const setup = ({ assetId = ethAssetId, estimatedFees = {}, wallet }: SetupProps) => {
   ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
     state: { wallet },
   }))
-  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => ({ asset, estimatedFees }))
+  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => ({ assetId, estimatedFees }))
 
   const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
     <TestProviders>{children}</TestProviders>
@@ -79,7 +80,7 @@ describe('useSendFees', () => {
 
   it('returns the fees with market data', async () => {
     const { result } = setup({
-      asset: mockEthAsset,
+      assetId: ethAssetId,
       estimatedFees: fees,
       wallet: {} as HDWallet,
     })
@@ -90,7 +91,7 @@ describe('useSendFees', () => {
 
   it('returns null fees if no wallet is present', async () => {
     const { result } = setup({
-      asset: mockEthAsset,
+      assetId: ethAssetId,
       estimatedFees: fees,
       wallet: null,
     })

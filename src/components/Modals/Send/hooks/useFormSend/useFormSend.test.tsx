@@ -20,6 +20,8 @@ const mockEthAsset = {
   name: 'Ethereum',
   symbol: 'ETH',
   precision: 18,
+  assetId: ethAssetId,
+  chainId: ethChainId,
 } as Asset
 
 jest.mock('state/slices/selectors', () => ({
@@ -31,7 +33,7 @@ jest.mock('state/slices/selectors', () => ({
       accountNumber: 0,
     },
   }),
-  selectAssetById: () => mockEthAsset,
+  selectAssetById: jest.fn(() => mockEthAsset),
   selectMarketDataById: () => ({ price: '2000' }),
 }))
 

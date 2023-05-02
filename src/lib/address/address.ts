@@ -46,8 +46,12 @@ export const parseMaybeUrlByChainId: Identity<ParseAddressByChainIdInputArgs> = 
           assetId,
           value: parsedUrl.target_address ?? value,
           chainId,
-          ...(parsedUrl.parameters?.amount
-            ? { amountCryptoPrecision: bnOrZero(parsedUrl.parameters.amount).toFixed() }
+          ...(parsedUrl.parameters?.amount ?? parsedUrl.parameters?.amount
+            ? {
+                amountCryptoPrecision: bnOrZero(
+                  parsedUrl.parameters.amount ?? parsedUrl.parameters.amount,
+                ).toFixed(),
+              }
             : {}),
         }
       } catch (error) {

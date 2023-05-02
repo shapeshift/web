@@ -28,9 +28,9 @@ import type {
 } from 'lib/swapper/api'
 import { SwapperName, SwapperType } from 'lib/swapper/api'
 import { approveAmount, approveInfinite } from 'lib/swapper/swappers/utils/approve/approve'
+import { filterEvmAssetIdsBySellable } from 'lib/swapper/swappers/utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { createEmptyEvmTradeQuote } from 'lib/swapper/swappers/utils/helpers/helpers'
 
-import { filterAssetIdsBySellable } from '../LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { approvalNeeded } from './approvalNeeded/approvalNeeded'
 import { buildTrade } from './buildTrade/buildTrade'
 import { executeTrade } from './executeTrade/executeTrade'
@@ -134,7 +134,7 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    return filterAssetIdsBySellable(assetIds) // we can use lifis implementation for this also
+    return filterEvmAssetIdsBySellable(assetIds) // we can use lifis implementation for this also
   }
 
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {

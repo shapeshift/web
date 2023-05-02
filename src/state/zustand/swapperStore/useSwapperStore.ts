@@ -53,8 +53,6 @@ export const useSwapperStore = (() => {
           updateFeeAssetFiatRate: createUpdateAction(set, 'feeAssetFiatRate'),
           updateSellAmountFiat: createUpdateAction(set, 'sellAmountFiat'),
           updateBuyAmountFiat: createUpdateAction(set, 'buyAmountFiat'),
-          updateSellAsset: createUpdateAction(set, 'sellAsset'),
-          updateBuyAsset: createUpdateAction(set, 'buyAsset'),
           updateBuyAmountCryptoPrecision: createUpdateAction(set, 'buyAmountCryptoPrecision'),
           updateSellAmountCryptoPrecision: createUpdateAction(set, 'sellAmountCryptoPrecision'),
           clearAmounts: clearAmounts(set),

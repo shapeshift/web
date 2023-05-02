@@ -3,7 +3,6 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import uniqBy from 'lodash/uniqBy'
 import type { BN } from 'lib/bignumber/bignumber'
@@ -541,10 +540,19 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
 
         return true
       })
+
       const sortedResultsByFiatAmount = results.sort((a, b) =>
         bnOrZero(a.fiatAmount).gte(bnOrZero(b.fiatAmount)) ? -1 : 1,
       )
-      return sortedResultsByFiatAmount
+
+      const activeResults = sortedResultsByFiatAmount.filter(opportunity =>
+        bnOrZero(opportunity.fiatAmount).gt(0),
+      )
+      const inactiveResults = sortedResultsByFiatAmount
+        .filter(opportunity => bnOrZero(opportunity.fiatAmount).eq(0))
+        .sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
+
+      return activeResults.concat(inactiveResults)
     },
   )
 

@@ -23,7 +23,6 @@ import type {
 } from 'lib/swapper/api'
 import { SwapperName, SwapperType } from 'lib/swapper/api'
 import { approvalNeeded } from 'lib/swapper/swappers/LifiSwapper/approvalNeeded/approvalNeeded'
-import { approveAmount, approveInfinite } from 'lib/swapper/swappers/LifiSwapper/approve/approve'
 import { buildTrade } from 'lib/swapper/swappers/LifiSwapper/buildTrade/buildTrade'
 import { executeTrade } from 'lib/swapper/swappers/LifiSwapper/executeTrade/executeTrade'
 import { filterAssetIdsBySellable } from 'lib/swapper/swappers/LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
@@ -39,6 +38,7 @@ import type {
   LifiTrade,
   LifiTradeQuote,
 } from 'lib/swapper/swappers/LifiSwapper/utils/types'
+import { approveAmount, approveInfinite } from 'lib/swapper/swappers/utils/approve/approve'
 import { createEmptyEvmTradeQuote } from 'lib/swapper/swappers/utils/helpers/helpers'
 
 export class LifiSwapper implements Swapper<EvmChainId> {

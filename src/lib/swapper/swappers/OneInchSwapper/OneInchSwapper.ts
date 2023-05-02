@@ -27,9 +27,9 @@ import type {
   TradeTxs,
 } from 'lib/swapper/api'
 import { SwapperName, SwapperType } from 'lib/swapper/api'
+import { approveAmount, approveInfinite } from 'lib/swapper/swappers/utils/approve/approve'
 import { createEmptyEvmTradeQuote } from 'lib/swapper/swappers/utils/helpers/helpers'
 
-import { approveAmount, approveInfinite } from '../LifiSwapper/approve/approve'
 import { filterAssetIdsBySellable } from '../LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { approvalNeeded } from './approvalNeeded/approvalNeeded'
 import { buildTrade } from './buildTrade/buildTrade'

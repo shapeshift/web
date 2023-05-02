@@ -415,9 +415,11 @@ export const TradeConfirm = () => {
     [fees?.tradeFeeSource],
   )
 
+  const is0xSwap = useMemo(() => fees?.tradeFeeSource === SwapperName.Zrx, [fees?.tradeFeeSource])
+
   const shouldShowDonationOption = useMemo(() => {
-    return isTHORChainSwap && !isDonationAmountBelowMinimum
-  }, [isDonationAmountBelowMinimum, isTHORChainSwap])
+    return (isTHORChainSwap || is0xSwap) && !isDonationAmountBelowMinimum
+  }, [is0xSwap, isDonationAmountBelowMinimum, isTHORChainSwap])
 
   const tradeWarning: JSX.Element | null = useMemo(() => {
     if (!trade) return null

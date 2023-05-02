@@ -9,6 +9,7 @@ import type { ZrxPriceResponse, ZrxSwapperDeps } from 'lib/swapper/swappers/ZrxS
 import {
   AFFILIATE_ADDRESS,
   DEFAULT_SOURCE,
+  FEE_RECIPIENT,
   OPTIMISM_L1_APPROVE_GAS_LIMIT,
   OPTIMISM_L1_SWAP_GAS_LIMIT,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
@@ -19,6 +20,7 @@ import {
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
 import type { ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
+import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
 
 import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 
@@ -26,7 +28,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   { adapter }: ZrxSwapperDeps,
   input: GetEvmTradeQuoteInput,
 ): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
-  const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
+  const { sellAsset, buyAsset, accountNumber, receiveAddress, affiliateBps } = input
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
 
   const assertion = assertValidTradePair({ adapter, buyAsset, sellAsset })
@@ -50,6 +52,8 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     bnOrZero(sellAmount).eq(0) ? minQuoteSellAmountCryptoBaseUnit : sellAmount,
   )
 
+  const buyTokenPercentageFee = convertBasisPointsToDecimalPercentage(affiliateBps).toNumber()
+
   // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-price
   const maybeZrxPriceResponse = (
     await zrxService.get<ZrxPriceResponse>('/swap/v1/price', {
@@ -58,8 +62,10 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
         sellToken: assetToToken(sellAsset),
         sellAmount: normalizedSellAmount,
         takerAddress: receiveAddress,
-        affiliateAddress: AFFILIATE_ADDRESS,
+        affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
         skipValidation: true,
+        feeRecipient: FEE_RECIPIENT, // Where affiliate fees are sent
+        buyTokenPercentageFee,
       },
     })
   ).andThen(({ data }) => Ok(data))

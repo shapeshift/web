@@ -12,7 +12,11 @@ import type {
   ZrxTrade,
 } from 'lib/swapper/swappers/ZrxSwapper/types'
 import { withAxiosRetry } from 'lib/swapper/swappers/ZrxSwapper/utils/applyAxiosRetry'
-import { AFFILIATE_ADDRESS, DEFAULT_SOURCE } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
+import {
+  AFFILIATE_ADDRESS,
+  DEFAULT_SOURCE,
+  FEE_RECIPIENT,
+} from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
 import {
   assertValidTradePair,
   assetToToken,
@@ -20,12 +24,13 @@ import {
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
 import type { ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
+import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
 
 export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
   { adapter }: ZrxSwapperDeps,
   input: BuildTradeInput,
 ): Promise<Result<ZrxTrade<T>, SwapErrorRight>> {
-  const { sellAsset, buyAsset, slippage, accountNumber, receiveAddress } = input
+  const { sellAsset, buyAsset, slippage, accountNumber, receiveAddress, affiliateBps } = input
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
 
   const assertion = assertValidTradePair({ adapter, buyAsset, sellAsset })
@@ -55,6 +60,8 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
     wrapper: withZrxAxiosRetry,
   })
 
+  const buyTokenPercentageFee = convertBasisPointsToDecimalPercentage(affiliateBps).toNumber()
+
   // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-quote
   const maybeQuoteResponse = await zrxService.get<ZrxQuoteResponse>('/swap/v1/quote', {
     params: {
@@ -63,8 +70,10 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
       sellAmount: normalizeAmount(sellAmount),
       takerAddress: receiveAddress,
       slippagePercentage: slippage ? bnOrZero(slippage).toString() : DEFAULT_SLIPPAGE,
-      affiliateAddress: AFFILIATE_ADDRESS,
+      affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
       skipValidation: false,
+      feeRecipient: FEE_RECIPIENT, // Where affiliate fees are sent
+      buyTokenPercentageFee,
     },
   })
 

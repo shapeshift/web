@@ -19,6 +19,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { tokenOrUndefined } from 'lib/utils'
 import {
+  selectAssetById,
   selectFeeAssetById,
   selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -55,8 +56,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const [loading, setLoading] = useState<boolean>(false)
   const history = useHistory()
   const { getValues, setValue } = useFormContext<SendInput>()
-  const asset = useWatch<SendInput, SendFormFields.Asset>({
-    name: SendFormFields.Asset,
+  const assetId = useWatch<SendInput, SendFormFields.AssetId>({
+    name: SendFormFields.AssetId,
   })
   const address = useWatch<SendInput, SendFormFields.To>({
     name: SendFormFields.To,
@@ -65,11 +66,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     name: SendFormFields.AccountId,
   })
 
-  const { assetId } = asset
-  const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, asset.assetId)).price)
+  const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, assetId)).price)
 
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.assetId))
-  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${asset.assetId}`)
+  const chainAdapterManager = getChainAdapterManager()
+  const feeAssetId = chainAdapterManager.get(fromAssetId(assetId).chainId)?.getFeeAssetId()
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, feeAssetId ?? ''))
+  if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
+
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const balancesLoading = false
 
@@ -99,7 +103,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     ),
   )
 
-  const chainAdapterManager = getChainAdapterManager()
   const {
     state: { wallet },
   } = useWallet()
@@ -108,14 +111,17 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const contractAddress = tokenOrUndefined(assetReference)
 
   const estimateFormFees = useCallback((): Promise<FeeDataEstimate<ChainId>> => {
-    const { cryptoAmount, asset, to, sendMax, accountId } = getValues()
+    if (!asset) throw new Error('No asset found')
+
+    const { cryptoAmount, assetId, to, sendMax, accountId } = getValues()
     if (!wallet) throw new Error('No wallet connected')
-    return estimateFees({ cryptoAmount, asset, to, sendMax, accountId, contractAddress })
-  }, [contractAddress, getValues, wallet])
+    return estimateFees({ cryptoAmount, assetId, to, sendMax, accountId, contractAddress })
+  }, [asset, contractAddress, getValues, wallet])
 
   const debouncedSetEstimatedFormFees = useMemo(() => {
     return debounce(
       async () => {
+        if (!asset) return
         const estimatedFees = await estimateFormFees()
 
         const { cryptoAmount } = getValues()
@@ -134,7 +140,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         }
 
         // If sending native fee asset, ensure amount entered plus fees is less than balance.
-        if (feeAsset.assetId === asset.assetId) {
+        if (feeAsset.assetId === assetId) {
           const canCoverFees = nativeAssetBalance
             .minus(bnOrZero(cryptoAmount).times(`1e+${asset.precision}`).decimalPlaces(0))
             .minus(estimatedFees.fast.txFee)
@@ -167,8 +173,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       { leading: true, trailing: true },
     )
   }, [
-    asset.assetId,
-    asset.precision,
+    asset,
+    assetId,
     cryptoHumanBalance,
     estimateFormFees,
     feeAsset.assetId,
@@ -186,13 +192,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const handleSendMax = async () => {
     const fnLogger = moduleLogger.child({ namespace: ['handleSendMax'] })
     fnLogger.trace(
-      { asset: asset.assetId, feeAsset: feeAsset.assetId, cryptoHumanBalance, fiatBalance },
+      { assetId, feeAsset: feeAsset.assetId, cryptoHumanBalance, fiatBalance },
       'Send Max',
     )
     // Clear existing amount errors.
     setValue(SendFormFields.AmountFieldError, '')
 
-    if (feeAsset.assetId !== asset.assetId) {
+    if (feeAsset.assetId !== assetId) {
       setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
       setValue(SendFormFields.FiatAmount, fiatBalance.toFixed(2))
       setLoading(true)

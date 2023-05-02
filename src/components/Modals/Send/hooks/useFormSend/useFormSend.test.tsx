@@ -5,7 +5,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
-import { ethereum } from 'test/mocks/assets'
+import { ethereum as mockEthereum } from 'test/mocks/assets'
 import { EthSend } from 'test/mocks/txs'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
@@ -25,7 +25,7 @@ jest.mock('state/slices/selectors', () => ({
       accountNumber: 0,
     },
   }),
-  selectAssetById: jest.fn(() => ethereum),
+  selectAssetById: jest.fn(() => mockEthereum),
   selectMarketDataById: () => ({ price: '2000' }),
 }))
 

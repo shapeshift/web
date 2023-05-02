@@ -5,7 +5,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { renderHook, waitFor } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { ethereum } from 'test/mocks/assets'
+import { ethereum as mockEthereum } from 'test/mocks/assets'
 import { TestProviders } from 'test/TestProviders'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ReduxState } from 'state/reducer'
@@ -16,9 +16,9 @@ jest.mock('react-hook-form')
 jest.mock('hooks/useWallet/useWallet')
 jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),
-  selectAssetById: (_state: ReduxState, _id: AssetId) => ethereum,
-  selectFeeAssetById: (_state: ReduxState, _id: AssetId) => ethereum,
-  selectMarketDataById: () => ethereum,
+  selectAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,
+  selectFeeAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,
+  selectMarketDataById: () => ({ price: '3500' }),
 }))
 
 const fees = {

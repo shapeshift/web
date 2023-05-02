@@ -180,7 +180,7 @@ export const DashboardHeader = () => {
         </Flex>
         <Flex gap={4} flexWrap={'wrap'} justifyContent={'center'}>
           <Button isDisabled={!isConnected} onClick={handleQrCodeClick} leftIcon={<QRCodeIcon />}>
-            {translate('QR Code')}
+            {translate('modals.send.qrCode')}
           </Button>
           <Button isDisabled={!isConnected} onClick={handleSendClick} leftIcon={<ArrowUpIcon />}>
             {translate('common.send')}

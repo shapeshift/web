@@ -1,5 +1,6 @@
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -19,9 +20,14 @@ import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export type TradeCardProps = {
   defaultBuyAssetId?: AssetId
+  defaultSellAssetId?: AssetId
 } & CardProps
 
-export const TradeCard = ({ defaultBuyAssetId, ...cardProps }: TradeCardProps) => {
+export const TradeCard = ({
+  defaultBuyAssetId = foxAssetId,
+  defaultSellAssetId = ethAssetId,
+  ...cardProps
+}: TradeCardProps) => {
   const { Axelar } = useSelector(selectFeatureFlags)
   const {
     state: { wallet },
@@ -36,16 +42,16 @@ export const TradeCard = ({ defaultBuyAssetId, ...cardProps }: TradeCardProps) =
 
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
   const handleAssetSelection = useSwapperStore(state => state.handleAssetSelection)
-  const defaultBuyAsset = useAppSelector(state =>
-    defaultBuyAssetId ? selectAssetById(state, defaultBuyAssetId) : undefined,
-  )
+  const defaultBuyAsset = useAppSelector(state => selectAssetById(state, defaultBuyAssetId))
+  const defaultSellAsset = useAppSelector(state => selectAssetById(state, defaultSellAssetId))
 
   useEffect(() => {
-    if (!defaultBuyAsset) return
-
-    handleAssetSelection({ asset: defaultBuyAsset, action: AssetClickAction.Buy })
+    if (defaultSellAsset)
+      handleAssetSelection({ asset: defaultSellAsset, action: AssetClickAction.Sell })
+    if (defaultBuyAsset)
+      handleAssetSelection({ asset: defaultBuyAsset, action: AssetClickAction.Buy })
     clearAmounts()
-  }, [defaultBuyAsset, clearAmounts, handleAssetSelection])
+  }, [defaultBuyAsset, defaultSellAsset, clearAmounts, handleAssetSelection])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>

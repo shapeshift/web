@@ -1,7 +1,6 @@
 import { AddressZero } from '@ethersproject/constants'
 import { SwapperName } from 'lib/swapper/api'
 
-export const MAX_ALLOWANCE = '100000000000000000000000000'
 export const MAX_COWSWAP_TRADE = '100000000000000000000000000'
 export const MIN_COWSWAP_VALUE_USD = 20
 export const DEFAULT_SOURCE = [{ name: SwapperName.CowSwap, proportion: '1' }]

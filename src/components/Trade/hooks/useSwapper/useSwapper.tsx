@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
+import { useDonationAmountBelowMinimum } from 'components/Trade/hooks/useDonationAmountBelowMinimum'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { SwapperManager } from 'lib/swapper/manager/SwapperManager'
@@ -48,6 +49,7 @@ export const useSwapper = () => {
   // Hooks
   const [swapperManager, setSwapperManager] = useState<SwapperManager>()
   const wallet = useWallet().state.wallet
+  const isDonationAmountBelowMinimum = useDonationAmountBelowMinimum()
 
   // Selectors
   const supportedSellAssetsByMarketCap = useMemo(() => {
@@ -130,7 +132,7 @@ export const useSwapper = () => {
         sellAccountBip44Params,
         sellAccountMetadata,
         buyAccountBip44Params,
-        affiliateBps: affiliateBps ?? defaultAffiliateBps,
+        affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps ?? defaultAffiliateBps,
       })
       return trade
     },
@@ -140,6 +142,7 @@ export const useSwapper = () => {
       buyAccountBip44Params,
       sellAccountMetadata,
       getTradeForWallet,
+      isDonationAmountBelowMinimum,
       defaultAffiliateBps,
     ],
   )

@@ -29,6 +29,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { useDonationAmountBelowMinimum } from 'components/Trade/hooks/useDonationAmountBelowMinimum'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -100,6 +101,8 @@ export const TradeConfirm = () => {
     state: { isConnected, wallet },
     dispatch: walletDispatch,
   } = useWallet()
+
+  const isDonationAmountBelowMinimum = useDonationAmountBelowMinimum()
 
   const { getTrade } = useSwapper()
 

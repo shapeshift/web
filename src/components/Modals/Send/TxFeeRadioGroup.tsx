@@ -1,10 +1,8 @@
 import { Box, Button, Radio, Spinner, Stack, useColorModeValue } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -50,12 +48,11 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
     rules: { required: true },
     defaultValue: FeeDataKey.Average,
   })
-  const assetId = useWatch<SendInput, SendFormFields.AssetId>({ name: SendFormFields.AssetId })
+  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const activeFee = useWatch<SendInput, SendFormFields.FeeType>({ name: SendFormFields.FeeType })
   const bg = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const feeAssetId = getChainAdapterManager().get(fromAssetId(assetId).chainId)?.getFeeAssetId()
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, feeAssetId ?? ''))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.assetId))
 
   if (!fees) {
     return (

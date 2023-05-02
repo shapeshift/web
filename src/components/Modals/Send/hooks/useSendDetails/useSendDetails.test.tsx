@@ -1,4 +1,3 @@
-import { btcAssetId, cosmosAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { act, renderHook, waitFor } from '@testing-library/react'
@@ -44,9 +43,7 @@ jest.mock('state/slices/selectors', () => ({
   selectPortfolioCryptoPrecisionBalanceByFilter: jest.fn(),
   selectPortfolioCryptoBalanceBaseUnitByFilter: jest.fn(),
   selectPortfolioFiatBalanceByFilter: jest.fn(),
-  selectMarketDataById: jest.fn(() => ({
-    [ethAssetId]: { price: '2000' },
-  })),
+  selectMarketDataById: jest.fn(),
 }))
 
 const ethAssetId = 'eip155:1/slip44:60'
@@ -77,8 +74,8 @@ const setup = ({
 }) => {
   ;(useWatch as jest.Mock<unknown>).mockImplementation(({ name }) => {
     switch (name) {
-      case 'assetId':
-        return asset.assetId
+      case 'asset':
+        return asset
       case 'accountId':
         return 'eip155:1:0x00000005D5F96b2d030a4966AF206230e46849cb'
       default:
@@ -116,7 +113,7 @@ const setup = ({
     formState: { errors: formErrors },
     getValues: () => ({
       cryptoAmount: '1',
-      asset: asset.assetId,
+      asset,
     }),
   }))
 
@@ -134,19 +131,15 @@ describe('useSendDetails', () => {
       txToSign: {},
     }),
   }
-  const mockAdapterBtc = Object.assign({}, mockAdapter, { getFeeAssetId: () => btcAssetId })
-  const mockAdapterEth = Object.assign({}, mockAdapter, { getFeeAssetId: () => ethAssetId })
-  const mockAdapterAtom = Object.assign({}, mockAdapter, { getFeeAssetId: () => cosmosAssetId })
-
   beforeEach(() => {
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({ state: { wallet: {} } }))
     ;(useHistory as jest.Mock<unknown>).mockImplementation(() => ({ push: jest.fn() }))
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
       () =>
         new Map([
-          [KnownChainIds.BitcoinMainnet, mockAdapterBtc],
-          [KnownChainIds.CosmosMainnet, mockAdapterAtom],
-          [KnownChainIds.EthereumMainnet, mockAdapterEth],
+          [KnownChainIds.BitcoinMainnet, mockAdapter],
+          [KnownChainIds.CosmosMainnet, mockAdapter],
+          [KnownChainIds.EthereumMainnet, mockAdapter],
         ]),
     )
     ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(() => ({

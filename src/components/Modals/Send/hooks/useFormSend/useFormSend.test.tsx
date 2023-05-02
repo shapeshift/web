@@ -5,7 +5,6 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
-import { ethereum as mockEthereum } from 'test/mocks/assets'
 import { EthSend } from 'test/mocks/txs'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
@@ -25,8 +24,6 @@ jest.mock('state/slices/selectors', () => ({
       accountNumber: 0,
     },
   }),
-  selectAssetById: jest.fn(() => mockEthereum),
-  selectMarketDataById: () => ({ price: '2000' }),
 }))
 
 jest.mock('@chakra-ui/react', () => ({
@@ -66,7 +63,19 @@ const formData: SendInput<KnownChainIds.EthereumMainnet> = {
   [SendFormFields.From]: '',
   [SendFormFields.To]: EthSend.address,
   [SendFormFields.VanityAddress]: '',
-  [SendFormFields.AssetId]: ethAssetId,
+  [SendFormFields.Asset]: {
+    chainId: ethChainId,
+    assetId: ethAssetId,
+    description: '',
+    symbol: 'ETH',
+    name: 'Ethereum',
+    precision: 18,
+    color: '#FFFFFF',
+    icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
+    explorer: 'https://etherscan.io',
+    explorerTxLink: 'https://etherscan.io/tx/',
+    explorerAddressLink: 'https://etherscan.io/address/',
+  },
   [SendFormFields.AmountFieldError]: '',
   [SendFormFields.FeeType]: FeeDataKey.Average,
   [SendFormFields.EstimatedFees]: {
@@ -99,6 +108,7 @@ const formData: SendInput<KnownChainIds.EthereumMainnet> = {
     },
   },
   [SendFormFields.CryptoAmount]: '1',
+  [SendFormFields.CryptoSymbol]: 'ETH',
   [SendFormFields.FiatAmount]: '3500',
   [SendFormFields.FiatSymbol]: 'USD',
   [SendFormFields.SendMax]: false,
@@ -152,7 +162,6 @@ describe.each([
       ...mockAdapter,
       getType: () => KnownChainIds.EthereumMainnet,
       getChainId: () => KnownChainIds.EthereumMainnet,
-      getFeeAssetId: () => ethAssetId,
     }
 
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
@@ -203,7 +212,6 @@ describe.each([
       ...mockAdapter,
       getType: () => KnownChainIds.EthereumMainnet,
       getChainId: () => KnownChainIds.EthereumMainnet,
-      getFeeAssetId: () => ethAssetId,
     }
 
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
@@ -249,7 +257,6 @@ describe.each([
       ...mockAdapter,
       getType: () => KnownChainIds.EthereumMainnet,
       getChainId: () => KnownChainIds.EthereumMainnet,
-      getFeeAssetId: () => ethAssetId,
     }
 
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
@@ -301,7 +308,6 @@ describe.each([
       ...mockAdapter,
       getType: () => KnownChainIds.EthereumMainnet,
       getChainId: () => KnownChainIds.EthereumMainnet,
-      getFeeAssetId: () => ethAssetId,
     }
 
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
@@ -342,7 +348,6 @@ describe.each([
       ...mockAdapter,
       getType: () => KnownChainIds.EthereumMainnet,
       getChainId: () => KnownChainIds.EthereumMainnet,
-      getFeeAssetId: () => ethAssetId,
     }
 
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(

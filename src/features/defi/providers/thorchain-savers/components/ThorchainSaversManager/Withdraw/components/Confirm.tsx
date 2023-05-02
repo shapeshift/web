@@ -274,7 +274,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     return {
       from: maybeFromUTXOAccountAddress,
       cryptoAmount: fromThorBaseUnit(dust_amount).toFixed(asset.precision),
-      assetId,
+      asset,
       to: quote.inbound_address,
       sendMax: false,
       accountId,
@@ -283,10 +283,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [
     accountId,
     asset,
-    assetId,
     chainId,
     maybeFromUTXOAccountAddress,
-    opportunityData?.rewardsCryptoBaseUnit?.amounts,
+    opportunityData?.rewardsCryptoBaseUnit,
     opportunityData?.stakedAmountCryptoBaseUnit,
     state?.withdraw.cryptoAmount,
   ])
@@ -322,12 +321,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       const sendInput: SendInput = {
         cryptoAmount: '',
-        assetId,
+        asset,
         from: '', // Let coinselect do its magic here
         to: maybeFromUTXOAccountAddress,
         sendMax: true,
         accountId,
         amountFieldError: '',
+        cryptoSymbol: asset.symbol,
         estimatedFees,
         feeType: FeeDataKey.Fast,
         fiatAmount: '',
@@ -383,12 +383,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       const sendInput: SendInput = {
         cryptoAmount: fromThorBaseUnit(dust_amount).toFixed(asset.precision),
-        assetId,
+        asset,
         to: quote.inbound_address,
         from: maybeFromUTXOAccountAddress,
         sendMax: false,
         accountId,
         amountFieldError: '',
+        cryptoSymbol: asset?.symbol ?? '',
         estimatedFees,
         feeType: FeeDataKey.Fast,
         fiatAmount: '',

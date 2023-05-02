@@ -94,7 +94,7 @@ export const Deposit: React.FC<DepositProps> = ({
       if (!accountId) return
       const estimatedFees = await estimateFees({
         cryptoAmount: cryptoAmountAvailable.toString(),
-        assetId,
+        asset,
         to: '',
         sendMax: true,
         accountId,
@@ -113,7 +113,7 @@ export const Deposit: React.FC<DepositProps> = ({
         shouldValidate: true,
       })
     },
-    [accountId, asset.precision, assetId, cryptoAmountAvailable, marketData.price],
+    [accountId, asset, cryptoAmountAvailable, marketData.price],
   )
 
   const handleContinue = useCallback(

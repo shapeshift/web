@@ -1,5 +1,6 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { useRef } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { useModal } from 'hooks/useModal/useModal'
@@ -10,11 +11,11 @@ import { SendRoutes } from './SendCommon'
 export const entries = Object.values(SendRoutes)
 
 type SendModalProps = {
-  assetId?: AssetId
+  asset?: Asset
   accountId?: AccountId
 }
 
-export const SendModal = ({ assetId, accountId }: SendModalProps) => {
+export const SendModal = ({ asset, accountId }: SendModalProps) => {
   const initialRef = useRef<HTMLInputElement>(null)
   const { send } = useModal()
   const { close, isOpen } = send
@@ -24,7 +25,7 @@ export const SendModal = ({ assetId, accountId }: SendModalProps) => {
       <ModalOverlay />
       <ModalContent maxW='500px'>
         <MemoryRouter initialEntries={entries}>
-          <Form initialAssetId={assetId} accountId={accountId} />
+          <Form asset={asset} accountId={accountId} />
         </MemoryRouter>
       </ModalContent>
     </Modal>

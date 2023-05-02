@@ -13,7 +13,7 @@ export enum SendFormFields {
   From = 'from', // a valid on-chain address
   VanityAddress = 'vanityAddress', // a vanity address, e.g. .eth or .crypto
   AccountId = 'accountId',
-  AssetId = 'assetId',
+  Asset = 'asset',
   FeeType = 'feeType',
   EstimatedFees = 'estimatedFees',
   CryptoAmount = 'cryptoAmount',

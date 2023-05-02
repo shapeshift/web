@@ -1,11 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { renderHook, waitFor } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { ethereum as mockEthereum } from 'test/mocks/assets'
 import { TestProviders } from 'test/TestProviders'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ReduxState } from 'state/reducer'
@@ -16,9 +14,9 @@ jest.mock('react-hook-form')
 jest.mock('hooks/useWallet/useWallet')
 jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),
-  selectAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,
-  selectFeeAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,
-  selectMarketDataById: () => ({ price: '3500' }),
+  selectAssetById: (_state: ReduxState, _id: AssetId) => mockEthAsset,
+  selectFeeAssetById: (_state: ReduxState, _id: AssetId) => mockEthAsset,
+  selectMarketDataById: () => mockEthAsset,
 }))
 
 const fees = {
@@ -45,17 +43,27 @@ const fees = {
   },
 }
 
+type MockAsset = Record<string, string | number>
+
+const mockEthAsset: MockAsset = {
+  name: 'Ethereum',
+  network: 'ethereum',
+  price: 3500,
+  symbol: 'eth',
+  precision: 18,
+}
+
 type SetupProps = {
-  assetId: AssetId
+  asset: MockAsset
   estimatedFees: Record<string, unknown>
   wallet: HDWallet | null | undefined
 }
 
-const setup = ({ assetId = ethAssetId, estimatedFees = {}, wallet }: SetupProps) => {
+const setup = ({ asset = {}, estimatedFees = {}, wallet }: SetupProps) => {
   ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
     state: { wallet },
   }))
-  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => ({ assetId, estimatedFees }))
+  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => ({ asset, estimatedFees }))
 
   const wrapper: React.FC<PropsWithChildren> = ({ children }) => (
     <TestProviders>{children}</TestProviders>
@@ -71,7 +79,7 @@ describe('useSendFees', () => {
 
   it('returns the fees with market data', async () => {
     const { result } = setup({
-      assetId: ethAssetId,
+      asset: mockEthAsset,
       estimatedFees: fees,
       wallet: {} as HDWallet,
     })
@@ -82,7 +90,7 @@ describe('useSendFees', () => {
 
   it('returns null fees if no wallet is present', async () => {
     const { result } = setup({
-      assetId: ethAssetId,
+      asset: mockEthAsset,
       estimatedFees: fees,
       wallet: null,
     })

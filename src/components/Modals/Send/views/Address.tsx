@@ -23,8 +23,6 @@ import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { parseAddressInput } from 'lib/address/address'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
@@ -42,14 +40,12 @@ export const Address = () => {
   const address = useWatch<SendInput, SendFormFields.To>({ name: SendFormFields.To })
   const input = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
   const { send } = useModal()
-  const assetId = useWatch<SendInput, SendFormFields.AssetId>({ name: SendFormFields.AssetId })
+  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const isYatFeatureEnabled = useFeatureFlag('Yat')
 
   useEffect(() => {
     trigger(SendFormFields.Input)
   }, [trigger])
-
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   if (!asset) return null
   const { chainId } = asset
@@ -91,6 +87,9 @@ export const Address = () => {
               validate: {
                 validateAddress: async (rawInput: string) => {
                   const value = rawInput.trim() // trim leading/trailing spaces
+                  // clear previous values
+                  setValue(SendFormFields.To, '')
+                  setValue(SendFormFields.VanityAddress, '')
                   setIsValidating(true)
                   const { assetId } = asset
                   // this does not throw, everything inside is handled

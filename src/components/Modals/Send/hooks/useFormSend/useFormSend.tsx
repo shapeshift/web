@@ -5,8 +5,6 @@ import { useTranslate } from 'react-polyglot'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
-import { selectAssetById } from 'state/slices/selectors'
-import { store } from 'state/store'
 
 import type { SendInput } from '../../Form'
 import { handleSend } from '../../utils'
@@ -24,25 +22,23 @@ export const useFormSend = () => {
   const handleFormSend = useCallback(
     async (sendInput: SendInput) => {
       try {
-        const asset = selectAssetById(store.getState(), sendInput.assetId)
-        if (!asset) throw new Error(`No asset found for assetId ${sendInput.assetId}`)
         if (!wallet) throw new Error('No wallet connected')
 
         const broadcastTXID = await handleSend({ wallet, sendInput })
 
         setTimeout(() => {
           toast({
-            title: translate('modals.send.sent', { asset: asset.name }),
+            title: translate('modals.send.sent', { asset: sendInput.asset.name }),
             description: (
               <Text>
                 <Text>
                   {translate('modals.send.youHaveSent', {
                     amount: sendInput.cryptoAmount,
-                    symbol: asset.symbol,
+                    symbol: sendInput.cryptoSymbol,
                   })}
                 </Text>
-                {asset.explorerTxLink && (
-                  <Link href={`${asset.explorerTxLink}${broadcastTXID}`} isExternal>
+                {sendInput.asset.explorerTxLink && (
+                  <Link href={`${sendInput.asset.explorerTxLink}${broadcastTXID}`} isExternal>
                     {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
                   </Link>
                 )}
@@ -55,12 +51,10 @@ export const useFormSend = () => {
           })
         }, 5000)
       } catch (e: any) {
-        // If we're here, we know asset is defined
-        const asset = selectAssetById(store.getState(), sendInput.assetId)!
         moduleLogger.error(e, 'Error handling form send')
         toast({
           title: translate('modals.send.errorTitle', {
-            asset: asset.name,
+            asset: sendInput.asset.name,
           }),
           description: translate('modals.send.errors.transactionRejected'),
           status: 'error',

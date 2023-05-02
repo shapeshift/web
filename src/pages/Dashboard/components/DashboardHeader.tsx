@@ -6,7 +6,6 @@ import { IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { QRCodeIcon } from 'components/Icons/QRCode'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -38,7 +37,7 @@ export const DashboardHeader = () => {
   const isNftsEnabled = useFeatureFlag('Jaypegz')
   const walletId = useAppSelector(selectWalletId)
   const location = useLocation()
-  const { qrCode, send, receive } = useModal()
+  const { send, receive } = useModal()
   const { history } = useBrowserRouter()
   const {
     state: { isConnected },
@@ -137,10 +136,6 @@ export const DashboardHeader = () => {
     return makeBlockiesUrl(`${walletId}ifyoudriveatruckdriveitlikeyouhaveafarm`)
   }, [walletId])
 
-  const handleQrCodeClick = useCallback(() => {
-    qrCode.open({})
-  }, [qrCode])
-
   const handleSendClick = useCallback(() => {
     send.open({})
   }, [send])
@@ -179,9 +174,6 @@ export const DashboardHeader = () => {
           </Flex>
         </Flex>
         <Flex gap={4} flexWrap={'wrap'} justifyContent={'center'}>
-          <Button isDisabled={!isConnected} onClick={handleQrCodeClick} leftIcon={<QRCodeIcon />}>
-            {translate('modals.send.qrCode')}
-          </Button>
           <Button isDisabled={!isConnected} onClick={handleSendClick} leftIcon={<ArrowUpIcon />}>
             {translate('common.send')}
           </Button>

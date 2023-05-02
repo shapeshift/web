@@ -43,54 +43,22 @@ describe('lib/address', () => {
       expect(parseMaybeUrlByChainId(input)).toEqual(expectedOutput)
     })
 
-    it('should parse EIP-681 URL with dangerous parameters and strip them', () => {
+    it('should not parse EIP-681 URL with parameters', () => {
       const input = {
-        assetId: ethAssetId,
-        chainId: ethChainId,
-        value:
-          'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD?dangerousParam=2.014e18&gas=10&gasLimit=21000&gasPrice=50',
-      }
-
-      const expectedOutput = {
-        assetId: ethAssetId,
-        chainId: ethChainId,
-        value: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
-      }
-
-      expect(parseMaybeUrlByChainId(input)).toEqual(expectedOutput)
-    })
-
-    it('should parse EIP-681 URL with amount/value params', () => {
-      const input = {
-        assetId: ethAssetId,
-        chainId: ethChainId,
-        value:
-          'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD?amount=2.014e18&gas=10&gasLimit=21000&gasPrice=50',
-      }
-
-      const expectedOutput = {
-        assetId: ethAssetId,
-        chainId: ethChainId,
-        value: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
-        amountCryptoPrecision: '2014000000000000000',
-      }
-
-      expect(parseMaybeUrlByChainId(input)).toEqual(expectedOutput)
-
-      const input2 = {
         assetId: ethAssetId,
         chainId: ethChainId,
         value:
           'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD?value=2.014e18&gas=10&gasLimit=21000&gasPrice=50',
       }
 
-      const expectedOutput2 = {
+      const expectedOutput = {
         assetId: ethAssetId,
         chainId: ethChainId,
-        value: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
+        value:
+          'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD?value=2.014e18&gas=10&gasLimit=21000&gasPrice=50',
       }
 
-      expect(parseMaybeUrlByChainId(input2)).toEqual(expectedOutput2)
+      expect(parseMaybeUrlByChainId(input)).toEqual(expectedOutput)
     })
 
     it('should parse address from BIP-21 URL with bitcoin URN scheme', () => {
@@ -104,7 +72,6 @@ describe('lib/address', () => {
         assetId: btcAssetId,
         chainId: btcChainId,
         value: '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH',
-        amountCryptoPrecision: '20.3',
       }
 
       expect(parseMaybeUrlByChainId(input)).toEqual(expectedOutput)

@@ -1,15 +1,22 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { uniq } from 'lodash'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import { selectSearchQueryFromFilter } from '../selectors'
 import type { AggregatedOpportunitiesByProviderReturn } from './opportunitiesSlice/types'
-import { selectAggregatedEarnOpportunitiesByProvider, selectAssetsBySearchQuery } from './selectors'
+import {
+  selectAggregatedEarnOpportunitiesByProvider,
+  selectAssetsBySearchQuery,
+  selectLastNTxIds,
+  SelectTxsByQuery,
+} from './selectors'
 
 export enum GlobalSearchResultType {
   Asset = 'Asset',
   LpOpportunity = 'LpOpportunity',
   StakingOpportunity = 'StakingOpportunity',
+  Transaction = 'Transaction',
 }
 
 export type GlobalSearchResult = {
@@ -20,8 +27,9 @@ export type GlobalSearchResult = {
 export const selectGlobalItemsFromFilter = createDeepEqualOutputSelector(
   selectAssetsBySearchQuery,
   selectAggregatedEarnOpportunitiesByProvider,
+  SelectTxsByQuery,
   selectSearchQueryFromFilter,
-  (filteredAssets: Asset[], opportunityResults, query?: string): GlobalSearchResult[] => {
+  (filteredAssets: Asset[], opportunityResults, txIds, query?: string): GlobalSearchResult[] => {
     if (!query) return []
     const resultAssets = filteredAssets
       .map(asset => {
@@ -40,18 +48,26 @@ export const selectGlobalItemsFromFilter = createDeepEqualOutputSelector(
       { staking: [], lp: [] },
     )
 
-    const stakingOpportunities = Array.from(new Set(opportunities.staking)).map(id => {
+    const stakingOpportunities = uniq(opportunities.staking).map(id => {
       return {
         type: GlobalSearchResultType.StakingOpportunity,
         id,
       }
     })
-    const lpOpportunities = Array.from(new Set(opportunities.lp)).map(id => {
+    const lpOpportunities = uniq(opportunities.lp).map(id => {
       return {
         type: GlobalSearchResultType.LpOpportunity,
         id,
       }
     })
-    return resultAssets.concat(stakingOpportunities).concat(lpOpportunities)
+    const txResults = txIds
+      .map(id => {
+        return {
+          type: GlobalSearchResultType.Transaction,
+          id,
+        }
+      })
+      .slice(0, 10)
+    return resultAssets.concat(stakingOpportunities).concat(lpOpportunities).concat(txResults)
   },
 )

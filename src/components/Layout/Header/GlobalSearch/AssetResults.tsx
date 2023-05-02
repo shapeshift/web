@@ -10,6 +10,7 @@ type AssetResultsProps = {
   activeIndex?: number
   startingIndex: number
   onClick: (arg: GlobalSearchResult) => void
+  searchQuery?: string
 }
 
 export const AssetResults: React.FC<AssetResultsProps> = ({
@@ -17,6 +18,7 @@ export const AssetResults: React.FC<AssetResultsProps> = ({
   activeIndex,
   onClick,
   startingIndex,
+  searchQuery,
 }) => {
   const renderItems = useMemo(() => {
     return results.map((item, index) => (
@@ -29,6 +31,8 @@ export const AssetResults: React.FC<AssetResultsProps> = ({
       />
     ))
   }, [activeIndex, onClick, results, startingIndex])
+
+  if (searchQuery && !results.length) return null
   return (
     <>
       <ListItemSection title='Assets' />

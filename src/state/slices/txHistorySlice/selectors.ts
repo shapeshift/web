@@ -6,8 +6,10 @@ import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
 import uniq from 'lodash/uniq'
 import values from 'lodash/values'
+import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
+import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -15,8 +17,10 @@ import {
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
+  selectSearchQueryFromFilter,
 } from 'state/selectors'
 
+import { selectAssets } from '../assetsSlice/selectors'
 import { selectWalletAccountIds } from '../common-selectors'
 import type { AccountMetadata } from '../portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
@@ -241,5 +245,24 @@ export const selectMaybeNextAccountNumberByChainId = createSelector(
     )
     const nextAccountNumber = currentHighestAccountNumber + 1
     return [isAbleToAddNextAccount, isAbleToAddNextAccount ? nextAccountNumber : null]
+  },
+)
+export const SelectTxsByQuery = createDeepEqualOutputSelector(
+  selectTxs,
+  selectAssets,
+  selectSearchQueryFromFilter,
+  (txsById, assets, searchQuery) => {
+    const txArray: Tx[] = Object.entries(txsById)
+    if (!searchQuery) return []
+    const results = matchSorter(txArray, searchQuery, {
+      keys: [
+        'txid',
+        item => item[1].transfers.map((transfer: Transfer) => assets[transfer.assetId]?.name),
+        item => item[1].transfers.map((transfer: Transfer) => assets[transfer.assetId]?.symbol),
+        item => item[0],
+      ],
+      threshold: matchSorter.rankings.CONTAINS,
+    })
+    return results.map(result => result[0])
   },
 )

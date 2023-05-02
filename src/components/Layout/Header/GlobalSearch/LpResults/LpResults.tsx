@@ -14,12 +14,14 @@ type LpResultProps = {
   activeIndex?: number
   onClick: (arg: GlobalSearchResult) => void
   startingIndex: number
+  searchQuery?: string
 }
 export const LpResults: React.FC<LpResultProps> = ({
   results,
   activeIndex,
   onClick,
   startingIndex,
+  searchQuery,
 }) => {
   const ids = results.map(result => result.id)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
@@ -38,6 +40,7 @@ export const LpResults: React.FC<LpResultProps> = ({
       )
     })
   }, [activeIndex, filteredDown, onClick, startingIndex])
+  if (searchQuery && !results.length) return null
   return (
     <>
       <ListItemSection title='Liquidity Pools' />

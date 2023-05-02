@@ -31,6 +31,7 @@ import { useAppSelector } from 'state/store'
 import { AssetResults } from './AssetResults'
 import { LpResults } from './LpResults/LpResults'
 import { StakingResults } from './StakingResults/StakingResults'
+import { TxResults } from './TxResults/TxResults'
 import { GoToOpportunity } from './utils'
 
 export const GlobalSeachButton = () => {
@@ -65,6 +66,10 @@ export const GlobalSeachButton = () => {
 
   const lpResults = useMemo(() => {
     return results.filter(result => result.type === GlobalSearchResultType.LpOpportunity)
+  }, [results])
+
+  const txResults = useMemo(() => {
+    return results.filter(result => result.type === GlobalSearchResultType.Transaction)
   }, [results])
 
   useEffect(() => {
@@ -205,18 +210,28 @@ export const GlobalSeachButton = () => {
                 results={assetResults}
                 activeIndex={activeIndex}
                 startingIndex={0}
+                searchQuery={searchQuery}
               />
               <StakingResults
                 results={stakingResults}
                 onClick={handleClick}
                 activeIndex={activeIndex}
                 startingIndex={assetResults.length}
+                searchQuery={searchQuery}
               />
               <LpResults
                 results={lpResults}
                 onClick={handleClick}
                 activeIndex={activeIndex}
                 startingIndex={assetResults.length + stakingResults.length}
+                searchQuery={searchQuery}
+              />
+              <TxResults
+                results={txResults}
+                onClick={handleClick}
+                activeIndex={activeIndex}
+                startingIndex={assetResults.length + stakingResults.length}
+                searchQuery={searchQuery}
               />
             </List>
           </ModalBody>

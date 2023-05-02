@@ -256,6 +256,12 @@ export enum SwapErrorType {
   TRADE_FAILED = 'TRADE_FAILED',
   RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED = 'RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED',
   TRADE_BELOW_MINIMUM = 'TRADE_BELOW_MINIMUM',
+  // Catch-all for XHRs that can fail
+  QUERY_FAILED = 'QUERY_FAILED',
+  // Catch-all for missing input e.g AssetId missing when making a request
+  MISSING_INPUT = 'MISSING_INPUT',
+  // Catch-all for happy responses, but entity not found according to our criteria
+  NOT_FOUND = 'NOT_FOUND',
 }
 export interface Swapper<T extends ChainId> {
   /** Human-readable swapper name */
@@ -278,7 +284,7 @@ export interface Swapper<T extends ChainId> {
   /**
    * Get the usd rate from either the assets symbol or tokenId
    */
-  getUsdRate(input: Asset): Promise<string>
+  getUsdRate(input: Asset): Promise<Result<string, SwapErrorRight>>
 
   /**
    * Execute a trade built with buildTrade by signing and broadcasting
@@ -288,7 +294,9 @@ export interface Swapper<T extends ChainId> {
   /**
    * Get a boolean if a quote needs approval
    */
-  approvalNeeded(args: ApprovalNeededInput<T>): Promise<ApprovalNeededOutput>
+  approvalNeeded(
+    args: ApprovalNeededInput<T>,
+  ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>>
 
   /**
    * Get the txid of an approve infinite transaction

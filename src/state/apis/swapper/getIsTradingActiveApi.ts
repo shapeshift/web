@@ -16,10 +16,12 @@ export const getIsTradingActiveApi = swapperApi.injectEndpoints({
   endpoints: build => ({
     getIsTradingActive: build.query<GetIsTradingActiveReturn, GetIsTradingActiveArgs>({
       queryFn: async ({ assetId, swapperName }) => {
-        try {
-          return { data: await isTradingActive(assetId, swapperName) }
-        } catch (error) {
-          return getIsTradingActiveErrorHandler(error)
+        const maybeIsTradingActive = await isTradingActive(assetId, swapperName)
+        if (maybeIsTradingActive.isErr()) {
+          return getIsTradingActiveErrorHandler(maybeIsTradingActive.unwrapErr())
+        }
+        return {
+          data: maybeIsTradingActive.unwrap(),
         }
       },
     }),

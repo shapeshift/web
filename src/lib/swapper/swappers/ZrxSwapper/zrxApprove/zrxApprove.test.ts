@@ -1,5 +1,5 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { AxiosAdapter } from 'axios'
+import type { AxiosAdapter, AxiosStatic } from 'axios'
 import Web3 from 'web3'
 
 import { setupDeps } from '../../utils/test-data/setupDeps'
@@ -7,7 +7,7 @@ import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'
 import { zrxApproveAmount, zrxApproveInfinite } from './zrxApprove'
 
-const zrxService = zrxServiceFactory('https://api.0x.org/')
+const zrxService = zrxServiceFactory({ baseUrl: 'https://api.0x.org/' })
 
 jest.mock('web3')
 jest.mock('axios-cache-adapter', () => ({
@@ -23,6 +23,14 @@ jest.mock('axios', () => ({
   }),
   get: jest.fn(() => Promise.resolve({ data: { result: [{ source: 'MEDIAN' }] } })),
 }))
+jest.mock('../utils/zrxService', () => {
+  const axios: AxiosStatic = jest.createMockFromModule('axios')
+  axios.create = jest.fn(() => axios)
+
+  return {
+    zrxServiceFactory: () => axios.create(),
+  }
+})
 
 // @ts-ignore
 Web3.mockImplementation(() => ({

@@ -20,6 +20,13 @@ export type PoolInfo = {
   }
 }
 
+export type PoolRateInfo = {
+  rate: string
+  priceImpact: string
+  buyAssetTradeFeeUsd: string
+  buyAmountCryptoBaseUnit: string
+}
+
 export type PoolAssetInfo = {
   token: {
     amount: string

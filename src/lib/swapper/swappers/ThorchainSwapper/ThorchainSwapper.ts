@@ -104,23 +104,23 @@ export class ThorchainSwapper implements Swapper<ChainId> {
 
   async initialize() {
     try {
-      const { data: allPools } = await thorService.get<ThornodePoolResponse[]>(
-        `${this.deps.daemonUrl}/lcd/thorchain/pools`,
-      )
+      return (
+        await thorService.get<ThornodePoolResponse[]>(`${this.deps.daemonUrl}/lcd/thorchain/pools`)
+      ).andThen(({ data: allPools }) => {
+        const availablePools = allPools.filter(pool => pool.status === 'Available')
 
-      const availablePools = allPools.filter(pool => pool.status === 'Available')
+        availablePools.forEach(pool => {
+          const assetId = adapters.poolAssetIdToAssetId(pool.asset)
+          if (!assetId) return
 
-      availablePools.forEach(pool => {
-        const assetId = adapters.poolAssetIdToAssetId(pool.asset)
-        if (!assetId) return
+          const chainId = fromAssetId(assetId).chainId as ThorChainId
 
-        const chainId = fromAssetId(assetId).chainId as ThorChainId
+          this.sellSupportedChainIds[chainId] && this.supportedSellAssetIds.push(assetId)
+          this.buySupportedChainIds[chainId] && this.supportedBuyAssetIds.push(assetId)
+        })
 
-        this.sellSupportedChainIds[chainId] && this.supportedSellAssetIds.push(assetId)
-        this.buySupportedChainIds[chainId] && this.supportedBuyAssetIds.push(assetId)
+        return Ok(undefined)
       })
-
-      return Ok(undefined)
     } catch (e: unknown) {
       return Err(
         makeSwapErrorRight({
@@ -136,13 +136,13 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     return SwapperType.Thorchain
   }
 
-  getUsdRate({ assetId }: Pick<Asset, 'assetId'>): Promise<string> {
+  getUsdRate({ assetId }: Pick<Asset, 'assetId'>): Promise<Result<string, SwapErrorRight>> {
     return getUsdRate(this.daemonUrl, assetId)
   }
 
   approvalNeeded(
     input: ApprovalNeededInput<ThorEvmSupportedChainId>,
-  ): Promise<ApprovalNeededOutput> {
+  ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
     return thorTradeApprovalNeeded({ deps: this.deps, input })
   }
 
@@ -242,15 +242,15 @@ export class ThorchainSwapper implements Swapper<ChainId> {
   }
 
   async getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
-    try {
-      const midgardTxid = tradeResult.tradeId.startsWith('0x')
-        ? tradeResult.tradeId.slice(2)
-        : tradeResult.tradeId
+    const midgardTxid = tradeResult.tradeId.startsWith('0x')
+      ? tradeResult.tradeId.slice(2)
+      : tradeResult.tradeId
 
-      const { data } = await thorService.get<MidgardActionsResponse>(
+    return (
+      await thorService.get<MidgardActionsResponse>(
         `${this.deps.midgardUrl}/actions?txid=${midgardTxid}`,
       )
-
+    ).andThen<TradeTxs>(({ data }) => {
       // https://gitlab.com/thorchain/thornode/-/blob/develop/common/tx.go#L22
       // responseData?.actions[0].out[0].txID should be the txId for consistency, but the outbound Tx for Thor rune swaps is actually a BlankTxId
       // so we use the buyTxId for completion detection
@@ -261,10 +261,13 @@ export class ThorchainSwapper implements Swapper<ChainId> {
 
       // This will detect all the errors I have seen.
       if (data?.actions[0]?.status === 'success' && data?.actions[0]?.type !== 'swap')
-        throw new SwapError('[getTradeTxs]: trade failed', {
-          code: SwapErrorType.TRADE_FAILED,
-          cause: data,
-        })
+        return Err(
+          makeSwapErrorRight({
+            message: '[getTradeTxs]: trade failed',
+            code: SwapErrorType.TRADE_FAILED,
+            cause: data,
+          }),
+        )
 
       const standardBuyTxid = (() => {
         const outCoinAsset = data?.actions[0]?.out[0]?.coins[0]?.asset
@@ -276,12 +279,6 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         sellTxid: tradeResult.tradeId,
         buyTxid: standardBuyTxid,
       })
-    } catch (e) {
-      if (e instanceof SwapError) throw e
-      throw new SwapError('[getTradeTxs]: error', {
-        code: SwapErrorType.GET_TRADE_TXS_FAILED,
-        cause: e,
-      })
-    }
+    })
   }
 }

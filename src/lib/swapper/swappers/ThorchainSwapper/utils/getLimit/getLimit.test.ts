@@ -14,7 +14,7 @@ import { DEFAULT_SLIPPAGE } from '../../../utils/constants'
 import { BTC, ETH, FOX, RUNE } from '../../../utils/test-data/assets'
 import type { ThorchainSwapperDeps } from '../../types'
 import { getInboundAddressDataForChain } from '../getInboundAddressDataForChain'
-import { getTradeRate } from '../getTradeRate/getTradeRate'
+import { getTradeRate, getTradeRateBelowMinimum } from '../getTradeRate/getTradeRate'
 import { getUsdRate } from '../getUsdRate/getUsdRate'
 import { mockInboundAddresses } from '../test-data/responses'
 import type { GetLimitArgs } from './getLimit'
@@ -23,6 +23,7 @@ import { getLimit } from './getLimit'
 jest.mock('../getUsdRate/getUsdRate')
 jest.mock('../getTradeRate/getTradeRate')
 jest.mock('../getInboundAddressDataForChain')
+const mockOk = Ok as jest.MockedFunction<typeof Ok>
 
 const thorchainSwapperDeps: ThorchainSwapperDeps = {
   midgardUrl: '',
@@ -42,13 +43,16 @@ describe('getLimit', () => {
 
   it('should get limit when sell asset is EVM fee asset and buy asset is a UTXO', async () => {
     ;(getUsdRate as jest.Mock<unknown>)
-      .mockReturnValueOnce(Promise.resolve('1595')) // sellFeeAssetUsdRate (ETH)
-      .mockReturnValueOnce(Promise.resolve('20683')) // buyAssetUsdRate (BTC)
+      .mockReturnValueOnce(Promise.resolve(mockOk('1595'))) // sellFeeAssetUsdRate (ETH)
+      .mockReturnValueOnce(Promise.resolve(mockOk('20683'))) // buyAssetUsdRate (BTC)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(Ok('0.07714399680893498205')),
+      Promise.resolve(mockOk('0.07714399680893498205')),
+    )
+    ;(getTradeRateBelowMinimum as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve(mockOk('42.22')),
     )
     ;(getInboundAddressDataForChain as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(mockInboundAddresses.find(address => address.chain === 'ETH')),
+      Promise.resolve(mockOk(mockInboundAddresses.find(address => address.chain === 'ETH'))),
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: ETH,
@@ -67,13 +71,16 @@ describe('getLimit', () => {
 
   it('should get limit when sell asset is EVM non-fee asset and buy asset is a UTXO', async () => {
     ;(getUsdRate as jest.Mock<unknown>)
-      .mockReturnValueOnce(Promise.resolve('1595')) // sellFeeAssetUsdRate (ETH)
-      .mockReturnValueOnce(Promise.resolve('20683')) // buyAssetUsdRate (BTC)
+      .mockReturnValueOnce(Promise.resolve(mockOk('1595'))) // sellFeeAssetUsdRate (ETH)
+      .mockReturnValueOnce(Promise.resolve(mockOk('20683'))) // buyAssetUsdRate (BTC)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(Ok('0.00000199048641810579')),
+      Promise.resolve(mockOk('0.00000199048641810579')),
+    )
+    ;(getTradeRateBelowMinimum as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve(mockOk('42.22')),
     )
     ;(getInboundAddressDataForChain as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(mockInboundAddresses.find(address => address.chain === 'ETH')),
+      Promise.resolve(mockOk(mockInboundAddresses.find(address => address.chain === 'ETH'))),
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: FOX,
@@ -92,13 +99,16 @@ describe('getLimit', () => {
 
   it('should get limit when buy asset is RUNE and sell asset is not', async () => {
     ;(getUsdRate as jest.Mock<unknown>)
-      .mockReturnValueOnce(Promise.resolve('1595')) // sellFeeAssetUsdRate (ETH)
-      .mockReturnValueOnce(Promise.resolve('14.51')) // buyAssetUsdRate (RUNE)
+      .mockReturnValueOnce(Promise.resolve(mockOk('1595'))) // sellFeeAssetUsdRate (ETH)
+      .mockReturnValueOnce(Promise.resolve(mockOk('14.51'))) // buyAssetUsdRate (RUNE)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(Ok('0.02583433052665346349')),
+      Promise.resolve(mockOk('0.02583433052665346349')),
+    )
+    ;(getTradeRateBelowMinimum as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve(mockOk('42.22')),
     )
     ;(getInboundAddressDataForChain as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(mockInboundAddresses.find(address => address.chain === 'ETH')),
+      Promise.resolve(mockOk(mockInboundAddresses.find(address => address.chain === 'ETH'))),
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: FOX,
@@ -117,13 +127,16 @@ describe('getLimit', () => {
 
   it('should get limit when sell asset is RUNE and buy asset is not', async () => {
     ;(getUsdRate as jest.Mock<unknown>)
-      .mockReturnValueOnce(Promise.resolve('14.51')) // sellFeeAssetUsdRate (RUNE)
-      .mockReturnValueOnce(Promise.resolve('0.04')) // buyAssetUsdRate (FOX)
+      .mockReturnValueOnce(Promise.resolve(mockOk('14.51'))) // sellFeeAssetUsdRate (RUNE)
+      .mockReturnValueOnce(Promise.resolve(mockOk('0.04'))) // buyAssetUsdRate (FOX)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(Ok('38.68447363336979738738')),
+      Promise.resolve(mockOk('38.68447363336979738738')),
+    )
+    ;(getTradeRateBelowMinimum as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve(mockOk('42.22')),
     )
     ;(getInboundAddressDataForChain as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(undefined),
+      Promise.resolve(mockOk(undefined)),
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: RUNE,

@@ -1,9 +1,11 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { MinMaxOutput } from 'lib/swapper/api'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
+import type { MinMaxOutput, SwapErrorRight } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import {
   MAX_COWSWAP_TRADE,
@@ -15,27 +17,26 @@ export const getCowSwapMinMax = async (
   deps: CowSwapperDeps,
   sellAsset: Asset,
   buyAsset: Asset,
-): Promise<MinMaxOutput> => {
-  try {
-    const { assetNamespace: sellAssetNamespace } = fromAssetId(sellAsset.assetId)
-    const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
+): Promise<Result<MinMaxOutput, SwapErrorRight>> => {
+  const { assetNamespace: sellAssetNamespace } = fromAssetId(sellAsset.assetId)
+  const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
 
-    if (sellAssetNamespace !== 'erc20' || buyAssetChainId !== KnownChainIds.EthereumMainnet) {
-      throw new SwapError('[getCowSwapMinMax]', { code: SwapErrorType.UNSUPPORTED_PAIR })
-    }
+  if (sellAssetNamespace !== 'erc20' || buyAssetChainId !== KnownChainIds.EthereumMainnet) {
+    return Err(
+      makeSwapErrorRight({ message: '[getCowSwapMinMax]', code: SwapErrorType.UNSUPPORTED_PAIR }),
+    )
+  }
 
-    const usdRate = await getUsdRate(deps, sellAsset)
+  const maybeUsdRate = await getUsdRate(deps, sellAsset)
 
+  return maybeUsdRate.andThen(usdRate => {
     const minimumAmountCryptoHuman = bn(MIN_COWSWAP_VALUE_USD)
       .dividedBy(bnOrZero(usdRate))
       .toString() // $10 worth of the sell token.
     const maximumAmountCryptoHuman = MAX_COWSWAP_TRADE // Arbitrarily large value. 10e+28 here.
-    return {
+    return Ok({
       minimumAmountCryptoHuman,
       maximumAmountCryptoHuman,
-    }
-  } catch (e) {
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[getCowSwapMinMax]', { cause: e, code: SwapErrorType.MIN_MAX_FAILED })
-  }
+    })
+  })
 }

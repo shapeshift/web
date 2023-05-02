@@ -122,7 +122,9 @@ export const Approval = () => {
       approvalInterval.current = setInterval(async () => {
         fnLogger.trace({ fn: 'checkApprovalNeeded' }, 'Checking Approval Needed...')
         try {
-          const approvalNeeded = await checkApprovalNeeded(wallet)
+          const maybeApprovalNeeded = await checkApprovalNeeded(wallet)
+          if (maybeApprovalNeeded.isErr()) throw new Error(maybeApprovalNeeded.unwrapErr().message)
+          const approvalNeeded = maybeApprovalNeeded.unwrap()
           if (approvalNeeded) return
         } catch (e) {
           showErrorToast(e)

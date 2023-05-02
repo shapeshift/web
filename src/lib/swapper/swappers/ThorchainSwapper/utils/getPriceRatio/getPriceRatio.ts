@@ -1,7 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
+import type { SwapErrorRight } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import type {
   ThorchainSwapperDeps,
   ThornodePoolResponse,
@@ -12,32 +15,30 @@ import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorSer
 export const getPriceRatio = async (
   deps: ThorchainSwapperDeps,
   input: { buyAssetId: AssetId; sellAssetId: AssetId },
-): Promise<string> => {
+): Promise<Result<string, SwapErrorRight>> => {
   const { buyAssetId, sellAssetId } = input
-  try {
-    const buyPoolId = adapters.assetIdToPoolAssetId({ assetId: buyAssetId })
-    const sellPoolId = adapters.assetIdToPoolAssetId({ assetId: sellAssetId })
+  const buyPoolId = adapters.assetIdToPoolAssetId({ assetId: buyAssetId })
+  const sellPoolId = adapters.assetIdToPoolAssetId({ assetId: sellAssetId })
 
-    if (!buyPoolId && !isRune(buyAssetId)) {
-      throw new SwapError(`[getPriceRatio]: No buyPoolId found for asset ${buyAssetId}`, {
-        code: SwapErrorType.POOL_NOT_FOUND,
-        fn: 'getPriceRatio',
-        details: { buyAssetId },
-      })
-    }
+  if (!buyPoolId && !isRune(buyAssetId)) {
+    throw new SwapError(`[getPriceRatio]: No buyPoolId found for asset ${buyAssetId}`, {
+      code: SwapErrorType.POOL_NOT_FOUND,
+      fn: 'getPriceRatio',
+      details: { buyAssetId },
+    })
+  }
 
-    if (!sellPoolId && !isRune(sellAssetId)) {
-      throw new SwapError(`[getPriceRatio]: No sellPoolId found for asset ${sellAssetId}`, {
-        code: SwapErrorType.POOL_NOT_FOUND,
-        fn: 'getPriceRatio',
-        details: { sellAssetId },
-      })
-    }
+  if (!sellPoolId && !isRune(sellAssetId)) {
+    throw new SwapError(`[getPriceRatio]: No sellPoolId found for asset ${sellAssetId}`, {
+      code: SwapErrorType.POOL_NOT_FOUND,
+      fn: 'getPriceRatio',
+      details: { sellAssetId },
+    })
+  }
 
-    const { data: responseData } = await thorService.get<ThornodePoolResponse[]>(
-      `${deps.daemonUrl}/lcd/thorchain/pools`,
-    )
-
+  return (
+    await thorService.get<ThornodePoolResponse[]>(`${deps.daemonUrl}/lcd/thorchain/pools`)
+  ).andThen<string>(({ data: responseData }) => {
     const buyPool = responseData.find(response => response.asset === buyPoolId)
     const sellPool = responseData.find(response => response.asset === sellPoolId)
 
@@ -49,10 +50,12 @@ export const getPriceRatio = async (
       const runeBalance = bnOrZero(sellPool.balance_rune)
       // guard against division by zero
       if (sellAssetBalance.eq(0))
-        throw new SwapError(
-          `[getPriceRatio] zero sell asset balance sellAssetId ${sellAssetId} buyAssetId ${buyAssetId}`,
+        return Err(
+          makeSwapErrorRight({
+            message: `[getPriceRatio] zero sell asset balance sellAssetId ${sellAssetId} buyAssetId ${buyAssetId}`,
+          }),
         )
-      return bn(runeBalance).dividedBy(sellAssetBalance).toString()
+      return Ok(bn(runeBalance).dividedBy(sellAssetBalance).toString())
     }
 
     if (isRune(sellAssetId) && buyPool) {
@@ -60,35 +63,37 @@ export const getPriceRatio = async (
       const runeBalance = bnOrZero(buyPool.balance_rune)
       // guard against division by zero
       if (buyAssetBalance.eq(0))
-        throw new SwapError(
-          `[getPriceRatio] zero buy asset balance sellAssetId ${sellAssetId} buyAssetId ${buyAssetId}`,
+        return Err(
+          makeSwapErrorRight({
+            message: `[getPriceRatio] zero buy asset balance sellAssetId ${sellAssetId} buyAssetId ${buyAssetId}`,
+          }),
         )
-      return bn(buyAssetBalance).dividedBy(runeBalance).toString()
+      return Ok(bn(buyAssetBalance).dividedBy(runeBalance).toString())
     }
 
     if (!buyPool || !sellPool) {
-      throw new SwapError(`[getPriceRatio]: pools not found`, {
-        code: SwapErrorType.RESPONSE_ERROR,
-        details: { buyPoolId, sellPoolId },
-      })
+      return Err(
+        makeSwapErrorRight({
+          message: `[getPriceRatio]: pools not found`,
+          code: SwapErrorType.RESPONSE_ERROR,
+          details: { buyPoolId, sellPoolId },
+        }),
+      )
     }
 
     const buyPrice = bn(buyPool.balance_rune).dividedBy(buyPool.balance_asset)
     const sellPrice = bn(sellPool.balance_rune).dividedBy(sellPool.balance_asset)
 
     if (!buyPrice.gt(0) || !sellPrice.gt(0)) {
-      throw new SwapError(`[getPriceRatio]: invalid pool price`, {
-        code: SwapErrorType.RESPONSE_ERROR,
-        details: { buyPrice, sellPrice },
-      })
+      return Err(
+        makeSwapErrorRight({
+          message: `[getPriceRatio]: invalid pool price`,
+          code: SwapErrorType.RESPONSE_ERROR,
+          details: { buyPrice, sellPrice },
+        }),
+      )
     }
 
-    return sellPrice.dividedBy(buyPrice).toString()
-  } catch (e) {
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[getPriceRatio]: Thorchain getPriceRatio failed', {
-      code: SwapErrorType.PRICE_RATIO_FAILED,
-      cause: e,
-    })
-  }
+    return Ok(sellPrice.dividedBy(buyPrice).toString())
+  })
 }

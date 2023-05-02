@@ -88,38 +88,42 @@ export const Routes = () => {
   )
 
   return (
-    <Switch location={background || location}>
-      <Route path='/demo'>
-        {() => {
-          return shouldRedirectDemoRoute ? (
-            <Redirect
-              from='/'
-              to={
-                matchDemoPath?.params?.appRoute ? `/${matchDemoPath.params.appRoute}` : '/dashboard'
-              }
-            />
-          ) : null
-        }}
-      </Route>
+    <>
+      <Switch location={background || location}>
+        <Route path='/demo'>
+          {() => {
+            return shouldRedirectDemoRoute ? (
+              <Redirect
+                from='/'
+                to={
+                  matchDemoPath?.params?.appRoute
+                    ? `/${matchDemoPath.params.appRoute}`
+                    : '/dashboard'
+                }
+              />
+            ) : null
+          }}
+        </Route>
 
-      <Route path='/connect-wallet'>
-        <ConnectWallet />
-      </Route>
-      <Route path={'/legal/terms-of-service'}>
-        <Layout>
-          <TermsOfService />
-        </Layout>
-      </Route>
-      <Route path={'/legal/privacy-policy'}>
-        <Layout>
-          <PrivacyPolicy />
-        </Layout>
-      </Route>
-      <Route path='/flags'>
-        <Layout>
-          <Flags />
-        </Layout>
-      </Route>
+        <Route path='/connect-wallet'>
+          <ConnectWallet />
+        </Route>
+        <Route path={'/legal/terms-of-service'}>
+          <Layout>
+            <TermsOfService />
+          </Layout>
+        </Route>
+        <Route path={'/legal/privacy-policy'}>
+          <Layout>
+            <PrivacyPolicy />
+          </Layout>
+        </Route>
+        <Route path='/flags'>
+          <Layout>
+            <Flags />
+          </Layout>
+        </Route>
+      </Switch>
       <Layout>
         <Switch>
           {privateRoutesList}
@@ -129,6 +133,6 @@ export const Routes = () => {
           </Route>
         </Switch>
       </Layout>
-    </Switch>
+    </>
   )
 }

@@ -47,7 +47,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
             size='lg'
             value={value}
             variant='filled'
-            data-test='qrCode-address-input'
+            data-test='send-address-input'
             // Because the InputRightElement is hover the input, we need to let this space free
             pe={10}
           />

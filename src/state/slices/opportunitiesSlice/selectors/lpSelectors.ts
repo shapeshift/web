@@ -303,7 +303,14 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
       bnOrZero(a.fiatAmount).gte(bnOrZero(b.fiatAmount)) ? -1 : 1,
     )
 
-    return sortedOpportunitiesByFiatAmount
+    const activeOpportunities = sortedOpportunitiesByFiatAmount.filter(opportunity =>
+      bnOrZero(opportunity.fiatAmount).gt(0),
+    )
+    const inactiveOpportunities = sortedOpportunitiesByFiatAmount
+      .filter(opportunity => bnOrZero(opportunity.fiatAmount).eq(0))
+      .sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
+
+    return activeOpportunities.concat(inactiveOpportunities)
   },
 )
 

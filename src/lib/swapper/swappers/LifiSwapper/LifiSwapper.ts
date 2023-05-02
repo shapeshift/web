@@ -39,6 +39,7 @@ import type {
   LifiTrade,
   LifiTradeQuote,
 } from 'lib/swapper/swappers/LifiSwapper/utils/types'
+import { createEmptyEvmTradeQuote } from 'lib/swapper/swappers/utils/helpers/helpers'
 
 export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SwapperName.LIFI
@@ -92,23 +93,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
     // but rather a "mock" quote from a minimum sell amount.
     // https://github.com/shapeshift/web/issues/4237
     if (isBelowMinSellAmount) {
-      return Ok({
-        buyAmountCryptoBaseUnit: '0',
-        sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
-        feeData: {
-          networkFeeCryptoBaseUnit: '0',
-          buyAssetTradeFeeUsd: '0',
-          chainSpecific: {},
-        },
-        rate: '0',
-        sources: [],
-        buyAsset: input.buyAsset,
-        sellAsset: input.sellAsset,
-        accountNumber: input.accountNumber,
-        allowanceContract: '',
-        minimumCryptoHuman: minimumCryptoHuman.toString(),
-        maximumCryptoHuman: MAX_LIFI_TRADE,
-      })
+      return Ok(createEmptyEvmTradeQuote(input, minimumCryptoHuman.toString(), MAX_LIFI_TRADE))
     }
 
     return await getTradeQuote(input, this.lifiChainMap)

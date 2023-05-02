@@ -18,11 +18,13 @@ import { useHistory, useLocation } from 'react-router'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import type { GlobalSearchResult } from 'state/slices/search-selectors'
 import { GlobalSearchResultType, selectGlobalItemsFromFilter } from 'state/slices/search-selectors'
 import {
   selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  selectAssets,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -42,6 +44,7 @@ export const GlobalSeachButton = () => {
     dispatch,
   } = useWallet()
 
+  const assets = useAppSelector(selectAssets)
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
@@ -93,7 +96,7 @@ export const GlobalSeachButton = () => {
             return
           }
           const data = GoToOpportunity({
-            opportunityId: item.id,
+            opportunityId: item.id as OpportunityId,
             opportunityType:
               item.type === GlobalSearchResultType.StakingOpportunity
                 ? DefiType.Staking
@@ -102,6 +105,7 @@ export const GlobalSeachButton = () => {
             location,
             stakingOpportunities,
             lpOpportunities,
+            assets,
           })
           if (!data) return
           history.push(data)
@@ -113,6 +117,7 @@ export const GlobalSeachButton = () => {
       }
     },
     [
+      assets,
       dispatch,
       history,
       isConnected,

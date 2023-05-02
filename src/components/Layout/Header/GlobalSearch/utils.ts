@@ -1,11 +1,12 @@
+import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import type { History, Location } from 'history'
+import type { Location } from 'history'
 import qs from 'qs'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { assets } from 'state/slices/assetsSlice/assetsSlice'
 import type {
   LpEarnOpportunityType,
   OpportunityId,
@@ -19,6 +20,7 @@ type goToOpportunityProps = {
   opportunityType: DefiType
   action: DefiAction
   location: Location
+  assets: Partial<Record<AssetId, Asset>>
 }
 export const GoToOpportunity = ({
   stakingOpportunities,
@@ -27,6 +29,7 @@ export const GoToOpportunity = ({
   action,
   opportunityType,
   location,
+  assets,
 }: goToOpportunityProps) => {
   const lpOpportunity = lpOpportunities.find(lpOpportunity => lpOpportunity.id === opportunityId)
   const stakingOpportunity = stakingOpportunities.find(

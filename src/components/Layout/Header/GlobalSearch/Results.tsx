@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import type { GlobalSearchResult } from 'state/slices/search-selectors'
 import { GlobalSearchResultType } from 'state/slices/search-selectors'
 
@@ -35,7 +36,7 @@ export const GlobalSearchList: React.FC<GlobalSearchResultsProps> = ({
               key={`staking-result-${index}`}
               index={index}
               activeIndex={activeIndex}
-              stakingId={result.id}
+              stakingId={result.id as StakingId}
               onClick={() => onClick(result)}
             />
           )

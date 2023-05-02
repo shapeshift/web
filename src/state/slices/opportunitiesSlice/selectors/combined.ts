@@ -479,15 +479,13 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       if (cur.opportunities.lp.length || cur.opportunities.staking.length) acc.push(cur)
       return acc
     }, [])
-    const getTotalProviderBalance = (opportunity: AggregatedOpportunitiesByProviderReturn) =>
-      bnOrZero(opportunity.netProviderFiatAmount).toNumber()
     const getApy = (opportunity: AggregatedOpportunitiesByProviderReturn) =>
       bnOrZero(opportunity.apy).toNumber()
-    const sortedList = orderBy(
-      aggregatedEarnOpportunitiesByProvider,
-      [getTotalProviderBalance, getApy],
-      ['desc', 'desc'],
+
+    const sortedListByFiatAmount = aggregatedEarnOpportunitiesByProvider.sort((a, b) =>
+      bnOrZero(a.netProviderFiatAmount).gte(bnOrZero(b.netProviderFiatAmount)) ? -1 : 1,
     )
+    const sortedList = orderBy(sortedListByFiatAmount, [getApy], ['desc', 'desc'])
     if (!includeEarnBalances && !includeRewardsBalances) return sortedList
 
     const withEarnBalances = Object.values(aggregatedEarnOpportunitiesByProvider).filter(
@@ -500,7 +498,11 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
     const results = withEarnBalances.concat(withRewardsBalances)
 
-    const sortedResults = orderBy(results, [getTotalProviderBalance, getApy], ['desc', 'desc'])
+    const sortedResultsByNetProviderFiatAmount = results.sort((a, b) =>
+      bnOrZero(a.netProviderFiatAmount).gte(bnOrZero(b.netProviderFiatAmount)) ? -1 : 1,
+    )
+
+    const sortedResults = orderBy(sortedResultsByNetProviderFiatAmount, [getApy], ['desc', 'desc'])
 
     return sortedResults
   },

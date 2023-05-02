@@ -541,11 +541,10 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
 
         return true
       })
-      const getTotalProviderBalance = (opportunity: StakingEarnOpportunityType) =>
-        bnOrZero(opportunity.fiatAmount).toNumber()
-      const getApy = (opportunity: StakingEarnOpportunityType) =>
-        bnOrZero(opportunity.apy).toNumber()
-      return orderBy(results, [getTotalProviderBalance, getApy], ['desc', 'desc'])
+      const sortedResultsByFiatAmount = results.sort((a, b) =>
+        bnOrZero(a.fiatAmount).gte(bnOrZero(b.fiatAmount)) ? -1 : 1,
+      )
+      return sortedResultsByFiatAmount
     },
   )
 

@@ -1,5 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { bchChainId, btcChainId, dogeChainId, ethChainId, ltcChainId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import bip21 from 'bip21'
 import { parse as parseEthUrl } from 'eth-url-parser'
 import type { Address } from 'viem'
@@ -11,6 +12,7 @@ import {
   validateUnstoppableDomain,
 } from 'lib/address/unstoppable-domains'
 import { resolveYat, validateYat } from 'lib/address/yat'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { store } from 'state/store'
 import type { Identity } from 'types/common'
@@ -27,10 +29,10 @@ const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   [ethChainId]: 'ethereum',
   [btcChainId]: 'bitcoin',
   [bchChainId]: 'bitcoincash',
-  [dogeChainId]: 'dogecoin',
+  [dogeChainId]: 'doge',
   [ltcChainId]: 'litecoin',
 }
-export const parseMaybeUrlByChainId: Identity<ParseAddressInputArgs> = ({
+export const parseMaybeUrlByChainId: Identity<ParseAddressByChainIdInputArgs> = ({
   assetId,
   chainId,
   value,
@@ -42,8 +44,15 @@ export const parseMaybeUrlByChainId: Identity<ParseAddressInputArgs> = ({
 
         return {
           assetId,
-          value: !parsedUrl.parameters ? parsedUrl.target_address : value,
+          value: parsedUrl.target_address ?? value,
           chainId,
+          ...(parsedUrl.parameters?.amount ?? parsedUrl.parameters?.amount
+            ? {
+                amountCryptoPrecision: bnOrZero(
+                  parsedUrl.parameters.amount ?? parsedUrl.parameters.amount,
+                ).toFixed(),
+              }
+            : {}),
         }
       } catch (error) {
         moduleLogger.trace(error, 'cannot parse eip681 address')
@@ -60,6 +69,9 @@ export const parseMaybeUrlByChainId: Identity<ParseAddressInputArgs> = ({
           assetId,
           value: parsedUrl.address,
           chainId,
+          ...(parsedUrl.options?.amount
+            ? { amountCryptoPrecision: bnOrZero(parsedUrl.options.amount).toFixed() }
+            : {}),
         }
       } catch (error) {
         moduleLogger.trace(error, 'Cannot parse BIP-21 address')
@@ -74,6 +86,42 @@ export const parseMaybeUrlByChainId: Identity<ParseAddressInputArgs> = ({
   }
 
   return { assetId, chainId, value }
+}
+
+export const parseMaybeUrl = async ({ value }: { value: string }): Promise<ParseMaybeUrlResult> => {
+  // Iterate over supportedChainIds
+  for (const chainId of Object.values(KnownChainIds)) {
+    try {
+      const maybeUrl = parseMaybeUrlByChainId({ chainId, value })
+      const isValidUrl = maybeUrl.value !== value
+
+      const assetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()!
+      // Validation succeeded, and we now have a ChainId
+      if (isValidUrl) {
+        return {
+          chainId,
+          value,
+          assetId,
+          amountCryptoPrecision: maybeUrl.amountCryptoPrecision,
+        }
+      }
+
+      // Validation was unsuccesful, but this may still be a valid address for this adapter
+      const isValidAddress = await validateAddress({ chainId, value })
+      if (isValidAddress) {
+        return {
+          chainId,
+          value,
+          assetId,
+        }
+      }
+    } catch (error) {
+      // Log the error and continue iterating over the remaining supportedChainIds
+      moduleLogger.trace(error, `Failed to validate address for chainId: ${chainId}`)
+    }
+  }
+
+  throw new Error('Invalid address')
 }
 
 // validators - is a given value a valid vanity address, e.g. a .eth or a .crypto
@@ -186,9 +234,9 @@ type ValidateAddressArgs = {
   value: string
 }
 type ValidateAddressReturn = boolean
-export type ValidateAddress = (args: ValidateAddressArgs) => Promise<ValidateAddressReturn>
+export type ValidateAddressByChainId = (args: ValidateAddressArgs) => Promise<ValidateAddressReturn>
 
-export const validateAddress: ValidateAddress = async ({ chainId, value }) => {
+export const validateAddress: ValidateAddressByChainId = async ({ chainId, value }) => {
   try {
     const adapter = getChainAdapterManager().get(chainId)
     if (!adapter) return false
@@ -203,16 +251,27 @@ export const validateAddress: ValidateAddress = async ({ chainId, value }) => {
  * and a chainId, return an object containing and address and vanityAddress
  * which may both be empty strings, one may be empty, or both may be populated
  */
-type ParseAddressInputArgs = {
+type ParseAddressByChainIdInputArgs = {
   assetId?: AssetId
   chainId: ChainId
   value: string
+  amountCryptoPrecision?: string
 }
 export type ParseAddressInputReturn = {
   address: string
   vanityAddress: string
 }
-export type ParseAddressInput = (args: ParseAddressInputArgs) => Promise<ParseAddressInputReturn>
+
+export type ParseMaybeUrlResult = {
+  assetId?: AssetId
+  chainId: ChainId
+  value: string
+  amountCryptoPrecision?: string
+}
+
+export type ParseAddressInput = (
+  args: ParseAddressByChainIdInputArgs,
+) => Promise<ParseAddressInputReturn>
 
 export const parseAddressInput: ParseAddressInput = async args => {
   const parsedArgs = parseMaybeUrlByChainId(args)

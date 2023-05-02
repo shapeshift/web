@@ -1,24 +1,28 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { ReceiveInfo } from 'components/Modals/Receive/ReceiveInfo'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
+import { selectAssetById } from 'state/slices/selectors'
+import { store, useAppSelector } from 'state/store'
 
 import { ReceiveRoutes } from './ReceiveCommon'
 
 type ReceiveRouterProps = {
-  asset?: Asset
+  assetId?: AssetId
   accountId?: AccountId
 }
-export const ReceiveRouter = ({ asset, accountId }: ReceiveRouterProps) => {
-  const [selectedAsset, setSelectedAsset] = useState<Asset | undefined>(asset ?? undefined)
+export const ReceiveRouter = ({ assetId, accountId }: ReceiveRouterProps) => {
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const [selectedAsset, setSelectedAsset] = useState<Asset | undefined>(asset)
   const location = useLocation()
   const history = useHistory()
 
-  const handleAssetSelect = (asset: Asset) => {
-    setSelectedAsset(asset)
+  const handleAssetSelect = (assetId: AssetId) => {
+    const _asset = selectAssetById(store.getState(), assetId)
+    setSelectedAsset(_asset)
     history.push(ReceiveRoutes.Info)
   }
 

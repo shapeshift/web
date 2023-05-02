@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import { ethAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { BuyAssetBySellIdInput } from 'lib/swapper/api'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -11,7 +11,8 @@ export function filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): Asse
   const assets = selectAssets(store.getState())
   const sellAsset = assets[sellAssetId]
 
-  if (sellAsset === undefined) return []
+  if (sellAsset === undefined || sellAssetId === ethAssetId || !isEvmChainId(sellAsset.chainId))
+    return []
 
   const result = assetIds.filter(assetId => {
     const buyAsset = assets[assetId]
@@ -19,9 +20,7 @@ export function filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): Asse
     if (buyAsset === undefined) return false
 
     // same-chain swaps and evm only
-    return (
-      buyAsset.chainId === sellAsset.chainId && evmChainIds.includes(buyAsset.chainId as EvmChainId)
-    )
+    return buyAsset.chainId === sellAsset.chainId && isEvmChainId(buyAsset.chainId)
   })
 
   return result

@@ -1,3 +1,4 @@
+import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 
 import { FOX, WETH } from '../../../utils/test-data/assets'
@@ -13,16 +14,16 @@ jest.mock('lib/swapper/swappers/ZrxSwapper/utils/zrxService', () => {
   }
 })
 
-const zrxService = zrxServiceFactory('https://api.0x.org/')
+const zrxService = zrxServiceFactory({ baseUrl: 'https://api.0x.org/' })
 
 describe('utils', () => {
   describe('getUsdRate', () => {
     it('getUsdRate gets the usd rate of the symbol', async () => {
       ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
-        Promise.resolve({ data: { price: '2' } }),
+        Promise.resolve(Ok({ data: { price: '2' } })),
       )
       const rate = await getUsdRate(FOX)
-      expect(rate).toBe('0.5')
+      expect(rate.unwrap()).toBe('0.5')
       expect(zrxService.get).toHaveBeenCalledWith('/swap/v1/price', {
         params: {
           buyToken: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -32,8 +33,14 @@ describe('utils', () => {
       })
     })
     it('getUsdRate fails', async () => {
-      ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data: {} }))
-      await expect(getUsdRate(WETH)).rejects.toThrow('[getUsdRate]')
+      ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Ok(Promise.resolve({ data: {} })))
+      expect((await getUsdRate(WETH)).unwrapErr()).toMatchObject({
+        cause: undefined,
+        code: 'RESPONSE_ERROR',
+        details: undefined,
+        message: '[getUsdRate] - Failed to get price data',
+        name: 'SwapError',
+      })
     })
   })
 })

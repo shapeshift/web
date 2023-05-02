@@ -29,7 +29,10 @@ export const getUsdRateApi = swapperApi.injectEndpoints({
           const rate = await swapper?.getUsdRate(asset)
           if (!rate)
             return getUsdRateErrorHandler({ message: 'getUsdRate: getUsdRate: No rate found' })
-          return { data: rate }
+          if (rate.isErr())
+            return getUsdRateErrorHandler({ message: 'getUsdRate: Error getting rate' })
+
+          return { data: rate.unwrap() }
         } catch (error) {
           return getUsdRateErrorHandler()
         }

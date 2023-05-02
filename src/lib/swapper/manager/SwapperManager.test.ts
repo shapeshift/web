@@ -217,9 +217,9 @@ describe('SwapperManager', () => {
         .mockImplementation(
           jest
             .fn()
-            .mockResolvedValueOnce(0.04)
-            .mockResolvedValueOnce(1300)
-            .mockResolvedValueOnce(1300),
+            .mockResolvedValueOnce(Ok(0.04))
+            .mockResolvedValueOnce(Ok(1300))
+            .mockResolvedValueOnce(Ok(1300)),
         )
 
       const zrxEthereumSwapperGetUsdRateMock = jest
@@ -227,9 +227,9 @@ describe('SwapperManager', () => {
         .mockImplementation(
           jest
             .fn()
-            .mockResolvedValueOnce(0.04)
-            .mockResolvedValueOnce(1300)
-            .mockResolvedValueOnce(1300),
+            .mockResolvedValueOnce(Ok(0.04))
+            .mockResolvedValueOnce(Ok(1300))
+            .mockResolvedValueOnce(Ok(1300)),
         )
 
       const zrxAvalancheSwapperGetUsdRateMock = jest.spyOn(zrxAvalancheSwapper, 'getUsdRate')

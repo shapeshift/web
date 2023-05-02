@@ -3,7 +3,6 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { Swapper, TradeQuote } from 'lib/swapper/api'
-import { isFulfilled } from 'lib/swapper/typeGuards'
 
 /*
   The ratio is calculated by dividing the total fiat value of the receive amount
@@ -29,11 +28,9 @@ export const getRatioFromQuote = async (
   */
   const quoteAssets = [quote.sellAsset, quote.buyAsset, feeAsset]
   const usdRatePromises = quoteAssets.map(asset => swapper.getUsdRate(asset))
-  const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = (
-    await Promise.allSettled(usdRatePromises)
-  )
-    .filter(isFulfilled)
-    .map(p => p.value)
+  const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = (await Promise.all(usdRatePromises))
+    .filter(maybeUsdRatePromise => maybeUsdRatePromise.isOk())
+    .map(p => p.unwrap())
 
   const totalSellAmountFiat = bnOrZero(
     fromBaseUnit(quote.sellAmountBeforeFeesCryptoBaseUnit, quote.sellAsset.precision),

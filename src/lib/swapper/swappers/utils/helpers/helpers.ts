@@ -72,7 +72,7 @@ export const getERC20Allowance = ({
   sellAssetErc20Address,
   ownerAddress,
   spenderAddress,
-}: GetERC20AllowanceArgs): Promise<any> => {
+}: GetERC20AllowanceArgs): Promise<number> => {
   const erc20Contract = new web3.eth.Contract(erc20AllowanceAbi, sellAssetErc20Address)
   return erc20Contract.methods.allowance(ownerAddress, spenderAddress).call()
 }

@@ -279,7 +279,9 @@ export const TradeInput = () => {
         })
       }
       if (!wallet) throw new Error('No wallet available')
-      const isApprovalNeeded = await checkApprovalNeeded(wallet)
+      const maybeIsApprovalNeeded = await checkApprovalNeeded(wallet)
+      if (maybeIsApprovalNeeded.isErr()) throw maybeIsApprovalNeeded.unwrapErr().message
+      const isApprovalNeeded = maybeIsApprovalNeeded.unwrap()
       if (isApprovalNeeded) {
         history.push({ pathname: TradeRoutePaths.Approval })
         return

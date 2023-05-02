@@ -46,8 +46,10 @@ export const getCosmosTxData = async (
     affiliateBps,
   } = input
   const fromThorAsset = sellAsset.chainId === KnownChainIds.ThorchainMainnet
-  const gaiaAddressData = await getInboundAddressDataForChain(deps.daemonUrl, cosmosAssetId)
-  const vault = gaiaAddressData?.address
+  const maybeGaiaAddressData = await getInboundAddressDataForChain(deps.daemonUrl, cosmosAssetId)
+  if (maybeGaiaAddressData.isErr()) return Err(maybeGaiaAddressData.unwrapErr())
+  const gaiaAddressData = maybeGaiaAddressData.unwrap()
+  const vault = gaiaAddressData.address
 
   if (!vault && !fromThorAsset)
     return Err(

@@ -2,13 +2,17 @@ import { btcChainId, ethChainId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 import type Web3 from 'web3'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { SwapErrorRight } from 'lib/swapper/api'
 
 import { normalizeAmount } from '../../utils/helpers/helpers'
 import { gasFeeData } from '../../utils/test-data/setupDeps'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
+import { baseUrlFromChainId, getUsdRate } from '../utils/helpers/helpers'
 import { zrxServiceFactory } from '../utils/zrxService'
 import { getZrxTradeQuote } from './getZrxTradeQuote'
 
@@ -21,21 +25,29 @@ jest.mock('lib/swapper/swappers/ZrxSwapper/utils/zrxService', () => {
   }
 })
 
-const zrxService = zrxServiceFactory('https://api.0x.org/')
+const zrxService = zrxServiceFactory({ baseUrl: 'https://api.0x.org/' })
 
 jest.mock('../utils/helpers/helpers', () => ({
   ...jest.requireActual('../utils/helpers/helpers'),
   getUsdRate: jest.fn(),
-  baseUrlFromChainId: () => 'https://api.0x.org/',
+  baseUrlFromChainId: jest.fn(() => 'https://api.0x.org/'),
 }))
 jest.mock('../../utils/helpers/helpers')
 jest.mock('../utils/zrxService')
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mocked(isEvmChainId).mockReturnValue(true)
 
+const mockOk = Ok as jest.MockedFunction<typeof Ok>
+const mockErr = Err as jest.MockedFunction<typeof Err>
 describe('getZrxTradeQuote', () => {
   const sellAmount = '1000000000000000000'
+  ;(getUsdRate as jest.Mock<Promise<Result<string, SwapErrorRight>>>).mockReturnValue(
+    Promise.resolve(mockOk('1')),
+  )
   ;(normalizeAmount as jest.Mock<string>).mockReturnValue(sellAmount)
+  ;(baseUrlFromChainId as jest.Mock<Result<string, SwapErrorRight>>).mockReturnValue(
+    mockOk('https://api.0x.org/'),
+  )
   const zrxSwapperDeps = {
     web3: {} as Web3,
     adapter: {
@@ -47,9 +59,11 @@ describe('getZrxTradeQuote', () => {
   it('returns quote with fee data', async () => {
     const { quoteInput } = setupQuote()
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({
-        data: { price: '100', gasPrice: '1000', gas: '1000000' },
-      }),
+      Promise.resolve(
+        mockOk({
+          data: { price: '100', gasPrice: '1000', gas: '1000000' },
+        }),
+      ),
     )
     const maybeQuote = await getZrxTradeQuote(zrxSwapperDeps, quoteInput)
     expect(maybeQuote.isErr()).toBe(false)
@@ -69,44 +83,43 @@ describe('getZrxTradeQuote', () => {
     expect(quote.rate).toBe('100')
   })
 
-  it('returns an Err with a bad zrx response with no error indicated', async () => {
+  it('bubbles up the zrxService Err from a bad zrx response', async () => {
     const { quoteInput } = setupQuote()
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({}))
+    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve(mockErr({ some: 'error' })),
+    )
     const maybeTradeQuote = await getZrxTradeQuote(zrxSwapperDeps, quoteInput)
 
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
-      cause: undefined,
-      code: 'TRADE_QUOTE_FAILED',
-      message: '[getZrxTradeQuote] Bad ZRX response, no data was returned',
-      name: 'SwapError',
+      some: 'error',
     })
   })
 
-  it('returns an Err with on errored zrx response', async () => {
+  it('returns an Err on errored zrx response', async () => {
     const { quoteInput } = setupQuote()
-    ;(zrxService.get as jest.Mock<unknown>).mockRejectedValue({
-      response: { data: { code: 502, reason: 'Failed to do some stuff' } },
-    } as never)
+    ;(zrxService.get as jest.Mock<unknown>).mockResolvedValue(
+      Err({
+        response: { data: { code: 502, reason: 'Failed to do some stuff' } },
+      }) as unknown as never,
+    )
 
     const maybeTradeQuote = await getZrxTradeQuote(zrxSwapperDeps, quoteInput)
 
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
-      cause: { response: { data: { code: 502, reason: 'Failed to do some stuff' } } },
-      code: 'TRADE_QUOTE_FAILED',
-      details: undefined,
-      message: '[getZrxTradeQuote]',
-      name: 'SwapError',
+      response: { data: { code: 502, reason: 'Failed to do some stuff' } },
     })
   })
 
   it('returns quote without gas limit', async () => {
     const { quoteInput } = setupQuote()
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({
-        data: { price: '100' },
-      }),
+      Promise.resolve(
+        Ok({
+          data: { price: '100' },
+        }),
+      ),
     )
     const maybeQuote = await getZrxTradeQuote(zrxSwapperDeps, quoteInput)
     expect(maybeQuote.isErr()).toBe(false)
@@ -128,7 +141,8 @@ describe('getZrxTradeQuote', () => {
 
   it('returns an Err on non ethereum chain for buyAsset', async () => {
     const { quoteInput, buyAsset } = setupQuote()
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve())
+    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({})))
+
     const maybeTradeQuote = await getZrxTradeQuote(zrxSwapperDeps, {
       ...quoteInput,
       buyAsset: { ...buyAsset, chainId: btcChainId },
@@ -149,7 +163,8 @@ describe('getZrxTradeQuote', () => {
 
   it('returns an Err on non ethereum chain for sellAsset', async () => {
     const { quoteInput, sellAsset } = setupQuote()
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve())
+    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({})))
+
     const maybeTradeQuote = await getZrxTradeQuote(zrxSwapperDeps, {
       ...quoteInput,
       sellAsset: { ...sellAsset, chainId: btcChainId },
@@ -170,8 +185,9 @@ describe('getZrxTradeQuote', () => {
   it('use minQuoteSellAmount when sellAmount is 0', async () => {
     const { quoteInput, sellAsset } = setupQuote()
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({ data: { sellAmount: '20000000000000000000' } }),
+      Promise.resolve(Ok({ data: { sellAmount: '20000000000000000000' } })),
     )
+
     const minimum = '20'
     const maybeQuote = await getZrxTradeQuote(zrxSwapperDeps, {
       ...quoteInput,

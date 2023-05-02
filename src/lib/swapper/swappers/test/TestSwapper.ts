@@ -41,11 +41,11 @@ export class TestSwapper implements Swapper<ChainId> {
     ]
   }
 
-  getUsdRate(_: Pick<Asset, 'symbol' | 'assetId'>): Promise<string> {
+  getUsdRate(_: Pick<Asset, 'symbol' | 'assetId'>): Promise<Result<string, SwapErrorRight>> {
     throw new Error('TestSwapper: getUsdRate unimplemented')
   }
 
-  approvalNeeded(): Promise<ApprovalNeededOutput> {
+  approvalNeeded(): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
     throw new Error('TestSwapper: approvalNeeded unimplemented')
   }
 

@@ -29,7 +29,7 @@ const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   [ethChainId]: 'ethereum',
   [btcChainId]: 'bitcoin',
   [bchChainId]: 'bitcoincash',
-  [dogeChainId]: 'dogecoin',
+  [dogeChainId]: 'doge',
   [ltcChainId]: 'litecoin',
 }
 export const parseMaybeUrlByChainId: Identity<ParseAddressByChainIdInputArgs> = ({

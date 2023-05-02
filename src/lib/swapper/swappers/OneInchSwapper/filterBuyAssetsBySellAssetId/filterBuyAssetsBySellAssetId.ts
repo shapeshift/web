@@ -1,27 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { BuyAssetBySellIdInput } from 'lib/swapper/api'
-import { selectAssets } from 'state/slices/selectors'
-import { store } from 'state/store'
+import { filterSameChainEvmBuyAssetsBySellAssetId } from 'lib/swapper/swappers/utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 
 export function filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
-  const { assetIds = [], sellAssetId } = input
+  // erc20 only
+  const { assetNamespace } = fromAssetId(input.sellAssetId)
+  if (assetNamespace !== 'erc20') return []
 
-  const assets = selectAssets(store.getState())
-  const sellAsset = assets[sellAssetId]
-
-  if (sellAsset === undefined || sellAssetId === ethAssetId || !isEvmChainId(sellAsset.chainId))
-    return []
-
-  const result = assetIds.filter(assetId => {
-    const buyAsset = assets[assetId]
-
-    if (buyAsset === undefined) return false
-
-    // same-chain swaps and evm only
-    return buyAsset.chainId === sellAsset.chainId && isEvmChainId(buyAsset.chainId)
-  })
-
-  return result
+  return filterSameChainEvmBuyAssetsBySellAssetId(input)
 }

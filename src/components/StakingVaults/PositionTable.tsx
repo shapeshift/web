@@ -66,12 +66,19 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsByMarketCap)
   const isLoading = useAppSelector(selectOpportunityApiPending)
-  const positions = useAppSelector(state =>
-    selectAggregatedEarnOpportunitiesByAssetId(state, {
+  const selectAggregatedEarnOpportunitiesByAssetIdParams = useMemo(
+    () => ({
       chainId,
       includeEarnBalances,
       includeRewardsBalances,
     }),
+    [chainId, includeEarnBalances, includeRewardsBalances],
+  )
+  const positions = useAppSelector(state =>
+    selectAggregatedEarnOpportunitiesByAssetId(
+      state,
+      selectAggregatedEarnOpportunitiesByAssetIdParams,
+    ),
   )
 
   const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(

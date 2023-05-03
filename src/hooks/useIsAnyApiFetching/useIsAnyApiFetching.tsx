@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { apiSlices } from 'state/reducer'
 
+let _interval: NodeJS.Timer
 /**
  * does any RTK query API have an outstanding promise?
  */
@@ -12,11 +13,18 @@ export const useIsAnyApiFetching = (): boolean => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const promises = values(apiSlices).flatMap(api => dispatch(api.util.getRunningQueriesThunk()))
-      setIsLoading(Boolean(promises.length))
-    }, POLL_INTERVAL)
-    return () => clearInterval(interval)
+    // Semaphore singleton to prevent multiple intervals
+    if (!_interval) {
+      _interval = setInterval(() => {
+        const promises = values(apiSlices).flatMap(api =>
+          dispatch(api.util.getRunningQueriesThunk()),
+        )
+        setIsLoading(Boolean(promises.length))
+      }, POLL_INTERVAL)
+    }
+    return () => {
+      if (_interval) clearInterval(_interval)
+    }
   }, [dispatch])
 
   return isLoading

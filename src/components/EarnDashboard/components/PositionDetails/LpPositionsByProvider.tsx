@@ -165,7 +165,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
                   variant='sub-text'
                   key={`${assetId}-balance`}
                   size='xs'
-                  // TODO(gomes): This should never be undefined, but it may
+                  // This should never be undefined, but it may
                   value={underlyingBalances[assetId]?.cryptoBalancePrecision ?? '0'}
                   symbol={assets[assetId]?.symbol ?? ''}
                 />

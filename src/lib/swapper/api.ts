@@ -144,7 +144,8 @@ interface TradeBase<C extends ChainId> {
   buyAsset: Asset
   sellAsset: Asset
   accountNumber: number
-  // describes possible assets and amounts in the event of an execution failure
+  // describes all possible interdmiary assets and amounts the user may end up with in the event of
+  // a trade execution failure
   failureAmounts?: FailureAmount[]
 }
 

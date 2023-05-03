@@ -67,6 +67,7 @@ import {
   selectSellAssetAccountId,
   selectSlippage,
   selectSwapperDefaultAffiliateBps,
+  selectSwapperName,
   selectTrade,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
@@ -108,6 +109,7 @@ export const TradeConfirm = () => {
 
   const trade = useSwapperStore(selectTrade)
   const fees = useSwapperStore(selectFees)
+  const swapperName = useSwapperStore(selectSwapperName)
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const slippage = useSwapperStore(selectSlippage)
   const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
@@ -410,14 +412,12 @@ export const TradeConfirm = () => {
     ],
   )
 
-  const isTHORChainSwap = useMemo(
-    () => fees?.tradeFeeSource === SwapperName.Thorchain,
-    [fees?.tradeFeeSource],
-  )
+  const isTHORChainSwap = useMemo(() => swapperName === SwapperName.Thorchain, [swapperName])
+  const is0xSwap = useMemo(() => swapperName === SwapperName.Zrx, [swapperName])
 
   const shouldShowDonationOption = useMemo(() => {
-    return isTHORChainSwap && !isDonationAmountBelowMinimum
-  }, [isDonationAmountBelowMinimum, isTHORChainSwap])
+    return (isTHORChainSwap || is0xSwap) && !isDonationAmountBelowMinimum
+  }, [is0xSwap, isDonationAmountBelowMinimum, isTHORChainSwap])
 
   const tradeWarning: JSX.Element | null = useMemo(() => {
     if (!trade) return null

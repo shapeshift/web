@@ -1,7 +1,6 @@
 import { optimism } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { normalizeAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
@@ -17,6 +16,7 @@ import {
   assertValidTradePair,
   assetToToken,
   baseUrlFromChainId,
+  getTreasuryAddressForReceiveAsset,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
 import type { ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
@@ -53,6 +53,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   )
 
   const buyTokenPercentageFee = convertBasisPointsToDecimalPercentage(affiliateBps).toNumber()
+  const feeRecipient = getTreasuryAddressForReceiveAsset(buyAsset.assetId)
 
   // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-price
   const maybeZrxPriceResponse = (
@@ -64,7 +65,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
         takerAddress: receiveAddress,
         affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
         skipValidation: true,
-        feeRecipient: DAO_TREASURY_ETHEREUM_MAINNET, // Where affiliate fees are sent
+        feeRecipient, // Where affiliate fees are sent
         buyTokenPercentageFee,
       },
     })

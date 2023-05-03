@@ -146,8 +146,8 @@ export const assertValidTradePair = ({
   )
 }
 
-export const getTreasuryAddressForReceiveAsset = (asset: Asset): string => {
-  const chainId = fromAssetId(asset.assetId).chainId
+export const getTreasuryAddressForReceiveAsset = (assetId: AssetId): string => {
+  const chainId = fromAssetId(assetId).chainId
   switch (chainId) {
     case KnownChainIds.EthereumMainnet:
       return DAO_TREASURY_ETHEREUM_MAINNET

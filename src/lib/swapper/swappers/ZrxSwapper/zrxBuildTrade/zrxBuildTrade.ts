@@ -1,7 +1,6 @@
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance } from 'axios'
-import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import * as rax from 'retry-axios'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
@@ -18,6 +17,7 @@ import {
   assertValidTradePair,
   assetToToken,
   baseUrlFromChainId,
+  getTreasuryAddressForReceiveAsset,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
 import type { ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
@@ -58,6 +58,7 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
   })
 
   const buyTokenPercentageFee = convertBasisPointsToDecimalPercentage(affiliateBps).toNumber()
+  const feeRecipient = getTreasuryAddressForReceiveAsset(buyAsset.assetId)
 
   // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-quote
   const maybeQuoteResponse = await zrxService.get<ZrxQuoteResponse>('/swap/v1/quote', {
@@ -69,7 +70,7 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
       slippagePercentage: slippage ? bnOrZero(slippage).toString() : DEFAULT_SLIPPAGE,
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
       skipValidation: false,
-      feeRecipient: DAO_TREASURY_ETHEREUM_MAINNET, // Where affiliate fees are sent
+      feeRecipient, // Where affiliate fees are sent
       buyTokenPercentageFee,
     },
   })

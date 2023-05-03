@@ -293,7 +293,7 @@ export const GlobalSeachButton = () => {
       </Box>
       <Modal scrollBehavior='inside' isOpen={isOpen} onClose={onClose} size='lg'>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent overflow='hidden'>
           <ModalHeader
             position='sticky'
             top={0}

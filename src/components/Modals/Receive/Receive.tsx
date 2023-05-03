@@ -18,12 +18,14 @@ const Receive = ({ asset, accountId }: ReceivePropsType) => {
   const { receive } = useModal()
   const { close, isOpen } = receive
 
+  if (!asset) return null
+
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered>
       <ModalOverlay />
       <ModalContent>
         <MemoryRouter initialEntries={entries}>
-          <ReceiveRouter asset={asset} accountId={accountId} />
+          <ReceiveRouter assetId={asset.assetId} accountId={accountId} />
         </MemoryRouter>
       </ModalContent>
     </Modal>

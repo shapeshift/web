@@ -237,7 +237,7 @@ export const GlobalSeachButton = () => {
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               onKeyDown={onKeyDown}
-              inputGroupProps={{ size: 'lg' }}
+              inputGroupProps={{ size: 'xl' }}
               borderBottomRadius={0}
               borderWidth={0}
             />

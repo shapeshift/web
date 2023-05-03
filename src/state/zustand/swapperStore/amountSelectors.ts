@@ -5,15 +5,18 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import {
   selectAction,
+  selectAffiliateBps,
   selectAmount,
   selectBuyAsset,
   selectBuyAssetFiatRate,
   selectSelectedCurrencyToUsdRate,
+  selectSellAmountFiat,
   selectSellAsset,
   selectSellAssetFiatRate,
   selectSlippage,
 } from 'state/zustand/swapperStore/selectors'
 import type { SwapperState } from 'state/zustand/swapperStore/types'
+import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
 
 const selectAssetPriceRatio = createSelector(
   selectBuyAssetFiatRate,
@@ -262,14 +265,25 @@ export const selectSellAmountPlusFeesFiat = createSelector(
   },
 )
 
-export const selectQuoteSellAmountBeforeFeesSellAssetBaseUnit = createSelector(
+export const selectTradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit = createSelector(
   (state: SwapperState) =>
     state.activeSwapperWithMetadata?.quote?.sellAmountBeforeFeesCryptoBaseUnit,
-  (quoteSellAmountBeforeFeesBaseUnit): string | undefined => quoteSellAmountBeforeFeesBaseUnit,
+  (state: SwapperState) => state.trade?.sellAmountBeforeFeesCryptoBaseUnit,
+  (quoteSellAmountBeforeFeesBaseUnit, tradeSellAmountBeforeFeesBaseUnit): string | undefined =>
+    // Use the trade amount if we have it, otherwise use the quote amount
+    tradeSellAmountBeforeFeesBaseUnit ?? quoteSellAmountBeforeFeesBaseUnit,
+)
+
+export const selectTradeOrQuoteBuyAmountCryptoBaseUnit = createSelector(
+  (state: SwapperState) => state.activeSwapperWithMetadata?.quote?.buyAmountCryptoBaseUnit,
+  (state: SwapperState) => state.trade?.buyAmountCryptoBaseUnit,
+  (quoteBuyAmountBeforeFeesBaseUnit, tradeBuyAmountBeforeFeesBaseUnit): string | undefined =>
+    // Use the trade amount if we have it, otherwise use the quote amount
+    tradeBuyAmountBeforeFeesBaseUnit ?? quoteBuyAmountBeforeFeesBaseUnit,
 )
 
 export const selectQuoteSellAmountPlusFeesBaseUnit = createSelector(
-  selectQuoteSellAmountBeforeFeesSellAssetBaseUnit,
+  selectTradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit,
   selectSellAssetTradeFeeSellAssetBaseUnit,
   (
     quoteSellAmountBeforeFeesSellAssetBaseUnit,
@@ -329,11 +343,11 @@ export const selectBuyAmountAfterFeesFiat = createSelector(
 )
 
 export const selectQuoteBuyAmountCryptoPrecision = createSelector(
-  (state: SwapperState) => state.activeSwapperWithMetadata?.quote?.buyAmountCryptoBaseUnit,
+  selectTradeOrQuoteBuyAmountCryptoBaseUnit,
   (state: SwapperState) => state.buyAsset?.precision,
-  (quoteBuyAmountCryptoBaseUnit, buyAssetPrecision): string | undefined => {
-    if (!quoteBuyAmountCryptoBaseUnit || !buyAssetPrecision) return undefined
-    return fromBaseUnit(quoteBuyAmountCryptoBaseUnit, buyAssetPrecision)
+  (tradeOrQuoteBuyAmountCryptoBaseUnit, buyAssetPrecision): string | undefined => {
+    if (!tradeOrQuoteBuyAmountCryptoBaseUnit || !buyAssetPrecision) return undefined
+    return fromBaseUnit(tradeOrQuoteBuyAmountCryptoBaseUnit, buyAssetPrecision)
   },
 )
 
@@ -562,5 +576,15 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
       default:
         return defaultReturn
     }
+  },
+)
+
+export const selectDonationAmountFiat = createSelector(
+  selectSellAmountFiat,
+  selectAffiliateBps,
+  (sellAmountFiat, affiliateBps): string => {
+    const affiliatePercentage = convertBasisPointsToDecimalPercentage(affiliateBps)
+    // The donation amount is a percentage of the sell amount
+    return bnOrZero(sellAmountFiat).times(affiliatePercentage).toFixed()
   },
 )

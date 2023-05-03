@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
+import { useDonationAmountBelowMinimum } from 'components/Trade/hooks/useDonationAmountBelowMinimum'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { SwapperManager } from 'lib/swapper/manager/SwapperManager'
@@ -21,6 +22,7 @@ import {
   selectQuote,
   selectSellAsset,
   selectSellAssetAccountId,
+  selectSwapperDefaultAffiliateBps,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
@@ -37,6 +39,7 @@ export const useSwapper = () => {
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const getTradeForWallet = useSwapperStore(selectGetTradeForWallet)
+  const defaultAffiliateBps = useSwapperStore(selectSwapperDefaultAffiliateBps)
 
   // Selectors
   const flags = useSelector(selectFeatureFlags)
@@ -46,6 +49,7 @@ export const useSwapper = () => {
   // Hooks
   const [swapperManager, setSwapperManager] = useState<SwapperManager>()
   const wallet = useWallet().state.wallet
+  const isDonationAmountBelowMinimum = useDonationAmountBelowMinimum()
 
   // Selectors
   const supportedSellAssetsByMarketCap = useMemo(() => {
@@ -116,25 +120,32 @@ export const useSwapper = () => {
     return txid
   }, [activeSwapper, isExactAllowance, activeQuote, wallet])
 
-  const getTrade = useCallback(async () => {
-    if (!wallet) throw new Error('no wallet available')
-    if (!sellAccountBip44Params) throw new Error('Missing sellAccountBip44Params')
-    if (!buyAccountBip44Params) throw new Error('Missing buyAccountBip44Params')
-    if (!sellAccountMetadata) throw new Error('Missing sellAccountMetadata')
+  const getTrade = useCallback(
+    async ({ affiliateBps }: { affiliateBps?: string } = {}) => {
+      if (!wallet) throw new Error('no wallet available')
+      if (!sellAccountBip44Params) throw new Error('Missing sellAccountBip44Params')
+      if (!buyAccountBip44Params) throw new Error('Missing buyAccountBip44Params')
+      if (!sellAccountMetadata) throw new Error('Missing sellAccountMetadata')
 
-    return await getTradeForWallet({
+      const trade = await getTradeForWallet({
+        wallet,
+        sellAccountBip44Params,
+        sellAccountMetadata,
+        buyAccountBip44Params,
+        affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps ?? defaultAffiliateBps,
+      })
+      return trade
+    },
+    [
       wallet,
       sellAccountBip44Params,
-      sellAccountMetadata,
       buyAccountBip44Params,
-    })
-  }, [
-    wallet,
-    getTradeForWallet,
-    sellAccountBip44Params,
-    sellAccountMetadata,
-    buyAccountBip44Params,
-  ])
+      sellAccountMetadata,
+      getTradeForWallet,
+      isDonationAmountBelowMinimum,
+      defaultAffiliateBps,
+    ],
+  )
 
   useEffect(() => {
     if (!flags) return

@@ -637,6 +637,7 @@
     "youGet": "You Get",
     "tradeTo": "Trade to",
     "minerFee": "Miner Fee",
+    "donation": "ShapeShift Donation",
     "protocolFee": "Protocol Fee",
     "protocol": "Protocol",
     "tradeFeeSource": "%{tradeFeeSource} Fee",
@@ -666,6 +667,7 @@
       "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
+      "donation": "Help support ShapeShift and keep us up and running.",
       "protocol": "This is the protocol where your trade is being routed.",
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
       "shapeshiftFee": "ShapeShift does not add fees on trades 🎉"

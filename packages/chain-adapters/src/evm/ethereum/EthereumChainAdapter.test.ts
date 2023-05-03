@@ -38,25 +38,6 @@ const getWallet = async (): Promise<ETHWallet> => {
   return wallet
 }
 
-jest.mock('axios', () => ({
-  get: jest.fn(() =>
-    Promise.resolve({
-      data: {
-        result: [
-          {
-            source: 'MEDIAN',
-            timestamp: 1639978534,
-            instant: 55477500000,
-            fast: 50180000000,
-            standard: 45000000000,
-            low: 41000000000,
-          },
-        ],
-      },
-    }),
-  ),
-}))
-
 describe('EthereumChainAdapter', () => {
   const gasPrice = '42'
   const gasLimit = '42000'
@@ -170,29 +151,29 @@ describe('EthereumChainAdapter', () => {
           average: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '45000000000',
+              gasPrice: '300',
               maxFeePerGas: '300',
               maxPriorityFeePerGas: '10',
             },
-            txFee: '945000000000000',
+            txFee: '6300000',
           },
           fast: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '50180000000',
+              gasPrice: '335',
               maxFeePerGas: '335',
               maxPriorityFeePerGas: '12',
             },
-            txFee: '1053780000000000',
+            txFee: '7035000',
           },
           slow: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '41000000000',
+              gasPrice: '274',
               maxFeePerGas: '274',
               maxPriorityFeePerGas: '10',
             },
-            txFee: '861000000000000',
+            txFee: '5754000',
           },
         }),
       )
@@ -213,17 +194,17 @@ describe('EthereumChainAdapter', () => {
       expect(data).toEqual(
         expect.objectContaining({
           average: {
-            gasPrice: '45000000000',
+            gasPrice: '300',
             maxFeePerGas: '300',
             maxPriorityFeePerGas: '10',
           },
           fast: {
-            gasPrice: '50180000000',
+            gasPrice: '335',
             maxFeePerGas: '335',
             maxPriorityFeePerGas: '12',
           },
           slow: {
-            gasPrice: '41000000000',
+            gasPrice: '274',
             maxFeePerGas: '274',
             maxPriorityFeePerGas: '10',
           },

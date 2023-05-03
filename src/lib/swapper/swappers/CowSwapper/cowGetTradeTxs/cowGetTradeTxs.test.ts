@@ -1,4 +1,6 @@
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
+import { Ok } from '@sniptt/monads'
+import type { AxiosStatic } from 'axios'
 import type Web3 from 'web3'
 
 import type { TradeResult } from '../../../api'
@@ -6,7 +8,14 @@ import type { CowSwapperDeps } from '../CowSwapper'
 import { cowService } from '../utils/cowService'
 import { cowGetTradeTxs } from './cowGetTradeTxs'
 
-jest.mock('../utils/cowService')
+jest.mock('../utils/cowService', () => {
+  const axios: AxiosStatic = jest.createMockFromModule('axios')
+  axios.create = jest.fn(() => axios)
+
+  return {
+    cowService: axios.create(),
+  }
+})
 
 describe('cowGetTradeTxs', () => {
   beforeEach(() => {
@@ -25,11 +34,13 @@ describe('cowGetTradeTxs', () => {
     }
 
     ;(cowService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve({
-        data: {
-          status: 'open',
-        },
-      }),
+      Promise.resolve(
+        Ok({
+          data: {
+            status: 'open',
+          },
+        }),
+      ),
     )
 
     const maybeResult = await cowGetTradeTxs(deps, input)
@@ -56,16 +67,20 @@ describe('cowGetTradeTxs', () => {
 
     ;(cowService.get as jest.Mock<unknown>)
       .mockReturnValueOnce(
-        Promise.resolve({
-          data: {
-            status: 'fulfilled',
-          },
-        }),
+        Promise.resolve(
+          Ok({
+            data: {
+              status: 'fulfilled',
+            },
+          }),
+        ),
       )
       .mockReturnValueOnce(
-        Promise.resolve({
-          data: [{ txHash: '123txHash456' }],
-        }),
+        Promise.resolve(
+          Ok({
+            data: [{ txHash: '123txHash456' }],
+          }),
+        ),
       )
 
     const maybeResult = await cowGetTradeTxs(deps, input)

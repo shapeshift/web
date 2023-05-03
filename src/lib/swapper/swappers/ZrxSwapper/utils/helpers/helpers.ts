@@ -11,7 +11,13 @@ import {
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { AxiosResponse } from 'axios'
+import {
+  DAO_TREASURY_AVALANCHE,
+  DAO_TREASURY_BSC,
+  DAO_TREASURY_ETHEREUM_MAINNET,
+  DAO_TREASURY_OPTIMISM,
+  DAO_TREASURY_POLYGON,
+} from 'constants/treasury'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
@@ -20,22 +26,25 @@ import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxServ
 
 import type { ZrxSupportedChainAdapter } from '../../ZrxSwapper'
 
-export const baseUrlFromChainId = (chainId: string): string => {
+export const baseUrlFromChainId = (chainId: string): Result<string, SwapErrorRight> => {
   switch (chainId) {
     case KnownChainIds.EthereumMainnet:
-      return 'https://api.0x.org/'
+      return Ok('https://api.0x.org/')
     case KnownChainIds.AvalancheMainnet:
-      return 'https://avalanche.api.0x.org/'
+      return Ok('https://avalanche.api.0x.org/')
     case KnownChainIds.OptimismMainnet:
-      return 'https://optimism.api.0x.org/'
+      return Ok('https://optimism.api.0x.org/')
     case KnownChainIds.BnbSmartChainMainnet:
-      return 'https://bsc.api.0x.org/'
+      return Ok('https://bsc.api.0x.org/')
     case KnownChainIds.PolygonMainnet:
-      return 'https://polygon.api.0x.org/'
+      return Ok('https://polygon.api.0x.org/')
     default:
-      throw new SwapError(`baseUrlFromChainId] - Unsupported chainId: ${chainId}`, {
-        code: SwapErrorType.UNSUPPORTED_CHAIN,
-      })
+      return Err(
+        makeSwapErrorRight({
+          message: `baseUrlFromChainId] - Unsupported chainId: ${chainId}`,
+          code: SwapErrorType.UNSUPPORTED_CHAIN,
+        }),
+      )
   }
 }
 
@@ -82,40 +91,34 @@ export const assetToToken = (asset: Asset): string => {
   return assetNamespace === 'slip44' ? asset.symbol : assetReference
 }
 
-export const getUsdRate = async (sellAsset: Asset): Promise<string> => {
-  try {
-    const usdcContractAddress = usdcContractAddressFromChainId(sellAsset.chainId)
-    const sellAssetContractAddress = fromAssetId(sellAsset.assetId).assetReference
+export const getUsdRate = async (sellAsset: Asset): Promise<Result<string, SwapErrorRight>> => {
+  const usdcContractAddress = usdcContractAddressFromChainId(sellAsset.chainId)
+  const sellAssetContractAddress = fromAssetId(sellAsset.assetId).assetReference
 
-    if (sellAssetContractAddress === usdcContractAddress) return '1' // Will break if comparing against usdc
+  if (sellAssetContractAddress === usdcContractAddress) return Ok('1') // Will break if comparing against usdc
 
-    const baseUrl = baseUrlFromChainId(sellAsset.chainId)
-    const zrxService = zrxServiceFactory(baseUrl)
-    const rateResponse: AxiosResponse<ZrxPriceResponse> = await zrxService.get<ZrxPriceResponse>(
-      '/swap/v1/price',
-      {
-        params: {
-          buyToken: usdcContractAddress,
-          buyAmount: '1000000000', // rate is imprecise for low $ values, hence asking for $1000
-          sellToken: assetToToken(sellAsset),
-        },
-      },
-    )
+  const maybeBaseUrl = baseUrlFromChainId(sellAsset.chainId)
+  if (maybeBaseUrl.isErr()) return Err(maybeBaseUrl.unwrapErr())
+  const zrxService = zrxServiceFactory({ baseUrl: maybeBaseUrl.unwrap() })
+  const maybeRateResponse = await zrxService.get<ZrxPriceResponse>('/swap/v1/price', {
+    params: {
+      buyToken: usdcContractAddress,
+      buyAmount: '1000000000', // rate is imprecise for low $ values, hence asking for $1000
+      sellToken: assetToToken(sellAsset),
+    },
+  })
 
-    const price = bnOrZero(rateResponse.data.price)
+  return maybeRateResponse.andThen<string>(rateResponse => {
+    const price = bnOrZero(rateResponse.data?.price)
     if (!price.gt(0))
-      throw new SwapError('[getUsdRate] - Failed to get price data', {
-        code: SwapErrorType.RESPONSE_ERROR,
-      })
-
-    return bn(1).dividedBy(price).toString()
-  } catch (e) {
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[getUsdRate]', {
-      cause: e,
-      code: SwapErrorType.USD_RATE_FAILED,
-    })
-  }
+      return Err(
+        makeSwapErrorRight({
+          message: '[getUsdRate] - Failed to get price data',
+          code: SwapErrorType.RESPONSE_ERROR,
+        }),
+      )
+    return Ok(bn(1).dividedBy(price).toString())
+  })
 }
 
 export const assertValidTradePair = ({
@@ -141,4 +144,22 @@ export const assertValidTradePair = ({
       },
     }),
   )
+}
+
+export const getTreasuryAddressForReceiveAsset = (assetId: AssetId): string => {
+  const chainId = fromAssetId(assetId).chainId
+  switch (chainId) {
+    case KnownChainIds.EthereumMainnet:
+      return DAO_TREASURY_ETHEREUM_MAINNET
+    case KnownChainIds.AvalancheMainnet:
+      return DAO_TREASURY_AVALANCHE
+    case KnownChainIds.OptimismMainnet:
+      return DAO_TREASURY_OPTIMISM
+    case KnownChainIds.BnbSmartChainMainnet:
+      return DAO_TREASURY_BSC
+    case KnownChainIds.PolygonMainnet:
+      return DAO_TREASURY_POLYGON
+    default:
+      throw new Error(`[getTreasuryAddressForReceiveAsset] - Unsupported chainId: ${chainId}`)
+  }
 }

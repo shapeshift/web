@@ -23,11 +23,8 @@ import type {
 } from 'lib/swapper/api'
 import { SwapperName, SwapperType } from 'lib/swapper/api'
 import { approvalNeeded } from 'lib/swapper/swappers/LifiSwapper/approvalNeeded/approvalNeeded'
-import { approveAmount, approveInfinite } from 'lib/swapper/swappers/LifiSwapper/approve/approve'
 import { buildTrade } from 'lib/swapper/swappers/LifiSwapper/buildTrade/buildTrade'
 import { executeTrade } from 'lib/swapper/swappers/LifiSwapper/executeTrade/executeTrade'
-import { filterAssetIdsBySellable } from 'lib/swapper/swappers/LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
-import { filterBuyAssetsBySellAssetId } from 'lib/swapper/swappers/LifiSwapper/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { getTradeQuote } from 'lib/swapper/swappers/LifiSwapper/getTradeQuote/getTradeQuote'
 import { getUsdRate } from 'lib/swapper/swappers/LifiSwapper/getUsdRate/getUsdRate'
 import { MAX_LIFI_TRADE } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
@@ -39,6 +36,10 @@ import type {
   LifiTrade,
   LifiTradeQuote,
 } from 'lib/swapper/swappers/LifiSwapper/utils/types'
+import { approveAmount, approveInfinite } from 'lib/swapper/swappers/utils/approve/approve'
+import { filterEvmAssetIdsBySellable } from 'lib/swapper/swappers/utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
+import { filterSameChainEvmBuyAssetsBySellAssetId } from 'lib/swapper/swappers/utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
+import { createEmptyEvmTradeQuote } from 'lib/swapper/swappers/utils/helpers/helpers'
 
 export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SwapperName.LIFI
@@ -92,23 +93,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
     // but rather a "mock" quote from a minimum sell amount.
     // https://github.com/shapeshift/web/issues/4237
     if (isBelowMinSellAmount) {
-      return Ok({
-        buyAmountCryptoBaseUnit: '0',
-        sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
-        feeData: {
-          networkFeeCryptoBaseUnit: '0',
-          buyAssetTradeFeeUsd: '0',
-          chainSpecific: {},
-        },
-        rate: '0',
-        sources: [],
-        buyAsset: input.buyAsset,
-        sellAsset: input.sellAsset,
-        accountNumber: input.accountNumber,
-        allowanceContract: '',
-        minimumCryptoHuman: minimumCryptoHuman.toString(),
-        maximumCryptoHuman: MAX_LIFI_TRADE,
-      })
+      return Ok(createEmptyEvmTradeQuote(input, minimumCryptoHuman.toString(), MAX_LIFI_TRADE))
     }
 
     return await getTradeQuote(input, this.lifiChainMap)
@@ -117,7 +102,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Get the usd rate from either the assets symbol or tokenId
    */
-  async getUsdRate(asset: Asset): Promise<string> {
+  async getUsdRate(asset: Asset): Promise<Result<string, SwapErrorRight>> {
     return await getUsdRate(asset, this.lifiChainMap, getLifi())
   }
 
@@ -137,7 +122,9 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   /**
    * Get a boolean if a quote needs approval
    */
-  async approvalNeeded(input: ApprovalNeededInput<EvmChainId>): Promise<ApprovalNeededOutput> {
+  async approvalNeeded(
+    input: ApprovalNeededInput<EvmChainId>,
+  ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
     return await approvalNeeded(input)
   }
 
@@ -160,14 +147,14 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get supported buyAssetId's by sellAssetId
    */
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
-    return filterBuyAssetsBySellAssetId(input)
+    return filterSameChainEvmBuyAssetsBySellAssetId(input)
   }
 
   /**
    * Get supported sell AssetIds
    */
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    return filterAssetIdsBySellable(assetIds)
+    return filterEvmAssetIdsBySellable(assetIds)
   }
 
   /**

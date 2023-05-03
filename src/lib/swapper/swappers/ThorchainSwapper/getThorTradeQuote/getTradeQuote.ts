@@ -15,7 +15,7 @@ import type {
   SwapErrorRight,
   TradeQuote,
 } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import type {
   ThorChainId,
   ThorCosmosSdkSupportedChainId,
@@ -57,36 +57,38 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     chainId,
     receiveAddress,
     sendMax,
+    affiliateBps,
   } = input
 
-  try {
-    const { assetReference: sellAssetReference } = fromAssetId(sellAsset.assetId)
-    const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
+  const { assetReference: sellAssetReference } = fromAssetId(sellAsset.assetId)
+  const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
 
-    const sellAdapter = deps.adapterManager.get(chainId)
-    const buyAdapter = deps.adapterManager.get(buyAssetChainId)
-    if (!sellAdapter || !buyAdapter)
-      return Err(
-        makeSwapErrorRight({
-          message: `[getThorTradeQuote] - No chain adapter found for ${chainId} or ${buyAssetChainId}.`,
-          code: SwapErrorType.UNSUPPORTED_CHAIN,
-          details: { sellAssetChainId: chainId, buyAssetChainId },
-        }),
-      )
+  const sellAdapter = deps.adapterManager.get(chainId)
+  const buyAdapter = deps.adapterManager.get(buyAssetChainId)
+  if (!sellAdapter || !buyAdapter)
+    return Err(
+      makeSwapErrorRight({
+        message: `[getThorTradeQuote] - No chain adapter found for ${chainId} or ${buyAssetChainId}.`,
+        code: SwapErrorType.UNSUPPORTED_CHAIN,
+        details: { sellAssetChainId: chainId, buyAssetChainId },
+      }),
+    )
 
-    const quote = await getQuote({
-      sellAsset,
-      buyAssetId: buyAsset.assetId,
-      sellAmountCryptoBaseUnit,
-      receiveAddress,
-      deps,
-    })
+  const quote = await getQuote({
+    sellAsset,
+    buyAssetId: buyAsset.assetId,
+    sellAmountCryptoBaseUnit,
+    receiveAddress,
+    affiliateBps,
+    deps,
+  })
 
-    const slippagePercentage = quote.isOk()
-      ? bn(quote.unwrap().slippage_bps).div(1000)
-      : bn(DEFAULT_SLIPPAGE).times(100)
+  const slippagePercentage = quote.isOk()
+    ? bn(quote.unwrap().slippage_bps).div(1000)
+    : bn(DEFAULT_SLIPPAGE).times(100)
 
-    const rate = await quote.match({
+  const rate = (
+    await quote.match({
       ok: quote => {
         const THOR_PRECISION = 8
         const expectedAmountOutThorBaseUnit = quote.expected_amount_out
@@ -100,7 +102,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         )
 
         return Promise.resolve(
-          bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed(),
+          Ok(bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed()),
         )
       },
       // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
@@ -113,184 +115,180 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           deps,
         }),
     })
+  ).unwrap()
 
-    const fees = quote.isOk() ? quote.unwrap().fees : undefined
+  const fees = quote.isOk() ? quote.unwrap().fees : undefined
 
-    const buyAssetTradeFeeBuyAssetCryptoHuman = fees
-      ? fromBaseUnit(bnOrZero(fees.outbound), THORCHAIN_FIXED_PRECISION)
-      : await getInboundAddressDataForChain(deps.daemonUrl, buyAsset.assetId).then(data =>
-          fromBaseUnit(bnOrZero(data?.outbound_fee), THORCHAIN_FIXED_PRECISION),
-        )
+  const maybeBuyAssetTradeFeeBuyAssetCryptoHuman = fees
+    ? Ok(fromBaseUnit(bnOrZero(fees.outbound), THORCHAIN_FIXED_PRECISION))
+    : (await getInboundAddressDataForChain(deps.daemonUrl, buyAsset.assetId)).andThen<string>(
+        data => Ok(fromBaseUnit(bnOrZero(data?.outbound_fee), THORCHAIN_FIXED_PRECISION)),
+      )
 
-    const sellAssetTradeFeeBuyAssetCryptoHuman = fees
-      ? fromBaseUnit(bnOrZero(fees.affiliate), THORCHAIN_FIXED_PRECISION)
-      : '0'
+  const buyAssetTradeFeeBuyAssetCryptoHuman = maybeBuyAssetTradeFeeBuyAssetCryptoHuman.isErr()
+    ? '0'
+    : maybeBuyAssetTradeFeeBuyAssetCryptoHuman.unwrap()
 
-    // If we have a quote, we can use the quote's expected amount out. If not it's either a 0-value trade or an error, so use '0'.
-    // Because the expected_amount_out is the amount after fees, we need to add them back on to get the "before fees" amount
-    const buyAmountCryptoBaseUnit = (() => {
-      if (quote.isOk()) {
-        const unwrappedQuote = quote.unwrap()
-        const expectedAmountOutThorBaseUnit = unwrappedQuote.expected_amount_out
-        // Add back the outbound fees
-        const expectedAmountPlusFeesCryptoThorBaseUnit = bn(expectedAmountOutThorBaseUnit)
-          .plus(unwrappedQuote.fees.outbound)
-          .plus(unwrappedQuote.fees.affiliate)
+  const sellAssetTradeFeeBuyAssetCryptoHuman = fees
+    ? fromBaseUnit(bnOrZero(fees.affiliate), THORCHAIN_FIXED_PRECISION)
+    : '0'
 
-        return toBaseUnit(
-          fromBaseUnit(expectedAmountPlusFeesCryptoThorBaseUnit, THORCHAIN_FIXED_PRECISION),
-          buyAsset.precision,
-        )
-      } else {
-        return '0'
-      }
-    })()
+  // If we have a quote, we can use the quote's expected amount out. If not it's either a 0-value trade or an error, so use '0'.
+  // Because the expected_amount_out is the amount after fees, we need to add them back on to get the "before fees" amount
+  const buyAmountCryptoBaseUnit = (() => {
+    if (quote.isOk()) {
+      const unwrappedQuote = quote.unwrap()
+      const expectedAmountOutThorBaseUnit = unwrappedQuote.expected_amount_out
+      // Add back the outbound fees
+      const expectedAmountPlusFeesCryptoThorBaseUnit = bn(expectedAmountOutThorBaseUnit)
+        .plus(unwrappedQuote.fees.outbound)
+        .plus(unwrappedQuote.fees.affiliate)
 
-    const sellAssetUsdRate = await getUsdRate(deps.daemonUrl, sellAsset.assetId)
-    const buyAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAsset.assetId)
-
-    const buyAssetTradeFeeUsd = bn(buyAssetUsdRate)
-      .times(buyAssetTradeFeeBuyAssetCryptoHuman)
-      .toString()
-    const sellAssetTradeFeeUsd = bn(buyAssetUsdRate)
-      .times(sellAssetTradeFeeBuyAssetCryptoHuman)
-      .toString()
-
-    const minimumSellAssetAmountCryptoHuman = bn(sellAssetUsdRate).isGreaterThan(0)
-      ? bnOrZero(buyAssetTradeFeeUsd).div(sellAssetUsdRate)
-      : bn(0) // We don't have a valid rate for the sell asset, there is no sane minimum
-
-    // minimum is tradeFee padded by an amount to be sure they get something back
-    // usually it will be slightly more than the amount because sellAssetTradeFee is already a high estimate
-    const minimumSellAssetAmountPaddedCryptoHuman = minimumSellAssetAmountCryptoHuman
-      .times(THOR_MINIMUM_PADDING)
-      .toString()
-
-    const commonQuoteFields: CommonQuoteFields = {
-      rate,
-      maximumCryptoHuman: MAX_THORCHAIN_TRADE,
-      sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-      buyAmountCryptoBaseUnit,
-      sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
-      buyAsset,
-      sellAsset,
-      accountNumber,
-      minimumCryptoHuman: minimumSellAssetAmountPaddedCryptoHuman,
-      recommendedSlippage: slippagePercentage.div(100).toString(),
+      return toBaseUnit(
+        fromBaseUnit(expectedAmountPlusFeesCryptoThorBaseUnit, THORCHAIN_FIXED_PRECISION),
+        buyAsset.precision,
+      )
+    } else {
+      return '0'
     }
+  })()
 
-    const { chainNamespace } = fromAssetId(sellAsset.assetId)
-    switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Evm:
-        return (async (): Promise<
-          Promise<Result<TradeQuote<ThorEvmSupportedChainId>, SwapErrorRight>>
-        > => {
-          const sellChainFeeAssetId = sellAdapter.getFeeAssetId()
-          const evmAddressData = await getInboundAddressDataForChain(
-            deps.daemonUrl,
-            sellChainFeeAssetId,
-            false,
+  const maybeSellAssetUsdRate = await getUsdRate(deps.daemonUrl, sellAsset.assetId)
+  const maybeBuyAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAsset.assetId)
+
+  if (maybeBuyAssetUsdRate.isErr()) return Err(maybeBuyAssetUsdRate.unwrapErr())
+  const buyAssetUsdRate = maybeBuyAssetUsdRate.unwrap()
+  if (maybeSellAssetUsdRate.isErr()) return Err(maybeSellAssetUsdRate.unwrapErr())
+  const sellAssetUsdRate = maybeSellAssetUsdRate.unwrap()
+
+  const buyAssetTradeFeeUsd = bn(buyAssetUsdRate)
+    .times(buyAssetTradeFeeBuyAssetCryptoHuman)
+    .toString()
+  const sellAssetTradeFeeUsd = bn(buyAssetUsdRate)
+    .times(sellAssetTradeFeeBuyAssetCryptoHuman)
+    .toString()
+
+  const minimumSellAssetAmountCryptoHuman = bn(sellAssetUsdRate).isGreaterThan(0)
+    ? bnOrZero(buyAssetTradeFeeUsd).div(sellAssetUsdRate)
+    : bn(0) // We don't have a valid rate for the sell asset, there is no sane minimum
+
+  // minimum is tradeFee padded by an amount to be sure they get something back
+  // usually it will be slightly more than the amount because sellAssetTradeFee is already a high estimate
+  const minimumSellAssetAmountPaddedCryptoHuman = minimumSellAssetAmountCryptoHuman
+    .times(THOR_MINIMUM_PADDING)
+    .toString()
+
+  const commonQuoteFields: CommonQuoteFields = {
+    rate,
+    maximumCryptoHuman: MAX_THORCHAIN_TRADE,
+    sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+    buyAmountCryptoBaseUnit,
+    sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
+    buyAsset,
+    sellAsset,
+    accountNumber,
+    minimumCryptoHuman: minimumSellAssetAmountPaddedCryptoHuman,
+    recommendedSlippage: slippagePercentage.div(100).toString(),
+  }
+
+  const { chainNamespace } = fromAssetId(sellAsset.assetId)
+  switch (chainNamespace) {
+    case CHAIN_NAMESPACE.Evm:
+      return (async (): Promise<
+        Promise<Result<TradeQuote<ThorEvmSupportedChainId>, SwapErrorRight>>
+      > => {
+        const sellChainFeeAssetId = sellAdapter.getFeeAssetId()
+        const maybeEvmAddressData = await getInboundAddressDataForChain(
+          deps.daemonUrl,
+          sellChainFeeAssetId,
+          false,
+        )
+        if (maybeEvmAddressData.isErr()) return Err(maybeEvmAddressData.unwrapErr())
+        const evmAddressData = maybeEvmAddressData.unwrap()
+
+        const router = evmAddressData?.router
+        if (!router)
+          return Err(
+            makeSwapErrorRight({
+              message: `[getThorTradeQuote] No router address found for ${sellChainFeeAssetId}`,
+            }),
           )
-          const router = evmAddressData?.router
-          if (!router)
-            return Err(
-              makeSwapErrorRight({
-                message: `[getThorTradeQuote] No router address found for ${sellChainFeeAssetId}`,
-              }),
-            )
 
-          const feeData = await getEvmTxFees({
-            adapter: sellAdapter as unknown as EvmBaseAdapter<ThorEvmSupportedChainId>,
-            sellAssetReference,
+        const feeData = await getEvmTxFees({
+          adapter: sellAdapter as unknown as EvmBaseAdapter<ThorEvmSupportedChainId>,
+          sellAssetReference,
+          buyAssetTradeFeeUsd,
+          sellAssetTradeFeeUsd,
+        })
+
+        return Ok({
+          ...commonQuoteFields,
+          allowanceContract: router,
+          feeData,
+        })
+      })()
+
+    case CHAIN_NAMESPACE.Utxo:
+      return (async (): Promise<Result<TradeQuote<ThorUtxoSupportedChainId>, SwapErrorRight>> => {
+        const maybeThorTxInfo = await getThorTxInfo({
+          deps,
+          sellAsset,
+          buyAsset,
+          sellAmountCryptoBaseUnit,
+          slippageTolerance: DEFAULT_SLIPPAGE,
+          destinationAddress: receiveAddress,
+          xpub: (input as GetUtxoTradeQuoteInput).xpub,
+          buyAssetTradeFeeUsd,
+          affiliateBps,
+        })
+
+        if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
+        const thorTxInfo = maybeThorTxInfo.unwrap()
+        const { vault, opReturnData, pubkey } = thorTxInfo
+
+        const feeData = await getUtxoTxFees({
+          sellAmountCryptoBaseUnit,
+          vault,
+          opReturnData,
+          pubkey,
+          sellAdapter: sellAdapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>,
+          buyAssetTradeFeeUsd,
+          sellAssetTradeFeeUsd,
+          sendMax,
+        })
+
+        return Ok({
+          ...commonQuoteFields,
+          allowanceContract: '0x0', // not applicable to bitcoin
+          feeData,
+        })
+      })()
+    case CHAIN_NAMESPACE.CosmosSdk:
+      return (async (): Promise<
+        Result<TradeQuote<ThorCosmosSdkSupportedChainId>, SwapErrorRight>
+      > => {
+        const feeData = await (
+          sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
+        ).getFeeData({})
+
+        return Ok({
+          ...commonQuoteFields,
+          allowanceContract: '0x0', // not applicable to cosmos
+          feeData: {
+            networkFeeCryptoBaseUnit: feeData.fast.txFee,
             buyAssetTradeFeeUsd,
             sellAssetTradeFeeUsd,
-          })
-
-          return Ok({
-            ...commonQuoteFields,
-            allowanceContract: router,
-            feeData,
-          })
-        })()
-
-      case CHAIN_NAMESPACE.Utxo:
-        return (async (): Promise<Result<TradeQuote<ThorUtxoSupportedChainId>, SwapErrorRight>> => {
-          const maybeThorTxInfo = await getThorTxInfo({
-            deps,
-            sellAsset,
-            buyAsset,
-            sellAmountCryptoBaseUnit,
-            slippageTolerance: DEFAULT_SLIPPAGE,
-            destinationAddress: receiveAddress,
-            xpub: (input as GetUtxoTradeQuoteInput).xpub,
-            buyAssetTradeFeeUsd,
-          })
-
-          if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
-          const thorTxInfo = maybeThorTxInfo.unwrap()
-          const { vault, opReturnData, pubkey } = thorTxInfo
-
-          const feeData = await getUtxoTxFees({
-            sellAmountCryptoBaseUnit,
-            vault,
-            opReturnData,
-            pubkey,
-            sellAdapter: sellAdapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>,
-            buyAssetTradeFeeUsd,
-            sellAssetTradeFeeUsd,
-            sendMax,
-          })
-
-          return Ok({
-            ...commonQuoteFields,
-            allowanceContract: '0x0', // not applicable to bitcoin
-            feeData,
-          })
-        })()
-      case CHAIN_NAMESPACE.CosmosSdk:
-        return (async (): Promise<
-          Result<TradeQuote<ThorCosmosSdkSupportedChainId>, SwapErrorRight>
-        > => {
-          const feeData = await (
-            sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
-          ).getFeeData({})
-
-          return Ok({
-            ...commonQuoteFields,
-            allowanceContract: '0x0', // not applicable to cosmos
-            feeData: {
-              networkFeeCryptoBaseUnit: feeData.fast.txFee,
-              buyAssetTradeFeeUsd,
-              sellAssetTradeFeeUsd,
-              chainSpecific: { estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit },
-            },
-          })
-        })()
-      default:
-        return Err(
-          makeSwapErrorRight({
-            message: '[getThorTradeQuote] - Asset chainId is not supported.',
-            code: SwapErrorType.UNSUPPORTED_CHAIN,
-            details: { chainId },
-          }),
-        )
-    }
-  } catch (e) {
-    // TODO: We shouldn't nee to catch anymore, since there should never be errors in the first place 🎉
-    if (e instanceof SwapError)
+            chainSpecific: { estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit },
+          },
+        })
+      })()
+    default:
       return Err(
         makeSwapErrorRight({
-          message: e.message,
-          code: e.code,
-          details: e.details,
+          message: '[getThorTradeQuote] - Asset chainId is not supported.',
+          code: SwapErrorType.UNSUPPORTED_CHAIN,
+          details: { chainId },
         }),
       )
-    return Err(
-      makeSwapErrorRight({
-        message: '[getThorTradeQuote]',
-        cause: e,
-        code: SwapErrorType.TRADE_QUOTE_FAILED,
-      }),
-    )
   }
 }

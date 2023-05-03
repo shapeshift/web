@@ -94,7 +94,7 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     return getZrxTradeQuote<T>(this.deps, input)
   }
 
-  getUsdRate(input: Asset): Promise<string> {
+  getUsdRate(input: Asset): Promise<Result<string, SwapErrorRight>> {
     return getUsdRate(input)
   }
 
@@ -102,7 +102,9 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
     return zrxExecuteTrade<T>(this.deps, args)
   }
 
-  approvalNeeded(args: ApprovalNeededInput<T>): Promise<ApprovalNeededOutput> {
+  approvalNeeded(
+    args: ApprovalNeededInput<T>,
+  ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
     return zrxApprovalNeeded<T>(this.deps, args)
   }
 

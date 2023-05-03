@@ -45,6 +45,7 @@ export const getTradeQuoteArgs = async ({
     sendMax: isSendMax,
     receiveAddress,
     accountNumber: sellAccountNumber,
+    affiliateBps: '0',
   }
   if (isEvmSwap(sellAsset?.chainId) || isCosmosSdkSwap(sellAsset?.chainId)) {
     return {

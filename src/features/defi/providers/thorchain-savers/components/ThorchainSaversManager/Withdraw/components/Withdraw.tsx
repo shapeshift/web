@@ -132,15 +132,18 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
 
   const getOutboundFeeCryptoBaseUnit = useCallback(async () => {
     const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-    const inboundAddressData = await getInboundAddressDataForChain(daemonUrl, assetId)
+    const maybeInboundAddressData = await getInboundAddressDataForChain(daemonUrl, assetId)
 
-    if (!inboundAddressData) return
-
-    const { outbound_fee } = inboundAddressData
-
-    const outboundFeeCryptoBaseUnit = toBaseUnit(fromThorBaseUnit(outbound_fee), asset.precision)
-
-    return outboundFeeCryptoBaseUnit
+    return maybeInboundAddressData.match({
+      ok: ({ outbound_fee }) => {
+        const outboundFeeCryptoBaseUnit = toBaseUnit(
+          fromThorBaseUnit(outbound_fee),
+          asset.precision,
+        )
+        return outboundFeeCryptoBaseUnit
+      },
+      err: () => undefined,
+    })
   }, [asset.precision, assetId])
 
   const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])

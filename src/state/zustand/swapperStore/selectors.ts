@@ -3,6 +3,7 @@ import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import {
   isCosmosSdkSwap,
@@ -43,15 +44,17 @@ export const selectAmount = (state: SwapperState) => state.amount
 export const selectReceiveAddress = (state: SwapperState) => state.receiveAddress
 export const selectFees = (state: SwapperState) => state.fees
 export const selectTrade = (state: SwapperState) => state.trade
+export const selectSwapperName = (state: SwapperState) =>
+  state.activeSwapperWithMetadata?.swapper.name
 export const selectActiveSwapperWithMetadata = (state: SwapperState) =>
   state.activeSwapperWithMetadata
 export const selectAvailableSwappersWithMetadata = (state: SwapperState) =>
   state.availableSwappersWithMetadata
 export const selectSelectedCurrencyToUsdRate = (state: SwapperState) =>
   state.selectedCurrencyToUsdRate
-
 export const selectSlippage = (state: SwapperState): string =>
   state.activeSwapperWithMetadata?.quote.recommendedSlippage ?? DEFAULT_SLIPPAGE
+export const selectAffiliateBps = (state: SwapperState): string => state.activeAffiliateBps
 
 export const selectQuote = (state: SwapperState): TradeQuote<ChainId> | undefined =>
   state.activeSwapperWithMetadata?.quote
@@ -83,17 +86,39 @@ export const selectSwapperSupportsCrossAccountTrade = (state: SwapperState): boo
   }
 }
 
+export const selectSwapperDefaultAffiliateBps = (state: SwapperState): string => {
+  const activeSwapper = state.activeSwapperWithMetadata?.swapper
+  const swapperName = activeSwapper?.name
+
+  if (swapperName === undefined) return '0'
+
+  switch (swapperName) {
+    case SwapperName.Thorchain:
+    case SwapperName.Zrx:
+      return '30'
+    case SwapperName.Osmosis:
+    case SwapperName.LIFI:
+    case SwapperName.CowSwap:
+    case SwapperName.OneInch:
+    case SwapperName.Test:
+      return '0'
+    default:
+      assertUnreachable(swapperName)
+  }
+}
+
 export const selectCheckApprovalNeededForWallet = (
   state: SwapperState,
-): ((wallet: HDWallet) => Promise<boolean>) => {
-  return async (wallet: HDWallet): Promise<boolean> => {
+): ((wallet: HDWallet) => Promise<Result<boolean, SwapErrorRight>>) => {
+  return async (wallet: HDWallet): Promise<Result<boolean, SwapErrorRight>> => {
     const activeSwapper = state.activeSwapperWithMetadata?.swapper
     const activeQuote = state.activeSwapperWithMetadata?.quote
     if (!activeSwapper) throw new Error('No swapper available')
     if (!activeQuote) throw new Error('No quote available')
 
-    const { approvalNeeded } = await activeSwapper.approvalNeeded({ quote: activeQuote, wallet })
-    return approvalNeeded
+    return (await activeSwapper.approvalNeeded({ quote: activeQuote, wallet })).andThen(
+      ({ approvalNeeded }) => Ok(approvalNeeded),
+    )
   }
 }
 
@@ -102,6 +127,7 @@ type SelectGetTradeForWalletArgs = {
   sellAccountBip44Params: BIP44Params
   buyAccountBip44Params: BIP44Params
   sellAccountMetadata: AccountMetadata
+  affiliateBps: string
 }
 
 type SelectGetTradeForWalletReturn = Promise<Result<Trade<ChainId>, SwapErrorRight>>
@@ -114,6 +140,7 @@ export const selectGetTradeForWallet = (
     sellAccountMetadata,
     sellAccountBip44Params,
     buyAccountBip44Params,
+    affiliateBps,
   }: SelectGetTradeForWalletArgs): SelectGetTradeForWalletReturn => {
     const activeSwapper = state.activeSwapperWithMetadata?.swapper
     const activeQuote = state.activeSwapperWithMetadata?.quote
@@ -142,6 +169,7 @@ export const selectGetTradeForWallet = (
       sendMax: state.isSendMax,
       receiveAddress,
       slippage: selectSlippage(state),
+      affiliateBps,
     }
 
     if (isUtxoSwap(sellAsset.chainId)) {

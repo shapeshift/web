@@ -22,6 +22,7 @@ type MakeTradeTxArgs<T extends EvmChainId> = {
   adapter: EvmBaseAdapter<ThorEvmSupportedChainId>
   slippageTolerance: string
   feeData: QuoteFeeData<T>
+  affiliateBps: string
   deps: ThorchainSwapperDeps
 }
 
@@ -35,6 +36,7 @@ export const makeTradeTx = async ({
   adapter,
   slippageTolerance,
   feeData,
+  affiliateBps,
   deps,
 }: MakeTradeTxArgs<EvmChainId>): Promise<
   Result<
@@ -56,6 +58,7 @@ export const makeTradeTx = async ({
       slippageTolerance,
       destinationAddress,
       buyAssetTradeFeeUsd: feeData.buyAssetTradeFeeUsd,
+      affiliateBps,
     })
 
     if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())

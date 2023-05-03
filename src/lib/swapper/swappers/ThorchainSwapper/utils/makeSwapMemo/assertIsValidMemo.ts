@@ -12,7 +12,9 @@ import {
 } from '@shapeshiftoss/caip'
 import { chainIdToChainLabel } from '@shapeshiftoss/chain-adapters'
 import WAValidator from 'multicoin-address-validator'
+import { bn } from 'lib/bignumber/bignumber'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
+import { THORCHAIN_AFFILIATE_NAME } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 
 const thorChainAssetToChainId: Map<string, ChainId> = new Map([
   ['ETH', ethChainId],
@@ -59,6 +61,9 @@ export const assertIsValidMemo = (memo: string): void => {
   const memoParts = memo.split(MEMO_PART_DELIMITER)
   const pool = memoParts[1]
   const address = memoParts[2]
+  const limit = memoParts[3]
+  const affiliate = memoParts[4]
+  const affiliateBps = memoParts[5]
   const buyAssetChainId = thorChainAssetToChainId.get(pool.split(POOL_PART_DELIMITER)[0])
   const isAddressValid = buyAssetChainId
     ? isValidMemoAddress(buyAssetChainId, pool, address)
@@ -68,6 +73,34 @@ export const assertIsValidMemo = (memo: string): void => {
     throw new SwapError(`[makeSwapMemo] - memo ${memo} invalid`, {
       code: SwapErrorType.MAKE_MEMO_FAILED,
     })
+  }
+
+  // Check if limit is a valid number
+  if (!bn(limit).isInteger()) {
+    throw new SwapError(`[makeSwapMemo] - limit ${limit} is not a valid number`, {
+      code: SwapErrorType.MAKE_MEMO_FAILED,
+    })
+  }
+
+  // Check if affiliate is "ss"
+  if (affiliate !== THORCHAIN_AFFILIATE_NAME) {
+    throw new SwapError(
+      `[makeSwapMemo] - affiliate ${affiliate} is not ${THORCHAIN_AFFILIATE_NAME}`,
+      {
+        code: SwapErrorType.MAKE_MEMO_FAILED,
+      },
+    )
+  }
+
+  // Check if affiliateBps is a number between and including 0 and 1000 (the valid range for THORSwap)
+  const affiliateBpsNum = parseFloat(affiliateBps)
+  if (!bn(limit).isInteger() || bn(affiliateBpsNum).lt(0) || bn(affiliateBpsNum).gt(1000)) {
+    throw new SwapError(
+      `[makeSwapMemo] - affiliateBps ${affiliateBps} is not a number between 0 and 1000`,
+      {
+        code: SwapErrorType.MAKE_MEMO_FAILED,
+      },
+    )
   }
 
   if (memo.length > MAX_MEMO_LENGTH) {

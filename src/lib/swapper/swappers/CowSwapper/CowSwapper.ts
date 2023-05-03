@@ -66,7 +66,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     return getCowSwapTradeQuote(this.deps, input)
   }
 
-  getUsdRate(input: Asset): Promise<string> {
+  getUsdRate(input: Asset): Promise<Result<string, SwapErrorRight>> {
     return getUsdRate(this.deps, input)
   }
 
@@ -78,7 +78,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
 
   approvalNeeded(
     args: ApprovalNeededInput<KnownChainIds.EthereumMainnet>,
-  ): Promise<ApprovalNeededOutput> {
+  ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
     return cowApprovalNeeded(this.deps, args)
   }
 

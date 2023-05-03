@@ -1,124 +1,136 @@
+import { optimism } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
-import { APPROVAL_GAS_LIMIT } from 'lib/swapper/swappers/utils/constants'
 import { normalizeAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
 import { getZrxMinMax } from 'lib/swapper/swappers/ZrxSwapper/getZrxMinMax/getZrxMinMax'
 import type { ZrxPriceResponse, ZrxSwapperDeps } from 'lib/swapper/swappers/ZrxSwapper/types'
-import { AFFILIATE_ADDRESS, DEFAULT_SOURCE } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
+import {
+  AFFILIATE_ADDRESS,
+  DEFAULT_SOURCE,
+  OPTIMISM_L1_APPROVE_GAS_LIMIT,
+  OPTIMISM_L1_SWAP_GAS_LIMIT,
+} from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
 import {
   assertValidTradePair,
   assetToToken,
   baseUrlFromChainId,
+  getTreasuryAddressForReceiveAsset,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
 import type { ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
+import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
+
+import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 
 export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   { adapter }: ZrxSwapperDeps,
   input: GetEvmTradeQuoteInput,
 ): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
-  try {
-    const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
-    const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
+  const { sellAsset, buyAsset, accountNumber, receiveAddress, affiliateBps } = input
+  const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
 
-    const assertion = assertValidTradePair({ adapter, buyAsset, sellAsset })
-    if (assertion.isErr()) return Err(assertion.unwrapErr())
+  const assertion = assertValidTradePair({ adapter, buyAsset, sellAsset })
+  if (assertion.isErr()) return Err(assertion.unwrapErr())
 
-    const baseUrl = baseUrlFromChainId(buyAsset.chainId)
-    const zrxService = zrxServiceFactory(baseUrl)
+  const maybeBaseUrl = baseUrlFromChainId(buyAsset.chainId)
+  if (maybeBaseUrl.isErr()) return Err(maybeBaseUrl.unwrapErr())
+  const zrxService = zrxServiceFactory({ baseUrl: maybeBaseUrl.unwrap() })
 
-    const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = await getZrxMinMax(
-      sellAsset,
-      buyAsset,
-    )
-    const minQuoteSellAmountCryptoBaseUnit = bnOrZero(minimumAmountCryptoHuman).times(
-      bn(10).exponentiatedBy(sellAsset.precision),
-    )
+  const maybeZrxMinMax = await getZrxMinMax(sellAsset, buyAsset)
+  if (maybeZrxMinMax.isErr()) {
+    return Err(maybeZrxMinMax.unwrapErr())
+  }
+  const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = maybeZrxMinMax.unwrap()
 
-    const normalizedSellAmount = normalizeAmount(
-      bnOrZero(sellAmount).eq(0) ? minQuoteSellAmountCryptoBaseUnit : sellAmount,
-    )
+  const minQuoteSellAmountCryptoBaseUnit = bnOrZero(minimumAmountCryptoHuman).times(
+    bn(10).exponentiatedBy(sellAsset.precision),
+  )
 
-    // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-price
-    const { data } = await zrxService.get<ZrxPriceResponse>('/swap/v1/price', {
+  const normalizedSellAmount = normalizeAmount(
+    bnOrZero(sellAmount).eq(0) ? minQuoteSellAmountCryptoBaseUnit : sellAmount,
+  )
+
+  const buyTokenPercentageFee = convertBasisPointsToDecimalPercentage(affiliateBps).toNumber()
+  const feeRecipient = getTreasuryAddressForReceiveAsset(buyAsset.assetId)
+
+  // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-price
+  const maybeZrxPriceResponse = (
+    await zrxService.get<ZrxPriceResponse>('/swap/v1/price', {
       params: {
         buyToken: assetToToken(buyAsset),
         sellToken: assetToToken(sellAsset),
         sellAmount: normalizedSellAmount,
         takerAddress: receiveAddress,
-        affiliateAddress: AFFILIATE_ADDRESS,
+        affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
         skipValidation: true,
+        feeRecipient, // Where affiliate fees are sent
+        buyTokenPercentageFee,
       },
     })
+  ).andThen(({ data }) => Ok(data))
 
-    if (!data) {
-      return Err(
-        makeSwapErrorRight({
-          message: '[getZrxTradeQuote] Bad ZRX response, no data was returned',
-          code: SwapErrorType.TRADE_QUOTE_FAILED,
-        }),
-      )
+  if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
+
+  const data = maybeZrxPriceResponse.unwrap()
+
+  const useSellAmount = !!sellAmount
+  const rate = useSellAmount ? data.price : bn(1).div(data.price).toString()
+
+  // add gas limit buffer to account for the fact we perform all of our validation on the trade quote estimations
+  // which are inaccurate and not what we use for the tx to broadcast
+  const gasLimit = bnOrZero(data.gas).times(1.2)
+
+  // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
+  // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
+  const { average, approvalFee, txFee } = await (async () => {
+    if (optimism.isOptimismChainAdapter(adapter)) {
+      const { average, l1GasPrice } = await adapter.getGasFeeData()
+
+      // account for l1 transaction fees for optimism
+      const l1ApprovalFee = bn(OPTIMISM_L1_APPROVE_GAS_LIMIT).times(l1GasPrice)
+      const l1TxFee = bn(OPTIMISM_L1_SWAP_GAS_LIMIT).times(l1GasPrice)
+
+      return {
+        average,
+        approvalFee: bn(APPROVAL_GAS_LIMIT).times(average.gasPrice).plus(l1ApprovalFee),
+        txFee: gasLimit.times(average.gasPrice).plus(l1TxFee),
+      }
     }
 
-    const { average, fast } = await adapter.getGasFeeData()
+    const { average } = await adapter.getGasFeeData()
 
-    // use worst case average eip1559 vs fast legacy
-    const maxGasPrice = bnOrZero(BigNumber.max(average.maxFeePerGas ?? 0, fast.gasPrice))
+    const approvalFee = bn(APPROVAL_GAS_LIMIT).times(average.gasPrice)
+    const txFee = gasLimit.times(average.gasPrice)
 
-    // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
-    // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
-    const approvalFeeCryptoBaseUnit = bn(APPROVAL_GAS_LIMIT).times(maxGasPrice).toFixed(0)
+    return { average, approvalFee, txFee }
+  })()
 
-    const useSellAmount = !!sellAmount
-    const rate = useSellAmount ? data.price : bn(1).div(data.price).toString()
-    const gasLimit = bnOrZero(data.gas)
-    const txFee = gasLimit.times(maxGasPrice)
-
-    const tradeQuote: TradeQuote<ZrxSupportedChainId> = {
-      buyAsset,
-      sellAsset,
-      accountNumber,
-      rate,
-      minimumCryptoHuman: minimumAmountCryptoHuman,
-      maximumCryptoHuman: maximumAmountCryptoHuman,
-      feeData: {
-        chainSpecific: {
-          estimatedGasCryptoBaseUnit: gasLimit.toFixed(0),
-          gasPriceCryptoBaseUnit: fast.gasPrice, // fast gas price since it is underestimated currently
-          maxFeePerGas: average.maxFeePerGas,
-          maxPriorityFeePerGas: average.maxPriorityFeePerGas,
-          approvalFeeCryptoBaseUnit,
-        },
-        networkFeeCryptoBaseUnit: txFee.toFixed(0),
-        buyAssetTradeFeeUsd: '0',
-        sellAssetTradeFeeUsd: '0',
+  const tradeQuote: TradeQuote<ZrxSupportedChainId> = {
+    buyAsset,
+    sellAsset,
+    accountNumber,
+    rate,
+    minimumCryptoHuman: minimumAmountCryptoHuman,
+    maximumCryptoHuman: maximumAmountCryptoHuman,
+    feeData: {
+      chainSpecific: {
+        estimatedGasCryptoBaseUnit: gasLimit.toFixed(0),
+        gasPriceCryptoBaseUnit: average.gasPrice,
+        maxFeePerGas: average.maxFeePerGas,
+        maxPriorityFeePerGas: average.maxPriorityFeePerGas,
+        approvalFeeCryptoBaseUnit: approvalFee.toFixed(0),
       },
-      allowanceContract: data.allowanceTarget,
-      buyAmountCryptoBaseUnit: data.buyAmount,
-      sellAmountBeforeFeesCryptoBaseUnit: data.sellAmount,
-      sources: data.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
-    }
-
-    return Ok(tradeQuote as TradeQuote<T>)
-  } catch (e) {
-    // TODO(gomes): scrutinize what can throw above and don't throw, because monads
-    if (e instanceof SwapError)
-      return Err(
-        makeSwapErrorRight({
-          message: e.message,
-          code: e.code,
-          details: e.details,
-        }),
-      )
-    return Err(
-      makeSwapErrorRight({
-        message: '[getZrxTradeQuote]',
-        cause: e,
-        code: SwapErrorType.TRADE_QUOTE_FAILED,
-      }),
-    )
+      networkFeeCryptoBaseUnit: txFee.toFixed(0),
+      buyAssetTradeFeeUsd: '0',
+      sellAssetTradeFeeUsd: '0',
+    },
+    allowanceContract: data.allowanceTarget,
+    buyAmountCryptoBaseUnit: data.buyAmount,
+    sellAmountBeforeFeesCryptoBaseUnit: data.sellAmount,
+    sources: data.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
   }
+
+  return Ok(tradeQuote as TradeQuote<T>)
 }

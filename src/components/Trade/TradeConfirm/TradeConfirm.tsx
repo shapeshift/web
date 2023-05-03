@@ -6,9 +6,11 @@ import {
   AlertTitle,
   Box,
   Button,
+  Checkbox,
   Divider,
   Flex,
   Link,
+  Skeleton,
   Stack,
   StackDivider,
   useColorModeValue,
@@ -27,9 +29,12 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { useDonationAmountBelowMinimum } from 'components/Trade/hooks/useDonationAmountBelowMinimum'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
@@ -47,6 +52,7 @@ import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 import {
   selectBuyAmountBeforeFeesBaseUnit,
+  selectDonationAmountFiat,
   selectQuoteBuyAmountCryptoPrecision,
   selectSellAmountBeforeFeesBaseUnitByAction,
   selectSellAmountBeforeFeesFiat,
@@ -60,6 +66,8 @@ import {
   selectFees,
   selectSellAssetAccountId,
   selectSlippage,
+  selectSwapperDefaultAffiliateBps,
+  selectSwapperName,
   selectTrade,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
@@ -83,6 +91,8 @@ export const TradeConfirm = () => {
   } = useFormContext()
   const translate = useTranslate()
   const [swapper, setSwapper] = useState<Swapper<ChainId>>()
+  const [hasUserOptedOutOfDonation, toggleHasUserOptedOutOfDonation] = useToggle(false)
+  const [isReloadingTrade, setIsReloadingTrade] = useState(false)
 
   const {
     number: { toFiat },
@@ -93,8 +103,13 @@ export const TradeConfirm = () => {
     dispatch: walletDispatch,
   } = useWallet()
 
+  const isDonationAmountBelowMinimum = useDonationAmountBelowMinimum()
+
+  const { getTrade } = useSwapper()
+
   const trade = useSwapperStore(selectTrade)
   const fees = useSwapperStore(selectFees)
+  const swapperName = useSwapperStore(selectSwapperName)
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const slippage = useSwapperStore(selectSlippage)
   const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
@@ -118,6 +133,43 @@ export const TradeConfirm = () => {
 
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
   const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const updateActiveAffiliateBps = useSwapperStore(state => state.updateActiveAffiliateBps)
+  const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
+  const updateFees = useSwapperStore(state => state.updateFees)
+  const defaultAffiliateBps = useSwapperStore(selectSwapperDefaultAffiliateBps)
+
+  const handleDonationToggle = useCallback(async () => {
+    if (!defaultFeeAsset) {
+      throw new Error('No default fee asset')
+    }
+    setIsReloadingTrade(true)
+    const newAffiliateBps = hasUserOptedOutOfDonation ? defaultAffiliateBps : '0'
+    updateActiveAffiliateBps(newAffiliateBps)
+    toggleHasUserOptedOutOfDonation()
+    // Refresh trade
+    try {
+      const trade = await getTrade({ affiliateBps: newAffiliateBps })
+      if (trade.isErr()) {
+        // Actually throw so we can catch the error and show the error toast
+        throw new Error(trade.unwrapErr().message)
+      }
+      updateTrade(trade.unwrap())
+      updateFees(defaultFeeAsset)
+      updateTradeAmountsFromQuote()
+    } finally {
+      setIsReloadingTrade(false)
+    }
+  }, [
+    defaultAffiliateBps,
+    defaultFeeAsset,
+    getTrade,
+    hasUserOptedOutOfDonation,
+    toggleHasUserOptedOutOfDonation,
+    updateActiveAffiliateBps,
+    updateFees,
+    updateTrade,
+    updateTradeAmountsFromQuote,
+  ])
 
   const parsedBuyTxId = useMemo(() => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(
@@ -194,6 +246,8 @@ export const TradeConfirm = () => {
 
   const { showErrorToast } = useErrorHandler()
 
+  const donationAmountFiat = useSwapperStore(selectDonationAmountFiat)
+
   // Track these data here so we don't have to do this again for the other states
   const eventData = useMemo(() => {
     if (!(swapper && trade)) return null
@@ -215,12 +269,14 @@ export const TradeConfirm = () => {
       sellAsset: compositeSellAsset,
       fiatAmount: sellAmountBeforeFeesFiat,
       swapperName: swapper.name,
+      donationAmountFiat,
       [compositeBuyAsset]: buyAmountCryptoPrecision,
       [compositeSellAsset]: sellAmountCryptoPrecision,
     }
   }, [
     assets,
     buyAmountBeforeFeesBaseUnit,
+    donationAmountFiat,
     sellAmountBeforeFeesBaseUnit,
     sellAmountBeforeFeesFiat,
     swapper,
@@ -251,11 +307,14 @@ export const TradeConfirm = () => {
         return
       }
 
+      const result = await swapper.executeTrade({ trade, wallet })
+
+      // only track after swapper successfully executes trade
+      // otherwise unsigned txs will be tracked as confirmed trades
       if (mixpanel && eventData) {
         mixpanel.track(MixPanelEvents.TradeConfirm, eventData)
       }
 
-      const result = await swapper.executeTrade({ trade, wallet })
       // TODO(gomes): should we we throw so the catch clause handles this?
       if (result.isErr()) return
       setSellTradeId(result.unwrap().tradeId)
@@ -326,6 +385,43 @@ export const TradeConfirm = () => {
     )
   }, [handleBack, tradeStatus])
 
+  const donationOption: JSX.Element = useMemo(
+    () => (
+      <Stack spacing={4}>
+        <Row>
+          <HelperTooltip label={translate('trade.tooltip.donation')}>
+            <Row.Label>
+              <Checkbox
+                isChecked={!hasUserOptedOutOfDonation}
+                onChange={handleDonationToggle}
+                isDisabled={isSubmitting || isReloadingTrade}
+              >
+                <Text translation='trade.donation' />
+              </Checkbox>
+            </Row.Label>
+          </HelperTooltip>
+          <Row.Value>{toFiat(donationAmountFiat ?? '0')}</Row.Value>
+        </Row>
+      </Stack>
+    ),
+    [
+      donationAmountFiat,
+      handleDonationToggle,
+      hasUserOptedOutOfDonation,
+      isReloadingTrade,
+      isSubmitting,
+      toFiat,
+      translate,
+    ],
+  )
+
+  const isTHORChainSwap = useMemo(() => swapperName === SwapperName.Thorchain, [swapperName])
+  const is0xSwap = useMemo(() => swapperName === SwapperName.Zrx, [swapperName])
+
+  const shouldShowDonationOption = useMemo(() => {
+    return (isTHORChainSwap || is0xSwap) && !isDonationAmountBelowMinimum
+  }, [is0xSwap, isDonationAmountBelowMinimum, isTHORChainSwap])
+
   const tradeWarning: JSX.Element | null = useMemo(() => {
     if (!trade) return null
 
@@ -395,6 +491,7 @@ export const TradeConfirm = () => {
             slippage={slippage}
             fiatAmount={positiveOrZero(fiatBuyAmount).toFixed(2)}
             swapperName={swapper?.name ?? ''}
+            isLoading={isReloadingTrade}
           />
         </Stack>
       ) : null,
@@ -409,6 +506,7 @@ export const TradeConfirm = () => {
       slippage,
       fiatBuyAmount,
       swapper?.name,
+      isReloadingTrade,
     ],
   )
 
@@ -423,13 +521,14 @@ export const TradeConfirm = () => {
             mt={6}
             data-test='trade-form-confirm-and-trade-button'
             type='submit'
+            isLoading={isReloadingTrade}
           >
             <Text translation='trade.confirmAndTrade' />
           </Button>
         )}
       </Card.Footer>
     ),
-    [isSubmitting, sellTradeId],
+    [isReloadingTrade, isSubmitting, sellTradeId],
   )
 
   if (!trade) return null
@@ -475,14 +574,16 @@ export const TradeConfirm = () => {
                       <Text translation='trade.rate' />
                     </Row.Label>
                   </HelperTooltip>
-                  <Box textAlign='right'>
-                    <RawText>{`1 ${trade.sellAsset.symbol} = ${firstNonZeroDecimal(
-                      bnOrZero(trade.rate),
-                    )} ${trade.buyAsset?.symbol}`}</RawText>
-                    {!!fees?.tradeFeeSource && (
-                      <RawText color='gray.500'>@{fees?.tradeFeeSource}</RawText>
-                    )}
-                  </Box>
+                  <Skeleton isLoaded={!isReloadingTrade}>
+                    <Box textAlign='right'>
+                      <RawText>{`1 ${trade.sellAsset.symbol} = ${firstNonZeroDecimal(
+                        bnOrZero(trade.rate),
+                      )} ${trade.buyAsset?.symbol}`}</RawText>
+                      {!!fees?.tradeFeeSource && (
+                        <RawText color='gray.500'>@{fees?.tradeFeeSource}</RawText>
+                      )}
+                    </Box>
+                  </Skeleton>
                 </Row>
                 <Row>
                   <HelperTooltip label={translate('trade.tooltip.minerFee')}>
@@ -510,6 +611,7 @@ export const TradeConfirm = () => {
                   </Flex>
                 )}
               </Stack>
+              {shouldShowDonationOption && donationOption}
             </Stack>
           </Card.Body>
           {footer}

@@ -30,6 +30,7 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   activeSwapperWithMetadata?: SwapperWithQuoteMetadata
   availableSwappersWithMetadata?: SwapperWithQuoteMetadata[]
   selectedCurrencyToUsdRate?: string
+  activeAffiliateBps: string
 }
 
 type HandleAssetSelectionInput = { asset: Asset; action: AssetClickAction }
@@ -58,8 +59,6 @@ export type SwapperAction = {
   updateAvailableSwappersWithMetadata: (
     availableSwappersWithMetadata: SwapperStore['availableSwappersWithMetadata'],
   ) => void
-  updateSellAsset: (sellAsset: SwapperStore['sellAsset']) => void
-  updateBuyAsset: (buyAsset: SwapperStore['buyAsset']) => void
   updateBuyAmountCryptoPrecision: (buyAmountCryptoPrecision: string) => void
   updateSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
   handleSwitchAssets: () => void
@@ -68,6 +67,7 @@ export type SwapperAction = {
   handleAssetSelection: (handleAssetSelectionInput: HandleAssetSelectionInput) => void
   updateFees: (sellFeeAsset: Asset) => void
   updateTradeAmountsFromQuote: () => void
+  updateActiveAffiliateBps: (activeAffiliateBps: string) => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1

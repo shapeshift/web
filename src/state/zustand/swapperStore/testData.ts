@@ -16,7 +16,6 @@ const mockActions: SwapperAction = {
   updateAvailableSwappersWithMetadata(): void {},
   updateBuyAmountCryptoPrecision(): void {},
   updateBuyAmountFiat(): void {},
-  updateBuyAsset(): void {},
   updateBuyAssetAccountId(): void {},
   updateBuyAssetFiatRate(): void {},
   updateFeeAssetFiatRate(): void {},
@@ -29,12 +28,12 @@ const mockActions: SwapperAction = {
   updateSelectedSellAssetAccountId(): void {},
   updateSellAmountCryptoPrecision(): void {},
   updateSellAmountFiat(): void {},
-  updateSellAsset(): void {},
   updateSellAssetAccountId(): void {},
   updateSellAssetFiatRate(): void {},
   updateTrade(): void {},
   handleAssetSelection(): void {},
   updateTradeAmountsFromQuote(): void {},
+  updateActiveAffiliateBps(): void {},
 }
 
 export const baseSwapperState: SwapperState = {
@@ -51,6 +50,7 @@ export const baseSwapperState: SwapperState = {
   selectedCurrencyToUsdRate: '1',
   sellAssetAccountId: 'eip155:1:0x32dbc9cf9e8fbcebe1e0a2ecf05ed86ca3096cb6',
   buyAssetAccountId: 'eip155:1:0x32dbc9cf9e8fbcebe1e0a2ecf05ed86ca3096cb6',
+  activeAffiliateBps: '0',
   availableSwappersWithMetadata: [
     {
       swapper: {
@@ -152,7 +152,6 @@ export const baseSwapperState: SwapperState = {
       approvalFeeCryptoBaseUnit: '1800000000000000',
       gasPriceCryptoBaseUnit: '18000000000',
       estimatedGasCryptoBaseUnit: '100000',
-      totalFee: '0.0036',
     },
     tradeFeeSource: SwapperName.Thorchain,
     buyAssetTradeFeeUsd: '8.5196229516043797526224',

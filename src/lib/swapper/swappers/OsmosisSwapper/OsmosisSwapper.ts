@@ -101,41 +101,50 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     }
   }
 
-  async getUsdRate(input: Pick<Asset, 'symbol' | 'assetId'>): Promise<string> {
+  async getUsdRate(
+    input: Pick<Asset, 'symbol' | 'assetId'>,
+  ): Promise<Result<string, SwapErrorRight>> {
     const { symbol } = input
 
     const sellAssetSymbol = symbol
     const buyAssetSymbol = 'USDC'
     const sellAmount = '1'
-    const { rate: osmoRate } = await getRateInfo(
+    const maybeOsmoRateInfo = await getRateInfo(
       'OSMO',
       buyAssetSymbol,
       sellAmount,
       this.deps.osmoUrl,
     )
 
+    if (maybeOsmoRateInfo.isErr()) return Err(maybeOsmoRateInfo.unwrapErr())
+    const { rate: osmoRate } = maybeOsmoRateInfo.unwrap()
+
     if (sellAssetSymbol !== 'OSMO') {
-      const { rate } = await getRateInfo(sellAssetSymbol, 'OSMO', sellAmount, this.deps.osmoUrl)
-      return bnOrZero(rate).times(osmoRate).toString()
+      return (await getRateInfo(sellAssetSymbol, 'OSMO', sellAmount, this.deps.osmoUrl)).andThen(
+        ({ rate }) => Ok(bnOrZero(rate).times(osmoRate).toString()),
+      )
     }
 
-    return osmoRate
+    return Ok(osmoRate)
   }
 
-  async getMinMax(input: { sellAsset: Asset }): Promise<MinMaxOutput> {
+  async getMinMax(input: { sellAsset: Asset }): Promise<Result<MinMaxOutput, SwapErrorRight>> {
     const { sellAsset } = input
-    const usdRate = await this.getUsdRate({ ...sellAsset })
-    const minimumAmountCryptoHuman = bn(1).dividedBy(bnOrZero(usdRate)).toString()
-    const maximumAmountCryptoHuman = MAX_SWAPPER_SELL
+    const maybeUsdRate = await this.getUsdRate({ ...sellAsset })
 
-    return {
-      minimumAmountCryptoHuman,
-      maximumAmountCryptoHuman,
-    }
+    return maybeUsdRate.andThen(usdRate => {
+      const minimumAmountCryptoHuman = bn(1).dividedBy(bnOrZero(usdRate)).toString()
+      const maximumAmountCryptoHuman = MAX_SWAPPER_SELL
+
+      return Ok({
+        minimumAmountCryptoHuman,
+        maximumAmountCryptoHuman,
+      })
+    })
   }
 
-  approvalNeeded(): Promise<ApprovalNeededOutput> {
-    return Promise.resolve({ approvalNeeded: false })
+  approvalNeeded(): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
+    return Promise.resolve(Ok({ approvalNeeded: false }))
   }
 
   approveInfinite(): Promise<string> {
@@ -186,12 +195,15 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       )
     }
 
-    const { buyAssetTradeFeeUsd, rate, buyAmountCryptoBaseUnit } = await getRateInfo(
+    const maybeRateInfo = await getRateInfo(
       sellAsset.symbol,
       buyAsset.symbol,
       sellAmountCryptoBaseUnit !== '0' ? sellAmountCryptoBaseUnit : '1',
       this.deps.osmoUrl,
     )
+
+    if (!maybeRateInfo.isOk()) return Err(maybeRateInfo.unwrapErr())
+    const { buyAssetTradeFeeUsd, rate, buyAmountCryptoBaseUnit } = maybeRateInfo.unwrap()
 
     //convert amount to base
     const sellAmountCryptoBase = String(bnOrZero(sellAmountCryptoBaseUnit).dp(0))
@@ -247,14 +259,19 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       )
     }
 
-    const { buyAssetTradeFeeUsd, rate, buyAmountCryptoBaseUnit } = await getRateInfo(
+    const maybeRateInfo = await getRateInfo(
       sellAsset.symbol,
       buyAsset.symbol,
       sellAmountCryptoBaseUnit !== '0' ? sellAmountCryptoBaseUnit : '1',
       this.deps.osmoUrl,
     )
 
-    const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = await this.getMinMax(input)
+    if (maybeRateInfo.isErr()) return Err(maybeRateInfo.unwrapErr())
+    const { buyAssetTradeFeeUsd, rate, buyAmountCryptoBaseUnit } = maybeRateInfo.unwrap()
+
+    const maybeMinMax = await this.getMinMax(input)
+    if (maybeMinMax.isErr()) return Err(maybeMinMax.unwrapErr())
+    const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = maybeMinMax.unwrap()
 
     const osmosisAdapter = this.deps.adapterManager.get(osmosisChainId) as
       | osmosis.ChainAdapter

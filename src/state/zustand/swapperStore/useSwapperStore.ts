@@ -11,6 +11,7 @@ import {
   handleInputAmountChange,
   handleSwitchAssets,
   toggleIsExactAllowance,
+  updateActiveSwapperWithMetadata,
   updateFees,
   updateTradeAmountsFromQuote,
 } from 'state/zustand/swapperStore/actions'
@@ -40,6 +41,7 @@ export const useSwapperStore = (() => {
           sellAmountCryptoPrecision: '0',
           buyAsset: localAssetData[foxAssetId] ?? defaultAsset,
           sellAsset: localAssetData[ethAssetId] ?? defaultAsset,
+          activeAffiliateBps: '0',
 
           // Actions
           updateSelectedSellAssetAccountId: createUpdateAction(set, 'selectedSellAssetAccountId'),
@@ -51,8 +53,6 @@ export const useSwapperStore = (() => {
           updateFeeAssetFiatRate: createUpdateAction(set, 'feeAssetFiatRate'),
           updateSellAmountFiat: createUpdateAction(set, 'sellAmountFiat'),
           updateBuyAmountFiat: createUpdateAction(set, 'buyAmountFiat'),
-          updateSellAsset: createUpdateAction(set, 'sellAsset'),
-          updateBuyAsset: createUpdateAction(set, 'buyAsset'),
           updateBuyAmountCryptoPrecision: createUpdateAction(set, 'buyAmountCryptoPrecision'),
           updateSellAmountCryptoPrecision: createUpdateAction(set, 'sellAmountCryptoPrecision'),
           clearAmounts: clearAmounts(set),
@@ -64,7 +64,7 @@ export const useSwapperStore = (() => {
           updateReceiveAddress: createUpdateAction(set, 'receiveAddress'),
           updateFees: updateFees(set),
           updateTrade: createUpdateAction(set, 'trade'),
-          updateActiveSwapperWithMetadata: createUpdateAction(set, 'activeSwapperWithMetadata'),
+          updateActiveSwapperWithMetadata: updateActiveSwapperWithMetadata(set),
           updateAvailableSwappersWithMetadata: createUpdateAction(
             set,
             'availableSwappersWithMetadata',
@@ -74,6 +74,7 @@ export const useSwapperStore = (() => {
           handleInputAmountChange: handleInputAmountChange(set),
           handleAssetSelection: handleAssetSelection(set),
           updateTradeAmountsFromQuote: updateTradeAmountsFromQuote(set),
+          updateActiveAffiliateBps: createUpdateAction(set, 'activeAffiliateBps'),
         }),
         { name: 'SwapperStore' },
       ),

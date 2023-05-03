@@ -6,7 +6,6 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { SwapError, SwapErrorType } from '../../../../swapper/api'
 import { getUsdRate } from './getUsdRate'
 
 describe('getUsdRate', () => {
@@ -38,19 +37,21 @@ describe('getUsdRate', () => {
   } as unknown as LIFI
 
   test('returns USD rate when asset is supported', async () => {
-    const result = await getUsdRate(testAsset, lifiChainMap, mockLifi)
+    const maybeResult = await getUsdRate(testAsset, lifiChainMap, mockLifi)
 
     const expectedUSDValue = testLifiToken.priceUSD
-    expect(result).toBe(expectedUSDValue)
+    expect(maybeResult.isErr()).toBe(false)
+    expect(maybeResult.unwrap()).toBe(expectedUSDValue)
   })
 
   test('returns 0 when chain key is not found', async () => {
     const emptyChainMap = new Map<ChainId, LifiChainKey>()
 
-    const result = await getUsdRate(testAsset, emptyChainMap, mockLifi)
+    const maybeResult = await getUsdRate(testAsset, emptyChainMap, mockLifi)
 
     const expectedUSDValue = '0'
-    expect(result).toBe(expectedUSDValue)
+    expect(maybeResult.isErr()).toBe(false)
+    expect(maybeResult.unwrap()).toBe(expectedUSDValue)
   })
 
   test('throws SwapError when LifiError is thrown by getToken', async () => {
@@ -59,13 +60,14 @@ describe('getUsdRate', () => {
       getToken: () => Promise.reject(testLifiError),
     } as unknown as LIFI
 
-    const expectedError = new SwapError(`[getUsdRate] ${testLifiError.message}`, {
-      code: SwapErrorType.USD_RATE_FAILED,
+    const maybeUsdRate = await getUsdRate(testAsset, lifiChainMap, mockLifiWithError)
+    expect(maybeUsdRate.unwrapErr()).toMatchObject({
+      cause: undefined,
+      code: 'USD_RATE_FAILED',
+      details: undefined,
+      message: '[getUsdRate] Test LIFI error',
+      name: 'SwapError',
     })
-
-    await expect(getUsdRate(testAsset, lifiChainMap, mockLifiWithError)).rejects.toEqual(
-      expectedError,
-    )
   })
 
   test('returns 0 when priceUSD is missing', async () => {
@@ -77,6 +79,7 @@ describe('getUsdRate', () => {
     const result = await getUsdRate(testAsset, lifiChainMap, mockLifi)
 
     const expectedUSDValue = '0'
-    expect(result).toBe(expectedUSDValue)
+    expect(result.isErr()).toBe(false)
+    expect(result.unwrap()).toBe(expectedUSDValue)
   })
 })

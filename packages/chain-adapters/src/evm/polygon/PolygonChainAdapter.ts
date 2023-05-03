@@ -6,11 +6,10 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 
 import type { FeeDataEstimate, GetFeeDataInput } from '../../types'
 import { ChainAdapterDisplayName } from '../../types'
-import { bn, calcFee } from '../../utils'
+import { bn, bnOrZero } from '../../utils'
 import type { ChainAdapterArgs } from '../EvmBaseAdapter'
 import { EvmBaseAdapter } from '../EvmBaseAdapter'
 import type { GasFeeDataEstimate } from '../types'
-import { getTxFee } from '../utils'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.PolygonMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.PolygonMainnet
@@ -60,23 +59,21 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PolygonMainnet> {
   }
 
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
-    const { gasPrice, fast, average, slow } = await this.api.getGasFees()
-
-    const scalars = { fast: bn(1.2), average: bn(1), slow: bn(0.8) }
+    const { fast, average, slow } = await this.api.getGasFees()
 
     return {
       fast: {
-        gasPrice: calcFee(gasPrice, 'fast', scalars),
+        gasPrice: fast.maxFeePerGas ?? '0',
         maxFeePerGas: fast.maxFeePerGas,
         maxPriorityFeePerGas: fast.maxPriorityFeePerGas,
       },
       average: {
-        gasPrice: calcFee(gasPrice, 'average', scalars),
+        gasPrice: average.maxFeePerGas ?? '0',
         maxFeePerGas: average.maxFeePerGas,
         maxPriorityFeePerGas: average.maxPriorityFeePerGas,
       },
       slow: {
-        gasPrice: calcFee(gasPrice, 'slow', scalars),
+        gasPrice: slow.maxFeePerGas ?? '0',
         maxFeePerGas: slow.maxFeePerGas,
         maxPriorityFeePerGas: slow.maxPriorityFeePerGas,
       },
@@ -93,15 +90,15 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PolygonMainnet> {
 
     return {
       fast: {
-        txFee: getTxFee({ gasLimit, ...fast }),
+        txFee: bnOrZero(bn(fast.gasPrice).times(gasLimit)).toFixed(0),
         chainSpecific: { gasLimit, ...fast },
       },
       average: {
-        txFee: getTxFee({ gasLimit, ...average }),
+        txFee: bnOrZero(bn(average.gasPrice).times(gasLimit)).toFixed(0),
         chainSpecific: { gasLimit, ...average },
       },
       slow: {
-        txFee: getTxFee({ gasLimit, ...slow }),
+        txFee: bnOrZero(bn(slow.gasPrice).times(gasLimit)).toFixed(0),
         chainSpecific: { gasLimit, ...slow },
       },
     }

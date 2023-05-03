@@ -258,11 +258,11 @@ export const TradeConfirm = () => {
     if (!trade?.buyAsset?.precision) return
     const buyAmountCryptoPrecision = fromBaseUnit(
       buyAmountBeforeFeesBaseUnit,
-      trade.sellAsset.precision,
+      trade.buyAsset.precision,
     )
     const sellAmountCryptoPrecision = fromBaseUnit(
       sellAmountBeforeFeesBaseUnit,
-      trade.buyAsset.precision,
+      trade.sellAsset.precision,
     )
     return {
       buyAsset: compositeBuyAsset,

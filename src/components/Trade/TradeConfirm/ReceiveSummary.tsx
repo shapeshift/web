@@ -14,6 +14,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { type RowProps, Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { SwapperName } from 'lib/swapper/api'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
@@ -85,7 +86,13 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
           py={2}
         >
           <Row>
-            <HelperTooltip label={translate('trade.tooltip.protocol')}>
+            <HelperTooltip
+              label={
+                swapperName === SwapperName.LIFI
+                  ? translate('trade.tooltip.protocolLifi')
+                  : translate('trade.tooltip.protocol')
+              }
+            >
               <Row.Label>
                 <Text translation='trade.protocol' />
               </Row.Label>

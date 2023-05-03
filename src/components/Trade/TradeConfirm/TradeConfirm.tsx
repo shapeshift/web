@@ -514,21 +514,29 @@ export const TradeConfirm = () => {
     () => (
       <Card.Footer px={0} py={0}>
         {!sellTradeId && !isSubmitting && (
-          <Button
-            colorScheme='blue'
-            size='lg'
-            width='full'
-            mt={6}
-            data-test='trade-form-confirm-and-trade-button'
-            type='submit'
-            isLoading={isReloadingTrade}
-          >
-            <Text translation='trade.confirmAndTrade' />
-          </Button>
+          <>
+            {swapper?.name === SwapperName.LIFI && (
+              <Alert status='warning' fontSize='sm' mt={6}>
+                <AlertIcon />
+                {translate('trade.lifiWarning')}
+              </Alert>
+            )}
+            <Button
+              colorScheme='blue'
+              size='lg'
+              width='full'
+              mt={6}
+              data-test='trade-form-confirm-and-trade-button'
+              type='submit'
+              isLoading={isReloadingTrade}
+            >
+              <Text translation='trade.confirmAndTrade' />
+            </Button>
+          </>
         )}
       </Card.Footer>
     ),
-    [isReloadingTrade, isSubmitting, sellTradeId],
+    [isReloadingTrade, isSubmitting, sellTradeId, swapper?.name, translate],
   )
 
   if (!trade) return null

@@ -14,6 +14,7 @@ import {
 } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
 import { getEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetAddress/getAssetAddress'
 import { getAssetBalance } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetBalance/getAssetBalance'
+import { getFailureAmounts } from 'lib/swapper/swappers/LifiSwapper/utils/getFailureAmounts/getFailureAmounts'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getMinimumCryptoHuman } from 'lib/swapper/swappers/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
 import { transformLifiFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
@@ -142,12 +143,16 @@ export async function getTradeQuote(
       selectedRoute: selectedLifiRoute,
     })
 
+    const buyAmountCryptoBaseUnit = bnOrZero(selectedLifiRoute.toAmountMin)
+    const failureAmounts = getFailureAmounts(selectedLifiRoute, buyAmountCryptoBaseUnit)
+
     // TODO(gomes): intermediary error-handling within this module function calls
     return Ok({
       accountNumber,
       allowanceContract,
-      buyAmountCryptoBaseUnit: bnOrZero(selectedLifiRoute.toAmountMin).toString(),
+      buyAmountCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
       buyAsset,
+      failureAmounts,
       feeData,
       maximumCryptoHuman: MAX_LIFI_TRADE,
       minimumCryptoHuman: getMinimumCryptoHuman(sellAsset).toString(),

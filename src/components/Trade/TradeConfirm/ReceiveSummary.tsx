@@ -20,6 +20,7 @@ type ReceiveSummaryProps = {
   isLoading?: boolean
   symbol: string
   amount: string
+  failureAmounts?: { amount: string; symbol: string; chainName?: string }[]
   fiatAmount?: string
   beforeFees?: string
   protocolFee?: string
@@ -31,6 +32,7 @@ type ReceiveSummaryProps = {
 export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   symbol,
   amount,
+  failureAmounts,
   fiatAmount,
   beforeFees,
   protocolFee,
@@ -157,9 +159,26 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
                 />
               </Row.Label>
               <Row.Value whiteSpace='nowrap'>
-                <Skeleton isLoaded={!isLoading}>
-                  <Amount.Crypto value={isAmountPositive ? amount : '0'} symbol={symbol} />
-                </Skeleton>
+                <Stack spacing={0} alignItems='flex-end'>
+                  <Skeleton isLoaded={!isLoading}>
+                    <Amount.Crypto value={isAmountPositive ? amount : '0'} symbol={symbol} />
+                  </Skeleton>
+                  {isAmountPositive &&
+                    failureAmounts?.map(({ amount, symbol, chainName }) => (
+                      <Skeleton isLoaded={!isLoading}>
+                        <Amount.Crypto
+                          value={amount}
+                          symbol={symbol}
+                          prefix={translate('trade.failureAmounts.prefix')}
+                          suffix={
+                            chainName
+                              ? translate('trade.failureAmounts.suffix', { chainName })
+                              : undefined
+                          }
+                        />
+                      </Skeleton>
+                    ))}
+                </Stack>
               </Row.Value>
             </Row>
           </>

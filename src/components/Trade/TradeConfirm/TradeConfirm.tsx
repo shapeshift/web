@@ -31,6 +31,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useDonationAmountBelowMinimum } from 'components/Trade/hooks/useDonationAmountBelowMinimum'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -53,6 +54,7 @@ import { useAppSelector } from 'state/store'
 import {
   selectBuyAmountBeforeFeesBaseUnit,
   selectDonationAmountFiat,
+  selectFailureAmounts,
   selectQuoteBuyAmountCryptoPrecision,
   selectSellAmountBeforeFeesBaseUnitByAction,
   selectSellAmountBeforeFeesFiat,
@@ -115,6 +117,7 @@ export const TradeConfirm = () => {
   const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
   const sellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
   const buyAmountCryptoPrecision = useSwapperStore(selectBuyAmountCryptoPrecision)
+  const failureAmountsCryptoPrecision = useSwapperStore(selectFailureAmounts)
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const sellAmountBeforeFeesBaseUnit = useSwapperStore(selectSellAmountBeforeFeesBaseUnitByAction)
   const sellAmountBeforeFeesFiat = useSwapperStore(selectSellAmountBeforeFeesFiat)
@@ -242,6 +245,17 @@ export const TradeConfirm = () => {
         tradeId: sellTradeId,
       }),
     [sellTradeId, trade],
+  )
+
+  const chainAdapterManager = getChainAdapterManager()
+  const failureAmounts = useMemo(
+    () =>
+      failureAmountsCryptoPrecision?.map(({ buyAmountCryptoBaseUnit, asset }) => ({
+        amount: fromBaseUnit(buyAmountCryptoBaseUnit, asset.precision),
+        symbol: asset.symbol,
+        chainName: chainAdapterManager.get(asset.chainId)?.getDisplayName(),
+      })),
+    [failureAmountsCryptoPrecision, chainAdapterManager],
   )
 
   const { showErrorToast } = useErrorHandler()
@@ -492,6 +506,7 @@ export const TradeConfirm = () => {
             fiatAmount={positiveOrZero(fiatBuyAmount).toFixed(2)}
             swapperName={swapper?.name ?? ''}
             isLoading={isReloadingTrade}
+            failureAmounts={failureAmounts}
           />
         </Stack>
       ) : null,
@@ -507,6 +522,7 @@ export const TradeConfirm = () => {
       fiatBuyAmount,
       swapper?.name,
       isReloadingTrade,
+      failureAmounts,
     ],
   )
 

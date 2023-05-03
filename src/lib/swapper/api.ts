@@ -133,6 +133,8 @@ export type BuildTradeInput = GetTradeQuoteInput & {
   wallet: HDWallet
 }
 
+// describes intermediary asset and amount the user may end up with in the event of a trade
+// execution failure
 export type IntermediaryTransactionOutput = { asset: Asset; buyAmountCryptoBaseUnit: string }
 
 interface TradeBase<C extends ChainId> {
@@ -144,8 +146,6 @@ interface TradeBase<C extends ChainId> {
   buyAsset: Asset
   sellAsset: Asset
   accountNumber: number
-  // describes all possible intermediary assets and amounts the user may end up with in the event of
-  // a trade execution failure
   intermediaryTransactionOutputs?: IntermediaryTransactionOutput[]
 }
 

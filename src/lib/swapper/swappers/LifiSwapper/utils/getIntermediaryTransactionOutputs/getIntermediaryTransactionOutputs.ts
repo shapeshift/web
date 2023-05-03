@@ -15,7 +15,7 @@ export const getIntermediaryTransactionOutputs = (
     step.type === 'lifi' ? step.includedSteps : step,
   )
 
-  // cant fail half way if there is 1 or less steps to execute
+  // cant fail half way if there is 1 or fewer steps to execute
   if (tradeSteps.length <= 1) return
 
   const assets = selectAssets(store.getState())

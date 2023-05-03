@@ -29,6 +29,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { useDonationAmountBelowMinimum } from 'components/Trade/hooks/useDonationAmountBelowMinimum'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -66,6 +67,7 @@ import {
   selectSellAssetAccountId,
   selectSlippage,
   selectSwapperDefaultAffiliateBps,
+  selectSwapperName,
   selectTrade,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
@@ -101,10 +103,13 @@ export const TradeConfirm = () => {
     dispatch: walletDispatch,
   } = useWallet()
 
+  const isDonationAmountBelowMinimum = useDonationAmountBelowMinimum()
+
   const { getTrade } = useSwapper()
 
   const trade = useSwapperStore(selectTrade)
   const fees = useSwapperStore(selectFees)
+  const swapperName = useSwapperStore(selectSwapperName)
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const slippage = useSwapperStore(selectSlippage)
   const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
@@ -407,12 +412,12 @@ export const TradeConfirm = () => {
     ],
   )
 
-  const isTHORChainSwap = useMemo(
-    () => fees?.tradeFeeSource === SwapperName.Thorchain,
-    [fees?.tradeFeeSource],
-  )
+  const isTHORChainSwap = useMemo(() => swapperName === SwapperName.Thorchain, [swapperName])
+  const is0xSwap = useMemo(() => swapperName === SwapperName.Zrx, [swapperName])
 
-  const shouldShowDonationOption = isTHORChainSwap
+  const shouldShowDonationOption = useMemo(() => {
+    return (isTHORChainSwap || is0xSwap) && !isDonationAmountBelowMinimum
+  }, [is0xSwap, isDonationAmountBelowMinimum, isTHORChainSwap])
 
   const tradeWarning: JSX.Element | null = useMemo(() => {
     if (!trade) return null

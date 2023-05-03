@@ -14,17 +14,20 @@ import { corsMiddleware } from './middleware/cors'
 import {
   PROXY_UNCHAINED_ETHEREUM_HTTP_PORT,
   PROXY_UNCHAINED_ETHEREUM_WS_PORT,
+  TOKEN_CONTRACT_ADDRESSES,
 } from './utils/constants'
 import { getTenderlyRpcUrl } from './utils/getTenderlyRpcUrl'
+import { getTokenBalance, getTokenInfo } from './utils/getTokenInfo'
 import { estimateGas, getBalance, getTransactionByHash, sendTransaction } from './utils/rpcHelpers'
 
 const { REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL, REACT_APP_UNCHAINED_ETHEREUM_WS_URL } = dotenv.parse(
   readFileSync('.env.dev'),
 )
 
+const provider = new Web3.providers.HttpProvider(getTenderlyRpcUrl())
+const web3 = new Web3(provider)
 const httpPort = Number(PROXY_UNCHAINED_ETHEREUM_HTTP_PORT)
 const websocketPort = Number(PROXY_UNCHAINED_ETHEREUM_WS_PORT)
-const provider = new Web3.providers.HttpProvider(getTenderlyRpcUrl())
 let subscriptionDetails: { subscriptionId: string; address: string } | undefined
 let clientWebsocket: WebSocketClient | undefined
 
@@ -112,15 +115,24 @@ app.use(
 app.get('/api/v1/account/:pubkey', async (req, res) => {
   const balance = await getBalance(provider, req.params.pubkey)
 
-  res.json({
+  const tokenInfo = await getTokenInfo(web3)
+
+  const result: evm.Account = {
     balance,
-    unconfirmedBalance: 0,
+    unconfirmedBalance: '0',
     nonce: 0,
     pubkey: req.params.pubkey,
-    tokens: [
-      // TODO: fetch token balances
-    ],
-  })
+    tokens: (
+      await Promise.all(
+        TOKEN_CONTRACT_ADDRESSES.map(async contract => ({
+          ...tokenInfo[contract],
+          balance: await getTokenBalance(web3, contract, req.params.pubkey),
+        })),
+      )
+    ).filter(({ balance }) => balance !== '0'),
+  }
+
+  res.json(result)
 })
 
 app.post('/api/v1/send', async (req, res) => {
@@ -136,9 +148,11 @@ app.post('/api/v1/send', async (req, res) => {
 
 app.get('/api/v1/gas/estimate', async (req, res) => {
   req.query.value = numberToHex(req.query.value as string)
-  const gasLimit = await estimateGas(provider, req.query as unknown as Transaction)
+  const result: evm.GasEstimate = {
+    gasLimit: await estimateGas(provider, req.query as unknown as Transaction),
+  }
 
-  res.json({ gasLimit })
+  res.json(result)
 })
 
 app.listen(httpPort, () => {

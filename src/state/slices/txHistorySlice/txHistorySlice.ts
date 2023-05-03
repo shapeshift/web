@@ -197,7 +197,7 @@ export const txHistoryApi = createApi({
   reducerPath: 'txHistoryApi',
   endpoints: build => ({
     getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], RebaseTxHistoryArgs>({
-      queryFn: ({ accountId, portfolioAssetIds }, { dispatch }) => {
+      queryFn: async ({ accountId, portfolioAssetIds }, { dispatch }) => {
         const { chainId, account: userAddress } = fromAccountId(accountId)
         // foxy is only on eth mainnet, and [] is a valid return type and won't upsert anything
         if (chainId !== ethChainId) return { data: [] }
@@ -217,7 +217,7 @@ export const txHistoryApi = createApi({
         // setup foxy api
         const foxyApi = getFoxyApi()
 
-        Promise.all(
+        await Promise.all(
           foxyTokenContractAddressWithBalances.map(async tokenContractAddress => {
             const rebaseHistoryArgs = { userAddress, tokenContractAddress }
             const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
@@ -227,11 +227,11 @@ export const txHistoryApi = createApi({
             const upsertPayload = { accountId, assetId, data }
             if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
           }),
-          // we don't really care about the caching of this, we're dispatching
-          // into another part of the portfolio above, we kind of abuse RTK query,
-          // and we're always force refetching these anyway
         )
-        // We don't need to catch, since foxyApi.getRebaseHistory has dumb error-handling and doesn't throw
+
+        // we don't really care about the caching of this, we're dispatching
+        // into another part of the portfolio above, we kind of abuse RTK query,
+        // and we're always force refetching these anyway
         return { data: [] }
       },
     }),

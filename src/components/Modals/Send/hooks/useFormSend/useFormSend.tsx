@@ -16,7 +16,7 @@ const moduleLogger = logger.child({ namespace: ['Modals', 'Send', 'Hooks', 'UseF
 export const useFormSend = () => {
   const toast = useToast()
   const translate = useTranslate()
-  const { send } = useModal()
+  const { send, qrCode } = useModal()
   const {
     state: { wallet },
   } = useWallet()
@@ -71,10 +71,12 @@ export const useFormSend = () => {
 
         throw new Error(e)
       } finally {
+        // Sends may be done from the context of a QR code modal, or a send modal, which are similar, but effectively diff. modal refs
+        qrCode.close()
         send.close()
       }
     },
-    [send, toast, translate, wallet],
+    [qrCode, send, toast, translate, wallet],
   )
 
   return {

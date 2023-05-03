@@ -1,5 +1,6 @@
 import { List } from '@chakra-ui/react'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { GlobalSearchResultType } from 'state/slices/search-selectors'
 import { selectAggregatedEarnUserLpOpportunities } from 'state/slices/selectors'
@@ -17,6 +18,7 @@ export const LpResults: React.FC<GlobalSearchResultsProps> = ({
   searchQuery,
   menuNodes,
 }) => {
+  const translate = useTranslate()
   const ids = results.map(result => result.id)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
   const filteredDown = lpOpportunities.filter(e => ids.includes(e.id as OpportunityId))
@@ -38,7 +40,7 @@ export const LpResults: React.FC<GlobalSearchResultsProps> = ({
   if (searchQuery && !results.length) return null
   return (
     <>
-      <ListItemSection title='Liquidity Pools' />
+      <ListItemSection title={translate('defi.liquidityPools')} />
       <List px={2}>{renderRows}</List>
     </>
   )

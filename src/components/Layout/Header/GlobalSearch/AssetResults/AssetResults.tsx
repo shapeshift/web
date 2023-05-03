@@ -1,6 +1,7 @@
 import { List } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { ListItemSection } from '../ListItemSection'
 import type { GlobalSearchResultsProps } from '../types'
@@ -14,6 +15,7 @@ export const AssetResults: React.FC<GlobalSearchResultsProps> = ({
   searchQuery,
   menuNodes,
 }) => {
+  const translate = useTranslate()
   const renderItems = useMemo(() => {
     return results.map((item, index) => (
       <AssetResult
@@ -30,7 +32,7 @@ export const AssetResults: React.FC<GlobalSearchResultsProps> = ({
   if (searchQuery && !results.length) return null
   return (
     <>
-      <ListItemSection title='Assets' />
+      <ListItemSection title={translate('navBar.assets')} />
       <List px={2}>{renderItems}</List>
     </>
   )

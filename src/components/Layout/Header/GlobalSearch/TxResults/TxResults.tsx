@@ -1,5 +1,6 @@
 import { List } from '@chakra-ui/react'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { ListItemSection } from '../ListItemSection'
@@ -14,6 +15,7 @@ export const TxResults: React.FC<GlobalSearchResultsProps> = ({
   searchQuery,
   menuNodes,
 }) => {
+  const translate = useTranslate()
   const renderRows = useMemo(() => {
     return results.map((result, index) => {
       const { id } = result
@@ -33,7 +35,7 @@ export const TxResults: React.FC<GlobalSearchResultsProps> = ({
   if (searchQuery && !results.length) return null
   return (
     <>
-      <ListItemSection title='Transactions' />
+      <ListItemSection title={translate('navBar.transactions')} />
       <List px={2}>{renderRows}</List>
     </>
   )

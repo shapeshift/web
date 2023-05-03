@@ -3,11 +3,12 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 
-import { DEFAULT_SLIPPAGE, DEFAULT_SOURCE, REFERRAL_ADDRESS } from '../utils/constants'
+import { DEFAULT_SLIPPAGE, DEFAULT_SOURCE } from '../utils/constants'
 import { getRate } from '../utils/helpers'
 import { oneInchService } from '../utils/oneInchService'
 import type {
@@ -72,7 +73,7 @@ export const buildTrade = async (
     amount: sellAmountBeforeFeesCryptoBaseUnit,
     slippage: slippagePercentage,
     allowPartialFill: false,
-    referrerAddress: REFERRAL_ADDRESS,
+    referrerAddress: DAO_TREASURY_ETHEREUM_MAINNET,
     disableEstimate: false,
   }
 

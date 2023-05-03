@@ -6,4 +6,3 @@ export const DEFAULT_SOURCE: SwapSource[] = [{ name: SwapperName.Zrx, proportion
 export const AFFILIATE_ADDRESS = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 export const OPTIMISM_L1_SWAP_GAS_LIMIT = '50000'
 export const OPTIMISM_L1_APPROVE_GAS_LIMIT = '10000'
-export const FEE_RECIPIENT = '0x90A48D5CF7343B08dA12E067680B4C6dbfE551Be' // DAO treasury

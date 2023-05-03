@@ -1,6 +1,7 @@
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance } from 'axios'
+import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import * as rax from 'retry-axios'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
@@ -12,11 +13,7 @@ import type {
   ZrxTrade,
 } from 'lib/swapper/swappers/ZrxSwapper/types'
 import { withAxiosRetry } from 'lib/swapper/swappers/ZrxSwapper/utils/applyAxiosRetry'
-import {
-  AFFILIATE_ADDRESS,
-  DEFAULT_SOURCE,
-  FEE_RECIPIENT,
-} from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
+import { AFFILIATE_ADDRESS, DEFAULT_SOURCE } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
 import {
   assertValidTradePair,
   assetToToken,
@@ -72,7 +69,7 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
       slippagePercentage: slippage ? bnOrZero(slippage).toString() : DEFAULT_SLIPPAGE,
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
       skipValidation: false,
-      feeRecipient: FEE_RECIPIENT, // Where affiliate fees are sent
+      feeRecipient: DAO_TREASURY_ETHEREUM_MAINNET, // Where affiliate fees are sent
       buyTokenPercentageFee,
     },
   })

@@ -1,6 +1,7 @@
 import { optimism } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { normalizeAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
@@ -9,7 +10,6 @@ import type { ZrxPriceResponse, ZrxSwapperDeps } from 'lib/swapper/swappers/ZrxS
 import {
   AFFILIATE_ADDRESS,
   DEFAULT_SOURCE,
-  FEE_RECIPIENT,
   OPTIMISM_L1_APPROVE_GAS_LIMIT,
   OPTIMISM_L1_SWAP_GAS_LIMIT,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
@@ -64,7 +64,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
         takerAddress: receiveAddress,
         affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
         skipValidation: true,
-        feeRecipient: FEE_RECIPIENT, // Where affiliate fees are sent
+        feeRecipient: DAO_TREASURY_ETHEREUM_MAINNET, // Where affiliate fees are sent
         buyTokenPercentageFee,
       },
     })

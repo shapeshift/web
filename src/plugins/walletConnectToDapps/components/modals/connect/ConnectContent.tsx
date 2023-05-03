@@ -35,9 +35,13 @@ type FormValues = {
 }
 
 type ConnectContentProps = {
+  initialUri?: string
   handleConnect: (uri: string) => void
 }
-export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect }) => {
+export const ConnectContent: React.FC<ConnectContentProps> = ({
+  initialUri = '',
+  handleConnect,
+}) => {
   const translate = useTranslate()
   const [isQrCodeView, setIsQrCodeView] = useState<boolean>(false)
   const toggleQrCodeView = useCallback(() => setIsQrCodeView(v => !v), [])
@@ -50,8 +54,9 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
 
   const { register, handleSubmit, control, formState, setValue } = useForm<FormValues>({
     mode: 'onChange',
-    defaultValues: { uri: '' },
+    defaultValues: { uri: initialUri },
   })
+
   const handleQrScanSuccess = useCallback(
     (uri: string) => {
       setValue('uri', uri)
@@ -59,6 +64,7 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({ handleConnect })
     },
     [setValue, toggleQrCodeView],
   )
+
   const uri = useWatch({ control, name: 'uri' })
   const isWalletConnectV1 = isWalletConnectV1Uri(uri)
   const isWalletConnectV2 = isWalletConnectV2Uri(uri)

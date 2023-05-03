@@ -3,11 +3,13 @@ import { ethAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
-import { useCallback, useEffect } from 'react'
+import { ConnectModal } from 'plugins/walletConnectToDapps/components/modals/connect/Connect'
+import { useCallback, useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
+import { useModal } from 'hooks/useModal/useModal'
 import { parseMaybeUrl } from 'lib/address/address'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -51,6 +53,11 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
+  const {
+    qrCode: { isOpen, close: handleClose },
+  } = useModal()
+  const [walletConnectDappUrl, setWalletConnectDappUrl] = useState('')
+
   const methods = useForm<SendInput>({
     mode: 'onChange',
     defaultValues: {
@@ -88,6 +95,10 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const handleQrSuccess = useCallback(
     (decodedText: string) => {
       ;(async () => {
+        // If this is a WalletConnect dApp QR Code, skip the whole send logic and render the QR Code Modal instead.
+        // There's no need for any RFC-3986 decoding here since we don't really care about parsing and WC will do that for us
+        if (decodedText.startsWith('wc:')) return setWalletConnectDappUrl(decodedText)
+
         // This should
         // - Parse the address, amount and asset. This should also exhaust URI parsers (EVM and UTXO currently) and set the amount/asset if applicable
         // - If there is a valid asset (i.e UTXO, or ETH, but not ERC-20s because they're unsafe), populates the asset and goes directly to the address step
@@ -123,6 +134,9 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   useEffect(() => {
     history.push(SendRoutes.Scan)
   }, [history])
+
+  if (walletConnectDappUrl)
+    return <ConnectModal initialUri={walletConnectDappUrl} isOpen={isOpen} onClose={handleClose} />
 
   return (
     <FormProvider {...methods}>

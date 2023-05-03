@@ -130,11 +130,20 @@ export const Header = () => {
             >
               <AssetSearch assetListAsDropdown formProps={{ mb: 0, px: 0 }} />
             </HStack> */}
-            <GlobalSeachButton />
+
             <Box display={{ base: 'block', md: 'none' }} mx='auto'>
               <AppLoadingIcon />
             </Box>
-            <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
+
+            <Flex
+              justifyContent='flex-end'
+              alignItems='center'
+              width={{ base: 'auto', md: 'full' }}
+              flex={1}
+              rowGap={4}
+              columnGap={2}
+            >
+              <GlobalSeachButton />
               {isDegradedState && <DegradedStateBanner />}
               {isWalletConnectToDappsEnabled && (
                 <Box display={{ base: 'none', md: 'block' }}>

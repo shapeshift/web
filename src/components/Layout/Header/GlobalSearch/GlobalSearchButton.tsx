@@ -2,6 +2,7 @@ import { SearchIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
+  IconButton,
   Kbd,
   List,
   Modal,
@@ -266,16 +267,22 @@ export const GlobalSeachButton = () => {
 
   return (
     <>
-      <Box maxWidth='xl' width='full'>
+      <Box maxWidth='xl' width={{ base: 'auto', md: 'full' }} mr={{ base: 0, md: 'auto' }}>
+        <IconButton
+          display={{ base: 'flex', md: 'none' }}
+          icon={<SearchIcon />}
+          aria-label='Search'
+          onClick={onOpen}
+        />
         <Button
           variant='input'
           width='full'
-          display='flex'
           leftIcon={<SearchIcon />}
           onClick={onOpen}
           size='lg'
           fontSize='md'
           alignItems='center'
+          display={{ base: 'none', md: 'flex' }}
           sx={{ svg: { width: '18px', height: '18px' } }}
         >
           {translate('common.search')}

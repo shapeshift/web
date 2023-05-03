@@ -11,21 +11,19 @@ export const getIntermediaryTransactionOutputs = (
   selectedLifiRoute: Route,
   buyAmountCryptoBaseUnit: BigNumber,
 ): IntermediaryTransactionOutput[] | undefined => {
-  const flatSteps = selectedLifiRoute.steps.flatMap(step =>
+  const tradeSteps = selectedLifiRoute.steps.flatMap(step =>
     step.type === 'lifi' ? step.includedSteps : step,
   )
 
   // cant fail half way if there is 1 or less steps to execute
-  if (flatSteps.length <= 1) return
+  if (tradeSteps.length <= 1) return
 
   const assets = selectAssets(store.getState())
-
-  const lastStep = flatSteps[flatSteps.length - 1]
-
+  const lastStep = tradeSteps[tradeSteps.length - 1]
   const buyAssetUsdRate = bnOrZero(lastStep.action.toToken.priceUSD)
+  const intermediaryTradeSteps = tradeSteps.slice(0, -1)
 
-  return flatSteps
-    .slice(0, -1) // last step is the actual buy asset so slice it off
+  return intermediaryTradeSteps
     .map(step => {
       const lifiToken = step.action.toToken
       const assetId = lifiTokenToAssetId(lifiToken)

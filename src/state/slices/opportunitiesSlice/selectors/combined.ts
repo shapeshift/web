@@ -5,6 +5,7 @@ import type { MarketData } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import isEmpty from 'lodash/isEmpty'
+import partition from 'lodash/partition'
 import { matchSorter } from 'match-sorter'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -227,12 +228,11 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
       (a, b) => (bnOrZero(a.fiatAmount).gte(bnOrZero(b.fiatAmount)) ? -1 : 1),
     )
 
-    const activeOpportunities = sortedAggregatedEarnOpportunitiesByFiatAmount.filter(opportunity =>
-      bnOrZero(opportunity.fiatAmount).gt(0),
+    const [activeOpportunities, inactiveOpportunities] = partition(
+      sortedAggregatedEarnOpportunitiesByFiatAmount,
+      opportunity => bnOrZero(opportunity.fiatAmount).gt(0),
     )
-    const inactiveOpportunities = sortedAggregatedEarnOpportunitiesByFiatAmount
-      .filter(opportunity => bnOrZero(opportunity.fiatAmount).eq(0))
-      .sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
+    inactiveOpportunities.sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
 
     const sortedOpportunitiesByFiatAmountAndApy = activeOpportunities.concat(inactiveOpportunities)
 
@@ -497,12 +497,11 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       bnOrZero(a.netProviderFiatAmount).gte(bnOrZero(b.netProviderFiatAmount)) ? -1 : 1,
     )
 
-    const activeOpportunities = sortedListByFiatAmount.filter(opportunity =>
-      bnOrZero(opportunity.netProviderFiatAmount).gt(0),
+    const [activeOpportunities, inactiveOpportunities] = partition(
+      sortedListByFiatAmount,
+      opportunity => bnOrZero(opportunity.netProviderFiatAmount).gt(0),
     )
-    const inactiveOpportunities = sortedListByFiatAmount
-      .filter(opportunity => bnOrZero(opportunity.netProviderFiatAmount).eq(0))
-      .sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
+    inactiveOpportunities.sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
 
     const sortedListByFiatAmountAndApy = activeOpportunities.concat(inactiveOpportunities)
 

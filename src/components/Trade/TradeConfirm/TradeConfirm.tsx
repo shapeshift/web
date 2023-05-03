@@ -307,11 +307,14 @@ export const TradeConfirm = () => {
         return
       }
 
+      const result = await swapper.executeTrade({ trade, wallet })
+
+      // only track after swapper successfully executes trade
+      // otherwise unsigned txs will be tracked as confirmed trades
       if (mixpanel && eventData) {
         mixpanel.track(MixPanelEvents.TradeConfirm, eventData)
       }
 
-      const result = await swapper.executeTrade({ trade, wallet })
       // TODO(gomes): should we we throw so the catch clause handles this?
       if (result.isErr()) return
       setSellTradeId(result.unwrap().tradeId)

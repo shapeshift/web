@@ -223,7 +223,21 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
 
     const aggregatedEarnOpportunitiesByAssetId = Object.values(byAssetId)
 
-    if (!includeEarnBalances && !includeRewardsBalances) return aggregatedEarnOpportunitiesByAssetId
+    const sortedAggregatedEarnOpportunitiesByFiatAmount = aggregatedEarnOpportunitiesByAssetId.sort(
+      (a, b) => (bnOrZero(a.fiatAmount).gte(bnOrZero(b.fiatAmount)) ? -1 : 1),
+    )
+
+    const activeOpportunities = sortedAggregatedEarnOpportunitiesByFiatAmount.filter(opportunity =>
+      bnOrZero(opportunity.fiatAmount).gt(0),
+    )
+    const inactiveOpportunities = sortedAggregatedEarnOpportunitiesByFiatAmount
+      .filter(opportunity => bnOrZero(opportunity.fiatAmount).eq(0))
+      .sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
+
+    const sortedOpportunitiesByFiatAmountAndApy = activeOpportunities.concat(inactiveOpportunities)
+
+    if (!includeEarnBalances && !includeRewardsBalances)
+      return sortedOpportunitiesByFiatAmountAndApy
 
     const withEarnBalances = aggregatedEarnOpportunitiesByAssetId.filter(opportunity =>
       Boolean(includeEarnBalances && bnOrZero(opportunity.fiatAmount).gt(0)),
@@ -232,7 +246,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
       Boolean(includeRewardsBalances && bnOrZero(opportunity.fiatRewardsAmount).gt(0)),
     )
 
-    return [...withEarnBalances, ...withRewardsBalances]
+    return withEarnBalances.concat(withRewardsBalances)
   },
 )
 

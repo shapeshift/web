@@ -175,7 +175,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
       renderEmptyComponent={() =>
         searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty ctaHref='/earn' />
       }
-      initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
+      initialState={{ pageSize: 30 }}
     />
   )
 }

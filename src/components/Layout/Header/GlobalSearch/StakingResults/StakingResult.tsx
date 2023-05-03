@@ -1,4 +1,4 @@
-import { Button, Flex } from '@chakra-ui/react'
+import { Button, Flex, forwardRef } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
@@ -17,61 +17,59 @@ type StakingResultProps = {
   onClick: (arg: GlobalSearchResult) => void
 }
 
-export const StakingResult: React.FC<StakingResultProps> = ({
-  stakingId,
-  onClick,
-  index,
-  activeIndex,
-}) => {
-  const oppportunity = useAppSelector(state =>
-    selectAggregatedEarnUserStakingOpportunityByStakingId(state, { stakingId }),
-  )
-  const selected = activeIndex === index
-
-  const subTextJoined = useMemo(() => {
-    const aprElement = (
-      <Amount.Percent value={bnOrZero(oppportunity?.apy).toString()} suffix='APY' autoColor />
+export const StakingResult = forwardRef<StakingResultProps, 'div'>(
+  ({ stakingId, onClick, index, activeIndex }, ref) => {
+    const oppportunity = useAppSelector(state =>
+      selectAggregatedEarnUserStakingOpportunityByStakingId(state, { stakingId }),
     )
-    const hasBalanceElement = <RawText textTransform='capitalize'>{oppportunity?.type}</RawText>
-    const subText = [
-      aprElement,
-      ...(bnOrZero(oppportunity?.cryptoAmountBaseUnit).gt(0) ? [hasBalanceElement] : []),
-    ]
+    const selected = activeIndex === index
 
-    return subText.map((element, index) => (
-      <Flex gap={1} alignItems='center' key={`subtext-${index}`}>
-        {index > 0 && <RawText>•</RawText>}
-        {element}
-      </Flex>
-    ))
-  }, [oppportunity?.apy, oppportunity?.cryptoAmountBaseUnit, oppportunity?.type])
+    const subTextJoined = useMemo(() => {
+      const aprElement = (
+        <Amount.Percent value={bnOrZero(oppportunity?.apy).toString()} suffix='APY' autoColor />
+      )
+      const hasBalanceElement = <RawText textTransform='capitalize'>{oppportunity?.type}</RawText>
+      const subText = [
+        aprElement,
+        ...(bnOrZero(oppportunity?.cryptoAmountBaseUnit).gt(0) ? [hasBalanceElement] : []),
+      ]
 
-  if (!oppportunity) return null
-  return (
-    <Button
-      display='grid'
-      gridTemplateColumns='50% 1fr'
-      alignItems='center'
-      variant='ghost'
-      py={2}
-      height='auto'
-      width='full'
-      aria-selected={selected ? true : undefined}
-      _selected={{ bg: 'whiteAlpha.100' }}
-      onClick={() => onClick({ type: GlobalSearchResultType.Asset, id: stakingId })}
-    >
-      <Flex gap={2} flex={1}>
-        <AssetCell
-          assetId={oppportunity.underlyingAssetId}
-          icons={oppportunity.icons}
-          justifyContent='flex-start'
-          subText={
-            <Flex gap={1} fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
-              {subTextJoined}
-            </Flex>
-          }
-        />
-      </Flex>
-    </Button>
-  )
-}
+      return subText.map((element, index) => (
+        <Flex gap={1} alignItems='center' key={`subtext-${index}`}>
+          {index > 0 && <RawText>•</RawText>}
+          {element}
+        </Flex>
+      ))
+    }, [oppportunity?.apy, oppportunity?.cryptoAmountBaseUnit, oppportunity?.type])
+
+    if (!oppportunity) return null
+    return (
+      <Button
+        display='grid'
+        gridTemplateColumns='50% 1fr'
+        alignItems='center'
+        variant='ghost'
+        py={2}
+        height='auto'
+        width='full'
+        ref={ref}
+        aria-selected={selected ? true : undefined}
+        _selected={{ bg: 'whiteAlpha.100' }}
+        onClick={() => onClick({ type: GlobalSearchResultType.Asset, id: stakingId })}
+      >
+        <Flex gap={2} flex={1}>
+          <AssetCell
+            assetId={oppportunity.underlyingAssetId}
+            icons={oppportunity.icons}
+            justifyContent='flex-start'
+            subText={
+              <Flex gap={1} fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
+                {subTextJoined}
+              </Flex>
+            }
+          />
+        </Flex>
+      </Button>
+    )
+  },
+)

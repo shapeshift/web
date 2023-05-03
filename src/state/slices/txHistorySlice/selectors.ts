@@ -1,5 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
@@ -9,7 +10,6 @@ import values from 'lodash/values'
 import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
-import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -252,13 +252,16 @@ export const SelectTxsByQuery = createDeepEqualOutputSelector(
   selectAssets,
   selectSearchQueryFromFilter,
   (txsById, assets, searchQuery) => {
-    const txArray: Tx[] = Object.entries(txsById)
+    const txArray: [string, Tx][] = Object.entries(txsById)
     if (!searchQuery) return []
     const results = matchSorter(txArray, searchQuery, {
       keys: [
         'txid',
-        item => item[1].transfers.map((transfer: Transfer) => assets[transfer.assetId]?.name),
-        item => item[1].transfers.map((transfer: Transfer) => assets[transfer.assetId]?.symbol),
+        item =>
+          item[1]?.transfers.flatMap((transfer: TxTransfer) => [
+            assets[transfer.assetId]?.name ?? '',
+            assets[transfer.assetId]?.symbol ?? '',
+          ]),
         item => item[0],
       ],
       threshold: matchSorter.rankings.CONTAINS,

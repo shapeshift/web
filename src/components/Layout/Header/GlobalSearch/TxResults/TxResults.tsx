@@ -1,34 +1,34 @@
 import { List } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { TransactionRow } from 'components/TransactionHistoryRows/TransactionRow'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
-import type { GlobalSearchResult } from 'state/slices/search-selectors'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { ListItemSection } from '../ListItemSection'
-import { StakingResult } from './StakingResult'
+import type { GlobalSearchResultsProps } from '../types'
 import { TxResult } from './TxResult'
 
-type TxResultsProps = {
-  results: GlobalSearchResult[]
-  activeIndex?: number
-  onClick: (arg: GlobalSearchResult) => void
-  startingIndex: number
-  searchQuery?: string
-}
-export const TxResults: React.FC<TxResultsProps> = ({
+export const TxResults: React.FC<GlobalSearchResultsProps> = ({
   results,
   activeIndex,
   onClick,
   startingIndex,
   searchQuery,
+  menuNodes,
 }) => {
   const renderRows = useMemo(() => {
     return results.map((result, index) => {
       const { id } = result
-      return <TxResult key={`result-tx-${index}`} txId={id as TxId} />
+      return (
+        <TxResult
+          key={`result-tx-${index}`}
+          txId={id as TxId}
+          activeIndex={activeIndex}
+          index={index + startingIndex}
+          onClick={onClick}
+          ref={menuNodes.ref(index + startingIndex)}
+        />
+      )
     })
-  }, [results])
+  }, [activeIndex, menuNodes, onClick, results, startingIndex])
 
   if (searchQuery && !results.length) return null
   return (

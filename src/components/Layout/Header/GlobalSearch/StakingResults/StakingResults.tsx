@@ -1,24 +1,18 @@
 import { List } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
-import type { GlobalSearchResult } from 'state/slices/search-selectors'
 
 import { ListItemSection } from '../ListItemSection'
+import type { GlobalSearchResultsProps } from '../types'
 import { StakingResult } from './StakingResult'
 
-type StakingResultProps = {
-  results: GlobalSearchResult[]
-  activeIndex?: number
-  onClick: (arg: GlobalSearchResult) => void
-  startingIndex: number
-  searchQuery?: string
-}
-export const StakingResults: React.FC<StakingResultProps> = ({
+export const StakingResults: React.FC<GlobalSearchResultsProps> = ({
   results,
   activeIndex,
   onClick,
   startingIndex,
   searchQuery,
+  menuNodes,
 }) => {
   const renderRows = useMemo(() => {
     return results.map((result, index) => {
@@ -30,10 +24,11 @@ export const StakingResults: React.FC<StakingResultProps> = ({
           key={`staking-${index}`}
           activeIndex={activeIndex}
           onClick={() => onClick(result)}
+          ref={menuNodes.ref(index + startingIndex)}
         />
       )
     })
-  }, [activeIndex, onClick, results, startingIndex])
+  }, [activeIndex, menuNodes, onClick, results, startingIndex])
   if (searchQuery && !results.length) return null
   return (
     <>

@@ -8,7 +8,6 @@ import type { AggregatedOpportunitiesByProviderReturn } from './opportunitiesSli
 import {
   selectAggregatedEarnOpportunitiesByProvider,
   selectAssetsBySearchQuery,
-  selectLastNTxIds,
   SelectTxsByQuery,
 } from './selectors'
 

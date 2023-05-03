@@ -1,24 +1,17 @@
 import { List } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import type { GlobalSearchResult } from 'state/slices/search-selectors'
 
-import { AssetResult } from './AssetResultRow'
-import { ListItemSection } from './ListItemSection'
+import { ListItemSection } from '../ListItemSection'
+import type { GlobalSearchResultsProps } from '../types'
+import { AssetResult } from './AssetResult'
 
-type AssetResultsProps = {
-  results: GlobalSearchResult[]
-  activeIndex?: number
-  startingIndex: number
-  onClick: (arg: GlobalSearchResult) => void
-  searchQuery?: string
-}
-
-export const AssetResults: React.FC<AssetResultsProps> = ({
+export const AssetResults: React.FC<GlobalSearchResultsProps> = ({
   results,
   activeIndex,
   onClick,
   startingIndex,
   searchQuery,
+  menuNodes,
 }) => {
   const renderItems = useMemo(() => {
     return results.map((item, index) => (
@@ -28,9 +21,10 @@ export const AssetResults: React.FC<AssetResultsProps> = ({
         activeIndex={activeIndex}
         assetId={item.id}
         onClick={onClick}
+        ref={menuNodes.ref(index)}
       />
     ))
-  }, [activeIndex, onClick, results, startingIndex])
+  }, [activeIndex, menuNodes, onClick, results, startingIndex])
 
   if (searchQuery && !results.length) return null
   return (

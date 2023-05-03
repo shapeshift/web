@@ -1,5 +1,5 @@
 import { SearchIcon } from '@chakra-ui/icons'
-import type { InputProps } from '@chakra-ui/react'
+import type { InputGroupProps, InputProps } from '@chakra-ui/react'
 import {
   IconButton,
   Input,
@@ -14,10 +14,12 @@ import { FaTimes } from 'react-icons/fa'
 type GlobalFilterProps = {
   setSearchQuery: (filterValue: any) => void
   searchQuery: any
+  inputGroupProps?: InputGroupProps
 } & InputProps
 export const GlobalFilter: React.FC<GlobalFilterProps> = ({
   setSearchQuery,
   searchQuery = '',
+  inputGroupProps,
   ...rest
 }) => {
   const [value, setValue] = useState(searchQuery)
@@ -46,7 +48,7 @@ export const GlobalFilter: React.FC<GlobalFilterProps> = ({
   }, [handleDebounce])
 
   return (
-    <InputGroup size='md'>
+    <InputGroup size='md' {...inputGroupProps}>
       {/* Override zIndex to prevent element displaying on overlay components */}
       <InputLeftElement pointerEvents='none' zIndex={1}>
         <SearchIcon color='gray.300' />

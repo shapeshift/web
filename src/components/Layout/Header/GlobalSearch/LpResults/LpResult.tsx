@@ -1,4 +1,4 @@
-import { Button, Flex } from '@chakra-ui/react'
+import { Button, Flex, forwardRef } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
@@ -15,51 +15,54 @@ type LpResultProps = {
   onClick: (arg: GlobalSearchResult) => void
 }
 
-export const LpResult: React.FC<LpResultProps> = ({ opportunity, onClick, index, activeIndex }) => {
-  const selected = activeIndex === index
-  const { apy, type, cryptoAmountBaseUnit } = opportunity
-  const subTextJoined = useMemo(() => {
-    const aprElement = <Amount.Percent value={bnOrZero(apy).toString()} suffix='APY' autoColor />
-    const hasBalanceElement = <RawText textTransform='capitalize'>{type}</RawText>
-    const subText = [
-      aprElement,
-      ...(bnOrZero(cryptoAmountBaseUnit).gt(0) ? [hasBalanceElement] : []),
-    ]
+export const LpResult = forwardRef<LpResultProps, 'div'>(
+  ({ opportunity, onClick, index, activeIndex }, ref) => {
+    const selected = activeIndex === index
+    const { apy, type, cryptoAmountBaseUnit } = opportunity
+    const subTextJoined = useMemo(() => {
+      const aprElement = <Amount.Percent value={bnOrZero(apy).toString()} suffix='APY' autoColor />
+      const hasBalanceElement = <RawText textTransform='capitalize'>{type}</RawText>
+      const subText = [
+        aprElement,
+        ...(bnOrZero(cryptoAmountBaseUnit).gt(0) ? [hasBalanceElement] : []),
+      ]
 
-    return subText.map((element, index) => (
-      <Flex gap={1} alignItems='center' key={`subtext-${index}`}>
-        {index > 0 && <RawText>•</RawText>}
-        {element}
-      </Flex>
-    ))
-  }, [apy, cryptoAmountBaseUnit, type])
+      return subText.map((element, index) => (
+        <Flex gap={1} alignItems='center' key={`subtext-${index}`}>
+          {index > 0 && <RawText>•</RawText>}
+          {element}
+        </Flex>
+      ))
+    }, [apy, cryptoAmountBaseUnit, type])
 
-  if (!opportunity) return null
-  return (
-    <Button
-      display='grid'
-      gridTemplateColumns='50% 1fr'
-      alignItems='center'
-      variant='ghost'
-      py={2}
-      height='auto'
-      width='full'
-      aria-selected={selected ? true : undefined}
-      _selected={{ bg: 'whiteAlpha.100' }}
-      onClick={() => onClick({ type: GlobalSearchResultType.LpOpportunity, id: opportunity.id })}
-    >
-      <Flex gap={2} flex={1}>
-        <AssetCell
-          assetId={opportunity.underlyingAssetId}
-          icons={opportunity.icons}
-          justifyContent='flex-start'
-          subText={
-            <Flex gap={1} fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
-              {subTextJoined}
-            </Flex>
-          }
-        />
-      </Flex>
-    </Button>
-  )
-}
+    if (!opportunity) return null
+    return (
+      <Button
+        display='grid'
+        gridTemplateColumns='50% 1fr'
+        alignItems='center'
+        variant='ghost'
+        py={2}
+        height='auto'
+        width='full'
+        ref={ref}
+        aria-selected={selected ? true : undefined}
+        _selected={{ bg: 'whiteAlpha.100' }}
+        onClick={() => onClick({ type: GlobalSearchResultType.LpOpportunity, id: opportunity.id })}
+      >
+        <Flex gap={2} flex={1}>
+          <AssetCell
+            assetId={opportunity.underlyingAssetId}
+            icons={opportunity.icons}
+            justifyContent='flex-start'
+            subText={
+              <Flex gap={1} fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
+                {subTextJoined}
+              </Flex>
+            }
+          />
+        </Flex>
+      </Button>
+    )
+  },
+)

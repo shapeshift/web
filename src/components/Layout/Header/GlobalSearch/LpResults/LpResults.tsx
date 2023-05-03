@@ -1,27 +1,21 @@
 import { List } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import type { GlobalSearchResult } from 'state/slices/search-selectors'
 import { GlobalSearchResultType } from 'state/slices/search-selectors'
 import { selectAggregatedEarnUserLpOpportunities } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ListItemSection } from '../ListItemSection'
+import type { GlobalSearchResultsProps } from '../types'
 import { LpResult } from './LpResult'
 
-type LpResultProps = {
-  results: GlobalSearchResult[]
-  activeIndex?: number
-  onClick: (arg: GlobalSearchResult) => void
-  startingIndex: number
-  searchQuery?: string
-}
-export const LpResults: React.FC<LpResultProps> = ({
+export const LpResults: React.FC<GlobalSearchResultsProps> = ({
   results,
   activeIndex,
   onClick,
   startingIndex,
   searchQuery,
+  menuNodes,
 }) => {
   const ids = results.map(result => result.id)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
@@ -36,10 +30,11 @@ export const LpResults: React.FC<LpResultProps> = ({
           key={`lp-${index}`}
           activeIndex={activeIndex}
           onClick={() => onClick({ type: GlobalSearchResultType.LpOpportunity, id: result.id })}
+          ref={menuNodes.ref(index + startingIndex)}
         />
       )
     })
-  }, [activeIndex, filteredDown, onClick, startingIndex])
+  }, [activeIndex, filteredDown, menuNodes, onClick, startingIndex])
   if (searchQuery && !results.length) return null
   return (
     <>

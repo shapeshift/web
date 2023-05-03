@@ -11,10 +11,13 @@ import {
   ModalOverlay,
   useDisclosure,
   useEventListener,
+  useUpdateEffect,
 } from '@chakra-ui/react'
 import { DefiAction, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import MultiRef from 'react-multi-ref'
 import { useHistory, useLocation } from 'react-router'
+import scrollIntoView from 'scroll-into-view-if-needed'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -28,7 +31,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { AssetResults } from './AssetResults'
+import { AssetResults } from './AssetResults/AssetResults'
 import { LpResults } from './LpResults/LpResults'
 import { StakingResults } from './StakingResults/StakingResults'
 import { TxResults } from './TxResults/TxResults'
@@ -38,6 +41,9 @@ export const GlobalSeachButton = () => {
   const { isOpen, onClose, onOpen, onToggle } = useDisclosure()
   const [activeIndex, setActiveIndex] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [menuNodes] = useState(() => new MultiRef<number, HTMLElement>())
+  const eventRef = useRef<'mouse' | 'keyboard' | null>(null)
   const history = useHistory()
   const location = useLocation()
   const {
@@ -77,7 +83,7 @@ export const GlobalSeachButton = () => {
   }, [searchQuery])
 
   useEventListener('keydown', event => {
-    const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator?.platform)
+    const isMac = /Mac|iPhone|iPod|iPad/.test(navigator.userAgent)
     const hotkey = isMac ? 'metaKey' : 'ctrlKey'
     if (event?.key?.toLowerCase() === 'k' && event[hotkey]) {
       event.preventDefault()
@@ -136,6 +142,7 @@ export const GlobalSeachButton = () => {
 
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
+      eventRef.current = 'keyboard'
       switch (e.key) {
         case 'ArrowDown': {
           e.preventDefault()
@@ -173,6 +180,29 @@ export const GlobalSeachButton = () => {
     [activeIndex, handleClick, onToggle, results],
   )
 
+  useUpdateEffect(() => {
+    if (!menuRef.current || eventRef.current === 'mouse') return
+    const node = menuNodes.map.get(activeIndex)
+    if (!node) return
+    scrollIntoView(node, {
+      scrollMode: 'if-needed',
+      block: 'nearest',
+      inline: 'nearest',
+      boundary: menuRef.current,
+    })
+  }, [activeIndex])
+
+  useEffect(() => {
+    if (isOpen && searchQuery.length > 0) {
+      setSearchQuery('')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen])
+
+  useUpdateEffect(() => {
+    setActiveIndex(0)
+  }, [searchQuery])
+
   return (
     <>
       <Box maxWidth='xl' width='full'>
@@ -196,14 +226,23 @@ export const GlobalSeachButton = () => {
       <Modal scrollBehavior='inside' isOpen={isOpen} onClose={onClose} size='lg'>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader position='sticky' top={0}>
+          <ModalHeader
+            position='sticky'
+            top={0}
+            sx={{ p: 0 }}
+            borderBottomWidth={1}
+            borderColor='whiteAlpha.100'
+          >
             <GlobalFilter
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               onKeyDown={onKeyDown}
+              inputGroupProps={{ size: 'lg' }}
+              borderBottomRadius={0}
+              borderWidth={0}
             />
           </ModalHeader>
-          <ModalBody px={0}>
+          <ModalBody px={0} ref={menuRef}>
             <List>
               <AssetResults
                 onClick={handleClick}
@@ -211,6 +250,7 @@ export const GlobalSeachButton = () => {
                 activeIndex={activeIndex}
                 startingIndex={0}
                 searchQuery={searchQuery}
+                menuNodes={menuNodes}
               />
               <StakingResults
                 results={stakingResults}
@@ -218,6 +258,7 @@ export const GlobalSeachButton = () => {
                 activeIndex={activeIndex}
                 startingIndex={assetResults.length}
                 searchQuery={searchQuery}
+                menuNodes={menuNodes}
               />
               <LpResults
                 results={lpResults}
@@ -225,13 +266,15 @@ export const GlobalSeachButton = () => {
                 activeIndex={activeIndex}
                 startingIndex={assetResults.length + stakingResults.length}
                 searchQuery={searchQuery}
+                menuNodes={menuNodes}
               />
               <TxResults
                 results={txResults}
                 onClick={handleClick}
                 activeIndex={activeIndex}
-                startingIndex={assetResults.length + stakingResults.length}
+                startingIndex={assetResults.length + stakingResults.length + lpResults.length}
                 searchQuery={searchQuery}
+                menuNodes={menuNodes}
               />
             </List>
           </ModalBody>

@@ -1,12 +1,29 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { BuyAssetBySellIdInput } from 'lib/swapper/api'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-// we dont perform a lookup to lifi's supported assets because they support far more assets than we do
-// so the overhead in performing the fetch to lifi isnt worth the time
-export function filterSameChainEvmBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
+const getSameChainEvmAssetsPredicate = (sellAssetChainId: ChainId, assets: Partial<Record<AssetId, Asset>>) => (assetId: AssetId): boolean => {
+  const buyAsset = assets[assetId]
+
+  if (buyAsset === undefined) return false
+
+  // same-chain swaps and evm only
+  return buyAsset.chainId === sellAssetChainId && isEvmChainId(buyAsset.chainId)
+}
+
+const getCrossChainEvmAssetsPredicate = (sellAssetChainId: ChainId, assets: Partial<Record<AssetId, Asset>>) => (assetId: AssetId): boolean => {
+  const buyAsset = assets[assetId]
+
+  if (buyAsset === undefined) return false
+
+  // cross-chain swaps and evm only
+  return buyAsset.chainId !== sellAssetChainId && isEvmChainId(buyAsset.chainId)
+}
+
+const _filterEvmBuyAssetsBySellAssetId = (input: BuyAssetBySellIdInput, getPredicate: (chainId: ChainId, assets: Partial<Record<AssetId, Asset>>) => (assetId: AssetId) => boolean): AssetId[] => {
   const { assetIds = [], sellAssetId } = input
 
   const assets = selectAssets(store.getState())
@@ -14,14 +31,14 @@ export function filterSameChainEvmBuyAssetsBySellAssetId(input: BuyAssetBySellId
 
   if (sellAsset === undefined || !isEvmChainId(sellAsset.chainId)) return []
 
-  const result = assetIds.filter(assetId => {
-    const buyAsset = assets[assetId]
+  const predicate = getPredicate(sellAsset.chainId, assets)
+  return assetIds.filter(predicate)
+}
 
-    if (buyAsset === undefined) return false
+export const filterSameChainEvmBuyAssetsBySellAssetId = (input: BuyAssetBySellIdInput): AssetId[] => {
+  return _filterEvmBuyAssetsBySellAssetId(input, getSameChainEvmAssetsPredicate)
+}
 
-    // same-chain swaps and evm only
-    return buyAsset.chainId === sellAsset.chainId && isEvmChainId(buyAsset.chainId)
-  })
-
-  return result
+export const filterCrossChainEvmBuyAssetsBySellAssetId = (input: BuyAssetBySellIdInput): AssetId[] => {
+  return _filterEvmBuyAssetsBySellAssetId(input, getCrossChainEvmAssetsPredicate)
 }

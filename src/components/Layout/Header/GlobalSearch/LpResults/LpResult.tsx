@@ -1,4 +1,4 @@
-import { Button, Flex, forwardRef } from '@chakra-ui/react'
+import { Flex, forwardRef } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
@@ -7,6 +7,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import type { GlobalSearchResult } from 'state/slices/search-selectors'
 import { GlobalSearchResultType } from 'state/slices/search-selectors'
+
+import { ResultButton } from '../ResultButton'
 
 type LpResultProps = {
   opportunity: LpEarnOpportunityType
@@ -37,17 +39,9 @@ export const LpResult = forwardRef<LpResultProps, 'div'>(
 
     if (!opportunity) return null
     return (
-      <Button
-        display='grid'
-        gridTemplateColumns='50% 1fr'
-        alignItems='center'
-        variant='ghost'
-        py={2}
-        height='auto'
-        width='full'
+      <ResultButton
         ref={ref}
         aria-selected={selected ? true : undefined}
-        _selected={{ bg: 'whiteAlpha.100' }}
         onClick={() => onClick({ type: GlobalSearchResultType.LpOpportunity, id: opportunity.id })}
       >
         <Flex gap={2} flex={1}>
@@ -74,7 +68,7 @@ export const LpResult = forwardRef<LpResultProps, 'div'>(
             />
           </Flex>
         )}
-      </Button>
+      </ResultButton>
     )
   },
 )

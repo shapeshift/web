@@ -1,4 +1,4 @@
-import { Button, Flex, forwardRef } from '@chakra-ui/react'
+import { Flex, forwardRef } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
@@ -12,6 +12,8 @@ import {
   selectAssetById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { ResultButton } from '../ResultButton'
 
 type StakingResultProps = {
   stakingId: OpportunityId
@@ -51,17 +53,9 @@ export const StakingResult = forwardRef<StakingResultProps, 'div'>(
 
     if (!opportunity || !asset) return null
     return (
-      <Button
-        display='grid'
-        gridTemplateColumns='50% 1fr'
-        alignItems='center'
-        variant='ghost'
-        py={2}
-        height='auto'
-        width='full'
+      <ResultButton
         ref={ref}
         aria-selected={selected ? true : undefined}
-        _selected={{ bg: 'whiteAlpha.100' }}
         onClick={() => onClick({ type: GlobalSearchResultType.Asset, id: stakingId })}
       >
         <Flex gap={2} flex={1}>
@@ -88,7 +82,7 @@ export const StakingResult = forwardRef<StakingResultProps, 'div'>(
             />
           </Flex>
         )}
-      </Button>
+      </ResultButton>
     )
   },
 )

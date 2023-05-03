@@ -1,4 +1,4 @@
-import { Button, Flex, forwardRef } from '@chakra-ui/react'
+import { Flex, forwardRef } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
@@ -13,6 +13,8 @@ import {
   selectPortfolioFiatBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { ResultButton } from '../ResultButton'
 
 type AssetResultProps = {
   assetId: AssetId
@@ -32,17 +34,9 @@ export const AssetResult = forwardRef<AssetResultProps, 'div'>(
     const fiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, filter)) ?? '0'
     if (!asset) return null
     return (
-      <Button
-        display='grid'
-        gridTemplateColumns='50% 1fr'
-        alignItems='center'
-        variant='ghost'
-        py={2}
-        height='auto'
-        width='full'
+      <ResultButton
         ref={ref}
         aria-selected={selected ? true : undefined}
-        _selected={{ bg: 'whiteAlpha.100' }}
         onClick={() => onClick({ type: GlobalSearchResultType.Asset, id: assetId })}
       >
         <Flex gap={2} flex={1}>
@@ -73,7 +67,7 @@ export const AssetResult = forwardRef<AssetResultProps, 'div'>(
             />
           </Flex>
         )}
-      </Button>
+      </ResultButton>
     )
   },
 )

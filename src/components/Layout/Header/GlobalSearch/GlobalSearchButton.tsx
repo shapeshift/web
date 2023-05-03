@@ -16,9 +16,11 @@ import {
 import { DefiAction, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
-import { useHistory, useLocation } from 'react-router'
+import { useTranslate } from 'react-polyglot'
+import { generatePath, useHistory, useLocation } from 'react-router'
 import scrollIntoView from 'scroll-into-view-if-needed'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
+import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
@@ -46,6 +48,7 @@ export const GlobalSeachButton = () => {
   const eventRef = useRef<'mouse' | 'keyboard' | null>(null)
   const history = useHistory()
   const location = useLocation()
+  const translate = useTranslate()
   const {
     state: { isConnected, isDemoWallet },
     dispatch,
@@ -120,6 +123,14 @@ export const GlobalSeachButton = () => {
           })
           if (!data) return
           history.push(data)
+          onToggle()
+          break
+        }
+        case GlobalSearchResultType.Transaction: {
+          const path = generatePath('/dashboard/activity/transaction/:txId', {
+            txId: item.id,
+          })
+          history.push(path)
           onToggle()
           break
         }
@@ -203,6 +214,59 @@ export const GlobalSeachButton = () => {
     setActiveIndex(0)
   }, [searchQuery])
 
+  const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
+  const renderResults = useMemo(() => {
+    return isSearching && !results?.length ? (
+      <SearchEmpty searchQuery={searchQuery} />
+    ) : (
+      <List>
+        <AssetResults
+          onClick={handleClick}
+          results={assetResults}
+          activeIndex={activeIndex}
+          startingIndex={0}
+          searchQuery={searchQuery}
+          menuNodes={menuNodes}
+        />
+        <StakingResults
+          results={stakingResults}
+          onClick={handleClick}
+          activeIndex={activeIndex}
+          startingIndex={assetResults.length}
+          searchQuery={searchQuery}
+          menuNodes={menuNodes}
+        />
+        <LpResults
+          results={lpResults}
+          onClick={handleClick}
+          activeIndex={activeIndex}
+          startingIndex={assetResults.length + stakingResults.length}
+          searchQuery={searchQuery}
+          menuNodes={menuNodes}
+        />
+        <TxResults
+          results={txResults}
+          onClick={handleClick}
+          activeIndex={activeIndex}
+          startingIndex={assetResults.length + stakingResults.length + lpResults.length}
+          searchQuery={searchQuery}
+          menuNodes={menuNodes}
+        />
+      </List>
+    )
+  }, [
+    activeIndex,
+    assetResults,
+    handleClick,
+    isSearching,
+    lpResults,
+    menuNodes,
+    results?.length,
+    searchQuery,
+    stakingResults,
+    txResults,
+  ])
+
   return (
     <>
       <Box maxWidth='xl' width='full'>
@@ -217,7 +281,7 @@ export const GlobalSeachButton = () => {
           alignItems='center'
           sx={{ svg: { width: '18px', height: '18px' } }}
         >
-          Search
+          {translate('common.search')}
           <Box ml='auto'>
             <Kbd>⌘</Kbd>+<Kbd>K</Kbd>
           </Box>
@@ -243,40 +307,7 @@ export const GlobalSeachButton = () => {
             />
           </ModalHeader>
           <ModalBody px={0} ref={menuRef}>
-            <List>
-              <AssetResults
-                onClick={handleClick}
-                results={assetResults}
-                activeIndex={activeIndex}
-                startingIndex={0}
-                searchQuery={searchQuery}
-                menuNodes={menuNodes}
-              />
-              <StakingResults
-                results={stakingResults}
-                onClick={handleClick}
-                activeIndex={activeIndex}
-                startingIndex={assetResults.length}
-                searchQuery={searchQuery}
-                menuNodes={menuNodes}
-              />
-              <LpResults
-                results={lpResults}
-                onClick={handleClick}
-                activeIndex={activeIndex}
-                startingIndex={assetResults.length + stakingResults.length}
-                searchQuery={searchQuery}
-                menuNodes={menuNodes}
-              />
-              <TxResults
-                results={txResults}
-                onClick={handleClick}
-                activeIndex={activeIndex}
-                startingIndex={assetResults.length + stakingResults.length + lpResults.length}
-                searchQuery={searchQuery}
-                menuNodes={menuNodes}
-              />
-            </List>
+            {renderResults}
           </ModalBody>
         </ModalContent>
       </Modal>

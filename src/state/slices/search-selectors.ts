@@ -4,12 +4,16 @@ import { uniq } from 'lodash'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import { selectSearchQueryFromFilter } from '../selectors'
-import type { AggregatedOpportunitiesByProviderReturn } from './opportunitiesSlice/types'
+import type {
+  AggregatedOpportunitiesByProviderReturn,
+  OpportunityId,
+} from './opportunitiesSlice/types'
 import {
   selectAggregatedEarnOpportunitiesByProvider,
   selectAssetsBySearchQuery,
   SelectTxsByQuery,
 } from './selectors'
+import type { TxId } from './txHistorySlice/txHistorySlice'
 
 export enum GlobalSearchResultType {
   Asset = 'Asset',
@@ -20,7 +24,7 @@ export enum GlobalSearchResultType {
 
 export type GlobalSearchResult = {
   type: GlobalSearchResultType
-  id: AssetId
+  id: AssetId | TxId | OpportunityId
 }
 
 export const selectGlobalItemsFromFilter = createDeepEqualOutputSelector(
@@ -29,7 +33,7 @@ export const selectGlobalItemsFromFilter = createDeepEqualOutputSelector(
   SelectTxsByQuery,
   selectSearchQueryFromFilter,
   (filteredAssets: Asset[], opportunityResults, txIds, query?: string): GlobalSearchResult[] => {
-    if (!query) return []
+    const limit = query ? 10 : 3
     const resultAssets = filteredAssets
       .map(asset => {
         return {
@@ -37,7 +41,7 @@ export const selectGlobalItemsFromFilter = createDeepEqualOutputSelector(
           id: asset.assetId,
         }
       })
-      .slice(0, 10)
+      .slice(0, limit)
     const opportunities = opportunityResults.reduce(
       (acc: { staking: string[]; lp: string[] }, curr: AggregatedOpportunitiesByProviderReturn) => {
         acc['staking'].push(...curr.opportunities.staking)
@@ -47,18 +51,22 @@ export const selectGlobalItemsFromFilter = createDeepEqualOutputSelector(
       { staking: [], lp: [] },
     )
 
-    const stakingOpportunities = uniq(opportunities.staking).map(id => {
-      return {
-        type: GlobalSearchResultType.StakingOpportunity,
-        id,
-      }
-    })
-    const lpOpportunities = uniq(opportunities.lp).map(id => {
-      return {
-        type: GlobalSearchResultType.LpOpportunity,
-        id,
-      }
-    })
+    const stakingOpportunities = uniq(opportunities.staking)
+      .map(id => {
+        return {
+          type: GlobalSearchResultType.StakingOpportunity,
+          id,
+        }
+      })
+      .slice(0, limit)
+    const lpOpportunities = uniq(opportunities.lp)
+      .map(id => {
+        return {
+          type: GlobalSearchResultType.LpOpportunity,
+          id,
+        }
+      })
+      .slice(0, limit)
     const txResults = txIds
       .map(id => {
         return {
@@ -66,7 +74,7 @@ export const selectGlobalItemsFromFilter = createDeepEqualOutputSelector(
           id,
         }
       })
-      .slice(0, 10)
+      .slice(0, limit)
     return resultAssets.concat(stakingOpportunities).concat(lpOpportunities).concat(txResults)
   },
 )

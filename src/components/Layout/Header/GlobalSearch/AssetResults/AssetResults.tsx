@@ -1,4 +1,5 @@
 import { List } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import { ListItemSection } from '../ListItemSection'
@@ -19,7 +20,7 @@ export const AssetResults: React.FC<GlobalSearchResultsProps> = ({
         key={`result-assets-${index}`}
         index={index + startingIndex}
         activeIndex={activeIndex}
-        assetId={item.id}
+        assetId={item.id as AssetId}
         onClick={onClick}
         ref={menuNodes.ref(index)}
       />

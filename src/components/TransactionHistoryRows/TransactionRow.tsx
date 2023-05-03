@@ -31,6 +31,7 @@ type TxRowProps = {
   useCompactMode?: boolean
   parentWidth: number
   initOpen?: boolean
+  disableCollapse?: boolean
 } & BoxProps
 
 export const TransactionRow = forwardRef<TxRowProps, 'div'>(
@@ -41,12 +42,13 @@ export const TransactionRow = forwardRef<TxRowProps, 'div'>(
       useCompactMode = false,
       parentWidth,
       initOpen = false,
+      disableCollapse = false,
       ...rest
     },
     ref,
   ) => {
     const [isOpen, setIsOpen] = useState(initOpen)
-    const toggleOpen = () => setIsOpen(!isOpen)
+    const toggleOpen = () => (disableCollapse ? null : setIsOpen(!isOpen))
     const rowHoverBg = useColorModeValue('gray.100', 'gray.750')
     const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
     const txDetails = useTxDetails(txId)

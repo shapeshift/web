@@ -82,8 +82,8 @@ export const selectAssetsBySearchQuery = createDeepEqualOutputSelector(
   selectAssetsByMarketCap,
   selectSearchQueryFromFilter,
   (sortedAssets: Asset[], searchQuery?: string): Asset[] => {
-    if (!searchQuery) return []
-    return matchSorter(sortedAssets, searchQuery, {
+    if (!searchQuery) return sortedAssets
+    return matchSorter(sortedAssets, searchQuery ?? '', {
       keys: ['name', 'symbol', 'assetId'],
       threshold: matchSorter.rankings.CONTAINS,
     })

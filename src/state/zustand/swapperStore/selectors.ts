@@ -44,6 +44,8 @@ export const selectAmount = (state: SwapperState) => state.amount
 export const selectReceiveAddress = (state: SwapperState) => state.receiveAddress
 export const selectFees = (state: SwapperState) => state.fees
 export const selectTrade = (state: SwapperState) => state.trade
+export const selectSwapperName = (state: SwapperState) =>
+  state.activeSwapperWithMetadata?.swapper.name
 export const selectActiveSwapperWithMetadata = (state: SwapperState) =>
   state.activeSwapperWithMetadata
 export const selectAvailableSwappersWithMetadata = (state: SwapperState) =>

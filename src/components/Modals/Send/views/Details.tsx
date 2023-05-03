@@ -83,7 +83,8 @@ export const Details = () => {
   useEffect(() => {
     // Initial setting of cryptoAmount in case of a QR-code set amount
     handleInputChange(cryptoAmount ?? '0')
-  }, [cryptoAmount, handleInputChange])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handleInputChange])
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 

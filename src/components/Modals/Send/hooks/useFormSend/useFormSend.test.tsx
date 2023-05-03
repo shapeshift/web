@@ -142,7 +142,11 @@ describe.each([
     ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
 
     const sendClose = jest.fn()
-    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+    const qrClose = jest.fn()
+    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({
+      qrCode: { close: qrClose },
+      send: { close: sendClose },
+    }))
     const mockAdapter = {
       buildSendTransaction: () => Promise.resolve(textTxToSign),
       signTransaction: () => Promise.resolve(testSignedTx),
@@ -170,6 +174,7 @@ describe.each([
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
+    expect(qrClose).toHaveBeenCalled()
   })
 
   it('handles successfully sending a tx with ENS name', async () => {
@@ -186,13 +191,17 @@ describe.each([
     ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
 
     const sendClose = jest.fn()
+    const qrClose = jest.fn()
     ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(() =>
       Promise.resolve({
         address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
         error: false,
       }),
     )
-    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({
+      qrCode: { close: qrClose },
+      send: { close: sendClose },
+    }))
     const mockAdapter = {
       buildSendTransaction: () => Promise.resolve(textTxToSign),
       signTransaction: () => Promise.resolve(testSignedTx),
@@ -221,6 +230,7 @@ describe.each([
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
+    expect(qrClose).toHaveBeenCalled()
   })
 
   it('handles successfully sending an ETH address tx without offline signing', async () => {
@@ -239,7 +249,11 @@ describe.each([
     ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
 
     const sendClose = jest.fn()
-    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+    const qrClose = jest.fn()
+    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({
+      qrCode: { close: qrClose },
+      send: { close: sendClose },
+    }))
     const mockAdapter = {
       buildSendTransaction: () => Promise.resolve(textTxToSign),
       signAndBroadcastTransaction,
@@ -267,6 +281,7 @@ describe.each([
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
+    expect(qrClose).toHaveBeenCalled()
     expect(signAndBroadcastTransaction).toHaveBeenCalled()
   })
 
@@ -291,7 +306,11 @@ describe.each([
     ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
 
     const sendClose = jest.fn()
-    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+    const qrClose = jest.fn()
+    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({
+      qrCode: { close: qrClose },
+      send: { close: sendClose },
+    }))
     const mockAdapter = {
       buildSendTransaction: () => Promise.resolve(textTxToSign),
       signAndBroadcastTransaction,
@@ -319,6 +338,7 @@ describe.each([
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
+    expect(qrClose).toHaveBeenCalled()
     expect(signAndBroadcastTransaction).toHaveBeenCalled()
   })
 
@@ -330,7 +350,11 @@ describe.each([
     }))
 
     const sendClose = jest.fn()
-    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+    const qrClose = jest.fn()
+    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({
+      qrCode: { close: qrClose },
+      send: { close: sendClose },
+    }))
 
     const mockAdapter = {
       buildSendTransaction: () => Promise.reject('All these calls failed'),
@@ -358,5 +382,6 @@ describe.each([
     await expect(result.current.handleFormSend(formData)).rejects.toThrow()
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'error' }))
     expect(sendClose).toHaveBeenCalled()
+    expect(qrClose).toHaveBeenCalled()
   })
 })

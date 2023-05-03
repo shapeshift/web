@@ -1,58 +1,45 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { BuyAssetBySellIdInput } from 'lib/swapper/api'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-const getSameChainEvmAssetsPredicate =
-  (sellAssetChainId: ChainId, assets: Partial<Record<AssetId, Asset>>) =>
-  (assetId: AssetId): boolean => {
-    const buyAsset = assets[assetId]
-
-    if (buyAsset === undefined) return false
-
-    // same-chain swaps and evm only
-    return buyAsset.chainId === sellAssetChainId && isEvmChainId(buyAsset.chainId)
-  }
-
-const getCrossChainEvmAssetsPredicate =
-  (sellAssetChainId: ChainId, assets: Partial<Record<AssetId, Asset>>) =>
-  (assetId: AssetId): boolean => {
-    const buyAsset = assets[assetId]
-
-    if (buyAsset === undefined) return false
-
-    // cross-chain swaps and evm only
-    return buyAsset.chainId !== sellAssetChainId && isEvmChainId(buyAsset.chainId)
-  }
+type ChainIdPredicate = (buyAssetChainId: ChainId, sellAssetChainId: ChainId) => boolean
 
 const _filterEvmBuyAssetsBySellAssetId = (
   input: BuyAssetBySellIdInput,
-  getPredicate: (
-    chainId: ChainId,
-    assets: Partial<Record<AssetId, Asset>>,
-  ) => (assetId: AssetId) => boolean,
+  chainIdPredicate: ChainIdPredicate,
 ): AssetId[] => {
   const { assetIds = [], sellAssetId } = input
 
   const assets = selectAssets(store.getState())
   const sellAsset = assets[sellAssetId]
 
+  // evm only
   if (sellAsset === undefined || !isEvmChainId(sellAsset.chainId)) return []
 
-  const predicate = getPredicate(sellAsset.chainId, assets)
-  return assetIds.filter(predicate)
+  return assetIds.filter(buyAssetId => {
+    const buyAsset = assets[buyAssetId]
+
+    if (buyAsset === undefined) return false
+
+    // evm only AND chain id predicate
+    return isEvmChainId(buyAsset.chainId) && chainIdPredicate(buyAsset.chainId, sellAsset.chainId)
+  })
 }
 
 export const filterSameChainEvmBuyAssetsBySellAssetId = (
   input: BuyAssetBySellIdInput,
 ): AssetId[] => {
-  return _filterEvmBuyAssetsBySellAssetId(input, getSameChainEvmAssetsPredicate)
+  const sameChainIdPredicate = (buyAssetChainId: ChainId, sellAssetChainId: ChainId): boolean =>
+    buyAssetChainId === sellAssetChainId
+  return _filterEvmBuyAssetsBySellAssetId(input, sameChainIdPredicate)
 }
 
 export const filterCrossChainEvmBuyAssetsBySellAssetId = (
   input: BuyAssetBySellIdInput,
 ): AssetId[] => {
-  return _filterEvmBuyAssetsBySellAssetId(input, getCrossChainEvmAssetsPredicate)
+  const crossChainIdPredicate = (buyAssetChainId: ChainId, sellAssetChainId: ChainId): boolean =>
+    buyAssetChainId !== sellAssetChainId
+  return _filterEvmBuyAssetsBySellAssetId(input, crossChainIdPredicate)
 }

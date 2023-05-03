@@ -1,16 +1,16 @@
 import type { Route } from '@lifi/sdk'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { FailureAmount } from 'lib/swapper/api'
+import type { IntermediaryTransactionOutput } from 'lib/swapper/api'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 import { lifiTokenToAssetId } from '../lifiTokenToAssetId/lifiTokenToAssetId'
 
-export const getFailureAmounts = (
+export const getIntermediaryTransactionOutputs = (
   selectedLifiRoute: Route,
   buyAmountCryptoBaseUnit: BigNumber,
-): FailureAmount[] | undefined => {
+): IntermediaryTransactionOutput[] | undefined => {
   const flatSteps = selectedLifiRoute.steps.flatMap(step =>
     step.type === 'lifi' ? step.includedSteps : step,
   )
@@ -38,5 +38,5 @@ export const getFailureAmounts = (
         buyAmountCryptoBaseUnit: tokenBuyAmountCryptoPrecision.toString(),
       }
     })
-    .filter((item): item is FailureAmount => item !== undefined)
+    .filter((item): item is IntermediaryTransactionOutput => item !== undefined)
 }

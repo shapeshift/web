@@ -20,7 +20,7 @@ type ReceiveSummaryProps = {
   isLoading?: boolean
   symbol: string
   amount: string
-  failureAmounts?: { amount: string; symbol: string; chainName?: string }[]
+  intermediaryTransactionOutputs?: { amount: string; symbol: string; chainName?: string }[]
   fiatAmount?: string
   beforeFees?: string
   protocolFee?: string
@@ -32,7 +32,7 @@ type ReceiveSummaryProps = {
 export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   symbol,
   amount,
-  failureAmounts,
+  intermediaryTransactionOutputs,
   fiatAmount,
   beforeFees,
   protocolFee,
@@ -164,15 +164,17 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
                     <Amount.Crypto value={isAmountPositive ? amount : '0'} symbol={symbol} />
                   </Skeleton>
                   {isAmountPositive &&
-                    failureAmounts?.map(({ amount, symbol, chainName }) => (
+                    intermediaryTransactionOutputs?.map(({ amount, symbol, chainName }) => (
                       <Skeleton isLoaded={!isLoading}>
                         <Amount.Crypto
                           value={amount}
                           symbol={symbol}
-                          prefix={translate('trade.failureAmounts.prefix')}
+                          prefix={translate('trade.intermediaryTransactionOutputs.prefix')}
                           suffix={
                             chainName
-                              ? translate('trade.failureAmounts.suffix', { chainName })
+                              ? translate('trade.intermediaryTransactionOutputs.suffix', {
+                                  chainName,
+                                })
                               : undefined
                           }
                         />

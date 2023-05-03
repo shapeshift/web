@@ -732,7 +732,7 @@
     "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
     "recentTrades": "Recent Trades",
     "lifiWarning": "This trade processes via LI.FI which runs using a series of intermediary trades under the hood. If any of these steps fail you'll receive the token for the most recent successful step in the sequence.",
-    "failureAmounts": {
+    "intermediaryTransactionOutputs": {
       "prefix": "or",
       "suffix": "on %{chainName}"
     }

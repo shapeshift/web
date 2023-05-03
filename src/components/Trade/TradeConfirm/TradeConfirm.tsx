@@ -54,7 +54,7 @@ import { useAppSelector } from 'state/store'
 import {
   selectBuyAmountBeforeFeesBaseUnit,
   selectDonationAmountFiat,
-  selectFailureAmounts,
+  selectIntermediaryTransactionOutputs,
   selectQuoteBuyAmountCryptoPrecision,
   selectSellAmountBeforeFeesBaseUnitByAction,
   selectSellAmountBeforeFeesFiat,
@@ -117,7 +117,9 @@ export const TradeConfirm = () => {
   const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
   const sellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
   const buyAmountCryptoPrecision = useSwapperStore(selectBuyAmountCryptoPrecision)
-  const failureAmountsCryptoPrecision = useSwapperStore(selectFailureAmounts)
+  const intermediaryTransactionOutputsCryptoPrecision = useSwapperStore(
+    selectIntermediaryTransactionOutputs,
+  )
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const sellAmountBeforeFeesBaseUnit = useSwapperStore(selectSellAmountBeforeFeesBaseUnitByAction)
   const sellAmountBeforeFeesFiat = useSwapperStore(selectSellAmountBeforeFeesFiat)
@@ -248,14 +250,14 @@ export const TradeConfirm = () => {
   )
 
   const chainAdapterManager = getChainAdapterManager()
-  const failureAmounts = useMemo(
+  const intermediaryTransactionOutputs = useMemo(
     () =>
-      failureAmountsCryptoPrecision?.map(({ buyAmountCryptoBaseUnit, asset }) => ({
+      intermediaryTransactionOutputsCryptoPrecision?.map(({ buyAmountCryptoBaseUnit, asset }) => ({
         amount: fromBaseUnit(buyAmountCryptoBaseUnit, asset.precision),
         symbol: asset.symbol,
         chainName: chainAdapterManager.get(asset.chainId)?.getDisplayName(),
       })),
-    [failureAmountsCryptoPrecision, chainAdapterManager],
+    [intermediaryTransactionOutputsCryptoPrecision, chainAdapterManager],
   )
 
   const { showErrorToast } = useErrorHandler()
@@ -506,7 +508,7 @@ export const TradeConfirm = () => {
             fiatAmount={positiveOrZero(fiatBuyAmount).toFixed(2)}
             swapperName={swapper?.name ?? ''}
             isLoading={isReloadingTrade}
-            failureAmounts={failureAmounts}
+            intermediaryTransactionOutputs={intermediaryTransactionOutputs}
           />
         </Stack>
       ) : null,
@@ -522,7 +524,7 @@ export const TradeConfirm = () => {
       fiatBuyAmount,
       swapper?.name,
       isReloadingTrade,
-      failureAmounts,
+      intermediaryTransactionOutputs,
     ],
   )
 

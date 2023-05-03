@@ -3,7 +3,7 @@ import { createSelector } from 'reselect'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import type { FailureAmount } from 'lib/swapper/api'
+import type { IntermediaryTransactionOutput } from 'lib/swapper/api'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
   selectAction,
@@ -591,10 +591,13 @@ export const selectDonationAmountFiat = createSelector(
   },
 )
 
-export const selectFailureAmounts = createDeepEqualOutputSelector(
-  (state: SwapperState) => state.activeSwapperWithMetadata?.quote?.failureAmounts,
-  (state: SwapperState) => state.trade?.failureAmounts,
-  (quoteFailureAmounts, tradeFailureAmounts): FailureAmount[] | undefined =>
+export const selectIntermediaryTransactionOutputs = createDeepEqualOutputSelector(
+  (state: SwapperState) => state.activeSwapperWithMetadata?.quote?.intermediaryTransactionOutputs,
+  (state: SwapperState) => state.trade?.intermediaryTransactionOutputs,
+  (
+    quoteIntermediaryTransactionOutputs,
+    tradeintermediaryTransactionOutputs,
+  ): IntermediaryTransactionOutput[] | undefined =>
     // Use the trade amount if we have it, otherwise use the quote amount
-    tradeFailureAmounts ?? quoteFailureAmounts,
+    tradeintermediaryTransactionOutputs ?? quoteIntermediaryTransactionOutputs,
 )

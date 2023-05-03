@@ -59,11 +59,8 @@ export const GlobalSeachButton = () => {
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
-  const results = useAppSelector(state =>
-    selectGlobalItemsFromFilter(state, {
-      searchQuery,
-    }),
-  )
+  const globalSearchFilter = useMemo(() => ({ searchQuery }), [searchQuery])
+  const results = useAppSelector(state => selectGlobalItemsFromFilter(state, globalSearchFilter))
 
   const assetResults = useMemo(() => {
     return results.filter(result => result.type === GlobalSearchResultType.Asset)

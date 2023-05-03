@@ -7,7 +7,10 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import type { GlobalSearchResult } from 'state/slices/search-selectors'
 import { GlobalSearchResultType } from 'state/slices/search-selectors'
-import { selectAggregatedEarnUserStakingOpportunityByStakingId } from 'state/slices/selectors'
+import {
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  selectAssetById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type StakingResultProps = {
@@ -19,19 +22,23 @@ type StakingResultProps = {
 
 export const StakingResult = forwardRef<StakingResultProps, 'div'>(
   ({ stakingId, onClick, index, activeIndex }, ref) => {
-    const oppportunity = useAppSelector(state =>
-      selectAggregatedEarnUserStakingOpportunityByStakingId(state, { stakingId }),
+    const stakingOpportunities = useAppSelector(
+      selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+    )
+    const opportunity = stakingOpportunities.find(opportunity => opportunity.id === stakingId)
+    const asset = useAppSelector(state =>
+      selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
     )
     const selected = activeIndex === index
 
     const subTextJoined = useMemo(() => {
       const aprElement = (
-        <Amount.Percent value={bnOrZero(oppportunity?.apy).toString()} suffix='APY' autoColor />
+        <Amount.Percent value={bnOrZero(opportunity?.apy).toString()} suffix='APY' autoColor />
       )
-      const hasBalanceElement = <RawText textTransform='capitalize'>{oppportunity?.type}</RawText>
+      const hasBalanceElement = <RawText textTransform='capitalize'>{opportunity?.type}</RawText>
       const subText = [
         aprElement,
-        ...(bnOrZero(oppportunity?.cryptoAmountBaseUnit).gt(0) ? [hasBalanceElement] : []),
+        ...(bnOrZero(opportunity?.cryptoAmountBaseUnit).gt(0) ? [hasBalanceElement] : []),
       ]
 
       return subText.map((element, index) => (
@@ -40,9 +47,9 @@ export const StakingResult = forwardRef<StakingResultProps, 'div'>(
           {element}
         </Flex>
       ))
-    }, [oppportunity?.apy, oppportunity?.cryptoAmountBaseUnit, oppportunity?.type])
+    }, [opportunity?.apy, opportunity?.cryptoAmountBaseUnit, opportunity?.type])
 
-    if (!oppportunity) return null
+    if (!opportunity || !asset) return null
     return (
       <Button
         display='grid'
@@ -59,8 +66,8 @@ export const StakingResult = forwardRef<StakingResultProps, 'div'>(
       >
         <Flex gap={2} flex={1}>
           <AssetCell
-            assetId={oppportunity.underlyingAssetId}
-            icons={oppportunity.icons}
+            assetId={opportunity.underlyingAssetId}
+            icons={opportunity.icons}
             justifyContent='flex-start'
             subText={
               <Flex gap={1} fontSize={{ base: 'xs', md: 'sm' }} lineHeight='shorter'>
@@ -69,6 +76,18 @@ export const StakingResult = forwardRef<StakingResultProps, 'div'>(
             }
           />
         </Flex>
+        {bnOrZero(opportunity.fiatAmount).gt(0) && (
+          <Flex flexDir='column' alignItems='flex-end'>
+            <Amount.Fiat
+              color='chakra-body-text'
+              fontSize='sm'
+              fontWeight='medium'
+              value={opportunity.fiatAmount}
+              height='20px'
+              lineHeight='shorter'
+            />
+          </Flex>
+        )}
       </Button>
     )
   },

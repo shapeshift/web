@@ -62,6 +62,18 @@ export const LpResult = forwardRef<LpResultProps, 'div'>(
             }
           />
         </Flex>
+        {bnOrZero(opportunity.fiatAmount).gt(0) && (
+          <Flex flexDir='column' alignItems='flex-end'>
+            <Amount.Fiat
+              color='chakra-body-text'
+              fontSize='sm'
+              fontWeight='medium'
+              value={opportunity.fiatAmount}
+              height='20px'
+              lineHeight='shorter'
+            />
+          </Flex>
+        )}
       </Button>
     )
   },

@@ -249,14 +249,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const portfolioAssetIdsExcludeNoMarketData = difference(portfolioAssetIds, excluded)
 
     // https://redux-toolkit.js.org/rtk-query/api/created-api/endpoints#initiate
-    const pollingInterval = 1000 * 2 * 60 // refetch data every two minutes
-    const opts = { subscriptionOptions: { pollingInterval } }
+    // TODO(0xdef1cafe): bring polling back once we point at markets.shapeshift.com
+    // const pollingInterval = 1000 * 2 * 60 // refetch data every two minutes
+    // const opts = { subscriptionOptions: { pollingInterval } }
     const timeframe = DEFAULT_HISTORY_TIMEFRAME
 
     portfolioAssetIdsExcludeNoMarketData.forEach(assetId => {
-      dispatch(marketApi.endpoints.findByAssetId.initiate(assetId, opts))
+      dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
       const payload = { assetId, timeframe }
-      dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload, opts))
+      dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload))
     })
   }, [dispatch, portfolioLoadingStatus, portfolioAssetIds, uniV2LpIdsData.data])
 

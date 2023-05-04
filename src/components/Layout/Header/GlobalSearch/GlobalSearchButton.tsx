@@ -194,6 +194,10 @@ export const GlobalSeachButton = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
+  const handleClose = useCallback(() => {
+    setSearchQuery('')
+    onClose()
+  }, [onClose])
 
   useUpdateEffect(() => {
     setActiveIndex(0)
@@ -278,7 +282,7 @@ export const GlobalSeachButton = () => {
           </Box>
         </Button>
       </Box>
-      <Modal scrollBehavior='inside' isOpen={isOpen} onClose={onClose} size='lg'>
+      <Modal scrollBehavior='inside' isOpen={isOpen} onClose={handleClose} size='lg'>
         <ModalOverlay />
         <ModalContent overflow='hidden'>
           <ModalHeader

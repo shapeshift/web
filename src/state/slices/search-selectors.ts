@@ -39,12 +39,24 @@ type OpportunitySearchResult = {
 
 export type GlobalSearchResult = AssetSearchResult | TxSearchResult | OpportunitySearchResult
 
+type SelectGlobalItemsFromFilterReturn = [
+  AssetSearchResult[],
+  OpportunitySearchResult[],
+  OpportunitySearchResult[],
+  TxSearchResult[],
+]
+
 export const selectGlobalItemsFromFilter = createDeepEqualOutputSelector(
   selectAssetsBySearchQuery,
   selectAggregatedEarnOpportunitiesByProvider,
   selectTxsByQuery,
   selectSearchQueryFromFilter,
-  (filteredAssets: Asset[], opportunityResults, txIds, query?: string): GlobalSearchResult[] => {
+  (
+    filteredAssets: Asset[],
+    opportunityResults,
+    txIds,
+    query?: string,
+  ): SelectGlobalItemsFromFilterReturn => {
     const limit = query ? 10 : 3
     const resultAssets: AssetSearchResult[] = filteredAssets
       .map(asset => {
@@ -56,8 +68,8 @@ export const selectGlobalItemsFromFilter = createDeepEqualOutputSelector(
       .slice(0, limit)
     const opportunities = opportunityResults.reduce(
       (acc: { staking: string[]; lp: string[] }, curr: AggregatedOpportunitiesByProviderReturn) => {
-        acc['staking'].concat(curr.opportunities.staking)
-        acc['lp'].concat(curr.opportunities.lp)
+        acc['staking'] = acc['staking'].concat(curr.opportunities.staking)
+        acc['lp'] = acc['lp'].concat(curr.opportunities.lp)
         return acc
       },
       { staking: [], lp: [] },
@@ -87,11 +99,6 @@ export const selectGlobalItemsFromFilter = createDeepEqualOutputSelector(
         }
       })
       .slice(0, limit)
-    const result: GlobalSearchResult[] = []
-    return result
-      .concat(resultAssets)
-      .concat(stakingOpportunities)
-      .concat(lpOpportunities)
-      .concat(txResults)
+    return [resultAssets, stakingOpportunities, lpOpportunities, txResults]
   },
 )

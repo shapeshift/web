@@ -62,22 +62,9 @@ export const GlobalSeachButton = () => {
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
   const globalSearchFilter = useMemo(() => ({ searchQuery }), [searchQuery])
   const results = useAppSelector(state => selectGlobalItemsFromFilter(state, globalSearchFilter))
-
-  const assetResults = useMemo(() => {
-    return results.filter(result => result.type === GlobalSearchResultType.Asset)
-  }, [results])
-
-  const stakingResults = useMemo(() => {
-    return results.filter(result => result.type === GlobalSearchResultType.StakingOpportunity)
-  }, [results])
-
-  const lpResults = useMemo(() => {
-    return results.filter(result => result.type === GlobalSearchResultType.LpOpportunity)
-  }, [results])
-
-  const txResults = useMemo(() => {
-    return results.filter(result => result.type === GlobalSearchResultType.Transaction)
-  }, [results])
+  const [assetResults, stakingResults, lpResults, txResults] = results
+  const flatResults = useMemo(() => results.flat(), [results])
+  const resultsCount = flatResults.length
 
   useEffect(() => {
     if (!searchQuery) setActiveIndex(0)
@@ -155,7 +142,7 @@ export const GlobalSeachButton = () => {
       switch (e.key) {
         case 'ArrowDown': {
           e.preventDefault()
-          if (activeIndex && activeIndex === results.length - 1) {
+          if (activeIndex && activeIndex === resultsCount - 1) {
             setActiveIndex(0)
           } else {
             setActiveIndex((activeIndex ?? -1) + 1)
@@ -165,7 +152,7 @@ export const GlobalSeachButton = () => {
         case 'ArrowUp': {
           e.preventDefault()
           if (!activeIndex) {
-            setActiveIndex(results.length - 1)
+            setActiveIndex(resultsCount - 1)
           } else {
             setActiveIndex(activeIndex - 1)
           }
@@ -179,14 +166,14 @@ export const GlobalSeachButton = () => {
           break
         }
         case 'Enter': {
-          handleClick(results[activeIndex])
+          handleClick(flatResults[activeIndex])
           break
         }
         default:
           break
       }
     },
-    [activeIndex, handleClick, onToggle, results],
+    [activeIndex, flatResults, handleClick, onToggle, resultsCount],
   )
 
   useUpdateEffect(() => {

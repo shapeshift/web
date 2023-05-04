@@ -193,7 +193,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           case avalancheChainId:
             ;(async () => {
               await fetchAllOpportunitiesIdsByChainId(chainId)
-              // TODO: rm, metadata should also be by chainId
               await fetchAllOpportunitiesMetadataByChainId(chainId)
               await fetchAllOpportunitiesUserDataByAccountId(accountId)
             })()
@@ -201,7 +200,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           case ethChainId:
             ;(async () => {
               await fetchAllOpportunitiesIdsByChainId(chainId)
-              // TODO: rm, metadata should also be by chainId
               await fetchAllOpportunitiesMetadataByChainId(chainId)
               await fetchAllOpportunitiesUserDataByAccountId(accountId)
             })()

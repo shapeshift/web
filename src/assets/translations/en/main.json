@@ -863,6 +863,7 @@
       "tokenAddress": "To Address",
       "addressInput": "To Address, ENS or Yat",
       "scanQrCode": "Scan QR Code",
+      "qrCode": "QR Code",
       "permissionsButton": "Try again",
       "sent": "%{asset} sent",
       "errorTitle": "Your send of %{asset} failed",

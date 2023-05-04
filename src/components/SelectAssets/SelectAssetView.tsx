@@ -1,4 +1,4 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 
@@ -7,7 +7,7 @@ import type { SelectAssetLocation } from './SelectAssetRouter'
 import { SelectAssets } from './SelectAssets'
 
 type SelectAssetViewProps = {
-  onClick: (asset: Asset) => void
+  onClick: (assetId: AssetId) => void
   onBack?: () => void
 } & SelectAssetLocation
 

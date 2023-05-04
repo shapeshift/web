@@ -210,7 +210,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     const memoUtf8 = quote.memo
     return {
       cryptoAmount: state.deposit.cryptoAmount,
-      asset,
+      assetId,
       from: maybeFromUTXOAccountAddress,
       to: quote.inbound_address,
       memo: supportedEvmChainIds.includes(chainId)
@@ -223,6 +223,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [
     accountId,
     asset,
+    assetId,
     chainId,
     maybeFromUTXOAccountAddress,
     state?.deposit.cryptoAmount,
@@ -302,7 +303,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       const sendInput: SendInput = {
         cryptoAmount: maybeGasDeductedCryptoAmountCryptoPrecision || state.deposit.cryptoAmount,
-        asset,
+        assetId,
         to: quote.inbound_address,
         from: maybeFromUTXOAccountAddress,
         sendMax: Boolean(state?.deposit.sendMax),
@@ -311,7 +312,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           ? utils.hexlify(utils.toUtf8Bytes(memoUtf8))
           : memoUtf8,
         amountFieldError: '',
-        cryptoSymbol: asset.symbol,
         estimatedFees,
         feeType: FeeDataKey.Fast,
         fiatAmount: '',
@@ -354,13 +354,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       const sendInput: SendInput = {
         cryptoAmount: '',
-        asset,
+        assetId,
         from: '', // Let coinselect do its magic here
         to: maybeFromUTXOAccountAddress,
         sendMax: true,
         accountId,
         amountFieldError: '',
-        cryptoSymbol: asset.symbol,
         estimatedFees,
         feeType: FeeDataKey.Fast,
         fiatAmount: '',

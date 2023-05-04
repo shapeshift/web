@@ -481,6 +481,8 @@
   },
   "navBar": {
     "home": "Startseite",
+    "activity": "Aktivität",
+    "myWallet": "Meine Wallet",
     "dashboard": "Dashboard",
     "dashboardShort": "Dashboard",
     "assets": "Vermögenswerte",
@@ -501,6 +503,7 @@
     "clickToConnect": "Klicken Sie hier, um eine Wallet zu verbinden",
     "wallet": "Wallet",
     "explore": "Entdecken",
+    "rewards": "Belohnung",
     "trade": "Handeln",
     "buyCrypto": "Krypto kaufen/verkaufen",
     "buyCryptoShort": "Kauf/Verkauf",
@@ -634,6 +637,7 @@
     "youGet": "Sie bekommen",
     "tradeTo": "Handel bis",
     "minerFee": "Miner-Gebühr",
+    "donation": "Spende an ShapeShift",
     "protocolFee": "Protokollgebühr",
     "protocol": "Protokoll",
     "tradeFeeSource": "%{tradeFeeSource} Gebühr",
@@ -663,6 +667,7 @@
       "rate": "Dies ist die erwartete Rate für dieses Handelspaar.",
       "noRateAvailable": "Dies ist häufig auf eine sehr begrenzte oder keine Liquidität des Handelspaars zurückzuführen.",
       "minerFee": "Dies ist die Gebühr für die Verarbeitung der Transaktion auf der Blockchain, dies ist keine Gebühr, die von ShapeShift erhoben wird.",
+      "donation": "Unterstützen Sie ShapeShift und halten Sie uns am Laufen.",
       "protocol": "Dies ist das Protokoll, über das Ihr Handel geleitet wird.",
       "protocolFee": "Dies ist die Gebühr, die von dem für die Verarbeitung dieser Transaktion ausgewählten Protokoll erhoben wird, dies ist keine Gebühr, die von ShapeShift erhoben wird",
       "shapeshiftFee": "ShapeShift erhebt keine Gebühren fürs Handeln 🎉"

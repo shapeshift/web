@@ -7,11 +7,12 @@ import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/v2/WalletConnec
 import { useCallback } from 'react'
 
 type Props = {
+  initialUri?: string
   isOpen: boolean
   onClose(): void
 }
 
-const Connect = ({ isOpen, onClose }: Props) => {
+const Connect = ({ initialUri, isOpen, onClose }: Props) => {
   const { connect, wcAccountId } = useWalletConnect()
   const { pair } = useWalletConnectV2()
 
@@ -53,7 +54,7 @@ const Connect = ({ isOpen, onClose }: Props) => {
         maxWidth={{ base: 'full', md: '500px' }}
       >
         <ModalCloseButton position='absolute' color='gray.500' />
-        <ConnectContent handleConnect={handleConnect} />
+        <ConnectContent initialUri={initialUri} handleConnect={handleConnect} />
       </ModalContent>
     </Modal>
   )

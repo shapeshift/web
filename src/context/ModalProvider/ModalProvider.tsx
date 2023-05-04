@@ -8,6 +8,7 @@ import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcom
 import { NativeOnboarding } from 'components/Modals/NativeOnboarding/NativeOnboarding'
 import { NftModal } from 'components/Modals/Nfts/NftModal'
 import { PopupWindowModal } from 'components/Modals/PopupWindowModal'
+import { QrCodeModal } from 'components/Modals/QrCode/QrCode'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SettingsModal } from 'components/Modals/Settings/Settings'
@@ -20,6 +21,7 @@ import { ModalContext } from './ModalContext'
 // component is the modal to be rendered
 const MODALS = {
   receive: ReceiveModal,
+  qrCode: QrCodeModal,
   send: SendModal,
   fiatRamps: FiatRampsModal,
   settings: SettingsModal,

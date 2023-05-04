@@ -8,11 +8,6 @@ import { useAppSelector } from 'state/store'
 
 export const useSearch = () => {
   const assetsById = useAppSelector(selectAssets)
-  // TODO(gomes): This shouldn't be a view-layer concern. To be tackled in a follow-up PR not to tackle the diff of https://github.com/shapeshift/web/pull/4429
-  // - selectAssets will be LSP renamed to selectAssetsById
-  // - selectAssets will now be a selector that returns Asset[]
-  // We could use selectAssetsByMarketCap but this is wrong. We don't care about the market cap here.
-  // While at it, this shouldn't be selecting assets altogether, but AssetIds, see consumption in <TransactionHistory />
   const assets = useMemo(() => Object.values(assetsById).filter(isSome), [assetsById])
   const [searchTerm, setSearchTerm] = useState('')
   const [matchingAssets, setMatchingAssets] = useState<Asset[] | null>(null)

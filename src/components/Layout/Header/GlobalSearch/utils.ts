@@ -13,7 +13,7 @@ import type {
   StakingEarnOpportunityType,
 } from 'state/slices/opportunitiesSlice/types'
 
-type goToOpportunityProps = {
+type MakeOpportunityRouteDetailsProps = {
   stakingOpportunities: StakingEarnOpportunityType[]
   lpOpportunities: LpEarnOpportunityType[]
   opportunityId: OpportunityId
@@ -22,7 +22,7 @@ type goToOpportunityProps = {
   location: Location
   assets: Partial<Record<AssetId, Asset>>
 }
-export const GoToOpportunity = ({
+export const makeOpportunityRouteDetails = ({
   stakingOpportunities,
   lpOpportunities,
   opportunityId,
@@ -30,7 +30,7 @@ export const GoToOpportunity = ({
   opportunityType,
   location,
   assets,
-}: goToOpportunityProps) => {
+}: MakeOpportunityRouteDetailsProps) => {
   const lpOpportunity = lpOpportunities.find(lpOpportunity => lpOpportunity.id === opportunityId)
   const stakingOpportunity = stakingOpportunities.find(
     stakingOpportunity => stakingOpportunity.id === opportunityId,

@@ -8,7 +8,7 @@ import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import type { GlobalSearchResult } from 'state/slices/search-selectors'
 import { GlobalSearchResultType } from 'state/slices/search-selectors'
 import {
-  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmptyByStakingId,
   selectAssetById,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -24,10 +24,9 @@ type StakingResultProps = {
 
 export const StakingResult = forwardRef<StakingResultProps, 'div'>(
   ({ stakingId, onClick, index, activeIndex }, ref) => {
-    const stakingOpportunities = useAppSelector(
-      selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+    const opportunity = useAppSelector(state =>
+      selectAggregatedEarnUserStakingOpportunitiesIncludeEmptyByStakingId(state, { stakingId }),
     )
-    const opportunity = stakingOpportunities.find(opportunity => opportunity.id === stakingId)
     const asset = useAppSelector(state =>
       selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
     )

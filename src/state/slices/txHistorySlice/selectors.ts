@@ -253,10 +253,7 @@ export const selectTxsByQuery = createDeepEqualOutputSelector(
   selectSearchQueryFromFilter,
   (txsById, assets, searchQuery): TxId[] => {
     const txArray: [TxId, Tx][] = Object.entries(txsById)
-    if (!searchQuery)
-      return Object.entries(txsById)
-        .sort((a, b) => b[1].blockTime - a[1].blockTime)
-        .map(tx => tx[0])
+    if (!searchQuery) return Object.keys(txsById)
     const results = matchSorter(txArray, searchQuery, {
       keys: [
         'txid',

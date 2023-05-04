@@ -122,14 +122,6 @@ export const Header = () => {
                 icon={<HamburgerIcon />}
               />
             </Box>
-            {/* <HStack
-              width='100%'
-              flex={1}
-              justifyContent='center'
-              display={{ base: 'none', md: 'block' }}
-            >
-              <AssetSearch assetListAsDropdown formProps={{ mb: 0, px: 0 }} />
-            </HStack> */}
 
             <Box display={{ base: 'block', md: 'none' }} mx='auto'>
               <AppLoadingIcon />

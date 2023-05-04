@@ -555,6 +555,14 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
     },
   )
 
+export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmptyByStakingId =
+  createDeepEqualOutputSelector(
+    selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+    selectStakingIdParamFromFilter,
+    (opportunities, stakingId): StakingEarnOpportunityType | undefined => {
+      return opportunities.find(opportunity => opportunity.id === stakingId)
+    },
+  )
 // A staking opportunity parsed as an EarnOpportunityType
 // TODO: testme
 export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOutputSelector(

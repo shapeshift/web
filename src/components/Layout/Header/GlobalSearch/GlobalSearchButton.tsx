@@ -38,7 +38,7 @@ import { AssetResults } from './AssetResults/AssetResults'
 import { LpResults } from './LpResults/LpResults'
 import { StakingResults } from './StakingResults/StakingResults'
 import { TxResults } from './TxResults/TxResults'
-import { GoToOpportunity } from './utils'
+import { makeOpportunityRouteDetails } from './utils'
 
 export const GlobalSeachButton = () => {
   const { isOpen, onClose, onOpen, onToggle } = useDisclosure()
@@ -94,7 +94,7 @@ export const GlobalSeachButton = () => {
             dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
             return
           }
-          const data = GoToOpportunity({
+          const data = makeOpportunityRouteDetails({
             opportunityId: item.id as OpportunityId,
             opportunityType:
               item.type === GlobalSearchResultType.StakingOpportunity

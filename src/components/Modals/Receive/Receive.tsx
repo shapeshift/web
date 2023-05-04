@@ -23,7 +23,7 @@ const Receive = ({ asset, accountId }: ReceivePropsType) => {
       <ModalOverlay />
       <ModalContent>
         <MemoryRouter initialEntries={entries}>
-          <ReceiveRouter asset={asset} accountId={accountId} />
+          <ReceiveRouter assetId={asset?.assetId} accountId={accountId} />
         </MemoryRouter>
       </ModalContent>
     </Modal>

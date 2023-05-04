@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { MemoryRouter, useLocation } from 'react-router-dom'
 
@@ -8,7 +7,7 @@ import { SelectAssetView } from './SelectAssetView'
 export const entries = [SelectAssetRoutes.Search]
 
 type SelectAssetRouterProps = {
-  onClick: (asset: Asset) => void
+  onClick: (assetId: AssetId) => void
   onBack?: () => void
 }
 

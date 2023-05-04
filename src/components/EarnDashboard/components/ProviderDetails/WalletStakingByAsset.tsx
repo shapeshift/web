@@ -120,7 +120,8 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
               <Flex px={{ base: 0, md: 2 }} flexDirection='column'>
                 {values.map((opportunity: StakingEarnOpportunityType) => (
                   <OpportunityRow
-                    key={`${opportunity.provider}-${opportunity.assetId}`}
+                    // There may be multiple opportunities with the same provider and assetId - apy gives us some sort of unique keys safety
+                    key={`${opportunity.provider}-${opportunity.assetId}-${opportunity.apy}`}
                     onClick={handleClick}
                     opportunity={opportunity}
                   />

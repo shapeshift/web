@@ -26,13 +26,18 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
   searchQuery,
 }) => {
   const isLoading = useAppSelector(selectOpportunityApiPending)
-  const rows = useAppSelector(state =>
-    selectAggregatedEarnOpportunitiesByProvider(state, {
+
+  const rowsFilter = useMemo(
+    () => ({
       chainId,
       includeEarnBalances,
       includeRewardsBalances,
       searchQuery,
     }),
+    [chainId, includeEarnBalances, includeRewardsBalances, searchQuery],
+  )
+  const rows = useAppSelector(state =>
+    selectAggregatedEarnOpportunitiesByProvider(state, rowsFilter),
   )
 
   const renderProviders = useMemo(() => {

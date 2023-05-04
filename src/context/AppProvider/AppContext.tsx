@@ -175,10 +175,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
       const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
 
-      // forceRefetch is enabled here to make sure that we always have the latest state from chain
-      // and ensure the queryFn runs resulting in dispatches occuring to update client state
-      const options = { forceRefetch: true }
-
       const maybeFetchZapperData = DynamicLpAssets
         ? dispatch(zapper.endpoints.getZapperUniV2PoolAssetIds.initiate())
         : () => setTimeoutAsync(0)
@@ -219,9 +215,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
              * stop, and make a getRebaseHistoryByAccountId that takes
              * an accountId and assetId[] in the txHistoryApi
              */
-            dispatch(
-              getFoxyRebaseHistoryByAccountId.initiate({ accountId, portfolioAssetIds }, options),
-            )
+            dispatch(getFoxyRebaseHistoryByAccountId.initiate({ accountId, portfolioAssetIds }))
             break
           default:
         }

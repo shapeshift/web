@@ -1,13 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, ethChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
-import identity from 'lodash/identity'
 import orderBy from 'lodash/orderBy'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -198,41 +197,31 @@ export const txHistoryApi = createApi({
   reducerPath: 'txHistoryApi',
   endpoints: build => ({
     getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], RebaseTxHistoryArgs>({
-      queryFn: async ({ accountId, portfolioAssetIds }, { dispatch }) => {
+      queryFn: ({ accountId, portfolioAssetIds }, { dispatch }) => {
         const { chainId, account: userAddress } = fromAccountId(accountId)
         // foxy is only on eth mainnet, and [] is a valid return type and won't upsert anything
         if (chainId !== ethChainId) return { data: [] }
         // foxy contract address, note not assetIds
-        const foxyTokenContractAddressWithBalances = foxyAddresses.reduce<string[]>(
-          (acc, { foxy }) => {
-            const contractAddress = foxy.toLowerCase()
-            portfolioAssetIds.some(id => id.includes(contractAddress)) && acc.push(contractAddress)
-            return acc
-          },
-          [],
-        )
+        const foxyTokenContractAddress = (() => {
+          const contractAddress = foxyAddresses[0].foxy.toLowerCase()
+          if (portfolioAssetIds.some(id => id.includes(contractAddress))) return contractAddress
+        })()
 
-        // don't do anything below if we don't hold a version of foxy
-        if (!foxyTokenContractAddressWithBalances.length) return { data: [] }
+        // don't do anything below if we don't have FOXy as a portfolio AssetId
+        if (!foxyTokenContractAddress) return { data: [] }
 
         // setup foxy api
         const foxyApi = getFoxyApi()
 
-        await Promise.all(
-          foxyTokenContractAddressWithBalances.map(async tokenContractAddress => {
-            const rebaseHistoryArgs = { userAddress, tokenContractAddress }
-            const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
-            const assetReference = tokenContractAddress
-            const assetNamespace = 'erc20'
-            const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-            const upsertPayload = { accountId, assetId, data }
-            if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
-          }),
-        )
-
-        // we don't really care about the caching of this, we're dispatching
-        // into another part of the portfolio above, we kind of abuse RTK query,
-        // and we're always force refetching these anyway
+        ;(async () => {
+          const rebaseHistoryArgs = { userAddress, tokenContractAddress: foxyTokenContractAddress }
+          const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
+          const assetReference = foxyTokenContractAddress
+          const assetNamespace = ASSET_NAMESPACE.erc20
+          const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+          const upsertPayload = { accountId, assetId, data }
+          if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
+        })()
         return { data: [] }
       },
     }),
@@ -267,10 +256,20 @@ export const txHistoryApi = createApi({
 
                 const state = getState() as State
                 const txState = state.txHistory.txs
+                /**
+                 * TODO(0xdef1cafe): perf improvement - change this check back to use
+                 * a flatMap of txs indexed on the txState?.byAccountIdAssetId?.[accountId] object
+                 *
+                 * checking against the flat list of all tx ids is slower, but a stop gap.
+                 *
+                 * we currently can't index txs against asset ids we don't know about
+                 * e.g. erc721 and erc1155 assets
+                 *
+                 * after we rewrite unchained client tx parsers for these, we can index txs correctly,
+                 * and go back to using those shorter lists per account
+                 */
                 // the existing tx indexes for this account
-                const existingTxIndexes = Object.values(
-                  txState?.byAccountIdAssetId?.[accountId] ?? {},
-                ).flatMap(identity)
+                const existingTxIndexes = txState?.ids
                 // freshly fetched - unchained returns latest txs first
                 const fetchedTxIndexes: TxId[] = transactions.map(tx =>
                   serializeTxIndex(accountId, tx.txid, tx.address, tx.data),

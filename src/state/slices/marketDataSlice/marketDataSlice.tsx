@@ -72,6 +72,15 @@ export const marketData = createSlice({
 
           return marketCapB.comparedTo(marketCapA)
         })
+
+        // Rebuilds state.crypto.byId with the ordered index we just built above
+        state.crypto.byId = state.crypto.ids.reduce<Partial<Record<AssetId, MarketData>>>(
+          (acc, assetId) => {
+            acc[assetId] = state.crypto.byId[assetId]
+            return acc
+          },
+          {},
+        )
       },
 
       // Use the `prepareAutoBatched` utility to automatically

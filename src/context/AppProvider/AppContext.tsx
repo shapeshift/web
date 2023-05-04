@@ -41,7 +41,7 @@ import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesS
 import {
   fetchAllOpportunitiesIdsByChainId,
   fetchAllOpportunitiesMetadataByChainId,
-  fetchAllOpportunitiesUserData,
+  fetchAllOpportunitiesUserDataByAccountId,
 } from 'state/slices/opportunitiesSlice/thunks'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -195,7 +195,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               await fetchAllOpportunitiesIdsByChainId(chainId)
               // TODO: rm, metadata should also be by chainId
               await fetchAllOpportunitiesMetadataByChainId(chainId)
-              await fetchAllOpportunitiesUserData(accountId)
+              await fetchAllOpportunitiesUserDataByAccountId(accountId)
             })()
             break
           case ethChainId:
@@ -203,7 +203,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               await fetchAllOpportunitiesIdsByChainId(chainId)
               // TODO: rm, metadata should also be by chainId
               await fetchAllOpportunitiesMetadataByChainId(chainId)
-              await fetchAllOpportunitiesUserData(accountId)
+              await fetchAllOpportunitiesUserDataByAccountId(accountId)
             })()
 
             /**

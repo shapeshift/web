@@ -149,7 +149,7 @@ export const fetchAllLpOpportunitiesUserdataByAccountId = (
   // User data for all our current LP opportunities is held as a portfolio balance, there's no need to fetch it
 ) => Promise.resolve()
 
-export const fetchAllOpportunitiesUserData = (
+export const fetchAllOpportunitiesUserDataByAccountId = (
   accountId: AccountId,
   options?: StartQueryActionCreatorOptions,
 ) =>

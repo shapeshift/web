@@ -18,7 +18,7 @@ import {
   isSupportedThorchainSaversChainId,
   waitForSaversUpdate,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { fetchAllOpportunitiesUserData } from 'state/slices/opportunitiesSlice/thunks'
+import { fetchAllOpportunitiesUserDataByAccountId } from 'state/slices/opportunitiesSlice/thunks'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioAccountMetadata,
@@ -137,7 +137,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
       } else if (shouldRefetchAllOpportunities) return
       ;(async () => {
         // We don't know the chainId of the Tx, so we refetch all opportunities
-        await fetchAllOpportunitiesUserData(accountId, { forceRefetch: true })
+        await fetchAllOpportunitiesUserDataByAccountId(accountId, { forceRefetch: true })
       })()
     },
     // TODO: This is drunk and will evaluate stakingOpportunitiesById to an empty object despite not being empty when debugged in its outer scope

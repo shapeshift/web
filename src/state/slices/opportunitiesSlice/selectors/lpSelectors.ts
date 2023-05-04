@@ -2,6 +2,7 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
+import partition from 'lodash/partition'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
@@ -299,7 +300,17 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
       opportunities.push(opportunity)
     }
 
-    return opportunities
+    const sortedOpportunitiesByFiatAmount = opportunities.sort((a, b) =>
+      bnOrZero(a.fiatAmount).gte(bnOrZero(b.fiatAmount)) ? -1 : 1,
+    )
+
+    const [activeOpportunities, inactiveOpportunities] = partition(
+      sortedOpportunitiesByFiatAmount,
+      opportunity => bnOrZero(opportunity.fiatAmount).gt(0),
+    )
+    inactiveOpportunities.sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
+
+    return activeOpportunities.concat(inactiveOpportunities)
   },
 )
 

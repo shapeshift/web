@@ -596,8 +596,8 @@ export const selectIntermediaryTransactionOutputs = createDeepEqualOutputSelecto
   (state: SwapperState) => state.trade?.intermediaryTransactionOutputs,
   (
     quoteIntermediaryTransactionOutputs,
-    tradeintermediaryTransactionOutputs,
+    tradeIntermediaryTransactionOutputs,
   ): IntermediaryTransactionOutput[] | undefined =>
     // Use the trade amount if we have it, otherwise use the quote amount
-    tradeintermediaryTransactionOutputs ?? quoteIntermediaryTransactionOutputs,
+    tradeIntermediaryTransactionOutputs ?? quoteIntermediaryTransactionOutputs,
 )

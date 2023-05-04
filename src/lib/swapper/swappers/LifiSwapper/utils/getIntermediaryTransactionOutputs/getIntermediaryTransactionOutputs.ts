@@ -1,15 +1,17 @@
-import type { Route } from '@lifi/sdk'
 import type { IntermediaryTransactionOutput } from 'lib/swapper/api'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 import { lifiTokenToAssetId } from '../lifiTokenToAssetId/lifiTokenToAssetId'
+import type { LifiStepSubset, StepSubset } from './types'
+
+const isLifiStep = (step: StepSubset): step is LifiStepSubset => step.type === 'lifi'
 
 export const getIntermediaryTransactionOutputs = (
-  selectedLifiRoute: Route,
+  selectedLifiRouteSteps: StepSubset[],
 ): IntermediaryTransactionOutput[] | undefined => {
-  const tradeSteps = selectedLifiRoute.steps.flatMap(step =>
-    step.type === 'lifi' ? step.includedSteps : step,
+  const tradeSteps = selectedLifiRouteSteps.flatMap(step =>
+    isLifiStep(step) ? step.includedSteps : step,
   )
 
   const intermediaryTradeData = tradeSteps.slice(0, -1)

@@ -144,7 +144,9 @@ export async function getTradeQuote(
     })
 
     const buyAmountCryptoBaseUnit = bnOrZero(selectedLifiRoute.toAmountMin)
-    const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(selectedLifiRoute)
+    const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(
+      selectedLifiRoute.steps,
+    )
 
     // TODO(gomes): intermediary error-handling within this module function calls
     return Ok({

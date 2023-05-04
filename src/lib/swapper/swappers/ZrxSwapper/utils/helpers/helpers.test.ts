@@ -1,9 +1,11 @@
+import { ethAssetId, foxAssetId, optimismAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
+import { DAO_TREASURY_ETHEREUM_MAINNET, DAO_TREASURY_OPTIMISM } from 'constants/treasury'
 
 import { FOX, WETH } from '../../../utils/test-data/assets'
 import { zrxServiceFactory } from '../zrxService'
-import { getUsdRate } from './helpers'
+import { getTreasuryAddressForReceiveAsset, getUsdRate } from './helpers'
 
 jest.mock('lib/swapper/swappers/ZrxSwapper/utils/zrxService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')
@@ -41,6 +43,29 @@ describe('utils', () => {
         message: '[getUsdRate] - Failed to get price data',
         name: 'SwapError',
       })
+    })
+  })
+
+  describe('getTreasuryAddressForReceiveAsset', () => {
+    it('gets the treasury address for an ERC20 asset', () => {
+      const treasuryAddress = getTreasuryAddressForReceiveAsset(foxAssetId)
+      expect(treasuryAddress).toStrictEqual(DAO_TREASURY_ETHEREUM_MAINNET)
+    })
+
+    it('gets the treasury address for ETH asset', () => {
+      const treasuryAddress = getTreasuryAddressForReceiveAsset(ethAssetId)
+      expect(treasuryAddress).toStrictEqual(DAO_TREASURY_ETHEREUM_MAINNET)
+    })
+
+    it('gets the treasury address for Optimism asset', () => {
+      const treasuryAddress = getTreasuryAddressForReceiveAsset(optimismAssetId)
+      expect(treasuryAddress).toStrictEqual(DAO_TREASURY_OPTIMISM)
+    })
+
+    it('throws for unsupported chains', () => {
+      expect(() => getTreasuryAddressForReceiveAsset(thorchainAssetId)).toThrow(
+        '[getTreasuryAddressForReceiveAsset] - Unsupported chainId',
+      )
     })
   })
 })

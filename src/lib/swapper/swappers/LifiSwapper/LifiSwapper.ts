@@ -38,7 +38,7 @@ import type {
 } from 'lib/swapper/swappers/LifiSwapper/utils/types'
 import { approveAmount, approveInfinite } from 'lib/swapper/swappers/utils/approve/approve'
 import { filterEvmAssetIdsBySellable } from 'lib/swapper/swappers/utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
-import { filterSameChainEvmBuyAssetsBySellAssetId } from 'lib/swapper/swappers/utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
+import { filterCrossChainEvmBuyAssetsBySellAssetId } from 'lib/swapper/swappers/utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { createEmptyEvmTradeQuote } from 'lib/swapper/swappers/utils/helpers/helpers'
 
 export class LifiSwapper implements Swapper<EvmChainId> {
@@ -147,7 +147,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get supported buyAssetId's by sellAssetId
    */
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
-    return filterSameChainEvmBuyAssetsBySellAssetId(input)
+    return filterCrossChainEvmBuyAssetsBySellAssetId(input)
   }
 
   /**

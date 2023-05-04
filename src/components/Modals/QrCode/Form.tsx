@@ -1,13 +1,14 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
-import { useCallback, useEffect } from 'react'
+import { ConnectModal } from 'plugins/walletConnectToDapps/components/modals/connect/Connect'
+import { useCallback, useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
+import { useModal } from 'hooks/useModal/useModal'
 import { parseMaybeUrl } from 'lib/address/address'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -17,28 +18,12 @@ import {
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
+import type { SendInput } from '../Send/Form'
 import { useFormSend } from '../Send/hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from '../Send/SendCommon'
 import { Address } from '../Send/views/Address'
 import { Confirm } from '../Send/views/Confirm'
 import { Details } from '../Send/views/Details'
-
-export type SendInput<T extends ChainId = ChainId> = {
-  [SendFormFields.AccountId]: AccountId
-  [SendFormFields.To]: string
-  [SendFormFields.From]: string
-  [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
-  [SendFormFields.AssetId]: AssetId
-  [SendFormFields.CryptoAmount]: string
-  [SendFormFields.EstimatedFees]: FeeDataEstimate<T>
-  [SendFormFields.FeeType]: FeeDataKey
-  [SendFormFields.FiatAmount]: string
-  [SendFormFields.FiatSymbol]: string
-  [SendFormFields.Input]: string
-  [SendFormFields.Memo]?: string
-  [SendFormFields.SendMax]: boolean
-  [SendFormFields.VanityAddress]: string
-}
 
 type QrCodeFormProps = {
   assetId?: AssetId
@@ -50,6 +35,11 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const history = useHistory()
   const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
+
+  const {
+    qrCode: { isOpen, close: handleClose },
+  } = useModal()
+  const [walletConnectDappUrl, setWalletConnectDappUrl] = useState('')
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
@@ -88,6 +78,10 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const handleQrSuccess = useCallback(
     (decodedText: string) => {
       ;(async () => {
+        // If this is a WalletConnect dApp QR Code, skip the whole send logic and render the QR Code Modal instead.
+        // There's no need for any RFC-3986 decoding here since we don't really care about parsing and WC will do that for us
+        if (decodedText.startsWith('wc:')) return setWalletConnectDappUrl(decodedText)
+
         // This should
         // - Parse the address, amount and asset. This should also exhaust URI parsers (EVM and UTXO currently) and set the amount/asset if applicable
         // - If there is a valid asset (i.e UTXO, or ETH, but not ERC-20s because they're unsafe), populates the asset and goes directly to the address step
@@ -123,6 +117,9 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   useEffect(() => {
     history.push(SendRoutes.Scan)
   }, [history])
+
+  if (walletConnectDappUrl)
+    return <ConnectModal initialUri={walletConnectDappUrl} isOpen={isOpen} onClose={handleClose} />
 
   return (
     <FormProvider {...methods}>

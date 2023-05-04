@@ -3,6 +3,8 @@ import { createSelector } from 'reselect'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import type { IntermediaryTransactionOutput } from 'lib/swapper/api'
+import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
   selectAction,
   selectAffiliateBps,
@@ -16,7 +18,7 @@ import {
   selectSlippage,
 } from 'state/zustand/swapperStore/selectors'
 import type { SwapperState } from 'state/zustand/swapperStore/types'
-import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
+import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
 
 const selectAssetPriceRatio = createSelector(
   selectBuyAssetFiatRate,
@@ -583,8 +585,19 @@ export const selectDonationAmountFiat = createSelector(
   selectSellAmountFiat,
   selectAffiliateBps,
   (sellAmountFiat, affiliateBps): string => {
-    const affiliatePercentage = convertBasisPointsToPercentage(affiliateBps)
+    const affiliatePercentage = convertBasisPointsToDecimalPercentage(affiliateBps)
     // The donation amount is a percentage of the sell amount
     return bnOrZero(sellAmountFiat).times(affiliatePercentage).toFixed()
   },
+)
+
+export const selectIntermediaryTransactionOutputs = createDeepEqualOutputSelector(
+  (state: SwapperState) => state.activeSwapperWithMetadata?.quote?.intermediaryTransactionOutputs,
+  (state: SwapperState) => state.trade?.intermediaryTransactionOutputs,
+  (
+    quoteIntermediaryTransactionOutputs,
+    tradeIntermediaryTransactionOutputs,
+  ): IntermediaryTransactionOutput[] | undefined =>
+    // Use the trade amount if we have it, otherwise use the quote amount
+    tradeIntermediaryTransactionOutputs ?? quoteIntermediaryTransactionOutputs,
 )

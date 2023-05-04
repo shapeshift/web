@@ -481,6 +481,8 @@
   },
   "navBar": {
     "home": "Accueil",
+    "activity": "Activité",
+    "myWallet": "Mon porte-monnaie",
     "dashboard": "Tableau de bord",
     "dashboardShort": "Tabl. de bord",
     "assets": "Actifs",
@@ -501,6 +503,7 @@
     "clickToConnect": "Cliquez pour connecter un porte-monnaie",
     "wallet": "Porte-monnaie",
     "explore": "Explorer",
+    "rewards": "Récompenses",
     "trade": "Échanger",
     "buyCrypto": "Acheter/Vendre des cryptos",
     "buyCryptoShort": "Achat/Vente",
@@ -634,6 +637,7 @@
     "youGet": "Vous obtenez",
     "tradeTo": "Échanger en",
     "minerFee": "Frais de minage",
+    "donation": "Don ShapeShift",
     "protocolFee": "Frais de protocole",
     "protocol": "Protocole",
     "tradeFeeSource": "Frais %{tradeFeeSource}",
@@ -663,6 +667,7 @@
       "rate": "C'est le taux estimé pour cette paire d'échange.",
       "noRateAvailable": "Cela est souvent dû à une liquidité très limitée ou inexistante sur la paire d'échange.",
       "minerFee": "Il s'agit des frais de traitement de la transaction sur la blockchain, ce ne sont pas des frais facturés par ShapeShift.",
+      "donation": "Aidez à soutenir ShapeShift et maintenez-nous opérationnels.",
       "protocol": "C'est le protocole avec lequel votre échange est acheminé.",
       "protocolFee": "Il s'agit des frais facturés par le protocole sélectionné pour traiter cette transaction, il ne s'agit pas de frais facturés par ShapeShift",
       "shapeshiftFee": "ShapeShift n'ajoute aucun frais sur les échanges 🎉"
@@ -1030,7 +1035,7 @@
     "settings": {
       "settings": "Paramètres",
       "currency": "Devise",
-      "clearWalletAccountData": "Supprimer comptes et données de porte-monnaie",
+      "clearWalletAccountData": "Supprimer les données du porte-monnaie",
       "deleteAccountsConfirm": "Êtes-vous sûr?\n\nCela supprimera toutes les données personnelles, y compris les porte-monnaie, les comptes et soldes.\n\nVérifiez que vous avez sauvegardé vos porte-monnaie avant de continuer.",
       "currencyFormat": "Format de devise",
       "language": "Langue",
@@ -1544,7 +1549,7 @@
   },
   "plugins": {
     "foxPage": {
-      "buyAssetOnCoinbase": "Acheter des %{assetSymbol} sur Coinbase",
+      "buyAssetOnCoinbase": "Acheter %{assetSymbol} sur Coinbase",
       "totalFoxValue": "Valeur totale des FOX",
       "foxToken": "Jeton %{assetSymbol} de ShapeShift",
       "foxDescription": "Depuis 2019, notre jeton FOX offre aux utilisateurs un éventail toujours plus vaste d'utilités et d'avantages. Aujourd'hui, notre jeton de gouvernance ERC-20 vous permet non seulement d'influencer l'avenir de ShapeShift par votre vote, mais vous disposez également d'un univers toujours plus vaste d'opportunités d'investissement. Investissez, suivez et gérez vos avoirs FOX ici.",

@@ -194,6 +194,7 @@ export const GlobalSeachButton = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
+
   const handleClose = useCallback(() => {
     setSearchQuery('')
     onClose()

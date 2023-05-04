@@ -1,158 +1,86 @@
 import type { StartQueryActionCreatorOptions } from '@reduxjs/toolkit/dist/query/core/buildInitiate'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { store } from 'state/store'
 
 import { foxEthStakingIds } from '../opportunitiesSlice/constants'
 import { opportunitiesApi } from '../opportunitiesSlice/opportunitiesSlice'
+import { CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES } from './resolvers'
 
-export const fetchAllLpOpportunitiesMetadata = async (options?: StartQueryActionCreatorOptions) => {
-  const { getOpportunitiesMetadata } = opportunitiesApi.endpoints
-
-  await Promise.allSettled([
-    store.dispatch(
-      opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
-        {
-          defiType: DefiType.LiquidityPool,
-          defiProvider: DefiProvider.UniV2,
-          opportunityType: DefiType.LiquidityPool,
-        },
-        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-        { forceRefetch: false, ...options },
-      ),
-    ),
-    store.dispatch(
-      getOpportunitiesMetadata.initiate(
-        {
-          opportunityType: DefiType.LiquidityPool,
-          defiType: DefiType.LiquidityPool,
-          defiProvider: DefiProvider.OsmosisLp,
-        },
-        { forceRefetch: false, ...options },
-      ),
-    ),
-  ])
-}
-
-export const fetchAllStakingOpportunitiesMetadata = async (
+export const fetchAllLpOpportunitiesMetadataByChainId = async (
+  chainId: ChainId,
   options?: StartQueryActionCreatorOptions,
 ) => {
-  const { getOpportunityMetadata } = opportunitiesApi.endpoints
+  const { getOpportunitiesMetadata } = opportunitiesApi.endpoints
 
-  const metadataPromises = [
-    store.dispatch(
-      opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
-        {
-          defiType: DefiType.Staking,
-          defiProvider: DefiProvider.CosmosSdk,
-          opportunityType: DefiType.Staking,
-        },
-        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-        { forceRefetch: false, ...options },
-      ),
-    ),
-    store.dispatch(
-      opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
-        {
-          defiType: DefiType.Staking,
-          defiProvider: DefiProvider.ThorchainSavers,
-          opportunityType: DefiType.Staking,
-        },
-        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-        { forceRefetch: false, ...options },
-      ),
-    ),
-    store.dispatch(
-      opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
-        {
-          defiType: DefiType.Staking,
-          defiProvider: DefiProvider.Idle,
-          opportunityType: DefiType.Staking,
-        },
-        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-        { forceRefetch: false, ...options },
-      ),
-    ),
-    store.dispatch(
-      opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
-        {
-          defiType: DefiType.Staking,
-          defiProvider: DefiProvider.Yearn,
-          opportunityType: DefiType.Staking,
-        },
-        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-        { forceRefetch: false, ...options },
-      ),
-    ),
-    store.dispatch(
-      opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
-        {
-          defiType: DefiType.Staking,
-          defiProvider: DefiProvider.ShapeShift,
-          opportunityType: DefiType.Staking,
-        },
-        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-        { forceRefetch: false, ...options },
-      ),
-    ),
-    ...foxEthStakingIds.map(opportunityId =>
-      store.dispatch(
-        getOpportunityMetadata.initiate(
-          {
-            opportunityId,
-            opportunityType: DefiType.Staking,
-            defiType: DefiType.Staking,
-            defiProvider: DefiProvider.EthFoxStaking,
-          },
-          // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-          { forceRefetch: false, ...options },
+  const queries = CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES[chainId]
+
+  await Promise.allSettled(
+    queries
+      .filter(query => query.defiType === DefiType.LiquidityPool)
+      .map(query =>
+        store.dispatch(
+          getOpportunitiesMetadata.initiate(
+            {
+              defiType: query.defiType,
+              defiProvider: query.defiProvider,
+            },
+            // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+            { forceRefetch: false, ...options },
+          ),
         ),
       ),
-    ),
-  ]
-
-  for (const metadataPromise of metadataPromises) {
-    await metadataPromise
-  }
+  )
 }
 
-export const fetchAllOpportunitiesIds = async (options?: StartQueryActionCreatorOptions) => {
+export const fetchAllStakingOpportunitiesMetadataByChainId = async (
+  chainId: ChainId,
+  options?: StartQueryActionCreatorOptions,
+) => {
+  const { getOpportunitiesMetadata, getOpportunityMetadata } = opportunitiesApi.endpoints
+
+  const queries = CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES[chainId]
+
+  const ethFoxStakingQueries = foxEthStakingIds.map(opportunityId =>
+    store.dispatch(
+      getOpportunityMetadata.initiate(
+        {
+          opportunityId,
+          defiType: DefiType.Staking,
+          defiProvider: DefiProvider.EthFoxStaking,
+        },
+        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+        { forceRefetch: false, ...options },
+      ),
+    ),
+  )
+  await Promise.allSettled(
+    queries
+      .filter(query => query.defiType === DefiType.Staking)
+      .map(query =>
+        store.dispatch(
+          getOpportunitiesMetadata.initiate(
+            {
+              defiType: query.defiType,
+              defiProvider: query.defiProvider,
+            },
+            // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+            { forceRefetch: false, ...options },
+          ),
+        ),
+      )
+      .concat(ethFoxStakingQueries),
+  )
+}
+
+export const fetchAllOpportunitiesIdsByChainId = async (
+  chainId: ChainId,
+  options?: StartQueryActionCreatorOptions,
+) => {
   const { getOpportunityIds } = opportunitiesApi.endpoints
 
-  const queries = [
-    {
-      defiType: DefiType.Staking,
-      defiProvider: DefiProvider.Idle,
-    },
-    {
-      defiType: DefiType.Staking,
-      defiProvider: DefiProvider.Yearn,
-    },
-    {
-      defiType: DefiType.Staking,
-      defiProvider: DefiProvider.EthFoxStaking,
-    },
-    {
-      defiType: DefiType.LiquidityPool,
-      defiProvider: DefiProvider.UniV2,
-    },
-    {
-      defiType: DefiType.LiquidityPool,
-      defiProvider: DefiProvider.OsmosisLp,
-    },
-    {
-      defiType: DefiType.Staking,
-      defiProvider: DefiProvider.ThorchainSavers,
-    },
-    {
-      defiType: DefiType.Staking,
-      defiProvider: DefiProvider.ShapeShift,
-    },
-    {
-      defiType: DefiType.Staking,
-      defiProvider: DefiProvider.CosmosSdk,
-    },
-  ]
+  const queries = CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES[chainId]
 
   for (const query of queries) {
     await store.dispatch(getOpportunityIds.initiate(query, options))
@@ -161,100 +89,61 @@ export const fetchAllOpportunitiesIds = async (options?: StartQueryActionCreator
   return
 }
 
-export const fetchAllOpportunitiesMetadata = async (options?: StartQueryActionCreatorOptions) => {
+export const fetchAllOpportunitiesMetadataByChainId = async (
+  chainId: ChainId,
+  options?: StartQueryActionCreatorOptions,
+) => {
   // Don't Promise.all() me - parallel execution would be better, but the market data of the LP tokens gets populated when fetching LP opportunities
   // Without it, we won't have all we need to populate the staking one - which is relying on the market data of the staked LP token for EVM chains LP token farming
-  await fetchAllLpOpportunitiesMetadata(options)
-  await fetchAllStakingOpportunitiesMetadata(options)
+  await fetchAllLpOpportunitiesMetadataByChainId(chainId, options)
+  await fetchAllStakingOpportunitiesMetadataByChainId(chainId, options)
 }
 
-export const fetchAllStakingOpportunitiesUserData = async (
+export const fetchAllStakingOpportunitiesUserDataByAccountId = async (
   accountId: AccountId,
   options?: StartQueryActionCreatorOptions,
 ) => {
   const { getOpportunitiesUserData, getOpportunityUserData } = opportunitiesApi.endpoints
 
-  await Promise.allSettled([
-    store.dispatch(
-      getOpportunitiesUserData.initiate(
-        {
-          accountId,
-          defiType: DefiType.Staking,
-          defiProvider: DefiProvider.CosmosSdk,
-          opportunityType: DefiType.Staking,
-        },
-        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-        { forceRefetch: false, ...options },
-      ),
-    ),
+  const chainId = fromAccountId(accountId).chainId
+  const queries = CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES[chainId]
 
+  const ethFoxStakingQueries = foxEthStakingIds.map(opportunityId =>
     store.dispatch(
-      getOpportunitiesUserData.initiate(
+      getOpportunityUserData.initiate(
         {
           accountId,
+          opportunityId,
           defiType: DefiType.Staking,
-          defiProvider: DefiProvider.ThorchainSavers,
-          opportunityType: DefiType.Staking,
+          defiProvider: DefiProvider.EthFoxStaking,
         },
         // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
         { forceRefetch: false, ...options },
       ),
     ),
-    store.dispatch(
-      getOpportunitiesUserData.initiate(
-        {
-          accountId,
-          defiType: DefiType.Staking,
-          defiProvider: DefiProvider.Idle,
-          opportunityType: DefiType.Staking,
-        },
-        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-        { forceRefetch: false, ...options },
-      ),
-    ),
-    store.dispatch(
-      getOpportunitiesUserData.initiate(
-        {
-          accountId,
-          defiType: DefiType.Staking,
-          defiProvider: DefiProvider.Yearn,
-          opportunityType: DefiType.Staking,
-        },
-        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-        { forceRefetch: false, ...options },
-      ),
-    ),
-    store.dispatch(
-      getOpportunitiesUserData.initiate(
-        {
-          accountId,
-          defiType: DefiType.Staking,
-          defiProvider: DefiProvider.ShapeShift,
-          opportunityType: DefiType.Staking,
-        },
-        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-        { forceRefetch: false, ...options },
-      ),
-    ),
-    ...foxEthStakingIds.map(opportunityId =>
-      store.dispatch(
-        getOpportunityUserData.initiate(
-          {
-            accountId,
-            opportunityId,
-            opportunityType: DefiType.Staking,
-            defiType: DefiType.Staking,
-            defiProvider: DefiProvider.EthFoxStaking,
-          },
-          // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
-          { forceRefetch: false, ...options },
+  )
+
+  await Promise.allSettled(
+    queries
+      .filter(query => query.defiType === DefiType.Staking)
+      .map(query =>
+        store.dispatch(
+          getOpportunitiesUserData.initiate(
+            {
+              accountId,
+              defiType: query.defiType,
+              defiProvider: query.defiProvider,
+            },
+            // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+            { forceRefetch: false, ...options },
+          ),
         ),
-      ),
-    ),
-  ])
+      )
+      .concat(ethFoxStakingQueries),
+  )
 }
 
-export const fetchAllLpOpportunitiesUserdata = (
+export const fetchAllLpOpportunitiesUserdataByAccountId = (
   _accountId: AccountId,
   _options?: StartQueryActionCreatorOptions,
   // User data for all our current LP opportunities is held as a portfolio balance, there's no need to fetch it
@@ -265,6 +154,6 @@ export const fetchAllOpportunitiesUserData = (
   options?: StartQueryActionCreatorOptions,
 ) =>
   Promise.allSettled([
-    fetchAllLpOpportunitiesUserdata(accountId, options),
-    fetchAllStakingOpportunitiesUserData(accountId, options),
+    fetchAllLpOpportunitiesUserdataByAccountId(accountId, options),
+    fetchAllStakingOpportunitiesUserDataByAccountId(accountId, options),
   ])

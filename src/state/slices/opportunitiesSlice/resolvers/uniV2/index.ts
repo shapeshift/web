@@ -1,4 +1,4 @@
-import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import type { TokenAmount } from '@uniswap/sdk'
 import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -49,7 +49,7 @@ const getBlockNumber = async () => {
 
 export const uniV2LpOpportunitiesMetadataResolver = async ({
   opportunityIds,
-  opportunityType,
+  defiType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{
   data: GetOpportunityMetadataOutput
@@ -67,7 +67,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
     return Promise.resolve({
       data: {
         byId: {},
-        type: opportunityType,
+        type: defiType,
       },
     })
   }
@@ -245,7 +245,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
 
   const data = {
     byId: lpOpportunitiesById,
-    type: opportunityType,
+    type: defiType,
   }
 
   return { data }
@@ -253,14 +253,10 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
 
 export const uniV2LpUserDataResolver = ({
   opportunityId,
-  opportunityType: _opportunityType,
+  defiType: _defiType,
   accountId,
   reduxApi,
 }: OpportunityUserDataResolverInput): Promise<void> => {
-  const { chainId: accountChainId } = fromAccountId(accountId)
-  // Looks the same as the happy path but isn't, we won't hit this as a guard with non-Ethereum account ChainIds
-  if (accountChainId !== ethChainId) return Promise.resolve()
-
   const { getState } = reduxApi
   const state: ReduxState = getState() as any
   const portfolioLoadingStatusGranular = selectPortfolioLoadingStatusGranular(state)

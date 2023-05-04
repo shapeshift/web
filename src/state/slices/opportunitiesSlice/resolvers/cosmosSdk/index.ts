@@ -85,7 +85,7 @@ export const cosmosSdkOpportunityIdsResolver = async ({
 
 export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
   opportunityIds: validatorIds = [],
-  opportunityType,
+  defiType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{
   data: GetOpportunityMetadataOutput
@@ -171,14 +171,14 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
   )
   const data = {
     byId: metadataByValidatorId,
-    type: opportunityType,
+    type: defiType,
   }
 
   return { data }
 }
 export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
   opportunityIds: validatorIds,
-  opportunityType,
+  defiType,
   accountId,
   reduxApi,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
@@ -192,7 +192,7 @@ export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
     const { account: pubKey, chainId } = fromAccountId(accountId)
     if (![cosmosChainId, osmosisChainId].includes(chainId)) {
       return Promise.resolve({
-        data: { byId: emptyStakingOpportunitiesUserDataByUserStakingId, type: opportunityType },
+        data: { byId: emptyStakingOpportunitiesUserDataByUserStakingId, type: defiType },
       })
     }
     const chainAdapters = getChainAdapterManager()
@@ -208,12 +208,12 @@ export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
 
     const byId = makeAccountUserData({ cosmosSdkAccount: cosmosAccount, validatorIds })
 
-    return Promise.resolve({ data: { byId, type: opportunityType } })
+    return Promise.resolve({ data: { byId, type: defiType } })
   } catch (e) {
     return Promise.resolve({
       data: {
         byId: emptyStakingOpportunitiesUserDataByUserStakingId,
-        type: opportunityType,
+        type: defiType,
       },
     })
   }

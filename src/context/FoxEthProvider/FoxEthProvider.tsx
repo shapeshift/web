@@ -5,7 +5,7 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { logger } from 'lib/logger'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
-import { fetchAllStakingOpportunitiesUserData } from 'state/slices/opportunitiesSlice/thunks'
+import { fetchAllStakingOpportunitiesUserDataByAccountId } from 'state/slices/opportunitiesSlice/thunks'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { selectAssetById, selectStakingAccountIds, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -46,7 +46,7 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     await Promise.all(
       stakingAccountIds.map(
         async accountId =>
-          await fetchAllStakingOpportunitiesUserData(accountId, { forceRefetch: true }),
+          await fetchAllStakingOpportunitiesUserDataByAccountId(accountId, { forceRefetch: true }),
       ),
     )
   }, [stakingAccountIds])
@@ -86,7 +86,6 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
                   chainId: ethChainId,
                   assetReference: ongoingTxContractAddress,
                 }),
-                opportunityType: DefiType.Staking,
                 defiType: DefiType.Staking,
                 defiProvider: DefiProvider.EthFoxStaking,
               },

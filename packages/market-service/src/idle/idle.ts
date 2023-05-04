@@ -16,12 +16,10 @@ export class IdleMarketService extends CoinGeckoMarketService implements MarketS
 
   constructor({
     providerUrls,
-    coinGeckoAPIKey,
   }: {
     providerUrls: ProviderUrls
-    coinGeckoAPIKey: string
   }) {
-    super({ coinGeckoAPIKey })
+    super()
 
     this.providerUrls = providerUrls
     this.idleInvestor = new IdleInvestor({

@@ -32,21 +32,15 @@ type CoinGeckoHistoryData = {
   prices: [number, number][]
 }
 
-type CoinGeckoMarketServiceArgs = {
-  coinGeckoAPIKey: string
-}
-
 export class CoinGeckoMarketService implements MarketService {
   private readonly maxPerPage = 250
   private readonly defaultCount = 2500
 
   baseUrl: string
-  APIKey: string
   maybeApiKeyQueryParam: string
 
-  constructor(args: CoinGeckoMarketServiceArgs) {
-    this.APIKey = args.coinGeckoAPIKey
-    const { baseUrl, maybeApiKeyQueryParam } = adapters.makeCoingeckoUrlParts(this.APIKey)
+  constructor() {
+    const { baseUrl, maybeApiKeyQueryParam } = adapters.makeCoingeckoUrlParts()
     this.baseUrl = baseUrl
     this.maybeApiKeyQueryParam = maybeApiKeyQueryParam
   }

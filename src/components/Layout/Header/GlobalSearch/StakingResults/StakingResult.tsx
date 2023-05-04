@@ -24,8 +24,14 @@ type StakingResultProps = {
 
 export const StakingResult = forwardRef<StakingResultProps, 'div'>(
   ({ stakingId, onClick, index, activeIndex }, ref) => {
+    const filter = useMemo(
+      () => ({
+        stakingId,
+      }),
+      [stakingId],
+    )
     const opportunity = useAppSelector(state =>
-      selectAggregatedEarnUserStakingOpportunitiesIncludeEmptyByStakingId(state, { stakingId }),
+      selectAggregatedEarnUserStakingOpportunitiesIncludeEmptyByStakingId(state, filter),
     )
     const asset = useAppSelector(state =>
       selectAssetById(state, opportunity?.underlyingAssetId ?? ''),

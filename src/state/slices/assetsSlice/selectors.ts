@@ -5,13 +5,11 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import orderBy from 'lodash/orderBy'
 import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssetIdParamFromFilter, selectSearchQueryFromFilter } from 'state/selectors'
-import { selectMarketDataSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
 
+import { selectCryptoMarketDataIds } from '../marketDataSlice/selectors'
 import { assetIdToFeeAssetId } from '../portfolioSlice/utils'
 import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'
 
@@ -39,19 +37,23 @@ export const selectAssets = createDeepEqualOutputSelector(
 export const selectAssetIds = (state: ReduxState) => state.assets.ids
 
 export const selectAssetsByMarketCap = createDeepEqualOutputSelector(
+  selectCryptoMarketDataIds,
   selectAssets,
-  selectMarketDataSortedByMarketCap,
-  (assets, cryptoMarketData): Asset[] => {
-    const getAssetMarketCap = (asset: Asset) =>
-      bnOrZero(cryptoMarketData[asset.assetId]?.marketCap).toNumber()
-    const getAssetName = (asset: Asset) => asset.name
+  (marketDataAssetIds, assets): Asset[] => {
+    const sortedAssets = marketDataAssetIds.reduce<Asset[]>((acc, assetId) => {
+      const asset = assets[assetId]
+      if (asset) acc.push(asset)
+      return acc
+    }, [])
 
-    return orderBy(
-      Object.values(assets).filter(isSome),
-      [getAssetMarketCap, getAssetName],
-      ['desc', 'asc'],
-    )
+    return sortedAssets
   },
+)
+
+export const selectAssetsByMarketCapAndName = createDeepEqualOutputSelector(
+  selectAssetsByMarketCap,
+  (sortedAssets: Asset[]): Asset[] =>
+    orderBy(sortedAssets, [asset => asset.name.toLowerCase()], ['asc']),
 )
 
 export const selectChainIdsByMarketCap = createDeepEqualOutputSelector(

@@ -36,8 +36,8 @@ import {
   selectAssets,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
-  selectMarketDataSortedByMarketCap,
   selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -61,7 +61,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const chainAdapter = getChainAdapterManager().get(chainId) as unknown as osmosis.ChainAdapter
 
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
+  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
 
   const underlyingAssetBalances = useMemo(() => {
     if (!osmosisOpportunity || !state) return null

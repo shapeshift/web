@@ -10,8 +10,8 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'state/selectors'
 
-import { selectAssets } from './assetsSlice/selectors'
-import { selectMarketDataSortedByMarketCap } from './marketDataSlice/selectors'
+import { selectAssets, selectAssetsByMarketCap } from './assetsSlice/selectors'
+import { selectSelectedCurrencyMarketDataSortedByMarketCap } from './marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
 import { selectBalanceThreshold } from './preferencesSlice/selectors'
 
@@ -75,7 +75,7 @@ export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelecto
 
 export const selectPortfolioFiatBalances = createDeepEqualOutputSelector(
   selectAssets,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectPortfolioAssetBalancesBaseUnit,
   selectBalanceThreshold,
   (assetsById, marketData, balances, balanceThreshold) =>
@@ -96,7 +96,7 @@ export const selectPortfolioFiatBalances = createDeepEqualOutputSelector(
 export const selectPortfolioFiatBalancesByAccountId = createDeepEqualOutputSelector(
   selectAssets,
   selectPortfolioAccountBalancesBaseUnit,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   (assetsById, accounts, marketData) => {
     return Object.entries(accounts).reduce(
       (acc, [accountId, balanceObj]) => {
@@ -122,26 +122,18 @@ export const selectPortfolioFiatBalancesByAccountId = createDeepEqualOutputSelec
   },
 )
 
-export const selectSortedAssets = createDeepEqualOutputSelector(
-  selectAssets,
+export const selectAssetsSortedByMarketCapFiatBalanceAndName = createDeepEqualOutputSelector(
+  selectAssetsByMarketCap,
   selectPortfolioFiatBalances,
-  selectMarketDataSortedByMarketCap,
-  (assets, portfolioFiatBalances, cryptoMarketData) => {
+  (assets, portfolioFiatBalances) => {
     const getAssetFiatBalance = (asset: Asset) =>
       bnOrZero(portfolioFiatBalances[asset.assetId]).toNumber()
-    const getAssetMarketCap = (asset: Asset) =>
-      bnOrZero(cryptoMarketData[asset.assetId]?.marketCap).toNumber()
     const getAssetName = (asset: Asset) => asset.name
 
     return orderBy(
       Object.values(assets).filter(isSome),
-      [getAssetFiatBalance, getAssetMarketCap, getAssetName],
-      ['desc', 'desc', 'asc'],
+      [getAssetFiatBalance, getAssetName],
+      ['desc', 'asc'],
     )
   },
-)
-
-export const selectSortedAssetIds = createDeepEqualOutputSelector(
-  selectSortedAssets,
-  sortedAssets => sortedAssets.map(asset => asset.assetId),
 )

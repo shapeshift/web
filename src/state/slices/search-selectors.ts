@@ -11,7 +11,7 @@ import type {
 import {
   selectAggregatedEarnOpportunitiesByProvider,
   selectAssetsBySearchQuery,
-  SelectTxsByQuery,
+  selectTxsByQuery,
 } from './selectors'
 import type { TxId } from './txHistorySlice/txHistorySlice'
 
@@ -22,59 +22,76 @@ export enum GlobalSearchResultType {
   Transaction = 'Transaction',
 }
 
-export type GlobalSearchResult = {
-  type: GlobalSearchResultType
-  id: AssetId | TxId | OpportunityId
+type AssetSearchResult = {
+  type: GlobalSearchResultType.Asset
+  id: AssetId
 }
+
+type TxSearchResult = {
+  type: GlobalSearchResultType.Transaction
+  id: TxId
+}
+
+type OpportunitySearchResult = {
+  type: GlobalSearchResultType.LpOpportunity | GlobalSearchResultType.StakingOpportunity
+  id: OpportunityId
+}
+
+export type GlobalSearchResult = AssetSearchResult | TxSearchResult | OpportunitySearchResult
 
 export const selectGlobalItemsFromFilter = createDeepEqualOutputSelector(
   selectAssetsBySearchQuery,
   selectAggregatedEarnOpportunitiesByProvider,
-  SelectTxsByQuery,
+  selectTxsByQuery,
   selectSearchQueryFromFilter,
   (filteredAssets: Asset[], opportunityResults, txIds, query?: string): GlobalSearchResult[] => {
     const limit = query ? 10 : 3
-    const resultAssets = filteredAssets
+    const resultAssets: AssetSearchResult[] = filteredAssets
       .map(asset => {
         return {
-          type: GlobalSearchResultType.Asset,
+          type: GlobalSearchResultType.Asset as const,
           id: asset.assetId,
         }
       })
       .slice(0, limit)
     const opportunities = opportunityResults.reduce(
       (acc: { staking: string[]; lp: string[] }, curr: AggregatedOpportunitiesByProviderReturn) => {
-        acc['staking'].push(...curr.opportunities.staking)
-        acc['lp'].push(...curr.opportunities.lp)
+        acc['staking'].concat(curr.opportunities.staking)
+        acc['lp'].concat(curr.opportunities.lp)
         return acc
       },
       { staking: [], lp: [] },
     )
 
-    const stakingOpportunities = uniq(opportunities.staking)
+    const stakingOpportunities: OpportunitySearchResult[] = uniq(opportunities.staking)
       .map(id => {
         return {
-          type: GlobalSearchResultType.StakingOpportunity,
+          type: GlobalSearchResultType.StakingOpportunity as const,
           id,
         }
       })
       .slice(0, limit)
-    const lpOpportunities = uniq(opportunities.lp)
+    const lpOpportunities: OpportunitySearchResult[] = uniq(opportunities.lp)
       .map(id => {
         return {
-          type: GlobalSearchResultType.LpOpportunity,
+          type: GlobalSearchResultType.LpOpportunity as const,
           id,
         }
       })
       .slice(0, limit)
-    const txResults = txIds
+    const txResults: TxSearchResult[] = txIds
       .map(id => {
         return {
-          type: GlobalSearchResultType.Transaction,
+          type: GlobalSearchResultType.Transaction as const,
           id,
         }
       })
       .slice(0, limit)
-    return resultAssets.concat(stakingOpportunities).concat(lpOpportunities).concat(txResults)
+    const result: GlobalSearchResult[] = []
+    return result
+      .concat(resultAssets)
+      .concat(stakingOpportunities)
+      .concat(lpOpportunities)
+      .concat(txResults)
   },
 )

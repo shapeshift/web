@@ -247,12 +247,12 @@ export const selectMaybeNextAccountNumberByChainId = createSelector(
     return [isAbleToAddNextAccount, isAbleToAddNextAccount ? nextAccountNumber : null]
   },
 )
-export const SelectTxsByQuery = createDeepEqualOutputSelector(
+export const selectTxsByQuery = createDeepEqualOutputSelector(
   selectTxs,
   selectAssets,
   selectSearchQueryFromFilter,
-  (txsById, assets, searchQuery) => {
-    const txArray: [string, Tx][] = Object.entries(txsById)
+  (txsById, assets, searchQuery): TxId[] => {
+    const txArray: [TxId, Tx][] = Object.entries(txsById)
     if (!searchQuery)
       return Object.entries(txsById)
         .sort((a, b) => b[1].blockTime - a[1].blockTime)

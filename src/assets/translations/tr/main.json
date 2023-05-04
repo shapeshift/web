@@ -481,6 +481,8 @@
   },
   "navBar": {
     "home": "Ana Sayfa",
+    "activity": "Aktivite",
+    "myWallet": "Cüzdanım",
     "dashboard": "Gösterge Paneli",
     "dashboardShort": "Panel",
     "assets": "Varlıklar",
@@ -501,6 +503,7 @@
     "clickToConnect": "Cüzdan bağlamak için tıklayın",
     "wallet": "Cüzdan",
     "explore": "Keşfet",
+    "rewards": "Ödüller",
     "trade": "Takas",
     "buyCrypto": "Kripto Al/Sat",
     "buyCryptoShort": "Al/Sat",
@@ -634,6 +637,7 @@
     "youGet": "Al",
     "tradeTo": "Buraya Takasla",
     "minerFee": "Madenci Ücreti",
+    "donation": "ShapeShift Bağışı",
     "protocolFee": "Protokol Ücreti",
     "protocol": "Protokol",
     "tradeFeeSource": "%{tradeFeeSource} Ücret",
@@ -663,6 +667,7 @@
       "rate": "Bu, bu işlem çifti için beklenen orandır.",
       "noRateAvailable": "Bunun nedeni genellikle ticaret çiftinde çok sınırlı veya hiç likidite olmamasıdır.",
       "minerFee": "Bu, blok zincirindeki işlemi işlemek için alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
+      "donation": "ShapeShift'i desteklemeye yardımcı olun ve bizi çalışır durumda tutun.",
       "protocol": "Bu, ticaretinizin yönlendirildiği protokoldür.",
       "protocolFee": "Bu, bu işlemi gerçekleştirmek için seçilen protokol tarafından alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
       "shapeshiftFee": "ShapeShift, işlemlerde ücret eklemiyor 🎉"

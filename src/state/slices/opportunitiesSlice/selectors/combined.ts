@@ -460,7 +460,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
         acc[provider].opportunities.lp.push(cur.id)
       }
 
-      if (isActiveOpportunityByFilter) {
+      if (cur.type === DefiType.Staking && isActiveOpportunityByFilter) {
         acc[provider].opportunities.staking.push(cur.id)
       }
       const fiatRewardsAmount = bnOrZero(maybeStakingRewardsAmountFiat)

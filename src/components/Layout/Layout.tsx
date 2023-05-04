@@ -12,6 +12,7 @@ export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
       <Container
         as='main'
         maxWidth='full'
+        flexDir='column'
         width={{ base: 'full', md: 'calc(100% - 93px)', '2xl': 'calc(100% - 384px)' }}
         paddingBottom={{ base: 'calc(0 + env(safe-area-inset-bottom))', md: 0 }}
         marginInline='auto'

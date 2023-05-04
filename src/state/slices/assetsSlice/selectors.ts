@@ -2,7 +2,6 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import orderBy from 'lodash/orderBy'
 import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import type { ReduxState } from 'state/reducer'
@@ -48,12 +47,6 @@ export const selectAssetsByMarketCap = createDeepEqualOutputSelector(
 
     return sortedAssets
   },
-)
-
-export const selectAssetsByMarketCapAndName = createDeepEqualOutputSelector(
-  selectAssetsByMarketCap,
-  (sortedAssets: Asset[]): Asset[] =>
-    orderBy(sortedAssets, [asset => asset.name.toLowerCase()], ['asc']),
 )
 
 export const selectChainIdsByMarketCap = createDeepEqualOutputSelector(

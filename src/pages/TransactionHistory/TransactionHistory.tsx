@@ -24,6 +24,7 @@ export const TransactionHistory = () => {
   const { filters, setFilters, resetFilters } = useFilters()
   const selectorFilters = useMemo(
     () => ({
+      // TODO(gomes): This is wrong. We don't use anything Asset-y from this, only the AssetId
       matchingAssets: matchingAssets?.map(asset => asset.assetId) ?? null,
       ...filters,
     }),

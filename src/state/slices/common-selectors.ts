@@ -10,8 +10,11 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'state/selectors'
 
-import { selectAssets, selectAssetsByMarketCap } from './assetsSlice/selectors'
-import { selectSelectedCurrencyMarketDataSortedByMarketCap } from './marketDataSlice/selectors'
+import { selectAssets } from './assetsSlice/selectors'
+import {
+  selectCryptoMarketData,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
+} from './marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
 import { selectBalanceThreshold } from './preferencesSlice/selectors'
 
@@ -123,17 +126,23 @@ export const selectPortfolioFiatBalancesByAccountId = createDeepEqualOutputSelec
 )
 
 export const selectAssetsSortedByMarketCapFiatBalanceAndName = createDeepEqualOutputSelector(
-  selectAssetsByMarketCap,
+  selectAssets,
   selectPortfolioFiatBalances,
-  (assets, portfolioFiatBalances) => {
+  selectCryptoMarketData,
+  (assets, portfolioFiatBalances, cryptoMarketData) => {
     const getAssetFiatBalance = (asset: Asset) =>
       bnOrZero(portfolioFiatBalances[asset.assetId]).toNumber()
+
+    // This looks weird but isn't - looks like we could use the sorted selectAssetsByMarketCap instead of selectAssets
+    // but we actually can't - this would rug the triple-sorting
+    const getAssetMarketCap = (asset: Asset) =>
+      bnOrZero(cryptoMarketData[asset.assetId]?.marketCap).toNumber()
     const getAssetName = (asset: Asset) => asset.name
 
     return orderBy(
       Object.values(assets).filter(isSome),
-      [getAssetFiatBalance, getAssetName],
-      ['desc', 'asc'],
+      [getAssetFiatBalance, getAssetMarketCap, getAssetName],
+      ['desc', 'desc', 'asc'],
     )
   },
 )

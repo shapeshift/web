@@ -174,7 +174,7 @@
       "recentTransactions": "Transações Recentes"
     },
     "tradeCard": {
-      "trade": "Negocie",
+      "trade": "Swap",
       "bridge": "Bridge",
       "earn": "Ganhe"
     }
@@ -395,10 +395,10 @@
     "startEarning": "Comece a Ganhar",
     "eligibleOpportunities": "Oportunidades Elegíveis",
     "defiBody": "Explore o crescente universo DeFi.",
-    "netWorth": "Seu Patrimônio",
-    "walletBalance": "Saldo na Carteira",
-    "earnBalance": "Saldo de Investimentos",
-    "rewardsBalance": "Saldo Restante",
+    "netWorth": "Total",
+    "walletBalance": "Disponível",
+    "earnBalance": "Investimentos",
+    "rewardsBalance": "Recompensas",
     "earnBody": "Deposite seus ativos em estratégias DeFi de renda passiva.",
     "clickHereToEarn": "Clique aqui para ganhar %{apr} APR* farmando na sua pool de ETH-FOX",
     "overview": "Visão Geral",
@@ -481,27 +481,30 @@
   },
   "navBar": {
     "home": "Início",
+    "activity": "Atividade",
+    "myWallet": "Minha carteira",
     "dashboard": "Painel de Controle",
     "dashboardShort": "Painel",
     "assets": "Ativos",
     "assetDetails": "Detalhes do recurso",
-    "accounts": "Contas",
+    "accounts": "Carteiras",
     "accountAsset": "Ativo da conta",
     "accountDetails": "Detalhes da conta",
     "earn": "Investimentos",
     "defi": "DeFi",
-    "transactionHistory": "Histórico de transações",
+    "transactionHistory": "Histórico",
     "overview": "Visão geral",
     "transactions": "Transações",
     "tradeHistory": "Histórico de Negociações",
-    "foxToken": "Oportunidades FOX",
-    "dApps": "dApps",
+    "foxToken": "Ganhe FOX",
+    "dApps": "Conectar dApps",
     "featureFlags": "Recursos",
     "demoMode": "Modo de demonstração",
     "clickToConnect": "Clique para conectar uma carteira",
     "wallet": "Carteira",
-    "explore": "Explorar",
-    "trade": "Negocie",
+    "explore": "Menu",
+    "rewards": "Recompensas",
+    "trade": "Swap",
     "buyCrypto": "Compre Cripto",
     "buyCryptoShort": "Compre/venda",
     "arkeo": "Airdrop da Arkeo"
@@ -620,7 +623,7 @@
     "noSupportedAssets": "Nenhum ativo suportado no portfólio."
   },
   "trade": {
-    "trade": "Negocie",
+    "trade": "Swap",
     "allowance": "Quota",
     "allowanceTooltip": "O valor que você concederá ao contrato inteligente para usar em sua assinatura.",
     "searchingRate": "Procurando a melhor taxa...",
@@ -631,9 +634,10 @@
     "from": "De",
     "to": "Para",
     "youPay": "Você paga",
-    "youGet": "Você ganha",
+    "youGet": "Você recebe",
     "tradeTo": "Negocie para",
     "minerFee": "Taxa de Mineração",
+    "donation": "Doações da ShapeShift",
     "protocolFee": "Taxa do Protocolo",
     "protocol": "Protocolo",
     "tradeFeeSource": "%{tradeFeeSource} Taxa",
@@ -663,6 +667,7 @@
       "rate": "Esta é a taxa esperada para a negociação do par.",
       "noRateAvailable": "Isso geralmente ocorre devido à liquidez limitada ou inexistente no par negociado.",
       "minerFee": "Esta é a taxa para processar a transação no blockchain, não é uma taxa cobrada pela ShapeShift.",
+      "donation": "Ajude a manter a ShapeShift funcionando!",
       "protocol": "Este é o protocolo onde sua negociação está sendo direcionada.",
       "protocolFee": "Esta é a taxa cobrada pelo protocolo selecionado para processar esta transação, esta não é uma taxa cobrada pela ShapeShift",
       "shapeshiftFee": "A ShapeShift não adiciona taxas nas negociações 🎉"
@@ -1462,7 +1467,7 @@
         "currentAPYLabel": "APY atual de suas recompensas",
         "claimRewards": "Resgatar recompensas"
       },
-      "accounts": "Contas",
+      "accounts": "Carteiras",
       "stakingVaults": "Poupança e Cofres",
       "stakingBody": "Deposite seus ativos em estratégias DeFi de renda passiva.",
       "pools": "Pools"
@@ -1548,7 +1553,7 @@
       "totalFoxValue": "Valor total de FOX",
       "foxToken": "ShapeShift %{assetSymbol} Token",
       "foxDescription": "Desde 2019, nosso token FOX oferece aos usuários um mundo em constante expansão de utilidade e vantagens. Hoje, nosso token de governança ERC-20 não apenas permite que você influencie o futuro da ShapeShift por meio de seu voto, mas também tem um universo cada vez maior de oportunidades de investimento. Invista, acompanhe e gerencie suas participações na FOX aqui.",
-      "getAsset": "Obtenha %{assetSymbol}",
+      "getAsset": "Compre %{assetSymbol}",
       "trade": "Trocar",
       "receive": "Receber",
       "mainStakingTitle": "%{assetSymbol} Token Staking",
@@ -1573,7 +1578,7 @@
       "farming": "Farming",
       "borrowingAndLending": "Borrowing & Lending",
       "governanceTitle": "Governança",
-      "governanceDescription": "Como titular FOX, você pode ter voz no futuro da ShapeShift.  Confira abaixo a propostas ativas na DAO ou aprovadas recentemente  pelos detentores de FOX.",
+      "governanceDescription": "Como holder FOX, você tem voz no futuro da ShapeShift.  Confira abaixo a propostas ativas na DAO ou aprovadas recentemente pelos membros da comunidade.",
       "seeAllProposals": "Ver todas as propostas",
       "availableToTradeOn": "Disponível para negociação",
       "dex": "DEX",
@@ -1855,7 +1860,7 @@
       "secondary": "Compre FOX"
     },
     "foxFarmers": {
-      "title": "Fazendeiros de LPs de FOX/ETH",
+      "title": "Farmers de LPs de FOX/ETH",
       "body": "Ganhe até %{apy} APR por depositar seus LPs de FOX/ETH na pool de FOX. Além disso, o FOX dentro do seu LP em stake na v5 da pool de FOX/ETH, será contado no airdrop da Arkeo!",
       "cta": "Deposite o LP de FOX/ETH"
     },
@@ -1870,7 +1875,7 @@
       "cta": "Forneça Liquidez"
     },
     "atomOsmoProviders": {
-      "title": "Provedores de Liquidez na pool de ATOM/OSMO",
+      "title": "Delegadores de ATOM/OSMO",
       "body": "Tem ATOM e OSMO? Forneça liquidez ao pool, para ganhar %{apy} APR e se qualificar para o airdrop.",
       "cta": "Forneça Liquidez"
     },

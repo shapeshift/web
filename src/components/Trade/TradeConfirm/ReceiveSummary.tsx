@@ -14,11 +14,13 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { type RowProps, Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { SwapperName } from 'lib/swapper/api'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
   symbol: string
   amount: string
+  intermediaryTransactionOutputs?: { amount: string; symbol: string; chainName?: string }[]
   fiatAmount?: string
   beforeFees?: string
   protocolFee?: string
@@ -30,6 +32,7 @@ type ReceiveSummaryProps = {
 export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   symbol,
   amount,
+  intermediaryTransactionOutputs,
   fiatAmount,
   beforeFees,
   protocolFee,
@@ -85,7 +88,13 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
           py={2}
         >
           <Row>
-            <HelperTooltip label={translate('trade.tooltip.protocol')}>
+            <HelperTooltip
+              label={
+                swapperName === SwapperName.LIFI
+                  ? translate('trade.tooltip.protocolLifi')
+                  : translate('trade.tooltip.protocol')
+              }
+            >
               <Row.Label>
                 <Text translation='trade.protocol' />
               </Row.Label>
@@ -150,9 +159,28 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
                 />
               </Row.Label>
               <Row.Value whiteSpace='nowrap'>
-                <Skeleton isLoaded={!isLoading}>
-                  <Amount.Crypto value={isAmountPositive ? amount : '0'} symbol={symbol} />
-                </Skeleton>
+                <Stack spacing={0} alignItems='flex-end'>
+                  <Skeleton isLoaded={!isLoading}>
+                    <Amount.Crypto value={isAmountPositive ? amount : '0'} symbol={symbol} />
+                  </Skeleton>
+                  {isAmountPositive &&
+                    intermediaryTransactionOutputs?.map(({ amount, symbol, chainName }) => (
+                      <Skeleton isLoaded={!isLoading}>
+                        <Amount.Crypto
+                          value={amount}
+                          symbol={symbol}
+                          prefix={translate('trade.intermediaryTransactionOutputs.prefix')}
+                          suffix={
+                            chainName
+                              ? translate('trade.intermediaryTransactionOutputs.suffix', {
+                                  chainName,
+                                })
+                              : undefined
+                          }
+                        />
+                      </Skeleton>
+                    ))}
+                </Stack>
               </Row.Value>
             </Row>
           </>

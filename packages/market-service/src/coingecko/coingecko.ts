@@ -37,12 +37,10 @@ export class CoinGeckoMarketService implements MarketService {
   private readonly defaultCount = 2500
 
   baseUrl: string
-  maybeApiKeyQueryParam: string
 
   constructor() {
-    const { baseUrl, maybeApiKeyQueryParam } = adapters.makeCoingeckoUrlParts()
+    const { baseUrl } = adapters.makeCoingeckoUrlParts()
     this.baseUrl = baseUrl
-    this.maybeApiKeyQueryParam = maybeApiKeyQueryParam
   }
 
   async findAll(args?: FindAllMarketArgs) {
@@ -58,7 +56,7 @@ export class CoinGeckoMarketService implements MarketService {
       const marketData = await Promise.all(
         pageCount.map(async page => {
           const { data } = await axios.get<CoinGeckoMarketCap>(
-            `${this.baseUrl}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false${this.maybeApiKeyQueryParam}`,
+            `${this.baseUrl}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false`,
           )
           return data ?? []
         }),
@@ -89,7 +87,7 @@ export class CoinGeckoMarketService implements MarketService {
   async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
     if (!adapters.assetIdToCoingecko(assetId)) return null
 
-    const url = adapters.makeCoingeckoAssetUrl(assetId, this.APIKey)
+    const url = adapters.makeCoingeckoAssetUrl(assetId)
     if (!url) return null
 
     try {
@@ -127,7 +125,7 @@ export class CoinGeckoMarketService implements MarketService {
 
     if (!adapters.assetIdToCoingecko(assetId)) return []
 
-    const url = adapters.makeCoingeckoAssetUrl(assetId, this.APIKey)
+    const url = adapters.makeCoingeckoAssetUrl(assetId)
     if (!url) return []
 
     try {

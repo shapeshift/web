@@ -24,8 +24,9 @@ type CoinGeckoId = string
 
 // markets.shapeshift.com is a coingecko proxy maintained by the fox foundation
 export const coingeckoBaseUrl = 'https://markets.shapeshift.com/api/v3'
-export const coingeckoProBaseUrl = 'https://markets.shapeshift.com/api/v3'
-export const coingeckoUrl = 'https://markets.shapeshift.com/api/v3/coins/list?include_platform=true'
+// export const coingeckoBaseUrl = 'http://localhost:1137/api/v3'
+export const coingeckoProBaseUrl = coingeckoBaseUrl
+export const coingeckoUrl = `${coingeckoBaseUrl}/coins/list?include_platform=true`
 
 const assetIdToCoinGeckoIdMapByChain: Record<AssetId, CoinGeckoId>[] = Object.values(adapters)
 

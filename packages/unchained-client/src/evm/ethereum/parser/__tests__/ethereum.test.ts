@@ -12,6 +12,7 @@ import {
 } from '../constants'
 import { TransactionParser, ZRX_ETHEREUM_PROXY_CONTRACT } from '../index'
 import { YEARN_VAULTS_URL } from '../yearn'
+import erc1155 from './mockData/erc1155'
 import ethSelfSend from './mockData/ethSelfSend'
 import foxClaim from './mockData/foxClaim'
 import foxExit from './mockData/foxExit'
@@ -77,6 +78,128 @@ mockedAxios.get.mockImplementation(url => {
 const txParser = new TransactionParser({ rpcUrl: '', chainId: ethChainId, assetId: ethAssetId })
 
 describe('parseTx', () => {
+  describe.only('standard', () => {
+    describe('erc1155', () => {
+      it('should be able to parse mempool send', async () => {
+        const { txMempool } = erc1155
+        const address = '0x63acA79298884a520776B5bE662230a37de4a327'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: 'eip155:1',
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse send', async () => {
+        const { tx } = erc1155
+        const address = '0x63acA79298884a520776B5bE662230a37de4a327'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: 'eip155:1',
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          fee: {
+            assetId: ethAssetId,
+            value: '28797509921536974',
+          },
+          transfers: [
+            {
+              type: TransferType.Send,
+              to: '0x3A3548e060Be10c2614d0a4Cb0c03CC9093fD799',
+              from: address,
+              assetId: 'eip155:1/erc1155:0x3b287c39ed2812a4c87521301c9c56577b5bdd8d',
+              totalValue: '1',
+              components: [{ value: '1' }],
+              id: '2',
+              token: {
+                contract: '0x3b287C39ed2812A4C87521301c9C56577b5Bdd8D',
+                decimals: 18,
+                name: 'Rene Distort',
+                symbol: 'RENDIS',
+              },
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse mempool receive', async () => {
+        const { txMempool } = erc1155
+        const address = '0x3A3548e060Be10c2614d0a4Cb0c03CC9093fD799'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: 'eip155:1',
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse receive', async () => {
+        const { tx } = erc1155
+        const address = '0x3A3548e060Be10c2614d0a4Cb0c03CC9093fD799'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: 'eip155:1',
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          transfers: [
+            {
+              type: TransferType.Receive,
+              to: address,
+              from: '0x63acA79298884a520776B5bE662230a37de4a327',
+              assetId: 'eip155:1/erc1155:0x3b287c39ed2812a4c87521301c9c56577b5bdd8d',
+              totalValue: '1',
+              components: [{ value: '1' }],
+              id: '2',
+              token: {
+                contract: '0x3b287C39ed2812A4C87521301c9C56577b5Bdd8D',
+                decimals: 18,
+                name: 'Rene Distort',
+                symbol: 'RENDIS',
+              },
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(actual).toEqual(expected)
+      })
+    })
+  })
+
   describe('multiSig', () => {
     it('should be able to parse eth multi sig send', async () => {
       const { tx } = multiSigSendEth

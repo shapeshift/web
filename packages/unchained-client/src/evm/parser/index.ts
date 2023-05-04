@@ -5,6 +5,7 @@ import { ethers } from 'ethers'
 
 import type { Token } from '../../types'
 import { TransferType, TxStatus } from '../../types'
+import type { AggregateTransferArgs } from '../../utils'
 import { aggregateTransfer, findAsyncSequential } from '../../utils'
 import type { ParsedTx, SubParser, Tx, TxSpecific } from './types'
 
@@ -84,14 +85,14 @@ export class BaseTransactionParser<T extends Tx> {
       // send amount
       const sendValue = new BigNumber(tx.value)
       if (sendValue.gt(0)) {
-        parsedTx.transfers = aggregateTransfer(
-          parsedTx.transfers,
-          TransferType.Send,
-          this.assetId,
-          tx.from,
-          tx.to,
-          sendValue.toString(10),
-        )
+        parsedTx.transfers = aggregateTransfer({
+          assetId: this.assetId,
+          from: tx.from,
+          to: tx.to,
+          transfers: parsedTx.transfers,
+          type: TransferType.Send,
+          value: sendValue.toString(10),
+        })
       }
 
       // network fee
@@ -105,14 +106,14 @@ export class BaseTransactionParser<T extends Tx> {
       // receive amount
       const receiveValue = new BigNumber(tx.value)
       if (receiveValue.gt(0)) {
-        parsedTx.transfers = aggregateTransfer(
-          parsedTx.transfers,
-          TransferType.Receive,
-          this.assetId,
-          tx.from,
-          tx.to,
-          receiveValue.toString(10),
-        )
+        parsedTx.transfers = aggregateTransfer({
+          assetId: this.assetId,
+          from: tx.from,
+          to: tx.to,
+          transfers: parsedTx.transfers,
+          type: TransferType.Receive,
+          value: receiveValue.toString(10),
+        })
       }
     }
 
@@ -158,10 +159,14 @@ export class BaseTransactionParser<T extends Tx> {
               return ASSET_NAMESPACE.erc20
             case 'ERC721':
               return ASSET_NAMESPACE.erc721
+            case 'ERC1155':
+              return ASSET_NAMESPACE.erc1155
             case 'BEP20':
               return ASSET_NAMESPACE.bep20
             case 'BEP721':
               return ASSET_NAMESPACE.bep721
+            case 'BEP1155':
+              return ASSET_NAMESPACE.bep1155
             default:
               return
           }
@@ -178,46 +183,46 @@ export class BaseTransactionParser<T extends Tx> {
 
       if (!assetId) return
 
-      const transferArgs = [assetId, transfer.from, transfer.to, transfer.value, token] as const
+      const makeTokenTransferArgs = (type: TransferType): AggregateTransferArgs => ({
+        assetId,
+        from: transfer.from,
+        id: transfer.id,
+        to: transfer.to,
+        token,
+        transfers: parsedTx.transfers,
+        type,
+        value: transfer.value,
+      })
 
       // token send amount
       if (address === transfer.from) {
-        parsedTx.transfers = aggregateTransfer(
-          parsedTx.transfers,
-          TransferType.Send,
-          ...transferArgs,
-        )
+        parsedTx.transfers = aggregateTransfer(makeTokenTransferArgs(TransferType.Send))
       }
 
       // token receive amount
       if (address === transfer.to) {
-        parsedTx.transfers = aggregateTransfer(
-          parsedTx.transfers,
-          TransferType.Receive,
-          ...transferArgs,
-        )
+        parsedTx.transfers = aggregateTransfer(makeTokenTransferArgs(TransferType.Receive))
       }
     })
 
     tx.internalTxs?.forEach(internalTx => {
-      const transferArgs = [this.assetId, internalTx.from, internalTx.to, internalTx.value] as const
+      const makeInternalTransferArgs = (type: TransferType): AggregateTransferArgs => ({
+        assetId: this.assetId,
+        from: internalTx.from,
+        to: internalTx.to,
+        transfers: parsedTx.transfers,
+        type,
+        value: internalTx.value,
+      })
 
       // internal eth send
       if (address === internalTx.from) {
-        parsedTx.transfers = aggregateTransfer(
-          parsedTx.transfers,
-          TransferType.Send,
-          ...transferArgs,
-        )
+        parsedTx.transfers = aggregateTransfer(makeInternalTransferArgs(TransferType.Send))
       }
 
       // internal eth receive
       if (address === internalTx.to) {
-        parsedTx.transfers = aggregateTransfer(
-          parsedTx.transfers,
-          TransferType.Receive,
-          ...transferArgs,
-        )
+        parsedTx.transfers = aggregateTransfer(makeInternalTransferArgs(TransferType.Receive))
       }
     })
 

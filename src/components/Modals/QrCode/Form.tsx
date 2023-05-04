@@ -1,6 +1,5 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
 import { ConnectModal } from 'plugins/walletConnectToDapps/components/modals/connect/Connect'
@@ -19,28 +18,12 @@ import {
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
+import type { SendInput } from '../Send/Form'
 import { useFormSend } from '../Send/hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from '../Send/SendCommon'
 import { Address } from '../Send/views/Address'
 import { Confirm } from '../Send/views/Confirm'
 import { Details } from '../Send/views/Details'
-
-export type SendInput<T extends ChainId = ChainId> = {
-  [SendFormFields.AccountId]: AccountId
-  [SendFormFields.To]: string
-  [SendFormFields.From]: string
-  [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
-  [SendFormFields.AssetId]: AssetId
-  [SendFormFields.CryptoAmount]: string
-  [SendFormFields.EstimatedFees]: FeeDataEstimate<T>
-  [SendFormFields.FeeType]: FeeDataKey
-  [SendFormFields.FiatAmount]: string
-  [SendFormFields.FiatSymbol]: string
-  [SendFormFields.Input]: string
-  [SendFormFields.Memo]?: string
-  [SendFormFields.SendMax]: boolean
-  [SendFormFields.VanityAddress]: string
-}
 
 type QrCodeFormProps = {
   assetId?: AssetId

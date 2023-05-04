@@ -23,11 +23,7 @@ const FOXY_ASSET_PRECISION = '18'
 export class FoxyMarketService extends CoinGeckoMarketService implements MarketService {
   providerUrls: ProviderUrls
 
-  constructor({
-    providerUrls,
-  }: {
-    providerUrls: ProviderUrls
-  }) {
+  constructor({ providerUrls }: { providerUrls: ProviderUrls }) {
     super()
 
     this.providerUrls = providerUrls

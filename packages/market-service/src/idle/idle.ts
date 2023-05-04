@@ -14,11 +14,7 @@ export class IdleMarketService extends CoinGeckoMarketService implements MarketS
   providerUrls: ProviderUrls
   idleInvestor: IdleInvestor
 
-  constructor({
-    providerUrls,
-  }: {
-    providerUrls: ProviderUrls
-  }) {
+  constructor({ providerUrls }: { providerUrls: ProviderUrls }) {
     super()
 
     this.providerUrls = providerUrls

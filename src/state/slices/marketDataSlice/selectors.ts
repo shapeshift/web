@@ -29,30 +29,24 @@ export const selectSelectedCurrencyMarketDataSortedByMarketCap = createDeepEqual
     selectedCurrency,
   ): MarketDataById<AssetId> => {
     const fiatPrice = bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1) // fallback to USD
-    return (
-      marketDataAssetIds
-        // apply fiat conversion
-        .reduce<MarketDataById<AssetId>>((acc, assetId) => {
+    // No conversion needed
+    return selectedCurrency === 'USD'
+      ? cryptoMarketData
+      : marketDataAssetIds.reduce<MarketDataById<AssetId>>((acc, assetId) => {
           const assetMarketData = cryptoMarketData[assetId]
-          // No conversion needed
-          if (selectedCurrency === 'USD') {
-            acc[assetId] = assetMarketData
-          } else {
-            // Market data massaged to the selected currency
-            const selectedCurrencyAssetMarketData = {
-              ...assetMarketData,
-              price: bnOrZero(assetMarketData?.price).times(fiatPrice).toString(),
-              marketCap: bnOrZero(assetMarketData?.marketCap).times(fiatPrice).toString(),
-              volume: bnOrZero(assetMarketData?.volume).times(fiatPrice).toString(),
-              changePercent24Hr: assetMarketData?.changePercent24Hr ?? 0,
-            }
-
-            acc[assetId] = selectedCurrencyAssetMarketData
+          // Market data massaged to the selected currency
+          const selectedCurrencyAssetMarketData = {
+            ...assetMarketData,
+            price: bnOrZero(assetMarketData?.price).times(fiatPrice).toString(),
+            marketCap: bnOrZero(assetMarketData?.marketCap).times(fiatPrice).toString(),
+            volume: bnOrZero(assetMarketData?.volume).times(fiatPrice).toString(),
+            changePercent24Hr: assetMarketData?.changePercent24Hr ?? 0,
           }
+
+          acc[assetId] = selectedCurrencyAssetMarketData
 
           return acc
         }, {})
-    )
   },
 )
 

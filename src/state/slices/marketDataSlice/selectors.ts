@@ -81,12 +81,6 @@ export const selectMarketDataByFilter = createCachedSelector(
   },
 )((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
 
-// assets we have loaded market data for
-export const selectCryptoMarketDataIdsSortedByMarketCap = createDeepEqualOutputSelector(
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
-  (marketData): AssetId[] => Object.keys(marketData),
-)
-
 export const selectCryptoPriceHistory = (state: ReduxState) => state.marketData.crypto.priceHistory
 export const selectFiatPriceHistory = (state: ReduxState) => state.marketData.fiat.priceHistory
 

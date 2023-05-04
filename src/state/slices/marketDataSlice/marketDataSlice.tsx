@@ -10,6 +10,7 @@ import type {
 import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from '@shapeshiftoss/market-service'
 import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { isOsmosisLpAsset } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -62,7 +63,15 @@ export const marketData = createSlice({
     setCryptoMarketData: {
       reducer: (state, { payload }: { payload: MarketDataById<AssetId> }) => {
         state.crypto.byId = Object.assign(state.crypto.byId, payload) // upsert
-        state.crypto.ids = Object.keys(state.crypto.byId)
+        state.crypto.ids = Object.keys(state.crypto.byId).sort((assetIdA, assetIdB) => {
+          const marketDataA = state.crypto.byId[assetIdA]
+          const marketDataB = state.crypto.byId[assetIdB]
+          if (!marketDataA || !marketDataB) return 0
+          const marketCapA = bnOrZero(marketDataA.marketCap)
+          const marketCapB = bnOrZero(marketDataB.marketCap)
+
+          return marketCapB.comparedTo(marketCapA)
+        })
       },
 
       // Use the `prepareAutoBatched` utility to automatically

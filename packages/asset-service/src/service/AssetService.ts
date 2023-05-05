@@ -15,6 +15,7 @@ export type Asset = {
   isTrustedDescription?: boolean
   symbol: string
   name: string
+  id?: string
   networkName?: string
   precision: number
   color: string

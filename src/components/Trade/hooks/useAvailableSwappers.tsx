@@ -1,3 +1,4 @@
+import partition from 'lodash/partition'
 import { useEffect, useState } from 'react'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
@@ -164,8 +165,10 @@ export const useAvailableSwappers = () => {
         If we have active swappers, show only them. Else, show any halted swappers so the user knows the trade pair
         is actually supported by us, it's just currently halted.
        */
-      const active = swappersWithQuoteMetadataAndTradingStatus.filter(({ isActive }) => isActive)
-      const halted = swappersWithQuoteMetadataAndTradingStatus.filter(({ isActive }) => !isActive)
+      const [active, halted] = partition(
+        swappersWithQuoteMetadataAndTradingStatus,
+        ({ isActive }) => isActive,
+      )
       const swappersToDisplay = (active.length > 0 ? active : halted).map(
         ({ swapperWithQuoteMetadata }) => swapperWithQuoteMetadata,
       )

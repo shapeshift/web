@@ -433,10 +433,11 @@ export const TradeConfirm = () => {
 
   const isTHORChainSwap = useMemo(() => swapperName === SwapperName.Thorchain, [swapperName])
   const is0xSwap = useMemo(() => swapperName === SwapperName.Zrx, [swapperName])
+  const is1inchSwap = useMemo(() => swapperName === SwapperName.OneInch, [swapperName])
 
   const shouldShowDonationOption = useMemo(() => {
-    return (isTHORChainSwap || is0xSwap) && !isDonationAmountBelowMinimum
-  }, [is0xSwap, isDonationAmountBelowMinimum, isTHORChainSwap])
+    return (isTHORChainSwap || is0xSwap || is1inchSwap) && !isDonationAmountBelowMinimum
+  }, [is0xSwap, isDonationAmountBelowMinimum, isTHORChainSwap, is1inchSwap])
 
   const tradeWarning: JSX.Element | null = useMemo(() => {
     if (!trade) return null

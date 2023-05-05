@@ -95,11 +95,11 @@ export const selectSwapperDefaultAffiliateBps = (state: SwapperState): string =>
   switch (swapperName) {
     case SwapperName.Thorchain:
     case SwapperName.Zrx:
+    case SwapperName.OneInch:
       return '30'
     case SwapperName.Osmosis:
     case SwapperName.LIFI:
     case SwapperName.CowSwap:
-    case SwapperName.OneInch:
     case SwapperName.Test:
       return '0'
     default:

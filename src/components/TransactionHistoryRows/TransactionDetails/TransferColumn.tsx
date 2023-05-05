@@ -1,19 +1,18 @@
 import { Stack, useColorModeValue } from '@chakra-ui/react'
-import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { AssetIcon } from 'components/AssetIcon'
-import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { useAppSelector } from 'state/store'
+import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
 
 import { Address } from './Address'
 import { Amount } from './Amount'
+import { NftId } from './NftId'
 import { Row } from './Row'
 
 type TransferColumnProps = {
   compactMode?: boolean
-} & TxTransfer
+} & Transfer
 
 export const TransferColumn = (transfer: TransferColumnProps) => {
-  const asset = useAppSelector(state => selectAssetById(state, transfer.assetId))
   const bgColor = useColorModeValue('white', 'whiteAlpha.100')
   return (
     <Stack
@@ -26,20 +25,27 @@ export const TransferColumn = (transfer: TransferColumnProps) => {
       py={2}
     >
       <Row title='from' justifyContent='fex-start' flexDirection='column' alignItems='flex-start'>
-        <Address explorerAddressLink={asset?.explorerAddressLink} address={transfer.from} />
+        <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={transfer.from} />
       </Row>
       <Row title='to' justifyContent='fex-start' flexDirection='column' alignItems='flex-start'>
-        <Address explorerAddressLink={asset?.explorerAddressLink} address={transfer.to} />
+        <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={transfer.to} />
       </Row>
       <Row title='for' justifyContent='fex-start' flexDirection='column' alignItems='flex-start'>
         <Stack direction='row' spacing={2} alignItems='center'>
-          <AssetIcon src={asset?.icon} boxSize='4' />
+          <AssetIcon src={transfer.asset.icon} boxSize='4' />
           <Amount
             value={transfer.value}
-            precision={asset?.precision ?? 0}
-            symbol={asset?.symbol ?? ''}
+            precision={transfer.asset.precision}
+            symbol={transfer.asset.symbol}
           />
         </Stack>
+        {transfer.id && (
+          <NftId
+            explorer={transfer.asset.explorer}
+            id={transfer.id}
+            token={fromAssetId(transfer.assetId).assetReference}
+          />
+        )}
       </Row>
     </Stack>
   )

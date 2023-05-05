@@ -3,7 +3,7 @@ import { Box, Button, HStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
@@ -51,12 +51,16 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     }
   }, [setFarmingAccountId, accountId])
 
-  const allRows = [...lpOpportunities, ...stakingOpportunities].filter(
-    row =>
-      row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||
-      (row.underlyingAssetIds.length && row.underlyingAssetIds.includes(asset.assetId)) ||
-      // show foxy opportunity in the foxy asset page
-      (row.assetId === foxAssetId && asset.assetId === foxyAssetId),
+  const allRows = useMemo(
+    () =>
+      lpOpportunities.concat(stakingOpportunities).filter(
+        row =>
+          row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||
+          (row.underlyingAssetIds.length && row.underlyingAssetIds.includes(asset.assetId)) ||
+          // show foxy opportunity in the foxy asset page
+          (row.assetId === foxAssetId && asset.assetId === foxyAssetId),
+      ),
+    [asset.assetId, lpOpportunities, stakingOpportunities],
   )
 
   const handleClick = (opportunity: EarnOpportunityType) => {

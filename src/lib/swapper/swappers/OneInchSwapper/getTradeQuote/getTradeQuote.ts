@@ -8,6 +8,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
@@ -21,7 +22,14 @@ export async function getTradeQuote(
   deps: OneInchSwapperDeps,
   input: GetEvmTradeQuoteInput,
 ): Promise<Result<TradeQuote<EvmChainId>, SwapErrorRight>> {
-  const { chainId, sellAsset, buyAsset, sellAmountBeforeFeesCryptoBaseUnit, accountNumber } = input
+  const {
+    chainId,
+    sellAsset,
+    buyAsset,
+    sellAmountBeforeFeesCryptoBaseUnit,
+    accountNumber,
+    affiliateBps,
+  } = input
 
   if (sellAsset.chainId !== buyAsset.chainId) {
     return Err(
@@ -66,10 +74,13 @@ export async function getTradeQuote(
   const { assetReference: fromAssetAddress } = fromAssetId(sellAsset.assetId)
   const { assetReference: toAssetAddress } = fromAssetId(buyAsset.assetId)
 
+  const buyTokenPercentageFee = convertBasisPointsToPercentage(affiliateBps).toNumber()
+
   const apiInput: OneInchQuoteApiInput = {
     fromTokenAddress: fromAssetAddress,
     toTokenAddress: toAssetAddress,
     amount: sellAmountBeforeFeesCryptoBaseUnit,
+    fee: buyTokenPercentageFee,
   }
 
   const { chainReference } = fromChainId(chainId)

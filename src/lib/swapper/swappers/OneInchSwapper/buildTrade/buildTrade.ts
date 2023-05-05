@@ -7,6 +7,7 @@ import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
 
 import { DEFAULT_SLIPPAGE, DEFAULT_SOURCE } from '../utils/constants'
 import { getRate } from '../utils/helpers'
@@ -30,6 +31,7 @@ export const buildTrade = async (
     accountNumber,
     slippage,
     receiveAddress,
+    affiliateBps,
   } = input
   if (sellAsset.chainId !== buyAsset.chainId || sellAsset.chainId !== chainId) {
     return Err(
@@ -66,6 +68,8 @@ export const buildTrade = async (
     .times(100)
     .toNumber()
 
+  const buyTokenPercentageFee = convertBasisPointsToPercentage(affiliateBps).toNumber()
+
   const swapApiInput: OneInchSwapApiInput = {
     fromTokenAddress: fromAssetAddress,
     toTokenAddress: toAssetAddress,
@@ -75,6 +79,7 @@ export const buildTrade = async (
     allowPartialFill: false,
     referrerAddress: DAO_TREASURY_ETHEREUM_MAINNET,
     disableEstimate: false,
+    fee: buyTokenPercentageFee,
   }
 
   const { chainReference } = fromChainId(chainId)

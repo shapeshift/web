@@ -1,4 +1,4 @@
-import { ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { fetchUniV2PairData, getOrCreateContractByAddress } from 'contracts/contractManager'
@@ -27,7 +27,7 @@ import { makeTotalLpApr, rewardRatePerToken } from './utils'
 
 export const ethFoxStakingMetadataResolver = async ({
   opportunityId,
-  opportunityType,
+  defiType,
   reduxApi,
 }: OpportunityMetadataResolverInput): Promise<{
   data: GetOpportunityMetadataOutput
@@ -110,7 +110,7 @@ export const ethFoxStakingMetadataResolver = async ({
         isClaimableRewards: true,
       },
     },
-    type: opportunityType,
+    type: defiType,
   } as const
 
   return { data }
@@ -118,17 +118,9 @@ export const ethFoxStakingMetadataResolver = async ({
 
 export const ethFoxStakingUserDataResolver = async ({
   opportunityId,
-  opportunityType,
   accountId,
   reduxApi,
 }: OpportunityUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
-  const { chainId: accountChainId } = fromAccountId(accountId)
-  if (accountChainId !== ethChainId)
-    return {
-      data: {
-        byId: {},
-      },
-    }
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
   const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
@@ -160,7 +152,7 @@ export const ethFoxStakingUserDataResolver = async ({
         rewardsCryptoBaseUnit,
       },
     },
-    type: opportunityType,
+    type: DefiType.Staking,
   }
 
   return { data }

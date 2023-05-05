@@ -126,6 +126,11 @@ export const opportunitiesApi = createApi({
             defiProvider,
             defiType,
           )
+
+          if (!resolver) {
+            throw new Error(`resolver for ${defiProvider}::${defiType} not implemented`)
+          }
+
           const resolved = await resolver({ reduxApi: { dispatch, getState } })
 
           return { data: resolved.data }
@@ -144,15 +149,17 @@ export const opportunitiesApi = createApi({
       },
     }),
     getOpportunityMetadata: build.query<GetOpportunityMetadataOutput, GetOpportunityMetadataInput>({
-      queryFn: async (
-        { opportunityId, opportunityType, defiType, defiProvider },
-        { dispatch, getState },
-      ) => {
+      queryFn: async ({ opportunityId, defiType, defiProvider }, { dispatch, getState }) => {
         try {
           const resolver = getMetadataResolversByDefiProviderAndDefiType(defiProvider, defiType)
+
+          if (!resolver) {
+            throw new Error(`resolver for ${defiProvider}::${defiType} not implemented`)
+          }
+
           const resolved = await resolver({
             opportunityId,
-            opportunityType,
+            defiType,
             reduxApi: { dispatch, getState },
           })
 
@@ -177,7 +184,7 @@ export const opportunitiesApi = createApi({
       GetOpportunityMetadataOutput,
       Omit<GetOpportunityMetadataInput, 'opportunityId'>
     >({
-      queryFn: async ({ opportunityType, defiType, defiProvider }, { dispatch, getState }) => {
+      queryFn: async ({ defiType, defiProvider }, { dispatch, getState }) => {
         try {
           const opportunityIds = getOpportunityIds({ defiProvider, defiType }, { getState })
 
@@ -185,9 +192,14 @@ export const opportunitiesApi = createApi({
             defiProvider,
             defiType,
           )
+
+          if (!resolver) {
+            throw new Error(`resolver for ${defiProvider}::${defiType} not implemented`)
+          }
+
           const resolved = await resolver({
             opportunityIds,
-            opportunityType,
+            defiType,
             reduxApi: { dispatch, getState },
           })
 
@@ -210,7 +222,7 @@ export const opportunitiesApi = createApi({
     }),
     getOpportunityUserData: build.query<GetOpportunityUserDataOutput, GetOpportunityUserDataInput>({
       queryFn: async (
-        { accountId, opportunityId, opportunityType, defiType, defiProvider },
+        { accountId, opportunityId, defiType, defiProvider },
         { dispatch, getState },
       ) => {
         try {
@@ -229,7 +241,7 @@ export const opportunitiesApi = createApi({
 
             const data = {
               byAccountId,
-              type: opportunityType,
+              type: defiType,
             }
 
             dispatch(opportunities.actions.upsertOpportunityAccounts(data))
@@ -238,7 +250,7 @@ export const opportunitiesApi = createApi({
 
           const resolved = await resolver({
             opportunityId,
-            opportunityType,
+            defiType,
             accountId,
             reduxApi: { dispatch, getState },
           })
@@ -254,7 +266,7 @@ export const opportunitiesApi = createApi({
 
           const data = {
             byAccountId,
-            type: opportunityType,
+            type: defiType,
           }
 
           dispatch(opportunities.actions.upsertOpportunityAccounts(data))
@@ -278,10 +290,7 @@ export const opportunitiesApi = createApi({
       GetOpportunityUserDataOutput,
       Omit<GetOpportunityUserDataInput, 'opportunityId'>
     >({
-      queryFn: async (
-        { accountId, opportunityType, defiType, defiProvider },
-        { dispatch, getState },
-      ) => {
+      queryFn: async ({ accountId, defiType, defiProvider }, { dispatch, getState }) => {
         try {
           const opportunityIds = getOpportunityIds(
             { accountId, defiProvider, defiType },
@@ -303,7 +312,7 @@ export const opportunitiesApi = createApi({
 
           const resolved = await resolver({
             opportunityIds,
-            opportunityType,
+            defiType,
             accountId,
             reduxApi: { dispatch, getState },
           })
@@ -320,7 +329,7 @@ export const opportunitiesApi = createApi({
 
           const data = {
             byAccountId,
-            type: opportunityType,
+            type: defiType,
           }
 
           dispatch(opportunities.actions.upsertOpportunityAccounts(data))

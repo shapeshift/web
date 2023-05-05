@@ -28,7 +28,7 @@ import type {
 } from '../types'
 
 export const foxyStakingOpportunitiesMetadataResolver = async ({
-  opportunityType,
+  defiType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
   const allOpportunities = await getFoxyApi().getFoxyOpportunities()
@@ -93,7 +93,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
 
   const data = {
     byId: stakingOpportunitiesById,
-    type: opportunityType,
+    type: defiType,
   }
 
   return { data }
@@ -104,14 +104,6 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
   reduxApi,
   opportunityIds,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
-  const { chainId: accountChainId } = fromAccountId(accountId)
-  if (accountChainId !== ethChainId)
-    return {
-      data: {
-        byId: {},
-      },
-    }
-
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 

@@ -10,7 +10,7 @@ import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { SwapperWithQuoteMetadata } from 'lib/swapper/api'
-import { SwapperType } from 'lib/swapper/api'
+import { SwapperName, SwapperType } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
 import { selectFeeAssetByChainId, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -218,11 +218,14 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           <RawText color='gray.500'>
             <FaGasPump />
           </RawText>
-          {networkFeeFiat && !networkFeeFiat.isZero() ? (
-            <Amount.Fiat value={networkFeeFiat?.toString()} />
-          ) : (
-            translate('trade.unknownGas')
-          )}
+          {
+            // We cannot infer gas fees for 1inch swapper before an amount is entered
+            !isAmountEntered && protocol === SwapperName.OneInch ? (
+              translate('trade.unknownGas')
+            ) : (
+              <Amount.Fiat value={bnOrZero(networkFeeFiat).toString()} />
+            )
+          }
         </Flex>
       </Flex>
       <Flex justifyContent='space-between' alignItems='center'>

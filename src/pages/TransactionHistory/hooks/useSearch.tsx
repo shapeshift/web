@@ -1,12 +1,14 @@
 import type { Asset } from '@shapeshiftoss/asset-service'
 import debounce from 'lodash/debounce'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { filterAssetsBySearchTerm } from 'components/AssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
-import { selectAssetsByMarketCap } from 'state/slices/selectors'
+import { isSome } from 'lib/utils'
+import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useSearch = () => {
-  const assets = useAppSelector(selectAssetsByMarketCap)
+  const assetsById = useAppSelector(selectAssets)
+  const assets = useMemo(() => Object.values(assetsById).filter(isSome), [assetsById])
   const [searchTerm, setSearchTerm] = useState('')
   const [matchingAssets, setMatchingAssets] = useState<Asset[] | null>(null)
   const handleInputChange = useCallback(

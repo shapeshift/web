@@ -1,10 +1,12 @@
 import { SearchIcon } from '@chakra-ui/icons'
+import type { InputGroupProps, InputProps } from '@chakra-ui/react'
 import {
   IconButton,
   Input,
   InputGroup,
   InputLeftElement,
   InputRightElement,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { debounce } from 'lodash'
 import { useCallback, useMemo, useState } from 'react'
@@ -13,8 +15,15 @@ import { FaTimes } from 'react-icons/fa'
 type GlobalFilterProps = {
   setSearchQuery: (filterValue: any) => void
   searchQuery: any
-}
-export const GlobalFilter: React.FC<GlobalFilterProps> = ({ setSearchQuery, searchQuery = '' }) => {
+  inputGroupProps?: InputGroupProps
+} & InputProps
+export const GlobalFilter: React.FC<GlobalFilterProps> = ({
+  setSearchQuery,
+  searchQuery = '',
+  inputGroupProps,
+  ...rest
+}) => {
+  const iconColor = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
   const [value, setValue] = useState(searchQuery)
   const [loading, setLoading] = useState(false)
 
@@ -41,16 +50,17 @@ export const GlobalFilter: React.FC<GlobalFilterProps> = ({ setSearchQuery, sear
   }, [handleDebounce])
 
   return (
-    <InputGroup size='md'>
+    <InputGroup size='md' {...inputGroupProps}>
       {/* Override zIndex to prevent element displaying on overlay components */}
       <InputLeftElement pointerEvents='none' zIndex={1}>
-        <SearchIcon color='gray.300' />
+        <SearchIcon color={iconColor} />
       </InputLeftElement>
       <Input
         variant='filled'
         placeholder='Search'
         onChange={e => handleChange(e.target.value)}
         value={value}
+        {...rest}
       />
       {value && (
         <InputRightElement>

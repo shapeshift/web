@@ -17,7 +17,7 @@ import {
 import {
   selectAssetById,
   selectAssets,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -48,7 +48,7 @@ export const OpportunityRow: React.FC<
   const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
   const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
+  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
 
   const underlyingAssetLabel = useMemo(() => {
     if ((opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) {

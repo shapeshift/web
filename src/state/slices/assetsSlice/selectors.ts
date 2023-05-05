@@ -2,15 +2,13 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import orderBy from 'lodash/orderBy'
+import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAssetIdParamFromFilter } from 'state/selectors'
-import { selectMarketDataSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
+import { selectAssetIdParamFromFilter, selectSearchQueryFromFilter } from 'state/selectors'
 
+import { selectCryptoMarketDataIds } from '../marketDataSlice/selectors'
 import { assetIdToFeeAssetId } from '../portfolioSlice/utils'
 import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'
 
@@ -38,18 +36,16 @@ export const selectAssets = createDeepEqualOutputSelector(
 export const selectAssetIds = (state: ReduxState) => state.assets.ids
 
 export const selectAssetsByMarketCap = createDeepEqualOutputSelector(
+  selectCryptoMarketDataIds,
   selectAssets,
-  selectMarketDataSortedByMarketCap,
-  (assets, cryptoMarketData): Asset[] => {
-    const getAssetMarketCap = (asset: Asset) =>
-      bnOrZero(cryptoMarketData[asset.assetId]?.marketCap).toNumber()
-    const getAssetName = (asset: Asset) => asset.name
+  (marketDataAssetIds, assets): Asset[] => {
+    const sortedAssets = marketDataAssetIds.reduce<Asset[]>((acc, assetId) => {
+      const asset = assets[assetId]
+      if (asset) acc.push(asset)
+      return acc
+    }, [])
 
-    return orderBy(
-      Object.values(assets).filter(isSome),
-      [getAssetMarketCap, getAssetName],
-      ['desc', 'asc'],
-    )
+    return sortedAssets
   },
 )
 
@@ -76,3 +72,15 @@ export const selectFeeAssetById = createCachedSelector(
   (_state: ReduxState, assetId: AssetId) => assetId,
   (assetsById, assetId): Asset | undefined => getFeeAssetByAssetId(assetsById, assetId),
 )((_s: ReduxState, assetId: AssetId) => assetId ?? 'assetId')
+
+export const selectAssetsBySearchQuery = createDeepEqualOutputSelector(
+  selectAssetsByMarketCap,
+  selectSearchQueryFromFilter,
+  (sortedAssets: Asset[], searchQuery?: string): Asset[] => {
+    if (!searchQuery) return sortedAssets
+    return matchSorter(sortedAssets, searchQuery ?? '', {
+      keys: ['name', 'symbol', 'assetId'],
+      threshold: matchSorter.rankings.MATCHES,
+    })
+  },
+)

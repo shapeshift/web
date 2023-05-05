@@ -39,9 +39,9 @@ import {
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import {
-  fetchAllOpportunitiesIds,
-  fetchAllOpportunitiesMetadata,
-  fetchAllOpportunitiesUserData,
+  fetchAllOpportunitiesIdsByChainId,
+  fetchAllOpportunitiesMetadataByChainId,
+  fetchAllOpportunitiesUserDataByAccountId,
 } from 'state/slices/opportunitiesSlice/thunks'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -180,8 +180,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         : () => setTimeoutAsync(0)
 
       await maybeFetchZapperData
-      await fetchAllOpportunitiesIds()
-      await fetchAllOpportunitiesMetadata()
 
       requestedAccountIds.forEach(accountId => {
         const { chainId } = fromAccountId(accountId)
@@ -190,19 +188,21 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           case ltcChainId:
           case dogeChainId:
           case bchChainId:
-            fetchAllOpportunitiesUserData(accountId)
-            break
           case cosmosChainId:
           case osmosisChainId:
-            // Don't await me, we don't want to block execution while this resolves and populates the store
-            fetchAllOpportunitiesUserData(accountId)
-            break
           case avalancheChainId:
-            fetchAllOpportunitiesUserData(accountId)
+            ;(async () => {
+              await fetchAllOpportunitiesIdsByChainId(chainId)
+              await fetchAllOpportunitiesMetadataByChainId(chainId)
+              await fetchAllOpportunitiesUserDataByAccountId(accountId)
+            })()
             break
           case ethChainId:
-            // Don't await me, we don't want to block execution while this resolves and populates the store
-            fetchAllOpportunitiesUserData(accountId)
+            ;(async () => {
+              await fetchAllOpportunitiesIdsByChainId(chainId)
+              await fetchAllOpportunitiesMetadataByChainId(chainId)
+              await fetchAllOpportunitiesUserDataByAccountId(accountId)
+            })()
 
             /**
              * fetch all rebase history for foxy

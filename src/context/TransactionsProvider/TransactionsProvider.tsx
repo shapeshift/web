@@ -18,11 +18,7 @@ import {
   isSupportedThorchainSaversChainId,
   waitForSaversUpdate,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import {
-  fetchAllOpportunitiesIds,
-  fetchAllOpportunitiesMetadata,
-  fetchAllOpportunitiesUserData,
-} from 'state/slices/opportunitiesSlice/thunks'
+import { fetchAllOpportunitiesUserDataByAccountId } from 'state/slices/opportunitiesSlice/thunks'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioAccountMetadata,
@@ -106,9 +102,8 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
           getOpportunitiesUserData.initiate(
             {
               accountId,
-              defiType: DefiType.Staking,
               defiProvider: DefiProvider.Idle,
-              opportunityType: DefiType.Staking,
+              defiType: DefiType.Staking,
             },
             { forceRefetch: true },
           ),
@@ -118,9 +113,8 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
           getOpportunitiesUserData.initiate(
             {
               accountId,
-              defiType: DefiType.Staking,
               defiProvider: DefiProvider.CosmosSdk,
-              opportunityType: DefiType.Staking,
+              defiType: DefiType.Staking,
             },
             { forceRefetch: true },
           ),
@@ -133,9 +127,8 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
             getOpportunitiesUserData.initiate(
               {
                 accountId,
-                defiType: DefiType.Staking,
                 defiProvider: DefiProvider.ThorchainSavers,
-                opportunityType: DefiType.Staking,
+                defiType: DefiType.Staking,
               },
               { forceRefetch: true },
             ),
@@ -143,9 +136,8 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
         })
       } else if (shouldRefetchAllOpportunities) return
       ;(async () => {
-        await fetchAllOpportunitiesIds({ forceRefetch: true })
-        await fetchAllOpportunitiesMetadata({ forceRefetch: true })
-        await fetchAllOpportunitiesUserData(accountId, { forceRefetch: true })
+        // We don't know the chainId of the Tx, so we refetch all opportunities
+        await fetchAllOpportunitiesUserDataByAccountId(accountId, { forceRefetch: true })
       })()
     },
     // TODO: This is drunk and will evaluate stakingOpportunitiesById to an empty object despite not being empty when debugged in its outer scope

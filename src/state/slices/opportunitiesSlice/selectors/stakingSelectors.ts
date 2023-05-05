@@ -30,7 +30,7 @@ import {
 } from '../../common-selectors'
 import {
   selectMarketDataByFilter,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
 } from '../../marketDataSlice/selectors'
 import { foxEthLpAssetId } from '../constants'
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from '../resolvers/cosmosSdk/types'
@@ -336,7 +336,7 @@ export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqual
 
 export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunityByStakingId,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectAssets,
   (opportunity, marketData, assets): StakingEarnOpportunityType | undefined => {
     if (!opportunity) return
@@ -386,7 +386,7 @@ export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSel
 // TODO: testme
 export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunities,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectAssets,
   (aggregatedUserStakingOpportunities, marketData, assets): StakingEarnOpportunityType[] =>
     aggregatedUserStakingOpportunities.map(opportunity => {
@@ -443,7 +443,7 @@ export const selectActiveAggregatedEarnUserStakingOpportunities = createDeepEqua
 export const selectActiveAggregatedEarnUserStakingOpportunitiesWithTotalFiatAmount =
   createDeepEqualOutputSelector(
     selectActiveAggregatedEarnUserStakingOpportunities,
-    selectMarketDataSortedByMarketCap,
+    selectSelectedCurrencyMarketDataSortedByMarketCap,
     selectAssets,
     (aggregatedUserStakingOpportunities, marketData, assets): StakingEarnOpportunityType[] =>
       aggregatedUserStakingOpportunities
@@ -462,7 +462,7 @@ export const selectActiveAggregatedEarnUserStakingOpportunitiesWithTotalFiatAmou
 // Also slaps in ETH/FOX balances which value lives in the portfolio vs. being an "upstream earn opportunity"
 export const selectEarnBalancesFiatAmountFull = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunities,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectAssets,
   selectPortfolioFiatBalances,
   (aggregatedUserStakingOpportunities, marketData, assets, portfolioFiatBalances): BN =>
@@ -555,11 +555,19 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
     },
   )
 
+export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmptyByStakingId =
+  createDeepEqualOutputSelector(
+    selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+    selectStakingIdParamFromFilter,
+    (opportunities, stakingId): StakingEarnOpportunityType | undefined => {
+      return opportunities.find(opportunity => opportunity.id === stakingId)
+    },
+  )
 // A staking opportunity parsed as an EarnOpportunityType
 // TODO: testme
 export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunityByUserStakingId,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectAssets,
   (userStakingOpportunity, marketData, assets): StakingEarnOpportunityType | undefined => {
     if (!userStakingOpportunity || !marketData) return
@@ -679,7 +687,7 @@ export const selectAllEarnUserStakingOpportunitiesByFilter = createDeepEqualOutp
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectUserStakingOpportunitiesById,
   selectAssets,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectAssetIdParamFromFilter,
   selectAccountIdParamFromFilter,
   (

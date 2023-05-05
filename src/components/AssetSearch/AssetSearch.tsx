@@ -14,7 +14,10 @@ import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { logger } from 'lib/logger'
-import { selectChainIdsByMarketCap, selectSortedAssets } from 'state/slices/selectors'
+import {
+  selectAssetsSortedByMarketCapFiatBalanceAndName,
+  selectChainIdsByMarketCap,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetList } from './AssetList'
@@ -47,7 +50,9 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 
   const chainIdsByMarketCap = useSelector(selectChainIdsByMarketCap)
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
-  const assets = useAppSelector(state => selectedAssets ?? selectSortedAssets(state))
+  const assets = useAppSelector(
+    state => selectedAssets ?? selectAssetsSortedByMarketCapFiatBalanceAndName(state),
+  )
 
   /**
    * assets filtered by selected chain ids

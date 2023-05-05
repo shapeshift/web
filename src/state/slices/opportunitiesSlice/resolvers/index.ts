@@ -1,3 +1,13 @@
+import {
+  avalancheChainId,
+  bchChainId,
+  btcChainId,
+  cosmosChainId,
+  dogeChainId,
+  ethChainId,
+  ltcChainId,
+  osmosisChainId,
+} from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 
 import {
@@ -119,4 +129,79 @@ export const DefiProviderToUserDataResolverByDeFiType = {
   [`${DefiProvider.EthFoxStaking}`]: {
     [`${DefiType.Staking}`]: ethFoxStakingUserDataResolver,
   },
+}
+
+export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES = {
+  [avalancheChainId]: [
+    {
+      defiProvider: DefiProvider.ThorchainSavers,
+      defiType: DefiType.Staking,
+    },
+  ],
+  [ltcChainId]: [
+    {
+      defiProvider: DefiProvider.ThorchainSavers,
+      defiType: DefiType.Staking,
+    },
+  ],
+  [bchChainId]: [
+    {
+      defiProvider: DefiProvider.ThorchainSavers,
+      defiType: DefiType.Staking,
+    },
+  ],
+  [dogeChainId]: [
+    {
+      defiProvider: DefiProvider.ThorchainSavers,
+      defiType: DefiType.Staking,
+    },
+  ],
+  [btcChainId]: [
+    {
+      defiProvider: DefiProvider.ThorchainSavers,
+      defiType: DefiType.Staking,
+    },
+  ],
+  [ethChainId]: [
+    {
+      defiProvider: DefiProvider.UniV2,
+      defiType: DefiType.LiquidityPool,
+    },
+    {
+      defiProvider: DefiProvider.EthFoxStaking,
+      defiType: DefiType.Staking,
+    },
+    {
+      defiProvider: DefiProvider.Idle,
+      defiType: DefiType.Staking,
+    },
+    {
+      defiProvider: DefiProvider.Yearn,
+      defiType: DefiType.Staking,
+    },
+    {
+      defiProvider: DefiProvider.ThorchainSavers,
+      defiType: DefiType.Staking,
+    },
+    {
+      defiProvider: DefiProvider.ShapeShift,
+      defiType: DefiType.Staking,
+    },
+  ],
+  [cosmosChainId]: [
+    {
+      defiProvider: DefiProvider.CosmosSdk,
+      defiType: DefiType.Staking,
+    },
+    {
+      defiProvider: DefiProvider.ThorchainSavers,
+      defiType: DefiType.Staking,
+    },
+  ],
+  [osmosisChainId]: [
+    {
+      defiProvider: DefiProvider.OsmosisLp,
+      defiType: DefiType.LiquidityPool,
+    },
+  ],
 }

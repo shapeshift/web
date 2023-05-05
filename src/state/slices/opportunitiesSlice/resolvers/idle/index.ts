@@ -1,5 +1,5 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn } from 'lib/bignumber/bignumber'
@@ -32,7 +32,7 @@ import { getIdleInvestor } from './idleInvestorSingleton'
 const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'idle'] })
 
 export const idleStakingOpportunitiesMetadataResolver = async ({
-  opportunityType,
+  defiType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{
   data: GetOpportunityMetadataOutput
@@ -54,7 +54,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     return {
       data: {
         byId: {},
-        type: opportunityType,
+        type: defiType,
       },
     }
   }
@@ -66,7 +66,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           { ...opportunityMetadata, apy: '0', tvl: '0' },
         ]),
       ),
-      type: opportunityType,
+      type: defiType,
     } as const
 
     return {
@@ -152,30 +152,28 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
 
   const data = {
     byId: stakingOpportunitiesById,
-    type: opportunityType,
+    type: defiType,
   }
 
   return { data }
 }
 
 export const idleStakingOpportunitiesUserDataResolver = async ({
-  opportunityType,
+  defiType,
   accountId,
   reduxApi,
   opportunityIds,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
-  const { chainId: accountChainId } = fromAccountId(accountId)
-
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
   const { IdleFinance } = selectFeatureFlags(state)
 
-  if (accountChainId !== ethChainId || !IdleFinance)
+  if (!IdleFinance)
     return Promise.resolve({
       data: {
         byId: {},
-        type: opportunityType,
+        type: defiType,
       },
     })
 
@@ -255,7 +253,7 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
 
   const data = {
     byId: stakingOpportunitiesUserDataByUserStakingId,
-    type: opportunityType,
+    type: defiType,
   }
 
   return Promise.resolve({ data })

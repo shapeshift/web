@@ -39,7 +39,7 @@ export const Dashboard = () => {
           <Route path={`${path}/accounts`}>
             <Accounts />
           </Route>
-          <Route exact path={`${path}/activity`}>
+          <Route path={`${path}/activity`}>
             <TransactionHistory />
           </Route>
           {isNftsEnabled && (

@@ -80,7 +80,7 @@ const txParser = new TransactionParser({ rpcUrl: '', chainId: ethChainId, assetI
 
 describe('parseTx', () => {
   describe('standard', () => {
-    describe.only('erc721', () => {
+    describe('erc721', () => {
       it('should be able to parse mempool send', async () => {
         const { txMempool } = erc721
         const address = '0xa5d981BC0Bc57500ffEDb2674c597F14a3Cb68c1'

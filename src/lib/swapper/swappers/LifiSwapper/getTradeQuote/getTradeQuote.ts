@@ -23,7 +23,7 @@ import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/type
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
   lifiChainMap: Map<ChainId, ChainKey>,
-): Promise<Result<LifiTradeQuote, SwapErrorRight>> {
+): Promise<Result<LifiTradeQuote<false>, SwapErrorRight>> {
   try {
     const {
       chainId,

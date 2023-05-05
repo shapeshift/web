@@ -122,9 +122,9 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset?.chainId}!`)
 
   const networkFeeFiat = feeAssetFiatRate
-    ? bnOrZero(fromBaseUnit(quote.feeData.networkFeeCryptoBaseUnit, feeAsset.precision))
-        .times(feeAssetFiatRate)
-        .toString()
+    ? bnOrZero(fromBaseUnit(quote.feeData.networkFeeCryptoBaseUnit, feeAsset.precision)).times(
+        feeAssetFiatRate,
+      )
     : undefined
 
   const protocol = swapperWithMetadata.swapper.name
@@ -187,7 +187,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     }
   }, [swapperWithMetadata])
 
-  return networkFeeFiat && totalReceiveAmountCryptoPrecision ? (
+  return totalReceiveAmountCryptoPrecision ? (
     <Flex
       borderWidth={1}
       cursor='pointer'
@@ -218,7 +218,11 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           <RawText color='gray.500'>
             <FaGasPump />
           </RawText>
-          <Amount.Fiat value={networkFeeFiat} />
+          {networkFeeFiat && !networkFeeFiat.isZero() ? (
+            <Amount.Fiat value={networkFeeFiat?.toString()} />
+          ) : (
+            translate('trade.unknownGas')
+          )}
         </Flex>
       </Flex>
       <Flex justifyContent='space-between' alignItems='center'>

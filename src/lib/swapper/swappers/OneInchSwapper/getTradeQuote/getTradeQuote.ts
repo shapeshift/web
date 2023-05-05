@@ -20,7 +20,7 @@ import type { OneInchQuoteApiInput, OneInchQuoteResponse, OneInchSwapperDeps } f
 export async function getTradeQuote(
   deps: OneInchSwapperDeps,
   input: GetEvmTradeQuoteInput,
-): Promise<Result<TradeQuote<EvmChainId>, SwapErrorRight>> {
+): Promise<Result<TradeQuote<EvmChainId, false>, SwapErrorRight>> {
   const { chainId, sellAsset, buyAsset, sellAmountBeforeFeesCryptoBaseUnit, accountNumber } = input
 
   if (sellAsset.chainId !== buyAsset.chainId) {

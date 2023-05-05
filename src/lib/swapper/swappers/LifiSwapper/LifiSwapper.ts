@@ -41,7 +41,7 @@ import { filterEvmAssetIdsBySellable } from 'lib/swapper/swappers/utils/filterAs
 import { filterCrossChainEvmBuyAssetsBySellAssetId } from 'lib/swapper/swappers/utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { createEmptyEvmTradeQuote } from 'lib/swapper/swappers/utils/helpers/helpers'
 
-export class LifiSwapper implements Swapper<EvmChainId> {
+export class LifiSwapper implements Swapper<EvmChainId, true> {
   readonly name = SwapperName.LIFI
   private lifiChainMap: Map<ChainId, LifiChainKey> = new Map()
   private executedTrades: Map<string, GetStatusRequest> = new Map()
@@ -79,7 +79,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    */
   async getTradeQuote(
     input: GetEvmTradeQuoteInput,
-  ): Promise<Result<LifiTradeQuote, SwapErrorRight>> {
+  ): Promise<Result<LifiTradeQuote<true | false>, SwapErrorRight>> {
     const minimumCryptoHuman = getMinimumCryptoHuman(input.sellAsset)
     const minimumSellAmountBaseUnit = toBaseUnit(minimumCryptoHuman, input.sellAsset.precision)
     const isBelowMinSellAmount = bnOrZero(input.sellAmountBeforeFeesCryptoBaseUnit).lt(

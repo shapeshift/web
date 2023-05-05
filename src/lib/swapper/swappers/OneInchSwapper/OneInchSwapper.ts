@@ -52,7 +52,7 @@ export type OneInchSupportedChainAdapter =
   | optimism.ChainAdapter
   | avalanche.ChainAdapter
 
-export class OneInchSwapper implements Swapper<EvmChainId> {
+export class OneInchSwapper implements Swapper<EvmChainId, true> {
   readonly name = SwapperName.OneInch
   deps: OneInchSwapperDeps
 
@@ -70,7 +70,7 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
    */
   async getTradeQuote(
     input: GetEvmTradeQuoteInput,
-  ): Promise<Result<TradeQuote<EvmChainId>, SwapErrorRight>> {
+  ): Promise<Result<TradeQuote<EvmChainId, true | false>, SwapErrorRight>> {
     const maybeMinMax = await getMinMax(this.deps, input.sellAsset, input.buyAsset)
 
     return maybeMinMax.match({

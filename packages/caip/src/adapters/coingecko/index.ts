@@ -86,16 +86,9 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
   }
 }
 
-export const makeCoingeckoUrlParts = (): { baseUrl: string } => {
-  const baseUrl = coingeckoProBaseUrl
-  return { baseUrl }
-}
-
 export const makeCoingeckoAssetUrl = (assetId: AssetId): string | undefined => {
   const id = assetIdToCoingecko(assetId)
   if (!id) return
-
-  const { baseUrl } = makeCoingeckoUrlParts()
 
   const { chainNamespace, chainReference, assetNamespace, assetReference } = fromAssetId(assetId)
 
@@ -104,8 +97,8 @@ export const makeCoingeckoAssetUrl = (assetId: AssetId): string | undefined => {
       toChainId({ chainNamespace, chainReference }),
     )
 
-    return `${baseUrl}/coins/${assetPlatform}/contract/${assetReference}`
+    return `${coingeckoProBaseUrl}/coins/${assetPlatform}/contract/${assetReference}`
   }
 
-  return `${baseUrl}/coins/${id}`
+  return `${coingeckoProBaseUrl}/coins/${id}`
 }

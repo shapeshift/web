@@ -376,6 +376,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
             to: transfer.to,
             type: transfer.type,
             value: transfer.totalValue,
+            id: transfer.id,
+            token: transfer.token,
           })),
           data: parsedTx.data,
         }
@@ -500,6 +502,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
             to: transfer.to,
             type: transfer.type,
             value: transfer.totalValue,
+            id: transfer.id,
+            token: transfer.token,
           })),
           txid: tx.txid,
           data: tx.data,

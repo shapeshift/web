@@ -46,7 +46,7 @@ import {
   selectChainIdParamFromFilter,
 } from 'state/selectors'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
+import { selectSelectedCurrencyMarketDataSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
 import {
   selectAggregatedEarnUserStakingOpportunities,
   selectAllEarnUserLpOpportunitiesByFilter,
@@ -256,7 +256,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
     selectAssets,
     selectPortfolioAccountBalancesBaseUnit,
     selectPortfolioAssetBalancesBaseUnit,
-    selectMarketDataSortedByMarketCap,
+    selectSelectedCurrencyMarketDataSortedByMarketCap,
     selectBalanceThreshold,
     selectPortfolioAccounts,
     selectAggregatedEarnUserStakingOpportunities,
@@ -469,7 +469,7 @@ export const selectPortfolioAccountsCryptoHumanBalancesIncludingStaking =
  */
 export const selectPortfolioAccountsFiatBalancesIncludingStaking = createDeepEqualOutputSelector(
   selectAssets,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectPortfolioAccountsCryptoBalancesIncludingStaking,
   (assets, marketData, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
     const fiatAccountEntries = Object.entries(portfolioAccountsCryptoBalances).reduce<{
@@ -671,7 +671,7 @@ export type AccountRowData = {
 
 export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
   selectAssets,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioTotalFiatBalance,
   selectBalanceThreshold,
@@ -823,7 +823,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
   selectAllEarnUserLpOpportunitiesByFilter,
   selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssets,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectAssetIdParamFromFilter,
   (
     accountIds,

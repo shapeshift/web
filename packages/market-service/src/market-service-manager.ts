@@ -29,7 +29,6 @@ export type ProviderUrls = {
 }
 
 export type MarketServiceManagerArgs = {
-  coinGeckoAPIKey: string
   yearnChainReference: 1 | 250 | 1337 | 42161 // from @yfi/sdk
   providerUrls: ProviderUrls
 }
@@ -38,7 +37,7 @@ export class MarketServiceManager {
   marketProviders: MarketService[]
 
   constructor(args: MarketServiceManagerArgs) {
-    const { coinGeckoAPIKey = '', providerUrls } = args
+    const { providerUrls } = args
 
     // TODO(0xdef1cafe): after chain agnosticism, we need to dependency inject a chainReference here
     // YearnVaultMarketCapService deps
@@ -49,14 +48,14 @@ export class MarketServiceManager {
     this.marketProviders = [
       // Order of this MarketProviders array constitutes the order of providers we will be checking first.
       // More reliable providers should be listed first.
-      new CoinGeckoMarketService({ coinGeckoAPIKey }),
+      new CoinGeckoMarketService(),
       new CoinCapMarketService(),
       // Yearn is currently borked upstream
       // new YearnVaultMarketCapService({ yearnSdk }),
       // new YearnTokenMarketCapService({ yearnSdk }),
-      new IdleMarketService({ coinGeckoAPIKey, providerUrls }),
+      new IdleMarketService({ providerUrls }),
       new OsmosisMarketService(providerUrls),
-      new FoxyMarketService({ coinGeckoAPIKey, providerUrls }),
+      new FoxyMarketService({ providerUrls }),
     ]
   }
 

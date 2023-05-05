@@ -30,6 +30,7 @@ export const getUsdRate = async (
     fromTokenAddress: usdcContractAddress,
     toTokenAddress,
     amount: '10000000', // 10 USDC
+    fee: 0,
   }
 
   const { chainReference } = fromChainId(chainId)

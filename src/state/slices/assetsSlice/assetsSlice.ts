@@ -11,6 +11,7 @@ import {
   osmosisChainId,
   polygonChainId,
 } from '@shapeshiftoss/caip'
+import type { Token } from '@shapeshiftoss/unchained-client'
 import cloneDeep from 'lodash/cloneDeep'
 import type { PartialRecord } from 'lib/utils'
 import { sha256 } from 'lib/utils'
@@ -55,6 +56,31 @@ export const defaultAsset: Asset = {
   explorer: '',
   explorerTxLink: '',
   explorerAddressLink: '',
+}
+
+type MakeNftAssetArgs = {
+  assetId: AssetId
+  feeAsset?: Asset
+  id?: string
+  token?: Token
+}
+
+export const makeNftAsset = ({ assetId, feeAsset, id, token }: MakeNftAssetArgs): Asset => {
+  const { chainId } = fromAssetId(assetId)
+
+  return {
+    assetId,
+    chainId,
+    symbol: token?.symbol ?? 'N/A',
+    name: token?.name ?? 'Unknown',
+    id,
+    precision: 0,
+    color: '#FFFFFF',
+    icon: '',
+    explorer: feeAsset?.explorer ?? '',
+    explorerTxLink: feeAsset?.explorerTxLink ?? '',
+    explorerAddressLink: feeAsset?.explorerAddressLink ?? '',
+  }
 }
 
 export type MinimalAsset = Partial<Asset> & Pick<Asset, 'assetId' | 'symbol' | 'name' | 'precision'>

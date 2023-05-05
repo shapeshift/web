@@ -57,7 +57,7 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
 
 export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   opportunityIds,
-  opportunityType,
+  defiType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{
   data: GetOpportunityMetadataOutput
@@ -71,7 +71,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     return Promise.resolve({
       data: {
         byId: {},
-        type: opportunityType,
+        type: defiType,
       },
     })
   }
@@ -141,14 +141,14 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 
   const data = {
     byId: stakingOpportunitiesById,
-    type: opportunityType,
+    type: defiType,
   }
 
   return { data }
 }
 
 export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
-  opportunityType,
+  defiType,
   accountId,
   reduxApi,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
@@ -158,7 +158,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
   const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
   const data = {
     byId: stakingOpportunitiesUserDataByUserStakingId,
-    type: opportunityType,
+    type: defiType,
   }
 
   try {
@@ -227,7 +227,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
     return Promise.resolve({
       data: {
         byId: stakingOpportunitiesUserDataByUserStakingId,
-        type: opportunityType,
+        type: defiType,
       },
     })
   }

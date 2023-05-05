@@ -22,9 +22,11 @@ export enum CoingeckoAssetPlatform {
 
 type CoinGeckoId = string
 
-export const coingeckoBaseUrl = 'https://api.coingecko.com/api/v3'
-export const coingeckoProBaseUrl = 'https://pro-api.coingecko.com/api/v3'
-export const coingeckoUrl = 'https://api.coingecko.com/api/v3/coins/list?include_platform=true'
+// markets.shapeshift.com is a coingecko proxy maintained by the fox foundation
+export const coingeckoBaseUrl = 'https://markets.shapeshift.com/api/v3'
+// export const coingeckoBaseUrl = 'http://localhost:1137/api/v3'
+export const coingeckoProBaseUrl = coingeckoBaseUrl
+export const coingeckoUrl = `${coingeckoBaseUrl}/coins/list?include_platform=true`
 
 const assetIdToCoinGeckoIdMapByChain: Record<AssetId, CoinGeckoId>[] = Object.values(adapters)
 
@@ -84,20 +86,9 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
   }
 }
 
-export const makeCoingeckoUrlParts = (
-  apiKey?: string,
-): { baseUrl: string; maybeApiKeyQueryParam: string } => {
-  const baseUrl = apiKey ? coingeckoProBaseUrl : coingeckoBaseUrl
-  const maybeApiKeyQueryParam = apiKey ? `&x_cg_pro_api_key=${apiKey}` : ''
-
-  return { baseUrl, maybeApiKeyQueryParam }
-}
-
-export const makeCoingeckoAssetUrl = (assetId: AssetId, apiKey?: string): string | undefined => {
+export const makeCoingeckoAssetUrl = (assetId: AssetId): string | undefined => {
   const id = assetIdToCoingecko(assetId)
   if (!id) return
-
-  const { baseUrl, maybeApiKeyQueryParam } = makeCoingeckoUrlParts(apiKey)
 
   const { chainNamespace, chainReference, assetNamespace, assetReference } = fromAssetId(assetId)
 
@@ -106,8 +97,8 @@ export const makeCoingeckoAssetUrl = (assetId: AssetId, apiKey?: string): string
       toChainId({ chainNamespace, chainReference }),
     )
 
-    return `${baseUrl}/coins/${assetPlatform}/contract/${assetReference}?${maybeApiKeyQueryParam}`
+    return `${coingeckoProBaseUrl}/coins/${assetPlatform}/contract/${assetReference}`
   }
 
-  return `${baseUrl}/coins/${id}?${maybeApiKeyQueryParam}`
+  return `${coingeckoProBaseUrl}/coins/${id}`
 }

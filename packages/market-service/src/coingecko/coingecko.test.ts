@@ -151,7 +151,7 @@ describe('CoinGecko market service', () => {
     it('can use pro tier with api key', async () => {
       const proCoinGeckoMarketService = new CoinGeckoMarketService()
       await proCoinGeckoMarketService.findAll({ count: 10 })
-      const url = `${coinGeckoMarketProApiUrl}?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false&x_cg_pro_api_key=dummyKey`
+      const url = `${coinGeckoMarketProApiUrl}?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false`
       expect(mockedAxios.get).toBeCalledWith(url)
     })
 

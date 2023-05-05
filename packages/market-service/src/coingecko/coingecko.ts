@@ -1,5 +1,4 @@
 import { adapters } from '@shapeshiftoss/caip'
-import { coingeckoProBaseUrl } from '@shapeshiftoss/caip/src/adapters'
 import { Logger } from '@shapeshiftoss/logger'
 import type {
   FindAllMarketArgs,
@@ -40,7 +39,7 @@ export class CoinGeckoMarketService implements MarketService {
   baseUrl: string
 
   constructor() {
-    this.baseUrl = coingeckoProBaseUrl
+    this.baseUrl = adapters.coingeckoProBaseUrl
   }
 
   async findAll(args?: FindAllMarketArgs) {

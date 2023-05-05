@@ -31,6 +31,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useDonationAmountBelowMinimum } from 'components/Trade/hooks/useDonationAmountBelowMinimum'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -53,6 +54,7 @@ import { useAppSelector } from 'state/store'
 import {
   selectBuyAmountBeforeFeesBaseUnit,
   selectDonationAmountFiat,
+  selectIntermediaryTransactionOutputs,
   selectQuoteBuyAmountCryptoPrecision,
   selectSellAmountBeforeFeesBaseUnitByAction,
   selectSellAmountBeforeFeesFiat,
@@ -115,6 +117,9 @@ export const TradeConfirm = () => {
   const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
   const sellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
   const buyAmountCryptoPrecision = useSwapperStore(selectBuyAmountCryptoPrecision)
+  const intermediaryTransactionOutputsCryptoPrecision = useSwapperStore(
+    selectIntermediaryTransactionOutputs,
+  )
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const sellAmountBeforeFeesBaseUnit = useSwapperStore(selectSellAmountBeforeFeesBaseUnitByAction)
   const sellAmountBeforeFeesFiat = useSwapperStore(selectSellAmountBeforeFeesFiat)
@@ -242,6 +247,17 @@ export const TradeConfirm = () => {
         tradeId: sellTradeId,
       }),
     [sellTradeId, trade],
+  )
+
+  const chainAdapterManager = getChainAdapterManager()
+  const intermediaryTransactionOutputs = useMemo(
+    () =>
+      intermediaryTransactionOutputsCryptoPrecision?.map(({ buyAmountCryptoBaseUnit, asset }) => ({
+        amount: fromBaseUnit(buyAmountCryptoBaseUnit, asset.precision),
+        symbol: asset.symbol,
+        chainName: chainAdapterManager.get(asset.chainId)?.getDisplayName(),
+      })),
+    [intermediaryTransactionOutputsCryptoPrecision, chainAdapterManager],
   )
 
   const { showErrorToast } = useErrorHandler()
@@ -415,12 +431,13 @@ export const TradeConfirm = () => {
     ],
   )
 
-  const isTHORChainSwap = useMemo(() => swapperName === SwapperName.Thorchain, [swapperName])
-  const is0xSwap = useMemo(() => swapperName === SwapperName.Zrx, [swapperName])
-
   const shouldShowDonationOption = useMemo(() => {
-    return (isTHORChainSwap || is0xSwap) && !isDonationAmountBelowMinimum
-  }, [is0xSwap, isDonationAmountBelowMinimum, isTHORChainSwap])
+    return (
+      !isDonationAmountBelowMinimum &&
+      swapperName &&
+      [SwapperName.Thorchain, SwapperName.Zrx, SwapperName.OneInch].includes(swapperName)
+    )
+  }, [swapperName, isDonationAmountBelowMinimum])
 
   const tradeWarning: JSX.Element | null = useMemo(() => {
     if (!trade) return null
@@ -492,6 +509,7 @@ export const TradeConfirm = () => {
             fiatAmount={positiveOrZero(fiatBuyAmount).toFixed(2)}
             swapperName={swapper?.name ?? ''}
             isLoading={isReloadingTrade}
+            intermediaryTransactionOutputs={intermediaryTransactionOutputs}
           />
         </Stack>
       ) : null,
@@ -507,6 +525,7 @@ export const TradeConfirm = () => {
       fiatBuyAmount,
       swapper?.name,
       isReloadingTrade,
+      intermediaryTransactionOutputs,
     ],
   )
 
@@ -514,21 +533,29 @@ export const TradeConfirm = () => {
     () => (
       <Card.Footer px={0} py={0}>
         {!sellTradeId && !isSubmitting && (
-          <Button
-            colorScheme='blue'
-            size='lg'
-            width='full'
-            mt={6}
-            data-test='trade-form-confirm-and-trade-button'
-            type='submit'
-            isLoading={isReloadingTrade}
-          >
-            <Text translation='trade.confirmAndTrade' />
-          </Button>
+          <>
+            {swapper?.name === SwapperName.LIFI && (
+              <Alert status='warning' fontSize='sm' mt={6}>
+                <AlertIcon />
+                {translate('trade.lifiWarning')}
+              </Alert>
+            )}
+            <Button
+              colorScheme='blue'
+              size='lg'
+              width='full'
+              mt={6}
+              data-test='trade-form-confirm-and-trade-button'
+              type='submit'
+              isLoading={isReloadingTrade}
+            >
+              <Text translation='trade.confirmAndTrade' />
+            </Button>
+          </>
         )}
       </Card.Footer>
     ),
-    [isReloadingTrade, isSubmitting, sellTradeId],
+    [isReloadingTrade, isSubmitting, sellTradeId, swapper?.name, translate],
   )
 
   if (!trade) return null

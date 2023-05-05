@@ -1,5 +1,4 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
@@ -8,7 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
-import { selectMarketDataById, selectSelectedCurrency } from 'state/slices/selectors'
+import { selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
@@ -22,9 +21,8 @@ export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.To]: string
   [SendFormFields.From]: string
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
-  [SendFormFields.Asset]: Asset
+  [SendFormFields.AssetId]: AssetId
   [SendFormFields.CryptoAmount]: string
-  [SendFormFields.CryptoSymbol]: string
   [SendFormFields.EstimatedFees]: FeeDataEstimate<T>
   [SendFormFields.FeeType]: FeeDataKey
   [SendFormFields.FiatAmount]: string
@@ -36,18 +34,15 @@ export type SendInput<T extends ChainId = ChainId> = {
 }
 
 type SendFormProps = {
-  asset?: Asset
+  initialAssetId?: AssetId
   accountId?: AccountId
 }
 
-export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }) => {
+export const Form: React.FC<SendFormProps> = ({ initialAssetId, accountId }) => {
   const location = useLocation()
   const history = useHistory()
   const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
-  const marketData = useAppSelector(state =>
-    selectMarketDataById(state, initialAsset?.assetId ?? ''),
-  )
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
@@ -55,28 +50,26 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
       accountId,
       to: '',
       vanityAddress: '',
-      asset: initialAsset,
+      assetId: initialAssetId,
       feeType: FeeDataKey.Average,
       cryptoAmount: '',
-      cryptoSymbol: initialAsset?.symbol,
       fiatAmount: '',
       fiatSymbol: selectedCurrency,
     },
   })
 
   const handleAssetSelect = useCallback(
-    (asset: Asset) => {
-      methods.setValue(SendFormFields.Asset, { ...asset, ...marketData })
+    (assetId: AssetId) => {
+      methods.setValue(SendFormFields.AssetId, assetId)
       methods.setValue(SendFormFields.Input, '')
       methods.setValue(SendFormFields.AccountId, '')
       methods.setValue(SendFormFields.CryptoAmount, '')
-      methods.setValue(SendFormFields.CryptoSymbol, asset.symbol)
       methods.setValue(SendFormFields.FiatAmount, '')
       methods.setValue(SendFormFields.FiatSymbol, selectedCurrency)
 
       history.push(SendRoutes.Address)
     },
-    [history, marketData, methods, selectedCurrency],
+    [history, methods, selectedCurrency],
   )
 
   const handleBack = useCallback(() => {
@@ -96,10 +89,10 @@ export const Form: React.FC<SendFormProps> = ({ asset: initialAsset, accountId }
   )
 
   useEffect(() => {
-    if (!initialAsset) {
+    if (!initialAssetId) {
       history.push(SendRoutes.Select)
     }
-  }, [history, initialAsset])
+  }, [history, initialAssetId])
 
   return (
     <FormProvider {...methods}>

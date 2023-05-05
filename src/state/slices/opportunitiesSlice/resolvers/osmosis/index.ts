@@ -17,7 +17,7 @@ import { generateAssetIdFromOsmosisDenom, getPools } from './utils'
 const OSMO_ATOM_LIQUIDITY_POOL_ID = '1'
 
 export const osmosisLpOpportunitiesMetadataResolver = async ({
-  opportunityType,
+  defiType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
   const { getState } = reduxApi
@@ -77,7 +77,7 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
 
   const data = {
     byId: lpOpportunitiesById,
-    type: opportunityType,
+    type: defiType,
   }
 
   return { data }

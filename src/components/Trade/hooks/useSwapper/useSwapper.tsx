@@ -8,10 +8,10 @@ import type { SwapperManager } from 'lib/swapper/manager/SwapperManager'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
   selectAssetIds,
+  selectAssetsSortedByMarketCapFiatBalanceAndName,
   selectBIP44ParamsByAccountId,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
-  selectSortedAssets,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
@@ -44,7 +44,7 @@ export const useSwapper = () => {
   // Selectors
   const flags = useSelector(selectFeatureFlags)
   const assetIds = useSelector(selectAssetIds)
-  const sortedAssets = useSelector(selectSortedAssets)
+  const sortedAssets = useSelector(selectAssetsSortedByMarketCapFiatBalanceAndName)
 
   // Hooks
   const [swapperManager, setSwapperManager] = useState<SwapperManager>()

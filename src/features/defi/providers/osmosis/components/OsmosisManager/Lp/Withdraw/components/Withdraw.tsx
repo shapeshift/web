@@ -34,8 +34,8 @@ import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/u
 import {
   selectAssetById,
   selectAssets,
-  selectMarketDataSortedByMarketCap,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -90,7 +90,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const { setValue } = methods
 
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
+  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
   const lpAsset: Asset | undefined = useAppSelector(state =>
     selectAssetById(state, osmosisOpportunity?.assetId ?? ''),
   )

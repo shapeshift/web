@@ -15,7 +15,6 @@ import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/c
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -24,6 +23,7 @@ import { selectPortfolioLoadingStatus } from 'state/slices/selectors'
 
 import { AppLoadingIcon } from './AppLoadingIcon'
 import { DegradedStateBanner } from './DegradedStateBanner'
+import { GlobalSeachButton } from './GlobalSearch/GlobalSearchButton'
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
 import { Notifications } from './NavBar/Notifications'
@@ -122,18 +122,20 @@ export const Header = () => {
                 icon={<HamburgerIcon />}
               />
             </Box>
-            <HStack
-              width='100%'
-              flex={1}
-              justifyContent='center'
-              display={{ base: 'none', md: 'block' }}
-            >
-              <AssetSearch assetListAsDropdown formProps={{ mb: 0, px: 0 }} />
-            </HStack>
+
             <Box display={{ base: 'block', md: 'none' }} mx='auto'>
               <AppLoadingIcon />
             </Box>
-            <Flex justifyContent='flex-end' flex={1} rowGap={4} columnGap={2}>
+
+            <Flex
+              justifyContent='flex-end'
+              alignItems='center'
+              width={{ base: 'auto', md: 'full' }}
+              flex={1}
+              rowGap={4}
+              columnGap={2}
+            >
+              <GlobalSeachButton />
               {isDegradedState && <DegradedStateBanner />}
               {isWalletConnectToDappsEnabled && (
                 <Box display={{ base: 'none', md: 'block' }}>

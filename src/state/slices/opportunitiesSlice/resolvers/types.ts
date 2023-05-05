@@ -1,32 +1,33 @@
 import type { BaseQueryApi } from '@reduxjs/toolkit/dist/query/baseQueryTypes'
 import type { AccountId } from '@shapeshiftoss/caip'
+import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 
-import type { OpportunityDefiType, OpportunityId } from '../types'
+import type { OpportunityId } from '../types'
 
 export type ReduxApi = Pick<BaseQueryApi, 'dispatch' | 'getState'>
 
 export type OpportunitiesMetadataResolverInput = {
   opportunityIds?: OpportunityId[]
-  opportunityType: OpportunityDefiType
+  defiType: DefiType
   reduxApi: ReduxApi
 }
 
 export type OpportunityMetadataResolverInput = {
   opportunityId: OpportunityId
-  opportunityType: OpportunityDefiType
+  defiType: DefiType
   reduxApi: ReduxApi
 }
 
 export type OpportunityUserDataResolverInput = {
   opportunityId: OpportunityId
-  opportunityType: OpportunityDefiType
+  defiType: DefiType
   accountId: AccountId
   reduxApi: ReduxApi
 }
 
 export type OpportunitiesUserDataResolverInput = {
   opportunityIds: OpportunityId[]
-  opportunityType: OpportunityDefiType
+  defiType: DefiType
   accountId: AccountId
   reduxApi: ReduxApi
 }

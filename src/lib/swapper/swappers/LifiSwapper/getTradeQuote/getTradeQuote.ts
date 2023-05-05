@@ -14,6 +14,7 @@ import {
 } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
 import { getEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetAddress/getAssetAddress'
 import { getAssetBalance } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetBalance/getAssetBalance'
+import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwapper/utils/getIntermediaryTransactionOutputs/getIntermediaryTransactionOutputs'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getMinimumCryptoHuman } from 'lib/swapper/swappers/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
 import { transformLifiFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
@@ -22,7 +23,7 @@ import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/type
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
   lifiChainMap: Map<ChainId, ChainKey>,
-): Promise<Result<LifiTradeQuote, SwapErrorRight>> {
+): Promise<Result<LifiTradeQuote<false>, SwapErrorRight>> {
   try {
     const {
       chainId,
@@ -142,12 +143,18 @@ export async function getTradeQuote(
       selectedRoute: selectedLifiRoute,
     })
 
+    const buyAmountCryptoBaseUnit = bnOrZero(selectedLifiRoute.toAmountMin)
+    const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(
+      selectedLifiRoute.steps,
+    )
+
     // TODO(gomes): intermediary error-handling within this module function calls
     return Ok({
       accountNumber,
       allowanceContract,
-      buyAmountCryptoBaseUnit: bnOrZero(selectedLifiRoute.toAmountMin).toString(),
+      buyAmountCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
       buyAsset,
+      intermediaryTransactionOutputs,
       feeData,
       maximumCryptoHuman: MAX_LIFI_TRADE,
       minimumCryptoHuman: getMinimumCryptoHuman(sellAsset).toString(),

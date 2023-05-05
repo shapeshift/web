@@ -1,27 +1,45 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { BuyAssetBySellIdInput } from 'lib/swapper/api'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-// we dont perform a lookup to lifi's supported assets because they support far more assets than we do
-// so the overhead in performing the fetch to lifi isnt worth the time
-export function filterSameChainEvmBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
+type ChainIdPredicate = (buyAssetChainId: ChainId, sellAssetChainId: ChainId) => boolean
+
+const _filterEvmBuyAssetsBySellAssetId = (
+  input: BuyAssetBySellIdInput,
+  chainIdPredicate: ChainIdPredicate,
+): AssetId[] => {
   const { assetIds = [], sellAssetId } = input
 
   const assets = selectAssets(store.getState())
   const sellAsset = assets[sellAssetId]
 
+  // evm only
   if (sellAsset === undefined || !isEvmChainId(sellAsset.chainId)) return []
 
-  const result = assetIds.filter(assetId => {
-    const buyAsset = assets[assetId]
+  return assetIds.filter(buyAssetId => {
+    const buyAsset = assets[buyAssetId]
 
     if (buyAsset === undefined) return false
 
-    // same-chain swaps and evm only
-    return buyAsset.chainId === sellAsset.chainId && isEvmChainId(buyAsset.chainId)
+    // evm only AND chain id predicate
+    return isEvmChainId(buyAsset.chainId) && chainIdPredicate(buyAsset.chainId, sellAsset.chainId)
   })
+}
 
-  return result
+export const filterSameChainEvmBuyAssetsBySellAssetId = (
+  input: BuyAssetBySellIdInput,
+): AssetId[] => {
+  const sameChainIdPredicate = (buyAssetChainId: ChainId, sellAssetChainId: ChainId): boolean =>
+    buyAssetChainId === sellAssetChainId
+  return _filterEvmBuyAssetsBySellAssetId(input, sameChainIdPredicate)
+}
+
+export const filterCrossChainEvmBuyAssetsBySellAssetId = (
+  input: BuyAssetBySellIdInput,
+): AssetId[] => {
+  const crossChainIdPredicate = (buyAssetChainId: ChainId, sellAssetChainId: ChainId): boolean =>
+    buyAssetChainId !== sellAssetChainId
+  return _filterEvmBuyAssetsBySellAssetId(input, crossChainIdPredicate)
 }

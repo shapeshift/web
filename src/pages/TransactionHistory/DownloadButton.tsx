@@ -9,7 +9,11 @@ import { getTransfers, getTxType } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
-import { selectAssets, selectMarketDataSortedByMarketCap, selectTxs } from 'state/slices/selectors'
+import {
+  selectAssets,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectTxs,
+} from 'state/slices/selectors'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -45,7 +49,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
   const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`, { ssr: false })
   const allTxs = useAppSelector(selectTxs)
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
+  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
   const translate = useTranslate()
   const fields = {
     txid: translate('transactionHistory.csv.txid'),

@@ -68,8 +68,8 @@ type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
   }
 >
 
-export type QuoteFeeData<T extends ChainId> = {
-  networkFeeCryptoBaseUnit: string // fee paid to the network from the fee asset
+export type QuoteFeeData<T extends ChainId, MissingNetworkFee extends boolean = false> = {
+  networkFeeCryptoBaseUnit: MissingNetworkFee extends true ? undefined : string // fee paid to the network from the fee asset
   buyAssetTradeFeeUsd: string // fee taken out of the trade from the buyAsset
   sellAssetTradeFeeUsd?: string // fee taken out of the trade from the sellAsset
 } & ChainSpecificQuoteFeeData<T>
@@ -133,28 +133,34 @@ export type BuildTradeInput = GetTradeQuoteInput & {
   wallet: HDWallet
 }
 
-interface TradeBase<C extends ChainId> {
+// describes intermediary asset and amount the user may end up with in the event of a trade
+// execution failure
+export type IntermediaryTransactionOutput = {
+  asset: Pick<Asset, 'chainId' | 'symbol' | 'precision'>
+  buyAmountCryptoBaseUnit: string
+}
+
+interface TradeBase<C extends ChainId, MissingNetworkFee extends boolean = false> {
   buyAmountCryptoBaseUnit: string
   sellAmountBeforeFeesCryptoBaseUnit: string
-  feeData: QuoteFeeData<C>
+  feeData: QuoteFeeData<C, MissingNetworkFee>
   rate: string
   sources: SwapSource[]
   buyAsset: Asset
   sellAsset: Asset
   accountNumber: number
+  intermediaryTransactionOutputs?: IntermediaryTransactionOutput[]
 }
 
-export interface TradeQuote<C extends ChainId> extends TradeBase<C> {
+export interface TradeQuote<C extends ChainId, UnknownNetworkFee extends boolean = false>
+  extends TradeBase<C, UnknownNetworkFee> {
   allowanceContract: string
   minimumCryptoHuman: string
   maximumCryptoHuman: string
   recommendedSlippage?: string
-
-  /** @deprecated Use minimumCryptoHuman instead */
-  minimum?: string
 }
 
-export interface Trade<C extends ChainId> extends TradeBase<C> {
+export interface Trade<C extends ChainId> extends TradeBase<C, false> {
   receiveAddress: string
   receiveAccountNumber?: number
 }
@@ -263,7 +269,7 @@ export enum SwapErrorType {
   // Catch-all for happy responses, but entity not found according to our criteria
   NOT_FOUND = 'NOT_FOUND',
 }
-export interface Swapper<T extends ChainId> {
+export interface Swapper<T extends ChainId, MaybeUnknownNetworkFee extends boolean = false> {
   /** Human-readable swapper name */
   readonly name: SwapperName
 
@@ -280,7 +286,14 @@ export interface Swapper<T extends ChainId> {
   /**
    * Get a trade quote
    */
-  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>>
+  getTradeQuote(
+    input: GetTradeQuoteInput,
+  ): Promise<
+    Result<
+      TradeQuote<ChainId, MaybeUnknownNetworkFee extends true ? true | false : false>,
+      SwapErrorRight
+    >
+  >
   /**
    * Get the usd rate from either the assets symbol or tokenId
    */

@@ -108,7 +108,6 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
           accountId,
           defiType: DefiType.Staking,
           defiProvider: DefiProvider.ShapeShift,
-          opportunityType: DefiType.Staking,
         },
         { forceRefetch: true },
       ),

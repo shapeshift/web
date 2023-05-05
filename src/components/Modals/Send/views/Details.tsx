@@ -19,7 +19,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip/dist/constants'
 import isNil from 'lodash/isNil'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -33,6 +33,8 @@ import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../Form'
 import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
@@ -46,26 +48,19 @@ export const Details = () => {
   const history = useHistory()
   const translate = useTranslate()
 
-  const {
-    accountId,
-    amountFieldError,
-    asset,
-    cryptoAmount,
-    cryptoSymbol,
-    fiatAmount,
-    fiatSymbol,
-    memo,
-  } = useWatch({
-    control,
-  }) as Partial<SendInput>
+  const { accountId, amountFieldError, assetId, cryptoAmount, fiatAmount, fiatSymbol, memo } =
+    useWatch({
+      control,
+    }) as Partial<SendInput>
 
   const handleAccountChange = useCallback(
     (accountId: AccountId) => {
       setValue(SendFormFields.AccountId, accountId)
-      setValue(SendFormFields.CryptoAmount, '')
-      setValue(SendFormFields.FiatAmount, '')
+      // TODO(gomes): find better heuristics for these - this will rug resetting crypto/fiat amount on AccountId change
+      if (!cryptoAmount) setValue(SendFormFields.CryptoAmount, '')
+      if (!fiatAmount) setValue(SendFormFields.FiatAmount, '')
     },
-    [setValue],
+    [cryptoAmount, fiatAmount, setValue],
   )
 
   const { send } = useModal()
@@ -85,9 +80,17 @@ export const Details = () => {
     state: { wallet },
   } = useWallet()
 
+  useEffect(() => {
+    // Initial setting of cryptoAmount in case of a QR-code set amount
+    if (!cryptoAmount) handleInputChange(cryptoAmount ?? '0')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handleInputChange])
+
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+
   const showMemoField = useMemo(
-    () => Boolean(asset && fromAssetId(asset.assetId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk),
-    [asset],
+    () => Boolean(assetId && fromAssetId(assetId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk),
+    [assetId],
   )
   const remainingMemoChars = useMemo(
     () => bnOrZero(MAX_COSMOS_SDK_MEMO_LENGTH - Number(memo?.length)),
@@ -95,7 +98,7 @@ export const Details = () => {
   )
   const memoFieldError = remainingMemoChars.lt(0) && 'Characters Limit Exceeded'
 
-  if (!(asset && !isNil(cryptoAmount) && cryptoSymbol && !isNil(fiatAmount) && fiatSymbol)) {
+  if (!(asset && !isNil(cryptoAmount) && !isNil(fiatAmount) && fiatSymbol)) {
     return null
   }
 
@@ -148,7 +151,7 @@ export const Details = () => {
               _hover={{ color: 'gray.400', transition: '.2s color ease' }}
             >
               {fieldName === SendFormFields.FiatAmount ? (
-                <Amount.Crypto value={cryptoAmount} symbol={cryptoSymbol} prefix='≈' />
+                <Amount.Crypto value={cryptoAmount} symbol={asset.symbol} prefix='≈' />
               ) : (
                 <Flex>
                   <Amount.Fiat value={fiatAmount} mr={1} prefix='≈' /> {fiatSymbol}
@@ -170,7 +173,7 @@ export const Details = () => {
                   onClick={toggleCurrency}
                   width='full'
                 >
-                  {cryptoSymbol}
+                  {asset.symbol}
                 </Button>
               }
               inputRightElement={

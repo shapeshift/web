@@ -669,6 +669,7 @@
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
       "donation": "Help support ShapeShift and keep us up and running.",
       "protocol": "This is the protocol where your trade is being routed.",
+      "protocolLifi": "This is the protocol where your trade is being routed. LI.FI executes a series of intermediary trades under the hood for the best overall combination of price, safety and speed.",
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
       "shapeshiftFee": "ShapeShift does not add fees on trades 🎉"
     },
@@ -729,7 +730,13 @@
       "tradeFailed": "Trade failed. Assets returned minus gas fee"
     },
     "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
-    "recentTrades": "Recent Trades"
+    "recentTrades": "Recent Trades",
+    "lifiWarning": "This trade routes via LI.FI, which executes a series of intermediary trades to perform a swap. If any steps fail you'll receive the token for the last successful step in the sequence.",
+    "intermediaryTransactionOutputs": {
+      "prefix": "or",
+      "suffix": "on %{chainName}"
+    },
+    "unknownGas": "(unknown)"
   },
   "modals": {
     "popup": {
@@ -857,6 +864,7 @@
       "tokenAddress": "To Address",
       "addressInput": "To Address, ENS or Yat",
       "scanQrCode": "Scan QR Code",
+      "qrCode": "QR Code",
       "permissionsButton": "Try again",
       "sent": "%{asset} sent",
       "errorTitle": "Your send of %{asset} failed",

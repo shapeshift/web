@@ -6,7 +6,6 @@ import { FOXY_ASSET_ID, FoxyMarketService } from './foxy'
 import { fox, mockFoxyMarketData } from './foxyMockData'
 
 const foxyMarketService = new FoxyMarketService({
-  coinGeckoAPIKey: 'secret',
   providerUrls: {
     jsonRpcProviderUrl: 'dummy',
     unchainedEthereumHttpUrl: '',

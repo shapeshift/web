@@ -1,11 +1,13 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
 import uniq from 'lodash/uniq'
 import values from 'lodash/values'
+import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 import { isSome } from 'lib/utils'
@@ -15,8 +17,10 @@ import {
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
+  selectSearchQueryFromFilter,
 } from 'state/selectors'
 
+import { selectAssets } from '../assetsSlice/selectors'
 import { selectWalletAccountIds } from '../common-selectors'
 import type { AccountMetadata } from '../portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
@@ -241,5 +245,27 @@ export const selectMaybeNextAccountNumberByChainId = createSelector(
     )
     const nextAccountNumber = currentHighestAccountNumber + 1
     return [isAbleToAddNextAccount, isAbleToAddNextAccount ? nextAccountNumber : null]
+  },
+)
+export const selectTxsByQuery = createDeepEqualOutputSelector(
+  selectTxs,
+  selectAssets,
+  selectSearchQueryFromFilter,
+  (txsById, assets, searchQuery): TxId[] => {
+    const txArray: [TxId, Tx][] = Object.entries(txsById)
+    if (!searchQuery) return Object.keys(txsById)
+    const results = matchSorter(txArray, searchQuery, {
+      keys: [
+        'txid',
+        item =>
+          item[1]?.transfers.flatMap((transfer: TxTransfer) => [
+            assets[transfer.assetId]?.name ?? '',
+            assets[transfer.assetId]?.symbol ?? '',
+          ]),
+        item => item[0],
+      ],
+      threshold: matchSorter.rankings.CONTAINS,
+    })
+    return results.map(result => result[0])
   },
 )

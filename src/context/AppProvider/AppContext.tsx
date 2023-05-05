@@ -39,9 +39,9 @@ import {
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import {
-  fetchAllOpportunitiesIds,
-  fetchAllOpportunitiesMetadata,
-  fetchAllOpportunitiesUserData,
+  fetchAllOpportunitiesIdsByChainId,
+  fetchAllOpportunitiesMetadataByChainId,
+  fetchAllOpportunitiesUserDataByAccountId,
 } from 'state/slices/opportunitiesSlice/thunks'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -175,17 +175,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
       const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
 
-      // forceRefetch is enabled here to make sure that we always have the latest state from chain
-      // and ensure the queryFn runs resulting in dispatches occuring to update client state
-      const options = { forceRefetch: true }
-
       const maybeFetchZapperData = DynamicLpAssets
         ? dispatch(zapper.endpoints.getZapperUniV2PoolAssetIds.initiate())
         : () => setTimeoutAsync(0)
 
       await maybeFetchZapperData
-      await fetchAllOpportunitiesIds()
-      await fetchAllOpportunitiesMetadata()
 
       requestedAccountIds.forEach(accountId => {
         const { chainId } = fromAccountId(accountId)
@@ -194,19 +188,21 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           case ltcChainId:
           case dogeChainId:
           case bchChainId:
-            fetchAllOpportunitiesUserData(accountId)
-            break
           case cosmosChainId:
           case osmosisChainId:
-            // Don't await me, we don't want to block execution while this resolves and populates the store
-            fetchAllOpportunitiesUserData(accountId)
-            break
           case avalancheChainId:
-            fetchAllOpportunitiesUserData(accountId)
+            ;(async () => {
+              await fetchAllOpportunitiesIdsByChainId(chainId)
+              await fetchAllOpportunitiesMetadataByChainId(chainId)
+              await fetchAllOpportunitiesUserDataByAccountId(accountId)
+            })()
             break
           case ethChainId:
-            // Don't await me, we don't want to block execution while this resolves and populates the store
-            fetchAllOpportunitiesUserData(accountId)
+            ;(async () => {
+              await fetchAllOpportunitiesIdsByChainId(chainId)
+              await fetchAllOpportunitiesMetadataByChainId(chainId)
+              await fetchAllOpportunitiesUserDataByAccountId(accountId)
+            })()
 
             /**
              * fetch all rebase history for foxy
@@ -219,9 +215,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
              * stop, and make a getRebaseHistoryByAccountId that takes
              * an accountId and assetId[] in the txHistoryApi
              */
-            dispatch(
-              getFoxyRebaseHistoryByAccountId.initiate({ accountId, portfolioAssetIds }, options),
-            )
+            dispatch(getFoxyRebaseHistoryByAccountId.initiate({ accountId, portfolioAssetIds }))
             break
           default:
         }
@@ -255,14 +249,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const portfolioAssetIdsExcludeNoMarketData = difference(portfolioAssetIds, excluded)
 
     // https://redux-toolkit.js.org/rtk-query/api/created-api/endpoints#initiate
-    const pollingInterval = 1000 * 2 * 60 // refetch data every two minutes
-    const opts = { subscriptionOptions: { pollingInterval } }
+    // TODO(0xdef1cafe): bring polling back once we point at markets.shapeshift.com
+    // const pollingInterval = 1000 * 2 * 60 // refetch data every two minutes
+    // const opts = { subscriptionOptions: { pollingInterval } }
     const timeframe = DEFAULT_HISTORY_TIMEFRAME
 
     portfolioAssetIdsExcludeNoMarketData.forEach(assetId => {
-      dispatch(marketApi.endpoints.findByAssetId.initiate(assetId, opts))
+      dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
       const payload = { assetId, timeframe }
-      dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload, opts))
+      dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload))
     })
   }, [dispatch, portfolioLoadingStatus, portfolioAssetIds, uniV2LpIdsData.data])
 

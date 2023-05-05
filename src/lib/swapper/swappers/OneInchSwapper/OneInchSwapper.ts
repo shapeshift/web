@@ -7,6 +7,7 @@ import type {
   EvmChainId,
   optimism,
 } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -26,11 +27,14 @@ import type {
   TradeResult,
   TradeTxs,
 } from 'lib/swapper/api'
-import { SwapperName, SwapperType } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType, SwapperName, SwapperType } from 'lib/swapper/api'
 import { approvalNeeded } from 'lib/swapper/swappers/utils/approvalNeeded/approvalNeeded'
 import { approveAmount, approveInfinite } from 'lib/swapper/swappers/utils/approve/approve'
 import { filterEvmAssetIdsBySellable } from 'lib/swapper/swappers/utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
-import { createEmptyEvmTradeQuote } from 'lib/swapper/swappers/utils/helpers/helpers'
+import {
+  createEmptyEvmTradeQuote,
+  isNativeEvmAsset,
+} from 'lib/swapper/swappers/utils/helpers/helpers'
 
 import { buildTrade } from './buildTrade/buildTrade'
 import { executeTrade } from './executeTrade/executeTrade'
@@ -71,6 +75,39 @@ export class OneInchSwapper implements Swapper<EvmChainId, true> {
   async getTradeQuote(
     input: GetEvmTradeQuoteInput,
   ): Promise<Result<TradeQuote<EvmChainId, true | false>, SwapErrorRight>> {
+    const { chainId, sellAsset, buyAsset } = input
+
+    if (sellAsset.chainId !== buyAsset.chainId) {
+      return Err(
+        makeSwapErrorRight({
+          message: '[getTradeQuote] cross chain swaps not supported',
+          code: SwapErrorType.UNSUPPORTED_PAIR,
+        }),
+      )
+    }
+
+    if (
+      !isEvmChainId(chainId) ||
+      !isEvmChainId(sellAsset.chainId) ||
+      !isEvmChainId(buyAsset.chainId)
+    ) {
+      return Err(
+        makeSwapErrorRight({
+          message: '[getTradeQuote] invalid chainId',
+          code: SwapErrorType.UNSUPPORTED_CHAIN,
+        }),
+      )
+    }
+
+    if (isNativeEvmAsset(sellAsset.assetId) || isNativeEvmAsset(buyAsset.assetId)) {
+      return Err(
+        makeSwapErrorRight({
+          message: '[getTradeQuote] 1inch swapper only supports ERC20s',
+          code: SwapErrorType.UNSUPPORTED_CHAIN,
+        }),
+      )
+    }
+
     const maybeMinMax = await getMinMax(this.deps, input.sellAsset, input.buyAsset)
 
     return maybeMinMax.match({

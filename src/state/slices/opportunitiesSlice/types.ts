@@ -8,8 +8,6 @@ import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
 import type { IdleStakingSpecificMetadata } from './resolvers/idle/types'
 import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
 
-export type OpportunityDefiType = DefiType.LiquidityPool | DefiType.Staking
-
 export type AssetIdsTuple =
   | readonly [AssetId, AssetId, AssetId]
   | readonly [AssetId, AssetId]
@@ -110,11 +108,10 @@ export type OpportunitiesState = {
   }
 }
 
-export type OpportunityDataById = OpportunitiesState[OpportunityDefiType]['byAccountId']
+export type OpportunityDataById = OpportunitiesState[DefiType]['byAccountId']
 
 export type GetOpportunityMetadataInput = {
   opportunityId: OpportunityId
-  opportunityType: OpportunityDefiType
   defiType: DefiType
   defiProvider: DefiProvider
 }
@@ -122,7 +119,6 @@ export type GetOpportunityMetadataInput = {
 export type GetOpportunityUserDataInput = {
   accountId: AccountId
   opportunityId: OpportunityId
-  opportunityType: OpportunityDefiType
   defiType: DefiType
   defiProvider: DefiProvider
 }
@@ -134,11 +130,11 @@ export type GetOpportunityIdsInput = {
 
 export type GetOpportunityMetadataOutput = {
   byId: Record<OpportunityId, OpportunityMetadata>
-  type: OpportunityDefiType
+  type: DefiType
 }
 export type GetOpportunityUserDataOutput = {
-  byAccountId: OpportunitiesState[OpportunityDefiType]['byAccountId']
-  type: OpportunityDefiType
+  byAccountId: OpportunitiesState[DefiType]['byAccountId']
+  type: DefiType
 }
 
 export type GetOpportunityUserStakingDataOutput = {
@@ -149,7 +145,7 @@ export type GetOpportunityIdsOutput = OpportunityId[]
 
 // TODO: This is not FDA-approved and should stop being consumed to make things a lot tidier without the added cholesterol
 // This is legacy from previous implementations, we should be able to consume the raw opportunitiesSlice data and derive the rest in-place
-type EarnOpportunityTypeBase = {
+type EarndefiTypeBase = {
   type: string
   provider: DefiProvider
   version?: string
@@ -178,13 +174,13 @@ type EarnOpportunityTypeBase = {
 export type StakingEarnOpportunityType = OpportunityMetadata &
   Partial<UserStakingOpportunityBase> & {
     isVisible?: boolean
-  } & EarnOpportunityTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
+  } & EarndefiTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
 
 export type LpEarnOpportunityType = OpportunityMetadataBase & {
   underlyingToken0AmountCryptoBaseUnit?: string
   underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean
-} & EarnOpportunityTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
+} & EarndefiTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
 
 export type EarnOpportunityType = StakingEarnOpportunityType | LpEarnOpportunityType
 

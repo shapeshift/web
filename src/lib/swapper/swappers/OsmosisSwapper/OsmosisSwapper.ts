@@ -387,7 +387,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
       const sequence = responseAccount.chainSpecific.sequence || '0'
 
-      const cosmosFeeData = await cosmosAdapter.getFeeData({})
+      const ibcFromCosmosFeeData = await cosmosAdapter.getFeeData({})
 
       const { tradeId } = await performIbcTransfer(
         transfer,
@@ -396,11 +396,11 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         this.deps.osmoUrl,
         'uatom',
         COSMO_OSMO_CHANNEL,
-        cosmosFeeData.fast.txFee,
+        ibcFromCosmosFeeData.fast.txFee,
         accountNumber,
         ibcAccountNumber,
         sequence,
-        cosmosFeeData.fast.chainSpecific.gasLimit,
+        ibcFromCosmosFeeData.fast.chainSpecific.gasLimit,
         'uatom',
       )
 
@@ -432,9 +432,13 @@ export class OsmosisSwapper implements Swapper<ChainId> {
      * be used as the fee asset automatically. See the whitelist of supported fee assets here:
      * https://github.com/osmosis-labs/osmosis/blob/04026675f75ca065fb89f965ab2d33c9840c965a/app/upgrades/v5/whitelist_feetokens.go
      */
-    const osmosisFeeData = await (sellAssetIsOnOsmosisNetwork
+    const swapFeeData = await (sellAssetIsOnOsmosisNetwork
       ? osmosisAdapter.getFeeData({})
       : cosmosAdapter.getFeeData({}))
+
+    const feeDenom = sellAssetIsOnOsmosisNetwork
+      ? 'uosmo'
+      : atomOnOsmosisAssetId.split('/')[1].replace(/:/g, '/')
 
     const signTxInput = await buildTradeTx({
       osmoAddress,
@@ -443,7 +447,9 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       buyAssetDenom,
       sellAssetDenom,
       sellAmount: ibcSellAmount ?? sellAmountCryptoBaseUnit,
-      gas: osmosisFeeData.fast.chainSpecific.gasLimit,
+      gas: swapFeeData.fast.chainSpecific.gasLimit,
+      feeAmount: swapFeeData.fast.txFee,
+      feeDenom,
       wallet,
     })
 
@@ -484,6 +490,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         pageSize: 1,
       })
 
+      const ibcFromOsmosisFeeData = await osmosisAdapter.getFeeData({})
+
       await performIbcTransfer(
         transfer,
         osmosisAdapter,
@@ -495,7 +503,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         accountNumber,
         ibcAccountNumber,
         ibcSequence,
-        osmosisFeeData.fast.chainSpecific.gasLimit,
+        ibcFromOsmosisFeeData.fast.chainSpecific.gasLimit,
         'uosmo',
       )
       return Ok({

@@ -27,11 +27,11 @@ import type {
   TradeTxs,
 } from 'lib/swapper/api'
 import { SwapperName, SwapperType } from 'lib/swapper/api'
+import { approvalNeeded } from 'lib/swapper/swappers/utils/approvalNeeded/approvalNeeded'
 import { approveAmount, approveInfinite } from 'lib/swapper/swappers/utils/approve/approve'
 import { filterEvmAssetIdsBySellable } from 'lib/swapper/swappers/utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { createEmptyEvmTradeQuote } from 'lib/swapper/swappers/utils/helpers/helpers'
 
-import { approvalNeeded } from './approvalNeeded/approvalNeeded'
 import { buildTrade } from './buildTrade/buildTrade'
 import { executeTrade } from './executeTrade/executeTrade'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
@@ -112,7 +112,7 @@ export class OneInchSwapper implements Swapper<EvmChainId, true> {
   approvalNeeded(
     input: ApprovalNeededInput<EvmChainId>,
   ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
-    return approvalNeeded(this.deps, input)
+    return approvalNeeded(input)
   }
 
   buildTrade(input: BuildTradeInput): Promise<Result<OneInchTrade<EvmChainId>, SwapErrorRight>> {

@@ -12,8 +12,8 @@ import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import {
+  selectAssetsSortedByMarketCapFiatBalanceAndName,
   selectPortfolioAccountMetadata,
-  selectSortedAssets,
   selectWalletAccountIds,
 } from 'state/slices/selectors'
 
@@ -39,7 +39,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 }) => {
   const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
-  const sortedAssets = useSelector(selectSortedAssets)
+  const sortedAssets = useSelector(selectAssetsSortedByMarketCapFiatBalanceAndName)
   const [accountId, setAccountId] = useState<AccountId | undefined>(selectedAccountId)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()

@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 
-export const useTimeframeChange = (callback: Function) => {
+export const useTimeframeChange = (callback: (timeframe: HistoryTimeframe) => void) => {
   const dispatch = useDispatch()
   const handleTimeframeChange = useCallback(
     (newTimeframe: HistoryTimeframe) => {

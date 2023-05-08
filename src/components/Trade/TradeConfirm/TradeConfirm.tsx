@@ -427,6 +427,7 @@ export const TradeConfirm = () => {
       isReloadingTrade,
       isSubmitting,
       toFiat,
+      tradeStatus,
       translate,
     ],
   )

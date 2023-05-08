@@ -1,5 +1,4 @@
 import type { HistoryData } from '@shapeshiftoss/types'
-import sortedIndexBy from 'lodash/sortedIndexBy'
 
 import { bnOrZero } from './bignumber/bignumber'
 
@@ -18,11 +17,47 @@ type PriceAtDateArgs = {
 
 type PriceAtDate = (args: PriceAtDateArgs) => number
 
+// interpolation search, because HistoryDate[] is sorted and uniformly distributed
+// https://sharegpt.com/c/HmmD91H
 export const priceAtDate: PriceAtDate = ({ date, priceHistoryData }): number => {
   const { length } = priceHistoryData
   if (!length) return 0
-  // https://lodash.com/docs/4.17.15#sortedIndexBy - binary search (O(log n)) rather than O(n)
-  const i = sortedIndexBy(priceHistoryData, { date, price: 0 }, ({ date }) => Number(date))
-  if (i >= length) return priceHistoryData[length - 1].price
-  return priceHistoryData[i].price
+
+  let low = 0
+  let high = length - 1
+  let closest = low
+
+  if (date >= priceHistoryData[high].date) {
+    return priceHistoryData[high].price
+  }
+
+  while (low <= high && date >= priceHistoryData[low].date && date <= priceHistoryData[high].date) {
+    if (low === high) {
+      closest = low
+      break
+    }
+
+    const range = priceHistoryData[high].date - priceHistoryData[low].date
+    const offset = ((date - priceHistoryData[low].date) * (high - low)) / range
+    const mid = Math.round(low + offset)
+
+    if (priceHistoryData[mid].date === date) {
+      closest = mid
+      break
+    }
+
+    if (
+      Math.abs(priceHistoryData[mid].date - date) < Math.abs(priceHistoryData[closest].date - date)
+    ) {
+      closest = mid
+    }
+
+    if (priceHistoryData[mid].date < date) {
+      low = mid + 1
+    } else {
+      high = mid - 1
+    }
+  }
+
+  return priceHistoryData[closest].price
 }

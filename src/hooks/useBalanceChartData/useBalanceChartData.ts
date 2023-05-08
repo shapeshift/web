@@ -20,6 +20,7 @@ import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPri
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import { logger } from 'lib/logger'
+import type { SupportedFiatCurrencies } from 'lib/market-service'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
 import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
@@ -29,6 +30,7 @@ import {
   selectCryptoPriceHistoryTimeframe,
   selectFiatPriceHistoryTimeframe,
   selectRebasesByFilter,
+  selectSelectedCurrency,
   selectTxsByFilter,
   selectWalletId,
 } from 'state/slices/selectors'
@@ -132,30 +134,31 @@ export const bucketEvents = (
   const start = head(buckets)!.start
   const end = last(buckets)!.end
 
-  // both txs and rebase events have the same blockTime property which is all we need
-  const txAndRebaseEvents = [...txs, ...rebases]
-
   // events are potentially a lot longer than buckets, iterate the long list once
-  return txAndRebaseEvents.reduce((acc, event) => {
-    const eventDayJs = dayjs(event.blockTime * 1000) // unchained uses seconds
-    const eventOutsideDomain = eventDayJs.isBefore(start) || eventDayJs.isAfter(end)
-    if (eventOutsideDomain) return acc
-    const { duration, unit } = meta
-    // the number of time units from start of chart to this tx
-    const bucketIndex = Math.floor(eventDayJs.diff(start, unit as dayjs.OpUnitType) / duration)
-    if (bucketIndex < 0 || bucketIndex > buckets.length - 1) {
-      moduleLogger.error(
-        `bucketTxs: event outside buckets: ${event}, start: ${start.valueOf()}, end: ${end.valueOf()}, meta: ${meta}`,
-      )
+  // both txs and rebase events have the same blockTime property which is all we need
+  return ([] as (Tx | RebaseHistory)[])
+    .concat(txs)
+    .concat(rebases)
+    .reduce<Bucket[]>((acc, event) => {
+      const eventDayJs = dayjs(event.blockTime * 1000) // unchained uses seconds
+      const eventOutsideDomain = eventDayJs.isBefore(start) || eventDayJs.isAfter(end)
+      if (eventOutsideDomain) return acc
+      const { duration, unit } = meta
+      // the number of time units from start of chart to this tx
+      const bucketIndex = Math.floor(eventDayJs.diff(start, unit as dayjs.OpUnitType) / duration)
+      if (bucketIndex < 0 || bucketIndex > buckets.length - 1) {
+        moduleLogger.error(
+          `bucketTxs: event outside buckets: ${event}, start: ${start.valueOf()}, end: ${end.valueOf()}, meta: ${meta}`,
+        )
+        return acc
+      }
+
+      const isTx = (event: Tx | RebaseHistory): event is Tx => !!(event as Tx)?.txid
+      // add to the correct bucket
+      isTx(event) ? acc[bucketIndex].txs.push(event) : acc[bucketIndex].rebases.push(event)
+
       return acc
-    }
-
-    const isTx = (event: Tx | RebaseHistory): event is Tx => !!(event as Tx)?.txid
-    // add to the correct bucket
-    isTx(event) ? acc[bucketIndex].txs.push(event) : acc[bucketIndex].rebases.push(event)
-
-    return acc
-  }, buckets)
+    }, buckets)
 }
 
 type FiatBalanceAtBucketArgs = {
@@ -163,6 +166,7 @@ type FiatBalanceAtBucketArgs = {
   assets: AssetsById
   cryptoPriceHistoryData: PriceHistoryData
   fiatPriceHistoryData: HistoryData[]
+  selectedCurrency: SupportedFiatCurrencies
 }
 
 type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => BalanceByAssetId
@@ -171,6 +175,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   bucket,
   cryptoPriceHistoryData,
   fiatPriceHistoryData,
+  selectedCurrency,
   assets,
 }) => {
   const { balance, end } = bucket
@@ -184,8 +189,12 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     const portfolioAsset = assets[assetId]
     if (!portfolioAsset) return acc
     const price = priceAtDate({ priceHistoryData: assetPriceHistoryData, date })
-    // fallback to 1 if fiat data is missing, note || required over ?? here
-    const fiatToUsdRate = priceAtDate({ priceHistoryData: fiatPriceHistoryData, date }) || 1
+    const fiatToUsdRate =
+      // don't convert USD to USD
+      selectedCurrency === 'USD'
+        ? 1
+        : // fallback to 1 if fiat data is missing, note || required over ?? here
+          priceAtDate({ priceHistoryData: fiatPriceHistoryData, date }) || 1
     const { precision } = portfolioAsset
     const assetFiatBalance = assetCryptoBalance
       .div(bn(10).exponentiatedBy(precision))
@@ -202,13 +211,21 @@ type CalculateBucketPricesArgs = {
   assets: AssetsById
   cryptoPriceHistoryData: PriceHistoryData
   fiatPriceHistoryData: HistoryData[]
+  selectedCurrency: SupportedFiatCurrencies
 }
 
 type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 // note - this mutates buckets
 export const calculateBucketPrices: CalculateBucketPrices = args => {
-  const { assetIds, buckets, assets, cryptoPriceHistoryData, fiatPriceHistoryData } = args
+  const {
+    assetIds,
+    buckets,
+    assets,
+    cryptoPriceHistoryData,
+    fiatPriceHistoryData,
+    selectedCurrency,
+  } = args
 
   const startingBucket = buckets[buckets.length - 1]
 
@@ -271,6 +288,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
     })
 
     bucket.balance.fiat = fiatBalanceAtBucket({
+      selectedCurrency,
       bucket,
       cryptoPriceHistoryData,
       fiatPriceHistoryData,
@@ -385,6 +403,9 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const fiatPriceHistoryData = useAppSelector(state =>
     selectFiatPriceHistoryTimeframe(state, timeframe),
   )
+
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+
   // loading state
   useEffect(() => setBalanceChartDataLoading(true), [setBalanceChartDataLoading, timeframe])
 
@@ -406,6 +427,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
     // iterate each bucket, updating crypto balances and fiat prices per bucket
     const calculatedBuckets = calculateBucketPrices({
+      selectedCurrency,
       assetIds,
       buckets,
       cryptoPriceHistoryData,
@@ -431,6 +453,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     setBalanceChartData,
     walletId,
     rebases,
+    selectedCurrency,
   ])
 
   return { balanceChartData, balanceChartDataLoading }

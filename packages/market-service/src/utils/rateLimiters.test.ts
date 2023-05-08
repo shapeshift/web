@@ -3,7 +3,7 @@ import type { AxiosAdapter, AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { RateLimiter as ServerRateLimiter } from 'limiter'
 
-import { createRateLimiter, rateLimitedAxios } from './rateLimiters'
+import { createRateLimiter } from './rateLimiters'
 
 describe('rate limiters utilities', () => {
   describe('should get rate limited', () => {
@@ -90,63 +90,6 @@ describe('rate limiters utilities', () => {
   })
 
   describe('should not get rate limited', () => {
-    it('using rateLimitedAxios', async () => {
-      const totalRequests = 200
-
-      let successCount = 0
-      const axiosAdapterLimiterRate = 100
-      const axiosAdapterLimiterInterval = 1000
-      /**
-       * this is for testing a service that has a rate limiter
-       */
-      const axiosAdapterLimiter = new ServerRateLimiter({
-        tokensPerInterval: axiosAdapterLimiterRate,
-        interval: axiosAdapterLimiterInterval,
-        fireImmediately: true,
-      })
-
-      async function axiosTestAdapter(config: AxiosRequestConfig) {
-        const remainingRequests = await axiosAdapterLimiter.removeTokens(1)
-        // exceeded rateLimiter limit
-        if (remainingRequests < 0) {
-          throw { status: 429 }
-        }
-        return config
-      }
-
-      const testAxiosInstance = rateLimitedAxios(
-        axiosAdapterLimiterRate,
-        axiosAdapterLimiterInterval,
-        axios.create({ adapter: axiosTestAdapter as AxiosAdapter }),
-      )
-
-      const onSuccess = () => successCount++
-
-      let errorStatus = null
-      const start = Date.now()
-      for (let i = 0; i < totalRequests; i++) {
-        try {
-          await testAxiosInstance.get('/')
-          onSuccess()
-        } catch (error: any) {
-          errorStatus = error.status
-        }
-      }
-      const end = Date.now()
-
-      /**
-       * Ensure all requests have been processed
-       * and time elapsed must be greater than
-       * (totalRequests / axiosAdapterLimiterRate - 1) * axiosAdapterLimiterInterval
-       * so that we know it's not getting rate limited
-       */
-      expect(errorStatus).toBeNull()
-      expect(successCount).toEqual(totalRequests)
-      expect(end - start).toBeGreaterThan(
-        (totalRequests / axiosAdapterLimiterRate - 1) * axiosAdapterLimiterInterval,
-      )
-    })
-
     it('using createRateLimiter', async () => {
       const totalCalls = 200
 

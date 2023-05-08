@@ -225,76 +225,62 @@ export const txHistoryApi = createApi({
         return { data: [] }
       },
     }),
-    getAllTxHistory: build.query<Transaction[], AccountId[]>({
-      queryFn: async (accountIds, { dispatch, getState }) => {
-        if (!accountIds.length) {
-          return { error: { data: 'getAllTxHistory: no account ids provided', status: 400 } }
-        }
-
-        const txHistories = await Promise.allSettled(
-          accountIds.map(async accountId => {
-            const { chainId, account: pubkey } = fromAccountId(accountId)
-            const adapter = getChainAdapterManager().get(chainId)
-            if (!adapter)
-              return {
-                error: {
-                  data: `getAllTxHistory: no adapter available for chainId ${chainId}`,
-                  status: 400,
-                },
-              }
-
-            let currentCursor: string = ''
-            try {
-              do {
-                const { cursor, transactions } = await adapter.getTxHistory({
-                  cursor: currentCursor,
-                  pubkey,
-                  pageSize: 100,
-                })
-
-                currentCursor = cursor
-
-                const state = getState() as State
-                const txState = state.txHistory.txs
-                /**
-                 * TODO(0xdef1cafe): perf improvement - change this check back to use
-                 * a flatMap of txs indexed on the txState?.byAccountIdAssetId?.[accountId] object
-                 *
-                 * checking against the flat list of all tx ids is slower, but a stop gap.
-                 *
-                 * we currently can't index txs against asset ids we don't know about
-                 * e.g. erc721 and erc1155 assets
-                 *
-                 * after we rewrite unchained client tx parsers for these, we can index txs correctly,
-                 * and go back to using those shorter lists per account
-                 */
-                // the existing tx indexes for this account
-                const existingTxIndexes = txState?.ids
-                // freshly fetched - unchained returns latest txs first
-                const fetchedTxIndexes: TxId[] = transactions.map(tx =>
-                  serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
-                )
-                // diff the two - if we haven't seen any of these txs before, upsert them
-                const diffedTxIds = difference(fetchedTxIndexes, existingTxIndexes)
-                if (diffedTxIds.length) {
-                  // new txs to upsert
-                  dispatch(txHistory.actions.upsertTxs({ txs: transactions, accountId }))
-                } else {
-                  // we've previously fetched all txs for this account, don't keep paginating
-                  break
-                }
-              } while (currentCursor)
-            } catch (err) {
-              throw new Error(`failed to fetch tx history for account: ${accountId}: ${err}`)
-            }
-          }),
-        )
-
-        txHistories.forEach(promise => {
-          if (promise.status === 'rejected') {
-            moduleLogger.child({ fn: 'getAllTxHistory' }).error(promise.reason)
+    getAllTxHistory: build.query<Transaction[], AccountId>({
+      queryFn: async (accountId, { dispatch, getState }) => {
+        const { chainId, account: pubkey } = fromAccountId(accountId)
+        const adapter = getChainAdapterManager().get(chainId)
+        if (!adapter)
+          return {
+            error: {
+              data: `getAllTxHistory: no adapter available for chainId ${chainId}`,
+              status: 400,
+            },
           }
-        })
+
+        let currentCursor: string = ''
+        try {
+          do {
+            const { cursor, transactions } = await adapter.getTxHistory({
+              cursor: currentCursor,
+              pubkey,
+              pageSize: 100,
+            })
+
+            currentCursor = cursor
+
+            const state = getState() as State
+            const txState = state.txHistory.txs
+            /**
+             * TODO(0xdef1cafe): perf improvement - change this check back to use
+             * a flatMap of txs indexed on the txState?.byAccountIdAssetId?.[accountId] object
+             *
+             * checking against the flat list of all tx ids is slower, but a stop gap.
+             *
+             * we currently can't index txs against asset ids we don't know about
+             * e.g. erc721 and erc1155 assets
+             *
+             * after we rewrite unchained client tx parsers for these, we can index txs correctly,
+             * and go back to using those shorter lists per account
+             */
+            // the existing tx indexes for this account
+            const existingTxIndexes = txState?.ids
+            // freshly fetched - unchained returns latest txs first
+            const fetchedTxIndexes: TxId[] = transactions.map(tx =>
+              serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
+            )
+            // diff the two - if we haven't seen any of these txs before, upsert them
+            const diffedTxIds = difference(fetchedTxIndexes, existingTxIndexes)
+            if (diffedTxIds.length) {
+              // new txs to upsert
+              dispatch(txHistory.actions.upsertTxs({ txs: transactions, accountId }))
+            } else {
+              // we've previously fetched all txs for this account, don't keep paginating
+              break
+            }
+          } while (currentCursor)
+        } catch (err) {
+          throw new Error(`failed to fetch tx history for account: ${accountId}: ${err}`)
+        }
 
         return { data: [] }
       },

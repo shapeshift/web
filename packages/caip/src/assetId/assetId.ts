@@ -11,9 +11,9 @@ import {
   assertValidChainPartsPair,
   isAssetId,
   isAssetNamespace,
+  isChainId,
 } from '../typeGuards'
 import type { Nominal } from '../utils'
-import { parseAssetIdRegExp } from '../utils'
 
 export type AssetId = Nominal<string, 'AssetId'>
 
@@ -140,10 +140,13 @@ export type FromAssetId = (assetId: AssetId) => FromAssetIdReturn
 
 export const fromAssetId: FromAssetId = assetId => {
   if (!isAssetId(assetId)) throw new Error(`fromAssetId: invalid AssetId: ${assetId}`)
-  const matches = parseAssetIdRegExp.exec(assetId)
-  if (!matches) throw new Error(`fromAssetId: could not parse AssetId: ${assetId}`)
 
-  const { 1: chainNamespace, 2: chainReference, 3: assetNamespace, 4: assetReference } = matches
+  const [maybeChainId] = assetId.split('/')
+  const index = assetId.indexOf('/')
+  const assetPart = assetId.slice(index + 1)
+  if (!isChainId(maybeChainId)) throw new Error(`fromAssetId: invalid ChainId: ${maybeChainId}`)
+  const { chainNamespace, chainReference } = fromChainId(maybeChainId)
+  const [assetNamespace, assetReference] = assetPart.split(':')
 
   // These should never throw because isAssetId() would have already caught it, but they help with type inference
   assertIsChainNamespace(chainNamespace)

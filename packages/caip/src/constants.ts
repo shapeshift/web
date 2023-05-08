@@ -54,7 +54,7 @@ export const CHAIN_NAMESPACE = {
 } as const
 
 type ValidChainMap = {
-  [k in ChainNamespace]: ChainReference[]
+  [k in ChainNamespace]: Set<ChainReference>
 }
 
 export const CHAIN_REFERENCE = {
@@ -124,14 +124,14 @@ export const ASSET_REFERENCE = {
 } as const
 
 export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
-  [CHAIN_NAMESPACE.Utxo]: [
+  [CHAIN_NAMESPACE.Utxo]: new Set([
     CHAIN_REFERENCE.BitcoinMainnet,
     CHAIN_REFERENCE.BitcoinTestnet,
     CHAIN_REFERENCE.BitcoinCashMainnet,
     CHAIN_REFERENCE.DogecoinMainnet,
     CHAIN_REFERENCE.LitecoinMainnet,
-  ],
-  [CHAIN_NAMESPACE.Evm]: [
+  ]),
+  [CHAIN_NAMESPACE.Evm]: new Set([
     CHAIN_REFERENCE.EthereumMainnet,
     CHAIN_REFERENCE.EthereumRopsten,
     CHAIN_REFERENCE.EthereumRinkeby,
@@ -139,9 +139,8 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.OptimismMainnet,
     CHAIN_REFERENCE.BnbSmartChainMainnet,
     CHAIN_REFERENCE.PolygonMainnet,
-    CHAIN_REFERENCE.GnosisMainnet,
-  ],
-  [CHAIN_NAMESPACE.CosmosSdk]: [
+  ]),
+  [CHAIN_NAMESPACE.CosmosSdk]: new Set([
     CHAIN_REFERENCE.CosmosHubMainnet,
     CHAIN_REFERENCE.CosmosHubVega,
     CHAIN_REFERENCE.OsmosisMainnet,
@@ -151,7 +150,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.KavaMainnet,
     CHAIN_REFERENCE.TerraMainnet,
     CHAIN_REFERENCE.SecretMainnet,
-  ],
+  ]),
 })
 
 type ValidAssetNamespace = {

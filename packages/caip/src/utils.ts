@@ -5,10 +5,6 @@ import { toAssetId } from './assetId/assetId'
 import type { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
 import * as constants from './constants'
 
-// https://regex101.com/r/xqVzV2/1
-export const parseAssetIdRegExp =
-  /([-a-z\d]{3,8}):([-a-zA-Z\d]{1,32})\/([-a-z\d]{3,8}):([-a-zA-Z/\d]+)/
-
 export const accountIdToChainId = (accountId: AccountId): ChainId =>
   fromAccountId(accountId).chainId
 
@@ -18,7 +14,7 @@ export const accountIdToSpecifier = (accountId: AccountId): string =>
 export const isValidChainPartsPair = (
   chainNamespace: ChainNamespace,
   chainReference: ChainReference,
-) => constants.VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference) || false
+) => constants.VALID_CHAIN_IDS[chainNamespace]?.has(chainReference) || false
 
 export const generateAssetIdFromOsmosisDenom = (denom: string): AssetId => {
   if (denom.startsWith('u') && denom !== 'uosmo') {

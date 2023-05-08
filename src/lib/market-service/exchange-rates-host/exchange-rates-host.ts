@@ -4,6 +4,7 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import axios from 'axios'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { FiatMarketService } from '../api'
 import type {
@@ -11,7 +12,6 @@ import type {
   FiatPriceHistoryArgs,
   SupportedFiatCurrencies,
 } from '../fiat-market-service-types'
-import { bnOrZero } from '../utils/bignumber'
 import type { ExchangeRateHostHistoryData, ExchangeRateHostRate } from './exchange-rates-host-types'
 
 const logger = new Logger({ namespace: ['market-service', 'exchange-rates-host'] })

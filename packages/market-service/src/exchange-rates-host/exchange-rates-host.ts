@@ -1,23 +1,21 @@
 import { Logger } from '@shapeshiftoss/logger'
 import type { HistoryData, MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
+import axios from 'axios'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
 
 import type { FiatMarketService } from '../api'
-import { RATE_LIMIT_THRESHOLDS_PER_MINUTE } from '../config'
 import type {
   FiatMarketDataArgs,
   FiatPriceHistoryArgs,
   SupportedFiatCurrencies,
 } from '../fiat-market-service-types'
 import { bnOrZero } from '../utils/bignumber'
-import { rateLimitedAxios } from '../utils/rateLimiters'
 import type { ExchangeRateHostHistoryData, ExchangeRateHostRate } from './exchange-rates-host-types'
 
 const logger = new Logger({ namespace: ['market-service', 'exchange-rates-host'] })
 
-const axios = rateLimitedAxios(RATE_LIMIT_THRESHOLDS_PER_MINUTE.DEFAULT)
 const baseCurrency = 'USD'
 
 export const makeExchangeRateRequestUrls = (

@@ -9,7 +9,6 @@ import {
   Switch,
 } from '@chakra-ui/react'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
-import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useCallback, useMemo, useState } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
@@ -17,9 +16,11 @@ import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { Text } from 'components/Text'
+import { useTimeframeChange } from 'hooks/useTimeframeChange/useTimeframeChange'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
 import {
+  selectChartTimeframe,
   selectClaimableRewards,
   selectEarnBalancesFiatAmountFull,
   selectPortfolioAssetIds,
@@ -32,7 +33,10 @@ import { AccountTable } from './components/AccountList/AccountTable'
 import { PortfolioBreakdown } from './PortfolioBreakdown'
 
 export const Portfolio = () => {
-  const [timeframe, setTimeframe] = useState<HistoryTimeframe>(DEFAULT_HISTORY_TIMEFRAME)
+  const userChartTimeframe = useAppSelector(selectChartTimeframe)
+  const [timeframe, setTimeframe] = useState<HistoryTimeframe>(userChartTimeframe)
+  const handleTimeframeChange = useTimeframeChange(setTimeframe)
+
   const [percentChange, setPercentChange] = useState(0)
 
   const assetIds = useAppSelector(selectPortfolioAssetIds)
@@ -75,7 +79,7 @@ export const Portfolio = () => {
             <Text translation='dashboard.portfolio.rainbowChart' />
           </Button>
           <Skeleton isLoaded={isLoaded} display={{ base: 'none', md: 'block' }}>
-            <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
+            <TimeControls defaultTime={timeframe} onChange={handleTimeframeChange} />
           </Skeleton>
         </Card.Header>
         <Flex flexDir='column' justifyContent='center' alignItems='center'>
@@ -108,7 +112,7 @@ export const Portfolio = () => {
         />
         <Skeleton isLoaded={isLoaded} display={{ base: 'block', md: 'none' }}>
           <TimeControls
-            onChange={setTimeframe}
+            onChange={handleTimeframeChange}
             defaultTime={timeframe}
             buttonGroupProps={{
               display: 'flex',

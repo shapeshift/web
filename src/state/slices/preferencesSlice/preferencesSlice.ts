@@ -1,11 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
-import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import { simpleLocale } from 'lib/browserLocale'
+import type { SupportedFiatCurrencies } from 'lib/market-service'
 
 dayjs.extend(localizedFormat)
 

@@ -1,6 +1,6 @@
 // do not directly use or export, singleton
-import { MarketServiceManager } from '@shapeshiftoss/market-service'
 import { getConfig } from 'config'
+import { MarketServiceManager } from 'lib/market-service'
 
 let _marketServiceManager: MarketServiceManager | undefined
 

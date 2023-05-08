@@ -2,16 +2,16 @@ import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type {
-  FiatMarketDataArgs,
-  FiatPriceHistoryArgs,
-  SupportedFiatCurrencies,
-} from '@shapeshiftoss/market-service'
-import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from '@shapeshiftoss/market-service'
 import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import type {
+  FiatMarketDataArgs,
+  FiatPriceHistoryArgs,
+  SupportedFiatCurrencies,
+} from 'lib/market-service'
+import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from 'lib/market-service'
 import { isOsmosisLpAsset } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { getMarketServiceManager } from 'state/slices/marketDataSlice/marketServiceManagerSingleton'

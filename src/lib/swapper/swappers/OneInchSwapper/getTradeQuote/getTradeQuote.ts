@@ -96,7 +96,7 @@ export async function getTradeQuote(
       sellAsset,
       accountNumber,
       allowanceContract,
-      buyAmountCryptoBaseUnit: quoteResponse.data.toTokenAmount,
+      buyAmountBeforeFeesCryptoBaseUnit: quoteResponse.data.toTokenAmount,
       sellAmountBeforeFeesCryptoBaseUnit,
       maximumCryptoHuman: minMax.maximumAmountCryptoHuman,
       minimumCryptoHuman: minMax.minimumAmountCryptoHuman,

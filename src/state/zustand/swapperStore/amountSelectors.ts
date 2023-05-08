@@ -277,8 +277,9 @@ export const selectTradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit = createSelect
 )
 
 export const selectTradeOrQuoteBuyAmountCryptoBaseUnit = createSelector(
-  (state: SwapperState) => state.activeSwapperWithMetadata?.quote?.buyAmountCryptoBaseUnit,
-  (state: SwapperState) => state.trade?.buyAmountCryptoBaseUnit,
+  (state: SwapperState) =>
+    state.activeSwapperWithMetadata?.quote?.buyAmountBeforeFeesCryptoBaseUnit,
+  (state: SwapperState) => state.trade?.buyAmountBeforeFeesCryptoBaseUnit,
   (quoteBuyAmountBeforeFeesBaseUnit, tradeBuyAmountBeforeFeesBaseUnit): string | undefined =>
     // Use the trade amount if we have it, otherwise use the quote amount
     tradeBuyAmountBeforeFeesBaseUnit ?? quoteBuyAmountBeforeFeesBaseUnit,

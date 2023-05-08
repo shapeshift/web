@@ -132,7 +132,7 @@ const expectedTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
     sellAssetTradeFeeUsd: '17.95954294012756741283729339486489192096',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
-  buyAmountCryptoBaseUnit: '14501811818247595090576', // 14501 FOX
+  buyAmountBeforeFeesCryptoBaseUnit: '14501811818247595090576', // 14501 FOX
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   buyAsset: FOX,
   sellAsset: WETH,
@@ -152,7 +152,7 @@ const expectedTradeQuoteWbtcToWethWithApprovalFeeCryptoBaseUnit: CowTrade<KnownC
       sellAssetTradeFeeUsd: '3.6162531444',
     },
     sellAmountBeforeFeesCryptoBaseUnit: '100000000',
-    buyAmountCryptoBaseUnit: '19136098853078932263', // 19.13 WETH
+    buyAmountBeforeFeesCryptoBaseUnit: '19136098853078932263', // 19.13 WETH
     sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
     buyAsset: WETH,
     sellAsset: WBTC,
@@ -171,7 +171,7 @@ const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
     sellAssetTradeFeeUsd: '5.3955565850972847808512',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
-  buyAmountCryptoBaseUnit: '46868859830863283',
+  buyAmountBeforeFeesCryptoBaseUnit: '46868859830863283',
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   buyAsset: ETH,
   sellAsset: FOX,

@@ -155,7 +155,7 @@ export async function getTradeQuote(
     return Ok({
       accountNumber,
       allowanceContract,
-      buyAmountCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
+      buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
       buyAsset,
       intermediaryTransactionOutputs,
       feeData,

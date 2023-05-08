@@ -153,7 +153,7 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
-  buyAmountCryptoBaseUnit: '14501811818247595090576', // 14501 FOX
+  buyAmountBeforeFeesCryptoBaseUnit: '14501811818247595090576', // 14501 FOX
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: FOX,
@@ -178,7 +178,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
-  buyAmountCryptoBaseUnit: '46868859830863283',
+  buyAmountBeforeFeesCryptoBaseUnit: '46868859830863283',
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: ETH,
@@ -203,7 +203,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000',
-  buyAmountCryptoBaseUnit: '0', // 0 FOX
+  buyAmountBeforeFeesCryptoBaseUnit: '0', // 0 FOX
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: FOX,

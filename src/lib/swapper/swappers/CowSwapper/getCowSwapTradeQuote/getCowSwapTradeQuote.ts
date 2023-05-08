@@ -176,7 +176,7 @@ export async function getCowSwapTradeQuote(
         sellAssetTradeFeeUsd,
       },
       sellAmountBeforeFeesCryptoBaseUnit: quoteSellAmountCryptoBaseUnit,
-      buyAmountCryptoBaseUnit: quoteBuyAmountCryptoBaseUnit,
+      buyAmountBeforeFeesCryptoBaseUnit: quoteBuyAmountCryptoBaseUnit,
       sources: DEFAULT_SOURCE,
       allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
       buyAsset,

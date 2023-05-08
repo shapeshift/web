@@ -114,7 +114,7 @@ export async function cowBuildTrade(
       sellAssetTradeFeeUsd,
     },
     sellAmountBeforeFeesCryptoBaseUnit: sellAmount,
-    buyAmountCryptoBaseUnit,
+    buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
     sources: DEFAULT_SOURCE,
     buyAsset,
     sellAsset,

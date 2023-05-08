@@ -152,7 +152,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       default:
         return <Tag size='sm'>{translate('common.alternative')}</Tag>
     }
-  }, [isBest, hasAmountWithPositiveReceive, translate])
+  }, [hasAmountWithPositiveReceive, isAmountEntered, translate, isBest])
 
   const activeSwapperColor = (() => {
     if (!isTradingActive) return redColor

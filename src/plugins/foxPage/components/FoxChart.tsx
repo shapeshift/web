@@ -1,5 +1,5 @@
 import { Box, Stat, StatArrow, StatNumber, Text } from '@chakra-ui/react'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -8,7 +8,8 @@ import { TimeControls } from 'components/Graph/TimeControls'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText } from 'components/Text/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { selectMarketDataById } from 'state/slices/selectors'
+import { useTimeframeChange } from 'hooks/useTimeframeChange/useTimeframeChange'
+import { selectChartTimeframe, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type FoxChartProps = {
@@ -16,7 +17,9 @@ type FoxChartProps = {
 }
 
 export const FoxChart: React.FC<FoxChartProps> = ({ assetId }) => {
-  const [timeframe, setTimeframe] = useState(HistoryTimeframe.MONTH)
+  const userChartTimeframe = useAppSelector(selectChartTimeframe)
+  const [timeframe, setTimeframe] = useState<HistoryTimeframe>(userChartTimeframe)
+  const handleTimeframeChange = useTimeframeChange(setTimeframe)
   const [percentChange, setPercentChange] = useState(0)
   const {
     number: { toFiat },
@@ -64,7 +67,7 @@ export const FoxChart: React.FC<FoxChartProps> = ({ assetId }) => {
       />
       <Card.Footer>
         <TimeControls
-          onChange={setTimeframe}
+          onChange={handleTimeframeChange}
           defaultTime={timeframe}
           buttonGroupProps={{
             display: 'flex',

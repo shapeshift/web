@@ -9,18 +9,15 @@ import type {
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
+import axios from 'axios'
 import dayjs from 'dayjs'
 
 import type { MarketService } from '../api'
-import { RATE_LIMIT_THRESHOLDS_PER_MINUTE } from '../config'
 import { bn, bnOrZero } from '../utils/bignumber'
 import { isValidDate } from '../utils/isValidDate'
-import { rateLimitedAxios } from '../utils/rateLimiters'
 import type { CoinGeckoMarketCap, CoinGeckoMarketData } from './coingecko-types'
 
 const logger = new Logger({ namespace: ['market-service', 'coingecko'] })
-
-const axios = rateLimitedAxios(RATE_LIMIT_THRESHOLDS_PER_MINUTE.COINGECKO)
 
 // tons more params here: https://www.coingecko.com/en/api/documentation
 type CoinGeckoAssetData = {

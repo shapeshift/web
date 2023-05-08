@@ -35,7 +35,7 @@ export const selectSelectedCurrencyMarketDataSortedByMarketCap = createDeepEqual
       : marketDataAssetIds.reduce<MarketDataById<AssetId>>((acc, assetId) => {
           const assetMarketData = cryptoMarketData[assetId]
           // Market data massaged to the selected currency
-          const selectedCurrencyAssetMarketData = Object.assign(assetMarketData ?? {}, {
+          const selectedCurrencyAssetMarketData = Object.assign({}, assetMarketData ?? {}, {
             price: bnOrZero(assetMarketData?.price).times(fiatPrice).toString(),
             marketCap: bnOrZero(assetMarketData?.marketCap).times(fiatPrice).toString(),
             volume: bnOrZero(assetMarketData?.volume).times(fiatPrice).toString(),

@@ -1,6 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
+import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
+import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import { simpleLocale } from 'lib/browserLocale'
@@ -55,6 +57,7 @@ export type Preferences = {
   balanceThreshold: string
   selectedCurrency: SupportedFiatCurrencies
   currencyFormat: CurrencyFormats
+  chartTimeframe: HistoryTimeframe
   showWelcomeModal: boolean
   showConsentBanner: boolean
 }
@@ -98,6 +101,7 @@ const initialState: Preferences = {
   balanceThreshold: '0',
   selectedCurrency: 'USD',
   currencyFormat: CurrencyFormats.DotDecimal,
+  chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
   showWelcomeModal: false,
   showConsentBanner: true,
 }
@@ -123,6 +127,9 @@ export const preferences = createSlice({
     },
     setCurrencyFormat(state, { payload }: { payload: { currencyFormat: CurrencyFormats } }) {
       state.currencyFormat = payload.currencyFormat
+    },
+    setChartTimeframe(state, { payload }: { payload: { timeframe: HistoryTimeframe } }) {
+      state.chartTimeframe = payload.timeframe
     },
     setWelcomeModal(state, { payload }: { payload: { show: boolean } }) {
       state.showWelcomeModal = payload.show

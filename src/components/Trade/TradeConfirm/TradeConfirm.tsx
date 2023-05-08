@@ -410,7 +410,7 @@ export const TradeConfirm = () => {
               <Checkbox
                 isChecked={!hasUserOptedOutOfDonation}
                 onChange={handleDonationToggle}
-                isDisabled={isSubmitting || isReloadingTrade}
+                isDisabled={isSubmitting || isReloadingTrade || tradeStatus === TxStatus.Confirmed}
               >
                 <Text translation='trade.donation' />
               </Checkbox>

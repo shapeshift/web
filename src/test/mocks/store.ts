@@ -1,3 +1,4 @@
+import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import type { ReduxState } from 'state/reducer'
 import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
 
@@ -88,6 +89,7 @@ export const mockStore: ReduxState = {
     balanceThreshold: '0',
     selectedCurrency: 'USD',
     currencyFormat: CurrencyFormats.DotDecimal,
+    chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
     showWelcomeModal: false,
     showConsentBanner: true,
     // the following object is required by redux-persist

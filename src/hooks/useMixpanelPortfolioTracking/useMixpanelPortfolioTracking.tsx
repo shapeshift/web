@@ -53,6 +53,7 @@ export const useMixpanelPortfolioTracking = () => {
     if (!mp) return
     mp.people.set(
       Object.assign(
+        {},
         // set this against the user
         anonymizedPortfolio,
         {

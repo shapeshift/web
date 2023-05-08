@@ -51,14 +51,18 @@ export const useMixpanelPortfolioTracking = () => {
 
     const mp = getMixPanel()
     if (!mp) return
-    mp.people.set({
-      // set this against the user
-      anonymizedPortfolio,
-      // track user preferences
-      'Selected Locale': selectedLocale,
-      'Selected Currency': selectedCurrency,
-      'Selected Currency Format': selectedCurrencyFormat,
-    }) // TODO(0xdef1cafe): restructure multiple wallets per user
+    mp.people.set(
+      Object.assign(
+        // set this against the user
+        anonymizedPortfolio,
+        {
+          // track user preferences
+          'Selected Locale': selectedLocale,
+          'Selected Currency': selectedCurrency,
+          'Selected Currency Format': selectedCurrencyFormat,
+        },
+      ),
+    ) // TODO(0xdef1cafe): restructure multiple wallets per user
     // don't track again for this wallet connection session
     setIsTracked(true)
   }, [

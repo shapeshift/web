@@ -5,6 +5,7 @@ import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
+import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
@@ -76,6 +77,8 @@ export async function getTradeQuote(
       // as recommended by lifi, dodo is denied until they fix their gas estimates
       // TODO: convert this config to .env variable
       options: {
+        // used for analytics - do not change this without considering impact
+        integrator: DAO_TREASURY_ETHEREUM_MAINNET,
         slippage: Number(DEFAULT_SLIPPAGE),
         exchanges: { deny: ['dodo'] },
         // as recommended by lifi, allowSwitchChain must be false to ensure single-hop transactions.

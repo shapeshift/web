@@ -50,5 +50,5 @@ export const getRatioFromQuote = async (
   const totalSendAmountFiat = totalSellAmountFiat.plus(networkFeeFiat)
   const ratio = totalReceiveAmountFiat.div(totalSendAmountFiat)
 
-  return ratio.isFinite() && !networkFeeFiat.isZero() ? ratio.toNumber() : -Infinity
+  return ratio.isFinite() && networkFeeFiat.gte(0) ? ratio.toNumber() : -Infinity
 }

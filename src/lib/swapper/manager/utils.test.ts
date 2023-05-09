@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { Asset } from 'lib/asset-service/service/AssetService'
+import type { Asset } from 'lib/asset-service'
 
 import type { TradeQuote } from '../api'
 import { ETH } from '../swappers/utils/test-data/assets'

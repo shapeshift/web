@@ -12,7 +12,7 @@ import type { SwapErrorRight } from 'lib/swapper/api'
 import { normalizeAmount } from '../../utils/helpers/helpers'
 import { gasFeeData } from '../../utils/test-data/setupDeps'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import { baseUrlFromChainId, getUsdRate } from '../utils/helpers/helpers'
+import { baseUrlFromChainId } from '../utils/helpers/helpers'
 import { zrxServiceFactory } from '../utils/zrxService'
 import { getZrxTradeQuote } from './getZrxTradeQuote'
 
@@ -29,21 +29,21 @@ const zrxService = zrxServiceFactory({ baseUrl: 'https://api.0x.org/' })
 
 jest.mock('../utils/helpers/helpers', () => ({
   ...jest.requireActual('../utils/helpers/helpers'),
-  getUsdRate: jest.fn(),
   baseUrlFromChainId: jest.fn(() => 'https://api.0x.org/'),
 }))
 jest.mock('../../utils/helpers/helpers')
 jest.mock('../utils/zrxService')
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mocked(isEvmChainId).mockReturnValue(true)
+jest.mock('state/zustand/swapperStore/selectors', () => ({
+  ...jest.requireActual('state/zustand/swapperStore/selectors'),
+  selectSellAssetFiatRate: jest.fn(() => '1'),
+}))
 
 const mockOk = Ok as jest.MockedFunction<typeof Ok>
 const mockErr = Err as jest.MockedFunction<typeof Err>
 describe('getZrxTradeQuote', () => {
   const sellAmount = '1000000000000000000'
-  ;(getUsdRate as jest.Mock<Promise<Result<string, SwapErrorRight>>>).mockReturnValue(
-    Promise.resolve(mockOk('1')),
-  )
   ;(normalizeAmount as jest.Mock<string>).mockReturnValue(sellAmount)
   ;(baseUrlFromChainId as jest.Mock<Result<string, SwapErrorRight>>).mockReturnValue(
     mockOk('https://api.0x.org/'),

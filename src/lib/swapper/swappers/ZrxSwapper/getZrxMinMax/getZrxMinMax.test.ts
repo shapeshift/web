@@ -1,5 +1,3 @@
-import { Ok } from '@sniptt/monads'
-
 import { AVAX, BSC, BTC, FOX, OPTIMISM, WETH } from '../../utils/test-data/assets'
 import { MAX_ZRX_TRADE } from '../utils/constants'
 import { getZrxMinMax } from './getZrxMinMax'
@@ -7,10 +5,12 @@ import { getZrxMinMax } from './getZrxMinMax'
 jest.mock('../utils/zrxService')
 jest.mock('../utils/helpers/helpers')
 
-const mockOk = Ok as jest.MockedFunction<typeof Ok>
 jest.mock('../utils/helpers/helpers', () => ({
-  getUsdRate: () => mockOk('1'),
   normalizeAmount: () => '1',
+}))
+jest.mock('state/zustand/swapperStore/selectors', () => ({
+  ...jest.requireActual('state/zustand/swapperStore/selectors'),
+  selectSellAssetFiatRate: jest.fn(() => '1'),
 }))
 
 describe('getZrxMinMax', () => {

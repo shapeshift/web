@@ -9,7 +9,6 @@ import type {
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
-import type { Asset } from 'lib/asset-service'
 import type {
   ApprovalNeededInput,
   ApprovalNeededOutput,

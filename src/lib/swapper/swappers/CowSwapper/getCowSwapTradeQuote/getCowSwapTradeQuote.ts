@@ -12,13 +12,11 @@ import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types
 import {
   COW_SWAP_ETH_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
-  DEFAULT_ADDRESS,
   DEFAULT_APP_DATA,
   DEFAULT_SOURCE,
   ORDER_KIND_SELL,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
-import type { CowSwapSellQuoteApiInput } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import {
   getNowPlusThirtyMinutesTimestamp,
   getUsdRate,
@@ -88,14 +86,14 @@ export async function getCowSwapTradeQuote(
     {
       sellToken: sellAssetErc20Address,
       buyToken,
-      receiver: DEFAULT_ADDRESS,
+      receiver: receiveAddress,
       validTo: getNowPlusThirtyMinutesTimestamp(),
       appData: DEFAULT_APP_DATA,
       partiallyFillable: false,
-      from: DEFAULT_ADDRESS,
+      from: receiveAddress,
       kind: ORDER_KIND_SELL,
       sellAmountBeforeFee: normalizedSellAmountCryptoBaseUnit,
-    } as CowSwapSellQuoteApiInput,
+    },
   )
 
   if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())

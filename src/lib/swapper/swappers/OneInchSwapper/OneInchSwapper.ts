@@ -41,7 +41,6 @@ import { executeTrade } from './executeTrade/executeTrade'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { getMinMax } from './getMinMax/getMinMax'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
-import { getUsdRate } from './getUsdRate/getUsdRate'
 import type { OneInchExecuteTradeInput, OneInchSwapperDeps, OneInchTrade } from './utils/types'
 
 export type OneInchSupportedChainId =
@@ -140,10 +139,6 @@ export class OneInchSwapper implements Swapper<EvmChainId, true> {
       },
       err: err => Promise.resolve(Err(err)),
     })
-  }
-
-  getUsdRate(input: Asset): Promise<Result<string, SwapErrorRight>> {
-    return getUsdRate(this.deps, input)
   }
 
   approvalNeeded(

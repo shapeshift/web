@@ -29,7 +29,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { parseAddressInput } from 'lib/address/address'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import type { GlobalSearchResult } from 'state/slices/search-selectors'
+import type { GlobalSearchResult, SendResult } from 'state/slices/search-selectors'
 import { GlobalSearchResultType, selectGlobalItemsFromFilter } from 'state/slices/search-selectors'
 import {
   selectAggregatedEarnUserLpOpportunities,
@@ -47,7 +47,7 @@ import { makeOpportunityRouteDetails } from './utils'
 
 export const GlobalSeachButton = () => {
   const { isOpen, onClose, onOpen, onToggle } = useDisclosure()
-  const [sendResults, setSendResults] = useState<any>([])
+  const [sendResults, setSendResults] = useState<SendResult[]>([])
   const [activeIndex, setActiveIndex] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const menuRef = useRef<HTMLDivElement>(null)

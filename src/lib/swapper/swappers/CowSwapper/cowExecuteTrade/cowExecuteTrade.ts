@@ -73,7 +73,7 @@ export async function cowExecuteTrade(
     sellToken: sellAssetErc20Address,
     buyToken,
     sellAmount: sellAmountWithoutFee,
-    buyAmount: trade.buyAmountCryptoBaseUnit,
+    buyAmount: trade.buyAmountBeforeFeesCryptoBaseUnit,
     validTo: getNowPlusThirtyMinutesTimestamp(),
     appData: DEFAULT_APP_DATA,
     feeAmount: feeAmountInSellToken,

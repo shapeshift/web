@@ -31,11 +31,15 @@ import {
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
 import { getTradeRateBelowMinimum } from 'lib/swapper/swappers/ThorchainSwapper/utils/getTradeRate/getTradeRate'
-import { getUsdRate } from 'lib/swapper/swappers/ThorchainSwapper/utils/getUsdRate/getUsdRate'
 import { getEvmTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
+import {
+  selectBuyAssetFiatRate,
+  selectSellAssetFiatRate,
+} from 'state/zustand/swapperStore/selectors'
+import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 type CommonQuoteFields = Omit<TradeQuote<ChainId>, 'allowanceContract' | 'feeData'>
 
@@ -153,23 +157,18 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     }
   })()
 
-  const maybeSellAssetUsdRate = await getUsdRate(deps.daemonUrl, sellAsset.assetId)
-  const maybeBuyAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAsset.assetId)
+  const sellAssetFiatRate = selectSellAssetFiatRate(swapperStore.getState())
+  const buyAssetFiatRate = selectBuyAssetFiatRate(swapperStore.getState())
 
-  if (maybeBuyAssetUsdRate.isErr()) return Err(maybeBuyAssetUsdRate.unwrapErr())
-  const buyAssetUsdRate = maybeBuyAssetUsdRate.unwrap()
-  if (maybeSellAssetUsdRate.isErr()) return Err(maybeSellAssetUsdRate.unwrapErr())
-  const sellAssetUsdRate = maybeSellAssetUsdRate.unwrap()
-
-  const buyAssetTradeFeeUsd = bn(buyAssetUsdRate)
+  const buyAssetTradeFeeUsd = bn(buyAssetFiatRate)
     .times(buyAssetTradeFeeBuyAssetCryptoHuman)
     .toString()
-  const sellAssetTradeFeeUsd = bn(buyAssetUsdRate)
+  const sellAssetTradeFeeUsd = bn(buyAssetFiatRate)
     .times(sellAssetTradeFeeBuyAssetCryptoHuman)
     .toString()
 
-  const minimumSellAssetAmountCryptoHuman = bn(sellAssetUsdRate).isGreaterThan(0)
-    ? bnOrZero(buyAssetTradeFeeUsd).div(sellAssetUsdRate)
+  const minimumSellAssetAmountCryptoHuman = bn(sellAssetFiatRate).isGreaterThan(0)
+    ? bnOrZero(buyAssetTradeFeeUsd).div(sellAssetFiatRate)
     : bn(0) // We don't have a valid rate for the sell asset, there is no sane minimum
 
   // minimum is tradeFee padded by an amount to be sure they get something back

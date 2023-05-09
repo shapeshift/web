@@ -30,7 +30,7 @@ describe('ZrxExecuteTrade', () => {
     buyAsset,
     sellAsset,
     sellAmountBeforeFeesCryptoBaseUnit: '1',
-    buyAmountCryptoBaseUnit: '',
+    buyAmountBeforeFeesCryptoBaseUnit: '',
     depositAddress: '0x123',
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     accountNumber: 0,

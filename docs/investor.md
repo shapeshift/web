@@ -87,7 +87,7 @@ This is the `Asset` that can be deposited into the `Opportunity`.
 
 For example, `AssetId` for Ethereum is `eip155:1/slip44:60`
 
-The `@shapeshiftoss/asset-service` package has a full list of `AssetIds` that we currently support. You can submit a PR to that package to add new assets.
+The `src/lib/asset-service` directory has a full list of `AssetIds` that we currently support. You can submit a PR to add new assets.
 
 ### `positionAsset: { assetId: string, balance: BigNumber, underlyingPerPosition: BigNumber }`
 

@@ -243,9 +243,15 @@ describe('EthereumChainAdapter', () => {
   const invalidAddressTuple = { valid: false, result: ValidAddressResultType.Invalid }
 
   describe('validateAddress', () => {
-    it('should return true for a valid address', async () => {
+    it('should return true for a valid checksummed address', async () => {
       const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
       const res = await adapter.validateAddress('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045')
+      expect(res).toMatchObject(validAddressTuple)
+    })
+
+    it('should return true for a valid lowercased address', async () => {
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
+      const res = await adapter.validateAddress('0xd8da6bf26964af9d7eed9e03e53415d37aa96045')
       expect(res).toMatchObject(validAddressTuple)
     })
 

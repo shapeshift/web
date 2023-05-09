@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import type {
@@ -10,6 +9,7 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectPortfolioCryptoPrecisionBalanceByFilter } from 'state/slices/selectors'
 import { store } from 'state/store'

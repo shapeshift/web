@@ -106,7 +106,7 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
       sellAssetTradeFeeUsd: '0',
     },
     txData: quote.data,
-    buyAmountCryptoBaseUnit: quote.buyAmount,
+    buyAmountBeforeFeesCryptoBaseUnit: quote.buyAmount,
     sellAmountBeforeFeesCryptoBaseUnit: quote.sellAmount,
     sources: quote.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
   }

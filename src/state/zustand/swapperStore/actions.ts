@@ -1,7 +1,7 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import { TradeAmountInputField } from 'components/Trade/types'
+import type { Asset } from 'lib/asset-service'
 import {
   selectTradeAmountsByActionAndAmount,
   selectTradeAmountsByActionAndAmountFromQuote,

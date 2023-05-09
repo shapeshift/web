@@ -1,6 +1,6 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { Ok } from '@sniptt/monads'
+import type { Asset } from 'lib/asset-service'
 
 import type { Swapper, TradeQuote } from '../api'
 import { ETH } from '../swappers/utils/test-data/assets'

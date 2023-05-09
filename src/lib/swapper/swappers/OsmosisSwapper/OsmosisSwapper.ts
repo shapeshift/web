@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosAssetId, cosmosChainId, osmosisAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import type { cosmos } from '@shapeshiftoss/chain-adapters'
@@ -6,6 +5,7 @@ import { osmosis } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type {
   ApprovalNeededOutput,
@@ -224,7 +224,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const fee = feeData.fast.txFee
 
     return Ok({
-      buyAmountCryptoBaseUnit,
+      buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
       buyAsset,
       feeData: {
         networkFeeCryptoBaseUnit: fee,
@@ -301,7 +301,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       rate,
       sellAsset,
       sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-      buyAmountCryptoBaseUnit,
+      buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
       sources: DEFAULT_SOURCE,
       allowanceContract: '',
     })

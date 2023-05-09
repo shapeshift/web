@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   adapters,
@@ -18,6 +17,7 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { Asset } from 'lib/asset-service'
 import type { BN } from 'lib/bignumber/bignumber'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'

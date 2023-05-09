@@ -1,7 +1,7 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
+import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { MinMaxOutput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'

@@ -1,4 +1,4 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from 'lib/asset-service'
 import { FOX, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 import type { ZrxQuoteResponse } from 'lib/swapper/swappers/ZrxSwapper/types'
 
@@ -31,7 +31,7 @@ export const setupExecuteTrade = () => {
     to: '0x123',
     gas: '1235',
     gasPrice: '1236',
-    buyAmountCryptoBaseUnit: '',
+    buyAmountBeforeFeesCryptoBaseUnit: '',
     buyAsset,
     sellAsset,
     sendMax: false,

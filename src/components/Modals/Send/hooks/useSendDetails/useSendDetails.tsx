@@ -66,6 +66,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     name: SendFormFields.AccountId,
   })
 
+  const cryptoAmount = useWatch<SendInput, SendFormFields.CryptoAmount>({
+    name: SendFormFields.CryptoAmount,
+  })
+
   const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, assetId)).price)
 
   const chainAdapterManager = getChainAdapterManager()
@@ -113,18 +117,17 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const estimateFormFees = useCallback((): Promise<FeeDataEstimate<ChainId>> => {
     if (!asset) throw new Error('No asset found')
 
-    const { cryptoAmount, assetId, to, sendMax, accountId } = getValues()
+    const { assetId, to, sendMax } = getValues()
     if (!wallet) throw new Error('No wallet connected')
     return estimateFees({ cryptoAmount, assetId, to, sendMax, accountId, contractAddress })
-  }, [asset, contractAddress, getValues, wallet])
+  }, [accountId, asset, contractAddress, cryptoAmount, getValues, wallet])
 
   const debouncedSetEstimatedFormFees = useMemo(() => {
     return debounce(
       async () => {
-        if (!asset) return
+        if (!asset || !accountId) return
         const estimatedFees = await estimateFormFees()
 
-        const { cryptoAmount } = getValues()
         const hasValidBalance = cryptoHumanBalance.gte(cryptoAmount)
 
         if (!hasValidBalance) {
@@ -173,13 +176,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       { leading: true, trailing: true },
     )
   }, [
+    accountId,
     asset,
     assetId,
+    cryptoAmount,
     cryptoHumanBalance,
     estimateFormFees,
     feeAsset.assetId,
     feeAsset.symbol,
-    getValues,
     nativeAssetBalance,
     setValue,
   ])

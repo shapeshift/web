@@ -1,5 +1,4 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
@@ -7,6 +6,7 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 import isEmpty from 'lodash/isEmpty'
 import partition from 'lodash/partition'
 import { matchSorter } from 'match-sorter'
+import type { Asset } from 'lib/asset-service'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'

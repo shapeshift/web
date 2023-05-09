@@ -1,7 +1,7 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
+import type { Asset } from 'lib/asset-service'
 import { bn } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight } from 'lib/swapper/api'
 

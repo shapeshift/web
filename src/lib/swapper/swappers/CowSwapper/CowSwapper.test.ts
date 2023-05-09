@@ -218,7 +218,7 @@ describe('CowSwapper', () => {
     it('calls executeTrade on swapper.buildTrade', async () => {
       const cowSwapTrade: CowTrade<KnownChainIds.EthereumMainnet> = {
         sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
-        buyAmountCryptoBaseUnit: '14501811818247595090576',
+        buyAmountBeforeFeesCryptoBaseUnit: '14501811818247595090576',
         sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
         buyAsset: FOX,
         sellAsset: WETH,

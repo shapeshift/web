@@ -31,7 +31,7 @@ const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   maximumCryptoHuman: '100000000000000000000000000',
   sellAmountBeforeFeesCryptoBaseUnit: '713014679420',
   allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-  buyAmountCryptoBaseUnit: '114321610000000000',
+  buyAmountBeforeFeesCryptoBaseUnit: '114321610000000000',
   feeData: {
     chainSpecific: {
       estimatedGasCryptoBaseUnit: '100000',

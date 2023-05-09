@@ -97,12 +97,6 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, accountId }) => 
         )
       }
 
-      // We don't parse EIP-681 URLs because they're unsafe
-      // Some wallets may be smart, like Trust just showing an address as a QR code to avoid dangerously unsafe parameters
-      // Others might do dangerous tricks in the way they represent an asset, using various parameters to do so
-      // There's also the fact that we will assume the AssetId to be the native one of the first chain we managed to validate the address
-      // Which may not be the chain the user wants to send, or they may want to send a token - so we should always ask the user to select the asset
-      if (maybeUrlResult.assetId === ethAssetId) return history.push(SendRoutes.Select)
       history.push(SendRoutes.Address)
     },
     [history, methods],

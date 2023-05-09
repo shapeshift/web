@@ -39,7 +39,6 @@ export const AssetTransfer: React.FC<AssetTransferProps> = ({ index, compactMode
     >
       <AssetIcon
         assetId={transfer.asset?.assetId}
-        src={transfer.asset?.icon}
         boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
       />
       <Box flex={1}>
@@ -50,7 +49,9 @@ export const AssetTransfer: React.FC<AssetTransferProps> = ({ index, compactMode
           symbol={transfer.asset?.symbol ?? FALLBACK_SYMBOL}
           maximumFractionDigits={4}
         />
-        <Amount.Fiat color='gray.500' fontSize='sm' lineHeight='1' value={fiatAmount} />
+        {transfer.marketData.price && (
+          <Amount.Fiat color='gray.500' fontSize='sm' lineHeight='1' value={fiatAmount} />
+        )}
       </Box>
     </Stack>
   )

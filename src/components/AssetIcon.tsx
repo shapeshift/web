@@ -1,6 +1,5 @@
 import type { AvatarProps } from '@chakra-ui/react'
 import { Avatar, Circle, Flex, useColorModeValue, useMultiStyleConfig } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -11,7 +10,6 @@ import { FoxIcon } from './Icons/FoxIcon'
 
 type AssetIconProps = {
   assetId?: string
-  asset?: Asset
   // Show the network icon instead of the asset icon e.g OP icon instead of ETH for Optimism native asset
   showNetworkIcon?: boolean
 } & AvatarProps
@@ -65,7 +63,6 @@ export const AssetIcon = ({ assetId, showNetworkIcon, src, ...rest }: AssetIconP
 
   if (!asset && !assetId && !src) return null
 
-  // native asset
   if (assetId === nativeAssetId && asset?.networkIcon && showNetworkIcon) {
     return (
       <Avatar

@@ -53,8 +53,6 @@ export const TransactionRow = forwardRef<TxRowProps, 'div'>(
     const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
     const txDetails = useTxDetails(txId)
 
-    console.log({ txDetails })
-
     const renderTransactionType = (
       txDetails: TxDetails,
       showDateAndGuide: boolean,

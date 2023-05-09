@@ -57,6 +57,7 @@ import {
   selectBuyAmountFiat,
   selectBuyAsset,
   selectBuyAssetAccountId,
+  selectBuyAssetFiatRate,
   selectCheckApprovalNeededForWallet,
   selectFeeAssetFiatRate,
   selectFees,
@@ -67,6 +68,7 @@ import {
   selectSellAmountFiat,
   selectSellAsset,
   selectSellAssetAccountId,
+  selectSellAssetFiatRate,
   selectSlippage,
   selectSwapperSupportsCrossAccountTrade,
 } from 'state/zustand/swapperStore/selectors'
@@ -114,6 +116,8 @@ export const TradeInput = () => {
   const fiatSellAmount = useSwapperStore(selectSellAmountFiat)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
   const updateIsSendMax = useSwapperStore(state => state.updateIsSendMax)
+  const buyAssetFiatRate = useSwapperStore(selectBuyAssetFiatRate)
+  const sellAssetFiatRate = useSwapperStore(selectSellAssetFiatRate)
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
@@ -228,6 +232,9 @@ export const TradeInput = () => {
                 ...tradeQuoteArgs,
                 sellAmountBeforeFeesCryptoBaseUnit: '10000000', // arbitrarily high sell amount for max send quote
                 feeAsset,
+                buyAssetFiatRate,
+                sellAssetFiatRate,
+                feeAssetFiatRate,
               }),
             )
           ).data
@@ -262,6 +269,9 @@ export const TradeInput = () => {
     updateAmount,
     handleInputAmountChange,
     updateTradeAmountsFromQuote,
+    buyAssetFiatRate,
+    sellAssetFiatRate,
+    feeAssetFiatRate,
   ])
   const onSubmit = useCallback(async () => {
     setIsLoading(true)

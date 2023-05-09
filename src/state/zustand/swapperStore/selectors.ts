@@ -34,9 +34,9 @@ export const selectSellAsset = (state: SwapperState) => state.sellAsset
 export const selectBuyAsset = (state: SwapperState) => state.buyAsset
 export const selectSellAmountFiat = (state: SwapperState) => state.sellAmountFiat
 export const selectBuyAmountFiat = (state: SwapperState) => state.buyAmountFiat
-export const selectSellAssetFiatRate = (state: SwapperState) => state.sellAssetFiatRate
-export const selectBuyAssetFiatRate = (state: SwapperState) => state.buyAssetFiatRate
-export const selectFeeAssetFiatRate = (state: SwapperState) => state.feeAssetFiatRate
+export const selectSellAssetFiatRate = (state: SwapperState) => state.sellAssetFiatRate ?? '0'
+export const selectBuyAssetFiatRate = (state: SwapperState) => state.buyAssetFiatRate ?? '0'
+export const selectFeeAssetFiatRate = (state: SwapperState) => state.feeAssetFiatRate ?? '0'
 export const selectAction = (state: SwapperState) => state.action
 export const selectIsExactAllowance = (state: SwapperState) => state.isExactAllowance
 export const selectIsSendMax = (state: SwapperState) => state.isSendMax

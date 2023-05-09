@@ -10,7 +10,13 @@ import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import { selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
-import { selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
+import {
+  selectBuyAsset,
+  selectBuyAssetFiatRate,
+  selectFeeAssetFiatRate,
+  selectSellAsset,
+  selectSellAssetFiatRate,
+} from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 // A helper hook to get the available swappers from the RTK API, mapping the SwapperTypes to swappers
@@ -31,6 +37,9 @@ export const useAvailableSwappers = () => {
   )
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
+  const buyAssetFiatRate = useSwapperStore(selectBuyAssetFiatRate)
+  const sellAssetFiatRate = useSwapperStore(selectSellAssetFiatRate)
+  const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const updateFees = useSwapperStore(state => state.updateFees)
   const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
 
@@ -62,6 +71,9 @@ export const useAvailableSwappers = () => {
               getAvailableSwappers.initiate({
                 ...tradeQuoteArgs,
                 feeAsset,
+                buyAssetFiatRate,
+                sellAssetFiatRate,
+                feeAssetFiatRate,
               }),
             )
           : undefined
@@ -103,6 +115,9 @@ export const useAvailableSwappers = () => {
     getAvailableSwappers,
     sellAssetId,
     tradeQuoteArgs,
+    buyAssetFiatRate,
+    sellAssetFiatRate,
+    feeAssetFiatRate,
   ])
 
   useEffect(() => {

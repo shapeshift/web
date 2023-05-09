@@ -24,8 +24,7 @@ export async function cowBuildTrade(
   deps: CowSwapperDeps,
   input: BuildTradeInput,
 ): Promise<Result<CowTrade<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
-  const { adapter } = deps
-  const { sellAsset, buyAsset, accountNumber, wallet } = input
+  const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
   const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
 
   const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } = fromAssetId(
@@ -58,8 +57,6 @@ export async function cowBuildTrade(
 
   const buyToken =
     buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
-
-  const receiveAddress = await adapter.getAddress({ accountNumber, wallet })
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(

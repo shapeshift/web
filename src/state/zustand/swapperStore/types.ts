@@ -26,7 +26,6 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   trade?: Trade<C> | CowTrade<C>
   activeSwapperWithMetadata?: SwapperWithQuoteMetadata
   availableSwappersWithMetadata?: SwapperWithQuoteMetadata[]
-  selectedCurrencyToUsdRate?: string
   activeAffiliateBps: string
 }
 
@@ -56,7 +55,6 @@ export type SwapperAction = {
   updateBuyAmountCryptoPrecision: (buyAmountCryptoPrecision: string) => void
   updateSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
   handleSwitchAssets: () => void
-  updateSelectedCurrencyToUsdRate: (selectedCurrencyToUsdRate: string) => void
   handleInputAmountChange: () => void
   handleAssetSelection: (handleAssetSelectionInput: HandleAssetSelectionInput) => void
   updateFees: (sellFeeAsset: Asset) => void

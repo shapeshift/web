@@ -69,7 +69,6 @@ export const swapperStore = createStore<
           'availableSwappersWithMetadata',
         ),
         handleSwitchAssets: handleSwitchAssets(set),
-        updateSelectedCurrencyToUsdRate: createUpdateAction(set, 'selectedCurrencyToUsdRate'),
         handleInputAmountChange: handleInputAmountChange(set),
         handleAssetSelection: handleAssetSelection(set),
         updateTradeAmountsFromQuote: updateTradeAmountsFromQuote(set),

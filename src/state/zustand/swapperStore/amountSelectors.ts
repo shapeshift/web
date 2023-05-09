@@ -16,7 +16,6 @@ import {
   selectAction,
   selectAmount,
   selectBuyAsset,
-  selectSelectedCurrencyToUsdRate,
   selectSellAmountFiat,
   selectSellAsset,
   selectSlippage,
@@ -148,15 +147,10 @@ export const selectBuyAmountBeforeFeesBuyAssetCryptoPrecision = createSelector(
 
 export const selectSellAssetTradeFeeSellAssetBaseUnit = createSelector(
   selectSellAssetFiatRate,
-  selectSelectedCurrencyToUsdRate,
   (state: SwapperState) => state.fees?.sellAssetTradeFeeUsd,
   (state: SwapperState) => state.sellAsset?.precision,
-  (
-    sellAssetFiatRate,
-    selectedCurrencyToUsdRate,
-    sellAssetTradeFeeUsd,
-    sellAssetPrecision,
-  ): string | undefined => {
+  (sellAssetFiatRate, sellAssetTradeFeeUsd, sellAssetPrecision): string | undefined => {
+    const selectedCurrencyToUsdRate = selectFiatToUsdRate(store.getState())
     if (!sellAssetFiatRate || !selectedCurrencyToUsdRate || !sellAssetPrecision) return undefined
     const sellAssetTradeFeeFiat = bnOrZero(sellAssetTradeFeeUsd).times(selectedCurrencyToUsdRate)
     return toBaseUnit(sellAssetTradeFeeFiat.div(sellAssetFiatRate), sellAssetPrecision)
@@ -165,15 +159,10 @@ export const selectSellAssetTradeFeeSellAssetBaseUnit = createSelector(
 
 export const selectBuyAssetTradeFeeBuyAssetBaseUnit = createSelector(
   selectBuyAssetFiatRate,
-  selectSelectedCurrencyToUsdRate,
   (state: SwapperState) => state.fees?.buyAssetTradeFeeUsd,
   (state: SwapperState) => state.buyAsset?.precision,
-  (
-    buyAssetFiatRate,
-    selectedCurrencyToUsdRate,
-    buyAssetTradeFeeUsd,
-    buyAssetPrecision,
-  ): string | undefined => {
+  (buyAssetFiatRate, buyAssetTradeFeeUsd, buyAssetPrecision): string | undefined => {
+    const selectedCurrencyToUsdRate = selectFiatToUsdRate(store.getState())
     if (!buyAssetFiatRate || !selectedCurrencyToUsdRate || !buyAssetPrecision) return undefined
     const buyAssetTradeFeeFiat = bnOrZero(buyAssetTradeFeeUsd).times(selectedCurrencyToUsdRate)
     return toBaseUnit(buyAssetTradeFeeFiat.div(buyAssetFiatRate), buyAssetPrecision)

@@ -12,7 +12,6 @@ import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { utils } from 'ethers'
-import WAValidator from 'multicoin-address-validator'
 import { numberToHex } from 'web3-utils'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -35,12 +34,7 @@ import type {
   ValidAddressResult,
 } from '../types'
 import { ValidAddressResultType } from '../types'
-import {
-  chainIdToChainLabel,
-  getAssetNamespace,
-  toAddressNList,
-  toRootDerivationPath,
-} from '../utils'
+import { getAssetNamespace, toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
 import type { avalanche, bnbsmartchain, ethereum, optimism, polygon } from '.'
 import type { BuildCustomTxInput, EstimateGasRequest, Fees, GasFeeDataEstimate } from './types'
@@ -461,8 +455,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   // eslint-disable-next-line require-await
   async validateAddress(address: string): Promise<ValidAddressResult> {
-    const chainLabel = chainIdToChainLabel(this.chainId)
-    const isValidAddress = WAValidator.validate(address, chainLabel)
+    const isValidAddress = utils.isAddress(address)
     if (isValidAddress) return { valid: true, result: ValidAddressResultType.Valid }
     return { valid: false, result: ValidAddressResultType.Invalid }
   }

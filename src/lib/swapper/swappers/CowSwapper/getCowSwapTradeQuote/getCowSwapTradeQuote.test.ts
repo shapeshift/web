@@ -9,7 +9,7 @@ import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX, WETH } from '../../utils/test-data/assets'
 import type { CowSwapperDeps } from '../CowSwapper'
-import { DEFAULT_APP_DATA } from '../utils/constants'
+import { DEFAULT_ADDRESS, DEFAULT_APP_DATA } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote'
@@ -231,7 +231,7 @@ describe('getCowTradeQuote', () => {
       sellAmountBeforeFeesCryptoBaseUnit: '11111',
       sendMax: true,
       accountNumber: 0,
-      receiveAddress: '',
+      receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
     }
 
@@ -254,7 +254,7 @@ describe('getCowTradeQuote', () => {
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
       sendMax: true,
       accountNumber: 0,
-      receiveAddress: '',
+      receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
     }
 
@@ -294,7 +294,7 @@ describe('getCowTradeQuote', () => {
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
       sendMax: true,
       accountNumber: 0,
-      receiveAddress: '',
+      receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
     }
 
@@ -334,7 +334,7 @@ describe('getCowTradeQuote', () => {
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000',
       sendMax: true,
       accountNumber: 0,
-      receiveAddress: '',
+      receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
     }
 

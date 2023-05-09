@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -23,8 +23,9 @@ import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { parseAddressInputWithChainId } from 'lib/address/address'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { store, useAppSelector } from 'state/store'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
@@ -51,10 +52,11 @@ export const Address = () => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
+  const handleNext = useCallback(() => history.push(SendRoutes.Details), [history])
+
   if (!asset) return null
   const { chainId } = asset
   const isYatSupportedChain = chainId === ethChainId // yat only supports eth mainnet
-  const handleNext = () => history.push(SendRoutes.Details)
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
 
   return (
@@ -92,16 +94,27 @@ export const Address = () => {
                 validateAddress: async (rawInput: string) => {
                   const value = rawInput.trim() // trim leading/trailing spaces
                   setIsValidating(true)
+                  setValue(SendFormFields.To, '')
+                  setValue(SendFormFields.VanityAddress, '')
+                  setValue(SendFormFields.VanityAddress, '')
+                  setValue(SendFormFields.CryptoAmount, '')
                   const { assetId } = asset
                   // this does not throw, everything inside is handled
                   const parseAddressInputWithChainIdArgs = { assetId, chainId, value }
-                  const { address, vanityAddress } = await parseAddressInputWithChainId(
-                    parseAddressInputWithChainIdArgs,
-                  )
+                  const { amountCryptoPrecision, address, vanityAddress } =
+                    await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
                   setIsValidating(false)
                   // set returned values
                   setValue(SendFormFields.To, address)
                   setValue(SendFormFields.VanityAddress, vanityAddress)
+                  if (amountCryptoPrecision) {
+                    const marketData = selectMarketDataById(store.getState(), assetId)
+                    setValue(SendFormFields.CryptoAmount, amountCryptoPrecision)
+                    setValue(
+                      SendFormFields.FiatAmount,
+                      bnOrZero(amountCryptoPrecision).times(marketData.price).toString(),
+                    )
+                  }
                   const invalidMessage =
                     isYatFeatureEnabled && isYatSupportedChain
                       ? 'common.invalidAddressOrYat'

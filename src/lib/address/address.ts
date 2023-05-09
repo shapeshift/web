@@ -46,10 +46,10 @@ export const parseMaybeUrlByChainId: Identity<ParseAddressByChainIdInputArgs> = 
           assetId,
           value: parsedUrl.target_address ?? value,
           chainId,
-          ...(parsedUrl.parameters?.amount ?? parsedUrl.parameters?.amount
+          ...(parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
             ? {
                 amountCryptoPrecision: bnOrZero(
-                  parsedUrl.parameters.amount ?? parsedUrl.parameters.amount,
+                  parsedUrl.parameters.value ?? parsedUrl.parameters.amount,
                 ).toFixed(),
               }
             : {}),
@@ -266,6 +266,7 @@ type ParseAddressByChainIdInputArgs = ParseAddressInputArgs & {
 export type ParseAddressInputReturn = {
   address: string
   vanityAddress: string
+  amountCryptoPrecision?: string
   chainId: ChainId
 }
 
@@ -293,7 +294,12 @@ export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async ar
   if (isValidAddress) {
     const vanityAddress = await reverseLookupVanityAddress(parsedArgs)
     // return a valid address, and a possibly blank or populated vanity address
-    return { address: parsedArgs.value, vanityAddress, chainId: args.chainId }
+    return {
+      address: parsedArgs.value,
+      vanityAddress,
+      chainId: args.chainId,
+      amountCryptoPrecision: parsedArgs.amountCryptoPrecision,
+    }
   }
   // at this point it's not a valid address, but may not be a vanity address
   const isVanityAddress = await validateVanityAddress(parsedArgs)

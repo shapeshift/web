@@ -33,7 +33,6 @@ import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import {
   selectSwapperApiPending,
   selectSwapperApiTradeQuotePending,
-  selectSwapperApiUsdRatesPending,
   selectSwapperQueriesInitiated,
 } from 'state/apis/swapper/selectors'
 import {
@@ -179,7 +178,6 @@ export const TradeInput = () => {
 
   const isSwapperApiPending = useSelector(selectSwapperApiPending)
   const isTradeQuotePending = useSelector(selectSwapperApiTradeQuotePending)
-  const isUsdRatesPending = useSelector(selectSwapperApiUsdRatesPending)
   const isSwapperApiInitiated = useSelector(selectSwapperQueriesInitiated)
 
   const quoteAvailableForCurrentAssetPair = useMemo(() => {
@@ -609,7 +607,7 @@ export const TradeInput = () => {
             percentOptions={[1]}
             onPercentOptionClick={handleSendMax}
             showInputSkeleton={isSwapperApiPending && isSendMax}
-            showFiatSkeleton={isUsdRatesPending || (isSwapperApiPending && isSendMax)}
+            showFiatSkeleton={isSwapperApiPending && isSendMax}
             label={translate('trade.youPay')}
           />
           <TradeAssetInput

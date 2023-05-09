@@ -31,7 +31,7 @@ export const setupExecuteTrade = () => {
     to: '0x123',
     gas: '1235',
     gasPrice: '1236',
-    buyAmountCryptoBaseUnit: '',
+    buyAmountBeforeFeesCryptoBaseUnit: '',
     buyAsset,
     sellAsset,
     sendMax: false,

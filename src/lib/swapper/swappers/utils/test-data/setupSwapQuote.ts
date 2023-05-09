@@ -8,7 +8,7 @@ export const setupQuote = () => {
   const sellAsset: Asset = { ...FOX }
   const buyAsset: Asset = { ...WETH }
   const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
-    buyAmountCryptoBaseUnit: '',
+    buyAmountBeforeFeesCryptoBaseUnit: '',
     sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
     sellAsset,
     buyAsset,

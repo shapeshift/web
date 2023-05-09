@@ -141,7 +141,7 @@ export type IntermediaryTransactionOutput = {
 }
 
 interface TradeBase<C extends ChainId, MissingNetworkFee extends boolean = false> {
-  buyAmountCryptoBaseUnit: string
+  buyAmountBeforeFeesCryptoBaseUnit: string
   sellAmountBeforeFeesCryptoBaseUnit: string
   feeData: QuoteFeeData<C, MissingNetworkFee>
   rate: string

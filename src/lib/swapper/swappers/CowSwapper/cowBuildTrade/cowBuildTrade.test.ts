@@ -12,7 +12,7 @@ import type { IsApprovalRequiredArgs } from '../../utils/helpers/helpers'
 import { ETH, FOX, WBTC, WETH } from '../../utils/test-data/assets'
 import type { CowSwapperDeps } from '../CowSwapper'
 import type { CowTrade } from '../types'
-import { DEFAULT_APP_DATA } from '../utils/constants'
+import { DEFAULT_ADDRESS, DEFAULT_APP_DATA } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { cowBuildTrade } from './cowBuildTrade'
@@ -90,10 +90,10 @@ const feeData: FeeDataEstimate<KnownChainIds.EthereumMainnet> = {
 const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
   appData: DEFAULT_APP_DATA,
   buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-  from: 'address11',
+  from: DEFAULT_ADDRESS,
   kind: 'sell',
   partiallyFillable: false,
-  receiver: 'address11',
+  receiver: DEFAULT_ADDRESS,
   sellAmountBeforeFee: '1000000000000000000',
   sellToken: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   validTo: 1656797787,
@@ -102,10 +102,10 @@ const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
 const expectedApiInputWbtcToWeth: CowSwapSellQuoteApiInput = {
   appData: DEFAULT_APP_DATA,
   buyToken: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  from: 'address11',
+  from: DEFAULT_ADDRESS,
   kind: 'sell',
   partiallyFillable: false,
-  receiver: 'address11',
+  receiver: DEFAULT_ADDRESS,
   sellAmountBeforeFee: '100000000',
   sellToken: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
   validTo: 1656797787,
@@ -114,10 +114,10 @@ const expectedApiInputWbtcToWeth: CowSwapSellQuoteApiInput = {
 const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
   appData: DEFAULT_APP_DATA,
   buyToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-  from: 'address11',
+  from: DEFAULT_ADDRESS,
   kind: 'sell',
   partiallyFillable: false,
-  receiver: 'address11',
+  receiver: DEFAULT_ADDRESS,
   sellAmountBeforeFee: '1000000000000000000000',
   sellToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   validTo: 1656797787,
@@ -132,19 +132,19 @@ const expectedTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
     sellAssetTradeFeeUsd: '17.95954294012756741283729339486489192096',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
-  buyAmountCryptoBaseUnit: '14501811818247595090576', // 14501 FOX
+  buyAmountBeforeFeesCryptoBaseUnit: '14707533959600717283163', // 14707 FOX
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   buyAsset: FOX,
   sellAsset: WETH,
   accountNumber: 0,
-  receiveAddress: 'address11',
+  receiveAddress: DEFAULT_ADDRESS,
   feeAmountInSellTokenCryptoBaseUnit: '14557942658757988',
   sellAmountDeductFeeCryptoBaseUnit: '985442057341242012',
 }
 
 const expectedTradeQuoteWbtcToWethWithApprovalFeeCryptoBaseUnit: CowTrade<KnownChainIds.EthereumMainnet> =
   {
-    rate: '19.13939810252384532346', // 19.14 WETH per WBTC
+    rate: '19.1423299300562315722', // 19.14 WETH per WBTC
     feeData: {
       chainSpecific: {},
       buyAssetTradeFeeUsd: '0',
@@ -152,18 +152,18 @@ const expectedTradeQuoteWbtcToWethWithApprovalFeeCryptoBaseUnit: CowTrade<KnownC
       sellAssetTradeFeeUsd: '3.6162531444',
     },
     sellAmountBeforeFeesCryptoBaseUnit: '100000000',
-    buyAmountCryptoBaseUnit: '19136098853078932263', // 19.13 WETH
+    buyAmountBeforeFeesCryptoBaseUnit: '19141961497366844695', // 19.14 WETH
     sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
     buyAsset: WETH,
     sellAsset: WBTC,
     accountNumber: 0,
-    receiveAddress: 'address11',
+    receiveAddress: DEFAULT_ADDRESS,
     feeAmountInSellTokenCryptoBaseUnit: '17238',
     sellAmountDeductFeeCryptoBaseUnit: '99982762',
   }
 
 const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
-  rate: '0.00004995640398295996',
+  rate: '0.00005461814085319106',
   feeData: {
     chainSpecific: {},
     buyAssetTradeFeeUsd: '0',
@@ -171,12 +171,12 @@ const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
     sellAssetTradeFeeUsd: '5.3955565850972847808512',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
-  buyAmountCryptoBaseUnit: '46868859830863283',
+  buyAmountBeforeFeesCryptoBaseUnit: '55616098403669903',
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   buyAsset: ETH,
   sellAsset: FOX,
   accountNumber: 0,
-  receiveAddress: 'address11',
+  receiveAddress: DEFAULT_ADDRESS,
   feeAmountInSellTokenCryptoBaseUnit: '61804771879693983744',
   sellAmountDeductFeeCryptoBaseUnit: '938195228120306016256',
 }
@@ -184,7 +184,7 @@ const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
 const deps: CowSwapperDeps = {
   apiUrl: 'https://api.cow.fi/mainnet/api',
   adapter: {
-    getAddress: jest.fn(() => Promise.resolve('address11')),
+    getAddress: jest.fn(() => Promise.resolve(DEFAULT_ADDRESS)),
     getFeeData: jest.fn(() => Promise.resolve(feeData)),
   } as unknown as ethereum.ChainAdapter,
   web3: {} as Web3,
@@ -200,7 +200,7 @@ describe('cowBuildTrade', () => {
       sendMax: true,
       accountNumber: 0,
       wallet: {} as HDWallet,
-      receiveAddress: '',
+      receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
     }
 
@@ -224,7 +224,7 @@ describe('cowBuildTrade', () => {
       sendMax: true,
       accountNumber: 0,
       wallet: {} as HDWallet,
-      receiveAddress: '',
+      receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
     }
 
@@ -265,7 +265,7 @@ describe('cowBuildTrade', () => {
       sendMax: true,
       accountNumber: 0,
       wallet: {} as HDWallet,
-      receiveAddress: '',
+      receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
     }
 
@@ -277,7 +277,7 @@ describe('cowBuildTrade', () => {
               ...expectedApiInputWbtcToWeth,
               sellAmountBeforeFee: undefined,
               sellAmount: '99982762',
-              buyAmount: '19136098853078932263',
+              buyAmount: '19139030175222888479',
               feeAmount: '17238',
               sellTokenBalance: 'erc20',
               buyTokenBalance: 'erc20',
@@ -308,7 +308,7 @@ describe('cowBuildTrade', () => {
       sendMax: true,
       accountNumber: 0,
       wallet: {} as HDWallet,
-      receiveAddress: '',
+      receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
     }
 
@@ -320,7 +320,7 @@ describe('cowBuildTrade', () => {
               ...expectedApiInputFoxToEth,
               sellAmountBeforeFee: undefined,
               sellAmount: '938195228120306016256',
-              buyAmount: '46868859830863283',
+              buyAmount: '51242479117266593',
               feeAmount: '61804771879693983744',
               sellTokenBalance: 'erc20',
               buyTokenBalance: 'erc20',

@@ -39,7 +39,7 @@ export const getRatioFromQuote = async (
     .plus(bnOrZero(quote.feeData.sellAssetTradeFeeUsd))
 
   const totalReceiveAmountFiat = bnOrZero(
-    fromBaseUnit(quote.buyAmountCryptoBaseUnit, quote.buyAsset.precision),
+    fromBaseUnit(quote.buyAmountBeforeFeesCryptoBaseUnit, quote.buyAsset.precision),
   )
     .times(buyAssetUsdRate)
     .minus(bnOrZero(quote.feeData.buyAssetTradeFeeUsd))
@@ -50,5 +50,5 @@ export const getRatioFromQuote = async (
   const totalSendAmountFiat = totalSellAmountFiat.plus(networkFeeFiat)
   const ratio = totalReceiveAmountFiat.div(totalSendAmountFiat)
 
-  return ratio.isFinite() && !networkFeeFiat.isZero() ? ratio.toNumber() : -Infinity
+  return ratio.isFinite() && networkFeeFiat.gte(0) ? ratio.toNumber() : -Infinity
 }

@@ -44,7 +44,7 @@ import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 const MAX_COSMOS_SDK_MEMO_LENGTH = 256
 
 export const Details = () => {
-  const { control, setValue } = useFormContext<SendInput>()
+  const { control, setValue, trigger } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
 
@@ -81,10 +81,13 @@ export const Details = () => {
   } = useWallet()
 
   useEffect(() => {
+    // This component initially mounts without an accountId, because of how <AccountDropdown /> works
+    if (!accountId) return
     // Initial setting of cryptoAmount in case of a QR-code set amount
-    if (!cryptoAmount) handleInputChange(cryptoAmount ?? '0')
+    handleInputChange(cryptoAmount ?? '0')
+    trigger(SendFormFields.CryptoAmount)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handleInputChange])
+  }, [accountId])
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 

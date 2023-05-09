@@ -172,9 +172,12 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
             chainId,
           })
     const underlyingAssetIds = [assetId0, assetId1] as const
+    const underlyingAsset0 = assets.byId[underlyingAssetIds[0]]
+    const underlyingAsset1 = assets.byId[underlyingAssetIds[1]]
     const lpAsset = assets.byId[opportunityId]
 
     if (!lpAsset) continue
+    if (!(underlyingAsset0?.symbol && underlyingAsset1?.symbol)) continue
 
     if (bnOrZero(token0MarketData?.price).isZero()) {
       continue
@@ -233,9 +236,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
         toBaseUnit(token0PoolRatio.toString(), token0Decimals),
         toBaseUnit(token1PoolRatio.toString(), token1Decimals),
       ] as const,
-      name: `${assets.byId[underlyingAssetIds[0]]?.symbol}/${
-        assets.byId[underlyingAssetIds[1]]?.symbol
-      } Pool`,
+      name: `${underlyingAsset0.symbol}/${underlyingAsset1.symbol} Pool`,
       rewardAssetIds: [],
       isClaimableRewards: false,
     }

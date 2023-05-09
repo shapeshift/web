@@ -3,6 +3,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
@@ -25,7 +26,7 @@ export async function cowBuildTrade(
 ): Promise<Result<CowTrade<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
   const { adapter } = deps
   const { sellAsset, buyAsset, accountNumber, wallet } = input
-  const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
+  const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
 
   const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } = fromAssetId(
     sellAsset.assetId,
@@ -72,7 +73,7 @@ export async function cowBuildTrade(
       partiallyFillable: false,
       from: receiveAddress,
       kind: ORDER_KIND_SELL,
-      sellAmountBeforeFee: sellAmount,
+      sellAmountBeforeFee: sellAmountBeforeFeesCryptoBaseUnit,
     },
   )
 
@@ -81,7 +82,7 @@ export async function cowBuildTrade(
   const {
     data: {
       quote: {
-        buyAmount: buyAmountCryptoBaseUnit,
+        buyAmount: buyAmountAfterFeesCryptoBaseUnit,
         sellAmount: quoteSellAmountExcludeFeeCryptoBaseUnit,
         feeAmount: feeAmountInSellTokenCryptoBaseUnit,
       },
@@ -89,15 +90,29 @@ export async function cowBuildTrade(
   } = maybeQuoteResponse.unwrap()
 
   const maybeSellAssetUsdRate = await getUsdRate(deps, sellAsset)
+  const maybeBuyAssetUsdRate = await getUsdRate(deps, buyAsset)
   if (maybeSellAssetUsdRate.isErr()) return Err(maybeSellAssetUsdRate.unwrapErr())
+  if (maybeBuyAssetUsdRate.isErr()) return Err(maybeBuyAssetUsdRate.unwrapErr())
   const sellAssetUsdRate = maybeSellAssetUsdRate.unwrap()
+  const buyAssetUsdRate = maybeBuyAssetUsdRate.unwrap()
 
   const sellAssetTradeFeeUsd = bnOrZero(feeAmountInSellTokenCryptoBaseUnit)
     .div(bn(10).exponentiatedBy(sellAsset.precision))
     .multipliedBy(bnOrZero(sellAssetUsdRate))
     .toString()
 
-  const buyAmountCryptoPrecision = bn(buyAmountCryptoBaseUnit).div(
+  const feeAmountInBuyTokenCryptoPrecision = bnOrZero(sellAssetTradeFeeUsd).div(
+    bnOrZero(buyAssetUsdRate),
+  )
+  const feeAmountInBuyTokenCryptoBaseUnit = toBaseUnit(
+    feeAmountInBuyTokenCryptoPrecision,
+    buyAsset.precision,
+  )
+  const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(feeAmountInBuyTokenCryptoBaseUnit)
+    .plus(buyAmountAfterFeesCryptoBaseUnit)
+    .toFixed()
+
+  const buyAmountCryptoPrecision = bn(buyAmountBeforeFeesCryptoBaseUnit).div(
     bn(10).exponentiatedBy(buyAsset.precision),
   )
   const quoteSellAmountCryptoPrecision = bn(quoteSellAmountExcludeFeeCryptoBaseUnit).div(
@@ -113,8 +128,8 @@ export async function cowBuildTrade(
       buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
       sellAssetTradeFeeUsd,
     },
-    sellAmountBeforeFeesCryptoBaseUnit: sellAmount,
-    buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
+    sellAmountBeforeFeesCryptoBaseUnit,
+    buyAmountBeforeFeesCryptoBaseUnit,
     sources: DEFAULT_SOURCE,
     buyAsset,
     sellAsset,

@@ -132,7 +132,7 @@ const expectedTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
     sellAssetTradeFeeUsd: '17.95954294012756741283729339486489192096',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
-  buyAmountBeforeFeesCryptoBaseUnit: '14707533959600717283163', // 14501 FOX
+  buyAmountBeforeFeesCryptoBaseUnit: '14707533959600717283163', // 14707 FOX
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   buyAsset: FOX,
   sellAsset: WETH,

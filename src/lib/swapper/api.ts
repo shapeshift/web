@@ -1,10 +1,10 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { createErrorClass } from '@shapeshiftoss/errors'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
+import type { Asset } from 'lib/asset-service'
 
 export const SwapError = createErrorClass('SwapError')
 

@@ -1,7 +1,7 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import debounce from 'lodash/debounce'
 import { useCallback, useMemo, useState } from 'react'
 import { filterAssetsBySearchTerm } from 'components/AssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import type { Asset } from 'lib/asset-service'
 import { isSome } from 'lib/utils'
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'

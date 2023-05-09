@@ -1,9 +1,9 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 import type Web3 from 'web3'
+import type { Asset } from 'lib/asset-service'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'

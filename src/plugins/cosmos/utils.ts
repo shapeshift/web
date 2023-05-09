@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type {
   cosmossdk,
@@ -7,6 +6,7 @@ import type {
   FeeDataKey,
 } from '@shapeshiftoss/chain-adapters'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 export type FeePriceValueHuman = {

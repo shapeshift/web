@@ -32,10 +32,9 @@
     "experimentalDecorators": true,
     "jsx": "react-jsx",
   },
-  "include": ["src/**/*", "src/**/*.json", "packages/**/*", "packages/**/*.json", "cypress/**/*"],
+  "include": ["src/**/*", "src/**/*.json", "packages/**/*", "packages/**/*.json", "cypress/**/*", "scripts/generateAssetData"],
   "exclude": ["dist", "node_modules", "**/__mocks__", "**/*.js"],
   "references": [
-    { "path": "./packages/asset-service" },
     { "path": "./packages/caip" },
     { "path": "./packages/chain-adapters" },
     { "path": "./packages/errors" },

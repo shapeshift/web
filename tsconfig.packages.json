@@ -9,7 +9,6 @@
   "include": [],
   "exclude": [],
   "references": [
-    { "path": "./packages/asset-service" },
     { "path": "./packages/caip" },
     { "path": "./packages/chain-adapters" },
     { "path": "./packages/errors" },

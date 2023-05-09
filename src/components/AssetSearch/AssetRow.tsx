@@ -1,5 +1,4 @@
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type { FC } from 'react'
 import { useMemo } from 'react'
@@ -8,6 +7,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { AssetData } from 'components/AssetSearch/AssetList'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { Asset } from 'lib/asset-service'
 import { firstNonZeroDecimal } from 'lib/math'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {

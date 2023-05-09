@@ -1,5 +1,5 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { Swapper, TradeQuote } from 'lib/swapper/api'

@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   avalancheAssetId,
@@ -14,6 +13,7 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type Web3 from 'web3'
 import type { AbiItem } from 'web3-utils'
+import type { Asset } from 'lib/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { EvmFeeData, GetTradeQuoteInput, TradeQuote } from 'lib/swapper/api'

@@ -1,10 +1,10 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import type Web3 from 'web3'
+import type { Asset } from 'lib/asset-service'
 import type {
   ApprovalNeededInput,
   ApprovalNeededOutput,

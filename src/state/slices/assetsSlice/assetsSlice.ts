@@ -1,8 +1,6 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
-import { AssetService } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   bscChainId,
@@ -12,6 +10,8 @@ import {
   polygonChainId,
 } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
+import type { Asset } from 'lib/asset-service'
+import { AssetService } from 'lib/asset-service'
 import type { PartialRecord } from 'lib/utils'
 import { sha256 } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'

@@ -14,6 +14,7 @@ import {
   ModalHeader,
   Stack,
   Tooltip,
+  usePrevious,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
@@ -80,12 +81,16 @@ export const Details = () => {
     state: { wallet },
   } = useWallet()
 
+  const previousAccountId = usePrevious(accountId)
   useEffect(() => {
     // This component initially mounts without an accountId, because of how <AccountDropdown /> works
-    if (!accountId) return
-    // Initial setting of cryptoAmount in case of a QR-code set amount
-    handleInputChange(cryptoAmount ?? '0')
-    trigger(SendFormFields.CryptoAmount)
+    // Also turns out we don't handle re-validation in case of changing AccountIds
+    // This effect takes care of both the initial/account change cases
+    if (previousAccountId !== accountId) {
+      const inputAmount = fieldName === SendFormFields.CryptoAmount ? cryptoAmount : fiatAmount
+      handleInputChange(inputAmount ?? '0')
+      trigger(fieldName)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountId])
 

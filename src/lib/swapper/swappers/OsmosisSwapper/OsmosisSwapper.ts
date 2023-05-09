@@ -46,7 +46,7 @@ import type {
   OsmosisTradeResult,
   OsmoSwapperDeps,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
-import { selectSellAssetFiatRate } from 'state/zustand/swapperStore/selectors'
+import { selectSellAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export type OsmosisSupportedChainId = KnownChainIds.CosmosMainnet | KnownChainIds.OsmosisMainnet
@@ -103,9 +103,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
   }
 
   getMinMax(): Result<MinMaxOutput, SwapErrorRight> {
-    // TODO: this should be USD not "fiat"
-    const sellAssetFiatRate = selectSellAssetFiatRate(swapperStore.getState())
-    const minimumAmountCryptoHuman = bn(1).dividedBy(bnOrZero(sellAssetFiatRate)).toString()
+    const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+    const minimumAmountCryptoHuman = bn(1).dividedBy(bnOrZero(sellAssetUsdRate)).toString()
     const maximumAmountCryptoHuman = MAX_SWAPPER_SELL
 
     return Ok({

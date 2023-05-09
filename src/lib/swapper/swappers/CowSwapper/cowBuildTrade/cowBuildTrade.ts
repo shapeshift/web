@@ -17,9 +17,9 @@ import {
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
 import { getNowPlusThirtyMinutesTimestamp } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import {
-  selectBuyAssetFiatRate,
-  selectSellAssetFiatRate,
-} from 'state/zustand/swapperStore/selectors'
+  selectBuyAssetUsdRate,
+  selectSellAssetUsdRate,
+} from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export async function cowBuildTrade(
@@ -88,16 +88,16 @@ export async function cowBuildTrade(
     },
   } = maybeQuoteResponse.unwrap()
 
-  const sellAssetFiatRate = selectSellAssetFiatRate(swapperStore.getState())
-  const buyAssetFiatRate = selectBuyAssetFiatRate(swapperStore.getState())
+  const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+  const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
 
   const sellAssetTradeFeeUsd = bnOrZero(feeAmountInSellTokenCryptoBaseUnit)
     .div(bn(10).exponentiatedBy(sellAsset.precision))
-    .multipliedBy(bnOrZero(sellAssetFiatRate))
+    .multipliedBy(bnOrZero(sellAssetUsdRate))
     .toString()
 
   const feeAmountInBuyTokenCryptoPrecision = bnOrZero(sellAssetTradeFeeUsd).div(
-    bnOrZero(buyAssetFiatRate),
+    bnOrZero(buyAssetUsdRate),
   )
   const feeAmountInBuyTokenCryptoBaseUnit = toBaseUnit(
     feeAmountInBuyTokenCryptoPrecision,

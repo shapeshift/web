@@ -9,7 +9,7 @@ import {
 import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { Ok } from '@sniptt/monads'
 import type Web3 from 'web3'
-import * as selectors from 'state/zustand/swapperStore/selectors'
+import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import { DEFAULT_SLIPPAGE } from '../../../utils/constants'
 import { BTC, ETH, FOX, RUNE } from '../../../utils/test-data/assets'
@@ -22,8 +22,8 @@ import { getLimit } from './getLimit'
 
 jest.mock('../getTradeRate/getTradeRate')
 jest.mock('../getInboundAddressDataForChain')
-const selectBuyAssetFiatRateSpy = jest.spyOn(selectors, 'selectBuyAssetFiatRate')
-const selectFeeAssetFiatRateSpy = jest.spyOn(selectors, 'selectFeeAssetFiatRate')
+const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
+const selectFeeAssetUsdRateSpy = jest.spyOn(selectors, 'selectFeeAssetUsdRate')
 const mockOk = Ok as jest.MockedFunction<typeof Ok>
 
 const thorchainSwapperDeps: ThorchainSwapperDeps = {
@@ -43,8 +43,8 @@ describe('getLimit', () => {
   })
 
   it('should get limit when sell asset is EVM fee asset and buy asset is a UTXO', async () => {
-    selectFeeAssetFiatRateSpy.mockReturnValueOnce('1595') // sellFeeAssetUsdRate (ETH)
-    selectBuyAssetFiatRateSpy.mockReturnValueOnce('20683') // buyAssetUsdRate (BTC)
+    selectFeeAssetUsdRateSpy.mockReturnValueOnce('1595') // sellFeeAssetUsdRate (ETH)
+    selectBuyAssetUsdRateSpy.mockReturnValueOnce('20683') // buyAssetUsdRate (BTC)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(mockOk('0.07714399680893498205')),
     )
@@ -70,8 +70,8 @@ describe('getLimit', () => {
   })
 
   it('should get limit when sell asset is EVM non-fee asset and buy asset is a UTXO', async () => {
-    selectFeeAssetFiatRateSpy.mockReturnValueOnce('1595') // sellFeeAssetUsdRate (ETH)
-    selectBuyAssetFiatRateSpy.mockReturnValueOnce('20683') // buyAssetUsdRate (BTC)
+    selectFeeAssetUsdRateSpy.mockReturnValueOnce('1595') // sellFeeAssetUsdRate (ETH)
+    selectBuyAssetUsdRateSpy.mockReturnValueOnce('20683') // buyAssetUsdRate (BTC)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(mockOk('0.00000199048641810579')),
     )
@@ -97,8 +97,8 @@ describe('getLimit', () => {
   })
 
   it('should get limit when buy asset is RUNE and sell asset is not', async () => {
-    selectFeeAssetFiatRateSpy.mockReturnValueOnce('1595') // sellFeeAssetUsdRate (ETH)
-    selectBuyAssetFiatRateSpy.mockReturnValueOnce('14.51') // buyAssetUsdRate (RUNE)
+    selectFeeAssetUsdRateSpy.mockReturnValueOnce('1595') // sellFeeAssetUsdRate (ETH)
+    selectBuyAssetUsdRateSpy.mockReturnValueOnce('14.51') // buyAssetUsdRate (RUNE)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(mockOk('0.02583433052665346349')),
     )
@@ -124,8 +124,8 @@ describe('getLimit', () => {
   })
 
   it('should get limit when sell asset is RUNE and buy asset is not', async () => {
-    selectFeeAssetFiatRateSpy.mockReturnValueOnce('14.51') // sellFeeAssetUsdRate (RUNE)
-    selectBuyAssetFiatRateSpy.mockReturnValueOnce('0.04') // buyAssetUsdRate (FOX)
+    selectFeeAssetUsdRateSpy.mockReturnValueOnce('14.51') // sellFeeAssetUsdRate (RUNE)
+    selectBuyAssetUsdRateSpy.mockReturnValueOnce('0.04') // buyAssetUsdRate (FOX)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(mockOk('38.68447363336979738738')),
     )

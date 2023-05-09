@@ -1,9 +1,9 @@
 import { FOX, WETH } from '../../utils/test-data/assets'
 import { getMinMax } from './getMinMax'
 
-jest.mock('state/zustand/swapperStore/selectors', () => ({
-  ...jest.requireActual('state/zustand/swapperStore/selectors'),
-  selectSellAssetFiatRate: jest.fn(() => '0.0165498'),
+jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
+  ...jest.requireActual('state/zustand/swapperStore/amountSelectors'),
+  selectSellAssetUsdRate: jest.fn(() => '0.0165498'),
 }))
 
 describe('getMinMax', () => {

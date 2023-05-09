@@ -4,7 +4,7 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 import type Web3 from 'web3'
 import type { Asset } from 'lib/asset-service'
-import * as selectors from 'state/zustand/swapperStore/selectors'
+import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
@@ -63,8 +63,8 @@ jest.mock('../getCowSwapMinMax/getCowSwapMinMax', () => {
   }
 })
 
-const selectBuyAssetFiatRateSpy = jest.spyOn(selectors, 'selectBuyAssetFiatRate')
-const selectSellAssetFiatRateSpy = jest.spyOn(selectors, 'selectSellAssetFiatRate')
+const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
+const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
 
 const feeData: FeeDataEstimate<KnownChainIds.EthereumMainnet> = {
   fast: {
@@ -220,8 +220,8 @@ const deps: CowSwapperDeps = {
 
 describe('getCowTradeQuote', () => {
   it('should throw an exception if both assets are not erc20s', async () => {
-    selectBuyAssetFiatRateSpy.mockImplementation(() => foxRate)
-    selectSellAssetFiatRateSpy.mockImplementation(() => ethRate)
+    selectBuyAssetUsdRateSpy.mockImplementation(() => foxRate)
+    selectSellAssetUsdRateSpy.mockImplementation(() => ethRate)
 
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
@@ -246,8 +246,8 @@ describe('getCowTradeQuote', () => {
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade quote when selling WETH', async () => {
-    selectBuyAssetFiatRateSpy.mockImplementation(() => foxRate)
-    selectSellAssetFiatRateSpy.mockImplementation(() => wethRate)
+    selectBuyAssetUsdRateSpy.mockImplementation(() => foxRate)
+    selectSellAssetUsdRateSpy.mockImplementation(() => wethRate)
 
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
@@ -289,8 +289,8 @@ describe('getCowTradeQuote', () => {
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade quote when buying ETH', async () => {
-    selectBuyAssetFiatRateSpy.mockImplementation(() => ethRate)
-    selectSellAssetFiatRateSpy.mockImplementation(() => foxRate)
+    selectBuyAssetUsdRateSpy.mockImplementation(() => ethRate)
+    selectSellAssetUsdRateSpy.mockImplementation(() => foxRate)
 
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
@@ -332,8 +332,8 @@ describe('getCowTradeQuote', () => {
   })
 
   it('should call cowService with correct parameters and return quote with original sellAmount when selling a very small amount of WETH', async () => {
-    selectBuyAssetFiatRateSpy.mockImplementation(() => foxRate)
-    selectSellAssetFiatRateSpy.mockImplementation(() => wethRate)
+    selectBuyAssetUsdRateSpy.mockImplementation(() => foxRate)
+    selectSellAssetUsdRateSpy.mockImplementation(() => wethRate)
 
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,

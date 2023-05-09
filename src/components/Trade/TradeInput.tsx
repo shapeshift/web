@@ -46,7 +46,10 @@ import {
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import {
+  selectBuyAssetFiatRate,
+  selectFeeAssetFiatRate,
   selectQuoteBuyAmountCryptoPrecision,
+  selectSellAssetFiatRate,
   selectTotalTradeFeeBuyAssetCryptoPrecision,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
@@ -56,9 +59,7 @@ import {
   selectBuyAmountFiat,
   selectBuyAsset,
   selectBuyAssetAccountId,
-  selectBuyAssetFiatRate,
   selectCheckApprovalNeededForWallet,
-  selectFeeAssetFiatRate,
   selectFees,
   selectIsSendMax,
   selectQuote,
@@ -67,7 +68,6 @@ import {
   selectSellAmountFiat,
   selectSellAsset,
   selectSellAssetAccountId,
-  selectSellAssetFiatRate,
   selectSlippage,
   selectSwapperSupportsCrossAccountTrade,
 } from 'state/zustand/swapperStore/selectors'

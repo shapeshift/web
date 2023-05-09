@@ -2,7 +2,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse, AxiosStatic } from 'axios'
 import type Web3 from 'web3'
-import * as selectors from 'state/zustand/swapperStore/selectors'
+import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
@@ -22,8 +22,8 @@ jest.mock('../utils/thorService', () => {
     thorService: axios.create(),
   }
 })
-const selectBuyAssetFiatRateSpy = jest.spyOn(selectors, 'selectBuyAssetFiatRate')
-const selectSellAssetFiatRateSpy = jest.spyOn(selectors, 'selectSellAssetFiatRate')
+const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
+const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
 
 const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '149.14668013703712946932',
@@ -104,8 +104,8 @@ describe('getTradeQuote', () => {
       }
     })
 
-    selectSellAssetFiatRateSpy.mockReturnValueOnce('0.15399605260336216')
-    selectBuyAssetFiatRateSpy.mockReturnValueOnce('1595')
+    selectSellAssetUsdRateSpy.mockReturnValueOnce('0.15399605260336216')
+    selectBuyAssetUsdRateSpy.mockReturnValueOnce('1595')
 
     const input: GetTradeQuoteInput = {
       ...quoteInput,

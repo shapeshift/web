@@ -1,3 +1,4 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeAmountInputField } from 'components/Trade/types'
 import {
   selectTradeAmountsByActionAndAmount,
@@ -5,6 +6,25 @@ import {
 } from 'state/zustand/swapperStore/amountSelectors'
 import { baseSwapperState } from 'state/zustand/swapperStore/testData'
 import type { SwapperState } from 'state/zustand/swapperStore/types'
+
+jest.mock('state/slices/selectors', () => {
+  const { ETH, FOX } = require('test/constants')
+  const currencyToUsdRate = 0.234 // simlate a non-usd rate for testing
+  return {
+    ...jest.requireActual('state/slices/selectors'),
+    selectMarketDataById: (_: unknown, assetId: AssetId) => {
+      switch (assetId) {
+        case ETH.assetId:
+          return { price: '1767' }
+        case FOX.assetId:
+          return { price: '0.033' }
+        default:
+          return '0'
+      }
+    },
+    selectedCurrencyToUsdRate: () => currencyToUsdRate.toString(),
+  }
+})
 
 describe('calculateAmounts', () => {
   it('returns sellAmountSellAssetCryptoPrecision, buyAmountBuyAssetBaseUnit, fiatSellAmount, fiatBuyAmount for SELL_CRYPTO action', () => {

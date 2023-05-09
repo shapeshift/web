@@ -35,9 +35,8 @@ jest.mock('../../utils/helpers/helpers')
 jest.mock('../utils/zrxService')
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mocked(isEvmChainId).mockReturnValue(true)
-jest.mock('state/zustand/swapperStore/selectors', () => ({
-  ...jest.requireActual('state/zustand/swapperStore/selectors'),
-  selectSellAssetFiatRate: jest.fn(() => '1'),
+jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
+  selectSellAssetUsdRate: jest.fn(() => '1'),
 }))
 
 const mockOk = Ok as jest.MockedFunction<typeof Ok>

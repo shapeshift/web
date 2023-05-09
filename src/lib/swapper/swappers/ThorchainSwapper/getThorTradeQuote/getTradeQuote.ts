@@ -36,9 +36,9 @@ import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFee
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
 import {
-  selectBuyAssetFiatRate,
-  selectSellAssetFiatRate,
-} from 'state/zustand/swapperStore/selectors'
+  selectBuyAssetUsdRate,
+  selectSellAssetUsdRate,
+} from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 type CommonQuoteFields = Omit<TradeQuote<ChainId>, 'allowanceContract' | 'feeData'>
@@ -157,18 +157,18 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     }
   })()
 
-  const sellAssetFiatRate = selectSellAssetFiatRate(swapperStore.getState())
-  const buyAssetFiatRate = selectBuyAssetFiatRate(swapperStore.getState())
+  const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+  const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
 
-  const buyAssetTradeFeeUsd = bn(buyAssetFiatRate)
+  const buyAssetTradeFeeUsd = bn(buyAssetUsdRate)
     .times(buyAssetTradeFeeBuyAssetCryptoHuman)
     .toString()
-  const sellAssetTradeFeeUsd = bn(buyAssetFiatRate)
+  const sellAssetTradeFeeUsd = bn(buyAssetUsdRate)
     .times(sellAssetTradeFeeBuyAssetCryptoHuman)
     .toString()
 
-  const minimumSellAssetAmountCryptoHuman = bn(sellAssetFiatRate).isGreaterThan(0)
-    ? bnOrZero(buyAssetTradeFeeUsd).div(sellAssetFiatRate)
+  const minimumSellAssetAmountCryptoHuman = bn(sellAssetUsdRate).isGreaterThan(0)
+    ? bnOrZero(buyAssetTradeFeeUsd).div(sellAssetUsdRate)
     : bn(0) // We don't have a valid rate for the sell asset, there is no sane minimum
 
   // minimum is tradeFee padded by an amount to be sure they get something back

@@ -10,7 +10,7 @@ import {
   MAX_COWSWAP_TRADE,
   MIN_COWSWAP_VALUE_USD,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
-import { selectSellAssetFiatRate } from 'state/zustand/swapperStore/selectors'
+import { selectSellAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const getCowSwapMinMax = (
@@ -26,9 +26,9 @@ export const getCowSwapMinMax = (
     )
   }
 
-  const sellAssetFiatRate = selectSellAssetFiatRate(swapperStore.getState())
+  const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
   const minimumAmountCryptoHuman = bn(MIN_COWSWAP_VALUE_USD)
-    .dividedBy(bnOrZero(sellAssetFiatRate))
+    .dividedBy(bnOrZero(sellAssetUsdRate))
     .toString() // $10 worth of the sell token.
   const maximumAmountCryptoHuman = MAX_COWSWAP_TRADE // Arbitrarily large value. 10e+28 here.
   return Ok({

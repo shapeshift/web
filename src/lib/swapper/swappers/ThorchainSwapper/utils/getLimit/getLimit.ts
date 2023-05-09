@@ -18,9 +18,9 @@ import {
 import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
 import { ALLOWABLE_MARKET_MOVEMENT } from 'lib/swapper/swappers/utils/constants'
 import {
-  selectBuyAssetFiatRate,
-  selectFeeAssetFiatRate,
-} from 'state/zustand/swapperStore/selectors'
+  selectBuyAssetUsdRate,
+  selectFeeAssetUsdRate,
+} from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export type GetLimitArgs = {
@@ -81,8 +81,8 @@ export const getLimit = async ({
     )
   }
 
-  const buyAssetFiatRate = selectBuyAssetFiatRate(swapperStore.getState())
-  const feeAssetFiatRate = selectFeeAssetFiatRate(swapperStore.getState())
+  const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
+  const feeAssetUsdRate = selectFeeAssetUsdRate(swapperStore.getState())
 
   const expectedBuyAmountCryptoPrecision8 = toBaseUnit(
     fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit).times(tradeRateOrMinimum), sellAsset.precision),
@@ -101,7 +101,7 @@ export const getLimit = async ({
     )
 
   const buyAssetTradeFeeCryptoPrecision8 = toBaseUnit(
-    bnOrZero(buyAssetTradeFeeUsd).div(buyAssetFiatRate),
+    bnOrZero(buyAssetTradeFeeUsd).div(buyAssetUsdRate),
     THORCHAIN_FIXED_PRECISION,
   )
 
@@ -114,8 +114,8 @@ export const getLimit = async ({
     switch (true) {
       // If the sell asset is on THOR the return fee is fixed at 0.02 RUNE
       case isRune(sellAsset.assetId): {
-        const runeFeeUsd = RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN.times(feeAssetFiatRate)
-        return Ok(toBaseUnit(bnOrZero(runeFeeUsd).div(buyAssetFiatRate), THORCHAIN_FIXED_PRECISION))
+        const runeFeeUsd = RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN.times(feeAssetUsdRate)
+        return Ok(toBaseUnit(bnOrZero(runeFeeUsd).div(buyAssetUsdRate), THORCHAIN_FIXED_PRECISION))
       }
       // Else the return fee is the outbound fee of the sell asset's chain
       default: {
@@ -124,12 +124,10 @@ export const getLimit = async ({
             bnOrZero(sellAssetAddressData.outbound_fee),
             THORCHAIN_FIXED_PRECISION,
           )
-          const sellAssetTradeFeeUsd = bnOrZero(sellAssetTradeFeeCryptoHuman).times(
-            feeAssetFiatRate,
-          )
+          const sellAssetTradeFeeUsd = bnOrZero(sellAssetTradeFeeCryptoHuman).times(feeAssetUsdRate)
           return Ok(
             toBaseUnit(
-              bnOrZero(sellAssetTradeFeeUsd).div(buyAssetFiatRate),
+              bnOrZero(sellAssetTradeFeeUsd).div(buyAssetUsdRate),
               THORCHAIN_FIXED_PRECISION,
             ),
           )

@@ -8,9 +8,9 @@ jest.mock('../utils/helpers/helpers')
 jest.mock('../utils/helpers/helpers', () => ({
   normalizeAmount: () => '1',
 }))
-jest.mock('state/zustand/swapperStore/selectors', () => ({
-  ...jest.requireActual('state/zustand/swapperStore/selectors'),
-  selectSellAssetFiatRate: jest.fn(() => '1'),
+jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
+  ...jest.requireActual('state/zustand/swapperStore/amountSelectors'),
+  selectSellAssetUsdRate: jest.fn(() => '1'),
 }))
 
 describe('getZrxMinMax', () => {

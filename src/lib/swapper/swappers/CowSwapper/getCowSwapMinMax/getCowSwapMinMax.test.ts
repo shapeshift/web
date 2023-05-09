@@ -2,9 +2,9 @@ import { BTC, ETH, FOX, WETH } from '../../utils/test-data/assets'
 import { MAX_COWSWAP_TRADE } from '../utils/constants'
 import { getCowSwapMinMax } from './getCowSwapMinMax'
 
-jest.mock('state/zustand/swapperStore/selectors', () => ({
-  ...jest.requireActual('state/zustand/swapperStore/selectors'),
-  selectSellAssetFiatRate: jest.fn(() => '0.25'),
+jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
+  ...jest.requireActual('state/zustand/swapperStore/amountSelectors'),
+  selectSellAssetUsdRate: jest.fn(() => '0.25'),
 }))
 
 describe('getCowSwapMinMax', () => {

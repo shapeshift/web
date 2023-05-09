@@ -16,9 +16,9 @@ jest.mock('../utils/oneInchService', () => {
   }
 })
 
-jest.mock('state/zustand/swapperStore/selectors', () => ({
-  ...jest.requireActual('state/zustand/swapperStore/selectors'),
-  selectSellAssetFiatRate: jest.fn(() => '0.02000'),
+jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
+  ...jest.requireActual('state/zustand/swapperStore/amountSelectors'),
+  selectSellAssetUsdRate: jest.fn(() => '0.02000'),
 }))
 
 const fastGasPrice = '15000000000' // 15 gwei

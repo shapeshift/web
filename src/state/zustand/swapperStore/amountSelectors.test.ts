@@ -1,4 +1,3 @@
-import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeAmountInputField } from 'components/Trade/types'
 import {
   selectTradeAmountsByActionAndAmount,
@@ -9,20 +8,18 @@ import type { SwapperState } from 'state/zustand/swapperStore/types'
 
 jest.mock('state/slices/selectors', () => {
   const { ETH, FOX } = require('test/constants')
-  const currencyToUsdRate = 0.234 // simlate a non-usd rate for testing
+  const currencyToUsdRate = 1
   return {
     ...jest.requireActual('state/slices/selectors'),
-    selectMarketDataById: (_: unknown, assetId: AssetId) => {
-      switch (assetId) {
-        case ETH.assetId:
-          return { price: '1767' }
-        case FOX.assetId:
-          return { price: '0.033' }
-        default:
-          return '0'
-      }
-    },
-    selectedCurrencyToUsdRate: () => currencyToUsdRate.toString(),
+    selectCryptoMarketData: () => ({
+      [ETH.assetId]: { price: '1767' },
+      [FOX.assetId]: { price: '0.033' },
+    }),
+    selectFiatToUsdRate: () => currencyToUsdRate.toString(),
+    selectAssets: () => ({
+      [ETH.assetId]: ETH,
+      [FOX.assetId]: FOX,
+    }),
   }
 })
 

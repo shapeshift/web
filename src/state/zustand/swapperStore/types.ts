@@ -1,8 +1,8 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import type { DisplayFeeData, TradeAmountInputField } from 'components/Trade/types'
+import type { Asset } from 'lib/asset-service'
 import type { SwapperWithQuoteMetadata, Trade } from 'lib/swapper/api'
 import type { CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 

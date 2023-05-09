@@ -1,8 +1,8 @@
-import { type Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { type ChainId } from '@shapeshiftoss/caip'
 import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { type Asset } from 'lib/asset-service'
 import type { SwapperName } from 'lib/swapper/api'
 import {
   type BuildTradeInput,

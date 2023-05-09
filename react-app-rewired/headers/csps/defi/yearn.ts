@@ -2,7 +2,6 @@ import type { Csp } from '../../types'
 
 export const csp: Csp = {
   'connect-src': [
-    // @shapeshiftoss/asset-service@1.10.0: https://github.com/shapeshift/lib/blob/636c6c9460ac5ae4d1189165eddd3a105406e0ef/packages/asset-service/src/generateAssetData/ethTokens/extendErc20.ts#L45
     // lib/market-service/src/yearn/yearn.ts
     'https://api.yearn.finance',
     // @yfi/sdk@1.0.28 https://github.com/yearn/yearn-sdk/blob/master/src/context.ts#L73

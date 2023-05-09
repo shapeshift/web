@@ -1,10 +1,10 @@
 import type { Token as LifiToken } from '@lifi/sdk'
 import type LIFI from '@lifi/sdk'
 import { ChainId as LifiChainId, ChainKey as LifiChainKey } from '@lifi/types'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Asset } from 'lib/asset-service'
 
 import { getUsdRate } from './getUsdRate'
 

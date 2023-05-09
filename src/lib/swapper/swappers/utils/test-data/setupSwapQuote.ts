@@ -1,6 +1,6 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Asset } from 'lib/asset-service'
 import type { BuildTradeInput, GetTradeQuoteInput, TradeQuote } from 'lib/swapper/api'
 import { FOX, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 

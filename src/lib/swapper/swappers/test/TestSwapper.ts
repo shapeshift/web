@@ -1,7 +1,7 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
+import type { Asset } from 'lib/asset-service'
 import type {
   ApprovalNeededOutput,
   BuyAssetBySellIdInput,

@@ -1,7 +1,6 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
 import { Box, Input, InputGroup, InputLeftElement, SlideFade } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { debounce } from 'lodash'
 import intersection from 'lodash/intersection'
@@ -13,6 +12,7 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import { Card } from 'components/Card/Card'
+import type { Asset } from 'lib/asset-service'
 import { logger } from 'lib/logger'
 import {
   selectAssetsSortedByMarketCapFiatBalanceAndName,

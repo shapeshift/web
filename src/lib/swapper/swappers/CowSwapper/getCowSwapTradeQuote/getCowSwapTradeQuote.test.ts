@@ -137,7 +137,7 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
 }
 
 const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  rate: '14716.04718939437505555958', // 14716 FOX per WETH
+  rate: '14924.80846543344314936607', // 14942 FOX per WETH
   minimumCryptoHuman: '0.011624',
   maximumCryptoHuman: '100000000000000000000000000',
   feeData: {
@@ -153,7 +153,7 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
-  buyAmountBeforeFeesCryptoBaseUnit: '14501811818247595090576', // 14501 FOX
+  buyAmountBeforeFeesCryptoBaseUnit: '14913256100953839475750', // 14913 FOX
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: FOX,
@@ -178,7 +178,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
-  buyAmountBeforeFeesCryptoBaseUnit: '46868859830863283',
+  buyAmountBeforeFeesCryptoBaseUnit: '51242479117266593',
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: ETH,
@@ -266,7 +266,7 @@ describe('getCowTradeQuote', () => {
               ...expectedApiInputWethToFox,
               sellAmountBeforeFee: undefined,
               sellAmount: '985442057341242012',
-              buyAmount: '14501811818247595090576',
+              buyAmount: '14707533959600717283163',
               feeAmount: '14557942658757988',
               sellTokenBalance: 'erc20',
               buyTokenBalance: 'erc20',

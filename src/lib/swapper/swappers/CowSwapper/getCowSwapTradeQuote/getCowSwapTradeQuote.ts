@@ -156,7 +156,7 @@ export async function getCowSwapTradeQuote(
     )
     const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(feeAmountInBuyTokenCryptoBaseUnit)
       .plus(buyAmountAfterFeesCryptoBaseUnit)
-      .toString()
+      .toFixed()
 
     const isQuoteSellAmountBelowMinimum = bnOrZero(quoteSellAmountPlusFeesCryptoBaseUnit).lt(
       minQuoteSellAmount,

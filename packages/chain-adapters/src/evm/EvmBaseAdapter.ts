@@ -69,14 +69,7 @@ export const isEvmChainId = (
   return evmChainIds.includes(maybeEvmChainId as EvmChainId)
 }
 
-type EvmApi =
-  | unchained.ethereum.V1Api
-  | unchained.avalanche.V1Api
-  | unchained.optimism.V1Api
-  | unchained.bnbsmartchain.V1Api
-  | unchained.polygon.V1Api
-
-export interface ChainAdapterArgs<T = EvmApi> {
+export interface ChainAdapterArgs<T = unchained.evm.Api> {
   chainId?: EvmChainId
   providers: {
     http: T
@@ -98,7 +91,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   protected readonly defaultBIP44Params: BIP44Params
   protected readonly supportedChainIds: ChainId[]
   protected readonly providers: {
-    http: EvmApi
+    http: unchained.evm.Api
     ws: unchained.ws.Client<unchained.evm.types.Tx>
   }
 

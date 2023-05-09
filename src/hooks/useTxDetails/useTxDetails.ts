@@ -8,7 +8,7 @@ import { useMemo } from 'react'
 import { getTxBaseUrl } from 'lib/getTxLink'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
-import { defaultAsset, makeNftAsset } from 'state/slices/assetsSlice/assetsSlice'
+import { defaultAsset, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssets,
@@ -71,25 +71,34 @@ export const getTxType = (tx: Tx, transfers: Transfer[]): TxType => {
 }
 
 export const getTransfers = (
-  transfers: TxTransfer[],
+  tx: Tx,
   assets: AssetsById,
   marketData: Record<AssetId, MarketData | undefined>,
-  feeAsset?: Asset,
 ): Transfer[] => {
-  return transfers.reduce<Transfer[]>((prev, transfer) => {
+  return tx.transfers.reduce<Transfer[]>((prev, transfer) => {
     const asset = (() => {
       const { assetNamespace } = fromAssetId(transfer.assetId)
       switch (assetNamespace) {
         case 'erc721':
         case 'erc1155':
         case 'bep721':
-        case 'bep1155':
-          return makeNftAsset({
+        case 'bep1155': {
+          const icon = (() => {
+            if (!tx.data || !transfer.id || !('mediaById' in tx.data)) return
+            return tx.data.mediaById[transfer.id]?.url
+          })()
+
+          const asset = makeAsset({
             assetId: transfer.assetId,
-            feeAsset,
             id: transfer.id,
-            token: transfer.token,
+            symbol: transfer.token?.symbol ?? 'N/A',
+            name: transfer.token?.name ?? 'Unknown',
+            precision: 0,
+            icon,
           })
+
+          return asset
+        }
         default:
           return assets[transfer.assetId]
       }
@@ -109,6 +118,8 @@ export const useTxDetails = (txId: string): TxDetails => {
   const assets = useAppSelector(selectAssets)
   const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
 
+  const transfers = useMemo(() => getTransfers(tx, assets, marketData), [tx, assets, marketData])
+
   const fee = useMemo(() => {
     if (!tx.fee) return
     return {
@@ -119,11 +130,6 @@ export const useTxDetails = (txId: string): TxDetails => {
   }, [tx.fee, assets, marketData])
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx.chainId))
-
-  const transfers = useMemo(
-    () => getTransfers(tx.transfers, assets, marketData, feeAsset),
-    [tx.transfers, assets, marketData, feeAsset],
-  )
 
   const explorerTxLink = getTxBaseUrl({
     name: tx.trade?.dexName,

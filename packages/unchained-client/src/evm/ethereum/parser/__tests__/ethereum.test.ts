@@ -3,6 +3,7 @@ import axios from 'axios'
 
 import type { Trade } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
+import type { Api } from '../../..'
 import type { ParsedTx } from '../../../parser'
 import {
   FOXY_STAKING_CONTRACT,
@@ -76,7 +77,12 @@ mockedAxios.get.mockImplementation(url => {
   }
 })
 
-const txParser = new TransactionParser({ rpcUrl: '', chainId: ethChainId, assetId: ethAssetId })
+const txParser = new TransactionParser({
+  rpcUrl: '',
+  chainId: ethChainId,
+  assetId: ethAssetId,
+  api: {} as Api,
+})
 
 describe('parseTx', () => {
   describe('standard', () => {

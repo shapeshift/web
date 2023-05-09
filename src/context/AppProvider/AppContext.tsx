@@ -165,7 +165,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     const { getAllTxHistory } = txHistoryApi.endpoints
 
-    requestedAccountIds.forEach(accountId => dispatch(getAllTxHistory.initiate(accountId)))
+    requestedAccountIds.forEach(accountId => {
+      dispatch(getAllTxHistory.initiate(accountId))
+    })
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
 
   // once portfolio is loaded, fetch remaining chain specific data

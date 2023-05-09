@@ -2,6 +2,7 @@ import { avalancheAssetId, avalancheChainId } from '@shapeshiftoss/caip'
 
 import type { Trade, Transfer } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
+import type { Api } from '../../..'
 import type { ParsedTx } from '../../../parser'
 import { TransactionParser, ZRX_AVALANCHE_PROXY_CONTRACT } from '../index'
 import avaxSelfSend from './mockData/avaxSelfSend'
@@ -18,6 +19,7 @@ const txParser = new TransactionParser({
   rpcUrl: '',
   chainId: avalancheChainId,
   assetId: avalancheAssetId,
+  api: {} as Api,
 })
 
 describe('parseTx', () => {

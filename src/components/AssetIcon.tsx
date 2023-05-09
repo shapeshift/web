@@ -1,5 +1,6 @@
 import type { AvatarProps } from '@chakra-ui/react'
 import { Avatar, Circle, Flex, useColorModeValue, useMultiStyleConfig } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -10,6 +11,7 @@ import { FoxIcon } from './Icons/FoxIcon'
 
 type AssetIconProps = {
   assetId?: string
+  asset?: Asset
   // Show the network icon instead of the asset icon e.g OP icon instead of ETH for Optimism native asset
   showNetworkIcon?: boolean
 } & AvatarProps
@@ -63,12 +65,25 @@ export const AssetIcon = ({ assetId, showNetworkIcon, src, ...rest }: AssetIconP
 
   if (!asset && !assetId && !src) return null
 
+  // native asset
+  if (assetId === nativeAssetId && asset?.networkIcon && showNetworkIcon) {
+    return (
+      <Avatar
+        src={asset.networkIcon}
+        bg={assetIconBg}
+        icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
+        {...rest}
+      />
+    )
+  }
+
   if (assetId) {
-    if (asset && asset.icons) {
+    if (asset?.icons) {
       return (
         <Flex flexDirection='row' alignItems='center'>
           {asset.icons.map((iconSrc, i) => (
             <AssetWithNetwork
+              key={i}
               assetId={assetId}
               src={iconSrc}
               ml={i === 0 ? '0' : '-2.5'}
@@ -80,19 +95,10 @@ export const AssetIcon = ({ assetId, showNetworkIcon, src, ...rest }: AssetIconP
       )
     }
 
-    if (assetId === nativeAssetId && asset?.networkIcon && showNetworkIcon)
-      return (
-        <Avatar
-          src={asset.networkIcon}
-          bg={assetIconBg}
-          icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
-          {...rest}
-        />
-      )
-
     return (
       <AssetWithNetwork
         assetId={assetId}
+        src={src}
         icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
         {...rest}
       />

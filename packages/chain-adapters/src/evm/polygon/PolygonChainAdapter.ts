@@ -33,6 +33,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PolygonMainnet> {
         assetId: polygonAssetId,
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
         rpcUrl: args.rpcUrl,
+        api: args.providers.http,
       }),
       ...args,
     })

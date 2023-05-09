@@ -7,6 +7,7 @@ import type { Token } from '../../types'
 import { TransferType, TxStatus } from '../../types'
 import type { AggregateTransferArgs } from '../../utils'
 import { aggregateTransfer, findAsyncSequential } from '../../utils'
+import type { Api } from '..'
 import type { ParsedTx, SubParser, Tx, TxSpecific } from './types'
 
 export * from './types'
@@ -15,6 +16,7 @@ export * from './utils'
 export interface TransactionParserArgs {
   chainId: ChainId
   assetId: AssetId
+  api: Api
   rpcUrl: string
 }
 
@@ -22,12 +24,15 @@ export class BaseTransactionParser<T extends Tx> {
   chainId: ChainId
   assetId: AssetId
 
+  protected readonly api: Api
   protected readonly provider: ethers.providers.JsonRpcBatchProvider
+
   private parsers: SubParser<T>[] = []
 
   constructor(args: TransactionParserArgs) {
     this.chainId = args.chainId
     this.assetId = args.assetId
+    this.api = args.api
     this.provider = new ethers.providers.JsonRpcBatchProvider(args.rpcUrl)
   }
 

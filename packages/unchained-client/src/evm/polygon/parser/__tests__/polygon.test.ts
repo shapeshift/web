@@ -2,6 +2,7 @@ import { polygonAssetId, polygonChainId } from '@shapeshiftoss/caip'
 
 import type { Trade, Transfer } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
+import type { Api } from '../../..'
 import type { ParsedTx } from '../../../parser'
 import { TransactionParser, ZRX_POLYGON_PROXY_CONTRACT } from '../index'
 import erc20Approve from './mockData/erc20Approve'
@@ -18,6 +19,7 @@ const txParser = new TransactionParser({
   rpcUrl: '',
   chainId: polygonChainId,
   assetId: polygonAssetId,
+  api: {} as Api,
 })
 
 describe('parseTx', () => {

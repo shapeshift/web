@@ -26,7 +26,7 @@ import { updateWindowStoreMiddleware } from './windowMiddleware'
 const persistConfig = {
   key: 'root',
   version: 1,
-  whitelist: ['txHistory', 'portfolio', 'opportunities'],
+  whitelist: [],
   storage: localforage,
   // @ts-ignore createMigrate typings are wrong
   migrate: createMigrate(migrations, { debug: false }),

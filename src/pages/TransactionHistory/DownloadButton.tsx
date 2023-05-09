@@ -73,7 +73,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
     for (const txId of txIds) {
       const tx = allTxs[txId]
       const feeAsset = tx.fee ? assets[tx.fee?.assetId] : undefined
-      const transfers = getTransfers(tx.transfers, assets, marketData, feeAsset)
+      const transfers = getTransfers(tx, assets, marketData)
       const type = getTxType(tx, transfers)
 
       const { send, receive } = (() => {

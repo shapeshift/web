@@ -2,6 +2,7 @@ import { bscAssetId, bscChainId } from '@shapeshiftoss/caip'
 
 import type { Trade, Transfer } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
+import type { Api } from '../../..'
 import type { ParsedTx } from '../../../parser'
 import { TransactionParser, ZRX_BSC_PROXY_CONTRACT } from '../index'
 import bep20Approve from './mockData/bep20Approve'
@@ -14,7 +15,12 @@ import zrxTradeBnbToBusd from './mockData/zrxTradeBnbToBusd'
 import zrxTradeBusdToBnb from './mockData/zrxTradeBusdToBnb'
 import zrxTradeUsdtToBusd from './mockData/zrxTradeUsdtToBusd'
 
-const txParser = new TransactionParser({ rpcUrl: '', chainId: bscChainId, assetId: bscAssetId })
+const txParser = new TransactionParser({
+  rpcUrl: '',
+  chainId: bscChainId,
+  assetId: bscAssetId,
+  api: {} as Api,
+})
 
 describe('parseTx', () => {
   describe('standard', () => {

@@ -6,7 +6,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ParseAddressInputReturn } from 'lib/address/address'
-import { parseAddressInput } from 'lib/address/address'
+import { parseAddressInputWithChainId } from 'lib/address/address'
 import type { Asset } from 'lib/asset-service'
 import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
@@ -112,7 +112,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
         plainAddresses.map((value, idx) => {
           if (!value) return Promise.resolve({ address: '', vanityAddress: '' })
           const { chainId } = fromAccountId(walletAccountIds[idx])
-          return parseAddressInput({ chainId, value })
+          return parseAddressInputWithChainId({ chainId, value })
         }),
       )
 

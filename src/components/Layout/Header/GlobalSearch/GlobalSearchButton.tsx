@@ -15,6 +15,7 @@ import {
   useUpdateEffect,
 } from '@chakra-ui/react'
 import { DefiAction, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
 import { useTranslate } from 'react-polyglot'
@@ -22,8 +23,11 @@ import { generatePath, useHistory, useLocation } from 'react-router'
 import scrollIntoView from 'scroll-into-view-if-needed'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { parseAddressInput } from 'lib/address/address'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import type { GlobalSearchResult } from 'state/slices/search-selectors'
 import { GlobalSearchResultType, selectGlobalItemsFromFilter } from 'state/slices/search-selectors'
@@ -36,12 +40,14 @@ import { useAppSelector } from 'state/store'
 
 import { AssetResults } from './AssetResults/AssetResults'
 import { LpResults } from './LpResults/LpResults'
+import { SendResults } from './SendResults/SendResults'
 import { StakingResults } from './StakingResults/StakingResults'
 import { TxResults } from './TxResults/TxResults'
 import { makeOpportunityRouteDetails } from './utils'
 
 export const GlobalSeachButton = () => {
   const { isOpen, onClose, onOpen, onToggle } = useDisclosure()
+  const [sendResults, setSendResults] = useState<any>([])
   const [activeIndex, setActiveIndex] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const menuRef = useRef<HTMLDivElement>(null)
@@ -66,6 +72,7 @@ export const GlobalSeachButton = () => {
   const flatResults = useMemo(() => results.flat(), [results])
   const resultsCount = flatResults.length
 
+  const { send } = useModal()
   useEffect(() => {
     if (!searchQuery) setActiveIndex(0)
   }, [searchQuery])
@@ -79,9 +86,38 @@ export const GlobalSeachButton = () => {
     }
   })
 
+  const debouncedParseAddressInput = useMemo(() => {
+    return debounce(
+      () => {
+        if (!searchQuery?.length) return
+        setSendResults([])
+        ;(async () => {
+          const parsed = await parseAddressInput({ value: searchQuery })
+          if (parsed) {
+            // TODO: handle multiple possible ChainIds for a given address
+            setSendResults([
+              {
+                type: GlobalSearchResultType.Send,
+                id: getChainAdapterManager().get(parsed.chainId)!.getFeeAssetId(),
+              },
+            ])
+          }
+        })()
+      },
+      1000,
+      { leading: true, trailing: true },
+    )
+  }, [searchQuery])
+  useEffect(debouncedParseAddressInput, [debouncedParseAddressInput])
+
   const handleClick = useCallback(
     (item: GlobalSearchResult) => {
       switch (item.type) {
+        case GlobalSearchResultType.Send: {
+          send.open({ assetId: item.id, input: searchQuery })
+          onToggle()
+          break
+        }
         case GlobalSearchResultType.Asset: {
           const url = `/assets/${item.id}`
           history.push(url)
@@ -132,6 +168,8 @@ export const GlobalSeachButton = () => {
       location,
       lpOpportunities,
       onToggle,
+      searchQuery,
+      send,
       stakingOpportunities,
     ],
   )
@@ -210,6 +248,14 @@ export const GlobalSeachButton = () => {
       <SearchEmpty searchQuery={searchQuery} />
     ) : (
       <List>
+        <SendResults
+          onClick={handleClick}
+          results={sendResults}
+          activeIndex={activeIndex}
+          startingIndex={0}
+          searchQuery={searchQuery}
+          menuNodes={menuNodes}
+        />
         <AssetResults
           onClick={handleClick}
           results={assetResults}
@@ -253,6 +299,7 @@ export const GlobalSeachButton = () => {
     menuNodes,
     results?.length,
     searchQuery,
+    sendResults,
     stakingResults,
     txResults,
   ])

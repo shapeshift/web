@@ -38,9 +38,10 @@ export type SendInput<T extends ChainId = ChainId> = {
 type SendFormProps = {
   initialAssetId?: AssetId
   accountId?: AccountId
+  input?: string
 }
 
-export const Form: React.FC<SendFormProps> = ({ initialAssetId, accountId }) => {
+export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', accountId }) => {
   const location = useLocation()
   const history = useHistory()
   const { handleFormSend } = useFormSend()
@@ -51,6 +52,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, accountId }) => 
     defaultValues: {
       accountId,
       to: '',
+      input,
       vanityAddress: '',
       assetId: initialAssetId,
       feeType: FeeDataKey.Average,

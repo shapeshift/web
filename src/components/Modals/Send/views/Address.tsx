@@ -22,7 +22,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
-import { parseAddressInput } from 'lib/address/address'
+import { parseAddressInputWithChainId } from 'lib/address/address'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -94,8 +94,10 @@ export const Address = () => {
                   setIsValidating(true)
                   const { assetId } = asset
                   // this does not throw, everything inside is handled
-                  const parseAddressInputArgs = { assetId, chainId, value }
-                  const { address, vanityAddress } = await parseAddressInput(parseAddressInputArgs)
+                  const parseAddressInputWithChainIdArgs = { assetId, chainId, value }
+                  const { address, vanityAddress } = await parseAddressInputWithChainId(
+                    parseAddressInputWithChainIdArgs,
+                  )
                   setIsValidating(false)
                   // set returned values
                   setValue(SendFormFields.To, address)

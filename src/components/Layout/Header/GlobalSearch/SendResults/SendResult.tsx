@@ -1,0 +1,74 @@
+import { Flex, forwardRef } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { useMemo } from 'react'
+import { Amount } from 'components/Amount/Amount'
+import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
+import { RawText } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { GlobalSearchResult } from 'state/slices/search-selectors'
+import { GlobalSearchResultType } from 'state/slices/search-selectors'
+import {
+  selectAssetById,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioFiatBalanceByAssetId,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
+
+import { ResultButton } from '../ResultButton'
+
+type AssetResultProps = {
+  assetId: AssetId
+  index: number
+  activeIndex?: number
+  onClick: (arg: GlobalSearchResult) => void
+  searchQuery: string
+}
+
+export const SendResult = forwardRef<AssetResultProps, 'div'>(
+  ({ assetId, searchQuery, index, activeIndex, onClick }, ref) => {
+    const asset = useAppSelector(state => selectAssetById(state, assetId))
+    const selected = index === activeIndex
+    const filter = useMemo(() => ({ assetId }), [assetId])
+    const cryptoHumanBalance = useAppSelector(s =>
+      selectPortfolioCryptoPrecisionBalanceByFilter(s, filter),
+    )
+    const fiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, filter)) ?? '0'
+    if (!asset) return null
+    return (
+      <ResultButton
+        ref={ref}
+        aria-selected={selected ? true : undefined}
+        onClick={() => onClick({ type: GlobalSearchResultType.Send, id: assetId })}
+      >
+        <Flex gap={2} flex={1}>
+          <LazyLoadAvatar src={asset.icon} />
+          <Flex flexDir='column' alignItems='flex-start' textAlign='left'>
+            <RawText
+              color='chakra-body-text'
+              width='100%'
+              textOverflow='ellipsis'
+              overflow='hidden'
+              whiteSpace='nowrap'
+            >
+              {searchQuery}
+            </RawText>
+            <RawText size='xs' variant='sub-text'>
+              {asset.symbol}
+            </RawText>
+          </Flex>
+        </Flex>
+        {bnOrZero(fiatBalance).gt(0) && (
+          <Flex flexDir='column' alignItems='flex-end'>
+            <Amount.Fiat color='chakra-body-text' value={fiatBalance} />
+            <Amount.Crypto
+              size='xs'
+              variant='sub-text'
+              value={cryptoHumanBalance}
+              symbol={asset.symbol}
+            />
+          </Flex>
+        )}
+      </ResultButton>
+    )
+  },
+)

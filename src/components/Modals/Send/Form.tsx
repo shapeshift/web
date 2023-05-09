@@ -7,8 +7,10 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
-import { selectSelectedCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { parseMaybeUrl } from 'lib/address/address'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectMarketDataById, selectSelectedCurrency } from 'state/slices/selectors'
+import { store, useAppSelector } from 'state/store'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from './SendCommon'
@@ -81,8 +83,19 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, accountId }) => 
   }, [])
 
   const handleQrSuccess = useCallback(
-    (decodedText: string) => {
+    async (decodedText: string) => {
       methods.setValue(SendFormFields.Input, decodedText.trim())
+
+      const maybeUrlResult = await parseMaybeUrl({ value: decodedText })
+      if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision) {
+        const marketData = selectMarketDataById(store.getState(), maybeUrlResult.assetId ?? '')
+        methods.setValue(SendFormFields.CryptoAmount, maybeUrlResult.amountCryptoPrecision)
+        methods.setValue(
+          SendFormFields.FiatAmount,
+          bnOrZero(maybeUrlResult.amountCryptoPrecision).times(marketData.price).toString(),
+        )
+      }
+
       history.push(SendRoutes.Address)
     },
     [history, methods],

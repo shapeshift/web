@@ -106,7 +106,7 @@ export class OneInchSwapper implements Swapper<EvmChainId, true> {
       )
     }
 
-    const maybeMinMax = await getMinMax(this.deps, input.sellAsset, input.buyAsset)
+    const maybeMinMax = await getMinMax(input.sellAsset, input.buyAsset)
 
     return maybeMinMax.match({
       ok: minMax => {

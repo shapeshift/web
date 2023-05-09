@@ -5,16 +5,15 @@ import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { MinMaxOutput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+import { selectSellAssetFiatRate } from 'state/zustand/swapperStore/selectors'
+import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
-import { getUsdRate } from '../getUsdRate/getUsdRate'
 import { MAX_ONEINCH_TRADE, MIN_ONEINCH_VALUE_USD } from '../utils/constants'
-import type { OneInchSwapperDeps } from '../utils/types'
 
-export const getMinMax = async (
-  deps: OneInchSwapperDeps,
+export const getMinMax = (
   sellAsset: Asset,
   buyAsset: Asset,
-): Promise<Result<MinMaxOutput, SwapErrorRight>> => {
+): Result<MinMaxOutput, SwapErrorRight> => {
   if (
     !(
       isEvmChainId(sellAsset.chainId) &&
@@ -25,16 +24,13 @@ export const getMinMax = async (
     return Err(makeSwapErrorRight({ message: '[getMinMax]', code: SwapErrorType.UNSUPPORTED_PAIR }))
   }
 
-  const maybeUsdRate = await getUsdRate(deps, sellAsset)
-
-  return maybeUsdRate.andThen(usdRate => {
-    const minimumAmountCryptoHuman = bn(MIN_ONEINCH_VALUE_USD)
-      .dividedBy(bnOrZero(usdRate))
-      .toString() // $1 worth of the sell token.
-    const maximumAmountCryptoHuman = MAX_ONEINCH_TRADE // Arbitrarily large value. 10e+28 here.
-    return Ok({
-      minimumAmountCryptoHuman,
-      maximumAmountCryptoHuman,
-    })
+  const sellAssetFiatRate = selectSellAssetFiatRate(swapperStore.getState())
+  const minimumAmountCryptoHuman = bn(MIN_ONEINCH_VALUE_USD)
+    .dividedBy(bnOrZero(sellAssetFiatRate))
+    .toString() // $1 worth of the sell token.
+  const maximumAmountCryptoHuman = MAX_ONEINCH_TRADE // Arbitrarily large value. 10e+28 here.
+  return Ok({
+    minimumAmountCryptoHuman,
+    maximumAmountCryptoHuman,
   })
 }

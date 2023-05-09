@@ -6184,23 +6184,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/market-service@workspace:^, @shapeshiftoss/market-service@workspace:packages/market-service":
-  version: 0.0.0-use.local
-  resolution: "@shapeshiftoss/market-service@workspace:packages/market-service"
-  dependencies:
-    "@shapeshiftoss/caip": "workspace:^"
-    "@shapeshiftoss/chain-adapters": "workspace:^"
-    "@shapeshiftoss/investor-foxy": "workspace:^"
-    "@shapeshiftoss/investor-idle": "workspace:^"
-    "@shapeshiftoss/types": "workspace:^"
-    "@shapeshiftoss/unchained-client": "workspace:^"
-    "@yfi/sdk": ^1.2.0
-    axios-rate-limit: ^1.3.0
-    limiter: ^2.1.0
-    p-ratelimit: ^1.0.1
-  languageName: unknown
-  linkType: soft
-
 "@shapeshiftoss/proto-tx-builder@npm:^0.7.0":
   version: 0.7.0
   resolution: "@shapeshiftoss/proto-tx-builder@npm:0.7.0"
@@ -6291,7 +6274,6 @@ __metadata:
     "@shapeshiftoss/investor-idle": "workspace:^"
     "@shapeshiftoss/investor-yearn": "workspace:^"
     "@shapeshiftoss/logger": "workspace:^"
-    "@shapeshiftoss/market-service": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@sniptt/monads": ^0.5.10
@@ -6387,6 +6369,7 @@ __metadata:
     jest: ^27.1.0
     jest-mock: ^27.5.1
     js-file-download: ^0.4.12
+    limiter: ^2.1.0
     lit-html: ^2.6.1
     localforage: ^1.10.0
     lodash: ^4.17.21
@@ -6397,6 +6380,7 @@ __metadata:
     myzod: ^1.10.0
     node-polyglot: ^2.4.0
     os-browserify: ^0.3.0
+    p-ratelimit: ^1.0.1
     patch-package: ^6.4.7
     path-browserify: ^1.0.1
     pify: ^5.0.0
@@ -10344,15 +10328,6 @@ __metadata:
   peerDependencies:
     axios: ~0.21.1
   checksum: ff44bee6a2e0b8ed85e20bcd6db566a228ca94bf1c542538e3e5b901d02f01a16f11f146068f768bc6c212ebf0bd356f304edc81920cf5a3bbc10d3c29702f2d
-  languageName: node
-  linkType: hard
-
-"axios-rate-limit@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "axios-rate-limit@npm:1.3.0"
-  peerDependencies:
-    axios: "*"
-  checksum: 19e963732231d2a0c35c19b0603aa4aeeb55a52bab5edd75908d6df1df86978afb7525b9e79fa17dca281d8d6132072c7f269d9cb90867d0a58da4f713a6dea1
   languageName: node
   linkType: hard
 

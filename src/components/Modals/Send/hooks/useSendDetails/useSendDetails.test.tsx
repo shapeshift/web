@@ -23,7 +23,7 @@ import {
 
 import { useSendDetails } from './useSendDetails'
 
-jest.mock('@shapeshiftoss/market-service', () => ({
+jest.mock('lib/market-service', () => ({
   findAll: jest.fn,
   findByAssetId: () => ({
     price: 3500,

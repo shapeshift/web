@@ -1,7 +1,7 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import axios from 'axios'
+import { bn } from 'lib/bignumber/bignumber'
 
-import { bn } from '../utils/bignumber'
 import { FOXY_ASSET_ID, FoxyMarketService } from './foxy'
 import { fox, mockFoxyMarketData } from './foxyMockData'
 

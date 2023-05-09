@@ -9,10 +9,10 @@ import type {
 } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import axios from 'axios'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { MarketService } from '../api'
 import type { ProviderUrls } from '../market-service-manager'
-import { bn, bnOrZero } from '../utils/bignumber'
 import { isValidDate } from '../utils/isValidDate'
 import type { OsmosisHistoryData, OsmosisMarketCap } from './osmosis-types'
 import { getPool, getPoolIdFromAssetReference, getPoolMarketData, isOsmosisLpAsset } from './utils'

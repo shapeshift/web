@@ -3,11 +3,11 @@ import { ethereum } from '@shapeshiftoss/chain-adapters'
 import { IdleInvestor } from '@shapeshiftoss/investor-idle'
 import type { MarketCapResult, MarketData, MarketDataArgs } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
+import { bn } from 'lib/bignumber/bignumber'
 
 import type { MarketService } from '../api'
 import { CoinGeckoMarketService } from '../coingecko/coingecko'
 import type { ProviderUrls } from '../market-service-manager'
-import { bn } from '../utils/bignumber'
 
 export class IdleMarketService extends CoinGeckoMarketService implements MarketService {
   baseUrl = ''

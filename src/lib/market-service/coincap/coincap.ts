@@ -12,9 +12,9 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import omit from 'lodash/omit'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { MarketService } from '../api'
-import { bn, bnOrZero } from '../utils/bignumber'
 import { isValidDate } from '../utils/isValidDate'
 import type { CoinCapMarketCap } from './coincap-types'
 

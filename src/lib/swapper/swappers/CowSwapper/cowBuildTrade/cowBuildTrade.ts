@@ -3,7 +3,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
@@ -109,13 +109,17 @@ export async function cowBuildTrade(
     .plus(buyAmountAfterFeesCryptoBaseUnit)
     .toFixed()
 
-  const buyAmountCryptoPrecision = bn(buyAmountBeforeFeesCryptoBaseUnit).div(
-    bn(10).exponentiatedBy(buyAsset.precision),
-  )
   const quoteSellAmountCryptoPrecision = bn(quoteSellAmountExcludeFeeCryptoBaseUnit).div(
     bn(10).exponentiatedBy(sellAsset.precision),
   )
-  const rate = buyAmountCryptoPrecision.div(quoteSellAmountCryptoPrecision).toString()
+
+  const buyCryptoAmountAfterFeesCryptoPrecision = fromBaseUnit(
+    buyAmountAfterFeesCryptoBaseUnit,
+    buyAsset.precision,
+  )
+  const rate = bnOrZero(buyCryptoAmountAfterFeesCryptoPrecision)
+    .div(quoteSellAmountCryptoPrecision)
+    .toString()
 
   const trade: CowTrade<KnownChainIds.EthereumMainnet> = {
     rate,

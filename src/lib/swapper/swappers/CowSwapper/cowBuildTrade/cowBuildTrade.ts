@@ -15,10 +15,12 @@ import {
   ORDER_KIND_SELL,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
+import { getNowPlusThirtyMinutesTimestamp } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import {
-  getNowPlusThirtyMinutesTimestamp,
-  getUsdRate,
-} from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
+  selectBuyAssetFiatRate,
+  selectSellAssetFiatRate,
+} from 'state/zustand/swapperStore/selectors'
+import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export async function cowBuildTrade(
   deps: CowSwapperDeps,
@@ -86,20 +88,16 @@ export async function cowBuildTrade(
     },
   } = maybeQuoteResponse.unwrap()
 
-  const maybeSellAssetUsdRate = await getUsdRate(deps, sellAsset)
-  const maybeBuyAssetUsdRate = await getUsdRate(deps, buyAsset)
-  if (maybeSellAssetUsdRate.isErr()) return Err(maybeSellAssetUsdRate.unwrapErr())
-  if (maybeBuyAssetUsdRate.isErr()) return Err(maybeBuyAssetUsdRate.unwrapErr())
-  const sellAssetUsdRate = maybeSellAssetUsdRate.unwrap()
-  const buyAssetUsdRate = maybeBuyAssetUsdRate.unwrap()
+  const sellAssetFiatRate = selectSellAssetFiatRate(swapperStore.getState())
+  const buyAssetFiatRate = selectBuyAssetFiatRate(swapperStore.getState())
 
   const sellAssetTradeFeeUsd = bnOrZero(feeAmountInSellTokenCryptoBaseUnit)
     .div(bn(10).exponentiatedBy(sellAsset.precision))
-    .multipliedBy(bnOrZero(sellAssetUsdRate))
+    .multipliedBy(bnOrZero(sellAssetFiatRate))
     .toString()
 
   const feeAmountInBuyTokenCryptoPrecision = bnOrZero(sellAssetTradeFeeUsd).div(
-    bnOrZero(buyAssetUsdRate),
+    bnOrZero(buyAssetFiatRate),
   )
   const feeAmountInBuyTokenCryptoBaseUnit = toBaseUnit(
     feeAmountInBuyTokenCryptoPrecision,

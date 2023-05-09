@@ -1,5 +1,5 @@
 import type { GasCost } from '@lifi/sdk'
-import type { Asset } from '@shapeshiftoss/asset-service'
+import type { Asset } from 'lib/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetAddress/getAssetAddress'

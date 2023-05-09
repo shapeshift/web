@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
@@ -9,6 +8,7 @@ import {
 } from 'components/Trade/hooks/useSwapper/typeGuards'
 import type { TradeQuoteInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { Asset } from 'lib/asset-service'
 import { toBaseUnit } from 'lib/math'
 import type { GetTradeQuoteInput } from 'lib/swapper/api'
 import type { SwapperState } from 'state/zustand/swapperStore/types'

@@ -1,12 +1,12 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
-import { localAssetData } from '@shapeshiftoss/asset-service'
+import type { Asset } from 'lib/asset-service'
+import { localAssetData } from 'lib/asset-service'
 import type { IntermediaryTransactionOutput } from 'lib/swapper/api'
 
 import { getIntermediaryTransactionOutputs } from './getIntermediaryTransactionOutputs'
 import { emptyLifiRouteSteps, multiStepLifiRouteSteps, singleStepLifiRouteSteps } from './testData'
 
 jest.mock('state/slices/selectors', () => {
-  const { localAssetData } = require('@shapeshiftoss/asset-service') // Move the import inside the factory function
+  const { localAssetData } = require('lib/asset-service') // Move the import inside the factory function
 
   return {
     selectAssets: () => localAssetData,

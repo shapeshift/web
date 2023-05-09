@@ -1,6 +1,5 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GasFeeDataEstimate } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -10,7 +9,6 @@ import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swap
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
 
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
 import { getMinMax } from '../getMinMax/getMinMax'
 import { APPROVAL_GAS_LIMIT, DEFAULT_SOURCE } from '../utils/constants'
@@ -30,37 +28,6 @@ export async function getTradeQuote(
     accountNumber,
     affiliateBps,
   } = input
-
-  if (sellAsset.chainId !== buyAsset.chainId) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getTradeQuote] cross chain swaps not supported',
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-      }),
-    )
-  }
-
-  if (
-    !isEvmChainId(chainId) ||
-    !isEvmChainId(sellAsset.chainId) ||
-    !isEvmChainId(buyAsset.chainId)
-  ) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getTradeQuote] invalid chainId',
-        code: SwapErrorType.UNSUPPORTED_CHAIN,
-      }),
-    )
-  }
-
-  if (isNativeEvmAsset(sellAsset.assetId) || isNativeEvmAsset(buyAsset.assetId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getTradeQuote] 1inch swapper only supports ERC20s',
-        code: SwapErrorType.UNSUPPORTED_CHAIN,
-      }),
-    )
-  }
 
   if (sellAmountBeforeFeesCryptoBaseUnit === '0') {
     return Err(
@@ -129,7 +96,7 @@ export async function getTradeQuote(
       sellAsset,
       accountNumber,
       allowanceContract,
-      buyAmountCryptoBaseUnit: quoteResponse.data.toTokenAmount,
+      buyAmountBeforeFeesCryptoBaseUnit: quoteResponse.data.toTokenAmount,
       sellAmountBeforeFeesCryptoBaseUnit,
       maximumCryptoHuman: minMax.maximumAmountCryptoHuman,
       minimumCryptoHuman: minMax.minimumAmountCryptoHuman,

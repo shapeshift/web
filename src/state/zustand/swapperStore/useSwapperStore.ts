@@ -1,9 +1,9 @@
-import { localAssetData } from '@shapeshiftoss/asset-service'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { TradeAmountInputField } from 'components/Trade/types'
+import { localAssetData } from 'lib/asset-service'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import {
   clearAmounts,

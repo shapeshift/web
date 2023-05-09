@@ -66,7 +66,7 @@ export const baseSwapperState: SwapperState = {
           sellAssetTradeFeeUsd: '0',
         },
         sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
-        buyAmountCryptoBaseUnit: '982764368825100762828',
+        buyAmountBeforeFeesCryptoBaseUnit: '982764368825100762828',
         sources: [
           {
             name: 'Uniswap_V2',
@@ -88,7 +88,7 @@ export const baseSwapperState: SwapperState = {
         rate: '52867.94647736405036163943',
         maximumCryptoHuman: '100000000000000000000000000',
         sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
-        buyAmountCryptoBaseUnit: '986780221000000000000',
+        buyAmountBeforeFeesCryptoBaseUnit: '986780221000000000000',
         sources: [
           {
             name: 'THORChain',
@@ -118,7 +118,7 @@ export const baseSwapperState: SwapperState = {
       rate: '52867.94647736405036163943',
       maximumCryptoHuman: '100000000000000000000000000',
       sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
-      buyAmountCryptoBaseUnit: '986780221000000000000',
+      buyAmountBeforeFeesCryptoBaseUnit: '986780221000000000000',
       sources: [
         {
           name: 'THORChain',

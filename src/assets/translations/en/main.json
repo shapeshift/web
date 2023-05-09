@@ -735,7 +735,8 @@
     "intermediaryTransactionOutputs": {
       "prefix": "or",
       "suffix": "on %{chainName}"
-    }
+    },
+    "unknownGas": "(unknown)"
   },
   "modals": {
     "popup": {

@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheAssetId,
@@ -18,6 +17,7 @@ import {
   DAO_TREASURY_OPTIMISM,
   DAO_TREASURY_POLYGON,
 } from 'constants/treasury'
+import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'

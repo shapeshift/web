@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { adapters, CHAIN_NAMESPACE, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type {
@@ -12,6 +11,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type Web3 from 'web3'
+import type { Asset } from 'lib/asset-service'
 import type {
   ApprovalNeededInput,
   ApprovalNeededOutput,

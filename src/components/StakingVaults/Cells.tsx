@@ -9,7 +9,6 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { debounce } from 'lodash'
@@ -17,6 +16,7 @@ import { isValidElement, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
+import type { Asset } from 'lib/asset-service'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

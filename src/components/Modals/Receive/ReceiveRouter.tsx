@@ -1,10 +1,10 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { ReceiveInfo } from 'components/Modals/Receive/ReceiveInfo'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
+import type { Asset } from 'lib/asset-service'
 import { selectAssetById } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 

@@ -1,10 +1,10 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { Location } from 'history'
 import qs from 'qs'
+import type { Asset } from 'lib/asset-service'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type {

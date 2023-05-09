@@ -1,15 +1,15 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 import type Web3 from 'web3'
+import type { Asset } from 'lib/asset-service'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX, WETH } from '../../utils/test-data/assets'
 import type { CowSwapperDeps } from '../CowSwapper'
-import { DEFAULT_APP_DATA } from '../utils/constants'
+import { DEFAULT_ADDRESS, DEFAULT_APP_DATA } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote'
@@ -137,7 +137,7 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
 }
 
 const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  rate: '14716.04718939437505555958', // 14716 FOX per WETH
+  rate: '14924.80846543344314936607', // 14942 FOX per WETH
   minimumCryptoHuman: '0.011624',
   maximumCryptoHuman: '100000000000000000000000000',
   feeData: {
@@ -153,7 +153,7 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
-  buyAmountCryptoBaseUnit: '14501811818247595090576', // 14501 FOX
+  buyAmountBeforeFeesCryptoBaseUnit: '14913256100953839475750', // 14913 FOX
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: FOX,
@@ -178,7 +178,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
-  buyAmountCryptoBaseUnit: '46868859830863283',
+  buyAmountBeforeFeesCryptoBaseUnit: '51242479117266593',
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: ETH,
@@ -203,7 +203,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000',
-  buyAmountCryptoBaseUnit: '0', // 0 FOX
+  buyAmountBeforeFeesCryptoBaseUnit: '0', // 0 FOX
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: FOX,
@@ -231,7 +231,7 @@ describe('getCowTradeQuote', () => {
       sellAmountBeforeFeesCryptoBaseUnit: '11111',
       sendMax: true,
       accountNumber: 0,
-      receiveAddress: '',
+      receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
     }
 
@@ -254,7 +254,7 @@ describe('getCowTradeQuote', () => {
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
       sendMax: true,
       accountNumber: 0,
-      receiveAddress: '',
+      receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
     }
 
@@ -266,7 +266,7 @@ describe('getCowTradeQuote', () => {
               ...expectedApiInputWethToFox,
               sellAmountBeforeFee: undefined,
               sellAmount: '985442057341242012',
-              buyAmount: '14501811818247595090576',
+              buyAmount: '14707533959600717283163',
               feeAmount: '14557942658757988',
               sellTokenBalance: 'erc20',
               buyTokenBalance: 'erc20',
@@ -294,7 +294,7 @@ describe('getCowTradeQuote', () => {
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
       sendMax: true,
       accountNumber: 0,
-      receiveAddress: '',
+      receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
     }
 
@@ -334,7 +334,7 @@ describe('getCowTradeQuote', () => {
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000',
       sendMax: true,
       accountNumber: 0,
-      receiveAddress: '',
+      receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
     }
 

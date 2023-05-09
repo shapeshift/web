@@ -1,5 +1,5 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { Swapper, TradeQuote } from 'lib/swapper/api'
@@ -39,7 +39,7 @@ export const getRatioFromQuote = async (
     .plus(bnOrZero(quote.feeData.sellAssetTradeFeeUsd))
 
   const totalReceiveAmountFiat = bnOrZero(
-    fromBaseUnit(quote.buyAmountCryptoBaseUnit, quote.buyAsset.precision),
+    fromBaseUnit(quote.buyAmountBeforeFeesCryptoBaseUnit, quote.buyAsset.precision),
   )
     .times(buyAssetUsdRate)
     .minus(bnOrZero(quote.feeData.buyAssetTradeFeeUsd))
@@ -50,5 +50,5 @@ export const getRatioFromQuote = async (
   const totalSendAmountFiat = totalSellAmountFiat.plus(networkFeeFiat)
   const ratio = totalReceiveAmountFiat.div(totalSendAmountFiat)
 
-  return ratio.isFinite() ? ratio.toNumber() : undefined
+  return ratio.isFinite() && networkFeeFiat.gte(0) ? ratio.toNumber() : -Infinity
 }

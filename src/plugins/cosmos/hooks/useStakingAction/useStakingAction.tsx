@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import {
@@ -7,6 +6,7 @@ import {
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { Asset } from 'lib/asset-service'
 import { logger } from 'lib/logger'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,

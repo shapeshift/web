@@ -10,7 +10,7 @@ import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { SwapperWithQuoteMetadata } from 'lib/swapper/api'
-import { SwapperType } from 'lib/swapper/api'
+import { SwapperName, SwapperType } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
 import { selectFeeAssetByChainId, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -122,9 +122,9 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset?.chainId}!`)
 
   const networkFeeFiat = feeAssetFiatRate
-    ? bnOrZero(fromBaseUnit(quote.feeData.networkFeeCryptoBaseUnit, feeAsset.precision))
-        .times(feeAssetFiatRate)
-        .toString()
+    ? bnOrZero(fromBaseUnit(quote.feeData.networkFeeCryptoBaseUnit, feeAsset.precision)).times(
+        feeAssetFiatRate,
+      )
     : undefined
 
   const protocol = swapperWithMetadata.swapper.name
@@ -137,7 +137,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     bnOrZero(totalReceiveAmountCryptoPrecision).isGreaterThan(0)
   const tag: JSX.Element = useMemo(() => {
     switch (true) {
-      case !hasAmountWithPositiveReceive:
+      case !hasAmountWithPositiveReceive && isAmountEntered:
         return (
           <Tag size='sm' colorScheme='red'>
             {translate('trade.rates.tags.negativeRatio')}
@@ -152,7 +152,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       default:
         return <Tag size='sm'>{translate('common.alternative')}</Tag>
     }
-  }, [isBest, hasAmountWithPositiveReceive, translate])
+  }, [hasAmountWithPositiveReceive, isAmountEntered, translate, isBest])
 
   const activeSwapperColor = (() => {
     if (!isTradingActive) return redColor
@@ -187,7 +187,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     }
   }, [swapperWithMetadata])
 
-  return networkFeeFiat && totalReceiveAmountCryptoPrecision ? (
+  return totalReceiveAmountCryptoPrecision ? (
     <Flex
       borderWidth={1}
       cursor='pointer'
@@ -218,7 +218,14 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           <RawText color='gray.500'>
             <FaGasPump />
           </RawText>
-          <Amount.Fiat value={networkFeeFiat} />
+          {
+            // We cannot infer gas fees for 1inch swapper before an amount is entered
+            !isAmountEntered && protocol === SwapperName.OneInch ? (
+              translate('trade.unknownGas')
+            ) : (
+              <Amount.Fiat value={bnOrZero(networkFeeFiat).toString()} />
+            )
+          }
         </Flex>
       </Flex>
       <Flex justifyContent='space-between' alignItems='center'>

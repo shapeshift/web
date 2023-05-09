@@ -7,7 +7,6 @@ import type { IntermediaryTransactionOutput } from 'lib/swapper/api'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
   selectAction,
-  selectAffiliateBps,
   selectAmount,
   selectBuyAsset,
   selectBuyAssetFiatRate,
@@ -16,6 +15,7 @@ import {
   selectSellAsset,
   selectSellAssetFiatRate,
   selectSlippage,
+  selectSwapperDefaultAffiliateBps,
 } from 'state/zustand/swapperStore/selectors'
 import type { SwapperState } from 'state/zustand/swapperStore/types'
 import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
@@ -277,8 +277,9 @@ export const selectTradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit = createSelect
 )
 
 export const selectTradeOrQuoteBuyAmountCryptoBaseUnit = createSelector(
-  (state: SwapperState) => state.activeSwapperWithMetadata?.quote?.buyAmountCryptoBaseUnit,
-  (state: SwapperState) => state.trade?.buyAmountCryptoBaseUnit,
+  (state: SwapperState) =>
+    state.activeSwapperWithMetadata?.quote?.buyAmountBeforeFeesCryptoBaseUnit,
+  (state: SwapperState) => state.trade?.buyAmountBeforeFeesCryptoBaseUnit,
   (quoteBuyAmountBeforeFeesBaseUnit, tradeBuyAmountBeforeFeesBaseUnit): string | undefined =>
     // Use the trade amount if we have it, otherwise use the quote amount
     tradeBuyAmountBeforeFeesBaseUnit ?? quoteBuyAmountBeforeFeesBaseUnit,
@@ -583,9 +584,9 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
 
 export const selectDonationAmountFiat = createSelector(
   selectSellAmountFiat,
-  selectAffiliateBps,
-  (sellAmountFiat, affiliateBps): string => {
-    const affiliatePercentage = convertBasisPointsToDecimalPercentage(affiliateBps)
+  selectSwapperDefaultAffiliateBps,
+  (sellAmountFiat, defaultAffiliateBps): string => {
+    const affiliatePercentage = convertBasisPointsToDecimalPercentage(defaultAffiliateBps)
     // The donation amount is a percentage of the sell amount
     return bnOrZero(sellAmountFiat).times(affiliatePercentage).toFixed()
   },

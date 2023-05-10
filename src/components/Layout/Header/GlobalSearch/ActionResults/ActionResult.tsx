@@ -1,6 +1,7 @@
 import { ArrowUpIcon } from '@chakra-ui/icons'
 import { Flex, forwardRef } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { IconCircle } from 'components/IconCircle'
 import { RawText } from 'components/Text'
 import { firstFourLastFour } from 'state/slices/portfolioSlice/utils'
 import type { GlobalSearchResult } from 'state/slices/search-selectors'
@@ -25,19 +26,19 @@ export const ActionResult = forwardRef<ActionResultProps, 'div'>(
         aria-selected={selected ? true : undefined}
         onClick={() => onClick({ type: GlobalSearchResultType.Send, id: assetId })}
       >
-        <Flex gap={2} flex={1}>
-          <ArrowUpIcon />
-          <Flex flexDir='column' alignItems='flex-start' textAlign='left'>
-            <RawText
-              color='chakra-body-text'
-              width='100%'
-              textOverflow='ellipsis'
-              overflow='hidden'
-              whiteSpace='nowrap'
-            >
-              {`Send to ${firstFourLastFour(searchQuery)}`}
-            </RawText>
-          </Flex>
+        <Flex gap={2} flex={1} alignItems='center' justifyContent='flex-start' textAlign='left'>
+          <IconCircle boxSize={8}>
+            <ArrowUpIcon />
+          </IconCircle>
+          <RawText
+            color='chakra-body-text'
+            width='100%'
+            textOverflow='ellipsis'
+            overflow='hidden'
+            whiteSpace='nowrap'
+          >
+            {`Send to ${firstFourLastFour(searchQuery)}`}
+          </RawText>
         </Flex>
       </ResultButton>
     )

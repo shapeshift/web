@@ -161,3 +161,16 @@ export const polygon: Asset = {
   explorerAddressLink: 'https://polygonscan.com/address/',
   explorerTxLink: 'https://polygonscan.com/tx/',
 }
+
+export const gnosis: Asset = {
+  assetId: caip.gnosisAssetId,
+  chainId: caip.gnosisChainId,
+  name: 'Gnosis',
+  symbol: 'GNO',
+  precision: 18,
+  color: '#33765c',
+  icon: 'https://assets.coingecko.com/coins/images/662/large/logo_square_simple_300px.png?1609402668',
+  explorer: 'https://gnosisscan.io/',
+  explorerAddressLink: 'https://gnosisscan.io/address/',
+  explorerTxLink: 'https://gnosisscan.io/tx/',
+}

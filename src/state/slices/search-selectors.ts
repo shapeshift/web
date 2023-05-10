@@ -49,7 +49,7 @@ export type GlobalSearchResult =
   | OpportunitySearchResult
   | SendResult
 
-type SelectGlobalItemsFromFilterReturn = [
+export type SelectGlobalItemsFromFilterReturn = [
   AssetSearchResult[],
   OpportunitySearchResult[],
   OpportunitySearchResult[],

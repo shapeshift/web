@@ -33,5 +33,5 @@ export interface ParsedTx extends StandardTx {
 export type TxSpecific = Partial<Pick<ParsedTx, 'trade' | 'transfers' | 'data'>>
 
 export interface SubParser<T extends Tx, U = TxSpecific> {
-  parse(tx: T): Promise<U | undefined>
+  parse(tx: T, address: string): Promise<U | undefined>
 }

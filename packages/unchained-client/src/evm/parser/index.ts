@@ -55,7 +55,7 @@ export class BaseTransactionParser<T extends Tx> {
     // We expect only one Parser to return a result. If multiple do, we take the first and early exit.
     const contractParserResult = await findAsyncSequential<SubParser<T>, TxSpecific>(
       this.parsers,
-      async parser => await parser.parse(tx),
+      async parser => await parser.parse(tx, address),
     )
 
     const parsedTx: ParsedTx = {

@@ -41,16 +41,22 @@ export class Parser<T extends Tx> implements SubParser<T> {
     this.provider = args.provider
   }
 
-  async parse(tx: T): Promise<TxSpecific | undefined> {
+  async parse(tx: T, address: string): Promise<TxSpecific | undefined> {
+    if (process.env.REACT_APP_FEATURE_NFT_METADATA) return
     if (!tx.tokenTransfers?.length) return
-    if (!tx.tokenTransfers.some(transfer => supportedTokenTypes.includes(transfer.type))) return
+
+    const filteredTransfers = tx.tokenTransfers.filter(
+      transfer => transfer.from === address || transfer.to === address,
+    )
+
+    if (!filteredTransfers.some(transfer => supportedTokenTypes.includes(transfer.type))) return
 
     const data: TxMetadata = {
       parser: 'nft',
       mediaById: {},
     }
 
-    for (const transfer of tx.tokenTransfers) {
+    for (const transfer of filteredTransfers) {
       if (!supportedTokenTypes.includes(transfer.type)) return
       if (!transfer.id) return
 
@@ -76,7 +82,7 @@ export class Parser<T extends Tx> implements SubParser<T> {
 
         data.mediaById[transfer.id] = metadata.media
       } catch (err) {
-        logger.warn(err, { transfer }, 'failed to fetch token metadata for transfer')
+        logger.debug(err, { transfer }, 'failed to fetch token metadata for transfer')
       }
     }
 

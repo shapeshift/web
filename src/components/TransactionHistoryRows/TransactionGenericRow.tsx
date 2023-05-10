@@ -132,7 +132,6 @@ export const TransactionGenericRow = ({
 
   const isNft = useMemo(() => {
     return Object.values(transfersByType)
-      .map(val => val)
       .flat()
       .some(transfer => !!transfer.id)
   }, [transfersByType])

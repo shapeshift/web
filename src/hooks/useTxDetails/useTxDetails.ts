@@ -85,7 +85,9 @@ export const getTransfers = (
         case 'bep1155': {
           const icon = (() => {
             if (!tx.data || !transfer.id || !('mediaById' in tx.data)) return
-            return tx.data.mediaById[transfer.id]?.url
+            const url = tx.data.mediaById[transfer.id]?.url
+            if (!url || url.startsWith('ipfs://')) return
+            return url
           })()
 
           const asset = makeAsset({

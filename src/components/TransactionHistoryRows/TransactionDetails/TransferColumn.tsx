@@ -24,13 +24,13 @@ export const TransferColumn = (transfer: TransferColumnProps) => {
       px={4}
       py={2}
     >
-      <Row title='from' justifyContent='fex-start' flexDirection='column' alignItems='flex-start'>
+      <Row title='from' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
         <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={transfer.from} />
       </Row>
-      <Row title='to' justifyContent='fex-start' flexDirection='column' alignItems='flex-start'>
+      <Row title='to' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
         <Address explorerAddressLink={transfer.asset.explorerAddressLink} address={transfer.to} />
       </Row>
-      <Row title='for' justifyContent='fex-start' flexDirection='column' alignItems='flex-start'>
+      <Row title='for' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
         <Stack direction='row' spacing={2} alignItems='center'>
           <AssetIcon src={transfer.asset.icon} boxSize='4' />
           <Amount

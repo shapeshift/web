@@ -1,9 +1,15 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import { Logger } from '@shapeshiftoss/logger'
 import type { ethers } from 'ethers'
 
 import type { BaseTxMetadata } from '../../types'
 import type { Api } from '..'
 import type { SubParser, Tx, TxSpecific } from './types'
+
+const logger = new Logger({
+  namespace: ['unchained-client', 'evm', 'parser', 'nft'],
+  level: process.env.LOG_LEVEL,
+})
 
 interface Media {
   url: string
@@ -69,7 +75,9 @@ export class Parser<T extends Tx> implements SubParser<T> {
         })
 
         data.mediaById[transfer.id] = metadata.media
-      } catch (err) {}
+      } catch (err) {
+        logger.warn(err, { transfer }, 'failed to fetch token metadata for transfer')
+      }
     }
 
     return { data }

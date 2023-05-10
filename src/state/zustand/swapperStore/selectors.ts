@@ -34,9 +34,7 @@ export const selectSellAsset = (state: SwapperState) => state.sellAsset
 export const selectBuyAsset = (state: SwapperState) => state.buyAsset
 export const selectSellAmountFiat = (state: SwapperState) => state.sellAmountFiat
 export const selectBuyAmountFiat = (state: SwapperState) => state.buyAmountFiat
-export const selectSellAssetFiatRate = (state: SwapperState) => state.sellAssetFiatRate
-export const selectBuyAssetFiatRate = (state: SwapperState) => state.buyAssetFiatRate
-export const selectFeeAssetFiatRate = (state: SwapperState) => state.feeAssetFiatRate
+
 export const selectAction = (state: SwapperState) => state.action
 export const selectIsExactAllowance = (state: SwapperState) => state.isExactAllowance
 export const selectIsSendMax = (state: SwapperState) => state.isSendMax
@@ -50,8 +48,6 @@ export const selectActiveSwapperWithMetadata = (state: SwapperState) =>
   state.activeSwapperWithMetadata
 export const selectAvailableSwappersWithMetadata = (state: SwapperState) =>
   state.availableSwappersWithMetadata
-export const selectSelectedCurrencyToUsdRate = (state: SwapperState) =>
-  state.selectedCurrencyToUsdRate
 export const selectSlippage = (state: SwapperState): string =>
   state.activeSwapperWithMetadata?.quote.recommendedSlippage ?? DEFAULT_SLIPPAGE
 export const selectAffiliateBps = (state: SwapperState): string => state.activeAffiliateBps

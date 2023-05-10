@@ -18,11 +18,8 @@ import {
   DAO_TREASURY_POLYGON,
 } from 'constants/treasury'
 import type { Asset } from 'lib/asset-service'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
-import type { ZrxPriceResponse } from 'lib/swapper/swappers/ZrxSwapper/types'
-import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
 
 import type { ZrxSupportedChainAdapter } from '../../ZrxSwapper'
 
@@ -89,36 +86,6 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
 export const assetToToken = (asset: Asset): string => {
   const { assetReference, assetNamespace } = fromAssetId(asset.assetId)
   return assetNamespace === 'slip44' ? asset.symbol : assetReference
-}
-
-export const getUsdRate = async (sellAsset: Asset): Promise<Result<string, SwapErrorRight>> => {
-  const usdcContractAddress = usdcContractAddressFromChainId(sellAsset.chainId)
-  const sellAssetContractAddress = fromAssetId(sellAsset.assetId).assetReference
-
-  if (sellAssetContractAddress === usdcContractAddress) return Ok('1') // Will break if comparing against usdc
-
-  const maybeBaseUrl = baseUrlFromChainId(sellAsset.chainId)
-  if (maybeBaseUrl.isErr()) return Err(maybeBaseUrl.unwrapErr())
-  const zrxService = zrxServiceFactory({ baseUrl: maybeBaseUrl.unwrap() })
-  const maybeRateResponse = await zrxService.get<ZrxPriceResponse>('/swap/v1/price', {
-    params: {
-      buyToken: usdcContractAddress,
-      buyAmount: '1000000000', // rate is imprecise for low $ values, hence asking for $1000
-      sellToken: assetToToken(sellAsset),
-    },
-  })
-
-  return maybeRateResponse.andThen<string>(rateResponse => {
-    const price = bnOrZero(rateResponse.data?.price)
-    if (!price.gt(0))
-      return Err(
-        makeSwapErrorRight({
-          message: '[getUsdRate] - Failed to get price data',
-          code: SwapErrorType.RESPONSE_ERROR,
-        }),
-      )
-    return Ok(bn(1).dividedBy(price).toString())
-  })
 }
 
 export const assertValidTradePair = ({

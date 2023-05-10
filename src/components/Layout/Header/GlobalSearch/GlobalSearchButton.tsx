@@ -15,7 +15,6 @@ import {
   useUpdateEffect,
 } from '@chakra-ui/react'
 import { DefiAction, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
 import { useTranslate } from 'react-polyglot'
@@ -86,29 +85,23 @@ export const GlobalSeachButton = () => {
     }
   })
 
-  const debouncedParseAddressInput = useMemo(() => {
-    return debounce(
-      () => {
-        if (!searchQuery?.length) return
-        setSendResults([])
-        ;(async () => {
-          const parsed = await parseAddressInput({ value: searchQuery })
-          if (parsed) {
-            // Set the fee AssetId as a default - users can select their preferred token later during the flow
-            setSendResults([
-              {
-                type: GlobalSearchResultType.Send,
-                id: getChainAdapterManager().get(parsed.chainId)!.getFeeAssetId(),
-              },
-            ])
-          }
-        })()
-      },
-      1000,
-      { leading: true, trailing: true },
-    )
+  useEffect(() => {
+    if (!searchQuery?.length) return
+
+    setSendResults([])
+    ;(async () => {
+      const parsed = await parseAddressInput({ value: searchQuery })
+      if (parsed) {
+        // Set the fee AssetId as a default - users can select their preferred token later during the flow
+        setSendResults([
+          {
+            type: GlobalSearchResultType.Send,
+            id: getChainAdapterManager().get(parsed.chainId)!.getFeeAssetId(),
+          },
+        ])
+      }
+    })()
   }, [searchQuery])
-  useEffect(debouncedParseAddressInput, [debouncedParseAddressInput])
 
   const handleClick = useCallback(
     (item: GlobalSearchResult) => {

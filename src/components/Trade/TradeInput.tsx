@@ -31,7 +31,10 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import {
+  useWalletSupportsBuyAsset,
+  useWalletSupportsSellAsset,
+} from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInput } from 'lib/address/address'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
@@ -218,12 +221,11 @@ export const TradeInput = () => {
     )
   }, [buyAsset?.assetId, activeQuote, sellAsset?.assetId])
 
+  const walletSupportsSellAssetChain = useWalletSupportsSellAsset()
+  const walletSupportsBuyAssetChain = useWalletSupportsBuyAsset()
+
   // Constants
-  const walletSupportsSellAssetChain = walletSupportsChain({ wallet, chainId: sellAsset?.chainId })
-
-  const walletSupportsBuyAssetChain = walletSupportsChain({ wallet, chainId: buyAsset?.chainId })
   const shouldShowManualReceiveAddressInput = !walletSupportsBuyAssetChain
-
   const walletSupportsTradeAssetChains = walletSupportsBuyAssetChain && walletSupportsSellAssetChain
 
   const gasFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)

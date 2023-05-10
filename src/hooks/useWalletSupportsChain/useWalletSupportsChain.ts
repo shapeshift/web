@@ -25,7 +25,11 @@ import {
   supportsPolygon,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
+
 const moduleLogger = logger.child({ namespace: ['useWalletSupportsChain'] })
 
 type UseWalletSupportsChainArgs = { chainId: ChainId; wallet: HDWallet | null }
@@ -61,6 +65,18 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
       return false
     }
   }
+}
+
+export const useWalletSupportsBuyAsset = () => {
+  const buyAssetChainId = useSwapperStore(selectBuyAsset).chainId
+  const wallet = useWallet().state.wallet
+  return walletSupportsChain({ chainId: buyAssetChainId, wallet })
+}
+
+export const useWalletSupportsSellAsset = () => {
+  const sellAssetChainId = useSwapperStore(selectSellAsset).chainId
+  const wallet = useWallet().state.wallet
+  return walletSupportsChain({ chainId: sellAssetChainId, wallet })
 }
 
 // TODO(0xdef1cafe): this whole thing should belong in chain adapters

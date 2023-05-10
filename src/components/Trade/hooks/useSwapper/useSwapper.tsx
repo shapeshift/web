@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux'
 import { useDonationAmountBelowMinimum } from 'components/Trade/hooks/useDonationAmountBelowMinimum'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWalletSupportsBuyAsset } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import type { SwapperManager } from 'lib/swapper/manager/SwapperManager'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
@@ -40,6 +41,7 @@ export const useSwapper = () => {
   const sellAsset = useSwapperStore(selectSellAsset)
   const getTradeForWallet = useSwapperStore(selectGetTradeForWallet)
   const defaultAffiliateBps = useSwapperStore(selectSwapperDefaultAffiliateBps)
+  const walletSupportsBuyAsset = useWalletSupportsBuyAsset()
 
   // Selectors
   const flags = useSelector(selectFeatureFlags)
@@ -124,7 +126,8 @@ export const useSwapper = () => {
     async ({ affiliateBps }: { affiliateBps?: string } = {}) => {
       if (!wallet) throw new Error('no wallet available')
       if (!sellAccountBip44Params) throw new Error('Missing sellAccountBip44Params')
-      if (!buyAccountBip44Params) throw new Error('Missing buyAccountBip44Params')
+      if (!buyAccountBip44Params && walletSupportsBuyAsset)
+        throw new Error('Missing buyAccountBip44Params')
       if (!sellAccountMetadata) throw new Error('Missing sellAccountMetadata')
 
       const trade = await getTradeForWallet({
@@ -140,6 +143,7 @@ export const useSwapper = () => {
       wallet,
       sellAccountBip44Params,
       buyAccountBip44Params,
+      walletSupportsBuyAsset,
       sellAccountMetadata,
       getTradeForWallet,
       isDonationAmountBelowMinimum,

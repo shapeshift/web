@@ -101,7 +101,8 @@
     "manage": "Manage",
     "selectedAccount": "Selected Account",
     "allChains": "All Chains",
-    "wallet": "Wallet"
+    "wallet": "Wallet",
+    "action": "Action"
   },
   "consentBanner": {
     "body": {

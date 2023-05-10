@@ -34,7 +34,7 @@ export const ActionResults: React.FC<GlobalSearchResultsProps> = ({
   if (searchQuery && !results.length) return null
   return (
     <>
-      <ListItemSection title={translate('Action')} />
+      <ListItemSection title={translate('common.action')} />
       <List px={2}>{renderItems}</List>
     </>
   )

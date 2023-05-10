@@ -31,11 +31,15 @@ import {
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
 import { getTradeRateBelowMinimum } from 'lib/swapper/swappers/ThorchainSwapper/utils/getTradeRate/getTradeRate'
-import { getUsdRate } from 'lib/swapper/swappers/ThorchainSwapper/utils/getUsdRate/getUsdRate'
 import { getEvmTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
+import {
+  selectBuyAssetUsdRate,
+  selectSellAssetUsdRate,
+} from 'state/zustand/swapperStore/amountSelectors'
+import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 type CommonQuoteFields = Omit<TradeQuote<ChainId>, 'allowanceContract' | 'feeData'>
 
@@ -153,13 +157,8 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     }
   })()
 
-  const maybeSellAssetUsdRate = await getUsdRate(deps.daemonUrl, sellAsset.assetId)
-  const maybeBuyAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAsset.assetId)
-
-  if (maybeBuyAssetUsdRate.isErr()) return Err(maybeBuyAssetUsdRate.unwrapErr())
-  const buyAssetUsdRate = maybeBuyAssetUsdRate.unwrap()
-  if (maybeSellAssetUsdRate.isErr()) return Err(maybeSellAssetUsdRate.unwrapErr())
-  const sellAssetUsdRate = maybeSellAssetUsdRate.unwrap()
+  const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+  const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
 
   const buyAssetTradeFeeUsd = bn(buyAssetUsdRate)
     .times(buyAssetTradeFeeBuyAssetCryptoHuman)

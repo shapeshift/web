@@ -5,7 +5,6 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
-import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type {
@@ -25,7 +24,6 @@ import { SwapperName, SwapperType } from 'lib/swapper/api'
 import { buildTrade } from 'lib/swapper/swappers/LifiSwapper/buildTrade/buildTrade'
 import { executeTrade } from 'lib/swapper/swappers/LifiSwapper/executeTrade/executeTrade'
 import { getTradeQuote } from 'lib/swapper/swappers/LifiSwapper/getTradeQuote/getTradeQuote'
-import { getUsdRate } from 'lib/swapper/swappers/LifiSwapper/getUsdRate/getUsdRate'
 import { MAX_LIFI_TRADE } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
 import { createLifiChainMap } from 'lib/swapper/swappers/LifiSwapper/utils/createLifiChainMap/createLifiChainMap'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
@@ -97,13 +95,6 @@ export class LifiSwapper implements Swapper<EvmChainId, true> {
     }
 
     return await getTradeQuote(input, this.lifiChainMap)
-  }
-
-  /**
-   * Get the usd rate from either the assets symbol or tokenId
-   */
-  async getUsdRate(asset: Asset): Promise<Result<string, SwapErrorRight>> {
-    return await getUsdRate(asset, this.lifiChainMap, getLifi())
   }
 
   /**

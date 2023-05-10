@@ -5,9 +5,9 @@ import { useTranslate } from 'react-polyglot'
 
 import { ListItemSection } from '../ListItemSection'
 import type { GlobalSearchResultsProps } from '../types'
-import { SendResult } from './SendResult'
+import { ActionResult } from './ActionResult'
 
-export const SendResults: React.FC<GlobalSearchResultsProps> = ({
+export const ActionResults: React.FC<GlobalSearchResultsProps> = ({
   results,
   activeIndex,
   onClick,
@@ -19,7 +19,7 @@ export const SendResults: React.FC<GlobalSearchResultsProps> = ({
   const renderItems = useMemo(() => {
     if (!searchQuery?.length) return null
     return results.map((item, index) => (
-      <SendResult
+      <ActionResult
         key={`result-send-${index}`}
         index={index + startingIndex}
         activeIndex={activeIndex}
@@ -34,7 +34,7 @@ export const SendResults: React.FC<GlobalSearchResultsProps> = ({
   if (searchQuery && !results.length) return null
   return (
     <>
-      <ListItemSection title={translate('modals.send.confirm.send')} />
+      <ListItemSection title={translate('Action')} />
       <List px={2}>{renderItems}</List>
     </>
   )

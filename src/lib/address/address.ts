@@ -32,7 +32,7 @@ const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   [dogeChainId]: 'doge',
   [ltcChainId]: 'litecoin',
 }
-export const parseMaybeUrlByChainId: Identity<ParseAddressByChainIdInputArgs> = ({
+export const parseMaybeUrlWithChainId: Identity<ParseAddressByChainIdInputArgs> = ({
   assetId,
   chainId,
   value,
@@ -92,7 +92,7 @@ export const parseMaybeUrl = async ({ value }: { value: string }): Promise<Parse
   // Iterate over supportedChainIds
   for (const chainId of Object.values(KnownChainIds)) {
     try {
-      const maybeUrl = parseMaybeUrlByChainId({ chainId, value })
+      const maybeUrl = parseMaybeUrlWithChainId({ chainId, value })
       const isValidUrl = maybeUrl.value !== value
 
       const assetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()!
@@ -287,7 +287,7 @@ export type ParseAddressInput = (
 
 // Parses an address or vanity address for a **known** ChainId
 export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async args => {
-  const parsedArgs = parseMaybeUrlByChainId(args)
+  const parsedArgs = parseMaybeUrlWithChainId(args)
 
   const isValidAddress = await validateAddress(parsedArgs)
   // we're dealing with a valid address
@@ -313,7 +313,7 @@ export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async ar
 // Parses an address or vanity address for an **unknown** ChainId, exhausting known ChainIds until we maybe find a match
 export const parseAddressInput: ParseAddressInput = async args => {
   for (const chainId of Object.values(KnownChainIds)) {
-    const parsedArgs = parseMaybeUrlByChainId(Object.assign(args, { chainId }))
+    const parsedArgs = parseMaybeUrlWithChainId(Object.assign(args, { chainId }))
 
     const isValidAddress = await validateAddress(parsedArgs)
     // we're dealing with a valid address

@@ -38,7 +38,7 @@ type OpportunitySearchResult = {
   id: OpportunityId
 }
 
-type SendResult = {
+export type SendResult = {
   type: GlobalSearchResultType.Send
   id: AssetId
 }

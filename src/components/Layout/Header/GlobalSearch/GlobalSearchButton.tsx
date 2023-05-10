@@ -38,9 +38,9 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { ActionResults } from './ActionResults/ActionResults'
 import { AssetResults } from './AssetResults/AssetResults'
 import { LpResults } from './LpResults/LpResults'
-import { SendResults } from './SendResults/SendResults'
 import { StakingResults } from './StakingResults/StakingResults'
 import { TxResults } from './TxResults/TxResults'
 import { makeOpportunityRouteDetails } from './utils'
@@ -248,7 +248,7 @@ export const GlobalSeachButton = () => {
       <SearchEmpty searchQuery={searchQuery} />
     ) : (
       <List>
-        <SendResults
+        <ActionResults
           onClick={handleClick}
           results={sendResults}
           activeIndex={activeIndex}

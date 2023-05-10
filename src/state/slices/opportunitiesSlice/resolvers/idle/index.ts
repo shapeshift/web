@@ -226,7 +226,9 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     // TODO: lib tranches rewardAssetIds / reward amount implementation
     // Currently, lib is only able to get reward AssetIds / amounts for best yield, which is only 8 assets
     if (!opportunity.metadata.cdoAddress) {
-      const claimableTokens = await opportunity.getClaimableTokens(fromAccountId(accountId).account)
+      const claimableTokens = await opportunity
+        .getClaimableTokens(fromAccountId(accountId).account)
+        .catch(_e => [])
       rewardsAmountsCryptoBaseUnit = claimableTokens.map(token => {
         const asset = selectAssetById(state, token.assetId)
         if (!asset) return '0'

@@ -65,7 +65,6 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const handleAssetSelect = useCallback(
     (assetId: AssetId) => {
       methods.setValue(SendFormFields.AssetId, assetId)
-      methods.setValue(SendFormFields.Input, '')
       methods.setValue(SendFormFields.AccountId, '')
       methods.setValue(SendFormFields.CryptoAmount, '')
       methods.setValue(SendFormFields.FiatAmount, '')

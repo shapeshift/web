@@ -94,7 +94,7 @@ export const GlobalSeachButton = () => {
         ;(async () => {
           const parsed = await parseAddressInput({ value: searchQuery })
           if (parsed) {
-            // TODO: handle multiple possible ChainIds for a given address
+            // Set the fee AssetId as a default - users can select their preferred token later during the flow
             setSendResults([
               {
                 type: GlobalSearchResultType.Send,

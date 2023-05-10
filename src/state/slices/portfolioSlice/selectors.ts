@@ -891,9 +891,8 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
       return {
         id: lpOpportunity.id,
         type: AssetEquityType.LP,
-        // This should never happen but it may whilst data is loading
-        fiatAmount: underlyingBalances[assetId]?.fiatAmount ?? '0',
-        amountCryptoPrecision: underlyingBalances[assetId]?.cryptoBalancePrecision ?? '0',
+        fiatAmount: underlyingBalances[assetId].fiatAmount,
+        amountCryptoPrecision: underlyingBalances[assetId].cryptoBalancePrecision,
         provider: lpOpportunity.provider,
         color: DefiProviderMetadata[lpOpportunity.provider].color,
       }

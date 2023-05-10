@@ -124,8 +124,7 @@ export const OpportunityRow: React.FC<
     return (
       <List style={{ marginTop: 0 }}>
         {nestedAssetIds.map(assetId => {
-          if (!underlyingAssetBalances[assetId]) return null
-          if (bnOrZero(underlyingAssetBalances[assetId].cryptoBalancePrecision).eq(0)) return null
+          if (bnOrZero(underlyingAssetBalances[assetId]?.cryptoBalancePrecision).eq(0)) return null
           return (
             <NestedAsset
               key={assetId}

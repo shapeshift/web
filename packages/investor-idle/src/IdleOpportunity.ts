@@ -357,7 +357,10 @@ export class IdleOpportunity
 
     const claimableTokens: ClaimableToken[] = []
     const vaultContract: Contract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
-    const govTokensAmounts = await vaultContract.methods.getGovTokensAmounts(address).call()
+    const govTokensAmounts = await vaultContract.methods
+      .getGovTokensAmounts(address)
+      .call()
+      .catch(() => [])
 
     for (let i = 0; i < govTokensAmounts.length; i++) {
       const govTokenAddress = await vaultContract.methods.govTokens(i).call()

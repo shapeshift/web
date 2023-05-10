@@ -20,7 +20,7 @@ export const ActionResults: React.FC<GlobalSearchResultsProps> = ({
     if (!searchQuery?.length) return null
     return results.map((item, index) => (
       <ActionResult
-        key={`result-send-${index}`}
+        key={`result-action-${index}`}
         index={index + startingIndex}
         activeIndex={activeIndex}
         searchQuery={searchQuery}

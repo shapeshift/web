@@ -8,7 +8,7 @@ import { GlobalSearchResultType } from 'state/slices/search-selectors'
 
 import { ResultButton } from '../ResultButton'
 
-type AssetResultProps = {
+type ActionResultProps = {
   assetId: AssetId
   index: number
   activeIndex?: number
@@ -16,7 +16,7 @@ type AssetResultProps = {
   searchQuery: string
 }
 
-export const ActionResult = forwardRef<AssetResultProps, 'div'>(
+export const ActionResult = forwardRef<ActionResultProps, 'div'>(
   ({ assetId, searchQuery, index, activeIndex, onClick }, ref) => {
     const selected = index === activeIndex
     return (

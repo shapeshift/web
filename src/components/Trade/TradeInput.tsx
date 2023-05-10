@@ -1,6 +1,15 @@
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Button, Flex, IconButton, Stack, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  IconButton,
+  Stack,
+  useColorModeValue,
+  useMediaQuery,
+} from '@chakra-ui/react'
+import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -8,6 +17,7 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import { AddressInput } from 'components/Modals/Send/AddressInput/AddressInput'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
@@ -22,6 +32,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { parseAddressInput } from 'lib/address/address'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -96,6 +107,12 @@ export const TradeInput = () => {
   const { getAvailableSwappers } = getSwappersApi.endpoints
   const { tradeQuoteArgs } = useTradeQuoteService()
   const dispatch = useAppDispatch()
+  const [isManualAddressEntryValidating, setIsManualAddressEntryValidating] = useState(false)
+  const isYatFeatureEnabled = useFeatureFlag('Yat')
+
+  const {
+    formState: { errors: manualAddressEntryErrors },
+  } = useFormContext()
 
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
 
@@ -113,6 +130,7 @@ export const TradeInput = () => {
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const updateAction = useSwapperStore(state => state.updateAction)
   const updateAmount = useSwapperStore(state => state.updateAmount)
+  const updateReceiveAddress = useSwapperStore(state => state.updateReceiveAddress)
   const fiatBuyAmount = useSwapperStore(selectBuyAmountFiat)
   const fiatSellAmount = useSwapperStore(selectSellAmountFiat)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
@@ -181,6 +199,9 @@ export const TradeInput = () => {
     selectPortfolioCryptoPrecisionBalanceByFilter(state, sellAssetBalanceFilter),
   )
 
+  const doesReceiveChainSupportYat = buyAsset.chainId === ethChainId // yat only supports eth mainnet
+  const isYatSupported = isYatFeatureEnabled && doesReceiveChainSupportYat
+
   const buyAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, buyAssetBalanceFilter),
   )
@@ -198,11 +219,10 @@ export const TradeInput = () => {
   }, [buyAsset?.assetId, activeQuote, sellAsset?.assetId])
 
   // Constants
-  const walletSupportsSellAssetChain =
-    sellAsset?.chainId && walletSupportsChain({ wallet, chainId: sellAsset?.chainId })
+  const walletSupportsSellAssetChain = walletSupportsChain({ wallet, chainId: sellAsset?.chainId })
 
-  const walletSupportsBuyAssetChain =
-    buyAsset?.chainId && walletSupportsChain({ wallet, chainId: buyAsset?.chainId })
+  const walletSupportsBuyAssetChain = walletSupportsChain({ wallet, chainId: buyAsset?.chainId })
+  const shouldShowManualReceiveAddressInput = !walletSupportsBuyAssetChain
 
   const walletSupportsTradeAssetChains = walletSupportsBuyAssetChain && walletSupportsSellAssetChain
 
@@ -423,9 +443,9 @@ export const TradeInput = () => {
           assetSymbol: sellAsset?.symbol ?? translate('trade.errors.sellAssetStartSentence'),
         },
       ]
-    if (!walletSupportsBuyAssetChain)
+    if (!walletSupportsBuyAssetChain && !receiveAddress)
       return [
-        'trade.errors.assetNotSupportedByWallet',
+        'trade.errors.manualReceiveAddressRequired',
         {
           assetSymbol: buyAsset?.symbol ?? translate('trade.errors.buyAssetStartSentence'),
         },
@@ -496,6 +516,7 @@ export const TradeInput = () => {
     activeQuote?.feeData.networkFeeCryptoBaseUnit,
     activeQuote?.minimumCryptoHuman,
     activeQuote?.sellAsset.symbol,
+    manualAddressEntryErrors,
     isSwapperApiPending,
     isSwapperApiInitiated,
     wallet,
@@ -689,12 +710,47 @@ export const TradeInput = () => {
             />
           ) : null}
         </Stack>
+        {shouldShowManualReceiveAddressInput && (
+          <FormControl>
+            <FormLabel color='gray.500' w='full'>
+              {translate('modals.send.sendForm.sendTo')}
+            </FormLabel>
+            <AddressInput
+              rules={{
+                required: true,
+                validate: {
+                  validateAddress: async (rawInput: string) => {
+                    const value = rawInput.trim() // trim leading/trailing spaces
+                    setIsManualAddressEntryValidating(true)
+                    const { assetId, chainId } = buyAsset
+                    // this does not throw, everything inside is handled
+                    const parseAddressInputArgs = { assetId, chainId, value }
+                    const { address } = await parseAddressInput(parseAddressInputArgs)
+                    setIsManualAddressEntryValidating(false)
+                    updateReceiveAddress(address)
+                    const invalidMessage = isYatSupported
+                      ? 'common.invalidAddressOrYat'
+                      : 'common.invalidAddress'
+                    return address ? true : invalidMessage
+                  },
+                },
+              }}
+              isYatSupported={true}
+            />
+          </FormControl>
+        )}
         <Button
           type='submit'
           colorScheme={hasError ? 'red' : 'blue'}
           size='lg-multiline'
           data-test='trade-form-preview-button'
-          isDisabled={hasError || isSwapperApiPending || !hasValidSellAmount || !activeQuote}
+          isDisabled={
+            hasError ||
+            isSwapperApiPending ||
+            !hasValidSellAmount ||
+            !activeQuote ||
+            isManualAddressEntryValidating
+          }
           isLoading={isLoading}
         >
           <Text translation={getErrorTranslationKey()} />

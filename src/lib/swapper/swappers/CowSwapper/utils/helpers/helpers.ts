@@ -1,5 +1,25 @@
 import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
+import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { ethers } from 'ethers'
+import type { Asset } from 'lib/asset-service'
+import { AssetService } from 'lib/asset-service'
+import { bn } from 'lib/bignumber/bignumber'
+import type { SwapErrorRight } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
+import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
+import {
+  DEFAULT_ADDRESS,
+  DEFAULT_APP_DATA,
+  ORDER_KIND_BUY,
+  WETH_ASSET_ID,
+} from 'lib/swapper/swappers/CowSwapper/utils/constants'
+import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
+
+const USDC_CONTRACT_ADDRESS = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+const USDC_ASSET_PRECISION = 6
 
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },
@@ -59,6 +79,90 @@ export const getNowPlusThirtyMinutesTimestamp = (): number => {
   const ts = new Date()
   ts.setMinutes(ts.getMinutes() + 30)
   return Math.round(ts.getTime() / 1000)
+}
+
+export const getUsdRate = async (
+  { apiUrl }: CowSwapperDeps,
+  input: Asset,
+): Promise<Result<string, SwapErrorRight>> => {
+  // Replacing ETH by WETH specifically for CowSwap in order to get an usd rate when called with ETH as feeAsset
+  const asset = input.assetId !== ethAssetId ? input : new AssetService().getAll()[WETH_ASSET_ID]
+  const { assetReference: erc20Address, assetNamespace } = fromAssetId(asset.assetId)
+
+  if (assetNamespace !== 'erc20') {
+    return Err(
+      makeSwapErrorRight({
+        message: '[getUsdRate] - unsupported asset namespace',
+        code: SwapErrorType.USD_RATE_FAILED,
+        details: { assetNamespace },
+      }),
+    )
+  }
+
+  if (erc20Address === USDC_CONTRACT_ADDRESS) {
+    // Note, this isn't guaranteed to be true as USDC might depeg to anything less than a dollar
+    return Ok('1')
+  }
+
+  // rate is imprecise for low $ values, hence asking for $1000
+  const buyAmountInDollars = 1000
+  const buyAmount = bn(buyAmountInDollars)
+    .times(bn(10).exponentiatedBy(USDC_ASSET_PRECISION))
+    .toString()
+
+  const apiInput: CowSwapBuyQuoteApiInput = {
+    sellToken: erc20Address,
+    buyToken: USDC_CONTRACT_ADDRESS,
+    receiver: DEFAULT_ADDRESS,
+    validTo: getNowPlusThirtyMinutesTimestamp(),
+    appData: DEFAULT_APP_DATA,
+    partiallyFillable: false,
+    from: DEFAULT_ADDRESS,
+    kind: ORDER_KIND_BUY,
+    buyAmountAfterFee: buyAmount,
+  }
+
+  /**
+   * /v1/quote
+   * params: {
+   * sellToken: contract address of token to sell
+   * buyToken: contractAddress of token to buy
+   * receiver: receiver address can be defaulted to "0x0000000000000000000000000000000000000000"
+   * validTo: time duration during which quote is valid (eg : 1654851610 as timestamp)
+   * appData: appData for the CowSwap quote that can be used later, can be defaulted to "0x0000000000000000000000000000000000000000000000000000000000000000"
+   * partiallyFillable: false
+   * from: sender address can be defaulted to "0x0000000000000000000000000000000000000000"
+   * kind: "sell" or "buy"
+   * sellAmountBeforeFee / buyAmountAfterFee: amount in base unit
+   * }
+   */
+  const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
+    `${apiUrl}/v1/quote/`,
+    apiInput,
+  )
+
+  return maybeQuoteResponse.andThen<string>(quoteResponse => {
+    const {
+      data: {
+        quote: { sellAmount: sellAmountCryptoBaseUnit },
+      },
+    } = quoteResponse
+
+    const sellAmountCryptoPrecision = bn(sellAmountCryptoBaseUnit).div(
+      bn(10).exponentiatedBy(asset.precision),
+    )
+
+    if (!sellAmountCryptoPrecision.gt(0))
+      return Err(
+        makeSwapErrorRight({
+          message: '[getUsdRate] - Failed to get sell token amount',
+          code: SwapErrorType.RESPONSE_ERROR,
+        }),
+      )
+
+    // dividing $1000 by amount of sell token received
+    return Ok(bn(buyAmountInDollars).div(sellAmountCryptoPrecision).toString())
+  })
 }
 
 export const hashTypedData = (

@@ -5,74 +5,20 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { IntermediaryTransactionOutput } from 'lib/swapper/api'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { getFeeAssetByAssetId } from 'state/slices/assetsSlice/utils'
-import { selectAssets, selectCryptoMarketData, selectFiatToUsdRate } from 'state/slices/selectors'
-import { store } from 'state/store'
 import {
   selectAction,
   selectAmount,
   selectBuyAsset,
+  selectBuyAssetFiatRate,
+  selectSelectedCurrencyToUsdRate,
   selectSellAmountFiat,
   selectSellAsset,
+  selectSellAssetFiatRate,
   selectSlippage,
   selectSwapperDefaultAffiliateBps,
 } from 'state/zustand/swapperStore/selectors'
 import type { SwapperState } from 'state/zustand/swapperStore/types'
 import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
-
-const selectCryptoMarketDataById = () => selectCryptoMarketData(store.getState())
-const selectAssetsById = () => selectAssets(store.getState())
-const selectSelectedCurrencyToUsdRate = () => selectFiatToUsdRate(store.getState()) ?? '0'
-
-export const selectBuyAssetUsdRate = createSelector(
-  selectBuyAsset,
-  selectCryptoMarketDataById,
-  (buyAsset, cryptoMarketDataById) => cryptoMarketDataById[buyAsset.assetId]?.price ?? '0',
-)
-
-export const selectSellAssetUsdRate = createSelector(
-  selectSellAsset,
-  selectCryptoMarketDataById,
-  (sellAsset, cryptoMarketDataById) => cryptoMarketDataById[sellAsset.assetId]?.price ?? '0',
-)
-
-const selectFeeAssetId = createSelector(
-  selectSellAsset,
-  selectAssetsById,
-  (sellAsset, assetsById) => getFeeAssetByAssetId(assetsById, sellAsset.assetId)?.assetId,
-)
-
-export const selectFeeAssetUsdRate = createSelector(
-  selectFeeAssetId,
-  selectCryptoMarketDataById,
-  (feeAssetId, cryptoMarketDataById) => {
-    return feeAssetId ? cryptoMarketDataById[feeAssetId]?.price ?? '0' : '0'
-  },
-)
-
-export const selectSellAssetFiatRate = createSelector(
-  selectSelectedCurrencyToUsdRate,
-  selectSellAssetUsdRate,
-  (selectedCurrencyToUsdRate, sellAssetUsdRate) => {
-    return bnOrZero(sellAssetUsdRate).times(selectedCurrencyToUsdRate).toString()
-  },
-)
-
-export const selectBuyAssetFiatRate = createSelector(
-  selectSelectedCurrencyToUsdRate,
-  selectBuyAssetUsdRate,
-  (selectedCurrencyToUsdRate, buyAssetUsdRate) => {
-    return bnOrZero(buyAssetUsdRate).times(selectedCurrencyToUsdRate).toString()
-  },
-)
-
-export const selectFeeAssetFiatRate = createSelector(
-  selectSelectedCurrencyToUsdRate,
-  selectFeeAssetUsdRate,
-  (selectedCurrencyToUsdRate, feeAssetUsdRate) => {
-    return bnOrZero(feeAssetUsdRate).times(selectedCurrencyToUsdRate).toString()
-  },
-)
 
 const selectAssetPriceRatio = createSelector(
   selectBuyAssetFiatRate,

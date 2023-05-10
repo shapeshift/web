@@ -33,6 +33,7 @@ import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import {
   selectSwapperApiPending,
   selectSwapperApiTradeQuotePending,
+  selectSwapperApiUsdRatesPending,
   selectSwapperQueriesInitiated,
 } from 'state/apis/swapper/selectors'
 import {
@@ -46,10 +47,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import {
-  selectBuyAssetFiatRate,
-  selectFeeAssetFiatRate,
   selectQuoteBuyAmountCryptoPrecision,
-  selectSellAssetFiatRate,
   selectTotalTradeFeeBuyAssetCryptoPrecision,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
@@ -60,6 +58,7 @@ import {
   selectBuyAsset,
   selectBuyAssetAccountId,
   selectCheckApprovalNeededForWallet,
+  selectFeeAssetFiatRate,
   selectFees,
   selectIsSendMax,
   selectQuote,
@@ -115,8 +114,6 @@ export const TradeInput = () => {
   const fiatSellAmount = useSwapperStore(selectSellAmountFiat)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
   const updateIsSendMax = useSwapperStore(state => state.updateIsSendMax)
-  const buyAssetFiatRate = useSwapperStore(selectBuyAssetFiatRate)
-  const sellAssetFiatRate = useSwapperStore(selectSellAssetFiatRate)
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
@@ -178,6 +175,7 @@ export const TradeInput = () => {
 
   const isSwapperApiPending = useSelector(selectSwapperApiPending)
   const isTradeQuotePending = useSelector(selectSwapperApiTradeQuotePending)
+  const isUsdRatesPending = useSelector(selectSwapperApiUsdRatesPending)
   const isSwapperApiInitiated = useSelector(selectSwapperQueriesInitiated)
 
   const quoteAvailableForCurrentAssetPair = useMemo(() => {
@@ -230,9 +228,6 @@ export const TradeInput = () => {
                 ...tradeQuoteArgs,
                 sellAmountBeforeFeesCryptoBaseUnit: '10000000', // arbitrarily high sell amount for max send quote
                 feeAsset,
-                buyAssetFiatRate,
-                sellAssetFiatRate,
-                feeAssetFiatRate,
               }),
             )
           ).data
@@ -267,9 +262,6 @@ export const TradeInput = () => {
     updateAmount,
     handleInputAmountChange,
     updateTradeAmountsFromQuote,
-    buyAssetFiatRate,
-    sellAssetFiatRate,
-    feeAssetFiatRate,
   ])
   const onSubmit = useCallback(async () => {
     setIsLoading(true)
@@ -607,7 +599,7 @@ export const TradeInput = () => {
             percentOptions={[1]}
             onPercentOptionClick={handleSendMax}
             showInputSkeleton={isSwapperApiPending && isSendMax}
-            showFiatSkeleton={isSwapperApiPending && isSendMax}
+            showFiatSkeleton={isUsdRatesPending || (isSwapperApiPending && isSendMax)}
             label={translate('trade.youPay')}
           />
           <TradeAssetInput

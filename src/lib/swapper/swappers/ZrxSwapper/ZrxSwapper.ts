@@ -9,6 +9,7 @@ import type {
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
+import type { Asset } from 'lib/asset-service'
 import type {
   ApprovalNeededInput,
   ApprovalNeededOutput,
@@ -31,6 +32,7 @@ import type {
   ZrxTrade,
 } from 'lib/swapper/swappers/ZrxSwapper/types'
 import { UNSUPPORTED_ASSETS } from 'lib/swapper/swappers/ZrxSwapper/utils/blacklist'
+import { getUsdRate } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxApprovalNeeded } from 'lib/swapper/swappers/ZrxSwapper/zrxApprovalNeeded/zrxApprovalNeeded'
 import {
   zrxApproveAmount,
@@ -90,6 +92,10 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
 
   getTradeQuote(input: GetEvmTradeQuoteInput): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
     return getZrxTradeQuote<T>(this.deps, input)
+  }
+
+  getUsdRate(input: Asset): Promise<Result<string, SwapErrorRight>> {
+    return getUsdRate(input)
   }
 
   executeTrade(args: ZrxExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>> {

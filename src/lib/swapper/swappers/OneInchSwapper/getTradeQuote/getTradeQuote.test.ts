@@ -16,9 +16,10 @@ jest.mock('../utils/oneInchService', () => {
   }
 })
 
-jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
-  ...jest.requireActual('state/zustand/swapperStore/amountSelectors'),
-  selectSellAssetUsdRate: jest.fn(() => '0.02000'),
+const mockOk = Ok as jest.Mocked<typeof Ok>
+
+jest.mock('../getUsdRate/getUsdRate', () => ({
+  getUsdRate: () => mockOk('0.02000'),
 }))
 
 const fastGasPrice = '15000000000' // 15 gwei

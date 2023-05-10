@@ -451,7 +451,10 @@ export const TradeInput = () => {
           assetSymbol: sellAsset?.symbol ?? translate('trade.errors.sellAssetStartSentence'),
         },
       ]
-    if (!walletSupportsBuyAssetChain && !receiveAddress)
+    if (
+      (!walletSupportsBuyAssetChain && !receiveAddress) ||
+      manualAddressEntryErrors?.input?.type?.toString() === 'required'
+    )
       return [
         'trade.errors.manualReceiveAddressRequired',
         {
@@ -507,7 +510,7 @@ export const TradeInput = () => {
           assetSymbol: buyAsset?.symbol ?? translate('trade.errors.buyAssetMiddleSentence'),
         },
       ]
-    if (manualAddressEntryErrors.input?.message) {
+    if (manualAddressEntryErrors.input?.message && !walletSupportsBuyAssetChain) {
       return manualAddressEntryErrors.input?.message.toString()
     }
 
@@ -527,13 +530,15 @@ export const TradeInput = () => {
     activeQuote?.feeData.networkFeeCryptoBaseUnit,
     activeQuote?.minimumCryptoHuman,
     activeQuote?.sellAsset.symbol,
-    manualAddressEntryErrors.input?.message,
     isSwapperApiPending,
     isSwapperApiInitiated,
     wallet,
     walletSupportsSellAssetChain,
     translate,
     walletSupportsBuyAssetChain,
+    receiveAddress,
+    manualAddressEntryErrors.input?.type,
+    manualAddressEntryErrors.input?.message,
     buyAsset.symbol,
     buyAsset.chainId,
     activeSwapper,
@@ -544,7 +549,6 @@ export const TradeInput = () => {
     feesExceedsSellAmount,
     isTradeQuotePending,
     quoteAvailableForCurrentAssetPair,
-    receiveAddress,
   ])
 
   const hasError = useMemo(() => {
@@ -738,7 +742,7 @@ export const TradeInput = () => {
                     const parseAddressInputArgs = { assetId, chainId, value }
                     const { address } = await parseAddressInput(parseAddressInputArgs)
                     setIsManualAddressEntryValidating(false)
-                    address && updateReceiveAddress(address)
+                    updateReceiveAddress(address || undefined)
                     const invalidMessage = isYatSupported
                       ? 'common.invalidAddressOrYat'
                       : 'common.invalidAddress'

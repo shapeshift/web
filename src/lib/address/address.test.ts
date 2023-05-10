@@ -88,6 +88,7 @@ describe('lib/address', () => {
         assetId: ethAssetId,
         chainId: ethChainId,
         value: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
+        amountCryptoPrecision: '2014000000000000000',
       }
 
       expect(parseMaybeUrlWithChainId(input2)).toEqual(expectedOutput2)

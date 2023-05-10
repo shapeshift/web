@@ -10,6 +10,7 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type {
@@ -40,6 +41,7 @@ import { executeTrade } from './executeTrade/executeTrade'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { getMinMax } from './getMinMax/getMinMax'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
+import { getUsdRate } from './getUsdRate/getUsdRate'
 import type { OneInchExecuteTradeInput, OneInchSwapperDeps, OneInchTrade } from './utils/types'
 
 export type OneInchSupportedChainId =
@@ -106,7 +108,7 @@ export class OneInchSwapper implements Swapper<EvmChainId, true> {
       )
     }
 
-    const maybeMinMax = await getMinMax(input.sellAsset, input.buyAsset)
+    const maybeMinMax = await getMinMax(this.deps, input.sellAsset, input.buyAsset)
 
     return maybeMinMax.match({
       ok: minMax => {
@@ -138,6 +140,10 @@ export class OneInchSwapper implements Swapper<EvmChainId, true> {
       },
       err: err => Promise.resolve(Err(err)),
     })
+  }
+
+  getUsdRate(input: Asset): Promise<Result<string, SwapErrorRight>> {
+    return getUsdRate(this.deps, input)
   }
 
   approvalNeeded(

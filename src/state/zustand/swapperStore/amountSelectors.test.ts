@@ -6,23 +6,6 @@ import {
 import { baseSwapperState } from 'state/zustand/swapperStore/testData'
 import type { SwapperState } from 'state/zustand/swapperStore/types'
 
-jest.mock('state/slices/selectors', () => {
-  const { ETH, FOX } = require('test/constants')
-  const currencyToUsdRate = 1
-  return {
-    ...jest.requireActual('state/slices/selectors'),
-    selectCryptoMarketData: () => ({
-      [ETH.assetId]: { price: '1767' },
-      [FOX.assetId]: { price: '0.033' },
-    }),
-    selectFiatToUsdRate: () => currencyToUsdRate.toString(),
-    selectAssets: () => ({
-      [ETH.assetId]: ETH,
-      [FOX.assetId]: FOX,
-    }),
-  }
-})
-
 describe('calculateAmounts', () => {
   it('returns sellAmountSellAssetCryptoPrecision, buyAmountBuyAssetBaseUnit, fiatSellAmount, fiatBuyAmount for SELL_CRYPTO action', () => {
     const action = TradeAmountInputField.SELL_CRYPTO

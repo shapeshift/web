@@ -11,6 +11,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type Web3 from 'web3'
+import type { Asset } from 'lib/asset-service'
 import type {
   ApprovalNeededInput,
   ApprovalNeededOutput,
@@ -35,6 +36,7 @@ import type {
   ThornodePoolResponse,
   ThorTrade,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { getUsdRate } from 'lib/swapper/swappers/ThorchainSwapper/utils/getUsdRate/getUsdRate'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName, SwapperType } from '../../api'
@@ -132,6 +134,10 @@ export class ThorchainSwapper implements Swapper<ChainId> {
 
   getType() {
     return SwapperType.Thorchain
+  }
+
+  getUsdRate({ assetId }: Pick<Asset, 'assetId'>): Promise<Result<string, SwapErrorRight>> {
+    return getUsdRate(this.daemonUrl, assetId)
   }
 
   approvalNeeded(

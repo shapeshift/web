@@ -79,12 +79,7 @@ export type ByPairInput = {
   buyAssetId: AssetId
 }
 
-export type GetSwappersWithQuoteMetadataArgs = GetTradeQuoteInput & {
-  feeAsset: Asset
-  sellAssetFiatRate: string
-  buyAssetFiatRate: string
-  feeAssetFiatRate: string
-}
+export type GetSwappersWithQuoteMetadataArgs = GetTradeQuoteInput & { feeAsset: Asset }
 
 export type SwapperWithQuoteMetadata = {
   swapper: Swapper<ChainId>
@@ -288,7 +283,6 @@ export interface Swapper<T extends ChainId, MaybeUnknownNetworkFee extends boole
    * Get builds a trade with definitive rate & txData that can be executed with executeTrade
    **/
   buildTrade(args: BuildTradeInput): Promise<Result<Trade<T>, SwapErrorRight>>
-
   /**
    * Get a trade quote
    */
@@ -300,6 +294,10 @@ export interface Swapper<T extends ChainId, MaybeUnknownNetworkFee extends boole
       SwapErrorRight
     >
   >
+  /**
+   * Get the usd rate from either the assets symbol or tokenId
+   */
+  getUsdRate(input: Asset): Promise<Result<string, SwapErrorRight>>
 
   /**
    * Execute a trade built with buildTrade by signing and broadcasting

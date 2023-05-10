@@ -1,4 +1,4 @@
-import type { Tx } from '../../../../../generated/ethereum'
+import type { Tx } from '../../../index'
 import { mempoolMock } from './mempoolMock'
 
 const erc721: Tx = {

@@ -1,11 +1,14 @@
 import { polygonAssetId, polygonChainId } from '@shapeshiftoss/caip'
+import type { evm } from '@shapeshiftoss/common-api'
 
 import type { Trade, Transfer } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
-import type { Api } from '../../..'
 import type { ParsedTx } from '../../../parser'
+import { V1Api } from '../../index'
 import { TransactionParser, ZRX_POLYGON_PROXY_CONTRACT } from '../index'
 import erc20Approve from './mockData/erc20Approve'
+import erc721 from './mockData/erc721'
+import erc1155 from './mockData/erc1155'
 import maticSelfSend from './mockData/maticSelfSend'
 import maticStandard from './mockData/maticStandard'
 import { usdcToken, usdtToken } from './mockData/tokens'
@@ -15,241 +18,511 @@ import zrxTradeMaticToUsdc from './mockData/zrxTradeMaticToUsdc'
 import zrxTradeUsdcToMatic from './mockData/zrxTradeUsdcToMatic'
 import zrxTradeUsdcToUsdt from './mockData/zrxTradeUsdcToUsdt'
 
+const mockedApi = jest.mocked(new V1Api())
+
+const tokenMetadata: evm.TokenMetadata = {
+  name: 'Foxy',
+  description: 'The foxiest Fox',
+  media: { url: 'http://foxy.fox', type: 'image' },
+}
+
+mockedApi.getTokenMetadata = jest.fn().mockResolvedValue(tokenMetadata)
+
 const txParser = new TransactionParser({
   rpcUrl: '',
   chainId: polygonChainId,
   assetId: polygonAssetId,
-  api: {} as Api,
+  api: mockedApi,
 })
 
 describe('parseTx', () => {
   describe('standard', () => {
-    it('should be able to parse matic mempool send', async () => {
-      const { txMempool } = maticStandard
-      const address = '0xC070A61D043189D99bbf4baA58226bf0991c7b11'
+    describe('matic', () => {
+      it('should be able to parse matic mempool send', async () => {
+        const { txMempool } = maticStandard
+        const address = '0xC070A61D043189D99bbf4baA58226bf0991c7b11'
 
-      const expected: ParsedTx = {
-        txid: txMempool.txid,
-        blockHeight: txMempool.blockHeight,
-        blockTime: txMempool.timestamp,
-        address,
-        chainId: polygonChainId,
-        confirmations: txMempool.confirmations,
-        status: TxStatus.Pending,
-        transfers: [
-          {
-            type: TransferType.Send,
-            to: '0x7DE23FDA0C4243E9588CCe39819d53854965Ad77',
-            from: address,
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: polygonChainId,
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [
+            {
+              type: TransferType.Send,
+              to: '0x7DE23FDA0C4243E9588CCe39819d53854965Ad77',
+              from: address,
+              assetId: polygonAssetId,
+              totalValue: '4079513530000000000',
+              components: [{ value: '4079513530000000000' }],
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(expected).toEqual(actual)
+      })
+
+      it('should be able to parse matic send', async () => {
+        const { tx } = maticStandard
+        const address = '0xC070A61D043189D99bbf4baA58226bf0991c7b11'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: polygonChainId,
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          fee: {
             assetId: polygonAssetId,
-            totalValue: '4079513530000000000',
-            components: [{ value: '4079513530000000000' }],
+            value: '5618286173997000',
           },
-        ],
-      }
+          transfers: [
+            {
+              type: TransferType.Send,
+              to: '0x7DE23FDA0C4243E9588CCe39819d53854965Ad77',
+              from: address,
+              assetId: polygonAssetId,
+              totalValue: '4079513530000000000',
+              components: [{ value: '4079513530000000000' }],
+            },
+          ],
+        }
 
-      const actual = await txParser.parse(txMempool, address)
+        const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+        expect(expected).toEqual(actual)
+      })
+
+      it('should be able to parse matic mempool receive', async () => {
+        const { txMempool } = maticStandard
+        const address = '0x7DE23FDA0C4243E9588CCe39819d53854965Ad77'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: polygonChainId,
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [
+            {
+              type: TransferType.Receive,
+              to: address,
+              from: '0xC070A61D043189D99bbf4baA58226bf0991c7b11',
+              assetId: polygonAssetId,
+              totalValue: '4079513530000000000',
+              components: [{ value: '4079513530000000000' }],
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(expected).toEqual(actual)
+      })
+
+      it('should be able to parse matic receive', async () => {
+        const { tx } = maticStandard
+        const address = '0x7DE23FDA0C4243E9588CCe39819d53854965Ad77'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: polygonChainId,
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          transfers: [
+            {
+              type: TransferType.Receive,
+              to: address,
+              from: '0xC070A61D043189D99bbf4baA58226bf0991c7b11',
+              assetId: polygonAssetId,
+              totalValue: '4079513530000000000',
+              components: [{ value: '4079513530000000000' }],
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(expected).toEqual(actual)
+      })
     })
 
-    it('should be able to parse matic send', async () => {
-      const { tx } = maticStandard
-      const address = '0xC070A61D043189D99bbf4baA58226bf0991c7b11'
+    describe('token', () => {
+      it('should be able to parse token mempool send', async () => {
+        const { txMempool } = tokenStandard
+        const address = '0xfA8a5D52aFCCAF40A0999ab9347D1Ba7Edc5395b'
 
-      const expected: ParsedTx = {
-        txid: tx.txid,
-        blockHash: tx.blockHash,
-        blockHeight: tx.blockHeight,
-        blockTime: tx.timestamp,
-        address,
-        chainId: polygonChainId,
-        confirmations: tx.confirmations,
-        status: TxStatus.Confirmed,
-        fee: {
-          assetId: polygonAssetId,
-          value: '5618286173997000',
-        },
-        transfers: [
-          {
-            type: TransferType.Send,
-            to: '0x7DE23FDA0C4243E9588CCe39819d53854965Ad77',
-            from: address,
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: polygonChainId,
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(expected).toEqual(actual)
+      })
+
+      it('should be able to parse token send', async () => {
+        const { tx } = tokenStandard
+        const address = '0xfA8a5D52aFCCAF40A0999ab9347D1Ba7Edc5395b'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: polygonChainId,
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          fee: {
             assetId: polygonAssetId,
-            totalValue: '4079513530000000000',
-            components: [{ value: '4079513530000000000' }],
+            value: '12798989060278680',
           },
-        ],
-      }
+          transfers: [
+            {
+              type: TransferType.Send,
+              from: address,
+              to: '0xaE5f1D2309272557a4f2a3C954f51aF12104A2Ce',
+              assetId: 'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+              totalValue: '700000000',
+              components: [{ value: '700000000' }],
+              token: usdcToken,
+            },
+          ],
+        }
 
-      const actual = await txParser.parse(tx, address)
+        const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+        expect(expected).toEqual(actual)
+      })
+
+      it('should be able to parse token mempool receive', async () => {
+        const { txMempool } = tokenStandard
+        const address = '0xaE5f1D2309272557a4f2a3C954f51aF12104A2Ce'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: polygonChainId,
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(expected).toEqual(actual)
+      })
+
+      it('should be able to parse token receive', async () => {
+        const { tx } = tokenStandard
+        const address = '0xaE5f1D2309272557a4f2a3C954f51aF12104A2Ce'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: polygonChainId,
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          transfers: [
+            {
+              type: TransferType.Receive,
+              from: '0xfA8a5D52aFCCAF40A0999ab9347D1Ba7Edc5395b',
+              to: address,
+              assetId: 'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+              totalValue: '700000000',
+              components: [{ value: '700000000' }],
+              token: usdcToken,
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(expected).toEqual(actual)
+      })
     })
 
-    it('should be able to parse matic mempool receive', async () => {
-      const { txMempool } = maticStandard
-      const address = '0x7DE23FDA0C4243E9588CCe39819d53854965Ad77'
+    describe('erc721', () => {
+      it('should be able to parse mempool send', async () => {
+        const { txMempool } = erc721
+        const address = '0x841c64caDA7837e48463Cb022d93f33D1f63356c'
 
-      const expected: ParsedTx = {
-        txid: txMempool.txid,
-        blockHeight: txMempool.blockHeight,
-        blockTime: txMempool.timestamp,
-        address,
-        chainId: polygonChainId,
-        confirmations: txMempool.confirmations,
-        status: TxStatus.Pending,
-        transfers: [
-          {
-            type: TransferType.Receive,
-            to: address,
-            from: '0xC070A61D043189D99bbf4baA58226bf0991c7b11',
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: 'eip155:137',
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse send', async () => {
+        const { tx } = erc721
+        const address = '0x841c64caDA7837e48463Cb022d93f33D1f63356c'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: 'eip155:137',
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          fee: {
             assetId: polygonAssetId,
-            totalValue: '4079513530000000000',
-            components: [{ value: '4079513530000000000' }],
+            value: '12631422480372220',
           },
-        ],
-      }
+          data: {
+            parser: 'nft',
+            mediaById: { '289167': tokenMetadata.media },
+          },
+          transfers: [
+            {
+              type: TransferType.Send,
+              to: '0xD8D534C68B52A1ae7Af3BB0Bc6C51E97e9007F0F',
+              from: address,
+              assetId: 'eip155:137/erc721:0xa4b37be40f7b231ee9574c4b16b7ddb7eacdc99b',
+              totalValue: '1',
+              components: [{ value: '1' }],
+              id: '289167',
+              token: {
+                contract: '0xA4B37bE40F7b231Ee9574c4b16b7DDb7EAcDC99B',
+                decimals: 18,
+                name: 'Objekt',
+                symbol: 'OBJEKT',
+              },
+            },
+          ],
+        }
 
-      const actual = await txParser.parse(txMempool, address)
+        const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse mempool receive', async () => {
+        const { txMempool } = erc721
+        const address = '0xD8D534C68B52A1ae7Af3BB0Bc6C51E97e9007F0F'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: 'eip155:137',
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse receive', async () => {
+        const { tx } = erc721
+        const address = '0xD8D534C68B52A1ae7Af3BB0Bc6C51E97e9007F0F'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: 'eip155:137',
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          data: {
+            parser: 'nft',
+            mediaById: { '289167': tokenMetadata.media },
+          },
+          transfers: [
+            {
+              type: TransferType.Receive,
+              to: address,
+              from: '0x841c64caDA7837e48463Cb022d93f33D1f63356c',
+              assetId: 'eip155:137/erc721:0xa4b37be40f7b231ee9574c4b16b7ddb7eacdc99b',
+              totalValue: '1',
+              components: [{ value: '1' }],
+              id: '289167',
+              token: {
+                contract: '0xA4B37bE40F7b231Ee9574c4b16b7DDb7EAcDC99B',
+                decimals: 18,
+                name: 'Objekt',
+                symbol: 'OBJEKT',
+              },
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(actual).toEqual(expected)
+      })
     })
 
-    it('should be able to parse matic receive', async () => {
-      const { tx } = maticStandard
-      const address = '0x7DE23FDA0C4243E9588CCe39819d53854965Ad77'
+    describe('erc1155', () => {
+      it('should be able to parse mempool send', async () => {
+        const { txMempool } = erc1155
+        const address = '0xf877411aF8c079fdF69468101fa6723702bc0b20'
 
-      const expected: ParsedTx = {
-        txid: tx.txid,
-        blockHash: tx.blockHash,
-        blockHeight: tx.blockHeight,
-        blockTime: tx.timestamp,
-        address,
-        chainId: polygonChainId,
-        confirmations: tx.confirmations,
-        status: TxStatus.Confirmed,
-        transfers: [
-          {
-            type: TransferType.Receive,
-            to: address,
-            from: '0xC070A61D043189D99bbf4baA58226bf0991c7b11',
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: 'eip155:137',
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse send', async () => {
+        const { tx } = erc1155
+        const address = '0xf877411aF8c079fdF69468101fa6723702bc0b20'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: 'eip155:137',
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          fee: {
             assetId: polygonAssetId,
-            totalValue: '4079513530000000000',
-            components: [{ value: '4079513530000000000' }],
+            value: '9111117137219334',
           },
-        ],
-      }
-
-      const actual = await txParser.parse(tx, address)
-
-      expect(expected).toEqual(actual)
-    })
-
-    it('should be able to parse token mempool send', async () => {
-      const { txMempool } = tokenStandard
-      const address = '0xfA8a5D52aFCCAF40A0999ab9347D1Ba7Edc5395b'
-
-      const expected: ParsedTx = {
-        txid: txMempool.txid,
-        blockHeight: txMempool.blockHeight,
-        blockTime: txMempool.timestamp,
-        address,
-        chainId: polygonChainId,
-        confirmations: txMempool.confirmations,
-        status: TxStatus.Pending,
-        transfers: [],
-      }
-
-      const actual = await txParser.parse(txMempool, address)
-
-      expect(expected).toEqual(actual)
-    })
-
-    it('should be able to parse token send', async () => {
-      const { tx } = tokenStandard
-      const address = '0xfA8a5D52aFCCAF40A0999ab9347D1Ba7Edc5395b'
-
-      const expected: ParsedTx = {
-        txid: tx.txid,
-        blockHash: tx.blockHash,
-        blockHeight: tx.blockHeight,
-        blockTime: tx.timestamp,
-        address,
-        chainId: polygonChainId,
-        confirmations: tx.confirmations,
-        status: TxStatus.Confirmed,
-        fee: {
-          assetId: polygonAssetId,
-          value: '12798989060278680',
-        },
-        transfers: [
-          {
-            type: TransferType.Send,
-            from: address,
-            to: '0xaE5f1D2309272557a4f2a3C954f51aF12104A2Ce',
-            assetId: 'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
-            totalValue: '700000000',
-            components: [{ value: '700000000' }],
-            token: usdcToken,
+          data: {
+            parser: 'nft',
+            mediaById: { '1': tokenMetadata.media },
           },
-        ],
-      }
+          transfers: [
+            {
+              type: TransferType.Send,
+              to: '0x2D76998A35A933BA8213B1B6924DBe25dF98BcFE',
+              from: address,
+              assetId: 'eip155:137/erc1155:0xc934f270079741fb66f19e1cf16267078c5a8394',
+              totalValue: '1',
+              components: [{ value: '1' }],
+              id: '1',
+              token: {
+                contract: '0xc934F270079741fB66F19e1CF16267078C5a8394',
+                decimals: 18,
+                name: 'BK',
+                symbol: 'Broker NFT',
+              },
+            },
+          ],
+        }
 
-      const actual = await txParser.parse(tx, address)
+        const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
-    })
+        expect(actual).toEqual(expected)
+      })
 
-    it('should be able to parse token mempool receive', async () => {
-      const { txMempool } = tokenStandard
-      const address = '0xaE5f1D2309272557a4f2a3C954f51aF12104A2Ce'
+      it('should be able to parse mempool receive', async () => {
+        const { txMempool } = erc1155
+        const address = '0x2D76998A35A933BA8213B1B6924DBe25dF98BcFE'
 
-      const expected: ParsedTx = {
-        txid: txMempool.txid,
-        blockHeight: txMempool.blockHeight,
-        blockTime: txMempool.timestamp,
-        address,
-        chainId: polygonChainId,
-        confirmations: txMempool.confirmations,
-        status: TxStatus.Pending,
-        transfers: [],
-      }
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: 'eip155:137',
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
 
-      const actual = await txParser.parse(txMempool, address)
+        const actual = await txParser.parse(txMempool, address)
 
-      expect(expected).toEqual(actual)
-    })
+        expect(actual).toEqual(expected)
+      })
 
-    it('should be able to parse token receive', async () => {
-      const { tx } = tokenStandard
-      const address = '0xaE5f1D2309272557a4f2a3C954f51aF12104A2Ce'
+      it('should be able to parse receive', async () => {
+        const { tx } = erc1155
+        const address = '0x2D76998A35A933BA8213B1B6924DBe25dF98BcFE'
 
-      const expected: ParsedTx = {
-        txid: tx.txid,
-        blockHash: tx.blockHash,
-        blockHeight: tx.blockHeight,
-        blockTime: tx.timestamp,
-        address,
-        chainId: polygonChainId,
-        confirmations: tx.confirmations,
-        status: TxStatus.Confirmed,
-        transfers: [
-          {
-            type: TransferType.Receive,
-            from: '0xfA8a5D52aFCCAF40A0999ab9347D1Ba7Edc5395b',
-            to: address,
-            assetId: 'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
-            totalValue: '700000000',
-            components: [{ value: '700000000' }],
-            token: usdcToken,
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: 'eip155:137',
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          data: {
+            parser: 'nft',
+            mediaById: { '1': tokenMetadata.media },
           },
-        ],
-      }
+          transfers: [
+            {
+              type: TransferType.Receive,
+              to: address,
+              from: '0xf877411aF8c079fdF69468101fa6723702bc0b20',
+              assetId: 'eip155:137/erc1155:0xc934f270079741fb66f19e1cf16267078c5a8394',
+              totalValue: '1',
+              components: [{ value: '1' }],
+              id: '1',
+              token: {
+                contract: '0xc934F270079741fB66F19e1CF16267078C5a8394',
+                decimals: 18,
+                name: 'BK',
+                symbol: 'Broker NFT',
+              },
+            },
+          ],
+        }
 
-      const actual = await txParser.parse(tx, address)
+        const actual = await txParser.parse(tx, address)
 
-      expect(expected).toEqual(actual)
+        expect(actual).toEqual(expected)
+      })
     })
   })
 

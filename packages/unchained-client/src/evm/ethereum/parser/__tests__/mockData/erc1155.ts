@@ -1,7 +1,7 @@
-import type { Tx } from '../../../../../generated/ethereum'
+import type { Tx } from '../../../index'
 import { mempoolMock } from './mempoolMock'
 
-const multiToken: Tx = {
+const erc1155: Tx = {
   txid: '0xc42fcade18eb25ab54c34f3f0880cc0a3bc37379bce52402c4a375602f58b076',
   blockHash: '0xeb34a65fe687e1f50ce942716bc0e0c22fe0399d4c4b81bcd7b0a4f790258806',
   blockHeight: 17188308,
@@ -34,6 +34,6 @@ const multiToken: Tx = {
 }
 
 export default {
-  tx: multiToken,
-  txMempool: mempoolMock(multiToken),
+  tx: erc1155,
+  txMempool: mempoolMock(erc1155),
 }

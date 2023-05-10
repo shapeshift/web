@@ -1,10 +1,11 @@
 import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import type { evm } from '@shapeshiftoss/common-api'
 import axios from 'axios'
 
 import type { Trade } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
-import type { Api } from '../../..'
 import type { ParsedTx } from '../../../parser'
+import { V1Api } from '../../index'
 import {
   FOXY_STAKING_CONTRACT,
   SHAPE_SHIFT_ROUTER_CONTRACT,
@@ -77,11 +78,21 @@ mockedAxios.get.mockImplementation(url => {
   }
 })
 
+const mockedApi = jest.mocked(new V1Api())
+
+const tokenMetadata: evm.TokenMetadata = {
+  name: 'Foxy',
+  description: 'The foxiest Fox',
+  media: { url: 'http://foxy.fox', type: 'image' },
+}
+
+mockedApi.getTokenMetadata = jest.fn().mockResolvedValue(tokenMetadata)
+
 const txParser = new TransactionParser({
   rpcUrl: '',
   chainId: ethChainId,
   assetId: ethAssetId,
-  api: {} as Api,
+  api: mockedApi,
 })
 
 describe('parseTx', () => {
@@ -123,6 +134,10 @@ describe('parseTx', () => {
           fee: {
             assetId: ethAssetId,
             value: '5974629016703985',
+          },
+          data: {
+            parser: 'nft',
+            mediaById: { '2253': tokenMetadata.media },
           },
           transfers: [
             {
@@ -181,6 +196,10 @@ describe('parseTx', () => {
           chainId: 'eip155:1',
           confirmations: tx.confirmations,
           status: TxStatus.Confirmed,
+          data: {
+            parser: 'nft',
+            mediaById: { '2253': tokenMetadata.media },
+          },
           transfers: [
             {
               type: TransferType.Receive,
@@ -244,6 +263,10 @@ describe('parseTx', () => {
             assetId: ethAssetId,
             value: '28797509921536974',
           },
+          data: {
+            parser: 'nft',
+            mediaById: { '2': tokenMetadata.media },
+          },
           transfers: [
             {
               type: TransferType.Send,
@@ -301,6 +324,10 @@ describe('parseTx', () => {
           chainId: 'eip155:1',
           confirmations: tx.confirmations,
           status: TxStatus.Confirmed,
+          data: {
+            parser: 'nft',
+            mediaById: { '2': tokenMetadata.media },
+          },
           transfers: [
             {
               type: TransferType.Receive,

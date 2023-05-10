@@ -202,6 +202,17 @@ describe('adapters:coingecko', () => {
       })
       expect(assetIdToCoingecko(assetId)).toEqual('matic-network')
     })
+    it('can get CoinGecko id for gnosis AssetId', () => {
+      const chainNamespace = CHAIN_NAMESPACE.Evm
+      const chainReference = CHAIN_REFERENCE.GnosisMainnet
+      const assetId = toAssetId({
+        chainNamespace,
+        chainReference,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Gnosis,
+      })
+      expect(assetIdToCoingecko(assetId)).toEqual('xdai')
+    })
   })
 
   describe('chainIdToCoingeckoAssetPlatform', () => {

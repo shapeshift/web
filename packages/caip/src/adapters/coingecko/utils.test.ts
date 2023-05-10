@@ -170,7 +170,7 @@ describe('adapters:coingecko:utils', () => {
           'eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619': 'weth',
         },
         'eip155:100': {
-          'eip155:100/slip44:60': 'gnosis',
+          'eip155:100/slip44:60': 'xdai',
           'eip155:100/erc20:0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1': 'weth',
         },
       }

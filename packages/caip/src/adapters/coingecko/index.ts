@@ -14,7 +14,7 @@ export enum CoingeckoAssetPlatform {
   Cosmos = 'cosmos',
   Osmosis = 'osmosis',
   Polygon = 'polygon-pos',
-  Gnosis = 'gnosis',
+  Gnosis = 'xdai',
   Avalanche = 'avalanche',
   Thorchain = 'thorchain',
   Optimism = 'optimistic-ethereum',

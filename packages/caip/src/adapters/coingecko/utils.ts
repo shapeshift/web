@@ -144,7 +144,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [optimismChainId]: { [optimismAssetId]: 'ethereum' },
       [bscChainId]: { [bscAssetId]: 'binancecoin' },
       [polygonChainId]: { [polygonAssetId]: 'matic-network' },
-      [gnosisChainId]: { [gnosisChainId]: 'gnosis' },
+      [gnosisChainId]: { [gnosisChainId]: 'xdai' },
     },
   )
 
@@ -163,11 +163,11 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
 export const writeFiles = async (data: AssetMap) => {
   await Promise.all(
     Object.entries(data).map(async ([chainId, assets]) => {
-      if (!fs.existsSync(`./src/adapters/coingecko/generated/${chainId}`)) {
-        fs.mkdirSync(`./src/adapters/coingecko/generated/${chainId}`);
-        }
-      const path = `./src/adapters/coingecko/generated/${chainId}/adapter.json`.replace(':', '_')
-      await fs.promises.writeFile(path, JSON.stringify(assets))
+      const dirPath = `./src/adapters/coingecko/generated/${chainId}`.replace(':', '_')
+      if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath);
+      }
+      await fs.promises.writeFile(`${dirPath}/adapter.json`, JSON.stringify(assets))
     }),
   )
   console.info('Generated CoinGecko AssetId adapter data.')

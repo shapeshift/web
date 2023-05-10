@@ -11,13 +11,14 @@ import {
 } from '@chakra-ui/react'
 import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import type { InterpolationOptions } from 'node-polyglot'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { AddressInput } from 'components/Modals/Send/AddressInput/AddressInput'
+import { SendFormFields } from 'components/Modals/Send/SendCommon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
@@ -115,7 +116,12 @@ export const TradeInput = () => {
 
   const {
     formState: { errors: manualAddressEntryErrors },
+    trigger,
   } = useFormContext()
+
+  useEffect(() => {
+    trigger(SendFormFields.Input)
+  }, [trigger])
 
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
 
@@ -501,6 +507,9 @@ export const TradeInput = () => {
           assetSymbol: buyAsset?.symbol ?? translate('trade.errors.buyAssetMiddleSentence'),
         },
       ]
+    if (manualAddressEntryErrors.input?.message) {
+      return manualAddressEntryErrors.input?.message.toString()
+    }
 
     return 'trade.previewTrade'
   }, [
@@ -518,7 +527,7 @@ export const TradeInput = () => {
     activeQuote?.feeData.networkFeeCryptoBaseUnit,
     activeQuote?.minimumCryptoHuman,
     activeQuote?.sellAsset.symbol,
-    manualAddressEntryErrors,
+    manualAddressEntryErrors.input?.message,
     isSwapperApiPending,
     isSwapperApiInitiated,
     wallet,
@@ -715,7 +724,7 @@ export const TradeInput = () => {
         {shouldShowManualReceiveAddressInput && (
           <FormControl>
             <FormLabel color='gray.500' w='full'>
-              {translate('modals.send.sendForm.sendTo')}
+              {translate('trade.receiveAddress')}
             </FormLabel>
             <AddressInput
               rules={{
@@ -729,7 +738,7 @@ export const TradeInput = () => {
                     const parseAddressInputArgs = { assetId, chainId, value }
                     const { address } = await parseAddressInput(parseAddressInputArgs)
                     setIsManualAddressEntryValidating(false)
-                    updateReceiveAddress(address)
+                    address && updateReceiveAddress(address)
                     const invalidMessage = isYatSupported
                       ? 'common.invalidAddressOrYat'
                       : 'common.invalidAddress'

@@ -738,7 +738,8 @@
     "lifiWarning": "This trade routes via LI.FI, which executes a series of intermediary trades to perform a swap. If any steps fail you'll receive the token for the last successful step in the sequence.",
     "or": "or",
     "onChainName": "on %{chainName}",
-    "unknownGas": "(unknown)"
+    "unknownGas": "(unknown)",
+    "receiveAddress": "Receive Address"
   },
   "modals": {
     "popup": {

@@ -59,13 +59,10 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
         {rows.map((row, index) => (
           <ProviderCard key={`provider-${index}`} {...row} />
         ))}
-        {
+        {isLoading &&
           // Assume three max loading rows - that might not be true, but we don't want to collapse the
           // loaded rows too much and hinder visibility
-          Array.from({ length: 3 }).map((_, index) => (
-            <ProviderCardLoading key={index} />
-          ))
-        }
+          Array.from({ length: 3 }).map((_, index) => <ProviderCardLoading key={index} />)}
       </Flex>
     )
   }, [isLoading, rows, searchQuery])

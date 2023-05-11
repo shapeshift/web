@@ -4,6 +4,7 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 import type Web3 from 'web3'
 import type { Asset } from 'lib/asset-service'
+import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
@@ -15,6 +16,11 @@ import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote'
 
 const mockOk = Ok as jest.MockedFunction<typeof Ok>
+
+const foxRate = '0.0873'
+const ethRate = '1233.65940923824103061992'
+const wethRate = '1233.65940923824103061992'
+
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mock('../utils/cowService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')
@@ -25,21 +31,8 @@ jest.mock('../utils/cowService', () => {
   }
 })
 jest.mock('../utils/helpers/helpers', () => {
-  const { WETH, ETH, FOX } = require('../../utils/test-data/assets') // Move the import inside the factory function
-
   return {
     getNowPlusThirtyMinutesTimestamp: () => 1656797787,
-    getUsdRate: (_args: CowSwapperDeps, input: Asset) => {
-      if (input.assetId === WETH.assetId || input.assetId === ETH.assetId) {
-        return Promise.resolve(mockOk('1233.65940923824103061992'))
-      }
-
-      if (input.assetId === FOX.assetId) {
-        return Promise.resolve(mockOk('0.0873'))
-      }
-
-      return Promise.resolve(mockOk('20978.38'))
-    },
   }
 })
 
@@ -54,7 +47,7 @@ jest.mock('../getCowSwapMinMax/getCowSwapMinMax', () => {
   const { FOX } = require('../../utils/test-data/assets') // Move the import inside the factory function
 
   return {
-    getCowSwapMinMax: (_args: CowSwapperDeps, sellAsset: Asset) => {
+    getCowSwapMinMax: (sellAsset: Asset) => {
       if (sellAsset.assetId === FOX.assetId) {
         return mockOk({
           minimumAmountCryptoHuman: '229.09507445589919816724',
@@ -69,6 +62,9 @@ jest.mock('../getCowSwapMinMax/getCowSwapMinMax', () => {
     },
   }
 })
+
+const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
+const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
 
 const feeData: FeeDataEstimate<KnownChainIds.EthereumMainnet> = {
   fast: {
@@ -224,6 +220,9 @@ const deps: CowSwapperDeps = {
 
 describe('getCowTradeQuote', () => {
   it('should throw an exception if both assets are not erc20s', async () => {
+    selectBuyAssetUsdRateSpy.mockImplementation(() => foxRate)
+    selectSellAssetUsdRateSpy.mockImplementation(() => ethRate)
+
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: ETH,
@@ -247,6 +246,9 @@ describe('getCowTradeQuote', () => {
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade quote when selling WETH', async () => {
+    selectBuyAssetUsdRateSpy.mockImplementation(() => foxRate)
+    selectSellAssetUsdRateSpy.mockImplementation(() => wethRate)
+
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WETH,
@@ -287,6 +289,9 @@ describe('getCowTradeQuote', () => {
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade quote when buying ETH', async () => {
+    selectBuyAssetUsdRateSpy.mockImplementation(() => ethRate)
+    selectSellAssetUsdRateSpy.mockImplementation(() => foxRate)
+
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: FOX,
@@ -327,6 +332,9 @@ describe('getCowTradeQuote', () => {
   })
 
   it('should call cowService with correct parameters and return quote with original sellAmount when selling a very small amount of WETH', async () => {
+    selectBuyAssetUsdRateSpy.mockImplementation(() => foxRate)
+    selectSellAssetUsdRateSpy.mockImplementation(() => wethRate)
+
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WETH,

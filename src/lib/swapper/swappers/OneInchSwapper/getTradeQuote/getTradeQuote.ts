@@ -65,7 +65,7 @@ export async function getTradeQuote(
   if (maybeAllowanceContract.isErr()) return Err(maybeAllowanceContract.unwrapErr())
   const allowanceContract = maybeAllowanceContract.unwrap()
 
-  const maybeMinMax = await getMinMax(deps, sellAsset, buyAsset)
+  const maybeMinMax = await getMinMax(sellAsset, buyAsset)
 
   const chainAdapterManager = getChainAdapterManager()
   // We guard against !isEvmChainId(chainId) above, so this cast is safe

@@ -4,7 +4,6 @@ import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import type Web3 from 'web3'
-import type { Asset } from 'lib/asset-service'
 import type {
   ApprovalNeededInput,
   ApprovalNeededOutput,
@@ -32,7 +31,6 @@ import { cowGetTradeTxs } from 'lib/swapper/swappers/CowSwapper/cowGetTradeTxs/c
 import { getCowSwapTradeQuote } from 'lib/swapper/swappers/CowSwapper/getCowSwapTradeQuote/getCowSwapTradeQuote'
 import type { CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 import { COWSWAP_UNSUPPORTED_ASSETS } from 'lib/swapper/swappers/CowSwapper/utils/blacklist'
-import { getUsdRate } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
@@ -64,10 +62,6 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     input: GetTradeQuoteInput,
   ): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
     return getCowSwapTradeQuote(this.deps, input)
-  }
-
-  getUsdRate(input: Asset): Promise<Result<string, SwapErrorRight>> {
-    return getUsdRate(this.deps, input)
   }
 
   executeTrade(

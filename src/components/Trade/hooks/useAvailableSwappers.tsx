@@ -10,6 +10,11 @@ import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import { selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
+import {
+  selectBuyAssetFiatRate,
+  selectFeeAssetFiatRate,
+  selectSellAssetFiatRate,
+} from 'state/zustand/swapperStore/amountSelectors'
 import { selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
@@ -31,6 +36,9 @@ export const useAvailableSwappers = () => {
   )
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
+  const buyAssetFiatRate = useSwapperStore(selectBuyAssetFiatRate)
+  const sellAssetFiatRate = useSwapperStore(selectSellAssetFiatRate)
+  const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const updateFees = useSwapperStore(state => state.updateFees)
   const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
 
@@ -62,6 +70,9 @@ export const useAvailableSwappers = () => {
               getAvailableSwappers.initiate({
                 ...tradeQuoteArgs,
                 feeAsset,
+                buyAssetFiatRate,
+                sellAssetFiatRate,
+                feeAssetFiatRate,
               }),
             )
           : undefined
@@ -103,6 +114,9 @@ export const useAvailableSwappers = () => {
     getAvailableSwappers,
     sellAssetId,
     tradeQuoteArgs,
+    buyAssetFiatRate,
+    sellAssetFiatRate,
+    feeAssetFiatRate,
   ])
 
   useEffect(() => {

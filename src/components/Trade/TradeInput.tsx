@@ -48,9 +48,9 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import {
   selectBuyAssetFiatRate,
   selectFeeAssetFiatRate,
+  selectProtocolFees,
   selectQuoteBuyAmountCryptoPrecision,
   selectSellAssetFiatRate,
-  selectTotalTradeFeeBuyAssetCryptoPrecision,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectAction,
@@ -131,9 +131,7 @@ export const TradeInput = () => {
   const handleSwitchAssets = useSwapperStore(state => state.handleSwitchAssets)
   const handleInputAmountChange = useSwapperStore(state => state.handleInputAmountChange)
   const quoteBuyAmountCryptoPrecision = useSwapperStore(selectQuoteBuyAmountCryptoPrecision)
-  const totalTradeFeeBuyAssetCryptoPrecision = useSwapperStore(
-    selectTotalTradeFeeBuyAssetCryptoPrecision,
-  )
+  const protocolFees = useSwapperStore(selectProtocolFees)
   const action = useSwapperStore(selectAction)
   const amount = useSwapperStore(selectAmount)
   const isSendMax = useSwapperStore(selectIsSendMax)
@@ -654,9 +652,9 @@ export const TradeInput = () => {
             <ReceiveSummary
               isLoading={tradeStateLoading}
               symbol={buyAsset?.symbol ?? ''}
-              amount={buyAmountCryptoPrecision ?? ''}
-              beforeFees={quoteBuyAmountCryptoPrecision ?? ''}
-              protocolFee={totalTradeFeeBuyAssetCryptoPrecision ?? ''}
+              amountCryptoPrecision={buyAmountCryptoPrecision ?? ''}
+              amountBeforeFeesCryptoPrecision={quoteBuyAmountCryptoPrecision ?? ''}
+              protocolFees={protocolFees}
               shapeShiftFee='0'
               slippage={slippage}
               swapperName={swapperName}

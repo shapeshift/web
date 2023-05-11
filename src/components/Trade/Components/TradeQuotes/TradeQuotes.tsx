@@ -37,6 +37,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
       : undefined
   const bestTotalReceiveAmountCryptoPrecision = bestBuyAssetTradeFeeCryptoPrecision
     ? bnOrZero(bestBuyAmountCryptoPrecisionAfterSlippage)
+        // TODO: determine why not subtracting bestSelllAssetTradeFeeCryptoPrecision
         .minus(bestBuyAssetTradeFeeCryptoPrecision)
         .toString()
     : undefined

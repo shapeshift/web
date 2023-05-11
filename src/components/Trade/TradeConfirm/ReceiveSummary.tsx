@@ -7,35 +7,47 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
-import { type FC } from 'react'
+import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { type FC, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { type RowProps, Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
+import type { AmountDisplayMeta } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
   symbol: string
-  amount: string
-  intermediaryTransactionOutputs?: { amount: string; symbol: string; chainName?: string }[]
+  amountCryptoPrecision: string
+  intermediaryTransactionOutputs?: AmountDisplayMeta[]
   fiatAmount?: string
-  beforeFees?: string
-  protocolFee?: string
+  amountBeforeFeesCryptoPrecision?: string
+  protocolFees?: AmountDisplayMeta[]
   shapeShiftFee?: string
   slippage: string
   swapperName: string
 } & RowProps
 
+const parseAmountDisplayMeta =
+  (chainAdapterManager: ChainAdapterManager) =>
+  ({ amountCryptoBaseUnit, symbol, chainId, precision }: AmountDisplayMeta) => ({
+    symbol,
+    chainName: chainAdapterManager.get(chainId)?.getDisplayName(),
+    amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, precision),
+  })
+
 export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   symbol,
-  amount,
+  amountCryptoPrecision,
   intermediaryTransactionOutputs,
   fiatAmount,
-  beforeFees,
-  protocolFee,
+  amountBeforeFeesCryptoPrecision,
+  protocolFees,
   shapeShiftFee,
   slippage,
   swapperName,
@@ -51,8 +63,36 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   const greenColor = useColorModeValue('green.600', 'green.200')
   const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
 
+  const chainAdapterManager = getChainAdapterManager()
+
   const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
-  const isAmountPositive = bnOrZero(amount).gt(0)
+  const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
+
+  const protocolFeesParsed = useMemo(
+    () =>
+      protocolFees
+        ?.filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
+        .map(parseAmountDisplayMeta(chainAdapterManager)),
+    [chainAdapterManager, protocolFees],
+  )
+
+  const intermediaryTransactionOutputsParsed = useMemo(
+    () =>
+      intermediaryTransactionOutputs
+        ?.filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
+        .map(parseAmountDisplayMeta(chainAdapterManager)),
+    [chainAdapterManager, intermediaryTransactionOutputs],
+  )
+
+  const hasProtocolFees = useMemo(
+    () => protocolFeesParsed && protocolFeesParsed.length > 0,
+    [protocolFeesParsed],
+  )
+
+  const hasIntermediaryTransactionOutputs = useMemo(
+    () => intermediaryTransactionOutputsParsed && intermediaryTransactionOutputsParsed.length > 0,
+    [intermediaryTransactionOutputsParsed],
+  )
 
   return (
     <>
@@ -66,7 +106,10 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
         <Row.Value display='flex' columnGap={2} alignItems='center'>
           <Stack spacing={0} alignItems='flex-end'>
             <Skeleton isLoaded={!isLoading}>
-              <Amount.Crypto value={isAmountPositive ? amount : '0'} symbol={symbol} />
+              <Amount.Crypto
+                value={isAmountPositive ? amountCryptoPrecision : '0'}
+                symbol={symbol}
+              />
             </Skeleton>
             {fiatAmount && (
               <Skeleton isLoaded={!isLoading}>
@@ -107,19 +150,19 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
               </Row.Label>
             </Row.Value>
           </Row>
-          {beforeFees && (
+          {amountBeforeFeesCryptoPrecision && (
             <Row>
               <Row.Label>
                 <Text translation='trade.beforeFees' />
               </Row.Label>
               <Row.Value>
                 <Skeleton isLoaded={!isLoading}>
-                  <Amount.Crypto value={beforeFees} symbol={symbol} />
+                  <Amount.Crypto value={amountBeforeFeesCryptoPrecision} symbol={symbol} />
                 </Skeleton>
               </Row.Value>
             </Row>
           )}
-          {protocolFee && bnOrZero(protocolFee).gt(0) && (
+          {hasProtocolFees && (
             <Row>
               <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
                 <Row.Label>
@@ -127,9 +170,22 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
                 </Row.Label>
               </HelperTooltip>
               <Row.Value>
-                <Skeleton isLoaded={!isLoading}>
-                  <Amount.Crypto color={redColor} value={protocolFee} symbol={symbol} />
-                </Skeleton>
+                {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol, chainName }) => (
+                  <Skeleton isLoaded={!isLoading}>
+                    <Amount.Crypto
+                      color={redColor}
+                      value={amountCryptoPrecision}
+                      symbol={symbol}
+                      suffix={
+                        chainName
+                          ? translate('trade.onChainName', {
+                              chainName,
+                            })
+                          : undefined
+                      }
+                    />
+                  </Skeleton>
+                ))}
               </Row.Value>
             </Row>
           )}
@@ -161,25 +217,31 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
               <Row.Value whiteSpace='nowrap'>
                 <Stack spacing={0} alignItems='flex-end'>
                   <Skeleton isLoaded={!isLoading}>
-                    <Amount.Crypto value={isAmountPositive ? amount : '0'} symbol={symbol} />
+                    <Amount.Crypto
+                      value={isAmountPositive ? amountCryptoPrecision : '0'}
+                      symbol={symbol}
+                    />
                   </Skeleton>
                   {isAmountPositive &&
-                    intermediaryTransactionOutputs?.map(({ amount, symbol, chainName }) => (
-                      <Skeleton isLoaded={!isLoading}>
-                        <Amount.Crypto
-                          value={amount}
-                          symbol={symbol}
-                          prefix={translate('trade.intermediaryTransactionOutputs.prefix')}
-                          suffix={
-                            chainName
-                              ? translate('trade.intermediaryTransactionOutputs.suffix', {
-                                  chainName,
-                                })
-                              : undefined
-                          }
-                        />
-                      </Skeleton>
-                    ))}
+                    hasIntermediaryTransactionOutputs &&
+                    intermediaryTransactionOutputsParsed?.map(
+                      ({ amountCryptoPrecision, symbol, chainName }) => (
+                        <Skeleton isLoaded={!isLoading}>
+                          <Amount.Crypto
+                            value={amountCryptoPrecision}
+                            symbol={symbol}
+                            prefix={translate('trade.or')}
+                            suffix={
+                              chainName
+                                ? translate('trade.onChainName', {
+                                    chainName,
+                                  })
+                                : undefined
+                            }
+                          />
+                        </Skeleton>
+                      ),
+                    )}
                 </Stack>
               </Row.Value>
             </Row>

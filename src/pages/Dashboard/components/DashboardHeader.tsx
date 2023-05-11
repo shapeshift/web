@@ -193,7 +193,7 @@ export const DashboardHeader = () => {
             {translate('common.receive')}
           </Button>
           <Button onClick={handleTradeClick} leftIcon={<IoSwapVerticalSharp />}>
-            {translate('navBar.trade')}
+            {translate('navBar.tradeShort')}
           </Button>
         </Flex>
       </Container>

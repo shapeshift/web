@@ -14,6 +14,8 @@ import {
   useEventListener,
   useUpdateEffect,
 } from '@chakra-ui/react'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { DefiAction, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
@@ -114,7 +116,9 @@ export const GlobalSeachButton = () => {
     (item: GlobalSearchResult) => {
       switch (item.type) {
         case GlobalSearchResultType.Send: {
-          send.open({ assetId: item.id, input: searchQuery })
+          // We don't want to pre-select the asset for EVM ChainIds
+          const assetId = !isEvmChainId(fromAssetId(item.id).chainId) ? item.id : undefined
+          send.open({ assetId, input: searchQuery })
           onToggle()
           break
         }

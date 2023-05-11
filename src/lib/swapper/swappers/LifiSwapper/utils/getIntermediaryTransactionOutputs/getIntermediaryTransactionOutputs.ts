@@ -1,4 +1,5 @@
 import type { AmountDisplayMeta } from 'lib/swapper/api'
+import { isSome } from 'lib/utils'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
@@ -37,5 +38,5 @@ export const getIntermediaryTransactionOutputs = (
         amountCryptoBaseUnit: step.estimate.toAmountMin,
       }
     })
-    .filter((item): item is AmountDisplayMeta => item !== undefined)
+    .filter(isSome)
 }

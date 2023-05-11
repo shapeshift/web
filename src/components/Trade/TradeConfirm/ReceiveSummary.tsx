@@ -7,7 +7,6 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
-import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { type FC, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -33,13 +32,11 @@ type ReceiveSummaryProps = {
   swapperName: string
 } & RowProps
 
-const parseAmountDisplayMeta =
-  (chainAdapterManager: ChainAdapterManager) =>
-  ({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
-    symbol: asset.symbol,
-    chainName: chainAdapterManager.get(asset.chainId)?.getDisplayName(),
-    amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
-  })
+const parseAmountDisplayMeta = ({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
+  symbol: asset.symbol,
+  chainName: getChainAdapterManager().get(asset.chainId)?.getDisplayName(),
+  amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
+})
 
 export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   symbol,
@@ -63,8 +60,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   const greenColor = useColorModeValue('green.600', 'green.200')
   const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
 
-  const chainAdapterManager = getChainAdapterManager()
-
   const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
   const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
 
@@ -72,16 +67,16 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
     () =>
       protocolFees
         ?.filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
-        .map(parseAmountDisplayMeta(chainAdapterManager)),
-    [chainAdapterManager, protocolFees],
+        .map(parseAmountDisplayMeta),
+    [protocolFees],
   )
 
   const intermediaryTransactionOutputsParsed = useMemo(
     () =>
       intermediaryTransactionOutputs
         ?.filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
-        .map(parseAmountDisplayMeta(chainAdapterManager)),
-    [chainAdapterManager, intermediaryTransactionOutputs],
+        .map(parseAmountDisplayMeta),
+    [intermediaryTransactionOutputs],
   )
 
   const hasProtocolFees = useMemo(

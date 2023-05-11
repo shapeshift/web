@@ -116,8 +116,8 @@ export const TradeInput = () => {
 
   const {
     formState: { errors: manualAddressEntryErrors },
-    trigger,
-    setValue,
+    trigger: manualAddressEntryValidationTrigger,
+    setValue: setManualReceiveAddressValue,
   } = useFormContext()
 
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
@@ -174,13 +174,13 @@ export const TradeInput = () => {
 
   // Trigger re-validation of the manually entered receive address
   useEffect(() => {
-    trigger(SendFormFields.Input)
-  }, [trigger])
+    manualAddressEntryValidationTrigger(SendFormFields.Input)
+  }, [manualAddressEntryValidationTrigger])
 
   // Reset the manual address input state when the user changes the buy asset
   useEffect(() => {
-    setValue(SendFormFields.Input, '')
-  }, [buyAsset, setValue])
+    setManualReceiveAddressValue(SendFormFields.Input, '')
+  }, [buyAsset, setManualReceiveAddressValue])
 
   // Selectors
   const assets = useAppSelector(selectAssets)

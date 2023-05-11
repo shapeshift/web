@@ -654,7 +654,7 @@ export const TradeInput = () => {
               },
             },
           }}
-          isYatSupported={true}
+          isYatSupported={isYatSupported}
         />
       </FormControl>
     )

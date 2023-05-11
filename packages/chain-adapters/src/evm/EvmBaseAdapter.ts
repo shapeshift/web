@@ -57,7 +57,6 @@ export type EvmChainAdapter =
   | optimism.ChainAdapter
   | bnbsmartchain.ChainAdapter
   | polygon.ChainAdapter
-  | gnosis.ChainAdapter
 
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,
@@ -355,6 +354,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         const parsedTx = await this.parser.parse(tx, input.pubkey)
 
         return {
+  // | gnosis.ChainAdapter
           address: input.pubkey,
           blockHash: parsedTx.blockHash,
           blockHeight: parsedTx.blockHeight,

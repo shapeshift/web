@@ -61,6 +61,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.OptimismMainnet]: evm.FeeData
     [KnownChainIds.BnbSmartChainMainnet]: evm.FeeData
     [KnownChainIds.PolygonMainnet]: evm.FeeData
+    [KnownChainIds.GnosisMainnet]: evm.FeeData
     [KnownChainIds.BitcoinMainnet]: utxo.FeeData
     [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
     [KnownChainIds.DogecoinMainnet]: utxo.FeeData

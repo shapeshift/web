@@ -1,6 +1,7 @@
 import type { Tx } from '../../../generated/bnbsmartchain'
 import type { TransactionParserArgs } from '../../parser'
 import { BaseTransactionParser } from '../../parser'
+import * as nft from '../../parser/nft'
 import * as zrx from '../../parser/zrx'
 import * as bep20 from './bep20'
 
@@ -11,6 +12,11 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
     super(args)
 
     this.registerParsers([
+      new nft.Parser({
+        chainId: this.chainId,
+        provider: this.provider,
+        api: this.api,
+      }),
       new bep20.Parser({ chainId: this.chainId, provider: this.provider }),
       new zrx.Parser({ proxyContract: ZRX_BSC_PROXY_CONTRACT }),
     ])

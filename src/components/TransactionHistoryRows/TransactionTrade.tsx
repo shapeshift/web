@@ -47,7 +47,7 @@ export const TransactionTrade = ({
         parentWidth={parentWidth}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
-        <Transfers compactMode={compactMode} transfers={txDetails.tx.transfers} />
+        <Transfers compactMode={compactMode} transfers={txDetails.transfers} />
         <TxGrid compactMode={compactMode}>
           <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
           <Row title='status'>

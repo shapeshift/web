@@ -5843,14 +5843,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/blockbook@npm:^8.3.0":
-  version: 8.3.0
-  resolution: "@shapeshiftoss/blockbook@npm:8.3.0"
+"@shapeshiftoss/blockbook@npm:^9.2.0":
+  version: 9.2.0
+  resolution: "@shapeshiftoss/blockbook@npm:9.2.0"
   dependencies:
-    axios: ^0.27.2
-    axios-retry: ^3.2.5
     ws: ^8.8.0
-  checksum: 5f37aabab066c316b49220d760f28c9035023d04dad86a907a0126e9d0a063ccb8cad4f62bf793dacc0c5f2832eea0991b4aff1616821c071d189c1dd8f19d32
+  checksum: 1988dc0b0bf1abc851c156fda781b9ce62098df0a14f1ff68bca33632be88f9160e1c13be48bb17d9274610c847a78f90df1d90c74d1c41697fd812cfed31eb5
   languageName: node
   linkType: hard
 
@@ -5888,20 +5886,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/common-api@npm:^8.3.0":
-  version: 8.3.0
-  resolution: "@shapeshiftoss/common-api@npm:8.3.0"
+"@shapeshiftoss/common-api@npm:^9.2.0":
+  version: 9.2.0
+  resolution: "@shapeshiftoss/common-api@npm:9.2.0"
   dependencies:
-    "@shapeshiftoss/blockbook": ^8.3.0
-    "@shapeshiftoss/logger": ^1.1.2
-    axios: ^0.27.2
-    axios-retry: ^3.2.5
+    "@shapeshiftoss/blockbook": ^9.2.0
     bignumber.js: ^9.1.1
-    ethers: ^5.7.0
     tsoa: ^4.1.0
     uuid: ^8.3.2
     ws: ^8.8.0
-  checksum: 122a98342b3f2977695ff9def5f1a9ce70ce1f59df35a818d87f0ac110391cafc9cc01182fa1abf52ade72d70502cc616f978a9340cb96aaa5ab4f863a10b215
+  checksum: e1c446b76aa024342cdcad6d3cbbfc9e676dd99ce67dd58ab5ab3176baea390db09bc6ba381d8c2ebfc73c60495458324989b6b6f5ccf4dc0defcf390c63fae9
   languageName: node
   linkType: hard
 
@@ -6164,7 +6158,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/logger@^1.1.2, @shapeshiftoss/logger@workspace:^, @shapeshiftoss/logger@workspace:packages/logger":
+"@shapeshiftoss/logger@workspace:^, @shapeshiftoss/logger@workspace:packages/logger":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/logger@workspace:packages/logger"
   languageName: unknown
@@ -6206,7 +6200,7 @@ __metadata:
   dependencies:
     "@openapitools/openapi-generator-cli": ^2.5.1
     "@shapeshiftoss/caip": "workspace:^"
-    "@shapeshiftoss/common-api": ^8.3.0
+    "@shapeshiftoss/common-api": ^9.2.0
     "@shapeshiftoss/logger": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@types/ws": ^8.2.1
@@ -10316,16 +10310,6 @@ __metadata:
   peerDependencies:
     axios: ~0.21.1
   checksum: ff44bee6a2e0b8ed85e20bcd6db566a228ca94bf1c542538e3e5b901d02f01a16f11f146068f768bc6c212ebf0bd356f304edc81920cf5a3bbc10d3c29702f2d
-  languageName: node
-  linkType: hard
-
-"axios-retry@npm:^3.2.5":
-  version: 3.4.0
-  resolution: "axios-retry@npm:3.4.0"
-  dependencies:
-    "@babel/runtime": ^7.15.4
-    is-retry-allowed: ^2.2.0
-  checksum: fae18aeef220cfde22f93ed663d644e1a913a5cfc9760904ffd7a7e5ec8c7fbd53a58e1be461b6b30de19dce178823630655bcb77a487e17000f5e977ef94a2e
   languageName: node
   linkType: hard
 
@@ -15434,7 +15418,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^5.4.7, ethers@npm:^5.6.5, ethers@npm:^5.6.9, ethers@npm:^5.7.0, ethers@npm:^5.7.2":
+"ethers@npm:^5.4.7, ethers@npm:^5.6.5, ethers@npm:^5.6.9, ethers@npm:^5.7.2":
   version: 5.7.2
   resolution: "ethers@npm:5.7.2"
   dependencies:
@@ -18177,13 +18161,6 @@ __metadata:
   version: 1.2.0
   resolution: "is-retry-allowed@npm:1.2.0"
   checksum: 50d700a89ae31926b1c91b3eb0104dbceeac8790d8b80d02f5c76d9a75c2056f1bb24b5268a8a018dead606bddf116b2262e5ac07401eb8b8783b266ed22558d
-  languageName: node
-  linkType: hard
-
-"is-retry-allowed@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "is-retry-allowed@npm:2.2.0"
-  checksum: 3d1103a9290b5d03626756a41054844633eac78bc5d3e3a95b13afeae94fa3cfbcf7f0b5520d83f75f48a25ce7b142fdbac4217dc4b0630f3ea55e866ec3a029
   languageName: node
   linkType: hard
 

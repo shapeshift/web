@@ -165,7 +165,7 @@ export const writeFiles = async (data: AssetMap) => {
     Object.entries(data).map(async ([chainId, assets]) => {
       const dirPath = `./src/adapters/coingecko/generated/${chainId}`.replace(':', '_')
       if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath);
+        fs.mkdirSync(dirPath)
       }
       await fs.promises.writeFile(`${dirPath}/adapter.json`, JSON.stringify(assets))
     }),

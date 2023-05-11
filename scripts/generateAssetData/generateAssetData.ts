@@ -1,7 +1,13 @@
 /* eslint-disable @shapeshiftoss/logger/no-native-console */
 import 'dotenv/config'
 
-import { avalancheAssetId, ethAssetId, fromAssetId, gnosisAssetId, polygonAssetId } from '@shapeshiftoss/caip'
+import {
+  avalancheAssetId,
+  ethAssetId,
+  fromAssetId,
+  gnosisAssetId,
+  polygonAssetId,
+} from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import fs from 'fs'
 import merge from 'lodash/merge'
@@ -13,11 +19,11 @@ import * as avalanche from './avalanche'
 import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
 import * as ethereum from './ethereum'
+import * as gnosis from './gnosis'
 import * as optimism from './optimism'
 import * as osmosis from './osmosis'
 import { overrideAssets } from './overrides'
 import * as polygon from './polygon'
-import * as gnosis from './gnosis'
 import { filterOutBlacklistedAssets } from './utils'
 
 const generateAssetData = async () => {

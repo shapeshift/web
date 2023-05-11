@@ -5,9 +5,9 @@ import {
   supportsAvalanche,
   supportsBSC,
   supportsETH,
+  supportsGnosis,
   supportsOptimism,
   supportsPolygon,
-  supportsGnosis,
 } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -354,7 +354,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         const parsedTx = await this.parser.parse(tx, input.pubkey)
 
         return {
-  // | gnosis.ChainAdapter
           address: input.pubkey,
           blockHash: parsedTx.blockHash,
           blockHeight: parsedTx.blockHeight,

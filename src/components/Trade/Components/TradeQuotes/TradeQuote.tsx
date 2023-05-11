@@ -14,12 +14,8 @@ import { SwapperName, SwapperType } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
 import { selectFeeAssetByChainId, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import {
-  selectAmount,
-  selectBuyAsset,
-  selectFeeAssetFiatRate,
-  selectSellAsset,
-} from 'state/zustand/swapperStore/selectors'
+import { selectFeeAssetFiatRate } from 'state/zustand/swapperStore/amountSelectors'
+import { selectAmount, selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import ZrxIcon from './0x-icon.png'

@@ -54,6 +54,7 @@ import { useAppSelector } from 'state/store'
 import {
   selectBuyAmountBeforeFeesBaseUnit,
   selectDonationAmountFiat,
+  selectFeeAssetFiatRate,
   selectIntermediaryTransactionOutputs,
   selectQuoteBuyAmountCryptoPrecision,
   selectSellAmountBeforeFeesBaseUnitByAction,
@@ -64,7 +65,6 @@ import {
   selectBuyAmountCryptoPrecision,
   selectBuyAmountFiat,
   selectBuyAssetAccountId,
-  selectFeeAssetFiatRate,
   selectFees,
   selectSellAssetAccountId,
   selectSlippage,

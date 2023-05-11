@@ -214,14 +214,14 @@ export const selectProtocolFees = createDeepEqualOutputSelector(
 
     if (sellAssetTradeFeeCryptoBaseUnit) {
       result.push({
-        ...sellAsset,
+        asset: sellAsset,
         amountCryptoBaseUnit: sellAssetTradeFeeCryptoBaseUnit,
       })
     }
 
     if (buyAssetTradeFeeCryptoBaseUnit) {
       result.push({
-        ...buyAsset,
+        asset: buyAsset,
         amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
       })
     }

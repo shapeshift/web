@@ -27,8 +27,8 @@ describe('getIntermediaryTransactionOutputs', () => {
     expect(usdcOnOptimism).not.toBe(undefined)
 
     const expectation: AmountDisplayMeta[] = [
-      { ...usdcOnEthereum, amountCryptoBaseUnit: '120527596' },
-      { ...usdcOnOptimism, amountCryptoBaseUnit: '120328249' },
+      { asset: usdcOnEthereum, amountCryptoBaseUnit: '120527596' },
+      { asset: usdcOnOptimism, amountCryptoBaseUnit: '120328249' },
     ]
 
     expect(result).toEqual(expectation)

@@ -35,10 +35,10 @@ type ReceiveSummaryProps = {
 
 const parseAmountDisplayMeta =
   (chainAdapterManager: ChainAdapterManager) =>
-  ({ amountCryptoBaseUnit, symbol, chainId, precision }: AmountDisplayMeta) => ({
-    symbol,
-    chainName: chainAdapterManager.get(chainId)?.getDisplayName(),
-    amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, precision),
+  ({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
+    symbol: asset.symbol,
+    chainName: chainAdapterManager.get(asset.chainId)?.getDisplayName(),
+    amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
   })
 
 export const ReceiveSummary: FC<ReceiveSummaryProps> = ({

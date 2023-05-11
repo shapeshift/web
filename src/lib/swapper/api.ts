@@ -138,8 +138,9 @@ export type BuildTradeInput = GetTradeQuoteInput & {
   wallet: HDWallet
 }
 
-export type AmountDisplayMeta = Pick<Asset, 'assetId' | 'symbol' | 'chainId' | 'precision'> & {
+export type AmountDisplayMeta = {
   amountCryptoBaseUnit: string
+  asset: Pick<Asset, 'symbol' | 'chainId' | 'precision'>
 }
 
 interface TradeBase<C extends ChainId, MissingNetworkFee extends boolean = false> {

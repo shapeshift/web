@@ -33,7 +33,7 @@ export const getIntermediaryTransactionOutputs = (
       }
 
       return {
-        ...asset,
+        asset,
         amountCryptoBaseUnit: step.estimate.toAmountMin,
       }
     })

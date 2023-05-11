@@ -16,7 +16,6 @@ import type { CowSwapperDeps } from './CowSwapper'
 import { CowSwapper } from './CowSwapper'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import type { CowTrade } from './types'
-import { getUsdRate } from './utils/helpers/helpers'
 
 jest.mock('./utils/helpers/helpers')
 jest.mock('state/slices/selectors', () => {
@@ -79,13 +78,6 @@ describe('CowSwapper', () => {
   describe('getType', () => {
     it('returns the correct type for CowSwapper', () => {
       expect(swapper.getType()).toEqual(SwapperType.CowSwap)
-    })
-  })
-
-  describe('getUsdRate', () => {
-    it('calls getUsdRate on swapper.getUsdRate', async () => {
-      await swapper.getUsdRate(FOX)
-      expect(getUsdRate).toHaveBeenCalledWith(COW_SWAPPER_DEPS, FOX)
     })
   })
 

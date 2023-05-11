@@ -49,8 +49,6 @@ export const handleSwitchAssets =
       draft => {
         const sellAsset = draft.sellAsset
         const buyAsset = draft.buyAsset
-        const sellAssetFiatRate = draft.sellAssetFiatRate
-        const buyAssetFiatRate = draft.buyAssetFiatRate
 
         draft.buyAsset = sellAsset
         draft.sellAsset = buyAsset
@@ -59,15 +57,12 @@ export const handleSwitchAssets =
         draft.sellAmountFiat = '0'
         draft.buyAmountFiat = '0'
         draft.amount = '0'
-        draft.feeAssetFiatRate = undefined
         draft.fees = undefined
         draft.trade = undefined
         draft.selectedSellAssetAccountId = undefined
         draft.selectedBuyAssetAccountId = undefined
         draft.buyAssetAccountId = undefined
         draft.sellAssetAccountId = undefined
-        draft.buyAssetFiatRate = sellAssetFiatRate
-        draft.sellAssetFiatRate = buyAssetFiatRate
         return draft
       },
       false,
@@ -110,7 +105,6 @@ export const handleAssetSelection =
 
         if (isBuy) {
           draft.buyAsset = asset
-          draft.buyAssetFiatRate = undefined
           if (isSameAsset) draft.sellAsset = buyAsset
           draft.selectedBuyAssetAccountId = undefined
           draft.buyAssetAccountId = undefined
@@ -121,8 +115,6 @@ export const handleAssetSelection =
           if (isSameAsset) draft.buyAsset = sellAsset
           draft.selectedSellAssetAccountId = undefined
           draft.sellAssetAccountId = undefined
-          draft.sellAssetFiatRate = undefined
-          draft.feeAssetFiatRate = undefined
         }
 
         draft.fees = undefined

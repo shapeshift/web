@@ -2,11 +2,11 @@ import { Collapse, Flex } from '@chakra-ui/react'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { selectBuyAssetFiatRate } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectActiveSwapperWithMetadata,
   selectAvailableSwappersWithMetadata,
   selectBuyAsset,
-  selectBuyAssetFiatRate,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 

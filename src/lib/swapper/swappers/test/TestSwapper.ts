@@ -1,7 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
-import type { Asset } from 'lib/asset-service'
 import type {
   ApprovalNeededOutput,
   BuyAssetBySellIdInput,
@@ -39,10 +38,6 @@ export class TestSwapper implements Swapper<ChainId> {
       'cosmos:cosmoshub-4/slip44:118',
       'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
     ]
-  }
-
-  getUsdRate(_: Pick<Asset, 'symbol' | 'assetId'>): Promise<Result<string, SwapErrorRight>> {
-    throw new Error('TestSwapper: getUsdRate unimplemented')
   }
 
   approvalNeeded(): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {

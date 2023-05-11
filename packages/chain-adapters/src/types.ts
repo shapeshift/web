@@ -289,6 +289,7 @@ export enum ChainAdapterDisplayName {
   Optimism = 'Optimism',
   BnbSmartChain = 'BNB Smart Chain',
   Polygon = 'Polygon',
+  Gnosis = 'Gnosis',
   Cosmos = 'Cosmos',
   Bitcoin = 'Bitcoin',
   BitcoinCash = 'Bitcoin Cash',

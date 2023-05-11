@@ -18,6 +18,7 @@ import {
   dogeChainId,
   ethAssetId,
   ethChainId,
+  gnosisChainId,
   ltcChainId,
   optimismAssetId,
   optimismChainId,
@@ -121,6 +122,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Gnosis)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.GnosisMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Gnosis],
+          })
+          prev[gnosisChainId][assetId] = id
+        } catch (err) {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -129,6 +144,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [optimismChainId]: { [optimismAssetId]: 'ethereum' },
       [bscChainId]: { [bscAssetId]: 'binancecoin' },
       [polygonChainId]: { [polygonAssetId]: 'matic-network' },
+      [gnosisChainId]: { [gnosisChainId]: 'gnosis' },
     },
   )
 
@@ -147,6 +163,9 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
 export const writeFiles = async (data: AssetMap) => {
   await Promise.all(
     Object.entries(data).map(async ([chainId, assets]) => {
+      if (!fs.existsSync(`./src/adapters/coingecko/generated/${chainId}`)) {
+        fs.mkdirSync(`./src/adapters/coingecko/generated/${chainId}`);
+        }
       const path = `./src/adapters/coingecko/generated/${chainId}/adapter.json`.replace(':', '_')
       await fs.promises.writeFile(path, JSON.stringify(assets))
     }),

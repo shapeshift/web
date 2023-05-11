@@ -7,6 +7,7 @@ import {
   supportsETH,
   supportsOptimism,
   supportsPolygon,
+  supportsGnosis,
 } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -56,6 +57,7 @@ export type EvmChainAdapter =
   | optimism.ChainAdapter
   | bnbsmartchain.ChainAdapter
   | polygon.ChainAdapter
+  | gnosis.ChainAdapter
 
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,
@@ -141,6 +143,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         return supportsOptimism(wallet)
       case Number(fromChainId(KnownChainIds.PolygonMainnet).chainReference):
         return supportsPolygon(wallet)
+      case Number(fromChainId(KnownChainIds.GnosisMainnet).chainReference):
+        return supportsGnosis(wallet)
       default:
         return false
     }
@@ -178,6 +182,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Polygon',
         symbol: 'MATIC',
         explorer: 'https://polygonscan.com/',
+      },
+      [KnownChainIds.GnosisMainnet]: {
+        name: 'Gnosis',
+        symbol: 'XDAI',
+        explorer: 'https://gnosisscan.io/',
       },
       [KnownChainIds.EthereumMainnet]: {
         name: 'Ethereum',

@@ -658,6 +658,8 @@ export class FoxyApi {
       }
     })()
 
+    const currentBlock = await this.provider.getBlockNumber()
+
     const epochExpired = epoch.number.gte(coolDownInfo.endEpoch)
     const coolDownValid = !coolDownInfo.endEpoch.isZero() && !coolDownInfo.amount.isZero()
 
@@ -668,7 +670,19 @@ export class FoxyApi {
       (pastTokeCycleIndex && stakingTokenAvailableWithTokemak.gte(coolDownInfo.amount)) ||
       stakingTokenAvailable
 
-    return epochExpired && coolDownValid && validCycleAndAmount
+    const epochsLeft = bnOrZero(coolDownInfo.endEpoch.toString()).minus(epoch.number.toString())
+    const blocksLeftInCurrentEpoch =
+      epochsLeft.gt(0) && epoch.endBlock.gt(currentBlock)
+        ? epoch.endBlock.sub(currentBlock).toNumber()
+        : 0 // calculate time remaining in current epoch
+    const blocksLeftInFutureEpochs = epochsLeft.minus(1).gt(0)
+      ? epochsLeft.minus(1).times(epoch.length).toNumber()
+      : 0
+
+    return (
+      (!blocksLeftInCurrentEpoch && !blocksLeftInFutureEpochs) || // satisfying getTimeUntilClaimable constraints
+      (epochExpired && coolDownValid && validCycleAndAmount)
+    )
   }
 
   async claimWithdraw(input: ClaimWithdrawal): Promise<string> {

@@ -117,11 +117,8 @@ export const TradeInput = () => {
   const {
     formState: { errors: manualAddressEntryErrors },
     trigger,
+    setValue,
   } = useFormContext()
-
-  useEffect(() => {
-    trigger(SendFormFields.Input)
-  }, [trigger])
 
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
 
@@ -174,6 +171,14 @@ export const TradeInput = () => {
   const wallet = useWallet().state.wallet
   const { assetSearch } = useModal()
   const { handleAssetClick } = useTradeRoutes()
+
+  useEffect(() => {
+    trigger(SendFormFields.Input)
+  }, [trigger])
+
+  useEffect(() => {
+    setValue(SendFormFields.Input, '')
+  }, [buyAsset])
 
   // Selectors
   const assets = useAppSelector(selectAssets)
@@ -451,9 +456,10 @@ export const TradeInput = () => {
           assetSymbol: sellAsset?.symbol ?? translate('trade.errors.sellAssetStartSentence'),
         },
       ]
+
     if (
-      (!walletSupportsBuyAssetChain && !receiveAddress) ||
-      manualAddressEntryErrors?.input?.type?.toString() === 'required'
+      !walletSupportsBuyAssetChain &&
+      (!receiveAddress || manualAddressEntryErrors?.input?.type?.toString() === 'required')
     )
       return [
         'trade.errors.manualReceiveAddressRequired',

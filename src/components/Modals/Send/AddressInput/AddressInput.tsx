@@ -42,6 +42,7 @@ export const AddressInput = ({ rules, isYatSupported }: AddressInputProps) => {
         )}
         name={SendFormFields.Input}
         rules={rules}
+        defaultValue=''
       />
       <InputRightElement>
         <IconButton

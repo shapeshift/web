@@ -1,4 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import type { MarketData } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
@@ -7,7 +8,7 @@ import type { Asset } from 'lib/asset-service'
 import { getTxBaseUrl } from 'lib/getTxLink'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
-import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
+import { defaultAsset, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssets,
@@ -70,18 +71,47 @@ export const getTxType = (tx: Tx, transfers: Transfer[]): TxType => {
 }
 
 export const getTransfers = (
-  transfers: TxTransfer[],
+  tx: Tx,
   assets: AssetsById,
   marketData: Record<AssetId, MarketData | undefined>,
 ): Transfer[] => {
-  return transfers.reduce<Transfer[]>((prev, transfer) => {
-    const asset = assets[transfer.assetId]
+  return tx.transfers.reduce<Transfer[]>((prev, transfer) => {
+    const asset = (() => {
+      const { assetNamespace } = fromAssetId(transfer.assetId)
+      switch (assetNamespace) {
+        case 'erc721':
+        case 'erc1155':
+        case 'bep721':
+        case 'bep1155': {
+          const icon = (() => {
+            if (!tx.data || !transfer.id || !('mediaById' in tx.data)) return
+            const url = tx.data.mediaById[transfer.id]?.url
+            if (!url || url.startsWith('ipfs://')) return
+            return url
+          })()
+
+          const asset = makeAsset({
+            assetId: transfer.assetId,
+            id: transfer.id,
+            symbol: transfer.token?.symbol ?? 'N/A',
+            name: transfer.token?.name ?? 'Unknown',
+            precision: 0,
+            icon,
+          })
+
+          return asset
+        }
+        default:
+          return assets[transfer.assetId]
+      }
+    })()
+
     return asset
       ? [
           ...prev,
           { ...transfer, asset, marketData: marketData[transfer.assetId] ?? defaultMarketData },
         ]
-      : prev
+      : [...prev, { ...transfer, asset: defaultAsset, marketData: defaultMarketData }]
   }, [])
 }
 
@@ -89,10 +119,8 @@ export const useTxDetails = (txId: string): TxDetails => {
   const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
   const assets = useAppSelector(selectAssets)
   const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
-  const transfers = useMemo(
-    () => getTransfers(tx.transfers, assets, marketData),
-    [tx.transfers, assets, marketData],
-  )
+
+  const transfers = useMemo(() => getTransfers(tx, assets, marketData), [tx, assets, marketData])
 
   const fee = useMemo(() => {
     if (!tx.fee) return

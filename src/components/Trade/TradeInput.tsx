@@ -172,13 +172,15 @@ export const TradeInput = () => {
   const { assetSearch } = useModal()
   const { handleAssetClick } = useTradeRoutes()
 
+  // Trigger re-validation of the manually entered receive address
   useEffect(() => {
     trigger(SendFormFields.Input)
   }, [trigger])
 
+  // Reset the manual address input state when the user changes the buy asset
   useEffect(() => {
     setValue(SendFormFields.Input, '')
-  }, [buyAsset])
+  }, [buyAsset, setValue])
 
   // Selectors
   const assets = useAppSelector(selectAssets)
@@ -457,6 +459,10 @@ export const TradeInput = () => {
         },
       ]
 
+    if (manualAddressEntryErrors.input?.message && !walletSupportsBuyAssetChain) {
+      return manualAddressEntryErrors.input?.message.toString()
+    }
+
     if (
       !walletSupportsBuyAssetChain &&
       (!receiveAddress || manualAddressEntryErrors?.input?.type?.toString() === 'required')
@@ -516,9 +522,6 @@ export const TradeInput = () => {
           assetSymbol: buyAsset?.symbol ?? translate('trade.errors.buyAssetMiddleSentence'),
         },
       ]
-    if (manualAddressEntryErrors.input?.message && !walletSupportsBuyAssetChain) {
-      return manualAddressEntryErrors.input?.message.toString()
-    }
 
     return 'trade.previewTrade'
   }, [
@@ -623,6 +626,39 @@ export const TradeInput = () => {
     () => isSwapperApiPending && isSellAction,
     [isSwapperApiPending, isSellAction],
   )
+
+  const ManualReceiveAddressEntry: JSX.Element = useMemo(() => {
+    return (
+      <FormControl>
+        <FormLabel color='gray.500' w='full'>
+          {translate('trade.receiveAddress')}
+        </FormLabel>
+        <AddressInput
+          showQr={false}
+          rules={{
+            required: true,
+            validate: {
+              validateAddress: async (rawInput: string) => {
+                const value = rawInput.trim() // trim leading/trailing spaces
+                setIsManualAddressEntryValidating(true)
+                const { assetId, chainId } = buyAsset
+                // this does not throw, everything inside is handled
+                const parseAddressInputArgs = { assetId, chainId, value }
+                const { address } = await parseAddressInput(parseAddressInputArgs)
+                setIsManualAddressEntryValidating(false)
+                updateReceiveAddress(address || undefined)
+                const invalidMessage = isYatSupported
+                  ? 'common.invalidAddressOrYat'
+                  : 'common.invalidAddress'
+                return address ? true : invalidMessage
+              },
+            },
+          }}
+          isYatSupported={true}
+        />
+      </FormControl>
+    )
+  }, [buyAsset, isYatSupported, translate, updateReceiveAddress])
 
   return (
     <SlideTransition>
@@ -731,35 +767,7 @@ export const TradeInput = () => {
             />
           ) : null}
         </Stack>
-        {shouldShowManualReceiveAddressInput && (
-          <FormControl>
-            <FormLabel color='gray.500' w='full'>
-              {translate('trade.receiveAddress')}
-            </FormLabel>
-            <AddressInput
-              rules={{
-                required: true,
-                validate: {
-                  validateAddress: async (rawInput: string) => {
-                    const value = rawInput.trim() // trim leading/trailing spaces
-                    setIsManualAddressEntryValidating(true)
-                    const { assetId, chainId } = buyAsset
-                    // this does not throw, everything inside is handled
-                    const parseAddressInputArgs = { assetId, chainId, value }
-                    const { address } = await parseAddressInput(parseAddressInputArgs)
-                    setIsManualAddressEntryValidating(false)
-                    updateReceiveAddress(address || undefined)
-                    const invalidMessage = isYatSupported
-                      ? 'common.invalidAddressOrYat'
-                      : 'common.invalidAddress'
-                    return address ? true : invalidMessage
-                  },
-                },
-              }}
-              isYatSupported={true}
-            />
-          </FormControl>
-        )}
+        {shouldShowManualReceiveAddressInput && ManualReceiveAddressEntry}
         <Button
           type='submit'
           colorScheme={hasError ? 'red' : 'blue'}

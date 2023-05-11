@@ -1,20 +1,23 @@
 import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
 import type { ControllerProps } from 'react-hook-form'
-import { Controller } from 'react-hook-form'
+import { Controller, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { QRCodeIcon } from 'components/Icons/QRCode'
+import type { SendInput } from 'components/Modals/Send/Form'
 
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
 type AddressInputProps = {
   rules: ControllerProps['rules']
   isYatSupported: boolean
+  showQr?: boolean
 }
 
-export const AddressInput = ({ rules, isYatSupported }: AddressInputProps) => {
+export const AddressInput = ({ rules, isYatSupported, showQr = true }: AddressInputProps) => {
   const history = useHistory()
   const translate = useTranslate()
+  const isValid = useFormContext<SendInput>().formState.isValid
 
   const handleQrClick = () => {
     history.push(SendRoutes.Scan)
@@ -38,21 +41,24 @@ export const AddressInput = ({ rules, isYatSupported }: AddressInputProps) => {
             data-test='send-address-input'
             // Because the InputRightElement is hover the input, we need to let this space free
             pe={10}
+            isInvalid={!isValid}
           />
         )}
         name={SendFormFields.Input}
         rules={rules}
         defaultValue=''
       />
-      <InputRightElement>
-        <IconButton
-          aria-label={translate('modals.send.scanQrCode')}
-          icon={<QRCodeIcon />}
-          onClick={handleQrClick}
-          size='sm'
-          variant='ghost'
-        />
-      </InputRightElement>
+      {showQr && (
+        <InputRightElement>
+          <IconButton
+            aria-label={translate('modals.send.scanQrCode')}
+            icon={<QRCodeIcon />}
+            onClick={handleQrClick}
+            size='sm'
+            variant='ghost'
+          />
+        </InputRightElement>
+      )}
     </InputGroup>
   )
 }

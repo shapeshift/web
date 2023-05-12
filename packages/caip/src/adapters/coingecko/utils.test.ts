@@ -20,6 +20,7 @@ const makeWethMockCoingeckoResponse = () => ({
     avalanche: '0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
     'binance-smart-chain': '0x2170ed0880ac9a755fd29b2688956bd959f933f8',
     'polygon-pos': '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
+    'xdai': '0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1',
   },
 })
 
@@ -171,7 +172,7 @@ describe('adapters:coingecko:utils', () => {
         },
         'eip155:100': {
           'eip155:100/slip44:60': 'xdai',
-          'eip155:100/erc20:0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1': 'weth',
+          'eip155:100/erc20:0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1': 'weth',
         },
       }
       expect(result).toEqual(expected)

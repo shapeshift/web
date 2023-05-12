@@ -18,6 +18,7 @@ import {
   dogeChainId,
   ethAssetId,
   ethChainId,
+  gnosisAssetId,
   gnosisChainId,
   ltcChainId,
   optimismAssetId,
@@ -144,7 +145,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [optimismChainId]: { [optimismAssetId]: 'ethereum' },
       [bscChainId]: { [bscAssetId]: 'binancecoin' },
       [polygonChainId]: { [polygonAssetId]: 'matic-network' },
-      [gnosisChainId]: { [gnosisChainId]: 'xdai' },
+      [gnosisChainId]: { [gnosisAssetId]: 'xdai' },
     },
   )
 

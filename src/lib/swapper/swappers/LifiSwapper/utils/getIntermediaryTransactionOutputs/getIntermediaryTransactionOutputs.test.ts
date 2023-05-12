@@ -1,6 +1,6 @@
 import type { Asset } from 'lib/asset-service'
 import { localAssetData } from 'lib/asset-service'
-import type { IntermediaryTransactionOutput } from 'lib/swapper/api'
+import type { AmountDisplayMeta } from 'lib/swapper/api'
 
 import { getIntermediaryTransactionOutputs } from './getIntermediaryTransactionOutputs'
 import { emptyLifiRouteSteps, multiStepLifiRouteSteps, singleStepLifiRouteSteps } from './testData'
@@ -26,9 +26,9 @@ describe('getIntermediaryTransactionOutputs', () => {
     expect(usdcOnEthereum).not.toBe(undefined)
     expect(usdcOnOptimism).not.toBe(undefined)
 
-    const expectation: IntermediaryTransactionOutput[] = [
-      { asset: usdcOnEthereum, buyAmountCryptoBaseUnit: '120527596' },
-      { asset: usdcOnOptimism, buyAmountCryptoBaseUnit: '120328249' },
+    const expectation: AmountDisplayMeta[] = [
+      { asset: usdcOnEthereum, amountCryptoBaseUnit: '120527596' },
+      { asset: usdcOnOptimism, amountCryptoBaseUnit: '120328249' },
     ]
 
     expect(result).toEqual(expectation)

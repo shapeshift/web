@@ -504,7 +504,8 @@
     "wallet": "Carteira",
     "explore": "Menu",
     "rewards": "Recompensas",
-    "trade": "Swap",
+    "trade": "Swap/Bridge",
+    "tradeShort": "Swap",
     "buyCrypto": "Compre Cripto",
     "buyCryptoShort": "Compre/venda",
     "arkeo": "Airdrop da Arkeo"

@@ -65,7 +65,11 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0x21a42669643f45bc0e086b8fc2ed70c23d67509d',
       })
-      expect(coingeckoToAssetIds('shapeshift-fox-token')).toEqual([foxOnEthereum, foxOnPolygon, foxOnGnosis])
+      expect(coingeckoToAssetIds('shapeshift-fox-token')).toEqual([
+        foxOnEthereum,
+        foxOnPolygon,
+        foxOnGnosis,
+      ])
     })
 
     it('can get AssetIds for cosmos', () => {

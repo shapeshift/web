@@ -504,7 +504,8 @@
     "wallet": "Wallet",
     "explore": "Explore",
     "rewards": "Rewards",
-    "trade": "Trade",
+    "trade": "Trade/Bridge",
+    "tradeShort": "Trade",
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
     "arkeo": "Arkeo Airdrop"

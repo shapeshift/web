@@ -504,7 +504,8 @@
     "wallet": "Porte-monnaie",
     "explore": "Explorer",
     "rewards": "Récompenses",
-    "trade": "Échanger",
+    "trade": "Échanger/Déplacer",
+    "tradeShort": "Échanger",
     "buyCrypto": "Acheter/Vendre des cryptos",
     "buyCryptoShort": "Achat/Vente",
     "arkeo": "Airdrop Arkeo"

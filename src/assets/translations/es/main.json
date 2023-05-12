@@ -504,7 +504,8 @@
     "wallet": "Billetera",
     "explore": "Explore",
     "rewards": "Recompensas",
-    "trade": "Intercambie",
+    "trade": "Intercambie/Bridge",
+    "tradeShort": "Intercambie",
     "buyCrypto": "Comprar/Vender Cripto",
     "buyCryptoShort": "Comprar/Vender",
     "arkeo": "Airdrop Arkeo "

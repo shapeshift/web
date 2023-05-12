@@ -504,7 +504,8 @@
     "wallet": "Cüzdan",
     "explore": "Keşfet",
     "rewards": "Ödüller",
-    "trade": "Takas",
+    "trade": "Takas/Köprü",
+    "tradeShort": "Takas",
     "buyCrypto": "Kripto Al/Sat",
     "buyCryptoShort": "Al/Sat",
     "arkeo": "Arkeo Airdrop"

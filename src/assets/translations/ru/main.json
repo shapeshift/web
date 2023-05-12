@@ -504,7 +504,8 @@
     "wallet": "Кошелек",
     "explore": "Исследуйте",
     "rewards": "Вознаграждение",
-    "trade": "Торговля",
+    "trade": "Торговля/Мост",
+    "tradeShort": "Торговля",
     "buyCrypto": "Купить криптовалюту",
     "buyCryptoShort": "Купить/Продать",
     "arkeo": "Arkeo Airdrop"

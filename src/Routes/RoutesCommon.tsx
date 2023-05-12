@@ -77,6 +77,7 @@ export const routes: NestedRoute[] = [
   {
     path: '/trade',
     label: 'navBar.trade',
+    shortLabel: 'navBar.tradeShort',
     icon: <IoSwapVertical />,
     mobileNav: true,
     priority: 2,

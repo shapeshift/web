@@ -504,7 +504,8 @@
     "wallet": "Wallet",
     "explore": "Explore",
     "rewards": "Rewards",
-    "trade": "Trade",
+    "trade": "Trade/Bridge",
+    "tradeShort": "Trade",
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
     "arkeo": "Arkeo Airdrop"
@@ -695,6 +696,7 @@
       "broadcastFailed": "An error occurred while broadcasting the transaction",
       "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
       "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
+      "insufficientFundsForProtocolFee": "Insufficient %{symbol} on %{chainName} for fees",
       "invalidTradePair": "Invalid trade pair: %{sellAssetName} and %{buyAssetName}",
       "invalidTradePairBtnText": "Invalid Trade Pair",
       "noLiquidityError": "Not enough liquidity available",
@@ -732,10 +734,8 @@
     "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
     "recentTrades": "Recent Trades",
     "lifiWarning": "This trade routes via LI.FI, which executes a series of intermediary trades to perform a swap. If any steps fail you'll receive the token for the last successful step in the sequence.",
-    "intermediaryTransactionOutputs": {
-      "prefix": "or",
-      "suffix": "on %{chainName}"
-    },
+    "or": "or",
+    "onChainName": "on %{chainName}",
     "unknownGas": "(unknown)"
   },
   "modals": {

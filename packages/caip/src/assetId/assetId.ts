@@ -79,9 +79,14 @@ export const toAssetId: ToAssetId = (args: ToAssetIdArgs): AssetId => {
       }
   })()
 
-  const isContractAddress = Array<AssetNamespace>('erc20', 'erc721', 'bep20', 'bep721').includes(
-    assetNamespace,
-  )
+  const isContractAddress = Array<AssetNamespace>(
+    'erc20',
+    'erc721',
+    'erc1155',
+    'bep20',
+    'bep721',
+    'bep1155',
+  ).includes(assetNamespace)
 
   assertIsChainNamespace(chainNamespace)
   assertIsChainReference(chainReference)

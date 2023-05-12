@@ -1,9 +1,11 @@
 import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import type { evm } from '@shapeshiftoss/common-api'
 import axios from 'axios'
 
 import type { Trade } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
 import type { ParsedTx } from '../../../parser'
+import { V1Api } from '../../index'
 import {
   FOXY_STAKING_CONTRACT,
   SHAPE_SHIFT_ROUTER_CONTRACT,
@@ -12,6 +14,8 @@ import {
 } from '../constants'
 import { TransactionParser, ZRX_ETHEREUM_PROXY_CONTRACT } from '../index'
 import { YEARN_VAULTS_URL } from '../yearn'
+import erc721 from './mockData/erc721'
+import erc1155 from './mockData/erc1155'
 import ethSelfSend from './mockData/ethSelfSend'
 import foxClaim from './mockData/foxClaim'
 import foxExit from './mockData/foxExit'
@@ -74,9 +78,282 @@ mockedAxios.get.mockImplementation(url => {
   }
 })
 
-const txParser = new TransactionParser({ rpcUrl: '', chainId: ethChainId, assetId: ethAssetId })
+const mockedApi = jest.mocked(new V1Api())
+
+const tokenMetadata: evm.TokenMetadata = {
+  name: 'Foxy',
+  description: 'The foxiest Fox',
+  media: { url: 'http://foxy.fox', type: 'image' },
+}
+
+mockedApi.getTokenMetadata = jest.fn().mockResolvedValue(tokenMetadata)
+
+const txParser = new TransactionParser({
+  rpcUrl: '',
+  chainId: ethChainId,
+  assetId: ethAssetId,
+  api: mockedApi,
+})
 
 describe('parseTx', () => {
+  describe('standard', () => {
+    describe('erc721', () => {
+      it('should be able to parse mempool send', async () => {
+        const { txMempool } = erc721
+        const address = '0xa5d981BC0Bc57500ffEDb2674c597F14a3Cb68c1'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: 'eip155:1',
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse send', async () => {
+        const { tx } = erc721
+        const address = '0xa5d981BC0Bc57500ffEDb2674c597F14a3Cb68c1'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: 'eip155:1',
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          fee: {
+            assetId: ethAssetId,
+            value: '5974629016703985',
+          },
+          data: {
+            parser: 'nft',
+            mediaById: { '2253': tokenMetadata.media },
+          },
+          transfers: [
+            {
+              type: TransferType.Send,
+              to: '0x86c6B7f9D91D104e53F2Be608549F0Dc6ECABb57',
+              from: address,
+              assetId: 'eip155:1/erc721:0x68d0f6d1d99bb830e17ffaa8adb5bbed9d6eec2e',
+              totalValue: '1',
+              components: [{ value: '1' }],
+              id: '2253',
+              token: {
+                contract: '0x68d0F6d1d99Bb830E17fFaA8aDB5BbeD9D6EEc2E',
+                decimals: 18,
+                name: 'Diamond Exhibition',
+                symbol: 'DIAMOND',
+              },
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse mempool receive', async () => {
+        const { txMempool } = erc721
+        const address = '0x86c6B7f9D91D104e53F2Be608549F0Dc6ECABb57'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: 'eip155:1',
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse receive', async () => {
+        const { tx } = erc721
+        const address = '0x86c6B7f9D91D104e53F2Be608549F0Dc6ECABb57'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: 'eip155:1',
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          data: {
+            parser: 'nft',
+            mediaById: { '2253': tokenMetadata.media },
+          },
+          transfers: [
+            {
+              type: TransferType.Receive,
+              to: address,
+              from: '0xa5d981BC0Bc57500ffEDb2674c597F14a3Cb68c1',
+              assetId: 'eip155:1/erc721:0x68d0f6d1d99bb830e17ffaa8adb5bbed9d6eec2e',
+              totalValue: '1',
+              components: [{ value: '1' }],
+              id: '2253',
+              token: {
+                contract: '0x68d0F6d1d99Bb830E17fFaA8aDB5BbeD9D6EEc2E',
+                decimals: 18,
+                name: 'Diamond Exhibition',
+                symbol: 'DIAMOND',
+              },
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(actual).toEqual(expected)
+      })
+    })
+
+    describe('erc1155', () => {
+      it('should be able to parse mempool send', async () => {
+        const { txMempool } = erc1155
+        const address = '0x63acA79298884a520776B5bE662230a37de4a327'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: 'eip155:1',
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse send', async () => {
+        const { tx } = erc1155
+        const address = '0x63acA79298884a520776B5bE662230a37de4a327'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: 'eip155:1',
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          fee: {
+            assetId: ethAssetId,
+            value: '28797509921536974',
+          },
+          data: {
+            parser: 'nft',
+            mediaById: { '2': tokenMetadata.media },
+          },
+          transfers: [
+            {
+              type: TransferType.Send,
+              to: '0x3A3548e060Be10c2614d0a4Cb0c03CC9093fD799',
+              from: address,
+              assetId: 'eip155:1/erc1155:0x3b287c39ed2812a4c87521301c9c56577b5bdd8d',
+              totalValue: '1',
+              components: [{ value: '1' }],
+              id: '2',
+              token: {
+                contract: '0x3b287C39ed2812A4C87521301c9C56577b5Bdd8D',
+                decimals: 18,
+                name: 'Rene Distort',
+                symbol: 'RENDIS',
+              },
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse mempool receive', async () => {
+        const { txMempool } = erc1155
+        const address = '0x3A3548e060Be10c2614d0a4Cb0c03CC9093fD799'
+
+        const expected: ParsedTx = {
+          txid: txMempool.txid,
+          blockHeight: txMempool.blockHeight,
+          blockTime: txMempool.timestamp,
+          address,
+          chainId: 'eip155:1',
+          confirmations: txMempool.confirmations,
+          status: TxStatus.Pending,
+          transfers: [],
+        }
+
+        const actual = await txParser.parse(txMempool, address)
+
+        expect(actual).toEqual(expected)
+      })
+
+      it('should be able to parse receive', async () => {
+        const { tx } = erc1155
+        const address = '0x3A3548e060Be10c2614d0a4Cb0c03CC9093fD799'
+
+        const expected: ParsedTx = {
+          txid: tx.txid,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.timestamp,
+          address,
+          chainId: 'eip155:1',
+          confirmations: tx.confirmations,
+          status: TxStatus.Confirmed,
+          data: {
+            parser: 'nft',
+            mediaById: { '2': tokenMetadata.media },
+          },
+          transfers: [
+            {
+              type: TransferType.Receive,
+              to: address,
+              from: '0x63acA79298884a520776B5bE662230a37de4a327',
+              assetId: 'eip155:1/erc1155:0x3b287c39ed2812a4c87521301c9c56577b5bdd8d',
+              totalValue: '1',
+              components: [{ value: '1' }],
+              id: '2',
+              token: {
+                contract: '0x3b287C39ed2812A4C87521301c9C56577b5Bdd8D',
+                decimals: 18,
+                name: 'Rene Distort',
+                symbol: 'RENDIS',
+              },
+            },
+          ],
+        }
+
+        const actual = await txParser.parse(tx, address)
+
+        expect(actual).toEqual(expected)
+      })
+    })
+  })
+
   describe('multiSig', () => {
     it('should be able to parse eth multi sig send', async () => {
       const { tx } = multiSigSendEth

@@ -110,7 +110,7 @@ export const TransactionMethod = ({
         parentWidth={parentWidth}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
-        <Transfers compactMode={compactMode} transfers={txDetails.tx.transfers} />
+        <Transfers compactMode={compactMode} transfers={txDetails.transfers} />
         <TxGrid compactMode={compactMode}>
           {(txMetadata.method === 'approve' || txMetadata.method === 'revoke') &&
             txMetadataWithAssetId?.assetId &&

@@ -32,10 +32,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import {
-  useWalletSupportsBuyAsset,
-  useWalletSupportsSellAsset,
-} from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInput } from 'lib/address/address'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
@@ -147,6 +144,7 @@ export const TradeInput = () => {
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellAssetChainId = sellAsset?.chainId
+  const buyAssetChainId = buyAsset?.chainId
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAssetChainId ?? ''))
   const buyAmountCryptoPrecision = useSwapperStore(selectBuyAmountCryptoPrecision)
   const sellAmountCryptoPrecision = useSwapperStore(selectSellAmountCryptoPrecision)
@@ -234,8 +232,8 @@ export const TradeInput = () => {
     )
   }, [buyAsset?.assetId, activeQuote, sellAsset?.assetId])
 
-  const walletSupportsSellAssetChain = useWalletSupportsSellAsset()
-  const walletSupportsBuyAssetChain = useWalletSupportsBuyAsset()
+  const walletSupportsSellAssetChain = walletSupportsChain({ chainId: sellAssetChainId, wallet })
+  const walletSupportsBuyAssetChain = walletSupportsChain({ chainId: buyAssetChainId, wallet })
 
   // Constants
   const shouldShowManualReceiveAddressInput = !walletSupportsBuyAssetChain

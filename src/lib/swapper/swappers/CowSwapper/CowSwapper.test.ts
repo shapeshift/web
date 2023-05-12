@@ -16,7 +16,6 @@ import type { CowSwapperDeps } from './CowSwapper'
 import { CowSwapper } from './CowSwapper'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import type { CowTrade } from './types'
-import { getUsdRate } from './utils/helpers/helpers'
 
 jest.mock('./utils/helpers/helpers')
 jest.mock('state/slices/selectors', () => {
@@ -79,13 +78,6 @@ describe('CowSwapper', () => {
   describe('getType', () => {
     it('returns the correct type for CowSwapper', () => {
       expect(swapper.getType()).toEqual(SwapperType.CowSwap)
-    })
-  })
-
-  describe('getUsdRate', () => {
-    it('calls getUsdRate on swapper.getUsdRate', async () => {
-      await swapper.getUsdRate(FOX)
-      expect(getUsdRate).toHaveBeenCalledWith(COW_SWAPPER_DEPS, FOX)
     })
   })
 
@@ -218,7 +210,7 @@ describe('CowSwapper', () => {
     it('calls executeTrade on swapper.buildTrade', async () => {
       const cowSwapTrade: CowTrade<KnownChainIds.EthereumMainnet> = {
         sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
-        buyAmountCryptoBaseUnit: '14501811818247595090576',
+        buyAmountBeforeFeesCryptoBaseUnit: '14501811818247595090576',
         sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
         buyAsset: FOX,
         sellAsset: WETH,

@@ -31,7 +31,6 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useDonationAmountBelowMinimum } from 'components/Trade/hooks/useDonationAmountBelowMinimum'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -54,17 +53,17 @@ import { useAppSelector } from 'state/store'
 import {
   selectBuyAmountBeforeFeesBaseUnit,
   selectDonationAmountFiat,
+  selectFeeAssetFiatRate,
   selectIntermediaryTransactionOutputs,
+  selectProtocolFees,
   selectQuoteBuyAmountCryptoPrecision,
   selectSellAmountBeforeFeesBaseUnitByAction,
   selectSellAmountBeforeFeesFiat,
-  selectTotalTradeFeeBuyAssetCryptoPrecision,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectBuyAmountCryptoPrecision,
   selectBuyAmountFiat,
   selectBuyAssetAccountId,
-  selectFeeAssetFiatRate,
   selectFees,
   selectSellAssetAccountId,
   selectSlippage,
@@ -117,16 +116,14 @@ export const TradeConfirm = () => {
   const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
   const sellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
   const buyAmountCryptoPrecision = useSwapperStore(selectBuyAmountCryptoPrecision)
-  const intermediaryTransactionOutputsCryptoPrecision = useSwapperStore(
+  const intermediaryTransactionOutputsCryptoBaseUnit = useSwapperStore(
     selectIntermediaryTransactionOutputs,
   )
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const sellAmountBeforeFeesBaseUnit = useSwapperStore(selectSellAmountBeforeFeesBaseUnitByAction)
   const sellAmountBeforeFeesFiat = useSwapperStore(selectSellAmountBeforeFeesFiat)
   const quoteBuyAmountCryptoPrecision = useSwapperStore(selectQuoteBuyAmountCryptoPrecision)
-  const totalTradeFeeBuyAssetCryptoPrecision = useSwapperStore(
-    selectTotalTradeFeeBuyAssetCryptoPrecision,
-  )
+  const protocolFees = useSwapperStore(selectProtocolFees)
   const fiatBuyAmount = useSwapperStore(selectBuyAmountFiat)
   const buyAmountBeforeFeesBaseUnit = useSwapperStore(selectBuyAmountBeforeFeesBaseUnit)
 
@@ -247,17 +244,6 @@ export const TradeConfirm = () => {
         tradeId: sellTradeId,
       }),
     [sellTradeId, trade],
-  )
-
-  const chainAdapterManager = getChainAdapterManager()
-  const intermediaryTransactionOutputs = useMemo(
-    () =>
-      intermediaryTransactionOutputsCryptoPrecision?.map(({ buyAmountCryptoBaseUnit, asset }) => ({
-        amount: fromBaseUnit(buyAmountCryptoBaseUnit, asset.precision),
-        symbol: asset.symbol,
-        chainName: chainAdapterManager.get(asset.chainId)?.getDisplayName(),
-      })),
-    [intermediaryTransactionOutputsCryptoPrecision, chainAdapterManager],
   )
 
   const { showErrorToast } = useErrorHandler()
@@ -410,7 +396,7 @@ export const TradeConfirm = () => {
               <Checkbox
                 isChecked={!hasUserOptedOutOfDonation}
                 onChange={handleDonationToggle}
-                isDisabled={isSubmitting || isReloadingTrade}
+                isDisabled={isSubmitting || isReloadingTrade || tradeStatus === TxStatus.Confirmed}
               >
                 <Text translation='trade.donation' />
               </Checkbox>
@@ -427,6 +413,7 @@ export const TradeConfirm = () => {
       isReloadingTrade,
       isSubmitting,
       toFiat,
+      tradeStatus,
       translate,
     ],
   )
@@ -501,15 +488,15 @@ export const TradeConfirm = () => {
           </Row>
           <ReceiveSummary
             symbol={trade.buyAsset.symbol ?? ''}
-            amount={buyAmountCryptoPrecision ?? ''}
-            beforeFees={quoteBuyAmountCryptoPrecision ?? ''}
-            protocolFee={totalTradeFeeBuyAssetCryptoPrecision ?? ''}
+            amountCryptoPrecision={buyAmountCryptoPrecision ?? ''}
+            amountBeforeFeesCryptoPrecision={quoteBuyAmountCryptoPrecision ?? ''}
+            protocolFees={protocolFees}
             shapeShiftFee='0'
             slippage={slippage}
             fiatAmount={positiveOrZero(fiatBuyAmount).toFixed(2)}
             swapperName={swapper?.name ?? ''}
             isLoading={isReloadingTrade}
-            intermediaryTransactionOutputs={intermediaryTransactionOutputs}
+            intermediaryTransactionOutputs={intermediaryTransactionOutputsCryptoBaseUnit}
           />
         </Stack>
       ) : null,
@@ -520,12 +507,12 @@ export const TradeConfirm = () => {
       sellAmountBeforeFeesFiat,
       buyAmountCryptoPrecision,
       quoteBuyAmountCryptoPrecision,
-      totalTradeFeeBuyAssetCryptoPrecision,
+      protocolFees,
       slippage,
       fiatBuyAmount,
       swapper?.name,
       isReloadingTrade,
-      intermediaryTransactionOutputs,
+      intermediaryTransactionOutputsCryptoBaseUnit,
     ],
   )
 

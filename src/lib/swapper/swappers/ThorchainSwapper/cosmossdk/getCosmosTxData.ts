@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { cosmosAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkBaseAdapter, thorchain } from '@shapeshiftoss/chain-adapters'
@@ -6,6 +5,7 @@ import type { CosmosSignTx, HDWallet, ThorchainSignTx } from '@shapeshiftoss/hdw
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { Asset } from 'lib/asset-service'
 import type { SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { ThorCosmosSdkSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'

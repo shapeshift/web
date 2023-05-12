@@ -504,7 +504,8 @@
     "wallet": "Гаманець",
     "explore": "Дослідити",
     "rewards": "Нагороди",
-    "trade": "Обмін",
+    "trade": "Обмін/Міст",
+    "tradeShort": "Обмін",
     "buyCrypto": "Купити / продати криптовалюту",
     "buyCryptoShort": "Купити/продати",
     "arkeo": "Arkeo Airdrop"

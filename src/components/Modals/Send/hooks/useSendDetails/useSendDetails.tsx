@@ -113,18 +113,19 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const estimateFormFees = useCallback((): Promise<FeeDataEstimate<ChainId>> => {
     if (!asset) throw new Error('No asset found')
 
-    const { cryptoAmount, assetId, to, sendMax, accountId } = getValues()
+    const { assetId, cryptoAmount, to, sendMax } = getValues()
     if (!wallet) throw new Error('No wallet connected')
     return estimateFees({ cryptoAmount, assetId, to, sendMax, accountId, contractAddress })
-  }, [asset, contractAddress, getValues, wallet])
+  }, [accountId, asset, contractAddress, getValues, wallet])
 
   const debouncedSetEstimatedFormFees = useMemo(() => {
     return debounce(
       async () => {
-        if (!asset) return
+        const { cryptoAmount } = getValues()
+        if (cryptoAmount === '') return
+        if (!asset || !accountId) return
         const estimatedFees = await estimateFormFees()
 
-        const { cryptoAmount } = getValues()
         const hasValidBalance = cryptoHumanBalance.gte(cryptoAmount)
 
         if (!hasValidBalance) {
@@ -173,6 +174,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       { leading: true, trailing: true },
     )
   }, [
+    accountId,
     asset,
     assetId,
     cryptoHumanBalance,
@@ -319,7 +321,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     async (inputValue: string) => {
       setValue(SendFormFields.SendMax, false)
 
-      const key =
+      const otherField =
         fieldName !== SendFormFields.FiatAmount
           ? SendFormFields.FiatAmount
           : SendFormFields.CryptoAmount
@@ -331,7 +333,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           // Don't show an error message when the input is empty
           setValue(SendFormFields.AmountFieldError, '')
           // Set value of the other input to an empty string as well
-          setValue(key, '') // TODO: this shouldn't be a thing, using a single amount field
+          setValue(otherField, '') // TODO: this shouldn't be a thing, using a single amount field
           return
         }
 
@@ -340,7 +342,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             ? bnOrZero(bn(inputValue).div(price)).toString()
             : bnOrZero(bn(inputValue).times(price)).toString()
 
-        setValue(key, amount)
+        setValue(otherField, amount)
 
         // TODO: work toward a consistent way of handling tx fees and minimum amounts
         // see, https://github.com/shapeshift/web/issues/1966

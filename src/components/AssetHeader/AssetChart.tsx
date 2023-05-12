@@ -15,7 +15,6 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
-import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useEffect, useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -28,10 +27,12 @@ import { StakingUpArrowIcon } from 'components/Icons/StakingUpArrow'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { useTimeframeChange } from 'hooks/useTimeframeChange/useTimeframeChange'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import {
   selectAssetById,
+  selectChartTimeframe,
   selectCryptoHumanBalanceIncludingStakingByFilter,
   selectFiatBalanceIncludingStakingByFilter,
   selectMarketDataById,
@@ -60,7 +61,9 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   } = useLocaleFormatter()
   const [percentChange, setPercentChange] = useState(0)
   const alertIconColor = useColorModeValue('blue.500', 'blue.200')
-  const [timeframe, setTimeframe] = useState<HistoryTimeframe>(DEFAULT_HISTORY_TIMEFRAME)
+  const userChartTimeframe = useAppSelector(selectChartTimeframe)
+  const [timeframe, setTimeframe] = useState<HistoryTimeframe>(userChartTimeframe)
+  const handleTimeframeChange = useTimeframeChange(setTimeframe)
   const assetIds = useMemo(() => [assetId].filter(isSome), [assetId])
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
@@ -115,7 +118,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
           </Skeleton>
 
           <Skeleton isLoaded={isLoaded} display={{ base: 'none', md: 'block' }}>
-            <TimeControls onChange={setTimeframe} defaultTime={timeframe} />
+            <TimeControls onChange={handleTimeframeChange} defaultTime={timeframe} />
           </Skeleton>
         </Flex>
         <Box width='full' alignItems='center' display='flex' flexDir='column' mt={6}>
@@ -204,7 +207,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
       )}
       <Skeleton isLoaded={isLoaded} display={{ base: 'block', md: 'none' }}>
         <TimeControls
-          onChange={setTimeframe}
+          onChange={handleTimeframeChange}
           defaultTime={timeframe}
           buttonGroupProps={{
             display: 'flex',

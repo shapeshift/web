@@ -13,7 +13,7 @@ import type { FeePrice } from '../../views/Confirm'
 export const useSendFees = () => {
   const [fees, setFees] = useState<FeePrice | null>(null)
   const { control } = useFormContext()
-  const { assetId, estimatedFees } = useWatch({
+  const { assetId, estimatedFees, cryptoAmount } = useWatch({
     control,
   })
   const feeAssetId = getChainAdapterManager().get(fromAssetId(assetId).chainId)?.getFeeAssetId()
@@ -59,9 +59,12 @@ export const useSendFees = () => {
       )
       setFees(txFees)
     }
-    // We only want this effect to run on mount or when the estimatedFees in state change
+    // We only want this effect to run on
+    // - mount
+    // - when the estimatedFees reference invalidates
+    // - when cryptoAmount reference invalidates, since this wouldn't invalidate in the context of QR codes with amounts otherwise
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [estimatedFees, assetId])
+  }, [estimatedFees, cryptoAmount, assetId])
 
   return { fees }
 }

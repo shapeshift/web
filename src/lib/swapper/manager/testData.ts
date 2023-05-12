@@ -87,7 +87,7 @@ export const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   maximumCryptoHuman: '1000000000000000000000',
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000', // 1000 FOX
   allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-  buyAmountCryptoBaseUnit: '23448326921811747', // 0.023 ETH
+  buyAmountBeforeFeesCryptoBaseUnit: '23448326921811747', // 0.023 ETH
   feeData: {
     chainSpecific: {
       estimatedGasCryptoBaseUnit: '100000',
@@ -107,7 +107,7 @@ export const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
 
 export const bestTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   ...tradeQuote,
-  buyAmountCryptoBaseUnit: '23000000000000000', // 0.023 ETH
+  buyAmountBeforeFeesCryptoBaseUnit: '23000000000000000', // 0.023 ETH
   feeData: {
     chainSpecific: {
       estimatedGasCryptoBaseUnit: '100000',
@@ -123,7 +123,7 @@ export const bestTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
 
 export const suboptimalTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   ...tradeQuote,
-  buyAmountCryptoBaseUnit: '21000000000000000', // 0.021 ETH
+  buyAmountBeforeFeesCryptoBaseUnit: '21000000000000000', // 0.021 ETH
   feeData: {
     chainSpecific: {
       estimatedGasCryptoBaseUnit: '100000',

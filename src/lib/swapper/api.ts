@@ -1,10 +1,10 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { createErrorClass } from '@shapeshiftoss/errors'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
+import type { Asset } from 'lib/asset-service'
 
 export const SwapError = createErrorClass('SwapError')
 
@@ -79,7 +79,12 @@ export type ByPairInput = {
   buyAssetId: AssetId
 }
 
-export type GetSwappersWithQuoteMetadataArgs = GetTradeQuoteInput & { feeAsset: Asset }
+export type GetSwappersWithQuoteMetadataArgs = GetTradeQuoteInput & {
+  feeAsset: Asset
+  sellAssetFiatRate: string
+  buyAssetFiatRate: string
+  feeAssetFiatRate: string
+}
 
 export type SwapperWithQuoteMetadata = {
   swapper: Swapper<ChainId>
@@ -133,15 +138,13 @@ export type BuildTradeInput = GetTradeQuoteInput & {
   wallet: HDWallet
 }
 
-// describes intermediary asset and amount the user may end up with in the event of a trade
-// execution failure
-export type IntermediaryTransactionOutput = {
-  asset: Pick<Asset, 'chainId' | 'symbol' | 'precision'>
-  buyAmountCryptoBaseUnit: string
+export type AmountDisplayMeta = {
+  amountCryptoBaseUnit: string
+  asset: Pick<Asset, 'symbol' | 'chainId' | 'precision'>
 }
 
 interface TradeBase<C extends ChainId, MissingNetworkFee extends boolean = false> {
-  buyAmountCryptoBaseUnit: string
+  buyAmountBeforeFeesCryptoBaseUnit: string
   sellAmountBeforeFeesCryptoBaseUnit: string
   feeData: QuoteFeeData<C, MissingNetworkFee>
   rate: string
@@ -149,7 +152,9 @@ interface TradeBase<C extends ChainId, MissingNetworkFee extends boolean = false
   buyAsset: Asset
   sellAsset: Asset
   accountNumber: number
-  intermediaryTransactionOutputs?: IntermediaryTransactionOutput[]
+  // describes intermediary asset and amount the user may end up with in the event of a trade
+  // execution failure
+  intermediaryTransactionOutputs?: AmountDisplayMeta[]
 }
 
 export interface TradeQuote<C extends ChainId, UnknownNetworkFee extends boolean = false>
@@ -283,6 +288,7 @@ export interface Swapper<T extends ChainId, MaybeUnknownNetworkFee extends boole
    * Get builds a trade with definitive rate & txData that can be executed with executeTrade
    **/
   buildTrade(args: BuildTradeInput): Promise<Result<Trade<T>, SwapErrorRight>>
+
   /**
    * Get a trade quote
    */
@@ -294,10 +300,6 @@ export interface Swapper<T extends ChainId, MaybeUnknownNetworkFee extends boole
       SwapErrorRight
     >
   >
-  /**
-   * Get the usd rate from either the assets symbol or tokenId
-   */
-  getUsdRate(input: Asset): Promise<Result<string, SwapErrorRight>>
 
   /**
    * Execute a trade built with buildTrade by signing and broadcasting

@@ -1,8 +1,8 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import { useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
 import type { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import { TradeRoutePaths } from 'components/Trade/types'
+import type { Asset } from 'lib/asset-service'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useTradeRoutes = (): {

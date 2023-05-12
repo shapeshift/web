@@ -4,10 +4,8 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type Web3 from 'web3'
 
 import { SwapperType } from '../../api'
-import { FOX } from '../utils/test-data/assets'
 import { setupBuildTrade, setupQuote } from '../utils/test-data/setupSwapQuote'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
-import { getUsdRate } from './utils/helpers/helpers'
 import { setupExecuteTrade } from './utils/test-data/setupZrxSwapQuote'
 import { zrxApprovalNeeded } from './zrxApprovalNeeded/zrxApprovalNeeded'
 import { zrxApproveAmount, zrxApproveInfinite } from './zrxApprove/zrxApprove'
@@ -76,11 +74,6 @@ describe('ZrxSwapper', () => {
     const args = { trade: executeTradeInput, wallet }
     await swapper.executeTrade(args)
     expect(zrxExecuteTrade).toHaveBeenCalled()
-  })
-  it('calls getUsdRate on swapper.getUsdRate', async () => {
-    const swapper = new ZrxSwapper(zrxEthereumSwapperDeps)
-    await swapper.getUsdRate(FOX)
-    expect(getUsdRate).toHaveBeenCalled()
   })
 
   it('calls zrxApprovalNeeded on swapper.approvalNeeded', async () => {

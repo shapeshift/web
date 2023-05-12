@@ -1,20 +1,26 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 import type Web3 from 'web3'
+import type { Asset } from 'lib/asset-service'
+import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX, WETH } from '../../utils/test-data/assets'
 import type { CowSwapperDeps } from '../CowSwapper'
-import { DEFAULT_APP_DATA } from '../utils/constants'
+import { DEFAULT_ADDRESS, DEFAULT_APP_DATA } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote'
 
 const mockOk = Ok as jest.MockedFunction<typeof Ok>
+
+const foxRate = '0.0873'
+const ethRate = '1233.65940923824103061992'
+const wethRate = '1233.65940923824103061992'
+
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mock('../utils/cowService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')
@@ -25,21 +31,8 @@ jest.mock('../utils/cowService', () => {
   }
 })
 jest.mock('../utils/helpers/helpers', () => {
-  const { WETH, ETH, FOX } = require('../../utils/test-data/assets') // Move the import inside the factory function
-
   return {
     getNowPlusThirtyMinutesTimestamp: () => 1656797787,
-    getUsdRate: (_args: CowSwapperDeps, input: Asset) => {
-      if (input.assetId === WETH.assetId || input.assetId === ETH.assetId) {
-        return Promise.resolve(mockOk('1233.65940923824103061992'))
-      }
-
-      if (input.assetId === FOX.assetId) {
-        return Promise.resolve(mockOk('0.0873'))
-      }
-
-      return Promise.resolve(mockOk('20978.38'))
-    },
   }
 })
 
@@ -54,7 +47,7 @@ jest.mock('../getCowSwapMinMax/getCowSwapMinMax', () => {
   const { FOX } = require('../../utils/test-data/assets') // Move the import inside the factory function
 
   return {
-    getCowSwapMinMax: (_args: CowSwapperDeps, sellAsset: Asset) => {
+    getCowSwapMinMax: (sellAsset: Asset) => {
       if (sellAsset.assetId === FOX.assetId) {
         return mockOk({
           minimumAmountCryptoHuman: '229.09507445589919816724',
@@ -69,6 +62,9 @@ jest.mock('../getCowSwapMinMax/getCowSwapMinMax', () => {
     },
   }
 })
+
+const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
+const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
 
 const feeData: FeeDataEstimate<KnownChainIds.EthereumMainnet> = {
   fast: {
@@ -137,7 +133,7 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
 }
 
 const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  rate: '14716.04718939437505555958', // 14716 FOX per WETH
+  rate: '14924.80846543344314936607', // 14942 FOX per WETH
   minimumCryptoHuman: '0.011624',
   maximumCryptoHuman: '100000000000000000000000000',
   feeData: {
@@ -153,7 +149,7 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
-  buyAmountCryptoBaseUnit: '14501811818247595090576', // 14501 FOX
+  buyAmountBeforeFeesCryptoBaseUnit: '14913256100953839475750', // 14913 FOX
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: FOX,
@@ -178,7 +174,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
-  buyAmountCryptoBaseUnit: '46868859830863283',
+  buyAmountBeforeFeesCryptoBaseUnit: '51242479117266593',
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: ETH,
@@ -203,7 +199,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000',
-  buyAmountCryptoBaseUnit: '0', // 0 FOX
+  buyAmountBeforeFeesCryptoBaseUnit: '0', // 0 FOX
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: FOX,
@@ -224,6 +220,9 @@ const deps: CowSwapperDeps = {
 
 describe('getCowTradeQuote', () => {
   it('should throw an exception if both assets are not erc20s', async () => {
+    selectBuyAssetUsdRateSpy.mockImplementation(() => foxRate)
+    selectSellAssetUsdRateSpy.mockImplementation(() => ethRate)
+
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: ETH,
@@ -231,7 +230,7 @@ describe('getCowTradeQuote', () => {
       sellAmountBeforeFeesCryptoBaseUnit: '11111',
       sendMax: true,
       accountNumber: 0,
-      receiveAddress: '',
+      receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
     }
 
@@ -247,6 +246,9 @@ describe('getCowTradeQuote', () => {
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade quote when selling WETH', async () => {
+    selectBuyAssetUsdRateSpy.mockImplementation(() => foxRate)
+    selectSellAssetUsdRateSpy.mockImplementation(() => wethRate)
+
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WETH,
@@ -254,7 +256,7 @@ describe('getCowTradeQuote', () => {
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
       sendMax: true,
       accountNumber: 0,
-      receiveAddress: '',
+      receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
     }
 
@@ -266,7 +268,7 @@ describe('getCowTradeQuote', () => {
               ...expectedApiInputWethToFox,
               sellAmountBeforeFee: undefined,
               sellAmount: '985442057341242012',
-              buyAmount: '14501811818247595090576',
+              buyAmount: '14707533959600717283163',
               feeAmount: '14557942658757988',
               sellTokenBalance: 'erc20',
               buyTokenBalance: 'erc20',
@@ -287,6 +289,9 @@ describe('getCowTradeQuote', () => {
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade quote when buying ETH', async () => {
+    selectBuyAssetUsdRateSpy.mockImplementation(() => ethRate)
+    selectSellAssetUsdRateSpy.mockImplementation(() => foxRate)
+
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: FOX,
@@ -294,7 +299,7 @@ describe('getCowTradeQuote', () => {
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
       sendMax: true,
       accountNumber: 0,
-      receiveAddress: '',
+      receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
     }
 
@@ -327,6 +332,9 @@ describe('getCowTradeQuote', () => {
   })
 
   it('should call cowService with correct parameters and return quote with original sellAmount when selling a very small amount of WETH', async () => {
+    selectBuyAssetUsdRateSpy.mockImplementation(() => foxRate)
+    selectSellAssetUsdRateSpy.mockImplementation(() => wethRate)
+
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WETH,
@@ -334,7 +342,7 @@ describe('getCowTradeQuote', () => {
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000',
       sendMax: true,
       accountNumber: 0,
-      receiveAddress: '',
+      receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
     }
 

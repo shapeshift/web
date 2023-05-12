@@ -1,4 +1,3 @@
-import { type Asset } from '@shapeshiftoss/asset-service'
 import {
   type ChainId,
   avalancheAssetId,
@@ -26,6 +25,7 @@ import {
   type GetFormFeesArgs,
 } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { type Asset } from 'lib/asset-service'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'

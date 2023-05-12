@@ -1,7 +1,7 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { Asset } from 'lib/asset-service'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { deposit } from 'lib/swapper/swappers/ThorchainSwapper/evm/routerCalldata'

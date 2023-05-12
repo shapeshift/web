@@ -2,11 +2,11 @@ import { Collapse, Flex } from '@chakra-ui/react'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { selectBuyAssetFiatRate } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectActiveSwapperWithMetadata,
   selectAvailableSwappersWithMetadata,
   selectBuyAsset,
-  selectBuyAssetFiatRate,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
@@ -26,7 +26,8 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
 
   const bestQuote = availableSwappersWithMetadata?.[0]?.quote
   const bestBuyAmountCryptoPrecision =
-    bestQuote && fromBaseUnit(bestQuote.buyAmountCryptoBaseUnit, bestQuote.buyAsset.precision)
+    bestQuote &&
+    fromBaseUnit(bestQuote.buyAmountBeforeFeesCryptoBaseUnit, bestQuote.buyAsset.precision)
   const bestBuyAmountCryptoPrecisionAfterSlippage = bnOrZero(bestBuyAmountCryptoPrecision)
     .times(bn(1).minus(bnOrZero(bestQuote?.recommendedSlippage ?? DEFAULT_SLIPPAGE)))
     .toString()
@@ -36,6 +37,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
       : undefined
   const bestTotalReceiveAmountCryptoPrecision = bestBuyAssetTradeFeeCryptoPrecision
     ? bnOrZero(bestBuyAmountCryptoPrecisionAfterSlippage)
+        // TODO: determine why not subtracting bestSelllAssetTradeFeeCryptoPrecision
         .minus(bestBuyAssetTradeFeeCryptoPrecision)
         .toString()
     : undefined
@@ -44,7 +46,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
     ? availableSwappersWithMetadata.map((swapperWithMetadata, i) => {
         const quote = swapperWithMetadata.quote
         const buyAmountBeforeFeesCryptoPrecision = buyAsset
-          ? fromBaseUnit(quote.buyAmountCryptoBaseUnit, buyAsset.precision)
+          ? fromBaseUnit(quote.buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
           : undefined
 
         const buyAssetTradeFeeBuyAssetCryptoPrecision = buyAssetFiatRate

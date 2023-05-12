@@ -1,5 +1,4 @@
 import { useToast } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
@@ -24,6 +23,7 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import type { Asset } from 'lib/asset-service'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'

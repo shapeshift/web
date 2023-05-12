@@ -123,6 +123,7 @@ export const Address = () => {
               },
             }}
             isYatSupported={isYatSupported}
+            enableQr={true}
           />
         </FormControl>
         {isYatFeatureEnabled && isYatSupportedChain && <YatBanner mt={6} />}

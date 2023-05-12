@@ -112,9 +112,9 @@ export const TradeInput = () => {
   const isYatFeatureEnabled = useFeatureFlag('Yat')
 
   const {
-    formState: { errors: manualAddressEntryErrors },
-    trigger: manualAddressEntryValidationTrigger,
-    setValue: setManualReceiveAddressValue,
+    formState: { errors: formErrors },
+    trigger: formTrigger,
+    setValue: setFormValue,
   } = useFormContext()
 
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
@@ -172,13 +172,13 @@ export const TradeInput = () => {
 
   // Trigger re-validation of the manually entered receive address
   useEffect(() => {
-    manualAddressEntryValidationTrigger(SendFormFields.Input)
-  }, [manualAddressEntryValidationTrigger])
+    formTrigger(SendFormFields.Input)
+  }, [formTrigger])
 
   // Reset the manual address input state when the user changes the buy asset
   useEffect(() => {
-    setManualReceiveAddressValue(SendFormFields.Input, '')
-  }, [buyAsset, setManualReceiveAddressValue])
+    setFormValue(SendFormFields.Input, '')
+  }, [buyAsset, setFormValue])
 
   // Selectors
   const assets = useAppSelector(selectAssets)
@@ -213,8 +213,8 @@ export const TradeInput = () => {
     selectPortfolioCryptoPrecisionBalanceByFilter(state, sellAssetBalanceFilter),
   )
 
-  const doesReceiveChainSupportYat = buyAsset.chainId === ethChainId // yat only supports eth mainnet
-  const isYatSupported = isYatFeatureEnabled && doesReceiveChainSupportYat
+  const isYatSupportedByReceiveChain = buyAsset.chainId === ethChainId // yat only supports eth mainnet
+  const isYatSupported = isYatFeatureEnabled && isYatSupportedByReceiveChain
 
   const buyAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, buyAssetBalanceFilter),
@@ -457,13 +457,13 @@ export const TradeInput = () => {
         },
       ]
 
-    if (manualAddressEntryErrors.input?.message && !walletSupportsBuyAssetChain) {
-      return manualAddressEntryErrors.input?.message.toString()
+    if (formErrors.input?.message && !walletSupportsBuyAssetChain) {
+      return formErrors.input?.message.toString()
     }
 
     if (
       !walletSupportsBuyAssetChain &&
-      (!receiveAddress || manualAddressEntryErrors?.input?.type?.toString() === 'required')
+      (!receiveAddress || formErrors?.input?.type?.toString() === 'required')
     )
       return [
         'trade.errors.manualReceiveAddressRequired',
@@ -544,8 +544,8 @@ export const TradeInput = () => {
     translate,
     walletSupportsBuyAssetChain,
     receiveAddress,
-    manualAddressEntryErrors.input?.type,
-    manualAddressEntryErrors.input?.message,
+    formErrors.input?.type,
+    formErrors.input?.message,
     buyAsset.symbol,
     buyAsset.chainId,
     activeSwapper,
@@ -632,7 +632,6 @@ export const TradeInput = () => {
           {translate('trade.receiveAddress')}
         </FormLabel>
         <AddressInput
-          showQr={false}
           rules={{
             required: true,
             validate: {

@@ -11,10 +11,10 @@ import { SendFormFields, SendRoutes } from '../SendCommon'
 type AddressInputProps = {
   rules: ControllerProps['rules']
   isYatSupported: boolean
-  showQr?: boolean
+  enableQr?: boolean
 }
 
-export const AddressInput = ({ rules, isYatSupported, showQr = true }: AddressInputProps) => {
+export const AddressInput = ({ rules, isYatSupported, enableQr = false }: AddressInputProps) => {
   const history = useHistory()
   const translate = useTranslate()
   const isValid = useFormContext<SendInput>().formState.isValid
@@ -48,7 +48,7 @@ export const AddressInput = ({ rules, isYatSupported, showQr = true }: AddressIn
         rules={rules}
         defaultValue=''
       />
-      {showQr && (
+      {enableQr && (
         <InputRightElement>
           <IconButton
             aria-label={translate('modals.send.scanQrCode')}

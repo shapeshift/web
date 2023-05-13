@@ -669,6 +669,7 @@
       "minerFee": "Bu, blok zincirindeki işlemi işlemek için alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
       "donation": "ShapeShift'i desteklemeye yardımcı olun ve bizi çalışır durumda tutun.",
       "protocol": "Bu, ticaretinizin yönlendirildiği protokoldür.",
+      "protocolLifi": "Bu, ticaretinizin yönlendirildiği protokoldür. LI.FI, fiyat, güvenlik ve hızın en iyi genel kombinasyonu için başlık altında bir dizi aracı işlem yürütür.",
       "protocolFee": "Bu, bu işlemi gerçekleştirmek için seçilen protokol tarafından alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
       "shapeshiftFee": "ShapeShift, işlemlerde ücret eklemiyor 🎉"
     },
@@ -729,7 +730,13 @@
       "tradeFailed": "Takas başarısız oldu. Varlıklar eksi gaz ücreti iade edildi"
     },
     "swappingComingSoonForWallet": "%{walletName} için takas çok yakında",
-    "recentTrades": "Son İşlemler"
+    "recentTrades": "Son İşlemler",
+    "lifiWarning": "Bu ticaret, bir takas gerçekleştirmek için bir dizi aracı işlemi yürüten LI.FI aracılığıyla yönlendirilir. Herhangi bir adım başarısız olursa, dizideki son başarılı adımın belirtecini alırsınız.",
+    "intermediaryTransactionOutputs": {
+      "prefix": "veya",
+      "suffix": "%{chainName} üzerinde"
+    },
+    "unknownGas": "(Bilinmeyen)"
   },
   "modals": {
     "popup": {
@@ -857,6 +864,7 @@
       "tokenAddress": "Adrese",
       "addressInput": "Adrese, ENS veya Yat'a",
       "scanQrCode": "QR Kodunu Tara",
+      "qrCode": "QR Kod",
       "permissionsButton": "Tekrar deneyin",
       "sent": "%{asset} gönderildi",
       "errorTitle": "%{asset} gönderiminiz başarısız oldu",

@@ -61,7 +61,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
 
   const selectGetZapperAppTokensOutput = zapperApi.endpoints.getZapperAppTokensOutput.select()
   // Undefined if the DynamicLpAssets flag is off, or if Zapper rugs us
-  const zapperAppBalancesOutput = selectGetZapperAppTokensOutput(state)
+  const zapperAppTokensOutput = selectGetZapperAppTokensOutput(state)
 
   if (!opportunityIds?.length) {
     return Promise.resolve({
@@ -78,7 +78,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
   const blockNumber = await getBlockNumber()
 
   for (const opportunityId of opportunityIds) {
-    const zapperAppBalanceData = zapperAppBalancesOutput.data?.[opportunityId]
+    const zapperAppBalanceData = zapperAppTokensOutput.data?.[opportunityId]
 
     const {
       token0Decimals,

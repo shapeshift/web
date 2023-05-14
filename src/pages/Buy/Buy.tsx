@@ -19,6 +19,8 @@ import { useFetchFiatAssetMarketData } from 'state/apis/fiatRamps/hooks'
 import { PageContainer } from './components/PageContainer'
 import { TopAssets } from './TopAssets'
 
+const CHAINS_SUPPORTED_BY_FIAT_RAMPS = 12 // Used for display purposes
+
 type MatchParams = {
   chainId?: string
   assetSubId?: string
@@ -32,7 +34,6 @@ export const Buy = () => {
     state: { isConnected, isDemoWallet },
   } = useWallet()
   const translate = useTranslate()
-
   useFetchFiatAssetMarketData()
 
   const handleConnect = useCallback(() => {
@@ -106,7 +107,14 @@ export const Buy = () => {
               >
                 <Heading fontSize='2xl' fontWeight='bold' as='h4' color='whiteAlpha.500'>
                   {translate('buyPage.cta.title.first')}{' '}
-                  <Text as='span' color='white' translation='buyPage.cta.title.second' />
+                  <Text
+                    as='span'
+                    color='white'
+                    translation={[
+                      'buyPage.cta.title.second',
+                      { chainCount: CHAINS_SUPPORTED_BY_FIAT_RAMPS },
+                    ]}
+                  />
                 </Heading>
                 <Button
                   size='lg'

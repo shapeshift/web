@@ -128,7 +128,7 @@
     "cta": {
       "title": {
         "first": "También puede usar ShapeShift con todas las billeteras principales para intercambiar, obtener rendimiento y",
-        "second": "Rastree su cripto en 12 cadenas"
+        "second": "Rastree su cripto en %{chainCount} cadenas"
       }
     },
     "availableAssets": "Activos Disponibles"

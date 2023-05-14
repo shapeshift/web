@@ -128,7 +128,7 @@
     "cta": {
       "title": {
         "first": "Vous pouvez aussi utiliser ShapeShift avec tous les principaux porte-monnaie pour échanger, gagner du rendement et",
-        "second": "suivre vos cryptos sur 12 chaînes"
+        "second": "suivre vos cryptos sur %{chainCount} chaînes"
       }
     },
     "availableAssets": "Actifs disponibles"

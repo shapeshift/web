@@ -128,7 +128,7 @@
     "cta": {
       "title": {
         "first": "Você também pode usar a ShapeShift com todas as melhores carteiras para negociar, ganhar recompensas e",
-        "second": "monitorar suas criptos em 12 redes diferentes."
+        "second": "monitorar suas criptos em %{chainCount} redes diferentes."
       }
     },
     "availableAssets": "Ativos disponíveis"

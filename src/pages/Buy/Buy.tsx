@@ -15,11 +15,11 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useFetchFiatAssetMarketData } from 'state/apis/fiatRamps/hooks'
+import { selectFiatRampChainCount } from 'state/apis/fiatRamps/selectors'
+import { useAppSelector } from 'state/store'
 
 import { PageContainer } from './components/PageContainer'
 import { TopAssets } from './TopAssets'
-
-const CHAINS_SUPPORTED_BY_FIAT_RAMPS = 12 // Used for display purposes
 
 type MatchParams = {
   chainId?: string
@@ -35,6 +35,8 @@ export const Buy = () => {
   } = useWallet()
   const translate = useTranslate()
   useFetchFiatAssetMarketData()
+
+  const chainCount = useAppSelector(selectFiatRampChainCount)
 
   const handleConnect = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -110,10 +112,7 @@ export const Buy = () => {
                   <Text
                     as='span'
                     color='white'
-                    translation={[
-                      'buyPage.cta.title.second',
-                      { chainCount: CHAINS_SUPPORTED_BY_FIAT_RAMPS },
-                    ]}
+                    translation={['buyPage.cta.title.second', { chainCount }]}
                   />
                 </Heading>
                 <Button

@@ -15,6 +15,7 @@ import {
   getOpportunityIdsResolversByDefiProviderAndDefiType,
   getUserDataResolversByDefiProviderAndDefiType,
 } from './resolvers/utils'
+import { zapperReadOnlyOpportunitiesResolver } from './resolvers/zapper'
 import type {
   GetOpportunityIdsInput,
   GetOpportunityIdsOutput,
@@ -23,6 +24,7 @@ import type {
   GetOpportunityUserDataInput,
   GetOpportunityUserDataOutput,
   GetOpportunityUserStakingDataOutput,
+  GetReadOnlyOpportunitiesOutput,
   OpportunitiesState,
   OpportunityDataById,
   OpportunityId,
@@ -119,6 +121,28 @@ export const opportunitiesApi = createApi({
   reducerPath: 'opportunitiesApi',
   keepUnusedDataFor: 300,
   endpoints: build => ({
+    getReadOnlyOpportunities: build.query<GetReadOnlyOpportunitiesOutput, void>({
+      queryFn: async (_input, { dispatch, getState }) => {
+        try {
+          const resolver = zapperReadOnlyOpportunitiesResolver
+
+          const resolved = await resolver({ reduxApi: { dispatch, getState } })
+
+          return { data: resolved }
+        } catch (e) {
+          const message = e instanceof Error ? e.message : 'Error selecting read-only opportunities'
+
+          moduleLogger.debug(message)
+
+          return {
+            error: {
+              error: message,
+              status: 'CUSTOM_ERROR',
+            },
+          }
+        }
+      },
+    }),
     getOpportunityIds: build.query<GetOpportunityIdsOutput, GetOpportunityIdsInput>({
       queryFn: async ({ defiType, defiProvider }, { dispatch, getState }) => {
         try {
@@ -351,3 +375,5 @@ export const opportunitiesApi = createApi({
     }),
   }),
 })
+
+export const { useGetReadOnlyOpportunitiesQuery } = opportunitiesApi

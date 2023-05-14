@@ -132,6 +132,9 @@ export type GetOpportunityMetadataOutput = {
   byId: Record<OpportunityId, OpportunityMetadata>
   type: DefiType
 }
+
+export type GetReadOnlyOpportunitiesOutput = ReadOnlyOpportunityType[] | undefined
+
 export type GetOpportunityUserDataOutput = {
   byAccountId: OpportunitiesState[DefiType]['byAccountId']
   type: DefiType
@@ -175,6 +178,20 @@ export type StakingEarnOpportunityType = OpportunityMetadata &
   Partial<UserStakingOpportunityBase> & {
     isVisible?: boolean
   } & EarndefiTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
+
+// A minimal opportunity for read-only purposes, which does NOT conform to our usual types
+// it isn't meant to be used as a full-fledged opportunity
+export type ReadOnlyOpportunityType = {
+  accountId?: string // unless aggregated
+  apy: string
+  assetId: string
+  provider: string // Not a DefiProvider, can be any string programmatically
+  tvl: string
+  icon: string
+  name: string
+  stakedAmountCryptoBaseUnit: string
+  fiatAmount: string
+}
 
 export type LpEarnOpportunityType = OpportunityMetadataBase & {
   underlyingToken0AmountCryptoBaseUnit?: string

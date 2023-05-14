@@ -1,18 +1,21 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, fromAccountId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
+import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
+import type { ReadOnlyOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { selectAssets } from 'state/slices/selectors'
 
 import type {
@@ -24,6 +27,7 @@ import type {
 } from './validators'
 import {
   chainIdToZapperNetwork,
+  V2AppsBalancesResponse,
   V2AppTokensResponse,
   V2NftBalancesCollectionsResponse,
   ZapperAppId,
@@ -57,9 +61,13 @@ const headers = {
 }
 
 export type GetZapperUniV2PoolAssetIdsOutput = AssetId[]
-export type GetZapperAppBalancesOutput = Record<AssetId, ZapperAssetBase>
+export type GetZapperAppTokensOutput = Record<AssetId, ZapperAssetBase>
 
 type GetZapperNftUserTokensInput = {
+  accountIds: AccountId[]
+}
+
+type GetZapperAppsbalancesInput = {
   accountIds: AccountId[]
 }
 
@@ -84,10 +92,85 @@ export const zapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'zapperApi',
   endpoints: build => ({
-    getZapperAppBalancesOutput: build.query<GetZapperAppBalancesOutput, void>({
+    getZapperAppsbalancesOutput: build.query<ReadOnlyOpportunityType[], GetZapperAppsbalancesInput>(
+      {
+        queryFn: async ({ accountIds }) => {
+          const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
+
+          const addresses = accountIdsToEvmAddresses(accountIds)
+          const url = `/v2/balances/apps`
+          const params = {
+            addresses,
+            'networks[]': evmNetworks,
+          }
+          const payload = { ...options, params, headers, url }
+          const { data: res } = await axios.request({ ...payload })
+          try {
+            const zapperV2AppsBalancessData = V2AppsBalancesResponse.parse(res)
+
+            const parsedOpportunities = zapperV2AppsBalancessData.reduce<ReadOnlyOpportunityType[]>(
+              (acc, appAccountBalance) => {
+                const appName = appAccountBalance.appName
+                const accountId = toAccountId({
+                  chainId: ethChainId, // Only ETH for PoC
+                  account: appAccountBalance.address,
+                })
+
+                // [0] only for debugging, obviously support all products eventually
+                const appAccountOpportunities = appAccountBalance.products[0]?.assets.map(asset => {
+                  const stakedAmountCryptoBaseUnit = asset.balanceRaw ?? '0'
+                  const fiatAmount = bnOrZero(asset.balanceUSD).toString()
+                  const apy = bnOrZero(asset.dataProps?.apy).toString()
+                  const tvl = bnOrZero(asset.dataProps?.liquidity).toString()
+                  const icon = asset.displayProps?.images?.[0] ?? ''
+                  const name = asset.displayProps?.label ?? ''
+                  const assetId = toAssetId({
+                    chainId: ethChainId, // Only ETH for PoC
+                    assetNamespace: 'erc20', // TODO(gomes): this might break for native assets, is that a thing?,
+                    assetReference: asset.address,
+                  })
+
+                  return {
+                    accountId,
+                    apy,
+                    assetId,
+                    fiatAmount,
+                    icon,
+                    name,
+                    provider: appName,
+                    stakedAmountCryptoBaseUnit,
+                    tvl,
+                    // Assume everything as "Staking" for now - to be updated when this is actually wired up
+                    type: DefiType.Staking,
+                  }
+                })
+
+                acc = acc.concat(appAccountOpportunities)
+                return acc
+              },
+              [],
+            )
+            return { data: parsedOpportunities.filter(isSome) }
+          } catch (e) {
+            moduleLogger.warn(e, 'getZapperAppsbalancesOutput')
+
+            const message =
+              e instanceof Error ? e.message : 'Error fetching read-only opportunities'
+            return {
+              error: {
+                error: message,
+                status: 'CUSTOM_ERROR',
+              },
+            }
+          }
+        },
+      },
+    ),
+    getZapperAppTokensOutput: build.query<GetZapperAppTokensOutput, void>({
       queryFn: async (_, { dispatch, getState }) => {
         const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
 
+        // only UNI-V2 supported for now
         const url = `/v2/apps/${ZapperAppId.UniswapV2}/tokens`
         const params = {
           groupId: ZapperGroupId.Pool,
@@ -97,7 +180,7 @@ export const zapperApi = createApi({
         const { data: res } = await axios.request({ ...payload })
         const zapperV2AppTokensData = V2AppTokensResponse.parse(res)
 
-        const parsedData = zapperV2AppTokensData.reduce<GetZapperAppBalancesOutput>(
+        const parsedData = zapperV2AppTokensData.reduce<GetZapperAppTokensOutput>(
           (acc, appTokenData) => {
             const chainId = zapperNetworkToChainId(appTokenData.network)
             if (!chainId) return acc
@@ -126,7 +209,7 @@ export const zapperApi = createApi({
               assetReference: appTokenData.address,
             })
 
-            const underlyingAssets = appTokenData.tokens.map(token => {
+            const underlyingAssets = (appTokenData.tokens ?? []).map(token => {
               const assetId = toAssetId({
                 chainId,
                 assetNamespace: 'erc20', // TODO: bep20
@@ -142,18 +225,18 @@ export const zapperApi = createApi({
 
             const name = underlyingAssets.every(asset => asset && asset.symbol)
               ? `${underlyingAssets.map(asset => asset?.symbol).join('/')} Pool`
-              : appTokenData.displayProps.label.replace('WETH', 'ETH')
+              : (appTokenData.displayProps?.label ?? '').replace('WETH', 'ETH')
             const icons = underlyingAssets.map((underlyingAsset, i) => {
-              return underlyingAsset?.icon ?? appTokenData.displayProps.images[i]
+              return underlyingAsset?.icon ?? appTokenData.displayProps?.images[i] ?? ''
             })
 
             acc.byId[assetId] = makeAsset({
               assetId,
-              symbol: appTokenData.symbol,
+              symbol: appTokenData.symbol ?? '',
               // WETH should be displayed as ETH in the UI due to the way UNI-V2 works
               // ETH is used for depositing/withdrawing, but WETH is used under the hood
               name,
-              precision: appTokenData.decimals,
+              precision: appTokenData.decimals ?? 0,
               icons,
             })
             acc.ids.push(assetId)
@@ -228,7 +311,7 @@ export const zapper = createApi({
     getZapperUniV2PoolAssetIds: build.query<GetZapperUniV2PoolAssetIdsOutput, void>({
       queryFn: async (_, { dispatch }) => {
         const maybeZapperV2AppTokensData = await dispatch(
-          zapperApi.endpoints.getZapperAppBalancesOutput.initiate(),
+          zapperApi.endpoints.getZapperAppTokensOutput.initiate(),
         )
 
         if (!maybeZapperV2AppTokensData.data) throw new Error('No Zapper data, sadpepe.jpg')
@@ -254,4 +337,8 @@ export const zapper = createApi({
   }),
 })
 
-export const { useGetZapperNftUserTokensQuery, useGetZapperCollectionsQuery } = zapperApi
+export const {
+  useGetZapperAppsbalancesOutputQuery,
+  useGetZapperNftUserTokensQuery,
+  useGetZapperCollectionsQuery,
+} = zapperApi

@@ -59,9 +59,9 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
 
   const assets: AssetsState = state.assets
 
-  const selectGetZapperAppBalancesOutput = zapperApi.endpoints.getZapperAppBalancesOutput.select()
+  const selectGetZapperAppTokensOutput = zapperApi.endpoints.getZapperAppTokensOutput.select()
   // Undefined if the DynamicLpAssets flag is off, or if Zapper rugs us
-  const zapperAppBalancesOutput = selectGetZapperAppBalancesOutput(state)
+  const zapperAppBalancesOutput = selectGetZapperAppTokensOutput(state)
 
   if (!opportunityIds?.length) {
     return Promise.resolve({
@@ -123,13 +123,13 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
         }
       }
 
-      token0Decimals = zapperAppBalanceData.tokens[0].decimals
-      token1Decimals = zapperAppBalanceData.tokens[1].decimals
-      token0Reserves = bnOrZero(zapperAppBalanceData.dataProps.reserves[0])
-      token1Reserves = bnOrZero(zapperAppBalanceData.dataProps.reserves[1])
-      token0Address = ethers.utils.getAddress(zapperAppBalanceData.tokens[0].address)
-      token1Address = ethers.utils.getAddress(zapperAppBalanceData.tokens[1].address)
-      apr = bnOrZero(zapperAppBalanceData.dataProps.apy).toFixed()
+      token0Decimals = zapperAppBalanceData?.tokens?.[0].decimals!
+      token1Decimals = zapperAppBalanceData?.tokens?.[1].decimals!
+      token0Reserves = bnOrZero(zapperAppBalanceData.dataProps?.reserves?.[0])!
+      token1Reserves = bnOrZero(zapperAppBalanceData.dataProps?.reserves?.[1])!
+      token0Address = ethers.utils.getAddress(zapperAppBalanceData?.tokens?.[0].address!)
+      token1Address = ethers.utils.getAddress(zapperAppBalanceData?.tokens?.[1].address!)
+      apr = bnOrZero(zapperAppBalanceData.dataProps?.apy!).toFixed()
       return {
         token0Decimals,
         token1Decimals,
@@ -214,7 +214,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
     )
 
     const totalLiquidityFiat = zapperAppBalanceData
-      ? bnOrZero(zapperAppBalanceData.dataProps.liquidity)
+      ? bnOrZero(zapperAppBalanceData.dataProps?.liquidity!)
       : token0ReservesCryptoPrecision.times(token0Price).times(2)
     const tvl = totalLiquidityFiat.toString()
     const price = bnOrZero(tvl)

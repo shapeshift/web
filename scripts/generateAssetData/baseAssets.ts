@@ -165,8 +165,8 @@ export const polygon: Asset = {
 export const gnosis: Asset = {
   assetId: caip.gnosisAssetId,
   chainId: caip.gnosisChainId,
-  name: 'Gnosis',
-  symbol: 'GNO',
+  name: 'xDAI',
+  symbol: 'xDAI',
   precision: 18,
   color: '#33765c',
   icon: 'https://assets.coingecko.com/coins/images/662/large/logo_square_simple_300px.png?1609402668',

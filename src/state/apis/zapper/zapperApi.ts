@@ -176,6 +176,7 @@ export const zapperApi = createApi({
                   }
                   return {
                     accountId,
+                    provider: appName,
                     opportunityId: assetId,
                     stakedAmountCryptoBaseUnit,
                     fiatAmount,

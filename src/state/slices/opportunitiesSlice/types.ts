@@ -186,6 +186,7 @@ export type ReadOnlyOpportunityType = {
   opportunityId: string
   stakedAmountCryptoBaseUnit: string
   fiatAmount: string
+  provider: string
 }
 
 export type LpEarnOpportunityType = OpportunityMetadataBase & {

@@ -6,6 +6,7 @@ import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCom
 import { PURGE } from 'redux-persist'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
+import type { GetZapperAppsBalancesOutput } from 'state/apis/zapper/zapperApi'
 
 import type { ReduxApi } from './resolvers/types'
 import {
@@ -24,7 +25,6 @@ import type {
   GetOpportunityUserDataInput,
   GetOpportunityUserDataOutput,
   GetOpportunityUserStakingDataOutput,
-  GetReadOnlyOpportunitiesOutput,
   OpportunitiesState,
   OpportunityDataById,
   OpportunityId,
@@ -121,17 +121,12 @@ export const opportunitiesApi = createApi({
   reducerPath: 'opportunitiesApi',
   keepUnusedDataFor: 300,
   endpoints: build => ({
-    // TODO(gomes): AccountIds should eventually be an input
-    // Currently, this will have no reactivity if the portfolio accounts change e.g MM account change or switching wallets
-    getReadOnlyOpportunities: build.query<GetReadOnlyOpportunitiesOutput, void>({
+    getReadOnlyOpportunities: build.query<GetZapperAppsBalancesOutput, void>({
       queryFn: async (_input, { dispatch, getState }) => {
-        console.log({ input })
         try {
           const resolver = zapperReadOnlyOpportunitiesResolver
 
-          debugger
           const resolved = await resolver({ reduxApi: { dispatch, getState } })
-          debugger
 
           return { data: resolved }
         } catch (e) {

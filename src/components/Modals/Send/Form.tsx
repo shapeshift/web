@@ -87,7 +87,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     async (decodedText: string) => {
       methods.setValue(SendFormFields.Input, decodedText.trim())
 
-      const maybeUrlResult = await parseMaybeUrl({ value: decodedText })
+      const maybeUrlResult = await parseMaybeUrl({ urlOrAddress: decodedText })
       if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision) {
         const marketData = selectMarketDataById(store.getState(), maybeUrlResult.assetId ?? '')
         methods.setValue(SendFormFields.CryptoAmount, maybeUrlResult.amountCryptoPrecision)

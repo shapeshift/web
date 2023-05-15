@@ -86,7 +86,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
         // - Parse the address, amount and asset. This should also exhaust URI parsers (EVM and UTXO currently) and set the amount/asset if applicable
         // - If there is a valid asset (i.e UTXO, or ETH, but not ERC-20s because they're unsafe), populates the asset and goes directly to the address step
         // If no valid asset is found, it should go to the select asset step
-        const maybeUrlResult = await parseMaybeUrl({ value: decodedText })
+        const maybeUrlResult = await parseMaybeUrl({ urlOrAddress: decodedText })
 
         if (!maybeUrlResult.assetId) return
 

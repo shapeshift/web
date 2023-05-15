@@ -34,16 +34,16 @@ const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
 export const parseMaybeUrlWithChainId = ({
   assetId,
   chainId,
-  urlOrAddress: value,
+  urlOrAddress,
 }: ParseAddressByChainIdInputArgs): ParseAddressByChainIdOutput => {
   switch (chainId) {
     case ethChainId:
       try {
-        const parsedUrl = parseEthUrl(value)
+        const parsedUrl = parseEthUrl(urlOrAddress)
 
         return {
           assetId,
-          maybeAddress: parsedUrl.target_address ?? value,
+          maybeAddress: parsedUrl.target_address ?? urlOrAddress,
           chainId,
           ...(parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
             ? {
@@ -63,7 +63,7 @@ export const parseMaybeUrlWithChainId = ({
     case ltcChainId:
       try {
         const urnScheme = CHAIN_ID_TO_URN_SCHEME[chainId]
-        const parsedUrl = bip21.decode(value, urnScheme)
+        const parsedUrl = bip21.decode(urlOrAddress, urnScheme)
         return {
           assetId,
           maybeAddress: parsedUrl.address,
@@ -76,41 +76,45 @@ export const parseMaybeUrlWithChainId = ({
         moduleLogger.trace(error, 'Cannot parse BIP-21 address')
         return {
           assetId,
-          maybeAddress: value,
+          maybeAddress: urlOrAddress,
           chainId,
         }
       }
     default:
-      return { assetId, chainId, maybeAddress: value }
+      return { assetId, chainId, maybeAddress: urlOrAddress }
   }
 
-  return { assetId, chainId, maybeAddress: value }
+  return { assetId, chainId, maybeAddress: urlOrAddress }
 }
 
-export const parseMaybeUrl = async ({ value }: { value: string }): Promise<ParseMaybeUrlResult> => {
+export const parseMaybeUrl = async ({
+  urlOrAddress,
+}: {
+  urlOrAddress: string
+}): Promise<ParseMaybeUrlResult> => {
   // Iterate over supportedChainIds
   for (const chainId of Object.values(KnownChainIds)) {
     try {
-      const maybeUrl = parseMaybeUrlWithChainId({ chainId, urlOrAddress: value })
-      const isValidUrl = maybeUrl.maybeAddress !== value
+      const maybeUrl = parseMaybeUrlWithChainId({ chainId, urlOrAddress })
+      const isValidUrl = maybeUrl.maybeAddress !== urlOrAddress
 
       const assetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()!
       // Validation succeeded, and we now have a ChainId
       if (isValidUrl) {
         return {
           chainId,
-          value,
+          value: urlOrAddress,
           assetId,
           amountCryptoPrecision: maybeUrl.amountCryptoPrecision,
         }
       }
 
       // Validation was unsuccesful, but this may still be a valid address for this adapter
-      const isValidAddress = await validateAddress({ chainId, maybeAddress: value })
+      const isValidAddress = await validateAddress({ chainId, maybeAddress: urlOrAddress })
       if (isValidAddress) {
         return {
           chainId,
-          value,
+          value: urlOrAddress,
           assetId,
         }
       }
@@ -237,14 +241,11 @@ type ValidateAddressArgs = {
 type ValidateAddressReturn = boolean
 export type ValidateAddressByChainId = (args: ValidateAddressArgs) => Promise<ValidateAddressReturn>
 
-export const validateAddress: ValidateAddressByChainId = async ({
-  chainId,
-  maybeAddress: value,
-}) => {
+export const validateAddress: ValidateAddressByChainId = async ({ chainId, maybeAddress }) => {
   try {
     const adapter = getChainAdapterManager().get(chainId)
     if (!adapter) return false
-    return (await adapter.validateAddress(value)).valid
+    return (await adapter.validateAddress(maybeAddress)).valid
   } catch (e) {
     return false
   }

@@ -96,7 +96,6 @@ export const Address = () => {
                   setIsValidating(true)
                   setValue(SendFormFields.To, '')
                   setValue(SendFormFields.VanityAddress, '')
-                  setValue(SendFormFields.VanityAddress, '')
                   setValue(SendFormFields.CryptoAmount, '')
                   const { assetId } = asset
                   // this does not throw, everything inside is handled

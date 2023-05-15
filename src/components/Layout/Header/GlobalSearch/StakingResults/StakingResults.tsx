@@ -1,13 +1,13 @@
 import { List } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
+import type { OpportunitySearchResult } from 'state/slices/search-selectors'
 
 import { ListItemSection } from '../ListItemSection'
 import type { GlobalSearchResultsProps } from '../types'
 import { StakingResult } from './StakingResult'
 
-export const StakingResults: React.FC<GlobalSearchResultsProps> = ({
+export const StakingResults: React.FC<GlobalSearchResultsProps<OpportunitySearchResult>> = ({
   results,
   activeIndex,
   onClick,
@@ -21,7 +21,7 @@ export const StakingResults: React.FC<GlobalSearchResultsProps> = ({
       const { id } = result
       return (
         <StakingResult
-          stakingId={id as StakingId}
+          stakingId={id}
           index={index + startingIndex}
           key={`staking-${index}`}
           activeIndex={activeIndex}

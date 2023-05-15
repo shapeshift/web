@@ -1,13 +1,14 @@
 import { List } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { TxSearchResult } from 'state/slices/search-selectors'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { ListItemSection } from '../ListItemSection'
 import type { GlobalSearchResultsProps } from '../types'
 import { TxResult } from './TxResult'
 
-export const TxResults: React.FC<GlobalSearchResultsProps> = ({
+export const TxResults: React.FC<GlobalSearchResultsProps<TxSearchResult>> = ({
   results,
   activeIndex,
   onClick,

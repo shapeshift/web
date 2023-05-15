@@ -1,13 +1,13 @@
 import { List } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { SendResult } from 'state/slices/search-selectors'
 
 import { ListItemSection } from '../ListItemSection'
 import type { GlobalSearchResultsProps } from '../types'
 import { ActionResult } from './ActionResult'
 
-export const ActionResults: React.FC<GlobalSearchResultsProps> = ({
+export const ActionResults: React.FC<GlobalSearchResultsProps<SendResult>> = ({
   results,
   activeIndex,
   onClick,
@@ -24,7 +24,7 @@ export const ActionResults: React.FC<GlobalSearchResultsProps> = ({
         index={index + startingIndex}
         activeIndex={activeIndex}
         searchQuery={searchQuery}
-        assetId={item.id as AssetId}
+        assetId={item.id}
         onClick={onClick}
         ref={menuNodes.ref(index)}
       />

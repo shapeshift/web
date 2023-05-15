@@ -23,17 +23,17 @@ export enum GlobalSearchResultType {
   Send = 'Send',
 }
 
-type AssetSearchResult = {
+export type AssetSearchResult = {
   type: GlobalSearchResultType.Asset
   id: AssetId
 }
 
-type TxSearchResult = {
+export type TxSearchResult = {
   type: GlobalSearchResultType.Transaction
   id: TxId
 }
 
-type OpportunitySearchResult = {
+export type OpportunitySearchResult = {
   type: GlobalSearchResultType.LpOpportunity | GlobalSearchResultType.StakingOpportunity
   id: OpportunityId
 }

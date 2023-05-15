@@ -92,7 +92,7 @@ export const zapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'zapperApi',
   endpoints: build => ({
-    getZapperAppsbalancesOutput: build.query<ReadOnlyOpportunityType[], GetZapperAppsbalancesInput>(
+    getZapperAppsBalancesOutput: build.query<ReadOnlyOpportunityType[], GetZapperAppsbalancesInput>(
       {
         queryFn: async ({ accountIds }) => {
           const evmNetworks = [chainIdToZapperNetwork(ethChainId)]

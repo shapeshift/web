@@ -15,7 +15,7 @@ export const zapperReadOnlyOpportunitiesResolver = async ({
   const accountIds = selectWalletAccountIds(state)
 
   const getZapperAppsBalancesOutput = await dispatch(
-    zapperApi.endpoints.getZapperAppsbalancesOutput.initiate({
+    zapperApi.endpoints.getZapperAppsBalancesOutput.initiate({
       accountIds,
     }),
   )

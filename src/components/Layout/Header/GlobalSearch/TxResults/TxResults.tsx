@@ -2,7 +2,6 @@ import { List } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { TxSearchResult } from 'state/slices/search-selectors'
-import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { ListItemSection } from '../ListItemSection'
 import type { GlobalSearchResultsProps } from '../types'
@@ -23,7 +22,7 @@ export const TxResults: React.FC<GlobalSearchResultsProps<TxSearchResult>> = ({
       return (
         <TxResult
           key={`result-tx-${index}`}
-          txId={id as TxId}
+          txId={id}
           activeIndex={activeIndex}
           index={index + startingIndex}
           onClick={onClick}

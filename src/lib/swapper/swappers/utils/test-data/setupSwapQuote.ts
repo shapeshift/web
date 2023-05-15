@@ -17,11 +17,7 @@ export const setupQuote = () => {
     minimumCryptoHuman: '0',
     maximumCryptoHuman: '999999999999',
     feeData: {
-      chainSpecific: {
-        gasPriceCryptoBaseUnit: '5',
-        maxFeePerGas: '6',
-        maxPriorityFeePerGas: '1',
-      },
+      chainSpecific: {},
       sellAssetTradeFeeUsd: '0',
       networkFeeCryptoBaseUnit: '0',
       buyAssetTradeFeeUsd: '0',

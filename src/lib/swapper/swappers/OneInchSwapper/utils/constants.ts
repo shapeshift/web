@@ -1,7 +1,6 @@
 import type { SwapSource } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 
-export const APPROVAL_GAS_LIMIT = '100000'
 export const MAX_ONEINCH_TRADE = '100000000000000000000000000'
 export const MIN_ONEINCH_VALUE_USD = 1
 export const DEFAULT_SLIPPAGE = '0.002' // .2%

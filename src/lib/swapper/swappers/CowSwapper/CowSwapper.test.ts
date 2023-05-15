@@ -7,8 +7,6 @@ import { BTC, ETH, FOX, WBTC, WETH } from 'lib/swapper/swappers/utils/test-data/
 import type { TradeResult } from '../../api'
 import { SwapperName, SwapperType } from '../../api'
 import { setupBuildTrade, setupQuote } from '../utils/test-data/setupSwapQuote'
-import { cowApprovalNeeded } from './cowApprovalNeeded/cowApprovalNeeded'
-import { cowApproveAmount, cowApproveInfinite } from './cowApprove/cowApprove'
 import { cowBuildTrade } from './cowBuildTrade/cowBuildTrade'
 import { cowExecuteTrade } from './cowExecuteTrade/cowExecuteTrade'
 import { cowGetTradeTxs } from './cowGetTradeTxs/cowGetTradeTxs'
@@ -173,36 +171,6 @@ describe('CowSwapper', () => {
       await swapper.buildTrade(args)
       expect(cowBuildTrade).toHaveBeenCalledTimes(1)
       expect(cowBuildTrade).toHaveBeenCalledWith(COW_SWAPPER_DEPS, args)
-    })
-  })
-
-  describe('cowApprovalNeeded', () => {
-    it('calls cowApprovalNeeded on swapper.approvalNeeded', async () => {
-      const { tradeQuote } = setupQuote()
-      const args = { quote: tradeQuote, wallet }
-      await swapper.approvalNeeded(args)
-      expect(cowApprovalNeeded).toHaveBeenCalledTimes(1)
-      expect(cowApprovalNeeded).toHaveBeenCalledWith(COW_SWAPPER_DEPS, args)
-    })
-  })
-
-  describe('cowApproveInfinite', () => {
-    it('calls cowApproveInfinite on swapper.approveInfinite', async () => {
-      const { tradeQuote } = setupQuote()
-      const args = { quote: tradeQuote, wallet }
-      await swapper.approveInfinite(args)
-      expect(cowApproveInfinite).toHaveBeenCalledTimes(1)
-      expect(cowApproveInfinite).toHaveBeenCalledWith(COW_SWAPPER_DEPS, args)
-    })
-  })
-
-  describe('cowApproveAmount', () => {
-    it('calls cowApproveAmount on swapper.approveAmount', async () => {
-      const { tradeQuote } = setupQuote()
-      const args = { quote: tradeQuote, wallet, amount: '500' }
-      await swapper.approveAmount(args)
-      expect(cowApproveAmount).toHaveBeenCalledTimes(1)
-      expect(cowApproveAmount).toHaveBeenCalledWith(COW_SWAPPER_DEPS, args)
     })
   })
 

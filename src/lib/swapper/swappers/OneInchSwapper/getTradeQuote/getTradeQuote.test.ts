@@ -103,6 +103,5 @@ describe('getTradeQuote', () => {
     expect(quote.maximumCryptoHuman).toBe(MAX_ONEINCH_TRADE)
     expect(quote.minimumCryptoHuman).toBe('50')
     expect(quote.sources).toEqual(DEFAULT_SOURCE)
-    expect(quote.feeData.chainSpecific.gasPriceCryptoBaseUnit).toBe(fastGasPrice)
   })
 })

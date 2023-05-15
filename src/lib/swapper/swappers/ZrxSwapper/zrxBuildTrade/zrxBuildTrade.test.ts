@@ -94,12 +94,7 @@ describe('zrxBuildTrade', () => {
     txData: quoteResponse.data,
     rate: quoteResponse.price,
     feeData: {
-      chainSpecific: {
-        estimatedGasCryptoBaseUnit: '1235',
-        gasPriceCryptoBaseUnit: '79036500000',
-        maxFeePerGas: '216214758112',
-        maxPriorityFeePerGas: '2982734547',
-      },
+      chainSpecific: {},
       networkFeeCryptoBaseUnit: '4080654495000000',
       sellAssetTradeFeeUsd: '0',
       buyAssetTradeFeeUsd: '0',
@@ -164,12 +159,7 @@ describe('zrxBuildTrade', () => {
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({ data })))
 
     const expectedFeeData: QuoteFeeData<ZrxSupportedChainId> = {
-      chainSpecific: {
-        gasPriceCryptoBaseUnit: '79036500000',
-        estimatedGasCryptoBaseUnit: '100',
-        maxFeePerGas: '216214758112',
-        maxPriorityFeePerGas: '2982734547',
-      },
+      chainSpecific: {},
       buyAssetTradeFeeUsd: '0',
       sellAssetTradeFeeUsd: '0',
       networkFeeCryptoBaseUnit: '4080654495000000',

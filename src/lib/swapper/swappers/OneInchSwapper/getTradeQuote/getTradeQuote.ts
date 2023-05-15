@@ -4,14 +4,14 @@ import type { GasFeeDataEstimate } from '@shapeshiftoss/chain-adapters/src/evm/t
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
 
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
 import { getMinMax } from '../getMinMax/getMinMax'
-import { APPROVAL_GAS_LIMIT, DEFAULT_SOURCE } from '../utils/constants'
+import { DEFAULT_SOURCE } from '../utils/constants'
 import { getRate } from '../utils/helpers'
 import { oneInchService } from '../utils/oneInchService'
 import type { OneInchQuoteApiInput, OneInchQuoteResponse, OneInchSwapperDeps } from '../utils/types'
@@ -85,10 +85,6 @@ export async function getTradeQuote(
   const gasPriceCryptoBaseUnit = gasFeeData.fast.gasPrice
   const fee = estimatedGas.multipliedBy(gasPriceCryptoBaseUnit).toString()
 
-  const approvalFeeCryptoBaseUnit = bn(APPROVAL_GAS_LIMIT)
-    .multipliedBy(bnOrZero(gasPriceCryptoBaseUnit))
-    .toFixed()
-
   return maybeMinMax.andThen(minMax =>
     Ok({
       rate,
@@ -104,11 +100,7 @@ export async function getTradeQuote(
         buyAssetTradeFeeUsd: '0',
         sellAssetTradeFeeUsd: '0',
         networkFeeCryptoBaseUnit: fee,
-        chainSpecific: {
-          estimatedGasCryptoBaseUnit: estimatedGas.toString(),
-          gasPriceCryptoBaseUnit,
-          approvalFeeCryptoBaseUnit,
-        },
+        chainSpecific: {},
       },
       sources: DEFAULT_SOURCE,
     }),

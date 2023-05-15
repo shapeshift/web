@@ -1,11 +1,25 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import type { evm } from '@shapeshiftoss/chain-adapters'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useDonationAmountBelowMinimum } from 'components/Trade/hooks/useDonationAmountBelowMinimum'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapperManager } from 'lib/swapper/manager/SwapperManager'
+import { erc20AllowanceAbi } from 'lib/swapper/swappers/utils/abi/erc20Allowance-abi'
+import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
+import {
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+  getApproveContractData,
+  getERC20Allowance,
+} from 'lib/swapper/swappers/utils/helpers/helpers'
+import { isEvmChainAdapter } from 'lib/utils'
+import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
   selectAssetIds,
@@ -19,7 +33,6 @@ import {
   selectBuyAsset,
   selectBuyAssetAccountId,
   selectGetTradeForWallet,
-  selectIsExactAllowance,
   selectQuote,
   selectSellAsset,
   selectSellAssetAccountId,
@@ -33,10 +46,8 @@ It does not mutate state.
 */
 export const useSwapper = () => {
   const activeQuote = useSwapperStore(selectQuote)
-  const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
   const sellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
   const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
-  const isExactAllowance = useSwapperStore(selectIsExactAllowance)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const getTradeForWallet = useSwapperStore(selectGetTradeForWallet)
@@ -107,19 +118,23 @@ export const useSwapper = () => {
     selectBIP44ParamsByAccountId(state, buyAccountFilter),
   )
 
-  const approve = useCallback(async (): Promise<string> => {
-    if (!activeSwapper) throw new Error('No swapper available')
-    if (!wallet) throw new Error('no wallet available')
-    if (!activeQuote) throw new Error('no quote available')
-    const txid = isExactAllowance
-      ? await activeSwapper.approveAmount({
-          amount: activeQuote.sellAmountBeforeFeesCryptoBaseUnit,
-          quote: activeQuote,
-          wallet,
-        })
-      : await activeSwapper.approveInfinite({ quote: activeQuote, wallet })
-    return txid
-  }, [activeSwapper, isExactAllowance, activeQuote, wallet])
+  const approve = useCallback(
+    (buildCustomTxArgs: evm.BuildCustomTxInput): Promise<string> => {
+      const adapterManager = getChainAdapterManager()
+      const adapter = adapterManager.get(sellAsset.chainId)
+
+      if (!wallet) throw new Error('no wallet available')
+      if (!adapter || !isEvmChainAdapter(adapter))
+        throw Error(`no valid EVM chain adapter found for chain Id: ${sellAsset.chainId}`)
+
+      return buildAndBroadcast({
+        buildCustomTxArgs,
+        adapter,
+        wallet,
+      })
+    },
+    [sellAsset.chainId, wallet],
+  )
 
   const getTrade = useCallback(
     async ({ affiliateBps }: { affiliateBps?: string } = {}) => {
@@ -151,6 +166,78 @@ export const useSwapper = () => {
     ],
   )
 
+  const checkApprovalNeeded = useCallback(async () => {
+    const adapterManager = getChainAdapterManager()
+    const adapter = adapterManager.get(sellAsset.chainId)
+
+    if (!adapter) throw Error(`no chain adapter found for chain Id: ${sellAsset.chainId}`)
+    if (!wallet) throw new Error('no wallet available')
+    if (!sellAssetAccountId) throw new Error('no sellAssetAccountId available')
+    if (!activeQuote) throw new Error('no activeQuote available')
+
+    // No approval needed for selling a fee asset
+    if (sellAsset.assetId === adapter.getFeeAssetId()) {
+      return false
+    }
+
+    const ownerAddress = await adapter.getAddress({
+      wallet,
+      accountNumber: Number(sellAssetAccountId),
+    })
+
+    const { assetReference: sellAssetErc20Address } = fromAssetId(sellAsset.assetId)
+    const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
+
+    const allowanceResult = await getERC20Allowance({
+      web3,
+      erc20AllowanceAbi,
+      sellAssetErc20Address,
+      spenderAddress: activeQuote.allowanceContract,
+      ownerAddress,
+    })
+    const allowanceOnChain = bnOrZero(allowanceResult)
+
+    return allowanceOnChain.lt(bnOrZero(activeQuote.sellAmountBeforeFeesCryptoBaseUnit))
+  }, [activeQuote, sellAsset.assetId, sellAsset.chainId, sellAssetAccountId, wallet])
+
+  const createBuildApprovalTxInput = useCallback(
+    (isExactAllowance: boolean): Promise<evm.BuildCustomTxInput> => {
+      const adapterManager = getChainAdapterManager()
+      const adapter = adapterManager.get(sellAsset.chainId)
+
+      if (!activeQuote) throw new Error('no activeQuote available')
+      if (!sellAssetAccountId) throw new Error('no sellAssetAccountId available')
+      if (!wallet) throw new Error('no wallet available')
+      if (!adapter || !isEvmChainAdapter(adapter))
+        throw Error(`no valid EVM chain adapter found for chain Id: ${sellAsset.chainId}`)
+
+      const approvalAmountCryptoBaseUnit = isExactAllowance
+        ? activeQuote.sellAmountBeforeFeesCryptoBaseUnit
+        : MAX_ALLOWANCE
+
+      const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
+
+      const { assetReference: erc20ContractAddress } = fromAssetId(sellAsset.assetId)
+
+      const erc20ContractData = getApproveContractData({
+        approvalAmountCryptoBaseUnit,
+        spenderAddress: activeQuote.allowanceContract,
+        erc20ContractAddress,
+        web3,
+      })
+
+      return createBuildCustomTxInput({
+        accountNumber: activeQuote.accountNumber,
+        adapter,
+        erc20ContractAddress,
+        erc20ContractData,
+        sendAmountCryptoBaseUnit: '0',
+        wallet,
+      })
+    },
+    [activeQuote, sellAsset.assetId, sellAsset.chainId, sellAssetAccountId, wallet],
+  )
+
   useEffect(() => {
     if (!flags) return
 
@@ -162,5 +249,7 @@ export const useSwapper = () => {
     supportedBuyAssetsByMarketCap,
     getTrade,
     approve,
+    createBuildApprovalTxInput,
+    checkApprovalNeeded,
   }
 }

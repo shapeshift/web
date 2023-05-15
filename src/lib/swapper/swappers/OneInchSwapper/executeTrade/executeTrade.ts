@@ -5,6 +5,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { numberToHex } from 'web3-utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { bn } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 
@@ -57,13 +58,18 @@ export async function executeTrade(
       })
     }
 
+    const { average } = await adapter.getGasFeeData()
+
+    // TODO: networkFeeCryptoBaseUnit should be a gas limit as well so this isnt necessary
+    const gasLimit = bn(input.trade.feeData.networkFeeCryptoBaseUnit).div(average.gasPrice)
+
     const buildTxResponse = await adapter.buildSendTransaction({
       value: '0', // ERC20, so don't send any ETH with the tx
       wallet: input.wallet,
       to: input.trade.tx.to,
       chainSpecific: {
-        gasPrice: numberToHex(input.trade.feeData?.chainSpecific?.gasPriceCryptoBaseUnit || 0),
-        gasLimit: numberToHex(input.trade.feeData?.chainSpecific?.estimatedGasCryptoBaseUnit || 0),
+        gasPrice: numberToHex(average.gasPrice),
+        gasLimit: numberToHex(gasLimit.toString()),
       },
       accountNumber: input.trade.accountNumber,
     })

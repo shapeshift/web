@@ -1,10 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
-import type {
-  CosmosSdkBaseAdapter,
-  EvmBaseAdapter,
-  UtxoBaseAdapter,
-} from '@shapeshiftoss/chain-adapters'
+import type { CosmosSdkBaseAdapter, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type {
@@ -20,6 +16,7 @@ import { makeTradeTx } from 'lib/swapper/swappers/ThorchainSwapper/evm/makeTrade
 import { getThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type {
   ThorCosmosSdkSupportedChainId,
+  ThorEvmSupportedChainAdapter,
   ThorEvmSupportedChainId,
   ThorUtxoSupportedChainId,
 } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
@@ -73,7 +70,7 @@ export const buildTrade = async ({
       accountNumber,
       sellAsset,
       buyAsset,
-      adapter: sellAdapter as unknown as EvmBaseAdapter<ThorEvmSupportedChainId>,
+      adapter: sellAdapter as unknown as ThorEvmSupportedChainAdapter,
       sellAmountCryptoBaseUnit,
       destinationAddress,
       feeData: quote.feeData as QuoteFeeData<ThorEvmSupportedChainId>,

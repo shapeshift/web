@@ -169,7 +169,7 @@ export const gnosis: Asset = {
   symbol: 'xDAI',
   precision: 18,
   color: '#33765c',
-  icon: 'https://assets.coingecko.com/coins/images/662/large/logo_square_simple_300px.png?1609402668',
+  icon: 'https://assets.coingecko.com/coins/images/11062/large/Identity-Primary-DarkBG.png?1638372986',
   explorer: 'https://gnosisscan.io/',
   explorerAddressLink: 'https://gnosisscan.io/address/',
   explorerTxLink: 'https://gnosisscan.io/tx/',

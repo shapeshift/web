@@ -72,7 +72,7 @@ const makePolygonMockCoingeckoResponse = () => ({
 
 const makeGnosisMockCoingeckoResponse = () => ({
   id: 'gnosis',
-  symbol: 'gno',
+  symbol: 'xDai',
   name: 'Gnosis',
   platforms: {},
 })
@@ -125,7 +125,7 @@ describe('adapters:coingecko:utils', () => {
         makeThorchainMockCoingeckoResponse(),
         makeAvalancheMockCoingeckoResponse(),
         makePolygonMockCoingeckoResponse(),
-        makeGnosisnMockCoingeckoResponse(),
+        makeGnosisMockCoingeckoResponse(),
       ])
       const expected = {
         'bip122:000000000019d6689c085ae165831e93': {

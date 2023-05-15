@@ -670,6 +670,7 @@
       "minerFee": "Dies ist die Gebühr für die Verarbeitung der Transaktion auf der Blockchain, dies ist keine Gebühr, die von ShapeShift erhoben wird.",
       "donation": "Unterstützen Sie ShapeShift und halten Sie uns am Laufen.",
       "protocol": "Dies ist das Protokoll, über das Ihr Handel geleitet wird.",
+      "protocolLifi": "Dies ist das Protokoll, über das Ihr Handel geleitet wird. LI.FI führt eine Reihe von Zwischengeschäften durch, um die beste Gesamtkombination aus Preis, Sicherheit und Geschwindigkeit zu erzielen.",
       "protocolFee": "Dies ist die Gebühr, die von dem für die Verarbeitung dieser Transaktion ausgewählten Protokoll erhoben wird, dies ist keine Gebühr, die von ShapeShift erhoben wird",
       "shapeshiftFee": "ShapeShift erhebt keine Gebühren fürs Handeln 🎉"
     },
@@ -730,7 +731,13 @@
       "tradeFailed": "Handel fehlgeschlagen. Zurückgegebene Vermögenswerte abzüglich Gasgebühr"
     },
     "swappingComingSoonForWallet": "Der Tausch gegen %{walletName} ist in Kürze verfügbar",
-    "recentTrades": "Letzte Handelsaktionen"
+    "recentTrades": "Letzte Handelsaktionen",
+    "lifiWarning": "Dieser Handel wird über LI.FI geleitet, das eine Reihe von Zwischengeschäften ausführt, um einen Swap durchzuführen. Wenn ein Schritt fehlschlägt, erhalten Sie das Token für den letzten erfolgreichen Schritt in der Sequenz.",
+    "intermediaryTransactionOutputs": {
+      "prefix": "oder",
+      "suffix": "auf %{chainName}"
+    },
+    "unknownGas": "(unbekannt)"
   },
   "modals": {
     "popup": {
@@ -858,6 +865,7 @@
       "tokenAddress": "An Adresse",
       "addressInput": "an Addresse, ENS oder Yat",
       "scanQrCode": "QR-Code scannen",
+      "qrCode": "QR Code",
       "permissionsButton": "Versuchen Sie es nochmal",
       "sent": "%{asset} gesendet",
       "errorTitle": "Ihr Versand von %{asset} ist fehlgeschlagen",

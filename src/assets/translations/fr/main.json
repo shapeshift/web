@@ -618,7 +618,7 @@
     "bridgeAnother": "Déplacer un autre actif",
     "feeExceedsSend": "Les frais dépassent le montant à envoyer",
     "receiveAddress": "Adresse de réception",
-    "route": "Itinéraire",
+    "route": "Route",
     "waitTimeLabel": "Temps d'attent approx.",
     "waitTimeValue": "~5-10 minutes",
     "noSupportedAssets": "Aucun actif pris en charge dans le portefeuille."
@@ -669,7 +669,8 @@
       "noRateAvailable": "Cela est souvent dû à une liquidité très limitée ou inexistante sur la paire d'échange.",
       "minerFee": "Il s'agit des frais de traitement de la transaction sur la blockchain, ce ne sont pas des frais facturés par ShapeShift.",
       "donation": "Aidez à soutenir ShapeShift et maintenez-nous opérationnels.",
-      "protocol": "C'est le protocole avec lequel votre échange est acheminé.",
+      "protocol": "C'est le protocole avec lequel votre échange est routé.",
+      "protocolLifi": "C'est le protocole par lequel votre échange est routé. LI.FI exécute une série de transactions intermédiaires pour trouver la meilleure combinaison globale de prix, de sécurité et de rapidité.",
       "protocolFee": "Il s'agit des frais facturés par le protocole sélectionné pour traiter cette transaction, il ne s'agit pas de frais facturés par ShapeShift",
       "shapeshiftFee": "ShapeShift n'ajoute aucun frais sur les échanges 🎉"
     },
@@ -730,7 +731,13 @@
       "tradeFailed": "L'échange a échoué. Actifs restitués, moins les frais de carburant"
     },
     "swappingComingSoonForWallet": "Échanger avec %{walletName} sera bientôt possible",
-    "recentTrades": "Échanges récents"
+    "recentTrades": "Échanges récents",
+    "lifiWarning": "Cet échange est routé via LI.FI, qui exécute une série de transactions intermédiaires pour effectuer un échange. Si une étape échoue, vous recevrez le jeton de la dernière étape réussie de cette séquence.",
+    "intermediaryTransactionOutputs": {
+      "prefix": "ou",
+      "suffix": "sur %{chainName}"
+    },
+    "unknownGas": "(inconnu)"
   },
   "modals": {
     "popup": {
@@ -858,6 +865,7 @@
       "tokenAddress": "Adresse de destination",
       "addressInput": "Adresse de destination, ENS ou Yat",
       "scanQrCode": "Scanner code QR",
+      "qrCode": "QR Code",
       "permissionsButton": "Réessayer",
       "sent": "%{asset} envoyé",
       "errorTitle": "Votre envoi en %{asset} a échoué",
@@ -1537,7 +1545,7 @@
     "youReceived": "Vous avez reçu",
     "sentTo": "Envoyé à",
     "receivedFrom": "Reçu de",
-    "orderRoute": "Itinéraire de commande",
+    "orderRoute": "Route de commande",
     "status": "Statut",
     "transactionType": "Type de transaction",
     "minerFee": "Frais de minage",

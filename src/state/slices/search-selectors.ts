@@ -20,26 +20,38 @@ export enum GlobalSearchResultType {
   LpOpportunity = 'LpOpportunity',
   StakingOpportunity = 'StakingOpportunity',
   Transaction = 'Transaction',
+  Send = 'Send',
 }
 
-type AssetSearchResult = {
+export type AssetSearchResult = {
   type: GlobalSearchResultType.Asset
   id: AssetId
 }
 
-type TxSearchResult = {
+export type TxSearchResult = {
   type: GlobalSearchResultType.Transaction
   id: TxId
 }
 
-type OpportunitySearchResult = {
+export type OpportunitySearchResult = {
   type: GlobalSearchResultType.LpOpportunity | GlobalSearchResultType.StakingOpportunity
   id: OpportunityId
 }
 
-export type GlobalSearchResult = AssetSearchResult | TxSearchResult | OpportunitySearchResult
+export type SendResult = {
+  type: GlobalSearchResultType.Send
+  id: AssetId
+  address: string
+  vanityAddress: string
+}
 
-type SelectGlobalItemsFromFilterReturn = [
+export type GlobalSearchResult =
+  | AssetSearchResult
+  | TxSearchResult
+  | OpportunitySearchResult
+  | SendResult
+
+export type SelectGlobalItemsFromFilterReturn = [
   AssetSearchResult[],
   OpportunitySearchResult[],
   OpportunitySearchResult[],

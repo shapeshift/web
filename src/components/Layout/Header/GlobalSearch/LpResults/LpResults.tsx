@@ -1,7 +1,7 @@
 import { List } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
+import type { OpportunitySearchResult } from 'state/slices/search-selectors'
 import { GlobalSearchResultType } from 'state/slices/search-selectors'
 import { selectAggregatedEarnUserLpOpportunities } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -10,7 +10,7 @@ import { ListItemSection } from '../ListItemSection'
 import type { GlobalSearchResultsProps } from '../types'
 import { LpResult } from './LpResult'
 
-export const LpResults: React.FC<GlobalSearchResultsProps> = ({
+export const LpResults: React.FC<GlobalSearchResultsProps<OpportunitySearchResult>> = ({
   results,
   activeIndex,
   onClick,
@@ -21,7 +21,7 @@ export const LpResults: React.FC<GlobalSearchResultsProps> = ({
   const translate = useTranslate()
   const ids = results.map(result => result.id)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
-  const filteredDown = lpOpportunities.filter(e => ids.includes(e.id as OpportunityId))
+  const filteredDown = lpOpportunities.filter(e => ids.includes(e.id))
 
   const renderRows = useMemo(() => {
     return filteredDown.map((result, index) => {

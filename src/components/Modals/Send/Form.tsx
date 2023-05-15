@@ -38,9 +38,10 @@ export type SendInput<T extends ChainId = ChainId> = {
 type SendFormProps = {
   initialAssetId?: AssetId
   accountId?: AccountId
+  input?: string
 }
 
-export const Form: React.FC<SendFormProps> = ({ initialAssetId, accountId }) => {
+export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', accountId }) => {
   const location = useLocation()
   const history = useHistory()
   const { handleFormSend } = useFormSend()
@@ -51,6 +52,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, accountId }) => 
     defaultValues: {
       accountId,
       to: '',
+      input,
       vanityAddress: '',
       assetId: initialAssetId,
       feeType: FeeDataKey.Average,
@@ -63,7 +65,6 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, accountId }) => 
   const handleAssetSelect = useCallback(
     (assetId: AssetId) => {
       methods.setValue(SendFormFields.AssetId, assetId)
-      methods.setValue(SendFormFields.Input, '')
       methods.setValue(SendFormFields.AccountId, '')
       methods.setValue(SendFormFields.CryptoAmount, '')
       methods.setValue(SendFormFields.FiatAmount, '')
@@ -86,7 +87,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, accountId }) => 
     async (decodedText: string) => {
       methods.setValue(SendFormFields.Input, decodedText.trim())
 
-      const maybeUrlResult = await parseMaybeUrl({ value: decodedText })
+      const maybeUrlResult = await parseMaybeUrl({ urlOrAddress: decodedText })
       if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision) {
         const marketData = selectMarketDataById(store.getState(), maybeUrlResult.assetId ?? '')
         methods.setValue(SendFormFields.CryptoAmount, maybeUrlResult.amountCryptoPrecision)

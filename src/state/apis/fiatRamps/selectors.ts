@@ -1,4 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { uniq } from 'lodash'
 import { createSelector } from 'reselect'
@@ -16,6 +17,14 @@ import { fiatRampApi } from './fiatRamps'
 export const selectFiatBuyAssetIds = createDeepEqualOutputSelector(
   fiatRampApi.endpoints.getFiatRamps.select(),
   (fiatRampData): AssetId[] => fiatRampData?.data?.buyAssetIds ?? [],
+)
+
+export const selectFiatRampChainCount = createSelector(
+  fiatRampApi.endpoints.getFiatRamps.select(),
+  (fiatRampData): number =>
+    new Set(
+      Object.keys(fiatRampData.data?.byAssetId ?? {}).map(assetId => fromAssetId(assetId).chainId),
+    ).size,
 )
 
 export const selectFiatSellAssetIds = createDeepEqualOutputSelector(

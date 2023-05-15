@@ -20,9 +20,10 @@ import type { UserUndelegation } from 'state/slices/opportunitiesSlice/resolvers
 type WithdrawCardProps = {
   asset: Asset
   undelegation: UserUndelegation | undefined
+  canClaimWithdraw: boolean
 }
 
-export const WithdrawCard = ({ asset, undelegation }: WithdrawCardProps) => {
+export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: WithdrawCardProps) => {
   const { history, location, query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const {
     state: { isConnected },
@@ -30,7 +31,8 @@ export const WithdrawCard = ({ asset, undelegation }: WithdrawCardProps) => {
   } = useWallet()
   const hasClaim = bnOrZero(undelegation?.undelegationAmountCryptoBaseUnit).gt(0)
   const textColor = useColorModeValue('black', 'white')
-  const isAvailable = undelegation && dayjs().isAfter(dayjs.unix(undelegation.completionTime))
+  const isUndelegationAvailable =
+    canClaimWithdraw && undelegation && dayjs().isAfter(dayjs.unix(undelegation.completionTime))
   const successColor = useColorModeValue('green.500', 'green.200')
   const pendingColor = useColorModeValue('yellow.500', 'yellow.200')
 
@@ -63,7 +65,7 @@ export const WithdrawCard = ({ asset, undelegation }: WithdrawCardProps) => {
           alignItems={{ base: 'flex-start', md: 'center' }}
           justifyContent='flex-start'
           textAlign='left'
-          isDisabled={!isAvailable}
+          isDisabled={!isUndelegationAvailable}
           gap={4}
           flexDir={{ base: 'column', md: 'row' }}
           py={2}
@@ -81,10 +83,10 @@ export const WithdrawCard = ({ asset, undelegation }: WithdrawCardProps) => {
             >
               <Text color={textColor} translation='common.withdrawal' />
               <Text
-                color={isAvailable ? successColor : pendingColor}
+                color={isUndelegationAvailable ? successColor : pendingColor}
                 fontWeight='normal'
                 lineHeight='shorter'
-                translation={isAvailable ? 'common.available' : 'common.pending'}
+                translation={isUndelegationAvailable ? 'common.available' : 'common.pending'}
               />
             </Stack>
           </Stack>
@@ -104,7 +106,7 @@ export const WithdrawCard = ({ asset, undelegation }: WithdrawCardProps) => {
               symbol={asset.symbol}
               maximumFractionDigits={4}
             />
-            {isAvailable ? (
+            {isUndelegationAvailable ? (
               <Stack direction='row' alignItems='center' color='blue.500'>
                 <Text translation='defi.modals.claim.claimNow' />
                 <FaArrowRight />

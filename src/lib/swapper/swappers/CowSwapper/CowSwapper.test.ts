@@ -30,15 +30,6 @@ jest.mock('state/slices/selectors', () => {
   }
 })
 
-jest.mock('./cowApprovalNeeded/cowApprovalNeeded', () => ({
-  cowApprovalNeeded: jest.fn(),
-}))
-
-jest.mock('./cowApprove/cowApprove', () => ({
-  cowApproveInfinite: jest.fn(),
-  cowApproveAmount: jest.fn(),
-}))
-
 const COW_SWAPPER_DEPS: CowSwapperDeps = {
   apiUrl: 'https://api.cow.fi/mainnet/api/',
   adapter: {} as ethereum.ChainAdapter,
@@ -187,10 +178,6 @@ describe('CowSwapper', () => {
         feeAmountInSellTokenCryptoBaseUnit: '14557942658757988',
         rate: '14716.04718939437505555958',
         feeData: {
-          chainSpecific: {
-            estimatedGasCryptoBaseUnit: '100000',
-            gasPriceCryptoBaseUnit: '79036500000',
-          },
           buyAssetTradeFeeUsd: '0',
           sellAssetTradeFeeUsd: '0',
           networkFeeCryptoBaseUnit: '14557942658757988',

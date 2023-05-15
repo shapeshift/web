@@ -75,13 +75,22 @@ export const getFeesFromContractData = async ({
 
   const ownerAddress = await adapter.getAddress({ accountNumber, wallet })
 
-  const { average } = await adapter.getFeeData({
-    to: erc20ContractAddress,
-    value: '0',
-    chainSpecific: { from: ownerAddress, contractData: erc20ContractData },
-  })
+  const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } = await (async () => {
+    const getFeeDataInput = {
+      to: erc20ContractAddress,
+      value: '0',
+      chainSpecific: { from: ownerAddress, contractData: erc20ContractData },
+    }
 
-  const { gasLimit, maxFeePerGas, maxPriorityFeePerGas } = average.chainSpecific
+    // account for l1 transaction fees for optimism
+    if (optimism.isOptimismChainAdapter(adapter)) {
+      const { average, l1GasPrice } = await adapter.getFeeData(getFeeDataInput)
+      return Object.assign(average.chainSpecific, { gasPrice: l1GasPrice })
+    }
+
+    const feeDataEstimate = await adapter.getFeeData(getFeeDataInput)
+    return feeDataEstimate.average.chainSpecific
+  })()
 
   if (!gasLimit) {
     throw new SwapError('[getFeesFromContractData]', {
@@ -89,11 +98,6 @@ export const getFeesFromContractData = async ({
       code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
     })
   }
-
-  // account for l1 transaction fees for optimism
-  const gasPrice = optimism.isOptimismChainAdapter(adapter)
-    ? (await adapter.getGasFeeData()).l1GasPrice
-    : average.chainSpecific.gasPrice
 
   const eip1559Support = await wallet.ethSupportsEIP1559()
 
@@ -236,7 +240,6 @@ export const createEmptyEvmTradeQuote = (
     feeData: {
       networkFeeCryptoBaseUnit: undefined,
       buyAssetTradeFeeUsd: '0',
-      chainSpecific: {},
     },
     rate: '0',
     sources: [],

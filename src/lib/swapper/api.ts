@@ -34,8 +34,6 @@ export const makeSwapErrorRight = ({
   code,
 })
 
-export type EvmFeeData = {}
-
 export type UtxoFeeData = {
   byteCount: string
   satsPerByte: string
@@ -48,11 +46,6 @@ export type CosmosSdkFeeData = {
 type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
   T,
   {
-    [KnownChainIds.EthereumMainnet]: EvmFeeData
-    [KnownChainIds.AvalancheMainnet]: EvmFeeData
-    [KnownChainIds.OptimismMainnet]: EvmFeeData
-    [KnownChainIds.BnbSmartChainMainnet]: EvmFeeData
-    [KnownChainIds.PolygonMainnet]: EvmFeeData
     [KnownChainIds.BitcoinMainnet]: UtxoFeeData
     [KnownChainIds.DogecoinMainnet]: UtxoFeeData
     [KnownChainIds.LitecoinMainnet]: UtxoFeeData

@@ -45,7 +45,6 @@ const getEvmFees = <T extends EvmChainId>(
     .toFixed()
 
   return {
-    chainSpecific: {},
     tradeFeeSource,
     buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd,
     sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd,

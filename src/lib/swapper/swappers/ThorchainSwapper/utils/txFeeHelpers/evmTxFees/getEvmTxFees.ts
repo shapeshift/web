@@ -26,7 +26,6 @@ export const getEvmTxFees = async ({
 
     return {
       networkFeeCryptoBaseUnit: txFee.toFixed(0),
-      chainSpecific: {},
       buyAssetTradeFeeUsd,
       sellAssetTradeFeeUsd,
     }

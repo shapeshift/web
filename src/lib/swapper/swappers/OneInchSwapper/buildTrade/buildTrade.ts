@@ -102,7 +102,6 @@ export const buildTrade = async (
         buyAssetTradeFeeUsd: '0',
         sellAssetTradeFeeUsd: '0',
         networkFeeCryptoBaseUnit: fee.toString(),
-        chainSpecific: {},
       },
       sellAsset,
       sellAmountBeforeFeesCryptoBaseUnit,

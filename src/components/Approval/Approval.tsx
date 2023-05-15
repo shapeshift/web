@@ -79,10 +79,6 @@ export const Approval = () => {
     selectFeeAssetById(state, activeQuote?.sellAsset?.assetId ?? ethAssetId),
   )
 
-  if (fees && !fees.chainSpecific) {
-    moduleLogger.debug({ fees }, 'chainSpecific undefined for fees')
-  }
-
   const approveContract = useCallback(async () => {
     if (!activeQuote) {
       moduleLogger.error('No quote available')

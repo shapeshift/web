@@ -17,7 +17,6 @@ export const setupQuote = () => {
     minimumCryptoHuman: '0',
     maximumCryptoHuman: '999999999999',
     feeData: {
-      chainSpecific: {},
       sellAssetTradeFeeUsd: '0',
       networkFeeCryptoBaseUnit: '0',
       buyAssetTradeFeeUsd: '0',

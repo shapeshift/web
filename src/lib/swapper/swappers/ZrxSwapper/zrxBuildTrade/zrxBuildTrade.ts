@@ -95,7 +95,6 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
     rate: quote.price,
     depositAddress: quote.to,
     feeData: {
-      chainSpecific: {},
       networkFeeCryptoBaseUnit: average.txFee,
       buyAssetTradeFeeUsd: '0',
       sellAssetTradeFeeUsd: '0',

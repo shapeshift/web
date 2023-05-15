@@ -73,9 +73,7 @@ export const transformLifiFeeData = ({
   })
 
   return {
-    networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit.toString(), // UI shows this next to the gas icon
-    chainSpecific: {},
-    // UI shows the sum of these as "protocol fee"
+    networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit.toString(),
     buyAssetTradeFeeUsd: buyAssetTradeFeeUsd.toString(),
     sellAssetTradeFeeUsd: sellAssetTradeFeeUsd.toString(),
   }

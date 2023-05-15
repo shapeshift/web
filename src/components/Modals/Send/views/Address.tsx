@@ -122,8 +122,10 @@ export const Address = () => {
                 },
               },
             }}
-            isYatSupported={isYatSupported}
             enableQr={true}
+            placeholder={translate(
+              isYatSupported ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
+            )}
           />
         </FormControl>
         {isYatFeatureEnabled && isYatSupportedChain && <YatBanner mt={6} />}

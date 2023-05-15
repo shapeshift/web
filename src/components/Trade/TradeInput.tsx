@@ -113,7 +113,7 @@ export const TradeInput = () => {
   const isYatFeatureEnabled = useFeatureFlag('Yat')
 
   const {
-    formState: { errors: formErrors },
+    formState: { errors: formErrors, isValid: isFormValid },
     trigger: formTrigger,
     setValue: setFormValue,
   } = useFormContext()
@@ -181,6 +181,11 @@ export const TradeInput = () => {
     setFormValue(SendFormFields.Input, '')
   }, [buyAsset.assetId, setFormValue])
 
+  // For safety, ensure we never have a receive address in the store if the form is invalid
+  useEffect(() => {
+    !isFormValid && updateReceiveAddress(undefined)
+  }, [isFormValid, updateReceiveAddress])
+
   // Selectors
   const assets = useAppSelector(selectAssets)
   const sellFeeAsset = useAppSelector(state =>
@@ -239,6 +244,9 @@ export const TradeInput = () => {
   // Constants
   const shouldShowManualReceiveAddressInput = !walletSupportsBuyAssetChain
   const walletSupportsTradeAssetChains = walletSupportsBuyAssetChain && walletSupportsSellAssetChain
+
+  const chainAdapterManager = getChainAdapterManager()
+  const buyAssetChainName = chainAdapterManager.get(buyAsset.chainId)?.getDisplayName()
 
   const gasFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
     .times(bnOrZero(feeAssetFiatRate))
@@ -461,17 +469,6 @@ export const TradeInput = () => {
     if (formErrors.input?.message && !walletSupportsBuyAssetChain) {
       return formErrors.input?.message.toString()
     }
-
-    if (
-      !walletSupportsBuyAssetChain &&
-      (!receiveAddress || formErrors?.input?.type?.toString() === 'required')
-    )
-      return [
-        'trade.errors.manualReceiveAddressRequired',
-        {
-          assetSymbol: buyAsset?.symbol ?? translate('trade.errors.buyAssetStartSentence'),
-        },
-      ]
     if (!activeSwapper) return 'trade.errors.invalidTradePairBtnText'
     if (!isTradingActiveOnSellPool && activeSwapper.name === SwapperName.Thorchain) {
       return [
@@ -497,11 +494,9 @@ export const TradeInput = () => {
       walletSupportsBuyAssetChain &&
       activeSwapper.name !== SwapperName.Thorchain
     ) {
-      const chainAdapterManager = getChainAdapterManager()
-      const chainName = chainAdapterManager.get(buyAsset.chainId)?.getDisplayName()
       return [
         'trade.errors.insufficientFundsForProtocolFee',
-        { symbol: buyAsset.symbol, chainName },
+        { symbol: buyAsset.symbol, chainName: buyAssetChainName },
       ]
     }
     if (hasValidSellAssetBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
@@ -547,12 +542,10 @@ export const TradeInput = () => {
     wallet,
     walletSupportsSellAssetChain,
     translate,
+    formErrors.input?.message,
     walletSupportsBuyAssetChain,
     receiveAddress,
-    formErrors.input?.type,
-    formErrors.input?.message,
     buyAsset.symbol,
-    buyAsset.chainId,
     activeSwapper,
     isTradingActiveOnSellPool,
     isTradingActiveOnBuyPool,
@@ -561,6 +554,7 @@ export const TradeInput = () => {
     feesExceedsSellAmount,
     isTradeQuotePending,
     quoteAvailableForCurrentAssetPair,
+    buyAssetChainName,
   ])
 
   const hasError = useMemo(() => {
@@ -633,8 +627,11 @@ export const TradeInput = () => {
   const ManualReceiveAddressEntry: JSX.Element = useMemo(() => {
     return (
       <FormControl>
-        <FormLabel color='gray.500' w='full'>
+        <FormLabel color='white.500' w='full' fontWeight='bold'>
           {translate('trade.receiveAddress')}
+        </FormLabel>
+        <FormLabel color='yellow.400'>
+          {translate('trade.receiveAddressDescription', { chainName: buyAssetChainName })}
         </FormLabel>
         <AddressInput
           rules={{
@@ -662,11 +659,11 @@ export const TradeInput = () => {
               },
             },
           }}
-          isYatSupported={isYatSupported}
+          placeholder={translate('trade.addressPlaceholder', { chainName: buyAssetChainName })}
         />
       </FormControl>
     )
-  }, [buyAsset, isYatSupported, translate, updateReceiveAddress])
+  }, [buyAsset, buyAssetChainName, isYatSupported, translate, updateReceiveAddress])
 
   return (
     <SlideTransition>
@@ -775,7 +772,7 @@ export const TradeInput = () => {
             />
           ) : null}
         </Stack>
-        {shouldShowManualReceiveAddressInput && ManualReceiveAddressEntry}
+        {shouldShowManualReceiveAddressInput && !tradeStateLoading && ManualReceiveAddressEntry}
         <Button
           type='submit'
           colorScheme={hasError ? 'red' : 'blue'}
@@ -786,7 +783,8 @@ export const TradeInput = () => {
             isSwapperApiPending ||
             !hasValidSellAmount ||
             !activeQuote ||
-            isManualAddressEntryValidating
+            isManualAddressEntryValidating ||
+            !isFormValid
           }
           isLoading={isLoading}
         >

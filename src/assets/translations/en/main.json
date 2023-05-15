@@ -723,7 +723,6 @@
       "unsupportedChain": "This chain is not currently supported.",
       "rateError": "We're not able to get a quote for this pair",
       "assetNotSupportedByWallet": "%{assetSymbol} not supported by wallet",
-      "manualReceiveAddressRequired": "Manual receive address required for %{assetSymbol}",
       "noReceiveAddress": "No receive address for %{assetSymbol}",
       "tradingNotActive": "Trades temporarily halted for %{assetSymbol}",
       "signing": {
@@ -739,7 +738,9 @@
     "or": "or",
     "onChainName": "on %{chainName}",
     "unknownGas": "(unknown)",
-    "receiveAddress": "Receive Address"
+    "receiveAddress": "Receive Address",
+    "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter address to continue.",
+    "addressPlaceholder": "%{chainName} address"
   },
   "modals": {
     "popup": {

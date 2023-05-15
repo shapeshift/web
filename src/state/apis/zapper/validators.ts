@@ -487,6 +487,9 @@ const ZapperDataPropsSchema = z.union([
     // Realistically a z.tuple() of 1/2 assets, but you never know
     reserves: z.array(z.number()).optional(),
     liquidity: z.number().optional(),
+    poolIndex: z.number().optional(),
+    positionKey: z.string().optional(),
+    extraRewarderAddress: z.string().optional(),
   }),
   z.undefined(),
 ])

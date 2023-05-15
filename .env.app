@@ -41,4 +41,4 @@ REACT_APP_OSMOSIS_NODE_URL=https://daemon.osmosis.shapeshift.com
 REACT_APP_THORCHAIN_NODE_URL=https://daemon.thorchain.shapeshift.com
 
 # thorchain
-REACT_APP_MIDGARD_URL=https://indexer.thorchain.shapeshift.com/v2
+REACT_APP_MIDGARD_URL=https://midgard.ninerealms.com/v2

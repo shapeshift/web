@@ -221,7 +221,11 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
       tvl={bnOrZero(foxyEarnOpportunityData?.tvl).toFixed(2)}
       apy={foxyEarnOpportunityData?.apy?.toString()}
     >
-      <WithdrawCard asset={stakingAsset} undelegation={undelegations?.[0]} />
+      <WithdrawCard
+        asset={stakingAsset}
+        undelegation={undelegations?.[0]}
+        canClaimWithdraw={canClaim}
+      />
     </Overview>
   )
 }

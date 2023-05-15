@@ -1,4 +1,5 @@
-import type { IntermediaryTransactionOutput } from 'lib/swapper/api'
+import type { AmountDisplayMeta } from 'lib/swapper/api'
+import { isSome } from 'lib/utils'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
@@ -10,7 +11,7 @@ const isLifiStep = (step: StepSubset): step is LifiStepSubset => step.type === '
 
 export const getIntermediaryTransactionOutputs = (
   selectedLifiRouteSteps: StepSubset[],
-): IntermediaryTransactionOutput[] | undefined => {
+): AmountDisplayMeta[] | undefined => {
   const tradeSteps = selectedLifiRouteSteps.flatMap(step =>
     isLifiStep(step) ? step.includedSteps : step,
   )
@@ -34,8 +35,8 @@ export const getIntermediaryTransactionOutputs = (
 
       return {
         asset,
-        buyAmountCryptoBaseUnit: step.estimate.toAmountMin,
+        amountCryptoBaseUnit: step.estimate.toAmountMin,
       }
     })
-    .filter((item): item is IntermediaryTransactionOutput => item !== undefined)
+    .filter(isSome)
 }

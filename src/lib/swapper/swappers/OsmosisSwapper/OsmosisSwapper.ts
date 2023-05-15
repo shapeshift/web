@@ -322,9 +322,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       )
     }
 
-    const feeData = await osmosisAdapter.getFeeData({})
-    const gas = feeData.fast.chainSpecific.gasLimit
-
     let sellAddress
     let cosmosIbcTradeId = ''
 
@@ -360,6 +357,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
       const sequence = responseAccount.chainSpecific.sequence || '0'
 
+      const ibcFromCosmosFeeData = await cosmosAdapter.getFeeData({})
+
       const { tradeId } = await performIbcTransfer(
         transfer,
         cosmosAdapter,
@@ -367,11 +366,11 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         this.deps.osmoUrl,
         'uatom',
         COSMO_OSMO_CHANNEL,
-        feeData.fast.txFee,
+        ibcFromCosmosFeeData.fast.txFee,
         accountNumber,
         ibcAccountNumber,
         sequence,
-        gas,
+        ibcFromCosmosFeeData.fast.chainSpecific.gasLimit,
         'uatom',
       )
 
@@ -397,6 +396,20 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     /** Execute the swap on Osmosis DEX */
     const osmoAddress = sellAssetIsOnOsmosisNetwork ? sellAddress : receiveAddress
     const cosmosAddress = sellAssetIsOnOsmosisNetwork ? receiveAddress : sellAddress
+
+    /** At the current time, only OSMO<->ATOM swaps are supported, so this is fine.
+     * In the future, as more Osmosis network assets are added, the buy asset should
+     * be used as the fee asset automatically. See the whitelist of supported fee assets here:
+     * https://github.com/osmosis-labs/osmosis/blob/04026675f75ca065fb89f965ab2d33c9840c965a/app/upgrades/v5/whitelist_feetokens.go
+     */
+    const swapFeeData = await (sellAssetIsOnOsmosisNetwork
+      ? osmosisAdapter.getFeeData({})
+      : cosmosAdapter.getFeeData({}))
+
+    const feeDenom = sellAssetIsOnOsmosisNetwork
+      ? 'uosmo'
+      : atomOnOsmosisAssetId.split('/')[1].replace(/:/g, '/')
+
     const signTxInput = await buildTradeTx({
       osmoAddress,
       accountNumber: sellAssetIsOnOsmosisNetwork ? accountNumber : receiveAccountNumber,
@@ -404,7 +417,9 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       buyAssetDenom,
       sellAssetDenom,
       sellAmount: ibcSellAmount ?? sellAmountCryptoBaseUnit,
-      gas,
+      gas: swapFeeData.fast.chainSpecific.gasLimit,
+      feeAmount: swapFeeData.fast.txFee,
+      feeDenom,
       wallet,
     })
 
@@ -445,6 +460,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         pageSize: 1,
       })
 
+      const ibcFromOsmosisFeeData = await osmosisAdapter.getFeeData({})
+
       await performIbcTransfer(
         transfer,
         osmosisAdapter,
@@ -456,7 +473,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         accountNumber,
         ibcAccountNumber,
         ibcSequence,
-        gas,
+        ibcFromOsmosisFeeData.fast.chainSpecific.gasLimit,
         'uosmo',
       )
       return Ok({

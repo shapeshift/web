@@ -16,6 +16,7 @@ import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
@@ -47,10 +48,11 @@ import {
 import { useAppDispatch, useAppSelector } from 'state/store'
 import {
   selectBuyAssetFiatRate,
+  selectBuyAssetTradeFeeCryptoBaseUnit,
   selectFeeAssetFiatRate,
+  selectProtocolFees,
   selectQuoteBuyAmountCryptoPrecision,
   selectSellAssetFiatRate,
-  selectTotalTradeFeeBuyAssetCryptoPrecision,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectAction,
@@ -131,9 +133,8 @@ export const TradeInput = () => {
   const handleSwitchAssets = useSwapperStore(state => state.handleSwitchAssets)
   const handleInputAmountChange = useSwapperStore(state => state.handleInputAmountChange)
   const quoteBuyAmountCryptoPrecision = useSwapperStore(selectQuoteBuyAmountCryptoPrecision)
-  const totalTradeFeeBuyAssetCryptoPrecision = useSwapperStore(
-    selectTotalTradeFeeBuyAssetCryptoPrecision,
-  )
+  const buyAssetTradeFeeCryptoBaseUnit = useSwapperStore(selectBuyAssetTradeFeeCryptoBaseUnit)
+  const protocolFees = useSwapperStore(selectProtocolFees)
   const action = useSwapperStore(selectAction)
   const amount = useSwapperStore(selectAmount)
   const isSendMax = useSwapperStore(selectIsSendMax)
@@ -169,11 +170,19 @@ export const TradeInput = () => {
     () => ({ accountId: sellAssetAccountId, assetId: sellAsset?.assetId ?? '' }),
     [sellAssetAccountId, sellAsset?.assetId],
   )
-  const sellAssetBalanceCrypto = useAppSelector(state =>
+  const buyAssetBalanceFilter = useMemo(
+    () => ({ accountId: buyAssetAccountId, assetId: buyAsset?.assetId ?? '' }),
+    [buyAssetAccountId, buyAsset?.assetId],
+  )
+  const sellAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, sellAssetBalanceFilter),
   )
   const sellAssetBalanceHuman = useAppSelector(state =>
     selectPortfolioCryptoPrecisionBalanceByFilter(state, sellAssetBalanceFilter),
+  )
+
+  const buyAssetBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, buyAssetBalanceFilter),
   )
 
   const isSwapperApiPending = useSelector(selectSwapperApiPending)
@@ -241,7 +250,9 @@ export const TradeInput = () => {
     const maxQuote = availableSwapperTypesWithQuoteMetadata?.[0]?.quote
 
     const maxSendAmount = maxQuote
-      ? bnOrZero(getSendMaxAmount(sellAsset, sellFeeAsset, maxQuote, sellAssetBalanceCrypto))
+      ? bnOrZero(
+          getSendMaxAmount(sellAsset, sellFeeAsset, maxQuote, sellAssetBalanceCryptoBaseUnit),
+        )
           .times(0.99) // reduce the computed amount by 1% to ensure we don't exceed the max
           .toFixed()
       : '0'
@@ -257,7 +268,7 @@ export const TradeInput = () => {
     sellAsset,
     activeQuote,
     sellFeeAsset,
-    sellAssetBalanceCrypto,
+    sellAssetBalanceCryptoBaseUnit,
     updateAction,
     updateIsSendMax,
     tradeQuoteArgs,
@@ -377,8 +388,11 @@ export const TradeInput = () => {
   )
 
   const getErrorTranslationKey = useCallback((): string | [string, InterpolationOptions] => {
-    const hasValidTradeBalance = bnOrZero(sellAssetBalanceHuman).gte(
+    const hasValidSellAssetBalance = bnOrZero(sellAssetBalanceHuman).gte(
       bnOrZero(sellAmountCryptoPrecision),
+    )
+    const hasValidBuyAssetBalance = bnOrZero(buyAssetBalanceCryptoBaseUnit).gte(
+      bnOrZero(buyAssetTradeFeeCryptoBaseUnit),
     )
     // when trading from ETH, the value of TX in ETH is deducted
     const tradeDeduction =
@@ -434,8 +448,16 @@ export const TradeInput = () => {
       ]
     }
 
-    if (!hasValidTradeBalance) return 'common.insufficientFunds'
-    if (hasValidTradeBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
+    if (!hasValidSellAssetBalance) return 'common.insufficientFunds'
+    if (!hasValidBuyAssetBalance) {
+      const chainAdapterManager = getChainAdapterManager()
+      const chainName = chainAdapterManager.get(buyAsset.chainId)?.getDisplayName()
+      return [
+        'trade.errors.insufficientFundsForProtocolFee',
+        { symbol: buyAsset.symbol, chainName },
+      ]
+    }
+    if (hasValidSellAssetBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
       return [
         'common.insufficientAmountForGas',
         {
@@ -461,6 +483,8 @@ export const TradeInput = () => {
   }, [
     sellAssetBalanceHuman,
     sellAmountCryptoPrecision,
+    buyAssetBalanceCryptoBaseUnit,
+    buyAssetTradeFeeCryptoBaseUnit,
     sellFeeAsset?.assetId,
     sellFeeAsset?.precision,
     sellFeeAsset?.symbol,
@@ -477,7 +501,8 @@ export const TradeInput = () => {
     walletSupportsSellAssetChain,
     translate,
     walletSupportsBuyAssetChain,
-    buyAsset?.symbol,
+    buyAsset.symbol,
+    buyAsset.chainId,
     activeSwapper,
     isTradingActiveOnSellPool,
     isTradingActiveOnBuyPool,
@@ -654,9 +679,9 @@ export const TradeInput = () => {
             <ReceiveSummary
               isLoading={tradeStateLoading}
               symbol={buyAsset?.symbol ?? ''}
-              amount={buyAmountCryptoPrecision ?? ''}
-              beforeFees={quoteBuyAmountCryptoPrecision ?? ''}
-              protocolFee={totalTradeFeeBuyAssetCryptoPrecision ?? ''}
+              amountCryptoPrecision={buyAmountCryptoPrecision ?? ''}
+              amountBeforeFeesCryptoPrecision={quoteBuyAmountCryptoPrecision ?? ''}
+              protocolFees={protocolFees}
               shapeShiftFee='0'
               slippage={slippage}
               swapperName={swapperName}

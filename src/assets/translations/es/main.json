@@ -128,7 +128,7 @@
     "cta": {
       "title": {
         "first": "También puede usar ShapeShift con todas las billeteras principales para intercambiar, obtener rendimiento y",
-        "second": "Rastree su cripto en 8 cadenas"
+        "second": "Rastree su cripto en %{chainCount} cadenas"
       }
     },
     "availableAssets": "Activos Disponibles"
@@ -504,7 +504,8 @@
     "wallet": "Billetera",
     "explore": "Explore",
     "rewards": "Recompensas",
-    "trade": "Intercambie",
+    "trade": "Intercambie/Bridge",
+    "tradeShort": "Intercambie",
     "buyCrypto": "Comprar/Vender Cripto",
     "buyCryptoShort": "Comprar/Vender",
     "arkeo": "Airdrop Arkeo "

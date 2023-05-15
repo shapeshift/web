@@ -669,7 +669,7 @@
       "minerFee": "Il s'agit des frais de traitement de la transaction sur la blockchain, ce ne sont pas des frais facturés par ShapeShift.",
       "donation": "Aidez à soutenir ShapeShift et maintenez-nous opérationnels.",
       "protocol": "C'est le protocole avec lequel votre échange est routé.",
-      "protocolLifi": "C'est le protocole par lequel votre échange est routé. LI.FI exécute une série de transactions intermédiaires sous le capot pour la meilleure combinaison globale de prix, de sécurité et de rapidité.",
+      "protocolLifi": "C'est le protocole par lequel votre échange est routé. LI.FI exécute une série de transactions intermédiaires pour trouver la meilleure combinaison globale de prix, de sécurité et de rapidité.",
       "protocolFee": "Il s'agit des frais facturés par le protocole sélectionné pour traiter cette transaction, il ne s'agit pas de frais facturés par ShapeShift",
       "shapeshiftFee": "ShapeShift n'ajoute aucun frais sur les échanges 🎉"
     },

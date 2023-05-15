@@ -41,6 +41,7 @@ export type OpportunityMetadataBase = {
   // Can also be empty in case there are no denominated rewards or we are unable to track them
   rewardAssetIds: AssetIdsTuple
   isClaimableRewards: boolean
+  isReadOnly?: boolean
   // claimableRewards: boolean
   expired?: boolean
   active?: boolean

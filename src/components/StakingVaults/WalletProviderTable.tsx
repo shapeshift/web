@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { Card } from 'components/Card/Card'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { useGetReadOnlyOpportunitiesQuery } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import type { AggregatedReadOnlyOpportunitiesByProviderReturn } from 'state/slices/opportunitiesSlice/selectors/readonly'
 import { selectAggregatedReadOnlyOpportunitiesByProvider } from 'state/slices/opportunitiesSlice/selectors/readonly'
 import {
   selectAggregatedEarnOpportunitiesByProvider,
@@ -38,14 +39,21 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
     }),
     [chainId, includeEarnBalances, includeRewardsBalances, searchQuery],
   )
-  const rows = useAppSelector(state =>
+  const earnOpportunityRows = useAppSelector(state =>
     selectAggregatedEarnOpportunitiesByProvider(state, rowsFilter),
   )
 
   // Only for fetching - we're consumed derived data once fetched and cached
+  // Maybe find a better home for this?
   useGetReadOnlyOpportunitiesQuery()
 
-  const wip = useAppSelector(selectAggregatedReadOnlyOpportunitiesByProvider)
+  const readOnlyOpportunityRows = useAppSelector(selectAggregatedReadOnlyOpportunitiesByProvider)
+
+  // TODO(gomes): This will break sorting, but we do want the read only selector to be separate not to clutter the earn selector
+  // Fix this before opening me
+  const rows = (earnOpportunityRows as AggregatedReadOnlyOpportunitiesByProviderReturn[]).concat(
+    readOnlyOpportunityRows,
+  )
 
   const renderProviders = useMemo(() => {
     if (!rows.length && !isLoading) {

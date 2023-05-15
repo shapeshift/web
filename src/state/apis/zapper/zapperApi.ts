@@ -17,6 +17,7 @@ import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 import type {
+  AssetIdsTuple,
   OpportunityId,
   OpportunityMetadataBase,
   ReadOnlyOpportunityType,
@@ -155,10 +156,23 @@ export const zapperApi = createApi({
                       color: '#000000', // TODO
                     }
                   }
+                  const underlyingAssetIds = asset.tokens.map(token => {
+                    const underlyingAssetId = toAssetId({
+                      chainId: ethChainId, // Only ETH for products for PoC
+                      assetNamespace: 'erc20', // TODO(gomes): this might break for native assets, is that a thing?,
+                      assetReference: token.address,
+                    })
+                    return underlyingAssetId
+                  }) as unknown as AssetIdsTuple
                   if (!acc.opportunities[assetId]) {
                     acc.opportunities[assetId] = {
                       apy,
                       assetId,
+                      // TODO(gomes): https://studio.zapper.xyz/docs/concepts/app-tokens / https://studio.zapper.xyz/docs/concepts/contract-positions
+                      // Zapper should have a way to tell us if an opportunity is a "ContractPosition" or an "AppToken" so we can properly populate these two
+                      underlyingAssetId: assetId,
+                      underlyingAssetIds,
+                      underlyingAssetRatiosBaseUnit: ['0', '0'], // TODO(gomes): implement me
                       // TODO(gomes): one AssetId can be an active opportunity across many, we will want to serialize this.
                       id: assetId as OpportunityId,
                       icon,
@@ -167,11 +181,13 @@ export const zapperApi = createApi({
                       rewardAssetIds: [],
                       provider: appName,
                       tvl,
+                      type: DefiType.Staking,
                       // TODO(gomes) We should either:
                       // 1. filter out the opportunities that are part of our existing view-layer abstraction
                       // 2. support the opportunities that are part of our existing view-layer abstraction, and fetch them here exclusively instead
                       // Will need to spike if the available data is sufficient once we smoosh zapper and Zerion data
                       isClaimableRewards: false,
+                      isReadOnly: true,
                     }
                   }
                   return {

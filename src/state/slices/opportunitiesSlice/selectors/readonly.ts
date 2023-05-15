@@ -7,7 +7,7 @@ import type { AggregatedOpportunitiesByProviderReturn } from '../types'
 export const selectGetReadOnlyOpportunities =
   opportunitiesApi.endpoints.getReadOnlyOpportunities.select()
 
-type AggregatedReadOnlyOpportunitiesByProviderReturn = Omit<
+export type AggregatedReadOnlyOpportunitiesByProviderReturn = Omit<
   AggregatedOpportunitiesByProviderReturn,
   'provider'
 > & {
@@ -22,6 +22,7 @@ export const selectAggregatedReadOnlyOpportunitiesByProvider = createDeepEqualOu
       return []
     }
 
+    debugger
     const result = data.userData.reduce<
       Record<string, AggregatedReadOnlyOpportunitiesByProviderReturn>
     >((acc, item) => {
@@ -48,6 +49,7 @@ export const selectAggregatedReadOnlyOpportunitiesByProvider = createDeepEqualOu
         ],
       }
 
+      debugger
       return {
         ...acc,
         [provider]: {
@@ -57,7 +59,7 @@ export const selectAggregatedReadOnlyOpportunitiesByProvider = createDeepEqualOu
           // @ts-ignore TODO(gomes): implement fiatRewardsAmount
           fiatRewardsAmount: bnOrZero(item.fiatRewardsAmount).toString(),
           // @ts-ignore TODO(gomes): implement fiatRewardsAmount
-          netProviderFiatAmount: totalFiatAmount.plus(item.fiatRewardsAmount).toString(),
+          netProviderFiatAmount: totalFiatAmount.plus(bnOrZero(item.fiatRewardsAmount)).toString(),
           opportunities: {
             ...acc[provider]?.opportunities,
             ...currentOpportunity,
@@ -66,6 +68,7 @@ export const selectAggregatedReadOnlyOpportunitiesByProvider = createDeepEqualOu
       }
     }, {})
 
+    debugger
     return Object.values(result)
   },
 )

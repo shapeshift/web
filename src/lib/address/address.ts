@@ -262,7 +262,7 @@ type ParseAddressInputArgs = {
  * and a chainId, return an object containing and address and vanityAddress
  * which may both be empty strings, one may be empty, or both may be populated
  */
-type ParseAddressByChainIdInputArgs = ParseAddressInputArgs & {
+export type ParseAddressByChainIdInputArgs = ParseAddressInputArgs & {
   chainId: ChainId
 }
 
@@ -270,6 +270,7 @@ export type ParseAddressByChainIdOutput = {
   assetId?: AssetId
   maybeAddress: string
   amountCryptoPrecision?: string
+  disableUrlParsing?: boolean
   chainId: ChainId
 }
 
@@ -297,27 +298,27 @@ export type ParseAddressInput = (
 
 // Parses an address or vanity address for a **known** ChainId
 export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async args => {
-  const parsedArgs = parseMaybeUrlWithChainId(args)
+  const maybeParsedArgs = args.disableUrlParsing ? args : parseMaybeUrlByChainId(args)
 
-  const isValidAddress = await validateAddress(parsedArgs)
+  const isValidAddress = await validateAddress(maybeParsedArgs)
   // we're dealing with a valid address
   if (isValidAddress) {
-    const vanityAddress = await reverseLookupVanityAddress(parsedArgs)
+    const vanityAddress = await reverseLookupVanityAddress(maybeParsedArgs)
     // return a valid address, and a possibly blank or populated vanity address
     return {
-      address: parsedArgs.maybeAddress,
+      address: maybeParsedArgs.maybeAddress,
       vanityAddress,
       chainId: args.chainId,
       amountCryptoPrecision: parsedArgs.amountCryptoPrecision,
     }
   }
   // at this point it's not a valid address, but may not be a vanity address
-  const isVanityAddress = await validateVanityAddress(parsedArgs)
+  const isVanityAddress = await validateVanityAddress(maybeParsedArgs)
   // it's neither a valid address nor a vanity address
   if (!isVanityAddress) return { address: '', vanityAddress: '', chainId: args.chainId }
   // at this point it's a valid vanity address, let's resolve it
-  const address = await resolveVanityAddress(parsedArgs)
-  return { address, vanityAddress: parsedArgs.maybeAddress, chainId: args.chainId }
+  const address = await resolveVanityAddress(maybeParsedArgs)
+  return { address, vanityAddress: maybeParsedArgs.maybeAddress, chainId: args.chainId }
 }
 
 // Parses an address or vanity address for an **unknown** ChainId, exhausting known ChainIds until we maybe find a match

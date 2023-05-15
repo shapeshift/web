@@ -126,7 +126,9 @@ export const opportunitiesApi = createApi({
         try {
           const resolver = zapperReadOnlyOpportunitiesResolver
 
+          debugger
           const resolved = await resolver({ reduxApi: { dispatch, getState } })
+          debugger
 
           return { data: resolved }
         } catch (e) {

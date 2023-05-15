@@ -7,7 +7,7 @@ import {
   Tag,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DEFI_PROVIDER_TO_METADATA } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { opportunityRowGrid } from 'components/EarnDashboard/components/ProviderDetails/OpportunityTableHeader'
@@ -29,7 +29,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   isLoading,
 }) => {
   const headerBg = useColorModeValue('white', 'gray.785')
-  const { icon } = DefiProviderMetadata[provider]
+  const { icon } = DEFI_PROVIDER_TO_METADATA[provider]
   const isLoaded = !isLoading
   return (
     <Card variant='default'>

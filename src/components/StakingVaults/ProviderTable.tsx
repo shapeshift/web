@@ -2,7 +2,7 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Avatar, Flex, IconButton, Tag } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DEFI_PROVIDER_TO_METADATA } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -29,7 +29,7 @@ type ProviderCellProps = {
 }
 
 const ProviderCell: React.FC<ProviderCellProps> = ({ provider }) => {
-  const { icon, type } = DefiProviderMetadata[provider]
+  const { icon, provider: type } = DEFI_PROVIDER_TO_METADATA[provider]
   return (
     <Flex alignItems='center' gap={4}>
       <Avatar size='sm' src={icon} />

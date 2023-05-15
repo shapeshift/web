@@ -179,16 +179,11 @@ export type StakingEarnOpportunityType = OpportunityMetadata &
     isVisible?: boolean
   } & EarndefiTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
 
-// A minimal opportunity for read-only purposes, which does NOT conform to our usual types
+// A minimal user opportunity for read-only purposes, which does NOT conform to our usual types
 // it isn't meant to be used as a full-fledged opportunity
 export type ReadOnlyOpportunityType = {
   accountId?: string // unless aggregated
-  apy: string
-  assetId: string
-  provider: string // Not a DefiProvider, can be any string programmatically
-  tvl: string
-  icon: string
-  name: string
+  opportunityId: string
   stakedAmountCryptoBaseUnit: string
   fiatAmount: string
 }

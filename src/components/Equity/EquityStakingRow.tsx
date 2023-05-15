@@ -1,8 +1,8 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import {
+  DEFI_PROVIDER_TO_METADATA,
   DefiAction,
-  DefiProviderMetadata,
   DefiTypeDisplayName,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
@@ -112,7 +112,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
       fiatAmount={opportunity.fiatAmount}
       totalFiatBalance={totalFiatBalance}
       color={color}
-      icon={DefiProviderMetadata[opportunity.provider].icon}
+      icon={DEFI_PROVIDER_TO_METADATA[opportunity.provider].icon}
       label={opportunity.provider}
       symbol={asset.symbol}
       subText={opportunity.version ?? DefiTypeDisplayName[opportunity.type]}

@@ -121,8 +121,11 @@ export const opportunitiesApi = createApi({
   reducerPath: 'opportunitiesApi',
   keepUnusedDataFor: 300,
   endpoints: build => ({
+    // TODO(gomes): AccountIds should eventually be an input
+    // Currently, this will have no reactivity if the portfolio accounts change e.g MM account change or switching wallets
     getReadOnlyOpportunities: build.query<GetReadOnlyOpportunitiesOutput, void>({
       queryFn: async (_input, { dispatch, getState }) => {
+        console.log({ input })
         try {
           const resolver = zapperReadOnlyOpportunitiesResolver
 

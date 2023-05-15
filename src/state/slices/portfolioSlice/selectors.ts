@@ -18,7 +18,7 @@ import {
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import type { BIP44Params } from '@shapeshiftoss/types'
-import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DEFI_PROVIDER_TO_METADATA } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
 import keys from 'lodash/keys'
@@ -876,7 +876,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
         amountCryptoPrecision,
         underlyingAssetId: stakingOpportunity.underlyingAssetId,
         provider: stakingOpportunity.provider,
-        color: DefiProviderMetadata[stakingOpportunity.provider].color,
+        color: DEFI_PROVIDER_TO_METADATA[stakingOpportunity.provider].color,
       }
     })
     const lp = lpOpportunities.map(lpOpportunity => {
@@ -894,7 +894,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
         fiatAmount: underlyingBalances[assetId].fiatAmount,
         amountCryptoPrecision: underlyingBalances[assetId].cryptoBalancePrecision,
         provider: lpOpportunity.provider,
-        color: DefiProviderMetadata[lpOpportunity.provider].color,
+        color: DEFI_PROVIDER_TO_METADATA[lpOpportunity.provider].color,
       }
     })
     return accounts

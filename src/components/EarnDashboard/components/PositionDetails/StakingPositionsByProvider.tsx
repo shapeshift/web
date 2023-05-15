@@ -6,8 +6,8 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type { MarketData } from '@shapeshiftoss/types'
 import {
+  DEFI_PROVIDER_TO_METADATA,
   DefiAction,
-  DefiProviderMetadata,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
@@ -151,7 +151,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
               <LazyLoadAvatar
                 size='sm'
                 bg='transparent'
-                src={row.original.icon ?? DefiProviderMetadata[row.original.provider].icon}
+                src={row.original.icon ?? DEFI_PROVIDER_TO_METADATA[row.original.provider].icon}
                 key={`provider-icon-${row.original.id}`}
               />
               <Flex flexDir='column'>

@@ -3,6 +3,8 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Card } from 'components/Card/Card'
 import { ResultsEmpty } from 'components/ResultsEmpty'
+import { useGetReadOnlyOpportunitiesQuery } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import { selectAggregatedReadOnlyOpportunitiesByProvider } from 'state/slices/opportunitiesSlice/selectors/readonly'
 import {
   selectAggregatedEarnOpportunitiesByProvider,
   selectOpportunityApiPending,
@@ -39,6 +41,11 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
   const rows = useAppSelector(state =>
     selectAggregatedEarnOpportunitiesByProvider(state, rowsFilter),
   )
+
+  // Only for fetching - we're consumed derived data once fetched and cached
+  useGetReadOnlyOpportunitiesQuery()
+
+  const wip = useAppSelector(selectAggregatedReadOnlyOpportunitiesByProvider)
 
   const renderProviders = useMemo(() => {
     if (!rows.length && !isLoading) {

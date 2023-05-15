@@ -11,8 +11,8 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import {
+  DEFI_PROVIDER_TO_METADATA,
   DefiAction,
-  DefiProviderMetadata,
   DefiStep,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
@@ -323,7 +323,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
                 loading={approve0Loading}
                 loadingText={translate('common.approve')}
                 preFooter={preFooter}
-                providerIcon={DefiProviderMetadata[lpOpportunity!.provider].icon}
+                providerIcon={DEFI_PROVIDER_TO_METADATA[lpOpportunity!.provider].icon}
                 learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
                 onCancel={() => onNext(DefiStep.Info)}
                 onConfirm={() => handleApprove(asset0ContractAddress)}
@@ -352,7 +352,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
                 loading={approve1Loading}
                 loadingText={translate('common.approve')}
                 preFooter={preFooter}
-                providerIcon={DefiProviderMetadata[lpOpportunity!.provider].icon}
+                providerIcon={DEFI_PROVIDER_TO_METADATA[lpOpportunity!.provider].icon}
                 learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
                 onCancel={() => onNext(DefiStep.Info)}
                 onConfirm={() => handleApprove(asset1ContractAddress)}

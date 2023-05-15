@@ -1,14 +1,14 @@
+import type { GetZapperAppsBalancesOutput } from 'state/apis/zapper/zapperApi'
 import { zapperApi } from 'state/apis/zapper/zapperApi'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 
-import type { ReadOnlyOpportunityType } from '../../types'
 import type { ReduxApi } from '../types'
 
 export const zapperReadOnlyOpportunitiesResolver = async ({
   reduxApi,
 }: {
   reduxApi: ReduxApi
-}): Promise<ReadOnlyOpportunityType[] | undefined> => {
+}): Promise<GetZapperAppsBalancesOutput | undefined> => {
   const { dispatch, getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 

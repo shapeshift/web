@@ -6,6 +6,7 @@ import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
+import type { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -15,7 +16,11 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
-import type { ReadOnlyOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import type {
+  OpportunityId,
+  OpportunityMetadataBase,
+  ReadOnlyOpportunityType,
+} from 'state/slices/opportunitiesSlice/types'
 import { selectAssets } from 'state/slices/selectors'
 
 import type {
@@ -76,6 +81,15 @@ type GetZapperCollectionsInput = {
   collectionAddresses: string[]
 }
 
+type ReadOnlyOpportunityMetadata = Omit<OpportunityMetadataBase, 'provider'> & { provider: string }
+type ReadOnlyProviderMetadata = Omit<DefiProviderMetadata, 'provider'> & { provider: string }
+
+export type GetZapperAppsBalancesOutput = {
+  userData: ReadOnlyOpportunityType[]
+  opportunities: Record<string, ReadOnlyOpportunityMetadata>
+  metadataByProvider: Record<string, ReadOnlyProviderMetadata>
+}
+
 // addresses are repeated across EVM chains
 const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>
   Array.from(
@@ -92,32 +106,36 @@ export const zapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'zapperApi',
   endpoints: build => ({
-    getZapperAppsBalancesOutput: build.query<ReadOnlyOpportunityType[], GetZapperAppsbalancesInput>(
-      {
-        queryFn: async ({ accountIds }) => {
-          const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
+    getZapperAppsBalancesOutput: build.query<
+      GetZapperAppsBalancesOutput,
+      GetZapperAppsbalancesInput
+    >({
+      queryFn: async ({ accountIds }) => {
+        const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
 
-          const addresses = accountIdsToEvmAddresses(accountIds)
-          const url = `/v2/balances/apps`
-          const params = {
-            addresses,
-            'networks[]': evmNetworks,
-          }
-          const payload = { ...options, params, headers, url }
-          const { data: res } = await axios.request({ ...payload })
-          try {
-            const zapperV2AppsBalancessData = V2AppsBalancesResponse.parse(res)
+        const addresses = accountIdsToEvmAddresses(accountIds)
+        const url = `/v2/balances/apps`
+        const params = {
+          'addresses[]': addresses,
+          'networks[]': evmNetworks,
+        }
+        const payload = { ...options, params, headers, url }
+        const { data: res } = await axios.request({ ...payload })
+        try {
+          const zapperV2AppsBalancessData = V2AppsBalancesResponse.parse(res)
 
-            const parsedOpportunities = zapperV2AppsBalancessData.reduce<ReadOnlyOpportunityType[]>(
-              (acc, appAccountBalance) => {
-                const appName = appAccountBalance.appName
-                const accountId = toAccountId({
-                  chainId: ethChainId, // Only ETH for PoC
-                  account: appAccountBalance.address,
-                })
+          const parsedOpportunities = zapperV2AppsBalancessData.reduce<GetZapperAppsBalancesOutput>(
+            (acc, appAccountBalance) => {
+              const appName = appAccountBalance.appName
+              const appImage = appAccountBalance.appImage
+              const accountId = toAccountId({
+                chainId: ethChainId, // Only ETH for PoC
+                account: appAccountBalance.address,
+              })
 
-                // [0] only for debugging, obviously support all products eventually
-                const appAccountOpportunities = appAccountBalance.products[0]?.assets.map(asset => {
+              // [0] only for debugging, obviously support all products eventually
+              const appAccountOpportunities = (appAccountBalance.products[0]?.assets ?? [])
+                .map<ReadOnlyOpportunityType>(asset => {
                   const stakedAmountCryptoBaseUnit = asset.balanceRaw ?? '0'
                   const fiatAmount = bnOrZero(asset.balanceUSD).toString()
                   const apy = bnOrZero(asset.dataProps?.apy).toString()
@@ -130,42 +148,62 @@ export const zapperApi = createApi({
                     assetReference: asset.address,
                   })
 
+                  if (!acc.metadataByProvider[appName]) {
+                    acc.metadataByProvider[appName] = {
+                      provider: appName,
+                      icon: appImage,
+                      color: '#000000', // TODO
+                    }
+                  }
+                  if (!acc.opportunities[assetId]) {
+                    acc.opportunities[assetId] = {
+                      apy,
+                      assetId,
+                      // TODO(gomes): one AssetId can be an active opportunity across many, we will want to serialize this.
+                      id: assetId as OpportunityId,
+                      icon,
+                      name,
+                      // TODO
+                      rewardAssetIds: [],
+                      provider: appName,
+                      tvl,
+                      // TODO(gomes) We should either:
+                      // 1. filter out the opportunities that are part of our existing view-layer abstraction
+                      // 2. support the opportunities that are part of our existing view-layer abstraction, and fetch them here exclusively instead
+                      // Will need to spike if the available data is sufficient once we smoosh zapper and Zerion data
+                      isClaimableRewards: false,
+                    }
+                  }
                   return {
                     accountId,
-                    apy,
-                    assetId,
-                    fiatAmount,
-                    icon,
-                    name,
-                    provider: appName,
+                    opportunityId: assetId,
                     stakedAmountCryptoBaseUnit,
-                    tvl,
-                    // Assume everything as "Staking" for now - to be updated when this is actually wired up
+                    fiatAmount,
+                    // TODO: This assumes all as staking for now. We will need to handle LP as well.
                     type: DefiType.Staking,
                   }
                 })
+                .filter(isSome)
 
-                acc = acc.concat(appAccountOpportunities)
-                return acc
-              },
-              [],
-            )
-            return { data: parsedOpportunities.filter(isSome) }
-          } catch (e) {
-            moduleLogger.warn(e, 'getZapperAppsbalancesOutput')
+              acc.userData = acc.userData.concat(appAccountOpportunities)
+              return acc
+            },
+            { userData: [], opportunities: {}, metadataByProvider: {} },
+          )
+          return { data: parsedOpportunities }
+        } catch (e) {
+          moduleLogger.warn(e, 'getZapperAppsbalancesOutput')
 
-            const message =
-              e instanceof Error ? e.message : 'Error fetching read-only opportunities'
-            return {
-              error: {
-                error: message,
-                status: 'CUSTOM_ERROR',
-              },
-            }
+          const message = e instanceof Error ? e.message : 'Error fetching read-only opportunities'
+          return {
+            error: {
+              error: message,
+              status: 'CUSTOM_ERROR',
+            },
           }
-        },
+        }
       },
-    ),
+    }),
     getZapperAppTokensOutput: build.query<GetZapperAppTokensOutput, void>({
       queryFn: async (_, { dispatch, getState }) => {
         const evmNetworks = [chainIdToZapperNetwork(ethChainId)]

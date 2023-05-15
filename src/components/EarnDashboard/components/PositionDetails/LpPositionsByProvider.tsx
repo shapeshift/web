@@ -3,8 +3,8 @@ import { Tag } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import {
+  DEFI_PROVIDER_TO_METADATA,
   DefiAction,
-  DefiProviderMetadata,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
@@ -103,7 +103,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
         Header: translate('defi.liquidityPool'),
         accessor: 'assetId',
         Cell: ({ row }: { row: RowProps }) => {
-          const providerIcon = DefiProviderMetadata[row.original.provider].icon
+          const providerIcon = DEFI_PROVIDER_TO_METADATA[row.original.provider].icon
           return (
             <Flex alignItems='center' gap={4}>
               <Flex>

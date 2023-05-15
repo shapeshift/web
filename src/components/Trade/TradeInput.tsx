@@ -640,6 +640,7 @@ export const TradeInput = () => {
             required: true,
             validate: {
               validateAddress: async (rawInput: string) => {
+                updateReceiveAddress(undefined)
                 const value = rawInput.trim() // trim leading/trailing spaces
                 setIsManualAddressEntryValidating(true)
                 const { assetId, chainId } = buyAsset

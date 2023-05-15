@@ -30,11 +30,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { parseAddressInput } from 'lib/address/address'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import type {
-  GlobalSearchResult,
-  SelectGlobalItemsFromFilterReturn,
-  SendResult,
-} from 'state/slices/search-selectors'
+import type { GlobalSearchResult, SendResult } from 'state/slices/search-selectors'
 import { GlobalSearchResultType, selectGlobalItemsFromFilter } from 'state/slices/search-selectors'
 import {
   selectAggregatedEarnUserLpOpportunities,
@@ -49,8 +45,6 @@ import { LpResults } from './LpResults/LpResults'
 import { StakingResults } from './StakingResults/StakingResults'
 import { TxResults } from './TxResults/TxResults'
 import { makeOpportunityRouteDetails } from './utils'
-
-type ResultsWithActions = [...SelectGlobalItemsFromFilterReturn, SendResult[]]
 
 export const GlobalSeachButton = () => {
   const { isOpen, onClose, onOpen, onToggle } = useDisclosure()
@@ -75,9 +69,8 @@ export const GlobalSeachButton = () => {
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
   const globalSearchFilter = useMemo(() => ({ searchQuery }), [searchQuery])
   const results = useAppSelector(state => selectGlobalItemsFromFilter(state, globalSearchFilter))
-  const allResults = (results as any).concat(sendResults) as ResultsWithActions
-  const [assetResults, stakingResults, lpResults, txResults] = allResults
-  const flatResults = useMemo(() => allResults.flat(), [allResults])
+  const [assetResults, stakingResults, lpResults, txResults] = results
+  const flatResults = useMemo(() => [...results, sendResults].flat(), [results, sendResults])
   const resultsCount = flatResults.length
 
   const { send } = useModal()

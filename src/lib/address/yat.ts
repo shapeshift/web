@@ -6,7 +6,7 @@ import GraphemeSplitter from 'grapheme-splitter'
 
 // validate a yat
 type ValidateYatArgs = {
-  value: string
+  maybeAddress: string
 }
 type ValidateYatReturn = boolean
 type ValidateYat = (args: ValidateYatArgs) => Promise<ValidateYatReturn>
@@ -14,7 +14,7 @@ type ValidateYat = (args: ValidateYatArgs) => Promise<ValidateYatReturn>
 // resolve a yat
 type ResolveYatArgs = {
   assetId?: AssetId
-  value: string
+  maybeAddress: string
 }
 type ResolveYatReturn = string
 type ResolveYat = (args: ResolveYatArgs) => Promise<ResolveYatReturn>
@@ -29,7 +29,7 @@ type YatResponse = {
 }
 
 const graphemeSplitter = new GraphemeSplitter()
-export const validateYat: ValidateYat = ({ value }) => {
+export const validateYat: ValidateYat = ({ maybeAddress: value }) => {
   const graphemeCount = graphemeSplitter.countGraphemes(value)
   const isValidYatLength = graphemeCount && graphemeCount <= 5
   if (!isValidYatLength) return Promise.resolve(false)
@@ -39,7 +39,7 @@ export const validateYat: ValidateYat = ({ value }) => {
 }
 
 export const resolveYat: ResolveYat = async args => {
-  const { value, assetId } = args
+  const { maybeAddress: value, assetId } = args
   try {
     const { data } = await axios.get<YatResponse>(
       `${getConfig().REACT_APP_YAT_NODE_URL}/emoji_id/${value}`,

@@ -14,6 +14,8 @@ import {
   useEventListener,
   useUpdateEffect,
 } from '@chakra-ui/react'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { DefiAction, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
@@ -22,10 +24,13 @@ import { generatePath, useHistory, useLocation } from 'react-router'
 import scrollIntoView from 'scroll-into-view-if-needed'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { parseAddressInput } from 'lib/address/address'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import type { GlobalSearchResult } from 'state/slices/search-selectors'
+import type { GlobalSearchResult, SendResult } from 'state/slices/search-selectors'
 import { GlobalSearchResultType, selectGlobalItemsFromFilter } from 'state/slices/search-selectors'
 import {
   selectAggregatedEarnUserLpOpportunities,
@@ -34,6 +39,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { ActionResults } from './ActionResults/ActionResults'
 import { AssetResults } from './AssetResults/AssetResults'
 import { LpResults } from './LpResults/LpResults'
 import { StakingResults } from './StakingResults/StakingResults'
@@ -42,6 +48,7 @@ import { makeOpportunityRouteDetails } from './utils'
 
 export const GlobalSeachButton = () => {
   const { isOpen, onClose, onOpen, onToggle } = useDisclosure()
+  const [sendResults, setSendResults] = useState<SendResult[]>([])
   const [activeIndex, setActiveIndex] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const menuRef = useRef<HTMLDivElement>(null)
@@ -63,9 +70,10 @@ export const GlobalSeachButton = () => {
   const globalSearchFilter = useMemo(() => ({ searchQuery }), [searchQuery])
   const results = useAppSelector(state => selectGlobalItemsFromFilter(state, globalSearchFilter))
   const [assetResults, stakingResults, lpResults, txResults] = results
-  const flatResults = useMemo(() => results.flat(), [results])
+  const flatResults = useMemo(() => [...results, sendResults].flat(), [results, sendResults])
   const resultsCount = flatResults.length
 
+  const { send } = useModal()
   useEffect(() => {
     if (!searchQuery) setActiveIndex(0)
   }, [searchQuery])
@@ -79,9 +87,37 @@ export const GlobalSeachButton = () => {
     }
   })
 
+  useEffect(() => {
+    if (!searchQuery?.length) return
+
+    setSendResults([])
+    ;(async () => {
+      const parsed = await parseAddressInput({ urlOrAddress: searchQuery })
+      if (parsed) {
+        const { chainId, address, vanityAddress } = parsed
+        // Set the fee AssetId as a default - users can select their preferred token later during the flow
+        setSendResults([
+          {
+            type: GlobalSearchResultType.Send,
+            id: getChainAdapterManager().get(chainId)!.getFeeAssetId(),
+            address,
+            vanityAddress,
+          },
+        ])
+      }
+    })()
+  }, [searchQuery])
+
   const handleClick = useCallback(
     (item: GlobalSearchResult) => {
       switch (item.type) {
+        case GlobalSearchResultType.Send: {
+          // We don't want to pre-select the asset for EVM ChainIds
+          const assetId = !isEvmChainId(fromAssetId(item.id).chainId) ? item.id : undefined
+          send.open({ assetId, input: searchQuery })
+          onToggle()
+          break
+        }
         case GlobalSearchResultType.Asset: {
           const url = `/assets/${item.id}`
           history.push(url)
@@ -132,6 +168,8 @@ export const GlobalSeachButton = () => {
       location,
       lpOpportunities,
       onToggle,
+      searchQuery,
+      send,
       stakingOpportunities,
     ],
   )
@@ -210,6 +248,14 @@ export const GlobalSeachButton = () => {
       <SearchEmpty searchQuery={searchQuery} />
     ) : (
       <List>
+        <ActionResults
+          onClick={handleClick}
+          results={sendResults}
+          searchQuery={searchQuery}
+          activeIndex={activeIndex}
+          startingIndex={0}
+          menuNodes={menuNodes}
+        />
         <AssetResults
           onClick={handleClick}
           results={assetResults}
@@ -253,6 +299,7 @@ export const GlobalSeachButton = () => {
     menuNodes,
     results?.length,
     searchQuery,
+    sendResults,
     stakingResults,
     txResults,
   ])

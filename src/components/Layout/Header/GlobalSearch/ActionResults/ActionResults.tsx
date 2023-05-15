@@ -31,7 +31,8 @@ export const ActionResults: React.FC<GlobalSearchResultsProps<SendResult>> = ({
     ))
   }, [activeIndex, menuNodes, onClick, results, searchQuery, startingIndex])
 
-  if (searchQuery && !results.length) return null
+  if (!renderItems?.length) return null
+
   return (
     <>
       <ListItemSection title={translate('common.action')} />

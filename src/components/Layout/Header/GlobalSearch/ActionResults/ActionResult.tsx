@@ -14,17 +14,21 @@ type ActionResultProps = {
   index: number
   activeIndex?: number
   onClick: (arg: GlobalSearchResult) => void
-  searchQuery: string
+  address: string
+  vanityAddress: string
 }
 
 export const ActionResult = forwardRef<ActionResultProps, 'div'>(
-  ({ assetId, searchQuery, index, activeIndex, onClick }, ref) => {
+  ({ assetId, address, vanityAddress, index, activeIndex, onClick }, ref) => {
     const selected = index === activeIndex
+
     return (
       <ResultButton
         ref={ref}
         aria-selected={selected ? true : undefined}
-        onClick={() => onClick({ type: GlobalSearchResultType.Send, id: assetId })}
+        onClick={() =>
+          onClick({ type: GlobalSearchResultType.Send, id: assetId, address, vanityAddress })
+        }
       >
         <Flex gap={2} flex={1} alignItems='center' justifyContent='flex-start' textAlign='left'>
           <IconCircle boxSize={8}>
@@ -37,7 +41,7 @@ export const ActionResult = forwardRef<ActionResultProps, 'div'>(
             overflow='hidden'
             whiteSpace='nowrap'
           >
-            {`Send to ${firstFourLastFour(searchQuery)}`}
+            {`Send to ${vanityAddress || firstFourLastFour(address)}`}
           </RawText>
         </Flex>
       </ResultButton>

@@ -7,7 +7,8 @@ import { ListItemSection } from '../ListItemSection'
 import type { GlobalSearchResultsProps } from '../types'
 import { ActionResult } from './ActionResult'
 
-export const ActionResults: React.FC<GlobalSearchResultsProps<SendResult>> = ({
+type ActionResultsProps = GlobalSearchResultsProps<SendResult>
+export const ActionResults: React.FC<ActionResultsProps> = ({
   results,
   activeIndex,
   onClick,
@@ -18,18 +19,21 @@ export const ActionResults: React.FC<GlobalSearchResultsProps<SendResult>> = ({
   const translate = useTranslate()
   const renderItems = useMemo(() => {
     if (!searchQuery?.length) return null
-    return results.map((item, index) => (
-      <ActionResult
-        key={`result-action-${index}`}
-        index={index + startingIndex}
-        activeIndex={activeIndex}
-        searchQuery={searchQuery}
-        assetId={item.id}
-        onClick={onClick}
-        ref={menuNodes.ref(index)}
-      />
-    ))
-  }, [activeIndex, menuNodes, onClick, results, searchQuery, startingIndex])
+    return results.map((item, index) => {
+      return (
+        <ActionResult
+          key={`result-action-${index}`}
+          index={index + startingIndex}
+          activeIndex={activeIndex}
+          address={item.address}
+          vanityAddress={item.vanityAddress}
+          assetId={item.id}
+          onClick={onClick}
+          ref={menuNodes.ref(index)}
+        />
+      )
+    })
+  }, [activeIndex, menuNodes, onClick, results, searchQuery?.length, startingIndex])
 
   if (!renderItems?.length) return null
 

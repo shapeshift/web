@@ -41,6 +41,8 @@ export type OpportunitySearchResult = {
 export type SendResult = {
   type: GlobalSearchResultType.Send
   id: AssetId
+  address: string
+  vanityAddress: string
 }
 
 export type GlobalSearchResult =

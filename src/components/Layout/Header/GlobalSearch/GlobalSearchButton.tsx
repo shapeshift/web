@@ -94,11 +94,14 @@ export const GlobalSeachButton = () => {
     ;(async () => {
       const parsed = await parseAddressInput({ urlOrAddress: searchQuery })
       if (parsed) {
+        const { chainId, address, vanityAddress } = parsed
         // Set the fee AssetId as a default - users can select their preferred token later during the flow
         setSendResults([
           {
             type: GlobalSearchResultType.Send,
-            id: getChainAdapterManager().get(parsed.chainId)!.getFeeAssetId(),
+            id: getChainAdapterManager().get(chainId)!.getFeeAssetId(),
+            address,
+            vanityAddress,
           },
         ])
       }
@@ -248,9 +251,9 @@ export const GlobalSeachButton = () => {
         <ActionResults
           onClick={handleClick}
           results={sendResults}
+          searchQuery={searchQuery}
           activeIndex={activeIndex}
           startingIndex={0}
-          searchQuery={searchQuery}
           menuNodes={menuNodes}
         />
         <AssetResults

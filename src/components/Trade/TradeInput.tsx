@@ -179,7 +179,7 @@ export const TradeInput = () => {
   // Reset the manual address input state when the user changes the buy asset
   useEffect(() => {
     setFormValue(SendFormFields.Input, '')
-  }, [buyAsset, setFormValue])
+  }, [buyAsset.assetId, setFormValue])
 
   // Selectors
   const assets = useAppSelector(selectAssets)

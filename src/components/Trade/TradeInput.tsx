@@ -449,7 +449,8 @@ export const TradeInput = () => {
     }
 
     if (!hasValidSellAssetBalance) return 'common.insufficientFunds'
-    if (!hasValidBuyAssetBalance) {
+    // TEMP: temporarily disable this logic for thor trades to allow them to work
+    if (!hasValidBuyAssetBalance && activeSwapper.name !== SwapperName.Thorchain) {
       const chainAdapterManager = getChainAdapterManager()
       const chainName = chainAdapterManager.get(buyAsset.chainId)?.getDisplayName()
       return [

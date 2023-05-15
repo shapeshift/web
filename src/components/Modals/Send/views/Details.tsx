@@ -14,6 +14,7 @@ import {
   ModalHeader,
   Stack,
   Tooltip,
+  usePrevious,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
@@ -44,7 +45,7 @@ import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 const MAX_COSMOS_SDK_MEMO_LENGTH = 256
 
 export const Details = () => {
-  const { control, setValue } = useFormContext<SendInput>()
+  const { control, setValue, trigger } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
 
@@ -80,11 +81,18 @@ export const Details = () => {
     state: { wallet },
   } = useWallet()
 
+  const previousAccountId = usePrevious(accountId)
   useEffect(() => {
-    // Initial setting of cryptoAmount in case of a QR-code set amount
-    if (!cryptoAmount) handleInputChange(cryptoAmount ?? '0')
+    // This component initially mounts without an accountId, because of how <AccountDropdown /> works
+    // Also turns out we don't handle re-validation in case of changing AccountIds
+    // This effect takes care of both the initial/account change cases
+    if (previousAccountId !== accountId) {
+      const inputAmount = fieldName === SendFormFields.CryptoAmount ? cryptoAmount : fiatAmount
+      handleInputChange(inputAmount ?? '0')
+      trigger(fieldName)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handleInputChange])
+  }, [accountId])
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 

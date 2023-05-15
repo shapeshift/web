@@ -111,7 +111,7 @@ export const buildTrade = async (
       sellAsset,
       sellAmountBeforeFeesCryptoBaseUnit,
       buyAsset,
-      buyAmountCryptoBaseUnit: swapResponse.data.toTokenAmount,
+      buyAmountBeforeFeesCryptoBaseUnit: swapResponse.data.toTokenAmount,
       accountNumber,
       receiveAddress,
       sources: DEFAULT_SOURCE,

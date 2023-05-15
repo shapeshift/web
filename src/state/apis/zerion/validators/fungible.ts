@@ -20,10 +20,10 @@ const ImplementationSchema = z.object({
 export type ZerionImplementation = Infer<typeof ImplementationSchema>
 
 const ChangesSchema = z.object({
-  percent_1d: z.number(),
-  percent_30d: z.number(),
-  percent_90d: z.number(),
-  percent_365d: z.number(),
+  percent_1d: z.number().nullable(),
+  percent_30d: z.number().nullable(),
+  percent_90d: z.number().nullable(),
+  percent_365d: z.number().nullable(),
 })
 
 const MarketDataSchema = z.object({

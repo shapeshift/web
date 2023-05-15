@@ -1,8 +1,8 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import max from 'lodash/max'
+import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { SwapErrorRight } from 'lib/swapper/api'
@@ -15,9 +15,13 @@ import {
   getTradeRate,
   getTradeRateBelowMinimum,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/getTradeRate/getTradeRate'
-import { getUsdRate } from 'lib/swapper/swappers/ThorchainSwapper/utils/getUsdRate/getUsdRate'
 import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
 import { ALLOWABLE_MARKET_MOVEMENT } from 'lib/swapper/swappers/utils/constants'
+import {
+  selectBuyAssetUsdRate,
+  selectFeeAssetUsdRate,
+} from 'state/zustand/swapperStore/amountSelectors'
+import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export type GetLimitArgs = {
   receiveAddress: string
@@ -77,13 +81,8 @@ export const getLimit = async ({
     )
   }
 
-  const maybeSellFeeAssetUsdRate = await getUsdRate(deps.daemonUrl, sellAssetChainFeeAssetId)
-  if (maybeSellFeeAssetUsdRate.isErr()) return Err(maybeSellFeeAssetUsdRate.unwrapErr())
-  const sellFeeAssetUsdRate = maybeSellFeeAssetUsdRate.unwrap()
-
-  const maybeBuyAssetUsdRate = await getUsdRate(deps.daemonUrl, buyAssetId)
-  if (maybeBuyAssetUsdRate.isErr()) return Err(maybeBuyAssetUsdRate.unwrapErr())
-  const buyAssetUsdRate = maybeBuyAssetUsdRate.unwrap()
+  const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
+  const feeAssetUsdRate = selectFeeAssetUsdRate(swapperStore.getState())
 
   const expectedBuyAmountCryptoPrecision8 = toBaseUnit(
     fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit).times(tradeRateOrMinimum), sellAsset.precision),
@@ -115,7 +114,7 @@ export const getLimit = async ({
     switch (true) {
       // If the sell asset is on THOR the return fee is fixed at 0.02 RUNE
       case isRune(sellAsset.assetId): {
-        const runeFeeUsd = RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN.times(sellFeeAssetUsdRate)
+        const runeFeeUsd = RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN.times(feeAssetUsdRate)
         return Ok(toBaseUnit(bnOrZero(runeFeeUsd).div(buyAssetUsdRate), THORCHAIN_FIXED_PRECISION))
       }
       // Else the return fee is the outbound fee of the sell asset's chain
@@ -125,9 +124,7 @@ export const getLimit = async ({
             bnOrZero(sellAssetAddressData.outbound_fee),
             THORCHAIN_FIXED_PRECISION,
           )
-          const sellAssetTradeFeeUsd = bnOrZero(sellAssetTradeFeeCryptoHuman).times(
-            sellFeeAssetUsdRate,
-          )
+          const sellAssetTradeFeeUsd = bnOrZero(sellAssetTradeFeeCryptoHuman).times(feeAssetUsdRate)
           return Ok(
             toBaseUnit(
               bnOrZero(sellAssetTradeFeeUsd).div(buyAssetUsdRate),

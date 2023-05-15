@@ -3,6 +3,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
@@ -11,21 +12,21 @@ import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types
 import {
   COW_SWAP_ETH_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
-  DEFAULT_ADDRESS,
   DEFAULT_APP_DATA,
   DEFAULT_SOURCE,
   ORDER_KIND_SELL,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
-import type { CowSwapSellQuoteApiInput } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
-import {
-  getNowPlusThirtyMinutesTimestamp,
-  getUsdRate,
-} from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
+import { getNowPlusThirtyMinutesTimestamp } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import {
   getApproveContractData,
   normalizeIntegerAmount,
 } from 'lib/swapper/swappers/utils/helpers/helpers'
+import {
+  selectBuyAssetUsdRate,
+  selectSellAssetUsdRate,
+} from 'state/zustand/swapperStore/amountSelectors'
+import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export async function getCowSwapTradeQuote(
   deps: CowSwapperDeps,
@@ -66,7 +67,7 @@ export async function getCowSwapTradeQuote(
   const buyToken =
     buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
 
-  const maybeCowSwapMinMax = await getCowSwapMinMax(deps, sellAsset, buyAsset)
+  const maybeCowSwapMinMax = getCowSwapMinMax(sellAsset, buyAsset)
 
   if (maybeCowSwapMinMax.isErr()) return Err(maybeCowSwapMinMax.unwrapErr())
   const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = maybeCowSwapMinMax.unwrap()
@@ -87,14 +88,14 @@ export async function getCowSwapTradeQuote(
     {
       sellToken: sellAssetErc20Address,
       buyToken,
-      receiver: DEFAULT_ADDRESS,
+      receiver: receiveAddress,
       validTo: getNowPlusThirtyMinutesTimestamp(),
       appData: DEFAULT_APP_DATA,
       partiallyFillable: false,
-      from: DEFAULT_ADDRESS,
+      from: receiveAddress,
       kind: ORDER_KIND_SELL,
       sellAmountBeforeFee: normalizedSellAmountCryptoBaseUnit,
-    } as CowSwapSellQuoteApiInput,
+    },
   )
 
   if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())
@@ -102,7 +103,7 @@ export async function getCowSwapTradeQuote(
   const {
     data: {
       quote: {
-        buyAmount: buyAmountCryptoBaseUnit,
+        buyAmount: buyAmountAfterFeesCryptoBaseUnit,
         sellAmount: sellAmountCryptoBaseUnit,
         feeAmount: feeAmountInSellTokenCryptoBaseUnit,
       },
@@ -113,13 +114,16 @@ export async function getCowSwapTradeQuote(
     feeAmountInSellTokenCryptoBaseUnit,
   )
 
-  const buyCryptoAmount = bn(buyAmountCryptoBaseUnit).div(
+  const buyCryptoAmountAfterFeesCryptoPrecision = bn(buyAmountAfterFeesCryptoBaseUnit).div(
     bn(10).exponentiatedBy(buyAsset.precision),
   )
-  const sellCryptoAmount = bn(sellAmountCryptoBaseUnit).div(
+  const sellCryptoAmountCryptoPrecision = bn(sellAmountCryptoBaseUnit).div(
     bn(10).exponentiatedBy(sellAsset.precision),
   )
-  const rate = buyCryptoAmount.div(sellCryptoAmount).toString()
+
+  const rate = buyCryptoAmountAfterFeesCryptoPrecision
+    .div(sellCryptoAmountCryptoPrecision)
+    .toString()
 
   const approveData = getApproveContractData({
     web3,
@@ -127,61 +131,71 @@ export async function getCowSwapTradeQuote(
     contractAddress: sellAssetErc20Address,
   })
 
-  const [feeData, maybeSellAssetUsdRate] = await Promise.all([
-    adapter.getFeeData({
-      to: sellAssetErc20Address,
-      value: '0',
-      chainSpecific: { from: receiveAddress, contractData: approveData },
-    }),
-    getUsdRate(deps, sellAsset),
-  ])
-
-  return maybeSellAssetUsdRate.andThen(sellAssetUsdRate => {
-    const sellAssetTradeFeeUsd = bnOrZero(feeAmountInSellTokenCryptoBaseUnit)
-      .div(bn(10).exponentiatedBy(sellAsset.precision))
-      .multipliedBy(bnOrZero(sellAssetUsdRate))
-      .toString()
-
-    const isQuoteSellAmountBelowMinimum = bnOrZero(quoteSellAmountPlusFeesCryptoBaseUnit).lt(
-      minQuoteSellAmount,
-    )
-    // If isQuoteSellAmountBelowMinimum we don't want to replace it with normalizedSellAmount
-    // The purpose of this was to get a quote from CowSwap even with small amounts
-    const quoteSellAmountCryptoBaseUnit = isQuoteSellAmountBelowMinimum
-      ? sellAmount
-      : normalizedSellAmountCryptoBaseUnit
-
-    // Similarly, if isQuoteSellAmountBelowMinimum we can't use the buy amount from the quote
-    // because we aren't actually selling the minimum amount (we are attempting to sell an amount less than it)
-    const quoteBuyAmountCryptoBaseUnit = isQuoteSellAmountBelowMinimum
-      ? '0'
-      : buyAmountCryptoBaseUnit
-
-    const { average } = feeData
-
-    return Ok({
-      rate,
-      minimumCryptoHuman: minimumAmountCryptoHuman,
-      maximumCryptoHuman: maximumAmountCryptoHuman,
-      feeData: {
-        networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
-        chainSpecific: {
-          estimatedGasCryptoBaseUnit: average.chainSpecific.gasLimit,
-          gasPriceCryptoBaseUnit: average.chainSpecific.gasPrice,
-          maxFeePerGas: average.chainSpecific.maxFeePerGas,
-          maxPriorityFeePerGas: average.chainSpecific.maxPriorityFeePerGas,
-          approvalFeeCryptoBaseUnit: average.txFee,
-        },
-        buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
-        sellAssetTradeFeeUsd,
-      },
-      sellAmountBeforeFeesCryptoBaseUnit: quoteSellAmountCryptoBaseUnit,
-      buyAmountCryptoBaseUnit: quoteBuyAmountCryptoBaseUnit,
-      sources: DEFAULT_SOURCE,
-      allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
-      buyAsset,
-      sellAsset,
-      accountNumber,
-    })
+  const feeData = await adapter.getFeeData({
+    to: sellAssetErc20Address,
+    value: '0',
+    chainSpecific: { from: receiveAddress, contractData: approveData },
   })
+
+  const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+  const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
+
+  const sellAssetTradeFeeUsd = bnOrZero(feeAmountInSellTokenCryptoBaseUnit)
+    .div(bn(10).exponentiatedBy(sellAsset.precision))
+    .multipliedBy(bnOrZero(sellAssetUsdRate))
+    .toString()
+
+  const feeAmountInBuyTokenCryptoPrecision = bnOrZero(sellAssetTradeFeeUsd).div(
+    bnOrZero(buyAssetUsdRate),
+  )
+  const feeAmountInBuyTokenCryptoBaseUnit = toBaseUnit(
+    feeAmountInBuyTokenCryptoPrecision,
+    buyAsset.precision,
+  )
+  const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(feeAmountInBuyTokenCryptoBaseUnit)
+    .plus(buyAmountAfterFeesCryptoBaseUnit)
+    .toFixed()
+
+  const isQuoteSellAmountBelowMinimum = bnOrZero(quoteSellAmountPlusFeesCryptoBaseUnit).lt(
+    minQuoteSellAmount,
+  )
+  // If isQuoteSellAmountBelowMinimum we don't want to replace it with normalizedSellAmount
+  // The purpose of this was to get a quote from CowSwap even with small amounts
+  const quoteSellAmountCryptoBaseUnit = isQuoteSellAmountBelowMinimum
+    ? sellAmount
+    : normalizedSellAmountCryptoBaseUnit
+
+  // Similarly, if isQuoteSellAmountBelowMinimum we can't use the buy amount from the quote
+  // because we aren't actually selling the minimum amount (we are attempting to sell an amount less than it)
+  const quoteBuyAmountCryptoBaseUnit = isQuoteSellAmountBelowMinimum
+    ? '0'
+    : buyAmountBeforeFeesCryptoBaseUnit
+
+  const { average } = feeData
+  const quote = {
+    rate,
+    minimumCryptoHuman: minimumAmountCryptoHuman,
+    maximumCryptoHuman: maximumAmountCryptoHuman,
+    feeData: {
+      networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
+      chainSpecific: {
+        estimatedGasCryptoBaseUnit: average.chainSpecific.gasLimit,
+        gasPriceCryptoBaseUnit: average.chainSpecific.gasPrice,
+        maxFeePerGas: average.chainSpecific.maxFeePerGas,
+        maxPriorityFeePerGas: average.chainSpecific.maxPriorityFeePerGas,
+        approvalFeeCryptoBaseUnit: average.txFee,
+      },
+      buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
+      sellAssetTradeFeeUsd,
+    },
+    sellAmountBeforeFeesCryptoBaseUnit: quoteSellAmountCryptoBaseUnit,
+    buyAmountBeforeFeesCryptoBaseUnit: quoteBuyAmountCryptoBaseUnit,
+    sources: DEFAULT_SOURCE,
+    allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
+    buyAsset,
+    sellAsset,
+    accountNumber,
+  }
+
+  return Ok(quote)
 }

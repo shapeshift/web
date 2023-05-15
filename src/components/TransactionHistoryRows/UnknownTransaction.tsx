@@ -43,8 +43,8 @@ export const UnknownTransaction = ({
         parentWidth={parentWidth}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
-        {txDetails.tx.transfers.length > 0 && (
-          <Transfers compactMode={compactMode} transfers={txDetails.tx.transfers} />
+        {txDetails.transfers.length > 0 && (
+          <Transfers compactMode={compactMode} transfers={txDetails.transfers} />
         )}
         <TxGrid compactMode={compactMode}>
           <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />

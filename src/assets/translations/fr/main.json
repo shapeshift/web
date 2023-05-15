@@ -128,7 +128,7 @@
     "cta": {
       "title": {
         "first": "Vous pouvez aussi utiliser ShapeShift avec tous les principaux porte-monnaie pour échanger, gagner du rendement et",
-        "second": "suivre vos cryptos sur 8 chaînes"
+        "second": "suivre vos cryptos sur %{chainCount} chaînes"
       }
     },
     "availableAssets": "Actifs disponibles"
@@ -504,7 +504,8 @@
     "wallet": "Porte-monnaie",
     "explore": "Explorer",
     "rewards": "Récompenses",
-    "trade": "Échanger",
+    "trade": "Échanger/Déplacer",
+    "tradeShort": "Échanger",
     "buyCrypto": "Acheter/Vendre des cryptos",
     "buyCryptoShort": "Achat/Vente",
     "arkeo": "Airdrop Arkeo"

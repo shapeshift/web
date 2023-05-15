@@ -128,7 +128,7 @@
     "cta": {
       "title": {
         "first": "Ayrıca ShapeShift'i en iyi cüzdanların tümü ile takas yapmak, kazanç elde etmek ve",
-        "second": "Kripto paranızı 8 farklı ağda takip edebilirsiniz"
+        "second": "Kripto paranızı %{chainCount} farklı ağda takip edebilirsiniz"
       }
     },
     "availableAssets": "Kullanılabilir Varlıklar"
@@ -504,7 +504,8 @@
     "wallet": "Cüzdan",
     "explore": "Keşfet",
     "rewards": "Ödüller",
-    "trade": "Takas",
+    "trade": "Takas/Köprü",
+    "tradeShort": "Takas",
     "buyCrypto": "Kripto Al/Sat",
     "buyCryptoShort": "Al/Sat",
     "arkeo": "Arkeo Airdrop"

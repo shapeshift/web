@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type {
   AssetId,
   AssetReference,
@@ -14,6 +13,7 @@ import {
   fromChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
+import type { Asset } from 'lib/asset-service'
 
 import type { AssetsById } from './assetsSlice'
 

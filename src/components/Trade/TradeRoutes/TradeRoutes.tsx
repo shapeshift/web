@@ -1,9 +1,9 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import { AnimatePresence } from 'framer-motion'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { Approval } from 'components/Approval/Approval'
 import { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
+import type { Asset } from 'lib/asset-service'
 
 import { useSwapper } from '../hooks/useSwapper/useSwapper'
 import { useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'

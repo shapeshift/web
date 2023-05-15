@@ -2,13 +2,13 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse, AxiosStatic } from 'axios'
 import type Web3 from 'web3'
+import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import type { InboundAddressResponse, ThorchainSwapperDeps, ThornodePoolResponse } from '../types'
-import { getUsdRate } from '../utils/getUsdRate/getUsdRate'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { setupThorswapDeps } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
@@ -22,16 +22,15 @@ jest.mock('../utils/thorService', () => {
     thorService: axios.create(),
   }
 })
-jest.mock('../utils/getUsdRate/getUsdRate')
-
-const mockOk = Ok as jest.Mocked<typeof Ok>
+const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
+const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
 
 const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '149.14668013703712946932',
   maximumCryptoHuman: '100000000000000000000000000',
   sellAmountBeforeFeesCryptoBaseUnit: '713014679420',
   allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-  buyAmountCryptoBaseUnit: '114321610000000000',
+  buyAmountBeforeFeesCryptoBaseUnit: '114321610000000000',
   feeData: {
     chainSpecific: {
       estimatedGasCryptoBaseUnit: '100000',
@@ -104,9 +103,9 @@ describe('getTradeQuote', () => {
           )
       }
     })
-    ;(getUsdRate as jest.Mock<unknown>)
-      .mockReturnValueOnce(Promise.resolve(mockOk('0.15399605260336216'))) // sellAsset
-      .mockReturnValueOnce(Promise.resolve(mockOk('1595'))) // buyAsset
+
+    selectSellAssetUsdRateSpy.mockReturnValueOnce('0.15399605260336216')
+    selectBuyAssetUsdRateSpy.mockReturnValueOnce('1595')
 
     const input: GetTradeQuoteInput = {
       ...quoteInput,

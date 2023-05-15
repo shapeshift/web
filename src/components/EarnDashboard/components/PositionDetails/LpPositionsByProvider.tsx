@@ -155,7 +155,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
           return (
             <Flex direction='column'>
               <Flex gap={1}>
-                <Amount.Fiat value={underlyingBalances[assetId].fiatAmount ?? 0} />
+                <Amount.Fiat value={underlyingBalances[assetId].fiatAmount} />
                 <Flex color='gray.500'>
                   {'('} <Amount.Fiat value={row.original.fiatAmount} /> {')'}
                 </Flex>
@@ -165,8 +165,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
                   variant='sub-text'
                   key={`${assetId}-balance`}
                   size='xs'
-                  // This should never be undefined, but it may
-                  value={underlyingBalances[assetId]?.cryptoBalancePrecision ?? '0'}
+                  value={underlyingBalances[assetId].cryptoBalancePrecision}
                   symbol={assets[assetId]?.symbol ?? ''}
                 />
               ))}

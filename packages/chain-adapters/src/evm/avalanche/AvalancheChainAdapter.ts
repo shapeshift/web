@@ -32,6 +32,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
         assetId: avalancheAssetId,
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
         rpcUrl: args.rpcUrl,
+        api: args.providers.http,
       }),
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       ...args,

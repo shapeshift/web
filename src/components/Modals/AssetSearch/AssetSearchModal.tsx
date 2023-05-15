@@ -7,7 +7,6 @@ import {
   ModalOverlay,
   useMediaQuery,
 } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { FC } from 'react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -15,6 +14,7 @@ import type { AssetSearchProps } from 'components/AssetSearch/AssetSearch'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWindowSize } from 'hooks/useWindowSize/useWindowSize'
+import type { Asset } from 'lib/asset-service'
 import { breakpoints } from 'theme/theme'
 
 interface AssetSearchModalProps extends AssetSearchProps {

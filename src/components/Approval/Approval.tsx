@@ -35,9 +35,9 @@ import { baseUnitToHuman, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { selectFeeAssetFiatRate } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectCheckApprovalNeededForWallet,
-  selectFeeAssetFiatRate,
   selectFees,
   selectIsExactAllowance,
   selectQuote,

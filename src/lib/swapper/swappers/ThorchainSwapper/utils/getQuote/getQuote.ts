@@ -1,9 +1,9 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters } from '@shapeshiftoss/caip'
+import { adapters, bchAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import qs from 'qs'
+import type { Asset } from 'lib/asset-service'
 import { baseUnitToPrecision, bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { SwapErrorRight } from 'lib/swapper/api'
@@ -47,11 +47,15 @@ export const getQuote = async ({
     toBaseUnit(sellAmountCryptoPrecision, THORCHAIN_FIXED_PRECISION),
   )
 
+  // The THORChain swap endpoint expects BCH receiveAddress's to be stripped of the "bitcoincash:" prefix
+  const parsedReceiveAddress =
+    buyAssetId === bchAssetId ? receiveAddress.replace('bitcoincash:', '') : receiveAddress
+
   const queryString = qs.stringify({
     amount: sellAmountCryptoThorBaseUnit.toString(),
     from_asset: sellPoolId,
     to_asset: buyPoolId,
-    destination: receiveAddress,
+    destination: parsedReceiveAddress,
     affiliate_bps: affiliateBps,
     affiliate: THORCHAIN_AFFILIATE_NAME,
   })

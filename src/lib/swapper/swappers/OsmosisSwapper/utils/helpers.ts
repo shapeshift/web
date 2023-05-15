@@ -1,5 +1,6 @@
 import { CHAIN_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
-import { osmosis, toAddressNList } from '@shapeshiftoss/chain-adapters'
+import type { osmosis } from '@shapeshiftoss/chain-adapters'
+import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet, Osmosis } from '@shapeshiftoss/hdwallet-core'
 import { Logger } from '@shapeshiftoss/logger'
 import type { Result } from '@sniptt/monads'
@@ -293,6 +294,8 @@ export const buildTradeTx = async ({
   sellAssetDenom,
   sellAmount,
   gas,
+  feeAmount,
+  feeDenom,
   wallet,
 }: {
   osmoAddress: string
@@ -302,6 +305,8 @@ export const buildTradeTx = async ({
   sellAssetDenom: string
   sellAmount: string
   gas: string
+  feeAmount: string
+  feeDenom: string
   wallet: HDWallet
 }) => {
   const responseAccount = await adapter.getAccount(osmoAddress)
@@ -315,8 +320,8 @@ export const buildTradeTx = async ({
     fee: {
       amount: [
         {
-          amount: osmosis.MIN_FEE,
-          denom: 'uosmo',
+          amount: feeAmount,
+          denom: feeDenom,
         },
       ],
       gas,

@@ -128,7 +128,7 @@
     "cta": {
       "title": {
         "first": "Sie können ShapeShift auch mit allen Top-Wallets verwenden, um zu handeln, Erträge zu erzielen und",
-        "second": "Verfolgen Sie Ihre Krypto über 8 Ketten"
+        "second": "Verfolgen Sie Ihre Krypto über %{chainCount} Ketten"
       }
     },
     "availableAssets": "Verfügbare Vermögenswerte"
@@ -504,7 +504,8 @@
     "wallet": "Wallet",
     "explore": "Entdecken",
     "rewards": "Belohnung",
-    "trade": "Handeln",
+    "trade": "Handeln/Bridge",
+    "tradeShort": "Handeln",
     "buyCrypto": "Krypto kaufen/verkaufen",
     "buyCryptoShort": "Kauf/Verkauf",
     "arkeo": "Arkeo Airdrop"
@@ -1459,7 +1460,7 @@
       "assetActions": {
         "buy": "Kaufen",
         "sell": "Verkaufen",
-        "trade": "Handeln"
+        "trade": "Handeln/Bridge"
       },
       "equity": "Eigenkapital",
       "accountTokens": "Konto-Token",

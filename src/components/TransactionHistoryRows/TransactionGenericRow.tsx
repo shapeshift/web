@@ -130,6 +130,12 @@ export const TransactionGenericRow = ({
     })
   }, [compactMode, transfersByType])
 
+  const isNft = useMemo(() => {
+    return Object.values(transfersByType)
+      .flat()
+      .some(transfer => !!transfer.id)
+  }, [transfersByType])
+
   const cryptoValue = useMemo(() => {
     if (!fee) return '0'
     return fromBaseUnit(fee.value, fee.asset.precision)
@@ -191,6 +197,17 @@ export const TransactionGenericRow = ({
                     px={{ base: 2, md: compactMode ? 2 : 2 }}
                   >
                     IBC
+                  </Tag>
+                )}
+                {isNft && (
+                  <Tag
+                    size='sm'
+                    colorScheme='blue'
+                    variant='subtle'
+                    minHeight={{ base: '1.2rem', md: compactMode ? '1.2rem' : '1.25rem' }}
+                    px={{ base: 2, md: compactMode ? 2 : 2 }}
+                  >
+                    NFT
                   </Tag>
                 )}
               </Flex>

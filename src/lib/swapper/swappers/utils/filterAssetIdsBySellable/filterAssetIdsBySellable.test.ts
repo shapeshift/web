@@ -1,6 +1,6 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Asset } from 'lib/asset-service'
 
 import * as selectors from '../../../../../state/slices/assetsSlice/selectors'
 import { filterEvmAssetIdsBySellable } from './filterAssetIdsBySellable'

@@ -1,8 +1,8 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { Asset } from 'lib/asset-service'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { getMixPanel } from './mixPanelSingleton'

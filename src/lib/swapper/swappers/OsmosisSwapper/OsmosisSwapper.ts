@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosAssetId, cosmosChainId, osmosisAssetId, osmosisChainId } from '@shapeshiftoss/caip'
 import type { cosmos } from '@shapeshiftoss/chain-adapters'
@@ -47,6 +46,8 @@ import type {
   OsmosisTradeResult,
   OsmoSwapperDeps,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
+import { selectSellAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
+import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export type OsmosisSupportedChainId = KnownChainIds.CosmosMainnet | KnownChainIds.OsmosisMainnet
 
@@ -101,45 +102,14 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     }
   }
 
-  async getUsdRate(
-    input: Pick<Asset, 'symbol' | 'assetId'>,
-  ): Promise<Result<string, SwapErrorRight>> {
-    const { symbol } = input
+  getMinMax(): Result<MinMaxOutput, SwapErrorRight> {
+    const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+    const minimumAmountCryptoHuman = bn(1).dividedBy(bnOrZero(sellAssetUsdRate)).toString()
+    const maximumAmountCryptoHuman = MAX_SWAPPER_SELL
 
-    const sellAssetSymbol = symbol
-    const buyAssetSymbol = 'USDC'
-    const sellAmount = '1'
-    const maybeOsmoRateInfo = await getRateInfo(
-      'OSMO',
-      buyAssetSymbol,
-      sellAmount,
-      this.deps.osmoUrl,
-    )
-
-    if (maybeOsmoRateInfo.isErr()) return Err(maybeOsmoRateInfo.unwrapErr())
-    const { rate: osmoRate } = maybeOsmoRateInfo.unwrap()
-
-    if (sellAssetSymbol !== 'OSMO') {
-      return (await getRateInfo(sellAssetSymbol, 'OSMO', sellAmount, this.deps.osmoUrl)).andThen(
-        ({ rate }) => Ok(bnOrZero(rate).times(osmoRate).toString()),
-      )
-    }
-
-    return Ok(osmoRate)
-  }
-
-  async getMinMax(input: { sellAsset: Asset }): Promise<Result<MinMaxOutput, SwapErrorRight>> {
-    const { sellAsset } = input
-    const maybeUsdRate = await this.getUsdRate({ ...sellAsset })
-
-    return maybeUsdRate.andThen(usdRate => {
-      const minimumAmountCryptoHuman = bn(1).dividedBy(bnOrZero(usdRate)).toString()
-      const maximumAmountCryptoHuman = MAX_SWAPPER_SELL
-
-      return Ok({
-        minimumAmountCryptoHuman,
-        maximumAmountCryptoHuman,
-      })
+    return Ok({
+      minimumAmountCryptoHuman,
+      maximumAmountCryptoHuman,
     })
   }
 
@@ -224,7 +194,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const fee = feeData.fast.txFee
 
     return Ok({
-      buyAmountCryptoBaseUnit,
+      buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
       buyAsset,
       feeData: {
         networkFeeCryptoBaseUnit: fee,
@@ -269,7 +239,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     if (maybeRateInfo.isErr()) return Err(maybeRateInfo.unwrapErr())
     const { buyAssetTradeFeeUsd, rate, buyAmountCryptoBaseUnit } = maybeRateInfo.unwrap()
 
-    const maybeMinMax = await this.getMinMax(input)
+    const maybeMinMax = this.getMinMax()
     if (maybeMinMax.isErr()) return Err(maybeMinMax.unwrapErr())
     const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = maybeMinMax.unwrap()
 
@@ -301,7 +271,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       rate,
       sellAsset,
       sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-      buyAmountCryptoBaseUnit,
+      buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
       sources: DEFAULT_SOURCE,
       allowanceContract: '',
     })
@@ -352,9 +322,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       )
     }
 
-    const feeData = await osmosisAdapter.getFeeData({})
-    const gas = feeData.fast.chainSpecific.gasLimit
-
     let sellAddress
     let cosmosIbcTradeId = ''
 
@@ -390,6 +357,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
       const sequence = responseAccount.chainSpecific.sequence || '0'
 
+      const ibcFromCosmosFeeData = await cosmosAdapter.getFeeData({})
+
       const { tradeId } = await performIbcTransfer(
         transfer,
         cosmosAdapter,
@@ -397,11 +366,11 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         this.deps.osmoUrl,
         'uatom',
         COSMO_OSMO_CHANNEL,
-        feeData.fast.txFee,
+        ibcFromCosmosFeeData.fast.txFee,
         accountNumber,
         ibcAccountNumber,
         sequence,
-        gas,
+        ibcFromCosmosFeeData.fast.chainSpecific.gasLimit,
         'uatom',
       )
 
@@ -427,6 +396,20 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     /** Execute the swap on Osmosis DEX */
     const osmoAddress = sellAssetIsOnOsmosisNetwork ? sellAddress : receiveAddress
     const cosmosAddress = sellAssetIsOnOsmosisNetwork ? receiveAddress : sellAddress
+
+    /** At the current time, only OSMO<->ATOM swaps are supported, so this is fine.
+     * In the future, as more Osmosis network assets are added, the buy asset should
+     * be used as the fee asset automatically. See the whitelist of supported fee assets here:
+     * https://github.com/osmosis-labs/osmosis/blob/04026675f75ca065fb89f965ab2d33c9840c965a/app/upgrades/v5/whitelist_feetokens.go
+     */
+    const swapFeeData = await (sellAssetIsOnOsmosisNetwork
+      ? osmosisAdapter.getFeeData({})
+      : cosmosAdapter.getFeeData({}))
+
+    const feeDenom = sellAssetIsOnOsmosisNetwork
+      ? 'uosmo'
+      : atomOnOsmosisAssetId.split('/')[1].replace(/:/g, '/')
+
     const signTxInput = await buildTradeTx({
       osmoAddress,
       accountNumber: sellAssetIsOnOsmosisNetwork ? accountNumber : receiveAccountNumber,
@@ -434,7 +417,9 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       buyAssetDenom,
       sellAssetDenom,
       sellAmount: ibcSellAmount ?? sellAmountCryptoBaseUnit,
-      gas,
+      gas: swapFeeData.fast.chainSpecific.gasLimit,
+      feeAmount: swapFeeData.fast.txFee,
+      feeDenom,
       wallet,
     })
 
@@ -475,6 +460,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         pageSize: 1,
       })
 
+      const ibcFromOsmosisFeeData = await osmosisAdapter.getFeeData({})
+
       await performIbcTransfer(
         transfer,
         osmosisAdapter,
@@ -486,7 +473,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         accountNumber,
         ibcAccountNumber,
         ibcSequence,
-        gas,
+        ibcFromOsmosisFeeData.fast.chainSpecific.gasLimit,
         'uosmo',
       )
       return Ok({

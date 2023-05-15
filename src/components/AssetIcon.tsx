@@ -63,12 +63,24 @@ export const AssetIcon = ({ assetId, showNetworkIcon, src, ...rest }: AssetIconP
 
   if (!asset && !assetId && !src) return null
 
+  if (assetId === nativeAssetId && asset?.networkIcon && showNetworkIcon) {
+    return (
+      <Avatar
+        src={asset.networkIcon}
+        bg={assetIconBg}
+        icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
+        {...rest}
+      />
+    )
+  }
+
   if (assetId) {
-    if (asset && asset.icons) {
+    if (asset?.icons) {
       return (
         <Flex flexDirection='row' alignItems='center'>
           {asset.icons.map((iconSrc, i) => (
             <AssetWithNetwork
+              key={i}
               assetId={assetId}
               src={iconSrc}
               ml={i === 0 ? '0' : '-2.5'}
@@ -80,19 +92,10 @@ export const AssetIcon = ({ assetId, showNetworkIcon, src, ...rest }: AssetIconP
       )
     }
 
-    if (assetId === nativeAssetId && asset?.networkIcon && showNetworkIcon)
-      return (
-        <Avatar
-          src={asset.networkIcon}
-          bg={assetIconBg}
-          icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
-          {...rest}
-        />
-      )
-
     return (
       <AssetWithNetwork
         assetId={assetId}
+        src={src}
         icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
         {...rest}
       />

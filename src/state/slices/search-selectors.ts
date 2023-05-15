@@ -1,6 +1,6 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { uniq } from 'lodash'
+import type { Asset } from 'lib/asset-service'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import { selectSearchQueryFromFilter } from '../selectors'

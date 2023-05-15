@@ -1,10 +1,10 @@
 import { forwardRef, MenuItemOption, Stack } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
+import type { Asset } from 'lib/asset-service'
 import { selectPortfolioTotalBalanceByChainIdIncludeStaking } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

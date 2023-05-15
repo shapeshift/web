@@ -44,9 +44,9 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   }
   const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = maybeZrxMinMax.unwrap()
 
-  const minQuoteSellAmountCryptoBaseUnit = bnOrZero(minimumAmountCryptoHuman).times(
-    bn(10).exponentiatedBy(sellAsset.precision),
-  )
+  const minQuoteSellAmountCryptoBaseUnit = bnOrZero(minimumAmountCryptoHuman)
+    .times(bn(10).exponentiatedBy(sellAsset.precision))
+    .toFixed(0)
 
   const normalizedSellAmount = normalizeAmount(
     bnOrZero(sellAmount).eq(0) ? minQuoteSellAmountCryptoBaseUnit : sellAmount,
@@ -127,7 +127,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       sellAssetTradeFeeUsd: '0',
     },
     allowanceContract: data.allowanceTarget,
-    buyAmountCryptoBaseUnit: data.buyAmount,
+    buyAmountBeforeFeesCryptoBaseUnit: data.buyAmount,
     sellAmountBeforeFeesCryptoBaseUnit: data.sellAmount,
     sources: data.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
   }

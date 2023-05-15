@@ -14,12 +14,8 @@ import { SwapperName, SwapperType } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
 import { selectFeeAssetByChainId, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import {
-  selectAmount,
-  selectBuyAsset,
-  selectFeeAssetFiatRate,
-  selectSellAsset,
-} from 'state/zustand/swapperStore/selectors'
+import { selectFeeAssetFiatRate } from 'state/zustand/swapperStore/amountSelectors'
+import { selectAmount, selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import ZrxIcon from './0x-icon.png'
@@ -137,7 +133,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     bnOrZero(totalReceiveAmountCryptoPrecision).isGreaterThan(0)
   const tag: JSX.Element = useMemo(() => {
     switch (true) {
-      case !hasAmountWithPositiveReceive:
+      case !hasAmountWithPositiveReceive && isAmountEntered:
         return (
           <Tag size='sm' colorScheme='red'>
             {translate('trade.rates.tags.negativeRatio')}
@@ -152,7 +148,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       default:
         return <Tag size='sm'>{translate('common.alternative')}</Tag>
     }
-  }, [isBest, hasAmountWithPositiveReceive, translate])
+  }, [hasAmountWithPositiveReceive, isAmountEntered, translate, isBest])
 
   const activeSwapperColor = (() => {
     if (!isTradingActive) return redColor

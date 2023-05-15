@@ -55,25 +55,25 @@ export class BaseTransactionParser<T extends Tx> {
       const amount = new BigNumber(value?.amount ?? 0)
 
       if (from === address && amount.gt(0)) {
-        parsedTx.transfers = aggregateTransfer(
-          parsedTx.transfers,
-          TransferType.Send,
+        parsedTx.transfers = aggregateTransfer({
           assetId,
           from,
           to,
-          amount.toString(10),
-        )
+          transfers: parsedTx.transfers,
+          type: TransferType.Send,
+          value: amount.toString(10),
+        })
       }
 
       if (to === address && amount.gt(0)) {
-        parsedTx.transfers = aggregateTransfer(
-          parsedTx.transfers,
-          TransferType.Receive,
+        parsedTx.transfers = aggregateTransfer({
           assetId,
           from,
           to,
-          amount.toString(10),
-        )
+          transfers: parsedTx.transfers,
+          type: TransferType.Receive,
+          value: amount.toString(10),
+        })
       }
     })
 

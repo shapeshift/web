@@ -1,6 +1,6 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
+import type { Asset } from 'lib/asset-service'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'

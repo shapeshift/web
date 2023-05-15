@@ -70,7 +70,7 @@ const makePolygonMockCoingeckoResponse = () => ({
   platforms: {},
 })
 
-const makeGnosisnMockCoingeckoResponse = () => ({
+const makeGnosisMockCoingeckoResponse = () => ({
   id: 'gnosis',
   symbol: 'gno',
   name: 'Gnosis',

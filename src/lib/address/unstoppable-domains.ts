@@ -37,9 +37,9 @@ const getResolution = (): Resolution => {
 }
 
 // validate
-export const validateUnstoppableDomain: ValidateVanityAddress = ({ value }) => {
+export const validateUnstoppableDomain: ValidateVanityAddress = ({ maybeAddress }) => {
   try {
-    return getResolution().isSupportedDomain(value)
+    return getResolution().isSupportedDomain(maybeAddress)
   } catch (e) {
     moduleLogger.trace(e, 'cannot validate unstoppable domain')
     return Promise.resolve(false)
@@ -53,7 +53,7 @@ const chainIdToUDTicker: Record<string, string> = {
 
 // resolve
 export const resolveUnstoppableDomain: ResolveVanityAddress = args => {
-  const { chainId, value } = args
+  const { chainId, maybeAddress: value } = args
   const ticker = chainIdToUDTicker[chainId]
   if (!ticker) {
     moduleLogger.error({ args }, 'cannot resolve: unsupported chainId')
@@ -69,14 +69,14 @@ export const resolveUnstoppableDomain: ResolveVanityAddress = args => {
 
 // reverse lookup
 export const reverseLookupUnstoppableDomain: ReverseLookupVanityAddress = async args => {
-  const { chainId, value } = args
+  const { chainId, maybeAddress } = args
   const ticker = chainIdToUDTicker[chainId]
   if (!ticker) {
     moduleLogger.error({ chainId }, 'cannot resolve unstoppable domain: unsupported chainId')
     return ''
   }
   try {
-    const result = await getResolution().reverse(value)
+    const result = await getResolution().reverse(maybeAddress)
     if (result) return result
   } catch (e) {
     moduleLogger.trace(e, 'cannot resolve')

@@ -15,7 +15,6 @@ import { resolveYat, validateYat } from 'lib/address/yat'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { store } from 'state/store'
-import type { Identity } from 'types/common'
 
 import { ensReverseLookupShim } from './ens'
 
@@ -32,11 +31,11 @@ const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   [dogeChainId]: 'doge',
   [ltcChainId]: 'litecoin',
 }
-export const parseMaybeUrlWithChainId: Identity<ParseAddressByChainIdInputArgs> = ({
+export const parseMaybeUrlWithChainId = ({
   assetId,
   chainId,
-  value,
-}) => {
+  urlOrAddress: value,
+}: ParseAddressByChainIdInputArgs): ParseAddressByChainIdOutput => {
   switch (chainId) {
     case ethChainId:
       try {
@@ -44,7 +43,7 @@ export const parseMaybeUrlWithChainId: Identity<ParseAddressByChainIdInputArgs> 
 
         return {
           assetId,
-          value: parsedUrl.target_address ?? value,
+          maybeAddress: parsedUrl.target_address ?? value,
           chainId,
           ...(parsedUrl.parameters?.value ?? parsedUrl.parameters?.amount
             ? {
@@ -67,7 +66,7 @@ export const parseMaybeUrlWithChainId: Identity<ParseAddressByChainIdInputArgs> 
         const parsedUrl = bip21.decode(value, urnScheme)
         return {
           assetId,
-          value: parsedUrl.address,
+          maybeAddress: parsedUrl.address,
           chainId,
           ...(parsedUrl.options?.amount
             ? { amountCryptoPrecision: bnOrZero(parsedUrl.options.amount).toFixed() }
@@ -77,23 +76,23 @@ export const parseMaybeUrlWithChainId: Identity<ParseAddressByChainIdInputArgs> 
         moduleLogger.trace(error, 'Cannot parse BIP-21 address')
         return {
           assetId,
-          value,
+          maybeAddress: value,
           chainId,
         }
       }
     default:
-      return { assetId, chainId, value }
+      return { assetId, chainId, maybeAddress: value }
   }
 
-  return { assetId, chainId, value }
+  return { assetId, chainId, maybeAddress: value }
 }
 
 export const parseMaybeUrl = async ({ value }: { value: string }): Promise<ParseMaybeUrlResult> => {
   // Iterate over supportedChainIds
   for (const chainId of Object.values(KnownChainIds)) {
     try {
-      const maybeUrl = parseMaybeUrlWithChainId({ chainId, value })
-      const isValidUrl = maybeUrl.value !== value
+      const maybeUrl = parseMaybeUrlWithChainId({ chainId, urlOrAddress: value })
+      const isValidUrl = maybeUrl.maybeAddress !== value
 
       const assetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()!
       // Validation succeeded, and we now have a ChainId
@@ -107,7 +106,7 @@ export const parseMaybeUrl = async ({ value }: { value: string }): Promise<Parse
       }
 
       // Validation was unsuccesful, but this may still be a valid address for this adapter
-      const isValidAddress = await validateAddress({ chainId, value })
+      const isValidAddress = await validateAddress({ chainId, maybeAddress: value })
       if (isValidAddress) {
         return {
           chainId,
@@ -142,7 +141,7 @@ const getVanityAddressValidatorsByChain = (): VanityAddressValidatorsByChainId =
 
 type ValidateVanityAddressArgs = {
   assetId?: AssetId
-  value: string
+  maybeAddress: string
   chainId: ChainId
 }
 type ValidateVanityAddressReturn = boolean
@@ -166,7 +165,7 @@ export const validateVanityAddress: ValidateVanityAddress = async args => {
 export type ResolveVanityAddressArgs = {
   assetId?: AssetId
   chainId: ChainId
-  value: string // may be any type of vanity address, e.g. a .eth or a .crypto, or a regular address on any chain
+  maybeAddress: string // may be any type of vanity address, e.g. a .eth or a .crypto, or a regular address on any chain
 }
 
 export type ResolveVanityAddressReturn = string
@@ -203,7 +202,7 @@ export const resolveVanityAddress: ResolveVanityAddress = async args => {
 // reverse search - given a on chain address, resolve it to a vanity address
 type ReverseLookupVanityAddressArgs = {
   chainId: ChainId
-  value: string
+  maybeAddress: string
 }
 export type ReverseLookupVanityAddressReturn = string
 export type ReverseLookupVanityAddress = (
@@ -233,12 +232,15 @@ export const reverseLookupVanityAddress: ReverseLookupVanityAddress = async args
 // validate a given address
 type ValidateAddressArgs = {
   chainId: ChainId
-  value: string
+  maybeAddress: string
 }
 type ValidateAddressReturn = boolean
 export type ValidateAddressByChainId = (args: ValidateAddressArgs) => Promise<ValidateAddressReturn>
 
-export const validateAddress: ValidateAddressByChainId = async ({ chainId, value }) => {
+export const validateAddress: ValidateAddressByChainId = async ({
+  chainId,
+  maybeAddress: value,
+}) => {
   try {
     const adapter = getChainAdapterManager().get(chainId)
     if (!adapter) return false
@@ -250,7 +252,7 @@ export const validateAddress: ValidateAddressByChainId = async ({ chainId, value
 
 type ParseAddressInputArgs = {
   assetId?: AssetId
-  value: string
+  urlOrAddress: string
   amountCryptoPrecision?: string
 }
 
@@ -260,6 +262,13 @@ type ParseAddressInputArgs = {
  * which may both be empty strings, one may be empty, or both may be populated
  */
 type ParseAddressByChainIdInputArgs = ParseAddressInputArgs & {
+  chainId: ChainId
+}
+
+export type ParseAddressByChainIdOutput = {
+  assetId?: AssetId
+  maybeAddress: string
+  amountCryptoPrecision?: string
   chainId: ChainId
 }
 
@@ -295,7 +304,7 @@ export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async ar
     const vanityAddress = await reverseLookupVanityAddress(parsedArgs)
     // return a valid address, and a possibly blank or populated vanity address
     return {
-      address: parsedArgs.value,
+      address: parsedArgs.maybeAddress,
       vanityAddress,
       chainId: args.chainId,
       amountCryptoPrecision: parsedArgs.amountCryptoPrecision,
@@ -307,7 +316,7 @@ export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async ar
   if (!isVanityAddress) return { address: '', vanityAddress: '', chainId: args.chainId }
   // at this point it's a valid vanity address, let's resolve it
   const address = await resolveVanityAddress(parsedArgs)
-  return { address, vanityAddress: parsedArgs.value, chainId: args.chainId }
+  return { address, vanityAddress: parsedArgs.maybeAddress, chainId: args.chainId }
 }
 
 // Parses an address or vanity address for an **unknown** ChainId, exhausting known ChainIds until we maybe find a match
@@ -320,7 +329,7 @@ export const parseAddressInput: ParseAddressInput = async args => {
     if (isValidAddress) {
       const vanityAddress = await reverseLookupVanityAddress(parsedArgs)
       // return a valid address, and a possibly blank or populated vanity address
-      return { address: parsedArgs.value, vanityAddress, chainId }
+      return { address: parsedArgs.maybeAddress, vanityAddress, chainId }
     }
     // at this point it's not a valid address, but may be a vanity address
     const isVanityAddress = await validateVanityAddress(parsedArgs)
@@ -331,6 +340,6 @@ export const parseAddressInput: ParseAddressInput = async args => {
 
     // All failed, try the next chainId
     if (!address) continue
-    return { address, vanityAddress: parsedArgs.value, chainId }
+    return { address, vanityAddress: parsedArgs.maybeAddress, chainId }
   }
 }

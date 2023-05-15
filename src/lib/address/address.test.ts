@@ -7,6 +7,7 @@ import {
   ltcChainId,
 } from '@shapeshiftoss/caip'
 
+import type { ParseAddressByChainIdOutput } from './address'
 import { parseMaybeUrlWithChainId } from './address'
 
 describe('lib/address', () => {
@@ -15,13 +16,13 @@ describe('lib/address', () => {
       const input = {
         assetId: ethAssetId,
         chainId: ethChainId,
-        value: 'vitalik.eth',
+        urlOrAddress: 'vitalik.eth',
       }
 
-      const expectedOutput = {
+      const expectedOutput: ParseAddressByChainIdOutput = {
         assetId: ethAssetId,
         chainId: ethChainId,
-        value: 'vitalik.eth',
+        maybeAddress: 'vitalik.eth',
       }
 
       expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
@@ -31,13 +32,13 @@ describe('lib/address', () => {
       const input = {
         assetId: ethAssetId,
         chainId: ethChainId,
-        value: 'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
+        urlOrAddress: 'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
       }
 
-      const expectedOutput = {
+      const expectedOutput: ParseAddressByChainIdOutput = {
         assetId: ethAssetId,
         chainId: ethChainId,
-        value: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
+        maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
       }
 
       expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
@@ -47,14 +48,14 @@ describe('lib/address', () => {
       const input = {
         assetId: ethAssetId,
         chainId: ethChainId,
-        value:
+        urlOrAddress:
           'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD?dangerousParam=2.014e18&gas=10&gasLimit=21000&gasPrice=50',
       }
 
-      const expectedOutput = {
+      const expectedOutput: ParseAddressByChainIdOutput = {
         assetId: ethAssetId,
         chainId: ethChainId,
-        value: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
+        maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
       }
 
       expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
@@ -64,14 +65,14 @@ describe('lib/address', () => {
       const input = {
         assetId: ethAssetId,
         chainId: ethChainId,
-        value:
+        urlOrAddress:
           'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD?amount=2.014e18&gas=10&gasLimit=21000&gasPrice=50',
       }
 
-      const expectedOutput = {
+      const expectedOutput: ParseAddressByChainIdOutput = {
         assetId: ethAssetId,
         chainId: ethChainId,
-        value: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
+        maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
         amountCryptoPrecision: '2014000000000000000',
       }
 
@@ -80,14 +81,14 @@ describe('lib/address', () => {
       const input2 = {
         assetId: ethAssetId,
         chainId: ethChainId,
-        value:
+        urlOrAddress:
           'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD?value=2.014e18&gas=10&gasLimit=21000&gasPrice=50',
       }
 
-      const expectedOutput2 = {
+      const expectedOutput2: ParseAddressByChainIdOutput = {
         assetId: ethAssetId,
         chainId: ethChainId,
-        value: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
+        maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
         amountCryptoPrecision: '2014000000000000000',
       }
 
@@ -98,13 +99,13 @@ describe('lib/address', () => {
       const input = {
         assetId: btcAssetId,
         chainId: btcChainId,
-        value: 'bitcoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar',
+        urlOrAddress: 'bitcoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar',
       }
 
-      const expectedOutput = {
+      const expectedOutput: ParseAddressByChainIdOutput = {
         assetId: btcAssetId,
         chainId: btcChainId,
-        value: '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH',
+        maybeAddress: '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH',
         amountCryptoPrecision: '20.3',
       }
 
@@ -115,13 +116,13 @@ describe('lib/address', () => {
       const input = {
         assetId: ltcAssetId,
         chainId: ltcChainId,
-        value: 'dogecoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar',
+        urlOrAddress: 'dogecoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar',
       }
 
-      const expectedOutput = {
+      const expectedOutput: ParseAddressByChainIdOutput = {
         assetId: ltcAssetId,
         chainId: ltcChainId,
-        value: 'dogecoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar',
+        maybeAddress: 'dogecoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar',
       }
 
       expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)

@@ -92,7 +92,7 @@ export const Address = () => {
               required: true,
               validate: {
                 validateAddress: async (rawInput: string) => {
-                  const value = rawInput.trim() // trim leading/trailing spaces
+                  const urlOrAddress = rawInput.trim() // trim leading/trailing spaces
                   setIsValidating(true)
                   setValue(SendFormFields.To, '')
                   setValue(SendFormFields.VanityAddress, '')
@@ -100,7 +100,7 @@ export const Address = () => {
                   setValue(SendFormFields.CryptoAmount, '')
                   const { assetId } = asset
                   // this does not throw, everything inside is handled
-                  const parseAddressInputWithChainIdArgs = { assetId, chainId, value }
+                  const parseAddressInputWithChainIdArgs = { assetId, chainId, urlOrAddress }
                   const { amountCryptoPrecision, address, vanityAddress } =
                     await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
                   setIsValidating(false)

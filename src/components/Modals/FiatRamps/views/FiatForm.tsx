@@ -112,7 +112,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
         plainAddresses.map((value, idx) => {
           if (!value) return Promise.resolve({ address: '', vanityAddress: '' })
           const { chainId } = fromAccountId(walletAccountIds[idx])
-          return parseAddressInputWithChainId({ chainId, value })
+          return parseAddressInputWithChainId({ chainId, urlOrAddress: value })
         }),
       )
 

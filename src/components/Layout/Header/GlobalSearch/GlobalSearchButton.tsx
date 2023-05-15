@@ -99,7 +99,7 @@ export const GlobalSeachButton = () => {
 
     setSendResults([])
     ;(async () => {
-      const parsed = await parseAddressInput({ value: searchQuery })
+      const parsed = await parseAddressInput({ urlOrAddress: searchQuery })
       if (parsed) {
         // Set the fee AssetId as a default - users can select their preferred token later during the flow
         setSendResults([

@@ -52,7 +52,7 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
   // TODO(gomes): This will break sorting, but we do want the read only selector to be separate not to clutter the earn selector
   // Fix this before opening me
   const rows = (earnOpportunityRows as AggregatedReadOnlyOpportunitiesByProviderReturn[]).concat(
-    readOnlyOpportunityRows,
+    readOnlyOpportunityRows || [],
   )
 
   const renderProviders = useMemo(() => {

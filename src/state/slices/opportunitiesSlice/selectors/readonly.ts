@@ -42,11 +42,15 @@ export const selectAggregatedReadOnlyOpportunitiesByProvider = createDeepEqualOu
         ? '0'
         : projectedAnnualizedYield.div(totalFiatAmount).toString()
 
+      const otherOpportunityType = opportunityMetadata.type === 'staking' ? 'lp' : 'staking'
+      // TODO: concat item.opportunityId once the staking hardcoding for PoC is removed
+      const otherOpportunity = {
+        [otherOpportunityType]: acc[provider]?.opportunities[otherOpportunityType] || [],
+      }
       const currentOpportunity = {
-        [opportunityMetadata.type]: [
-          ...(acc[provider]?.opportunities[opportunityMetadata.type] || []),
-          item.opportunityId,
-        ],
+        [opportunityMetadata.type]: (
+          acc[provider]?.opportunities[opportunityMetadata.type] || []
+        ).concat(item.opportunityId),
       }
 
       debugger
@@ -60,10 +64,12 @@ export const selectAggregatedReadOnlyOpportunitiesByProvider = createDeepEqualOu
           fiatRewardsAmount: bnOrZero(item.fiatRewardsAmount).toString(),
           // @ts-ignore TODO(gomes): implement fiatRewardsAmount
           netProviderFiatAmount: totalFiatAmount.plus(bnOrZero(item.fiatRewardsAmount)).toString(),
-          opportunities: {
-            ...acc[provider]?.opportunities,
-            ...currentOpportunity,
-          },
+          opportunities: Object.assign(
+            {},
+            acc[provider]?.opportunities,
+            currentOpportunity,
+            otherOpportunity,
+          ),
         },
       }
     }, {})

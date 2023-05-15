@@ -11,6 +11,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { useGetReadOnlyOpportunitiesQuery } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import type {
   OpportunityId,
   StakingEarnOpportunityType,
@@ -42,7 +43,14 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
-  const filteredDown = stakingOpportunities.filter(e => ids.includes(e.id as OpportunityId))
+
+  const { data: readOnlyOpportunitiesData } = useGetReadOnlyOpportunitiesQuery()
+  const readOnlyOpportunitiesMetadata = Object.values(
+    readOnlyOpportunitiesData?.opportunities ?? {},
+  )
+  const filteredDown = stakingOpportunities
+    .concat(readOnlyOpportunitiesMetadata)
+    .filter(e => ids.includes(e.id as OpportunityId))
 
   const groupedItems = useMemo(() => {
     const groups = filteredDown.reduce(

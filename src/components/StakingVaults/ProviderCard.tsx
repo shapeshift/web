@@ -15,6 +15,7 @@ import { WalletLpByAsset } from 'components/EarnDashboard/components/ProviderDet
 import { WalletStakingByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletStakingByAsset'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
+import { useGetReadOnlyOpportunitiesQuery } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import type { AggregatedOpportunitiesByProviderReturn } from 'state/slices/opportunitiesSlice/types'
 
 type ProviderCardProps = {
@@ -29,7 +30,12 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   isLoading,
 }) => {
   const headerBg = useColorModeValue('white', 'gray.785')
-  const { icon } = DEFI_PROVIDER_TO_METADATA[provider]
+
+  const { data: readOnlyOpportunitiesData } = useGetReadOnlyOpportunitiesQuery()
+  const icon =
+    DEFI_PROVIDER_TO_METADATA[provider]?.icon ??
+    readOnlyOpportunitiesData?.metadataByProvider[provider as string]?.icon
+  console.log({ staking, lp })
   const isLoaded = !isLoading
   return (
     <Card variant='default'>

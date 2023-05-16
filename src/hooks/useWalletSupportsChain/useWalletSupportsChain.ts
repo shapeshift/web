@@ -26,6 +26,7 @@ import {
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import { logger } from 'lib/logger'
+
 const moduleLogger = logger.child({ namespace: ['useWalletSupportsChain'] })
 
 type UseWalletSupportsChainArgs = { chainId: ChainId; wallet: HDWallet | null }

@@ -1,13 +1,24 @@
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Button, Flex, IconButton, Stack, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  IconButton,
+  Stack,
+  useColorModeValue,
+  useMediaQuery,
+} from '@chakra-ui/react'
+import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import type { InterpolationOptions } from 'node-polyglot'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import { AddressInput } from 'components/Modals/Send/AddressInput/AddressInput'
+import { SendFormFields } from 'components/Modals/Send/SendCommon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
@@ -22,6 +33,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { parseAddressInputWithChainId } from 'lib/address/address'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -96,6 +108,14 @@ export const TradeInput = () => {
   const { getAvailableSwappers } = getSwappersApi.endpoints
   const { tradeQuoteArgs } = useTradeQuoteService()
   const dispatch = useAppDispatch()
+  const [isManualAddressEntryValidating, setIsManualAddressEntryValidating] = useState(false)
+  const isYatFeatureEnabled = useFeatureFlag('Yat')
+
+  const {
+    formState: { errors: formErrors, isValid: isFormValid },
+    trigger: formTrigger,
+    setValue: setFormValue,
+  } = useFormContext()
 
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
 
@@ -113,6 +133,7 @@ export const TradeInput = () => {
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const updateAction = useSwapperStore(state => state.updateAction)
   const updateAmount = useSwapperStore(state => state.updateAmount)
+  const updateReceiveAddress = useSwapperStore(state => state.updateReceiveAddress)
   const fiatBuyAmount = useSwapperStore(selectBuyAmountFiat)
   const fiatSellAmount = useSwapperStore(selectSellAmountFiat)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
@@ -123,6 +144,7 @@ export const TradeInput = () => {
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellAssetChainId = sellAsset?.chainId
+  const buyAssetChainId = buyAsset?.chainId
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAssetChainId ?? ''))
   const buyAmountCryptoPrecision = useSwapperStore(selectBuyAmountCryptoPrecision)
   const sellAmountCryptoPrecision = useSwapperStore(selectSellAmountCryptoPrecision)
@@ -147,6 +169,21 @@ export const TradeInput = () => {
   const wallet = useWallet().state.wallet
   const { assetSearch } = useModal()
   const { handleAssetClick } = useTradeRoutes()
+
+  // Trigger re-validation of the manually entered receive address
+  useEffect(() => {
+    formTrigger(SendFormFields.Input)
+  }, [formTrigger])
+
+  // Reset the manual address input state when the user changes the buy asset
+  useEffect(() => {
+    setFormValue(SendFormFields.Input, '')
+  }, [buyAsset.assetId, setFormValue])
+
+  // For safety, ensure we never have a receive address in the store if the form is invalid
+  useEffect(() => {
+    !isFormValid && updateReceiveAddress(undefined)
+  }, [isFormValid, updateReceiveAddress])
 
   // Selectors
   const assets = useAppSelector(selectAssets)
@@ -181,6 +218,9 @@ export const TradeInput = () => {
     selectPortfolioCryptoPrecisionBalanceByFilter(state, sellAssetBalanceFilter),
   )
 
+  const isYatSupportedByReceiveChain = buyAsset.chainId === ethChainId // yat only supports eth mainnet
+  const isYatSupported = isYatFeatureEnabled && isYatSupportedByReceiveChain
+
   const buyAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, buyAssetBalanceFilter),
   )
@@ -197,14 +237,14 @@ export const TradeInput = () => {
     )
   }, [buyAsset?.assetId, activeQuote, sellAsset?.assetId])
 
+  const walletSupportsSellAssetChain = walletSupportsChain({ chainId: sellAssetChainId, wallet })
+  const walletSupportsBuyAssetChain = walletSupportsChain({ chainId: buyAssetChainId, wallet })
+
   // Constants
-  const walletSupportsSellAssetChain =
-    sellAsset?.chainId && walletSupportsChain({ wallet, chainId: sellAsset?.chainId })
+  const shouldShowManualReceiveAddressInput = !walletSupportsBuyAssetChain
 
-  const walletSupportsBuyAssetChain =
-    buyAsset?.chainId && walletSupportsChain({ wallet, chainId: buyAsset?.chainId })
-
-  const walletSupportsTradeAssetChains = walletSupportsBuyAssetChain && walletSupportsSellAssetChain
+  const chainAdapterManager = getChainAdapterManager()
+  const buyAssetChainName = chainAdapterManager.get(buyAsset.chainId)?.getDisplayName()
 
   const gasFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
     .times(bnOrZero(feeAssetFiatRate))
@@ -423,11 +463,15 @@ export const TradeInput = () => {
           assetSymbol: sellAsset?.symbol ?? translate('trade.errors.sellAssetStartSentence'),
         },
       ]
-    if (!walletSupportsBuyAssetChain)
+
+    if (formErrors.input?.message && !walletSupportsBuyAssetChain) {
+      return formErrors.input?.message.toString()
+    }
+    if (!receiveAddress)
       return [
-        'trade.errors.assetNotSupportedByWallet',
+        'trade.errors.noReceiveAddress',
         {
-          assetSymbol: buyAsset?.symbol ?? translate('trade.errors.buyAssetStartSentence'),
+          assetSymbol: buyAsset?.symbol ?? translate('trade.errors.buyAssetMiddleSentence'),
         },
       ]
     if (!activeSwapper) return 'trade.errors.invalidTradePairBtnText'
@@ -450,12 +494,14 @@ export const TradeInput = () => {
 
     if (!hasValidSellAssetBalance) return 'common.insufficientFunds'
     // TEMP: temporarily disable this logic for thor trades to allow them to work
-    if (!hasValidBuyAssetBalance && activeSwapper.name !== SwapperName.Thorchain) {
-      const chainAdapterManager = getChainAdapterManager()
-      const chainName = chainAdapterManager.get(buyAsset.chainId)?.getDisplayName()
+    if (
+      !hasValidBuyAssetBalance &&
+      walletSupportsBuyAssetChain &&
+      activeSwapper.name !== SwapperName.Thorchain
+    ) {
       return [
         'trade.errors.insufficientFundsForProtocolFee',
-        { symbol: buyAsset.symbol, chainName },
+        { symbol: buyAsset.symbol, chainName: buyAssetChainName },
       ]
     }
     if (hasValidSellAssetBalance && !hasEnoughBalanceForGas && hasValidSellAmount)
@@ -472,13 +518,6 @@ export const TradeInput = () => {
     }
     if (feesExceedsSellAmount) return 'trade.errors.sellAmountDoesNotCoverFee'
     if (isTradeQuotePending && quoteAvailableForCurrentAssetPair) return 'trade.updatingQuote'
-    if (!receiveAddress)
-      return [
-        'trade.errors.noReceiveAddress',
-        {
-          assetSymbol: buyAsset?.symbol ?? translate('trade.errors.buyAssetMiddleSentence'),
-        },
-      ]
 
     return 'trade.previewTrade'
   }, [
@@ -501,9 +540,10 @@ export const TradeInput = () => {
     wallet,
     walletSupportsSellAssetChain,
     translate,
+    formErrors.input?.message,
     walletSupportsBuyAssetChain,
+    receiveAddress,
     buyAsset.symbol,
-    buyAsset.chainId,
     activeSwapper,
     isTradingActiveOnSellPool,
     isTradingActiveOnBuyPool,
@@ -512,7 +552,7 @@ export const TradeInput = () => {
     feesExceedsSellAmount,
     isTradeQuotePending,
     quoteAvailableForCurrentAssetPair,
-    receiveAddress,
+    buyAssetChainName,
   ])
 
   const hasError = useMemo(() => {
@@ -582,6 +622,49 @@ export const TradeInput = () => {
     [isSwapperApiPending, isSellAction],
   )
 
+  const ManualReceiveAddressEntry: JSX.Element = useMemo(() => {
+    return (
+      <FormControl>
+        <FormLabel color='white.500' w='full' fontWeight='bold'>
+          {translate('trade.receiveAddress')}
+        </FormLabel>
+        <FormLabel color='yellow.400'>
+          {translate('trade.receiveAddressDescription', { chainName: buyAssetChainName })}
+        </FormLabel>
+        <AddressInput
+          rules={{
+            required: true,
+            validate: {
+              validateAddress: async (rawInput: string) => {
+                updateReceiveAddress(undefined)
+                const value = rawInput.trim() // trim leading/trailing spaces
+                setIsManualAddressEntryValidating(true)
+                const { assetId, chainId } = buyAsset
+                // this does not throw, everything inside is handled
+                const parseAddressInputWithChainIdArgs = {
+                  assetId,
+                  chainId,
+                  urlOrAddress: value,
+                  disableUrlParsing: true,
+                }
+                const { address } = await parseAddressInputWithChainId(
+                  parseAddressInputWithChainIdArgs,
+                )
+                setIsManualAddressEntryValidating(false)
+                updateReceiveAddress(address || undefined)
+                const invalidMessage = isYatSupported
+                  ? 'common.invalidAddressOrYat'
+                  : 'common.invalidAddress'
+                return address ? true : invalidMessage
+              },
+            },
+          }}
+          placeholder={translate('trade.addressPlaceholder', { chainName: buyAssetChainName })}
+        />
+      </FormControl>
+    )
+  }, [buyAsset, buyAssetChainName, isYatSupported, translate, updateReceiveAddress])
+
   return (
     <SlideTransition>
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -650,7 +733,7 @@ export const TradeInput = () => {
             showFiatSkeleton={receiveAmountLoading}
             label={translate('trade.youGet')}
             rightRegion={
-              isTradeRatesEnabled ? (
+              isTradeRatesEnabled && walletSupportsSellAssetChain ? (
                 <IconButton
                   size='sm'
                   icon={showQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
@@ -662,7 +745,7 @@ export const TradeInput = () => {
               )
             }
           >
-            {isTradeRatesEnabled && (
+            {isTradeRatesEnabled && walletSupportsSellAssetChain && (
               <TradeQuotes isOpen={showQuotes} isLoading={tradeStateLoading} />
             )}
           </TradeAssetInput>
@@ -674,9 +757,9 @@ export const TradeInput = () => {
             gasFee={gasFeeFiat}
             rate={activeQuote?.rate}
             isLoading={tradeStateLoading}
-            isError={!walletSupportsTradeAssetChains}
+            isError={!walletSupportsSellAssetChain}
           />
-          {walletSupportsTradeAssetChains && !sellAmountTooSmall ? (
+          {walletSupportsSellAssetChain && !sellAmountTooSmall ? (
             <ReceiveSummary
               isLoading={tradeStateLoading}
               symbol={buyAsset?.symbol ?? ''}
@@ -689,12 +772,20 @@ export const TradeInput = () => {
             />
           ) : null}
         </Stack>
+        {shouldShowManualReceiveAddressInput && !tradeStateLoading && ManualReceiveAddressEntry}
         <Button
           type='submit'
           colorScheme={hasError ? 'red' : 'blue'}
           size='lg-multiline'
           data-test='trade-form-preview-button'
-          isDisabled={hasError || isSwapperApiPending || !hasValidSellAmount || !activeQuote}
+          isDisabled={
+            hasError ||
+            isSwapperApiPending ||
+            !hasValidSellAmount ||
+            !activeQuote ||
+            isManualAddressEntryValidating ||
+            !isFormValid
+          }
           isLoading={isLoading}
         >
           <Text translation={getErrorTranslationKey()} />

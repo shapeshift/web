@@ -242,7 +242,6 @@ export const TradeInput = () => {
 
   // Constants
   const shouldShowManualReceiveAddressInput = !walletSupportsBuyAssetChain
-  const walletSupportsTradeAssetChains = walletSupportsBuyAssetChain && walletSupportsSellAssetChain
 
   const chainAdapterManager = getChainAdapterManager()
   const buyAssetChainName = chainAdapterManager.get(buyAsset.chainId)?.getDisplayName()
@@ -734,7 +733,7 @@ export const TradeInput = () => {
             showFiatSkeleton={receiveAmountLoading}
             label={translate('trade.youGet')}
             rightRegion={
-              isTradeRatesEnabled ? (
+              isTradeRatesEnabled && walletSupportsSellAssetChain ? (
                 <IconButton
                   size='sm'
                   icon={showQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
@@ -746,7 +745,7 @@ export const TradeInput = () => {
               )
             }
           >
-            {isTradeRatesEnabled && (
+            {isTradeRatesEnabled && walletSupportsSellAssetChain && (
               <TradeQuotes isOpen={showQuotes} isLoading={tradeStateLoading} />
             )}
           </TradeAssetInput>
@@ -758,7 +757,7 @@ export const TradeInput = () => {
             gasFee={gasFeeFiat}
             rate={activeQuote?.rate}
             isLoading={tradeStateLoading}
-            isError={!walletSupportsTradeAssetChains}
+            isError={!walletSupportsSellAssetChain}
           />
           {walletSupportsSellAssetChain && !sellAmountTooSmall ? (
             <ReceiveSummary

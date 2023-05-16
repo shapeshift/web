@@ -24,6 +24,7 @@ export const RateGasRow: FC<RateGasRowProps> = ({
   rate,
   gasFee,
   isLoading,
+  isError,
 }) => {
   const translate = useTranslate()
   switch (true) {
@@ -34,7 +35,7 @@ export const RateGasRow: FC<RateGasRowProps> = ({
           <Text translation={'trade.searchingRate'} />
         </Stack>
       )
-    case !rate:
+    case !rate || isError:
       return (
         <Stack direction='row' alignItems='center' fontSize='sm'>
           <HelperTooltip

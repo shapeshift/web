@@ -33,8 +33,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import type { ParseAddressByChainIdInputArgs } from 'lib/address/address'
-import { parseAddressInput } from 'lib/address/address'
+import { parseAddressInputWithChainId } from 'lib/address/address'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -643,13 +642,15 @@ export const TradeInput = () => {
                 setIsManualAddressEntryValidating(true)
                 const { assetId, chainId } = buyAsset
                 // this does not throw, everything inside is handled
-                const parseAddressInputArgs: ParseAddressByChainIdInputArgs = {
+                const parseAddressInputWithChainIdArgs = {
                   assetId,
                   chainId,
-                  value,
+                  urlOrAddress: value,
                   disableUrlParsing: true,
                 }
-                const { address } = await parseAddressInput(parseAddressInputArgs)
+                const { address } = await parseAddressInputWithChainId(
+                  parseAddressInputWithChainIdArgs,
+                )
                 setIsManualAddressEntryValidating(false)
                 updateReceiveAddress(address || undefined)
                 const invalidMessage = isYatSupported

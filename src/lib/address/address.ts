@@ -255,6 +255,7 @@ type ParseAddressInputArgs = {
   assetId?: AssetId
   urlOrAddress: string
   amountCryptoPrecision?: string
+  disableUrlParsing?: boolean
 }
 
 /**
@@ -270,7 +271,6 @@ export type ParseAddressByChainIdOutput = {
   assetId?: AssetId
   maybeAddress: string
   amountCryptoPrecision?: string
-  disableUrlParsing?: boolean
   chainId: ChainId
 }
 
@@ -298,7 +298,15 @@ export type ParseAddressInput = (
 
 // Parses an address or vanity address for a **known** ChainId
 export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async args => {
-  const maybeParsedArgs = args.disableUrlParsing ? args : parseMaybeUrlByChainId(args)
+  const { assetId, chainId, amountCryptoPrecision } = args
+  const maybeParsedArgs = args.disableUrlParsing
+    ? {
+        assetId,
+        maybeAddress: args.urlOrAddress,
+        amountCryptoPrecision,
+        chainId,
+      }
+    : parseMaybeUrlWithChainId(args)
 
   const isValidAddress = await validateAddress(maybeParsedArgs)
   // we're dealing with a valid address
@@ -308,17 +316,17 @@ export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async ar
     return {
       address: maybeParsedArgs.maybeAddress,
       vanityAddress,
-      chainId: args.chainId,
-      amountCryptoPrecision: parsedArgs.amountCryptoPrecision,
+      chainId,
+      amountCryptoPrecision: maybeParsedArgs.amountCryptoPrecision,
     }
   }
   // at this point it's not a valid address, but may not be a vanity address
   const isVanityAddress = await validateVanityAddress(maybeParsedArgs)
   // it's neither a valid address nor a vanity address
-  if (!isVanityAddress) return { address: '', vanityAddress: '', chainId: args.chainId }
+  if (!isVanityAddress) return { address: '', vanityAddress: '', chainId }
   // at this point it's a valid vanity address, let's resolve it
   const address = await resolveVanityAddress(maybeParsedArgs)
-  return { address, vanityAddress: maybeParsedArgs.maybeAddress, chainId: args.chainId }
+  return { address, vanityAddress: maybeParsedArgs.maybeAddress, chainId }
 }
 
 // Parses an address or vanity address for an **unknown** ChainId, exhausting known ChainIds until we maybe find a match

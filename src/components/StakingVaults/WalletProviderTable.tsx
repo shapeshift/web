@@ -72,6 +72,7 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
     return (
       <Flex gap={4} flexDir='column'>
         {rows.map((row, index) => (
+          // @ts-ignore TODO(gomes): fixme
           <ProviderCard key={`provider-${index}`} {...row} />
         ))}
         {isLoading &&

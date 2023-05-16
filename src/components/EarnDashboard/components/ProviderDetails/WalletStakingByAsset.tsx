@@ -49,6 +49,7 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
     readOnlyOpportunitiesData?.opportunities ?? {},
   )
   const filteredDown = stakingOpportunities
+    // @ts-ignore TODO(gomes): fixme
     .concat(readOnlyOpportunitiesMetadata)
     .filter(e => ids.includes(e.id as OpportunityId))
 

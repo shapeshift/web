@@ -35,7 +35,6 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   const icon =
     DEFI_PROVIDER_TO_METADATA[provider]?.icon ??
     readOnlyOpportunitiesData?.metadataByProvider[provider as string]?.icon
-  console.log({ staking, lp })
   const isLoaded = !isLoading
   return (
     <Card variant='default'>

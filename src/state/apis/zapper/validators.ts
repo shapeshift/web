@@ -477,7 +477,7 @@ const ZapperDisplayPropsSchema = z.union([
 // optional/nullable somehow doesn't work with z.lazy() so we union undefined the schema itself
 const ZapperDataPropsSchema = z.union([
   z.object({
-    apy: z.number(),
+    apy: z.number().optional(),
     isActive: z.boolean().optional(),
     isDebt: z.boolean().optional(),
     exchangeable: z.boolean().optional(),
@@ -490,6 +490,9 @@ const ZapperDataPropsSchema = z.union([
     poolIndex: z.number().optional(),
     positionKey: z.string().optional(),
     extraRewarderAddress: z.string().optional(),
+    swapAddress: z.string().optional(),
+    symbol: z.string().optional(),
+    weight: z.array(z.number()).optional(),
   }),
   z.undefined(),
 ])
@@ -527,6 +530,7 @@ const ZapperTokenBaseSchema: Type<ZapperTokenBase> = z.intersection(
     decimals: z.number(),
     symbol: z.string(),
     price: z.number(),
+    metaType: z.literals('claimable', 'supplied', 'borrowed').optional(),
   }),
   // ZapperAssetBaseSchema redeclared here because of circular dependencies
   // A Zapper token can itself be a staking asset, meaning it will contain some/all properties from ZapperAssetBaseSchema

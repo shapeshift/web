@@ -125,6 +125,7 @@ type ChainSignTx = {
   [KnownChainIds.OptimismMainnet]: ETHSignTx
   [KnownChainIds.BnbSmartChainMainnet]: ETHSignTx
   [KnownChainIds.PolygonMainnet]: ETHSignTx
+  [KnownChainIds.GnosisMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
   [KnownChainIds.BitcoinCashMainnet]: BTCSignTx
   [KnownChainIds.DogecoinMainnet]: BTCSignTx
@@ -153,6 +154,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.OptimismMainnet]: evm.BuildTxInput
     [KnownChainIds.BnbSmartChainMainnet]: evm.BuildTxInput
     [KnownChainIds.PolygonMainnet]: evm.BuildTxInput
+    [KnownChainIds.GnosisMainnet]: evm.BuildTxInput
     [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
     [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
@@ -233,6 +235,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.OptimismMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BnbSmartChainMainnet]: evm.GetFeeDataInput
     [KnownChainIds.PolygonMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.GnosisMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput

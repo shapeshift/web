@@ -14,57 +14,42 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type Web3 from 'web3'
 import type { AbiItem } from 'web3-utils'
-import type { Asset } from 'lib/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetTradeQuoteInput, TradeQuote } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { erc20Abi } from 'lib/swapper/swappers/utils/abi/erc20-abi'
 
-export type IsApprovalRequiredArgs = {
-  adapter: EvmChainAdapter
-  receiveAddress: string
-  allowanceContract: string
-  sellAsset: Asset
-  sellAmountExcludeFeeCryptoBaseUnit: string
-  web3: Web3
-  erc20AllowanceAbi: AbiItem[]
-}
-
-export type GetERC20AllowanceArgs = {
-  erc20AllowanceAbi: AbiItem[]
-  web3: Web3
-  sellAssetErc20Address: string
-  ownerAddress: string
-  spenderAddress: string
-}
-
-type GetFeesFromContractDataArgs = {
-  accountNumber: number
-  adapter: EvmChainAdapter
-  erc20ContractAddress: string
-  erc20ContractData: string
-  wallet: HDWallet
-}
-
 export const getERC20Allowance = ({
   erc20AllowanceAbi,
   web3,
-  sellAssetErc20Address,
+  address,
   ownerAddress,
   spenderAddress,
-}: GetERC20AllowanceArgs): Promise<number> => {
-  const erc20Contract = new web3.eth.Contract(erc20AllowanceAbi, sellAssetErc20Address)
+}: {
+  erc20AllowanceAbi: AbiItem[]
+  web3: Web3
+  address: string
+  ownerAddress: string
+  spenderAddress: string
+}): Promise<number> => {
+  const erc20Contract = new web3.eth.Contract(erc20AllowanceAbi, address)
   return erc20Contract.methods.allowance(ownerAddress, spenderAddress).call()
 }
 
 export const getFeesFromContractData = async ({
   accountNumber,
   adapter,
-  erc20ContractAddress,
-  erc20ContractData,
+  to,
+  data,
   wallet,
-}: GetFeesFromContractDataArgs): Promise<evm.Fees & { gasLimit: string }> => {
+}: {
+  accountNumber: number
+  adapter: EvmChainAdapter
+  to: string
+  data: string
+  wallet: HDWallet
+}): Promise<evm.Fees & { gasLimit: string }> => {
   if (!supportsETH(wallet)) {
     throw new SwapError('[getFeesFromContractData]', {
       cause: 'eth wallet required',
@@ -77,9 +62,9 @@ export const getFeesFromContractData = async ({
 
   const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } = await (async () => {
     const getFeeDataInput = {
-      to: erc20ContractAddress,
+      to,
       value: '0',
-      chainSpecific: { from: ownerAddress, contractData: erc20ContractData },
+      chainSpecific: { from: ownerAddress, contractData: data },
     }
 
     // account for l1 transaction fees for optimism
@@ -114,31 +99,31 @@ export const getFeesFromContractData = async ({
 export const createBuildCustomTxInput = async ({
   accountNumber,
   adapter,
-  erc20ContractAddress,
-  erc20ContractData,
-  sendAmountCryptoBaseUnit,
+  to,
+  data,
+  value,
   wallet,
 }: {
   accountNumber: number
   adapter: EvmChainAdapter
-  erc20ContractAddress: string
-  erc20ContractData: string
-  sendAmountCryptoBaseUnit: string
+  to: string
+  data: string
+  value: string
   wallet: HDWallet
 }): Promise<evm.BuildCustomTxInput> => {
   const gasFees = await getFeesFromContractData({
     accountNumber,
     adapter,
-    erc20ContractAddress,
-    erc20ContractData,
+    to,
+    data,
     wallet,
   })
 
   return {
     accountNumber,
-    data: erc20ContractData,
-    to: erc20ContractAddress,
-    value: sendAmountCryptoBaseUnit,
+    data,
+    to,
+    value,
     wallet,
     ...gasFees,
   }
@@ -198,17 +183,17 @@ export const normalizeIntegerAmount = (amount: string | number | BigNumber): str
 
 export const getApproveContractData = ({
   approvalAmountCryptoBaseUnit,
-  erc20ContractAddress,
-  spenderAddress,
+  to,
+  spender,
   web3,
 }: {
   approvalAmountCryptoBaseUnit: string
-  erc20ContractAddress: string
-  spenderAddress: string
+  to: string
+  spender: string
   web3: Web3
 }): string => {
-  const contract = new web3.eth.Contract(erc20Abi, erc20ContractAddress)
-  return contract.methods.approve(spenderAddress, approvalAmountCryptoBaseUnit).encodeABI()
+  const contract = new web3.eth.Contract(erc20Abi, to)
+  return contract.methods.approve(spender, approvalAmountCryptoBaseUnit).encodeABI()
 }
 
 export const isNativeEvmAsset = (assetId: AssetId): boolean => {

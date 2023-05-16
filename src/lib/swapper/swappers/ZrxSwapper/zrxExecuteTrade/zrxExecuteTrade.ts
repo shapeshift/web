@@ -21,11 +21,9 @@ export async function zrxExecuteTrade<T extends ZrxSupportedChainId>(
     const buildCustomTxArgs = await createBuildCustomTxInput({
       accountNumber,
       adapter,
-      erc20ContractAddress: depositAddress,
-      erc20ContractData: txData,
-      sendAmountCryptoBaseUnit: isNativeEvmAsset(sellAsset.assetId)
-        ? sellAmountBeforeFeesCryptoBaseUnit
-        : '0',
+      to: depositAddress,
+      data: txData,
+      value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountBeforeFeesCryptoBaseUnit : '0',
       wallet,
     })
 

@@ -76,8 +76,8 @@ export const makeTradeTx = async ({
         ...(await getFeesFromContractData({
           accountNumber,
           adapter,
-          erc20ContractAddress: router,
-          erc20ContractData: data,
+          to: router,
+          data,
           wallet,
         })),
       }),

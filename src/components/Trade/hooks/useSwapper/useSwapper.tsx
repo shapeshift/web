@@ -8,7 +8,7 @@ import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperMana
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn } from 'lib/bignumber/bignumber'
 import type { SwapperManager } from 'lib/swapper/manager/SwapperManager'
 import { erc20AllowanceAbi } from 'lib/swapper/swappers/utils/abi/erc20Allowance-abi'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
@@ -184,19 +184,18 @@ export const useSwapper = () => {
       accountNumber: activeQuote.accountNumber,
     })
 
-    const { assetReference: sellAssetErc20Address } = fromAssetId(sellAsset.assetId)
+    const { assetReference } = fromAssetId(sellAsset.assetId)
     const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
 
-    const allowanceResult = await getERC20Allowance({
+    const allowanceOnChainCryptoBaseUnit = await getERC20Allowance({
       web3,
       erc20AllowanceAbi,
-      sellAssetErc20Address,
+      address: assetReference,
       spenderAddress: activeQuote.allowanceContract,
       ownerAddress,
     })
-    const allowanceOnChain = bnOrZero(allowanceResult)
 
-    return allowanceOnChain.lt(bnOrZero(activeQuote.sellAmountBeforeFeesCryptoBaseUnit))
+    return bn(allowanceOnChainCryptoBaseUnit).lt(activeQuote.sellAmountBeforeFeesCryptoBaseUnit)
   }, [activeQuote, sellAsset.assetId, sellAsset.chainId, wallet])
 
   const createBuildApprovalTxInput = useCallback(
@@ -215,21 +214,21 @@ export const useSwapper = () => {
 
       const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
 
-      const { assetReference: erc20ContractAddress } = fromAssetId(sellAsset.assetId)
+      const { assetReference } = fromAssetId(sellAsset.assetId)
 
-      const erc20ContractData = getApproveContractData({
+      const data = getApproveContractData({
         approvalAmountCryptoBaseUnit,
-        spenderAddress: activeQuote.allowanceContract,
-        erc20ContractAddress,
+        spender: activeQuote.allowanceContract,
+        to: assetReference,
         web3,
       })
 
       return createBuildCustomTxInput({
         accountNumber: activeQuote.accountNumber,
         adapter,
-        erc20ContractAddress,
-        erc20ContractData,
-        sendAmountCryptoBaseUnit: '0',
+        to: assetReference,
+        data,
+        value: '0',
         wallet,
       })
     },

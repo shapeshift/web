@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { evm, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
@@ -31,6 +32,7 @@ import { TradeRoutePaths } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { baseUnitToHuman, bn } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -49,8 +51,8 @@ export const Approval = () => {
   const history = useHistory()
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const [approvalTxId, setApprovalTxId] = useState<string>()
-  const [isExactAllowance, setIsExactAllowance] = useState<boolean>(false)
-  const [buildApprovalTxInput, setBuildApprovalTxInput] = useState<evm.BuildCustomTxInput>()
+  const [buildCustomTxInput, setBuildCustomTxInput] = useState<evm.BuildCustomTxInput>()
+  const [isExactAllowance, toggleIsExactAllowance] = useToggle(false)
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
 
@@ -88,7 +90,7 @@ export const Approval = () => {
       moduleLogger.error('No wallet available')
       return
     }
-    if (!buildApprovalTxInput) {
+    if (!buildCustomTxInput) {
       moduleLogger.error('No buildApprovalTxInput available')
       return
     }
@@ -105,7 +107,7 @@ export const Approval = () => {
       const fnLogger = logger.child({ name: 'approve' })
       fnLogger.trace('Attempting Approval...')
 
-      const txId = await approve(buildApprovalTxInput)
+      const txId = await approve(buildCustomTxInput)
 
       setApprovalTxId(txId)
 
@@ -135,7 +137,7 @@ export const Approval = () => {
   }, [
     activeQuote,
     wallet,
-    buildApprovalTxInput,
+    buildCustomTxInput,
     isConnected,
     approve,
     history,
@@ -146,37 +148,35 @@ export const Approval = () => {
     showErrorToast,
   ])
 
-  const toggleIsExactAllowance = useCallback(() => {
-    setIsExactAllowance(!isExactAllowance)
-  }, [isExactAllowance])
-
   useEffect(() => {
-    setBuildApprovalTxInput(undefined)
-    createBuildApprovalTxInput(isExactAllowance)
-      .then(buildApprovalTxInput => {
-        setBuildApprovalTxInput(buildApprovalTxInput)
-      })
-      .catch(e => {
+    setBuildCustomTxInput(undefined)
+    ;(async () => {
+      try {
+        const buildApprovalTxInput = await createBuildApprovalTxInput(isExactAllowance)
+        setBuildCustomTxInput(buildApprovalTxInput)
+      } catch (e) {
         showErrorToast(e)
-        return history.push(TradeRoutePaths.Input)
-      })
+        history.push(TradeRoutePaths.Input)
+      }
+    })()
   }, [isExactAllowance, createBuildApprovalTxInput, history, showErrorToast])
 
   const approvalNetworkFeeCryptoHuman = useMemo(() => {
-    if (!buildApprovalTxInput) return
+    if (!buildCustomTxInput) return
 
-    const { gasLimit, gasPrice, maxFeePerGas } = buildApprovalTxInput
+    const { gasLimit, gasPrice, maxFeePerGas } = buildCustomTxInput
 
     // use EIP-1551 gas where possible
-    const totalGasPrice = maxFeePerGas ?? gasPrice
+    // non-null assert is safe here because one of these is guaranteed to be defined
+    const totalGasPrice = (maxFeePerGas ?? gasPrice)!
 
-    if (!totalGasPrice) return
+    if (sellFeeAsset === undefined) return
 
     return baseUnitToHuman({
       value: bn(gasLimit).times(totalGasPrice),
-      inputExponent: sellFeeAsset?.precision ?? 0,
+      inputExponent: sellFeeAsset.precision,
     })
-  }, [buildApprovalTxInput, sellFeeAsset?.precision])
+  }, [buildCustomTxInput, sellFeeAsset])
 
   return (
     <SlideTransition>
@@ -301,14 +301,12 @@ export const Approval = () => {
                 <Row.Value textAlign='right'>
                   <Skeleton isLoaded={approvalNetworkFeeCryptoHuman !== undefined}>
                     <RawText>
-                      {approvalNetworkFeeCryptoHuman
-                        ? toFiat(
-                            approvalNetworkFeeCryptoHuman.times(feeAssetFiatRate ?? 1).toString(),
-                          )
+                      {approvalNetworkFeeCryptoHuman && !bnOrZero(feeAssetFiatRate).isZero()
+                        ? toFiat(approvalNetworkFeeCryptoHuman.times(feeAssetFiatRate).toString())
                         : ''}
                     </RawText>
                     <RawText color='gray.500'>
-                      {approvalNetworkFeeCryptoHuman
+                      {approvalNetworkFeeCryptoHuman && !approvalNetworkFeeCryptoHuman.isZero()
                         ? toCrypto(approvalNetworkFeeCryptoHuman.toNumber(), sellFeeAsset?.symbol)
                         : ''}
                     </RawText>

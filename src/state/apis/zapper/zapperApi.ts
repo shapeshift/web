@@ -27,6 +27,7 @@ import { selectAssets } from 'state/slices/selectors'
 
 import type {
   SupportedZapperNetwork,
+  V2AppResponseType,
   V2NftBalancesCollectionsResponseType,
   V2NftCollectionType,
   V2NftUserItem,
@@ -36,6 +37,7 @@ import type {
 import {
   chainIdToZapperNetwork,
   V2AppsBalancesResponse,
+  V2AppsResponse,
   V2AppTokensResponse,
   V2NftBalancesCollectionsResponse,
   ZAPPER_NETWORKS_TO_CHAIN_ID_MAP,
@@ -111,150 +113,26 @@ export const zapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'zapperApi',
   endpoints: build => ({
-    getZapperAppsBalancesOutput: build.query<
-      GetZapperAppsBalancesOutput,
-      GetZapperAppsbalancesInput
-    >({
-      queryFn: async ({ accountIds, reduxApi }) => {
-        const assets = selectAssets(reduxApi.getState() as ReduxState)
-        const evmNetworks = evmChainIds.map(chainIdToZapperNetwork).filter(isSome)
-
-        const addresses = accountIdsToEvmAddresses(accountIds)
-        const url = `/v2/balances/apps`
-        const params = {
-          'addresses[]': addresses,
-          'networks[]': evmNetworks,
-        }
-        const payload = { ...options, params, headers, url }
+    getZapperAppsOutput: build.query<Record<ZapperAppId, V2AppResponseType>, void>({
+      queryFn: async () => {
+        const url = `/v2/apps`
+        const payload = { ...options, headers, url }
         const { data: res } = await axios.request({ ...payload })
         try {
-          const zapperV2AppsBalancessData = V2AppsBalancesResponse.parse(res)
+          const parsedZapperV2AppsData = V2AppsResponse.parse(res)
 
-          const parsedOpportunities = zapperV2AppsBalancessData.reduce<GetZapperAppsBalancesOutput>(
-            (acc, appAccountBalance) => {
-              const appName = appAccountBalance.appName
-              const appImage = appAccountBalance.appImage
-              const accountId = toAccountId({
-                chainId:
-                  ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[
-                    appAccountBalance.network as SupportedZapperNetwork
-                  ],
-                account: appAccountBalance.address,
-              })
-
-              // [0] only for debugging, obviously support all products eventually
-              const appAccountOpportunities = (appAccountBalance.products[0]?.assets ?? [])
-                .map<ReadOnlyOpportunityType>(asset => {
-                  const stakedAmountCryptoBaseUnit = asset.balanceRaw ?? '0'
-                  const fiatAmount = bnOrZero(asset.balanceUSD).toString()
-                  const apy = bnOrZero(asset.dataProps?.apy).toString()
-                  const tvl = bnOrZero(asset.dataProps?.liquidity).toString()
-                  const icon = asset.displayProps?.images?.[0] ?? ''
-                  const name = asset.displayProps?.label ?? ''
-                  const assetId = toAssetId({
-                    chainId:
-                      ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[asset.network as SupportedZapperNetwork],
-                    assetNamespace: 'erc20', // TODO(gomes): this might break for native assets, is that a thing?,
-                    assetReference: asset.address,
-                  })
-
-                  if (!acc.metadataByProvider[appName]) {
-                    acc.metadataByProvider[appName] = {
-                      provider: appName,
-                      icon: appImage,
-                      color: '#000000', // TODO
-                    }
-                  }
-                  // TODO(gomes): ensure this works with the heuristics of ContractPosition vs AppToken
-                  const underlyingAssetIds = asset.tokens.map(token => {
-                    const underlyingAssetId = toAssetId({
-                      chainId:
-                        ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[token.network as SupportedZapperNetwork],
-                      assetNamespace: 'erc20', // TODO(gomes): this might break for native assets, is that a thing?,
-                      assetReference: token.address,
-                    })
-                    return underlyingAssetId
-                  }) as unknown as AssetIdsTuple
-
-                  // An "AppToken" is a position represented a token, thus it is what we call an underlyingAssetId i.e UNI LP AssetId
-                  const underlyingAssetId =
-                    asset.type === 'app-token' ? assetId : underlyingAssetIds[0]!
-
-                  // Upsert underlyingAssetIds if they don't exist in store
-                  underlyingAssetIds.forEach((underlyingAssetId, i) => {
-                    if (!assets[underlyingAssetId]) {
-                      const underlyingAsset = makeAsset({
-                        assetId: underlyingAssetId,
-                        symbol: asset.tokens[i].symbol,
-                        // No dice here, there's no name property
-                        name: asset.tokens[i].symbol,
-                        precision: asset.tokens[i].decimals,
-                        icon: asset.displayProps?.images[i] ?? '',
-                      })
-
-                      // TODO(gomes): we might want to do this in a batch
-                      reduxApi.dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
-                    }
-                  })
-
-                  // Upsert underlyingAssetId if it doesn't exist in store
-                  if (asset.type === 'app-token' && !assets[underlyingAssetId]) {
-                    const underlyingAsset = makeAsset({
-                      assetId: underlyingAssetId,
-                      symbol: asset.symbol ?? '',
-                      name: asset.displayProps?.label ?? '',
-                      precision: asset.decimals ?? 18,
-                      icons: asset.displayProps?.images ?? [],
-                    })
-                    reduxApi.dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
-                  }
-
-                  if (!acc.opportunities[assetId]) {
-                    acc.opportunities[assetId] = {
-                      apy,
-                      assetId,
-                      underlyingAssetId,
-                      underlyingAssetIds,
-                      underlyingAssetRatiosBaseUnit: ['0', '0'], // TODO(gomes): implement me
-                      // TODO(gomes): one AssetId can be an active opportunity across many, we will want to serialize this.
-                      id: assetId as OpportunityId,
-                      icon,
-                      name,
-                      // TODO
-                      rewardAssetIds: [],
-                      provider: appName,
-                      tvl,
-                      type: DefiType.Staking,
-                      // TODO(gomes) We should either:
-                      // 1. filter out the opportunities that are part of our existing view-layer abstraction
-                      // 2. support the opportunities that are part of our existing view-layer abstraction, and fetch them here exclusively instead
-                      // Will need to spike if the available data is sufficient once we smoosh zapper and Zerion data
-                      isClaimableRewards: false,
-                      isReadOnly: true,
-                    }
-                  }
-                  return {
-                    accountId,
-                    provider: appName,
-                    opportunityId: assetId,
-                    stakedAmountCryptoBaseUnit,
-                    fiatAmount,
-                    // TODO: This assumes all as staking for now. We will need to handle LP as well.
-                    type: DefiType.Staking,
-                  }
-                })
-                .filter(isSome)
-
-              acc.userData = acc.userData.concat(appAccountOpportunities)
-              return acc
-            },
-            { userData: [], opportunities: {}, metadataByProvider: {} },
+          const zapperV2AppsDataByAppId = parsedZapperV2AppsData.reduce<
+            Record<ZapperAppId, V2AppResponseType>
+          >(
+            (acc, app) => Object.assign(acc, { [app.id]: app }),
+            {} as Record<ZapperAppId, V2AppResponseType>,
           )
-          return { data: parsedOpportunities }
-        } catch (e) {
-          moduleLogger.warn(e, 'getZapperAppsbalancesOutput')
 
-          const message = e instanceof Error ? e.message : 'Error fetching read-only opportunities'
+          return { data: zapperV2AppsDataByAppId }
+        } catch (e) {
+          moduleLogger.warn(e, 'getZapperAppsOutput')
+
+          const message = e instanceof Error ? e.message : 'Error fetching Zapper apps data'
           return {
             error: {
               error: message,
@@ -432,11 +310,167 @@ export const zapper = createApi({
         return { data }
       },
     }),
+    getZapperAppsBalancesOutput: build.query<
+      GetZapperAppsBalancesOutput,
+      GetZapperAppsbalancesInput
+    >({
+      queryFn: async ({ accountIds, reduxApi }) => {
+        const maybeZapperV2AppsData = await reduxApi.dispatch(
+          zapperApi.endpoints.getZapperAppsOutput.initiate(),
+        )
+
+        console.log({ maybeZapperV2AppsData })
+
+        const assets = selectAssets(reduxApi.getState() as ReduxState)
+        const evmNetworks = evmChainIds.map(chainIdToZapperNetwork).filter(isSome)
+
+        const addresses = accountIdsToEvmAddresses(accountIds)
+        const url = `/v2/balances/apps`
+        const params = {
+          'addresses[]': addresses,
+          'networks[]': evmNetworks,
+        }
+        const payload = { ...options, params, headers, url }
+        const { data: res } = await axios.request({ ...payload })
+        try {
+          const zapperV2AppsBalancessData = V2AppsBalancesResponse.parse(res)
+
+          const parsedOpportunities = zapperV2AppsBalancessData.reduce<GetZapperAppsBalancesOutput>(
+            (acc, appAccountBalance) => {
+              const appName = appAccountBalance.appName
+              const appImage = appAccountBalance.appImage
+              const accountId = toAccountId({
+                chainId:
+                  ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[
+                    appAccountBalance.network as SupportedZapperNetwork
+                  ],
+                account: appAccountBalance.address,
+              })
+
+              // [0] only for debugging, obviously support all products eventually
+              const appAccountOpportunities = (appAccountBalance.products[0]?.assets ?? [])
+                .map<ReadOnlyOpportunityType>(asset => {
+                  const stakedAmountCryptoBaseUnit = asset.balanceRaw ?? '0'
+                  const fiatAmount = bnOrZero(asset.balanceUSD).toString()
+                  const apy = bnOrZero(asset.dataProps?.apy).toString()
+                  const tvl = bnOrZero(asset.dataProps?.liquidity).toString()
+                  const icon = asset.displayProps?.images?.[0] ?? ''
+                  const name = asset.displayProps?.label ?? ''
+                  const assetId = toAssetId({
+                    chainId:
+                      ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[asset.network as SupportedZapperNetwork],
+                    assetNamespace: 'erc20', // TODO(gomes): this might break for native assets, is that a thing?,
+                    assetReference: asset.address,
+                  })
+
+                  if (!acc.metadataByProvider[appName]) {
+                    acc.metadataByProvider[appName] = {
+                      provider: appName,
+                      icon: appImage,
+                      color: '#000000', // TODO
+                    }
+                  }
+                  // TODO(gomes): ensure this works with the heuristics of ContractPosition vs AppToken
+                  const underlyingAssetIds = asset.tokens.map(token => {
+                    const underlyingAssetId = toAssetId({
+                      chainId:
+                        ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[token.network as SupportedZapperNetwork],
+                      assetNamespace: 'erc20', // TODO(gomes): this might break for native assets, is that a thing?,
+                      assetReference: token.address,
+                    })
+                    return underlyingAssetId
+                  }) as unknown as AssetIdsTuple
+
+                  // An "AppToken" is a position represented a token, thus it is what we call an underlyingAssetId i.e UNI LP AssetId
+                  const underlyingAssetId =
+                    asset.type === 'app-token' ? assetId : underlyingAssetIds[0]!
+
+                  // Upsert underlyingAssetIds if they don't exist in store
+                  underlyingAssetIds.forEach((underlyingAssetId, i) => {
+                    if (!assets[underlyingAssetId]) {
+                      const underlyingAsset = makeAsset({
+                        assetId: underlyingAssetId,
+                        symbol: asset.tokens[i].symbol,
+                        // No dice here, there's no name property
+                        name: asset.tokens[i].symbol,
+                        precision: asset.tokens[i].decimals,
+                        icon: asset.displayProps?.images[i] ?? '',
+                      })
+
+                      // TODO(gomes): we might want to do this in a batch
+                      reduxApi.dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
+                    }
+                  })
+
+                  // Upsert underlyingAssetId if it doesn't exist in store
+                  if (asset.type === 'app-token' && !assets[underlyingAssetId]) {
+                    const underlyingAsset = makeAsset({
+                      assetId: underlyingAssetId,
+                      symbol: asset.symbol ?? '',
+                      name: asset.displayProps?.label ?? '',
+                      precision: asset.decimals ?? 18,
+                      icons: asset.displayProps?.images ?? [],
+                    })
+                    reduxApi.dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
+                  }
+
+                  if (!acc.opportunities[assetId]) {
+                    acc.opportunities[assetId] = {
+                      apy,
+                      assetId,
+                      underlyingAssetId,
+                      underlyingAssetIds,
+                      underlyingAssetRatiosBaseUnit: ['0', '0'], // TODO(gomes): implement me
+                      // TODO(gomes): one AssetId can be an active opportunity across many, we will want to serialize this.
+                      id: assetId as OpportunityId,
+                      icon,
+                      name,
+                      // TODO
+                      rewardAssetIds: [],
+                      provider: appName,
+                      tvl,
+                      type: DefiType.Staking,
+                      // TODO(gomes) We should either:
+                      // 1. filter out the opportunities that are part of our existing view-layer abstraction
+                      // 2. support the opportunities that are part of our existing view-layer abstraction, and fetch them here exclusively instead
+                      // Will need to spike if the available data is sufficient once we smoosh zapper and Zerion data
+                      isClaimableRewards: false,
+                      isReadOnly: true,
+                    }
+                  }
+                  return {
+                    accountId,
+                    provider: appName,
+                    opportunityId: assetId,
+                    stakedAmountCryptoBaseUnit,
+                    fiatAmount,
+                    // TODO: This assumes all as staking for now. We will need to handle LP as well.
+                    type: DefiType.Staking,
+                  }
+                })
+                .filter(isSome)
+
+              acc.userData = acc.userData.concat(appAccountOpportunities)
+              return acc
+            },
+            { userData: [], opportunities: {}, metadataByProvider: {} },
+          )
+          return { data: parsedOpportunities }
+        } catch (e) {
+          moduleLogger.warn(e, 'getZapperAppsbalancesOutput')
+
+          const message = e instanceof Error ? e.message : 'Error fetching read-only opportunities'
+          return {
+            error: {
+              error: message,
+              status: 'CUSTOM_ERROR',
+            },
+          }
+        }
+      },
+    }),
   }),
 })
 
-export const {
-  useGetZapperAppsBalancesOutputQuery,
-  useGetZapperNftUserTokensQuery,
-  useGetZapperCollectionsQuery,
-} = zapperApi
+export const { useGetZapperNftUserTokensQuery, useGetZapperCollectionsQuery } = zapperApi
+export const { useGetZapperAppsBalancesOutputQuery } = zapper

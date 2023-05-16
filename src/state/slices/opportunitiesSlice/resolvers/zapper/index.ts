@@ -1,5 +1,5 @@
 import type { GetZapperAppsBalancesOutput } from 'state/apis/zapper/zapperApi'
-import { zapperApi } from 'state/apis/zapper/zapperApi'
+import { zapper } from 'state/apis/zapper/zapperApi'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 
 import type { ReduxApi } from '../types'
@@ -15,7 +15,7 @@ export const zapperReadOnlyOpportunitiesResolver = async ({
   const accountIds = selectWalletAccountIds(state)
 
   const getZapperAppsBalancesOutput = await dispatch(
-    zapperApi.endpoints.getZapperAppsBalancesOutput.initiate({
+    zapper.endpoints.getZapperAppsBalancesOutput.initiate({
       accountIds,
       reduxApi,
     }),

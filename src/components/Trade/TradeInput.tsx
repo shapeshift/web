@@ -760,7 +760,7 @@ export const TradeInput = () => {
             isLoading={tradeStateLoading}
             isError={!walletSupportsTradeAssetChains}
           />
-          {walletSupportsTradeAssetChains && !sellAmountTooSmall ? (
+          {walletSupportsSellAssetChain && !sellAmountTooSmall ? (
             <ReceiveSummary
               isLoading={tradeStateLoading}
               symbol={buyAsset?.symbol ?? ''}

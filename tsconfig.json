@@ -40,7 +40,6 @@
     { "path": "./packages/errors" },
     { "path": "./packages/eslint-plugin-logger" },
     { "path": "./packages/investor" },
-    { "path": "./packages/investor-foxy" },
     { "path": "./packages/investor-idle" },
     { "path": "./packages/logger" },
     { "path": "./packages/types" },

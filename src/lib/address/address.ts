@@ -263,7 +263,7 @@ type ParseAddressInputArgs = {
  * and a chainId, return an object containing and address and vanityAddress
  * which may both be empty strings, one may be empty, or both may be populated
  */
-export type ParseAddressByChainIdInputArgs = ParseAddressInputArgs & {
+type ParseAddressByChainIdInputArgs = ParseAddressInputArgs & {
   chainId: ChainId
 }
 

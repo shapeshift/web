@@ -121,7 +121,7 @@ export const selectCheckApprovalNeededForWallet = (
 type SelectGetTradeForWalletArgs = {
   wallet: HDWallet
   sellAccountBip44Params: BIP44Params
-  buyAccountBip44Params: BIP44Params
+  buyAccountBip44Params?: BIP44Params
   sellAccountMetadata: AccountMetadata
   affiliateBps: string
 }
@@ -194,7 +194,7 @@ export const selectGetTradeForWallet = (
         ...buildTradeCommonArgs,
         chainId: sellAsset.chainId,
         accountNumber: sellAccountBip44Params.accountNumber,
-        receiveAccountNumber: buyAccountBip44Params.accountNumber,
+        receiveAccountNumber: buyAccountBip44Params?.accountNumber,
       })
     } else {
       throw new Error('unsupported sellAsset.chainId')

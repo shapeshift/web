@@ -468,6 +468,13 @@ export const TradeInput = () => {
     if (formErrors.input?.message && !walletSupportsBuyAssetChain) {
       return formErrors.input?.message.toString()
     }
+    if (!receiveAddress)
+      return [
+        'trade.errors.noReceiveAddress',
+        {
+          assetSymbol: buyAsset?.symbol ?? translate('trade.errors.buyAssetMiddleSentence'),
+        },
+      ]
     if (!activeSwapper) return 'trade.errors.invalidTradePairBtnText'
     if (!isTradingActiveOnSellPool && activeSwapper.name === SwapperName.Thorchain) {
       return [
@@ -512,13 +519,6 @@ export const TradeInput = () => {
     }
     if (feesExceedsSellAmount) return 'trade.errors.sellAmountDoesNotCoverFee'
     if (isTradeQuotePending && quoteAvailableForCurrentAssetPair) return 'trade.updatingQuote'
-    if (!receiveAddress)
-      return [
-        'trade.errors.noReceiveAddress',
-        {
-          assetSymbol: buyAsset?.symbol ?? translate('trade.errors.buyAssetMiddleSentence'),
-        },
-      ]
 
     return 'trade.previewTrade'
   }, [

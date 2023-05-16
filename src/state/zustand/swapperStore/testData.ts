@@ -138,7 +138,7 @@ export const baseSwapperState: SwapperState = {
   selectedBuyAssetAccountId: 'eip155:1:0x32dbc9cf9e8fbcebe1e0a2ecf05ed86ca3096cb6',
   fees: {
     chainSpecific: {
-      approvalGasLimitCryptoBaseUnit: '1800000000000000',
+      estimatedGasCryptoBaseUnit: '1800000000000000',
     },
     tradeFeeSource: SwapperName.Thorchain,
     buyAssetTradeFeeUsd: '8.5196229516043797526224',

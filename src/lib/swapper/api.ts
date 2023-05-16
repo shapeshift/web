@@ -40,7 +40,7 @@ export type UtxoFeeData = {
 }
 
 export type CosmosSdkFeeData = {
-  approvalGasLimitCryptoBaseUnit: string
+  estimatedGasCryptoBaseUnit: string
 }
 
 type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<

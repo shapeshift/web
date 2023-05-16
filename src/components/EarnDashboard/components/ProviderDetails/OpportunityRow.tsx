@@ -6,6 +6,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { useGetReadOnlyOpportunitiesQuery } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import type {
   LpEarnOpportunityType,
   StakingEarnOpportunityType,
@@ -96,11 +97,18 @@ export const OpportunityRow: React.FC<
     }
   }, [opportunity])
 
+  const { data: readOnlyOpportunitiesData } = useGetReadOnlyOpportunitiesQuery()
   const handleClick = useCallback(
     (action: DefiAction) => {
+      if (opportunity.isReadOnly) {
+        const url =
+          readOnlyOpportunitiesData?.metadataByProvider[opportunity.provider as string]?.url ?? ''
+        url && window.open(url, '_blank')
+        return
+      }
       onClick(opportunity, action)
     },
-    [onClick, opportunity],
+    [onClick, opportunity, readOnlyOpportunitiesData?.metadataByProvider],
   )
 
   const subTextJoined = useMemo(() => {
@@ -146,7 +154,6 @@ export const OpportunityRow: React.FC<
     underlyingAssetLabel,
     handleClick,
   ])
-  console.log({ asset, underlyingAssetId })
   if (!asset) return null
   return (
     <Flex

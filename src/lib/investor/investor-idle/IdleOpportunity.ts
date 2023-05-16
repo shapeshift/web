@@ -3,12 +3,6 @@ import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type {
-  ApprovalRequired,
-  DepositWithdrawArgs,
-  FeePriority,
-  InvestorOpportunity,
-} from '@shapeshiftoss/investor'
 import { Logger } from '@shapeshiftoss/logger'
 import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
@@ -16,6 +10,12 @@ import toLower from 'lodash/toLower'
 import type Web3 from 'web3'
 import type { Contract } from 'web3-eth-contract'
 import { numberToHex } from 'web3-utils'
+import type {
+  ApprovalRequired,
+  DepositWithdrawArgs,
+  FeePriority,
+  InvestorOpportunity,
+} from 'lib/investor'
 import type { IdleVault } from 'lib/investor/investor-idle/constants'
 import {
   erc20Abi,

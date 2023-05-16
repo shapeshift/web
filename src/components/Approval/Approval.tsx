@@ -32,7 +32,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { baseUnitToHuman, bnOrZero } from 'lib/bignumber/bignumber'
+import { baseUnitToHuman, bn } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -151,7 +151,6 @@ export const Approval = () => {
   }, [isExactAllowance])
 
   useEffect(() => {
-    // TODO: use thunk for this?
     setBuildApprovalTxInput(undefined)
     createBuildApprovalTxInput(isExactAllowance)
       .then(buildApprovalTxInput => {
@@ -165,11 +164,16 @@ export const Approval = () => {
 
   const approvalNetworkFeeCryptoHuman = useMemo(() => {
     if (!buildApprovalTxInput) return
-    // TODO: handle EIP1551 gas
-    const { gasLimit, gasPrice } = buildApprovalTxInput
-    const approvalFeeCryptoBaseUnit = bnOrZero(gasLimit).times(bnOrZero(gasPrice))
+
+    const { gasLimit, gasPrice, maxFeePerGas } = buildApprovalTxInput
+
+    // use EIP-1551 gas where possible
+    const totalGasPrice = maxFeePerGas ?? gasPrice
+
+    if (!totalGasPrice) return
+
     return baseUnitToHuman({
-      value: approvalFeeCryptoBaseUnit,
+      value: bn(gasLimit).times(totalGasPrice),
       inputExponent: sellFeeAsset?.precision ?? 0,
     })
   }, [buildApprovalTxInput, sellFeeAsset?.precision])

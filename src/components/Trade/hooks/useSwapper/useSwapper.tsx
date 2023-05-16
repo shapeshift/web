@@ -172,7 +172,6 @@ export const useSwapper = () => {
 
     if (!adapter) throw Error(`no chain adapter found for chain Id: ${sellAsset.chainId}`)
     if (!wallet) throw new Error('no wallet available')
-    if (!sellAssetAccountId) throw new Error('no sellAssetAccountId available')
     if (!activeQuote) throw new Error('no activeQuote available')
 
     // No approval needed for selling a fee asset
@@ -182,7 +181,7 @@ export const useSwapper = () => {
 
     const ownerAddress = await adapter.getAddress({
       wallet,
-      accountNumber: Number(sellAssetAccountId),
+      accountNumber: activeQuote.accountNumber,
     })
 
     const { assetReference: sellAssetErc20Address } = fromAssetId(sellAsset.assetId)
@@ -198,7 +197,7 @@ export const useSwapper = () => {
     const allowanceOnChain = bnOrZero(allowanceResult)
 
     return allowanceOnChain.lt(bnOrZero(activeQuote.sellAmountBeforeFeesCryptoBaseUnit))
-  }, [activeQuote, sellAsset.assetId, sellAsset.chainId, sellAssetAccountId, wallet])
+  }, [activeQuote, sellAsset.assetId, sellAsset.chainId, wallet])
 
   const createBuildApprovalTxInput = useCallback(
     (isExactAllowance: boolean): Promise<evm.BuildCustomTxInput> => {
@@ -206,7 +205,6 @@ export const useSwapper = () => {
       const adapter = adapterManager.get(sellAsset.chainId)
 
       if (!activeQuote) throw new Error('no activeQuote available')
-      if (!sellAssetAccountId) throw new Error('no sellAssetAccountId available')
       if (!wallet) throw new Error('no wallet available')
       if (!adapter || !isEvmChainAdapter(adapter))
         throw Error(`no valid EVM chain adapter found for chain Id: ${sellAsset.chainId}`)
@@ -235,7 +233,7 @@ export const useSwapper = () => {
         wallet,
       })
     },
-    [activeQuote, sellAsset.assetId, sellAsset.chainId, sellAssetAccountId, wallet],
+    [activeQuote, sellAsset.assetId, sellAsset.chainId, wallet],
   )
 
   useEffect(() => {

@@ -1,10 +1,10 @@
 import 'dotenv/config'
 
 import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
-import type { IdleVault } from '@shapeshiftoss/investor-idle'
-import { IdleSdk } from '@shapeshiftoss/investor-idle'
 import assert from 'assert'
 import axios from 'axios'
+import type { IdleVault } from 'lib/investor/investor-idle'
+import { IdleSdk } from 'lib/investor/investor-idle'
 
 import type { Asset } from '../../../src/lib/asset-service'
 import { ethereum } from '../baseAssets'

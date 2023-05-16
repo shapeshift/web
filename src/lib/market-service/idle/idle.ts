@@ -1,9 +1,9 @@
 import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { ethereum } from '@shapeshiftoss/chain-adapters'
-import { IdleInvestor } from '@shapeshiftoss/investor-idle'
 import type { MarketCapResult, MarketData, MarketDataArgs } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { bn } from 'lib/bignumber/bignumber'
+import { IdleInvestor } from 'lib/investor/investor-idle'
 
 import type { MarketService } from '../api'
 import { CoinGeckoMarketService } from '../coingecko/coingecko'

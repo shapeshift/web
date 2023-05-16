@@ -6108,21 +6108,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/investor-idle@workspace:^, @shapeshiftoss/investor-idle@workspace:packages/investor-idle":
-  version: 0.0.0-use.local
-  resolution: "@shapeshiftoss/investor-idle@workspace:packages/investor-idle"
-  dependencies:
-    "@shapeshiftoss/caip": "workspace:^"
-    "@shapeshiftoss/chain-adapters": "workspace:^"
-    "@shapeshiftoss/investor": "workspace:^"
-    "@shapeshiftoss/logger": "workspace:^"
-    "@shapeshiftoss/types": "workspace:^"
-    web3-core: 1.7.4
-    web3-utils: 1.7.4
-  languageName: unknown
-  linkType: soft
-
-"@shapeshiftoss/investor@workspace:^, @shapeshiftoss/investor@workspace:packages/investor":
+"@shapeshiftoss/investor@workspace:packages/investor":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/investor@workspace:packages/investor"
   dependencies:
@@ -6221,7 +6207,6 @@ __metadata:
     "@shapeshiftoss/hdwallet-native-vault": ^1.48.0
     "@shapeshiftoss/hdwallet-walletconnect": ^1.48.0
     "@shapeshiftoss/hdwallet-xdefi": ^1.48.0
-    "@shapeshiftoss/investor-idle": "workspace:^"
     "@shapeshiftoss/logger": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"

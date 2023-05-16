@@ -16,8 +16,7 @@ import toLower from 'lodash/toLower'
 import type Web3 from 'web3'
 import type { Contract } from 'web3-eth-contract'
 import { numberToHex } from 'web3-utils'
-
-import type { IdleVault } from './constants'
+import type { IdleVault } from 'lib/investor/investor-idle/constants'
 import {
   erc20Abi,
   idleCdoAbi,
@@ -26,8 +25,8 @@ import {
   MAX_ALLOWANCE,
   referralAddress,
   ssRouterContractAddress,
-} from './constants'
-import { bn, bnOrZero } from './utils'
+} from 'lib/investor/investor-idle/constants'
+import { bn, bnOrZero } from 'lib/investor/investor-idle/utils'
 
 export type PreparedTransaction = {
   chainId: number

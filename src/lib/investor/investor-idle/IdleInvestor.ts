@@ -7,12 +7,11 @@ import { find } from 'lodash'
 import filter from 'lodash/filter'
 import Web3 from 'web3'
 import type { Contract } from 'web3-eth-contract'
-
-import type { IdleVault } from './constants'
-import { ssRouterAbi, ssRouterContractAddress } from './constants'
-import type { PreparedTransaction } from './IdleOpportunity'
-import { IdleOpportunity } from './IdleOpportunity'
-import { IdleSdk } from './IdleSdk'
+import type { IdleVault } from 'lib/investor/investor-idle/constants'
+import { ssRouterAbi, ssRouterContractAddress } from 'lib/investor/investor-idle/constants'
+import type { PreparedTransaction } from 'lib/investor/investor-idle/IdleOpportunity'
+import { IdleOpportunity } from 'lib/investor/investor-idle/IdleOpportunity'
+import { IdleSdk } from 'lib/investor/investor-idle/IdleSdk'
 
 type ConstructorArgs = {
   chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>

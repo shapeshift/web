@@ -1,5 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import { get, isError } from 'lodash'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { logger } from 'lib/logger'
 import { SwapErrorType } from 'lib/swapper/api'
@@ -39,20 +40,23 @@ export const useErrorHandler = () => {
   const toast = useToast()
   const translate = useTranslate()
 
-  const showErrorToast = (error: unknown) => {
-    const description = translate(getTranslationFromError(error))
+  const showErrorToast = useCallback(
+    (error: unknown) => {
+      const description = translate(getTranslationFromError(error))
 
-    moduleLogger.error(error, description)
+      moduleLogger.error(error, description)
 
-    toast({
-      title: translate('trade.errors.title'),
-      description,
-      status: 'error',
-      duration: 9000,
-      isClosable: true,
-      position: 'top-right',
-    })
-  }
+      toast({
+        title: translate('trade.errors.title'),
+        description,
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: 'top-right',
+      })
+    },
+    [toast, translate],
+  )
 
   return {
     showErrorToast,

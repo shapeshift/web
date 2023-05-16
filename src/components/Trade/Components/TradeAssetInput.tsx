@@ -1,8 +1,8 @@
 import { Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import React, { useMemo } from 'react'
 import type { AssetInputProps } from 'components/DeFi/components/AssetInput'
+import { bnOrZero } from 'lib/investor/investor-foxy'
 import {
   selectMarketDataById,
   selectPortfolioCryptoPrecisionBalanceByFilter,

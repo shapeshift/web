@@ -100,7 +100,6 @@
     "@shapeshiftoss/hdwallet-native-vault": "^1.48.0",
     "@shapeshiftoss/hdwallet-walletconnect": "^1.48.0",
     "@shapeshiftoss/hdwallet-xdefi": "^1.48.0",
-    "@shapeshiftoss/investor-foxy": "workspace:^",
     "@shapeshiftoss/investor-idle": "workspace:^",
     "@shapeshiftoss/logger": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",

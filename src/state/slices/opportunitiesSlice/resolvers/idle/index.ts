@@ -1,8 +1,8 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/investor/investor-foxy'
 import { logger } from 'lib/logger'
 import {
   selectAssetById,

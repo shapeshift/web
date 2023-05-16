@@ -1,5 +1,4 @@
 import { Button } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { NavLink } from 'react-router-dom'
@@ -7,6 +6,7 @@ import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { Carousel } from 'components/Carousel/Carousel'
 import { bn } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/investor/investor-foxy'
 import { selectAggregatedEarnUserStakingEligibleOpportunities } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

@@ -20,21 +20,53 @@ import type { GetTradeQuoteInput, TradeQuote } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { erc20Abi } from 'lib/swapper/swappers/utils/abi/erc20-abi'
 
+type GetApproveContractDataArgs = {
+  approvalAmountCryptoBaseUnit: string
+  to: string
+  spender: string
+  web3: Web3
+}
+
+type BuildAndBroadcastArgs = {
+  adapter: EvmChainAdapter
+  buildCustomTxArgs: evm.BuildCustomTxInput
+  wallet: HDWallet
+}
+
+type CreateBuildCustomTxInputArgs = {
+  accountNumber: number
+  adapter: EvmChainAdapter
+  to: string
+  data: string
+  value: string
+  wallet: HDWallet
+}
+
+type GetERC20AllowanceArgs = {
+  erc20AllowanceAbi: AbiItem[]
+  web3: Web3
+  address: string
+  from: string
+  spender: string
+}
+
+type GetFeesFromContractDataArgs = {
+  accountNumber: number
+  adapter: EvmChainAdapter
+  to: string
+  data: string
+  wallet: HDWallet
+}
+
 export const getERC20Allowance = ({
   erc20AllowanceAbi,
   web3,
   address,
-  ownerAddress,
-  spenderAddress,
-}: {
-  erc20AllowanceAbi: AbiItem[]
-  web3: Web3
-  address: string
-  ownerAddress: string
-  spenderAddress: string
-}): Promise<number> => {
+  from,
+  spender,
+}: GetERC20AllowanceArgs): Promise<number> => {
   const erc20Contract = new web3.eth.Contract(erc20AllowanceAbi, address)
-  return erc20Contract.methods.allowance(ownerAddress, spenderAddress).call()
+  return erc20Contract.methods.allowance(from, spender).call()
 }
 
 export const getFeesFromContractData = async ({
@@ -43,13 +75,7 @@ export const getFeesFromContractData = async ({
   to,
   data,
   wallet,
-}: {
-  accountNumber: number
-  adapter: EvmChainAdapter
-  to: string
-  data: string
-  wallet: HDWallet
-}): Promise<evm.Fees & { gasLimit: string }> => {
+}: GetFeesFromContractDataArgs): Promise<evm.Fees & { gasLimit: string }> => {
   if (!supportsETH(wallet)) {
     throw new SwapError('[getFeesFromContractData]', {
       cause: 'eth wallet required',
@@ -58,13 +84,13 @@ export const getFeesFromContractData = async ({
     })
   }
 
-  const ownerAddress = await adapter.getAddress({ accountNumber, wallet })
+  const from = await adapter.getAddress({ accountNumber, wallet })
 
   const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } = await (async () => {
     const getFeeDataInput = {
       to,
       value: '0',
-      chainSpecific: { from: ownerAddress, contractData: data },
+      chainSpecific: { from, contractData: data },
     }
 
     // account for l1 transaction fees for optimism
@@ -103,14 +129,7 @@ export const createBuildCustomTxInput = async ({
   data,
   value,
   wallet,
-}: {
-  accountNumber: number
-  adapter: EvmChainAdapter
-  to: string
-  data: string
-  value: string
-  wallet: HDWallet
-}): Promise<evm.BuildCustomTxInput> => {
+}: CreateBuildCustomTxInputArgs): Promise<evm.BuildCustomTxInput> => {
   const gasFees = await getFeesFromContractData({
     accountNumber,
     adapter,
@@ -133,11 +152,7 @@ export const buildAndBroadcast = async ({
   adapter,
   buildCustomTxArgs,
   wallet,
-}: {
-  adapter: EvmChainAdapter
-  buildCustomTxArgs: evm.BuildCustomTxInput
-  wallet: HDWallet
-}) => {
+}: BuildAndBroadcastArgs) => {
   try {
     const { txToSign } = await adapter.buildCustomTx(buildCustomTxArgs)
 
@@ -186,12 +201,7 @@ export const getApproveContractData = ({
   to,
   spender,
   web3,
-}: {
-  approvalAmountCryptoBaseUnit: string
-  to: string
-  spender: string
-  web3: Web3
-}): string => {
+}: GetApproveContractDataArgs): string => {
   const contract = new web3.eth.Contract(erc20Abi, to)
   return contract.methods.approve(spender, approvalAmountCryptoBaseUnit).encodeABI()
 }

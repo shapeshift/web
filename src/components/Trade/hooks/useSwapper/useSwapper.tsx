@@ -179,7 +179,7 @@ export const useSwapper = () => {
       return false
     }
 
-    const ownerAddress = await adapter.getAddress({
+    const from = await adapter.getAddress({
       wallet,
       accountNumber: activeQuote.accountNumber,
     })
@@ -191,8 +191,8 @@ export const useSwapper = () => {
       web3,
       erc20AllowanceAbi,
       address: assetReference,
-      spenderAddress: activeQuote.allowanceContract,
-      ownerAddress,
+      spender: activeQuote.allowanceContract,
+      from,
     })
 
     return bn(allowanceOnChainCryptoBaseUnit).lt(activeQuote.sellAmountBeforeFeesCryptoBaseUnit)

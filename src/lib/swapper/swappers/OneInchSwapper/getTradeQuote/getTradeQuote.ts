@@ -100,7 +100,6 @@ export async function getTradeQuote(
         buyAssetTradeFeeUsd: '0',
         sellAssetTradeFeeUsd: '0',
         networkFeeCryptoBaseUnit: fee,
-        chainSpecific: {},
       },
       sources: DEFAULT_SOURCE,
     }),

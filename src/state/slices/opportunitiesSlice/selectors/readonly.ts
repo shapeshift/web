@@ -1,3 +1,4 @@
+import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
@@ -22,9 +23,14 @@ export const selectAggregatedReadOnlyOpportunitiesByProvider = createDeepEqualOu
       return []
     }
 
-    debugger
     const result = data.userData.reduce<
-      Record<string, AggregatedReadOnlyOpportunitiesByProviderReturn>
+      Record<
+        string,
+        AggregatedReadOnlyOpportunitiesByProviderReturn & {
+          totalAbsoluteBalance: BN
+          weightedApy: BN
+        }
+      >
     >((acc, item) => {
       const providerMetadata = data.metadataByProvider[item.provider]
 
@@ -36,14 +42,26 @@ export const selectAggregatedReadOnlyOpportunitiesByProvider = createDeepEqualOu
       const opportunityMetadata = data.opportunities[item.opportunityId]
 
       const totalFiatAmount = bnOrZero(acc[provider]?.fiatAmount).plus(item.fiatAmount)
-      const projectedAnnualizedYield = bnOrZero(opportunityMetadata?.apy)
 
-      const apy = totalFiatAmount.isZero()
+      // We need to calculate the weighted APY according to the total *abs* balance
+      // The reason for that is staked amounts can be negative (i.e. borrowed)
+      let totalAbsoluteBalance = bnOrZero(acc[provider]?.totalAbsoluteBalance)
+      let weightedApy = bnOrZero(acc[provider]?.weightedApy)
+
+      const fiatAmount = bnOrZero(item.fiatAmount)
+      const absoluteFiatAmount = bnOrZero(fiatAmount.abs())
+      const opportunityApy = bnOrZero(opportunityMetadata?.apy)
+
+      totalAbsoluteBalance = totalAbsoluteBalance.plus(absoluteFiatAmount)
+      weightedApy = weightedApy.plus(opportunityApy.multipliedBy(absoluteFiatAmount))
+
+      const apy = totalAbsoluteBalance.isZero()
         ? '0'
-        : projectedAnnualizedYield.div(totalFiatAmount).toString()
+        : weightedApy.div(totalAbsoluteBalance).toString()
 
       const otherOpportunityType = opportunityMetadata.type === 'staking' ? 'lp' : 'staking'
       // TODO: concat item.opportunityId once the staking hardcoding for PoC is removed
+      // At the moment, we assume staking for all so we don't really care about LPs, but we still need to at least have an initial {lp: []} object
       const otherOpportunity = {
         [otherOpportunityType]: acc[provider]?.opportunities[otherOpportunityType] || [],
       }
@@ -53,7 +71,6 @@ export const selectAggregatedReadOnlyOpportunitiesByProvider = createDeepEqualOu
         ).concat(item.opportunityId),
       }
 
-      debugger
       return {
         ...acc,
         [provider]: {
@@ -70,11 +87,12 @@ export const selectAggregatedReadOnlyOpportunitiesByProvider = createDeepEqualOu
             currentOpportunity,
             otherOpportunity,
           ),
+          weightedApy,
+          totalAbsoluteBalance,
         },
       }
     }, {})
 
-    debugger
     return Object.values(result)
   },
 )

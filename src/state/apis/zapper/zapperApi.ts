@@ -16,6 +16,7 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
+import type { ReduxApi } from 'state/slices/opportunitiesSlice/resolvers/types'
 import type {
   AssetIdsTuple,
   OpportunityId,
@@ -75,6 +76,7 @@ type GetZapperNftUserTokensInput = {
 
 type GetZapperAppsbalancesInput = {
   accountIds: AccountId[]
+  reduxApi: ReduxApi
 }
 
 type GetZapperCollectionsInput = {
@@ -111,7 +113,8 @@ export const zapperApi = createApi({
       GetZapperAppsBalancesOutput,
       GetZapperAppsbalancesInput
     >({
-      queryFn: async ({ accountIds }) => {
+      queryFn: async ({ accountIds, reduxApi }) => {
+        const assets = selectAssets(reduxApi.getState() as ReduxState)
         const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
 
         const addresses = accountIdsToEvmAddresses(accountIds)
@@ -156,6 +159,7 @@ export const zapperApi = createApi({
                       color: '#000000', // TODO
                     }
                   }
+                  // TODO(gomes): ensure this works with the heuristics of ContractPosition vs AppToken
                   const underlyingAssetIds = asset.tokens.map(token => {
                     const underlyingAssetId = toAssetId({
                       chainId: ethChainId, // Only ETH for products for PoC
@@ -164,13 +168,45 @@ export const zapperApi = createApi({
                     })
                     return underlyingAssetId
                   }) as unknown as AssetIdsTuple
+
+                  // An "AppToken" is a position represented a token, thus it is what we call an underlyingAssetId i.e UNI LP AssetId
+                  const underlyingAssetId =
+                    asset.type === 'app-token' ? assetId : underlyingAssetIds[0]!
+
+                  // Upsert underlyingAssetIds if they don't exist in store
+                  underlyingAssetIds.forEach((underlyingAssetId, i) => {
+                    if (!assets[underlyingAssetId]) {
+                      const underlyingAsset = makeAsset({
+                        assetId: underlyingAssetId,
+                        symbol: asset.tokens[i].symbol,
+                        // No dice here, there's no name property
+                        name: asset.tokens[i].symbol,
+                        precision: asset.tokens[i].decimals,
+                        icon: asset.displayProps?.images[i] ?? '',
+                      })
+
+                      // TODO(gomes): we might want to do this in a batch
+                      reduxApi.dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
+                    }
+                  })
+
+                  // Upsert underlyingAssetId if it doesn't exist in store
+                  if (asset.type === 'app-token' && !assets[underlyingAssetId]) {
+                    const underlyingAsset = makeAsset({
+                      assetId: underlyingAssetId,
+                      symbol: asset.symbol ?? '',
+                      name: asset.displayProps?.label ?? '',
+                      precision: asset.decimals ?? 18,
+                      icons: asset.displayProps?.images ?? [],
+                    })
+                    reduxApi.dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
+                  }
+
                   if (!acc.opportunities[assetId]) {
                     acc.opportunities[assetId] = {
                       apy,
                       assetId,
-                      // TODO(gomes): https://studio.zapper.xyz/docs/concepts/app-tokens / https://studio.zapper.xyz/docs/concepts/contract-positions
-                      // Zapper should have a way to tell us if an opportunity is a "ContractPosition" or an "AppToken" so we can properly populate these two
-                      underlyingAssetId: assetId,
+                      underlyingAssetId,
                       underlyingAssetIds,
                       underlyingAssetRatiosBaseUnit: ['0', '0'], // TODO(gomes): implement me
                       // TODO(gomes): one AssetId can be an active opportunity across many, we will want to serialize this.

@@ -146,6 +146,7 @@ export const OpportunityRow: React.FC<
     underlyingAssetLabel,
     handleClick,
   ])
+  console.log({ asset, underlyingAssetId })
   if (!asset) return null
   return (
     <Flex

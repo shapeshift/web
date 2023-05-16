@@ -66,6 +66,8 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
     return Array.from(groups.entries())
   }, [filteredDown])
 
+  console.log({ ids, filteredDown, groupedItems })
+
   const handleClick = useCallback(
     (opportunity: StakingEarnOpportunityType, action: DefiAction) => {
       const {

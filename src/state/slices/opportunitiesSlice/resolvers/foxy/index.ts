@@ -53,6 +53,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
       assetNamespace: 'erc20',
       assetReference: opportunity.stakingToken,
     })
+    // FOXy staking contract
     const toAssetIdParts: ToAssetIdArgs = {
       assetNamespace: 'erc20',
       assetReference: opportunity.contractAddress,

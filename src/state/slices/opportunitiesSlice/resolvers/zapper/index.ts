@@ -17,6 +17,7 @@ export const zapperReadOnlyOpportunitiesResolver = async ({
   const getZapperAppsBalancesOutput = await dispatch(
     zapperApi.endpoints.getZapperAppsBalancesOutput.initiate({
       accountIds,
+      reduxApi,
     }),
   )
 

@@ -6258,6 +6258,7 @@ __metadata:
     "@types/react-table": ^7.7.12
     "@types/react-virtualized-auto-sizer": ^1.0.1
     "@types/react-window": ^1.8.5
+    "@types/readline-sync": ^1.4.4
     "@types/semver": ^7.3.10
     "@types/ssri": ^7.1.1
     "@uniswap/sdk": ^3.0.3
@@ -6362,6 +6363,7 @@ __metadata:
     react-table: ^7.8.0
     react-virtualized-auto-sizer: ^1.0.5
     react-window: ^1.8.7
+    readline-sync: ^1.4.10
     redux-persist: ^6.0.0
     reselect: ^4.1.6
     reselect-tools: ^0.0.7
@@ -7834,6 +7836,13 @@ __metadata:
     "@types/scheduler": "*"
     csstype: ^3.0.2
   checksum: e22cc388d1c145aa184787e44dc28db4789976c704cd5db475c170bb76a560eb81def5f346cfe750949bb3d43ad88822b8cbb9f19b1286e3795892a8263e7715
+  languageName: node
+  linkType: hard
+
+"@types/readline-sync@npm:^1.4.4":
+  version: 1.4.4
+  resolution: "@types/readline-sync@npm:1.4.4"
+  checksum: 2c9aad7fd8e36e9b3d25ec34d25c7bd4a5ca675fef996c26bd7c56b7ea2ea9eed21b1cbb91d3948ddb6de42c5cb54bc137d1c8bb74bf5a8aba86eecc9672a182
   languageName: node
   linkType: hard
 
@@ -24081,6 +24090,13 @@ pvutils@latest:
   dependencies:
     picomatch: ^2.2.1
   checksum: 1ced032e6e45670b6d7352d71d21ce7edf7b9b928494dcaba6f11fba63180d9da6cd7061ebc34175ffda6ff529f481818c962952004d273178acd70f7059b320
+  languageName: node
+  linkType: hard
+
+"readline-sync@npm:^1.4.10":
+  version: 1.4.10
+  resolution: "readline-sync@npm:1.4.10"
+  checksum: 4dbd8925af028dc4cb1bb813f51ca3479035199aa5224886b560eec8e768ab27d7ebf11d69a67ed93d5a130b7c994f0bdb77796326e563cf928bbfd560e3747e
   languageName: node
   linkType: hard
 

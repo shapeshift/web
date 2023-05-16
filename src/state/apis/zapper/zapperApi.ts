@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evmChainIds, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -26,6 +26,7 @@ import type {
 import { selectAssets } from 'state/slices/selectors'
 
 import type {
+  SupportedZapperNetwork,
   V2NftBalancesCollectionsResponseType,
   V2NftCollectionType,
   V2NftUserItem,
@@ -37,6 +38,7 @@ import {
   V2AppsBalancesResponse,
   V2AppTokensResponse,
   V2NftBalancesCollectionsResponse,
+  ZAPPER_NETWORKS_TO_CHAIN_ID_MAP,
   ZapperAppId,
   ZapperGroupId,
   zapperNetworkToChainId,
@@ -115,7 +117,7 @@ export const zapperApi = createApi({
     >({
       queryFn: async ({ accountIds, reduxApi }) => {
         const assets = selectAssets(reduxApi.getState() as ReduxState)
-        const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
+        const evmNetworks = evmChainIds.map(chainIdToZapperNetwork).filter(isSome)
 
         const addresses = accountIdsToEvmAddresses(accountIds)
         const url = `/v2/balances/apps`
@@ -133,7 +135,10 @@ export const zapperApi = createApi({
               const appName = appAccountBalance.appName
               const appImage = appAccountBalance.appImage
               const accountId = toAccountId({
-                chainId: ethChainId, // Only ETH for PoC
+                chainId:
+                  ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[
+                    appAccountBalance.network as SupportedZapperNetwork
+                  ],
                 account: appAccountBalance.address,
               })
 
@@ -147,7 +152,8 @@ export const zapperApi = createApi({
                   const icon = asset.displayProps?.images?.[0] ?? ''
                   const name = asset.displayProps?.label ?? ''
                   const assetId = toAssetId({
-                    chainId: ethChainId, // Only ETH for PoC
+                    chainId:
+                      ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[asset.network as SupportedZapperNetwork],
                     assetNamespace: 'erc20', // TODO(gomes): this might break for native assets, is that a thing?,
                     assetReference: asset.address,
                   })
@@ -162,7 +168,8 @@ export const zapperApi = createApi({
                   // TODO(gomes): ensure this works with the heuristics of ContractPosition vs AppToken
                   const underlyingAssetIds = asset.tokens.map(token => {
                     const underlyingAssetId = toAssetId({
-                      chainId: ethChainId, // Only ETH for products for PoC
+                      chainId:
+                        ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[token.network as SupportedZapperNetwork],
                       assetNamespace: 'erc20', // TODO(gomes): this might break for native assets, is that a thing?,
                       assetReference: token.address,
                     })

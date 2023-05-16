@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -22,9 +22,10 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
-import { parseAddressInput } from 'lib/address/address'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { parseAddressInputWithChainId } from 'lib/address/address'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { store, useAppSelector } from 'state/store'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
@@ -51,10 +52,12 @@ export const Address = () => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
+  const handleNext = useCallback(() => history.push(SendRoutes.Details), [history])
+
   if (!asset) return null
   const { chainId } = asset
   const isYatSupportedChain = chainId === ethChainId // yat only supports eth mainnet
-  const handleNext = () => history.push(SendRoutes.Details)
+  const isYatSupported = isYatFeatureEnabled && isYatSupportedChain
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
 
   return (
@@ -90,24 +93,39 @@ export const Address = () => {
               required: true,
               validate: {
                 validateAddress: async (rawInput: string) => {
-                  const value = rawInput.trim() // trim leading/trailing spaces
+                  const urlOrAddress = rawInput.trim() // trim leading/trailing spaces
                   setIsValidating(true)
+                  setValue(SendFormFields.To, '')
+                  setValue(SendFormFields.VanityAddress, '')
+                  setValue(SendFormFields.CryptoAmount, '')
                   const { assetId } = asset
                   // this does not throw, everything inside is handled
-                  const parseAddressInputArgs = { assetId, chainId, value }
-                  const { address, vanityAddress } = await parseAddressInput(parseAddressInputArgs)
+                  const parseAddressInputWithChainIdArgs = { assetId, chainId, urlOrAddress }
+                  const { amountCryptoPrecision, address, vanityAddress } =
+                    await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
                   setIsValidating(false)
                   // set returned values
                   setValue(SendFormFields.To, address)
                   setValue(SendFormFields.VanityAddress, vanityAddress)
-                  const invalidMessage =
-                    isYatFeatureEnabled && isYatSupportedChain
-                      ? 'common.invalidAddressOrYat'
-                      : 'common.invalidAddress'
+                  if (amountCryptoPrecision) {
+                    const marketData = selectMarketDataById(store.getState(), assetId)
+                    setValue(SendFormFields.CryptoAmount, amountCryptoPrecision)
+                    setValue(
+                      SendFormFields.FiatAmount,
+                      bnOrZero(amountCryptoPrecision).times(marketData.price).toString(),
+                    )
+                  }
+                  const invalidMessage = isYatSupported
+                    ? 'common.invalidAddressOrYat'
+                    : 'common.invalidAddress'
                   return address ? true : invalidMessage
                 },
               },
             }}
+            enableQr={true}
+            placeholder={translate(
+              isYatSupported ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
+            )}
           />
         </FormControl>
         {isYatFeatureEnabled && isYatSupportedChain && <YatBanner mt={6} />}

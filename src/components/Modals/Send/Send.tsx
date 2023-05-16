@@ -12,9 +12,10 @@ export const entries = Object.values(SendRoutes)
 type SendModalProps = {
   assetId?: AssetId
   accountId?: AccountId
+  input?: string
 }
 
-export const SendModal = ({ assetId, accountId }: SendModalProps) => {
+export const SendModal = ({ assetId, accountId, input }: SendModalProps) => {
   const initialRef = useRef<HTMLInputElement>(null)
   const { send } = useModal()
   const { close, isOpen } = send
@@ -24,7 +25,7 @@ export const SendModal = ({ assetId, accountId }: SendModalProps) => {
       <ModalOverlay />
       <ModalContent maxW='500px'>
         <MemoryRouter initialEntries={entries}>
-          <Form initialAssetId={assetId} accountId={accountId} />
+          <Form initialAssetId={assetId} accountId={accountId} input={input} />
         </MemoryRouter>
       </ModalContent>
     </Modal>

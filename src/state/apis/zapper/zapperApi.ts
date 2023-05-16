@@ -319,8 +319,6 @@ export const zapper = createApi({
           zapperApi.endpoints.getZapperAppsOutput.initiate(),
         )
 
-        console.log({ maybeZapperV2AppsData })
-
         const assets = selectAssets(reduxApi.getState() as ReduxState)
         const evmNetworks = evmChainIds.map(chainIdToZapperNetwork).filter(isSome)
 
@@ -337,6 +335,7 @@ export const zapper = createApi({
 
           const parsedOpportunities = zapperV2AppsBalancessData.reduce<GetZapperAppsBalancesOutput>(
             (acc, appAccountBalance) => {
+              const appId = appAccountBalance.appId
               const appName = appAccountBalance.appName
               const appImage = appAccountBalance.appImage
               const accountId = toAccountId({
@@ -368,6 +367,10 @@ export const zapper = createApi({
                       provider: appName,
                       icon: appImage,
                       color: '#000000', // TODO
+                      url:
+                        appId && maybeZapperV2AppsData.data
+                          ? maybeZapperV2AppsData.data[appId]?.url
+                          : '',
                     }
                   }
                   // TODO(gomes): ensure this works with the heuristics of ContractPosition vs AppToken

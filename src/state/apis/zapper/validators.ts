@@ -778,7 +778,7 @@ export const V2AppsBalancesResponse = z.array(
   z.object({
     key: z.string(),
     address: z.string(),
-    appId: z.string(),
+    appId: ZapperAppIdSchema.optional(),
     appName: z.string(),
     appImage: z.string(),
     network: z.string(),
@@ -802,7 +802,7 @@ const V2AppSupportedNetworkResponse = z.object({
 const V2AppGroupResponse = z.object({
   type: z.string(),
   id: z.string(),
-  label: z.string(),
+  label: z.string().optional(),
   isHiddenFromExplore: z.boolean(),
 })
 
@@ -815,7 +815,7 @@ const V2AppResponse = z.object({
   url: z.string(),
   imgUrl: z.string(),
   tags: z.array(z.string()),
-  token: V2AppTokenResponse,
+  token: V2AppTokenResponse.nullable(),
   supportedNetworks: z.array(V2AppSupportedNetworkResponse),
   groups: z.array(V2AppGroupResponse),
 })

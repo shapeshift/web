@@ -57,6 +57,7 @@ export const Address = () => {
   if (!asset) return null
   const { chainId } = asset
   const isYatSupportedChain = chainId === ethChainId // yat only supports eth mainnet
+  const isYatSupported = isYatFeatureEnabled && isYatSupportedChain
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
 
   return (
@@ -114,14 +115,17 @@ export const Address = () => {
                       bnOrZero(amountCryptoPrecision).times(marketData.price).toString(),
                     )
                   }
-                  const invalidMessage =
-                    isYatFeatureEnabled && isYatSupportedChain
-                      ? 'common.invalidAddressOrYat'
-                      : 'common.invalidAddress'
+                  const invalidMessage = isYatSupported
+                    ? 'common.invalidAddressOrYat'
+                    : 'common.invalidAddress'
                   return address ? true : invalidMessage
                 },
               },
             }}
+            enableQr={true}
+            placeholder={translate(
+              isYatSupported ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
+            )}
           />
         </FormControl>
         {isYatFeatureEnabled && isYatSupportedChain && <YatBanner mt={6} />}

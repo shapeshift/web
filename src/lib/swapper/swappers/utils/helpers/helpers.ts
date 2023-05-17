@@ -54,6 +54,7 @@ type GetFeesFromContractDataArgs = {
   accountNumber: number
   adapter: EvmChainAdapter
   to: string
+  value: string
   data: string
   wallet: HDWallet
 }
@@ -73,6 +74,7 @@ export const getFeesFromContractData = async ({
   accountNumber,
   adapter,
   to,
+  value,
   data,
   wallet,
 }: GetFeesFromContractDataArgs): Promise<{
@@ -91,13 +93,24 @@ export const getFeesFromContractData = async ({
 
   const getFeeDataInput = {
     to,
-    value: '0',
+    value,
     chainSpecific: { from, contractData: data },
   }
 
-  const feeDataEstimate = await adapter.getFeeData(getFeeDataInput)
-  const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } =
-    feeDataEstimate.average.chainSpecific
+  const { average, l1GasLimit, l1GasPrice } = await (async () => {
+    if (optimism.isOptimismChainAdapter(adapter)) {
+      const feeData = await adapter.getFeeData(getFeeDataInput)
+      return {
+        average: feeData.average,
+        l1GasLimit: feeData.l1GasLimit,
+        l1GasPrice: feeData.l1GasPrice,
+      }
+    }
+    const feeData = await adapter.getFeeData(getFeeDataInput)
+    return { average: feeData.average }
+  })()
+
+  const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } = average.chainSpecific
 
   if (!gasLimit) {
     throw new SwapError('[getFeesFromContractData]', {
@@ -108,21 +121,29 @@ export const getFeesFromContractData = async ({
 
   const eip1559Support = await wallet.ethSupportsEIP1559()
 
-  if (eip1559Support && maxFeePerGas && maxPriorityFeePerGas)
+  if (eip1559Support && maxFeePerGas && maxPriorityFeePerGas) {
     return {
       networkFeeCryptoBaseUnit: bn(gasLimit).times(maxFeePerGas).toString(),
       feesWithGasLimit: { gasLimit, maxFeePerGas, maxPriorityFeePerGas },
     }
+  }
 
-  const displayGasPrice = optimism.isOptimismChainAdapter(adapter)
-    ? (feeDataEstimate as Awaited<ReturnType<optimism.ChainAdapter['getFeeData']>>).l1GasPrice
-    : gasPrice
+  if (gasPrice) {
+    const networkFeeCryptoBaseUnit = (() => {
+      // calculate optimism network fee
+      if (l1GasLimit && l1GasPrice) {
+        const l1Fee = bn(l1GasPrice).times(l1GasLimit)
+        return bn(gasLimit).times(gasPrice).plus(l1Fee)
+      }
 
-  if (gasPrice)
+      return bn(gasLimit).times(gasPrice)
+    })()
+
     return {
-      networkFeeCryptoBaseUnit: bn(gasLimit).times(displayGasPrice).toString(),
+      networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit.toString(),
       feesWithGasLimit: { gasLimit, gasPrice },
     }
+  }
 
   throw new SwapError('[getFeesFromContractData]', {
     cause: 'legacy gas or eip1559 gas required',
@@ -130,30 +151,11 @@ export const getFeesFromContractData = async ({
   })
 }
 
-export const createBuildCustomTxInput = async ({
-  accountNumber,
-  adapter,
-  to,
-  data,
-  value,
-  wallet,
-}: CreateBuildCustomTxInputArgs): Promise<evm.BuildCustomTxInput> => {
-  const { feesWithGasLimit } = await getFeesFromContractData({
-    accountNumber,
-    adapter,
-    to,
-    data,
-    wallet,
-  })
-
-  return {
-    accountNumber,
-    data,
-    to,
-    value,
-    wallet,
-    ...feesWithGasLimit,
-  }
+export const createBuildCustomTxInput = async (
+  buildCustomTxArgs: CreateBuildCustomTxInputArgs,
+): Promise<evm.BuildCustomTxInput> => {
+  const { feesWithGasLimit } = await getFeesFromContractData(buildCustomTxArgs)
+  return { ...buildCustomTxArgs, ...feesWithGasLimit }
 }
 
 export const buildAndBroadcast = async ({

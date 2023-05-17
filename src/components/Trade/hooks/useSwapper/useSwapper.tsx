@@ -221,6 +221,8 @@ export const useSwapper = () => {
 
       const { assetReference } = fromAssetId(sellAsset.assetId)
 
+      const value = '0'
+
       const data = getApproveContractData({
         approvalAmountCryptoBaseUnit,
         spender: activeQuote.allowanceContract,
@@ -232,6 +234,7 @@ export const useSwapper = () => {
         accountNumber: activeQuote.accountNumber,
         adapter,
         to: assetReference,
+        value,
         data,
         wallet,
       })
@@ -242,7 +245,7 @@ export const useSwapper = () => {
           accountNumber: activeQuote.accountNumber,
           data,
           to: assetReference,
-          value: '0',
+          value,
           wallet,
           ...feesWithGasLimit,
         },

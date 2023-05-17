@@ -11,8 +11,6 @@ import type { ThorEvmSupportedChainAdapter } from 'lib/swapper/swappers/Thorchai
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getFeesFromContractData } from 'lib/swapper/swappers/utils/helpers/helpers'
 
-import { THOR_EVM_GAS_LIMIT } from '../utils/constants'
-
 type MakeTradeTxArgs<T extends EvmChainId> = {
   wallet: HDWallet
   accountNumber: number
@@ -68,10 +66,13 @@ export const makeTradeTx = async ({
 
     const { data, router } = thorTxInfo
 
+    const value = isErc20Trade ? '0' : sellAmountCryptoBaseUnit
+
     const { feesWithGasLimit } = await getFeesFromContractData({
       accountNumber,
       adapter,
       to: router,
+      value,
       data,
       wallet,
     })
@@ -81,12 +82,9 @@ export const makeTradeTx = async ({
         wallet,
         accountNumber,
         to: router,
-        value: isErc20Trade ? '0' : sellAmountCryptoBaseUnit,
+        value,
         data,
         ...feesWithGasLimit,
-        // TODO: implement dynamic gas limit
-        // https://github.com/shapeshift/web/issues/4512
-        gasLimit: THOR_EVM_GAS_LIMIT,
       }),
     )
   } catch (e) {

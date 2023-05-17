@@ -6,8 +6,10 @@ import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import axios from 'axios'
 import type { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
+import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { toLower } from 'lodash'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { MAX_ALLOWANCE } from 'lib/investor/constants'
 
 import { erc20Abi } from '../abi/erc20-abi'
 import { foxyAbi } from '../abi/foxy-abi'
@@ -16,13 +18,7 @@ import { liquidityReserveAbi } from '../abi/liquidity-reserve-abi'
 import { tokeManagerAbi } from '../abi/toke-manager-abi'
 import { tokePoolAbi } from '../abi/toke-pool-abi'
 import { tokeRewardHashAbi } from '../abi/toke-reward-hash-abi'
-import {
-  DefiType,
-  MAX_ALLOWANCE,
-  tokeManagerAddress,
-  tokePoolAddress,
-  tokeRewardHashAddress,
-} from '../constants'
+import { tokeManagerAddress, tokePoolAddress, tokeRewardHashAddress } from '../constants'
 import type {
   AllowanceInput,
   ApproveInput,

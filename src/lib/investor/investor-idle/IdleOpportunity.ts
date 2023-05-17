@@ -6,6 +6,7 @@ import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Logger } from '@shapeshiftoss/logger'
 import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
+import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import toLower from 'lodash/toLower'
 import type Web3 from 'web3'
 import type { Contract } from 'web3-eth-contract'
@@ -17,15 +18,14 @@ import type {
   FeePriority,
   InvestorOpportunity,
 } from 'lib/investor'
+import { MAX_ALLOWANCE } from 'lib/investor'
+import { ssRouterContractAddress } from 'lib/investor/constants'
 import type { IdleVault } from 'lib/investor/investor-idle/constants'
 import {
   erc20Abi,
   idleCdoAbi,
   idleStrategyAbi,
   idleTokenV4Abi,
-  MAX_ALLOWANCE,
-  referralAddress,
-  ssRouterContractAddress,
 } from 'lib/investor/investor-idle/constants'
 
 export type PreparedTransaction = {
@@ -289,7 +289,7 @@ export class IdleOpportunity
       methodParams = [this.metadata.cdoAddress, amount.toFixed()]
     } else {
       methodName = 'mintIdleToken'
-      methodParams = [amount.toFixed(), 'true', referralAddress]
+      methodParams = [amount.toFixed(), 'true', DAO_TREASURY_ETHEREUM_MAINNET]
       vaultContract = new this.#internals.web3.eth.Contract(idleTokenV4Abi, this.id)
     }
 

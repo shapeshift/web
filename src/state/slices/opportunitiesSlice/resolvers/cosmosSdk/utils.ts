@@ -11,7 +11,6 @@ import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 
-import { opportunities } from '../../opportunitiesSlice'
 import type {
   OpportunitiesState,
   StakingEarnOpportunityType,
@@ -21,7 +20,6 @@ import type {
   ValidatorId,
 } from '../../types'
 import { serializeUserStakingId, supportsUndelegations, toValidatorId } from '../../utils'
-import type { ReduxApi } from '../types'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
@@ -67,11 +65,11 @@ export const makeUniqueValidatorAccountIds = ({
 export const makeAccountUserData = ({
   cosmosSdkAccount,
   validatorIds,
-  reduxApi,
+  onInvalidate,
 }: {
   cosmosSdkAccount: Account<CosmosSdkChainId>
   validatorIds: ValidatorId[]
-  reduxApi: ReduxApi
+  onInvalidate: (userStakingId: UserStakingId) => void
 }): OpportunitiesState['userStaking']['byId'] => {
   const delegations = cosmosSdkAccount.chainSpecific.delegations
   const undelegations = cosmosSdkAccount.chainSpecific.undelegations
@@ -125,7 +123,7 @@ export const makeAccountUserData = ({
       }
     } else {
       // UserStakingOpportunity invalidation
-      reduxApi.dispatch(opportunities.actions.invalidateUserStakingOpportunity(userStakingId))
+      onInvalidate(userStakingId)
     }
 
     return acc

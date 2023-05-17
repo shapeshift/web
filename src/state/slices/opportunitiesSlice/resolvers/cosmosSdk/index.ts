@@ -181,6 +181,7 @@ export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
   defiType,
   accountId,
   reduxApi,
+  onInvalidate,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
@@ -206,7 +207,11 @@ export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
     const asset = selectAssetById(state, assetId)
     if (!asset) throw new Error(`Cannot get asset for AssetId: ${assetId}`)
 
-    const byId = makeAccountUserData({ cosmosSdkAccount: cosmosAccount, validatorIds, reduxApi })
+    const byId = makeAccountUserData({
+      cosmosSdkAccount: cosmosAccount,
+      validatorIds,
+      onInvalidate,
+    })
 
     return Promise.resolve({ data: { byId, type: defiType } })
   } catch (e) {

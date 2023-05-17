@@ -6,27 +6,22 @@ import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Logger } from '@shapeshiftoss/logger'
 import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
-import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import toLower from 'lodash/toLower'
 import type Web3 from 'web3'
 import type { Contract } from 'web3-eth-contract'
 import { numberToHex } from 'web3-utils'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+
+import { DAO_TREASURY_ETHEREUM_MAINNET } from '../../../constants/treasury'
+import { bn, bnOrZero } from '../../../lib/bignumber/bignumber'
 import type {
   ApprovalRequired,
   DepositWithdrawArgs,
   FeePriority,
   InvestorOpportunity,
-} from 'lib/investor'
-import { MAX_ALLOWANCE } from 'lib/investor'
-import { ssRouterContractAddress } from 'lib/investor/constants'
-import type { IdleVault } from 'lib/investor/investor-idle/constants'
-import {
-  erc20Abi,
-  idleCdoAbi,
-  idleStrategyAbi,
-  idleTokenV4Abi,
-} from 'lib/investor/investor-idle/constants'
+} from '../../investor'
+import { MAX_ALLOWANCE, ssRouterContractAddress } from '../constants'
+import type { IdleVault } from './constants'
+import { erc20Abi, idleCdoAbi, idleStrategyAbi, idleTokenV4Abi } from './constants'
 
 export type PreparedTransaction = {
   chainId: number

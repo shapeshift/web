@@ -7,7 +7,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
-import { bnOrZero } from 'lib/investor/investor-foxy'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 
 type RateGasRowProps = {

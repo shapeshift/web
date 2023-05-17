@@ -6,10 +6,10 @@ import { WithdrawType } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import dotenv from 'dotenv'
 import readline from 'readline-sync'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { FoxyApi } from './api'
 import { foxyAddresses } from './constants'
-import { bnOrZero } from './utils'
 
 dotenv.config()
 

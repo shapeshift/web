@@ -11,7 +11,7 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bn, bnOrZero } from 'lib/investor/investor-foxy'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { UserStakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {

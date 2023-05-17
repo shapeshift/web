@@ -3,7 +3,7 @@ import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { USDC_PRECISION } from 'constants/constants'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
-import { bnOrZero } from 'lib/investor/investor-foxy'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
   selectFeatureFlags,

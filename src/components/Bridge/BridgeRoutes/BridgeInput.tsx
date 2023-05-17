@@ -7,7 +7,7 @@ import { useHistory } from 'react-router'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { bnOrZero } from 'lib/investor/investor-foxy'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 

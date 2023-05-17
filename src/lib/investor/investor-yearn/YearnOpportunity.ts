@@ -12,6 +12,7 @@ import toLower from 'lodash/toLower'
 import type Web3 from 'web3'
 import type { Contract } from 'web3-eth-contract'
 import { numberToHex } from 'web3-utils'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type {
   ApprovalRequired,
   DepositWithdrawArgs,
@@ -20,7 +21,6 @@ import type {
 } from 'lib/investor'
 
 import { erc20Abi, MAX_ALLOWANCE, ssRouterContractAddress, yv2VaultAbi } from './constants'
-import { bn, bnOrZero } from './utils'
 
 type YearnOpportunityDeps = {
   chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>

@@ -7,7 +7,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import type { AssetData } from 'components/AssetSearch/AssetList'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero } from 'lib/investor/investor-foxy'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {

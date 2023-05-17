@@ -66,6 +66,14 @@ export const makeTradeTx = async ({
 
     const { data, router } = thorTxInfo
 
+    const { feesWithGasLimit } = await getFeesFromContractData({
+      accountNumber,
+      adapter,
+      to: router,
+      data,
+      wallet,
+    })
+
     return Ok(
       await adapter.buildCustomTx({
         wallet,
@@ -73,13 +81,7 @@ export const makeTradeTx = async ({
         to: router,
         value: isErc20Trade ? '0' : sellAmountCryptoBaseUnit,
         data,
-        ...(await getFeesFromContractData({
-          accountNumber,
-          adapter,
-          to: router,
-          data,
-          wallet,
-        })),
+        ...feesWithGasLimit,
       }),
     )
   } catch (e) {

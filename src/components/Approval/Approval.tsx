@@ -34,7 +34,7 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { baseUnitToHuman, bn } from 'lib/bignumber/bignumber'
+import { baseUnitToHuman } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -51,7 +51,10 @@ export const Approval = () => {
   const history = useHistory()
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const [approvalTxId, setApprovalTxId] = useState<string>()
-  const [buildCustomTxInput, setBuildCustomTxInput] = useState<evm.BuildCustomTxInput>()
+  const [approvalTxData, setApprovalTxData] = useState<{
+    networkFeeCryptoBaseUnit: string
+    buildCustomTxInput: evm.BuildCustomTxInput
+  }>()
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(false)
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
@@ -66,7 +69,7 @@ export const Approval = () => {
   const fees = useSwapperStore(selectFees) as DisplayFeeData<EvmChainId> | undefined
   const updateTrade = useSwapperStore(state => state.updateTrade)
 
-  const { approve, checkApprovalNeeded, createBuildApprovalTxInput, getTrade } = useSwapper()
+  const { approve, checkApprovalNeeded, getApprovalTxData, getTrade } = useSwapper()
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
@@ -90,7 +93,7 @@ export const Approval = () => {
       moduleLogger.error('No wallet available')
       return
     }
-    if (!buildCustomTxInput) {
+    if (!approvalTxData) {
       moduleLogger.error('No buildApprovalTxInput available')
       return
     }
@@ -107,7 +110,7 @@ export const Approval = () => {
       const fnLogger = logger.child({ name: 'approve' })
       fnLogger.trace('Attempting Approval...')
 
-      const txId = await approve(buildCustomTxInput)
+      const txId = await approve(approvalTxData.buildCustomTxInput)
 
       setApprovalTxId(txId)
 
@@ -137,7 +140,7 @@ export const Approval = () => {
   }, [
     activeQuote,
     wallet,
-    buildCustomTxInput,
+    approvalTxData,
     isConnected,
     approve,
     history,
@@ -149,34 +152,25 @@ export const Approval = () => {
   ])
 
   useEffect(() => {
-    setBuildCustomTxInput(undefined)
+    setApprovalTxData(undefined)
     ;(async () => {
       try {
-        const buildApprovalTxInput = await createBuildApprovalTxInput(isExactAllowance)
-        setBuildCustomTxInput(buildApprovalTxInput)
+        const approvalTxData = await getApprovalTxData(isExactAllowance)
+        setApprovalTxData(approvalTxData)
       } catch (e) {
         showErrorToast(e)
         history.push(TradeRoutePaths.Input)
       }
     })()
-  }, [isExactAllowance, createBuildApprovalTxInput, history, showErrorToast])
+  }, [isExactAllowance, getApprovalTxData, history, showErrorToast])
 
   const approvalNetworkFeeCryptoHuman = useMemo(() => {
-    if (!buildCustomTxInput) return
-
-    const { gasLimit, gasPrice, maxFeePerGas } = buildCustomTxInput
-
-    // use EIP-1551 gas where possible
-    // non-null assert is safe here because one of these is guaranteed to be defined
-    const totalGasPrice = (maxFeePerGas ?? gasPrice)!
-
-    if (sellFeeAsset === undefined) return
-
+    if (!approvalTxData || sellFeeAsset === undefined) return
     return baseUnitToHuman({
-      value: bn(gasLimit).times(totalGasPrice),
+      value: approvalTxData.networkFeeCryptoBaseUnit,
       inputExponent: sellFeeAsset.precision,
     })
-  }, [buildCustomTxInput, sellFeeAsset])
+  }, [approvalTxData, sellFeeAsset])
 
   return (
     <SlideTransition>

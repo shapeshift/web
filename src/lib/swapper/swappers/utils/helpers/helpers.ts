@@ -8,13 +8,14 @@ import {
   polygonAssetId,
 } from '@shapeshiftoss/caip'
 import type { evm, EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { optimism } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type Web3 from 'web3'
 import type { AbiItem } from 'web3-utils'
 import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetTradeQuoteInput, TradeQuote } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { erc20Abi } from 'lib/swapper/swappers/utils/abi/erc20-abi'
@@ -74,7 +75,10 @@ export const getFeesFromContractData = async ({
   to,
   data,
   wallet,
-}: GetFeesFromContractDataArgs): Promise<evm.Fees & { gasLimit: string }> => {
+}: GetFeesFromContractDataArgs): Promise<{
+  networkFeeCryptoBaseUnit: string
+  feesWithGasLimit: evm.Fees & { gasLimit: string }
+}> => {
   if (!supportsETH(wallet)) {
     throw new SwapError('[getFeesFromContractData]', {
       cause: 'eth wallet required',
@@ -105,8 +109,20 @@ export const getFeesFromContractData = async ({
   const eip1559Support = await wallet.ethSupportsEIP1559()
 
   if (eip1559Support && maxFeePerGas && maxPriorityFeePerGas)
-    return { gasLimit, maxFeePerGas, maxPriorityFeePerGas }
-  if (gasPrice) return { gasLimit, gasPrice }
+    return {
+      networkFeeCryptoBaseUnit: bn(gasLimit).times(maxFeePerGas).toString(),
+      feesWithGasLimit: { gasLimit, maxFeePerGas, maxPriorityFeePerGas },
+    }
+
+  const displayGasPrice = optimism.isOptimismChainAdapter(adapter)
+    ? (feeDataEstimate as Awaited<ReturnType<optimism.ChainAdapter['getFeeData']>>).l1GasPrice
+    : gasPrice
+
+  if (gasPrice)
+    return {
+      networkFeeCryptoBaseUnit: bn(gasLimit).times(displayGasPrice).toString(),
+      feesWithGasLimit: { gasLimit, gasPrice },
+    }
 
   throw new SwapError('[getFeesFromContractData]', {
     cause: 'legacy gas or eip1559 gas required',
@@ -122,7 +138,7 @@ export const createBuildCustomTxInput = async ({
   value,
   wallet,
 }: CreateBuildCustomTxInputArgs): Promise<evm.BuildCustomTxInput> => {
-  const gasFees = await getFeesFromContractData({
+  const { feesWithGasLimit } = await getFeesFromContractData({
     accountNumber,
     adapter,
     to,
@@ -136,7 +152,7 @@ export const createBuildCustomTxInput = async ({
     to,
     value,
     wallet,
-    ...gasFees,
+    ...feesWithGasLimit,
   }
 }
 

@@ -14,9 +14,9 @@ import { erc20AllowanceAbi } from 'lib/swapper/swappers/utils/abi/erc20Allowance
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import {
   buildAndBroadcast,
-  createBuildCustomTxInput,
   getApproveContractData,
   getERC20Allowance,
+  getFeesFromContractData,
 } from 'lib/swapper/swappers/utils/helpers/helpers'
 import { isEvmChainAdapter } from 'lib/utils'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
@@ -198,8 +198,13 @@ export const useSwapper = () => {
     return bn(allowanceOnChainCryptoBaseUnit).lt(activeQuote.sellAmountBeforeFeesCryptoBaseUnit)
   }, [activeQuote, sellAsset.assetId, sellAsset.chainId, wallet])
 
-  const createBuildApprovalTxInput = useCallback(
-    (isExactAllowance: boolean): Promise<evm.BuildCustomTxInput> => {
+  const getApprovalTxData = useCallback(
+    async (
+      isExactAllowance: boolean,
+    ): Promise<{
+      networkFeeCryptoBaseUnit: string
+      buildCustomTxInput: evm.BuildCustomTxInput
+    }> => {
       const adapterManager = getChainAdapterManager()
       const adapter = adapterManager.get(sellAsset.chainId)
 
@@ -223,14 +228,25 @@ export const useSwapper = () => {
         web3,
       })
 
-      return createBuildCustomTxInput({
+      const { feesWithGasLimit, networkFeeCryptoBaseUnit } = await getFeesFromContractData({
         accountNumber: activeQuote.accountNumber,
         adapter,
         to: assetReference,
         data,
-        value: '0',
         wallet,
       })
+
+      return {
+        networkFeeCryptoBaseUnit,
+        buildCustomTxInput: {
+          accountNumber: activeQuote.accountNumber,
+          data,
+          to: assetReference,
+          value: '0',
+          wallet,
+          ...feesWithGasLimit,
+        },
+      }
     },
     [activeQuote, sellAsset.assetId, sellAsset.chainId, wallet],
   )
@@ -246,7 +262,7 @@ export const useSwapper = () => {
     supportedBuyAssetsByMarketCap,
     getTrade,
     approve,
-    createBuildApprovalTxInput,
+    getApprovalTxData,
     checkApprovalNeeded,
   }
 }

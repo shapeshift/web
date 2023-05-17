@@ -1,5 +1,4 @@
 import { ethereum } from '@shapeshiftoss/chain-adapters'
-import { foxyAddresses, FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { Logger } from '@shapeshiftoss/logger'
 import type {
   HistoryData,
@@ -9,6 +8,7 @@ import type {
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
+import { foxyAddresses, FoxyApi } from 'lib/investor/investor-foxy'
 
 import type { MarketService } from '../api'
 import { CoinGeckoMarketService } from '../coingecko/coingecko'

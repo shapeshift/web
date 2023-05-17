@@ -1,5 +1,4 @@
 import { Stack } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { type FC } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -8,6 +7,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 
 type RateGasRowProps = {

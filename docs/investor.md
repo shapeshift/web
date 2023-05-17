@@ -3,7 +3,7 @@ The `investor` package is an abstraction to implement protocols that allow for s
 
 [Yearn Finance](https://yearn.finance) is an example of this type of single-sided staking protocol.
 
-You can look at [@shapeshiftoss/investor-yearn](https://github.com/shapeshift/lib/tree/main/packages/investor-yearn) as an example implementation.
+You can look at [lib/investor/investor-yearn](https://github.com/shapeshift/web/tree/main/lib/investor/investor-yearn) as an example implementation.
 
 ### 
 The `investor` package is made up of three parts.

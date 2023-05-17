@@ -1,6 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import type { YearnOpportunity } from '@shapeshiftoss/investor-yearn'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
@@ -15,6 +14,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { YearnOpportunity } from 'lib/investor/investor-yearn'
 import { logger } from 'lib/logger'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {

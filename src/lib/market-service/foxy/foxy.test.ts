@@ -19,7 +19,7 @@ jest.mock('axios')
 
 const mockTotalSupply = jest.fn().mockReturnValue(bn('502526240759422886301171305'))
 const mockTvl = jest.fn().mockReturnValue(bn('52018758965754575223841191'))
-jest.mock('@shapeshiftoss/investor-foxy', () => ({
+jest.mock('lib/investor/investor-foxy', () => ({
   FoxyApi: jest.fn().mockImplementation(() => ({
     totalSupply: mockTotalSupply,
     tvl: mockTvl,

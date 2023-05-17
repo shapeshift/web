@@ -4,8 +4,8 @@ import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import dotenv from 'dotenv'
+import { bn } from 'lib/bignumber/bignumber'
 
-import { bn } from './utils'
 import { YearnInvestor } from './YearnInvestor'
 
 dotenv.config()

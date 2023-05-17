@@ -7,6 +7,7 @@ import axios from 'axios'
 import type { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 import { toLower } from 'lodash'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { erc20Abi } from '../abi/erc20-abi'
 import { foxyAbi } from '../abi/foxy-abi'
@@ -22,7 +23,6 @@ import {
   tokePoolAddress,
   tokeRewardHashAddress,
 } from '../constants'
-import { bn, bnOrZero } from '../utils'
 import type {
   AllowanceInput,
   ApproveInput,

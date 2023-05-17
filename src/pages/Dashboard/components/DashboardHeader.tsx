@@ -12,8 +12,8 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
-import { bnOrZero } from 'lib/investor/investor-foxy'
 import {
   selectClaimableRewards,
   selectEarnBalancesFiatAmountFull,

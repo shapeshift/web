@@ -10,6 +10,7 @@ import toLower from 'lodash/toLower'
 import type Web3 from 'web3'
 import type { Contract } from 'web3-eth-contract'
 import { numberToHex } from 'web3-utils'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type {
   ApprovalRequired,
   DepositWithdrawArgs,
@@ -26,7 +27,6 @@ import {
   referralAddress,
   ssRouterContractAddress,
 } from 'lib/investor/investor-idle/constants'
-import { bn, bnOrZero } from 'lib/investor/investor-idle/utils'
 
 export type PreparedTransaction = {
   chainId: number

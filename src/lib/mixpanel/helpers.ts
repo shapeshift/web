@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero } from 'lib/investor/investor-foxy'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 import { getMixPanel } from './mixPanelSingleton'

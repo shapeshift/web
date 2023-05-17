@@ -3,8 +3,7 @@ import { fromAccountId, fromAssetId, toAccountId, toAssetId } from '@shapeshifto
 import type { MarketData } from '@shapeshiftoss/types'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { Asset } from 'lib/asset-service'
-import { bn } from 'lib/bignumber/bignumber'
-import { bnOrZero } from 'lib/investor/investor-foxy'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 
 import { foxEthAssetIds, STAKING_ID_DELIMITER } from './constants'

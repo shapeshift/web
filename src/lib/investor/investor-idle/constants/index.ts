@@ -1,4 +1,3 @@
-export * from 'lib/investor/investor-idle/constants/allowance'
 export * from 'lib/investor/investor-idle/constants/erc20-abi'
 export * from 'lib/investor/investor-idle/constants/idle-cdo-abi'
 export * from 'lib/investor/investor-idle/constants/ss-router-abi'

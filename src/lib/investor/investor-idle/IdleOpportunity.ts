@@ -17,13 +17,13 @@ import type {
   FeePriority,
   InvestorOpportunity,
 } from 'lib/investor'
+import { MAX_ALLOWANCE } from 'lib/investor'
 import type { IdleVault } from 'lib/investor/investor-idle/constants'
 import {
   erc20Abi,
   idleCdoAbi,
   idleStrategyAbi,
   idleTokenV4Abi,
-  MAX_ALLOWANCE,
   referralAddress,
   ssRouterContractAddress,
 } from 'lib/investor/investor-idle/constants'

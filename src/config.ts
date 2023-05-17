@@ -75,6 +75,7 @@ const validators = {
   REACT_APP_FEATURE_OPTIMISM: bool({ default: false }),
   REACT_APP_FEATURE_BNBSMARTCHAIN: bool({ default: false }),
   REACT_APP_FEATURE_POLYGON: bool({ default: false }),
+  REACT_APP_FEATURE_GNOSIS: bool({ default: false }),
   REACT_APP_FEATURE_ZRX_AVALANCHE: bool({ default: false }),
   REACT_APP_FEATURE_ZRX_BNBSMARTCHAIN: bool({ default: false }),
   REACT_APP_FEATURE_ZRX_POLYGON: bool({ default: false }),

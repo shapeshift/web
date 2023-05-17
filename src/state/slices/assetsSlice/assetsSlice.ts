@@ -5,6 +5,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import {
   bscChainId,
   fromAssetId,
+  gnosisChainId,
   optimismChainId,
   osmosisChainId,
   polygonChainId,
@@ -129,6 +130,7 @@ export const assetApi = createApi({
             if (!flags.Optimism && asset.chainId === optimismChainId) return prev
             if (!flags.BnbSmartChain && asset.chainId === bscChainId) return prev
             if (!flags.Polygon && asset.chainId === polygonChainId) return prev
+            if (!flags.Gnosis && asset.chainId === gnosisChainId) return prev
             if (
               !flags.OsmosisSend &&
               !flags.OsmosisStaking &&

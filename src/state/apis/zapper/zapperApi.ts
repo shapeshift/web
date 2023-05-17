@@ -367,6 +367,8 @@ export const zapper = createApi({
                   const tvl = bnOrZero(asset.dataProps?.liquidity).toString()
                   const icon = asset.displayProps?.images?.[0] ?? ''
                   const name = asset.displayProps?.label ?? ''
+                  const groupId = asset.groupId
+                  const type = asset.type
                   const assetId = toAssetId({
                     chainId:
                       ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[asset.network as SupportedZapperNetwork],
@@ -490,7 +492,10 @@ export const zapper = createApi({
                       rewardAssetIds: [],
                       provider: appName,
                       tvl,
-                      type: DefiType.Staking,
+                      type:
+                        groupId === 'farm' || type === 'contract-position'
+                          ? DefiType.Staking
+                          : DefiType.LiquidityPool,
                       // TODO(gomes) We should either:
                       // 1. filter out the opportunities that are part of our existing view-layer abstraction
                       // 2. support the opportunities that are part of our existing view-layer abstraction, and fetch them here exclusively instead

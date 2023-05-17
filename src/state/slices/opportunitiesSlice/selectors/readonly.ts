@@ -1,3 +1,4 @@
+import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -59,7 +60,8 @@ export const selectAggregatedReadOnlyOpportunitiesByProvider = createDeepEqualOu
         ? '0'
         : weightedApy.div(totalAbsoluteBalance).toString()
 
-      const otherOpportunityType = opportunityMetadata.type === 'staking' ? 'lp' : 'staking'
+      const otherOpportunityType =
+        opportunityMetadata.type === DefiType.Staking ? DefiType.LiquidityPool : DefiType.Staking
       // TODO: concat item.opportunityId once the staking hardcoding for PoC is removed
       // At the moment, we assume staking for all so we don't really care about LPs, but we still need to at least have an initial {lp: []} object
       const otherOpportunity = {

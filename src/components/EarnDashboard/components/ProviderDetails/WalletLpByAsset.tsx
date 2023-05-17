@@ -11,6 +11,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { useGetReadOnlyOpportunitiesQuery } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { selectAggregatedEarnUserLpOpportunities, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -34,7 +35,16 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
   } = useWallet()
   const assets = useAppSelector(selectAssets)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
-  const filteredDown = lpOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
+
+  const { data: readOnlyOpportunitiesData } = useGetReadOnlyOpportunitiesQuery()
+  const readOnlyOpportunitiesMetadata = Object.values(
+    readOnlyOpportunitiesData?.opportunities ?? {},
+  ).filter(opportunity => opportunity.type === 'lp')
+
+  const filteredDown = lpOpportunities
+    // @ts-ignore FIXME
+    .concat(readOnlyOpportunitiesMetadata)
+    .filter(e => ids.includes(e.assetId as OpportunityId))
   const groupedItems = useMemo(() => {
     const groups = filteredDown.reduce(
       (entryMap, currentItem) =>

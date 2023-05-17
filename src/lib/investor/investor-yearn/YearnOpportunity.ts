@@ -20,8 +20,9 @@ import type {
   InvestorOpportunity,
 } from 'lib/investor'
 import { MAX_ALLOWANCE } from 'lib/investor'
+import { erc20Abi } from 'lib/investor/constants'
 
-import { erc20Abi, ssRouterContractAddress, yv2VaultAbi } from './constants'
+import { ssRouterContractAddress, yv2VaultAbi } from './constants'
 
 type YearnOpportunityDeps = {
   chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>

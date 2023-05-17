@@ -47,8 +47,14 @@ export const Mission: React.FC<MissionProps> = ({
       borderWidth={useColorModeValue(0, 1)}
       gridColumn={`span ${colspan}`}
       onClick={handleClick}
-      transition='box-shadow 0.2s ease-in-out'
-      _hover={{ cursor: 'pointer', boxShadow: 'xl' }}
+      transitionProperty='common'
+      transitionDuration='normal'
+      _hover={{
+        cursor: 'pointer',
+        boxShadow: 'xl',
+        '.mission-btn': { color: 'whiteAlpha.500' },
+        '.icon-btn': { bg: 'whiteAlpha.500' },
+      }}
       position='relative'
       backgroundPosition={{ base: '-10% -50%', md: '150% 60%' }}
       backgroundSize={{ base: 'cover', md: '80%' }}
@@ -79,7 +85,7 @@ export const Mission: React.FC<MissionProps> = ({
             bottom: 0,
             position: 'absolute',
             backdropFilter: 'blur(50px)',
-            mask: 'linear-gradient(transparent, black 60%)',
+            mask: 'linear-gradient(transparent, black 85%)',
             borderBottomRadius: {
               base: 'none',
               lg: 'xl',
@@ -95,7 +101,7 @@ export const Mission: React.FC<MissionProps> = ({
           >
             <Flex gap={2} fontWeight='semibold' alignItems='center'>
               <FaClock />
-              <RawText>
+              <RawText lineHeight='none'>
                 {endDate
                   ? `${translate('missions.ends')} ${dayjs(endDate, promoDateFormat).fromNow()}`
                   : translate('missions.ongoing')}
@@ -105,9 +111,15 @@ export const Mission: React.FC<MissionProps> = ({
               variant='unstyled'
               onClick={handleClick}
               iconSpacing={3}
-              _hover={{ color: 'whiteAlpha.500' }}
+              className='mission-btn'
               rightIcon={
-                <IconCircle bg='white' color='black'>
+                <IconCircle
+                  bg='white'
+                  color='black'
+                  className='icon-btn'
+                  transitionProperty='common'
+                  transitionDuration='normal'
+                >
                   <ArrowForwardIcon />
                 </IconCircle>
               }
@@ -121,7 +133,7 @@ export const Mission: React.FC<MissionProps> = ({
         width='100%'
         minHeight='350px'
         bgImage={coverImage}
-        backgroundSize='200%'
+        backgroundSize='cover'
         backgroundPosition='center 100%'
         backgroundRepeat='no-repeat'
         borderBottomRadius={{ base: 'none', lg: '2xl' }}

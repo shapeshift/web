@@ -1,7 +1,7 @@
 import { chakra, Container, Heading, useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import FoxAtarBg from 'assets/foxatar.png'
+import FoxAtarBg from 'assets/foxatar-bg.png'
 import OpLogo from 'assets/op-logo.png'
 import OptimismBg from 'assets/optimism-bg.png'
 import { Main } from 'components/Layout/Main'

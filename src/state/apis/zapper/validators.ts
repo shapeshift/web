@@ -502,24 +502,27 @@ const ZapperDisplayPropsSchema = z.union([
 
 // optional/nullable somehow doesn't work with z.lazy() so we union undefined the schema itself
 const ZapperDataPropsSchema = z.union([
-  z.object({
-    apy: z.number().optional(),
-    isActive: z.boolean().optional(),
-    isDebt: z.boolean().optional(),
-    exchangeable: z.boolean().optional(),
-    exchangeRate: z.number().optional(),
-    fee: z.number().optional(),
-    volume: z.number().optional(),
-    // Realistically a z.tuple() of 1/2 assets, but you never know
-    reserves: z.array(z.number()).optional(),
-    liquidity: z.number().optional(),
-    poolIndex: z.number().optional(),
-    positionKey: z.string().optional(),
-    extraRewarderAddress: z.string().optional(),
-    swapAddress: z.string().optional(),
-    symbol: z.string().optional(),
-    weight: z.array(z.number()).optional(),
-  }),
+  z.object(
+    {
+      apy: z.number().optional(),
+      isActive: z.boolean().optional(),
+      isDebt: z.boolean().optional(),
+      exchangeable: z.boolean().optional(),
+      exchangeRate: z.number().optional(),
+      fee: z.number().optional(),
+      volume: z.number().optional(),
+      // Realistically a z.tuple() of 1/2 assets, but you never know
+      reserves: z.array(z.number()).optional(),
+      liquidity: z.number().optional(),
+      poolIndex: z.number().optional(),
+      positionKey: z.string().optional(),
+      extraRewarderAddress: z.string().optional(),
+      swapAddress: z.string().optional(),
+      symbol: z.string().optional(),
+      weight: z.array(z.number()).optional(),
+    },
+    { allowUnknown: true },
+  ),
   z.undefined(),
 ])
 

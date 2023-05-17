@@ -1,6 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { bn, bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -12,6 +11,7 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { UserStakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {

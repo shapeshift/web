@@ -6108,56 +6108,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/investor-foxy@workspace:^, @shapeshiftoss/investor-foxy@workspace:packages/investor-foxy":
-  version: 0.0.0-use.local
-  resolution: "@shapeshiftoss/investor-foxy@workspace:packages/investor-foxy"
-  dependencies:
-    "@shapeshiftoss/caip": "workspace:^"
-    "@shapeshiftoss/chain-adapters": "workspace:^"
-    "@shapeshiftoss/logger": "workspace:^"
-    "@shapeshiftoss/types": "workspace:^"
-    "@types/readline-sync": ^1.4.4
-    readline-sync: ^1.4.10
-  languageName: unknown
-  linkType: soft
-
-"@shapeshiftoss/investor-idle@workspace:^, @shapeshiftoss/investor-idle@workspace:packages/investor-idle":
-  version: 0.0.0-use.local
-  resolution: "@shapeshiftoss/investor-idle@workspace:packages/investor-idle"
-  dependencies:
-    "@shapeshiftoss/caip": "workspace:^"
-    "@shapeshiftoss/chain-adapters": "workspace:^"
-    "@shapeshiftoss/investor": "workspace:^"
-    "@shapeshiftoss/logger": "workspace:^"
-    "@shapeshiftoss/types": "workspace:^"
-    web3-core: 1.7.4
-    web3-utils: 1.7.4
-  languageName: unknown
-  linkType: soft
-
-"@shapeshiftoss/investor-yearn@workspace:^, @shapeshiftoss/investor-yearn@workspace:packages/investor-yearn":
-  version: 0.0.0-use.local
-  resolution: "@shapeshiftoss/investor-yearn@workspace:packages/investor-yearn"
-  dependencies:
-    "@shapeshiftoss/caip": "workspace:^"
-    "@shapeshiftoss/chain-adapters": "workspace:^"
-    "@shapeshiftoss/investor": "workspace:^"
-    "@shapeshiftoss/logger": "workspace:^"
-    "@shapeshiftoss/types": "workspace:^"
-    "@yfi/sdk": ^1.2.0
-    web3-core: 1.7.4
-    web3-utils: 1.7.4
-  languageName: unknown
-  linkType: soft
-
-"@shapeshiftoss/investor@workspace:^, @shapeshiftoss/investor@workspace:packages/investor":
-  version: 0.0.0-use.local
-  resolution: "@shapeshiftoss/investor@workspace:packages/investor"
-  dependencies:
-    "@shapeshiftoss/types": "workspace:^"
-  languageName: unknown
-  linkType: soft
-
 "@shapeshiftoss/logger@workspace:^, @shapeshiftoss/logger@workspace:packages/logger":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/logger@workspace:packages/logger"
@@ -6249,9 +6199,6 @@ __metadata:
     "@shapeshiftoss/hdwallet-native-vault": ^1.48.0
     "@shapeshiftoss/hdwallet-walletconnect": ^1.48.0
     "@shapeshiftoss/hdwallet-xdefi": ^1.48.0
-    "@shapeshiftoss/investor-foxy": "workspace:^"
-    "@shapeshiftoss/investor-idle": "workspace:^"
-    "@shapeshiftoss/investor-yearn": "workspace:^"
     "@shapeshiftoss/logger": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
@@ -6288,6 +6235,7 @@ __metadata:
     "@types/react-table": ^7.7.12
     "@types/react-virtualized-auto-sizer": ^1.0.1
     "@types/react-window": ^1.8.5
+    "@types/readline-sync": ^1.4.4
     "@types/semver": ^7.3.10
     "@types/ssri": ^7.1.1
     "@uniswap/sdk": ^3.0.3
@@ -6392,6 +6340,7 @@ __metadata:
     react-table: ^7.8.0
     react-virtualized-auto-sizer: ^1.0.5
     react-window: ^1.8.7
+    readline-sync: ^1.4.10
     redux-persist: ^6.0.0
     reselect: ^4.1.6
     reselect-tools: ^0.0.7

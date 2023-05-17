@@ -1,6 +1,5 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, Container, Flex, Skeleton, Stack, useColorModeValue } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
@@ -13,6 +12,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
 import {
   selectClaimableRewards,

@@ -1,9 +1,8 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { ethChainId, foxyAssetId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import dayjs from 'dayjs'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { foxyApi } from 'state/apis/foxy/foxyApi'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {

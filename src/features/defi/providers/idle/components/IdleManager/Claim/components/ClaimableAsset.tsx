@@ -1,8 +1,8 @@
 import { Stack } from '@chakra-ui/react'
-import type { ClaimableToken } from '@shapeshiftoss/investor-idle'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { ClaimableToken } from 'lib/investor/investor-idle'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

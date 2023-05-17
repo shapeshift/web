@@ -1,11 +1,11 @@
 import { Button, Flex } from '@chakra-ui/react'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import { union } from 'lodash'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink, useLocation } from 'react-router-dom'
 import { routes } from 'Routes/RoutesCommon'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 export const MobileNavBar = () => {
   const { routes: pluginRoutes } = usePlugins()

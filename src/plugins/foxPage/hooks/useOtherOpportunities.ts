@@ -1,9 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, foxyAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { foxyAddresses } from 'lib/investor/investor-foxy'
 import { foxEthLpAssetId, foxEthStakingAssetIdV6 } from 'state/slices/opportunitiesSlice/constants'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {

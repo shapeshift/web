@@ -8,7 +8,6 @@ import {
   polygonAssetId,
 } from '@shapeshiftoss/caip'
 import type { evm, EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { optimism } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -86,22 +85,15 @@ export const getFeesFromContractData = async ({
 
   const from = await adapter.getAddress({ accountNumber, wallet })
 
-  const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } = await (async () => {
-    const getFeeDataInput = {
-      to,
-      value: '0',
-      chainSpecific: { from, contractData: data },
-    }
+  const getFeeDataInput = {
+    to,
+    value: '0',
+    chainSpecific: { from, contractData: data },
+  }
 
-    // account for l1 transaction fees for optimism
-    if (optimism.isOptimismChainAdapter(adapter)) {
-      const { average, l1GasPrice } = await adapter.getFeeData(getFeeDataInput)
-      return Object.assign(average.chainSpecific, { gasPrice: l1GasPrice })
-    }
-
-    const feeDataEstimate = await adapter.getFeeData(getFeeDataInput)
-    return feeDataEstimate.average.chainSpecific
-  })()
+  const feeDataEstimate = await adapter.getFeeData(getFeeDataInput)
+  const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } =
+    feeDataEstimate.average.chainSpecific
 
   if (!gasLimit) {
     throw new SwapError('[getFeesFromContractData]', {

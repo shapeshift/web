@@ -110,6 +110,16 @@ export const opportunities = createSlice({
       // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
       prepare: prepareAutoBatched<GetOpportunityUserStakingDataOutput>(),
     },
+    invalidateUserStakingOpportunity: {
+      reducer: (draftState, { payload }: { payload: UserStakingId }) => {
+        const userStakingId = payload
+        delete draftState.userStaking.byId[userStakingId]
+      },
+
+      // Use the `prepareAutoBatched` utility to automatically
+      // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
+      prepare: prepareAutoBatched<UserStakingId>(),
+    },
   },
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
 })

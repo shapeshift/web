@@ -2,6 +2,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, fromAccountId, osmosisChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { Account, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import type { MarketData } from '@shapeshiftoss/types'
+import dayjs from 'dayjs'
 import flatMapDeep from 'lodash/flatMapDeep'
 import groupBy from 'lodash/groupBy'
 import uniq from 'lodash/uniq'
@@ -10,6 +11,7 @@ import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 
+import { opportunities } from '../../opportunitiesSlice'
 import type {
   OpportunitiesState,
   StakingEarnOpportunityType,
@@ -19,6 +21,7 @@ import type {
   ValidatorId,
 } from '../../types'
 import { serializeUserStakingId, supportsUndelegations, toValidatorId } from '../../utils'
+import type { ReduxApi } from '../types'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
@@ -64,9 +67,11 @@ export const makeUniqueValidatorAccountIds = ({
 export const makeAccountUserData = ({
   cosmosSdkAccount,
   validatorIds,
+  reduxApi,
 }: {
   cosmosSdkAccount: Account<CosmosSdkChainId>
   validatorIds: ValidatorId[]
+  reduxApi: ReduxApi
 }): OpportunitiesState['userStaking']['byId'] => {
   const delegations = cosmosSdkAccount.chainSpecific.delegations
   const undelegations = cosmosSdkAccount.chainSpecific.undelegations
@@ -97,12 +102,12 @@ export const makeAccountUserData = ({
 
     const maybeValidatorUndelegationsEntries =
       undelegationsByValidator[validatorAddress]?.[0]?.entries
-    const maybeValidatorUndelegations = (maybeValidatorUndelegationsEntries ?? []).map(
-      ({ amount, completionTime }) => ({
+    const maybeValidatorUndelegations = (maybeValidatorUndelegationsEntries ?? [])
+      .filter(undelegation => dayjs().isBefore(dayjs.unix(undelegation.completionTime)))
+      .map(({ amount, completionTime }) => ({
         undelegationAmountCryptoBaseUnit: amount,
         completionTime,
-      }),
-    )
+      }))
 
     if (
       maybeValidatorDelegations.gt(0) ||
@@ -118,6 +123,9 @@ export const makeAccountUserData = ({
         },
         undelegations: maybeValidatorUndelegations,
       }
+    } else {
+      // UserStakingOpportunity invalidation
+      reduxApi.dispatch(opportunities.actions.invalidateUserStakingOpportunity(userStakingId))
     }
 
     return acc

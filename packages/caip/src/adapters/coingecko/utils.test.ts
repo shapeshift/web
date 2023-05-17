@@ -6,7 +6,6 @@ import { parseData, writeFiles } from './utils'
 const makeEthMockCoingeckoResponse = () => ({
   id: 'ethereum',
   symbol: 'eth',
-  name: 'Ethereum',
   platforms: {},
 })
 
@@ -27,14 +26,12 @@ const makeWethMockCoingeckoResponse = () => ({
 const makeAvalancheMockCoingeckoResponse = () => ({
   id: 'avalanche-2',
   symbol: 'avax',
-  name: 'Avalanche',
   platforms: {},
 })
 
 const makeFoxMockCoingeckoResponse = () => ({
   id: 'shapeshift-fox-token',
   symbol: 'fox',
-  name: 'ShapeShift FOX Token',
   platforms: {
     ethereum: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   },
@@ -43,14 +40,12 @@ const makeFoxMockCoingeckoResponse = () => ({
 const makeBtcMockCoingeckoResponse = () => ({
   id: 'bitcoin',
   symbol: 'btc',
-  name: 'Bitcoin',
   platforms: {},
 })
 
 const makeCosmosMockCoingeckoResponse = () => ({
   id: 'cosmos',
   symbol: 'atom',
-  name: 'Cosmos',
   platforms: {
     osmosis: 'IBC/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
   },
@@ -59,28 +54,24 @@ const makeCosmosMockCoingeckoResponse = () => ({
 const makeOsmosisMockCoingeckoResponse = () => ({
   id: 'osmosis',
   symbol: 'osmo',
-  name: 'osmosis',
   platforms: {},
 })
 
 const makePolygonMockCoingeckoResponse = () => ({
   id: 'polygon-pos',
   symbol: 'matic',
-  name: 'Polygon',
   platforms: {},
 })
 
 const makeGnosisMockCoingeckoResponse = () => ({
   id: 'gnosis',
   symbol: 'xDai',
-  name: 'Gnosis',
   platforms: {},
 })
 
 const makeThorchainMockCoingeckoResponse = () => ({
   id: 'thorchain',
   symbol: 'rune',
-  name: 'THORChain',
   platforms: {
     thorchain: '',
   },

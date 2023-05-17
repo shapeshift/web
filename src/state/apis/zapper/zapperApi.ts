@@ -9,8 +9,9 @@ import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import type { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { toBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
@@ -428,13 +429,59 @@ export const zapper = createApi({
                     reduxApi.dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
                   }
 
+                  const underlyingAssetRatiosBaseUnit = (() => {
+                    // TODO(gomes): Scrutinize whether or not this generalizes to all products
+                    // Not all app-token products are created equal
+                    if (asset.type === 'app-token') {
+                      const token0ReservesCryptoPrecision = asset.dataProps?.reserves?.[0]
+                      const token1ReservesCryptoPrecision = asset.dataProps?.reserves?.[1]
+                      const token0ReservesBaseUnit =
+                        typeof token0ReservesCryptoPrecision === 'number'
+                          ? bnOrZero(
+                              bnOrZero(
+                                bnOrZero(token0ReservesCryptoPrecision.toFixed()).toString(),
+                              ),
+                            ).times(bn(10).pow(asset.decimals ?? 18))
+                          : undefined
+                      const token1ReservesBaseUnit =
+                        typeof token1ReservesCryptoPrecision === 'number'
+                          ? bnOrZero(
+                              bnOrZero(
+                                bnOrZero(token1ReservesCryptoPrecision.toFixed()).toString(),
+                              ),
+                            ).times(bn(10).pow(asset.decimals ?? 18))
+                          : undefined
+                      const totalSupplyBaseUnit =
+                        typeof asset.supply === 'number'
+                          ? bnOrZero(asset.supply)
+                              .times(bn(10).pow(asset.decimals ?? 18))
+                              .toString()
+                          : undefined
+                      const token0PoolRatio =
+                        token0ReservesBaseUnit && totalSupplyBaseUnit
+                          ? token0ReservesBaseUnit.div(totalSupplyBaseUnit).toString()
+                          : undefined
+                      const token1PoolRatio =
+                        token1ReservesBaseUnit && totalSupplyBaseUnit
+                          ? token1ReservesBaseUnit.div(totalSupplyBaseUnit).toString()
+                          : undefined
+
+                      if (!(token0PoolRatio && token1PoolRatio)) return
+
+                      return [
+                        toBaseUnit(token0PoolRatio.toString(), asset.tokens[0].decimals),
+                        toBaseUnit(token1PoolRatio.toString(), asset.tokens[1].decimals),
+                      ] as const
+                    }
+                  })()
+
                   if (!acc.opportunities[assetId]) {
                     acc.opportunities[assetId] = {
                       apy,
                       assetId,
                       underlyingAssetId,
                       underlyingAssetIds,
-                      underlyingAssetRatiosBaseUnit: ['0', '0'], // TODO(gomes): implement me
+                      underlyingAssetRatiosBaseUnit: underlyingAssetRatiosBaseUnit ?? ['0', '0'],
                       // TODO(gomes): one AssetId can be an active opportunity across many, we will want to serialize this.
                       id: assetId as OpportunityId,
                       icon,

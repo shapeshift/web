@@ -1,5 +1,5 @@
-import { AssetId, gnosisAssetId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, gnosisAssetId } from '@shapeshiftoss/caip'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
@@ -45,9 +45,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.GnosisMainnet> {
   }
 
   getName() {
-    const enumIndex = Object.values(ChainAdapterDisplayName).indexOf(
-      ChainAdapterDisplayName.Gnosis,
-    )
+    const enumIndex = Object.values(ChainAdapterDisplayName).indexOf(ChainAdapterDisplayName.Gnosis)
     return Object.keys(ChainAdapterDisplayName)[enumIndex]
   }
 
@@ -60,18 +58,22 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.GnosisMainnet> {
   }
 
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
-    const { fast, average, slow } = { fast: {
-      maxFeePerGas: '0',
-      maxPriorityFeePerGas: '0',
-    }, average: {
-      maxFeePerGas: '0',
-      maxPriorityFeePerGas: '0',
-    }, slow: {
-      maxFeePerGas: '0',
-      maxPriorityFeePerGas: '0',
-    }}
+    const { fast, average, slow } = {
+      fast: {
+        maxFeePerGas: '0',
+        maxPriorityFeePerGas: '0',
+      },
+      average: {
+        maxFeePerGas: '0',
+        maxPriorityFeePerGas: '0',
+      },
+      slow: {
+        maxFeePerGas: '0',
+        maxPriorityFeePerGas: '0',
+      },
+    }
 
-    return {
+    return await {
       fast: {
         gasPrice: fast.maxFeePerGas ?? '0',
         maxFeePerGas: fast.maxFeePerGas,
@@ -96,7 +98,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.GnosisMainnet> {
     const req = await this.buildEstimateGasRequest(input)
 
     // const { gasLimit } = await this.api.estimateGas(req)
-    const gasLimit = req.from;
+    const gasLimit = req.from
     const { fast, average, slow } = await this.getGasFeeData()
 
     return {

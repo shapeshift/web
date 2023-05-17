@@ -27,6 +27,7 @@ import type { LpEarnOpportunityType, StakingEarnOpportunityType } from './../typ
 
 export const selectLpOpportunitiesByAccountId = (state: ReduxState) =>
   state.opportunities.lp.byAccountId
+export const selectLpIds = (state: ReduxState) => state.opportunities.lp.ids
 export const selectLpOpportunitiesById = (state: ReduxState) => state.opportunities.lp.byId
 
 // A user LpOpportunity, parsed as an EarnOpportunityType

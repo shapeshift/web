@@ -42,6 +42,8 @@ export const selectAggregatedReadOnlyOpportunitiesByProvider = createDeepEqualOu
       const provider = providerMetadata.provider
       const opportunityMetadata = data.opportunities[item.opportunityId]
 
+      if (!opportunityMetadata) return acc
+
       const totalFiatAmount = bnOrZero(acc[provider]?.fiatAmount).plus(item.fiatAmount)
 
       // We need to calculate the weighted APY according to the total *abs* balance

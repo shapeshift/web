@@ -20,11 +20,18 @@ import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/asset
 import type { ReduxApi } from 'state/slices/opportunitiesSlice/resolvers/types'
 import type {
   AssetIdsTuple,
+  LpId,
   OpportunityId,
   OpportunityMetadataBase,
   ReadOnlyOpportunityType,
+  StakingId,
 } from 'state/slices/opportunitiesSlice/types'
-import { selectAssets, selectFeatureFlag } from 'state/slices/selectors'
+import {
+  selectAssets,
+  selectFeatureFlag,
+  selectLpIds,
+  selectStakingIds,
+} from 'state/slices/selectors'
 
 import type {
   SupportedZapperNetwork,
@@ -477,7 +484,12 @@ export const zapper = createApi({
                     }
                   })()
 
-                  if (!acc.opportunities[assetId]) {
+                  const lpIds = selectLpIds(reduxApi.getState() as any)
+                  const stakingIds = selectStakingIds(reduxApi.getState() as any)
+                  if (
+                    !acc.opportunities[assetId] &&
+                    !(lpIds.includes(assetId as LpId) || stakingIds.includes(assetId as StakingId))
+                  ) {
                     acc.opportunities[assetId] = {
                       apy,
                       assetId,

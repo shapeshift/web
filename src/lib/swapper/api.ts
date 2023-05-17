@@ -59,6 +59,7 @@ type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
     [KnownChainIds.OptimismMainnet]: EvmFeeData
     [KnownChainIds.BnbSmartChainMainnet]: EvmFeeData
     [KnownChainIds.PolygonMainnet]: EvmFeeData
+    [KnownChainIds.GnosisMainnet]: EvmFeeData
     [KnownChainIds.BitcoinMainnet]: UtxoFeeData
     [KnownChainIds.DogecoinMainnet]: UtxoFeeData
     [KnownChainIds.LitecoinMainnet]: UtxoFeeData

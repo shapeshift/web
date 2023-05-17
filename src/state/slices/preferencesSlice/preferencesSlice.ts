@@ -40,6 +40,7 @@ export type FeatureFlags = {
   LifiSwap: boolean
   FoxBondCTA: boolean
   DynamicLpAssets: boolean
+  ReadOnlyAssets: boolean
   Jaypegz: boolean
   OneInch: boolean
 }
@@ -95,6 +96,7 @@ const initialState: Preferences = {
     Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
     FoxBondCTA: getConfig().REACT_APP_FEATURE_FOX_BOND_CTA,
     DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
+    ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
     OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
   },
   selectedLocale: simpleLocale(),

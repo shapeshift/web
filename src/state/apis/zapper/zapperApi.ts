@@ -23,7 +23,7 @@ import type {
   OpportunityMetadataBase,
   ReadOnlyOpportunityType,
 } from 'state/slices/opportunitiesSlice/types'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAssets, selectFeatureFlag } from 'state/slices/selectors'
 
 import type {
   SupportedZapperNetwork,
@@ -315,6 +315,17 @@ export const zapper = createApi({
       GetZapperAppsbalancesInput
     >({
       queryFn: async ({ accountIds, reduxApi }) => {
+        const ReadOnlyAssets = selectFeatureFlag(reduxApi.getState() as any, 'ReadOnlyAssets')
+
+        if (!ReadOnlyAssets)
+          return {
+            data: {
+              userData: [],
+              opportunities: {},
+              metadataByProvider: {},
+            },
+          }
+
         const maybeZapperV2AppsData = await reduxApi.dispatch(
           zapperApi.endpoints.getZapperAppsOutput.initiate(),
         )

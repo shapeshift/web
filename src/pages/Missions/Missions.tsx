@@ -82,8 +82,8 @@ export const Missions = () => {
           </chakra.span>
         </Heading>
         <RawText color='whiteAlpha.700' fontSize='2xl' letterSpacing='0.012em' mt={4} mx={4}>
-          Embark on Missions, Earn Rewards, and Stay Ahead in the Ever-Expanding ShapeShift
-          Ecosystem
+          Embark on Missions, Earn Rewards, and expand your knowledge of the Ever-Expanding
+          ShapeShift Ecosystem
         </RawText>
       </Container>
       {renderMissions}

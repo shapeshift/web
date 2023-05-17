@@ -37,7 +37,7 @@ import type {
 import { ValidAddressResultType } from '../types'
 import { getAssetNamespace, toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
-import type { avalanche, bnbsmartchain, ethereum, optimism, polygon } from '.'
+import type { avalanche, bnbsmartchain, ethereum, optimism, polygon, gnosis } from '.'
 import type { BuildCustomTxInput, EstimateGasRequest, Fees, GasFeeDataEstimate } from './types'
 import { getErc20Data } from './utils'
 
@@ -47,6 +47,7 @@ export const evmChainIds = [
   KnownChainIds.OptimismMainnet,
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.PolygonMainnet,
+  KnownChainIds.GnosisMainnet,
 ] as const
 
 export type EvmChainId = typeof evmChainIds[number]
@@ -57,6 +58,7 @@ export type EvmChainAdapter =
   | optimism.ChainAdapter
   | bnbsmartchain.ChainAdapter
   | polygon.ChainAdapter
+  | gnosis.ChainAdapter
 
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,

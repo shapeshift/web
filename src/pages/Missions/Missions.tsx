@@ -1,8 +1,7 @@
-import { chakra, Container, Heading } from '@chakra-ui/react'
+import { chakra, Container, Heading, useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import FoxAtarBg from 'assets/foxatar.png'
-import foxPageBg from 'assets/foxpage-bg.png'
 import OpLogo from 'assets/op-logo.png'
 import OptimismBg from 'assets/optimism-bg.png'
 import { Main } from 'components/Layout/Main'
@@ -39,8 +38,8 @@ export const Missions = () => {
       <Container
         px={{ base: 0, md: 6 }}
         maxWidth='container.lg'
-        display='flex'
-        flexDir='column'
+        display='grid'
+        gridTemplateColumns={{ base: '1fr', lg: '1fr 1fr' }}
         gap={6}
       >
         {missionItems.map(mission => (
@@ -54,17 +53,12 @@ export const Missions = () => {
       pt='4.5rem'
       mt='-4.5rem'
       px={0}
-      pb={8}
+      pb={12}
       display='flex'
       flexDir='column'
       flex={1}
       width='full'
       hideBreadcrumbs
-      bgImage={foxPageBg}
-      backgroundSize='contain'
-      backgroundPosition='top center'
-      backgroundRepeat='no-repeat'
-      backgroundAttachment='fixed'
     >
       <Container textAlign='center' maxWidth='container.md' py={16}>
         {/* <Heading fontSize='4xl'>{translate('missions.title')}</Heading>
@@ -81,7 +75,13 @@ export const Missions = () => {
             Reap Rewards
           </chakra.span>
         </Heading>
-        <RawText color='whiteAlpha.700' fontSize='2xl' letterSpacing='0.012em' mt={4} mx={4}>
+        <RawText
+          color={useColorModeValue('blackAlpha.500', 'whiteAlpha.700')}
+          fontSize='2xl'
+          letterSpacing='0.012em'
+          mt={4}
+          mx={4}
+        >
           Embark on Missions, Earn Rewards, and expand your knowledge of the Ever-Expanding
           ShapeShift Ecosystem
         </RawText>

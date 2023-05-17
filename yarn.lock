@@ -6108,14 +6108,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/investor@workspace:packages/investor":
-  version: 0.0.0-use.local
-  resolution: "@shapeshiftoss/investor@workspace:packages/investor"
-  dependencies:
-    "@shapeshiftoss/types": "workspace:^"
-  languageName: unknown
-  linkType: soft
-
 "@shapeshiftoss/logger@workspace:^, @shapeshiftoss/logger@workspace:packages/logger":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/logger@workspace:packages/logger"

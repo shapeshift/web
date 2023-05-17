@@ -1,8 +1,7 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
-
-import type { FeePriority } from './Extensions'
+import type { FeePriority } from 'lib/investor/types/Extensions'
 
 export type DepositWithdrawArgs = {
   /** User's wallet address */

@@ -1,4 +1,4 @@
-import type { InvestorOpportunity } from './InvestorOpportunity'
+import type { InvestorOpportunity } from 'lib/investor/types/InvestorOpportunity'
 
 export interface Investor<TxType = unknown, MetaData = unknown> {
   initialize: () => Promise<void>

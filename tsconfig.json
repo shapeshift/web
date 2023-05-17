@@ -39,7 +39,6 @@
     { "path": "./packages/chain-adapters" },
     { "path": "./packages/errors" },
     { "path": "./packages/eslint-plugin-logger" },
-    { "path": "./packages/investor" },
     { "path": "./packages/logger" },
     { "path": "./packages/types" },
     { "path": "./packages/unchained-client" },

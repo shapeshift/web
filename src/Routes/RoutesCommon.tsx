@@ -4,6 +4,7 @@ import { IoSwapVertical } from 'react-icons/io5'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
+import { FoxIcon } from 'components/Icons/FoxIcon'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { Asset } from 'pages/Assets/Asset'
@@ -13,6 +14,7 @@ import { Buy } from 'pages/Buy/Buy'
 import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { Flags } from 'pages/Flags/Flags'
+import { Missions } from 'pages/Missions/Missions'
 import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
@@ -104,6 +106,14 @@ export const routes: NestedRoute[] = [
       path: assetIdPath,
       main: Buy,
     })),
+  },
+  {
+    path: '/missions',
+    label: 'navBar.foxMissions',
+    shortLabel: 'navBar.foxMissionsShort',
+    icon: <FoxIcon />,
+    main: Missions,
+    category: RouteCategory.Explore,
   },
   {
     path: '/flags',

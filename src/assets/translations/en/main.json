@@ -509,7 +509,9 @@
     "tradeShort": "Trade",
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
-    "arkeo": "Arkeo Airdrop"
+    "arkeo": "Arkeo Airdrop",
+    "foxMissions": "FOX Missions",
+    "foxMissionsShort": "Missions"
   },
   "transactionRow": {
     "send": "Sent",
@@ -1925,5 +1927,21 @@
     "aboutCollection": "About %{collectionName}",
     "emptyTitle": "Where did all the NFTs go?",
     "emptyBody": "Don't worry, we've sent out a search party to bring back more amazing NFTs. In the meantime, feel free to stare at this blank space and ponder the meaning of existence."
+  },
+  "missions": {
+    "title": "FOX Missions",
+    "body": "Explore the decentralized universe while earning rewards for actions that contribute to the ShapeShift ecosystem. New missions are launched regularly, so be sure to check back and subscribe to wallet notifications to be the first to learn about upcoming missions.",
+    "ends": "Ends",
+    "ongoing": "Ongoing Mission",
+    "optimism": {
+      "title": "Earn up to 19.5 OP",
+      "subtitle": "Explore Optimism",
+      "cta": "Start Mission" 
+    },
+    "foxatar": {
+      "title": "Get a Free NFT",
+      "subtitle": "Mint an NFT",
+      "cta": "Start Mission"
+    }
   }
 }

@@ -184,13 +184,13 @@ export const useSwapper = () => {
       accountNumber: activeQuote.accountNumber,
     })
 
-    const { assetReference } = fromAssetId(sellAsset.assetId)
+    const { assetReference: sellAssetContractAddress } = fromAssetId(sellAsset.assetId)
     const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
 
     const allowanceOnChainCryptoBaseUnit = await getERC20Allowance({
       web3,
       erc20AllowanceAbi,
-      address: assetReference,
+      address: sellAssetContractAddress,
       spender: activeQuote.allowanceContract,
       from,
     })

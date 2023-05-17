@@ -24,6 +24,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.OptimismMainnet]: evm.Account
     [KnownChainIds.BnbSmartChainMainnet]: evm.Account
     [KnownChainIds.PolygonMainnet]: evm.Account
+    [KnownChainIds.GnosisMainnet]: evm.Account
     [KnownChainIds.BitcoinMainnet]: utxo.Account
     [KnownChainIds.BitcoinCashMainnet]: utxo.Account
     [KnownChainIds.DogecoinMainnet]: utxo.Account

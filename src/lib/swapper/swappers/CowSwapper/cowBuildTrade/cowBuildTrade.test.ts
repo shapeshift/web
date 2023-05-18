@@ -8,6 +8,7 @@ import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { BuildTradeInput } from '../../../api'
 import { SwapperName } from '../../../api'
+import type { IsApprovalRequiredArgs } from '../../utils/helpers/helpers'
 import { ETH, FOX, WBTC, WETH } from '../../utils/test-data/assets'
 import type { CowSwapperDeps } from '../CowSwapper'
 import type { CowTrade } from '../types'
@@ -37,8 +38,11 @@ jest.mock('../utils/helpers/helpers', () => {
 })
 
 jest.mock('../../utils/helpers/helpers', () => {
+  const { WBTC } = require('../../utils/test-data/assets') // Move the import inside the factory function
+
   return {
     ...jest.requireActual('../../utils/helpers/helpers'),
+    isApprovalRequired: (args: IsApprovalRequiredArgs) => args.sellAsset.assetId === WBTC.assetId,
     getApproveContractData: () => '0xABCDEFGHIJ',
   }
 })
@@ -115,6 +119,7 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
 const expectedTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '14716.04718939437505555958', // 14716 FOX per WETH
   feeData: {
+    chainSpecific: {},
     buyAssetTradeFeeUsd: '0',
     networkFeeCryptoBaseUnit: '0',
     sellAssetTradeFeeUsd: '17.95954294012756741283729339486489192096',
@@ -134,6 +139,7 @@ const expectedTradeQuoteWbtcToWethWithApprovalFeeCryptoBaseUnit: CowTrade<KnownC
   {
     rate: '19.1423299300562315722', // 19.14 WETH per WBTC
     feeData: {
+      chainSpecific: {},
       buyAssetTradeFeeUsd: '0',
       networkFeeCryptoBaseUnit: '0',
       sellAssetTradeFeeUsd: '3.6162531444',
@@ -152,6 +158,7 @@ const expectedTradeQuoteWbtcToWethWithApprovalFeeCryptoBaseUnit: CowTrade<KnownC
 const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '0.00005461814085319106',
   feeData: {
+    chainSpecific: {},
     buyAssetTradeFeeUsd: '0',
     networkFeeCryptoBaseUnit: '0',
     sellAssetTradeFeeUsd: '5.3955565850972847808512',

@@ -18,6 +18,7 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   sellAmountFiat: string
   buyAmountFiat: string
   action: TradeAmountInputField
+  isExactAllowance: boolean
   isSendMax: boolean
   amount: string
   receiveAddress?: string
@@ -39,9 +40,11 @@ export type SwapperAction = {
   updateBuyAmountFiat: (buyAmountFiat: SwapperStore['buyAmountFiat']) => void
   clearAmounts: () => void
   updateAction: (action: SwapperStore['action']) => void
+  updateIsExactAllowance: (isExactAllowance: SwapperStore['isExactAllowance']) => void
   updateIsSendMax: (isSendMax: SwapperStore['isSendMax']) => void
   updateAmount: (amount: SwapperStore['amount']) => void
   updateReceiveAddress: (receiveAddress: SwapperStore['receiveAddress']) => void
+  toggleIsExactAllowance: () => void
   updateTrade: (trade: SwapperStore['trade']) => void
   updateActiveSwapperWithMetadata: (
     activeSwapperWithMetadata: SwapperStore['activeSwapperWithMetadata'],

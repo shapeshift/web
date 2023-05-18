@@ -13,6 +13,10 @@ import { Err, Ok } from '@sniptt/monads'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type {
+  ApprovalNeededInput,
+  ApprovalNeededOutput,
+  ApproveAmountInput,
+  ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
   GetEvmTradeQuoteInput,
@@ -23,6 +27,8 @@ import type {
   TradeTxs,
 } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType, SwapperName, SwapperType } from 'lib/swapper/api'
+import { approvalNeeded } from 'lib/swapper/swappers/utils/approvalNeeded/approvalNeeded'
+import { approveAmount, approveInfinite } from 'lib/swapper/swappers/utils/approve/approve'
 import { filterEvmAssetIdsBySellable } from 'lib/swapper/swappers/utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import {
   createEmptyEvmTradeQuote,
@@ -134,8 +140,22 @@ export class OneInchSwapper implements Swapper<EvmChainId, true> {
     })
   }
 
+  approvalNeeded(
+    input: ApprovalNeededInput<EvmChainId>,
+  ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
+    return approvalNeeded(input)
+  }
+
   buildTrade(input: BuildTradeInput): Promise<Result<OneInchTrade<EvmChainId>, SwapErrorRight>> {
     return buildTrade(this.deps, input)
+  }
+
+  approveAmount(input: ApproveAmountInput<EvmChainId>): Promise<string> {
+    return approveAmount(input)
+  }
+
+  approveInfinite(input: ApproveInfiniteInput<EvmChainId>): Promise<string> {
+    return approveInfinite(input)
   }
 
   executeTrade(

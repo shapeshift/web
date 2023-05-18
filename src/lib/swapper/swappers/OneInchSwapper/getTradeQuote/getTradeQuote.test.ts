@@ -21,13 +21,13 @@ jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
   selectSellAssetUsdRate: jest.fn(() => '0.02000'),
 }))
 
-const averageGasPrice = '15000000000' // 15 gwei
+const fastGasPrice = '15000000000' // 15 gwei
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => {
     return {
       get: () => ({
         getGasFeeData: () => ({
-          average: { gasPrice: averageGasPrice },
+          fast: { gasPrice: fastGasPrice },
         }),
       }),
     }
@@ -103,5 +103,6 @@ describe('getTradeQuote', () => {
     expect(quote.maximumCryptoHuman).toBe(MAX_ONEINCH_TRADE)
     expect(quote.minimumCryptoHuman).toBe('50')
     expect(quote.sources).toEqual(DEFAULT_SOURCE)
+    expect(quote.feeData.chainSpecific.gasPriceCryptoBaseUnit).toBe(fastGasPrice)
   })
 })

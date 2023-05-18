@@ -1,24 +1,23 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GasFeeDataEstimate } from '@shapeshiftoss/chain-adapters/src/evm/types'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
 
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
 import { getMinMax } from '../getMinMax/getMinMax'
-import { DEFAULT_SOURCE } from '../utils/constants'
+import { APPROVAL_GAS_LIMIT, DEFAULT_SOURCE } from '../utils/constants'
 import { getRate } from '../utils/helpers'
 import { oneInchService } from '../utils/oneInchService'
 import type { OneInchQuoteApiInput, OneInchQuoteResponse, OneInchSwapperDeps } from '../utils/types'
 
 export async function getTradeQuote(
-  { apiUrl }: OneInchSwapperDeps,
+  deps: OneInchSwapperDeps,
   input: GetEvmTradeQuoteInput,
 ): Promise<Result<TradeQuote<EvmChainId>, SwapErrorRight>> {
   const {
@@ -28,7 +27,6 @@ export async function getTradeQuote(
     sellAmountBeforeFeesCryptoBaseUnit,
     accountNumber,
     affiliateBps,
-    wallet,
   } = input
 
   if (sellAmountBeforeFeesCryptoBaseUnit === '0') {
@@ -54,7 +52,7 @@ export async function getTradeQuote(
 
   const { chainReference } = fromChainId(chainId)
   const maybeQuoteResponse = await oneInchService.get<OneInchQuoteResponse>(
-    `${apiUrl}/${chainReference}/quote`,
+    `${deps.apiUrl}/${chainReference}/quote`,
     { params: apiInput },
   )
 
@@ -63,7 +61,7 @@ export async function getTradeQuote(
 
   const rate = getRate(quoteResponse.data).toString()
 
-  const maybeAllowanceContract = await getApprovalAddress(apiUrl, chainId)
+  const maybeAllowanceContract = await getApprovalAddress(deps, chainId)
   if (maybeAllowanceContract.isErr()) return Err(maybeAllowanceContract.unwrapErr())
   const allowanceContract = maybeAllowanceContract.unwrap()
 
@@ -81,14 +79,15 @@ export async function getTradeQuote(
       }),
     )
   }
-
   const gasFeeData: GasFeeDataEstimate = await adapter.getGasFeeData()
-  const eip1559Support = supportsETH(wallet) && (await wallet?.ethSupportsEIP1559())
-  const fee = bnOrZero(quoteResponse.data.estimatedGas)
-    .multipliedBy(
-      eip1559Support ? bnOrZero(gasFeeData.average.maxFeePerGas) : gasFeeData.average.gasPrice,
-    )
-    .toString()
+
+  const estimatedGas = bnOrZero(quoteResponse.data.estimatedGas).times(1.5) // added buffer
+  const gasPriceCryptoBaseUnit = gasFeeData.fast.gasPrice
+  const fee = estimatedGas.multipliedBy(gasPriceCryptoBaseUnit).toString()
+
+  const approvalFeeCryptoBaseUnit = bn(APPROVAL_GAS_LIMIT)
+    .multipliedBy(bnOrZero(gasPriceCryptoBaseUnit))
+    .toFixed()
 
   return maybeMinMax.andThen(minMax =>
     Ok({
@@ -105,6 +104,11 @@ export async function getTradeQuote(
         buyAssetTradeFeeUsd: '0',
         sellAssetTradeFeeUsd: '0',
         networkFeeCryptoBaseUnit: fee,
+        chainSpecific: {
+          estimatedGasCryptoBaseUnit: estimatedGas.toString(),
+          gasPriceCryptoBaseUnit,
+          approvalFeeCryptoBaseUnit,
+        },
       },
       sources: DEFAULT_SOURCE,
     }),

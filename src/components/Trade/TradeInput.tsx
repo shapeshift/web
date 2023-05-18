@@ -73,6 +73,7 @@ import {
   selectBuyAmountFiat,
   selectBuyAsset,
   selectBuyAssetAccountId,
+  selectCheckApprovalNeededForWallet,
   selectFees,
   selectIsSendMax,
   selectQuote,
@@ -150,6 +151,7 @@ export const TradeInput = () => {
   const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
   const updateFees = useSwapperStore(state => state.updateFees)
   const swapperSupportsCrossAccountTrade = useSwapperStore(selectSwapperSupportsCrossAccountTrade)
+  const checkApprovalNeeded = useSwapperStore(selectCheckApprovalNeededForWallet)
   const handleSwitchAssets = useSwapperStore(state => state.handleSwitchAssets)
   const handleInputAmountChange = useSwapperStore(state => state.handleInputAmountChange)
   const quoteBuyAmountCryptoPrecision = useSwapperStore(selectQuoteBuyAmountCryptoPrecision)
@@ -158,12 +160,7 @@ export const TradeInput = () => {
   const action = useSwapperStore(selectAction)
   const amount = useSwapperStore(selectAmount)
   const isSendMax = useSwapperStore(selectIsSendMax)
-  const {
-    getTrade,
-    checkApprovalNeeded,
-    supportedSellAssetsByMarketCap,
-    supportedBuyAssetsByMarketCap,
-  } = useSwapper()
+  const { getTrade, supportedSellAssetsByMarketCap, supportedBuyAssetsByMarketCap } = useSwapper()
   const translate = useTranslate()
   const history = useHistory()
   const mixpanel = getMixPanel()
@@ -341,7 +338,9 @@ export const TradeInput = () => {
         })
       }
       if (!wallet) throw new Error('No wallet available')
-      const isApprovalNeeded = await checkApprovalNeeded()
+      const maybeIsApprovalNeeded = await checkApprovalNeeded(wallet)
+      if (maybeIsApprovalNeeded.isErr()) throw maybeIsApprovalNeeded.unwrapErr().message
+      const isApprovalNeeded = maybeIsApprovalNeeded.unwrap()
       if (isApprovalNeeded) {
         history.push({ pathname: TradeRoutePaths.Approval })
         return

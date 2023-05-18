@@ -80,6 +80,11 @@ export const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
   buyAmountBeforeFeesCryptoBaseUnit: '23448326921811747', // 0.023 ETH
   feeData: {
+    chainSpecific: {
+      estimatedGasCryptoBaseUnit: '100000',
+      approvalFeeCryptoBaseUnit: '700000',
+      gasPriceCryptoBaseUnit: '7',
+    },
     buyAssetTradeFeeUsd: '7.656',
     sellAssetTradeFeeUsd: '0',
     networkFeeCryptoBaseUnit: '3246750000000000',
@@ -95,6 +100,11 @@ export const bestTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   ...tradeQuote,
   buyAmountBeforeFeesCryptoBaseUnit: '23000000000000000', // 0.023 ETH
   feeData: {
+    chainSpecific: {
+      estimatedGasCryptoBaseUnit: '100000',
+      approvalFeeCryptoBaseUnit: '700000',
+      gasPriceCryptoBaseUnit: '7',
+    },
     buyAssetTradeFeeUsd: '7.656',
     sellAssetTradeFeeUsd: '0',
     networkFeeCryptoBaseUnit: '3246750000000000',
@@ -106,6 +116,11 @@ export const suboptimalTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   ...tradeQuote,
   buyAmountBeforeFeesCryptoBaseUnit: '21000000000000000', // 0.021 ETH
   feeData: {
+    chainSpecific: {
+      estimatedGasCryptoBaseUnit: '100000',
+      approvalFeeCryptoBaseUnit: '700000',
+      gasPriceCryptoBaseUnit: '7',
+    },
     buyAssetTradeFeeUsd: '10.656',
     sellAssetTradeFeeUsd: '4',
     networkFeeCryptoBaseUnit: '3446750000000000',

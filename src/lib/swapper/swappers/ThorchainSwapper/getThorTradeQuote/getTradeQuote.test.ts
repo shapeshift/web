@@ -32,6 +32,13 @@ const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
   buyAmountBeforeFeesCryptoBaseUnit: '114321610000000000',
   feeData: {
+    chainSpecific: {
+      estimatedGasCryptoBaseUnit: '100000',
+      approvalFeeCryptoBaseUnit: '400000',
+      gasPriceCryptoBaseUnit: '4',
+      maxFeePerGas: '5',
+      maxPriorityFeePerGas: '6',
+    },
     buyAssetTradeFeeUsd: '19.14',
     sellAssetTradeFeeUsd: '0',
     networkFeeCryptoBaseUnit: '400000',

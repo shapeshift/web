@@ -1,7 +1,18 @@
+import { fromAssetId } from '@shapeshiftoss/caip'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import Web3 from 'web3'
 
 import { bn } from '../../../../bignumber/bignumber'
-import { normalizeAmount, normalizeIntegerAmount } from './helpers'
+import { erc20AllowanceAbi } from '../abi/erc20Allowance-abi'
+import { setupDeps } from '../test-data/setupDeps'
+import { setupQuote } from '../test-data/setupSwapQuote'
+import type { IsApprovalRequiredArgs } from './helpers'
+import {
+  grantAllowance,
+  isApprovalRequired,
+  normalizeAmount,
+  normalizeIntegerAmount,
+} from './helpers'
 
 jest.mock('web3')
 
@@ -19,6 +30,108 @@ Web3.mockImplementation(() => ({
 }))
 
 describe('utils', () => {
+  const { tradeQuote, sellAsset } = setupQuote()
+  const { web3, adapter } = setupDeps()
+
+  describe('isApprovalRequired', () => {
+    const getAllowanceInput: IsApprovalRequiredArgs = {
+      adapter,
+      receiveAddress: '0x0',
+      web3,
+      erc20AllowanceAbi,
+      allowanceContract: '0x0',
+      sellAmountExcludeFeeCryptoBaseUnit: '100',
+      sellAsset,
+    }
+
+    it('should return false if the sellAsset symbol is ETH', async () => {
+      expect(
+        await isApprovalRequired({
+          ...getAllowanceInput,
+          sellAsset: { ...sellAsset, assetId: 'eip155:1/slip44:60' },
+        }),
+      ).toEqual(false)
+    })
+
+    it('should return true if allowanceOnChain is 0', async () => {
+      const allowanceOnChain = '0'
+      ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
+        methods: {
+          allowance: jest.fn(() => ({
+            call: jest.fn(() => allowanceOnChain),
+          })),
+        },
+      }))
+
+      expect(await isApprovalRequired(getAllowanceInput)).toEqual(true)
+    })
+
+    it('should throw error if allowanceOnChain is undefined', async () => {
+      const allowanceOnChain = undefined
+      ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
+        methods: {
+          allowance: jest.fn(() => ({
+            call: jest.fn(() => allowanceOnChain),
+          })),
+        },
+      }))
+
+      await expect(isApprovalRequired(getAllowanceInput)).rejects.toThrow(`[isApprovalRequired]`)
+    })
+
+    it('should return false if sellAmount minus allowanceOnChain is negative', async () => {
+      const allowanceOnChain = '1000'
+
+      ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
+        methods: {
+          allowance: jest.fn(() => ({
+            call: jest.fn(() => allowanceOnChain),
+          })),
+        },
+      }))
+
+      expect(await isApprovalRequired(getAllowanceInput)).toEqual(false)
+    })
+  })
+
+  describe('grantAllowance', () => {
+    const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+    const wallet = {
+      _supportsETH: true,
+      ethSupportsEIP1559: jest.fn(() => false),
+      supportsOfflineSigning: jest.fn(() => true),
+      ethGetAddress: jest.fn(() => Promise.resolve(walletAddress)),
+    } as unknown as HDWallet
+
+    it('should return a txid', async () => {
+      const { accountNumber, allowanceContract: spender, feeData, sellAsset } = tradeQuote
+      ;(web3.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
+        methods: {
+          approve: jest.fn(() => ({
+            encodeABI: jest.fn(
+              () => '0x3a93b3190cbb22d23a07c18959c701a7e7d83257a775b6197b67c648a3f90419',
+            ),
+          })),
+        },
+      }))
+      ;(adapter.buildCustomTx as jest.Mock).mockResolvedValueOnce({ txToSign: {} })
+      ;(adapter.signTransaction as jest.Mock).mockResolvedValueOnce('signedTx')
+      ;(adapter.broadcastTransaction as jest.Mock).mockResolvedValueOnce('broadcastedTx')
+      expect(
+        await grantAllowance({
+          accountNumber,
+          feeData: feeData.chainSpecific,
+          spender,
+          to: fromAssetId(sellAsset.assetId).assetReference,
+          approvalAmount: tradeQuote.sellAmountBeforeFeesCryptoBaseUnit,
+          wallet,
+          adapter,
+          web3,
+        }),
+      ).toEqual('broadcastedTx')
+    })
+  })
+
   describe('normalizeAmount', () => {
     it('should return a string number rounded to the 16th decimal place', () => {
       const result = normalizeAmount('586084736227728377283728272309128120398')

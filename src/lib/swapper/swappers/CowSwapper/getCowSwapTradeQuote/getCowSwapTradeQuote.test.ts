@@ -1,5 +1,4 @@
 import type { ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
@@ -138,6 +137,13 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '0.011624',
   maximumCryptoHuman: '100000000000000000000000000',
   feeData: {
+    chainSpecific: {
+      estimatedGasCryptoBaseUnit: '100000',
+      gasPriceCryptoBaseUnit: '79036500000',
+      approvalFeeCryptoBaseUnit: '4080654495000000',
+      maxFeePerGas: '216214758112',
+      maxPriorityFeePerGas: '2982734547',
+    },
     buyAssetTradeFeeUsd: '0',
     sellAssetTradeFeeUsd: '17.95954294012756741283729339486489192096',
     networkFeeCryptoBaseUnit: '0',
@@ -156,6 +162,13 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '229.09507445589919816724',
   maximumCryptoHuman: '100000000000000000000000000',
   feeData: {
+    chainSpecific: {
+      estimatedGasCryptoBaseUnit: '100000',
+      gasPriceCryptoBaseUnit: '79036500000',
+      approvalFeeCryptoBaseUnit: '4080654495000000',
+      maxFeePerGas: '216214758112',
+      maxPriorityFeePerGas: '2982734547',
+    },
     buyAssetTradeFeeUsd: '0',
     sellAssetTradeFeeUsd: '5.3955565850972847808512',
     networkFeeCryptoBaseUnit: '0',
@@ -174,6 +187,13 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
   minimumCryptoHuman: '0.011624',
   maximumCryptoHuman: '100000000000000000000000000',
   feeData: {
+    chainSpecific: {
+      estimatedGasCryptoBaseUnit: '100000',
+      gasPriceCryptoBaseUnit: '79036500000',
+      approvalFeeCryptoBaseUnit: '4080654495000000',
+      maxFeePerGas: '216214758112',
+      maxPriorityFeePerGas: '2982734547',
+    },
     buyAssetTradeFeeUsd: '0',
     sellAssetTradeFeeUsd: '1.79595429401274711874033728120645035672',
     networkFeeCryptoBaseUnit: '0',
@@ -212,7 +232,6 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      wallet: {} as HDWallet,
     }
 
     const maybeTradeQuote = await getCowSwapTradeQuote(deps, input)
@@ -239,7 +258,6 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      wallet: {} as HDWallet,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -283,7 +301,6 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      wallet: {} as HDWallet,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -327,7 +344,6 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      wallet: {} as HDWallet,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(

@@ -61,9 +61,15 @@ export const useSwapper = () => {
     })
 
     const sellableAssetIdsSet: Set<AssetId> = new Set(sellableAssetIds)
+    const swapperSupportedSellAssets = sortedAssets.filter(asset =>
+      sellableAssetIdsSet.has(asset.assetId),
+    )
+    const walletSupportedAssets = swapperSupportedSellAssets.filter(asset =>
+      walletSupportsChain({ chainId: asset.chainId, wallet }),
+    )
 
-    return sortedAssets.filter(asset => sellableAssetIdsSet.has(asset.assetId))
-  }, [sortedAssets, assetIds, swapperManager])
+    return walletSupportedAssets
+  }, [swapperManager, assetIds, sortedAssets, wallet])
 
   const supportedBuyAssetsByMarketCap = useMemo(() => {
     const sellAssetId = sellAsset?.assetId

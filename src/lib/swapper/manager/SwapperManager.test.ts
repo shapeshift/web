@@ -238,13 +238,21 @@ describe('SwapperManager', () => {
         .addSwapper(zrxOptimismSwapper)
         .addSwapper(zrxBscSwapper)
 
+      const cryptoMarketDataById = {
+        [FOX.assetId]: { price: '0.04' },
+        [ETH.assetId]: { price: '1300' },
+      }
+      const assetsById = {
+        [FOX.assetId]: FOX,
+        [ETH.assetId]: ETH,
+      }
+
       const { quoteInput } = setupQuote()
       const swappers = await swapperManager.getSwappersWithQuoteMetadata({
         ...quoteInput,
         feeAsset: ETH,
-        buyAssetFiatRate: '1300',
-        sellAssetFiatRate: '0.04',
-        feeAssetFiatRate: '1300',
+        cryptoMarketDataById,
+        assetsById,
       })
       const expectedSwappers: SwapperWithQuoteMetadata[] = [
         {

@@ -1,3 +1,4 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -5,7 +6,7 @@ import max from 'lodash/max'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import type { SwapErrorRight } from 'lib/swapper/api'
+import type { ProtocolFee, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
@@ -30,7 +31,7 @@ export type GetLimitArgs = {
   sellAmountCryptoBaseUnit: string
   deps: ThorchainSwapperDeps
   slippageTolerance: string
-  buyAssetTradeFeeUsd: string
+  protocolFees: Record<AssetId, ProtocolFee>
   affiliateBps: string
 }
 
@@ -41,7 +42,7 @@ export const getLimit = async ({
   sellAmountCryptoBaseUnit,
   deps,
   slippageTolerance,
-  buyAssetTradeFeeUsd,
+  protocolFees,
   affiliateBps,
 }: GetLimitArgs): Promise<Result<string, SwapErrorRight>> => {
   const maybeTradeRate = await getTradeRate({
@@ -101,7 +102,7 @@ export const getLimit = async ({
     )
 
   const buyAssetTradeFeeCryptoPrecision8 = toBaseUnit(
-    bnOrZero(buyAssetTradeFeeUsd).div(buyAssetUsdRate),
+    bnOrZero(protocolFees[buyAssetId]?.amountCryptoBaseUnit),
     THORCHAIN_FIXED_PRECISION,
   )
 

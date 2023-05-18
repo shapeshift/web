@@ -13,9 +13,6 @@ type GetNftUserTokensInput = {
 
 const moduleLogger = logger.child({ namespace: ['nftApi'] })
 
-// TODO(gomes): maybe uncomment me if we need it
-// export const nftApi = createApi()
-
 export const nftApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'nftApi',

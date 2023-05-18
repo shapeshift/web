@@ -161,10 +161,6 @@ export const zapperApi = createApi({
         let data: V2NftUserItem[] = []
 
         const userAddresses = accountIdsToEvmAddresses(accountIds)
-        // TODO: support other networks - note, Polygon is officially supported but returns no data
-        // So we'll need to use another provider than Zapper, and conform to the same interface
-        const network = chainIdToZapperNetwork(ethChainId)!
-
         for (const userAddress of userAddresses) {
           // https://studio.zapper.fi/docs/apis/api-syntax#v2nftusertokens
           /**
@@ -177,7 +173,6 @@ export const zapperApi = createApi({
               const url = `/v2/nft/user/tokens`
               const params = {
                 userAddress,
-                network,
               }
               const payload = { ...options, params, headers, url }
               const { data: res } = await axios.request<V2NftUserTokensResponseType>({ ...payload })

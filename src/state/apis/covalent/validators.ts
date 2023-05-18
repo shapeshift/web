@@ -4,8 +4,8 @@ import invert from 'lodash/invert'
 import type { Infer } from 'myzod'
 import z from 'myzod'
 
-import { chainIdToOpenseaNetwork } from '../nft/utils'
 import type { V2NftUserItem, V2ZapperNft } from '../zapper/validators'
+import { chainIdToZapperNetwork } from '../zapper/validators'
 
 export enum SupportedCovalentNetwork {
   // Bitcoin = 'btc-mainnet',
@@ -245,7 +245,7 @@ export const parseToV2NftUserItem = (
     medias,
     collection: {
       address: covalentItem.contract_address,
-      network: chainIdToOpenseaNetwork(chainId),
+      network: chainIdToZapperNetwork(chainId),
       name: covalentItem.contract_name,
       nftStandard: covalentItem.type,
       type: 'general',

@@ -51,6 +51,7 @@ export const getTradeQuoteArgs = async ({
     return {
       ...tradeQuoteInputCommonArgs,
       chainId: sellAsset.chainId,
+      wallet,
     }
   } else if (isUtxoSwap(sellAsset?.chainId)) {
     if (!sellAccountType) return

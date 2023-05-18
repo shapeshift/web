@@ -1,4 +1,5 @@
 import type { ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
@@ -211,6 +212,7 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
+      wallet: {} as HDWallet,
     }
 
     const maybeTradeQuote = await getCowSwapTradeQuote(deps, input)
@@ -237,6 +239,7 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
+      wallet: {} as HDWallet,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -280,6 +283,7 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
+      wallet: {} as HDWallet,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -323,6 +327,7 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
+      wallet: {} as HDWallet,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(

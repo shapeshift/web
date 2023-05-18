@@ -102,6 +102,7 @@ type CommonTradeInput = {
 
 export type GetEvmTradeQuoteInput = CommonTradeInput & {
   chainId: EvmChainId
+  wallet: HDWallet
 }
 
 export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {

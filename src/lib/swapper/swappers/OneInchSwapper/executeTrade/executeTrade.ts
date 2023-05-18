@@ -1,21 +1,20 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { numberToHex } from 'web3-utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { bn } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
+import { isEvmChainAdapter } from 'lib/utils'
 
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { getFeesFromContractData, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { OneInchExecuteTradeInput } from '../utils/types'
 
-export async function executeTrade(
-  input: OneInchExecuteTradeInput<EvmChainId>,
-): Promise<Result<TradeResult, SwapErrorRight>> {
-  const { sellAsset, buyAsset } = input.trade
+export async function executeTrade({
+  trade,
+  wallet,
+}: OneInchExecuteTradeInput<EvmChainId>): Promise<Result<TradeResult, SwapErrorRight>> {
+  const { accountNumber, sellAsset, buyAsset, tx } = trade
 
   const { assetNamespace: sellAssetNamespace, chainId: sellAssetChainId } = fromAssetId(
     sellAsset.assetId,
@@ -31,13 +30,6 @@ export async function executeTrade(
     })
   }
 
-  if (!isEvmChainId(sellAssetChainId)) {
-    throw new SwapError('[executeTrade] - 1inch only supports EVM chain swaps', {
-      code: SwapErrorType.UNSUPPORTED_PAIR,
-      details: { sellAssetChainId },
-    })
-  }
-
   // TODO: in the future we could extend this to convert eth to WETH.
   if (isNativeEvmAsset(sellAsset.assetId) || isNativeEvmAsset(buyAsset.assetId)) {
     throw new SwapError('[executeTrade] - no support for native assets', {
@@ -48,8 +40,17 @@ export async function executeTrade(
 
   try {
     const adapterManager = getChainAdapterManager()
-    // We guard against !isEvmChainId(chainId) above, so this cast is safe
-    const adapter = adapterManager.get(sellAssetChainId) as unknown as EvmBaseAdapter<EvmChainId>
+    const adapter = adapterManager.get(sellAssetChainId)
+
+    if (!adapter || !isEvmChainAdapter(adapter)) {
+      throw new SwapError(
+        '[executeTrade] - invalid chain adapter, 1inch only supports EVM chain swaps',
+        {
+          code: SwapErrorType.UNSUPPORTED_PAIR,
+          details: { sellAssetChainId, adapter },
+        },
+      )
+    }
 
     if (adapter === undefined) {
       throw new SwapError('[executeTrade] - getChainAdapterManager returned undefined', {
@@ -58,36 +59,40 @@ export async function executeTrade(
       })
     }
 
-    const { average } = await adapter.getGasFeeData()
+    const value = '0' // ERC20, so don't send any ETH with the tx
+    const { to, data } = tx
 
-    // TODO: networkFeeCryptoBaseUnit should be a gas limit as well so this isnt necessary
-    const gasLimit = bn(input.trade.feeData.networkFeeCryptoBaseUnit).div(average.gasPrice)
+    const { feesWithGasLimit } = await getFeesFromContractData({
+      accountNumber,
+      adapter,
+      to,
+      value,
+      data,
+      wallet,
+    })
 
     const buildTxResponse = await adapter.buildSendTransaction({
-      value: '0', // ERC20, so don't send any ETH with the tx
-      wallet: input.wallet,
-      to: input.trade.tx.to,
-      chainSpecific: {
-        gasPrice: numberToHex(average.gasPrice),
-        gasLimit: numberToHex(gasLimit.toString()),
-      },
-      accountNumber: input.trade.accountNumber,
+      value,
+      wallet,
+      to,
+      chainSpecific: feesWithGasLimit,
+      accountNumber,
     })
 
     const { txToSign } = buildTxResponse
-    const txWithQuoteData = { ...txToSign, data: input.trade.tx.data ?? '' }
+    const txWithQuoteData = { ...txToSign, data: data ?? '' }
 
-    if (input.wallet.supportsOfflineSigning()) {
+    if (wallet.supportsOfflineSigning()) {
       const signedTx = await adapter.signTransaction({
         txToSign: txWithQuoteData,
-        wallet: input.wallet,
+        wallet,
       })
       const txid = await adapter.broadcastTransaction(signedTx)
       return Ok({ tradeId: txid })
-    } else if (input.wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
+    } else if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
       const txid = await adapter.signAndBroadcastTransaction?.({
         txToSign: txWithQuoteData,
-        wallet: input.wallet,
+        wallet,
       })
 
       return Ok({ tradeId: txid })

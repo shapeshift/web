@@ -81,8 +81,8 @@ export async function getTradeQuote(
   }
   const gasFeeData: GasFeeDataEstimate = await adapter.getGasFeeData()
 
-  const estimatedGas = bnOrZero(quoteResponse.data.estimatedGas).times(1.5) // added buffer
-  const gasPriceCryptoBaseUnit = gasFeeData.fast.gasPrice
+  const estimatedGas = bnOrZero(quoteResponse.data.estimatedGas)
+  const gasPriceCryptoBaseUnit = gasFeeData.average.gasPrice
   const fee = estimatedGas.multipliedBy(gasPriceCryptoBaseUnit).toString()
 
   return maybeMinMax.andThen(minMax =>

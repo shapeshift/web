@@ -42,7 +42,7 @@ export const covalentApi = createApi({
         // Covalent is used only for Polygon NFTs for now
         const chainId = polygonChainId
         const network = chainIdToCovalentNetwork(chainId)
-        const data: V2NftUserItem[] = []
+        let data: V2NftUserItem[] = []
         const limit = 100
 
         const userAddresses = accountIdsToEvmAddresses(accountIds)
@@ -61,7 +61,7 @@ export const covalentApi = createApi({
                 // We're only interested in NFTs here
                 .filter(({ nft_data, type }) => type === 'nft' && nft_data?.length)
                 .map(item => parseToV2NftUserItem(item, chainId))
-              data.push(...v2NftUserItems)
+              data = data.concat(v2NftUserItems)
               if (res.data.items.length < limit) {
                 break
               }

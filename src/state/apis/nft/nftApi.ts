@@ -3,7 +3,6 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { logger } from 'lib/logger'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
-import { covalentApi } from '../covalent/covalentApi'
 import type { V2NftUserItem } from '../zapper/validators'
 import { zapperApi } from '../zapper/zapperApi'
 
@@ -27,16 +26,8 @@ export const nftApi = createApi({
           moduleLogger.error({ error }, 'Failed to fetch zapper nft user tokens')
           return { data: [] }
         })
-        const { data: covalentData } = await dispatch(
-          covalentApi.endpoints.getCovalentNftUserTokens.initiate({
-            accountIds,
-          }),
-        ).catch((error: unknown) => {
-          moduleLogger.error({ error }, 'Failed to fetch covalent nft user tokens')
-          return { data: [] }
-        })
 
-        const data = (zapperData ?? []).concat(covalentData ?? [])
+        const data = zapperData!
 
         return { data }
       },

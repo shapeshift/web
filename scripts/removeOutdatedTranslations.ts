@@ -81,9 +81,7 @@ function compareObjects(obj1: any, obj2: any, path = ''): string[] {
     const curPath = path ? `${path}.${key}` : key
 
     if (!obj2.hasOwnProperty(key)) {
-      continue
     } else if (typeof obj1[key] !== typeof obj2[key]) {
-      continue
     } else if (typeof obj1[key] === 'object') {
       // Nested properties
       const nestedDiffs = compareObjects(obj1[key], obj2[key], curPath)

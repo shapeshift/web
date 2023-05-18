@@ -21,13 +21,13 @@ jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
   selectSellAssetUsdRate: jest.fn(() => '0.02000'),
 }))
 
-const fastGasPrice = '15000000000' // 15 gwei
+const averageGasPrice = '15000000000' // 15 gwei
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => {
     return {
       get: () => ({
         getGasFeeData: () => ({
-          fast: { gasPrice: fastGasPrice },
+          average: { gasPrice: averageGasPrice },
         }),
       }),
     }

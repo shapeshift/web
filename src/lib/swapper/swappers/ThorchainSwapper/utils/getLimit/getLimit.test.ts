@@ -61,7 +61,13 @@ describe('getLimit', () => {
       sellAmountCryptoBaseUnit: '82535000000000000',
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
-      buyAssetTradeFeeUsd: '6.2049517907881932',
+      protocolFees: {
+        [BTC.assetId]: {
+          amountCryptoBaseUnit: '6.2049517907881932',
+          requiresBalance: false,
+          asset: BTC,
+        },
+      },
       affiliateBps: '0',
     }
     const maybeLimit = await getLimit(getLimitArgs)
@@ -88,7 +94,13 @@ describe('getLimit', () => {
       sellAmountCryptoBaseUnit: '489830019000000000000',
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
-      buyAssetTradeFeeUsd: '6.2049517907881932',
+      protocolFees: {
+        [BTC.assetId]: {
+          amountCryptoBaseUnit: '6.2049517907881932',
+          requiresBalance: false,
+          asset: BTC,
+        },
+      },
       affiliateBps: '0',
     }
     const maybeLimit = await getLimit(getLimitArgs)
@@ -115,7 +127,13 @@ describe('getLimit', () => {
       sellAmountCryptoBaseUnit: '984229076000000000000',
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
-      buyAssetTradeFeeUsd: '0.0318228582',
+      protocolFees: {
+        [BTC.assetId]: {
+          amountCryptoBaseUnit: '0.0318228582',
+          requiresBalance: false,
+          asset: BTC,
+        },
+      },
       affiliateBps: '0',
     }
     const maybeLimit = await getLimit(getLimitArgs)
@@ -142,7 +160,13 @@ describe('getLimit', () => {
       sellAmountCryptoBaseUnit: '988381400',
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
-      buyAssetTradeFeeUsd: '0.0000000026',
+      protocolFees: {
+        [BTC.assetId]: {
+          amountCryptoBaseUnit: '0.0000000026',
+          requiresBalance: false,
+          asset: BTC,
+        },
+      },
       affiliateBps: '0',
     }
     const maybeLimit = await getLimit(getLimitArgs)

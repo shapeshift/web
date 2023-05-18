@@ -7,6 +7,7 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { type FC, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -16,7 +17,7 @@ import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { AmountDisplayMeta } from 'lib/swapper/api'
+import type { AmountDisplayMeta, ProtocolFee } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 
 type ReceiveSummaryProps = {
@@ -26,17 +27,21 @@ type ReceiveSummaryProps = {
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
   fiatAmount?: string
   amountBeforeFeesCryptoPrecision?: string
-  protocolFees?: AmountDisplayMeta[]
+  protocolFees?: Record<AssetId, ProtocolFee>
   shapeShiftFee?: string
   slippage: string
   swapperName: string
 } & RowProps
 
-const parseAmountDisplayMeta = ({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
-  symbol: asset.symbol,
-  chainName: getChainAdapterManager().get(asset.chainId)?.getDisplayName(),
-  amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
-})
+const parseAmountDisplayMeta = (items: AmountDisplayMeta[]) => {
+  return items
+    .filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
+    .map(({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
+      symbol: asset.symbol,
+      chainName: getChainAdapterManager().get(asset.chainId)?.getDisplayName(),
+      amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
+    }))
+}
 
 export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   symbol,
@@ -64,18 +69,15 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
 
   const protocolFeesParsed = useMemo(
-    () =>
-      protocolFees
-        ?.filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
-        .map(parseAmountDisplayMeta),
+    () => (protocolFees ? parseAmountDisplayMeta(Object.values(protocolFees)) : undefined),
     [protocolFees],
   )
 
   const intermediaryTransactionOutputsParsed = useMemo(
     () =>
       intermediaryTransactionOutputs
-        ?.filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
-        .map(parseAmountDisplayMeta),
+        ? parseAmountDisplayMeta(intermediaryTransactionOutputs)
+        : undefined,
     [intermediaryTransactionOutputs],
   )
 
@@ -166,7 +168,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
               </HelperTooltip>
               <Row.Value>
                 {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol, chainName }) => (
-                  <Skeleton isLoaded={!isLoading}>
+                  <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
                     <Amount.Crypto
                       color={redColor}
                       value={amountCryptoPrecision}
@@ -221,7 +223,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
                     hasIntermediaryTransactionOutputs &&
                     intermediaryTransactionOutputsParsed?.map(
                       ({ amountCryptoPrecision, symbol, chainName }) => (
-                        <Skeleton isLoaded={!isLoading}>
+                        <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
                           <Amount.Crypto
                             value={amountCryptoPrecision}
                             symbol={symbol}

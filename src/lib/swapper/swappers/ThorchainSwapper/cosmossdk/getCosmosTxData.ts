@@ -66,7 +66,7 @@ export const getCosmosTxData = async (
     sellAsset,
     slippageTolerance,
     deps,
-    buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
+    protocolFees: quote.feeData.protocolFees,
     receiveAddress: destinationAddress,
     affiliateBps,
   })

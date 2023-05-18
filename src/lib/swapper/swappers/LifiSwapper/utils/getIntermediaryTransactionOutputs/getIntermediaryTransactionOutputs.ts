@@ -28,6 +28,7 @@ export const getIntermediaryTransactionOutputs = (
       const assetId = lifiTokenToAssetId(step.action.toToken)
 
       const asset = assets[assetId] ?? {
+        assetId,
         chainId: lifiChainIdToChainId(step.action.toToken.chainId),
         symbol: step.action.toToken.symbol,
         precision: step.action.toToken.decimals,

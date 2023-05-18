@@ -59,12 +59,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import {
-  selectBuyAssetFiatRate,
-  selectBuyAssetTradeFeeCryptoBaseUnit,
   selectFeeAssetFiatRate,
-  selectProtocolFees,
   selectQuoteBuyAmountCryptoPrecision,
-  selectSellAssetFiatRate,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectAction,
@@ -75,6 +71,7 @@ import {
   selectBuyAssetAccountId,
   selectFees,
   selectIsSendMax,
+  selectProtocolFees,
   selectQuote,
   selectReceiveAddress,
   selectSellAmountCryptoPrecision,
@@ -137,8 +134,6 @@ export const TradeInput = () => {
   const fiatSellAmount = useSwapperStore(selectSellAmountFiat)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
   const updateIsSendMax = useSwapperStore(state => state.updateIsSendMax)
-  const buyAssetFiatRate = useSwapperStore(selectBuyAssetFiatRate)
-  const sellAssetFiatRate = useSwapperStore(selectSellAssetFiatRate)
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
@@ -153,7 +148,6 @@ export const TradeInput = () => {
   const handleSwitchAssets = useSwapperStore(state => state.handleSwitchAssets)
   const handleInputAmountChange = useSwapperStore(state => state.handleInputAmountChange)
   const quoteBuyAmountCryptoPrecision = useSwapperStore(selectQuoteBuyAmountCryptoPrecision)
-  const buyAssetTradeFeeCryptoBaseUnit = useSwapperStore(selectBuyAssetTradeFeeCryptoBaseUnit)
   const protocolFees = useSwapperStore(selectProtocolFees)
   const action = useSwapperStore(selectAction)
   const amount = useSwapperStore(selectAmount)
@@ -281,10 +275,6 @@ export const TradeInput = () => {
               getAvailableSwappers.initiate({
                 ...tradeQuoteArgs,
                 sellAmountBeforeFeesCryptoBaseUnit: '10000000', // arbitrarily high sell amount for max send quote
-                feeAsset,
-                buyAssetFiatRate,
-                sellAssetFiatRate,
-                feeAssetFiatRate,
               }),
             )
           ).data
@@ -321,9 +311,6 @@ export const TradeInput = () => {
     updateAmount,
     handleInputAmountChange,
     updateTradeAmountsFromQuote,
-    buyAssetFiatRate,
-    sellAssetFiatRate,
-    feeAssetFiatRate,
   ])
   const onSubmit = useCallback(async () => {
     setIsLoading(true)
@@ -428,13 +415,34 @@ export const TradeInput = () => {
     [sellAmountCryptoPrecision, buyAmountCryptoPrecision, isTradeQuotePending],
   )
 
+  const hasSufficientProtocolFeeBalances = useMemo(() => {
+    if (protocolFees === undefined) return true
+
+    const buyAssetTradeFeeCryptoBaseUnit = protocolFees[buyAsset.assetId]?.requiresBalance
+      ? protocolFees[buyAsset.assetId].amountCryptoBaseUnit
+      : '0'
+
+    const sellAssetTradeFeeCryptoBaseUnit = protocolFees[sellAsset.assetId]?.requiresBalance
+      ? protocolFees[sellAsset.assetId].amountCryptoBaseUnit
+      : '0'
+
+    return (
+      bn(buyAssetBalanceCryptoBaseUnit).gte(buyAssetTradeFeeCryptoBaseUnit) &&
+      bn(sellAssetBalanceCryptoBaseUnit).gte(sellAssetTradeFeeCryptoBaseUnit)
+    )
+  }, [
+    buyAsset.assetId,
+    buyAssetBalanceCryptoBaseUnit,
+    protocolFees,
+    sellAsset.assetId,
+    sellAssetBalanceCryptoBaseUnit,
+  ])
+
   const getErrorTranslationKey = useCallback((): string | [string, InterpolationOptions] => {
     const hasValidSellAssetBalance = bnOrZero(sellAssetBalanceHuman).gte(
       bnOrZero(sellAmountCryptoPrecision),
     )
-    const hasValidBuyAssetBalance = bnOrZero(buyAssetBalanceCryptoBaseUnit).gte(
-      bnOrZero(buyAssetTradeFeeCryptoBaseUnit),
-    )
+
     // when trading from ETH, the value of TX in ETH is deducted
     const tradeDeduction =
       sellFeeAsset?.assetId === sellAsset?.assetId ? bnOrZero(sellAmountCryptoPrecision) : bn(0)
@@ -496,7 +504,7 @@ export const TradeInput = () => {
     if (!hasValidSellAssetBalance) return 'common.insufficientFunds'
     // TEMP: temporarily disable this logic for thor trades to allow them to work
     if (
-      !hasValidBuyAssetBalance &&
+      !hasSufficientProtocolFeeBalances &&
       walletSupportsBuyAssetChain &&
       activeSwapper.name !== SwapperName.Thorchain
     ) {
@@ -524,8 +532,6 @@ export const TradeInput = () => {
   }, [
     sellAssetBalanceHuman,
     sellAmountCryptoPrecision,
-    buyAssetBalanceCryptoBaseUnit,
-    buyAssetTradeFeeCryptoBaseUnit,
     sellFeeAsset?.assetId,
     sellFeeAsset?.precision,
     sellFeeAsset?.symbol,
@@ -548,6 +554,7 @@ export const TradeInput = () => {
     activeSwapper,
     isTradingActiveOnSellPool,
     isTradingActiveOnBuyPool,
+    hasSufficientProtocolFeeBalances,
     hasValidSellAmount,
     isBelowMinSellAmount,
     feesExceedsSellAmount,

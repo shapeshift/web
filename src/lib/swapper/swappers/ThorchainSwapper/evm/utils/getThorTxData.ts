@@ -1,8 +1,9 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
-import type { SwapErrorRight } from 'lib/swapper/api'
+import type { ProtocolFee, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { deposit } from 'lib/swapper/swappers/ThorchainSwapper/evm/routerCalldata'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
@@ -17,7 +18,7 @@ type GetBtcThorTxInfoArgs = {
   sellAmountCryptoBaseUnit: string
   slippageTolerance: string
   destinationAddress: string
-  buyAssetTradeFeeUsd: string
+  protocolFees: Record<AssetId, ProtocolFee>
   affiliateBps: string
 }
 
@@ -40,7 +41,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
   sellAmountCryptoBaseUnit,
   slippageTolerance,
   destinationAddress,
-  buyAssetTradeFeeUsd,
+  protocolFees,
   affiliateBps,
 }) => {
   const { assetReference, assetNamespace } = fromAssetId(sellAsset.assetId)
@@ -66,7 +67,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
     sellAsset,
     slippageTolerance,
     deps,
-    buyAssetTradeFeeUsd,
+    protocolFees,
     receiveAddress: destinationAddress,
     affiliateBps,
   })

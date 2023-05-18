@@ -3,7 +3,6 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 
 import { oneInchService } from '../utils/oneInchService'
-import type { OneInchSwapperDeps } from '../utils/types'
 import { getApprovalAddress } from './getApprovalAddress'
 
 jest.mock('../utils/oneInchService', () => {
@@ -16,9 +15,7 @@ jest.mock('../utils/oneInchService', () => {
 })
 
 describe('getApprovalAddress', () => {
-  const deps: OneInchSwapperDeps = {
-    apiUrl: 'https://api.1inch.io/v5.0',
-  }
+  const apiUrl = 'https://api.1inch.io/v5.0'
 
   it('returns the correct address for the given chainId', async () => {
     ;(oneInchService.get as jest.Mock<unknown>).mockReturnValueOnce(
@@ -28,7 +25,7 @@ describe('getApprovalAddress', () => {
         }),
       ),
     )
-    const maybeApprovalAddress = await getApprovalAddress(deps, KnownChainIds.EthereumMainnet)
+    const maybeApprovalAddress = await getApprovalAddress(apiUrl, KnownChainIds.EthereumMainnet)
     expect(maybeApprovalAddress.isOk()).toBe(true)
     expect(maybeApprovalAddress.unwrap()).toBe('0x1111111254eeb25477b68fb85ed929f73a960583')
   })
@@ -45,7 +42,10 @@ describe('getApprovalAddress', () => {
         }),
       ),
     )
-    const maybeApprovalAddress = await getApprovalAddress(deps, KnownChainIds.BnbSmartChainMainnet)
+    const maybeApprovalAddress = await getApprovalAddress(
+      apiUrl,
+      KnownChainIds.BnbSmartChainMainnet,
+    )
     expect(maybeApprovalAddress.isErr()).toBe(false)
     expect(maybeApprovalAddress.unwrap()).toBe(undefined)
   })

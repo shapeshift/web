@@ -7,7 +7,6 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type {
-  ApprovalNeededOutput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
@@ -111,26 +110,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       minimumAmountCryptoHuman,
       maximumAmountCryptoHuman,
     })
-  }
-
-  approvalNeeded(): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
-    return Promise.resolve(Ok({ approvalNeeded: false }))
-  }
-
-  approveInfinite(): Promise<string> {
-    return Promise.reject(
-      new SwapError('OsmosisSwapper: approveInfinite unimplemented', {
-        code: SwapErrorType.RESPONSE_ERROR,
-      }),
-    )
-  }
-
-  approveAmount(): Promise<string> {
-    return Promise.reject(
-      new SwapError('Osmosis: approveAmount unimplemented', {
-        code: SwapErrorType.RESPONSE_ERROR,
-      }),
-    )
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): string[] {

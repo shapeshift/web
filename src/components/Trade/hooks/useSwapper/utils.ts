@@ -1,44 +1,18 @@
-import {
-  type ChainId,
-  avalancheAssetId,
-  bchAssetId,
-  bscAssetId,
-  btcAssetId,
-  CHAIN_NAMESPACE,
-  cosmosAssetId,
-  dogeAssetId,
-  ethAssetId,
-  foxAssetId,
-  fromAssetId,
-  ltcAssetId,
-  optimismAssetId,
-  osmosisAssetId,
-  polygonAssetId,
-  thorchainAssetId,
-} from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { GetReceiveAddressArgs } from 'components/Trade/types'
-import {
-  type AssetIdTradePair,
-  type DisplayFeeData,
-  type GetFormFeesArgs,
-} from 'components/Trade/types'
+import { type DisplayFeeData, type GetFormFeesArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { type Asset } from 'lib/asset-service'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import type { SwapperName, Trade, TradeQuote } from 'lib/swapper/api'
-import { type FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 const moduleLogger = logger.child({ namespace: ['useSwapper', 'utils'] })
 
 // Pure functions
-export const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
-  const assetIdSet = new Set(...assetIds)
-  return assets.filter(asset => assetIdSet.has(asset.assetId))
-}
 
 export const getSendMaxAmount = (
   sellAsset: Asset,
@@ -70,22 +44,7 @@ const getEvmFees = <T extends EvmChainId>(
     .div(bn(10).exponentiatedBy(feeAsset.precision))
     .toFixed()
 
-  if (trade.feeData && !trade.feeData.chainSpecific) {
-    moduleLogger.debug({ trade }, 'feeData.chainSpecific undefined for trade')
-  }
-  const gasPriceCryptoBaseUnit = bnOrZero(
-    trade.feeData.chainSpecific?.gasPriceCryptoBaseUnit,
-  ).toString()
-  const estimatedGasCryptoBaseUnit = bnOrZero(
-    trade.feeData.chainSpecific?.estimatedGasCryptoBaseUnit,
-  ).toString()
-
   return {
-    chainSpecific: {
-      approvalFeeCryptoBaseUnit: trade.feeData.chainSpecific?.approvalFeeCryptoBaseUnit ?? '0',
-      gasPriceCryptoBaseUnit,
-      estimatedGasCryptoBaseUnit,
-    },
     tradeFeeSource,
     buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd,
     sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd,
@@ -135,86 +94,6 @@ export const getFormFees = ({
     }
     default:
       throw new Error('Unsupported chain ' + sellAsset.chainId)
-  }
-}
-
-export const getDefaultAssetIdPairByChainId = (
-  buyAssetChainId: ChainId | undefined,
-  featureFlags: FeatureFlags,
-): AssetIdTradePair => {
-  const osmosisEnabled = featureFlags.OsmosisSwap
-  const ethFoxPair = {
-    sellAssetId: ethAssetId,
-    buyAssetId: foxAssetId,
-  }
-
-  switch (buyAssetChainId) {
-    case KnownChainIds.AvalancheMainnet:
-      return {
-        sellAssetId: avalancheAssetId,
-        // WETH.e
-        buyAssetId: 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
-      }
-    case KnownChainIds.OptimismMainnet:
-      return featureFlags.ZrxOptimismSwap
-        ? {
-            sellAssetId: optimismAssetId,
-            // OP token
-            buyAssetId: 'eip155:10/erc20:0x4200000000000000000000000000000000000042',
-          }
-        : ethFoxPair
-    case KnownChainIds.BnbSmartChainMainnet:
-      return featureFlags.ZrxBnbSmartChainSwap
-        ? {
-            sellAssetId: bscAssetId,
-            // BUSD
-            buyAssetId: 'eip155:56/bep20:0xe9e7cea3dedca5984780bafc599bd69add087d56',
-          }
-        : ethFoxPair
-    case KnownChainIds.PolygonMainnet:
-      return featureFlags.ZrxPolygonSwap
-        ? {
-            sellAssetId: polygonAssetId,
-            // USDC on Polygon
-            buyAssetId: 'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
-          }
-        : ethFoxPair
-    case KnownChainIds.CosmosMainnet:
-      return osmosisEnabled
-        ? { sellAssetId: cosmosAssetId, buyAssetId: osmosisAssetId }
-        : ethFoxPair
-    case KnownChainIds.OsmosisMainnet:
-      return osmosisEnabled
-        ? { sellAssetId: osmosisAssetId, buyAssetId: cosmosAssetId }
-        : ethFoxPair
-    case KnownChainIds.BitcoinMainnet:
-      return {
-        sellAssetId: ethAssetId,
-        buyAssetId: btcAssetId,
-      }
-    case KnownChainIds.BitcoinCashMainnet:
-      return {
-        sellAssetId: ethAssetId,
-        buyAssetId: bchAssetId,
-      }
-    case KnownChainIds.DogecoinMainnet:
-      return {
-        sellAssetId: ethAssetId,
-        buyAssetId: dogeAssetId,
-      }
-    case KnownChainIds.LitecoinMainnet:
-      return {
-        sellAssetId: ethAssetId,
-        buyAssetId: ltcAssetId,
-      }
-    case KnownChainIds.ThorchainMainnet:
-      return {
-        sellAssetId: ethAssetId,
-        buyAssetId: thorchainAssetId,
-      }
-    case KnownChainIds.EthereumMainnet:
-    default:
-      return ethFoxPair
   }
 }
 

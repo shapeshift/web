@@ -25,8 +25,6 @@ import { selectSelectedCurrencyMarketDataSortedByMarketCap } from '../../marketD
 import { getUnderlyingAssetIdsBalances } from '../utils'
 import type { LpEarnOpportunityType, StakingEarnOpportunityType } from './../types'
 
-export const selectLpOpportunitiesByAccountId = (state: ReduxState) =>
-  state.opportunities.lp.byAccountId
 export const selectLpIds = (state: ReduxState) => state.opportunities.lp.ids
 export const selectLpOpportunitiesById = (state: ReduxState) => state.opportunities.lp.byId
 

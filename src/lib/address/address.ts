@@ -121,7 +121,6 @@ export const parseMaybeUrl = async ({
     } catch (error) {
       // Error validating the current ChainId, not an actual error but the normal flow as we exhaust ChainIds parsing.
       // Swallow the error and continue
-      continue
     }
   }
 

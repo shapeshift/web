@@ -4,14 +4,12 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import qs from 'qs'
 import type { Asset } from 'lib/asset-service'
-import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import type {
   ThorchainSwapperDeps,
-  ThornodePoolResponse,
   ThornodeQuoteResponse,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import {
@@ -22,18 +20,6 @@ import {
 import { getPriceRatio } from '../getPriceRatio/getPriceRatio'
 import { isRune } from '../isRune/isRune'
 import { thorService } from '../thorService'
-
-export const getSwapOutput = (
-  inputAmount: BigNumber,
-  pool: ThornodePoolResponse,
-  toRune: boolean,
-): BigNumber => {
-  const inputBalance = toRune ? pool.balance_asset : pool.balance_rune
-  const outputBalance = toRune ? pool.balance_rune : pool.balance_asset
-  const numerator = inputAmount.times(inputBalance).times(outputBalance)
-  const denominator = inputAmount.plus(inputBalance).pow(2)
-  return numerator.div(denominator)
-}
 
 // https://docs.thorchain.org/how-it-works/prices
 // TODO this does not support swaps between native "RUNE"

@@ -18,11 +18,6 @@ import type { Column, Row, TableState } from 'react-table'
 import { useExpanded, usePagination, useSortBy, useTable } from 'react-table'
 import { RawText } from 'components/Text'
 
-export type TableHeaderProps = {
-  searchQuery: any
-  setSearchQuery: (filterValue: any) => void
-}
-
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]
   data: T[]

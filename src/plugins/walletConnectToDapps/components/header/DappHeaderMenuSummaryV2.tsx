@@ -4,7 +4,6 @@ import { Box, Flex, HStack, MenuDivider, MenuItem, VStack } from '@chakra-ui/rea
 import { getSdkError } from '@walletconnect/utils'
 import dayjs from 'dayjs'
 import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/hooks/useWalletConnectState'
-import type { WalletConnectState } from 'plugins/walletConnectToDapps/v2/types'
 import { WalletConnectActionType } from 'plugins/walletConnectToDapps/v2/types'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
 import { useCallback, useMemo } from 'react'
@@ -15,19 +14,6 @@ import { useAppSelector } from 'state/store'
 
 import { AddressAndChain } from './AddressAndChain'
 import { DappAvatar } from './DappAvatar'
-
-export const extractChainIds = (session: WalletConnectState['session']): string[] => {
-  const requiredNamespaces = session?.requiredNamespaces
-
-  const requiredNamespacesValues = requiredNamespaces ? Object.values(requiredNamespaces) : []
-  const allChains = requiredNamespacesValues
-    .map(v => v.chains)
-    .reduce(
-      (acc, namespaceChains) => (acc && namespaceChains ? acc.concat(namespaceChains) : []),
-      [],
-    )
-  return allChains ?? []
-}
 
 export const DappHeaderMenuSummaryV2 = () => {
   const selectedLocale = useAppSelector(selectSelectedLocale)

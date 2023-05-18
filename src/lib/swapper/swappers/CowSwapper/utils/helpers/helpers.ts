@@ -51,10 +51,6 @@ export type CowSwapSellQuoteApiInput = CowSwapQuoteApiInputBase & {
   sellAmountBeforeFee: string
 }
 
-export type CowSwapBuyQuoteApiInput = CowSwapQuoteApiInputBase & {
-  buyAmountAfterFee: string
-}
-
 export const getNowPlusThirtyMinutesTimestamp = (): number => {
   const ts = new Date()
   ts.setMinutes(ts.getMinutes() + 30)

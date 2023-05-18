@@ -1,5 +1,5 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -7,10 +7,9 @@ import type { Asset } from 'lib/asset-service'
 import type { QuoteFeeData, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
-import type { ThorEvmSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
+import type { ThorEvmSupportedChainAdapter } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
-
-import { getFeesFromFeeData } from '../../utils/helpers/helpers'
+import { getFeesFromContractData } from 'lib/swapper/swappers/utils/helpers/helpers'
 
 type MakeTradeTxArgs<T extends EvmChainId> = {
   wallet: HDWallet
@@ -19,7 +18,7 @@ type MakeTradeTxArgs<T extends EvmChainId> = {
   buyAsset: Asset
   sellAsset: Asset
   destinationAddress: string
-  adapter: EvmBaseAdapter<ThorEvmSupportedChainId>
+  adapter: ThorEvmSupportedChainAdapter
   slippageTolerance: string
   feeData: QuoteFeeData<T>
   affiliateBps: string
@@ -67,14 +66,25 @@ export const makeTradeTx = async ({
 
     const { data, router } = thorTxInfo
 
+    const value = isErc20Trade ? '0' : sellAmountCryptoBaseUnit
+
+    const { feesWithGasLimit } = await getFeesFromContractData({
+      accountNumber,
+      adapter,
+      to: router,
+      value,
+      data,
+      wallet,
+    })
+
     return Ok(
       await adapter.buildCustomTx({
         wallet,
         accountNumber,
         to: router,
-        value: isErc20Trade ? '0' : sellAmountCryptoBaseUnit,
+        value,
         data,
-        ...(await getFeesFromFeeData({ wallet, feeData: feeData.chainSpecific })),
+        ...feesWithGasLimit,
       }),
     )
   } catch (e) {

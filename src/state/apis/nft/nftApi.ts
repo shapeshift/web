@@ -18,16 +18,26 @@ export const nftApi = createApi({
   endpoints: build => ({
     getNftUserTokens: build.query<V2NftUserItem[], GetNftUserTokensInput>({
       queryFn: async ({ accountIds }, { dispatch }) => {
-        const { data: zapperData } = await dispatch(
-          zapperApi.endpoints.getZapperNftUserTokens.initiate({
-            accountIds,
-          }),
-        ).catch((error: unknown) => {
-          moduleLogger.error({ error }, 'Failed to fetch zapper nft user tokens')
-          return { data: [] }
-        })
+        const results = (
+          await Promise.all([
+            dispatch(
+              zapperApi.endpoints.getZapperNftUserTokens.initiate({
+                accountIds,
+              }),
+            ),
+          ])
+        ).reduce<V2NftUserItem[]>((acc, result) => {
+          if (result.data) {
+            const { data } = result
+            acc = acc.concat(data)
+          } else if (result.isError) {
+            moduleLogger.error({ error: result.error }, 'Failed to fetch nft user data')
+          }
 
-        const data = zapperData!
+          return acc
+        }, [])
+
+        const data = results
 
         return { data }
       },

@@ -7,8 +7,6 @@ import { SwapperType } from '../../api'
 import { setupBuildTrade, setupQuote } from '../utils/test-data/setupSwapQuote'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { setupExecuteTrade } from './utils/test-data/setupZrxSwapQuote'
-import { zrxApprovalNeeded } from './zrxApprovalNeeded/zrxApprovalNeeded'
-import { zrxApproveAmount, zrxApproveInfinite } from './zrxApprove/zrxApprove'
 import { zrxBuildTrade } from './zrxBuildTrade/zrxBuildTrade'
 import { zrxExecuteTrade } from './zrxExecuteTrade/zrxExecuteTrade'
 import { ZrxSwapper } from './ZrxSwapper'
@@ -28,15 +26,6 @@ jest.mock('./getZrxTradeQuote/getZrxTradeQuote', () => ({
 
 jest.mock('./getZrxMinMax/getZrxMinMax', () => ({
   getZrxMinMax: jest.fn(),
-}))
-
-jest.mock('./zrxApprovalNeeded/zrxApprovalNeeded', () => ({
-  zrxApprovalNeeded: jest.fn(),
-}))
-
-jest.mock('./zrxApprove/zrxApprove', () => ({
-  zrxApproveInfinite: jest.fn(),
-  zrxApproveAmount: jest.fn(),
 }))
 
 describe('ZrxSwapper', () => {
@@ -74,29 +63,5 @@ describe('ZrxSwapper', () => {
     const args = { trade: executeTradeInput, wallet }
     await swapper.executeTrade(args)
     expect(zrxExecuteTrade).toHaveBeenCalled()
-  })
-
-  it('calls zrxApprovalNeeded on swapper.approvalNeeded', async () => {
-    const swapper = new ZrxSwapper(zrxEthereumSwapperDeps)
-    const { tradeQuote } = setupQuote()
-    const args = { quote: tradeQuote, wallet }
-    await swapper.approvalNeeded(args)
-    expect(zrxApprovalNeeded).toHaveBeenCalled()
-  })
-
-  it('calls zrxApproveInfinite on swapper.approveInfinite', async () => {
-    const swapper = new ZrxSwapper(zrxEthereumSwapperDeps)
-    const { tradeQuote } = setupQuote()
-    const args = { quote: tradeQuote, wallet }
-    await swapper.approveInfinite(args)
-    expect(zrxApproveInfinite).toHaveBeenCalled()
-  })
-
-  it('calls zrxApproveAmount on swapper.approveAmount', async () => {
-    const swapper = new ZrxSwapper(zrxEthereumSwapperDeps)
-    const { tradeQuote } = setupQuote()
-    const args = { quote: tradeQuote, wallet }
-    await swapper.approveAmount(args)
-    expect(zrxApproveAmount).toHaveBeenCalled()
   })
 })

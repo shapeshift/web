@@ -159,28 +159,6 @@ const NftItemSchema = z.object({
   burned: z.boolean().nullable(),
 })
 
-const NftCollectionSchema = z.object({
-  contract_decimals: z.number().nullable(),
-  contract_name: z.string(),
-  contract_ticker_symbol: z.string(),
-  contract_address: z.string(),
-  supports_erc: z.array(z.string().nullable()).nullable(),
-  logo_url: z.string().nullable(),
-  last_transferred_at: z.string(),
-  native_token: z.boolean(),
-  type: z.literal('nft'),
-  balance: z.string(),
-  balance_24h: z.string(),
-  quote_rate: z.string().nullable(),
-  quote_rate_24h: z.string().nullable(),
-  quote: z.string().nullable(),
-  pretty_quote: z.string().nullable(),
-  quote_24h: z.string().nullable(),
-  pretty_quote_24h: z.string().nullable(),
-  nft_data: z.array(NftItemSchema),
-  is_spam: z.boolean().nullable(),
-})
-
 const CovalentNftItemSchema = z.object({
   contract_decimals: z.number().nullable(),
   contract_name: z.string(),
@@ -221,7 +199,6 @@ const CovalentNftUserTokensResponseSchema = z.object({
 
 export type CovalentNftUserTokensResponseType = Infer<typeof CovalentNftUserTokensResponseSchema>
 export type CovalentNftItemSchemaType = Infer<typeof CovalentNftItemSchema>
-export type CovalentNftCollectionType = Infer<typeof NftCollectionSchema>
 
 export const parseToV2NftUserItem = (
   covalentItem: CovalentNftItemSchemaType,

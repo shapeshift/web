@@ -7,12 +7,8 @@ import { SwapErrorType } from 'lib/swapper/api'
 
 // TODO support more error types (non swapper errors)
 export const ErrorTranslationMap: Record<string, string> = {
-  [SwapErrorType.ALLOWANCE_REQUIRED_FAILED]: 'trade.errors.allowanceRequiredFailed',
-  [SwapErrorType.CHECK_APPROVAL_FAILED]: 'trade.errors.checkApprovalNeededFailed',
-  [SwapErrorType.APPROVE_INFINITE_FAILED]: 'trade.errors.approveInfiniteFailed',
   [SwapErrorType.BUILD_TRADE_FAILED]: 'trade.errors.buildTradeFailed',
   [SwapErrorType.EXECUTE_TRADE_FAILED]: 'trade.errors.executeTradeFailed',
-  [SwapErrorType.GRANT_ALLOWANCE_FAILED]: 'trade.errors.grantAllowanceFailed',
   [SwapErrorType.MANAGER_ERROR]: 'trade.errors.generalError',
   [SwapErrorType.MIN_MAX_FAILED]: 'trade.errors.minMaxError',
   [SwapErrorType.SIGN_AND_BROADCAST_FAILED]: 'trade.errors.broadcastFailed',

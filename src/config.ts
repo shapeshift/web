@@ -147,6 +147,7 @@ const validators = {
   REACT_APP_ONE_INCH_API_URL: url({
     default: 'https://api.1inch.io/v5.0',
   }),
+  REACT_APP_FEATURE_COVALENT_JAYPEGS: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

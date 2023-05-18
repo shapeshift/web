@@ -5,6 +5,7 @@ import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { logger } from 'lib/logger'
+import { selectFeatureFlag } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { accountIdsToEvmAddresses } from '../nft/utils'
@@ -33,7 +34,11 @@ export const covalentApi = createApi({
   reducerPath: 'covalentApi',
   endpoints: builder => ({
     getCovalentNftUserTokens: builder.query<V2NftUserItem[], GetCovalentNftUserTokensInput>({
-      queryFn: async ({ accountIds }) => {
+      queryFn: async ({ accountIds }, { getState }) => {
+        const isCovalentEnabled = selectFeatureFlag(getState() as any, 'CovalentJaypegs')
+
+        if (!isCovalentEnabled) return { data: [] }
+
         // Covalent is used only for Polygon NFTs for now
         const chainId = polygonChainId
         const network = chainIdToCovalentNetwork(chainId)

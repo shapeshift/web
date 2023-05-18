@@ -123,22 +123,32 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
             {...mediaBoxProps}
           />
         )}
-        {rarityRank && (
-          <Tag
-            colorScheme='black'
-            className='rarity-tag'
-            flexShrink={0}
-            position='absolute'
-            right='0.5rem'
-            top='0.5rem'
-            backdropFilter='auto'
-            backdropBlur='3xl'
-            transform='translate3d(0, 0, 0)'
-          >
-            <TagLeftIcon as={DiamondIcon} />
-            {rarityRank}
-          </Tag>
-        )}
+        <Flex position='absolute' right='0.5rem' top='0.5rem' minHeight='24px' alignItems='center'>
+          {rarityRank && (
+            <Tag
+              colorScheme='black'
+              className='rarity-tag'
+              flexShrink={0}
+              backdropFilter='auto'
+              backdropBlur='3xl'
+              transform='translate3d(0, 0, 0)'
+            >
+              <TagLeftIcon as={DiamondIcon} />
+              {rarityRank}
+            </Tag>
+          )}
+          {maybeFeeAsset && (
+            <Image
+              src={maybeFeeAsset.icon}
+              boxSize='17px'
+              ml='8px'
+              style={{
+                opacity: 0.5,
+                filter: 'grayscale(50%)',
+              }}
+            />
+          )}
+        </Flex>
       </Box>
       <Flex p={4} flexDir='column' height='100%'>
         <Flex justifyContent='space-between' alignItems='center'>

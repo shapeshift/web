@@ -10,6 +10,10 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
 import type {
+  ApprovalNeededInput,
+  ApprovalNeededOutput,
+  ApproveAmountInput,
+  ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
   GetEvmTradeQuoteInput,
@@ -27,6 +31,11 @@ import type {
   ZrxTrade,
 } from 'lib/swapper/swappers/ZrxSwapper/types'
 import { UNSUPPORTED_ASSETS } from 'lib/swapper/swappers/ZrxSwapper/utils/blacklist'
+import { zrxApprovalNeeded } from 'lib/swapper/swappers/ZrxSwapper/zrxApprovalNeeded/zrxApprovalNeeded'
+import {
+  zrxApproveAmount,
+  zrxApproveInfinite,
+} from 'lib/swapper/swappers/ZrxSwapper/zrxApprove/zrxApprove'
 import { zrxBuildTrade } from 'lib/swapper/swappers/ZrxSwapper/zrxBuildTrade/zrxBuildTrade'
 import { zrxExecuteTrade } from 'lib/swapper/swappers/ZrxSwapper/zrxExecuteTrade/zrxExecuteTrade'
 import { selectAssets } from 'state/slices/selectors'
@@ -85,6 +94,20 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
 
   executeTrade(args: ZrxExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>> {
     return zrxExecuteTrade<T>(this.deps, args)
+  }
+
+  approvalNeeded(
+    args: ApprovalNeededInput<T>,
+  ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
+    return zrxApprovalNeeded<T>(this.deps, args)
+  }
+
+  approveInfinite(args: ApproveInfiniteInput<T>): Promise<string> {
+    return zrxApproveInfinite<T>(this.deps, args)
+  }
+
+  approveAmount(args: ApproveAmountInput<T>): Promise<string> {
+    return zrxApproveAmount<T>(this.deps, args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {

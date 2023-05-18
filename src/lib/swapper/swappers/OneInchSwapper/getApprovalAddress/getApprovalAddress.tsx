@@ -5,15 +5,15 @@ import { Ok } from '@sniptt/monads'
 import type { SwapErrorRight } from 'lib/swapper/api'
 
 import { oneInchService } from '../utils/oneInchService'
-import type { OneInchSpenderResponse } from '../utils/types'
+import type { OneInchSpenderResponse, OneInchSwapperDeps } from '../utils/types'
 
 export async function getApprovalAddress(
-  apiUrl: string,
+  deps: OneInchSwapperDeps,
   chainId: EvmChainId,
 ): Promise<Result<string, SwapErrorRight>> {
   const { chainReference } = fromChainId(chainId)
   const maybeSpenderResponse = await oneInchService.get<OneInchSpenderResponse>(
-    `${apiUrl}/${chainReference}/approve/spender`,
+    `${deps.apiUrl}/${chainReference}/approve/spender`,
   )
   return maybeSpenderResponse.andThen(spenderResponse => Ok(spenderResponse.data.address))
 }

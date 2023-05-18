@@ -123,6 +123,7 @@ export async function cowBuildTrade(
     rate,
     feeData: {
       networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
+      chainSpecific: {}, // no on chain fees for CowSwap
       buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
       sellAssetTradeFeeUsd,
     },

@@ -64,6 +64,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     affiliateBps,
   } = input
 
+  const { assetReference: sellAssetReference } = fromAssetId(sellAsset.assetId)
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
 
   const sellAdapter = deps.adapterManager.get(chainId)
@@ -214,6 +215,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
         const feeData = await getEvmTxFees({
           adapter: sellAdapter as unknown as EvmBaseAdapter<ThorEvmSupportedChainId>,
+          sellAssetReference,
           buyAssetTradeFeeUsd,
           sellAssetTradeFeeUsd,
         })

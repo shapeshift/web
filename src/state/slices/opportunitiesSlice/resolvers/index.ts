@@ -200,6 +200,10 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES = {
   ],
   [osmosisChainId]: [
     {
+      defiProvider: DefiProvider.CosmosSdk,
+      defiType: DefiType.Staking,
+    },
+    {
       defiProvider: DefiProvider.OsmosisLp,
       defiType: DefiType.LiquidityPool,
     },

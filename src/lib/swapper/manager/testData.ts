@@ -4,7 +4,6 @@ import type {
   ChainAdapterManager,
   ethereum,
   optimism,
-  polygon,
 } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type Web3 from 'web3'
@@ -54,14 +53,6 @@ const zrxBscSwapperDeps: ZrxSwapperDeps = {
 }
 
 export const getZrxBscwapper = () => new ZrxSwapper(zrxBscSwapperDeps)
-
-const zrxPolygonSwapperDeps: ZrxSwapperDeps = {
-  web3: {} as Web3,
-  adapter: {
-    getChainId: () => KnownChainIds.PolygonMainnet,
-  } as polygon.ChainAdapter,
-}
-export const getZrxPolygonSwapper = () => new ZrxSwapper(zrxPolygonSwapperDeps)
 
 const cowSwapperDeps: CowSwapperDeps = {
   apiUrl: 'https://api.cow.fi/mainnet/api/',

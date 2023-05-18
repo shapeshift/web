@@ -6,8 +6,8 @@ import { NarwhalIcon } from 'components/Icons/Narwhal'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
+import { useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
 import type { V2NftUserItem } from 'state/apis/zapper/validators'
-import { useGetZapperNftUserTokensQuery } from 'state/apis/zapper/zapperApi'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
@@ -31,7 +31,7 @@ const NftGrid: React.FC<SimpleGridProps> = props => (
 export const NftTable = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const accountIds = useAppSelector(selectWalletAccountIds)
-  const { data, isLoading } = useGetZapperNftUserTokensQuery({ accountIds })
+  const { data, isLoading } = useGetNftUserTokensQuery({ accountIds })
 
   const filterNftsBySearchTerm = useCallback((data: V2NftUserItem[], searchQuery: string) => {
     const search = searchQuery.trim().toLowerCase()

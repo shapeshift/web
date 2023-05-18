@@ -1,7 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { ethAssetId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -15,6 +14,7 @@ import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssets } from 'state/slices/selectors'
 
+import { accountIdsToEvmAddresses } from '../nft/utils'
 import type {
   V2NftBalancesCollectionsResponseType,
   V2NftCollectionType,
@@ -67,17 +67,6 @@ type GetZapperCollectionsInput = {
   accountIds: AccountId[]
   collectionAddresses: string[]
 }
-
-// addresses are repeated across EVM chains
-const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>
-  Array.from(
-    new Set(
-      accountIds
-        .map(fromAccountId)
-        .filter(({ chainId }) => isEvmChainId(chainId))
-        .map(({ account }) => account),
-    ),
-  )
 
 // https://docs.zapper.xyz/docs/apis/getting-started
 export const zapperApi = createApi({
@@ -172,6 +161,9 @@ export const zapperApi = createApi({
         let data: V2NftUserItem[] = []
 
         const userAddresses = accountIdsToEvmAddresses(accountIds)
+        // TODO: support other networks - note, Polygon is officially supported but returns no data
+        // So we'll need to use another provider than Zapper, and conform to the same interface
+        const network = chainIdToZapperNetwork(ethChainId)!
 
         for (const userAddress of userAddresses) {
           // https://studio.zapper.fi/docs/apis/api-syntax#v2nftusertokens
@@ -185,6 +177,7 @@ export const zapperApi = createApi({
               const url = `/v2/nft/user/tokens`
               const params = {
                 userAddress,
+                network,
               }
               const payload = { ...options, params, headers, url }
               const { data: res } = await axios.request<V2NftUserTokensResponseType>({ ...payload })

@@ -1,8 +1,5 @@
-import type { Fetcher, Token } from '@uniswap/sdk'
-import type { providers } from 'ethers'
 import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import pipe from 'lodash/flow'
-import memoize from 'lodash/memoize'
 
 import {
   DefiProviderToMetadataResolverByDeFiType,
@@ -104,12 +101,3 @@ export const getOpportunityIdsResolversByDefiProviderAndDefiType = (
     getDefiProviderOpportunityIdsResolvers,
     getDefiTypeOpportunityIdsResolvers.bind(this, defiType),
   )(defiProvider)
-
-export const fetchPairData = memoize(
-  (
-    tokenA: Token,
-    tokenB: Token,
-    fetchPairData: typeof Fetcher['fetchPairData'],
-    provider: providers.Web3Provider,
-  ) => fetchPairData(tokenA, tokenB, provider),
-)

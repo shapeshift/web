@@ -298,15 +298,6 @@ export const selectTotalTradeFeeBuyAssetBaseUnit = createSelector(
   },
 )
 
-export const selectTotalTradeFeeBuyAssetCryptoPrecision = createSelector(
-  selectTotalTradeFeeBuyAssetBaseUnit,
-  (state: SwapperState) => state.buyAsset?.precision,
-  (totalTradeFeeBuyAssetBaseUnit, buyAssetPrecision): string | undefined => {
-    if (!totalTradeFeeBuyAssetBaseUnit || !buyAssetPrecision) return undefined
-    return fromBaseUnit(totalTradeFeeBuyAssetBaseUnit, buyAssetPrecision)
-  },
-)
-
 export const selectSellAmountPlusFeesBaseUnit = createSelector(
   selectSellAmountBeforeFeesBaseUnitByAction,
   selectTotalTradeFeeSellAssetBaseUnit,
@@ -335,18 +326,6 @@ export const selectSellAmountBeforeFeesFiat = createSelector(
   (sellAmountBeforeFeesBaseUnit, sellAssetPrecision, sellAssetFiatRate): string | undefined => {
     if (!sellAssetPrecision || !sellAssetFiatRate) return undefined
     return bnOrZero(fromBaseUnit(sellAmountBeforeFeesBaseUnit, sellAssetPrecision))
-      .times(sellAssetFiatRate)
-      .toFixed()
-  },
-)
-
-export const selectSellAmountPlusFeesFiat = createSelector(
-  selectSellAmountPlusFeesBaseUnit,
-  (state: SwapperState) => state.sellAsset?.precision,
-  selectSellAssetFiatRate,
-  (sellAmountPlusFeesBaseUnit, sellAssetPrecision, sellAssetFiatRate): string | undefined => {
-    if (!sellAssetPrecision || !sellAssetFiatRate || !sellAmountPlusFeesBaseUnit) return undefined
-    return bnOrZero(fromBaseUnit(sellAmountPlusFeesBaseUnit, sellAssetPrecision))
       .times(sellAssetFiatRate)
       .toFixed()
   },
@@ -436,15 +415,6 @@ export const selectQuoteBuyAmountCryptoPrecision = createSelector(
   (tradeOrQuoteBuyAmountCryptoBaseUnit, buyAssetPrecision): string | undefined => {
     if (!tradeOrQuoteBuyAmountCryptoBaseUnit || !buyAssetPrecision) return undefined
     return fromBaseUnit(tradeOrQuoteBuyAmountCryptoBaseUnit, buyAssetPrecision)
-  },
-)
-
-export const selectQuoteBuyAmountFiat = createSelector(
-  selectQuoteBuyAmountCryptoPrecision,
-  selectBuyAssetFiatRate,
-  (quoteBuyAmountCryptoPrecision, buyAssetFiatRate): string | undefined => {
-    if (!quoteBuyAmountCryptoPrecision || !buyAssetFiatRate) return undefined
-    return bnOrZero(quoteBuyAmountCryptoPrecision).times(buyAssetFiatRate).toFixed()
   },
 )
 

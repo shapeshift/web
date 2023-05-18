@@ -2,7 +2,7 @@ import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 
-import { gasFeeData } from '../../utils/test-data/setupDeps'
+import { feeData } from '../../utils/test-data/setupDeps'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import type { ZrxExecuteTradeInput, ZrxSwapperDeps, ZrxTrade } from '../types'
 import { zrxExecuteTrade } from './zrxExecuteTrade'
@@ -10,6 +10,7 @@ import { zrxExecuteTrade } from './zrxExecuteTrade'
 describe('ZrxExecuteTrade', () => {
   const { sellAsset, buyAsset } = setupQuote()
   const txid = '0xffaac3dd529171e8a9a2adaf36b0344877c4894720d65dfd86e4b3a56c5a857e'
+  const receiveAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
   let wallet = {
     _supportsETH: true,
     supportsOfflineSigning: jest.fn(() => true),
@@ -21,7 +22,8 @@ describe('ZrxExecuteTrade', () => {
     signTransaction: jest.fn(() => Promise.resolve('0000000000000000000')),
     broadcastTransaction: jest.fn(() => Promise.resolve(txid)),
     signAndBroadcastTransaction: jest.fn(() => Promise.resolve(txid)),
-    getGasFeeData: jest.fn(() => Promise.resolve(gasFeeData)),
+    getFeeData: jest.fn(() => Promise.resolve(feeData)),
+    getAddress: jest.fn(() => Promise.resolve(receiveAddress)),
   } as unknown as ChainAdapter<'eip155:1'>
 
   const deps = { adapter } as unknown as ZrxSwapperDeps
@@ -32,16 +34,11 @@ describe('ZrxExecuteTrade', () => {
     sellAmountBeforeFeesCryptoBaseUnit: '1',
     buyAmountBeforeFeesCryptoBaseUnit: '',
     depositAddress: '0x123',
-    receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+    receiveAddress,
     accountNumber: 0,
     txData: '0x123',
     rate: '1',
     feeData: {
-      chainSpecific: {
-        approvalFeeCryptoBaseUnit: '123600000',
-        estimatedGasCryptoBaseUnit: '1235',
-        gasPriceCryptoBaseUnit: '1236',
-      },
       buyAssetTradeFeeUsd: '0',
       sellAssetTradeFeeUsd: '0',
       networkFeeCryptoBaseUnit: '0',

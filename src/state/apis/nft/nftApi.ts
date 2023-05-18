@@ -18,15 +18,12 @@ export const nftApi = createApi({
   endpoints: build => ({
     getNftUserTokens: build.query<V2NftUserItem[], GetNftUserTokensInput>({
       queryFn: async ({ accountIds }, { dispatch }) => {
-        const results = (
-          await Promise.all([
-            dispatch(
-              zapperApi.endpoints.getZapperNftUserTokens.initiate({
-                accountIds,
-              }),
-            ),
-          ])
-        ).reduce<V2NftUserItem[]>((acc, result) => {
+        const sources = [zapperApi.endpoints.getZapperNftUserTokens]
+
+        const results = await Promise.all(
+          sources.map(source => dispatch(source.initiate({ accountIds }))),
+        )
+        const data = results.reduce<V2NftUserItem[]>((acc, result) => {
           if (result.data) {
             const { data } = result
             acc = acc.concat(data)
@@ -36,8 +33,6 @@ export const nftApi = createApi({
 
           return acc
         }, [])
-
-        const data = results
 
         return { data }
       },

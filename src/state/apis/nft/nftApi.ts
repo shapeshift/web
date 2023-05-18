@@ -19,24 +19,26 @@ export const nftApi = createApi({
   endpoints: build => ({
     getNftUserTokens: build.query<V2NftUserItem[], GetNftUserTokensInput>({
       queryFn: async ({ accountIds }, { dispatch }) => {
-        try {
-          const { data: zapperData } = await dispatch(
-            zapperApi.endpoints.getZapperNftUserTokens.initiate({
-              accountIds,
-            }),
-          )
-          const { data: covalentData } = await dispatch(
-            covalentApi.endpoints.getCovalentNftUserTokens.initiate({
-              accountIds,
-            }),
-          )
+        const { data: zapperData } = await dispatch(
+          zapperApi.endpoints.getZapperNftUserTokens.initiate({
+            accountIds,
+          }),
+        ).catch((error: unknown) => {
+          moduleLogger.error({ error }, 'Failed to fetch zapper nft user tokens')
+          return { data: [] }
+        })
+        const { data: covalentData } = await dispatch(
+          covalentApi.endpoints.getCovalentNftUserTokens.initiate({
+            accountIds,
+          }),
+        ).catch((error: unknown) => {
+          moduleLogger.error({ error }, 'Failed to fetch covalent nft user tokens')
+          return { data: [] }
+        })
 
-          const data = (zapperData ?? []).concat(covalentData ?? [])
+        const data = (zapperData ?? []).concat(covalentData ?? [])
 
-          return { data }
-        } catch (error) {
-          debugger
-        }
+        return { data }
       },
     }),
   }),

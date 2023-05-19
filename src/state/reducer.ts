@@ -6,6 +6,7 @@ import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
+import { nftApi } from './apis/nft/nftApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
 import { zerionApi } from './apis/zerion/zerionApi'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
@@ -50,6 +51,7 @@ export const apiSlices = {
   fiatRampApi,
   zapper,
   zapperApi,
+  nftApi,
   opportunitiesApi,
   abiApi,
   zerionApi,
@@ -64,6 +66,7 @@ export const apiReducers = {
   [foxyApi.reducerPath]: foxyApi.reducer,
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
   [zapperApi.reducerPath]: zapperApi.reducer,
+  [nftApi.reducerPath]: nftApi.reducer,
   [zapper.reducerPath]: zapper.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,

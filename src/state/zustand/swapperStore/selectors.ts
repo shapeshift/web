@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
@@ -173,11 +174,13 @@ export const selectGetTradeForWallet = (
         xpub,
       })
     } else if (isEvmSwap(sellAsset.chainId) || isCosmosSdkSwap(sellAsset.chainId)) {
+      const eip1559Support = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
       return activeSwapper.buildTrade({
         ...buildTradeCommonArgs,
         chainId: sellAsset.chainId,
         accountNumber: sellAccountBip44Params.accountNumber,
         receiveAccountNumber: buyAccountBip44Params?.accountNumber,
+        eip1559Support,
       })
     } else {
       throw new Error('unsupported sellAsset.chainId')

@@ -25,6 +25,7 @@ export const mockStore: ReduxState = {
   marketApi: mockApiFactory('marketApi' as const),
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
   zapperApi: mockApiFactory('zapperApi' as const),
+  nftApi: mockApiFactory('nftApi' as const),
   zapper: mockApiFactory('zapper' as const),
   swapperApi: mockApiFactory('swapperApi' as const),
   foxyApi: mockApiFactory('foxyApi' as const),

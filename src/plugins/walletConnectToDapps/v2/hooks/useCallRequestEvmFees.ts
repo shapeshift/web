@@ -1,5 +1,6 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
-import type { EvmBaseAdapter, EvmChainId, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { getFeesForTx } from 'plugins/walletConnectToDapps/utils'
 import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/hooks/useWalletConnectState'
 import { assertIsTransactionParams } from 'plugins/walletConnectToDapps/v2/typeGuards'
@@ -60,6 +61,7 @@ export function useCallRequestEvmFees(state: WalletConnectState) {
       }
       const result = (Object.keys(estimatedFees) as FeeDataKey[]).reduce<FeePrice>(
         (acc: FeePrice, key: FeeDataKey) => {
+          if (!Object.values(FeeDataKey).includes(key)) return acc
           const txFee = bnOrZero(estimatedFees[key].txFee)
             .dividedBy(bn(10).pow(feeAsset?.precision))
             .toPrecision()

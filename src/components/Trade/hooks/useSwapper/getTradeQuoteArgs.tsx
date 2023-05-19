@@ -1,5 +1,6 @@
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import {
   isCosmosSdkSwap,
@@ -48,10 +49,11 @@ export const getTradeQuoteArgs = async ({
     affiliateBps: '0',
   }
   if (isEvmSwap(sellAsset?.chainId) || isCosmosSdkSwap(sellAsset?.chainId)) {
+    const eip1559Support = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
     return {
       ...tradeQuoteInputCommonArgs,
       chainId: sellAsset.chainId,
-      wallet,
+      eip1559Support,
     }
   } else if (isUtxoSwap(sellAsset?.chainId)) {
     if (!sellAccountType) return

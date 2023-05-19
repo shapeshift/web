@@ -53,7 +53,7 @@ export const getThorTxInfo: GetThorTxInfo = async ({
   const vault = inboundAddress.address
 
   const maybeLimit = await getLimit({
-    buyAssetId: buyAsset.assetId,
+    buyAsset,
     sellAmountCryptoBaseUnit,
     sellAsset,
     slippageTolerance,

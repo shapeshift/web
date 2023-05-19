@@ -4,7 +4,6 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 import type Web3 from 'web3'
-import { bn } from 'lib/bignumber/bignumber'
 import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { BuildTradeInput } from '../../../api'
@@ -119,10 +118,7 @@ const expectedTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
     networkFeeCryptoBaseUnit: '0',
     protocolFees: {
       [WETH.assetId]: {
-        amountCryptoBaseUnit: bn('17.95954294012756741283729339486489192096')
-          .times(bn(10).exponentiatedBy(WETH.precision))
-          .div(wethRate)
-          .toFixed(0),
+        amountCryptoBaseUnit: '14557942658757988',
         requiresBalance: false,
         asset: WETH,
       },
@@ -146,10 +142,7 @@ const expectedTradeQuoteWbtcToWethWithApprovalFeeCryptoBaseUnit: CowTrade<KnownC
       networkFeeCryptoBaseUnit: '0',
       protocolFees: {
         [WBTC.assetId]: {
-          amountCryptoBaseUnit: bn('3.6162531444')
-            .times(bn(10).exponentiatedBy(WBTC.precision))
-            .div(wbtcRate)
-            .toFixed(0),
+          amountCryptoBaseUnit: '17238',
           requiresBalance: false,
           asset: WBTC,
         },
@@ -172,10 +165,7 @@ const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
     networkFeeCryptoBaseUnit: '0',
     protocolFees: {
       [FOX.assetId]: {
-        amountCryptoBaseUnit: bn('5.3955565850972847808512')
-          .times(bn(10).exponentiatedBy(FOX.precision))
-          .div(foxRate)
-          .toFixed(0),
+        amountCryptoBaseUnit: '61804771879693983744',
         requiresBalance: false,
         asset: FOX,
       },

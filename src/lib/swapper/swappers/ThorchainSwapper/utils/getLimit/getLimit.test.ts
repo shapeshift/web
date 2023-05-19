@@ -128,10 +128,10 @@ describe('getLimit', () => {
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
       protocolFees: {
-        [BTC.assetId]: {
-          amountCryptoBaseUnit: '0.0318228582',
+        [RUNE.assetId]: {
+          amountCryptoBaseUnit: '219316',
           requiresBalance: false,
-          asset: BTC,
+          asset: RUNE,
         },
       },
       affiliateBps: '0',
@@ -161,10 +161,10 @@ describe('getLimit', () => {
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
       protocolFees: {
-        [BTC.assetId]: {
-          amountCryptoBaseUnit: '0.0000000026',
+        [FOX.assetId]: {
+          amountCryptoBaseUnit: '65000000000',
           requiresBalance: false,
-          asset: BTC,
+          asset: FOX,
         },
       },
       affiliateBps: '0',

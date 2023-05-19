@@ -11,7 +11,7 @@ import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type { V2NftUserItem } from '../zapper/validators'
 import type { CovalentNftUserTokensResponseType } from './validators'
-import { chainIdToCovalentNetwork, parseToV2NftUserItem } from './validators'
+import { chainIdToCovalentNetwork, parseToV2NftUserItems } from './validators'
 
 const COVALENT_BASE_URL = 'https://api.covalenthq.com/v1'
 
@@ -58,9 +58,8 @@ export const covalentApi = createApi({
 
             if (res.data.items?.length) {
               const v2NftUserItems = res.data.items
-                // We're only interested in NFTs here
                 .filter(({ nft_data, type }) => type === 'nft' && nft_data?.length)
-                .map(item => parseToV2NftUserItem(item, chainId))
+                .flatMap(item => parseToV2NftUserItems(item, chainId))
               data = data.concat(v2NftUserItems)
               if (res.data.items.length < limit) {
                 break

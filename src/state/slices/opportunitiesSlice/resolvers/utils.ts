@@ -7,7 +7,7 @@ import {
   DefiProviderToOpportunitiesUserDataResolverByDeFiType,
   DefiProviderToOpportunityIdsResolverByDeFiType,
   DefiProviderToUserDataResolverByDeFiType,
-} from '.'
+} from '../mappings'
 
 // Single opportunity metadata resolvers
 // "Give me the resolvers for a given DeFi provider"

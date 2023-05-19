@@ -6,7 +6,7 @@ import { store } from 'state/store'
 
 import { foxEthStakingIds } from '../opportunitiesSlice/constants'
 import { opportunitiesApi } from '../opportunitiesSlice/opportunitiesSlice'
-import { CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES } from './resolvers'
+import { CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES } from './mappings'
 
 export const fetchAllLpOpportunitiesMetadataByChainId = async (
   chainId: ChainId,

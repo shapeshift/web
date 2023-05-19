@@ -54,6 +54,7 @@ import {
   serializeUserStakingId,
   supportsUndelegations,
 } from '../utils'
+import { selectGetReadOnlyOpportunities } from './readonly'
 
 export const selectStakingIds = createDeepEqualOutputSelector(
   (state: ReduxState) => state.opportunities.staking.ids,
@@ -63,7 +64,8 @@ export const selectStakingIds = createDeepEqualOutputSelector(
 export const selectUserStakingIds = createDeepEqualOutputSelector(
   selectWalletAccountIds,
   (state: ReduxState) => state.opportunities.userStaking.ids,
-  (walletAccountIds, userStakingIds): UserStakingId[] =>
+  selectGetReadOnlyOpportunities,
+  (walletAccountIds, userStakingIds, _readOnlyOpportunitays): UserStakingId[] =>
     userStakingIds.filter(userStakingId =>
       walletAccountIds.includes(deserializeUserStakingId(userStakingId as UserStakingId)[0]),
     ),

@@ -14,38 +14,41 @@ import {
   cosmosSdkOpportunityIdsResolver,
   cosmosSdkStakingOpportunitiesMetadataResolver,
   cosmosSdkStakingOpportunitiesUserDataResolver,
-} from './cosmosSdk'
+} from './resolvers/cosmosSdk'
 import {
   ethFoxStakingMetadataResolver,
   ethFoxStakingOpportunityIdsResolver,
   ethFoxStakingUserDataResolver,
-} from './ethFoxStaking'
+} from './resolvers/ethFoxStaking'
 import {
   foxyStakingOpportunitiesMetadataResolver,
   foxyStakingOpportunitiesUserDataResolver,
   foxyStakingOpportunityIdsResolver,
-} from './foxy'
+} from './resolvers/foxy'
 import {
   idleStakingOpportunitiesMetadataResolver,
   idleStakingOpportunitiesUserDataResolver,
   idleStakingOpportunityIdsResolver,
-} from './idle'
-import { osmosisLpOpportunitiesMetadataResolver, osmosisLpOpportunityIdsResolver } from './osmosis'
+} from './resolvers/idle'
+import {
+  osmosisLpOpportunitiesMetadataResolver,
+  osmosisLpOpportunityIdsResolver,
+} from './resolvers/osmosis'
 import {
   thorchainSaversOpportunityIdsResolver,
   thorchainSaversStakingOpportunitiesMetadataResolver,
   thorchainSaversStakingOpportunitiesUserDataResolver,
-} from './thorchainsavers'
+} from './resolvers/thorchainsavers'
 import {
   uniV2LpLpOpportunityIdsResolver,
   uniV2LpOpportunitiesMetadataResolver,
   uniV2LpUserDataResolver,
-} from './uniV2'
+} from './resolvers/uniV2'
 import {
   yearnStakingOpportunitiesMetadataResolver,
   yearnStakingOpportunitiesUserDataResolver,
   yearnStakingOpportunityIdsResolver,
-} from './yearn'
+} from './resolvers/yearn'
 
 export const DefiProviderToMetadataResolverByDeFiType = {
   [`${DefiProvider.EthFoxStaking}`]: {

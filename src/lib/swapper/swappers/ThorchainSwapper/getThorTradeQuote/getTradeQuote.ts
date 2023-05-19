@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type {
   CosmosSdkBaseAdapter,
@@ -13,6 +13,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type {
   GetTradeQuoteInput,
   GetUtxoTradeQuoteInput,
+  ProtocolFee,
   SwapErrorRight,
   TradeQuote,
 } from 'lib/swapper/api'
@@ -201,17 +202,22 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     recommendedSlippage: slippagePercentage.div(100).toString(),
   }
 
-  const protocolFees = {
-    [buyAsset.assetId]: {
+  const protocolFees: Record<AssetId, ProtocolFee> = {}
+
+  if (!buyAssetTradeFeeBuyAssetCryptoBaseUnit.isZero()) {
+    protocolFees[buyAsset.assetId] = {
       amountCryptoBaseUnit: buyAssetTradeFeeBuyAssetCryptoBaseUnit.toString(),
       requiresBalance: false,
       asset: buyAsset,
-    },
-    [sellAsset.assetId]: {
+    }
+  }
+
+  if (!sellAssetTradeFeeBuyAssetCryptoBaseUnit.isZero()) {
+    protocolFees[sellAsset.assetId] = {
       amountCryptoBaseUnit: sellAssetTradeFeeBuyAssetCryptoBaseUnit.toString(),
       requiresBalance: false,
       asset: sellAsset,
-    },
+    }
   }
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)

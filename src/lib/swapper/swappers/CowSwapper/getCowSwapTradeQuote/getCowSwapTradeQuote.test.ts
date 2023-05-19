@@ -4,6 +4,7 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 import type Web3 from 'web3'
 import type { Asset } from 'lib/asset-service'
+import { bn } from 'lib/bignumber/bignumber'
 import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
@@ -139,7 +140,10 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   feeData: {
     protocolFees: {
       [WETH.assetId]: {
-        amountCryptoBaseUnit: '17.95954294012756741283729339486489192096',
+        amountCryptoBaseUnit: bn('17.95954294012756741283729339486489192096')
+          .times(bn(10).exponentiatedBy(WETH.precision))
+          .div(wethRate)
+          .toFixed(0),
         requiresBalance: false,
         asset: WETH,
       },
@@ -162,7 +166,10 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
   feeData: {
     protocolFees: {
       [FOX.assetId]: {
-        amountCryptoBaseUnit: '5.3955565850972847808512',
+        amountCryptoBaseUnit: bn('5.3955565850972847808512')
+          .times(bn(10).exponentiatedBy(FOX.precision))
+          .div(foxRate)
+          .toFixed(0),
         requiresBalance: false,
         asset: FOX,
       },
@@ -185,7 +192,10 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
   feeData: {
     protocolFees: {
       [WETH.assetId]: {
-        amountCryptoBaseUnit: '1.79595429401274711874033728120645035672',
+        amountCryptoBaseUnit: bn('1.79595429401274711874033728120645035672')
+          .times(bn(10).exponentiatedBy(WETH.precision))
+          .div(wethRate)
+          .toFixed(0),
         requiresBalance: false,
         asset: WETH,
       },

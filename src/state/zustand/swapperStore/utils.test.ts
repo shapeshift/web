@@ -2,14 +2,9 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { baseUnitToHuman, bn, convertPrecision } from 'lib/bignumber/bignumber'
 import type { ProtocolFee } from 'lib/swapper/api'
 import { BTC, ETH, FOX } from 'lib/swapper/swappers/utils/test-data/assets'
+import { cryptoMarketDataById } from 'lib/swapper/swappers/utils/test-data/cryptoMarketDataById'
 
 import { sumProtocolFeesToDenom } from './utils'
-
-const cryptoMarketDataById = {
-  [BTC.assetId]: { price: '2600' },
-  [ETH.assetId]: { price: '1300' },
-  [FOX.assetId]: { price: '0.04' },
-}
 
 describe('sumProtocolFeesToDenom', () => {
   it("returns '0' for empty object", () => {

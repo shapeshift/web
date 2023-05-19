@@ -2,6 +2,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse, AxiosStatic } from 'axios'
 import type Web3 from 'web3'
+import { bn } from 'lib/bignumber/bignumber'
 import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
@@ -33,7 +34,14 @@ const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   buyAmountBeforeFeesCryptoBaseUnit: '114321610000000000',
   feeData: {
     protocolFees: {
-      [ETH.assetId]: { amountCryptoBaseUnit: '19.14', requiresBalance: false, asset: ETH },
+      [ETH.assetId]: {
+        amountCryptoBaseUnit: bn('19.14')
+          .times(bn(10).exponentiatedBy(ETH.precision))
+          .div('1595')
+          .toFixed(0),
+        requiresBalance: false,
+        asset: ETH,
+      },
     },
     networkFeeCryptoBaseUnit: '400000',
   },

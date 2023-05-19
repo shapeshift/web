@@ -38,12 +38,15 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
 
   const bestTotalProtocolFeeCryptoPrecision =
     bestQuote !== undefined
-      ? sumProtocolFeesToDenom({
-          cryptoMarketDataById,
-          protocolFees: bestQuote.feeData.protocolFees,
-          outputExponent: buyAsset.precision,
-          outputAssetPriceUsd: buyAssetUsdRate,
-        })
+      ? fromBaseUnit(
+          sumProtocolFeesToDenom({
+            cryptoMarketDataById,
+            protocolFees: bestQuote.feeData.protocolFees,
+            outputExponent: buyAsset.precision,
+            outputAssetPriceUsd: buyAssetUsdRate,
+          }),
+          buyAsset.precision,
+        )
       : '0'
 
   const bestTotalReceiveAmountCryptoPrecision = bestQuote
@@ -59,12 +62,15 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
           ? fromBaseUnit(quote.buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
           : undefined
 
-        const totalProtocolFeeCryptoPrecision = sumProtocolFeesToDenom({
-          cryptoMarketDataById,
-          protocolFees: quote.feeData.protocolFees,
-          outputExponent: buyAsset.precision,
-          outputAssetPriceUsd: buyAssetUsdRate,
-        })
+        const totalProtocolFeeCryptoPrecision = fromBaseUnit(
+          sumProtocolFeesToDenom({
+            cryptoMarketDataById,
+            protocolFees: quote.feeData.protocolFees,
+            outputExponent: buyAsset.precision,
+            outputAssetPriceUsd: buyAssetUsdRate,
+          }),
+          buyAsset.precision,
+        )
 
         const totalReceiveAmountCryptoPrecision = bnOrZero(buyAmountBeforeFeesCryptoPrecision)
           .minus(totalProtocolFeeCryptoPrecision)

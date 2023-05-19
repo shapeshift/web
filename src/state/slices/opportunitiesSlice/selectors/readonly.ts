@@ -1,13 +1,12 @@
 import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { zapper } from 'state/apis/zapper/zapperApi'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 
 import type { AggregatedOpportunitiesByProviderReturn } from '../types'
 
-export const selectGetReadOnlyOpportunities =
-  opportunitiesApi.endpoints.getReadOnlyOpportunities.select()
+export const selectGetReadOnlyOpportunities = zapper.endpoints.getZapperAppsBalancesOutput.select()
 
 export type AggregatedReadOnlyOpportunitiesByProviderReturn = Omit<
   AggregatedOpportunitiesByProviderReturn,

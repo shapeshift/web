@@ -14,14 +14,12 @@ import { selectZapperFullfilled } from 'state/apis/zapper/selectors'
 import { zapperApi } from 'state/apis/zapper/zapperApi'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
+import { selectPortfolioAccountBalancesBaseUnit } from 'state/slices/common-selectors'
 import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlice/selectors'
-import {
-  selectFeatureFlags,
-  selectMarketDataById,
-  selectPortfolioAccountBalancesBaseUnit,
-} from 'state/slices/selectors'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import { foxEthLpAssetIds } from '../../constants'
 import type {

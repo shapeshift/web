@@ -11,7 +11,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { useGetReadOnlyOpportunitiesQuery } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import { useGetZapperAppsBalancesOutputQuery } from 'state/apis/zapper/zapperApi'
 import type {
   OpportunityId,
   StakingEarnOpportunityType,
@@ -44,7 +44,7 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
 
-  const { data: readOnlyOpportunitiesData } = useGetReadOnlyOpportunitiesQuery()
+  const { data: readOnlyOpportunitiesData } = useGetZapperAppsBalancesOutputQuery()
   const readOnlyOpportunitiesMetadata = Object.values(
     readOnlyOpportunitiesData?.opportunities ?? {},
   ).filter(opportunity => opportunity.type === 'staking')

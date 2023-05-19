@@ -6,7 +6,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { useGetReadOnlyOpportunitiesQuery } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import { useGetZapperAppsBalancesOutputQuery } from 'state/apis/zapper/zapperApi'
 import type {
   LpEarnOpportunityType,
   StakingEarnOpportunityType,
@@ -97,7 +97,7 @@ export const OpportunityRow: React.FC<
     }
   }, [opportunity])
 
-  const { data: readOnlyOpportunitiesData } = useGetReadOnlyOpportunitiesQuery()
+  const { data: readOnlyOpportunitiesData } = useGetZapperAppsBalancesOutputQuery()
   const handleClick = useCallback(
     (action: DefiAction) => {
       if (opportunity.isReadOnly) {

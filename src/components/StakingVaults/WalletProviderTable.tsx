@@ -3,7 +3,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Card } from 'components/Card/Card'
 import { ResultsEmpty } from 'components/ResultsEmpty'
-import { useGetReadOnlyOpportunitiesQuery } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import { useGetZapperAppsBalancesOutputQuery } from 'state/apis/zapper/zapperApi'
 import type { AggregatedReadOnlyOpportunitiesByProviderReturn } from 'state/slices/opportunitiesSlice/selectors/readonly'
 import { selectAggregatedReadOnlyOpportunitiesByProvider } from 'state/slices/opportunitiesSlice/selectors/readonly'
 import {
@@ -45,7 +45,7 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
 
   // Only for fetching - we're consumed derived data once fetched and cached
   // Maybe find a better home for this?
-  useGetReadOnlyOpportunitiesQuery()
+  useGetZapperAppsBalancesOutputQuery()
 
   const readOnlyOpportunityRows = useAppSelector(selectAggregatedReadOnlyOpportunitiesByProvider)
 

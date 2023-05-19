@@ -11,7 +11,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { useGetReadOnlyOpportunitiesQuery } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import { useGetZapperAppsBalancesOutputQuery } from 'state/apis/zapper/zapperApi'
 import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { selectAggregatedEarnUserLpOpportunities, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -36,7 +36,7 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
   const assets = useAppSelector(selectAssets)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
-  const { data: readOnlyOpportunitiesData } = useGetReadOnlyOpportunitiesQuery()
+  const { data: readOnlyOpportunitiesData } = useGetZapperAppsBalancesOutputQuery()
   const readOnlyOpportunitiesMetadata = Object.values(
     readOnlyOpportunitiesData?.opportunities ?? {},
   ).filter(opportunity => opportunity.type === 'lp')

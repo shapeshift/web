@@ -7,7 +7,7 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
-import { selectMarketDataById } from 'state/slices/selectors'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 
 import {
   assertIsFoxEthStakingContractAddress,

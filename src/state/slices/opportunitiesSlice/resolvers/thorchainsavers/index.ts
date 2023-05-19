@@ -2,8 +2,10 @@ import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { adapters, fromAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
-import { selectAssetById, selectFeatureFlags, selectMarketDataById } from 'state/slices/selectors'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
   GetOpportunityIdsOutput,

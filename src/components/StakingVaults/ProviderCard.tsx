@@ -15,7 +15,7 @@ import { WalletLpByAsset } from 'components/EarnDashboard/components/ProviderDet
 import { WalletStakingByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletStakingByAsset'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
-import { useGetReadOnlyOpportunitiesQuery } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import { useGetZapperAppsBalancesOutputQuery } from 'state/apis/zapper/zapperApi'
 import type { AggregatedOpportunitiesByProviderReturn } from 'state/slices/opportunitiesSlice/types'
 
 type ProviderCardProps = {
@@ -31,7 +31,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
 }) => {
   const headerBg = useColorModeValue('white', 'gray.785')
 
-  const { data: readOnlyOpportunitiesData } = useGetReadOnlyOpportunitiesQuery()
+  const { data: readOnlyOpportunitiesData } = useGetZapperAppsBalancesOutputQuery()
   const icon =
     DEFI_PROVIDER_TO_METADATA[provider]?.icon ??
     readOnlyOpportunitiesData?.metadataByProvider[provider as string]?.icon

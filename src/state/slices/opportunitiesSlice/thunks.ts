@@ -5,8 +5,8 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 import { store } from 'state/store'
 
 import { foxEthStakingIds } from '../opportunitiesSlice/constants'
-import { opportunitiesApi } from '../opportunitiesSlice/opportunitiesSlice'
 import { CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES } from './mappings'
+import { opportunitiesApi } from './opportunitiesApiSlice'
 
 export const fetchAllLpOpportunitiesMetadataByChainId = async (
   chainId: ChainId,

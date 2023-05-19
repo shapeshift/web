@@ -17,21 +17,15 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
-import type { ReduxApi } from 'state/slices/opportunitiesSlice/resolvers/types'
+import { selectAssets } from 'state/slices/assetsSlice/selectors'
+import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import type {
   AssetIdsTuple,
-  LpId,
   OpportunityId,
   OpportunityMetadataBase,
   ReadOnlyOpportunityType,
-  StakingId,
 } from 'state/slices/opportunitiesSlice/types'
-import {
-  selectAssets,
-  selectFeatureFlag,
-  selectLpIds,
-  selectStakingIds,
-} from 'state/slices/selectors'
+import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type {
@@ -87,10 +81,10 @@ type GetZapperNftUserTokensInput = {
   accountIds: AccountId[]
 }
 
-type GetZapperAppsbalancesInput = {
-  accountIds: AccountId[]
-  reduxApi: ReduxApi
-}
+type GetZapperAppsbalancesInput = void // void in the interim, but should eventually be consumed programatically so we are reactive on accounts
+// {
+// accountIds: AccountId[]
+// }
 
 type GetZapperCollectionsInput = {
   accountIds: AccountId[]
@@ -311,8 +305,8 @@ export const zapper = createApi({
       GetZapperAppsBalancesOutput,
       GetZapperAppsbalancesInput
     >({
-      queryFn: async ({ accountIds, reduxApi }) => {
-        const ReadOnlyAssets = selectFeatureFlag(reduxApi.getState() as any, 'ReadOnlyAssets')
+      queryFn: async (_input, { dispatch, getState }) => {
+        const ReadOnlyAssets = selectFeatureFlag(getState() as any, 'ReadOnlyAssets')
 
         if (!ReadOnlyAssets)
           return {
@@ -323,11 +317,13 @@ export const zapper = createApi({
             },
           }
 
-        const maybeZapperV2AppsData = await reduxApi.dispatch(
+        const maybeZapperV2AppsData = await dispatch(
           zapperApi.endpoints.getZapperAppsOutput.initiate(),
         )
 
-        const assets = selectAssets(reduxApi.getState() as ReduxState)
+        const accountIds = selectWalletAccountIds(getState() as ReduxState)
+
+        const assets = selectAssets(getState() as ReduxState)
         const evmNetworks = evmChainIds.map(chainIdToZapperNetwork).filter(isSome)
 
         const addresses = accountIdsToEvmAddresses(accountIds)
@@ -411,7 +407,7 @@ export const zapper = createApi({
                       })
 
                       // TODO(gomes): we might want to do this in a batch
-                      reduxApi.dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
+                      dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
                     }
                   })
 
@@ -424,7 +420,7 @@ export const zapper = createApi({
                       precision: asset.decimals ?? 18,
                       icons: asset.displayProps?.images ?? [],
                     })
-                    reduxApi.dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
+                    dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
                   }
 
                   const underlyingAssetRatiosBaseUnit = (() => {
@@ -473,12 +469,7 @@ export const zapper = createApi({
                     }
                   })()
 
-                  const lpIds = selectLpIds(reduxApi.getState() as any)
-                  const stakingIds = selectStakingIds(reduxApi.getState() as any)
-                  if (
-                    !acc.opportunities[assetId] &&
-                    !(lpIds.includes(assetId as LpId) || stakingIds.includes(assetId as StakingId))
-                  ) {
+                  if (!acc.opportunities[assetId]) {
                     acc.opportunities[assetId] = {
                       apy,
                       assetId,

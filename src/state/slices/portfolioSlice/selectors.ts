@@ -47,13 +47,13 @@ import {
 } from 'state/selectors'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectSelectedCurrencyMarketDataSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
+import { selectAllEarnUserLpOpportunitiesByFilter } from 'state/slices/opportunitiesSlice/selectors/lpSelectors'
 import {
   selectAggregatedEarnUserStakingOpportunities,
-  selectAllEarnUserLpOpportunitiesByFilter,
   selectAllEarnUserStakingOpportunitiesByFilter,
   selectStakingOpportunitiesById,
   selectUserStakingOpportunitiesById,
-} from 'state/slices/opportunitiesSlice/selectors'
+} from 'state/slices/opportunitiesSlice/selectors/stakingSelectors'
 import { genericBalanceIncludingStakingByFilter } from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 

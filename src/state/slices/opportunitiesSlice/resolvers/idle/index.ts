@@ -3,11 +3,9 @@ import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
-import {
-  selectAssetById,
-  selectFeatureFlags,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
   AssetIdsTuple,

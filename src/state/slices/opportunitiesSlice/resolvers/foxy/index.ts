@@ -5,12 +5,10 @@ import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvid
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { foxyApi } from 'state/apis/foxy/foxyApi'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import {
-  selectAssetById,
-  selectBIP44ParamsByAccountId,
-  selectMarketDataById,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectBIP44ParamsByAccountId } from 'state/slices/portfolioSlice/selectors'
 
 import type {
   GetOpportunityIdsOutput,

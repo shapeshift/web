@@ -6,6 +6,7 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import type { AggregatedOpportunitiesByProviderReturn } from '../types'
 
+// Zapper only for now, smooosh multiple providers into one output as we support more
 export const selectGetReadOnlyOpportunities = zapper.endpoints.getZapperAppsBalancesOutput.select()
 
 export type AggregatedReadOnlyOpportunitiesByProviderReturn = Omit<
@@ -14,6 +15,7 @@ export type AggregatedReadOnlyOpportunitiesByProviderReturn = Omit<
 > & {
   provider: string
 }
+// TODO(gomes): that was the rank implementation. Now that circular deps are fixed, we can do it the right way
 export const selectAggregatedReadOnlyOpportunitiesByProvider = createDeepEqualOutputSelector(
   selectGetReadOnlyOpportunities,
   (readOnlyOpportunities): AggregatedReadOnlyOpportunitiesByProviderReturn[] => {

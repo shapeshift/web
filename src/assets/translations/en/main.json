@@ -1929,8 +1929,12 @@
     "emptyBody": "Don't worry, we've sent out a search party to bring back more amazing NFTs. In the meantime, feel free to stare at this blank space and ponder the meaning of existence."
   },
   "missions": {
-    "title": "FOX Missions",
-    "body": "Explore the decentralized universe while earning rewards for actions that contribute to the ShapeShift ecosystem. New missions are launched regularly, so be sure to check back and subscribe to wallet notifications to be the first to learn about upcoming missions.",
+    "subtitle": "FOX Missions",
+    "title": {
+      "1": "Unleash the Decentralized Universe and",
+      "2": "Reap Rewards"
+    },
+    "body": "Embark on Missions, Earn Rewards, and expand your knowledge of the Ever-Expanding ShapeShift Ecosystem",
     "ends": "Ends",
     "ongoing": "Ongoing Mission",
     "optimism": {
@@ -1939,8 +1943,8 @@
       "cta": "Start Mission" 
     },
     "foxatar": {
-      "title": "Get a Free NFT",
-      "subtitle": "Mint an NFT",
+      "title": "Get a Free & Customizable NFT",
+      "subtitle": "Mint a FOXatar",
       "cta": "Start Mission"
     }
   }

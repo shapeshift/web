@@ -62,10 +62,23 @@ export const Mission: React.FC<MissionProps> = ({
       borderColor={useColorModeValue('blackAlpha.100', 'whiteAlpha.100')}
     >
       <Card.Body pt={8} px={8} display='flex' flexDir='column' alignItems='center'>
-        <Heading as='h6' textTransform='uppercase' color='gray.500' letterSpacing='0.02em'>
+        <Heading
+          as='h6'
+          textTransform='uppercase'
+          color='gray.500'
+          letterSpacing='0.02em'
+          textAlign='center'
+        >
           {subtitle}
         </Heading>
-        <Heading fontSize='3xl' fontWeight='semibold' letterSpacing='-0.002em'>
+        <Heading
+          fontSize='3xl'
+          fontWeight='semibold'
+          letterSpacing='-0.002em'
+          textAlign='center'
+          lineHeight='10'
+          mx={8}
+        >
           {title}
         </Heading>
         <Flex
@@ -134,6 +147,7 @@ export const Mission: React.FC<MissionProps> = ({
         minHeight='350px'
         bgImage={coverImage}
         backgroundSize='cover'
+        mt='auto'
         backgroundPosition='center 100%'
         backgroundRepeat='no-repeat'
         borderBottomRadius={{ base: 'none', lg: '2xl' }}

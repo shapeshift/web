@@ -20,7 +20,7 @@ export const Missions = () => {
         buttonText: translate('missions.optimism.cta'),
         coverImage: OptimismBg,
         image: OpLogo,
-        onClick: () => window.open('http://google.com'),
+        onClick: () => window.open('https://rewards.shapeshift.com/seasons/optimism-season-1'),
         endDate: '2023-06-30 08:00 AM',
       },
       {
@@ -65,14 +65,14 @@ export const Missions = () => {
         <RawText fontSize='lg' letterSpacing='0.012em'>
           {translate('missions.body')}
         </RawText> */}
-        <Heading as='h4'>FOX Missions</Heading>
+        <Heading as='h4'>{translate('missions.subtitle')}</Heading>
         <Heading fontSize='5xl' lineHeight='none' letterSpacing='-0.015em'>
-          Unleash the Decentralized Universe and{' '}
+          {translate('missions.title.1')}{' '}
           <chakra.span
             backgroundImage='linear-gradient(97.53deg, #F7F2F4 5.6%, #7B61FF 59.16%, #46F4C8 119.34%)'
             backgroundClip='text'
           >
-            Reap Rewards
+            {translate('missions.title.2')}
           </chakra.span>
         </Heading>
         <RawText
@@ -82,8 +82,7 @@ export const Missions = () => {
           mt={4}
           mx={4}
         >
-          Embark on Missions, Earn Rewards, and expand your knowledge of the Ever-Expanding
-          ShapeShift Ecosystem
+          {translate('missions.body')}
         </RawText>
       </Container>
       {renderMissions}

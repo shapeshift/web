@@ -56,14 +56,14 @@ describe('getLimit', () => {
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: ETH,
-      buyAssetId: BTC.assetId,
+      buyAsset: BTC,
       receiveAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
       sellAmountCryptoBaseUnit: '82535000000000000',
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
       protocolFees: {
         [BTC.assetId]: {
-          amountCryptoBaseUnit: '6.2049517907881932',
+          amountCryptoBaseUnit: '30000',
           requiresBalance: false,
           asset: BTC,
         },
@@ -89,14 +89,14 @@ describe('getLimit', () => {
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: FOX,
-      buyAssetId: BTC.assetId,
+      buyAsset: BTC,
       receiveAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
       sellAmountCryptoBaseUnit: '489830019000000000000',
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
       protocolFees: {
         [BTC.assetId]: {
-          amountCryptoBaseUnit: '6.2049517907881932',
+          amountCryptoBaseUnit: '30000',
           requiresBalance: false,
           asset: BTC,
         },
@@ -122,7 +122,7 @@ describe('getLimit', () => {
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: FOX,
-      buyAssetId: RUNE.assetId,
+      buyAsset: RUNE,
       receiveAddress: 'thor1234j5yq9qg7xqf0yq9qg7xqf0yq9qg7xqf0yq9q',
       sellAmountCryptoBaseUnit: '984229076000000000000',
       deps: thorchainSwapperDeps,
@@ -155,7 +155,7 @@ describe('getLimit', () => {
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: RUNE,
-      buyAssetId: FOX.assetId,
+      buyAsset: FOX,
       receiveAddress: '0xFooBar',
       sellAmountCryptoBaseUnit: '988381400',
       deps: thorchainSwapperDeps,

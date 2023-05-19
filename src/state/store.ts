@@ -10,6 +10,7 @@ import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
+import { nftApi } from './apis/nft/nftApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
 import { zerionApi } from './apis/zerion/zerionApi'
 import { migrations } from './migrations'
@@ -42,6 +43,7 @@ const apiMiddleware = [
   fiatRampApi.middleware,
   zapper.middleware,
   zapperApi.middleware,
+  nftApi.middleware,
   opportunitiesApi.middleware,
   abiApi.middleware,
   zerionApi.middleware,
@@ -62,6 +64,7 @@ export const clearState = () => {
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
   store.dispatch(apiSlices.opportunitiesApi.util.resetApiState())
   store.dispatch(apiSlices.zapperApi.util.resetApiState())
+  store.dispatch(apiSlices.nftApi.util.resetApiState())
   store.dispatch(apiSlices.zapper.util.resetApiState())
 }
 
@@ -84,6 +87,7 @@ const actionSanitizer = (action: any) => {
     'marketApi/executeQuery/fulfilled',
     'txHistoryApi/executeQuery/fulfilled',
     'zapperApi/executeQuery/fulfilled',
+    'nftApi/executeQuery/fulfilled',
     'zapper/executeQuery/fulfilled',
   ]
   return blackList.includes(action.type)

@@ -1,7 +1,6 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GasFeeDataEstimate } from '@shapeshiftoss/chain-adapters/src/evm/types'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -28,7 +27,7 @@ export async function getTradeQuote(
     sellAmountBeforeFeesCryptoBaseUnit,
     accountNumber,
     affiliateBps,
-    wallet,
+    eip1559Support,
   } = input
 
   if (sellAmountBeforeFeesCryptoBaseUnit === '0') {
@@ -83,7 +82,6 @@ export async function getTradeQuote(
   }
 
   const gasFeeData: GasFeeDataEstimate = await adapter.getGasFeeData()
-  const eip1559Support = supportsETH(wallet) && (await wallet?.ethSupportsEIP1559())
   const fee = bnOrZero(quoteResponse.data.estimatedGas)
     .multipliedBy(
       eip1559Support ? bnOrZero(gasFeeData.average.maxFeePerGas) : gasFeeData.average.gasPrice,

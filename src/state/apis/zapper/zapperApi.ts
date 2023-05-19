@@ -1,7 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId, fromAccountId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { ethAssetId, ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -18,6 +17,7 @@ import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/asset
 import type { ReadOnlyOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { selectAssets } from 'state/slices/selectors'
 
+import { accountIdsToEvmAddresses } from '../nft/utils'
 import type {
   V2NftBalancesCollectionsResponseType,
   V2NftCollectionType,
@@ -75,17 +75,6 @@ type GetZapperCollectionsInput = {
   accountIds: AccountId[]
   collectionAddresses: string[]
 }
-
-// addresses are repeated across EVM chains
-const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>
-  Array.from(
-    new Set(
-      accountIds
-        .map(fromAccountId)
-        .filter(({ chainId }) => isEvmChainId(chainId))
-        .map(({ account }) => account),
-    ),
-  )
 
 // https://docs.zapper.xyz/docs/apis/getting-started
 export const zapperApi = createApi({
@@ -255,7 +244,6 @@ export const zapperApi = createApi({
         let data: V2NftUserItem[] = []
 
         const userAddresses = accountIdsToEvmAddresses(accountIds)
-
         for (const userAddress of userAddresses) {
           // https://studio.zapper.fi/docs/apis/api-syntax#v2nftusertokens
           /**

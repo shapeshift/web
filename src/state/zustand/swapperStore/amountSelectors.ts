@@ -19,7 +19,10 @@ import {
   selectSwapperDefaultAffiliateBps,
 } from 'state/zustand/swapperStore/selectors'
 import type { SwapperState } from 'state/zustand/swapperStore/types'
-import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
+import {
+  convertBasisPointsToDecimalPercentage,
+  sumProtocolFeesToDenom,
+} from 'state/zustand/swapperStore/utils'
 
 const selectCryptoMarketDataById = () => selectCryptoMarketData(store.getState())
 const selectAssetsById = () => selectAssets(store.getState())
@@ -166,6 +169,22 @@ export const selectBuyAmountBeforeFeesBuyAssetCryptoPrecision = createSelector(
   },
 )
 
+export const selectTotalTradeFeeBuyAssetBaseUnit = createSelector(
+  selectProtocolFees,
+  selectCryptoMarketDataById,
+  selectBuyAssetUsdRate,
+  selectBuyAsset,
+  (protocolFees, cryptoMarketDataById, outputAssetPriceUsd, buyAsset) => {
+    if (protocolFees === undefined) return '0'
+    return sumProtocolFeesToDenom({
+      cryptoMarketDataById,
+      protocolFees,
+      outputAssetPriceUsd,
+      outputExponent: buyAsset.precision,
+    })
+  },
+)
+
 export const selectBuyAmountBeforeFeesFiat = createSelector(
   selectBuyAmountBeforeFeesBaseUnit,
   (state: SwapperState) => state.buyAsset?.precision,
@@ -208,6 +227,8 @@ export const selectTradeOrQuoteBuyAmountCryptoBaseUnit = createSelector(
     tradeBuyAmountBeforeFeesBaseUnit ?? quoteBuyAmountBeforeFeesBaseUnit,
 )
 
+// used to compute the gross sell amount based on the quote
+// needs to add the protocol fee for the sell asset
 export const selectQuoteSellAmountPlusFeesBaseUnit = createSelector(
   selectTradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit,
   selectProtocolFees,
@@ -233,14 +254,15 @@ export const selectQuoteSellAmountPlusFeesFiat = createSelector(
   },
 )
 
+// used to compute the net buy amount based on the user input and fees
+// needs to deduct to the total of all protocol fees
 export const selectBuyAmountAfterFeesBaseUnit = createSelector(
   selectSellAmountBeforeFeesBuyAssetBaseUnit,
-  selectProtocolFees,
-  selectBuyAsset,
-  (sellAmountBeforeFeesBuyAssetBaseUnit, protocolFees, buyAsset): string | undefined => {
+  selectTotalTradeFeeBuyAssetBaseUnit,
+  (sellAmountBeforeFeesBuyAssetBaseUnit, totalTradeFeeBuyAssetBaseUnit): string | undefined => {
     if (!sellAmountBeforeFeesBuyAssetBaseUnit) return undefined
     return bnOrZero(sellAmountBeforeFeesBuyAssetBaseUnit)
-      .minus(protocolFees?.[buyAsset.assetId]?.amountCryptoBaseUnit ?? 0)
+      .minus(totalTradeFeeBuyAssetBaseUnit)
       .toString()
   },
 )
@@ -353,15 +375,14 @@ export const selectTradeAmountsByActionAndAmount: Selector<
   },
 )
 
+// used to compute the net buy amount based on the quote
+// needs to deduct to the total of all protocol fees
 export const selectQuoteBuyAmountAfterFeesBaseUnit = createSelector(
   selectTradeOrQuoteBuyAmountCryptoBaseUnit,
-  selectProtocolFees,
-  selectBuyAsset,
-  (quoteBuyAmountCryptoBaseUnit, protocolFees, buyAsset): string | undefined => {
+  selectTotalTradeFeeBuyAssetBaseUnit,
+  (quoteBuyAmountCryptoBaseUnit, totalTradeFeeBuyAssetBaseUnit): string | undefined => {
     if (!quoteBuyAmountCryptoBaseUnit) return undefined
-    return bnOrZero(quoteBuyAmountCryptoBaseUnit)
-      .minus(protocolFees?.[buyAsset.assetId]?.amountCryptoBaseUnit ?? 0)
-      .toFixed()
+    return bnOrZero(quoteBuyAmountCryptoBaseUnit).minus(totalTradeFeeBuyAssetBaseUnit).toFixed()
   },
 )
 

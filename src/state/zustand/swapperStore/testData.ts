@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { ETH, FOX } from 'test/constants'
 import { TradeAmountInputField } from 'components/Trade/types'
+import { bn } from 'lib/bignumber/bignumber'
 import type { Swapper } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import type { SwapperAction, SwapperState } from 'state/zustand/swapperStore/types'
@@ -96,7 +97,10 @@ export const baseSwapperState: SwapperState = {
           networkFeeCryptoBaseUnit: '1800000000000000',
           protocolFees: {
             [FOX.assetId]: {
-              amountCryptoBaseUnit: '8.5196229516043797526224',
+              amountCryptoBaseUnit: bn('8.5196229516043797526224')
+                .times(bn(10).exponentiatedBy(FOX.precision))
+                .div('0.033')
+                .toFixed(0),
               requiresBalance: false,
               asset: FOX,
             },
@@ -131,7 +135,10 @@ export const baseSwapperState: SwapperState = {
         networkFeeCryptoBaseUnit: '1800000000000000',
         protocolFees: {
           [FOX.assetId]: {
-            amountCryptoBaseUnit: '8.5196229516043797526224',
+            amountCryptoBaseUnit: bn('8.5196229516043797526224')
+              .times(bn(10).exponentiatedBy(FOX.precision))
+              .div('0.033')
+              .toFixed(0),
             requiresBalance: false,
             asset: FOX,
           },
@@ -152,7 +159,10 @@ export const baseSwapperState: SwapperState = {
     tradeFeeSource: SwapperName.Thorchain,
     protocolFees: {
       [FOX.assetId]: {
-        amountCryptoBaseUnit: '8.5196229516043797526224',
+        amountCryptoBaseUnit: bn('8.5196229516043797526224')
+          .times(bn(10).exponentiatedBy(FOX.precision))
+          .div('0.033')
+          .toFixed(0),
         requiresBalance: false,
         asset: FOX,
       },

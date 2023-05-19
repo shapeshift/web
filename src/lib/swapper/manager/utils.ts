@@ -3,7 +3,7 @@ import type { MarketData } from '@shapeshiftoss/types'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { SwapperName, TradeQuote } from 'lib/swapper/api'
+import type { TradeQuote } from 'lib/swapper/api'
 import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
 
 /*
@@ -46,21 +46,13 @@ export const getRatioFromQuote = ({
 
   const totalProtocolFeesUsd = sumProtocolFeesToDenom({
     cryptoMarketDataById,
-    outputAssetPriceUsd: '1',
-    outputExponent: 0,
+    outputAssetPriceUsd: '1', // 1 USD costs 1 USD
+    outputExponent: 0, // 0 exponent = human
     protocolFees: quote.feeData.protocolFees,
   })
 
   const totalSendAmountUsd = sellAmountUsd.plus(networkFeeUsd).plus(totalProtocolFeesUsd)
   const ratio = receiveAmountUsd.div(totalSendAmountUsd)
-
-  quote.sources.some(source => source.name === SwapperName.CowSwap) && console.log({
-    totalSendAmountUsd: totalSendAmountUsd.toString(),
-    receiveAmountUsd: receiveAmountUsd.toString(),
-    networkFeeUsd: networkFeeUsd.toString(),
-    ratio: ratio.toString(),
-    result: ratio.isFinite() && networkFeeUsd.gte(0) ? ratio.toNumber() : -Infinity,
-  })
 
   return ratio.isFinite() && networkFeeUsd.gte(0) ? ratio.toNumber() : -Infinity
 }

@@ -1,11 +1,20 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { Ok } from '@sniptt/monads'
-import { BSC, BTC, ETH, FOX, WBTC, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
+import {
+  assetsById,
+  BSC,
+  BTC,
+  ETH,
+  FOX,
+  WBTC,
+  WETH,
+} from 'lib/swapper/swappers/utils/test-data/assets'
 
 import type { Swapper, SwapperWithQuoteMetadata } from '../api'
 import { SwapperType } from '../api'
 import { CowSwapper } from '../swappers/CowSwapper/CowSwapper'
 import { ThorchainSwapper } from '../swappers/ThorchainSwapper/ThorchainSwapper'
+import { cryptoMarketDataById } from '../swappers/utils/test-data/cryptoMarketDataById'
 import { setupQuote } from '../swappers/utils/test-data/setupSwapQuote'
 import { ZrxSwapper } from '../swappers/ZrxSwapper/ZrxSwapper'
 import { SwapperManager } from './SwapperManager'
@@ -28,17 +37,10 @@ const cowSwapper = getCowSwapper()
 const thorchainSwapper = getThorchainSwapper()
 
 jest.mock('state/slices/selectors', () => {
-  const { BSC, BTC, ETH, FOX, WBTC, WETH } = require('lib/swapper/swappers/utils/test-data/assets') // Move the import inside the factory function
+  const { assetsById } = require('lib/swapper/swappers/utils/test-data/assets') // Move the import inside the factory function
 
   return {
-    selectAssets: () => ({
-      [BTC.assetId]: BTC,
-      [ETH.assetId]: ETH,
-      [FOX.assetId]: FOX,
-      [WBTC.assetId]: WBTC,
-      [WETH.assetId]: WETH,
-      [BSC.assetId]: BSC,
-    }),
+    selectAssets: () => assetsById,
   }
 })
 
@@ -238,15 +240,6 @@ describe('SwapperManager', () => {
         .addSwapper(zrxOptimismSwapper)
         .addSwapper(zrxBscSwapper)
 
-      const cryptoMarketDataById = {
-        [FOX.assetId]: { price: '0.04' },
-        [ETH.assetId]: { price: '1300' },
-      }
-      const assetsById = {
-        [FOX.assetId]: FOX,
-        [ETH.assetId]: ETH,
-      }
-
       const { quoteInput } = setupQuote()
       const swappers = await swapperManager.getSwappersWithQuoteMetadata({
         ...quoteInput,
@@ -258,12 +251,12 @@ describe('SwapperManager', () => {
         {
           swapper: zrxEthereumSwapper,
           quote: bestTradeQuote,
-          inputOutputRatio: 0.5030214870725355,
+          inputOutputRatio: 0.5763658207357724,
         },
         {
           swapper: cowSwapper,
           quote: suboptimalTradeQuote,
-          inputOutputRatio: 0.3433113435170952,
+          inputOutputRatio: 0.49513233227732306,
         },
       ]
       expect(swappers).toEqual(expectedSwappers)

@@ -82,7 +82,7 @@ export const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   feeData: {
     protocolFees: {
       [FOX.assetId]: {
-        amountCryptoBaseUnit: '7.656',
+        amountCryptoBaseUnit: '191400000000000000000',
         requiresBalance: false,
         asset: FOX,
       },
@@ -102,7 +102,7 @@ export const bestTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   feeData: {
     protocolFees: {
       [FOX.assetId]: {
-        amountCryptoBaseUnit: '7.656',
+        amountCryptoBaseUnit: '191400000000000000000',
         requiresBalance: false,
         asset: FOX,
       },
@@ -118,7 +118,7 @@ export const suboptimalTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   feeData: {
     protocolFees: {
       [FOX.assetId]: {
-        amountCryptoBaseUnit: '10.656',
+        amountCryptoBaseUnit: '266400000000000000000',
         requiresBalance: false,
         asset: FOX,
       },

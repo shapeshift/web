@@ -37,7 +37,7 @@ export const sumProtocolFeesToDenom = ({
         outputExponent,
       })
 
-      const rate = bn(outputAssetPriceUsd).div(priceUsd)
+      const rate = bn(priceUsd).div(outputAssetPriceUsd)
       return acc.plus(rebasedAmountCryptoBaseUnit.times(rate))
     }, bn(0))
     .toString()

@@ -17,11 +17,6 @@ export const setupQuote = () => {
     minimumCryptoHuman: '0',
     maximumCryptoHuman: '999999999999',
     feeData: {
-      chainSpecific: {
-        gasPriceCryptoBaseUnit: '5',
-        maxFeePerGas: '6',
-        maxPriorityFeePerGas: '1',
-      },
       sellAssetTradeFeeUsd: '0',
       networkFeeCryptoBaseUnit: '0',
       buyAssetTradeFeeUsd: '0',
@@ -39,6 +34,7 @@ export const setupQuote = () => {
     sendMax: false,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
+    eip1559Support: false,
   }
   return { quoteInput, tradeQuote, buyAsset, sellAsset }
 }
@@ -56,6 +52,7 @@ export const setupBuildTrade = () => {
     wallet: {} as HDWallet,
     receiveAddress: '',
     affiliateBps: '0',
+    eip1559Support: false,
   }
   return { buildTradeInput, buyAsset, sellAsset }
 }

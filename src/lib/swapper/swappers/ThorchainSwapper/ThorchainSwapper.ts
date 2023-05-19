@@ -1,8 +1,10 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { adapters, CHAIN_NAMESPACE, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type {
+  avalanche,
   ChainAdapterManager,
   CosmosSdkBaseAdapter,
+  ethereum,
   EvmBaseAdapter,
   SignTx,
   UtxoBaseAdapter,
@@ -12,9 +14,6 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type Web3 from 'web3'
 import type {
-  ApprovalNeededInput,
-  ApprovalNeededOutput,
-  ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
@@ -27,8 +26,6 @@ import type {
 } from 'lib/swapper/api'
 import { buildTrade } from 'lib/swapper/swappers/ThorchainSwapper/buildThorTrade/buildThorTrade'
 import { getThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import { thorTradeApprovalNeeded } from 'lib/swapper/swappers/ThorchainSwapper/thorTradeApprovalNeeded/thorTradeApprovalNeeded'
-import { thorTradeApproveInfinite } from 'lib/swapper/swappers/ThorchainSwapper/thorTradeApproveInfinite/thorTradeApproveInfinite'
 import type {
   MidgardActionsResponse,
   ThorchainSwapperDeps,
@@ -48,6 +45,8 @@ export type ThorUtxoSupportedChainId =
   | KnownChainIds.BitcoinCashMainnet
 
 export type ThorEvmSupportedChainId = KnownChainIds.EthereumMainnet | KnownChainIds.AvalancheMainnet
+
+export type ThorEvmSupportedChainAdapter = ethereum.ChainAdapter | avalanche.ChainAdapter
 
 export type ThorCosmosSdkSupportedChainId =
   | KnownChainIds.ThorchainMainnet
@@ -132,22 +131,6 @@ export class ThorchainSwapper implements Swapper<ChainId> {
 
   getType() {
     return SwapperType.Thorchain
-  }
-
-  approvalNeeded(
-    input: ApprovalNeededInput<ThorEvmSupportedChainId>,
-  ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
-    return thorTradeApprovalNeeded({ deps: this.deps, input })
-  }
-
-  approveInfinite(input: ApproveInfiniteInput<ThorEvmSupportedChainId>): Promise<string> {
-    return thorTradeApproveInfinite({ deps: this.deps, input })
-  }
-
-  approveAmount(): Promise<string> {
-    throw new SwapError('ThorchainSwapper: approveAmount unimplemented', {
-      code: SwapErrorType.RESPONSE_ERROR,
-    })
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {

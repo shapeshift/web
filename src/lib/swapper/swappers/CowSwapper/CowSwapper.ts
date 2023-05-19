@@ -5,10 +5,6 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import type Web3 from 'web3'
 import type {
-  ApprovalNeededInput,
-  ApprovalNeededOutput,
-  ApproveAmountInput,
-  ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
@@ -20,11 +16,6 @@ import type {
   TradeTxs,
 } from 'lib/swapper/api'
 import { SwapperName, SwapperType } from 'lib/swapper/api'
-import { cowApprovalNeeded } from 'lib/swapper/swappers/CowSwapper/cowApprovalNeeded/cowApprovalNeeded'
-import {
-  cowApproveAmount,
-  cowApproveInfinite,
-} from 'lib/swapper/swappers/CowSwapper/cowApprove/cowApprove'
 import { cowBuildTrade } from 'lib/swapper/swappers/CowSwapper/cowBuildTrade/cowBuildTrade'
 import { cowExecuteTrade } from 'lib/swapper/swappers/CowSwapper/cowExecuteTrade/cowExecuteTrade'
 import { cowGetTradeTxs } from 'lib/swapper/swappers/CowSwapper/cowGetTradeTxs/cowGetTradeTxs'
@@ -68,20 +59,6 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     args: ExecuteTradeInput<KnownChainIds.EthereumMainnet>,
   ): Promise<Result<TradeResult, SwapErrorRight>> {
     return cowExecuteTrade(this.deps, args)
-  }
-
-  approvalNeeded(
-    args: ApprovalNeededInput<KnownChainIds.EthereumMainnet>,
-  ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
-    return cowApprovalNeeded(this.deps, args)
-  }
-
-  approveInfinite(args: ApproveInfiniteInput<KnownChainIds.EthereumMainnet>): Promise<string> {
-    return cowApproveInfinite(this.deps, args)
-  }
-
-  approveAmount(args: ApproveAmountInput<KnownChainIds.EthereumMainnet>): Promise<string> {
-    return cowApproveAmount(this.deps, args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {

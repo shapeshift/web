@@ -63,10 +63,6 @@ const hashOrderMock = jest.mocked(hashOrder)
 const cowTradeEthToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '14716.04718939437505555958',
   feeData: {
-    chainSpecific: {
-      estimatedGasCryptoBaseUnit: '100000',
-      gasPriceCryptoBaseUnit: '79036500000',
-    },
     buyAssetTradeFeeUsd: '0',
     sellAssetTradeFeeUsd: '0',
     networkFeeCryptoBaseUnit: '14557942658757988',
@@ -85,10 +81,6 @@ const cowTradeEthToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
 const cowTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '14716.04718939437505555958',
   feeData: {
-    chainSpecific: {
-      estimatedGasCryptoBaseUnit: '100000',
-      gasPriceCryptoBaseUnit: '79036500000',
-    },
     buyAssetTradeFeeUsd: '0',
     sellAssetTradeFeeUsd: '0',
     networkFeeCryptoBaseUnit: '14557942658757988',
@@ -107,10 +99,6 @@ const cowTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
 const cowTradeFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '0.00004995640398295996',
   feeData: {
-    chainSpecific: {
-      estimatedGasCryptoBaseUnit: '100000',
-      gasPriceCryptoBaseUnit: '79036500000',
-    },
     buyAssetTradeFeeUsd: '5.3955565850972847808512',
     sellAssetTradeFeeUsd: '0',
     networkFeeCryptoBaseUnit: '0',

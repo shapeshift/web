@@ -9,7 +9,6 @@ import type { ZrxPriceResponse, ZrxSwapperDeps } from 'lib/swapper/swappers/ZrxS
 import {
   AFFILIATE_ADDRESS,
   DEFAULT_SOURCE,
-  OPTIMISM_L1_APPROVE_GAS_LIMIT,
   OPTIMISM_L1_SWAP_GAS_LIMIT,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
 import {
@@ -21,8 +20,6 @@ import {
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
 import type { ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
 import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
-
-import { APPROVAL_GAS_LIMIT } from '../../utils/constants'
 
 export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   { adapter }: ZrxSwapperDeps,
@@ -84,27 +81,21 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
 
   // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
   // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
-  const { average, approvalFee, txFee } = await (async () => {
+  const txFee = await (async () => {
     if (optimism.isOptimismChainAdapter(adapter)) {
       const { average, l1GasPrice } = await adapter.getGasFeeData()
 
       // account for l1 transaction fees for optimism
-      const l1ApprovalFee = bn(OPTIMISM_L1_APPROVE_GAS_LIMIT).times(l1GasPrice)
       const l1TxFee = bn(OPTIMISM_L1_SWAP_GAS_LIMIT).times(l1GasPrice)
 
-      return {
-        average,
-        approvalFee: bn(APPROVAL_GAS_LIMIT).times(average.gasPrice).plus(l1ApprovalFee),
-        txFee: gasLimit.times(average.gasPrice).plus(l1TxFee),
-      }
+      return gasLimit.times(average.gasPrice).plus(l1TxFee)
     }
 
     const { average } = await adapter.getGasFeeData()
 
-    const approvalFee = bn(APPROVAL_GAS_LIMIT).times(average.gasPrice)
     const txFee = gasLimit.times(average.gasPrice)
 
-    return { average, approvalFee, txFee }
+    return txFee
   })()
 
   const tradeQuote: TradeQuote<ZrxSupportedChainId> = {
@@ -115,13 +106,6 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     minimumCryptoHuman: minimumAmountCryptoHuman,
     maximumCryptoHuman: maximumAmountCryptoHuman,
     feeData: {
-      chainSpecific: {
-        estimatedGasCryptoBaseUnit: gasLimit.toFixed(0),
-        gasPriceCryptoBaseUnit: average.gasPrice,
-        maxFeePerGas: average.maxFeePerGas,
-        maxPriorityFeePerGas: average.maxPriorityFeePerGas,
-        approvalFeeCryptoBaseUnit: approvalFee.toFixed(0),
-      },
       networkFeeCryptoBaseUnit: txFee.toFixed(0),
       buyAssetTradeFeeUsd: '0',
       sellAssetTradeFeeUsd: '0',

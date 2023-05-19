@@ -102,11 +102,6 @@ export const buildTrade = async (
         buyAssetTradeFeeUsd: '0',
         sellAssetTradeFeeUsd: '0',
         networkFeeCryptoBaseUnit: fee.toString(),
-        chainSpecific: {
-          estimatedGasCryptoBaseUnit: swapResponse.data.tx.gas,
-          gasPriceCryptoBaseUnit: swapResponse.data.tx.gasPrice,
-          approvalFeeCryptoBaseUnit: '0',
-        },
       },
       sellAsset,
       sellAmountBeforeFeesCryptoBaseUnit,

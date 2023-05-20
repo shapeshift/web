@@ -18,7 +18,7 @@ export type OpportunityMetadataBase = {
   apy: string
   assetId: AssetId
   id: OpportunityId
-  provider: DefiProvider
+  provider: string
   tvl: string
   type: DefiType
   // An opportunity might have its own icon e.g Cosmos SDK validators each have their own icon

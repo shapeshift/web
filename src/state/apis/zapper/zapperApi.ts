@@ -19,8 +19,10 @@ import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
+import { opportunities } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import type {
   AssetIdsTuple,
+  GetOpportunityMetadataOutput,
   OpportunityId,
   OpportunityMetadataBase,
   ReadOnlyOpportunityType,
@@ -519,6 +521,26 @@ export const zapper = createApi({
             },
             { userData: [], opportunities: {}, metadataByProvider: {} },
           )
+
+          // Upsert metadata
+          const readOnlyMetadata = parsedOpportunities.opportunities
+          // Prepare the payload for upsertOpportunityMetadata
+          const metadataUpsertPayload: GetOpportunityMetadataOutput = {
+            byId: {},
+            type: DefiType.Staking, // TODO(gomes): lp too
+          }
+
+          // Populate payload.byId with readOnlyMetadata
+          for (const id in readOnlyMetadata) {
+            if (readOnlyMetadata[id].type === 'staking') {
+              // TODO(gomes): lp too
+              metadataUpsertPayload.byId[id] = readOnlyMetadata[id]
+            }
+          }
+          console.log({ metadataUpsertPayload })
+          dispatch(opportunities.actions.upsertOpportunityMetadata(metadataUpsertPayload))
+
+          // Denormalized into userData/opportunities/metadataByProvider for ease of consumption if we need to
           return { data: parsedOpportunities }
         } catch (e) {
           moduleLogger.warn(e, 'getZapperAppsbalancesOutput')

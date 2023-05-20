@@ -36,14 +36,10 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
   const assets = useAppSelector(selectAssets)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
-  const { data: readOnlyOpportunitiesData } = useGetZapperAppsBalancesOutputQuery()
-  const readOnlyOpportunitiesMetadata = Object.values(
-    readOnlyOpportunitiesData?.opportunities ?? {},
-  ).filter(opportunity => opportunity.type === 'lp')
+  useGetZapperAppsBalancesOutputQuery()
 
   const filteredDown = lpOpportunities
     // @ts-ignore FIXME
-    .concat(readOnlyOpportunitiesMetadata)
     .filter(e => ids.includes(e.assetId as OpportunityId))
   const groupedItems = useMemo(() => {
     const groups = filteredDown.reduce(

@@ -44,13 +44,9 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
 
-  const { data: readOnlyOpportunitiesData } = useGetZapperAppsBalancesOutputQuery()
-  const readOnlyOpportunitiesMetadata = Object.values(
-    readOnlyOpportunitiesData?.opportunities ?? {},
-  ).filter(opportunity => opportunity.type === 'staking')
+  useGetZapperAppsBalancesOutputQuery()
   const filteredDown = stakingOpportunities
     // @ts-ignore FIXME
-    .concat(readOnlyOpportunitiesMetadata)
     .filter(e => ids.includes(e.id as OpportunityId))
 
   const groupedItems = useMemo(() => {

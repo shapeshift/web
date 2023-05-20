@@ -24,7 +24,9 @@ import type {
   OpportunityId,
   OpportunityMetadataBase,
   ReadOnlyOpportunityType,
+  StakingId,
 } from 'state/slices/opportunitiesSlice/types'
+import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
 import { accountIdsToEvmAddresses } from '../nft/utils'
@@ -469,6 +471,10 @@ export const zapper = createApi({
                     }
                   })()
 
+                  const defiType =
+                    groupId === 'farm' || type === 'contract-position'
+                      ? DefiType.Staking
+                      : DefiType.LiquidityPool
                   if (!acc.opportunities[assetId]) {
                     acc.opportunities[assetId] = {
                       apy,
@@ -484,10 +490,7 @@ export const zapper = createApi({
                       rewardAssetIds: [],
                       provider: appName,
                       tvl,
-                      type:
-                        groupId === 'farm' || type === 'contract-position'
-                          ? DefiType.Staking
-                          : DefiType.LiquidityPool,
+                      type: defiType,
                       // TODO(gomes) We should either:
                       // 1. filter out the opportunities that are part of our existing view-layer abstraction
                       // 2. support the opportunities that are part of our existing view-layer abstraction, and fetch them here exclusively instead
@@ -499,11 +502,14 @@ export const zapper = createApi({
                   return {
                     accountId,
                     provider: appName,
+                    userStakingId:
+                      defiType === DefiType.Staking
+                        ? serializeUserStakingId(accountId, assetId as StakingId)
+                        : undefined,
                     opportunityId: assetId,
                     stakedAmountCryptoBaseUnit,
                     fiatAmount,
-                    // TODO: This assumes all as staking for now. We will need to handle LP as well.
-                    type: DefiType.Staking,
+                    type: defiType,
                   }
                 })
                 .filter(isSome)

@@ -185,6 +185,7 @@ export type StakingEarnOpportunityType = OpportunityMetadata &
 export type ReadOnlyOpportunityType = {
   accountId?: string // unless aggregated
   opportunityId: string
+  userStakingId?: UserStakingId // the derived serialization of the two above, only for staking opportunities
   stakedAmountCryptoBaseUnit: string
   fiatAmount: string
   provider: string

@@ -23,6 +23,8 @@ import { opportunities } from 'state/slices/opportunitiesSlice/opportunitiesSlic
 import type {
   AssetIdsTuple,
   GetOpportunityMetadataOutput,
+  GetOpportunityUserDataOutput,
+  GetOpportunityUserStakingDataOutput,
   OpportunityId,
   OpportunityMetadataBase,
   ReadOnlyOpportunityType,
@@ -357,7 +359,9 @@ export const zapper = createApi({
               // [0] only for debugging, obviously support all products eventually
               const appAccountOpportunities = (appAccountBalance.products[0]?.assets ?? [])
                 .map<ReadOnlyOpportunityType>(asset => {
-                  const stakedAmountCryptoBaseUnit = asset.balanceRaw ?? '0'
+                  // Staking only for this PoC
+                  const stakedAmountCryptoBaseUnit =
+                    asset.tokens.find(token => token.metaType === 'supplied')?.balanceRaw ?? '0'
                   const fiatAmount = bnOrZero(asset.balanceUSD).toString()
                   const apy = bnOrZero(asset.dataProps?.apy).toString()
                   const tvl = bnOrZero(asset.dataProps?.liquidity).toString()
@@ -524,21 +528,57 @@ export const zapper = createApi({
 
           // Upsert metadata
           const readOnlyMetadata = parsedOpportunities.opportunities
+          const readOnlyUserData = parsedOpportunities.userData
+          // Prepare the payload for accounts upsertion
+          const accountUpsertPayload: GetOpportunityUserDataOutput = {
+            byAccountId: {},
+            type: DefiType.Staking,
+          }
+          // Prepare the payload for user staking upsertion
+          const userStakingUpsertPayload: GetOpportunityUserStakingDataOutput = {
+            byId: {},
+          }
           // Prepare the payload for upsertOpportunityMetadata
           const metadataUpsertPayload: GetOpportunityMetadataOutput = {
             byId: {},
             type: DefiType.Staking, // TODO(gomes): lp too
           }
 
-          // Populate payload.byId with readOnlyMetadata
+          // Populate read only metadata payload
           for (const id in readOnlyMetadata) {
             if (readOnlyMetadata[id].type === 'staking') {
               // TODO(gomes): lp too
               metadataUpsertPayload.byId[id] = readOnlyMetadata[id]
             }
           }
-          console.log({ metadataUpsertPayload })
+
+          // Populate read only userData payload
+          for (const opportunity of readOnlyUserData) {
+            const { accountId, opportunityId, userStakingId, stakedAmountCryptoBaseUnit } =
+              opportunity
+
+            // Prepare payload for upsertOpportunityAccounts
+            if (accountId) {
+              if (!accountUpsertPayload.byAccountId[accountId]) {
+                accountUpsertPayload.byAccountId[accountId] = []
+              }
+              // Here we push the opportunityId (representing StakingId) instead of userStakingId
+              accountUpsertPayload.byAccountId[accountId]!.push(opportunityId)
+            }
+
+            // Prepare payload for upsertUserStakingOpportunities
+            if (userStakingId) {
+              userStakingUpsertPayload.byId[userStakingId] = {
+                stakedAmountCryptoBaseUnit,
+                userStakingId,
+                rewardsCryptoBaseUnit: { amounts: [], claimable: false },
+              }
+            }
+          }
+
           dispatch(opportunities.actions.upsertOpportunityMetadata(metadataUpsertPayload))
+          dispatch(opportunities.actions.upsertOpportunityAccounts(accountUpsertPayload))
+          dispatch(opportunities.actions.upsertUserStakingOpportunities(userStakingUpsertPayload))
 
           // Denormalized into userData/opportunities/metadataByProvider for ease of consumption if we need to
           return { data: parsedOpportunities }

@@ -430,6 +430,9 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       Record<DefiProvider, AggregatedOpportunitiesByProviderReturn>
     >((acc, cur) => {
       const { provider } = cur
+      if (!acc[provider]) {
+        acc[provider] = makeEmptyPayload(provider)
+      }
       const isActiveProvider = isActiveStakingByFilter[provider]
 
       if (chainId && chainId !== cur.chainId) return acc

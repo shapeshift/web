@@ -529,6 +529,7 @@ const ZapperDataPropsSchema = z.union([
 // Redeclared as a type since we lose type inference on the type below because of z.lazy() recursion
 type ZapperTokenBase = {
   type: 'base-token' | 'app-token'
+  metaType?: 'claimable' | 'supplied' | 'borrowed'
   network: SupportedZapperNetwork
   address: string
   decimals: number

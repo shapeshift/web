@@ -188,7 +188,7 @@ const mergeRelease = async () => {
 const main = async () => {
   await assertIsCleanRepo()
   await assertGhInstalled()
-  ;(await isReleaseInProgress()) ? await mergeRelease() : await createRelease()
+  // ;(await isReleaseInProgress()) ? await mergeRelease() : await createRelease()
 }
 
 main()

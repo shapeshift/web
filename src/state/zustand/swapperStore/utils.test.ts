@@ -23,7 +23,7 @@ describe('sumProtocolFeesToDenom', () => {
   it('can sum multiple protcol fees to a single big number string denominated in the target asset', () => {
     const protocolFees: Record<AssetId, ProtocolFee> = {
       [BTC.assetId]: {
-        amountCryptoBaseUnit: '3000000', // 0.3 BTC
+        amountCryptoBaseUnit: '3000000', // 0.03 BTC
         asset: BTC,
         requiresBalance: false,
       },
@@ -71,7 +71,7 @@ describe('sumProtocolFeesToDenom', () => {
   it('can sum multiple protcol fees to USD', () => {
     const protocolFees: Record<AssetId, ProtocolFee> = {
       [BTC.assetId]: {
-        amountCryptoBaseUnit: '3000000', // 0.3 BTC
+        amountCryptoBaseUnit: '3000000', // 0.03 BTC
         asset: BTC,
         requiresBalance: false,
       },

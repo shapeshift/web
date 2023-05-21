@@ -8,7 +8,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { type FC, useMemo } from 'react'
+import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -32,16 +32,6 @@ type ReceiveSummaryProps = {
   slippage: string
   swapperName: string
 } & RowProps
-
-const parseAmountDisplayMeta = (items: AmountDisplayMeta[]) => {
-  return items
-    .filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
-    .map(({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
-      symbol: asset.symbol,
-      chainName: getChainAdapterManager().get(asset.chainId)?.getDisplayName(),
-      amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
-    }))
-}
 
 export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   symbol,
@@ -68,9 +58,19 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
   const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
 
+  const parseAmountDisplayMeta = useCallback((items: AmountDisplayMeta[]) => {
+    return items
+      .filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
+      .map(({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
+        symbol: asset.symbol,
+        chainName: getChainAdapterManager().get(asset.chainId)?.getDisplayName(),
+        amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
+      }))
+  }, [])
+
   const protocolFeesParsed = useMemo(
     () => (protocolFees ? parseAmountDisplayMeta(Object.values(protocolFees)) : undefined),
-    [protocolFees],
+    [protocolFees, parseAmountDisplayMeta],
   )
 
   const intermediaryTransactionOutputsParsed = useMemo(
@@ -78,7 +78,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
       intermediaryTransactionOutputs
         ? parseAmountDisplayMeta(intermediaryTransactionOutputs)
         : undefined,
-    [intermediaryTransactionOutputs],
+    [intermediaryTransactionOutputs, parseAmountDisplayMeta],
   )
 
   const hasProtocolFees = useMemo(

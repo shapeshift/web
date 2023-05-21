@@ -416,7 +416,7 @@ export const TradeInput = () => {
   )
 
   const hasSufficientProtocolFeeBalances = useMemo(() => {
-    if (protocolFees === undefined) return true
+    if (protocolFees === undefined) return false
 
     const buyAssetTradeFeeCryptoBaseUnit = protocolFees[buyAsset.assetId]?.requiresBalance
       ? protocolFees[buyAsset.assetId].amountCryptoBaseUnit

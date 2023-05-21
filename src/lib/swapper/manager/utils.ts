@@ -26,7 +26,6 @@ export const getRatioFromQuote = ({
   quote: TradeQuote<ChainId>
   feeAsset: Asset
   cryptoMarketDataById: Partial<Record<AssetId, Pick<MarketData, 'price'>>>
-  assetsById: Partial<Record<AssetId, Asset>>
 }): number | undefined => {
   const buyAssetUsdRate = cryptoMarketDataById[quote.buyAsset.assetId]?.price
   const sellAssetUsdRate = cryptoMarketDataById[quote.sellAsset.assetId]?.price

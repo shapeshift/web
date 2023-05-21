@@ -67,6 +67,7 @@ import {
   selectWalletName,
 } from '../common-selectors'
 import { foxEthLpAssetId, foxEthStakingIds } from '../opportunitiesSlice/constants'
+import { selectGetReadOnlyOpportunities } from '../opportunitiesSlice/selectors/readonly'
 import type { StakingId, UserStakingId } from '../opportunitiesSlice/types'
 import {
   deserializeUserStakingId,
@@ -825,6 +826,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
   selectAssets,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectAssetIdParamFromFilter,
+  selectGetReadOnlyOpportunities,
   (
     accountIds,
     portfolioFiatBalances,
@@ -834,6 +836,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
     assets,
     marketData,
     assetId,
+    readOnlyOpportunities,
   ): AssetEquityItem[] => {
     if (!assetId) return []
     const asset = assets[assetId]
@@ -876,7 +879,9 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
         amountCryptoPrecision,
         underlyingAssetId: stakingOpportunity.underlyingAssetId,
         provider: stakingOpportunity.provider,
-        color: DEFI_PROVIDER_TO_METADATA[stakingOpportunity.provider].color,
+        color:
+          DEFI_PROVIDER_TO_METADATA[stakingOpportunity.provider]?.color ??
+          readOnlyOpportunities.data?.metadataByProvider?.[stakingOpportunity.provider]?.color,
       }
     })
     const lp = lpOpportunities.map(lpOpportunity => {

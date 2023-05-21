@@ -13,6 +13,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { selectGetReadOnlyOpportunities } from 'state/slices/opportunitiesSlice/selectors/readonly'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAllEarnUserStakingOpportunitiesByFilter,
@@ -60,6 +61,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId ?? ''))
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const readOnlyOpportunities = useAppSelector(selectGetReadOnlyOpportunities)
 
   const handleClick = useCallback(() => {
     if (!opportunity) return
@@ -112,7 +114,10 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
       fiatAmount={opportunity.fiatAmount}
       totalFiatBalance={totalFiatBalance}
       color={color}
-      icon={DEFI_PROVIDER_TO_METADATA[opportunity.provider].icon}
+      icon={
+        DEFI_PROVIDER_TO_METADATA[opportunity.provider]?.icon ??
+        readOnlyOpportunities.data?.metadataByProvider?.[opportunity.provider]?.color
+      }
       label={opportunity.provider}
       symbol={asset.symbol}
       subText={opportunity.version ?? DefiTypeDisplayName[opportunity.type]}

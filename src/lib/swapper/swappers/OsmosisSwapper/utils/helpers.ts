@@ -179,14 +179,14 @@ const getPoolRateInfo = (
   const buyAmountCryptoBaseUnit = buyAssetInitialPoolSize.minus(buyAssetFinalPoolSize).toString()
   const rate = bnOrZero(buyAmountCryptoBaseUnit).dividedBy(sellAmount).toString()
   const priceImpact = bn(1).minus(initialMarketPrice.dividedBy(finalMarketPrice)).abs().toString()
-  const buyAssetTradeFeeCyptoBaseUnit = bnOrZero(buyAmountCryptoBaseUnit)
+  const buyAssetTradeFeeCryptoBaseUnit = bnOrZero(buyAmountCryptoBaseUnit)
     .times(bnOrZero(pool.pool_params.swap_fee))
     .toString()
 
   return {
     rate,
     priceImpact,
-    buyAssetTradeFeeCyptoBaseUnit,
+    buyAssetTradeFeeCryptoBaseUnit,
     buyAmountCryptoBaseUnit,
   }
 }

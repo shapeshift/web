@@ -1,14 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { Ok } from '@sniptt/monads'
-import {
-  assetsById,
-  BSC,
-  BTC,
-  ETH,
-  FOX,
-  WBTC,
-  WETH,
-} from 'lib/swapper/swappers/utils/test-data/assets'
+import { BSC, BTC, ETH, FOX, WBTC, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 
 import type { Swapper, SwapperWithQuoteMetadata } from '../api'
 import { SwapperType } from '../api'
@@ -245,7 +237,6 @@ describe('SwapperManager', () => {
         ...quoteInput,
         feeAsset: ETH,
         cryptoMarketDataById,
-        assetsById,
       })
       const expectedSwappers: SwapperWithQuoteMetadata[] = [
         {

@@ -45,27 +45,30 @@ export const transformLifiFeeData = ({
 
   // TEMP: jumble in gas costs not denominated in the sell chain fee asset with protocol fees
   // until our UI can convey the concept of gas fees denominated in multiple tokens
-  const protocolFees = [...allRouteFeeCosts, ...otherGasCosts].reduce((acc, feeCost) => {
-    const { amount, token } = feeCost
-    const assetId = lifiTokenToAssetId(token)
-    const asset = assets[assetId]
-    if (acc[assetId] === undefined) {
-      acc[assetId] = {
-        amountCryptoBaseUnit: amount,
-        asset: {
-          chainId: asset?.chainId ?? lifiChainIdToChainId(token.chainId),
-          precision: asset?.precision ?? token.decimals,
-          symbol: asset?.symbol ?? token.symbol,
-        },
-        requiresBalance: true,
+  const protocolFees = [...allRouteFeeCosts, ...otherGasCosts].reduce<Record<AssetId, ProtocolFee>>(
+    (acc, feeCost) => {
+      const { amount, token } = feeCost
+      const assetId = lifiTokenToAssetId(token)
+      const asset = assets[assetId]
+      if (acc[assetId] === undefined) {
+        acc[assetId] = {
+          amountCryptoBaseUnit: amount,
+          asset: {
+            chainId: asset?.chainId ?? lifiChainIdToChainId(token.chainId),
+            precision: asset?.precision ?? token.decimals,
+            symbol: asset?.symbol ?? token.symbol,
+          },
+          requiresBalance: true,
+        }
+      } else {
+        acc[assetId].amountCryptoBaseUnit = bn(acc[assetId].amountCryptoBaseUnit)
+          .plus(amount)
+          .toString()
       }
-    } else {
-      acc[assetId].amountCryptoBaseUnit = bn(acc[assetId].amountCryptoBaseUnit)
-        .plus(amount)
-        .toString()
-    }
-    return acc
-  }, {} as Record<AssetId, ProtocolFee>)
+      return acc
+    },
+    {} as Record<AssetId, ProtocolFee>,
+  )
 
   return {
     networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit.toString(),

@@ -1,7 +1,7 @@
 import type { GasCost } from '@lifi/sdk'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetAddress/getAssetAddress'
+import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
 
 const processNetworkFee = ({
   allRouteGasCosts,
@@ -10,7 +10,7 @@ const processNetworkFee = ({
   allRouteGasCosts: GasCost[]
   feeAsset: Asset
 }) => {
-  const feeAssetAddress = getEvmAssetAddress(feeAsset)
+  const feeAssetAddress = getLifiEvmAssetAddress(feeAsset)
 
   const networkFeeCryptoLifiPrecision = allRouteGasCosts
     .filter(gasCost => gasCost.token.address === feeAssetAddress)
@@ -26,7 +26,7 @@ const getOtherGasCosts = ({
   allRouteGasCosts: GasCost[]
   feeAsset: Asset
 }) => {
-  const feeAssetAddress = getEvmAssetAddress(feeAsset)
+  const feeAssetAddress = getLifiEvmAssetAddress(feeAsset)
 
   const nonFeeAssetGasCosts = allRouteGasCosts.filter(
     gasCost => gasCost.token.address !== feeAssetAddress,

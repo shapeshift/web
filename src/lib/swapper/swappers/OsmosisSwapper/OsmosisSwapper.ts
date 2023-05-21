@@ -152,7 +152,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     )
 
     if (!maybeRateInfo.isOk()) return Err(maybeRateInfo.unwrapErr())
-    const { buyAssetTradeFeeCyptoBaseUnit, rate, buyAmountCryptoBaseUnit } = maybeRateInfo.unwrap()
+    const { buyAssetTradeFeeCryptoBaseUnit, rate, buyAmountCryptoBaseUnit } = maybeRateInfo.unwrap()
 
     //convert amount to base
     const sellAmountCryptoBase = String(bnOrZero(sellAmountCryptoBaseUnit).dp(0))
@@ -187,7 +187,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         networkFeeCryptoBaseUnit: fee,
         protocolFees: {
           [buyAsset.assetId]: {
-            amountCryptoBaseUnit: buyAssetTradeFeeCyptoBaseUnit,
+            amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
             requiresBalance: true,
             asset: buyAsset,
           },
@@ -229,7 +229,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     )
 
     if (maybeRateInfo.isErr()) return Err(maybeRateInfo.unwrapErr())
-    const { buyAssetTradeFeeCyptoBaseUnit, rate, buyAmountCryptoBaseUnit } = maybeRateInfo.unwrap()
+    const { buyAssetTradeFeeCryptoBaseUnit, rate, buyAmountCryptoBaseUnit } = maybeRateInfo.unwrap()
 
     const maybeMinMax = this.getMinMax()
     if (maybeMinMax.isErr()) return Err(maybeMinMax.unwrapErr())
@@ -256,7 +256,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         networkFeeCryptoBaseUnit: fee,
         protocolFees: {
           [buyAsset.assetId]: {
-            amountCryptoBaseUnit: buyAssetTradeFeeCyptoBaseUnit,
+            amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
             requiresBalance: true,
             asset: buyAsset,
           },

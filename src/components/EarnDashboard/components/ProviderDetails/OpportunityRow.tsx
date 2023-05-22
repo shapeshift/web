@@ -183,6 +183,7 @@ export const OpportunityRow: React.FC<
               </Flex>
             }
             justifyContent='flex-start'
+            isExternal={opportunity.isReadOnly}
           />
           <Amount.Crypto
             value={bnOrZero(cryptoAmountBaseUnit)

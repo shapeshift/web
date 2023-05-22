@@ -44,6 +44,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
               opportunityName={row.original.opportunityName}
               showTeaser={showTeaser}
               showAssetSymbol={row.original.showAssetSymbol}
+              isExternal={row.original.isReadOnly}
             />
           </Skeleton>
         ),

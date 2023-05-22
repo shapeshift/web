@@ -1,4 +1,4 @@
-import { ArrowForwardIcon } from '@chakra-ui/icons'
+import { ArrowForwardIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Flex } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
@@ -276,6 +276,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
               size='sm'
               colorScheme='blue'
               width={{ base: 'full', md: 'auto' }}
+              rightIcon={row.original.isReadOnly ? <ExternalLinkIcon boxSize={3} /> : undefined}
               onClick={() => handleClick(row, DefiAction.Overview)}
             >
               {translate('common.manage')}

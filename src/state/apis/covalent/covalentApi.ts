@@ -50,7 +50,7 @@ export const covalentApi = createApi({
           try {
             const url = `/${network}/address/${address}/balances_v2/?key=${
               getConfig().REACT_APP_COVALENT_API_KEY
-            }&nft=true`
+            }&nft=true&x-allow-incomplete=true`
 
             const payload = { ...options, url }
             const response = await axios.request<CovalentNftUserTokensResponseType>(payload)

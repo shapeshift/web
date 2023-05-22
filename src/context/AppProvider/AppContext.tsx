@@ -192,7 +192,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           case osmosisChainId:
           case avalancheChainId:
             ;(async () => {
-              zapperApi.endpoints.getZapperAppsOutput.initiate()
+              zapperApi.endpoints.getZapperAppsBalancesOutput.initiate()
 
               await fetchAllOpportunitiesIdsByChainId(chainId)
               await fetchAllOpportunitiesMetadataByChainId(chainId)

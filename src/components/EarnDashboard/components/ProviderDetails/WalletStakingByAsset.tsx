@@ -1,4 +1,4 @@
-import { Box, Button, Flex } from '@chakra-ui/react'
+import { Button, Flex } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
@@ -58,7 +58,11 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
     return Array.from(groups.entries())
   }, [filteredDown])
 
-  const { next, data, hasMore } = useInfiniteScroll(groupedItems)
+  const flatItems = useMemo(
+    () => groupedItems.flatMap(item => (Array.isArray(item) ? item.flat() : [item])),
+    [groupedItems],
+  )
+  const { next, data, hasMore } = useInfiniteScroll(flatItems)
 
   const handleClick = useCallback(
     (opportunity: StakingEarnOpportunityType, action: DefiAction) => {
@@ -109,28 +113,27 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
   const renderStakingRows = useMemo(() => {
     return (
       <Flex flexDir='column' gap={2}>
-        {data.map(group => {
-          const [name, values] = group
-          return (
-            <Box key={`group-${name}`}>
-              <OpportunityTableHeader>
-                <RawText>{name}</RawText>
-                <RawText display={{ base: 'none', md: 'block' }}>
-                  {translate('common.balance')}
-                </RawText>
-                <RawText>{translate('common.value')}</RawText>
-              </OpportunityTableHeader>
-              <Flex px={{ base: 0, md: 2 }} flexDirection='column'>
-                {values.map((opportunity: StakingEarnOpportunityType) => (
-                  <OpportunityRow
-                    // There may be multiple opportunities with the same provider and assetId - apy gives us some sort of unique keys safety
-                    key={`${opportunity.provider}-${opportunity.assetId}-${opportunity.apy}`}
-                    onClick={handleClick}
-                    opportunity={opportunity}
-                  />
-                ))}
-              </Flex>
-            </Box>
+        {data.map((item, index) => {
+          return typeof item === 'object' ? (
+            <Flex
+              px={{ base: 0, md: 2 }}
+              flexDirection='column'
+              key={`${item.provider}-${item.assetId}-${item.apy}`}
+            >
+              <OpportunityRow
+                // There may be multiple opportunities with the same provider and assetId - apy gives us some sort of unique keys safety
+                onClick={handleClick}
+                opportunity={item}
+              />
+            </Flex>
+          ) : data.length === index + 1 ? null : (
+            <OpportunityTableHeader key={`group-${item}`}>
+              <RawText>{item}</RawText>
+              <RawText display={{ base: 'none', md: 'block' }}>
+                {translate('common.balance')}
+              </RawText>
+              <RawText>{translate('common.value')}</RawText>
+            </OpportunityTableHeader>
           )
         })}
       </Flex>

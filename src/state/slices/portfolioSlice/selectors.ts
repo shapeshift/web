@@ -67,7 +67,6 @@ import {
   selectWalletName,
 } from '../common-selectors'
 import { foxEthLpAssetId, foxEthStakingIds } from '../opportunitiesSlice/constants'
-import { selectGetReadOnlyOpportunities } from '../opportunitiesSlice/selectors/readonly'
 import type { StakingId, UserStakingId } from '../opportunitiesSlice/types'
 import {
   deserializeUserStakingId,
@@ -826,7 +825,6 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
   selectAssets,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectAssetIdParamFromFilter,
-  selectGetReadOnlyOpportunities,
   (
     accountIds,
     portfolioFiatBalances,
@@ -836,7 +834,6 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
     assets,
     marketData,
     assetId,
-    readOnlyOpportunities,
   ): AssetEquityItem[] => {
     if (!assetId) return []
     const asset = assets[assetId]

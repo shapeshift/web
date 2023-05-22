@@ -221,7 +221,7 @@ export type AggregatedOpportunitiesByFilterReturn = {
 }
 
 export type AggregatedOpportunitiesByProviderReturn = {
-  provider: DefiProvider
+  provider: string
   apy: string
   fiatAmount: string
   fiatRewardsAmount: string

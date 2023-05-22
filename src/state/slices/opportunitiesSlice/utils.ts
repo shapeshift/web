@@ -198,7 +198,7 @@ export const makeOpportunityIcons = ({
     : opportunity.underlyingAssetIds.map(assetId => assets[assetId]?.icon).map(icon => icon ?? '')
 
 type MakeDefiProviderDisplayNameArgs = {
-  provider: DefiProvider
+  provider: string
   assetName: string
 }
 
@@ -219,7 +219,7 @@ export const makeDefiProviderDisplayName: MakeDefiProviderDisplayName = ({
       return provider
   }
 }
-type GetOpportunityAccessorArgs = { provider: DefiProvider; type: DefiType }
+type GetOpportunityAccessorArgs = { provider: string; type: DefiType }
 type GetOpportunityAccessorReturn = 'underlyingAssetId' | 'underlyingAssetIds'
 type GetOpportunityAccessor = (args: GetOpportunityAccessorArgs) => GetOpportunityAccessorReturn
 

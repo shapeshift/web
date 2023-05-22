@@ -1,8 +1,8 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import {
-  DEFI_PROVIDER_TO_METADATA,
   DefiAction,
+  getMetadataForProvider,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import React, { useCallback, useMemo } from 'react'
@@ -120,7 +120,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
   return (
     <EquityRow
       onClick={handleClick}
-      icon={DEFI_PROVIDER_TO_METADATA[opportunity.provider].icon}
+      icon={getMetadataForProvider(opportunity.provider)?.icon ?? ''}
       label={opportunity.provider}
       fiatAmount={underlyingBalances[assetId].fiatAmount}
       cryptoBalancePrecision={underlyingBalances[assetId].cryptoBalancePrecision}

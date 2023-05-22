@@ -89,6 +89,12 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
   const handleClick = useCallback(
     (row: RowProps, action: DefiAction) => {
       const { original: opportunity } = row
+
+      if (opportunity.isReadOnly) {
+        const url = getMetadataForProvider(opportunity.provider)?.url
+        url && window.open(url, '_blank')
+      }
+
       const {
         type,
         provider,

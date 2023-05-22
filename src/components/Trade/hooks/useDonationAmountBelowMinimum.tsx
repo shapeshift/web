@@ -1,17 +1,23 @@
-import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { SwapperName } from 'lib/swapper/api'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers/ThorchainSwapper/constants'
+import { selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 import { selectDonationAmountFiat } from 'state/zustand/swapperStore/amountSelectors'
+import { selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useDonationAmountBelowMinimum = () => {
   const runePrice = useAppSelector(state => selectMarketDataById(state, thorchainAssetId)).price
   const donationAmountFiat = useSwapperStore(selectDonationAmountFiat)
   const activeSwapperName = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper.name)
+  const sellAsset = useSwapperStore(selectSellAsset)
+  const sellAssetChainId = sellAsset?.chainId
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAssetChainId ?? ''))
+  const buyAmountFiat = useSwapperStore(state => state.buyAmountFiat)
 
   // Some swappers have a minimum donation amount, whereby collecting below that amount will result in the donated amount being lost
   const isDonationAmountBelowMinimum = useMemo(() => {
@@ -21,10 +27,13 @@ export const useDonationAmountBelowMinimum = () => {
           .div(runePrice)
           .lte(RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN)
       }
+      case SwapperName.Zrx:
+      case SwapperName.OneInch:
+        return feeAsset?.assetId === ethAssetId && bnOrZero(buyAmountFiat).lt(500)
       default:
         return false
     }
-  }, [activeSwapperName, donationAmountFiat, runePrice])
+  }, [activeSwapperName, buyAmountFiat, donationAmountFiat, feeAsset?.assetId, runePrice])
 
   return isDonationAmountBelowMinimum
 }

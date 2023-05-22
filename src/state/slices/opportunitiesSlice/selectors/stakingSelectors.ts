@@ -377,11 +377,13 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
 // TODO: testme
 export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesByStakingId,
-  (userStakingOpportunitiesByStakingId): UserStakingOpportunityWithMetadata[] =>
-    Object.values(userStakingOpportunitiesByStakingId)
+  (userStakingOpportunitiesByStakingId): UserStakingOpportunityWithMetadata[] => {
+    debugger
+    return Object.values(userStakingOpportunitiesByStakingId)
       .filter(isSome)
       .map(getAggregatedUserStakingOpportunityByStakingId)
-      .filter(isSome),
+      .filter(isSome)
+  },
 )
 
 // The same as selectAggregatedUserStakingOpportunities, but parsed as an EarnOpportunityType
@@ -485,6 +487,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
       stakingOpportunitiesById,
       assets,
     ): StakingEarnOpportunityType[] => {
+      debugger
       const emptyEarnOpportunitiesTypes = Object.values(stakingOpportunitiesById)
         .filter(isSome)
         .reduce((acc, opportunity) => {

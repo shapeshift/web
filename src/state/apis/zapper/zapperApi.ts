@@ -479,7 +479,7 @@ export const zapper = createApi({
                   })()
 
                   const defiType =
-                    groupId === 'farm' || type === 'contract-position'
+                    /farm/.test(groupId) || type === 'contract-position'
                       ? DefiType.Staking
                       : DefiType.LiquidityPool
                   if (!acc.opportunities[opportunityId]) {

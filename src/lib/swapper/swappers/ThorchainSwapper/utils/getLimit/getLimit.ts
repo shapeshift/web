@@ -24,7 +24,7 @@ import {
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export type GetLimitArgs = {
-  receiveAddress: string
+  receiveAddress: string | undefined
   buyAssetId: string
   sellAsset: Asset
   sellAmountCryptoBaseUnit: string

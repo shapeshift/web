@@ -23,10 +23,19 @@ export const buildTrade = async (
     )
   }
 
+  const { receiveAddress } = input
+
+  if (!receiveAddress)
+    return Err(
+      makeSwapErrorRight({
+        message: 'Receive address is required to build Li.Fi trades',
+        code: SwapErrorType.MISSING_INPUT,
+      }),
+    )
   // TODO: determine whether we should be fetching another quote like below or modify `executeTrade.ts`
   // to allow passing the existing quote in.
   return (await getTradeQuote(input, lifiChainMap)).map(tradeQuote => ({
     ...tradeQuote,
-    receiveAddress: input.receiveAddress,
+    receiveAddress,
   }))
 }

@@ -172,6 +172,14 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const feeData = await osmosisAdapter.getFeeData({})
     const fee = feeData.fast.txFee
 
+    if (!receiveAddress)
+      return Err(
+        makeSwapErrorRight({
+          message: 'Receive address is required to build Osmosis trades',
+          code: SwapErrorType.MISSING_INPUT,
+        }),
+      )
+
     return Ok({
       buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
       buyAsset,

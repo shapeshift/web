@@ -1,5 +1,11 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { avalancheChainId, bscChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
+import {
+  avalancheChainId,
+  bscChainId,
+  ethChainId,
+  optimismChainId,
+  polygonChainId,
+} from '@shapeshiftoss/caip'
 import { invert } from 'lodash'
 import type { Infer, Type } from 'myzod'
 import z from 'myzod'
@@ -10,17 +16,36 @@ export enum SupportedZapperNetwork {
   BinanceSmartChain = 'binance-smart-chain',
   Ethereum = 'ethereum',
   Optimism = 'optimism',
-  // Polygon = 'polygon',
+  // Unsupported networks - uncomment as we implement them
+  Polygon = 'polygon', // Technically supported by Zapper as far as Apps/Wallet goes, but no NFTs returned
   // Gnosis = 'gnosis',
   // Fantom = 'fantom',
   // Artbitrum = 'arbitrum',
   // Celo = 'celo',
   // Harmony = 'harmony',
   // Moonriver = 'moonriver',
-  // Bitcoin = 'bitcoin', "supported" by zapper but actually not anymore
+  // Bitcoin = 'bitcoin', // supposedly "supported" by zapper but actually not anymore
   // Cronos = 'cronos',
   // Aurora = 'aurora',
   // Evmos = 'evmos',
+}
+
+export enum SupportedZapperNetworkIncludeUnsupported {
+  Avalanche = 'avalanche',
+  BinanceSmartChain = 'binance-smart-chain',
+  Ethereum = 'ethereum',
+  Optimism = 'optimism',
+  Polygon = 'polygon', // Technically supported by Zapper as far as Apps/Wallet goes, but no NFTs returned
+  Gnosis = 'gnosis',
+  Fantom = 'fantom',
+  Artbitrum = 'arbitrum',
+  Celo = 'celo',
+  Harmony = 'harmony',
+  Moonriver = 'moonriver',
+  Bitcoin = 'bitcoin', // supposedly "supported" by zapper but actually not anymore
+  Cronos = 'cronos',
+  Aurora = 'aurora',
+  Evmos = 'evmos',
 }
 
 export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Record<SupportedZapperNetwork, ChainId> = {
@@ -28,6 +53,7 @@ export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Record<SupportedZapperNetwork, Cha
   [SupportedZapperNetwork.BinanceSmartChain]: bscChainId,
   [SupportedZapperNetwork.Ethereum]: ethChainId,
   [SupportedZapperNetwork.Optimism]: optimismChainId,
+  [SupportedZapperNetwork.Polygon]: polygonChainId,
 } as const
 
 export const CHAIN_ID_TO_ZAPPER_NETWORK_MAP = invert(ZAPPER_NETWORKS_TO_CHAIN_ID_MAP) as Partial<
@@ -476,30 +502,34 @@ const ZapperDisplayPropsSchema = z.union([
 
 // optional/nullable somehow doesn't work with z.lazy() so we union undefined the schema itself
 const ZapperDataPropsSchema = z.union([
-  z.object({
-    apy: z.number().optional(),
-    isActive: z.boolean().optional(),
-    isDebt: z.boolean().optional(),
-    exchangeable: z.boolean().optional(),
-    exchangeRate: z.number().optional(),
-    fee: z.number().optional(),
-    volume: z.number().optional(),
-    // Realistically a z.tuple() of 1/2 assets, but you never know
-    reserves: z.array(z.number()).optional(),
-    liquidity: z.number().optional(),
-    poolIndex: z.number().optional(),
-    positionKey: z.string().optional(),
-    extraRewarderAddress: z.string().optional(),
-    swapAddress: z.string().optional(),
-    symbol: z.string().optional(),
-    weight: z.array(z.number()).optional(),
-  }),
+  z.object(
+    {
+      apy: z.number().optional(),
+      isActive: z.boolean().optional(),
+      isDebt: z.boolean().optional(),
+      exchangeable: z.boolean().optional(),
+      exchangeRate: z.number().optional(),
+      fee: z.number().optional(),
+      volume: z.number().optional(),
+      // Realistically a z.tuple() of 1/2 assets, but you never know
+      reserves: z.array(z.number()).optional(),
+      liquidity: z.number().optional(),
+      poolIndex: z.number().optional(),
+      positionKey: z.string().optional(),
+      extraRewarderAddress: z.string().optional(),
+      swapAddress: z.string().optional(),
+      symbol: z.string().optional(),
+      weight: z.array(z.number()).optional(),
+    },
+    { allowUnknown: true },
+  ),
   z.undefined(),
 ])
 
 // Redeclared as a type since we lose type inference on the type below because of z.lazy() recursion
 type ZapperTokenBase = {
   type: 'base-token' | 'app-token'
+  metaType?: 'claimable' | 'supplied' | 'borrowed'
   network: SupportedZapperNetwork
   address: string
   decimals: number
@@ -752,7 +782,7 @@ export const V2AppsBalancesResponse = z.array(
   z.object({
     key: z.string(),
     address: z.string(),
-    appId: z.string(),
+    appId: ZapperAppIdSchema.optional(),
     appName: z.string(),
     appImage: z.string(),
     network: z.string(),
@@ -762,3 +792,38 @@ export const V2AppsBalancesResponse = z.array(
   }),
 )
 export type V2AppsBalancesResponseType = Infer<typeof V2AppsBalancesResponse>
+
+const V2AppTokenResponse = z.object({
+  address: z.string(),
+  network: z.enum(SupportedZapperNetworkIncludeUnsupported),
+})
+
+const V2AppSupportedNetworkResponse = z.object({
+  network: z.enum(SupportedZapperNetworkIncludeUnsupported),
+  actions: z.array(z.string()),
+})
+
+const V2AppGroupResponse = z.object({
+  type: z.string(),
+  id: z.string(),
+  label: z.string().optional(),
+  isHiddenFromExplore: z.boolean(),
+})
+
+const V2AppResponse = z.object({
+  id: z.string(),
+  databaseId: z.number(),
+  slug: z.string(),
+  name: z.string(),
+  description: z.string(),
+  url: z.string(),
+  imgUrl: z.string(),
+  tags: z.array(z.string()),
+  token: V2AppTokenResponse.nullable(),
+  supportedNetworks: z.array(V2AppSupportedNetworkResponse),
+  groups: z.array(V2AppGroupResponse),
+})
+
+export const V2AppsResponse = z.array(V2AppResponse)
+export type V2AppResponseType = Infer<typeof V2AppResponse>
+export type V2AppsResponseType = Infer<typeof V2AppsResponse>

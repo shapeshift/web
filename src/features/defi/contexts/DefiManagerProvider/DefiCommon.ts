@@ -1,5 +1,7 @@
 import type { AccountId, AssetNamespace, AssetReference, ChainId } from '@shapeshiftoss/caip'
 import IdleFinanceLogo from 'assets/idle-finance.png'
+import { selectGetReadOnlyOpportunities } from 'state/slices/opportunitiesSlice/selectors/readonly'
+import { store } from 'state/store'
 
 export enum DefiType {
   LiquidityPool = 'lp',
@@ -23,7 +25,7 @@ export enum DefiProvider {
 }
 
 export type DefiProviderMetadata = {
-  provider: DefiProvider
+  provider: string
   icon: string
   color: string
   url?: string
@@ -78,6 +80,18 @@ export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadat
     color: '#0CDBE0',
     url: 'https://app.shapeshift.com',
   },
+}
+
+export const getMetadataForProvider = (provider: string): DefiProviderMetadata | undefined => {
+  if (Object.values(DefiProvider).includes(provider as DefiProvider)) {
+    return DEFI_PROVIDER_TO_METADATA[provider as DefiProvider]
+  }
+
+  const readOnlyOpportunities = selectGetReadOnlyOpportunities(store.getState())
+
+  const readOnlyOpportunityMetadata = readOnlyOpportunities.data?.metadataByProvider?.[provider]
+
+  return readOnlyOpportunityMetadata
 }
 
 export enum DefiAction {

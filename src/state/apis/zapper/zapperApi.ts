@@ -96,13 +96,10 @@ type GetZapperCollectionsInput = {
   collectionAddresses: string[]
 }
 
-type ReadOnlyOpportunityMetadata = Omit<OpportunityMetadataBase, 'provider'> & { provider: string }
-type ReadOnlyProviderMetadata = Omit<DefiProviderMetadata, 'provider'> & { provider: string }
-
 export type GetZapperAppsBalancesOutput = {
   userData: ReadOnlyOpportunityType[]
-  opportunities: Record<string, ReadOnlyOpportunityMetadata>
-  metadataByProvider: Record<string, ReadOnlyProviderMetadata>
+  opportunities: Record<string, OpportunityMetadataBase>
+  metadataByProvider: Record<string, DefiProviderMetadata>
 }
 
 // https://docs.zapper.xyz/docs/apis/getting-started

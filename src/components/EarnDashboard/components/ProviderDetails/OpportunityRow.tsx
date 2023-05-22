@@ -1,12 +1,14 @@
 import { Button, Flex, List, useColorModeValue } from '@chakra-ui/react'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiAction,
+  getMetadataForProvider,
+} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { useGetZapperAppsBalancesOutputQuery } from 'state/apis/zapper/zapperApi'
 import type {
   LpEarnOpportunityType,
   StakingEarnOpportunityType,
@@ -97,18 +99,16 @@ export const OpportunityRow: React.FC<
     }
   }, [opportunity])
 
-  const { data: readOnlyOpportunitiesData } = useGetZapperAppsBalancesOutputQuery()
   const handleClick = useCallback(
     (action: DefiAction) => {
       if (opportunity.isReadOnly) {
-        const url =
-          readOnlyOpportunitiesData?.metadataByProvider[opportunity.provider as string]?.url ?? ''
+        const url = getMetadataForProvider(opportunity.provider)?.url
         url && window.open(url, '_blank')
         return
       }
       onClick(opportunity, action)
     },
-    [onClick, opportunity, readOnlyOpportunitiesData?.metadataByProvider],
+    [onClick, opportunity],
   )
 
   const subTextJoined = useMemo(() => {

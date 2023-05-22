@@ -155,7 +155,7 @@ export type GetOpportunityIdsOutput = OpportunityId[]
 // This is legacy from previous implementations, we should be able to consume the raw opportunitiesSlice data and derive the rest in-place
 type EarnDefiTypeBase = {
   type: string
-  provider: DefiProvider
+  provider: string
   version?: string
   contractAddress?: string
   rewardAddress?: string

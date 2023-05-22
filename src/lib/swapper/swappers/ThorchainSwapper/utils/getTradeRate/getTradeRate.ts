@@ -35,7 +35,7 @@ export const getTradeRate = async ({
   sellAsset: Asset
   buyAssetId: AssetId
   sellAmountCryptoBaseUnit: string
-  receiveAddress: string
+  receiveAddress: string | undefined
   affiliateBps: string
   deps: ThorchainSwapperDeps
 }): Promise<Result<string, SwapErrorRight>> => {
@@ -79,7 +79,9 @@ export const getTradeRate = async ({
 
   // The THORChain swap endpoint expects BCH receiveAddress's to be stripped of the "bitcoincash:" prefix
   const parsedReceiveAddress =
-    buyAssetId === bchAssetId ? receiveAddress.replace('bitcoincash:', '') : receiveAddress
+    receiveAddress && buyAssetId === bchAssetId
+      ? receiveAddress.replace('bitcoincash:', '')
+      : receiveAddress
 
   const queryString = qs.stringify({
     amount: sellAmountCryptoThorBaseUnit.toString(),

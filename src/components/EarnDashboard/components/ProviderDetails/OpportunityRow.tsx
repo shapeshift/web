@@ -1,8 +1,5 @@
 import { Button, Flex, List, useColorModeValue } from '@chakra-ui/react'
-import {
-  DefiAction,
-  getMetadataForProvider,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -17,6 +14,7 @@ import {
   getRewardBalances,
   getUnderlyingAssetIdsBalances,
 } from 'state/slices/opportunitiesSlice/utils'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAssetById,
   selectAssets,

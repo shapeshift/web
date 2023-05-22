@@ -81,6 +81,9 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
     if (!(zapperAppBalanceData?.tokens?.[0].decimals && zapperAppBalanceData?.tokens?.[1].decimals))
       continue
 
+    if (!(zapperAppBalanceData?.tokens?.[0].decimals && zapperAppBalanceData?.tokens?.[1].decimals))
+      continue
+
     const {
       token0Decimals,
       token1Decimals,

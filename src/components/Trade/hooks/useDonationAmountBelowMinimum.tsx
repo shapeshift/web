@@ -4,36 +4,38 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { SwapperName } from 'lib/swapper/api'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
-import { useAppSelector } from 'state/store'
-import { selectDonationAmountFiat } from 'state/zustand/swapperStore/amountSelectors'
+import { selectFiatToUsdRate, selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { store, useAppSelector } from 'state/store'
+import { selectDonationAmountUsd } from 'state/zustand/swapperStore/amountSelectors'
 import { selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useDonationAmountBelowMinimum = () => {
-  const runePrice = useAppSelector(state => selectMarketDataById(state, thorchainAssetId)).price
-  const donationAmountFiat = useSwapperStore(selectDonationAmountFiat)
+  const runePriceUsd = useAppSelector(state => selectMarketDataById(state, thorchainAssetId)).price
+  const donationAmountUsd = useSwapperStore(selectDonationAmountUsd)
   const activeSwapperName = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper.name)
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellAssetChainId = sellAsset?.chainId
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAssetChainId ?? ''))
   const buyAmountFiat = useSwapperStore(state => state.buyAmountFiat)
+  const selectedCurrencyToUsdRate = selectFiatToUsdRate(store.getState())
+  const buyAmountUsd = bnOrZero(buyAmountFiat).div(selectedCurrencyToUsdRate)
 
   // Some swappers have a minimum donation amount, whereby collecting below that amount will result in the donated amount being lost
   const isDonationAmountBelowMinimum = useMemo(() => {
     switch (activeSwapperName) {
       case SwapperName.Thorchain: {
-        return bnOrZero(donationAmountFiat)
-          .div(runePrice)
+        return bnOrZero(donationAmountUsd)
+          .div(runePriceUsd)
           .lte(RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN)
       }
       case SwapperName.Zrx:
       case SwapperName.OneInch:
-        return feeAsset?.assetId === ethAssetId && bnOrZero(buyAmountFiat).lt(500)
+        return feeAsset?.assetId === ethAssetId && buyAmountUsd.lt(500)
       default:
         return false
     }
-  }, [activeSwapperName, buyAmountFiat, donationAmountFiat, feeAsset?.assetId, runePrice])
+  }, [activeSwapperName, buyAmountUsd, donationAmountUsd, feeAsset?.assetId, runePriceUsd])
 
   return isDonationAmountBelowMinimum
 }

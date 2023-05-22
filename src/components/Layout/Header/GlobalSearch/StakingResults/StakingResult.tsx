@@ -1,10 +1,11 @@
 import { Flex, forwardRef } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import type { GlobalSearchResult } from 'state/slices/search-selectors'
 import { GlobalSearchResultType } from 'state/slices/search-selectors'
 import {
@@ -33,6 +34,16 @@ export const StakingResult = forwardRef<StakingResultProps, 'div'>(
     const opportunity = useAppSelector(state =>
       selectAggregatedEarnUserStakingOpportunitiesIncludeEmptyByStakingId(state, filter),
     )
+
+    const handleClick = useCallback(() => {
+      if (opportunity?.isReadOnly) {
+        const url = getMetadataForProvider(opportunity.provider)?.url
+        url && window.open(url, '_blank')
+        return
+      }
+
+      onClick({ type: GlobalSearchResultType.Asset, id: stakingId })
+    }, [onClick, opportunity, stakingId])
     const asset = useAppSelector(state =>
       selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
     )
@@ -58,11 +69,7 @@ export const StakingResult = forwardRef<StakingResultProps, 'div'>(
 
     if (!opportunity || !asset) return null
     return (
-      <ResultButton
-        ref={ref}
-        aria-selected={selected ? true : undefined}
-        onClick={() => onClick({ type: GlobalSearchResultType.Asset, id: stakingId })}
-      >
+      <ResultButton ref={ref} aria-selected={selected ? true : undefined} onClick={handleClick}>
         <Flex gap={2} flex={1}>
           <AssetCell
             isExternal={opportunity.isReadOnly}

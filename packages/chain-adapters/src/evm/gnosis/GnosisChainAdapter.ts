@@ -6,7 +6,7 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 
 import type { FeeDataEstimate, GetFeeDataInput } from '../../types'
 import { ChainAdapterDisplayName } from '../../types'
-import { bn, bnOrZero, calcFee } from '../../utils'
+import { bn, bnOrZero } from '../../utils'
 import type { ChainAdapterArgs } from '../EvmBaseAdapter'
 import { EvmBaseAdapter } from '../EvmBaseAdapter'
 import type { GasFeeDataEstimate } from '../types'
@@ -58,14 +58,24 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.GnosisMainnet> {
   }
 
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
-    const { gasPrice } = await this.api.getGasFees()
-
-    const scalars = { fast: bn(1), average: bn(1), slow: bn(1) }
+    const { fast, average, slow } = await this.api.getGasFees()
 
     return {
-      fast: { gasPrice: calcFee(gasPrice, 'fast', scalars) },
-      average: { gasPrice: calcFee(gasPrice, 'average', scalars) },
-      slow: { gasPrice: calcFee(gasPrice, 'slow', scalars) },
+      fast: {
+        gasPrice: fast.maxFeePerGas ?? '0',
+        maxFeePerGas: fast.maxFeePerGas,
+        maxPriorityFeePerGas: fast.maxPriorityFeePerGas,
+      },
+      average: {
+        gasPrice: average.maxFeePerGas ?? '0',
+        maxFeePerGas: average.maxFeePerGas,
+        maxPriorityFeePerGas: average.maxPriorityFeePerGas,
+      },
+      slow: {
+        gasPrice: slow.maxFeePerGas ?? '0',
+        maxFeePerGas: slow.maxFeePerGas,
+        maxPriorityFeePerGas: slow.maxPriorityFeePerGas,
+      },
     }
   }
 

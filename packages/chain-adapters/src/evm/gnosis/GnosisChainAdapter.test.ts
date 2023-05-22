@@ -45,11 +45,24 @@ const value = 400
 const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress: string }) =>
   merge({ gasPrice, gasLimit }, chainSpecificAdditionalProps)
 
-const makeGetGasFeesMockedResponse = (overrideArgs?: { gasPrice?: string }) =>
-  merge({ gasPrice: '5' }, overrideArgs)
+  const makeGetGasFeesMockedResponse = (overrideArgs?: {
+    gasPrice?: string
+    slow: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
+    average: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
+    fast: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
+  }) =>
+    merge(
+      {
+        gasPrice: '1',
+        slow: { gasPrice: '1', maxFeePerGas: '274', maxPriorityFeePerGas: '10' },
+        average: { gasPrice: '1', maxFeePerGas: '300', maxPriorityFeePerGas: '10' },
+        fast: { gasPrice: '1', maxFeePerGas: '335', maxPriorityFeePerGas: '12' },
+      },
+      overrideArgs,
+    )
 
-const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string }) =>
-  merge({ gasLimit: '21000' }, overrideArgs)
+  const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string }) =>
+    merge({ gasLimit: '21000' }, overrideArgs)
 
 const makeGetAccountMockResponse = (balance: {
   balance: string
@@ -104,6 +117,7 @@ describe('GnosisChainAdapter', () => {
     })
   })
 
+  
   describe('getFeeData', () => {
     it('should return current network fees', async () => {
       const httpProvider = {
@@ -128,23 +142,29 @@ describe('GnosisChainAdapter', () => {
           average: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '5',
+              gasPrice: '300',
+              maxFeePerGas: '300',
+              maxPriorityFeePerGas: '10',
             },
-            txFee: '105000',
+            txFee: '6300000',
           },
           fast: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '5',
+              gasPrice: '335',
+              maxFeePerGas: '335',
+              maxPriorityFeePerGas: '12',
             },
-            txFee: '105000',
+            txFee: '7035000',
           },
           slow: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '5',
+              gasPrice: '274',
+              maxFeePerGas: '274',
+              maxPriorityFeePerGas: '10',
             },
-            txFee: '105000',
+            txFee: '5754000',
           },
         }),
       )
@@ -164,9 +184,21 @@ describe('GnosisChainAdapter', () => {
 
       expect(data).toEqual(
         expect.objectContaining({
-          average: { gasPrice: '5' },
-          fast: { gasPrice: '5' },
-          slow: { gasPrice: '5' },
+          average: {
+            gasPrice: '300',
+            maxFeePerGas: '300',
+            maxPriorityFeePerGas: '10',
+          },
+          fast: {
+            gasPrice: '335',
+            maxFeePerGas: '335',
+            maxPriorityFeePerGas: '12',
+          },
+          slow: {
+            gasPrice: '274',
+            maxFeePerGas: '274',
+            maxPriorityFeePerGas: '10',
+          },
         }),
       )
     })

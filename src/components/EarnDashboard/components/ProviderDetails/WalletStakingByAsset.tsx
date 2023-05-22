@@ -11,7 +11,6 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { useGetZapperAppsBalancesOutputQuery } from 'state/apis/zapper/zapperApi'
 import type {
   OpportunityId,
   StakingEarnOpportunityType,
@@ -44,10 +43,7 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
 
-  useGetZapperAppsBalancesOutputQuery()
-  const filteredDown = stakingOpportunities
-    // @ts-ignore FIXME
-    .filter(e => ids.includes(e.id as OpportunityId))
+  const filteredDown = stakingOpportunities.filter(e => ids.includes(e.id as OpportunityId))
 
   const groupedItems = useMemo(() => {
     const groups = filteredDown.reduce(

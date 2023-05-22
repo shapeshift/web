@@ -3,7 +3,6 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Card } from 'components/Card/Card'
 import { ResultsEmpty } from 'components/ResultsEmpty'
-import { useGetZapperAppsBalancesOutputQuery } from 'state/apis/zapper/zapperApi'
 import {
   selectAggregatedEarnOpportunitiesByProvider,
   selectOpportunityApiPending,
@@ -40,10 +39,6 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
   const rows = useAppSelector(state =>
     selectAggregatedEarnOpportunitiesByProvider(state, rowsFilter),
   )
-
-  // Only for fetching - we're consumed derived data once fetched and cached
-  // Maybe find a better home for this?
-  useGetZapperAppsBalancesOutputQuery()
 
   const renderProviders = useMemo(() => {
     if (!rows.length && !isLoading) {

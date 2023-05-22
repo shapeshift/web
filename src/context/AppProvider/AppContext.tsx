@@ -28,7 +28,7 @@ import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { setTimeoutAsync } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
-import { zapper } from 'state/apis/zapper/zapperApi'
+import { zapper, zapperApi } from 'state/apis/zapper/zapperApi'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
@@ -192,6 +192,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           case osmosisChainId:
           case avalancheChainId:
             ;(async () => {
+              zapperApi.endpoints.getZapperAppsOutput.initiate()
+
               await fetchAllOpportunitiesIdsByChainId(chainId)
               await fetchAllOpportunitiesMetadataByChainId(chainId)
               await fetchAllOpportunitiesUserDataByAccountId(accountId)

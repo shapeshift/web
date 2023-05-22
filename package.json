@@ -28,6 +28,7 @@
     "env": "yarn ts-node --skipProject ./scripts/bootstrap-env.ts",
     "generate:abis": "yarn typechain src/contracts/abis/*.json --target=ethers-v5 --out-dir ./src/contracts/__generated",
     "generate:asset-data": "ts-node --compilerOptions '{\"module\":\"commonjs\"}' ./scripts/generateAssetData/generateAssetData.ts",
+    "generate:color-map": "ts-node --compilerOptions '{\"module\":\"commonjs\"}' ./scripts/generateAssetData/generateColorMap.ts",
     "local-ci": "yarn lint && yarn type-check && yarn test && yarn build:web",
     "lint": "yarn eslint --cache '*/**/*.{ts,tsx}'",
     "lint:fix": "yarn lint --fix",

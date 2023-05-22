@@ -25,7 +25,6 @@ import type {
   GetOpportunityMetadataOutput,
   GetOpportunityUserDataOutput,
   GetOpportunityUserStakingDataOutput,
-  OpportunityId,
   OpportunityMetadataBase,
   ReadOnlyOpportunityType,
   StakingId,
@@ -376,6 +375,8 @@ export const zapper = createApi({
                     assetReference: asset.address,
                   })
 
+                  const opportunityId: StakingId = `${asset.address}#${asset.key}`
+
                   if (!acc.metadataByProvider[appName]) {
                     acc.metadataByProvider[appName] = {
                       provider: appName,
@@ -481,15 +482,15 @@ export const zapper = createApi({
                     groupId === 'farm' || type === 'contract-position'
                       ? DefiType.Staking
                       : DefiType.LiquidityPool
-                  if (!acc.opportunities[assetId]) {
-                    acc.opportunities[assetId] = {
+                  if (!acc.opportunities[opportunityId]) {
+                    acc.opportunities[opportunityId] = {
                       apy,
                       assetId,
                       underlyingAssetId,
                       underlyingAssetIds,
                       underlyingAssetRatiosBaseUnit: underlyingAssetRatiosBaseUnit ?? ['0', '0'],
                       // TODO(gomes): one AssetId can be an active opportunity across many, we will want to serialize this.
-                      id: assetId as OpportunityId,
+                      id: opportunityId,
                       icon,
                       name,
                       // TODO
@@ -510,9 +511,9 @@ export const zapper = createApi({
                     provider: appName,
                     userStakingId:
                       defiType === DefiType.Staking
-                        ? serializeUserStakingId(accountId, assetId as StakingId)
+                        ? serializeUserStakingId(accountId, opportunityId)
                         : undefined,
-                    opportunityId: assetId,
+                    opportunityId,
                     stakedAmountCryptoBaseUnit,
                     fiatAmount,
                     type: defiType,

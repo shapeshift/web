@@ -153,7 +153,7 @@ export type GetOpportunityIdsOutput = OpportunityId[]
 
 // TODO: This is not FDA-approved and should stop being consumed to make things a lot tidier without the added cholesterol
 // This is legacy from previous implementations, we should be able to consume the raw opportunitiesSlice data and derive the rest in-place
-type EarndefiTypeBase = {
+type EarnDefiTypeBase = {
   type: string
   provider: DefiProvider
   version?: string
@@ -182,7 +182,7 @@ type EarndefiTypeBase = {
 export type StakingEarnOpportunityType = OpportunityMetadata &
   Partial<UserStakingOpportunityBase> & {
     isVisible?: boolean
-  } & EarndefiTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
+  } & EarnDefiTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
 
 // A minimal user opportunity for read-only purposes, which does NOT conform to our usual types
 // it isn't meant to be used as a full-fledged opportunity
@@ -199,7 +199,7 @@ export type LpEarnOpportunityType = OpportunityMetadataBase & {
   underlyingToken0AmountCryptoBaseUnit?: string
   underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean
-} & EarndefiTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
+} & EarnDefiTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
 
 export type EarnOpportunityType = StakingEarnOpportunityType | LpEarnOpportunityType
 

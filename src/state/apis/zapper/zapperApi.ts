@@ -50,6 +50,7 @@ import {
   V2NftBalancesCollectionsResponse,
   ZAPPER_NETWORKS_TO_CHAIN_ID_MAP,
   ZapperAppId,
+  zapperAssetToMaybeAssetId,
   ZapperGroupId,
   zapperNetworkToChainId,
 } from './validators'
@@ -354,8 +355,10 @@ export const zapper = createApi({
 
               const appAccountOpportunities = appAccountBalance.products
                 .flatMap(({ assets }) => assets)
-                .map<ReadOnlyOpportunityType>(asset => {
+                .map<ReadOnlyOpportunityType | undefined>(asset => {
                   // Staking only for this PoC
+                  // Note, this is very much an approximation based on the data we get and Zapper doesn't really have a concept of LP/Staking per se
+                  // We might want to revisit the whole LP/Staking abstraction and make a more general concept of a "thing" opportunity
                   const stakedAmountCryptoBaseUnit =
                     asset.tokens.find(token => token.metaType === 'supplied')?.balanceRaw ?? '0'
                   const fiatAmount = bnOrZero(asset.balanceUSD).toString()
@@ -365,12 +368,10 @@ export const zapper = createApi({
                   const name = asset.displayProps?.label ?? ''
                   const groupId = asset.groupId
                   const type = asset.type
-                  const assetId = toAssetId({
-                    chainId:
-                      ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[asset.network as SupportedZapperNetwork],
-                    assetNamespace: 'erc20', // TODO(gomes): this might break for native assets, is that a thing?,
-                    assetReference: asset.address,
-                  })
+                  // Actually defined because we pass networks in the query params
+                  const assetId = zapperAssetToMaybeAssetId(asset)
+
+                  if (!assetId) return undefined
 
                   const opportunityId: StakingId = `${asset.address}#${asset.key}`
 
@@ -387,13 +388,9 @@ export const zapper = createApi({
                   }
                   // TODO(gomes): ensure this works with the heuristics of ContractPosition vs AppToken
                   const underlyingAssetIds = asset.tokens.map(token => {
-                    const underlyingAssetId = toAssetId({
-                      chainId:
-                        ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[token.network as SupportedZapperNetwork],
-                      assetNamespace: 'erc20', // TODO(gomes): this might break for native assets, is that a thing?,
-                      assetReference: token.address,
-                    })
-                    return underlyingAssetId
+                    const underlyingAssetId = zapperAssetToMaybeAssetId(token)
+                    // If one of the tokens is undefined, we have bigger problems than a non-null assertion
+                    return underlyingAssetId!
                   }) as unknown as AssetIdsTuple
 
                   // An "AppToken" is a position represented a token, thus it is what we call an underlyingAssetId i.e UNI LP AssetId
@@ -401,9 +398,13 @@ export const zapper = createApi({
                     asset.type === 'app-token' ? assetId : underlyingAssetIds[0]!
 
                   // Upsert underlyingAssetIds if they don't exist in store
-                  underlyingAssetIds.forEach((underlyingAssetId, i) => {
-                    if (!assets[underlyingAssetId]) {
-                      const underlyingAsset = makeAsset({
+                  const underlyingAssetsToUpsert = Object.values(
+                    underlyingAssetIds,
+                  ).reduce<AssetsState>(
+                    (acc, underlyingAssetId, i) => {
+                      if (assets[underlyingAssetId]) return acc
+
+                      acc.byId[underlyingAssetId] = makeAsset({
                         assetId: underlyingAssetId,
                         symbol: asset.tokens[i].symbol,
                         // No dice here, there's no name property
@@ -411,13 +412,16 @@ export const zapper = createApi({
                         precision: asset.tokens[i].decimals,
                         icon: asset.displayProps?.images[i] ?? '',
                       })
+                      acc.ids = acc.ids.concat(underlyingAssetId)
 
-                      // TODO(gomes): we might want to do this in a batch
-                      dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
-                    }
-                  })
+                      return acc
+                    },
+                    { byId: {}, ids: [] },
+                  )
 
-                  // Upsert underlyingAssetId if it doesn't exist in store
+                  dispatch(assetsSlice.actions.upsertAssets(underlyingAssetsToUpsert))
+
+                  // Upsert underlyingAssetIds if they don't exist in store
                   if (asset.type === 'app-token' && !assets[underlyingAssetId]) {
                     const underlyingAsset = makeAsset({
                       assetId: underlyingAssetId,
@@ -486,7 +490,6 @@ export const zapper = createApi({
                       underlyingAssetId,
                       underlyingAssetIds,
                       underlyingAssetRatiosBaseUnit: underlyingAssetRatiosBaseUnit ?? ['0', '0'],
-                      // TODO(gomes): one AssetId can be an active opportunity across many, we will want to serialize this.
                       id: opportunityId,
                       icon,
                       name,
@@ -495,10 +498,6 @@ export const zapper = createApi({
                       provider: appName,
                       tvl,
                       type: defiType,
-                      // TODO(gomes) We should either:
-                      // 1. filter out the opportunities that are part of our existing view-layer abstraction
-                      // 2. support the opportunities that are part of our existing view-layer abstraction, and fetch them here exclusively instead
-                      // Will need to spike if the available data is sufficient once we smoosh zapper and Zerion data
                       isClaimableRewards: false,
                       isReadOnly: true,
                     }

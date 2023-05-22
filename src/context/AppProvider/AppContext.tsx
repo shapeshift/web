@@ -175,6 +175,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
       const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
 
+      dispatch(zapper.endpoints.getZapperAppsBalancesOutput.initiate())
+
       const maybeFetchZapperData = DynamicLpAssets
         ? dispatch(zapper.endpoints.getZapperUniV2PoolAssetIds.initiate())
         : () => setTimeoutAsync(0)
@@ -192,8 +194,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           case osmosisChainId:
           case avalancheChainId:
             ;(async () => {
-              dispatch(zapper.endpoints.getZapperAppsBalancesOutput.initiate())
-
               await fetchAllOpportunitiesIdsByChainId(chainId)
               await fetchAllOpportunitiesMetadataByChainId(chainId)
               await fetchAllOpportunitiesUserDataByAccountId(accountId)

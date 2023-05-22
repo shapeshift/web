@@ -1,10 +1,12 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
+  ASSET_NAMESPACE,
   avalancheChainId,
   bscChainId,
   ethChainId,
   optimismChainId,
   polygonChainId,
+  toAssetId,
 } from '@shapeshiftoss/caip'
 import { invert } from 'lodash'
 import type { Infer, Type } from 'myzod'
@@ -623,6 +625,31 @@ const ZapperAssetWithBalancesSchema = z.intersection(
     balanceUSD: z.number().optional(),
   }),
 )
+
+export type ZapperAssetWithBalancesType = Infer<typeof ZapperAssetWithBalancesSchema>
+
+export const zapperAssetToMaybeAssetId = (
+  asset: ZapperAssetWithBalancesType | ZapperTokenBase,
+): AssetId | undefined => {
+  const chainId = zapperNetworkToChainId(asset.network as SupportedZapperNetwork)
+  if (!chainId) return undefined
+  const assetNamespace = (() => {
+    switch (true) {
+      case chainId === bscChainId:
+        return ASSET_NAMESPACE.bep20
+      default:
+        return ASSET_NAMESPACE.erc20
+    }
+  })()
+
+  const assetId = toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference: asset.address,
+  })
+
+  return assetId
+}
 
 const ZapperProductSchema = z.object({
   label: z.string(),

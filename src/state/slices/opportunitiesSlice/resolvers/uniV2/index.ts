@@ -78,6 +78,9 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
   for (const opportunityId of opportunityIds) {
     const zapperAppBalanceData = zapperAppTokensOutput.data?.[opportunityId]
 
+    if (!(zapperAppBalanceData?.tokens?.[0].decimals && zapperAppBalanceData?.tokens?.[1].decimals))
+      continue
+
     const {
       token0Decimals,
       token1Decimals,
@@ -121,8 +124,8 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
         }
       }
 
-      token0Decimals = zapperAppBalanceData?.tokens?.[0].decimals!
-      token1Decimals = zapperAppBalanceData?.tokens?.[1].decimals!
+      token0Decimals = zapperAppBalanceData.tokens?.[0].decimals!
+      token1Decimals = zapperAppBalanceData.tokens?.[1].decimals!
       token0Reserves = bnOrZero(zapperAppBalanceData.dataProps?.reserves?.[0])!
       token1Reserves = bnOrZero(zapperAppBalanceData.dataProps?.reserves?.[1])!
       token0Address = ethers.utils.getAddress(zapperAppBalanceData?.tokens?.[0].address!)

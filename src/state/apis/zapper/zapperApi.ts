@@ -201,13 +201,15 @@ export const zapperApi = createApi({
               return underlyingAsset?.icon ?? appTokenData.displayProps?.images[i] ?? ''
             })
 
+            if (!(appTokenData.decimals && appTokenData.symbol)) return acc
+
             acc.byId[assetId] = makeAsset({
               assetId,
-              symbol: appTokenData.symbol ?? '',
+              symbol: appTokenData.symbol,
               // WETH should be displayed as ETH in the UI due to the way UNI-V2 works
               // ETH is used for depositing/withdrawing, but WETH is used under the hood
               name,
-              precision: appTokenData.decimals ?? 0,
+              precision: appTokenData.decimals,
               icons,
             })
             acc.ids.push(assetId)

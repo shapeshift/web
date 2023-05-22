@@ -45,24 +45,24 @@ const value = 400
 const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress: string }) =>
   merge({ gasPrice, gasLimit }, chainSpecificAdditionalProps)
 
-  const makeGetGasFeesMockedResponse = (overrideArgs?: {
-    gasPrice?: string
-    slow: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
-    average: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
-    fast: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
-  }) =>
-    merge(
-      {
-        gasPrice: '1',
-        slow: { gasPrice: '1', maxFeePerGas: '274', maxPriorityFeePerGas: '10' },
-        average: { gasPrice: '1', maxFeePerGas: '300', maxPriorityFeePerGas: '10' },
-        fast: { gasPrice: '1', maxFeePerGas: '335', maxPriorityFeePerGas: '12' },
-      },
-      overrideArgs,
-    )
+const makeGetGasFeesMockedResponse = (overrideArgs?: {
+  gasPrice?: string
+  slow: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
+  average: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
+  fast: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
+}) =>
+  merge(
+    {
+      gasPrice: '1',
+      slow: { gasPrice: '1', maxFeePerGas: '274', maxPriorityFeePerGas: '10' },
+      average: { gasPrice: '1', maxFeePerGas: '300', maxPriorityFeePerGas: '10' },
+      fast: { gasPrice: '1', maxFeePerGas: '335', maxPriorityFeePerGas: '12' },
+    },
+    overrideArgs,
+  )
 
-  const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string }) =>
-    merge({ gasLimit: '21000' }, overrideArgs)
+const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string }) =>
+  merge({ gasLimit: '21000' }, overrideArgs)
 
 const makeGetAccountMockResponse = (balance: {
   balance: string
@@ -117,7 +117,6 @@ describe('GnosisChainAdapter', () => {
     })
   })
 
-  
   describe('getFeeData', () => {
     it('should return current network fees', async () => {
       const httpProvider = {

@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { SwapperName } from 'lib/swapper/api'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers/ThorchainSwapper/constants'
+import { MINIMUM_DONATION_RECEIVE_AMOUNT_USD_FROM_ETH_CHAIN } from 'lib/swapper/swappers/utils/constants'
 import { selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { selectFiatToUsdRate, selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { store, useAppSelector } from 'state/store'
@@ -31,7 +32,10 @@ export const useDonationAmountBelowMinimum = () => {
       }
       case SwapperName.Zrx:
       case SwapperName.OneInch:
-        return feeAsset?.assetId === ethAssetId && buyAmountUsd.lt(500)
+        return (
+          feeAsset?.assetId === ethAssetId &&
+          buyAmountUsd.lt(MINIMUM_DONATION_RECEIVE_AMOUNT_USD_FROM_ETH_CHAIN)
+        )
       default:
         return false
     }

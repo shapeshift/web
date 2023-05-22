@@ -20,7 +20,7 @@ export type GetTradeQuoteInputArgs = {
   sellAccountType: UtxoAccountType | undefined
   sellAccountNumber: number
   wallet: HDWallet
-  receiveAddress: NonNullable<SwapperState['receiveAddress']>
+  receiveAddress: SwapperState['receiveAddress']
   sellAmountBeforeFeesCryptoPrecision: string
   isSendMax: boolean
 }

@@ -41,7 +41,7 @@ export const abbreviateThorAssetId = (fullThorAssetId: string): string => {
 
 type MakeSwapMemoArgs = {
   buyAssetId: string
-  destinationAddress: string
+  destinationAddress: string | undefined
   limit: string
   affiliateBps: string
 }
@@ -74,9 +74,10 @@ export const makeSwapMemo: MakeSwapMemo = ({
   // Our bitcoin cash addresses are prefixed with `bitcoincash:`
   // But thorchain memos need to be short (under 80 bytes for utxo)
   // For this reason thorchain doesnt allow / need bitcoincash: in the memo
-  const parsedDestinationAddress = destinationAddress.includes('bitcoincash:')
-    ? destinationAddress.replace('bitcoincash:', '')
-    : destinationAddress
+  const parsedDestinationAddress =
+    destinationAddress && destinationAddress.includes('bitcoincash:')
+      ? destinationAddress.replace('bitcoincash:', '')
+      : destinationAddress
 
   const abbreviatedThorAssetId = abbreviateThorAssetId(fullThorAssetId)
 

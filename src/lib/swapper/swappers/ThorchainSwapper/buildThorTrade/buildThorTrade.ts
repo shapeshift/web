@@ -63,6 +63,15 @@ export const buildTrade = async ({
 
   const quote = maybeQuote.unwrap()
 
+  // A THORChain quote can be gotten without a destinationAddress, but a trade cannot be built without one.
+  if (!destinationAddress)
+    return Err(
+      makeSwapErrorRight({
+        message: '[buildThorTrade]: destinationAddress is required',
+        code: SwapErrorType.MISSING_INPUT,
+      }),
+    )
+
   if (chainNamespace === CHAIN_NAMESPACE.Evm) {
     const maybeEthTradeTx = await makeTradeTx({
       wallet,

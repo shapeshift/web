@@ -31,7 +31,8 @@ export const getQuote = async ({
   sellAsset: Asset
   buyAssetId: AssetId
   sellAmountCryptoBaseUnit: string
-  receiveAddress: string
+  // Receive address is optional for THOR quotes, and will be in case we are getting a quote with a missing manual receive address
+  receiveAddress: string | undefined
   affiliateBps: string
   deps: ThorchainSwapperDeps
 }): Promise<Result<ThornodeQuoteResponseSuccess, SwapErrorRight>> => {
@@ -49,7 +50,9 @@ export const getQuote = async ({
 
   // The THORChain swap endpoint expects BCH receiveAddress's to be stripped of the "bitcoincash:" prefix
   const parsedReceiveAddress =
-    buyAssetId === bchAssetId ? receiveAddress.replace('bitcoincash:', '') : receiveAddress
+    receiveAddress && buyAssetId === bchAssetId
+      ? receiveAddress.replace('bitcoincash:', '')
+      : receiveAddress
 
   const queryString = qs.stringify({
     amount: sellAmountCryptoThorBaseUnit.toString(),

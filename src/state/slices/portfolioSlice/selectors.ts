@@ -11,6 +11,7 @@ import {
   foxyAssetId,
   fromAccountId,
   fromAssetId,
+  gnosisAssetId,
   ltcAssetId,
   optimismAssetId,
   osmosisAssetId,
@@ -98,6 +99,7 @@ export const FEE_ASSET_IDS = [
   optimismAssetId,
   bscAssetId,
   polygonAssetId,
+  gnosisAssetId,
 ]
 
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(

@@ -137,7 +137,7 @@ describe('adapters:coingecko', () => {
         chainNamespace,
         chainReference: CHAIN_REFERENCE.GnosisMainnet,
         assetNamespace,
-        assetReference: '0xddafbb505ad214d7b80b1f830fccc89b60fb7a83',
+        assetReference: '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
       })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([
         usdcOnEthereum,

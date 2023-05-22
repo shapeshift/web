@@ -21,15 +21,15 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.GnosisMainnet> {
     accountNumber: 0,
   }
 
-  // private readonly api: unchained.gnosis.V1Api
+  private readonly api: unchained.gnosis.V1Api
 
-  constructor(args: ChainAdapterArgs<unchained.ethereum.V1Api>) {
+  constructor(args: ChainAdapterArgs<unchained.gnosis.V1Api>) {
     super({
       assetId: gnosisAssetId,
       chainId: DEFAULT_CHAIN_ID,
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       defaultBIP44Params: ChainAdapter.defaultBIP44Params,
-      parser: new unchained.ethereum.TransactionParser({
+      parser: new unchained.gnosis.TransactionParser({
         assetId: gnosisAssetId,
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
         rpcUrl: args.rpcUrl,
@@ -37,7 +37,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.GnosisMainnet> {
       }),
       ...args,
     })
-    // this.api = args.providers.http
+    this.api = args.providers.http
   }
 
   getDisplayName() {
@@ -97,8 +97,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.GnosisMainnet> {
   ): Promise<FeeDataEstimate<KnownChainIds.GnosisMainnet>> {
     const req = await this.buildEstimateGasRequest(input)
 
-    // const { gasLimit } = await this.api.estimateGas(req)
-    const gasLimit = req.from
+    const { gasLimit } = await this.api.estimateGas(req)
     const { fast, average, slow } = await this.getGasFeeData()
 
     return {

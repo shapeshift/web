@@ -38,9 +38,7 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ ids }) => {
 
   useGetZapperAppsBalancesOutputQuery()
 
-  const filteredDown = lpOpportunities
-    // @ts-ignore FIXME
-    .filter(e => ids.includes(e.assetId as OpportunityId))
+  const filteredDown = lpOpportunities.filter(e => ids.includes(e.assetId as OpportunityId))
   const groupedItems = useMemo(() => {
     const groups = filteredDown.reduce(
       (entryMap, currentItem) =>

@@ -7,13 +7,13 @@ import { MINIMUM_DONATION_RECEIVE_AMOUNT_USD_FROM_ETH_CHAIN } from 'lib/swapper/
 import { selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { selectFiatToUsdRate, selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { store, useAppSelector } from 'state/store'
-import { selectDonationAmountUsd } from 'state/zustand/swapperStore/amountSelectors'
+import { selectDonationAmountFiat } from 'state/zustand/swapperStore/amountSelectors'
 import { selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useDonationAmountBelowMinimum = () => {
-  const runePriceUsd = useAppSelector(state => selectMarketDataById(state, thorchainAssetId)).price
-  const donationAmountUsd = useSwapperStore(selectDonationAmountUsd)
+  const runePriceFiat = useAppSelector(state => selectMarketDataById(state, thorchainAssetId)).price
+  const donationAmountFiat = useSwapperStore(selectDonationAmountFiat)
   const activeSwapperName = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper.name)
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellAssetChainId = sellAsset?.chainId
@@ -26,8 +26,8 @@ export const useDonationAmountBelowMinimum = () => {
   const isDonationAmountBelowMinimum = useMemo(() => {
     switch (activeSwapperName) {
       case SwapperName.Thorchain: {
-        return bnOrZero(donationAmountUsd)
-          .div(runePriceUsd)
+        return bnOrZero(donationAmountFiat)
+          .div(runePriceFiat)
           .lte(RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN)
       }
       case SwapperName.Zrx:
@@ -39,7 +39,7 @@ export const useDonationAmountBelowMinimum = () => {
       default:
         return false
     }
-  }, [activeSwapperName, buyAmountUsd, donationAmountUsd, feeAsset?.assetId, runePriceUsd])
+  }, [activeSwapperName, buyAmountUsd, donationAmountFiat, feeAsset?.assetId, runePriceFiat])
 
   return isDonationAmountBelowMinimum
 }

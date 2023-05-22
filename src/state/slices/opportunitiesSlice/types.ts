@@ -104,7 +104,7 @@ export type UserStakingOpportunityWithMetadata = UserStakingOpportunity & Opport
 export type StakingIdBase = Nominal<string, 'StakingId'> & AssetId
 // Sometimes, an AssetIdish (i.e a a CAIP-19) is not enough to uniquely identify a staking opportunity
 // So we add a StakingKey to the StakingId to make it unique
-export type StakingKey = Nominal<string, 'StakingKey'> & string
+export type StakingKey = Nominal<string, 'StakingKey'>
 export type StakingId = StakingIdBase | `${StakingIdBase}#${StakingKey}`
 // The AccountId of the LP contract in the form of chainId:accountAddress
 export type LpId = Nominal<string, 'LpId'> & AssetId

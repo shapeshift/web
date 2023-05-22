@@ -7,7 +7,6 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type {
-  ApprovalNeededOutput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
@@ -113,26 +112,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     })
   }
 
-  approvalNeeded(): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
-    return Promise.resolve(Ok({ approvalNeeded: false }))
-  }
-
-  approveInfinite(): Promise<string> {
-    return Promise.reject(
-      new SwapError('OsmosisSwapper: approveInfinite unimplemented', {
-        code: SwapErrorType.RESPONSE_ERROR,
-      }),
-    )
-  }
-
-  approveAmount(): Promise<string> {
-    return Promise.reject(
-      new SwapError('Osmosis: approveAmount unimplemented', {
-        code: SwapErrorType.RESPONSE_ERROR,
-      }),
-    )
-  }
-
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): string[] {
     const { assetIds = [], sellAssetId } = args
     if (!this.supportedAssetIds.includes(sellAssetId)) return []
@@ -192,6 +171,14 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
     const feeData = await osmosisAdapter.getFeeData({})
     const fee = feeData.fast.txFee
+
+    if (!receiveAddress)
+      return Err(
+        makeSwapErrorRight({
+          message: 'Receive address is required to build Osmosis trades',
+          code: SwapErrorType.MISSING_INPUT,
+        }),
+      )
 
     return Ok({
       buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,

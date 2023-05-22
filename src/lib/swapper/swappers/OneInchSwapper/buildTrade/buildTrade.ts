@@ -70,6 +70,14 @@ export const buildTrade = async (
 
   const buyTokenPercentageFee = convertBasisPointsToPercentage(affiliateBps).toNumber()
 
+  if (!receiveAddress)
+    return Err(
+      makeSwapErrorRight({
+        message: 'Receive address is required to build Oneinch trades',
+        code: SwapErrorType.MISSING_INPUT,
+      }),
+    )
+
   const swapApiInput: OneInchSwapApiInput = {
     fromTokenAddress: fromAssetAddress,
     toTokenAddress: toAssetAddress,
@@ -102,11 +110,6 @@ export const buildTrade = async (
         buyAssetTradeFeeUsd: '0',
         sellAssetTradeFeeUsd: '0',
         networkFeeCryptoBaseUnit: fee.toString(),
-        chainSpecific: {
-          estimatedGasCryptoBaseUnit: swapResponse.data.tx.gas,
-          gasPriceCryptoBaseUnit: swapResponse.data.tx.gasPrice,
-          approvalFeeCryptoBaseUnit: '0',
-        },
       },
       sellAsset,
       sellAmountBeforeFeesCryptoBaseUnit,

@@ -3,13 +3,13 @@ import { type ChainId } from '@shapeshiftoss/caip'
 import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { type Asset } from 'lib/asset-service'
-import type { SwapperName } from 'lib/swapper/api'
-import {
-  type BuildTradeInput,
-  type GetTradeQuoteInput,
-  type QuoteFeeData,
-  type Trade,
-  type TradeQuote,
+import type {
+  BuildTradeInput,
+  GetTradeQuoteInput,
+  QuoteFeeData,
+  SwapperName,
+  Trade,
+  TradeQuote,
 } from 'lib/swapper/api'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 

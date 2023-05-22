@@ -18,10 +18,7 @@ import {
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
 import { getNowPlusThirtyMinutesTimestamp } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
-import {
-  getApproveContractData,
-  normalizeIntegerAmount,
-} from 'lib/swapper/swappers/utils/helpers/helpers'
+import { normalizeIntegerAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
 import {
   selectBuyAssetUsdRate,
   selectSellAssetUsdRate,
@@ -32,7 +29,6 @@ export async function getCowSwapTradeQuote(
   deps: CowSwapperDeps,
   input: GetTradeQuoteInput,
 ): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
-  const { adapter, web3 } = deps
   const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
 
@@ -125,18 +121,6 @@ export async function getCowSwapTradeQuote(
     .div(sellCryptoAmountCryptoPrecision)
     .toString()
 
-  const approveData = getApproveContractData({
-    web3,
-    spenderAddress: COW_SWAP_VAULT_RELAYER_ADDRESS,
-    contractAddress: sellAssetErc20Address,
-  })
-
-  const feeData = await adapter.getFeeData({
-    to: sellAssetErc20Address,
-    value: '0',
-    chainSpecific: { from: receiveAddress, contractData: approveData },
-  })
-
   const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
   const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
 
@@ -171,20 +155,12 @@ export async function getCowSwapTradeQuote(
     ? '0'
     : buyAmountBeforeFeesCryptoBaseUnit
 
-  const { average } = feeData
   const quote = {
     rate,
     minimumCryptoHuman: minimumAmountCryptoHuman,
     maximumCryptoHuman: maximumAmountCryptoHuman,
     feeData: {
       networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
-      chainSpecific: {
-        estimatedGasCryptoBaseUnit: average.chainSpecific.gasLimit,
-        gasPriceCryptoBaseUnit: average.chainSpecific.gasPrice,
-        maxFeePerGas: average.chainSpecific.maxFeePerGas,
-        maxPriorityFeePerGas: average.chainSpecific.maxPriorityFeePerGas,
-        approvalFeeCryptoBaseUnit: average.txFee,
-      },
       buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
       sellAssetTradeFeeUsd,
     },

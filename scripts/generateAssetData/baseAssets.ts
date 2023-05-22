@@ -165,7 +165,7 @@ export const polygon: Asset = {
 export const gnosis: Asset = {
   assetId: caip.gnosisAssetId,
   chainId: caip.gnosisChainId,
-  name: 'xDAI',
+  name: 'Gnosis',
   symbol: 'xDAI',
   precision: 18,
   color: '#33765c',

@@ -185,7 +185,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         explorer: 'https://polygonscan.com/',
       },
       [KnownChainIds.GnosisMainnet]: {
-        name: 'xDAI',
+        name: 'Gnosis',
         symbol: 'xDAI',
         explorer: 'https://gnosisscan.io/',
       },

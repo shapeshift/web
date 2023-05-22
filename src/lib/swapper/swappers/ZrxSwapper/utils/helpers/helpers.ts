@@ -1,12 +1,5 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import {
-  avalancheAssetId,
-  bscAssetId,
-  ethAssetId,
-  fromAssetId,
-  optimismAssetId,
-  polygonAssetId,
-} from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -19,7 +12,7 @@ import {
 } from 'constants/treasury'
 import type { Asset } from 'lib/asset-service'
 import type { SwapErrorRight } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 
 import type { ZrxSupportedChainAdapter } from '../../ZrxSwapper'
 
@@ -42,43 +35,6 @@ export const baseUrlFromChainId = (chainId: string): Result<string, SwapErrorRig
           code: SwapErrorType.UNSUPPORTED_CHAIN,
         }),
       )
-  }
-}
-
-export const usdcContractAddressFromChainId = (chainId: ChainId): string => {
-  switch (chainId) {
-    case KnownChainIds.EthereumMainnet:
-      return '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
-    case KnownChainIds.AvalancheMainnet:
-      return '0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e'
-    case KnownChainIds.OptimismMainnet:
-      return '0x7f5c764cbc14f9669b88837ca1490cca17c31607'
-    case KnownChainIds.BnbSmartChainMainnet:
-      return '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d'
-    case KnownChainIds.PolygonMainnet:
-      return '0x2791bca1f2de4661ed88a30c99a7a9449aa84174'
-    default:
-      throw new SwapError(`usdcContractFromChainId] - Unsupported chainId: ${chainId}`, {
-        code: SwapErrorType.UNSUPPORTED_CHAIN,
-      })
-  }
-}
-
-export const isNativeEvmAsset = (assetId: AssetId): boolean => {
-  const { chainId } = fromAssetId(assetId)
-  switch (chainId) {
-    case KnownChainIds.EthereumMainnet:
-      return assetId === ethAssetId
-    case KnownChainIds.AvalancheMainnet:
-      return assetId === avalancheAssetId
-    case KnownChainIds.OptimismMainnet:
-      return assetId === optimismAssetId
-    case KnownChainIds.BnbSmartChainMainnet:
-      return assetId === bscAssetId
-    case KnownChainIds.PolygonMainnet:
-      return assetId === polygonAssetId
-    default:
-      return false
   }
 }
 

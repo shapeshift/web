@@ -31,5 +31,3 @@ export const ChainOption = forwardRef<ChainOptionProps, 'button'>(
     )
   },
 )
-
-export type ChainOptionsProps = Parameters<typeof ChainOption>

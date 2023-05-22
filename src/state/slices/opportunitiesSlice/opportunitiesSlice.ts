@@ -110,6 +110,16 @@ export const opportunities = createSlice({
       // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
       prepare: prepareAutoBatched<GetOpportunityUserStakingDataOutput>(),
     },
+    invalidateUserStakingOpportunity: {
+      reducer: (draftState, { payload }: { payload: UserStakingId }) => {
+        const userStakingId = payload
+        delete draftState.userStaking.byId[userStakingId]
+      },
+
+      // Use the `prepareAutoBatched` utility to automatically
+      // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
+      prepare: prepareAutoBatched<UserStakingId>(),
+    },
   },
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
 })
@@ -310,11 +320,15 @@ export const opportunitiesApi = createApi({
             throw new Error(`resolver for ${defiProvider}::${defiType} not implemented`)
           }
 
+          const onInvalidate = (userStakingId: UserStakingId) =>
+            dispatch(opportunities.actions.invalidateUserStakingOpportunity(userStakingId))
+
           const resolved = await resolver({
             opportunityIds,
             defiType,
             accountId,
             reduxApi: { dispatch, getState },
+            onInvalidate,
           })
 
           if (resolved?.data) {

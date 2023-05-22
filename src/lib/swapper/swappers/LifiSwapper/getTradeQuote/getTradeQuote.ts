@@ -140,7 +140,7 @@ export async function getTradeQuote(
 
     const maxSlippage = BigNumber.max(...selectedLifiRoute.steps.map(step => step.action.slippage))
 
-    const feeData = await transformLifiFeeData({
+    const feeData = transformLifiFeeData({
       buyAsset,
       chainId,
       selectedRoute: selectedLifiRoute,

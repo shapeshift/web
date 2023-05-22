@@ -13,7 +13,7 @@ type GetThorTxInfoArgs = {
   buyAsset: Asset
   sellAmountCryptoBaseUnit: string
   slippageTolerance: string
-  destinationAddress: string
+  destinationAddress: string | undefined
   xpub: string
   buyAssetTradeFeeUsd: string
   affiliateBps: string

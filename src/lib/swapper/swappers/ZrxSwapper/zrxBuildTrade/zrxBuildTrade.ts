@@ -4,6 +4,7 @@ import type { AxiosInstance } from 'axios'
 import * as rax from 'retry-axios'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
 import { normalizeAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
 import type {
@@ -78,6 +79,14 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
   if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())
   const { data: quote } = maybeQuoteResponse.unwrap()
 
+  if (!receiveAddress)
+    return Err(
+      makeSwapErrorRight({
+        message: 'Receive address is required for ZRX trades',
+        code: SwapErrorType.MISSING_INPUT,
+      }),
+    )
+
   const { average } = await adapter.getFeeData({
     to: quote.to,
     value: quote.value,
@@ -95,12 +104,6 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
     rate: quote.price,
     depositAddress: quote.to,
     feeData: {
-      chainSpecific: {
-        estimatedGasCryptoBaseUnit: quote.gas,
-        gasPriceCryptoBaseUnit: average.chainSpecific.gasPrice,
-        maxFeePerGas: average.chainSpecific.maxFeePerGas,
-        maxPriorityFeePerGas: average.chainSpecific.maxPriorityFeePerGas,
-      },
       networkFeeCryptoBaseUnit: average.txFee,
       buyAssetTradeFeeUsd: '0',
       sellAssetTradeFeeUsd: '0',

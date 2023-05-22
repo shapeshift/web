@@ -9,18 +9,6 @@ import {
 import { selectQuote, selectSwapperDefaultAffiliateBps } from 'state/zustand/swapperStore/selectors'
 import type { SetSwapperStoreAction, SwapperState } from 'state/zustand/swapperStore/types'
 
-export const toggleIsExactAllowance =
-  (set: SetSwapperStoreAction<SwapperState>): SwapperState['toggleIsExactAllowance'] =>
-  () =>
-    set(
-      draft => {
-        draft.isExactAllowance = !draft.isExactAllowance
-        return draft
-      },
-      false,
-      `swapper/toggleIsExactAllowance`,
-    )
-
 export const clearAmounts =
   (set: SetSwapperStoreAction<SwapperState>): SwapperState['clearAmounts'] =>
   () =>

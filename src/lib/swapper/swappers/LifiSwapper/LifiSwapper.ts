@@ -8,10 +8,6 @@ import { Ok } from '@sniptt/monads'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type {
-  ApprovalNeededInput,
-  ApprovalNeededOutput,
-  ApproveAmountInput,
-  ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
   GetEvmTradeQuoteInput,
@@ -33,8 +29,6 @@ import type {
   LifiTrade,
   LifiTradeQuote,
 } from 'lib/swapper/swappers/LifiSwapper/utils/types'
-import { approvalNeeded } from 'lib/swapper/swappers/utils/approvalNeeded/approvalNeeded'
-import { approveAmount, approveInfinite } from 'lib/swapper/swappers/utils/approve/approve'
 import { filterEvmAssetIdsBySellable } from 'lib/swapper/swappers/utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterCrossChainEvmBuyAssetsBySellAssetId } from 'lib/swapper/swappers/utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { createEmptyEvmTradeQuote } from 'lib/swapper/swappers/utils/helpers/helpers'
@@ -108,30 +102,6 @@ export class LifiSwapper implements Swapper<EvmChainId, true> {
       this.executedTrades.set(tradeResult.tradeId, getStatusRequest)
       return tradeResult
     })
-  }
-
-  /**
-   * Get a boolean if a quote needs approval
-   */
-  async approvalNeeded(
-    input: ApprovalNeededInput<EvmChainId>,
-  ): Promise<Result<ApprovalNeededOutput, SwapErrorRight>> {
-    return await approvalNeeded(input)
-  }
-
-  /**
-   * Broadcasts an infinite approval Tx and returns the Txid
-   */
-  async approveInfinite(input: ApproveInfiniteInput<EvmChainId>): Promise<string> {
-    return await approveInfinite(input)
-  }
-
-  /**
-   * Get the txid of an approve amount transaction
-   * If no amount is specified the sell amount of the quote will be used
-   */
-  async approveAmount(input: ApproveAmountInput<EvmChainId>): Promise<string> {
-    return await approveAmount(input)
   }
 
   /**

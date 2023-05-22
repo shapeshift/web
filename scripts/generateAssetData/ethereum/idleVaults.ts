@@ -3,10 +3,10 @@ import 'dotenv/config'
 import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
 import assert from 'assert'
 import axios from 'axios'
-import type { IdleVault } from 'lib/investor/investor-idle'
-import { IdleSdk } from 'lib/investor/investor-idle'
 
 import type { Asset } from '../../../src/lib/asset-service'
+import type { IdleVault } from '../../../src/lib/investor/investor-idle'
+import { IdleSdk } from '../../../src/lib/investor/investor-idle'
 import { ethereum } from '../baseAssets'
 import { colorMap } from '../colorMap'
 

@@ -27,6 +27,15 @@ export async function cowBuildTrade(
   input: BuildTradeInput,
 ): Promise<Result<CowTrade<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
+
+  if (!receiveAddress)
+    return Err(
+      makeSwapErrorRight({
+        message: 'Receive address is required to build CoW trades',
+        code: SwapErrorType.MISSING_INPUT,
+      }),
+    )
+
   const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
 
   const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } = fromAssetId(
@@ -123,7 +132,6 @@ export async function cowBuildTrade(
     rate,
     feeData: {
       networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
-      chainSpecific: {}, // no on chain fees for CowSwap
       buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
       sellAssetTradeFeeUsd,
     },

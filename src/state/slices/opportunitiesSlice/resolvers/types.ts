@@ -2,7 +2,7 @@ import type { BaseQueryApi } from '@reduxjs/toolkit/dist/query/baseQueryTypes'
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 
-import type { OpportunityId } from '../types'
+import type { OpportunityId, UserStakingId } from '../types'
 
 export type ReduxApi = Pick<BaseQueryApi, 'dispatch' | 'getState'>
 
@@ -30,6 +30,7 @@ export type OpportunitiesUserDataResolverInput = {
   defiType: DefiType
   accountId: AccountId
   reduxApi: ReduxApi
+  onInvalidate: (userStakingId: UserStakingId) => void
 }
 
 export type OpportunityIdsResolverInput = {

@@ -1,5 +1,7 @@
 import { ethAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { useMemo } from 'react'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { SwapperName } from 'lib/swapper/api'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers/ThorchainSwapper/constants'
@@ -21,6 +23,8 @@ export const useDonationAmountBelowMinimum = () => {
   const buyAmountFiat = useSwapperStore(state => state.buyAmountFiat)
   const selectedCurrencyToUsdRate = selectFiatToUsdRate(store.getState())
   const buyAmountUsd = bnOrZero(buyAmountFiat).div(selectedCurrencyToUsdRate)
+  const wallet = useWallet().state.wallet
+  const walletIsKeepKey = wallet && isKeepKey(wallet)
 
   // Some swappers have a minimum donation amount, whereby collecting below that amount will result in the donated amount being lost
   const isDonationAmountBelowMinimum = useMemo(() => {
@@ -32,14 +36,22 @@ export const useDonationAmountBelowMinimum = () => {
       }
       case SwapperName.Zrx:
       case SwapperName.OneInch:
-        return (
-          feeAsset?.assetId === ethAssetId &&
-          buyAmountUsd.lt(MINIMUM_DONATION_RECEIVE_AMOUNT_USD_FROM_ETH_CHAIN)
-        )
+        return walletIsKeepKey
+          ? // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
+            true
+          : feeAsset?.assetId === ethAssetId &&
+              buyAmountUsd.lt(MINIMUM_DONATION_RECEIVE_AMOUNT_USD_FROM_ETH_CHAIN)
       default:
         return false
     }
-  }, [activeSwapperName, buyAmountUsd, donationAmountFiat, feeAsset?.assetId, runePriceFiat])
+  }, [
+    activeSwapperName,
+    buyAmountUsd,
+    donationAmountFiat,
+    feeAsset?.assetId,
+    runePriceFiat,
+    walletIsKeepKey,
+  ])
 
   return isDonationAmountBelowMinimum
 }

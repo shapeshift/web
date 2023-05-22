@@ -306,8 +306,8 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     searchQuery,
   ): AggregatedOpportunitiesByProviderReturn[] => {
     if (isEmpty(marketData)) return []
-    const totalFiatAmountByProvider = {} as Record<string, BN>
-    const projectedAnnualizedYieldByProvider = {} as Record<string, BN>
+    const totalFiatAmountByProvider: Record<string, BN> = {}
+    const projectedAnnualizedYieldByProvider: Record<string, BN> = {}
     const combined = userStakingOpportunites.concat(userLpOpportunities)
 
     /**

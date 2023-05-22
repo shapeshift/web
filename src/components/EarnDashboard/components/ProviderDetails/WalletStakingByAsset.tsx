@@ -1,4 +1,4 @@
-import { Box, Flex } from '@chakra-ui/react'
+import { Box, Button, Flex } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
@@ -8,6 +8,7 @@ import { useHistory, useLocation } from 'react-router'
 import type { Row } from 'react-table'
 import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -56,6 +57,8 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
     )
     return Array.from(groups.entries())
   }, [filteredDown])
+
+  const { next, data, hasMore } = useInfiniteScroll(groupedItems)
 
   const handleClick = useCallback(
     (opportunity: StakingEarnOpportunityType, action: DefiAction) => {
@@ -106,7 +109,7 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
   const renderStakingRows = useMemo(() => {
     return (
       <Flex flexDir='column' gap={2}>
-        {groupedItems.map(group => {
+        {data.map(group => {
           const [name, values] = group
           return (
             <Box key={`group-${name}`}>
@@ -132,13 +135,18 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
         })}
       </Flex>
     )
-  }, [groupedItems, handleClick, translate])
+  }, [data, handleClick, translate])
 
   if (!filteredDown.length) return null
 
   return (
     <Flex flexDir='column' gap={8}>
       {renderStakingRows}
+      {hasMore && (
+        <Button mx={2} onClick={() => next()}>
+          {translate('common.loadMore')}
+        </Button>
+      )}
     </Flex>
   )
 }

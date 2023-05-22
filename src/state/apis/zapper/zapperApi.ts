@@ -352,8 +352,8 @@ export const zapper = createApi({
                 account: appAccountBalance.address,
               })
 
-              // [0] only for debugging, obviously support all products eventually
-              const appAccountOpportunities = (appAccountBalance.products[0]?.assets ?? [])
+              const appAccountOpportunities = appAccountBalance.products
+                .flatMap(({ assets }) => assets)
                 .map<ReadOnlyOpportunityType>(asset => {
                   // Staking only for this PoC
                   const stakedAmountCryptoBaseUnit =

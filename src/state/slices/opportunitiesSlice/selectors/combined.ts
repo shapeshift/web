@@ -2,7 +2,6 @@ import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import isEmpty from 'lodash/isEmpty'
 import partition from 'lodash/partition'
 import { matchSorter } from 'match-sorter'
@@ -27,6 +26,7 @@ import type {
   OpportunityId,
   StakingEarnOpportunityType,
 } from '../types'
+import { DefiProvider, DefiType } from '../types'
 import { getOpportunityAccessor, getUnderlyingAssetIdsBalances } from '../utils'
 import { selectAssets } from './../../assetsSlice/selectors'
 import { selectSelectedCurrencyMarketDataSortedByMarketCap } from './../../marketDataSlice/selectors'

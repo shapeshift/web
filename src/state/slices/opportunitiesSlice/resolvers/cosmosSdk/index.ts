@@ -1,6 +1,5 @@
 import { cosmosChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
 import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -20,6 +19,7 @@ import type {
   OpportunityMetadata,
   StakingId,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,

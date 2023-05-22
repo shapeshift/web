@@ -1,6 +1,7 @@
 import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import React, { useMemo } from 'react'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 
 import { DefiModal } from '../../components/DefiModal/DefiModal'
 import type {
@@ -9,9 +10,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from './DefiCommon'
-import { DefiProvider } from './DefiCommon'
 import { getDefiProviderModulesResolvers } from './utils'
-
 const DefiManagerContext = React.createContext<DefiManagerContextProps | null>(null)
 
 /*

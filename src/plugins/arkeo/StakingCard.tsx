@@ -1,11 +1,11 @@
 import { Button, Skeleton, SkeletonText } from '@chakra-ui/react'
-import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { EarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

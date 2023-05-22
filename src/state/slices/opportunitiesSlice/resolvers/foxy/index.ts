@@ -1,7 +1,6 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { ethChainId, foxyAssetId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { foxyApi } from 'state/apis/foxy/foxyApi'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
@@ -18,6 +17,7 @@ import type {
   OpportunityMetadata,
   StakingId,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
   OpportunitiesMetadataResolverInput,

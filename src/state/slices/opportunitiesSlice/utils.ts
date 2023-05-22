@@ -1,18 +1,20 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { store } from 'state/store'
 
-import { foxEthAssetIds, STAKING_ID_DELIMITER } from './constants'
+import { DEFI_PROVIDER_TO_METADATA, foxEthAssetIds, STAKING_ID_DELIMITER } from './constants'
 import type {
   CosmosSdkStakingSpecificUserStakingOpportunity,
   UserUndelegation,
 } from './resolvers/cosmosSdk/types'
 import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
+import { selectGetReadOnlyOpportunities } from './selectors/readonly'
 import type {
+  DefiProviderMetadata,
   OpportunityId,
   OpportunityMetadataBase,
   StakingEarnOpportunityType,
@@ -22,6 +24,7 @@ import type {
   UserStakingOpportunityWithMetadata,
   ValidatorId,
 } from './types'
+import { DefiProvider, DefiType } from './types'
 
 export type UserStakingIdParts = [accountId: AccountId, stakingId: StakingId]
 
@@ -230,4 +233,15 @@ export const getOpportunityAccessor: GetOpportunityAccessor = ({ provider, type 
     }
   }
   return 'underlyingAssetIds'
+}
+export const getMetadataForProvider = (provider: string): DefiProviderMetadata | undefined => {
+  if (Object.values(DefiProvider).includes(provider as DefiProvider)) {
+    return DEFI_PROVIDER_TO_METADATA[provider as DefiProvider]
+  }
+
+  const readOnlyOpportunities = selectGetReadOnlyOpportunities(store.getState())
+
+  const readOnlyOpportunityMetadata = readOnlyOpportunities.data?.metadataByProvider?.[provider]
+
+  return readOnlyOpportunityMetadata
 }

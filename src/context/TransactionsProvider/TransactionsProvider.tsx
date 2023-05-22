@@ -3,7 +3,6 @@ import { ethChainId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { IDLE_PROXY_1_CONTRACT_ADDRESS, IDLE_PROXY_2_CONTRACT_ADDRESS } from 'contracts/constants'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -19,6 +18,7 @@ import {
   waitForSaversUpdate,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { fetchAllOpportunitiesUserDataByAccountId } from 'state/slices/opportunitiesSlice/thunks'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioAccountMetadata,

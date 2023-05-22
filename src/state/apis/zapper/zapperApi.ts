@@ -6,8 +6,6 @@ import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
-import type { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
@@ -22,6 +20,7 @@ import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { opportunities } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import type {
   AssetIdsTuple,
+  DefiProviderMetadata,
   GetOpportunityMetadataOutput,
   GetOpportunityUserDataOutput,
   GetOpportunityUserStakingDataOutput,
@@ -29,6 +28,7 @@ import type {
   ReadOnlyOpportunityType,
   StakingId,
 } from 'state/slices/opportunitiesSlice/types'
+import { DefiType } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 

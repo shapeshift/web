@@ -2,7 +2,6 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
-import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import partition from 'lodash/partition'
 import pickBy from 'lodash/pickBy'
 import uniqBy from 'lodash/uniqBy'
@@ -43,6 +42,7 @@ import type {
   UserStakingOpportunity,
   UserStakingOpportunityWithMetadata,
 } from '../types'
+import { DefiProvider } from '../types'
 import {
   deserializeUserStakingId,
   filterUserStakingIdByStakingIdCompareFn,

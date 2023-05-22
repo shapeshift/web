@@ -1,12 +1,12 @@
 import type { StartQueryActionCreatorOptions } from '@reduxjs/toolkit/dist/query/core/buildInitiate'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { store } from 'state/store'
 
 import { foxEthStakingIds } from '../opportunitiesSlice/constants'
 import { CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES } from './mappings'
 import { opportunitiesApi } from './opportunitiesApiSlice'
+import { DefiProvider, DefiType } from './types'
 
 export const fetchAllLpOpportunitiesMetadataByChainId = async (
   chainId: ChainId,

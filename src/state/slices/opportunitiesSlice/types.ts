@@ -1,5 +1,4 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'
 
@@ -7,6 +6,29 @@ import type { CosmosSdkStakingSpecificUserStakingOpportunity } from './resolvers
 import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
 import type { IdleStakingSpecificMetadata } from './resolvers/idle/types'
 import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
+
+export enum DefiType {
+  LiquidityPool = 'lp',
+  Staking = 'staking',
+}
+
+export enum DefiProvider {
+  Idle = 'idle',
+  Yearn = 'yearn',
+  ShapeShift = 'ShapeShift',
+  EthFoxStaking = 'ETH/FOX Staking',
+  UniV2 = 'Uniswap V2',
+  CosmosSdk = 'Cosmos SDK',
+  OsmosisLp = 'Osmosis LP',
+  ThorchainSavers = 'THORChain Savers',
+}
+
+export type DefiProviderMetadata = {
+  provider: string
+  icon: string
+  color: string
+  url?: string
+}
 
 export type AssetIdsTuple =
   | readonly [AssetId, AssetId, AssetId]

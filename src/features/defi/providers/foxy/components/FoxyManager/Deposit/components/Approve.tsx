@@ -5,11 +5,7 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
-import {
-  DefiAction,
-  DefiProvider,
-  DefiStep,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useCallback, useContext, useMemo } from 'react'
@@ -22,6 +18,7 @@ import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { selectBIP44ParamsByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

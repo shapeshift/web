@@ -1,6 +1,5 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -11,6 +10,7 @@ import type {
   LpId,
   OpportunityMetadata,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import { toOpportunityId } from '../../utils'
 import type { OpportunitiesMetadataResolverInput, OpportunityIdsResolverInput } from '../types'
 import { generateAssetIdFromOsmosisDenom, getPools } from './utils'

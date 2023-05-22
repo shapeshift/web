@@ -5,7 +5,6 @@ import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import { fetchUniV2PairData, getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
@@ -28,6 +27,7 @@ import type {
   LpId,
   OpportunityMetadata,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import type {
   OpportunitiesMetadataResolverInput,
   OpportunityIdsResolverInput,

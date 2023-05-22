@@ -1,10 +1,10 @@
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { zapper } from 'state/apis/zapper/zapperApi'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import type { AggregatedOpportunitiesByProviderReturn } from '../types'
+import { DefiType } from '../types'
 
 // Zapper only for now, smooosh multiple providers into one output as we support more
 export const selectGetReadOnlyOpportunities = zapper.endpoints.getZapperAppsBalancesOutput.select()

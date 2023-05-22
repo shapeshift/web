@@ -1,6 +1,4 @@
-import type { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-
-import type { OpportunityMetadataBase } from '../../types'
+import type { DefiProvider, OpportunityMetadataBase } from '../../types'
 
 export type IdleStakingSpecificMetadata = OpportunityMetadataBase & {
   // Idle tranches interact with a so-called "CDO" contract, which is different for each opportunity

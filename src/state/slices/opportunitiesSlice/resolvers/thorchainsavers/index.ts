@@ -1,6 +1,5 @@
 import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { adapters, fromAssetId } from '@shapeshiftoss/caip'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
@@ -16,6 +15,7 @@ import type {
   OpportunityMetadata,
   StakingId,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
   OpportunitiesMetadataResolverInput,

@@ -12,7 +12,6 @@ import {
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import difference from 'lodash/difference'
 import pull from 'lodash/pull'
 import React, { useEffect, useMemo } from 'react'
@@ -43,6 +42,7 @@ import {
   fetchAllOpportunitiesMetadataByChainId,
   fetchAllOpportunitiesUserDataByAccountId,
 } from 'state/slices/opportunitiesSlice/thunks'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {

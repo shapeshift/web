@@ -1,7 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
@@ -25,6 +24,7 @@ import type {
   OpportunityId,
   UserStakingId,
 } from './types'
+import { DefiProvider } from './types'
 import { deserializeUserStakingId, opportunityIdToChainId } from './utils'
 
 const moduleLogger = logger.child({ namespace: ['opportunitiesSlice'] })

@@ -18,7 +18,6 @@ import {
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import type { BIP44Params } from '@shapeshiftoss/types'
-import { getMetadataForProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
 import keys from 'lodash/keys'
@@ -70,6 +69,7 @@ import { foxEthLpAssetId, foxEthStakingIds } from '../opportunitiesSlice/constan
 import type { StakingId, UserStakingId } from '../opportunitiesSlice/types'
 import {
   deserializeUserStakingId,
+  getMetadataForProvider,
   getUnderlyingAssetIdsBalances,
 } from '../opportunitiesSlice/utils'
 import type {

@@ -1,9 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import {
-  DefiAction,
-  getMetadataForProvider,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import React, { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
@@ -12,7 +9,10 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
+import {
+  getMetadataForProvider,
+  getUnderlyingAssetIdsBalances,
+} from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAllEarnUserLpOpportunitiesByFilter,
   selectAssetById,

@@ -8,7 +8,6 @@ import {
   ltcChainId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import pipe from 'lodash/flow'
 
 import {
@@ -50,6 +49,7 @@ import {
   yearnStakingOpportunitiesUserDataResolver,
   yearnStakingOpportunityIdsResolver,
 } from './resolvers/yearn'
+import { DefiProvider, DefiType } from './types'
 
 export const DefiProviderToMetadataResolverByDeFiType = {
   [`${DefiProvider.EthFoxStaking}`]: {

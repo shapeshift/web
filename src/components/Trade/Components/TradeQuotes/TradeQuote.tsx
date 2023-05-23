@@ -127,10 +127,12 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const isAmountEntered = bnOrZero(amount).gt(0)
   const hasNegativeRatio =
     inputOutputRatio !== undefined && isAmountEntered && inputOutputRatio <= 0
+
   const hasAmountWithPositiveReceive =
     isAmountEntered &&
     !hasNegativeRatio &&
     bnOrZero(totalReceiveAmountCryptoPrecision).isGreaterThan(0)
+
   const tag: JSX.Element = useMemo(() => {
     switch (true) {
       case !hasAmountWithPositiveReceive && isAmountEntered:

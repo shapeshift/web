@@ -1,9 +1,9 @@
 import type { AmountDisplayMeta } from 'lib/swapper/api'
 import { isSome } from 'lib/utils'
+import { makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-import { lifiChainIdToChainId } from '../lifiChainIdtoChainId/lifiChainIdToChainId'
 import { lifiTokenToAssetId } from '../lifiTokenToAssetId/lifiTokenToAssetId'
 import type { LifiStepSubset, StepSubset } from './types'
 
@@ -27,11 +27,14 @@ export const getIntermediaryTransactionOutputs = (
     .map(step => {
       const assetId = lifiTokenToAssetId(step.action.toToken)
 
-      const asset = assets[assetId] ?? {
-        chainId: lifiChainIdToChainId(step.action.toToken.chainId),
-        symbol: step.action.toToken.symbol,
-        precision: step.action.toToken.decimals,
-      }
+      const asset =
+        assets[assetId] ??
+        makeAsset({
+          assetId,
+          name: step.action.toToken.name,
+          symbol: step.action.toToken.symbol,
+          precision: step.action.toToken.decimals,
+        })
 
       return {
         asset,

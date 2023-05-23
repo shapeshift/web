@@ -1,17 +1,20 @@
 import type { Route } from '@lifi/sdk'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from 'lib/asset-service'
-import { baseUnitToHuman, baseUnitToPrecision, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { QuoteFeeData } from 'lib/swapper/api'
+import { bn } from 'lib/bignumber/bignumber'
+import type { ProtocolFee, QuoteFeeData } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
-import { getEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetAddress/getAssetAddress'
 import { getFeeAssets } from 'lib/swapper/swappers/LifiSwapper/utils/getFeeAssets/getFeeAssets'
 import { processGasCosts } from 'lib/swapper/swappers/LifiSwapper/utils/processGasCosts/processGasCosts'
+import { selectAssets } from 'state/slices/selectors'
+import { store } from 'state/store'
+
+import { lifiChainIdToChainId } from '../lifiChainIdtoChainId/lifiChainIdToChainId'
+import { lifiTokenToAssetId } from '../lifiTokenToAssetId/lifiTokenToAssetId'
 
 export const transformLifiFeeData = ({
-  buyAsset,
   chainId,
   selectedRoute,
 }: {
@@ -27,54 +30,48 @@ export const transformLifiFeeData = ({
   }
 
   const allRouteGasCosts = selectedRoute.steps.flatMap(step => step.estimate.gasCosts ?? [])
-  const allRouteFeeCosts = selectedRoute.steps.flatMap(step => step.estimate.feeCosts ?? [])
-
-  const buyAssetAddress = getEvmAssetAddress(buyAsset)
-
-  const buyAssetRouteFeeCosts = allRouteFeeCosts.filter(
-    feeCost => feeCost.token.address === buyAssetAddress,
-  )
-
-  // all fees that are not the buy asset (there may be multiple different tokens)
-  const sellAssetRouteFeeCosts = allRouteFeeCosts.filter(
-    feeCost => feeCost.token.address !== buyAssetAddress,
-  )
-
-  // this is the sum of all `feeCost` against the buy asset in USD
-  // need to manually convert them to USD because lifi rounds to the nearest dollar
-  const buyAssetTradeFeeUsd =
-    buyAssetRouteFeeCosts
-      .map(feeCost =>
-        baseUnitToHuman({
-          value: feeCost.amount,
-          inputExponent: feeCost.token.decimals,
-        }).multipliedBy(bnOrZero(feeCost.token.priceUSD)),
-      )
-      .reduce((acc, amountUsd) => acc.plus(amountUsd), bn(0)) ?? bn(0)
-
-  // this is the sum of all `feeCost` against the sell asset in USD
-  // need to manually convert them to USD because lifi rounds to the nearest dollar
-  const initialSellAssetTradeFeeUsd =
-    sellAssetRouteFeeCosts
-      .map(feeCost =>
-        baseUnitToPrecision({
-          value: feeCost.amount,
-          inputExponent: feeCost.token.decimals,
-        }).multipliedBy(bnOrZero(feeCost.token.priceUSD)),
-      )
-      .reduce((acc, amountUsd) => acc.plus(amountUsd), bn(0)) ?? bn(0)
+  const allRouteFeeCosts = selectedRoute.steps
+    .flatMap(step => step.estimate.feeCosts ?? [])
+    .filter(feeCost => !(feeCost as { included?: boolean }).included) // filter out included fees
 
   const feeAsset = getFeeAssets(chainId)
 
-  const { networkFeeCryptoBaseUnit, sellAssetTradeFeeUsd } = processGasCosts({
+  const { networkFeeCryptoBaseUnit, otherGasCosts } = processGasCosts({
     feeAsset,
     allRouteGasCosts,
-    initialSellAssetTradeFeeUsd,
   })
+
+  const assets = selectAssets(store.getState())
+
+  // TEMP: jumble in gas costs not denominated in the sell chain fee asset with protocol fees
+  // until our UI can convey the concept of gas fees denominated in multiple tokens
+  const protocolFees = [...allRouteFeeCosts, ...otherGasCosts].reduce<Record<AssetId, ProtocolFee>>(
+    (acc, feeCost) => {
+      const { amount, token } = feeCost
+      const assetId = lifiTokenToAssetId(token)
+      const asset = assets[assetId]
+      if (acc[assetId] === undefined) {
+        acc[assetId] = {
+          amountCryptoBaseUnit: amount,
+          asset: {
+            chainId: asset?.chainId ?? lifiChainIdToChainId(token.chainId),
+            precision: asset?.precision ?? token.decimals,
+            symbol: asset?.symbol ?? token.symbol,
+          },
+          requiresBalance: true,
+        }
+      } else {
+        acc[assetId].amountCryptoBaseUnit = bn(acc[assetId].amountCryptoBaseUnit)
+          .plus(amount)
+          .toString()
+      }
+      return acc
+    },
+    {} as Record<AssetId, ProtocolFee>,
+  )
 
   return {
     networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit.toString(),
-    buyAssetTradeFeeUsd: buyAssetTradeFeeUsd.toString(),
-    sellAssetTradeFeeUsd: sellAssetTradeFeeUsd.toString(),
+    protocolFees,
   }
 }

@@ -20,7 +20,7 @@ describe('sumProtocolFeesToDenom', () => {
     expect(result).toEqual('0')
   })
 
-  it('can sum multiple protcol fees to a single big number string denominated in the target asset', () => {
+  it('can sum multiple protocol fees to a single big number string denominated in the target asset', () => {
     const protocolFees: Record<AssetId, ProtocolFee> = {
       [BTC.assetId]: {
         amountCryptoBaseUnit: '3000000', // 0.03 BTC
@@ -68,7 +68,7 @@ describe('sumProtocolFeesToDenom', () => {
     expect(result).toEqual(expectation)
   })
 
-  it('can sum multiple protcol fees to USD', () => {
+  it('can sum multiple protocol fees to USD', () => {
     const protocolFees: Record<AssetId, ProtocolFee> = {
       [BTC.assetId]: {
         amountCryptoBaseUnit: '3000000', // 0.03 BTC

@@ -364,6 +364,20 @@ export const zapper = createApi({
                   // We might want to revisit the whole LP/Staking abstraction and make a more general concept of a "thing" opportunity
                   const stakedAmountCryptoBaseUnit =
                     asset.tokens.find(token => token.metaType === 'supplied')?.balanceRaw ?? '0'
+                  const rewardTokens = asset.tokens.filter(token => token.metaType === 'claimable')
+                  const rewardAssetIds = rewardTokens.reduce<AssetId[]>((acc, token) => {
+                    const rewardAssetId = zapperAssetToMaybeAssetId(token)
+                    // Reward AssetIds are ordered - if we can't get all of them, we return empty rewardAssetIds
+                    if (!rewardAssetId) return []
+
+                    acc.push(rewardAssetId)
+                    return acc
+                  }, []) as unknown as AssetIdsTuple
+                  const rewardsCryptoBaseUnit = {
+                    amounts: rewardTokens.map(token => token.balanceRaw),
+                    claimable: true,
+                  } as unknown as ReadOnlyOpportunityType['rewardsCryptoBaseUnit']
+
                   const fiatAmount = bnOrZero(asset.balanceUSD).toString()
                   const apy = bnOrZero(asset.dataProps?.apy).div(100).toString()
                   const tvl = bnOrZero(asset.dataProps?.liquidity).toString()
@@ -496,8 +510,7 @@ export const zapper = createApi({
                       id: opportunityId,
                       icon,
                       name,
-                      // TODO
-                      rewardAssetIds: [],
+                      rewardAssetIds,
                       provider: appName,
                       tvl,
                       type: defiType,
@@ -514,6 +527,7 @@ export const zapper = createApi({
                         : undefined,
                     opportunityId,
                     stakedAmountCryptoBaseUnit,
+                    rewardsCryptoBaseUnit,
                     fiatAmount,
                     type: defiType,
                   }
@@ -554,8 +568,13 @@ export const zapper = createApi({
 
           // Populate read only userData payload
           for (const opportunity of readOnlyUserData) {
-            const { accountId, opportunityId, userStakingId, stakedAmountCryptoBaseUnit } =
-              opportunity
+            const {
+              accountId,
+              opportunityId,
+              userStakingId,
+              rewardsCryptoBaseUnit,
+              stakedAmountCryptoBaseUnit,
+            } = opportunity
 
             // Prepare payload for upsertOpportunityAccounts
             if (accountId) {
@@ -570,8 +589,8 @@ export const zapper = createApi({
             if (userStakingId) {
               userStakingUpsertPayload.byId[userStakingId] = {
                 stakedAmountCryptoBaseUnit,
+                rewardsCryptoBaseUnit,
                 userStakingId,
-                rewardsCryptoBaseUnit: { amounts: [], claimable: false },
               }
             }
           }

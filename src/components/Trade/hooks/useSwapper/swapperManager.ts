@@ -14,6 +14,7 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
+import stableStringify from 'fast-json-stable-stringify'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { SwapperManager } from 'lib/swapper/manager/SwapperManager'
 import { CowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
@@ -26,18 +27,15 @@ import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 // singleton - do not export me, use getSwapperManager
-let _swapperManager: SwapperManager | null = null
+let _swapperManager: Promise<SwapperManager> | undefined
+
 // singleton - do not export me
 // Used to short circuit calls to getSwapperManager if flags have not changed
 let previousFlags: string = ''
 
-export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperManager> => {
-  const flagsChanged = previousFlags !== JSON.stringify(flags)
-  if (_swapperManager && !flagsChanged) return _swapperManager
-  previousFlags = JSON.stringify(flags)
-
+export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperManager> => {
   // instantiate if it doesn't already exist
-  _swapperManager = new SwapperManager()
+  const swapperManager = new SwapperManager()
 
   const adapterManager = getChainAdapterManager()
   const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
@@ -54,7 +52,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
       apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
       web3: ethWeb3,
     })
-    _swapperManager.addSwapper(cowSwapper)
+    swapperManager.addSwapper(cowSwapper)
   }
 
   if (flags.ZrxEthereumSwap) {
@@ -62,7 +60,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
       web3: ethWeb3,
       adapter: ethereumChainAdapter,
     })
-    _swapperManager.addSwapper(zrxEthereumSwapper)
+    swapperManager.addSwapper(zrxEthereumSwapper)
   }
 
   if (flags.ZrxAvalancheSwap) {
@@ -74,7 +72,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
       web3: avaxWeb3,
       adapter: avalancheChainAdapter,
     })
-    _swapperManager.addSwapper(zrxAvalancheSwapper)
+    swapperManager.addSwapper(zrxAvalancheSwapper)
   }
 
   if (flags.ZrxOptimismSwap) {
@@ -86,7 +84,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
       web3: optimismWeb3,
       adapter: optimismChainAdapter,
     })
-    _swapperManager.addSwapper(zrxOptimismSwapper)
+    swapperManager.addSwapper(zrxOptimismSwapper)
   }
 
   if (flags.ZrxBnbSmartChainSwap) {
@@ -100,7 +98,7 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
       web3: bscWeb3,
       adapter: bscChainAdapter,
     })
-    _swapperManager.addSwapper(zrxBscSwapper)
+    swapperManager.addSwapper(zrxBscSwapper)
   }
 
   if (flags.ZrxPolygonSwap) {
@@ -114,41 +112,49 @@ export const getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMan
       web3: polygonWeb3,
       adapter: polygonChainAdatper,
     })
-    _swapperManager.addSwapper(zrxPolygonSwapper)
+    swapperManager.addSwapper(zrxPolygonSwapper)
   }
 
   if (flags.ThorSwap) {
-    await (async () => {
-      const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
-      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-      const thorSwapper = new ThorchainSwapper({
-        daemonUrl,
-        midgardUrl,
-        adapterManager,
-        web3: ethWeb3,
-      })
-      await thorSwapper.initialize()
-      _swapperManager.addSwapper(thorSwapper)
-    })()
+    const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+    const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+    const thorSwapper = new ThorchainSwapper({
+      daemonUrl,
+      midgardUrl,
+      adapterManager,
+      web3: ethWeb3,
+    })
+    await thorSwapper.initialize()
+    swapperManager.addSwapper(thorSwapper)
   }
 
   if (flags.OsmosisSwap) {
     const osmoUrl = `${getConfig().REACT_APP_OSMOSIS_NODE_URL}/lcd`
     const cosmosUrl = `${getConfig().REACT_APP_COSMOS_NODE_URL}/lcd`
     const osmoSwapper = new OsmosisSwapper({ adapterManager, osmoUrl, cosmosUrl })
-    _swapperManager.addSwapper(osmoSwapper)
+    swapperManager.addSwapper(osmoSwapper)
   }
 
   if (flags.LifiSwap) {
     const lifiSwapper = new LifiSwapper()
     await lifiSwapper.initialize()
-    _swapperManager.addSwapper(lifiSwapper)
+    swapperManager.addSwapper(lifiSwapper)
   }
 
   if (flags.OneInch) {
     const oneInchApiUrl = getConfig().REACT_APP_ONE_INCH_API_URL
     const oneInchSwapper = new OneInchSwapper({ apiUrl: oneInchApiUrl })
-    _swapperManager.addSwapper(oneInchSwapper)
+    swapperManager.addSwapper(oneInchSwapper)
+  }
+
+  return swapperManager
+}
+
+export const getSwapperManager = (flags: FeatureFlags): Promise<SwapperManager> => {
+  const flagsChanged = previousFlags !== stableStringify(flags)
+  if (!_swapperManager || flagsChanged) {
+    _swapperManager = _getSwapperManager(flags)
+    previousFlags = stableStringify(flags)
   }
 
   return _swapperManager

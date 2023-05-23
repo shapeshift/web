@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type {
   CosmosSdkBaseAdapter,
@@ -7,11 +7,13 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { baseUnitToPrecision, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BigNumber } from 'lib/bignumber/bignumber'
+import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type {
   GetTradeQuoteInput,
   GetUtxoTradeQuoteInput,
+  ProtocolFee,
   SwapErrorRight,
   TradeQuote,
 } from 'lib/swapper/api'
@@ -122,19 +124,33 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
   const fees = quote.isOk() ? quote.unwrap().fees : undefined
 
-  const maybeBuyAssetTradeFeeBuyAssetCryptoHuman = fees
-    ? Ok(fromBaseUnit(bnOrZero(fees.outbound), THORCHAIN_FIXED_PRECISION))
-    : (await getInboundAddressDataForChain(deps.daemonUrl, buyAsset.assetId)).andThen<string>(
-        data => Ok(fromBaseUnit(bnOrZero(data?.outbound_fee), THORCHAIN_FIXED_PRECISION)),
+  const maybeBuyAssetTradeFeeBuyAssetCryptoThorPrecision = fees
+    ? Ok(bnOrZero(fees.outbound))
+    : (await getInboundAddressDataForChain(deps.daemonUrl, buyAsset.assetId)).andThen<BigNumber>(
+        data => Ok(bnOrZero(data?.outbound_fee)),
       )
 
-  const buyAssetTradeFeeBuyAssetCryptoHuman = maybeBuyAssetTradeFeeBuyAssetCryptoHuman.isErr()
-    ? '0'
-    : maybeBuyAssetTradeFeeBuyAssetCryptoHuman.unwrap()
+  const buyAssetTradeFeeBuyAssetCryptoThorPrecision =
+    maybeBuyAssetTradeFeeBuyAssetCryptoThorPrecision.isErr()
+      ? bn(0)
+      : maybeBuyAssetTradeFeeBuyAssetCryptoThorPrecision.unwrap()
 
-  const sellAssetTradeFeeBuyAssetCryptoHuman = fees
-    ? fromBaseUnit(bnOrZero(fees.affiliate), THORCHAIN_FIXED_PRECISION)
-    : '0'
+  const buyAssetTradeFeeBuyAssetCryptoHuman = fromBaseUnit(
+    buyAssetTradeFeeBuyAssetCryptoThorPrecision,
+    THORCHAIN_FIXED_PRECISION,
+  )
+
+  const buyAssetTradeFeeBuyAssetCryptoBaseUnit = convertPrecision({
+    value: buyAssetTradeFeeBuyAssetCryptoThorPrecision,
+    inputExponent: THORCHAIN_FIXED_PRECISION,
+    outputExponent: buyAsset.precision,
+  })
+
+  const sellAssetTradeFeeBuyAssetCryptoBaseUnit = convertPrecision({
+    value: fees ? fees.affiliate : '0',
+    inputExponent: THORCHAIN_FIXED_PRECISION,
+    outputExponent: buyAsset.precision,
+  })
 
   // If we have a quote, we can use the quote's expected amount out. If not it's either a 0-value trade or an error, so use '0'.
   // Because the expected_amount_out is the amount after fees, we need to add them back on to get the "before fees" amount
@@ -162,9 +178,6 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
   const buyAssetTradeFeeUsd = bn(buyAssetUsdRate)
     .times(buyAssetTradeFeeBuyAssetCryptoHuman)
     .toString()
-  const sellAssetTradeFeeUsd = bn(buyAssetUsdRate)
-    .times(sellAssetTradeFeeBuyAssetCryptoHuman)
-    .toString()
 
   const minimumSellAssetAmountCryptoHuman = bn(sellAssetUsdRate).isGreaterThan(0)
     ? bnOrZero(buyAssetTradeFeeUsd).div(sellAssetUsdRate)
@@ -187,6 +200,24 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     accountNumber,
     minimumCryptoHuman: minimumSellAssetAmountPaddedCryptoHuman,
     recommendedSlippage: slippagePercentage.div(100).toString(),
+  }
+
+  const protocolFees: Record<AssetId, ProtocolFee> = {}
+
+  if (!buyAssetTradeFeeBuyAssetCryptoBaseUnit.isZero()) {
+    protocolFees[buyAsset.assetId] = {
+      amountCryptoBaseUnit: buyAssetTradeFeeBuyAssetCryptoBaseUnit.toString(),
+      requiresBalance: false,
+      asset: buyAsset,
+    }
+  }
+
+  if (!sellAssetTradeFeeBuyAssetCryptoBaseUnit.isZero()) {
+    protocolFees[sellAsset.assetId] = {
+      amountCryptoBaseUnit: sellAssetTradeFeeBuyAssetCryptoBaseUnit.toString(),
+      requiresBalance: false,
+      asset: sellAsset,
+    }
   }
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
@@ -214,8 +245,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
         const feeData = await getEvmTxFees({
           adapter: sellAdapter as unknown as EvmBaseAdapter<ThorEvmSupportedChainId>,
-          buyAssetTradeFeeUsd,
-          sellAssetTradeFeeUsd,
+          protocolFees,
         })
 
         return Ok({
@@ -235,7 +265,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           slippageTolerance: DEFAULT_SLIPPAGE,
           destinationAddress: receiveAddress,
           xpub: (input as GetUtxoTradeQuoteInput).xpub,
-          buyAssetTradeFeeUsd,
+          protocolFees,
           affiliateBps,
         })
 
@@ -249,8 +279,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           opReturnData,
           pubkey,
           sellAdapter: sellAdapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>,
-          buyAssetTradeFeeUsd,
-          sellAssetTradeFeeUsd,
+          protocolFees,
           sendMax,
         })
 
@@ -273,8 +302,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           allowanceContract: '0x0', // not applicable to cosmos
           feeData: {
             networkFeeCryptoBaseUnit: feeData.fast.txFee,
-            buyAssetTradeFeeUsd,
-            sellAssetTradeFeeUsd,
+            protocolFees,
             chainSpecific: { estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit },
           },
         })

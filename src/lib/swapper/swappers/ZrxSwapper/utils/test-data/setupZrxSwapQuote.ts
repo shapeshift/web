@@ -40,9 +40,7 @@ export const setupExecuteTrade = () => {
     depositAddress: '0x0',
     receiveAddress: '0x0',
     feeData: {
-      chainSpecific: {},
-      buyAssetTradeFeeUsd: '0',
-      sellAssetTradeFeeUsd: '0',
+      protocolFees: {},
       networkFeeCryptoBaseUnit: '0',
     },
     rate: '0',

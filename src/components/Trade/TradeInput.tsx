@@ -173,10 +173,14 @@ export const TradeInput = () => {
   const { assetSearch } = useModal()
   const { handleAssetClick } = useTradeRoutes()
 
+  const walletSupportsSellAssetChain = walletSupportsChain({ chainId: sellAssetChainId, wallet })
+  const walletSupportsBuyAssetChain = walletSupportsChain({ chainId: buyAssetChainId, wallet })
+  const shouldShowManualReceiveAddressInput = !walletSupportsBuyAssetChain
+
   // Trigger re-validation of the manually entered receive address
   useEffect(() => {
     formTrigger(SendFormFields.Input)
-  }, [formTrigger])
+  }, [formTrigger, shouldShowManualReceiveAddressInput])
 
   // Reset the manual address input state when the user changes the buy asset
   useEffect(() => {
@@ -239,12 +243,6 @@ export const TradeInput = () => {
       activeQuote.sellAsset?.assetId === sellAsset?.assetId
     )
   }, [buyAsset?.assetId, activeQuote, sellAsset?.assetId])
-
-  const walletSupportsSellAssetChain = walletSupportsChain({ chainId: sellAssetChainId, wallet })
-  const walletSupportsBuyAssetChain = walletSupportsChain({ chainId: buyAssetChainId, wallet })
-
-  // Constants
-  const shouldShowManualReceiveAddressInput = !walletSupportsBuyAssetChain
 
   const chainAdapterManager = getChainAdapterManager()
   const buyAssetChainName = chainAdapterManager.get(buyAsset.chainId)?.getDisplayName()

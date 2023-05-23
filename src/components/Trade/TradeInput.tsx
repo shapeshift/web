@@ -157,6 +157,7 @@ export const TradeInput = () => {
     checkApprovalNeeded,
     supportedSellAssetsByMarketCap,
     supportedBuyAssetsByMarketCap,
+    isSwapperInitialized,
   } = useSwapper()
   const translate = useTranslate()
   const history = useHistory()
@@ -604,6 +605,9 @@ export const TradeInput = () => {
 
   const handleInputAssetClick = useCallback(
     (action: AssetClickAction) => {
+      // prevent opening the asset selection while they are being populated
+      if (!isSwapperInitialized) return
+
       assetSearch.open({
         onClick: action === AssetClickAction.Sell ? handleSellAssetClick : handleBuyAssetClick,
         title: action === AssetClickAction.Sell ? 'trade.tradeFrom' : 'trade.tradeTo',
@@ -615,6 +619,7 @@ export const TradeInput = () => {
     },
     [
       assetSearch,
+      isSwapperInitialized,
       supportedBuyAssetsByMarketCap,
       supportedSellAssetsByMarketCap,
       handleSellAssetClick,
@@ -623,8 +628,16 @@ export const TradeInput = () => {
   )
 
   const tradeStateLoading = useMemo(
-    () => (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) || !isSwapperApiInitiated,
-    [isSwapperApiPending, quoteAvailableForCurrentAssetPair, isSwapperApiInitiated],
+    () =>
+      (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) ||
+      !isSwapperApiInitiated ||
+      !isSwapperInitialized,
+    [
+      isSwapperApiPending,
+      quoteAvailableForCurrentAssetPair,
+      isSwapperApiInitiated,
+      isSwapperInitialized,
+    ],
   )
 
   const isSellAction = useMemo(() => {

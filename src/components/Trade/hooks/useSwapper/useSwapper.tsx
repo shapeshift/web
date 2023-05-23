@@ -273,5 +273,6 @@ export const useSwapper = () => {
     approve,
     getApprovalTxData,
     checkApprovalNeeded,
+    isSwapperInitialized: swapperManager !== undefined,
   }
 }

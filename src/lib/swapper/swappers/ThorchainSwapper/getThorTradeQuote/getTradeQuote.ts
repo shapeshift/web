@@ -124,6 +124,10 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
   const fees = quote.isOk() ? quote.unwrap().fees : undefined
 
+  const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+  const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
+  const buySellAssetRate = bn(buyAssetUsdRate).div(sellAssetUsdRate)
+
   const maybeBuyAssetTradeFeeBuyAssetCryptoThorPrecision = fees
     ? Ok(bnOrZero(fees.outbound))
     : (await getInboundAddressDataForChain(deps.daemonUrl, buyAsset.assetId)).andThen<BigNumber>(
@@ -146,11 +150,12 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     outputExponent: buyAsset.precision,
   })
 
-  const sellAssetTradeFeeBuyAssetCryptoBaseUnit = convertPrecision({
+  // donation is denominated in the buy asset from thor but we display it in sell asset for ux reasons
+  const sellAssetTradeFeeCryptoBaseUnit = convertPrecision({
     value: fees ? fees.affiliate : '0',
     inputExponent: THORCHAIN_FIXED_PRECISION,
-    outputExponent: buyAsset.precision,
-  })
+    outputExponent: sellAsset.precision,
+  }).times(buySellAssetRate)
 
   // If we have a quote, we can use the quote's expected amount out. If not it's either a 0-value trade or an error, so use '0'.
   // Because the expected_amount_out is the amount after fees, we need to add them back on to get the "before fees" amount
@@ -171,9 +176,6 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
       return '0'
     }
   })()
-
-  const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
-  const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
 
   const buyAssetTradeFeeUsd = bn(buyAssetUsdRate)
     .times(buyAssetTradeFeeBuyAssetCryptoHuman)
@@ -212,9 +214,9 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     }
   }
 
-  if (!sellAssetTradeFeeBuyAssetCryptoBaseUnit.isZero()) {
+  if (!sellAssetTradeFeeCryptoBaseUnit.isZero()) {
     protocolFees[sellAsset.assetId] = {
-      amountCryptoBaseUnit: sellAssetTradeFeeBuyAssetCryptoBaseUnit.toString(),
+      amountCryptoBaseUnit: sellAssetTradeFeeCryptoBaseUnit.toString(),
       requiresBalance: false,
       asset: sellAsset,
     }

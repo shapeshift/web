@@ -2,7 +2,6 @@ import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import isEmpty from 'lodash/isEmpty'
 import partition from 'lodash/partition'
 import { matchSorter } from 'match-sorter'
@@ -27,6 +26,7 @@ import type {
   OpportunityId,
   StakingEarnOpportunityType,
 } from '../types'
+import { DefiProvider, DefiType } from '../types'
 import { getOpportunityAccessor, getUnderlyingAssetIdsBalances } from '../utils'
 import { selectAssets } from './../../assetsSlice/selectors'
 import { selectSelectedCurrencyMarketDataSortedByMarketCap } from './../../marketDataSlice/selectors'
@@ -306,8 +306,8 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     searchQuery,
   ): AggregatedOpportunitiesByProviderReturn[] => {
     if (isEmpty(marketData)) return []
-    const totalFiatAmountByProvider = {} as Record<DefiProvider, BN>
-    const projectedAnnualizedYieldByProvider = {} as Record<DefiProvider, BN>
+    const totalFiatAmountByProvider: Record<string, BN> = {}
+    const projectedAnnualizedYieldByProvider: Record<string, BN> = {}
     const combined = userStakingOpportunites.concat(userLpOpportunities)
 
     /**
@@ -379,7 +379,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
     const filtered = searchOpportunities(searchQuery, combined, assets)
 
-    const makeEmptyPayload = (provider: DefiProvider): AggregatedOpportunitiesByProviderReturn => ({
+    const makeEmptyPayload = (provider: string): AggregatedOpportunitiesByProviderReturn => ({
       provider,
       apy: '0',
       fiatAmount: '0',
@@ -402,7 +402,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       [DefiProvider.ThorchainSavers]: makeEmptyPayload(DefiProvider.ThorchainSavers),
     } as const
 
-    const isActiveStakingByFilter = filtered.reduce<Record<DefiProvider, boolean>>((acc, cur) => {
+    const isActiveStakingByFilter = filtered.reduce<Record<string, boolean>>((acc, cur) => {
       const { provider } = cur
 
       if (chainId && chainId !== cur.chainId) return acc
@@ -426,56 +426,62 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       return acc
     }, {} as Record<DefiProvider, boolean>)
 
-    const byProvider = filtered.reduce<
-      Record<DefiProvider, AggregatedOpportunitiesByProviderReturn>
-    >((acc, cur) => {
-      const { provider } = cur
-      const isActiveProvider = isActiveStakingByFilter[provider]
+    const byProvider = filtered.reduce<Record<string, AggregatedOpportunitiesByProviderReturn>>(
+      (acc, cur) => {
+        const { provider } = cur
+        if (!acc[provider]) {
+          acc[provider] = makeEmptyPayload(provider)
+        }
+        const isActiveProvider = isActiveStakingByFilter[provider]
 
-      if (chainId && chainId !== cur.chainId) return acc
+        if (chainId && chainId !== cur.chainId) return acc
 
-      const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountFiat({
-        maybeStakingOpportunity: cur,
-        marketData,
-        assets,
-      })
+        const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountFiat({
+          maybeStakingOpportunity: cur,
+          marketData,
+          assets,
+        })
 
-      const isActiveOpportunityByFilter =
-        (!includeEarnBalances && !includeRewardsBalances) ||
-        (includeEarnBalances && bnOrZero(cur.fiatAmount).gt(0)) ||
-        (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
-      // No active staking for the current provider, show the highest APY
-      if (!isActiveProvider) {
-        acc[provider].apy = BigNumber.maximum(acc[provider].apy, cur.apy).toFixed()
-      } else if (isActiveOpportunityByFilter) {
-        totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(
-          cur.fiatAmount,
-        )
-        projectedAnnualizedYieldByProvider[provider] = bnOrZero(
-          projectedAnnualizedYieldByProvider[provider],
-        ).plus(bnOrZero(cur.fiatAmount).times(cur.apy))
-      }
+        const isActiveOpportunityByFilter =
+          (!includeEarnBalances && !includeRewardsBalances) ||
+          (includeEarnBalances && bnOrZero(cur.fiatAmount).gt(0)) ||
+          (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
+        // No active staking for the current provider, show the highest APY
+        if (!isActiveProvider) {
+          acc[provider].apy = BigNumber.maximum(acc[provider].apy, cur.apy).toFixed()
+        } else if (isActiveOpportunityByFilter) {
+          totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(
+            cur.fiatAmount,
+          )
+          projectedAnnualizedYieldByProvider[provider] = bnOrZero(
+            projectedAnnualizedYieldByProvider[provider],
+          ).plus(bnOrZero(cur.fiatAmount).times(cur.apy))
+        }
 
-      if (cur.type === DefiType.LiquidityPool) {
-        acc[provider].opportunities.lp.push(cur.id)
-      }
+        if (cur.type === DefiType.LiquidityPool) {
+          acc[provider].opportunities.lp.push(cur.id)
+        }
 
-      if (cur.type === DefiType.Staking && isActiveOpportunityByFilter) {
-        acc[provider].opportunities.staking.push(cur.id)
-      }
-      const fiatRewardsAmount = bnOrZero(maybeStakingRewardsAmountFiat)
-        .plus(acc[provider].fiatRewardsAmount)
-        .toFixed(2)
-      acc[provider].fiatRewardsAmount = fiatRewardsAmount
-      const fiatAmount = bnOrZero(acc[provider].fiatAmount)
-        .plus(bnOrZero(cur.fiatAmount))
-        .toFixed(2)
-      acc[provider].fiatAmount = fiatAmount
+        if (cur.type === DefiType.Staking && isActiveOpportunityByFilter) {
+          acc[provider].opportunities.staking.push(cur.id)
+        }
+        const fiatRewardsAmount = bnOrZero(maybeStakingRewardsAmountFiat)
+          .plus(acc[provider].fiatRewardsAmount)
+          .toFixed(2)
+        acc[provider].fiatRewardsAmount = fiatRewardsAmount
+        const fiatAmount = bnOrZero(acc[provider].fiatAmount)
+          .plus(bnOrZero(cur.fiatAmount))
+          .toFixed(2)
+        acc[provider].fiatAmount = fiatAmount
 
-      acc[provider].netProviderFiatAmount = bnOrZero(fiatAmount).plus(fiatRewardsAmount).toFixed(2)
+        acc[provider].netProviderFiatAmount = bnOrZero(fiatAmount)
+          .plus(fiatRewardsAmount)
+          .toFixed(2)
 
-      return acc
-    }, initial)
+        return acc
+      },
+      initial,
+    )
 
     for (const [provider, totalVirtualFiatAmount] of Object.entries(totalFiatAmountByProvider)) {
       // Use the highest APY for inactive opportunities

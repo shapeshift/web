@@ -1,7 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, Grid, Heading, Image, Link, useColorModeValue } from '@chakra-ui/react'
 import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
-import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useTranslate } from 'react-polyglot'
 import ArkeoBg from 'assets/arkeo-bg.jpg'
 import NodeImage from 'assets/node.svg'
@@ -13,7 +12,7 @@ import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
 import { foxEthLpAssetId, foxEthStakingAssetIdV6 } from 'state/slices/opportunitiesSlice/constants'
-import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
+import type { DefiType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 
 import { FoxTokenHolders } from './FoxTokenHolders'
 import { LpCards } from './LpCards'
@@ -27,7 +26,12 @@ const cosmosOsmosLpAssetId = 'cosmos:osmosis-1/ibc:gamm/pool/1'
 const FOXY_STAKING_CONTRACT = 'eip155:1/erc20:0xee77aa3fd23bbebaf94386dd44b548e9a785ea4b'
 
 const opportunities: OpportunityReturn = {
-  staking: [FOXY_STAKING_CONTRACT, foxEthStakingAssetIdV6, osmosisAssetId, cosmosAssetId],
+  staking: [
+    FOXY_STAKING_CONTRACT,
+    foxEthStakingAssetIdV6,
+    osmosisAssetId,
+    cosmosAssetId,
+  ] as OpportunityId[],
   lp: [foxEthLpAssetId, cosmosOsmosLpAssetId],
 }
 

@@ -1,14 +1,11 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { USDC_PRECISION } from 'constants/constants'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectAssetById,
-  selectFeatureFlags,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -18,6 +15,7 @@ import type {
   OpportunityMetadata,
   StakingId,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
   OpportunitiesMetadataResolverInput,

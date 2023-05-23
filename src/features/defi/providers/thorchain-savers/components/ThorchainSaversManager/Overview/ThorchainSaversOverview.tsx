@@ -21,11 +21,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import {
-  DefiAction,
-  DefiProvider,
-  DefiType,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -42,6 +38,7 @@ import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import { selectSwapperApiTradingActivePending } from 'state/apis/swapper/selectors'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import {
   makeDefiProviderDisplayName,
   serializeUserStakingId,

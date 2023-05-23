@@ -7,6 +7,7 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import qs from 'qs'
+import { batch } from 'react-redux'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
@@ -575,9 +576,11 @@ export const zapper = createApi({
             }
           }
 
-          dispatch(opportunities.actions.upsertOpportunityMetadata(metadataUpsertPayload))
-          dispatch(opportunities.actions.upsertOpportunityAccounts(accountUpsertPayload))
-          dispatch(opportunities.actions.upsertUserStakingOpportunities(userStakingUpsertPayload))
+          batch(() => {
+            dispatch(opportunities.actions.upsertOpportunityMetadata(metadataUpsertPayload))
+            dispatch(opportunities.actions.upsertOpportunityAccounts(accountUpsertPayload))
+            dispatch(opportunities.actions.upsertUserStakingOpportunities(userStakingUpsertPayload))
+          })
 
           // Denormalized into userData/opportunities/metadataByProvider for ease of consumption if we need to
           return { data: parsedOpportunities }

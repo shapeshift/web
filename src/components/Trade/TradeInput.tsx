@@ -196,10 +196,6 @@ export const TradeInput = () => {
     () => ({ assetId: sellFeeAsset?.assetId, accountId: sellAssetAccountId ?? '' }),
     [sellAssetAccountId, sellFeeAsset?.assetId],
   )
-  const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
-  )
-
   const sellAssetBalanceFilter = useMemo(
     () => ({ accountId: sellAssetAccountId, assetId: sellAsset?.assetId ?? '' }),
     [sellAssetAccountId, sellAsset?.assetId],
@@ -211,16 +207,21 @@ export const TradeInput = () => {
   const sellAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, sellAssetBalanceFilter),
   )
+  const buyAssetBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, buyAssetBalanceFilter),
+  )
+  const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
+  )
   const sellAssetBalanceHuman = useAppSelector(state =>
     selectPortfolioCryptoPrecisionBalanceByFilter(state, sellAssetBalanceFilter),
+  )
+  const feeAssetBalanceHuman = useAppSelector(s =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const isYatSupportedByReceiveChain = buyAsset.chainId === ethChainId // yat only supports eth mainnet
   const isYatSupported = isYatFeatureEnabled && isYatSupportedByReceiveChain
-
-  const buyAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, buyAssetBalanceFilter),
-  )
 
   const isSwapperApiPending = useSelector(selectSwapperApiPending)
   const isTradeQuotePending = useSelector(selectSwapperApiTradeQuotePending)
@@ -415,6 +416,7 @@ export const TradeInput = () => {
     [sellAmountCryptoPrecision, buyAmountCryptoPrecision, isTradeQuotePending],
   )
 
+  // TODO(woodenfurniture): this needs to be rewritten for arbitrary assets to support multi-hop
   const hasSufficientProtocolFeeBalances = useMemo(() => {
     if (protocolFees === undefined) return false
 
@@ -426,13 +428,21 @@ export const TradeInput = () => {
       ? protocolFees[sellAsset.assetId].amountCryptoBaseUnit
       : '0'
 
+    const feeAssetTradeFeeCryptoBaseUnit =
+      feeAsset && protocolFees[feeAsset.assetId]?.requiresBalance
+        ? protocolFees[feeAsset.assetId].amountCryptoBaseUnit
+        : '0'
+
     return (
       bn(buyAssetBalanceCryptoBaseUnit).gte(buyAssetTradeFeeCryptoBaseUnit) &&
-      bn(sellAssetBalanceCryptoBaseUnit).gte(sellAssetTradeFeeCryptoBaseUnit)
+      bn(sellAssetBalanceCryptoBaseUnit).gte(sellAssetTradeFeeCryptoBaseUnit) &&
+      bn(feeAssetBalanceCryptoBaseUnit).gte(feeAssetTradeFeeCryptoBaseUnit)
     )
   }, [
     buyAsset.assetId,
     buyAssetBalanceCryptoBaseUnit,
+    feeAsset,
+    feeAssetBalanceCryptoBaseUnit,
     protocolFees,
     sellAsset.assetId,
     sellAssetBalanceCryptoBaseUnit,
@@ -447,7 +457,7 @@ export const TradeInput = () => {
     const tradeDeduction =
       sellFeeAsset?.assetId === sellAsset?.assetId ? bnOrZero(sellAmountCryptoPrecision) : bn(0)
     const shouldDeductNetworkFeeFromGasBalanceCheck = swapperName !== SwapperName.CowSwap
-    const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
+    const hasEnoughBalanceForGas = bnOrZero(feeAssetBalanceHuman)
       .minus(
         shouldDeductNetworkFeeFromGasBalanceCheck
           ? fromBaseUnit(
@@ -538,7 +548,7 @@ export const TradeInput = () => {
     sellAsset?.assetId,
     sellAsset?.symbol,
     swapperName,
-    feeAssetBalance,
+    feeAssetBalanceHuman,
     activeQuote?.feeData.networkFeeCryptoBaseUnit,
     activeQuote?.minimumCryptoHuman,
     activeQuote?.sellAsset.symbol,

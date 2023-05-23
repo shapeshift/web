@@ -55,6 +55,7 @@ import {
 } from 'state/slices/assetsSlice/selectors'
 import {
   selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAccountIdByNumberByChainId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
@@ -216,6 +217,10 @@ export const TradeInput = () => {
   )
   const feeAssetBalanceHuman = useAppSelector(s =>
     selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
+  )
+
+  const portfolioAccountIdByNumberByChainId = useAppSelector(
+    selectPortfolioAccountIdByNumberByChainId,
   )
 
   const isYatSupportedByReceiveChain = buyAsset.chainId === ethChainId // yat only supports eth mainnet
@@ -409,18 +414,25 @@ export const TradeInput = () => {
   )
 
   const hasSufficientProtocolFeeBalances = useMemo(() => {
-    if (protocolFees === undefined || sellAssetAccountId === undefined) return false
+    if (protocolFees === undefined || tradeQuoteArgs === undefined) return false
 
-    const sellAccountBalancesBaseUnit = portfolioAccountBalancesBaseUnit[sellAssetAccountId]
-
-    // protocol fees that require balance are always paid from the sell account
+    // protocol fees that require balance are always paid from the sell asset account number
     return Object.entries(protocolFees)
       .filter(([_assetId, protocolFee]) => protocolFee.requiresBalance)
       .every(([assetId, protocolFee]) => {
-        const balanceCryptoBaseUnit = sellAccountBalancesBaseUnit[assetId]
+        const accountId =
+          portfolioAccountIdByNumberByChainId[tradeQuoteArgs.accountNumber][
+            protocolFee.asset.chainId
+          ]
+        const balanceCryptoBaseUnit = portfolioAccountBalancesBaseUnit[accountId][assetId]
         return bnOrZero(balanceCryptoBaseUnit).gte(protocolFee.amountCryptoBaseUnit)
       })
-  }, [portfolioAccountBalancesBaseUnit, protocolFees, sellAssetAccountId])
+  }, [
+    portfolioAccountBalancesBaseUnit,
+    portfolioAccountIdByNumberByChainId,
+    protocolFees,
+    tradeQuoteArgs,
+  ])
 
   const getErrorTranslationKey = useCallback((): string | [string, InterpolationOptions] => {
     const hasValidSellAssetBalance = bnOrZero(sellAssetBalanceHuman).gte(

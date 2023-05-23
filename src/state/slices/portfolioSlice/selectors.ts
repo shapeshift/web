@@ -580,6 +580,29 @@ export const selectPortfolioAccountBalanceByAccountNumberAndChainId = createCach
     `${filter?.accountNumber}-${filter?.chainId}` ?? 'accountNumber-chainId',
 )
 
+export type PortfolioAccountIdByNumberByChainId = {
+  [accountNumber: number]: { [chainId: ChainId]: AccountId }
+}
+
+export const selectPortfolioAccountIdByNumberByChainId = createDeepEqualOutputSelector(
+  selectPortfolioAccountsFiatBalancesIncludingStaking,
+  selectPortfolioAccountMetadata,
+  (accountBalances, accountMetadata): PortfolioAccountIdByNumberByChainId => {
+    return Object.keys(accountBalances).reduce<PortfolioAccountIdByNumberByChainId>(
+      (acc, accountId) => {
+        const { chainId } = fromAccountId(accountId)
+        const { accountNumber } = accountMetadata[accountId].bip44Params
+
+        if (acc[accountNumber] === undefined) acc[accountNumber] = {}
+        acc[accountNumber][chainId] = accountId
+
+        return acc
+      },
+      {},
+    )
+  },
+)
+
 export type PortfolioAccountsGroupedByNumber = { [accountNumber: number]: AccountId[] }
 
 export const selectPortfolioAccountsGroupedByNumberByChainId = createCachedSelector(

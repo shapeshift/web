@@ -6,6 +6,7 @@
     "error": "Erreur",
     "cancel": "Annuler",
     "close": "Fermer",
+    "loadMore": "Charger plus",
     "new": "Nouveau",
     "continue": "Continuer",
     "reward": "Récompense",
@@ -101,7 +102,8 @@
     "manage": "Gérer",
     "selectedAccount": "Compte sélectionné",
     "allChains": "Toutes les chaînes",
-    "wallet": "Porte-monnaie"
+    "wallet": "Porte-monnaie",
+    "action": "Action"
   },
   "consentBanner": {
     "body": {
@@ -696,6 +698,7 @@
       "broadcastFailed": "Une erreur s'est produite lors de la diffusion de la transaction",
       "insufficientFundsForLimit": "Fonds insuffisants. Le montant minimum d'échange pour cette paire est de %{minLimit}",
       "insufficientFundsForAmount": "Fonds insuffisants. Votre solde en %{symbol} est inférieur au montant sélectionné",
+      "insufficientFundsForProtocolFee": "%{symbol} insuffisant sur %{chainName} pour les frais",
       "invalidTradePair": "Paire d'échange invalide : %{sellAssetName} et %{buyAssetName}",
       "invalidTradePairBtnText": "Paire d'échange invalide",
       "noLiquidityError": "Liquidités disponibles insuffisantes",
@@ -733,11 +736,12 @@
     "swappingComingSoonForWallet": "Échanger avec %{walletName} sera bientôt possible",
     "recentTrades": "Échanges récents",
     "lifiWarning": "Cet échange est routé via LI.FI, qui exécute une série de transactions intermédiaires pour effectuer un échange. Si une étape échoue, vous recevrez le jeton de la dernière étape réussie de cette séquence.",
-    "intermediaryTransactionOutputs": {
-      "prefix": "ou",
-      "suffix": "sur %{chainName}"
-    },
-    "unknownGas": "(inconnu)"
+    "or": "ou",
+    "onChainName": "sur %{chainName}",
+    "unknownGas": "(inconnu)",
+    "receiveAddress": "Adresse de réception",
+    "receiveAddressDescription": "Aucune adresse %{chainName} trouvée dans le porte-monnaie connecté. Entrez une adresse manuellement pour continuer.",
+    "addressPlaceholder": "Adresse %{chainName}"
   },
   "modals": {
     "popup": {

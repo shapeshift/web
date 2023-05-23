@@ -213,6 +213,7 @@ export type ReadOnlyOpportunityType = {
   opportunityId: OpportunityId
   userStakingId?: UserStakingId // the derived serialization of the two above, only for staking opportunities
   stakedAmountCryptoBaseUnit: string
+  rewardsCryptoBaseUnit: UserStakingOpportunityBase['rewardsCryptoBaseUnit']
   fiatAmount: string
   provider: string
 }

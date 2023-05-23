@@ -3,6 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { logger } from 'lib/logger'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
+import { covalentApi } from '../covalent/covalentApi'
 import type { V2NftUserItem } from '../zapper/validators'
 import { zapperApi } from '../zapper/zapperApi'
 
@@ -18,7 +19,10 @@ export const nftApi = createApi({
   endpoints: build => ({
     getNftUserTokens: build.query<V2NftUserItem[], GetNftUserTokensInput>({
       queryFn: async ({ accountIds }, { dispatch }) => {
-        const sources = [zapperApi.endpoints.getZapperNftUserTokens]
+        const sources = [
+          zapperApi.endpoints.getZapperNftUserTokens,
+          covalentApi.endpoints.getCovalentNftUserTokens,
+        ]
 
         const results = await Promise.all(
           sources.map(source => dispatch(source.initiate({ accountIds }))),

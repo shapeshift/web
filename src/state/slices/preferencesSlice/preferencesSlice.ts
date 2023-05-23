@@ -42,6 +42,7 @@ export type FeatureFlags = {
   DynamicLpAssets: boolean
   Jaypegz: boolean
   OneInch: boolean
+  CovalentJaypegs: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -92,6 +93,7 @@ const initialState: Preferences = {
     ZrxEthereumSwap: getConfig().REACT_APP_FEATURE_ZRX_ETHEREUM,
     ZrxOptimismSwap: getConfig().REACT_APP_FEATURE_ZRX_OPTIMISM,
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
+    CovalentJaypegs: getConfig().REACT_APP_FEATURE_COVALENT_JAYPEGS,
     Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
     FoxBondCTA: getConfig().REACT_APP_FEATURE_FOX_BOND_CTA,
     DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,

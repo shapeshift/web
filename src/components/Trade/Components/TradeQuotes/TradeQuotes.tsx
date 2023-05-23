@@ -2,13 +2,16 @@ import { Collapse, Flex } from '@chakra-ui/react'
 import { DEFAULT_SLIPPAGE } from 'constants/constants'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectBuyAssetFiatRate } from 'state/zustand/swapperStore/amountSelectors'
+import { selectCryptoMarketData } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
+import { selectBuyAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectActiveSwapperWithMetadata,
   selectAvailableSwappersWithMetadata,
   selectBuyAsset,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
+import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
 
 import { TradeQuote } from './TradeQuote'
 
@@ -18,11 +21,12 @@ type TradeQuotesProps = {
 }
 
 export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) => {
-  const buyAssetFiatRate = useSwapperStore(selectBuyAssetFiatRate)
+  const buyAssetUsdRate = useSwapperStore(selectBuyAssetUsdRate)
   const availableSwappersWithMetadata = useSwapperStore(selectAvailableSwappersWithMetadata)
   const activeSwapperWithMetadata = useSwapperStore(selectActiveSwapperWithMetadata)
   const activeSwapperName = activeSwapperWithMetadata?.swapper.name
   const buyAsset = useSwapperStore(selectBuyAsset)
+  const cryptoMarketDataById = useAppSelector(selectCryptoMarketData)
 
   const bestQuote = availableSwappersWithMetadata?.[0]?.quote
   const bestBuyAmountCryptoPrecision =
@@ -31,14 +35,23 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
   const bestBuyAmountCryptoPrecisionAfterSlippage = bnOrZero(bestBuyAmountCryptoPrecision)
     .times(bn(1).minus(bnOrZero(bestQuote?.recommendedSlippage ?? DEFAULT_SLIPPAGE)))
     .toString()
-  const bestBuyAssetTradeFeeCryptoPrecision =
-    buyAssetFiatRate && bestQuote
-      ? bnOrZero(bestQuote.feeData.buyAssetTradeFeeUsd).div(buyAssetFiatRate)
-      : undefined
-  const bestTotalReceiveAmountCryptoPrecision = bestBuyAssetTradeFeeCryptoPrecision
+
+  const bestTotalProtocolFeeCryptoPrecision =
+    bestQuote !== undefined
+      ? fromBaseUnit(
+          sumProtocolFeesToDenom({
+            cryptoMarketDataById,
+            protocolFees: bestQuote.feeData.protocolFees,
+            outputExponent: buyAsset.precision,
+            outputAssetPriceUsd: buyAssetUsdRate,
+          }),
+          buyAsset.precision,
+        )
+      : '0'
+
+  const bestTotalReceiveAmountCryptoPrecision = bestQuote
     ? bnOrZero(bestBuyAmountCryptoPrecisionAfterSlippage)
-        // TODO: determine why not subtracting bestSelllAssetTradeFeeCryptoPrecision
-        .minus(bestBuyAssetTradeFeeCryptoPrecision)
+        .minus(bestTotalProtocolFeeCryptoPrecision)
         .toString()
     : undefined
 
@@ -49,17 +62,18 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
           ? fromBaseUnit(quote.buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
           : undefined
 
-        const buyAssetTradeFeeBuyAssetCryptoPrecision = buyAssetFiatRate
-          ? bnOrZero(quote.feeData.buyAssetTradeFeeUsd).div(buyAssetFiatRate)
-          : undefined
-
-        const sellAssetTradeFeeBuyCryptoPrecision = buyAssetFiatRate
-          ? bnOrZero(quote.feeData.sellAssetTradeFeeUsd).div(buyAssetFiatRate)
-          : undefined
+        const totalProtocolFeeCryptoPrecision = fromBaseUnit(
+          sumProtocolFeesToDenom({
+            cryptoMarketDataById,
+            protocolFees: quote.feeData.protocolFees,
+            outputExponent: buyAsset.precision,
+            outputAssetPriceUsd: buyAssetUsdRate,
+          }),
+          buyAsset.precision,
+        )
 
         const totalReceiveAmountCryptoPrecision = bnOrZero(buyAmountBeforeFeesCryptoPrecision)
-          .minus(buyAssetTradeFeeBuyAssetCryptoPrecision ?? 0)
-          .minus(sellAssetTradeFeeBuyCryptoPrecision ?? 0)
+          .minus(totalProtocolFeeCryptoPrecision)
           .times(bn(1).minus(bnOrZero(quote.recommendedSlippage ?? DEFAULT_SLIPPAGE)))
           .toString()
 

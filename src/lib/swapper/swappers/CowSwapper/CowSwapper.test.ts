@@ -178,8 +178,7 @@ describe('CowSwapper', () => {
         feeAmountInSellTokenCryptoBaseUnit: '14557942658757988',
         rate: '14716.04718939437505555958',
         feeData: {
-          buyAssetTradeFeeUsd: '0',
-          sellAssetTradeFeeUsd: '0',
+          protocolFees: {},
           networkFeeCryptoBaseUnit: '14557942658757988',
         },
         sellAmountDeductFeeCryptoBaseUnit: '985442057341242012',

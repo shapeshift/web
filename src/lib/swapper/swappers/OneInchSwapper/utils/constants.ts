@@ -9,5 +9,4 @@ export const DEFAULT_SOURCE: SwapSource[] = [{ name: SwapperName.OneInch, propor
 export const WETH_ASSET_ID = 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 export const WAVAX_ASSET_ID = 'eip155:43114/erc20:0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7'
 export const WBNB_ASSET_ID = 'eip155:56/erc20:0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'
-export const WXDAI_ASSET_ID = 'eip155:100/erc20:0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d'
 export const WOP_ASSET_ID = 'eip155:10/erc20:0x4200000000000000000000000000000000000006'

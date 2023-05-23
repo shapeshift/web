@@ -1,11 +1,12 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import max from 'lodash/max'
 import type { Asset } from 'lib/asset-service'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import type { SwapErrorRight } from 'lib/swapper/api'
+import type { ProtocolFee, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
@@ -25,28 +26,28 @@ import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export type GetLimitArgs = {
   receiveAddress: string | undefined
-  buyAssetId: string
+  buyAsset: Asset
   sellAsset: Asset
   sellAmountCryptoBaseUnit: string
   deps: ThorchainSwapperDeps
   slippageTolerance: string
-  buyAssetTradeFeeUsd: string
+  protocolFees: Record<AssetId, ProtocolFee>
   affiliateBps: string
 }
 
 export const getLimit = async ({
   sellAsset,
-  buyAssetId,
+  buyAsset,
   receiveAddress,
   sellAmountCryptoBaseUnit,
   deps,
   slippageTolerance,
-  buyAssetTradeFeeUsd,
+  protocolFees,
   affiliateBps,
 }: GetLimitArgs): Promise<Result<string, SwapErrorRight>> => {
   const maybeTradeRate = await getTradeRate({
     sellAsset,
-    buyAssetId,
+    buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit,
     receiveAddress,
     deps,
@@ -55,7 +56,7 @@ export const getLimit = async ({
 
   const tradeRateBelowMinimum = await getTradeRateBelowMinimum({
     sellAssetId: sellAsset.assetId,
-    buyAssetId,
+    buyAssetId: buyAsset.assetId,
     deps,
   })
   const maybeTradeRateOrMinimum = maybeTradeRate.match({
@@ -69,7 +70,7 @@ export const getLimit = async ({
 
   const sellAssetChainFeeAssetId = deps.adapterManager.get(sellAsset.chainId)?.getFeeAssetId()
   const buyAssetChainFeeAssetId = deps.adapterManager
-    .get(fromAssetId(buyAssetId).chainId)
+    .get(fromAssetId(buyAsset.assetId).chainId)
     ?.getFeeAssetId()
   if (!sellAssetChainFeeAssetId || !buyAssetChainFeeAssetId) {
     return Err(
@@ -100,10 +101,11 @@ export const getLimit = async ({
       }),
     )
 
-  const buyAssetTradeFeeCryptoPrecision8 = toBaseUnit(
-    bnOrZero(buyAssetTradeFeeUsd).div(buyAssetUsdRate),
-    THORCHAIN_FIXED_PRECISION,
-  )
+  const buyAssetTradeFeeCryptoPrecision8 = convertPrecision({
+    value: bnOrZero(protocolFees[buyAsset.assetId]?.amountCryptoBaseUnit),
+    inputExponent: buyAsset.precision,
+    outputExponent: THORCHAIN_FIXED_PRECISION,
+  })
 
   const sellAssetAddressData = await getInboundAddressDataForChain(
     deps.daemonUrl,

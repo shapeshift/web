@@ -40,6 +40,7 @@ export const selectIsSendMax = (state: SwapperState) => state.isSendMax
 export const selectAmount = (state: SwapperState) => state.amount
 export const selectReceiveAddress = (state: SwapperState) => state.receiveAddress
 export const selectFees = (state: SwapperState) => state.fees
+export const selectProtocolFees = (state: SwapperState) => state.fees?.protocolFees
 export const selectTrade = (state: SwapperState) => state.trade
 export const selectSwapperName = (state: SwapperState) =>
   state.activeSwapperWithMetadata?.swapper.name
@@ -49,7 +50,6 @@ export const selectAvailableSwappersWithMetadata = (state: SwapperState) =>
   state.availableSwappersWithMetadata
 export const selectSlippage = (state: SwapperState): string =>
   state.activeSwapperWithMetadata?.quote.recommendedSlippage ?? DEFAULT_SLIPPAGE
-export const selectAffiliateBps = (state: SwapperState): string => state.activeAffiliateBps
 
 export const selectQuote = (state: SwapperState): TradeQuote<ChainId> | undefined =>
   state.activeSwapperWithMetadata?.quote

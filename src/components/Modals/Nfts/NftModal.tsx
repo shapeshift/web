@@ -25,6 +25,7 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import Placeholder from 'assets/placeholder.png'
@@ -32,18 +33,20 @@ import PlaceholderDrk from 'assets/placeholder-drk.png'
 import { ArrowRightUp } from 'components/Icons/ArrowRightUp'
 import { DiamondIcon } from 'components/Icons/DiamondIcon'
 import { RawText } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { ordinalSuffix } from 'context/WalletProvider/NativeWallet/components/NativeTestPhrase'
 import { useModal } from 'hooks/useModal/useModal'
-import type { V2ZapperNft } from 'state/apis/zapper/validators'
-import { getMediaType } from 'state/apis/zapper/validators'
+import { chainIdToOpenseaNetwork } from 'state/apis/nft/utils'
+import type { SupportedZapperNetwork, V2ZapperNft } from 'state/apis/zapper/validators'
+import { getMediaType, zapperNetworkToChainId } from 'state/apis/zapper/validators'
 import { useGetZapperCollectionsQuery } from 'state/apis/zapper/zapperApi'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { NftCollection } from './components/NftCollection'
 import { NftOverview } from './components/NftOverview'
-
 const NftTab: React.FC<TabProps> = props => {
   const activeTabColor = useColorModeValue('blue.500', 'white')
   return (
@@ -91,13 +94,18 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
   const floorPriceEth = zapperNft?.collection.floorPriceEth
   const lastSaleEth = zapperNft?.lastSaleEth
   const openseaId = zapperNft?.collection?.openseaId
-  const collectionNetwork = zapperNft?.collection?.network
+  const maybeNetwork = zapperNft?.collection?.network
+  const maybeChainId = zapperNetworkToChainId(maybeNetwork as SupportedZapperNetwork)
+  const maybeChainAdapter = getChainAdapterManager().get(maybeChainId as ChainId)
+  const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
+  const maybeFeeAsset = useAppSelector(state => selectAssetById(state, maybeFeeAssetId ?? ''))
+  const collectionOpenseaNetwork = chainIdToOpenseaNetwork(maybeChainId as ChainId)
   const collectionAddress = zapperNft?.collection?.address
   const collectionLink = openseaId ? `https://opensea.io/collection/${openseaId}` : null
   const rarityDisplay = rarityRank ? `${rarityRank}${ordinalSuffix(rarityRank)}` : null
   const assetLink =
-    collectionNetwork && collectionAddress && nftId
-      ? `https://opensea.io/assets/${collectionNetwork}/${collectionAddress}/${nftId}`
+    collectionOpenseaNetwork && collectionAddress && nftId
+      ? `https://opensea.io/assets/${collectionOpenseaNetwork}/${collectionAddress}/${nftId}`
       : null
 
   const mediaBoxProps = useMemo(
@@ -206,10 +214,12 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
           )}
         </Flex>
         <StatGroup>
-          {floorPriceEth && (
+          {floorPriceEth && maybeFeeAsset && (
             <Stat>
               <StatLabel>{translate('nft.floorPrice')}</StatLabel>
-              <StatNumber>{floorPriceEth} ETH</StatNumber>
+              <StatNumber>
+                {floorPriceEth} {maybeFeeAsset.symbol}
+              </StatNumber>
             </Stat>
           )}
           {lastSaleEth && (
@@ -226,10 +236,11 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
     collectionLink,
     collectionName,
     name,
+    rarityDisplay,
     floorPriceEth,
+    maybeFeeAsset,
     translate,
     lastSaleEth,
-    rarityDisplay,
   ])
 
   const nftModalDetails = useMemo(() => {

@@ -2,7 +2,12 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { createErrorClass } from '@shapeshiftoss/errors'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import type {
+  ChainSpecific,
+  KnownChainIds,
+  MarketData,
+  UtxoAccountType,
+} from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
 
@@ -55,10 +60,11 @@ type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
   }
 >
 
+export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
+
 export type QuoteFeeData<T extends ChainId, MissingNetworkFee extends boolean = false> = {
   networkFeeCryptoBaseUnit: MissingNetworkFee extends true ? undefined : string // fee paid to the network from the fee asset
-  buyAssetTradeFeeUsd: string // fee taken out of the trade from the buyAsset
-  sellAssetTradeFeeUsd?: string // fee taken out of the trade from the sellAsset
+  protocolFees: Record<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
 } & ChainSpecificQuoteFeeData<T>
 
 export type ByPairInput = {
@@ -68,9 +74,7 @@ export type ByPairInput = {
 
 export type GetSwappersWithQuoteMetadataArgs = GetTradeQuoteInput & {
   feeAsset: Asset
-  sellAssetFiatRate: string
-  buyAssetFiatRate: string
-  feeAssetFiatRate: string
+  cryptoMarketDataById: Partial<Record<AssetId, Pick<MarketData, 'price'>>>
 }
 
 export type SwapperWithQuoteMetadata = {

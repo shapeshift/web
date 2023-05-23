@@ -1,4 +1,4 @@
-import { Box, Flex } from '@chakra-ui/react'
+import { Button, Flex } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
@@ -8,6 +8,7 @@ import { useHistory, useLocation } from 'react-router'
 import type { Row } from 'react-table'
 import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -56,6 +57,12 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
     )
     return Array.from(groups.entries())
   }, [filteredDown])
+
+  const flatItems = useMemo(
+    () => groupedItems.flatMap(item => (Array.isArray(item) ? item.flat() : [item])),
+    [groupedItems],
+  )
+  const { next, data, hasMore } = useInfiniteScroll(flatItems)
 
   const handleClick = useCallback(
     (opportunity: StakingEarnOpportunityType, action: DefiAction) => {
@@ -106,39 +113,43 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
   const renderStakingRows = useMemo(() => {
     return (
       <Flex flexDir='column' gap={2}>
-        {groupedItems.map(group => {
-          const [name, values] = group
-          return (
-            <Box key={`group-${name}`}>
-              <OpportunityTableHeader>
-                <RawText>{name}</RawText>
-                <RawText display={{ base: 'none', md: 'block' }}>
-                  {translate('common.balance')}
-                </RawText>
-                <RawText>{translate('common.value')}</RawText>
-              </OpportunityTableHeader>
-              <Flex px={{ base: 0, md: 2 }} flexDirection='column'>
-                {values.map((opportunity: StakingEarnOpportunityType) => (
-                  <OpportunityRow
-                    // There may be multiple opportunities with the same provider and assetId - apy gives us some sort of unique keys safety
-                    key={`${opportunity.provider}-${opportunity.assetId}-${opportunity.apy}`}
-                    onClick={handleClick}
-                    opportunity={opportunity}
-                  />
-                ))}
-              </Flex>
-            </Box>
+        {data.map((item, index) => {
+          return typeof item === 'object' ? (
+            <Flex
+              px={{ base: 0, md: 2 }}
+              flexDirection='column'
+              key={`${item.provider}-${item.assetId}-${item.apy}`}
+            >
+              <OpportunityRow
+                // There may be multiple opportunities with the same provider and assetId - apy gives us some sort of unique keys safety
+                onClick={handleClick}
+                opportunity={item}
+              />
+            </Flex>
+          ) : data.length === index + 1 ? null : (
+            <OpportunityTableHeader key={`group-${item}`}>
+              <RawText>{item}</RawText>
+              <RawText display={{ base: 'none', md: 'block' }}>
+                {translate('common.balance')}
+              </RawText>
+              <RawText>{translate('common.value')}</RawText>
+            </OpportunityTableHeader>
           )
         })}
       </Flex>
     )
-  }, [groupedItems, handleClick, translate])
+  }, [data, handleClick, translate])
 
   if (!filteredDown.length) return null
 
   return (
     <Flex flexDir='column' gap={8}>
       {renderStakingRows}
+      {hasMore && (
+        <Button mx={2} onClick={() => next()}>
+          {translate('common.loadMore')}
+        </Button>
+      )}
     </Flex>
   )
 }

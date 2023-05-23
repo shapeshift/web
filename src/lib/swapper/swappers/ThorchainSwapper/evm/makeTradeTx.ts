@@ -56,7 +56,7 @@ export const makeTradeTx = async ({
       sellAmountCryptoBaseUnit,
       slippageTolerance,
       destinationAddress,
-      buyAssetTradeFeeUsd: feeData.buyAssetTradeFeeUsd,
+      protocolFees: feeData.protocolFees,
       affiliateBps,
     })
 

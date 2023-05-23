@@ -1,8 +1,10 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { MarketData } from '@shapeshiftoss/types'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { TradeQuote } from 'lib/swapper/api'
+import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
 
 /*
   The ratio is calculated by dividing the total fiat value of the receive amount
@@ -19,33 +21,37 @@ import type { TradeQuote } from 'lib/swapper/api'
 export const getRatioFromQuote = ({
   quote,
   feeAsset,
-  buyAssetFiatRate,
-  sellAssetFiatRate,
-  feeAssetFiatRate,
+  cryptoMarketDataById,
 }: {
   quote: TradeQuote<ChainId>
   feeAsset: Asset
-  buyAssetFiatRate?: string
-  sellAssetFiatRate?: string
-  feeAssetFiatRate?: string
+  cryptoMarketDataById: Partial<Record<AssetId, Pick<MarketData, 'price'>>>
 }): number | undefined => {
-  const totalSellAmountFiat = bnOrZero(
+  const buyAssetUsdRate = cryptoMarketDataById[quote.buyAsset.assetId]?.price
+  const sellAssetUsdRate = cryptoMarketDataById[quote.sellAsset.assetId]?.price
+  const feeAssetUsdRate = cryptoMarketDataById[feeAsset.assetId]?.price
+
+  const sellAmountUsd = bnOrZero(
     fromBaseUnit(quote.sellAmountBeforeFeesCryptoBaseUnit, quote.sellAsset.precision),
-  )
-    .times(sellAssetFiatRate ?? '0')
-    .plus(bnOrZero(quote.feeData.sellAssetTradeFeeUsd))
+  ).times(sellAssetUsdRate ?? '0')
 
-  const totalReceiveAmountFiat = bnOrZero(
+  const receiveAmountUsd = bnOrZero(
     fromBaseUnit(quote.buyAmountBeforeFeesCryptoBaseUnit, quote.buyAsset.precision),
-  )
-    .times(buyAssetFiatRate ?? '0')
-    .minus(bnOrZero(quote.feeData.buyAssetTradeFeeUsd))
-  const networkFeeFiat = bnOrZero(
+  ).times(buyAssetUsdRate ?? '0')
+
+  const networkFeeUsd = bnOrZero(
     fromBaseUnit(quote.feeData.networkFeeCryptoBaseUnit, feeAsset.precision),
-  ).times(feeAssetFiatRate ?? '0')
+  ).times(feeAssetUsdRate ?? '0')
 
-  const totalSendAmountFiat = totalSellAmountFiat.plus(networkFeeFiat)
-  const ratio = totalReceiveAmountFiat.div(totalSendAmountFiat)
+  const totalProtocolFeesUsd = sumProtocolFeesToDenom({
+    cryptoMarketDataById,
+    outputAssetPriceUsd: '1', // 1 USD costs 1 USD
+    outputExponent: 0, // 0 exponent = human
+    protocolFees: quote.feeData.protocolFees,
+  })
 
-  return ratio.isFinite() && networkFeeFiat.gte(0) ? ratio.toNumber() : -Infinity
+  const totalSendAmountUsd = sellAmountUsd.plus(networkFeeUsd).plus(totalProtocolFeesUsd)
+  const ratio = receiveAmountUsd.div(totalSendAmountUsd)
+
+  return ratio.isFinite() && networkFeeUsd.gte(0) ? ratio.toNumber() : -Infinity
 }

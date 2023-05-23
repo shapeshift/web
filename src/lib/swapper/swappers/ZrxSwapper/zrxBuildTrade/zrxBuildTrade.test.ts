@@ -96,8 +96,7 @@ describe('zrxBuildTrade', () => {
     rate: quoteResponse.price,
     feeData: {
       networkFeeCryptoBaseUnit: '4080654495000000',
-      sellAssetTradeFeeUsd: '0',
-      buyAssetTradeFeeUsd: '0',
+      protocolFees: {},
     },
     sources: [],
   }
@@ -159,8 +158,7 @@ describe('zrxBuildTrade', () => {
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({ data })))
 
     const expectedFeeData: QuoteFeeData<ZrxSupportedChainId> = {
-      buyAssetTradeFeeUsd: '0',
-      sellAssetTradeFeeUsd: '0',
+      protocolFees: {},
       networkFeeCryptoBaseUnit: '4080654495000000',
     }
 

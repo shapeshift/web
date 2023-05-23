@@ -244,7 +244,7 @@ export const createEmptyEvmTradeQuote = (
     sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
     feeData: {
       networkFeeCryptoBaseUnit: undefined,
-      buyAssetTradeFeeUsd: '0',
+      protocolFees: {},
     },
     rate: '0',
     sources: [],

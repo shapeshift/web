@@ -10,6 +10,8 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
+import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
+import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import type { IdleStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/idle/types'
@@ -196,6 +198,9 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
               )
 
               maybeRefetchOpportunities(msg, accountId)
+
+              // upsert any new nft assets if detected
+              dispatch(assetsSlice.actions.upsertAssets(makeNftAssetsFromTxs([msg])))
 
               // deal with incoming message
               dispatch(onMessage({ message: { ...msg, accountType }, accountId }))

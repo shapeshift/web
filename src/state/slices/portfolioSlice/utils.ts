@@ -12,6 +12,7 @@ import {
   fromAccountId,
   fromAssetId,
   fromChainId,
+  isNft,
   ltcChainId,
   optimismChainId,
   osmosisChainId,
@@ -170,9 +171,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         }
 
         ethAccount.chainSpecific.tokens?.forEach(token => {
-          if (!args.assetIds.includes(token.assetId)) {
-            return
-          }
+          if (!isNft(token.assetId) && !args.assetIds.includes(token.assetId)) return
 
           portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
 

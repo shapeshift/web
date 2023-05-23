@@ -30,13 +30,17 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { setTimeoutAsync } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { zapper } from 'state/apis/zapper/zapperApi'
-import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { assets as assetsSlice, useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
 import {
+  defaultMarketData,
   marketApi,
+  marketData,
   useFindAllQuery,
   useFindByFiatSymbolQuery,
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
+import type { MarketDataById } from 'state/slices/marketDataSlice/types'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import {
   fetchAllOpportunitiesIdsByChainId,
@@ -47,6 +51,7 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetIds,
+  selectNftAssetIds,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
@@ -55,7 +60,7 @@ import {
   selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -161,11 +166,20 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // once portfolio is done loading, fetch all transaction history
   useEffect(() => {
-    if (portfolioLoadingStatus === 'loading') return
+    ;(async () => {
+      if (portfolioLoadingStatus === 'loading') return
 
-    const { getAllTxHistory } = txHistoryApi.endpoints
+      const { getAllTxHistory } = txHistoryApi.endpoints
 
-    requestedAccountIds.forEach(accountId => dispatch(getAllTxHistory.initiate(accountId)))
+      try {
+        await Promise.all(
+          requestedAccountIds.map(accountId => dispatch(getAllTxHistory.initiate(accountId))),
+        )
+      } finally {
+        const txsById = store.getState().txHistory.txs.byId
+        dispatch(assetsSlice.actions.upsertAssets(makeNftAssetsFromTxs(Object.values(txsById))))
+      }
+    })()
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
 
   // once portfolio is loaded, fetch remaining chain specific data
@@ -237,6 +251,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }),
   )
 
+  const nftAssetIds = useAppSelector(selectNftAssetIds)
+
   // once the portfolio is loaded, fetch market data for all portfolio assets
   // start refetch timer to keep market data up to date
   useEffect(() => {
@@ -245,8 +261,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // Exclude assets for which we are unable to get market data
     // We would fire query thunks / XHRs that would slow down the app
     // We insert price data for these as resolver-level, and are unable to get market data
-    const excluded: AssetId[] = uniV2LpIdsData.data ?? []
+    const excluded: AssetId[] = nftAssetIds.concat(uniV2LpIdsData.data ?? [])
     const portfolioAssetIdsExcludeNoMarketData = difference(portfolioAssetIds, excluded)
+
+    // Stub until we get proper market data
+    const nftDefaultMarketData = nftAssetIds.reduce<MarketDataById<AssetId>>((prev, assetId) => {
+      prev[assetId] = defaultMarketData
+      return prev
+    }, {})
+    dispatch(marketData.actions.setCryptoMarketData(nftDefaultMarketData))
 
     // https://redux-toolkit.js.org/rtk-query/api/created-api/endpoints#initiate
     // TODO(0xdef1cafe): bring polling back once we point at markets.shapeshift.com
@@ -259,7 +282,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       const payload = { assetId, timeframe }
       dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload))
     })
-  }, [dispatch, portfolioLoadingStatus, portfolioAssetIds, uniV2LpIdsData.data])
+  }, [dispatch, portfolioLoadingStatus, portfolioAssetIds, uniV2LpIdsData.data, nftAssetIds])
 
   /**
    * fetch forex spot and history for user's selected currency

@@ -115,14 +115,9 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
 const expectedTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '14716.04718939437505555958', // 14716 FOX per WETH
   feeData: {
+    buyAssetTradeFeeUsd: '0',
     networkFeeCryptoBaseUnit: '0',
-    protocolFees: {
-      [WETH.assetId]: {
-        amountCryptoBaseUnit: '14557942658757988',
-        requiresBalance: false,
-        asset: WETH,
-      },
-    },
+    sellAssetTradeFeeUsd: '17.95954294012756741283729339486489192096',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
   buyAmountBeforeFeesCryptoBaseUnit: '14707533959600717283163', // 14707 FOX
@@ -139,14 +134,9 @@ const expectedTradeQuoteWbtcToWethWithApprovalFeeCryptoBaseUnit: CowTrade<KnownC
   {
     rate: '19.1423299300562315722', // 19.14 WETH per WBTC
     feeData: {
+      buyAssetTradeFeeUsd: '0',
       networkFeeCryptoBaseUnit: '0',
-      protocolFees: {
-        [WBTC.assetId]: {
-          amountCryptoBaseUnit: '17238',
-          requiresBalance: false,
-          asset: WBTC,
-        },
-      },
+      sellAssetTradeFeeUsd: '3.6162531444',
     },
     sellAmountBeforeFeesCryptoBaseUnit: '100000000',
     buyAmountBeforeFeesCryptoBaseUnit: '19141961497366844695', // 19.14 WETH
@@ -162,14 +152,9 @@ const expectedTradeQuoteWbtcToWethWithApprovalFeeCryptoBaseUnit: CowTrade<KnownC
 const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '0.00005461814085319106',
   feeData: {
+    buyAssetTradeFeeUsd: '0',
     networkFeeCryptoBaseUnit: '0',
-    protocolFees: {
-      [FOX.assetId]: {
-        amountCryptoBaseUnit: '61804771879693983744',
-        requiresBalance: false,
-        asset: FOX,
-      },
-    },
+    sellAssetTradeFeeUsd: '5.3955565850972847808512',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
   buyAmountBeforeFeesCryptoBaseUnit: '55616098403669903',

@@ -61,12 +61,12 @@ export const getCosmosTxData = async (
     )
 
   const maybeLimit = await getLimit({
-    buyAsset,
+    buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit,
     sellAsset,
     slippageTolerance,
     deps,
-    protocolFees: quote.feeData.protocolFees,
+    buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
     receiveAddress: destinationAddress,
     affiliateBps,
   })

@@ -40,7 +40,6 @@ export const selectIsSendMax = (state: SwapperState) => state.isSendMax
 export const selectAmount = (state: SwapperState) => state.amount
 export const selectReceiveAddress = (state: SwapperState) => state.receiveAddress
 export const selectFees = (state: SwapperState) => state.fees
-export const selectProtocolFees = (state: SwapperState) => state.fees?.protocolFees
 export const selectTrade = (state: SwapperState) => state.trade
 export const selectSwapperName = (state: SwapperState) =>
   state.activeSwapperWithMetadata?.swapper.name

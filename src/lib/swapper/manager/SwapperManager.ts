@@ -85,7 +85,8 @@ export class SwapperManager {
   async getSwappersWithQuoteMetadata(
     args: GetSwappersWithQuoteMetadataArgs,
   ): Promise<GetSwappersWithQuoteMetadataReturn> {
-    const { sellAsset, buyAsset, feeAsset, cryptoMarketDataById } = args
+    const { sellAsset, buyAsset, feeAsset, buyAssetFiatRate, sellAssetFiatRate, feeAssetFiatRate } =
+      args
 
     // Get all swappers that support the pair
     const supportedSwappers: Swapper<ChainId, boolean>[] = this.getSwappersByPair({
@@ -104,7 +105,9 @@ export class SwapperManager {
           const ratio = getRatioFromQuote({
             quote,
             feeAsset,
-            cryptoMarketDataById,
+            buyAssetFiatRate,
+            sellAssetFiatRate,
+            feeAssetFiatRate,
           })
 
           return Ok({

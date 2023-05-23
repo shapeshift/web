@@ -56,18 +56,12 @@ describe('getLimit', () => {
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: ETH,
-      buyAsset: BTC,
+      buyAssetId: BTC.assetId,
       receiveAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
       sellAmountCryptoBaseUnit: '82535000000000000',
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
-      protocolFees: {
-        [BTC.assetId]: {
-          amountCryptoBaseUnit: '30000',
-          requiresBalance: false,
-          asset: BTC,
-        },
-      },
+      buyAssetTradeFeeUsd: '6.2049517907881932',
       affiliateBps: '0',
     }
     const maybeLimit = await getLimit(getLimitArgs)
@@ -89,18 +83,12 @@ describe('getLimit', () => {
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: FOX,
-      buyAsset: BTC,
+      buyAssetId: BTC.assetId,
       receiveAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
       sellAmountCryptoBaseUnit: '489830019000000000000',
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
-      protocolFees: {
-        [BTC.assetId]: {
-          amountCryptoBaseUnit: '30000',
-          requiresBalance: false,
-          asset: BTC,
-        },
-      },
+      buyAssetTradeFeeUsd: '6.2049517907881932',
       affiliateBps: '0',
     }
     const maybeLimit = await getLimit(getLimitArgs)
@@ -122,18 +110,12 @@ describe('getLimit', () => {
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: FOX,
-      buyAsset: RUNE,
+      buyAssetId: RUNE.assetId,
       receiveAddress: 'thor1234j5yq9qg7xqf0yq9qg7xqf0yq9qg7xqf0yq9q',
       sellAmountCryptoBaseUnit: '984229076000000000000',
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
-      protocolFees: {
-        [RUNE.assetId]: {
-          amountCryptoBaseUnit: '219316',
-          requiresBalance: false,
-          asset: RUNE,
-        },
-      },
+      buyAssetTradeFeeUsd: '0.0318228582',
       affiliateBps: '0',
     }
     const maybeLimit = await getLimit(getLimitArgs)
@@ -155,18 +137,12 @@ describe('getLimit', () => {
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: RUNE,
-      buyAsset: FOX,
+      buyAssetId: FOX.assetId,
       receiveAddress: '0xFooBar',
       sellAmountCryptoBaseUnit: '988381400',
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
-      protocolFees: {
-        [FOX.assetId]: {
-          amountCryptoBaseUnit: '65000000000',
-          requiresBalance: false,
-          asset: FOX,
-        },
-      },
+      buyAssetTradeFeeUsd: '0.0000000026',
       affiliateBps: '0',
     }
     const maybeLimit = await getLimit(getLimitArgs)

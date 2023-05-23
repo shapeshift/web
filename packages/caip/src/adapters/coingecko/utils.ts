@@ -41,7 +41,6 @@ import { CoingeckoAssetPlatform } from '.'
 
 export type CoingeckoCoin = {
   id: string
-  symbol: string
   platforms: Record<string, string>
 }
 

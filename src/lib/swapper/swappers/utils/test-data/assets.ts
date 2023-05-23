@@ -159,16 +159,3 @@ export const RUNE: Asset = {
   explorerAddressLink: 'https://viewblock.io/thorchain/address/',
   explorerTxLink: 'https://viewblock.io/thorchain/tx/',
 }
-
-export const assetsById = {
-  [FOX.assetId]: FOX,
-  [ETH.assetId]: ETH,
-  [AVAX.assetId]: AVAX,
-  [BSC.assetId]: BSC,
-  [BTC.assetId]: BTC,
-  [RUNE.assetId]: RUNE,
-  [OPTIMISM.assetId]: OPTIMISM,
-  [USDC.assetId]: USDC,
-  [WBTC.assetId]: WBTC,
-  [WETH.assetId]: WETH,
-}

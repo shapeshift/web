@@ -46,7 +46,8 @@ const getEvmFees = <T extends EvmChainId>(
 
   return {
     tradeFeeSource,
-    protocolFees: trade.feeData.protocolFees,
+    buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd,
+    sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd,
     networkFeeCryptoHuman: networkFeeCryptoPrecision,
     networkFeeCryptoBaseUnit: trade?.feeData?.networkFeeCryptoBaseUnit ?? '0',
   }
@@ -75,7 +76,8 @@ export const getFormFees = ({
       return {
         networkFeeCryptoHuman,
         networkFeeCryptoBaseUnit: trade.feeData.networkFeeCryptoBaseUnit ?? '0',
-        protocolFees: trade.feeData.protocolFees,
+        sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd ?? '',
+        buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd ?? '',
         tradeFeeSource,
       }
     }
@@ -85,8 +87,9 @@ export const getFormFees = ({
         networkFeeCryptoHuman,
         networkFeeCryptoBaseUnit: utxoTrade.feeData.networkFeeCryptoBaseUnit,
         chainSpecific: utxoTrade.feeData.chainSpecific,
-        protocolFees: utxoTrade.feeData.protocolFees,
+        buyAssetTradeFeeUsd: utxoTrade.feeData.buyAssetTradeFeeUsd ?? '',
         tradeFeeSource,
+        sellAssetTradeFeeUsd: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',
       }
     }
     default:

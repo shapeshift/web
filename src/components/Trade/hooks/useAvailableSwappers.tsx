@@ -11,9 +11,9 @@ import { selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import {
-  selectBuyAssetUsdRate,
-  selectFeeAssetUsdRate,
-  selectSellAssetUsdRate,
+  selectBuyAssetFiatRate,
+  selectFeeAssetFiatRate,
+  selectSellAssetFiatRate,
 } from 'state/zustand/swapperStore/amountSelectors'
 import { selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
@@ -36,9 +36,9 @@ export const useAvailableSwappers = () => {
   )
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
-  const buyAssetUsdRate = useSwapperStore(selectBuyAssetUsdRate)
-  const sellAssetUsdRate = useSwapperStore(selectSellAssetUsdRate)
-  const feeAssetUsdRate = useSwapperStore(selectFeeAssetUsdRate)
+  const buyAssetFiatRate = useSwapperStore(selectBuyAssetFiatRate)
+  const sellAssetFiatRate = useSwapperStore(selectSellAssetFiatRate)
+  const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const updateFees = useSwapperStore(state => state.updateFees)
   const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
 
@@ -64,9 +64,18 @@ export const useAvailableSwappers = () => {
       // Capture the request start time so we can resolve race conditions when setting swapper/quote data
       const requestStartedTimestamp = Date.now()
 
-      const availableSwapperTypesWithQuoteMetadataResponse = tradeQuoteArgs
-        ? await dispatch(getAvailableSwappers.initiate(tradeQuoteArgs))
-        : undefined
+      const availableSwapperTypesWithQuoteMetadataResponse =
+        tradeQuoteArgs && feeAsset
+          ? await dispatch(
+              getAvailableSwappers.initiate({
+                ...tradeQuoteArgs,
+                feeAsset,
+                buyAssetFiatRate,
+                sellAssetFiatRate,
+                feeAssetFiatRate,
+              }),
+            )
+          : undefined
 
       const availableSwapperTypesWithQuoteMetadata =
         availableSwapperTypesWithQuoteMetadataResponse?.data
@@ -101,12 +110,13 @@ export const useAvailableSwappers = () => {
     buyAssetId,
     dispatch,
     featureFlags,
+    feeAsset,
     getAvailableSwappers,
     sellAssetId,
     tradeQuoteArgs,
-    buyAssetUsdRate,
-    sellAssetUsdRate,
-    feeAssetUsdRate,
+    buyAssetFiatRate,
+    sellAssetFiatRate,
+    feeAssetFiatRate,
   ])
 
   useEffect(() => {

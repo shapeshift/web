@@ -6,7 +6,6 @@ import type { Swapper, SwapperWithQuoteMetadata } from '../api'
 import { SwapperType } from '../api'
 import { CowSwapper } from '../swappers/CowSwapper/CowSwapper'
 import { ThorchainSwapper } from '../swappers/ThorchainSwapper/ThorchainSwapper'
-import { cryptoMarketDataById } from '../swappers/utils/test-data/cryptoMarketDataById'
 import { setupQuote } from '../swappers/utils/test-data/setupSwapQuote'
 import { ZrxSwapper } from '../swappers/ZrxSwapper/ZrxSwapper'
 import { SwapperManager } from './SwapperManager'
@@ -29,10 +28,17 @@ const cowSwapper = getCowSwapper()
 const thorchainSwapper = getThorchainSwapper()
 
 jest.mock('state/slices/selectors', () => {
-  const { assetsById } = require('lib/swapper/swappers/utils/test-data/assets') // Move the import inside the factory function
+  const { BSC, BTC, ETH, FOX, WBTC, WETH } = require('lib/swapper/swappers/utils/test-data/assets') // Move the import inside the factory function
 
   return {
-    selectAssets: () => assetsById,
+    selectAssets: () => ({
+      [BTC.assetId]: BTC,
+      [ETH.assetId]: ETH,
+      [FOX.assetId]: FOX,
+      [WBTC.assetId]: WBTC,
+      [WETH.assetId]: WETH,
+      [BSC.assetId]: BSC,
+    }),
   }
 })
 
@@ -236,18 +242,20 @@ describe('SwapperManager', () => {
       const swappers = await swapperManager.getSwappersWithQuoteMetadata({
         ...quoteInput,
         feeAsset: ETH,
-        cryptoMarketDataById,
+        buyAssetFiatRate: '1300',
+        sellAssetFiatRate: '0.04',
+        feeAssetFiatRate: '1300',
       })
       const expectedSwappers: SwapperWithQuoteMetadata[] = [
         {
           swapper: zrxEthereumSwapper,
           quote: bestTradeQuote,
-          inputOutputRatio: 0.5763658207357724,
+          inputOutputRatio: 0.5030214870725355,
         },
         {
           swapper: cowSwapper,
           quote: suboptimalTradeQuote,
-          inputOutputRatio: 0.49513233227732306,
+          inputOutputRatio: 0.3433113435170952,
         },
       ]
       expect(swappers).toEqual(expectedSwappers)

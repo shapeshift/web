@@ -107,7 +107,8 @@ export const buildTrade = async (
     const trade: OneInchTrade<EvmChainId> = {
       rate: getRate(swapResponse.data).toString(),
       feeData: {
-        protocolFees: {},
+        buyAssetTradeFeeUsd: '0',
+        sellAssetTradeFeeUsd: '0',
         networkFeeCryptoBaseUnit: fee.toString(),
       },
       sellAsset,

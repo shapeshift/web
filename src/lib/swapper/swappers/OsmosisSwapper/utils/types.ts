@@ -23,7 +23,7 @@ export type PoolInfo = {
 export type PoolRateInfo = {
   rate: string
   priceImpact: string
-  buyAssetTradeFeeCryptoBaseUnit: string
+  buyAssetTradeFeeUsd: string
   buyAmountCryptoBaseUnit: string
 }
 

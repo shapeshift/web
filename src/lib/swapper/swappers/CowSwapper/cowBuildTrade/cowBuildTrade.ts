@@ -132,13 +132,8 @@ export async function cowBuildTrade(
     rate,
     feeData: {
       networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
-      protocolFees: {
-        [sellAsset.assetId]: {
-          amountCryptoBaseUnit: feeAmountInSellTokenCryptoBaseUnit,
-          requiresBalance: false,
-          asset: sellAsset,
-        },
-      },
+      buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
+      sellAssetTradeFeeUsd,
     },
     sellAmountBeforeFeesCryptoBaseUnit,
     buyAmountBeforeFeesCryptoBaseUnit,

@@ -1,8 +1,7 @@
-import type { AssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
-import type { ProtocolFee, SwapErrorRight } from 'lib/swapper/api'
+import type { SwapErrorRight } from 'lib/swapper/api'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { getLimit } from 'lib/swapper/swappers/ThorchainSwapper/utils/getLimit/getLimit'
@@ -16,7 +15,7 @@ type GetThorTxInfoArgs = {
   slippageTolerance: string
   destinationAddress: string | undefined
   xpub: string
-  protocolFees: Record<AssetId, ProtocolFee>
+  buyAssetTradeFeeUsd: string
   affiliateBps: string
 }
 type GetThorTxInfoReturn = Promise<
@@ -39,7 +38,7 @@ export const getThorTxInfo: GetThorTxInfo = async ({
   slippageTolerance,
   destinationAddress,
   xpub,
-  protocolFees,
+  buyAssetTradeFeeUsd,
   affiliateBps,
 }) => {
   const maybeInboundAddress = await getInboundAddressDataForChain(
@@ -53,12 +52,12 @@ export const getThorTxInfo: GetThorTxInfo = async ({
   const vault = inboundAddress.address
 
   const maybeLimit = await getLimit({
-    buyAsset,
+    buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit,
     sellAsset,
     slippageTolerance,
     deps,
-    protocolFees,
+    buyAssetTradeFeeUsd,
     receiveAddress: destinationAddress,
     affiliateBps,
   })

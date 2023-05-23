@@ -63,7 +63,8 @@ const hashOrderMock = jest.mocked(hashOrder)
 const cowTradeEthToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '14716.04718939437505555958',
   feeData: {
-    protocolFees: {},
+    buyAssetTradeFeeUsd: '0',
+    sellAssetTradeFeeUsd: '0',
     networkFeeCryptoBaseUnit: '14557942658757988',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
@@ -80,7 +81,8 @@ const cowTradeEthToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
 const cowTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '14716.04718939437505555958',
   feeData: {
-    protocolFees: {},
+    buyAssetTradeFeeUsd: '0',
+    sellAssetTradeFeeUsd: '0',
     networkFeeCryptoBaseUnit: '14557942658757988',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '20200000000000000',
@@ -97,13 +99,8 @@ const cowTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
 const cowTradeFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '0.00004995640398295996',
   feeData: {
-    protocolFees: {
-      [FOX.assetId]: {
-        amountCryptoBaseUnit: '5.3955565850972847808512',
-        requiresBalance: false,
-        asset: FOX,
-      },
-    },
+    buyAssetTradeFeeUsd: '5.3955565850972847808512',
+    sellAssetTradeFeeUsd: '0',
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',

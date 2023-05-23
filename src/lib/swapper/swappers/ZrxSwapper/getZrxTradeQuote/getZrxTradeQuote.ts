@@ -107,7 +107,8 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     maximumCryptoHuman: maximumAmountCryptoHuman,
     feeData: {
       networkFeeCryptoBaseUnit: txFee.toFixed(0),
-      protocolFees: {},
+      buyAssetTradeFeeUsd: '0',
+      sellAssetTradeFeeUsd: '0',
     },
     allowanceContract: data.allowanceTarget,
     buyAmountBeforeFeesCryptoBaseUnit: data.buyAmount,

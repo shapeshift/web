@@ -1,8 +1,7 @@
-import type { AssetId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { bn } from 'lib/bignumber/bignumber'
-import type { ProtocolFee, QuoteFeeData } from 'lib/swapper/api'
+import type { QuoteFeeData } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 
@@ -12,7 +11,8 @@ type GetUtxoTxFeesInput = {
   sellAmountCryptoBaseUnit: string
   sellAdapter: UtxoBaseAdapter<ThorUtxoSupportedChainId>
   pubkey: string
-  protocolFees: Record<AssetId, ProtocolFee>
+  buyAssetTradeFeeUsd: string
+  sellAssetTradeFeeUsd: string
   sendMax: boolean
 }
 
@@ -22,7 +22,8 @@ export const getUtxoTxFees = async ({
   sellAmountCryptoBaseUnit,
   sellAdapter,
   pubkey,
-  protocolFees,
+  buyAssetTradeFeeUsd,
+  sellAssetTradeFeeUsd,
   sendMax,
 }: GetUtxoTxFeesInput): Promise<QuoteFeeData<ThorUtxoSupportedChainId>> => {
   try {
@@ -48,7 +49,8 @@ export const getUtxoTxFees = async ({
 
     return {
       networkFeeCryptoBaseUnit: networkFee,
-      protocolFees,
+      buyAssetTradeFeeUsd,
+      sellAssetTradeFeeUsd,
       chainSpecific: {
         satsPerByte,
         byteCount: bn(feeData.txFee)

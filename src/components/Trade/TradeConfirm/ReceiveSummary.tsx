@@ -7,8 +7,7 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { type FC, useCallback, useMemo } from 'react'
+import { type FC, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -17,7 +16,7 @@ import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { AmountDisplayMeta, ProtocolFee } from 'lib/swapper/api'
+import type { AmountDisplayMeta } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 
 type ReceiveSummaryProps = {
@@ -27,11 +26,17 @@ type ReceiveSummaryProps = {
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
   fiatAmount?: string
   amountBeforeFeesCryptoPrecision?: string
-  protocolFees?: Record<AssetId, ProtocolFee>
+  protocolFees?: AmountDisplayMeta[]
   shapeShiftFee?: string
   slippage: string
   swapperName: string
 } & RowProps
+
+const parseAmountDisplayMeta = ({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
+  symbol: asset.symbol,
+  chainName: getChainAdapterManager().get(asset.chainId)?.getDisplayName(),
+  amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
+})
 
 export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   symbol,
@@ -58,27 +63,20 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
   const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
 
-  const parseAmountDisplayMeta = useCallback((items: AmountDisplayMeta[]) => {
-    return items
-      .filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
-      .map(({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
-        symbol: asset.symbol,
-        chainName: getChainAdapterManager().get(asset.chainId)?.getDisplayName(),
-        amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
-      }))
-  }, [])
-
   const protocolFeesParsed = useMemo(
-    () => (protocolFees ? parseAmountDisplayMeta(Object.values(protocolFees)) : undefined),
-    [protocolFees, parseAmountDisplayMeta],
+    () =>
+      protocolFees
+        ?.filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
+        .map(parseAmountDisplayMeta),
+    [protocolFees],
   )
 
   const intermediaryTransactionOutputsParsed = useMemo(
     () =>
       intermediaryTransactionOutputs
-        ? parseAmountDisplayMeta(intermediaryTransactionOutputs)
-        : undefined,
-    [intermediaryTransactionOutputs, parseAmountDisplayMeta],
+        ?.filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
+        .map(parseAmountDisplayMeta),
+    [intermediaryTransactionOutputs],
   )
 
   const hasProtocolFees = useMemo(
@@ -168,7 +166,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
               </HelperTooltip>
               <Row.Value>
                 {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol, chainName }) => (
-                  <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
+                  <Skeleton isLoaded={!isLoading}>
                     <Amount.Crypto
                       color={redColor}
                       value={amountCryptoPrecision}
@@ -223,7 +221,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
                     hasIntermediaryTransactionOutputs &&
                     intermediaryTransactionOutputsParsed?.map(
                       ({ amountCryptoPrecision, symbol, chainName }) => (
-                        <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
+                        <Skeleton isLoaded={!isLoading}>
                           <Amount.Crypto
                             value={amountCryptoPrecision}
                             symbol={symbol}

@@ -39,7 +39,8 @@ describe('ZrxExecuteTrade', () => {
     txData: '0x123',
     rate: '1',
     feeData: {
-      protocolFees: {},
+      buyAssetTradeFeeUsd: '0',
+      sellAssetTradeFeeUsd: '0',
       networkFeeCryptoBaseUnit: '0',
     },
     sources: [],

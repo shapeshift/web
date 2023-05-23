@@ -11,6 +11,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { OsmosisSupportedChainAdapter } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapper'
+import { OSMOSIS_PRECISION } from 'lib/swapper/swappers/OsmosisSwapper/utils/constants'
 import { osmoService } from 'lib/swapper/swappers/OsmosisSwapper/utils/osmoService'
 import type {
   IbcTransferInput,
@@ -179,14 +180,15 @@ const getPoolRateInfo = (
   const buyAmountCryptoBaseUnit = buyAssetInitialPoolSize.minus(buyAssetFinalPoolSize).toString()
   const rate = bnOrZero(buyAmountCryptoBaseUnit).dividedBy(sellAmount).toString()
   const priceImpact = bn(1).minus(initialMarketPrice.dividedBy(finalMarketPrice)).abs().toString()
-  const buyAssetTradeFeeCryptoBaseUnit = bnOrZero(buyAmountCryptoBaseUnit)
-    .times(bnOrZero(pool.pool_params.swap_fee))
+  const tradeFeeBase = bnOrZero(buyAmountCryptoBaseUnit).times(bnOrZero(pool.pool_params.swap_fee))
+  const buyAssetTradeFeeUsd = tradeFeeBase
+    .dividedBy(bn(10).exponentiatedBy(OSMOSIS_PRECISION))
     .toString()
 
   return {
     rate,
     priceImpact,
-    buyAssetTradeFeeCryptoBaseUnit,
+    buyAssetTradeFeeUsd,
     buyAmountCryptoBaseUnit,
   }
 }

@@ -137,13 +137,8 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '0.011624',
   maximumCryptoHuman: '100000000000000000000000000',
   feeData: {
-    protocolFees: {
-      [WETH.assetId]: {
-        amountCryptoBaseUnit: '14557942658757988',
-        requiresBalance: false,
-        asset: WETH,
-      },
-    },
+    buyAssetTradeFeeUsd: '0',
+    sellAssetTradeFeeUsd: '17.95954294012756741283729339486489192096',
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
@@ -160,13 +155,8 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '229.09507445589919816724',
   maximumCryptoHuman: '100000000000000000000000000',
   feeData: {
-    protocolFees: {
-      [FOX.assetId]: {
-        amountCryptoBaseUnit: '61804771879693983744',
-        requiresBalance: false,
-        asset: FOX,
-      },
-    },
+    buyAssetTradeFeeUsd: '0',
+    sellAssetTradeFeeUsd: '5.3955565850972847808512',
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
@@ -183,13 +173,8 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
   minimumCryptoHuman: '0.011624',
   maximumCryptoHuman: '100000000000000000000000000',
   feeData: {
-    protocolFees: {
-      [WETH.assetId]: {
-        amountCryptoBaseUnit: '1455794265875791',
-        requiresBalance: false,
-        asset: WETH,
-      },
-    },
+    buyAssetTradeFeeUsd: '0',
+    sellAssetTradeFeeUsd: '1.79595429401274711874033728120645035672',
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000',

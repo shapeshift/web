@@ -137,6 +137,14 @@ const assertGhInstalled = async () => {
   }
 }
 
+const assertGhAuth = async () => {
+  try {
+    await pify(exec)('gh auth status') // will throw if gh not authenticated
+  } catch (e) {
+    exit(chalk.red((e as Error).message))
+  }
+}
+
 const isReleaseInProgress = async (): Promise<boolean> => {
   const { total } = await getCommits('release')
   return Boolean(total)
@@ -188,6 +196,7 @@ const mergeRelease = async () => {
 const main = async () => {
   await assertIsCleanRepo()
   await assertGhInstalled()
+  await assertGhAuth()
   ;(await isReleaseInProgress()) ? await mergeRelease() : await createRelease()
 }
 

@@ -585,10 +585,9 @@ export type PortfolioAccountIdByNumberByChainId = {
 }
 
 export const selectPortfolioAccountIdByNumberByChainId = createDeepEqualOutputSelector(
-  selectPortfolioAccountsFiatBalancesIncludingStaking,
   selectPortfolioAccountMetadata,
-  (accountBalances, accountMetadata): PortfolioAccountIdByNumberByChainId => {
-    return Object.keys(accountBalances).reduce<PortfolioAccountIdByNumberByChainId>(
+  (accountMetadata): PortfolioAccountIdByNumberByChainId => {
+    return Object.keys(accountMetadata).reduce<PortfolioAccountIdByNumberByChainId>(
       (acc, accountId) => {
         const { chainId } = fromAccountId(accountId)
         const { accountNumber } = accountMetadata[accountId].bip44Params

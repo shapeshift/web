@@ -416,7 +416,9 @@ export const TradeInput = () => {
   const hasSufficientProtocolFeeBalances = useMemo(() => {
     if (protocolFees === undefined || tradeQuoteArgs === undefined) return false
 
-    // protocol fees that require balance are always paid from the sell asset account number
+    // This is an oversimplification where protocol fees are assumed to be only deducted from
+    // account IDs corresponding to the sell asset account number and protocol fee asset chain ID.
+    // Later we'll need to handle protocol fees payable from the buy side.
     return Object.entries(protocolFees)
       .filter(([_assetId, protocolFee]) => protocolFee.requiresBalance)
       .every(([assetId, protocolFee]) => {

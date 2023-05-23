@@ -385,6 +385,12 @@ export const zapper = createApi({
                   const name = asset.displayProps?.label ?? ''
                   const groupId = asset.groupId
                   const type = asset.type
+
+                  const defiType =
+                    /farm/.test(groupId) || type === 'contract-position'
+                      ? DefiType.Staking
+                      : DefiType.LiquidityPool
+
                   // Actually defined because we pass networks in the query params
                   const assetId = zapperAssetToMaybeAssetId(asset)
 
@@ -496,10 +502,6 @@ export const zapper = createApi({
                     }
                   })()
 
-                  const defiType =
-                    /farm/.test(groupId) || type === 'contract-position'
-                      ? DefiType.Staking
-                      : DefiType.LiquidityPool
                   if (!acc.opportunities[opportunityId]) {
                     acc.opportunities[opportunityId] = {
                       apy,

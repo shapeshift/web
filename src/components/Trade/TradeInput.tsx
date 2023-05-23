@@ -54,6 +54,7 @@ import {
   selectFeeAssetById,
 } from 'state/slices/assetsSlice/selectors'
 import {
+  selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
@@ -205,18 +206,10 @@ export const TradeInput = () => {
     () => ({ accountId: sellAssetAccountId, assetId: sellAsset?.assetId ?? '' }),
     [sellAssetAccountId, sellAsset?.assetId],
   )
-  const buyAssetBalanceFilter = useMemo(
-    () => ({ accountId: buyAssetAccountId, assetId: buyAsset?.assetId ?? '' }),
-    [buyAssetAccountId, buyAsset?.assetId],
-  )
+
+  const portfolioAccountBalancesBaseUnit = useAppSelector(selectPortfolioAccountBalancesBaseUnit)
   const sellAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, sellAssetBalanceFilter),
-  )
-  const buyAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, buyAssetBalanceFilter),
-  )
-  const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
   )
   const sellAssetBalanceHuman = useAppSelector(state =>
     selectPortfolioCryptoPrecisionBalanceByFilter(state, sellAssetBalanceFilter),
@@ -415,37 +408,19 @@ export const TradeInput = () => {
     [sellAmountCryptoPrecision, buyAmountCryptoPrecision, isTradeQuotePending],
   )
 
-  // TODO(woodenfurniture): this needs to be rewritten for arbitrary assets to support multi-hop
   const hasSufficientProtocolFeeBalances = useMemo(() => {
-    if (protocolFees === undefined) return false
+    if (protocolFees === undefined || sellAssetAccountId === undefined) return false
 
-    const buyAssetTradeFeeCryptoBaseUnit = protocolFees[buyAsset.assetId]?.requiresBalance
-      ? protocolFees[buyAsset.assetId].amountCryptoBaseUnit
-      : '0'
+    const sellAccountBalancesBaseUnit = portfolioAccountBalancesBaseUnit[sellAssetAccountId]
 
-    const sellAssetTradeFeeCryptoBaseUnit = protocolFees[sellAsset.assetId]?.requiresBalance
-      ? protocolFees[sellAsset.assetId].amountCryptoBaseUnit
-      : '0'
-
-    const feeAssetTradeFeeCryptoBaseUnit =
-      feeAsset && protocolFees[feeAsset.assetId]?.requiresBalance
-        ? protocolFees[feeAsset.assetId].amountCryptoBaseUnit
-        : '0'
-
-    return (
-      bn(buyAssetBalanceCryptoBaseUnit).gte(buyAssetTradeFeeCryptoBaseUnit) &&
-      bn(sellAssetBalanceCryptoBaseUnit).gte(sellAssetTradeFeeCryptoBaseUnit) &&
-      bn(feeAssetBalanceCryptoBaseUnit).gte(feeAssetTradeFeeCryptoBaseUnit)
-    )
-  }, [
-    buyAsset.assetId,
-    buyAssetBalanceCryptoBaseUnit,
-    feeAsset,
-    feeAssetBalanceCryptoBaseUnit,
-    protocolFees,
-    sellAsset.assetId,
-    sellAssetBalanceCryptoBaseUnit,
-  ])
+    // protocol fees that require balance are always paid from the sell account
+    return Object.entries(protocolFees)
+      .filter(([_assetId, protocolFee]) => protocolFee.requiresBalance)
+      .every(([assetId, protocolFee]) => {
+        const balanceCryptoBaseUnit = sellAccountBalancesBaseUnit[assetId]
+        return bnOrZero(balanceCryptoBaseUnit).gte(protocolFee.amountCryptoBaseUnit)
+      })
+  }, [portfolioAccountBalancesBaseUnit, protocolFees, sellAssetAccountId])
 
   const getErrorTranslationKey = useCallback((): string | [string, InterpolationOptions] => {
     const hasValidSellAssetBalance = bnOrZero(sellAssetBalanceHuman).gte(

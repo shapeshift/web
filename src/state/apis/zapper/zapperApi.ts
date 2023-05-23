@@ -514,7 +514,7 @@ export const zapper = createApi({
                       provider: appName,
                       tvl,
                       type: defiType,
-                      isClaimableRewards: false,
+                      isClaimableRewards: Boolean(rewardTokens.length),
                       isReadOnly: true,
                     }
                   }

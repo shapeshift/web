@@ -3,7 +3,13 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type BigNumber from 'bignumber.js'
 import { bn } from 'lib/bignumber/bignumber'
 
-import { WAVAX_ASSET_ID, WBNB_ASSET_ID, WETH_ASSET_ID, WOP_ASSET_ID } from './constants'
+import {
+  WAVAX_ASSET_ID,
+  WBNB_ASSET_ID,
+  WETH_ASSET_ID,
+  WOP_ASSET_ID,
+  WXDAI_ASSET_ID,
+} from './constants'
 import type { OneInchBaseResponse } from './types'
 
 export const getRate = (quoteResponse: OneInchBaseResponse): BigNumber => {
@@ -27,6 +33,8 @@ export const getNativeWrappedAssetId = (chainId: ChainId): AssetId => {
       return WOP_ASSET_ID
     case KnownChainIds.AvalancheMainnet:
       return WAVAX_ASSET_ID
+    case KnownChainIds.GnosisMainnet:
+      return WXDAI_ASSET_ID
     default:
       throw new Error(`${chainId} not supported`)
   }

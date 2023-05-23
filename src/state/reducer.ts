@@ -4,6 +4,7 @@ import { persistReducer } from 'redux-persist'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { abiApi } from './apis/abi/abiApi'
+import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { nftApi } from './apis/nft/nftApi'
@@ -52,6 +53,7 @@ export const apiSlices = {
   zapper,
   zapperApi,
   nftApi,
+  covalentApi,
   opportunitiesApi,
   abiApi,
   zerionApi,
@@ -67,6 +69,7 @@ export const apiReducers = {
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
   [zapperApi.reducerPath]: zapperApi.reducer,
   [nftApi.reducerPath]: nftApi.reducer,
+  [covalentApi.reducerPath]: covalentApi.reducer,
   [zapper.reducerPath]: zapper.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,

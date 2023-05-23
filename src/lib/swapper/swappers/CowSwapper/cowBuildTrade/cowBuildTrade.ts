@@ -27,6 +27,15 @@ export async function cowBuildTrade(
   input: BuildTradeInput,
 ): Promise<Result<CowTrade<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
+
+  if (!receiveAddress)
+    return Err(
+      makeSwapErrorRight({
+        message: 'Receive address is required to build CoW trades',
+        code: SwapErrorType.MISSING_INPUT,
+      }),
+    )
+
   const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
 
   const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } = fromAssetId(

@@ -12,7 +12,7 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAssets } from 'state/slices/assetsSlice/selectors'
 
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type {
@@ -57,7 +57,7 @@ const headers = {
 }
 
 export type GetZapperUniV2PoolAssetIdsOutput = AssetId[]
-export type GetZapperAppBalancesOutput = Record<AssetId, ZapperAssetBase>
+export type GetZapperAppTokensOutput = Record<AssetId, ZapperAssetBase>
 
 type GetZapperNftUserTokensInput = {
   accountIds: AccountId[]
@@ -73,10 +73,11 @@ export const zapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'zapperApi',
   endpoints: build => ({
-    getZapperAppBalancesOutput: build.query<GetZapperAppBalancesOutput, void>({
+    getZapperAppTokensOutput: build.query<GetZapperAppTokensOutput, void>({
       queryFn: async (_, { dispatch, getState }) => {
         const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
 
+        // only UNI-V2 supported for now
         const url = `/v2/apps/${ZapperAppId.UniswapV2}/tokens`
         const params = {
           groupId: ZapperGroupId.Pool,
@@ -86,7 +87,7 @@ export const zapperApi = createApi({
         const { data: res } = await axios.request({ ...payload })
         const zapperV2AppTokensData = V2AppTokensResponse.parse(res)
 
-        const parsedData = zapperV2AppTokensData.reduce<GetZapperAppBalancesOutput>(
+        const parsedData = zapperV2AppTokensData.reduce<GetZapperAppTokensOutput>(
           (acc, appTokenData) => {
             const chainId = zapperNetworkToChainId(appTokenData.network)
             if (!chainId) return acc
@@ -115,7 +116,7 @@ export const zapperApi = createApi({
               assetReference: appTokenData.address,
             })
 
-            const underlyingAssets = appTokenData.tokens.map(token => {
+            const underlyingAssets = (appTokenData.tokens ?? []).map(token => {
               const assetId = toAssetId({
                 chainId,
                 assetNamespace: 'erc20', // TODO: bep20
@@ -131,10 +132,12 @@ export const zapperApi = createApi({
 
             const name = underlyingAssets.every(asset => asset && asset.symbol)
               ? `${underlyingAssets.map(asset => asset?.symbol).join('/')} Pool`
-              : appTokenData.displayProps.label.replace('WETH', 'ETH')
+              : (appTokenData.displayProps?.label ?? '').replace('WETH', 'ETH')
             const icons = underlyingAssets.map((underlyingAsset, i) => {
-              return underlyingAsset?.icon ?? appTokenData.displayProps.images[i]
+              return underlyingAsset?.icon ?? appTokenData.displayProps?.images[i] ?? ''
             })
+
+            if (!(appTokenData.decimals && appTokenData.symbol)) return acc
 
             acc.byId[assetId] = makeAsset({
               assetId,
@@ -216,7 +219,7 @@ export const zapper = createApi({
     getZapperUniV2PoolAssetIds: build.query<GetZapperUniV2PoolAssetIdsOutput, void>({
       queryFn: async (_, { dispatch }) => {
         const maybeZapperV2AppTokensData = await dispatch(
-          zapperApi.endpoints.getZapperAppBalancesOutput.initiate(),
+          zapperApi.endpoints.getZapperAppTokensOutput.initiate(),
         )
 
         if (!maybeZapperV2AppTokensData.data) throw new Error('No Zapper data, sadpepe.jpg')

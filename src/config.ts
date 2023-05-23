@@ -64,6 +64,7 @@ const validators = {
   REACT_APP_ZERION_API_KEY: str(),
   REACT_APP_FEATURE_DEFI_DASHBOARD: bool({ default: false }),
   REACT_APP_ZAPPER_API_KEY: str(),
+  REACT_APP_COVALENT_API_KEY: str(),
   REACT_APP_FEATURE_LIFI_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_JAYPEGZ: bool({ default: false }),
@@ -146,6 +147,7 @@ const validators = {
   REACT_APP_ONE_INCH_API_URL: url({
     default: 'https://api.1inch.io/v5.0',
   }),
+  REACT_APP_FEATURE_COVALENT_JAYPEGS: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

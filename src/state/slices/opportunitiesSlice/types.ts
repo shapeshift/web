@@ -107,7 +107,9 @@ export type StakingIdBase = Nominal<string, 'StakingId'> & AssetId
 export type StakingKey = Nominal<string, 'StakingKey'>
 export type StakingId = StakingIdBase | `${StakingIdBase}#${StakingKey}`
 // The AccountId of the LP contract in the form of chainId:accountAddress
-export type LpId = Nominal<string, 'LpId'> & AssetId
+export type LpKey = Nominal<string, 'LpKey'>
+export type LpIdBase = Nominal<string, 'LpId'> & AssetId
+export type LpId = LpIdBase | `${LpIdBase}#${LpKey}`
 
 export type ValidatorId = Nominal<string, 'ValidatorId'> & AccountId
 export type OpportunityId = LpId | StakingId | ValidatorId

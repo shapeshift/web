@@ -94,6 +94,7 @@ export async function cowBuildTrade(
         sellAmount: quoteSellAmountExcludeFeeCryptoBaseUnit,
         feeAmount: feeAmountInSellTokenCryptoBaseUnit,
       },
+      id,
     },
   } = maybeQuoteResponse.unwrap()
 
@@ -149,6 +150,7 @@ export async function cowBuildTrade(
     receiveAddress,
     feeAmountInSellTokenCryptoBaseUnit,
     sellAmountDeductFeeCryptoBaseUnit: quoteSellAmountExcludeFeeCryptoBaseUnit,
+    id,
   }
 
   return Ok(trade)

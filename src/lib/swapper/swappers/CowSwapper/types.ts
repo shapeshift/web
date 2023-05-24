@@ -16,6 +16,7 @@ export type CowSwapQuoteResponse = {
   }
   from: string
   expiration: string
+  id: string
 }
 
 export type CowSwapGetOrdersResponse = {
@@ -31,4 +32,5 @@ export type CowSwapGetTradesResponse = CowSwapGetTradesElement[]
 export interface CowTrade<C extends ChainId> extends Trade<C> {
   feeAmountInSellTokenCryptoBaseUnit: string
   sellAmountDeductFeeCryptoBaseUnit: string
+  id: string
 }

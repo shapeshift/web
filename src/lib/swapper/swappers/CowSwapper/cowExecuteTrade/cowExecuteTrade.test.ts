@@ -75,6 +75,7 @@ const cowTradeEthToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   receiveAddress: 'address11',
   feeAmountInSellTokenCryptoBaseUnit: '14557942658757988',
   sellAmountDeductFeeCryptoBaseUnit: '111111',
+  id: '1',
 }
 
 const cowTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
@@ -92,6 +93,7 @@ const cowTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   receiveAddress: 'address11',
   feeAmountInSellTokenCryptoBaseUnit: '3514395197690019',
   sellAmountDeductFeeCryptoBaseUnit: '16685605000000000',
+  id: '1',
 }
 
 const cowTradeFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
@@ -115,6 +117,7 @@ const cowTradeFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   receiveAddress: 'address11',
   feeAmountInSellTokenCryptoBaseUnit: '61804771879693983744',
   sellAmountDeductFeeCryptoBaseUnit: '938195228120306016256',
+  id: '1',
 }
 
 const expectedWethToFoxOrderToSign: CowSwapOrder = {
@@ -130,6 +133,7 @@ const expectedWethToFoxOrderToSign: CowSwapOrder = {
   receiver: 'address11',
   sellTokenBalance: ERC20_TOKEN_BALANCE,
   buyTokenBalance: ERC20_TOKEN_BALANCE,
+  quoteId: '1',
 }
 
 const expectedFoxToEthOrderToSign: CowSwapOrder = {
@@ -145,6 +149,7 @@ const expectedFoxToEthOrderToSign: CowSwapOrder = {
   receiver: 'address11',
   sellTokenBalance: ERC20_TOKEN_BALANCE,
   buyTokenBalance: ERC20_TOKEN_BALANCE,
+  quoteId: '1',
 }
 
 const deps: CowSwapperDeps = {

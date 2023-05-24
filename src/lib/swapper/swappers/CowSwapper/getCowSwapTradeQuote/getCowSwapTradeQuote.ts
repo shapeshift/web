@@ -103,6 +103,7 @@ export async function getCowSwapTradeQuote(
         sellAmount: sellAmountCryptoBaseUnit,
         feeAmount: feeAmountInSellTokenCryptoBaseUnit,
       },
+      id,
     },
   } = maybeQuoteResponse.unwrap()
 
@@ -155,7 +156,7 @@ export async function getCowSwapTradeQuote(
     ? '0'
     : buyAmountBeforeFeesCryptoBaseUnit
 
-  const quote = {
+  const quote: TradeQuote<KnownChainIds.EthereumMainnet> = {
     rate,
     minimumCryptoHuman: minimumAmountCryptoHuman,
     maximumCryptoHuman: maximumAmountCryptoHuman,
@@ -176,6 +177,7 @@ export async function getCowSwapTradeQuote(
     buyAsset,
     sellAsset,
     accountNumber,
+    id,
   }
 
   return Ok(quote)

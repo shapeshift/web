@@ -9,7 +9,7 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, osmosisAssetId } from '@shapeshiftoss/caip'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -414,7 +414,11 @@ export const TradeInput = () => {
   )
 
   const hasSufficientProtocolFeeBalances = useMemo(() => {
-    if (protocolFees === undefined || tradeQuoteArgs === undefined) return false
+    if (protocolFees === undefined || tradeQuoteArgs === undefined || !buyAssetAccountId)
+      return false
+
+    const isBuyingOsmoWithOmosisSwapper =
+      activeSwapper?.name === SwapperName.Osmosis && buyAsset.assetId === osmosisAssetId
 
     // This is an oversimplification where protocol fees are assumed to be only deducted from
     // account IDs corresponding to the sell asset account number and protocol fee asset chain ID.
@@ -422,17 +426,22 @@ export const TradeInput = () => {
     return Object.entries(protocolFees)
       .filter(([_assetId, protocolFee]) => protocolFee.requiresBalance)
       .every(([assetId, protocolFee]) => {
-        const accountId =
-          portfolioAccountIdByNumberByChainId[tradeQuoteArgs.accountNumber][
-            protocolFee.asset.chainId
-          ]
+        // TEMP: handle osmosis protocol fee payable on buy side for specific case until we implement general solution
+        const accountId = isBuyingOsmoWithOmosisSwapper
+          ? buyAssetAccountId
+          : portfolioAccountIdByNumberByChainId[tradeQuoteArgs.accountNumber][
+              protocolFee.asset.chainId
+            ]
         const balanceCryptoBaseUnit = portfolioAccountBalancesBaseUnit[accountId][assetId]
         return bnOrZero(balanceCryptoBaseUnit).gte(protocolFee.amountCryptoBaseUnit)
       })
   }, [
+    activeSwapper?.name,
+    buyAsset.assetId,
     portfolioAccountBalancesBaseUnit,
     portfolioAccountIdByNumberByChainId,
     protocolFees,
+    buyAssetAccountId,
     tradeQuoteArgs,
   ])
 

@@ -11,6 +11,7 @@ import type * as yearn from '../ethereum/parser/yearn'
 import type * as erc20 from '../parser/erc20'
 import type * as nft from '../parser/nft'
 import type * as zrx from '../parser/zrx'
+import type * as lifi from './bridge'
 
 export type Tx = evm.Tx
 
@@ -25,6 +26,7 @@ export type TxMetadata =
   | yearn.TxMetadata
   | zrx.TxMetadata
   | nft.TxMetadata
+  | lifi.TxMetadata
 
 export interface ParsedTx extends StandardTx {
   data?: TxMetadata

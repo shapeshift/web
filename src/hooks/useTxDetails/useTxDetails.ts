@@ -64,6 +64,7 @@ export const isSupportedMethod = (tx: Tx) =>
   Object.values(Method).includes(tx.data?.method as Method)
 
 export const getTxType = (tx: Tx, transfers: Transfer[]): TxType => {
+  if (tx.data?.parser === 'bridge') return transfers[0].type
   if (tx.trade) return tx.trade.type
   if (isSupportedMethod(tx)) return 'method'
   if (transfers.length === 1) return transfers[0].type // standard send/receive

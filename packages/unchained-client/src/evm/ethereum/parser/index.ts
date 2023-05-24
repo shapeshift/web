@@ -1,6 +1,7 @@
 import type { Tx } from '../../../generated/ethereum'
 import type { TransactionParserArgs } from '../../parser'
 import { BaseTransactionParser } from '../../parser'
+import * as bridge from '../../parser/bridge'
 import * as erc20 from '../../parser/erc20'
 import * as nft from '../../parser/nft'
 import * as zrx from '../../parser/zrx'
@@ -33,6 +34,7 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
       new thor.Parser({ chainId: this.chainId, rpcUrl: args.rpcUrl }),
       new zrx.Parser({ proxyContract: ZRX_ETHEREUM_PROXY_CONTRACT }),
       new cowswap.Parser(),
+      new bridge.Parser({ chainId: this.chainId }),
     ])
   }
 }

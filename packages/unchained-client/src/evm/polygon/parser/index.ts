@@ -1,6 +1,7 @@
 import type { Tx } from '../../../generated/polygon'
 import type { TransactionParserArgs } from '../../parser'
 import { BaseTransactionParser } from '../../parser'
+import * as bridge from '../../parser/bridge'
 import * as erc20 from '../../parser/erc20'
 import * as nft from '../../parser/nft'
 import * as zrx from '../../parser/zrx'
@@ -19,6 +20,7 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
       }),
       new erc20.Parser({ chainId: this.chainId, provider: this.provider }),
       new zrx.Parser({ proxyContract: ZRX_POLYGON_PROXY_CONTRACT }),
+      new bridge.Parser({ chainId: this.chainId }),
     ])
   }
 }

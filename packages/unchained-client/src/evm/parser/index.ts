@@ -122,93 +122,95 @@ export class BaseTransactionParser<T extends Tx> {
       }
     }
 
-    tx.tokenTransfers?.forEach(transfer => {
-      // FTX Token (FTT) name and symbol was set backwards on the ERC20 contract (Ethereum Mainnet)
-      if (
-        this.chainId === ethChainId &&
-        transfer.contract === '0x50D1c9771902476076eCFc8B2A83Ad6b9355a4c9'
-      ) {
-        transfer.name = transfer.symbol
-        transfer.symbol = transfer.name
-      }
-
-      const token: Token = {
-        contract: transfer.contract,
-        decimals: transfer.decimals,
-        name: transfer.name,
-        symbol: transfer.symbol,
-      }
-
-      const assetId = (() => {
-        // alias ether token on optimism to native asset as they are the same
-        if (transfer.contract === '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000') {
-          return toAssetId({
-            chainId: this.chainId,
-            assetNamespace: 'slip44',
-            assetReference: ASSET_REFERENCE.Optimism,
-          })
+    if (parsedTx.data?.parser !== 'bridge' || !tx.internalTxs || tx.internalTxs.length === 0) {
+      tx.tokenTransfers?.forEach(transfer => {
+        // FTX Token (FTT) name and symbol was set backwards on the ERC20 contract (Ethereum Mainnet)
+        if (
+          this.chainId === ethChainId &&
+          transfer.contract === '0x50D1c9771902476076eCFc8B2A83Ad6b9355a4c9'
+        ) {
+          transfer.name = transfer.symbol
+          transfer.symbol = transfer.name
         }
 
-        // alias matic token on matic to native asset as they are the same
-        if (transfer.contract === '0x0000000000000000000000000000000000001010') {
-          return toAssetId({
-            chainId: this.chainId,
-            assetNamespace: 'slip44',
-            assetReference: ASSET_REFERENCE.Polygon,
-          })
+        const token: Token = {
+          contract: transfer.contract,
+          decimals: transfer.decimals,
+          name: transfer.name,
+          symbol: transfer.symbol,
         }
 
-        const assetNamespace = (() => {
-          switch (transfer.type) {
-            case 'ERC20':
-              return ASSET_NAMESPACE.erc20
-            case 'ERC721':
-              return ASSET_NAMESPACE.erc721
-            case 'ERC1155':
-              return ASSET_NAMESPACE.erc1155
-            case 'BEP20':
-              return ASSET_NAMESPACE.bep20
-            case 'BEP721':
-              return ASSET_NAMESPACE.bep721
-            case 'BEP1155':
-              return ASSET_NAMESPACE.bep1155
-            default:
-              return
+        const assetId = (() => {
+          // alias ether token on optimism to native asset as they are the same
+          if (transfer.contract === '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000') {
+            return toAssetId({
+              chainId: this.chainId,
+              assetNamespace: 'slip44',
+              assetReference: ASSET_REFERENCE.Optimism,
+            })
           }
+
+          // alias matic token on matic to native asset as they are the same
+          if (transfer.contract === '0x0000000000000000000000000000000000001010') {
+            return toAssetId({
+              chainId: this.chainId,
+              assetNamespace: 'slip44',
+              assetReference: ASSET_REFERENCE.Polygon,
+            })
+          }
+
+          const assetNamespace = (() => {
+            switch (transfer.type) {
+              case 'ERC20':
+                return ASSET_NAMESPACE.erc20
+              case 'ERC721':
+                return ASSET_NAMESPACE.erc721
+              case 'ERC1155':
+                return ASSET_NAMESPACE.erc1155
+              case 'BEP20':
+                return ASSET_NAMESPACE.bep20
+              case 'BEP721':
+                return ASSET_NAMESPACE.bep721
+              case 'BEP1155':
+                return ASSET_NAMESPACE.bep1155
+              default:
+                return
+            }
+          })()
+
+          if (!assetNamespace) return
+
+          return toAssetId({
+            chainId: this.chainId,
+            assetNamespace,
+            assetReference: transfer.contract,
+          })
         })()
 
-        if (!assetNamespace) return
+        if (!assetId) return
 
-        return toAssetId({
-          chainId: this.chainId,
-          assetNamespace,
-          assetReference: transfer.contract,
+        const makeTokenTransferArgs = (type: TransferType): AggregateTransferArgs => ({
+          assetId,
+          from: transfer.from,
+          id: transfer.id,
+          to: transfer.to,
+          token,
+          transfers: parsedTx.transfers,
+          type,
+          value: transfer.value,
         })
-      })()
 
-      if (!assetId) return
+        // token send amount
+        if (address === transfer.from) {
+          parsedTx.transfers = aggregateTransfer(makeTokenTransferArgs(TransferType.Send))
+        }
 
-      const makeTokenTransferArgs = (type: TransferType): AggregateTransferArgs => ({
-        assetId,
-        from: transfer.from,
-        id: transfer.id,
-        to: transfer.to,
-        token,
-        transfers: parsedTx.transfers,
-        type,
-        value: transfer.value,
+        // token receive amount
+        if (address === transfer.to) {
+          parsedTx.transfers = aggregateTransfer(makeTokenTransferArgs(TransferType.Receive))
+        }
       })
-
-      // token send amount
-      if (address === transfer.from) {
-        parsedTx.transfers = aggregateTransfer(makeTokenTransferArgs(TransferType.Send))
-      }
-
-      // token receive amount
-      if (address === transfer.to) {
-        parsedTx.transfers = aggregateTransfer(makeTokenTransferArgs(TransferType.Receive))
-      }
-    })
+    }
 
     tx.internalTxs?.forEach(internalTx => {
       const makeInternalTransferArgs = (type: TransferType): AggregateTransferArgs => ({

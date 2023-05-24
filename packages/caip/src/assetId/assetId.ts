@@ -111,13 +111,15 @@ export const toAssetId: ToAssetId = (args: ToAssetIdArgs): AssetId => {
       case 'bep20':
         assertContractAddress(assetReference)
         return assetReference.toLowerCase()
-      case 'erc721': // caip-22 (https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-22.md)
-      case 'erc1155': // capi-29 (https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-29.md)
-      case 'bep721': // caip-22 (https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-22.md)
-      case 'bep1155': // capi-29 (https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-29.md)
-        const [address, id] = assetReference.split('/')
+      case 'erc721':
+      case 'erc1155':
+      case 'bep721':
+      case 'bep1155':
+        // caip-22 (https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-22.md)
+        // caip-29 (https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-29.md)
+        const [address] = assetReference.split('/')
         assertContractAddress(address)
-        return `${address.toLowerCase()}/${id}`
+        return assetReference.toLowerCase()
       default:
         return assetReference
     }
@@ -150,18 +152,26 @@ export const fromAssetId: FromAssetId = assetId => {
 
   const chainId = toChainId({ chainNamespace, chainReference })
 
-  if (assetNamespace && assetReference && chainId) {
-    return {
-      chainId,
-      chainReference,
-      chainNamespace,
-      assetNamespace,
-      assetReference: ['erc20', 'erc721', 'bep20', 'bep721'].includes(assetNamespace)
-        ? assetReference.toLowerCase()
-        : assetReference,
+  const assetReferenceNormalized = (() => {
+    switch (assetNamespace) {
+      case 'erc20':
+      case 'bep20':
+      case 'erc721':
+      case 'erc1155':
+      case 'bep721':
+      case 'bep1155':
+        return assetReference.toLowerCase()
+      default:
+        return assetReference
     }
-  } else {
-    throw new Error(`fromAssetId: invalid AssetId: ${assetId}`)
+  })()
+
+  return {
+    chainId,
+    chainReference,
+    chainNamespace,
+    assetNamespace,
+    assetReference: assetReferenceNormalized,
   }
 }
 

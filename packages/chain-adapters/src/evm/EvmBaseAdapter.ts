@@ -333,9 +333,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
             assetId: toAssetId({
               chainId: this.chainId,
               assetNamespace: getAssetNamespace(token.type),
-              assetReference: (token as any).id
-                ? `${token.contract}/${(token as any).id}`
-                : token.contract,
+              assetReference: token.id ? `${token.contract}/${token.id}` : token.contract,
             }),
           })),
         },

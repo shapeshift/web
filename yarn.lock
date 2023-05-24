@@ -5843,12 +5843,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/blockbook@npm:^9.2.0":
-  version: 9.2.0
-  resolution: "@shapeshiftoss/blockbook@npm:9.2.0"
+"@shapeshiftoss/blockbook@npm:^9.3.0":
+  version: 9.3.0
+  resolution: "@shapeshiftoss/blockbook@npm:9.3.0"
   dependencies:
     ws: ^8.8.0
-  checksum: 1988dc0b0bf1abc851c156fda781b9ce62098df0a14f1ff68bca33632be88f9160e1c13be48bb17d9274610c847a78f90df1d90c74d1c41697fd812cfed31eb5
+  checksum: dea9523d588149f8151be2a4cd6c613ef49857198b10be8a50b722ce3dcca05cce9766ba994bd95ac841d95613adb9077124ec8e9a330e45b47f8f7f8eb49ab3
   languageName: node
   linkType: hard
 
@@ -5886,16 +5886,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/common-api@npm:^9.2.0":
-  version: 9.2.0
-  resolution: "@shapeshiftoss/common-api@npm:9.2.0"
+"@shapeshiftoss/common-api@npm:^9.3.0":
+  version: 9.3.0
+  resolution: "@shapeshiftoss/common-api@npm:9.3.0"
   dependencies:
-    "@shapeshiftoss/blockbook": ^9.2.0
+    "@shapeshiftoss/blockbook": ^9.3.0
     bignumber.js: ^9.1.1
     tsoa: ^4.1.0
     uuid: ^8.3.2
     ws: ^8.8.0
-  checksum: e1c446b76aa024342cdcad6d3cbbfc9e676dd99ce67dd58ab5ab3176baea390db09bc6ba381d8c2ebfc73c60495458324989b6b6f5ccf4dc0defcf390c63fae9
+  checksum: 2f0939dcc7e67e3c742ca5a2dc25eacce646742f7b26d8168583524e4711ae8b47efc2a28ede4aa74780a25d4629f581b4dd72d9b3d8d7ff6810891521c12efb
   languageName: node
   linkType: hard
 
@@ -6151,7 +6151,7 @@ __metadata:
   dependencies:
     "@openapitools/openapi-generator-cli": ^2.5.1
     "@shapeshiftoss/caip": "workspace:^"
-    "@shapeshiftoss/common-api": ^9.2.0
+    "@shapeshiftoss/common-api": ^9.3.0
     "@shapeshiftoss/logger": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@types/ws": ^8.2.1

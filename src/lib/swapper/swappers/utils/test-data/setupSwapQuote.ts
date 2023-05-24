@@ -52,6 +52,7 @@ export const setupBuildTrade = () => {
     receiveAddress: '',
     affiliateBps: '0',
     eip1559Support: false,
+    slippage: '50',
   }
   return { buildTradeInput, buyAsset, sellAsset }
 }

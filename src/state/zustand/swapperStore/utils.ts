@@ -18,6 +18,26 @@ type SumProtocolFeesToDenomArgs = {
   protocolFees: Record<AssetId, ProtocolFee>
 }
 
+/**
+ * Subtracts basis points from a given value.
+ *
+ * @param value The value to subtract basis points from.
+ * @param basisPoints The number of basis points to subtract.
+ * @returns The new number that is the input value minus the basis points of the value.
+ */
+export const subtractBasisPoints = (value: string, basisPoints: string): string => {
+  // Convert input to a BigNumber instance
+  const bigNumValue = bn(value)
+
+  // Basis point is 1/100th of a percent
+  const percentValue = convertBasisPointsToDecimalPercentage(basisPoints)
+  const subtractValue = bigNumValue.times(percentValue)
+
+  // Subtract basis points from the original value
+  const resultValue = bigNumValue.minus(subtractValue)
+  return resultValue.toFixed()
+}
+
 // this converts the collection of protocol fees denominated in various assets to the sum of all of
 // their values denominated in single asset and precision
 export const sumProtocolFeesToDenom = ({

@@ -9,7 +9,7 @@ import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 import type { BuildTradeInput } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX, WBTC, WETH } from '../../utils/test-data/assets'
-import type { CowSwapperDeps } from '../CowSwapper'
+import type { CowSwapperDeps, CowSwapQuoteResponse } from '../CowSwapper'
 import type { CowTrade } from '../types'
 import { DEFAULT_ADDRESS, DEFAULT_APP_DATA } from '../utils/constants'
 import { cowService } from '../utils/cowService'
@@ -134,6 +134,7 @@ const expectedTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   feeAmountInSellTokenCryptoBaseUnit: '14557942658757988',
   sellAmountDeductFeeCryptoBaseUnit: '985442057341242012',
   id: '1',
+  minimumBuyAmountAfterFeesCryptoBaseUnit: '14429302759156357115123.12',
 }
 
 const expectedTradeQuoteWbtcToWethWithApprovalFeeCryptoBaseUnit: CowTrade<KnownChainIds.EthereumMainnet> =
@@ -159,6 +160,7 @@ const expectedTradeQuoteWbtcToWethWithApprovalFeeCryptoBaseUnit: CowTrade<KnownC
     feeAmountInSellTokenCryptoBaseUnit: '17238',
     sellAmountDeductFeeCryptoBaseUnit: '99982762',
     id: '1',
+    minimumBuyAmountAfterFeesCryptoBaseUnit: '19043335024346774036.605',
   }
 
 const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
@@ -183,6 +185,7 @@ const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   feeAmountInSellTokenCryptoBaseUnit: '61804771879693983744',
   sellAmountDeductFeeCryptoBaseUnit: '938195228120306016256',
   id: '1',
+  minimumBuyAmountAfterFeesCryptoBaseUnit: '51242479117266593',
 }
 
 const deps: CowSwapperDeps = {
@@ -210,6 +213,7 @@ describe('cowBuildTrade', () => {
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       eip1559Support: false,
+      slippage: '50',
     }
 
     const maybeCowBuildTrade = await cowBuildTrade(deps, tradeInput)
@@ -238,21 +242,22 @@ describe('cowBuildTrade', () => {
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       eip1559Support: false,
+      slippage: '50',
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(
-        Ok({
+        Ok<{ data: CowSwapQuoteResponse }>({
           data: {
             quote: {
               ...expectedApiInputWethToFox,
-              sellAmountBeforeFee: undefined,
               sellAmount: '985442057341242012',
               buyAmount: '14501811818247595090576',
               feeAmount: '14557942658757988',
-              sellTokenBalance: 'erc20',
-              buyTokenBalance: 'erc20',
             },
+            from: '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6',
+            expiration: '1684901061',
+            id: '1',
           },
         }),
       ),
@@ -283,21 +288,22 @@ describe('cowBuildTrade', () => {
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       eip1559Support: false,
+      slippage: '50',
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(
-        Ok({
+        Ok<{ data: CowSwapQuoteResponse }>({
           data: {
             quote: {
               ...expectedApiInputWbtcToWeth,
-              sellAmountBeforeFee: undefined,
               sellAmount: '99982762',
               buyAmount: '19139030175222888479',
               feeAmount: '17238',
-              sellTokenBalance: 'erc20',
-              buyTokenBalance: 'erc20',
             },
+            from: '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6',
+            expiration: '1684901061',
+            id: '1',
           },
         }),
       ),
@@ -334,17 +340,17 @@ describe('cowBuildTrade', () => {
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(
-        Ok({
+        Ok<{ data: CowSwapQuoteResponse }>({
           data: {
             quote: {
               ...expectedApiInputFoxToEth,
-              sellAmountBeforeFee: undefined,
               sellAmount: '938195228120306016256',
               buyAmount: '51242479117266593',
               feeAmount: '61804771879693983744',
-              sellTokenBalance: 'erc20',
-              buyTokenBalance: 'erc20',
             },
+            from: '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6',
+            expiration: '1684901061',
+            id: '1',
           },
         }),
       ),

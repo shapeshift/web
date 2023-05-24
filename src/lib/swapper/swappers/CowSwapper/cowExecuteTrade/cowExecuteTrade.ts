@@ -38,6 +38,7 @@ export async function cowExecuteTrade(
     sellAmountDeductFeeCryptoBaseUnit: sellAmountWithoutFee,
     accountNumber,
     id,
+    minimumBuyAmountAfterFeesCryptoBaseUnit,
   } = cowTrade
 
   const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } = fromAssetId(
@@ -74,7 +75,7 @@ export async function cowExecuteTrade(
     sellToken: sellAssetErc20Address,
     buyToken,
     sellAmount: sellAmountWithoutFee,
-    buyAmount: trade.buyAmountBeforeFeesCryptoBaseUnit,
+    buyAmount: minimumBuyAmountAfterFeesCryptoBaseUnit, // this is used as the minimum accepted receive amount before the trade will execute
     validTo: getNowPlusThirtyMinutesTimestamp(),
     appData: DEFAULT_APP_DATA,
     feeAmount: feeAmountInSellToken,

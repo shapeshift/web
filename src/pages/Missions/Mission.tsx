@@ -47,6 +47,7 @@ export const Mission: React.FC<MissionProps> = ({
       borderWidth={useColorModeValue(0, 1)}
       gridColumn={`span ${colspan}`}
       onClick={handleClick}
+      borderRadius={{ base: 'none', lg: '3xl', xl: '3xl' }}
       transitionProperty='common'
       transitionDuration='normal'
       _hover={{
@@ -56,8 +57,10 @@ export const Mission: React.FC<MissionProps> = ({
         '.icon-btn': { bg: 'whiteAlpha.500' },
       }}
       position='relative'
-      backgroundPosition={{ base: '-10% -50%', md: '150% 60%' }}
-      backgroundSize={{ base: 'cover', md: '80%' }}
+      // backgroundPosition={{ base: '-10% -50%', md: '150% 60%' }}
+      // backgroundSize={{ base: 'cover', md: '80%' }}
+      bgImage={coverImage}
+      backgroundSize='cover'
       backgroundRepeat='no-repeat'
       borderColor={useColorModeValue('blackAlpha.100', 'whiteAlpha.100')}
     >
@@ -65,7 +68,7 @@ export const Mission: React.FC<MissionProps> = ({
         <Heading
           as='h6'
           textTransform='uppercase'
-          color='gray.500'
+          color='whiteAlpha.700'
           letterSpacing='0.02em'
           textAlign='center'
         >
@@ -83,10 +86,10 @@ export const Mission: React.FC<MissionProps> = ({
         </Heading>
         <Flex
           position='absolute'
-          right={0}
-          bottom={0}
+          right='-1px'
+          left='-1px'
+          bottom='-1px'
           p={6}
-          width='full'
           height='200px'
           justifyContent='space-between'
           alignItems='flex-end'
@@ -101,7 +104,7 @@ export const Mission: React.FC<MissionProps> = ({
             mask: 'linear-gradient(transparent, black 85%)',
             borderBottomRadius: {
               base: 'none',
-              lg: 'xl',
+              lg: '2xl',
             },
           }}
         >
@@ -145,8 +148,6 @@ export const Mission: React.FC<MissionProps> = ({
       <Box
         width='100%'
         minHeight='350px'
-        bgImage={coverImage}
-        backgroundSize='cover'
         mt='auto'
         backgroundPosition='center 100%'
         backgroundRepeat='no-repeat'

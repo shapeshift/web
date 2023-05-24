@@ -441,6 +441,7 @@ export const TradeInput = () => {
 
     if (!insufficientBalanceProtocolFees[0]) return
 
+    // UI can currently only show one error message at a time, so we show the first
     const protocolFee = insufficientBalanceProtocolFees[0][1]
 
     return {

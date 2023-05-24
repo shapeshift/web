@@ -59,7 +59,17 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0x65a05db8322701724c197af82c9cae41195b0aa8',
       })
-      expect(coingeckoToAssetIds('shapeshift-fox-token')).toEqual([foxOnEthereum, foxOnPolygon])
+      const foxOnGnosis = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.GnosisMainnet,
+        assetNamespace,
+        assetReference: '0x21a42669643f45bc0e086b8fc2ed70c23d67509d',
+      })
+      expect(coingeckoToAssetIds('shapeshift-fox-token')).toEqual([
+        foxOnEthereum,
+        foxOnPolygon,
+        foxOnGnosis,
+      ])
     })
 
     it('can get AssetIds for cosmos', () => {
@@ -123,12 +133,19 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
       })
+      const usdcOnGnosis = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.GnosisMainnet,
+        assetNamespace,
+        assetReference: '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
+      })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([
         usdcOnEthereum,
         usdcOnAvalanche,
         usdcOnOptimism,
         usdcOnBsc,
         usdcOnPolygon,
+        usdcOnGnosis,
       ])
     })
   })
@@ -201,6 +218,18 @@ describe('adapters:coingecko', () => {
         assetReference: ASSET_REFERENCE.Polygon,
       })
       expect(assetIdToCoingecko(assetId)).toEqual('matic-network')
+    })
+    it('can get CoinGecko id for gnosis AssetId', () => {
+      const chainNamespace = CHAIN_NAMESPACE.Evm
+      const chainReference = CHAIN_REFERENCE.GnosisMainnet
+      const assetId = toAssetId({
+        chainNamespace,
+        chainReference,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Gnosis,
+      })
+      console.log(assetId)
+      expect(assetIdToCoingecko(assetId)).toEqual('xdai')
     })
   })
 

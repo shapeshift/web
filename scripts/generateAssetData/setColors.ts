@@ -1,7 +1,7 @@
 /* eslint-disable @shapeshiftoss/logger/no-native-console */
-import colorThief from 'colorthief'
-
 import type { Asset } from '../../src/lib/asset-service'
+
+const colorThief = require('colorthief') as any
 
 const toHex = (num: number): string => num.toString(16).toUpperCase().padStart(2, '0')
 

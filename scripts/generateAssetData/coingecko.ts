@@ -5,6 +5,7 @@ import {
   avalancheChainId,
   bscChainId,
   ethChainId,
+  gnosisChainId,
   optimismChainId,
   polygonChainId,
   toAssetId,
@@ -12,7 +13,7 @@ import {
 import axios from 'axios'
 
 import type { Asset } from '../../src/lib/asset-service'
-import { avax, bnbsmartchain, ethereum, optimism, polygon } from './baseAssets'
+import { avax, bnbsmartchain, ethereum, gnosis, optimism, polygon } from './baseAssets'
 import { colorMap } from './colorMap'
 
 type Token = {
@@ -73,6 +74,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: polygon.explorer,
           explorerAddressLink: polygon.explorerAddressLink,
           explorerTxLink: polygon.explorerTxLink,
+        }
+      case gnosisChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: gnosis.explorer,
+          explorerAddressLink: gnosis.explorerAddressLink,
+          explorerTxLink: gnosis.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)

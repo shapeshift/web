@@ -87,6 +87,10 @@ export const getAssets = async (): Promise<Asset[]> => {
     const acc = await accPrevious
     if (!current) return acc
 
+    if (current.base.startsWith('factory')) {
+      return acc
+    }
+
     const denom = current.denom_units.find(item => item.denom === current.display)
     const precision = denom?.exponent ?? 6
 

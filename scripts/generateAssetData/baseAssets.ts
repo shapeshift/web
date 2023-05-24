@@ -161,3 +161,17 @@ export const polygon: Asset = {
   explorerAddressLink: 'https://polygonscan.com/address/',
   explorerTxLink: 'https://polygonscan.com/tx/',
 }
+
+export const gnosis: Asset = {
+  assetId: caip.gnosisAssetId,
+  chainId: caip.gnosisChainId,
+  name: 'xDAI',
+  networkName: 'Gnosis',
+  symbol: 'xDAI',
+  precision: 18,
+  color: '#33765c',
+  icon: 'https://assets.coingecko.com/coins/images/11062/large/Identity-Primary-DarkBG.png?1638372986',
+  explorer: 'https://gnosisscan.io/',
+  explorerAddressLink: 'https://gnosisscan.io/address/',
+  explorerTxLink: 'https://gnosisscan.io/tx/',
+}

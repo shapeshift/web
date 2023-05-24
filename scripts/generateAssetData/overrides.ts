@@ -8,4 +8,8 @@ export const overrideAssets: Record<AssetId, Partial<Asset>> = {
     color: '#3761F9',
     icon: 'https://assets.coincap.io/assets/icons/256/fox.png',
   },
+  'eip155:100/erc20:0xddafbb505ad214d7b80b1f830fccc89b60fb7a83': {
+    name: 'USD Coin on Gnosis',
+    precision: 6,
+  },
 }

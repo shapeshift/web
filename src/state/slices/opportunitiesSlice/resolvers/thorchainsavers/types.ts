@@ -1,6 +1,4 @@
-import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-
-import type { OpportunityMetadataBase } from '../../types'
+import type { DefiProvider, DefiType, OpportunityMetadataBase } from '../../types'
 
 export type ThorchainSaversStakingSpecificMetadata = OpportunityMetadataBase & {
   provider: DefiProvider.ThorchainSavers

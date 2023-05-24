@@ -1,8 +1,7 @@
 import type { GasCost } from '@lifi/sdk'
 import type { Asset } from 'lib/asset-service'
-import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetAddress/getAssetAddress'
+import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
 
 const processNetworkFee = ({
   allRouteGasCosts,
@@ -11,7 +10,7 @@ const processNetworkFee = ({
   allRouteGasCosts: GasCost[]
   feeAsset: Asset
 }) => {
-  const feeAssetAddress = getEvmAssetAddress(feeAsset)
+  const feeAssetAddress = getLifiEvmAssetAddress(feeAsset)
 
   const networkFeeCryptoLifiPrecision = allRouteGasCosts
     .filter(gasCost => gasCost.token.address === feeAssetAddress)
@@ -20,22 +19,20 @@ const processNetworkFee = ({
   return networkFeeCryptoLifiPrecision
 }
 
-const processTradeFee = ({
+const getOtherGasCosts = ({
   allRouteGasCosts,
-  initialSellAssetTradeFeeUsd,
   feeAsset,
 }: {
   allRouteGasCosts: GasCost[]
-  initialSellAssetTradeFeeUsd: BigNumber
   feeAsset: Asset
 }) => {
-  const feeAssetAddress = getEvmAssetAddress(feeAsset)
+  const feeAssetAddress = getLifiEvmAssetAddress(feeAsset)
 
-  const nonFeeAssetGasCosts = allRouteGasCosts
-    .filter(gasCost => gasCost.token.address !== feeAssetAddress)
-    .reduce((acc, gasCost) => acc.plus(bnOrZero(gasCost.amountUSD)), bn(0))
+  const nonFeeAssetGasCosts = allRouteGasCosts.filter(
+    gasCost => gasCost.token.address !== feeAssetAddress,
+  )
 
-  return initialSellAssetTradeFeeUsd.plus(nonFeeAssetGasCosts)
+  return nonFeeAssetGasCosts
 }
 
 // In cases where gas costs are denominated in tokens other than `feeAsset`, gas is better thought of as
@@ -45,11 +42,9 @@ const processTradeFee = ({
 // 2. add all other gas costs to `sellAssetTradeFeeUsd`
 export const processGasCosts = ({
   allRouteGasCosts,
-  initialSellAssetTradeFeeUsd,
   feeAsset,
 }: {
   allRouteGasCosts: GasCost[]
-  initialSellAssetTradeFeeUsd: BigNumber
   feeAsset: Asset
 }) => {
   return {
@@ -57,9 +52,8 @@ export const processGasCosts = ({
       allRouteGasCosts,
       feeAsset,
     }),
-    sellAssetTradeFeeUsd: processTradeFee({
+    otherGasCosts: getOtherGasCosts({
       allRouteGasCosts,
-      initialSellAssetTradeFeeUsd,
       feeAsset,
     }),
   }

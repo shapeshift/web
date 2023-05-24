@@ -8,6 +8,7 @@ import { getStateWith, registerSelectors } from 'reselect-tools'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { abiApi } from './apis/abi/abiApi'
+import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { nftApi } from './apis/nft/nftApi'
@@ -18,7 +19,7 @@ import type { ReduxState } from './reducer'
 import { apiSlices, reducer, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
-import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice'
+import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as selectors from './slices/selectors'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
@@ -44,6 +45,7 @@ const apiMiddleware = [
   zapper.middleware,
   zapperApi.middleware,
   nftApi.middleware,
+  covalentApi.middleware,
   opportunitiesApi.middleware,
   abiApi.middleware,
   zerionApi.middleware,
@@ -65,6 +67,7 @@ export const clearState = () => {
   store.dispatch(apiSlices.opportunitiesApi.util.resetApiState())
   store.dispatch(apiSlices.zapperApi.util.resetApiState())
   store.dispatch(apiSlices.nftApi.util.resetApiState())
+  store.dispatch(apiSlices.covalentApi.util.resetApiState())
   store.dispatch(apiSlices.zapper.util.resetApiState())
 }
 
@@ -88,6 +91,7 @@ const actionSanitizer = (action: any) => {
     'txHistoryApi/executeQuery/fulfilled',
     'zapperApi/executeQuery/fulfilled',
     'nftApi/executeQuery/fulfilled',
+    'covalentApi/executeQuery/fulfilled',
     'zapper/executeQuery/fulfilled',
   ]
   return blackList.includes(action.type)

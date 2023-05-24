@@ -1,17 +1,16 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 
-import { foxEthAssetIds, STAKING_ID_DELIMITER } from './constants'
+import { foxEthAssetIds, STAKING_ID_DELIMITER } from '../constants'
 import type {
   CosmosSdkStakingSpecificUserStakingOpportunity,
   UserUndelegation,
-} from './resolvers/cosmosSdk/types'
-import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
+} from '../resolvers/cosmosSdk/types'
+import type { FoxySpecificUserStakingOpportunity } from '../resolvers/foxy/types'
 import type {
   OpportunityId,
   OpportunityMetadataBase,
@@ -21,7 +20,8 @@ import type {
   UserStakingOpportunity,
   UserStakingOpportunityWithMetadata,
   ValidatorId,
-} from './types'
+} from '../types'
+import { DefiProvider, DefiType } from '../types'
 
 export type UserStakingIdParts = [accountId: AccountId, stakingId: StakingId]
 
@@ -198,7 +198,7 @@ export const makeOpportunityIcons = ({
     : opportunity.underlyingAssetIds.map(assetId => assets[assetId]?.icon).map(icon => icon ?? '')
 
 type MakeDefiProviderDisplayNameArgs = {
-  provider: DefiProvider
+  provider: string
   assetName: string
 }
 
@@ -219,7 +219,7 @@ export const makeDefiProviderDisplayName: MakeDefiProviderDisplayName = ({
       return provider
   }
 }
-type GetOpportunityAccessorArgs = { provider: DefiProvider; type: DefiType }
+type GetOpportunityAccessorArgs = { provider: string; type: DefiType }
 type GetOpportunityAccessorReturn = 'underlyingAssetId' | 'underlyingAssetIds'
 type GetOpportunityAccessor = (args: GetOpportunityAccessorArgs) => GetOpportunityAccessorReturn
 

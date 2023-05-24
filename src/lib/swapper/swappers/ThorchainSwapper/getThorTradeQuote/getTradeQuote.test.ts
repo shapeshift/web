@@ -32,8 +32,13 @@ const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
   buyAmountBeforeFeesCryptoBaseUnit: '114321610000000000',
   feeData: {
-    buyAssetTradeFeeUsd: '19.14',
-    sellAssetTradeFeeUsd: '0',
+    protocolFees: {
+      [ETH.assetId]: {
+        amountCryptoBaseUnit: '12000000000000000',
+        requiresBalance: false,
+        asset: ETH,
+      },
+    },
     networkFeeCryptoBaseUnit: '400000',
   },
   rate: '144114.94366197183098591549',

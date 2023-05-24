@@ -4,6 +4,7 @@ import { persistReducer } from 'redux-persist'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { abiApi } from './apis/abi/abiApi'
+import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { nftApi } from './apis/nft/nftApi'
@@ -11,7 +12,8 @@ import { zapper, zapperApi } from './apis/zapper/zapperApi'
 import { zerionApi } from './apis/zerion/zerionApi'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
-import { opportunities, opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice'
+import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSlice'
+import { opportunities } from './slices/opportunitiesSlice/opportunitiesSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
@@ -52,6 +54,7 @@ export const apiSlices = {
   zapper,
   zapperApi,
   nftApi,
+  covalentApi,
   opportunitiesApi,
   abiApi,
   zerionApi,
@@ -67,6 +70,7 @@ export const apiReducers = {
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
   [zapperApi.reducerPath]: zapperApi.reducer,
   [nftApi.reducerPath]: nftApi.reducer,
+  [covalentApi.reducerPath]: covalentApi.reducer,
   [zapper.reducerPath]: zapper.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,

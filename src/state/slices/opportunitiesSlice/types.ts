@@ -1,5 +1,4 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { PartialRecord } from 'lib/utils'
 import type { Nominal } from 'types/common'
 
@@ -7,6 +6,29 @@ import type { CosmosSdkStakingSpecificUserStakingOpportunity } from './resolvers
 import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
 import type { IdleStakingSpecificMetadata } from './resolvers/idle/types'
 import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
+
+export enum DefiType {
+  LiquidityPool = 'lp',
+  Staking = 'staking',
+}
+
+export enum DefiProvider {
+  Idle = 'idle',
+  Yearn = 'yearn',
+  ShapeShift = 'ShapeShift',
+  EthFoxStaking = 'ETH/FOX Staking',
+  UniV2 = 'Uniswap V2',
+  CosmosSdk = 'Cosmos SDK',
+  OsmosisLp = 'Osmosis LP',
+  ThorchainSavers = 'THORChain Savers',
+}
+
+export type DefiProviderMetadata = {
+  provider: string
+  icon: string
+  color: string
+  url?: string
+}
 
 export type AssetIdsTuple =
   | readonly [AssetId, AssetId, AssetId]
@@ -18,7 +40,7 @@ export type OpportunityMetadataBase = {
   apy: string
   assetId: AssetId
   id: OpportunityId
-  provider: DefiProvider
+  provider: string
   tvl: string
   type: DefiType
   // An opportunity might have its own icon e.g Cosmos SDK validators each have their own icon
@@ -41,6 +63,7 @@ export type OpportunityMetadataBase = {
   // Can also be empty in case there are no denominated rewards or we are unable to track them
   rewardAssetIds: AssetIdsTuple
   isClaimableRewards: boolean
+  isReadOnly?: boolean
   // claimableRewards: boolean
   expired?: boolean
   active?: boolean
@@ -78,7 +101,11 @@ export type UserStakingOpportunity =
 export type UserStakingOpportunityWithMetadata = UserStakingOpportunity & OpportunityMetadata
 
 // The AccountId of the staking contract in the form of chainId:accountAddress
-export type StakingId = Nominal<string, 'StakingId'> & AssetId
+export type StakingIdBase = Nominal<string, 'StakingId'> & AssetId
+// Sometimes, an AssetIdish (i.e a a CAIP-19) is not enough to uniquely identify a staking opportunity
+// So we add a StakingKey to the StakingId to make it unique
+export type StakingKey = Nominal<string, 'StakingKey'>
+export type StakingId = StakingIdBase | `${StakingIdBase}#${StakingKey}`
 // The AccountId of the LP contract in the form of chainId:accountAddress
 export type LpId = Nominal<string, 'LpId'> & AssetId
 
@@ -132,6 +159,9 @@ export type GetOpportunityMetadataOutput = {
   byId: Record<OpportunityId, OpportunityMetadata>
   type: DefiType
 }
+
+export type GetReadOnlyOpportunitiesOutput = ReadOnlyOpportunityType[] | undefined
+
 export type GetOpportunityUserDataOutput = {
   byAccountId: OpportunitiesState[DefiType]['byAccountId']
   type: DefiType
@@ -145,9 +175,9 @@ export type GetOpportunityIdsOutput = OpportunityId[]
 
 // TODO: This is not FDA-approved and should stop being consumed to make things a lot tidier without the added cholesterol
 // This is legacy from previous implementations, we should be able to consume the raw opportunitiesSlice data and derive the rest in-place
-type EarndefiTypeBase = {
+type EarnDefiTypeBase = {
   type: string
-  provider: DefiProvider
+  provider: string
   version?: string
   contractAddress?: string
   rewardAddress?: string
@@ -174,13 +204,25 @@ type EarndefiTypeBase = {
 export type StakingEarnOpportunityType = OpportunityMetadata &
   Partial<UserStakingOpportunityBase> & {
     isVisible?: boolean
-  } & EarndefiTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
+  } & EarnDefiTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
+
+// A minimal user opportunity for read-only purposes, which does NOT conform to our usual types
+// it isn't meant to be used as a full-fledged opportunity
+export type ReadOnlyOpportunityType = {
+  accountId: AccountId
+  opportunityId: OpportunityId
+  userStakingId?: UserStakingId // the derived serialization of the two above, only for staking opportunities
+  stakedAmountCryptoBaseUnit: string
+  rewardsCryptoBaseUnit: UserStakingOpportunityBase['rewardsCryptoBaseUnit']
+  fiatAmount: string
+  provider: string
+}
 
 export type LpEarnOpportunityType = OpportunityMetadataBase & {
   underlyingToken0AmountCryptoBaseUnit?: string
   underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean
-} & EarndefiTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
+} & EarnDefiTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
 
 export type EarnOpportunityType = StakingEarnOpportunityType | LpEarnOpportunityType
 
@@ -202,7 +244,7 @@ export type AggregatedOpportunitiesByFilterReturn = {
 }
 
 export type AggregatedOpportunitiesByProviderReturn = {
-  provider: DefiProvider
+  provider: string
   apy: string
   fiatAmount: string
   fiatRewardsAmount: string

@@ -100,8 +100,7 @@ export async function getTradeQuote(
       maximumCryptoHuman: minMax.maximumAmountCryptoHuman,
       minimumCryptoHuman: minMax.minimumAmountCryptoHuman,
       feeData: {
-        buyAssetTradeFeeUsd: '0',
-        sellAssetTradeFeeUsd: '0',
+        protocolFees: {},
         networkFeeCryptoBaseUnit: fee,
       },
       sources: DEFAULT_SOURCE,

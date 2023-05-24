@@ -4,6 +4,7 @@ import {
   bscAssetId,
   ethAssetId,
   fromAssetId,
+  gnosisAssetId,
   optimismAssetId,
   polygonAssetId,
 } from '@shapeshiftoss/caip'
@@ -229,6 +230,8 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
       return assetId === bscAssetId
     case KnownChainIds.PolygonMainnet:
       return assetId === polygonAssetId
+    case KnownChainIds.GnosisMainnet:
+      return assetId === gnosisAssetId
     default:
       return false
   }
@@ -244,7 +247,7 @@ export const createEmptyEvmTradeQuote = (
     sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
     feeData: {
       networkFeeCryptoBaseUnit: undefined,
-      buyAssetTradeFeeUsd: '0',
+      protocolFees: {},
     },
     rate: '0',
     sources: [],

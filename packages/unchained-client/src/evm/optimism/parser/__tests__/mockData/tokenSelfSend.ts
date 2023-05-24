@@ -1,4 +1,4 @@
-import type { Tx } from '../../../../../generated/avalanche'
+import type { Tx } from '../../../../../generated/optimism'
 import { mempoolMock } from './mempoolMock'
 
 export const tokenStandard: Tx = {

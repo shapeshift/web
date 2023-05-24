@@ -6,6 +6,7 @@
     "error": "Erro",
     "cancel": "Cancelar",
     "close": "Fechar",
+    "loadMore": "Carregar mais",
     "new": "Novo",
     "continue": "Continuar",
     "reward": "Recompensa",
@@ -101,7 +102,8 @@
     "manage": "Gerenciar",
     "selectedAccount": "Conta selecionada",
     "allChains": "Todas as redes",
-    "wallet": "Carteira"
+    "wallet": "Carteira",
+    "action": "Ação"
   },
   "consentBanner": {
     "body": {
@@ -483,19 +485,19 @@
     "home": "Início",
     "activity": "Atividade",
     "myWallet": "Minha carteira",
-    "dashboard": "Painel de Controle",
+    "dashboard": "Dashboard",
     "dashboardShort": "Painel",
-    "assets": "Ativos",
+    "assets": "Tokens",
     "assetDetails": "Detalhes do recurso",
     "accounts": "Carteiras",
     "accountAsset": "Ativo da conta",
     "accountDetails": "Detalhes da conta",
-    "earn": "Investimentos",
+    "earn": "DeFi",
     "defi": "DeFi",
     "transactionHistory": "Histórico",
     "overview": "Visão geral",
     "transactions": "Transações",
-    "tradeHistory": "Histórico de Negociações",
+    "tradeHistory": "Histórico",
     "foxToken": "Ganhe FOX",
     "dApps": "Conectar dApps",
     "featureFlags": "Recursos",
@@ -696,6 +698,7 @@
       "broadcastFailed": "Ocorreu um erro ao transmitir a transação",
       "insufficientFundsForLimit": "Saldo insuficiente. O valor mínimo de negociação para este par é %{minLimit}",
       "insufficientFundsForAmount": "Saldo insuficiente. Seu saldo de %{symbol} é menor do que o selecionado",
+      "insufficientFundsForProtocolFee": "Insuficiente %{symbol} na %{chainName} para taxas",
       "invalidTradePair": "Par de Negociação Inválido: %{sellAssetName} e %{buyAssetName}",
       "invalidTradePairBtnText": "Par de Negociação Inválido",
       "noLiquidityError": "Não há liquidez suficiente disponível",
@@ -733,11 +736,12 @@
     "swappingComingSoonForWallet": "A troca para %{walletName} logo ocorrerá.",
     "recentTrades": "Negociações recentes",
     "lifiWarning": "Esta negociação é roteado através da LI.FI, que intermedeia swaps. Se alguma etapa falhar, você receberá o token da última etapa bem-sucedida da sequência.",
-    "intermediaryTransactionOutputs": {
-      "prefix": "ou",
-      "suffix": "na %{chainName}"
-    },
-    "unknownGas": "(desconhecido)"
+    "or": "ou",
+    "onChainName": "na %{chainName}",
+    "unknownGas": "(desconhecido)",
+    "receiveAddress": "Endereço de recebimento",
+    "receiveAddressDescription": "Nenhum %{chainName} endereço encontrado na carteira conectada. Insira o endereço manualmente para continuar. ",
+    "addressPlaceholder": "%{chainName} endereço"
   },
   "modals": {
     "popup": {

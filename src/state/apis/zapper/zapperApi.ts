@@ -33,13 +33,12 @@ import { DefiType } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
-import type { NftItem } from '../nft/types'
+import type { NftCollectionItem, NftItem } from '../nft/types'
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type {
   SupportedZapperNetwork,
   V2AppResponseType,
   V2NftBalancesCollectionsResponseType,
-  V2NftCollectionType,
   V2NftUserItem,
   V2NftUserTokensResponseType,
   ZapperAssetBase,
@@ -266,7 +265,7 @@ export const zapperApi = createApi({
         return { data: parsedData }
       },
     }),
-    getZapperCollections: build.query<V2NftCollectionType[], GetZapperCollectionsInput>({
+    getZapperCollections: build.query<NftCollectionItem[], GetZapperCollectionsInput>({
       queryFn: async ({ accountIds, collectionAddresses }) => {
         const addresses = accountIdsToEvmAddresses(accountIds)
         const params = {
@@ -280,7 +279,21 @@ export const zapperApi = createApi({
         })
 
         const { items: validatedData } = V2NftBalancesCollectionsResponse.parse(data)
-        return { data: validatedData }
+
+        const parsedData: NftCollectionItem[] = validatedData.map(item => {
+          const chainId = zapperNetworkToChainId(item.collection.network as SupportedZapperNetwork)!
+          return {
+            id: null,
+            // Actually defined since we're passing supported EVM networks AccountIds
+            chainId,
+            name: item.collection.name,
+            floorPrice: item.collection.floorPriceEth,
+            openseaId: item.collection.openseaId,
+            description: item.collection.description,
+          }
+        })
+
+        return { data: parsedData }
       },
     }),
   }),

@@ -13,7 +13,7 @@ import type { Infer, Type } from 'myzod'
 import z from 'myzod'
 import { isNonEmpty, isUrl } from 'lib/utils'
 
-import type { CollectionItem, NftItem } from '../nft/types'
+import type { NftCollectionItem, NftItem } from '../nft/types'
 
 export enum SupportedZapperNetwork {
   Avalanche = 'avalanche',
@@ -862,7 +862,7 @@ export const parseToNftItem = (zapperItem: V2NftUserItem, chainId: ChainId): Nft
     token: { collection },
   } = zapperItem
 
-  const collectionItem: CollectionItem = {
+  const collectionItem: NftCollectionItem = {
     id: collection?.address
       ? toAssetId({
           assetReference: collection.address,
@@ -871,6 +871,7 @@ export const parseToNftItem = (zapperItem: V2NftUserItem, chainId: ChainId): Nft
         })
       : '',
     chainId,
+    description: null, // Not supported by the /v2/nft/user/tokens endpoint
     name: collection?.name || '',
     floorPrice: collection?.floorPriceEth || '',
     openseaId: collection?.openseaId || null,

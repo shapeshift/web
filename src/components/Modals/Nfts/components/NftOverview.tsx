@@ -10,20 +10,19 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { markdownLinkToHTML } from 'lib/utils'
-import type { NftItem } from 'state/apis/nft/types'
-import type { V2NftCollectionType } from 'state/apis/zapper/validators'
+import type { NftCollectionItem, NftItem } from 'state/apis/nft/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 type NftOverviewProps = {
   nftItem: NftItem
-  nftCollection?: V2NftCollectionType[]
+  nftCollection?: NftCollectionItem
 }
 
 export const NftOverview: React.FC<NftOverviewProps> = ({ nftItem, nftCollection }) => {
   const translate = useTranslate()
 
-  const description = nftCollection?.[0]?.collection.description
+  const description = nftCollection?.description
   const collection = nftItem?.collection
   const tokenId = nftItem?.id
   const address = fromAssetId(collection?.id).assetReference

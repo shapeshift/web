@@ -2,15 +2,17 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 
 import type { MediaUrl } from '../zapper/validators'
 
-export type CollectionItem = {
+export type NftCollectionItem = {
   // The AssetId of the collection, which doesn't exist as an assetSlice asset yet (https://github.com/shapeshift/web/pull/4555)
-  id: AssetId
+  // Note, depending on the endpoint being hit, we may or may not be able to get an actual collection AssetId
+  id: AssetId | null
   chainId: ChainId
   // The name of the collection, not the name of the NFT
   name: string
   // Denominated in the native asset of the NFT chain
   floorPrice: string | null
   openseaId: string | null
+  description: string | null
 }
 
 export type NftItem = {
@@ -22,7 +24,7 @@ export type NftItem = {
   chainId: ChainId
   // Not normalized as collectionId, we can't join since we don't store this normalized *yet*
   // Once we split nft/nftApi, this can be collectionId and then join'd with the collection data
-  collection: CollectionItem
+  collection: NftCollectionItem
   medias: MediaUrl[]
   rarityRank: number | null
 }

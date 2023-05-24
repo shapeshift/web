@@ -11,8 +11,3 @@ export type DeepPick<T, K extends string> = T extends object
         : DeepPick<T[P], Tail<Extract<K, `${P}.${string}`>>>
     }
   : T
-
-// Makes an object's optional property required
-export type WithRequiredProperty<T, K extends keyof T> = T & {
-  [V in K]-?: T[V]
-}

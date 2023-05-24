@@ -1,9 +1,8 @@
 import * as caip from '@shapeshiftoss/caip'
-import type { WithRequiredProperty } from 'lib/types'
 
 import type { Asset } from '../../src/lib/asset-service'
 
-type AssetWithNetworkName = WithRequiredProperty<Asset, 'networkName'>
+type AssetWithNetworkName = Asset & { networkName: string }
 
 export const ethereum: AssetWithNetworkName = {
   assetId: caip.ethAssetId,

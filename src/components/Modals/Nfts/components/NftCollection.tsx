@@ -5,18 +5,16 @@ import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
 import { markdownLinkToHTML } from 'lib/utils'
 import type { NftCollectionItem } from 'state/apis/nft/types'
 
-type NftCollectionProps = {
-  nftCollection?: NftCollectionItem
-}
+type NftCollectionProps = Pick<NftCollectionItem, 'socialLinks' | 'description' | 'name'>
 
-export const NftCollection: React.FC<NftCollectionProps> = ({ nftCollection }) => {
+export const NftCollection: React.FC<NftCollectionProps> = ({ socialLinks, description, name }) => {
   const translate = useTranslate()
 
   const socialLinkPills = useMemo(() => {
-    if (!nftCollection?.socialLinks) return null
+    if (!socialLinks) return null
     return (
       <Flex gap={2} flexWrap='wrap'>
-        {nftCollection?.socialLinks.map(link => (
+        {socialLinks.map(link => (
           <Button
             as={Link}
             isExternal
@@ -31,15 +29,11 @@ export const NftCollection: React.FC<NftCollectionProps> = ({ nftCollection }) =
         ))}
       </Flex>
     )
-  }, [nftCollection?.socialLinks])
-
-  if (!nftCollection) return null
-
-  const { description, name: collectionName } = nftCollection
+  }, [socialLinks])
 
   return (
     <Flex gap={4} flexDir='column' px={8} py={6}>
-      <Text fontWeight='medium'>{translate('nft.aboutCollection', { collectionName })}</Text>
+      <Text fontWeight='medium'>{translate('nft.aboutCollection', { name })}</Text>
       {description && <ParsedHtml color='gray.500' innerHtml={markdownLinkToHTML(description)} />}
       {socialLinkPills}
     </Flex>

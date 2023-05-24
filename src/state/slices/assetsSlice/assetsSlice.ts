@@ -105,13 +105,13 @@ export const assets = createSlice({
   reducers: {
     clear: () => initialState,
     upsertAssets: (state, action: PayloadAction<AssetsState>) => {
-      state.byId = { ...state.byId, ...action.payload.byId } // upsert
-      state.ids = Array.from(new Set([...state.ids, ...action.payload.ids]))
+      state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
+      state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
     },
     upsertAsset: (state, action: PayloadAction<Asset>) => {
       const { assetId } = action.payload
-      state.byId[assetId] = { ...state.byId[assetId], ...action.payload }
-      state.ids = Array.from(new Set([...state.ids, assetId]))
+      state.byId[assetId] = Object.assign({}, state.byId[assetId], action.payload)
+      state.ids = Array.from(new Set(state.ids.concat(assetId)))
     },
   },
 })

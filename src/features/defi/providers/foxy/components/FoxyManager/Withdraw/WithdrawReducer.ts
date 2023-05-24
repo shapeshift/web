@@ -1,6 +1,6 @@
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn } from 'lib/bignumber/bignumber'
+import { DefiType } from 'state/slices/opportunitiesSlice/types'
 
 import type { FoxyWithdrawActions, FoxyWithdrawState } from './WithdrawCommon'
 import { FoxyWithdrawActionType } from './WithdrawCommon'

@@ -46,6 +46,7 @@ export const LpResult = forwardRef<LpResultProps, 'div'>(
       >
         <Flex gap={2} flex={1}>
           <AssetCell
+            isExternal={opportunity.isReadOnly}
             assetId={opportunity.underlyingAssetId}
             icons={opportunity.icons}
             justifyContent='flex-start'

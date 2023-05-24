@@ -1,9 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import {
-  DefiAction,
-  DefiProviderMetadata,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import React, { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
@@ -13,6 +10,7 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAllEarnUserLpOpportunitiesByFilter,
   selectAssetById,
@@ -120,7 +118,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
   return (
     <EquityRow
       onClick={handleClick}
-      icon={DefiProviderMetadata[opportunity.provider].icon}
+      icon={getMetadataForProvider(opportunity.provider)?.icon ?? ''}
       label={opportunity.provider}
       fiatAmount={underlyingBalances[assetId].fiatAmount}
       cryptoBalancePrecision={underlyingBalances[assetId].cryptoBalancePrecision}

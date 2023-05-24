@@ -5,7 +5,6 @@ import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import { fetchUniV2PairData, getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
@@ -28,6 +27,7 @@ import type {
   LpId,
   OpportunityMetadata,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import type {
   OpportunitiesMetadataResolverInput,
   OpportunityIdsResolverInput,
@@ -59,7 +59,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
 
   const selectGetZapperAppTokensOutput = zapperApi.endpoints.getZapperAppTokensOutput.select()
   // Undefined if the DynamicLpAssets flag is off, or if Zapper rugs us
-  const zapperAppBalancesOutput = selectGetZapperAppTokensOutput(state)
+  const zapperAppTokensOutput = selectGetZapperAppTokensOutput(state)
 
   if (!opportunityIds?.length) {
     return Promise.resolve({
@@ -76,7 +76,10 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
   const blockNumber = await getBlockNumber()
 
   for (const opportunityId of opportunityIds) {
-    const zapperAppBalanceData = zapperAppBalancesOutput.data?.[opportunityId]
+    const zapperAppBalanceData = zapperAppTokensOutput.data?.[opportunityId]
+
+    if (!(zapperAppBalanceData?.tokens?.[0].decimals && zapperAppBalanceData?.tokens?.[1].decimals))
+      continue
 
     if (!(zapperAppBalanceData?.tokens?.[0].decimals && zapperAppBalanceData?.tokens?.[1].decimals))
       continue

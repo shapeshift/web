@@ -2,7 +2,6 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import {
   DefiAction,
-  DefiProviderMetadata,
   DefiTypeDisplayName,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
@@ -14,6 +13,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssetById,
@@ -112,7 +112,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
       fiatAmount={opportunity.fiatAmount}
       totalFiatBalance={totalFiatBalance}
       color={color}
-      icon={DefiProviderMetadata[opportunity.provider].icon}
+      icon={getMetadataForProvider(opportunity.provider)?.icon}
       label={opportunity.provider}
       symbol={asset.symbol}
       subText={opportunity.version ?? DefiTypeDisplayName[opportunity.type]}

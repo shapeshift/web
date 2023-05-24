@@ -7,7 +7,6 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import qs from 'qs'
-import { batch } from 'react-redux'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
@@ -25,6 +24,7 @@ import type {
   GetOpportunityMetadataOutput,
   GetOpportunityUserDataOutput,
   GetOpportunityUserStakingDataOutput,
+  LpId,
   OpportunityMetadataBase,
   ReadOnlyOpportunityType,
   StakingId,
@@ -386,9 +386,6 @@ export const zapper = createApi({
               const appAccountOpportunities = appAccountBalance.products
                 .flatMap(({ assets }) => assets)
                 .map<ReadOnlyOpportunityType | undefined>(asset => {
-                  // Staking only for this PoC
-                  // Note, this is very much an approximation based on the data we get and Zapper doesn't really have a concept of LP/Staking per se
-                  // We might want to revisit the whole LP/Staking abstraction and make a more general concept of a "thing" opportunity
                   const stakedAmountCryptoBaseUnit =
                     asset.tokens.find(token => token.metaType === 'supplied')?.balanceRaw ?? '0'
                   const rewardTokens = asset.tokens.filter(token => token.metaType === 'claimable')
@@ -414,16 +411,16 @@ export const zapper = createApi({
                   const type = asset.type
 
                   const defiType =
-                    /farm/.test(groupId) || type === 'contract-position'
-                      ? DefiType.Staking
-                      : DefiType.LiquidityPool
+                    /pool/.test(groupId) || type === 'app-token'
+                      ? DefiType.LiquidityPool
+                      : DefiType.Staking
 
                   // Actually defined because we pass networks in the query params
                   const assetId = zapperAssetToMaybeAssetId(asset)
 
                   if (!assetId) return undefined
 
-                  const opportunityId: StakingId = `${asset.address}#${asset.key}`
+                  const opportunityId: LpId | StakingId = `${asset.address}#${asset.key}`
 
                   if (!acc.metadataByProvider[appName]) {
                     acc.metadataByProvider[appName] = {
@@ -547,13 +544,12 @@ export const zapper = createApi({
                       isReadOnly: true,
                     }
                   }
+                  if (defiType === DefiType.LiquidityPool) return undefined
+
                   return {
                     accountId,
                     provider: appName,
-                    userStakingId:
-                      defiType === DefiType.Staking
-                        ? serializeUserStakingId(accountId, opportunityId)
-                        : undefined,
+                    userStakingId: serializeUserStakingId(accountId, opportunityId),
                     opportunityId,
                     stakedAmountCryptoBaseUnit,
                     rewardsCryptoBaseUnit,
@@ -581,17 +577,25 @@ export const zapper = createApi({
           const userStakingUpsertPayload: GetOpportunityUserStakingDataOutput = {
             byId: {},
           }
-          // Prepare the payload for upsertOpportunityMetadata
-          const metadataUpsertPayload: GetOpportunityMetadataOutput = {
+          // Prepare the payloads for upsertOpportunityMetadata
+          const stakingMetadataUpsertPayload: GetOpportunityMetadataOutput = {
             byId: {},
-            type: DefiType.Staking, // TODO(gomes): lp too
+            type: DefiType.Staking,
+          }
+
+          const lpMetadataUpsertPayload: GetOpportunityMetadataOutput = {
+            byId: {},
+            type: DefiType.LiquidityPool,
           }
 
           // Populate read only metadata payload
           for (const id in readOnlyMetadata) {
-            if (readOnlyMetadata[id].type === 'staking') {
-              // TODO(gomes): lp too
-              metadataUpsertPayload.byId[id] = readOnlyMetadata[id]
+            if (readOnlyMetadata[id].type === DefiType.Staking) {
+              stakingMetadataUpsertPayload.byId[id] = readOnlyMetadata[id]
+              continue
+            }
+            if (readOnlyMetadata[id].type === DefiType.LiquidityPool) {
+              lpMetadataUpsertPayload.byId[id] = readOnlyMetadata[id]
             }
           }
 
@@ -624,11 +628,10 @@ export const zapper = createApi({
             }
           }
 
-          batch(() => {
-            dispatch(opportunities.actions.upsertOpportunityMetadata(metadataUpsertPayload))
-            dispatch(opportunities.actions.upsertOpportunityAccounts(accountUpsertPayload))
-            dispatch(opportunities.actions.upsertUserStakingOpportunities(userStakingUpsertPayload))
-          })
+          dispatch(opportunities.actions.upsertOpportunitiesMetadata(stakingMetadataUpsertPayload))
+          dispatch(opportunities.actions.upsertOpportunitiesMetadata(lpMetadataUpsertPayload))
+          dispatch(opportunities.actions.upsertOpportunityAccounts(accountUpsertPayload))
+          dispatch(opportunities.actions.upsertUserStakingOpportunities(userStakingUpsertPayload))
 
           // Denormalized into userData/opportunities/metadataByProvider for ease of consumption if we need to
           return { data: parsedOpportunities }

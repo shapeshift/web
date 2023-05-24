@@ -59,12 +59,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import {
-  selectBuyAssetFiatRate,
-  selectBuyAssetTradeFeeCryptoBaseUnit,
   selectFeeAssetFiatRate,
-  selectProtocolFees,
   selectQuoteBuyAmountCryptoPrecision,
-  selectSellAssetFiatRate,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectAction,
@@ -75,6 +71,7 @@ import {
   selectBuyAssetAccountId,
   selectFees,
   selectIsSendMax,
+  selectProtocolFees,
   selectQuote,
   selectReceiveAddress,
   selectSellAmountCryptoPrecision,
@@ -137,8 +134,6 @@ export const TradeInput = () => {
   const fiatSellAmount = useSwapperStore(selectSellAmountFiat)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
   const updateIsSendMax = useSwapperStore(state => state.updateIsSendMax)
-  const buyAssetFiatRate = useSwapperStore(selectBuyAssetFiatRate)
-  const sellAssetFiatRate = useSwapperStore(selectSellAssetFiatRate)
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
@@ -153,7 +148,6 @@ export const TradeInput = () => {
   const handleSwitchAssets = useSwapperStore(state => state.handleSwitchAssets)
   const handleInputAmountChange = useSwapperStore(state => state.handleInputAmountChange)
   const quoteBuyAmountCryptoPrecision = useSwapperStore(selectQuoteBuyAmountCryptoPrecision)
-  const buyAssetTradeFeeCryptoBaseUnit = useSwapperStore(selectBuyAssetTradeFeeCryptoBaseUnit)
   const protocolFees = useSwapperStore(selectProtocolFees)
   const action = useSwapperStore(selectAction)
   const amount = useSwapperStore(selectAmount)
@@ -163,6 +157,7 @@ export const TradeInput = () => {
     checkApprovalNeeded,
     supportedSellAssetsByMarketCap,
     supportedBuyAssetsByMarketCap,
+    isSwapperInitialized,
   } = useSwapper()
   const translate = useTranslate()
   const history = useHistory()
@@ -173,10 +168,14 @@ export const TradeInput = () => {
   const { assetSearch } = useModal()
   const { handleAssetClick } = useTradeRoutes()
 
+  const walletSupportsSellAssetChain = walletSupportsChain({ chainId: sellAssetChainId, wallet })
+  const walletSupportsBuyAssetChain = walletSupportsChain({ chainId: buyAssetChainId, wallet })
+  const shouldShowManualReceiveAddressInput = !walletSupportsBuyAssetChain
+
   // Trigger re-validation of the manually entered receive address
   useEffect(() => {
     formTrigger(SendFormFields.Input)
-  }, [formTrigger])
+  }, [formTrigger, shouldShowManualReceiveAddressInput])
 
   // Reset the manual address input state when the user changes the buy asset
   useEffect(() => {
@@ -202,10 +201,6 @@ export const TradeInput = () => {
     () => ({ assetId: sellFeeAsset?.assetId, accountId: sellAssetAccountId ?? '' }),
     [sellAssetAccountId, sellFeeAsset?.assetId],
   )
-  const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
-  )
-
   const sellAssetBalanceFilter = useMemo(
     () => ({ accountId: sellAssetAccountId, assetId: sellAsset?.assetId ?? '' }),
     [sellAssetAccountId, sellAsset?.assetId],
@@ -217,16 +212,21 @@ export const TradeInput = () => {
   const sellAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, sellAssetBalanceFilter),
   )
+  const buyAssetBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, buyAssetBalanceFilter),
+  )
+  const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
+  )
   const sellAssetBalanceHuman = useAppSelector(state =>
     selectPortfolioCryptoPrecisionBalanceByFilter(state, sellAssetBalanceFilter),
+  )
+  const feeAssetBalanceHuman = useAppSelector(s =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const isYatSupportedByReceiveChain = buyAsset.chainId === ethChainId // yat only supports eth mainnet
   const isYatSupported = isYatFeatureEnabled && isYatSupportedByReceiveChain
-
-  const buyAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, buyAssetBalanceFilter),
-  )
 
   const isSwapperApiPending = useSelector(selectSwapperApiPending)
   const isTradeQuotePending = useSelector(selectSwapperApiTradeQuotePending)
@@ -239,12 +239,6 @@ export const TradeInput = () => {
       activeQuote.sellAsset?.assetId === sellAsset?.assetId
     )
   }, [buyAsset?.assetId, activeQuote, sellAsset?.assetId])
-
-  const walletSupportsSellAssetChain = walletSupportsChain({ chainId: sellAssetChainId, wallet })
-  const walletSupportsBuyAssetChain = walletSupportsChain({ chainId: buyAssetChainId, wallet })
-
-  // Constants
-  const shouldShowManualReceiveAddressInput = !walletSupportsBuyAssetChain
 
   const chainAdapterManager = getChainAdapterManager()
   const buyAssetChainName = chainAdapterManager.get(buyAsset.chainId)?.getDisplayName()
@@ -281,10 +275,6 @@ export const TradeInput = () => {
               getAvailableSwappers.initiate({
                 ...tradeQuoteArgs,
                 sellAmountBeforeFeesCryptoBaseUnit: '10000000', // arbitrarily high sell amount for max send quote
-                feeAsset,
-                buyAssetFiatRate,
-                sellAssetFiatRate,
-                feeAssetFiatRate,
               }),
             )
           ).data
@@ -321,9 +311,6 @@ export const TradeInput = () => {
     updateAmount,
     handleInputAmountChange,
     updateTradeAmountsFromQuote,
-    buyAssetFiatRate,
-    sellAssetFiatRate,
-    feeAssetFiatRate,
   ])
   const onSubmit = useCallback(async () => {
     setIsLoading(true)
@@ -428,18 +415,48 @@ export const TradeInput = () => {
     [sellAmountCryptoPrecision, buyAmountCryptoPrecision, isTradeQuotePending],
   )
 
+  // TODO(woodenfurniture): this needs to be rewritten for arbitrary assets to support multi-hop
+  const hasSufficientProtocolFeeBalances = useMemo(() => {
+    if (protocolFees === undefined) return false
+
+    const buyAssetTradeFeeCryptoBaseUnit = protocolFees[buyAsset.assetId]?.requiresBalance
+      ? protocolFees[buyAsset.assetId].amountCryptoBaseUnit
+      : '0'
+
+    const sellAssetTradeFeeCryptoBaseUnit = protocolFees[sellAsset.assetId]?.requiresBalance
+      ? protocolFees[sellAsset.assetId].amountCryptoBaseUnit
+      : '0'
+
+    const feeAssetTradeFeeCryptoBaseUnit =
+      feeAsset && protocolFees[feeAsset.assetId]?.requiresBalance
+        ? protocolFees[feeAsset.assetId].amountCryptoBaseUnit
+        : '0'
+
+    return (
+      bn(buyAssetBalanceCryptoBaseUnit).gte(buyAssetTradeFeeCryptoBaseUnit) &&
+      bn(sellAssetBalanceCryptoBaseUnit).gte(sellAssetTradeFeeCryptoBaseUnit) &&
+      bn(feeAssetBalanceCryptoBaseUnit).gte(feeAssetTradeFeeCryptoBaseUnit)
+    )
+  }, [
+    buyAsset.assetId,
+    buyAssetBalanceCryptoBaseUnit,
+    feeAsset,
+    feeAssetBalanceCryptoBaseUnit,
+    protocolFees,
+    sellAsset.assetId,
+    sellAssetBalanceCryptoBaseUnit,
+  ])
+
   const getErrorTranslationKey = useCallback((): string | [string, InterpolationOptions] => {
     const hasValidSellAssetBalance = bnOrZero(sellAssetBalanceHuman).gte(
       bnOrZero(sellAmountCryptoPrecision),
     )
-    const hasValidBuyAssetBalance = bnOrZero(buyAssetBalanceCryptoBaseUnit).gte(
-      bnOrZero(buyAssetTradeFeeCryptoBaseUnit),
-    )
+
     // when trading from ETH, the value of TX in ETH is deducted
     const tradeDeduction =
       sellFeeAsset?.assetId === sellAsset?.assetId ? bnOrZero(sellAmountCryptoPrecision) : bn(0)
     const shouldDeductNetworkFeeFromGasBalanceCheck = swapperName !== SwapperName.CowSwap
-    const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
+    const hasEnoughBalanceForGas = bnOrZero(feeAssetBalanceHuman)
       .minus(
         shouldDeductNetworkFeeFromGasBalanceCheck
           ? fromBaseUnit(
@@ -496,7 +513,7 @@ export const TradeInput = () => {
     if (!hasValidSellAssetBalance) return 'common.insufficientFunds'
     // TEMP: temporarily disable this logic for thor trades to allow them to work
     if (
-      !hasValidBuyAssetBalance &&
+      !hasSufficientProtocolFeeBalances &&
       walletSupportsBuyAssetChain &&
       activeSwapper.name !== SwapperName.Thorchain
     ) {
@@ -524,15 +541,13 @@ export const TradeInput = () => {
   }, [
     sellAssetBalanceHuman,
     sellAmountCryptoPrecision,
-    buyAssetBalanceCryptoBaseUnit,
-    buyAssetTradeFeeCryptoBaseUnit,
     sellFeeAsset?.assetId,
     sellFeeAsset?.precision,
     sellFeeAsset?.symbol,
     sellAsset?.assetId,
     sellAsset?.symbol,
     swapperName,
-    feeAssetBalance,
+    feeAssetBalanceHuman,
     activeQuote?.feeData.networkFeeCryptoBaseUnit,
     activeQuote?.minimumCryptoHuman,
     activeQuote?.sellAsset.symbol,
@@ -548,6 +563,7 @@ export const TradeInput = () => {
     activeSwapper,
     isTradingActiveOnSellPool,
     isTradingActiveOnBuyPool,
+    hasSufficientProtocolFeeBalances,
     hasValidSellAmount,
     isBelowMinSellAmount,
     feesExceedsSellAmount,
@@ -589,6 +605,9 @@ export const TradeInput = () => {
 
   const handleInputAssetClick = useCallback(
     (action: AssetClickAction) => {
+      // prevent opening the asset selection while they are being populated
+      if (!isSwapperInitialized) return
+
       assetSearch.open({
         onClick: action === AssetClickAction.Sell ? handleSellAssetClick : handleBuyAssetClick,
         title: action === AssetClickAction.Sell ? 'trade.tradeFrom' : 'trade.tradeTo',
@@ -600,6 +619,7 @@ export const TradeInput = () => {
     },
     [
       assetSearch,
+      isSwapperInitialized,
       supportedBuyAssetsByMarketCap,
       supportedSellAssetsByMarketCap,
       handleSellAssetClick,
@@ -608,8 +628,16 @@ export const TradeInput = () => {
   )
 
   const tradeStateLoading = useMemo(
-    () => (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) || !isSwapperApiInitiated,
-    [isSwapperApiPending, quoteAvailableForCurrentAssetPair, isSwapperApiInitiated],
+    () =>
+      (isSwapperApiPending && !quoteAvailableForCurrentAssetPair) ||
+      !isSwapperApiInitiated ||
+      !isSwapperInitialized,
+    [
+      isSwapperApiPending,
+      quoteAvailableForCurrentAssetPair,
+      isSwapperApiInitiated,
+      isSwapperInitialized,
+    ],
   )
 
   const isSellAction = useMemo(() => {

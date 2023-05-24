@@ -54,8 +54,7 @@ export const baseSwapperState: SwapperState = {
         maximumCryptoHuman: '100000000000000000000000000',
         feeData: {
           networkFeeCryptoBaseUnit: '2997000000000000',
-          buyAssetTradeFeeUsd: '0',
-          sellAssetTradeFeeUsd: '0',
+          protocolFees: {},
         },
         sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
         buyAmountBeforeFeesCryptoBaseUnit: '982764368825100762828',
@@ -95,8 +94,13 @@ export const baseSwapperState: SwapperState = {
         allowanceContract: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
         feeData: {
           networkFeeCryptoBaseUnit: '1800000000000000',
-          buyAssetTradeFeeUsd: '8.5196229516043797526224',
-          sellAssetTradeFeeUsd: '0',
+          protocolFees: {
+            [FOX.assetId]: {
+              amountCryptoBaseUnit: '258170392472859992504',
+              requiresBalance: false,
+              asset: FOX,
+            },
+          },
         },
       },
       inputOutputRatio: 0.6773207214158627,
@@ -125,8 +129,13 @@ export const baseSwapperState: SwapperState = {
       allowanceContract: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
       feeData: {
         networkFeeCryptoBaseUnit: '1800000000000000',
-        buyAssetTradeFeeUsd: '8.5196229516043797526224',
-        sellAssetTradeFeeUsd: '0',
+        protocolFees: {
+          [FOX.assetId]: {
+            amountCryptoBaseUnit: '258170392472859992504',
+            requiresBalance: false,
+            asset: FOX,
+          },
+        },
       },
     },
     inputOutputRatio: 0.6773207214158627,
@@ -141,8 +150,13 @@ export const baseSwapperState: SwapperState = {
       estimatedGasCryptoBaseUnit: '1800000000000000',
     },
     tradeFeeSource: SwapperName.Thorchain,
-    buyAssetTradeFeeUsd: '8.5196229516043797526224',
-    sellAssetTradeFeeUsd: '0',
+    protocolFees: {
+      [FOX.assetId]: {
+        amountCryptoBaseUnit: '258170392472859992504',
+        requiresBalance: false,
+        asset: FOX,
+      },
+    },
     networkFeeCryptoHuman: '0.0018',
     networkFeeCryptoBaseUnit: '1800000000000000',
   },

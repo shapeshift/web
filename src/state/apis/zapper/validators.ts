@@ -1,5 +1,13 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { avalancheChainId, bscChainId, ethChainId, optimismChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  avalancheChainId,
+  bscChainId,
+  ethChainId,
+  optimismChainId,
+  polygonChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import { invert } from 'lodash'
 import type { Infer, Type } from 'myzod'
 import z from 'myzod'
@@ -10,17 +18,36 @@ export enum SupportedZapperNetwork {
   BinanceSmartChain = 'binance-smart-chain',
   Ethereum = 'ethereum',
   Optimism = 'optimism',
-  // Polygon = 'polygon',
+  // Unsupported networks - uncomment as we implement them
+  Polygon = 'polygon', // Technically supported by Zapper as far as Apps/Wallet goes, but no NFTs returned
   // Gnosis = 'gnosis',
   // Fantom = 'fantom',
   // Artbitrum = 'arbitrum',
   // Celo = 'celo',
   // Harmony = 'harmony',
   // Moonriver = 'moonriver',
-  // Bitcoin = 'bitcoin', "supported" by zapper but actually not anymore
+  // Bitcoin = 'bitcoin', // supposedly "supported" by zapper but actually not anymore
   // Cronos = 'cronos',
   // Aurora = 'aurora',
   // Evmos = 'evmos',
+}
+
+export enum SupportedZapperNetworkIncludeUnsupported {
+  Avalanche = 'avalanche',
+  BinanceSmartChain = 'binance-smart-chain',
+  Ethereum = 'ethereum',
+  Optimism = 'optimism',
+  Polygon = 'polygon', // Technically supported by Zapper as far as Apps/Wallet goes, but no NFTs returned
+  Gnosis = 'gnosis',
+  Fantom = 'fantom',
+  Artbitrum = 'arbitrum',
+  Celo = 'celo',
+  Harmony = 'harmony',
+  Moonriver = 'moonriver',
+  Bitcoin = 'bitcoin', // supposedly "supported" by zapper but actually not anymore
+  Cronos = 'cronos',
+  Aurora = 'aurora',
+  Evmos = 'evmos',
 }
 
 export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Record<SupportedZapperNetwork, ChainId> = {
@@ -28,6 +55,7 @@ export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Record<SupportedZapperNetwork, Cha
   [SupportedZapperNetwork.BinanceSmartChain]: bscChainId,
   [SupportedZapperNetwork.Ethereum]: ethChainId,
   [SupportedZapperNetwork.Optimism]: optimismChainId,
+  [SupportedZapperNetwork.Polygon]: polygonChainId,
 } as const
 
 export const CHAIN_ID_TO_ZAPPER_NETWORK_MAP = invert(ZAPPER_NETWORKS_TO_CHAIN_ID_MAP) as Partial<
@@ -455,36 +483,55 @@ const ZapperDisplayValue = z.union([
   z.number(),
 ])
 
-const ZapperDisplayPropsSchema = z.object({
-  label: z.string(),
-  images: z.array(z.string()),
-  statsItems: z.array(
-    z.object({
-      label: z.string(),
-      value: ZapperDisplayValue,
-    }),
-  ),
-  secondaryLabel: ZapperDisplayValue.optional(),
-  tertiaryLabel: ZapperDisplayValue.optional(),
-  balanceDisplayMode: z.string().optional(),
-  labelDetailed: z.string().optional(),
-})
+// optional/nullable somehow doesn't work with z.lazy() so we union undefined the schema itself
+const ZapperDisplayPropsSchema = z.union([
+  z.object({
+    label: z.string(),
+    images: z.array(z.string()),
+    statsItems: z.array(
+      z.object({
+        label: z.string(),
+        value: ZapperDisplayValue,
+      }),
+    ),
+    secondaryLabel: ZapperDisplayValue.optional(),
+    tertiaryLabel: ZapperDisplayValue.optional(),
+    balanceDisplayMode: z.string().optional(),
+    labelDetailed: z.string().optional(),
+  }),
+  z.undefined(),
+])
 
-const ZapperDataPropsSchema = z.object({
-  apy: z.number(),
-  isDebt: z.boolean().optional(),
-  exchangeable: z.boolean().optional(),
-  exchangeRate: z.number().optional(),
-  fee: z.number().optional(),
-  volume: z.number().optional(),
-  // Realistically a z.tuple() of 1/2 assets, but you never know
-  reserves: z.array(z.number()),
-  liquidity: z.number(),
-})
+// optional/nullable somehow doesn't work with z.lazy() so we union undefined the schema itself
+const ZapperDataPropsSchema = z.union([
+  z.object(
+    {
+      apy: z.number().optional(),
+      isActive: z.boolean().optional(),
+      isDebt: z.boolean().optional(),
+      exchangeable: z.boolean().optional(),
+      exchangeRate: z.number().optional(),
+      fee: z.number().optional(),
+      volume: z.number().optional(),
+      // Realistically a z.tuple() of 1/2 assets, but you never know
+      reserves: z.array(z.number()).optional(),
+      liquidity: z.number().optional(),
+      poolIndex: z.number().optional(),
+      positionKey: z.string().optional(),
+      extraRewarderAddress: z.string().optional(),
+      swapAddress: z.string().optional(),
+      symbol: z.string().optional(),
+      weight: z.array(z.number()).optional(),
+    },
+    { allowUnknown: true },
+  ),
+  z.undefined(),
+])
 
 // Redeclared as a type since we lose type inference on the type below because of z.lazy() recursion
 type ZapperTokenBase = {
   type: 'base-token' | 'app-token'
+  metaType?: 'claimable' | 'supplied' | 'borrowed'
   network: SupportedZapperNetwork
   address: string
   decimals: number
@@ -515,39 +562,42 @@ const ZapperTokenBaseSchema: Type<ZapperTokenBase> = z.intersection(
     decimals: z.number(),
     symbol: z.string(),
     price: z.number(),
+    metaType: z.literals('claimable', 'supplied', 'borrowed').optional(),
   }),
   // ZapperAssetBaseSchema redeclared here because of circular dependencies
   // A Zapper token can itself be a staking asset, meaning it will contain some/all properties from ZapperAssetBaseSchema
   // e.g stETH/WETH is a staking asset, but stETH itself is a staking asset with ETH as an underlying asset
   // Note how tokens is different from ZapperAssetBaseSchema - we use z.lazy() to recursively reference ZapperTokenBaseSchema
-  z.object({
-    key: z.string().optional(),
-    type: z.string().optional(),
-    appId: ZapperAppIdSchema.optional(),
-    groupId: z.string().optional(),
-    network: SupportedZapperNetworks.optional(),
-    address: z.string().optional(),
-    price: z.number().optional(),
-    supply: z.number().optional(),
-    symbol: z.string().optional(),
-    decimals: z.number().optional(),
-    dataProps: ZapperDataPropsSchema.optional(),
-    displayProps: ZapperDisplayPropsSchema.optional(),
-    pricePerShare: z.array(z.union([z.string(), z.number()])).optional(),
-    // Note, we lose tsc validation here but this *does* validate at runtime
-    // https://github.com/davidmdm/myzod#lazy
-    tokens: z.array(z.lazy(() => ZapperTokenBaseSchema)).optional(),
-  }),
+  z
+    .object({
+      key: z.string().optional(),
+      type: z.string().optional(),
+      appId: ZapperAppIdSchema.optional(),
+      groupId: z.string().optional(),
+      network: SupportedZapperNetworks.optional(),
+      address: z.string().optional(),
+      price: z.number().optional(),
+      supply: z.number().optional(),
+      symbol: z.string().optional(),
+      decimals: z.number().optional(),
+      dataProps: ZapperDataPropsSchema.optional(),
+      displayProps: ZapperDisplayPropsSchema.optional(),
+      pricePerShare: z.array(z.union([z.string(), z.number()])).optional(),
+      // Note, we lose tsc validation here but this *does* validate at runtime
+      // https://github.com/davidmdm/myzod#lazy
+      tokens: z.array(z.lazy(() => ZapperTokenWithBalancesSchema)).optional(),
+    })
+    .partial(),
 )
 
-const ZapperTokenWithBalancesSchema = z.union([
+const ZapperTokenWithBalancesSchema = z.intersection(
   ZapperTokenBaseSchema,
   z.object({
-    balance: z.number(),
-    balanceRaw: z.string(),
-    balanceUSD: z.number(),
+    balance: z.number().optional(),
+    balanceRaw: z.string().optional(),
+    balanceUSD: z.number().optional(),
   }),
-])
+)
 
 const ZapperAssetBaseSchema = z.object({
   key: z.string(),
@@ -556,29 +606,54 @@ const ZapperAssetBaseSchema = z.object({
   groupId: z.string(),
   network: SupportedZapperNetworks,
   address: z.string(),
-  price: z.number(),
-  supply: z.number(),
-  symbol: z.string(),
-  decimals: z.number(),
-  dataProps: ZapperDataPropsSchema,
-  displayProps: ZapperDisplayPropsSchema,
-  pricePerShare: z.array(z.union([z.string(), z.number()])),
-  tokens: z.array(ZapperTokenBaseSchema),
+  price: z.number().optional(),
+  supply: z.number().optional(),
+  symbol: z.string().optional(),
+  decimals: z.number().optional(),
+  dataProps: ZapperDataPropsSchema.optional(),
+  displayProps: ZapperDisplayPropsSchema.optional(),
+  pricePerShare: z.array(z.union([z.string(), z.number()])).optional(),
+  tokens: z.array(ZapperTokenWithBalancesSchema).optional(),
 })
 
-const ZapperAssetWithBalancesSchema = z.union([
+const ZapperAssetWithBalancesSchema = z.intersection(
   ZapperAssetBaseSchema,
   z.object({
     tokens: z.array(ZapperTokenWithBalancesSchema),
-    balance: z.number(),
-    balanceRaw: z.string(),
-    balanceUSD: z.number(),
+    balance: z.number().optional(),
+    balanceRaw: z.string().optional(),
+    balanceUSD: z.number().optional(),
   }),
-])
+)
+
+export type ZapperAssetWithBalancesType = Infer<typeof ZapperAssetWithBalancesSchema>
+
+export const zapperAssetToMaybeAssetId = (
+  asset: ZapperAssetWithBalancesType | ZapperTokenBase,
+): AssetId | undefined => {
+  const chainId = zapperNetworkToChainId(asset.network as SupportedZapperNetwork)
+  if (!chainId) return undefined
+  const assetNamespace = (() => {
+    switch (true) {
+      case chainId === bscChainId:
+        return ASSET_NAMESPACE.bep20
+      default:
+        return ASSET_NAMESPACE.erc20
+    }
+  })()
+
+  const assetId = toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference: asset.address,
+  })
+
+  return assetId
+}
 
 const ZapperProductSchema = z.object({
   label: z.string(),
-  assets: z.array(z.union([ZapperAssetBaseSchema, ZapperAssetWithBalancesSchema])),
+  assets: z.array(ZapperAssetWithBalancesSchema),
   meta: z.array(z.unknown()),
 })
 
@@ -729,3 +804,53 @@ export const V2NftBalancesCollectionsResponse = v2NftBalancesCollectionsSchema
 export type V2NftBalancesCollectionsResponseType = Infer<typeof V2NftBalancesCollectionsResponse>
 
 export type V2ZapperNft = Infer<typeof tokenSchema>
+
+export const V2AppsBalancesResponse = z.array(
+  z.object({
+    key: z.string(),
+    address: z.string(),
+    appId: ZapperAppIdSchema.optional(),
+    appName: z.string(),
+    appImage: z.string(),
+    network: z.string(),
+    updatedAt: z.string(),
+    balanceUSD: z.number(),
+    products: z.array(ZapperProductSchema),
+  }),
+)
+export type V2AppsBalancesResponseType = Infer<typeof V2AppsBalancesResponse>
+
+const V2AppTokenResponse = z.object({
+  address: z.string(),
+  network: z.enum(SupportedZapperNetworkIncludeUnsupported),
+})
+
+const V2AppSupportedNetworkResponse = z.object({
+  network: z.enum(SupportedZapperNetworkIncludeUnsupported),
+  actions: z.array(z.string()),
+})
+
+const V2AppGroupResponse = z.object({
+  type: z.string(),
+  id: z.string(),
+  label: z.string().optional(),
+  isHiddenFromExplore: z.boolean(),
+})
+
+const V2AppResponse = z.object({
+  id: z.string(),
+  databaseId: z.number(),
+  slug: z.string(),
+  name: z.string(),
+  description: z.string(),
+  url: z.string(),
+  imgUrl: z.string(),
+  tags: z.array(z.string()),
+  token: V2AppTokenResponse.nullable(),
+  supportedNetworks: z.array(V2AppSupportedNetworkResponse),
+  groups: z.array(V2AppGroupResponse),
+})
+
+export const V2AppsResponse = z.array(V2AppResponse)
+export type V2AppResponseType = Infer<typeof V2AppResponse>
+export type V2AppsResponseType = Infer<typeof V2AppsResponse>

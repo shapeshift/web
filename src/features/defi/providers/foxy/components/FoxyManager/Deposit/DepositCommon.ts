@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
-import type { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { BigNumber } from 'lib/bignumber/bignumber'
+import type { DefiType } from 'state/slices/opportunitiesSlice/types'
 
 type SupportedFoxyOpportunity = {
   type: DefiType

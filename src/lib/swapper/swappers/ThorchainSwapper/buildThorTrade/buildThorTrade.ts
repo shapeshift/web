@@ -104,7 +104,7 @@ export const buildTrade = async ({
       slippageTolerance,
       destinationAddress,
       xpub: (input as GetUtxoTradeQuoteInput).xpub,
-      buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
+      protocolFees: quote.feeData.protocolFees,
       affiliateBps,
     })
 

@@ -1,6 +1,6 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn } from 'lib/bignumber/bignumber'
+import { DefiType } from 'state/slices/opportunitiesSlice/types'
 
 import type { FoxyDepositActions, FoxyDepositState } from './DepositCommon'
 import { FoxyDepositActionType } from './DepositCommon'

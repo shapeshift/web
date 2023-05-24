@@ -13,10 +13,10 @@ import {
   MAX_LIFI_TRADE,
   SELECTED_ROUTE_INDEX,
 } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
-import { getEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetAddress/getAssetAddress'
 import { getAssetBalance } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetBalance/getAssetBalance'
 import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwapper/utils/getIntermediaryTransactionOutputs/getIntermediaryTransactionOutputs'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
+import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
 import { getMinimumCryptoHuman } from 'lib/swapper/swappers/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
 import { transformLifiFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
@@ -69,8 +69,8 @@ export async function getTradeQuote(
     const routesRequest: RoutesRequest = {
       fromChainId: Number(fromChainId(sellAsset.chainId).chainReference),
       toChainId: Number(fromChainId(buyAsset.chainId).chainReference),
-      fromTokenAddress: getEvmAssetAddress(sellAsset),
-      toTokenAddress: getEvmAssetAddress(buyAsset),
+      fromTokenAddress: getLifiEvmAssetAddress(sellAsset),
+      toTokenAddress: getLifiEvmAssetAddress(buyAsset),
       fromAddress: receiveAddress,
       toAddress: receiveAddress,
       fromAmount: fromAmountCryptoBaseUnit,

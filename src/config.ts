@@ -23,6 +23,8 @@ const validators = {
   REACT_APP_UNCHAINED_BNBSMARTCHAIN_WS_URL: url(),
   REACT_APP_UNCHAINED_POLYGON_HTTP_URL: url(),
   REACT_APP_UNCHAINED_POLYGON_WS_URL: url(),
+  REACT_APP_UNCHAINED_GNOSIS_HTTP_URL: url(),
+  REACT_APP_UNCHAINED_GNOSIS_WS_URL: url(),
   REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: url(),
   REACT_APP_UNCHAINED_BITCOIN_WS_URL: url(),
   REACT_APP_UNCHAINED_BITCOINCASH_HTTP_URL: url(),
@@ -44,6 +46,7 @@ const validators = {
   REACT_APP_OPTIMISM_NODE_URL: url(),
   REACT_APP_BNBSMARTCHAIN_NODE_URL: url(),
   REACT_APP_POLYGON_NODE_URL: url(),
+  REACT_APP_GNOSIS_NODE_URL: url(),
   REACT_APP_ALCHEMY_POLYGON_URL: url(),
   REACT_APP_KEEPKEY_VERSIONS_URL: url(),
   REACT_APP_WALLET_MIGRATION_URL: url(),
@@ -64,6 +67,7 @@ const validators = {
   REACT_APP_ZERION_API_KEY: str(),
   REACT_APP_FEATURE_DEFI_DASHBOARD: bool({ default: false }),
   REACT_APP_ZAPPER_API_KEY: str(),
+  REACT_APP_COVALENT_API_KEY: str(),
   REACT_APP_FEATURE_LIFI_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_JAYPEGZ: bool({ default: false }),
@@ -75,6 +79,7 @@ const validators = {
   REACT_APP_FEATURE_OPTIMISM: bool({ default: false }),
   REACT_APP_FEATURE_BNBSMARTCHAIN: bool({ default: false }),
   REACT_APP_FEATURE_POLYGON: bool({ default: false }),
+  REACT_APP_FEATURE_GNOSIS: bool({ default: false }),
   REACT_APP_FEATURE_ZRX_AVALANCHE: bool({ default: false }),
   REACT_APP_FEATURE_ZRX_BNBSMARTCHAIN: bool({ default: false }),
   REACT_APP_FEATURE_ZRX_POLYGON: bool({ default: false }),
@@ -142,10 +147,12 @@ const validators = {
   REACT_APP_FEATURE_MIXPANEL: bool({ default: false }),
   REACT_APP_FEATURE_FOX_BOND_CTA: bool({ default: false }),
   REACT_APP_FEATURE_DYNAMIC_LP_ASSETS: bool({ default: false }),
+  REACT_APP_FEATURE_READ_ONLY_ASSETS: bool({ default: false }),
   REACT_APP_FEATURE_ONE_INCH: bool({ default: false }),
   REACT_APP_ONE_INCH_API_URL: url({
     default: 'https://api.1inch.io/v5.0',
   }),
+  REACT_APP_FEATURE_COVALENT_JAYPEGS: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

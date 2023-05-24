@@ -18,6 +18,7 @@ export type FeatureFlags = {
   Optimism: boolean
   BnbSmartChain: boolean
   Polygon: boolean
+  Gnosis: boolean
   ThorSwap: boolean
   IdleFinance: boolean
   Axelar: boolean
@@ -40,8 +41,10 @@ export type FeatureFlags = {
   LifiSwap: boolean
   FoxBondCTA: boolean
   DynamicLpAssets: boolean
+  ReadOnlyAssets: boolean
   Jaypegz: boolean
   OneInch: boolean
+  CovalentJaypegs: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -73,6 +76,7 @@ const initialState: Preferences = {
     Optimism: getConfig().REACT_APP_FEATURE_OPTIMISM,
     BnbSmartChain: getConfig().REACT_APP_FEATURE_BNBSMARTCHAIN,
     Polygon: getConfig().REACT_APP_FEATURE_POLYGON,
+    Gnosis: getConfig().REACT_APP_FEATURE_GNOSIS,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
@@ -92,9 +96,11 @@ const initialState: Preferences = {
     ZrxEthereumSwap: getConfig().REACT_APP_FEATURE_ZRX_ETHEREUM,
     ZrxOptimismSwap: getConfig().REACT_APP_FEATURE_ZRX_OPTIMISM,
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
+    CovalentJaypegs: getConfig().REACT_APP_FEATURE_COVALENT_JAYPEGS,
     Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
     FoxBondCTA: getConfig().REACT_APP_FEATURE_FOX_BOND_CTA,
     DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
+    ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
     OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
   },
   selectedLocale: simpleLocale(),

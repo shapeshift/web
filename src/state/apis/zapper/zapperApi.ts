@@ -1,21 +1,42 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import qs from 'qs'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
+import { toBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAssets } from 'state/slices/assetsSlice/selectors'
+import { selectWalletAccountIds } from 'state/slices/common-selectors'
+import { opportunities } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import type {
+  AssetIdsTuple,
+  DefiProviderMetadata,
+  GetOpportunityMetadataOutput,
+  GetOpportunityUserDataOutput,
+  GetOpportunityUserStakingDataOutput,
+  LpId,
+  OpportunityMetadataBase,
+  ReadOnlyOpportunityType,
+  StakingId,
+} from 'state/slices/opportunitiesSlice/types'
+import { DefiType } from 'state/slices/opportunitiesSlice/types'
+import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
+import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type {
+  SupportedZapperNetwork,
+  V2AppResponseType,
   V2NftBalancesCollectionsResponseType,
   V2NftCollectionType,
   V2NftUserItem,
@@ -24,9 +45,13 @@ import type {
 } from './validators'
 import {
   chainIdToZapperNetwork,
+  V2AppsBalancesResponse,
+  V2AppsResponse,
   V2AppTokensResponse,
   V2NftBalancesCollectionsResponse,
+  ZAPPER_NETWORKS_TO_CHAIN_ID_MAP,
   ZapperAppId,
+  zapperAssetToMaybeAssetId,
   ZapperGroupId,
   zapperNetworkToChainId,
 } from './validators'
@@ -57,15 +82,26 @@ const headers = {
 }
 
 export type GetZapperUniV2PoolAssetIdsOutput = AssetId[]
-export type GetZapperAppBalancesOutput = Record<AssetId, ZapperAssetBase>
+export type GetZapperAppTokensOutput = Record<AssetId, ZapperAssetBase>
 
 type GetZapperNftUserTokensInput = {
   accountIds: AccountId[]
 }
 
+type GetZapperAppsbalancesInput = void // void in the interim, but should eventually be consumed programatically so we are reactive on accounts
+// {
+// accountIds: AccountId[]
+// }
+
 type GetZapperCollectionsInput = {
   accountIds: AccountId[]
   collectionAddresses: string[]
+}
+
+export type GetZapperAppsBalancesOutput = {
+  userData: ReadOnlyOpportunityType[]
+  opportunities: Record<string, OpportunityMetadataBase>
+  metadataByProvider: Record<string, DefiProviderMetadata>
 }
 
 // https://docs.zapper.xyz/docs/apis/getting-started
@@ -73,10 +109,40 @@ export const zapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'zapperApi',
   endpoints: build => ({
-    getZapperAppBalancesOutput: build.query<GetZapperAppBalancesOutput, void>({
+    getZapperAppsOutput: build.query<Record<ZapperAppId, V2AppResponseType>, void>({
+      queryFn: async () => {
+        const url = `/v2/apps`
+        const payload = { ...options, headers, url }
+        const { data: res } = await axios.request({ ...payload })
+        try {
+          const parsedZapperV2AppsData = V2AppsResponse.parse(res)
+
+          const zapperV2AppsDataByAppId = parsedZapperV2AppsData.reduce<
+            Record<ZapperAppId, V2AppResponseType>
+          >(
+            (acc, app) => Object.assign(acc, { [app.id]: app }),
+            {} as Record<ZapperAppId, V2AppResponseType>,
+          )
+
+          return { data: zapperV2AppsDataByAppId }
+        } catch (e) {
+          moduleLogger.warn(e, 'getZapperAppsOutput')
+
+          const message = e instanceof Error ? e.message : 'Error fetching Zapper apps data'
+          return {
+            error: {
+              error: message,
+              status: 'CUSTOM_ERROR',
+            },
+          }
+        }
+      },
+    }),
+    getZapperAppTokensOutput: build.query<GetZapperAppTokensOutput, void>({
       queryFn: async (_, { dispatch, getState }) => {
         const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
 
+        // only UNI-V2 supported for now
         const url = `/v2/apps/${ZapperAppId.UniswapV2}/tokens`
         const params = {
           groupId: ZapperGroupId.Pool,
@@ -86,7 +152,7 @@ export const zapperApi = createApi({
         const { data: res } = await axios.request({ ...payload })
         const zapperV2AppTokensData = V2AppTokensResponse.parse(res)
 
-        const parsedData = zapperV2AppTokensData.reduce<GetZapperAppBalancesOutput>(
+        const parsedData = zapperV2AppTokensData.reduce<GetZapperAppTokensOutput>(
           (acc, appTokenData) => {
             const chainId = zapperNetworkToChainId(appTokenData.network)
             if (!chainId) return acc
@@ -115,7 +181,7 @@ export const zapperApi = createApi({
               assetReference: appTokenData.address,
             })
 
-            const underlyingAssets = appTokenData.tokens.map(token => {
+            const underlyingAssets = (appTokenData.tokens ?? []).map(token => {
               const assetId = toAssetId({
                 chainId,
                 assetNamespace: 'erc20', // TODO: bep20
@@ -131,10 +197,12 @@ export const zapperApi = createApi({
 
             const name = underlyingAssets.every(asset => asset && asset.symbol)
               ? `${underlyingAssets.map(asset => asset?.symbol).join('/')} Pool`
-              : appTokenData.displayProps.label.replace('WETH', 'ETH')
+              : (appTokenData.displayProps?.label ?? '').replace('WETH', 'ETH')
             const icons = underlyingAssets.map((underlyingAsset, i) => {
-              return underlyingAsset?.icon ?? appTokenData.displayProps.images[i]
+              return underlyingAsset?.icon ?? appTokenData.displayProps?.images[i] ?? ''
             })
+
+            if (!(appTokenData.decimals && appTokenData.symbol)) return acc
 
             acc.byId[assetId] = makeAsset({
               assetId,
@@ -216,7 +284,7 @@ export const zapper = createApi({
     getZapperUniV2PoolAssetIds: build.query<GetZapperUniV2PoolAssetIdsOutput, void>({
       queryFn: async (_, { dispatch }) => {
         const maybeZapperV2AppTokensData = await dispatch(
-          zapperApi.endpoints.getZapperAppBalancesOutput.initiate(),
+          zapperApi.endpoints.getZapperAppTokensOutput.initiate(),
         )
 
         if (!maybeZapperV2AppTokensData.data) throw new Error('No Zapper data, sadpepe.jpg')
@@ -237,6 +305,320 @@ export const zapper = createApi({
           .filter(isSome)
 
         return { data }
+      },
+    }),
+    getZapperAppsBalancesOutput: build.query<
+      GetZapperAppsBalancesOutput,
+      GetZapperAppsbalancesInput
+    >({
+      queryFn: async (_input, { dispatch, getState }) => {
+        const ReadOnlyAssets = selectFeatureFlag(getState() as any, 'ReadOnlyAssets')
+
+        if (!ReadOnlyAssets)
+          return {
+            data: {
+              userData: [],
+              opportunities: {},
+              metadataByProvider: {},
+            },
+          }
+
+        const maybeZapperV2AppsData = await dispatch(
+          zapperApi.endpoints.getZapperAppsOutput.initiate(),
+        )
+
+        const accountIds = selectWalletAccountIds(getState() as ReduxState)
+
+        const assets = selectAssets(getState() as ReduxState)
+        const evmNetworks = evmChainIds.map(chainIdToZapperNetwork).filter(isSome)
+
+        const addresses = accountIdsToEvmAddresses(accountIds)
+        const url = `/v2/balances/apps`
+        const params = {
+          'addresses[]': addresses,
+          'networks[]': evmNetworks,
+        }
+        const payload = { ...options, params, headers, url }
+        const { data: res } = await axios.request({ ...payload })
+        try {
+          const zapperV2AppsBalancessData = V2AppsBalancesResponse.parse(res)
+
+          const parsedOpportunities = zapperV2AppsBalancessData.reduce<GetZapperAppsBalancesOutput>(
+            (acc, appAccountBalance) => {
+              const appId = appAccountBalance.appId
+              const appName = appAccountBalance.appName
+              const appImage = appAccountBalance.appImage
+              const accountId = toAccountId({
+                chainId:
+                  ZAPPER_NETWORKS_TO_CHAIN_ID_MAP[
+                    appAccountBalance.network as SupportedZapperNetwork
+                  ],
+                account: appAccountBalance.address,
+              })
+
+              const appAccountOpportunities = appAccountBalance.products
+                .flatMap(({ assets }) => assets)
+                .map<ReadOnlyOpportunityType | undefined>(asset => {
+                  const stakedAmountCryptoBaseUnit =
+                    asset.tokens.find(token => token.metaType === 'supplied')?.balanceRaw ?? '0'
+                  const rewardTokens = asset.tokens.filter(token => token.metaType === 'claimable')
+                  const rewardAssetIds = rewardTokens.reduce<AssetId[]>((acc, token) => {
+                    const rewardAssetId = zapperAssetToMaybeAssetId(token)
+                    // Reward AssetIds are ordered - if we can't get all of them, we return empty rewardAssetIds
+                    if (!rewardAssetId) return []
+
+                    acc.push(rewardAssetId)
+                    return acc
+                  }, []) as unknown as AssetIdsTuple
+                  const rewardsCryptoBaseUnit = {
+                    amounts: rewardTokens.map(token => token.balanceRaw),
+                    claimable: true,
+                  } as unknown as ReadOnlyOpportunityType['rewardsCryptoBaseUnit']
+
+                  const fiatAmount = bnOrZero(asset.balanceUSD).toString()
+                  const apy = bnOrZero(asset.dataProps?.apy).div(100).toString()
+                  const tvl = bnOrZero(asset.dataProps?.liquidity).toString()
+                  const icon = asset.displayProps?.images?.[0] ?? ''
+                  const name = asset.displayProps?.label ?? ''
+                  const groupId = asset.groupId
+                  const type = asset.type
+
+                  const defiType =
+                    /pool/.test(groupId) || type === 'app-token'
+                      ? DefiType.LiquidityPool
+                      : DefiType.Staking
+
+                  // Actually defined because we pass networks in the query params
+                  const assetId = zapperAssetToMaybeAssetId(asset)
+
+                  if (!assetId) return undefined
+
+                  const opportunityId: LpId | StakingId = `${asset.address}#${asset.key}`
+
+                  if (!acc.metadataByProvider[appName]) {
+                    acc.metadataByProvider[appName] = {
+                      provider: appName,
+                      icon: appImage,
+                      color: '#000000', // TODO
+                      url:
+                        appId && maybeZapperV2AppsData.data
+                          ? maybeZapperV2AppsData.data[appId]?.url
+                          : '',
+                    }
+                  }
+                  // TODO(gomes): ensure this works with the heuristics of ContractPosition vs AppToken
+                  const underlyingAssetIds = asset.tokens.map(token => {
+                    const underlyingAssetId = zapperAssetToMaybeAssetId(token)
+                    // If one of the tokens is undefined, we have bigger problems than a non-null assertion
+                    return underlyingAssetId!
+                  }) as unknown as AssetIdsTuple
+
+                  // An "AppToken" is a position represented a token, thus it is what we call an underlyingAssetId i.e UNI LP AssetId
+                  const underlyingAssetId =
+                    asset.type === 'app-token' ? assetId : underlyingAssetIds[0]!
+
+                  // Upsert underlyingAssetIds if they don't exist in store
+                  const underlyingAssetsToUpsert = Object.values(
+                    underlyingAssetIds,
+                  ).reduce<AssetsState>(
+                    (acc, underlyingAssetId, i) => {
+                      if (assets[underlyingAssetId]) return acc
+
+                      acc.byId[underlyingAssetId] = makeAsset({
+                        assetId: underlyingAssetId,
+                        symbol: asset.tokens[i].symbol,
+                        // No dice here, there's no name property
+                        name: asset.tokens[i].symbol,
+                        precision: asset.tokens[i].decimals,
+                        icon: asset.displayProps?.images[i] ?? '',
+                      })
+                      acc.ids = acc.ids.concat(underlyingAssetId)
+
+                      return acc
+                    },
+                    { byId: {}, ids: [] },
+                  )
+
+                  dispatch(assetsSlice.actions.upsertAssets(underlyingAssetsToUpsert))
+
+                  // Upsert underlyingAssetIds if they don't exist in store
+                  if (asset.type === 'app-token' && !assets[underlyingAssetId]) {
+                    const underlyingAsset = makeAsset({
+                      assetId: underlyingAssetId,
+                      symbol: asset.symbol ?? '',
+                      name: asset.displayProps?.label ?? '',
+                      precision: asset.decimals ?? 18,
+                      icons: asset.displayProps?.images ?? [],
+                    })
+                    dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
+                  }
+
+                  const underlyingAssetRatiosBaseUnit = (() => {
+                    // TODO(gomes): Scrutinize whether or not this generalizes to all products
+                    // Not all app-token products are created equal
+                    if (asset.type === 'app-token') {
+                      const token0ReservesCryptoPrecision = asset.dataProps?.reserves?.[0]
+                      const token1ReservesCryptoPrecision = asset.dataProps?.reserves?.[1]
+                      const token0ReservesBaseUnit =
+                        typeof token0ReservesCryptoPrecision === 'number'
+                          ? bnOrZero(
+                              bnOrZero(
+                                bnOrZero(token0ReservesCryptoPrecision.toFixed()).toString(),
+                              ),
+                            ).times(bn(10).pow(asset.decimals ?? 18))
+                          : undefined
+                      const token1ReservesBaseUnit =
+                        typeof token1ReservesCryptoPrecision === 'number'
+                          ? bnOrZero(
+                              bnOrZero(
+                                bnOrZero(token1ReservesCryptoPrecision.toFixed()).toString(),
+                              ),
+                            ).times(bn(10).pow(asset.decimals ?? 18))
+                          : undefined
+                      const totalSupplyBaseUnit =
+                        typeof asset.supply === 'number'
+                          ? bnOrZero(asset.supply)
+                              .times(bn(10).pow(asset.decimals ?? 18))
+                              .toString()
+                          : undefined
+                      const token0PoolRatio =
+                        token0ReservesBaseUnit && totalSupplyBaseUnit
+                          ? token0ReservesBaseUnit.div(totalSupplyBaseUnit).toString()
+                          : undefined
+                      const token1PoolRatio =
+                        token1ReservesBaseUnit && totalSupplyBaseUnit
+                          ? token1ReservesBaseUnit.div(totalSupplyBaseUnit).toString()
+                          : undefined
+
+                      if (!(token0PoolRatio && token1PoolRatio)) return
+
+                      return [
+                        toBaseUnit(token0PoolRatio.toString(), asset.tokens[0].decimals),
+                        toBaseUnit(token1PoolRatio.toString(), asset.tokens[1].decimals),
+                      ] as const
+                    }
+                  })()
+
+                  if (!acc.opportunities[opportunityId]) {
+                    acc.opportunities[opportunityId] = {
+                      apy,
+                      assetId,
+                      underlyingAssetId,
+                      underlyingAssetIds,
+                      underlyingAssetRatiosBaseUnit: underlyingAssetRatiosBaseUnit ?? ['0', '0'],
+                      id: opportunityId,
+                      icon,
+                      name,
+                      rewardAssetIds,
+                      provider: appName,
+                      tvl,
+                      type: defiType,
+                      isClaimableRewards: Boolean(rewardTokens.length),
+                      isReadOnly: true,
+                    }
+                  }
+                  if (defiType === DefiType.LiquidityPool) return undefined
+
+                  return {
+                    accountId,
+                    provider: appName,
+                    userStakingId: serializeUserStakingId(accountId, opportunityId),
+                    opportunityId,
+                    stakedAmountCryptoBaseUnit,
+                    rewardsCryptoBaseUnit,
+                    fiatAmount,
+                    type: defiType,
+                  }
+                })
+                .filter(isSome)
+
+              acc.userData = acc.userData.concat(appAccountOpportunities)
+              return acc
+            },
+            { userData: [], opportunities: {}, metadataByProvider: {} },
+          )
+
+          // Upsert metadata
+          const readOnlyMetadata = parsedOpportunities.opportunities
+          const readOnlyUserData = parsedOpportunities.userData
+          // Prepare the payload for accounts upsertion
+          const accountUpsertPayload: GetOpportunityUserDataOutput = {
+            byAccountId: {},
+            type: DefiType.Staking,
+          }
+          // Prepare the payload for user staking upsertion
+          const userStakingUpsertPayload: GetOpportunityUserStakingDataOutput = {
+            byId: {},
+          }
+          // Prepare the payloads for upsertOpportunityMetadata
+          const stakingMetadataUpsertPayload: GetOpportunityMetadataOutput = {
+            byId: {},
+            type: DefiType.Staking,
+          }
+
+          const lpMetadataUpsertPayload: GetOpportunityMetadataOutput = {
+            byId: {},
+            type: DefiType.LiquidityPool,
+          }
+
+          // Populate read only metadata payload
+          for (const id in readOnlyMetadata) {
+            if (readOnlyMetadata[id].type === DefiType.Staking) {
+              stakingMetadataUpsertPayload.byId[id] = readOnlyMetadata[id]
+              continue
+            }
+            if (readOnlyMetadata[id].type === DefiType.LiquidityPool) {
+              lpMetadataUpsertPayload.byId[id] = readOnlyMetadata[id]
+            }
+          }
+
+          // Populate read only userData payload
+          for (const opportunity of readOnlyUserData) {
+            const {
+              accountId,
+              opportunityId,
+              userStakingId,
+              rewardsCryptoBaseUnit,
+              stakedAmountCryptoBaseUnit,
+            } = opportunity
+
+            // Prepare payload for upsertOpportunityAccounts
+            if (accountId) {
+              if (!accountUpsertPayload.byAccountId[accountId]) {
+                accountUpsertPayload.byAccountId[accountId] = []
+              }
+              // Here we push the opportunityId (representing StakingId) instead of userStakingId
+              accountUpsertPayload.byAccountId[accountId]!.push(opportunityId)
+            }
+
+            // Prepare payload for upsertUserStakingOpportunities
+            if (userStakingId) {
+              userStakingUpsertPayload.byId[userStakingId] = {
+                stakedAmountCryptoBaseUnit,
+                rewardsCryptoBaseUnit,
+                userStakingId,
+              }
+            }
+          }
+
+          dispatch(opportunities.actions.upsertOpportunitiesMetadata(stakingMetadataUpsertPayload))
+          dispatch(opportunities.actions.upsertOpportunitiesMetadata(lpMetadataUpsertPayload))
+          dispatch(opportunities.actions.upsertOpportunityAccounts(accountUpsertPayload))
+          dispatch(opportunities.actions.upsertUserStakingOpportunities(userStakingUpsertPayload))
+
+          // Denormalized into userData/opportunities/metadataByProvider for ease of consumption if we need to
+          return { data: parsedOpportunities }
+        } catch (e) {
+          moduleLogger.warn(e, 'getZapperAppsbalancesOutput')
+
+          const message = e instanceof Error ? e.message : 'Error fetching read-only opportunities'
+          return {
+            error: {
+              error: message,
+              status: 'CUSTOM_ERROR',
+            },
+          }
+        }
       },
     }),
   }),

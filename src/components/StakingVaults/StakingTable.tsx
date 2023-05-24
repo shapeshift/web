@@ -1,6 +1,4 @@
 import { Skeleton, Tag } from '@chakra-ui/react'
-import type { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
@@ -9,6 +7,7 @@ import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import { DefiType } from 'state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
 import { store } from 'state/store'
 
@@ -45,6 +44,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
               opportunityName={row.original.opportunityName}
               showTeaser={showTeaser}
               showAssetSymbol={row.original.showAssetSymbol}
+              isExternal={row.original.isReadOnly}
             />
           </Skeleton>
         ),
@@ -54,7 +54,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Header: translate('defi.provider'),
         accessor: 'provider',
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ value, row }: { value: DefiProvider; row: RowProps }) => {
+        Cell: ({ value, row }: { value: string; row: RowProps }) => {
           const assets = store.getState().assets.byId
           const asset = assets[row.original.assetId]
           const assetName = asset?.name ?? ''

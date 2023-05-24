@@ -1,3 +1,4 @@
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 import type { StackProps } from '@chakra-ui/react'
 import {
   Box,
@@ -30,6 +31,7 @@ type AssetCellProps = {
   showAssetSymbol?: boolean
   icons?: string[]
   opportunityName?: string
+  isExternal?: boolean
   version?: string
 } & StackProps
 
@@ -57,6 +59,7 @@ export const AssetCell = ({
   postFix,
   icons,
   opportunityName,
+  isExternal,
   version,
   ...rest
 }: AssetCellProps) => {
@@ -92,7 +95,7 @@ export const AssetCell = ({
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>
           <Stack spacing={0} flex={1} alignItems='flex-start'>
-            <HStack>
+            <HStack alignItems='center'>
               <Box
                 position='relative'
                 overflow='hidden'
@@ -121,6 +124,7 @@ export const AssetCell = ({
                   {rowTitle}
                 </RawText>
               </Box>
+              {isExternal && <ExternalLinkIcon boxSize={3} />}
             </HStack>
             {typeof subText === 'string' && (
               <RawText fontSize='sm' color='gray.500' lineHeight='shorter'>

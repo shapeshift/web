@@ -1,4 +1,4 @@
-import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { DefiType } from 'state/slices/opportunitiesSlice/types'
 
 import type { TradeOpportunitiesBucket } from './components/TradeOpportunities'
 
@@ -19,7 +19,7 @@ export type ExternalOpportunity = {
   isLoaded?: boolean
   isDisabled?: boolean
   contractAddress?: string
-  provider?: DefiProvider
+  provider?: string
   highestBalanceAccountAddress?: string
 }
 

@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { Location } from 'history'
 import qs from 'qs'
 import type { Asset } from 'lib/asset-service'
@@ -12,6 +11,7 @@ import type {
   OpportunityId,
   StakingEarnOpportunityType,
 } from 'state/slices/opportunitiesSlice/types'
+import { DefiType } from 'state/slices/opportunitiesSlice/types'
 
 type MakeOpportunityRouteDetailsProps = {
   stakingOpportunities: StakingEarnOpportunityType[]

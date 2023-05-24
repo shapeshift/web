@@ -68,9 +68,8 @@ describe('getZrxTradeQuote', () => {
     expect(maybeQuote.isErr()).toBe(false)
     const quote = maybeQuote.unwrap()
     expect(quote.feeData).toStrictEqual({
-      buyAssetTradeFeeUsd: '0',
+      protocolFees: {},
       networkFeeCryptoBaseUnit: '94843800000000000',
-      sellAssetTradeFeeUsd: '0',
     })
     expect(quote.rate).toBe('100')
   })
@@ -118,8 +117,7 @@ describe('getZrxTradeQuote', () => {
     const quote = maybeQuote.unwrap()
 
     expect(quote?.feeData).toStrictEqual({
-      sellAssetTradeFeeUsd: '0',
-      buyAssetTradeFeeUsd: '0',
+      protocolFees: {},
       networkFeeCryptoBaseUnit: '0',
     })
   })

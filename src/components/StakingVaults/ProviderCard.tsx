@@ -7,7 +7,6 @@ import {
   Tag,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { DefiProviderMetadata } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { opportunityRowGrid } from 'components/EarnDashboard/components/ProviderDetails/OpportunityTableHeader'
@@ -16,6 +15,7 @@ import { WalletStakingByAsset } from 'components/EarnDashboard/components/Provid
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
 import type { AggregatedOpportunitiesByProviderReturn } from 'state/slices/opportunitiesSlice/types'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 
 type ProviderCardProps = {
   isLoading?: boolean
@@ -29,7 +29,8 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   isLoading,
 }) => {
   const headerBg = useColorModeValue('white', 'gray.785')
-  const { icon } = DefiProviderMetadata[provider]
+
+  const icon = getMetadataForProvider(provider)?.icon
   const isLoaded = !isLoading
   return (
     <Card variant='default'>

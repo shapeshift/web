@@ -5,7 +5,6 @@ import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import { fetchUniV2PairData, getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
@@ -14,14 +13,12 @@ import { selectZapperFullfilled } from 'state/apis/zapper/selectors'
 import { zapperApi } from 'state/apis/zapper/zapperApi'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
+import { selectPortfolioAccountBalancesBaseUnit } from 'state/slices/common-selectors'
 import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlice/selectors'
-import {
-  selectFeatureFlags,
-  selectMarketDataById,
-  selectPortfolioAccountBalancesBaseUnit,
-} from 'state/slices/selectors'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import { foxEthLpAssetIds } from '../../constants'
 import type {
@@ -30,6 +27,7 @@ import type {
   LpId,
   OpportunityMetadata,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import type {
   OpportunitiesMetadataResolverInput,
   OpportunityIdsResolverInput,
@@ -59,9 +57,9 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
 
   const assets: AssetsState = state.assets
 
-  const selectGetZapperAppBalancesOutput = zapperApi.endpoints.getZapperAppBalancesOutput.select()
+  const selectGetZapperAppTokensOutput = zapperApi.endpoints.getZapperAppTokensOutput.select()
   // Undefined if the DynamicLpAssets flag is off, or if Zapper rugs us
-  const zapperAppBalancesOutput = selectGetZapperAppBalancesOutput(state)
+  const zapperAppTokensOutput = selectGetZapperAppTokensOutput(state)
 
   if (!opportunityIds?.length) {
     return Promise.resolve({
@@ -78,7 +76,13 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
   const blockNumber = await getBlockNumber()
 
   for (const opportunityId of opportunityIds) {
-    const zapperAppBalanceData = zapperAppBalancesOutput.data?.[opportunityId]
+    const zapperAppBalanceData = zapperAppTokensOutput.data?.[opportunityId]
+
+    if (!(zapperAppBalanceData?.tokens?.[0].decimals && zapperAppBalanceData?.tokens?.[1].decimals))
+      continue
+
+    if (!(zapperAppBalanceData?.tokens?.[0].decimals && zapperAppBalanceData?.tokens?.[1].decimals))
+      continue
 
     const {
       token0Decimals,
@@ -123,13 +127,13 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
         }
       }
 
-      token0Decimals = zapperAppBalanceData.tokens[0].decimals
-      token1Decimals = zapperAppBalanceData.tokens[1].decimals
-      token0Reserves = bnOrZero(zapperAppBalanceData.dataProps.reserves[0])
-      token1Reserves = bnOrZero(zapperAppBalanceData.dataProps.reserves[1])
-      token0Address = ethers.utils.getAddress(zapperAppBalanceData.tokens[0].address)
-      token1Address = ethers.utils.getAddress(zapperAppBalanceData.tokens[1].address)
-      apr = bnOrZero(zapperAppBalanceData.dataProps.apy).toFixed()
+      token0Decimals = zapperAppBalanceData.tokens?.[0].decimals!
+      token1Decimals = zapperAppBalanceData.tokens?.[1].decimals!
+      token0Reserves = bnOrZero(zapperAppBalanceData.dataProps?.reserves?.[0])!
+      token1Reserves = bnOrZero(zapperAppBalanceData.dataProps?.reserves?.[1])!
+      token0Address = ethers.utils.getAddress(zapperAppBalanceData?.tokens?.[0].address!)
+      token1Address = ethers.utils.getAddress(zapperAppBalanceData?.tokens?.[1].address!)
+      apr = bnOrZero(zapperAppBalanceData.dataProps?.apy!).toFixed()
       return {
         token0Decimals,
         token1Decimals,
@@ -214,7 +218,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
     )
 
     const totalLiquidityFiat = zapperAppBalanceData
-      ? bnOrZero(zapperAppBalanceData.dataProps.liquidity)
+      ? bnOrZero(zapperAppBalanceData.dataProps?.liquidity!)
       : token0ReservesCryptoPrecision.times(token0Price).times(2)
     const tvl = totalLiquidityFiat.toString()
     const price = bnOrZero(tvl)
@@ -291,6 +295,8 @@ export const uniV2LpLpOpportunityIdsResolver = ({
   if (!DynamicLpAssets) return Promise.resolve({ data: [...foxEthLpAssetIds] })
 
   const zapperApiQueries = selectZapperFullfilled(state)
-  const uniV2AssetIds = (zapperApiQueries.find(query => Boolean(query?.data))?.data ?? []) as LpId[]
+  const uniV2AssetIds = (zapperApiQueries.find(
+    query => query?.endpointName === 'getZapperUniV2PoolAssetIds' && Boolean(query?.data),
+  )?.data ?? []) as LpId[]
   return Promise.resolve({ data: [...uniV2AssetIds] })
 }

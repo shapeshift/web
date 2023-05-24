@@ -14,6 +14,7 @@ import {
   getRewardBalances,
   getUnderlyingAssetIdsBalances,
 } from 'state/slices/opportunitiesSlice/utils'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAssetById,
   selectAssets,
@@ -98,6 +99,11 @@ export const OpportunityRow: React.FC<
 
   const handleClick = useCallback(
     (action: DefiAction) => {
+      if (opportunity.isReadOnly) {
+        const url = getMetadataForProvider(opportunity.provider)?.url
+        url && window.open(url, '_blank')
+        return
+      }
       onClick(opportunity, action)
     },
     [onClick, opportunity],
@@ -177,6 +183,7 @@ export const OpportunityRow: React.FC<
               </Flex>
             }
             justifyContent='flex-start'
+            isExternal={opportunity.isReadOnly}
           />
           <Amount.Crypto
             value={bnOrZero(cryptoAmountBaseUnit)

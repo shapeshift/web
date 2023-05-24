@@ -8,11 +8,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import {
-  DefiAction,
-  DefiProvider,
-  DefiType,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
@@ -26,6 +22,7 @@ import {
   getDefaultValidatorAddressFromChainId,
   makeTotalCosmosSdkBondingsCryptoBaseUnit,
 } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import {
   makeDefiProviderDisplayName,
   makeOpportunityIcons,

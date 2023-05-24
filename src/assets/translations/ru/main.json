@@ -6,6 +6,7 @@
     "error": "Ошибка",
     "cancel": "Отмена",
     "close": "Закрыть",
+    "loadMore": "Загрузить еще",
     "new": "Новое",
     "continue": "Продолжить",
     "reward": "Вознаграждение",
@@ -101,7 +102,8 @@
     "manage": "Управлять",
     "selectedAccount": "Выбранный счет",
     "allChains": "Все сети",
-    "wallet": "Кошелек"
+    "wallet": "Кошелек",
+    "action": "Действие"
   },
   "consentBanner": {
     "body": {
@@ -696,6 +698,7 @@
       "broadcastFailed": "Произошла ошибка при выполнении транзакции",
       "insufficientFundsForLimit": "Недостаточно средств. Минимальная сумма для торгов по этой паре %{minLimit}",
       "insufficientFundsForAmount": " Недостаточно средств. Ваш баланс %{symbol} меньше чем выбранная сумма",
+      "insufficientFundsForProtocolFee": "Недостаточно  %{symbol} на %{chainName} для оплаты комиссии",
       "invalidTradePair": "Неправильная торговая пара: %{sellAssetName} и %{buyAssetName}",
       "invalidTradePairBtnText": "Неверная торговая пара",
       "noLiquidityError": "недостаточно ликвидности",
@@ -733,11 +736,12 @@
     "swappingComingSoonForWallet": "Обмен на %{walletName} скоро появится",
     "recentTrades": "Последние сделки",
     "lifiWarning": "Эта сделка направляется через LI.FI, который выполняет серию промежуточных сделок для осуществления свопа. В случае неудачи на каком-либо этапе вы получите токен последнего успешного этапа в последовательности.",
-    "intermediaryTransactionOutputs": {
-      "prefix": "или",
-      "suffix": "на %{chainName}"
-    },
-    "unknownGas": "(неизвестно)"
+    "or": "или",
+    "onChainName": "на %{chainName}",
+    "unknownGas": "(неизвестно)",
+    "receiveAddress": "Адрес получателя",
+    "receiveAddressDescription": "Не найден адрес %{chainName} из подключенного кошелька. Введите адрес вручную, чтобы продолжить.",
+    "addressPlaceholder": "%{chainName} адрес"
   },
   "modals": {
     "popup": {

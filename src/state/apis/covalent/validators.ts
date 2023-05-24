@@ -219,7 +219,7 @@ export const parseToNftUserItem = (
         chainId,
         id: nftData.token_id,
         medias,
-        price: '0', // Covalent doesn't provide spot pricing for NFT items
+        price: null, // Covalent doesn't provide spot pricing for NFT items
         rarityRank: null, // Covalent doesn't provide rarity rank
         collection: {
           id:
@@ -235,7 +235,7 @@ export const parseToNftUserItem = (
               : '',
           chainId,
           name: covalentItem.contract_name,
-          floorPrice: '0', // Covalent doesn't provide floor price
+          floorPrice: null, // Covalent doesn't provide floor price
           openseaId: null, // Covalent doesn't provide an openseaId
         },
       }

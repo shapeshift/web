@@ -9,8 +9,8 @@ export type CollectionItem = {
   // The name of the collection, not the name of the NFT
   name: string
   // Denominated in the native asset of the NFT chain
-  floorPrice: string
-  openseaId: string | null | undefined
+  floorPrice: string | null
+  openseaId: string | null
 }
 
 export type NftItem = {
@@ -18,7 +18,7 @@ export type NftItem = {
   id: string
   name: string // the name for this specific ID, should always be defined
   // The spot price of the NFT in crypto, denominated in the native asset of the NFT chain
-  price: string
+  price: string | null
   chainId: ChainId
   // Not normalized as collectionId, we can't join since we don't store this normalized *yet*
   // Once we split nft/nftApi, this can be collectionId and then join'd with the collection data

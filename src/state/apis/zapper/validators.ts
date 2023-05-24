@@ -873,7 +873,7 @@ export const parseToNftUserItem = (zapperItem: V2NftUserItem, chainId: ChainId):
     chainId,
     name: collection?.name || '',
     floorPrice: collection?.floorPriceEth || '',
-    openseaId: collection?.openseaId,
+    openseaId: collection?.openseaId || null,
   }
 
   const nftItem: NftItem = {

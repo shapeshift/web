@@ -9,7 +9,7 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, osmosisAssetId } from '@shapeshiftoss/caip'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -54,6 +54,8 @@ import {
   selectFeeAssetById,
 } from 'state/slices/assetsSlice/selectors'
 import {
+  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAccountIdByNumberByChainId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
@@ -205,24 +207,20 @@ export const TradeInput = () => {
     () => ({ accountId: sellAssetAccountId, assetId: sellAsset?.assetId ?? '' }),
     [sellAssetAccountId, sellAsset?.assetId],
   )
-  const buyAssetBalanceFilter = useMemo(
-    () => ({ accountId: buyAssetAccountId, assetId: buyAsset?.assetId ?? '' }),
-    [buyAssetAccountId, buyAsset?.assetId],
-  )
+
+  const portfolioAccountBalancesBaseUnit = useAppSelector(selectPortfolioAccountBalancesBaseUnit)
   const sellAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, sellAssetBalanceFilter),
-  )
-  const buyAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, buyAssetBalanceFilter),
-  )
-  const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
   )
   const sellAssetBalanceHuman = useAppSelector(state =>
     selectPortfolioCryptoPrecisionBalanceByFilter(state, sellAssetBalanceFilter),
   )
   const feeAssetBalanceHuman = useAppSelector(s =>
     selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
+  )
+
+  const portfolioAccountIdByNumberByChainId = useAppSelector(
+    selectPortfolioAccountIdByNumberByChainId,
   )
 
   const isYatSupportedByReceiveChain = buyAsset.chainId === ethChainId // yat only supports eth mainnet
@@ -415,36 +413,36 @@ export const TradeInput = () => {
     [sellAmountCryptoPrecision, buyAmountCryptoPrecision, isTradeQuotePending],
   )
 
-  // TODO(woodenfurniture): this needs to be rewritten for arbitrary assets to support multi-hop
   const hasSufficientProtocolFeeBalances = useMemo(() => {
-    if (protocolFees === undefined) return false
+    if (protocolFees === undefined || tradeQuoteArgs === undefined || !buyAssetAccountId)
+      return false
 
-    const buyAssetTradeFeeCryptoBaseUnit = protocolFees[buyAsset.assetId]?.requiresBalance
-      ? protocolFees[buyAsset.assetId].amountCryptoBaseUnit
-      : '0'
+    const isBuyingOsmoWithOmosisSwapper =
+      activeSwapper?.name === SwapperName.Osmosis && buyAsset.assetId === osmosisAssetId
 
-    const sellAssetTradeFeeCryptoBaseUnit = protocolFees[sellAsset.assetId]?.requiresBalance
-      ? protocolFees[sellAsset.assetId].amountCryptoBaseUnit
-      : '0'
-
-    const feeAssetTradeFeeCryptoBaseUnit =
-      feeAsset && protocolFees[feeAsset.assetId]?.requiresBalance
-        ? protocolFees[feeAsset.assetId].amountCryptoBaseUnit
-        : '0'
-
-    return (
-      bn(buyAssetBalanceCryptoBaseUnit).gte(buyAssetTradeFeeCryptoBaseUnit) &&
-      bn(sellAssetBalanceCryptoBaseUnit).gte(sellAssetTradeFeeCryptoBaseUnit) &&
-      bn(feeAssetBalanceCryptoBaseUnit).gte(feeAssetTradeFeeCryptoBaseUnit)
-    )
+    // This is an oversimplification where protocol fees are assumed to be only deducted from
+    // account IDs corresponding to the sell asset account number and protocol fee asset chain ID.
+    // Later we'll need to handle protocol fees payable from the buy side.
+    return Object.entries(protocolFees)
+      .filter(([_assetId, protocolFee]) => protocolFee.requiresBalance)
+      .every(([assetId, protocolFee]) => {
+        // TEMP: handle osmosis protocol fee payable on buy side for specific case until we implement general solution
+        const accountId = isBuyingOsmoWithOmosisSwapper
+          ? buyAssetAccountId
+          : portfolioAccountIdByNumberByChainId[tradeQuoteArgs.accountNumber][
+              protocolFee.asset.chainId
+            ]
+        const balanceCryptoBaseUnit = portfolioAccountBalancesBaseUnit[accountId][assetId]
+        return bnOrZero(balanceCryptoBaseUnit).gte(protocolFee.amountCryptoBaseUnit)
+      })
   }, [
+    activeSwapper?.name,
     buyAsset.assetId,
-    buyAssetBalanceCryptoBaseUnit,
-    feeAsset,
-    feeAssetBalanceCryptoBaseUnit,
+    portfolioAccountBalancesBaseUnit,
+    portfolioAccountIdByNumberByChainId,
     protocolFees,
-    sellAsset.assetId,
-    sellAssetBalanceCryptoBaseUnit,
+    buyAssetAccountId,
+    tradeQuoteArgs,
   ])
 
   const getErrorTranslationKey = useCallback((): string | [string, InterpolationOptions] => {

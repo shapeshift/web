@@ -96,7 +96,7 @@ export const getAssets = async (): Promise<Asset[]> => {
       }
 
       if (current.base.startsWith('factory')) {
-        return { assetNamespace: '', assetReference: ''};
+        return { assetNamespace: '', assetReference: '' }
       }
 
       if (current.base.startsWith('ibc')) {
@@ -106,7 +106,7 @@ export const getAssets = async (): Promise<Asset[]> => {
       return { assetNamespace: 'slip44' as const, assetReference: ASSET_REFERENCE.Osmosis }
     })()
 
-    if(assetNamespace === '' || assetReference === '') return acc
+    if (assetNamespace === '' || assetReference === '') return acc
 
     // if an asset has an ibc object, it's bridged, so label it as e.g. ATOM on Osmosis
     const getAssetName = (a: OsmoAsset): string =>

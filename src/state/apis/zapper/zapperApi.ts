@@ -33,6 +33,7 @@ import { DefiType } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
+import type { NftItem } from '../nft/types'
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type {
   SupportedZapperNetwork,
@@ -45,6 +46,7 @@ import type {
 } from './validators'
 import {
   chainIdToZapperNetwork,
+  parseToNftUserItem,
   V2AppsBalancesResponse,
   V2AppsResponse,
   V2AppTokensResponse,
@@ -224,7 +226,7 @@ export const zapperApi = createApi({
         return { data: parsedData }
       },
     }),
-    getZapperNftUserTokens: build.query<V2NftUserItem[], GetZapperNftUserTokensInput>({
+    getZapperNftUserTokens: build.query<NftItem[], GetZapperNftUserTokensInput>({
       queryFn: async ({ accountIds }) => {
         let data: V2NftUserItem[] = []
 
@@ -253,7 +255,15 @@ export const zapperApi = createApi({
             }
           }
         }
-        return { data }
+
+        const parsedData = data.map(v2NftItem => {
+          // Actually defined since we're passing supported EVM networks AccountIds
+          const chainId = zapperNetworkToChainId(
+            v2NftItem.token.collection.network as SupportedZapperNetwork,
+          )!
+          return parseToNftUserItem(v2NftItem, chainId)
+        })
+        return { data: parsedData }
       },
     }),
     getZapperCollections: build.query<V2NftCollectionType[], GetZapperCollectionsInput>({

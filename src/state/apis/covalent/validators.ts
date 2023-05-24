@@ -4,8 +4,7 @@ import invert from 'lodash/invert'
 import type { Infer } from 'myzod'
 import z from 'myzod'
 
-import type { V2NftUserItem, V2ZapperNft } from '../zapper/validators'
-import { chainIdToZapperNetwork } from '../zapper/validators'
+import type { NftItem } from '../nft/types'
 
 export enum SupportedCovalentNetwork {
   // Bitcoin = 'btc-mainnet',
@@ -200,10 +199,10 @@ const CovalentNftUserTokensResponseSchema = z.object({
 export type CovalentNftUserTokensResponseType = Infer<typeof CovalentNftUserTokensResponseSchema>
 export type CovalentNftItemSchemaType = Infer<typeof CovalentNftItemSchema>
 
-export const parseToV2NftUserItems = (
+export const parseToNftUserItem = (
   covalentItem: CovalentNftItemSchemaType,
   chainId: ChainId,
-): V2NftUserItem[] => {
+): NftItem[] => {
   return (
     covalentItem.nft_data?.map(nftData => {
       const medias = nftData.external_data?.image
@@ -215,32 +214,23 @@ export const parseToV2NftUserItems = (
           ]
         : []
 
-      const token: V2ZapperNft = {
-        id: covalentItem.contract_address,
+      const item: NftItem = {
         name: covalentItem.contract_name,
-        tokenId: nftData.token_id,
-        lastSaleEth: null, // Covalent doesn't provide this information
-        rarityRank: null, // Covalent doesn't provide this information
-        estimatedValueEth: null, // Map this property if available in CovalentNftItemSchemaType
+        chainId,
+        id: nftData.token_id, // TODO(gomes): to AssetId once NFT asset slice is merged
         medias,
+        price: '0', // Covalent doesn't provide spot pricing for NFT items
+        rarityRank: null, // Covalent doesn't provide rarity rank
         collection: {
-          address: covalentItem.contract_address,
-          network: chainIdToZapperNetwork(chainId),
+          id: covalentItem.contract_address,
+          chainId,
           name: covalentItem.contract_name,
-          nftStandard: covalentItem.type,
-          type: 'general',
-          floorPriceEth: null,
-          logoImageUrl: covalentItem.logo_url,
-          openseaId: null, // Doesn't exist in Covalent API
+          floorPrice: '0', // Covalent doesn't provide floor price
+          openseaId: null, // Covalent doesn't provide an openseaId
         },
       }
 
-      const v2NftUserItem: V2NftUserItem = {
-        balance: nftData.token_balance ?? '1',
-        token,
-      }
-
-      return v2NftUserItem
+      return item
     }) ?? []
   )
 }

@@ -4,8 +4,8 @@ import { logger } from 'lib/logger'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
-import type { V2NftUserItem } from '../zapper/validators'
 import { zapperApi } from '../zapper/zapperApi'
+import type { NftItem } from './types'
 
 type GetNftUserTokensInput = {
   accountIds: AccountId[]
@@ -17,7 +17,7 @@ export const nftApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'nftApi',
   endpoints: build => ({
-    getNftUserTokens: build.query<V2NftUserItem[], GetNftUserTokensInput>({
+    getNftUserTokens: build.query<NftItem[], GetNftUserTokensInput>({
       queryFn: async ({ accountIds }, { dispatch }) => {
         const sources = [
           zapperApi.endpoints.getZapperNftUserTokens,
@@ -27,7 +27,7 @@ export const nftApi = createApi({
         const results = await Promise.all(
           sources.map(source => dispatch(source.initiate({ accountIds }))),
         )
-        const data = results.reduce<V2NftUserItem[]>((acc, result) => {
+        const data = results.reduce<NftItem[]>((acc, result) => {
           if (result.data) {
             const { data } = result
             acc = acc.concat(data)

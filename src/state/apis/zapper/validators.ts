@@ -13,6 +13,8 @@ import type { Infer, Type } from 'myzod'
 import z from 'myzod'
 import { isNonEmpty, isUrl } from 'lib/utils'
 
+import type { CollectionItem, NftItem } from '../nft/types'
+
 export enum SupportedZapperNetwork {
   Avalanche = 'avalanche',
   BinanceSmartChain = 'binance-smart-chain',
@@ -704,6 +706,8 @@ const mediaSchema = z.object({
     }, 'Media filetype not supported'),
 })
 
+export type MediaUrl = Infer<typeof mediaSchema>
+
 const socialLinkSchema = z.object({
   name: z.string(),
   label: z.string(),
@@ -850,6 +854,34 @@ const V2AppResponse = z.object({
   supportedNetworks: z.array(V2AppSupportedNetworkResponse),
   groups: z.array(V2AppGroupResponse),
 })
+
+export const parseToNftUserItem = (zapperItem: V2NftUserItem, chainId: ChainId): NftItem => {
+  const {
+    token,
+    token: { lastSaleEth, medias, tokenId },
+    token: { collection },
+  } = zapperItem
+
+  const collectionItem: CollectionItem = {
+    id: collection?.address || '',
+    chainId,
+    name: collection?.name || '',
+    floorPrice: collection?.floorPriceEth || '',
+    openseaId: collection?.openseaId,
+  }
+
+  const nftItem: NftItem = {
+    id: tokenId,
+    name: token.name,
+    price: lastSaleEth || '',
+    chainId,
+    collection: collectionItem,
+    medias: medias || [],
+    rarityRank: token.rarityRank,
+  }
+
+  return nftItem
+}
 
 export const V2AppsResponse = z.array(V2AppResponse)
 export type V2AppResponseType = Infer<typeof V2AppResponse>

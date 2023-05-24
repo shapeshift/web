@@ -85,7 +85,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
     { skip: !collectionAddresses?.length },
   )
 
-  const mediaUrl = nftItem.medias?.[0].originalUrl
+  const mediaUrl = nftItem.medias[0]?.originalUrl
   const mediaType = getMediaType(mediaUrl)
   const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
 

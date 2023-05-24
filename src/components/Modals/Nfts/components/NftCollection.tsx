@@ -7,11 +7,15 @@ import type { NftCollectionItem } from 'state/apis/nft/types'
 
 type NftCollectionProps = Pick<NftCollectionItem, 'socialLinks' | 'description' | 'name'>
 
-export const NftCollection: React.FC<NftCollectionProps> = ({ socialLinks, description, name }) => {
+export const NftCollection: React.FC<NftCollectionProps> = ({
+  socialLinks,
+  description,
+  name: collectionName,
+}) => {
   const translate = useTranslate()
 
   const socialLinkPills = useMemo(() => {
-    if (!socialLinks) return null
+    if (!socialLinks.length) return null
     return (
       <Flex gap={2} flexWrap='wrap'>
         {socialLinks.map(link => (
@@ -33,8 +37,8 @@ export const NftCollection: React.FC<NftCollectionProps> = ({ socialLinks, descr
 
   return (
     <Flex gap={4} flexDir='column' px={8} py={6}>
-      <Text fontWeight='medium'>{translate('nft.aboutCollection', { name })}</Text>
-      {description && <ParsedHtml color='gray.500' innerHtml={markdownLinkToHTML(description)} />}
+      <Text fontWeight='medium'>{translate('nft.aboutCollection', { collectionName })}</Text>
+      <ParsedHtml color='gray.500' innerHtml={markdownLinkToHTML(description || '')} />
       {socialLinkPills}
     </Flex>
   )

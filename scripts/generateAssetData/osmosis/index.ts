@@ -87,6 +87,10 @@ export const getAssets = async (): Promise<Asset[]> => {
     const acc = await accPrevious
     if (!current) return acc
 
+    if (current.base.startsWith('factory')) {
+      return acc
+    }
+
     const denom = current.denom_units.find(item => item.denom === current.display)
     const precision = denom?.exponent ?? 6
 
@@ -95,18 +99,12 @@ export const getAssets = async (): Promise<Asset[]> => {
         return { assetNamespace: 'native' as const, assetReference: current.base }
       }
 
-      if (current.base.startsWith('factory')) {
-        return { assetNamespace: '', assetReference: '' }
-      }
-
       if (current.base.startsWith('ibc')) {
         return { assetNamespace: 'ibc' as const, assetReference: current.base.split('/')[1] }
       }
 
       return { assetNamespace: 'slip44' as const, assetReference: ASSET_REFERENCE.Osmosis }
     })()
-
-    if (assetNamespace === '' || assetReference === '') return acc
 
     // if an asset has an ibc object, it's bridged, so label it as e.g. ATOM on Osmosis
     const getAssetName = (a: OsmoAsset): string =>

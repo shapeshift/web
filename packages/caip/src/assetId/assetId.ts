@@ -161,7 +161,7 @@ export const fromAssetId: FromAssetId = assetId => {
 }
 
 export const deserializeNftAssetReference = (
-  assetReference: string
+  assetReference: string,
 ): [address: string, id: string] => {
   const [address, id] = assetReference.split('/')
   return [address, id]

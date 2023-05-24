@@ -1,8 +1,7 @@
 // Snapshotted as this data is actually deterministic
 
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-
 import type { OpportunityMetadata, StakingId } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 
 export enum IdleTag {
   BestYield = 'Best Yield',

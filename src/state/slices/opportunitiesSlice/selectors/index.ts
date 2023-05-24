@@ -11,6 +11,8 @@ import type { GetOpportunityUserDataInput } from '../types'
 export * from './combined'
 export * from './lpSelectors'
 export * from './stakingSelectors'
+// Don't export me - this will produce circular deps
+// export * from './readonly'
 
 const selectOpportunitiesApiQueries = (state: ReduxState) => state.opportunitiesApi.queries
 

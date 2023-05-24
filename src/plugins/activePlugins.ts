@@ -7,6 +7,7 @@ import cosmos from 'plugins/cosmos'
 import dogecoin from 'plugins/dogecoin'
 import ethereum from 'plugins/ethereum'
 import foxPage from 'plugins/foxPage'
+import gnosis from 'plugins/gnosis'
 import litecoin from 'plugins/litecoin'
 import mobile from 'plugins/mobile'
 import optimism from 'plugins/optimism'
@@ -25,6 +26,7 @@ export const activePlugins = [
   foxPage,
   osmosis,
   polygon,
+  gnosis,
   avalanche,
   walletConnectToDapps,
   thorchain,

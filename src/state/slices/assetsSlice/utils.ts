@@ -48,6 +48,8 @@ export const chainIdFeeAssetReferenceMap = (
             return ASSET_REFERENCE.BnbSmartChain
           case CHAIN_REFERENCE.PolygonMainnet:
             return ASSET_REFERENCE.Polygon
+          case CHAIN_REFERENCE.GnosisMainnet:
+            return ASSET_REFERENCE.Gnosis
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

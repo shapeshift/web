@@ -3,11 +3,12 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { DefiAction, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { useMemo, useState } from 'react'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { DefiType } from 'state/slices/opportunitiesSlice/types'
 
 import { OsmosisLpDeposit } from './Lp/Deposit/OsmosisLpDeposit'
 import { OsmosisLpOverview } from './Lp/Overview/OsmosisLpOverview'

@@ -5,6 +5,7 @@ import {
   supportsAvalanche,
   supportsBSC,
   supportsETH,
+  supportsGnosis,
   supportsOptimism,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
@@ -36,7 +37,7 @@ import type {
 import { ValidAddressResultType } from '../types'
 import { getAssetNamespace, toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
-import type { avalanche, bnbsmartchain, ethereum, optimism, polygon } from '.'
+import type { avalanche, bnbsmartchain, ethereum, gnosis, optimism, polygon } from '.'
 import type { BuildCustomTxInput, EstimateGasRequest, Fees, GasFeeDataEstimate } from './types'
 import { getErc20Data } from './utils'
 
@@ -46,6 +47,7 @@ export const evmChainIds = [
   KnownChainIds.OptimismMainnet,
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.PolygonMainnet,
+  KnownChainIds.GnosisMainnet,
 ] as const
 
 export type EvmChainId = typeof evmChainIds[number]
@@ -56,6 +58,7 @@ export type EvmChainAdapter =
   | optimism.ChainAdapter
   | bnbsmartchain.ChainAdapter
   | polygon.ChainAdapter
+  | gnosis.ChainAdapter
 
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,
@@ -141,6 +144,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         return supportsOptimism(wallet)
       case Number(fromChainId(KnownChainIds.PolygonMainnet).chainReference):
         return supportsPolygon(wallet)
+      case Number(fromChainId(KnownChainIds.GnosisMainnet).chainReference):
+        return supportsGnosis(wallet)
       default:
         return false
     }
@@ -178,6 +183,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Polygon',
         symbol: 'MATIC',
         explorer: 'https://polygonscan.com/',
+      },
+      [KnownChainIds.GnosisMainnet]: {
+        name: 'xDAI',
+        symbol: 'xDAI',
+        explorer: 'https://gnosisscan.io/',
       },
       [KnownChainIds.EthereumMainnet]: {
         name: 'Ethereum',

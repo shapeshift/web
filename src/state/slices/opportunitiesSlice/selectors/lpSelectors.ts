@@ -23,8 +23,9 @@ import {
 } from '../../common-selectors'
 import { selectSelectedCurrencyMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
 import { getUnderlyingAssetIdsBalances } from '../utils'
-import type { LpEarnOpportunityType, StakingEarnOpportunityType } from './../types'
+import type { LpEarnOpportunityType } from './../types'
 
+export const selectLpIds = (state: ReduxState) => state.opportunities.lp.ids
 export const selectLpOpportunitiesById = (state: ReduxState) => state.opportunities.lp.byId
 
 // A user LpOpportunity, parsed as an EarnOpportunityType
@@ -116,7 +117,7 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
     aggregatedLpAssetBalance,
     assets,
     marketData,
-  ): StakingEarnOpportunityType | undefined => {
+  ): LpEarnOpportunityType | undefined => {
     if (!lpId || !aggregatedLpAssetBalance) return
 
     const marketDataPrice = marketData[lpId as AssetId]?.price

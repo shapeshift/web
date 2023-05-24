@@ -5,6 +5,7 @@ import {
   supportsAvalanche,
   supportsBSC,
   supportsETH,
+  supportsGnosis,
   supportsOptimism,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
@@ -43,6 +44,10 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
 
       if (chainReference === CHAIN_REFERENCE.PolygonMainnet) {
         if (!supportsPolygon(wallet)) continue
+      }
+
+      if (chainReference === CHAIN_REFERENCE.GnosisMainnet) {
+        if (!supportsGnosis(wallet)) continue
       }
 
       const bip44Params = adapter.getBIP44Params({ accountNumber })

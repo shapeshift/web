@@ -3,11 +3,10 @@ import type { MarketData } from '@shapeshiftoss/types'
 import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { fetchUniV2PairData, getOrCreateContractByAddress } from 'contracts/contractManager'
 import dayjs from 'dayjs'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
-import { selectMarketDataById } from 'state/slices/selectors'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 
 import {
   assertIsFoxEthStakingContractAddress,
@@ -21,6 +20,7 @@ import type {
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId } from '../../utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
 import { makeTotalLpApr, rewardRatePerToken } from './utils'

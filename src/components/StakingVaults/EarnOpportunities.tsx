@@ -11,6 +11,7 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
@@ -64,7 +65,14 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   )
 
   const handleClick = (opportunity: EarnOpportunityType) => {
-    const { type, provider, contractAddress, chainId, assetId, rewardAddress } = opportunity
+    const { isReadOnly, type, provider, contractAddress, chainId, assetId, rewardAddress } =
+      opportunity
+
+    if (isReadOnly) {
+      const url = getMetadataForProvider(opportunity.provider)?.url
+      url && window.open(url, '_blank')
+    }
+
     const { assetReference, assetNamespace } = fromAssetId(assetId)
     if (!isConnected) {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })

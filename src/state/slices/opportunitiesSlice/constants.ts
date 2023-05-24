@@ -8,9 +8,11 @@ import {
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V5,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V6,
 } from 'contracts/constants'
+import IdleFinanceLogo from 'assets/idle-finance.png'
 import { getTypeGuardAssertion } from 'lib/utils'
 
-import type { LpId, StakingId } from './types'
+import type { DefiProviderMetadata, LpId, StakingId } from './types'
+import { DefiProvider } from './types'
 
 // UniswapV2Router02 https://docs.uniswap.org/protocol/V2/reference/smart-contracts/router-02
 export const uniswapV2Router02AssetId: AssetId =
@@ -77,3 +79,54 @@ export const STAKING_ID_TO_VERSION = {
 }
 
 export const STAKING_ID_DELIMITER = '*'
+
+export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadata> = {
+  [DefiProvider.Idle]: {
+    provider: DefiProvider.Idle,
+    icon: IdleFinanceLogo,
+    color: '#1B14DC',
+    url: 'https://idle.finance',
+  },
+  [DefiProvider.Yearn]: {
+    provider: DefiProvider.Yearn,
+    icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e/logo.png',
+    color: '#000',
+    url: 'https://yearn.finance',
+  },
+  [DefiProvider.ShapeShift]: {
+    provider: DefiProvider.ShapeShift,
+    icon: 'https://assets.coincap.io/assets/icons/256/fox.png',
+    color: '#3761F9',
+    url: 'https://app.shapeshift.com',
+  },
+  [DefiProvider.EthFoxStaking]: {
+    provider: DefiProvider.EthFoxStaking,
+    icon: 'https://assets.coincap.io/assets/icons/256/fox.png',
+    color: '#00CD98',
+    url: 'https://app.shapeshift.com',
+  },
+  [DefiProvider.UniV2]: {
+    provider: DefiProvider.UniV2,
+    icon: 'https://assets.coingecko.com/coins/images/12504/thumb/uniswap-uni.png?1600306604',
+    color: '#FD0078',
+    url: 'https://app.uniswap.org',
+  },
+  [DefiProvider.CosmosSdk]: {
+    provider: DefiProvider.CosmosSdk,
+    icon: 'https://assets.coincap.io/assets/icons/256/atom.png',
+    color: '#C5B5F2',
+    url: 'https://app.shapeshift.com',
+  },
+  [DefiProvider.OsmosisLp]: {
+    provider: DefiProvider.OsmosisLp,
+    icon: 'https://rawcdn.githack.com/cosmos/chain-registry/6561270d8e1f169774a3857756e9aecbbd762eb4/osmosis/images/osmo.png',
+    color: '#6A02B5',
+    url: 'https://app.osmosis.zone',
+  },
+  [DefiProvider.ThorchainSavers]: {
+    provider: DefiProvider.ThorchainSavers,
+    icon: 'https://assets.coincap.io/assets/icons/rune@2x.png',
+    color: '#0CDBE0',
+    url: 'https://app.shapeshift.com',
+  },
+}

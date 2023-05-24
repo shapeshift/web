@@ -6,6 +6,7 @@
     "error": "Error",
     "cancel": "Cancelar",
     "close": "Cerrar",
+    "loadMore": "Cargar más",
     "new": "Nueva",
     "continue": "Continuar",
     "reward": "Recompensa",
@@ -101,7 +102,8 @@
     "manage": "Administre",
     "selectedAccount": "Cuenta Seleccionada",
     "allChains": "Todas las cadenas",
-    "wallet": "Billetera"
+    "wallet": "Billetera",
+    "action": "Acción"
   },
   "consentBanner": {
     "body": {
@@ -696,6 +698,7 @@
       "broadcastFailed": "Ocurrió un error al transmitir la transacción",
       "insufficientFundsForLimit": "Fondos insuficientes. El monto mínimo de operación para este par es %{minLimit}",
       "insufficientFundsForAmount": "Fondos insuficientes. Tu %{symbol} el saldo es menor que la cantidad seleccionada",
+      "insufficientFundsForProtocolFee": "%{symbol} insuficiente en %{chainName} para las tarifas",
       "invalidTradePair": "Par comercial no válido: %{sellAssetName} y %{buyAssetName}",
       "invalidTradePairBtnText": "Par de intercambio no válido",
       "noLiquidityError": "No hay suficiente liquidez disponible",
@@ -733,11 +736,12 @@
     "swappingComingSoonForWallet": "El intercambio por %{walletName} llegará pronto",
     "recentTrades": "Operaciones Recientes",
     "lifiWarning": "Esta operación se enruta a través de LI.FI, el cual ejecuta operaciones intermediarias para realizar un intercambio. Si un paso falla, recibirá el token del último paso exitoso en la secuencia.",
-    "intermediaryTransactionOutputs": {
-      "prefix": "o",
-      "suffix": "en %{chainName}"
-    },
-    "unknownGas": "(desconocido)"
+    "or": "o",
+    "onChainName": "en %{chainName}",
+    "unknownGas": "(desconocido)",
+    "receiveAddress": "Dirección de recepción",
+    "receiveAddressDescription": "No dirección %{chainName} en billetera conectada. Introduzca manualmente para continuar",
+    "addressPlaceholder": "Dirección %{chainName}"
   },
   "modals": {
     "popup": {

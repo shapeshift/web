@@ -875,6 +875,7 @@ export const parseToNftItem = (zapperItem: V2NftUserItem, chainId: ChainId): Nft
     name: collection?.name || '',
     floorPrice: collection?.floorPriceEth || '',
     openseaId: collection?.openseaId || null,
+    socialLinks: [], // Not supported by the /v2/nft/user/tokens endpoint
   }
 
   const nftItem: NftItem = {

@@ -290,6 +290,7 @@ export const zapperApi = createApi({
             floorPrice: item.collection.floorPriceEth,
             openseaId: item.collection.openseaId,
             description: item.collection.description,
+            socialLinks: item.collection.socialLinks,
           }
         })
 

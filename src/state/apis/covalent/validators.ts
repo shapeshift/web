@@ -238,6 +238,16 @@ export const parseToNftUserItem = (
           description: nftData.external_data?.description || '',
           floorPrice: null, // Covalent doesn't provide floor price
           openseaId: null, // Covalent doesn't provide an openseaId
+          socialLinks: nftData.external_data?.external_url
+            ? [
+                {
+                  name: 'website',
+                  label: 'Website',
+                  url: nftData.external_data.external_url,
+                  logoUrl: '',
+                },
+              ]
+            : [],
         },
       }
 

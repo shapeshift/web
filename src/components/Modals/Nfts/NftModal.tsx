@@ -76,7 +76,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const accountIds = useAppSelector(selectWalletAccountIds)
 
   const collectionAddresses = useMemo(
-    () => [fromAssetId(nftItem.collection.id).assetReference],
+    () => (nftItem.collection.id ? [fromAssetId(nftItem.collection.id).assetReference] : []),
     [nftItem?.collection?.id],
   )
 
@@ -247,9 +247,10 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   ])
 
   const nftModalDetails = useMemo(() => {
+    if (!nftCollection) return null
+
     const hasUsefulCollectionData = Boolean(
-      nftCollection?.[0]?.collection.description ||
-        nftCollection?.[0]?.collection?.socialLinks?.length,
+      nftCollection?.[0]?.description || nftCollection?.[0]?.socialLinks?.length,
     )
     return (
       <Tabs display='flex' flexDir='column' position='relative' variant='unstyled' flex={1}>
@@ -263,11 +264,11 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
         </Box>
         <TabPanels maxHeight={{ base: 'auto', md: '500px' }} overflowY='auto' flex={1}>
           <TabPanel p={0}>
-            <NftOverview nftItem={nftItem} nftCollection={nftCollection} />
+            <NftOverview nftItem={nftItem} nftCollection={nftCollection[0]} />
           </TabPanel>
           {hasUsefulCollectionData && (
             <TabPanel p={0}>
-              <NftCollection zapperCollection={nftCollection} />
+              <NftCollection nftCollection={nftCollection[0]} />
             </TabPanel>
           )}
         </TabPanels>
@@ -283,6 +284,8 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
       </Flex>
     )
   }, [nftModalOverview, nftModalDetails])
+
+  if (!nftCollection) return null
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} isCentered={isLargerThanMd}>

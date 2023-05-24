@@ -13,6 +13,12 @@ export type NftCollectionItem = {
   floorPrice: string | null
   openseaId: string | null
   description: string | null
+  socialLinks: {
+    name: string
+    label: string
+    url: string
+    logoUrl: string
+  }[]
 }
 
 export type NftItem = {

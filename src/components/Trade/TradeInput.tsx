@@ -44,7 +44,6 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { ProtocolFee } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
-import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import {
   selectSwapperApiPending,
   selectSwapperApiTradeQuotePending,
@@ -61,7 +60,7 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 import {
   selectFeeAssetFiatRate,
   selectQuoteBuyAmountCryptoPrecision,
@@ -105,9 +104,7 @@ export const TradeInput = () => {
   const [showQuotes, toggleShowQuotes] = useToggle(false)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const isTradeRatesEnabled = useFeatureFlag('TradeRates')
-  const { getAvailableSwappers } = getSwappersApi.endpoints
   const { tradeQuoteArgs } = useTradeQuoteService()
-  const dispatch = useAppDispatch()
   const [isManualAddressEntryValidating, setIsManualAddressEntryValidating] = useState(false)
   const isYatFeatureEnabled = useFeatureFlag('Yat')
 
@@ -263,55 +260,45 @@ export const TradeInput = () => {
     [action, amount, updateAction, updateIsSendMax, updateAmount, handleInputAmountChange],
   )
 
-  const handleSendMax: TradeAssetInputProps['onPercentOptionClick'] = useCallback(async () => {
-    if (!(sellAsset && activeQuote)) return
+  useEffect(() => {
+    if (!isSendMax) return
 
-    // Network fee is a function of the sell amount, so we need a quote for an arbitrarily high sell amount to ensure
-    // we get a workable max amount
-    const availableSwapperTypesWithQuoteMetadata =
-      tradeQuoteArgs && feeAsset
-        ? (
-            await dispatch(
-              getAvailableSwappers.initiate({
-                ...tradeQuoteArgs,
-                sellAmountBeforeFeesCryptoBaseUnit: '10000000', // arbitrarily high sell amount for max send quote
-              }),
-            )
-          ).data
-        : undefined
-
-    const maxQuote = availableSwapperTypesWithQuoteMetadata?.[0]?.quote
-
-    const maxSendAmount = maxQuote
+    const maxSendAmount = activeQuote
       ? bnOrZero(
-          getSendMaxAmount(sellAsset, sellFeeAsset, maxQuote, sellAssetBalanceCryptoBaseUnit),
+          getSendMaxAmount(sellAsset, sellFeeAsset, activeQuote, sellAssetBalanceCryptoBaseUnit),
         )
           .times(0.99) // reduce the computed amount by 1% to ensure we don't exceed the max
           .toFixed()
       : '0'
-    updateAction(TradeAmountInputField.SELL_CRYPTO)
-    updateIsSendMax(true)
-    updateAmount(maxSendAmount)
-    handleInputAmountChange()
 
-    if (availableSwapperTypesWithQuoteMetadata) {
-      updateTradeAmountsFromQuote()
-    }
+    if (maxSendAmount === amount) return
+
+    updateAmount(maxSendAmount)
   }, [
-    sellAsset,
     activeQuote,
+    amount,
+    isSendMax,
+    sellAsset,
+    sellAssetBalanceCryptoBaseUnit,
     sellFeeAsset,
+    updateAmount,
+  ])
+
+  const handleSendMax = useCallback(() => {
+    if (isSendMax) return
+    updateIsSendMax(true)
+    updateAction(TradeAmountInputField.SELL_CRYPTO)
+    updateAmount(sellAssetBalanceCryptoBaseUnit)
+    handleInputAmountChange()
+  }, [
+    isSendMax,
+    handleInputAmountChange,
     sellAssetBalanceCryptoBaseUnit,
     updateAction,
-    updateIsSendMax,
-    tradeQuoteArgs,
-    feeAsset,
-    dispatch,
-    getAvailableSwappers,
     updateAmount,
-    handleInputAmountChange,
-    updateTradeAmountsFromQuote,
+    updateIsSendMax,
   ])
+
   const onSubmit = useCallback(async () => {
     setIsLoading(true)
     try {
@@ -596,23 +583,17 @@ export const TradeInput = () => {
     }
   }, [isBelowMinSellAmount, feesExceedsSellAmount])
 
-  const handleSellAssetClick = useCallback(
-    (asset: Asset) => handleAssetClick(asset, AssetClickAction.Sell),
-    [handleAssetClick],
-  )
-
-  const handleBuyAssetClick = useCallback(
-    (asset: Asset) => handleAssetClick(asset, AssetClickAction.Buy),
-    [handleAssetClick],
-  )
-
   const handleInputAssetClick = useCallback(
     (action: AssetClickAction) => {
       // prevent opening the asset selection while they are being populated
       if (!isSwapperInitialized) return
 
       assetSearch.open({
-        onClick: action === AssetClickAction.Sell ? handleSellAssetClick : handleBuyAssetClick,
+        onClick: (asset: Asset) => {
+          // changing assets resets max send
+          updateIsSendMax(false)
+          handleAssetClick(asset, action)
+        },
         title: action === AssetClickAction.Sell ? 'trade.tradeFrom' : 'trade.tradeTo',
         assets:
           action === AssetClickAction.Sell
@@ -625,10 +606,26 @@ export const TradeInput = () => {
       isSwapperInitialized,
       supportedBuyAssetsByMarketCap,
       supportedSellAssetsByMarketCap,
-      handleSellAssetClick,
-      handleBuyAssetClick,
+      handleAssetClick,
+      updateIsSendMax,
     ],
   )
+
+  const handleSellAssetClick = useCallback(
+    () => handleInputAssetClick(AssetClickAction.Sell),
+    [handleInputAssetClick],
+  )
+
+  const handleBuyAssetClick = useCallback(
+    () => handleInputAssetClick(AssetClickAction.Buy),
+    [handleInputAssetClick],
+  )
+
+  const handleSwitchAssetsClick = useCallback(() => {
+    // switching assets resets max send
+    updateIsSendMax(false)
+    handleSwitchAssets()
+  }, [handleSwitchAssets, updateIsSendMax])
 
   const tradeStateLoading = useMemo(
     () =>
@@ -706,11 +703,11 @@ export const TradeInput = () => {
               accountId={sellAssetAccountId}
               onAccountIdChange={handleSellAccountIdChange}
               assetId={sellAsset?.assetId}
-              onAssetClick={() => handleInputAssetClick(AssetClickAction.Sell)}
+              onAssetClick={handleSellAssetClick}
               label={translate('trade.from')}
             />
             <IconButton
-              onClick={handleSwitchAssets}
+              onClick={handleSwitchAssetsClick}
               isRound
               mx={{ base: 0, md: -3 }}
               my={{ base: -3, md: 0 }}
@@ -730,7 +727,7 @@ export const TradeInput = () => {
             <TradeAssetSelect
               accountId={buyAssetAccountId}
               assetId={buyAsset?.assetId}
-              onAssetClick={() => handleInputAssetClick(AssetClickAction.Buy)}
+              onAssetClick={handleBuyAssetClick}
               onAccountIdChange={handleBuyAccountIdChange}
               accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
               label={translate('trade.to')}

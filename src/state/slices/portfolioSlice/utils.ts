@@ -12,6 +12,7 @@ import {
   fromAccountId,
   fromAssetId,
   fromChainId,
+  gnosisChainId,
   ltcChainId,
   optimismChainId,
   osmosisChainId,
@@ -27,6 +28,7 @@ import {
   supportsBTC,
   supportsCosmos,
   supportsETH,
+  supportsGnosis,
   supportsOptimism,
   supportsPolygon,
   supportsThorchain,
@@ -65,6 +67,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case optimismChainId:
     case ethChainId:
     case polygonChainId:
+    case gnosisChainId:
     case bscChainId:
       // this will be the 0x account
       return firstFourLastFour(pubkey)
@@ -265,6 +268,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsBSC(wallet)
     case polygonChainId:
       return supportsPolygon(wallet)
+    case gnosisChainId:
+      return supportsGnosis(wallet)
     case btcChainId:
     case ltcChainId:
     case dogeChainId:

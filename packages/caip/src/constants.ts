@@ -11,6 +11,7 @@ export const avalancheAssetId: AssetId = 'eip155:43114/slip44:60'
 export const optimismAssetId: AssetId = 'eip155:10/slip44:60'
 export const bscAssetId: AssetId = 'eip155:56/slip44:60'
 export const polygonAssetId: AssetId = 'eip155:137/slip44:60'
+export const gnosisAssetId: AssetId = 'eip155:100/slip44:60'
 export const foxAssetId: AssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
 export const foxyAssetId: AssetId = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3'
 
@@ -32,6 +33,7 @@ export const avalancheChainId: ChainId = 'eip155:43114'
 export const optimismChainId: ChainId = 'eip155:10'
 export const bscChainId: ChainId = 'eip155:56'
 export const polygonChainId: ChainId = 'eip155:137'
+export const gnosisChainId: ChainId = 'eip155:100'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const osmosisChainId: ChainId = 'cosmos:osmosis-1'
@@ -80,6 +82,7 @@ export const CHAIN_REFERENCE = {
   OptimismMainnet: '10', //https://community.optimism.io/docs/useful-tools/networks/#optimism-mainnet
   BnbSmartChainMainnet: '56', // https://docs.bnbchain.org/docs/wallet_api/#chain-ids
   PolygonMainnet: '137', // https://wiki.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/
+  GnosisMainnet: '100', // https://docs.gnosischain.com/tools/wallets/metamask/
 } as const
 
 export const ASSET_NAMESPACE = {
@@ -113,6 +116,7 @@ export const ASSET_REFERENCE = {
   Optimism: '60', // evm chain which uses ethereum derivation path as common practice
   BnbSmartChain: '60', // evm chain which uses ethereum derivation path as common practice
   Polygon: '60', // evm chain which uses ethereum derivation path as common practice
+  Gnosis: '60', // evm chain which uses ethereum derivation path as common practice
 } as const
 
 export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
@@ -131,6 +135,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.OptimismMainnet,
     CHAIN_REFERENCE.BnbSmartChainMainnet,
     CHAIN_REFERENCE.PolygonMainnet,
+    CHAIN_REFERENCE.GnosisMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,

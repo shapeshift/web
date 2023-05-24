@@ -46,7 +46,7 @@ import type {
 } from './validators'
 import {
   chainIdToZapperNetwork,
-  parseToNftUserItem,
+  parseToNftItem,
   V2AppsBalancesResponse,
   V2AppsResponse,
   V2AppTokensResponse,
@@ -261,7 +261,7 @@ export const zapperApi = createApi({
           const chainId = zapperNetworkToChainId(
             v2NftItem.token.collection.network as SupportedZapperNetwork,
           )!
-          return parseToNftUserItem(v2NftItem, chainId)
+          return parseToNftItem(v2NftItem, chainId)
         })
         return { data: parsedData }
       },

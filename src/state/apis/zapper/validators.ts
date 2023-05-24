@@ -855,7 +855,7 @@ const V2AppResponse = z.object({
   groups: z.array(V2AppGroupResponse),
 })
 
-export const parseToNftUserItem = (zapperItem: V2NftUserItem, chainId: ChainId): NftItem => {
+export const parseToNftItem = (zapperItem: V2NftUserItem, chainId: ChainId): NftItem => {
   const {
     token,
     token: { lastSaleEth, medias, tokenId },

@@ -14,7 +14,7 @@ import type { CovalentNftUserTokensResponseType } from './validators'
 import {
   chainIdToCovalentNetwork,
   covalentNetworkToChainId,
-  parseToNftUserItem,
+  parseToNftUserItem as parseToNftItem,
 } from './validators'
 
 const COVALENT_BASE_URL = 'https://api.covalenthq.com/v1'
@@ -67,7 +67,7 @@ export const covalentApi = createApi({
               const parsedData = nftUserItems.flatMap(nftUserItem => {
                 // Actually defined since we're passing supported EVM networks AccountIds
                 const chainId = covalentNetworkToChainId(network!)!
-                return parseToNftUserItem(nftUserItem, chainId)
+                return parseToNftItem(nftUserItem, chainId)
               })
 
               data = data.concat(parsedData)

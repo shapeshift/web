@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, AssetNamespace, ChainId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
   avalancheChainId,
@@ -863,7 +863,13 @@ export const parseToNftUserItem = (zapperItem: V2NftUserItem, chainId: ChainId):
   } = zapperItem
 
   const collectionItem: CollectionItem = {
-    id: collection?.address || '',
+    id: collection?.address
+      ? toAssetId({
+          assetReference: collection.address,
+          assetNamespace: collection.nftStandard as AssetNamespace,
+          chainId,
+        })
+      : '',
     chainId,
     name: collection?.name || '',
     floorPrice: collection?.floorPriceEth || '',

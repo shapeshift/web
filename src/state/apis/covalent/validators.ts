@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { polygonChainId } from '@shapeshiftoss/caip'
+import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
+import { polygonChainId, toAssetId } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import type { Infer } from 'myzod'
 import z from 'myzod'
@@ -222,7 +222,17 @@ export const parseToNftUserItem = (
         price: '0', // Covalent doesn't provide spot pricing for NFT items
         rarityRank: null, // Covalent doesn't provide rarity rank
         collection: {
-          id: covalentItem.contract_address,
+          id:
+            covalentItem.contract_address && covalentItem.supports_erc?.length
+              ? toAssetId({
+                  // Yeah, it's weird, but this is how Covalent does it
+                  assetReference: covalentItem.contract_address,
+                  assetNamespace: covalentItem.supports_erc[
+                    covalentItem.supports_erc.length - 1
+                  ] as AssetNamespace,
+                  chainId,
+                })
+              : '',
           chainId,
           name: covalentItem.contract_name,
           floorPrice: '0', // Covalent doesn't provide floor price

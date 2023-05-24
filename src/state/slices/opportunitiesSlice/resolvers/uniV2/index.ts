@@ -295,6 +295,8 @@ export const uniV2LpLpOpportunityIdsResolver = ({
   if (!DynamicLpAssets) return Promise.resolve({ data: [...foxEthLpAssetIds] })
 
   const zapperApiQueries = selectZapperFullfilled(state)
-  const uniV2AssetIds = (zapperApiQueries.find(query => Boolean(query?.data))?.data ?? []) as LpId[]
+  const uniV2AssetIds = (zapperApiQueries.find(
+    query => query?.endpointName === 'getZapperUniV2PoolAssetIds' && Boolean(query?.data),
+  )?.data ?? []) as LpId[]
   return Promise.resolve({ data: [...uniV2AssetIds] })
 }

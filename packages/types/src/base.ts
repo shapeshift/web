@@ -12,6 +12,7 @@ export enum KnownChainIds {
   OptimismMainnet = 'eip155:10',
   BnbSmartChainMainnet = 'eip155:56',
   PolygonMainnet = 'eip155:137',
+  GnosisMainnet = 'eip155:100',
   BitcoinMainnet = 'bip122:000000000019d6689c085ae165831e93',
   BitcoinCashMainnet = 'bip122:000000000000000000651ef99cb9fcbe',
   DogecoinMainnet = 'bip122:00000000001a91e3dace36e2be3bf030',

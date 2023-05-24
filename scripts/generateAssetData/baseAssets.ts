@@ -2,11 +2,14 @@ import * as caip from '@shapeshiftoss/caip'
 
 import type { Asset } from '../../src/lib/asset-service'
 
-export const ethereum: Asset = {
+type AssetWithNetworkName = Asset & { networkName: string }
+
+export const ethereum: AssetWithNetworkName = {
   assetId: caip.ethAssetId,
   chainId: caip.ethChainId,
   symbol: 'ETH',
   name: 'Ethereum',
+  networkName: 'Ethereum',
   precision: 18,
   color: '#5C6BC0',
   icon: 'https://assets.coincap.io/assets/icons/256/eth.png',
@@ -15,11 +18,12 @@ export const ethereum: Asset = {
   explorerTxLink: 'https://etherscan.io/tx/',
 }
 
-export const bitcoin: Asset = {
+export const bitcoin: AssetWithNetworkName = {
   assetId: caip.btcAssetId,
   chainId: caip.btcChainId,
   symbol: 'BTC',
   name: 'Bitcoin',
+  networkName: 'Bitcoin',
   precision: 8,
   color: '#FF9800',
   icon: 'https://assets.coincap.io/assets/icons/256/btc.png',
@@ -28,11 +32,12 @@ export const bitcoin: Asset = {
   explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
 }
 
-export const bitcoincash: Asset = {
+export const bitcoincash: AssetWithNetworkName = {
   assetId: caip.bchAssetId,
   chainId: caip.bchChainId,
   symbol: 'BCH',
   name: 'Bitcoin Cash',
+  networkName: 'Bitcoin Cash',
   precision: 8,
   color: '#8BC34A',
   icon: 'https://assets.coincap.io/assets/icons/256/bch.png',
@@ -41,11 +46,12 @@ export const bitcoincash: Asset = {
   explorerTxLink: 'https://blockchair.com/bitcoin-cash/transaction/',
 }
 
-export const dogecoin: Asset = {
+export const dogecoin: AssetWithNetworkName = {
   assetId: caip.dogeAssetId,
   chainId: caip.dogeChainId,
   symbol: 'DOGE',
   name: 'Dogecoin',
+  networkName: 'Dogecoin',
   precision: 8,
   color: '#FFC107',
   icon: 'https://assets.coincap.io/assets/icons/256/doge.png',
@@ -54,11 +60,12 @@ export const dogecoin: Asset = {
   explorerTxLink: 'https://live.blockcypher.com/doge/tx/',
 }
 
-export const litecoin: Asset = {
+export const litecoin: AssetWithNetworkName = {
   assetId: caip.ltcAssetId,
   chainId: caip.ltcChainId,
   symbol: 'LTC',
   name: 'Litecoin',
+  networkName: 'Litecoin',
   precision: 8,
   color: '#B8B8B8',
   icon: 'https://assets.coincap.io/assets/icons/256/ltc.png',
@@ -67,11 +74,12 @@ export const litecoin: Asset = {
   explorerTxLink: 'https://live.blockcypher.com/ltc/tx/',
 }
 
-export const atom: Asset = {
+export const atom: AssetWithNetworkName = {
   assetId: caip.cosmosAssetId,
   chainId: caip.cosmosChainId,
   symbol: 'ATOM',
   name: 'Cosmos',
+  networkName: 'Cosmos',
   precision: 6,
   color: '#303F9F',
   icon: 'https://assets.coincap.io/assets/icons/256/atom.png',
@@ -80,10 +88,11 @@ export const atom: Asset = {
   explorerTxLink: 'https://www.mintscan.io/cosmos/txs/',
 }
 
-export const osmosis: Asset = {
+export const osmosis: AssetWithNetworkName = {
   assetId: caip.osmosisAssetId,
   chainId: caip.osmosisChainId,
   symbol: 'OSMO',
+  networkName: 'Osmosis',
   name: 'Osmosis',
   precision: 6,
   color: '#750BBB',
@@ -93,10 +102,11 @@ export const osmosis: Asset = {
   explorerTxLink: 'https://www.mintscan.io/osmosis/txs/',
 }
 
-export const avax: Asset = {
+export const avax: AssetWithNetworkName = {
   assetId: caip.avalancheAssetId,
   chainId: caip.avalancheChainId,
   name: 'Avalanche',
+  networkName: 'Avalanche C-Chain',
   symbol: 'AVAX',
   precision: 18,
   color: '#FFFFFF', // this will get picked up by the color generation script,
@@ -106,10 +116,11 @@ export const avax: Asset = {
   explorerTxLink: 'https://snowtrace.io/tx/',
 }
 
-export const thorchain: Asset = {
+export const thorchain: AssetWithNetworkName = {
   assetId: caip.thorchainAssetId,
   chainId: caip.thorchainChainId,
   name: 'THORChain',
+  networkName: 'THORChain',
   symbol: 'RUNE',
   precision: 8,
   color: '#33FF99',
@@ -119,7 +130,7 @@ export const thorchain: Asset = {
   explorerTxLink: 'https://viewblock.io/thorchain/tx/',
 }
 
-export const optimism: Asset = {
+export const optimism: AssetWithNetworkName = {
   assetId: caip.optimismAssetId,
   chainId: caip.optimismChainId,
   name: 'Ethereum',
@@ -135,7 +146,7 @@ export const optimism: Asset = {
   explorerTxLink: 'https://optimistic.etherscan.io/tx/',
 }
 
-export const bnbsmartchain: Asset = {
+export const bnbsmartchain: AssetWithNetworkName = {
   assetId: caip.bscAssetId,
   chainId: caip.bscChainId,
   name: 'BNB',
@@ -149,10 +160,11 @@ export const bnbsmartchain: Asset = {
   explorerTxLink: 'https://bscscan.com/tx/',
 }
 
-export const polygon: Asset = {
+export const polygon: AssetWithNetworkName = {
   assetId: caip.polygonAssetId,
   chainId: caip.polygonChainId,
   name: 'Polygon',
+  networkName: 'Polygon',
   symbol: 'MATIC',
   precision: 18,
   color: '#8f00ff',
@@ -160,4 +172,18 @@ export const polygon: Asset = {
   explorer: 'https://polygonscan.com/',
   explorerAddressLink: 'https://polygonscan.com/address/',
   explorerTxLink: 'https://polygonscan.com/tx/',
+}
+
+export const gnosis: Asset = {
+  assetId: caip.gnosisAssetId,
+  chainId: caip.gnosisChainId,
+  name: 'xDAI',
+  networkName: 'Gnosis',
+  symbol: 'xDAI',
+  precision: 18,
+  color: '#33765c',
+  icon: 'https://assets.coingecko.com/coins/images/11062/large/Identity-Primary-DarkBG.png?1638372986',
+  explorer: 'https://gnosisscan.io/',
+  explorerAddressLink: 'https://gnosisscan.io/address/',
+  explorerTxLink: 'https://gnosisscan.io/tx/',
 }

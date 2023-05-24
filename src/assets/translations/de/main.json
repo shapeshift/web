@@ -6,6 +6,7 @@
     "error": "Fehler",
     "cancel": "Abbrechen",
     "close": "Schließen",
+    "loadMore": "Mehr laden",
     "new": "Neu",
     "continue": "Fortsetzen",
     "reward": "Belohnung",
@@ -101,7 +102,8 @@
     "manage": "Verwalten",
     "selectedAccount": "Ausgewähltes Konto",
     "allChains": "All Blockchains",
-    "wallet": "Wallet"
+    "wallet": "Wallet",
+    "action": "Aktion"
   },
   "consentBanner": {
     "body": {
@@ -696,6 +698,7 @@
       "broadcastFailed": "Beim Senden der Transaktion ist ein Fehler aufgetreten",
       "insufficientFundsForLimit": "Unzureichende Mittel. Der minimale Handelsbetrag für dieses Paar beträgt %{minLimit}",
       "insufficientFundsForAmount": "Unzureichende Mittel. Ihr %{symbol} Guthaben liegt unter dem ausgewählten Betrag",
+      "insufficientFundsForProtocolFee": "Nicht genügend %{symbol} auf %{chainName} für Gebühren",
       "invalidTradePair": "Ungültiges Handelspaar: %{sellAssetName} und %{buyAssetName}",
       "invalidTradePairBtnText": "Ungültiges Handelspaar",
       "noLiquidityError": "Nicht genügend Liquidität vorhanden",
@@ -733,11 +736,12 @@
     "swappingComingSoonForWallet": "Der Tausch gegen %{walletName} ist in Kürze verfügbar",
     "recentTrades": "Letzte Handelsaktionen",
     "lifiWarning": "Dieser Handel wird über LI.FI geleitet, das eine Reihe von Zwischengeschäften ausführt, um einen Swap durchzuführen. Wenn ein Schritt fehlschlägt, erhalten Sie das Token für den letzten erfolgreichen Schritt in der Sequenz.",
-    "intermediaryTransactionOutputs": {
-      "prefix": "oder",
-      "suffix": "auf %{chainName}"
-    },
-    "unknownGas": "(unbekannt)"
+    "or": "oder",
+    "onChainName": "auf %{chainName}",
+    "unknownGas": "(unbekannt)",
+    "receiveAddress": "Empfangsadresse ",
+    "receiveAddressDescription": "Keine %{chainName}-Adresse in verbundener Wallet gefunden. Geben Sie die Adresse manuell ein, um fortzufahren.",
+    "addressPlaceholder": "%{chainName} Adresse"
   },
   "modals": {
     "popup": {

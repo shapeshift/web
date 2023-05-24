@@ -217,7 +217,7 @@ export const parseToNftUserItem = (
       const item: NftItem = {
         name: covalentItem.contract_name,
         chainId,
-        id: nftData.token_id, // TODO(gomes): to AssetId once NFT asset slice is merged
+        id: nftData.token_id,
         medias,
         price: '0', // Covalent doesn't provide spot pricing for NFT items
         rarityRank: null, // Covalent doesn't provide rarity rank

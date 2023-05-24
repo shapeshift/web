@@ -74,26 +74,24 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const accountIds = useAppSelector(selectWalletAccountIds)
 
-  const collectionAddresses = useMemo(
-    () => (nftItem?.collection?.id ? [nftItem?.collection?.id] : []),
-    [nftItem?.collection?.id],
-  )
-  const { data: zapperCollection } = useGetZapperCollectionsQuery(
+  const collectionAddresses = useMemo(() => [nftItem.collection.id], [nftItem?.collection?.id])
+
+  const { data: nftCollection } = useGetZapperCollectionsQuery(
     { accountIds, collectionAddresses },
     { skip: !collectionAddresses?.length },
   )
 
-  const mediaUrl = nftItem?.medias?.[0]?.originalUrl
+  const mediaUrl = nftItem.medias?.[0].originalUrl
   const mediaType = getMediaType(mediaUrl)
   const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
 
   const name = nftItem.name
   const nftId = nftItem.id
-  const collectionName = nftItem.collection?.name
+  const collectionName = nftItem.collection.name
   const rarityRank = nftItem.rarityRank
   const floorPrice = nftItem.collection.floorPrice
   const price = nftItem.price
-  const openseaId = nftItem.collection?.openseaId
+  const openseaId = nftItem.collection.openseaId
   const chainId = nftItem.collection.chainId
   const maybeChainAdapter = getChainAdapterManager().get(chainId as ChainId)
   const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
@@ -221,10 +219,12 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
               </StatNumber>
             </Stat>
           )}
-          {price && (
+          {price && maybeFeeAsset && (
             <Stat>
               <StatLabel>{translate('nft.lastPrice')}</StatLabel>
-              <StatNumber>{price} ETH</StatNumber>
+              <StatNumber>
+                {price} {maybeFeeAsset.symbol}
+              </StatNumber>
             </Stat>
           )}
         </StatGroup>
@@ -244,8 +244,8 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
 
   const nftModalDetails = useMemo(() => {
     const hasUsefulCollectionData = Boolean(
-      zapperCollection?.[0]?.collection.description ||
-        zapperCollection?.[0]?.collection?.socialLinks?.length,
+      nftCollection?.[0]?.collection.description ||
+        nftCollection?.[0]?.collection?.socialLinks?.length,
     )
     return (
       <Tabs display='flex' flexDir='column' position='relative' variant='unstyled' flex={1}>
@@ -259,17 +259,17 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
         </Box>
         <TabPanels maxHeight={{ base: 'auto', md: '500px' }} overflowY='auto' flex={1}>
           <TabPanel p={0}>
-            <NftOverview nftItem={nftItem} nftCollection={zapperCollection} />
+            <NftOverview nftItem={nftItem} nftCollection={nftCollection} />
           </TabPanel>
           {hasUsefulCollectionData && (
             <TabPanel p={0}>
-              <NftCollection zapperCollection={zapperCollection} />
+              <NftCollection zapperCollection={nftCollection} />
             </TabPanel>
           )}
         </TabPanels>
       </Tabs>
     )
-  }, [modalHeaderBg, translate, zapperCollection, nftItem])
+  }, [modalHeaderBg, translate, nftCollection, nftItem])
 
   const nftModalContent = useMemo(() => {
     return (

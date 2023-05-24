@@ -26,6 +26,7 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import Placeholder from 'assets/placeholder.png'
@@ -74,7 +75,10 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const accountIds = useAppSelector(selectWalletAccountIds)
 
-  const collectionAddresses = useMemo(() => [nftItem.collection.id], [nftItem?.collection?.id])
+  const collectionAddresses = useMemo(
+    () => [fromAssetId(nftItem.collection.id).assetReference],
+    [nftItem?.collection?.id],
+  )
 
   const { data: nftCollection } = useGetZapperCollectionsQuery(
     { accountIds, collectionAddresses },
@@ -97,7 +101,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
   const maybeFeeAsset = useAppSelector(state => selectAssetById(state, maybeFeeAssetId ?? ''))
   const collectionOpenseaNetwork = chainIdToOpenseaNetwork(chainId as ChainId)
-  const collectionAddress = nftItem.collection?.id
+  const collectionAddress = collectionAddresses[0]
   const collectionLink = openseaId ? `https://opensea.io/collection/${openseaId}` : null
   const rarityDisplay = rarityRank ? `${rarityRank}${ordinalSuffix(rarityRank)}` : null
   const assetLink =

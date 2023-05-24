@@ -9,6 +9,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
 import Placeholder from 'assets/placeholder.png'
 import PlaceholderDrk from 'assets/placeholder-drk.png'
@@ -52,7 +53,7 @@ export const NftCard: React.FC<NftCardProps> = ({ nftItem }) => {
       name: nftItem.name,
       id: nftItem.id,
       collectionName: nftItem.collection.name,
-      collectionAddress: nftItem.collection.id,
+      collectionAddress: fromAssetId(nftItem.collection.id).assetReference,
       price: nftItem.price,
       collectionFloorPrice: nftItem.collection.floorPrice,
       nftMediaUrls: (nftItem.medias ?? []).map(media => media.originalUrl),

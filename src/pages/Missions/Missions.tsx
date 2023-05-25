@@ -1,4 +1,4 @@
-import { Box, chakra, Container, DarkMode, Heading, useColorModeValue } from '@chakra-ui/react'
+import { Box, chakra, Container, DarkMode, Heading } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import FoxMissionsBg from 'assets/fox-missions-bg.jpg'

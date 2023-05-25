@@ -40,7 +40,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import type { NftItem } from 'state/apis/nft/types'
 import { chainIdToOpenseaNetwork } from 'state/apis/nft/utils'
 import { getMediaType } from 'state/apis/zapper/validators'
-import { useGetZapperCollectionsQuery } from 'state/apis/zapper/zapperApi'
+import { useGetZapperCollectionQuery } from 'state/apis/zapper/zapperApi'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -75,14 +75,9 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const accountIds = useAppSelector(selectWalletAccountIds)
 
-  const collectionAddresses = useMemo(
-    () => (nftItem.collection.id ? [fromAssetId(nftItem.collection.id).assetReference] : []),
-    [nftItem?.collection?.id],
-  )
-
-  const { data: nftCollection } = useGetZapperCollectionsQuery(
-    { accountIds, collectionAddresses },
-    { skip: !collectionAddresses?.length },
+  const { data: nftCollection } = useGetZapperCollectionQuery(
+    { accountIds, collectionId: nftItem.collection.id ?? '' },
+    { skip: !nftItem.collection.id?.length },
   )
 
   const mediaUrl = nftItem.medias[0]?.originalUrl
@@ -101,7 +96,8 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
   const maybeFeeAsset = useAppSelector(state => selectAssetById(state, maybeFeeAssetId ?? ''))
   const collectionOpenseaNetwork = chainIdToOpenseaNetwork(chainId as ChainId)
-  const collectionAddress = collectionAddresses[0]
+  const collectionAddress =
+    nftItem.collection.id && fromAssetId(nftItem.collection.id).assetReference
   const collectionLink = openseaId ? `https://opensea.io/collection/${openseaId}` : null
   const rarityDisplay = rarityRank ? `${rarityRank}${ordinalSuffix(rarityRank)}` : null
   const assetLink =
@@ -250,10 +246,10 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
     if (!nftCollection) return null
 
     const hasUsefulCollectionData = Boolean(
-      nftCollection?.[0]?.description ||
-        nftItem.collection.description ||
-        nftCollection?.[0]?.socialLinks?.length ||
-        nftItem.collection.socialLinks?.length,
+      nftItem.collection.description ||
+        nftCollection?.[0]?.description ||
+        nftItem.collection.socialLinks?.length ||
+        nftCollection?.[0]?.socialLinks?.length,
     )
     return (
       <Tabs display='flex' flexDir='column' position='relative' variant='unstyled' flex={1}>

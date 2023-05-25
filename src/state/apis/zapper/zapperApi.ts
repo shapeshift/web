@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
@@ -96,7 +96,7 @@ type GetZapperAppsbalancesInput = void // void in the interim, but should eventu
 
 type GetZapperCollectionsInput = {
   accountIds: AccountId[]
-  collectionAddresses: string[]
+  collectionId: string
 }
 
 export type GetZapperAppsBalancesOutput = {
@@ -265,12 +265,12 @@ export const zapperApi = createApi({
         return { data: parsedData }
       },
     }),
-    getZapperCollections: build.query<NftCollectionItem[], GetZapperCollectionsInput>({
-      queryFn: async ({ accountIds, collectionAddresses }) => {
+    getZapperCollection: build.query<NftCollectionItem[], GetZapperCollectionsInput>({
+      queryFn: async ({ accountIds, collectionId }) => {
         const addresses = accountIdsToEvmAddresses(accountIds)
         const params = {
           'addresses[]': addresses,
-          'collectionAddresses[]': collectionAddresses,
+          'collectionAddresses[]': [fromAssetId(collectionId).assetReference],
         }
         const url = `/v2/nft/balances/collections`
         const payload = { ...options, params, headers, url }
@@ -283,7 +283,7 @@ export const zapperApi = createApi({
         const parsedData: NftCollectionItem[] = validatedData.map(item => {
           const chainId = zapperNetworkToChainId(item.collection.network as SupportedZapperNetwork)!
           return {
-            id: null,
+            id: collectionId,
             // Actually defined since we're passing supported EVM networks AccountIds
             chainId,
             name: item.collection.name,
@@ -645,4 +645,4 @@ export const zapper = createApi({
   }),
 })
 
-export const { useGetZapperNftUserTokensQuery, useGetZapperCollectionsQuery } = zapperApi
+export const { useGetZapperNftUserTokensQuery, useGetZapperCollectionQuery } = zapperApi

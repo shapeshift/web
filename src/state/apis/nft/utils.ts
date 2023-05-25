@@ -1,4 +1,4 @@
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetNamespace, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bscChainId,
@@ -6,9 +6,13 @@ import {
   fromAccountId,
   optimismChainId,
   polygonChainId,
+  toAssetId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { NftContract } from 'alchemy-sdk'
 import { invert } from 'lodash'
+
+import type { NftCollectionItem } from './types'
 
 // addresses are repeated across EVM chains
 export const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>
@@ -51,3 +55,55 @@ export const openseaNetworkToChainId = (network: SupportedOpenseaNetwork): Chain
 
 export const chainIdToOpenseaNetwork = (chainId: ChainId): SupportedOpenseaNetwork | undefined =>
   CHAIN_ID_TO_OPENSEA_NETWORK_MAP[chainId]
+
+export const parseNftContract = (contract: NftContract, chainId: ChainId): NftCollectionItem => {
+  const { name, openSea } = contract
+
+  const socialLinks = [
+    ...(openSea?.twitterUsername
+      ? [
+          {
+            name: 'Twitter',
+            label: 'twitter',
+            url: `https://twitter.com/${openSea.twitterUsername}`,
+            logoUrl: '',
+          },
+        ]
+      : []),
+    ...(openSea?.discordUrl
+      ? [
+          {
+            name: 'Discord',
+            label: 'discord',
+            url: openSea.discordUrl,
+            logoUrl: '',
+          },
+        ]
+      : []),
+    ...(openSea?.externalUrl
+      ? [
+          {
+            name: 'Website',
+            label: 'website',
+            url: openSea.externalUrl,
+            logoUrl: '',
+          },
+        ]
+      : []),
+  ]
+  const id = toAssetId({
+    assetReference: contract.address,
+    assetNamespace: contract.tokenType.toLowerCase() as AssetNamespace,
+    chainId,
+  })
+
+  return {
+    id,
+    chainId,
+    name: name || '',
+    floorPrice: openSea?.floorPrice?.toString() || null,
+    openseaId: openSea && openSea.collectionName ? openSea.collectionName : null,
+    description: openSea?.description || null,
+    socialLinks,
+  }
+}

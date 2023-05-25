@@ -1,5 +1,5 @@
 import { Collapse, Flex } from '@chakra-ui/react'
-import { DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE } from 'constants/constants'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectCryptoMarketData } from 'state/slices/selectors'
@@ -32,10 +32,11 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
   const bestBuyAmountCryptoPrecision =
     bestQuote &&
     fromBaseUnit(bestQuote.buyAmountBeforeFeesCryptoBaseUnit, bestQuote.buyAsset.precision)
+  const slippageDecimalPercentage =
+    bestQuote?.recommendedSlippage ??
+    getDefaultSlippagePercentageForSwapper(availableSwappersWithMetadata?.[0]?.swapper.name)
   const bestBuyAmountCryptoPrecisionAfterSlippage = bnOrZero(bestBuyAmountCryptoPrecision)
-    .times(
-      bn(1).minus(bnOrZero(bestQuote?.recommendedSlippage ?? DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE)),
-    )
+    .times(bn(1).minus(bnOrZero(slippageDecimalPercentage)))
     .toString()
 
   const bestTotalProtocolFeeCryptoPrecision =
@@ -77,7 +78,12 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
         const totalReceiveAmountCryptoPrecision = bnOrZero(buyAmountBeforeFeesCryptoPrecision)
           .minus(totalProtocolFeeCryptoPrecision)
           .times(
-            bn(1).minus(bnOrZero(quote.recommendedSlippage ?? DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE)),
+            bn(1).minus(
+              bnOrZero(
+                quote.recommendedSlippage ??
+                  getDefaultSlippagePercentageForSwapper(swapperWithMetadata.swapper.name),
+              ),
+            ),
           )
           .toString()
 

@@ -2,8 +2,10 @@ import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
 
 export const USDC_PRECISION = 6
-export const DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE = '0.002' // .2%
-export const DEFAULT_COWSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
+
+// Slippage defaults. Don't export these to ensure the getDefaultSlippagePercentageForSwapper helper function is used.
+const DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE = '0.002' // .2%
+const DEFAULT_COWSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 
 export const getDefaultSlippagePercentageForSwapper = (swapperName?: SwapperName): string => {
   if (swapperName === undefined) return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE

@@ -20,6 +20,7 @@ export const getSendMaxAmountCryptoPrecision = (
   quote: TradeQuote<KnownChainIds>,
   sellAssetBalanceCryptoBaseUnit: string,
   networkFeeRequiresBalance: boolean,
+  isBuyingOsmoWithOmosisSwapper: boolean,
 ) => {
   // Only subtract fee if sell asset is the fee asset
   const isFeeAsset = feeAsset.assetId === sellAsset.assetId
@@ -32,7 +33,12 @@ export const getSendMaxAmountCryptoPrecision = (
         // only subtract if sell asset is fee asset
         .minus(networkFeeRequiresBalance && isFeeAsset ? networkFeeCryptoBaseUnit : 0)
         // subtract protocol fee if required
-        .minus(protocolFee?.requiresBalance ? protocolFee.amountCryptoBaseUnit : 0)
+        .minus(
+          // TEMP: handle osmosis protocol fee payable on buy side for specific case until we implement general solution
+          protocolFee?.requiresBalance && !isBuyingOsmoWithOmosisSwapper
+            ? protocolFee.amountCryptoBaseUnit
+            : 0,
+        )
         .times(0.99), // reduce the computed amount by 1% to ensure we don't exceed the max
       sellAsset.precision,
     ),

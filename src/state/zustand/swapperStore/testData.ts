@@ -10,10 +10,8 @@ const mockActions: SwapperAction = {
   handleInputAmountChange(): void {},
   handleSwitchAssets(): void {},
   updateAction(): void {},
-  updateActiveSwapperWithMetadata(): void {},
   updateAmount(): void {},
   updateAvailableSwappersWithMetadata(): void {},
-  updateBuyAmountCryptoPrecision(): void {},
   updateBuyAmountFiat(): void {},
   updateBuyAssetAccountId(): void {},
   updateFees(): void {},
@@ -21,13 +19,13 @@ const mockActions: SwapperAction = {
   updateReceiveAddress(): void {},
   updateSelectedBuyAssetAccountId(): void {},
   updateSelectedSellAssetAccountId(): void {},
-  updateSellAmountCryptoPrecision(): void {},
   updateSellAmountFiat(): void {},
   updateSellAssetAccountId(): void {},
   updateTrade(): void {},
   handleAssetSelection(): void {},
   updateTradeAmountsFromQuote(): void {},
   updateActiveAffiliateBps(): void {},
+  updatePreferredSwapper(): void {},
 }
 
 export const baseSwapperState: SwapperState = {
@@ -106,40 +104,6 @@ export const baseSwapperState: SwapperState = {
       inputOutputRatio: 0.6773207214158627,
     },
   ],
-  activeSwapperWithMetadata: {
-    swapper: {
-      name: SwapperName.Thorchain,
-    } as Swapper<ChainId>,
-    quote: {
-      rate: '52867.94647736405036163943',
-      maximumCryptoHuman: '100000000000000000000000000',
-      sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
-      buyAmountBeforeFeesCryptoBaseUnit: '986780221000000000000',
-      sources: [
-        {
-          name: 'THORChain',
-          proportion: '1',
-        },
-      ],
-      buyAsset: FOX,
-      sellAsset: ETH,
-      accountNumber: 0,
-      minimumCryptoHuman: '0.00576',
-      recommendedSlippage: '0.00009729507077504896',
-      allowanceContract: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
-      feeData: {
-        networkFeeCryptoBaseUnit: '1800000000000000',
-        protocolFees: {
-          [FOX.assetId]: {
-            amountCryptoBaseUnit: '258170392472859992504',
-            requiresBalance: false,
-            asset: FOX,
-          },
-        },
-      },
-    },
-    inputOutputRatio: 0.6773207214158627,
-  },
   buyAsset: FOX,
   sellAsset: ETH,
   receiveAddress: '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6',

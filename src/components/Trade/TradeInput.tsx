@@ -24,7 +24,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { getSendMaxAmount } from 'components/Trade/hooks/useSwapper/utils'
+import { getSendMaxAmountCryptoPrecision } from 'components/Trade/hooks/useSwapper/utils'
 import { useSwapperService } from 'components/Trade/hooks/useSwapperService'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
 import { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
@@ -67,6 +67,7 @@ import {
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectAction,
+  selectActiveSwapperWithMetadata,
   selectAmount,
   selectBuyAmountCryptoPrecision,
   selectBuyAmountFiat,
@@ -74,6 +75,7 @@ import {
   selectBuyAssetAccountId,
   selectFees,
   selectIsSendMax,
+  selectPreferredSwapper,
   selectProtocolFees,
   selectQuote,
   selectReceiveAddress,
@@ -84,7 +86,7 @@ import {
   selectSlippage,
   selectSwapperSupportsCrossAccountTrade,
 } from 'state/zustand/swapperStore/selectors'
-import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
+import { swapperStore, useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 import { breakpoints } from 'theme/theme'
 
 import { TradeAssetSelect } from './Components/AssetSelection'
@@ -153,6 +155,7 @@ export const TradeInput = () => {
   const action = useSwapperStore(selectAction)
   const amount = useSwapperStore(selectAmount)
   const isSendMax = useSwapperStore(selectIsSendMax)
+  const preferredSwapper = useSwapperStore(selectPreferredSwapper)
   const {
     getTrade,
     checkApprovalNeeded,
@@ -193,8 +196,8 @@ export const TradeInput = () => {
   const sellFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, sellAsset?.assetId ?? ethAssetId),
   )
-  const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
-  const swapperName = useMemo(() => activeSwapper?.name ?? '', [activeSwapper])
+  const activeSwapper = useSwapperStore(state => selectActiveSwapperWithMetadata(state)?.swapper)
+  const activeSwapperName = useMemo(() => activeSwapper?.name, [activeSwapper])
 
   if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
 
@@ -211,10 +214,10 @@ export const TradeInput = () => {
   const sellAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, sellAssetBalanceFilter),
   )
-  const sellAssetBalanceHuman = useAppSelector(state =>
+  const sellAssetBalancePrecision = useAppSelector(state =>
     selectPortfolioCryptoPrecisionBalanceByFilter(state, sellAssetBalanceFilter),
   )
-  const feeAssetBalanceHuman = useAppSelector(s =>
+  const feeAssetBalancePrecision = useAppSelector(s =>
     selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
@@ -246,6 +249,9 @@ export const TradeInput = () => {
 
   const hasValidSellAmount = bnOrZero(sellAmountCryptoPrecision).gt(0)
 
+  // TODO(woodenfurniture): update swappers to specify this as with protocol fees
+  const networkFeeRequiresBalance = activeSwapperName !== SwapperName.CowSwap
+
   const handleInputChange = useCallback(
     (inputAction: TradeAmountInputField, inputAmount: string) => {
       // No-op if nothing material has changed
@@ -263,24 +269,30 @@ export const TradeInput = () => {
   useEffect(() => {
     if (!isSendMax) return
 
-    const maxSendAmount = activeQuote
-      ? bnOrZero(
-          getSendMaxAmount(sellAsset, sellFeeAsset, activeQuote, sellAssetBalanceCryptoBaseUnit),
-        )
-          .times(0.99) // reduce the computed amount by 1% to ensure we don't exceed the max
-          .toFixed()
-      : '0'
+    // Active swapper is selected inside here to prevent infinite loop where we're updating the
+    // value we're reacting to. Instead we react to the preferred swapper.
+    const activeSwapperWithMetadata = selectActiveSwapperWithMetadata(swapperStore.getState())
 
-    if (maxSendAmount === amount) return
+    if (!activeSwapperWithMetadata) return
 
-    updateAmount(maxSendAmount)
+    const maxSendAmountCryptoPrecision = getSendMaxAmountCryptoPrecision(
+      sellAsset,
+      sellFeeAsset,
+      activeSwapperWithMetadata.quote,
+      sellAssetBalanceCryptoBaseUnit,
+      networkFeeRequiresBalance,
+    )
+
+    updateAmount(maxSendAmountCryptoPrecision)
+    handleInputAmountChange()
   }, [
-    activeQuote,
-    amount,
+    preferredSwapper,
     isSendMax,
+    networkFeeRequiresBalance,
     sellAsset,
     sellAssetBalanceCryptoBaseUnit,
     sellFeeAsset,
+    handleInputAmountChange,
     updateAmount,
   ])
 
@@ -288,15 +300,16 @@ export const TradeInput = () => {
     if (isSendMax) return
     updateIsSendMax(true)
     updateAction(TradeAmountInputField.SELL_CRYPTO)
-    updateAmount(sellAssetBalanceCryptoBaseUnit)
+    updateAmount(fromBaseUnit(sellAssetBalanceCryptoBaseUnit, sellAsset.precision))
     handleInputAmountChange()
   }, [
     isSendMax,
-    handleInputAmountChange,
-    sellAssetBalanceCryptoBaseUnit,
+    updateIsSendMax,
     updateAction,
     updateAmount,
-    updateIsSendMax,
+    sellAssetBalanceCryptoBaseUnit,
+    sellAsset.precision,
+    handleInputAmountChange,
   ])
 
   const onSubmit = useCallback(async () => {
@@ -309,7 +322,7 @@ export const TradeInput = () => {
           buyAsset: compositeBuyAsset,
           sellAsset: compositeSellAsset,
           fiatAmount: fiatSellAmount,
-          swapperName,
+          swapperName: activeSwapperName,
           [compositeBuyAsset]: buyAmountCryptoPrecision,
           [compositeSellAsset]: sellAmountCryptoPrecision,
         })
@@ -343,7 +356,7 @@ export const TradeInput = () => {
     mixpanel,
     sellAmountCryptoPrecision,
     sellAsset,
-    swapperName,
+    activeSwapperName,
     updateFees,
     updateTrade,
     updateTradeAmountsFromQuote,
@@ -406,7 +419,7 @@ export const TradeInput = () => {
     if (protocolFees === undefined || tradeQuoteArgs === undefined || !buyAssetAccountId) return
 
     const isBuyingOsmoWithOmosisSwapper =
-      activeSwapper?.name === SwapperName.Osmosis && buyAsset.assetId === osmosisAssetId
+      activeSwapperName === SwapperName.Osmosis && buyAsset.assetId === osmosisAssetId
 
     // This is an oversimplification where protocol fees are assumed to be only deducted from
     // account IDs corresponding to the sell asset account number and protocol fee asset chain ID.
@@ -439,7 +452,7 @@ export const TradeInput = () => {
     protocolFees,
     tradeQuoteArgs,
     buyAssetAccountId,
-    activeSwapper?.name,
+    activeSwapperName,
     buyAsset.assetId,
     chainAdapterManager,
     portfolioAccountIdByNumberByChainId,
@@ -447,24 +460,24 @@ export const TradeInput = () => {
   ])
 
   const getErrorTranslationKey = useCallback((): string | [string, InterpolationOptions] => {
-    const hasValidSellAssetBalance = bnOrZero(sellAssetBalanceHuman).gte(
+    const hasValidSellAssetBalance = bnOrZero(sellAssetBalancePrecision).gte(
       bnOrZero(sellAmountCryptoPrecision),
     )
 
-    // when trading from ETH, the value of TX in ETH is deducted
-    const tradeDeduction =
+    // when trading from fee asset, the value of TX in fee asset is deducted
+    const tradeDeductionCryptoPrecision =
       sellFeeAsset?.assetId === sellAsset?.assetId ? bnOrZero(sellAmountCryptoPrecision) : bn(0)
-    const shouldDeductNetworkFeeFromGasBalanceCheck = swapperName !== SwapperName.CowSwap
-    const hasEnoughBalanceForGas = bnOrZero(feeAssetBalanceHuman)
+
+    const hasEnoughBalanceForGas = bnOrZero(feeAssetBalancePrecision)
       .minus(
-        shouldDeductNetworkFeeFromGasBalanceCheck
+        networkFeeRequiresBalance
           ? fromBaseUnit(
               bnOrZero(activeQuote?.feeData.networkFeeCryptoBaseUnit),
               sellFeeAsset?.precision,
             )
           : 0,
       )
-      .minus(tradeDeduction)
+      .minus(tradeDeductionCryptoPrecision)
       .gte(0)
 
     const minLimit = `${bnOrZero(activeQuote?.minimumCryptoHuman).decimalPlaces(6)} ${
@@ -492,7 +505,7 @@ export const TradeInput = () => {
         },
       ]
     if (!activeSwapper) return 'trade.errors.invalidTradePairBtnText'
-    if (!isTradingActiveOnSellPool && activeSwapper.name === SwapperName.Thorchain) {
+    if (!isTradingActiveOnSellPool && activeSwapperName === SwapperName.Thorchain) {
       return [
         'trade.errors.tradingNotActive',
         {
@@ -500,7 +513,7 @@ export const TradeInput = () => {
         },
       ]
     }
-    if (!isTradingActiveOnBuyPool && activeSwapper.name === SwapperName.Thorchain) {
+    if (!isTradingActiveOnBuyPool && activeSwapperName === SwapperName.Thorchain) {
       return [
         'trade.errors.tradingNotActive',
         {
@@ -521,7 +534,8 @@ export const TradeInput = () => {
         },
       ]
     if (isBelowMinSellAmount) {
-      return [SwapperName.LIFI, SwapperName.OneInch].includes(activeSwapper.name)
+      return activeSwapperName !== undefined &&
+        [SwapperName.LIFI, SwapperName.OneInch].includes(activeSwapperName)
         ? 'trade.errors.amountTooSmallOrInvalidTradePair'
         : ['trade.errors.amountTooSmall', { minLimit }]
     }
@@ -530,15 +544,15 @@ export const TradeInput = () => {
 
     return 'trade.previewTrade'
   }, [
-    sellAssetBalanceHuman,
+    sellAssetBalancePrecision,
     sellAmountCryptoPrecision,
     sellFeeAsset?.assetId,
     sellFeeAsset?.precision,
     sellFeeAsset?.symbol,
     sellAsset?.assetId,
     sellAsset?.symbol,
-    swapperName,
-    feeAssetBalanceHuman,
+    feeAssetBalancePrecision,
+    networkFeeRequiresBalance,
     activeQuote?.feeData.networkFeeCryptoBaseUnit,
     activeQuote?.minimumCryptoHuman,
     activeQuote?.sellAsset.symbol,
@@ -553,6 +567,7 @@ export const TradeInput = () => {
     buyAsset?.symbol,
     activeSwapper,
     isTradingActiveOnSellPool,
+    activeSwapperName,
     isTradingActiveOnBuyPool,
     insufficientBalanceProtocolFeeMeta,
     hasValidSellAmount,
@@ -788,7 +803,7 @@ export const TradeInput = () => {
             isLoading={tradeStateLoading}
             isError={!walletSupportsSellAssetChain}
           />
-          {walletSupportsSellAssetChain && !sellAmountTooSmall ? (
+          {walletSupportsSellAssetChain && !sellAmountTooSmall && activeSwapperName ? (
             <ReceiveSummary
               isLoading={tradeStateLoading}
               symbol={buyAsset?.symbol ?? ''}
@@ -797,7 +812,7 @@ export const TradeInput = () => {
               protocolFees={protocolFees}
               shapeShiftFee='0'
               slippage={slippage}
-              swapperName={swapperName}
+              swapperName={activeSwapperName}
             />
           ) : null}
         </Stack>

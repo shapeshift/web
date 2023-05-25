@@ -10,7 +10,6 @@ import {
   handleAssetSelection,
   handleInputAmountChange,
   handleSwitchAssets,
-  updateActiveSwapperWithMetadata,
   updateFees,
   updateTradeAmountsFromQuote,
 } from 'state/zustand/swapperStore/actions'
@@ -51,8 +50,6 @@ export const swapperStore = createStore<
         updateBuyAssetAccountId: createUpdateAction(set, 'buyAssetAccountId'),
         updateSellAmountFiat: createUpdateAction(set, 'sellAmountFiat'),
         updateBuyAmountFiat: createUpdateAction(set, 'buyAmountFiat'),
-        updateBuyAmountCryptoPrecision: createUpdateAction(set, 'buyAmountCryptoPrecision'),
-        updateSellAmountCryptoPrecision: createUpdateAction(set, 'sellAmountCryptoPrecision'),
         clearAmounts: clearAmounts(set),
         updateAmount: createUpdateAction(set, 'amount'),
         updateAction: createUpdateAction(set, 'action'),
@@ -60,7 +57,6 @@ export const swapperStore = createStore<
         updateReceiveAddress: createUpdateAction(set, 'receiveAddress'),
         updateFees: updateFees(set),
         updateTrade: createUpdateAction(set, 'trade'),
-        updateActiveSwapperWithMetadata: updateActiveSwapperWithMetadata(set),
         updateAvailableSwappersWithMetadata: createUpdateAction(
           set,
           'availableSwappersWithMetadata',
@@ -70,6 +66,7 @@ export const swapperStore = createStore<
         handleAssetSelection: handleAssetSelection(set),
         updateTradeAmountsFromQuote: updateTradeAmountsFromQuote(set),
         updateActiveAffiliateBps: createUpdateAction(set, 'activeAffiliateBps'),
+        updatePreferredSwapper: createUpdateAction(set, 'preferredSwapper'),
       }),
       { name: 'SwapperStore' },
     ),

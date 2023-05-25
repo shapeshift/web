@@ -8,31 +8,35 @@ import { type Asset } from 'lib/asset-service'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
-import type { SwapperName, Trade, TradeQuote } from 'lib/swapper/api'
+import type { ProtocolFee, SwapperName, Trade, TradeQuote } from 'lib/swapper/api'
 
 const moduleLogger = logger.child({ namespace: ['useSwapper', 'utils'] })
 
 // Pure functions
 
-export const getSendMaxAmount = (
+export const getSendMaxAmountCryptoPrecision = (
   sellAsset: Asset,
   feeAsset: Asset,
   quote: TradeQuote<KnownChainIds>,
-  sellAssetBalance: string,
+  sellAssetBalanceCryptoBaseUnit: string,
+  networkFeeRequiresBalance: boolean,
 ) => {
   // Only subtract fee if sell asset is the fee asset
   const isFeeAsset = feeAsset.assetId === sellAsset.assetId
-  const feeEstimate = bnOrZero(quote?.feeData?.networkFeeCryptoBaseUnit)
-  // sell asset balance minus expected fee = maxTradeAmount
-  // only subtract if sell asset is fee asset
+  const protocolFee: ProtocolFee | undefined = quote.feeData.protocolFees[sellAsset.assetId]
+  const networkFeeCryptoBaseUnit = bnOrZero(quote.feeData.networkFeeCryptoBaseUnit)
+  // sell asset balance minus expected fees = maxTradeAmount
   return positiveOrZero(
     fromBaseUnit(
-      bnOrZero(sellAssetBalance)
-        .minus(isFeeAsset ? feeEstimate : 0)
-        .toString(),
+      bnOrZero(sellAssetBalanceCryptoBaseUnit)
+        // only subtract if sell asset is fee asset
+        .minus(networkFeeRequiresBalance && isFeeAsset ? networkFeeCryptoBaseUnit : 0)
+        // subtract protocol fee if required
+        .minus(protocolFee?.requiresBalance ? protocolFee.amountCryptoBaseUnit : 0)
+        .times(0.99), // reduce the computed amount by 1% to ensure we don't exceed the max
       sellAsset.precision,
     ),
-  ).toString()
+  ).toFixed()
 }
 
 const getEvmFees = <T extends EvmChainId>(

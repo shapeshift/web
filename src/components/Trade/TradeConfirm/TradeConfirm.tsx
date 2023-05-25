@@ -60,6 +60,7 @@ import {
   selectSellAmountBeforeFeesFiat,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
+  selectActiveSwapperWithMetadata,
   selectBuyAmountCryptoPrecision,
   selectBuyAmountFiat,
   selectBuyAssetAccountId,
@@ -134,7 +135,7 @@ export const TradeConfirm = () => {
   )
 
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
-  const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const activeSwapper = useSwapperStore(state => selectActiveSwapperWithMetadata(state)?.swapper)
   const updateActiveAffiliateBps = useSwapperStore(state => state.updateActiveAffiliateBps)
   const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
   const updateFees = useSwapperStore(state => state.updateFees)

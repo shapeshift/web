@@ -1,14 +1,17 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { evm } from '@shapeshiftoss/chain-adapters'
+import type { evm, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useDonationAmountBelowMinimum } from 'components/Trade/hooks/useDonationAmountBelowMinimum'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
+import type { BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
 import type { SwapperManager } from 'lib/swapper/manager/SwapperManager'
 import { erc20AllowanceAbi } from 'lib/swapper/swappers/utils/abi/erc20Allowance-abi'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
@@ -30,15 +33,21 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
+  selectActiveSwapperWithMetadata,
   selectBuyAsset,
   selectBuyAssetAccountId,
-  selectGetTradeForWallet,
+  selectIsSendMax,
   selectQuote,
+  selectReceiveAddress,
+  selectSellAmountCryptoPrecision,
   selectSellAsset,
   selectSellAssetAccountId,
+  selectSlippage,
   selectSwapperDefaultAffiliateBps,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
+
+import { isCosmosSdkSwap, isEvmSwap, isUtxoSwap } from './typeGuards'
 
 /*
 The Swapper hook is responsible for providing computed swapper state to consumers.
@@ -50,8 +59,12 @@ export const useSwapper = () => {
   const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
-  const getTradeForWallet = useSwapperStore(selectGetTradeForWallet)
   const defaultAffiliateBps = useSwapperStore(selectSwapperDefaultAffiliateBps)
+  const activeSwapperWithMetadata = useSwapperStore(selectActiveSwapperWithMetadata)
+  const slippage = useSwapperStore(selectSlippage)
+  const isSendMax = useSwapperStore(selectIsSendMax)
+  const sellAmountCryptoPrecision = useSwapperStore(selectSellAmountCryptoPrecision)
+  const receiveAddress = useSwapperStore(selectReceiveAddress)
 
   // Selectors
   const flags = useSelector(selectFeatureFlags)
@@ -151,22 +164,83 @@ export const useSwapper = () => {
         throw new Error('Missing buyAccountBip44Params')
       if (!sellAccountMetadata) throw new Error('Missing sellAccountMetadata')
 
-      const trade = await getTradeForWallet({
+      const activeSwapper = activeSwapperWithMetadata?.swapper
+      const activeQuote = activeSwapperWithMetadata?.quote
+
+      if (!activeSwapper) throw new Error('No swapper available')
+      if (!activeQuote) throw new Error('No quote available')
+      if (!buyAsset) throw new Error('Missing buyAsset')
+      if (!sellAsset) throw new Error('No sellAsset')
+      if (!sellAssetAccountId) throw new Error('Missing sellAssetAccountId')
+      if (!sellAmountCryptoPrecision) throw new Error('Missing sellTradeAsset.amount')
+      if (!receiveAddress) throw new Error('Missing receiveAddress')
+
+      const buildTradeCommonArgs: BuildTradeInputCommonArgs = {
+        sellAmountBeforeFeesCryptoBaseUnit: toBaseUnit(
+          sellAmountCryptoPrecision,
+          sellAsset.precision,
+        ),
+        sellAsset,
+        buyAsset,
         wallet,
-        sellAccountBip44Params,
-        sellAccountMetadata,
-        buyAccountBip44Params,
+        sendMax: isSendMax,
+        receiveAddress,
+        slippage,
         affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps ?? defaultAffiliateBps,
-      })
-      return trade
+      }
+
+      if (isUtxoSwap(sellAsset.chainId)) {
+        const {
+          accountType,
+          bip44Params: { accountNumber },
+        } = sellAccountMetadata
+
+        if (!accountType) throw new Error('accountType required')
+
+        const sellAssetChainAdapter = getChainAdapterManager().get(
+          sellAsset.chainId,
+        ) as unknown as UtxoBaseAdapter<UtxoChainId>
+
+        const { xpub } = await sellAssetChainAdapter.getPublicKey(
+          wallet,
+          accountNumber,
+          accountType,
+        )
+
+        return activeSwapper.buildTrade({
+          ...buildTradeCommonArgs,
+          chainId: sellAsset.chainId,
+          accountNumber,
+          accountType,
+          xpub,
+        })
+      } else if (isEvmSwap(sellAsset.chainId) || isCosmosSdkSwap(sellAsset.chainId)) {
+        const eip1559Support = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+        return activeSwapper.buildTrade({
+          ...buildTradeCommonArgs,
+          chainId: sellAsset.chainId,
+          accountNumber: sellAccountBip44Params.accountNumber,
+          receiveAccountNumber: buyAccountBip44Params?.accountNumber,
+          eip1559Support,
+        })
+      } else {
+        throw new Error('unsupported sellAsset.chainId')
+      }
     },
     [
       wallet,
       sellAccountBip44Params,
-      buyAsset.chainId,
+      buyAsset,
       buyAccountBip44Params,
       sellAccountMetadata,
-      getTradeForWallet,
+      activeSwapperWithMetadata?.swapper,
+      activeSwapperWithMetadata?.quote,
+      sellAsset,
+      sellAssetAccountId,
+      sellAmountCryptoPrecision,
+      receiveAddress,
+      isSendMax,
+      slippage,
       isDonationAmountBelowMinimum,
       defaultAffiliateBps,
     ],

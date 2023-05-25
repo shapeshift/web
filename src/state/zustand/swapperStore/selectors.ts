@@ -54,6 +54,7 @@ export const selectAvailableSwappersWithMetadata = (state: SwapperState) =>
 export const selectSlippage = createSelector(
   selectActiveSwapperWithMetadata,
   activeSwapperWithMetadata =>
+    activeSwapperWithMetadata?.quote.recommendedSlippage ??
     getDefaultSlippagePercentageForSwapper(activeSwapperWithMetadata?.swapper.name),
 )
 

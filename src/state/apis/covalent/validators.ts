@@ -199,7 +199,7 @@ const CovalentNftUserTokensResponseSchema = z.object({
 export type CovalentNftUserTokensResponseType = Infer<typeof CovalentNftUserTokensResponseSchema>
 export type CovalentNftItemSchemaType = Infer<typeof CovalentNftItemSchema>
 
-export const parseToNftUserItem = (
+export const parseToNftItem = (
   covalentItem: CovalentNftItemSchemaType,
   chainId: ChainId,
 ): NftItem[] => {
@@ -234,7 +234,7 @@ export const parseToNftUserItem = (
                 })
               : '',
           chainId,
-          name: covalentItem.contract_name,
+          name: covalentItem.contract_name ?? 'Collection',
           description: nftData.external_data?.description || '',
           floorPrice: null, // Covalent doesn't provide floor price
           openseaId: null, // Covalent doesn't provide an openseaId

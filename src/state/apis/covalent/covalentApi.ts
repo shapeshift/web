@@ -11,11 +11,7 @@ import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import type { NftItem } from '../nft/types'
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type { CovalentNftUserTokensResponseType } from './validators'
-import {
-  chainIdToCovalentNetwork,
-  covalentNetworkToChainId,
-  parseToNftUserItem as parseToNftItem,
-} from './validators'
+import { chainIdToCovalentNetwork, covalentNetworkToChainId, parseToNftItem } from './validators'
 
 const COVALENT_BASE_URL = 'https://api.covalenthq.com/v1'
 

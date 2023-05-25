@@ -243,13 +243,13 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   ])
 
   const nftModalDetails = useMemo(() => {
-    if (!nftCollection) return null
+    if (!(nftCollection || nftItem.collection)) return null
 
     const hasUsefulCollectionData = Boolean(
       nftItem.collection.description ||
-        nftCollection.description ||
+        nftCollection?.description ||
         nftItem.collection.socialLinks?.length ||
-        nftCollection.socialLinks?.length,
+        nftCollection?.socialLinks?.length,
     )
     return (
       <Tabs display='flex' flexDir='column' position='relative' variant='unstyled' flex={1}>
@@ -268,11 +268,11 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
           {hasUsefulCollectionData && (
             <TabPanel p={0}>
               <NftCollection
-                name={nftCollection.name || nftItem.collection.name}
-                description={nftCollection.description || nftItem.collection.description}
+                name={nftCollection?.name || nftItem.collection.name}
+                description={nftCollection?.description || nftItem.collection.description}
                 socialLinks={
-                  nftCollection.socialLinks.length
-                    ? nftCollection.socialLinks
+                  nftCollection?.socialLinks.length
+                    ? nftCollection?.socialLinks
                     : nftItem.collection.socialLinks
                 }
               />

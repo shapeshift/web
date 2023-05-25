@@ -21,12 +21,16 @@ import {
   selectSellAssetUsdRate,
 } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
+import {
+  convertDecimalPercentageToBasisPoints,
+  subtractBasisPointAmount,
+} from 'state/zustand/swapperStore/utils'
 
 export async function cowBuildTrade(
   deps: CowSwapperDeps,
   input: BuildTradeInput,
 ): Promise<Result<CowTrade<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
-  const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
+  const { sellAsset, buyAsset, accountNumber, receiveAddress, slippage } = input
 
   if (!receiveAddress)
     return Err(
@@ -94,6 +98,7 @@ export async function cowBuildTrade(
         sellAmount: quoteSellAmountExcludeFeeCryptoBaseUnit,
         feeAmount: feeAmountInSellTokenCryptoBaseUnit,
       },
+      id,
     },
   } = maybeQuoteResponse.unwrap()
 
@@ -128,6 +133,14 @@ export async function cowBuildTrade(
     .div(quoteSellAmountCryptoPrecision)
     .toString()
 
+  const slippageBps = convertDecimalPercentageToBasisPoints(slippage ?? '0').toString()
+
+  const minimumBuyAmountAfterFeesCryptoBaseUnit = subtractBasisPointAmount(
+    buyAmountAfterFeesCryptoBaseUnit,
+    slippageBps,
+    true,
+  )
+
   const trade: CowTrade<KnownChainIds.EthereumMainnet> = {
     rate,
     feeData: {
@@ -149,6 +162,8 @@ export async function cowBuildTrade(
     receiveAddress,
     feeAmountInSellTokenCryptoBaseUnit,
     sellAmountDeductFeeCryptoBaseUnit: quoteSellAmountExcludeFeeCryptoBaseUnit,
+    id,
+    minimumBuyAmountAfterFeesCryptoBaseUnit,
   }
 
   return Ok(trade)

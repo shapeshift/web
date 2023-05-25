@@ -4,7 +4,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { DEFAULT_SLIPPAGE } from 'constants/constants'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
@@ -38,6 +38,8 @@ export async function getTradeQuote(
 
     const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
     const buyLifiChainKey = lifiChainMap.get(buyAsset.chainId)
+
+    const defaultLifiSwapperSlippage = getDefaultSlippagePercentageForSwapper(SwapperName.LIFI)
 
     if (sellLifiChainKey === undefined) {
       throw new SwapError(
@@ -79,7 +81,7 @@ export async function getTradeQuote(
       options: {
         // used for analytics - do not change this without considering impact
         integrator: DAO_TREASURY_ETHEREUM_MAINNET,
-        slippage: Number(DEFAULT_SLIPPAGE),
+        slippage: Number(defaultLifiSwapperSlippage),
         exchanges: { deny: ['dodo'] },
         // as recommended by lifi, allowSwitchChain must be false to ensure single-hop transactions.
         // This must remain disabled until our application supports multi-hop swaps

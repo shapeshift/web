@@ -46,6 +46,7 @@ describe('utils', () => {
         receiver: '0xFc81A7B9f715A344A7c4ABFc444A774c3E9BA42D',
         sellTokenBalance: 'erc20',
         buyTokenBalance: 'erc20',
+        quoteId: '1',
       }
 
       const orderDigest = hashOrder(domain(1, '0x9008D19f58AAbD9eD0D60971565AA8510560ab41'), order)

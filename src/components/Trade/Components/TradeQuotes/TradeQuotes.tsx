@@ -6,9 +6,9 @@ import { selectCryptoMarketData } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { selectBuyAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import {
-  selectActiveSwapperWithMetadata,
   selectAvailableSwappersWithMetadata,
   selectBuyAsset,
+  selectSwapperName,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
@@ -23,18 +23,17 @@ type TradeQuotesProps = {
 export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) => {
   const buyAssetUsdRate = useSwapperStore(selectBuyAssetUsdRate)
   const availableSwappersWithMetadata = useSwapperStore(selectAvailableSwappersWithMetadata)
-  const activeSwapperWithMetadata = useSwapperStore(selectActiveSwapperWithMetadata)
-  const activeSwapperName = activeSwapperWithMetadata?.swapper.name
+  const activeSwapperName = useSwapperStore(selectSwapperName)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const cryptoMarketDataById = useAppSelector(selectCryptoMarketData)
 
-  const bestQuote = availableSwappersWithMetadata?.[0]?.quote
+  const { quote: bestQuote, swapper: bestSwapper } = availableSwappersWithMetadata?.[0] ?? {}
+
   const bestBuyAmountCryptoPrecision =
     bestQuote &&
     fromBaseUnit(bestQuote.buyAmountBeforeFeesCryptoBaseUnit, bestQuote.buyAsset.precision)
   const slippageDecimalPercentage =
-    bestQuote?.recommendedSlippage ??
-    getDefaultSlippagePercentageForSwapper(availableSwappersWithMetadata?.[0]?.swapper.name)
+    bestQuote?.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(bestSwapper?.name)
   const bestBuyAmountCryptoPrecisionAfterSlippage = bnOrZero(bestBuyAmountCryptoPrecision)
     .times(bn(1).minus(bnOrZero(slippageDecimalPercentage)))
     .toString()

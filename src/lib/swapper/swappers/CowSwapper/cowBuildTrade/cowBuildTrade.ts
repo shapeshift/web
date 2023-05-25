@@ -94,8 +94,6 @@ export async function cowBuildTrade(
   const {
     data: {
       quote: {
-        // fixme: this is the minimum ("To at least") amount, which is currently the before fees amount
-        // it should be the amount after fees, that comes back from the quote
         buyAmount: buyAmountAfterFeesCryptoBaseUnit,
         sellAmount: quoteSellAmountExcludeFeeCryptoBaseUnit,
         feeAmount: feeAmountInSellTokenCryptoBaseUnit,

@@ -3,6 +3,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type Web3 from 'web3'
 import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
@@ -134,7 +135,7 @@ const expectedTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   feeAmountInSellTokenCryptoBaseUnit: '14557942658757988',
   sellAmountDeductFeeCryptoBaseUnit: '985442057341242012',
   id: '1',
-  minimumBuyAmountAfterFeesCryptoBaseUnit: '14429302759156357115123.12',
+  minimumBuyAmountAfterFeesCryptoBaseUnit: '14472808194611099900395',
 }
 
 const expectedTradeQuoteWbtcToWethWithApprovalFeeCryptoBaseUnit: CowTrade<KnownChainIds.EthereumMainnet> =
@@ -160,7 +161,7 @@ const expectedTradeQuoteWbtcToWethWithApprovalFeeCryptoBaseUnit: CowTrade<KnownC
     feeAmountInSellTokenCryptoBaseUnit: '17238',
     sellAmountDeductFeeCryptoBaseUnit: '99982762',
     id: '1',
-    minimumBuyAmountAfterFeesCryptoBaseUnit: '19043335024346774036.605',
+    minimumBuyAmountAfterFeesCryptoBaseUnit: '19100752114872442703',
   }
 
 const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
@@ -213,7 +214,7 @@ describe('cowBuildTrade', () => {
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       eip1559Support: false,
-      slippage: '50',
+      slippage: getDefaultSlippagePercentageForSwapper(SwapperName.Test),
     }
 
     const maybeCowBuildTrade = await cowBuildTrade(deps, tradeInput)
@@ -242,7 +243,7 @@ describe('cowBuildTrade', () => {
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       eip1559Support: false,
-      slippage: '50',
+      slippage: getDefaultSlippagePercentageForSwapper(SwapperName.Test),
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -288,7 +289,7 @@ describe('cowBuildTrade', () => {
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       eip1559Support: false,
-      slippage: '50',
+      slippage: getDefaultSlippagePercentageForSwapper(SwapperName.Test),
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(

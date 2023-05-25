@@ -121,8 +121,18 @@ describe('subtractBasisPoints', () => {
     expect(result).toBe('0')
   })
 
+  test('should subtract 20000 basis points correctly', () => {
+    const result = subtractBasisPointAmount('100', '20000')
+    expect(result).toBe('-100')
+  })
+
   test('should handle very large numbers correctly', () => {
     const result = subtractBasisPointAmount('123456789012345678901234567890', '100')
     expect(result).toBe('122222221122222222112222222211.1')
+  })
+
+  test('should round up correctly', () => {
+    const result = subtractBasisPointAmount('123456789012345678901234567890', '100', true)
+    expect(result).toBe('122222221122222222112222222212')
   })
 })

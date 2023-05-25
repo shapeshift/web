@@ -11,11 +11,13 @@ import {
   SimpleGrid,
   useRadioGroup,
 } from '@chakra-ui/react'
+import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
+import type { V2NftUserItem } from 'state/apis/zapper/validators'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
@@ -34,6 +36,25 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
     () => data?.filter(item => item.token.medias[0].type === 'image'),
     [data],
   )
+  const filterNftsBySearchTerm = useCallback((data: V2NftUserItem[], searchQuery: string) => {
+    const search = searchQuery.trim().toLowerCase()
+    const keys = [
+      'token.name',
+      'token.collection.name',
+      'token.collection.address',
+      'token.tokenId',
+    ]
+    return matchSorter(data, search, { keys })
+  }, [])
+
+  const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
+
+  const filteredNfts = useMemo(() => {
+    return isSearching && filteredData
+      ? filterNftsBySearchTerm(filteredData, searchQuery)
+      : filteredData
+  }, [isSearching, filteredData, filterNftsBySearchTerm, searchQuery])
+
   const { onClose, walletImage } = props
   //Replace with the stored URL
   const defaultValue = walletImage
@@ -47,7 +68,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const group = getRootProps()
 
   const renderItems = useMemo(() => {
-    return filteredData?.map(({ token }) => {
+    return filteredNfts?.map(({ token }) => {
       const mediaUrl = token.medias?.[0]?.originalUrl
       return (
         <AvatarRadio
@@ -57,7 +78,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
         />
       )
     })
-  }, [filteredData, getRadioProps])
+  }, [filteredNfts, getRadioProps])
 
   const handleSaveChanges = useCallback(() => {
     onClose()

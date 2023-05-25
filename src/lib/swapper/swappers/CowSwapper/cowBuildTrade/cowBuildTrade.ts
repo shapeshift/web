@@ -21,7 +21,10 @@ import {
   selectSellAssetUsdRate,
 } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
-import { subtractBasisPoints } from 'state/zustand/swapperStore/utils'
+import {
+  convertDecimalPercentageToBasisPoints,
+  subtractBasisPointAmount,
+} from 'state/zustand/swapperStore/utils'
 
 export async function cowBuildTrade(
   deps: CowSwapperDeps,
@@ -132,9 +135,12 @@ export async function cowBuildTrade(
     .div(quoteSellAmountCryptoPrecision)
     .toString()
 
-  const minimumBuyAmountAfterFeesCryptoBaseUnit = subtractBasisPoints(
+  const slippageBps = convertDecimalPercentageToBasisPoints(slippage ?? '0').toString()
+
+  const minimumBuyAmountAfterFeesCryptoBaseUnit = subtractBasisPointAmount(
     buyAmountAfterFeesCryptoBaseUnit,
-    slippage ?? '0',
+    slippageBps,
+    true,
   )
 
   const trade: CowTrade<KnownChainIds.EthereumMainnet> = {

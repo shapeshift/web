@@ -8,6 +8,9 @@ import type { ProtocolFee } from 'lib/swapper/api'
 export const convertBasisPointsToDecimalPercentage = (basisPoints: string) =>
   bnOrZero(basisPoints).div(10000)
 
+export const convertDecimalPercentageToBasisPoints = (decimalPercentage: string) =>
+  bnOrZero(decimalPercentage).times(10000)
+
 export const convertBasisPointsToPercentage = (basisPoints: string) =>
   bnOrZero(basisPoints).div(100)
 
@@ -19,14 +22,18 @@ type SumProtocolFeesToDenomArgs = {
 }
 
 /**
- * Subtracts basis points from a given value.
+ * Subtracts basis point amount from a given value.
  *
  * @param value The value to subtract basis points from.
  * @param basisPoints The number of basis points to subtract.
+ * @param roundUp Round up the result to the nearest integer.
  * @returns The new number that is the input value minus the basis points of the value.
  */
-export const subtractBasisPoints = (value: string, basisPoints: string): string => {
-  // Convert input to a BigNumber instance
+export const subtractBasisPointAmount = (
+  value: string,
+  basisPoints: string,
+  roundUp?: boolean,
+): string => {
   const bigNumValue = bn(value)
 
   // Basis point is 1/100th of a percent
@@ -35,7 +42,7 @@ export const subtractBasisPoints = (value: string, basisPoints: string): string 
 
   // Subtract basis points from the original value
   const resultValue = bigNumValue.minus(subtractValue)
-  return resultValue.toFixed()
+  return roundUp ? resultValue.toFixed(0, 0) : resultValue.toFixed()
 }
 
 // this converts the collection of protocol fees denominated in various assets to the sum of all of

@@ -62,7 +62,7 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
     case thorchainChainId:
       return supportsThorchain(wallet)
     default: {
-      moduleLogger.error(`useWalletSupportsChain: unknown chain id ${chainId}`)
+      moduleLogger.warn(`useWalletSupportsChain: unknown chain id ${chainId}`)
       return false
     }
   }

@@ -1,8 +1,7 @@
 // Helper function to convert basis points to percentage
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
-import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { ProtocolFee } from 'lib/swapper/api'
 
 export const convertBasisPointsToDecimalPercentage = (basisPoints: string) =>
@@ -42,7 +41,7 @@ export const subtractBasisPointAmount = (
 
   // Subtract basis points from the original value
   const resultValue = bigNumValue.minus(subtractValue)
-  return roundUp ? resultValue.toFixed(0, 0) : resultValue.toFixed()
+  return roundUp ? resultValue.toFixed(0, BigNumber.ROUND_UP) : resultValue.toFixed()
 }
 
 // this converts the collection of protocol fees denominated in various assets to the sum of all of

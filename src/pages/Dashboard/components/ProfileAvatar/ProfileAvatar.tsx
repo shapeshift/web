@@ -1,4 +1,4 @@
-import { Button, Center, useDisclosure } from '@chakra-ui/react'
+import { Box, Button, Center, useDisclosure } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { EditPen } from 'components/Icons/EditPen'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
@@ -19,7 +19,7 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ walletId }) => {
   }, [walletId])
   if (!walletId) return null
   return (
-    <>
+    <Box>
       <Button
         onClick={onOpen}
         variant='unstyled'
@@ -59,6 +59,6 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ walletId }) => {
         />
       </Button>
       <AvatarSelectModal walletImage={walletImage} isOpen={isOpen} onClose={onClose} />
-    </>
+    </Box>
   )
 }

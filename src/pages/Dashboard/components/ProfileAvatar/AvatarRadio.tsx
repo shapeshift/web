@@ -1,6 +1,6 @@
 import { CheckIcon } from '@chakra-ui/icons'
 import type { RadioProps } from '@chakra-ui/react'
-import { Box, chakra, Image, useColorModeValue, useRadio } from '@chakra-ui/react'
+import { Box, chakra, useColorModeValue, useRadio } from '@chakra-ui/react'
 
 type AvatarRadioProps = {
   src: string

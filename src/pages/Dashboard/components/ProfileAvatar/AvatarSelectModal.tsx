@@ -1,6 +1,7 @@
 import type { ModalProps } from '@chakra-ui/react'
 import {
   Button,
+  Center,
   Modal,
   ModalBody,
   ModalContent,
@@ -11,6 +12,8 @@ import {
   useRadioGroup,
 } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
@@ -24,6 +27,7 @@ type AvatarSelectModalProps = Pick<ModalProps, 'isOpen'> &
 export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const [selected, setSelected] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+  const translate = useTranslate()
   const accountIds = useAppSelector(selectWalletAccountIds)
   const { data, isLoading } = useGetNftUserTokensQuery({ accountIds })
   const filteredData = useMemo(
@@ -56,32 +60,45 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   }, [filteredData, getRadioProps])
 
   const handleSaveChanges = useCallback(() => {
-    console.info(selected)
     onClose()
-  }, [onClose, selected])
+  }, [onClose])
 
   return (
     <Modal size='lg' {...props}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Set a New Avatar</ModalHeader>
-        <ModalBody pb={4} display='flex' flexDir='column' gap={4}>
-          <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
-          <SimpleGrid gridGap={4} gridTemplateColumns='1fr 1fr 1fr' {...group}>
-            <AvatarRadio
-              key={walletImage}
-              src={walletImage}
-              {...getRadioProps({ value: walletImage })}
-            />
-            {renderItems}
-          </SimpleGrid>
-        </ModalBody>
-        <ModalFooter>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button ml={4} colorScheme='blue' onClick={handleSaveChanges}>
-            Save Changes
-          </Button>
-        </ModalFooter>
+        <ModalHeader>{translate('avatar.modal.title')}</ModalHeader>
+        {isLoading ? (
+          <ModalBody>
+            <Center py={12}>
+              <CircularProgress />
+            </Center>
+          </ModalBody>
+        ) : (
+          <>
+            <ModalBody pb={4} display='flex' flexDir='column' gap={4}>
+              <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+              <SimpleGrid
+                gridGap={4}
+                gridTemplateColumns={{ base: '1fr 1fr', md: '1fr 1fr 1fr' }}
+                {...group}
+              >
+                <AvatarRadio
+                  key={walletImage}
+                  src={walletImage}
+                  {...getRadioProps({ value: walletImage })}
+                />
+                {renderItems}
+              </SimpleGrid>
+            </ModalBody>
+            <ModalFooter>
+              <Button onClick={onClose}>{translate('common.cancel')}</Button>
+              <Button ml={4} colorScheme='blue' onClick={handleSaveChanges}>
+                {translate('common.saveChanges')}
+              </Button>
+            </ModalFooter>
+          </>
+        )}
       </ModalContent>
     </Modal>
   )

@@ -156,11 +156,14 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
               )}
             </Flex>
             {!mediaUrl || mediaType === 'image' ? (
-              <Image
-                src={mediaUrl ?? placeholderImage}
-                onLoad={() => setIsMediaLoaded(true)}
-                {...mediaBoxProps}
-              />
+              <>
+                <Image
+                  src={mediaUrl ?? placeholderImage}
+                  onLoad={() => setIsMediaLoaded(true)}
+                  {...mediaBoxProps}
+                />
+                <Button colorScheme='whiteAlpha'>{translate('nft.setAsAvatar')}</Button>
+              </>
             ) : (
               <Box
                 as='video'
@@ -177,7 +180,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
         </Flex>
       </Skeleton>
     )
-  }, [assetLink, isMediaLoaded, mediaBoxProps, mediaType, mediaUrl, placeholderImage])
+  }, [assetLink, isMediaLoaded, mediaBoxProps, mediaType, mediaUrl, placeholderImage, translate])
 
   const nftModalOverview = useMemo(() => {
     return (

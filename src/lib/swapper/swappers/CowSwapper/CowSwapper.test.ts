@@ -182,6 +182,8 @@ describe('CowSwapper', () => {
           networkFeeCryptoBaseUnit: '14557942658757988',
         },
         sellAmountDeductFeeCryptoBaseUnit: '985442057341242012',
+        id: '1',
+        minimumBuyAmountAfterFeesCryptoBaseUnit: '14501811818247595090576',
       }
       const args = { trade: cowSwapTrade, wallet }
       await swapper.executeTrade(args)

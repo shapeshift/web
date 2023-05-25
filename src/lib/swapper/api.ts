@@ -155,6 +155,7 @@ export interface TradeQuote<C extends ChainId, UnknownNetworkFee extends boolean
   minimumCryptoHuman: string
   maximumCryptoHuman: string
   recommendedSlippage?: string
+  id?: string
 }
 
 export interface Trade<C extends ChainId> extends TradeBase<C, false> {

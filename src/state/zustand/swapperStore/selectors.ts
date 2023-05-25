@@ -4,7 +4,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
-import { DEFAULT_SLIPPAGE } from 'constants/constants'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import {
   isCosmosSdkSwap,
   isEvmSwap,
@@ -49,7 +49,8 @@ export const selectActiveSwapperWithMetadata = (state: SwapperState) =>
 export const selectAvailableSwappersWithMetadata = (state: SwapperState) =>
   state.availableSwappersWithMetadata
 export const selectSlippage = (state: SwapperState): string =>
-  state.activeSwapperWithMetadata?.quote.recommendedSlippage ?? DEFAULT_SLIPPAGE
+  state.activeSwapperWithMetadata?.quote.recommendedSlippage ??
+  getDefaultSlippagePercentageForSwapper(state.activeSwapperWithMetadata?.swapper.name)
 
 export const selectQuote = (state: SwapperState): TradeQuote<ChainId> | undefined =>
   state.activeSwapperWithMetadata?.quote

@@ -1,8 +1,9 @@
 import { Box, Image, useColorModeValue } from '@chakra-ui/react'
+import Placeholder from 'assets/placeholder.png'
 import { CircleIcon } from 'components/Icons/Circle'
 
 type DappAvatarProps = {
-  image: string
+  image?: string
   name: string
   connected: boolean
   size?: number
@@ -23,7 +24,7 @@ export const DappAvatar: React.FC<DappAvatarProps> = ({
 
   return (
     <Box position='relative'>
-      <Image boxSize={size} borderRadius='full' src={image} alt={name} />
+      <Image boxSize={size} borderRadius='full' src={image || Placeholder} alt={name} />
       {connected && (
         <CircleIcon
           color={connectedIconColor}

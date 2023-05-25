@@ -266,7 +266,7 @@ export const zapperApi = createApi({
       },
     }),
     // We abuse the /v2/nft/balances/collections endpoint to get the collection meta
-    getZapperCollectionBalance: build.query<NftCollectionItem[], GetZapperCollectionsInput>({
+    getZapperCollectionBalance: build.query<NftCollectionItem, GetZapperCollectionsInput>({
       queryFn: async ({ accountIds, collectionId }) => {
         const addresses = accountIdsToEvmAddresses(accountIds)
         const params = {
@@ -284,7 +284,7 @@ export const zapperApi = createApi({
         const parsedData: NftCollectionItem[] = validatedData.map(item => {
           const chainId = zapperNetworkToChainId(item.collection.network as SupportedZapperNetwork)!
           return {
-            id: collectionId,
+            id: null,
             // Actually defined since we're passing supported EVM networks AccountIds
             chainId,
             name: item.collection.name,
@@ -295,7 +295,18 @@ export const zapperApi = createApi({
           }
         })
 
-        return { data: parsedData }
+        // The right side will always evaluate to false - that's until Zapper fixes their collectionAddresses[] param not being honored
+        if (!parsedData[0] || parsedData[0].id !== collectionId) {
+          return {
+            error: {
+              status: 404,
+              code: 'ZAPPER_COLLECTION_NOT_FOUND',
+              message: 'Collection not found',
+            },
+          }
+        }
+
+        return { data: parsedData[0] }
       },
     }),
   }),

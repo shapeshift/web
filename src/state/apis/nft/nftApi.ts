@@ -54,7 +54,7 @@ export const nftApi = createApi({
         // Only zapperApi.endpoints.getZapperCollectionBalance for now
         const { data } = await dispatch(sources[0].initiate({ accountIds, collectionId }))
 
-        const collectionItem = data?.[0]
+        const collectionItem = data
 
         if (!collectionItem)
           return {

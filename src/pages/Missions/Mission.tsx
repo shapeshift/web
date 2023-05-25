@@ -80,6 +80,7 @@ export const Mission: React.FC<MissionProps> = ({
           letterSpacing='-0.002em'
           textAlign='center'
           lineHeight='10'
+          color='white'
           mx={8}
         >
           {title}

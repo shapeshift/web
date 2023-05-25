@@ -265,7 +265,8 @@ export const zapperApi = createApi({
         return { data: parsedData }
       },
     }),
-    getZapperCollection: build.query<NftCollectionItem[], GetZapperCollectionsInput>({
+    // We abuse the /v2/nft/balances/collections endpoint to get the collection meta
+    getZapperCollectionBalance: build.query<NftCollectionItem[], GetZapperCollectionsInput>({
       queryFn: async ({ accountIds, collectionId }) => {
         const addresses = accountIdsToEvmAddresses(accountIds)
         const params = {
@@ -645,4 +646,4 @@ export const zapper = createApi({
   }),
 })
 
-export const { useGetZapperNftUserTokensQuery, useGetZapperCollectionQuery } = zapperApi
+export const { useGetZapperNftUserTokensQuery } = zapperApi

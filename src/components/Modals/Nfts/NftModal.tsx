@@ -37,10 +37,10 @@ import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { ordinalSuffix } from 'context/WalletProvider/NativeWallet/components/NativeTestPhrase'
 import { useModal } from 'hooks/useModal/useModal'
+import { useGetNftCollectionQuery } from 'state/apis/nft/nftApi'
 import type { NftItem } from 'state/apis/nft/types'
 import { chainIdToOpenseaNetwork } from 'state/apis/nft/utils'
 import { getMediaType } from 'state/apis/zapper/validators'
-import { useGetZapperCollectionQuery } from 'state/apis/zapper/zapperApi'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -75,7 +75,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const accountIds = useAppSelector(selectWalletAccountIds)
 
-  const { data: nftCollection } = useGetZapperCollectionQuery(
+  const { data: nftCollection } = useGetNftCollectionQuery(
     { accountIds, collectionId: nftItem.collection.id ?? '' },
     { skip: !nftItem.collection.id?.length },
   )
@@ -247,9 +247,9 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
 
     const hasUsefulCollectionData = Boolean(
       nftItem.collection.description ||
-        nftCollection?.[0]?.description ||
+        nftCollection.description ||
         nftItem.collection.socialLinks?.length ||
-        nftCollection?.[0]?.socialLinks?.length,
+        nftCollection.socialLinks?.length,
     )
     return (
       <Tabs display='flex' flexDir='column' position='relative' variant='unstyled' flex={1}>
@@ -263,16 +263,16 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
         </Box>
         <TabPanels maxHeight={{ base: 'auto', md: '500px' }} overflowY='auto' flex={1}>
           <TabPanel p={0}>
-            <NftOverview nftItem={nftItem} nftCollection={nftCollection[0]} />
+            <NftOverview nftItem={nftItem} nftCollection={nftCollection} />
           </TabPanel>
           {hasUsefulCollectionData && (
             <TabPanel p={0}>
               <NftCollection
-                name={nftCollection[0].name || nftItem.collection.name}
-                description={nftCollection[0].description || nftItem.collection.description}
+                name={nftCollection.name || nftItem.collection.name}
+                description={nftCollection.description || nftItem.collection.description}
                 socialLinks={
-                  nftCollection[0].socialLinks.length
-                    ? nftCollection[0].socialLinks
+                  nftCollection.socialLinks.length
+                    ? nftCollection.socialLinks
                     : nftItem.collection.socialLinks
                 }
               />

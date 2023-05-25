@@ -1,13 +1,19 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { logger } from 'lib/logger'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
-import type { NftItem } from './types'
+import type { NftCollectionItem, NftItem } from './types'
 
 type GetNftUserTokensInput = {
+  accountIds: AccountId[]
+}
+
+type GetNftCollectionInput = {
+  collectionId: AssetId
+  // This looks weird but is correct. We abuse the Zapper balances endpoint to get collection meta
   accountIds: AccountId[]
 }
 
@@ -41,7 +47,29 @@ export const nftApi = createApi({
         return { data }
       },
     }),
+    getNftCollection: build.query<NftCollectionItem, GetNftCollectionInput>({
+      queryFn: async ({ collectionId, accountIds }, { dispatch }) => {
+        const sources = [zapperApi.endpoints.getZapperCollectionBalance]
+
+        // Only zapperApi.endpoints.getZapperCollectionBalance for now
+        const { data } = await dispatch(sources[0].initiate({ accountIds, collectionId }))
+
+        const collectionItem = data?.[0]
+
+        if (!collectionItem)
+          return {
+            error: {
+              status: 404,
+              data: {
+                message: 'Collection not found',
+              },
+            },
+          }
+
+        return { data: collectionItem }
+      },
+    }),
   }),
 })
 
-export const { useGetNftUserTokensQuery } = nftApi
+export const { useGetNftUserTokensQuery, useGetNftCollectionQuery } = nftApi

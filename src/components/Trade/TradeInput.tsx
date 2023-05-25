@@ -133,6 +133,7 @@ export const TradeInput = () => {
   const updateAction = useSwapperStore(state => state.updateAction)
   const updateAmount = useSwapperStore(state => state.updateAmount)
   const updateReceiveAddress = useSwapperStore(state => state.updateReceiveAddress)
+  const updatePreferredSwapper = useSwapperStore(state => state.updatePreferredSwapper)
   const fiatBuyAmount = useSwapperStore(selectBuyAmountFiat)
   const fiatSellAmount = useSwapperStore(selectSellAmountFiat)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
@@ -257,13 +258,21 @@ export const TradeInput = () => {
       // No-op if nothing material has changed
       if (inputAction === action && inputAmount === amount) return
       updateAction(inputAction)
-      // If we've overridden the input we are no longer in sendMax mode
       updateIsSendMax(false)
+      updatePreferredSwapper(undefined)
       updateAmount(inputAmount)
 
       handleInputAmountChange()
     },
-    [action, amount, updateAction, updateIsSendMax, updateAmount, handleInputAmountChange],
+    [
+      action,
+      amount,
+      updateAction,
+      updateIsSendMax,
+      updatePreferredSwapper,
+      updateAmount,
+      handleInputAmountChange,
+    ],
   )
 
   useEffect(() => {
@@ -379,11 +388,23 @@ export const TradeInput = () => {
     [handleInputChange],
   )
 
-  const handleSellAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
-    updateSelectedSellAssetAccountId(accountId)
+  const handleSellAccountIdChange: AccountDropdownProps['onChange'] = useCallback(
+    accountId => {
+      updateIsSendMax(false)
+      updatePreferredSwapper(undefined)
+      updateSelectedSellAssetAccountId(accountId)
+    },
+    [updateIsSendMax, updatePreferredSwapper, updateSelectedSellAssetAccountId],
+  )
 
-  const handleBuyAccountIdChange: AccountDropdownProps['onChange'] = accountId =>
-    updateSelectedBuyAssetAccountId(accountId)
+  const handleBuyAccountIdChange: AccountDropdownProps['onChange'] = useCallback(
+    accountId => {
+      updateIsSendMax(false)
+      updatePreferredSwapper(undefined)
+      updateSelectedBuyAssetAccountId(accountId)
+    },
+    [updateIsSendMax, updatePreferredSwapper, updateSelectedBuyAssetAccountId],
+  )
 
   const isBelowMinSellAmount = useMemo(() => {
     const minSellAmount = toBaseUnit(
@@ -605,8 +626,8 @@ export const TradeInput = () => {
 
       assetSearch.open({
         onClick: (asset: Asset) => {
-          // changing assets resets max send
           updateIsSendMax(false)
+          updatePreferredSwapper(undefined)
           handleAssetClick(asset, action)
         },
         title: action === AssetClickAction.Sell ? 'trade.tradeFrom' : 'trade.tradeTo',
@@ -623,6 +644,7 @@ export const TradeInput = () => {
       supportedSellAssetsByMarketCap,
       handleAssetClick,
       updateIsSendMax,
+      updatePreferredSwapper,
     ],
   )
 
@@ -637,10 +659,10 @@ export const TradeInput = () => {
   )
 
   const handleSwitchAssetsClick = useCallback(() => {
-    // switching assets resets max send
     updateIsSendMax(false)
+    updatePreferredSwapper(undefined)
     handleSwitchAssets()
-  }, [handleSwitchAssets, updateIsSendMax])
+  }, [handleSwitchAssets, updateIsSendMax, updatePreferredSwapper])
 
   const tradeStateLoading = useMemo(
     () =>

@@ -32,14 +32,11 @@ import { zapper } from 'state/apis/zapper/zapperApi'
 import { assets as assetsSlice, useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
 import {
-  defaultMarketData,
   marketApi,
-  marketData,
   useFindAllQuery,
   useFindByFiatSymbolQuery,
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
-import type { MarketDataById } from 'state/slices/marketDataSlice/types'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import {
   fetchAllOpportunitiesIdsByChainId,
@@ -51,7 +48,6 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetIds,
-  selectNftAssetIds,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
@@ -176,6 +172,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           requestedAccountIds.map(accountId => dispatch(getAllTxHistory.initiate(accountId))),
         )
       } finally {
+        // add any nft assets detected in the tx history state.
+        // this will ensure we have all nft assets that have been associated with the account in the assetSlice with parsed metadata.
+        // additional nft asset upserts will be handled by the transactions websocket subscription.
         const txsById = store.getState().txHistory.txs.byId
         dispatch(assetsSlice.actions.upsertAssets(makeNftAssetsFromTxs(Object.values(txsById))))
       }
@@ -253,8 +252,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }),
   )
 
-  const nftAssetIds = useAppSelector(selectNftAssetIds)
-
   // once the portfolio is loaded, fetch market data for all portfolio assets
   // start refetch timer to keep market data up to date
   useEffect(() => {
@@ -263,15 +260,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // Exclude assets for which we are unable to get market data
     // We would fire query thunks / XHRs that would slow down the app
     // We insert price data for these as resolver-level, and are unable to get market data
-    const excluded: AssetId[] = nftAssetIds.concat(uniV2LpIdsData.data ?? [])
+    const excluded: AssetId[] = uniV2LpIdsData.data ?? []
     const portfolioAssetIdsExcludeNoMarketData = difference(portfolioAssetIds, excluded)
-
-    // Stub until we get proper market data
-    const nftDefaultMarketData = nftAssetIds.reduce<MarketDataById<AssetId>>((prev, assetId) => {
-      prev[assetId] = defaultMarketData
-      return prev
-    }, {})
-    dispatch(marketData.actions.setCryptoMarketData(nftDefaultMarketData))
 
     // https://redux-toolkit.js.org/rtk-query/api/created-api/endpoints#initiate
     // TODO(0xdef1cafe): bring polling back once we point at markets.shapeshift.com
@@ -284,7 +274,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       const payload = { assetId, timeframe }
       dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload))
     })
-  }, [dispatch, portfolioLoadingStatus, portfolioAssetIds, uniV2LpIdsData.data, nftAssetIds])
+  }, [dispatch, portfolioLoadingStatus, portfolioAssetIds, uniV2LpIdsData.data])
 
   /**
    * fetch forex spot and history for user's selected currency

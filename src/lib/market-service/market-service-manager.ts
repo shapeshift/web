@@ -1,3 +1,4 @@
+import { isNft } from '@shapeshiftoss/caip'
 import { Logger } from '@shapeshiftoss/logger'
 import type {
   FindAllMarketArgs,
@@ -76,6 +77,15 @@ export class MarketServiceManager {
   }
 
   async findByAssetId({ assetId }: MarketDataArgs) {
+    if (isNft(assetId)) {
+      return {
+        price: '0',
+        marketCap: '0',
+        volume: '0',
+        changePercent24Hr: 0,
+      }
+    }
+
     let result: MarketData | null = null
     // Loop through market providers and look for asset market data. Once found, exit loop.
     for (let i = 0; i < this.marketProviders.length && !result; i++) {
@@ -93,6 +103,8 @@ export class MarketServiceManager {
     assetId,
     timeframe,
   }: PriceHistoryArgs): Promise<HistoryData[]> {
+    if (isNft(assetId)) return []
+
     let result: HistoryData[] | null = null
     // Loop through market providers and look for asset price history data. Once found, exit loop.
     for (let i = 0; i < this.marketProviders.length && !result?.length; i++) {

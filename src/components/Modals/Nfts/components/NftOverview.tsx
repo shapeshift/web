@@ -22,7 +22,8 @@ type NftOverviewProps = {
 export const NftOverview: React.FC<NftOverviewProps> = ({ nftItem, nftCollection }) => {
   const translate = useTranslate()
 
-  const description = nftCollection?.description || nftItem.collection.description
+  const description =
+    nftItem.description || nftItem.collection.description || nftCollection?.description
   const collection = nftItem?.collection
   const tokenId = nftItem?.id
   const address = fromAssetId(collection?.id!).assetReference

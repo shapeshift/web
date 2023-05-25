@@ -8,7 +8,7 @@ import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
 import type { NftCollectionType, NftItem } from './types'
-import { parseNftContract } from './utils'
+import { parseAlchemyNftContractToCollectionItem } from './utils'
 
 type GetNftUserTokensInput = {
   accountIds: AccountId[]
@@ -56,7 +56,7 @@ export const nftApi = createApi({
           const { assetReference: collectionAddress, chainId } = fromAssetId(collectionId)
           const alchemyCollectionData = await getAlchemyInstanceByChainId(chainId)
             .nft.getContractMetadata(collectionAddress)
-            .then(contract => parseNftContract(contract, chainId))
+            .then(contract => parseAlchemyNftContractToCollectionItem(contract, chainId))
 
           // Alchemy is the most/only reliable source for collection data for now
           if (alchemyCollectionData) {

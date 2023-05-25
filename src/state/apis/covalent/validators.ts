@@ -221,6 +221,7 @@ export const parseToNftItem = (
         medias,
         price: '', // Covalent doesn't provide spot pricing for NFT items
         rarityRank: null, // Covalent doesn't provide rarity rank
+        description: nftData.external_data?.description || '',
         collection: {
           id:
             covalentItem.contract_address && covalentItem.supports_erc?.length
@@ -234,8 +235,8 @@ export const parseToNftItem = (
                 })
               : '',
           chainId,
+          description: '', // Covalent doesn't provide collection description
           name: covalentItem.contract_name ?? 'Collection',
-          description: nftData.external_data?.description || '',
           floorPrice: '', // Covalent doesn't provide floor price
           openseaId: '', // Covalent doesn't provide an openseaId
           socialLinks: nftData.external_data?.external_url

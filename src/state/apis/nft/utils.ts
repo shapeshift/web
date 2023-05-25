@@ -56,7 +56,10 @@ export const openseaNetworkToChainId = (network: SupportedOpenseaNetwork): Chain
 export const chainIdToOpenseaNetwork = (chainId: ChainId): SupportedOpenseaNetwork | undefined =>
   CHAIN_ID_TO_OPENSEA_NETWORK_MAP[chainId]
 
-export const parseNftContract = (contract: NftContract, chainId: ChainId): NftCollectionItem => {
+export const parseAlchemyNftContractToCollectionItem = (
+  contract: NftContract,
+  chainId: ChainId,
+): NftCollectionItem => {
   const { name, openSea } = contract
 
   const socialLinks = [
@@ -64,7 +67,7 @@ export const parseNftContract = (contract: NftContract, chainId: ChainId): NftCo
       ? [
           {
             name: 'Twitter',
-            label: 'twitter',
+            label: 'Twitter',
             url: `https://twitter.com/${openSea.twitterUsername}`,
             logoUrl: '',
           },
@@ -74,7 +77,7 @@ export const parseNftContract = (contract: NftContract, chainId: ChainId): NftCo
       ? [
           {
             name: 'Discord',
-            label: 'discord',
+            label: 'Discord',
             url: openSea.discordUrl,
             logoUrl: '',
           },
@@ -84,7 +87,7 @@ export const parseNftContract = (contract: NftContract, chainId: ChainId): NftCo
       ? [
           {
             name: 'Website',
-            label: 'website',
+            label: 'Website',
             url: openSea.externalUrl,
             logoUrl: '',
           },

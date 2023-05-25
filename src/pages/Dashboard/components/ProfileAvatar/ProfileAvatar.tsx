@@ -1,14 +1,17 @@
-import { Button, Center } from '@chakra-ui/react'
+import { Button, Center, useDisclosure } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { EditPen } from 'components/Icons/EditPen'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
 import type { WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
+import { AvatarSelectModal } from './AvatarSelectModal'
+
 type ProfileAvatarProps = {
   walletId?: WalletId
 }
 export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ walletId }) => {
+  const { isOpen, onClose, onOpen } = useDisclosure()
   const walletImage = useMemo(() => {
     if (!walletId) return ''
     /* This needs to be a min of 15 characters so we added a string to ensure its always at least 15 */
@@ -17,7 +20,14 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ walletId }) => {
   if (!walletId) return null
   return (
     <>
-      <Button variant='unstyled' minHeight='auto' height='auto' role='group' position='relative'>
+      <Button
+        onClick={onOpen}
+        variant='unstyled'
+        minHeight='auto'
+        height='auto'
+        role='group'
+        position='relative'
+      >
         <Center
           position='absolute'
           left='50%'
@@ -43,10 +53,12 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ walletId }) => {
           transitionProperty='common'
           size={{ base: 'md', md: 'xl' }}
           src={walletImage}
+          outline='2px solid transparent'
           _groupHover={{ opacity: '0.5' }}
           _groupActive={{ outline: '2px solid var(--chakra-colors-chakra-body-text)' }}
         />
       </Button>
+      <AvatarSelectModal walletImage={walletImage} isOpen={isOpen} onClose={onClose} />
     </>
   )
 }

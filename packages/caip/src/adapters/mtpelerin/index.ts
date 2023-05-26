@@ -28,14 +28,14 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
   USDT: [
     'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7',
     'eip155:137/erc20:0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
-    'eip155:100/erc20:0x4ECaBa5870353805a9F068101A40E0f32ed605C6',
+    'eip155:100/erc20:0x4ecaba5870353805a9f068101a40e0f32ed605c6',
   ],
   USDC: [
     'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
     'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
     'eip155:10/erc20:0x7f5c764cbc14f9669b88837ca1490cca17c31607',
     'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
-    'eip155:100/erc20:0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
+    'eip155:100/erc20:0xddafbb505ad214d7b80b1f830fccc89b60fb7a83',
   ],
   jEUR: [
     'eip155:1/erc20:0x0f17bc9a994b87b5225cfb6a2cd4d667adb4f20b',
@@ -51,7 +51,7 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
   ],
   WBTC: [
     'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
-    'eip155:100/erc20:0x8e5bBbb09Ed1ebdE8674Cda39A0c169401db4252',
+    'eip155:100/erc20:0x8e5bbbb09ed1ebde8674cda39a0c169401db4252',
   ],
   AVAX: [avalancheAssetId],
   EURS: [
@@ -72,7 +72,7 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
   EUROC: ['eip155:1/erc20:0x1abaea1f7c830bd89acc67ec4af516284b1bc33c'],
   LUSD: ['eip155:1/erc20:0x5f98805a4e8be255a32880fdec7f6728c6568ba0'],
   XCHF: ['eip155:1/erc20:0xb4272071ecadd69d933adcd19ca99fe80664fc08'],
-  WETH: ['eip155:100/erc20:0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1'],
+  WETH: ['eip155:100/erc20:0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1'],
 }
 
 /**

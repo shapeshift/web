@@ -34,6 +34,10 @@ const updateNftItem = (originalItem: NftItem, currentItem: NftItem) => {
   if (originalItem.rarityRank === null && typeof currentItem.rarityRank === 'number') {
     originalItem.rarityRank = currentItem.rarityRank
   }
+  if (!originalItem.collection.floorPrice && currentItem.collection.floorPrice) {
+    originalItem.collection.floorPrice = currentItem.collection.floorPrice
+  }
+
   if (!originalItem.description && currentItem.description) {
     originalItem.description = currentItem.description
 

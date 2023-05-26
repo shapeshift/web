@@ -10,6 +10,7 @@ import { selectAssets, selectCryptoMarketData, selectFiatToUsdRate } from 'state
 import { store } from 'state/store'
 import {
   selectAction,
+  selectActiveSwapperWithMetadata,
   selectAmount,
   selectBuyAsset,
   selectProtocolFees,
@@ -210,21 +211,21 @@ export const selectSellAmountBeforeFeesFiat = createSelector(
 )
 
 export const selectTradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit = createSelector(
-  (state: SwapperState) =>
-    state.activeSwapperWithMetadata?.quote?.sellAmountBeforeFeesCryptoBaseUnit,
+  selectActiveSwapperWithMetadata,
   (state: SwapperState) => state.trade?.sellAmountBeforeFeesCryptoBaseUnit,
-  (quoteSellAmountBeforeFeesBaseUnit, tradeSellAmountBeforeFeesBaseUnit): string | undefined =>
+  (activeSwapperWithMetadata, tradeSellAmountBeforeFeesBaseUnit): string | undefined =>
     // Use the trade amount if we have it, otherwise use the quote amount
-    tradeSellAmountBeforeFeesBaseUnit ?? quoteSellAmountBeforeFeesBaseUnit,
+    tradeSellAmountBeforeFeesBaseUnit ??
+    activeSwapperWithMetadata?.quote?.sellAmountBeforeFeesCryptoBaseUnit,
 )
 
 export const selectTradeOrQuoteBuyAmountCryptoBaseUnit = createSelector(
-  (state: SwapperState) =>
-    state.activeSwapperWithMetadata?.quote?.buyAmountBeforeFeesCryptoBaseUnit,
+  selectActiveSwapperWithMetadata,
   (state: SwapperState) => state.trade?.buyAmountBeforeFeesCryptoBaseUnit,
-  (quoteBuyAmountBeforeFeesBaseUnit, tradeBuyAmountBeforeFeesBaseUnit): string | undefined =>
+  (activeSwapperWithMetadata, tradeBuyAmountBeforeFeesBaseUnit): string | undefined =>
     // Use the trade amount if we have it, otherwise use the quote amount
-    tradeBuyAmountBeforeFeesBaseUnit ?? quoteBuyAmountBeforeFeesBaseUnit,
+    tradeBuyAmountBeforeFeesBaseUnit ??
+    activeSwapperWithMetadata?.quote?.buyAmountBeforeFeesCryptoBaseUnit,
 )
 
 // used to compute the gross sell amount based on the quote
@@ -508,12 +509,13 @@ export const selectDonationAmountFiat = createSelector(
 )
 
 export const selectIntermediaryTransactionOutputs = createDeepEqualOutputSelector(
-  (state: SwapperState) => state.activeSwapperWithMetadata?.quote?.intermediaryTransactionOutputs,
+  selectActiveSwapperWithMetadata,
   (state: SwapperState) => state.trade?.intermediaryTransactionOutputs,
   (
-    quoteIntermediaryTransactionOutputs,
+    activeSwapperWithMetadata,
     tradeIntermediaryTransactionOutputs,
   ): AmountDisplayMeta[] | undefined =>
     // Use the trade amount if we have it, otherwise use the quote amount
-    tradeIntermediaryTransactionOutputs ?? quoteIntermediaryTransactionOutputs,
+    tradeIntermediaryTransactionOutputs ??
+    activeSwapperWithMetadata?.quote?.intermediaryTransactionOutputs,
 )

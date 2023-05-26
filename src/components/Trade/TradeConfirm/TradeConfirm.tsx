@@ -60,6 +60,7 @@ import {
   selectSellAmountBeforeFeesFiat,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
+  selectActiveSwapperName,
   selectActiveSwapperWithMetadata,
   selectBuyAmountCryptoPrecision,
   selectBuyAmountFiat,
@@ -69,7 +70,6 @@ import {
   selectSellAssetAccountId,
   selectSlippage,
   selectSwapperDefaultAffiliateBps,
-  selectSwapperName,
   selectTrade,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
@@ -111,7 +111,7 @@ export const TradeConfirm = () => {
 
   const trade = useSwapperStore(selectTrade)
   const fees = useSwapperStore(selectFees)
-  const swapperName = useSwapperStore(selectSwapperName)
+  const swapperName = useSwapperStore(selectActiveSwapperName)
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const slippage = useSwapperStore(selectSlippage)
   const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)

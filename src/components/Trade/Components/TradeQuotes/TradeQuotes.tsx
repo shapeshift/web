@@ -6,9 +6,9 @@ import { selectCryptoMarketData } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { selectBuyAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import {
+  selectActiveSwapperName,
   selectAvailableSwappersWithMetadata,
   selectBuyAsset,
-  selectSwapperName,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
@@ -23,7 +23,7 @@ type TradeQuotesProps = {
 export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) => {
   const buyAssetUsdRate = useSwapperStore(selectBuyAssetUsdRate)
   const availableSwappersWithMetadata = useSwapperStore(selectAvailableSwappersWithMetadata)
-  const activeSwapperName = useSwapperStore(selectSwapperName)
+  const activeSwapperName = useSwapperStore(selectActiveSwapperName)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const cryptoMarketDataById = useAppSelector(selectCryptoMarketData)
 

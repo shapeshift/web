@@ -28,10 +28,9 @@ export const selectFees = (state: SwapperState) => state.fees
 export const selectProtocolFees = (state: SwapperState) => state.fees?.protocolFees
 export const selectTrade = (state: SwapperState) => state.trade
 export const selectPreferredSwapper = (state: SwapperState) => state.preferredSwapper
-export const selectActiveSwapperWithMetadata = ({
-  availableSwappersWithMetadata,
-  preferredSwapper,
-}: SwapperState) => {
+export const selectActiveSwapperWithMetadata = (state: SwapperState) => {
+  const { availableSwappersWithMetadata, preferredSwapper } = state
+
   if (availableSwappersWithMetadata === undefined) return
   const firstAvailableSwapper = availableSwappersWithMetadata[0]
 
@@ -43,7 +42,7 @@ export const selectActiveSwapperWithMetadata = ({
   )
 }
 
-export const selectSwapperName = createSelector(
+export const selectActiveSwapperName = createSelector(
   selectActiveSwapperWithMetadata,
   activeSwapperWithMetadata => activeSwapperWithMetadata?.swapper.name,
 )

@@ -10,13 +10,13 @@ import { selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { selectFiatToUsdRate, selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { store, useAppSelector } from 'state/store'
 import { selectDonationAmountFiat } from 'state/zustand/swapperStore/amountSelectors'
-import { selectSellAsset, selectSwapperName } from 'state/zustand/swapperStore/selectors'
+import { selectActiveSwapperName, selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useDonationAmountBelowMinimum = () => {
   const runePriceFiat = useAppSelector(state => selectMarketDataById(state, thorchainAssetId)).price
   const donationAmountFiat = useSwapperStore(selectDonationAmountFiat)
-  const activeSwapperName = useSwapperStore(selectSwapperName)
+  const activeSwapperName = useSwapperStore(selectActiveSwapperName)
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellAssetChainId = sellAsset?.chainId
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAssetChainId ?? ''))

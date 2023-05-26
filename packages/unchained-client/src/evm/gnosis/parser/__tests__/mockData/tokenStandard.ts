@@ -1,4 +1,4 @@
-import type { Tx } from '../../../../../generated/polygon'
+import type { Tx } from '../../../index'
 import { mempoolMock } from './mempoolMock'
 
 export const tokenStandard: Tx = {
@@ -21,7 +21,7 @@ export const tokenStandard: Tx = {
     {
       contract: '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
       decimals: 6,
-      name: 'USD//ConxDai',
+      name: 'USD//C on xDai',
       symbol: 'USDC',
       type: 'ERC20',
       from: '0xE7aeB98322CD1f9680BC5e007Cac5f02B38d8745',

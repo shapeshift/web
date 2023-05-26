@@ -1,14 +1,19 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { NftFilters } from 'alchemy-sdk'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 import { logger } from 'lib/logger'
+import { isFulfilled } from 'lib/utils'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
+import {
+  parseAlchemyNftContractToCollectionItem,
+  parseAlchemyOwnedNftToNftItem,
+} from './parsers/alchemy'
 import type { NftCollectionType, NftItem } from './types'
-import { parseAlchemyNftContractToCollectionItem } from './utils'
 
 type GetNftUserTokensInput = {
   accountIds: AccountId[]
@@ -28,25 +33,58 @@ export const nftApi = createApi({
   endpoints: build => ({
     getNftUserTokens: build.query<NftItem[], GetNftUserTokensInput>({
       queryFn: async ({ accountIds }, { dispatch }) => {
-        const sources = [
-          zapperApi.endpoints.getZapperNftUserTokens,
-          covalentApi.endpoints.getCovalentNftUserTokens,
+        const getAlchemyNftData = async (accountIds: AccountId[]): Promise<{ data: NftItem[] }> => {
+          const items = (
+            await Promise.allSettled(
+              accountIds.map(async accountId => {
+                const { account: address, chainId } = fromAccountId(accountId)
+
+                const nftItems = await getAlchemyInstanceByChainId(chainId)
+                  .nft.getNftsForOwner(address, { excludeFilters: [NftFilters.SPAM] })
+                  .then(({ ownedNfts }) =>
+                    ownedNfts.map(ownedNft => parseAlchemyOwnedNftToNftItem(ownedNft, chainId)),
+                  )
+
+                return nftItems
+              }),
+            )
+          )
+            .filter(isFulfilled)
+            .flatMap(({ value }) => value)
+
+          debugger
+          return { data: items }
+        }
+
+        const services = [
+          getAlchemyNftData,
+          (accountIds: AccountId[]) =>
+            dispatch(zapperApi.endpoints.getZapperNftUserTokens.initiate({ accountIds })),
+          (accountIds: AccountId[]) =>
+            dispatch(covalentApi.endpoints.getCovalentNftUserTokens.initiate({ accountIds })),
         ]
 
-        const results = await Promise.all(
-          sources.map(source => dispatch(source.initiate({ accountIds }))),
-        )
+        const results = await Promise.all(services.map(service => service(accountIds)))
+
         const data = results.reduce<NftItem[]>((acc, result) => {
           if (result.data) {
             const { data } = result
-            acc = acc.concat(data)
+
+            data.forEach(item => {
+              const itemExists = acc.find(
+                accItem => accItem.id === item.id && accItem.collection.id === item.collection.id,
+              )
+
+              if (!itemExists) {
+                acc.push(item)
+              }
+            })
           } else if (result.isError) {
             moduleLogger.error({ error: result.error }, 'Failed to fetch nft user data')
           }
 
           return acc
         }, [])
-
         return { data }
       },
     }),

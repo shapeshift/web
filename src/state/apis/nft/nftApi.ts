@@ -27,6 +27,24 @@ type GetNftCollectionInput = {
 
 const moduleLogger = logger.child({ namespace: ['nftApi'] })
 
+const updateNftItem = (originalItem: NftItem, currentItem: NftItem) => {
+  if (!originalItem.medias.length && currentItem.medias.length) {
+    originalItem.medias = currentItem.medias
+  }
+  if (originalItem.rarityRank === null && typeof currentItem.rarityRank === 'number') {
+    originalItem.rarityRank = currentItem.rarityRank
+  }
+  if (!originalItem.description && currentItem.description) {
+    originalItem.description = currentItem.description
+
+    if (!originalItem.name && currentItem.name) {
+      originalItem.name = currentItem.name
+    }
+  }
+
+  return originalItem
+}
+
 export const nftApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'nftApi',
@@ -71,12 +89,15 @@ export const nftApi = createApi({
             const { data } = result
 
             data.forEach(item => {
-              const itemExists = acc.find(
+              const originalItemIndex = acc.findIndex(
                 accItem => accItem.id === item.id && accItem.collection.id === item.collection.id,
               )
 
-              if (!itemExists) {
+              if (originalItemIndex === -1) {
                 acc.push(item)
+              } else {
+                const updatedItem = updateNftItem(acc[originalItemIndex], item)
+                acc[originalItemIndex] = updatedItem
               }
             })
           } else if (result.isError) {

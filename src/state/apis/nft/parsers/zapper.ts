@@ -3,7 +3,7 @@ import { toAssetId } from '@shapeshiftoss/caip'
 import type { AssetNamespace } from '@shapeshiftoss/caip/src/assetId/assetId'
 import type { V2NftUserItem } from 'state/apis/zapper/validators'
 
-import type { NftCollectionItem, NftItem } from '../types'
+import type { NftCollectionType, NftItem } from '../types'
 
 export const parseToNftItem = (zapperItem: V2NftUserItem, chainId: ChainId): NftItem => {
   const {
@@ -12,7 +12,7 @@ export const parseToNftItem = (zapperItem: V2NftUserItem, chainId: ChainId): Nft
     token: { collection },
   } = zapperItem
 
-  const collectionItem: NftCollectionItem = {
+  const collectionItem: NftCollectionType = {
     id: collection?.address
       ? toAssetId({
           assetReference: collection.address,
@@ -21,10 +21,10 @@ export const parseToNftItem = (zapperItem: V2NftUserItem, chainId: ChainId): Nft
         })
       : '',
     chainId,
-    description: null, // Not supported by the /v2/nft/user/tokens endpoint
+    description: '', // Not supported by the /v2/nft/user/tokens endpoint
     name: collection?.name || '',
     floorPrice: collection?.floorPriceEth || '',
-    openseaId: collection?.openseaId || null,
+    openseaId: collection?.openseaId || '',
     socialLinks: [], // Not supported by the /v2/nft/user/tokens endpoint
   }
 

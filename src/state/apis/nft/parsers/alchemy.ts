@@ -1,9 +1,10 @@
 import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { NftContract, OpenSeaCollectionMetadata, OwnedNft } from 'alchemy-sdk'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getMediaType } from 'state/apis/zapper/validators'
 
-import type { NftCollectionItem, NftItem } from '../types'
+import type { NftCollectionType, NftItem } from '../types'
 
 const makeSocialLinks = (openseaCollectionMetadata: OpenSeaCollectionMetadata | undefined) => {
   if (!openseaCollectionMetadata) return []
@@ -47,7 +48,7 @@ const makeSocialLinks = (openseaCollectionMetadata: OpenSeaCollectionMetadata | 
 export const parseAlchemyNftContractToCollectionItem = (
   contract: NftContract,
   chainId: ChainId,
-): NftCollectionItem => {
+): NftCollectionType => {
   const { name, openSea } = contract
 
   const socialLinks = makeSocialLinks(openSea)
@@ -61,9 +62,9 @@ export const parseAlchemyNftContractToCollectionItem = (
     id,
     chainId,
     name: name || '',
-    floorPrice: openSea?.floorPrice?.toString() || null,
-    openseaId: openSea?.collectionName ? openSea.collectionName : null,
-    description: openSea?.description || null,
+    floorPrice: openSea?.floorPrice ? bnOrZero(openSea.floorPrice).toString() : '',
+    openseaId: openSea?.collectionName ? openSea.collectionName : '',
+    description: openSea?.description || '',
     socialLinks,
   }
 }
@@ -79,16 +80,16 @@ export const parseAlchemyOwnedNftToNftItem = (
   })
   const socialLinks = makeSocialLinks(alchemyOwnedNft.contract.openSea)
 
-  const nftCollectionItem = {
+  const NftCollectionType = {
     id: collectionId,
     chainId,
     name:
       alchemyOwnedNft.contract.name ||
       alchemyOwnedNft.contract.openSea?.collectionName ||
       'Collection',
-    floorPrice: null, // Seemingly unreliable
-    openseaId: null, // The Alchemy NFT data does not have an openseaId
-    description: alchemyOwnedNft.contract.openSea?.description || null,
+    floorPrice: '', // Seemingly unreliable
+    openseaId: '', // The Alchemy NFT data does not have an openseaId
+    description: alchemyOwnedNft.contract.openSea?.description || '',
     socialLinks,
   }
 
@@ -99,10 +100,10 @@ export const parseAlchemyOwnedNftToNftItem = (
       alchemyOwnedNft.contract.name ||
       alchemyOwnedNft.contract.openSea?.collectionName ||
       '',
-    price: null, // The Alchemy NFT data does not have a spot price
+    price: '', // The Alchemy NFT data does not have a spot price
     chainId,
     description: alchemyOwnedNft.description || null,
-    collection: nftCollectionItem,
+    collection: NftCollectionType,
     medias: alchemyOwnedNft.media.map(media => ({
       originalUrl: media.gateway,
       type: getMediaType(media.gateway) || 'image', // Gateway URLs are not guaranteed to have a file extension

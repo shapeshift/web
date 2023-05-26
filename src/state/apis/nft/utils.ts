@@ -11,8 +11,9 @@ import {
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { NftContract } from 'alchemy-sdk'
 import { invert } from 'lodash'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import type { NftCollectionItem } from './types'
+import type { NftCollectionType } from './types'
 
 // addresses are repeated across EVM chains
 export const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>
@@ -59,7 +60,7 @@ export const chainIdToOpenseaNetwork = (chainId: ChainId): SupportedOpenseaNetwo
 export const parseAlchemyNftContractToCollectionItem = (
   contract: NftContract,
   chainId: ChainId,
-): NftCollectionItem => {
+): NftCollectionType => {
   const { name, openSea } = contract
 
   const socialLinks = [
@@ -104,9 +105,9 @@ export const parseAlchemyNftContractToCollectionItem = (
     id,
     chainId,
     name: name || '',
-    floorPrice: openSea?.floorPrice?.toString() || null,
-    openseaId: openSea && openSea.collectionName ? openSea.collectionName : null,
-    description: openSea?.description || null,
+    floorPrice: openSea?.floorPrice ? bnOrZero(openSea.floorPrice).toString() : '',
+    openseaId: openSea?.collectionName || '',
+    description: openSea?.description || '',
     socialLinks,
   }
 }

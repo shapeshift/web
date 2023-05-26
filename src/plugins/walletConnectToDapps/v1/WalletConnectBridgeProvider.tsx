@@ -1,11 +1,19 @@
 import { useToast } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { CHAIN_REFERENCE, ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import {
+  assertIsChainReference,
+  CHAIN_NAMESPACE,
+  CHAIN_REFERENCE,
+  ethChainId,
+  fromAccountId,
+  fromChainId,
+  toChainId,
+} from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnect from '@walletconnect/client'
-import type { IClientMeta } from '@walletconnect/legacy-types'
+import type { IClientMeta, IUpdateChainParams } from '@walletconnect/legacy-types'
 import { useIsWalletConnectToDappsSupportedWallet } from 'plugins/walletConnectToDapps/hooks/useIsWalletConnectToDappsSupportedWallet'
 import type {
   WalletConnectCallRequest,
@@ -24,8 +32,13 @@ import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
-import { selectAssets, selectWalletAccountIds } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { httpProviderByChainId } from 'lib/web3-provider'
+import {
+  selectAssets,
+  selectFeeAssetByChainId,
+  selectWalletAccountIds,
+} from 'state/slices/selectors'
+import { store, useAppSelector } from 'state/store'
 
 const moduleLogger = logger.child({ namespace: ['WalletConnectBridge'] })
 
@@ -40,7 +53,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const [wcAccountId, setWcAccountId] = useState<AccountId | undefined>()
   const [connector, setConnector] = useState<WalletConnect | undefined>()
   const [dapp, setDapp] = useState<IClientMeta | null>(null)
-  const { supportedEvmChainIds, connectedEvmChainId } = useEvm()
+  const { supportedEvmChainIds } = useEvm()
+  const [connectedEvmChainId, setConnectedEvmChainId] = useState<ChainId>(ethChainId)
   const { eth_signTransaction, eth_sendTransaction, eth_signTypedData, personal_sign, eth_sign } =
     useApprovalHandler(wcAccountId)
 
@@ -48,11 +62,11 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const evmChainId = useMemo(() => connectedEvmChainId ?? ethChainId, [connectedEvmChainId])
   const chainName = useMemo(() => {
     const name = getChainAdapterManager()
-      .get(supportedEvmChainIds.find(chainId => chainId === evmChainId) ?? '')
+      .get(supportedEvmChainIds.find(chainId => chainId === connectedEvmChainId) ?? '')
       ?.getDisplayName()
 
     return name ?? translate('plugins.walletConnectToDapps.header.menu.unsupportedNetwork')
-  }, [evmChainId, supportedEvmChainIds, translate])
+  }, [connectedEvmChainId, supportedEvmChainIds, translate])
 
   const assets = useAppSelector(selectAssets)
 
@@ -168,6 +182,9 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     connector?.off('connect')
     connector?.off('disconnect')
     connector?.off('call_request')
+    connector?.off('wc_sessionRequest')
+    connector?.off('wc_sessionUpdate')
+    connector?.off('wallet_switchEthereumChain')
     try {
       await connector?.killSession()
     } catch (e) {
@@ -219,6 +236,44 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     [handleDisconnect],
   )
 
+  const handleSwitchChain = useCallback(
+    (err: Error | null, payload: any) => {
+      console.log('xxx handleSwitchChain', { payload, err })
+      if (err) {
+        moduleLogger.error(err, 'handleSwitchChain')
+      }
+      moduleLogger.info('handleSwitchChain', payload)
+      // Trigger approval modal
+      const chainIdHex = payload.params[0].chainId
+      const chainReference = parseInt(chainIdHex, 16).toString()
+      assertIsChainReference(chainReference)
+      const chainId = toChainId({ chainNamespace: CHAIN_NAMESPACE.Evm, chainReference })
+      const state = store.getState()
+      // const web3Provider = getWeb3ProviderByChainId(chainId)
+      const feeAsset = selectFeeAssetByChainId(state, chainId)
+      if (!feeAsset) return moduleLogger.error('No fee asset found for chainId', chainId)
+      const updateChainParams: IUpdateChainParams = {
+        chainId: chainIdHex,
+        networkId: chainIdHex,
+        rpcUrl: httpProviderByChainId(chainId),
+        nativeCurrency: { name: feeAsset.name, symbol: feeAsset.symbol },
+      }
+      // TODO: allow user to select account instead of taking the first
+      const accountId = walletAccountIds.filter(
+        accountId => fromAccountId(accountId).chainId === chainId,
+      )[0]
+      setWcAccountId(accountId)
+      setConnectedEvmChainId(chainId)
+      console.log('xxx updateChainParams', { updateChainParams, accountId })
+      connector?.updateChain(updateChainParams)
+      connector?.updateSession({
+        chainId: chainIdHex,
+        accounts: [fromAccountId(accountId).account], // todo: use all evm accounts in our wallet
+      })
+    },
+    [connector, walletAccountIds],
+  )
+
   useEffect(() => {
     if (!connector) return
     connector.on('session_request', handleSessionRequest)
@@ -228,6 +283,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     connector.on('call_request', handleCallRequest)
     connector.on('wc_sessionRequest', handleWcSessionRequest)
     connector.on('wc_sessionUpdate', handleWcSessionUpdate)
+    connector.on('wallet_switchEthereumChain', handleSwitchChain)
   }, [
     connector,
     handleCallRequest,
@@ -235,6 +291,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     handleDisconnect,
     handleSessionRequest,
     handleSessionUpdate,
+    handleSwitchChain,
     handleWcSessionRequest,
     handleWcSessionUpdate,
   ])

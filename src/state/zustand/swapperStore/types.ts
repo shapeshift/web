@@ -3,7 +3,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import type { DisplayFeeData, TradeAmountInputField } from 'components/Trade/types'
 import type { Asset } from 'lib/asset-service'
-import type { SwapperWithQuoteMetadata, Trade } from 'lib/swapper/api'
+import type { SwapperName, SwapperWithQuoteMetadata, Trade } from 'lib/swapper/api'
 import type { CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 
 export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
@@ -23,9 +23,9 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   receiveAddress?: string
   fees?: DisplayFeeData<C>
   trade?: Trade<C> | CowTrade<C>
-  activeSwapperWithMetadata?: SwapperWithQuoteMetadata
   availableSwappersWithMetadata?: SwapperWithQuoteMetadata[]
   activeAffiliateBps: string
+  preferredSwapper?: SwapperName
 }
 
 type HandleAssetSelectionInput = { asset: Asset; action: AssetClickAction }
@@ -43,20 +43,16 @@ export type SwapperAction = {
   updateAmount: (amount: SwapperStore['amount']) => void
   updateReceiveAddress: (receiveAddress: SwapperStore['receiveAddress']) => void
   updateTrade: (trade: SwapperStore['trade']) => void
-  updateActiveSwapperWithMetadata: (
-    activeSwapperWithMetadata: SwapperStore['activeSwapperWithMetadata'],
-  ) => void
   updateAvailableSwappersWithMetadata: (
     availableSwappersWithMetadata: SwapperStore['availableSwappersWithMetadata'],
   ) => void
-  updateBuyAmountCryptoPrecision: (buyAmountCryptoPrecision: string) => void
-  updateSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
   handleSwitchAssets: () => void
   handleInputAmountChange: () => void
   handleAssetSelection: (handleAssetSelectionInput: HandleAssetSelectionInput) => void
   updateFees: (sellFeeAsset: Asset) => void
   updateTradeAmountsFromQuote: () => void
   updateActiveAffiliateBps: (activeAffiliateBps: string) => void
+  updatePreferredSwapper: (preferredSwapper: SwapperStore['preferredSwapper']) => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1

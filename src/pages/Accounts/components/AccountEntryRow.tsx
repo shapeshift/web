@@ -9,6 +9,7 @@ import { generatePath } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
+import { middleEllipsis } from 'lib/utils'
 import {
   selectPortfolioAccountsCryptoHumanBalancesIncludingStaking,
   selectPortfolioAccountsFiatBalancesIncludingStaking,
@@ -78,8 +79,9 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
             {subtitle}
           </RawText>
         </Stack>
-        <Flex flex={1} justifyContent='flex-end' display={{ base: 'none', md: 'flex' }}>
+        <Flex flex={1} justifyContent='flex-end' display={{ base: 'none', md: 'flex' }} gap={2}>
           <Amount.Crypto value={cryptoBalance} symbol={symbol ?? ''} />
+          {asset?.id && <RawText color='gray.500'>{middleEllipsis(asset?.id)}</RawText>}
         </Flex>
         <Flex flex={1} justifyContent='flex-end' alignItems='flex-end' direction='column'>
           <Amount.Fiat value={fiatBalance} />

@@ -5,6 +5,7 @@ import { Amount } from 'components/Amount/Amount'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { middleEllipsis } from 'lib/utils'
 import type { GlobalSearchResult } from 'state/slices/search-selectors'
 import { GlobalSearchResultType } from 'state/slices/search-selectors'
 import {
@@ -51,12 +52,19 @@ export const AssetResult = forwardRef<AssetResultProps, 'div'>(
             >
               {asset.name}
             </RawText>
-            <RawText size='xs' variant='sub-text'>
-              {asset.symbol}
-            </RawText>
+            <Flex alignItems='center' gap={2}>
+              <RawText size='xs' variant='sub-text'>
+                {asset.symbol}
+              </RawText>
+              {asset.id && (
+                <RawText size='xs' variant='sub-text'>
+                  {middleEllipsis(asset.id)}
+                </RawText>
+              )}
+            </Flex>
           </Flex>
         </Flex>
-        {bnOrZero(fiatBalance).gt(0) && (
+        {bnOrZero(cryptoHumanBalance).gt(0) && (
           <Flex flexDir='column' alignItems='flex-end'>
             <Amount.Fiat color='chakra-body-text' value={fiatBalance} />
             <Amount.Crypto

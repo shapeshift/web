@@ -5,6 +5,7 @@ import { ASSET_NAMESPACE, ethChainId, fromAccountId, toAssetId } from '@shapeshi
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
+import identity from 'lodash/identity'
 import orderBy from 'lodash/orderBy'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -250,20 +251,11 @@ export const txHistoryApi = createApi({
 
             const state = getState() as State
             const txState = state.txHistory.txs
-            /**
-             * TODO(0xdef1cafe): perf improvement - change this check back to use
-             * a flatMap of txs indexed on the txState?.byAccountIdAssetId?.[accountId] object
-             *
-             * checking against the flat list of all tx ids is slower, but a stop gap.
-             *
-             * we currently can't index txs against asset ids we don't know about
-             * e.g. erc721 and erc1155 assets
-             *
-             * after we rewrite unchained client tx parsers for these, we can index txs correctly,
-             * and go back to using those shorter lists per account
-             */
-            // the existing tx indexes for this account
-            const existingTxIndexes = txState?.ids
+
+            const existingTxIndexes = Object.values(
+              txState?.byAccountIdAssetId?.[accountId] ?? {},
+            ).flatMap(identity)
+
             // freshly fetched - unchained returns latest txs first
             const fetchedTxIndexes: TxId[] = transactions.map(tx =>
               serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
@@ -279,7 +271,7 @@ export const txHistoryApi = createApi({
             }
           } while (currentCursor)
         } catch (err) {
-          throw new Error(`failed to fetch tx history for account: ${accountId}: ${err}`)
+          logger.error(`failed to fetch tx history for account: ${accountId}: ${err}`)
         }
 
         return { data: [] }

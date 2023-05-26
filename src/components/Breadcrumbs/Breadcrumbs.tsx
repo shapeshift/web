@@ -40,14 +40,19 @@ const GetAssetName = (props: {
 }) => {
   const {
     match: {
-      params: { chainId, assetSubId, assetId: assetIdParam, poolId },
+      params: { chainId, assetSubId, assetId: assetIdParam, poolId, nftId },
     },
   } = props
 
   const assetId: string = (() => {
     if (assetIdParam) return decodeURIComponent(assetIdParam)
-    // If we have a poolId it's an Osmosis pool asset
+
+    // add pool segment and poolId attribute for osmosis lp assets
     if (poolId) return `${chainId}/${assetSubId}/pool/${poolId}`
+
+    // add nft segment and nftId attribute for nft assets
+    if (nftId) return `${chainId}/${assetSubId}/${nftId}`
+
     return `${chainId}/${assetSubId}`
   })()
 

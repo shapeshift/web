@@ -2,7 +2,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import type { ContainerProps } from '@chakra-ui/react'
 import { Container, Flex, Heading, IconButton, Link } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, isNft } from '@shapeshiftoss/caip'
 import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -11,7 +11,7 @@ import { SEO } from 'components/Layout/Seo'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { tokenOrUndefined } from 'lib/utils'
+import { middleEllipsis, tokenOrUndefined } from 'lib/utils'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
@@ -56,12 +56,19 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId, ..
 
   const formattedPrice = toFiat(marketData.price)
 
-  const { assetReference } = fromAssetId(asset.assetId)
-  const maybeToken = tokenOrUndefined(assetReference)
+  const href = (() => {
+    const { assetReference } = fromAssetId(asset.assetId)
+    const maybeToken = tokenOrUndefined(assetReference)
 
-  // If token is undefined, redirect to the basic explorer link
-  // else redirect to the token explorer link
-  const href = maybeToken ? `${asset?.explorerAddressLink}${maybeToken}` : asset?.explorer
+    if (isNft(asset.assetId)) {
+      const [token] = assetReference.split('/')
+      return `${asset.explorer}/token/${token}?a=${asset.id}`
+    }
+
+    if (maybeToken) return `${asset?.explorerAddressLink}${maybeToken}`
+
+    return asset.explorer
+  })()
 
   if (!chainId) return null
   if (!assetId) return null
@@ -81,7 +88,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId, ..
           <AssetIcon assetId={asset.assetId} boxSize='40px' />
           <Flex ml={3} textAlign='left' gap={2} alignItems='center'>
             <Heading fontSize='2xl' lineHeight='shorter'>
-              {name} {`(${symbol})`}
+              {name} {`(${symbol}${asset.id ? ` ${middleEllipsis(asset.id)}` : ''})`}
             </Heading>
 
             <IconButton

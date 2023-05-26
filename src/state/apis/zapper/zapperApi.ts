@@ -152,34 +152,25 @@ export const zapperApi = createApi({
         const { data: res } = await axios.request({ ...payload })
         const zapperV2AppTokensData = V2AppTokensResponse.parse(res)
 
-        const parsedData = zapperV2AppTokensData.reduce<GetZapperAppTokensOutput>(
-          (acc, appTokenData) => {
-            const chainId = zapperNetworkToChainId(appTokenData.network)
-            if (!chainId) return acc
-            const assetId = toAssetId({
-              chainId,
-              assetNamespace: 'erc20', // TODO: bep20
-              assetReference: appTokenData.address,
-            })
-
-            acc[assetId] = appTokenData
-            return acc
-          },
-          {},
-        )
-
         const assets = selectAssets(getState() as ReduxState)
-        const zapperAssets = zapperV2AppTokensData.reduce<AssetsState>(
+
+        const { assets: zapperAssets, data } = zapperV2AppTokensData.reduce<{
+          assets: AssetsState
+          data: GetZapperAppTokensOutput
+        }>(
           (acc, appTokenData) => {
             // This will never happen in this particular case because zodios will fail if e.g appTokenData.network is undefined
             // But zapperNetworkToChainId returns ChainId | undefined, as we may be calling it with invalid, casted "valid network"
             const chainId = zapperNetworkToChainId(appTokenData.network)
             if (!chainId) return acc
+
             const assetId = toAssetId({
               chainId,
               assetNamespace: 'erc20', // TODO: bep20
               assetReference: appTokenData.address,
             })
+
+            acc.data[assetId] = appTokenData
 
             const underlyingAssets = (appTokenData.tokens ?? []).map(token => {
               const assetId = toAssetId({
@@ -204,7 +195,7 @@ export const zapperApi = createApi({
 
             if (!(appTokenData.decimals && appTokenData.symbol)) return acc
 
-            acc.byId[assetId] = makeAsset({
+            acc.assets.byId[assetId] = makeAsset({
               assetId,
               symbol: appTokenData.symbol,
               // WETH should be displayed as ETH in the UI due to the way UNI-V2 works
@@ -213,15 +204,15 @@ export const zapperApi = createApi({
               precision: appTokenData.decimals,
               icons,
             })
-            acc.ids.push(assetId)
+            acc.assets.ids.push(assetId)
             return acc
           },
-          { byId: {}, ids: [] },
+          { assets: { byId: {}, ids: [] }, data: {} },
         )
 
         dispatch(assetsSlice.actions.upsertAssets(zapperAssets))
 
-        return { data: parsedData }
+        return { data }
       },
     }),
     getZapperNftUserTokens: build.query<V2NftUserItem[], GetZapperNftUserTokensInput>({

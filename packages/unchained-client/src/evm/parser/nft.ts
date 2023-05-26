@@ -42,7 +42,7 @@ export class Parser<T extends Tx> implements SubParser<T> {
   }
 
   async parse(tx: T, address: string): Promise<TxSpecific | undefined> {
-    if (process.env.REACT_APP_FEATURE_NFT_METADATA) return
+    if (process.env.REACT_APP_FEATURE_NFT_METADATA !== 'true') return
     if (!tx.tokenTransfers?.length) return
 
     const filteredTransfers = tx.tokenTransfers.filter(

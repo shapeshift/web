@@ -13,6 +13,7 @@ import {
   fromAssetId,
   fromChainId,
   gnosisChainId,
+  isNft,
   ltcChainId,
   optimismChainId,
   osmosisChainId,
@@ -173,9 +174,9 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         }
 
         ethAccount.chainSpecific.tokens?.forEach(token => {
-          if (!args.assetIds.includes(token.assetId)) {
-            return
-          }
+          // don't update portfolio if asset is not in the store except for nft assets,
+          // nft assets will be dynamically upserted based on the state of the txHistory slice after the portfolio is loaded
+          if (!isNft(token.assetId) && !args.assetIds.includes(token.assetId)) return
 
           portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
 

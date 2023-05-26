@@ -2,6 +2,7 @@ import { SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
 import { Box, Input, InputGroup, InputLeftElement, SlideFade } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { isNft } from '@shapeshiftoss/caip'
 import { debounce } from 'lodash'
 import intersection from 'lodash/intersection'
 import uniq from 'lodash/uniq'
@@ -58,7 +59,10 @@ export const AssetSearch: FC<AssetSearchProps> = ({
    * assets filtered by selected chain ids
    */
   const filteredAssets = useMemo(
-    () => (activeChain === 'All' ? assets : assets.filter(a => a.chainId === activeChain)),
+    () =>
+      activeChain === 'All'
+        ? assets.filter(a => !isNft(a.assetId))
+        : assets.filter(a => a.chainId === activeChain && !isNft(a.assetId)),
     [activeChain, assets],
   )
 

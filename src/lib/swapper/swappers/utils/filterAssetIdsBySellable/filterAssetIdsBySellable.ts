@@ -1,4 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { isNft } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import { selectAssets } from 'state/slices/selectors'
@@ -15,7 +16,7 @@ export function filterEvmAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
 
     const { chainId } = asset
 
-    return evmChainIds.includes(chainId as EvmChainId)
+    return evmChainIds.includes(chainId as EvmChainId) && !isNft(assetId)
   })
 
   return result

@@ -22,7 +22,7 @@ const erc721: Tx = {
       contract: '0x22C1f6050E56d2876009903609a2cC3fEf83B415',
       decimals: 18,
       name: 'POAP',
-      symbol: 'TheProofofAttendanceProtocol',
+      symbol: 'The Proof of Attendance Protocol',
       type: 'ERC721',
       from: '0x0000000000000000000000000000000000000000',
       to: '0xe484E6012b3F5ACB9aD769ca173Dc8748DEC0d72',

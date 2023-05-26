@@ -61,8 +61,6 @@ export const AssetIcon = ({ assetId, showNetworkIcon, src, ...rest }: AssetIconP
   const chainId = assetId && fromAssetId(assetId).chainId
   const nativeAssetId = chainAdapterManager.get(chainId ?? '')?.getFeeAssetId()
 
-  if (!asset && !assetId && !src) return null
-
   if (assetId === nativeAssetId && asset?.networkIcon && showNetworkIcon) {
     return (
       <Avatar

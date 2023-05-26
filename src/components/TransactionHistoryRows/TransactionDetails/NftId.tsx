@@ -1,26 +1,25 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Button, Flex, Link } from '@chakra-ui/react'
+import { middleEllipsis } from 'lib/utils'
 
 const Id = ({ id, ...rest }: FlexProps & { id: string }) => (
   <Flex alignItems='center' whiteSpace='nowrap' {...rest}>
-    <span style={{ lineHeight: 1 }}>
-      {id.length >= 12 ? `${id.slice(0, 4)}...${id.slice(-4)}` : id}
-    </span>
+    <span style={{ lineHeight: 1 }}>{middleEllipsis(id)}</span>
   </Flex>
 )
 
 export const NftId = ({
   explorer,
   id,
-  token,
+  assetReference,
 }: {
   explorer?: string
   id: string
-  token: string
+  assetReference: string
 }) => (
   <Button
     as={Link}
-    href={`${explorer}/token/${token}?a=${id}`}
+    href={`${explorer}/token/${assetReference.split('/')[0]}?a=${id}`}
     isExternal
     bg='transparent'
     variant='ghost'

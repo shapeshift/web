@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, isNft } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
@@ -78,6 +78,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
       id =>
         id !== sellAssetId &&
         assets[id]?.chainId === KnownChainIds.EthereumMainnet &&
+        !isNft(id) &&
         !COWSWAP_UNSUPPORTED_ASSETS.includes(id),
     )
   }
@@ -89,6 +90,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
       id =>
         assets[id]?.chainId === KnownChainIds.EthereumMainnet &&
         id !== ethAssetId && // can sell erc20 only
+        !isNft(id) &&
         !COWSWAP_UNSUPPORTED_ASSETS.includes(id),
     )
   }

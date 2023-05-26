@@ -89,27 +89,23 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     selectFeeAssetById(state, sellAsset?.assetId ?? ethAssetId),
   )
   const amount = useSwapperStore(selectAmount)
-  const updateActiveSwapperWithMetadata = useSwapperStore(
-    state => state.updateActiveSwapperWithMetadata,
-  )
+  const updatePreferredSwapper = useSwapperStore(state => state.updatePreferredSwapper)
   const updateFees = useSwapperStore(state => state.updateFees)
   const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
 
-  const handleSwapperSelection = useCallback(
-    (activeSwapperWithMetadata: SwapperWithQuoteMetadata) => {
-      updateActiveSwapperWithMetadata(activeSwapperWithMetadata)
-      if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
-      updateFees(sellFeeAsset)
-      updateTradeAmountsFromQuote()
-    },
-    [
-      updateActiveSwapperWithMetadata,
-      sellFeeAsset,
-      sellAsset?.assetId,
-      updateFees,
-      updateTradeAmountsFromQuote,
-    ],
-  )
+  const handleSwapperSelection = useCallback(() => {
+    updatePreferredSwapper(swapperWithMetadata.swapper.name)
+    if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
+    updateFees(sellFeeAsset)
+    updateTradeAmountsFromQuote()
+  }, [
+    updatePreferredSwapper,
+    swapperWithMetadata.swapper.name,
+    sellFeeAsset,
+    sellAsset?.assetId,
+    updateFees,
+    updateTradeAmountsFromQuote,
+  ])
 
   const { quote, inputOutputRatio } = swapperWithMetadata
 
@@ -199,7 +195,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       px={4}
       py={2}
       fontSize='sm'
-      onClick={() => handleSwapperSelection(swapperWithMetadata)}
+      onClick={handleSwapperSelection}
       transitionProperty='common'
       transitionDuration='normal'
     >

@@ -158,6 +158,7 @@ export const Overview: React.FC<OverviewProps> = ({
         action: fiatRampAction,
         assetId,
         address,
+        fiatCurrency,
         options: {
           language: selectedLocale,
           mode: colorMode,
@@ -166,7 +167,7 @@ export const Overview: React.FC<OverviewProps> = ({
       })
       if (url) popup.open({ url, title: 'Buy' })
     },
-    [assets, assetId, colorMode, fiatRampAction, popup, selectedLocale],
+    [assets, assetId, colorMode, fiatCurrency, fiatRampAction, popup, selectedLocale],
   )
 
   const renderProviders = useMemo(() => {

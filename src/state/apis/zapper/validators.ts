@@ -871,10 +871,10 @@ export const parseToNftItem = (zapperItem: V2NftUserItem, chainId: ChainId): Nft
         })
       : '',
     chainId,
-    description: null, // Not supported by the /v2/nft/user/tokens endpoint
+    description: '', // Not supported by the /v2/nft/user/tokens endpoint
     name: collection?.name || '',
     floorPrice: collection?.floorPriceEth || '',
-    openseaId: collection?.openseaId || null,
+    openseaId: collection?.openseaId || '',
     socialLinks: [], // Not supported by the /v2/nft/user/tokens endpoint
   }
 

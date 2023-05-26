@@ -279,8 +279,8 @@ export const zapperApi = createApi({
             // Actually defined since we're passing supported EVM networks AccountIds
             chainId,
             name: item.collection.name,
-            floorPrice: item.collection.floorPriceEth,
-            openseaId: item.collection.openseaId,
+            floorPrice: item.collection.floorPriceEth || '',
+            openseaId: item.collection.openseaId || '',
             description: item.collection.description,
             socialLinks: item.collection.socialLinks,
           }

@@ -101,7 +101,7 @@ export const parseAlchemyOwnedNftToNftItem = (
       alchemyOwnedNft.title ||
       alchemyOwnedNft.contract.name ||
       alchemyOwnedNft.contract.openSea?.collectionName ||
-      null,
+      '',
     price: null, // The Alchemy NFT data does not have a spot price
     chainId,
     description: alchemyOwnedNft.description || null,

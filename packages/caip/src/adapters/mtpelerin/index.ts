@@ -40,10 +40,12 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
   jEUR: [
     'eip155:1/erc20:0x0f17bc9a994b87b5225cfb6a2cd4d667adb4f20b',
     'eip155:137/erc20:0x4e3decbb3645551b8a19f0ea1678079fcb33fb4c',
+    'eip155:100/erc20:0x9fb1d52596c44603198fb0aee434fac3a679f702',
   ],
   jCHF: [
     'eip155:1/erc20:0x53dfea0a8cc2a2a2e425e1c174bc162999723ea0',
     'eip155:137/erc20:0xbd1463f02f61676d53fd183c2b19282bff93d099',
+    'eip155:100/erc20:0x2d5563da42b06fbbf9c67b7dc073cf6a7842239e',
   ],
   jGBP: [
     'eip155:1/erc20:0x7409856cae628f5d578b285b45669b36e7005283',
@@ -79,8 +81,6 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
  * The following is the list of assets that Mt Pelerin supports
  * but they're **not supported** (yet?) in ShapeShift
  * {
-    '[xdai_mainnet]/0x9fB1d52596c44603198fB0aee434fac3a679f702': 'jEUR',
-    '[xdai_mainnet]/0x2d5563da42b06FbBF9c67b7DC073cF6A7842239e': 'jCHF',
     '[bsc_mainnet]/0x0000000000000000000000000000000000000000': 'BNB',
     '[bsc_mainnet]/0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d': 'USDC',
     '[bsc_mainnet]/0x55d398326f99059fF775485246999027B3197955': 'USDT',

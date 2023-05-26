@@ -12,6 +12,8 @@ import {
   optimismChainId,
   polygonAssetId,
   polygonChainId,
+  gnosisAssetId,
+  gnosisChainId,
 } from '../../constants'
 
 /**
@@ -20,6 +22,7 @@ import {
 const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
   ETH: [ethAssetId, optimismAssetId],
   MATIC: [polygonAssetId],
+  XDAI: [gnosisAssetId],
   BTC: [btcAssetId],
   DAI: ['eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f'],
   USDT: [
@@ -147,6 +150,7 @@ const chainIdToMtPelerinNetworkCodeMap: Record<ChainId, string> = {
   [avalancheChainId]: 'avalanche_mainnet', // this is actually the C-Chain
   [optimismChainId]: 'optimism_mainnet',
   [polygonChainId]: 'matic_mainnet',
+  [gnosisChainId]: 'xdai_mainnet',
 } as const
 
 /**

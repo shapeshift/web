@@ -10,13 +10,13 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { markdownLinkToHTML } from 'lib/utils'
-import type { NftCollectionItem, NftItem } from 'state/apis/nft/types'
+import type { NftCollectionType, NftItem } from 'state/apis/nft/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 type NftOverviewProps = {
   nftItem: NftItem
-  nftCollection?: NftCollectionItem
+  nftCollection?: NftCollectionType
 }
 
 export const NftOverview: React.FC<NftOverviewProps> = ({ nftItem, nftCollection }) => {

@@ -5,7 +5,7 @@ import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
-import type { NftCollectionItem, NftItem } from './types'
+import type { NftCollectionType, NftItem } from './types'
 
 type GetNftUserTokensInput = {
   accountIds: AccountId[]
@@ -47,7 +47,7 @@ export const nftApi = createApi({
         return { data }
       },
     }),
-    getNftCollection: build.query<NftCollectionItem, GetNftCollectionInput>({
+    getNftCollection: build.query<NftCollectionType, GetNftCollectionInput>({
       queryFn: async ({ collectionId, accountIds }, { dispatch }) => {
         const sources = [zapperApi.endpoints.getZapperCollectionBalance]
 

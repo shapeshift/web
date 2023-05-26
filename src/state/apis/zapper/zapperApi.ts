@@ -33,7 +33,7 @@ import { DefiType } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
-import type { NftCollectionItem, NftItem } from '../nft/types'
+import type { NftCollectionType, NftItem } from '../nft/types'
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type {
   SupportedZapperNetwork,
@@ -257,7 +257,7 @@ export const zapperApi = createApi({
       },
     }),
     // We abuse the /v2/nft/balances/collections endpoint to get the collection meta
-    getZapperCollectionBalance: build.query<NftCollectionItem, GetZapperCollectionsInput>({
+    getZapperCollectionBalance: build.query<NftCollectionType, GetZapperCollectionsInput>({
       queryFn: async ({ accountIds, collectionId }) => {
         const addresses = accountIdsToEvmAddresses(accountIds)
         const params = {
@@ -272,7 +272,7 @@ export const zapperApi = createApi({
 
         const { items: validatedData } = V2NftBalancesCollectionsResponse.parse(data)
 
-        const parsedData: NftCollectionItem[] = validatedData.map(item => {
+        const parsedData: NftCollectionType[] = validatedData.map(item => {
           const chainId = zapperNetworkToChainId(item.collection.network as SupportedZapperNetwork)!
           return {
             id: null,

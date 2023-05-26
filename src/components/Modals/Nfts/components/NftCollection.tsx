@@ -3,9 +3,9 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
 import { markdownLinkToHTML } from 'lib/utils'
-import type { NftCollectionItem } from 'state/apis/nft/types'
+import type { NftCollectionType } from 'state/apis/nft/types'
 
-type NftCollectionProps = Pick<NftCollectionItem, 'socialLinks' | 'description' | 'name'>
+type NftCollectionProps = Pick<NftCollectionType, 'socialLinks' | 'description' | 'name'>
 
 export const NftCollection: React.FC<NftCollectionProps> = ({
   socialLinks,

@@ -197,13 +197,6 @@ export const GlobalSeachButton = () => {
           }
           break
         }
-        case 'Control':
-        case 'Alt':
-        case 'Shift': {
-          e.preventDefault()
-          onToggle()
-          break
-        }
         case 'Enter': {
           handleClick(flatResults[activeIndex])
           break
@@ -212,7 +205,7 @@ export const GlobalSeachButton = () => {
           break
       }
     },
-    [activeIndex, flatResults, handleClick, onToggle, resultsCount],
+    [activeIndex, flatResults, handleClick, resultsCount],
   )
 
   useUpdateEffect(() => {

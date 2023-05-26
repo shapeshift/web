@@ -102,7 +102,7 @@ export const parseAlchemyOwnedNftToNftItem = (
       '',
     price: '', // The Alchemy NFT data does not have a spot price
     chainId,
-    description: alchemyOwnedNft.description || null,
+    description: alchemyOwnedNft.description || '',
     collection: NftCollectionType,
     medias: alchemyOwnedNft.media.map(media => ({
       originalUrl: media.gateway,

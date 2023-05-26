@@ -28,26 +28,33 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
   USDT: [
     'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7',
     'eip155:137/erc20:0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
+    'eip155:100/erc20:0x4ECaBa5870353805a9F068101A40E0f32ed605C6',
   ],
   USDC: [
     'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
     'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
     'eip155:10/erc20:0x7f5c764cbc14f9669b88837ca1490cca17c31607',
     'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+    'eip155:100/erc20:0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
   ],
   jEUR: [
     'eip155:1/erc20:0x0f17bc9a994b87b5225cfb6a2cd4d667adb4f20b',
     'eip155:137/erc20:0x4e3decbb3645551b8a19f0ea1678079fcb33fb4c',
+    'eip155:100/erc20:0x9fB1d52596c44603198fB0aee434fac3a679f702',
   ],
   jCHF: [
     'eip155:1/erc20:0x53dfea0a8cc2a2a2e425e1c174bc162999723ea0',
     'eip155:137/erc20:0xbd1463f02f61676d53fd183c2b19282bff93d099',
+    'eip155:100/erc20:0x2d5563da42b06FbBF9c67b7DC073cF6A7842239e',
   ],
   jGBP: [
     'eip155:1/erc20:0x7409856cae628f5d578b285b45669b36e7005283',
     'eip155:137/erc20:0x767058f11800fba6a682e73a6e79ec5eb74fac8c',
   ],
-  WBTC: ['eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599'],
+  WBTC: [
+    'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+    'eip155:100/erc20:0x8e5bBbb09Ed1ebdE8674Cda39A0c169401db4252',
+],
   AVAX: [avalancheAssetId],
   EURS: [
     'eip155:1/erc20:0xdb25f211ab05b1c97d595516f45794528a807ad8',
@@ -72,13 +79,6 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
  * The following is the list of assets that Mt Pelerin supports
  * but they're **not supported** (yet?) in ShapeShift
  * {
-    '[xdai_mainnet]/0x0000000000000000000000000000000000000000': 'XDAI',
-    '[xdai_mainnet]/0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83': 'USDC',
-    '[xdai_mainnet]/0x4ECaBa5870353805a9F068101A40E0f32ed605C6': 'USDT',
-    '[xdai_mainnet]/0x8e5bBbb09Ed1ebdE8674Cda39A0c169401db4252': 'WBTC',
-    '[xdai_mainnet]/0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1': 'WETH',
-    '[xdai_mainnet]/0x9fB1d52596c44603198fB0aee434fac3a679f702': 'jEUR',
-    '[xdai_mainnet]/0x2d5563da42b06FbBF9c67b7DC073cF6A7842239e': 'jCHF',
     '[bsc_mainnet]/0x0000000000000000000000000000000000000000': 'BNB',
     '[bsc_mainnet]/0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d': 'USDC',
     '[bsc_mainnet]/0x55d398326f99059fF775485246999027B3197955': 'USDT',

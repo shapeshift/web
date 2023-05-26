@@ -8,12 +8,12 @@ import {
   btcChainId,
   ethAssetId,
   ethChainId,
+  gnosisAssetId,
+  gnosisChainId,
   optimismAssetId,
   optimismChainId,
   polygonAssetId,
   polygonChainId,
-  gnosisAssetId,
-  gnosisChainId,
 } from '../../constants'
 
 /**
@@ -54,7 +54,7 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
   WBTC: [
     'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
     'eip155:100/erc20:0x8e5bBbb09Ed1ebdE8674Cda39A0c169401db4252',
-],
+  ],
   AVAX: [avalancheAssetId],
   EURS: [
     'eip155:1/erc20:0xdb25f211ab05b1c97d595516f45794528a807ad8',

@@ -29,6 +29,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { parseAddressInput } from 'lib/address/address'
+import { isMobile as isMobileApp } from 'lib/globals'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { DefiType } from 'state/slices/opportunitiesSlice/types'
 import type { GlobalSearchResult, SendResult } from 'state/slices/search-selectors'
@@ -73,6 +74,7 @@ export const GlobalSeachButton = () => {
   const [assetResults, stakingResults, lpResults, txResults] = results
   const flatResults = useMemo(() => [...results, sendResults].flat(), [results, sendResults])
   const resultsCount = flatResults.length
+  const isMac = /Mac/.test(navigator.userAgent)
 
   const { send } = useModal()
   useEffect(() => {
@@ -80,7 +82,6 @@ export const GlobalSeachButton = () => {
   }, [searchQuery])
 
   useEventListener('keydown', event => {
-    const isMac = /Mac|iPhone|iPod|iPad/.test(navigator.userAgent)
     const hotkey = isMac ? 'metaKey' : 'ctrlKey'
     if (event?.key?.toLowerCase() === 'k' && event[hotkey]) {
       event.preventDefault()
@@ -197,13 +198,6 @@ export const GlobalSeachButton = () => {
           }
           break
         }
-        case 'Control':
-        case 'Alt':
-        case 'Shift': {
-          e.preventDefault()
-          onToggle()
-          break
-        }
         case 'Enter': {
           handleClick(flatResults[activeIndex])
           break
@@ -212,7 +206,7 @@ export const GlobalSeachButton = () => {
           break
       }
     },
-    [activeIndex, flatResults, handleClick, onToggle, resultsCount],
+    [activeIndex, flatResults, handleClick, resultsCount],
   )
 
   useUpdateEffect(() => {
@@ -326,9 +320,11 @@ export const GlobalSeachButton = () => {
           sx={{ svg: { width: '18px', height: '18px' } }}
         >
           {translate('common.search')}
-          <Box ml='auto'>
-            <Kbd>⌘</Kbd>+<Kbd>K</Kbd>
-          </Box>
+          {!isMobileApp && ( // Mobile app users are unlikely to have access to a keyboard for the shortcut.
+            <Box ml='auto'>
+              <Kbd>{isMac ? '⌘' : 'Ctrl'}</Kbd>+<Kbd>K</Kbd>
+            </Box>
+          )}
         </Button>
       </Box>
       <Modal scrollBehavior='inside' isOpen={isOpen} onClose={handleClose} size='lg'>

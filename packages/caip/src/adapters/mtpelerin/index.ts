@@ -72,7 +72,7 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
   EUROC: ['eip155:1/erc20:0x1abaea1f7c830bd89acc67ec4af516284b1bc33c'],
   LUSD: ['eip155:1/erc20:0x5f98805a4e8be255a32880fdec7f6728c6568ba0'],
   XCHF: ['eip155:1/erc20:0xb4272071ecadd69d933adcd19ca99fe80664fc08'],
-  WETH: ['eip155:100/erc20:0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1']
+  WETH: ['eip155:100/erc20:0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1'],
 }
 
 /**

@@ -8,10 +8,11 @@ import { logger } from 'lib/logger'
 import { selectFeatureFlag } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
+import { parseToNftItem } from '../nft/parsers/covalent'
 import type { NftItem } from '../nft/types'
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type { CovalentNftUserTokensResponseType } from './validators'
-import { chainIdToCovalentNetwork, covalentNetworkToChainId, parseToNftItem } from './validators'
+import { chainIdToCovalentNetwork, covalentNetworkToChainId } from './validators'
 
 const COVALENT_BASE_URL = 'https://api.covalenthq.com/v1'
 

@@ -95,7 +95,6 @@ export const parseAlchemyOwnedNftToNftItem = (
     socialLinks,
   }
 
-  // Parse NftItem
   const nftItem = {
     id: alchemyOwnedNft.tokenId,
     name:

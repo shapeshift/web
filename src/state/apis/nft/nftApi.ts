@@ -70,7 +70,6 @@ export const nftApi = createApi({
             .filter(isFulfilled)
             .flatMap(({ value }) => value)
 
-          debugger
           return { data: items }
         }
 

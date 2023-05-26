@@ -4,6 +4,7 @@ import type {
   bnbsmartchain,
   ethereum,
   EvmChainId,
+  gnosis,
   optimism,
 } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -41,12 +42,14 @@ export type OneInchSupportedChainId =
   | KnownChainIds.BnbSmartChainMainnet
   | KnownChainIds.OptimismMainnet
   | KnownChainIds.AvalancheMainnet
+  | KnownChainIds.GnosisMainnet
 
 export type OneInchSupportedChainAdapter =
   | ethereum.ChainAdapter
   | bnbsmartchain.ChainAdapter
   | optimism.ChainAdapter
   | avalanche.ChainAdapter
+  | gnosis.ChainAdapter
 
 export class OneInchSwapper implements Swapper<EvmChainId, true> {
   readonly name = SwapperName.OneInch

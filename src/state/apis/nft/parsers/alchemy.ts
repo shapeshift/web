@@ -1,6 +1,5 @@
 import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { NftContract, OpenSeaCollectionMetadata, OwnedNft } from 'alchemy-sdk'
 import { getMediaType } from 'state/apis/zapper/validators'
 
@@ -87,9 +86,7 @@ export const parseAlchemyOwnedNftToNftItem = (
       alchemyOwnedNft.contract.name ||
       alchemyOwnedNft.contract.openSea?.collectionName ||
       'Collection',
-    floorPrice: alchemyOwnedNft.contract.openSea?.floorPrice
-      ? bnOrZero(alchemyOwnedNft.contract.openSea.floorPrice).toString()
-      : null,
+    floorPrice: null, // Seemingly unreliable
     openseaId: null, // The Alchemy NFT data does not have an openseaId
     description: alchemyOwnedNft.contract.openSea?.description || null,
     socialLinks,

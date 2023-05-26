@@ -43,7 +43,7 @@ export const TransferColumn = (transfer: TransferColumnProps) => {
           <NftId
             explorer={transfer.asset.explorer}
             id={transfer.id}
-            token={fromAssetId(transfer.assetId).assetReference}
+            assetReference={fromAssetId(transfer.assetId).assetReference}
           />
         )}
       </Row>

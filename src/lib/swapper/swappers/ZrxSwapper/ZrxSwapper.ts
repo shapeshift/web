@@ -1,4 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { isNft } from '@shapeshiftoss/caip'
 import type {
   avalanche,
   bnbsmartchain,
@@ -94,6 +95,7 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
       id =>
         assets[id]?.chainId === this.chainId &&
         assets[sellAssetId]?.chainId === this.chainId &&
+        !isNft(id) &&
         !UNSUPPORTED_ASSETS.includes(id),
     )
   }
@@ -101,7 +103,7 @@ export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
   filterAssetIdsBySellable(assetIds: AssetId[] = []): AssetId[] {
     const assets = selectAssets(store.getState())
     return assetIds.filter(
-      id => assets[id]?.chainId === this.chainId && !UNSUPPORTED_ASSETS.includes(id),
+      id => assets[id]?.chainId === this.chainId && !isNft(id) && !UNSUPPORTED_ASSETS.includes(id),
     )
   }
 

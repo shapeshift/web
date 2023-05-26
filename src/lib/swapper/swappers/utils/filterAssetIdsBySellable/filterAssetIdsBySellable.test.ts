@@ -1,15 +1,22 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import {
+  avalancheAssetId,
+  btcAssetId,
+  ethAssetId,
+  optimismAssetId,
+  thorchainAssetId,
+} from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Asset } from 'lib/asset-service'
 
 import * as selectors from '../../../../../state/slices/assetsSlice/selectors'
 import { filterEvmAssetIdsBySellable } from './filterAssetIdsBySellable'
 
-const testAssetId1: AssetId = 'ethereum:erc20:0x1'
-const testAssetId2: AssetId = 'ethereum:erc20:0x2'
-const testAssetId3: AssetId = 'ethereum:erc20:0x3'
-const testAssetId4: AssetId = 'cosmos:native:0x4'
-const testAssetId5: AssetId = 'cosmos:native:0x5'
+const testAssetId1: AssetId = ethAssetId
+const testAssetId2: AssetId = avalancheAssetId
+const testAssetId3: AssetId = optimismAssetId
+const testAssetId4: AssetId = thorchainAssetId
+const testAssetId5: AssetId = btcAssetId
 
 const selectAssetsSpy = jest.spyOn(selectors, 'selectAssets')
 
@@ -24,7 +31,7 @@ describe('filterEvmAssetIdsBySellable', () => {
     /*
       for the sake of this test suite, make testAssetId3 not supported on our side
       [testAssetId3]: {
-        chainId: KnownChainIds.AvalancheMainnet,
+        chainId: KnownChainIds.OptimismMainnet,
       },
     */
     [testAssetId4]: {
@@ -82,7 +89,7 @@ describe('filterEvmAssetIdsBySellable', () => {
       /*
         for the sake of this test, make testAssetId3 not supported on our side
         [testAssetId3]: {
-          chainId: KnownChainIds.AvalancheMainnet,
+          chainId: KnownChainIds.OptimismMainnet,
         },
       */
     } as Record<ChainId, Asset>

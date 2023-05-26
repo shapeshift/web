@@ -1,4 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { isNft } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { BuyAssetBySellIdInput } from 'lib/swapper/api'
 import { selectAssets } from 'state/slices/selectors'
@@ -24,7 +25,11 @@ const _filterEvmBuyAssetsBySellAssetId = (
     if (buyAsset === undefined) return false
 
     // evm only AND chain id predicate
-    return isEvmChainId(buyAsset.chainId) && chainIdPredicate(buyAsset.chainId, sellAsset.chainId)
+    return (
+      isEvmChainId(buyAsset.chainId) &&
+      chainIdPredicate(buyAsset.chainId, sellAsset.chainId) &&
+      !isNft(buyAssetId)
+    )
   })
 }
 

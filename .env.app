@@ -1,6 +1,3 @@
-# react
-PUBLIC_URL=https://app.shapeshift.com/
-
 # feature flags
 
 # mixpanel

@@ -1,4 +1,4 @@
-import type { AccountId, AssetNamespace, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bscChainId,
@@ -6,14 +6,11 @@ import {
   fromAccountId,
   optimismChainId,
   polygonChainId,
-  toAssetId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { NftContract } from 'alchemy-sdk'
 import { invert } from 'lodash'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import type { NftCollectionType, NftItem } from './types'
+import type { NftItem } from './types'
 
 // addresses are repeated across EVM chains
 export const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>

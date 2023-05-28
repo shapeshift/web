@@ -27,7 +27,7 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import Placeholder from 'assets/placeholder.png'
 import PlaceholderDrk from 'assets/placeholder-drk.png'
@@ -42,8 +42,9 @@ import type { NftItem } from 'state/apis/nft/types'
 import { chainIdToOpenseaNetwork } from 'state/apis/nft/utils'
 import { getMediaType } from 'state/apis/zapper/validators'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { NftCollection } from './components/NftCollection'
@@ -66,6 +67,7 @@ export type NftModalProps = {
 }
 
 export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
+  const dispatch = useAppDispatch()
   const { nft } = useModal()
   const { close: handleClose, isOpen } = nft
   const translate = useTranslate()
@@ -117,6 +119,18 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
       } as const),
     [],
   )
+
+  const handleSetAsAvatarClick = useCallback(() => {
+    // Unable to get the AssetId of the collection, this should never happen but it may
+    // TODO(gomes): remove nftAssetId manual serialization when we have a normalized nft slice with nft id as AssetId
+    //
+    if (!nftCollection?.id) return null
+
+    const { setSelectedNftAvatar } = preferences.actions
+    const nftAssetId = `${nftCollection.id}/${nftId}`
+    dispatch(setSelectedNftAvatar(nftAssetId))
+  }, [dispatch, nftCollection?.id, nftId])
+
   const nftModalMedia = useMemo(() => {
     return (
       <Skeleton flex={1} isLoaded={isMediaLoaded}>
@@ -162,7 +176,9 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
                   onLoad={() => setIsMediaLoaded(true)}
                   {...mediaBoxProps}
                 />
-                <Button colorScheme='whiteAlpha'>{translate('nft.setAsAvatar')}</Button>
+                <Button colorScheme='whiteAlpha' onClick={handleSetAsAvatarClick}>
+                  {translate('nft.setAsAvatar')}
+                </Button>
               </>
             ) : (
               <Box
@@ -180,7 +196,16 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
         </Flex>
       </Skeleton>
     )
-  }, [assetLink, isMediaLoaded, mediaBoxProps, mediaType, mediaUrl, placeholderImage, translate])
+  }, [
+    assetLink,
+    handleSetAsAvatarClick,
+    isMediaLoaded,
+    mediaBoxProps,
+    mediaType,
+    mediaUrl,
+    placeholderImage,
+    translate,
+  ])
 
   const nftModalOverview = useMemo(() => {
     return (

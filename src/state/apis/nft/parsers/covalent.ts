@@ -27,7 +27,7 @@ export const parseToNftItem = (
         medias,
         price: '', // Covalent doesn't provide spot pricing for NFT items
         rarityRank: null, // Covalent doesn't provide rarity rank
-        description: nftData.external_data?.description || '',
+        description: nftData.external_data?.description ?? '',
         collection: {
           id:
             covalentItem.contract_address && covalentItem.supports_erc?.length

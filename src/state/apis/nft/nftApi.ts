@@ -1,13 +1,19 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { logger } from 'lib/logger'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
-import type { V2NftUserItem } from '../zapper/validators'
 import { zapperApi } from '../zapper/zapperApi'
+import type { NftCollectionType, NftItem } from './types'
 
 type GetNftUserTokensInput = {
+  accountIds: AccountId[]
+}
+
+type GetNftCollectionInput = {
+  collectionId: AssetId
+  // This looks weird but is correct. We abuse the Zapper balances endpoint to get collection meta
   accountIds: AccountId[]
 }
 
@@ -17,7 +23,7 @@ export const nftApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'nftApi',
   endpoints: build => ({
-    getNftUserTokens: build.query<V2NftUserItem[], GetNftUserTokensInput>({
+    getNftUserTokens: build.query<NftItem[], GetNftUserTokensInput>({
       queryFn: async ({ accountIds }, { dispatch }) => {
         const sources = [
           zapperApi.endpoints.getZapperNftUserTokens,
@@ -27,7 +33,7 @@ export const nftApi = createApi({
         const results = await Promise.all(
           sources.map(source => dispatch(source.initiate({ accountIds }))),
         )
-        const data = results.reduce<V2NftUserItem[]>((acc, result) => {
+        const data = results.reduce<NftItem[]>((acc, result) => {
           if (result.data) {
             const { data } = result
             acc = acc.concat(data)
@@ -41,7 +47,29 @@ export const nftApi = createApi({
         return { data }
       },
     }),
+    getNftCollection: build.query<NftCollectionType, GetNftCollectionInput>({
+      queryFn: async ({ collectionId, accountIds }, { dispatch }) => {
+        const sources = [zapperApi.endpoints.getZapperCollectionBalance]
+
+        // Only zapperApi.endpoints.getZapperCollectionBalance for now
+        const { data } = await dispatch(sources[0].initiate({ accountIds, collectionId }))
+
+        const collectionItem = data
+
+        if (!collectionItem)
+          return {
+            error: {
+              status: 404,
+              data: {
+                message: 'Collection not found',
+              },
+            },
+          }
+
+        return { data: collectionItem }
+      },
+    }),
   }),
 })
 
-export const { useGetNftUserTokensQuery } = nftApi
+export const { useGetNftUserTokensQuery, useGetNftCollectionQuery } = nftApi

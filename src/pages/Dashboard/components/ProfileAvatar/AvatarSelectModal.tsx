@@ -17,7 +17,7 @@ import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
-import type { V2NftUserItem } from 'state/apis/zapper/validators'
+import type { NftItem } from 'state/apis/nft/types'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
@@ -32,11 +32,8 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const translate = useTranslate()
   const accountIds = useAppSelector(selectWalletAccountIds)
   const { data, isLoading } = useGetNftUserTokensQuery({ accountIds })
-  const filteredData = useMemo(
-    () => data?.filter(item => item.token.medias[0].type === 'image'),
-    [data],
-  )
-  const filterNftsBySearchTerm = useCallback((data: V2NftUserItem[], searchQuery: string) => {
+  const filteredData = useMemo(() => data?.filter(item => item.medias[0].type === 'image'), [data])
+  const filterNftsBySearchTerm = useCallback((data: NftItem[], searchQuery: string) => {
     const search = searchQuery.trim().toLowerCase()
     const keys = [
       'token.name',
@@ -68,11 +65,11 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const group = getRootProps()
 
   const renderItems = useMemo(() => {
-    return filteredNfts?.map(({ token }) => {
-      const mediaUrl = token.medias?.[0]?.originalUrl
+    return filteredNfts?.map(({ id, collection, medias }) => {
+      const mediaUrl = medias?.[0]?.originalUrl
       return (
         <AvatarRadio
-          key={`${token.collection.address}/${token.id}`}
+          key={`${collection.id}/${id}`}
           src={mediaUrl}
           {...getRadioProps({ value: mediaUrl })}
         />

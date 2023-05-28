@@ -32,7 +32,10 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const translate = useTranslate()
   const accountIds = useAppSelector(selectWalletAccountIds)
   const { data, isLoading } = useGetNftUserTokensQuery({ accountIds })
-  const filteredData = useMemo(() => data?.filter(item => item.medias[0].type === 'image'), [data])
+  const filteredData = useMemo(
+    () => (data ?? []).filter(item => item.medias[0]?.type === 'image'),
+    [data],
+  )
   const filterNftsBySearchTerm = useCallback((data: NftItem[], searchQuery: string) => {
     const search = searchQuery.trim().toLowerCase()
     const keys = ['name', 'id', 'collection.name', 'collection.id']

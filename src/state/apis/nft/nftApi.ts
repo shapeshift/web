@@ -14,6 +14,7 @@ import {
   parseAlchemyOwnedNftToNftItem,
 } from './parsers/alchemy'
 import type { NftCollectionType, NftItem } from './types'
+import { updateNftItem } from './utils'
 
 type GetNftUserTokensInput = {
   accountIds: AccountId[]
@@ -26,28 +27,6 @@ type GetNftCollectionInput = {
 }
 
 const moduleLogger = logger.child({ namespace: ['nftApi'] })
-
-const updateNftItem = (originalItem: NftItem, currentItem: NftItem) => {
-  if (!originalItem.medias.length && currentItem.medias.length) {
-    originalItem.medias = currentItem.medias
-  }
-  if (originalItem.rarityRank === null && typeof currentItem.rarityRank === 'number') {
-    originalItem.rarityRank = currentItem.rarityRank
-  }
-  if (!originalItem.collection.floorPrice && currentItem.collection.floorPrice) {
-    originalItem.collection.floorPrice = currentItem.collection.floorPrice
-  }
-
-  if (!originalItem.description && currentItem.description) {
-    originalItem.description = currentItem.description
-  }
-
-  if (!originalItem.name && currentItem.name) {
-    originalItem.name = currentItem.name
-  }
-
-  return originalItem
-}
 
 export const nftApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,

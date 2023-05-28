@@ -32,7 +32,7 @@ type GetNftCollectionInput = {
 const moduleLogger = logger.child({ namespace: ['nftApi'] })
 
 type NftState = {
-  selectedNftAvatarByWalletId: Record<WalletId, string>
+  selectedNftAvatarByWalletId: Record<WalletId, AssetId>
 }
 const initialState: NftState = {
   selectedNftAvatarByWalletId: {},

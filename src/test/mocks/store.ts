@@ -93,7 +93,6 @@ export const mockStore: ReduxState = {
     selectedLocale: 'en',
     balanceThreshold: '0',
     selectedCurrency: 'USD',
-    selectedNftAvatar: null,
     currencyFormat: CurrencyFormats.DotDecimal,
     chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
     showWelcomeModal: false,
@@ -147,5 +146,8 @@ export const mockStore: ReduxState = {
       byId: {},
       ids: [],
     },
+  },
+  nft: {
+    selectedNftAvatarByWalletId: {},
   },
 }

@@ -17,11 +17,10 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
-import { useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
+import { nft, useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
 import { selectSelectedNftAvatarUrl } from 'state/apis/nft/selectors'
 import type { NftItem } from 'state/apis/nft/types'
-import { selectWalletAccountIds } from 'state/slices/common-selectors'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { selectWalletAccountIds, selectWalletId } from 'state/slices/common-selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { AvatarRadio } from './AvatarRadio'
@@ -32,6 +31,7 @@ type AvatarSelectModalProps = Pick<ModalProps, 'isOpen'> &
 export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const [selected, setSelected] = useState<AssetId | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const walletId = useAppSelector(selectWalletId)
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const accountIds = useAppSelector(selectWalletAccountIds)
@@ -89,12 +89,11 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   }, [filteredNfts, getRadioProps])
 
   const handleSaveChanges = useCallback(() => {
-    const { setSelectedNftAvatar } = preferences.actions
-    if (selected) {
-      dispatch(setSelectedNftAvatar(selected))
+    if (selected && walletId) {
+      dispatch(nft.actions.setWalletSelectedNftAvatar({ nftAssetId: selected, walletId }))
     }
     onClose()
-  }, [dispatch, onClose, selected])
+  }, [dispatch, onClose, selected, walletId])
 
   return (
     <Modal size='lg' {...props}>

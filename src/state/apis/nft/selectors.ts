@@ -1,9 +1,17 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query/react'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
-import { selectSelectedNftAvatar } from 'state/slices/preferencesSlice/selectors'
+import { selectWalletId } from 'state/slices/common-selectors'
 
 import type { NftItem } from './types'
+
+const selectSelectedNftAvatar = createSelector(
+  selectWalletId,
+  (state: ReduxState) => state.nft.selectedNftAvatarByWalletId,
+  (walletId, selectedNftAvatarByWalletId) => {
+    return selectedNftAvatarByWalletId[walletId ?? '']
+  },
+)
 
 const selectNftUserTokensQueriesFulfilled = (state: ReduxState): NftItem[] =>
   Object.values(state.nftApi.queries)

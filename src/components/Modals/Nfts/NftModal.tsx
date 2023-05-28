@@ -37,12 +37,11 @@ import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { ordinalSuffix } from 'context/WalletProvider/NativeWallet/components/NativeTestPhrase'
 import { useModal } from 'hooks/useModal/useModal'
-import { useGetNftCollectionQuery } from 'state/apis/nft/nftApi'
+import { nft, useGetNftCollectionQuery } from 'state/apis/nft/nftApi'
 import type { NftItem } from 'state/apis/nft/types'
 import { chainIdToOpenseaNetwork } from 'state/apis/nft/utils'
 import { getMediaType } from 'state/apis/zapper/validators'
-import { selectWalletAccountIds } from 'state/slices/common-selectors'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { selectWalletAccountIds, selectWalletId } from 'state/slices/common-selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -68,13 +67,14 @@ export type NftModalProps = {
 
 export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const dispatch = useAppDispatch()
-  const { nft } = useModal()
-  const { close: handleClose, isOpen } = nft
+  const { nft: nftModal } = useModal()
+  const { close: handleClose, isOpen } = nftModal
   const translate = useTranslate()
   const [isMediaLoaded, setIsMediaLoaded] = useState(false)
   const modalBg = useColorModeValue('white', 'gray.800')
   const modalHeaderBg = useColorModeValue('gray.50', 'gray.785')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const walletId = useAppSelector(selectWalletId)
   const accountIds = useAppSelector(selectWalletAccountIds)
 
   const { data: nftCollection } = useGetNftCollectionQuery(
@@ -124,12 +124,11 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
     // Unable to get the AssetId of the collection, this should never happen but it may
     // TODO(gomes): remove nftAssetId manual serialization when we have a normalized nft slice with nft id as AssetId
     //
-    if (!nftCollection?.id) return null
+    if (!nftCollection?.id || !walletId) return
 
-    const { setSelectedNftAvatar } = preferences.actions
     const nftAssetId = `${nftCollection.id}/${nftId}`
-    dispatch(setSelectedNftAvatar(nftAssetId))
-  }, [dispatch, nftCollection?.id, nftId])
+    dispatch(nft.actions.setWalletSelectedNftAvatar({ nftAssetId, walletId }))
+  }, [dispatch, nftCollection?.id, nftId, walletId])
 
   const nftModalMedia = useMemo(() => {
     return (

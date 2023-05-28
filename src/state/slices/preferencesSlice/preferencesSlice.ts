@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit'
-import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
@@ -64,7 +63,6 @@ export type Preferences = {
   chartTimeframe: HistoryTimeframe
   showWelcomeModal: boolean
   showConsentBanner: boolean
-  selectedNftAvatar: AssetId | null
 }
 
 const initialState: Preferences = {
@@ -112,7 +110,6 @@ const initialState: Preferences = {
   chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
   showWelcomeModal: false,
   showConsentBanner: true,
-  selectedNftAvatar: null,
 }
 
 export const preferences = createSlice({
@@ -130,9 +127,6 @@ export const preferences = createSlice({
     },
     setSelectedCurrency(state, { payload }: { payload: { currency: SupportedFiatCurrencies } }) {
       state.selectedCurrency = payload.currency
-    },
-    setSelectedNftAvatar(state, { payload }: { payload: AssetId }) {
-      state.selectedNftAvatar = payload
     },
     setBalanceThreshold(state, { payload }: { payload: { threshold: string } }) {
       state.balanceThreshold = payload.threshold

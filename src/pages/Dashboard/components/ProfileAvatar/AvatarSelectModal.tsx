@@ -18,6 +18,7 @@ import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
+import { selectSelectedNftAvatarUrl } from 'state/apis/nft/selectors'
 import type { NftItem } from 'state/apis/nft/types'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -34,10 +35,15 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const accountIds = useAppSelector(selectWalletAccountIds)
+  const selectedNftAvatarUrl = useAppSelector(selectSelectedNftAvatarUrl)
   const { data, isLoading } = useGetNftUserTokensQuery({ accountIds })
   const filteredData = useMemo(
-    () => (data ?? []).filter(item => item.medias[0]?.type === 'image'),
-    [data],
+    () =>
+      (data ?? []).filter(
+        item =>
+          item.medias[0]?.type === 'image' && item.medias[0]?.originalUrl !== selectedNftAvatarUrl,
+      ),
+    [data, selectedNftAvatarUrl],
   )
   const filterNftsBySearchTerm = useCallback((data: NftItem[], searchQuery: string) => {
     const search = searchQuery.trim().toLowerCase()

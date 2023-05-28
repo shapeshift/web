@@ -123,7 +123,6 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const handleSetAsAvatarClick = useCallback(() => {
     // Unable to get the AssetId of the collection, this should never happen but it may
     // TODO(gomes): remove nftAssetId manual serialization when we have a normalized nft slice with nft id as AssetId
-    //
     if (!nftCollection?.id || !walletId) return
 
     const nftAssetId = `${nftCollection.id}/${nftId}`

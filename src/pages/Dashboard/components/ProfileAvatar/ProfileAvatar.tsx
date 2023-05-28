@@ -4,8 +4,8 @@ import { useSelector } from 'react-redux'
 import { EditPen } from 'components/Icons/EditPen'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
+import { selectSelectedNftAvatarUrl } from 'state/apis/nft/selectors'
 import type { WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { selectSelectedNftAvatar } from 'state/slices/preferencesSlice/selectors'
 
 import { AvatarSelectModal } from './AvatarSelectModal'
 
@@ -13,14 +13,14 @@ type ProfileAvatarProps = {
   walletId?: WalletId
 }
 export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ walletId }) => {
-  const selectedNftAvatar = useSelector(selectSelectedNftAvatar)
+  const selectedNftAvatarUrl = useSelector(selectSelectedNftAvatarUrl)
   const { isOpen, onClose, onOpen } = useDisclosure()
   const walletImage = useMemo(() => {
-    console.log({ selectedNftAvatar })
     if (!walletId) return ''
+    if (selectedNftAvatarUrl) return selectedNftAvatarUrl
     /* This needs to be a min of 15 characters so we added a string to ensure its always at least 15 */
     return makeBlockiesUrl(`${walletId}ifyoudriveatruckdriveitlikeyouhaveafarm`)
-  }, [selectedNftAvatar, walletId])
+  }, [selectedNftAvatarUrl, walletId])
   if (!walletId) return null
   return (
     <Box>

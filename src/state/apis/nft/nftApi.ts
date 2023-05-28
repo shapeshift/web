@@ -40,10 +40,10 @@ const updateNftItem = (originalItem: NftItem, currentItem: NftItem) => {
 
   if (!originalItem.description && currentItem.description) {
     originalItem.description = currentItem.description
+  }
 
-    if (!originalItem.name && currentItem.name) {
-      originalItem.name = currentItem.name
-    }
+  if (!originalItem.name && currentItem.name) {
+    originalItem.name = currentItem.name
   }
 
   return originalItem

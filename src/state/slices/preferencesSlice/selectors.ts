@@ -14,6 +14,7 @@ export const selectFeatureFlag = createCachedSelector(
 
 export const selectSelectedLocale = (state: ReduxState) => state.preferences.selectedLocale
 export const selectSelectedCurrency = (state: ReduxState) => state.preferences.selectedCurrency
+export const selectSelectedNftAvatar = (state: ReduxState) => state.preferences.selectedNftAvatar
 export const selectBalanceThreshold = (state: ReduxState) => state.preferences.balanceThreshold
 export const selectCurrencyFormat = (state: ReduxState) => state.preferences.currencyFormat
 export const selectChartTimeframe = (state: ReduxState) => state.preferences.chartTimeframe

@@ -11,6 +11,7 @@ import {
   SimpleGrid,
   useRadioGroup,
 } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -19,7 +20,8 @@ import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
 import type { NftItem } from 'state/apis/nft/types'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
-import { useAppSelector } from 'state/store'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { AvatarRadio } from './AvatarRadio'
 
@@ -27,9 +29,9 @@ type AvatarSelectModalProps = Pick<ModalProps, 'isOpen'> &
   Pick<ModalProps, 'onClose'> & { walletImage: string }
 
 export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
-  const [selected, setSelected] = useState('')
-  console.log({ selected })
+  const [selected, setSelected] = useState<AssetId | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const dispatch = useAppDispatch()
   const translate = useTranslate()
   const accountIds = useAppSelector(selectWalletAccountIds)
   const { data, isLoading } = useGetNftUserTokensQuery({ accountIds })
@@ -81,8 +83,12 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   }, [filteredNfts, getRadioProps])
 
   const handleSaveChanges = useCallback(() => {
+    const { setSelectedNftAvatar } = preferences.actions
+    if (selected) {
+      dispatch(setSelectedNftAvatar(selected))
+    }
     onClose()
-  }, [onClose])
+  }, [dispatch, onClose, selected])
 
   return (
     <Modal size='lg' {...props}>

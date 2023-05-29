@@ -17,8 +17,9 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
+import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
 import { nft, useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
-import { selectSelectedNftAvatarUrl } from 'state/apis/nft/selectors'
+import { selectSelectedNftAvatar } from 'state/apis/nft/selectors'
 import type { NftItem } from 'state/apis/nft/types'
 import { selectWalletAccountIds, selectWalletId } from 'state/slices/common-selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -35,15 +36,15 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const accountIds = useAppSelector(selectWalletAccountIds)
-  const selectedNftAvatarUrl = useAppSelector(selectSelectedNftAvatarUrl)
+  const selectedNftAvatar = useAppSelector(selectSelectedNftAvatar)
   const { data, isLoading } = useGetNftUserTokensQuery({ accountIds })
+  const defaultWalletImage = useMemo(
+    () => makeBlockiesUrl(`${walletId}ifyoudriveatruckdriveitlikeyouhaveafarm`),
+    [walletId],
+  )
   const filteredData = useMemo(
-    () =>
-      (data ?? []).filter(
-        item =>
-          item.medias[0]?.type === 'image' && item.medias[0]?.originalUrl !== selectedNftAvatarUrl,
-      ),
-    [data, selectedNftAvatarUrl],
+    () => (data ?? []).filter(item => item.medias[0]?.type === 'image'),
+    [data],
   )
   const filterNftsBySearchTerm = useCallback((data: NftItem[], searchQuery: string) => {
     const search = searchQuery.trim().toLowerCase()
@@ -59,7 +60,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
       : filteredData
   }, [isSearching, filteredData, filterNftsBySearchTerm, searchQuery])
 
-  const defaultValue = props.walletImage
+  const defaultValue = selectedNftAvatar ?? defaultWalletImage
 
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: 'framework',
@@ -114,9 +115,9 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
                 {...group}
               >
                 <AvatarRadio
-                  key={props.walletImage}
-                  src={props.walletImage}
-                  {...getRadioProps({ value: props.walletImage })}
+                  key={defaultWalletImage}
+                  src={defaultWalletImage}
+                  {...getRadioProps({ value: defaultWalletImage })}
                 />
                 {renderItems}
               </SimpleGrid>

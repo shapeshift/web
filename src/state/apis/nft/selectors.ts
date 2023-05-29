@@ -5,7 +5,7 @@ import { selectWalletId } from 'state/slices/common-selectors'
 
 import type { NftItem } from './types'
 
-const selectSelectedNftAvatar = createSelector(
+export const selectSelectedNftAvatar = createSelector(
   selectWalletId,
   (state: ReduxState) => state.nft.selectedNftAvatarByWalletId,
   (walletId, selectedNftAvatarByWalletId) => {

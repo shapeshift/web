@@ -2,7 +2,6 @@ import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { ethers } from 'ethers'
@@ -19,11 +18,12 @@ import {
   SIGNING_SCHEME,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
-import { CowSwapOrder, isCowswapSupportedChainId } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
+import type { CowSwapOrder } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import {
   domain,
   getNowPlusThirtyMinutesTimestamp,
   hashOrder,
+  isCowswapSupportedChainId,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 
 export async function cowExecuteTrade<T extends CowswapSupportedChainId>(

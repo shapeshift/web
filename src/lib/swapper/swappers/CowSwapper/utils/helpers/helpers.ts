@@ -1,4 +1,5 @@
 import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads/build'
 import { ethers } from 'ethers'
@@ -7,7 +8,6 @@ import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 
 import type { CowswapSupportedChainAdapter, CowswapSupportedChainId } from '../../CowSwapper'
-import { KnownChainIds } from '@shapeshiftoss/types'
 
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },
@@ -85,12 +85,10 @@ export const assertValidTradePair = ({
   )
 }
 
-
-export const isCowswapSupportedChainId = (chainId: string | undefined): chainId is CowswapSupportedChainId => {
-  return (
-    chainId === KnownChainIds.EthereumMainnet ||
-    chainId === KnownChainIds.GnosisMainnet
-  );
+export const isCowswapSupportedChainId = (
+  chainId: string | undefined,
+): chainId is CowswapSupportedChainId => {
+  return chainId === KnownChainIds.EthereumMainnet || chainId === KnownChainIds.GnosisMainnet
 }
 
 export const getNowPlusThirtyMinutesTimestamp = (): number => {

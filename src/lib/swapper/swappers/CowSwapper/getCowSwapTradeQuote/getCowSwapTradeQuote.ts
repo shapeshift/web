@@ -1,5 +1,5 @@
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -8,7 +8,10 @@ import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { getCowSwapMinMax } from 'lib/swapper/swappers/CowSwapper/getCowSwapMinMax/getCowSwapMinMax'
-import type { CowSwapQuoteResponse, CowswapSupportedChainId } from 'lib/swapper/swappers/CowSwapper/types'
+import type {
+  CowSwapQuoteResponse,
+  CowswapSupportedChainId,
+} from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_ETH_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
@@ -17,7 +20,10 @@ import {
   ORDER_KIND_SELL,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
-import { getNowPlusThirtyMinutesTimestamp, isCowswapSupportedChainId } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
+import {
+  getNowPlusThirtyMinutesTimestamp,
+  isCowswapSupportedChainId,
+} from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import { normalizeIntegerAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
 import {
   selectBuyAssetUsdRate,

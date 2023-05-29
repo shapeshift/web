@@ -22,7 +22,6 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   receiveAddress?: string
   fees?: DisplayFeeData<C>
   trade?: Trade<C>
-  activeSwapperWithMetadata?: SwapperWithQuoteMetadata
   availableSwappersWithMetadata?: SwapperWithQuoteMetadata[]
   activeAffiliateBps: string
   preferredSwapper?: SwapperName

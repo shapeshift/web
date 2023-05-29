@@ -52,7 +52,7 @@ export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMa
   if (flags.Cowswap) {
     const cowSwapperEth = new CowSwapper({
       adapter: ethereumChainAdapter,
-      apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
+      apiUrl: getConfig().REACT_APP_COWSWAP_BASE_URL,
       web3: ethWeb3,
     })
     swapperManager.addSwapper(cowSwapperEth)
@@ -63,7 +63,7 @@ export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMa
 
     const cowSwapperGnosis = new CowSwapper({
       adapter: gnosisChainAdapter,
-      apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
+      apiUrl: getConfig().REACT_APP_COWSWAP_BASE_URL,
       web3: gnosisWeb3,
     })
     swapperManager.addSwapper(cowSwapperGnosis)

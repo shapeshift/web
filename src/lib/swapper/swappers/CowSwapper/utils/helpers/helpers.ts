@@ -6,7 +6,8 @@ import type { Asset } from 'lib/asset-service'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 
-import type { CowswapSupportedChainAdapter } from '../../CowSwapper'
+import type { CowswapSupportedChainAdapter, CowswapSupportedChainId } from '../../CowSwapper'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },
@@ -82,6 +83,14 @@ export const assertValidTradePair = ({
       },
     }),
   )
+}
+
+
+export const isCowswapSupportedChainId = (chainId: string | undefined): chainId is CowswapSupportedChainId => {
+  return (
+    chainId === KnownChainIds.EthereumMainnet ||
+    chainId === KnownChainIds.GnosisMainnet
+  );
 }
 
 export const getNowPlusThirtyMinutesTimestamp = (): number => {

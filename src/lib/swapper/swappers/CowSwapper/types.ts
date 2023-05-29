@@ -1,10 +1,6 @@
 import type {
-  avalanche,
-  bnbsmartchain,
   ethereum,
   gnosis,
-  optimism,
-  polygon,
 } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -12,18 +8,10 @@ import type { Trade } from 'lib/swapper/api'
 
 export type CowswapSupportedChainId =
   | KnownChainIds.EthereumMainnet
-  | KnownChainIds.AvalancheMainnet
-  | KnownChainIds.OptimismMainnet
-  | KnownChainIds.BnbSmartChainMainnet
-  | KnownChainIds.PolygonMainnet
   | KnownChainIds.GnosisMainnet
 
 export type CowswapSupportedChainAdapter =
   | ethereum.ChainAdapter
-  | avalanche.ChainAdapter
-  | optimism.ChainAdapter
-  | bnbsmartchain.ChainAdapter
-  | polygon.ChainAdapter
   | gnosis.ChainAdapter
 
 export type CowSwapQuoteResponse = {

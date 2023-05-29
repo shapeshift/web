@@ -28,6 +28,7 @@ import { COWSWAP_UNSUPPORTED_ASSETS } from 'lib/swapper/swappers/CowSwapper/util
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
+import { isCowswapSupportedChainId } from './utils/helpers/helpers'
 
 export type CowSwapperDeps = {
   apiUrl: string
@@ -71,12 +72,6 @@ export class CowSwapper<T extends CowswapSupportedChainId> implements Swapper<T>
     }
   }
 
-  isCowswapSupportedChainId(chainId: string | undefined): chainId is CowswapSupportedChainId {
-    return (
-      chainId === KnownChainIds.EthereumMainnet ||
-      chainId === KnownChainIds.GnosisMainnet
-    );
-  }
 
   buildTrade(input: BuildTradeInput): Promise<Result<CowTrade<T>, SwapErrorRight>> {
     return cowBuildTrade<T>(this.deps, this.network, input)
@@ -85,6 +80,7 @@ export class CowSwapper<T extends CowswapSupportedChainId> implements Swapper<T>
   getTradeQuote(
     input: GetTradeQuoteInput,
   ): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
+    console.log('getTradeQuote', input)
     return getCowSwapTradeQuote(this.deps, this.network, input)
   }
 
@@ -102,7 +98,8 @@ export class CowSwapper<T extends CowswapSupportedChainId> implements Swapper<T>
     return assetIds.filter(
       id =>
         id !== sellAssetId &&
-        this.isCowswapSupportedChainId(assets[id]?.chainId) && 
+        sellAsset.chainId === assets[id]?.chainId &&
+        isCowswapSupportedChainId(assets[id]?.chainId) && 
         !isNft(id) &&
         !COWSWAP_UNSUPPORTED_ASSETS.includes(id),
     )
@@ -112,7 +109,7 @@ export class CowSwapper<T extends CowswapSupportedChainId> implements Swapper<T>
     const assets = selectAssets(store.getState())
     return assetIds.filter(
       id =>
-        this.isCowswapSupportedChainId(assets[id]?.chainId) && 
+        isCowswapSupportedChainId(assets[id]?.chainId) && 
         !isNativeEvmAsset(id) &&
         !isNft(id) &&
         !COWSWAP_UNSUPPORTED_ASSETS.includes(id),

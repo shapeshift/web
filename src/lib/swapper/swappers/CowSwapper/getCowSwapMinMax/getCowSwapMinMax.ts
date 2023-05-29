@@ -1,5 +1,4 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
@@ -12,6 +11,7 @@ import {
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { selectSellAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
+import { isCowswapSupportedChainId } from '../utils/helpers/helpers'
 
 export const getCowSwapMinMax = (
   sellAsset: Asset,
@@ -20,7 +20,7 @@ export const getCowSwapMinMax = (
   const { assetNamespace: sellAssetNamespace } = fromAssetId(sellAsset.assetId)
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
 
-  if (sellAssetNamespace !== 'erc20' || buyAssetChainId !== KnownChainIds.EthereumMainnet) {
+  if (sellAssetNamespace !== 'erc20' || !isCowswapSupportedChainId(buyAssetChainId)) {
     return Err(
       makeSwapErrorRight({ message: '[getCowSwapMinMax]', code: SwapErrorType.UNSUPPORTED_PAIR }),
     )

@@ -19,7 +19,7 @@ import {
   SIGNING_SCHEME,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
-import type { CowSwapOrder } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
+import { CowSwapOrder, isCowswapSupportedChainId } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import {
   domain,
   getNowPlusThirtyMinutesTimestamp,
@@ -59,10 +59,10 @@ export async function cowExecuteTrade<T extends CowswapSupportedChainId>(
     )
   }
 
-  if (buyAssetChainId !== KnownChainIds.EthereumMainnet) {
+  if (!isCowswapSupportedChainId(buyAssetChainId)) {
     return Err(
       makeSwapErrorRight({
-        message: '[cowExecuteTrade] - Buy asset needs to be on ETH mainnet to use CowSwap',
+        message: '[cowExecuteTrade] - Buy asset needs to be on a supported network to use CowSwap',
         code: SwapErrorType.UNSUPPORTED_PAIR,
         details: { buyAssetChainId },
       }),

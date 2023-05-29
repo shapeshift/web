@@ -8,7 +8,7 @@ import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { getCowSwapMinMax } from 'lib/swapper/swappers/CowSwapper/getCowSwapMinMax/getCowSwapMinMax'
-import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
+import type { CowSwapQuoteResponse, CowswapSupportedChainId } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_ETH_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
@@ -17,7 +17,7 @@ import {
   ORDER_KIND_SELL,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
-import { getNowPlusThirtyMinutesTimestamp } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
+import { getNowPlusThirtyMinutesTimestamp, isCowswapSupportedChainId } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import { normalizeIntegerAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
 import {
   selectBuyAssetUsdRate,
@@ -29,7 +29,7 @@ export async function getCowSwapTradeQuote(
   deps: CowSwapperDeps,
   network: string,
   input: GetTradeQuoteInput,
-): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
+): Promise<Result<TradeQuote<CowswapSupportedChainId>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
 
@@ -51,10 +51,10 @@ export async function getCowSwapTradeQuote(
     )
   }
 
-  if (buyAssetChainId !== KnownChainIds.EthereumMainnet) {
+  if (!isCowswapSupportedChainId(buyAssetChainId)) {
     return Err(
       makeSwapErrorRight({
-        message: '[getCowSwapTradeQuote] - Buy asset needs to be on ETH mainnet to use CowSwap',
+        message: '[getCowSwapTradeQuote] - Buy asset network not supported by CowSwap',
         code: SwapErrorType.UNSUPPORTED_PAIR,
         details: { buyAssetChainId },
       }),

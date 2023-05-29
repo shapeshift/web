@@ -17,7 +17,6 @@ import {
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
 import {
-  assertValidTradePair,
   getCowswapNetwork,
   getNowPlusThirtyMinutesTimestamp,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
@@ -26,14 +25,15 @@ import {
   selectSellAssetUsdRate,
 } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
-import { isCowswapSupportedChainId } from '../utils/utils'
 
 export async function cowBuildTrade<T extends CowChainId>(
   { adapter, baseUrl }: CowSwapperDeps,
   input: BuildTradeInput,
 ): Promise<Result<CowTrade<T>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
+  
   const network = getCowswapNetwork(adapter)
+  if (network.isErr()) return Err(network.unwrapErr())
 
   if (!receiveAddress)
     return Err(
@@ -51,26 +51,7 @@ export async function cowBuildTrade<T extends CowChainId>(
     buyAsset.assetId,
   )
 
-
-  if (sellAssetNamespace !== 'erc20') {
-    return Err(
-      makeSwapErrorRight({
-        message: '[cowBuildTrade] - Sell asset needs to be ERC-20 to use CowSwap',
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { sellAssetNamespace },
-      }),
-    )
-  }
-
-  if (!isCowswapSupportedChainId(buyAssetChainId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[cowBuildTrade] - Buy asset network not supported by CowSwap',
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { buyAssetChainId },
-      }),
-    )
-  }
+  // call shared validation logic here
  
   const { assetReference: sellAssetAddress } = fromAssetId(sellAsset.assetId)
 

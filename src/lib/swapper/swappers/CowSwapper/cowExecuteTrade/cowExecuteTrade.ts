@@ -42,38 +42,20 @@ export async function cowExecuteTrade<T extends CowChainId>(
     minimumBuyAmountAfterFeesCryptoBaseUnit,
   } = cowTrade
 
-  const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } = fromAssetId(
+  const { assetReference: sellAssetAddress, assetNamespace: sellAssetNamespace } = fromAssetId(
     sellAsset.assetId,
   )
-  const { assetReference: buyAssetErc20Address, chainId: buyAssetChainId } = fromAssetId(
+  const { assetReference: buyAssetAddress, chainId: buyAssetChainId } = fromAssetId(
     buyAsset.assetId,
   )
 
-  if (sellAssetNamespace !== 'erc20') {
-    return Err(
-      makeSwapErrorRight({
-        message: '[cowExecuteTrade] - Sell asset needs to be ERC-20 to use CowSwap',
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { sellAssetNamespace },
-      }),
-    )
-  }
-
-  if (!isCowswapSupportedChainId(buyAssetChainId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[cowExecuteTrade] - Buy asset needs to be on a supported network to use CowSwap',
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { buyAssetChainId },
-      }),
-    )
-  }
+  // call shared validation logic here
 
   const buyToken =
-    buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
+    buyAsset.assetId !== ethAssetId ? buyAssetAddress : COW_SWAP_ETH_MARKER_ADDRESS
 
   const orderToSign: CowSwapOrder = {
-    sellToken: sellAssetErc20Address,
+    sellToken: sellAssetAddress,
     buyToken,
     sellAmount: sellAmountWithoutFee,
     buyAmount: minimumBuyAmountAfterFeesCryptoBaseUnit, // this is used as the minimum accepted receive amount before the trade will execute

@@ -3,9 +3,8 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads/build'
 import { ethers } from 'ethers'
-import type { Asset } from 'lib/asset-service'
 import { SwapError, SwapErrorRight } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+import { SwapErrorType } from 'lib/swapper/api'
 import { CowNetwork, CowswapSupportedChainAdapter } from '../../types'
 
 export const ORDER_TYPE_FIELDS = [
@@ -59,42 +58,16 @@ export type CowSwapSellQuoteApiInput = CowSwapQuoteApiInputBase & {
   sellAmountBeforeFee: string
 }
 
-export const assertValidTradePair = ({
-  buyAsset,
-  sellAsset,
-  adapter,
-}: {
-  buyAsset: Asset
-  sellAsset: Asset
-  adapter: CowswapSupportedChainAdapter
-}): Result<boolean, SwapErrorRight> => {
-  const chainId = adapter.getChainId()
-
-  if (buyAsset.chainId === chainId && sellAsset.chainId === chainId) return Ok(true)
-
-  return Err(
-    makeSwapErrorRight({
-      message: `[assertValidTradePair] - both assets must be on chainId ${chainId}`,
-      code: SwapErrorType.UNSUPPORTED_PAIR,
-      details: {
-        buyAssetChainId: buyAsset.chainId,
-        sellAssetChainId: sellAsset.chainId,
-      },
-    }),
-  )
-}
-
-
-export const getCowswapNetwork = (adapter: CowswapSupportedChainAdapter): CowNetwork => {
+export const getCowswapNetwork = (adapter: CowswapSupportedChainAdapter): Result<CowNetwork, SwapErrorRight> => {
   switch (adapter.getChainId()) {
     case KnownChainIds.EthereumMainnet:
-      return CowNetwork.Mainnet;
+      return Ok(CowNetwork.Mainnet);
     case KnownChainIds.GnosisMainnet:
-      return CowNetwork.Xdai;
+      return Ok(CowNetwork.Xdai);
     default:
-      throw new SwapError('[getCowswapNetwork]', {
+      return Err(new SwapError('[getCowswapNetwork]', {
         code: SwapErrorType.UNSUPPORTED_CHAIN,
-      })
+      }))
   }
 }
 

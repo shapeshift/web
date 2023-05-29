@@ -1,7 +1,7 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Dex, TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
-import { useEffect, useMemo, useState, useTransition } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -13,7 +13,6 @@ import { getTradeFees } from './utils'
 
 export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
   const dispatch = useDispatch()
-  const [, startTransition] = useTransition()
   const [tradeFees, setTradeFees] = useState<TradeFees | undefined>(undefined)
   const cryptoPriceHistoryData = useAppSelector(state =>
     selectCryptoPriceHistoryTimeframe(state, HistoryTimeframe.ALL),
@@ -36,25 +35,23 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
     if (txDetails.tx.trade.dexName !== Dex.CowSwap) return
 
     if (!cryptoPriceHistoryData?.[buy.asset.assetId]) {
-      startTransition(() => {
-        dispatch(
-          findPriceHistoryByAssetId.initiate({
-            assetId: buy.asset.assetId,
-            timeframe: HistoryTimeframe.ALL,
-          }),
-        )
-      })
+      dispatch(
+        findPriceHistoryByAssetId.initiate({
+          assetId: buy.asset.assetId,
+          timeframe: HistoryTimeframe.ALL,
+        }),
+      )
+      return
     }
 
     if (!cryptoPriceHistoryData?.[sell.asset.assetId]) {
-      startTransition(() => {
-        dispatch(
-          findPriceHistoryByAssetId.initiate({
-            assetId: sell.asset.assetId,
-            timeframe: HistoryTimeframe.ALL,
-          }),
-        )
-      })
+      dispatch(
+        findPriceHistoryByAssetId.initiate({
+          assetId: sell.asset.assetId,
+          timeframe: HistoryTimeframe.ALL,
+        }),
+      )
+      return
     }
 
     const tradeFees = getTradeFees({

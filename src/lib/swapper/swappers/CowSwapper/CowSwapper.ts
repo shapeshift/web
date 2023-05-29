@@ -27,6 +27,7 @@ import type {
 import { COWSWAP_UNSUPPORTED_ASSETS } from 'lib/swapper/swappers/CowSwapper/utils/blacklist'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
+import { isNativeEvmAsset } from '../utils/helpers/helpers'
 
 export type CowSwapperDeps = {
   apiUrl: string
@@ -73,26 +74,22 @@ export class CowSwapper<T extends CowswapSupportedChainId> implements Swapper<T>
   isCowswapSupportedChainId(chainId: string | undefined): chainId is CowswapSupportedChainId {
     return (
       chainId === KnownChainIds.EthereumMainnet ||
-      chainId === KnownChainIds.AvalancheMainnet ||
-      chainId === KnownChainIds.OptimismMainnet ||
-      chainId === KnownChainIds.BnbSmartChainMainnet ||
-      chainId === KnownChainIds.PolygonMainnet ||
       chainId === KnownChainIds.GnosisMainnet
     );
   }
 
   buildTrade(input: BuildTradeInput): Promise<Result<CowTrade<T>, SwapErrorRight>> {
-    return cowBuildTrade<T>(this.deps, network, input)
+    return cowBuildTrade<T>(this.deps, this.network, input)
   }
 
   getTradeQuote(
     input: GetTradeQuoteInput,
   ): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
-    return getCowSwapTradeQuote(this.deps, network, input)
+    return getCowSwapTradeQuote(this.deps, this.network, input)
   }
 
   executeTrade(args: CowswapExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>> {
-    return cowExecuteTrade<T>(this.deps, network, args)
+    return cowExecuteTrade<T>(this.deps, this.network, args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
@@ -116,14 +113,14 @@ export class CowSwapper<T extends CowswapSupportedChainId> implements Swapper<T>
     return assetIds.filter(
       id =>
         this.isCowswapSupportedChainId(assets[id]?.chainId) && 
-        id !== ethAssetId && // can sell erc20 only
+        !isNativeEvmAsset(id) &&
         !isNft(id) &&
         !COWSWAP_UNSUPPORTED_ASSETS.includes(id),
     )
   }
 
   getTradeTxs(args: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
-    return cowGetTradeTxs(this.deps, network, args)
+    return cowGetTradeTxs(this.deps, this.network, args)
   }
 }
 

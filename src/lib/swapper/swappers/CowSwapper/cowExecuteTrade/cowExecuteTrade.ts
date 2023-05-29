@@ -28,6 +28,7 @@ import {
 
 export async function cowExecuteTrade<T extends CowswapSupportedChainId>(
   { apiUrl, adapter }: CowSwapperDeps,
+  network: string,
   { trade, wallet }: ExecuteTradeInput<T>,
 ): Promise<Result<TradeResult, SwapErrorRight>> {
   const cowTrade = trade as CowTrade<T>
@@ -128,7 +129,7 @@ export async function cowExecuteTrade<T extends CowswapSupportedChainId>(
    * orderId: Orders can optionally include a quote ID. This way the order can be linked to a quote and enable providing more metadata when analyzing order slippage.
    * }
    */
-  const maybeOrdersResponse = await cowService.post<string>(`${apiUrl}/v1/orders/`, {
+  const maybeOrdersResponse = await cowService.post<string>(`${apiUrl}/${network}/api/v1/orders/`, {
     ...orderToSign,
     signingScheme: SIGNING_SCHEME,
     signature,

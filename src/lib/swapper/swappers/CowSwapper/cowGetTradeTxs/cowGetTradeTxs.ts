@@ -15,7 +15,7 @@ export async function cowGetTradeTxs(
   input: TradeResult,
 ): Promise<Result<TradeTxs, SwapErrorRight>> {
   const maybeGetOrdersResponse = await cowService.get<CowSwapGetOrdersResponse>(
-    `${deps.apiUrl}/${network}/v1/orders/${input.tradeId}`,
+    `${deps.apiUrl}/${network}/api/v1/orders/${input.tradeId}`,
   )
 
   if (maybeGetOrdersResponse.isErr()) return Err(maybeGetOrdersResponse.unwrapErr())
@@ -31,7 +31,7 @@ export async function cowGetTradeTxs(
   }
 
   const maybeGetTradesResponse = await cowService.get<CowSwapGetTradesResponse>(
-    `${deps.apiUrl}/${network}/v1/trades/?orderUid=${input.tradeId}`,
+    `${deps.apiUrl}/${network}/api/v1/trades/?orderUid=${input.tradeId}`,
   )
 
   return maybeGetTradesResponse.andThen(getTradesResponse =>

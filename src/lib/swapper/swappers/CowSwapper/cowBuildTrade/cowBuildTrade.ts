@@ -25,13 +25,10 @@ import {
   selectSellAssetUsdRate,
 } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
-import {
-  convertDecimalPercentageToBasisPoints,
-  subtractBasisPointAmount,
-} from 'state/zustand/swapperStore/utils'
 
 export async function cowBuildTrade<T extends CowswapSupportedChainId>(
   { adapter, apiUrl }: CowSwapperDeps,
+  network: string,
   input: BuildTradeInput,
 ): Promise<Result<CowTrade<T>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, receiveAddress } = input

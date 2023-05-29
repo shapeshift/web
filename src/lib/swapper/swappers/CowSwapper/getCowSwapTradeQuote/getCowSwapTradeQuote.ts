@@ -81,7 +81,7 @@ export async function getCowSwapTradeQuote(
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
-    `${deps.apiUrl}/${network}/v1/quote/`,
+    `${deps.apiUrl}/${network}/api/v1/quote/`,
     {
       sellToken: sellAssetErc20Address,
       buyToken,

@@ -33,10 +33,18 @@ type NftState = {
     byId: Record<AssetId, NftItem>
     ids: AssetId[]
   }
+  collections: {
+    byId: Record<AssetId, NftCollectionType>
+    ids: AssetId[]
+  }
 }
 const initialState: NftState = {
   selectedNftAvatarByWalletId: {},
   nfts: {
+    byId: {},
+    ids: [],
+  },
+  collections: {
     byId: {},
     ids: [],
   },
@@ -47,6 +55,10 @@ export const nft = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
+    upsertCollections: (state, action: PayloadAction<NftState['collections']>) => {
+      state.collections.byId = Object.assign({}, state.collections.byId, action.payload.byId)
+      state.collections.ids = Array.from(new Set(state.collections.ids.concat(action.payload.ids)))
+    },
     upsertNfts: (state, action: PayloadAction<NftState['nfts']>) => {
       state.nfts.byId = Object.assign({}, state.nfts.byId, action.payload.byId)
       state.nfts.ids = Array.from(new Set(state.nfts.ids.concat(action.payload.ids)))
@@ -115,6 +127,17 @@ export const nftApi = createApi({
         }, {})
         const nftIds: AssetId[] = Object.keys(nftsById)
 
+        const collectionsById = data.reduce<NftState['collections']['byId']>((acc, item) => {
+          if (!item.collection.id) return acc
+
+          const collectionAssetId = item.collection.id
+          acc[collectionAssetId] = item.collection
+
+          return acc
+        }, {})
+        const collectionIds: AssetId[] = Object.keys(collectionsById)
+
+        dispatch(nft.actions.upsertCollections({ byId: collectionsById, ids: collectionIds }))
         dispatch(nft.actions.upsertNfts({ byId: nftsById, ids: nftIds }))
 
         return { data }

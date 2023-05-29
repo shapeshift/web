@@ -1,7 +1,7 @@
 import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
-import { Err, Ok } from '@sniptt/monads/build'
+import { Ok } from '@sniptt/monads/build'
 import { ethers } from 'ethers'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
@@ -69,11 +69,9 @@ export const getCowswapNetwork = (
     case KnownChainIds.GnosisMainnet:
       return Ok(CowNetwork.Xdai)
     default:
-      return Err(
-        new SwapError('[getCowswapNetwork]', {
-          code: SwapErrorType.UNSUPPORTED_CHAIN,
-        }),
-      )
+      throw new SwapError('[getCowswapNetwork]', {
+        code: SwapErrorType.UNSUPPORTED_CHAIN,
+      })
   }
 }
 

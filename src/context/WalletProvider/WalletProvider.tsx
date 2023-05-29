@@ -1,5 +1,6 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import detectEthereumProvider from '@metamask/detect-provider'
+import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
@@ -648,9 +649,15 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           }
           if (walletType === KeyManager.WalletConnect) {
             const config: WalletConnectProviderConfig = {
-              /** List of RPC URLs indexed by chain ID */
+              /** List of RPC URLs indexed by chain reference */
               rpc: {
-                1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+                [CHAIN_REFERENCE.EthereumMainnet]: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+                [CHAIN_REFERENCE.OptimismMainnet]: getConfig().REACT_APP_OPTIMISM_NODE_URL,
+                [CHAIN_REFERENCE.BnbSmartChainMainnet]:
+                  getConfig().REACT_APP_BNBSMARTCHAIN_NODE_URL,
+                [CHAIN_REFERENCE.GnosisMainnet]: getConfig().REACT_APP_GNOSIS_NODE_URL,
+                [CHAIN_REFERENCE.PolygonMainnet]: getConfig().REACT_APP_POLYGON_NODE_URL,
+                [CHAIN_REFERENCE.AvalancheCChain]: getConfig().REACT_APP_AVALANCHE_NODE_URL,
               },
             }
             return new WalletConnectProvider(config)

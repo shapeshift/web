@@ -23,6 +23,15 @@ export const selectNftCollectionById = createSelector(
   },
 )
 
+export const selectNftById = createSelector(
+  selectNfts,
+  selectAssetIdParamFromFilter,
+  (nfts, nftAssetId) => {
+    if (!nftAssetId) return null
+    return nfts.byId[nftAssetId]
+  },
+)
+
 export const selectSelectedNftAvatarUrl = createSelector(
   selectSelectedNftAvatar,
   selectNfts,

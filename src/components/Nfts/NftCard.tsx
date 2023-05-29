@@ -8,7 +8,7 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
 import Placeholder from 'assets/placeholder.png'
@@ -19,17 +19,21 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useModal } from 'hooks/useModal/useModal'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { selectNftCollectionById } from 'state/apis/nft/selectors'
-import type { NftItem } from 'state/apis/nft/types'
+import { selectNftById, selectNftCollectionById } from 'state/apis/nft/selectors'
 import { getMediaType } from 'state/apis/zapper/validators'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type NftCardProps = {
-  nftItem: NftItem
+  nftAssetId: AssetId
 }
 
-export const NftCard: React.FC<NftCardProps> = ({ nftItem }) => {
+export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
+  const nftFilter = useMemo(() => ({ assetId: nftAssetId }), [nftAssetId])
+  const nftItem = useAppSelector(state => selectNftById(state, nftFilter))
+
+  if (!nftItem) throw new Error(`NFT not found for assetId: ${nftAssetId}`)
+
   const { collectionId, medias, name, rarityRank } = nftItem
 
   const collection = useAppSelector(state =>

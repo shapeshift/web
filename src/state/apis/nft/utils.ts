@@ -14,7 +14,7 @@ import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 import { isFulfilled } from 'lib/utils'
 
 import { parseAlchemyOwnedNftToNftItem } from './parsers/alchemy'
-import type { NftItem } from './types'
+import type { NftItemWithCollection } from './types'
 
 // addresses are repeated across EVM chains
 export const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>
@@ -58,7 +58,10 @@ export const openseaNetworkToChainId = (network: SupportedOpenseaNetwork): Chain
 export const chainIdToOpenseaNetwork = (chainId: ChainId): SupportedOpenseaNetwork | undefined =>
   CHAIN_ID_TO_OPENSEA_NETWORK_MAP[chainId]
 
-export const updateNftItem = (originalItem: NftItem, currentItem: NftItem) => {
+export const updateNftItem = (
+  originalItem: NftItemWithCollection,
+  currentItem: NftItemWithCollection,
+) => {
   if (!originalItem.medias.length && currentItem.medias.length) {
     originalItem.medias = currentItem.medias
   }
@@ -80,7 +83,9 @@ export const updateNftItem = (originalItem: NftItem, currentItem: NftItem) => {
   return originalItem
 }
 
-export const getAlchemyNftData = async (accountIds: AccountId[]): Promise<{ data: NftItem[] }> => {
+export const getAlchemyNftData = async (
+  accountIds: AccountId[],
+): Promise<{ data: NftItemWithCollection[] }> => {
   const items = (
     await Promise.allSettled(
       accountIds.map(async accountId => {

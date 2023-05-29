@@ -19,6 +19,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useModal } from 'hooks/useModal/useModal'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { selectNftCollectionById } from 'state/apis/nft/selectors'
 import type { NftItem } from 'state/apis/nft/types'
 import { getMediaType } from 'state/apis/zapper/validators'
 import { selectAssetById } from 'state/slices/selectors'
@@ -29,8 +30,12 @@ type NftCardProps = {
 }
 
 export const NftCard: React.FC<NftCardProps> = ({ nftItem }) => {
-  const { collection, medias, name, rarityRank } = nftItem
-  const { floorPrice } = collection
+  const { collectionId, medias, name, rarityRank } = nftItem
+
+  const collection = useAppSelector(state =>
+    selectNftCollectionById(state, { assetId: collectionId }),
+  )
+  const floorPrice = collection?.floorPrice
   const mediaUrl = medias?.[0]?.originalUrl
   const mediaType = getMediaType(mediaUrl)
   const bg = useColorModeValue('gray.50', 'gray.750')
@@ -38,7 +43,7 @@ export const NftCard: React.FC<NftCardProps> = ({ nftItem }) => {
   const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
   const [isMediaLoaded, setIsMediaLoaded] = useState(false)
 
-  const chainId = collection.chainId
+  const chainId = collection?.chainId
   const maybeChainAdapter = getChainAdapterManager().get(chainId as ChainId)
   const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
   const maybeFeeAsset = useAppSelector(state => selectAssetById(state, maybeFeeAssetId ?? ''))
@@ -46,21 +51,23 @@ export const NftCard: React.FC<NftCardProps> = ({ nftItem }) => {
   const { nft: nftModal } = useModal()
 
   const handleClick = useCallback(() => {
+    if (!collection) return
+
     nftModal.open({ nftItem })
 
     const mixpanel = getMixPanel()
     const eventData = {
       name: nftItem.name,
       id: nftItem.id,
-      collectionName: nftItem.collection.name,
-      collectionAddress: fromAssetId(nftItem.collection.id!).assetReference,
+      collectionName: collection?.name,
+      collectionAddress: fromAssetId(collection?.id).assetReference,
       price: nftItem.price,
-      collectionFloorPrice: nftItem.collection.floorPrice,
+      collectionFloorPrice: collection?.floorPrice,
       nftMediaUrls: (nftItem.medias ?? []).map(media => media.originalUrl),
     }
 
     mixpanel?.track(MixPanelEvents.ClickNft, eventData)
-  }, [nftItem, nftModal])
+  }, [collection, nftItem, nftModal])
 
   const mediaBoxProps = useMemo(
     () =>

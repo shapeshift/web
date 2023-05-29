@@ -4,12 +4,12 @@ import type { AssetNamespace } from '@shapeshiftoss/caip/src/assetId/assetId'
 import { isSome } from 'lib/utils'
 import type { CovalentNftItemSchemaType } from 'state/apis/covalent/validators'
 
-import type { NftItem } from '../types'
+import type { NftItemWithCollection } from '../types'
 
 export const parseToNftItem = (
   covalentItem: CovalentNftItemSchemaType,
   chainId: ChainId,
-): NftItem[] => {
+): NftItemWithCollection[] => {
   return (covalentItem.nft_data ?? [])
     .map(nftData => {
       const medias = nftData.external_data?.image
@@ -23,7 +23,7 @@ export const parseToNftItem = (
 
       if (!(covalentItem.contract_address && covalentItem.supports_erc?.length)) return undefined
 
-      const item: NftItem = {
+      const item: NftItemWithCollection = {
         name: covalentItem.contract_name,
         chainId,
         assetId: toAssetId({

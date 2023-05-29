@@ -34,7 +34,7 @@ import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
 import { parseToNftItem } from '../nft/parsers/zapper'
-import type { NftCollectionType, NftItem } from '../nft/types'
+import type { NftCollectionType, NftItemWithCollection } from '../nft/types'
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type {
   SupportedZapperNetwork,
@@ -216,7 +216,7 @@ export const zapperApi = createApi({
         return { data }
       },
     }),
-    getZapperNftUserTokens: build.query<NftItem[], GetZapperNftUserTokensInput>({
+    getZapperNftUserTokens: build.query<NftItemWithCollection[], GetZapperNftUserTokensInput>({
       queryFn: async ({ accountIds }) => {
         let data: V2NftUserItem[] = []
 

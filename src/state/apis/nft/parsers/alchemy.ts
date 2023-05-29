@@ -4,7 +4,7 @@ import type { NftContract, OpenSeaCollectionMetadata, OwnedNft } from 'alchemy-s
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getMediaType } from 'state/apis/zapper/validators'
 
-import type { NftCollectionType, NftItem } from '../types'
+import type { NftCollectionType, NftItemWithCollection } from '../types'
 
 const makeSocialLinks = (openseaCollectionMetadata: OpenSeaCollectionMetadata | undefined) => {
   if (!openseaCollectionMetadata) return []
@@ -72,7 +72,7 @@ export const parseAlchemyNftContractToCollectionItem = (
 export const parseAlchemyOwnedNftToNftItem = (
   alchemyOwnedNft: OwnedNft,
   chainId: ChainId,
-): NftItem => {
+): NftItemWithCollection => {
   const collectionId = toAssetId({
     assetReference: alchemyOwnedNft.contract.address,
     assetNamespace: alchemyOwnedNft.contract.tokenType.toLowerCase() as AssetNamespace,

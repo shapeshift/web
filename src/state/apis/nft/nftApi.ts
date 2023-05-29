@@ -12,7 +12,7 @@ import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
 import { parseAlchemyNftContractToCollectionItem } from './parsers/alchemy'
-import type { NftCollectionType, NftItem } from './types'
+import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
 import { getAlchemyNftData, updateNftItem } from './utils'
 
 type GetNftUserTokensInput = {
@@ -94,7 +94,7 @@ export const nftApi = createApi({
 
         const results = await Promise.all(services.map(service => service(accountIds)))
 
-        const data = results.reduce<NftItem[]>((acc, result) => {
+        const data = results.reduce<NftItemWithCollection[]>((acc, result) => {
           if (result.data) {
             const { data } = result
 

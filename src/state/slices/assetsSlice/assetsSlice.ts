@@ -181,10 +181,13 @@ export const assetApi = createApi({
           return { error }
         }
       },
-      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
-        await cacheDataLoaded
-        const data = getCacheEntry().data
-        data && dispatch(assets.actions.upsertAssets(data))
+      merge: (currentCache, newData) => {
+        Object.assign(currentCache.byId, newData.byId)
+        const mergedIds = new Set([...currentCache.ids, ...newData.ids])
+        return {
+          byId: currentCache.byId,
+          ids: Array.from(mergedIds),
+        }
       },
     }),
   }),

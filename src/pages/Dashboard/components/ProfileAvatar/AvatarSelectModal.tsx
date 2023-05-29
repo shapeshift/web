@@ -59,9 +59,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
       : filteredData
   }, [isSearching, filteredData, filterNftsBySearchTerm, searchQuery])
 
-  const { onClose, walletImage } = props
-  //Replace with the stored URL
-  const defaultValue = walletImage
+  const defaultValue = props.walletImage
 
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: 'framework',
@@ -92,8 +90,8 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
     if (selected && walletId) {
       dispatch(nft.actions.setWalletSelectedNftAvatar({ nftAssetId: selected, walletId }))
     }
-    onClose()
-  }, [dispatch, onClose, selected, walletId])
+    props.onClose()
+  }, [dispatch, props, selected, walletId])
 
   return (
     <Modal size='lg' {...props}>
@@ -116,15 +114,15 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
                 {...group}
               >
                 <AvatarRadio
-                  key={walletImage}
-                  src={walletImage}
-                  {...getRadioProps({ value: walletImage })}
+                  key={props.walletImage}
+                  src={props.walletImage}
+                  {...getRadioProps({ value: props.walletImage })}
                 />
                 {renderItems}
               </SimpleGrid>
             </ModalBody>
             <ModalFooter>
-              <Button onClick={onClose}>{translate('common.cancel')}</Button>
+              <Button onClick={props.onClose}>{translate('common.cancel')}</Button>
               <Button ml={4} colorScheme='blue' onClick={handleSaveChanges}>
                 {translate('common.saveChanges')}
               </Button>

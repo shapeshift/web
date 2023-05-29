@@ -10,7 +10,7 @@ import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { getCowSwapMinMax } from 'lib/swapper/swappers/CowSwapper/getCowSwapMinMax/getCowSwapMinMax'
 import type {
   CowSwapQuoteResponse,
-  CowswapSupportedChainId,
+  CowChainId,
 } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_ETH_MARKER_ADDRESS,
@@ -35,7 +35,7 @@ import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 export async function getCowSwapTradeQuote(
   deps: CowSwapperDeps,
   input: GetTradeQuoteInput,
-): Promise<Result<TradeQuote<CowswapSupportedChainId>, SwapErrorRight>> {
+): Promise<Result<TradeQuote<CowChainId>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
   const network = getCowswapNetwork(deps.adapter)

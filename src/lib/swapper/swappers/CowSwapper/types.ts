@@ -8,7 +8,7 @@ export enum CowNetwork {
   Xdai = 'xdai'
 }
 
-export type CowswapSupportedChainId = KnownChainIds.EthereumMainnet | KnownChainIds.GnosisMainnet
+export type CowChainId = KnownChainIds.EthereumMainnet | KnownChainIds.GnosisMainnet
 
 export type CowswapSupportedChainAdapter = ethereum.ChainAdapter | gnosis.ChainAdapter
 
@@ -40,14 +40,14 @@ export type CowSwapGetTradesElement = {
 
 export type CowSwapGetTradesResponse = CowSwapGetTradesElement[]
 
-export interface CowTrade<C extends CowswapSupportedChainId> extends Trade<C> {
+export interface CowTrade<C extends CowChainId> extends Trade<C> {
   feeAmountInSellTokenCryptoBaseUnit: string
   sellAmountDeductFeeCryptoBaseUnit: string
   minimumBuyAmountAfterFeesCryptoBaseUnit: string
   id: string
 }
 
-export type CowswapExecuteTradeInput<T extends CowswapSupportedChainId> = {
+export type CowswapExecuteTradeInput<T extends CowChainId> = {
   trade: CowTrade<T>
   wallet: HDWallet
 }

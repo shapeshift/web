@@ -21,7 +21,7 @@ import { getCowSwapTradeQuote } from 'lib/swapper/swappers/CowSwapper/getCowSwap
 import type {
   CowswapExecuteTradeInput,
   CowswapSupportedChainAdapter,
-  CowswapSupportedChainId,
+  CowChainId,
   CowTrade,
 } from 'lib/swapper/swappers/CowSwapper/types'
 import { COWSWAP_UNSUPPORTED_ASSETS } from 'lib/swapper/swappers/CowSwapper/utils/blacklist'
@@ -37,7 +37,7 @@ export type CowSwapperDeps = {
   web3: Web3
 }
 
-export class CowSwapper<T extends CowswapSupportedChainId> implements Swapper<T> {
+export class CowSwapper<T extends CowChainId> implements Swapper<T> {
   readonly name = SwapperName.CowSwap
   deps: CowSwapperDeps
   chainId: ChainId

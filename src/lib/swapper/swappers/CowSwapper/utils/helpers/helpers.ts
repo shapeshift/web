@@ -7,7 +7,7 @@ import type { Asset } from 'lib/asset-service'
 import { SwapError, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 
-import { CowNetwork, CowswapSupportedChainAdapter, CowswapSupportedChainId } from '../../CowSwapper'
+import { CowNetwork, CowswapSupportedChainAdapter, CowChainId } from '../../CowSwapper'
 
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },
@@ -89,7 +89,7 @@ export const assertValidTradePair = ({
 
 export const isCowswapSupportedChainId = (
   chainId: string | undefined,
-): chainId is CowswapSupportedChainId => {
+): chainId is CowChainId => {
   return chainId === KnownChainIds.EthereumMainnet || chainId === KnownChainIds.GnosisMainnet
 }
 

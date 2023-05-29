@@ -7,7 +7,7 @@ import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type {
   CowSwapperDeps,
-  CowswapSupportedChainId,
+  CowChainId,
 } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import type { CowSwapQuoteResponse, CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 import {
@@ -27,7 +27,7 @@ import {
 } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
-export async function cowBuildTrade<T extends CowswapSupportedChainId>(
+export async function cowBuildTrade<T extends CowChainId>(
   { adapter, baseUrl }: CowSwapperDeps,
   input: BuildTradeInput,
 ): Promise<Result<CowTrade<T>, SwapErrorRight>> {
@@ -108,7 +108,7 @@ export async function cowBuildTrade<T extends CowswapSupportedChainId>(
     .div(quoteSellAmountCryptoPrecision)
     .toString()
 
-  const trade: CowTrade<CowswapSupportedChainId> = {
+  const trade: CowTrade<CowChainId> = {
     rate,
     feeData: {
       networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap

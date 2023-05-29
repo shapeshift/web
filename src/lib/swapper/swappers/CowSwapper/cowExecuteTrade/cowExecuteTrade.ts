@@ -18,7 +18,7 @@ import {
   SIGNING_SCHEME,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
-import type { CowSwapOrder } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
+import { CowSwapOrder, getCowswapNetwork } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import {
   domain,
   getNowPlusThirtyMinutesTimestamp,
@@ -27,11 +27,11 @@ import {
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 
 export async function cowExecuteTrade<T extends CowswapSupportedChainId>(
-  { apiUrl, adapter }: CowSwapperDeps,
-  network: string,
+  { baseUrl: apiUrl, adapter }: CowSwapperDeps,
   { trade, wallet }: ExecuteTradeInput<T>,
 ): Promise<Result<TradeResult, SwapErrorRight>> {
   const cowTrade = trade as CowTrade<T>
+  const network = getCowswapNetwork(adapter)
   const {
     sellAsset,
     buyAsset,

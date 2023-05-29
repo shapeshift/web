@@ -190,7 +190,7 @@ const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
 }
 
 const deps: CowSwapperDeps = {
-  apiUrl: 'https://api.cow.fi/mainnet/api',
+  baseUrl: 'https://api.cow.fi/mainnet/api',
   adapter: {
     getAddress: jest.fn(() => Promise.resolve(DEFAULT_ADDRESS)),
     getFeeData: jest.fn(() => Promise.resolve(feeData)),

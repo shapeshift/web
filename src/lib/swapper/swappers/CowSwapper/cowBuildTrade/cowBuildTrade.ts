@@ -18,6 +18,7 @@ import {
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
 import {
   assertValidTradePair,
+  getCowswapNetwork,
   getNowPlusThirtyMinutesTimestamp,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import {
@@ -27,11 +28,11 @@ import {
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export async function cowBuildTrade<T extends CowswapSupportedChainId>(
-  { adapter, apiUrl }: CowSwapperDeps,
-  network: string,
+  { adapter, baseUrl }: CowSwapperDeps,
   input: BuildTradeInput,
 ): Promise<Result<CowTrade<T>, SwapErrorRight>> {
-  const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
+  const { sellAsset, buyAsset, feeAsset, accountNumber, receiveAddress } = input
+  const network = getCowswapNetwork(adapter)
 
   if (!receiveAddress)
     return Err(
@@ -43,7 +44,7 @@ export async function cowBuildTrade<T extends CowswapSupportedChainId>(
 
   const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
 
-  const assertion = assertValidTradePair({ adapter, buyAsset, sellAsset })
+  const assertion = assertValidTradePair({ adapter, buyAsset, sellAsset, feeAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
   const { assetReference: sellAssetAddress } = fromAssetId(sellAsset.assetId)
@@ -51,7 +52,7 @@ export async function cowBuildTrade<T extends CowswapSupportedChainId>(
   const { assetReference: buyAssetAddress } = fromAssetId(buyAsset.assetId)
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
-  const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(`${apiUrl}/${network}/api/v1/quote/`, {
+  const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(`${baseUrl}/${network}/api/v1/quote/`, {
     sellToken: sellAssetAddress,
     buyToken: buyAssetAddress,
     receiver: receiveAddress,

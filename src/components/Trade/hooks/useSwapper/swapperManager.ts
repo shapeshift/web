@@ -50,12 +50,12 @@ export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMa
   ) as unknown as ethereum.ChainAdapter
 
   if (flags.Cowswap) {
-    const cowSwapperEth = new CowSwapper({
+    const cowSwapperEthereum = new CowSwapper({
       adapter: ethereumChainAdapter,
-      apiUrl: getConfig().REACT_APP_COWSWAP_BASE_URL,
+      baseUrl: getConfig().REACT_APP_COWSWAP_BASE_URL,
       web3: ethWeb3,
     })
-    swapperManager.addSwapper(cowSwapperEth)
+    swapperManager.addSwapper(cowSwapperEthereum)
 
     const gnosisChainAdapter = adapterManager.get(
       KnownChainIds.GnosisMainnet,
@@ -63,7 +63,7 @@ export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMa
 
     const cowSwapperGnosis = new CowSwapper({
       adapter: gnosisChainAdapter,
-      apiUrl: getConfig().REACT_APP_COWSWAP_BASE_URL,
+      baseUrl: getConfig().REACT_APP_COWSWAP_BASE_URL,
       web3: gnosisWeb3,
     })
     swapperManager.addSwapper(cowSwapperGnosis)

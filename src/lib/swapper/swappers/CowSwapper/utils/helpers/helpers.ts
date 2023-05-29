@@ -4,10 +4,10 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads/build'
 import { ethers } from 'ethers'
 import type { Asset } from 'lib/asset-service'
-import type { SwapErrorRight } from 'lib/swapper/api'
+import { SwapError, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 
-import type { CowswapSupportedChainAdapter, CowswapSupportedChainId } from '../../CowSwapper'
+import { CowNetwork, CowswapSupportedChainAdapter, CowswapSupportedChainId } from '../../CowSwapper'
 
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },
@@ -63,15 +63,17 @@ export type CowSwapSellQuoteApiInput = CowSwapQuoteApiInputBase & {
 export const assertValidTradePair = ({
   buyAsset,
   sellAsset,
+  feeAsset,
   adapter,
 }: {
   buyAsset: Asset
   sellAsset: Asset
+  feeAsset: Asset
   adapter: CowswapSupportedChainAdapter
 }): Result<boolean, SwapErrorRight> => {
   const chainId = adapter.getChainId()
 
-  if (buyAsset.chainId === chainId && sellAsset.chainId === chainId) return Ok(true)
+  if (buyAsset.chainId === chainId && sellAsset.chainId === chainId && feeAsset.chainId === chainId) return Ok(true)
 
   return Err(
     makeSwapErrorRight({
@@ -89,6 +91,19 @@ export const isCowswapSupportedChainId = (
   chainId: string | undefined,
 ): chainId is CowswapSupportedChainId => {
   return chainId === KnownChainIds.EthereumMainnet || chainId === KnownChainIds.GnosisMainnet
+}
+
+export const getCowswapNetwork = (adapter: CowswapSupportedChainAdapter): CowNetwork => {
+  switch (adapter.getChainId()) {
+    case KnownChainIds.EthereumMainnet:
+      return CowNetwork.Mainnet;
+    case KnownChainIds.GnosisMainnet:
+      return CowNetwork.Xdai;
+    default:
+      throw new SwapError('[getCowswapNetwork]', {
+        code: SwapErrorType.UNSUPPORTED_CHAIN,
+      })
+  }
 }
 
 export const getNowPlusThirtyMinutesTimestamp = (): number => {

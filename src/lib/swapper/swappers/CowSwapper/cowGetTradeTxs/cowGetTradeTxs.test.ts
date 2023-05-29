@@ -24,7 +24,7 @@ describe('cowGetTradeTxs', () => {
 
   it('should call cowService with correct parameters and return an empty string if the order is not fulfilled', async () => {
     const deps: CowSwapperDeps = {
-      apiUrl: 'https://api.cow.fi/mainnet/api',
+      baseUrl: 'https://api.cow.fi/mainnet/api',
       adapter: {} as unknown as ethereum.ChainAdapter,
       web3: {} as Web3,
     }
@@ -56,7 +56,7 @@ describe('cowGetTradeTxs', () => {
 
   it('should call cowService with correct parameters and return the tx hash if the order is fulfilled', async () => {
     const deps: CowSwapperDeps = {
-      apiUrl: 'https://api.cow.fi/mainnet/api',
+      baseUrl: 'https://api.cow.fi/mainnet/api',
       adapter: {} as unknown as ethereum.ChainAdapter,
       web3: {} as Web3,
     }

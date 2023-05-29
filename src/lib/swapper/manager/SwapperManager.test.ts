@@ -85,7 +85,7 @@ describe('SwapperManager', () => {
       expect(swapperManager.getSwapper(SwapperType.ZrxEthereum)).toBeInstanceOf(ZrxSwapper)
       expect(swapperManager.getSwapper(SwapperType.ZrxAvalanche)).toBeInstanceOf(ZrxSwapper)
       expect(swapperManager.getSwapper(SwapperType.ZrxOptimism)).toBeInstanceOf(ZrxSwapper)
-      expect(swapperManager.getSwapper(SwapperType.CowSwapEth)).toBeInstanceOf(CowSwapper)
+      expect(swapperManager.getSwapper(SwapperType.CowSwapEthereum)).toBeInstanceOf(CowSwapper)
     })
 
     it('should throw an error if swapper is not set', () => {

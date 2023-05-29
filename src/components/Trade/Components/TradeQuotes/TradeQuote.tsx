@@ -162,11 +162,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
         return OsmosisIcon
       case SwapperType.LIFI:
         return LiFiIcon
-      case SwapperType.CowSwapEth:
-      case SwapperType.CowSwapAvalanche:
-      case SwapperType.CowSwapBnbSmartChain:
-      case SwapperType.CowSwapOptimism:
-      case SwapperType.CowSwapPolygon:
+      case SwapperType.CowSwapEthereum:
       case SwapperType.CowSwapGnosis:
         return CowIcon
       case SwapperType.ZrxAvalanche:

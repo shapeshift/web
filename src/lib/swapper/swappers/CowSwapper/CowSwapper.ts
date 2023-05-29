@@ -32,7 +32,7 @@ import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { isCowswapSupportedChainId } from './utils/helpers/helpers'
 
 export type CowSwapperDeps = {
-  apiUrl: string
+  baseUrl: string
   adapter: CowswapSupportedChainAdapter
   web3: Web3
 }
@@ -41,29 +41,16 @@ export class CowSwapper<T extends CowswapSupportedChainId> implements Swapper<T>
   readonly name = SwapperName.CowSwap
   deps: CowSwapperDeps
   chainId: ChainId
-  network: string
 
   constructor(deps: CowSwapperDeps) {
     this.deps = deps
     this.chainId = deps.adapter.getChainId()
-    this.network = this.getNetwork()
-  }
-
-  getNetwork() {
-    switch (this.chainId) {
-      case KnownChainIds.EthereumMainnet:
-        return 'mainnet'
-      case KnownChainIds.GnosisMainnet:
-        return 'xdai'
-      default:
-        return 'mainnet'
-    }
   }
 
   getType() {
     switch (this.chainId) {
       case KnownChainIds.EthereumMainnet:
-        return SwapperType.CowSwapEth
+        return SwapperType.CowSwapEthereum
       case KnownChainIds.GnosisMainnet:
         return SwapperType.CowSwapGnosis
       default:
@@ -74,17 +61,17 @@ export class CowSwapper<T extends CowswapSupportedChainId> implements Swapper<T>
   }
 
   buildTrade(input: BuildTradeInput): Promise<Result<CowTrade<T>, SwapErrorRight>> {
-    return cowBuildTrade<T>(this.deps, this.network, input)
+    return cowBuildTrade<T>(this.deps, input)
   }
 
   getTradeQuote(
     input: GetTradeQuoteInput,
   ): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
-    return getCowSwapTradeQuote(this.deps, this.network, input)
+    return getCowSwapTradeQuote(this.deps, input)
   }
 
   executeTrade(args: CowswapExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>> {
-    return cowExecuteTrade<T>(this.deps, this.network, args)
+    return cowExecuteTrade<T>(this.deps, args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
@@ -116,7 +103,7 @@ export class CowSwapper<T extends CowswapSupportedChainId> implements Swapper<T>
   }
 
   getTradeTxs(args: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
-    return cowGetTradeTxs(this.deps, this.network, args)
+    return cowGetTradeTxs(this.deps, args)
   }
 }
 

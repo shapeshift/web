@@ -156,7 +156,7 @@ const expectedFoxToEthOrderToSign: CowSwapOrder = {
 }
 
 const deps: CowSwapperDeps = {
-  apiUrl: 'https://api.cow.fi/mainnet/api',
+  baseUrl: 'https://api.cow.fi/mainnet/api',
   adapter: ethereumMock.ChainAdapter as unknown as ethereum.ChainAdapter,
   web3: {} as Web3,
 }

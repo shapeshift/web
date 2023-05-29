@@ -21,6 +21,7 @@ import {
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
 import {
+  getCowswapNetwork,
   getNowPlusThirtyMinutesTimestamp,
   isCowswapSupportedChainId,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
@@ -33,11 +34,11 @@ import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export async function getCowSwapTradeQuote(
   deps: CowSwapperDeps,
-  network: string,
   input: GetTradeQuoteInput,
 ): Promise<Result<TradeQuote<CowswapSupportedChainId>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
+  const network = getCowswapNetwork(deps.adapter)
 
   const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } = fromAssetId(
     sellAsset.assetId,
@@ -87,7 +88,7 @@ export async function getCowSwapTradeQuote(
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
-    `${deps.apiUrl}/${network}/api/v1/quote/`,
+    `${deps.baseUrl}/${network}/api/v1/quote/`,
     {
       sellToken: sellAssetErc20Address,
       buyToken,

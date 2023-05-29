@@ -31,7 +31,7 @@ jest.mock('state/slices/selectors', () => {
 })
 
 const COW_SWAPPER_DEPS: CowSwapperDeps = {
-  apiUrl: 'https://api.cow.fi/mainnet/api/',
+  baseUrl: 'https://api.cow.fi/mainnet/api/',
   adapter: {} as ethereum.ChainAdapter,
   web3: {} as Web3,
 }
@@ -66,7 +66,7 @@ describe('CowSwapper', () => {
 
   describe('getType', () => {
     it('returns the correct type for CowSwapper', () => {
-      expect(swapper.getType()).toEqual(SwapperType.CowSwapEth)
+      expect(swapper.getType()).toEqual(SwapperType.CowSwapEthereum)
     })
   })
 

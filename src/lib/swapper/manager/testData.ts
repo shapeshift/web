@@ -55,7 +55,7 @@ const zrxBscSwapperDeps: ZrxSwapperDeps = {
 export const getZrxBscwapper = () => new ZrxSwapper(zrxBscSwapperDeps)
 
 const cowSwapperDeps: CowSwapperDeps = {
-  apiUrl: 'https://api.cow.fi/mainnet/api/',
+  baseUrl: 'https://api.cow.fi/mainnet/api/',
   adapter: {
     getChainId: () => KnownChainIds.EthereumMainnet,
   } as ethereum.ChainAdapter,

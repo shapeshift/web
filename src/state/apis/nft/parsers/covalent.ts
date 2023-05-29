@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { AssetNamespace } from '@shapeshiftoss/caip/src/assetId/assetId'
+import { isSome } from 'lib/utils'
 import type { CovalentNftItemSchemaType } from 'state/apis/covalent/validators'
 
 import type { NftItem } from '../types'
@@ -9,8 +10,8 @@ export const parseToNftItem = (
   covalentItem: CovalentNftItemSchemaType,
   chainId: ChainId,
 ): NftItem[] => {
-  return (
-    covalentItem.nft_data?.map(nftData => {
+  return (covalentItem.nft_data ?? [])
+    ?.map(nftData => {
       const medias = nftData.external_data?.image
         ? [
             {
@@ -20,26 +21,33 @@ export const parseToNftItem = (
           ]
         : []
 
+      if (!(covalentItem.contract_address && covalentItem.supports_erc?.length)) return undefined
+
       const item: NftItem = {
         name: covalentItem.contract_name,
         chainId,
+        assetId: toAssetId({
+          // Yeah, it's weird, but this is how Covalent does it
+          assetReference: `${covalentItem.contract_address}/${nftData.token_id}`,
+          assetNamespace: covalentItem.supports_erc[
+            covalentItem.supports_erc.length - 1
+          ] as AssetNamespace,
+          chainId,
+        }),
         id: nftData.token_id,
         medias,
         price: '', // Covalent doesn't provide spot pricing for NFT items
         rarityRank: null, // Covalent doesn't provide rarity rank
         description: nftData.external_data?.description ?? '',
         collection: {
-          id:
-            covalentItem.contract_address && covalentItem.supports_erc?.length
-              ? toAssetId({
-                  // Yeah, it's weird, but this is how Covalent does it
-                  assetReference: covalentItem.contract_address,
-                  assetNamespace: covalentItem.supports_erc[
-                    covalentItem.supports_erc.length - 1
-                  ] as AssetNamespace,
-                  chainId,
-                })
-              : '',
+          id: toAssetId({
+            // Yeah, it's weird, but this is how Covalent does it
+            assetReference: covalentItem.contract_address,
+            assetNamespace: covalentItem.supports_erc[
+              covalentItem.supports_erc.length - 1
+            ] as AssetNamespace,
+            chainId,
+          }),
           chainId,
           description: '', // Covalent doesn't provide collection description
           name: covalentItem.contract_name ?? 'Collection',
@@ -59,6 +67,6 @@ export const parseToNftItem = (
       }
 
       return item
-    }) ?? []
-  )
+    })
+    .filter(isSome)
 }

@@ -2,6 +2,7 @@ import {
   avalancheChainId,
   bscChainId,
   ethChainId,
+  gnosisChainId,
   optimismChainId,
   polygonChainId,
 } from '@shapeshiftoss/caip'
@@ -9,6 +10,7 @@ import type {
   avalanche,
   bnbsmartchain,
   ethereum,
+  gnosis,
   optimism,
   polygon,
 } from '@shapeshiftoss/chain-adapters'
@@ -41,18 +43,30 @@ export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMa
   const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
   const avaxWeb3 = getWeb3InstanceByChainId(avalancheChainId)
   const optimismWeb3 = getWeb3InstanceByChainId(optimismChainId)
+  const gnosisWeb3 = getWeb3InstanceByChainId(gnosisChainId)
 
   const ethereumChainAdapter = adapterManager.get(
     KnownChainIds.EthereumMainnet,
   ) as unknown as ethereum.ChainAdapter
 
   if (flags.Cowswap) {
-    const cowSwapper = new CowSwapper({
+    const cowSwapperEth = new CowSwapper({
       adapter: ethereumChainAdapter,
       apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
       web3: ethWeb3,
     })
-    swapperManager.addSwapper(cowSwapper)
+    swapperManager.addSwapper(cowSwapperEth)
+
+    const gnosisChainAdapter = adapterManager.get(
+      KnownChainIds.GnosisMainnet,
+    ) as unknown as gnosis.ChainAdapter
+
+    const cowSwapperGnosis = new CowSwapper({
+      adapter: gnosisChainAdapter,
+      apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
+      web3: gnosisWeb3,
+    })
+    swapperManager.addSwapper(cowSwapperGnosis)
   }
 
   if (flags.ZrxEthereumSwap) {

@@ -4,7 +4,6 @@ import type { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/typ
 import type { DisplayFeeData, TradeAmountInputField } from 'components/Trade/types'
 import type { Asset } from 'lib/asset-service'
 import type { SwapperName, SwapperWithQuoteMetadata, Trade } from 'lib/swapper/api'
-import type { CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 
 export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   selectedSellAssetAccountId?: AccountId
@@ -22,7 +21,8 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   amount: string
   receiveAddress?: string
   fees?: DisplayFeeData<C>
-  trade?: Trade<C> | CowTrade<C>
+  trade?: Trade<C>
+  activeSwapperWithMetadata?: SwapperWithQuoteMetadata
   availableSwappersWithMetadata?: SwapperWithQuoteMetadata[]
   activeAffiliateBps: string
   preferredSwapper?: SwapperName

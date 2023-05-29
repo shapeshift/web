@@ -1,21 +1,25 @@
-import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
+import type {
+  CowSwapperDeps,
+  CowswapSupportedChainId,
+} from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import type { CowSwapQuoteResponse, CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 import {
-  COW_SWAP_ETH_MARKER_ADDRESS,
   DEFAULT_APP_DATA,
   DEFAULT_SOURCE,
   ORDER_KIND_SELL,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
-import { getNowPlusThirtyMinutesTimestamp } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
+import {
+  assertValidTradePair,
+  getNowPlusThirtyMinutesTimestamp,
+} from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import {
   selectBuyAssetUsdRate,
   selectSellAssetUsdRate,
@@ -26,11 +30,11 @@ import {
   subtractBasisPointAmount,
 } from 'state/zustand/swapperStore/utils'
 
-export async function cowBuildTrade(
-  deps: CowSwapperDeps,
+export async function cowBuildTrade<T extends CowswapSupportedChainId>(
+  { adapter, apiUrl }: CowSwapperDeps,
   input: BuildTradeInput,
-): Promise<Result<CowTrade<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
-  const { sellAsset, buyAsset, accountNumber, receiveAddress, slippage } = input
+): Promise<Result<CowTrade<T>, SwapErrorRight>> {
+  const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
 
   if (!receiveAddress)
     return Err(
@@ -42,52 +46,25 @@ export async function cowBuildTrade(
 
   const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
 
-  const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } = fromAssetId(
-    sellAsset.assetId,
-  )
+  const assertion = assertValidTradePair({ adapter, buyAsset, sellAsset })
+  if (assertion.isErr()) return Err(assertion.unwrapErr())
 
-  const { assetReference: buyAssetErc20Address, chainId: buyAssetChainId } = fromAssetId(
-    buyAsset.assetId,
-  )
+  const { assetReference: sellAssetAddress } = fromAssetId(sellAsset.assetId)
 
-  if (sellAssetNamespace !== 'erc20') {
-    return Err(
-      makeSwapErrorRight({
-        message: '[cowBuildTrade] - Sell asset needs to be ERC-20 to use CowSwap',
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { sellAssetNamespace },
-      }),
-    )
-  }
-
-  if (buyAssetChainId !== KnownChainIds.EthereumMainnet) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[cowBuildTrade] - Buy asset needs to be on ETH mainnet to use CowSwap',
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { buyAssetChainId },
-      }),
-    )
-  }
-
-  const buyToken =
-    buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
+  const { assetReference: buyAssetAddress } = fromAssetId(buyAsset.assetId)
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
-  const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
-    `${deps.apiUrl}/v1/quote/`,
-    {
-      sellToken: sellAssetErc20Address,
-      buyToken,
-      receiver: receiveAddress,
-      validTo: getNowPlusThirtyMinutesTimestamp(),
-      appData: DEFAULT_APP_DATA,
-      partiallyFillable: false,
-      from: receiveAddress,
-      kind: ORDER_KIND_SELL,
-      sellAmountBeforeFee: sellAmountBeforeFeesCryptoBaseUnit,
-    },
-  )
+  const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(`${apiUrl}/v1/quote/`, {
+    sellToken: sellAssetAddress,
+    buyToken: buyAssetAddress,
+    receiver: receiveAddress,
+    validTo: getNowPlusThirtyMinutesTimestamp(),
+    appData: DEFAULT_APP_DATA,
+    partiallyFillable: false,
+    from: receiveAddress,
+    kind: ORDER_KIND_SELL,
+    sellAmountBeforeFee: sellAmountBeforeFeesCryptoBaseUnit,
+  })
 
   if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())
 
@@ -133,15 +110,7 @@ export async function cowBuildTrade(
     .div(quoteSellAmountCryptoPrecision)
     .toString()
 
-  const slippageBps = convertDecimalPercentageToBasisPoints(slippage ?? '0').toString()
-
-  const minimumBuyAmountAfterFeesCryptoBaseUnit = subtractBasisPointAmount(
-    buyAmountAfterFeesCryptoBaseUnit,
-    slippageBps,
-    true,
-  )
-
-  const trade: CowTrade<KnownChainIds.EthereumMainnet> = {
+  const trade: CowTrade<CowswapSupportedChainId> = {
     rate,
     feeData: {
       networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
@@ -163,8 +132,7 @@ export async function cowBuildTrade(
     feeAmountInSellTokenCryptoBaseUnit,
     sellAmountDeductFeeCryptoBaseUnit: quoteSellAmountExcludeFeeCryptoBaseUnit,
     id,
-    minimumBuyAmountAfterFeesCryptoBaseUnit,
   }
 
-  return Ok(trade)
+  return Ok(trade as CowTrade<T>)
 }

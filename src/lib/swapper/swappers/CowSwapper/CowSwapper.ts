@@ -1,13 +1,11 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, isNft } from '@shapeshiftoss/caip'
-import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import type Web3 from 'web3'
 import type {
   BuildTradeInput,
   BuyAssetBySellIdInput,
-  ExecuteTradeInput,
   GetTradeQuoteInput,
   SwapErrorRight,
   Swapper,
@@ -15,38 +13,60 @@ import type {
   TradeResult,
   TradeTxs,
 } from 'lib/swapper/api'
-import { SwapperName, SwapperType } from 'lib/swapper/api'
+import { SwapError, SwapErrorType, SwapperName, SwapperType } from 'lib/swapper/api'
 import { cowBuildTrade } from 'lib/swapper/swappers/CowSwapper/cowBuildTrade/cowBuildTrade'
 import { cowExecuteTrade } from 'lib/swapper/swappers/CowSwapper/cowExecuteTrade/cowExecuteTrade'
 import { cowGetTradeTxs } from 'lib/swapper/swappers/CowSwapper/cowGetTradeTxs/cowGetTradeTxs'
 import { getCowSwapTradeQuote } from 'lib/swapper/swappers/CowSwapper/getCowSwapTradeQuote/getCowSwapTradeQuote'
-import type { CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
+import type {
+  CowswapExecuteTradeInput,
+  CowswapSupportedChainAdapter,
+  CowswapSupportedChainId,
+  CowTrade,
+} from 'lib/swapper/swappers/CowSwapper/types'
 import { COWSWAP_UNSUPPORTED_ASSETS } from 'lib/swapper/swappers/CowSwapper/utils/blacklist'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 export type CowSwapperDeps = {
   apiUrl: string
-  adapter: ethereum.ChainAdapter
+  adapter: CowswapSupportedChainAdapter
   web3: Web3
 }
 
-export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
+export class CowSwapper<T extends CowswapSupportedChainId> implements Swapper<T> {
   readonly name = SwapperName.CowSwap
   deps: CowSwapperDeps
+  chainId: ChainId
 
   constructor(deps: CowSwapperDeps) {
     this.deps = deps
+    this.chainId = deps.adapter.getChainId()
   }
 
   getType() {
-    return SwapperType.CowSwap
+    switch (this.chainId) {
+      case KnownChainIds.EthereumMainnet:
+        return SwapperType.CowSwapEth
+      case KnownChainIds.AvalancheMainnet:
+        return SwapperType.CowSwapAvalanche
+      case KnownChainIds.OptimismMainnet:
+        return SwapperType.CowSwapOptimism
+      case KnownChainIds.BnbSmartChainMainnet:
+        return SwapperType.CowSwapBnbSmartChain
+      case KnownChainIds.PolygonMainnet:
+        return SwapperType.CowSwapPolygon
+      case KnownChainIds.GnosisMainnet:
+        return SwapperType.CowSwapGnosis
+      default:
+        throw new SwapError('[getType]', {
+          code: SwapErrorType.UNSUPPORTED_CHAIN,
+        })
+    }
   }
 
-  buildTrade(
-    args: BuildTradeInput,
-  ): Promise<Result<CowTrade<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
-    return cowBuildTrade(this.deps, args)
+  buildTrade(input: BuildTradeInput): Promise<Result<CowTrade<T>, SwapErrorRight>> {
+    return cowBuildTrade<T>(this.deps, input)
   }
 
   getTradeQuote(
@@ -55,10 +75,8 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     return getCowSwapTradeQuote(this.deps, input)
   }
 
-  executeTrade(
-    args: ExecuteTradeInput<KnownChainIds.EthereumMainnet>,
-  ): Promise<Result<TradeResult, SwapErrorRight>> {
-    return cowExecuteTrade(this.deps, args)
+  executeTrade(args: CowswapExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>> {
+    return cowExecuteTrade<T>(this.deps, args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
@@ -66,13 +84,7 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     const assets = selectAssets(store.getState())
     const sellAsset = assets[sellAssetId]
 
-    if (
-      sellAsset === undefined ||
-      sellAsset.chainId !== KnownChainIds.EthereumMainnet ||
-      sellAssetId === ethAssetId || // can sell erc20 only
-      COWSWAP_UNSUPPORTED_ASSETS.includes(sellAssetId)
-    )
-      return []
+    if (sellAsset === undefined || COWSWAP_UNSUPPORTED_ASSETS.includes(sellAssetId)) return []
 
     return assetIds.filter(
       id =>
@@ -83,9 +95,8 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
     )
   }
 
-  filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
+  filterAssetIdsBySellable(assetIds: AssetId[] = []): AssetId[] {
     const assets = selectAssets(store.getState())
-
     return assetIds.filter(
       id =>
         assets[id]?.chainId === KnownChainIds.EthereumMainnet &&

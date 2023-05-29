@@ -66,7 +66,7 @@ describe('CowSwapper', () => {
 
   describe('getType', () => {
     it('returns the correct type for CowSwapper', () => {
-      expect(swapper.getType()).toEqual(SwapperType.CowSwap)
+      expect(swapper.getType()).toEqual(SwapperType.CowSwapEth)
     })
   })
 

@@ -9,7 +9,7 @@ import { ethers } from 'ethers'
 import type { ExecuteTradeInput, SwapErrorRight, TradeResult } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
-import type { CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
+import type { CowswapSupportedChainId, CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_ETH_MARKER_ADDRESS,
   COW_SWAP_SETTLEMENT_ADDRESS,
@@ -26,11 +26,11 @@ import {
   hashOrder,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 
-export async function cowExecuteTrade(
+export async function cowExecuteTrade<T extends CowswapSupportedChainId>(
   { apiUrl, adapter }: CowSwapperDeps,
-  { trade, wallet }: ExecuteTradeInput<KnownChainIds.EthereumMainnet>,
+  { trade, wallet }: ExecuteTradeInput<T>,
 ): Promise<Result<TradeResult, SwapErrorRight>> {
-  const cowTrade = trade as CowTrade<KnownChainIds.EthereumMainnet>
+  const cowTrade = trade as CowTrade<T>
   const {
     sellAsset,
     buyAsset,

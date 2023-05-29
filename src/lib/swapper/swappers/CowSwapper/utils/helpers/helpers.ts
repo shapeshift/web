@@ -1,5 +1,12 @@
 import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads/build'
 import { ethers } from 'ethers'
+import type { Asset } from 'lib/asset-service'
+import type { SwapErrorRight } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+
+import type { CowswapSupportedChainAdapter } from '../../CowSwapper'
 
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },
@@ -50,6 +57,31 @@ export type CowSwapQuoteApiInputBase = {
 
 export type CowSwapSellQuoteApiInput = CowSwapQuoteApiInputBase & {
   sellAmountBeforeFee: string
+}
+
+export const assertValidTradePair = ({
+  buyAsset,
+  sellAsset,
+  adapter,
+}: {
+  buyAsset: Asset
+  sellAsset: Asset
+  adapter: CowswapSupportedChainAdapter
+}): Result<boolean, SwapErrorRight> => {
+  const chainId = adapter.getChainId()
+
+  if (buyAsset.chainId === chainId && sellAsset.chainId === chainId) return Ok(true)
+
+  return Err(
+    makeSwapErrorRight({
+      message: `[assertValidTradePair] - both assets must be on chainId ${chainId}`,
+      code: SwapErrorType.UNSUPPORTED_PAIR,
+      details: {
+        buyAssetChainId: buyAsset.chainId,
+        sellAssetChainId: sellAsset.chainId,
+      },
+    }),
+  )
 }
 
 export const getNowPlusThirtyMinutesTimestamp = (): number => {

@@ -6,6 +6,8 @@ import {
   ethAssetId,
   ethChainId,
   foxAssetId,
+  gnosisAssetId,
+  gnosisChainId,
   optimismAssetId,
   optimismChainId,
   thorchainAssetId,
@@ -145,6 +147,20 @@ export const BSC: Asset = {
   explorer: 'https://bscscan.com',
   explorerAddressLink: 'https://bscscan.com/address/',
   explorerTxLink: 'https://bscscan.com/tx/',
+}
+
+export const XDAI: Asset = {
+  assetId: gnosisAssetId,
+  chainId: gnosisChainId,
+  name: 'xDai',
+  networkName: 'Gnosis Chain',
+  symbol: 'xDai',
+  precision: 18,
+  color: '#33765c',
+  icon: 'https://assets.coingecko.com/coins/images/11062/large/Identity-Primary-DarkBG.png?1638372986',
+  explorer: 'https://gnosisscan.io/',
+  explorerAddressLink: 'https://gnosisscan.io/address/',
+  explorerTxLink: 'https://gnosisscan.io/tx/',
 }
 
 export const RUNE: Asset = {

@@ -1,4 +1,4 @@
-import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
@@ -6,7 +6,6 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { ethers } from 'ethers'
 import type { ExecuteTradeInput, SwapErrorRight, TradeResult } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowChainId, CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import type { CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 import {
@@ -18,13 +17,15 @@ import {
   SIGNING_SCHEME,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
-import { CowSwapOrder, getCowswapNetwork } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
+import type { CowSwapOrder } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import {
   domain,
+  getCowswapNetwork,
   getNowPlusThirtyMinutesTimestamp,
   hashOrder,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
-import { isCowswapSupportedChainId } from '../utils/utils'
+
+import { validateExecuteTrade } from '../utils/validator'
 
 export async function cowExecuteTrade<T extends CowChainId>(
   { baseUrl: apiUrl, adapter }: CowSwapperDeps,
@@ -33,26 +34,20 @@ export async function cowExecuteTrade<T extends CowChainId>(
   const cowTrade = trade as CowTrade<T>
   const network = getCowswapNetwork(adapter)
   const {
-    sellAsset,
-    buyAsset,
     feeAmountInSellTokenCryptoBaseUnit: feeAmountInSellToken,
     sellAmountDeductFeeCryptoBaseUnit: sellAmountWithoutFee,
+    buyAsset,
     accountNumber,
     id,
     minimumBuyAmountAfterFeesCryptoBaseUnit,
   } = cowTrade
 
-  const { assetReference: sellAssetAddress, assetNamespace: sellAssetNamespace } = fromAssetId(
-    sellAsset.assetId,
-  )
-  const { assetReference: buyAssetAddress, chainId: buyAssetChainId } = fromAssetId(
-    buyAsset.assetId,
-  )
+  const maybeValidTradePair = validateExecuteTrade(cowTrade)
+  maybeValidTradePair.isErr() && Err(maybeValidTradePair.unwrapErr())
 
-  // call shared validation logic here
+  const { sellAssetAddress, buyAssetAddress } = maybeValidTradePair.unwrap()
 
-  const buyToken =
-    buyAsset.assetId !== ethAssetId ? buyAssetAddress : COW_SWAP_ETH_MARKER_ADDRESS
+  const buyToken = buyAsset.assetId !== ethAssetId ? buyAssetAddress : COW_SWAP_ETH_MARKER_ADDRESS
 
   const orderToSign: CowSwapOrder = {
     sellToken: sellAssetAddress,

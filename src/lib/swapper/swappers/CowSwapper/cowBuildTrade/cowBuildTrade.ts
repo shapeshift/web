@@ -1,14 +1,9 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import type {
-  CowSwapperDeps,
-  CowChainId,
-} from 'lib/swapper/swappers/CowSwapper/CowSwapper'
+import type { CowChainId, CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import type { CowSwapQuoteResponse, CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   DEFAULT_APP_DATA,
@@ -26,51 +21,39 @@ import {
 } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
+import { validateBuildTrade } from '../utils/validator'
+
 export async function cowBuildTrade<T extends CowChainId>(
   { adapter, baseUrl }: CowSwapperDeps,
   input: BuildTradeInput,
 ): Promise<Result<CowTrade<T>, SwapErrorRight>> {
-  const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
-  
+  const { accountNumber, sellAsset, buyAsset } = input
+
   const network = getCowswapNetwork(adapter)
   if (network.isErr()) return Err(network.unwrapErr())
 
-  if (!receiveAddress)
-    return Err(
-      makeSwapErrorRight({
-        message: 'Receive address is required to build CoW trades',
-        code: SwapErrorType.MISSING_INPUT,
-      }),
-    )
+  const maybeValidTradePair = validateBuildTrade(input)
+  maybeValidTradePair.isErr() && Err(maybeValidTradePair.unwrapErr())
 
-  const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } = fromAssetId(
-    sellAsset.assetId,
-  )
-
-  const { assetReference: buyAssetErc20Address, chainId: buyAssetChainId } = fromAssetId(
-    buyAsset.assetId,
-  )
-
-  // call shared validation logic here
- 
-  const { assetReference: sellAssetAddress } = fromAssetId(sellAsset.assetId)
-
-  const { assetReference: buyAssetAddress } = fromAssetId(buyAsset.assetId)
+  const { sellAssetAddress, buyAssetAddress, receiveAddress } = maybeValidTradePair.unwrap()
 
   const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
-  const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(`${baseUrl}/${network}/api/v1/quote/`, {
-    sellToken: sellAssetAddress,
-    buyToken: buyAssetAddress,
-    receiver: receiveAddress,
-    validTo: getNowPlusThirtyMinutesTimestamp(),
-    appData: DEFAULT_APP_DATA,
-    partiallyFillable: false,
-    from: receiveAddress,
-    kind: ORDER_KIND_SELL,
-    sellAmountBeforeFee: sellAmountBeforeFeesCryptoBaseUnit,
-  })
+  const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
+    `${baseUrl}/${network}/api/v1/quote/`,
+    {
+      sellToken: sellAssetAddress,
+      buyToken: buyAssetAddress,
+      receiver: receiveAddress,
+      validTo: getNowPlusThirtyMinutesTimestamp(),
+      appData: DEFAULT_APP_DATA,
+      partiallyFillable: false,
+      from: receiveAddress,
+      kind: ORDER_KIND_SELL,
+      sellAmountBeforeFee: sellAmountBeforeFeesCryptoBaseUnit,
+    },
+  )
 
   if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())
 

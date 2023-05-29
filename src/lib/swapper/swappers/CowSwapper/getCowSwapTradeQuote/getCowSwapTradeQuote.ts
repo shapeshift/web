@@ -1,16 +1,13 @@
-import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowChainId, CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { getCowSwapMinMax } from 'lib/swapper/swappers/CowSwapper/getCowSwapMinMax/getCowSwapMinMax'
-import type {
-  CowSwapQuoteResponse,
-} from 'lib/swapper/swappers/CowSwapper/types'
+import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_ETH_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
@@ -29,46 +26,22 @@ import {
   selectSellAssetUsdRate,
 } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
-import { isCowswapSupportedChainId } from '../utils/utils'
+
+import { validateTradeQuote } from '../utils/validator'
 
 export async function getCowSwapTradeQuote(
   deps: CowSwapperDeps,
   input: GetTradeQuoteInput,
 ): Promise<Result<TradeQuote<CowChainId>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
-  const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
   const network = getCowswapNetwork(deps.adapter)
 
-  const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } = fromAssetId(
-    sellAsset.assetId,
-  )
+  const maybeValidTradePair = validateTradeQuote(input)
+  maybeValidTradePair.isErr() && Err(maybeValidTradePair.unwrapErr())
 
-  const { assetReference: buyAssetErc20Address, chainId: buyAssetChainId } = fromAssetId(
-    buyAsset.assetId,
-  )
+  const { sellAssetAddress, buyAssetAddress } = maybeValidTradePair.unwrap()
 
-  if (sellAssetNamespace !== 'erc20') {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getCowSwapTradeQuote] - Sell asset needs to be ERC-20 to use CowSwap',
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { sellAssetNamespace },
-      }),
-    )
-  }
-
-  if (!isCowswapSupportedChainId(buyAssetChainId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getCowSwapTradeQuote] - Buy asset network not supported by CowSwap',
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { buyAssetChainId },
-      }),
-    )
-  }
-
-  const buyToken =
-    buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
+  const buyToken = buyAsset.assetId !== ethAssetId ? buyAssetAddress : COW_SWAP_ETH_MARKER_ADDRESS
 
   const maybeCowSwapMinMax = getCowSwapMinMax(sellAsset, buyAsset)
 
@@ -78,6 +51,8 @@ export async function getCowSwapTradeQuote(
   const minQuoteSellAmount = bnOrZero(minimumAmountCryptoHuman).times(
     bn(10).exponentiatedBy(sellAsset.precision),
   )
+
+  const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
   const isSellAmountBelowMinimum = bnOrZero(sellAmount).lt(minQuoteSellAmount)
 
   // making sure we do not have decimals for cowswap api (can happen at least from minQuoteSellAmount)
@@ -89,7 +64,7 @@ export async function getCowSwapTradeQuote(
   const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
     `${deps.baseUrl}/${network}/api/v1/quote/`,
     {
-      sellToken: sellAssetErc20Address,
+      sellToken: sellAssetAddress,
       buyToken,
       receiver: receiveAddress,
       validTo: getNowPlusThirtyMinutesTimestamp(),

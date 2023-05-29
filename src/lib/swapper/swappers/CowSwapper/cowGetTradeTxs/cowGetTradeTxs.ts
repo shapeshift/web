@@ -8,6 +8,7 @@ import type {
 } from 'lib/swapper/swappers/CowSwapper/types'
 import { ORDER_STATUS_FULFILLED } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
+
 import { getCowswapNetwork } from '../utils/helpers/helpers'
 
 export async function cowGetTradeTxs(

@@ -11,6 +11,7 @@ import {
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { selectSellAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
+
 import { isCowswapSupportedChainId } from '../utils/utils'
 
 export const getCowSwapMinMax = (

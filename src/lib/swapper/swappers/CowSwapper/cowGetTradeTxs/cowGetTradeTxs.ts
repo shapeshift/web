@@ -11,10 +11,11 @@ import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
 
 export async function cowGetTradeTxs(
   deps: CowSwapperDeps,
+  network: string,
   input: TradeResult,
 ): Promise<Result<TradeTxs, SwapErrorRight>> {
   const maybeGetOrdersResponse = await cowService.get<CowSwapGetOrdersResponse>(
-    `${deps.apiUrl}/v1/orders/${input.tradeId}`,
+    `${deps.apiUrl}/${network}/v1/orders/${input.tradeId}`,
   )
 
   if (maybeGetOrdersResponse.isErr()) return Err(maybeGetOrdersResponse.unwrapErr())
@@ -30,7 +31,7 @@ export async function cowGetTradeTxs(
   }
 
   const maybeGetTradesResponse = await cowService.get<CowSwapGetTradesResponse>(
-    `${deps.apiUrl}/v1/trades/?orderUid=${input.tradeId}`,
+    `${deps.apiUrl}/${network}/v1/trades/?orderUid=${input.tradeId}`,
   )
 
   return maybeGetTradesResponse.andThen(getTradesResponse =>

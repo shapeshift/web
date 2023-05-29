@@ -38,24 +38,29 @@ export class CowSwapper<T extends CowswapSupportedChainId> implements Swapper<T>
   readonly name = SwapperName.CowSwap
   deps: CowSwapperDeps
   chainId: ChainId
+  network: string
 
   constructor(deps: CowSwapperDeps) {
     this.deps = deps
     this.chainId = deps.adapter.getChainId()
+    this.network = this.getNetwork()
+  }
+
+  getNetwork() {
+    switch(this.chainId){
+      case KnownChainIds.EthereumMainnet:
+        return 'mainnet'
+      case KnownChainIds.GnosisMainnet:
+        return 'xdai'
+      default:
+        return 'mainnet'
+    }
   }
 
   getType() {
     switch (this.chainId) {
       case KnownChainIds.EthereumMainnet:
         return SwapperType.CowSwapEth
-      case KnownChainIds.AvalancheMainnet:
-        return SwapperType.CowSwapAvalanche
-      case KnownChainIds.OptimismMainnet:
-        return SwapperType.CowSwapOptimism
-      case KnownChainIds.BnbSmartChainMainnet:
-        return SwapperType.CowSwapBnbSmartChain
-      case KnownChainIds.PolygonMainnet:
-        return SwapperType.CowSwapPolygon
       case KnownChainIds.GnosisMainnet:
         return SwapperType.CowSwapGnosis
       default:
@@ -65,18 +70,29 @@ export class CowSwapper<T extends CowswapSupportedChainId> implements Swapper<T>
     }
   }
 
+  isCowswapSupportedChainId(chainId: string | undefined): chainId is CowswapSupportedChainId {
+    return (
+      chainId === KnownChainIds.EthereumMainnet ||
+      chainId === KnownChainIds.AvalancheMainnet ||
+      chainId === KnownChainIds.OptimismMainnet ||
+      chainId === KnownChainIds.BnbSmartChainMainnet ||
+      chainId === KnownChainIds.PolygonMainnet ||
+      chainId === KnownChainIds.GnosisMainnet
+    );
+  }
+
   buildTrade(input: BuildTradeInput): Promise<Result<CowTrade<T>, SwapErrorRight>> {
-    return cowBuildTrade<T>(this.deps, input)
+    return cowBuildTrade<T>(this.deps, network, input)
   }
 
   getTradeQuote(
     input: GetTradeQuoteInput,
   ): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
-    return getCowSwapTradeQuote(this.deps, input)
+    return getCowSwapTradeQuote(this.deps, network, input)
   }
 
   executeTrade(args: CowswapExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>> {
-    return cowExecuteTrade<T>(this.deps, args)
+    return cowExecuteTrade<T>(this.deps, network, args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
@@ -89,7 +105,7 @@ export class CowSwapper<T extends CowswapSupportedChainId> implements Swapper<T>
     return assetIds.filter(
       id =>
         id !== sellAssetId &&
-        assets[id]?.chainId === KnownChainIds.EthereumMainnet &&
+        this.isCowswapSupportedChainId(assets[id]?.chainId) && 
         !isNft(id) &&
         !COWSWAP_UNSUPPORTED_ASSETS.includes(id),
     )
@@ -99,7 +115,7 @@ export class CowSwapper<T extends CowswapSupportedChainId> implements Swapper<T>
     const assets = selectAssets(store.getState())
     return assetIds.filter(
       id =>
-        assets[id]?.chainId === KnownChainIds.EthereumMainnet &&
+        this.isCowswapSupportedChainId(assets[id]?.chainId) && 
         id !== ethAssetId && // can sell erc20 only
         !isNft(id) &&
         !COWSWAP_UNSUPPORTED_ASSETS.includes(id),
@@ -107,7 +123,7 @@ export class CowSwapper<T extends CowswapSupportedChainId> implements Swapper<T>
   }
 
   getTradeTxs(args: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
-    return cowGetTradeTxs(this.deps, args)
+    return cowGetTradeTxs(this.deps, network, args)
   }
 }
 

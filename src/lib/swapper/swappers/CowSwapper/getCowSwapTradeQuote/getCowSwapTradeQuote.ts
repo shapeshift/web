@@ -27,6 +27,7 @@ import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export async function getCowSwapTradeQuote(
   deps: CowSwapperDeps,
+  network: string,
   input: GetTradeQuoteInput,
 ): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
@@ -80,7 +81,7 @@ export async function getCowSwapTradeQuote(
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
-    `${deps.apiUrl}/v1/quote/`,
+    `${deps.apiUrl}/${network}/v1/quote/`,
     {
       sellToken: sellAssetErc20Address,
       buyToken,

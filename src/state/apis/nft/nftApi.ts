@@ -1,20 +1,15 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { NftFilters } from 'alchemy-sdk'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 import { logger } from 'lib/logger'
-import { isFulfilled } from 'lib/utils'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
-import {
-  parseAlchemyNftContractToCollectionItem,
-  parseAlchemyOwnedNftToNftItem,
-} from './parsers/alchemy'
+import { parseAlchemyNftContractToCollectionItem } from './parsers/alchemy'
 import type { NftCollectionType, NftItem } from './types'
-import { updateNftItem } from './utils'
+import { getAlchemyNftData, updateNftItem } from './utils'
 
 type GetNftUserTokensInput = {
   accountIds: AccountId[]
@@ -34,28 +29,6 @@ export const nftApi = createApi({
   endpoints: build => ({
     getNftUserTokens: build.query<NftItem[], GetNftUserTokensInput>({
       queryFn: async ({ accountIds }, { dispatch }) => {
-        const getAlchemyNftData = async (accountIds: AccountId[]): Promise<{ data: NftItem[] }> => {
-          const items = (
-            await Promise.allSettled(
-              accountIds.map(async accountId => {
-                const { account: address, chainId } = fromAccountId(accountId)
-
-                const nftItems = await getAlchemyInstanceByChainId(chainId)
-                  .nft.getNftsForOwner(address, { excludeFilters: [NftFilters.SPAM] })
-                  .then(({ ownedNfts }) =>
-                    ownedNfts.map(ownedNft => parseAlchemyOwnedNftToNftItem(ownedNft, chainId)),
-                  )
-
-                return nftItems
-              }),
-            )
-          )
-            .filter(isFulfilled)
-            .flatMap(({ value }) => value)
-
-          return { data: items }
-        }
-
         const services = [
           getAlchemyNftData,
           (accountIds: AccountId[]) =>

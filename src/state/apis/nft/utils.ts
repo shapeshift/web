@@ -8,8 +8,12 @@ import {
   polygonChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { NftFilters } from 'alchemy-sdk'
 import { invert } from 'lodash'
+import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
+import { isFulfilled } from 'lib/utils'
 
+import { parseAlchemyOwnedNftToNftItem } from './parsers/alchemy'
 import type { NftItem } from './types'
 
 // addresses are repeated across EVM chains
@@ -74,4 +78,26 @@ export const updateNftItem = (originalItem: NftItem, currentItem: NftItem) => {
   }
 
   return originalItem
+}
+
+export const getAlchemyNftData = async (accountIds: AccountId[]): Promise<{ data: NftItem[] }> => {
+  const items = (
+    await Promise.allSettled(
+      accountIds.map(async accountId => {
+        const { account: address, chainId } = fromAccountId(accountId)
+
+        const nftItems = await getAlchemyInstanceByChainId(chainId)
+          .nft.getNftsForOwner(address, { excludeFilters: [NftFilters.SPAM] })
+          .then(({ ownedNfts }) =>
+            ownedNfts.map(ownedNft => parseAlchemyOwnedNftToNftItem(ownedNft, chainId)),
+          )
+
+        return nftItems
+      }),
+    )
+  )
+    .filter(isFulfilled)
+    .flatMap(({ value }) => value)
+
+  return { data: items }
 }

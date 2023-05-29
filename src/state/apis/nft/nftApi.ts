@@ -29,13 +29,17 @@ const moduleLogger = logger.child({ namespace: ['nftApi'] })
 
 type NftState = {
   selectedNftAvatarByWalletId: Record<WalletId, AssetId>
-  byId: Record<AssetId, NftItem>
-  ids: AssetId[]
+  nfts: {
+    byId: Record<AssetId, NftItem>
+    ids: AssetId[]
+  }
 }
 const initialState: NftState = {
   selectedNftAvatarByWalletId: {},
-  byId: {},
-  ids: [],
+  nfts: {
+    byId: {},
+    ids: [],
+  },
 }
 
 export const nft = createSlice({
@@ -43,9 +47,9 @@ export const nft = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    upsertNfts: (state, action: PayloadAction<Omit<NftState, 'selectedNftAvatarByWalletId'>>) => {
-      state.byId = Object.assign({}, state.byId, action.payload.byId)
-      state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
+    upsertNfts: (state, action: PayloadAction<NftState['nfts']>) => {
+      state.nfts.byId = Object.assign({}, state.nfts.byId, action.payload.byId)
+      state.nfts.ids = Array.from(new Set(state.nfts.ids.concat(action.payload.ids)))
     },
     setWalletSelectedNftAvatar: {
       reducer: (
@@ -101,7 +105,7 @@ export const nftApi = createApi({
           return acc
         }, [])
 
-        const nftsById = data.reduce<NftState['byId']>((acc, item) => {
+        const nftsById = data.reduce<NftState['nfts']['byId']>((acc, item) => {
           if (!item.collection.id) return acc
 
           const nftAssetId: AssetId = `${item.collection.id}/${item.id}`

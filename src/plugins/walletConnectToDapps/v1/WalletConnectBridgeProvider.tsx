@@ -15,6 +15,7 @@ import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnect from '@walletconnect/client'
 import type { IClientMeta, IUpdateChainParams } from '@walletconnect/legacy-types'
 import { useIsWalletConnectToDappsSupportedWallet } from 'plugins/walletConnectToDapps/hooks/useIsWalletConnectToDappsSupportedWallet'
+import { convertHexToNumber } from 'plugins/walletConnectToDapps/utils'
 import type {
   WalletConnectCallRequest,
   WalletConnectSessionRequest,
@@ -83,8 +84,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const handleSessionRequest = useCallback(
     (error: Error | null, payload: WalletConnectSessionRequestPayload) => {
       if (error) moduleLogger.error(error, { fn: '_onSessionRequest' }, 'Error session request')
-      if (!connector) return
-      if (!wcAccountId) return
+      if (!connector || !wcAccountId) return
       const { account } = fromAccountId(wcAccountId)
       moduleLogger.info(payload, 'approve wc session')
       // evm chain id integers (chain references in caip parlance, chainId in EVM parlance)
@@ -92,16 +92,11 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         parseInt(fromChainId(chainId).chainReference),
       )
 
-      function hexToDecimal(hex: string): number {
-        const decimal = parseInt(hex, 16)
-        return decimal
-      }
-
       const candidateChainIdRaw = payload.params[0].chainId
       const candidateChainIdInt =
         // Apotheosis: In the wild I've seen both hex and decimal representations of chainId provided in the payload
         typeof candidateChainIdRaw === 'string'
-          ? hexToDecimal(candidateChainIdRaw)
+          ? convertHexToNumber(candidateChainIdRaw)
           : candidateChainIdRaw
 
       // some dapps don't send a chainId - default to eth mainnet
@@ -250,18 +245,15 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const handleSwitchChain = useCallback(
     (err: Error | null, payload: any) => {
-      console.log('xxx handleSwitchChain', { payload, err })
       if (err) {
         moduleLogger.error(err, 'handleSwitchChain')
       }
       moduleLogger.info('handleSwitchChain', payload)
-      // Trigger approval modal
       const chainIdHex = payload.params[0].chainId
       const chainReference = parseInt(chainIdHex, 16).toString()
       assertIsChainReference(chainReference)
       const chainId = toChainId({ chainNamespace: CHAIN_NAMESPACE.Evm, chainReference })
       const state = store.getState()
-      // const web3Provider = getWeb3ProviderByChainId(chainId)
       const feeAsset = selectFeeAssetByChainId(state, chainId)
       if (!feeAsset) return moduleLogger.error('No fee asset found for chainId', chainId)
       const updateChainParams: IUpdateChainParams = {
@@ -270,17 +262,16 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         rpcUrl: httpProviderByChainId(chainId),
         nativeCurrency: { name: feeAsset.name, symbol: feeAsset.symbol },
       }
-      // TODO: allow user to select account instead of taking the first
+      // FIXME: use the same account number as was selected in the connection request, instead of the first
       const accountId = walletAccountIds.filter(
         accountId => fromAccountId(accountId).chainId === chainId,
       )[0]
       setWcAccountId(accountId)
       setConnectedEvmChainId(chainId)
-      console.log('xxx updateChainParams', { updateChainParams, accountId })
       connector?.updateChain(updateChainParams)
       connector?.updateSession({
         chainId: parseInt(chainReference), // chain reference as integer
-        accounts: [fromAccountId(accountId).account], // todo: use all evm accounts in our wallet
+        accounts: [fromAccountId(accountId).account], // our implementation only supports one connected account per chain
         networkId: parseInt(chainReference),
         rpcUrl: httpProviderByChainId(chainId),
       })

@@ -275,7 +275,7 @@ export const zapperApi = createApi({
         const parsedData: NftCollectionType[] = validatedData.map(item => {
           const chainId = zapperNetworkToChainId(item.collection.network as SupportedZapperNetwork)!
           return {
-            id: null,
+            id: collectionId,
             // Actually defined since we're passing supported EVM networks AccountIds
             chainId,
             name: item.collection.name,

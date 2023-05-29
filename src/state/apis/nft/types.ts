@@ -3,9 +3,8 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { MediaUrl } from '../zapper/validators'
 
 export type NftCollectionType = {
-  // The AssetId of the collection, which doesn't exist as an assetSlice asset yet (https://github.com/shapeshift/web/pull/4555)
   // Note, depending on the endpoint being hit, we may or may not be able to get an actual collection AssetId
-  id: AssetId | null
+  id: AssetId
   chainId: ChainId
   // The name of the collection, not the name of the NFT
   name: string

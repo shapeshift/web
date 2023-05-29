@@ -149,5 +149,7 @@ export const mockStore: ReduxState = {
   },
   nft: {
     selectedNftAvatarByWalletId: {},
+    byId: {},
+    ids: [],
   },
 }

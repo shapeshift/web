@@ -1,3 +1,4 @@
+import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
@@ -28,9 +29,13 @@ const moduleLogger = logger.child({ namespace: ['nftApi'] })
 
 type NftState = {
   selectedNftAvatarByWalletId: Record<WalletId, AssetId>
+  byId: Record<AssetId, NftItem>
+  ids: AssetId[]
 }
 const initialState: NftState = {
   selectedNftAvatarByWalletId: {},
+  byId: {},
+  ids: [],
 }
 
 export const nft = createSlice({
@@ -38,6 +43,10 @@ export const nft = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
+    upsertNfts: (state, action: PayloadAction<Omit<NftState, 'selectedNftAvatarByWalletId'>>) => {
+      state.byId = Object.assign({}, state.byId, action.payload.byId)
+      state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
+    },
     setWalletSelectedNftAvatar: {
       reducer: (
         draftState,
@@ -91,6 +100,19 @@ export const nftApi = createApi({
 
           return acc
         }, [])
+
+        const nftsById = data.reduce<NftState['byId']>((acc, item) => {
+          if (!item.collection.id) return acc
+
+          const nftAssetId: AssetId = `${item.collection.id}/${item.id}`
+          acc[nftAssetId] = item
+
+          return acc
+        }, {})
+        const nftIds: AssetId[] = Object.keys(nftsById)
+
+        dispatch(nft.actions.upsertNfts({ byId: nftsById, ids: nftIds }))
+
         return { data }
       },
     }),

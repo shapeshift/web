@@ -198,7 +198,7 @@ export enum SwapperType {
   ZrxOptimism = '0xOptimism',
   ZrxBnbSmartChain = '0xBnbSmartChain',
   ZrxPolygon = '0xPolygon',
-  CowSwapEth = 'CoW Swap Eth',
+  CowSwapEth = 'CoW Swap Ethereum',
   CowSwapGnosis = 'CoW Swap Gnosis',
   Thorchain = 'Thorchain',
   Osmosis = 'Osmosis',

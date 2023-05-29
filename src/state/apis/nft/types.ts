@@ -30,8 +30,8 @@ export type NftItem = {
   price: string
   chainId: ChainId
   description: string
-  // Not normalized as collectionId, we can't join since we don't store this normalized *yet*
-  // Once we split nft/nftApi, this can be collectionId and then join'd with the collection data
+  // TODO(gomes): store the collection data into nft[collectionAssetId] and make this `collectionId`
+  // we can then join the item and collection, once the collection is in the store as well
   collection: NftCollectionType
   medias: MediaUrl[]
   rarityRank: number | null

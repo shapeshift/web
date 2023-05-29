@@ -87,7 +87,8 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
 
   const name = nftItem.name
-  const nftId = nftItem.id
+  const nftAssetId = nftItem.assetId
+  const nftAddress = fromAssetId(nftAssetId).assetReference
   const collectionName = nftItem.collection.name
   const rarityRank = nftItem.rarityRank
   const floorPrice = nftItem.collection.floorPrice
@@ -98,14 +99,11 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
   const maybeFeeAsset = useAppSelector(state => selectAssetById(state, maybeFeeAssetId ?? ''))
   const collectionOpenseaNetwork = chainIdToOpenseaNetwork(chainId as ChainId)
-  const collectionAddress =
-    nftItem.collection.id && fromAssetId(nftItem.collection.id).assetReference
   const collectionLink = openseaId ? `https://opensea.io/collection/${openseaId}` : null
   const rarityDisplay = rarityRank ? `${rarityRank}${ordinalSuffix(rarityRank)}` : null
-  const assetLink =
-    collectionOpenseaNetwork && collectionAddress && nftId
-      ? `https://opensea.io/assets/${collectionOpenseaNetwork}/${collectionAddress}/${nftId}`
-      : null
+  const assetLink = collectionOpenseaNetwork
+    ? `https://opensea.io/assets/${collectionOpenseaNetwork}/${nftAddress}`
+    : null
 
   const mediaBoxProps = useMemo(
     () =>
@@ -121,13 +119,9 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   )
 
   const handleSetAsAvatarClick = useCallback(() => {
-    // Unable to get the AssetId of the collection, this should never happen but it may
-    // TODO(gomes): remove nftAssetId manual serialization when we have a normalized nft slice with nft id as AssetId
-    if (!nftCollection?.id || !walletId) return
-
-    const nftAssetId = `${nftCollection.id}/${nftId}`
+    if (!walletId) return
     dispatch(nft.actions.setWalletSelectedNftAvatar({ nftAssetId, walletId }))
-  }, [dispatch, nftCollection?.id, nftId, walletId])
+  }, [dispatch, nftAssetId, walletId])
 
   const nftModalMedia = useMemo(() => {
     return (

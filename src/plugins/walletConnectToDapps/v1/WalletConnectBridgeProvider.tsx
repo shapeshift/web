@@ -7,6 +7,7 @@ import {
   ethChainId,
   fromAccountId,
   fromChainId,
+  toAccountId,
   toChainId,
 } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -245,9 +246,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const handleSwitchChain = useCallback(
     (err: Error | null, payload: any) => {
-      if (err) {
-        moduleLogger.error(err, 'handleSwitchChain')
-      }
+      if (err) return moduleLogger.error(err, 'handleSwitchChain')
+      if (!wcAccountId) return moduleLogger.error('No account id found for wallet connect')
       moduleLogger.info('handleSwitchChain', payload)
       const chainIdHex = payload.params[0].chainId
       const chainReference = parseInt(chainIdHex, 16).toString()
@@ -256,27 +256,25 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       const state = store.getState()
       const feeAsset = selectFeeAssetByChainId(state, chainId)
       if (!feeAsset) return moduleLogger.error('No fee asset found for chainId', chainId)
+      const selectedAccount = fromAccountId(wcAccountId).account
+      const accountIdOnNewChain = toAccountId({ chainId, account: selectedAccount })
       const updateChainParams: IUpdateChainParams = {
         chainId: chainIdHex, // chain reference as hex
         networkId: parseInt(chainReference),
         rpcUrl: httpProviderByChainId(chainId),
         nativeCurrency: { name: feeAsset.name, symbol: feeAsset.symbol },
       }
-      // FIXME: use the same account number as was selected in the connection request, instead of the first
-      const accountId = walletAccountIds.filter(
-        accountId => fromAccountId(accountId).chainId === chainId,
-      )[0]
-      setWcAccountId(accountId)
+      setWcAccountId(accountIdOnNewChain)
       setConnectedEvmChainId(chainId)
       connector?.updateChain(updateChainParams)
       connector?.updateSession({
         chainId: parseInt(chainReference), // chain reference as integer
-        accounts: [fromAccountId(accountId).account], // our implementation only supports one connected account per chain
+        accounts: [fromAccountId(accountIdOnNewChain).account], // our implementation only supports one connected account per chain
         networkId: parseInt(chainReference),
         rpcUrl: httpProviderByChainId(chainId),
       })
     },
-    [connector, walletAccountIds],
+    [connector, wcAccountId],
   )
 
   useEffect(() => {

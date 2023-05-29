@@ -121,4 +121,3 @@ export const NftOverview: React.FC<NftOverviewProps> = ({ nftItem }) => {
     </Flex>
   )
 }
-

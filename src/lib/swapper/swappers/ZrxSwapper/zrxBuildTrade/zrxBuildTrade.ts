@@ -2,16 +2,13 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance } from 'axios'
 import * as rax from 'retry-axios'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
 import { normalizeAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
-import type {
-  ZrxQuoteResponse,
-  ZrxSwapperDeps,
-  ZrxTrade,
-} from 'lib/swapper/swappers/ZrxSwapper/types'
+import type { ZrxQuoteResponse, ZrxTrade } from 'lib/swapper/swappers/ZrxSwapper/types'
 import { withAxiosRetry } from 'lib/swapper/swappers/ZrxSwapper/utils/applyAxiosRetry'
 import { AFFILIATE_ADDRESS, DEFAULT_SOURCE } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
 import {
@@ -22,14 +19,28 @@ import {
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
 import type { ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
+import { isEvmChainAdapter } from 'lib/utils'
 import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
 
 export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
-  { adapter }: ZrxSwapperDeps,
   input: BuildTradeInput,
 ): Promise<Result<ZrxTrade<T>, SwapErrorRight>> {
-  const { sellAsset, buyAsset, slippage, accountNumber, receiveAddress, affiliateBps } = input
+  const { sellAsset, buyAsset, slippage, accountNumber, receiveAddress, affiliateBps, chainId } =
+    input
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
+
+  const adapterManager = getChainAdapterManager()
+  const adapter = adapterManager.get(chainId)
+
+  if (!adapter || !isEvmChainAdapter(adapter)) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Invalid chain adapter',
+        code: SwapErrorType.UNSUPPORTED_CHAIN,
+        details: { adapter },
+      }),
+    )
+  }
 
   const assertion = assertValidTradePair({ adapter, buyAsset, sellAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())

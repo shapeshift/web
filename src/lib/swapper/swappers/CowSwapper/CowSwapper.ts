@@ -15,7 +15,7 @@ import type {
   TradeResult,
   TradeTxs,
 } from 'lib/swapper/api'
-import { SwapperName, SwapperType } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 import { cowBuildTrade } from 'lib/swapper/swappers/CowSwapper/cowBuildTrade/cowBuildTrade'
 import { cowExecuteTrade } from 'lib/swapper/swappers/CowSwapper/cowExecuteTrade/cowExecuteTrade'
 import { cowGetTradeTxs } from 'lib/swapper/swappers/CowSwapper/cowGetTradeTxs/cowGetTradeTxs'
@@ -37,10 +37,6 @@ export class CowSwapper implements Swapper<KnownChainIds.EthereumMainnet> {
 
   constructor(deps: CowSwapperDeps) {
     this.deps = deps
-  }
-
-  getType() {
-    return SwapperType.CowSwap
   }
 
   buildTrade(

@@ -1,13 +1,5 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { isNft } from '@shapeshiftoss/caip'
-import type {
-  avalanche,
-  bnbsmartchain,
-  ethereum,
-  optimism,
-  polygon,
-} from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
 import type {
@@ -20,18 +12,15 @@ import type {
   TradeResult,
   TradeTxs,
 } from 'lib/swapper/api'
-import { SwapError, SwapErrorType, SwapperName, SwapperType } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 import { getZrxTradeQuote } from 'lib/swapper/swappers/ZrxSwapper/getZrxTradeQuote/getZrxTradeQuote'
-import type {
-  ZrxExecuteTradeInput,
-  ZrxSwapperDeps,
-  ZrxTrade,
-} from 'lib/swapper/swappers/ZrxSwapper/types'
+import type { ZrxExecuteTradeInput, ZrxTrade } from 'lib/swapper/swappers/ZrxSwapper/types'
 import { UNSUPPORTED_ASSETS } from 'lib/swapper/swappers/ZrxSwapper/utils/blacklist'
 import { zrxBuildTrade } from 'lib/swapper/swappers/ZrxSwapper/zrxBuildTrade/zrxBuildTrade'
 import { zrxExecuteTrade } from 'lib/swapper/swappers/ZrxSwapper/zrxExecuteTrade/zrxExecuteTrade'
-import { selectAssets } from 'state/slices/selectors'
-import { store } from 'state/store'
+
+import { filterEvmAssetIdsBySellable } from '../utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
+import { filterSameChainEvmBuyAssetsBySellAssetId } from '../utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 
 export type ZrxSupportedChainId =
   | KnownChainIds.EthereumMainnet
@@ -40,70 +29,30 @@ export type ZrxSupportedChainId =
   | KnownChainIds.BnbSmartChainMainnet
   | KnownChainIds.PolygonMainnet
 
-export type ZrxSupportedChainAdapter =
-  | ethereum.ChainAdapter
-  | avalanche.ChainAdapter
-  | optimism.ChainAdapter
-  | bnbsmartchain.ChainAdapter
-  | polygon.ChainAdapter
-
 export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
   readonly name = SwapperName.Zrx
-  deps: ZrxSwapperDeps
-  chainId: ChainId
-
-  constructor(deps: ZrxSwapperDeps) {
-    this.deps = deps
-    this.chainId = deps.adapter.getChainId()
-  }
-
-  getType() {
-    switch (this.chainId) {
-      case KnownChainIds.EthereumMainnet:
-        return SwapperType.ZrxEthereum
-      case KnownChainIds.AvalancheMainnet:
-        return SwapperType.ZrxAvalanche
-      case KnownChainIds.OptimismMainnet:
-        return SwapperType.ZrxOptimism
-      case KnownChainIds.BnbSmartChainMainnet:
-        return SwapperType.ZrxBnbSmartChain
-      case KnownChainIds.PolygonMainnet:
-        return SwapperType.ZrxPolygon
-      default:
-        throw new SwapError('[getType]', {
-          code: SwapErrorType.UNSUPPORTED_CHAIN,
-        })
-    }
-  }
 
   buildTrade(input: BuildTradeInput): Promise<Result<ZrxTrade<T>, SwapErrorRight>> {
-    return zrxBuildTrade<T>(this.deps, input)
+    return zrxBuildTrade<T>(input)
   }
 
   getTradeQuote(input: GetEvmTradeQuoteInput): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
-    return getZrxTradeQuote<T>(this.deps, input)
+    return getZrxTradeQuote<T>(input)
   }
 
   executeTrade(args: ZrxExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>> {
-    return zrxExecuteTrade<T>(this.deps, args)
+    return zrxExecuteTrade<T>(args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
-    const { assetIds = [], sellAssetId } = args
-    const assets = selectAssets(store.getState())
-    return assetIds.filter(
-      id =>
-        assets[id]?.chainId === this.chainId &&
-        assets[sellAssetId]?.chainId === this.chainId &&
-        !isNft(id) &&
-        !UNSUPPORTED_ASSETS.includes(id),
+    return filterSameChainEvmBuyAssetsBySellAssetId(args).filter(
+      assetId => !UNSUPPORTED_ASSETS.includes(assetId),
     )
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[] = []): AssetId[] {
-    const assets = selectAssets(store.getState())
-    return assetIds.filter(
-      id => assets[id]?.chainId === this.chainId && !isNft(id) && !UNSUPPORTED_ASSETS.includes(id),
+    return filterEvmAssetIdsBySellable(assetIds).filter(
+      assetId => !UNSUPPORTED_ASSETS.includes(assetId),
     )
   }
 

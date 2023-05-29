@@ -1,10 +1,4 @@
-import type {
-  avalanche,
-  bnbsmartchain,
-  ChainAdapterManager,
-  ethereum,
-  optimism,
-} from '@shapeshiftoss/chain-adapters'
+import type { ChainAdapterManager, ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type Web3 from 'web3'
 import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
@@ -12,47 +6,12 @@ import { CowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { ThorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { ETH, FOX, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
-import type { ZrxSwapperDeps } from 'lib/swapper/swappers/ZrxSwapper/types'
 import { ZrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
 
 import type { TradeQuote } from '../api'
 import { SwapperName } from '../api'
 
-const zrxEthereumSwapperDeps: ZrxSwapperDeps = {
-  web3: {} as Web3,
-  adapter: {
-    getChainId: () => KnownChainIds.EthereumMainnet,
-  } as ethereum.ChainAdapter,
-}
-
-export const getZrxEthereumSwapper = () => new ZrxSwapper(zrxEthereumSwapperDeps)
-
-const zrxAvalancheSwapperDeps: ZrxSwapperDeps = {
-  web3: {} as Web3,
-  adapter: {
-    getChainId: () => KnownChainIds.AvalancheMainnet,
-  } as avalanche.ChainAdapter,
-}
-
-export const getZrxAvalancheSwapper = () => new ZrxSwapper(zrxAvalancheSwapperDeps)
-
-const zrxOptimismSwapperDeps: ZrxSwapperDeps = {
-  web3: {} as Web3,
-  adapter: {
-    getChainId: () => KnownChainIds.OptimismMainnet,
-  } as optimism.ChainAdapter,
-}
-
-export const getZrxOptimismSwapper = () => new ZrxSwapper(zrxOptimismSwapperDeps)
-
-const zrxBscSwapperDeps: ZrxSwapperDeps = {
-  web3: {} as Web3,
-  adapter: {
-    getChainId: () => KnownChainIds.BnbSmartChainMainnet,
-  } as bnbsmartchain.ChainAdapter,
-}
-
-export const getZrxBscwapper = () => new ZrxSwapper(zrxBscSwapperDeps)
+export const getZrxSwapper = () => new ZrxSwapper()
 
 const cowSwapperDeps: CowSwapperDeps = {
   apiUrl: 'https://api.cow.fi/mainnet/api/',

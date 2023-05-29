@@ -91,7 +91,19 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       const supportedEvmChainReferenceInts = evmChainIds.map(chainId =>
         parseInt(fromChainId(chainId).chainReference),
       )
-      const candidateChainIdInt = payload.params[0].chainId
+
+      function hexToDecimal(hex: string): number {
+        const decimal = parseInt(hex, 16)
+        return decimal
+      }
+
+      const candidateChainIdRaw = payload.params[0].chainId
+      const candidateChainIdInt =
+        // Apotheosis: In the wild I've seen both hex and decimal representations of chainId provided in the payload
+        typeof candidateChainIdRaw === 'string'
+          ? hexToDecimal(candidateChainIdRaw)
+          : candidateChainIdRaw
+
       // some dapps don't send a chainId - default to eth mainnet
       if (supportedEvmChainReferenceInts.includes(candidateChainIdInt) || !candidateChainIdInt) {
         connector.approveSession({
@@ -269,6 +281,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       connector?.updateSession({
         chainId: chainIdHex,
         accounts: [fromAccountId(accountId).account], // todo: use all evm accounts in our wallet
+        networkId: chainIdHex,
+        rpcUrl: httpProviderByChainId(chainId),
       })
     },
     [connector, walletAccountIds],

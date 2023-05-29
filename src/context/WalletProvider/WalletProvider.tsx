@@ -651,6 +651,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               /** List of RPC URLs indexed by chain ID */
               rpc: {
                 1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+                10: getConfig().REACT_APP_OPTIMISM_NODE_URL,
+                56: getConfig().REACT_APP_BNBSMARTCHAIN_NODE_URL,
+                100: getConfig().REACT_APP_GNOSIS_NODE_URL,
+                137: getConfig().REACT_APP_POLYGON_NODE_URL,
+                43114: getConfig().REACT_APP_AVALANCHE_NODE_URL,
               },
             }
             return new WalletConnectProvider(config)

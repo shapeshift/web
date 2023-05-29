@@ -1,6 +1,6 @@
 export type WalletConnectSessionRequestPayload = {
   params: {
-    chainId: number
+    chainId: number | string // sometimes this is a network id int, other times is a hex string
   }[]
 }
 export type WalletConnectEthSignCallRequest = {

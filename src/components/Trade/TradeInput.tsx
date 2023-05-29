@@ -610,16 +610,6 @@ export const TradeInput = () => {
     }
   }, [getErrorTranslationKey])
 
-  const sellAmountTooSmall = useMemo(() => {
-    switch (true) {
-      case isBelowMinSellAmount:
-      case feesExceedsSellAmount:
-        return true
-      default:
-        return false
-    }
-  }, [isBelowMinSellAmount, feesExceedsSellAmount])
-
   const handleInputAssetClick = useCallback(
     (action: AssetClickAction) => {
       // prevent opening the asset selection while they are being populated
@@ -826,7 +816,7 @@ export const TradeInput = () => {
             isLoading={tradeStateLoading}
             isError={!walletSupportsSellAssetChain}
           />
-          {walletSupportsSellAssetChain && !sellAmountTooSmall && activeSwapperName ? (
+          {walletSupportsSellAssetChain && !isBelowMinSellAmount ? (
             <ReceiveSummary
               isLoading={tradeStateLoading}
               symbol={buyAsset?.symbol ?? ''}

@@ -649,7 +649,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           }
           if (walletType === KeyManager.WalletConnect) {
             const config: WalletConnectProviderConfig = {
-              /** List of RPC URLs indexed by chain ID */
+              /** List of RPC URLs indexed by chain reference */
               rpc: {
                 [CHAIN_REFERENCE.EthereumMainnet]: getConfig().REACT_APP_ETHEREUM_NODE_URL,
                 [CHAIN_REFERENCE.OptimismMainnet]: getConfig().REACT_APP_OPTIMISM_NODE_URL,

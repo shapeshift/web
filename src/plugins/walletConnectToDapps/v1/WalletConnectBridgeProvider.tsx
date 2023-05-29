@@ -254,8 +254,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       if (err) return moduleLogger.error(err, 'handleSwitchChain')
       if (!wcAccountId) return moduleLogger.error('No account id found for wallet connect')
       moduleLogger.info('handleSwitchChain', payload)
-      const chainIdHex = payload.params[0].chainId
-      const chainReference = parseInt(chainIdHex, 16).toString()
+      const walletConnectChainIdHex = payload.params[0].chainId
+      const chainReference = parseInt(walletConnectChainIdHex, 16).toString()
       assertIsChainReference(chainReference)
       const chainId = toChainId({ chainNamespace: CHAIN_NAMESPACE.Evm, chainReference })
       const state = store.getState()
@@ -264,7 +264,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       const selectedAccount = fromAccountId(wcAccountId).account
       const accountIdOnNewChain = toAccountId({ chainId, account: selectedAccount })
       const updateChainParams: IUpdateChainParams = {
-        chainId: chainIdHex, // chain reference as hex
+        chainId: walletConnectChainIdHex, // chain reference as hex
         networkId: parseInt(chainReference),
         rpcUrl: httpProviderByChainId(chainId),
         nativeCurrency: { name: feeAsset.name, symbol: feeAsset.symbol },

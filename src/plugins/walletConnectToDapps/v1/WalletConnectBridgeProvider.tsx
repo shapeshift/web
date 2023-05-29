@@ -265,8 +265,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       const feeAsset = selectFeeAssetByChainId(state, chainId)
       if (!feeAsset) return moduleLogger.error('No fee asset found for chainId', chainId)
       const updateChainParams: IUpdateChainParams = {
-        chainId: chainIdHex,
-        networkId: chainIdHex,
+        chainId: chainIdHex, // chain reference as hex
+        networkId: parseInt(chainReference),
         rpcUrl: httpProviderByChainId(chainId),
         nativeCurrency: { name: feeAsset.name, symbol: feeAsset.symbol },
       }
@@ -279,9 +279,9 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       console.log('xxx updateChainParams', { updateChainParams, accountId })
       connector?.updateChain(updateChainParams)
       connector?.updateSession({
-        chainId: chainIdHex,
+        chainId: parseInt(chainReference), // chain reference as integer
         accounts: [fromAccountId(accountId).account], // todo: use all evm accounts in our wallet
-        networkId: chainIdHex,
+        networkId: parseInt(chainReference),
         rpcUrl: httpProviderByChainId(chainId),
       })
     },

@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId, ChainReference } from '@shapeshiftoss/caip'
 import {
   assertIsChainReference,
   CHAIN_NAMESPACE,
@@ -106,6 +106,11 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
           chainId: candidateChainIdInt ?? parseInt(CHAIN_REFERENCE.EthereumMainnet),
           accounts: [account],
         })
+        const connectedEvmChain = toChainId({
+          chainNamespace: CHAIN_NAMESPACE.Evm,
+          chainReference: candidateChainIdInt.toString() as ChainReference,
+        })
+        setConnectedEvmChainId(connectedEvmChain)
       } else {
         connector.rejectSession()
         moduleLogger.error(

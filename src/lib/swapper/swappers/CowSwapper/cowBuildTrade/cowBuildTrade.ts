@@ -51,7 +51,7 @@ export async function cowBuildTrade<T extends CowswapSupportedChainId>(
   const { assetReference: buyAssetAddress } = fromAssetId(buyAsset.assetId)
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
-  const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(`${apiUrl}/v1/quote/`, {
+  const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(`${apiUrl}/${network}/api/v1/quote/`, {
     sellToken: sellAssetAddress,
     buyToken: buyAssetAddress,
     receiver: receiveAddress,
@@ -127,6 +127,7 @@ export async function cowBuildTrade<T extends CowswapSupportedChainId>(
     accountNumber,
     receiveAddress,
     feeAmountInSellTokenCryptoBaseUnit,
+    minimumBuyAmountAfterFeesCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
     sellAmountDeductFeeCryptoBaseUnit: quoteSellAmountExcludeFeeCryptoBaseUnit,
     id,
   }

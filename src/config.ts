@@ -107,7 +107,7 @@ const validators = {
     default: 'https://midgard.thorchain.info/v2',
   }),
   REACT_APP_COWSWAP_BASE_URL: url({
-    default: 'https://api.cow.fi/',
+    default: 'https://api.cow.fi',
   }),
   REACT_APP_COSMOS_NODE_URL: url({
     default: 'https://dev-daemon.osmosis.shapeshift.com',

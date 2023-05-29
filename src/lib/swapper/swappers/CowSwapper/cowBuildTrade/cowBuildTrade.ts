@@ -26,12 +26,13 @@ import {
   selectSellAssetUsdRate,
 } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
+import { isCowswapSupportedChainId } from '../utils/utils'
 
 export async function cowBuildTrade<T extends CowChainId>(
   { adapter, baseUrl }: CowSwapperDeps,
   input: BuildTradeInput,
 ): Promise<Result<CowTrade<T>, SwapErrorRight>> {
-  const { sellAsset, buyAsset, feeAsset, accountNumber, receiveAddress } = input
+  const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
   const network = getCowswapNetwork(adapter)
 
   if (!receiveAddress)
@@ -42,14 +43,40 @@ export async function cowBuildTrade<T extends CowChainId>(
       }),
     )
 
-  const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
+  const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } = fromAssetId(
+    sellAsset.assetId,
+  )
 
-  const assertion = assertValidTradePair({ adapter, buyAsset, sellAsset, feeAsset })
-  if (assertion.isErr()) return Err(assertion.unwrapErr())
+  const { assetReference: buyAssetErc20Address, chainId: buyAssetChainId } = fromAssetId(
+    buyAsset.assetId,
+  )
 
+
+  if (sellAssetNamespace !== 'erc20') {
+    return Err(
+      makeSwapErrorRight({
+        message: '[cowBuildTrade] - Sell asset needs to be ERC-20 to use CowSwap',
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+        details: { sellAssetNamespace },
+      }),
+    )
+  }
+
+  if (!isCowswapSupportedChainId(buyAssetChainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[cowBuildTrade] - Buy asset network not supported by CowSwap',
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+        details: { buyAssetChainId },
+      }),
+    )
+  }
+ 
   const { assetReference: sellAssetAddress } = fromAssetId(sellAsset.assetId)
 
   const { assetReference: buyAssetAddress } = fromAssetId(buyAsset.assetId)
+
+  const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(`${baseUrl}/${network}/api/v1/quote/`, {

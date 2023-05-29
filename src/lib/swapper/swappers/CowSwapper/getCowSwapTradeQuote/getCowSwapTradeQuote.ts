@@ -6,11 +6,10 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
+import type { CowChainId, CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { getCowSwapMinMax } from 'lib/swapper/swappers/CowSwapper/getCowSwapMinMax/getCowSwapMinMax'
 import type {
   CowSwapQuoteResponse,
-  CowChainId,
 } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_ETH_MARKER_ADDRESS,
@@ -23,7 +22,6 @@ import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
 import {
   getCowswapNetwork,
   getNowPlusThirtyMinutesTimestamp,
-  isCowswapSupportedChainId,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import { normalizeIntegerAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
 import {
@@ -31,6 +29,7 @@ import {
   selectSellAssetUsdRate,
 } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
+import { isCowswapSupportedChainId } from '../utils/utils'
 
 export async function getCowSwapTradeQuote(
   deps: CowSwapperDeps,

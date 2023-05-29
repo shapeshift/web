@@ -7,8 +7,8 @@ import { Err, Ok } from '@sniptt/monads'
 import { ethers } from 'ethers'
 import type { ExecuteTradeInput, SwapErrorRight, TradeResult } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
-import type { CowChainId, CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
+import type { CowChainId, CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
+import type { CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_ETH_MARKER_ADDRESS,
   COW_SWAP_SETTLEMENT_ADDRESS,
@@ -23,8 +23,8 @@ import {
   domain,
   getNowPlusThirtyMinutesTimestamp,
   hashOrder,
-  isCowswapSupportedChainId,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
+import { isCowswapSupportedChainId } from '../utils/utils'
 
 export async function cowExecuteTrade<T extends CowChainId>(
   { baseUrl: apiUrl, adapter }: CowSwapperDeps,

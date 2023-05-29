@@ -19,9 +19,9 @@ import { cowExecuteTrade } from 'lib/swapper/swappers/CowSwapper/cowExecuteTrade
 import { cowGetTradeTxs } from 'lib/swapper/swappers/CowSwapper/cowGetTradeTxs/cowGetTradeTxs'
 import { getCowSwapTradeQuote } from 'lib/swapper/swappers/CowSwapper/getCowSwapTradeQuote/getCowSwapTradeQuote'
 import type {
+  CowChainId,
   CowswapExecuteTradeInput,
   CowswapSupportedChainAdapter,
-  CowChainId,
   CowTrade,
 } from 'lib/swapper/swappers/CowSwapper/types'
 import { COWSWAP_UNSUPPORTED_ASSETS } from 'lib/swapper/swappers/CowSwapper/utils/blacklist'
@@ -29,7 +29,7 @@ import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
-import { isCowswapSupportedChainId } from './utils/helpers/helpers'
+import { isCowswapSupportedChainId } from './utils/utils'
 
 export type CowSwapperDeps = {
   baseUrl: string

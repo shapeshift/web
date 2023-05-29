@@ -288,7 +288,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
         </Box>
         <TabPanels maxHeight={{ base: 'auto', md: '500px' }} overflowY='auto' flex={1}>
           <TabPanel p={0}>
-            <NftOverview nftItem={nftItem} nftCollection={nftCollection} />
+            <NftOverview nftItem={nftItem} />
           </TabPanel>
           {hasUsefulCollectionData && (
             <TabPanel p={0}>

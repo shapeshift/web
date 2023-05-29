@@ -1,5 +1,6 @@
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
+import { selectAssetIdParamFromFilter } from 'state/selectors'
 import { selectWalletId } from 'state/slices/common-selectors'
 
 export const selectSelectedNftAvatar = createSelector(
@@ -11,6 +12,16 @@ export const selectSelectedNftAvatar = createSelector(
 )
 
 const selectNfts = (state: ReduxState) => state.nft.nfts
+const selectNftCollections = (state: ReduxState) => state.nft.collections
+
+export const selectNftCollectionById = createSelector(
+  selectNftCollections,
+  selectAssetIdParamFromFilter,
+  (collections, collectionAssetId) => {
+    if (!collectionAssetId) return null
+    return collections.byId[collectionAssetId]
+  },
+)
 
 export const selectSelectedNftAvatarUrl = createSelector(
   selectSelectedNftAvatar,

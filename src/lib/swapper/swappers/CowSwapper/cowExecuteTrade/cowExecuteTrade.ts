@@ -4,8 +4,8 @@ import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { ethers } from 'ethers'
-import type { ExecuteTradeInput, SwapErrorRight, TradeResult } from 'lib/swapper/api'
-import type { CowChainId, CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
+import { ExecuteTradeInput, SwapErrorRight, SwapErrorType, TradeResult, makeSwapErrorRight } from 'lib/swapper/api'
+import type { CowChainId } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import type { CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_ETH_MARKER_ADDRESS,
@@ -25,17 +25,17 @@ import {
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { getSigningDomainFromChainId } from '../utils/utils'
-import { validateExecuteTrade } from '../utils/validator'
+import { getSigningDomainFromChainId, isCowswapSupportedChainId } from '../utils/utils'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { method } from 'lodash'
+import { isEvmChainAdapter } from 'lib/utils'
+import { getConfig } from 'config'
 
 export async function cowExecuteTrade<T extends CowChainId>(
-  { baseUrl: apiUrl, adapter }: CowSwapperDeps,
   { trade, wallet }: ExecuteTradeInput<T>,
 ): Promise<Result<TradeResult, SwapErrorRight>> {
   const cowTrade = trade as CowTrade<T>
-  const maybeNetwork = getCowswapNetwork(adapter.getChainId())
-  if (maybeNetwork.isErr()) return Err(maybeNetwork.unwrapErr())
-  const network = maybeNetwork.unwrap()
   const {
     feeAmountInSellTokenCryptoBaseUnit: feeAmountInSellToken,
     sellAmountDeductFeeCryptoBaseUnit: sellAmountWithoutFee,
@@ -43,13 +43,56 @@ export async function cowExecuteTrade<T extends CowChainId>(
     accountNumber,
     id,
     minimumBuyAmountAfterFeesCryptoBaseUnit,
+    sellAsset
   } = cowTrade
 
-  const maybeValidTradePair = validateExecuteTrade(cowTrade)
-  maybeValidTradePair.isErr() && Err(maybeValidTradePair.unwrapErr())
+  const adapterManager = getChainAdapterManager()
+  const adapter = adapterManager.get(sellAsset.chainId)
 
-  const { sellAssetAddress, buyAssetAddress } = maybeValidTradePair.unwrap()
+  if (!adapter || !isEvmChainAdapter(adapter)) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Invalid chain adapter',
+        code: SwapErrorType.UNSUPPORTED_CHAIN,
+        details: { adapter },
+      }),
+    )
+  }
 
+  const maybeNetwork = getCowswapNetwork(sellAsset.chainId)
+  if (maybeNetwork.isErr()) return Err(maybeNetwork.unwrapErr())
+  const network = maybeNetwork.unwrap()
+
+  const {
+    assetReference: sellAssetAddress,
+    assetNamespace: sellAssetNamespace,
+    chainId: sellAssetChainId,
+  } = fromAssetId(sellAsset.assetId)
+  const {
+    assetReference: buyAssetAddress,
+    chainId: buyAssetChainId,
+  } = fromAssetId(buyAsset.assetId)
+
+  if (sellAssetNamespace !== 'erc20') {
+    return Err(
+      makeSwapErrorRight({
+        message: `[${method}] - Both assets needs to be ERC-20 to use CowSwap`,
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+        details: { sellAssetNamespace },
+      }),
+    )
+  }
+
+  if (!(isCowswapSupportedChainId(buyAssetChainId) && buyAssetChainId === sellAssetChainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[${method}] - Both assets need to be on a network supported by CowSwap`,
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+        details: { buyAssetChainId },
+      }),
+    )
+  }
+  
   const buyToken = !isNativeEvmAsset(buyAsset.assetId)
     ? buyAssetAddress
     : COW_SWAP_ETH_MARKER_ADDRESS
@@ -70,7 +113,7 @@ export async function cowExecuteTrade<T extends CowChainId>(
     quoteId: id,
   }
 
-  const maybeValidSigningDomain = getSigningDomainFromChainId(adapter.getChainId())
+  const maybeValidSigningDomain = getSigningDomainFromChainId(sellAsset.chainId)
   maybeValidSigningDomain.isErr() && Err(maybeValidSigningDomain.unwrapErr())
   const signingDomain = maybeValidSigningDomain.unwrap()
 
@@ -115,7 +158,8 @@ export async function cowExecuteTrade<T extends CowChainId>(
    * orderId: Orders can optionally include a quote ID. This way the order can be linked to a quote and enable providing more metadata when analyzing order slippage.
    * }
    */
-  const maybeOrdersResponse = await cowService.post<string>(`${apiUrl}/${network}/api/v1/orders/`, {
+  const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL;
+  const maybeOrdersResponse = await cowService.post<string>(`${baseUrl}/${network}/api/v1/orders/`, {
     ...orderToSign,
     signingScheme: SIGNING_SCHEME,
     signature,

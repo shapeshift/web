@@ -26,19 +26,11 @@ export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMa
   const swapperManager = new SwapperManager()
 
   const adapterManager = getChainAdapterManager()
-  const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
-
-  const ethereumChainAdapter = adapterManager.get(
-    KnownChainIds.EthereumMainnet,
-  ) as unknown as ethereum.ChainAdapter
+  // const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
 
   if (flags.Cowswap) {
-    const cowSwapperEthereum = new CowSwapper({
-      adapter: ethereumChainAdapter,
-      baseUrl: getConfig().REACT_APP_COWSWAP_BASE_URL,
-      web3: ethWeb3,
-    })
-    swapperManager.addSwapper(cowSwapperEthereum)
+    const cowSwapper = new CowSwapper()
+    swapperManager.addSwapper(cowSwapper)
   }
 
   if (flags.CowswapGnosis) {

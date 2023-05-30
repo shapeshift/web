@@ -38,26 +38,19 @@ export type CowSwapperDeps = {
 
 export class CowSwapper<T extends CowChainId> implements Swapper<T> {
   readonly name = SwapperName.CowSwap
-  deps: CowSwapperDeps
-  chainId: ChainId
 
-  constructor(deps: CowSwapperDeps) {
-    this.deps = deps
-    this.chainId = deps.adapter.getChainId()
-  }
-
-  buildTrade(args: BuildTradeInput): Promise<Result<CowTrade<T>, SwapErrorRight>> {
-    return cowBuildTrade(this.deps, args)
+  buildTrade(input: BuildTradeInput): Promise<Result<CowTrade<T>, SwapErrorRight>> {
+    return cowBuildTrade(input)
   }
 
   getTradeQuote(
     input: GetTradeQuoteInput,
   ): Promise<Result<TradeQuote<CowChainId>, SwapErrorRight>> {
-    return getCowSwapTradeQuote(this.deps, input)
+    return getCowSwapTradeQuote(input)
   }
 
   executeTrade(args: CowswapExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>> {
-    return cowExecuteTrade<T>(this.deps, args)
+    return cowExecuteTrade<T>(args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
@@ -95,7 +88,7 @@ export class CowSwapper<T extends CowChainId> implements Swapper<T> {
   }
 
   getTradeTxs(args: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
-    return cowGetTradeTxs(this.deps, args)
+    return cowGetTradeTxs(args)
   }
 }
 

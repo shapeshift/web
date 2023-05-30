@@ -86,13 +86,11 @@ export const getAlchemyNftData = async (accountIds: AccountId[]): Promise<{ data
       accountIds.map(async accountId => {
         const { account: address, chainId } = fromAccountId(accountId)
 
-        const nftItems = await getAlchemyInstanceByChainId(chainId)
-          .nft.getNftsForOwner(address, { excludeFilters: [NftFilters.SPAM] })
-          .then(({ ownedNfts }) =>
-            ownedNfts.map(ownedNft => parseAlchemyOwnedNftToNftItem(ownedNft, chainId)),
-          )
-
-        return nftItems
+        const alchemy = getAlchemyInstanceByChainId(chainId)
+        const { ownedNfts } = await alchemy.nft.getNftsForOwner(address, {
+          excludeFilters: [NftFilters.SPAM],
+        })
+        return ownedNfts.map(ownedNft => parseAlchemyOwnedNftToNftItem(ownedNft, chainId))
       }),
     )
   )

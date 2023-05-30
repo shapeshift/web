@@ -44,12 +44,16 @@ export const validateTradePair = (
   receiveAddress: string | undefined,
   method: string,
 ): Result<ValidTradeInput, SwapErrorRight> => {
-  const { assetReference: sellAssetAddress, assetNamespace: sellAssetNamespace, chainId: sellAssetChainId } = fromAssetId(
-    sellAsset.assetId,
-  )
-  const { assetReference: buyAssetAddress, assetNamespace: buyAssetNamespace, chainId: buyAssetChainId } = fromAssetId(
-    buyAsset.assetId,
-  )
+  const {
+    assetReference: sellAssetAddress,
+    assetNamespace: sellAssetNamespace,
+    chainId: sellAssetChainId,
+  } = fromAssetId(sellAsset.assetId)
+  const {
+    assetReference: buyAssetAddress,
+    assetNamespace: buyAssetNamespace,
+    chainId: buyAssetChainId,
+  } = fromAssetId(buyAsset.assetId)
 
   if (!receiveAddress)
     return Err(
@@ -69,7 +73,7 @@ export const validateTradePair = (
     )
   }
 
-  if (!isCowswapSupportedChainId(buyAssetChainId) || isCowswapSupportedChainId(sellAssetChainId)) {
+  if (!(isCowswapSupportedChainId(buyAssetChainId) && buyAssetChainId === sellAssetChainId)) {
     return Err(
       makeSwapErrorRight({
         message: `[${method}] - Both assets need to be on a network supported by CowSwap`,

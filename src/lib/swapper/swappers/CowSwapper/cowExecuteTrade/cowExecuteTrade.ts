@@ -25,6 +25,7 @@ import {
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { getSigningDomainFromChainId } from '../utils/utils'
 import { validateExecuteTrade } from '../utils/validator'
 
 export async function cowExecuteTrade<T extends CowChainId>(
@@ -69,7 +70,9 @@ export async function cowExecuteTrade<T extends CowChainId>(
     quoteId: id,
   }
 
-  const signingDomain = Number(adapter.getChainId())
+  const maybeValidSigningDomain = getSigningDomainFromChainId(adapter.getChainId())
+  maybeValidSigningDomain.isErr() && Err(maybeValidSigningDomain.unwrapErr())
+  const signingDomain = maybeValidSigningDomain.unwrap()
 
   // We need to construct orderDigest, sign it and send it to cowSwap API, in order to submit a trade
   // Some context about this : https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/4.-signing-the-order

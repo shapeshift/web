@@ -25,10 +25,13 @@ import {
   selectSellAssetUsdRate,
 } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
+import {
+  convertDecimalPercentageToBasisPoints,
+  subtractBasisPointAmount,
+} from 'state/zustand/swapperStore/utils'
 
-import { isCowswapSupportedChainId } from '../utils/utils'
-import { convertDecimalPercentageToBasisPoints, subtractBasisPointAmount } from 'state/zustand/swapperStore/utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { isCowswapSupportedChainId } from '../utils/utils'
 
 export async function cowBuildTrade<T extends CowChainId>(
   input: BuildTradeInput,
@@ -41,12 +44,12 @@ export async function cowBuildTrade<T extends CowChainId>(
   const network = maybeNetwork.unwrap()
 
   if (!receiveAddress)
-  return Err(
-    makeSwapErrorRight({
-      message: 'Receive address is required to build CoW trades',
-      code: SwapErrorType.MISSING_INPUT,
-    }),
-  )
+    return Err(
+      makeSwapErrorRight({
+        message: 'Receive address is required to build CoW trades',
+        code: SwapErrorType.MISSING_INPUT,
+      }),
+    )
 
   const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
 
@@ -85,8 +88,8 @@ export async function cowBuildTrade<T extends CowChainId>(
   }
 
   const buyToken = !isNativeEvmAsset(buyAsset.assetId)
-  ? buyAssetAddress
-  : COW_SWAP_ETH_MARKER_ADDRESS
+    ? buyAssetAddress
+    : COW_SWAP_ETH_MARKER_ADDRESS
 
   const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
@@ -94,7 +97,7 @@ export async function cowBuildTrade<T extends CowChainId>(
     `${baseUrl}/${network}/api/v1/quote/`,
     {
       sellToken: sellAssetAddress,
-      buyToken: buyToken,
+      buyToken,
       receiver: receiveAddress,
       validTo: getNowPlusThirtyMinutesTimestamp(),
       appData: DEFAULT_APP_DATA,

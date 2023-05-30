@@ -1,6 +1,6 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import { SignMessageInput, bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
+import { bnOrZero, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
@@ -31,7 +31,7 @@ import {
 import { isEvmChainAdapter } from 'lib/utils'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { getSigningDomainFromChainId, isCowswapSupportedChainId } from '../utils/utils'
+import { isCowswapSupportedChainId } from '../utils/utils'
 
 export async function cowExecuteTrade<T extends CowChainId>(
   { trade, wallet }: ExecuteTradeInput<T>,
@@ -174,5 +174,7 @@ export async function cowExecuteTrade<T extends CowChainId>(
     },
   )
 
-  return maybeOrdersResponse.andThen(({ data: tradeId }) => Ok({ tradeId, sellAssetChainId: sellAsset.chainId }))
+  return maybeOrdersResponse.andThen(({ data: tradeId }) =>
+    Ok({ tradeId, sellAssetChainId: sellAsset.chainId }),
+  )
 }

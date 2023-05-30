@@ -78,8 +78,8 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const accountIds = useAppSelector(selectWalletAccountIds)
 
   const { data: nftCollection } = useGetNftCollectionQuery(
-    { accountIds, collectionId: nftItem.collection.id ?? '' },
-    { skip: !nftItem.collection.id },
+    { accountIds, collectionId: nftItem.collection.assetId ?? '' },
+    { skip: !nftItem.collection.assetId },
   )
 
   const mediaUrl = nftItem.medias[0]?.originalUrl

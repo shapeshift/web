@@ -14,7 +14,7 @@ export const parseToNftItem = (
   } = zapperItem
 
   const collectionItem: NftCollectionType = {
-    id: toAssetId({
+    assetId: toAssetId({
       assetReference: collection.address,
       assetNamespace: collection.nftStandard as AssetNamespace,
       chainId,

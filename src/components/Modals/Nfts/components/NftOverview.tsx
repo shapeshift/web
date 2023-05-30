@@ -27,9 +27,9 @@ export const NftOverview: React.FC<NftOverviewProps> = ({ nftItem }) => {
   )
   const description = nftItem.description || collection?.description || ''
   const tokenId = nftItem?.id
-  const address = collection?.id && fromAssetId(collection.id).assetReference
+  const address = collection?.assetId && fromAssetId(collection.assetId).assetReference
   const chainId = collection?.chainId
-  const { assetNamespace: nftStandard } = fromAssetId(collection?.id!)
+  const { assetNamespace: nftStandard } = fromAssetId(collection?.assetId!)
   const maybeChainAdapter = getChainAdapterManager().get(chainId as ChainId)
   const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
   const chainDisplayName = maybeChainAdapter?.getDisplayName()

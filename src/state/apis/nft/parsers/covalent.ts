@@ -40,7 +40,7 @@ export const parseToNftItem = (
         rarityRank: null, // Covalent doesn't provide rarity rank
         description: nftData.external_data?.description ?? '',
         collection: {
-          id: toAssetId({
+          assetId: toAssetId({
             // Yeah, it's weird, but this is how Covalent does it
             assetReference: covalentItem.contract_address,
             assetNamespace: covalentItem.supports_erc[

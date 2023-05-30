@@ -3,8 +3,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { MediaUrl } from '../zapper/validators'
 
 export type NftCollectionType = {
-  // The CAIP-22/29 of the collection
-  id: AssetId
+  assetId: AssetId
   chainId: ChainId
   // The name of the collection, not the name of the NFT
   name: string

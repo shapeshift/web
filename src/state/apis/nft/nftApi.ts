@@ -56,14 +56,16 @@ export const nft = createSlice({
   reducers: {
     clear: () => initialState,
     upsertCollection: (state, action: PayloadAction<NftCollectionType>) => {
-      const maybeCurrentCollectionItem = state.collections.byId[action.payload.id]
+      const maybeCurrentCollectionItem = state.collections.byId[action.payload.assetId]
       const collectionItemToUpsert = maybeCurrentCollectionItem
         ? updateNftCollection(maybeCurrentCollectionItem, action.payload)
         : action.payload
       state.collections.byId = Object.assign({}, state.collections.byId, {
-        [action.payload.id]: collectionItemToUpsert,
+        [action.payload.assetId]: collectionItemToUpsert,
       })
-      state.collections.ids = Array.from(new Set(state.collections.ids.concat([action.payload.id])))
+      state.collections.ids = Array.from(
+        new Set(state.collections.ids.concat([action.payload.assetId])),
+      )
     },
     upsertCollections: (state, action: PayloadAction<NftState['collections']>) => {
       state.collections.byId = Object.assign({}, state.collections.byId, action.payload.byId)
@@ -127,13 +129,13 @@ export const nftApi = createApi({
         const data = Object.values(dataById)
 
         const nftsById = data.reduce<NftState['nfts']['byId']>((acc, item) => {
-          if (!item.collection.id) return acc
+          if (!item.collection.assetId) return acc
 
-          const nftAssetId: AssetId = `${item.collection.id}/${item.id}`
+          const nftAssetId: AssetId = `${item.collection.assetId}/${item.id}`
           let { collection, ...nftItemWithoutId } = item
           const nftItem: NftItem = {
             ...nftItemWithoutId,
-            collectionId: item.collection.id,
+            collectionId: item.collection.assetId,
           }
           acc[nftAssetId] = nftItem
 
@@ -141,9 +143,9 @@ export const nftApi = createApi({
         }, {})
 
         const collectionsById = data.reduce<NftState['collections']['byId']>((acc, item) => {
-          if (!item.collection.id) return acc
+          if (!item.collection.assetId) return acc
 
-          const collectionAssetId = item.collection.id
+          const collectionAssetId = item.collection.assetId
           if (!collectionAssetId) return acc
 
           acc[collectionAssetId] = item.collection

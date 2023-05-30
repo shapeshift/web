@@ -21,9 +21,9 @@ export const parseToNftItem = (
     }),
     chainId,
     description: '', // Not supported by the /v2/nft/user/tokens endpoint
-    name: collection?.name || '',
-    floorPrice: collection?.floorPriceEth || '',
-    openseaId: collection?.openseaId || '',
+    name: collection?.name ?? '',
+    floorPrice: collection?.floorPriceEth ?? '',
+    openseaId: collection?.openseaId ?? '',
     socialLinks: [], // Not supported by the /v2/nft/user/tokens endpoint
   }
 
@@ -36,7 +36,7 @@ export const parseToNftItem = (
     }),
     name,
     description: '', // Not supported by the /v2/nft/user/tokens endpoint
-    price: lastSaleEth || '',
+    price: lastSaleEth ?? '',
     chainId,
     collection: collectionItem,
     medias,

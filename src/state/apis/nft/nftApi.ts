@@ -1,14 +1,11 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 import { logger } from 'lib/logger'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
 import type { NftCollectionType, NftItem } from './types'
-import { parseAlchemyNftContractToCollectionItem } from './utils'
 
 type GetNftUserTokensInput = {
   accountIds: AccountId[]
@@ -52,45 +49,24 @@ export const nftApi = createApi({
     }),
     getNftCollection: build.query<NftCollectionType, GetNftCollectionInput>({
       queryFn: async ({ collectionId, accountIds }, { dispatch }) => {
-        try {
-          const { assetReference: collectionAddress, chainId } = fromAssetId(collectionId)
-          const alchemyCollectionData = await getAlchemyInstanceByChainId(chainId)
-            .nft.getContractMetadata(collectionAddress)
-            .then(contract => parseAlchemyNftContractToCollectionItem(contract, chainId))
+        const sources = [zapperApi.endpoints.getZapperCollectionBalance]
 
-          // Alchemy is the most/only reliable source for collection data for now
-          if (alchemyCollectionData) {
-            return { data: alchemyCollectionData }
-          }
+        // Only zapperApi.endpoints.getZapperCollectionBalance for now
+        const { data } = await dispatch(sources[0].initiate({ accountIds, collectionId }))
 
-          // Note, this will consistently fail, as getZapperCollectionBalance is monkey patched for the RTK query to reject
-          // The reason for that is Zapper is currently rugged upstream - if we don't get Alchemy data, we're out of luck and can't get meta
-          const { data: zapperCollectionData } = await dispatch(
-            zapperApi.endpoints.getZapperCollectionBalance.initiate({ accountIds, collectionId }),
-          )
+        const collectionItem = data
 
-          if (!zapperCollectionData)
-            return {
-              error: {
-                status: 404,
-                data: {
-                  message: 'Collection not found',
-                },
-              },
-            }
-
-          return { data: zapperCollectionData }
-        } catch (error) {
-          moduleLogger.error({ error }, 'Failed to fetch nft collection data')
+        if (!collectionItem)
           return {
             error: {
-              status: 500,
+              status: 404,
               data: {
-                message: 'Failed to fetch nft collection data',
+                message: 'Collection not found',
               },
             },
           }
-        }
+
+        return { data: collectionItem }
       },
     }),
   }),

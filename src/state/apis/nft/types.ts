@@ -28,7 +28,6 @@ export type NftItem = {
   // The spot price of the NFT in crypto, denominated in the native asset of the NFT chain
   price: string
   chainId: ChainId
-  description: string
   // Not normalized as collectionId, we can't join since we don't store this normalized *yet*
   // Once we split nft/nftApi, this can be collectionId and then join'd with the collection data
   collection: NftCollectionType

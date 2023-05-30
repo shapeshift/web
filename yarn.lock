@@ -4180,7 +4180,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/providers@npm:5.7.2, @ethersproject/providers@npm:^5.7.0":
+"@ethersproject/providers@npm:5.7.2":
   version: 5.7.2
   resolution: "@ethersproject/providers@npm:5.7.2"
   dependencies:
@@ -4393,7 +4393,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/units@npm:5.7.0, @ethersproject/units@npm:^5.7.0":
+"@ethersproject/units@npm:5.7.0":
   version: 5.7.0
   resolution: "@ethersproject/units@npm:5.7.0"
   dependencies:
@@ -4427,7 +4427,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/wallet@npm:5.7.0, @ethersproject/wallet@npm:^5.7.0":
+"@ethersproject/wallet@npm:5.7.0":
   version: 5.7.0
   resolution: "@ethersproject/wallet@npm:5.7.0"
   dependencies:
@@ -6251,7 +6251,6 @@ __metadata:
     "@walletconnect/web3wallet": ^1.7.3
     "@welldone-software/why-did-you-render": ^7.0.1
     "@wherever/react-notification-feed": ^0.3.16
-    alchemy-sdk: ^2.8.3
     allsettled-polyfill: ^1.0.4
     assert: ^2.0.0
     axios: ^0.26.1
@@ -9901,28 +9900,6 @@ __metadata:
     require-from-string: ^2.0.2
     uri-js: ^4.2.2
   checksum: 3594728ef1e31219ef97bfacb203d0d72db8ad5c35d6d0578e38ee453e4537c2bf927dad144bb84b0c893f661d71b58337d4643e8ee2f2a6e1d63b041c92fe82
-  languageName: node
-  linkType: hard
-
-"alchemy-sdk@npm:^2.8.3":
-  version: 2.8.3
-  resolution: "alchemy-sdk@npm:2.8.3"
-  dependencies:
-    "@ethersproject/abi": ^5.7.0
-    "@ethersproject/abstract-provider": ^5.7.0
-    "@ethersproject/bignumber": ^5.7.0
-    "@ethersproject/bytes": ^5.7.0
-    "@ethersproject/contracts": ^5.7.0
-    "@ethersproject/hash": ^5.7.0
-    "@ethersproject/networks": ^5.7.0
-    "@ethersproject/providers": ^5.7.0
-    "@ethersproject/units": ^5.7.0
-    "@ethersproject/wallet": ^5.7.0
-    "@ethersproject/web": ^5.7.0
-    axios: ^0.26.1
-    sturdy-websocket: ^0.2.1
-    websocket: ^1.0.34
-  checksum: 6c37963e311daf68c79c91f24e0bef232137e724fdeec4f576994580a559f857aa79b537c8140ceeedd50049759e85ed13b4168aeab19a25073c6bed539ac071
   languageName: node
   linkType: hard
 
@@ -26234,13 +26211,6 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"sturdy-websocket@npm:^0.2.1":
-  version: 0.2.1
-  resolution: "sturdy-websocket@npm:0.2.1"
-  checksum: 6d948da780397e8c27f7e324556d98b0cc4476c419a90863b498e284346864f9e168299a439e2eceba819477315096f9eccbd89640ab056c8c3212565020bce4
-  languageName: node
-  linkType: hard
-
 "style-loader@npm:^3.3.1":
   version: 3.3.1
   resolution: "style-loader@npm:3.3.1"
@@ -28581,7 +28551,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"websocket@npm:^1.0.32, websocket@npm:^1.0.34":
+"websocket@npm:^1.0.32":
   version: 1.0.34
   resolution: "websocket@npm:1.0.34"
   dependencies:

@@ -881,7 +881,6 @@ export const parseToNftItem = (zapperItem: V2NftUserItem, chainId: ChainId): Nft
   const nftItem: NftItem = {
     id: tokenId,
     name: token.name,
-    description: '', // Not supported by the /v2/nft/user/tokens endpoint
     price: lastSaleEth || '',
     chainId,
     collection: collectionItem,

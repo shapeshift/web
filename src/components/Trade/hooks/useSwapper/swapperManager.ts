@@ -1,4 +1,4 @@
-import { ethChainId } from '@shapeshiftoss/caip'
+import { ethChainId, gnosisChainId } from '@shapeshiftoss/caip'
 import type { ethereum, gnosis } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
@@ -45,7 +45,7 @@ export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMa
     const gnosisChainAdapter = adapterManager.get(
       KnownChainIds.GnosisMainnet,
     ) as unknown as gnosis.ChainAdapter
-    const gnosisWeb3 = getWeb3InstanceByChainId(ethChainId)
+    const gnosisWeb3 = getWeb3InstanceByChainId(gnosisChainId)
 
     const cowSwapperGnosis = new CowSwapper({
       adapter: gnosisChainAdapter,

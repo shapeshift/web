@@ -1,4 +1,3 @@
-import { ethAssetId } from '@shapeshiftoss/caip'
 import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
@@ -26,13 +25,16 @@ import {
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 
 import { validateExecuteTrade } from '../utils/validator'
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 
 export async function cowExecuteTrade<T extends CowChainId>(
   { baseUrl: apiUrl, adapter }: CowSwapperDeps,
   { trade, wallet }: ExecuteTradeInput<T>,
 ): Promise<Result<TradeResult, SwapErrorRight>> {
   const cowTrade = trade as CowTrade<T>
-  const network = getCowswapNetwork(adapter)
+  const maybeNetwork = getCowswapNetwork(adapter.getChainId())
+  if (maybeNetwork.isErr()) return Err(maybeNetwork.unwrapErr())
+  const network = maybeNetwork.unwrap()
   const {
     feeAmountInSellTokenCryptoBaseUnit: feeAmountInSellToken,
     sellAmountDeductFeeCryptoBaseUnit: sellAmountWithoutFee,
@@ -47,7 +49,7 @@ export async function cowExecuteTrade<T extends CowChainId>(
 
   const { sellAssetAddress, buyAssetAddress } = maybeValidTradePair.unwrap()
 
-  const buyToken = buyAsset.assetId !== ethAssetId ? buyAssetAddress : COW_SWAP_ETH_MARKER_ADDRESS
+  const buyToken = !isNativeEvmAsset(buyAsset.assetId) ? buyAssetAddress : COW_SWAP_ETH_MARKER_ADDRESS
 
   const orderToSign: CowSwapOrder = {
     sellToken: sellAssetAddress,
@@ -65,10 +67,12 @@ export async function cowExecuteTrade<T extends CowChainId>(
     quoteId: id,
   }
 
+  const signingDomain = Number(adapter.getChainId())
+
   // We need to construct orderDigest, sign it and send it to cowSwap API, in order to submit a trade
   // Some context about this : https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/4.-signing-the-order
   // For more info, check hashOrder method implementation
-  const orderDigest = hashOrder(domain(1, COW_SWAP_SETTLEMENT_ADDRESS), orderToSign)
+  const orderDigest = hashOrder(domain(signingDomain, COW_SWAP_SETTLEMENT_ADDRESS), orderToSign)
 
   const bip44Params = adapter.getBIP44Params({ accountNumber })
   const message: SignMessageInput<ETHSignMessage> = {

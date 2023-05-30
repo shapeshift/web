@@ -15,7 +15,9 @@ export async function cowGetTradeTxs(
   deps: CowSwapperDeps,
   input: TradeResult,
 ): Promise<Result<TradeTxs, SwapErrorRight>> {
-  const network = getCowswapNetwork(deps.adapter)
+  const maybeNetwork = getCowswapNetwork(deps.adapter.getChainId())
+  if (maybeNetwork.isErr()) return Err(maybeNetwork.unwrapErr())
+  const network = maybeNetwork.unwrap()
   const maybeGetOrdersResponse = await cowService.get<CowSwapGetOrdersResponse>(
     `${deps.baseUrl}/${network}/api/v1/orders/${input.tradeId}`,
   )

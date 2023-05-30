@@ -28,6 +28,10 @@ export const maybeConvertHexEncodedMessageToUtf8 = (value: string) => {
   try {
     return utils.isHexString(value) ? utils.toUtf8String(value) : value
   } catch (e) {
+    /*
+     value here is meant to be a hex-encoded string, but we've come across implementations that pass an incorrect encoding
+     since this is only for display purposes, we can safely ignore the error and return the original value
+     */
     moduleLogger.warn(e, 'maybeConvertHexEncodedMessageToUtf8')
     return value
   }

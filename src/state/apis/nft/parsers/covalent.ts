@@ -42,7 +42,7 @@ export const parseToNftItem = (
               : '',
           chainId,
           description: '', // Covalent doesn't provide collection description
-          name: covalentItem.contract_name ?? 'Collection',
+          name: covalentItem.contract_name || 'Collection',
           floorPrice: '', // Covalent doesn't provide floor price
           openseaId: '', // Covalent doesn't provide an openseaId
           socialLinks: nftData.external_data?.external_url

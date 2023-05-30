@@ -63,7 +63,7 @@ export const parseAlchemyNftContractToCollectionItem = (
     chainId,
     name: name || '',
     floorPrice: openSea?.floorPrice ? bnOrZero(openSea.floorPrice).toString() : '',
-    openseaId: openSea?.collectionName ? openSea.collectionName : '',
+    openseaId: '', // not supported by Alchemy
     description: openSea?.description || '',
     socialLinks,
   }

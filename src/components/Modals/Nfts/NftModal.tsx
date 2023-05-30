@@ -37,12 +37,12 @@ import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { ordinalSuffix } from 'context/WalletProvider/NativeWallet/components/NativeTestPhrase'
 import { useModal } from 'hooks/useModal/useModal'
-import { nft } from 'state/apis/nft/nftApi'
+import { nft, useGetNftCollectionQuery } from 'state/apis/nft/nftApi'
 import { selectNftCollectionById } from 'state/apis/nft/selectors'
 import type { NftItem } from 'state/apis/nft/types'
 import { chainIdToOpenseaNetwork } from 'state/apis/nft/utils'
 import { getMediaType } from 'state/apis/zapper/validators'
-import { selectWalletId } from 'state/slices/common-selectors'
+import { selectWalletAccountIds, selectWalletId } from 'state/slices/common-selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -76,7 +76,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const modalHeaderBg = useColorModeValue('gray.50', 'gray.785')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const walletId = useAppSelector(selectWalletId)
-  // const accountIds = useAppSelector(selectWalletAccountIds)
+  const accountIds = useAppSelector(selectWalletAccountIds)
 
   const nftCollectionParams = useMemo(
     () => ({ assetId: nftItem.collectionId }),
@@ -84,10 +84,11 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   )
 
   // TODO(gomes): check if we still need to fire the RTK query
-  // const { data: nftCollection } = useGetNftCollectionQuery(
-  // { accountIds, collectionId: nftItem.collectionId.id ?? '' },
-  // { skip: !nftItem.collectionId.id },
-  // )
+  // const { data: nftCollection } =
+  useGetNftCollectionQuery(
+    { accountIds, collectionId: nftItem.collectionId },
+    { skip: !nftItem.collectionId },
+  )
   const nftCollection = useAppSelector(state => selectNftCollectionById(state, nftCollectionParams))
 
   const mediaUrl = nftItem.medias[0]?.originalUrl

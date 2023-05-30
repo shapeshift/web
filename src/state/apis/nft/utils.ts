@@ -14,7 +14,7 @@ import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 import { isFulfilled } from 'lib/utils'
 
 import { parseAlchemyOwnedNftToNftItem } from './parsers/alchemy'
-import type { NftItemWithCollection } from './types'
+import type { NftCollectionType, NftItemWithCollection } from './types'
 
 // addresses are repeated across EVM chains
 export const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>
@@ -81,6 +81,21 @@ export const updateNftItem = (
   }
 
   return originalItem
+}
+
+export const updateNftCollection = (
+  originalItem: NftCollectionType,
+  currentItem: NftCollectionType,
+) => {
+  const draftItem = Object.assign({}, originalItem)
+  draftItem.description = originalItem.description || currentItem.description
+  draftItem.name = currentItem.name = originalItem.name || currentItem.name
+  draftItem.floorPrice = originalItem.floorPrice || currentItem.floorPrice
+  draftItem.socialLinks = originalItem.socialLinks.length
+    ? originalItem.socialLinks
+    : currentItem.socialLinks
+
+  return draftItem
 }
 
 export const getAlchemyNftData = async (

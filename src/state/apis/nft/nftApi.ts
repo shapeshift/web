@@ -13,7 +13,7 @@ import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
 import { parseAlchemyNftContractToCollectionItem } from './parsers/alchemy'
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
-import { getAlchemyNftData, updateNftItem } from './utils'
+import { getAlchemyNftData, updateNftCollection, updateNftItem } from './utils'
 
 type GetNftUserTokensInput = {
   accountIds: AccountId[]
@@ -56,9 +56,12 @@ export const nft = createSlice({
   reducers: {
     clear: () => initialState,
     upsertCollection: (state, action: PayloadAction<NftCollectionType>) => {
+      const maybeCurrentCollectionItem = state.collections.byId[action.payload.id]
+      const collectionItemToUpsert = maybeCurrentCollectionItem
+        ? updateNftCollection(maybeCurrentCollectionItem, action.payload)
+        : action.payload
       state.collections.byId = Object.assign({}, state.collections.byId, {
-        // TODO: updateCollection
-        [action.payload.id]: action.payload,
+        [action.payload.id]: collectionItemToUpsert,
       })
       state.collections.ids = Array.from(new Set(state.collections.ids.concat([action.payload.id])))
     },
@@ -163,8 +166,10 @@ export const nftApi = createApi({
             .nft.getContractMetadata(collectionAddress)
             .then(contract => parseAlchemyNftContractToCollectionItem(contract, chainId))
 
+          debugger
           // Alchemy is the most/only reliable source for collection data for now
           if (alchemyCollectionData) {
+            dispatch(nft.actions.upsertCollection(alchemyCollectionData))
             return { data: alchemyCollectionData }
           }
 
@@ -184,7 +189,6 @@ export const nftApi = createApi({
               },
             }
 
-          dispatch(nft.actions.upsertCollection(zapperCollectionData))
           return { data: zapperCollectionData }
         } catch (error) {
           moduleLogger.error({ error }, 'Failed to fetch nft collection data')

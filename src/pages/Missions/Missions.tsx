@@ -2,6 +2,7 @@ import { Box, chakra, Container, DarkMode, Heading } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import FoxMissionsBg from 'assets/fox-missions-bg.jpg'
+import FoxArmyBg from 'assets/foxarmy-bg.png'
 import FoxAtarBg from 'assets/foxatar-card-bg.png'
 import OptimismBg from 'assets/op-card-bg.png'
 import OpLogo from 'assets/op-logo.png'
@@ -31,6 +32,25 @@ export const Missions = () => {
         coverImage: FoxAtarBg,
         image: OpLogo,
         onClick: () => window.open('https://app.mercle.xyz/shapeshift/events'),
+      },
+      {
+        title: translate('missions.foxArmy.title'),
+        subtitle: translate('missions.foxArmy.subtitle'),
+        buttonText: translate('missions.foxArmy.cta'),
+        coverImage: FoxArmyBg,
+        image: OpLogo,
+        onClick: () => window.open('https://app.mercle.xyz/shapeshift/events'),
+        endDate: '2023-06-08 12:00 PM',
+      },
+      {
+        title: translate('missions.foxArmy.title'),
+        subtitle: translate('missions.foxArmy.subtitle'),
+        buttonText: translate('missions.foxArmy.cta'),
+        coverImage: FoxArmyBg,
+        image: OpLogo,
+        onClick: () => window.open('https://app.mercle.xyz/shapeshift/events'),
+        startDate: '2023-06-01 12:00 AM',
+        endDate: '2023-06-08 12:00 PM',
       },
     ]
   }, [translate])

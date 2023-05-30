@@ -21,6 +21,7 @@ export type MissionProps = {
   onClick: () => void
   buttonText: string
   endDate?: string
+  startDate?: string
   colspan?: number
 }
 
@@ -31,6 +32,7 @@ export const Mission: React.FC<MissionProps> = ({
   buttonText,
   onClick,
   endDate,
+  startDate,
   colspan = 1,
 }) => {
   const translate = useTranslate()
@@ -38,6 +40,11 @@ export const Mission: React.FC<MissionProps> = ({
     getMixPanel()?.track(`${title} mission click`)
     onClick()
   }, [onClick, title])
+
+  const isFutureDate = dayjs(startDate).isBefore(dayjs(), 'day')
+  // isBefore
+  // isBetween
+  // isAfter
   return (
     <Card
       display='flex'
@@ -116,33 +123,39 @@ export const Mission: React.FC<MissionProps> = ({
             justifyContent='space-between'
             zIndex='1'
           >
-            <Flex gap={2} fontWeight='semibold' alignItems='center'>
-              <FaClock />
-              <RawText lineHeight='none'>
-                {endDate
-                  ? `${translate('missions.ends')} ${dayjs(endDate, promoDateFormat).fromNow()}`
-                  : translate('missions.ongoing')}
-              </RawText>
-            </Flex>
-            <Button
-              variant='unstyled'
-              onClick={handleClick}
-              iconSpacing={3}
-              className='mission-btn'
-              rightIcon={
-                <IconCircle
-                  bg='white'
-                  color='black'
-                  className='icon-btn'
-                  transitionProperty='common'
-                  transitionDuration='normal'
+            {isFutureDate ? (
+              <RawText>Coming soon...</RawText>
+            ) : (
+              <>
+                <Flex gap={2} fontWeight='semibold' alignItems='center'>
+                  <FaClock />
+                  <RawText lineHeight='none'>
+                    {endDate
+                      ? `${translate('missions.ends')} ${dayjs(endDate, promoDateFormat).fromNow()}`
+                      : translate('missions.ongoing')}
+                  </RawText>
+                </Flex>
+                <Button
+                  variant='unstyled'
+                  onClick={handleClick}
+                  iconSpacing={3}
+                  className='mission-btn'
+                  rightIcon={
+                    <IconCircle
+                      bg='white'
+                      color='black'
+                      className='icon-btn'
+                      transitionProperty='common'
+                      transitionDuration='normal'
+                    >
+                      <ArrowForwardIcon />
+                    </IconCircle>
+                  }
                 >
-                  <ArrowForwardIcon />
-                </IconCircle>
-              }
-            >
-              {buttonText}
-            </Button>
+                  {buttonText}
+                </Button>
+              </>
+            )}
           </Flex>
         </Flex>
       </Card.Body>

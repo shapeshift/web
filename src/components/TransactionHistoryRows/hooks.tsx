@@ -46,7 +46,7 @@ export const useTradeFees = ({ txDetails }: { txDetails: TxDetails }) => {
     if (!cryptoPriceHistoryData?.[sell.asset.assetId]) {
       dispatch(
         findPriceHistoryByAssetId.initiate({
-          assetId: buy.asset.assetId,
+          assetId: sell.asset.assetId,
           timeframe: HistoryTimeframe.ALL,
         }),
       )

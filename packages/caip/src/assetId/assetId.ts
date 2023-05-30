@@ -187,5 +187,12 @@ export const isNft = (assetId: AssetId): boolean => {
   }
 }
 
+export const deserializeNftAssetReference = (
+  assetReference: string,
+): [address: string, id: string] => {
+  const [address, id] = assetReference.split('/')
+  return [address, id]
+}
+
 export const toCAIP19 = toAssetId
 export const fromCAIP19 = fromAssetId

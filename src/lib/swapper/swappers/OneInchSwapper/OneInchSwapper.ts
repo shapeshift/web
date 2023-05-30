@@ -23,7 +23,7 @@ import type {
   TradeResult,
   TradeTxs,
 } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType, SwapperName, SwapperType } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { filterEvmAssetIdsBySellable } from 'lib/swapper/swappers/utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import {
   createEmptyEvmTradeQuote,
@@ -57,11 +57,6 @@ export class OneInchSwapper implements Swapper<EvmChainId, true> {
 
   constructor(deps: OneInchSwapperDeps) {
     this.deps = deps
-  }
-
-  /** Returns the swapper type */
-  getType(): SwapperType {
-    return SwapperType.OneInch
   }
 
   /**

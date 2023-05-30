@@ -1,6 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
-import type { GetTradeQuoteInput, SwapperType, TradeQuote } from 'lib/swapper/api'
+import type { GetTradeQuoteInput, SwapperName, TradeQuote } from 'lib/swapper/api'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { apiErrorHandler } from 'state/apis/utils'
 import type { ReduxState } from 'state/reducer'
@@ -17,7 +17,7 @@ type GetAvailableSwappersReturn = {
     We can't return the swapper directly as it is not serializable, so we return the SwapperType which can be matched
     to a swapper in the swapperManager, which is keyed by SwapperType
  */
-  swapperType: SwapperType
+  swapperName: SwapperName
   quote: TradeQuote<ChainId>
   inputOutputRatio: number | undefined
 }[]
@@ -41,7 +41,7 @@ export const getSwappersApi = swapperApi.injectEndpoints({
           })
           const swappersWithType = swappersWithQuoteMetadata.map(s => ({
             ...s,
-            swapperType: s.swapper.getType(),
+            swapperName: s.swapper.name,
           }))
           return { data: swappersWithType }
         } catch (error) {

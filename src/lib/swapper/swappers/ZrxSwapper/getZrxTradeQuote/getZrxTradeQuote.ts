@@ -1,11 +1,13 @@
 import { optimism } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { normalizeAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
 import { getZrxMinMax } from 'lib/swapper/swappers/ZrxSwapper/getZrxMinMax/getZrxMinMax'
-import type { ZrxPriceResponse, ZrxSwapperDeps } from 'lib/swapper/swappers/ZrxSwapper/types'
+import type { ZrxPriceResponse } from 'lib/swapper/swappers/ZrxSwapper/types'
 import {
   AFFILIATE_ADDRESS,
   DEFAULT_SOURCE,
@@ -19,14 +21,27 @@ import {
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
 import type { ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
+import { isEvmChainAdapter } from 'lib/utils'
 import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
 
 export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
-  { adapter }: ZrxSwapperDeps,
   input: GetEvmTradeQuoteInput,
 ): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
-  const { sellAsset, buyAsset, accountNumber, receiveAddress, affiliateBps } = input
+  const { sellAsset, buyAsset, accountNumber, receiveAddress, affiliateBps, chainId } = input
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
+
+  const adapterManager = getChainAdapterManager()
+  const adapter = adapterManager.get(chainId)
+
+  if (!adapter || !isEvmChainAdapter(adapter)) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Invalid chain adapter',
+        code: SwapErrorType.UNSUPPORTED_CHAIN,
+        details: { adapter },
+      }),
+    )
+  }
 
   const assertion = assertValidTradePair({ adapter, buyAsset, sellAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())

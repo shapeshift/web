@@ -119,6 +119,8 @@ export const nftApi = createApi({
         const data = Object.values(nftsById)
         const collectionsById = data.reduce<NftState['collections']['byId']>((acc, item) => {
           const collectionAssetId = item.collection.id
+          if (!collectionAssetId) return acc
+
           acc[collectionAssetId] = item.collection
 
           return acc

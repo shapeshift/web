@@ -192,20 +192,6 @@ export enum SwapperName {
   OneInch = '1INCH',
 }
 
-export enum SwapperType {
-  ZrxEthereum = '0xEthereum',
-  ZrxAvalanche = '0xAvalanche',
-  ZrxOptimism = '0xOptimism',
-  ZrxBnbSmartChain = '0xBnbSmartChain',
-  ZrxPolygon = '0xPolygon',
-  Thorchain = 'Thorchain',
-  Osmosis = 'Osmosis',
-  CowSwap = 'CoW Swap',
-  Test = 'Test',
-  LIFI = 'LI.FI',
-  OneInch = '1INCH',
-}
-
 export type TradeTxs = {
   sellTxid: string
   buyTxid?: string
@@ -248,9 +234,6 @@ export interface Swapper<T extends ChainId, MaybeUnknownNetworkFee extends boole
 
   /** perform any necessary async initialization */
   initialize?(): Promise<Result<unknown, SwapErrorRight>>
-
-  /** Returns the swapper type */
-  getType(): SwapperType
 
   /**
    * Get builds a trade with definitive rate & txData that can be executed with executeTrade

@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -13,8 +14,6 @@ import {
 import type { Asset } from 'lib/asset-service'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-
-import type { ZrxSupportedChainAdapter } from '../../ZrxSwapper'
 
 export const baseUrlFromChainId = (chainId: string): Result<string, SwapErrorRight> => {
   switch (chainId) {
@@ -51,7 +50,7 @@ export const assertValidTradePair = ({
 }: {
   buyAsset: Asset
   sellAsset: Asset
-  adapter: ZrxSupportedChainAdapter
+  adapter: EvmChainAdapter
 }): Result<boolean, SwapErrorRight> => {
   const chainId = adapter.getChainId()
 

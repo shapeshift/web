@@ -152,6 +152,9 @@ const validators = {
   REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_API_KEY: str(),
+  REACT_APP_CHATWOOT_TOKEN: str(),
+  REACT_APP_CHATWOOT_URL: str(),
+  REACT_APP_FEATURE_CHATWOOT: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

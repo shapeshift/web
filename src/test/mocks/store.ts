@@ -85,6 +85,7 @@ export const mockStore: ReduxState = {
       ReadOnlyAssets: false,
       OneInch: false,
       CovalentJaypegs: false,
+      Chatwoot: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

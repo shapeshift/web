@@ -13,20 +13,19 @@ import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { DiscordIcon } from 'components/Icons/Discord'
 import { MainNavLink } from 'components/Layout/Header/NavBar/MainNavLink'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 
 export const FeedbackAndSupport = () => {
   const { feedbackSupport } = useModal()
   const { close, isOpen } = feedbackSupport
   const translate = useTranslate()
+  const isChatwootEnabled = useFeatureFlag('Chatwoot')
 
   const handleChatWoot = useCallback(() => {
     // @ts-ignore
-    if (window.$chatwoot) {
-      // @ts-ignore
-      window.$chatwoot.toggle()
-      close()
-    }
+    if (window.$chatwoot) window.$chatwoot.toggle()
+    close()
   }, [close])
 
   return (
@@ -37,12 +36,14 @@ export const FeedbackAndSupport = () => {
         <ModalHeader>{translate('common.feedbackAndSupport')}</ModalHeader>
         <ModalBody>
           <Stack>
-            <MainNavLink
-              size='sm'
-              onClick={handleChatWoot}
-              label={translate('common.getSupport')}
-              leftIcon={<ChatIcon />}
-            />
+            {isChatwootEnabled && (
+              <MainNavLink
+                size='sm'
+                onClick={handleChatWoot}
+                label={translate('common.getSupport')}
+                leftIcon={<ChatIcon />}
+              />
+            )}
             <MainNavLink
               as={Link}
               isExternal

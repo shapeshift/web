@@ -1,9 +1,12 @@
+import { getConfig } from 'config'
 import type React from 'react'
 import { useEffect } from 'react'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 export const ChatwootWidget: React.FC = () => {
+  const chatWoodEnabled = useFeatureFlag('Chatwoot')
   useEffect(() => {
-    // Add Chatwoot Settings
+    if (!chatWoodEnabled) return // Add Chatwoot Settings
     ;(window as any).chatwootSettings = {
       hideMessageBubble: true,
       position: 'left', // This can be left or right
@@ -13,7 +16,7 @@ export const ChatwootWidget: React.FC = () => {
 
     // Paste the script from inbox settings except the <script> tag
     ;(function (d: Document, t: string) {
-      const BASE_URL = 'https://app.chatwoot.com/'
+      const BASE_URL = getConfig().REACT_APP_CHATWOOT_TOKEN
       const g = d.createElement(t)
       const s = d.getElementsByTagName(t)[0]
       // @ts-ignore
@@ -23,12 +26,12 @@ export const ChatwootWidget: React.FC = () => {
       g.async = true
       g.onload = function () {
         ;(window as any).chatwootSDK.run({
-          websiteToken: 'jmoXp9BPMSPEYHeJX5YKT15Q',
+          websiteToken: getConfig().REACT_APP_CHATWOOT_TOKEN,
           baseUrl: BASE_URL,
         })
       }
     })(document, 'script')
-  }, [])
+  }, [chatWoodEnabled])
 
   return null
 }

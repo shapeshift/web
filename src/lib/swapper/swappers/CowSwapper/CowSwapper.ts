@@ -21,6 +21,7 @@ import type {
   CowChainId,
   CowswapExecuteTradeInput,
   CowTrade,
+  CowTradeResult,
 } from 'lib/swapper/swappers/CowSwapper/types'
 import { COWSWAP_UNSUPPORTED_ASSETS } from 'lib/swapper/swappers/CowSwapper/utils/blacklist'
 import { selectAssets } from 'state/slices/selectors'
@@ -46,7 +47,7 @@ export class CowSwapper<T extends CowChainId> implements Swapper<T> {
     return getCowSwapTradeQuote(input, this.supportedChainIds)
   }
 
-  executeTrade(args: CowswapExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>> {
+  executeTrade(args: CowswapExecuteTradeInput<T>): Promise<Result<CowTradeResult, SwapErrorRight>> {
     return cowExecuteTrade<T>(args, this.supportedChainIds)
   }
 
@@ -73,7 +74,7 @@ export class CowSwapper<T extends CowChainId> implements Swapper<T> {
     )
   }
 
-  filterAssetIdsBySellable(assetIds: AssetId[] = []): AssetId[] {
+  filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
     const assets = selectAssets(store.getState())
     return assetIds.filter(
       id =>

@@ -26,16 +26,25 @@ import {
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { isCowswapSupportedChainId } from '../utils/utils'
+import { convertDecimalPercentageToBasisPoints, subtractBasisPointAmount } from 'state/zustand/swapperStore/utils'
 
 export async function cowBuildTrade<T extends CowChainId>(
   input: BuildTradeInput,
   supportedChainIds: KnownChainIds[],
 ): Promise<Result<CowTrade<T>, SwapErrorRight>> {
-  const { accountNumber, sellAsset, buyAsset, receiveAddress, chainId } = input
+  const { accountNumber, sellAsset, buyAsset, slippage, receiveAddress, chainId } = input
 
   const maybeNetwork = getCowswapNetwork(chainId)
   if (maybeNetwork.isErr()) return Err(maybeNetwork.unwrapErr())
   const network = maybeNetwork.unwrap()
+
+  if (!receiveAddress)
+  return Err(
+    makeSwapErrorRight({
+      message: 'Receive address is required to build CoW trades',
+      code: SwapErrorType.MISSING_INPUT,
+    }),
+  )
 
   const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
 
@@ -51,7 +60,7 @@ export async function cowBuildTrade<T extends CowChainId>(
   if (sellAssetNamespace !== 'erc20') {
     return Err(
       makeSwapErrorRight({
-        message: `[cowBuildTrade] - Both assets needs to be ERC-20 to use CowSwap`,
+        message: `[cowBuildTrade] - Sell asset needs to be ERC-20 to use CowSwap`,
         code: SwapErrorType.UNSUPPORTED_PAIR,
         details: { sellAssetNamespace },
       }),
@@ -73,13 +82,6 @@ export async function cowBuildTrade<T extends CowChainId>(
     )
   }
 
-  if (!receiveAddress)
-    return Err(
-      makeSwapErrorRight({
-        message: 'Receive address is required to build CoW trades',
-        code: SwapErrorType.MISSING_INPUT,
-      }),
-    )
   const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
@@ -141,6 +143,14 @@ export async function cowBuildTrade<T extends CowChainId>(
     .div(quoteSellAmountCryptoPrecision)
     .toString()
 
+  const slippageBps = convertDecimalPercentageToBasisPoints(slippage ?? '0').toString()
+
+  const minimumBuyAmountAfterFeesCryptoBaseUnit = subtractBasisPointAmount(
+    buyAmountAfterFeesCryptoBaseUnit,
+    slippageBps,
+    true,
+  )
+
   const trade: CowTrade<CowChainId> = {
     rate,
     feeData: {
@@ -161,9 +171,9 @@ export async function cowBuildTrade<T extends CowChainId>(
     accountNumber,
     receiveAddress,
     feeAmountInSellTokenCryptoBaseUnit,
-    minimumBuyAmountAfterFeesCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
     sellAmountDeductFeeCryptoBaseUnit: quoteSellAmountExcludeFeeCryptoBaseUnit,
     id,
+    minimumBuyAmountAfterFeesCryptoBaseUnit,
   }
 
   return Ok(trade as CowTrade<T>)

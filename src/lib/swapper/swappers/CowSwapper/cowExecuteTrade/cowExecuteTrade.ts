@@ -1,5 +1,5 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
-import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
+import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { SignMessageInput, bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -7,12 +7,11 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { ethers } from 'ethers'
-import { method } from 'lodash'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { ExecuteTradeInput, SwapErrorRight, TradeResult } from 'lib/swapper/api'
+import type { ExecuteTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowChainId } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
-import type { CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
+import type { CowTrade, CowTradeResult } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_ETH_MARKER_ADDRESS,
   COW_SWAP_SETTLEMENT_ADDRESS,
@@ -37,7 +36,7 @@ import { getSigningDomainFromChainId, isCowswapSupportedChainId } from '../utils
 export async function cowExecuteTrade<T extends CowChainId>(
   { trade, wallet }: ExecuteTradeInput<T>,
   supportedChainIds: KnownChainIds[],
-): Promise<Result<TradeResult, SwapErrorRight>> {
+): Promise<Result<CowTradeResult, SwapErrorRight>> {
   const cowTrade = trade as CowTrade<T>
   const {
     feeAmountInSellTokenCryptoBaseUnit: feeAmountInSellToken,
@@ -78,7 +77,7 @@ export async function cowExecuteTrade<T extends CowChainId>(
   if (sellAssetNamespace !== 'erc20') {
     return Err(
       makeSwapErrorRight({
-        message: `[${method}] - Both assets needs to be ERC-20 to use CowSwap`,
+        message: `[cowExecuteTrade] - Both assets needs to be ERC-20 to use CowSwap`,
         code: SwapErrorType.UNSUPPORTED_PAIR,
         details: { sellAssetNamespace },
       }),
@@ -93,7 +92,7 @@ export async function cowExecuteTrade<T extends CowChainId>(
   ) {
     return Err(
       makeSwapErrorRight({
-        message: `[${method}] - Both assets need to be on a network supported by CowSwap`,
+        message: `[cowExecuteTrade] - Sell asset need to be on a network supported by CowSwap`,
         code: SwapErrorType.UNSUPPORTED_PAIR,
         details: { buyAssetChainId },
       }),
@@ -120,9 +119,8 @@ export async function cowExecuteTrade<T extends CowChainId>(
     quoteId: id,
   }
 
-  const maybeValidSigningDomain = getSigningDomainFromChainId(sellAsset.chainId)
-  maybeValidSigningDomain.isErr() && Err(maybeValidSigningDomain.unwrapErr())
-  const signingDomain = maybeValidSigningDomain.unwrap()
+  const { chainReference } = fromChainId(sellAsset.chainId)
+  const signingDomain = bnOrZero(chainReference).toNumber()
 
   // We need to construct orderDigest, sign it and send it to cowSwap API, in order to submit a trade
   // Some context about this : https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/4.-signing-the-order
@@ -176,5 +174,5 @@ export async function cowExecuteTrade<T extends CowChainId>(
     },
   )
 
-  return maybeOrdersResponse.andThen(({ data: tradeId }) => Ok({ tradeId }))
+  return maybeOrdersResponse.andThen(({ data: tradeId }) => Ok({ tradeId, sellAssetChainId: sellAsset.chainId }))
 }

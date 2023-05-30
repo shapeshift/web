@@ -14,7 +14,7 @@ import { getCowswapNetwork } from '../utils/helpers/helpers'
 export async function cowGetTradeTxs(
   input: TradeResult,
 ): Promise<Result<TradeTxs, SwapErrorRight>> {
-  const maybeNetwork = getCowswapNetwork(deps.adapter.getChainId())
+  const maybeNetwork = getCowswapNetwork(input.sellAssetChainId)
   if (maybeNetwork.isErr()) return Err(maybeNetwork.unwrapErr())
   const network = maybeNetwork.unwrap()
 

@@ -109,7 +109,7 @@ export const nftApi = createApi({
             const { data } = result
 
             data.forEach(item => {
-              const assetId: AssetId = `${item.id}-${item.collection.id}`
+              const { assetId } = item
 
               if (!acc[assetId]) {
                 acc[assetId] = item
@@ -144,6 +144,8 @@ export const nftApi = createApi({
           if (!item.collection.id) return acc
 
           const collectionAssetId = item.collection.id
+          if (!collectionAssetId) return acc
+
           acc[collectionAssetId] = item.collection
 
           return acc

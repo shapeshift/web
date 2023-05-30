@@ -55,6 +55,13 @@ export const nft = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
+    upsertCollection: (state, action: PayloadAction<NftCollectionType>) => {
+      state.collections.byId = Object.assign({}, state.collections.byId, {
+        // TODO: updateCollection
+        [action.payload.id]: action.payload,
+      })
+      state.collections.ids = Array.from(new Set(state.collections.ids.concat([action.payload.id])))
+    },
     upsertCollections: (state, action: PayloadAction<NftState['collections']>) => {
       state.collections.byId = Object.assign({}, state.collections.byId, action.payload.byId)
       state.collections.ids = Array.from(new Set(state.collections.ids.concat(action.payload.ids)))
@@ -177,6 +184,7 @@ export const nftApi = createApi({
               },
             }
 
+          dispatch(nft.actions.upsertCollection(zapperCollectionData))
           return { data: zapperCollectionData }
         } catch (error) {
           moduleLogger.error({ error }, 'Failed to fetch nft collection data')

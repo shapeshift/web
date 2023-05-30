@@ -11,7 +11,7 @@ export const parseToNftItem = (
   chainId: ChainId,
 ): NftItem[] => {
   return (covalentItem.nft_data ?? [])
-    ?.map(nftData => {
+    .map(nftData => {
       const medias = nftData.external_data?.image
         ? [
             {

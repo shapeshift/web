@@ -104,20 +104,17 @@ export const nftApi = createApi({
 
         const results = await Promise.all(services.map(service => service(accountIds)))
 
-        const data = results.reduce<NftItemWithCollection[]>((acc, result) => {
+        const dataById = results.reduce<Record<AssetId, NftItemWithCollection>>((acc, result) => {
           if (result.data) {
             const { data } = result
 
             data.forEach(item => {
-              const originalItemIndex = acc.findIndex(
-                accItem => accItem.id === item.id && accItem.collection.id === item.collection.id,
-              )
+              const assetId: AssetId = `${item.id}-${item.collection.id}`
 
-              if (originalItemIndex === -1) {
-                acc.push(item)
+              if (!acc[assetId]) {
+                acc[assetId] = item
               } else {
-                const updatedItem = updateNftItem(acc[originalItemIndex], item)
-                acc[originalItemIndex] = updatedItem
+                acc[assetId] = updateNftItem(acc[assetId], item)
               }
             })
           } else if (result.isError) {
@@ -125,7 +122,9 @@ export const nftApi = createApi({
           }
 
           return acc
-        }, [])
+        }, {})
+
+        const data = Object.values(dataById)
 
         const nftsById = data.reduce<NftState['nfts']['byId']>((acc, item) => {
           if (!item.collection.id) return acc
@@ -140,7 +139,6 @@ export const nftApi = createApi({
 
           return acc
         }, {})
-        const nftIds: AssetId[] = Object.keys(nftsById)
 
         const collectionsById = data.reduce<NftState['collections']['byId']>((acc, item) => {
           if (!item.collection.id) return acc
@@ -150,10 +148,14 @@ export const nftApi = createApi({
 
           return acc
         }, {})
-        const collectionIds: AssetId[] = Object.keys(collectionsById)
 
-        dispatch(nft.actions.upsertCollections({ byId: collectionsById, ids: collectionIds }))
-        dispatch(nft.actions.upsertNfts({ byId: nftsById, ids: nftIds }))
+        dispatch(
+          nft.actions.upsertCollections({
+            byId: collectionsById,
+            ids: Object.keys(collectionsById),
+          }),
+        )
+        dispatch(nft.actions.upsertNfts({ byId: nftsById, ids: Object.keys(nftsById) }))
 
         return { data: Object.values(nftsById) }
       },

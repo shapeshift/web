@@ -18,13 +18,7 @@ import type {
   TradeQuote,
   TradeTxs,
 } from 'lib/swapper/api'
-import {
-  makeSwapErrorRight,
-  SwapError,
-  SwapErrorType,
-  SwapperName,
-  SwapperType,
-} from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import {
   atomOnOsmosisAssetId,
   COSMO_OSMO_CHANNEL,
@@ -56,10 +50,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
   readonly name = SwapperName.Osmosis
   supportedAssetIds: string[]
   deps: OsmoSwapperDeps
-
-  getType() {
-    return SwapperType.Osmosis
-  }
 
   constructor(deps: OsmoSwapperDeps) {
     this.deps = deps

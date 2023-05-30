@@ -73,7 +73,7 @@ export const useAvailableSwappers = () => {
       const swappers = swapperManager.swappers
       const availableSwappersWithQuoteMetadata = availableSwapperTypesWithQuoteMetadata
         ?.map(s => {
-          const swapper = swappers.get(s.swapperType)
+          const swapper = swappers.get(s.swapperName)
           return swapper
             ? {
                 swapper,

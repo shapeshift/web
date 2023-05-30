@@ -1,5 +1,4 @@
-import { ethChainId, gnosisChainId } from '@shapeshiftoss/caip'
-import type { ethereum, gnosis } from '@shapeshiftoss/chain-adapters'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import stableStringify from 'fast-json-stable-stringify'
@@ -24,27 +23,15 @@ let previousFlags: string = ''
 export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperManager> => {
   // instantiate if it doesn't already exist
   const swapperManager = new SwapperManager()
-
   const adapterManager = getChainAdapterManager()
-  // const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
+  const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
 
   if (flags.Cowswap) {
-    const cowSwapper = new CowSwapper()
+    const supportedChainIds = flags.CowswapGnosis
+      ? [KnownChainIds.GnosisMainnet, KnownChainIds.EthereumMainnet]
+      : [KnownChainIds.EthereumMainnet]
+    const cowSwapper = new CowSwapper(supportedChainIds)
     swapperManager.addSwapper(cowSwapper)
-  }
-
-  if (flags.CowswapGnosis) {
-    const gnosisChainAdapter = adapterManager.get(
-      KnownChainIds.GnosisMainnet,
-    ) as unknown as gnosis.ChainAdapter
-    const gnosisWeb3 = getWeb3InstanceByChainId(gnosisChainId)
-
-    const cowSwapperGnosis = new CowSwapper({
-      adapter: gnosisChainAdapter,
-      baseUrl: getConfig().REACT_APP_COWSWAP_BASE_URL,
-      web3: gnosisWeb3,
-    })
-    swapperManager.addSwapper(cowSwapperGnosis)
   }
 
   if (flags.ZrxSwap) {

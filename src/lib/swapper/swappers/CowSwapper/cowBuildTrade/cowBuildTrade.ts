@@ -1,8 +1,12 @@
+import { fromAssetId } from '@shapeshiftoss/caip'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { BuildTradeInput, SwapErrorRight, SwapErrorType, makeSwapErrorRight } from 'lib/swapper/api'
+import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowChainId } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import type { CowSwapQuoteResponse, CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 import {
@@ -21,12 +25,11 @@ import {
 } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
-import { getConfig } from 'config'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import { isCowswapSupportedChainId } from '../utils/utils'
 
 export async function cowBuildTrade<T extends CowChainId>(
   input: BuildTradeInput,
+  supportedChainIds: KnownChainIds[],
 ): Promise<Result<CowTrade<T>, SwapErrorRight>> {
   const { accountNumber, sellAsset, buyAsset, receiveAddress, chainId } = input
 
@@ -41,40 +44,43 @@ export async function cowBuildTrade<T extends CowChainId>(
     assetNamespace: sellAssetNamespace,
     chainId: sellAssetChainId,
   } = fromAssetId(sellAsset.assetId)
-  const {
-    assetReference: buyAssetAddress,
-    chainId: buyAssetChainId,
-  } = fromAssetId(buyAsset.assetId)
-
-
-if (sellAssetNamespace !== 'erc20') {
-  return Err(
-    makeSwapErrorRight({
-      message: `[cowBuildTrade] - Both assets needs to be ERC-20 to use CowSwap`,
-      code: SwapErrorType.UNSUPPORTED_PAIR,
-      details: { sellAssetNamespace },
-    }),
+  const { assetReference: buyAssetAddress, chainId: buyAssetChainId } = fromAssetId(
+    buyAsset.assetId,
   )
-}
 
-if (!(isCowswapSupportedChainId(buyAssetChainId) && buyAssetChainId === sellAssetChainId)) {
-  return Err(
-    makeSwapErrorRight({
-      message: `[cowBuildTrade] - Both assets need to be on a network supported by CowSwap`,
-      code: SwapErrorType.UNSUPPORTED_PAIR,
-      details: { buyAssetChainId },
-    }),
-  )
-}
+  if (sellAssetNamespace !== 'erc20') {
+    return Err(
+      makeSwapErrorRight({
+        message: `[cowBuildTrade] - Both assets needs to be ERC-20 to use CowSwap`,
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+        details: { sellAssetNamespace },
+      }),
+    )
+  }
 
-if (!receiveAddress)
-return Err(
-  makeSwapErrorRight({
-    message: 'Receive address is required to build CoW trades',
-    code: SwapErrorType.MISSING_INPUT,
-  }),
-)
-const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL;
+  if (
+    !(
+      isCowswapSupportedChainId(buyAssetChainId, supportedChainIds) &&
+      buyAssetChainId === sellAssetChainId
+    )
+  ) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[cowBuildTrade] - Both assets need to be on a network supported by CowSwap`,
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+        details: { buyAssetChainId },
+      }),
+    )
+  }
+
+  if (!receiveAddress)
+    return Err(
+      makeSwapErrorRight({
+        message: 'Receive address is required to build CoW trades',
+        code: SwapErrorType.MISSING_INPUT,
+      }),
+    )
+  const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
     `${baseUrl}/${network}/api/v1/quote/`,

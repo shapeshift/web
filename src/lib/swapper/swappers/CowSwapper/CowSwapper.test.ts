@@ -78,7 +78,11 @@ describe('CowSwapper', () => {
     })
 
     it('returns array filtered out of unsupported tokens', () => {
-      const assetIds = [FOX.assetId, 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3', 'eip155:100/erc20:0x21a42669643f45Bc0e086b8Fc2ed70c23D67509d']
+      const assetIds = [
+        FOX.assetId,
+        'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
+        'eip155:100/erc20:0x21a42669643f45Bc0e086b8Fc2ed70c23D67509d',
+      ]
       expect(swapper.filterAssetIdsBySellable(assetIds)).toEqual([FOX.assetId])
     })
   })

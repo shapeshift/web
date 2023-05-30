@@ -1,10 +1,16 @@
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
 import { ethers } from 'ethers'
-import { ExecuteTradeInput, SwapErrorRight, SwapErrorType, TradeResult, makeSwapErrorRight } from 'lib/swapper/api'
+import { method } from 'lodash'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { ExecuteTradeInput, SwapErrorRight, TradeResult } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowChainId } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import type { CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 import {
@@ -23,17 +29,14 @@ import {
   getNowPlusThirtyMinutesTimestamp,
   hashOrder,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
+import { isEvmChainAdapter } from 'lib/utils'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { getSigningDomainFromChainId, isCowswapSupportedChainId } from '../utils/utils'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { method } from 'lodash'
-import { isEvmChainAdapter } from 'lib/utils'
-import { getConfig } from 'config'
 
 export async function cowExecuteTrade<T extends CowChainId>(
   { trade, wallet }: ExecuteTradeInput<T>,
+  supportedChainIds: KnownChainIds[],
 ): Promise<Result<TradeResult, SwapErrorRight>> {
   const cowTrade = trade as CowTrade<T>
   const {
@@ -43,7 +46,7 @@ export async function cowExecuteTrade<T extends CowChainId>(
     accountNumber,
     id,
     minimumBuyAmountAfterFeesCryptoBaseUnit,
-    sellAsset
+    sellAsset,
   } = cowTrade
 
   const adapterManager = getChainAdapterManager()
@@ -68,10 +71,9 @@ export async function cowExecuteTrade<T extends CowChainId>(
     assetNamespace: sellAssetNamespace,
     chainId: sellAssetChainId,
   } = fromAssetId(sellAsset.assetId)
-  const {
-    assetReference: buyAssetAddress,
-    chainId: buyAssetChainId,
-  } = fromAssetId(buyAsset.assetId)
+  const { assetReference: buyAssetAddress, chainId: buyAssetChainId } = fromAssetId(
+    buyAsset.assetId,
+  )
 
   if (sellAssetNamespace !== 'erc20') {
     return Err(
@@ -83,7 +85,12 @@ export async function cowExecuteTrade<T extends CowChainId>(
     )
   }
 
-  if (!(isCowswapSupportedChainId(buyAssetChainId) && buyAssetChainId === sellAssetChainId)) {
+  if (
+    !(
+      isCowswapSupportedChainId(buyAssetChainId, supportedChainIds) &&
+      buyAssetChainId === sellAssetChainId
+    )
+  ) {
     return Err(
       makeSwapErrorRight({
         message: `[${method}] - Both assets need to be on a network supported by CowSwap`,
@@ -92,7 +99,7 @@ export async function cowExecuteTrade<T extends CowChainId>(
       }),
     )
   }
-  
+
   const buyToken = !isNativeEvmAsset(buyAsset.assetId)
     ? buyAssetAddress
     : COW_SWAP_ETH_MARKER_ADDRESS
@@ -158,13 +165,16 @@ export async function cowExecuteTrade<T extends CowChainId>(
    * orderId: Orders can optionally include a quote ID. This way the order can be linked to a quote and enable providing more metadata when analyzing order slippage.
    * }
    */
-  const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL;
-  const maybeOrdersResponse = await cowService.post<string>(`${baseUrl}/${network}/api/v1/orders/`, {
-    ...orderToSign,
-    signingScheme: SIGNING_SCHEME,
-    signature,
-    from: trade.receiveAddress,
-  })
+  const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
+  const maybeOrdersResponse = await cowService.post<string>(
+    `${baseUrl}/${network}/api/v1/orders/`,
+    {
+      ...orderToSign,
+      signingScheme: SIGNING_SCHEME,
+      signature,
+      from: trade.receiveAddress,
+    },
+  )
 
   return maybeOrdersResponse.andThen(({ data: tradeId }) => Ok({ tradeId }))
 }

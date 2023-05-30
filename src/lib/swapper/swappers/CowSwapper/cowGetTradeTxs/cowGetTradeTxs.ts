@@ -1,5 +1,6 @@
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
 import type { SwapErrorRight, TradeResult, TradeTxs } from 'lib/swapper/api'
 import type {
   CowSwapGetOrdersResponse,
@@ -9,17 +10,15 @@ import { ORDER_STATUS_FULFILLED } from 'lib/swapper/swappers/CowSwapper/utils/co
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
 
 import { getCowswapNetwork } from '../utils/helpers/helpers'
-import { getConfig } from 'config'
 
 export async function cowGetTradeTxs(
   input: TradeResult,
 ): Promise<Result<TradeTxs, SwapErrorRight>> {
-
   const maybeNetwork = getCowswapNetwork(deps.adapter.getChainId())
   if (maybeNetwork.isErr()) return Err(maybeNetwork.unwrapErr())
   const network = maybeNetwork.unwrap()
 
-  const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL;
+  const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
 
   const maybeGetOrdersResponse = await cowService.get<CowSwapGetOrdersResponse>(
     `${baseUrl}/${network}/api/v1/orders/${input.tradeId}`,

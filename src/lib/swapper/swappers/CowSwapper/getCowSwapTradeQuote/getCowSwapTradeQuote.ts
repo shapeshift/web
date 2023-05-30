@@ -1,9 +1,13 @@
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
+import { method } from 'lodash'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
-import { GetTradeQuoteInput, SwapErrorRight, SwapErrorType, TradeQuote, makeSwapErrorRight } from 'lib/swapper/api'
+import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowChainId } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { getCowSwapMinMax } from 'lib/swapper/swappers/CowSwapper/getCowSwapMinMax/getCowSwapMinMax'
 import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
@@ -29,13 +33,11 @@ import {
 } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { method } from 'lodash'
 import { isCowswapSupportedChainId } from '../utils/utils'
-import { getConfig } from 'config'
 
 export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
+  supportedChainIds: KnownChainIds[],
 ): Promise<Result<TradeQuote<CowChainId>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, chainId, receiveAddress } = input
   const maybeNetwork = getCowswapNetwork(chainId)
@@ -47,10 +49,9 @@ export async function getCowSwapTradeQuote(
     assetNamespace: sellAssetNamespace,
     chainId: sellAssetChainId,
   } = fromAssetId(sellAsset.assetId)
-  const {
-    assetReference: buyAssetAddress,
-    chainId: buyAssetChainId,
-  } = fromAssetId(buyAsset.assetId)
+  const { assetReference: buyAssetAddress, chainId: buyAssetChainId } = fromAssetId(
+    buyAsset.assetId,
+  )
 
   if (sellAssetNamespace !== 'erc20') {
     return Err(
@@ -62,7 +63,12 @@ export async function getCowSwapTradeQuote(
     )
   }
 
-  if (!(isCowswapSupportedChainId(buyAssetChainId) && buyAssetChainId === sellAssetChainId)) {
+  if (
+    !(
+      isCowswapSupportedChainId(buyAssetChainId, supportedChainIds) &&
+      buyAssetChainId === sellAssetChainId
+    )
+  ) {
     return Err(
       makeSwapErrorRight({
         message: `[${method}] - Both assets need to be on a network supported by CowSwap`,
@@ -92,8 +98,8 @@ export async function getCowSwapTradeQuote(
   const normalizedSellAmountCryptoBaseUnit = normalizeIntegerAmount(
     isSellAmountBelowMinimum ? minQuoteSellAmount : sellAmount,
   )
-  
-  const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL  
+
+  const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(

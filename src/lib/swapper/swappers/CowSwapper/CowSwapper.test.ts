@@ -31,7 +31,7 @@ jest.mock('state/slices/selectors', () => {
 })
 
 const COW_SWAPPER_DEPS: CowSwapperDeps = {
-  baseUrl: 'https://api.cow.fi/mainnet/api/',
+  baseUrl: 'https://api.cow.fi/',
   adapter: {} as ethereum.ChainAdapter,
   web3: {} as Web3,
 }

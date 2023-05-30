@@ -103,7 +103,9 @@
     "selectedAccount": "Selected Account",
     "allChains": "All Chains",
     "wallet": "Wallet",
-    "action": "Action"
+    "action": "Action",
+    "feedbackAndSupport": "Feedback & Support",
+    "getSupport": "Get Support"
   },
   "consentBanner": {
     "body": {

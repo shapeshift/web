@@ -68,8 +68,6 @@ jest.mock('../utils/helpers/helpers', () => {
 // })
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
-  const { gasFeeData } = require('../../utils/test-data/setupDeps')
-  const actualChainAdapters = jest.requireActual('@shapeshiftoss/chain-adapters')
   return {
     getChainAdapterManager: jest.fn(
       () =>
@@ -77,10 +75,14 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
           [
             KnownChainIds.EthereumMainnet,
             {
+              buildCustomTx: () => Promise.resolve({ txToSign: '0000000000000000' }),
+              signTransaction: () => Promise.resolve('0000000000000000000'),
+              broadcastTransaction: () => Promise.resolve('txid'),
+              signAndBroadcastTransaction: () => Promise.resolve('txid'),
+              getFeeData: () => Promise.resolve('feeData'),
+              getAddress: () => Promise.resolve('receiveAddress'),
               getChainId: () => KnownChainIds.EthereumMainnet,
-              getGasFeeData: () => Promise.resolve(gasFeeData),
-              getBIP44Params: () => actualChainAdapters.ethereum.ChainAdapter.defaultBIP44Params,
-            } as ethereum.ChainAdapter,
+            } as unknown as ethereum.ChainAdapter,
           ],
         ]),
     ),

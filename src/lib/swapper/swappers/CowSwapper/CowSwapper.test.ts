@@ -1,4 +1,5 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { BTC, ETH, FOX, WBTC, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 
 import type { TradeResult } from '../../api'
@@ -10,7 +11,6 @@ import { cowGetTradeTxs } from './cowGetTradeTxs/cowGetTradeTxs'
 import { CowSwapper } from './CowSwapper'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import type { CowTrade, CowTradeResult } from './types'
-import { KnownChainIds } from '@shapeshiftoss/types'
 
 jest.mock('./utils/helpers/helpers')
 jest.mock('state/slices/selectors', () => {
@@ -187,7 +187,7 @@ describe('CowSwapper', () => {
     it('calls cowGetTradeTxs on swapper.getTradeTxs', async () => {
       const args: CowTradeResult = {
         tradeId: 'tradeId789456',
-        sellAssetChainId: 'eip155:1'
+        sellAssetChainId: 'eip155:1',
       }
       await swapper.getTradeTxs(args)
       expect(cowGetTradeTxs).toHaveBeenCalledTimes(1)

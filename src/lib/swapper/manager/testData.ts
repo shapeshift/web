@@ -12,7 +12,8 @@ import { SwapperName } from '../api'
 
 export const getZrxSwapper = () => new ZrxSwapper()
 
-export const getCowSwapper = () => new CowSwapper([KnownChainIds.GnosisMainnet, KnownChainIds.EthereumMainnet])
+export const getCowSwapper = () =>
+  new CowSwapper([KnownChainIds.GnosisMainnet, KnownChainIds.EthereumMainnet])
 
 const thorchainSwapperDeps: ThorchainSwapperDeps = {
   midgardUrl: '',

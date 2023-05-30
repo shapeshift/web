@@ -1,9 +1,9 @@
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 
+import type { CowTradeResult } from '../types'
 import { cowService } from '../utils/cowService'
 import { cowGetTradeTxs } from './cowGetTradeTxs'
-import { CowTradeResult } from '../types'
 
 jest.mock('../utils/cowService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')
@@ -22,7 +22,7 @@ describe('cowGetTradeTxs', () => {
   it('should call cowService with correct parameters and return an empty string if the order is not fulfilled', async () => {
     const input: CowTradeResult = {
       tradeId: 'tradeId1112345',
-      sellAssetChainId: 'eip155:1'
+      sellAssetChainId: 'eip155:1',
     }
 
     ;(cowService.get as jest.Mock<unknown>).mockReturnValue(
@@ -49,7 +49,7 @@ describe('cowGetTradeTxs', () => {
   it('should call cowService with correct parameters and return the tx hash if the order is fulfilled', async () => {
     const input: CowTradeResult = {
       tradeId: 'tradeId1112345',
-      sellAssetChainId: 'eip155:1'
+      sellAssetChainId: 'eip155:1',
     }
 
     ;(cowService.get as jest.Mock<unknown>)

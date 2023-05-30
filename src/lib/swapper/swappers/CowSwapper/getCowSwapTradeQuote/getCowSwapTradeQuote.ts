@@ -59,7 +59,7 @@ export async function getCowSwapTradeQuote(
       makeSwapErrorRight({
         message: `[getCowSwapTradeQuote] - Sell asset needs to be ERC-20 to use CowSwap`,
         code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { sellAssetNamespace,  sellAssetChainId},
+        details: { sellAssetNamespace, sellAssetChainId },
       }),
     )
   }

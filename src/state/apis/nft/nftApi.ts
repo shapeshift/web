@@ -94,20 +94,17 @@ export const nftApi = createApi({
 
         const results = await Promise.all(services.map(service => service(accountIds)))
 
-        const data = results.reduce<NftItem[]>((acc, result) => {
+        const nftsById = results.reduce<Record<AssetId, NftItem>>((acc, result) => {
           if (result.data) {
             const { data } = result
 
             data.forEach(item => {
-              const originalItemIndex = acc.findIndex(
-                accItem => accItem.id === item.id && accItem.collection.id === item.collection.id,
-              )
+              const assetId: AssetId = `${item.id}-${item.collection.id}`
 
-              if (originalItemIndex === -1) {
-                acc.push(item)
+              if (!acc[assetId]) {
+                acc[assetId] = item
               } else {
-                const updatedItem = updateNftItem(acc[originalItemIndex], item)
-                acc[originalItemIndex] = updatedItem
+                acc[assetId] = updateNftItem(acc[assetId], item)
               }
             })
           } else if (result.isError) {
@@ -115,21 +112,12 @@ export const nftApi = createApi({
           }
 
           return acc
-        }, [])
-
-        const nftsById = data.reduce<NftState['nfts']['byId']>((acc, item) => {
-          if (!item.collection.id) return acc
-
-          const nftAssetId: AssetId = `${item.collection.id}/${item.id}`
-          acc[nftAssetId] = item
-
-          return acc
         }, {})
+
         const nftIds: AssetId[] = Object.keys(nftsById)
 
+        const data = Object.values(nftsById)
         const collectionsById = data.reduce<NftState['collections']['byId']>((acc, item) => {
-          if (!item.collection.id) return acc
-
           const collectionAssetId = item.collection.id
           acc[collectionAssetId] = item.collection
 

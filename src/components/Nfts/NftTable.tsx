@@ -7,7 +7,7 @@ import { ResultsEmpty } from 'components/ResultsEmpty'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
 import { useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
-import type { V2NftUserItem } from 'state/apis/zapper/validators'
+import type { NftItem } from 'state/apis/nft/types'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
@@ -33,7 +33,7 @@ export const NftTable = () => {
   const accountIds = useAppSelector(selectWalletAccountIds)
   const { data, isLoading } = useGetNftUserTokensQuery({ accountIds })
 
-  const filterNftsBySearchTerm = useCallback((data: V2NftUserItem[], searchQuery: string) => {
+  const filterNftsBySearchTerm = useCallback((data: NftItem[], searchQuery: string) => {
     const search = searchQuery.trim().toLowerCase()
     const keys = [
       'token.name',
@@ -52,8 +52,8 @@ export const NftTable = () => {
 
   const renderNftCards = useMemo(() => {
     if (!data?.length) return null
-    return filteredNfts?.map(({ token }) => (
-      <NftCard zapperNft={token} key={`${token.collection.address}/${token.id}`} />
+    return filteredNfts?.map(nft => (
+      <NftCard nftItem={nft} key={`${nft.collection.id}/${nft.id}`} />
     ))
   }, [data?.length, filteredNfts])
 

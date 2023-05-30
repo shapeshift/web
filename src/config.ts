@@ -80,11 +80,7 @@ const validators = {
   REACT_APP_FEATURE_BNBSMARTCHAIN: bool({ default: false }),
   REACT_APP_FEATURE_POLYGON: bool({ default: false }),
   REACT_APP_FEATURE_GNOSIS: bool({ default: false }),
-  REACT_APP_FEATURE_ZRX_AVALANCHE: bool({ default: false }),
-  REACT_APP_FEATURE_ZRX_BNBSMARTCHAIN: bool({ default: false }),
-  REACT_APP_FEATURE_ZRX_POLYGON: bool({ default: false }),
-  REACT_APP_FEATURE_ZRX_ETHEREUM: bool({ default: false }),
-  REACT_APP_FEATURE_ZRX_OPTIMISM: bool({ default: false }),
+  REACT_APP_FEATURE_ZRX_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_IDLE: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),
@@ -153,6 +149,9 @@ const validators = {
     default: 'https://api.1inch.io/v5.0',
   }),
   REACT_APP_FEATURE_COVALENT_JAYPEGS: bool({ default: false }),
+  REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY: str(),
+  REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_API_KEY: str(),
+  REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_API_KEY: str(),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

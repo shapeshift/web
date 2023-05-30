@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, AssetNamespace, ChainId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
   avalancheChainId,
@@ -12,6 +12,8 @@ import { invert } from 'lodash'
 import type { Infer, Type } from 'myzod'
 import z from 'myzod'
 import { isNonEmpty, isUrl } from 'lib/utils'
+
+import type { NftCollectionType, NftItem } from '../nft/types'
 
 export enum SupportedZapperNetwork {
   Avalanche = 'avalanche',
@@ -704,6 +706,8 @@ const mediaSchema = z.object({
     }, 'Media filetype not supported'),
 })
 
+export type MediaUrl = Infer<typeof mediaSchema>
+
 const socialLinkSchema = z.object({
   name: z.string(),
   label: z.string(),
@@ -850,6 +854,43 @@ const V2AppResponse = z.object({
   supportedNetworks: z.array(V2AppSupportedNetworkResponse),
   groups: z.array(V2AppGroupResponse),
 })
+
+export const parseToNftItem = (zapperItem: V2NftUserItem, chainId: ChainId): NftItem => {
+  const {
+    token,
+    token: { lastSaleEth, medias, tokenId },
+    token: { collection },
+  } = zapperItem
+
+  const collectionItem: NftCollectionType = {
+    id: collection?.address
+      ? toAssetId({
+          assetReference: collection.address,
+          assetNamespace: collection.nftStandard as AssetNamespace,
+          chainId,
+        })
+      : '',
+    chainId,
+    description: '', // Not supported by the /v2/nft/user/tokens endpoint
+    name: collection?.name || '',
+    floorPrice: collection?.floorPriceEth || '',
+    openseaId: collection?.openseaId || '',
+    socialLinks: [], // Not supported by the /v2/nft/user/tokens endpoint
+  }
+
+  const nftItem: NftItem = {
+    id: tokenId,
+    name: token.name,
+    description: '', // Not supported by the /v2/nft/user/tokens endpoint
+    price: lastSaleEth || '',
+    chainId,
+    collection: collectionItem,
+    medias: medias || [],
+    rarityRank: token.rarityRank,
+  }
+
+  return nftItem
+}
 
 export const V2AppsResponse = z.array(V2AppResponse)
 export type V2AppResponseType = Infer<typeof V2AppResponse>

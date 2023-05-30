@@ -10,7 +10,7 @@ import type {
   TradeResult,
   TradeTxs,
 } from 'lib/swapper/api'
-import { SwapperName, SwapperType } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 
 /**
  * Playground for testing different scenarios of multiple swappers in the manager.
@@ -25,10 +25,6 @@ export class TestSwapper implements Swapper<ChainId> {
   async initialize() {
     const res = await Promise.resolve(undefined)
     return Ok(res)
-  }
-
-  getType() {
-    return SwapperType.Test
   }
 
   constructor() {

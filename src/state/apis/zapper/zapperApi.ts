@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
@@ -33,18 +33,19 @@ import { DefiType } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
+import type { NftCollectionType, NftItem } from '../nft/types'
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type {
   SupportedZapperNetwork,
   V2AppResponseType,
   V2NftBalancesCollectionsResponseType,
-  V2NftCollectionType,
   V2NftUserItem,
   V2NftUserTokensResponseType,
   ZapperAssetBase,
 } from './validators'
 import {
   chainIdToZapperNetwork,
+  parseToNftItem,
   V2AppsBalancesResponse,
   V2AppsResponse,
   V2AppTokensResponse,
@@ -95,7 +96,7 @@ type GetZapperAppsbalancesInput = void // void in the interim, but should eventu
 
 type GetZapperCollectionsInput = {
   accountIds: AccountId[]
-  collectionAddresses: string[]
+  collectionId: string
 }
 
 export type GetZapperAppsBalancesOutput = {
@@ -215,7 +216,7 @@ export const zapperApi = createApi({
         return { data }
       },
     }),
-    getZapperNftUserTokens: build.query<V2NftUserItem[], GetZapperNftUserTokensInput>({
+    getZapperNftUserTokens: build.query<NftItem[], GetZapperNftUserTokensInput>({
       queryFn: async ({ accountIds }) => {
         let data: V2NftUserItem[] = []
 
@@ -244,15 +245,24 @@ export const zapperApi = createApi({
             }
           }
         }
-        return { data }
+
+        const parsedData = data.map(v2NftItem => {
+          // Actually defined since we're passing supported EVM networks AccountIds
+          const chainId = zapperNetworkToChainId(
+            v2NftItem.token.collection.network as SupportedZapperNetwork,
+          )!
+          return parseToNftItem(v2NftItem, chainId)
+        })
+        return { data: parsedData }
       },
     }),
-    getZapperCollections: build.query<V2NftCollectionType[], GetZapperCollectionsInput>({
-      queryFn: async ({ accountIds, collectionAddresses }) => {
+    // We abuse the /v2/nft/balances/collections endpoint to get the collection meta
+    getZapperCollectionBalance: build.query<NftCollectionType, GetZapperCollectionsInput>({
+      queryFn: async ({ accountIds, collectionId }) => {
         const addresses = accountIdsToEvmAddresses(accountIds)
         const params = {
           'addresses[]': addresses,
-          'collectionAddresses[]': collectionAddresses,
+          'collectionAddresses[]': [fromAssetId(collectionId).assetReference],
         }
         const url = `/v2/nft/balances/collections`
         const payload = { ...options, params, headers, url }
@@ -261,7 +271,33 @@ export const zapperApi = createApi({
         })
 
         const { items: validatedData } = V2NftBalancesCollectionsResponse.parse(data)
-        return { data: validatedData }
+
+        const parsedData: NftCollectionType[] = validatedData.map(item => {
+          const chainId = zapperNetworkToChainId(item.collection.network as SupportedZapperNetwork)!
+          return {
+            id: null,
+            // Actually defined since we're passing supported EVM networks AccountIds
+            chainId,
+            name: item.collection.name,
+            floorPrice: item.collection.floorPriceEth || '',
+            openseaId: item.collection.openseaId || '',
+            description: item.collection.description,
+            socialLinks: item.collection.socialLinks,
+          }
+        })
+
+        // The right side will always evaluate to false - that's until Zapper fixes their collectionAddresses[] param not being honored
+        if (!parsedData[0] || parsedData[0].id !== collectionId) {
+          return {
+            error: {
+              status: 404,
+              code: 'ZAPPER_COLLECTION_NOT_FOUND',
+              message: 'Collection not found',
+            },
+          }
+        }
+
+        return { data: parsedData[0] }
       },
     }),
   }),
@@ -612,4 +648,4 @@ export const zapper = createApi({
   }),
 })
 
-export const { useGetZapperNftUserTokensQuery, useGetZapperCollectionsQuery } = zapperApi
+export const { useGetZapperNftUserTokensQuery } = zapperApi

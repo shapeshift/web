@@ -20,7 +20,7 @@ import {
   getCowswapNetwork,
   getNowPlusThirtyMinutesTimestamp,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
-import { normalizeIntegerAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
+import { isNativeEvmAsset, normalizeIntegerAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
 import {
   selectBuyAssetUsdRate,
   selectSellAssetUsdRate,
@@ -43,7 +43,7 @@ export async function getCowSwapTradeQuote(
 
   const { sellAssetAddress, buyAssetAddress } = maybeValidTradePair.unwrap()
 
-  const buyToken = buyAsset.assetId !== ethAssetId ? buyAssetAddress : COW_SWAP_ETH_MARKER_ADDRESS
+  const buyToken = !isNativeEvmAsset(buyAsset.assetId) ? buyAssetAddress : COW_SWAP_ETH_MARKER_ADDRESS
 
   const maybeCowSwapMinMax = getCowSwapMinMax(sellAsset, buyAsset)
 

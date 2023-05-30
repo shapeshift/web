@@ -24,8 +24,8 @@ import {
   hashOrder,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 
-import { validateExecuteTrade } from '../utils/validator'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { validateExecuteTrade } from '../utils/validator'
 
 export async function cowExecuteTrade<T extends CowChainId>(
   { baseUrl: apiUrl, adapter }: CowSwapperDeps,
@@ -49,7 +49,9 @@ export async function cowExecuteTrade<T extends CowChainId>(
 
   const { sellAssetAddress, buyAssetAddress } = maybeValidTradePair.unwrap()
 
-  const buyToken = !isNativeEvmAsset(buyAsset.assetId) ? buyAssetAddress : COW_SWAP_ETH_MARKER_ADDRESS
+  const buyToken = !isNativeEvmAsset(buyAsset.assetId)
+    ? buyAssetAddress
+    : COW_SWAP_ETH_MARKER_ADDRESS
 
   const orderToSign: CowSwapOrder = {
     sellToken: sellAssetAddress,

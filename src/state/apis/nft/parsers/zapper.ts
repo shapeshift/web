@@ -36,7 +36,7 @@ export const parseToNftItem = (zapperItem: V2NftUserItem, chainId: ChainId): Nft
     price: lastSaleEth || '',
     chainId,
     collection: collectionItem,
-    medias: medias || [],
+    medias,
     rarityRank,
   }
 

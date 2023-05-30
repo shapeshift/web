@@ -8,10 +8,11 @@ import { logger } from 'lib/logger'
 import { selectFeatureFlag } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
+import { parseToNftItem } from '../nft/parsers/covalent'
 import type { NftItem } from '../nft/types'
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type { CovalentNftUserTokensResponseType } from './validators'
-import { chainIdToCovalentNetwork, covalentNetworkToChainId, parseToNftItem } from './validators'
+import { chainIdToCovalentNetwork, covalentNetworkToChainId } from './validators'
 
 const COVALENT_BASE_URL = 'https://api.covalenthq.com/v1'
 
@@ -50,7 +51,7 @@ export const covalentApi = createApi({
           try {
             const url = `/${network}/address/${address}/balances_v2/?key=${
               getConfig().REACT_APP_COVALENT_API_KEY
-            }&nft=true&x-allow-incomplete=true`
+            }&nft=true&x-allow-incomplete=true&no-spam=true`
 
             const payload = { ...options, url }
             const response = await axios.request<CovalentNftUserTokensResponseType>(payload)

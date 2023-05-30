@@ -51,7 +51,6 @@ export const validateTradePair = (
   } = fromAssetId(sellAsset.assetId)
   const {
     assetReference: buyAssetAddress,
-    assetNamespace: buyAssetNamespace,
     chainId: buyAssetChainId,
   } = fromAssetId(buyAsset.assetId)
 
@@ -63,7 +62,7 @@ export const validateTradePair = (
       }),
     )
 
-  if (sellAssetNamespace !== 'erc20' || buyAssetNamespace !== 'erc20') {
+  if (sellAssetNamespace !== 'erc20') {
     return Err(
       makeSwapErrorRight({
         message: `[${method}] - Both assets needs to be ERC-20 to use CowSwap`,

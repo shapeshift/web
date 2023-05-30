@@ -6,5 +6,7 @@ export const csp: Csp = {
     'https://polygon-mainnet.g.alchemy.com/nft/v2/',
     // Alchemy SDK NFT resolution on Ethereum mainnet
     'https://eth-mainnet.g.alchemy.com/nft/v2/',
+    // Alchemy SDK NFT resolution on Optimism mainnet
+    'https://opt-mainnet.g.alchemy.com/nft/v2/',
   ],
 }

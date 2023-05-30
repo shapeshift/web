@@ -34,7 +34,7 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 
-import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName, SwapperType } from '../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from '../../api'
 
 export * from 'lib/swapper/swappers/ThorchainSwapper/types'
 
@@ -127,10 +127,6 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         }),
       )
     }
-  }
-
-  getType() {
-    return SwapperType.Thorchain
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {

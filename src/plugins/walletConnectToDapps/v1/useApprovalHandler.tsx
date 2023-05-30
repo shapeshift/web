@@ -6,10 +6,10 @@ import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { ethers } from 'ethers'
 import {
-  convertHexToUtf8,
   convertNumberToHex,
   getFeesForTx,
   getGasData,
+  maybeConvertHexEncodedMessageToUtf8,
 } from 'plugins/walletConnectToDapps/utils'
 import type {
   WalletConnectEthSendTransactionCallRequest,
@@ -56,14 +56,14 @@ export const useApprovalHandler = (wcAccountId: AccountId | undefined) => {
 
   const eth_sign = useCallback(
     async (request: WalletConnectEthSignCallRequest) => {
-      return await signMessage(convertHexToUtf8(request.params[1]))
+      return await signMessage(maybeConvertHexEncodedMessageToUtf8(request.params[1]))
     },
     [signMessage],
   )
 
   const personal_sign = useCallback(
     async (request: WalletConnectPersonalSignCallRequest) => {
-      return await signMessage(convertHexToUtf8(request.params[0]))
+      return await signMessage(maybeConvertHexEncodedMessageToUtf8(request.params[0]))
     },
     [signMessage],
   )

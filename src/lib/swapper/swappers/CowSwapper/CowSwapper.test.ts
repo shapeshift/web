@@ -5,7 +5,7 @@ import type Web3 from 'web3'
 import { BTC, ETH, FOX, WBTC, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 
 import type { TradeResult } from '../../api'
-import { SwapperName, SwapperType } from '../../api'
+import { SwapperName } from '../../api'
 import { setupBuildTrade, setupQuote } from '../utils/test-data/setupSwapQuote'
 import { cowBuildTrade } from './cowBuildTrade/cowBuildTrade'
 import { cowExecuteTrade } from './cowExecuteTrade/cowExecuteTrade'
@@ -61,12 +61,6 @@ describe('CowSwapper', () => {
   describe('name', () => {
     it('returns the correct human readable swapper name', () => {
       expect(swapper.name).toEqual(SwapperName.CowSwap)
-    })
-  })
-
-  describe('getType', () => {
-    it('returns the correct type for CowSwapper', () => {
-      expect(swapper.getType()).toEqual(SwapperType.CowSwapEthereum)
     })
   })
 

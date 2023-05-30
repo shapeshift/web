@@ -19,6 +19,7 @@ export function useCallRequestFees(
   const assets = useAppSelector(selectAssets)
 
   const feeAsset = useMemo(() => {
+    if (!evmChainId) return
     const feeAssetId = getChainAdapterManager().get(evmChainId)?.getFeeAssetId()
     if (!feeAssetId) return null
     const feeAsset = assets[feeAssetId]
@@ -29,8 +30,7 @@ export function useCallRequestFees(
     useAppSelector(state => selectMarketDataById(state, feeAsset?.assetId ?? ''))?.price ?? '0'
 
   useEffect(() => {
-    if (!request) return
-    if (!wcAccountId) return
+    if (!wcAccountId || !request || !evmChainId) return
     const { account: address } = fromAccountId(wcAccountId)
     const adapter = getChainAdapterManager().get(evmChainId)
     if (!(address && evmChainId && feeAsset && feeAssetPrice && adapter)) return

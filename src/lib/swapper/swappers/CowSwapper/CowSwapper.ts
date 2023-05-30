@@ -1,6 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { isNft } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import type Web3 from 'web3'
 import type {
@@ -13,7 +12,7 @@ import type {
   TradeResult,
   TradeTxs,
 } from 'lib/swapper/api'
-import { SwapError, SwapErrorType, SwapperName, SwapperType } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 import { cowBuildTrade } from 'lib/swapper/swappers/CowSwapper/cowBuildTrade/cowBuildTrade'
 import { cowExecuteTrade } from 'lib/swapper/swappers/CowSwapper/cowExecuteTrade/cowExecuteTrade'
 import { cowGetTradeTxs } from 'lib/swapper/swappers/CowSwapper/cowGetTradeTxs/cowGetTradeTxs'
@@ -47,26 +46,15 @@ export class CowSwapper<T extends CowChainId> implements Swapper<T> {
     this.chainId = deps.adapter.getChainId()
   }
 
-  getType() {
-    switch (this.chainId) {
-      case KnownChainIds.EthereumMainnet:
-        return SwapperType.CowSwapEthereum
-      case KnownChainIds.GnosisMainnet:
-        return SwapperType.CowSwapGnosis
-      default:
-        throw new SwapError('[getType]', {
-          code: SwapErrorType.UNSUPPORTED_CHAIN,
-        })
-    }
-  }
-
-  buildTrade(input: BuildTradeInput): Promise<Result<CowTrade<T>, SwapErrorRight>> {
-    return cowBuildTrade<T>(this.deps, input)
+  buildTrade(
+    args: BuildTradeInput,
+  ): Promise<Result<CowTrade<T>, SwapErrorRight>> {
+    return cowBuildTrade(this.deps, args)
   }
 
   getTradeQuote(
     input: GetTradeQuoteInput,
-  ): Promise<Result<TradeQuote<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
+  ): Promise<Result<TradeQuote<CowChainId>, SwapErrorRight>> {
     return getCowSwapTradeQuote(this.deps, input)
   }
 

@@ -32,11 +32,8 @@ export type FeatureFlags = {
   ArkeoAirdrop: boolean
   TradeRates: boolean
   Cowswap: boolean
-  ZrxAvalancheSwap: boolean
-  ZrxBnbSmartChainSwap: boolean
-  ZrxPolygonSwap: boolean
-  ZrxEthereumSwap: boolean
-  ZrxOptimismSwap: boolean
+  CowswapGnosis: boolean
+  ZrxSwap: boolean
   Mixpanel: boolean
   LifiSwap: boolean
   FoxBondCTA: boolean
@@ -90,11 +87,8 @@ const initialState: Preferences = {
     ArkeoAirdrop: getConfig().REACT_APP_FEATURE_ARKEO_AIRDROP,
     TradeRates: getConfig().REACT_APP_FEATURE_TRADE_RATES,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
-    ZrxAvalancheSwap: getConfig().REACT_APP_FEATURE_ZRX_AVALANCHE,
-    ZrxBnbSmartChainSwap: getConfig().REACT_APP_FEATURE_ZRX_BNBSMARTCHAIN,
-    ZrxPolygonSwap: getConfig().REACT_APP_FEATURE_ZRX_POLYGON,
-    ZrxEthereumSwap: getConfig().REACT_APP_FEATURE_ZRX_ETHEREUM,
-    ZrxOptimismSwap: getConfig().REACT_APP_FEATURE_ZRX_OPTIMISM,
+    CowswapGnosis: getConfig().REACT_APP_FEATURE_COWSWAP_GNOSIS,
+    ZrxSwap: getConfig().REACT_APP_FEATURE_ZRX_SWAP,
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
     CovalentJaypegs: getConfig().REACT_APP_FEATURE_COVALENT_JAYPEGS,
     Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,

@@ -1,19 +1,5 @@
-import {
-  avalancheChainId,
-  bscChainId,
-  ethChainId,
-  gnosisChainId,
-  optimismChainId,
-  polygonChainId,
-} from '@shapeshiftoss/caip'
-import type {
-  avalanche,
-  bnbsmartchain,
-  ethereum,
-  gnosis,
-  optimism,
-  polygon,
-} from '@shapeshiftoss/chain-adapters'
+import { ethChainId } from '@shapeshiftoss/caip'
+import type { ethereum, gnosis } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import stableStringify from 'fast-json-stable-stringify'
@@ -41,9 +27,6 @@ export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMa
 
   const adapterManager = getChainAdapterManager()
   const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
-  const avaxWeb3 = getWeb3InstanceByChainId(avalancheChainId)
-  const optimismWeb3 = getWeb3InstanceByChainId(optimismChainId)
-  const gnosisWeb3 = getWeb3InstanceByChainId(gnosisChainId)
 
   const ethereumChainAdapter = adapterManager.get(
     KnownChainIds.EthereumMainnet,
@@ -56,10 +39,13 @@ export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMa
       web3: ethWeb3,
     })
     swapperManager.addSwapper(cowSwapperEthereum)
+  }
 
+  if(flags.CowswapGnosis) {
     const gnosisChainAdapter = adapterManager.get(
       KnownChainIds.GnosisMainnet,
     ) as unknown as gnosis.ChainAdapter
+    const gnosisWeb3 = getWeb3InstanceByChainId(ethChainId)
 
     const cowSwapperGnosis = new CowSwapper({
       adapter: gnosisChainAdapter,
@@ -69,64 +55,9 @@ export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMa
     swapperManager.addSwapper(cowSwapperGnosis)
   }
 
-  if (flags.ZrxEthereumSwap) {
-    const zrxEthereumSwapper = new ZrxSwapper({
-      web3: ethWeb3,
-      adapter: ethereumChainAdapter,
-    })
-    swapperManager.addSwapper(zrxEthereumSwapper)
-  }
-
-  if (flags.ZrxAvalancheSwap) {
-    const avalancheChainAdapter = adapterManager.get(
-      KnownChainIds.AvalancheMainnet,
-    ) as unknown as avalanche.ChainAdapter
-
-    const zrxAvalancheSwapper = new ZrxSwapper({
-      web3: avaxWeb3,
-      adapter: avalancheChainAdapter,
-    })
-    swapperManager.addSwapper(zrxAvalancheSwapper)
-  }
-
-  if (flags.ZrxOptimismSwap) {
-    const optimismChainAdapter = adapterManager.get(
-      KnownChainIds.OptimismMainnet,
-    ) as unknown as optimism.ChainAdapter
-
-    const zrxOptimismSwapper = new ZrxSwapper({
-      web3: optimismWeb3,
-      adapter: optimismChainAdapter,
-    })
-    swapperManager.addSwapper(zrxOptimismSwapper)
-  }
-
-  if (flags.ZrxBnbSmartChainSwap) {
-    const bscWeb3 = getWeb3InstanceByChainId(bscChainId)
-
-    const bscChainAdapter = adapterManager.get(
-      KnownChainIds.BnbSmartChainMainnet,
-    ) as unknown as bnbsmartchain.ChainAdapter
-
-    const zrxBscSwapper = new ZrxSwapper({
-      web3: bscWeb3,
-      adapter: bscChainAdapter,
-    })
-    swapperManager.addSwapper(zrxBscSwapper)
-  }
-
-  if (flags.ZrxPolygonSwap) {
-    const polygonWeb3 = getWeb3InstanceByChainId(polygonChainId)
-
-    const polygonChainAdatper = adapterManager.get(
-      KnownChainIds.PolygonMainnet,
-    ) as unknown as polygon.ChainAdapter
-
-    const zrxPolygonSwapper = new ZrxSwapper({
-      web3: polygonWeb3,
-      adapter: polygonChainAdatper,
-    })
-    swapperManager.addSwapper(zrxPolygonSwapper)
+  if (flags.ZrxSwap) {
+    const zrxSwapper = new ZrxSwapper()
+    swapperManager.addSwapper(zrxSwapper)
   }
 
   if (flags.ThorSwap) {

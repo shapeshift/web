@@ -53,7 +53,7 @@ export const NftTable = () => {
   const renderNftCards = useMemo(() => {
     if (!data?.length) return null
     return filteredNfts?.map(nft => (
-      <NftCard nftItem={nft} key={`${nft.collection.id}/${nft.id}`} />
+      <NftCard nftItem={nft} key={`${nft.collection.assetId}/${nft.id}`} />
     ))
   }, [data?.length, filteredNfts])
 

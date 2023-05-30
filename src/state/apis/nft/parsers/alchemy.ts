@@ -59,7 +59,7 @@ export const parseAlchemyNftContractToCollectionItem = (
   })
 
   return {
-    id,
+    assetId: id,
     chainId,
     name: name ?? '',
     floorPrice: openSea?.floorPrice ? bnOrZero(openSea.floorPrice).toString() : '',
@@ -81,7 +81,7 @@ export const parseAlchemyOwnedNftToNftItem = (
   const socialLinks = makeSocialLinks(alchemyOwnedNft.contract.openSea)
 
   const nftCollection = {
-    id: collectionId,
+    assetId: collectionId,
     chainId,
     name:
       alchemyOwnedNft.contract.name ||

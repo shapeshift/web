@@ -77,7 +77,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
 
   const { data: nftCollection } = useGetNftCollectionQuery(
     { accountIds, collectionId: nftItem.collection.id ?? '' },
-    { skip: !nftItem.collection.id?.length },
+    { skip: !nftItem.collection.id },
   )
 
   const mediaUrl = nftItem.medias[0]?.originalUrl

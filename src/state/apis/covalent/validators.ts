@@ -1,10 +1,8 @@
-import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
-import { polygonChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { polygonChainId } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import type { Infer } from 'myzod'
 import z from 'myzod'
-
-import type { NftItem } from '../nft/types'
 
 export enum SupportedCovalentNetwork {
   // Bitcoin = 'btc-mainnet',
@@ -198,61 +196,3 @@ const CovalentNftUserTokensResponseSchema = z.object({
 
 export type CovalentNftUserTokensResponseType = Infer<typeof CovalentNftUserTokensResponseSchema>
 export type CovalentNftItemSchemaType = Infer<typeof CovalentNftItemSchema>
-
-export const parseToNftItem = (
-  covalentItem: CovalentNftItemSchemaType,
-  chainId: ChainId,
-): NftItem[] => {
-  return (
-    covalentItem.nft_data?.map(nftData => {
-      const medias = nftData.external_data?.image
-        ? [
-            {
-              type: 'image',
-              originalUrl: nftData.external_data.image,
-            },
-          ]
-        : []
-
-      const item: NftItem = {
-        name: covalentItem.contract_name,
-        chainId,
-        id: nftData.token_id,
-        medias,
-        price: '', // Covalent doesn't provide spot pricing for NFT items
-        rarityRank: null, // Covalent doesn't provide rarity rank
-        description: nftData.external_data?.description || '',
-        collection: {
-          id:
-            covalentItem.contract_address && covalentItem.supports_erc?.length
-              ? toAssetId({
-                  // Yeah, it's weird, but this is how Covalent does it
-                  assetReference: covalentItem.contract_address,
-                  assetNamespace: covalentItem.supports_erc[
-                    covalentItem.supports_erc.length - 1
-                  ] as AssetNamespace,
-                  chainId,
-                })
-              : '',
-          chainId,
-          description: '', // Covalent doesn't provide collection description
-          name: covalentItem.contract_name ?? 'Collection',
-          floorPrice: '', // Covalent doesn't provide floor price
-          openseaId: '', // Covalent doesn't provide an openseaId
-          socialLinks: nftData.external_data?.external_url
-            ? [
-                {
-                  name: 'website',
-                  label: 'Website',
-                  url: nftData.external_data.external_url,
-                  logoUrl: '',
-                },
-              ]
-            : [],
-        },
-      }
-
-      return item
-    }) ?? []
-  )
-}

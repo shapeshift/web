@@ -57,7 +57,7 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
     },
   })
 
-  if (!walletConnect.connector || !walletConnect.dapp) return null
+  if (!walletConnect.connector || !walletConnect.dapp || !feeAsset) return null
   const address = walletConnect.connector.accounts[0]
 
   if (isInteractingWithContract === null)

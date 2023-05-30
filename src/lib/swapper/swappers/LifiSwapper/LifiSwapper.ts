@@ -16,7 +16,7 @@ import type {
   TradeResult,
   TradeTxs,
 } from 'lib/swapper/api'
-import { SwapperName, SwapperType } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 import { buildTrade } from 'lib/swapper/swappers/LifiSwapper/buildTrade/buildTrade'
 import { executeTrade } from 'lib/swapper/swappers/LifiSwapper/executeTrade/executeTrade'
 import { getTradeQuote } from 'lib/swapper/swappers/LifiSwapper/getTradeQuote/getTradeQuote'
@@ -52,11 +52,6 @@ export class LifiSwapper implements Swapper<EvmChainId, true> {
     if (chains !== undefined) this.lifiChainMap = createLifiChainMap(chains)
 
     return Ok(undefined)
-  }
-
-  /** Returns the swapper type */
-  getType(): SwapperType {
-    return SwapperType.LIFI
   }
 
   /**

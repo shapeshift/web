@@ -13,7 +13,7 @@ export default function register(): Plugins {
       'polygonChainAdapter',
       {
         name: 'polygonChainAdapter',
-        featureFlag: ['Polygon', 'ZrxPolygonSwap'],
+        featureFlag: ['Polygon'],
         providers: {
           chainAdapters: [
             [

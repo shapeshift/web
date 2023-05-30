@@ -1,19 +1,17 @@
 import { Box, Button, Center, useDisclosure } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { useSelector } from 'react-redux'
 import { EditPen } from 'components/Icons/EditPen'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
 import { selectSelectedNftAvatarUrl } from 'state/apis/nft/selectors'
-import type { WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { selectWalletId } from 'state/slices/common-selectors'
+import { useAppSelector } from 'state/store'
 
 import { AvatarSelectModal } from './AvatarSelectModal'
 
-type ProfileAvatarProps = {
-  walletId?: WalletId
-}
-export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ walletId }) => {
-  const selectedNftAvatarUrl = useSelector(selectSelectedNftAvatarUrl)
+export const ProfileAvatar = () => {
+  const walletId = useAppSelector(selectWalletId)
+  const selectedNftAvatarUrl = useAppSelector(selectSelectedNftAvatarUrl)
   const { isOpen, onClose, onOpen } = useDisclosure()
   const walletImage = useMemo(() => {
     if (!walletId) return ''

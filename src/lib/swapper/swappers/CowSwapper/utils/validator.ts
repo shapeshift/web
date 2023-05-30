@@ -44,10 +44,10 @@ export const validateTradePair = (
   receiveAddress: string | undefined,
   method: string,
 ): Result<ValidTradeInput, SwapErrorRight> => {
-  const { assetReference: sellAssetAddress, assetNamespace: sellAssetNamespace } = fromAssetId(
+  const { assetReference: sellAssetAddress, assetNamespace: sellAssetNamespace, chainId: sellAssetChainId } = fromAssetId(
     sellAsset.assetId,
   )
-  const { assetReference: buyAssetAddress, chainId: buyAssetChainId } = fromAssetId(
+  const { assetReference: buyAssetAddress, assetNamespace: buyAssetNamespace, chainId: buyAssetChainId } = fromAssetId(
     buyAsset.assetId,
   )
 
@@ -59,20 +59,20 @@ export const validateTradePair = (
       }),
     )
 
-  if (sellAssetNamespace !== 'erc20') {
+  if (sellAssetNamespace !== 'erc20' || buyAssetNamespace !== 'erc20') {
     return Err(
       makeSwapErrorRight({
-        message: `[${method}] - Sell asset needs to be ERC-20 to use CowSwap`,
+        message: `[${method}] - Both assets needs to be ERC-20 to use CowSwap`,
         code: SwapErrorType.UNSUPPORTED_PAIR,
         details: { sellAssetNamespace },
       }),
     )
   }
 
-  if (!isCowswapSupportedChainId(buyAssetChainId)) {
+  if (!isCowswapSupportedChainId(buyAssetChainId) || isCowswapSupportedChainId(sellAssetChainId)) {
     return Err(
       makeSwapErrorRight({
-        message: `[${method}] - Buy asset network not supported by CowSwap`,
+        message: `[${method}] - Both assets need to be on a network supported by CowSwap`,
         code: SwapErrorType.UNSUPPORTED_PAIR,
         details: { buyAssetChainId },
       }),

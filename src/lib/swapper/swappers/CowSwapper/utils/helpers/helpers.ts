@@ -1,4 +1,5 @@
 import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -7,7 +8,6 @@ import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 
 import { CowNetwork } from '../../types'
-import { ChainId } from '@shapeshiftoss/caip'
 
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },

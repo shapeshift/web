@@ -65,10 +65,13 @@ export class CowSwapper<T extends CowChainId> implements Swapper<T> {
     const assets = selectAssets(store.getState())
     const sellAsset = assets[sellAssetId]
 
-    if (sellAsset === undefined || 
-      !isNativeEvmAsset(sellAssetId) ||
+    if (
+      sellAsset === undefined ||
+      isNativeEvmAsset(sellAssetId) ||
       !isCowswapSupportedChainId(sellAsset.chainId) ||
-       COWSWAP_UNSUPPORTED_ASSETS.includes(sellAssetId)) return []
+      COWSWAP_UNSUPPORTED_ASSETS.includes(sellAssetId)
+    )
+      return []
 
     return assetIds.filter(
       id =>

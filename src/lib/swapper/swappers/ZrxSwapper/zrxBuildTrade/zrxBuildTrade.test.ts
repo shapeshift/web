@@ -95,7 +95,7 @@ describe('zrxBuildTrade', () => {
     eip1559Support: false,
   }
 
-  const buildTradeResponse: ZrxTrade<ZrxSupportedChainId> = {
+  const buildTradeResponse: ZrxTrade = {
     sellAsset,
     buyAsset,
     sellAmountBeforeFeesCryptoBaseUnit: quoteResponse.sellAmount,

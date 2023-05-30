@@ -1,6 +1,5 @@
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import type { ZrxExecuteTradeInput, ZrxTrade } from '../types'
@@ -41,7 +40,7 @@ describe('ZrxExecuteTrade', () => {
     ethSupportsEIP1559: jest.fn(() => false),
   } as unknown as HDWallet
 
-  const trade: ZrxTrade<KnownChainIds.EthereumMainnet> = {
+  const trade: ZrxTrade = {
     buyAsset,
     sellAsset,
     sellAmountBeforeFeesCryptoBaseUnit: '1',
@@ -58,13 +57,13 @@ describe('ZrxExecuteTrade', () => {
     sources: [],
   }
 
-  const execTradeInput: ZrxExecuteTradeInput<KnownChainIds.EthereumMainnet> = {
+  const execTradeInput: ZrxExecuteTradeInput = {
     trade,
     wallet,
   }
 
   it('returns txid if offline signing is supported', async () => {
-    const maybeTradeResult = await zrxExecuteTrade<KnownChainIds.EthereumMainnet>({
+    const maybeTradeResult = await zrxExecuteTrade({
       ...execTradeInput,
     })
     expect(maybeTradeResult.isErr()).toBe(false)
@@ -78,7 +77,7 @@ describe('ZrxExecuteTrade', () => {
       supportsBroadcast: jest.fn(() => true),
     } as unknown as HDWallet
 
-    const maybeTradeResult = await zrxExecuteTrade<KnownChainIds.EthereumMainnet>({
+    const maybeTradeResult = await zrxExecuteTrade({
       ...execTradeInput,
     })
     expect(maybeTradeResult.isErr()).toBe(false)

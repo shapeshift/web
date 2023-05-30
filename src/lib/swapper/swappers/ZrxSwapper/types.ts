@@ -21,12 +21,12 @@ export type ZrxQuoteResponse = ZrxCommonResponse & {
   value: string
 }
 
-export interface ZrxTrade<T extends ZrxSupportedChainId> extends Trade<T> {
+export interface ZrxTrade extends Trade<ZrxSupportedChainId> {
   txData: string
   depositAddress: string
 }
 
-export type ZrxExecuteTradeInput<T extends ZrxSupportedChainId> = {
-  trade: ZrxTrade<T>
+export type ZrxExecuteTradeInput = {
+  trade: ZrxTrade
   wallet: HDWallet
 }

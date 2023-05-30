@@ -15,9 +15,14 @@ import type {
 import { SwapperName } from 'lib/swapper/api'
 import { getZrxTradeQuote } from 'lib/swapper/swappers/ZrxSwapper/getZrxTradeQuote/getZrxTradeQuote'
 import type { ZrxExecuteTradeInput, ZrxTrade } from 'lib/swapper/swappers/ZrxSwapper/types'
-import { UNSUPPORTED_ASSETS } from 'lib/swapper/swappers/ZrxSwapper/utils/blacklist'
+import {
+  ZRX_SUPPORTED_CHAINIDS,
+  ZRX_UNSUPPORTED_ASSETS,
+} from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
 import { zrxBuildTrade } from 'lib/swapper/swappers/ZrxSwapper/zrxBuildTrade/zrxBuildTrade'
 import { zrxExecuteTrade } from 'lib/swapper/swappers/ZrxSwapper/zrxExecuteTrade/zrxExecuteTrade'
+import { selectAssets } from 'state/slices/selectors'
+import { store } from 'state/store'
 
 import { filterEvmAssetIdsBySellable } from '../utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterSameChainEvmBuyAssetsBySellAssetId } from '../utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
@@ -29,31 +34,47 @@ export type ZrxSupportedChainId =
   | KnownChainIds.BnbSmartChainMainnet
   | KnownChainIds.PolygonMainnet
 
-export class ZrxSwapper<T extends ZrxSupportedChainId> implements Swapper<T> {
+export class ZrxSwapper implements Swapper<ZrxSupportedChainId> {
   readonly name = SwapperName.Zrx
 
-  buildTrade(input: BuildTradeInput): Promise<Result<ZrxTrade<T>, SwapErrorRight>> {
-    return zrxBuildTrade<T>(input)
+  buildTrade(input: BuildTradeInput): Promise<Result<ZrxTrade, SwapErrorRight>> {
+    return zrxBuildTrade(input)
   }
 
-  getTradeQuote(input: GetEvmTradeQuoteInput): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
-    return getZrxTradeQuote<T>(input)
+  getTradeQuote(
+    input: GetEvmTradeQuoteInput,
+  ): Promise<Result<TradeQuote<ZrxSupportedChainId>, SwapErrorRight>> {
+    return getZrxTradeQuote(input)
   }
 
-  executeTrade(args: ZrxExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>> {
-    return zrxExecuteTrade<T>(args)
+  executeTrade(args: ZrxExecuteTradeInput): Promise<Result<TradeResult, SwapErrorRight>> {
+    return zrxExecuteTrade(args)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
-    return filterSameChainEvmBuyAssetsBySellAssetId(args).filter(
-      assetId => !UNSUPPORTED_ASSETS.includes(assetId),
-    )
+    const assets = selectAssets(store.getState())
+    return filterSameChainEvmBuyAssetsBySellAssetId(args).filter(assetId => {
+      const asset = assets[assetId]
+      if (asset === undefined) return false
+      const { chainId } = asset
+      return (
+        !ZRX_UNSUPPORTED_ASSETS.includes(assetId) &&
+        ZRX_SUPPORTED_CHAINIDS.includes(chainId as ZrxSupportedChainId)
+      )
+    })
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[] = []): AssetId[] {
-    return filterEvmAssetIdsBySellable(assetIds).filter(
-      assetId => !UNSUPPORTED_ASSETS.includes(assetId),
-    )
+    const assets = selectAssets(store.getState())
+    return filterEvmAssetIdsBySellable(assetIds).filter(assetId => {
+      const asset = assets[assetId]
+      if (asset === undefined) return false
+      const { chainId } = asset
+      return (
+        !ZRX_UNSUPPORTED_ASSETS.includes(assetId) &&
+        ZRX_SUPPORTED_CHAINIDS.includes(chainId as ZrxSupportedChainId)
+      )
+    })
   }
 
   getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {

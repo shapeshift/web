@@ -18,13 +18,12 @@ import {
   getTreasuryAddressForReceiveAsset,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
-import type { ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
 import { isEvmChainAdapter } from 'lib/utils'
 import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
 
-export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
+export async function zrxBuildTrade(
   input: BuildTradeInput,
-): Promise<Result<ZrxTrade<T>, SwapErrorRight>> {
+): Promise<Result<ZrxTrade, SwapErrorRight>> {
   const { sellAsset, buyAsset, slippage, accountNumber, receiveAddress, affiliateBps, chainId } =
     input
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
@@ -107,7 +106,7 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
     },
   })
 
-  const trade: ZrxTrade<ZrxSupportedChainId> = {
+  const trade: ZrxTrade = {
     sellAsset,
     buyAsset,
     accountNumber,
@@ -124,5 +123,5 @@ export async function zrxBuildTrade<T extends ZrxSupportedChainId>(
     sources: quote.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
   }
 
-  return Ok(trade as ZrxTrade<T>)
+  return Ok(trade as ZrxTrade)
 }

@@ -9,13 +9,12 @@ import {
   isNativeEvmAsset,
 } from 'lib/swapper/swappers/utils/helpers/helpers'
 import type { ZrxExecuteTradeInput } from 'lib/swapper/swappers/ZrxSwapper/types'
-import type { ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
 import { isEvmChainAdapter } from 'lib/utils'
 
-export async function zrxExecuteTrade<T extends ZrxSupportedChainId>({
+export async function zrxExecuteTrade({
   trade,
   wallet,
-}: ZrxExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>> {
+}: ZrxExecuteTradeInput): Promise<Result<TradeResult, SwapErrorRight>> {
   const { accountNumber, depositAddress, sellAmountBeforeFeesCryptoBaseUnit, sellAsset, txData } =
     trade
 

@@ -34,7 +34,7 @@ export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
 ): Promise<Result<TradeQuote<CowChainId>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, receiveAddress } = input
-  const network = getCowswapNetwork(deps.adapter)
+  const network = getCowswapNetwork(deps.adapter.getChainId())
 
   const maybeValidTradePair = validateTradeQuote(input)
   maybeValidTradePair.isErr() && Err(maybeValidTradePair.unwrapErr())

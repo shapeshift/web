@@ -46,9 +46,7 @@ export class CowSwapper<T extends CowChainId> implements Swapper<T> {
     this.chainId = deps.adapter.getChainId()
   }
 
-  buildTrade(
-    args: BuildTradeInput,
-  ): Promise<Result<CowTrade<T>, SwapErrorRight>> {
+  buildTrade(args: BuildTradeInput): Promise<Result<CowTrade<T>, SwapErrorRight>> {
     return cowBuildTrade(this.deps, args)
   }
 

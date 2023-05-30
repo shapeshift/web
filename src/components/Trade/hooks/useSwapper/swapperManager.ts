@@ -41,7 +41,7 @@ export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMa
     swapperManager.addSwapper(cowSwapperEthereum)
   }
 
-  if(flags.CowswapGnosis) {
+  if (flags.CowswapGnosis) {
     const gnosisChainAdapter = adapterManager.get(
       KnownChainIds.GnosisMainnet,
     ) as unknown as gnosis.ChainAdapter

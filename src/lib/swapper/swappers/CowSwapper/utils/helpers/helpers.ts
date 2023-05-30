@@ -1,13 +1,13 @@
 import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
-import { Ok } from '@sniptt/monads/build'
+import { Err, Ok } from '@sniptt/monads'
 import { ethers } from 'ethers'
 import type { SwapErrorRight } from 'lib/swapper/api'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 
-import type { CowswapSupportedChainAdapter } from '../../types'
 import { CowNetwork } from '../../types'
+import { ChainId } from '@shapeshiftoss/caip'
 
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },
@@ -60,18 +60,19 @@ export type CowSwapSellQuoteApiInput = CowSwapQuoteApiInputBase & {
   sellAmountBeforeFee: string
 }
 
-export const getCowswapNetwork = (
-  adapter: CowswapSupportedChainAdapter,
-): Result<CowNetwork, SwapErrorRight> => {
-  switch (adapter.getChainId()) {
+export const getCowswapNetwork = (chainId: ChainId): Result<CowNetwork, SwapErrorRight> => {
+  switch (chainId) {
     case KnownChainIds.EthereumMainnet:
       return Ok(CowNetwork.Mainnet)
     case KnownChainIds.GnosisMainnet:
       return Ok(CowNetwork.Xdai)
     default:
-      throw new SwapError('[getCowswapNetwork]', {
-        code: SwapErrorType.UNSUPPORTED_CHAIN,
-      })
+      return Err(
+        makeSwapErrorRight({
+          message: '[getCowswapNetwork]',
+          code: SwapErrorType.UNSUPPORTED_CHAIN,
+        }),
+      )
   }
 }
 

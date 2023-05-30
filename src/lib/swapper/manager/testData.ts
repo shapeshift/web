@@ -1,7 +1,6 @@
 import type { ChainAdapterManager, ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type Web3 from 'web3'
-import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { CowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { ThorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
@@ -13,15 +12,7 @@ import { SwapperName } from '../api'
 
 export const getZrxSwapper = () => new ZrxSwapper()
 
-const cowSwapperDeps: CowSwapperDeps = {
-  baseUrl: 'https://api.cow.fi/',
-  adapter: {
-    getChainId: () => KnownChainIds.EthereumMainnet,
-  } as ethereum.ChainAdapter,
-  web3: {} as Web3,
-}
-
-export const getCowSwapper = () => new CowSwapper(cowSwapperDeps)
+export const getCowSwapper = () => new CowSwapper([KnownChainIds.GnosisMainnet, KnownChainIds.EthereumMainnet])
 
 const thorchainSwapperDeps: ThorchainSwapperDeps = {
   midgardUrl: '',

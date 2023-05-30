@@ -79,7 +79,7 @@ export async function cowExecuteTrade<T extends CowChainId>(
       makeSwapErrorRight({
         message: `[cowExecuteTrade] - Sell asset needs to be ERC-20 to use CowSwap`,
         code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { sellAssetNamespace },
+        details: { sellAssetNamespace,  sellAssetChainId},
       }),
     )
   }
@@ -120,7 +120,7 @@ export async function cowExecuteTrade<T extends CowChainId>(
   }
 
   const { chainReference } = fromChainId(sellAsset.chainId)
-  const signingDomain = bnOrZero(chainReference).toNumber()
+  const signingDomain = Number(chainReference)
 
   // We need to construct orderDigest, sign it and send it to cowSwap API, in order to submit a trade
   // Some context about this : https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/4.-signing-the-order

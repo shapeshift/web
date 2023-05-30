@@ -1,7 +1,4 @@
-import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import type Web3 from 'web3'
 import { BTC, ETH, FOX, WBTC, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 
 import type { TradeResult } from '../../api'
@@ -10,10 +7,10 @@ import { setupBuildTrade, setupQuote } from '../utils/test-data/setupSwapQuote'
 import { cowBuildTrade } from './cowBuildTrade/cowBuildTrade'
 import { cowExecuteTrade } from './cowExecuteTrade/cowExecuteTrade'
 import { cowGetTradeTxs } from './cowGetTradeTxs/cowGetTradeTxs'
-import type { CowSwapperDeps } from './CowSwapper'
 import { CowSwapper } from './CowSwapper'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
-import type { CowTrade } from './types'
+import type { CowTrade, CowTradeResult } from './types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 jest.mock('./utils/helpers/helpers')
 jest.mock('state/slices/selectors', () => {
@@ -29,12 +26,6 @@ jest.mock('state/slices/selectors', () => {
     }),
   }
 })
-
-const COW_SWAPPER_DEPS: CowSwapperDeps = {
-  baseUrl: 'https://api.cow.fi/',
-  adapter: {} as ethereum.ChainAdapter,
-  web3: {} as Web3,
-}
 
 jest.mock('./getCowSwapTradeQuote/getCowSwapTradeQuote', () => ({
   getCowSwapTradeQuote: jest.fn(),
@@ -53,6 +44,8 @@ jest.mock('./cowGetTradeTxs/cowGetTradeTxs', () => ({
 }))
 
 const ASSET_IDS = [ETH.assetId, WBTC.assetId, WETH.assetId, BTC.assetId, FOX.assetId]
+
+const COW_SWAPPER_DEPS = [KnownChainIds.EthereumMainnet]
 
 describe('CowSwapper', () => {
   const wallet = {} as HDWallet
@@ -149,7 +142,7 @@ describe('CowSwapper', () => {
       const { quoteInput } = setupQuote()
       await swapper.getTradeQuote(quoteInput)
       expect(getCowSwapTradeQuote).toHaveBeenCalledTimes(1)
-      expect(getCowSwapTradeQuote).toHaveBeenCalledWith(COW_SWAPPER_DEPS, quoteInput)
+      expect(getCowSwapTradeQuote).toHaveBeenCalledWith(quoteInput, COW_SWAPPER_DEPS)
     })
   })
 
@@ -159,7 +152,7 @@ describe('CowSwapper', () => {
       const args = { ...buildTradeInput, wallet }
       await swapper.buildTrade(args)
       expect(cowBuildTrade).toHaveBeenCalledTimes(1)
-      expect(cowBuildTrade).toHaveBeenCalledWith(COW_SWAPPER_DEPS, args)
+      expect(cowBuildTrade).toHaveBeenCalledWith(args, COW_SWAPPER_DEPS)
     })
   })
 
@@ -186,18 +179,19 @@ describe('CowSwapper', () => {
       const args = { trade: cowSwapTrade, wallet }
       await swapper.executeTrade(args)
       expect(cowExecuteTrade).toHaveBeenCalledTimes(1)
-      expect(cowExecuteTrade).toHaveBeenCalledWith(COW_SWAPPER_DEPS, args)
+      expect(cowExecuteTrade).toHaveBeenCalledWith(args, COW_SWAPPER_DEPS)
     })
   })
 
   describe('getTradeTxs', () => {
     it('calls cowGetTradeTxs on swapper.getTradeTxs', async () => {
-      const args: TradeResult = {
+      const args: CowTradeResult = {
         tradeId: 'tradeId789456',
+        sellAssetChainId: 'eip155:1'
       }
       await swapper.getTradeTxs(args)
       expect(cowGetTradeTxs).toHaveBeenCalledTimes(1)
-      expect(cowGetTradeTxs).toHaveBeenCalledWith(COW_SWAPPER_DEPS, args)
+      expect(cowGetTradeTxs).toHaveBeenCalledWith(args)
     })
   })
 })

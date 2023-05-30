@@ -1,15 +1,13 @@
 import { ethereum } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 import { ethers } from 'ethers'
-import type Web3 from 'web3'
 
 import type { ExecuteTradeInput } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX, WETH } from '../../utils/test-data/assets'
-import type { CowSwapperDeps } from '../CowSwapper'
 import type { CowTrade } from '../types'
 import {
   DEFAULT_APP_DATA,
@@ -26,20 +24,22 @@ const OrderDigest = '0xaf1d4f80d997d0cefa325dd6e003e5b5940247694eaba507b793c7ec6
 const Signature =
   '0x521ff65fd1e679b15b3ded234c89a30c0a4af1b190466a2dae0e14b7f935ce2c260cf3c0e4a5d81e340b8e615c095cbd65d0920387bea32cf09ccf3d624bf8251b'
 
-jest.mock('@shapeshiftoss/chain-adapters', () => {
-  const actualChainAdapters = jest.requireActual('@shapeshiftoss/chain-adapters')
-  return {
-    ...actualChainAdapters,
-    ethereum: {
-      ChainAdapter: {
-        // TODO: test account 0+
-        getBIP44Params: jest.fn(() => actualChainAdapters.ethereum.ChainAdapter.defaultBIP44Params),
-        defaultBIP44Params: actualChainAdapters.ethereum.ChainAdapter.defaultBIP44Params,
-        signMessage: jest.fn(() => Promise.resolve(Signature)),
-      },
-    },
-  }
-})
+const supportedChainIds = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
+
+// jest.mock('@shapeshiftoss/chain-adapters', () => {
+//   const actualChainAdapters = jest.requireActual('@shapeshiftoss/chain-adapters')
+//   return {
+//     ...actualChainAdapters,
+//     ethereum: {
+//       ChainAdapter: {
+//         // TODO: test account 0+
+//         getBIP44Params: jest.fn(() => actualChainAdapters.ethereum.ChainAdapter.defaultBIP44Params),
+//         defaultBIP44Params: actualChainAdapters.ethereum.ChainAdapter.defaultBIP44Params,
+//         signMessage: jest.fn(() => Promise.resolve(Signature)),
+//       },
+//     },
+//   }
+// })
 
 jest.mock('../utils/cowService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')
@@ -54,6 +54,36 @@ jest.mock('../utils/helpers/helpers', () => {
     ...jest.requireActual('../utils/helpers/helpers'),
     getNowPlusThirtyMinutesTimestamp: () => 1656797787,
     hashOrder: jest.fn(() => OrderDigest),
+  }
+})
+// jest.mock('@shapeshiftoss/chain-adapters', () => {
+//   const { KnownChainIds } = require('@shapeshiftoss/types')
+//   return {
+//     isEvmChainId: jest.fn(() => true),
+//     evmChainIds: [KnownChainIds.EthereumMainnet],
+//     optimism: {
+//       isOptimismChainAdapter: jest.fn(() => false),
+//     },
+//   }
+// })
+jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
+  const { KnownChainIds } = require('@shapeshiftoss/types')
+  const { gasFeeData } = require('../../utils/test-data/setupDeps')
+  const actualChainAdapters = jest.requireActual('@shapeshiftoss/chain-adapters')
+  return {
+    getChainAdapterManager: jest.fn(
+      () =>
+        new Map([
+          [
+            KnownChainIds.EthereumMainnet,
+            {
+              getChainId: () => KnownChainIds.EthereumMainnet,
+              getGasFeeData: () => Promise.resolve(gasFeeData),
+              getBIP44Params: () => actualChainAdapters.ethereum.ChainAdapter.defaultBIP44Params,
+            } as ethereum.ChainAdapter,
+          ],
+        ]),
+    ),
   }
 })
 
@@ -155,12 +185,6 @@ const expectedFoxToEthOrderToSign: CowSwapOrder = {
   quoteId: '1',
 }
 
-const deps: CowSwapperDeps = {
-  baseUrl: 'https://api.cow.fi/mainnet/api',
-  adapter: ethereumMock.ChainAdapter as unknown as ethereum.ChainAdapter,
-  web3: {} as Web3,
-}
-
 describe('cowExecuteTrade', () => {
   it('should throw an exception if both assets are not erc20s', async () => {
     const tradeInput: ExecuteTradeInput<KnownChainIds.EthereumMainnet> = {
@@ -168,7 +192,7 @@ describe('cowExecuteTrade', () => {
       wallet: {} as HDWallet,
     }
 
-    expect((await cowExecuteTrade(deps, tradeInput)).unwrapErr()).toMatchObject({
+    expect((await cowExecuteTrade(tradeInput, supportedChainIds)).unwrapErr()).toMatchObject({
       cause: undefined,
       code: 'UNSUPPORTED_PAIR',
       details: { sellAssetNamespace: 'slip44' },
@@ -191,7 +215,7 @@ describe('cowExecuteTrade', () => {
       ),
     )
 
-    const maybeTrade = await cowExecuteTrade(deps, tradeInput)
+    const maybeTrade = await cowExecuteTrade(tradeInput, supportedChainIds)
     expect(maybeTrade.isErr()).toBe(false)
     const trade = maybeTrade.unwrap()
 
@@ -240,7 +264,7 @@ describe('cowExecuteTrade', () => {
       ),
     )
 
-    const maybeTrade = await cowExecuteTrade(deps, tradeInput)
+    const maybeTrade = await cowExecuteTrade(tradeInput, supportedChainIds)
 
     expect(maybeTrade.isErr()).toBe(false)
     const trade = maybeTrade.unwrap()

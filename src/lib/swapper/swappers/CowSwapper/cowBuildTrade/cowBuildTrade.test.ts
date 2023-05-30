@@ -1,21 +1,20 @@
-import type { ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
-import type Web3 from 'web3'
 import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { BuildTradeInput } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX, WBTC, WETH } from '../../utils/test-data/assets'
-import type { CowSwapperDeps, CowSwapQuoteResponse } from '../CowSwapper'
-import type { CowTrade } from '../types'
+import type { CowSwapQuoteResponse } from '../CowSwapper'
+import { CowTrade } from '../types'
 import { DEFAULT_ADDRESS, DEFAULT_APP_DATA } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { cowBuildTrade } from './cowBuildTrade'
+import { Ok } from '@sniptt/monads/build'
 
 const foxRate = '0.0873'
 const ethRate = '1233.65940923824103061992'
@@ -33,6 +32,7 @@ jest.mock('../utils/cowService', () => {
 })
 jest.mock('../utils/helpers/helpers', () => {
   return {
+    ...jest.requireActual('../utils/helpers/helpers'),
     getNowPlusThirtyMinutesTimestamp: () => 1656797787,
   }
 })
@@ -46,6 +46,8 @@ jest.mock('../../utils/helpers/helpers', () => {
 
 const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
 const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
+
+const supportedChainIds = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
 
 const feeData: FeeDataEstimate<KnownChainIds.EthereumMainnet> = {
   fast: {
@@ -189,15 +191,6 @@ const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   minimumBuyAmountAfterFeesCryptoBaseUnit: '51242479117266593',
 }
 
-const deps: CowSwapperDeps = {
-  baseUrl: 'https://api.cow.fi/mainnet/api',
-  adapter: {
-    getAddress: jest.fn(() => Promise.resolve(DEFAULT_ADDRESS)),
-    getFeeData: jest.fn(() => Promise.resolve(feeData)),
-  } as unknown as ethereum.ChainAdapter,
-  web3: {} as Web3,
-}
-
 describe('cowBuildTrade', () => {
   it('should throw an exception if both assets are not erc20s', async () => {
     selectBuyAssetUsdRateSpy.mockImplementation(() => foxRate)
@@ -217,7 +210,7 @@ describe('cowBuildTrade', () => {
       slippage: getDefaultSlippagePercentageForSwapper(SwapperName.Test),
     }
 
-    const maybeCowBuildTrade = await cowBuildTrade(deps, tradeInput)
+    const maybeCowBuildTrade = await cowBuildTrade(tradeInput, supportedChainIds)
     expect(maybeCowBuildTrade.isErr()).toBe(true)
     expect(maybeCowBuildTrade.unwrapErr()).toMatchObject({
       cause: undefined,
@@ -264,7 +257,7 @@ describe('cowBuildTrade', () => {
       ),
     )
 
-    const maybeBuiltTrade = await cowBuildTrade(deps, tradeInput)
+    const maybeBuiltTrade = await cowBuildTrade(tradeInput, supportedChainIds)
 
     expect(maybeBuiltTrade.isOk()).toBe(true)
     expect(maybeBuiltTrade.unwrap()).toEqual(expectedTradeWethToFox)
@@ -310,7 +303,7 @@ describe('cowBuildTrade', () => {
       ),
     )
 
-    const maybeBuiltTrade = await cowBuildTrade(deps, tradeInput)
+    const maybeBuiltTrade = await cowBuildTrade(tradeInput, supportedChainIds)
     expect(maybeBuiltTrade.isOk()).toBe(true)
 
     expect(maybeBuiltTrade.unwrap()).toEqual(
@@ -357,7 +350,7 @@ describe('cowBuildTrade', () => {
       ),
     )
 
-    const maybeBuiltTrade = await cowBuildTrade(deps, tradeInput)
+    const maybeBuiltTrade = await cowBuildTrade(tradeInput, supportedChainIds)
     expect(maybeBuiltTrade.isOk()).toBe(true)
 
     expect(maybeBuiltTrade.unwrap()).toEqual(expectedTradeQuoteFoxToEth)

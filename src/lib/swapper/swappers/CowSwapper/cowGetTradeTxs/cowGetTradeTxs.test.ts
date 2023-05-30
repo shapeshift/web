@@ -1,12 +1,9 @@
-import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
-import type Web3 from 'web3'
 
-import type { TradeResult } from '../../../api'
-import type { CowSwapperDeps } from '../CowSwapper'
 import { cowService } from '../utils/cowService'
 import { cowGetTradeTxs } from './cowGetTradeTxs'
+import { CowTradeResult } from '../types'
 
 jest.mock('../utils/cowService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')
@@ -23,14 +20,9 @@ describe('cowGetTradeTxs', () => {
   })
 
   it('should call cowService with correct parameters and return an empty string if the order is not fulfilled', async () => {
-    const deps: CowSwapperDeps = {
-      baseUrl: 'https://api.cow.fi/mainnet/api',
-      adapter: {} as unknown as ethereum.ChainAdapter,
-      web3: {} as Web3,
-    }
-
-    const input: TradeResult = {
+    const input: CowTradeResult = {
       tradeId: 'tradeId1112345',
+      sellAssetChainId: 'eip155:1'
     }
 
     ;(cowService.get as jest.Mock<unknown>).mockReturnValue(
@@ -43,7 +35,7 @@ describe('cowGetTradeTxs', () => {
       ),
     )
 
-    const maybeResult = await cowGetTradeTxs(deps, input)
+    const maybeResult = await cowGetTradeTxs(input)
 
     expect(maybeResult.isErr()).toBe(false)
     const result = maybeResult.unwrap()
@@ -55,14 +47,9 @@ describe('cowGetTradeTxs', () => {
   })
 
   it('should call cowService with correct parameters and return the tx hash if the order is fulfilled', async () => {
-    const deps: CowSwapperDeps = {
-      baseUrl: 'https://api.cow.fi/mainnet/api',
-      adapter: {} as unknown as ethereum.ChainAdapter,
-      web3: {} as Web3,
-    }
-
-    const input: TradeResult = {
+    const input: CowTradeResult = {
       tradeId: 'tradeId1112345',
+      sellAssetChainId: 'eip155:1'
     }
 
     ;(cowService.get as jest.Mock<unknown>)
@@ -83,7 +70,7 @@ describe('cowGetTradeTxs', () => {
         ),
       )
 
-    const maybeResult = await cowGetTradeTxs(deps, input)
+    const maybeResult = await cowGetTradeTxs(input)
 
     expect(maybeResult.isErr()).toBe(false)
     const result = maybeResult.unwrap()

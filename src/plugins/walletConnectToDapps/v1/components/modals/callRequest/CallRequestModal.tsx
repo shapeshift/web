@@ -1,6 +1,6 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
 import { HStack, ModalCloseButton, ModalHeader } from '@chakra-ui/react'
-import { convertHexToUtf8 } from 'plugins/walletConnectToDapps/utils'
+import { maybeConvertHexEncodedMessageToUtf8 } from 'plugins/walletConnectToDapps/utils'
 import type { WalletConnectCallRequest } from 'plugins/walletConnectToDapps/v1/bridge/types'
 import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
 import { SendTransactionConfirmation } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/methods/SendTransactionConfirmation'
@@ -35,7 +35,7 @@ export const CallRequestModal: FC<WalletConnectModalProps> = ({ callRequest }) =
       case 'eth_sign':
         return (
           <SignMessageConfirmation
-            message={convertHexToUtf8(callRequest.params[1])}
+            message={maybeConvertHexEncodedMessageToUtf8(callRequest.params[1])}
             onConfirm={approve}
             onReject={reject}
           />
@@ -43,7 +43,7 @@ export const CallRequestModal: FC<WalletConnectModalProps> = ({ callRequest }) =
       case 'personal_sign':
         return (
           <SignMessageConfirmation
-            message={convertHexToUtf8(callRequest.params[0])}
+            message={maybeConvertHexEncodedMessageToUtf8(callRequest.params[0])}
             onConfirm={approve}
             onReject={reject}
           />

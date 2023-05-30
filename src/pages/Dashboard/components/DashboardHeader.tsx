@@ -17,7 +17,6 @@ import {
   selectEarnBalancesFiatAmountFull,
   selectPortfolioLoading,
   selectPortfolioTotalFiatBalanceExcludeEarnDupes,
-  selectWalletId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -35,7 +34,6 @@ type TabItem = {
 
 export const DashboardHeader = () => {
   const isNftsEnabled = useFeatureFlag('Jaypegz')
-  const walletId = useAppSelector(selectWalletId)
   const location = useLocation()
   const { qrCode, send, receive } = useModal()
   const { history } = useBrowserRouter()
@@ -161,7 +159,7 @@ export const DashboardHeader = () => {
         flexDir={{ base: 'column', xl: 'row' }}
       >
         <Flex alignItems='center' flexDir={{ base: 'column', md: 'row' }} gap={4}>
-          <ProfileAvatar walletId={walletId} />
+          <ProfileAvatar />
           <Flex flexDir='column' alignItems={{ base: 'center', md: 'flex-start' }}>
             <Text fontWeight='semibold' translation='defi.netWorth' color='gray.500' />
             <Skeleton isLoaded={!loading}>

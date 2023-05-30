@@ -77,7 +77,7 @@ export async function cowExecuteTrade<T extends CowChainId>(
   if (sellAssetNamespace !== 'erc20') {
     return Err(
       makeSwapErrorRight({
-        message: `[cowExecuteTrade] - Both assets needs to be ERC-20 to use CowSwap`,
+        message: `[cowExecuteTrade] - Sell asset needs to be ERC-20 to use CowSwap`,
         code: SwapErrorType.UNSUPPORTED_PAIR,
         details: { sellAssetNamespace },
       }),

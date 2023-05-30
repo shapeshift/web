@@ -3,7 +3,6 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
-import { method } from 'lodash'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
@@ -40,6 +39,8 @@ export async function getCowSwapTradeQuote(
   supportedChainIds: KnownChainIds[],
 ): Promise<Result<TradeQuote<CowChainId>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, chainId, receiveAddress } = input
+  const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
+
   const maybeNetwork = getCowswapNetwork(chainId)
   if (maybeNetwork.isErr()) return Err(maybeNetwork.unwrapErr())
   const network = maybeNetwork.unwrap()
@@ -56,7 +57,7 @@ export async function getCowSwapTradeQuote(
   if (sellAssetNamespace !== 'erc20') {
     return Err(
       makeSwapErrorRight({
-        message: `[${method}] - Both assets needs to be ERC-20 to use CowSwap`,
+        message: `[getCowSwapTradeQuote] - Sell asset needs to be ERC-20 to use CowSwap`,
         code: SwapErrorType.UNSUPPORTED_PAIR,
         details: { sellAssetNamespace },
       }),
@@ -71,7 +72,7 @@ export async function getCowSwapTradeQuote(
   ) {
     return Err(
       makeSwapErrorRight({
-        message: `[${method}] - Both assets need to be on a network supported by CowSwap`,
+        message: `[getCowSwapTradeQuote] - Both assets need to be on a network supported by CowSwap`,
         code: SwapErrorType.UNSUPPORTED_PAIR,
         details: { buyAssetChainId },
       }),
@@ -82,7 +83,7 @@ export async function getCowSwapTradeQuote(
     ? buyAssetAddress
     : COW_SWAP_ETH_MARKER_ADDRESS
 
-  const maybeCowSwapMinMax = getCowSwapMinMax(sellAsset, buyAsset)
+  const maybeCowSwapMinMax = getCowSwapMinMax(sellAsset, buyAsset, supportedChainIds)
 
   if (maybeCowSwapMinMax.isErr()) return Err(maybeCowSwapMinMax.unwrapErr())
   const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = maybeCowSwapMinMax.unwrap()
@@ -91,7 +92,6 @@ export async function getCowSwapTradeQuote(
     bn(10).exponentiatedBy(sellAsset.precision),
   )
 
-  const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
   const isSellAmountBelowMinimum = bnOrZero(sellAmount).lt(minQuoteSellAmount)
 
   // making sure we do not have decimals for cowswap api (can happen at least from minQuoteSellAmount)

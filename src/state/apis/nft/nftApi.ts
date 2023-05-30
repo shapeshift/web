@@ -69,29 +69,29 @@ export const nftApi = createApi({
 
         const results = await Promise.all(services.map(service => service(accountIds)))
 
-        const data = results.reduce<NftItem[]>((acc, result) => {
+        const data = results.reduce<Record<string, NftItem>>((acc, result) => {
           if (result.data) {
             const { data } = result
 
             data.forEach(item => {
-              const originalItemIndex = acc.findIndex(
-                accItem => accItem.id === item.id && accItem.collection.id === item.collection.id,
-              )
+              const nftAssetId: AssetId = `${item.id}-${item.collection.id}`
 
-              if (originalItemIndex === -1) {
-                acc.push(item)
-              } else {
-                const updatedItem = updateNftItem(acc[originalItemIndex], item)
-                acc[originalItemIndex] = updatedItem
+              if (!acc[nftAssetId]) {
+                acc[nftAssetId] = item
+                return acc
               }
+
+              acc[nftAssetId] = updateNftItem(acc[nftAssetId], item)
+              return acc
             })
           } else if (result.isError) {
             moduleLogger.error({ error: result.error }, 'Failed to fetch nft user data')
           }
 
           return acc
-        }, [])
-        return { data }
+        }, {})
+
+        return { data: Object.values(data) }
       },
     }),
     getNftCollection: build.query<NftCollectionType, GetNftCollectionInput>({

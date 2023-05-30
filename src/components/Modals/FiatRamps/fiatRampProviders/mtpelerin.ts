@@ -65,11 +65,8 @@ export const createMtPelerinUrl = ({
 }: CreateUrlProps): string => {
   const mtPelerinSymbol = adapters.assetIdToMtPelerinSymbol(assetId)
   if (!mtPelerinSymbol) throw new Error('Asset not supported by MtPelerin')
-  const mtPelerinFiatCurrency = getMtPelerinFiatCurrencies().some(
-    currency => currency === fiatCurrency,
-  )
-    ? fiatCurrency
-    : 'EUR'
+  const mtPelerinFiatCurrency =
+    getMtPelerinFiatCurrencies().find(currency => currency === fiatCurrency) ?? 'EUR'
   /**
    * url usage:
    *   https://developers.mtpelerin.com/integration-guides/web-integration

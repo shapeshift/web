@@ -1,4 +1,4 @@
-import type { AccountId, AssetNamespace, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bscChainId,
@@ -6,14 +6,9 @@ import {
   fromAccountId,
   optimismChainId,
   polygonChainId,
-  toAssetId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { NftContract } from 'alchemy-sdk'
 import { invert } from 'lodash'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-
-import type { NftCollectionType } from './types'
 
 // addresses are repeated across EVM chains
 export const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>
@@ -56,58 +51,3 @@ export const openseaNetworkToChainId = (network: SupportedOpenseaNetwork): Chain
 
 export const chainIdToOpenseaNetwork = (chainId: ChainId): SupportedOpenseaNetwork | undefined =>
   CHAIN_ID_TO_OPENSEA_NETWORK_MAP[chainId]
-
-export const parseAlchemyNftContractToCollectionItem = (
-  contract: NftContract,
-  chainId: ChainId,
-): NftCollectionType => {
-  const { name, openSea } = contract
-
-  const socialLinks = [
-    ...(openSea?.twitterUsername
-      ? [
-          {
-            name: 'Twitter',
-            label: 'Twitter',
-            url: `https://twitter.com/${openSea.twitterUsername}`,
-            logoUrl: '',
-          },
-        ]
-      : []),
-    ...(openSea?.discordUrl
-      ? [
-          {
-            name: 'Discord',
-            label: 'Discord',
-            url: openSea.discordUrl,
-            logoUrl: '',
-          },
-        ]
-      : []),
-    ...(openSea?.externalUrl
-      ? [
-          {
-            name: 'Website',
-            label: 'Website',
-            url: openSea.externalUrl,
-            logoUrl: '',
-          },
-        ]
-      : []),
-  ]
-  const id = toAssetId({
-    assetReference: contract.address,
-    assetNamespace: contract.tokenType.toLowerCase() as AssetNamespace,
-    chainId,
-  })
-
-  return {
-    id,
-    chainId,
-    name: name || '',
-    floorPrice: openSea?.floorPrice ? bnOrZero(openSea.floorPrice).toString() : '',
-    openseaId: openSea?.collectionName || '',
-    description: openSea?.description || '',
-    socialLinks,
-  }
-}

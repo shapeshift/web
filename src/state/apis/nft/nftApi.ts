@@ -69,7 +69,7 @@ export const nftApi = createApi({
 
         const results = await Promise.all(services.map(service => service(accountIds)))
 
-        const data = results.reduce<Record<string, NftItem>>((acc, result) => {
+        const data = results.reduce<Record<AssetId, NftItem>>((acc, result) => {
           if (result.data) {
             const { data } = result
 

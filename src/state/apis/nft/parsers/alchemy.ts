@@ -84,8 +84,8 @@ export const parseAlchemyOwnedNftToNftItem = (
     id: collectionId,
     chainId,
     name:
-      alchemyOwnedNft.contract.name ||
-      alchemyOwnedNft.contract.openSea?.collectionName ||
+      alchemyOwnedNft.contract.name ??
+      alchemyOwnedNft.contract.openSea?.collectionName ??
       'Collection',
     floorPrice: '', // Seemingly unreliable
     openseaId: '', // The Alchemy NFT data does not have an openseaId
@@ -96,9 +96,9 @@ export const parseAlchemyOwnedNftToNftItem = (
   const nftItem = {
     id: alchemyOwnedNft.tokenId,
     name:
-      alchemyOwnedNft.title ||
-      alchemyOwnedNft.contract.name ||
-      alchemyOwnedNft.contract.openSea?.collectionName ||
+      alchemyOwnedNft.title ??
+      alchemyOwnedNft.contract.name ??
+      alchemyOwnedNft.contract.openSea?.collectionName ??
       '',
     price: '', // The Alchemy NFT data does not have a spot price
     chainId,

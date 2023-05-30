@@ -7,7 +7,7 @@ import { ResultsEmpty } from 'components/ResultsEmpty'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
 import { useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
-import type { NftItemWithCollection } from 'state/apis/nft/types'
+import type { NftItem } from 'state/apis/nft/types'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
@@ -33,19 +33,16 @@ export const NftTable = () => {
   const accountIds = useAppSelector(selectWalletAccountIds)
   const { data, isLoading } = useGetNftUserTokensQuery({ accountIds })
 
-  const filterNftsBySearchTerm = useCallback(
-    (data: NftItemWithCollection[], searchQuery: string) => {
-      const search = searchQuery.trim().toLowerCase()
-      const keys = [
-        'token.name',
-        'token.collection.name',
-        'token.collection.address',
-        'token.tokenId',
-      ]
-      return matchSorter(data, search, { keys })
-    },
-    [],
-  )
+  const filterNftsBySearchTerm = useCallback((data: NftItem[], searchQuery: string) => {
+    const search = searchQuery.trim().toLowerCase()
+    const keys = [
+      'token.name',
+      'token.collection.name',
+      'token.collection.address',
+      'token.tokenId',
+    ]
+    return matchSorter(data, search, { keys })
+  }, [])
 
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 

@@ -92,7 +92,7 @@ export const nftApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'nftApi',
   endpoints: build => ({
-    getNftUserTokens: build.query<NftItemWithCollection[], GetNftUserTokensInput>({
+    getNftUserTokens: build.query<NftItem[], GetNftUserTokensInput>({
       queryFn: async ({ accountIds }, { dispatch }) => {
         const services = [
           getAlchemyNftData,
@@ -155,7 +155,7 @@ export const nftApi = createApi({
         dispatch(nft.actions.upsertCollections({ byId: collectionsById, ids: collectionIds }))
         dispatch(nft.actions.upsertNfts({ byId: nftsById, ids: nftIds }))
 
-        return { data }
+        return { data: Object.values(nftsById) }
       },
     }),
     getNftCollection: build.query<NftCollectionType, GetNftCollectionInput>({

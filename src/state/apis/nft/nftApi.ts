@@ -6,6 +6,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { PURGE } from 'redux-persist'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 import { logger } from 'lib/logger'
+import type { PartialRecord } from 'lib/utils'
 import type { WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
@@ -30,11 +31,11 @@ const moduleLogger = logger.child({ namespace: ['nftApi'] })
 type NftState = {
   selectedNftAvatarByWalletId: Record<WalletId, AssetId>
   nfts: {
-    byId: Record<AssetId, NftItem>
+    byId: PartialRecord<AssetId, NftItem>
     ids: AssetId[]
   }
   collections: {
-    byId: Record<AssetId, NftCollectionType>
+    byId: PartialRecord<AssetId, NftCollectionType>
     ids: AssetId[]
   }
 }

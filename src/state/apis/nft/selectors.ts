@@ -1,3 +1,4 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
 import { selectAssetIdParamFromFilter } from 'state/selectors'
@@ -6,8 +7,8 @@ import { selectWalletId } from 'state/slices/common-selectors'
 export const selectSelectedNftAvatar = createSelector(
   selectWalletId,
   (state: ReduxState) => state.nft.selectedNftAvatarByWalletId,
-  (walletId, selectedNftAvatarByWalletId) => {
-    return selectedNftAvatarByWalletId[walletId ?? '']
+  (walletId, selectedNftAvatarByWalletId): AssetId => {
+    return selectedNftAvatarByWalletId[walletId ?? ''] ?? null
   },
 )
 
@@ -35,11 +36,11 @@ export const selectNftById = createSelector(
 export const selectSelectedNftAvatarUrl = createSelector(
   selectSelectedNftAvatar,
   selectNfts,
-  (nftAssetId, nfts) => {
-    if (!nftAssetId) return null
-    const nftItem = nfts.byId[nftAssetId]
-    const media = nftItem.medias[0]?.originalUrl
+  (nftAssetId, nfts): string | null => {
+    const nftItem = nfts.byId[nftAssetId ?? '']
 
-    return media
+    const media: string | undefined = nftItem?.medias[0]?.originalUrl
+
+    return media ?? null
   },
 )

@@ -7,8 +7,9 @@ import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
+import { parseAlchemyNftContractToCollectionItem } from './parsers/alchemy'
 import type { NftCollectionType, NftItem } from './types'
-import { parseAlchemyNftContractToCollectionItem } from './utils'
+import { getAlchemyNftData, updateNftItem } from './utils'
 
 type GetNftUserTokensInput = {
   accountIds: AccountId[]
@@ -28,26 +29,39 @@ export const nftApi = createApi({
   endpoints: build => ({
     getNftUserTokens: build.query<NftItem[], GetNftUserTokensInput>({
       queryFn: async ({ accountIds }, { dispatch }) => {
-        const sources = [
-          zapperApi.endpoints.getZapperNftUserTokens,
-          covalentApi.endpoints.getCovalentNftUserTokens,
+        const services = [
+          getAlchemyNftData,
+          (accountIds: AccountId[]) =>
+            dispatch(zapperApi.endpoints.getZapperNftUserTokens.initiate({ accountIds })),
+          (accountIds: AccountId[]) =>
+            dispatch(covalentApi.endpoints.getCovalentNftUserTokens.initiate({ accountIds })),
         ]
 
-        const results = await Promise.all(
-          sources.map(source => dispatch(source.initiate({ accountIds }))),
-        )
-        const data = results.reduce<NftItem[]>((acc, result) => {
+        const results = await Promise.all(services.map(service => service(accountIds)))
+
+        const data = results.reduce<Record<AssetId, NftItem>>((acc, result) => {
           if (result.data) {
             const { data } = result
-            acc = acc.concat(data)
+
+            data.forEach(item => {
+              const nftAssetId: AssetId = `${item.id}-${item.collection.id}`
+
+              if (!acc[nftAssetId]) {
+                acc[nftAssetId] = item
+                return acc
+              }
+
+              acc[nftAssetId] = updateNftItem(acc[nftAssetId], item)
+              return acc
+            })
           } else if (result.isError) {
             moduleLogger.error({ error: result.error }, 'Failed to fetch nft user data')
           }
 
           return acc
-        }, [])
+        }, {})
 
-        return { data }
+        return { data: Object.values(data) }
       },
     }),
     getNftCollection: build.query<NftCollectionType, GetNftCollectionInput>({

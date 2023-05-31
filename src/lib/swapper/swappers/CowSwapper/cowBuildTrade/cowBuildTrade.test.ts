@@ -9,8 +9,12 @@ import type { BuildTradeInput } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX, USDC_GNOSIS, WBTC, WETH, XDAI } from '../../utils/test-data/assets'
 import type { CowSwapQuoteResponse } from '../CowSwapper'
-import type { CowTrade } from '../types'
-import { DEFAULT_ADDRESS, DEFAULT_APP_DATA } from '../utils/constants'
+import type { CowChainId, CowTrade } from '../types'
+import {
+  COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
+  DEFAULT_ADDRESS,
+  DEFAULT_APP_DATA,
+} from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { cowBuildTrade } from './cowBuildTrade'
@@ -47,7 +51,7 @@ jest.mock('../../utils/helpers/helpers', () => {
 const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
 const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
 
-const supportedChainIds = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
+const supportedChainIds: CowChainId[] = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
 
 const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
   appData: DEFAULT_APP_DATA,
@@ -87,7 +91,7 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
 
 const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
   appData: DEFAULT_APP_DATA,
-  buyToken: '60',
+  buyToken: COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
   partiallyFillable: false,

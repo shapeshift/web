@@ -8,7 +8,12 @@ import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
 import type { CowChainId } from '../types'
-import { DEFAULT_ADDRESS, DEFAULT_APP_DATA, ERC20_TOKEN_BALANCE } from '../utils/constants'
+import {
+  COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
+  DEFAULT_ADDRESS,
+  DEFAULT_APP_DATA,
+  ERC20_TOKEN_BALANCE,
+} from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote'
@@ -105,7 +110,7 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
 
 const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
   appData: DEFAULT_APP_DATA,
-  buyToken: '60',
+  buyToken: COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
   partiallyFillable: false,

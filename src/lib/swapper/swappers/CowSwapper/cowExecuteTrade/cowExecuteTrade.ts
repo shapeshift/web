@@ -1,8 +1,7 @@
-import { ethAssetId, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
@@ -13,7 +12,7 @@ import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowChainId } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import type { CowTrade, CowTradeResult } from 'lib/swapper/swappers/CowSwapper/types'
 import {
-  COW_SWAP_ETH_MARKER_ADDRESS,
+  COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_SETTLEMENT_ADDRESS,
   DEFAULT_APP_DATA,
   ERC20_TOKEN_BALANCE,
@@ -30,11 +29,12 @@ import {
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import { isEvmChainAdapter } from 'lib/utils'
 
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { isCowswapSupportedChainId } from '../utils/utils'
 
 export async function cowExecuteTrade<T extends CowChainId>(
   { trade, wallet }: ExecuteTradeInput<T>,
-  supportedChainIds: KnownChainIds[],
+  supportedChainIds: CowChainId[],
 ): Promise<Result<CowTradeResult, SwapErrorRight>> {
   const cowTrade = trade as CowTrade<T>
   const {
@@ -98,7 +98,9 @@ export async function cowExecuteTrade<T extends CowChainId>(
     )
   }
 
-  const buyToken = buyAsset.assetId !== ethAssetId ? buyAssetAddress : COW_SWAP_ETH_MARKER_ADDRESS
+  const buyToken = !isNativeEvmAsset(buyAsset.assetId)
+    ? buyAssetAddress
+    : COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS
 
   const orderToSign: CowSwapOrder = {
     sellToken: sellAssetAddress,

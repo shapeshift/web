@@ -1,6 +1,7 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { BTC, ETH, FOX, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
+import type { CowChainId } from '../types'
 import { MAX_COWSWAP_TRADE } from '../utils/constants'
 import { getCowSwapMinMax } from './getCowSwapMinMax'
 
@@ -8,7 +9,7 @@ jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
   ...jest.requireActual('state/zustand/swapperStore/amountSelectors'),
   selectSellAssetUsdRate: jest.fn(() => '0.25'),
 }))
-const supportedChainIds = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
+const supportedChainIds: CowChainId[] = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
 
 describe('getCowSwapMinMax', () => {
   it('returns minimumAmountCryptoHuman and maximumAmountCryptoHuman', () => {
@@ -35,7 +36,7 @@ describe('getCowSwapMinMax', () => {
     expect(minMax.maximumAmountCryptoHuman).toBe(MAX_COWSWAP_TRADE)
   })
 
-  it('fails on non erc 20 sell assets and non ETH-mainnet buy assets', () => {
+  it('fails on native EVM assetId sell assets and buy assets on a chain unsupported by CoW', () => {
     const expectedError = {
       cause: undefined,
       code: 'UNSUPPORTED_PAIR',

@@ -9,9 +9,9 @@ import { ethers } from 'ethers'
 import type { ExecuteTradeInput } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
-import type { CowTrade } from '../types'
+import type { CowChainId, CowTrade } from '../types'
 import {
-  COW_SWAP_ETH_MARKER_ADDRESS,
+  COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   DEFAULT_APP_DATA,
   ERC20_TOKEN_BALANCE,
   ORDER_KIND_SELL,
@@ -26,7 +26,7 @@ const OrderDigest = '0xaf1d4f80d997d0cefa325dd6e003e5b5940247694eaba507b793c7ec6
 const Signature =
   '0x521ff65fd1e679b15b3ded234c89a30c0a4af1b190466a2dae0e14b7f935ce2c260cf3c0e4a5d81e340b8e615c095cbd65d0920387bea32cf09ccf3d624bf8251b'
 
-const supportedChainIds = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
+const supportedChainIds: CowChainId[] = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
 
 jest.mock('../utils/cowService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')
@@ -46,14 +46,14 @@ jest.mock('../utils/helpers/helpers', () => {
 
 const actualChainAdapters = jest.requireActual('@shapeshiftoss/chain-adapters')
 
-const mockEthereum = {
+const mockEthereumChainAdapter = {
   // TODO: test account 0+
   getBIP44Params: jest.fn(() => actualChainAdapters.ethereum.ChainAdapter.defaultBIP44Params),
   getChainId: () => KnownChainIds.EthereumMainnet,
   signMessage: jest.fn(() => Promise.resolve(Signature)),
 } as unknown as EvmChainAdapter
 
-const mockGnosis = {
+const mockGnosisChainAdapter = {
   getBIP44Params: jest.fn(() => actualChainAdapters.gnosis.ChainAdapter.defaultBIP44Params),
   getChainId: () => KnownChainIds.GnosisMainnet,
   signMessage: jest.fn(() => Promise.resolve(Signature)),
@@ -66,8 +66,8 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
     getChainAdapterManager: jest.fn(
       () =>
         new Map([
-          [KnownChainIds.EthereumMainnet, mockEthereum],
-          [KnownChainIds.GnosisMainnet, mockGnosis],
+          [KnownChainIds.EthereumMainnet, mockEthereumChainAdapter],
+          [KnownChainIds.GnosisMainnet, mockGnosisChainAdapter],
         ]),
     ),
   }
@@ -181,7 +181,7 @@ const expectedWethToFoxOrderToSign: CowSwapOrder = {
 
 const expectedFoxToEthOrderToSign: CowSwapOrder = {
   sellToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-  buyToken: COW_SWAP_ETH_MARKER_ADDRESS,
+  buyToken: COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   sellAmount: '938195228120306016256',
   buyAmount: '46868859830863283',
   validTo: 1656797787,
@@ -197,7 +197,7 @@ const expectedFoxToEthOrderToSign: CowSwapOrder = {
 
 const expectedUsdcToXdaiOrderToSign: CowSwapOrder = {
   sellToken: '0xddafbb505ad214d7b80b1f830fccc89b60fb7a83',
-  buyToken: '60',
+  buyToken: COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   sellAmount: '938195228120306016256',
   buyAmount: '51242479117266593',
   validTo: 1656797787,
@@ -266,7 +266,7 @@ describe('cowExecuteTrade', () => {
       },
       expectedWethToFoxOrderToSign,
     )
-    expect(mockEthereum.signMessage).toHaveBeenCalledWith({
+    expect(mockEthereumChainAdapter.signMessage).toHaveBeenCalledWith({
       messageToSign: {
         addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
         message: ethers.utils.arrayify(OrderDigest),
@@ -315,7 +315,7 @@ describe('cowExecuteTrade', () => {
       },
       expectedFoxToEthOrderToSign,
     )
-    expect(mockEthereum.signMessage).toHaveBeenCalledWith({
+    expect(mockEthereumChainAdapter.signMessage).toHaveBeenCalledWith({
       messageToSign: {
         addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
         message: ethers.utils.arrayify(OrderDigest),
@@ -364,7 +364,7 @@ describe('cowExecuteTrade', () => {
       },
       expectedUsdcToXdaiOrderToSign,
     )
-    expect(mockGnosis.signMessage).toHaveBeenCalledWith({
+    expect(mockGnosisChainAdapter.signMessage).toHaveBeenCalledWith({
       messageToSign: {
         addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
         message: ethers.utils.arrayify(OrderDigest),

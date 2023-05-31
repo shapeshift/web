@@ -1,5 +1,4 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
@@ -13,12 +12,13 @@ import {
 import { selectSellAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
+import type { CowChainId } from '../types'
 import { isCowswapSupportedChainId } from '../utils/utils'
 
 export const getCowSwapMinMax = (
   sellAsset: Asset,
   buyAsset: Asset,
-  supportedChainIds: KnownChainIds[],
+  supportedChainIds: CowChainId[],
 ): Result<MinMaxOutput, SwapErrorRight> => {
   const { assetNamespace: sellAssetNamespace } = fromAssetId(sellAsset.assetId)
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)

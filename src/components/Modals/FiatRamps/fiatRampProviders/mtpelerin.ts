@@ -60,10 +60,13 @@ export async function getMtPelerinAssets(): Promise<AssetId[]> {
 export const createMtPelerinUrl = ({
   action,
   assetId,
+  fiatCurrency,
   options: { mode, language },
 }: CreateUrlProps): string => {
   const mtPelerinSymbol = adapters.assetIdToMtPelerinSymbol(assetId)
   if (!mtPelerinSymbol) throw new Error('Asset not supported by MtPelerin')
+  const mtPelerinFiatCurrency =
+    getMtPelerinFiatCurrencies().find(currency => currency === fiatCurrency) ?? 'EUR'
   /**
    * url usage:
    *   https://developers.mtpelerin.com/integration-guides/web-integration
@@ -86,12 +89,12 @@ export const createMtPelerinUrl = ({
     // Default sell tab source currency
     params.set('ssc', mtPelerinSymbol)
     // Default sell tab destination currency
-    params.set('sdc', 'EUR')
+    params.set('sdc', mtPelerinFiatCurrency)
   } else {
     // Default buy tab destination currency
     params.set('bdc', mtPelerinSymbol)
     // Default buy tab source currency
-    params.set('bsc', 'EUR')
+    params.set('bsc', mtPelerinFiatCurrency)
   }
   const network = adapters.getMtPelerinNetFromAssetId(assetId)
   if (!network) throw new Error('Network not supported by MtPelerin')

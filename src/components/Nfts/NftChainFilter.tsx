@@ -18,8 +18,8 @@ import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { IoOptionsOutline } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
+import { FilterGroup } from 'components/FilterGroup'
 import { Text } from 'components/Text'
-import { FilterGroup } from 'pages/TransactionHistory/components/FilterGroup'
 
 export enum FilterFormFields {
   Chains = 'chains',

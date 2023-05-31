@@ -7,7 +7,7 @@ import { ethers } from 'ethers'
 
 import type { ExecuteTradeInput } from '../../../api'
 import { SwapperName } from '../../../api'
-import { ETH, FOX, WETH } from '../../utils/test-data/assets'
+import { ETH, FOX, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
 import type { CowTrade } from '../types'
 import {
   DEFAULT_APP_DATA,
@@ -25,19 +25,6 @@ const Signature =
   '0x521ff65fd1e679b15b3ded234c89a30c0a4af1b190466a2dae0e14b7f935ce2c260cf3c0e4a5d81e340b8e615c095cbd65d0920387bea32cf09ccf3d624bf8251b'
 
 const supportedChainIds = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
-
-jest.mock('@shapeshiftoss/chain-adapters', () => {
-  const actualChainAdapters = jest.requireActual('@shapeshiftoss/chain-adapters')
-  return {
-    ...actualChainAdapters,
-    ethereum: {
-      ChainAdapter: {
-        // TODO: test account 0+
-        defaultBIP44Params: actualChainAdapters.ethereum.ChainAdapter.defaultBIP44Params,
-      },
-    },
-  }
-})
 
 jest.mock('../utils/cowService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')
@@ -63,11 +50,22 @@ const mockEthereum = {
   signMessage: jest.fn(() => Promise.resolve(Signature)),
 } as unknown as ethereum.ChainAdapter
 
+const mockGnosis = {
+  getBIP44Params: jest.fn(() => actualChainAdapters.gnosis.ChainAdapter.defaultBIP44Params),
+  getChainId: () => KnownChainIds.GnosisMainnet,
+  signMessage: jest.fn(() => Promise.resolve(Signature)),
+} as unknown as ethereum.ChainAdapter // wrong type but doesn't matter here
+
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
 
   return {
-    getChainAdapterManager: jest.fn(() => new Map([[KnownChainIds.EthereumMainnet, mockEthereum]])),
+    getChainAdapterManager: jest.fn(() => new Map(
+      [
+        [KnownChainIds.EthereumMainnet, mockEthereum],
+        [KnownChainIds.GnosisMainnet, mockGnosis]
+      ])
+    ),
   }
 })
 
@@ -136,6 +134,31 @@ const cowTradeFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   minimumBuyAmountAfterFeesCryptoBaseUnit: '46868859830863283',
 }
 
+const cowTradeUsdcToXdai: CowTrade<KnownChainIds.GnosisMainnet> = {
+  rate: '5.462e-17',
+  feeData: {
+    protocolFees: {
+      [USDC_GNOSIS.assetId]: {
+        amountCryptoBaseUnit: '61804771879693983744',
+        requiresBalance: false,
+        asset: USDC_GNOSIS,
+      },
+    },
+    networkFeeCryptoBaseUnit: '0',
+  },
+  sellAmountBeforeFeesCryptoBaseUnit: '20000000',
+  buyAmountBeforeFeesCryptoBaseUnit: '61804771879694034986479117266593',
+  sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
+  buyAsset: XDAI,
+  sellAsset: USDC_GNOSIS,
+  accountNumber: 0,
+  receiveAddress: 'address11',
+  feeAmountInSellTokenCryptoBaseUnit: '61804771879693983744',
+  sellAmountDeductFeeCryptoBaseUnit: '938195228120306016256',
+  id: '1',
+  minimumBuyAmountAfterFeesCryptoBaseUnit: '51242479117266593',
+}
+
 const expectedWethToFoxOrderToSign: CowSwapOrder = {
   sellToken: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
@@ -157,6 +180,22 @@ const expectedFoxToEthOrderToSign: CowSwapOrder = {
   buyToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
   sellAmount: '938195228120306016256',
   buyAmount: '46868859830863283',
+  validTo: 1656797787,
+  appData: DEFAULT_APP_DATA,
+  feeAmount: '61804771879693983744',
+  kind: ORDER_KIND_SELL,
+  partiallyFillable: false,
+  receiver: 'address11',
+  sellTokenBalance: ERC20_TOKEN_BALANCE,
+  buyTokenBalance: ERC20_TOKEN_BALANCE,
+  quoteId: '1',
+}
+
+const expectedUsdcToXdaiOrderToSign: CowSwapOrder = {
+  sellToken: '0xddafbb505ad214d7b80b1f830fccc89b60fb7a83',
+  buyToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+  sellAmount: '938195228120306016256',
+  buyAmount: '51242479117266593',
   validTo: 1656797787,
   appData: DEFAULT_APP_DATA,
   feeAmount: '61804771879693983744',
@@ -273,6 +312,55 @@ describe('cowExecuteTrade', () => {
       expectedFoxToEthOrderToSign,
     )
     expect(mockEthereum.signMessage).toHaveBeenCalledWith({
+      messageToSign: {
+        addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+        message: ethers.utils.arrayify(OrderDigest),
+      },
+      wallet: tradeInput.wallet,
+    })
+  })
+
+  it('should call cowService with correct parameters and return the order uid when buying XDAI', async () => {
+    const tradeInput: ExecuteTradeInput<KnownChainIds.GnosisMainnet> = {
+      trade: cowTradeUsdcToXdai,
+      wallet: {} as HDWallet,
+    }
+
+    ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve(
+        Ok({
+          data: '0xe476dadc86e768e4602bc872d4a7d50b03a4c2a609b37bf741f26baa578146bd0ea983f21f58f0e1a29ed653bcfc8afac4fec2a462c2e26f',
+        }),
+      ),
+    )
+
+    const maybeTrade = await cowExecuteTrade(tradeInput, supportedChainIds)
+
+    expect(maybeTrade.isErr()).toBe(false)
+    const trade = maybeTrade.unwrap()
+    expect(trade).toEqual({
+      sellAssetChainId: 'eip155:100',
+      tradeId:
+        '0xe476dadc86e768e4602bc872d4a7d50b03a4c2a609b37bf741f26baa578146bd0ea983f21f58f0e1a29ed653bcfc8afac4fec2a462c2e26f',
+    })
+
+    expect(cowService.post).toHaveBeenCalledWith('https://api.cow.fi/xdai/api/v1/orders/', {
+      ...expectedUsdcToXdaiOrderToSign,
+      signingScheme: SIGNING_SCHEME,
+      signature: Signature,
+      from: expectedUsdcToXdaiOrderToSign.receiver,
+    })
+
+    expect(hashOrderMock).toHaveBeenCalledWith(
+      {
+        chainId: 100,
+        name: 'Gnosis Protocol',
+        verifyingContract: '0x9008D19f58AAbD9eD0D60971565AA8510560ab41',
+        version: 'v2',
+      },
+      expectedUsdcToXdaiOrderToSign,
+    )
+    expect(mockGnosis.signMessage).toHaveBeenCalledWith({
       messageToSign: {
         addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
         message: ethers.utils.arrayify(OrderDigest),

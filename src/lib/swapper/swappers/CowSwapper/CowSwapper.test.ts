@@ -1,6 +1,6 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { BTC, ETH, FOX, WBTC, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
+import { BTC, ETH, FOX, WBTC, WETH, XDAI } from 'lib/swapper/swappers/utils/test-data/assets'
 
 import { SwapperName } from '../../api'
 import { setupBuildTrade, setupQuote } from '../utils/test-data/setupSwapQuote'
@@ -13,7 +13,7 @@ import type { CowTrade, CowTradeResult } from './types'
 
 jest.mock('./utils/helpers/helpers')
 jest.mock('state/slices/selectors', () => {
-  const { BTC, ETH, FOX, WBTC, WETH } = require('lib/swapper/swappers/utils/test-data/assets') // Move the import inside the factory function
+  const { BTC, ETH, FOX, WBTC, WETH, XDAI } = require('lib/swapper/swappers/utils/test-data/assets') // Move the import inside the factory function
 
   return {
     selectAssets: () => ({
@@ -22,6 +22,7 @@ jest.mock('state/slices/selectors', () => {
       [FOX.assetId]: FOX,
       [WBTC.assetId]: WBTC,
       [WETH.assetId]: WETH,
+      [XDAI.assetId]: XDAI,
     }),
   }
 })
@@ -42,9 +43,9 @@ jest.mock('./cowGetTradeTxs/cowGetTradeTxs', () => ({
   cowGetTradeTxs: jest.fn(),
 }))
 
-const ASSET_IDS = [ETH.assetId, WBTC.assetId, WETH.assetId, BTC.assetId, FOX.assetId]
+const ASSET_IDS = [ETH.assetId, WBTC.assetId, WETH.assetId, BTC.assetId, FOX.assetId, XDAI.assetId]
 
-const COW_SWAPPER_DEPS = [KnownChainIds.EthereumMainnet]
+const COW_SWAPPER_DEPS = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
 
 describe('CowSwapper', () => {
   const wallet = {} as HDWallet
@@ -156,13 +157,38 @@ describe('CowSwapper', () => {
   })
 
   describe('executeTrade', () => {
-    it('calls executeTrade on swapper.buildTrade', async () => {
+    it('calls executeTrade on swapper.buildTrade for ETH', async () => {
       const cowSwapTrade: CowTrade<KnownChainIds.EthereumMainnet> = {
         sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
         buyAmountBeforeFeesCryptoBaseUnit: '14501811818247595090576',
         sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
         buyAsset: FOX,
         sellAsset: WETH,
+        accountNumber: 0,
+        receiveAddress: 'address11',
+        feeAmountInSellTokenCryptoBaseUnit: '14557942658757988',
+        rate: '14716.04718939437505555958',
+        feeData: {
+          protocolFees: {},
+          networkFeeCryptoBaseUnit: '14557942658757988',
+        },
+        sellAmountDeductFeeCryptoBaseUnit: '985442057341242012',
+        id: '1',
+        minimumBuyAmountAfterFeesCryptoBaseUnit: '14501811818247595090576',
+      }
+      const args = { trade: cowSwapTrade, wallet }
+      await swapper.executeTrade(args)
+      expect(cowExecuteTrade).toHaveBeenCalledTimes(1)
+      expect(cowExecuteTrade).toHaveBeenCalledWith(args, COW_SWAPPER_DEPS)
+    })
+
+    it('calls executeTrade on swapper.buildTrade for XDAI', async () => {
+      const cowSwapTrade: CowTrade<KnownChainIds.GnosisMainnet> = {
+        sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
+        buyAmountBeforeFeesCryptoBaseUnit: '14501811818247595090576',
+        sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
+        buyAsset: FOX,
+        sellAsset: XDAI,
         accountNumber: 0,
         receiveAddress: 'address11',
         feeAmountInSellTokenCryptoBaseUnit: '14557942658757988',

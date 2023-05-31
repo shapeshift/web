@@ -106,6 +106,19 @@ export const USDC: Asset = {
   explorerTxLink: 'https://etherscan.io/tx/',
 }
 
+export const USDC_GNOSIS: Asset = {
+  assetId: 'eip155:100/erc20:0xddafbb505ad214d7b80b1f830fccc89b60fb7a83',
+  chainId: gnosisChainId,
+  symbol: 'USDC on Gnosis',
+  name: 'USD Coin',
+  precision: 6,
+  color: '#2373CB',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
+  explorer: 'https://gnosisscan.io/',
+  explorerAddressLink: 'https://gnosisscan.io/address/',
+  explorerTxLink: 'https://gnosisscan.io/tx/',
+}
+
 export const AVAX: Asset = {
   assetId: avalancheAssetId,
   chainId: avalancheChainId,

@@ -174,7 +174,6 @@ export const nftApi = createApi({
             .nft.getContractMetadata(collectionAddress)
             .then(contract => parseAlchemyNftContractToCollectionItem(contract, chainId))
 
-          debugger
           // Alchemy is the most/only reliable source for collection data for now
           if (alchemyCollectionData) {
             dispatch(nft.actions.upsertCollection(alchemyCollectionData))

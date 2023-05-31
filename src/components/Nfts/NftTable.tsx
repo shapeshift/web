@@ -56,8 +56,10 @@ export const NftTable = () => {
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
   const filteredNfts = useMemo(() => {
-    return isSearching && nftItems ? filterNftsBySearchTerm(nftItems, searchQuery) : nftItems
-  }, [isSearching, nftItems, filterNftsBySearchTerm, searchQuery])
+    return (isSearching || chainFilters.length) && nftItems
+      ? filterNftsBySearchTerm(nftItems, searchQuery)
+      : nftItems
+  }, [isSearching, chainFilters.length, nftItems, filterNftsBySearchTerm, searchQuery])
 
   const renderNftCards = useMemo(() => {
     if (!nftItems?.length) return null

@@ -1,3 +1,4 @@
+import { ethChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { BTC, ETH, FOX, WBTC, WETH, XDAI } from 'lib/swapper/swappers/utils/test-data/assets'
@@ -9,7 +10,7 @@ import { cowExecuteTrade } from './cowExecuteTrade/cowExecuteTrade'
 import { cowGetTradeTxs } from './cowGetTradeTxs/cowGetTradeTxs'
 import { CowSwapper } from './CowSwapper'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
-import type { CowTrade, CowTradeResult } from './types'
+import type { CowChainId, CowTrade, CowTradeResult } from './types'
 
 jest.mock('./utils/helpers/helpers')
 jest.mock('state/slices/selectors', () => {
@@ -45,7 +46,7 @@ jest.mock('./cowGetTradeTxs/cowGetTradeTxs', () => ({
 
 const ASSET_IDS = [ETH.assetId, WBTC.assetId, WETH.assetId, BTC.assetId, FOX.assetId, XDAI.assetId]
 
-const COW_SWAPPER_DEPS = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
+const COW_SWAPPER_DEPS: CowChainId[] = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
 
 describe('CowSwapper', () => {
   const wallet = {} as HDWallet
@@ -74,7 +75,7 @@ describe('CowSwapper', () => {
       const assetIds = [
         FOX.assetId,
         'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
-        'eip155:100/erc20:0x21a42669643f45Bc0e086b8Fc2ed70c23D67509d',
+        'eip155:100/erc20:0x21a42669643f45bc0e086b8fc2ed70c23d67509d',
       ]
       expect(swapper.filterAssetIdsBySellable(assetIds)).toEqual([FOX.assetId])
     })
@@ -212,7 +213,7 @@ describe('CowSwapper', () => {
     it('calls cowGetTradeTxs on swapper.getTradeTxs', async () => {
       const args: CowTradeResult = {
         tradeId: 'tradeId789456',
-        sellAssetChainId: 'eip155:1',
+        chainId: ethChainId,
       }
       await swapper.getTradeTxs(args)
       expect(cowGetTradeTxs).toHaveBeenCalledTimes(1)

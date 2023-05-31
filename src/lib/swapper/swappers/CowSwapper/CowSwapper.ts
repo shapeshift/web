@@ -1,6 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { isNft } from '@shapeshiftoss/caip'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import type {
   BuildTradeInput,
@@ -30,9 +29,9 @@ import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { isCowswapSupportedChainId } from './utils/utils'
 export class CowSwapper<T extends CowChainId> implements Swapper<T> {
   readonly name = SwapperName.CowSwap
-  supportedChainIds: KnownChainIds[]
+  supportedChainIds: CowChainId[]
 
-  constructor(supportedChainIds: KnownChainIds[]) {
+  constructor(supportedChainIds: CowChainId[]) {
     this.supportedChainIds = supportedChainIds
   }
 

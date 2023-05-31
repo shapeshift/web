@@ -4,6 +4,7 @@ import { getConfig } from 'config'
 import stableStringify from 'fast-json-stable-stringify'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { SwapperManager } from 'lib/swapper/manager/SwapperManager'
+import type { CowChainId } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { CowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { LifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper'
 import { OneInchSwapper } from 'lib/swapper/swappers/OneInchSwapper/OneInchSwapper'
@@ -27,7 +28,7 @@ export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMa
   const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
 
   if (flags.Cowswap) {
-    const supportedChainIds = flags.CowswapGnosis
+    const supportedChainIds: CowChainId[] = flags.CowswapGnosis
       ? [KnownChainIds.GnosisMainnet, KnownChainIds.EthereumMainnet]
       : [KnownChainIds.EthereumMainnet]
     const cowSwapper = new CowSwapper(supportedChainIds)

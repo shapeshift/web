@@ -54,5 +54,5 @@ export type CowswapExecuteTradeInput<T extends CowChainId> = {
 }
 
 export interface CowTradeResult extends TradeResult {
-  sellAssetChainId: ChainId
+  chainId: ChainId
 }

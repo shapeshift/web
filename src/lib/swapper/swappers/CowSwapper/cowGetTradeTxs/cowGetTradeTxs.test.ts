@@ -1,3 +1,4 @@
+import { ethChainId, gnosisChainId } from '@shapeshiftoss/caip'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 
@@ -19,10 +20,10 @@ describe('cowGetTradeTxs', () => {
     jest.resetAllMocks()
   })
 
-  it('should call cowService with correct parameters and return an empty string if the order is not fulfilled for ETH', async () => {
+  it('should call cowService with correct parameters and return an empty string if the order is not fulfilled for Ethereum', async () => {
     const input: CowTradeResult = {
       tradeId: 'tradeId1112345',
-      sellAssetChainId: 'eip155:1',
+      chainId: ethChainId,
     }
 
     ;(cowService.get as jest.Mock<unknown>).mockReturnValue(
@@ -49,7 +50,7 @@ describe('cowGetTradeTxs', () => {
   it('should call cowService with correct parameters and return an empty string if the order is not fulfilled for Gnosis', async () => {
     const input: CowTradeResult = {
       tradeId: 'tradeId1112345',
-      sellAssetChainId: 'eip155:100',
+      chainId: gnosisChainId,
     }
 
     ;(cowService.get as jest.Mock<unknown>).mockReturnValue(
@@ -73,10 +74,10 @@ describe('cowGetTradeTxs', () => {
     expect(cowService.get).toHaveBeenCalledTimes(1)
   })
 
-  it('should call cowService with correct parameters and return the tx hash if the order is fulfilled for ETH', async () => {
+  it('should call cowService with correct parameters and return the tx hash if the order is fulfilled for Ethereum', async () => {
     const input: CowTradeResult = {
       tradeId: 'tradeId1112345',
-      sellAssetChainId: 'eip155:1',
+      chainId: 'eip155:1',
     }
 
     ;(cowService.get as jest.Mock<unknown>)
@@ -116,7 +117,7 @@ describe('cowGetTradeTxs', () => {
   it('should call cowService with correct parameters and return the tx hash if the order is fulfilled for Gnosis', async () => {
     const input: CowTradeResult = {
       tradeId: 'tradeId1112345',
-      sellAssetChainId: 'eip155:100',
+      chainId: 'eip155:100',
     }
 
     ;(cowService.get as jest.Mock<unknown>)

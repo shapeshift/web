@@ -1,5 +1,4 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
@@ -22,10 +21,7 @@ import {
   getCowswapNetwork,
   getNowPlusThirtyMinutesTimestamp,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
-import {
-  isNativeEvmAsset,
-  normalizeIntegerAmount,
-} from 'lib/swapper/swappers/utils/helpers/helpers'
+import { normalizeIntegerAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
 import {
   selectBuyAssetUsdRate,
   selectSellAssetUsdRate,
@@ -36,7 +32,7 @@ import { isCowswapSupportedChainId } from '../utils/utils'
 
 export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
-  supportedChainIds: KnownChainIds[],
+  supportedChainIds: CowChainId[],
 ): Promise<Result<TradeQuote<CowChainId>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, chainId, receiveAddress } = input
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
@@ -79,9 +75,7 @@ export async function getCowSwapTradeQuote(
     )
   }
 
-  const buyToken = !isNativeEvmAsset(buyAsset.assetId)
-    ? buyAssetAddress
-    : COW_SWAP_ETH_MARKER_ADDRESS
+  const buyToken = buyAsset.assetId !== ethAssetId ? buyAssetAddress : COW_SWAP_ETH_MARKER_ADDRESS
 
   const maybeCowSwapMinMax = getCowSwapMinMax(sellAsset, buyAsset, supportedChainIds)
 
@@ -179,7 +173,7 @@ export async function getCowSwapTradeQuote(
     ? '0'
     : buyAmountBeforeFeesCryptoBaseUnit
 
-  const quote: TradeQuote<KnownChainIds.EthereumMainnet> = {
+  const quote: TradeQuote<CowChainId> = {
     rate,
     minimumCryptoHuman: minimumAmountCryptoHuman,
     maximumCryptoHuman: maximumAmountCryptoHuman,

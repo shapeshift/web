@@ -54,6 +54,19 @@ export const FOX: Asset = {
   symbol: 'FOX',
 }
 
+export const FOX_GNOSIS: Asset = {
+  assetId: foxAssetId,
+  chainId: gnosisChainId,
+  name: 'FOX',
+  precision: 18,
+  color: '#FFFFFF',
+  icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
+  explorer: 'https://gnosisscan.io/',
+  explorerAddressLink: 'https://gnosisscan.io/address/',
+  explorerTxLink: 'https://gnosisscan.io/tx/',
+  symbol: 'FOX',
+}
+
 export const WBTC: Asset = {
   assetId: 'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
   chainId: ethChainId,

@@ -87,7 +87,7 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
 
 const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
   appData: DEFAULT_APP_DATA,
-  buyToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+  buyToken: '60',
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
   partiallyFillable: false,

@@ -1,4 +1,4 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -30,7 +30,6 @@ import {
   subtractBasisPointAmount,
 } from 'state/zustand/swapperStore/utils'
 
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { isCowswapSupportedChainId } from '../utils/utils'
 
 export async function cowBuildTrade<T extends CowChainId>(
@@ -87,9 +86,7 @@ export async function cowBuildTrade<T extends CowChainId>(
     )
   }
 
-  const buyToken = !isNativeEvmAsset(buyAsset.assetId)
-    ? buyAssetAddress
-    : COW_SWAP_ETH_MARKER_ADDRESS
+  const buyToken = buyAsset.assetId !== ethAssetId ? buyAssetAddress : COW_SWAP_ETH_MARKER_ADDRESS
 
   const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
   // https://api.cow.fi/docs/#/default/post_api_v1_quote

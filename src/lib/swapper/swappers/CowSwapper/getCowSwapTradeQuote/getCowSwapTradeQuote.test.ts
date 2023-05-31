@@ -7,7 +7,8 @@ import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
-import { DEFAULT_ADDRESS, DEFAULT_APP_DATA } from '../utils/constants'
+import type { CowChainId } from '../types'
+import { DEFAULT_ADDRESS, DEFAULT_APP_DATA, ERC20_TOKEN_BALANCE } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote'
@@ -18,7 +19,7 @@ const foxRate = '0.0873'
 const usdcXdaiRate = '1.001'
 const ethRate = '1233.65940923824103061992'
 const wethRate = '1233.65940923824103061992'
-const supportedChainIds = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
+const supportedChainIds: CowChainId[] = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
 
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mock('../utils/cowService', () => {
@@ -104,7 +105,7 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
 
 const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
   appData: DEFAULT_APP_DATA,
-  buyToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+  buyToken: '60',
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
   partiallyFillable: false,
@@ -260,8 +261,8 @@ describe('getCowTradeQuote', () => {
               sellAmount: '985442057341242012',
               buyAmount: '14707533959600717283163',
               feeAmount: '14557942658757988',
-              sellTokenBalance: 'erc20',
-              buyTokenBalance: 'erc20',
+              sellTokenBalance: ERC20_TOKEN_BALANCE,
+              buyTokenBalance: ERC20_TOKEN_BALANCE,
             },
           },
         }),
@@ -304,8 +305,8 @@ describe('getCowTradeQuote', () => {
               sellAmount: '938195228120306016256',
               buyAmount: '46868859830863283',
               feeAmount: '61804771879693983744',
-              sellTokenBalance: 'erc20',
-              buyTokenBalance: 'erc20',
+              sellTokenBalance: ERC20_TOKEN_BALANCE,
+              buyTokenBalance: ERC20_TOKEN_BALANCE,
             },
           },
         }),
@@ -348,8 +349,8 @@ describe('getCowTradeQuote', () => {
               sellAmount: '938195228120306016256',
               buyAmount: '46868859830863283',
               feeAmount: '61804771879693983744',
-              sellTokenBalance: 'erc20',
-              buyTokenBalance: 'erc20',
+              sellTokenBalance: ERC20_TOKEN_BALANCE,
+              buyTokenBalance: ERC20_TOKEN_BALANCE,
             },
           },
         }),
@@ -392,8 +393,8 @@ describe('getCowTradeQuote', () => {
               sellAmount: '9854420573412420',
               buyAmount: '145018118182475950905',
               feeAmount: '1455794265875791',
-              sellTokenBalance: 'erc20',
-              buyTokenBalance: 'erc20',
+              sellTokenBalance: ERC20_TOKEN_BALANCE,
+              buyTokenBalance: ERC20_TOKEN_BALANCE,
             },
           },
         }),

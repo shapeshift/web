@@ -3,6 +3,7 @@ import {
   avalancheChainId,
   bscChainId,
   ethChainId,
+  foxatarAssetId,
   fromAccountId,
   optimismChainId,
   polygonChainId,
@@ -95,6 +96,17 @@ export const updateNftCollection = (
   draftItem.socialLinks = originalItem.socialLinks.length
     ? originalItem.socialLinks
     : currentItem.socialLinks
+  if (
+    currentItem.assetId === foxatarAssetId &&
+    !draftItem.socialLinks.find(({ name }) => name === 'customizeFoxatar')
+  ) {
+    draftItem.socialLinks.push({
+      name: 'customizeFoxatar',
+      label: '',
+      url: 'https://app.mercle.xyz/shapeshift',
+      logoUrl: '',
+    })
+  }
 
   return draftItem
 }

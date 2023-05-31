@@ -5978,6 +5978,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shapeshiftoss/hdwallet-core@npm:1.50.1":
+  version: 1.50.1
+  resolution: "@shapeshiftoss/hdwallet-core@npm:1.50.1"
+  dependencies:
+    "@shapeshiftoss/proto-tx-builder": ^0.8.0
+    eip-712: ^1.0.0
+    eventemitter2: ^5.0.1
+    lodash: ^4.17.21
+    rxjs: ^6.4.0
+    type-assertions: ^1.1.0
+  checksum: d6221332843091c63c97d12d075358f01bef64b9e6d423e95ac1bf6afeb15952cb3b363a91e89fdf44cdd1c6fef73e791537db69bf0bbe6f85e111dacde93a3c
+  languageName: node
+  linkType: hard
+
 "@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.50.0":
   version: 1.50.0
   resolution: "@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.50.0"
@@ -6084,6 +6098,36 @@ __metadata:
     tiny-secp256k1: ^1.1.6
     web-encoding: ^1.1.0
   checksum: efabea853d8e81fc4c33e41b3fe8ee71dd8cd08d410de9062290669d1caf03d131748ff44be5e424e9c2634d7adbd9c2c04f3f81f278ec850a2a7e0871efdc1a
+  languageName: node
+  linkType: hard
+
+"@shapeshiftoss/hdwallet-native@npm:1.50.1":
+  version: 1.50.1
+  resolution: "@shapeshiftoss/hdwallet-native@npm:1.50.1"
+  dependencies:
+    "@shapeshiftoss/bitcoinjs-lib": 5.2.0-shapeshift.2
+    "@shapeshiftoss/fiosdk": 1.2.1-shapeshift.6
+    "@shapeshiftoss/hdwallet-core": 1.50.1
+    "@shapeshiftoss/proto-tx-builder": ^0.8.0
+    "@zxing/text-encoding": ^0.9.0
+    bchaddrjs: ^0.4.9
+    bignumber.js: ^9.0.1
+    bip32: ^2.0.5
+    bip39: ^3.0.2
+    bnb-javascript-sdk-nobroadcast: ^2.16.14
+    crypto-js: ^4.0.0
+    eip-712: ^1.0.0
+    ethers: 5.6.5
+    eventemitter2: ^5.0.1
+    funtypes: ^3.0.1
+    lodash: ^4.17.21
+    node-fetch: ^2.6.1
+    p-lazy: ^3.1.0
+    scrypt-js: ^3.0.1
+    tendermint-tx-builder: ^1.0.9
+    tiny-secp256k1: ^1.1.6
+    web-encoding: ^1.1.0
+  checksum: 9d90156d0bf225fc05c06756321d5138af89d00b30bf95904476ab11964a5a594b411e46dfcbac862dc81bd9fa337758b4ba4fc21c344deee13d66cd68c31896
   languageName: node
   linkType: hard
 
@@ -6196,7 +6240,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-keepkey-webusb": 1.50.0
     "@shapeshiftoss/hdwallet-keplr": 1.50.0
     "@shapeshiftoss/hdwallet-metamask": 1.50.0
-    "@shapeshiftoss/hdwallet-native": 1.50.0
+    "@shapeshiftoss/hdwallet-native": 1.50.1
     "@shapeshiftoss/hdwallet-native-vault": 1.50.0
     "@shapeshiftoss/hdwallet-walletconnect": 1.50.0
     "@shapeshiftoss/hdwallet-xdefi": 1.50.0

@@ -1,13 +1,29 @@
-import { initialState, nftApi } from 'state/apis/nft/nftApi'
+import { initialState } from 'state/apis/nft/nftApi'
 import type { ReduxState } from 'state/reducer'
-import { store } from 'state/store'
 
 export const clearNfts = (state: ReduxState): ReduxState => {
-  // Dispatches the nftapi as a side effect, since this isn't a regular slice and there's no initialState
-  // https://redux-toolkit.js.org/rtk-query/api/created-api/api-slice-utils#resetapistate
-  store.dispatch(nftApi.util.resetApiState())
   return {
     ...state,
     nft: initialState,
+    // This is very ugly but also very correct
+    // Typically, to achieve this, we would dispatch nftapi.util.resetApiState as a side effect
+    // But we can't do this here because circular deps, so we have to do it manually
+    // https://redux-toolkit.js.org/rtk-query/api/created-api/api-slice-utils#resetapistate
+    nftApi: {
+      queries: {},
+      mutations: {},
+      provided: {},
+      subscriptions: {},
+      config: {
+        online: true,
+        focused: false,
+        middlewareRegistered: true,
+        refetchOnFocus: false,
+        refetchOnReconnect: true,
+        refetchOnMountOrArgChange: false,
+        keepUnusedDataFor: 60,
+        reducerPath: 'nftApi',
+      },
+    },
   }
 }

@@ -13,7 +13,6 @@ import {
   MAX_LIFI_TRADE,
   SELECTED_ROUTE_INDEX,
 } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
-import { getAssetBalance } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetBalance/getAssetBalance'
 import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwapper/utils/getIntermediaryTransactionOutputs/getIntermediaryTransactionOutputs'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
@@ -31,7 +30,6 @@ export async function getTradeQuote(
       sellAsset,
       buyAsset,
       sellAmountBeforeFeesCryptoBaseUnit,
-      sendMax,
       receiveAddress,
       accountNumber,
     } = input
@@ -59,13 +57,6 @@ export async function getTradeQuote(
       })
     }
 
-    const fromAmountCryptoBaseUnit: string = sendMax
-      ? getAssetBalance({
-          asset: sellAsset,
-          accountNumber,
-          chainId,
-        })
-      : sellAmountBeforeFeesCryptoBaseUnit
     const lifi = getLifi()
 
     const routesRequest: RoutesRequest = {
@@ -75,7 +66,7 @@ export async function getTradeQuote(
       toTokenAddress: getLifiEvmAssetAddress(buyAsset),
       fromAddress: receiveAddress,
       toAddress: receiveAddress,
-      fromAmount: fromAmountCryptoBaseUnit,
+      fromAmount: sellAmountBeforeFeesCryptoBaseUnit,
       // as recommended by lifi, dodo is denied until they fix their gas estimates
       // TODO: convert this config to .env variable
       options: {

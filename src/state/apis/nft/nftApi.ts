@@ -7,6 +7,7 @@ import { PURGE } from 'redux-persist'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
+import { isSome } from 'lib/utils'
 import type { WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
@@ -162,7 +163,7 @@ export const nftApi = createApi({
         )
         dispatch(nft.actions.upsertNfts({ byId: nftsById, ids: Object.keys(nftsById) }))
 
-        return { data: Object.values(nftsById) }
+        return { data: Object.values(nftsById).filter(isSome) }
       },
     }),
     getNftCollection: build.query<NftCollectionType, GetNftCollectionInput>({

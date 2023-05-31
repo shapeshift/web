@@ -21,7 +21,6 @@ export const selectSellAmountFiat = (state: SwapperState) => state.sellAmountFia
 export const selectBuyAmountFiat = (state: SwapperState) => state.buyAmountFiat
 
 export const selectAction = (state: SwapperState) => state.action
-export const selectIsSendMax = (state: SwapperState) => state.isSendMax
 export const selectAmount = (state: SwapperState) => state.amount
 export const selectReceiveAddress = (state: SwapperState) => state.receiveAddress
 export const selectFees = (state: SwapperState) => state.fees

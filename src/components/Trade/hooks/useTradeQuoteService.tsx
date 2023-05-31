@@ -13,7 +13,6 @@ import {
 import { useAppSelector } from 'state/store'
 import {
   selectBuyAsset,
-  selectIsSendMax,
   selectReceiveAddress,
   selectSellAmountCryptoPrecision,
   selectSellAsset,
@@ -31,7 +30,6 @@ export const useTradeQuoteService = () => {
   const [tradeQuoteArgs, setTradeQuoteArgs] = useState<GetTradeQuoteInput | SkipToken>(skipToken)
 
   // Selectors
-  const isSendMax = useSwapperStore(selectIsSendMax)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
   const sellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
   const sellAsset = useSwapperStore(selectSellAsset)
@@ -68,20 +66,11 @@ export const useTradeQuoteService = () => {
           wallet,
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
-          isSendMax,
         })
         tradeQuoteInputArgs && setTradeQuoteArgs(tradeQuoteInputArgs)
       })()
     }
-  }, [
-    buyAsset,
-    isSendMax,
-    receiveAddress,
-    sellAccountMetadata,
-    sellAmountCryptoPrecision,
-    sellAsset,
-    wallet,
-  ])
+  }, [buyAsset, receiveAddress, sellAccountMetadata, sellAmountCryptoPrecision, sellAsset, wallet])
 
   return {
     tradeQuoteArgs: typeof tradeQuoteArgs === 'symbol' ? undefined : tradeQuoteArgs,

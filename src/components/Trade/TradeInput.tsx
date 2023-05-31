@@ -74,7 +74,6 @@ import {
   selectBuyAsset,
   selectBuyAssetAccountId,
   selectFees,
-  selectIsSendMax,
   selectPreferredSwapper,
   selectProtocolFees,
   selectQuote,
@@ -103,6 +102,7 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 export const TradeInput = () => {
   useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
+  const [isSendMax, setIsSendMax] = useState(false)
   const [showQuotes, toggleShowQuotes] = useToggle(false)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const isTradeRatesEnabled = useFeatureFlag('TradeRates')
@@ -137,7 +137,6 @@ export const TradeInput = () => {
   const fiatBuyAmount = useSwapperStore(selectBuyAmountFiat)
   const fiatSellAmount = useSwapperStore(selectSellAmountFiat)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
-  const updateIsSendMax = useSwapperStore(state => state.updateIsSendMax)
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
@@ -155,7 +154,6 @@ export const TradeInput = () => {
   const protocolFees = useSwapperStore(selectProtocolFees)
   const action = useSwapperStore(selectAction)
   const amount = useSwapperStore(selectAmount)
-  const isSendMax = useSwapperStore(selectIsSendMax)
   const preferredSwapper = useSwapperStore(selectPreferredSwapper)
   const {
     getTrade,
@@ -261,7 +259,7 @@ export const TradeInput = () => {
       // No-op if nothing material has changed
       if (inputAction === action && inputAmount === amount) return
       updateAction(inputAction)
-      updateIsSendMax(false)
+      setIsSendMax(false)
       updatePreferredSwapper(undefined)
       updateAmount(inputAmount)
 
@@ -271,7 +269,7 @@ export const TradeInput = () => {
       action,
       amount,
       updateAction,
-      updateIsSendMax,
+      setIsSendMax,
       updatePreferredSwapper,
       updateAmount,
       handleInputAmountChange,
@@ -318,13 +316,13 @@ export const TradeInput = () => {
 
   const handleSendMax = useCallback(() => {
     if (isSendMax) return
-    updateIsSendMax(true)
+    setIsSendMax(true)
     updateAction(TradeAmountInputField.SELL_CRYPTO)
     updateAmount(fromBaseUnit(sellAssetBalanceCryptoBaseUnit, sellAsset.precision))
     handleInputAmountChange()
   }, [
     isSendMax,
-    updateIsSendMax,
+    setIsSendMax,
     updateAction,
     updateAmount,
     sellAssetBalanceCryptoBaseUnit,
@@ -401,20 +399,20 @@ export const TradeInput = () => {
 
   const handleSellAccountIdChange: AccountDropdownProps['onChange'] = useCallback(
     accountId => {
-      updateIsSendMax(false)
+      setIsSendMax(false)
       updatePreferredSwapper(undefined)
       updateSelectedSellAssetAccountId(accountId)
     },
-    [updateIsSendMax, updatePreferredSwapper, updateSelectedSellAssetAccountId],
+    [setIsSendMax, updatePreferredSwapper, updateSelectedSellAssetAccountId],
   )
 
   const handleBuyAccountIdChange: AccountDropdownProps['onChange'] = useCallback(
     accountId => {
-      updateIsSendMax(false)
+      setIsSendMax(false)
       updatePreferredSwapper(undefined)
       updateSelectedBuyAssetAccountId(accountId)
     },
-    [updateIsSendMax, updatePreferredSwapper, updateSelectedBuyAssetAccountId],
+    [setIsSendMax, updatePreferredSwapper, updateSelectedBuyAssetAccountId],
   )
 
   const isBelowMinSellAmount = useMemo(() => {
@@ -622,7 +620,7 @@ export const TradeInput = () => {
 
       assetSearch.open({
         onClick: (asset: Asset) => {
-          updateIsSendMax(false)
+          setIsSendMax(false)
           updatePreferredSwapper(undefined)
           handleAssetClick(asset, action)
         },
@@ -639,7 +637,7 @@ export const TradeInput = () => {
       supportedBuyAssetsByMarketCap,
       supportedSellAssetsByMarketCap,
       handleAssetClick,
-      updateIsSendMax,
+      setIsSendMax,
       updatePreferredSwapper,
     ],
   )
@@ -655,10 +653,10 @@ export const TradeInput = () => {
   )
 
   const handleSwitchAssetsClick = useCallback(() => {
-    updateIsSendMax(false)
+    setIsSendMax(false)
     updatePreferredSwapper(undefined)
     handleSwitchAssets()
-  }, [handleSwitchAssets, updateIsSendMax, updatePreferredSwapper])
+  }, [handleSwitchAssets, setIsSendMax, updatePreferredSwapper])
 
   const tradeStateLoading = useMemo(
     () =>

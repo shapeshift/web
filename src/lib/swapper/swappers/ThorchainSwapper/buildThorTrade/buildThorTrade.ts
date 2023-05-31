@@ -41,7 +41,6 @@ export const buildTrade = async ({
     accountNumber,
     slippage: slippageTolerance = DEFAULT_SLIPPAGE,
     wallet,
-    sendMax,
     affiliateBps = '0',
   } = input
 
@@ -124,7 +123,6 @@ export const buildTrade = async ({
           .chainSpecific.satsPerByte,
         opReturnData,
       },
-      sendMax,
     })
 
     return Ok({

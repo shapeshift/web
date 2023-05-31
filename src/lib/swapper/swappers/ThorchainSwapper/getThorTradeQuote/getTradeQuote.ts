@@ -60,7 +60,6 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     accountNumber,
     chainId,
     receiveAddress,
-    sendMax,
     affiliateBps,
   } = input
 
@@ -288,7 +287,6 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           pubkey,
           sellAdapter: sellAdapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>,
           protocolFees,
-          sendMax,
         })
 
         return Ok({

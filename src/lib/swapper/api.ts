@@ -97,7 +97,6 @@ type CommonTradeInput = {
   sellAsset: Asset
   buyAsset: Asset
   sellAmountBeforeFeesCryptoBaseUnit: string
-  sendMax: boolean
   receiveAddress: string | undefined
   accountNumber: number
   receiveAccountNumber?: number

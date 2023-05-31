@@ -110,7 +110,6 @@ export const NftNetworkFilter = ({
           maxWidth='100%'
           bg={popoverContentBg}
           boxShadow='lg'
-          zIndex={9999}
           ref={popoverRef}
         >
           <PopoverBody p={0}>

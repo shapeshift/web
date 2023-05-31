@@ -7,8 +7,7 @@ import { ResultsEmpty } from 'components/ResultsEmpty'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
 import { useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
-import { selectNftItemsWithCollection } from 'state/apis/nft/selectors'
-import type { NftItemWithCollection } from 'state/apis/nft/types'
+import type { NftItem } from 'state/apis/nft/types'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
@@ -32,31 +31,29 @@ const NftGrid: React.FC<SimpleGridProps> = props => (
 export const NftTable = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const accountIds = useAppSelector(selectWalletAccountIds)
-  const { isLoading } = useGetNftUserTokensQuery({ accountIds })
+  const { data, isLoading } = useGetNftUserTokensQuery({ accountIds })
 
-  const nftsWithCollection = useAppSelector(selectNftItemsWithCollection)
-
-  const filterNftsBySearchTerm = useCallback(
-    (data: NftItemWithCollection[], searchQuery: string) => {
-      const search = searchQuery.trim().toLowerCase()
-      const keys = ['name', 'collection.name', 'collection.id', 'id']
-      return matchSorter(data, search, { keys })
-    },
-    [],
-  )
+  const filterNftsBySearchTerm = useCallback((data: NftItem[], searchQuery: string) => {
+    const search = searchQuery.trim().toLowerCase()
+    const keys = [
+      'token.name',
+      'token.collection.name',
+      'token.collection.address',
+      'token.tokenId',
+    ]
+    return matchSorter(data, search, { keys })
+  }, [])
 
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
   const filteredNfts = useMemo(() => {
-    return isSearching && nftsWithCollection
-      ? filterNftsBySearchTerm(nftsWithCollection, searchQuery)
-      : nftsWithCollection
-  }, [isSearching, nftsWithCollection, filterNftsBySearchTerm, searchQuery])
+    return isSearching && data ? filterNftsBySearchTerm(data, searchQuery) : data
+  }, [isSearching, data, filterNftsBySearchTerm, searchQuery])
 
   const renderNftCards = useMemo(() => {
-    if (!nftsWithCollection?.length) return null
+    if (!data?.length) return null
     return filteredNfts?.map(nft => <NftCard nftAssetId={nft.assetId} key={nft.assetId} />)
-  }, [nftsWithCollection?.length, filteredNfts])
+  }, [data?.length, filteredNfts])
 
   if (isLoading)
     return (
@@ -66,7 +63,7 @@ export const NftTable = () => {
         ))}
       </NftGrid>
     )
-  if (!isLoading && !nftsWithCollection?.length)
+  if (!isLoading && !data?.length)
     return (
       <ResultsEmpty
         title='nft.emptyTitle'

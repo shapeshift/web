@@ -8,6 +8,7 @@ import type { NftItemWithCollection } from './types'
 const selectNfts = (state: ReduxState) => state.nft.nfts.byId
 const selectNftCollections = (state: ReduxState) => state.nft.collections.byId
 
+// TODO(gomes): We can't consume this yet, see the PR description of https://github.com/shapeshift/web/pull/4597
 export const selectNftItemsWithCollection = createSelector(
   selectNfts,
   selectNftCollections,
@@ -51,6 +52,7 @@ export const selectSelectedNftAvatar = createSelector(
     return selectedNftAvatarByWalletId[walletId ?? ''] ?? null
   },
 )
+
 export const selectSelectedNftAvatarUrl = createSelector(
   selectSelectedNftAvatar,
   selectNfts,

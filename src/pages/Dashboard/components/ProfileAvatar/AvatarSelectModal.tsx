@@ -19,8 +19,8 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
 import { nft, useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
-import { selectNftItemsWithCollection, selectSelectedNftAvatar } from 'state/apis/nft/selectors'
-import type { NftItemWithCollection } from 'state/apis/nft/types'
+import { selectSelectedNftAvatar } from 'state/apis/nft/selectors'
+import type { NftItem } from 'state/apis/nft/types'
 import { selectWalletAccountIds, selectWalletId } from 'state/slices/common-selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -37,24 +37,20 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const translate = useTranslate()
   const accountIds = useAppSelector(selectWalletAccountIds)
   const selectedNftAvatar = useAppSelector(selectSelectedNftAvatar)
-  const { isLoading } = useGetNftUserTokensQuery({ accountIds })
-  const nftsWithCollection = useAppSelector(selectNftItemsWithCollection)
+  const { data, isLoading } = useGetNftUserTokensQuery({ accountIds })
   const defaultWalletImage = useMemo(
     () => makeBlockiesUrl(`${walletId}ifyoudriveatruckdriveitlikeyouhaveafarm`),
     [walletId],
   )
   const filteredData = useMemo(
-    () => (nftsWithCollection ?? []).filter(item => item.medias[0]?.type === 'image'),
-    [nftsWithCollection],
+    () => (data ?? []).filter(item => item.medias[0]?.type === 'image'),
+    [data],
   )
-  const filterNftsBySearchTerm = useCallback(
-    (data: NftItemWithCollection[], searchQuery: string) => {
-      const search = searchQuery.trim().toLowerCase()
-      const keys = ['name', 'id', 'collection.name', 'collection.id']
-      return matchSorter(data, search, { keys })
-    },
-    [],
-  )
+  const filterNftsBySearchTerm = useCallback((data: NftItem[], searchQuery: string) => {
+    const search = searchQuery.trim().toLowerCase()
+    const keys = ['name', 'id', 'collection.name', 'collection.id']
+    return matchSorter(data, search, { keys })
+  }, [])
 
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 

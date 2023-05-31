@@ -261,7 +261,7 @@ export const useSwapper = () => {
 
     const from = await adapter.getAddress({
       wallet,
-      accountNumber: activeQuote.accountNumber,
+      accountNumber: activeQuote.steps[0].accountNumber,
     })
 
     const { assetReference: sellAssetContractAddress } = fromAssetId(sellAsset.assetId)
@@ -275,7 +275,10 @@ export const useSwapper = () => {
       from,
     })
 
-    return bn(allowanceOnChainCryptoBaseUnit).lt(activeQuote.sellAmountBeforeFeesCryptoBaseUnit)
+    // TODO(woodenfurniture): use active step
+    return bn(allowanceOnChainCryptoBaseUnit).lt(
+      activeQuote.steps[0].sellAmountBeforeFeesCryptoBaseUnit,
+    )
   }, [activeQuote, sellAsset.assetId, sellAsset.chainId, wallet])
 
   const getApprovalTxData = useCallback(
@@ -295,7 +298,8 @@ export const useSwapper = () => {
         throw Error(`no valid EVM chain adapter found for chain Id: ${sellAsset.chainId}`)
 
       const approvalAmountCryptoBaseUnit = isExactAllowance
-        ? activeQuote.sellAmountBeforeFeesCryptoBaseUnit
+        ? // TODO(woodenfurniture): use active step
+          activeQuote.steps[0].sellAmountBeforeFeesCryptoBaseUnit
         : MAX_ALLOWANCE
 
       const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
@@ -315,7 +319,7 @@ export const useSwapper = () => {
         wallet.ethSupportsEIP1559(),
         adapter.getAddress({
           wallet,
-          accountNumber: activeQuote.accountNumber,
+          accountNumber: activeQuote.steps[0].accountNumber,
         }),
       ])
 
@@ -331,7 +335,8 @@ export const useSwapper = () => {
       return {
         networkFeeCryptoBaseUnit,
         buildCustomTxInput: {
-          accountNumber: activeQuote.accountNumber,
+          // TODO(woodenfurniture): use active step
+          accountNumber: activeQuote.steps[0].accountNumber,
           data,
           to: assetReference,
           value,

@@ -90,20 +90,24 @@ export async function getTradeQuote(
 
   return maybeMinMax.andThen(minMax =>
     Ok({
-      rate,
-      buyAsset,
-      sellAsset,
-      accountNumber,
       allowanceContract,
-      buyAmountBeforeFeesCryptoBaseUnit: quoteResponse.data.toTokenAmount,
-      sellAmountBeforeFeesCryptoBaseUnit,
       maximumCryptoHuman: minMax.maximumAmountCryptoHuman,
       minimumCryptoHuman: minMax.minimumAmountCryptoHuman,
-      feeData: {
-        protocolFees: {},
-        networkFeeCryptoBaseUnit: fee,
-      },
-      sources: DEFAULT_SOURCE,
+      steps: [
+        {
+          rate,
+          buyAsset,
+          sellAsset,
+          accountNumber,
+          buyAmountBeforeFeesCryptoBaseUnit: quoteResponse.data.toTokenAmount,
+          sellAmountBeforeFeesCryptoBaseUnit,
+          feeData: {
+            protocolFees: {},
+            networkFeeCryptoBaseUnit: fee,
+          },
+          sources: DEFAULT_SOURCE,
+        },
+      ],
     }),
   )
 }

@@ -31,7 +31,11 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
 
   const bestBuyAmountCryptoPrecision =
     bestQuote &&
-    fromBaseUnit(bestQuote.buyAmountBeforeFeesCryptoBaseUnit, bestQuote.buyAsset.precision)
+    // TODO(woodenfurniture): reduce sum
+    fromBaseUnit(
+      bestQuote.steps[0].buyAmountBeforeFeesCryptoBaseUnit,
+      bestQuote.steps[0].buyAsset.precision,
+    )
   const slippageDecimalPercentage =
     bestQuote?.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(bestSwapper?.name)
   const bestBuyAmountCryptoPrecisionAfterSlippage = bnOrZero(bestBuyAmountCryptoPrecision)
@@ -43,7 +47,8 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
       ? fromBaseUnit(
           sumProtocolFeesToDenom({
             cryptoMarketDataById,
-            protocolFees: bestQuote.feeData.protocolFees,
+            // TODO(woodenfurniture): reduce sum
+            protocolFees: bestQuote.steps[0].feeData.protocolFees,
             outputExponent: buyAsset.precision,
             outputAssetPriceUsd: buyAssetUsdRate,
           }),
@@ -61,13 +66,15 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
     ? availableSwappersWithMetadata.map((swapperWithMetadata, i) => {
         const quote = swapperWithMetadata.quote
         const buyAmountBeforeFeesCryptoPrecision = buyAsset
-          ? fromBaseUnit(quote.buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
+          ? // TODO(woodenfurniture): reduce sum
+            fromBaseUnit(quote.steps[0].buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
           : undefined
 
         const totalProtocolFeeCryptoPrecision = fromBaseUnit(
           sumProtocolFeesToDenom({
             cryptoMarketDataById,
-            protocolFees: quote.feeData.protocolFees,
+            // TODO(woodenfurniture): reduce sum
+            protocolFees: quote.steps[0].feeData.protocolFees,
             outputExponent: buyAsset.precision,
             outputAssetPriceUsd: buyAssetUsdRate,
           }),

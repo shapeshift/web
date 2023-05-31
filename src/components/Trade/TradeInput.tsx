@@ -236,8 +236,8 @@ export const TradeInput = () => {
   const quoteAvailableForCurrentAssetPair = useMemo(() => {
     if (!activeQuote) return false
     return (
-      activeQuote.buyAsset?.assetId === buyAsset?.assetId &&
-      activeQuote.sellAsset?.assetId === sellAsset?.assetId
+      activeQuote.steps[0].buyAsset.assetId === buyAsset?.assetId &&
+      activeQuote.steps[0].sellAsset.assetId === sellAsset?.assetId
     )
   }, [buyAsset?.assetId, activeQuote, sellAsset?.assetId])
 
@@ -282,7 +282,7 @@ export const TradeInput = () => {
     if (
       !isSendMax ||
       // handle race condition - we need to use the correct quote for following calculations
-      activeQuote?.sellAmountBeforeFeesCryptoBaseUnit !== sellAssetBalanceCryptoBaseUnit
+      activeQuote?.steps[0].sellAmountBeforeFeesCryptoBaseUnit !== sellAssetBalanceCryptoBaseUnit
     )
       return
 
@@ -313,7 +313,7 @@ export const TradeInput = () => {
     sellFeeAsset,
     handleInputAmountChange,
     updateAmount,
-    activeQuote?.sellAmountBeforeFeesCryptoBaseUnit,
+    activeQuote?.steps,
   ])
 
   const handleSendMax = useCallback(() => {
@@ -420,7 +420,7 @@ export const TradeInput = () => {
   const isBelowMinSellAmount = useMemo(() => {
     const minSellAmount = toBaseUnit(
       bnOrZero(activeQuote?.minimumCryptoHuman),
-      activeQuote?.sellAsset.precision || 0,
+      activeQuote?.steps[0].sellAsset.precision || 0,
     )
 
     return (
@@ -431,10 +431,10 @@ export const TradeInput = () => {
       !isTradeQuotePending
     )
   }, [
+    activeQuote?.minimumCryptoHuman,
+    activeQuote?.steps,
     hasValidSellAmount,
     isTradeQuotePending,
-    activeQuote?.minimumCryptoHuman,
-    activeQuote?.sellAsset.precision,
     sellAmountCryptoPrecision,
     sellAsset?.precision,
   ])
@@ -500,7 +500,7 @@ export const TradeInput = () => {
       .minus(
         networkFeeRequiresBalance
           ? fromBaseUnit(
-              bnOrZero(activeQuote?.feeData.networkFeeCryptoBaseUnit),
+              bnOrZero(activeQuote?.steps[0].feeData.networkFeeCryptoBaseUnit),
               sellFeeAsset?.precision,
             )
           : 0,
@@ -509,7 +509,7 @@ export const TradeInput = () => {
       .gte(0)
 
     const minLimit = `${bnOrZero(activeQuote?.minimumCryptoHuman).decimalPlaces(6)} ${
-      activeQuote?.sellAsset.symbol
+      activeQuote?.steps[0].sellAsset.symbol
     }`
 
     if (isSwapperApiPending || !isSwapperApiInitiated) return 'common.loadingText'
@@ -581,9 +581,8 @@ export const TradeInput = () => {
     sellAsset?.symbol,
     feeAssetBalancePrecision,
     networkFeeRequiresBalance,
-    activeQuote?.feeData.networkFeeCryptoBaseUnit,
+    activeQuote?.steps,
     activeQuote?.minimumCryptoHuman,
-    activeQuote?.sellAsset.symbol,
     isSwapperApiPending,
     isSwapperApiInitiated,
     wallet,
@@ -818,7 +817,7 @@ export const TradeInput = () => {
             sellSymbol={sellAsset?.symbol}
             buySymbol={buyAsset?.symbol}
             gasFee={gasFeeFiat}
-            rate={activeQuote?.rate}
+            rate={activeQuote?.steps[0].rate}
             isLoading={tradeStateLoading}
             isError={!walletSupportsSellAssetChain}
           />

@@ -18,6 +18,7 @@ import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
   Negative ratios are possible when the fees exceed the sell amount.
   This is allowed to let us choose 'the best from a bad bunch'.
 */
+// TODO(woodenfurniture): pass in step here not full quote
 export const getRatioFromQuote = ({
   quote,
   feeAsset,
@@ -27,27 +28,33 @@ export const getRatioFromQuote = ({
   feeAsset: Asset
   cryptoMarketDataById: Partial<Record<AssetId, Pick<MarketData, 'price'>>>
 }): number | undefined => {
-  const buyAssetUsdRate = cryptoMarketDataById[quote.buyAsset.assetId]?.price
-  const sellAssetUsdRate = cryptoMarketDataById[quote.sellAsset.assetId]?.price
+  const buyAssetUsdRate = cryptoMarketDataById[quote.steps[0].buyAsset.assetId]?.price
+  const sellAssetUsdRate = cryptoMarketDataById[quote.steps[0].sellAsset.assetId]?.price
   const feeAssetUsdRate = cryptoMarketDataById[feeAsset.assetId]?.price
 
   const sellAmountUsd = bnOrZero(
-    fromBaseUnit(quote.sellAmountBeforeFeesCryptoBaseUnit, quote.sellAsset.precision),
+    fromBaseUnit(
+      quote.steps[0].sellAmountBeforeFeesCryptoBaseUnit,
+      quote.steps[0].sellAsset.precision,
+    ),
   ).times(sellAssetUsdRate ?? '0')
 
   const receiveAmountUsd = bnOrZero(
-    fromBaseUnit(quote.buyAmountBeforeFeesCryptoBaseUnit, quote.buyAsset.precision),
+    fromBaseUnit(
+      quote.steps[0].buyAmountBeforeFeesCryptoBaseUnit,
+      quote.steps[0].buyAsset.precision,
+    ),
   ).times(buyAssetUsdRate ?? '0')
 
   const networkFeeUsd = bnOrZero(
-    fromBaseUnit(quote.feeData.networkFeeCryptoBaseUnit, feeAsset.precision),
+    fromBaseUnit(quote.steps[0].feeData.networkFeeCryptoBaseUnit, feeAsset.precision),
   ).times(feeAssetUsdRate ?? '0')
 
   const totalProtocolFeesUsd = sumProtocolFeesToDenom({
     cryptoMarketDataById,
     outputAssetPriceUsd: '1', // 1 USD costs 1 USD
     outputExponent: 0, // 0 exponent = human
-    protocolFees: quote.feeData.protocolFees,
+    protocolFees: quote.steps[0].feeData.protocolFees,
   })
 
   const totalSendAmountUsd = sellAmountUsd.plus(networkFeeUsd).plus(totalProtocolFeesUsd)

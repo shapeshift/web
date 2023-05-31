@@ -135,7 +135,7 @@ export type AmountDisplayMeta = {
   asset: Pick<Asset, 'symbol' | 'chainId' | 'precision'>
 }
 
-interface TradeBase<C extends ChainId, MissingNetworkFee extends boolean = false> {
+export interface TradeBase<C extends ChainId, MissingNetworkFee extends boolean = false> {
   buyAmountBeforeFeesCryptoBaseUnit: string
   sellAmountBeforeFeesCryptoBaseUnit: string
   feeData: QuoteFeeData<C, MissingNetworkFee>
@@ -149,13 +149,13 @@ interface TradeBase<C extends ChainId, MissingNetworkFee extends boolean = false
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
 }
 
-export interface TradeQuote<C extends ChainId, UnknownNetworkFee extends boolean = false>
-  extends TradeBase<C, UnknownNetworkFee> {
-  allowanceContract: string
+export interface TradeQuote<C extends ChainId, UnknownNetworkFee extends boolean = false> {
+  allowanceContract: string // TODO(woodenfurniture): this should be per-step
   minimumCryptoHuman: string
   maximumCryptoHuman: string
   recommendedSlippage?: string
   id?: string
+  steps: TradeBase<C, UnknownNetworkFee>[]
 }
 
 export interface Trade<C extends ChainId> extends TradeBase<C, false> {

@@ -26,27 +26,31 @@ const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
 const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
 
 const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
+  allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
   minimumCryptoHuman: '149.14668013703712946932',
   maximumCryptoHuman: '100000000000000000000000000',
-  sellAmountBeforeFeesCryptoBaseUnit: '713014679420',
-  allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-  buyAmountBeforeFeesCryptoBaseUnit: '114321610000000000',
-  feeData: {
-    protocolFees: {
-      [ETH.assetId]: {
-        amountCryptoBaseUnit: '12000000000000000',
-        requiresBalance: false,
-        asset: ETH,
-      },
-    },
-    networkFeeCryptoBaseUnit: '400000',
-  },
-  rate: '144114.94366197183098591549',
-  sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
-  buyAsset: ETH,
-  sellAsset: FOX_MAINNET,
-  accountNumber: 0,
   recommendedSlippage: '0.04357',
+  steps: [
+    {
+      sellAmountBeforeFeesCryptoBaseUnit: '713014679420',
+      buyAmountBeforeFeesCryptoBaseUnit: '114321610000000000',
+      feeData: {
+        protocolFees: {
+          [ETH.assetId]: {
+            amountCryptoBaseUnit: '12000000000000000',
+            requiresBalance: false,
+            asset: ETH,
+          },
+        },
+        networkFeeCryptoBaseUnit: '400000',
+      },
+      rate: '144114.94366197183098591549',
+      sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
+      buyAsset: ETH,
+      sellAsset: FOX_MAINNET,
+      accountNumber: 0,
+    },
+  ],
 }
 
 describe('getTradeQuote', () => {

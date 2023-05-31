@@ -241,26 +241,30 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const fee = feeData.fast.txFee
 
     return Ok({
-      buyAsset,
-      feeData: {
-        networkFeeCryptoBaseUnit: fee,
-        protocolFees: {
-          [buyAsset.assetId]: {
-            amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
-            requiresBalance: true,
-            asset: buyAsset,
-          },
-        },
-      },
-      maximumCryptoHuman: maximumAmountCryptoHuman,
-      minimumCryptoHuman: minimumAmountCryptoHuman, // TODO(gomes): shorthand?
-      accountNumber,
-      rate,
-      sellAsset,
-      sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-      buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
-      sources: DEFAULT_SOURCE,
       allowanceContract: '',
+      minimumCryptoHuman: minimumAmountCryptoHuman, // TODO(gomes): shorthand?
+      maximumCryptoHuman: maximumAmountCryptoHuman,
+      steps: [
+        {
+          buyAsset,
+          feeData: {
+            networkFeeCryptoBaseUnit: fee,
+            protocolFees: {
+              [buyAsset.assetId]: {
+                amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
+                requiresBalance: true,
+                asset: buyAsset,
+              },
+            },
+          },
+          accountNumber,
+          rate,
+          sellAsset,
+          sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+          buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
+          sources: DEFAULT_SOURCE,
+        },
+      ],
     })
   }
 

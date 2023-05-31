@@ -13,8 +13,8 @@ import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
 import { NftCard } from './NftCard'
-import { NftChainFilter } from './NftChainFilter'
 import { NftCardLoading } from './NftLoadingCard'
+import { NftNetworkFilter } from './NftNetworkFilter'
 
 const NftGrid: React.FC<SimpleGridProps> = props => (
   <SimpleGrid
@@ -35,7 +35,7 @@ export const NftTable = () => {
   const accountIds = useAppSelector(selectWalletAccountIds)
   const { data: nftItems, isLoading } = useGetNftUserTokensQuery({ accountIds })
 
-  const [chainFilters, setChainFilters] = useState<ChainId[]>([])
+  const [networkFilters, setNetworkFilters] = useState<ChainId[]>([])
 
   const availableChainIds = useMemo(
     () =>
@@ -53,22 +53,22 @@ export const NftTable = () => {
       const search = searchQuery.trim().toLowerCase()
       const keys = ['name', 'collection.name', 'collection.id', 'id']
 
-      const maybeFilteredByChainId = chainFilters.length
-        ? data.filter(nftItem => chainFilters.includes(nftItem.chainId))
+      const maybeFilteredByChainId = networkFilters.length
+        ? data.filter(nftItem => networkFilters.includes(nftItem.chainId))
         : data
 
       return matchSorter(maybeFilteredByChainId, search, { keys })
     },
-    [chainFilters],
+    [networkFilters],
   )
 
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
   const filteredNfts = useMemo(() => {
-    return (isSearching || chainFilters.length) && nftItems
+    return (isSearching || networkFilters.length) && nftItems
       ? filterNftsBySearchTerm(nftItems, searchQuery)
       : nftItems
-  }, [isSearching, chainFilters.length, nftItems, filterNftsBySearchTerm, searchQuery])
+  }, [isSearching, networkFilters.length, nftItems, filterNftsBySearchTerm, searchQuery])
 
   const renderNftCards = useMemo(() => {
     if (!nftItems?.length) return null
@@ -96,13 +96,13 @@ export const NftTable = () => {
     <>
       <Box mb={4} px={{ base: 4, xl: 0 }}>
         <Flex>
-          <NftChainFilter
+          <NftNetworkFilter
             availableChainIds={availableChainIds}
-            resetFilters={() => setChainFilters([])}
-            setFilters={({ chains }: { chains: ChainId[] }) => {
-              setChainFilters(chains)
+            resetFilters={() => setNetworkFilters([])}
+            setFilters={({ network: networks }: { network: ChainId[] }) => {
+              setNetworkFilters(networks)
             }}
-            hasAppliedFilter={Boolean(chainFilters.length)}
+            hasAppliedFilter={Boolean(networkFilters.length)}
           />
           <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
         </Flex>

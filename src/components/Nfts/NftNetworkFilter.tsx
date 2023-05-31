@@ -24,26 +24,26 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { isSome } from 'lib/utils'
 
 export enum FilterFormFields {
-  Chains = 'chains',
+  Network = 'network',
 }
 
-type TransactionHistoryFilterProps = {
+type NftNetworkFilterProps = {
   setFilters: Function
   resetFilters: Function
   hasAppliedFilter?: boolean
   availableChainIds: ChainId[]
 }
 
-export const NftChainFilter = ({
+export const NftNetworkFilter = ({
   setFilters,
   resetFilters,
   hasAppliedFilter = false,
   availableChainIds,
-}: TransactionHistoryFilterProps) => {
+}: NftNetworkFilterProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const popoverRef = useRef(null)
 
-  const availableChainOptions = useMemo(() => {
+  const availableNetworkOptions = useMemo(() => {
     return availableChainIds
       .map(chainId => {
         const adapter = getChainAdapterManager().get(chainId)
@@ -68,9 +68,9 @@ export const NftChainFilter = ({
   const translate = useTranslate()
   const { control, handleSubmit, reset } = useForm({ mode: 'onChange' })
   const onSubmit = (values: FieldValues) => {
-    const { chains } = values
+    const { network } = values
     let filterSet = {
-      chains,
+      network,
     }
     setFilters(filterSet)
   }
@@ -129,12 +129,12 @@ export const NftChainFilter = ({
             <Divider />
             <form onSubmit={handleSubmit(onSubmit)}>
               <FilterGroup
-                name={FilterFormFields.Chains}
+                name={FilterFormFields.Network}
                 control={control}
-                title='Chains'
+                title='Network'
                 allowMultipleOptions
                 initialIsOpen
-                options={availableChainOptions}
+                options={availableNetworkOptions}
               />
               <Flex justifyContent='center' alignItems='center'>
                 <Button colorScheme='blue' my={4} type='submit' onClick={() => setIsOpen(false)}>

@@ -19,7 +19,6 @@ export const clearAmounts =
         draft.buyAmountFiat = '0'
         draft.sellAmountFiat = '0'
         draft.amount = '0'
-        draft.isSendMax = false
         draft.action = TradeAmountInputField.SELL_FIAT
         draft.trade = undefined
         draft.buyAmountFiat = '0'

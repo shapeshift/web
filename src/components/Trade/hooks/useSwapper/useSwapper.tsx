@@ -36,7 +36,6 @@ import {
   selectActiveSwapperWithMetadata,
   selectBuyAsset,
   selectBuyAssetAccountId,
-  selectIsSendMax,
   selectQuote,
   selectReceiveAddress,
   selectSellAmountCryptoPrecision,
@@ -62,7 +61,6 @@ export const useSwapper = () => {
   const defaultAffiliateBps = useSwapperStore(selectSwapperDefaultAffiliateBps)
   const activeSwapperWithMetadata = useSwapperStore(selectActiveSwapperWithMetadata)
   const slippage = useSwapperStore(selectSlippage)
-  const isSendMax = useSwapperStore(selectIsSendMax)
   const sellAmountCryptoPrecision = useSwapperStore(selectSellAmountCryptoPrecision)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
 
@@ -183,7 +181,6 @@ export const useSwapper = () => {
         sellAsset,
         buyAsset,
         wallet,
-        sendMax: isSendMax,
         receiveAddress,
         slippage,
         affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps ?? defaultAffiliateBps,
@@ -239,7 +236,6 @@ export const useSwapper = () => {
       sellAssetAccountId,
       sellAmountCryptoPrecision,
       receiveAddress,
-      isSendMax,
       slippage,
       isDonationAmountBelowMinimum,
       defaultAffiliateBps,

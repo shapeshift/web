@@ -78,16 +78,13 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const walletId = useAppSelector(selectWalletId)
   const accountIds = useAppSelector(selectWalletAccountIds)
 
-  const nftCollectionParams = useMemo(
-    () => ({ assetId: nftItem.collectionId }),
-    [nftItem.collectionId],
-  )
-
   useGetNftCollectionQuery(
     { accountIds, collectionId: nftItem.collectionId },
     { skip: !nftItem.collectionId },
   )
-  const nftCollection = useAppSelector(state => selectNftCollectionById(state, nftCollectionParams))
+  const nftCollection = useAppSelector(state =>
+    selectNftCollectionById(state, nftItem.collectionId),
+  )
 
   const mediaUrl = nftItem.medias[0]?.originalUrl
   const mediaType = getMediaType(mediaUrl)

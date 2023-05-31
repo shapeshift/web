@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
-import { selectAssetIdParamFromFilter } from 'state/selectors'
 import { selectWalletId } from 'state/slices/common-selectors'
 
 import type { NftItemWithCollection } from './types'
@@ -29,7 +28,7 @@ export const selectNftItemsWithCollection = createSelector(
 
 export const selectNftCollectionById = createSelector(
   selectNftCollections,
-  selectAssetIdParamFromFilter,
+  (_state: ReduxState, assetId: AssetId) => assetId,
   (collections, collectionAssetId) => {
     if (!collectionAssetId) return null
     return collections[collectionAssetId]
@@ -38,7 +37,7 @@ export const selectNftCollectionById = createSelector(
 
 export const selectNftById = createSelector(
   selectNfts,
-  selectAssetIdParamFromFilter,
+  (_state: ReduxState, assetId: AssetId) => assetId,
   (nfts, nftAssetId) => {
     if (!nftAssetId) return null
     return nfts[nftAssetId]

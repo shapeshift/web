@@ -29,16 +29,13 @@ type NftCardProps = {
 }
 
 export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
-  const nftFilter = useMemo(() => ({ assetId: nftAssetId }), [nftAssetId])
-  const nftItem = useAppSelector(state => selectNftById(state, nftFilter))
+  const nftItem = useAppSelector(state => selectNftById(state, nftAssetId))
 
   if (!nftItem) throw new Error(`NFT not found for assetId: ${nftAssetId}`)
 
   const { collectionId, medias, name, rarityRank } = nftItem
 
-  const collection = useAppSelector(state =>
-    selectNftCollectionById(state, { assetId: collectionId }),
-  )
+  const collection = useAppSelector(state => selectNftCollectionById(state, collectionId))
   const floorPrice = collection?.floorPrice
   const mediaUrl = medias?.[0]?.originalUrl
   const mediaType = getMediaType(mediaUrl)

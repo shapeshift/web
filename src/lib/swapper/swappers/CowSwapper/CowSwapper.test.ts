@@ -157,7 +157,7 @@ describe('CowSwapper', () => {
   })
 
   describe('executeTrade', () => {
-    it('calls executeTrade on swapper.buildTrade for ETH', async () => {
+    it('calls executeTrade on swapper.buildTrade for Ethereum', async () => {
       const cowSwapTrade: CowTrade<KnownChainIds.EthereumMainnet> = {
         sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
         buyAmountBeforeFeesCryptoBaseUnit: '14501811818247595090576',

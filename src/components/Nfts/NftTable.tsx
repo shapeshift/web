@@ -37,6 +37,17 @@ export const NftTable = () => {
 
   const [chainFilters, setChainFilters] = useState<ChainId[]>([])
 
+  const availableChainIds = useMemo(
+    () =>
+      (nftItems ?? [])?.reduce<ChainId[]>((acc, nftItem) => {
+        if (!acc.includes(nftItem.chainId)) {
+          acc.push(nftItem.chainId)
+        }
+        return acc
+      }, []),
+    [nftItems],
+  )
+
   const filterNftsBySearchTerm = useCallback(
     (data: NftItem[], searchQuery: string) => {
       const search = searchQuery.trim().toLowerCase()
@@ -86,6 +97,7 @@ export const NftTable = () => {
       <Box mb={4} px={{ base: 4, xl: 0 }}>
         <Flex>
           <NftChainFilter
+            availableChainIds={availableChainIds}
             resetFilters={() => setChainFilters([])}
             setFilters={({ chains }: { chains: ChainId[] }) => {
               setChainFilters(chains)

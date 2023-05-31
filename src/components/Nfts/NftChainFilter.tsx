@@ -12,14 +12,16 @@ import {
   useColorModeValue,
   useOutsideClick,
 } from '@chakra-ui/react'
-import { ethChainId, gnosisChainId, optimismChainId, polygonChainId } from '@shapeshiftoss/caip'
-import { useRef, useState } from 'react'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { useMemo, useRef, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { IoOptionsOutline } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { FilterGroup } from 'components/FilterGroup'
 import { Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { isSome } from 'lib/utils'
 
 export enum FilterFormFields {
   Chains = 'chains',
@@ -29,15 +31,28 @@ type TransactionHistoryFilterProps = {
   setFilters: Function
   resetFilters: Function
   hasAppliedFilter?: boolean
+  availableChainIds: ChainId[]
 }
 
 export const NftChainFilter = ({
   setFilters,
   resetFilters,
   hasAppliedFilter = false,
+  availableChainIds,
 }: TransactionHistoryFilterProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const popoverRef = useRef(null)
+
+  const availableChainOptions = useMemo(() => {
+    return availableChainIds
+      .map(chainId => {
+        const adapter = getChainAdapterManager().get(chainId)
+        if (!adapter) return undefined
+        return [adapter.getDisplayName(), chainId]
+      })
+      .filter(isSome)
+  }, [availableChainIds]) as [string, ChainId][]
+
   /**
    * Popover default outside click detector didn't play well with
    * react-datepicker, but making it controlled and
@@ -119,12 +134,7 @@ export const NftChainFilter = ({
                 title='Chains'
                 allowMultipleOptions
                 initialIsOpen
-                options={[
-                  ['Ethereum', ethChainId],
-                  ['Gnosis', gnosisChainId],
-                  ['Polygon', polygonChainId],
-                  ['Optimism', optimismChainId],
-                ]}
+                options={availableChainOptions}
               />
               <Flex justifyContent='center' alignItems='center'>
                 <Button colorScheme='blue' my={4} type='submit' onClick={() => setIsOpen(false)}>

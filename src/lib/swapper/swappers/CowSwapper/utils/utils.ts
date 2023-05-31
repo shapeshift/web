@@ -3,7 +3,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { CowChainId } from '../types'
 
 export const isCowswapSupportedChainId = (
-  chainId: string | undefined,
+  chainId: ChainId
   supportedChains: KnownChainIds[],
 ): chainId is CowChainId => {
   return (

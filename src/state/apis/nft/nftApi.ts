@@ -40,7 +40,8 @@ type NftState = {
     ids: AssetId[]
   }
 }
-const initialState: NftState = {
+
+export const initialState: NftState = {
   selectedNftAvatarByWalletId: {},
   nfts: {
     byId: {},

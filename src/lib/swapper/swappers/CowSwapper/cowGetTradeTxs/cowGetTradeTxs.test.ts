@@ -19,7 +19,7 @@ describe('cowGetTradeTxs', () => {
     jest.resetAllMocks()
   })
 
-  it('should call cowService with correct parameters and return an empty string if the order is not fulfilled', async () => {
+  it('should call cowService with correct parameters and return an empty string if the order is not fulfilled for ETH', async () => {
     const input: CowTradeResult = {
       tradeId: 'tradeId1112345',
       sellAssetChainId: 'eip155:1',
@@ -46,7 +46,34 @@ describe('cowGetTradeTxs', () => {
     expect(cowService.get).toHaveBeenCalledTimes(1)
   })
 
-  it('should call cowService with correct parameters and return the tx hash if the order is fulfilled', async () => {
+  it('should call cowService with correct parameters and return an empty string if the order is not fulfilled for Gnosis', async () => {
+    const input: CowTradeResult = {
+      tradeId: 'tradeId1112345',
+      sellAssetChainId: 'eip155:100',
+    }
+
+    ;(cowService.get as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve(
+        Ok({
+          data: {
+            status: 'open',
+          },
+        }),
+      ),
+    )
+
+    const maybeResult = await cowGetTradeTxs(input)
+
+    expect(maybeResult.isErr()).toBe(false)
+    const result = maybeResult.unwrap()
+    expect(result).toEqual({ sellTxid: '' })
+    expect(cowService.get).toHaveBeenCalledWith(
+      'https://api.cow.fi/xdai/api/v1/orders/tradeId1112345',
+    )
+    expect(cowService.get).toHaveBeenCalledTimes(1)
+  })
+
+  it('should call cowService with correct parameters and return the tx hash if the order is fulfilled for ETH', async () => {
     const input: CowTradeResult = {
       tradeId: 'tradeId1112345',
       sellAssetChainId: 'eip155:1',
@@ -82,6 +109,46 @@ describe('cowGetTradeTxs', () => {
     expect(cowService.get).toHaveBeenNthCalledWith(
       2,
       'https://api.cow.fi/mainnet/api/v1/trades/?orderUid=tradeId1112345',
+    )
+    expect(cowService.get).toHaveBeenCalledTimes(2)
+  })
+
+  it('should call cowService with correct parameters and return the tx hash if the order is fulfilled for Gnosis', async () => {
+    const input: CowTradeResult = {
+      tradeId: 'tradeId1112345',
+      sellAssetChainId: 'eip155:100',
+    }
+
+    ;(cowService.get as jest.Mock<unknown>)
+      .mockReturnValueOnce(
+        Promise.resolve(
+          Ok({
+            data: {
+              status: 'fulfilled',
+            },
+          }),
+        ),
+      )
+      .mockReturnValueOnce(
+        Promise.resolve(
+          Ok({
+            data: [{ txHash: '123txHash456' }],
+          }),
+        ),
+      )
+
+    const maybeResult = await cowGetTradeTxs(input)
+
+    expect(maybeResult.isErr()).toBe(false)
+    const result = maybeResult.unwrap()
+    expect(result).toEqual({ sellTxid: 'tradeId1112345', buyTxid: '123txHash456' })
+    expect(cowService.get).toHaveBeenNthCalledWith(
+      1,
+      'https://api.cow.fi/xdai/api/v1/orders/tradeId1112345',
+    )
+    expect(cowService.get).toHaveBeenNthCalledWith(
+      2,
+      'https://api.cow.fi/xdai/api/v1/trades/?orderUid=tradeId1112345',
     )
     expect(cowService.get).toHaveBeenCalledTimes(2)
   })

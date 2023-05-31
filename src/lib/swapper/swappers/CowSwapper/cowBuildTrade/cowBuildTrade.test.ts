@@ -7,7 +7,7 @@ import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { BuildTradeInput } from '../../../api'
 import { SwapperName } from '../../../api'
-import { ETH, FOX, WBTC, WETH } from '../../utils/test-data/assets'
+import { ETH, FOX, USDC_GNOSIS, WBTC, WETH, XDAI } from '../../utils/test-data/assets'
 import type { CowSwapQuoteResponse } from '../CowSwapper'
 import type { CowTrade } from '../types'
 import { DEFAULT_ADDRESS, DEFAULT_APP_DATA } from '../utils/constants'
@@ -19,6 +19,7 @@ const foxRate = '0.0873'
 const ethRate = '1233.65940923824103061992'
 const wethRate = '1233.65940923824103061992'
 const wbtcRate = '20978.38'
+const usdcXdaiRate = '1.001'
 
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mock('../utils/cowService', () => {
@@ -81,6 +82,18 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
   receiver: DEFAULT_ADDRESS,
   sellAmountBeforeFee: '1000000000000000000000',
   sellToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+  validTo: 1656797787,
+}
+
+const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
+  appData: DEFAULT_APP_DATA,
+  buyToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+  from: '0x0000000000000000000000000000000000000000',
+  kind: 'sell',
+  partiallyFillable: false,
+  receiver: '0x0000000000000000000000000000000000000000',
+  sellAmountBeforeFee: '20000000',
+  sellToken: '0xddafbb505ad214d7b80b1f830fccc89b60fb7a83',
   validTo: 1656797787,
 }
 
@@ -152,6 +165,31 @@ const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   buyAsset: ETH,
   sellAsset: FOX,
+  accountNumber: 0,
+  receiveAddress: DEFAULT_ADDRESS,
+  feeAmountInSellTokenCryptoBaseUnit: '61804771879693983744',
+  sellAmountDeductFeeCryptoBaseUnit: '938195228120306016256',
+  id: '1',
+  minimumBuyAmountAfterFeesCryptoBaseUnit: '51242479117266593',
+}
+
+const expectedTradeQuoteUsdcToXdai: CowTrade<KnownChainIds.GnosisMainnet> = {
+  rate: '5.462e-17',
+  feeData: {
+    protocolFees: {
+      [USDC_GNOSIS.assetId]: {
+        amountCryptoBaseUnit: '61804771879693983744',
+        requiresBalance: false,
+        asset: USDC_GNOSIS,
+      },
+    },
+    networkFeeCryptoBaseUnit: '0',
+  },
+  sellAmountBeforeFeesCryptoBaseUnit: '20000000',
+  buyAmountBeforeFeesCryptoBaseUnit: '61804771879694034986479117266593',
+  sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
+  buyAsset: XDAI,
+  sellAsset: USDC_GNOSIS,
   accountNumber: 0,
   receiveAddress: DEFAULT_ADDRESS,
   feeAmountInSellTokenCryptoBaseUnit: '61804771879693983744',
@@ -326,6 +364,51 @@ describe('cowBuildTrade', () => {
     expect(cowService.post).toHaveBeenCalledWith(
       'https://api.cow.fi/mainnet/api/v1/quote/',
       expectedApiInputFoxToEth,
+    )
+  })
+
+  it('should call cowService with correct parameters, handle the fees and return the correct trade when buying XDAI', async () => {
+    selectBuyAssetUsdRateSpy.mockImplementation(() => usdcXdaiRate)
+    selectSellAssetUsdRateSpy.mockImplementation(() => usdcXdaiRate)
+
+    const tradeInput: BuildTradeInput = {
+      chainId: KnownChainIds.GnosisMainnet,
+      sellAsset: USDC_GNOSIS,
+      buyAsset: XDAI,
+      sellAmountBeforeFeesCryptoBaseUnit: '20000000',
+      sendMax: true,
+      accountNumber: 0,
+      wallet: {} as HDWallet,
+      receiveAddress: DEFAULT_ADDRESS,
+      affiliateBps: '0',
+      eip1559Support: false,
+    }
+
+    ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve(
+        Ok<{ data: CowSwapQuoteResponse }>({
+          data: {
+            quote: {
+              ...expectedApiInputUsdcGnosisToXdai,
+              sellAmount: '938195228120306016256',
+              buyAmount: '51242479117266593',
+              feeAmount: '61804771879693983744',
+            },
+            from: '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6',
+            expiration: '1684901061',
+            id: '1',
+          },
+        }),
+      ),
+    )
+
+    const maybeBuiltTrade = await cowBuildTrade(tradeInput, supportedChainIds)
+    expect(maybeBuiltTrade.isOk()).toBe(true)
+
+    expect(maybeBuiltTrade.unwrap()).toEqual(expectedTradeQuoteUsdcToXdai)
+    expect(cowService.post).toHaveBeenCalledWith(
+      'https://api.cow.fi/xdai/api/v1/quote/',
+      expectedApiInputUsdcGnosisToXdai,
     )
   })
 })

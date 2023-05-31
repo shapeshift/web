@@ -158,7 +158,7 @@ describe('CowSwapper', () => {
   })
 
   describe('executeTrade', () => {
-    it('calls executeTrade on swapper.buildTrade for ETH', async () => {
+    it('calls executeTrade on swapper.buildTrade for Ethereum', async () => {
       const cowSwapTrade: CowTrade<KnownChainIds.EthereumMainnet> = {
         sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
         buyAmountBeforeFeesCryptoBaseUnit: '14501811818247595090576',
@@ -183,7 +183,7 @@ describe('CowSwapper', () => {
       expect(cowExecuteTrade).toHaveBeenCalledWith(args, COW_SWAPPER_DEPS)
     })
 
-    it('calls executeTrade on swapper.buildTrade for XDAI', async () => {
+    it('calls executeTrade on swapper.buildTrade for Gnosis', async () => {
       const cowSwapTrade: CowTrade<KnownChainIds.GnosisMainnet> = {
         sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
         buyAmountBeforeFeesCryptoBaseUnit: '14501811818247595090576',

@@ -49,22 +49,16 @@ jest.mock('../../utils/helpers/helpers', () => {
   }
 })
 
-jest.mock('../getCowSwapMinMax/getCowSwapMinMax', () => {
+jest.mock('../getMinimumAmountCryptoHuman/getMinimumAmountCryptoHuman', () => {
   const { FOX_MAINNET } = require('../../utils/test-data/assets') // Move the import inside the factory function
 
   return {
-    getCowSwapMinMax: (sellAsset: Asset) => {
+    getMinimumAmountCryptoHuman: (sellAsset: Asset) => {
       if (sellAsset.assetId === FOX_MAINNET.assetId) {
-        return mockOk({
-          minimumAmountCryptoHuman: '229.09507445589919816724',
-          maximumAmountCryptoHuman: '100000000000000000000000000',
-        })
+        return mockOk('229.09507445589919816724')
       }
 
-      return mockOk({
-        minimumAmountCryptoHuman: '0.011624',
-        maximumAmountCryptoHuman: '100000000000000000000000000',
-      })
+      return mockOk('0.011624')
     },
   }
 })
@@ -122,7 +116,6 @@ const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
 
 const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '0.011624',
-  maximumCryptoHuman: '100000000000000000000000000',
   steps: [
     {
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
@@ -149,7 +142,6 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
 
 const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '229.09507445589919816724',
-  maximumCryptoHuman: '100000000000000000000000000',
   steps: [
     {
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
@@ -176,7 +168,6 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
 
 const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
   minimumCryptoHuman: '0.011624',
-  maximumCryptoHuman: '100000000000000000000000000',
   steps: [
     {
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
@@ -203,7 +194,6 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
 
 const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '0.011624',
-  maximumCryptoHuman: '100000000000000000000000000',
   steps: [
     {
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
@@ -350,7 +340,6 @@ describe('getCowTradeQuote', () => {
       sellAsset: USDC_GNOSIS,
       buyAsset: XDAI,
       sellAmountBeforeFeesCryptoBaseUnit: '20000000',
-      sendMax: true,
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',

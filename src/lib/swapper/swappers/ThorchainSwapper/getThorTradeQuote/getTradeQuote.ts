@@ -26,7 +26,6 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import {
-  MAX_THORCHAIN_TRADE,
   THOR_MINIMUM_PADDING,
   THORCHAIN_FIXED_PRECISION,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
@@ -189,7 +188,6 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     .toString()
 
   const commonQuoteFields = {
-    maximumCryptoHuman: MAX_THORCHAIN_TRADE,
     minimumCryptoHuman: minimumSellAssetAmountPaddedCryptoHuman,
     recommendedSlippage: slippagePercentage.div(100).toString(),
   }

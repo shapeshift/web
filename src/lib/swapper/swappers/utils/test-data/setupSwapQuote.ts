@@ -11,7 +11,6 @@ export const setupQuote = () => {
   const buyAsset: Asset = { ...WETH }
   const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
     minimumCryptoHuman: '0',
-    maximumCryptoHuman: '999999999999',
     steps: [
       {
         allowanceContract: 'allowanceContractAddress',

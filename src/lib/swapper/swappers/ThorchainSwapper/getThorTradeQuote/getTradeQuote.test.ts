@@ -27,7 +27,6 @@ const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate'
 
 const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '149.14668013703712946932',
-  maximumCryptoHuman: '100000000000000000000000000',
   recommendedSlippage: '0.04357',
   steps: [
     {

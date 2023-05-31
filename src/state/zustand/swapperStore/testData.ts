@@ -47,7 +47,6 @@ export const baseSwapperState: SwapperState = {
       } as Swapper<ChainId>,
       quote: {
         minimumCryptoHuman: '0.000565612596529604',
-        maximumCryptoHuman: '100000000000000000000000000',
         steps: [
           {
             allowanceContract: '0x0000000000000000000000000000000000000000',
@@ -77,7 +76,6 @@ export const baseSwapperState: SwapperState = {
         name: SwapperName.Thorchain,
       } as Swapper<ChainId>,
       quote: {
-        maximumCryptoHuman: '100000000000000000000000000',
         minimumCryptoHuman: '0.00576',
         recommendedSlippage: '0.00009729507077504896',
         steps: [

@@ -20,8 +20,8 @@ jest.mock('./getZrxTradeQuote/getZrxTradeQuote', () => ({
   getZrxTradeQuote: jest.fn(),
 }))
 
-jest.mock('./getZrxMinMax/getZrxMinMax', () => ({
-  getZrxMinMax: jest.fn(),
+jest.mock('./getMinimumAmountCryptoHuman/getMinimumAmountCryptoHuman', () => ({
+  getMinimumAmountCryptoHuman: jest.fn(),
 }))
 
 describe('ZrxSwapper', () => {

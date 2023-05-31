@@ -6,7 +6,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { normalizeAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
-import { getZrxMinMax } from 'lib/swapper/swappers/ZrxSwapper/getZrxMinMax/getZrxMinMax'
 import type { ZrxPriceResponse } from 'lib/swapper/swappers/ZrxSwapper/types'
 import {
   AFFILIATE_ADDRESS,
@@ -23,6 +22,8 @@ import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxServ
 import type { ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
 import { isEvmChainAdapter } from 'lib/utils'
 import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
+
+import { getMinimumAmountCryptoHuman } from '../getMinimumAmountCryptoHuman/getMinimumAmountCryptoHuman'
 
 export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   input: GetEvmTradeQuoteInput,
@@ -50,11 +51,11 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   if (maybeBaseUrl.isErr()) return Err(maybeBaseUrl.unwrapErr())
   const zrxService = zrxServiceFactory({ baseUrl: maybeBaseUrl.unwrap() })
 
-  const maybeZrxMinMax = await getZrxMinMax(sellAsset, buyAsset)
-  if (maybeZrxMinMax.isErr()) {
-    return Err(maybeZrxMinMax.unwrapErr())
+  const maybeZrxMin = getMinimumAmountCryptoHuman(sellAsset, buyAsset)
+  if (maybeZrxMin.isErr()) {
+    return Err(maybeZrxMin.unwrapErr())
   }
-  const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = maybeZrxMinMax.unwrap()
+  const minimumAmountCryptoHuman = maybeZrxMin.unwrap()
 
   const minQuoteSellAmountCryptoBaseUnit = bnOrZero(minimumAmountCryptoHuman)
     .times(bn(10).exponentiatedBy(sellAsset.precision))
@@ -115,7 +116,6 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
 
   const tradeQuote: TradeQuote<ZrxSupportedChainId> = {
     minimumCryptoHuman: minimumAmountCryptoHuman,
-    maximumCryptoHuman: maximumAmountCryptoHuman,
     steps: [
       {
         allowanceContract: data.allowanceTarget,

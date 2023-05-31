@@ -20,7 +20,6 @@ const ethRate = '1233.65940923824103061992'
 const wethRate = '1233.65940923824103061992'
 const supportedChainIds = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
 
-
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mock('../utils/cowService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')

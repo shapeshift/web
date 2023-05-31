@@ -1,15 +1,13 @@
-import type { ethereum, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
-import type Web3 from 'web3'
 import type { Asset } from 'lib/asset-service'
 import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX, WETH } from '../../utils/test-data/assets'
-import type { CowSwapperDeps } from '../CowSwapper'
 import { DEFAULT_ADDRESS, DEFAULT_APP_DATA } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
@@ -20,6 +18,8 @@ const mockOk = Ok as jest.MockedFunction<typeof Ok>
 const foxRate = '0.0873'
 const ethRate = '1233.65940923824103061992'
 const wethRate = '1233.65940923824103061992'
+const supportedChainIds = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
+
 
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mock('../utils/cowService', () => {
@@ -32,6 +32,7 @@ jest.mock('../utils/cowService', () => {
 })
 jest.mock('../utils/helpers/helpers', () => {
   return {
+    ...jest.requireActual('../utils/helpers/helpers'),
     getNowPlusThirtyMinutesTimestamp: () => 1656797787,
   }
 })
@@ -201,17 +202,6 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
   accountNumber: 0,
 }
 
-const deps: CowSwapperDeps = {
-  baseUrl: 'https://api.cow.fi/mainnet/api',
-  adapter: {
-    getAddress: jest.fn(() => Promise.resolve('address11')),
-    getFeeData: jest.fn<Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>>, []>(() =>
-      Promise.resolve(feeData),
-    ),
-  } as unknown as ethereum.ChainAdapter,
-  web3: {} as Web3,
-}
-
 describe('getCowTradeQuote', () => {
   it('should throw an exception if both assets are not erc20s', async () => {
     selectBuyAssetUsdRateSpy.mockImplementation(() => foxRate)
@@ -229,7 +219,7 @@ describe('getCowTradeQuote', () => {
       eip1559Support: false,
     }
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(deps, input)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input, supportedChainIds)
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
       cause: undefined,
@@ -274,7 +264,7 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(deps, input)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input, supportedChainIds)
 
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteWethToFox)
@@ -318,7 +308,7 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(deps, input)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input, supportedChainIds)
 
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteFoxToEth)
@@ -362,7 +352,7 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(deps, input)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input, supportedChainIds)
 
     expect(maybeTradeQuote.isErr()).toBe(false)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteSmallAmountWethToFox)

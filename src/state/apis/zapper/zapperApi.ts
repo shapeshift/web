@@ -33,6 +33,7 @@ import { DefiType } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
+import { parseToNftItem } from '../nft/parsers/zapper'
 import type { NftCollectionType, NftItem } from '../nft/types'
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type {
@@ -45,7 +46,6 @@ import type {
 } from './validators'
 import {
   chainIdToZapperNetwork,
-  parseToNftItem,
   V2AppsBalancesResponse,
   V2AppsResponse,
   V2AppTokensResponse,

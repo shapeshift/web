@@ -23,7 +23,6 @@ const foxRate = '0.0873'
 const ethRate = '1233.65940923824103061992'
 const wethRate = '1233.65940923824103061992'
 const wbtcRate = '20978.38'
-const usdcXdaiRate = '1.001'
 
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mock('../utils/cowService', () => {
@@ -178,11 +177,11 @@ const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
 }
 
 const expectedTradeQuoteUsdcToXdai: CowTrade<KnownChainIds.GnosisMainnet> = {
-  rate: '5.462e-17',
+  rate: '1.0003121775396440882',
   feeData: {
     protocolFees: {
       [USDC_GNOSIS.assetId]: {
-        amountCryptoBaseUnit: '61804771879693983744',
+        amountCryptoBaseUnit: '1188',
         requiresBalance: false,
         asset: USDC_GNOSIS,
       },
@@ -190,16 +189,16 @@ const expectedTradeQuoteUsdcToXdai: CowTrade<KnownChainIds.GnosisMainnet> = {
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '20000000',
-  buyAmountBeforeFeesCryptoBaseUnit: '61804771879694034986479117266593',
+  buyAmountBeforeFeesCryptoBaseUnit: '21006545288929894469',
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   buyAsset: XDAI,
   sellAsset: USDC_GNOSIS,
   accountNumber: 0,
   receiveAddress: DEFAULT_ADDRESS,
-  feeAmountInSellTokenCryptoBaseUnit: '61804771879693983744',
-  sellAmountDeductFeeCryptoBaseUnit: '938195228120306016256',
+  feeAmountInSellTokenCryptoBaseUnit: '1188',
+  sellAmountDeductFeeCryptoBaseUnit: '20998812',
   id: '1',
-  minimumBuyAmountAfterFeesCryptoBaseUnit: '51242479117266593',
+  minimumBuyAmountAfterFeesCryptoBaseUnit: '20900340520678280712',
 }
 
 describe('cowBuildTrade', () => {
@@ -372,8 +371,8 @@ describe('cowBuildTrade', () => {
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade when buying XDAI', async () => {
-    selectBuyAssetUsdRateSpy.mockImplementation(() => usdcXdaiRate)
-    selectSellAssetUsdRateSpy.mockImplementation(() => usdcXdaiRate)
+    selectBuyAssetUsdRateSpy.mockImplementation(() => '1.008')
+    selectSellAssetUsdRateSpy.mockImplementation(() => '0.999457')
 
     const tradeInput: BuildTradeInput = {
       chainId: KnownChainIds.GnosisMainnet,
@@ -386,6 +385,7 @@ describe('cowBuildTrade', () => {
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       eip1559Support: false,
+      slippage: '0.005',
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -394,9 +394,9 @@ describe('cowBuildTrade', () => {
           data: {
             quote: {
               ...expectedApiInputUsdcGnosisToXdai,
-              sellAmount: '938195228120306016256',
-              buyAmount: '51242479117266593',
-              feeAmount: '61804771879693983744',
+              sellAmount: '20998812',
+              buyAmount: '21005367357465608755',
+              feeAmount: '1188',
             },
             from: '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6',
             expiration: '1684901061',

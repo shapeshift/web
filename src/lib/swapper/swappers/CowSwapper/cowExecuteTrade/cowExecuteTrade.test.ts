@@ -54,10 +54,11 @@ const mockEthereumChainAdapter = {
 } as unknown as EvmChainAdapter
 
 const mockGnosisChainAdapter = {
+  // TODO: test account 0+
   getBIP44Params: jest.fn(() => actualChainAdapters.gnosis.ChainAdapter.defaultBIP44Params),
   getChainId: () => KnownChainIds.GnosisMainnet,
   signMessage: jest.fn(() => Promise.resolve(Signature)),
-} as unknown as EvmChainAdapter // wrong type but doesn't matter here
+} as unknown as EvmChainAdapter
 
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
@@ -139,11 +140,11 @@ const cowTradeFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
 }
 
 const cowTradeUsdcToXdai: CowTrade<KnownChainIds.GnosisMainnet> = {
-  rate: '5.462e-17',
+  rate: '1.0003121775396440882',
   feeData: {
     protocolFees: {
       [USDC_GNOSIS.assetId]: {
-        amountCryptoBaseUnit: '61804771879693983744',
+        amountCryptoBaseUnit: '1188',
         requiresBalance: false,
         asset: USDC_GNOSIS,
       },
@@ -151,16 +152,16 @@ const cowTradeUsdcToXdai: CowTrade<KnownChainIds.GnosisMainnet> = {
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '20000000',
-  buyAmountBeforeFeesCryptoBaseUnit: '61804771879694034986479117266593',
+  buyAmountBeforeFeesCryptoBaseUnit: '21006545288929894469',
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   buyAsset: XDAI,
   sellAsset: USDC_GNOSIS,
   accountNumber: 0,
   receiveAddress: 'address11',
-  feeAmountInSellTokenCryptoBaseUnit: '61804771879693983744',
-  sellAmountDeductFeeCryptoBaseUnit: '938195228120306016256',
+  feeAmountInSellTokenCryptoBaseUnit: '1188',
+  sellAmountDeductFeeCryptoBaseUnit: '20998812',
   id: '1',
-  minimumBuyAmountAfterFeesCryptoBaseUnit: '51242479117266593',
+  minimumBuyAmountAfterFeesCryptoBaseUnit: '20900340520678280712',
 }
 
 const expectedWethToFoxOrderToSign: CowSwapOrder = {
@@ -198,11 +199,11 @@ const expectedFoxToEthOrderToSign: CowSwapOrder = {
 const expectedUsdcToXdaiOrderToSign: CowSwapOrder = {
   sellToken: '0xddafbb505ad214d7b80b1f830fccc89b60fb7a83',
   buyToken: COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
-  sellAmount: '938195228120306016256',
-  buyAmount: '51242479117266593',
+  sellAmount: '20998812',
+  buyAmount: '20900340520678280712',
   validTo: 1656797787,
   appData: DEFAULT_APP_DATA,
-  feeAmount: '61804771879693983744',
+  feeAmount: '1188',
   kind: ORDER_KIND_SELL,
   partiallyFillable: false,
   receiver: 'address11',

@@ -62,25 +62,35 @@ export class CowSwapper<T extends CowChainId> implements Swapper<T> {
     )
       return []
 
-    return assetIds.filter(
-      id =>
+    return assetIds.filter(id => {
+      const asset = assets[id]
+      if (!asset) return false
+
+      return (
         id !== sellAssetId &&
         sellAsset.chainId === assets[id]?.chainId &&
-        isCowswapSupportedChainId(assets[id]?.chainId, this.supportedChainIds) &&
+        isCowswapSupportedChainId(asset.chainId, this.supportedChainIds) &&
         !isNft(id) &&
-        !COWSWAP_UNSUPPORTED_ASSETS.includes(id),
-    )
+        !COWSWAP_UNSUPPORTED_ASSETS.includes(id)
+      )
+    })
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
     const assets = selectAssets(store.getState())
-    return assetIds.filter(
-      id =>
-        isCowswapSupportedChainId(assets[id]?.chainId, this.supportedChainIds) &&
+    return assetIds.filter(id => {
+      const asset = assets[id]
+      if (!asset) {
+        return false
+      }
+
+      return (
+        isCowswapSupportedChainId(asset.chainId, this.supportedChainIds) &&
         !isNativeEvmAsset(id) &&
         !isNft(id) &&
-        !COWSWAP_UNSUPPORTED_ASSETS.includes(id),
-    )
+        !COWSWAP_UNSUPPORTED_ASSETS.includes(id)
+      )
+    })
   }
 
   getTradeTxs(args: CowTradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {

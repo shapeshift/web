@@ -157,7 +157,6 @@ export type TradeQuoteStep<C extends ChainId, UnknownNetworkFee extends boolean>
 
 export type TradeQuote<C extends ChainId, UnknownNetworkFee extends boolean = false> = {
   minimumCryptoHuman: string
-  maximumCryptoHuman: string
   recommendedSlippage?: string
   id?: string
   steps: TradeQuoteStep<C, UnknownNetworkFee>[]
@@ -180,11 +179,6 @@ export type TradeResult = {
 export type SwapSource = {
   name: SwapperName | string
   proportion: string
-}
-
-export type MinMaxOutput = {
-  minimumAmountCryptoHuman: string
-  maximumAmountCryptoHuman: string
 }
 
 export enum SwapperName {

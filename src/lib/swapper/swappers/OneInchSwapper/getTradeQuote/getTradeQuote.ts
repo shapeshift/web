@@ -10,7 +10,7 @@ import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
 
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
-import { getMinMax } from '../getMinMax/getMinMax'
+import { getMinimumAmountCryptoHuman } from '../getMinimumAmountCryptoHuman/getMinimumAmountCryptoHuman'
 import { DEFAULT_SOURCE } from '../utils/constants'
 import { getRate } from '../utils/helpers'
 import { oneInchService } from '../utils/oneInchService'
@@ -66,7 +66,7 @@ export async function getTradeQuote(
   if (maybeAllowanceContract.isErr()) return Err(maybeAllowanceContract.unwrapErr())
   const allowanceContract = maybeAllowanceContract.unwrap()
 
-  const maybeMinMax = await getMinMax(sellAsset, buyAsset)
+  const maybeMinimumAmountCryptoHuman = getMinimumAmountCryptoHuman(sellAsset, buyAsset)
 
   const chainAdapterManager = getChainAdapterManager()
   // We guard against !isEvmChainId(chainId) above, so this cast is safe
@@ -88,10 +88,9 @@ export async function getTradeQuote(
     )
     .toString()
 
-  return maybeMinMax.andThen(minMax =>
+  return maybeMinimumAmountCryptoHuman.andThen(minimumAmountCryptoHuman =>
     Ok({
-      maximumCryptoHuman: minMax.maximumAmountCryptoHuman,
-      minimumCryptoHuman: minMax.minimumAmountCryptoHuman,
+      minimumCryptoHuman: minimumAmountCryptoHuman,
       steps: [
         {
           allowanceContract,

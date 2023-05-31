@@ -9,10 +9,7 @@ import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
-import {
-  MAX_LIFI_TRADE,
-  SELECTED_ROUTE_INDEX,
-} from 'lib/swapper/swappers/LifiSwapper/utils/constants'
+import { SELECTED_ROUTE_INDEX } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
 import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwapper/utils/getIntermediaryTransactionOutputs/getIntermediaryTransactionOutputs'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
@@ -147,7 +144,6 @@ export async function getTradeQuote(
     // TODO(gomes): intermediary error-handling within this module function calls
     return Ok({
       minimumCryptoHuman: getMinimumCryptoHuman(sellAsset).toString(),
-      maximumCryptoHuman: MAX_LIFI_TRADE,
       recommendedSlippage: maxSlippage.toString(),
       steps: [
         {

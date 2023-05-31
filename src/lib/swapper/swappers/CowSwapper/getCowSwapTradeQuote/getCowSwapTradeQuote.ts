@@ -7,7 +7,7 @@ import { toBaseUnit } from 'lib/math'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { CowChainId } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
-import { getCowSwapMinMax } from 'lib/swapper/swappers/CowSwapper/getCowSwapMinMax/getCowSwapMinMax'
+import { getMinimumAmountCryptoHuman } from 'lib/swapper/swappers/CowSwapper/getMinimumAmountCryptoHuman/getMinimumAmountCryptoHuman'
 import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
@@ -82,10 +82,14 @@ export async function getCowSwapTradeQuote(
     ? buyAssetAddress
     : COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS
 
-  const maybeCowSwapMinMax = getCowSwapMinMax(sellAsset, buyAsset, supportedChainIds)
+  const maybeMinimumAmountCryptoHuman = getMinimumAmountCryptoHuman(
+    sellAsset,
+    buyAsset,
+    supportedChainIds,
+  )
 
-  if (maybeCowSwapMinMax.isErr()) return Err(maybeCowSwapMinMax.unwrapErr())
-  const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = maybeCowSwapMinMax.unwrap()
+  if (maybeMinimumAmountCryptoHuman.isErr()) return Err(maybeMinimumAmountCryptoHuman.unwrapErr())
+  const minimumAmountCryptoHuman = maybeMinimumAmountCryptoHuman.unwrap()
 
   const minQuoteSellAmount = bnOrZero(minimumAmountCryptoHuman).times(
     bn(10).exponentiatedBy(sellAsset.precision),
@@ -180,7 +184,6 @@ export async function getCowSwapTradeQuote(
 
   const quote: TradeQuote<CowChainId> = {
     minimumCryptoHuman: minimumAmountCryptoHuman,
-    maximumCryptoHuman: maximumAmountCryptoHuman,
     id,
     steps: [
       {

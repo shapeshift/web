@@ -240,11 +240,9 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
 export const createEmptyEvmTradeQuote = (
   input: GetTradeQuoteInput,
   minimumCryptoHuman: string,
-  maximumCryptoHuman: string,
 ): TradeQuote<EvmChainId, true> => {
   return {
     minimumCryptoHuman,
-    maximumCryptoHuman,
     steps: [
       {
         allowanceContract: '',

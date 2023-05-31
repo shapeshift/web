@@ -2,7 +2,7 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import { DEFAULT_SOURCE, MAX_ONEINCH_TRADE } from '../utils/constants'
+import { DEFAULT_SOURCE } from '../utils/constants'
 import { oneInchService } from '../utils/oneInchService'
 import type { OneInchSwapperDeps } from '../utils/types'
 import { getTradeQuote } from './getTradeQuote'
@@ -100,7 +100,6 @@ describe('getTradeQuote', () => {
     const quote = maybeQuote.unwrap()
     expect(quote.steps[0].rate).toBe('0.000016426735042245')
     expect(quote.steps[0].allowanceContract).toBe('0x1111111254eeb25477b68fb85ed929f73a960583')
-    expect(quote.maximumCryptoHuman).toBe(MAX_ONEINCH_TRADE)
     expect(quote.minimumCryptoHuman).toBe('50')
     expect(quote.steps[0].sources).toEqual(DEFAULT_SOURCE)
   })

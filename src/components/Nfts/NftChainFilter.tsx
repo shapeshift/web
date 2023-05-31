@@ -22,7 +22,7 @@ import { Text } from 'components/Text'
 import { FilterGroup } from 'pages/TransactionHistory/components/FilterGroup'
 
 export enum FilterFormFields {
-  Types = 'types',
+  Chains = 'chains',
 }
 
 type TransactionHistoryFilterProps = {
@@ -53,9 +53,9 @@ export const NftChainFilter = ({
   const translate = useTranslate()
   const { control, handleSubmit, reset } = useForm({ mode: 'onChange' })
   const onSubmit = (values: FieldValues) => {
-    const { types } = values
+    const { chains } = values
     let filterSet = {
-      types,
+      chains,
     }
     setFilters(filterSet)
   }
@@ -114,7 +114,7 @@ export const NftChainFilter = ({
             <Divider />
             <form onSubmit={handleSubmit(onSubmit)}>
               <FilterGroup
-                name={FilterFormFields.Types}
+                name={FilterFormFields.Chains}
                 control={control}
                 title='Chains'
                 allowMultipleOptions

@@ -1,5 +1,6 @@
 import type { SimpleGridProps } from '@chakra-ui/react'
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
 import { NarwhalIcon } from 'components/Icons/Narwhal'
@@ -33,6 +34,8 @@ export const NftTable = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const accountIds = useAppSelector(selectWalletAccountIds)
   const { data: nftItems, isLoading } = useGetNftUserTokensQuery({ accountIds })
+
+  const [chainFilters, setChainFilters] = useState<EvmChainId[]>([])
 
   const filterNftsBySearchTerm = useCallback((data: NftItem[], searchQuery: string) => {
     const search = searchQuery.trim().toLowerCase()
@@ -79,8 +82,8 @@ export const NftTable = () => {
         <Flex>
           <NftChainFilter
             resetFilters={() => {}}
-            setFilters={filters => {
-              console.log({ filters })
+            setFilters={({ chains }) => {
+              setChainFilters(chains)
             }}
             hasAppliedFilter={false}
           />

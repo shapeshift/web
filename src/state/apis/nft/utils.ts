@@ -88,9 +88,10 @@ export const updateNftCollection = (
   currentItem: NftCollectionType,
 ) => {
   const draftItem = Object.assign({}, originalItem)
-  draftItem.description = originalItem.description || currentItem.description
-  draftItem.name = currentItem.name = originalItem.name || currentItem.name
-  draftItem.floorPrice = originalItem.floorPrice || currentItem.floorPrice
+  draftItem.description = originalItem.description ?? currentItem.description
+  draftItem.name = originalItem.name ?? currentItem.name
+  draftItem.floorPrice = originalItem.floorPrice ?? currentItem.floorPrice
+  draftItem.openseaId = originalItem.openseaId ?? currentItem.openseaId
   draftItem.socialLinks = originalItem.socialLinks.length
     ? originalItem.socialLinks
     : currentItem.socialLinks

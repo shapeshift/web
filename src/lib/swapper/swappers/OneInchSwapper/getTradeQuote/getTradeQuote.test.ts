@@ -99,7 +99,7 @@ describe('getTradeQuote', () => {
     expect(maybeQuote.isOk()).toBe(true)
     const quote = maybeQuote.unwrap()
     expect(quote.steps[0].rate).toBe('0.000016426735042245')
-    expect(quote.allowanceContract).toBe('0x1111111254eeb25477b68fb85ed929f73a960583')
+    expect(quote.steps[0].allowanceContract).toBe('0x1111111254eeb25477b68fb85ed929f73a960583')
     expect(quote.maximumCryptoHuman).toBe(MAX_ONEINCH_TRADE)
     expect(quote.minimumCryptoHuman).toBe('50')
     expect(quote.steps[0].sources).toEqual(DEFAULT_SOURCE)

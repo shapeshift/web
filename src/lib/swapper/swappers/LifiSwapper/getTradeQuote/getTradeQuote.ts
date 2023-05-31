@@ -146,12 +146,12 @@ export async function getTradeQuote(
 
     // TODO(gomes): intermediary error-handling within this module function calls
     return Ok({
-      allowanceContract,
       minimumCryptoHuman: getMinimumCryptoHuman(sellAsset).toString(),
       maximumCryptoHuman: MAX_LIFI_TRADE,
       recommendedSlippage: maxSlippage.toString(),
       steps: [
         {
+          allowanceContract,
           accountNumber,
           buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
           buyAsset,

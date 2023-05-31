@@ -10,11 +10,11 @@ export const setupQuote = () => {
   const sellAsset: Asset = { ...FOX_MAINNET }
   const buyAsset: Asset = { ...WETH }
   const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
-    allowanceContract: 'allowanceContractAddress',
     minimumCryptoHuman: '0',
     maximumCryptoHuman: '999999999999',
     steps: [
       {
+        allowanceContract: 'allowanceContractAddress',
         buyAmountBeforeFeesCryptoBaseUnit: '',
         sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
         sellAsset,

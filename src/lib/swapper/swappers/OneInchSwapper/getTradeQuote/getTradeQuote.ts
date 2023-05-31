@@ -90,11 +90,11 @@ export async function getTradeQuote(
 
   return maybeMinMax.andThen(minMax =>
     Ok({
-      allowanceContract,
       maximumCryptoHuman: minMax.maximumAmountCryptoHuman,
       minimumCryptoHuman: minMax.minimumAmountCryptoHuman,
       steps: [
         {
+          allowanceContract,
           rate,
           buyAsset,
           sellAsset,

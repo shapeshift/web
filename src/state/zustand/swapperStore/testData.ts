@@ -48,11 +48,11 @@ export const baseSwapperState: SwapperState = {
         name: SwapperName.Zrx,
       } as Swapper<ChainId>,
       quote: {
-        allowanceContract: '0x0000000000000000000000000000000000000000',
         minimumCryptoHuman: '0.000565612596529604',
         maximumCryptoHuman: '100000000000000000000000000',
         steps: [
           {
+            allowanceContract: '0x0000000000000000000000000000000000000000',
             rate: '52652.792329231222224912',
             feeData: {
               networkFeeCryptoBaseUnit: '2997000000000000',
@@ -79,12 +79,12 @@ export const baseSwapperState: SwapperState = {
         name: SwapperName.Thorchain,
       } as Swapper<ChainId>,
       quote: {
-        allowanceContract: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
         maximumCryptoHuman: '100000000000000000000000000',
         minimumCryptoHuman: '0.00576',
         recommendedSlippage: '0.00009729507077504896',
         steps: [
           {
+            allowanceContract: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
             rate: '52867.94647736405036163943',
             sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
             buyAmountBeforeFeesCryptoBaseUnit: '986780221000000000000',

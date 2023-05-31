@@ -1,4 +1,5 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
+
 import { BTC, ETH, FOX, WETH } from '../../utils/test-data/assets'
 import { MAX_COWSWAP_TRADE } from '../utils/constants'
 import { getCowSwapMinMax } from './getCowSwapMinMax'

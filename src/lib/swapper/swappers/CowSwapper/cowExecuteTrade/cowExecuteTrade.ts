@@ -1,6 +1,6 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
-import { bnOrZero, toAddressNList } from '@shapeshiftoss/chain-adapters'
+import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'

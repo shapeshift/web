@@ -1,4 +1,4 @@
-import type { ChainAdapterManager, ethereum } from '@shapeshiftoss/chain-adapters'
+import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type Web3 from 'web3'
 import { CowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper'

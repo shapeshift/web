@@ -1,4 +1,4 @@
-import { ethereum } from '@shapeshiftoss/chain-adapters'
+import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
@@ -34,7 +34,6 @@ jest.mock('@shapeshiftoss/chain-adapters', () => {
       ChainAdapter: {
         // TODO: test account 0+
         defaultBIP44Params: actualChainAdapters.ethereum.ChainAdapter.defaultBIP44Params,
-        
       },
     },
   }
@@ -58,35 +57,19 @@ jest.mock('../utils/helpers/helpers', () => {
 
 const actualChainAdapters = jest.requireActual('@shapeshiftoss/chain-adapters')
 
-const mockEthereum =             {
-  // buildCustomTx: () => Promise.resolve({ txToSign: '0000000000000000' }),
-  // signTransaction: () => Promise.resolve('0000000000000000000'),
-  // broadcastTransaction: () => Promise.resolve('txid'),
-  // signAndBroadcastTransaction: () => Promise.resolve('txid'),
-  // getFeeData: () => Promise.resolve('feeData'),
-  // getAddress: () => Promise.resolve('receiveAddress'),
+const mockEthereum = {
   getBIP44Params: jest.fn(() => actualChainAdapters.ethereum.ChainAdapter.defaultBIP44Params),
   getChainId: () => KnownChainIds.EthereumMainnet,
   signMessage: jest.fn(() => Promise.resolve(Signature)),
-  // actualChainAdapters.ethereum.ChainAdapter,
 } as unknown as ethereum.ChainAdapter
 
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
 
   return {
-    getChainAdapterManager: jest.fn(
-      () =>
-        new Map([
-          [
-            KnownChainIds.EthereumMainnet,
-            mockEthereum
-          ],
-        ]),
-    ),
+    getChainAdapterManager: jest.fn(() => new Map([[KnownChainIds.EthereumMainnet, mockEthereum]])),
   }
 })
-
 
 const hashOrderMock = jest.mocked(hashOrder)
 
@@ -222,7 +205,7 @@ describe('cowExecuteTrade', () => {
     expect(trade).toEqual({
       sellAssetChainId: 'eip155:1',
       tradeId:
-        '0xe476dadc86e768e4602bc872d4a7d50b03a4c2a609b37bf741f26baa578146bd0ea983f21f58f0e1a29ed653bcfc8afac4fec2a462c2e25e'
+        '0xe476dadc86e768e4602bc872d4a7d50b03a4c2a609b37bf741f26baa578146bd0ea983f21f58f0e1a29ed653bcfc8afac4fec2a462c2e25e',
     })
     expect(cowService.post).toHaveBeenCalledWith('https://api.cow.fi/mainnet/api/v1/orders/', {
       ...expectedWethToFoxOrderToSign,
@@ -240,9 +223,7 @@ describe('cowExecuteTrade', () => {
       },
       expectedWethToFoxOrderToSign,
     )
-    expect(
-      (mockEthereum.ChainAdapter as unknown as ethereum.ChainAdapter).signMessage,
-    ).toHaveBeenCalledWith({
+    expect(mockEthereum.signMessage).toHaveBeenCalledWith({
       messageToSign: {
         addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
         message: ethers.utils.arrayify(OrderDigest),
@@ -270,6 +251,7 @@ describe('cowExecuteTrade', () => {
     expect(maybeTrade.isErr()).toBe(false)
     const trade = maybeTrade.unwrap()
     expect(trade).toEqual({
+      sellAssetChainId: 'eip155:1',
       tradeId:
         '0xe476dadc86e768e4602bc872d4a7d50b03a4c2a609b37bf741f26baa578146bd0ea983f21f58f0e1a29ed653bcfc8afac4fec2a462c2e26f',
     })
@@ -290,9 +272,7 @@ describe('cowExecuteTrade', () => {
       },
       expectedFoxToEthOrderToSign,
     )
-    expect(
-      (mockEthereum.ChainAdapter as unknown as ethereum.ChainAdapter).signMessage,
-    ).toHaveBeenCalledWith({
+    expect(mockEthereum.signMessage).toHaveBeenCalledWith({
       messageToSign: {
         addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
         message: ethers.utils.arrayify(OrderDigest),

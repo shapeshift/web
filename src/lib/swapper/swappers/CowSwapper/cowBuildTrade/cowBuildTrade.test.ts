@@ -1,4 +1,3 @@
-import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads/build'
@@ -48,36 +47,6 @@ const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
 const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
 
 const supportedChainIds = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
-
-const feeData: FeeDataEstimate<KnownChainIds.EthereumMainnet> = {
-  fast: {
-    txFee: '4080654495000000',
-    chainSpecific: {
-      gasLimit: '100000',
-      gasPrice: '79036500000',
-      maxFeePerGas: '216214758112',
-      maxPriorityFeePerGas: '2982734547',
-    },
-  },
-  slow: {
-    txFee: '4080654495000000',
-    chainSpecific: {
-      gasLimit: '100000',
-      gasPrice: '79036500000',
-      maxFeePerGas: '216214758112',
-      maxPriorityFeePerGas: '2982734547',
-    },
-  },
-  average: {
-    txFee: '4080654495000000',
-    chainSpecific: {
-      gasLimit: '100000',
-      gasPrice: '79036500000',
-      maxFeePerGas: '216214758112',
-      maxPriorityFeePerGas: '2982734547',
-    },
-  },
-}
 
 const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
   appData: DEFAULT_APP_DATA,

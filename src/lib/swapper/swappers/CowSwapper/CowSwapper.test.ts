@@ -2,7 +2,6 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { BTC, ETH, FOX, WBTC, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 
-import type { TradeResult } from '../../api'
 import { SwapperName } from '../../api'
 import { setupBuildTrade, setupQuote } from '../utils/test-data/setupSwapQuote'
 import { cowBuildTrade } from './cowBuildTrade/cowBuildTrade'

@@ -25,11 +25,11 @@ const thorchainSwapperDeps: ThorchainSwapperDeps = {
 export const getThorchainSwapper = () => new ThorchainSwapper(thorchainSwapperDeps)
 
 export const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
   minimumCryptoHuman: '60',
   maximumCryptoHuman: '1000000000000000000000',
   steps: [
     {
+      allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000', // 1000 FOX
       buyAmountBeforeFeesCryptoBaseUnit: '23448326921811747', // 0.023 ETH
       feeData: {

@@ -271,7 +271,8 @@ export const useSwapper = () => {
       web3,
       erc20AllowanceAbi,
       address: sellAssetContractAddress,
-      spender: activeQuote.allowanceContract,
+      // TODO(woodenfurniture): use active step
+      spender: activeQuote.steps[0].allowanceContract,
       from,
     })
 
@@ -310,7 +311,8 @@ export const useSwapper = () => {
 
       const data = getApproveContractData({
         approvalAmountCryptoBaseUnit,
-        spender: activeQuote.allowanceContract,
+        // TODO(woodenfurniture): use active step
+        spender: activeQuote.steps[0].allowanceContract,
         to: assetReference,
         web3,
       })

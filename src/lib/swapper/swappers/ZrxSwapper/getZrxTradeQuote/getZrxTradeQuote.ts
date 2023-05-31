@@ -114,11 +114,11 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   })()
 
   const tradeQuote: TradeQuote<ZrxSupportedChainId> = {
-    allowanceContract: data.allowanceTarget,
     minimumCryptoHuman: minimumAmountCryptoHuman,
     maximumCryptoHuman: maximumAmountCryptoHuman,
     steps: [
       {
+        allowanceContract: data.allowanceTarget,
         buyAsset,
         sellAsset,
         accountNumber,

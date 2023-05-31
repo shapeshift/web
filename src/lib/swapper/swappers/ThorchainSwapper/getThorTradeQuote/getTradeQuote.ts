@@ -253,10 +253,10 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
         return Ok({
           ...commonQuoteFields,
-          allowanceContract: router,
           steps: [
             {
               ...commonStepFields,
+              allowanceContract: router,
               feeData,
             },
           ],
@@ -293,10 +293,10 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
         return Ok({
           ...commonQuoteFields,
-          allowanceContract: '0x0', // not applicable to bitcoin
           steps: [
             {
               ...commonStepFields,
+              allowanceContract: '0x0', // not applicable to bitcoin
               feeData,
             },
           ],
@@ -312,10 +312,10 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
         return Ok({
           ...commonQuoteFields,
-          allowanceContract: '0x0', // not applicable to cosmos
           steps: [
             {
               ...commonStepFields,
+              allowanceContract: '0x0', // not applicable to cosmos
               feeData: {
                 networkFeeCryptoBaseUnit: feeData.fast.txFee,
                 protocolFees,

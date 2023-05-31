@@ -241,11 +241,11 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const fee = feeData.fast.txFee
 
     return Ok({
-      allowanceContract: '',
       minimumCryptoHuman: minimumAmountCryptoHuman, // TODO(gomes): shorthand?
       maximumCryptoHuman: maximumAmountCryptoHuman,
       steps: [
         {
+          allowanceContract: '',
           buyAsset,
           feeData: {
             networkFeeCryptoBaseUnit: fee,

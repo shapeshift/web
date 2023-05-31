@@ -26,12 +26,12 @@ const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
 const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
 
 const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
   minimumCryptoHuman: '149.14668013703712946932',
   maximumCryptoHuman: '100000000000000000000000000',
   recommendedSlippage: '0.04357',
   steps: [
     {
+      allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
       sellAmountBeforeFeesCryptoBaseUnit: '713014679420',
       buyAmountBeforeFeesCryptoBaseUnit: '114321610000000000',
       feeData: {

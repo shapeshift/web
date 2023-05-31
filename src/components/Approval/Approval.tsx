@@ -220,7 +220,7 @@ export const Approval = () => {
             <CText color='gray.500' textAlign='center'>
               <Link
                 // TODO(woodenfurniture): use active step
-                href={`${activeQuote?.steps[0].sellAsset.explorerAddressLink}${activeQuote?.allowanceContract}`}
+                href={`${activeQuote?.steps[0].sellAsset.explorerAddressLink}${activeQuote?.steps[0].allowanceContract}`}
                 color='blue.500'
                 me={1}
                 isExternal

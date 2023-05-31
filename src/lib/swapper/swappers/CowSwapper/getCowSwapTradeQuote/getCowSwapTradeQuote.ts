@@ -179,12 +179,12 @@ export async function getCowSwapTradeQuote(
     : buyAmountBeforeFeesCryptoBaseUnit
 
   const quote: TradeQuote<CowChainId> = {
-    allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
     minimumCryptoHuman: minimumAmountCryptoHuman,
     maximumCryptoHuman: maximumAmountCryptoHuman,
     id,
     steps: [
       {
+        allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
         rate,
         feeData: {
           networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap

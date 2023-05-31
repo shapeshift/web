@@ -139,12 +139,12 @@ export async function getTradeQuote(
 
     // TODO(gomes): intermediary error-handling within this module function calls
     return Ok({
-      allowanceContract: lifiStep.estimate.approvalAddress,
       minimumCryptoHuman: getMinimumCryptoHuman(sellAsset).toString(),
       maximumCryptoHuman: MAX_LIFI_TRADE,
       recommendedSlippage: lifiStep.action.slippage.toString(),
       steps: [
         {
+          allowanceContract: lifiStep.estimate.approvalAddress,
           accountNumber,
           buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
           buyAsset,

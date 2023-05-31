@@ -9,6 +9,7 @@ import type {
   SwapErrorRight,
   Swapper,
   TradeQuote,
+  TradeTxs,
 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { cowBuildTrade } from 'lib/swapper/swappers/CowSwapper/cowBuildTrade/cowBuildTrade'

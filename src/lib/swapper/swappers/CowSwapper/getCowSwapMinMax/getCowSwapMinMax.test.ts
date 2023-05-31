@@ -45,6 +45,8 @@ describe('getCowSwapMinMax', () => {
     }
     expect(getCowSwapMinMax(ETH, WETH, supportedChainIds).unwrapErr()).toMatchObject(expectedError)
     expect(getCowSwapMinMax(FOX, BTC, supportedChainIds).unwrapErr()).toMatchObject(expectedError)
-    expect(getCowSwapMinMax(XDAI, USDC_GNOSIS, supportedChainIds).unwrapErr()).toMatchObject(expectedError)
+    expect(getCowSwapMinMax(XDAI, USDC_GNOSIS, supportedChainIds).unwrapErr()).toMatchObject(
+      expectedError,
+    )
   })
 })

@@ -60,11 +60,12 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
 
   return {
-    getChainAdapterManager: jest.fn(() => new Map(
-      [
-        [KnownChainIds.EthereumMainnet, mockEthereum],
-        [KnownChainIds.GnosisMainnet, mockGnosis]
-      ])
+    getChainAdapterManager: jest.fn(
+      () =>
+        new Map([
+          [KnownChainIds.EthereumMainnet, mockEthereum],
+          [KnownChainIds.GnosisMainnet, mockGnosis],
+        ]),
     ),
   }
 })

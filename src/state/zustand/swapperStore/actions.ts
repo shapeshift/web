@@ -128,7 +128,7 @@ export const handleAssetSelection =
 export const updateFees = (set: SetSwapperStoreAction<SwapperState>) => (sellFeeAsset: Asset) =>
   set(
     draft => {
-      const feeTrade = draft.trade ?? selectQuote(draft)
+      const feeTrade = draft.trade ?? selectQuote(draft)?.steps[0]
       const sellAsset = draft.sellAsset
       const activeSwapperWithMetadata = selectActiveSwapperWithMetadata(draft)
       const activeTradeSwapper = activeSwapperWithMetadata?.swapper

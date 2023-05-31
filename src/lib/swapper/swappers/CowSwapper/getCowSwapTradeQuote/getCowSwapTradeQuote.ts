@@ -179,27 +179,31 @@ export async function getCowSwapTradeQuote(
     : buyAmountBeforeFeesCryptoBaseUnit
 
   const quote: TradeQuote<CowChainId> = {
-    rate,
+    allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
     minimumCryptoHuman: minimumAmountCryptoHuman,
     maximumCryptoHuman: maximumAmountCryptoHuman,
-    feeData: {
-      networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
-      protocolFees: {
-        [sellAsset.assetId]: {
-          amountCryptoBaseUnit: feeAmountInSellTokenCryptoBaseUnit,
-          requiresBalance: false,
-          asset: sellAsset,
-        },
-      },
-    },
-    sellAmountBeforeFeesCryptoBaseUnit: quoteSellAmountCryptoBaseUnit,
-    buyAmountBeforeFeesCryptoBaseUnit: quoteBuyAmountCryptoBaseUnit,
-    sources: DEFAULT_SOURCE,
-    allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
-    buyAsset,
-    sellAsset,
-    accountNumber,
     id,
+    steps: [
+      {
+        rate,
+        feeData: {
+          networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
+          protocolFees: {
+            [sellAsset.assetId]: {
+              amountCryptoBaseUnit: feeAmountInSellTokenCryptoBaseUnit,
+              requiresBalance: false,
+              asset: sellAsset,
+            },
+          },
+        },
+        sellAmountBeforeFeesCryptoBaseUnit: quoteSellAmountCryptoBaseUnit,
+        buyAmountBeforeFeesCryptoBaseUnit: quoteBuyAmountCryptoBaseUnit,
+        sources: DEFAULT_SOURCE,
+        buyAsset,
+        sellAsset,
+        accountNumber,
+      },
+    ],
   }
 
   return Ok(quote)

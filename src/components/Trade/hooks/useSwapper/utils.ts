@@ -1,14 +1,13 @@
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import type { GetReceiveAddressArgs } from 'components/Trade/types'
-import { type DisplayFeeData, type GetFormFeesArgs } from 'components/Trade/types'
+import type { DisplayFeeData, GetFormFeesArgs, GetReceiveAddressArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { type Asset } from 'lib/asset-service'
+import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, SwapperName, Trade, TradeQuote } from 'lib/swapper/api'
+import type { ProtocolFee, SwapperName, TradeBase, TradeQuote } from 'lib/swapper/api'
 
 const moduleLogger = logger.child({ namespace: ['useSwapper', 'utils'] })
 
@@ -24,8 +23,10 @@ export const getSendMaxAmountCryptoPrecision = (
 ) => {
   // Only subtract fee if sell asset is the fee asset
   const isFeeAsset = feeAsset.assetId === sellAsset.assetId
-  const protocolFee: ProtocolFee | undefined = quote.feeData.protocolFees[sellAsset.assetId]
-  const networkFeeCryptoBaseUnit = bnOrZero(quote.feeData.networkFeeCryptoBaseUnit)
+  // TODO(woodenfurniture): reduce sum of fees here
+  const protocolFee: ProtocolFee | undefined =
+    quote.steps[0].feeData.protocolFees[sellAsset.assetId]
+  const networkFeeCryptoBaseUnit = bnOrZero(quote.steps[0].feeData.networkFeeCryptoBaseUnit)
   // sell asset balance minus expected fees = maxTradeAmount
   return positiveOrZero(
     fromBaseUnit(
@@ -46,7 +47,7 @@ export const getSendMaxAmountCryptoPrecision = (
 }
 
 const getEvmFees = <T extends EvmChainId>(
-  trade: Trade<T> | TradeQuote<T>,
+  trade: TradeBase<T>,
   feeAsset: Asset,
   tradeFeeSource: SwapperName,
 ): DisplayFeeData<EvmChainId> => {
@@ -69,18 +70,14 @@ export const getFormFees = ({
   feeAsset,
 }: GetFormFeesArgs): DisplayFeeData<KnownChainIds> => {
   const networkFeeCryptoHuman = fromBaseUnit(
-    trade?.feeData?.networkFeeCryptoBaseUnit,
+    trade.feeData?.networkFeeCryptoBaseUnit,
     feeAsset.precision,
   )
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm:
-      return getEvmFees(
-        trade as Trade<EvmChainId> | TradeQuote<EvmChainId>,
-        feeAsset,
-        tradeFeeSource,
-      )
+      return getEvmFees(trade, feeAsset, tradeFeeSource)
     case CHAIN_NAMESPACE.CosmosSdk: {
       return {
         networkFeeCryptoHuman,
@@ -90,12 +87,11 @@ export const getFormFees = ({
       }
     }
     case CHAIN_NAMESPACE.Utxo: {
-      const utxoTrade = trade as Trade<UtxoChainId>
       return {
         networkFeeCryptoHuman,
-        networkFeeCryptoBaseUnit: utxoTrade.feeData.networkFeeCryptoBaseUnit,
-        chainSpecific: utxoTrade.feeData.chainSpecific,
-        protocolFees: utxoTrade.feeData.protocolFees,
+        networkFeeCryptoBaseUnit: trade.feeData.networkFeeCryptoBaseUnit,
+        chainSpecific: trade.feeData.chainSpecific,
+        protocolFees: trade.feeData.protocolFees,
         tradeFeeSource,
       }
     }

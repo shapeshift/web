@@ -79,9 +79,12 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
 
-  const symbol = activeQuote?.sellAsset?.symbol
+  // TODO(woodenfurniture): use active step
+  const symbol = activeQuote?.steps[0].sellAsset?.symbol
+
   const sellFeeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, activeQuote?.sellAsset?.assetId ?? ethAssetId),
+    // TODO(woodenfurniture): use active step
+    selectFeeAssetById(state, activeQuote?.steps[0].sellAsset.assetId ?? ethAssetId),
   )
 
   const approveContract = useCallback(async () => {
@@ -200,7 +203,8 @@ export const Approval = () => {
             >
               {() => (
                 <Image
-                  src={activeQuote?.sellAsset?.icon}
+                  // TODO(woodenfurniture): use active step
+                  src={activeQuote?.steps[0].sellAsset.icon}
                   boxSize='60px'
                   fallback={<SkeletonCircle boxSize='60px' />}
                 />
@@ -215,7 +219,8 @@ export const Approval = () => {
             />
             <CText color='gray.500' textAlign='center'>
               <Link
-                href={`${activeQuote?.sellAsset.explorerAddressLink}${activeQuote?.allowanceContract}`}
+                // TODO(woodenfurniture): use active step
+                href={`${activeQuote?.steps[0].sellAsset.explorerAddressLink}${activeQuote?.allowanceContract}`}
                 color='blue.500'
                 me={1}
                 isExternal
@@ -229,7 +234,8 @@ export const Approval = () => {
             </Link>
             <Divider my={4} />
             <Flex flexDirection='column' width='full'>
-              {approvalTxId && activeQuote?.sellAsset?.explorerTxLink && (
+              {/* TODO(woodenfurniture): use active step */}
+              {approvalTxId && activeQuote?.steps[0].sellAsset.explorerTxLink && (
                 <Row>
                   <Row.Label>
                     <Text translation={['trade.approvingAsset', { symbol }]} />
@@ -238,7 +244,8 @@ export const Approval = () => {
                     <Link
                       isExternal
                       color='blue.500'
-                      href={`${activeQuote?.sellAsset?.explorerTxLink}${approvalTxId}`}
+                      // TODO(woodenfurniture): use active step
+                      href={`${activeQuote?.steps[0].sellAsset.explorerTxLink}${approvalTxId}`}
                     >
                       <MiddleEllipsis value={approvalTxId} />
                     </Link>

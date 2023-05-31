@@ -1,15 +1,13 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { type ChainId } from '@shapeshiftoss/caip'
-import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { type Asset } from 'lib/asset-service'
+import type { Asset } from 'lib/asset-service'
 import type {
   BuildTradeInput,
   GetTradeQuoteInput,
   QuoteFeeData,
   SwapperName,
-  Trade,
-  TradeQuote,
+  TradeBase,
 } from 'lib/swapper/api'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
@@ -63,7 +61,7 @@ export type BuildTradeInputCommonArgs = Pick<
 >
 
 export type GetFormFeesArgs = {
-  trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>
+  trade: TradeBase<KnownChainIds>
   sellAsset: Asset
   tradeFeeSource: SwapperName
   feeAsset: Asset

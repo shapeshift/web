@@ -83,11 +83,11 @@ describe('getZrxTradeQuote', () => {
 
     expect(maybeQuote.isErr()).toBe(false)
     const quote = maybeQuote.unwrap()
-    expect(quote.feeData).toStrictEqual({
+    expect(quote.steps[0].feeData).toStrictEqual({
       protocolFees: {},
       networkFeeCryptoBaseUnit: '94843800000000000',
     })
-    expect(quote.rate).toBe('100')
+    expect(quote.steps[0].rate).toBe('100')
   })
 
   it('bubbles up the zrxService Err from a bad zrx response', async () => {
@@ -132,7 +132,7 @@ describe('getZrxTradeQuote', () => {
     expect(maybeQuote.isErr()).toBe(false)
     const quote = maybeQuote.unwrap()
 
-    expect(quote?.feeData).toStrictEqual({
+    expect(quote?.steps[0].feeData).toStrictEqual({
       protocolFees: {},
       networkFeeCryptoBaseUnit: '0',
     })
@@ -196,7 +196,7 @@ describe('getZrxTradeQuote', () => {
     expect(maybeQuote.isErr()).toBe(false)
     const quote = maybeQuote.unwrap()
 
-    expect(quote?.sellAmountBeforeFeesCryptoBaseUnit).toBe(
+    expect(quote?.steps[0].sellAmountBeforeFeesCryptoBaseUnit).toBe(
       bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision)).toString(),
     )
   })

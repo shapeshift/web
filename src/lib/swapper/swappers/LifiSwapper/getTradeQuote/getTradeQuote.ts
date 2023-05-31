@@ -146,20 +146,24 @@ export async function getTradeQuote(
 
     // TODO(gomes): intermediary error-handling within this module function calls
     return Ok({
-      accountNumber,
       allowanceContract,
-      buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
-      buyAsset,
-      intermediaryTransactionOutputs,
-      feeData,
-      maximumCryptoHuman: MAX_LIFI_TRADE,
       minimumCryptoHuman: getMinimumCryptoHuman(sellAsset).toString(),
-      rate: estimateRate,
+      maximumCryptoHuman: MAX_LIFI_TRADE,
       recommendedSlippage: maxSlippage.toString(),
-      sellAmountBeforeFeesCryptoBaseUnit,
-      sellAsset,
-      sources: [
-        { name: `${selectedLifiRoute.steps[0].tool} (${SwapperName.LIFI})`, proportion: '1' },
+      steps: [
+        {
+          accountNumber,
+          buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
+          buyAsset,
+          intermediaryTransactionOutputs,
+          feeData,
+          rate: estimateRate,
+          sellAmountBeforeFeesCryptoBaseUnit,
+          sellAsset,
+          sources: [
+            { name: `${selectedLifiRoute.steps[0].tool} (${SwapperName.LIFI})`, proportion: '1' },
+          ],
+        },
       ],
       selectedLifiRoute,
     })

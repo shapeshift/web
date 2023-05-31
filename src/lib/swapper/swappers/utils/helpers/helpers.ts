@@ -243,19 +243,23 @@ export const createEmptyEvmTradeQuote = (
   maximumCryptoHuman: string,
 ): TradeQuote<EvmChainId, true> => {
   return {
-    buyAmountBeforeFeesCryptoBaseUnit: '0',
-    sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
-    feeData: {
-      networkFeeCryptoBaseUnit: undefined,
-      protocolFees: {},
-    },
-    rate: '0',
-    sources: [],
-    buyAsset: input.buyAsset,
-    sellAsset: input.sellAsset,
-    accountNumber: input.accountNumber,
     allowanceContract: '',
     minimumCryptoHuman,
     maximumCryptoHuman,
+    steps: [
+      {
+        buyAmountBeforeFeesCryptoBaseUnit: '0',
+        sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
+        feeData: {
+          networkFeeCryptoBaseUnit: undefined,
+          protocolFees: {},
+        },
+        rate: '0',
+        sources: [],
+        buyAsset: input.buyAsset,
+        sellAsset: input.sellAsset,
+        accountNumber: input.accountNumber,
+      },
+    ],
   }
 }

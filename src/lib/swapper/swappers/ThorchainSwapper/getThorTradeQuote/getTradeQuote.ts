@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type {
   CosmosSdkBaseAdapter,
@@ -42,8 +42,6 @@ import {
   selectSellAssetUsdRate,
 } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
-
-type CommonQuoteFields = Omit<TradeQuote<ChainId>, 'allowanceContract' | 'feeData'>
 
 type GetThorTradeQuoteInput = {
   deps: ThorchainSwapperDeps
@@ -191,17 +189,20 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     .times(THOR_MINIMUM_PADDING)
     .toString()
 
-  const commonQuoteFields: CommonQuoteFields = {
-    rate,
+  const commonQuoteFields = {
     maximumCryptoHuman: MAX_THORCHAIN_TRADE,
+    minimumCryptoHuman: minimumSellAssetAmountPaddedCryptoHuman,
+    recommendedSlippage: slippagePercentage.div(100).toString(),
+  }
+
+  const commonStepFields = {
+    rate,
     sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
     buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
     sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
     buyAsset,
     sellAsset,
     accountNumber,
-    minimumCryptoHuman: minimumSellAssetAmountPaddedCryptoHuman,
-    recommendedSlippage: slippagePercentage.div(100).toString(),
   }
 
   const protocolFees: Record<AssetId, ProtocolFee> = {}
@@ -253,7 +254,12 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         return Ok({
           ...commonQuoteFields,
           allowanceContract: router,
-          feeData,
+          steps: [
+            {
+              ...commonStepFields,
+              feeData,
+            },
+          ],
         })
       })()
 
@@ -288,7 +294,12 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         return Ok({
           ...commonQuoteFields,
           allowanceContract: '0x0', // not applicable to bitcoin
-          feeData,
+          steps: [
+            {
+              ...commonStepFields,
+              feeData,
+            },
+          ],
         })
       })()
     case CHAIN_NAMESPACE.CosmosSdk:
@@ -302,11 +313,16 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         return Ok({
           ...commonQuoteFields,
           allowanceContract: '0x0', // not applicable to cosmos
-          feeData: {
-            networkFeeCryptoBaseUnit: feeData.fast.txFee,
-            protocolFees,
-            chainSpecific: { estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit },
-          },
+          steps: [
+            {
+              ...commonStepFields,
+              feeData: {
+                networkFeeCryptoBaseUnit: feeData.fast.txFee,
+                protocolFees,
+                chainSpecific: { estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit },
+              },
+            },
+          ],
         })
       })()
     default:

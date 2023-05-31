@@ -114,20 +114,24 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   })()
 
   const tradeQuote: TradeQuote<ZrxSupportedChainId> = {
-    buyAsset,
-    sellAsset,
-    accountNumber,
-    rate,
+    allowanceContract: data.allowanceTarget,
     minimumCryptoHuman: minimumAmountCryptoHuman,
     maximumCryptoHuman: maximumAmountCryptoHuman,
-    feeData: {
-      networkFeeCryptoBaseUnit: txFee.toFixed(0),
-      protocolFees: {},
-    },
-    allowanceContract: data.allowanceTarget,
-    buyAmountBeforeFeesCryptoBaseUnit: data.buyAmount,
-    sellAmountBeforeFeesCryptoBaseUnit: data.sellAmount,
-    sources: data.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
+    steps: [
+      {
+        buyAsset,
+        sellAsset,
+        accountNumber,
+        rate,
+        feeData: {
+          networkFeeCryptoBaseUnit: txFee.toFixed(0),
+          protocolFees: {},
+        },
+        buyAmountBeforeFeesCryptoBaseUnit: data.buyAmount,
+        sellAmountBeforeFeesCryptoBaseUnit: data.sellAmount,
+        sources: data.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
+      },
+    ],
   }
 
   return Ok(tradeQuote as TradeQuote<T>)

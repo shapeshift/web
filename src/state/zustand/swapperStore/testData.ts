@@ -48,25 +48,29 @@ export const baseSwapperState: SwapperState = {
         name: SwapperName.Zrx,
       } as Swapper<ChainId>,
       quote: {
-        rate: '52652.792329231222224912',
+        allowanceContract: '0x0000000000000000000000000000000000000000',
         minimumCryptoHuman: '0.000565612596529604',
         maximumCryptoHuman: '100000000000000000000000000',
-        feeData: {
-          networkFeeCryptoBaseUnit: '2997000000000000',
-          protocolFees: {},
-        },
-        sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
-        buyAmountBeforeFeesCryptoBaseUnit: '982764368825100762828',
-        sources: [
+        steps: [
           {
-            name: 'Uniswap_V2',
-            proportion: '1',
+            rate: '52652.792329231222224912',
+            feeData: {
+              networkFeeCryptoBaseUnit: '2997000000000000',
+              protocolFees: {},
+            },
+            sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
+            buyAmountBeforeFeesCryptoBaseUnit: '982764368825100762828',
+            sources: [
+              {
+                name: 'Uniswap_V2',
+                proportion: '1',
+              },
+            ],
+            buyAsset: FOX,
+            sellAsset: ETH,
+            accountNumber: 0,
           },
         ],
-        allowanceContract: '0x0000000000000000000000000000000000000000',
-        buyAsset: FOX,
-        sellAsset: ETH,
-        accountNumber: 0,
       },
       inputOutputRatio: 0.8560784948911982,
     },
@@ -75,32 +79,36 @@ export const baseSwapperState: SwapperState = {
         name: SwapperName.Thorchain,
       } as Swapper<ChainId>,
       quote: {
-        rate: '52867.94647736405036163943',
+        allowanceContract: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
         maximumCryptoHuman: '100000000000000000000000000',
-        sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
-        buyAmountBeforeFeesCryptoBaseUnit: '986780221000000000000',
-        sources: [
-          {
-            name: 'THORChain',
-            proportion: '1',
-          },
-        ],
-        buyAsset: FOX,
-        sellAsset: ETH,
-        accountNumber: 0,
         minimumCryptoHuman: '0.00576',
         recommendedSlippage: '0.00009729507077504896',
-        allowanceContract: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
-        feeData: {
-          networkFeeCryptoBaseUnit: '1800000000000000',
-          protocolFees: {
-            [FOX.assetId]: {
-              amountCryptoBaseUnit: '258170392472859992504',
-              requiresBalance: false,
-              asset: FOX,
+        steps: [
+          {
+            rate: '52867.94647736405036163943',
+            sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
+            buyAmountBeforeFeesCryptoBaseUnit: '986780221000000000000',
+            sources: [
+              {
+                name: 'THORChain',
+                proportion: '1',
+              },
+            ],
+            buyAsset: FOX,
+            sellAsset: ETH,
+            accountNumber: 0,
+            feeData: {
+              networkFeeCryptoBaseUnit: '1800000000000000',
+              protocolFees: {
+                [FOX.assetId]: {
+                  amountCryptoBaseUnit: '258170392472859992504',
+                  requiresBalance: false,
+                  asset: FOX,
+                },
+              },
             },
           },
-        },
+        ],
       },
       inputOutputRatio: 0.6773207214158627,
     },

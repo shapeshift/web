@@ -25,56 +25,70 @@ const thorchainSwapperDeps: ThorchainSwapperDeps = {
 export const getThorchainSwapper = () => new ThorchainSwapper(thorchainSwapperDeps)
 
 export const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
+  allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
   minimumCryptoHuman: '60',
   maximumCryptoHuman: '1000000000000000000000',
-  sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000', // 1000 FOX
-  allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-  buyAmountBeforeFeesCryptoBaseUnit: '23448326921811747', // 0.023 ETH
-  feeData: {
-    protocolFees: {
-      [FOX_MAINNET.assetId]: {
-        amountCryptoBaseUnit: '191400000000000000000',
-        requiresBalance: false,
-        asset: FOX_MAINNET,
+  steps: [
+    {
+      sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000', // 1000 FOX
+      buyAmountBeforeFeesCryptoBaseUnit: '23448326921811747', // 0.023 ETH
+      feeData: {
+        protocolFees: {
+          [FOX_MAINNET.assetId]: {
+            amountCryptoBaseUnit: '191400000000000000000',
+            requiresBalance: false,
+            asset: FOX_MAINNET,
+          },
+        },
+        networkFeeCryptoBaseUnit: '3246750000000000',
       },
+      rate: '0.00002509060972289251',
+      sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
+      buyAsset: ETH,
+      sellAsset: FOX_MAINNET,
+      accountNumber: 0,
     },
-    networkFeeCryptoBaseUnit: '3246750000000000',
-  },
-  rate: '0.00002509060972289251',
-  sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
-  buyAsset: ETH,
-  sellAsset: FOX_MAINNET,
-  accountNumber: 0,
+  ],
 }
 
 export const bestTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   ...tradeQuote,
-  buyAmountBeforeFeesCryptoBaseUnit: '23000000000000000', // 0.023 ETH
-  feeData: {
-    protocolFees: {
-      [FOX_MAINNET.assetId]: {
-        amountCryptoBaseUnit: '191400000000000000000',
-        requiresBalance: false,
-        asset: FOX_MAINNET,
+  steps: [
+    {
+      ...tradeQuote.steps[0],
+      buyAmountBeforeFeesCryptoBaseUnit: '23000000000000000', // 0.023 ETH
+      feeData: {
+        protocolFees: {
+          [FOX_MAINNET.assetId]: {
+            amountCryptoBaseUnit: '191400000000000000000',
+            requiresBalance: false,
+            asset: FOX_MAINNET,
+          },
+        },
+        networkFeeCryptoBaseUnit: '3246750000000000',
       },
+      buyAsset: WETH,
     },
-    networkFeeCryptoBaseUnit: '3246750000000000',
-  },
-  buyAsset: WETH,
+  ],
 }
 
 export const suboptimalTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   ...tradeQuote,
-  buyAmountBeforeFeesCryptoBaseUnit: '21000000000000000', // 0.021 ETH
-  feeData: {
-    protocolFees: {
-      [FOX_MAINNET.assetId]: {
-        amountCryptoBaseUnit: '266400000000000000000',
-        requiresBalance: false,
-        asset: FOX_MAINNET,
+  steps: [
+    {
+      ...tradeQuote.steps[0],
+      buyAmountBeforeFeesCryptoBaseUnit: '21000000000000000', // 0.021 ETH
+      feeData: {
+        protocolFees: {
+          [FOX_MAINNET.assetId]: {
+            amountCryptoBaseUnit: '266400000000000000000',
+            requiresBalance: false,
+            asset: FOX_MAINNET,
+          },
+        },
+        networkFeeCryptoBaseUnit: '3446750000000000',
       },
+      buyAsset: WETH,
     },
-    networkFeeCryptoBaseUnit: '3446750000000000',
-  },
-  buyAsset: WETH,
+  ],
 }

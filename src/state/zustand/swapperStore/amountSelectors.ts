@@ -216,7 +216,7 @@ export const selectTradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit = createSelect
   (activeSwapperWithMetadata, tradeSellAmountBeforeFeesBaseUnit): string | undefined =>
     // Use the trade amount if we have it, otherwise use the quote amount
     tradeSellAmountBeforeFeesBaseUnit ??
-    activeSwapperWithMetadata?.quote?.sellAmountBeforeFeesCryptoBaseUnit,
+    activeSwapperWithMetadata?.quote?.steps[0].sellAmountBeforeFeesCryptoBaseUnit,
 )
 
 export const selectTradeOrQuoteBuyAmountCryptoBaseUnit = createSelector(
@@ -225,7 +225,7 @@ export const selectTradeOrQuoteBuyAmountCryptoBaseUnit = createSelector(
   (activeSwapperWithMetadata, tradeBuyAmountBeforeFeesBaseUnit): string | undefined =>
     // Use the trade amount if we have it, otherwise use the quote amount
     tradeBuyAmountBeforeFeesBaseUnit ??
-    activeSwapperWithMetadata?.quote?.buyAmountBeforeFeesCryptoBaseUnit,
+    activeSwapperWithMetadata?.quote?.steps[0].buyAmountBeforeFeesCryptoBaseUnit,
 )
 
 // used to compute the gross sell amount based on the quote
@@ -517,5 +517,7 @@ export const selectIntermediaryTransactionOutputs = createDeepEqualOutputSelecto
   ): AmountDisplayMeta[] | undefined =>
     // Use the trade amount if we have it, otherwise use the quote amount
     tradeIntermediaryTransactionOutputs ??
-    activeSwapperWithMetadata?.quote?.intermediaryTransactionOutputs,
+    activeSwapperWithMetadata?.quote.steps.flatMap(
+      step => step.intermediaryTransactionOutputs ?? [],
+    ),
 )

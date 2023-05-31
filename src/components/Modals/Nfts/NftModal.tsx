@@ -83,8 +83,6 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
     [nftItem.collectionId],
   )
 
-  // TODO(gomes): check if we still need to fire the RTK query
-  // const { data: nftCollection } =
   useGetNftCollectionQuery(
     { accountIds, collectionId: nftItem.collectionId },
     { skip: !nftItem.collectionId },

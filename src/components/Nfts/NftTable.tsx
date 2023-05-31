@@ -35,12 +35,7 @@ export const NftTable = () => {
 
   const filterNftsBySearchTerm = useCallback((data: NftItem[], searchQuery: string) => {
     const search = searchQuery.trim().toLowerCase()
-    const keys = [
-      'token.name',
-      'token.collection.name',
-      'token.collection.address',
-      'token.tokenId',
-    ]
+    const keys = ['name', 'collection.name', 'collection.id', 'id']
     return matchSorter(data, search, { keys })
   }, [])
 

@@ -1,6 +1,8 @@
 import type { SimpleGridProps } from '@chakra-ui/react'
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import intersectionBy from 'lodash/intersectionBy'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
 import { NarwhalIcon } from 'components/Icons/Narwhal'
@@ -35,13 +37,21 @@ export const NftTable = () => {
   const accountIds = useAppSelector(selectWalletAccountIds)
   const { data: nftItems, isLoading } = useGetNftUserTokensQuery({ accountIds })
 
-  const [chainFilters, setChainFilters] = useState<EvmChainId[]>([])
+  const [chainFilters, setChainFilters] = useState<ChainId[]>([])
 
-  const filterNftsBySearchTerm = useCallback((data: NftItem[], searchQuery: string) => {
-    const search = searchQuery.trim().toLowerCase()
-    const keys = ['name', 'collection.name', 'collection.id', 'id']
-    return matchSorter(data, search, { keys })
-  }, [])
+  const filterNftsBySearchTerm = useCallback(
+    (data: NftItem[], searchQuery: string) => {
+      const search = searchQuery.trim().toLowerCase()
+      const keys = ['name', 'collection.name', 'collection.id', 'id']
+
+      const maybeFilteredByChainId = chainFilters.length
+        ? data.filter(nftItem => chainFilters.includes(nftItem.chainId))
+        : data
+
+      return matchSorter(maybeFilteredByChainId, search, { keys })
+    },
+    [chainFilters],
+  )
 
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 

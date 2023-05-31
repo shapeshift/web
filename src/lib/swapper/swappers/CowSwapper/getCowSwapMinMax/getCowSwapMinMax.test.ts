@@ -27,7 +27,7 @@ describe('getCowSwapMinMax', () => {
     expect(minMax.maximumAmountCryptoHuman).toBe(MAX_COWSWAP_TRADE)
   })
 
-  it('returns minimumAmountCryptoHuman and maximumAmountCryptoHuman for USDC on Gnosis as buy asset', () => {
+  it('returns minimumAmountCryptoHuman and maximumAmountCryptoHuman for XDAI as buy asset', () => {
     const maybeMinMax = getCowSwapMinMax(USDC_GNOSIS, XDAI, supportedChainIds)
     expect(maybeMinMax.isErr()).toBe(false)
     const minMax = maybeMinMax.unwrap()

@@ -1,5 +1,5 @@
 import type { SimpleGridProps } from '@chakra-ui/react'
-import { Box, SimpleGrid } from '@chakra-ui/react'
+import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
 import { NarwhalIcon } from 'components/Icons/Narwhal'
@@ -12,6 +12,7 @@ import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
 import { NftCard } from './NftCard'
+import { NftChainFilter } from './NftChainFilter'
 import { NftCardLoading } from './NftLoadingCard'
 
 const NftGrid: React.FC<SimpleGridProps> = props => (
@@ -31,7 +32,7 @@ const NftGrid: React.FC<SimpleGridProps> = props => (
 export const NftTable = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const accountIds = useAppSelector(selectWalletAccountIds)
-  const { data, isLoading } = useGetNftUserTokensQuery({ accountIds })
+  const { data: nftItems, isLoading } = useGetNftUserTokensQuery({ accountIds })
 
   const filterNftsBySearchTerm = useCallback((data: NftItem[], searchQuery: string) => {
     const search = searchQuery.trim().toLowerCase()
@@ -47,13 +48,13 @@ export const NftTable = () => {
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
   const filteredNfts = useMemo(() => {
-    return isSearching && data ? filterNftsBySearchTerm(data, searchQuery) : data
-  }, [isSearching, data, filterNftsBySearchTerm, searchQuery])
+    return isSearching && nftItems ? filterNftsBySearchTerm(nftItems, searchQuery) : nftItems
+  }, [isSearching, nftItems, filterNftsBySearchTerm, searchQuery])
 
   const renderNftCards = useMemo(() => {
-    if (!data?.length) return null
+    if (!nftItems?.length) return null
     return filteredNfts?.map(nft => <NftCard nftAssetId={nft.assetId} key={nft.assetId} />)
-  }, [data?.length, filteredNfts])
+  }, [nftItems?.length, filteredNfts])
 
   if (isLoading)
     return (
@@ -63,7 +64,7 @@ export const NftTable = () => {
         ))}
       </NftGrid>
     )
-  if (!isLoading && !data?.length)
+  if (!isLoading && !nftItems?.length)
     return (
       <ResultsEmpty
         title='nft.emptyTitle'
@@ -75,7 +76,16 @@ export const NftTable = () => {
   return (
     <>
       <Box mb={4} px={{ base: 4, xl: 0 }}>
-        <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+        <Flex>
+          <NftChainFilter
+            resetFilters={() => {}}
+            setFilters={filters => {
+              console.log({ filters })
+            }}
+            hasAppliedFilter={false}
+          />
+          <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+        </Flex>
       </Box>
       {isSearching && !renderNftCards?.length ? (
         <SearchEmpty searchQuery={searchQuery} />

@@ -9,8 +9,6 @@ import type {
   SwapErrorRight,
   Swapper,
   TradeQuote,
-  TradeResult,
-  TradeTxs,
 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { cowBuildTrade } from 'lib/swapper/swappers/CowSwapper/cowBuildTrade/cowBuildTrade'
@@ -85,7 +83,7 @@ export class CowSwapper<T extends CowChainId> implements Swapper<T> {
     )
   }
 
-  getTradeTxs(args: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
+  getTradeTxs(args: CowTradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
     return cowGetTradeTxs(args)
   }
 }

@@ -1,8 +1,6 @@
 import type { SimpleGridProps } from '@chakra-ui/react'
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import intersectionBy from 'lodash/intersectionBy'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
 import { NarwhalIcon } from 'components/Icons/Narwhal'
@@ -88,11 +86,11 @@ export const NftTable = () => {
       <Box mb={4} px={{ base: 4, xl: 0 }}>
         <Flex>
           <NftChainFilter
-            resetFilters={() => {}}
-            setFilters={({ chains }) => {
+            resetFilters={() => setChainFilters([])}
+            setFilters={({ chains }: { chains: ChainId[] }) => {
               setChainFilters(chains)
             }}
-            hasAppliedFilter={false}
+            hasAppliedFilter={Boolean(chainFilters.length)}
           />
           <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
         </Flex>

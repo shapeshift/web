@@ -9,8 +9,8 @@ import type { MinMaxOutput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import {
   MAX_COWSWAP_TRADE,
-  MIN_COWSWAP_ETH_TRADE_VALUE_USD,
-  MIN_COWSWAP_XDAI_TRADE_VALUE_USD,
+  MIN_COWSWAP_ETHEREUM_TRADE_VALUE_USD,
+  MIN_COWSWAP_GNOSIS_TRADE_VALUE_USD,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { selectSellAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
@@ -38,9 +38,9 @@ export const getCowSwapMinMax = (
   const getMinCowSwapValueUsd = (chainId: CowChainId): BigNumber.Value => {
     switch (chainId) {
       case KnownChainIds.EthereumMainnet:
-        return MIN_COWSWAP_ETH_TRADE_VALUE_USD
+        return MIN_COWSWAP_ETHEREUM_TRADE_VALUE_USD
       case KnownChainIds.GnosisMainnet:
-        return MIN_COWSWAP_XDAI_TRADE_VALUE_USD
+        return MIN_COWSWAP_GNOSIS_TRADE_VALUE_USD
       default:
         throw new Error(`[getCowSwapMinMax] Unsupported chainId: ${buyAssetChainId}`)
     }

@@ -1914,6 +1914,7 @@
     }
   },
   "nft": {
+    "customizeFoxatar": "Customize FOXatar",
     "setAsAvatar": "Set as Avatar",
     "floorPrice": "Floor Price",
     "lastPrice": "Last Price",

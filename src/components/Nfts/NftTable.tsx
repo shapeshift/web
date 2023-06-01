@@ -100,7 +100,7 @@ export const NftTable = () => {
             availableChainIds={availableChainIds}
             resetFilters={() => setNetworkFilters([])}
             setFilters={({ network: networks }: { network?: ChainId[] }) => {
-              if (!networks?.length) return
+              if (!networks?.length) return setNetworkFilters([])
               setNetworkFilters(networks)
             }}
             hasAppliedFilter={Boolean(networkFilters.length)}

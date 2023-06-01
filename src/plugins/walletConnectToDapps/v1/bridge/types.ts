@@ -11,7 +11,7 @@ export type WalletConnectEthSignCallRequest = {
 
 export type WalletConnectEthSignTypedDataCallRequest = {
   id: number
-  method: 'eth_signTypedData'
+  method: 'eth_signTypedData' | 'eth_signTypedData_v4'
   params: [string, string]
 }
 

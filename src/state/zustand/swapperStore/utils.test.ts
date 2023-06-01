@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { baseUnitToHuman, bn, convertPrecision } from 'lib/bignumber/bignumber'
 import type { ProtocolFee } from 'lib/swapper/api'
-import { BTC, ETH, FOX } from 'lib/swapper/swappers/utils/test-data/assets'
+import { BTC, ETH, FOX_MAINNET } from 'lib/swapper/swappers/utils/test-data/assets'
 import { cryptoMarketDataById } from 'lib/swapper/swappers/utils/test-data/cryptoMarketDataById'
 
 import { subtractBasisPointAmount, sumProtocolFeesToDenom } from './utils'
@@ -12,8 +12,8 @@ describe('sumProtocolFeesToDenom', () => {
 
     const result = sumProtocolFeesToDenom({
       cryptoMarketDataById,
-      outputExponent: FOX.precision,
-      outputAssetPriceUsd: cryptoMarketDataById[FOX.assetId].price,
+      outputExponent: FOX_MAINNET.precision,
+      outputAssetPriceUsd: cryptoMarketDataById[FOX_MAINNET.assetId].price,
       protocolFees,
     })
 
@@ -36,16 +36,16 @@ describe('sumProtocolFeesToDenom', () => {
 
     const result = sumProtocolFeesToDenom({
       cryptoMarketDataById,
-      outputExponent: FOX.precision,
-      outputAssetPriceUsd: cryptoMarketDataById[FOX.assetId].price,
+      outputExponent: FOX_MAINNET.precision,
+      outputAssetPriceUsd: cryptoMarketDataById[FOX_MAINNET.assetId].price,
       protocolFees,
     })
 
     const btcToFoxPriceRatio = bn(cryptoMarketDataById[BTC.assetId].price).div(
-      cryptoMarketDataById[FOX.assetId].price,
+      cryptoMarketDataById[FOX_MAINNET.assetId].price,
     )
     const ethToFoxPriceRatio = bn(cryptoMarketDataById[ETH.assetId].price).div(
-      cryptoMarketDataById[FOX.assetId].price,
+      cryptoMarketDataById[FOX_MAINNET.assetId].price,
     )
 
     expect(btcToFoxPriceRatio.gt(0)).toBe(true)
@@ -54,13 +54,13 @@ describe('sumProtocolFeesToDenom', () => {
     const btcAmountInFox = convertPrecision({
       value: '3000000',
       inputExponent: BTC.precision,
-      outputExponent: FOX.precision,
+      outputExponent: FOX_MAINNET.precision,
     }).times(btcToFoxPriceRatio)
 
     const ethAmountInFox = convertPrecision({
       value: '500000000000000000',
       inputExponent: ETH.precision,
-      outputExponent: FOX.precision,
+      outputExponent: FOX_MAINNET.precision,
     }).times(ethToFoxPriceRatio)
 
     const expectation = btcAmountInFox.plus(ethAmountInFox).toString()

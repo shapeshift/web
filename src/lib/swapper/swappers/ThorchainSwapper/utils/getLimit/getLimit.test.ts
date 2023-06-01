@@ -12,7 +12,7 @@ import type Web3 from 'web3'
 import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import { DEFAULT_SLIPPAGE } from '../../../utils/constants'
-import { BTC, ETH, FOX, RUNE } from '../../../utils/test-data/assets'
+import { BTC, ETH, FOX_MAINNET, RUNE } from '../../../utils/test-data/assets'
 import type { ThorchainSwapperDeps } from '../../types'
 import { getInboundAddressDataForChain } from '../getInboundAddressDataForChain'
 import { getTradeRate, getTradeRateBelowMinimum } from '../getTradeRate/getTradeRate'
@@ -88,7 +88,7 @@ describe('getLimit', () => {
       Promise.resolve(mockOk(mockInboundAddresses.find(address => address.chain === 'ETH'))),
     )
     const getLimitArgs: GetLimitArgs = {
-      sellAsset: FOX,
+      sellAsset: FOX_MAINNET,
       buyAsset: BTC,
       receiveAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
       sellAmountCryptoBaseUnit: '489830019000000000000',
@@ -121,7 +121,7 @@ describe('getLimit', () => {
       Promise.resolve(mockOk(mockInboundAddresses.find(address => address.chain === 'ETH'))),
     )
     const getLimitArgs: GetLimitArgs = {
-      sellAsset: FOX,
+      sellAsset: FOX_MAINNET,
       buyAsset: RUNE,
       receiveAddress: 'thor1234j5yq9qg7xqf0yq9qg7xqf0yq9qg7xqf0yq9q',
       sellAmountCryptoBaseUnit: '984229076000000000000',
@@ -155,16 +155,16 @@ describe('getLimit', () => {
     )
     const getLimitArgs: GetLimitArgs = {
       sellAsset: RUNE,
-      buyAsset: FOX,
+      buyAsset: FOX_MAINNET,
       receiveAddress: '0xFooBar',
       sellAmountCryptoBaseUnit: '988381400',
       deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
       protocolFees: {
-        [FOX.assetId]: {
+        [FOX_MAINNET.assetId]: {
           amountCryptoBaseUnit: '65000000000',
           requiresBalance: false,
-          asset: FOX,
+          asset: FOX_MAINNET,
         },
       },
       affiliateBps: '0',

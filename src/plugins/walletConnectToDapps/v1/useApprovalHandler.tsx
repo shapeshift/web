@@ -49,16 +49,12 @@ export const useApprovalHandler = (wcAccountId: AccountId | undefined) => {
   )
 
   const eth_sign = useCallback(
-    async (request: WalletConnectEthSignCallRequest) => {
-      return await signMessage(request.params[1])
-    },
+    (request: WalletConnectEthSignCallRequest) => signMessage(request.params[1]),
     [signMessage],
   )
 
   const personal_sign = useCallback(
-    async (request: WalletConnectPersonalSignCallRequest) => {
-      return await signMessage(request.params[0])
-    },
+    (request: WalletConnectPersonalSignCallRequest) => signMessage(request.params[0]),
     [signMessage],
   )
 

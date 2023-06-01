@@ -267,12 +267,10 @@ export const useSwapper = () => {
       web3,
       erc20AllowanceAbi,
       address: sellAssetContractAddress,
-      // TODO(woodenfurniture): use active step
       spender: activeQuote.steps[0].allowanceContract,
       from,
     })
 
-    // TODO(woodenfurniture): use active step
     return bn(allowanceOnChainCryptoBaseUnit).lt(
       activeQuote.steps[0].sellAmountBeforeFeesCryptoBaseUnit,
     )
@@ -295,8 +293,7 @@ export const useSwapper = () => {
         throw Error(`no valid EVM chain adapter found for chain Id: ${sellAsset.chainId}`)
 
       const approvalAmountCryptoBaseUnit = isExactAllowance
-        ? // TODO(woodenfurniture): use active step
-          activeQuote.steps[0].sellAmountBeforeFeesCryptoBaseUnit
+        ? activeQuote.steps[0].sellAmountBeforeFeesCryptoBaseUnit
         : MAX_ALLOWANCE
 
       const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
@@ -307,7 +304,6 @@ export const useSwapper = () => {
 
       const data = getApproveContractData({
         approvalAmountCryptoBaseUnit,
-        // TODO(woodenfurniture): use active step
         spender: activeQuote.steps[0].allowanceContract,
         to: assetReference,
         web3,
@@ -333,7 +329,6 @@ export const useSwapper = () => {
       return {
         networkFeeCryptoBaseUnit,
         buildCustomTxInput: {
-          // TODO(woodenfurniture): use active step
           accountNumber: activeQuote.steps[0].accountNumber,
           data,
           to: assetReference,

@@ -114,8 +114,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset?.chainId}!`)
 
   const networkFeeFiat = feeAssetFiatRate
-    ? // TODO(woodenfurniture): reduce sum
-      bnOrZero(
+    ? bnOrZero(
         fromBaseUnit(quote.steps[0].feeData.networkFeeCryptoBaseUnit, feeAsset.precision),
       ).times(feeAssetFiatRate)
     : undefined

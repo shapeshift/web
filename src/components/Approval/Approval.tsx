@@ -79,11 +79,9 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
 
-  // TODO(woodenfurniture): use active step
   const symbol = activeQuote?.steps[0].sellAsset?.symbol
 
   const sellFeeAsset = useAppSelector(state =>
-    // TODO(woodenfurniture): use active step
     selectFeeAssetById(state, activeQuote?.steps[0].sellAsset.assetId ?? ethAssetId),
   )
 
@@ -203,7 +201,6 @@ export const Approval = () => {
             >
               {() => (
                 <Image
-                  // TODO(woodenfurniture): use active step
                   src={activeQuote?.steps[0].sellAsset.icon}
                   boxSize='60px'
                   fallback={<SkeletonCircle boxSize='60px' />}
@@ -219,7 +216,6 @@ export const Approval = () => {
             />
             <CText color='gray.500' textAlign='center'>
               <Link
-                // TODO(woodenfurniture): use active step
                 href={`${activeQuote?.steps[0].sellAsset.explorerAddressLink}${activeQuote?.steps[0].allowanceContract}`}
                 color='blue.500'
                 me={1}
@@ -234,7 +230,6 @@ export const Approval = () => {
             </Link>
             <Divider my={4} />
             <Flex flexDirection='column' width='full'>
-              {/* TODO(woodenfurniture): use active step */}
               {approvalTxId && activeQuote?.steps[0].sellAsset.explorerTxLink && (
                 <Row>
                   <Row.Label>
@@ -244,7 +239,6 @@ export const Approval = () => {
                     <Link
                       isExternal
                       color='blue.500'
-                      // TODO(woodenfurniture): use active step
                       href={`${activeQuote?.steps[0].sellAsset.explorerTxLink}${approvalTxId}`}
                     >
                       <MiddleEllipsis value={approvalTxId} />

@@ -31,7 +31,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
 
   const bestBuyAmountCryptoPrecision =
     bestQuote &&
-    // TODO(woodenfurniture): reduce sum
     fromBaseUnit(
       bestQuote.steps[0].buyAmountBeforeFeesCryptoBaseUnit,
       bestQuote.steps[0].buyAsset.precision,
@@ -47,7 +46,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
       ? fromBaseUnit(
           sumProtocolFeesToDenom({
             cryptoMarketDataById,
-            // TODO(woodenfurniture): reduce sum
             protocolFees: bestQuote.steps[0].feeData.protocolFees,
             outputExponent: buyAsset.precision,
             outputAssetPriceUsd: buyAssetUsdRate,
@@ -66,14 +64,12 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
     ? availableSwappersWithMetadata.map((swapperWithMetadata, i) => {
         const quote = swapperWithMetadata.quote
         const buyAmountBeforeFeesCryptoPrecision = buyAsset
-          ? // TODO(woodenfurniture): reduce sum
-            fromBaseUnit(quote.steps[0].buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
+          ? fromBaseUnit(quote.steps[0].buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
           : undefined
 
         const totalProtocolFeeCryptoPrecision = fromBaseUnit(
           sumProtocolFeesToDenom({
             cryptoMarketDataById,
-            // TODO(woodenfurniture): reduce sum
             protocolFees: quote.steps[0].feeData.protocolFees,
             outputExponent: buyAsset.precision,
             outputAssetPriceUsd: buyAssetUsdRate,

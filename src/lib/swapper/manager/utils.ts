@@ -18,7 +18,6 @@ import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
   Negative ratios are possible when the fees exceed the sell amount.
   This is allowed to let us choose 'the best from a bad bunch'.
 */
-// TODO(woodenfurniture): pass in step here not full quote
 export const getRatioFromQuote = ({
   quote,
   feeAsset,

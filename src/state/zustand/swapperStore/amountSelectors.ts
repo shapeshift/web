@@ -517,7 +517,5 @@ export const selectIntermediaryTransactionOutputs = createDeepEqualOutputSelecto
   ): AmountDisplayMeta[] | undefined =>
     // Use the trade amount if we have it, otherwise use the quote amount
     tradeIntermediaryTransactionOutputs ??
-    activeSwapperWithMetadata?.quote.steps.flatMap(
-      step => step.intermediaryTransactionOutputs ?? [],
-    ),
+    activeSwapperWithMetadata?.quote.steps[0].intermediaryTransactionOutputs,
 )

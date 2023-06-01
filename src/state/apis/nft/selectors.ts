@@ -61,7 +61,7 @@ export const selectSelectedNftAvatarUrl = createSelector(
   (nftAssetId, nfts): string | undefined => {
     const nftItem = nfts[nftAssetId ?? '']
 
-    const media: string | undefined = nftItem?.medias[0]?.originalUrl
+    const media = nftItem?.medias[0]?.originalUrl
 
     return media
   },

@@ -309,8 +309,6 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
     )
   }, [nftModalOverview, nftModalDetails])
 
-  if (!(nftCollection || nftItem.collectionId)) return null
-
   return (
     <Modal isOpen={isOpen} onClose={handleClose} isCentered={isLargerThanMd}>
       <ModalOverlay />

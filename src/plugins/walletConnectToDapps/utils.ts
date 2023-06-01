@@ -17,9 +17,6 @@ import type {
   WalletConnectState,
 } from 'plugins/walletConnectToDapps/v2/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
-
-const moduleLogger = logger.child({ namespace: ['walletConnectToDapps.Utils'] })
 
 /**
  * Converts hex to utf8 string if it is valid bytes
@@ -28,11 +25,7 @@ export const maybeConvertHexEncodedMessageToUtf8 = (value: string) => {
   try {
     return utils.isHexString(value) ? utils.toUtf8String(value) : value
   } catch (e) {
-    /*
-     value here is meant to be a hex-encoded string, but we've come across implementations that pass an incorrect encoding
-     since this is only for display purposes, we can safely ignore the error and return the original value
-     */
-    moduleLogger.warn(e, 'maybeConvertHexEncodedMessageToUtf8')
+    // use raw hex string if unable to convert to utf8 (ex. keccak256)
     return value
   }
 }

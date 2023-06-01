@@ -289,7 +289,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
           {hasUsefulCollectionData && (
             <TabPanel p={0}>
               <NftCollection
-                name={nftCollection?.name || nftCollection?.name}
+                name={nftCollection.name}
                 description={nftCollection?.description}
                 socialLinks={nftCollection.socialLinks}
               />

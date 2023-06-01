@@ -9,6 +9,7 @@ jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
   ...jest.requireActual('state/zustand/swapperStore/amountSelectors'),
   selectSellAssetUsdRate: jest.fn(() => '0.25'),
 }))
+
 const supportedChainIds: CowChainId[] = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
 
 describe('getCowSwapMinMax', () => {
@@ -32,7 +33,7 @@ describe('getCowSwapMinMax', () => {
     const maybeMinMax = getCowSwapMinMax(USDC_GNOSIS, XDAI, supportedChainIds)
     expect(maybeMinMax.isErr()).toBe(false)
     const minMax = maybeMinMax.unwrap()
-    expect(minMax.minimumAmountCryptoHuman).toBe('80')
+    expect(minMax.minimumAmountCryptoHuman).toBe('2')
     expect(minMax.maximumAmountCryptoHuman).toBe(MAX_COWSWAP_TRADE)
   })
 
@@ -44,6 +45,7 @@ describe('getCowSwapMinMax', () => {
       message: '[getCowSwapMinMax]',
       name: 'SwapError',
     }
+
     expect(getCowSwapMinMax(ETH, WETH, supportedChainIds).unwrapErr()).toMatchObject(expectedError)
     expect(getCowSwapMinMax(FOX_MAINNET, BTC, supportedChainIds).unwrapErr()).toMatchObject(
       expectedError,

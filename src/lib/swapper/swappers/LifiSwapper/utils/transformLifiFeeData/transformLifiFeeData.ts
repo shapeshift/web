@@ -32,12 +32,12 @@ export const transformLifiStepFeeData = ({
   const assets = selectAssets(store.getState())
 
   const protocolFees = allPayableFeeCosts.reduce<Record<AssetId, ProtocolFee>>((acc, feeCost) => {
-    const { amount, token } = feeCost
+    const { amount: amountCryptoBaseUnit, token } = feeCost
     const assetId = lifiTokenToAssetId(token)
     const asset = assets[assetId]
     if (acc[assetId] === undefined) {
       acc[assetId] = {
-        amountCryptoBaseUnit: amount,
+        amountCryptoBaseUnit,
         asset: {
           chainId: asset?.chainId ?? lifiChainIdToChainId(token.chainId),
           precision: asset?.precision ?? token.decimals,
@@ -47,7 +47,7 @@ export const transformLifiStepFeeData = ({
       }
     } else {
       acc[assetId].amountCryptoBaseUnit = bn(acc[assetId].amountCryptoBaseUnit)
-        .plus(amount)
+        .plus(amountCryptoBaseUnit)
         .toString()
     }
     return acc

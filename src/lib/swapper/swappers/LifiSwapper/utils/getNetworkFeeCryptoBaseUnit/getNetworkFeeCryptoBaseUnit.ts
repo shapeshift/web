@@ -1,14 +1,13 @@
 import type { Step } from '@lifi/sdk'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { optimism } from '@shapeshiftoss/chain-adapters'
-import { getConfig } from 'config'
-import Web3 from 'web3'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type { AbiItem } from 'web3-utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { getFeesFromContractData } from 'lib/swapper/swappers/utils/helpers/helpers'
 import { isEvmChainAdapter } from 'lib/utils'
+import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 
 import { getLifi } from '../getLifi'
 
@@ -43,8 +42,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
   // TEMP: this is necessary because infura currently cannot estimate gas for some lifi contract
   // interactions, so instead of calling our existing stack which relies on infura we call the
   // optimism gas oracle directly.
-  if (optimism.isOptimismChainAdapter(adapter)) {
-    const provider = new Web3.providers.HttpProvider(getConfig().REACT_APP_OPTIMISM_NODE_URL)
+  if (chainId === KnownChainIds.OptimismMainnet) {
     const optimismGasOracleAddress = '0x420000000000000000000000000000000000000f'
     const optimismGasOracleAbi: AbiItem[] = [
       {
@@ -55,7 +53,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
         type: 'function',
       },
     ]
-    const web3 = new Web3(provider)
+    const web3 = getWeb3InstanceByChainId(chainId)
     const tokenContract = new web3.eth.Contract(optimismGasOracleAbi, optimismGasOracleAddress)
     const l1Fee = await tokenContract.methods.getL1Fee(data).call()
     const gasFee = maxFeePerGas

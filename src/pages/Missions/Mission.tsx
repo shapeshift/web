@@ -48,7 +48,7 @@ export const Mission: React.FC<MissionProps> = ({
     const now = dayjs()
     if (now.isBefore(start)) {
       setisActive(false)
-      return <RawText>Coming Soon</RawText>
+      return <RawText>{translate('missions.comingSoon')}</RawText>
     } else {
       setisActive(true)
       const isEnded = now.isAfter(end)

@@ -34,7 +34,6 @@ export async function getTradeQuote(
       sellAmountBeforeFeesCryptoBaseUnit,
       receiveAddress,
       accountNumber,
-      eip1559Support,
     } = input
 
     const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
@@ -134,7 +133,6 @@ export async function getTradeQuote(
     const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(lifiStep)
 
     const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
-      eip1559Support,
       chainId,
       lifiStep,
     })

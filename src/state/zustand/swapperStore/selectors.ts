@@ -104,9 +104,9 @@ export const selectSwapperDefaultAffiliateBps = createSelector(
       case SwapperName.Thorchain:
       case SwapperName.Zrx:
       case SwapperName.OneInch:
+      case SwapperName.LIFI:
         return '30'
       case SwapperName.Osmosis:
-      case SwapperName.LIFI:
       case SwapperName.CowSwap:
       case SwapperName.Test:
         return '0'

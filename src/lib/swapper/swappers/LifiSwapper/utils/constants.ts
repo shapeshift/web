@@ -3,3 +3,4 @@ export const SELECTED_ROUTE_INDEX = 0 // default to first route - this is the hi
 export const LIFI_GAS_FEE_BASE = 16 // lifi gas feed are all in base 16
 export const MAX_LIFI_TRADE = '100000000000000000000000000'
 export const DEFAULT_LIFI_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'
+export const LIFI_INTEGRATOR_ID = 'shapeshift'

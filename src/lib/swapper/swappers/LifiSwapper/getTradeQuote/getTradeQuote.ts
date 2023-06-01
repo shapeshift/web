@@ -5,11 +5,11 @@ import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
-import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import {
+  LIFI_INTEGRATOR_ID,
   MAX_LIFI_TRADE,
   SELECTED_ROUTE_INDEX,
 } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
@@ -19,6 +19,7 @@ import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/g
 import { getMinimumCryptoHuman } from 'lib/swapper/swappers/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
 import { transformLifiFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
+import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
@@ -32,6 +33,7 @@ export async function getTradeQuote(
       sellAmountBeforeFeesCryptoBaseUnit,
       receiveAddress,
       accountNumber,
+      affiliateBps,
     } = input
 
     const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
@@ -70,8 +72,9 @@ export async function getTradeQuote(
       // as recommended by lifi, dodo is denied until they fix their gas estimates
       // TODO: convert this config to .env variable
       options: {
-        // used for analytics - do not change this without considering impact
-        integrator: DAO_TREASURY_ETHEREUM_MAINNET,
+        // used for analytics and donations - do not change this without considering impact
+        integrator: LIFI_INTEGRATOR_ID,
+        fee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
         slippage: Number(defaultLifiSwapperSlippage),
         exchanges: { deny: ['dodo'] },
         // as recommended by lifi, allowSwitchChain must be false to ensure single-hop transactions.

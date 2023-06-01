@@ -422,7 +422,9 @@ export const TradeConfirm = () => {
     return (
       !isDonationAmountBelowMinimum &&
       swapperName &&
-      [SwapperName.Thorchain, SwapperName.Zrx, SwapperName.OneInch].includes(swapperName)
+      [SwapperName.Thorchain, SwapperName.Zrx, SwapperName.OneInch, SwapperName.LIFI].includes(
+        swapperName,
+      )
     )
   }, [swapperName, isDonationAmountBelowMinimum])
 

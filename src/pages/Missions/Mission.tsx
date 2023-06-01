@@ -1,5 +1,14 @@
-import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, Heading, useColorModeValue } from '@chakra-ui/react'
+import { ArrowForwardIcon, InfoIcon } from '@chakra-ui/icons'
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Tag,
+  TagLabel,
+  TagRightIcon,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -18,7 +27,7 @@ export type MissionProps = {
   subtitle?: string
   coverImage?: string
   image: string
-  onClick: () => void
+  onClick?: () => void
   buttonText: string
   endDate?: string
   startDate?: string
@@ -38,8 +47,8 @@ export const Mission: React.FC<MissionProps> = ({
   const [isActive, setisActive] = useState(false)
   const translate = useTranslate()
   const handleClick = useCallback(() => {
-    getMixPanel()?.track(`${title} mission click`)
-    onClick()
+    getMixPanel()?.track('mission click', { mission: title })
+    onClick && onClick()
   }, [onClick, title])
 
   const renderFooter = useMemo(() => {
@@ -48,30 +57,25 @@ export const Mission: React.FC<MissionProps> = ({
     const now = dayjs()
     if (now.isBefore(start)) {
       setisActive(false)
-      return <RawText>{translate('missions.comingSoon')}</RawText>
+      return (
+        <>
+          <Tag>
+            <TagLabel>{translate('missions.comingSoon')}</TagLabel>
+            <TagRightIcon as={InfoIcon} />
+          </Tag>
+        </>
+      )
     } else {
       setisActive(true)
       const isEnded = now.isAfter(end)
       return (
         <>
-          <Flex gap={2} fontWeight='semibold' alignItems='center'>
-            <FaClock />
-            {isEnded ? (
-              <RawText>{translate('missions.missionEnded')}</RawText>
-            ) : (
-              <RawText lineHeight='none'>
-                {endDate
-                  ? `${translate('missions.ends')} ${dayjs(endDate, promoDateFormat).fromNow()}`
-                  : translate('missions.ongoing')}
-              </RawText>
-            )}
-          </Flex>
           <Button
             variant='unstyled'
             onClick={handleClick}
             iconSpacing={3}
             className='mission-btn'
-            rightIcon={
+            leftIcon={
               <IconCircle
                 bg='white'
                 color='black'
@@ -85,6 +89,18 @@ export const Mission: React.FC<MissionProps> = ({
           >
             {isEnded ? translate('missions.viewMission') : buttonText}
           </Button>
+          <Flex gap={2} fontWeight='semibold' alignItems='center'>
+            <FaClock />
+            {isEnded ? (
+              <RawText>{translate('missions.missionEnded')}</RawText>
+            ) : (
+              <RawText lineHeight='none'>
+                {endDate
+                  ? `${translate('missions.ends')} ${dayjs(endDate, promoDateFormat).fromNow()}`
+                  : translate('missions.ongoing')}
+              </RawText>
+            )}
+          </Flex>
         </>
       )
     }
@@ -97,7 +113,7 @@ export const Mission: React.FC<MissionProps> = ({
       boxShadow='lg'
       borderWidth={useColorModeValue(0, 1)}
       gridColumn={`span ${colspan}`}
-      borderRadius={{ base: 'none', lg: '3xl', xl: '3xl' }}
+      borderRadius={{ base: 'xl', lg: '3xl', xl: '3xl' }}
       transitionProperty='common'
       transitionDuration='normal'
       position='relative'
@@ -157,17 +173,19 @@ export const Mission: React.FC<MissionProps> = ({
             backdropFilter: 'blur(50px)',
             mask: 'linear-gradient(transparent, black 85%)',
             borderBottomRadius: {
-              base: 'none',
+              base: 'xl',
               lg: '2xl',
             },
           }}
         >
           <Flex
-            alignItems='center'
+            alignItems={{ base: 'flex-start', lg: 'center' }}
             color='white'
             width='full'
             justifyContent='space-between'
             zIndex='1'
+            gap={6}
+            flexDir={{ base: 'column', lg: 'row' }}
           >
             {renderFooter}
           </Flex>
@@ -175,11 +193,11 @@ export const Mission: React.FC<MissionProps> = ({
       </Card.Body>
       <Box
         width='100%'
-        minHeight='350px'
+        minHeight={{ base: '150px', md: '350px' }}
         mt='auto'
         backgroundPosition='center 100%'
         backgroundRepeat='no-repeat'
-        borderBottomRadius={{ base: 'none', lg: '2xl' }}
+        borderBottomRadius={{ base: 'xl', lg: '2xl' }}
       />
     </Card>
   )

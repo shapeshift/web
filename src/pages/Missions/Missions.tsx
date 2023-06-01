@@ -40,7 +40,7 @@ export const Missions = () => {
         subtitle: translate('missions.foxArmy.subtitle'),
         buttonText: translate('missions.foxArmy.cta'),
         coverImage: FoxArmyBg,
-        onClick: () => window.open('https://app.mercle.xyz/shapeshift/events'),
+        onClick: () => window.open('https://x.postmint.xyz/'),
         startDate: '2023-06-06 17:00 UTC',
         endDate: '2023-06-13 17:00 UTC',
       },

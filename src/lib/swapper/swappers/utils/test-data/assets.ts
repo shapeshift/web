@@ -6,6 +6,9 @@ import {
   ethAssetId,
   ethChainId,
   foxAssetId,
+  foxOnGnosisAssetId,
+  gnosisAssetId,
+  gnosisChainId,
   optimismAssetId,
   optimismChainId,
   thorchainAssetId,
@@ -39,7 +42,7 @@ export const WETH: Asset = {
   symbol: 'WETH',
 }
 
-export const FOX: Asset = {
+export const FOX_MAINNET: Asset = {
   assetId: foxAssetId,
   chainId: ethChainId,
   name: 'FOX',
@@ -49,6 +52,19 @@ export const FOX: Asset = {
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
+  symbol: 'FOX',
+}
+
+export const FOX_GNOSIS: Asset = {
+  assetId: foxOnGnosisAssetId,
+  chainId: gnosisChainId,
+  name: 'FOX',
+  precision: 18,
+  color: '#FFFFFF',
+  icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
+  explorer: 'https://gnosisscan.io/',
+  explorerAddressLink: 'https://gnosisscan.io/address/',
+  explorerTxLink: 'https://gnosisscan.io/tx/',
   symbol: 'FOX',
 }
 
@@ -91,7 +107,7 @@ export const UNSUPPORTED: Asset = {
   explorerAddressLink: 'https://etherscan.io/address/',
 }
 
-export const USDC: Asset = {
+export const USDC_MAINNET: Asset = {
   assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   chainId: ethChainId,
   symbol: 'USDC',
@@ -102,6 +118,19 @@ export const USDC: Asset = {
   explorer: 'https://etherscan.io',
   explorerAddressLink: 'https://etherscan.io/address/',
   explorerTxLink: 'https://etherscan.io/tx/',
+}
+
+export const USDC_GNOSIS: Asset = {
+  assetId: 'eip155:100/erc20:0xddafbb505ad214d7b80b1f830fccc89b60fb7a83',
+  chainId: gnosisChainId,
+  symbol: 'USDC on Gnosis',
+  name: 'USD Coin',
+  precision: 6,
+  color: '#2373CB',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
+  explorer: 'https://gnosisscan.io/',
+  explorerAddressLink: 'https://gnosisscan.io/address/',
+  explorerTxLink: 'https://gnosisscan.io/tx/',
 }
 
 export const AVAX: Asset = {
@@ -147,6 +176,20 @@ export const BSC: Asset = {
   explorerTxLink: 'https://bscscan.com/tx/',
 }
 
+export const XDAI: Asset = {
+  assetId: gnosisAssetId,
+  chainId: gnosisChainId,
+  name: 'xDai',
+  networkName: 'Gnosis Chain',
+  symbol: 'xDai',
+  precision: 18,
+  color: '#33765c',
+  icon: 'https://assets.coingecko.com/coins/images/11062/large/Identity-Primary-DarkBG.png?1638372986',
+  explorer: 'https://gnosisscan.io/',
+  explorerAddressLink: 'https://gnosisscan.io/address/',
+  explorerTxLink: 'https://gnosisscan.io/tx/',
+}
+
 export const RUNE: Asset = {
   assetId: thorchainAssetId,
   chainId: thorchainChainId,
@@ -161,14 +204,16 @@ export const RUNE: Asset = {
 }
 
 export const assetsById = {
-  [FOX.assetId]: FOX,
+  [FOX_MAINNET.assetId]: FOX_MAINNET,
+  [FOX_GNOSIS.assetId]: FOX_GNOSIS,
   [ETH.assetId]: ETH,
   [AVAX.assetId]: AVAX,
   [BSC.assetId]: BSC,
   [BTC.assetId]: BTC,
   [RUNE.assetId]: RUNE,
   [OPTIMISM.assetId]: OPTIMISM,
-  [USDC.assetId]: USDC,
+  [USDC_MAINNET.assetId]: USDC_MAINNET,
+  [USDC_GNOSIS.assetId]: USDC_GNOSIS,
   [WBTC.assetId]: WBTC,
   [WETH.assetId]: WETH,
 }

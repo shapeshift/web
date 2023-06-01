@@ -131,7 +131,7 @@ export const NftNetworkFilter = ({
               <FilterGroup
                 name={FilterFormFields.Network}
                 control={control}
-                title='Network'
+                title={translate('transactionRow.network')}
                 allowMultipleOptions
                 initialIsOpen
                 options={availableNetworkOptions}

@@ -57,7 +57,9 @@ export const NftTable = () => {
         ? data.filter(nftItem => networkFilters.includes(nftItem.chainId))
         : data
 
-      return matchSorter(maybeFilteredByChainId, search, { keys })
+      // Don't use matchSorter if there is no need to - it's expensive, and will rug the initial sorting
+      // resulting in perceived borked order when filtering by chain vs. no filter applied
+      return search ? matchSorter(maybeFilteredByChainId, search, { keys }) : maybeFilteredByChainId
     },
     [networkFilters],
   )

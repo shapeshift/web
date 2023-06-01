@@ -108,7 +108,10 @@ export const ScrollCarousel: React.FC<FeatureListProps> = ({
         ref={ref}
         gridAutoFlow='column'
         gridColumnGap={gridGap}
-        gridAutoColumns={`calc((100% - ${offsetColumn} * ${gridGap})/ ${gridColumns})`}
+        gridAutoColumns={{
+          base: '350px',
+          md: `calc((100% - ${offsetColumn} * ${gridGap})/ ${gridColumns})`,
+        }}
         gridTemplateRows='repeat(1, max-content)'
         overflowX='auto'
         overflowY='hidden'
@@ -122,10 +125,16 @@ export const ScrollCarousel: React.FC<FeatureListProps> = ({
         marginBottom={`-${gridGap}`}
         paddingTop={gridGap}
         paddingBottom={gridGap}
+        paddingLeft={gridGap}
         sx={{
           '::-webkit-scrollbar': {
             display: 'none',
           },
+        }}
+        _after={{
+          content: '""',
+          width: gridGap,
+          display: 'block',
         }}
       >
         {children}

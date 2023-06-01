@@ -26,7 +26,6 @@ export type MissionProps = {
   title: string
   subtitle?: string
   coverImage?: string
-  image: string
   onClick?: () => void
   buttonText: string
   endDate?: string
@@ -120,6 +119,7 @@ export const Mission: React.FC<MissionProps> = ({
       bgImage={coverImage}
       backgroundSize='cover'
       backgroundRepeat='no-repeat'
+      backgroundPosition={{ base: 'center', md: 'center bottom' }}
       borderColor={useColorModeValue('blackAlpha.100', 'whiteAlpha.100')}
       {...(isActive
         ? {
@@ -144,11 +144,11 @@ export const Mission: React.FC<MissionProps> = ({
           {subtitle}
         </Heading>
         <Heading
-          fontSize='3xl'
+          fontSize={{ base: 'xl', md: '3xl' }}
           fontWeight='semibold'
           letterSpacing='-0.002em'
           textAlign='center'
-          lineHeight='10'
+          lineHeight='shorter'
           color='white'
           mx={8}
         >

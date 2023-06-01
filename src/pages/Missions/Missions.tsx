@@ -6,7 +6,6 @@ import FoxMissionsBg from 'assets/fox-missions-bg.jpg'
 import FoxArmyBg from 'assets/foxarmy-bg.png'
 import FoxAtarBg from 'assets/foxatar-card-bg.png'
 import OptimismBg from 'assets/op-card-bg.png'
-import OpLogo from 'assets/op-logo.png'
 import YatBg from 'assets/yat-mission-bg.png'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
@@ -21,28 +20,25 @@ export const Missions = () => {
   const missionItems: MissionProps[] = useMemo(() => {
     return [
       {
-        title: translate('missions.optimism.title'),
-        subtitle: translate('missions.optimism.subtitle'),
-        buttonText: translate('missions.optimism.cta'),
-        coverImage: OptimismBg,
-        image: OpLogo,
-        onClick: () => window.open('https://rewards.shapeshift.com/optimistic-fox-1'),
-        endDate: '2023-06-30 08:00 AM',
-      },
-      {
         title: translate('missions.foxatar.title'),
         subtitle: translate('missions.foxatar.subtitle'),
         buttonText: translate('missions.foxatar.cta'),
         coverImage: FoxAtarBg,
-        image: OpLogo,
         onClick: () => window.open('https://app.mercle.xyz/shapeshift/events'),
+      },
+      {
+        title: translate('missions.optimism.title'),
+        subtitle: translate('missions.optimism.subtitle'),
+        buttonText: translate('missions.optimism.cta'),
+        coverImage: OptimismBg,
+        onClick: () => window.open('https://rewards.shapeshift.com/optimistic-fox-1'),
+        endDate: '2023-06-30 08:00 AM',
       },
       {
         title: translate('missions.foxArmy.title'),
         subtitle: translate('missions.foxArmy.subtitle'),
         buttonText: translate('missions.foxArmy.cta'),
         coverImage: FoxArmyBg,
-        image: OpLogo,
         onClick: () => window.open('https://app.mercle.xyz/shapeshift/events'),
         startDate: '2023-06-04 17:00 UTC',
         endDate: '2023-06-08 17:00 UTC',
@@ -52,11 +48,11 @@ export const Missions = () => {
         subtitle: translate('missions.yat.subtitle'),
         buttonText: translate('missions.yat.cta'),
         coverImage: YatBg,
-        image: OpLogo,
         onClick: () => window.open('https://fantasy.y.at/invite/yduad7mm'),
       },
     ]
   }, [translate])
+
   const renderMissions = useMemo(() => {
     const now = dayjs()
     const groupedMissions: {
@@ -78,11 +74,14 @@ export const Missions = () => {
       },
       { future: [] as MissionProps[], past: [] as MissionProps[], active: [] as MissionProps[] },
     )
+
     return (
-      <Container maxWidth='full' display='flex' flexDir='column' gap={12} px={6}>
+      <Container maxWidth='full' display='flex' flexDir='column' gap={12} px={{ base: 0, md: 6 }}>
         {groupedMissions.active.length > 0 && (
           <Stack spacing={6}>
-            <Heading as='h5'>{translate('missions.activeMissions')}</Heading>
+            <Heading as='h5' px={4}>
+              {translate('missions.activeMissions')}
+            </Heading>
             <ScrollCarousel>
               {groupedMissions.active.map(mission => (
                 <Mission key={mission.title} {...mission} />
@@ -90,20 +89,36 @@ export const Missions = () => {
             </ScrollCarousel>
           </Stack>
         )}
-        {groupedMissions.future.length > 0 && (
-          <Stack spacing={6}>
-            <Heading as='h5'>{translate('missions.comingSoon')}</Heading>
-            <ScrollCarousel>
-              {groupedMissions.future.map(mission => (
-                <Mission key={mission.title} {...mission} />
-              ))}
-            </ScrollCarousel>
-          </Stack>
-        )}
+
+        <Stack spacing={6}>
+          <Heading as='h5' px={4}>
+            {translate('missions.comingSoon')}
+          </Heading>
+          <ScrollCarousel>
+            {groupedMissions.future.map(mission => (
+              <Mission key={mission.title} {...mission} />
+            ))}
+            <Mission
+              key='sponsored'
+              title='Get it son'
+              subtitle="I've heard it both ways"
+              onClick={() =>
+                window.open(
+                  'https://docs.google.com/forms/d/e/1FAIpQLSc26_m3FRLTx1hKO2546XVk82MsFixuB4qqQyfzVjSrEey46w/viewform',
+                )
+              }
+              buttonText='nothing'
+              coverImage={FoxAtarBg}
+              startDate='2050-01-01'
+            />
+          </ScrollCarousel>
+        </Stack>
 
         {groupedMissions.past.length > 0 && (
           <Stack spacing={6}>
-            <Heading as='h5'>{translate('missions.endedMissions')}</Heading>
+            <Heading as='h5' px={4}>
+              {translate('missions.endedMissions')}
+            </Heading>
             <ScrollCarousel>
               {groupedMissions.past.map(mission => (
                 <Mission key={mission.title} {...mission} />
@@ -133,7 +148,7 @@ export const Missions = () => {
           bgImage={FoxMissionsBg}
           backgroundSize={{ base: 'contain', md: 'cover' }}
           backgroundRepeat='no-repeat'
-          backgroundPosition={{ base: 'center 110%', md: 'center 110%' }}
+          backgroundPosition={{ base: 'center -8em', md: 'center 110%' }}
           pt='22%'
         >
           <Container textAlign='center' maxWidth='container.md' py={16}>

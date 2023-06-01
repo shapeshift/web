@@ -1,8 +1,11 @@
+import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { PURGE } from 'redux-persist'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 import { logger } from 'lib/logger'
+import type { WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
@@ -22,6 +25,33 @@ type GetNftCollectionInput = {
 }
 
 const moduleLogger = logger.child({ namespace: ['nftApi'] })
+
+type NftState = {
+  selectedNftAvatarByWalletId: Record<WalletId, AssetId>
+}
+const initialState: NftState = {
+  selectedNftAvatarByWalletId: {},
+}
+
+export const nft = createSlice({
+  name: 'nftData',
+  initialState,
+  reducers: {
+    clear: () => initialState,
+    setWalletSelectedNftAvatar: {
+      reducer: (
+        draftState,
+        { payload }: { payload: { nftAssetId: AssetId; walletId: WalletId } },
+      ) => {
+        draftState.selectedNftAvatarByWalletId[payload.walletId] = payload.nftAssetId
+      },
+      // Use the `prepareAutoBatched` utility to automatically
+      // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
+      prepare: prepareAutoBatched<{ nftAssetId: AssetId; walletId: WalletId }>(),
+    },
+  },
+  extraReducers: builder => builder.addCase(PURGE, () => initialState),
+})
 
 export const nftApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,

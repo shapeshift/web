@@ -6,24 +6,22 @@ import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { QRCodeIcon } from 'components/Icons/QRCode'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
 import {
   selectClaimableRewards,
   selectEarnBalancesFiatAmountFull,
   selectPortfolioLoading,
   selectPortfolioTotalFiatBalanceExcludeEarnDupes,
-  selectWalletId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { DashboardTab } from './DashboardTab'
+import { ProfileAvatar } from './ProfileAvatar/ProfileAvatar'
 
 type TabItem = {
   label: string
@@ -36,7 +34,6 @@ type TabItem = {
 
 export const DashboardHeader = () => {
   const isNftsEnabled = useFeatureFlag('Jaypegz')
-  const walletId = useAppSelector(selectWalletId)
   const location = useLocation()
   const { qrCode, send, receive } = useModal()
   const { history } = useBrowserRouter()
@@ -131,12 +128,6 @@ export const DashboardHeader = () => {
     ))
   }, [NavItems, location.pathname])
 
-  const walletImage = useMemo(() => {
-    if (!walletId) return ''
-    /* This needs to be a min of 15 characters so we added a string to ensure its always at least 15 */
-    return makeBlockiesUrl(`${walletId}ifyoudriveatruckdriveitlikeyouhaveafarm`)
-  }, [walletId])
-
   const handleQrCodeClick = useCallback(() => {
     qrCode.open({})
   }, [qrCode])
@@ -168,9 +159,7 @@ export const DashboardHeader = () => {
         flexDir={{ base: 'column', xl: 'row' }}
       >
         <Flex alignItems='center' flexDir={{ base: 'column', md: 'row' }} gap={4}>
-          {walletId && (
-            <LazyLoadAvatar borderRadius='xl' size={{ base: 'md', md: 'xl' }} src={walletImage} />
-          )}
+          <ProfileAvatar />
           <Flex flexDir='column' alignItems={{ base: 'center', md: 'flex-start' }}>
             <Text fontWeight='semibold' translation='defi.netWorth' color='gray.500' />
             <Skeleton isLoaded={!loading}>

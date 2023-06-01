@@ -31,7 +31,7 @@ export const selectNftCollectionById = createSelector(
   selectNftCollections,
   (_state: ReduxState, assetId: AssetId) => assetId,
   (collections, collectionAssetId): NftCollectionType | undefined => {
-    if (!collectionAssetId) return undefined
+    if (!collectionAssetId) return
 
     return collections[collectionAssetId]
   },
@@ -41,7 +41,7 @@ export const selectNftById = createSelector(
   selectNfts,
   (_state: ReduxState, assetId: AssetId) => assetId,
   (nfts, nftAssetId): NftItem | undefined => {
-    if (!nftAssetId) return undefined
+    if (!nftAssetId) return
 
     return nfts[nftAssetId]
   },

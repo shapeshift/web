@@ -5,6 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import FoxMissionsBg from 'assets/fox-missions-bg.jpg'
 import FoxArmyBg from 'assets/foxarmy-bg.png'
 import FoxAtarBg from 'assets/foxatar-card-bg.png'
+import SponsorBg from 'assets/mission-sponsor-bg.jpg'
 import OptimismBg from 'assets/op-card-bg.png'
 import YatBg from 'assets/yat-mission-bg.png'
 import { Main } from 'components/Layout/Main'
@@ -100,16 +101,15 @@ export const Missions = () => {
             ))}
             <Mission
               key='sponsored'
-              title='Get it son'
-              subtitle="I've heard it both ways"
+              title={translate('missions.getListed.title')}
+              subtitle={translate('missions.getListed.subtitle')}
               onClick={() =>
                 window.open(
                   'https://docs.google.com/forms/d/e/1FAIpQLSc26_m3FRLTx1hKO2546XVk82MsFixuB4qqQyfzVjSrEey46w/viewform',
                 )
               }
-              buttonText='nothing'
-              coverImage={FoxAtarBg}
-              startDate='2050-01-01'
+              buttonText={translate('missions.getListed.cta')}
+              coverImage={SponsorBg}
             />
           </ScrollCarousel>
         </Stack>

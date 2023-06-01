@@ -1964,6 +1964,11 @@
       "subtitle": "Play Yat Fantasy",
       "title": "3,000 USDC Prize Pool",
       "cta": "Start Mission"
+    },
+    "getListed": {
+      "subtitle": "Your Project Here",
+      "title": "Launch a Mission for Your Project",
+      "cta": "Submit Project"
     }
   },
   "avatar": {

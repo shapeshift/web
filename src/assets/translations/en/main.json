@@ -7,6 +7,7 @@
     "cancel": "Cancel",
     "close": "Close",
     "loadMore": "Load More",
+    "saveChanges": "Save Changes",
     "new": "New",
     "continue": "Continue",
     "reward": "Reward",
@@ -1911,6 +1912,7 @@
     }
   },
   "nft": {
+    "setAsAvatar": "Set as Avatar",
     "floorPrice": "Floor Price",
     "lastPrice": "Last Price",
     "overview": "Overview",
@@ -1926,5 +1928,10 @@
     "aboutCollection": "About %{collectionName}",
     "emptyTitle": "Where did all the NFTs go?",
     "emptyBody": "Don't worry, we've sent out a search party to bring back more amazing NFTs. In the meantime, feel free to stare at this blank space and ponder the meaning of existence."
+  },
+  "avatar": {
+    "modal": {
+      "title": "Set a New Avatar"
+    }
   }
 }

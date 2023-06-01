@@ -167,13 +167,13 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
 }
 
 const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
-  rate: '4.996e-17',
+  rate: '1.0003121775396440882',
   minimumCryptoHuman: '0.011624',
   maximumCryptoHuman: '100000000000000000000000000',
   feeData: {
     protocolFees: {
       [USDC_GNOSIS.assetId]: {
-        amountCryptoBaseUnit: '61804771879693983744',
+        amountCryptoBaseUnit: '1188',
         requiresBalance: false,
         asset: USDC_GNOSIS,
       },
@@ -181,7 +181,7 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
     networkFeeCryptoBaseUnit: '0',
   },
   sellAmountBeforeFeesCryptoBaseUnit: '20000000',
-  buyAmountBeforeFeesCryptoBaseUnit: '61804771879694030612859830863283',
+  buyAmountBeforeFeesCryptoBaseUnit: '21006555357465608755',
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: XDAI,
@@ -351,9 +351,9 @@ describe('getCowTradeQuote', () => {
             quote: {
               ...expectedApiInputUsdcGnosisToXdai,
               sellAmountBeforeFee: undefined,
-              sellAmount: '938195228120306016256',
-              buyAmount: '46868859830863283',
-              feeAmount: '61804771879693983744',
+              sellAmount: '20998812',
+              buyAmount: '21005367357465608755',
+              feeAmount: '1188',
               sellTokenBalance: ERC20_TOKEN_BALANCE,
               buyTokenBalance: ERC20_TOKEN_BALANCE,
             },

@@ -1,36 +1,26 @@
-import { QueryStatus } from '@reduxjs/toolkit/dist/query/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
 import { selectWalletId } from 'state/slices/common-selectors'
 
-import type { NftItem } from './types'
-
 export const selectSelectedNftAvatar = createSelector(
   selectWalletId,
   (state: ReduxState) => state.nft.selectedNftAvatarByWalletId,
-  (walletId, selectedNftAvatarByWalletId) => {
-    return selectedNftAvatarByWalletId[walletId ?? '']
+  (walletId, selectedNftAvatarByWalletId): AssetId => {
+    return selectedNftAvatarByWalletId[walletId ?? ''] ?? null
   },
 )
 
-const selectNftUserTokensQueriesFulfilled = (state: ReduxState): NftItem[] =>
-  Object.values(state.nftApi.queries)
-    .filter(
-      query =>
-        query?.endpointName === 'getNftUserTokens' && query?.status === QueryStatus.fulfilled,
-    )
-    .flatMap(query => query?.data as NftItem)
+const selectNfts = (state: ReduxState) => state.nft.nfts
 
 export const selectSelectedNftAvatarUrl = createSelector(
   selectSelectedNftAvatar,
-  selectNftUserTokensQueriesFulfilled,
-  (nftAssetId, nftUserTokensQueries) => {
-    if (!nftAssetId) return null
-    const media = nftUserTokensQueries.find(nft => {
-      const assetId = `${nft.collection.id}/${nft.id}`
-      return assetId === nftAssetId
-    })?.medias[0]?.originalUrl
+  selectNfts,
+  (nftAssetId, nfts): string | null => {
+    const nftItem = nfts.byId[nftAssetId ?? '']
 
-    return media
+    const media: string | undefined = nftItem?.medias[0]?.originalUrl
+
+    return media ?? null
   },
 )

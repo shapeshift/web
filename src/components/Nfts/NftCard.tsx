@@ -53,7 +53,7 @@ export const NftCard: React.FC<NftCardProps> = ({ nftItem }) => {
       name: nftItem.name,
       id: nftItem.id,
       collectionName: nftItem.collection.name,
-      collectionAddress: fromAssetId(nftItem.collection.id!).assetReference,
+      collectionAddress: fromAssetId(nftItem.collection.assetId!).assetReference,
       price: nftItem.price,
       collectionFloorPrice: nftItem.collection.floorPrice,
       nftMediaUrls: (nftItem.medias ?? []).map(media => media.originalUrl),

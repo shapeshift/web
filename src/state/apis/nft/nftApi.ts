@@ -1,3 +1,4 @@
+import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
@@ -5,6 +6,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { PURGE } from 'redux-persist'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 import { logger } from 'lib/logger'
+import type { PartialRecord } from 'lib/utils'
 import type { WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
@@ -28,9 +30,26 @@ const moduleLogger = logger.child({ namespace: ['nftApi'] })
 
 type NftState = {
   selectedNftAvatarByWalletId: Record<WalletId, AssetId>
+  nfts: {
+    byId: PartialRecord<AssetId, NftItem>
+    ids: AssetId[]
+  }
+  collections: {
+    byId: PartialRecord<AssetId, NftCollectionType>
+    ids: AssetId[]
+  }
 }
-const initialState: NftState = {
+
+export const initialState: NftState = {
   selectedNftAvatarByWalletId: {},
+  nfts: {
+    byId: {},
+    ids: [],
+  },
+  collections: {
+    byId: {},
+    ids: [],
+  },
 }
 
 export const nft = createSlice({
@@ -38,6 +57,14 @@ export const nft = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
+    upsertCollections: (state, action: PayloadAction<NftState['collections']>) => {
+      state.collections.byId = Object.assign({}, state.collections.byId, action.payload.byId)
+      state.collections.ids = Array.from(new Set(state.collections.ids.concat(action.payload.ids)))
+    },
+    upsertNfts: (state, action: PayloadAction<NftState['nfts']>) => {
+      state.nfts.byId = Object.assign({}, state.nfts.byId, action.payload.byId)
+      state.nfts.ids = Array.from(new Set(state.nfts.ids.concat(action.payload.ids)))
+    },
     setWalletSelectedNftAvatar: {
       reducer: (
         draftState,
@@ -69,20 +96,18 @@ export const nftApi = createApi({
 
         const results = await Promise.all(services.map(service => service(accountIds)))
 
-        const data = results.reduce<Record<AssetId, NftItem>>((acc, result) => {
+        const nftsById = results.reduce<Record<AssetId, NftItem>>((acc, result) => {
           if (result.data) {
             const { data } = result
 
             data.forEach(item => {
-              const nftAssetId: AssetId = `${item.id}-${item.collection.id}`
+              const { assetId } = item
 
-              if (!acc[nftAssetId]) {
-                acc[nftAssetId] = item
-                return acc
+              if (!acc[assetId]) {
+                acc[assetId] = item
+              } else {
+                acc[assetId] = updateNftItem(acc[assetId], item)
               }
-
-              acc[nftAssetId] = updateNftItem(acc[nftAssetId], item)
-              return acc
             })
           } else if (result.isError) {
             moduleLogger.error({ error: result.error }, 'Failed to fetch nft user data')
@@ -91,7 +116,23 @@ export const nftApi = createApi({
           return acc
         }, {})
 
-        return { data: Object.values(data) }
+        const nftIds: AssetId[] = Object.keys(nftsById)
+
+        const data = Object.values(nftsById)
+        const collectionsById = data.reduce<NftState['collections']['byId']>((acc, item) => {
+          const collectionAssetId = item.collection.assetId
+          if (!collectionAssetId) return acc
+
+          acc[collectionAssetId] = item.collection
+
+          return acc
+        }, {})
+        const collectionIds: AssetId[] = Object.keys(collectionsById)
+
+        dispatch(nft.actions.upsertCollections({ byId: collectionsById, ids: collectionIds }))
+        dispatch(nft.actions.upsertNfts({ byId: nftsById, ids: nftIds }))
+
+        return { data }
       },
     }),
     getNftCollection: build.query<NftCollectionType, GetNftCollectionInput>({

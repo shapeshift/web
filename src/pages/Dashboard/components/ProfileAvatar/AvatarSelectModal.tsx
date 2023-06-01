@@ -71,19 +71,10 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const group = getRootProps()
 
   const renderItems = useMemo(() => {
-    return filteredNfts?.map(({ id, collection, medias }) => {
-      // Unable to get the AssetId of the collection, this should never happen but it may
-      // TODO(gomes): remove nftAssetId manual serialization when we have a normalized nft slice with nft id as AssetId
-      if (!collection.id) return null
-      const nftAssetId = `${collection.id}/${id}`
+    return filteredNfts?.map(({ assetId, medias }) => {
+      if (!assetId) return null
       const mediaUrl = medias?.[0]?.originalUrl
-      return (
-        <AvatarRadio
-          key={`${collection.id}/${id}`}
-          src={mediaUrl}
-          {...getRadioProps({ value: nftAssetId })}
-        />
-      )
+      return <AvatarRadio key={assetId} src={mediaUrl} {...getRadioProps({ value: assetId })} />
     })
   }, [filteredNfts, getRadioProps])
 

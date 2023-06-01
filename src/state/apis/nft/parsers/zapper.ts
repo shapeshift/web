@@ -7,19 +7,15 @@ import type { NftCollectionType, NftItem } from '../types'
 
 export const parseToNftItem = (zapperItem: V2NftUserItem, chainId: ChainId): NftItem => {
   const {
-    token,
-    token: { lastSaleEth, medias, tokenId },
-    token: { collection },
+    token: { name, rarityRank, lastSaleEth, medias, tokenId, collection },
   } = zapperItem
 
   const collectionItem: NftCollectionType = {
-    id: collection?.address
-      ? toAssetId({
-          assetReference: collection.address,
-          assetNamespace: collection.nftStandard as AssetNamespace,
-          chainId,
-        })
-      : '',
+    assetId: toAssetId({
+      assetReference: collection.address,
+      assetNamespace: collection.nftStandard as AssetNamespace,
+      chainId,
+    }),
     chainId,
     description: '', // Not supported by the /v2/nft/user/tokens endpoint
     name: collection?.name ?? '',
@@ -30,13 +26,18 @@ export const parseToNftItem = (zapperItem: V2NftUserItem, chainId: ChainId): Nft
 
   const nftItem: NftItem = {
     id: tokenId,
-    name: token.name,
+    assetId: toAssetId({
+      assetReference: `${collection.address}/${tokenId}`,
+      assetNamespace: collection.nftStandard as AssetNamespace,
+      chainId,
+    }),
+    name,
     description: '', // Not supported by the /v2/nft/user/tokens endpoint
     price: lastSaleEth ?? '',
     chainId,
     collection: collectionItem,
     medias,
-    rarityRank: token.rarityRank,
+    rarityRank,
   }
 
   return nftItem

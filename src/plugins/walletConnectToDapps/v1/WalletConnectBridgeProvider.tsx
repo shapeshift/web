@@ -146,6 +146,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
           case 'eth_sign':
             return await eth_sign(request)
           case 'eth_signTypedData':
+          case 'eth_signTypedData_v4':
             return await eth_signTypedData(request)
           case 'eth_sendTransaction':
             return await eth_sendTransaction(request, approveData)

@@ -7,14 +7,15 @@ import { PURGE } from 'redux-persist'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
+import { isSome } from 'lib/utils'
 import type { WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
 import { parseAlchemyNftContractToCollectionItem } from './parsers/alchemy'
-import type { NftCollectionType, NftItem } from './types'
-import { getAlchemyNftData, updateNftItem } from './utils'
+import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
+import { getAlchemyNftData, updateNftCollection, updateNftItem } from './utils'
 
 type GetNftUserTokensInput = {
   accountIds: AccountId[]
@@ -57,6 +58,18 @@ export const nft = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
+    upsertCollection: (state, action: PayloadAction<NftCollectionType>) => {
+      const maybeCurrentCollectionItem = state.collections.byId[action.payload.assetId]
+      const collectionItemToUpsert = maybeCurrentCollectionItem
+        ? updateNftCollection(maybeCurrentCollectionItem, action.payload)
+        : action.payload
+      state.collections.byId = Object.assign({}, state.collections.byId, {
+        [action.payload.assetId]: collectionItemToUpsert,
+      })
+      state.collections.ids = Array.from(
+        new Set(state.collections.ids.concat([action.payload.assetId])),
+      )
+    },
     upsertCollections: (state, action: PayloadAction<NftState['collections']>) => {
       state.collections.byId = Object.assign({}, state.collections.byId, action.payload.byId)
       state.collections.ids = Array.from(new Set(state.collections.ids.concat(action.payload.ids)))
@@ -96,7 +109,7 @@ export const nftApi = createApi({
 
         const results = await Promise.all(services.map(service => service(accountIds)))
 
-        const nftsById = results.reduce<Record<AssetId, NftItem>>((acc, result) => {
+        const dataById = results.reduce<Record<AssetId, NftItemWithCollection>>((acc, result) => {
           if (result.data) {
             const { data } = result
 
@@ -116,10 +129,25 @@ export const nftApi = createApi({
           return acc
         }, {})
 
-        const nftIds: AssetId[] = Object.keys(nftsById)
+        const data = Object.values(dataById)
 
-        const data = Object.values(nftsById)
+        const nftsById = data.reduce<NftState['nfts']['byId']>((acc, item) => {
+          if (!item.collection.assetId) return acc
+
+          const nftAssetId: AssetId = `${item.collection.assetId}/${item.id}`
+          let { collection, ...nftItemWithoutId } = item
+          const nftItem: NftItem = {
+            ...nftItemWithoutId,
+            collectionId: item.collection.assetId,
+          }
+          acc[nftAssetId] = nftItem
+
+          return acc
+        }, {})
+
         const collectionsById = data.reduce<NftState['collections']['byId']>((acc, item) => {
+          if (!item.collection.assetId) return acc
+
           const collectionAssetId = item.collection.assetId
           if (!collectionAssetId) return acc
 
@@ -127,12 +155,16 @@ export const nftApi = createApi({
 
           return acc
         }, {})
-        const collectionIds: AssetId[] = Object.keys(collectionsById)
 
-        dispatch(nft.actions.upsertCollections({ byId: collectionsById, ids: collectionIds }))
-        dispatch(nft.actions.upsertNfts({ byId: nftsById, ids: nftIds }))
+        dispatch(
+          nft.actions.upsertCollections({
+            byId: collectionsById,
+            ids: Object.keys(collectionsById),
+          }),
+        )
+        dispatch(nft.actions.upsertNfts({ byId: nftsById, ids: Object.keys(nftsById) }))
 
-        return { data }
+        return { data: Object.values(nftsById).filter(isSome) }
       },
     }),
     getNftCollection: build.query<NftCollectionType, GetNftCollectionInput>({
@@ -145,6 +177,7 @@ export const nftApi = createApi({
 
           // Alchemy is the most/only reliable source for collection data for now
           if (alchemyCollectionData) {
+            dispatch(nft.actions.upsertCollection(alchemyCollectionData))
             return { data: alchemyCollectionData }
           }
 

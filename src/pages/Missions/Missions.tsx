@@ -12,7 +12,6 @@ import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { ScrollCarousel } from 'components/ScrollCarousel/ScrollCarousel'
 import { RawText } from 'components/Text'
-import { FeaturedList } from 'pages/Defi/components/FeaturedCards/FeaturedList/FeaturedList'
 
 import type { MissionProps } from './Mission'
 import { Mission } from './Mission'
@@ -80,42 +79,38 @@ export const Missions = () => {
       { future: [] as MissionProps[], past: [] as MissionProps[], active: [] as MissionProps[] },
     )
     return (
-      // <Container
-      //   px={{ base: 0, md: 6 }}
-      //   maxWidth='container.lg'
-      //   display='grid'
-      //   gridTemplateColumns={{ base: '1fr', lg: '1fr 1fr' }}
-      //   gap={6}
-      // >
-      //   {missionItems.map(mission => (
-      //     <Mission key={mission.title} {...mission} />
-      //   ))}
-      // </Container>
       <Container maxWidth='full' display='flex' flexDir='column' gap={12} px={6}>
-        <Stack spacing={6}>
-          <Heading as='h5'>{translate('missions.activeMissions')}</Heading>
-          <ScrollCarousel>
-            {groupedMissions.active.map(mission => (
-              <Mission key={mission.title} {...mission} />
-            ))}
-          </ScrollCarousel>
-        </Stack>
-        <Stack spacing={6}>
-          <Heading as='h5'>{translate('missions.comingSoon')}</Heading>
-          <ScrollCarousel>
-            {groupedMissions.future.map(mission => (
-              <Mission key={mission.title} {...mission} />
-            ))}
-          </ScrollCarousel>
-        </Stack>
-        <Stack spacing={6}>
-          <Heading as='h5'>{translate('missions.endedMissions')}</Heading>
-          <ScrollCarousel>
-            {groupedMissions.past.map(mission => (
-              <Mission key={mission.title} {...mission} />
-            ))}
-          </ScrollCarousel>
-        </Stack>
+        {groupedMissions.active.length > 0 && (
+          <Stack spacing={6}>
+            <Heading as='h5'>{translate('missions.activeMissions')}</Heading>
+            <ScrollCarousel>
+              {groupedMissions.active.map(mission => (
+                <Mission key={mission.title} {...mission} />
+              ))}
+            </ScrollCarousel>
+          </Stack>
+        )}
+        {groupedMissions.future.length > 0 && (
+          <Stack spacing={6}>
+            <Heading as='h5'>{translate('missions.comingSoon')}</Heading>
+            <ScrollCarousel>
+              {groupedMissions.future.map(mission => (
+                <Mission key={mission.title} {...mission} />
+              ))}
+            </ScrollCarousel>
+          </Stack>
+        )}
+
+        {groupedMissions.past.length > 0 && (
+          <Stack spacing={6}>
+            <Heading as='h5'>{translate('missions.endedMissions')}</Heading>
+            <ScrollCarousel>
+              {groupedMissions.past.map(mission => (
+                <Mission key={mission.title} {...mission} />
+              ))}
+            </ScrollCarousel>
+          </Stack>
+        )}
       </Container>
     )
   }, [missionItems, translate])

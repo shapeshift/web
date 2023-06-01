@@ -7,6 +7,7 @@ import FoxAtarBg from 'assets/foxatar-card-bg.png'
 import OptimismBg from 'assets/op-card-bg.png'
 import OpLogo from 'assets/op-logo.png'
 import { Main } from 'components/Layout/Main'
+import { SEO } from 'components/Layout/Seo'
 import { RawText } from 'components/Text'
 
 import type { MissionProps } from './Mission'
@@ -62,6 +63,7 @@ export const Missions = () => {
   }, [missionItems])
   return (
     <DarkMode>
+      <SEO title={translate('missions.subtitle')} />
       <Main
         pt={0}
         px={0}

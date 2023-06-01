@@ -27,9 +27,7 @@ export const useApprovalHandler = (wcAccountId: AccountId | undefined) => {
 
   const accountMetadata = useMemo(() => {
     if (!wcAccountId) return
-    const accountMetadata = accountMetadataById[wcAccountId]
-    if (!accountMetadata) return
-    return accountMetadata
+    return accountMetadataById[wcAccountId]
   }, [accountMetadataById, wcAccountId])
 
   const chainAdapter = useMemo(() => {

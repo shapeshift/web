@@ -2,9 +2,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import { PURGE } from 'redux-persist'
-import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
 import { isSome } from 'lib/utils'
@@ -13,9 +11,13 @@ import type { WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
-import { parseAlchemyNftContractToCollectionItem } from './parsers/alchemy'
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
-import { getAlchemyNftData, updateNftCollection, updateNftItem } from './utils'
+import {
+  getAlchemyCollectionData,
+  getAlchemyNftData,
+  updateNftCollection,
+  updateNftItem,
+} from './utils'
 
 type GetNftUserTokensInput = {
   accountIds: AccountId[]
@@ -180,34 +182,41 @@ export const nftApi = createApi({
     getNftCollection: build.query<NftCollectionType, GetNftCollectionInput>({
       queryFn: async ({ collectionId, accountIds }, { dispatch }) => {
         try {
-          const { assetReference: collectionAddress, chainId } = fromAssetId(collectionId)
-          const alchemyCollectionData = await getAlchemyInstanceByChainId(chainId)
-            .nft.getContractMetadata(collectionAddress)
-            .then(contract => parseAlchemyNftContractToCollectionItem(contract, chainId))
+          const services = [
+            getAlchemyCollectionData,
+            (collectionId: AssetId, accountIds: AccountId[]) =>
+              dispatch(
+                zapperApi.endpoints.getZapperCollectionBalance.initiate({
+                  accountIds,
+                  collectionId,
+                }),
+              ),
+          ]
 
-          // Alchemy is the most/only reliable source for collection data for now
-          if (alchemyCollectionData) {
-            dispatch(nft.actions.upsertCollection(alchemyCollectionData))
-            return { data: alchemyCollectionData }
-          }
-
-          // Note, this will consistently fail, as getZapperCollectionBalance is monkey patched for the RTK query to reject
-          // The reason for that is Zapper is currently rugged upstream - if we don't get Alchemy data, we're out of luck and can't get meta
-          const { data: zapperCollectionData } = await dispatch(
-            zapperApi.endpoints.getZapperCollectionBalance.initiate({ accountIds, collectionId }),
+          const results = await Promise.all(
+            services.map(service => service(collectionId, accountIds)),
           )
 
-          if (!zapperCollectionData)
-            return {
-              error: {
-                status: 404,
-                data: {
-                  message: 'Collection not found',
-                },
-              },
+          const collectionData = results.reduce<NftCollectionType | null>((acc, result) => {
+            const { data } = result
+
+            if (!data) return acc
+
+            if (!acc) {
+              acc = data
+            } else {
+              acc = updateNftCollection(acc, data)
             }
 
-          return { data: zapperCollectionData }
+            return acc
+          }, null)
+
+          if (!collectionData) {
+            throw new Error('Failed to fetch nft collection data')
+          }
+
+          dispatch(nft.actions.upsertCollection(collectionData))
+          return { data: collectionData }
         } catch (error) {
           moduleLogger.error({ error }, 'Failed to fetch nft collection data')
           return {

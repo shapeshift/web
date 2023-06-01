@@ -1,10 +1,11 @@
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bscChainId,
   ethChainId,
   foxatarAssetId,
   fromAccountId,
+  fromAssetId,
   optimismChainId,
   polygonChainId,
 } from '@shapeshiftoss/caip'
@@ -14,7 +15,10 @@ import { invert } from 'lodash'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 import { isFulfilled } from 'lib/utils'
 
-import { parseAlchemyOwnedNftToNftItem } from './parsers/alchemy'
+import {
+  parseAlchemyNftContractToCollectionItem,
+  parseAlchemyOwnedNftToNftItem,
+} from './parsers/alchemy'
 import type { NftCollectionType, NftItemWithCollection } from './types'
 
 // addresses are repeated across EVM chains
@@ -89,7 +93,9 @@ export const updateNftCollection = (
   currentItem: NftCollectionType,
 ) => {
   const draftItem = Object.assign({}, originalItem)
-  draftItem.description = originalItem.description ?? currentItem.description
+  // The original description we're getting from the NFT item might not be the "best" version (i.e with emojis, links etc)
+  // so we want to update it with the one from the collection if it exists
+  draftItem.description = currentItem.description ?? originalItem.description
   draftItem.name = originalItem.name ?? currentItem.name
   draftItem.floorPrice = originalItem.floorPrice ?? currentItem.floorPrice
   draftItem.openseaId = originalItem.openseaId ?? currentItem.openseaId
@@ -130,4 +136,15 @@ export const getAlchemyNftData = async (
     .flatMap(({ value }) => value)
 
   return { data: items }
+}
+
+export const getAlchemyCollectionData = async (
+  collectionId: AssetId,
+): Promise<{ data: NftCollectionType }> => {
+  const { assetReference: collectionAddress, chainId } = fromAssetId(collectionId)
+
+  const alchemy = getAlchemyInstanceByChainId(chainId)
+  const collectionContractMetadata = await alchemy.nft.getContractMetadata(collectionAddress)
+
+  return { data: parseAlchemyNftContractToCollectionItem(collectionContractMetadata, chainId) }
 }

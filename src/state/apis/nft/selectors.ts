@@ -1,31 +1,40 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
 import { selectWalletId } from 'state/slices/common-selectors'
 
+import { nftApi } from './nftApi'
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
 
 const selectNfts = (state: ReduxState) => state.nft.nfts.byId
 const selectNftCollections = (state: ReduxState) => state.nft.collections.byId
 
-// TODO(gomes): We can't consume this yet, see the PR description of https://github.com/shapeshift/web/pull/4597
-export const selectNftItemsWithCollection = createSelector(
-  selectNfts,
-  selectNftCollections,
-  (nfts, collections): NftItemWithCollection[] => {
-    return Object.values(nfts).reduce<NftItemWithCollection[]>((acc, nft) => {
-      if (!nft) return acc
-      const collection = collections[nft.collectionId]
-      if (!collection) return acc
+// Would be nice if this was normalized as well but we can't, See the PR description of https://github.com/shapeshift/web/pull/4597
+// TODO(gomes): normalize me
+export const makeSelectNftItemsWithCollectionSelector = (accountIds: AccountId[]) => {
+  const selectGetNftUserTokens = nftApi.endpoints.getNftUserTokens.select({ accountIds })
 
-      const nftItemWithCollection = Object.assign({}, nft, { collection })
+  return createSelector(
+    selectGetNftUserTokens,
+    selectNftCollections,
+    (nftUserTokens, collections): NftItemWithCollection[] => {
+      const { data: nfts } = nftUserTokens
+      if (!nfts) return []
 
-      acc.push(nftItemWithCollection)
+      return Object.values(nfts).reduce<NftItemWithCollection[]>((acc, nft) => {
+        if (!nft) return acc
+        const collection = collections[nft.collectionId]
+        if (!collection) return acc
 
-      return acc
-    }, [])
-  },
-)
+        const nftItemWithCollection = Object.assign({}, nft, { collection })
+
+        acc.push(nftItemWithCollection)
+
+        return acc
+      }, [])
+    },
+  )
+}
 
 export const selectNftCollectionById = createSelector(
   selectNftCollections,

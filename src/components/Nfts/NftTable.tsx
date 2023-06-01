@@ -8,7 +8,8 @@ import { ResultsEmpty } from 'components/ResultsEmpty'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
 import { useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
-import type { NftItem } from 'state/apis/nft/types'
+import { makeSelectNftItemsWithCollectionSelector } from 'state/apis/nft/selectors'
+import type { NftItemWithCollection } from 'state/apis/nft/types'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
@@ -33,13 +34,19 @@ const NftGrid: React.FC<SimpleGridProps> = props => (
 export const NftTable = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const accountIds = useAppSelector(selectWalletAccountIds)
-  const { data: nftItems, isLoading } = useGetNftUserTokensQuery({ accountIds })
 
   const [networkFilters, setNetworkFilters] = useState<ChainId[]>([])
 
+  const { isLoading } = useGetNftUserTokensQuery({ accountIds })
+  const selectNftItemsWithCollectionSelector = useMemo(
+    () => makeSelectNftItemsWithCollectionSelector(accountIds),
+    [accountIds],
+  )
+  const nftItems = useAppSelector(selectNftItemsWithCollectionSelector)
+
   const availableChainIds = useMemo(
     () =>
-      (nftItems ?? [])?.reduce<ChainId[]>((acc, nftItem) => {
+      nftItems.reduce<ChainId[]>((acc, nftItem) => {
         if (!acc.includes(nftItem.chainId)) {
           acc.push(nftItem.chainId)
         }
@@ -49,7 +56,7 @@ export const NftTable = () => {
   )
 
   const filterNftsBySearchTerm = useCallback(
-    (data: NftItem[], searchQuery: string) => {
+    (data: NftItemWithCollection[], searchQuery: string) => {
       const search = searchQuery.trim().toLowerCase()
       const keys = ['name', 'collection.name', 'collection.id', 'id']
 

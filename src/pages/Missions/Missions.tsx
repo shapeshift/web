@@ -40,17 +40,8 @@ export const Missions = () => {
         coverImage: FoxArmyBg,
         image: OpLogo,
         onClick: () => window.open('https://app.mercle.xyz/shapeshift/events'),
-        endDate: '2023-06-08 12:00 PM',
-      },
-      {
-        title: translate('missions.foxArmy.title'),
-        subtitle: translate('missions.foxArmy.subtitle'),
-        buttonText: translate('missions.foxArmy.cta'),
-        coverImage: FoxArmyBg,
-        image: OpLogo,
-        onClick: () => window.open('https://app.mercle.xyz/shapeshift/events'),
-        startDate: '2023-06-01 12:00 AM',
-        endDate: '2023-06-08 12:00 PM',
+        startDate: '2023-06-01 8:00 AM',
+        endDate: '2023-06-08 8:00 AM',
       },
     ]
   }, [translate])

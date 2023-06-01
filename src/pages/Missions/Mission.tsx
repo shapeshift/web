@@ -2,7 +2,7 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, Heading, useColorModeValue } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { FaClock } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -35,16 +35,60 @@ export const Mission: React.FC<MissionProps> = ({
   startDate,
   colspan = 1,
 }) => {
+  const [isActive, setisActive] = useState(false)
   const translate = useTranslate()
   const handleClick = useCallback(() => {
     getMixPanel()?.track(`${title} mission click`)
     onClick()
   }, [onClick, title])
 
-  const isFutureDate = dayjs(startDate).isBefore(dayjs(), 'day')
-  // isBefore
-  // isBetween
-  // isAfter
+  const renderFooter = useMemo(() => {
+    const start = dayjs(startDate)
+    const end = dayjs(endDate)
+    const now = dayjs()
+    if (now.isBefore(start)) {
+      setisActive(false)
+      return <RawText>Coming Soon</RawText>
+    } else {
+      setisActive(true)
+      const isEnded = now.isAfter(end)
+      return (
+        <>
+          <Flex gap={2} fontWeight='semibold' alignItems='center'>
+            <FaClock />
+            {isEnded ? (
+              <RawText>{translate('missions.missionEnded')}</RawText>
+            ) : (
+              <RawText lineHeight='none'>
+                {endDate
+                  ? `${translate('missions.ends')} ${dayjs(endDate, promoDateFormat).fromNow()}`
+                  : translate('missions.ongoing')}
+              </RawText>
+            )}
+          </Flex>
+          <Button
+            variant='unstyled'
+            onClick={handleClick}
+            iconSpacing={3}
+            className='mission-btn'
+            rightIcon={
+              <IconCircle
+                bg='white'
+                color='black'
+                className='icon-btn'
+                transitionProperty='common'
+                transitionDuration='normal'
+              >
+                <ArrowForwardIcon />
+              </IconCircle>
+            }
+          >
+            {isEnded ? translate('missions.viewMission') : buttonText}
+          </Button>
+        </>
+      )
+    }
+  }, [buttonText, endDate, handleClick, startDate, translate])
   return (
     <Card
       display='flex'
@@ -53,23 +97,25 @@ export const Mission: React.FC<MissionProps> = ({
       boxShadow='lg'
       borderWidth={useColorModeValue(0, 1)}
       gridColumn={`span ${colspan}`}
-      onClick={handleClick}
       borderRadius={{ base: 'none', lg: '3xl', xl: '3xl' }}
       transitionProperty='common'
       transitionDuration='normal'
-      _hover={{
-        cursor: 'pointer',
-        boxShadow: 'xl',
-        '.mission-btn': { color: 'whiteAlpha.500' },
-        '.icon-btn': { bg: 'whiteAlpha.500' },
-      }}
       position='relative'
-      // backgroundPosition={{ base: '-10% -50%', md: '150% 60%' }}
-      // backgroundSize={{ base: 'cover', md: '80%' }}
       bgImage={coverImage}
       backgroundSize='cover'
       backgroundRepeat='no-repeat'
       borderColor={useColorModeValue('blackAlpha.100', 'whiteAlpha.100')}
+      {...(isActive
+        ? {
+            onClick: handleClick,
+            _hover: {
+              cursor: 'pointer',
+              boxShadow: 'xl',
+              '.mission-btn': { color: 'whiteAlpha.500' },
+              '.icon-btn': { bg: 'whiteAlpha.500' },
+            },
+          }
+        : {})}
     >
       <Card.Body pt={8} px={8} display='flex' flexDir='column' alignItems='center'>
         <Heading
@@ -123,39 +169,7 @@ export const Mission: React.FC<MissionProps> = ({
             justifyContent='space-between'
             zIndex='1'
           >
-            {isFutureDate ? (
-              <RawText>Coming soon...</RawText>
-            ) : (
-              <>
-                <Flex gap={2} fontWeight='semibold' alignItems='center'>
-                  <FaClock />
-                  <RawText lineHeight='none'>
-                    {endDate
-                      ? `${translate('missions.ends')} ${dayjs(endDate, promoDateFormat).fromNow()}`
-                      : translate('missions.ongoing')}
-                  </RawText>
-                </Flex>
-                <Button
-                  variant='unstyled'
-                  onClick={handleClick}
-                  iconSpacing={3}
-                  className='mission-btn'
-                  rightIcon={
-                    <IconCircle
-                      bg='white'
-                      color='black'
-                      className='icon-btn'
-                      transitionProperty='common'
-                      transitionDuration='normal'
-                    >
-                      <ArrowForwardIcon />
-                    </IconCircle>
-                  }
-                >
-                  {buttonText}
-                </Button>
-              </>
-            )}
+            {renderFooter}
           </Flex>
         </Flex>
       </Card.Body>

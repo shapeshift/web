@@ -1,6 +1,6 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { BTC, ETH, FOX, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
+import { BTC, ETH, FOX_MAINNET, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
 import type { CowChainId } from '../types'
 import { MAX_COWSWAP_TRADE } from '../utils/constants'
 import { getCowSwapMinMax } from './getCowSwapMinMax'
@@ -13,7 +13,7 @@ const supportedChainIds: CowChainId[] = [KnownChainIds.EthereumMainnet, KnownCha
 
 describe('getCowSwapMinMax', () => {
   it('returns minimumAmountCryptoHuman and maximumAmountCryptoHuman', () => {
-    const maybeMinMax = getCowSwapMinMax(FOX, WETH, supportedChainIds)
+    const maybeMinMax = getCowSwapMinMax(FOX_MAINNET, WETH, supportedChainIds)
     expect(maybeMinMax.isErr()).toBe(false)
     const minMax = maybeMinMax.unwrap()
     expect(minMax.minimumAmountCryptoHuman).toBe('80')
@@ -21,7 +21,7 @@ describe('getCowSwapMinMax', () => {
   })
 
   it('returns minimumAmountCryptoHuman and maximumAmountCryptoHuman for ETH as buy asset', () => {
-    const maybeMinMax = getCowSwapMinMax(FOX, WETH, supportedChainIds)
+    const maybeMinMax = getCowSwapMinMax(FOX_MAINNET, WETH, supportedChainIds)
     expect(maybeMinMax.isErr()).toBe(false)
     const minMax = maybeMinMax.unwrap()
     expect(minMax.minimumAmountCryptoHuman).toBe('80')
@@ -45,7 +45,9 @@ describe('getCowSwapMinMax', () => {
       name: 'SwapError',
     }
     expect(getCowSwapMinMax(ETH, WETH, supportedChainIds).unwrapErr()).toMatchObject(expectedError)
-    expect(getCowSwapMinMax(FOX, BTC, supportedChainIds).unwrapErr()).toMatchObject(expectedError)
+    expect(getCowSwapMinMax(FOX_MAINNET, BTC, supportedChainIds).unwrapErr()).toMatchObject(
+      expectedError,
+    )
     expect(getCowSwapMinMax(XDAI, USDC_GNOSIS, supportedChainIds).unwrapErr()).toMatchObject(
       expectedError,
     )

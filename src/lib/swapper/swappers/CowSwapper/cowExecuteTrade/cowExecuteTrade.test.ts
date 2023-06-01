@@ -8,7 +8,7 @@ import { ethers } from 'ethers'
 
 import type { ExecuteTradeInput } from '../../../api'
 import { SwapperName } from '../../../api'
-import { ETH, FOX, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
+import { ETH, FOX_MAINNET, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
 import type { CowChainId, CowTrade } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
@@ -85,7 +85,7 @@ const cowTradeEthToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
   buyAmountBeforeFeesCryptoBaseUnit: '14501811818247595090576',
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
-  buyAsset: FOX,
+  buyAsset: FOX_MAINNET,
   sellAsset: ETH,
   accountNumber: 0,
   receiveAddress: 'address11',
@@ -104,7 +104,7 @@ const cowTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   sellAmountBeforeFeesCryptoBaseUnit: '20200000000000000',
   buyAmountBeforeFeesCryptoBaseUnit: '272522025311597443544',
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
-  buyAsset: FOX,
+  buyAsset: FOX_MAINNET,
   sellAsset: WETH,
   accountNumber: 0,
   receiveAddress: 'address11',
@@ -118,10 +118,10 @@ const cowTradeFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '0.00004995640398295996',
   feeData: {
     protocolFees: {
-      [FOX.assetId]: {
+      [FOX_MAINNET.assetId]: {
         amountCryptoBaseUnit: '5.3955565850972847808512',
         requiresBalance: false,
-        asset: FOX,
+        asset: FOX_MAINNET,
       },
     },
     networkFeeCryptoBaseUnit: '0',
@@ -130,7 +130,7 @@ const cowTradeFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   buyAmountBeforeFeesCryptoBaseUnit: '46868859830863283',
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   buyAsset: ETH,
-  sellAsset: FOX,
+  sellAsset: FOX_MAINNET,
   accountNumber: 0,
   receiveAddress: 'address11',
   feeAmountInSellTokenCryptoBaseUnit: '61804771879693983744',

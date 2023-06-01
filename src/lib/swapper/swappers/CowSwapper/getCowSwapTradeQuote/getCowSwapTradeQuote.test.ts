@@ -6,7 +6,7 @@ import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
-import { ETH, FOX, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
+import { ETH, FOX_MAINNET, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
 import type { CowChainId } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
@@ -50,11 +50,11 @@ jest.mock('../../utils/helpers/helpers', () => {
 })
 
 jest.mock('../getCowSwapMinMax/getCowSwapMinMax', () => {
-  const { FOX } = require('../../utils/test-data/assets') // Move the import inside the factory function
+  const { FOX_MAINNET } = require('../../utils/test-data/assets') // Move the import inside the factory function
 
   return {
     getCowSwapMinMax: (sellAsset: Asset) => {
-      if (sellAsset.assetId === FOX.assetId) {
+      if (sellAsset.assetId === FOX_MAINNET.assetId) {
         return mockOk({
           minimumAmountCryptoHuman: '229.09507445589919816724',
           maximumAmountCryptoHuman: '100000000000000000000000000',
@@ -138,7 +138,7 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   buyAmountBeforeFeesCryptoBaseUnit: '14913256100953839475750', // 14913 FOX
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
-  buyAsset: FOX,
+  buyAsset: FOX_MAINNET,
   sellAsset: WETH,
   accountNumber: 0,
 }
@@ -149,10 +149,10 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
   maximumCryptoHuman: '100000000000000000000000000',
   feeData: {
     protocolFees: {
-      [FOX.assetId]: {
+      [FOX_MAINNET.assetId]: {
         amountCryptoBaseUnit: '61804771879693983744',
         requiresBalance: false,
-        asset: FOX,
+        asset: FOX_MAINNET,
       },
     },
     networkFeeCryptoBaseUnit: '0',
@@ -162,7 +162,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
   buyAsset: ETH,
-  sellAsset: FOX,
+  sellAsset: FOX_MAINNET,
   accountNumber: 0,
 }
 
@@ -207,7 +207,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
   buyAmountBeforeFeesCryptoBaseUnit: '0', // 0 FOX
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
-  buyAsset: FOX,
+  buyAsset: FOX_MAINNET,
   sellAsset: WETH,
   accountNumber: 0,
 }
@@ -220,7 +220,7 @@ describe('getCowTradeQuote', () => {
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: ETH,
-      buyAsset: FOX,
+      buyAsset: FOX_MAINNET,
       sellAmountBeforeFeesCryptoBaseUnit: '11111',
       sendMax: true,
       accountNumber: 0,
@@ -247,7 +247,7 @@ describe('getCowTradeQuote', () => {
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WETH,
-      buyAsset: FOX,
+      buyAsset: FOX_MAINNET,
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
       sendMax: true,
       accountNumber: 0,
@@ -290,7 +290,7 @@ describe('getCowTradeQuote', () => {
 
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
-      sellAsset: FOX,
+      sellAsset: FOX_MAINNET,
       buyAsset: ETH,
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
       sendMax: true,
@@ -379,7 +379,7 @@ describe('getCowTradeQuote', () => {
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WETH,
-      buyAsset: FOX,
+      buyAsset: FOX_MAINNET,
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000',
       sendMax: true,
       accountNumber: 0,

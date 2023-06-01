@@ -7,7 +7,7 @@ import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { BuildTradeInput } from '../../../api'
 import { SwapperName } from '../../../api'
-import { ETH, FOX, USDC_GNOSIS, WBTC, WETH, XDAI } from '../../utils/test-data/assets'
+import { ETH, FOX_MAINNET, USDC_GNOSIS, WBTC, WETH, XDAI } from '../../utils/test-data/assets'
 import type { CowSwapQuoteResponse } from '../CowSwapper'
 import type { CowChainId, CowTrade } from '../types'
 import {
@@ -115,7 +115,7 @@ const expectedTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
   buyAmountBeforeFeesCryptoBaseUnit: '14707533959600717283163', // 14707 FOX
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
-  buyAsset: FOX,
+  buyAsset: FOX_MAINNET,
   sellAsset: WETH,
   accountNumber: 0,
   receiveAddress: DEFAULT_ADDRESS,
@@ -156,10 +156,10 @@ const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   feeData: {
     networkFeeCryptoBaseUnit: '0',
     protocolFees: {
-      [FOX.assetId]: {
+      [FOX_MAINNET.assetId]: {
         amountCryptoBaseUnit: '61804771879693983744',
         requiresBalance: false,
-        asset: FOX,
+        asset: FOX_MAINNET,
       },
     },
   },
@@ -167,7 +167,7 @@ const expectedTradeQuoteFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   buyAmountBeforeFeesCryptoBaseUnit: '55616098403669903',
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   buyAsset: ETH,
-  sellAsset: FOX,
+  sellAsset: FOX_MAINNET,
   accountNumber: 0,
   receiveAddress: DEFAULT_ADDRESS,
   feeAmountInSellTokenCryptoBaseUnit: '61804771879693983744',
@@ -209,7 +209,7 @@ describe('cowBuildTrade', () => {
     const tradeInput: BuildTradeInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: ETH,
-      buyAsset: FOX,
+      buyAsset: FOX_MAINNET,
       sellAmountBeforeFeesCryptoBaseUnit: '11111',
       sendMax: true,
       accountNumber: 0,
@@ -238,7 +238,7 @@ describe('cowBuildTrade', () => {
     const tradeInput: BuildTradeInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WETH,
-      buyAsset: FOX,
+      buyAsset: FOX_MAINNET,
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
       sendMax: true,
       accountNumber: 0,
@@ -331,7 +331,7 @@ describe('cowBuildTrade', () => {
 
     const tradeInput: BuildTradeInput = {
       chainId: KnownChainIds.EthereumMainnet,
-      sellAsset: FOX,
+      sellAsset: FOX_MAINNET,
       buyAsset: ETH,
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
       sendMax: true,

@@ -1,7 +1,15 @@
 import { ethChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { BTC, ETH, FOX, WBTC, WETH, XDAI } from 'lib/swapper/swappers/utils/test-data/assets'
+import {
+  BTC,
+  ETH,
+  FOX_GNOSIS,
+  FOX_MAINNET,
+  WBTC,
+  WETH,
+  XDAI,
+} from 'lib/swapper/swappers/utils/test-data/assets'
 
 import { SwapperName } from '../../api'
 import { setupBuildTrade, setupQuote } from '../utils/test-data/setupSwapQuote'
@@ -14,13 +22,22 @@ import type { CowChainId, CowTrade, CowTradeResult } from './types'
 
 jest.mock('./utils/helpers/helpers')
 jest.mock('state/slices/selectors', () => {
-  const { BTC, ETH, FOX, WBTC, WETH, XDAI } = require('lib/swapper/swappers/utils/test-data/assets') // Move the import inside the factory function
+  const {
+    BTC,
+    ETH,
+    FOX_MAINNET,
+    FOX_GNOSIS,
+    WBTC,
+    WETH,
+    XDAI,
+  } = require('lib/swapper/swappers/utils/test-data/assets') // Move the import inside the factory function
 
   return {
     selectAssets: () => ({
       [BTC.assetId]: BTC,
       [ETH.assetId]: ETH,
-      [FOX.assetId]: FOX,
+      [FOX_MAINNET.assetId]: FOX_MAINNET,
+      [FOX_GNOSIS.assetId]: FOX_GNOSIS,
       [WBTC.assetId]: WBTC,
       [WETH.assetId]: WETH,
       [XDAI.assetId]: XDAI,
@@ -44,7 +61,14 @@ jest.mock('./cowGetTradeTxs/cowGetTradeTxs', () => ({
   cowGetTradeTxs: jest.fn(),
 }))
 
-const ASSET_IDS = [ETH.assetId, WBTC.assetId, WETH.assetId, BTC.assetId, FOX.assetId, XDAI.assetId]
+const ASSET_IDS = [
+  ETH.assetId,
+  WBTC.assetId,
+  WETH.assetId,
+  BTC.assetId,
+  FOX_MAINNET.assetId,
+  XDAI.assetId,
+]
 
 const COW_SWAPPER_DEPS: CowChainId[] = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
 
@@ -67,17 +91,21 @@ describe('CowSwapper', () => {
       expect(swapper.filterAssetIdsBySellable(ASSET_IDS)).toEqual([
         WBTC.assetId,
         WETH.assetId,
-        FOX.assetId,
+        FOX_MAINNET.assetId,
       ])
     })
 
     it('returns array filtered out of unsupported tokens', () => {
       const assetIds = [
-        FOX.assetId,
+        FOX_MAINNET.assetId,
+        FOX_GNOSIS.assetId,
         'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
-        'eip155:100/erc20:0x21a42669643f45bc0e086b8fc2ed70c23d67509d',
       ]
-      expect(swapper.filterAssetIdsBySellable(assetIds)).toEqual([FOX.assetId])
+
+      expect(swapper.filterAssetIdsBySellable(assetIds)).toEqual([
+        FOX_MAINNET.assetId,
+        FOX_GNOSIS.assetId,
+      ])
     })
   })
 
@@ -109,32 +137,35 @@ describe('CowSwapper', () => {
           assetIds: ASSET_IDS,
           sellAssetId: WETH.assetId,
         }),
-      ).toEqual([ETH.assetId, WBTC.assetId, FOX.assetId])
+      ).toEqual([ETH.assetId, WBTC.assetId, FOX_MAINNET.assetId])
       expect(
         swapper.filterBuyAssetsBySellAssetId({
           assetIds: ASSET_IDS,
           sellAssetId: WBTC.assetId,
         }),
-      ).toEqual([ETH.assetId, WETH.assetId, FOX.assetId])
+      ).toEqual([ETH.assetId, WETH.assetId, FOX_MAINNET.assetId])
       expect(
         swapper.filterBuyAssetsBySellAssetId({
           assetIds: ASSET_IDS,
-          sellAssetId: FOX.assetId,
+          sellAssetId: FOX_MAINNET.assetId,
         }),
       ).toEqual([ETH.assetId, WBTC.assetId, WETH.assetId])
     })
 
     it('returns array filtered out of unsupported tokens when called with a sellable sellAssetId', () => {
-      const assetIds = [FOX.assetId, 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3']
+      const assetIds = [
+        FOX_MAINNET.assetId,
+        'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
+      ]
       expect(
         swapper.filterBuyAssetsBySellAssetId({
           assetIds,
           sellAssetId: WETH.assetId,
         }),
-      ).toEqual([FOX.assetId])
-      expect(swapper.filterBuyAssetsBySellAssetId({ assetIds, sellAssetId: FOX.assetId })).toEqual(
-        [],
-      )
+      ).toEqual([FOX_MAINNET.assetId])
+      expect(
+        swapper.filterBuyAssetsBySellAssetId({ assetIds, sellAssetId: FOX_MAINNET.assetId }),
+      ).toEqual([])
     })
   })
 
@@ -163,7 +194,7 @@ describe('CowSwapper', () => {
         sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
         buyAmountBeforeFeesCryptoBaseUnit: '14501811818247595090576',
         sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
-        buyAsset: FOX,
+        buyAsset: FOX_MAINNET,
         sellAsset: WETH,
         accountNumber: 0,
         receiveAddress: 'address11',
@@ -188,7 +219,7 @@ describe('CowSwapper', () => {
         sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
         buyAmountBeforeFeesCryptoBaseUnit: '14501811818247595090576',
         sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
-        buyAsset: FOX,
+        buyAsset: FOX_GNOSIS,
         sellAsset: XDAI,
         accountNumber: 0,
         receiveAddress: 'address11',

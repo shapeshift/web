@@ -4,7 +4,7 @@ import type Web3 from 'web3'
 import { CowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { ThorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
-import { ETH, FOX, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
+import { ETH, FOX_MAINNET, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 import { ZrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
 
 import type { TradeQuote } from '../api'
@@ -32,10 +32,10 @@ export const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   buyAmountBeforeFeesCryptoBaseUnit: '23448326921811747', // 0.023 ETH
   feeData: {
     protocolFees: {
-      [FOX.assetId]: {
+      [FOX_MAINNET.assetId]: {
         amountCryptoBaseUnit: '191400000000000000000',
         requiresBalance: false,
-        asset: FOX,
+        asset: FOX_MAINNET,
       },
     },
     networkFeeCryptoBaseUnit: '3246750000000000',
@@ -43,7 +43,7 @@ export const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   rate: '0.00002509060972289251',
   sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
   buyAsset: ETH,
-  sellAsset: FOX,
+  sellAsset: FOX_MAINNET,
   accountNumber: 0,
 }
 
@@ -52,10 +52,10 @@ export const bestTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   buyAmountBeforeFeesCryptoBaseUnit: '23000000000000000', // 0.023 ETH
   feeData: {
     protocolFees: {
-      [FOX.assetId]: {
+      [FOX_MAINNET.assetId]: {
         amountCryptoBaseUnit: '191400000000000000000',
         requiresBalance: false,
-        asset: FOX,
+        asset: FOX_MAINNET,
       },
     },
     networkFeeCryptoBaseUnit: '3246750000000000',
@@ -68,10 +68,10 @@ export const suboptimalTradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   buyAmountBeforeFeesCryptoBaseUnit: '21000000000000000', // 0.021 ETH
   feeData: {
     protocolFees: {
-      [FOX.assetId]: {
+      [FOX_MAINNET.assetId]: {
         amountCryptoBaseUnit: '266400000000000000000',
         requiresBalance: false,
-        asset: FOX,
+        asset: FOX_MAINNET,
       },
     },
     networkFeeCryptoBaseUnit: '3446750000000000',

@@ -6,6 +6,7 @@ import {
   ethAssetId,
   ethChainId,
   foxAssetId,
+  foxOnGnosisAssetId,
   gnosisAssetId,
   gnosisChainId,
   optimismAssetId,
@@ -41,7 +42,7 @@ export const WETH: Asset = {
   symbol: 'WETH',
 }
 
-export const FOX: Asset = {
+export const FOX_MAINNET: Asset = {
   assetId: foxAssetId,
   chainId: ethChainId,
   name: 'FOX',
@@ -55,7 +56,7 @@ export const FOX: Asset = {
 }
 
 export const FOX_GNOSIS: Asset = {
-  assetId: foxAssetId,
+  assetId: foxOnGnosisAssetId,
   chainId: gnosisChainId,
   name: 'FOX',
   precision: 18,
@@ -106,7 +107,7 @@ export const UNSUPPORTED: Asset = {
   explorerAddressLink: 'https://etherscan.io/address/',
 }
 
-export const USDC: Asset = {
+export const USDC_MAINNET: Asset = {
   assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   chainId: ethChainId,
   symbol: 'USDC',
@@ -203,14 +204,16 @@ export const RUNE: Asset = {
 }
 
 export const assetsById = {
-  [FOX.assetId]: FOX,
+  [FOX_MAINNET.assetId]: FOX_MAINNET,
+  [FOX_GNOSIS.assetId]: FOX_GNOSIS,
   [ETH.assetId]: ETH,
   [AVAX.assetId]: AVAX,
   [BSC.assetId]: BSC,
   [BTC.assetId]: BTC,
   [RUNE.assetId]: RUNE,
   [OPTIMISM.assetId]: OPTIMISM,
-  [USDC.assetId]: USDC,
+  [USDC_MAINNET.assetId]: USDC_MAINNET,
+  [USDC_GNOSIS.assetId]: USDC_GNOSIS,
   [WBTC.assetId]: WBTC,
   [WETH.assetId]: WETH,
 }

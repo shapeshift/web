@@ -41,8 +41,8 @@ export const Missions = () => {
         buttonText: translate('missions.foxArmy.cta'),
         coverImage: FoxArmyBg,
         onClick: () => window.open('https://app.mercle.xyz/shapeshift/events'),
-        startDate: '2023-06-04 17:00 UTC',
-        endDate: '2023-06-08 17:00 UTC',
+        startDate: '2023-06-06 17:00 UTC',
+        endDate: '2023-06-13 17:00 UTC',
       },
       {
         title: translate('missions.yat.title'),

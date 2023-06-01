@@ -44,7 +44,7 @@ export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
   const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
   const [isMediaLoaded, setIsMediaLoaded] = useState(false)
 
-  const chainId = collection?.chainId
+  const chainId = fromAssetId(nftItem.assetId).chainId
   const maybeChainAdapter = getChainAdapterManager().get(chainId as ChainId)
   const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
   const maybeFeeAsset = useAppSelector(state => selectAssetById(state, maybeFeeAssetId ?? ''))

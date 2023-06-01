@@ -59,7 +59,7 @@ export const parseAlchemyNftContractToCollectionItem = (
   })
 
   return {
-    id,
+    assetId: id,
     chainId,
     name: name ?? '',
     floorPrice: openSea?.floorPrice ? bnOrZero(openSea.floorPrice).toString() : '',
@@ -80,8 +80,8 @@ export const parseAlchemyOwnedNftToNftItem = (
   })
   const socialLinks = makeSocialLinks(alchemyOwnedNft.contract.openSea)
 
-  const NftCollectionType = {
-    id: collectionId,
+  const nftCollection = {
+    assetId: collectionId,
     chainId,
     name:
       alchemyOwnedNft.contract.name ||
@@ -95,6 +95,11 @@ export const parseAlchemyOwnedNftToNftItem = (
 
   const nftItem = {
     id: alchemyOwnedNft.tokenId,
+    assetId: toAssetId({
+      assetReference: `${alchemyOwnedNft.contract.address}/${alchemyOwnedNft.tokenId}`,
+      assetNamespace: alchemyOwnedNft.contract.tokenType.toLowerCase() as AssetNamespace,
+      chainId,
+    }),
     name:
       (alchemyOwnedNft.title ||
         alchemyOwnedNft.contract.name ||
@@ -103,7 +108,7 @@ export const parseAlchemyOwnedNftToNftItem = (
     price: '', // The Alchemy NFT data does not have a spot price
     chainId,
     description: alchemyOwnedNft.description,
-    collection: NftCollectionType,
+    collection: nftCollection,
     medias: alchemyOwnedNft.media.map(media => ({
       originalUrl: media.gateway,
       type: getMediaType(media.gateway) ?? 'image', // Gateway URLs are not guaranteed to have a file extension

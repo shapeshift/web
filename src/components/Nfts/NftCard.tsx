@@ -44,7 +44,7 @@ export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
   const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
   const [isMediaLoaded, setIsMediaLoaded] = useState(false)
 
-  const chainId = collection?.chainId
+  const chainId = fromAssetId(nftItem.assetId).chainId
   const maybeChainAdapter = getChainAdapterManager().get(chainId as ChainId)
   const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
   const maybeFeeAsset = useAppSelector(state => selectAssetById(state, maybeFeeAssetId ?? ''))
@@ -60,10 +60,10 @@ export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
     const eventData = {
       name: nftItem.name,
       id: nftItem.id,
-      collectionName: collection?.name,
-      collectionAddress: fromAssetId(collection?.assetId).assetReference,
+      collectionName: collection.name,
+      collectionAddress: fromAssetId(collection.assetId).assetReference,
       price: nftItem.price,
-      collectionFloorPrice: collection?.floorPrice,
+      collectionFloorPrice: collection.floorPrice,
       nftMediaUrls: (nftItem.medias ?? []).map(media => media.originalUrl),
     }
 

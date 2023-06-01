@@ -5,7 +5,7 @@ import type { DisplayFeeData, TradeAmountInputField } from 'components/Trade/typ
 import type { Asset } from 'lib/asset-service'
 import type { SwapperName, SwapperWithQuoteMetadata, Trade } from 'lib/swapper/api'
 
-export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
+export type SwapperStore = {
   selectedSellAssetAccountId?: AccountId
   selectedBuyAssetAccountId?: AccountId
   sellAssetAccountId?: AccountId
@@ -19,8 +19,8 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   action: TradeAmountInputField
   amount: string
   receiveAddress?: string
-  fees?: DisplayFeeData<C>
-  trade?: Trade<C>
+  fees?: DisplayFeeData<KnownChainIds>
+  trade?: Trade<KnownChainIds>
   availableSwappersWithMetadata?: SwapperWithQuoteMetadata[]
   activeAffiliateBps: string
   preferredSwapper?: SwapperName
@@ -66,4 +66,4 @@ export type SetSwapperStoreAction<T> = {
   ): void
 }
 
-export type SwapperState<T extends KnownChainIds = KnownChainIds> = SwapperStore<T> & SwapperAction
+export type SwapperState = SwapperStore & SwapperAction

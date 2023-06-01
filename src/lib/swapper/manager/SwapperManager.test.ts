@@ -2,7 +2,7 @@ import { Ok } from '@sniptt/monads'
 import {
   BSC,
   BTC,
-  ETH,
+  ETH as mockEthereum,
   FOX_GNOSIS,
   FOX_MAINNET,
   WETH,
@@ -32,6 +32,7 @@ jest.mock('state/slices/selectors', () => {
 
   return {
     selectAssets: () => assetsById,
+    selectFeeAssetByChainId: () => mockEthereum,
   }
 })
 
@@ -132,7 +133,6 @@ describe('SwapperManager', () => {
       const { quoteInput } = setupQuote()
       const swappers = await swapperManager.getSwappersWithQuoteMetadata({
         ...quoteInput,
-        feeAsset: ETH,
         cryptoMarketDataById,
       })
       const expectedSwappers: SwapperWithQuoteMetadata[] = [

@@ -33,10 +33,10 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
+  selectActiveStep,
   selectActiveSwapperWithMetadata,
   selectBuyAsset,
   selectBuyAssetAccountId,
-  selectQuote,
   selectReceiveAddress,
   selectSellAmountCryptoPrecision,
   selectSellAsset,
@@ -46,14 +46,14 @@ import {
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
-import { isCosmosSdkSwap, isEvmSwap, isUtxoSwap } from './typeGuards'
+import { isCosmosSdkChainId, isEvmChainId, isUtxoChainId } from './typeGuards'
 
 /*
 The Swapper hook is responsible for providing computed swapper state to consumers.
 It does not mutate state.
 */
 export const useSwapper = () => {
-  const activeQuote = useSwapperStore(selectQuote)
+  const activeStep = useSwapperStore(selectActiveStep)
   const sellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
   const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
   const buyAsset = useSwapperStore(selectBuyAsset)
@@ -94,21 +94,20 @@ export const useSwapper = () => {
   }, [swapperManager, assetIds, sortedAssets, wallet])
 
   const supportedBuyAssetsByMarketCap = useMemo(() => {
-    const sellAssetId = sellAsset?.assetId
-    if (sellAssetId === undefined || !swapperManager) return []
+    if (!swapperManager) return []
 
     const buyableAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
       assetIds,
-      sellAssetId,
+      sellAssetId: sellAsset.assetId,
     })
 
     const buyableAssetIdsSet: Set<AssetId> = new Set(buyableAssetIds)
 
     return sortedAssets.filter(asset => buyableAssetIdsSet.has(asset.assetId))
-  }, [sortedAssets, sellAsset?.assetId, assetIds, swapperManager])
+  }, [sortedAssets, sellAsset.assetId, assetIds, swapperManager])
 
   const sellAssetAccountIds = useAppSelector(state =>
-    selectPortfolioAccountIdsByAssetId(state, { assetId: sellAsset?.assetId ?? '' }),
+    selectPortfolioAccountIdsByAssetId(state, { assetId: sellAsset.assetId ?? '' }),
   )
   const sellAccountFilter = useMemo(
     () => ({ accountId: sellAssetAccountId ?? sellAssetAccountIds[0] }),
@@ -124,7 +123,7 @@ export const useSwapper = () => {
   )
 
   const buyAssetAccountIds = useAppSelector(state =>
-    selectPortfolioAccountIdsByAssetId(state, { assetId: buyAsset?.assetId ?? '' }),
+    selectPortfolioAccountIdsByAssetId(state, { assetId: buyAsset.assetId ?? '' }),
   )
   const buyAccountFilter = useMemo(
     () => ({ accountId: buyAssetAccountId ?? buyAssetAccountIds[0] }),
@@ -186,7 +185,7 @@ export const useSwapper = () => {
         affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps ?? defaultAffiliateBps,
       }
 
-      if (isUtxoSwap(sellAsset.chainId)) {
+      if (isUtxoChainId(sellAsset.chainId)) {
         const {
           accountType,
           bip44Params: { accountNumber },
@@ -211,7 +210,7 @@ export const useSwapper = () => {
           accountType,
           xpub,
         })
-      } else if (isEvmSwap(sellAsset.chainId) || isCosmosSdkSwap(sellAsset.chainId)) {
+      } else if (isEvmChainId(sellAsset.chainId) || isCosmosSdkChainId(sellAsset.chainId)) {
         const eip1559Support = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
         return activeSwapper.buildTrade({
           ...buildTradeCommonArgs,
@@ -248,7 +247,7 @@ export const useSwapper = () => {
 
     if (!adapter) throw Error(`no chain adapter found for chain Id: ${sellAsset.chainId}`)
     if (!wallet) throw new Error('no wallet available')
-    if (!activeQuote) throw new Error('no activeQuote available')
+    if (!activeStep) throw new Error('no active trade step available')
 
     // No approval needed for selling a fee asset
     if (sellAsset.assetId === adapter.getFeeAssetId()) {
@@ -257,7 +256,7 @@ export const useSwapper = () => {
 
     const from = await adapter.getAddress({
       wallet,
-      accountNumber: activeQuote.steps[0].accountNumber,
+      accountNumber: activeStep.accountNumber,
     })
 
     const { assetReference: sellAssetContractAddress } = fromAssetId(sellAsset.assetId)
@@ -267,16 +266,12 @@ export const useSwapper = () => {
       web3,
       erc20AllowanceAbi,
       address: sellAssetContractAddress,
-      // TODO(woodenfurniture): use active step
-      spender: activeQuote.steps[0].allowanceContract,
+      spender: activeStep.allowanceContract,
       from,
     })
 
-    // TODO(woodenfurniture): use active step
-    return bn(allowanceOnChainCryptoBaseUnit).lt(
-      activeQuote.steps[0].sellAmountBeforeFeesCryptoBaseUnit,
-    )
-  }, [activeQuote, sellAsset.assetId, sellAsset.chainId, wallet])
+    return bn(allowanceOnChainCryptoBaseUnit).lt(activeStep.sellAmountBeforeFeesCryptoBaseUnit)
+  }, [activeStep, sellAsset.assetId, sellAsset.chainId, wallet])
 
   const getApprovalTxData = useCallback(
     async (
@@ -288,14 +283,13 @@ export const useSwapper = () => {
       const adapterManager = getChainAdapterManager()
       const adapter = adapterManager.get(sellAsset.chainId)
 
-      if (!activeQuote) throw new Error('no activeQuote available')
+      if (!activeStep) throw new Error('no active trade step available')
       if (!wallet) throw new Error('no wallet available')
       if (!adapter || !isEvmChainAdapter(adapter))
         throw Error(`no valid EVM chain adapter found for chain Id: ${sellAsset.chainId}`)
 
       const approvalAmountCryptoBaseUnit = isExactAllowance
-        ? // TODO(woodenfurniture): use active step
-          activeQuote.steps[0].sellAmountBeforeFeesCryptoBaseUnit
+        ? activeStep.sellAmountBeforeFeesCryptoBaseUnit
         : MAX_ALLOWANCE
 
       const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
@@ -306,15 +300,13 @@ export const useSwapper = () => {
 
       const data = getApproveContractData({
         approvalAmountCryptoBaseUnit,
-        // TODO(woodenfurniture): use active step
-        spender: activeQuote.steps[0].allowanceContract,
+        spender: activeStep.allowanceContract,
         to: assetReference,
         web3,
       })
 
       const { feesWithGasLimit, networkFeeCryptoBaseUnit } = await getFeesFromContractData({
-        // TODO(woodenfurniture): use active step
-        accountNumber: activeQuote.steps[0].accountNumber,
+        accountNumber: activeStep.accountNumber,
         adapter,
         to: assetReference,
         value,
@@ -325,8 +317,7 @@ export const useSwapper = () => {
       return {
         networkFeeCryptoBaseUnit,
         buildCustomTxInput: {
-          // TODO(woodenfurniture): use active step
-          accountNumber: activeQuote.steps[0].accountNumber,
+          accountNumber: activeStep.accountNumber,
           data,
           to: assetReference,
           value,
@@ -335,7 +326,7 @@ export const useSwapper = () => {
         },
       }
     },
-    [activeQuote, sellAsset.assetId, sellAsset.chainId, wallet],
+    [activeStep, sellAsset.assetId, sellAsset.chainId, wallet],
   )
 
   useEffect(() => {

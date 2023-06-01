@@ -61,6 +61,12 @@ export const selectQuote = createSelector(
   activeSwapperWithMetadata => activeSwapperWithMetadata?.quote,
 )
 
+export const selectActiveStep = createSelector(
+  selectActiveSwapperWithMetadata,
+  // for now there is only ever 1 active step until we support multi-hop trades
+  activeSwapperWithMetadata => activeSwapperWithMetadata?.quote.steps[0],
+)
+
 /*
   Cross-account trading means trades that are either:
     - Trades between assets on the same chain but different accounts

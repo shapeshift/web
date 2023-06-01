@@ -1,31 +1,34 @@
-import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { DisplayFeeData, GetFormFeesArgs, GetReceiveAddressArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { Asset } from 'lib/asset-service'
-import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, SwapperName, TradeBase, TradeQuote } from 'lib/swapper/api'
+import type { TradeBase, TradeQuote } from 'lib/swapper/api'
+import { sumProtocolFeesForAssetCryptoBaseUnit } from 'state/zustand/swapperStore/utils'
+
+import { isCosmosSdkTrade, isEvmTrade, isUtxoTrade } from './typeGuards'
 
 const moduleLogger = logger.child({ namespace: ['useSwapper', 'utils'] })
-
-// Pure functions
 
 export const getSendMaxAmountCryptoPrecision = (
   sellAsset: Asset,
   feeAsset: Asset,
-  quote: TradeQuote<KnownChainIds>,
+  quote: TradeQuote<ChainId>,
   sellAssetBalanceCryptoBaseUnit: string,
   networkFeeRequiresBalance: boolean,
   isBuyingOsmoWithOmosisSwapper: boolean,
 ) => {
   // Only subtract fee if sell asset is the fee asset
   const isFeeAsset = feeAsset.assetId === sellAsset.assetId
-  // TODO(woodenfurniture): reduce sum of fees here
-  const protocolFee: ProtocolFee | undefined =
-    quote.steps[0].feeData.protocolFees[sellAsset.assetId]
+  const protocolFeeTotalForSellAssetCryptoBaseUnit = sumProtocolFeesForAssetCryptoBaseUnit(
+    sellAsset,
+    quote.steps,
+    true,
+  )
   const networkFeeCryptoBaseUnit = bnOrZero(quote.steps[0].feeData.networkFeeCryptoBaseUnit)
   // sell asset balance minus expected fees = maxTradeAmount
   return positiveOrZero(
@@ -36,9 +39,7 @@ export const getSendMaxAmountCryptoPrecision = (
         // subtract protocol fee if required
         .minus(
           // TEMP: handle osmosis protocol fee payable on buy side for specific case until we implement general solution
-          protocolFee?.requiresBalance && !isBuyingOsmoWithOmosisSwapper
-            ? protocolFee.amountCryptoBaseUnit
-            : 0,
+          !isBuyingOsmoWithOmosisSwapper ? protocolFeeTotalForSellAssetCryptoBaseUnit : 0,
         )
         .times(0.99), // reduce the computed amount by 1% to ensure we don't exceed the max
       sellAsset.precision,
@@ -46,58 +47,37 @@ export const getSendMaxAmountCryptoPrecision = (
   ).toFixed()
 }
 
-const getEvmFees = <T extends EvmChainId>(
-  trade: TradeBase<T>,
-  feeAsset: Asset,
-  tradeFeeSource: SwapperName,
-): DisplayFeeData<EvmChainId> => {
-  const networkFeeCryptoPrecision = bnOrZero(trade?.feeData?.networkFeeCryptoBaseUnit)
-    .div(bn(10).exponentiatedBy(feeAsset.precision))
-    .toFixed()
-
-  return {
-    tradeFeeSource,
-    protocolFees: trade.feeData.protocolFees,
-    networkFeeCryptoHuman: networkFeeCryptoPrecision,
-    networkFeeCryptoBaseUnit: trade?.feeData?.networkFeeCryptoBaseUnit ?? '0',
-  }
-}
-
+// creates an object representing a summary of the fees for a single trade step
 export const getFormFees = ({
-  trade,
-  sellAsset,
+  tradeStep,
   tradeFeeSource,
   feeAsset,
 }: GetFormFeesArgs): DisplayFeeData<KnownChainIds> => {
   const networkFeeCryptoHuman = fromBaseUnit(
-    trade.feeData?.networkFeeCryptoBaseUnit,
+    tradeStep.feeData?.networkFeeCryptoBaseUnit,
     feeAsset.precision,
   )
 
-  const { chainNamespace } = fromAssetId(sellAsset.assetId)
-  switch (chainNamespace) {
-    case CHAIN_NAMESPACE.Evm:
-      return getEvmFees(trade, feeAsset, tradeFeeSource)
-    case CHAIN_NAMESPACE.CosmosSdk: {
-      return {
-        networkFeeCryptoHuman,
-        networkFeeCryptoBaseUnit: trade.feeData.networkFeeCryptoBaseUnit ?? '0',
-        protocolFees: trade.feeData.protocolFees,
-        tradeFeeSource,
-      }
+  if (isUtxoTrade(tradeStep) || isCosmosSdkTrade(tradeStep)) {
+    return {
+      networkFeeCryptoHuman,
+      networkFeeCryptoBaseUnit: tradeStep.feeData.networkFeeCryptoBaseUnit,
+      chainSpecific: tradeStep.feeData.chainSpecific,
+      protocolFees: tradeStep.feeData.protocolFees,
+      tradeFeeSource,
     }
-    case CHAIN_NAMESPACE.Utxo: {
-      return {
-        networkFeeCryptoHuman,
-        networkFeeCryptoBaseUnit: trade.feeData.networkFeeCryptoBaseUnit,
-        chainSpecific: trade.feeData.chainSpecific,
-        protocolFees: trade.feeData.protocolFees,
-        tradeFeeSource,
-      }
-    }
-    default:
-      throw new Error('Unsupported chain ' + sellAsset.chainId)
   }
+
+  if (isEvmTrade(tradeStep)) {
+    return {
+      tradeFeeSource,
+      protocolFees: tradeStep.feeData.protocolFees,
+      networkFeeCryptoHuman,
+      networkFeeCryptoBaseUnit: tradeStep?.feeData?.networkFeeCryptoBaseUnit ?? '0',
+    }
+  }
+
+  throw new Error('Unsupported chain ' + (tradeStep as TradeBase<ChainId>).sellAsset.chainId)
 }
 
 export const getReceiveAddress = async ({

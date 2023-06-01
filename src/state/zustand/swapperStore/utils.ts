@@ -1,8 +1,9 @@
 // Helper function to convert basis points to percentage
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
+import type { Asset } from 'lib/asset-service'
 import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
-import type { ProtocolFee } from 'lib/swapper/api'
+import type { ProtocolFee, TradeQuoteStep } from 'lib/swapper/api'
 
 export const convertBasisPointsToDecimalPercentage = (basisPoints: string) =>
   bnOrZero(basisPoints).div(10000)
@@ -44,8 +45,16 @@ export const subtractBasisPointAmount = (
   return roundUp ? resultValue.toFixed(0, BigNumber.ROUND_UP) : resultValue.toFixed()
 }
 
-// this converts the collection of protocol fees denominated in various assets to the sum of all of
-// their values denominated in single asset and precision
+/**
+ * Converts the collection of protocol fees denominated in various assets to the sum of all of
+ * their values denominated in single asset and precision
+ *
+ * @param param0.cryptoMarketDataById The crypto market data denominated in USD (DO NOT use fiat market data)
+ * @param param0.outputAssetPriceUsd The price in USD of the output asset
+ * @param param0.outputExponent The exponent of the output asset, this may be Asset.precision for crypto assets
+ * @param param0.protocolFees The protocol fees to sum
+ * @returns The sum of all protocol fees denominated in the output asset
+ */
 export const sumProtocolFeesToDenom = ({
   cryptoMarketDataById,
   outputAssetPriceUsd,
@@ -69,4 +78,23 @@ export const sumProtocolFeesToDenom = ({
       return acc.plus(convertedPrecisionAmountCryptoBaseUnit.times(rate))
     }, bn(0))
     .toString()
+}
+
+/**
+ * Sums the protocol fees for a specific asset across multiple trade steps.
+ *
+ * @param targetAsset The asset to sum
+ * @param steps The TradeQuoteSteps containing the protocol fees
+ * @param onlyRequiresBalance Whether to only sum protocol fees that require balance for that asset
+ * @returns The total payable protocol fee for the target, in crypto base unit
+ */
+export const sumProtocolFeesForAssetCryptoBaseUnit = (
+  targetAsset: Asset,
+  steps: TradeQuoteStep<ChainId, false>[],
+  onlyRequiresBalance: boolean,
+) => {
+  return steps
+    .map(step => step.feeData.protocolFees[targetAsset.assetId])
+    .filter(protocolFee => protocolFee && (!onlyRequiresBalance || protocolFee.requiresBalance))
+    .reduce((acc, protocolFee) => acc.plus(protocolFee.amountCryptoBaseUnit), bn(0))
 }

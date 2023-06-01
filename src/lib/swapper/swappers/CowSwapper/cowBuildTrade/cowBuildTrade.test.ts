@@ -375,7 +375,6 @@ describe('cowBuildTrade', () => {
       sellAsset: USDC_GNOSIS,
       buyAsset: XDAI,
       sellAmountBeforeFeesCryptoBaseUnit: '20000000',
-      sendMax: true,
       accountNumber: 0,
       wallet: {} as HDWallet,
       receiveAddress: DEFAULT_ADDRESS,

@@ -39,7 +39,7 @@ import { logger } from 'lib/logger'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { selectFeeAssetFiatRate } from 'state/zustand/swapperStore/amountSelectors'
-import { selectFees, selectQuote } from 'state/zustand/swapperStore/selectors'
+import { selectActiveStep, selectFees, selectQuote } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 import { theme } from 'theme/theme'
 
@@ -65,6 +65,7 @@ export const Approval = () => {
   } = useFormContext()
 
   const activeQuote = useSwapperStore(selectQuote)
+  const activeStep = useSwapperStore(selectActiveStep)
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const fees = useSwapperStore(selectFees) as DisplayFeeData<EvmChainId> | undefined
   const updateTrade = useSwapperStore(state => state.updateTrade)
@@ -79,12 +80,10 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
 
-  // TODO(woodenfurniture): use active step
-  const symbol = activeQuote?.steps[0].sellAsset?.symbol
+  const symbol = activeStep?.sellAsset.symbol
 
   const sellFeeAsset = useAppSelector(state =>
-    // TODO(woodenfurniture): use active step
-    selectFeeAssetById(state, activeQuote?.steps[0].sellAsset.assetId ?? ethAssetId),
+    selectFeeAssetById(state, activeStep?.sellAsset.assetId ?? ethAssetId),
   )
 
   const approveContract = useCallback(async () => {
@@ -203,8 +202,7 @@ export const Approval = () => {
             >
               {() => (
                 <Image
-                  // TODO(woodenfurniture): use active step
-                  src={activeQuote?.steps[0].sellAsset.icon}
+                  src={activeStep?.sellAsset.icon}
                   boxSize='60px'
                   fallback={<SkeletonCircle boxSize='60px' />}
                 />
@@ -219,8 +217,7 @@ export const Approval = () => {
             />
             <CText color='gray.500' textAlign='center'>
               <Link
-                // TODO(woodenfurniture): use active step
-                href={`${activeQuote?.steps[0].sellAsset.explorerAddressLink}${activeQuote?.steps[0].allowanceContract}`}
+                href={`${activeStep?.sellAsset.explorerAddressLink}${activeStep?.allowanceContract}`}
                 color='blue.500'
                 me={1}
                 isExternal
@@ -234,8 +231,7 @@ export const Approval = () => {
             </Link>
             <Divider my={4} />
             <Flex flexDirection='column' width='full'>
-              {/* TODO(woodenfurniture): use active step */}
-              {approvalTxId && activeQuote?.steps[0].sellAsset.explorerTxLink && (
+              {approvalTxId && activeStep?.sellAsset.explorerTxLink && (
                 <Row>
                   <Row.Label>
                     <Text translation={['trade.approvingAsset', { symbol }]} />
@@ -244,8 +240,7 @@ export const Approval = () => {
                     <Link
                       isExternal
                       color='blue.500'
-                      // TODO(woodenfurniture): use active step
-                      href={`${activeQuote?.steps[0].sellAsset.explorerTxLink}${approvalTxId}`}
+                      href={`${activeStep.sellAsset.explorerTxLink}${approvalTxId}`}
                     >
                       <MiddleEllipsis value={approvalTxId} />
                     </Link>

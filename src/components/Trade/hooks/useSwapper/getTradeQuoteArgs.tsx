@@ -3,9 +3,9 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import {
-  isCosmosSdkSwap,
-  isEvmSwap,
-  isUtxoSwap,
+  isCosmosSdkChainId,
+  isEvmChainId,
+  isUtxoChainId,
 } from 'components/Trade/hooks/useSwapper/typeGuards'
 import type { TradeQuoteInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -45,14 +45,14 @@ export const getTradeQuoteArgs = async ({
     accountNumber: sellAccountNumber,
     affiliateBps: '0',
   }
-  if (isEvmSwap(sellAsset?.chainId) || isCosmosSdkSwap(sellAsset?.chainId)) {
+  if (isEvmChainId(sellAsset?.chainId) || isCosmosSdkChainId(sellAsset?.chainId)) {
     const eip1559Support = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
     return {
       ...tradeQuoteInputCommonArgs,
       chainId: sellAsset.chainId,
       eip1559Support,
     }
-  } else if (isUtxoSwap(sellAsset?.chainId)) {
+  } else if (isUtxoChainId(sellAsset?.chainId)) {
     if (!sellAccountType) return
     const sellAssetChainAdapter = getChainAdapterManager().get(
       sellAsset.chainId,

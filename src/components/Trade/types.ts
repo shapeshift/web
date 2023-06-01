@@ -1,6 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Asset } from 'lib/asset-service'
 import type {
   BuildTradeInput,
@@ -59,8 +58,7 @@ export type BuildTradeInputCommonArgs = Pick<
 >
 
 export type GetFormFeesArgs = {
-  trade: TradeBase<KnownChainIds>
-  sellAsset: Asset
+  tradeStep: TradeBase<ChainId>
   tradeFeeSource: SwapperName
   feeAsset: Asset
 }

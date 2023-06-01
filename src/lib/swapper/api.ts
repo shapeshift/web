@@ -73,7 +73,6 @@ export type ByPairInput = {
 }
 
 export type GetSwappersWithQuoteMetadataArgs = GetTradeQuoteInput & {
-  feeAsset: Asset
   cryptoMarketDataById: Partial<Record<AssetId, Pick<MarketData, 'price'>>>
 }
 

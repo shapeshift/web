@@ -4,11 +4,7 @@ import type { GetTradeQuoteInput, SwapperName, TradeQuote } from 'lib/swapper/ap
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { apiErrorHandler } from 'state/apis/utils'
 import type { ReduxState } from 'state/reducer'
-import {
-  selectCryptoMarketData,
-  selectFeatureFlags,
-  selectFeeAssetByChainId,
-} from 'state/slices/selectors'
+import { selectCryptoMarketData, selectFeatureFlags } from 'state/slices/selectors'
 
 const getSwappersErrorHandler = apiErrorHandler('getAvailableSwappers: error getting swappers')
 
@@ -29,14 +25,11 @@ export const getSwappersApi = swapperApi.injectEndpoints({
         const state: ReduxState = getState() as ReduxState
         const featureFlags = selectFeatureFlags(state)
         const swapperManager = await getSwapperManager(featureFlags)
-        const feeAsset = selectFeeAssetByChainId(state, getTradeQuoteInput.chainId)
         const cryptoMarketDataById = selectCryptoMarketData(state)
 
         try {
-          if (!feeAsset) throw Error(`no fee asset for chainId ${getTradeQuoteInput.chainId}`)
           const swappersWithQuoteMetadata = await swapperManager.getSwappersWithQuoteMetadata({
             ...getTradeQuoteInput,
-            feeAsset,
             cryptoMarketDataById,
           })
           const swappersWithType = swappersWithQuoteMetadata.map(s => ({

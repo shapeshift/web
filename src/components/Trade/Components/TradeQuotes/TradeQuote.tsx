@@ -7,14 +7,18 @@ import { Amount } from 'components/Amount/Amount'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
 import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { SwapperWithQuoteMetadata } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
-import { selectFeeAssetByChainId, selectFeeAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-import { selectFeeAssetFiatRate } from 'state/zustand/swapperStore/amountSelectors'
+import {
+  selectCryptoMarketData,
+  selectFeeAssetByChainId,
+  selectFeeAssetById,
+  selectFiatToUsdRate,
+} from 'state/slices/selectors'
+import { store, useAppSelector } from 'state/store'
 import { selectAmount, selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
@@ -82,7 +86,9 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
 
   const { isTradingActive } = useIsTradingActive()
 
-  const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
+  const cryptoMarketDataById = useAppSelector(selectCryptoMarketData) // usd market data
+  const selectedCurrencyToUsdRate = useAppSelector(selectFiatToUsdRate)
+
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellFeeAsset = useAppSelector(state =>
@@ -113,14 +119,24 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   if (!feeAsset)
     throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset?.chainId}!`)
 
-  const networkFeeFiat = feeAssetFiatRate
-    ? // TODO(woodenfurniture): reduce sum
-      bnOrZero(
-        fromBaseUnit(quote.steps[0].feeData.networkFeeCryptoBaseUnit, feeAsset.precision),
-      ).times(feeAssetFiatRate)
-    : undefined
+  const networkFeeFiat = useMemo(
+    () =>
+      quote.steps.reduce((acc, step) => {
+        const feeAsset = selectFeeAssetByChainId(store.getState(), step.sellAsset.chainId)
+        if (!feeAsset)
+          throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset?.chainId}!`)
+        const feeAssetFiatRate = bnOrZero(cryptoMarketDataById[feeAsset.assetId]?.price).times(
+          selectedCurrencyToUsdRate,
+        )
+        const stepNetworkFeeFiat = bnOrZero(
+          fromBaseUnit(step.feeData.networkFeeCryptoBaseUnit, feeAsset.precision),
+        ).times(feeAssetFiatRate)
+        return acc.plus(stepNetworkFeeFiat)
+      }, bn(0)),
+    [cryptoMarketDataById, quote.steps, selectedCurrencyToUsdRate, sellAsset?.chainId],
+  )
 
-  const protocol = swapperWithMetadata.swapper.name
+  const swapperName = swapperWithMetadata.swapper.name
   const isAmountEntered = bnOrZero(amount).gt(0)
   const hasNegativeRatio =
     inputOutputRatio !== undefined && isAmountEntered && inputOutputRatio <= 0
@@ -211,7 +227,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           </RawText>
           {
             // We cannot infer gas fees for 1inch swapper before an amount is entered
-            !isAmountEntered && protocol === SwapperName.OneInch ? (
+            !isAmountEntered && swapperName === SwapperName.OneInch ? (
               translate('trade.unknownGas')
             ) : (
               <Amount.Fiat value={bnOrZero(networkFeeFiat).toString()} />
@@ -222,7 +238,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       <Flex justifyContent='space-between' alignItems='center'>
         <Flex gap={2} alignItems='center'>
           <LazyLoadAvatar size='xs' src={protocolIcon} />
-          <RawText>{protocol}</RawText>
+          <RawText>{swapperName}</RawText>
         </Flex>
         <Amount.Crypto
           value={hasAmountWithPositiveReceive ? totalReceiveAmountCryptoPrecision : '0'}

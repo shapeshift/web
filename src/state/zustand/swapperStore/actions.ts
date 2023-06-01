@@ -1,12 +1,16 @@
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import { TradeAmountInputField } from 'components/Trade/types'
-import type { Asset } from 'lib/asset-service'
+import { selectFeeAssetByChainId } from 'state/slices/selectors'
+import { store } from 'state/store'
 import {
   selectTradeAmountsByActionAndAmount,
   selectTradeAmountsByActionAndAmountFromQuote,
 } from 'state/zustand/swapperStore/amountSelectors'
-import { selectActiveSwapperWithMetadata, selectQuote } from 'state/zustand/swapperStore/selectors'
+import {
+  selectActiveStep,
+  selectActiveSwapperWithMetadata,
+} from 'state/zustand/swapperStore/selectors'
 import type { SetSwapperStoreAction, SwapperState } from 'state/zustand/swapperStore/types'
 
 export const clearAmounts =
@@ -124,19 +128,21 @@ export const handleAssetSelection =
       },
     )
 
-export const updateFees = (set: SetSwapperStoreAction<SwapperState>) => (sellFeeAsset: Asset) =>
+export const updateFees = (set: SetSwapperStoreAction<SwapperState>) => () =>
   set(
     draft => {
-      const feeTrade = draft.trade ?? selectQuote(draft)?.steps[0]
-      const sellAsset = draft.sellAsset
+      const tradeStep = selectActiveStep(draft)
       const activeSwapperWithMetadata = selectActiveSwapperWithMetadata(draft)
+      const feeAsset =
+        tradeStep?.sellAsset.chainId &&
+        selectFeeAssetByChainId(store.getState(), tradeStep?.sellAsset.chainId)
+
       const activeTradeSwapper = activeSwapperWithMetadata?.swapper
-      if (sellAsset && activeTradeSwapper && feeTrade) {
+      if (feeAsset && activeTradeSwapper && tradeStep) {
         const fees = getFormFees({
-          trade: feeTrade,
-          sellAsset,
+          tradeStep,
           tradeFeeSource: activeTradeSwapper.name,
-          feeAsset: sellFeeAsset,
+          feeAsset,
         })
 
         draft.fees = fees

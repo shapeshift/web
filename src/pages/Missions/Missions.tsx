@@ -148,14 +148,19 @@ export const Missions = () => {
           bgImage={FoxMissionsBg}
           backgroundSize={{ base: 'contain', md: 'cover' }}
           backgroundRepeat='no-repeat'
-          backgroundPosition={{ base: 'center -8em', md: 'center 110%' }}
+          backgroundPosition={{ base: 'center -12em', md: 'center 110%' }}
           pt='22%'
         >
           <Container textAlign='center' maxWidth='container.md' py={16}>
             <Heading textShadow='0 2px rgba(0,0,0,.4)' as='h4' color='white'>
               {translate('missions.subtitle')}
             </Heading>
-            <Heading color='white' fontSize='5xl' lineHeight='none' letterSpacing='-0.015em'>
+            <Heading
+              color='white'
+              fontSize={{ base: '3xl', md: '5xl' }}
+              lineHeight='none'
+              letterSpacing='-0.015em'
+            >
               <chakra.span textShadow='0 4px 15px #000'>
                 {translate('missions.title.1')}{' '}
               </chakra.span>
@@ -180,7 +185,7 @@ export const Missions = () => {
             </Heading>
             <RawText
               textShadow='0 3px rgba(0,0,0,.4)'
-              fontSize='2xl'
+              fontSize={{ base: 'xl', md: '2xl' }}
               letterSpacing='0.012em'
               mt={4}
               mx={4}

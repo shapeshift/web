@@ -704,6 +704,8 @@ const mediaSchema = z.object({
     }, 'Media filetype not supported'),
 })
 
+export type MediaUrl = Infer<typeof mediaSchema>
+
 const socialLinkSchema = z.object({
   name: z.string(),
   label: z.string(),

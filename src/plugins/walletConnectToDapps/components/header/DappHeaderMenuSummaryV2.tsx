@@ -65,7 +65,7 @@ export const DappHeaderMenuSummaryV2 = () => {
         <HStack spacing={4} px={4} py={1}>
           <DappAvatar
             name={session.peer.metadata.name}
-            image={session.peer.metadata.icons[0]}
+            image={session.peer.metadata.icons?.[0]}
             connected={session.acknowledged}
           />
           <Box fontWeight='medium'>

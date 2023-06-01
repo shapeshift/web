@@ -59,11 +59,7 @@ export const mockStore: ReduxState = {
       Polygon: false,
       Gnosis: false,
       BnbSmartChain: false,
-      ZrxAvalancheSwap: false,
-      ZrxBnbSmartChainSwap: false,
-      ZrxEthereumSwap: false,
-      ZrxOptimismSwap: false,
-      ZrxPolygonSwap: false,
+      ZrxSwap: false,
       OsmosisSend: false,
       OsmosisStaking: false,
       OsmosisLP: false,
@@ -146,5 +142,8 @@ export const mockStore: ReduxState = {
       byId: {},
       ids: [],
     },
+  },
+  nft: {
+    selectedNftAvatarByWalletId: {},
   },
 }

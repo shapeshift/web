@@ -7,6 +7,7 @@
     "cancel": "Cancel",
     "close": "Close",
     "loadMore": "Load More",
+    "saveChanges": "Save Changes",
     "new": "New",
     "continue": "Continue",
     "reward": "Reward",
@@ -1913,6 +1914,7 @@
     }
   },
   "nft": {
+    "setAsAvatar": "Set as Avatar",
     "floorPrice": "Floor Price",
     "lastPrice": "Last Price",
     "overview": "Overview",
@@ -1952,6 +1954,11 @@
       "subtitle": "Join the FOX Army",
       "title": "20,000 FOX Pool",
       "cta": "Start Mission"
+    }
+  },
+  "avatar": {
+    "modal": {
+      "title": "Set a New Avatar"
     }
   }
 }

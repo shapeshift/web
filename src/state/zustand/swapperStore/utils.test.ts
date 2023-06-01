@@ -4,7 +4,7 @@ import type { ProtocolFee } from 'lib/swapper/api'
 import { BTC, ETH, FOX } from 'lib/swapper/swappers/utils/test-data/assets'
 import { cryptoMarketDataById } from 'lib/swapper/swappers/utils/test-data/cryptoMarketDataById'
 
-import { sumProtocolFeesToDenom } from './utils'
+import { subtractBasisPointAmount, sumProtocolFeesToDenom } from './utils'
 
 describe('sumProtocolFeesToDenom', () => {
   it("returns '0' for empty object", () => {
@@ -102,5 +102,37 @@ describe('sumProtocolFeesToDenom', () => {
     const expectation = btcAmountInUsd.plus(ethAmountInUsd).toString()
 
     expect(result).toEqual(expectation)
+  })
+})
+
+describe('subtractBasisPoints', () => {
+  test('should subtract 100 basis points correctly', () => {
+    const result = subtractBasisPointAmount('100', '100')
+    expect(result).toBe('99')
+  })
+
+  test('should subtract 0 basis points correctly', () => {
+    const result = subtractBasisPointAmount('100', '0')
+    expect(result).toBe('100')
+  })
+
+  test('should subtract 10000 basis points correctly', () => {
+    const result = subtractBasisPointAmount('100', '10000')
+    expect(result).toBe('0')
+  })
+
+  test('should subtract 20000 basis points correctly', () => {
+    const result = subtractBasisPointAmount('100', '20000')
+    expect(result).toBe('-100')
+  })
+
+  test('should handle very large numbers correctly', () => {
+    const result = subtractBasisPointAmount('123456789012345678901234567890', '100')
+    expect(result).toBe('122222221122222222112222222211.1')
+  })
+
+  test('should round up correctly', () => {
+    const result = subtractBasisPointAmount('123456789012345678901234567890', '100', true)
+    expect(result).toBe('122222221122222222112222222212')
   })
 })

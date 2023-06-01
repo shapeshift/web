@@ -4,9 +4,6 @@ import invert from 'lodash/invert'
 import type { Infer } from 'myzod'
 import z from 'myzod'
 
-import type { V2NftUserItem, V2ZapperNft } from '../zapper/validators'
-import { chainIdToZapperNetwork } from '../zapper/validators'
-
 export enum SupportedCovalentNetwork {
   // Bitcoin = 'btc-mainnet',
   // Ethereum = 'eth-mainnet',
@@ -199,48 +196,3 @@ const CovalentNftUserTokensResponseSchema = z.object({
 
 export type CovalentNftUserTokensResponseType = Infer<typeof CovalentNftUserTokensResponseSchema>
 export type CovalentNftItemSchemaType = Infer<typeof CovalentNftItemSchema>
-
-export const parseToV2NftUserItems = (
-  covalentItem: CovalentNftItemSchemaType,
-  chainId: ChainId,
-): V2NftUserItem[] => {
-  return (
-    covalentItem.nft_data?.map(nftData => {
-      const medias = nftData.external_data?.image
-        ? [
-            {
-              type: 'image',
-              originalUrl: nftData.external_data.image,
-            },
-          ]
-        : []
-
-      const token: V2ZapperNft = {
-        id: covalentItem.contract_address,
-        name: covalentItem.contract_name,
-        tokenId: nftData.token_id,
-        lastSaleEth: null, // Covalent doesn't provide this information
-        rarityRank: null, // Covalent doesn't provide this information
-        estimatedValueEth: null, // Map this property if available in CovalentNftItemSchemaType
-        medias,
-        collection: {
-          address: covalentItem.contract_address,
-          network: chainIdToZapperNetwork(chainId),
-          name: covalentItem.contract_name,
-          nftStandard: covalentItem.type,
-          type: 'general',
-          floorPriceEth: null,
-          logoImageUrl: covalentItem.logo_url,
-          openseaId: null, // Doesn't exist in Covalent API
-        },
-      }
-
-      const v2NftUserItem: V2NftUserItem = {
-        balance: nftData.token_balance ?? '1',
-        token,
-      }
-
-      return v2NftUserItem
-    }) ?? []
-  )
-}

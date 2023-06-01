@@ -11,11 +11,14 @@ import {
   CHAIN_REFERENCE,
   fromAssetId,
   fromChainId,
+  isNft,
   toAssetId,
 } from '@shapeshiftoss/caip'
+import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from 'lib/asset-service'
 
-import type { AssetsById } from './assetsSlice'
+import type { AssetsById, AssetsState } from './assetsSlice'
+import { makeAsset } from './assetsSlice'
 
 export const chainIdFeeAssetReferenceMap = (
   chainNamespace: ChainNamespace,
@@ -101,4 +104,37 @@ export const getFeeAssetByAssetId: GetFeeAssetByAssetId = (assetsById, assetId) 
     assetReference: chainIdFeeAssetReferenceMap(chainNamespace, chainReference),
   })
   return assetsById[feeAssetId]
+}
+
+export const makeNftAssetsFromTxs = (txs: Transaction[]): AssetsState => {
+  return txs.reduce<AssetsState>(
+    (state, tx) => {
+      if (fromChainId(tx.chainId).chainNamespace !== CHAIN_NAMESPACE.Evm) return state
+
+      tx.transfers.forEach(transfer => {
+        if (state.byId[transfer.assetId] || !isNft(transfer.assetId)) return
+
+        const icon = (() => {
+          if (!tx.data || !transfer.id || !('mediaById' in tx.data)) return
+          const url = tx.data.mediaById[transfer.id]?.url
+          if (!url || url.startsWith('ipfs://')) return
+          return url
+        })()
+
+        state.byId[transfer.assetId] = makeAsset({
+          assetId: transfer.assetId,
+          id: transfer.id,
+          symbol: transfer.token?.symbol ?? 'N/A',
+          name: transfer.token?.name ?? 'Unknown',
+          precision: 0,
+          icon,
+        })
+
+        state.ids.push(transfer.assetId)
+      })
+
+      return state
+    },
+    { byId: {}, ids: [] },
+  )
 }

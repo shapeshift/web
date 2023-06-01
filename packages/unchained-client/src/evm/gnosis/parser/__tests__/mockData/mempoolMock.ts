@@ -1,4 +1,4 @@
-import type { Tx } from '../../../../../generated/gnosis'
+import type { Tx } from '../../../index'
 
 export const mempoolMock = (tx: Tx, tokenTransfers = false) => {
   const mempoolSpecific = {

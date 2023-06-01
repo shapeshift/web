@@ -182,7 +182,7 @@ export class BaseTransactionParser<T extends Tx> {
         return toAssetId({
           chainId: this.chainId,
           assetNamespace,
-          assetReference: transfer.contract,
+          assetReference: transfer.id ? `${transfer.contract}/${transfer.id}` : transfer.contract,
         })
       })()
 

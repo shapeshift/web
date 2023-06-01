@@ -36,7 +36,6 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
@@ -54,14 +53,16 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
 
   const allRows = useMemo(
     () =>
-      lpOpportunities.concat(stakingOpportunities).filter(
-        row =>
-          row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||
-          (row.underlyingAssetIds.length && row.underlyingAssetIds.includes(asset.assetId)) ||
-          // show foxy opportunity in the foxy asset page
-          (row.assetId === foxAssetId && asset.assetId === foxyAssetId),
-      ),
-    [asset.assetId, lpOpportunities, stakingOpportunities],
+      !asset
+        ? []
+        : lpOpportunities.concat(stakingOpportunities).filter(
+            row =>
+              row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||
+              (row.underlyingAssetIds.length && row.underlyingAssetIds.includes(asset.assetId)) ||
+              // show foxy opportunity in the foxy asset page
+              (row.assetId === foxAssetId && asset.assetId === foxyAssetId),
+          ),
+    [asset, lpOpportunities, stakingOpportunities],
   )
 
   const handleClick = (opportunity: EarnOpportunityType) => {
@@ -96,6 +97,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     })
   }
 
+  if (!asset) return null
   if (allRows.length === 0) return null
 
   return (

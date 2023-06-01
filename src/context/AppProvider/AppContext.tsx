@@ -29,7 +29,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { setTimeoutAsync } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { zapper } from 'state/apis/zapper/zapperApi'
-import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { assets as assetsSlice, useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
 import {
   marketApi,
   useFindAllQuery,
@@ -55,7 +56,7 @@ import {
   selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -161,11 +162,23 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // once portfolio is done loading, fetch all transaction history
   useEffect(() => {
-    if (portfolioLoadingStatus === 'loading') return
+    ;(async () => {
+      if (portfolioLoadingStatus === 'loading') return
 
-    const { getAllTxHistory } = txHistoryApi.endpoints
+      const { getAllTxHistory } = txHistoryApi.endpoints
 
-    requestedAccountIds.forEach(accountId => dispatch(getAllTxHistory.initiate(accountId)))
+      try {
+        await Promise.all(
+          requestedAccountIds.map(accountId => dispatch(getAllTxHistory.initiate(accountId))),
+        )
+      } finally {
+        // add any nft assets detected in the tx history state.
+        // this will ensure we have all nft assets that have been associated with the account in the assetSlice with parsed metadata.
+        // additional nft asset upserts will be handled by the transactions websocket subscription.
+        const txsById = store.getState().txHistory.txs.byId
+        dispatch(assetsSlice.actions.upsertAssets(makeNftAssetsFromTxs(Object.values(txsById))))
+      }
+    })()
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
 
   // once portfolio is loaded, fetch remaining chain specific data

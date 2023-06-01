@@ -6,6 +6,7 @@
     "error": "Hata",
     "cancel": "İptal",
     "close": "Kapat",
+    "loadMore": "Daha fazla",
     "new": "Yeni",
     "continue": "Devam et",
     "reward": "Ödül",
@@ -101,7 +102,8 @@
     "manage": "Yönet",
     "selectedAccount": "Bir Hesap Seçin",
     "allChains": "Tüm Zincirler",
-    "wallet": "Cüzdan"
+    "wallet": "Cüzdan",
+    "action": "Aksiyon"
   },
   "consentBanner": {
     "body": {
@@ -696,6 +698,7 @@
       "broadcastFailed": "İşlem yayınlanırken bir hata oluştu",
       "insufficientFundsForLimit": "Yetersiz bakiye. Bu çift için minimum işlem tutarı %{minLimit}",
       "insufficientFundsForAmount": "Yetersiz bakiye. %{symbol} bakiyeniz seçilen miktardan az",
+      "insufficientFundsForProtocolFee": "%{chainName} üzerinde ücretler için yetersiz %{symbol}",
       "invalidTradePair": "Geçersiz işlem çifti: %{sellAssetName} ve %{buyAssetName}",
       "invalidTradePairBtnText": "Geçersiz İşlem Çifti",
       "noLiquidityError": "Kullanılabilir likidite mevcut değil",
@@ -733,11 +736,12 @@
     "swappingComingSoonForWallet": "%{walletName} için takas çok yakında",
     "recentTrades": "Son İşlemler",
     "lifiWarning": "Bu ticaret, bir takas gerçekleştirmek için bir dizi aracı işlemi yürüten LI.FI aracılığıyla yönlendirilir. Herhangi bir adım başarısız olursa, dizideki son başarılı adımın belirtecini alırsınız.",
-    "intermediaryTransactionOutputs": {
-      "prefix": "veya",
-      "suffix": "%{chainName} üzerinde"
-    },
-    "unknownGas": "(Bilinmeyen)"
+    "or": "veya",
+    "onChainName": "%{chainName} üzerinde",
+    "unknownGas": "(Bilinmeyen)",
+    "receiveAddress": "Alıcı Adresi",
+    "receiveAddressDescription": "Bağlı cüzdandan hiçbir %{chainName} adresi bulunamadı. Devam etmek için adresi manuel olarak girin.",
+    "addressPlaceholder": "%{chainName} adresi"
   },
   "modals": {
     "popup": {

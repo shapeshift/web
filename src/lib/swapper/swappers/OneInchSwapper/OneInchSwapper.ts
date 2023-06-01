@@ -4,6 +4,7 @@ import type {
   bnbsmartchain,
   ethereum,
   EvmChainId,
+  gnosis,
   optimism,
 } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -22,7 +23,7 @@ import type {
   TradeResult,
   TradeTxs,
 } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType, SwapperName, SwapperType } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { filterEvmAssetIdsBySellable } from 'lib/swapper/swappers/utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import {
   createEmptyEvmTradeQuote,
@@ -41,12 +42,14 @@ export type OneInchSupportedChainId =
   | KnownChainIds.BnbSmartChainMainnet
   | KnownChainIds.OptimismMainnet
   | KnownChainIds.AvalancheMainnet
+  | KnownChainIds.GnosisMainnet
 
 export type OneInchSupportedChainAdapter =
   | ethereum.ChainAdapter
   | bnbsmartchain.ChainAdapter
   | optimism.ChainAdapter
   | avalanche.ChainAdapter
+  | gnosis.ChainAdapter
 
 export class OneInchSwapper implements Swapper<EvmChainId, true> {
   readonly name = SwapperName.OneInch
@@ -54,11 +57,6 @@ export class OneInchSwapper implements Swapper<EvmChainId, true> {
 
   constructor(deps: OneInchSwapperDeps) {
     this.deps = deps
-  }
-
-  /** Returns the swapper type */
-  getType(): SwapperType {
-    return SwapperType.OneInch
   }
 
   /**

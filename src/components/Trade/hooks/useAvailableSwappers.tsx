@@ -31,9 +31,7 @@ export const useAvailableSwappers = () => {
   const updateAvailableSwappersWithMetadata = useSwapperStore(
     state => state.updateAvailableSwappersWithMetadata,
   )
-  const updateActiveSwapperWithMetadata = useSwapperStore(
-    state => state.updateActiveSwapperWithMetadata,
-  )
+
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const buyAssetUsdRate = useSwapperStore(selectBuyAssetUsdRate)
@@ -75,7 +73,7 @@ export const useAvailableSwappers = () => {
       const swappers = swapperManager.swappers
       const availableSwappersWithQuoteMetadata = availableSwapperTypesWithQuoteMetadata
         ?.map(s => {
-          const swapper = swappers.get(s.swapperType)
+          const swapper = swappers.get(s.swapperName)
           return swapper
             ? {
                 swapper,
@@ -176,9 +174,8 @@ export const useAvailableSwappers = () => {
       const swappersToDisplay = (active.length > 0 ? active : halted).map(
         ({ swapperWithQuoteMetadata }) => swapperWithQuoteMetadata,
       )
-      const activeSwapperWithQuoteMetadata = swappersToDisplay?.[0]
+
       updateAvailableSwappersWithMetadata(swappersToDisplay)
-      updateActiveSwapperWithMetadata(activeSwapperWithQuoteMetadata)
       updateTradeAmountsFromQuote()
       feeAsset && updateFees(feeAsset)
     })()
@@ -190,7 +187,6 @@ export const useAvailableSwappers = () => {
     mostRecentRequestStartedTimeStamp,
     sellAssetId,
     swappersWithQuoteMetadataAndTimestamp,
-    updateActiveSwapperWithMetadata,
     updateAvailableSwappersWithMetadata,
     updateFees,
     updateTradeAmountsFromQuote,

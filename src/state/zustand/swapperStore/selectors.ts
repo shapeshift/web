@@ -1,22 +1,7 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params } from '@shapeshiftoss/types'
-import type { Result } from '@sniptt/monads'
-import { DEFAULT_SLIPPAGE } from 'constants/constants'
-import {
-  isCosmosSdkSwap,
-  isEvmSwap,
-  isUtxoSwap,
-} from 'components/Trade/hooks/useSwapper/typeGuards'
-import type { BuildTradeInputCommonArgs } from 'components/Trade/types'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { toBaseUnit } from 'lib/math'
-import type { SwapErrorRight, Trade, TradeQuote } from 'lib/swapper/api'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { createSelector } from 'reselect'
 import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
-import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import type { SwapperState } from 'state/zustand/swapperStore/types'
 
 // Convenience selectors for accessing swapper store state
@@ -42,17 +27,40 @@ export const selectReceiveAddress = (state: SwapperState) => state.receiveAddres
 export const selectFees = (state: SwapperState) => state.fees
 export const selectProtocolFees = (state: SwapperState) => state.fees?.protocolFees
 export const selectTrade = (state: SwapperState) => state.trade
-export const selectSwapperName = (state: SwapperState) =>
-  state.activeSwapperWithMetadata?.swapper.name
-export const selectActiveSwapperWithMetadata = (state: SwapperState) =>
-  state.activeSwapperWithMetadata
+export const selectPreferredSwapper = (state: SwapperState) => state.preferredSwapper
+export const selectActiveSwapperWithMetadata = (state: SwapperState) => {
+  const { availableSwappersWithMetadata, preferredSwapper } = state
+
+  if (availableSwappersWithMetadata === undefined) return
+  const firstAvailableSwapper = availableSwappersWithMetadata[0]
+
+  if (!preferredSwapper) return firstAvailableSwapper
+
+  return (
+    availableSwappersWithMetadata.find(({ swapper }) => swapper.name === preferredSwapper) ??
+    firstAvailableSwapper
+  )
+}
+
+export const selectActiveSwapperName = createSelector(
+  selectActiveSwapperWithMetadata,
+  activeSwapperWithMetadata => activeSwapperWithMetadata?.swapper.name,
+)
+
 export const selectAvailableSwappersWithMetadata = (state: SwapperState) =>
   state.availableSwappersWithMetadata
-export const selectSlippage = (state: SwapperState): string =>
-  state.activeSwapperWithMetadata?.quote.recommendedSlippage ?? DEFAULT_SLIPPAGE
 
-export const selectQuote = (state: SwapperState): TradeQuote<ChainId> | undefined =>
-  state.activeSwapperWithMetadata?.quote
+export const selectSlippage = createSelector(
+  selectActiveSwapperWithMetadata,
+  activeSwapperWithMetadata =>
+    activeSwapperWithMetadata?.quote.recommendedSlippage ??
+    getDefaultSlippagePercentageForSwapper(activeSwapperWithMetadata?.swapper.name),
+)
+
+export const selectQuote = createSelector(
+  selectActiveSwapperWithMetadata,
+  activeSwapperWithMetadata => activeSwapperWithMetadata?.quote,
+)
 
 /*
   Cross-account trading means trades that are either:
@@ -60,130 +68,50 @@ export const selectQuote = (state: SwapperState): TradeQuote<ChainId> | undefine
     - Trades between assets on different chains (and possibly different accounts)
    When adding a new swapper, ensure that `true` is returned here if either of the above apply.
    */
-export const selectSwapperSupportsCrossAccountTrade = (state: SwapperState): boolean => {
-  const activeSwapper = state.activeSwapperWithMetadata?.swapper
-  const swapperName = activeSwapper?.name
+export const selectSwapperSupportsCrossAccountTrade = createSelector(
+  selectActiveSwapperWithMetadata,
+  activeSwapperWithMetadata => {
+    const activeSwapper = activeSwapperWithMetadata?.swapper
+    const swapperName = activeSwapper?.name
 
-  if (swapperName === undefined) return false
+    if (swapperName === undefined) return false
 
-  switch (swapperName) {
-    case SwapperName.Thorchain:
-    case SwapperName.Osmosis:
-    case SwapperName.LIFI:
-      return true
-    case SwapperName.Zrx:
-    case SwapperName.CowSwap:
-    case SwapperName.Test:
-    case SwapperName.OneInch:
-      return false
-    default:
-      assertUnreachable(swapperName)
-  }
-}
-
-export const selectSwapperDefaultAffiliateBps = (state: SwapperState): string => {
-  const activeSwapper = state.activeSwapperWithMetadata?.swapper
-  const swapperName = activeSwapper?.name
-
-  if (swapperName === undefined) return '0'
-
-  switch (swapperName) {
-    case SwapperName.Thorchain:
-    case SwapperName.Zrx:
-    case SwapperName.OneInch:
-      return '30'
-    case SwapperName.Osmosis:
-    case SwapperName.LIFI:
-    case SwapperName.CowSwap:
-    case SwapperName.Test:
-      return '0'
-    default:
-      assertUnreachable(swapperName)
-  }
-}
-
-type SelectGetTradeForWalletArgs = {
-  wallet: HDWallet
-  sellAccountBip44Params: BIP44Params
-  buyAccountBip44Params?: BIP44Params
-  sellAccountMetadata: AccountMetadata
-  affiliateBps: string
-}
-
-type SelectGetTradeForWalletReturn = Promise<Result<Trade<ChainId>, SwapErrorRight>>
-
-export const selectGetTradeForWallet = (
-  state: SwapperState,
-): ((_: SelectGetTradeForWalletArgs) => SelectGetTradeForWalletReturn) => {
-  return async ({
-    wallet,
-    sellAccountMetadata,
-    sellAccountBip44Params,
-    buyAccountBip44Params,
-    affiliateBps,
-  }: SelectGetTradeForWalletArgs): SelectGetTradeForWalletReturn => {
-    const activeSwapper = state.activeSwapperWithMetadata?.swapper
-    const activeQuote = state.activeSwapperWithMetadata?.quote
-    const buyAsset = state.buyAsset
-    const sellAsset = state.sellAsset
-    const sellAssetAccountId = state.sellAssetAccountId
-    const sellAmountCryptoPrecision = state.sellAmountCryptoPrecision
-    const receiveAddress = state.receiveAddress
-
-    if (!activeSwapper) throw new Error('No swapper available')
-    if (!activeQuote) throw new Error('No quote available')
-    if (!buyAsset) throw new Error('Missing buyAsset')
-    if (!sellAsset) throw new Error('No sellAsset')
-    if (!sellAssetAccountId) throw new Error('Missing sellAssetAccountId')
-    if (!sellAmountCryptoPrecision) throw new Error('Missing sellTradeAsset.amount')
-    if (!receiveAddress) throw new Error('Missing receiveAddress')
-
-    const buildTradeCommonArgs: BuildTradeInputCommonArgs = {
-      sellAmountBeforeFeesCryptoBaseUnit: toBaseUnit(
-        sellAmountCryptoPrecision,
-        sellAsset.precision,
-      ),
-      sellAsset,
-      buyAsset,
-      wallet,
-      sendMax: state.isSendMax,
-      receiveAddress,
-      slippage: selectSlippage(state),
-      affiliateBps,
+    switch (swapperName) {
+      case SwapperName.Thorchain:
+      case SwapperName.Osmosis:
+      case SwapperName.LIFI:
+        return true
+      case SwapperName.Zrx:
+      case SwapperName.CowSwap:
+      case SwapperName.Test:
+      case SwapperName.OneInch:
+        return false
+      default:
+        assertUnreachable(swapperName)
     }
+  },
+)
 
-    if (isUtxoSwap(sellAsset.chainId)) {
-      const {
-        accountType,
-        bip44Params: { accountNumber },
-      } = sellAccountMetadata
+export const selectSwapperDefaultAffiliateBps = createSelector(
+  selectActiveSwapperWithMetadata,
+  activeSwapperWithMetadata => {
+    const activeSwapper = activeSwapperWithMetadata?.swapper
+    const swapperName = activeSwapper?.name
 
-      if (!accountType) throw new Error('accountType required')
+    if (swapperName === undefined) return '0'
 
-      const sellAssetChainAdapter = getChainAdapterManager().get(
-        sellAsset.chainId,
-      ) as unknown as UtxoBaseAdapter<UtxoChainId>
-
-      const { xpub } = await sellAssetChainAdapter.getPublicKey(wallet, accountNumber, accountType)
-
-      return activeSwapper.buildTrade({
-        ...buildTradeCommonArgs,
-        chainId: sellAsset.chainId,
-        accountNumber,
-        accountType,
-        xpub,
-      })
-    } else if (isEvmSwap(sellAsset.chainId) || isCosmosSdkSwap(sellAsset.chainId)) {
-      const eip1559Support = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
-      return activeSwapper.buildTrade({
-        ...buildTradeCommonArgs,
-        chainId: sellAsset.chainId,
-        accountNumber: sellAccountBip44Params.accountNumber,
-        receiveAccountNumber: buyAccountBip44Params?.accountNumber,
-        eip1559Support,
-      })
-    } else {
-      throw new Error('unsupported sellAsset.chainId')
+    switch (swapperName) {
+      case SwapperName.Thorchain:
+      case SwapperName.Zrx:
+      case SwapperName.OneInch:
+        return '30'
+      case SwapperName.Osmosis:
+      case SwapperName.LIFI:
+      case SwapperName.CowSwap:
+      case SwapperName.Test:
+        return '0'
+      default:
+        assertUnreachable(swapperName)
     }
-  }
-}
+  },
+)

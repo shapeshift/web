@@ -8,10 +8,11 @@ import { logger } from 'lib/logger'
 import { selectFeatureFlag } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
+import { parseToNftItem } from '../nft/parsers/covalent'
+import type { NftItem } from '../nft/types'
 import { accountIdsToEvmAddresses } from '../nft/utils'
-import type { V2NftUserItem } from '../zapper/validators'
 import type { CovalentNftUserTokensResponseType } from './validators'
-import { chainIdToCovalentNetwork, parseToV2NftUserItems } from './validators'
+import { chainIdToCovalentNetwork, covalentNetworkToChainId } from './validators'
 
 const COVALENT_BASE_URL = 'https://api.covalenthq.com/v1'
 
@@ -33,7 +34,7 @@ export const covalentApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'covalentApi',
   endpoints: builder => ({
-    getCovalentNftUserTokens: builder.query<V2NftUserItem[], GetCovalentNftUserTokensInput>({
+    getCovalentNftUserTokens: builder.query<NftItem[], GetCovalentNftUserTokensInput>({
       queryFn: async ({ accountIds }, { getState }) => {
         const isCovalentEnabled = selectFeatureFlag(getState() as any, 'CovalentJaypegs')
 
@@ -42,7 +43,7 @@ export const covalentApi = createApi({
         // Covalent is used only for Polygon NFTs for now
         const chainId = polygonChainId
         const network = chainIdToCovalentNetwork(chainId)
-        let data: V2NftUserItem[] = []
+        let data: NftItem[] = []
         const limit = 100
 
         const userAddresses = accountIdsToEvmAddresses(accountIds)
@@ -50,17 +51,23 @@ export const covalentApi = createApi({
           try {
             const url = `/${network}/address/${address}/balances_v2/?key=${
               getConfig().REACT_APP_COVALENT_API_KEY
-            }&nft=true&x-allow-incomplete=true`
+            }&nft=true&x-allow-incomplete=true&no-spam=true`
 
             const payload = { ...options, url }
             const response = await axios.request<CovalentNftUserTokensResponseType>(payload)
             const res = response.data
 
             if (res.data.items?.length) {
-              const v2NftUserItems = res.data.items
+              const nftUserItems = res.data.items
                 .filter(({ nft_data, type }) => type === 'nft' && nft_data?.length)
-                .flatMap(item => parseToV2NftUserItems(item, chainId))
-              data = data.concat(v2NftUserItems)
+                .flat()
+              const parsedData = nftUserItems.flatMap(nftUserItem => {
+                // Actually defined since we're passing supported EVM networks AccountIds
+                const chainId = covalentNetworkToChainId(network!)!
+                return parseToNftItem(nftUserItem, chainId)
+              })
+
+              data = data.concat(parsedData)
               if (res.data.items.length < limit) {
                 break
               }

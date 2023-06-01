@@ -70,7 +70,7 @@ export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelecto
     const precision = assets?.[assetId]?.precision
     // to avoid megabillion phantom balances in mixpanel, return 0 rather than base unit value
     // if we don't have a precision for the asset
-    if (!precision) return '0'
+    if (precision === undefined) return '0'
     if (accountId) return fromBaseUnit(bnOrZero(accountBalances?.[accountId]?.[assetId]), precision)
     return fromBaseUnit(bnOrZero(assetBalances[assetId]), precision)
   },
@@ -86,7 +86,7 @@ export const selectPortfolioFiatBalances = createDeepEqualOutputSelector(
       const asset = assetsById[assetId]
       if (!asset) return acc
       const precision = asset.precision
-      if (!precision) return acc
+      if (precision === undefined) return acc
       const price = marketData[assetId]?.price
       const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
       const assetFiatBalance = bnOrZero(cryptoValue).times(bnOrZero(price))

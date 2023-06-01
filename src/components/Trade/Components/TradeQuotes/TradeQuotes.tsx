@@ -1,12 +1,12 @@
 import { Collapse, Flex } from '@chakra-ui/react'
-import { DEFAULT_SLIPPAGE } from 'constants/constants'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectCryptoMarketData } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { selectBuyAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import {
-  selectActiveSwapperWithMetadata,
+  selectActiveSwapperName,
   selectAvailableSwappersWithMetadata,
   selectBuyAsset,
 } from 'state/zustand/swapperStore/selectors'
@@ -23,17 +23,19 @@ type TradeQuotesProps = {
 export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) => {
   const buyAssetUsdRate = useSwapperStore(selectBuyAssetUsdRate)
   const availableSwappersWithMetadata = useSwapperStore(selectAvailableSwappersWithMetadata)
-  const activeSwapperWithMetadata = useSwapperStore(selectActiveSwapperWithMetadata)
-  const activeSwapperName = activeSwapperWithMetadata?.swapper.name
+  const activeSwapperName = useSwapperStore(selectActiveSwapperName)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const cryptoMarketDataById = useAppSelector(selectCryptoMarketData)
 
-  const bestQuote = availableSwappersWithMetadata?.[0]?.quote
+  const { quote: bestQuote, swapper: bestSwapper } = availableSwappersWithMetadata?.[0] ?? {}
+
   const bestBuyAmountCryptoPrecision =
     bestQuote &&
     fromBaseUnit(bestQuote.buyAmountBeforeFeesCryptoBaseUnit, bestQuote.buyAsset.precision)
+  const slippageDecimalPercentage =
+    bestQuote?.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(bestSwapper?.name)
   const bestBuyAmountCryptoPrecisionAfterSlippage = bnOrZero(bestBuyAmountCryptoPrecision)
-    .times(bn(1).minus(bnOrZero(bestQuote?.recommendedSlippage ?? DEFAULT_SLIPPAGE)))
+    .times(bn(1).minus(bnOrZero(slippageDecimalPercentage)))
     .toString()
 
   const bestTotalProtocolFeeCryptoPrecision =
@@ -74,7 +76,14 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
 
         const totalReceiveAmountCryptoPrecision = bnOrZero(buyAmountBeforeFeesCryptoPrecision)
           .minus(totalProtocolFeeCryptoPrecision)
-          .times(bn(1).minus(bnOrZero(quote.recommendedSlippage ?? DEFAULT_SLIPPAGE)))
+          .times(
+            bn(1).minus(
+              bnOrZero(
+                quote.recommendedSlippage ??
+                  getDefaultSlippagePercentageForSwapper(swapperWithMetadata.swapper.name),
+              ),
+            ),
+          )
           .toString()
 
         const isActive = activeSwapperName === swapperWithMetadata.swapper.name

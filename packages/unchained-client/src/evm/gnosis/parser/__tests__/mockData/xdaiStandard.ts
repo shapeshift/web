@@ -1,4 +1,4 @@
-import type { Tx } from '../../../../../generated/gnosis'
+import type { Tx } from '../../../index'
 import { mempoolMock } from './mempoolMock'
 
 const xdaiStandard: Tx = {

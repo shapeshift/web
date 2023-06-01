@@ -37,6 +37,8 @@ export async function cowExecuteTrade(
     feeAmountInSellTokenCryptoBaseUnit: feeAmountInSellToken,
     sellAmountDeductFeeCryptoBaseUnit: sellAmountWithoutFee,
     accountNumber,
+    id,
+    minimumBuyAmountAfterFeesCryptoBaseUnit,
   } = cowTrade
 
   const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } = fromAssetId(
@@ -73,7 +75,7 @@ export async function cowExecuteTrade(
     sellToken: sellAssetErc20Address,
     buyToken,
     sellAmount: sellAmountWithoutFee,
-    buyAmount: trade.buyAmountBeforeFeesCryptoBaseUnit,
+    buyAmount: minimumBuyAmountAfterFeesCryptoBaseUnit, // this is used as the minimum accepted receive amount before the trade will execute
     validTo: getNowPlusThirtyMinutesTimestamp(),
     appData: DEFAULT_APP_DATA,
     feeAmount: feeAmountInSellToken,
@@ -82,6 +84,7 @@ export async function cowExecuteTrade(
     receiver: trade.receiveAddress,
     sellTokenBalance: ERC20_TOKEN_BALANCE,
     buyTokenBalance: ERC20_TOKEN_BALANCE,
+    quoteId: id,
   }
 
   // We need to construct orderDigest, sign it and send it to cowSwap API, in order to submit a trade
@@ -122,6 +125,7 @@ export async function cowExecuteTrade(
    * signingScheme: the signing scheme used for the signature
    * signature: a signed message specific to cowswap for this order
    * from: same as receiver address in our case
+   * orderId: Orders can optionally include a quote ID. This way the order can be linked to a quote and enable providing more metadata when analyzing order slippage.
    * }
    */
   const maybeOrdersResponse = await cowService.post<string>(`${apiUrl}/v1/orders/`, {

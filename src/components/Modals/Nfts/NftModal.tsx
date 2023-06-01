@@ -26,7 +26,8 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { useMemo, useState } from 'react'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import Placeholder from 'assets/placeholder.png'
 import PlaceholderDrk from 'assets/placeholder-drk.png'
@@ -36,13 +37,13 @@ import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { ordinalSuffix } from 'context/WalletProvider/NativeWallet/components/NativeTestPhrase'
 import { useModal } from 'hooks/useModal/useModal'
+import { nft, useGetNftCollectionQuery } from 'state/apis/nft/nftApi'
+import type { NftItem } from 'state/apis/nft/types'
 import { chainIdToOpenseaNetwork } from 'state/apis/nft/utils'
-import type { SupportedZapperNetwork, V2ZapperNft } from 'state/apis/zapper/validators'
-import { getMediaType, zapperNetworkToChainId } from 'state/apis/zapper/validators'
-import { useGetZapperCollectionsQuery } from 'state/apis/zapper/zapperApi'
-import { selectWalletAccountIds } from 'state/slices/common-selectors'
+import { getMediaType } from 'state/apis/zapper/validators'
+import { selectWalletAccountIds, selectWalletId } from 'state/slices/common-selectors'
 import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { NftCollection } from './components/NftCollection'
@@ -61,46 +62,44 @@ const NftTab: React.FC<TabProps> = props => {
 }
 
 export type NftModalProps = {
-  zapperNft: V2ZapperNft
+  nftItem: NftItem
 }
 
-export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
-  const { nft } = useModal()
-  const { close: handleClose, isOpen } = nft
+export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
+  const dispatch = useAppDispatch()
+  const { nft: nftModal } = useModal()
+  const { close: handleClose, isOpen } = nftModal
   const translate = useTranslate()
   const [isMediaLoaded, setIsMediaLoaded] = useState(false)
   const modalBg = useColorModeValue('white', 'gray.800')
   const modalHeaderBg = useColorModeValue('gray.50', 'gray.785')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const walletId = useAppSelector(selectWalletId)
   const accountIds = useAppSelector(selectWalletAccountIds)
 
-  const collectionAddresses = useMemo(
-    () => (zapperNft?.collection?.address ? [zapperNft?.collection?.address] : []),
-    [zapperNft?.collection?.address],
-  )
-  const { data: zapperCollection } = useGetZapperCollectionsQuery(
-    { accountIds, collectionAddresses },
-    { skip: !collectionAddresses?.length },
+  const { data: nftCollection } = useGetNftCollectionQuery(
+    { accountIds, collectionId: nftItem.collection.id ?? '' },
+    { skip: !nftItem.collection.id },
   )
 
-  const mediaUrl = zapperNft?.medias?.[0]?.originalUrl
+  const mediaUrl = nftItem.medias[0]?.originalUrl
   const mediaType = getMediaType(mediaUrl)
   const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
 
-  const name = zapperNft?.name
-  const nftId = zapperNft?.tokenId
-  const collectionName = zapperNft?.collection?.name
-  const rarityRank = zapperNft?.rarityRank
-  const floorPriceEth = zapperNft?.collection.floorPriceEth
-  const lastSaleEth = zapperNft?.lastSaleEth
-  const openseaId = zapperNft?.collection?.openseaId
-  const maybeNetwork = zapperNft?.collection?.network
-  const maybeChainId = zapperNetworkToChainId(maybeNetwork as SupportedZapperNetwork)
-  const maybeChainAdapter = getChainAdapterManager().get(maybeChainId as ChainId)
+  const name = nftItem.name
+  const nftId = nftItem.id
+  const collectionName = nftItem.collection.name
+  const rarityRank = nftItem.rarityRank
+  const floorPrice = nftItem.collection.floorPrice
+  const price = nftItem.price
+  const openseaId = nftItem.collection.openseaId
+  const chainId = nftItem.collection.chainId
+  const maybeChainAdapter = getChainAdapterManager().get(chainId as ChainId)
   const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
   const maybeFeeAsset = useAppSelector(state => selectAssetById(state, maybeFeeAssetId ?? ''))
-  const collectionOpenseaNetwork = chainIdToOpenseaNetwork(maybeChainId as ChainId)
-  const collectionAddress = zapperNft?.collection?.address
+  const collectionOpenseaNetwork = chainIdToOpenseaNetwork(chainId as ChainId)
+  const collectionAddress =
+    nftItem.collection.id && fromAssetId(nftItem.collection.id).assetReference
   const collectionLink = openseaId ? `https://opensea.io/collection/${openseaId}` : null
   const rarityDisplay = rarityRank ? `${rarityRank}${ordinalSuffix(rarityRank)}` : null
   const assetLink =
@@ -120,6 +119,16 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
       } as const),
     [],
   )
+
+  const handleSetAsAvatarClick = useCallback(() => {
+    // Unable to get the AssetId of the collection, this should never happen but it may
+    // TODO(gomes): remove nftAssetId manual serialization when we have a normalized nft slice with nft id as AssetId
+    if (!nftCollection?.id || !walletId) return
+
+    const nftAssetId = `${nftCollection.id}/${nftId}`
+    dispatch(nft.actions.setWalletSelectedNftAvatar({ nftAssetId, walletId }))
+  }, [dispatch, nftCollection?.id, nftId, walletId])
+
   const nftModalMedia = useMemo(() => {
     return (
       <Skeleton flex={1} isLoaded={isMediaLoaded}>
@@ -159,11 +168,16 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
               )}
             </Flex>
             {!mediaUrl || mediaType === 'image' ? (
-              <Image
-                src={mediaUrl ?? placeholderImage}
-                onLoad={() => setIsMediaLoaded(true)}
-                {...mediaBoxProps}
-              />
+              <>
+                <Image
+                  src={mediaUrl ?? placeholderImage}
+                  onLoad={() => setIsMediaLoaded(true)}
+                  {...mediaBoxProps}
+                />
+                <Button colorScheme='whiteAlpha' onClick={handleSetAsAvatarClick}>
+                  {translate('nft.setAsAvatar')}
+                </Button>
+              </>
             ) : (
               <Box
                 as='video'
@@ -180,7 +194,16 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
         </Flex>
       </Skeleton>
     )
-  }, [assetLink, isMediaLoaded, mediaBoxProps, mediaType, mediaUrl, placeholderImage])
+  }, [
+    assetLink,
+    handleSetAsAvatarClick,
+    isMediaLoaded,
+    mediaBoxProps,
+    mediaType,
+    mediaUrl,
+    placeholderImage,
+    translate,
+  ])
 
   const nftModalOverview = useMemo(() => {
     return (
@@ -214,18 +237,20 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
           )}
         </Flex>
         <StatGroup>
-          {floorPriceEth && maybeFeeAsset && (
+          {floorPrice && maybeFeeAsset && (
             <Stat>
               <StatLabel>{translate('nft.floorPrice')}</StatLabel>
               <StatNumber>
-                {floorPriceEth} {maybeFeeAsset.symbol}
+                {floorPrice} {maybeFeeAsset.symbol}
               </StatNumber>
             </Stat>
           )}
-          {lastSaleEth && (
+          {price && maybeFeeAsset && (
             <Stat>
               <StatLabel>{translate('nft.lastPrice')}</StatLabel>
-              <StatNumber>{lastSaleEth} ETH</StatNumber>
+              <StatNumber>
+                {price} {maybeFeeAsset.symbol}
+              </StatNumber>
             </Stat>
           )}
         </StatGroup>
@@ -237,16 +262,20 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
     collectionName,
     name,
     rarityDisplay,
-    floorPriceEth,
+    floorPrice,
     maybeFeeAsset,
     translate,
-    lastSaleEth,
+    price,
   ])
 
   const nftModalDetails = useMemo(() => {
+    if (!(nftCollection || nftItem.collection)) return null
+
     const hasUsefulCollectionData = Boolean(
-      zapperCollection?.[0]?.collection.description ||
-        zapperCollection?.[0]?.collection?.socialLinks?.length,
+      nftItem.collection.description ||
+        nftCollection?.description ||
+        nftItem.collection.socialLinks?.length ||
+        nftCollection?.socialLinks?.length,
     )
     return (
       <Tabs display='flex' flexDir='column' position='relative' variant='unstyled' flex={1}>
@@ -260,17 +289,25 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
         </Box>
         <TabPanels maxHeight={{ base: 'auto', md: '500px' }} overflowY='auto' flex={1}>
           <TabPanel p={0}>
-            <NftOverview zapperNft={zapperNft} zapperCollection={zapperCollection} />
+            <NftOverview nftItem={nftItem} nftCollection={nftCollection} />
           </TabPanel>
           {hasUsefulCollectionData && (
             <TabPanel p={0}>
-              <NftCollection zapperCollection={zapperCollection} />
+              <NftCollection
+                name={nftCollection?.name || nftItem.collection.name}
+                description={nftCollection?.description || nftItem.collection.description}
+                socialLinks={
+                  nftCollection?.socialLinks.length
+                    ? nftCollection?.socialLinks
+                    : nftItem.collection.socialLinks
+                }
+              />
             </TabPanel>
           )}
         </TabPanels>
       </Tabs>
     )
-  }, [modalHeaderBg, translate, zapperCollection, zapperNft])
+  }, [modalHeaderBg, translate, nftCollection, nftItem])
 
   const nftModalContent = useMemo(() => {
     return (
@@ -280,6 +317,8 @@ export const NftModal: React.FC<NftModalProps> = ({ zapperNft }) => {
       </Flex>
     )
   }, [nftModalOverview, nftModalDetails])
+
+  if (!(nftCollection || nftItem.collection)) return null
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} isCentered={isLargerThanMd}>

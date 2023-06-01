@@ -6,6 +6,7 @@
     "error": "Помилка",
     "cancel": "Відмінити",
     "close": "Закрити",
+    "loadMore": "Читати далі",
     "new": "Новий",
     "continue": "Продовжити",
     "reward": "Винагорода",
@@ -101,7 +102,8 @@
     "manage": "Управління",
     "selectedAccount": "Обраний акаунт",
     "allChains": "Всі мережі",
-    "wallet": "Гаманець"
+    "wallet": "Гаманець",
+    "action": "Дія"
   },
   "consentBanner": {
     "body": {
@@ -696,6 +698,7 @@
       "broadcastFailed": "Виникла помилка при проведенні транзакції",
       "insufficientFundsForLimit": "Недостатньо коштів. Мінімальна сума угоди по даній парі становить %{minLimit}",
       "insufficientFundsForAmount": "Недостатньо коштів. Ваш %{symbol} залишок менше обраної суми",
+      "insufficientFundsForProtocolFee": "Недостатньо %{symbol} на %{chainName} для оплати комісій",
       "invalidTradePair": "Невірна торгова пара: %{sellAssetName} та %{buyAssetName}",
       "invalidTradePairBtnText": "Невірна торгова пара",
       "noLiquidityError": "Недостатня ліквідність",
@@ -733,11 +736,12 @@
     "swappingComingSoonForWallet": "Зміна на %{walletName} незабаром",
     "recentTrades": "Нещодавні угоди",
     "lifiWarning": "Ця торгівля проходить через LI.FI, яка виконує серію проміжних угод для здійснення обміну. Якщо якийсь з кроків не вдасться виконати, ви отримаєте токен за останній успішний крок в послідовності.",
-    "intermediaryTransactionOutputs": {
-      "prefix": "або",
-      "suffix": "на %{chainName}"
-    },
-    "unknownGas": "(невідомо)"
+    "or": "або",
+    "onChainName": "на %{chainName}",
+    "unknownGas": "(невідомо)",
+    "receiveAddress": "Адреса отримувача",
+    "receiveAddressDescription": "Не знайдено %{chainName} \nадресу з підключеного гаманця. Для продовження введіть адресу вручну..",
+    "addressPlaceholder": "%{chainName} адреса"
   },
   "modals": {
     "popup": {

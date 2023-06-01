@@ -4,7 +4,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { DEFAULT_SLIPPAGE } from 'constants/constants'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
@@ -13,7 +13,6 @@ import {
   MAX_LIFI_TRADE,
   SELECTED_ROUTE_INDEX,
 } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
-import { getAssetBalance } from 'lib/swapper/swappers/LifiSwapper/utils/getAssetBalance/getAssetBalance'
 import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwapper/utils/getIntermediaryTransactionOutputs/getIntermediaryTransactionOutputs'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
@@ -31,13 +30,14 @@ export async function getTradeQuote(
       sellAsset,
       buyAsset,
       sellAmountBeforeFeesCryptoBaseUnit,
-      sendMax,
       receiveAddress,
       accountNumber,
     } = input
 
     const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
     const buyLifiChainKey = lifiChainMap.get(buyAsset.chainId)
+
+    const defaultLifiSwapperSlippage = getDefaultSlippagePercentageForSwapper(SwapperName.LIFI)
 
     if (sellLifiChainKey === undefined) {
       throw new SwapError(
@@ -57,13 +57,6 @@ export async function getTradeQuote(
       })
     }
 
-    const fromAmountCryptoBaseUnit: string = sendMax
-      ? getAssetBalance({
-          asset: sellAsset,
-          accountNumber,
-          chainId,
-        })
-      : sellAmountBeforeFeesCryptoBaseUnit
     const lifi = getLifi()
 
     const routesRequest: RoutesRequest = {
@@ -73,13 +66,13 @@ export async function getTradeQuote(
       toTokenAddress: getLifiEvmAssetAddress(buyAsset),
       fromAddress: receiveAddress,
       toAddress: receiveAddress,
-      fromAmount: fromAmountCryptoBaseUnit,
+      fromAmount: sellAmountBeforeFeesCryptoBaseUnit,
       // as recommended by lifi, dodo is denied until they fix their gas estimates
       // TODO: convert this config to .env variable
       options: {
         // used for analytics - do not change this without considering impact
         integrator: DAO_TREASURY_ETHEREUM_MAINNET,
-        slippage: Number(DEFAULT_SLIPPAGE),
+        slippage: Number(defaultLifiSwapperSlippage),
         exchanges: { deny: ['dodo'] },
         // as recommended by lifi, allowSwitchChain must be false to ensure single-hop transactions.
         // This must remain disabled until our application supports multi-hop swaps

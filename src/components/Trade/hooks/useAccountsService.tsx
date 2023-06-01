@@ -3,6 +3,7 @@ import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolio
 import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
+  selectActiveSwapperWithMetadata,
   selectBuyAsset,
   selectBuyAssetAccountId,
   selectSelectedBuyAssetAccountId,
@@ -25,7 +26,7 @@ export const useAccountsService = () => {
   const updateSellAssetAccountId = useSwapperStore(state => state.updateSellAssetAccountId)
   const selectedBuyAssetAccountId = useSwapperStore(selectSelectedBuyAssetAccountId)
   const selectedSellAssetAccountId = useSwapperStore(selectSelectedSellAssetAccountId)
-  const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const activeSwapper = useSwapperStore(state => selectActiveSwapperWithMetadata(state)?.swapper)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const swapperSupportsCrossAccountTrade = useSwapperStore(selectSwapperSupportsCrossAccountTrade)

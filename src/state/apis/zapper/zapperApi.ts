@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
@@ -33,12 +33,13 @@ import { DefiType } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
+import { parseToNftItem } from '../nft/parsers/zapper'
+import type { NftCollectionType, NftItem } from '../nft/types'
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type {
   SupportedZapperNetwork,
   V2AppResponseType,
   V2NftBalancesCollectionsResponseType,
-  V2NftCollectionType,
   V2NftUserItem,
   V2NftUserTokensResponseType,
   ZapperAssetBase,
@@ -95,7 +96,7 @@ type GetZapperAppsbalancesInput = void // void in the interim, but should eventu
 
 type GetZapperCollectionsInput = {
   accountIds: AccountId[]
-  collectionAddresses: string[]
+  collectionId: string
 }
 
 export type GetZapperAppsBalancesOutput = {
@@ -152,34 +153,25 @@ export const zapperApi = createApi({
         const { data: res } = await axios.request({ ...payload })
         const zapperV2AppTokensData = V2AppTokensResponse.parse(res)
 
-        const parsedData = zapperV2AppTokensData.reduce<GetZapperAppTokensOutput>(
-          (acc, appTokenData) => {
-            const chainId = zapperNetworkToChainId(appTokenData.network)
-            if (!chainId) return acc
-            const assetId = toAssetId({
-              chainId,
-              assetNamespace: 'erc20', // TODO: bep20
-              assetReference: appTokenData.address,
-            })
-
-            acc[assetId] = appTokenData
-            return acc
-          },
-          {},
-        )
-
         const assets = selectAssets(getState() as ReduxState)
-        const zapperAssets = zapperV2AppTokensData.reduce<AssetsState>(
+
+        const { assets: zapperAssets, data } = zapperV2AppTokensData.reduce<{
+          assets: AssetsState
+          data: GetZapperAppTokensOutput
+        }>(
           (acc, appTokenData) => {
             // This will never happen in this particular case because zodios will fail if e.g appTokenData.network is undefined
             // But zapperNetworkToChainId returns ChainId | undefined, as we may be calling it with invalid, casted "valid network"
             const chainId = zapperNetworkToChainId(appTokenData.network)
             if (!chainId) return acc
+
             const assetId = toAssetId({
               chainId,
               assetNamespace: 'erc20', // TODO: bep20
               assetReference: appTokenData.address,
             })
+
+            acc.data[assetId] = appTokenData
 
             const underlyingAssets = (appTokenData.tokens ?? []).map(token => {
               const assetId = toAssetId({
@@ -204,7 +196,7 @@ export const zapperApi = createApi({
 
             if (!(appTokenData.decimals && appTokenData.symbol)) return acc
 
-            acc.byId[assetId] = makeAsset({
+            acc.assets.byId[assetId] = makeAsset({
               assetId,
               symbol: appTokenData.symbol,
               // WETH should be displayed as ETH in the UI due to the way UNI-V2 works
@@ -213,18 +205,18 @@ export const zapperApi = createApi({
               precision: appTokenData.decimals,
               icons,
             })
-            acc.ids.push(assetId)
+            acc.assets.ids.push(assetId)
             return acc
           },
-          { byId: {}, ids: [] },
+          { assets: { byId: {}, ids: [] }, data: {} },
         )
 
         dispatch(assetsSlice.actions.upsertAssets(zapperAssets))
 
-        return { data: parsedData }
+        return { data }
       },
     }),
-    getZapperNftUserTokens: build.query<V2NftUserItem[], GetZapperNftUserTokensInput>({
+    getZapperNftUserTokens: build.query<NftItem[], GetZapperNftUserTokensInput>({
       queryFn: async ({ accountIds }) => {
         let data: V2NftUserItem[] = []
 
@@ -253,15 +245,24 @@ export const zapperApi = createApi({
             }
           }
         }
-        return { data }
+
+        const parsedData = data.map(v2NftItem => {
+          // Actually defined since we're passing supported EVM networks AccountIds
+          const chainId = zapperNetworkToChainId(
+            v2NftItem.token.collection.network as SupportedZapperNetwork,
+          )!
+          return parseToNftItem(v2NftItem, chainId)
+        })
+        return { data: parsedData }
       },
     }),
-    getZapperCollections: build.query<V2NftCollectionType[], GetZapperCollectionsInput>({
-      queryFn: async ({ accountIds, collectionAddresses }) => {
+    // We abuse the /v2/nft/balances/collections endpoint to get the collection meta
+    getZapperCollectionBalance: build.query<NftCollectionType, GetZapperCollectionsInput>({
+      queryFn: async ({ accountIds, collectionId }) => {
         const addresses = accountIdsToEvmAddresses(accountIds)
         const params = {
           'addresses[]': addresses,
-          'collectionAddresses[]': collectionAddresses,
+          'collectionAddresses[]': [fromAssetId(collectionId).assetReference],
         }
         const url = `/v2/nft/balances/collections`
         const payload = { ...options, params, headers, url }
@@ -270,7 +271,33 @@ export const zapperApi = createApi({
         })
 
         const { items: validatedData } = V2NftBalancesCollectionsResponse.parse(data)
-        return { data: validatedData }
+
+        const parsedData: NftCollectionType[] = validatedData.map(item => {
+          const chainId = zapperNetworkToChainId(item.collection.network as SupportedZapperNetwork)!
+          return {
+            id: null,
+            // Actually defined since we're passing supported EVM networks AccountIds
+            chainId,
+            name: item.collection.name,
+            floorPrice: item.collection.floorPriceEth || '',
+            openseaId: item.collection.openseaId || '',
+            description: item.collection.description,
+            socialLinks: item.collection.socialLinks,
+          }
+        })
+
+        // The right side will always evaluate to false - that's until Zapper fixes their collectionAddresses[] param not being honored
+        if (!parsedData[0] || parsedData[0].id !== collectionId) {
+          return {
+            error: {
+              status: 404,
+              code: 'ZAPPER_COLLECTION_NOT_FOUND',
+              message: 'Collection not found',
+            },
+          }
+        }
+
+        return { data: parsedData[0] }
       },
     }),
   }),
@@ -624,4 +651,4 @@ export const zapper = createApi({
   }),
 })
 
-export const { useGetZapperNftUserTokensQuery, useGetZapperCollectionsQuery } = zapperApi
+export const { useGetZapperNftUserTokensQuery } = zapperApi

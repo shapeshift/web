@@ -10,7 +10,7 @@ import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { SwapperWithQuoteMetadata } from 'lib/swapper/api'
-import { SwapperName, SwapperType } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
 import { selectFeeAssetByChainId, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -89,27 +89,23 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     selectFeeAssetById(state, sellAsset?.assetId ?? ethAssetId),
   )
   const amount = useSwapperStore(selectAmount)
-  const updateActiveSwapperWithMetadata = useSwapperStore(
-    state => state.updateActiveSwapperWithMetadata,
-  )
+  const updatePreferredSwapper = useSwapperStore(state => state.updatePreferredSwapper)
   const updateFees = useSwapperStore(state => state.updateFees)
   const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
 
-  const handleSwapperSelection = useCallback(
-    (activeSwapperWithMetadata: SwapperWithQuoteMetadata) => {
-      updateActiveSwapperWithMetadata(activeSwapperWithMetadata)
-      if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
-      updateFees(sellFeeAsset)
-      updateTradeAmountsFromQuote()
-    },
-    [
-      updateActiveSwapperWithMetadata,
-      sellFeeAsset,
-      sellAsset?.assetId,
-      updateFees,
-      updateTradeAmountsFromQuote,
-    ],
-  )
+  const handleSwapperSelection = useCallback(() => {
+    updatePreferredSwapper(swapperWithMetadata.swapper.name)
+    if (!sellFeeAsset) throw new Error(`Asset not found for AssetId ${sellAsset?.assetId}`)
+    updateFees(sellFeeAsset)
+    updateTradeAmountsFromQuote()
+  }, [
+    updatePreferredSwapper,
+    swapperWithMetadata.swapper.name,
+    sellFeeAsset,
+    sellAsset?.assetId,
+    updateFees,
+    updateTradeAmountsFromQuote,
+  ])
 
   const { quote, inputOutputRatio } = swapperWithMetadata
 
@@ -160,28 +156,24 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   })()
 
   const protocolIcon = useMemo(() => {
-    const swapperType = swapperWithMetadata.swapper.getType()
-    switch (swapperType) {
-      case SwapperType.Osmosis:
+    const swapperName = swapperWithMetadata.swapper.name
+    switch (swapperName) {
+      case SwapperName.Osmosis:
         return OsmosisIcon
-      case SwapperType.LIFI:
+      case SwapperName.LIFI:
         return LiFiIcon
-      case SwapperType.CowSwap:
+      case SwapperName.CowSwap:
         return CowIcon
-      case SwapperType.ZrxAvalanche:
-      case SwapperType.ZrxBnbSmartChain:
-      case SwapperType.ZrxEthereum:
-      case SwapperType.ZrxOptimism:
-      case SwapperType.ZrxPolygon:
+      case SwapperName.Zrx:
         return ZrxIcon
-      case SwapperType.Thorchain:
+      case SwapperName.Thorchain:
         return THORChainIcon
-      case SwapperType.OneInch:
+      case SwapperName.OneInch:
         return OneInchIcon
-      case SwapperType.Test:
+      case SwapperName.Test:
         return ''
       default:
-        assertUnreachable(swapperType)
+        assertUnreachable(swapperName)
     }
   }, [swapperWithMetadata])
 
@@ -199,7 +191,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       px={4}
       py={2}
       fontSize='sm'
-      onClick={() => handleSwapperSelection(swapperWithMetadata)}
+      onClick={handleSwapperSelection}
       transitionProperty='common'
       transitionDuration='normal'
     >

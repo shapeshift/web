@@ -9,6 +9,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
+import { middleEllipsis } from 'lib/utils'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
@@ -60,9 +61,16 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = ({
           >
             {asset.name}
           </Text>
-          <Text fontWeight='normal' fontSize='sm' color={color}>
-            {asset.symbol}
-          </Text>
+          <Flex alignItems='center' gap={2}>
+            <Text fontWeight='normal' fontSize='sm' color={color}>
+              {asset.symbol}
+            </Text>
+            {asset.id && (
+              <Text fontWeight='normal' fontSize='sm' color={color}>
+                {middleEllipsis(asset.id)}
+              </Text>
+            )}
+          </Flex>
         </Box>
       </Flex>
       {isConnected && !isDemoWallet && !hideAssetBalance && (

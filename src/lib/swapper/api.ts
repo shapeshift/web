@@ -155,6 +155,7 @@ export interface TradeQuote<C extends ChainId, UnknownNetworkFee extends boolean
   minimumCryptoHuman: string
   maximumCryptoHuman: string
   recommendedSlippage?: string
+  id?: string
 }
 
 export interface Trade<C extends ChainId> extends TradeBase<C, false> {
@@ -186,20 +187,6 @@ export enum SwapperName {
   Osmosis = 'Osmosis',
   CowSwap = 'CoW Swap',
   Zrx = '0x',
-  Test = 'Test',
-  LIFI = 'LI.FI',
-  OneInch = '1INCH',
-}
-
-export enum SwapperType {
-  ZrxEthereum = '0xEthereum',
-  ZrxAvalanche = '0xAvalanche',
-  ZrxOptimism = '0xOptimism',
-  ZrxBnbSmartChain = '0xBnbSmartChain',
-  ZrxPolygon = '0xPolygon',
-  Thorchain = 'Thorchain',
-  Osmosis = 'Osmosis',
-  CowSwap = 'CoW Swap',
   Test = 'Test',
   LIFI = 'LI.FI',
   OneInch = '1INCH',
@@ -247,9 +234,6 @@ export interface Swapper<T extends ChainId, MaybeUnknownNetworkFee extends boole
 
   /** perform any necessary async initialization */
   initialize?(): Promise<Result<unknown, SwapErrorRight>>
-
-  /** Returns the swapper type */
-  getType(): SwapperType
 
   /**
    * Get builds a trade with definitive rate & txData that can be executed with executeTrade

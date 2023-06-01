@@ -4,7 +4,7 @@ import type { NftContract, OpenSeaCollectionMetadata, OwnedNft } from 'alchemy-s
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getMediaType } from 'state/apis/zapper/validators'
 
-import type { NftCollectionType, NftItem } from '../types'
+import type { NftCollectionType, NftItemWithCollection } from '../types'
 
 const makeSocialLinks = (openseaCollectionMetadata: OpenSeaCollectionMetadata | undefined) => {
   if (!openseaCollectionMetadata) return []
@@ -52,18 +52,18 @@ export const parseAlchemyNftContractToCollectionItem = (
   const { name, openSea } = contract
 
   const socialLinks = makeSocialLinks(openSea)
-  const id = toAssetId({
+  const assetId = toAssetId({
     assetReference: contract.address,
     assetNamespace: contract.tokenType.toLowerCase() as AssetNamespace,
     chainId,
   })
 
   return {
-    assetId: id,
+    assetId,
     chainId,
     name: name ?? '',
     floorPrice: openSea?.floorPrice ? bnOrZero(openSea.floorPrice).toString() : '',
-    openseaId: openSea?.collectionName ? openSea.collectionName : '',
+    openseaId: '', // not supported by Alchemy
     description: openSea?.description ?? '',
     socialLinks,
   }
@@ -72,7 +72,7 @@ export const parseAlchemyNftContractToCollectionItem = (
 export const parseAlchemyOwnedNftToNftItem = (
   alchemyOwnedNft: OwnedNft,
   chainId: ChainId,
-): NftItem => {
+): NftItemWithCollection => {
   const collectionId = toAssetId({
     assetReference: alchemyOwnedNft.contract.address,
     assetNamespace: alchemyOwnedNft.contract.tokenType.toLowerCase() as AssetNamespace,

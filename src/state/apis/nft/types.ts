@@ -31,7 +31,11 @@ export type NftItem = {
   description: string
   // TODO(gomes): store the collection data into nft[collectionAssetId] and make this `collectionId`
   // we can then join the item and collection, once the collection is in the store as well
-  collection: NftCollectionType
+  collectionId: AssetId
   medias: MediaUrl[]
   rarityRank: number | null
+}
+
+export type NftItemWithCollection = Omit<NftItem, 'collectionId'> & {
+  collection: NftCollectionType
 }

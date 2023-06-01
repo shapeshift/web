@@ -38,6 +38,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { ordinalSuffix } from 'context/WalletProvider/NativeWallet/components/NativeTestPhrase'
 import { useModal } from 'hooks/useModal/useModal'
 import { nft, useGetNftCollectionQuery } from 'state/apis/nft/nftApi'
+import { selectNftCollectionById } from 'state/apis/nft/selectors'
 import type { NftItem } from 'state/apis/nft/types'
 import { chainIdToOpenseaNetwork } from 'state/apis/nft/utils'
 import { getMediaType } from 'state/apis/zapper/validators'
@@ -77,9 +78,12 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const walletId = useAppSelector(selectWalletId)
   const accountIds = useAppSelector(selectWalletAccountIds)
 
-  const { data: nftCollection } = useGetNftCollectionQuery(
-    { accountIds, collectionId: nftItem.collection.assetId ?? '' },
-    { skip: !nftItem.collection.assetId },
+  useGetNftCollectionQuery(
+    { accountIds, collectionId: nftItem.collectionId },
+    { skip: !nftItem.collectionId },
+  )
+  const nftCollection = useAppSelector(state =>
+    selectNftCollectionById(state, nftItem.collectionId),
   )
 
   const mediaUrl = nftItem.medias[0]?.originalUrl
@@ -89,12 +93,12 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const name = nftItem.name
   const nftAssetId = nftItem.assetId
   const nftAddress = fromAssetId(nftAssetId).assetReference
-  const collectionName = nftItem.collection.name
+  const collectionName = nftCollection?.name
   const rarityRank = nftItem.rarityRank
-  const floorPrice = nftItem.collection.floorPrice
+  const floorPrice = nftCollection?.floorPrice
   const price = nftItem.price
-  const openseaId = nftItem.collection.openseaId
-  const chainId = nftItem.collection.chainId
+  const openseaId = nftCollection?.openseaId
+  const chainId = nftCollection?.chainId
   const maybeChainAdapter = getChainAdapterManager().get(chainId as ChainId)
   const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
   const maybeFeeAsset = useAppSelector(state => selectAssetById(state, maybeFeeAssetId ?? ''))
@@ -263,13 +267,10 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   ])
 
   const nftModalDetails = useMemo(() => {
-    if (!(nftCollection || nftItem.collection)) return null
+    if (!nftCollection) return null
 
     const hasUsefulCollectionData = Boolean(
-      nftItem.collection.description ||
-        nftCollection?.description ||
-        nftItem.collection.socialLinks?.length ||
-        nftCollection?.socialLinks?.length,
+      nftCollection.description || nftCollection.socialLinks?.length,
     )
     return (
       <Tabs display='flex' flexDir='column' position='relative' variant='unstyled' flex={1}>
@@ -283,18 +284,14 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
         </Box>
         <TabPanels maxHeight={{ base: 'auto', md: '500px' }} overflowY='auto' flex={1}>
           <TabPanel p={0}>
-            <NftOverview nftItem={nftItem} nftCollection={nftCollection} />
+            <NftOverview nftItem={nftItem} />
           </TabPanel>
           {hasUsefulCollectionData && (
             <TabPanel p={0}>
               <NftCollection
-                name={nftCollection?.name || nftItem.collection.name}
-                description={nftCollection?.description || nftItem.collection.description}
-                socialLinks={
-                  nftCollection?.socialLinks.length
-                    ? nftCollection?.socialLinks
-                    : nftItem.collection.socialLinks
-                }
+                name={nftCollection.name}
+                description={nftCollection.description}
+                socialLinks={nftCollection.socialLinks}
               />
             </TabPanel>
           )}
@@ -311,8 +308,6 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
       </Flex>
     )
   }, [nftModalOverview, nftModalDetails])
-
-  if (!(nftCollection || nftItem.collection)) return null
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} isCentered={isLargerThanMd}>

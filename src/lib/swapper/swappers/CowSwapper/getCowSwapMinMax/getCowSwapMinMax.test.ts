@@ -33,7 +33,7 @@ describe('getCowSwapMinMax', () => {
     const maybeMinMax = getCowSwapMinMax(USDC_GNOSIS, XDAI, supportedChainIds)
     expect(maybeMinMax.isErr()).toBe(false)
     const minMax = maybeMinMax.unwrap()
-    expect(minMax.minimumAmountCryptoHuman).toBe('2')
+    expect(minMax.minimumAmountCryptoHuman).toBe('0.04')
     expect(minMax.maximumAmountCryptoHuman).toBe(MAX_COWSWAP_TRADE)
   })
 

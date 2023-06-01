@@ -3,6 +3,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
+import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { MinMaxOutput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
@@ -34,7 +35,7 @@ export const getCowSwapMinMax = (
     )
   }
 
-  const getMinCowSwapValueUsd = (chainId: CowChainId): number => {
+  const getMinCowSwapValueUsd = (chainId: CowChainId): BigNumber.Value => {
     switch (chainId) {
       case KnownChainIds.EthereumMainnet:
         return MIN_COWSWAP_ETH_TRADE_VALUE_USD

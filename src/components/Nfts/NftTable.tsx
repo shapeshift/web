@@ -58,7 +58,7 @@ export const NftTable = () => {
   const filterNftsBySearchTerm = useCallback(
     (data: NftItemWithCollection[], searchQuery: string) => {
       const search = searchQuery.trim().toLowerCase()
-      const keys = ['name', 'collection.name', 'collection.id', 'id']
+      const keys = ['name', 'collection.name', 'collection.assetId', 'assetId', 'id']
 
       const maybeFilteredByChainId = networkFilters.length
         ? data.filter(nftItem => networkFilters.includes(nftItem.chainId))

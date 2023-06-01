@@ -34,7 +34,7 @@ import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
 import { parseToNftItem } from '../nft/parsers/zapper'
-import type { NftCollectionType, NftItem } from '../nft/types'
+import type { NftCollectionType, NftItemWithCollection } from '../nft/types'
 import { accountIdsToEvmAddresses } from '../nft/utils'
 import type {
   SupportedZapperNetwork,
@@ -216,7 +216,7 @@ export const zapperApi = createApi({
         return { data }
       },
     }),
-    getZapperNftUserTokens: build.query<NftItem[], GetZapperNftUserTokensInput>({
+    getZapperNftUserTokens: build.query<NftItemWithCollection[], GetZapperNftUserTokensInput>({
       queryFn: async ({ accountIds }) => {
         let data: V2NftUserItem[] = []
 
@@ -275,7 +275,7 @@ export const zapperApi = createApi({
         const parsedData: NftCollectionType[] = validatedData.map(item => {
           const chainId = zapperNetworkToChainId(item.collection.network as SupportedZapperNetwork)!
           return {
-            id: null,
+            assetId: collectionId,
             // Actually defined since we're passing supported EVM networks AccountIds
             chainId,
             name: item.collection.name,
@@ -287,7 +287,7 @@ export const zapperApi = createApi({
         })
 
         // The right side will always evaluate to false - that's until Zapper fixes their collectionAddresses[] param not being honored
-        if (!parsedData[0] || parsedData[0].id !== collectionId) {
+        if (!parsedData[0] || parsedData[0].assetId !== collectionId) {
           return {
             error: {
               status: 404,

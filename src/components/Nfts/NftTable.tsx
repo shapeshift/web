@@ -35,12 +35,7 @@ export const NftTable = () => {
 
   const filterNftsBySearchTerm = useCallback((data: NftItem[], searchQuery: string) => {
     const search = searchQuery.trim().toLowerCase()
-    const keys = [
-      'token.name',
-      'token.collection.name',
-      'token.collection.address',
-      'token.tokenId',
-    ]
+    const keys = ['name', 'collection.name', 'collection.id', 'id']
     return matchSorter(data, search, { keys })
   }, [])
 
@@ -52,9 +47,7 @@ export const NftTable = () => {
 
   const renderNftCards = useMemo(() => {
     if (!data?.length) return null
-    return filteredNfts?.map(nft => (
-      <NftCard nftItem={nft} key={`${nft.collection.id}/${nft.id}`} />
-    ))
+    return filteredNfts?.map(nft => <NftCard nftAssetId={nft.assetId} key={nft.assetId} />)
   }, [data?.length, filteredNfts])
 
   if (isLoading)

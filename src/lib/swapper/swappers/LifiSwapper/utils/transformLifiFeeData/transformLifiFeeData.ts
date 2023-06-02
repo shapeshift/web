@@ -35,7 +35,7 @@ export const transformLifiStepFeeData = ({
     const { amount: amountCryptoBaseUnit, token } = feeCost
     const assetId = lifiTokenToAssetId(token)
     const asset = assets[assetId]
-    if (acc[assetId] === undefined) {
+    if (!acc[assetId]) {
       acc[assetId] = {
         amountCryptoBaseUnit,
         asset: {

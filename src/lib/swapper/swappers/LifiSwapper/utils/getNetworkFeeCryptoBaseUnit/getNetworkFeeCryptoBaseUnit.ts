@@ -8,6 +8,7 @@ import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { isEvmChainAdapter } from 'lib/utils'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 
+import { OPTIMISM_GAS_ORACLE_ADDRESS } from '../constants'
 import { getLifi } from '../getLifi'
 
 export const getNetworkFeeCryptoBaseUnit = async ({
@@ -44,7 +45,6 @@ export const getNetworkFeeCryptoBaseUnit = async ({
   // interactions, so instead of calling our existing stack which relies on infura we call the
   // optimism gas oracle directly.
   if (chainId === KnownChainIds.OptimismMainnet) {
-    const optimismGasOracleAddress = '0x420000000000000000000000000000000000000f'
     const optimismGasOracleAbi: AbiItem[] = [
       {
         inputs: [{ internalType: 'bytes', name: '_data', type: 'bytes' }],
@@ -55,7 +55,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
       },
     ]
     const web3 = getWeb3InstanceByChainId(chainId)
-    const tokenContract = new web3.eth.Contract(optimismGasOracleAbi, optimismGasOracleAddress)
+    const tokenContract = new web3.eth.Contract(optimismGasOracleAbi, OPTIMISM_GAS_ORACLE_ADDRESS)
     const l1Fee = await tokenContract.methods.getL1Fee(data).call()
 
     return gasFee.plus(l1Fee).toString()

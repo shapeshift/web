@@ -81,7 +81,7 @@ export const NftNetworkFilter = ({
   }
 
   return (
-    <Popover closeOnBlur={false} isOpen={isOpen}>
+    <Popover closeOnBlur={false} isOpen={isOpen} placement='bottom-start'>
       <>
         <PopoverTrigger>
           <ButtonGroup isAttached variant='ghost-filled'>

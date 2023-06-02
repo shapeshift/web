@@ -6,7 +6,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
-import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import {
@@ -17,8 +17,10 @@ import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwap
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
 import { getMinimumCryptoHuman } from 'lib/swapper/swappers/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
-import { transformLifiFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
+import { transformLifiStepFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
+
+import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
@@ -103,6 +105,16 @@ export async function getTradeQuote(
       })
     }
 
+    if (selectedLifiRoute.steps.length !== 1) {
+      throw new SwapError('[getTradeQuote] multi hop trades not currently supported', {
+        code: SwapErrorType.TRADE_QUOTE_FAILED,
+      })
+    }
+
+    // this corresponds to a "hop", so we could map the below code over selectedLifiRoute.steps to
+    // generate a multi-hop quote
+    const lifiStep = selectedLifiRoute.steps[0]
+
     // for the rate to be valid, both amounts must be converted to the same precision
     const estimateRate = convertPrecision({
       value: selectedLifiRoute.toAmountMin,
@@ -112,50 +124,34 @@ export async function getTradeQuote(
       .dividedBy(bn(selectedLifiRoute.fromAmount))
       .toString()
 
-    const allowanceContract = (() => {
-      const uniqueApprovalAddresses = new Set(
-        selectedLifiRoute.steps
-          .map(step => step.estimate.approvalAddress)
-          .filter(approvalAddress => approvalAddress !== undefined),
-      )
-
-      if (uniqueApprovalAddresses.size !== 1) {
-        throw new SwapError(
-          `[getTradeQuote] expected exactly 1 approval address, found ${uniqueApprovalAddresses.size}`,
-          {
-            code: SwapErrorType.TRADE_QUOTE_FAILED,
-          },
-        )
-      }
-
-      return [...uniqueApprovalAddresses.values()][0]
-    })()
-
-    const maxSlippage = BigNumber.max(...selectedLifiRoute.steps.map(step => step.action.slippage))
-
-    const feeData = transformLifiFeeData({
-      buyAsset,
+    const protocolFees = transformLifiStepFeeData({
       chainId,
-      selectedRoute: selectedLifiRoute,
+      lifiStep,
     })
 
     const buyAmountCryptoBaseUnit = bnOrZero(selectedLifiRoute.toAmountMin)
-    const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(
-      selectedLifiRoute.steps,
-    )
+    const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(lifiStep)
+
+    const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
+      chainId,
+      lifiStep,
+    })
 
     // TODO(gomes): intermediary error-handling within this module function calls
     return Ok({
       accountNumber,
-      allowanceContract,
+      allowanceContract: lifiStep.estimate.approvalAddress,
       buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
       buyAsset,
       intermediaryTransactionOutputs,
-      feeData,
+      feeData: {
+        protocolFees,
+        networkFeeCryptoBaseUnit,
+      },
       maximumCryptoHuman: MAX_LIFI_TRADE,
       minimumCryptoHuman: getMinimumCryptoHuman(sellAsset).toString(),
       rate: estimateRate,
-      recommendedSlippage: maxSlippage.toString(),
+      recommendedSlippage: lifiStep.action.slippage.toString(),
       sellAmountBeforeFeesCryptoBaseUnit,
       sellAsset,
       sources: [

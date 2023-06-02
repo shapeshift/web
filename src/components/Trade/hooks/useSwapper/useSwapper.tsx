@@ -290,6 +290,7 @@ export const useSwapper = () => {
 
       if (!activeQuote) throw new Error('no activeQuote available')
       if (!wallet) throw new Error('no wallet available')
+      if (!supportsETH(wallet)) throw Error('eth wallet required')
       if (!adapter || !isEvmChainAdapter(adapter))
         throw Error(`no valid EVM chain adapter found for chain Id: ${sellAsset.chainId}`)
 
@@ -310,13 +311,21 @@ export const useSwapper = () => {
         web3,
       })
 
+      const [eip1559Support, from] = await Promise.all([
+        wallet.ethSupportsEIP1559(),
+        adapter.getAddress({
+          wallet,
+          accountNumber: activeQuote.accountNumber,
+        }),
+      ])
+
       const { feesWithGasLimit, networkFeeCryptoBaseUnit } = await getFeesFromContractData({
-        accountNumber: activeQuote.accountNumber,
+        eip1559Support,
         adapter,
+        from,
         to: assetReference,
         value,
         data,
-        wallet,
       })
 
       return {

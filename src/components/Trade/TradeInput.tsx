@@ -279,7 +279,12 @@ export const TradeInput = () => {
   )
 
   useEffect(() => {
-    if (!isSendMax) return
+    if (
+      !isSendMax ||
+      // handle race condition - we need to use the correct quote for following calculations
+      activeQuote?.sellAmountBeforeFeesCryptoBaseUnit !== sellAssetBalanceCryptoBaseUnit
+    )
+      return
 
     // Active swapper is selected inside here to prevent infinite loop where we're updating the
     // value we're reacting to. Instead we react to the preferred swapper.
@@ -308,6 +313,7 @@ export const TradeInput = () => {
     sellFeeAsset,
     handleInputAmountChange,
     updateAmount,
+    activeQuote?.sellAmountBeforeFeesCryptoBaseUnit,
   ])
 
   const handleSendMax = useCallback(() => {

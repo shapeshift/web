@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Flex,
+  IconButton,
   Image,
   Link,
   Modal,
@@ -28,6 +29,7 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
+import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import Placeholder from 'assets/placeholder.png'
 import PlaceholderDrk from 'assets/placeholder-drk.png'
@@ -158,14 +160,13 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
             gap={4}
           >
             <Flex position={{ base: 'static', md: 'absolute' }} right='1em' top='1em' gap='1em'>
-              <Button
+              <IconButton
                 size='sm'
                 colorScheme='whiteAlpha'
                 onClick={handleRefreshClick}
-                rightIcon={<ArrowRightUp />}
-              >
-                Refresh NFTay
-              </Button>
+                icon={<FaSync />}
+                aria-label='Refresh'
+              />
               {customizeLink && (
                 <Button
                   as={Link}

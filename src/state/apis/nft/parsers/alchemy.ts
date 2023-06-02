@@ -1,6 +1,8 @@
 import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
-import type { NftContract, OpenSeaCollectionMetadata, OwnedNft } from 'alchemy-sdk'
+import { polygonChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { TokenType } from '@shapeshiftoss/unchained-client/src/evm/ethereum'
+import type { Nft, NftContract, OpenSeaCollectionMetadata, OwnedNft } from 'alchemy-sdk'
+import { http as v1HttpApi } from 'plugins/polygon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getMediaType } from 'state/apis/zapper/validators'
 
@@ -66,50 +68,68 @@ export const parseAlchemyNftContractToCollectionItem = (
   }
 }
 
-export const parseAlchemyOwnedNftToNftItem = (
-  alchemyOwnedNft: OwnedNft,
+export const parseAlchemyNftToNftItem = async (
+  alchemyNft: OwnedNft | Nft,
   chainId: ChainId,
-): NftItemWithCollection => {
+): Promise<NftItemWithCollection> => {
   const collectionId = toAssetId({
-    assetReference: alchemyOwnedNft.contract.address,
-    assetNamespace: alchemyOwnedNft.contract.tokenType.toLowerCase() as AssetNamespace,
+    assetReference: alchemyNft.contract.address,
+    assetNamespace: alchemyNft.contract.tokenType.toLowerCase() as AssetNamespace,
     chainId,
   })
-  const socialLinks = makeSocialLinks(alchemyOwnedNft.contract.openSea)
+  const socialLinks = makeSocialLinks(alchemyNft.contract.openSea)
 
   const nftCollection = {
     assetId: collectionId,
     chainId,
-    name:
-      alchemyOwnedNft.contract.name ||
-      alchemyOwnedNft.contract.openSea?.collectionName ||
-      'Collection',
+    name: alchemyNft.contract.name || alchemyNft.contract.openSea?.collectionName || 'Collection',
     floorPrice: '', // Seemingly unreliable
     openseaId: '', // The Alchemy NFT data does not have an openseaId
-    description: alchemyOwnedNft.contract.openSea?.description ?? '',
+    description: alchemyNft.contract.openSea?.description ?? '',
     socialLinks,
   }
 
+  // If we have an IPNS gateway metadata URL, it means unchained can get a fresh media URL
+  // Which allows us to circumvent Alchemy refresh working for Ethereum only
+  // Notes:
+  // - We're only able to get fresh meta from unchained for IPNS URLs, not IPFS ones
+  // - This hasn't been tested on Optimism, thus we only support this refresh for Polygon for now
+  const shouldFetchIpfsGatewayMediaUrl =
+    chainId === polygonChainId && alchemyNft.tokenUri?.gateway.includes('ipns')
+
+  const getMediaIpfsGatewayUrl = async () =>
+    (
+      await v1HttpApi.getTokenMetadata({
+        contract: alchemyNft.contract.address,
+        id: alchemyNft.tokenId,
+        type: alchemyNft.contract.tokenType.toLowerCase() as TokenType,
+      })
+    ).media.url.replace('ipfs://', 'https://ipfs.io/ipfs/') // TODO: https://gateway.shapeshift.com/ipfs/ when stabilized
+
+  const medias = shouldFetchIpfsGatewayMediaUrl
+    ? [{ originalUrl: await getMediaIpfsGatewayUrl(), type: 'image' }] // assume image for IPNS media URLs for now
+    : alchemyNft.media.map(media => ({
+        originalUrl: media.gateway,
+        type: getMediaType(`media.${media.format}`) ?? 'image',
+      }))
+
   const nftItem = {
-    id: alchemyOwnedNft.tokenId,
+    id: alchemyNft.tokenId,
     assetId: toAssetId({
-      assetReference: `${alchemyOwnedNft.contract.address}/${alchemyOwnedNft.tokenId}`,
-      assetNamespace: alchemyOwnedNft.contract.tokenType.toLowerCase() as AssetNamespace,
+      assetReference: `${alchemyNft.contract.address}/${alchemyNft.tokenId}`,
+      assetNamespace: alchemyNft.contract.tokenType.toLowerCase() as AssetNamespace,
       chainId,
     }),
     name:
-      (alchemyOwnedNft.title ||
-        alchemyOwnedNft.contract.name ||
-        alchemyOwnedNft.contract.openSea?.collectionName) ??
+      (alchemyNft.title ||
+        alchemyNft.contract.name ||
+        alchemyNft.contract.openSea?.collectionName) ??
       '',
     price: '', // The Alchemy NFT data does not have a spot price
     chainId,
-    description: alchemyOwnedNft.description,
+    description: alchemyNft.description,
     collection: nftCollection,
-    medias: alchemyOwnedNft.media.map(media => ({
-      originalUrl: media.gateway,
-      type: getMediaType(media.gateway) ?? 'image', // Gateway URLs are not guaranteed to have a file extension
-    })),
+    medias,
     rarityRank: null,
   }
 

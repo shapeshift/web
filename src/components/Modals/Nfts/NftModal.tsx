@@ -37,7 +37,7 @@ import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { ordinalSuffix } from 'context/WalletProvider/NativeWallet/components/NativeTestPhrase'
 import { useModal } from 'hooks/useModal/useModal'
-import { nft, useGetNftCollectionQuery } from 'state/apis/nft/nftApi'
+import { nft, useGetNftCollectionQuery, useGetNftQuery } from 'state/apis/nft/nftApi'
 import { selectNftCollectionById } from 'state/apis/nft/selectors'
 import type { NftItem } from 'state/apis/nft/types'
 import { chainIdToOpenseaNetwork } from 'state/apis/nft/utils'
@@ -82,6 +82,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
     { accountIds, collectionId: nftItem.collectionId },
     { skip: !nftItem.collectionId },
   )
+
   const nftCollection = useAppSelector(state =>
     selectNftCollectionById(state, nftItem.collectionId),
   )
@@ -110,6 +111,8 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
     : null
   const customizeLink = nftCollection?.socialLinks?.find(link => link.key === 'customizeFoxatar')
 
+  const { refetch: refetchNft } = useGetNftQuery({ assetId: nftAssetId })
+
   const mediaBoxProps = useMemo(
     () =>
       ({
@@ -127,6 +130,10 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
     if (!walletId) return
     dispatch(nft.actions.setWalletSelectedNftAvatar({ nftAssetId, walletId }))
   }, [dispatch, nftAssetId, walletId])
+
+  const handleRefreshClick = useCallback(() => {
+    refetchNft()
+  }, [refetchNft])
 
   const nftModalMedia = useMemo(() => {
     return (
@@ -153,6 +160,14 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
             gap={4}
           >
             <Flex position={{ base: 'static', md: 'absolute' }} right='1em' top='1em' gap='1em'>
+              <Button
+                size='sm'
+                colorScheme='whiteAlpha'
+                onClick={handleRefreshClick}
+                rightIcon={<ArrowRightUp />}
+              >
+                Refresh NFTay
+              </Button>
               {customizeLink && (
                 <Button
                   as={Link}
@@ -208,6 +223,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   }, [
     assetLink,
     customizeLink,
+    handleRefreshClick,
     handleSetAsAvatarClick,
     isMediaLoaded,
     mediaBoxProps,

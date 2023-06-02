@@ -10,25 +10,24 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { markdownLinkToHTML } from 'lib/utils'
-import type { NftCollectionType, NftItem } from 'state/apis/nft/types'
+import { selectNftCollectionById } from 'state/apis/nft/selectors'
+import type { NftItem } from 'state/apis/nft/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 type NftOverviewProps = {
   nftItem: NftItem
-  nftCollection?: NftCollectionType
 }
 
-export const NftOverview: React.FC<NftOverviewProps> = ({ nftItem, nftCollection }) => {
+export const NftOverview: React.FC<NftOverviewProps> = ({ nftItem }) => {
   const translate = useTranslate()
 
-  const description =
-    nftItem.description || nftItem.collection.description || nftCollection?.description
-  const collection = nftItem?.collection
+  const collection = useAppSelector(state => selectNftCollectionById(state, nftItem?.collectionId))
+  const description = nftItem.description || collection?.description || ''
   const tokenId = nftItem?.id
-  const address = fromAssetId(collection?.id!).assetReference
+  const address = collection?.assetId && fromAssetId(collection.assetId).assetReference
   const chainId = collection?.chainId
-  const { assetNamespace: nftStandard } = fromAssetId(collection?.id!)
+  const { assetNamespace: nftStandard } = fromAssetId(collection?.assetId!)
   const maybeChainAdapter = getChainAdapterManager().get(chainId as ChainId)
   const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
   const chainDisplayName = maybeChainAdapter?.getDisplayName()

@@ -19,8 +19,11 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
 import { nft, useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
-import { selectSelectedNftAvatar } from 'state/apis/nft/selectors'
-import type { NftItem } from 'state/apis/nft/types'
+import {
+  makeSelectNftItemsWithCollectionSelector,
+  selectSelectedNftAvatar,
+} from 'state/apis/nft/selectors'
+import type { NftItemWithCollection } from 'state/apis/nft/types'
 import { selectWalletAccountIds, selectWalletId } from 'state/slices/common-selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -37,20 +40,30 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const translate = useTranslate()
   const accountIds = useAppSelector(selectWalletAccountIds)
   const selectedNftAvatar = useAppSelector(selectSelectedNftAvatar)
-  const { data, isLoading } = useGetNftUserTokensQuery({ accountIds })
+
+  const { isLoading } = useGetNftUserTokensQuery({ accountIds })
+  const selectNftItemsWithCollectionSelector = useMemo(
+    () => makeSelectNftItemsWithCollectionSelector(accountIds),
+    [accountIds],
+  )
+  const nftItems = useAppSelector(selectNftItemsWithCollectionSelector)
+
   const defaultWalletImage = useMemo(
     () => makeBlockiesUrl(`${walletId}ifyoudriveatruckdriveitlikeyouhaveafarm`),
     [walletId],
   )
   const filteredData = useMemo(
-    () => (data ?? []).filter(item => item.medias[0]?.type === 'image'),
-    [data],
+    () => nftItems.filter(item => item.medias[0]?.type === 'image'),
+    [nftItems],
   )
-  const filterNftsBySearchTerm = useCallback((data: NftItem[], searchQuery: string) => {
-    const search = searchQuery.trim().toLowerCase()
-    const keys = ['name', 'id', 'collection.name', 'collection.id']
-    return matchSorter(data, search, { keys })
-  }, [])
+  const filterNftsBySearchTerm = useCallback(
+    (data: NftItemWithCollection[], searchQuery: string) => {
+      const search = searchQuery.trim().toLowerCase()
+      const keys = ['name', 'collection.name', 'collection.assetId', 'assetId', 'id']
+      return matchSorter(data, search, { keys })
+    },
+    [],
+  )
 
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
@@ -71,19 +84,10 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const group = getRootProps()
 
   const renderItems = useMemo(() => {
-    return filteredNfts?.map(({ id, collection, medias }) => {
-      // Unable to get the AssetId of the collection, this should never happen but it may
-      // TODO(gomes): remove nftAssetId manual serialization when we have a normalized nft slice with nft id as AssetId
-      if (!collection.id) return null
-      const nftAssetId = `${collection.id}/${id}`
+    return filteredNfts?.map(({ assetId, medias }) => {
+      if (!assetId) return null
       const mediaUrl = medias?.[0]?.originalUrl
-      return (
-        <AvatarRadio
-          key={`${collection.id}/${id}`}
-          src={mediaUrl}
-          {...getRadioProps({ value: nftAssetId })}
-        />
-      )
+      return <AvatarRadio key={assetId} src={mediaUrl} {...getRadioProps({ value: assetId })} />
     })
   }, [filteredNfts, getRadioProps])
 

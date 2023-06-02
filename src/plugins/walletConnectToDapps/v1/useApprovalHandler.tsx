@@ -2,8 +2,6 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
-import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { ethers } from 'ethers'
 import { convertNumberToHex, getFeesForTx, getGasData } from 'plugins/walletConnectToDapps/utils'
 import type {
@@ -14,7 +12,7 @@ import type {
   WalletConnectPersonalSignCallRequest,
 } from 'plugins/walletConnectToDapps/v1/bridge/types'
 import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
@@ -27,79 +25,69 @@ export const useApprovalHandler = (wcAccountId: AccountId | undefined) => {
   const wallet = useWallet().state.wallet
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
 
+  const accountMetadata = useMemo(() => {
+    if (!wcAccountId) return
+    return accountMetadataById[wcAccountId]
+  }, [accountMetadataById, wcAccountId])
+
+  const chainAdapter = useMemo(() => {
+    if (!wcAccountId) return
+    const { chainId } = fromAccountId(wcAccountId)
+    const maybeChainAdapter = getChainAdapterManager().get(chainId)
+    if (!maybeChainAdapter) return
+    return maybeChainAdapter as unknown as EvmBaseAdapter<EvmChainId>
+  }, [wcAccountId])
+
   const signMessage = useCallback(
-    async (message: string | ethers.utils.Bytes) => {
-      if (!message) return
-      if (!wallet) return
-      if (!wcAccountId) return
-      const { chainId } = fromAccountId(wcAccountId)
-      const maybeChainAdapter = getChainAdapterManager().get(chainId)
-      if (!maybeChainAdapter) return
-      const chainAdapter = maybeChainAdapter as unknown as EvmBaseAdapter<EvmChainId>
-      const accountMetadata = accountMetadataById[wcAccountId]
-      if (!accountMetadata) return
-      const { bip44Params } = accountMetadata
-      const addressNList = toAddressNList(bip44Params)
+    (message: ethers.utils.BytesLike) => {
+      if (!accountMetadata || !chainAdapter || !wallet || !message) return
+      const addressNList = toAddressNList(accountMetadata.bip44Params)
       const messageToSign = { addressNList, message }
-      const input = { messageToSign, wallet }
-      const signedMessage = await chainAdapter.signMessage(input)
-      if (!signedMessage) throw new Error('WalletConnectBridgeProvider: signMessage failed')
-      return signedMessage
+      return chainAdapter.signMessage({ messageToSign, wallet })
     },
-    [accountMetadataById, wallet, wcAccountId],
+    [accountMetadata, chainAdapter, wallet],
   )
 
   const eth_sign = useCallback(
-    async (request: WalletConnectEthSignCallRequest) => {
-      return await signMessage(request.params[1])
-    },
+    (request: WalletConnectEthSignCallRequest) => signMessage(request.params[1]),
     [signMessage],
   )
 
   const personal_sign = useCallback(
-    async (request: WalletConnectPersonalSignCallRequest) => {
-      return await signMessage(request.params[0])
-    },
+    (request: WalletConnectPersonalSignCallRequest) => signMessage(request.params[0]),
     [signMessage],
   )
 
   const eth_signTypedData = useCallback(
-    async (request: WalletConnectEthSignTypedDataCallRequest) => {
-      const payloadString = request.params[1]
-      const typedData = JSON.parse(payloadString)
+    (request: WalletConnectEthSignTypedDataCallRequest) => {
+      if (!accountMetadata || !chainAdapter || !wallet) return
+
+      const typedData = JSON.parse(request.params[1])
       if (!typedData) return
-      if (!wallet) return
-      if (!wcAccountId) return
-      const accountMetadata = accountMetadataById[wcAccountId]
-      if (!accountMetadata) return
-      const { bip44Params } = accountMetadata
-      const addressNList = toAddressNList(bip44Params)
-      const messageToSign = { addressNList, typedData }
-      if (wallet instanceof KeepKeyHDWallet || wallet instanceof NativeHDWallet) {
-        const signedMessage = await wallet?.ethSignTypedData(messageToSign)
-        if (!signedMessage) throw new Error('WalletConnectBridgeProvider: signTypedData failed')
-        return signedMessage.signature
-      }
+
+      const addressNList = toAddressNList(accountMetadata.bip44Params)
+      const typedDataToSign = { addressNList, typedData }
+
+      return chainAdapter.signTypedData({ typedDataToSign, wallet })
     },
-    [accountMetadataById, wallet, wcAccountId],
+    [accountMetadata, chainAdapter, wallet],
   )
 
   const eth_sendTransaction = useCallback(
     async (request: WalletConnectEthSendTransactionCallRequest, approveData: ConfirmData) => {
-      if (!wallet) return
-      if (!wcAccountId) return
-      const maybeChainAdapter = getChainAdapterManager().get(fromAccountId(wcAccountId).chainId)
-      if (!maybeChainAdapter) return
-      const chainAdapter = maybeChainAdapter as unknown as EvmBaseAdapter<EvmChainId>
+      if (!accountMetadata || !chainAdapter || !wallet || !wcAccountId) return
+
       const tx = request.params[0]
       const maybeAdvancedParamsNonce = approveData.nonce
         ? convertNumberToHex(approveData.nonce)
         : null
+
       const didUserChangeNonce = maybeAdvancedParamsNonce && maybeAdvancedParamsNonce !== tx.nonce
       const fees = await getFeesForTx(tx, chainAdapter, wcAccountId)
       const gasData = getGasData(approveData, fees)
-      const { bip44Params } = accountMetadataById[wcAccountId]
-      const { accountNumber } = bip44Params
+
+      const { accountNumber } = accountMetadata.bip44Params
+
       const { txToSign: txToSignWithPossibleWrongNonce } = await chainAdapter.buildCustomTx({
         wallet,
         accountNumber,
@@ -110,10 +98,12 @@ export const useApprovalHandler = (wcAccountId: AccountId | undefined) => {
         gasLimit: approveData.gasLimit ?? tx.gas ?? '90000',
         ...gasData,
       })
+
       const txToSign = {
         ...txToSignWithPossibleWrongNonce,
         nonce: didUserChangeNonce ? maybeAdvancedParamsNonce : txToSignWithPossibleWrongNonce.nonce,
       }
+
       try {
         return await (async () => {
           if (wallet.supportsOfflineSigning()) {
@@ -136,28 +126,28 @@ export const useApprovalHandler = (wcAccountId: AccountId | undefined) => {
         )
       }
     },
-    [accountMetadataById, wallet, wcAccountId],
+    [accountMetadata, chainAdapter, wallet, wcAccountId],
   )
 
   const eth_signTransaction = useCallback(
     async (request: WalletConnectEthSignTransactionCallRequest, approveData: ConfirmData) => {
-      if (!wallet) return
-      if (!wcAccountId) return
-      const maybeChainAdapter = getChainAdapterManager().get(fromAccountId(wcAccountId).chainId)
-      if (!maybeChainAdapter) return
-      const chainAdapter = maybeChainAdapter as unknown as EvmBaseAdapter<EvmChainId>
+      if (!accountMetadata || !chainAdapter || !wallet || !wcAccountId) return
+
       const tx = request.params[0]
-      const addressNList = toAddressNList(accountMetadataById[wcAccountId].bip44Params)
+
       const nonce = approveData.nonce ? convertNumberToHex(approveData.nonce) : tx.nonce
       if (!nonce) return
+
       const gasLimit =
         (approveData.gasLimit ? convertNumberToHex(approveData.gasLimit) : tx.gas) ??
         convertNumberToHex(90000) // https://docs.walletconnect.com/1.0/json-rpc-api-methods/ethereum#eth_sendtransaction
+
       const fees = await getFeesForTx(tx, chainAdapter, wcAccountId)
       const gasData = getGasData(approveData, fees)
+
       return await chainAdapter.signTransaction({
         txToSign: {
-          addressNList,
+          addressNList: toAddressNList(accountMetadata.bip44Params),
           chainId: parseInt(fromAccountId(wcAccountId).chainReference),
           data: tx.data,
           gasLimit,
@@ -169,7 +159,7 @@ export const useApprovalHandler = (wcAccountId: AccountId | undefined) => {
         wallet,
       })
     },
-    [accountMetadataById, wallet, wcAccountId],
+    [accountMetadata, chainAdapter, wallet, wcAccountId],
   )
 
   return { eth_signTransaction, eth_sendTransaction, eth_signTypedData, personal_sign, eth_sign }

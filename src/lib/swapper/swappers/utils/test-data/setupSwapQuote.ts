@@ -4,10 +4,10 @@ import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { Asset } from 'lib/asset-service'
 import type { BuildTradeInput, GetTradeQuoteInput, TradeQuote } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
-import { FOX, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
+import { FOX_MAINNET, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 
 export const setupQuote = () => {
-  const sellAsset: Asset = { ...FOX }
+  const sellAsset: Asset = { ...FOX_MAINNET }
   const buyAsset: Asset = { ...WETH }
   const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
     buyAmountBeforeFeesCryptoBaseUnit: '',
@@ -41,7 +41,7 @@ export const setupQuote = () => {
 }
 
 export const setupBuildTrade = () => {
-  const sellAsset: Asset = { ...FOX }
+  const sellAsset: Asset = { ...FOX_MAINNET }
   const buyAsset: Asset = { ...WETH }
   const buildTradeInput: BuildTradeInput = {
     chainId: KnownChainIds.EthereumMainnet,

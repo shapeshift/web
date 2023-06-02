@@ -28,12 +28,12 @@ export const NftCollection: React.FC<NftCollectionProps> = ({
             colorScheme='blue'
             variant='ghost-filled'
           >
-            {link.label}
+            {link.label || translate(`nft.${link.name}`)}
           </Button>
         ))}
       </Flex>
     )
-  }, [socialLinks])
+  }, [socialLinks, translate])
 
   return (
     <Flex gap={4} flexDir='column' px={8} py={6}>

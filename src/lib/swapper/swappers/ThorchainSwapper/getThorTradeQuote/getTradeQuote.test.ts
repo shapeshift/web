@@ -6,7 +6,7 @@ import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
-import { ETH, FOX } from '../../utils/test-data/assets'
+import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import type { InboundAddressResponse, ThorchainSwapperDeps, ThornodePoolResponse } from '../types'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
@@ -44,7 +44,7 @@ const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   rate: '144114.94366197183098591549',
   sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
   buyAsset: ETH,
-  sellAsset: FOX,
+  sellAsset: FOX_MAINNET,
   accountNumber: 0,
   recommendedSlippage: '0.04357',
 }
@@ -109,7 +109,7 @@ describe('getTradeQuote', () => {
       ...quoteInput,
       sellAmountBeforeFeesCryptoBaseUnit: '713014679420',
       buyAsset: ETH,
-      sellAsset: FOX,
+      sellAsset: FOX_MAINNET,
     }
 
     const maybeTradeQuote = await getThorTradeQuote({ deps, input })

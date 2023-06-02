@@ -3,6 +3,7 @@ import {
   avalancheChainId,
   bscChainId,
   ethChainId,
+  foxatarAssetId,
   fromAccountId,
   optimismChainId,
   polygonChainId,
@@ -14,7 +15,7 @@ import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 import { isFulfilled } from 'lib/utils'
 
 import { parseAlchemyOwnedNftToNftItem } from './parsers/alchemy'
-import type { NftItem } from './types'
+import type { NftCollectionType, NftItemWithCollection } from './types'
 
 // addresses are repeated across EVM chains
 export const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>
@@ -58,7 +59,10 @@ export const openseaNetworkToChainId = (network: SupportedOpenseaNetwork): Chain
 export const chainIdToOpenseaNetwork = (chainId: ChainId): SupportedOpenseaNetwork | undefined =>
   CHAIN_ID_TO_OPENSEA_NETWORK_MAP[chainId]
 
-export const updateNftItem = (originalItem: NftItem, currentItem: NftItem) => {
+export const updateNftItem = (
+  originalItem: NftItemWithCollection,
+  currentItem: NftItemWithCollection,
+) => {
   if (!originalItem.medias.length && currentItem.medias.length) {
     originalItem.medias = currentItem.medias
   }
@@ -80,7 +84,36 @@ export const updateNftItem = (originalItem: NftItem, currentItem: NftItem) => {
   return originalItem
 }
 
-export const getAlchemyNftData = async (accountIds: AccountId[]): Promise<{ data: NftItem[] }> => {
+export const updateNftCollection = (
+  originalItem: NftCollectionType,
+  currentItem: NftCollectionType,
+) => {
+  const draftItem = Object.assign({}, originalItem)
+  draftItem.description = originalItem.description ?? currentItem.description
+  draftItem.name = originalItem.name ?? currentItem.name
+  draftItem.floorPrice = originalItem.floorPrice ?? currentItem.floorPrice
+  draftItem.openseaId = originalItem.openseaId ?? currentItem.openseaId
+  draftItem.socialLinks = originalItem.socialLinks.length
+    ? originalItem.socialLinks
+    : currentItem.socialLinks
+  if (
+    currentItem.assetId === foxatarAssetId &&
+    !draftItem.socialLinks.find(({ name }) => name === 'customizeFoxatar')
+  ) {
+    draftItem.socialLinks.push({
+      name: 'customizeFoxatar',
+      label: '',
+      url: 'https://app.mercle.xyz/shapeshift',
+      logoUrl: '',
+    })
+  }
+
+  return draftItem
+}
+
+export const getAlchemyNftData = async (
+  accountIds: AccountId[],
+): Promise<{ data: NftItemWithCollection[] }> => {
   const items = (
     await Promise.allSettled(
       accountIds.map(async accountId => {

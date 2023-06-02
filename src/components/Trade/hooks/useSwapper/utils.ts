@@ -12,7 +12,8 @@ import type { ProtocolFee, SwapperName, Trade, TradeQuote } from 'lib/swapper/ap
 
 const moduleLogger = logger.child({ namespace: ['useSwapper', 'utils'] })
 
-// Pure functions
+// used to handle market fluctations and variations in gas estimates (e.g shapeshift vs metamask) to prevent failed trades
+const FEE_FLUCTUATION_DECIMAL_PERCENTAGE = 0.25
 
 export const getSendMaxAmountCryptoPrecision = (
   sellAsset: Asset,
@@ -25,21 +26,24 @@ export const getSendMaxAmountCryptoPrecision = (
   // Only subtract fee if sell asset is the fee asset
   const isFeeAsset = feeAsset.assetId === sellAsset.assetId
   const protocolFee: ProtocolFee | undefined = quote.feeData.protocolFees[sellAsset.assetId]
-  const networkFeeCryptoBaseUnit = bnOrZero(quote.feeData.networkFeeCryptoBaseUnit)
+
+  const protocolFeeCryptoBaseUnit =
+    protocolFee?.requiresBalance && !isBuyingOsmoWithOmosisSwapper
+      ? bn(protocolFee.amountCryptoBaseUnit)
+      : bn(0)
+
+  const networkFeeCryptoBaseUnit =
+    networkFeeRequiresBalance && isFeeAsset
+      ? bnOrZero(quote.feeData.networkFeeCryptoBaseUnit)
+      : bn(0)
+
+  const totalFeesCryptoBaseUnit = networkFeeCryptoBaseUnit.plus(protocolFeeCryptoBaseUnit)
   // sell asset balance minus expected fees = maxTradeAmount
   return positiveOrZero(
     fromBaseUnit(
-      bnOrZero(sellAssetBalanceCryptoBaseUnit)
-        // only subtract if sell asset is fee asset
-        .minus(networkFeeRequiresBalance && isFeeAsset ? networkFeeCryptoBaseUnit : 0)
-        // subtract protocol fee if required
-        .minus(
-          // TEMP: handle osmosis protocol fee payable on buy side for specific case until we implement general solution
-          protocolFee?.requiresBalance && !isBuyingOsmoWithOmosisSwapper
-            ? protocolFee.amountCryptoBaseUnit
-            : 0,
-        )
-        .times(0.99), // reduce the computed amount by 1% to ensure we don't exceed the max
+      bnOrZero(sellAssetBalanceCryptoBaseUnit).minus(
+        totalFeesCryptoBaseUnit.times(1 + FEE_FLUCTUATION_DECIMAL_PERCENTAGE),
+      ),
       sellAsset.precision,
     ),
   ).toFixed()

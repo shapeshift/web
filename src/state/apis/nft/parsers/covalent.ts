@@ -56,8 +56,8 @@ export const parseToNftItem = (
           socialLinks: nftData.external_data?.external_url
             ? [
                 {
-                  name: 'website',
-                  label: 'Website',
+                  key: 'website',
+                  displayName: 'Website',
                   url: nftData.external_data.external_url,
                 },
               ]

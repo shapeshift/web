@@ -13,8 +13,8 @@ const makeSocialLinks = (openseaCollectionMetadata: OpenSeaCollectionMetadata | 
     ...(openseaCollectionMetadata.twitterUsername
       ? [
           {
-            name: 'Twitter',
-            label: 'Twitter',
+            key: 'Twitter',
+            displayName: 'Twitter',
             url: `https://twitter.com/${openseaCollectionMetadata.twitterUsername}`,
           },
         ]
@@ -22,8 +22,8 @@ const makeSocialLinks = (openseaCollectionMetadata: OpenSeaCollectionMetadata | 
     ...(openseaCollectionMetadata.discordUrl
       ? [
           {
-            name: 'Discord',
-            label: 'Discord',
+            key: 'Discord',
+            displayName: 'Discord',
             url: openseaCollectionMetadata.discordUrl,
           },
         ]
@@ -31,8 +31,8 @@ const makeSocialLinks = (openseaCollectionMetadata: OpenSeaCollectionMetadata | 
     ...(openseaCollectionMetadata.externalUrl
       ? [
           {
-            name: 'Website',
-            label: 'Website',
+            key: 'Website',
+            displayName: 'Website',
             url: openseaCollectionMetadata.externalUrl,
           },
         ]

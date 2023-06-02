@@ -12,8 +12,8 @@ export type NftCollectionType = {
   openseaId: string
   description: string
   socialLinks: {
-    name: string
-    label: string
+    key: string
+    displayName: string
     url: string
   }[]
 }

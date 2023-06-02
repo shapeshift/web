@@ -194,11 +194,17 @@ export const nftApi = createApi({
     }),
     getNft: build.query<NftItemWithCollection, GetNftInput>({
       queryFn: async ({ assetId }, { dispatch }) => {
-        const { data: nftData } = await getAlchemyNftData(assetId)
+        const { data: nftDataWithCollection } = await getAlchemyNftData(assetId)
 
-        dispatch(nft.actions.upsertNft(nftData))
+        let { collection, ...nftItemWithoutId } = nftDataWithCollection
+        const nftItem: NftItem = {
+          ...nftItemWithoutId,
+          collectionId: nftDataWithCollection.collection.assetId,
+        }
 
-        return { data: nftData }
+        dispatch(nft.actions.upsertNft(nftItem))
+
+        return { data: nftDataWithCollection }
       },
     }),
 

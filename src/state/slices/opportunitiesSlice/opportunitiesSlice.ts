@@ -31,7 +31,7 @@ export const opportunities = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    upsertOpportunitiesMetadata: {
+    upsertOpportunityMetadata: {
       reducer: (draftState, { payload }: { payload: GetOpportunityMetadataOutput }) => {
         draftState[payload.type].byId = Object.assign(draftState[payload.type].byId, payload.byId)
         draftState[payload.type].ids = Object.keys(draftState[payload.type].byId)

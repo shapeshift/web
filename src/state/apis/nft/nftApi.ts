@@ -255,4 +255,4 @@ export const nftApi = createApi({
   }),
 })
 
-export const { useGetNftUserTokensQuery, useGetNftCollectionQuery, useGetNftQuery } = nftApi
+export const { useGetNftUserTokensQuery, useGetNftCollectionQuery } = nftApi

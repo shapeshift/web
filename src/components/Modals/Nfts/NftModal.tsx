@@ -37,7 +37,7 @@ import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { ordinalSuffix } from 'context/WalletProvider/NativeWallet/components/NativeTestPhrase'
 import { useModal } from 'hooks/useModal/useModal'
-import { nft, useGetNftCollectionQuery, useGetNftQuery } from 'state/apis/nft/nftApi'
+import { nft, nftApi, useGetNftCollectionQuery } from 'state/apis/nft/nftApi'
 import { selectNftCollectionById } from 'state/apis/nft/selectors'
 import type { NftItem } from 'state/apis/nft/types'
 import { chainIdToOpenseaNetwork } from 'state/apis/nft/utils'
@@ -111,8 +111,6 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
     : null
   const customizeLink = nftCollection?.socialLinks?.find(link => link.key === 'customizeFoxatar')
 
-  const { refetch: refetchNft } = useGetNftQuery({ assetId: nftAssetId })
-
   const mediaBoxProps = useMemo(
     () =>
       ({
@@ -132,8 +130,8 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   }, [dispatch, nftAssetId, walletId])
 
   const handleRefreshClick = useCallback(() => {
-    refetchNft()
-  }, [refetchNft])
+    dispatch(nftApi.endpoints.getNft.initiate({ assetId: nftAssetId }))
+  }, [dispatch, nftAssetId])
 
   const nftModalMedia = useMemo(() => {
     return (

@@ -132,7 +132,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   }, [dispatch, nftAssetId, walletId])
 
   const handleRefreshClick = useCallback(() => {
-    dispatch(nftApi.endpoints.getNft.initiate({ assetId: nftAssetId }))
+    dispatch(nftApi.endpoints.getNft.initiate({ assetId: nftAssetId }, { forceRefetch: true }))
   }, [dispatch, nftAssetId])
 
   const nftModalMedia = useMemo(() => {

@@ -284,7 +284,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
     if (!nftCollection) return null
 
     const hasUsefulCollectionData = Boolean(
-      nftCollection.description || nftCollection.socialLinks?.length,
+      nftCollection.name && (nftCollection.description || nftCollection.socialLinks.length),
     )
     return (
       <Tabs display='flex' flexDir='column' position='relative' variant='unstyled' flex={1}>

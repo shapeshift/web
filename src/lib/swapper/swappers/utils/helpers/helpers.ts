@@ -52,12 +52,12 @@ type GetERC20AllowanceArgs = {
 }
 
 type GetFeesFromContractDataArgs = {
-  accountNumber: number
   adapter: EvmChainAdapter
+  eip1559Support: boolean
+  from: string
   to: string
   value: string
   data: string
-  wallet: HDWallet
 }
 
 export const getERC20Allowance = ({
@@ -72,26 +72,16 @@ export const getERC20Allowance = ({
 }
 
 export const getFeesFromContractData = async ({
-  accountNumber,
   adapter,
+  eip1559Support,
+  from,
   to,
   value,
   data,
-  wallet,
 }: GetFeesFromContractDataArgs): Promise<{
   networkFeeCryptoBaseUnit: string
   feesWithGasLimit: evm.Fees & { gasLimit: string }
 }> => {
-  if (!supportsETH(wallet)) {
-    throw new SwapError('[getFeesFromContractData]', {
-      cause: 'eth wallet required',
-      code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
-      details: { wallet },
-    })
-  }
-
-  const from = await adapter.getAddress({ accountNumber, wallet })
-
   const getFeeDataInput = {
     to,
     value,
@@ -119,8 +109,6 @@ export const getFeesFromContractData = async ({
       code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
     })
   }
-
-  const eip1559Support = await wallet.ethSupportsEIP1559()
 
   if (eip1559Support && maxFeePerGas && maxPriorityFeePerGas) {
     return {
@@ -155,7 +143,22 @@ export const getFeesFromContractData = async ({
 export const createBuildCustomTxInput = async (
   buildCustomTxArgs: CreateBuildCustomTxInputArgs,
 ): Promise<evm.BuildCustomTxInput> => {
-  const { feesWithGasLimit } = await getFeesFromContractData(buildCustomTxArgs)
+  const { accountNumber, adapter, wallet } = buildCustomTxArgs
+  if (!supportsETH(wallet)) {
+    throw new SwapError('[createBuildCustomTxInput]', {
+      cause: 'eth wallet required',
+      code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
+      details: { wallet: buildCustomTxArgs.wallet },
+    })
+  }
+
+  const from = await adapter.getAddress({ accountNumber, wallet })
+  const eip1559Support = await wallet.ethSupportsEIP1559()
+  const { feesWithGasLimit } = await getFeesFromContractData({
+    ...buildCustomTxArgs,
+    from,
+    eip1559Support,
+  })
   return { ...buildCustomTxArgs, ...feesWithGasLimit }
 }
 

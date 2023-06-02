@@ -19,6 +19,7 @@ export default function register(): Plugins {
             main: () => <FoxPage />,
             icon: <FoxIcon />,
             category: RouteCategory.Explore,
+            hide: true,
             routes: [
               {
                 path: '/fox',

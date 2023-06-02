@@ -67,6 +67,7 @@ export const mockStore: ReduxState = {
       OsmosisSwap: false,
       ThorSwap: false,
       Cowswap: false,
+      CowswapGnosis: false,
       IdleFinance: false,
       Axelar: false,
       Yat: false,
@@ -140,6 +141,17 @@ export const mockStore: ReduxState = {
       ids: [],
     },
     userStaking: {
+      byId: {},
+      ids: [],
+    },
+  },
+  nft: {
+    selectedNftAvatarByWalletId: {},
+    nfts: {
+      byId: {},
+      ids: [],
+    },
+    collections: {
       byId: {},
       ids: [],
     },

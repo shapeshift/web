@@ -1,4 +1,4 @@
-import { FOX, WETH } from '../../utils/test-data/assets'
+import { FOX_MAINNET, WETH } from '../../utils/test-data/assets'
 import { getMinMax } from './getMinMax'
 
 jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
@@ -8,7 +8,7 @@ jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
 
 describe('getMinMax', () => {
   it('returns min and max expected values for FOX', async () => {
-    const sellAsset = { ...FOX }
+    const sellAsset = { ...FOX_MAINNET }
     const buyAsset = { ...WETH }
     const maybeMinMax = await getMinMax(sellAsset, buyAsset)
     expect(maybeMinMax.isErr()).toBe(false)

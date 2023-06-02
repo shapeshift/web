@@ -22,8 +22,8 @@ import { IoOptionsOutline } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 
+import { FilterGroup } from '../../components/FilterGroup'
 import { DatePicker } from './components/DatePicker/DatePicker'
-import { FilterGroup } from './components/FilterGroup'
 
 const customRangeOption: string = 'customRange'
 

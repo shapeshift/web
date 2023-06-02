@@ -16,16 +16,13 @@ import { TradeQuotes } from 'components/Trade/Components/TradeQuotes/TradeQuotes
 import { ReceiveSummary } from 'components/Trade/TradeConfirm/ReceiveSummary'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ETH, FOX_MAINNET } from 'lib/swapper/swappers/utils/test-data/assets'
 import { selectAssetsSortedByMarketCapFiatBalanceAndName } from 'state/slices/common-selectors'
-import { selectMarketDataByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
+import { SellAssetInput } from './components/SellAssetInput'
 import { useAccountIds } from './hooks/useAccountIds'
-
-const swapperSupportsCrossAccountTrade = true
 
 export const MultiHopTrade = (props: CardProps) => {
   const {
@@ -40,10 +37,10 @@ export const MultiHopTrade = (props: CardProps) => {
   // TEMP: needs redux
   const [sellAsset, setSellAsset] = useState(ETH)
   const [buyAsset, setBuyAsset] = useState(FOX_MAINNET)
-  const [sellAmountFiatHuman, setSellAmountFiatHuman] = useState('0')
-  const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
   const supportedSellAssetsByMarketCap = sortedAssets
   const supportedBuyAssetsByMarketCap = sortedAssets
+  const isSwapperInitialized = true
+  const swapperSupportsCrossAccountTrade = true
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds({
@@ -59,7 +56,6 @@ export const MultiHopTrade = (props: CardProps) => {
   )
 
   const handleSellAssetClick = useCallback(() => {
-    const isSwapperInitialized = true // TEMP:
     // prevent opening the asset selection while they are being populated
     if (!isSwapperInitialized) return
 
@@ -68,10 +64,9 @@ export const MultiHopTrade = (props: CardProps) => {
       title: 'trade.tradeFrom',
       assets: supportedSellAssetsByMarketCap,
     })
-  }, [assetSearch, supportedSellAssetsByMarketCap])
+  }, [assetSearch, isSwapperInitialized, supportedSellAssetsByMarketCap])
 
   const handleBuyAssetClick = useCallback(() => {
-    const isSwapperInitialized = true // TEMP:
     // prevent opening the asset selection while they are being populated
     if (!isSwapperInitialized) return
 
@@ -80,25 +75,7 @@ export const MultiHopTrade = (props: CardProps) => {
       title: 'trade.tradeTo',
       assets: supportedBuyAssetsByMarketCap,
     })
-  }, [assetSearch, supportedBuyAssetsByMarketCap])
-
-  const { price: sellAssetFiatRate } = useAppSelector(state =>
-    selectMarketDataByFilter(state, { assetId: sellAsset.assetId }),
-  )
-
-  const handleSellAssetInputChange = useCallback(
-    (value: string, isFiat: boolean | undefined) => {
-      if (isFiat) {
-        setSellAmountFiatHuman(value ?? '0')
-        setSellAmountCryptoPrecision(bnOrZero(value).div(sellAssetFiatRate).toFixed())
-        return
-      }
-
-      setSellAmountCryptoPrecision(value ?? '0')
-      setSellAmountFiatHuman(bnOrZero(value).times(sellAssetFiatRate).toFixed(2))
-    },
-    [sellAssetFiatRate],
-  )
+  }, [assetSearch, isSwapperInitialized, supportedBuyAssetsByMarketCap])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
@@ -142,20 +119,11 @@ export const MultiHopTrade = (props: CardProps) => {
                     label={translate('trade.to')}
                   />
                 </Flex>
-                <TradeAssetInput
+                <SellAssetInput
                   accountId={sellAssetAccountId}
-                  assetId={sellAsset.assetId}
-                  assetSymbol={sellAsset.symbol}
-                  assetIcon={sellAsset.icon}
-                  cryptoAmount={sellAmountCryptoPrecision}
-                  fiatAmount={sellAmountFiatHuman}
-                  isSendMaxDisabled={false}
-                  onChange={handleSellAssetInputChange}
-                  percentOptions={[1]}
-                  onPercentOptionClick={() => {}}
-                  showInputSkeleton={false}
-                  showFiatSkeleton={false}
+                  asset={sellAsset}
                   label={translate('trade.youPay')}
+                  onClickSendMax={() => {}}
                 />
                 <TradeAssetInput
                   isReadOnly={true}

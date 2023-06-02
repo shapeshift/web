@@ -26,7 +26,7 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
 import { FaSync } from 'react-icons/fa'
@@ -40,8 +40,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { ordinalSuffix } from 'context/WalletProvider/NativeWallet/components/NativeTestPhrase'
 import { useModal } from 'hooks/useModal/useModal'
 import { nft, nftApi, useGetNftCollectionQuery } from 'state/apis/nft/nftApi'
-import { selectNftCollectionById } from 'state/apis/nft/selectors'
-import type { NftItem } from 'state/apis/nft/types'
+import { selectNftById, selectNftCollectionById } from 'state/apis/nft/selectors'
 import { chainIdToOpenseaNetwork } from 'state/apis/nft/utils'
 import { getMediaType } from 'state/apis/zapper/validators'
 import { selectWalletAccountIds, selectWalletId } from 'state/slices/common-selectors'
@@ -65,12 +64,17 @@ const NftTab: React.FC<TabProps> = props => {
 }
 
 export type NftModalProps = {
-  nftItem: NftItem
+  nftAssetId: AssetId
 }
 
-export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
+export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
   const dispatch = useAppDispatch()
   const { nft: nftModal } = useModal()
+  const nftItem = useAppSelector(state => selectNftById(state, nftAssetId))
+
+  // This should never happen but it may
+  if (!nftItem) throw new Error(`NFT ${nftAssetId} not found`)
+
   const { close: handleClose, isOpen } = nftModal
   const translate = useTranslate()
   const [isMediaLoaded, setIsMediaLoaded] = useState(false)
@@ -94,7 +98,6 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
 
   const name = nftItem.name
-  const nftAssetId = nftItem.assetId
   const nftAddress = fromAssetId(nftAssetId).assetReference
   const collectionName = nftCollection?.name
   const rarityRank = nftItem.rarityRank

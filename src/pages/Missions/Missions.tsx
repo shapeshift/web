@@ -12,6 +12,7 @@ import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { ScrollCarousel } from 'components/ScrollCarousel/ScrollCarousel'
 import { RawText } from 'components/Text'
+import { FOX_MISSION_REQUEST_PAGE } from 'pages/Missions/constants'
 
 import type { MissionProps } from './Mission'
 import { Mission } from './Mission'
@@ -103,11 +104,7 @@ export const Missions = () => {
               key='sponsored'
               title={translate('missions.getListed.title')}
               subtitle={translate('missions.getListed.subtitle')}
-              onClick={() =>
-                window.open(
-                  'https://docs.google.com/forms/d/e/1FAIpQLSc26_m3FRLTx1hKO2546XVk82MsFixuB4qqQyfzVjSrEey46w/viewform',
-                )
-              }
+              onClick={() => window.open(FOX_MISSION_REQUEST_PAGE)}
               buttonText={translate('missions.getListed.cta')}
               coverImage={SponsorBg}
             />

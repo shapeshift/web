@@ -4,9 +4,12 @@ import type { TokenType } from '@shapeshiftoss/unchained-client/src/evm/ethereum
 import type { Nft, NftContract, OpenSeaCollectionMetadata, OwnedNft } from 'alchemy-sdk'
 import { http as v1HttpApi } from 'plugins/polygon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { logger } from 'lib/logger'
 import { getMediaType } from 'state/apis/zapper/validators'
 
 import type { NftCollectionType, NftItemWithCollection } from '../types'
+
+const moduleLogger = logger.child({ namespace: ['apis', 'nfts', 'parsers', 'alchemy'] })
 
 const makeSocialLinks = (openseaCollectionMetadata: OpenSeaCollectionMetadata | undefined) => {
   if (!openseaCollectionMetadata) return []
@@ -97,17 +100,32 @@ export const parseAlchemyNftToNftItem = async (
   const shouldFetchIpfsGatewayMediaUrl =
     chainId === polygonChainId && alchemyNft.tokenUri?.gateway.includes('ipns')
 
-  const getMediaIpfsGatewayUrl = async () =>
-    (
-      await v1HttpApi.getTokenMetadata({
+  const getMaybeMediasIpfsGatewayUrl = async () => {
+    try {
+      const tokenMetadata = await v1HttpApi.getTokenMetadata({
         contract: alchemyNft.contract.address,
         id: alchemyNft.tokenId,
         type: alchemyNft.contract.tokenType.toLowerCase() as TokenType,
       })
-    ).media.url.replace('ipfs://', 'https://ipfs.io/ipfs/') // TODO: https://gateway.shapeshift.com/ipfs/ when stabilized
+      return [
+        {
+          // TODO: https://gateway.shapeshift.com/ipfs/ when stabilized
+          originalUrl: tokenMetadata.media.url.replace('ipfs://', 'https://ipfs.io/ipfs/'),
+          type: 'image',
+        },
+      ]
+    } catch (error) {
+      moduleLogger.error({ error }, 'Failed to fetch token metadata from unchained')
+      // Defaults to Alchemy media URLs in case unchained rugs us
+      return alchemyNft.media.map(media => ({
+        originalUrl: media.gateway,
+        type: getMediaType(`media.${media.format}`) ?? 'image',
+      }))
+    }
+  }
 
   const medias = shouldFetchIpfsGatewayMediaUrl
-    ? [{ originalUrl: await getMediaIpfsGatewayUrl(), type: 'image' }] // assume image for IPNS media URLs for now
+    ? await getMaybeMediasIpfsGatewayUrl()
     : alchemyNft.media.map(media => ({
         originalUrl: media.gateway,
         type: getMediaType(`media.${media.format}`) ?? 'image',

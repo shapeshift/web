@@ -59,7 +59,6 @@ export const parseToNftItem = (
                   name: 'website',
                   label: 'Website',
                   url: nftData.external_data.external_url,
-                  logoUrl: '',
                 },
               ]
             : [],

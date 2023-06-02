@@ -15,7 +15,6 @@ export type NftCollectionType = {
     name: string
     label: string
     url: string
-    logoUrl: string
   }[]
 }
 

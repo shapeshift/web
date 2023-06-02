@@ -104,7 +104,6 @@ export const updateNftCollection = (
       name: 'customizeFoxatar',
       label: '',
       url: 'https://app.mercle.xyz/shapeshift',
-      logoUrl: '',
     })
   }
 

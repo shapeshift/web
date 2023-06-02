@@ -1,6 +1,7 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
@@ -45,20 +46,34 @@ export const makeTradeTx = async ({
     SwapErrorRight
   >
 > => {
+  if (!supportsETH(wallet)) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'eth wallet required',
+        code: SwapErrorType.BUILD_TRADE_FAILED,
+        details: { wallet },
+      }),
+    )
+  }
+
   try {
     const { assetNamespace } = fromAssetId(sellAsset.assetId)
     const isErc20Trade = assetNamespace === 'erc20'
 
-    const maybeThorTxInfo = await getThorTxInfo({
-      deps,
-      sellAsset,
-      buyAsset,
-      sellAmountCryptoBaseUnit,
-      slippageTolerance,
-      destinationAddress,
-      protocolFees: feeData.protocolFees,
-      affiliateBps,
-    })
+    const [maybeThorTxInfo, from, eip1559Support] = await Promise.all([
+      getThorTxInfo({
+        deps,
+        sellAsset,
+        buyAsset,
+        sellAmountCryptoBaseUnit,
+        slippageTolerance,
+        destinationAddress,
+        protocolFees: feeData.protocolFees,
+        affiliateBps,
+      }),
+      adapter.getAddress({ accountNumber, wallet }),
+      wallet.ethSupportsEIP1559(),
+    ])
 
     if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
 
@@ -69,12 +84,12 @@ export const makeTradeTx = async ({
     const value = isErc20Trade ? '0' : sellAmountCryptoBaseUnit
 
     const { feesWithGasLimit } = await getFeesFromContractData({
-      accountNumber,
+      eip1559Support,
       adapter,
+      from,
       to: router,
       value,
       data,
-      wallet,
     })
 
     return Ok(

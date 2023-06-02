@@ -10,11 +10,9 @@ import type { LifiStepSubset, StepSubset } from './types'
 const isLifiStep = (step: StepSubset): step is LifiStepSubset => step.type === 'lifi'
 
 export const getIntermediaryTransactionOutputs = (
-  selectedLifiRouteSteps: StepSubset[],
+  step: StepSubset,
 ): AmountDisplayMeta[] | undefined => {
-  const tradeSteps = selectedLifiRouteSteps.flatMap(step =>
-    isLifiStep(step) ? step.includedSteps : step,
-  )
+  const tradeSteps = isLifiStep(step) ? step.includedSteps : [step]
 
   const intermediaryTradeData = tradeSteps.slice(0, -1)
 

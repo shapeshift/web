@@ -757,14 +757,14 @@ const v2NftBalancesCollectionsSchema = z.object({
 const optionalUrl = z.union([z.string().withPredicate(isUrl).optional().nullable(), z.literal('')])
 
 const collectionSchema = z.object({
-  address: z.string().optional(),
-  network: z.string().optional(),
+  address: z.string(),
+  network: z.string(),
   name: z.string().optional(),
   nftStandard: z.string().withPredicate(isNonEmpty),
-  type: z.string().optional(),
-  floorPriceEth: z.string().optional().nullable(),
+  type: z.string(),
+  floorPriceEth: z.string().nullable(),
   logoImageUrl: optionalUrl,
-  openseaId: z.string().optional().nullable(),
+  openseaId: z.string().nullable(),
 })
 
 const tokenSchema = z.object({

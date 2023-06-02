@@ -70,6 +70,7 @@ const validators = {
   REACT_APP_COVALENT_API_KEY: str(),
   REACT_APP_FEATURE_LIFI_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
+  REACT_APP_FEATURE_COWSWAP_GNOSIS: bool({ default: false }),
   REACT_APP_FEATURE_JAYPEGZ: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_SEND: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_LP: bool({ default: false }),
@@ -102,8 +103,8 @@ const validators = {
   REACT_APP_MIDGARD_URL: url({
     default: 'https://midgard.thorchain.info/v2',
   }),
-  REACT_APP_COWSWAP_HTTP_URL: url({
-    default: 'https://api.cow.fi/mainnet/api',
+  REACT_APP_COWSWAP_BASE_URL: url({
+    default: 'https://api.cow.fi',
   }),
   REACT_APP_COSMOS_NODE_URL: url({
     default: 'https://dev-daemon.osmosis.shapeshift.com',

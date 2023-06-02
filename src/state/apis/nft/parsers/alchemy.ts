@@ -4,7 +4,7 @@ import type { NftContract, OpenSeaCollectionMetadata, OwnedNft } from 'alchemy-s
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getMediaType } from 'state/apis/zapper/validators'
 
-import type { NftCollectionType, NftItem } from '../types'
+import type { NftCollectionType, NftItemWithCollection } from '../types'
 
 const makeSocialLinks = (openseaCollectionMetadata: OpenSeaCollectionMetadata | undefined) => {
   if (!openseaCollectionMetadata) return []
@@ -52,18 +52,18 @@ export const parseAlchemyNftContractToCollectionItem = (
   const { name, openSea } = contract
 
   const socialLinks = makeSocialLinks(openSea)
-  const id = toAssetId({
+  const assetId = toAssetId({
     assetReference: contract.address,
     assetNamespace: contract.tokenType.toLowerCase() as AssetNamespace,
     chainId,
   })
 
   return {
-    id,
+    assetId,
     chainId,
     name: name ?? '',
     floorPrice: openSea?.floorPrice ? bnOrZero(openSea.floorPrice).toString() : '',
-    openseaId: openSea?.collectionName ? openSea.collectionName : '',
+    openseaId: '', // not supported by Alchemy
     description: openSea?.description ?? '',
     socialLinks,
   }
@@ -72,7 +72,7 @@ export const parseAlchemyNftContractToCollectionItem = (
 export const parseAlchemyOwnedNftToNftItem = (
   alchemyOwnedNft: OwnedNft,
   chainId: ChainId,
-): NftItem => {
+): NftItemWithCollection => {
   const collectionId = toAssetId({
     assetReference: alchemyOwnedNft.contract.address,
     assetNamespace: alchemyOwnedNft.contract.tokenType.toLowerCase() as AssetNamespace,
@@ -80,8 +80,8 @@ export const parseAlchemyOwnedNftToNftItem = (
   })
   const socialLinks = makeSocialLinks(alchemyOwnedNft.contract.openSea)
 
-  const NftCollectionType = {
-    id: collectionId,
+  const nftCollection = {
+    assetId: collectionId,
     chainId,
     name:
       alchemyOwnedNft.contract.name ||
@@ -95,6 +95,11 @@ export const parseAlchemyOwnedNftToNftItem = (
 
   const nftItem = {
     id: alchemyOwnedNft.tokenId,
+    assetId: toAssetId({
+      assetReference: `${alchemyOwnedNft.contract.address}/${alchemyOwnedNft.tokenId}`,
+      assetNamespace: alchemyOwnedNft.contract.tokenType.toLowerCase() as AssetNamespace,
+      chainId,
+    }),
     name:
       (alchemyOwnedNft.title ||
         alchemyOwnedNft.contract.name ||
@@ -103,7 +108,7 @@ export const parseAlchemyOwnedNftToNftItem = (
     price: '', // The Alchemy NFT data does not have a spot price
     chainId,
     description: alchemyOwnedNft.description,
-    collection: NftCollectionType,
+    collection: nftCollection,
     medias: alchemyOwnedNft.media.map(media => ({
       originalUrl: media.gateway,
       type: getMediaType(media.gateway) ?? 'image', // Gateway URLs are not guaranteed to have a file extension

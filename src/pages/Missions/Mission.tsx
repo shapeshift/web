@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
+import timezone from 'dayjs/plugin/timezone'
 import React, { useCallback, useMemo, useState } from 'react'
 import { FaClock } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -19,8 +20,11 @@ import { IconCircle } from 'components/IconCircle'
 import { RawText } from 'components/Text'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 
+dayjs.extend(timezone)
 dayjs.extend(customParseFormat)
-const promoDateFormat = 'YYYY-MM-DD hh:mm A'
+// Timezone is MST for dates
+dayjs.tz.setDefault('America/Denver')
+const dateFormat = 'YYYY-MM-DD hh:mm A'
 
 export type MissionProps = {
   title: string
@@ -51,8 +55,8 @@ export const Mission: React.FC<MissionProps> = ({
   }, [onClick, title])
 
   const renderFooter = useMemo(() => {
-    const start = dayjs(startDate)
-    const end = dayjs(endDate)
+    const start = dayjs(startDate, dateFormat)
+    const end = dayjs(endDate, dateFormat)
     const now = dayjs()
     if (now.isBefore(start)) {
       setIsActive(false)
@@ -95,7 +99,7 @@ export const Mission: React.FC<MissionProps> = ({
             ) : (
               <RawText lineHeight='none'>
                 {endDate
-                  ? `${translate('missions.ends')} ${dayjs(endDate, promoDateFormat).fromNow()}`
+                  ? `${translate('missions.ends')} ${dayjs(endDate, dateFormat).fromNow()}`
                   : translate('missions.ongoing')}
               </RawText>
             )}

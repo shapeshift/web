@@ -1,5 +1,7 @@
 import { Box, chakra, Container, DarkMode, Heading, Stack } from '@chakra-ui/react'
 import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+import timezone from 'dayjs/plugin/timezone'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import FoxMissionsBg from 'assets/fox-missions-bg.jpg'
@@ -16,6 +18,12 @@ import { FOX_MISSION_REQUEST_PAGE } from 'pages/Missions/constants'
 
 import type { MissionProps } from './Mission'
 import { Mission } from './Mission'
+
+dayjs.extend(timezone)
+dayjs.extend(customParseFormat)
+// Timezone is MST for dates
+dayjs.tz.setDefault('America/Denver')
+const dateFormat = 'YYYY-MM-DD hh:mm A'
 
 export const Missions = () => {
   const translate = useTranslate()
@@ -42,8 +50,8 @@ export const Missions = () => {
         buttonText: translate('missions.foxArmy.cta'),
         coverImage: FoxArmyBg,
         onClick: () => window.open('https://x.postmint.xyz/'),
-        startDate: '2023-06-06 17:00 UTC',
-        endDate: '2023-06-13 17:00 UTC',
+        startDate: '2023-06-06 11:00 AM',
+        endDate: '2023-06-13 11:00 AM',
       },
       {
         title: translate('missions.yat.title'),
@@ -63,8 +71,8 @@ export const Missions = () => {
       active: MissionProps[]
     } = missionItems.reduce(
       (groups, mission) => {
-        const start = dayjs(mission.startDate)
-        const end = dayjs(mission.endDate)
+        const start = dayjs(mission.startDate, dateFormat)
+        const end = dayjs(mission.endDate, dateFormat)
         if (now.isBefore(start) || !mission.onClick) {
           groups.future.push(mission)
         } else if (now.isAfter(end)) {

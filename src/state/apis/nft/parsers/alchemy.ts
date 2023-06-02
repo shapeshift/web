@@ -93,7 +93,7 @@ export const parseAlchemyNftToNftItem = async (
   // Which allows us to circumvent Alchemy refresh working for Ethereum only
   // Notes:
   // - We're only able to get fresh meta from unchained for IPNS URLs, not IPFS ones
-  // - This hasn't been tested on Optimism, thus we only support this refresh for Polygon for now
+  // - This hasn't been tested on Optimism, hence we only support this refresh for Polygon for now
   const shouldFetchIpfsGatewayMediaUrl =
     chainId === polygonChainId && alchemyNft.tokenUri?.gateway.includes('ipns')
 

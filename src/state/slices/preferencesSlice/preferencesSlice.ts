@@ -42,6 +42,7 @@ export type FeatureFlags = {
   Jaypegz: boolean
   OneInch: boolean
   CovalentJaypegs: boolean
+  MultiHopTrades: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -96,6 +97,7 @@ const initialState: Preferences = {
     DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
     ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
     OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
+    MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

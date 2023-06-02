@@ -43,7 +43,7 @@ export const Mission: React.FC<MissionProps> = ({
   startDate,
   colspan = 1,
 }) => {
-  const [isActive, setisActive] = useState(false)
+  const [isActive, setIsActive] = useState(false)
   const translate = useTranslate()
   const handleClick = useCallback(() => {
     getMixPanel()?.track('mission click', { mission: title })
@@ -55,7 +55,7 @@ export const Mission: React.FC<MissionProps> = ({
     const end = dayjs(endDate)
     const now = dayjs()
     if (now.isBefore(start)) {
-      setisActive(false)
+      setIsActive(false)
       return (
         <>
           <Tag>
@@ -65,7 +65,7 @@ export const Mission: React.FC<MissionProps> = ({
         </>
       )
     } else {
-      setisActive(true)
+      setIsActive(true)
       const isEnded = now.isAfter(end)
       return (
         <>

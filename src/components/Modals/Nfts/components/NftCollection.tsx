@@ -23,12 +23,12 @@ export const NftCollection: React.FC<NftCollectionProps> = ({
             as={Link}
             isExternal
             href={link.url}
-            key={link.label}
+            key={link.key}
             size='xs'
             colorScheme='blue'
             variant='ghost-filled'
           >
-            {link.label || translate(`nft.${link.name}`)}
+            {link.displayName || translate(`nft.${link.key}`)}
           </Button>
         ))}
       </Flex>

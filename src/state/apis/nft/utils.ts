@@ -98,13 +98,12 @@ export const updateNftCollection = (
     : currentItem.socialLinks
   if (
     currentItem.assetId === foxatarAssetId &&
-    !draftItem.socialLinks.find(({ name }) => name === 'customizeFoxatar')
+    !draftItem.socialLinks.find(({ key: name }) => name === 'customizeFoxatar')
   ) {
     draftItem.socialLinks.push({
-      name: 'customizeFoxatar',
-      label: '',
+      key: 'customizeFoxatar',
+      displayName: '',
       url: 'https://app.mercle.xyz/shapeshift',
-      logoUrl: '',
     })
   }
 

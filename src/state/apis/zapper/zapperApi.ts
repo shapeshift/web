@@ -282,7 +282,11 @@ export const zapperApi = createApi({
             floorPrice: item.collection.floorPriceEth || '',
             openseaId: item.collection.openseaId || '',
             description: item.collection.description,
-            socialLinks: item.collection.socialLinks,
+            socialLinks: item.collection.socialLinks.map(link => ({
+              key: link.name,
+              displayName: link.label,
+              url: link.url,
+            })),
           }
         })
 

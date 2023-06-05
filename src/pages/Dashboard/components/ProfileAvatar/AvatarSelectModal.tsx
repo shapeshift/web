@@ -99,6 +99,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const handleRestoreDefault = () => {
     setSelected(defaultWalletImage)
     setValue('')
+    handleSaveChanges()
   }
 
   return (
@@ -142,7 +143,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
             </ModalBody>
             <ModalFooter>
               <Button onClick={handleRestoreDefault} mr='auto'>
-                Restore default
+                {translate('avatar.modal.restoreDefault')}
               </Button>
               <Button onClick={props.onClose}>{translate('common.cancel')}</Button>
               <Button ml={4} colorScheme='blue' onClick={handleSaveChanges}>

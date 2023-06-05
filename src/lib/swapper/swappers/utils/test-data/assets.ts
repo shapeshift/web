@@ -185,6 +185,8 @@ export const XDAI: Asset = {
   precision: 18,
   color: '#33765c',
   icon: 'https://assets.coingecko.com/coins/images/11062/large/Identity-Primary-DarkBG.png?1638372986',
+  networkIcon:
+    'https://assets.coingecko.com/asset_platforms/images/11062/large/Aatar_green_white.png?1643204471',
   explorer: 'https://gnosisscan.io/',
   explorerAddressLink: 'https://gnosisscan.io/address/',
   explorerTxLink: 'https://gnosisscan.io/tx/',

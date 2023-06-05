@@ -13,7 +13,6 @@ import {
   useBreakpointValue,
   useRadioGroup,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -38,7 +37,7 @@ type AvatarSelectModalProps = Pick<ModalProps, 'isOpen'> &
   Pick<ModalProps, 'onClose'> & { walletImage: string }
 
 export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
-  const [selected, setSelected] = useState<AssetId | null>(null)
+  const [selected, setSelected] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const walletId = useAppSelector(selectWalletId)
   const dispatch = useAppDispatch()
@@ -89,18 +88,20 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
 
   const group = getRootProps()
 
-  const handleSaveChanges = useCallback(() => {
-    if (selected && walletId) {
-      dispatch(nft.actions.setWalletSelectedNftAvatar({ nftAssetId: selected, walletId }))
-    }
-    props.onClose()
-  }, [dispatch, props, selected, walletId])
+  const handleSaveChanges = useCallback(
+    (selectedAvatar: string | null) => {
+      if (selectedAvatar && walletId) {
+        dispatch(nft.actions.setWalletSelectedNftAvatar({ nftAssetId: selectedAvatar, walletId }))
+      }
+      props.onClose()
+    },
+    [dispatch, props, walletId],
+  )
 
-  const handleRestoreDefault = () => {
-    setSelected(defaultWalletImage)
+  const handleRestoreDefault = useCallback(() => {
     setValue('')
-    handleSaveChanges()
-  }
+    handleSaveChanges(defaultWalletImage)
+  }, [defaultWalletImage, handleSaveChanges, setValue])
 
   return (
     <Modal scrollBehavior='inside' size='lg' {...props}>
@@ -146,7 +147,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
                 {translate('avatar.modal.restoreDefault')}
               </Button>
               <Button onClick={props.onClose}>{translate('common.cancel')}</Button>
-              <Button ml={4} colorScheme='blue' onClick={handleSaveChanges}>
+              <Button ml={4} colorScheme='blue' onClick={() => handleSaveChanges(selected)}>
                 {translate('common.saveChanges')}
               </Button>
             </ModalFooter>

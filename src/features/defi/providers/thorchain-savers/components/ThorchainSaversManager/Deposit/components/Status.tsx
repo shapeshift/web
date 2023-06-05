@@ -178,28 +178,47 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         </Row>
         <Row variant='gutter'>
           <Row.Label>
-            <HelperTooltip label={translate('defi.modals.saversVaults.estimatedFeeTooltip')}>
-              <Text
-                translation={
-                  state.deposit.txStatus === 'pending'
-                    ? 'defi.modals.saversVaults.estimatedFee'
-                    : 'defi.modals.saversVaults.fee'
-                }
-              />
+            <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
+              <Text translation={'defi.modals.saversVaults.protocolFee'} />
             </HelperTooltip>
           </Row.Label>
           <Row.Value>
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.deposit.depositFeeCryptoBaseUnit)
+                value={bnOrZero(state.deposit.protocolFeeCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
                   .times(marketData.price)
                   .toFixed()}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(state.deposit.depositFeeCryptoBaseUnit)
+                value={bnOrZero(state.deposit.protocolFeeCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
+                  .toFixed()}
+                symbol={asset.symbol}
+              />
+            </Box>
+          </Row.Value>
+        </Row>
+        <Row variant='gutter'>
+          <Row.Label>
+            <HelperTooltip label={translate('trade.tooltip.minerFee')}>
+              <Text translation={'trade.minerFee'} />
+            </HelperTooltip>
+          </Row.Label>
+          <Row.Value>
+            <Box textAlign='right'>
+              <Amount.Fiat
+                fontWeight='bold'
+                value={bnOrZero(state.deposit.networkFeeCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
+                  .times(marketData.price)
+                  .toFixed()}
+              />
+              <Amount.Crypto
+                color='gray.500'
+                value={bnOrZero(state.deposit.networkFeeCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
                   .toFixed()}
                 symbol={asset.symbol}

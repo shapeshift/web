@@ -36,6 +36,8 @@
     "lint:cypress:fix": "yarn lint:cypress --fix",
     "postinstall": "git config --local include.path '.gitconfig'",
     "release": "yarn ts-node --skipProject ./scripts/release.ts",
+    "update:translation-value": "yarn ts-node --skipProject ./scripts/updateTranslationValue.ts",
+    "update:translation-path": "yarn ts-node --skipProject ./scripts/updateTranslationPath.ts",
     "remove-outdated-translations": "yarn ts-node --skipProject ./scripts/removeOutdatedTranslations.ts",
     "scrape-walletconnect-dapps": "yarn ts-node --skipProject ./scripts/scrapeWalletConnectRegistry.ts",
     "test": "yarn test:packages && yarn test:web",

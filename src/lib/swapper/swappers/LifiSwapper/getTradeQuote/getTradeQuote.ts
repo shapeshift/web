@@ -1,11 +1,12 @@
 import type { ChainKey, LifiError, RoutesRequest } from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
+import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
@@ -17,11 +18,14 @@ import { getMinimumCryptoHuman } from 'lib/swapper/swappers/LifiSwapper/utils/ge
 import { transformLifiStepFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
 
+import { getLifiChainMap } from '../utils/getLifiChainMap'
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
   lifiChainMap: Map<ChainId, ChainKey>,
+  assets: Partial<Record<AssetId, Asset>>,
+  sellAssetPriceUsdPrecision: string,
 ): Promise<Result<LifiTradeQuote<false>, SwapErrorRight>> {
   try {
     const {
@@ -124,10 +128,11 @@ export async function getTradeQuote(
     const protocolFees = transformLifiStepFeeData({
       chainId,
       lifiStep,
+      assets,
     })
 
     const buyAmountCryptoBaseUnit = bnOrZero(selectedLifiRoute.toAmountMin)
-    const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(lifiStep)
+    const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(assets, lifiStep)
 
     const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
       chainId,
@@ -136,7 +141,7 @@ export async function getTradeQuote(
 
     // TODO(gomes): intermediary error-handling within this module function calls
     return Ok({
-      minimumCryptoHuman: getMinimumCryptoHuman(sellAsset).toString(),
+      minimumCryptoHuman: getMinimumCryptoHuman(sellAssetPriceUsdPrecision).toString(),
       recommendedSlippage: lifiStep.action.slippage.toString(),
       steps: [
         {
@@ -177,4 +182,20 @@ export async function getTradeQuote(
       }),
     )
   }
+}
+
+let lifiChainMapPromise: Promise<Result<Map<ChainId, ChainKey>, SwapErrorRight>> | undefined
+
+export const getLifiTradeQuote = async (
+  input: GetEvmTradeQuoteInput,
+  assets: Partial<Record<AssetId, Asset>>,
+  sellAssetPriceUsdPrecision: string,
+): Promise<Result<LifiTradeQuote<false>, SwapErrorRight>> => {
+  if (lifiChainMapPromise === undefined) lifiChainMapPromise = getLifiChainMap()
+
+  const maybeLifiChainMap = await lifiChainMapPromise
+
+  if (maybeLifiChainMap.isErr()) return Err(maybeLifiChainMap.unwrapErr())
+
+  return getTradeQuote(input, maybeLifiChainMap.unwrap(), assets, sellAssetPriceUsdPrecision)
 }

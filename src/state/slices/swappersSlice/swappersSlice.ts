@@ -13,6 +13,7 @@ import type {
   SwapErrorRight,
   SwapperName,
 } from 'lib/swapper/api'
+import { getLifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/getTradeQuote/getTradeQuote'
 import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
@@ -75,13 +76,6 @@ export const swappers = createSlice({
     },
   },
 })
-
-// TEMP: placeholder until lifi swapper is upgraded
-const getLifiTradeQuote = (
-  _input: GetEvmTradeQuoteInput,
-  _assets: Partial<Record<AssetId, Asset>>,
-  _sellAssetPriceUsdPrecision: string,
-) => null as unknown as Result<LifiTradeQuote<false>, SwapErrorRight>
 
 export const swappersApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,

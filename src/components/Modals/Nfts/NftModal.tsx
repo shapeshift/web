@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Flex,
+  IconButton,
   Image,
   Link,
   Modal,
@@ -25,9 +26,10 @@ import {
   useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
+import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import Placeholder from 'assets/placeholder.png'
 import PlaceholderDrk from 'assets/placeholder-drk.png'
@@ -37,9 +39,8 @@ import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { ordinalSuffix } from 'context/WalletProvider/NativeWallet/components/NativeTestPhrase'
 import { useModal } from 'hooks/useModal/useModal'
-import { nft, useGetNftCollectionQuery } from 'state/apis/nft/nftApi'
-import { selectNftCollectionById } from 'state/apis/nft/selectors'
-import type { NftItem } from 'state/apis/nft/types'
+import { nft, nftApi, useGetNftCollectionQuery } from 'state/apis/nft/nftApi'
+import { selectNftById, selectNftCollectionById } from 'state/apis/nft/selectors'
 import { chainIdToOpenseaNetwork } from 'state/apis/nft/utils'
 import { getMediaType } from 'state/apis/zapper/validators'
 import { selectWalletAccountIds, selectWalletId } from 'state/slices/common-selectors'
@@ -63,12 +64,17 @@ const NftTab: React.FC<TabProps> = props => {
 }
 
 export type NftModalProps = {
-  nftItem: NftItem
+  nftAssetId: AssetId
 }
 
-export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
+export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
   const dispatch = useAppDispatch()
   const { nft: nftModal } = useModal()
+  const nftItem = useAppSelector(state => selectNftById(state, nftAssetId))
+
+  // This should never happen but it may
+  if (!nftItem) throw new Error(`NFT ${nftAssetId} not found`)
+
   const { close: handleClose, isOpen } = nftModal
   const translate = useTranslate()
   const [isMediaLoaded, setIsMediaLoaded] = useState(false)
@@ -82,6 +88,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
     { accountIds, collectionId: nftItem.collectionId },
     { skip: !nftItem.collectionId },
   )
+
   const nftCollection = useAppSelector(state =>
     selectNftCollectionById(state, nftItem.collectionId),
   )
@@ -91,7 +98,6 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
 
   const name = nftItem.name
-  const nftAssetId = nftItem.assetId
   const nftAddress = fromAssetId(nftAssetId).assetReference
   const collectionName = nftCollection?.name
   const rarityRank = nftItem.rarityRank
@@ -128,6 +134,10 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
     dispatch(nft.actions.setWalletSelectedNftAvatar({ nftAssetId, walletId }))
   }, [dispatch, nftAssetId, walletId])
 
+  const handleRefreshClick = useCallback(() => {
+    dispatch(nftApi.endpoints.getNft.initiate({ assetId: nftAssetId }, { forceRefetch: true }))
+  }, [dispatch, nftAssetId])
+
   const nftModalMedia = useMemo(() => {
     return (
       <Skeleton flex={1} isLoaded={isMediaLoaded}>
@@ -153,6 +163,13 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
             gap={4}
           >
             <Flex position={{ base: 'static', md: 'absolute' }} right='1em' top='1em' gap='1em'>
+              <IconButton
+                size='sm'
+                colorScheme='whiteAlpha'
+                onClick={handleRefreshClick}
+                icon={<FaSync />}
+                aria-label='Refresh'
+              />
               {customizeLink && (
                 <Button
                   as={Link}
@@ -208,6 +225,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   }, [
     assetLink,
     customizeLink,
+    handleRefreshClick,
     handleSetAsAvatarClick,
     isMediaLoaded,
     mediaBoxProps,

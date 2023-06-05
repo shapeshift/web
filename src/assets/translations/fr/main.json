@@ -322,7 +322,6 @@
         "vaultCapTooltip": "Capacité maximale actuelle pour ce Vault",
         "haltedTitle": "Les dépôts sont temporairement suspendus.",
         "haltedDescription": "Veuillez tweeter @THORChain pour augmenter les plafonds !",
-        "protocolFee": "Protocol Fee",
         "fee": "Frais",
         "dustAmount": "Quantité de poussière",
         "dustAmountTooltip": "Une infime somme de crypto (de la poussière) est nécessaire pour identifier votre adresse et sera réservée pour une utilisation ultérieure, lorsque vous souhaiterez effectuer un retrait",

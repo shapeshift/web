@@ -178,7 +178,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         <Row variant='gutter'>
           <Row.Label>
             <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
-              <Text translation={'defi.modals.saversVaults.protocolFee'} />
+              <Text translation={'trade.protocolFee'} />
             </HelperTooltip>
           </Row.Label>
           <Row.Value>

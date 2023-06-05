@@ -322,7 +322,6 @@
         "vaultCapTooltip": "Capacidade máxima atual para este cofre",
         "haltedTitle": "Depósitos estão temporariamente desabilitados. ",
         "haltedDescription": "Por favor, twitte em @THORChain para aumentar o limite!",
-        "protocolFee": "Protocol Fee",
         "fee": "Taxa",
         "dustAmount": "Saldo Restante",
         "dustAmountTooltip": "Uma pequena quantidade de saldo é necessário para identificar seus endereços, e será separada para um uso posterior, quando você realizar seu saque",

@@ -322,7 +322,6 @@
         "vaultCapTooltip": "Bu kasa için mevcut maksimum kapasite",
         "haltedTitle": "Para yatırma işlemleri geçici olarak durdurulmuştur.",
         "haltedDescription": "Lütfen @THORChain adresine tweet atarak üst sınırınızı yükseltin!",
-        "protocolFee": "Protocol Fee",
         "fee": "Ücret",
         "dustAmount": "Toz Bakiye",
         "dustAmountTooltip": "Adresinizi tanımlamak için küçük bir miktar toz gereklidir ve daha sonra para çekmek istediğinizde kullanılmak üzere saklanacaktır",

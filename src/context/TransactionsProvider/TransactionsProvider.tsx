@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { ethChainId, foxAssetId, foxatarAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { IDLE_PROXY_1_CONTRACT_ADDRESS, IDLE_PROXY_2_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -9,6 +9,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
+import { nftApi } from 'state/apis/nft/nftApi'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
@@ -26,6 +27,7 @@ import {
   selectPortfolioAccountMetadata,
   selectPortfolioLoadingStatus,
   selectStakingOpportunitiesById,
+  selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch } from 'state/store'
@@ -46,6 +48,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
   } = useWallet()
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
+  const walletAccountIds = useSelector(selectWalletAccountIds)
   const { supportedChains } = usePlugins()
 
   const stakingOpportunitiesById = useSelector(selectStakingOpportunitiesById)
@@ -147,6 +150,24 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
+
+  const maybeRefetchNfts = useCallback(
+    ({ transfers, status }: Transaction) => {
+      if (status !== TxStatus.Confirmed) return
+
+      // Only on FOXatar for now, we may want to generalize this to all NFTs with isNft(assetId) in the future
+      if (transfers.some(({ assetId }) => assetId.includes(foxatarAssetId))) {
+        const { getNftUserTokens } = nftApi.endpoints
+        dispatch(
+          getNftUserTokens.initiate({ accountIds: walletAccountIds }, { forceRefetch: true }),
+        )
+      }
+    },
+    // Disabling for safety similar to maybeRefetchOpportunities
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [walletAccountIds],
+  )
+
   /**
    * unsubscribe and cleanup logic
    */
@@ -198,6 +219,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
               )
 
               maybeRefetchOpportunities(msg, accountId)
+              maybeRefetchNfts(msg)
 
               // upsert any new nft assets if detected
               dispatch(assetsSlice.actions.upsertAssets(makeNftAssetsFromTxs([msg])))
@@ -221,6 +243,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     portfolioAccountMetadata,
     wallet,
     maybeRefetchOpportunities,
+    maybeRefetchNfts,
   ])
 
   return <>{children}</>

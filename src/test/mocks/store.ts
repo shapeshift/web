@@ -86,6 +86,7 @@ export const mockStore: ReduxState = {
       ReadOnlyAssets: false,
       OneInch: false,
       CovalentJaypegs: false,
+      MultiHopTrades: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

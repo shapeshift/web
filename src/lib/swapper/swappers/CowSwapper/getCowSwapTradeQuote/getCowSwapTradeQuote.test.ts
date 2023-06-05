@@ -49,22 +49,16 @@ jest.mock('../../utils/helpers/helpers', () => {
   }
 })
 
-jest.mock('../getCowSwapMinMax/getCowSwapMinMax', () => {
+jest.mock('../getMinimumAmountCryptoHuman/getMinimumAmountCryptoHuman', () => {
   const { FOX_MAINNET } = require('../../utils/test-data/assets') // Move the import inside the factory function
 
   return {
-    getCowSwapMinMax: (sellAsset: Asset) => {
+    getMinimumAmountCryptoHuman: (sellAsset: Asset) => {
       if (sellAsset.assetId === FOX_MAINNET.assetId) {
-        return mockOk({
-          minimumAmountCryptoHuman: '229.09507445589919816724',
-          maximumAmountCryptoHuman: '100000000000000000000000000',
-        })
+        return mockOk('229.09507445589919816724')
       }
 
-      return mockOk({
-        minimumAmountCryptoHuman: '0.011624',
-        maximumAmountCryptoHuman: '100000000000000000000000000',
-      })
+      return mockOk('0.011624')
     },
   }
 })
@@ -121,95 +115,107 @@ const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
 }
 
 const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  rate: '14924.80846543344314936607', // 14942 FOX per WETH
   minimumCryptoHuman: '0.011624',
-  maximumCryptoHuman: '100000000000000000000000000',
-  feeData: {
-    protocolFees: {
-      [WETH.assetId]: {
-        amountCryptoBaseUnit: '14557942658757988',
-        requiresBalance: false,
-        asset: WETH,
+  steps: [
+    {
+      allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
+      rate: '14924.80846543344314936607', // 14942 FOX per WETH
+      feeData: {
+        protocolFees: {
+          [WETH.assetId]: {
+            amountCryptoBaseUnit: '14557942658757988',
+            requiresBalance: false,
+            asset: WETH,
+          },
+        },
+        networkFeeCryptoBaseUnit: '0',
       },
+      sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
+      buyAmountBeforeFeesCryptoBaseUnit: '14913256100953839475750', // 14913 FOX
+      sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
+      buyAsset: FOX_MAINNET,
+      sellAsset: WETH,
+      accountNumber: 0,
     },
-    networkFeeCryptoBaseUnit: '0',
-  },
-  sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
-  buyAmountBeforeFeesCryptoBaseUnit: '14913256100953839475750', // 14913 FOX
-  sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
-  allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
-  buyAsset: FOX_MAINNET,
-  sellAsset: WETH,
-  accountNumber: 0,
+  ],
 }
 
 const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  rate: '0.00004995640398295996',
   minimumCryptoHuman: '229.09507445589919816724',
-  maximumCryptoHuman: '100000000000000000000000000',
-  feeData: {
-    protocolFees: {
-      [FOX_MAINNET.assetId]: {
-        amountCryptoBaseUnit: '61804771879693983744',
-        requiresBalance: false,
-        asset: FOX_MAINNET,
+  steps: [
+    {
+      allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
+      rate: '0.00004995640398295996',
+      feeData: {
+        protocolFees: {
+          [FOX_MAINNET.assetId]: {
+            amountCryptoBaseUnit: '61804771879693983744',
+            requiresBalance: false,
+            asset: FOX_MAINNET,
+          },
+        },
+        networkFeeCryptoBaseUnit: '0',
       },
+      sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
+      buyAmountBeforeFeesCryptoBaseUnit: '51242479117266593',
+      sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
+      buyAsset: ETH,
+      sellAsset: FOX_MAINNET,
+      accountNumber: 0,
     },
-    networkFeeCryptoBaseUnit: '0',
-  },
-  sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
-  buyAmountBeforeFeesCryptoBaseUnit: '51242479117266593',
-  sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
-  allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
-  buyAsset: ETH,
-  sellAsset: FOX_MAINNET,
-  accountNumber: 0,
+  ],
 }
 
 const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
-  rate: '1.0003121775396440882',
   minimumCryptoHuman: '0.011624',
-  maximumCryptoHuman: '100000000000000000000000000',
-  feeData: {
-    protocolFees: {
-      [USDC_GNOSIS.assetId]: {
-        amountCryptoBaseUnit: '1188',
-        requiresBalance: false,
-        asset: USDC_GNOSIS,
+  steps: [
+    {
+      allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
+      rate: '1.0003121775396440882',
+      feeData: {
+        protocolFees: {
+          [USDC_GNOSIS.assetId]: {
+            amountCryptoBaseUnit: '1188',
+            requiresBalance: false,
+            asset: USDC_GNOSIS,
+          },
+        },
+        networkFeeCryptoBaseUnit: '0',
       },
+      sellAmountBeforeFeesCryptoBaseUnit: '20000000',
+      buyAmountBeforeFeesCryptoBaseUnit: '21006555357465608755',
+      sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
+      buyAsset: XDAI,
+      sellAsset: USDC_GNOSIS,
+      accountNumber: 0,
     },
-    networkFeeCryptoBaseUnit: '0',
-  },
-  sellAmountBeforeFeesCryptoBaseUnit: '20000000',
-  buyAmountBeforeFeesCryptoBaseUnit: '21006555357465608755',
-  sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
-  allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
-  buyAsset: XDAI,
-  sellAsset: USDC_GNOSIS,
-  accountNumber: 0,
+  ],
 }
 
 const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  rate: '14716.04718939437523468382', // 14716 FOX per WETH
   minimumCryptoHuman: '0.011624',
-  maximumCryptoHuman: '100000000000000000000000000',
-  feeData: {
-    protocolFees: {
-      [WETH.assetId]: {
-        amountCryptoBaseUnit: '1455794265875791',
-        requiresBalance: false,
-        asset: WETH,
+  steps: [
+    {
+      allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
+      rate: '14716.04718939437523468382', // 14716 FOX per WETH
+      feeData: {
+        protocolFees: {
+          [WETH.assetId]: {
+            amountCryptoBaseUnit: '1455794265875791',
+            requiresBalance: false,
+            asset: WETH,
+          },
+        },
+        networkFeeCryptoBaseUnit: '0',
       },
+      sellAmountBeforeFeesCryptoBaseUnit: '1000000000000',
+      buyAmountBeforeFeesCryptoBaseUnit: '0', // 0 FOX
+      sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
+      buyAsset: FOX_MAINNET,
+      sellAsset: WETH,
+      accountNumber: 0,
     },
-    networkFeeCryptoBaseUnit: '0',
-  },
-  sellAmountBeforeFeesCryptoBaseUnit: '1000000000000',
-  buyAmountBeforeFeesCryptoBaseUnit: '0', // 0 FOX
-  sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
-  allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
-  buyAsset: FOX_MAINNET,
-  sellAsset: WETH,
-  accountNumber: 0,
+  ],
 }
 
 describe('getCowTradeQuote', () => {
@@ -222,7 +228,6 @@ describe('getCowTradeQuote', () => {
       sellAsset: ETH,
       buyAsset: FOX_MAINNET,
       sellAmountBeforeFeesCryptoBaseUnit: '11111',
-      sendMax: true,
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
@@ -249,7 +254,6 @@ describe('getCowTradeQuote', () => {
       sellAsset: WETH,
       buyAsset: FOX_MAINNET,
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
-      sendMax: true,
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
@@ -293,7 +297,6 @@ describe('getCowTradeQuote', () => {
       sellAsset: FOX_MAINNET,
       buyAsset: ETH,
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
-      sendMax: true,
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
@@ -337,7 +340,6 @@ describe('getCowTradeQuote', () => {
       sellAsset: USDC_GNOSIS,
       buyAsset: XDAI,
       sellAmountBeforeFeesCryptoBaseUnit: '20000000',
-      sendMax: true,
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
@@ -381,7 +383,6 @@ describe('getCowTradeQuote', () => {
       sellAsset: WETH,
       buyAsset: FOX_MAINNET,
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000',
-      sendMax: true,
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',

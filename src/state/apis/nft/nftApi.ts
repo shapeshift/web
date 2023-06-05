@@ -201,14 +201,9 @@ export const nftApi = createApi({
             const { data } = result
 
             if (!data) return acc
+            if (!acc) return data
 
-            if (!acc) {
-              acc = data
-            } else {
-              acc = updateNftCollection(acc, data)
-            }
-
-            return acc
+            return updateNftCollection(acc, data)
           }, null)
 
           if (!collectionData) {

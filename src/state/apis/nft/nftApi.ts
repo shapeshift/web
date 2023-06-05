@@ -15,19 +15,10 @@ import { covalentApi } from '../covalent/covalentApi'
 import { zapperApi } from '../zapper/zapperApi'
 import { parseAlchemyNftContractToCollectionItem } from './parsers/alchemy'
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
-import {
-  getAlchemyNftData,
-  getAlchemyNftsUserData,
-  updateNftCollection,
-  updateNftItem,
-} from './utils'
+import { getAlchemyNftData, updateNftCollection, updateNftItem } from './utils'
 
 type GetNftUserTokensInput = {
   accountIds: AccountId[]
-}
-
-type GetNftInput = {
-  assetId: AssetId
 }
 
 type GetNftCollectionInput = {
@@ -83,12 +74,6 @@ export const nft = createSlice({
       state.collections.byId = Object.assign({}, state.collections.byId, action.payload.byId)
       state.collections.ids = Array.from(new Set(state.collections.ids.concat(action.payload.ids)))
     },
-    upsertNft: (state, action: PayloadAction<NftItem>) => {
-      state.nfts.byId = Object.assign({}, state.nfts.byId, {
-        [action.payload.assetId]: action.payload,
-      })
-      state.nfts.ids = Array.from(new Set(state.nfts.ids.concat(action.payload.assetId)))
-    },
     upsertNfts: (state, action: PayloadAction<NftState['nfts']>) => {
       state.nfts.byId = Object.assign({}, state.nfts.byId, action.payload.byId)
       state.nfts.ids = Array.from(new Set(state.nfts.ids.concat(action.payload.ids)))
@@ -115,7 +100,7 @@ export const nftApi = createApi({
     getNftUserTokens: build.query<NftItem[], GetNftUserTokensInput>({
       queryFn: async ({ accountIds }, { dispatch }) => {
         const services = [
-          getAlchemyNftsUserData,
+          getAlchemyNftData,
           (accountIds: AccountId[]) =>
             dispatch(
               zapperApi.endpoints.getZapperNftUserTokens.initiate(
@@ -192,22 +177,6 @@ export const nftApi = createApi({
         return { data: Object.values(nftsById).filter(isSome) }
       },
     }),
-    getNft: build.query<NftItemWithCollection, GetNftInput>({
-      queryFn: async ({ assetId }, { dispatch }) => {
-        const { data: nftDataWithCollection } = await getAlchemyNftData(assetId)
-
-        const { collection, ...nftItemWithoutId } = nftDataWithCollection
-        const nftItem: NftItem = {
-          ...nftItemWithoutId,
-          collectionId: nftDataWithCollection.collection.assetId,
-        }
-
-        dispatch(nft.actions.upsertNft(nftItem))
-
-        return { data: nftDataWithCollection }
-      },
-    }),
-
     getNftCollection: build.query<NftCollectionType, GetNftCollectionInput>({
       queryFn: async ({ collectionId, accountIds }, { dispatch }) => {
         try {

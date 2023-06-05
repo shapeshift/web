@@ -79,9 +79,10 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
 
-  const symbol = activeQuote?.sellAsset?.symbol
+  const symbol = activeQuote?.steps[0].sellAsset?.symbol
+
   const sellFeeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, activeQuote?.sellAsset?.assetId ?? ethAssetId),
+    selectFeeAssetById(state, activeQuote?.steps[0].sellAsset.assetId ?? ethAssetId),
   )
 
   const approveContract = useCallback(async () => {
@@ -200,7 +201,7 @@ export const Approval = () => {
             >
               {() => (
                 <Image
-                  src={activeQuote?.sellAsset?.icon}
+                  src={activeQuote?.steps[0].sellAsset.icon}
                   boxSize='60px'
                   fallback={<SkeletonCircle boxSize='60px' />}
                 />
@@ -215,7 +216,7 @@ export const Approval = () => {
             />
             <CText color='gray.500' textAlign='center'>
               <Link
-                href={`${activeQuote?.sellAsset.explorerAddressLink}${activeQuote?.allowanceContract}`}
+                href={`${activeQuote?.steps[0].sellAsset.explorerAddressLink}${activeQuote?.steps[0].allowanceContract}`}
                 color='blue.500'
                 me={1}
                 isExternal
@@ -229,7 +230,7 @@ export const Approval = () => {
             </Link>
             <Divider my={4} />
             <Flex flexDirection='column' width='full'>
-              {approvalTxId && activeQuote?.sellAsset?.explorerTxLink && (
+              {approvalTxId && activeQuote?.steps[0].sellAsset.explorerTxLink && (
                 <Row>
                   <Row.Label>
                     <Text translation={['trade.approvingAsset', { symbol }]} />
@@ -238,7 +239,7 @@ export const Approval = () => {
                     <Link
                       isExternal
                       color='blue.500'
-                      href={`${activeQuote?.sellAsset?.explorerTxLink}${approvalTxId}`}
+                      href={`${activeQuote?.steps[0].sellAsset.explorerTxLink}${approvalTxId}`}
                     >
                       <MiddleEllipsis value={approvalTxId} />
                     </Link>

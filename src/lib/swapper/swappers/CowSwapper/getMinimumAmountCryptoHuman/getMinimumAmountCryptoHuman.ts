@@ -5,10 +5,9 @@ import { Err, Ok } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { MinMaxOutput, SwapErrorRight } from 'lib/swapper/api'
+import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import {
-  MAX_COWSWAP_TRADE,
   MIN_COWSWAP_ETHEREUM_TRADE_VALUE_USD,
   MIN_COWSWAP_GNOSIS_TRADE_VALUE_USD,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
@@ -18,11 +17,11 @@ import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 import type { CowChainId } from '../types'
 import { isCowswapSupportedChainId } from '../utils/utils'
 
-export const getCowSwapMinMax = (
+export const getMinimumAmountCryptoHuman = (
   sellAsset: Asset,
   buyAsset: Asset,
   supportedChainIds: CowChainId[],
-): Result<MinMaxOutput, SwapErrorRight> => {
+): Result<string, SwapErrorRight> => {
   const { assetNamespace: sellAssetNamespace } = fromAssetId(sellAsset.assetId)
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
 
@@ -31,7 +30,10 @@ export const getCowSwapMinMax = (
     !isCowswapSupportedChainId(buyAssetChainId, supportedChainIds)
   ) {
     return Err(
-      makeSwapErrorRight({ message: '[getCowSwapMinMax]', code: SwapErrorType.UNSUPPORTED_PAIR }),
+      makeSwapErrorRight({
+        message: '[getMinimumAmountCryptoHuman]',
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+      }),
     )
   }
 
@@ -50,9 +52,6 @@ export const getCowSwapMinMax = (
   const minimumAmountCryptoHuman = bn(getMinCowSwapValueUsd(buyAssetChainId))
     .dividedBy(bnOrZero(sellAssetUsdRate))
     .toString()
-  const maximumAmountCryptoHuman = MAX_COWSWAP_TRADE // Arbitrarily large value. 10e+28 here.
-  return Ok({
-    minimumAmountCryptoHuman,
-    maximumAmountCryptoHuman,
-  })
+
+  return Ok(minimumAmountCryptoHuman)
 }

@@ -10,20 +10,23 @@ export const setupQuote = () => {
   const sellAsset: Asset = { ...FOX_MAINNET }
   const buyAsset: Asset = { ...WETH }
   const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
-    buyAmountBeforeFeesCryptoBaseUnit: '',
-    sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
-    sellAsset,
-    buyAsset,
-    allowanceContract: 'allowanceContractAddress',
-    accountNumber: 0,
     minimumCryptoHuman: '0',
-    maximumCryptoHuman: '999999999999',
-    feeData: {
-      networkFeeCryptoBaseUnit: '0',
-      protocolFees: {},
-    },
-    rate: '1',
-    sources: [],
+    steps: [
+      {
+        allowanceContract: 'allowanceContractAddress',
+        buyAmountBeforeFeesCryptoBaseUnit: '',
+        sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
+        sellAsset,
+        buyAsset,
+        accountNumber: 0,
+        feeData: {
+          networkFeeCryptoBaseUnit: '0',
+          protocolFees: {},
+        },
+        rate: '1',
+        sources: [],
+      },
+    ],
   }
 
   const quoteInput: GetTradeQuoteInput = {
@@ -32,7 +35,6 @@ export const setupQuote = () => {
     sellAsset,
     buyAsset,
     accountNumber: 0,
-    sendMax: false,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
     eip1559Support: false,
@@ -47,7 +49,6 @@ export const setupBuildTrade = () => {
     chainId: KnownChainIds.EthereumMainnet,
     sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
     buyAsset,
-    sendMax: false,
     accountNumber: 0,
     sellAsset,
     wallet: {} as HDWallet,

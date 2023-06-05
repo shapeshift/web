@@ -243,22 +243,24 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
 export const createEmptyEvmTradeQuote = (
   input: GetTradeQuoteInput,
   minimumCryptoHuman: string,
-  maximumCryptoHuman: string,
 ): TradeQuote<EvmChainId, true> => {
   return {
-    buyAmountBeforeFeesCryptoBaseUnit: '0',
-    sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
-    feeData: {
-      networkFeeCryptoBaseUnit: undefined,
-      protocolFees: {},
-    },
-    rate: '0',
-    sources: [],
-    buyAsset: input.buyAsset,
-    sellAsset: input.sellAsset,
-    accountNumber: input.accountNumber,
-    allowanceContract: '',
     minimumCryptoHuman,
-    maximumCryptoHuman,
+    steps: [
+      {
+        allowanceContract: '',
+        buyAmountBeforeFeesCryptoBaseUnit: '0',
+        sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
+        feeData: {
+          networkFeeCryptoBaseUnit: undefined,
+          protocolFees: {},
+        },
+        rate: '0',
+        sources: [],
+        buyAsset: input.buyAsset,
+        sellAsset: input.sellAsset,
+        accountNumber: input.accountNumber,
+      },
+    ],
   }
 }

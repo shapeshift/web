@@ -22,7 +22,6 @@ export type GetTradeQuoteInputArgs = {
   wallet: HDWallet
   receiveAddress: SwapperState['receiveAddress']
   sellAmountBeforeFeesCryptoPrecision: string
-  isSendMax: boolean
 }
 
 export const getTradeQuoteArgs = async ({
@@ -33,7 +32,6 @@ export const getTradeQuoteArgs = async ({
   wallet,
   receiveAddress,
   sellAmountBeforeFeesCryptoPrecision,
-  isSendMax,
 }: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput | undefined> => {
   if (!sellAsset || !buyAsset) return undefined
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
@@ -43,7 +41,6 @@ export const getTradeQuoteArgs = async ({
     ),
     sellAsset,
     buyAsset,
-    sendMax: isSendMax,
     receiveAddress,
     accountNumber: sellAccountNumber,
     affiliateBps: '0',

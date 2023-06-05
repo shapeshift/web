@@ -1,40 +1,49 @@
-import type { ethereum } from '@shapeshiftoss/chain-adapters'
+import { ethChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import type Web3 from 'web3'
-import { BTC, ETH, FOX, WBTC, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import {
+  BTC,
+  ETH,
+  FOX_GNOSIS,
+  FOX_MAINNET,
+  WBTC,
+  WETH,
+  XDAI,
+} from 'lib/swapper/swappers/utils/test-data/assets'
 
-import type { TradeResult } from '../../api'
 import { SwapperName } from '../../api'
 import { setupBuildTrade, setupQuote } from '../utils/test-data/setupSwapQuote'
 import { cowBuildTrade } from './cowBuildTrade/cowBuildTrade'
 import { cowExecuteTrade } from './cowExecuteTrade/cowExecuteTrade'
 import { cowGetTradeTxs } from './cowGetTradeTxs/cowGetTradeTxs'
-import type { CowSwapperDeps } from './CowSwapper'
 import { CowSwapper } from './CowSwapper'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
-import type { CowTrade } from './types'
+import type { CowChainId, CowTrade, CowTradeResult } from './types'
 
 jest.mock('./utils/helpers/helpers')
 jest.mock('state/slices/selectors', () => {
-  const { BTC, ETH, FOX, WBTC, WETH } = require('lib/swapper/swappers/utils/test-data/assets') // Move the import inside the factory function
+  const {
+    BTC,
+    ETH,
+    FOX_MAINNET,
+    FOX_GNOSIS,
+    WBTC,
+    WETH,
+    XDAI,
+  } = require('lib/swapper/swappers/utils/test-data/assets') // Move the import inside the factory function
 
   return {
     selectAssets: () => ({
       [BTC.assetId]: BTC,
       [ETH.assetId]: ETH,
-      [FOX.assetId]: FOX,
+      [FOX_MAINNET.assetId]: FOX_MAINNET,
+      [FOX_GNOSIS.assetId]: FOX_GNOSIS,
       [WBTC.assetId]: WBTC,
       [WETH.assetId]: WETH,
+      [XDAI.assetId]: XDAI,
     }),
   }
 })
-
-const COW_SWAPPER_DEPS: CowSwapperDeps = {
-  apiUrl: 'https://api.cow.fi/mainnet/api/',
-  adapter: {} as ethereum.ChainAdapter,
-  web3: {} as Web3,
-}
 
 jest.mock('./getCowSwapTradeQuote/getCowSwapTradeQuote', () => ({
   getCowSwapTradeQuote: jest.fn(),
@@ -52,7 +61,16 @@ jest.mock('./cowGetTradeTxs/cowGetTradeTxs', () => ({
   cowGetTradeTxs: jest.fn(),
 }))
 
-const ASSET_IDS = [ETH.assetId, WBTC.assetId, WETH.assetId, BTC.assetId, FOX.assetId]
+const ASSET_IDS = [
+  ETH.assetId,
+  WBTC.assetId,
+  WETH.assetId,
+  BTC.assetId,
+  FOX_MAINNET.assetId,
+  XDAI.assetId,
+]
+
+const COW_SWAPPER_DEPS: CowChainId[] = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
 
 describe('CowSwapper', () => {
   const wallet = {} as HDWallet
@@ -73,13 +91,21 @@ describe('CowSwapper', () => {
       expect(swapper.filterAssetIdsBySellable(ASSET_IDS)).toEqual([
         WBTC.assetId,
         WETH.assetId,
-        FOX.assetId,
+        FOX_MAINNET.assetId,
       ])
     })
 
     it('returns array filtered out of unsupported tokens', () => {
-      const assetIds = [FOX.assetId, 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3']
-      expect(swapper.filterAssetIdsBySellable(assetIds)).toEqual([FOX.assetId])
+      const assetIds = [
+        FOX_MAINNET.assetId,
+        FOX_GNOSIS.assetId,
+        'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
+      ]
+
+      expect(swapper.filterAssetIdsBySellable(assetIds)).toEqual([
+        FOX_MAINNET.assetId,
+        FOX_GNOSIS.assetId,
+      ])
     })
   })
 
@@ -111,32 +137,35 @@ describe('CowSwapper', () => {
           assetIds: ASSET_IDS,
           sellAssetId: WETH.assetId,
         }),
-      ).toEqual([ETH.assetId, WBTC.assetId, FOX.assetId])
+      ).toEqual([ETH.assetId, WBTC.assetId, FOX_MAINNET.assetId])
       expect(
         swapper.filterBuyAssetsBySellAssetId({
           assetIds: ASSET_IDS,
           sellAssetId: WBTC.assetId,
         }),
-      ).toEqual([ETH.assetId, WETH.assetId, FOX.assetId])
+      ).toEqual([ETH.assetId, WETH.assetId, FOX_MAINNET.assetId])
       expect(
         swapper.filterBuyAssetsBySellAssetId({
           assetIds: ASSET_IDS,
-          sellAssetId: FOX.assetId,
+          sellAssetId: FOX_MAINNET.assetId,
         }),
       ).toEqual([ETH.assetId, WBTC.assetId, WETH.assetId])
     })
 
     it('returns array filtered out of unsupported tokens when called with a sellable sellAssetId', () => {
-      const assetIds = [FOX.assetId, 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3']
+      const assetIds = [
+        FOX_MAINNET.assetId,
+        'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
+      ]
       expect(
         swapper.filterBuyAssetsBySellAssetId({
           assetIds,
           sellAssetId: WETH.assetId,
         }),
-      ).toEqual([FOX.assetId])
-      expect(swapper.filterBuyAssetsBySellAssetId({ assetIds, sellAssetId: FOX.assetId })).toEqual(
-        [],
-      )
+      ).toEqual([FOX_MAINNET.assetId])
+      expect(
+        swapper.filterBuyAssetsBySellAssetId({ assetIds, sellAssetId: FOX_MAINNET.assetId }),
+      ).toEqual([])
     })
   })
 
@@ -145,7 +174,7 @@ describe('CowSwapper', () => {
       const { quoteInput } = setupQuote()
       await swapper.getTradeQuote(quoteInput)
       expect(getCowSwapTradeQuote).toHaveBeenCalledTimes(1)
-      expect(getCowSwapTradeQuote).toHaveBeenCalledWith(COW_SWAPPER_DEPS, quoteInput)
+      expect(getCowSwapTradeQuote).toHaveBeenCalledWith(quoteInput, COW_SWAPPER_DEPS)
     })
   })
 
@@ -155,17 +184,17 @@ describe('CowSwapper', () => {
       const args = { ...buildTradeInput, wallet }
       await swapper.buildTrade(args)
       expect(cowBuildTrade).toHaveBeenCalledTimes(1)
-      expect(cowBuildTrade).toHaveBeenCalledWith(COW_SWAPPER_DEPS, args)
+      expect(cowBuildTrade).toHaveBeenCalledWith(args, COW_SWAPPER_DEPS)
     })
   })
 
   describe('executeTrade', () => {
-    it('calls executeTrade on swapper.buildTrade', async () => {
+    it('calls executeTrade on swapper.buildTrade for Ethereum', async () => {
       const cowSwapTrade: CowTrade<KnownChainIds.EthereumMainnet> = {
         sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
         buyAmountBeforeFeesCryptoBaseUnit: '14501811818247595090576',
         sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
-        buyAsset: FOX,
+        buyAsset: FOX_MAINNET,
         sellAsset: WETH,
         accountNumber: 0,
         receiveAddress: 'address11',
@@ -182,18 +211,44 @@ describe('CowSwapper', () => {
       const args = { trade: cowSwapTrade, wallet }
       await swapper.executeTrade(args)
       expect(cowExecuteTrade).toHaveBeenCalledTimes(1)
-      expect(cowExecuteTrade).toHaveBeenCalledWith(COW_SWAPPER_DEPS, args)
+      expect(cowExecuteTrade).toHaveBeenCalledWith(args, COW_SWAPPER_DEPS)
+    })
+
+    it('calls executeTrade on swapper.buildTrade for Gnosis', async () => {
+      const cowSwapTrade: CowTrade<KnownChainIds.GnosisMainnet> = {
+        sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
+        buyAmountBeforeFeesCryptoBaseUnit: '14501811818247595090576',
+        sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
+        buyAsset: FOX_GNOSIS,
+        sellAsset: XDAI,
+        accountNumber: 0,
+        receiveAddress: 'address11',
+        feeAmountInSellTokenCryptoBaseUnit: '14557942658757988',
+        rate: '14716.04718939437505555958',
+        feeData: {
+          protocolFees: {},
+          networkFeeCryptoBaseUnit: '14557942658757988',
+        },
+        sellAmountDeductFeeCryptoBaseUnit: '985442057341242012',
+        id: '1',
+        minimumBuyAmountAfterFeesCryptoBaseUnit: '14501811818247595090576',
+      }
+      const args = { trade: cowSwapTrade, wallet }
+      await swapper.executeTrade(args)
+      expect(cowExecuteTrade).toHaveBeenCalledTimes(1)
+      expect(cowExecuteTrade).toHaveBeenCalledWith(args, COW_SWAPPER_DEPS)
     })
   })
 
   describe('getTradeTxs', () => {
     it('calls cowGetTradeTxs on swapper.getTradeTxs', async () => {
-      const args: TradeResult = {
+      const args: CowTradeResult = {
         tradeId: 'tradeId789456',
+        chainId: ethChainId,
       }
       await swapper.getTradeTxs(args)
       expect(cowGetTradeTxs).toHaveBeenCalledTimes(1)
-      expect(cowGetTradeTxs).toHaveBeenCalledWith(COW_SWAPPER_DEPS, args)
+      expect(cowGetTradeTxs).toHaveBeenCalledWith(args)
     })
   })
 })

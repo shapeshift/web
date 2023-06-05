@@ -3,7 +3,7 @@ import { localAssetData } from 'lib/asset-service'
 import type { AmountDisplayMeta } from 'lib/swapper/api'
 
 import { getIntermediaryTransactionOutputs } from './getIntermediaryTransactionOutputs'
-import { emptyLifiRouteSteps, multiStepLifiRouteSteps, singleStepLifiRouteSteps } from './testData'
+import { multiStepLifiRouteSteps, singleStepLifiRouteSteps } from './testData'
 
 jest.mock('state/slices/selectors', () => {
   const { localAssetData } = require('lib/asset-service') // Move the import inside the factory function
@@ -32,12 +32,6 @@ describe('getIntermediaryTransactionOutputs', () => {
     ]
 
     expect(result).toEqual(expectation)
-  })
-
-  // should never happen but at minimum we want a sane way to handle it
-  it('returns undefined for route with no steps', () => {
-    const result = getIntermediaryTransactionOutputs(emptyLifiRouteSteps)
-    expect(result).toBe(undefined)
   })
 
   // possible where lifi is able to bridge without swapping before/after the bridge

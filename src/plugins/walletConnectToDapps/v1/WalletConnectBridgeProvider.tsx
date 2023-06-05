@@ -141,18 +141,19 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     async (request: WalletConnectCallRequest, approveData: ConfirmData) => {
       if (!connector) return
 
-      const result: any = await (async () => {
+      const result = await (() => {
         switch (request.method) {
           case 'eth_sign':
-            return await eth_sign(request)
+            return eth_sign(request)
           case 'eth_signTypedData':
-            return await eth_signTypedData(request)
+          case 'eth_signTypedData_v4':
+            return eth_signTypedData(request)
           case 'eth_sendTransaction':
-            return await eth_sendTransaction(request, approveData)
+            return eth_sendTransaction(request, approveData)
           case 'eth_signTransaction':
-            return await eth_signTransaction(request, approveData)
+            return eth_signTransaction(request, approveData)
           case 'personal_sign':
-            return await personal_sign(request)
+            return personal_sign(request)
           default:
             return
         }

@@ -9,7 +9,7 @@ import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { toBaseUnit } from 'lib/math'
-import { selectZapperFullfilled } from 'state/apis/zapper/selectors'
+import { selectZapperFulfilled } from 'state/apis/zapper/selectors'
 import { zapperApi } from 'state/apis/zapper/zapperApi'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
@@ -294,7 +294,7 @@ export const uniV2LpLpOpportunityIdsResolver = ({
 
   if (!DynamicLpAssets) return Promise.resolve({ data: [...foxEthLpAssetIds] })
 
-  const zapperApiQueries = selectZapperFullfilled(state)
+  const zapperApiQueries = selectZapperFulfilled(state)
   const uniV2AssetIds = (zapperApiQueries.find(
     query => query?.endpointName === 'getZapperUniV2PoolAssetIds' && Boolean(query?.data),
   )?.data ?? []) as LpId[]

@@ -1,6 +1,12 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
-import type { ETHSignMessage, ETHSignTx, ETHWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type {
+  ETHSignMessage,
+  ETHSignTx,
+  ETHSignTypedData,
+  ETHWallet,
+  HDWallet,
+} from '@shapeshiftoss/hdwallet-core'
 import {
   supportsAvalanche,
   supportsBSC,
@@ -27,6 +33,7 @@ import type {
   SignMessageInput,
   SignTx,
   SignTxInput,
+  SignTypedDataInput,
   SubscribeError,
   SubscribeTxsInput,
   Transaction,
@@ -440,6 +447,28 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       if (!signedMessage) throw new Error('EvmBaseAdapter: error signing message')
 
       return signedMessage.signature
+    } catch (err) {
+      return ErrorHandler(err)
+    }
+  }
+
+  async signTypedData(input: SignTypedDataInput<ETHSignTypedData>): Promise<string> {
+    try {
+      const { typedDataToSign, wallet } = input
+
+      if (!this.supportsChain(wallet)) {
+        throw new Error(`wallet does not support ${this.getDisplayName()}`)
+      }
+
+      if (!wallet.ethSignTypedData) {
+        throw new Error('wallet does not support signing typed data')
+      }
+
+      const result = await wallet.ethSignTypedData(typedDataToSign)
+
+      if (!result) throw new Error('EvmBaseAdapter: error signing typed data')
+
+      return result.signature
     } catch (err) {
       return ErrorHandler(err)
     }

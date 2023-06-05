@@ -97,7 +97,6 @@ type CommonTradeInput = {
   sellAsset: Asset
   buyAsset: Asset
   sellAmountBeforeFeesCryptoBaseUnit: string
-  sendMax: boolean
   receiveAddress: string | undefined
   accountNumber: number
   receiveAccountNumber?: number
@@ -135,7 +134,7 @@ export type AmountDisplayMeta = {
   asset: Pick<Asset, 'symbol' | 'chainId' | 'precision'>
 }
 
-interface TradeBase<C extends ChainId, MissingNetworkFee extends boolean = false> {
+export type TradeBase<C extends ChainId, MissingNetworkFee extends boolean = false> = {
   buyAmountBeforeFeesCryptoBaseUnit: string
   sellAmountBeforeFeesCryptoBaseUnit: string
   feeData: QuoteFeeData<C, MissingNetworkFee>
@@ -149,16 +148,21 @@ interface TradeBase<C extends ChainId, MissingNetworkFee extends boolean = false
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
 }
 
-export interface TradeQuote<C extends ChainId, UnknownNetworkFee extends boolean = false>
-  extends TradeBase<C, UnknownNetworkFee> {
+export type TradeQuoteStep<C extends ChainId, UnknownNetworkFee extends boolean> = TradeBase<
+  C,
+  UnknownNetworkFee
+> & {
   allowanceContract: string
-  minimumCryptoHuman: string
-  maximumCryptoHuman: string
-  recommendedSlippage?: string
-  id?: string
 }
 
-export interface Trade<C extends ChainId> extends TradeBase<C, false> {
+export type TradeQuote<C extends ChainId, UnknownNetworkFee extends boolean = false> = {
+  minimumCryptoHuman: string
+  recommendedSlippage?: string
+  id?: string
+  steps: TradeQuoteStep<C, UnknownNetworkFee>[]
+}
+
+export type Trade<C extends ChainId> = TradeBase<C, false> & {
   receiveAddress: string
   receiveAccountNumber?: number
 }
@@ -175,11 +179,6 @@ export type TradeResult = {
 export type SwapSource = {
   name: SwapperName | string
   proportion: string
-}
-
-export interface MinMaxOutput {
-  minimumAmountCryptoHuman: string
-  maximumAmountCryptoHuman: string
 }
 
 export enum SwapperName {

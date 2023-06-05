@@ -11,7 +11,6 @@ import type {
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
   GetTradeQuoteInput,
-  MinMaxOutput,
   SwapErrorRight,
   Swapper,
   Trade,
@@ -23,7 +22,6 @@ import {
   atomOnOsmosisAssetId,
   COSMO_OSMO_CHANNEL,
   DEFAULT_SOURCE,
-  MAX_SWAPPER_SELL,
   OSMO_COSMO_CHANNEL,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/constants'
 import type { SymbolDenomMapping } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
@@ -91,15 +89,11 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     }
   }
 
-  getMinMax(): Result<MinMaxOutput, SwapErrorRight> {
+  getMin(): Result<string, SwapErrorRight> {
     const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
     const minimumAmountCryptoHuman = bn(1).dividedBy(bnOrZero(sellAssetUsdRate)).toString()
-    const maximumAmountCryptoHuman = MAX_SWAPPER_SELL
 
-    return Ok({
-      minimumAmountCryptoHuman,
-      maximumAmountCryptoHuman,
-    })
+    return Ok(minimumAmountCryptoHuman)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): string[] {
@@ -221,9 +215,9 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     if (maybeRateInfo.isErr()) return Err(maybeRateInfo.unwrapErr())
     const { buyAssetTradeFeeCryptoBaseUnit, rate, buyAmountCryptoBaseUnit } = maybeRateInfo.unwrap()
 
-    const maybeMinMax = this.getMinMax()
-    if (maybeMinMax.isErr()) return Err(maybeMinMax.unwrapErr())
-    const { minimumAmountCryptoHuman, maximumAmountCryptoHuman } = maybeMinMax.unwrap()
+    const maybeMin = this.getMin()
+    if (maybeMin.isErr()) return Err(maybeMin.unwrapErr())
+    const minimumAmountCryptoHuman = maybeMin.unwrap()
 
     const osmosisAdapter = this.deps.adapterManager.get(osmosisChainId) as
       | osmosis.ChainAdapter
@@ -241,26 +235,29 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const fee = feeData.fast.txFee
 
     return Ok({
-      buyAsset,
-      feeData: {
-        networkFeeCryptoBaseUnit: fee,
-        protocolFees: {
-          [buyAsset.assetId]: {
-            amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
-            requiresBalance: true,
-            asset: buyAsset,
-          },
-        },
-      },
-      maximumCryptoHuman: maximumAmountCryptoHuman,
       minimumCryptoHuman: minimumAmountCryptoHuman, // TODO(gomes): shorthand?
-      accountNumber,
-      rate,
-      sellAsset,
-      sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-      buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
-      sources: DEFAULT_SOURCE,
-      allowanceContract: '',
+      steps: [
+        {
+          allowanceContract: '',
+          buyAsset,
+          feeData: {
+            networkFeeCryptoBaseUnit: fee,
+            protocolFees: {
+              [buyAsset.assetId]: {
+                amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
+                requiresBalance: true,
+                asset: buyAsset,
+              },
+            },
+          },
+          accountNumber,
+          rate,
+          sellAsset,
+          sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+          buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
+          sources: DEFAULT_SOURCE,
+        },
+      ],
     })
   }
 

@@ -1,5 +1,12 @@
 import { Ok } from '@sniptt/monads'
-import { BSC, BTC, ETH, FOX, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
+import {
+  BSC,
+  BTC,
+  ETH,
+  FOX_GNOSIS,
+  FOX_MAINNET,
+  WETH,
+} from 'lib/swapper/swappers/utils/test-data/assets'
 
 import type { SwapperWithQuoteMetadata } from '../api'
 import { SwapperName } from '../api'
@@ -58,27 +65,27 @@ describe('SwapperManager', () => {
 
   describe('getSupportedBuyAssetIdsFromSellId', () => {
     it('should return an array of supported buy assetIds given a sell asset Id', () => {
-      const assetIds = [BTC.assetId, WETH.assetId, FOX.assetId]
+      const assetIds = [BTC.assetId, WETH.assetId, FOX_MAINNET.assetId]
 
-      const sellAssetId = FOX.assetId
+      const sellAssetId = FOX_MAINNET.assetId
       const swapperManager = new SwapperManager()
       swapperManager.addSwapper(zrxSwapper)
 
       expect(
         swapperManager.getSupportedBuyAssetIdsFromSellId({ sellAssetId, assetIds }),
-      ).toStrictEqual([WETH.assetId, FOX.assetId])
+      ).toStrictEqual([WETH.assetId, FOX_MAINNET.assetId])
     })
 
     it('should return unique assetIds', () => {
-      const assetIds = [BTC.assetId, WETH.assetId, WETH.assetId, FOX.assetId]
+      const assetIds = [BTC.assetId, WETH.assetId, WETH.assetId, FOX_MAINNET.assetId]
 
-      const sellAssetId = FOX.assetId
+      const sellAssetId = FOX_MAINNET.assetId
       const swapperManager = new SwapperManager()
       swapperManager.addSwapper(zrxSwapper)
 
       expect(
         swapperManager.getSupportedBuyAssetIdsFromSellId({ sellAssetId, assetIds }),
-      ).toStrictEqual([WETH.assetId, FOX.assetId])
+      ).toStrictEqual([WETH.assetId, FOX_MAINNET.assetId])
     })
   })
 
@@ -93,14 +100,14 @@ describe('SwapperManager', () => {
     })
 
     it('should return unique assetIds', () => {
-      const assetIds = [BTC.assetId, WETH.assetId, FOX.assetId, FOX.assetId]
+      const assetIds = [BTC.assetId, WETH.assetId, FOX_MAINNET.assetId, FOX_GNOSIS.assetId]
 
       const swapperManager = new SwapperManager()
       swapperManager.addSwapper(zrxSwapper)
 
       expect(swapperManager.getSupportedSellableAssetIds({ assetIds })).toStrictEqual([
         WETH.assetId,
-        FOX.assetId,
+        FOX_MAINNET.assetId,
       ])
     })
   })

@@ -32,6 +32,7 @@ export type FeatureFlags = {
   ArkeoAirdrop: boolean
   TradeRates: boolean
   Cowswap: boolean
+  CowswapGnosis: boolean
   ZrxSwap: boolean
   Mixpanel: boolean
   LifiSwap: boolean
@@ -41,6 +42,7 @@ export type FeatureFlags = {
   Jaypegz: boolean
   OneInch: boolean
   CovalentJaypegs: boolean
+  MultiHopTrades: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -86,6 +88,7 @@ const initialState: Preferences = {
     ArkeoAirdrop: getConfig().REACT_APP_FEATURE_ARKEO_AIRDROP,
     TradeRates: getConfig().REACT_APP_FEATURE_TRADE_RATES,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
+    CowswapGnosis: getConfig().REACT_APP_FEATURE_COWSWAP_GNOSIS,
     ZrxSwap: getConfig().REACT_APP_FEATURE_ZRX_SWAP,
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
     CovalentJaypegs: getConfig().REACT_APP_FEATURE_COVALENT_JAYPEGS,
@@ -94,6 +97,7 @@ const initialState: Preferences = {
     DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
     ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
     OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
+    MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

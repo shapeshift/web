@@ -1,5 +1,13 @@
 import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { ethers } from 'ethers'
+import type { SwapErrorRight } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+
+import { CowNetwork } from '../../types'
 
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },
@@ -50,6 +58,22 @@ export type CowSwapQuoteApiInputBase = {
 
 export type CowSwapSellQuoteApiInput = CowSwapQuoteApiInputBase & {
   sellAmountBeforeFee: string
+}
+
+export const getCowswapNetwork = (chainId: ChainId): Result<CowNetwork, SwapErrorRight> => {
+  switch (chainId) {
+    case KnownChainIds.EthereumMainnet:
+      return Ok(CowNetwork.Mainnet)
+    case KnownChainIds.GnosisMainnet:
+      return Ok(CowNetwork.Xdai)
+    default:
+      return Err(
+        makeSwapErrorRight({
+          message: '[getCowswapNetwork]',
+          code: SwapErrorType.UNSUPPORTED_CHAIN,
+        }),
+      )
+  }
 }
 
 export const getNowPlusThirtyMinutesTimestamp = (): number => {

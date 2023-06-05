@@ -36,7 +36,6 @@ import {
   selectActiveSwapperWithMetadata,
   selectBuyAsset,
   selectBuyAssetAccountId,
-  selectIsSendMax,
   selectQuote,
   selectReceiveAddress,
   selectSellAmountCryptoPrecision,
@@ -62,7 +61,6 @@ export const useSwapper = () => {
   const defaultAffiliateBps = useSwapperStore(selectSwapperDefaultAffiliateBps)
   const activeSwapperWithMetadata = useSwapperStore(selectActiveSwapperWithMetadata)
   const slippage = useSwapperStore(selectSlippage)
-  const isSendMax = useSwapperStore(selectIsSendMax)
   const sellAmountCryptoPrecision = useSwapperStore(selectSellAmountCryptoPrecision)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
 
@@ -183,7 +181,6 @@ export const useSwapper = () => {
         sellAsset,
         buyAsset,
         wallet,
-        sendMax: isSendMax,
         receiveAddress,
         slippage,
         affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps ?? defaultAffiliateBps,
@@ -239,7 +236,6 @@ export const useSwapper = () => {
       sellAssetAccountId,
       sellAmountCryptoPrecision,
       receiveAddress,
-      isSendMax,
       slippage,
       isDonationAmountBelowMinimum,
       defaultAffiliateBps,
@@ -261,7 +257,7 @@ export const useSwapper = () => {
 
     const from = await adapter.getAddress({
       wallet,
-      accountNumber: activeQuote.accountNumber,
+      accountNumber: activeQuote.steps[0].accountNumber,
     })
 
     const { assetReference: sellAssetContractAddress } = fromAssetId(sellAsset.assetId)
@@ -271,11 +267,13 @@ export const useSwapper = () => {
       web3,
       erc20AllowanceAbi,
       address: sellAssetContractAddress,
-      spender: activeQuote.allowanceContract,
+      spender: activeQuote.steps[0].allowanceContract,
       from,
     })
 
-    return bn(allowanceOnChainCryptoBaseUnit).lt(activeQuote.sellAmountBeforeFeesCryptoBaseUnit)
+    return bn(allowanceOnChainCryptoBaseUnit).lt(
+      activeQuote.steps[0].sellAmountBeforeFeesCryptoBaseUnit,
+    )
   }, [activeQuote, sellAsset.assetId, sellAsset.chainId, wallet])
 
   const getApprovalTxData = useCallback(
@@ -290,11 +288,12 @@ export const useSwapper = () => {
 
       if (!activeQuote) throw new Error('no activeQuote available')
       if (!wallet) throw new Error('no wallet available')
+      if (!supportsETH(wallet)) throw Error('eth wallet required')
       if (!adapter || !isEvmChainAdapter(adapter))
         throw Error(`no valid EVM chain adapter found for chain Id: ${sellAsset.chainId}`)
 
       const approvalAmountCryptoBaseUnit = isExactAllowance
-        ? activeQuote.sellAmountBeforeFeesCryptoBaseUnit
+        ? activeQuote.steps[0].sellAmountBeforeFeesCryptoBaseUnit
         : MAX_ALLOWANCE
 
       const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
@@ -305,24 +304,32 @@ export const useSwapper = () => {
 
       const data = getApproveContractData({
         approvalAmountCryptoBaseUnit,
-        spender: activeQuote.allowanceContract,
+        spender: activeQuote.steps[0].allowanceContract,
         to: assetReference,
         web3,
       })
 
+      const [eip1559Support, from] = await Promise.all([
+        wallet.ethSupportsEIP1559(),
+        adapter.getAddress({
+          wallet,
+          accountNumber: activeQuote.steps[0].accountNumber,
+        }),
+      ])
+
       const { feesWithGasLimit, networkFeeCryptoBaseUnit } = await getFeesFromContractData({
-        accountNumber: activeQuote.accountNumber,
+        eip1559Support,
         adapter,
+        from,
         to: assetReference,
         value,
         data,
-        wallet,
       })
 
       return {
         networkFeeCryptoBaseUnit,
         buildCustomTxInput: {
-          accountNumber: activeQuote.accountNumber,
+          accountNumber: activeQuote.steps[0].accountNumber,
           data,
           to: assetReference,
           value,

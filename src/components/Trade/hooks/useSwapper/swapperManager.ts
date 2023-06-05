@@ -1,10 +1,10 @@
 import { ethChainId } from '@shapeshiftoss/caip'
-import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import stableStringify from 'fast-json-stable-stringify'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { SwapperManager } from 'lib/swapper/manager/SwapperManager'
+import type { CowChainId } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { CowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { LifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper'
 import { OneInchSwapper } from 'lib/swapper/swappers/OneInchSwapper/OneInchSwapper'
@@ -24,20 +24,14 @@ let previousFlags: string = ''
 export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperManager> => {
   // instantiate if it doesn't already exist
   const swapperManager = new SwapperManager()
-
   const adapterManager = getChainAdapterManager()
   const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
 
-  const ethereumChainAdapter = adapterManager.get(
-    KnownChainIds.EthereumMainnet,
-  ) as unknown as ethereum.ChainAdapter
-
   if (flags.Cowswap) {
-    const cowSwapper = new CowSwapper({
-      adapter: ethereumChainAdapter,
-      apiUrl: getConfig().REACT_APP_COWSWAP_HTTP_URL,
-      web3: ethWeb3,
-    })
+    const supportedChainIds: CowChainId[] = flags.CowswapGnosis
+      ? [KnownChainIds.GnosisMainnet, KnownChainIds.EthereumMainnet]
+      : [KnownChainIds.EthereumMainnet]
+    const cowSwapper = new CowSwapper(supportedChainIds)
     swapperManager.addSwapper(cowSwapper)
   }
 

@@ -49,6 +49,7 @@ export const CallRequestModal: FC<WalletConnectModalProps> = ({ callRequest }) =
           />
         )
       case 'eth_signTypedData':
+      case 'eth_signTypedData_v4':
         return (
           <SignTypedDataConfirmation request={callRequest} onConfirm={approve} onReject={reject} />
         )

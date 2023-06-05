@@ -53,7 +53,6 @@ export const swapperStore = createStore<
         clearAmounts: clearAmounts(set),
         updateAmount: createUpdateAction(set, 'amount'),
         updateAction: createUpdateAction(set, 'action'),
-        updateIsSendMax: createUpdateAction(set, 'isSendMax'),
         updateReceiveAddress: createUpdateAction(set, 'receiveAddress'),
         updateFees: updateFees(set),
         updateTrade: createUpdateAction(set, 'trade'),

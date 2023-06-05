@@ -10,11 +10,12 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ReactChild } from 'react'
-import { Fragment, useState } from 'react'
+import { Fragment } from 'react'
 import type { Control } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { Text } from 'components/Text'
+import { useToggle } from 'hooks/useToggle/useToggle'
 
 type Option = [string, string, ReactChild?]
 
@@ -24,15 +25,17 @@ export const FilterGroup = ({
   allowMultipleOptions = false,
   name,
   control,
+  initialIsOpen = false,
 }: {
   title: string
   options: Option[]
   allowMultipleOptions?: boolean
   name: string
   control: Control
+  initialIsOpen?: boolean
 }) => {
-  const [isOpen, setOpen] = useState(false)
-  const toggleDayRange = () => setOpen(open => !open)
+  const [isOpen, toggleIsOpen] = useToggle(initialIsOpen)
+
   const {
     field: { onChange, value },
   } = useController({ control, name })
@@ -48,7 +51,7 @@ export const FilterGroup = ({
         _hover={{ bg: 'transparent' }}
         px={2}
         w='full'
-        onClick={() => toggleDayRange()}
+        onClick={toggleIsOpen}
         rightIcon={
           isOpen ? (
             <Icon as={IoIosArrowUp} color='gray.500' />

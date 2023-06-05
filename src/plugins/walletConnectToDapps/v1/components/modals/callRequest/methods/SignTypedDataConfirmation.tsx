@@ -9,10 +9,8 @@ import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-type CallRequest = WalletConnectEthSignTypedDataCallRequest
-
 type SignTypedDataConfirmationPropsProps = {
-  request: CallRequest
+  request: WalletConnectEthSignTypedDataCallRequest
   onConfirm(): void
   onReject(): void
 }

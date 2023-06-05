@@ -209,6 +209,11 @@ export type SignMessageInput<MessageType> = {
   wallet: HDWallet
 }
 
+export type SignTypedDataInput<TypedDataType> = {
+  typedDataToSign: TypedDataType
+  wallet: HDWallet
+}
+
 export interface TxHistoryInput {
   readonly cursor?: string
   readonly pubkey: string

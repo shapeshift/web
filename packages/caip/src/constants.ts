@@ -12,7 +12,11 @@ export const optimismAssetId: AssetId = 'eip155:10/slip44:60'
 export const bscAssetId: AssetId = 'eip155:56/slip44:60'
 export const polygonAssetId: AssetId = 'eip155:137/slip44:60'
 export const gnosisAssetId: AssetId = 'eip155:100/slip44:60'
+export const foxOnGnosisAssetId: AssetId =
+  'eip155:100/erc20:0x21a42669643f45bc0e086b8fc2ed70c23d67509d'
 export const foxAssetId: AssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
+export const foxatarAssetId: AssetId =
+  'eip155:137/erc721:0x2e727c425a11ce6b8819b3004db332c12d2af2a2'
 export const foxyAssetId: AssetId = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3'
 
 export const cosmosAssetId: AssetId = 'cosmos:cosmoshub-4/slip44:118'

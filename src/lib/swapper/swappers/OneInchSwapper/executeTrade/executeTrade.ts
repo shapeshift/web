@@ -1,5 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -14,6 +15,16 @@ export async function executeTrade({
   trade,
   wallet,
 }: OneInchExecuteTradeInput<EvmChainId>): Promise<Result<TradeResult, SwapErrorRight>> {
+  if (!supportsETH(wallet)) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'eth wallet required',
+        code: SwapErrorType.BUILD_TRADE_FAILED,
+        details: { wallet },
+      }),
+    )
+  }
+
   const { accountNumber, sellAsset, buyAsset, tx } = trade
 
   const { assetNamespace: sellAssetNamespace, chainId: sellAssetChainId } = fromAssetId(
@@ -60,15 +71,17 @@ export async function executeTrade({
     }
 
     const value = '0' // ERC20, so don't send any ETH with the tx
-    const { to, data } = tx
+    const { from, to, data } = tx
+
+    const eip1559Support = await wallet.ethSupportsEIP1559()
 
     const { feesWithGasLimit } = await getFeesFromContractData({
-      accountNumber,
+      eip1559Support,
       adapter,
+      from,
       to,
       value,
       data,
-      wallet,
     })
 
     const buildTxResponse = await adapter.buildSendTransaction({

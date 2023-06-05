@@ -74,7 +74,6 @@ import {
   selectBuyAsset,
   selectBuyAssetAccountId,
   selectFees,
-  selectIsSendMax,
   selectPreferredSwapper,
   selectProtocolFees,
   selectQuote,
@@ -103,6 +102,7 @@ const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 export const TradeInput = () => {
   useSwapperService()
   const [isLoading, setIsLoading] = useState(false)
+  const [isSendMax, setIsSendMax] = useState(false)
   const [showQuotes, toggleShowQuotes] = useToggle(false)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const isTradeRatesEnabled = useFeatureFlag('TradeRates')
@@ -137,7 +137,6 @@ export const TradeInput = () => {
   const fiatBuyAmount = useSwapperStore(selectBuyAmountFiat)
   const fiatSellAmount = useSwapperStore(selectSellAmountFiat)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
-  const updateIsSendMax = useSwapperStore(state => state.updateIsSendMax)
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
@@ -155,7 +154,6 @@ export const TradeInput = () => {
   const protocolFees = useSwapperStore(selectProtocolFees)
   const action = useSwapperStore(selectAction)
   const amount = useSwapperStore(selectAmount)
-  const isSendMax = useSwapperStore(selectIsSendMax)
   const preferredSwapper = useSwapperStore(selectPreferredSwapper)
   const {
     getTrade,
@@ -236,8 +234,8 @@ export const TradeInput = () => {
   const quoteAvailableForCurrentAssetPair = useMemo(() => {
     if (!activeQuote) return false
     return (
-      activeQuote.buyAsset?.assetId === buyAsset?.assetId &&
-      activeQuote.sellAsset?.assetId === sellAsset?.assetId
+      activeQuote.steps[0].buyAsset.assetId === buyAsset?.assetId &&
+      activeQuote.steps[0].sellAsset.assetId === sellAsset?.assetId
     )
   }, [buyAsset?.assetId, activeQuote, sellAsset?.assetId])
 
@@ -261,7 +259,7 @@ export const TradeInput = () => {
       // No-op if nothing material has changed
       if (inputAction === action && inputAmount === amount) return
       updateAction(inputAction)
-      updateIsSendMax(false)
+      setIsSendMax(false)
       updatePreferredSwapper(undefined)
       updateAmount(inputAmount)
 
@@ -271,7 +269,7 @@ export const TradeInput = () => {
       action,
       amount,
       updateAction,
-      updateIsSendMax,
+      setIsSendMax,
       updatePreferredSwapper,
       updateAmount,
       handleInputAmountChange,
@@ -279,7 +277,12 @@ export const TradeInput = () => {
   )
 
   useEffect(() => {
-    if (!isSendMax) return
+    if (
+      !isSendMax ||
+      // handle race condition - we need to use the correct quote for following calculations
+      activeQuote?.steps[0].sellAmountBeforeFeesCryptoBaseUnit !== sellAssetBalanceCryptoBaseUnit
+    )
+      return
 
     // Active swapper is selected inside here to prevent infinite loop where we're updating the
     // value we're reacting to. Instead we react to the preferred swapper.
@@ -308,17 +311,18 @@ export const TradeInput = () => {
     sellFeeAsset,
     handleInputAmountChange,
     updateAmount,
+    activeQuote?.steps,
   ])
 
   const handleSendMax = useCallback(() => {
     if (isSendMax) return
-    updateIsSendMax(true)
+    setIsSendMax(true)
     updateAction(TradeAmountInputField.SELL_CRYPTO)
     updateAmount(fromBaseUnit(sellAssetBalanceCryptoBaseUnit, sellAsset.precision))
     handleInputAmountChange()
   }, [
     isSendMax,
-    updateIsSendMax,
+    setIsSendMax,
     updateAction,
     updateAmount,
     sellAssetBalanceCryptoBaseUnit,
@@ -395,26 +399,26 @@ export const TradeInput = () => {
 
   const handleSellAccountIdChange: AccountDropdownProps['onChange'] = useCallback(
     accountId => {
-      updateIsSendMax(false)
+      setIsSendMax(false)
       updatePreferredSwapper(undefined)
       updateSelectedSellAssetAccountId(accountId)
     },
-    [updateIsSendMax, updatePreferredSwapper, updateSelectedSellAssetAccountId],
+    [setIsSendMax, updatePreferredSwapper, updateSelectedSellAssetAccountId],
   )
 
   const handleBuyAccountIdChange: AccountDropdownProps['onChange'] = useCallback(
     accountId => {
-      updateIsSendMax(false)
+      setIsSendMax(false)
       updatePreferredSwapper(undefined)
       updateSelectedBuyAssetAccountId(accountId)
     },
-    [updateIsSendMax, updatePreferredSwapper, updateSelectedBuyAssetAccountId],
+    [setIsSendMax, updatePreferredSwapper, updateSelectedBuyAssetAccountId],
   )
 
   const isBelowMinSellAmount = useMemo(() => {
     const minSellAmount = toBaseUnit(
       bnOrZero(activeQuote?.minimumCryptoHuman),
-      activeQuote?.sellAsset.precision || 0,
+      activeQuote?.steps[0].sellAsset.precision || 0,
     )
 
     return (
@@ -425,10 +429,10 @@ export const TradeInput = () => {
       !isTradeQuotePending
     )
   }, [
+    activeQuote?.minimumCryptoHuman,
+    activeQuote?.steps,
     hasValidSellAmount,
     isTradeQuotePending,
-    activeQuote?.minimumCryptoHuman,
-    activeQuote?.sellAsset.precision,
     sellAmountCryptoPrecision,
     sellAsset?.precision,
   ])
@@ -494,7 +498,7 @@ export const TradeInput = () => {
       .minus(
         networkFeeRequiresBalance
           ? fromBaseUnit(
-              bnOrZero(activeQuote?.feeData.networkFeeCryptoBaseUnit),
+              bnOrZero(activeQuote?.steps[0].feeData.networkFeeCryptoBaseUnit),
               sellFeeAsset?.precision,
             )
           : 0,
@@ -503,7 +507,7 @@ export const TradeInput = () => {
       .gte(0)
 
     const minLimit = `${bnOrZero(activeQuote?.minimumCryptoHuman).decimalPlaces(6)} ${
-      activeQuote?.sellAsset.symbol
+      activeQuote?.steps[0].sellAsset.symbol
     }`
 
     if (isSwapperApiPending || !isSwapperApiInitiated) return 'common.loadingText'
@@ -575,9 +579,8 @@ export const TradeInput = () => {
     sellAsset?.symbol,
     feeAssetBalancePrecision,
     networkFeeRequiresBalance,
-    activeQuote?.feeData.networkFeeCryptoBaseUnit,
+    activeQuote?.steps,
     activeQuote?.minimumCryptoHuman,
-    activeQuote?.sellAsset.symbol,
     isSwapperApiPending,
     isSwapperApiInitiated,
     wallet,
@@ -610,16 +613,6 @@ export const TradeInput = () => {
     }
   }, [getErrorTranslationKey])
 
-  const sellAmountTooSmall = useMemo(() => {
-    switch (true) {
-      case isBelowMinSellAmount:
-      case feesExceedsSellAmount:
-        return true
-      default:
-        return false
-    }
-  }, [isBelowMinSellAmount, feesExceedsSellAmount])
-
   const handleInputAssetClick = useCallback(
     (action: AssetClickAction) => {
       // prevent opening the asset selection while they are being populated
@@ -627,7 +620,7 @@ export const TradeInput = () => {
 
       assetSearch.open({
         onClick: (asset: Asset) => {
-          updateIsSendMax(false)
+          setIsSendMax(false)
           updatePreferredSwapper(undefined)
           handleAssetClick(asset, action)
         },
@@ -644,7 +637,7 @@ export const TradeInput = () => {
       supportedBuyAssetsByMarketCap,
       supportedSellAssetsByMarketCap,
       handleAssetClick,
-      updateIsSendMax,
+      setIsSendMax,
       updatePreferredSwapper,
     ],
   )
@@ -660,10 +653,10 @@ export const TradeInput = () => {
   )
 
   const handleSwitchAssetsClick = useCallback(() => {
-    updateIsSendMax(false)
+    setIsSendMax(false)
     updatePreferredSwapper(undefined)
     handleSwitchAssets()
-  }, [handleSwitchAssets, updateIsSendMax, updatePreferredSwapper])
+  }, [handleSwitchAssets, setIsSendMax, updatePreferredSwapper])
 
   const tradeStateLoading = useMemo(
     () =>
@@ -822,11 +815,11 @@ export const TradeInput = () => {
             sellSymbol={sellAsset?.symbol}
             buySymbol={buyAsset?.symbol}
             gasFee={gasFeeFiat}
-            rate={activeQuote?.rate}
+            rate={activeQuote?.steps[0].rate}
             isLoading={tradeStateLoading}
             isError={!walletSupportsSellAssetChain}
           />
-          {walletSupportsSellAssetChain && !sellAmountTooSmall && activeSwapperName ? (
+          {walletSupportsSellAssetChain && !isBelowMinSellAmount && activeSwapperName ? (
             <ReceiveSummary
               isLoading={tradeStateLoading}
               symbol={buyAsset?.symbol ?? ''}

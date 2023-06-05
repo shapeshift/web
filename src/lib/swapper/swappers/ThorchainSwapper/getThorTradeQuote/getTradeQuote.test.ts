@@ -6,7 +6,7 @@ import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
-import { ETH, FOX } from '../../utils/test-data/assets'
+import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import type { InboundAddressResponse, ThorchainSwapperDeps, ThornodePoolResponse } from '../types'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
@@ -27,26 +27,29 @@ const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate'
 
 const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '149.14668013703712946932',
-  maximumCryptoHuman: '100000000000000000000000000',
-  sellAmountBeforeFeesCryptoBaseUnit: '713014679420',
-  allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-  buyAmountBeforeFeesCryptoBaseUnit: '114321610000000000',
-  feeData: {
-    protocolFees: {
-      [ETH.assetId]: {
-        amountCryptoBaseUnit: '12000000000000000',
-        requiresBalance: false,
-        asset: ETH,
-      },
-    },
-    networkFeeCryptoBaseUnit: '400000',
-  },
-  rate: '144114.94366197183098591549',
-  sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
-  buyAsset: ETH,
-  sellAsset: FOX,
-  accountNumber: 0,
   recommendedSlippage: '0.04357',
+  steps: [
+    {
+      allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
+      sellAmountBeforeFeesCryptoBaseUnit: '713014679420',
+      buyAmountBeforeFeesCryptoBaseUnit: '114321610000000000',
+      feeData: {
+        protocolFees: {
+          [ETH.assetId]: {
+            amountCryptoBaseUnit: '12000000000000000',
+            requiresBalance: false,
+            asset: ETH,
+          },
+        },
+        networkFeeCryptoBaseUnit: '400000',
+      },
+      rate: '144114.94366197183098591549',
+      sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
+      buyAsset: ETH,
+      sellAsset: FOX_MAINNET,
+      accountNumber: 0,
+    },
+  ],
 }
 
 describe('getTradeQuote', () => {
@@ -109,7 +112,7 @@ describe('getTradeQuote', () => {
       ...quoteInput,
       sellAmountBeforeFeesCryptoBaseUnit: '713014679420',
       buyAsset: ETH,
-      sellAsset: FOX,
+      sellAsset: FOX_MAINNET,
     }
 
     const maybeTradeQuote = await getThorTradeQuote({ deps, input })

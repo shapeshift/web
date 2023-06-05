@@ -3,7 +3,7 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 import type Web3 from 'web3'
 
-import { BTC, ETH, FOX, UNSUPPORTED } from '../../../utils/test-data/assets'
+import { BTC, ETH, FOX_MAINNET, UNSUPPORTED } from '../../../utils/test-data/assets'
 import type { ThorchainSwapperDeps } from '../../types'
 import { thorService } from '../thorService'
 import { getTradeRate } from './getTradeRate'
@@ -54,7 +54,7 @@ describe('getTradeRate', () => {
 
     const maybeTradeRate = await getTradeRate({
       sellAsset: ETH,
-      buyAssetId: FOX.assetId,
+      buyAssetId: FOX_MAINNET.assetId,
       sellAmountCryptoBaseUnit: '1000000000000000000000000',
       receiveAddress,
       deps,
@@ -93,7 +93,7 @@ describe('getTradeRate', () => {
     const receiveAddress = '0xFooBar'
 
     const maybeTradeRate = await getTradeRate({
-      sellAsset: FOX,
+      sellAsset: FOX_MAINNET,
       buyAssetId: ETH.assetId,
       sellAmountCryptoBaseUnit: '100000000000',
       receiveAddress,
@@ -133,7 +133,7 @@ describe('getTradeRate', () => {
     const receiveAddress = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
 
     const maybeTradeRate = await getTradeRate({
-      sellAsset: FOX,
+      sellAsset: FOX_MAINNET,
       buyAssetId: BTC.assetId,
       sellAmountCryptoBaseUnit: '100000000000',
       receiveAddress,
@@ -176,7 +176,7 @@ describe('getTradeRate', () => {
 
     const maybeRate = await getTradeRate({
       sellAsset: BTC,
-      buyAssetId: FOX.assetId,
+      buyAssetId: FOX_MAINNET.assetId,
       sellAmountCryptoBaseUnit: '1000000000',
       receiveAddress,
       deps,
@@ -236,7 +236,7 @@ describe('getTradeRate', () => {
 
     const maybeTradeRate = await getTradeRate({
       sellAsset: ETH,
-      buyAssetId: FOX.assetId,
+      buyAssetId: FOX_MAINNET.assetId,
       sellAmountCryptoBaseUnit: '1000000000000000000000000',
       receiveAddress,
       deps,

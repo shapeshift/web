@@ -23,22 +23,22 @@ export const NftCollection: React.FC<NftCollectionProps> = ({
             as={Link}
             isExternal
             href={link.url}
-            key={link.label}
+            key={link.key}
             size='xs'
             colorScheme='blue'
             variant='ghost-filled'
           >
-            {link.label}
+            {link.displayName || translate(`nft.${link.key}`)}
           </Button>
         ))}
       </Flex>
     )
-  }, [socialLinks])
+  }, [socialLinks, translate])
 
   return (
     <Flex gap={4} flexDir='column' px={8} py={6}>
       <Text fontWeight='medium'>{translate('nft.aboutCollection', { collectionName })}</Text>
-      <ParsedHtml color='gray.500' innerHtml={markdownLinkToHTML(description || '')} />
+      <ParsedHtml color='gray.500' innerHtml={markdownLinkToHTML(description ?? '')} />
       {socialLinkPills}
     </Flex>
   )

@@ -318,8 +318,7 @@ export const TradeConfirm = () => {
         mixpanel.track(MixPanelEvents.TradeConfirm, eventData)
       }
 
-      // TODO(gomes): should we we throw so the catch clause handles this?
-      if (result.isErr()) return
+      if (result.isErr()) throw result.unwrapErr()
       setSellTradeId(result.unwrap().tradeId)
 
       // Poll until we have a "buy" txid

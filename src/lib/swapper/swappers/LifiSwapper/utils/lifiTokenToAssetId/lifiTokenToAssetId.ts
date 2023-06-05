@@ -49,6 +49,11 @@ export const lifiTokenToAssetId = (lifiToken: Token): AssetId => {
           assetReference: ASSET_REFERENCE.Polygon,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
+      case CHAIN_REFERENCE.GnosisMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Gnosis,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       default:
         throw new SwapError(`[lifiTokenToAssetId] chainId '${lifiToken.chainId}' not supported`, {
           code: SwapErrorType.UNSUPPORTED_CHAIN,

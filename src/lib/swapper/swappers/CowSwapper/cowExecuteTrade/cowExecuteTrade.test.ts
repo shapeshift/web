@@ -1,17 +1,17 @@
-import { ethereum } from '@shapeshiftoss/chain-adapters'
+import { ethChainId, gnosisChainId } from '@shapeshiftoss/caip'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 import { ethers } from 'ethers'
-import type Web3 from 'web3'
 
 import type { ExecuteTradeInput } from '../../../api'
 import { SwapperName } from '../../../api'
-import { ETH, FOX, WETH } from '../../utils/test-data/assets'
-import type { CowSwapperDeps } from '../CowSwapper'
-import type { CowTrade } from '../types'
+import { ETH, FOX_MAINNET, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
+import type { CowChainId, CowTrade } from '../types'
 import {
+  COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   DEFAULT_APP_DATA,
   ERC20_TOKEN_BALANCE,
   ORDER_KIND_SELL,
@@ -26,20 +26,7 @@ const OrderDigest = '0xaf1d4f80d997d0cefa325dd6e003e5b5940247694eaba507b793c7ec6
 const Signature =
   '0x521ff65fd1e679b15b3ded234c89a30c0a4af1b190466a2dae0e14b7f935ce2c260cf3c0e4a5d81e340b8e615c095cbd65d0920387bea32cf09ccf3d624bf8251b'
 
-jest.mock('@shapeshiftoss/chain-adapters', () => {
-  const actualChainAdapters = jest.requireActual('@shapeshiftoss/chain-adapters')
-  return {
-    ...actualChainAdapters,
-    ethereum: {
-      ChainAdapter: {
-        // TODO: test account 0+
-        getBIP44Params: jest.fn(() => actualChainAdapters.ethereum.ChainAdapter.defaultBIP44Params),
-        defaultBIP44Params: actualChainAdapters.ethereum.ChainAdapter.defaultBIP44Params,
-        signMessage: jest.fn(() => Promise.resolve(Signature)),
-      },
-    },
-  }
-})
+const supportedChainIds: CowChainId[] = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
 
 jest.mock('../utils/cowService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')
@@ -57,7 +44,36 @@ jest.mock('../utils/helpers/helpers', () => {
   }
 })
 
-const ethereumMock = jest.mocked(ethereum)
+const actualChainAdapters = jest.requireActual('@shapeshiftoss/chain-adapters')
+
+const mockEthereumChainAdapter = {
+  // TODO: test account 0+
+  getBIP44Params: jest.fn(() => actualChainAdapters.ethereum.ChainAdapter.defaultBIP44Params),
+  getChainId: () => KnownChainIds.EthereumMainnet,
+  signMessage: jest.fn(() => Promise.resolve(Signature)),
+} as unknown as EvmChainAdapter
+
+const mockGnosisChainAdapter = {
+  // TODO: test account 0+
+  getBIP44Params: jest.fn(() => actualChainAdapters.gnosis.ChainAdapter.defaultBIP44Params),
+  getChainId: () => KnownChainIds.GnosisMainnet,
+  signMessage: jest.fn(() => Promise.resolve(Signature)),
+} as unknown as EvmChainAdapter
+
+jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
+  const { KnownChainIds } = require('@shapeshiftoss/types')
+
+  return {
+    getChainAdapterManager: jest.fn(
+      () =>
+        new Map([
+          [KnownChainIds.EthereumMainnet, mockEthereumChainAdapter],
+          [KnownChainIds.GnosisMainnet, mockGnosisChainAdapter],
+        ]),
+    ),
+  }
+})
+
 const hashOrderMock = jest.mocked(hashOrder)
 
 const cowTradeEthToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
@@ -69,7 +85,7 @@ const cowTradeEthToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
   buyAmountBeforeFeesCryptoBaseUnit: '14501811818247595090576',
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
-  buyAsset: FOX,
+  buyAsset: FOX_MAINNET,
   sellAsset: ETH,
   accountNumber: 0,
   receiveAddress: 'address11',
@@ -88,7 +104,7 @@ const cowTradeWethToFox: CowTrade<KnownChainIds.EthereumMainnet> = {
   sellAmountBeforeFeesCryptoBaseUnit: '20200000000000000',
   buyAmountBeforeFeesCryptoBaseUnit: '272522025311597443544',
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
-  buyAsset: FOX,
+  buyAsset: FOX_MAINNET,
   sellAsset: WETH,
   accountNumber: 0,
   receiveAddress: 'address11',
@@ -102,10 +118,10 @@ const cowTradeFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   rate: '0.00004995640398295996',
   feeData: {
     protocolFees: {
-      [FOX.assetId]: {
+      [FOX_MAINNET.assetId]: {
         amountCryptoBaseUnit: '5.3955565850972847808512',
         requiresBalance: false,
-        asset: FOX,
+        asset: FOX_MAINNET,
       },
     },
     networkFeeCryptoBaseUnit: '0',
@@ -114,13 +130,38 @@ const cowTradeFoxToEth: CowTrade<KnownChainIds.EthereumMainnet> = {
   buyAmountBeforeFeesCryptoBaseUnit: '46868859830863283',
   sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
   buyAsset: ETH,
-  sellAsset: FOX,
+  sellAsset: FOX_MAINNET,
   accountNumber: 0,
   receiveAddress: 'address11',
   feeAmountInSellTokenCryptoBaseUnit: '61804771879693983744',
   sellAmountDeductFeeCryptoBaseUnit: '938195228120306016256',
   id: '1',
   minimumBuyAmountAfterFeesCryptoBaseUnit: '46868859830863283',
+}
+
+const cowTradeUsdcToXdai: CowTrade<KnownChainIds.GnosisMainnet> = {
+  rate: '1.0003121775396440882',
+  feeData: {
+    protocolFees: {
+      [USDC_GNOSIS.assetId]: {
+        amountCryptoBaseUnit: '1188',
+        requiresBalance: false,
+        asset: USDC_GNOSIS,
+      },
+    },
+    networkFeeCryptoBaseUnit: '0',
+  },
+  sellAmountBeforeFeesCryptoBaseUnit: '20000000',
+  buyAmountBeforeFeesCryptoBaseUnit: '21006545288929894469',
+  sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
+  buyAsset: XDAI,
+  sellAsset: USDC_GNOSIS,
+  accountNumber: 0,
+  receiveAddress: 'address11',
+  feeAmountInSellTokenCryptoBaseUnit: '1188',
+  sellAmountDeductFeeCryptoBaseUnit: '20998812',
+  id: '1',
+  minimumBuyAmountAfterFeesCryptoBaseUnit: '20900340520678280712',
 }
 
 const expectedWethToFoxOrderToSign: CowSwapOrder = {
@@ -141,7 +182,7 @@ const expectedWethToFoxOrderToSign: CowSwapOrder = {
 
 const expectedFoxToEthOrderToSign: CowSwapOrder = {
   sellToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-  buyToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+  buyToken: COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   sellAmount: '938195228120306016256',
   buyAmount: '46868859830863283',
   validTo: 1656797787,
@@ -155,10 +196,20 @@ const expectedFoxToEthOrderToSign: CowSwapOrder = {
   quoteId: '1',
 }
 
-const deps: CowSwapperDeps = {
-  apiUrl: 'https://api.cow.fi/mainnet/api',
-  adapter: ethereumMock.ChainAdapter as unknown as ethereum.ChainAdapter,
-  web3: {} as Web3,
+const expectedUsdcToXdaiOrderToSign: CowSwapOrder = {
+  sellToken: '0xddafbb505ad214d7b80b1f830fccc89b60fb7a83',
+  buyToken: COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
+  sellAmount: '20998812',
+  buyAmount: '20900340520678280712',
+  validTo: 1656797787,
+  appData: DEFAULT_APP_DATA,
+  feeAmount: '1188',
+  kind: ORDER_KIND_SELL,
+  partiallyFillable: false,
+  receiver: 'address11',
+  sellTokenBalance: ERC20_TOKEN_BALANCE,
+  buyTokenBalance: ERC20_TOKEN_BALANCE,
+  quoteId: '1',
 }
 
 describe('cowExecuteTrade', () => {
@@ -168,7 +219,7 @@ describe('cowExecuteTrade', () => {
       wallet: {} as HDWallet,
     }
 
-    expect((await cowExecuteTrade(deps, tradeInput)).unwrapErr()).toMatchObject({
+    expect((await cowExecuteTrade(tradeInput, supportedChainIds)).unwrapErr()).toMatchObject({
       cause: undefined,
       code: 'UNSUPPORTED_PAIR',
       details: { sellAssetNamespace: 'slip44' },
@@ -191,11 +242,12 @@ describe('cowExecuteTrade', () => {
       ),
     )
 
-    const maybeTrade = await cowExecuteTrade(deps, tradeInput)
+    const maybeTrade = await cowExecuteTrade(tradeInput, supportedChainIds)
     expect(maybeTrade.isErr()).toBe(false)
     const trade = maybeTrade.unwrap()
 
     expect(trade).toEqual({
+      chainId: ethChainId,
       tradeId:
         '0xe476dadc86e768e4602bc872d4a7d50b03a4c2a609b37bf741f26baa578146bd0ea983f21f58f0e1a29ed653bcfc8afac4fec2a462c2e25e',
     })
@@ -215,9 +267,7 @@ describe('cowExecuteTrade', () => {
       },
       expectedWethToFoxOrderToSign,
     )
-    expect(
-      (ethereumMock.ChainAdapter as unknown as ethereum.ChainAdapter).signMessage,
-    ).toHaveBeenCalledWith({
+    expect(mockEthereumChainAdapter.signMessage).toHaveBeenCalledWith({
       messageToSign: {
         addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
         message: ethers.utils.arrayify(OrderDigest),
@@ -240,11 +290,12 @@ describe('cowExecuteTrade', () => {
       ),
     )
 
-    const maybeTrade = await cowExecuteTrade(deps, tradeInput)
+    const maybeTrade = await cowExecuteTrade(tradeInput, supportedChainIds)
 
     expect(maybeTrade.isErr()).toBe(false)
     const trade = maybeTrade.unwrap()
     expect(trade).toEqual({
+      chainId: ethChainId,
       tradeId:
         '0xe476dadc86e768e4602bc872d4a7d50b03a4c2a609b37bf741f26baa578146bd0ea983f21f58f0e1a29ed653bcfc8afac4fec2a462c2e26f',
     })
@@ -265,9 +316,56 @@ describe('cowExecuteTrade', () => {
       },
       expectedFoxToEthOrderToSign,
     )
-    expect(
-      (ethereumMock.ChainAdapter as unknown as ethereum.ChainAdapter).signMessage,
-    ).toHaveBeenCalledWith({
+    expect(mockEthereumChainAdapter.signMessage).toHaveBeenCalledWith({
+      messageToSign: {
+        addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+        message: ethers.utils.arrayify(OrderDigest),
+      },
+      wallet: tradeInput.wallet,
+    })
+  })
+
+  it('should call cowService with correct parameters and return the order uid when buying XDAI', async () => {
+    const tradeInput: ExecuteTradeInput<KnownChainIds.GnosisMainnet> = {
+      trade: cowTradeUsdcToXdai,
+      wallet: {} as HDWallet,
+    }
+
+    ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
+      Promise.resolve(
+        Ok({
+          data: '0xe476dadc86e768e4602bc872d4a7d50b03a4c2a609b37bf741f26baa578146bd0ea983f21f58f0e1a29ed653bcfc8afac4fec2a462c2e26f',
+        }),
+      ),
+    )
+
+    const maybeTrade = await cowExecuteTrade(tradeInput, supportedChainIds)
+
+    expect(maybeTrade.isErr()).toBe(false)
+    const trade = maybeTrade.unwrap()
+    expect(trade).toEqual({
+      chainId: gnosisChainId,
+      tradeId:
+        '0xe476dadc86e768e4602bc872d4a7d50b03a4c2a609b37bf741f26baa578146bd0ea983f21f58f0e1a29ed653bcfc8afac4fec2a462c2e26f',
+    })
+
+    expect(cowService.post).toHaveBeenCalledWith('https://api.cow.fi/xdai/api/v1/orders/', {
+      ...expectedUsdcToXdaiOrderToSign,
+      signingScheme: SIGNING_SCHEME,
+      signature: Signature,
+      from: expectedUsdcToXdaiOrderToSign.receiver,
+    })
+
+    expect(hashOrderMock).toHaveBeenCalledWith(
+      {
+        chainId: 100,
+        name: 'Gnosis Protocol',
+        verifyingContract: '0x9008D19f58AAbD9eD0D60971565AA8510560ab41',
+        version: 'v2',
+      },
+      expectedUsdcToXdaiOrderToSign,
+    )
+    expect(mockGnosisChainAdapter.signMessage).toHaveBeenCalledWith({
       messageToSign: {
         addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
         message: ethers.utils.arrayify(OrderDigest),

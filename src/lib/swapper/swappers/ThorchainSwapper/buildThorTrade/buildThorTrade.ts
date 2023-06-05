@@ -41,7 +41,6 @@ export const buildTrade = async ({
     accountNumber,
     slippage: slippageTolerance = DEFAULT_SLIPPAGE,
     wallet,
-    sendMax,
     affiliateBps = '0',
   } = input
 
@@ -82,7 +81,7 @@ export const buildTrade = async ({
       adapter: sellAdapter as unknown as ThorEvmSupportedChainAdapter,
       sellAmountCryptoBaseUnit,
       destinationAddress,
-      feeData: quote.feeData as QuoteFeeData<ThorEvmSupportedChainId>,
+      feeData: quote.steps[0].feeData as QuoteFeeData<ThorEvmSupportedChainId>,
       deps,
       affiliateBps,
     })
@@ -90,7 +89,7 @@ export const buildTrade = async ({
     return maybeEthTradeTx.andThen(ethTradeTx =>
       Ok({
         chainId: sellAsset.chainId as ThorEvmSupportedChainId,
-        ...quote,
+        ...quote.steps[0],
         receiveAddress: destinationAddress,
         txData: ethTradeTx.txToSign,
       }),
@@ -104,7 +103,7 @@ export const buildTrade = async ({
       slippageTolerance,
       destinationAddress,
       xpub: (input as GetUtxoTradeQuoteInput).xpub,
-      protocolFees: quote.feeData.protocolFees,
+      protocolFees: quote.steps[0].feeData.protocolFees,
       affiliateBps,
     })
 
@@ -120,16 +119,15 @@ export const buildTrade = async ({
       accountNumber,
       chainSpecific: {
         accountType: (input as GetUtxoTradeQuoteInput).accountType,
-        satoshiPerByte: (quote as TradeQuote<ThorUtxoSupportedChainId>).feeData.chainSpecific
-          .satsPerByte,
+        satoshiPerByte: (quote as TradeQuote<ThorUtxoSupportedChainId>).steps[0].feeData
+          .chainSpecific.satsPerByte,
         opReturnData,
       },
-      sendMax,
     })
 
     return Ok({
       chainId: sellAsset.chainId as ThorUtxoSupportedChainId,
-      ...quote,
+      ...quote.steps[0],
       receiveAddress: destinationAddress,
       txData: buildTxResponse.txToSign,
     })
@@ -152,7 +150,7 @@ export const buildTrade = async ({
     return maybeTxData.andThen(txData =>
       Ok({
         chainId: sellAsset.chainId as ThorCosmosSdkSupportedChainId,
-        ...quote,
+        ...quote.steps[0],
         receiveAddress: destinationAddress,
         txData,
       }),

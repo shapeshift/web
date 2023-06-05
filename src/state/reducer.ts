@@ -7,7 +7,7 @@ import { abiApi } from './apis/abi/abiApi'
 import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
-import { nftApi } from './apis/nft/nftApi'
+import { nft, nftApi } from './apis/nft/nftApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
 import { zerionApi } from './apis/zerion/zerionApi'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
@@ -25,6 +25,7 @@ export const slices = {
   portfolio,
   preferences,
   opportunities,
+  nft,
 }
 
 const preferencesPersistConfig = {
@@ -41,6 +42,7 @@ export const sliceReducers = {
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
   swapperApi: swapperApi.reducer,
   opportunities: opportunities.reducer,
+  nft: nft.reducer,
 }
 
 export const apiSlices = {

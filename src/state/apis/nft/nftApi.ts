@@ -196,7 +196,7 @@ export const nftApi = createApi({
       queryFn: async ({ assetId }, { dispatch }) => {
         const { data: nftDataWithCollection } = await getAlchemyNftData(assetId)
 
-        let { collection, ...nftItemWithoutId } = nftDataWithCollection
+        const { collection, ...nftItemWithoutId } = nftDataWithCollection
         const nftItem: NftItem = {
           ...nftItemWithoutId,
           collectionId: nftDataWithCollection.collection.assetId,

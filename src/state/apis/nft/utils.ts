@@ -134,7 +134,7 @@ export const getAlchemyNftsUserData = async (
   return { data: items }
 }
 
-// Gets NFT with metadata reinsteded in Alchemy - only use for NFTs we explicitly want fresh metadata for
+// Gets NFT with metadata reinstated in Alchemy - only use for NFTs we explicitly want fresh metadata for
 // i.e FOXatar refresh on customization update
 export const getAlchemyNftData = async (
   assetId: AssetId,

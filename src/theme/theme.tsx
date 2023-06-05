@@ -35,6 +35,7 @@ export const breakpoints = {
   lg: '992px',
   xl: '1280px',
   '2xl': '1440px',
+  '3xl': '2200px',
 }
 
 const styles = {

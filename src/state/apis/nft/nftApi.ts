@@ -102,9 +102,19 @@ export const nftApi = createApi({
         const services = [
           getAlchemyNftData,
           (accountIds: AccountId[]) =>
-            dispatch(zapperApi.endpoints.getZapperNftUserTokens.initiate({ accountIds })),
+            dispatch(
+              zapperApi.endpoints.getZapperNftUserTokens.initiate(
+                { accountIds },
+                { forceRefetch: true },
+              ),
+            ),
           (accountIds: AccountId[]) =>
-            dispatch(covalentApi.endpoints.getCovalentNftUserTokens.initiate({ accountIds })),
+            dispatch(
+              covalentApi.endpoints.getCovalentNftUserTokens.initiate(
+                { accountIds },
+                { forceRefetch: true },
+              ),
+            ),
         ]
 
         const results = await Promise.all(services.map(service => service(accountIds)))

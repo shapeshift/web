@@ -1,22 +1,27 @@
 import type { ModalProps } from '@chakra-ui/react'
 import {
+  Box,
   Button,
   Center,
   Modal,
   ModalBody,
+  ModalCloseButton,
   ModalContent,
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  SimpleGrid,
+  useBreakpointValue,
   useRadioGroup,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import AutoSizer from 'react-virtualized-auto-sizer'
+import { FixedSizeGrid } from 'react-window'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
+import { RawText } from 'components/Text'
 import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
 import { nft, useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
 import {
@@ -27,7 +32,7 @@ import type { NftItemWithCollection } from 'state/apis/nft/types'
 import { selectWalletAccountIds, selectWalletId } from 'state/slices/common-selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { AvatarRadio } from './AvatarRadio'
+import { NftRow } from './NftRow'
 
 type AvatarSelectModalProps = Pick<ModalProps, 'isOpen'> &
   Pick<ModalProps, 'onClose'> & { walletImage: string }
@@ -40,6 +45,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const translate = useTranslate()
   const accountIds = useAppSelector(selectWalletAccountIds)
   const selectedNftAvatar = useAppSelector(selectSelectedNftAvatar)
+  const columnCount = useBreakpointValue({ base: 2, md: 3 }, { ssr: false }) ?? 2
 
   const { isLoading } = useGetNftUserTokensQuery({ accountIds })
   const selectNftItemsWithCollectionSelector = useMemo(
@@ -75,21 +81,13 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
 
   const defaultValue = selectedNftAvatar ?? defaultWalletImage
 
-  const { getRootProps, getRadioProps } = useRadioGroup({
+  const { getRootProps, getRadioProps, setValue } = useRadioGroup({
     name: 'framework',
     onChange: setSelected,
     defaultValue,
   })
 
   const group = getRootProps()
-
-  const renderItems = useMemo(() => {
-    return filteredNfts?.map(({ assetId, medias }) => {
-      if (!assetId) return null
-      const mediaUrl = medias?.[0]?.originalUrl
-      return <AvatarRadio key={assetId} src={mediaUrl} {...getRadioProps({ value: assetId })} />
-    })
-  }, [filteredNfts, getRadioProps])
 
   const handleSaveChanges = useCallback(() => {
     if (selected && walletId) {
@@ -98,11 +96,20 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
     props.onClose()
   }, [dispatch, props, selected, walletId])
 
+  const handleRestoreDefault = () => {
+    setSelected(defaultWalletImage)
+    setValue('')
+  }
+
   return (
-    <Modal size='lg' {...props}>
+    <Modal scrollBehavior='inside' size='lg' {...props}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>{translate('avatar.modal.title')}</ModalHeader>
+        <ModalHeader>
+          <RawText mb={2}>{translate('avatar.modal.title')}</RawText>
+          <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+          <ModalCloseButton />
+        </ModalHeader>
         {isLoading ? (
           <ModalBody>
             <Center py={12}>
@@ -112,21 +119,31 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
         ) : (
           <>
             <ModalBody pb={4} display='flex' flexDir='column' gap={4}>
-              <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
-              <SimpleGrid
-                gridGap={4}
-                gridTemplateColumns={{ base: '1fr 1fr', md: '1fr 1fr 1fr' }}
-                {...group}
-              >
-                <AvatarRadio
-                  key={defaultWalletImage}
-                  src={defaultWalletImage}
-                  {...getRadioProps({ value: defaultWalletImage })}
-                />
-                {renderItems}
-              </SimpleGrid>
+              <Box {...group}>
+                <AutoSizer disableHeight>
+                  {({ width }) => {
+                    return (
+                      <FixedSizeGrid
+                        width={width}
+                        height={500}
+                        itemData={{ filteredNfts, columnCount, getRadioProps }}
+                        columnWidth={width / columnCount}
+                        rowCount={filteredNfts.length / columnCount}
+                        rowHeight={width / columnCount}
+                        columnCount={3}
+                        overscanRowCount={15}
+                      >
+                        {NftRow}
+                      </FixedSizeGrid>
+                    )
+                  }}
+                </AutoSizer>
+              </Box>
             </ModalBody>
             <ModalFooter>
+              <Button onClick={handleRestoreDefault} mr='auto'>
+                Restore default
+              </Button>
               <Button onClick={props.onClose}>{translate('common.cancel')}</Button>
               <Button ml={4} colorScheme='blue' onClick={handleSaveChanges}>
                 {translate('common.saveChanges')}

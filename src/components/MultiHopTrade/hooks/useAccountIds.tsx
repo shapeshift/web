@@ -39,8 +39,12 @@ export const useAccountIds = ({
     selectFirstAccountIdByChainId(state, buyAsset.chainId),
   )
 
-  const [selectedSellAssetAccountId, setSelectedSellAssetAccountId] = useState<AccountId | undefined>()
-  const [selectedBuyAssetAccountId, setSelectedBuyAssetAccountId] = useState<AccountId | undefined>()
+  const [selectedSellAssetAccountId, setSelectedSellAssetAccountId] = useState<
+    AccountId | undefined
+  >()
+  const [selectedBuyAssetAccountId, setSelectedBuyAssetAccountId] = useState<
+    AccountId | undefined
+  >()
 
   useEffect(() => {
     setSelectedSellAssetAccountId(highestFiatBalanceSellAccountId ?? firstSellAssetAccountId)
@@ -48,7 +52,7 @@ export const useAccountIds = ({
 
   useEffect(() => {
     setSelectedBuyAssetAccountId(highestFiatBalanceBuyAccountId ?? firstBuyAssetAccountId)
-  }, [highestFiatBalanceSellAccountId, firstSellAssetAccountId])
+  }, [firstBuyAssetAccountId, highestFiatBalanceBuyAccountId])
 
   useEffect(() => {
     /*

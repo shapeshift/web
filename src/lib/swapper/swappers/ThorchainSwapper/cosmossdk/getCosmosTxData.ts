@@ -66,7 +66,7 @@ export const getCosmosTxData = async (
     sellAsset,
     slippageTolerance,
     deps,
-    protocolFees: quote.feeData.protocolFees,
+    protocolFees: quote.steps[0].feeData.protocolFees,
     receiveAddress: destinationAddress,
     affiliateBps,
   })
@@ -91,8 +91,8 @@ export const getCosmosTxData = async (
             wallet,
             memo,
             chainSpecific: {
-              gas: quote.feeData.chainSpecific.estimatedGasCryptoBaseUnit,
-              fee: quote.feeData.networkFeeCryptoBaseUnit,
+              gas: quote.steps[0].feeData.chainSpecific.estimatedGasCryptoBaseUnit,
+              fee: quote.steps[0].feeData.networkFeeCryptoBaseUnit,
             },
           }),
         )
@@ -115,9 +115,9 @@ export const getCosmosTxData = async (
             to: vault,
             memo,
             chainSpecific: {
-              gas: (quote as TradeQuote<ThorCosmosSdkSupportedChainId>).feeData.chainSpecific
-                .estimatedGasCryptoBaseUnit,
-              fee: quote.feeData.networkFeeCryptoBaseUnit,
+              gas: (quote as TradeQuote<ThorCosmosSdkSupportedChainId>).steps[0].feeData
+                .chainSpecific.estimatedGasCryptoBaseUnit,
+              fee: quote.steps[0].feeData.networkFeeCryptoBaseUnit,
             },
           }),
         )

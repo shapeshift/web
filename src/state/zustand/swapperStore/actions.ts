@@ -19,7 +19,6 @@ export const clearAmounts =
         draft.buyAmountFiat = '0'
         draft.sellAmountFiat = '0'
         draft.amount = '0'
-        draft.isSendMax = false
         draft.action = TradeAmountInputField.SELL_FIAT
         draft.trade = undefined
         draft.buyAmountFiat = '0'
@@ -128,7 +127,7 @@ export const handleAssetSelection =
 export const updateFees = (set: SetSwapperStoreAction<SwapperState>) => (sellFeeAsset: Asset) =>
   set(
     draft => {
-      const feeTrade = draft.trade ?? selectQuote(draft)
+      const feeTrade = draft.trade ?? selectQuote(draft)?.steps[0]
       const sellAsset = draft.sellAsset
       const activeSwapperWithMetadata = selectActiveSwapperWithMetadata(draft)
       const activeTradeSwapper = activeSwapperWithMetadata?.swapper

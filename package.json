@@ -94,6 +94,7 @@
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "workspace:^",
     "@shapeshiftoss/errors": "workspace:^",
+    "@shapeshiftoss/hdwallet-coinbase": "1.50.3",
     "@shapeshiftoss/hdwallet-core": "1.50.3",
     "@shapeshiftoss/hdwallet-keepkey": "1.50.3",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "1.50.3",

@@ -1232,6 +1232,22 @@
         "button": "Open"
       }
     },
+    "coinbase": {
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with Coinbase",
+        "connectFailure": "Unable to connect Coinbase wallet",
+        "multipleWallets": "Detected Ethereum provider is not Coinbase. Do you have multiple wallets installed?"
+      },
+      "connect": {
+        "header": "Pair Coinbase",
+        "body": "Click Pair and login to Coinbase from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect Coinbase wallet"
+      }
+    },
     "walletConnect": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with WalletConnect",

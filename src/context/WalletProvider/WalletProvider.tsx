@@ -90,6 +90,7 @@ export type KeyManagerWithProvider =
   | KeyManager.XDefi
   | KeyManager.MetaMask
   | KeyManager.WalletConnect
+  | KeyManager.Coinbase
 
 export interface InitialState {
   keyring: Keyring
@@ -136,7 +137,12 @@ export const isKeyManagerWithProvider = (
 ): keyManager is KeyManagerWithProvider =>
   Boolean(
     keyManager &&
-      [KeyManager.XDefi, KeyManager.MetaMask, KeyManager.WalletConnect].includes(keyManager),
+      [
+        KeyManager.XDefi,
+        KeyManager.MetaMask,
+        KeyManager.WalletConnect,
+        KeyManager.Coinbase,
+      ].includes(keyManager),
   )
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -470,6 +476,34 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                     type: WalletActions.SET_WALLET,
                     payload: {
                       wallet: localMetaMaskWallet,
+                      name,
+                      icon,
+                      deviceId,
+                    },
+                  })
+                  dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                } catch (e) {
+                  disconnect()
+                }
+              } else {
+                disconnect()
+              }
+              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+              break
+            case KeyManager.Coinbase:
+              const localCoinbaseWallet = await state.adapters
+                .get(KeyManager.Coinbase)?.[0]
+                ?.pairDevice()
+              if (localCoinbaseWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.Coinbase]
+                try {
+                  await localCoinbaseWallet.initialize()
+                  const deviceId = await localCoinbaseWallet.getDeviceID()
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localCoinbaseWallet,
                       name,
                       icon,
                       deviceId,

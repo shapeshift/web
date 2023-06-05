@@ -6,6 +6,8 @@ import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { getTradeQuote } from 'lib/swapper/swappers/LifiSwapper/getTradeQuote/getTradeQuote'
 import { isGetEvmTradeQuoteInput } from 'lib/swapper/swappers/LifiSwapper/utils/isGetEvmTradeQuoteInput/isGetEvmTradeQuoteInput'
+import { selectAssets, selectMarketDataById } from 'state/slices/selectors'
+import { store } from 'state/store'
 
 import type { LifiTrade } from '../utils/types'
 
@@ -32,10 +34,18 @@ export const buildTrade = async (
         code: SwapErrorType.MISSING_INPUT,
       }),
     )
+
+  const assets = selectAssets(store.getState())
+  const { price: sellAssetPriceUsdPrecision } = selectMarketDataById(
+    store.getState(),
+    input.sellAsset.assetId,
+  )
   // TODO: determine whether we should be fetching another quote like below or modify `executeTrade.ts`
   // to allow passing the existing quote in.
-  return (await getTradeQuote(input, lifiChainMap)).map(tradeQuote => ({
-    ...tradeQuote.steps[0],
-    receiveAddress,
-  }))
+  return (await getTradeQuote(input, lifiChainMap, assets, sellAssetPriceUsdPrecision)).map(
+    tradeQuote => ({
+      ...tradeQuote.steps[0],
+      receiveAddress,
+    }),
+  )
 }

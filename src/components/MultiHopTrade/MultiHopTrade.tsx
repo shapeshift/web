@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, Flex, IconButton, Stack, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { CardProps } from 'components/Card/Card'
@@ -16,13 +16,16 @@ import { TradeQuotes } from 'components/Trade/Components/TradeQuotes/TradeQuotes
 import { ReceiveSummary } from 'components/Trade/TradeConfirm/ReceiveSummary'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { ETH, FOX_MAINNET } from 'lib/swapper/swappers/utils/test-data/assets'
-import { selectAssetsSortedByMarketCapFiatBalanceAndName } from 'state/slices/common-selectors'
-import { useAppSelector } from 'state/store'
+import type { Asset } from 'lib/asset-service'
+import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
+import { swappers } from 'state/slices/swappersSlice/swappersSlice'
+import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { SellAssetInput } from './components/SellAssetInput'
 import { useAccountIds } from './hooks/useAccountIds'
+import { useGetTradeQuotes } from './hooks/useGetTradeQuotes'
+import { useSupportedAssets } from './hooks/useSupportedAssets'
 
 export const MultiHopTrade = (props: CardProps) => {
   const {
@@ -32,21 +35,26 @@ export const MultiHopTrade = (props: CardProps) => {
   const methods = useForm({ mode: 'onChange' })
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { assetSearch } = useModal()
-  const sortedAssets = useAppSelector(selectAssetsSortedByMarketCapFiatBalanceAndName)
+  const buyAsset = useAppSelector(selectBuyAsset)
+  const sellAsset = useAppSelector(selectSellAsset)
+  const dispatch = useAppDispatch()
+  const setBuyAsset = useCallback(
+    (asset: Asset) => dispatch(swappers.actions.setBuyAsset(asset)),
+    [dispatch],
+  )
+  const setSellAsset = useCallback(
+    (asset: Asset) => dispatch(swappers.actions.setBuyAsset(asset)),
+    [dispatch],
+  )
 
-  // TEMP: needs redux
-  const [sellAsset, setSellAsset] = useState(ETH)
-  const [buyAsset, setBuyAsset] = useState(FOX_MAINNET)
-  const supportedSellAssetsByMarketCap = sortedAssets
-  const supportedBuyAssetsByMarketCap = sortedAssets
-  const isSwapperInitialized = true
-  const swapperSupportsCrossAccountTrade = true
+  const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
+  const quotes = useGetTradeQuotes()
+  console.log(quotes)
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds({
       buyAsset,
       sellAsset,
-      swapperSupportsCrossAccountTrade,
     })
 
   const translate = useTranslate()
@@ -56,26 +64,20 @@ export const MultiHopTrade = (props: CardProps) => {
   )
 
   const handleSellAssetClick = useCallback(() => {
-    // prevent opening the asset selection while they are being populated
-    if (!isSwapperInitialized) return
-
     assetSearch.open({
       onClick: setSellAsset,
       title: 'trade.tradeFrom',
-      assets: supportedSellAssetsByMarketCap,
+      assets: supportedSellAssets,
     })
-  }, [assetSearch, isSwapperInitialized, supportedSellAssetsByMarketCap])
+  }, [assetSearch, setSellAsset, supportedSellAssets])
 
   const handleBuyAssetClick = useCallback(() => {
-    // prevent opening the asset selection while they are being populated
-    if (!isSwapperInitialized) return
-
     assetSearch.open({
       onClick: setBuyAsset,
       title: 'trade.tradeTo',
-      assets: supportedBuyAssetsByMarketCap,
+      assets: supportedBuyAssets,
     })
-  }, [assetSearch, isSwapperInitialized, supportedBuyAssetsByMarketCap])
+  }, [assetSearch, setBuyAsset, supportedBuyAssets])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>

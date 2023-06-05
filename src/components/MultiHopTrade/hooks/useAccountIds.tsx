@@ -2,26 +2,26 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import type { Asset } from 'lib/asset-service'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
-import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
+import {
+  selectFirstAccountIdByChainId,
+  selectSwapperSupportsCrossAccountTrade,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useAccountIds = ({
   buyAsset,
   sellAsset,
-  swapperSupportsCrossAccountTrade,
 }: {
   buyAsset: Asset
   sellAsset: Asset
-  // whether a swapper exists and that it supports cross account trades. Undefined means a swapper doesnt exist
-  // TODO(woodenfurniture): pull swapperSupportsCrossAccountTrade from redux to prevent mistakes passing this in correctly
-  // this is super dangerous because if we coalesce when passing this value in the user ends up with funds in the wrong account
-  swapperSupportsCrossAccountTrade?: boolean
 }): {
   buyAssetAccountId?: AccountId
   sellAssetAccountId?: AccountId
   setBuyAssetAccountId: (accountId: AccountId) => void
   setSellAssetAccountId: (accountId: AccountId) => void
 } => {
+  const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
+
   const highestFiatBalanceSellAccountId = useAppSelector(state =>
     selectHighestFiatBalanceAccountByAssetId(state, {
       assetId: sellAsset.assetId,

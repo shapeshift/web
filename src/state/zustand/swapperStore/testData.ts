@@ -15,7 +15,6 @@ const mockActions: SwapperAction = {
   updateBuyAmountFiat(): void {},
   updateBuyAssetAccountId(): void {},
   updateFees(): void {},
-  updateIsSendMax(): void {},
   updateReceiveAddress(): void {},
   updateSelectedBuyAssetAccountId(): void {},
   updateSelectedSellAssetAccountId(): void {},
@@ -35,7 +34,6 @@ export const baseSwapperState: SwapperState = {
   buyAmountFiat: '33.00',
   amount: '33',
   action: TradeAmountInputField.SELL_FIAT,
-  isSendMax: false,
   buyAmountCryptoPrecision: '989.157064',
   sellAmountCryptoPrecision: '0.018665',
   sellAssetAccountId: 'eip155:1:0x32dbc9cf9e8fbcebe1e0a2ecf05ed86ca3096cb6',
@@ -48,25 +46,28 @@ export const baseSwapperState: SwapperState = {
         name: SwapperName.Zrx,
       } as Swapper<ChainId>,
       quote: {
-        rate: '52652.792329231222224912',
         minimumCryptoHuman: '0.000565612596529604',
-        maximumCryptoHuman: '100000000000000000000000000',
-        feeData: {
-          networkFeeCryptoBaseUnit: '2997000000000000',
-          protocolFees: {},
-        },
-        sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
-        buyAmountBeforeFeesCryptoBaseUnit: '982764368825100762828',
-        sources: [
+        steps: [
           {
-            name: 'Uniswap_V2',
-            proportion: '1',
+            allowanceContract: '0x0000000000000000000000000000000000000000',
+            rate: '52652.792329231222224912',
+            feeData: {
+              networkFeeCryptoBaseUnit: '2997000000000000',
+              protocolFees: {},
+            },
+            sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
+            buyAmountBeforeFeesCryptoBaseUnit: '982764368825100762828',
+            sources: [
+              {
+                name: 'Uniswap_V2',
+                proportion: '1',
+              },
+            ],
+            buyAsset: FOX,
+            sellAsset: ETH,
+            accountNumber: 0,
           },
         ],
-        allowanceContract: '0x0000000000000000000000000000000000000000',
-        buyAsset: FOX,
-        sellAsset: ETH,
-        accountNumber: 0,
       },
       inputOutputRatio: 0.8560784948911982,
     },
@@ -75,32 +76,35 @@ export const baseSwapperState: SwapperState = {
         name: SwapperName.Thorchain,
       } as Swapper<ChainId>,
       quote: {
-        rate: '52867.94647736405036163943',
-        maximumCryptoHuman: '100000000000000000000000000',
-        sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
-        buyAmountBeforeFeesCryptoBaseUnit: '986780221000000000000',
-        sources: [
-          {
-            name: 'THORChain',
-            proportion: '1',
-          },
-        ],
-        buyAsset: FOX,
-        sellAsset: ETH,
-        accountNumber: 0,
         minimumCryptoHuman: '0.00576',
         recommendedSlippage: '0.00009729507077504896',
-        allowanceContract: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
-        feeData: {
-          networkFeeCryptoBaseUnit: '1800000000000000',
-          protocolFees: {
-            [FOX.assetId]: {
-              amountCryptoBaseUnit: '258170392472859992504',
-              requiresBalance: false,
-              asset: FOX,
+        steps: [
+          {
+            allowanceContract: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
+            rate: '52867.94647736405036163943',
+            sellAmountBeforeFeesCryptoBaseUnit: '18665000000000000',
+            buyAmountBeforeFeesCryptoBaseUnit: '986780221000000000000',
+            sources: [
+              {
+                name: 'THORChain',
+                proportion: '1',
+              },
+            ],
+            buyAsset: FOX,
+            sellAsset: ETH,
+            accountNumber: 0,
+            feeData: {
+              networkFeeCryptoBaseUnit: '1800000000000000',
+              protocolFees: {
+                [FOX.assetId]: {
+                  amountCryptoBaseUnit: '258170392472859992504',
+                  requiresBalance: false,
+                  asset: FOX,
+                },
+              },
             },
           },
-        },
+        ],
       },
       inputOutputRatio: 0.6773207214158627,
     },

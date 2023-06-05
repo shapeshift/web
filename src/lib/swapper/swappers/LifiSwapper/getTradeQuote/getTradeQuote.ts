@@ -9,10 +9,7 @@ import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
-import {
-  MAX_LIFI_TRADE,
-  SELECTED_ROUTE_INDEX,
-} from 'lib/swapper/swappers/LifiSwapper/utils/constants'
+import { SELECTED_ROUTE_INDEX } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
 import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwapper/utils/getIntermediaryTransactionOutputs/getIntermediaryTransactionOutputs'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
@@ -139,23 +136,26 @@ export async function getTradeQuote(
 
     // TODO(gomes): intermediary error-handling within this module function calls
     return Ok({
-      accountNumber,
-      allowanceContract: lifiStep.estimate.approvalAddress,
-      buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
-      buyAsset,
-      intermediaryTransactionOutputs,
-      feeData: {
-        protocolFees,
-        networkFeeCryptoBaseUnit,
-      },
-      maximumCryptoHuman: MAX_LIFI_TRADE,
       minimumCryptoHuman: getMinimumCryptoHuman(sellAsset).toString(),
-      rate: estimateRate,
       recommendedSlippage: lifiStep.action.slippage.toString(),
-      sellAmountBeforeFeesCryptoBaseUnit,
-      sellAsset,
-      sources: [
-        { name: `${selectedLifiRoute.steps[0].tool} (${SwapperName.LIFI})`, proportion: '1' },
+      steps: [
+        {
+          allowanceContract: lifiStep.estimate.approvalAddress,
+          accountNumber,
+          buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
+          buyAsset,
+          intermediaryTransactionOutputs,
+          feeData: {
+            protocolFees,
+            networkFeeCryptoBaseUnit,
+          },
+          rate: estimateRate,
+          sellAmountBeforeFeesCryptoBaseUnit,
+          sellAsset,
+          sources: [
+            { name: `${selectedLifiRoute.steps[0].tool} (${SwapperName.LIFI})`, proportion: '1' },
+          ],
+        },
       ],
       selectedLifiRoute,
     })

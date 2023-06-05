@@ -108,7 +108,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
   const assetLink = collectionOpenseaNetwork
     ? `https://opensea.io/assets/${collectionOpenseaNetwork}/${nftAddress}`
     : null
-  const customizeLink = nftCollection?.socialLinks?.find(link => link.name === 'customizeFoxatar')
+  const customizeLink = nftCollection?.socialLinks?.find(link => link.key === 'customizeFoxatar')
 
   const mediaBoxProps = useMemo(
     () =>
@@ -162,7 +162,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
                   colorScheme='whiteAlpha'
                   rightIcon={<ArrowRightUp />}
                 >
-                  {translate(`nft.${customizeLink.name}`)}
+                  {translate(`nft.${customizeLink.key}`)}
                 </Button>
               )}
               {assetLink && (
@@ -284,7 +284,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftItem }) => {
     if (!nftCollection) return null
 
     const hasUsefulCollectionData = Boolean(
-      nftCollection.description || nftCollection.socialLinks?.length,
+      nftCollection.name && (nftCollection.description || nftCollection.socialLinks.length),
     )
     return (
       <Tabs display='flex' flexDir='column' position='relative' variant='unstyled' flex={1}>

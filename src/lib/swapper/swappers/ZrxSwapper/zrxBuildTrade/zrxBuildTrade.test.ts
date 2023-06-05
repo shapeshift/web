@@ -84,7 +84,6 @@ describe('zrxBuildTrade', () => {
 
   const buildTradeInput: BuildTradeInput = {
     chainId: KnownChainIds.EthereumMainnet,
-    sendMax: false,
     sellAsset,
     buyAsset,
     sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',

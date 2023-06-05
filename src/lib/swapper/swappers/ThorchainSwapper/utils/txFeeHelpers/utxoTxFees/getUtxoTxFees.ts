@@ -13,7 +13,6 @@ type GetUtxoTxFeesInput = {
   sellAdapter: UtxoBaseAdapter<ThorUtxoSupportedChainId>
   pubkey: string
   protocolFees: Record<AssetId, ProtocolFee>
-  sendMax: boolean
 }
 
 export const getUtxoTxFees = async ({
@@ -23,14 +22,12 @@ export const getUtxoTxFees = async ({
   sellAdapter,
   pubkey,
   protocolFees,
-  sendMax,
 }: GetUtxoTxFeesInput): Promise<QuoteFeeData<ThorUtxoSupportedChainId>> => {
   try {
     const feeDataOptions = await sellAdapter.getFeeData({
       to: vault,
       value: sellAmountCryptoBaseUnit,
       chainSpecific: { pubkey, opReturnData },
-      sendMax,
     })
 
     const feeData = feeDataOptions['fast']

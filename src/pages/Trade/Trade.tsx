@@ -1,10 +1,14 @@
 import { Container, Stack } from '@chakra-ui/react'
 import foxPageBg from 'assets/foxpage-bg.png'
 import { Main } from 'components/Layout/Main'
+import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { RecentTransactions } from 'pages/Dashboard/RecentTransactions'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
+import { selectFeatureFlags } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 export const Trade = () => {
+  const { MultiHopTrades } = useAppSelector(selectFeatureFlags)
   return (
     <Main
       pt='4.5rem'
@@ -26,7 +30,7 @@ export const Trade = () => {
           position='relative'
           zIndex='2'
         >
-          <TradeCard />
+          {MultiHopTrades ? <MultiHopTrade /> : <TradeCard />}
         </Container>
 
         <Stack flexGrow={1}>

@@ -1,6 +1,5 @@
 import { ASSET_REFERENCE, osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
-import memoize from 'lodash/memoize'
 
 import type { Asset } from '../../../src/lib/asset-service'
 import { osmosis } from '../baseAssets'
@@ -46,33 +45,10 @@ type OsmosisAssetList = {
 }
 
 export const getAssets = async (): Promise<Asset[]> => {
-  /** Helper function to get latest commit hash for default branch of given repo.
-   * This is used to construct githack URLs */
-  const getCurrentHash = memoize(async (repository: string): Promise<string> => {
-    /* Trim any trailing slashes */
-    while (repository.charAt(repository.length - 1) === '/') {
-      repository = repository.slice(0, -1)
-    }
-
-    const {
-      data: { default_branch: defaultBranch },
-    } = await axios.get(`https://api.github.com/repos/${repository}`)
-
-    const {
-      data: {
-        object: { sha: currentHash },
-      },
-    } = await axios.get(
-      `https://api.github.com/repos/${repository}/git/refs/heads/${defaultBranch}`,
-    )
-
-    return currentHash
-  })
-
   /* Fetch asset list */
-  const currentAssetListsHash = await getCurrentHash('osmosis-labs/assetlists')
+
   const { data: assetData } = await axios.get<OsmosisAssetList>(
-    `https://rawcdn.githack.com/osmosis-labs/assetlists/${currentAssetListsHash}/osmosis-1/osmosis-1.assetlist.json`,
+    `https://rawcdn.githack.com/osmosis-labs/assetlists/main/osmosis-1/osmosis-1.assetlist.json`,
   )
 
   if (!assetData) throw new Error('Could not get Osmosis asset data!')
@@ -112,16 +88,6 @@ export const getAssets = async (): Promise<Asset[]> => {
 
     const assetId = `cosmos:osmosis-1/${assetNamespace}:${assetReference}`
 
-    const logoURI = await (async (): Promise<string> => {
-      let uri = current.logo_URIs.png ?? current.logo_URIs.svg ?? ''
-      if (uri) {
-        uri = uri
-          .replace('raw.githubusercontent.com', 'rawcdn.githack.com')
-          .replace('master', await getCurrentHash('cosmos/chain-registry'))
-      }
-      return uri
-    })()
-
     const assetDatum: Asset = {
       assetId,
       chainId: osmosisChainId,
@@ -129,7 +95,7 @@ export const getAssets = async (): Promise<Asset[]> => {
       name: getAssetName(current),
       precision,
       color: colorMap[assetId] ?? '#FFFFFF',
-      icon: logoURI,
+      icon: current.logo_URIs.png ?? current.logo_URIs.svg ?? '',
       explorer: osmosis.explorer,
       explorerAddressLink: osmosis.explorerAddressLink,
       explorerTxLink: osmosis.explorerTxLink,

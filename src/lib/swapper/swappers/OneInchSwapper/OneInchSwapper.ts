@@ -33,7 +33,7 @@ import {
 import { buildTrade } from './buildTrade/buildTrade'
 import { executeTrade } from './executeTrade/executeTrade'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
-import { getMinMax } from './getMinMax/getMinMax'
+import { getMinimumAmountCryptoHuman } from './getMinimumAmountCryptoHuman/getMinimumAmountCryptoHuman'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import type { OneInchExecuteTradeInput, OneInchSwapperDeps, OneInchTrade } from './utils/types'
 
@@ -98,12 +98,15 @@ export class OneInchSwapper implements Swapper<EvmChainId, true> {
       )
     }
 
-    const maybeMinMax = await getMinMax(input.sellAsset, input.buyAsset)
+    const maybeMinimumAmountCryptoHuman = getMinimumAmountCryptoHuman(
+      input.sellAsset,
+      input.buyAsset,
+    )
 
-    return maybeMinMax.match({
-      ok: minMax => {
+    return await maybeMinimumAmountCryptoHuman.match({
+      ok: minimumAmountCryptoHuman => {
         const minimumSellAmountBaseUnit = toBaseUnit(
-          minMax.minimumAmountCryptoHuman,
+          minimumAmountCryptoHuman,
           input.sellAsset.precision,
         )
         const isBelowMinSellAmount = bnOrZero(input.sellAmountBeforeFeesCryptoBaseUnit).lt(
@@ -117,13 +120,7 @@ export class OneInchSwapper implements Swapper<EvmChainId, true> {
         // but rather a "mock" quote from a minimum sell amount.
         // https://github.com/shapeshift/web/issues/4237
         if (isBelowMinSellAmount) {
-          return Ok(
-            createEmptyEvmTradeQuote(
-              input,
-              minMax.minimumAmountCryptoHuman.toString(),
-              minMax.maximumAmountCryptoHuman,
-            ),
-          )
+          return Ok(createEmptyEvmTradeQuote(input, minimumAmountCryptoHuman.toString()))
         }
 
         return getTradeQuote(this.deps, input)

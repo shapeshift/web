@@ -7,7 +7,6 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import qs from 'qs'
-import { batch } from 'react-redux'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
@@ -17,6 +16,8 @@ import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
+import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { opportunities } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import type {
   AssetIdsTuple,
@@ -86,7 +87,7 @@ type GetZapperNftUserTokensInput = {
   accountIds: AccountId[]
 }
 
-type GetZapperAppsbalancesInput = void // void in the interim, but should eventually be consumed programatically so we are reactive on accounts
+type GetZapperAppsBalancesInput = void // void in the interim, but should eventually be consumed programatically so we are reactive on accounts
 // {
 // accountIds: AccountId[]
 // }
@@ -336,10 +337,11 @@ export const zapper = createApi({
     }),
     getZapperAppsBalancesOutput: build.query<
       GetZapperAppsBalancesOutput,
-      GetZapperAppsbalancesInput
+      GetZapperAppsBalancesInput
     >({
       queryFn: async (_input, { dispatch, getState }) => {
-        const ReadOnlyAssets = selectFeatureFlag(getState() as any, 'ReadOnlyAssets')
+        const state = getState() as ReduxState
+        const ReadOnlyAssets = selectFeatureFlag(state, 'ReadOnlyAssets')
 
         if (!ReadOnlyAssets)
           return {
@@ -354,9 +356,9 @@ export const zapper = createApi({
           zapperApi.endpoints.getZapperAppsOutput.initiate(),
         )
 
-        const accountIds = selectWalletAccountIds(getState() as ReduxState)
+        const accountIds = selectWalletAccountIds(state)
 
-        const assets = selectAssets(getState() as ReduxState)
+        const assets = selectAssets(state)
         const evmNetworks = evmChainIds.map(chainIdToZapperNetwork).filter(isSome)
 
         const addresses = accountIdsToEvmAddresses(accountIds)
@@ -386,11 +388,12 @@ export const zapper = createApi({
               const appAccountOpportunities = appAccountBalance.products
                 .flatMap(({ assets }) => assets)
                 .map<ReadOnlyOpportunityType | undefined>(asset => {
-                  // Staking only for this PoC
-                  // Note, this is very much an approximation based on the data we get and Zapper doesn't really have a concept of LP/Staking per se
-                  // We might want to revisit the whole LP/Staking abstraction and make a more general concept of a "thing" opportunity
                   const stakedAmountCryptoBaseUnit =
-                    asset.tokens.find(token => token.metaType === 'supplied')?.balanceRaw ?? '0'
+                    //  Liquidity Pool staking
+                    asset.tokens.find(token => token.metaType === 'supplied')?.balanceRaw ??
+                    // Single-sided staking
+                    asset.balanceRaw ??
+                    '0'
                   const rewardTokens = asset.tokens.filter(token => token.metaType === 'claimable')
                   const rewardAssetIds = rewardTokens.reduce<AssetId[]>((acc, token) => {
                     const rewardAssetId = zapperAssetToMaybeAssetId(token)
@@ -410,13 +413,10 @@ export const zapper = createApi({
                   const tvl = bnOrZero(asset.dataProps?.liquidity).toString()
                   const icon = asset.displayProps?.images?.[0] ?? ''
                   const name = asset.displayProps?.label ?? ''
-                  const groupId = asset.groupId
-                  const type = asset.type
 
-                  const defiType =
-                    /farm/.test(groupId) || type === 'contract-position'
-                      ? DefiType.Staking
-                      : DefiType.LiquidityPool
+                  // Assume all as staking. Zapper's heuristics simply don't allow us to discriminate
+                  // This is our best bet until we bring in the concept of an "DefiType.GenericOpportunity"
+                  const defiType = DefiType.Staking
 
                   // Actually defined because we pass networks in the query params
                   const assetId = zapperAssetToMaybeAssetId(asset)
@@ -436,14 +436,41 @@ export const zapper = createApi({
                           : '',
                     }
                   }
-                  // TODO(gomes): ensure this works with the heuristics of ContractPosition vs AppToken
                   const underlyingAssetIds = asset.tokens.map(token => {
                     const underlyingAssetId = zapperAssetToMaybeAssetId(token)
-                    // If one of the tokens is undefined, we have bigger problems than a non-null assertion
                     return underlyingAssetId!
                   }) as unknown as AssetIdsTuple
 
-                  // An "AppToken" is a position represented a token, thus it is what we call an underlyingAssetId i.e UNI LP AssetId
+                  const assetMarketData = selectMarketDataById(state, assetId)
+                  if (assetMarketData.price === '0' && asset.price) {
+                    dispatch(
+                      marketDataSlice.actions.setCryptoMarketData({
+                        [assetId]: {
+                          price: bnOrZero(asset.price).toString(),
+                          marketCap: '0',
+                          volume: bnOrZero(asset.dataProps?.volume).toString(),
+                          changePercent24Hr: 0,
+                        },
+                      }),
+                    )
+                  }
+
+                  underlyingAssetIds.forEach((underlyingAssetId, i) => {
+                    const marketData = selectMarketDataById(state, underlyingAssetId)
+                    if (marketData.price === '0') {
+                      dispatch(
+                        marketDataSlice.actions.setCryptoMarketData({
+                          [underlyingAssetId]: {
+                            price: bnOrZero(asset.tokens[i].price).toString(),
+                            marketCap: '0',
+                            volume: bnOrZero(asset.tokens[i].dataProps?.volume).toString(),
+                            changePercent24Hr: 0,
+                          },
+                        }),
+                      )
+                    }
+                  })
+
                   const underlyingAssetId =
                     asset.type === 'app-token' ? assetId : underlyingAssetIds[0]!
 
@@ -484,49 +511,41 @@ export const zapper = createApi({
                   }
 
                   const underlyingAssetRatiosBaseUnit = (() => {
-                    // TODO(gomes): Scrutinize whether or not this generalizes to all products
-                    // Not all app-token products are created equal
-                    if (asset.type === 'app-token') {
-                      const token0ReservesCryptoPrecision = asset.dataProps?.reserves?.[0]
-                      const token1ReservesCryptoPrecision = asset.dataProps?.reserves?.[1]
-                      const token0ReservesBaseUnit =
-                        typeof token0ReservesCryptoPrecision === 'number'
-                          ? bnOrZero(
-                              bnOrZero(
-                                bnOrZero(token0ReservesCryptoPrecision.toFixed()).toString(),
-                              ),
-                            ).times(bn(10).pow(asset.decimals ?? 18))
-                          : undefined
-                      const token1ReservesBaseUnit =
-                        typeof token1ReservesCryptoPrecision === 'number'
-                          ? bnOrZero(
-                              bnOrZero(
-                                bnOrZero(token1ReservesCryptoPrecision.toFixed()).toString(),
-                              ),
-                            ).times(bn(10).pow(asset.decimals ?? 18))
-                          : undefined
-                      const totalSupplyBaseUnit =
-                        typeof asset.supply === 'number'
-                          ? bnOrZero(asset.supply)
-                              .times(bn(10).pow(asset.decimals ?? 18))
-                              .toString()
-                          : undefined
-                      const token0PoolRatio =
-                        token0ReservesBaseUnit && totalSupplyBaseUnit
-                          ? token0ReservesBaseUnit.div(totalSupplyBaseUnit).toString()
-                          : undefined
-                      const token1PoolRatio =
-                        token1ReservesBaseUnit && totalSupplyBaseUnit
-                          ? token1ReservesBaseUnit.div(totalSupplyBaseUnit).toString()
-                          : undefined
+                    const token0ReservesCryptoPrecision = asset.dataProps?.reserves?.[0]
+                    const token1ReservesCryptoPrecision = asset.dataProps?.reserves?.[1]
+                    const token0ReservesBaseUnit =
+                      typeof token0ReservesCryptoPrecision === 'number'
+                        ? bnOrZero(
+                            bnOrZero(bnOrZero(token0ReservesCryptoPrecision.toFixed()).toString()),
+                          ).times(bn(10).pow(asset.decimals ?? 18))
+                        : undefined
+                    const token1ReservesBaseUnit =
+                      typeof token1ReservesCryptoPrecision === 'number'
+                        ? bnOrZero(
+                            bnOrZero(bnOrZero(token1ReservesCryptoPrecision.toFixed()).toString()),
+                          ).times(bn(10).pow(asset.decimals ?? 18))
+                        : undefined
+                    const totalSupplyBaseUnit =
+                      typeof asset.supply === 'number'
+                        ? bnOrZero(asset.supply)
+                            .times(bn(10).pow(asset.decimals ?? 18))
+                            .toString()
+                        : undefined
+                    const token0PoolRatio =
+                      token0ReservesBaseUnit && totalSupplyBaseUnit
+                        ? token0ReservesBaseUnit.div(totalSupplyBaseUnit).toString()
+                        : undefined
+                    const token1PoolRatio =
+                      token1ReservesBaseUnit && totalSupplyBaseUnit
+                        ? token1ReservesBaseUnit.div(totalSupplyBaseUnit).toString()
+                        : undefined
 
-                      if (!(token0PoolRatio && token1PoolRatio)) return
+                    if (!(token0PoolRatio && token1PoolRatio)) return
 
-                      return [
-                        toBaseUnit(token0PoolRatio.toString(), asset.tokens[0].decimals),
-                        toBaseUnit(token1PoolRatio.toString(), asset.tokens[1].decimals),
-                      ] as const
-                    }
+                    return [
+                      toBaseUnit(token0PoolRatio.toString(), asset.tokens[0].decimals),
+                      toBaseUnit(token1PoolRatio.toString(), asset.tokens[1].decimals),
+                    ] as const
                   })()
 
                   if (!acc.opportunities[opportunityId]) {
@@ -547,13 +566,11 @@ export const zapper = createApi({
                       isReadOnly: true,
                     }
                   }
+
                   return {
                     accountId,
                     provider: appName,
-                    userStakingId:
-                      defiType === DefiType.Staking
-                        ? serializeUserStakingId(accountId, opportunityId)
-                        : undefined,
+                    userStakingId: serializeUserStakingId(accountId, opportunityId),
                     opportunityId,
                     stakedAmountCryptoBaseUnit,
                     rewardsCryptoBaseUnit,
@@ -581,18 +598,15 @@ export const zapper = createApi({
           const userStakingUpsertPayload: GetOpportunityUserStakingDataOutput = {
             byId: {},
           }
-          // Prepare the payload for upsertOpportunityMetadata
-          const metadataUpsertPayload: GetOpportunityMetadataOutput = {
+          // Prepare the payloads for upsertOpportunityMetadata
+          const stakingMetadataUpsertPayload: GetOpportunityMetadataOutput = {
             byId: {},
-            type: DefiType.Staking, // TODO(gomes): lp too
+            type: DefiType.Staking,
           }
 
           // Populate read only metadata payload
           for (const id in readOnlyMetadata) {
-            if (readOnlyMetadata[id].type === 'staking') {
-              // TODO(gomes): lp too
-              metadataUpsertPayload.byId[id] = readOnlyMetadata[id]
-            }
+            stakingMetadataUpsertPayload.byId[id] = readOnlyMetadata[id]
           }
 
           // Populate read only userData payload
@@ -624,11 +638,9 @@ export const zapper = createApi({
             }
           }
 
-          batch(() => {
-            dispatch(opportunities.actions.upsertOpportunityMetadata(metadataUpsertPayload))
-            dispatch(opportunities.actions.upsertOpportunityAccounts(accountUpsertPayload))
-            dispatch(opportunities.actions.upsertUserStakingOpportunities(userStakingUpsertPayload))
-          })
+          dispatch(opportunities.actions.upsertOpportunitiesMetadata(stakingMetadataUpsertPayload))
+          dispatch(opportunities.actions.upsertOpportunityAccounts(accountUpsertPayload))
+          dispatch(opportunities.actions.upsertUserStakingOpportunities(userStakingUpsertPayload))
 
           // Denormalized into userData/opportunities/metadataByProvider for ease of consumption if we need to
           return { data: parsedOpportunities }

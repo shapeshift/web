@@ -2,7 +2,7 @@ import entries from 'lodash/entries'
 import invert from 'lodash/invert'
 import toLower from 'lodash/toLower'
 
-import type { AssetId } from '../../assetId/assetId'
+import { AssetId } from '../../assetId/assetId'
 import { fromAssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
 import {
@@ -20,6 +20,19 @@ import {
   polygonChainId,
 } from '../../constants'
 
+// These assets are in theory supported by Banxa, however only matic works as expected
+const banxaPolygonAssets = {
+  [polygonAssetId]: 'matic',
+  // 'eip155:137/erc20:0x3cef98bb43d732e2f285ee605a8158cde967d219': 'bat',
+  // 'eip155:137/erc20:0x8505b9d2254a7ae468c0e9dd10ccea3a837aef5c': 'comp',
+  // 'eip155:137/erc20:0x8f3cf7ad23cd3cadbd9735aff958023239c6a063': 'dai',
+  // 'eip155:137/erc20:0x53e0bca35ec356bd5dddfebbd1fc0fd03fabad39': 'link',
+  // 'eip155:137/erc20:0x50b728d8d964fd00c2d0aad81718b71311fef68a': 'snx',
+  // 'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174': 'usdc',
+  // 'eip155:137/erc20:0xc2132d05d31c914a87c6611c10748aeb04b58e8f': 'usdt',
+  // 'eip155:137/erc20:0xda537104d6a5edd53c6fbba9a898708e465260b6': 'yfi',
+}
+
 /**
  * https://docs.google.com/spreadsheets/d/1KU6J1Hl4vxBTIWCwWdrFfSadNltuFheQRoJyPrd0LMQ/edit#gid=631982242
  * source of truth per banxa
@@ -30,7 +43,7 @@ const AssetIdToBanxaTickerMap = {
   [ethAssetId]: 'eth',
   [avalancheAssetId]: 'avax',
   [optimismAssetId]: 'eth',
-  [polygonAssetId]: 'matic',
+  ...banxaPolygonAssets,
   'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': 'aave',
   'eip155:1/erc20:0xbb0e17ef65f82ab018d8edd776e8dd940327b28b': 'axs',
   'eip155:1/erc20:0x4d224452801aced8b2f0aebe155379bb5d594381': 'ape',
@@ -90,15 +103,17 @@ const chainIdToBanxaBlockchainCodeMap: Record<ChainId, string> = {
 } as const
 
 /**
- * Convert a banxa asset identifier to a Banxa chain identifier for use in Banxa HTTP URLs
+ * Convert an AssetID to a Banxa chain identifier for use in Banxa HTTP URLs
  *
- * @param {string} banxaAssetId - a Banxa asset string referencing a specific asset; e.g., 'atom'
+ * @param {string} assetId - a Shapeshift asset identifier 
  * @returns {string} - a Banxa chain identifier; e.g., 'cosmos'
  */
-export const getBanxaBlockchainFromBanxaAssetTicker = (banxaAssetId: string): string => {
-  const assetId = banxaTickerToAssetId(banxaAssetId.toLowerCase())
-  if (!assetId)
-    throw new Error(`getBanxaBlockchainFromBanxaAssetTicker: ${banxaAssetId} is not supported`)
-  const { chainId } = fromAssetId(assetId)
+export const getBanxaBlockchainFromAssetId = (assetId: AssetId): string => {
+  const chainId = fromAssetId(assetId).chainId
+  const banxaChainId = chainIdToBanxaBlockchainCodeMap[chainId]
+
+  if (!banxaChainId)
+    throw new Error(`getBanxaBlockchainFromAssetId: ${banxaChainId} is not supported`)
+
   return chainIdToBanxaBlockchainCodeMap[chainId]
 }

@@ -40,13 +40,11 @@ export const MultiHopTrade = (props: CardProps) => {
   const supportedSellAssetsByMarketCap = sortedAssets
   const supportedBuyAssetsByMarketCap = sortedAssets
   const isSwapperInitialized = true
-  const swapperSupportsCrossAccountTrade = true
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds({
       buyAsset,
       sellAsset,
-      swapperSupportsCrossAccountTrade,
     })
 
   const translate = useTranslate()

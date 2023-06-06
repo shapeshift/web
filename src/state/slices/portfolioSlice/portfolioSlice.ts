@@ -7,7 +7,6 @@ import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -16,8 +15,6 @@ import type { ReduxState } from 'state/reducer'
 import type { AccountMetadataById, Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio } from './utils'
-
-const moduleLogger = logger.child({ namespace: ['portfolioSlice'] })
 
 type WalletMetaPayload = {
   walletId?: WalletId | undefined
@@ -29,7 +26,6 @@ export const portfolio = createSlice({
   initialState,
   reducers: {
     clear: () => {
-      moduleLogger.info('clearing portfolio')
       return initialState
     },
     setWalletMeta: (state, { payload }: { payload: WalletMetaPayload }) => {
@@ -48,7 +44,6 @@ export const portfolio = createSlice({
         state.walletName = walletName
         state.wallet.ids = Array.from(new Set([...state.wallet.ids, walletId])).filter(Boolean)
       } else {
-        moduleLogger.info(payload, 'unsetting wallet id and name')
         state.walletId = undefined
         state.walletName = undefined
         getMixPanel()?.track(MixPanelEvents.DisconnectWallet)
@@ -74,7 +69,6 @@ export const portfolio = createSlice({
     },
     upsertPortfolio: {
       reducer: (draftState, { payload }: { payload: Portfolio }) => {
-        moduleLogger.debug('upserting portfolio')
         // upsert all
         draftState.accounts.byId = merge(draftState.accounts.byId, payload.accounts.byId)
         draftState.accounts.ids = Object.keys(draftState.accounts.byId)
@@ -119,7 +113,7 @@ export const portfolioApi = createApi({
           upsertOnFetch && dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {
-          moduleLogger.error(e, `error fetching account ${accountId}`)
+          console.error(e)
           const data = cloneDeep(initialState)
           data.accounts.ids.push(accountId)
           data.accounts.byId[accountId] = { assetIds: [] }

@@ -7,15 +7,9 @@ import {
   thorchainAssetId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import { Logger } from '@shapeshiftoss/logger'
 
 import type { Message } from '../types'
 import type { TxMetadata } from './types'
-
-const logger = new Logger({
-  namespace: ['unchained-client', 'cosmossdk', 'parser', 'utils'],
-  level: process.env.LOG_LEVEL,
-})
 
 const assetIdByDenom = new Map<string, AssetId>([
   ['uatom', cosmosAssetId],
@@ -36,7 +30,7 @@ export const getAssetIdByDenom = (denom: string, assetId: string): AssetId | und
     return toAssetId({ chainId, assetNamespace, assetReference })
   }
 
-  logger.warn(`unknown denom: ${denom}`)
+  console.warn(`unknown denom: ${denom}`)
 
   return
 }
@@ -137,7 +131,7 @@ export const metaData = (
       // known message types with no applicable metadata
       return
     default:
-      logger.warn(`unsupported message type: ${msg.type}`)
+      console.warn(`unsupported message type: ${msg.type}`)
       return
   }
 }

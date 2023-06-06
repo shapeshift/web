@@ -12,14 +12,11 @@ import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { isValidAccountNumber } from 'lib/utils'
 import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-const moduleLogger = logger.child({ namespace: ['useFoxFarming'] })
 
 type UseFoxFarmingOptions = {
   skip?: boolean
@@ -102,7 +99,7 @@ export const useFoxFarming = (
 
         return txid
       } catch (err) {
-        moduleLogger.error(err, 'failed to stake')
+        console.error(err)
       }
     },
     [
@@ -156,7 +153,7 @@ export const useFoxFarming = (
 
         return txid
       } catch (err) {
-        moduleLogger.error(err, 'failed to unstake')
+        console.error(err)
       }
     },
     [

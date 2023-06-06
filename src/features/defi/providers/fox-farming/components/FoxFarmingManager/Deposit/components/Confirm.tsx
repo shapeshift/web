@@ -21,7 +21,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -38,10 +37,6 @@ import { useAppSelector } from 'state/store'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'FoxFarming', 'Deposit', 'Confirm'],
-})
 
 export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | undefined }> = ({
   accountId,
@@ -143,7 +138,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
         assets,
       )
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleDeposit' }, 'handleDeposit error')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

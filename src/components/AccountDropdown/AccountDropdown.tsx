@@ -31,7 +31,6 @@ import React, { type FC, useCallback, useEffect, useMemo, useState } from 'react
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { isValidAccountNumber } from 'lib/utils'
 import { type ReduxState } from 'state/reducer'
@@ -48,8 +47,6 @@ import { useAppSelector } from 'state/store'
 import { RawText } from '../Text'
 import { AccountChildOption } from './AccountChildOption'
 import { AccountSegment } from './AccountSegement'
-
-const moduleLogger = logger.child({ module: 'AccountDropdown' })
 
 export type AccountDropdownProps = {
   assetId: AssetId
@@ -146,7 +143,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
     const accountIdChainId = fromAccountId(preSelectedAccountId).chainId
     const assetIdChainId = fromAssetId(assetId).chainId
     if (accountIdChainId !== assetIdChainId) {
-      moduleLogger.error({ accountIdChainId, assetIdChainId }, 'chainId mismatch!')
       throw new Error('AccountDropdown: chainId mismatch!')
     }
     setSelectedAccountId(preSelectedAccountId)

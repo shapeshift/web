@@ -25,7 +25,6 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -43,10 +42,6 @@ import { useAppSelector } from 'state/store'
 
 import { CosmosWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Cosmos', 'Withdraw', 'Confirm'],
-})
 
 type ConfirmProps = StepComponentProps & { accountId: AccountId | undefined }
 
@@ -168,7 +163,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
       dispatch({ type: CosmosWithdrawActionType.SET_TXID, payload: broadcastTxId })
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
+      console.error(error)
     } finally {
       dispatch({ type: CosmosWithdrawActionType.SET_LOADING, payload: false })
       onNext(DefiStep.Status)

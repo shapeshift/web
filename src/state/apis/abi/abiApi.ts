@@ -1,11 +1,8 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { getConfig } from 'config'
 import isEmpty from 'lodash/isEmpty'
-import { logger } from 'lib/logger'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
-
-const moduleLogger = logger.child({ namespace: ['abiApi'] })
 
 type ContractAddress = string // 0xaddress on evm mainnet
 type Abi = any // json
@@ -26,8 +23,8 @@ export const abiApi = createApi({
           const abi = JSON.parse(response.result)
           return { data: abi }
         } catch (e) {
+          console.error(e)
           const error = `unable to fetch abi for ${contractAddress}`
-          moduleLogger.error(e, { contractAddress }, error)
           return { error }
         }
       },

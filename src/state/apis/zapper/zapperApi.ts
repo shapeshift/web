@@ -341,7 +341,7 @@ export const zapper = createApi({
     >({
       queryFn: async (_input, { dispatch, getState }) => {
         const state = getState() as ReduxState
-        const ReadOnlyAssets = selectFeatureFlag(state as any, 'ReadOnlyAssets')
+        const ReadOnlyAssets = selectFeatureFlag(state, 'ReadOnlyAssets')
 
         if (!ReadOnlyAssets)
           return {

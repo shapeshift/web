@@ -186,6 +186,8 @@ export async function getTradeQuote(
 
 let lifiChainMapPromise: Promise<Result<Map<ChainId, ChainKey>, SwapErrorRight>> | undefined
 
+// TODO(woodenfurniture): this function and its singletons should be moved elsewhere once we have
+// more visibility on the pattern for multi-hop swappers
 export const getLifiTradeQuote = async (
   input: GetEvmTradeQuoteInput,
   assets: Partial<Record<AssetId, Asset>>,

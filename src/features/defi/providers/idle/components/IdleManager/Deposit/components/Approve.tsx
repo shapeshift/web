@@ -21,7 +21,6 @@ import type { Asset } from 'lib/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { ssRouterContractAddress } from 'lib/investor/constants'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
@@ -39,8 +38,6 @@ import { IdleDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type IdleApproveProps = StepComponentProps & { accountId: AccountId | undefined }
-
-const moduleLogger = logger.child({ namespace: ['IdleDeposit:Approve'] })
 
 export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
@@ -102,10 +99,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
           .integerValue()
           .toString()
       } catch (error) {
-        moduleLogger.error(
-          { fn: 'getDepositGasEstimateCryptoBaseUnit', error },
-          'Error getting deposit gas estimate',
-        )
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
@@ -174,7 +168,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

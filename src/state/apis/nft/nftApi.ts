@@ -3,7 +3,6 @@ import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { PURGE } from 'redux-persist'
-import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
 import { isRejected, isSome } from 'lib/utils'
 import type { WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
@@ -33,8 +32,6 @@ type GetNftCollectionInput = {
   // This looks weird but is correct. We abuse the Zapper balances endpoint to get collection meta
   accountIds: AccountId[]
 }
-
-const moduleLogger = logger.child({ namespace: ['nftApi'] })
 
 type NftState = {
   selectedNftAvatarByWalletId: Record<WalletId, AssetId>
@@ -149,7 +146,7 @@ export const nftApi = createApi({
             })
             // An actual RTK error, different from a rejected promise i.e getAlchemyNftData rejecting
           } else if (result.value.isError) {
-            moduleLogger.error({ error: result.value.error }, 'Failed to fetch nft user data')
+            console.error(result.value.error)
           }
 
           return acc
@@ -256,7 +253,7 @@ export const nftApi = createApi({
           dispatch(nft.actions.upsertCollection(collectionData))
           return { data: collectionData }
         } catch (error) {
-          moduleLogger.error({ error }, 'Failed to fetch nft collection data')
+          console.error(error)
           return {
             error: {
               status: 500,

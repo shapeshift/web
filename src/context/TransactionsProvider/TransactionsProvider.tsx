@@ -7,7 +7,6 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
 import { nftApi } from 'state/apis/nft/nftApi'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
@@ -33,8 +32,6 @@ import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch } from 'state/store'
 
 import { usePlugins } from '../PluginProvider/PluginProvider'
-
-const moduleLogger = logger.child({ namespace: ['TransactionsProvider'] })
 
 type TransactionsProviderProps = {
   children: React.ReactNode
@@ -174,7 +171,6 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
   useEffect(() => {
     // we've disconnected/switched a wallet, unsubscribe from tx history and clear tx history
     if (!isSubscribed) return
-    moduleLogger.debug({ supportedChains }, 'unsubscribing txs')
     // this is heavy handed but will ensure we're unsubscribed from everything
     supportedChains.forEach(chainId => getChainAdapterManager().get(chainId)?.unsubscribeTxs())
     setIsSubscribed(false)
@@ -195,7 +191,6 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     // even though it shouldn't
     if (portfolioLoadingStatus === 'loading') return
     ;(() => {
-      moduleLogger.debug({ accountIds }, 'subscribing txs')
       accountIds.forEach(accountId => {
         const { chainId } = fromAccountId(accountId)
         const adapter = getChainAdapterManager().get(chainId)
@@ -227,10 +222,10 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
               // deal with incoming message
               dispatch(onMessage({ message: { ...msg, accountType }, accountId }))
             },
-            (err: any) => moduleLogger.error(err),
+            err => console.error(err),
           )
-        } catch (e: unknown) {
-          moduleLogger.error(e, { accountId }, 'error subscribing to txs')
+        } catch (e) {
+          console.error(e)
         }
       })
 

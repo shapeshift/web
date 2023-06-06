@@ -15,11 +15,8 @@ import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/mod
 import { useCallback, useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 import { selectPortfolioAccountMetadata } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
-
-const moduleLogger = logger.child({ namespace: ['WalletConnectBridge'] })
 
 export const useApprovalHandler = (wcAccountId: AccountId | undefined) => {
   const wallet = useWallet().state.wallet
@@ -119,11 +116,7 @@ export const useApprovalHandler = (wcAccountId: AccountId | undefined) => {
           }
         })()
       } catch (error) {
-        moduleLogger.error(
-          error,
-          { fn: 'approveRequest:eth_sendTransaction' },
-          'Error sending transaction',
-        )
+        console.error(error)
       }
     },
     [accountMetadata, chainAdapter, wallet, wcAccountId],

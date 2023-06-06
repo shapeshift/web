@@ -1,4 +1,3 @@
-/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import type { Asset } from '../../src/lib/asset-service'
 
 const colorThief = require('colorthief') as any

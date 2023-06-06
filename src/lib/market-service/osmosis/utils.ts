@@ -1,10 +1,7 @@
 import type { AssetReference } from '@shapeshiftoss/caip'
-import { Logger } from '@shapeshiftoss/logger'
 import axios from 'axios'
 
 import type { OsmosisMarketData, OsmosisPool } from './osmosis-types'
-
-const logger = new Logger({ namespace: ['market-service', 'osmosis', 'utils'] })
 
 export const isOsmosisLpAsset = (assetReference: AssetReference | string): boolean => {
   return assetReference.startsWith('gamm/pool/')
@@ -33,7 +30,7 @@ export const getPool = async (
     )
     return poolData
   } catch (error) {
-    logger.error({ fn: 'getPool', error }, `Error fetching metadata for Osmosis pool ${poolId}`)
+    console.error({ fn: 'getPool', error }, `Error fetching metadata for Osmosis pool ${poolId}`)
     return undefined
   }
 }
@@ -49,7 +46,7 @@ export const getAllPools = async (baseUrl: string): Promise<OsmosisPool[] | unde
     )
     return data.pools
   } catch (error) {
-    logger.error({ fn: 'getAllPools', error }, `Error fetching metadata for Osmosis pools`)
+    console.error({ fn: 'getAllPools', error }, `Error fetching metadata for Osmosis pools`)
     return undefined
   }
 }
@@ -72,7 +69,7 @@ export const getPoolMarketData = async (
     )
     return MarketData
   } catch (error) {
-    logger.error(
+    console.error(
       { fn: 'getPoolMarketData', error },
       `Error fetching price data for Osmosis pool ${poolId}`,
     )
@@ -94,7 +91,7 @@ export const getAllPoolMarketData = async (
     )
     return data
   } catch (error) {
-    logger.error(
+    console.error(
       { fn: 'getAllPoolMarketData', error },
       `Error fetching price data for Osmosis pools`,
     )
@@ -115,7 +112,7 @@ export const getPoolIdFromAssetReference = (
 
     return id
   } catch (error) {
-    logger.error({ fn: 'getPools', error }, `Error fetching data for Osmosis pool ${reference}`)
+    console.error({ fn: 'getPools', error }, `Error fetching data for Osmosis pool ${reference}`)
     return undefined
   }
 }

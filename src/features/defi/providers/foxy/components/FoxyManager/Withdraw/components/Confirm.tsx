@@ -18,7 +18,6 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
@@ -29,10 +28,6 @@ import { useAppSelector } from 'state/store'
 
 import { FoxyWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Foxy', 'Withdraw', 'Confirm'],
-})
 
 export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | undefined }> = ({
   onNext,
@@ -121,7 +116,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
       })
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: false })
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
+      console.error(error)
     }
   }, [
     foxyApi,

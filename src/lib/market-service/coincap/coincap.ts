@@ -1,5 +1,4 @@
 import { adapters } from '@shapeshiftoss/caip'
-import { Logger } from '@shapeshiftoss/logger'
 import type {
   FindAllMarketArgs,
   HistoryData,
@@ -17,8 +16,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { MarketService } from '../api'
 import { isValidDate } from '../utils/isValidDate'
 import type { CoinCapMarketCap } from './coincap-types'
-
-const logger = new Logger({ namespace: ['market-service', 'coincap'] })
 
 export class CoinCapMarketService implements MarketService {
   baseUrl = 'https://api.coincap.io/v2'
@@ -152,12 +149,12 @@ export class CoinCapMarketService implements MarketService {
       return coincapData.reduce<HistoryData[]>((acc, current) => {
         const date = current.time
         if (!isValidDate(date)) {
-          logger.error('Coincap asset history data has invalid date')
+          console.error('Coincap asset history data has invalid date')
           return acc
         }
         const price = bn(current.priceUsd)
         if (price.isNaN()) {
-          logger.error('Coincap asset history data has invalid price')
+          console.error('Coincap asset history data has invalid price')
           return acc
         }
         acc.push({
@@ -167,7 +164,7 @@ export class CoinCapMarketService implements MarketService {
         return acc
       }, [])
     } catch (e) {
-      logger.warn(e, '')
+      console.warn(e, '')
       throw new Error('MarketService(findPriceHistoryByAssetId): error fetching price history')
     }
   }

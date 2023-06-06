@@ -9,7 +9,6 @@ import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import qs from 'qs'
 import { batch } from 'react-redux'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -56,8 +55,6 @@ import {
   ZapperGroupId,
   zapperNetworkToChainId,
 } from './validators'
-
-const moduleLogger = logger.child({ namespace: ['zapperApi'] })
 
 const ZAPPER_BASE_URL = 'https://api.zapper.xyz'
 
@@ -127,7 +124,7 @@ export const zapperApi = createApi({
 
           return { data: zapperV2AppsDataByAppId }
         } catch (e) {
-          moduleLogger.warn(e, 'getZapperAppsOutput')
+          console.error(e)
 
           const message = e instanceof Error ? e.message : 'Error fetching Zapper apps data'
           return {
@@ -240,7 +237,7 @@ export const zapperApi = createApi({
               if (res?.items?.length) data = data.concat(res.items)
               if (res?.items?.length < limit) break
             } catch (e) {
-              moduleLogger.warn(e, 'getZapperNftUserTokens')
+              console.error(e)
               break
             }
           }
@@ -636,7 +633,7 @@ export const zapper = createApi({
           // Denormalized into userData/opportunities/metadataByProvider for ease of consumption if we need to
           return { data: parsedOpportunities }
         } catch (e) {
-          moduleLogger.warn(e, 'getZapperAppsbalancesOutput')
+          console.error(e)
 
           const message = e instanceof Error ? e.message : 'Error fetching read-only opportunities'
           return {

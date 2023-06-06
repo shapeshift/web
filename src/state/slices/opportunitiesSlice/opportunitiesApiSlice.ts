@@ -1,7 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
 import {
@@ -26,8 +25,6 @@ import type {
 } from './types'
 import { DefiProvider } from './types'
 import { deserializeUserStakingId, opportunityIdToChainId } from './utils'
-
-const moduleLogger = logger.child({ namespace: ['opportunitiesSlice'] })
 
 // tsc is drunk, extracting this makes it happy
 const getOpportunityIds = (
@@ -76,10 +73,8 @@ export const opportunitiesApi = createApi({
 
           return { data: resolved.data }
         } catch (e) {
+          console.error(e)
           const message = e instanceof Error ? e.message : 'Error getting opportunityIds'
-
-          moduleLogger.debug(message)
-
           return {
             error: {
               error: message,
@@ -108,10 +103,8 @@ export const opportunitiesApi = createApi({
 
           return { data: resolved.data }
         } catch (e) {
+          console.error(e)
           const message = e instanceof Error ? e.message : 'Error getting opportunity metadata'
-
-          moduleLogger.debug(message)
-
           return {
             error: {
               error: message,
@@ -148,10 +141,8 @@ export const opportunitiesApi = createApi({
 
           return { data: resolved.data }
         } catch (e) {
+          console.error(e)
           const message = e instanceof Error ? e.message : 'Error getting opportunities metadata'
-
-          moduleLogger.debug(message)
-
           return {
             error: {
               error: message,
@@ -214,10 +205,8 @@ export const opportunitiesApi = createApi({
 
           return { data }
         } catch (e) {
+          console.error(e)
           const message = e instanceof Error ? e.message : 'Error getting opportunities data'
-
-          moduleLogger.debug(message)
-
           return {
             error: {
               error: message,
@@ -281,10 +270,8 @@ export const opportunitiesApi = createApi({
 
           return { data }
         } catch (e) {
+          console.error(e)
           const message = e instanceof Error ? e.message : 'Error getting opportunities data'
-
-          moduleLogger.debug(message)
-
           return {
             error: {
               error: message,

@@ -37,7 +37,6 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { parseAddressInputWithChainId } from 'lib/address/address'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -96,8 +95,6 @@ import { TradeQuotes } from './Components/TradeQuotes/TradeQuotes'
 import { useTradeRoutes } from './hooks/useTradeRoutes/useTradeRoutes'
 import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
 import { TradeAmountInputField, TradeRoutePaths } from './types'
-
-const moduleLogger = logger.child({ namespace: ['TradeInput'] })
 
 export const TradeInput = () => {
   useSwapperService()
@@ -358,7 +355,7 @@ export const TradeInput = () => {
       updateTradeAmountsFromQuote()
       history.push({ pathname: TradeRoutePaths.Confirm })
     } catch (e) {
-      moduleLogger.error(e, 'onSubmit error')
+      console.error(e)
     } finally {
       setIsLoading(false)
     }

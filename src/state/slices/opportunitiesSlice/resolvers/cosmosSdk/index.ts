@@ -2,7 +2,6 @@ import { cosmosChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/cai
 import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { isFulfilled, isRejected, isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
@@ -26,8 +25,6 @@ import type {
   OpportunityIdsResolverInput,
 } from '../types'
 import { makeAccountUserData, makeUniqueValidatorAccountIds } from './utils'
-
-const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'cosmosSdk'] })
 
 export const cosmosSdkOpportunityIdsResolver = async ({
   reduxApi,
@@ -61,7 +58,7 @@ export const cosmosSdkOpportunityIdsResolver = async ({
     settledAccountsPromises
       .map(settledAccount => {
         if (isRejected(settledAccount)) {
-          moduleLogger.error(settledAccount.reason, 'Error fetching Cosmos SDK account')
+          console.error(settledAccount.reason)
           return undefined
         }
         if (isFulfilled(settledAccount)) return settledAccount.value
@@ -154,7 +151,7 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
     settledValidatorPromises.reduce<Record<StakingId, OpportunityMetadata>>(
       (acc, settledValidatorPromise) => {
         if (isRejected(settledValidatorPromise)) {
-          moduleLogger.error(settledValidatorPromise.reason, 'Error fetching Cosmos SDK validator')
+          console.error(settledValidatorPromise.reason)
         }
         if (isFulfilled(settledValidatorPromise) && settledValidatorPromise.value) {
           const { validatorId, ...opportunityMetadata } = settledValidatorPromise.value

@@ -12,7 +12,6 @@ import {
   WalletConnectActionType,
 } from 'plugins/walletConnectToDapps/v2/types'
 import { useEffect } from 'react'
-import { logger } from 'lib/logger'
 
 export const isSupportedSessionRequest = (
   request: Web3WalletTypes.SessionRequest,
@@ -23,10 +22,6 @@ export const isSupportedSessionRequest = (
   ]
   return supportedMethods.some(value => value === request.params.request.method)
 }
-
-const moduleLogger = logger.child({
-  namespace: ['useWalletConnectEventsManager'],
-})
 
 export const useWalletConnectEventsManager = (
   isInitialized: boolean,
@@ -48,10 +43,8 @@ export const useWalletConnectEventsManager = (
       const sessionDeleteListener = () => dispatch({ type: WalletConnectActionType.DELETE_SESSION })
       const sessionUpdateListener = (session: Partial<SessionTypes.Struct>) =>
         dispatch({ type: WalletConnectActionType.UPDATE_SESSION, payload: session })
-      const sessionPingListener = () =>
-        moduleLogger.info('Ping received from WalletConnect session client')
-      const pairingPingListener = () =>
-        moduleLogger.info('Ping received from WalletConnect core client')
+      const sessionPingListener = () => {}
+      const pairingPingListener = () => {}
 
       const pairingDeleteListener = () => dispatch({ type: WalletConnectActionType.DELETE_SESSION })
 

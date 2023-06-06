@@ -1,4 +1,3 @@
-/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import type { Config } from '@jest/types'
 import CircularDependencyPlugin from 'circular-dependency-plugin'
 import stableStringify from 'fast-json-stable-stringify'

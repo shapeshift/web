@@ -22,7 +22,6 @@ import type { Asset } from 'lib/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { ssRouterContractAddress } from 'lib/investor/investor-yearn'
-import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import {
@@ -36,8 +35,6 @@ import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type YearnApprovalProps = StepComponentProps & { accountId: AccountId | undefined }
-
-const moduleLogger = logger.child({ namespace: ['YearnDeposit:Approve'] })
 
 export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => {
   const yearnInvestor = useMemo(() => getYearnInvestor(), [])
@@ -100,10 +97,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
           .integerValue()
           .toString()
       } catch (error) {
-        moduleLogger.error(
-          { fn: 'getDepositGasEstimateCryptoBaseUnit', error },
-          'Error getting deposit gas estimate',
-        )
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
@@ -163,7 +157,7 @@ export const Approve: React.FC<YearnApprovalProps> = ({ accountId, onNext }) => 
 
       onNext(DefiStep.Confirm)
     } catch (error) {
-      moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

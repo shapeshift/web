@@ -2,7 +2,6 @@ import { CHAIN_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
 import type { osmosis } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet, Osmosis } from '@shapeshiftoss/hdwallet-core'
-import { Logger } from '@shapeshiftoss/logger'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
@@ -17,8 +16,6 @@ import type {
   PoolInfo,
   PoolRateInfo,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
-
-const logger = new Logger({ namespace: ['swapper', 'osmosis', 'utils', 'helpers'] })
 
 export interface SymbolDenomMapping {
   OSMO: string
@@ -44,7 +41,7 @@ const txStatus = async (txid: string, baseUrl: string): Promise<string> => {
     if (!txResponse?.data?.codespace && !!txResponse?.data?.gas_used) return 'success'
     if (txResponse?.data?.codespace) return 'failed'
   } catch (e) {
-    logger.warn('Retrying to retrieve status')
+    console.warn('Retrying to retrieve status')
   }
   return 'not found'
 }
@@ -92,7 +89,7 @@ export const getAtomChannelBalance = async (address: string, osmoUrl: string) =>
     )
     toAtomChannelBalance = Number(amount)
   } catch (e) {
-    logger.warn('Retrying to get ibc balance')
+    console.warn('Retrying to get ibc balance')
   }
   return toAtomChannelBalance
 }

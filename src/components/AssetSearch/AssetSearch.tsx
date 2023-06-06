@@ -14,7 +14,6 @@ import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import { Card } from 'components/Card/Card'
 import type { Asset } from 'lib/asset-service'
-import { logger } from 'lib/logger'
 import {
   selectAssetsSortedByMarketCapFiatBalanceAndName,
   selectChainIdsByMarketCap,
@@ -24,10 +23,6 @@ import { useAppSelector } from 'state/store'
 import { AssetList } from './AssetList'
 import { ChainList } from './Chains/ChainList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
-
-const moduleLogger = logger.child({
-  namespace: ['AssetSearch'],
-})
 
 export type AssetSearchProps = {
   assets?: Asset[]
@@ -96,8 +91,6 @@ export const AssetSearch: FC<AssetSearchProps> = ({
       setSearchTermAssets(
         searching ? filterAssetsBySearchTerm(searchString, filteredAssets) : filteredAssets,
       )
-    } else {
-      moduleLogger.error('sortedAssets not defined')
     }
   }, [searchString, searching, filteredAssets])
 

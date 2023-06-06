@@ -31,7 +31,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -52,10 +51,6 @@ type ClaimConfirmProps = {
   amount: string
   onBack: () => void
 }
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'FoxFarming', 'Overview', 'ClaimConfirm'],
-})
 
 export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfirmProps) => {
   const [estimatedGas, setEstimatedGas] = useState<string>('0')
@@ -137,7 +132,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
         assets,
       )
     } catch (error) {
-      moduleLogger.error(error, 'ClaimWithdraw error')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -165,7 +160,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
         setEstimatedGas(estimatedGasCrypto)
       } catch (error) {
         // TODO: handle client side errors
-        moduleLogger.error(error, 'FoxFarmingClaim error')
+        console.error(error)
       }
     })()
   }, [

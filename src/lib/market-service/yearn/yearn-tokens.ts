@@ -1,5 +1,4 @@
 import { adapters, CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { Logger } from '@shapeshiftoss/logger'
 import type {
   FindAllMarketArgs,
   HistoryData,
@@ -12,8 +11,6 @@ import uniqBy from 'lodash/uniqBy'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import type { MarketService } from '../api'
-
-const logger = new Logger({ namespace: ['market-service', 'yearn', 'tokens'] })
 
 type YearnTokenMarketCapServiceArgs = {
   yearnSdk: Yearn<ChainId>
@@ -68,7 +65,7 @@ export class YearnTokenMarketCapService implements MarketService {
         return acc
       }, {} as MarketCapResult)
     } catch (e) {
-      logger.warn(e, '')
+      console.warn(e)
       return {}
     }
   }
@@ -103,7 +100,7 @@ export class YearnTokenMarketCapService implements MarketService {
         changePercent24Hr: 0,
       }
     } catch (e) {
-      logger.warn(e, '')
+      console.warn(e)
       throw new Error('YearnMarketService(findByAssetId): error fetching market data')
     }
   }

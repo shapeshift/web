@@ -18,7 +18,6 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -33,10 +32,6 @@ import { ClaimContext } from './ClaimContext'
 import { initialState, reducer } from './ClaimReducer'
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Cosmos', 'CosmosClaim'],
-})
 
 type CosmosClaimProps = {
   accountId: AccountId | undefined
@@ -85,7 +80,7 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({
       })
     } catch (error) {
       // TODO: handle client side errors
-      moduleLogger.error(error, 'CosmosClaim error')
+      console.error(error)
     }
   }, [chainId, validatorAddress, walletState.wallet, earnOpportunityData])
 

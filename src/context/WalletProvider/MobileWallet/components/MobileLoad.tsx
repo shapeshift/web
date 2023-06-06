@@ -26,13 +26,9 @@ import {
 } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { MobileConfig, mobileLogger } from '../config'
+import { MobileConfig } from '../config'
 import { deleteWallet, getWallet, listWallets } from '../mobileMessageHandlers'
 import type { RevocableWallet } from '../RevocableWallet'
-
-const moduleLogger = mobileLogger.child({
-  namespace: ['components', 'MobileLoad'],
-})
 
 export const MobileLoad = ({ history }: RouteComponentProps) => {
   const { state, dispatch } = useWallet()
@@ -45,14 +41,13 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
       if (!wallets.length) {
         try {
           const vaults = await listWallets()
-          moduleLogger.trace({ vaults }, 'Found wallets')
           if (!vaults.length) {
             return setError('walletProvider.shapeShift.load.error.noWallet')
           }
 
           setWallets(vaults)
         } catch (e) {
-          mobileLogger.error(e, 'Error reading list of wallets')
+          console.log(e)
           setWallets([])
         }
       }
@@ -83,11 +78,10 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
         setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
         setLocalNativeWalletName(item?.label ?? 'label')
       } catch (e) {
-        mobileLogger.error(e, { deviceId }, 'Error loading a wallet')
+        console.log(e)
         setError('walletProvider.shapeShift.load.error.pair')
       }
     } else {
-      mobileLogger.warn({ deviceId }, 'Missing adapter or device ID')
       setError('walletProvider.shapeShift.load.error.pair')
     }
   }
@@ -103,7 +97,7 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
         await deleteWallet(wallet.id)
         setWallets([])
       } catch (e) {
-        mobileLogger.error(e, 'Error deleting a wallet')
+        console.log(e)
         setError('walletProvider.shapeShift.load.error.delete')
       }
     }

@@ -3,15 +3,10 @@ import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import head from 'lodash/head'
-import { logger } from 'lib/logger'
 
 import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
-
-const moduleLogger = logger.child({
-  namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'OnRamper'],
-})
 
 // Non-exhaustive required types definition. Full reference: https://github.com/onramper/widget/blob/master/package/src/ApiContext/api/types/gateways.ts
 type OnRamperGatewaysResponse = {
@@ -42,7 +37,7 @@ const getGatewayData = async () => {
       })
     ).data
   } catch (e) {
-    moduleLogger.error(e, 'Failed to fetch assets')
+    console.error(e)
   }
 }
 

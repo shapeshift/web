@@ -1,5 +1,4 @@
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import type { Logger } from '@shapeshiftoss/logger'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 // import https from 'https'
 import { find } from 'lodash'
@@ -30,7 +29,6 @@ export class IdleInvestor implements Investor<PreparedTransaction, IdleVault> {
     dryRun?: true
     contract: Contract
     network?: number
-    logger?: Logger
     web3: Web3
   }
   #opportunities: IdleOpportunity[]

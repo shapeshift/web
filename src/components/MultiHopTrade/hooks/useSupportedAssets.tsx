@@ -1,3 +1,4 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { LifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper'
@@ -19,29 +20,26 @@ export const useSupportedAssets = () => {
   }, [isLifiEnabled])
 
   const supportedSellAssets = useMemo(() => {
-    let supportAssetIds = assetIds
-
-    for (const { filterAssetIdsBySellable } of enabledSwappers) {
-      // TODO(woodenfurniture): filter Asset[] instead so filtering with a set below isnt required
-      supportAssetIds = filterAssetIdsBySellable(supportAssetIds)
-    }
-
-    const supportedAssetIdsSet = new Set(supportAssetIds)
+    const supportedAssetIdsSet = new Set(
+      new Array<AssetId>().concat(
+        // this spread is fast, dont optimise out without benchmarks
+        ...enabledSwappers.map(({ filterAssetIdsBySellable }) =>
+          filterAssetIdsBySellable(assetIds),
+        ),
+      ),
+    )
     return sortedAssets.filter(asset => supportedAssetIdsSet.has(asset.assetId))
   }, [assetIds, enabledSwappers, sortedAssets])
 
   const supportedBuyAssets = useMemo(() => {
-    let supportAssetIds = assetIds
-
-    for (const { filterBuyAssetsBySellAssetId } of enabledSwappers) {
-      // TODO(woodenfurniture): filter Asset[] instead so filtering with a set below isnt required
-      supportAssetIds = filterBuyAssetsBySellAssetId({
-        assetIds: supportAssetIds,
-        sellAssetId: sellAsset.assetId,
-      })
-    }
-
-    const supportedAssetIdsSet = new Set(supportAssetIds)
+    const supportedAssetIdsSet = new Set(
+      new Array<AssetId>().concat(
+        // this spread is fast, dont optimise out without benchmarks
+        ...enabledSwappers.map(({ filterBuyAssetsBySellAssetId }) =>
+          filterBuyAssetsBySellAssetId({ assetIds, sellAssetId: sellAsset.assetId }),
+        ),
+      ),
+    )
     return sortedAssets.filter(asset => supportedAssetIdsSet.has(asset.assetId))
   }, [assetIds, enabledSwappers, sellAsset.assetId, sortedAssets])
 

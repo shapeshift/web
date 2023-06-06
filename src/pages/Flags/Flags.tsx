@@ -12,6 +12,7 @@ import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import type { AppDispatch } from 'state/store'
 import { clearState, useAppSelector } from 'state/store'
 
+import { Debugging } from './Debugging'
 import { FlagRow } from './FlagRow'
 
 const FlagHeader = () => {
@@ -44,7 +45,7 @@ export const Flags = () => {
       setError(null)
       history.push('/')
     } catch (e) {
-      console.error(3)
+      console.error(e)
       setError(String((e as Error)?.message))
     }
   }
@@ -85,6 +86,7 @@ export const Flags = () => {
             </HStack>
           </Card.Footer>
         </Card>
+        <Debugging />
       </Stack>
       {error && (
         <Alert status='error'>

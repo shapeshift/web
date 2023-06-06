@@ -7,6 +7,7 @@
     "cancel": "Abbrechen",
     "close": "Schließen",
     "loadMore": "Mehr laden",
+    "saveChanges": "Änderungen speichern",
     "new": "Neu",
     "continue": "Fortsetzen",
     "reward": "Belohnung",
@@ -84,6 +85,7 @@
     "txId": "Tx ID",
     "selectAsset": "Wählen Sie einen Vermögenswert aus",
     "switchNetwork": "Netzwerk wechseln",
+    "selectNetwork": "Netzwerk auswählen",
     "unsupportedNetwork": "Nicht unterstütztes Netzwerk",
     "chartUnavailable": "Vermögen Diagrammdaten sind für %{unavailableAssetNames} vorübergehend nicht verfügbar.",
     "search": "Suchen",
@@ -510,7 +512,9 @@
     "tradeShort": "Handeln",
     "buyCrypto": "Krypto kaufen/verkaufen",
     "buyCryptoShort": "Kauf/Verkauf",
-    "arkeo": "Arkeo Airdrop"
+    "arkeo": "Arkeo Airdrop",
+    "foxMissions": "FOX Mission",
+    "foxMissionsShort": "Missionen"
   },
   "transactionRow": {
     "send": "Gesendet",
@@ -1911,6 +1915,8 @@
     }
   },
   "nft": {
+    "customizeFoxatar": "FOXatar anpassen",
+    "setAsAvatar": "Als Avatar festlegen",
     "floorPrice": "niedrigster Preis",
     "lastPrice": "Letzter Preis",
     "overview": "Übersicht",
@@ -1928,29 +1934,48 @@
     "emptyBody": "Keine Sorge, wir haben einen Suchtrupp ausgesandt, um noch mehr erstaunliche NFTs zurückzubringen. Nutzen Sie bis dahin die Zeit auf diese leere Stelle zu starren und über den Sinn des Daseins nachzudenken;-)"
   },
   "missions": {
+    "subtitle": "FOX Missionen",
+    "missionEnded": "Mission beendet",
     "viewMission": "Zeige Mission",
+    "comingSoon": "Demnächst",
+    "activeMissions": "Aktive Missionen",
     "endedMissions": "Beendete Missionen",
     "title": {
+      "1": "Entfessle das dezentrale Universum und",
+      "2": "erhalte Belohnungen"
     },
+    "body": "Begeben Sie sich auf Missionen, verdienen Sie Belohnungen und erweitern Sie Ihr Wissen über das ständig wachsende ShapeShift-Ökosystem",
     "ends": "Endet",
+    "ongoing": "laufende Mission",
     "optimism": {
+      "title": "Verdiene bis zu 19,5 OP",
+      "subtitle": "Entdecke Optimism",
       "cta": "Beginne Mission"
     },
     "foxatar": {
+      "title": "Holen Sie sich ein kostenloses und anpassbares NFT",
+      "subtitle": "Minte einen FOXatar",
       "cta": "Beginne Mission"
     },
     "foxArmy": {
+      "subtitle": "Treten Sie der FOX-Armee bei",
+      "title": "20,000 FOX Pool",
       "cta": "Beginne Mission"
     },
     "yat": {
       "subtitle": "Spiele Yat Fantasy",
+      "title": "3,000 USDC Preis Pool",
       "cta": "Beginne Mission"
     },
     "getListed": {
+      "subtitle": "Ihr Projekt hier",
+      "title": "Starten Sie eine Mission für Ihr Projekt",
+      "cta": "Projekt einreichen"
     }
   },
   "avatar": {
     "modal": {
+      "title": "Legen Sie einen neuen Avatar fest"
     }
   }
 }

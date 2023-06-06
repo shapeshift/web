@@ -2,6 +2,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bscChainId,
+  deserializeNftAssetReference,
   ethChainId,
   foxatarAssetId,
   fromAccountId,
@@ -15,10 +16,7 @@ import { invert } from 'lodash'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 import { isFulfilled } from 'lib/utils'
 
-import {
-  parseAlchemyNftContractToCollectionItem,
-  parseAlchemyOwnedNftToNftItem,
-} from './parsers/alchemy'
+import { parseAlchemyNftContractToCollectionItem  parseAlchemyNftToNftItem } from './parsers/alchemy'
 import type { NftCollectionType, NftItemWithCollection } from './types'
 
 // addresses are repeated across EVM chains
@@ -116,7 +114,7 @@ export const updateNftCollection = (
   return draftItem
 }
 
-export const getAlchemyNftData = async (
+export const getAlchemyNftsUserData = async (
   accountIds: AccountId[],
 ): Promise<{ data: NftItemWithCollection[] }> => {
   const items = (
@@ -128,7 +126,7 @@ export const getAlchemyNftData = async (
         const { ownedNfts } = await alchemy.nft.getNftsForOwner(address, {
           excludeFilters: [NftFilters.SPAM],
         })
-        return ownedNfts.map(ownedNft => parseAlchemyOwnedNftToNftItem(ownedNft, chainId))
+        return Promise.all(ownedNfts.map(ownedNft => parseAlchemyNftToNftItem(ownedNft, chainId)))
       }),
     )
   )
@@ -147,4 +145,20 @@ export const getAlchemyCollectionData = async (
   const collectionContractMetadata = await alchemy.nft.getContractMetadata(collectionAddress)
 
   return { data: parseAlchemyNftContractToCollectionItem(collectionContractMetadata, chainId) }
+}
+
+// Gets NFT with metadata reinstated in Alchemy - only use for NFTs we explicitly want fresh metadata for
+// i.e FOXatar refresh on customization update
+export const getAlchemyNftData = async (
+  assetId: AssetId,
+): Promise<{ data: NftItemWithCollection }> => {
+  const { chainId, assetReference } = fromAssetId(assetId)
+  const [address, tokenId] = deserializeNftAssetReference(assetReference)
+  const alchemy = getAlchemyInstanceByChainId(chainId)
+  // NOTE: refreshCache is actually rugged for Polygon, see parseAlchemyNftToNftItem to see how we circumvent this
+  const nft = await alchemy.nft.getNftMetadata(address, tokenId, { refreshCache: true })
+
+  const parsedNft = await parseAlchemyNftToNftItem(nft, chainId)
+
+  return { data: parsedNft }
 }

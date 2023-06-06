@@ -1923,8 +1923,34 @@
     "description": "Beschreibung",
     "details": "Details",
     "attributes": "Eigenschaften",
-    "aboutCollection": "über %{collectionName}",
+    "aboutCollection": "Über %{collectionName}",
     "emptyTitle": "Wo sind all die NFTs hin?",
     "emptyBody": "Keine Sorge, wir haben einen Suchtrupp ausgesandt, um noch mehr erstaunliche NFTs zurückzubringen. Nutzen Sie bis dahin die Zeit auf diese leere Stelle zu starren und über den Sinn des Daseins nachzudenken;-)"
+  },
+  "missions": {
+    "viewMission": "Zeige Mission",
+    "endedMissions": "Beendete Missionen",
+    "title": {
+    },
+    "ends": "Endet",
+    "optimism": {
+      "cta": "Beginne Mission"
+    },
+    "foxatar": {
+      "cta": "Beginne Mission"
+    },
+    "foxArmy": {
+      "cta": "Beginne Mission"
+    },
+    "yat": {
+      "subtitle": "Spiele Yat Fantasy",
+      "cta": "Beginne Mission"
+    },
+    "getListed": {
+    }
+  },
+  "avatar": {
+    "modal": {
+    }
   }
 }

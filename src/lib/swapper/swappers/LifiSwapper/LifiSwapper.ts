@@ -105,10 +105,18 @@ export class LifiSwapper implements Swapper<EvmChainId, true> {
     return filterCrossChainEvmBuyAssetsBySellAssetId(input)
   }
 
+  static filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
+    return filterCrossChainEvmBuyAssetsBySellAssetId(input)
+  }
+
   /**
    * Get supported sell AssetIds
    */
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
+    return filterEvmAssetIdsBySellable(assetIds)
+  }
+
+  static filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
     return filterEvmAssetIdsBySellable(assetIds)
   }
 

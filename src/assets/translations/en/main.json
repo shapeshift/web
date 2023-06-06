@@ -1244,7 +1244,7 @@
         "button": "Pair"
       },
       "failure": {
-        "header": "Error",
+        "header": "Unable to connect Coinbase wallet",
         "body": "Unable to connect Coinbase wallet"
       }
     },

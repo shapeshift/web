@@ -42,13 +42,13 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
     setLoading(true)
 
     if (state.adapters && state.adapters?.has(KeyManager.Coinbase)) {
-      const wallet = await state.adapters.get(KeyManager.Coinbase)?.[0].pairDevice()
-      if (!wallet) {
-        setErrorLoading('walletProvider.errors.walletNotFound')
-        throw new Error('Call to hdwallet-coinbase::pairDevice returned null or undefined')
-      }
-      const { name, icon } = CoinbaseConfig
       try {
+        const wallet = await state.adapters.get(KeyManager.Coinbase)?.[0].pairDevice()
+        if (!wallet) {
+          setErrorLoading('walletProvider.errors.walletNotFound')
+          throw new Error('Call to hdwallet-coinbase::pairDevice returned null or undefined')
+        }
+        const { name, icon } = CoinbaseConfig
         const deviceId = await wallet.getDeviceID()
         const isLocked = await wallet.isLocked()
         await wallet.initialize()
@@ -61,13 +61,9 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
         setLocalWalletTypeAndDeviceId(KeyManager.Coinbase, deviceId)
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
-        if (e?.message?.startsWith('walletProvider.')) {
-          moduleLogger.error(e, 'Coinbase Connect: There was an error initializing the wallet')
-          setErrorLoading(e?.message)
-        } else {
-          setErrorLoading('walletProvider.coinbase.errors.unknown')
-          history.push('/coinbase/failure')
-        }
+        moduleLogger.error(e, 'Coinbase Connect: There was an error initializing the wallet')
+        setErrorLoading(e.message)
+        history.push('/coinbase/failure')
       }
     }
     setLoading(false)

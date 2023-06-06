@@ -26,8 +26,10 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // eslint-disable-next-line no-sequences
-  const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
+  const setErrorLoading = (e: string | null) => {
+    setError(e)
+    setLoading(false)
+  }
 
   useEffect(() => {
     ;(async () => {

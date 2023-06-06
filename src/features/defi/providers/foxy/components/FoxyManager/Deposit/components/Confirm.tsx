@@ -17,7 +17,6 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
@@ -28,10 +27,6 @@ import { useAppSelector } from 'state/store'
 
 import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Foxy', 'Deposit', 'Confirm'],
-})
 
 type ConfirmProps = StepComponentProps & { accountId: AccountId | undefined }
 
@@ -115,7 +110,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         },
       })
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleDeposit' }, 'handleDeposit error')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

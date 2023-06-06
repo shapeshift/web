@@ -17,7 +17,6 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
@@ -63,10 +62,6 @@ const StatusInfo = {
     icon: <FaTimes />,
   },
 }
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Foxy', 'Overview', 'ClaimStatus'],
-})
 
 type ClaimStatusProps = {
   accountId: AccountId | undefined
@@ -137,7 +132,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
             .toString(),
         })
       } catch (error) {
-        moduleLogger.error(error, 'ClaimStatus error')
+        console.error(error)
         setState({
           ...state,
           txStatus: TxStatus.FAILED,

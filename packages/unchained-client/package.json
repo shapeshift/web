@@ -20,7 +20,6 @@
   "dependencies": {
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/common-api": "^9.3.0",
-    "@shapeshiftoss/logger": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",
     "@yfi/sdk": "^1.2.0",
     "isomorphic-ws": "^4.0.1",

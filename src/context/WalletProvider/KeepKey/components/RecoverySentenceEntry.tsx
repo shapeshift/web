@@ -22,8 +22,6 @@ import { inputValuesReducer, isLetter, isValidInput } from 'context/WalletProvid
 import { useKeepKeyCancel } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyCancel'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
-const moduleLogger = logger.child({ namespace: ['RecoverySentenceEntry'] })
 
 const minInputLength = 3
 const maxInputLength = 4
@@ -191,7 +189,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
             await handleWordSubmit()
             break
           default:
-            moduleLogger.error('Invalid input')
+            console.error(e)
         }
       }
     },

@@ -20,7 +20,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import type { Asset } from 'lib/asset-service'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -56,10 +55,6 @@ type ReceiveAmount = {
   cryptoAmountBaseUnit: string
   fiatAmount: string
 }
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Osmosis', 'Withdraw', 'Withdraw'],
-})
 
 type WithdrawProps = StepComponentProps & {
   accountId: AccountId | undefined
@@ -146,10 +141,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
       return fastFeeCryptoBaseUnit
     } catch (error) {
-      moduleLogger.error(
-        { fn: 'getDepositFeeEstimate', error },
-        'Error getting deposit fee estimate',
-      )
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -393,7 +385,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           assets,
         )
       } catch (error) {
-        moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),

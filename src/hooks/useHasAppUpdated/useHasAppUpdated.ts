@@ -1,9 +1,6 @@
 import axios from 'axios'
 import isEqual from 'lodash/isEqual'
 import { useCallback, useEffect, useState } from 'react'
-import { logger } from 'lib/logger'
-
-const moduleLogger = logger.child({ namespace: ['useHasAppUpdated'] })
 
 export const APP_UPDATE_CHECK_INTERVAL = 1000 * 60 // one minute
 
@@ -30,7 +27,7 @@ export const useHasAppUpdated = () => {
       const { data } = await axios.get(`${url}?${new Date().valueOf()}`)
       return data
     } catch (e) {
-      moduleLogger.error(e, `useHasAppUpdated: error fetching data from URL: ${url}`)
+      console.error(e)
     }
   }, [])
 

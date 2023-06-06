@@ -1,11 +1,5 @@
 import type { ErrorResponse, RequestPayload, Topics, TxsTopicData } from '@shapeshiftoss/common-api'
-import { Logger } from '@shapeshiftoss/logger'
 import WebSocket from 'isomorphic-ws'
-
-const logger = new Logger({
-  namespace: ['unchained-client', 'websocket'],
-  level: process.env.LOG_LEVEL,
-})
 
 const NORMAL_CLOSURE_CODE = 1000
 
@@ -101,7 +95,7 @@ export class Client<T> {
     resolve: (value: boolean) => void,
     reject: (reason?: unknown) => void,
   ): void {
-    logger.warn(
+    console.warn(
       { fn: 'onClose', code: event.code, reason: event.reason, type: event.type },
       'websocket closed',
     )
@@ -125,7 +119,7 @@ export class Client<T> {
   private onError(event: WebSocket.ErrorEvent): void {
     if (!event.message) return
 
-    logger.error(
+    console.error(
       { fn: 'onError', err: event.error, message: event.message, type: event.type },
       'websocket error',
     )
@@ -157,7 +151,7 @@ export class Client<T> {
       // forward the transaction message to the correct onMessage handler
       this.txs[message.subscriptionId || subscriptionId]?.onMessage?.(message)
     } catch (err) {
-      logger.warn(`failed to handle onmessage event: ${JSON.stringify(event)}: ${err}`)
+      console.error(err)
     }
   }
 
@@ -167,7 +161,7 @@ export class Client<T> {
 
     connection.pingTimeout && clearTimeout(connection.pingTimeout)
     connection.pingTimeout = setTimeout(() => {
-      logger.warn({ fn: 'pingTimeout' }, `${topic} heartbeat failed`)
+      console.warn({ fn: 'pingTimeout' }, `${topic} heartbeat failed`)
       connection.ws?.close()
     }, this.pingInterval + 5000)
   }
@@ -278,7 +272,7 @@ export class Client<T> {
         closeTxs()
         break
       default:
-        logger.warn(`topic: ${topic} not supported`)
+        console.warn(`topic: ${topic} not supported`)
     }
   }
 }

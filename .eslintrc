@@ -16,8 +16,7 @@
   "plugins": [
     "jest",
     "prettier",
-    "simple-import-sort",
-    "@shapeshiftoss/logger"
+    "simple-import-sort"
   ],
   "parserOptions": {
     "sourceType": "module"
@@ -79,7 +78,6 @@
     "@typescript-eslint/array-type": "error",
     "@typescript-eslint/consistent-type-imports": "error",
     "react/jsx-handler-names": "error",
-    "@shapeshiftoss/logger/no-native-console": "error",
     "require-await": "error",
     "import/no-duplicates": "error"
   },
@@ -88,12 +86,6 @@
       "files": ["**/*.stories.*"],
       "rules": {
         "import/no-anonymous-default-export": "off"
-      }
-    },
-    {
-      "files": ["**/*/*.test.ts", "scripts/**/*"],
-      "rules": {
-        "@shapeshiftoss/logger/no-native-console": "off"
       }
     },
     {

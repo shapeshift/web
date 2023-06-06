@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react'
 import { getFiatNumberFractionDigits } from 'lib/getFiatNumberFractionDigits/getFiatNumberFractionDigits'
-import { logger } from 'lib/logger'
 import { selectCurrencyFormat, selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -54,10 +53,6 @@ export type NumberFormatter = {
   }
 }
 
-const moduleLogger = logger.child({
-  namespace: ['Hooks', 'useLocaleFormatter'],
-})
-
 const parseString = /(\D*)([\d|.,]+)(.*)/
 const toNumber = (number: string | number): number => Number(number) || 0
 const toDate = (date: DateValue): Date | null => {
@@ -110,8 +105,7 @@ const getParts = (locale: string, fiatType = 'USD') => {
     result.groupSize = groups.pop()?.value.length ?? 3
     result.secondaryGroupSize = groups.pop()?.value.length ?? 3
   } catch (e) {
-    // @TODO: figure out logging
-    moduleLogger.error(e, { fn: 'getParts' }, 'Error getting parts')
+    console.error(e)
   }
 
   return result
@@ -261,8 +255,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
         const numberFiat = options?.fiatType || fiatTypeToUse
         return abbreviateNumber(number, numberFiat, options)
       } catch (e) {
-        // @TODO: figure out logging
-        moduleLogger.error(e, { fn: 'numberToFiat' }, 'Error formatting number to fiat')
+        console.error(e)
         return String(value)
       }
     },
@@ -282,12 +275,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
         const fiat = numberToFiat(num, { ...options, minimumFractionDigits })
         return showTrailingDecimal(num, fiat)
       } catch (e) {
-        // @TODO: figure out logging
-        moduleLogger.error(
-          e,
-          { fn: 'numberToFiatInput' },
-          'Error formatting number to crypto input value',
-        )
+        console.error(e)
         return String(num)
       }
     },

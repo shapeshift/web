@@ -21,7 +21,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
@@ -34,10 +33,6 @@ import { useAppSelector } from 'state/store'
 
 import { CosmosClaimActionType } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Cosmos', 'Claim', 'Confirm'],
-})
 
 type ConfirmProps = StepComponentProps & { accountId?: AccountId | undefined }
 
@@ -93,7 +88,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         dispatch({ type: CosmosClaimActionType.SET_CLAIM, payload: { estimatedGasCrypto } })
       } catch (error) {
         // TODO: handle client side errors
-        moduleLogger.error(error, 'ClaimConfirm error')
+        console.error(error)
       }
     })()
   }, [
@@ -138,7 +133,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

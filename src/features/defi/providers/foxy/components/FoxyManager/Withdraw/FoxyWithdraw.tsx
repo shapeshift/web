@@ -22,7 +22,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
@@ -38,10 +37,6 @@ import { Withdraw } from './components/Withdraw'
 import { FoxyWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Foxy', 'FoxyWithdraw'],
-})
 
 export const FoxyWithdraw: React.FC<{
   onAccountIdChange: AccountDropdownProps['onChange']
@@ -97,7 +92,7 @@ export const FoxyWithdraw: React.FC<{
         })
       } catch (error) {
         // TODO: handle client side errors
-        moduleLogger.error(error, 'FoxyWithdraw error:')
+        console.error(error)
       }
     })()
   }, [foxyApi, bip44Params, chainAdapter, foxyStakingContractAddress, walletState.wallet])

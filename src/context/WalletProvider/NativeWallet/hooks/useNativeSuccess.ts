@@ -9,13 +9,10 @@ import {
 } from 'context/WalletProvider/local-wallet'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch } from 'state/store'
 
 import { NativeConfig } from '../config'
-
-const moduleLogger = logger.child({ namespace: ['useNativeSuccess'] })
 
 export type UseNativeSuccessPropTypes = { vault: Vault }
 
@@ -57,7 +54,7 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
         //Set to show the native onboarding
         appDispatch(setWelcomeModal({ show: true }))
       } catch (error) {
-        moduleLogger.error(error, 'Failed to load device')
+        console.error(error)
         setIsSuccessful(false)
       }
     })()

@@ -1,4 +1,3 @@
-/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import type { evm } from '@shapeshiftoss/common-api'
 import dotenv from 'dotenv'
 import express from 'express'

@@ -359,7 +359,7 @@ export const zapper = createApi({
 
         const accountIds = selectWalletAccountIds(state)
 
-        const assets = selectAssets(state as ReduxState)
+        const assets = selectAssets(state)
         const evmNetworks = evmChainIds.map(chainIdToZapperNetwork).filter(isSome)
 
         const addresses = accountIdsToEvmAddresses(accountIds)

@@ -27,7 +27,6 @@ export async function getTradeQuote(
     sellAmountBeforeFeesCryptoBaseUnit,
     accountNumber,
     affiliateBps,
-    eip1559Support,
   } = input
 
   if (sellAmountBeforeFeesCryptoBaseUnit === '0') {
@@ -82,10 +81,10 @@ export async function getTradeQuote(
   }
 
   const gasFeeData: GasFeeDataEstimate = await adapter.getGasFeeData()
+
+  // TODO(woodenfurniture): l1 fees for optimism and eip-1551 gas estimation
   const fee = bnOrZero(quoteResponse.data.estimatedGas)
-    .multipliedBy(
-      eip1559Support ? bnOrZero(gasFeeData.average.maxFeePerGas) : gasFeeData.average.gasPrice,
-    )
+    .multipliedBy(gasFeeData.average.gasPrice)
     .toString()
 
   return maybeMinimumAmountCryptoHuman.andThen(minimumAmountCryptoHuman =>

@@ -16,7 +16,10 @@ import { invert } from 'lodash'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 import { isFulfilled } from 'lib/utils'
 
-import { parseAlchemyNftContractToCollectionItem  parseAlchemyNftToNftItem } from './parsers/alchemy'
+import {
+  parseAlchemyNftContractToCollectionItem,
+  parseAlchemyNftToNftItem,
+} from './parsers/alchemy'
 import type { NftCollectionType, NftItemWithCollection } from './types'
 
 // addresses are repeated across EVM chains

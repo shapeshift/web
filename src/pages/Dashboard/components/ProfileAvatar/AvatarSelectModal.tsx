@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Center,
+  Flex,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -104,7 +105,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   }, [defaultWalletImage, handleSaveChanges, setValue])
 
   return (
-    <Modal scrollBehavior='inside' size='lg' {...props}>
+    <Modal scrollBehavior='inside' size={{ base: 'full', md: 'lg' }} {...props}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
@@ -121,18 +122,18 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
         ) : (
           <>
             <ModalBody pb={4} display='flex' flexDir='column' gap={4}>
-              <Box {...group}>
-                <AutoSizer disableHeight>
-                  {({ width }) => {
+              <Box flex={1} minHeight={{ base: '100%', md: '500px' }} {...group}>
+                <AutoSizer>
+                  {({ width, height }) => {
                     return (
                       <FixedSizeGrid
                         width={width}
-                        height={500}
+                        height={height}
                         itemData={{ filteredNfts, columnCount, getRadioProps }}
                         columnWidth={width / columnCount}
                         rowCount={filteredNfts.length / columnCount}
                         rowHeight={width / columnCount}
-                        columnCount={3}
+                        columnCount={columnCount}
                         overscanRowCount={15}
                       >
                         {NftRow}
@@ -142,12 +143,18 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
                 </AutoSizer>
               </Box>
             </ModalBody>
-            <ModalFooter>
-              <Button onClick={handleRestoreDefault} mr='auto'>
+            <ModalFooter gap={4}>
+              <Button width={{ base: 'full', md: 'auto' }} onClick={handleRestoreDefault} mr='auto'>
                 {translate('avatar.modal.restoreDefault')}
               </Button>
-              <Button onClick={props.onClose}>{translate('common.cancel')}</Button>
-              <Button ml={4} colorScheme='blue' onClick={() => handleSaveChanges(selected)}>
+              <Button display={{ base: 'none', md: 'block' }} onClick={props.onClose}>
+                {translate('common.cancel')}
+              </Button>
+              <Button
+                width={{ base: 'full', md: 'auto' }}
+                colorScheme='blue'
+                onClick={() => handleSaveChanges(selected)}
+              >
                 {translate('common.saveChanges')}
               </Button>
             </ModalFooter>

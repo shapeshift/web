@@ -7,6 +7,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { GetTradeQuoteInput } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
+import { isSkipToken } from 'lib/utils'
 import {
   selectBuyAsset,
   selectPortfolioAccountIdsByAssetId,
@@ -22,7 +23,9 @@ import { useAppSelector } from 'state/store'
 export const useGetTradeQuotes = () => {
   const isLifiEnabled = useFeatureFlag('LifiSwap')
   const wallet = useWallet().state.wallet
-  const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | undefined>()
+  const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
+    skipToken,
+  )
   const sellAsset = useAppSelector(selectSellAsset)
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAssetAccountId = useAppSelector(selectSellAssetAccountId)
@@ -58,18 +61,18 @@ export const useGetTradeQuotes = () => {
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         })
-        setTradeQuoteInput(tradeQuoteInputArgs)
+        setTradeQuoteInput(tradeQuoteInputArgs ?? skipToken)
       })()
     } else {
-      setTradeQuoteInput(undefined)
+      setTradeQuoteInput(skipToken)
     }
   }, [buyAsset, receiveAddress, sellAccountMetadata, sellAmountCryptoPrecision, sellAsset, wallet])
 
-  const { isLoading, data, error } = useGetLifiTradeQuoteQuery(tradeQuoteInput ?? skipToken, {
+  const { isLoading, data, error } = useGetLifiTradeQuoteQuery(tradeQuoteInput, {
     skip: !isLifiEnabled,
   })
 
-  if (!tradeQuoteInput) return {}
+  if (isSkipToken(tradeQuoteInput)) return {}
 
   return {
     [SwapperName.LIFI]: { isLoading, data, error },

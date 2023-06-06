@@ -36,6 +36,7 @@ export const buildTrade = async (
   // to allow passing the existing quote in.
   return (await getTradeQuote(input, lifiChainMap)).map(tradeQuote => ({
     ...tradeQuote.steps[0],
+    selectedLifiRoute: tradeQuote.selectedLifiRoute,
     receiveAddress,
   }))
 }

@@ -6,6 +6,14 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
 import { type Plugins } from 'plugins/types'
 
+// I'm an unchained-client wrapper around `/api/v1/` endpoints
+// If you ever need to consume endpoints which are not abstracted by chain-adapters, consume me
+export const http = new unchained.optimism.V1Api(
+  new unchained.optimism.Configuration({
+    basePath: getConfig().REACT_APP_UNCHAINED_OPTIMISM_HTTP_URL,
+  }),
+)
+
 // eslint-disable-next-line import/no-default-export
 export default function register(): Plugins {
   return [
@@ -19,12 +27,6 @@ export default function register(): Plugins {
             [
               KnownChainIds.OptimismMainnet,
               () => {
-                const http = new unchained.optimism.V1Api(
-                  new unchained.optimism.Configuration({
-                    basePath: getConfig().REACT_APP_UNCHAINED_OPTIMISM_HTTP_URL,
-                  }),
-                )
-
                 const ws = new unchained.ws.Client<unchained.optimism.Tx>(
                   getConfig().REACT_APP_UNCHAINED_OPTIMISM_WS_URL,
                 )

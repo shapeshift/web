@@ -33,6 +33,8 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
 import { httpProviderByChainId } from 'lib/web3-provider'
 import {
@@ -213,7 +215,9 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     (err: Error | null, payload: { params: [{ peerMeta: IClientMeta }] }) => {
       if (err) moduleLogger.error(err, { fn: 'handleConnect' }, 'Error connecting')
       moduleLogger.info(payload, { fn: 'handleConnect' }, 'Payload')
-      setDapp(payload.params[0].peerMeta)
+      const dapp = payload.params[0].peerMeta
+      setDapp(dapp)
+      getMixPanel()?.track(MixPanelEvents.ConnectedTodApp, { dapp })
     },
     [],
   )

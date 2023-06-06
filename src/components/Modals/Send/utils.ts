@@ -26,7 +26,6 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { isOsmosisLpAsset, tokenOrUndefined } from 'lib/utils'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -45,8 +44,6 @@ export type EstimateFeesInput = {
   accountId: string
   contractAddress: string | undefined
 }
-
-const moduleLogger = logger.child({ namespace: ['Modals', 'Send', 'utils'] })
 
 export const estimateFees = ({
   cryptoAmount,
@@ -257,8 +254,8 @@ export const handleSend = async ({
     }
 
     return broadcastTXID
-  } catch (error: any) {
-    moduleLogger.error(error, { fn: 'handleSend' }, 'Error handling send')
-    throw new Error(error)
+  } catch (error) {
+    console.error(error)
+    throw error
   }
 }

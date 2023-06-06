@@ -5,11 +5,8 @@ import type { DisplayFeeData, GetFormFeesArgs, GetReceiveAddressArgs } from 'com
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import type { ProtocolFee, SwapperName, TradeBase, TradeQuote } from 'lib/swapper/api'
-
-const moduleLogger = logger.child({ namespace: ['useSwapper', 'utils'] })
 
 // used to handle market fluctations and variations in gas estimates (e.g shapeshift vs metamask) to prevent failed trades
 const FEE_FLUCTUATION_DECIMAL_PERCENTAGE = 0.25
@@ -116,6 +113,6 @@ export const getReceiveAddress = async ({
   try {
     return await chainAdapter.getAddress({ wallet, accountNumber, accountType })
   } catch (e) {
-    moduleLogger.info(e, 'No receive address for buy asset, using default asset pair')
+    console.log(e)
   }
 }

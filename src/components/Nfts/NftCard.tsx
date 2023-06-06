@@ -54,7 +54,7 @@ export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
   const handleClick = useCallback(() => {
     if (!collection) return
 
-    nftModal.open({ nftItem })
+    nftModal.open({ nftAssetId: nftItem.assetId })
 
     const mixpanel = getMixPanel()
     const eventData = {

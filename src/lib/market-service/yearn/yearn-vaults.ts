@@ -1,5 +1,4 @@
 import { adapters, CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { Logger } from '@shapeshiftoss/logger'
 import type {
   FindAllMarketArgs,
   HistoryData,
@@ -19,8 +18,6 @@ import { isValidDate } from '../utils/isValidDate'
 import { createRateLimiter } from '../utils/rateLimiters'
 import { ACCOUNT_HISTORIC_EARNINGS } from './gql-queries'
 import type { VaultDayDataGQLResponse } from './yearn-types'
-
-const logger = new Logger({ namespace: ['market-service', 'yearn', 'vaults'] })
 
 const rateLimiter = createRateLimiter(RATE_LIMIT_THRESHOLDS_PER_MINUTE.DEFAULT)
 
@@ -119,7 +116,7 @@ export class YearnVaultMarketCapService implements MarketService {
           return acc
         }, {} as MarketCapResult)
     } catch (e) {
-      logger.warn(e, '')
+      console.warn(e)
       return {}
     }
   }
@@ -184,7 +181,7 @@ export class YearnVaultMarketCapService implements MarketService {
         changePercent24Hr,
       }
     } catch (e) {
-      logger.warn(e, '')
+      console.warn(e)
       throw new Error('YearnMarketService(findByAssetId): error fetching market data')
     }
   }
@@ -251,7 +248,7 @@ export class YearnVaultMarketCapService implements MarketService {
       return vaultDayData.reduce<HistoryData[]>((acc, current: VaultDayData) => {
         const date = Number(current.timestamp)
         if (!isValidDate(date)) {
-          logger.error('Yearn SDK vault has invalid date')
+          console.error('Yearn SDK vault has invalid date')
           return acc
         }
         const price = bn(current.tokenPriceUSDC)
@@ -261,7 +258,7 @@ export class YearnVaultMarketCapService implements MarketService {
           .dp(6)
 
         if (price.isNaN()) {
-          logger.error('Yearn SDK vault has invalid price')
+          console.error('Yearn SDK vault has invalid price')
           return acc
         }
         acc.push({
@@ -271,7 +268,7 @@ export class YearnVaultMarketCapService implements MarketService {
         return acc
       }, [])
     } catch (e) {
-      logger.warn(e, '')
+      console.warn(e)
       throw new Error('YearnMarketService(getPriceHistory): error fetching price history')
     }
   }

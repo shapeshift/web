@@ -6,17 +6,14 @@ import { useHistory } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { RawText } from 'components/Text'
-import { logger } from 'lib/logger'
-import { Debugging } from 'pages/Flags/Debugging'
 import { slices } from 'state/reducer'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import type { AppDispatch } from 'state/store'
 import { clearState, useAppSelector } from 'state/store'
 
+import { Debugging } from './Debugging'
 import { FlagRow } from './FlagRow'
-
-const moduleLogger = logger.child({ namespace: ['Flags'] })
 
 const FlagHeader = () => {
   return (
@@ -48,7 +45,7 @@ export const Flags = () => {
       setError(null)
       history.push('/')
     } catch (e) {
-      moduleLogger.error(e, 'handleReset: ')
+      console.error(e)
       setError(String((e as Error)?.message))
     }
   }
@@ -58,7 +55,7 @@ export const Flags = () => {
       dispatch(slices.preferences.actions.clearFeatureFlags())
       setError(null)
     } catch (e) {
-      moduleLogger.error(e, 'handleResetPreferences: ')
+      console.error(e)
       setError(String((e as Error)?.message))
     }
   }
@@ -89,7 +86,6 @@ export const Flags = () => {
             </HStack>
           </Card.Footer>
         </Card>
-
         <Debugging />
       </Stack>
       {error && (

@@ -34,7 +34,6 @@ import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -63,8 +62,6 @@ import { store, useAppDispatch, useAppSelector } from 'state/store'
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-const moduleLogger = logger.child({ namespace: ['ThorchainSaversDeposit:Confirm'] })
-
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 // Estimated miner fees are approximative since there might be a reconciliation Tx
@@ -74,7 +71,8 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 const TXS_BUFFER = 10
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
-  const [depositFeeCryptoBaseUnit, setDepositFeeCryptoBaseUnit] = useState<string>('')
+  const [protocolFeeCryptoBaseUnit, setProtocolFeeCryptoBaseUnit] = useState<string>('')
+  const [networkFeeCryptoBaseUnit, setNetworkFeeCryptoBaseUnit] = useState<string>('')
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
     null,
@@ -137,7 +135,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     ;(async () => {
       if (!opportunity?.apy) return
       if (!(accountId && state?.deposit.cryptoAmount && asset)) return
-      if (depositFeeCryptoBaseUnit) return
+      if (protocolFeeCryptoBaseUnit) return
 
       const amountCryptoBaseUnit = bnOrZero(state?.deposit.cryptoAmount).times(
         bn(10).pow(asset.precision),
@@ -155,11 +153,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const { expected_amount_out: expectedAmountOutThorBaseUnit, slippage_bps } = quote
 
       // Total downside
-      const depositFeeCryptoPrecision = fromThorBaseUnit(
+      const thorchainFeeCryptoPrecision = fromThorBaseUnit(
         amountCryptoThorBaseUnit.minus(expectedAmountOutThorBaseUnit),
       )
 
-      setDepositFeeCryptoBaseUnit(toBaseUnit(depositFeeCryptoPrecision, asset.precision))
+      setProtocolFeeCryptoBaseUnit(toBaseUnit(thorchainFeeCryptoPrecision, asset.precision))
 
       const slippagePercentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
 
@@ -178,7 +176,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
       setDaysToBreakEven(daysToBreakEven)
     })()
-  }, [accountId, asset, depositFeeCryptoBaseUnit, opportunity?.apy, state?.deposit.cryptoAmount])
+  }, [accountId, asset, protocolFeeCryptoBaseUnit, opportunity?.apy, state?.deposit.cryptoAmount])
 
   const getEstimateFeesArgs: () => Promise<EstimateFeesInput> = useCallback(async () => {
     if (!accountId) throw new Error('accountId required')
@@ -200,7 +198,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       asset,
     })
 
-    setDepositFeeCryptoBaseUnit(
+    setProtocolFeeCryptoBaseUnit(
       toBaseUnit(
         fromThorBaseUnit(amountCryptoThorBaseUnit.minus(quote.expected_amount_out)),
         asset.precision,
@@ -231,7 +229,33 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     supportedEvmChainIds,
   ])
 
+  const getSafeEstimatedFees = useCallback(async () => {
+    return Object.fromEntries(
+      Object.entries(await estimateFees(await getEstimateFeesArgs())).map(([feeType, feeData]) => [
+        feeType as FeeDataKey,
+        {
+          ...feeData,
+          txFee: bn(feeData.txFee).times(2).toString(),
+          chainSpecific: {
+            ...(feeData as FeeData<UtxoChainId>).chainSpecific,
+            satoshiPerByte: bn((feeData as FeeData<UtxoChainId>).chainSpecific.satoshiPerByte)
+              .times(2)
+              .toString(),
+          },
+        },
+      ]),
+    ) as FeeDataEstimate<UtxoChainId> // We're lying to TS, this can be a FeeDataEstimate from any ChainId
+  }, [getEstimateFeesArgs])
+
+  useEffect(() => {
+    ;(async () => {
+      const estimatedFees = await getSafeEstimatedFees()
+      setNetworkFeeCryptoBaseUnit(estimatedFees.fast.txFee)
+    })()
+  }, [getSafeEstimatedFees])
+
   const getDepositInput: () => Promise<SendInput | undefined> = useCallback(async () => {
+    if (!contextDispatch) return
     if (!(accountId && assetId)) return
     if (!state?.deposit.cryptoAmount) {
       throw new Error('Cannot send 0-value THORCHain savers Tx')
@@ -240,23 +264,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     try {
       // Estimated fees tend to produce too low fees on e.g Dogecoin
       // Since UTXOs are fairly cheap, we *2 the fees to ensure the Txs are not stuck in the mempool
-      const estimatedFees = Object.fromEntries(
-        Object.entries(await estimateFees(await getEstimateFeesArgs())).map(
-          ([feeType, feeData]) => [
-            feeType as FeeDataKey,
-            {
-              ...feeData,
-              txFee: bn(feeData.txFee).times(2).toString(),
-              chainSpecific: {
-                ...(feeData as FeeData<UtxoChainId>).chainSpecific,
-                satoshiPerByte: bn((feeData as FeeData<UtxoChainId>).chainSpecific.satoshiPerByte)
-                  .times(2)
-                  .toString(),
-              },
-            },
-          ],
-        ),
-      ) as FeeDataEstimate<UtxoChainId> // We're lying to TS, this can be a FeeDataEstimate from any ChainId
+      const estimatedFees = await getSafeEstimatedFees()
+      setNetworkFeeCryptoBaseUnit(estimatedFees.fast.txFee)
+      contextDispatch({
+        type: ThorchainSaversDepositActionType.SET_DEPOSIT,
+        payload: {
+          networkFeeCryptoBaseUnit: estimatedFees.fast.txFee,
+        },
+      })
+
       const amountCryptoBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
         bn(10).pow(asset.precision),
       )
@@ -278,6 +294,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           assetBalanceFilter,
         )
         const fastFeesBaseUnit = estimatedFees.fast.txFee
+
+        setNetworkFeeCryptoBaseUnit(fastFeesBaseUnit)
+        contextDispatch({
+          type: ThorchainSaversDepositActionType.SET_DEPOSIT,
+          payload: {
+            networkFeeCryptoBaseUnit: fastFeesBaseUnit,
+          },
+        })
+
         const cryptoAmountBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
           bn(10).pow(asset.precision),
         )
@@ -322,14 +347,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       return sendInput
     } catch (e) {
-      moduleLogger.error({ fn: 'getDepositInput', e }, 'Error building THORChain savers Tx')
+      console.error(e)
     }
   }, [
+    contextDispatch,
     accountId,
     assetId,
     state?.deposit.cryptoAmount,
     state?.deposit.sendMax,
-    getEstimateFeesArgs,
+    getSafeEstimatedFees,
     asset,
     chainId,
     maybeFromUTXOAccountAddress,
@@ -370,7 +396,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       return sendInput
     } catch (e) {
-      moduleLogger.error({ fn: 'getDepositInput', e }, 'Error building THORChain savers Tx')
+      console.error(e)
     }
   }, [
     accountId,
@@ -507,7 +533,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       contextDispatch({
         type: ThorchainSaversDepositActionType.SET_DEPOSIT,
         payload: {
-          depositFeeCryptoBaseUnit,
+          protocolFeeCryptoBaseUnit,
           maybeFromUTXOAccountAddress,
         },
       })
@@ -523,7 +549,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.debug({ fn: 'handleDeposit' }, 'Error sending THORCHain savers Txs')
+      console.error(error)
       // TODO(gomes): UTXO reconciliation in a stacked PR
       toast({
         position: 'top-right',
@@ -550,7 +576,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     appDispatch,
     getDepositInput,
     handleMultiTxSend,
-    depositFeeCryptoBaseUnit,
+    protocolFeeCryptoBaseUnit,
     maybeFromUTXOAccountAddress,
     onNext,
     toast,
@@ -622,22 +648,47 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         </Row>
         <Row variant='gutter'>
           <Row.Label>
-            <HelperTooltip label={translate('defi.modals.saversVaults.estimatedFeeTooltip')}>
-              <Text translation='defi.modals.saversVaults.estimatedFee' />
+            <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
+              <Text translation='trade.protocolFee' />
             </HelperTooltip>
           </Row.Label>
           <Row.Value>
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(depositFeeCryptoBaseUnit)
+                value={bnOrZero(protocolFeeCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
                   .times(feeMarketData.price)
                   .toFixed()}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={bnOrZero(depositFeeCryptoBaseUnit)
+                value={bnOrZero(protocolFeeCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
+                  .toFixed()}
+                symbol={asset.symbol}
+              />
+            </Box>
+          </Row.Value>
+        </Row>
+        <Row variant='gutter'>
+          <Row.Label>
+            <HelperTooltip label={translate('trade.tooltip.minerFee')}>
+              <Text translation='trade.minerFee' />
+            </HelperTooltip>
+          </Row.Label>
+          <Row.Value>
+            <Box textAlign='right'>
+              <Amount.Fiat
+                fontWeight='bold'
+                value={bnOrZero(networkFeeCryptoBaseUnit)
+                  .div(bn(10).pow(asset.precision))
+                  .times(feeMarketData.price)
+                  .toFixed()}
+              />
+              <Amount.Crypto
+                color='gray.500'
+                value={bnOrZero(networkFeeCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
                   .toFixed()}
                 symbol={asset.symbol}

@@ -4,15 +4,12 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { FEE_ASSET_IDS } from 'state/slices/selectors'
 
 import { zerionImplementationToMaybeAssetId } from './mapping'
 import { zerionFungiblesSchema } from './validators/fungible'
-
-const moduleLogger = logger.child({ module: 'zerionApi' })
 
 const ZERION_BASE_URL = 'https://api.zerion.io/v1'
 
@@ -54,7 +51,7 @@ export const zerionApi = createApi({
               .filter(id => id !== assetId) ?? [] // don't show input assetId in list of related assetIds
           return { data }
         } catch (e) {
-          moduleLogger.warn(e, '')
+          console.error(e)
           return { error: { error: e } }
         }
       },

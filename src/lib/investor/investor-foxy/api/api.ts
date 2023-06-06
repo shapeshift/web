@@ -1,7 +1,6 @@
 import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
-import { Logger } from '@shapeshiftoss/logger'
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import axios from 'axios'
 import type { BigNumber } from 'bignumber.js'
@@ -47,8 +46,6 @@ import type {
 } from './foxy-types'
 
 export * from './foxy-types'
-
-const logger = new Logger({ namespace: ['investor-foxy', 'api'] })
 
 type EthereumChainReference =
   | typeof CHAIN_REFERENCE.EthereumMainnet
@@ -614,7 +611,7 @@ export class FoxyApi {
           endEpoch: coolDown.expiry,
         }
       } catch (e) {
-        logger.error(e, 'failed to get coolDowninfo')
+        console.error(e, 'failed to get coolDowninfo')
       }
     })()
 
@@ -622,7 +619,7 @@ export class FoxyApi {
       try {
         return stakingContract.epoch()
       } catch (e) {
-        logger.error(e, 'failed to get epoch')
+        console.error(e, 'failed to get epoch')
         return {}
       }
     })()
@@ -631,7 +628,7 @@ export class FoxyApi {
       try {
         return tokePoolContract.requestedWithdrawals(stakingContract.address)
       } catch (e) {
-        logger.error(e, 'failed to get requestedWithdrawals')
+        console.error(e, 'failed to get requestedWithdrawals')
         return {}
       }
     })()
@@ -640,7 +637,7 @@ export class FoxyApi {
       try {
         return tokeManagerContract.getCurrentCycleIndex()
       } catch (e) {
-        logger.error(e, 'failed to get currentCycleIndex')
+        console.error(e, 'failed to get currentCycleIndex')
         return 0
       }
     })()
@@ -649,7 +646,7 @@ export class FoxyApi {
       try {
         return stakingContract.withdrawalAmount()
       } catch (e) {
-        logger.error(e, 'failed to get currentCycleIndex')
+        console.error(e, 'failed to get currentCycleIndex')
         return 0
       }
     })()
@@ -729,7 +726,7 @@ export class FoxyApi {
       try {
         return (await stakingContract.requestWithdrawalAmount()).toString()
       } catch (e) {
-        logger.error(e, 'failed to get requestWithdrawalAmount')
+        console.error(e, 'failed to get requestWithdrawalAmount')
         return 0
       }
     })()
@@ -738,7 +735,7 @@ export class FoxyApi {
       try {
         return (await stakingContract.timeLeftToRequestWithdrawal()).toString()
       } catch (e) {
-        logger.error(e, 'failed to get timeLeftToRequestWithdrawal')
+        console.error(e, 'failed to get timeLeftToRequestWithdrawal')
         return '0'
       }
     })()
@@ -747,7 +744,7 @@ export class FoxyApi {
       try {
         return (await stakingContract.lastTokeCycleIndex()).toString()
       } catch (err) {
-        logger.error(err, 'failed to get lastTokeCycleIndex')
+        console.error(err, 'failed to get lastTokeCycleIndex')
         return '0'
       }
     })()
@@ -756,7 +753,7 @@ export class FoxyApi {
       try {
         return (await tokeManagerContract.getCycleDuration()).toString()
       } catch (e) {
-        logger.error(e, 'failed to get cycleDuration')
+        console.error(e, 'failed to get cycleDuration')
         return '0'
       }
     })()
@@ -765,7 +762,7 @@ export class FoxyApi {
       try {
         return (await tokeManagerContract.getCurrentCycleIndex()).toString()
       } catch (e) {
-        logger.error(e, 'failed to get currentCycleIndex')
+        console.error(e, 'failed to get currentCycleIndex')
         return '0'
       }
     })()
@@ -774,7 +771,7 @@ export class FoxyApi {
       try {
         return (await tokeManagerContract.getCurrentCycle()).toString()
       } catch (e) {
-        logger.error(e, 'failed to get currentCycle')
+        console.error(e, 'failed to get currentCycle')
         return '0'
       }
     })()
@@ -1082,7 +1079,7 @@ export class FoxyApi {
         )
         return filteredEvents
       } catch (e) {
-        logger.error(e, 'failed to get rebase events')
+        console.error(e, 'failed to get rebase events')
         return undefined
       }
     })()
@@ -1095,7 +1092,7 @@ export class FoxyApi {
         const events = await foxyContract.queryFilter(filter, fromBlock, 'latest')
         return events
       } catch (e) {
-        logger.error(e, 'failed to get transfer events')
+        console.error(e, 'failed to get transfer events')
         return undefined
       }
     })()
@@ -1148,7 +1145,7 @@ export class FoxyApi {
               postRebaseBalance: postRebaseBalanceResult.toString() as string,
             }
           } catch (e) {
-            logger.error(e, 'failed to get balance of address')
+            console.error(e, 'failed to get balance of address')
             return {
               preRebaseBalance: bn(0).toString(),
               postRebaseBalance: bn(0).toString(),
@@ -1161,7 +1158,7 @@ export class FoxyApi {
             const block = await this.provider.getBlock(event.blockNumber)
             return bnOrZero(block.timestamp).toNumber()
           } catch (e) {
-            logger.error(e, 'failed to get timestamp of block')
+            console.error(e, 'failed to get timestamp of block')
             return 0
           }
         })()
@@ -1172,7 +1169,7 @@ export class FoxyApi {
 
     const actualResults = results.reduce<RebaseHistory[]>((acc, cur) => {
       if (cur.status === 'rejected') {
-        logger.error('getFoxyRebaseHistory: balanceOf call failed - charts will be wrong')
+        console.error('getFoxyRebaseHistory: balanceOf call failed - charts will be wrong')
         return acc
       }
       if (cur.value.preRebaseBalance === '0') return acc // don't return rebase history with 0 balance diff

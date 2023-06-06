@@ -15,7 +15,6 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { YearnOpportunity } from 'lib/investor/investor-yearn'
-import { logger } from 'lib/logger'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -27,10 +26,6 @@ import { useAppSelector } from 'state/store'
 
 import { YearnWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Yearn', 'YearnWithdraw'],
-})
 
 type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
@@ -123,7 +118,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           .toString()
       } catch (error) {
         // TODO: handle client side errors maybe add a toast?
-        moduleLogger.error(error, 'YearnWithdraw:Withdraw:getWithdrawGasEstimate error')
+        console.error(error)
       }
     },
     [userAddress, opportunityData, assetReference, yearnOpportunity, asset?.precision],

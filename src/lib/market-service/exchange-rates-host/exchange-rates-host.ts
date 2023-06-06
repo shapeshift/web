@@ -1,4 +1,3 @@
-import { Logger } from '@shapeshiftoss/logger'
 import type { HistoryData, MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import axios from 'axios'
@@ -13,8 +12,6 @@ import type {
   SupportedFiatCurrencies,
 } from '../fiat-market-service-types'
 import type { ExchangeRateHostHistoryData, ExchangeRateHostRate } from './exchange-rates-host-types'
-
-const logger = new Logger({ namespace: ['market-service', 'exchange-rates-host'] })
 
 const baseCurrency = 'USD'
 
@@ -57,7 +54,7 @@ export class ExchangeRateHostService implements FiatMarketService {
         volume: '0',
       }
     } catch (e) {
-      logger.warn(e, '')
+      console.warn(e)
       throw new Error('FiatMarketService(findByFiatSymbol): error fetching market data')
     }
   }
@@ -109,7 +106,7 @@ export class ExchangeRateHostService implements FiatMarketService {
         return acc
       }, [])
     } catch (e) {
-      logger.warn(e, '')
+      console.warn(e)
       throw new Error(
         'ExchangeRateHost(findPriceHistoryByFiatSymbol): error fetching price history',
       )

@@ -5,7 +5,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { PURGE } from 'redux-persist'
 import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
-import { isSome } from 'lib/utils'
+import { isRejected, isSome } from 'lib/utils'
 import type { WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
@@ -119,11 +119,13 @@ export const nftApi = createApi({
             ),
         ]
 
-        const results = await Promise.all(services.map(service => service(accountIds)))
+        const results = await Promise.allSettled(services.map(service => service(accountIds)))
 
         const dataById = results.reduce<Record<AssetId, NftItemWithCollection>>((acc, result) => {
-          if (result.data) {
-            const { data } = result
+          if (isRejected(result)) return acc
+
+          if (result.value.data) {
+            const { data } = result.value
 
             data.forEach(item => {
               const { assetId } = item
@@ -134,8 +136,9 @@ export const nftApi = createApi({
                 acc[assetId] = updateNftItem(acc[assetId], item)
               }
             })
-          } else if (result.isError) {
-            moduleLogger.error({ error: result.error }, 'Failed to fetch nft user data')
+            // An actual RTK error, different from a rejected promise i.e getAlchemyNftData rejecting
+          } else if (result.value.isError) {
+            moduleLogger.error({ error: result.value.error }, 'Failed to fetch nft user data')
           }
 
           return acc
@@ -193,12 +196,14 @@ export const nftApi = createApi({
               ),
           ]
 
-          const results = await Promise.all(
+          const results = await Promise.allSettled(
             services.map(service => service(collectionId, accountIds)),
           )
 
           const collectionData = results.reduce<NftCollectionType | null>((acc, result) => {
-            const { data } = result
+            if (isRejected(result)) return acc
+
+            const { data } = result.value
 
             if (!data) return acc
             if (!acc) return data

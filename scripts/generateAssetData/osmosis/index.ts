@@ -88,6 +88,11 @@ export const getAssets = async (): Promise<Asset[]> => {
 
     const assetId = `cosmos:osmosis-1/${assetNamespace}:${assetReference}`
 
+    const logoURI = (current.logo_URIs.png ?? current.logo_URIs.svg ?? '').replace(
+      'raw.githubusercontent.com',
+      'rawcdn.githack.com',
+    )
+
     const assetDatum: Asset = {
       assetId,
       chainId: osmosisChainId,
@@ -95,7 +100,7 @@ export const getAssets = async (): Promise<Asset[]> => {
       name: getAssetName(current),
       precision,
       color: colorMap[assetId] ?? '#FFFFFF',
-      icon: current.logo_URIs.png ?? current.logo_URIs.svg ?? '',
+      icon: logoURI,
       explorer: osmosis.explorer,
       explorerAddressLink: osmosis.explorerAddressLink,
       explorerTxLink: osmosis.explorerTxLink,

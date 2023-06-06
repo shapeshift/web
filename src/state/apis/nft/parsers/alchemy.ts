@@ -1,13 +1,16 @@
 import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
 import { polygonChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { TokenType } from '@shapeshiftoss/unchained-client/src/evm/ethereum'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import type { Nft, NftContract, OpenSeaCollectionMetadata, OwnedNft } from 'alchemy-sdk'
+import axios from 'axios'
 import { http as v1HttpApi } from 'plugins/polygon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { logger } from 'lib/logger'
 import { getMediaType } from 'state/apis/zapper/validators'
 
-import type { NftCollectionType, NftItemWithCollection } from '../types'
+import type { ERC721Metadata, NftCollectionType, NftItemWithCollection } from '../types'
 
 const moduleLogger = logger.child({ namespace: ['apis', 'nfts', 'parsers', 'alchemy'] })
 
@@ -100,36 +103,64 @@ export const parseAlchemyNftToNftItem = async (
   const shouldFetchIpfsGatewayMediaUrl =
     chainId === polygonChainId && alchemyNft.tokenUri?.gateway.includes('ipns')
 
-  const getMaybeMediasIpfsGatewayUrl = async () => {
+  const getMaybeMediasIpfsGatewayUrl = async (): Promise<
+    Result<{ originalUrl: string; type: string }[], string>
+  > => {
     try {
+      // Unable to fetch media from an IPFS gateway, use alchemy media collection
+      // which may be stale, but is our best bet
+      if (!shouldFetchIpfsGatewayMediaUrl)
+        return Ok(
+          alchemyNft.media.map(media => ({
+            originalUrl: media.gateway,
+            type: getMediaType(`media.${media.format}`) ?? 'image',
+          })),
+        )
+
+      // Get unchained meta if Polygon node is alive
       const tokenMetadata = await v1HttpApi.getTokenMetadata({
         contract: alchemyNft.contract.address,
         id: alchemyNft.tokenId,
         type: alchemyNft.contract.tokenType.toLowerCase() as TokenType,
       })
-      return [
+
+      return Ok([
         {
-          // TODO: https://gateway.shapeshift.com/ipfs/ when stabilized
           originalUrl: tokenMetadata.media.url.replace('ipfs://', 'https://ipfs.io/ipfs/'),
           type: 'image',
         },
-      ]
+      ])
     } catch (error) {
       moduleLogger.error({ error }, 'Failed to fetch token metadata from unchained')
-      // Defaults to Alchemy media URLs in case unchained rugs us
-      return alchemyNft.media.map(media => ({
-        originalUrl: media.gateway,
-        type: getMediaType(`media.${media.format}`) ?? 'image',
-      }))
+
+      const ipnsMetadataUrl = alchemyNft.tokenUri?.gateway
+
+      if (!ipnsMetadataUrl) return Err('No IPNS metadata gateway URL found')
+
+      // Fetch IPNS meta so we can introspect the IPFS gateway media URL
+      // Note, this only works for Mercle NFTs because of CSP
+      // Theoretically, we could fetch from https://ipfs.io/ipns/{ipns-name} gateway, but this is broken upstream
+      const { data } = await axios.get<ERC721Metadata>(ipnsMetadataUrl)
+
+      if (!data) return Err('Cannot get metadata from IPNS gateway')
+
+      const image = data.image.replace('ipfs://', 'https://ipfs.io/ipfs/')
+
+      return Ok([
+        {
+          originalUrl: image,
+          type: 'image',
+        },
+      ])
     }
   }
+  const maybeMedias = await getMaybeMediasIpfsGatewayUrl()
 
-  const medias = shouldFetchIpfsGatewayMediaUrl
-    ? await getMaybeMediasIpfsGatewayUrl()
-    : alchemyNft.media.map(media => ({
-        originalUrl: media.gateway,
-        type: getMediaType(`media.${media.format}`) ?? 'image',
-      }))
+  if (maybeMedias.isErr()) {
+    throw new Error('Cannot fetch medias, bailing from NFT parsing')
+  }
+
+  const medias = maybeMedias.unwrap()
 
   const nftItem = {
     id: alchemyNft.tokenId,

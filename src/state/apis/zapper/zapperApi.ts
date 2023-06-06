@@ -25,7 +25,6 @@ import type {
   GetOpportunityMetadataOutput,
   GetOpportunityUserDataOutput,
   GetOpportunityUserStakingDataOutput,
-  LpId,
   OpportunityMetadataBase,
   ReadOnlyOpportunityType,
   StakingId,
@@ -425,7 +424,7 @@ export const zapper = createApi({
 
                   if (!assetId) return undefined
 
-                  const opportunityId: LpId | StakingId = `${asset.address}#${asset.key}`
+                  const opportunityId: StakingId = `${asset.address}#${asset.key}`
 
                   if (!acc.metadataByProvider[appName]) {
                     acc.metadataByProvider[appName] = {
@@ -608,9 +607,7 @@ export const zapper = createApi({
 
           // Populate read only metadata payload
           for (const id in readOnlyMetadata) {
-            if (readOnlyMetadata[id].type === DefiType.Staking) {
-              stakingMetadataUpsertPayload.byId[id] = readOnlyMetadata[id]
-            }
+            stakingMetadataUpsertPayload.byId[id] = readOnlyMetadata[id]
           }
 
           // Populate read only userData payload

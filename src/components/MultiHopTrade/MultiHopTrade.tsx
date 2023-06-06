@@ -53,7 +53,6 @@ export const MultiHopTrade = (props: CardProps) => {
 
   const lifiResult = quotes[SwapperName.LIFI]?.data
 
-  /* eslint-disable-next-line @shapeshiftoss/logger/no-native-console */
   console.log({
     isLoading: quotes[SwapperName.LIFI]?.isLoading,
     data: lifiResult?.isErr() ? lifiResult.unwrapErr() : lifiResult?.unwrap(),

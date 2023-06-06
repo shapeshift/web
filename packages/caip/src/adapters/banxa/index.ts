@@ -115,5 +115,5 @@ export const getBanxaBlockchainFromAssetId = (assetId: AssetId): string => {
   if (!banxaChainId)
     throw new Error(`getBanxaBlockchainFromAssetId: ${banxaChainId} is not supported`)
 
-  return chainIdToBanxaBlockchainCodeMap[chainId]
+  return banxaChainId
 }

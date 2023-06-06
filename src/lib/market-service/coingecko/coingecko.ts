@@ -1,5 +1,4 @@
 import { adapters } from '@shapeshiftoss/caip'
-import { Logger } from '@shapeshiftoss/logger'
 import type {
   FindAllMarketArgs,
   HistoryData,
@@ -16,8 +15,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { MarketService } from '../api'
 import { isValidDate } from '../utils/isValidDate'
 import type { CoinGeckoMarketCap, CoinGeckoMarketData } from './coingecko-types'
-
-const logger = new Logger({ namespace: ['market-service', 'coingecko'] })
 
 // tons more params here: https://www.coingecko.com/en/api/documentation
 type CoinGeckoAssetData = {
@@ -108,7 +105,7 @@ export class CoinGeckoMarketService implements MarketService {
           marketData.max_supply?.toString() ?? marketData.total_supply?.toString() ?? undefined,
       }
     } catch (e) {
-      logger.warn(e, '')
+      console.warn(e, '')
       throw new Error('CoinGeckoMarketService(findByAssetId): error fetching market data')
     }
   }
@@ -117,8 +114,6 @@ export class CoinGeckoMarketService implements MarketService {
     assetId,
     timeframe,
   }: PriceHistoryArgs): Promise<HistoryData[]> {
-    const fnLogger = logger.child({ fn: 'findPriceHistoryByAssetId', assetId, timeframe })
-
     if (!adapters.assetIdToCoingecko(assetId)) return []
 
     const url = adapters.makeCoingeckoAssetUrl(assetId)
@@ -159,12 +154,12 @@ export class CoinGeckoMarketService implements MarketService {
         const [date, price] = data
 
         if (!isValidDate(date)) {
-          fnLogger.error('invalid date')
+          console.error('CoinGeckoMarketService(findPriceHistoryByAssetId): invalid date')
           return prev
         }
 
         if (bn(price).isNaN()) {
-          fnLogger.error('invalid price')
+          console.error('CoinGeckoMarketService(findPriceHistoryByAssetId): invalid price')
           return prev
         }
 
@@ -172,7 +167,6 @@ export class CoinGeckoMarketService implements MarketService {
         return prev
       }, [])
     } catch (err) {
-      fnLogger.error(err, 'failed to fetch price history')
       throw new Error(
         'CoinGeckoMarketService(findPriceHistoryByAssetId): error fetching price history',
       )

@@ -21,7 +21,6 @@ export const rpcCall = async (provider: HttpProvider, method: string, params: un
 
   if (!response) throw Error('no response received')
   if (response.error) {
-    // eslint-disable-next-line @shapeshiftoss/logger/no-native-console
     console.error({
       method,
       params,

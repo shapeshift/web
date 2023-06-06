@@ -1,7 +1,6 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -25,8 +24,6 @@ import type {
 } from '../types'
 import { BASE_OPPORTUNITIES_BY_ID } from './constants'
 import { getIdleInvestor } from './idleInvestorSingleton'
-
-const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'idle'] })
 
 export const idleStakingOpportunitiesMetadataResolver = async ({
   defiType,
@@ -91,16 +88,13 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     if (!asset || !underlyingAsset) continue
 
     const rewardAssetIds = (await opportunity.getRewardAssetIds().catch(error => {
-      moduleLogger.debug(
-        { fn: 'idleStakingOpportunitiesMetadataResolver', error },
-        `Error fetching Idle opportunities metadata for opportunity ${opportunityId}`,
-      )
+      console.error(error)
       return []
     })) as AssetIdsTuple
 
     const baseOpportunity = BASE_OPPORTUNITIES_BY_ID[opportunityId]
     if (!baseOpportunity) {
-      moduleLogger.warn(`
+      console.warn(`
         No base opportunity found for ${opportunityId} in BASE_OPPORTUNITIES_BY_ID, refetching.
         Add me to avoid re-fetching from the contract.
         `)
@@ -234,10 +228,7 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     }
 
     const rewardAssetIds = (await opportunity.getRewardAssetIds().catch(error => {
-      moduleLogger.debug(
-        { fn: 'idleStakingOpportunitiesMetadataResolver', error },
-        `Error fetching Idle opportunities metadata for opportunity ${opportunityId}`,
-      )
+      console.error(error)
       return []
     })) as AssetIdsTuple
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {

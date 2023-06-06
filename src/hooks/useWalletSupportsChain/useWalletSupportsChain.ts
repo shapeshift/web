@@ -27,9 +27,6 @@ import {
   supportsPolygon,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
-import { logger } from 'lib/logger'
-
-const moduleLogger = logger.child({ namespace: ['useWalletSupportsChain'] })
 
 type UseWalletSupportsChainArgs = { chainId: ChainId; wallet: HDWallet | null }
 type UseWalletSupportsChain = (args: UseWalletSupportsChainArgs) => boolean
@@ -62,7 +59,6 @@ export const walletSupportsChain: UseWalletSupportsChain = ({ chainId, wallet })
     case thorchainChainId:
       return supportsThorchain(wallet)
     default: {
-      moduleLogger.warn(`useWalletSupportsChain: unknown chain id ${chainId}`)
       return false
     }
   }

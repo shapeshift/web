@@ -7,12 +7,9 @@ import type { Nft, NftContract, OpenSeaCollectionMetadata, OwnedNft } from 'alch
 import axios from 'axios'
 import { http as v1HttpApi } from 'plugins/polygon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { getMediaType } from 'state/apis/zapper/validators'
 
 import type { ERC721Metadata, NftCollectionType, NftItemWithCollection } from '../types'
-
-const moduleLogger = logger.child({ namespace: ['apis', 'nfts', 'parsers', 'alchemy'] })
 
 const makeSocialLinks = (openseaCollectionMetadata: OpenSeaCollectionMetadata | undefined) => {
   if (!openseaCollectionMetadata) return []
@@ -131,7 +128,7 @@ export const parseAlchemyNftToNftItem = async (
         },
       ])
     } catch (error) {
-      moduleLogger.error({ error }, 'Failed to fetch token metadata from unchained')
+      console.error(error)
 
       const ipnsMetadataUrl = alchemyNft.tokenUri?.gateway
 

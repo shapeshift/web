@@ -5,9 +5,6 @@ import { useEffect } from 'react'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
-import { logger } from 'lib/logger'
-
-const moduleLogger = logger.child({ namespace: ['NativeWallet'] })
 
 type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo' | 'modal'>
 
@@ -16,7 +13,6 @@ export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<Ac
 
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
-      moduleLogger.info({ e }, 'Event')
       const deviceId = e[0]
       switch (e[1].message_type) {
         case NativeEvents.MNEMONIC_REQUIRED:
@@ -31,7 +27,7 @@ export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<Ac
           break
         default:
           // If there wasn't an enum value, then we'll check the message type
-          moduleLogger.info({ e }, 'ShapeShift Wallet Unknown Event')
+          break
       }
     }
 

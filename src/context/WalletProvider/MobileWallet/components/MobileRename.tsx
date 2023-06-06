@@ -10,17 +10,12 @@ import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 
-import { mobileLogger } from '../config'
 import { updateWallet } from '../mobileMessageHandlers'
 import type { MobileSetupProps } from '../types'
 
 const isValidLabel = (label: unknown): label is string => {
   return typeof label === 'string' && label.length > 0 && label.length < 65
 }
-
-const moduleLogger = mobileLogger.child({
-  namespace: ['components', 'MobileRename'],
-})
 
 export const MobileRename = ({ history, location }: MobileSetupProps) => {
   const translate = useTranslate()
@@ -42,7 +37,7 @@ export const MobileRename = ({ history, location }: MobileSetupProps) => {
         setError(translate('modals.shapeShift.password.error.maxLength'))
       }
     } catch (e) {
-      moduleLogger.error(e, 'Error renaming a wallet')
+      console.log(e)
     } finally {
       setIsSubmitting(false)
     }

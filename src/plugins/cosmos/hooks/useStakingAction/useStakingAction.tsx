@@ -7,13 +7,10 @@ import {
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { logger } from 'lib/logger'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_OSMOSIS_VALIDATOR_ADDRESS,
 } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/constants'
-
-const moduleLogger = logger.child({ namespace: ['useStakingAction'] })
 
 const shapeshiftValidators = [
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
@@ -99,7 +96,7 @@ export const useStakingAction = () => {
 
       return adapter.signAndBroadcastTransaction({ txToSign, wallet })
     } catch (error) {
-      moduleLogger.error(error, 'Cosmos:useStakingAction error: ')
+      console.error(error)
     }
   }
   return {

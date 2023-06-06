@@ -1,5 +1,4 @@
 import { isNft } from '@shapeshiftoss/caip'
-import { Logger } from '@shapeshiftoss/logger'
 import type {
   FindAllMarketArgs,
   HistoryData,
@@ -18,8 +17,6 @@ import { IdleMarketService } from './idle/idle'
 import { OsmosisMarketService } from './osmosis/osmosis'
 // import { YearnTokenMarketCapService } from './yearn/yearn-tokens'
 // import { YearnVaultMarketCapService } from './yearn/yearn-vaults'
-
-const logger = new Logger({ namespace: ['market-service', 'market-service-manager'] })
 
 export type ProviderUrls = {
   jsonRpcProviderUrl: string
@@ -69,7 +66,7 @@ export class MarketServiceManager {
       try {
         result = await this.marketProviders[i].findAll(args)
       } catch (e) {
-        logger.warn(e, '')
+        console.warn(e, '')
       }
     }
     if (!result) throw new Error('Cannot find market service provider for market data.')

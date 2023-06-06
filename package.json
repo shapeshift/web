@@ -101,7 +101,6 @@
     "@shapeshiftoss/hdwallet-native-vault": "1.50.3",
     "@shapeshiftoss/hdwallet-walletconnect": "1.50.3",
     "@shapeshiftoss/hdwallet-xdefi": "1.50.3",
-    "@shapeshiftoss/logger": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@sniptt/monads": "^0.5.10",

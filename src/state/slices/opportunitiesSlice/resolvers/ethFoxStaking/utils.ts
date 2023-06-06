@@ -1,11 +1,6 @@
 import type { Contract } from '@ethersproject/contracts'
 import { memoize } from 'lodash'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
-
-const moduleLogger = logger.child({
-  namespace: ['resolvers', 'ethFoxStaking', 'Utils'],
-})
 
 export const makeTotalLpApr = (foxRewardRatePerToken: string, foxEquivalentPerLPToken: string) =>
   bnOrZero(foxRewardRatePerToken) // Fox Rewards per second for 1 staked LP token
@@ -27,8 +22,8 @@ const getTotalLpSupply = memoize(async (farmingRewardsContract: Contract) => {
     const totalSupply = await farmingRewardsContract.totalSupply()
     return bnOrZero(totalSupply.toString())
   } catch (error) {
+    console.error(error)
     const errorMsg = 'totalLpSupply error'
-    moduleLogger.error(error, { fn: 'totalLpSupply' }, errorMsg)
     throw new Error(errorMsg)
   }
 })
@@ -43,8 +38,8 @@ export const rewardRatePerToken = memoize(async (farmingRewardsContract: Contrac
       .decimalPlaces(0)
       .toString()
   } catch (error) {
+    console.error(error)
     const errorMsg = 'rewardRatePerToken error'
-    moduleLogger.error(error, errorMsg)
     throw new Error(errorMsg)
   }
 })

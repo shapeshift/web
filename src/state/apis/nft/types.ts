@@ -38,3 +38,12 @@ export type NftItem = {
 export type NftItemWithCollection = Omit<NftItem, 'collectionId'> & {
   collection: NftCollectionType
 }
+
+// Standard ERC721 Metadata JSON Schema
+// This is the very base from EIP-721, without extensions nor Opensea/LooksRare specific e.g animation_url
+// https://eips.ethereum.org/EIPS/eip-721
+export type ERC721Metadata = {
+  name: string
+  description: string
+  image: string
+}

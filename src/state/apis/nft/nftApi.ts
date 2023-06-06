@@ -194,17 +194,28 @@ export const nftApi = createApi({
     }),
     getNft: build.query<NftItemWithCollection, GetNftInput>({
       queryFn: async ({ assetId }, { dispatch }) => {
-        const { data: nftDataWithCollection } = await getAlchemyNftData(assetId)
+        try {
+          const { data: nftDataWithCollection } = await getAlchemyNftData(assetId)
 
-        const { collection, ...nftItemWithoutId } = nftDataWithCollection
-        const nftItem: NftItem = {
-          ...nftItemWithoutId,
-          collectionId: nftDataWithCollection.collection.assetId,
+          const { collection, ...nftItemWithoutId } = nftDataWithCollection
+          const nftItem: NftItem = {
+            ...nftItemWithoutId,
+            collectionId: nftDataWithCollection.collection.assetId,
+          }
+
+          dispatch(nft.actions.upsertNft(nftItem))
+
+          return { data: nftDataWithCollection }
+        } catch (error) {
+          return {
+            error: {
+              status: 500,
+              data: {
+                message: 'Failed to fetch nft data',
+              },
+            },
+          }
         }
-
-        dispatch(nft.actions.upsertNft(nftItem))
-
-        return { data: nftDataWithCollection }
       },
     }),
 

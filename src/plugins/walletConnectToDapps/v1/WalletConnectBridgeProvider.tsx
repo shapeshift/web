@@ -217,7 +217,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       moduleLogger.info(payload, { fn: 'handleConnect' }, 'Payload')
       const dapp = payload.params[0].peerMeta
       setDapp(dapp)
-      getMixPanel()?.track(MixPanelEvents.ConnectedTodApp, { dapp })
+      getMixPanel()?.track(MixPanelEvents.ConnectedTodApp, dapp)
     },
     [],
   )

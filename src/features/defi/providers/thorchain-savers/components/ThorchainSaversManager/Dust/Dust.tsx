@@ -96,7 +96,7 @@ export const Dust: React.FC<DustProps> = () => {
             </Row.Value>
           </Row>
           <Row variant='gutter' px={0}>
-            <Row.Label>{translate('defi.modals.saversVaults.estimatedFee')}</Row.Label>
+            <Row.Label>{translate('defi.modals.saversVaults.protocolFee')}</Row.Label>
             <Row.Value>
               <Box textAlign='right'>
                 <Amount.Fiat fontWeight='bold' value='0' />

@@ -9,7 +9,8 @@ type ThorchainSaversWithdrawValues = WithdrawValues &
   EstimatedGas & {
     txStatus: string
     dustAmountCryptoBaseUnit: string
-    withdrawFeeCryptoBaseUnit: string
+    networkFeeCryptoBaseUnit: string
+    protocolFeeCryptoBaseUnit: string
     maybeFromUTXOAccountAddress: string
   }
 

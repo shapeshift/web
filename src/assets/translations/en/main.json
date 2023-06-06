@@ -326,9 +326,8 @@
         "vaultCapTooltip": "Current maximum capacity for this vault",
         "haltedTitle": "Deposits are temporarily halted.",
         "haltedDescription": "Please tweet at @THORChain to raise the caps!",
-        "estimatedFee": "Estimated Fee",
+        "protocolFee": "Protocol Fee",
         "fee": "Fee",
-        "estimatedFeeTooltip": "Fee for transferring funds from a layer 1 blockchain",
         "dustAmount": "Dust Amount",
         "dustAmountTooltip": "A tiny amount of dust is required to identify your address, and will be reserved for later use, when you want to make a withdrawal",
         "sendDustBody": "You need to send some dust to this address to be able to withdraw.",
@@ -1952,7 +1951,7 @@
     "optimism": {
       "title": "Earn up to 19.5 OP",
       "subtitle": "Explore Optimism",
-      "cta": "Start Mission" 
+      "cta": "Start Mission"
     },
     "foxatar": {
       "title": "Get a Free & Customizable NFT",

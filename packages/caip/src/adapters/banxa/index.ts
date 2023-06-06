@@ -2,7 +2,7 @@ import entries from 'lodash/entries'
 import invert from 'lodash/invert'
 import toLower from 'lodash/toLower'
 
-import { AssetId } from '../../assetId/assetId'
+import type { AssetId } from '../../assetId/assetId'
 import { fromAssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
 import {
@@ -105,7 +105,7 @@ const chainIdToBanxaBlockchainCodeMap: Record<ChainId, string> = {
 /**
  * Convert an AssetID to a Banxa chain identifier for use in Banxa HTTP URLs
  *
- * @param {string} assetId - a Shapeshift asset identifier 
+ * @param {string} assetId - a Shapeshift asset identifier
  * @returns {string} - a Banxa chain identifier; e.g., 'cosmos'
  */
 export const getBanxaBlockchainFromAssetId = (assetId: AssetId): string => {

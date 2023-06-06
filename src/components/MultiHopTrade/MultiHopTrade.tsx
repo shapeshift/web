@@ -17,6 +17,7 @@ import { ReceiveSummary } from 'components/Trade/TradeConfirm/ReceiveSummary'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
+import { SwapperName } from 'lib/swapper/api'
 import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -50,8 +51,13 @@ export const MultiHopTrade = (props: CardProps) => {
   const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
   const quotes = useGetTradeQuotes()
 
+  const lifiResult = quotes[SwapperName.LIFI]?.data
+
   /* eslint-disable-next-line @shapeshiftoss/logger/no-native-console */
-  console.log(quotes)
+  console.log({
+    isLoading: quotes[SwapperName.LIFI]?.isLoading,
+    data: lifiResult?.isErr() ? lifiResult.unwrapErr() : lifiResult?.unwrap(),
+  })
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds({

@@ -73,6 +73,7 @@ export const clearState = () => {
   store.dispatch(apiSlices.covalentApi.util.resetApiState())
   store.dispatch(apiSlices.zapper.util.resetApiState())
   store.dispatch(apiSlices.swapperApi.util.resetApiState())
+  store.dispatch(apiSlices.swappersApi.util.resetApiState())
 }
 
 /**

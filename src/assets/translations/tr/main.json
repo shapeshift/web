@@ -7,6 +7,7 @@
     "cancel": "İptal",
     "close": "Kapat",
     "loadMore": "Daha fazla",
+    "saveChanges": "Değişiklikleri Kaydet",
     "new": "Yeni",
     "continue": "Devam et",
     "reward": "Ödül",
@@ -84,6 +85,7 @@
     "txId": "Tx ID",
     "selectAsset": "Bir Varlık Seç",
     "switchNetwork": "Ağ Değiştir",
+    "selectNetwork": "Bir ağ seçin",
     "unsupportedNetwork": "Desteklenmeyen Ağ",
     "chartUnavailable": "%{unavailableAssetNames} için bakiye tablosu verileri geçici olarak kullanılamıyor.",
     "search": "Ara",
@@ -510,7 +512,9 @@
     "tradeShort": "Takas",
     "buyCrypto": "Kripto Al/Sat",
     "buyCryptoShort": "Al/Sat",
-    "arkeo": "Arkeo Airdrop"
+    "arkeo": "Arkeo Airdrop",
+    "foxMissions": "FOX Görevleri",
+    "foxMissionsShort": "Görevler"
   },
   "transactionRow": {
     "send": "Gönderilen",
@@ -1911,6 +1915,8 @@
     }
   },
   "nft": {
+    "customizeFoxatar": "FOXatar'ını Özelleştir",
+    "setAsAvatar": "Avatar olarak ayarla",
     "floorPrice": "Taban Fiyat",
     "lastPrice": "Son fiyat",
     "overview": "Genel Bakış",
@@ -1926,5 +1932,50 @@
     "aboutCollection": "%{collectionName} Hakkında",
     "emptyTitle": "Tüm NFT'ler nereye gitti?",
     "emptyBody": "Endişelenmeyin, daha harika NFT'leri geri getirmek için bir arama grubu gönderdik. Bu arada, bu boşluğa bakıp varoluşun anlamını düşünmekten çekinmeyin."
+  },
+  "missions": {
+    "subtitle": "FOX Görevleri",
+    "missionEnded": "Görev Sona Erdi",
+    "viewMission": "Görevleri Görüntüle",
+    "comingSoon": "Yakında",
+    "activeMissions": "Aktif Görevler",
+    "endedMissions": "Biten Görevler",
+    "title": {
+      "1": "Merkezi Olmayan Evreni Serbest Bırakın ve",
+      "2": "Ödülleri Dağıt"
+    },
+    "body": "Görevlere Katılın, Ödüller Kazanın ve Sürekli Genişleyen ShapeShift Ekosistemi hakkındaki bilginizi artırın",
+    "ends": "Son",
+    "ongoing": "Devam Eden Görev",
+    "optimism": {
+      "title": "19,5 OP'ye kadar kazanın",
+      "subtitle": "Optimism'i Keşfedin",
+      "cta": "Göreve Başla"
+    },
+    "foxatar": {
+      "title": "Ücretsiz ve Özelleştirilebilir bir NFT edinin",
+      "subtitle": "FOXatar'ı Basın",
+      "cta": "Göreve Başla"
+    },
+    "foxArmy": {
+      "subtitle": "FOX Ordusuna Katılın",
+      "title": "20.000 FOX Havuzu",
+      "cta": "Göreve Başla"
+    },
+    "yat": {
+      "subtitle": "Yat Fantasy Oyna",
+      "title": "3.000 USDC Ödül Havuzu",
+      "cta": "Göreve Başla"
+    },
+    "getListed": {
+      "subtitle": "Projeniz Burada",
+      "title": "Görevler İçin Bir Proje Başlatın",
+      "cta": "Projeyi Gönder"
+    }
+  },
+  "avatar": {
+    "modal": {
+      "title": "Yeni Avatar Ayarla"
+    }
   }
 }

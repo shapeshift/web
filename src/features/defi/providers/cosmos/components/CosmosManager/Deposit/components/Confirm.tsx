@@ -22,7 +22,6 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -40,10 +39,6 @@ import { useAppSelector } from 'state/store'
 
 import { CosmosDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Cosmos', 'Deposit', 'Confirm'],
-})
 
 type ConfirmProps = StepComponentProps & { accountId?: AccountId | undefined }
 
@@ -152,7 +147,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
       dispatch({ type: CosmosDepositActionType.SET_TXID, payload: broadcastTxId })
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleDeposit' }, 'handleDeposit error')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

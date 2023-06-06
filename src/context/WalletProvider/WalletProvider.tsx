@@ -21,7 +21,6 @@ import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/use
 import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
-import { logger } from 'lib/logger'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import { store } from 'state/store'
 
@@ -43,8 +42,6 @@ import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandle
 import type { IWalletContext } from './WalletContext'
 import { WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
-
-const moduleLogger = logger.child({ namespace: ['WalletProvider'] })
 
 type GenericAdapter = {
   initialize: (...args: any[]) => Promise<any>
@@ -357,11 +354,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [state.wallet])
 
   const load = useCallback(() => {
-    const fnLogger = moduleLogger.child({ fn: ['load'] })
-
     const localWalletType = getLocalWalletType()
     const localWalletDeviceId = getLocalWalletDeviceId()
-    fnLogger.trace({ localWalletType, localWalletDeviceId }, 'Load local wallet')
     if (localWalletType && localWalletDeviceId && state.adapters) {
       ;(async () => {
         if (state.adapters?.has(localWalletType)) {
@@ -374,7 +368,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             case KeyManager.Mobile:
               try {
                 const w = await getWallet(localWalletDeviceId)
-                fnLogger.trace({ id: w?.id, label: w?.label }, 'Found mobile wallet')
                 if (w && w.mnemonic && w.label) {
                   const localMobileWallet = await nativeAdapters?.[0]?.pairDevice(
                     localWalletDeviceId,
@@ -405,7 +398,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   disconnect()
                 }
               } catch (e) {
-                moduleLogger.child({ name: 'load' }).error(e, 'Error loading mobile wallet')
+                console.error(e)
               }
               break
             case KeyManager.Native:
@@ -671,7 +664,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           dispatch({ type: WalletActions.SET_PROVIDER, payload: maybeProvider })
         }
       } catch (e) {
-        if (!isMobile) moduleLogger.error(e, 'onProviderChange error')
+        if (!isMobile) console.error(e)
       }
     },
     // Only a change of wallet type should invalidate the reference
@@ -722,14 +715,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 await adapter?.initialize?.()
                 adapters.push(adapter)
               } catch (e) {
-                moduleLogger.info(e, 'Error initializing HDWallet adapter')
+                console.error(e)
               }
               return acc
             }, Promise.resolve([]))
 
             adapters.set(keyManager, walletAdapters)
           } catch (e) {
-            moduleLogger.error(e, 'Error initializing HDWallet adapters')
+            console.error(e)
           }
         }
 

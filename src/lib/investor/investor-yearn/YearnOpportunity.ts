@@ -2,7 +2,6 @@ import { toAssetId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { Logger } from '@shapeshiftoss/logger'
 import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import type { Yearn } from '@yfi/sdk'
 import { type ChainId, type Vault, type VaultMetadata } from '@yfi/sdk'
@@ -28,7 +27,6 @@ type YearnOpportunityDeps = {
   chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
   contract: Contract
   dryRun?: true
-  logger?: Logger
   web3: Web3
   yearnSdk: Yearn<1>
 }
@@ -57,7 +55,6 @@ export class YearnOpportunity
   readonly #internals: {
     chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
     dryRun?: true
-    logger?: Logger
     routerContract: Contract
     vault: Vault
     web3: Web3
@@ -91,7 +88,6 @@ export class YearnOpportunity
     this.#internals = {
       chainAdapter: deps.chainAdapter,
       dryRun: deps.dryRun,
-      logger: deps.logger ?? new Logger({ name: 'Yearn Opportunity' }),
       routerContract: deps.contract,
       vault,
       web3: deps.web3,

@@ -1,4 +1,3 @@
-/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import axios from 'axios'
 import fs from 'fs'
 

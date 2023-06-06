@@ -16,10 +16,8 @@ import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import { logger } from 'lib/logger'
 
 import type { NativeSetupProps, NativeWalletValues } from '../types'
-const moduleLogger = logger.child({ namespace: ['NativeRename'] })
 
 export const NativeRename = ({ history, location }: NativeSetupProps) => {
   const translate = useTranslate()
@@ -42,7 +40,7 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
         history.goBack()
       }
     } catch (e) {
-      moduleLogger.error(e, 'WalletProvider:NativeWallet:Rename - Error invalid password')
+      console.error(e)
       setError('password', {
         type: 'manual',
         message: translate('modals.shapeShift.password.error.invalid'),

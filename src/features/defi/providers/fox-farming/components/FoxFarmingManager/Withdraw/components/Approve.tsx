@@ -18,7 +18,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
@@ -35,10 +34,6 @@ import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'FoxFarming', 'Withdraw', 'Approve'],
-})
 
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
@@ -128,7 +123,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

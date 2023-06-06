@@ -2,7 +2,6 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { logger } from 'lib/logger'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import { fetchAllStakingOpportunitiesUserDataByAccountId } from 'state/slices/opportunitiesSlice/thunks'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
@@ -10,8 +9,6 @@ import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { selectAssetById, selectStakingAccountIds, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
-
-const moduleLogger = logger.child({ namespace: ['FoxEthContext'] })
 
 type FoxEthProviderProps = {
   children: React.ReactNode
@@ -74,7 +71,6 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
   useEffect(() => {
     if (farmingAccountId && transaction && transaction.status !== TxStatus.Pending) {
       if (transaction.status === TxStatus.Confirmed) {
-        moduleLogger.info('Refetching ETH/FOX staking opportunities')
         refetchFoxEthStakingAccountData()
         if (ongoingTxContractAddress)
           dispatch(

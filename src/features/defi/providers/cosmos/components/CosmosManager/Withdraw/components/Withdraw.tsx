@@ -17,7 +17,6 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
@@ -35,8 +34,6 @@ import { WithdrawContext } from '../WithdrawContext'
 export type CosmosWithdrawValues = {
   [Field.WithdrawType]: WithdrawType
 } & WithdrawValues
-
-const moduleLogger = logger.child({ namespace: ['CosmosWithdraw:Withdraw'] })
 
 type WithdrawProps = StepComponentProps & {
   accountId: AccountId | undefined
@@ -129,10 +126,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         try {
           return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
         } catch (error) {
-          moduleLogger.error(
-            { fn: 'getWithdrawGasEstimate', error },
-            'Error getting deposit gas estimate',
-          )
+          console.error(error)
           const fundsError =
             error instanceof Error && error.message.includes('Not enough funds in reserve')
           toast({
@@ -179,7 +173,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           assets,
         )
       } catch (error) {
-        moduleLogger.error({ fn: 'handleContinue', error }, 'Error with withdraw')
+        console.error(error)
         dispatch({
           type: CosmosWithdrawActionType.SET_LOADING,
           payload: false,

@@ -22,7 +22,6 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -45,10 +44,6 @@ import { OsmosisWithdrawActionType } from '../LpWithdrawCommon'
 import { WithdrawContext } from '../LpWithdrawContext'
 
 const DEFAULT_SLIPPAGE = '0.025' // Allow for 2.5% slippage. TODO:(pastaghost) is there a better way to do this?
-
-const moduleLogger = logger.child({
-  namespace: ['Defi', 'Providers', 'Osmosis', 'OsmosisManager', 'Withdraw', 'Confirm'],
-})
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
@@ -233,7 +228,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.error({ fn: 'handleWithdraw', error }, 'Error removing liquidity')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

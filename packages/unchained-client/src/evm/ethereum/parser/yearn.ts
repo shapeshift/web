@@ -1,6 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { Logger } from '@shapeshiftoss/logger'
 import axios from 'axios'
 import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
@@ -12,11 +11,6 @@ import { getSigHash } from '../../parser'
 import { SHAPESHIFT_ROUTER_ABI } from './abi/shapeShiftRouter'
 import { YEARN_VAULT_ABI } from './abi/yearnVault'
 import { SHAPE_SHIFT_ROUTER_CONTRACT } from './constants'
-
-const logger = new Logger({
-  namespace: ['unchained-client', 'evm', 'ethereum', 'parser', 'yearn'],
-  level: process.env.LOG_LEVEL,
-})
 
 export const YEARN_VAULTS_URL = 'https://ydaemon.yearn.finance/api/1/vaults/all'
 
@@ -100,7 +94,7 @@ export class Parser implements SubParser<Tx> {
         const { data } = await axios.get<Vault[]>(YEARN_VAULTS_URL)
         this.yearnTokenVaultAddresses = data?.map(vault => vault.address)
       } catch (err) {
-        logger.error(err, 'yearn tx parser unable to fetch vaults')
+        console.error(err)
         return
       }
     }

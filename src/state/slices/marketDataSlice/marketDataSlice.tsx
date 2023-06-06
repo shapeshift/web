@@ -5,7 +5,6 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import type {
   FiatMarketDataArgs,
   FiatPriceHistoryArgs,
@@ -22,8 +21,6 @@ import type {
 
 import { foxEthLpAssetId } from '../opportunitiesSlice/constants'
 import type { MarketDataById } from './types'
-
-const moduleLogger = logger.child({ namespace: ['marketDataSlice'] })
 
 const initialState: MarketDataState = {
   crypto: {
@@ -198,8 +195,8 @@ export const marketApi = createApi({
           baseQuery.dispatch(marketData.actions.setFiatMarketData(data))
           return { data }
         } catch (e) {
+          console.error(e)
           const err = `findByFiatSymbol: no market data for ${symbol}`
-          moduleLogger.error(e, err)
           // set dummy data on error
           const data = { [symbol]: [] }
           baseQuery.dispatch(marketData.actions.setFiatMarketData(data))

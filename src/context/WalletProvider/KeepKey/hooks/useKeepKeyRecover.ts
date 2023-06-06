@@ -3,8 +3,6 @@ import type { RecoverDevice } from '@shapeshiftoss/hdwallet-core'
 import { useTranslate } from 'react-polyglot'
 import { parseIntToEntropy } from 'context/WalletProvider/KeepKey/helpers'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
-const moduleLogger = logger.child({ namespace: ['useKeepKeyRecover'] })
 
 export const useKeepKeyRecover = () => {
   const {
@@ -28,7 +26,7 @@ export const useKeepKeyRecover = () => {
     }
     await wallet?.recover(recoverParams).catch(async e => {
       await wallet?.cancel()
-      moduleLogger.error(e)
+      console.error(e)
       toast({
         title: translate('common.error'),
         description: e?.message ?? translate('common.somethingWentWrong'),

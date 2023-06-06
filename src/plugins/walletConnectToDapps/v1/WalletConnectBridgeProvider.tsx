@@ -32,7 +32,6 @@ import { useTranslate } from 'react-polyglot'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
 import { httpProviderByChainId } from 'lib/web3-provider'
 import {
@@ -41,8 +40,6 @@ import {
   selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
-
-const moduleLogger = logger.child({ namespace: ['WalletConnectBridge'] })
 
 const bridge = 'https://bridge.walletconnect.org'
 
@@ -84,10 +81,9 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const handleSessionRequest = useCallback(
     (error: Error | null, payload: WalletConnectSessionRequestPayload) => {
-      if (error) moduleLogger.error(error, { fn: '_onSessionRequest' }, 'Error session request')
+      if (error) console.error(error)
       if (!connector || !wcAccountId) return
       const { account } = fromAccountId(wcAccountId)
-      moduleLogger.info(payload, 'approve wc session')
       // evm chain id integers (chain references in caip parlance, chainId in EVM parlance)
       const supportedEvmChainReferenceInts = evmChainIds.map(chainId =>
         parseInt(fromChainId(chainId).chainReference),
@@ -113,10 +109,6 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         setConnectedEvmChainId(connectedEvmChain)
       } else {
         connector.rejectSession()
-        moduleLogger.error(
-          { chainId: candidateChainIdInt },
-          'Unsupported chain id for wallet connect',
-        )
         const supportedChainNames = evmChainIds
           .map(chainId => {
             return getChainAdapterManager().get(chainId)?.getDisplayName()
@@ -186,9 +178,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     [connector],
   )
 
-  const handleSessionUpdate = useCallback((args: unknown) => {
-    moduleLogger.info(args, 'handleSessionUpdate')
-  }, [])
+  const handleSessionUpdate = useCallback((_args: unknown) => {}, [])
 
   const handleDisconnect = useCallback(async () => {
     connector?.off('session_request')
@@ -202,7 +192,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     try {
       await connector?.killSession()
     } catch (e) {
-      moduleLogger.error(e, { fn: 'handleDisconnect' }, 'Error killing session')
+      console.error(e)
     }
     setDapp(null)
     setConnector(undefined)
@@ -211,8 +201,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const handleConnect = useCallback(
     (err: Error | null, payload: { params: [{ peerMeta: IClientMeta }] }) => {
-      if (err) moduleLogger.error(err, { fn: 'handleConnect' }, 'Error connecting')
-      moduleLogger.info(payload, { fn: 'handleConnect' }, 'Payload')
+      if (err) console.error(err)
       setDapp(payload.params[0].peerMeta)
     },
     [],
@@ -221,30 +210,19 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   // incoming ws message, render the modal by setting the call request
   // then approve or reject based on user inputs.
   const handleCallRequest = useCallback((err: Error | null, request: WalletConnectCallRequest) => {
-    err
-      ? moduleLogger.error(err, { fn: 'handleCallRequest' }, 'Error handling call request')
-      : setCallRequest(request)
+    err ? console.error(err) : setCallRequest(request)
   }, [])
 
   const handleWcSessionRequest = useCallback(
-    (err: Error | null, request: WalletConnectSessionRequest) => {
-      err
-        ? moduleLogger.error(
-            err,
-            { fn: 'handleWcSessionRequest' },
-            'Error handling session request',
-          )
-        : moduleLogger.info(request, { fn: 'handleWcSessionRequest' }, 'handleWcSessionRequest')
+    (err: Error | null, _request: WalletConnectSessionRequest) => {
+      err && console.error(err)
     },
     [],
   )
 
   const handleWcSessionUpdate = useCallback(
     (err: Error | null, payload: any) => {
-      if (err) {
-        moduleLogger.error(err, 'handleWcSessionUpdate')
-      }
-      moduleLogger.info('handleWcSessionUpdate', payload)
+      if (err) console.error(err)
       if (!payload?.params?.[0]?.accounts) handleDisconnect()
     },
     [handleDisconnect],
@@ -252,16 +230,15 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const handleSwitchChain = useCallback(
     (err: Error | null, payload: any) => {
-      if (err) return moduleLogger.error(err, 'handleSwitchChain')
-      if (!wcAccountId) return moduleLogger.error('No account id found for wallet connect')
-      moduleLogger.info('handleSwitchChain', payload)
+      if (err) return console.error(err)
+      if (!wcAccountId) return console.error('No account id found for wallet connect')
       const walletConnectChainIdHex = payload.params[0].chainId
       const chainReference = parseInt(walletConnectChainIdHex, 16).toString()
       assertIsChainReference(chainReference)
       const chainId = toChainId({ chainNamespace: CHAIN_NAMESPACE.Evm, chainReference })
       const state = store.getState()
       const feeAsset = selectFeeAssetByChainId(state, chainId)
-      if (!feeAsset) return moduleLogger.error('No fee asset found for chainId', chainId)
+      if (!feeAsset) return console.error('No fee asset found for chainId', chainId)
       const selectedAccount = fromAccountId(wcAccountId).account
       const accountIdOnNewChain = toAccountId({ chainId, account: selectedAccount })
       const updateChainParams: IUpdateChainParams = {
@@ -317,7 +294,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         setConnector(c)
         return { successful: true }
       } catch (error) {
-        moduleLogger.error(error, { fn: 'fromURI' }, 'Error connecting with uri')
+        console.error(error)
         const duration = 2500
         const isClosable = true
         const toastPayload = { duration, isClosable }

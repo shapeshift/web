@@ -8,7 +8,6 @@
   "exclude": ["dist"],
   "references": [
     { "path": "../caip" },
-    { "path": "../logger" },
     { "path": "../types" },
   ]
 }

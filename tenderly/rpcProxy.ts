@@ -58,6 +58,5 @@ app.use(
 app.use(tenderlyProxy)
 app.use(defaultProxy)
 app.listen(port, () => {
-  // eslint-disable-next-line @shapeshiftoss/logger/no-native-console
   console.log(`proxy server is running at http://localhost:${port}`)
 })

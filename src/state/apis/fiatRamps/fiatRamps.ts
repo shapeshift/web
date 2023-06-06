@@ -3,10 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { FiatRamp } from 'components/Modals/FiatRamps/config'
 import { supportedFiatRamps } from 'components/Modals/FiatRamps/config'
 import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
-import { logger } from 'lib/logger'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-
-const moduleLogger = logger.child({ namespace: ['fiatRampApi'] })
 
 export type FiatRampsByAction = {
   [FiatRampAction.Buy]: FiatRamp[]
@@ -39,7 +36,7 @@ export const fiatRampApi = createApi({
           const data = promiseResults.reduce<FiatRampsByAssetId>(
             (acc, p, idx) => {
               if (p.status === 'rejected') {
-                moduleLogger.error(p.reason, 'error fetching fiat ramp')
+                console.error(p.reason)
                 return acc
               }
               const ramp = p.value
@@ -60,8 +57,8 @@ export const fiatRampApi = createApi({
           )
           return { data }
         } catch (e) {
+          console.error(e)
           const error = 'getFiatRampAssets: error fetching fiat ramp(s)'
-          moduleLogger.error(e, error)
           return {
             error: {
               error,

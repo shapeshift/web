@@ -19,7 +19,6 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
@@ -35,8 +34,6 @@ import { useAppSelector } from 'state/store'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-
-const moduleLogger = logger.child({ namespace: ['FoxFarmingDeposit:Deposit'] })
 
 type DepositProps = StepComponentProps & {
   accountId?: AccountId | undefined
@@ -136,10 +133,7 @@ export const Deposit: React.FC<DepositProps> = ({
           if (!feeData) return
           return bnOrZero(feeData.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
         } catch (error) {
-          moduleLogger.error(
-            { fn: 'getDepositGasEstimateCryptoPrecision', error },
-            'Error getting deposit gas estimate',
-          )
+          console.error(error)
           toast({
             position: 'top-right',
             description: translate('common.somethingWentWrongBody'),
@@ -194,7 +188,7 @@ export const Deposit: React.FC<DepositProps> = ({
           onNext(DefiStep.Approve)
         }
       } catch (error) {
-        moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),

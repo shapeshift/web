@@ -35,7 +35,6 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { baseUnitToHuman } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { selectFeeAssetFiatRate } from 'state/zustand/swapperStore/amountSelectors'
@@ -44,8 +43,6 @@ import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 import { theme } from 'theme/theme'
 
 const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
-
-const moduleLogger = logger.child({ namespace: ['Approval'] })
 
 export const Approval = () => {
   const history = useHistory()
@@ -86,18 +83,10 @@ export const Approval = () => {
   )
 
   const approveContract = useCallback(async () => {
-    if (!activeQuote) {
-      moduleLogger.error('No quote available')
+    if (!activeQuote || !wallet || !approvalTxData) {
       return
     }
-    if (!wallet) {
-      moduleLogger.error('No wallet available')
-      return
-    }
-    if (!approvalTxData) {
-      moduleLogger.error('No buildApprovalTxInput available')
-      return
-    }
+
     try {
       if (!isConnected) {
         /**
@@ -108,15 +97,12 @@ export const Approval = () => {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
-      const fnLogger = logger.child({ name: 'approve' })
-      fnLogger.trace('Attempting Approval...')
 
       const txId = await approve(approvalTxData.buildCustomTxInput)
 
       setApprovalTxId(txId)
 
       approvalInterval.current = setInterval(async () => {
-        fnLogger.trace({ fn: 'checkApprovalNeeded' }, 'Checking Approval Needed...')
         try {
           const approvalNeeded = await checkApprovalNeeded()
           if (approvalNeeded) return

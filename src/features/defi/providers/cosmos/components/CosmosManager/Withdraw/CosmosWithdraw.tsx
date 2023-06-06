@@ -18,7 +18,6 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -34,10 +33,6 @@ import { Withdraw } from './components/Withdraw'
 import { CosmosWithdrawActionType } from './WithdrawCommon'
 import { WithdrawContext } from './WithdrawContext'
 import { initialState, reducer } from './WithdrawReducer'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Cosmos', 'CosmosWithdraw'],
-})
 
 type CosmosWithdrawProps = {
   accountId: AccountId | undefined
@@ -105,7 +100,7 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
       })
     } catch (error) {
       // TODO: handle client side errors
-      moduleLogger.error(error, 'CosmosWithdraw error')
+      console.error(error)
     }
   }, [bip44Params, chainAdapter, validatorAddress, walletState.wallet, earnOpportunityData])
 

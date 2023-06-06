@@ -8,7 +8,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ParseAddressInputReturn } from 'lib/address/address'
 import { parseAddressInputWithChainId } from 'lib/address/address'
 import type { Asset } from 'lib/asset-service'
-import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import {
@@ -19,10 +18,6 @@ import {
 
 import { FiatRampAction } from '../FiatRampsCommon'
 import { Overview } from './Overview'
-
-const moduleLogger = logger.child({
-  namespace: ['Modals', 'FiatRamps', 'Views', 'Manager'],
-})
 
 type AddressesByAccountId = PartialRecord<AccountId, Partial<ParseAddressInputReturn>>
 
@@ -89,7 +84,6 @@ export const FiatForm: React.FC<FiatFormProps> = ({
         walletAccountIds.map(accountId => {
           const accountMetadata = portfolioAccountMetadata[accountId]
           const { accountType, bip44Params } = accountMetadata
-          moduleLogger.trace({ fn: 'getAddress' }, 'Getting Addresses...')
           const { accountNumber } = bip44Params
           const payload = { accountType, accountNumber, wallet }
           const { chainId } = fromAccountId(accountId)
@@ -100,7 +94,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
       )
       const plainAddresses = plainAddressResults.reduce<(string | undefined)[]>((acc, result) => {
         if (result.status === 'rejected') {
-          moduleLogger.error(result.reason, 'failed to get address')
+          console.error(result.reason)
           acc.push(undefined) // keep same length of accumulator
           return acc
         }

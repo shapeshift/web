@@ -1,4 +1,3 @@
-/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import 'dotenv/config'
 
 import type { AssetId } from '@shapeshiftoss/caip'

@@ -18,7 +18,6 @@ import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { logger } from 'lib/logger'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
@@ -33,10 +32,6 @@ import { Deposit } from './components/Deposit'
 import { Status } from './components/Status'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'FoxFarming', 'FoxFarmingDeposit'],
-})
 
 type FoxFarmingDepositProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
@@ -78,7 +73,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
         if (!(farmingAccountId && contractAddress && foxFarmingOpportunity)) return
       } catch (error) {
         // TODO: handle client side errors
-        moduleLogger.error(error, 'FoxFarmingDeposit error')
+        console.error(error)
       }
     })()
   }, [farmingAccountId, translate, toast, contractAddress, foxFarmingOpportunity])

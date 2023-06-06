@@ -4,14 +4,11 @@ import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 import type { SendInput } from '../../Form'
 import { handleSend } from '../../utils'
-
-const moduleLogger = logger.child({ namespace: ['Modals', 'Send', 'Hooks', 'UseFormSend'] })
 
 export const useFormSend = () => {
   const toast = useToast()
@@ -54,10 +51,10 @@ export const useFormSend = () => {
             position: 'top-right',
           })
         }, 5000)
-      } catch (e: any) {
+      } catch (e) {
         // If we're here, we know asset is defined
         const asset = selectAssetById(store.getState(), sendInput.assetId)!
-        moduleLogger.error(e, 'Error handling form send')
+        console.error(e)
         toast({
           title: translate('modals.send.errorTitle', {
             asset: asset.name,
@@ -69,7 +66,7 @@ export const useFormSend = () => {
           position: 'top-right',
         })
 
-        throw new Error(e)
+        throw e
       } finally {
         // Sends may be done from the context of a QR code modal, or a send modal, which are similar, but effectively diff. modal refs
         qrCode.close()

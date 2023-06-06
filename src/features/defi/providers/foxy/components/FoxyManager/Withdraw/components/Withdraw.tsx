@@ -17,7 +17,6 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
@@ -33,8 +32,6 @@ import { WithdrawTypeField } from './WithdrawType'
 export type FoxyWithdrawValues = {
   [Field.WithdrawType]: WithdrawType
 } & WithdrawValues
-
-const moduleLogger = logger.child({ namespace: ['FoxyWithdraw:Withdraw'] })
 
 export const Withdraw: React.FC<
   StepComponentProps & {
@@ -116,7 +113,7 @@ export const Withdraw: React.FC<
 
           return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
         } catch (error) {
-          moduleLogger.error(error, { fn: 'getApproveEstimate' }, 'getApproveEstimate error')
+          console.error(error)
           toast({
             position: 'top-right',
             description: translate('common.somethingWentWrongBody'),
@@ -147,10 +144,7 @@ export const Withdraw: React.FC<
 
           return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
         } catch (error) {
-          moduleLogger.error(
-            { fn: 'getWithdrawGasEstimate', error },
-            'Error getting withdraw gas estimate',
-          )
+          console.error(error)
           const fundsError =
             error instanceof Error && error.message.includes('Not enough funds in reserve')
           toast({
@@ -210,7 +204,7 @@ export const Withdraw: React.FC<
           })
         }
       } catch (error) {
-        moduleLogger.error({ fn: 'handleContinue', error }, 'Error with withdraw')
+        console.error(error)
         dispatch({
           type: FoxyWithdrawActionType.SET_LOADING,
           payload: false,

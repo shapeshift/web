@@ -26,11 +26,8 @@ import {
   setLocalWalletTypeAndDeviceId,
 } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import { NativeConfig } from '../config'
-
-const moduleLogger = logger.child({ namespace: ['NativeLoad'] })
 
 type VaultInfo = {
   id: string
@@ -64,7 +61,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
 
           setWallets(storedWallets)
         } catch (e) {
-          moduleLogger.error(e, 'WalletProvider:NativeWallet:Load - Cannot get vault')
+          console.error(e)
           setWallets([])
         }
       }

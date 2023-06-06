@@ -19,7 +19,6 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -42,8 +41,6 @@ type UniV2ApproveProps = StepComponentProps & {
   accountId: AccountId | undefined
   onNext: (arg: DefiStep) => void
 }
-
-const moduleLogger = logger.child({ namespace: ['UniV2Withdraw:Approve'] })
 
 export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
@@ -149,10 +146,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.error(
-        { fn: 'handleApprove', error },
-        'Error getting withdraw approval gas estimate',
-      )
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

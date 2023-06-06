@@ -5,7 +5,6 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { PURGE } from 'redux-persist'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
-import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
 import { isSome } from 'lib/utils'
 import type { WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
@@ -35,8 +34,6 @@ type GetNftCollectionInput = {
   // This looks weird but is correct. We abuse the Zapper balances endpoint to get collection meta
   accountIds: AccountId[]
 }
-
-const moduleLogger = logger.child({ namespace: ['nftApi'] })
 
 type NftState = {
   selectedNftAvatarByWalletId: Record<WalletId, AssetId>
@@ -148,7 +145,7 @@ export const nftApi = createApi({
               }
             })
           } else if (result.isError) {
-            moduleLogger.error({ error: result.error }, 'Failed to fetch nft user data')
+            console.error(result.error)
           }
 
           return acc
@@ -251,7 +248,7 @@ export const nftApi = createApi({
 
           return { data: zapperCollectionData }
         } catch (error) {
-          moduleLogger.error({ error }, 'Failed to fetch nft collection data')
+          console.error(error)
           return {
             error: {
               status: 500,

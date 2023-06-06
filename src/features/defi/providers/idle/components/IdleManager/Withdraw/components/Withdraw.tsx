@@ -14,7 +14,6 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { IdleOpportunity } from 'lib/investor/investor-idle'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
@@ -30,10 +29,6 @@ import { useAppSelector } from 'state/store'
 
 import { IdleWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Idle', 'IdleWithdraw'],
-})
 
 type WithdrawProps = StepComponentProps & { accountId: AccountId | undefined }
 
@@ -125,7 +120,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
           .toString()
       } catch (error) {
         // TODO: handle client side errors maybe add a toast?
-        moduleLogger.error(error, 'IdleWithdraw:Withdraw:getWithdrawGasEstimate error')
+        console.error(error)
       }
     },
     [userAddress, opportunityData, assetReference, idleOpportunity, asset?.precision],

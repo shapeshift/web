@@ -22,7 +22,6 @@ import { useHistory } from 'react-router-dom'
 import { getLocaleLabel } from 'assets/translations/utils'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
-import { mobileLogger } from 'context/WalletProvider/MobileWallet/config'
 import { deleteWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -82,7 +81,7 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
         settings.close()
         disconnect()
       } catch (e) {
-        mobileLogger.error(e, 'Error deleting wallets')
+        console.log(e)
       }
     }
   }

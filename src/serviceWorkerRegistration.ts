@@ -1,8 +1,6 @@
 // The service-worker doesn't load when use `yarn dev`. You need to do a
 // `yarn build && http-server build` and serve up the compiled output
 
-import { logger } from 'lib/logger'
-const moduleLogger = logger.child({ namespace: ['serviceWorkerRegistration'] })
 type ServiceWorkerCallbacks = {
   onSuccess?: (registration: ServiceWorkerRegistration) => void
   onUpdate?: (registration: ServiceWorkerRegistration) => void
@@ -31,18 +29,16 @@ async function registerValidSW(swUrl: string, callbacks?: ServiceWorkerCallbacks
             // At this point, the updated precached content has been fetched,
             // but the previous service worker will still serve the older
             // content until all client tabs are closed.
-            moduleLogger.info('ServiceWorker:installed:onUpdate')
             callbacks?.onUpdate?.(registration)
           } else {
             // At this point, everything has been precached.
-            moduleLogger.info('ServiceWorker:installed:onSuccess')
             callbacks?.onSuccess?.(registration)
           }
         }
       }
     }
   } catch (e) {
-    moduleLogger.error(e, 'ServiceWorker:registerValidSW:Error')
+    console.error('ServiceWorker:registerValidSW:Error', e)
   }
 }
 
@@ -62,7 +58,7 @@ async function checkValidServiceWorker(swUrl: string, callbacks?: ServiceWorkerC
       await registerValidSW(swUrl, callbacks)
     }
   } catch (e) {
-    moduleLogger.warn('ServiceWorker:checkValidServiceWorker - No internet connection found.')
+    console.warn('ServiceWorker:checkValidServiceWorker - No internet connection found.')
   }
 }
 
@@ -77,7 +73,7 @@ export async function unregister() {
       const reg = await navigator.serviceWorker.ready
       await reg.unregister()
     } catch (e) {
-      moduleLogger.error(e, 'ServiceWorker:unregister:Error')
+      console.error('ServiceWorker:unregister:Error', e)
     }
   }
 }
@@ -102,10 +98,6 @@ export function register(callbacks?: ServiceWorkerCallbacks) {
       if (isLocalhost) {
         // This is running on localhost. Let's check if a service worker still exists or not.
         void checkValidServiceWorker(swUrl, callbacks)
-
-        // Add some additional logging to localhost, pointing developers to the
-        // service worker/PWA documentation.
-        navigator.serviceWorker.ready.then(() => moduleLogger.info('ServiceWorker:ready'))
       } else {
         // Is not localhost. Just register service worker
         void registerValidSW(swUrl, callbacks)

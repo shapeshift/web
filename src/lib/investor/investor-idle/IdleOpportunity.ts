@@ -3,7 +3,6 @@ import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { Logger } from '@shapeshiftoss/logger'
 import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
 import toLower from 'lodash/toLower'
@@ -44,7 +43,6 @@ type IdleOpportunityDeps = {
   dryRun?: true
   contract: Contract
   network?: number
-  logger?: Logger
   web3: Web3
 }
 
@@ -68,7 +66,6 @@ export class IdleOpportunity
     chainAdapter: ChainAdapter<KnownChainIds.EthereumMainnet>
     dryRun?: true
     routerContract: Contract
-    logger?: Logger
     web3: Web3
     network?: number
   }
@@ -135,7 +132,6 @@ export class IdleOpportunity
     this.#internals = {
       chainAdapter: deps.chainAdapter,
       dryRun: deps.dryRun,
-      logger: deps.logger ?? new Logger({ name: 'Idle Opportunity' }),
       routerContract: deps.contract,
       web3: deps.web3,
       network: deps.network,

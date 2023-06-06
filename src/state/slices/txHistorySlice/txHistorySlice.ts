@@ -11,7 +11,6 @@ import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { RebaseHistory } from 'lib/investor/investor-foxy'
 import { foxyAddresses } from 'lib/investor/investor-foxy'
-import { logger } from 'lib/logger'
 import type { PartialRecord } from 'lib/utils'
 import { deepUpsertArray, isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -20,8 +19,6 @@ import type { State } from 'state/apis/types'
 import type { Nominal } from 'types/common'
 
 import { getRelatedAssetIds, serializeTxIndex, UNIQUE_TX_ID_DELIMITER } from './utils'
-
-const moduleLogger = logger.child({ namespace: ['txHistorySlice'] })
 
 export type TxId = Nominal<string, 'TxId'>
 export type Tx = Transaction & { accountType?: UtxoAccountType }
@@ -174,7 +171,6 @@ export const txHistory = createSlice({
   initialState,
   reducers: {
     clear: () => {
-      moduleLogger.info('clearing tx history')
       return initialState
     },
     onMessage: (txState, { payload }: TxMessage) =>
@@ -271,7 +267,7 @@ export const txHistoryApi = createApi({
             }
           } while (currentCursor)
         } catch (err) {
-          logger.error(`failed to fetch tx history for account: ${accountId}: ${err}`)
+          console.error(err)
         }
 
         return { data: [] }

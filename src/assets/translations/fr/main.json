@@ -84,6 +84,7 @@
     "txId": "ID Tx",
     "selectAsset": "Sélectionnez un actif",
     "switchNetwork": "Changer de réseau",
+    "selectNetwork": "Sélectionnez un réseau",
     "unsupportedNetwork": "Réseau non pris en charge",
     "chartUnavailable": "Les données du graphique de soldes sont temporairement indisponibles pour %{unavailableAssetNames}.",
     "search": "Rehercher",

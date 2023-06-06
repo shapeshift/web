@@ -13,12 +13,9 @@ import {
 } from 'lib/address/unstoppable-domains'
 import { resolveYat, validateYat } from 'lib/address/yat'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { store } from 'state/store'
 
 import { ensReverseLookupShim } from './ens'
-
-const moduleLogger = logger.child({ namespace: ['lib', 'address'] })
 
 type VanityAddressValidatorsByChainId = {
   [k: ChainId]: ValidateVanityAddress[]
@@ -54,7 +51,7 @@ export const parseMaybeUrlWithChainId = ({
             : {}),
         }
       } catch (error) {
-        moduleLogger.trace(error, 'cannot parse eip681 address')
+        console.error(error)
       }
       break
     case btcChainId:
@@ -73,7 +70,7 @@ export const parseMaybeUrlWithChainId = ({
             : {}),
         }
       } catch (error) {
-        moduleLogger.trace(error, 'Cannot parse BIP-21 address')
+        console.error(error)
         return {
           assetId,
           maybeAddress: urlOrAddress,

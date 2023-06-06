@@ -11,7 +11,6 @@ import { useHistory } from 'react-router-dom'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectMarketDataById,
@@ -21,8 +20,6 @@ import { useAppSelector } from 'state/store'
 
 import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-
-const moduleLogger = logger.child({ namespace: ['FoxyDeposit:Deposit'] })
 
 type DepositProps = StepComponentProps & {
   accountId?: AccountId | undefined
@@ -81,10 +78,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
           return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
         } catch (error) {
-          moduleLogger.error(
-            { fn: 'getApproveEstimate', error },
-            'Error getting approval gas estimate',
-          )
+          console.error(error)
           toast({
             position: 'top-right',
             description: translate('common.somethingWentWrongBody'),
@@ -112,10 +106,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
           return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
         } catch (error) {
-          moduleLogger.error(
-            { fn: 'getDepositGasEstimateCryptoBaseUnit', error },
-            'Error getting deposit gas estimate',
-          )
+          console.error(error)
           toast({
             position: 'top-right',
             description: translate('common.somethingWentWrongBody'),
@@ -158,7 +149,7 @@ export const Deposit: React.FC<DepositProps> = ({
           dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
         }
       } catch (error) {
-        moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),

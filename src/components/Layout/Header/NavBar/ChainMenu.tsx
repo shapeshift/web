@@ -15,13 +15,8 @@ import { CircleIcon } from 'components/Icons/Circle'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-const moduleLogger = logger.child({
-  namespace: ['Layout', 'Header', 'NavBar', 'ChainMenu'],
-})
 
 const ChainMenuItem: React.FC<{
   chainId: ChainId
@@ -112,11 +107,7 @@ export const ChainMenu = (props: ChainMenuProps) => {
         setEthNetwork(requestedEthNetwork)
         load()
       } catch (e) {
-        moduleLogger.error(
-          e,
-          { fn: 'handleChainClick' },
-          `Error switching to chain: ${requestedEthNetwork}`,
-        )
+        console.error(e)
       }
     },
     [assets, chainAdapterManager, getChainIdFromEthNetwork, load, setEthNetwork, state.wallet],
@@ -161,7 +152,7 @@ export const ChainMenu = (props: ChainMenuProps) => {
         </Tooltip>
 
         <MenuList p='10px' zIndex={2}>
-          <MenuGroup title={'Select a network'} ml={3} color='gray.500'>
+          <MenuGroup title={translate('common.selectNetwork')} ml={3} color='gray.500'>
             {supportedEvmChainIds.map(chainId => (
               <ChainMenuItem
                 isConnected={chainId === connectedEvmChainId}

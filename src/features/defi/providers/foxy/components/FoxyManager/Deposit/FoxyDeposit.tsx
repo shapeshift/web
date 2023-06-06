@@ -21,7 +21,6 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyApi'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
@@ -41,10 +40,6 @@ import { Status } from './components/Status'
 import { FoxyDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Foxy', 'FoxyDeposit'],
-})
 
 export const FoxyDeposit: React.FC<{
   onAccountIdChange: AccountDropdownProps['onChange']
@@ -106,7 +101,7 @@ export const FoxyDeposit: React.FC<{
         })
       } catch (error) {
         // TODO: handle client side errors
-        moduleLogger.error(error, 'FoxyDeposit error')
+        console.error(error)
       }
     })()
   }, [

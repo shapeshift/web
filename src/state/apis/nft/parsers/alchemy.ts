@@ -1,10 +1,15 @@
 import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
-import type { NftContract, OpenSeaCollectionMetadata, OwnedNft } from 'alchemy-sdk'
+import { polygonChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { TokenType } from '@shapeshiftoss/unchained-client/src/evm/ethereum'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
+import type { Nft, NftContract, OpenSeaCollectionMetadata, OwnedNft } from 'alchemy-sdk'
+import axios from 'axios'
+import { http as v1HttpApi } from 'plugins/polygon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getMediaType } from 'state/apis/zapper/validators'
 
-import type { NftCollectionType, NftItemWithCollection } from '../types'
+import type { ERC721Metadata, NftCollectionType, NftItemWithCollection } from '../types'
 
 const makeSocialLinks = (openseaCollectionMetadata: OpenSeaCollectionMetadata | undefined) => {
   if (!openseaCollectionMetadata) return []
@@ -66,50 +71,111 @@ export const parseAlchemyNftContractToCollectionItem = (
   }
 }
 
-export const parseAlchemyOwnedNftToNftItem = (
-  alchemyOwnedNft: OwnedNft,
+export const parseAlchemyNftToNftItem = async (
+  alchemyNft: OwnedNft | Nft,
   chainId: ChainId,
-): NftItemWithCollection => {
+): Promise<NftItemWithCollection> => {
   const collectionId = toAssetId({
-    assetReference: alchemyOwnedNft.contract.address,
-    assetNamespace: alchemyOwnedNft.contract.tokenType.toLowerCase() as AssetNamespace,
+    assetReference: alchemyNft.contract.address,
+    assetNamespace: alchemyNft.contract.tokenType.toLowerCase() as AssetNamespace,
     chainId,
   })
-  const socialLinks = makeSocialLinks(alchemyOwnedNft.contract.openSea)
+  const socialLinks = makeSocialLinks(alchemyNft.contract.openSea)
 
   const nftCollection = {
     assetId: collectionId,
     chainId,
-    name:
-      alchemyOwnedNft.contract.name ||
-      alchemyOwnedNft.contract.openSea?.collectionName ||
-      'Collection',
+    name: alchemyNft.contract.name || alchemyNft.contract.openSea?.collectionName || 'Collection',
     floorPrice: '', // Seemingly unreliable
     openseaId: '', // The Alchemy NFT data does not have an openseaId
-    description: alchemyOwnedNft.contract.openSea?.description ?? '',
+    description: alchemyNft.contract.openSea?.description ?? '',
     socialLinks,
   }
 
+  // If we have an IPNS gateway metadata URL, it means unchained can get a fresh media URL
+  // Which allows us to circumvent Alchemy refresh working for Ethereum only
+  // Notes:
+  // - We're only able to get fresh meta from unchained for IPNS URLs, not IPFS ones
+  // - This hasn't been tested on Optimism, hence we only support this refresh for Polygon for now
+  const shouldFetchIpfsGatewayMediaUrl =
+    chainId === polygonChainId && alchemyNft.tokenUri?.gateway.includes('ipns')
+
+  const getMaybeMediasIpfsGatewayUrl = async (): Promise<
+    Result<{ originalUrl: string; type: string }[], string>
+  > => {
+    try {
+      // Unable to fetch media from an IPFS gateway, use alchemy media collection
+      // which may be stale, but is our best bet
+      if (!shouldFetchIpfsGatewayMediaUrl)
+        return Ok(
+          alchemyNft.media.map(media => ({
+            originalUrl: media.gateway,
+            type: getMediaType(`media.${media.format}`) ?? 'image',
+          })),
+        )
+
+      // Get unchained meta if Polygon node is alive
+      const tokenMetadata = await v1HttpApi.getTokenMetadata({
+        contract: alchemyNft.contract.address,
+        id: alchemyNft.tokenId,
+        type: alchemyNft.contract.tokenType.toLowerCase() as TokenType,
+      })
+
+      return Ok([
+        {
+          originalUrl: tokenMetadata.media.url.replace('ipfs://', 'https://ipfs.io/ipfs/'),
+          type: 'image',
+        },
+      ])
+    } catch (error) {
+      console.error(error)
+
+      const ipnsMetadataUrl = alchemyNft.tokenUri?.gateway
+
+      if (!ipnsMetadataUrl) return Err('No IPNS metadata gateway URL found')
+
+      // Fetch IPNS meta so we can introspect the IPFS gateway media URL
+      // Note, this only works for Mercle NFTs because of CSP
+      // Theoretically, we could fetch from https://ipfs.io/ipns/{ipns-name} gateway, but this is broken upstream
+      const { data } = await axios.get<ERC721Metadata>(ipnsMetadataUrl)
+
+      if (!data) return Err('Cannot get metadata from IPNS gateway')
+
+      const image = data.image.replace('ipfs://', 'https://ipfs.io/ipfs/')
+
+      return Ok([
+        {
+          originalUrl: image,
+          type: 'image',
+        },
+      ])
+    }
+  }
+  const maybeMedias = await getMaybeMediasIpfsGatewayUrl()
+
+  if (maybeMedias.isErr()) {
+    throw new Error('Cannot fetch medias, bailing from NFT parsing')
+  }
+
+  const medias = maybeMedias.unwrap()
+
   const nftItem = {
-    id: alchemyOwnedNft.tokenId,
+    id: alchemyNft.tokenId,
     assetId: toAssetId({
-      assetReference: `${alchemyOwnedNft.contract.address}/${alchemyOwnedNft.tokenId}`,
-      assetNamespace: alchemyOwnedNft.contract.tokenType.toLowerCase() as AssetNamespace,
+      assetReference: `${alchemyNft.contract.address}/${alchemyNft.tokenId}`,
+      assetNamespace: alchemyNft.contract.tokenType.toLowerCase() as AssetNamespace,
       chainId,
     }),
     name:
-      (alchemyOwnedNft.title ||
-        alchemyOwnedNft.contract.name ||
-        alchemyOwnedNft.contract.openSea?.collectionName) ??
+      (alchemyNft.title ||
+        alchemyNft.contract.name ||
+        alchemyNft.contract.openSea?.collectionName) ??
       '',
     price: '', // The Alchemy NFT data does not have a spot price
     chainId,
-    description: alchemyOwnedNft.description,
+    description: alchemyNft.description,
     collection: nftCollection,
-    medias: alchemyOwnedNft.media.map(media => ({
-      originalUrl: media.gateway,
-      type: getMediaType(media.gateway) ?? 'image', // Gateway URLs are not guaranteed to have a file extension
-    })),
+    medias,
     rarityRank: null,
   }
 

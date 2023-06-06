@@ -3,20 +3,14 @@ import type { ICore } from '@walletconnect/types'
 import type { IWeb3Wallet } from '@walletconnect/web3wallet'
 import { Web3Wallet } from '@walletconnect/web3wallet'
 import { getConfig } from 'config'
-import { getLogLevel, logger } from 'lib/logger'
-
-const moduleLogger = logger.child({ namespace: ['walletConnectToDapps', 'walletUtils'] })
 
 let walletConnectWallet: IWeb3Wallet
 let core: ICore
 
 // WalletConnect Core singleton
 export const getWalletConnectCore = () => {
-  const logLevel = getLogLevel()
-  const isDebug = logLevel === 'debug'
   const walletConnectProjectId = getConfig().REACT_APP_WALLET_CONNECT_PROJECT_ID
   core = new Core({
-    logger: isDebug ? 'debug' : undefined,
     projectId: walletConnectProjectId,
   })
 
@@ -37,7 +31,7 @@ export const getWalletConnectWallet = async () => {
       },
     })
   } catch (e) {
-    moduleLogger.info(e, 'Could not initialize WalletConnect wallet')
+    console.error(e)
   }
 
   return walletConnectWallet

@@ -7,10 +7,7 @@ import { IconCircle } from 'components/IconCircle'
 import { Layout } from 'components/Layout/Layout'
 import { Main } from 'components/Layout/Main'
 import { RawText } from 'components/Text'
-import { logger } from 'lib/logger'
 import { persistor } from 'state/store'
-
-const moduleLogger = logger.child({ namespace: ['ErrorBoundary'] })
 
 export const ErrorPage: React.FC<FallbackProps> = () => {
   const translate = useTranslate()
@@ -23,7 +20,7 @@ export const ErrorPage: React.FC<FallbackProps> = () => {
        */
       await persistor.purge()
     } catch (e) {
-      moduleLogger.error(e, 'Error purging redux persistence')
+      console.error(e)
     }
     /**
      * we have pretty complex state management (account and tx fetching) that we don't

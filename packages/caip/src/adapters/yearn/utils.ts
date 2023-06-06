@@ -1,4 +1,3 @@
-/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import type { Token, Vault } from '@yfi/sdk'
 import { Yearn } from '@yfi/sdk'
 import { ethers } from 'ethers'

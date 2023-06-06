@@ -34,7 +34,6 @@ import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -62,8 +61,6 @@ import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-
-const moduleLogger = logger.child({ namespace: ['ThorchainSaversDeposit:Confirm'] })
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
@@ -350,7 +347,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       return sendInput
     } catch (e) {
-      moduleLogger.error({ fn: 'getDepositInput', e }, 'Error building THORChain savers Tx')
+      console.error(e)
     }
   }, [
     contextDispatch,
@@ -399,7 +396,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       return sendInput
     } catch (e) {
-      moduleLogger.error({ fn: 'getDepositInput', e }, 'Error building THORChain savers Tx')
+      console.error(e)
     }
   }, [
     accountId,
@@ -552,7 +549,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.debug({ fn: 'handleDeposit' }, 'Error sending THORCHain savers Txs')
+      console.error(error)
       // TODO(gomes): UTXO reconciliation in a stacked PR
       toast({
         position: 'top-right',

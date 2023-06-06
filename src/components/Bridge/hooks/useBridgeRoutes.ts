@@ -4,12 +4,9 @@ import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import type { BridgeAsset, BridgeChain, BridgeState } from '../types'
 import { AxelarChainNames, BridgeRoutePaths } from '../types'
-
-const moduleLogger = logger.child({ namespace: ['useBridgeRoutes'] })
 
 export const useBridgeRoutes = (): {
   handleAssetClick: (asset: BridgeAsset) => void
@@ -65,7 +62,7 @@ export const useBridgeRoutes = (): {
         }
         history.push(BridgeRoutePaths.Input)
       } catch (e) {
-        moduleLogger.warn(e, 'useBridgeRoutes:handleAssetClick error')
+        console.error(e)
       }
     },
     [chainAdapterManager, wallet, setValue, history],
@@ -76,7 +73,7 @@ export const useBridgeRoutes = (): {
       try {
         setValue('fromChain', chain, { shouldValidate: true })
       } catch (e) {
-        moduleLogger.warn(e, 'useBridgeRoutes:handleFromChainClick error')
+        console.error(e)
       } finally {
         history.push(BridgeRoutePaths.Input)
       }
@@ -89,7 +86,7 @@ export const useBridgeRoutes = (): {
       try {
         setValue('toChain', chain, { shouldValidate: true })
       } catch (e) {
-        moduleLogger.warn(e, 'useBridgeRoutes:handleToChainClick error')
+        console.error(e)
       } finally {
         history.push(BridgeRoutePaths.Input)
       }

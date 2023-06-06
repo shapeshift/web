@@ -1,5 +1,4 @@
 import { adapters, fromAssetId } from '@shapeshiftoss/caip'
-import { Logger } from '@shapeshiftoss/logger'
 import type {
   HistoryData,
   MarketCapResult,
@@ -16,8 +15,6 @@ import type { ProviderUrls } from '../market-service-manager'
 import { isValidDate } from '../utils/isValidDate'
 import type { OsmosisHistoryData, OsmosisMarketCap } from './osmosis-types'
 import { getPool, getPoolIdFromAssetReference, getPoolMarketData, isOsmosisLpAsset } from './utils'
-
-const logger = new Logger({ namespace: ['market-service', 'osmosis'] })
 
 const OSMOSIS_LP_TOKEN_PRECISION = 18
 
@@ -111,7 +108,7 @@ export class OsmosisMarketService implements MarketService {
         supply: bnOrZero(marketData.liquidity).div(marketData.price).toString(),
       }
     } catch (e) {
-      logger.warn(e, '')
+      console.warn(e)
       throw new Error('MarketService(findByAssetId): error fetching market data')
     }
   }
@@ -188,7 +185,7 @@ export class OsmosisMarketService implements MarketService {
         // convert timestamp from seconds to milliseconds
         const date = bnOrZero(current.time).times(1000).toNumber()
         if (!isValidDate(date)) {
-          logger.error('Osmosis asset history data has invalid date')
+          console.error('Osmosis asset history data has invalid date')
           return acc
         }
         const price = bnOrZero(current.close)
@@ -199,7 +196,7 @@ export class OsmosisMarketService implements MarketService {
         return acc
       }, [])
     } catch (e) {
-      logger.warn(e, '')
+      console.warn(e)
       throw new Error('MarketService(findPriceHistoryByAssetId): error fetching price history')
     }
   }

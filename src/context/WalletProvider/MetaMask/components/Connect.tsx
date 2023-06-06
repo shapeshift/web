@@ -6,13 +6,11 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'
 import type { LocationState } from '../../NativeWallet/types'
 import { MetaMaskConfig } from '../config'
-const moduleLogger = logger.child({ namespace: ['Connect'] })
 
 export interface MetaMaskSetupProps
   extends RouteComponentProps<
@@ -70,7 +68,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
         if (e?.message?.startsWith('walletProvider.')) {
-          moduleLogger.error(e, 'MetaMask Connect: There was an error initializing the wallet')
+          console.error(e)
           setErrorLoading(e?.message)
         } else {
           setErrorLoading('walletProvider.metaMask.errors.unknown')

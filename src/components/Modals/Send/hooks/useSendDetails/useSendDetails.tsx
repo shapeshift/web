@@ -16,7 +16,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { tokenOrUndefined } from 'lib/utils'
 import {
   selectAssetById,
@@ -44,10 +43,6 @@ type UseSendDetailsReturnType = {
   cryptoHumanBalance: BigNumber
   fiatBalance: BigNumber
 }
-
-const moduleLogger = logger.child({
-  namespace: ['Modals', 'Send', 'Hooks', 'useSendDetails'],
-})
 
 // TODO(0xdef1cafe): this whole thing needs to be refactored to be account focused, not asset focused
 // i.e. you don't send from an asset, you send from an account containing an asset
@@ -192,11 +187,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const handleNextClick = () => history.push(SendRoutes.Confirm)
 
   const handleSendMax = async () => {
-    const fnLogger = moduleLogger.child({ namespace: ['handleSendMax'] })
-    fnLogger.trace(
-      { assetId, feeAsset: feeAsset.assetId, cryptoHumanBalance, fiatBalance },
-      'Send Max',
-    )
     // Clear existing amount errors.
     setValue(SendFormFields.AmountFieldError, '')
 
@@ -206,7 +196,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       setLoading(true)
 
       try {
-        fnLogger.trace('Estimating Fees...')
         const estimatedFees = await estimateFormFees()
 
         if (nativeAssetBalance.minus(estimatedFees.fast.txFee).isNegative()) {
@@ -218,11 +207,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           setValue(SendFormFields.EstimatedFees, estimatedFees)
         }
 
-        fnLogger.trace({ estimatedFees }, 'Estimated Fees')
         setLoading(false)
         return
       } catch (e) {
-        fnLogger.error(e, 'Get Estimated Fees Failed')
+        console.error(e)
       }
     }
 
@@ -272,7 +260,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             }
           }
         })()
-        fnLogger.trace({ fastFee, adapterFees }, 'Adapter Fees')
 
         setValue(SendFormFields.EstimatedFees, adapterFees)
 
@@ -294,14 +281,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         setValue(SendFormFields.CryptoAmount, maxCrypto.toPrecision())
         setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
-
-        fnLogger.trace(
-          { networkFee, maxCrypto, maxFiat, hasEnoughNativeTokenForGas, nativeAssetBalance },
-          'Getting Fees Completed',
-        )
         setLoading(false)
       } catch (e) {
-        fnLogger.error(e, 'Unexpected Error')
+        console.error(e)
       }
     }
   }

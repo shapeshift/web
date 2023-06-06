@@ -1,26 +1,12 @@
-import { ChevronDownIcon } from '@chakra-ui/icons'
-import {
-  Button,
-  Menu,
-  MenuButton,
-  MenuItemOption,
-  MenuList,
-  MenuOptionGroup,
-  Stack,
-} from '@chakra-ui/react'
+import { Button, Stack } from '@chakra-ui/react'
 import axios from 'axios'
 import { useCallback, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Card } from 'components/Card/Card'
 import { Row } from 'components/Row/Row'
 import { showDeveloperModal } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import { getLogLevel, logger, saveLogLevel } from 'lib/logger'
-
-const moduleLogger = logger.child({ namespace: ['FeatureFlags'] })
 
 export const Debugging = () => {
-  const [logLevel, setLogLevel] = useState(getLogLevel())
-
   type BuildMetadata = {
     headShortCommitHash: string
     latestTag: string
@@ -37,7 +23,7 @@ export const Debugging = () => {
         const { data } = await axios.get<BuildMetadata>(url)
         setBuildMetadata(data)
       } catch (e) {
-        moduleLogger.error(e, `failed to fetch ${url}`)
+        console.error(e)
       }
     })()
   }, [isLocalhost])
@@ -49,7 +35,7 @@ export const Debugging = () => {
       try {
         await showDeveloperModal()
       } catch (e) {
-        moduleLogger.error(e, 'failed to open developer modal')
+        console.error(e)
       }
     })()
   }, [])
@@ -83,33 +69,6 @@ export const Debugging = () => {
               </Row>
             </>
           )}
-          <Row alignItems='center'>
-            <Row.Label>Log Level</Row.Label>
-            <Row.Value>
-              <Menu>
-                <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-                  {logLevel}
-                </MenuButton>
-                <MenuList>
-                  <MenuOptionGroup
-                    defaultValue={logLevel}
-                    type='radio'
-                    onChange={value => {
-                      if (typeof value === 'string') saveLogLevel(value)
-                      setLogLevel(getLogLevel())
-                    }}
-                  >
-                    <MenuItemOption value='error'>error</MenuItemOption>
-                    <MenuItemOption value='warn'>warn</MenuItemOption>
-                    <MenuItemOption value='info'>info</MenuItemOption>
-                    <MenuItemOption value='debug'>debug</MenuItemOption>
-                    <MenuItemOption value='trace'>trace</MenuItemOption>
-                    <MenuItemOption value='none'>none</MenuItemOption>
-                  </MenuOptionGroup>
-                </MenuList>
-              </Menu>
-            </Row.Value>
-          </Row>
         </Card.Body>
         <Card.Footer>
           <Button onClick={handleReloadClick} colorScheme='blue'>

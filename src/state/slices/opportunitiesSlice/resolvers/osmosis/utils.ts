@@ -5,7 +5,6 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 
 export const OSMOSIS_PRECISION = 6
 
@@ -68,10 +67,6 @@ type PoolHistoricalData = {
 type PoolHistoricalDataList = {
   [key: string]: PoolHistoricalData[]
 }
-
-const moduleLogger = logger.child({
-  namespace: ['opportunitySlice', 'resolvers', 'osmosis', 'utils'],
-})
 
 const isNumeric = (s: string) => {
   if (typeof s !== 'string') return false
@@ -205,7 +200,7 @@ export const getPools = async (): Promise<OsmosisPool[]> => {
         }
       })
   } catch (error) {
-    moduleLogger.error({ fn: 'getPools', error }, `Error fetching Osmosis pools`)
+    console.error(error)
     return []
   }
 }
@@ -228,7 +223,7 @@ export const getPool = async (poolId: string): Promise<OsmosisPool | undefined> 
     )
     return poolData
   } catch (error) {
-    moduleLogger.error({ fn: 'getPools', error }, `Error fetching data for Osmosis pool ${poolId}`)
+    console.error(error)
     return undefined
   }
 }
@@ -246,10 +241,7 @@ export const getPoolIdFromAssetReference = (
 
     return id
   } catch (error) {
-    moduleLogger.error(
-      { fn: 'getPools', error },
-      `Error fetching data for Osmosis pool ${reference}`,
-    )
+    console.error(error)
     return undefined
   }
 }

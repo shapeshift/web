@@ -6,9 +6,6 @@ import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router'
 import { Text } from 'components/Text'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
-import { logger } from 'lib/logger'
-
-const moduleLogger = logger.child({ namespace: ['NativeStart'] })
 
 export const NativeStart = ({ history }: RouteComponentProps) => {
   const [hasLocalWallet, setHasLocalWallet] = useStateIfMounted<boolean>(false)
@@ -20,7 +17,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
         const localWallets = await Vault.list()
         setHasLocalWallet(localWallets.length > 0)
       } catch (e) {
-        moduleLogger.error(e, 'WalletProvider:NativeWallet:Start - Cannot enumerate Vault')
+        console.error(e)
         setHasLocalWallet(false)
       }
     })()

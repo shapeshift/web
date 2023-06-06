@@ -12,7 +12,6 @@ import { ConsentBanner } from 'components/ConsentBanner'
 import { IconCircle } from 'components/IconCircle'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from 'hooks/useModal/useModal'
-import { logger } from 'lib/logger'
 import { selectShowConsentBanner, selectShowWelcomeModal } from 'state/slices/selectors'
 
 export const App = () => {
@@ -28,7 +27,6 @@ export const App = () => {
   } = useModal()
 
   useEffect(() => {
-    logger.debug({ shouldUpdate, updateId }, 'Update Check')
     if (shouldUpdate && !toast.isActive(updateId)) {
       const toastId = toast({
         render: ({ onClose }) => {

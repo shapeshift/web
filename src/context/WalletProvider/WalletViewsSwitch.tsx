@@ -15,12 +15,10 @@ import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-rou
 import { SlideTransition } from 'components/SlideTransition'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import { SUPPORTED_WALLETS } from './config'
 import { clearLocalWallet } from './local-wallet'
 import { SelectModal } from './SelectModal'
-const moduleLogger = logger.child({ namespace: ['WalletViewsSwitch'] })
 
 export const WalletViewsSwitch = () => {
   const history = useHistory()
@@ -44,7 +42,7 @@ export const WalletViewsSwitch = () => {
 
   const cancelWalletRequests = useCallback(async () => {
     await wallet?.cancel().catch(e => {
-      moduleLogger.error(e)
+      console.error(e)
       toast({
         title: translate('common.error'),
         description: e?.message ?? translate('common.somethingWentWrong'),

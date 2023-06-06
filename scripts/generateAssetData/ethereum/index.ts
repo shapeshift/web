@@ -1,4 +1,3 @@
-/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import chunk from 'lodash/chunk'

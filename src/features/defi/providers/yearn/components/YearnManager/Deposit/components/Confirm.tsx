@@ -22,7 +22,6 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -36,8 +35,6 @@ import { useAppSelector } from 'state/store'
 
 import { YearnDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-
-const moduleLogger = logger.child({ namespace: ['YearnDeposit:Confirm'] })
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
@@ -145,7 +142,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       dispatch({ type: YearnDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)
     } catch (error) {
-      moduleLogger.error({ fn: 'handleDeposit', error }, 'Error getting deposit gas estimate')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

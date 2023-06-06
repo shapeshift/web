@@ -4,7 +4,6 @@ import { polygonChainId } from '@shapeshiftoss/caip'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { logger } from 'lib/logger'
 import { selectFeatureFlag } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
@@ -27,8 +26,6 @@ const options: AxiosRequestConfig = {
 type GetCovalentNftUserTokensInput = {
   accountIds: AccountId[]
 }
-
-const moduleLogger = logger.child({ namespace: ['covalentApi'] })
 
 export const covalentApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
@@ -74,7 +71,7 @@ export const covalentApi = createApi({
                 }
               }
             } catch (e) {
-              moduleLogger.warn(e, 'getCovalentNftUserTokens error')
+              console.error(e)
               break
             }
           }

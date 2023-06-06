@@ -15,9 +15,6 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
-
-const moduleLogger = logger.child({ namespace: 'ContractInteractionBreakdown' })
 
 type ContractInteractionBreakdownProps = {
   request: WalletConnectEthSendTransactionCallRequest['params'][number]
@@ -42,7 +39,7 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
     try {
       return contractInterface?.parseTransaction({ data: request.data, value: request.value })
     } catch (e) {
-      moduleLogger.error(e, 'parseTransaction')
+      console.error(e)
       return undefined
     }
   }, [contractInterface, request.data, request.value])

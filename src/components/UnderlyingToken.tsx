@@ -8,7 +8,6 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
-import { logger } from 'lib/logger'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -17,7 +16,6 @@ type UnderlyingTokenProps = {
   accountId?: AccountId
 }
 
-const moduleLogger = logger.child({ namespace: ['UnderlyingToken'] })
 // TODO: currently this is hard coded to yearn vaults only.
 // In the future we should add a hook to get the provider interface by vault provider
 export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
@@ -43,17 +41,12 @@ export const UnderlyingToken = ({ assetId }: UnderlyingTokenProps) => {
     ;(async () => {
       try {
         if (shouldHide || !wallet) return
-        moduleLogger.trace(
-          { assetId: asset.assetId, chain: asset.chainId, fn: 'yearn.token' },
-          'Get Yearn Token',
-        )
         const opportunity = await yearnInvestor.findByOpportunityId(asset.assetId!)
         if (!opportunity) return
         const assetId = opportunity.underlyingAsset.assetId
-        moduleLogger.trace({ assetId, fn: 'yearn.token' }, 'Yearn Asset')
         setUnderlyingAssetId(assetId)
       } catch (error) {
-        moduleLogger.error(error, 'yearn.token() failed')
+        console.error(error)
       }
     })()
   }, [shouldHide, asset.chainId, asset.assetId, vault, wallet, yearnInvestor])

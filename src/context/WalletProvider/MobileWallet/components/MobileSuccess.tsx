@@ -13,12 +13,8 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch } from 'state/store'
 
-import { MobileConfig, mobileLogger } from '../config'
+import { MobileConfig } from '../config'
 import type { MobileSetupProps } from '../types'
-
-const moduleLogger = mobileLogger.child({
-  namespace: ['components', 'MobileSuccess'],
-})
 
 export const MobileSuccess = ({ location }: MobileSetupProps) => {
   const appDispatch = useAppDispatch()
@@ -57,7 +53,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
           return setIsSuccessful(true)
         }
       } catch (e) {
-        moduleLogger.error(e, { vault }, 'Error pairing device')
+        console.log(e)
       }
 
       setIsSuccessful(false)

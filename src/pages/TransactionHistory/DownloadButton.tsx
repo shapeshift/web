@@ -7,7 +7,6 @@ import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { getTransfers, getTxType } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import {
   selectAssets,
@@ -17,8 +16,6 @@ import {
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
-
-const moduleLogger = logger.child({ namespace: ['DownloadButton'] })
 
 type ReportRow = {
   txid: TxId
@@ -120,7 +117,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       )}.csv`
       fileDownload(data, filename)
     } catch (error) {
-      moduleLogger.error(error, 'DownloadButton:generateCSV error')
+      console.error(error)
     } finally {
       setIsLoading(false)
     }

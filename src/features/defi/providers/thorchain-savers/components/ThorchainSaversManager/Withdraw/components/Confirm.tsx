@@ -26,7 +26,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -57,17 +56,6 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { ThorchainSaversWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
-
-const moduleLogger = logger.child({
-  namespace: [
-    'Defi',
-    'Providers',
-    'ThorchainSavers',
-    'ThorchainSaversManager',
-    'Withdraw',
-    'Confirm',
-  ],
-})
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
@@ -202,7 +190,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           .div(100)
         setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
       } catch (e) {
-        moduleLogger.error({ fn: 'useEffect', e }, 'Error getting savers withdraw quote')
+        console.error(e)
       } finally {
         setQuoteLoading(false)
       }
@@ -338,7 +326,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       return sendInput
     } catch (e) {
-      moduleLogger.error({ fn: 'getDepositInput', e }, 'Error building THORChain savers Tx')
+      console.error(e)
     }
   }, [
     accountId,
@@ -399,7 +387,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       return sendInput
     } catch (e) {
-      moduleLogger.error({ fn: 'getSendInput', e }, 'Error building THORChain savers Tx')
+      console.error(e)
     }
   }, [
     accountId,
@@ -533,7 +521,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.debug({ fn: 'handleWithdraw' }, 'Error sending THORCHain savers Txs')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

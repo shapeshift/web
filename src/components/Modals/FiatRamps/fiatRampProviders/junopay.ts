@@ -2,15 +2,10 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { logger } from 'lib/logger'
 
 import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
-
-const moduleLogger = logger.child({
-  namespace: ['Modals', 'FiatRamps', 'fiatRampProviders', 'JunoPay'],
-})
 
 type JunoPayResponse = {
   data: {
@@ -46,7 +41,7 @@ export async function getJunoPayAssets(): Promise<AssetId[]> {
       )
       return data.data
     } catch (e) {
-      moduleLogger.error(e, 'Failed to fetch assets')
+      console.error(e)
     }
   })()
 

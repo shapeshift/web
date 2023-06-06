@@ -14,7 +14,6 @@ import { useHistory } from 'react-router-dom'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
@@ -24,8 +23,6 @@ import { useAppSelector } from 'state/store'
 
 import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-
-const moduleLogger = logger.child({ namespace: ['FoxyDeposit:Approve'] })
 
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
@@ -80,10 +77,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         } = feeDataEstimate.fast
         return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
       } catch (error) {
-        moduleLogger.error(
-          { fn: 'getDepositGasEstimateCryptoBaseUnit', error },
-          'Error getting deposit gas estimate',
-        )
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
@@ -148,7 +142,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
       onNext(DefiStep.Confirm)
     } catch (error) {
-      moduleLogger.error({ fn: 'handleApprove', error }, 'Error on approval')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

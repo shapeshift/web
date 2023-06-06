@@ -19,7 +19,6 @@ import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPri
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import type { RebaseHistory } from 'lib/investor/investor-foxy'
-import { logger } from 'lib/logger'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
@@ -39,8 +38,6 @@ import { useAppSelector } from 'state/store'
 
 import { excludeTransaction } from './cosmosUtils'
 import { CHART_ASSET_ID_BLACKLIST, makeBalanceChartData } from './utils'
-
-const moduleLogger = logger.child({ namespace: ['useBalanceChartData'] })
 
 type BalanceByAssetId = {
   [k: AssetId]: BigNumber // map of asset to base units
@@ -146,7 +143,7 @@ export const bucketEvents = (
     // the number of time units from start of chart to this tx
     const bucketIndex = Math.floor(eventDayJs.diff(start, unit as dayjs.OpUnitType) / duration)
     if (bucketIndex < 0 || bucketIndex > buckets.length - 1) {
-      moduleLogger.error(
+      console.error(
         `bucketTxs: event outside buckets: ${event}, start: ${start.valueOf()}, end: ${end.valueOf()}, meta: ${meta}`,
       )
       return acc
@@ -266,9 +263,8 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
             // we're going backwards, so a receive means we had less before
             bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
             break
-          default: {
-            moduleLogger.warn(`calculateBucketPrices: unknown tx type ${transfer.type}`)
-          }
+          default:
+            break
         }
       })
     })
@@ -483,9 +479,12 @@ const debugCharts: DebugCharts = ({ assets, calculatedBuckets, timeframe, txs })
     const asset = assets[assetId]
     const baseUnitBalance = balance.toString()
     const baseUnitHuman = balance.div(bn(10).exponentiatedBy(asset?.precision ?? 1)).toString()
-    moduleLogger.error(
-      { asset, assetId, baseUnitBalance, baseUnitHuman, balance },
-      'NON-ZERO BALANCE AT START OF CHART',
-    )
+    console.error('NON-ZERO BALANCE AT START OF CHART', {
+      asset,
+      assetId,
+      baseUnitBalance,
+      baseUnitHuman,
+      balance,
+    })
   })
 }

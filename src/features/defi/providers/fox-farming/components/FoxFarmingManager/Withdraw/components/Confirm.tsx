@@ -20,7 +20,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -37,10 +36,6 @@ import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'FoxFarming', 'Withdraw', 'Confirm'],
-})
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
@@ -130,7 +125,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleConfirm' }, 'handleConfirm error')
+      console.error(error)
     }
   }, [
     assets,

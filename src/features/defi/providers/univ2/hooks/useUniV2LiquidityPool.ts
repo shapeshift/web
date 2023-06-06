@@ -16,7 +16,6 @@ import type { Address } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { uniswapV2Router02AssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAccountNumberByAccountId,
@@ -26,8 +25,6 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { calculateSlippageMargin } from '../utils'
-
-const moduleLogger = logger.child({ namespace: ['useUniV2LiquidityPool'] })
 
 type UseUniV2LiquidityPoolOptions = {
   skip?: boolean
@@ -227,7 +224,7 @@ export const useUniV2LiquidityPool = ({
 
         return txid
       } catch (err) {
-        moduleLogger.error(err, 'failed to addLiquidity')
+        console.error(err)
       }
     },
     [
@@ -353,7 +350,7 @@ export const useUniV2LiquidityPool = ({
 
         return txid
       } catch (err) {
-        moduleLogger.error(err, 'failed to removeLiquidity')
+        console.error(err)
       }
     },
     [

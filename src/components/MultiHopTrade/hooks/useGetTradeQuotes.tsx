@@ -1,5 +1,5 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -17,7 +17,7 @@ import {
   selectSellAssetAccountId,
 } from 'state/slices/selectors'
 import { useGetLifiTradeQuoteQuery } from 'state/slices/swappersSlice/swappersSlice'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 export const useGetTradeQuotes = () => {
   const isLifiEnabled = useFeatureFlag('LifiSwap')
@@ -31,15 +31,14 @@ export const useGetTradeQuotes = () => {
   const receiveAddress = useAppSelector(selectReceiveAddress)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
-  const sellAssetAccountIds = useAppSelector(state =>
-    selectPortfolioAccountIdsByAssetId(state, {
+  const sellAccountMetadata = useMemo(() => {
+    const sellAssetAccountIds = selectPortfolioAccountIdsByAssetId(store.getState(), {
       assetId: sellAsset.assetId,
-    }),
-  )
-  const sellAccountFilter = { accountId: sellAssetAccountId ?? sellAssetAccountIds[0] }
-  const sellAccountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, sellAccountFilter),
-  )
+    })
+    return selectPortfolioAccountMetadataByAccountId(store.getState(), {
+      accountId: sellAssetAccountId ?? sellAssetAccountIds[0],
+    })
+  }, [sellAsset.assetId, sellAssetAccountId])
 
   useEffect(() => {
     if (wallet && sellAccountMetadata) {
@@ -63,6 +62,7 @@ export const useGetTradeQuotes = () => {
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         })
+
         setTradeQuoteInput(tradeQuoteInputArgs ?? skipToken)
       })()
     } else {
@@ -70,19 +70,27 @@ export const useGetTradeQuotes = () => {
     }
   }, [buyAsset, receiveAddress, sellAccountMetadata, sellAmountCryptoPrecision, sellAsset, wallet])
 
-  const { isLoading, data, error } = useGetLifiTradeQuoteQuery(tradeQuoteInput, {
+  const { isFetching, data, error } = useGetLifiTradeQuoteQuery(tradeQuoteInput, {
     skip: !isLifiEnabled,
   })
 
-  if (isSkipToken(tradeQuoteInput))
-    return {
-      sortedQuotes: [],
-      selectedQuote: undefined,
-    }
-
   // TODO(woodenfurniture): sorting of quotes
   // TODO(woodenfurniture): quote selection
-  const sortedQuotes = [{ isLoading, data, error, swapperName: SwapperName.LIFI }]
+  const sortedQuotes = useMemo(() => {
+    if (isSkipToken(tradeQuoteInput)) return []
+
+    const lifiInputOutputRatio = 1 // TODO(woodenfurniture): calculate this
+
+    return [
+      {
+        isLoading: isFetching,
+        data,
+        error,
+        swapperName: SwapperName.LIFI,
+        inputOutputRatio: lifiInputOutputRatio,
+      },
+    ]
+  }, [data, error, isFetching, tradeQuoteInput])
   return {
     sortedQuotes,
     selectedQuote: sortedQuotes[0],

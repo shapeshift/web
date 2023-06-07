@@ -2,26 +2,32 @@ import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, Flex, IconButton, Stack, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { useCallback, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
+import { TradeQuotes } from 'components/MultiHopTrade/components/TradeQuotes/TradeQuotes'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TradeAssetSelect } from 'components/Trade/Components/AssetSelection'
 import { RateGasRow } from 'components/Trade/Components/RateGasRow'
 import { TradeAssetInput } from 'components/Trade/Components/TradeAssetInput'
-import { TradeQuotes } from 'components/Trade/Components/TradeQuotes/TradeQuotes'
 import { ReceiveSummary } from 'components/Trade/TradeConfirm/ReceiveSummary'
 import { useModal } from 'hooks/useModal/useModal'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { ProtocolFee } from 'lib/swapper/api'
-import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
+import {
+  selectBuyAsset,
+  selectSellAsset,
+  selectSwapperSupportsCrossAccountTrade,
+} from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -35,12 +41,14 @@ export const MultiHopTrade = (props: CardProps) => {
   const {
     state: { wallet },
   } = useWallet()
+  const [showTradeQuotes, handleToggleShowTradeQuotes] = useToggle(false)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
   const methods = useForm({ mode: 'onChange' })
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { assetSearch } = useModal()
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
+  const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
   const dispatch = useAppDispatch()
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(swappers.actions.setBuyAsset(asset)),
@@ -54,21 +62,21 @@ export const MultiHopTrade = (props: CardProps) => {
   const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
   const { selectedQuote } = useGetTradeQuotes()
 
-  const lifiResult = selectedQuote?.data
-  const isLoading = selectedQuote?.isLoading
-  const quoteData = selectedQuote?.data?.isOk() ? selectedQuote.data.unwrap() : undefined
-
-  console.log({
-    isLoading: selectedQuote?.isLoading,
-    data: lifiResult?.isErr() ? lifiResult.unwrapErr() : lifiResult?.unwrap(),
-  })
+  const isLoading = useMemo(() => selectedQuote?.isLoading, [selectedQuote?.isLoading])
+  const quoteData = useMemo(
+    () => (selectedQuote?.data?.isOk() ? selectedQuote.data.unwrap() : undefined),
+    [selectedQuote?.data],
+  )
+  const errorData = useMemo(
+    () => (selectedQuote?.data?.isErr() ? selectedQuote.data.unwrapErr() : undefined),
+    [selectedQuote?.data],
+  )
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds({
       buyAsset,
       sellAsset,
     })
-
   const translate = useTranslate()
   const overlayTitle = useMemo(
     () => translate('trade.swappingComingSoonForWallet', { walletName: 'Keplr' }),
@@ -96,7 +104,11 @@ export const MultiHopTrade = (props: CardProps) => {
     return quoteData.steps.reduce<Record<AssetId, ProtocolFee>>((acc, step) => {
       return Object.entries(step.feeData.protocolFees).reduce<Record<AssetId, ProtocolFee>>(
         (innerAcc, [assetId, protocolFee]) => {
-          if (innerAcc[assetId] === undefined) return innerAcc
+          if (innerAcc[assetId] === undefined) {
+            innerAcc[assetId] = protocolFee
+            return innerAcc
+          }
+
           innerAcc[assetId].amountCryptoBaseUnit = bn(innerAcc[assetId].amountCryptoBaseUnit)
             .plus(protocolFee.amountCryptoBaseUnit)
             .toString()
@@ -163,7 +175,7 @@ export const MultiHopTrade = (props: CardProps) => {
                     assetId={buyAsset.assetId}
                     onAssetClick={handleBuyAssetClick}
                     onAccountIdChange={setBuyAssetAccountId}
-                    accountSelectionDisabled={false}
+                    accountSelectionDisabled={swapperSupportsCrossAccountTrade}
                     label={translate('trade.to')}
                   />
                 </Flex>
@@ -182,23 +194,23 @@ export const MultiHopTrade = (props: CardProps) => {
                   cryptoAmount={buyAmountAfterFeesCryptoPrecision}
                   fiatAmount={'1.234'}
                   percentOptions={[1]}
-                  showInputSkeleton={false}
-                  showFiatSkeleton={false}
+                  showInputSkeleton={isLoading}
+                  showFiatSkeleton={isLoading}
                   label={translate('trade.youGet')}
                   rightRegion={
-                    false ? (
+                    quoteData ? (
                       <IconButton
                         size='sm'
-                        icon={false ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                        icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
                         aria-label='Expand Quotes'
-                        onClick={() => {}}
+                        onClick={handleToggleShowTradeQuotes}
                       />
                     ) : (
                       <></>
                     )
                   }
                 >
-                  {quoteData && <TradeQuotes isOpen={true} isLoading={isLoading} />}
+                  {quoteData && <TradeQuotes isOpen={showTradeQuotes} />}
                 </TradeAssetInput>
               </Stack>
               <Stack
@@ -213,8 +225,8 @@ export const MultiHopTrade = (props: CardProps) => {
                   buySymbol={''}
                   gasFee={'0'}
                   rate={undefined}
-                  isLoading={false}
-                  isError={false}
+                  isLoading={isLoading}
+                  isError={errorData !== undefined}
                 />
                 {selectedQuote && quoteData ? (
                   <ReceiveSummary
@@ -224,7 +236,10 @@ export const MultiHopTrade = (props: CardProps) => {
                     amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
                     protocolFees={totalProtocolFees}
                     shapeShiftFee='0'
-                    slippage={quoteData.recommendedSlippage ?? '0'} // TODO(woody): add swapper default value here
+                    slippage={
+                      quoteData.recommendedSlippage ??
+                      getDefaultSlippagePercentageForSwapper(selectedQuote.swapperName)
+                    }
                     swapperName={selectedQuote.swapperName}
                   />
                 ) : null}
@@ -234,8 +249,8 @@ export const MultiHopTrade = (props: CardProps) => {
                 colorScheme={false ? 'red' : 'blue'}
                 size='lg-multiline'
                 data-test='trade-form-preview-button'
-                isDisabled={false}
-                isLoading={false}
+                isDisabled={true}
+                isLoading={isLoading}
               >
                 <Text translation='trade.previewTrade' />
               </Button>
@@ -246,3 +261,4 @@ export const MultiHopTrade = (props: CardProps) => {
     </MessageOverlay>
   )
 }
+MultiHopTrade.whyDidYouRender = true

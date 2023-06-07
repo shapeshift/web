@@ -2,6 +2,9 @@ import { createSelector } from '@reduxjs/toolkit'
 import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
+import { createDeepEqualOutputSelector } from 'state/selector-utils'
+
+import { selectCryptoMarketData } from '../marketDataSlice/selectors'
 
 const selectSwappers = (state: ReduxState) => state.swappers
 
@@ -10,9 +13,15 @@ export const selectSelectedQuote = createSelector(
   swappers => swappers.selectedQuote,
 )
 
-export const selectBuyAsset = createSelector(selectSwappers, swappers => swappers.buyAsset)
+export const selectBuyAsset = createDeepEqualOutputSelector(
+  selectSwappers,
+  swappers => swappers.buyAsset,
+)
 
-export const selectSellAsset = createSelector(selectSwappers, swappers => swappers.sellAsset)
+export const selectSellAsset = createDeepEqualOutputSelector(
+  selectSwappers,
+  swappers => swappers.sellAsset,
+)
 
 export const selectSellAssetAccountId = createSelector(
   selectSwappers,
@@ -27,6 +36,17 @@ export const selectReceiveAddress = createSelector(
 export const selectSellAmountCryptoPrecision = createSelector(
   selectSwappers,
   swappers => swappers.sellAmountCryptoPrecision,
+)
+
+export const selectBuyAssetUsdRate = createSelector(
+  selectBuyAsset,
+  selectCryptoMarketData,
+  (buyAsset, cryptoMarketData) => {
+    const buyAssetMarketData = cryptoMarketData[buyAsset.assetId]
+    if (!buyAssetMarketData)
+      throw Error(`missing market data for buyAsset.assetId ${buyAsset.assetId}`)
+    return buyAssetMarketData.price
+  },
 )
 
 /*

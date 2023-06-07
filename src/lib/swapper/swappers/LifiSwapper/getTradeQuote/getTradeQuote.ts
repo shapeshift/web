@@ -155,6 +155,8 @@ export async function getTradeQuote(
             protocolFees,
             networkFeeCryptoBaseUnit,
           },
+          // TODO(woodenfurniture): the rate should be top level not step level
+          // might be better replaced by inputOutputRatio downstream
           rate: estimateRate,
           sellAmountBeforeFeesCryptoBaseUnit,
           sellAsset,

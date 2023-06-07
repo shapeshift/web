@@ -1,8 +1,8 @@
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from 'lib/asset-service'
 import type { AmountDisplayMeta } from 'lib/swapper/api'
 import { isSome } from 'lib/utils'
 import { makeAsset } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssets } from 'state/slices/selectors'
-import { store } from 'state/store'
 
 import { lifiTokenToAssetId } from '../lifiTokenToAssetId/lifiTokenToAssetId'
 import type { LifiStepSubset, StepSubset } from './types'
@@ -10,6 +10,7 @@ import type { LifiStepSubset, StepSubset } from './types'
 const isLifiStep = (step: StepSubset): step is LifiStepSubset => step.type === 'lifi'
 
 export const getIntermediaryTransactionOutputs = (
+  assets: Partial<Record<AssetId, Asset>>,
   step: StepSubset,
 ): AmountDisplayMeta[] | undefined => {
   const tradeSteps = isLifiStep(step) ? step.includedSteps : [step]
@@ -18,8 +19,6 @@ export const getIntermediaryTransactionOutputs = (
 
   // exit early if there are no intermediary steps
   if (intermediaryTradeData.length === 0) return
-
-  const assets = selectAssets(store.getState())
 
   return intermediaryTradeData
     .map(step => {

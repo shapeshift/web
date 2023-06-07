@@ -3,8 +3,9 @@ import { useCallback, useState } from 'react'
 import { TradeAssetInput } from 'components/Trade/Components/TradeAssetInput'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectMarketDataByFilter } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { selectMarketDataByFilter, selectSellAmountCryptoPrecision } from 'state/slices/selectors'
+import { swappers } from 'state/slices/swappersSlice/swappersSlice'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 export type SellAssetInputProps = {
   accountId?: AccountId
@@ -20,7 +21,8 @@ export const SellAssetInput = ({
   onClickSendMax,
 }: SellAssetInputProps) => {
   const [sellAmountFiatHuman, setSellAmountFiatHuman] = useState('0')
-  const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
+  const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
+  const dispatch = useAppDispatch()
 
   const { price: sellAssetFiatRate } = useAppSelector(state =>
     selectMarketDataByFilter(state, { assetId: asset.assetId }),
@@ -35,10 +37,9 @@ export const SellAssetInput = ({
         ? bnOrZero(value).div(sellAssetFiatRate).toFixed()
         : value ?? '0'
       setSellAmountFiatHuman(sellAmountFiatHuman)
-      setSellAmountCryptoPrecision(sellAmountCryptoPrecision)
-      // TODO(woodenfurniture): store sellAmountCryptoPrecision in redux
+      dispatch(swappers.actions.setSellAmountCryptoPrecision(sellAmountCryptoPrecision))
     },
-    [sellAssetFiatRate],
+    [dispatch, sellAssetFiatRate],
   )
 
   return (

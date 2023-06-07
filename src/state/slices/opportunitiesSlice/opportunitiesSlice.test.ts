@@ -55,7 +55,7 @@ describe('opportunitiesSlice', () => {
           },
           type: DefiType.LiquidityPool,
         } as const
-        store.dispatch(opportunities.actions.upsertOpportunityMetadata(payload))
+        store.dispatch(opportunities.actions.upsertOpportunitiesMetadata(payload))
         expect(store.getState().opportunities.lp.byId).toEqual(payload.byId)
         expect(store.getState().opportunities.lp.ids).toEqual([mockLpContractOne])
       })
@@ -85,7 +85,7 @@ describe('opportunitiesSlice', () => {
           type: DefiType.LiquidityPool,
         } as const
 
-        store.dispatch(opportunities.actions.upsertOpportunityMetadata(insertPayloadOne))
+        store.dispatch(opportunities.actions.upsertOpportunitiesMetadata(insertPayloadOne))
         expect(store.getState().opportunities.lp.byId).toEqual(insertPayloadOne.byId)
 
         const insertPayloadTwo = {
@@ -112,7 +112,7 @@ describe('opportunitiesSlice', () => {
           type: DefiType.LiquidityPool,
         } as const
 
-        store.dispatch(opportunities.actions.upsertOpportunityMetadata(insertPayloadTwo))
+        store.dispatch(opportunities.actions.upsertOpportunitiesMetadata(insertPayloadTwo))
         expect(store.getState().opportunities.lp.byId).toEqual({
           ...insertPayloadOne.byId,
           ...insertPayloadTwo.byId,

@@ -32,6 +32,8 @@ import { useTranslate } from 'react-polyglot'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
 import { httpProviderByChainId } from 'lib/web3-provider'
 import {
@@ -202,7 +204,9 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const handleConnect = useCallback(
     (err: Error | null, payload: { params: [{ peerMeta: IClientMeta }] }) => {
       if (err) console.error(err)
-      setDapp(payload.params[0].peerMeta)
+      const dapp = payload.params[0].peerMeta
+      setDapp(dapp)
+      getMixPanel()?.track(MixPanelEvents.ConnectedTodApp, dapp)
     },
     [],
   )

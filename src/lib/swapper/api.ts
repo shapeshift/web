@@ -155,7 +155,7 @@ export type TradeQuoteStep<C extends ChainId, UnknownNetworkFee extends boolean>
   allowanceContract: string
 }
 
-export type TradeQuote<C extends ChainId, UnknownNetworkFee extends boolean = false> = {
+export type TradeQuote<C extends ChainId = ChainId, UnknownNetworkFee extends boolean = false> = {
   minimumCryptoHuman: string
   recommendedSlippage?: string
   id?: string

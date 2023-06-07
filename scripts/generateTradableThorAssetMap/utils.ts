@@ -44,9 +44,7 @@ export const getFeeAssetFromThorchainChain = (chain: ThorchainChain): AssetId | 
   }
 }
 
-export const getSmartContractTokenStandardFromChainId = (
-  chainId: ChainId,
-): AssetNamespace | undefined => {
+export const getTokenStandardFromChainId = (chainId: ChainId): AssetNamespace | undefined => {
   switch (chainId) {
     case KnownChainIds.EthereumMainnet:
     case KnownChainIds.AvalancheMainnet:
@@ -81,7 +79,7 @@ export const getAssetIdPairFromPool = (pool: ThornodePoolResponse): AssetIdPair 
     }
   } else {
     // It's a smart contract token
-    const assetNamespace = chainId ? getSmartContractTokenStandardFromChainId(chainId) : undefined
+    const assetNamespace = chainId ? getTokenStandardFromChainId(chainId) : undefined
     try {
       const uncheckedAddress = (id ?? '').toLowerCase()
       const maybeChecksummedAddress = isAddress(uncheckedAddress)

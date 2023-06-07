@@ -30,6 +30,10 @@ export const generateTradableThorAssetMap = async () => {
     case 200:
       const poolData = response.data
       const assetIdPairs = poolData.map(getAssetIdPairFromPool).filter(isSome)
+      /*
+        Native RUNE is not included in the pools list, so it needs to be manually added as a tradable asset
+        https://dev.thorchain.org/thorchain-dev/concepts/querying-thorchain#displaying-available-pairs
+       */
       const assetIdPairsWithRune: AssetIdPair[] = [...assetIdPairs, ['THOR.RUNE', thorchainAssetId]]
       const assetsRecord: Record<string, AssetId> = assetIdPairsWithRune.reduce(
         (accumulator, [thorchainAsset, assetId]) => {

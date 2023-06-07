@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters, bchAssetId } from '@shapeshiftoss/caip'
+import { bchAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import qs from 'qs'
@@ -17,6 +17,7 @@ import {
   THORCHAIN_AFFILIATE_NAME,
   THORCHAIN_FIXED_PRECISION,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
+import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 
 import { thorService } from '../thorService'
 
@@ -36,8 +37,8 @@ export const getQuote = async ({
   affiliateBps: string
   deps: ThorchainSwapperDeps
 }): Promise<Result<ThornodeQuoteResponseSuccess, SwapErrorRight>> => {
-  const buyPoolId = adapters.assetIdToPoolAssetId({ assetId: buyAssetId })
-  const sellPoolId = adapters.assetIdToPoolAssetId({ assetId: sellAsset.assetId })
+  const buyPoolId = assetIdToPoolAssetId({ assetId: buyAssetId })
+  const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
 
   const sellAmountCryptoPrecision = baseUnitToPrecision({
     value: sellAmountCryptoBaseUnit,

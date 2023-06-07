@@ -31,7 +31,7 @@ const getGatewayData = async () => {
     return (
       await axios.get<OnRamperGatewaysResponse>(`${baseUrl}supported`, {
         headers: {
-          Authorization: `Basic ${apiKey}`,
+          Authorization: apiKey,
         },
       })
     ).data
@@ -136,14 +136,16 @@ export const getOnRamperAssets = async (): Promise<AssetId[]> => {
   return convertOnRamperDataToFiatRampAsset(data)
 }
 
-const convertOnRamperDataToFiatRampAsset = (response: OnRamperGatewaysResponse): AssetId[] =>
-  Array.from(
+const convertOnRamperDataToFiatRampAsset = (response: OnRamperGatewaysResponse): AssetId[] => {
+  console.info(response.message)
+  return Array.from(
     new Set(
       response.message.crypto
         .map(currency => adapters.onRamperTokenIdToAssetId(currency.code))
         .filter((assetId): assetId is AssetId => Boolean(assetId)),
     ),
   )
+}
 
 export const createOnRamperUrl = ({
   action,

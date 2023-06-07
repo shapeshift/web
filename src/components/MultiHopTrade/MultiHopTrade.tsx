@@ -1,5 +1,6 @@
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, Flex, IconButton, Stack, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { useCallback, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -17,7 +18,9 @@ import { ReceiveSummary } from 'components/Trade/TradeConfirm/ReceiveSummary'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { SwapperName } from 'lib/swapper/api'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
+import type { ProtocolFee } from 'lib/swapper/api'
 import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -49,12 +52,14 @@ export const MultiHopTrade = (props: CardProps) => {
   )
 
   const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
-  const quotes = useGetTradeQuotes()
+  const { selectedQuote } = useGetTradeQuotes()
 
-  const lifiResult = quotes[SwapperName.LIFI]?.data
+  const lifiResult = selectedQuote?.data
+  const isLoading = selectedQuote?.isLoading
+  const quoteData = selectedQuote?.data?.isOk() ? selectedQuote.data.unwrap() : undefined
 
   console.log({
-    isLoading: quotes[SwapperName.LIFI]?.isLoading,
+    isLoading: selectedQuote?.isLoading,
     data: lifiResult?.isErr() ? lifiResult.unwrapErr() : lifiResult?.unwrap(),
   })
 
@@ -85,6 +90,40 @@ export const MultiHopTrade = (props: CardProps) => {
       assets: supportedBuyAssets,
     })
   }, [assetSearch, setBuyAsset, supportedBuyAssets])
+
+  const totalProtocolFees = useMemo(() => {
+    if (!quoteData) return {}
+    return quoteData.steps.reduce<Record<AssetId, ProtocolFee>>((acc, step) => {
+      return Object.entries(step.feeData.protocolFees).reduce<Record<AssetId, ProtocolFee>>(
+        (innerAcc, [assetId, protocolFee]) => {
+          if (innerAcc[assetId] === undefined) return innerAcc
+          innerAcc[assetId].amountCryptoBaseUnit = bn(innerAcc[assetId].amountCryptoBaseUnit)
+            .plus(protocolFee.amountCryptoBaseUnit)
+            .toString()
+          return innerAcc
+        },
+        acc,
+      )
+    }, {})
+  }, [quoteData])
+
+  const buyAmountAfterFeesCryptoPrecision = useMemo(() => {
+    if (!quoteData) return '0'
+    const lastStep = quoteData.steps[quoteData.steps.length - 1]
+    const buyAssetProtocolFeesTotal = bnOrZero(
+      totalProtocolFees[lastStep.buyAsset.assetId]?.amountCryptoBaseUnit,
+    )
+    return fromBaseUnit(
+      bn(lastStep.buyAmountBeforeFeesCryptoBaseUnit).minus(buyAssetProtocolFeesTotal),
+      buyAsset.precision,
+    ).toString()
+  }, [buyAsset.precision, quoteData, totalProtocolFees])
+
+  const buyAmountBeforeFeesCryptoPrecision = useMemo(() => {
+    if (!quoteData) return '0'
+    const lastStep = quoteData.steps[quoteData.steps.length - 1]
+    return fromBaseUnit(lastStep.buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
+  }, [buyAsset.precision, quoteData])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
@@ -140,9 +179,8 @@ export const MultiHopTrade = (props: CardProps) => {
                   assetId={buyAsset.assetId}
                   assetSymbol={buyAsset.symbol}
                   assetIcon={buyAsset.icon}
-                  cryptoAmount={'0.0012300000'}
+                  cryptoAmount={buyAmountAfterFeesCryptoPrecision}
                   fiatAmount={'1.234'}
-                  onChange={() => {}}
                   percentOptions={[1]}
                   showInputSkeleton={false}
                   showFiatSkeleton={false}
@@ -160,7 +198,7 @@ export const MultiHopTrade = (props: CardProps) => {
                     )
                   }
                 >
-                  {false && <TradeQuotes isOpen={false} isLoading={false} />}
+                  {quoteData && <TradeQuotes isOpen={true} isLoading={isLoading} />}
                 </TradeAssetInput>
               </Stack>
               <Stack
@@ -178,16 +216,16 @@ export const MultiHopTrade = (props: CardProps) => {
                   isLoading={false}
                   isError={false}
                 />
-                {false ? (
+                {selectedQuote && quoteData ? (
                   <ReceiveSummary
-                    isLoading={false}
-                    symbol={''}
-                    amountCryptoPrecision={''}
-                    amountBeforeFeesCryptoPrecision={''}
-                    protocolFees={{}}
+                    isLoading={isLoading}
+                    symbol={buyAsset.symbol}
+                    amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
+                    amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
+                    protocolFees={totalProtocolFees}
                     shapeShiftFee='0'
-                    slippage={'0'}
-                    swapperName={''}
+                    slippage={quoteData.recommendedSlippage ?? '0'} // TODO(woody): add swapper default value here
+                    swapperName={selectedQuote.swapperName}
                   />
                 ) : null}
               </Stack>

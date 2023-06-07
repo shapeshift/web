@@ -12,7 +12,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import type { Asset } from 'lib/asset-service'
 import { toBaseUnit } from 'lib/math'
 import type { GetTradeQuoteInput } from 'lib/swapper/api'
-import type { SwapperState } from 'state/zustand/swapperStore/types'
 
 export type GetTradeQuoteInputArgs = {
   sellAsset: Asset
@@ -20,7 +19,8 @@ export type GetTradeQuoteInputArgs = {
   sellAccountType: UtxoAccountType | undefined
   sellAccountNumber: number
   wallet: HDWallet
-  receiveAddress: SwapperState['receiveAddress']
+  sendAddress: string | undefined
+  receiveAddress: string | undefined
   sellAmountBeforeFeesCryptoPrecision: string
 }
 
@@ -30,6 +30,7 @@ export const getTradeQuoteArgs = async ({
   sellAccountNumber,
   sellAccountType,
   wallet,
+  sendAddress,
   receiveAddress,
   sellAmountBeforeFeesCryptoPrecision,
 }: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput | undefined> => {
@@ -41,6 +42,7 @@ export const getTradeQuoteArgs = async ({
     ),
     sellAsset,
     buyAsset,
+    sendAddress,
     receiveAddress,
     accountNumber: sellAccountNumber,
     affiliateBps: '0',

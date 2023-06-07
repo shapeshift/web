@@ -1,5 +1,4 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -45,12 +44,14 @@ export const useGetTradeQuotes = () => {
   useEffect(() => {
     if (wallet && sellAccountMetadata) {
       ;(async () => {
-        const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
-        const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
-
-        if (!chainAdapter)
-          throw new Error(`couldn't get chain adapter for ${receiveAddressChainId}`)
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
+
+        const chainAdapterManager = getChainAdapterManager()
+        const chainAdapter = chainAdapterManager.get(sellAsset.chainId)
+        const sendAddress = await chainAdapter?.getAddress({
+          wallet,
+          accountNumber: sellAccountNumber,
+        })
 
         const tradeQuoteInputArgs: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,
@@ -58,6 +59,7 @@ export const useGetTradeQuotes = () => {
           sellAccountType: sellAccountMetadata.accountType,
           buyAsset,
           wallet,
+          sendAddress,
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         })
@@ -72,9 +74,17 @@ export const useGetTradeQuotes = () => {
     skip: !isLifiEnabled,
   })
 
-  if (isSkipToken(tradeQuoteInput)) return {}
+  if (isSkipToken(tradeQuoteInput))
+    return {
+      sortedQuotes: [],
+      selectedQuote: undefined,
+    }
 
+  // TODO(woodenfurniture): sorting of quotes
+  // TODO(woodenfurniture): quote selection
+  const sortedQuotes = [{ isLoading, data, error, swapperName: SwapperName.LIFI }]
   return {
-    [SwapperName.LIFI]: { isLoading, data, error },
+    sortedQuotes,
+    selectedQuote: sortedQuotes[0],
   }
 }

@@ -33,6 +33,7 @@ export async function getTradeQuote(
       sellAsset,
       buyAsset,
       sellAmountBeforeFeesCryptoBaseUnit,
+      sendAddress,
       receiveAddress,
       accountNumber,
     } = input
@@ -67,7 +68,7 @@ export async function getTradeQuote(
       toChainId: Number(fromChainId(buyAsset.chainId).chainReference),
       fromTokenAddress: getLifiEvmAssetAddress(sellAsset),
       toTokenAddress: getLifiEvmAssetAddress(buyAsset),
-      fromAddress: receiveAddress,
+      fromAddress: sendAddress,
       toAddress: receiveAddress,
       fromAmount: sellAmountBeforeFeesCryptoBaseUnit,
       // as recommended by lifi, dodo is denied until they fix their gas estimates

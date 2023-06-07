@@ -1,6 +1,5 @@
 import type { SkipToken } from '@reduxjs/toolkit/query'
 import { skipToken } from '@reduxjs/toolkit/query'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -51,12 +50,14 @@ export const useTradeQuoteService = () => {
   useEffect(() => {
     if (sellAsset && buyAsset && wallet && sellAmountCryptoPrecision && sellAccountMetadata) {
       ;(async () => {
-        const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
-        const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
-
-        if (!chainAdapter)
-          throw new Error(`couldn't get chain adapter for ${receiveAddressChainId}`)
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
+
+        const chainAdapterManager = getChainAdapterManager()
+        const chainAdapter = chainAdapterManager.get(sellAsset.chainId)
+        const sendAddress = await chainAdapter?.getAddress({
+          wallet,
+          accountNumber: sellAccountNumber,
+        })
 
         const tradeQuoteInputArgs: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,
@@ -64,6 +65,7 @@ export const useTradeQuoteService = () => {
           sellAccountType: sellAccountMetadata.accountType,
           buyAsset,
           wallet,
+          sendAddress,
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         })

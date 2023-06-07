@@ -82,7 +82,7 @@ export const DashboardHeader = () => {
         rightElement: <Amount.Fiat value={portfolioTotalFiatBalance} />,
       },
       {
-        label: 'navBar.earn',
+        label: 'navBar.defi',
         path: '/dashboard/earn',
         color: 'purple',
         rightElement: <Amount.Fiat value={earnFiatBalance} />,

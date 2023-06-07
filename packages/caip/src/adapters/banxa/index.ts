@@ -1,3 +1,4 @@
+import { toLower } from 'lodash'
 import entries from 'lodash/entries'
 
 import type { AssetId } from '../../assetId/assetId'
@@ -61,6 +62,9 @@ export const getSupportedBanxaAssets = () =>
     assetId,
     ticker,
   }))
+
+export const assetIdToBanxaTicker = (assetId: string): string | undefined =>
+  AssetIdToBanxaTickerMap[toLower(assetId)]
 
 /**
  * map ChainIds to Banxa blockchain codes (ETH, BTC, COSMOS),

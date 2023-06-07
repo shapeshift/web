@@ -135,6 +135,7 @@ export const OpportunityRow: React.FC<
             <NestedAsset
               key={assetId}
               isClaimableRewards={isClaimableRewards}
+              isExternal={opportunity.isReadOnly}
               assetId={assetId}
               balances={underlyingAssetBalances[assetId]}
               onClick={() => handleClick(DefiAction.Claim)}
@@ -148,6 +149,7 @@ export const OpportunityRow: React.FC<
     nestedAssetIds,
     underlyingAssetBalances,
     isClaimableRewards,
+    opportunity.isReadOnly,
     translate,
     underlyingAssetLabel,
     handleClick,

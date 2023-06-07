@@ -1,11 +1,10 @@
 import type { Step } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from 'lib/asset-service'
 import { bn } from 'lib/bignumber/bignumber'
 import type { ProtocolFee } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
-import { selectAssets } from 'state/slices/selectors'
-import { store } from 'state/store'
 
 import { lifiChainIdToChainId } from '../lifiChainIdtoChainId/lifiChainIdToChainId'
 import { lifiTokenToAssetId } from '../lifiTokenToAssetId/lifiTokenToAssetId'
@@ -13,9 +12,11 @@ import { lifiTokenToAssetId } from '../lifiTokenToAssetId/lifiTokenToAssetId'
 export const transformLifiStepFeeData = ({
   chainId,
   lifiStep,
+  assets,
 }: {
   chainId: ChainId
   lifiStep: Step
+  assets: Partial<Record<AssetId, Asset>>
 }): Record<AssetId, ProtocolFee> => {
   if (!isEvmChainId(chainId)) {
     throw new SwapError("[transformLifiFeeData] - chainId isn't an EVM ChainId", {
@@ -28,8 +29,6 @@ export const transformLifiStepFeeData = ({
   const allPayableFeeCosts = (lifiStep.estimate.feeCosts ?? []).filter(
     feeCost => !(feeCost as { included?: boolean }).included,
   )
-
-  const assets = selectAssets(store.getState())
 
   const protocolFees = allPayableFeeCosts.reduce<Record<AssetId, ProtocolFee>>((acc, feeCost) => {
     const { amount: amountCryptoBaseUnit, token } = feeCost

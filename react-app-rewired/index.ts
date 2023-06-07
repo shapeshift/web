@@ -390,6 +390,10 @@ const reactAppRewireConfig = {
       '/node_modules/(?!(@wagmi)/)',
       '^.+\\.module\\.(css|sass|scss)$',
     ]
+    // allows jest to not crash when our deps import different versions of axios
+    config.moduleNameMapper = {
+      '^axios$': require.resolve('axios'),
+    }
     return config
   },
   devServer: (configFunction: DevServerConfigFunction): DevServerConfigFunction => {

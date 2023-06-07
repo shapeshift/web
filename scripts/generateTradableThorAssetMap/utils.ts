@@ -10,8 +10,10 @@ import {
   ethAssetId,
   ltcAssetId,
   thorchainAssetId,
+  toAssetId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { getAddress, isAddress } from 'viem'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 
 import { ChainToChainIdMap, ThorchainChain } from '.'
@@ -68,26 +70,37 @@ export const getAssetIdFromPool = (pool: ThornodePoolResponse): AssetId | undefi
   const [, id] = symbol.split('-')
   const chainId = ChainToChainIdMap.get(chain as ThorchainChain)
   const isFeeAsset = chain === symbol || pool.asset === 'GAIA.ATOM'
-  console.log('xxx getAssetIdFromPool', { chain, symbol, id, chainId, isFeeAsset })
   if (isFeeAsset) {
     return chainId ? getFeeAssetFromThorchainChain(chain as ThorchainChain) : undefined
   } else {
     // It's a smart contract token
     const assetNamespace = chainId ? getSmartContractTokenStandardFromChainId(chainId) : undefined
-    console.log('xxx not fee asset', { assetNamespace, chainId, asset: pool.asset })
-    // try {
-    //   const assetId =
-    //     assetNamespace && chainId
-    //       ? toAssetId({ chainId, assetNamespace, assetReference: id })
-    //       : undefined
-    //   console.log('xxx not fee asset', { assetId, assetNamespace, chainId })
-    //   return assetId
-    // } catch (error) {
-    //   console.error('xxx', error)
-    /* toAssetId will throw if it gets a bad assetReference
+    try {
+      const uncheckedAddress = (id ?? '').toLowerCase()
+      const maybeChecksummedAddress = isAddress(uncheckedAddress)
+        ? getAddress(uncheckedAddress)
+        : undefined
+      const assetId =
+        assetNamespace && chainId && maybeChecksummedAddress
+          ? toAssetId({ chainId, assetNamespace, assetReference: maybeChecksummedAddress })
+          : undefined
+      if (!assetId) {
+        console.error('xxx could not parse asset', {
+          chain,
+          symbol,
+          id,
+          chainId,
+          isFeeAsset,
+          asset: pool.asset,
+        })
+      }
+      return assetId
+    } catch (error) {
+      console.error('xxx', error)
+      /* toAssetId will throw if it gets a bad assetReference
         As the id comes from an upstream network response, we don't want to throw here
        */
-    return undefined
-    // }
+      return undefined
+    }
   }
 }

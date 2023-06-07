@@ -1,5 +1,5 @@
-import { toLower } from 'lodash'
 import entries from 'lodash/entries'
+import toLower from 'lodash/toLower'
 
 import type { AssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'

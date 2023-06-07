@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   avalancheChainId,
   bchChainId,
@@ -34,3 +34,5 @@ export const ChainToChainIdMap: Map<ThorchainChain, ChainId> = new Map([
   [ThorchainChain.GAIA, cosmosChainId],
   [ThorchainChain.THOR, thorchainChainId],
 ])
+
+export type AssetIdPair = [thorchainAsset: string, assetId: AssetId]

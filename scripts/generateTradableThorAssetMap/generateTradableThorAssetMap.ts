@@ -1,4 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import fs from 'fs'
 import { isNull } from 'lodash'
@@ -6,6 +7,7 @@ import isUndefined from 'lodash/isUndefined'
 import path from 'path'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 
+import type { AssetIdPair } from '.'
 import { getAssetIdPairFromPool } from '.'
 
 const axiosConfig = {
@@ -28,8 +30,8 @@ export const generateTradableThorAssetMap = async () => {
     case 200:
       const poolData = response.data
       const assetIdPairs = poolData.map(getAssetIdPairFromPool).filter(isSome)
-      // todo: manually add rune
-      const assetsRecord: Record<string, AssetId> = assetIdPairs.reduce(
+      const assetIdPairsWithRune: AssetIdPair[] = [...assetIdPairs, ['THOR.RUNE', thorchainAssetId]]
+      const assetsRecord: Record<string, AssetId> = assetIdPairsWithRune.reduce(
         (accumulator, [thorchainAsset, assetId]) => {
           accumulator[thorchainAsset] = assetId
           return accumulator

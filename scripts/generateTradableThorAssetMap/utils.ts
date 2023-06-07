@@ -16,6 +16,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { getAddress, isAddress } from 'viem'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 
+import type { AssetIdPair } from '.'
 import { ChainToChainIdMap, ThorchainChain } from '.'
 
 export const getFeeAssetFromThorchainChain = (chain: ThorchainChain): AssetId | undefined => {
@@ -65,9 +66,7 @@ export const getSmartContractTokenStandardFromChainId = (
   Converts a ThorchainPoolResponse to an AssetId using THORChain asset notation: https://dev.thorchain.org/thorchain-dev/concepts/memos#asset-notation
   E.g. "ETH.USDT-0xdac17f958d2ee523a2206206994597c13d831ec7" returns "eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7"
  */
-export const getAssetIdPairFromPool = (
-  pool: ThornodePoolResponse,
-): [thorchainAsset: string, assetId: AssetId] | undefined => {
+export const getAssetIdPairFromPool = (pool: ThornodePoolResponse): AssetIdPair | undefined => {
   const thorchainAsset = pool.asset
   const [chain, symbol] = thorchainAsset.split('.')
   const [, id] = symbol.split('-')

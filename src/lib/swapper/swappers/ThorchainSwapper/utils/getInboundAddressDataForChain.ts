@@ -1,10 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { InboundAddressResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 
 export const getInboundAddressDataForChain = async (
@@ -20,7 +20,7 @@ export const getInboundAddressDataForChain = async (
         code: SwapErrorType.MISSING_INPUT,
       }),
     )
-  const assetPoolId = adapters.assetIdToPoolAssetId({ assetId })
+  const assetPoolId = assetIdToPoolAssetId({ assetId })
   const assetChainSymbol = assetPoolId?.slice(0, assetPoolId.indexOf('.'))
 
   return (

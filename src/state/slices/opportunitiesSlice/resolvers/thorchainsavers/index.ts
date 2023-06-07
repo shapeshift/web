@@ -1,6 +1,7 @@
 import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { adapters, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
@@ -39,7 +40,7 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   }
 
   const opportunityIds = thorchainPools.reduce<OpportunityId[]>((acc, currentPool) => {
-    const maybeOpportunityId = adapters.poolAssetIdToAssetId(currentPool.asset)
+    const maybeOpportunityId = poolAssetIdToAssetId(currentPool.asset)
 
     if (
       bnOrZero(currentPool.savers_depth).gt(0) &&
@@ -95,7 +96,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
   for (const thorchainPool of thorchainPools) {
-    const assetId = adapters.poolAssetIdToAssetId(thorchainPool.asset)
+    const assetId = poolAssetIdToAssetId(thorchainPool.asset)
     if (!assetId || !opportunityIds.includes(assetId as OpportunityId)) continue
 
     const opportunityId = assetId as StakingId

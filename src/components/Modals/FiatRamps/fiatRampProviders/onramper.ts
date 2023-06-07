@@ -141,7 +141,7 @@ const convertOnRamperDataToFiatRampAsset = (response: OnRamperGatewaysResponse):
   return Array.from(
     new Set(
       response.message.crypto
-        .map(currency => adapters.onRamperTokenIdToAssetId(currency.code))
+        .map(currency => adapters.onRamperTokenIdToAssetId(currency.id))
         .filter((assetId): assetId is AssetId => Boolean(assetId)),
     ),
   )

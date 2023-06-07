@@ -1976,7 +1976,8 @@
   },
   "avatar": {
     "modal": {
-      "title": "Set a New Avatar"
+      "title": "Set a New Avatar",
+      "restoreDefault": "Restore default"
     }
   }
 }

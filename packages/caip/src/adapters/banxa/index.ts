@@ -103,7 +103,7 @@ const chainIdToBanxaBlockchainCodeMap: Record<ChainId, string> = {
 } as const
 
 /**
- * Convert an AssetID to a Banxa chain identifier for use in Banxa HTTP URLs
+ * Convert an AssetId to a Banxa chain identifier for use in Banxa HTTP URLs
  *
  * @param {string} assetId - a Shapeshift asset identifier
  * @returns {string} - a Banxa chain identifier; e.g., 'cosmos'

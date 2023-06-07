@@ -22,6 +22,7 @@ import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as selectors from './slices/selectors'
+import { swappersApi } from './slices/swappersSlice/swappersSlice'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 import { updateWindowStoreMiddleware } from './windowMiddleware'
 
@@ -41,6 +42,7 @@ const apiMiddleware = [
   txHistoryApi.middleware,
   foxyApi.middleware,
   swapperApi.middleware,
+  swappersApi.middleware,
   fiatRampApi.middleware,
   zapper.middleware,
   zapperApi.middleware,
@@ -59,6 +61,7 @@ export const clearState = () => {
   store.dispatch(slices.txHistory.actions.clear())
   store.dispatch(slices.portfolio.actions.clear())
   store.dispatch(slices.opportunities.actions.clear())
+  store.dispatch(slices.swappers.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())
@@ -69,6 +72,8 @@ export const clearState = () => {
   store.dispatch(apiSlices.nftApi.util.resetApiState())
   store.dispatch(apiSlices.covalentApi.util.resetApiState())
   store.dispatch(apiSlices.zapper.util.resetApiState())
+  store.dispatch(apiSlices.swapperApi.util.resetApiState())
+  store.dispatch(apiSlices.swappersApi.util.resetApiState())
 }
 
 /**

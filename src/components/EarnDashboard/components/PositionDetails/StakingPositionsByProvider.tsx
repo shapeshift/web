@@ -175,7 +175,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
           const opportunity = row.original
           const opportunityAssetId = opportunity.assetId
           const opportunityUnderlyingAssetId = opportunity.underlyingAssetId
-          const hasValue = bnOrZero(opportunity.fiatAmount).gt(0)
+          const hasValue = !bnOrZero(opportunity.fiatAmount).isZero()
           if (!opportunity.underlyingAssetIds.length) return null
           const isUnderlyingAsset = opportunity.underlyingAssetIds.includes(assetId)
           const underlyingAssetIndex = opportunity.underlyingAssetIds.indexOf(assetId)

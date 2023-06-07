@@ -16,6 +16,7 @@ type NestedAssetProps = {
   assetId: AssetId
   balances: UnderlyingAssetIdsBalances
   isClaimableRewards: boolean
+  isExternal?: boolean
   type: string
   onClick: () => void
 }
@@ -24,6 +25,7 @@ export const NestedAsset: React.FC<NestedAssetProps> = ({
   assetId,
   balances,
   isClaimableRewards,
+  isExternal,
   type,
   onClick,
 }) => {
@@ -68,6 +70,7 @@ export const NestedAsset: React.FC<NestedAssetProps> = ({
             </Flex>
           }
           position='relative'
+          isExternal={isExternal}
           _after={{
             content: '""',
             position: 'absolute',

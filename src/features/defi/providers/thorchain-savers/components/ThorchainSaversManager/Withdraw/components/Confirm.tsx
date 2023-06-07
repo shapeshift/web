@@ -63,7 +63,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [quoteLoading, setQuoteLoading] = useState(false)
   const [expiry, setExpiry] = useState<string>('')
   const [maybeFromUTXOAccountAddress, setMaybeFromUTXOAccountAddress] = useState<string>('')
-  const [withdrawFeeCryptoBaseUnit, setWithdrawFeeCryptoBaseUnit] = useState<string>('')
+  const [protocolFeeCryptoBaseUnit, setProtocolFeeCryptoBaseUnit] = useState<string>('')
+  const [networkFeeCryptoBaseUnit, setNetworkFeeCryptoBaseUnit] = useState<string>('')
   const [dustAmountCryptoBaseUnit, setDustAmountCryptoBaseUnit] = useState<string>('')
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
     null,
@@ -144,7 +145,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     ;(async () => {
       try {
         if (!(accountId && opportunityData?.stakedAmountCryptoBaseUnit && asset)) return
-        if (dustAmountCryptoBaseUnit && withdrawFeeCryptoBaseUnit) return
+        if (dustAmountCryptoBaseUnit && protocolFeeCryptoBaseUnit) return
         setQuoteLoading(true)
 
         const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
@@ -172,7 +173,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
         setExpiry(expiry)
 
-        setWithdrawFeeCryptoBaseUnit(
+        setProtocolFeeCryptoBaseUnit(
           toBaseUnit(
             fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expected_amount_out)),
             asset.precision,
@@ -203,7 +204,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     opportunityData?.rewardsCryptoBaseUnit,
     opportunityData?.stakedAmountCryptoBaseUnit,
     state?.withdraw.cryptoAmount,
-    withdrawFeeCryptoBaseUnit,
+    protocolFeeCryptoBaseUnit,
   ])
 
   useEffect(() => {
@@ -250,7 +251,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       asset,
     })
     setExpiry(expiry)
-    setWithdrawFeeCryptoBaseUnit(
+    setProtocolFeeCryptoBaseUnit(
       toBaseUnit(
         fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expected_amount_out)),
         asset.precision,
@@ -279,19 +280,43 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state?.withdraw.cryptoAmount,
   ])
 
+  useEffect(() => {
+    ;(async () => {
+      if (!contextDispatch) return
+      const estimatedFees = await estimateFees(await getEstimateFeesArgs())
+      setNetworkFeeCryptoBaseUnit(estimatedFees.fast.txFee)
+
+      contextDispatch({
+        type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
+        payload: {
+          networkFeeCryptoBaseUnit: estimatedFees.fast.txFee,
+        },
+      })
+    })()
+  }, [contextDispatch, getEstimateFeesArgs])
+
   const getPreWithdrawInput: () => Promise<SendInput | undefined> = useCallback(async () => {
     if (
       !(
         accountId &&
         assetId &&
         state?.withdraw?.estimatedGasCrypto &&
-        opportunityData?.stakedAmountCryptoBaseUnit
+        opportunityData?.stakedAmountCryptoBaseUnit &&
+        contextDispatch
       )
     )
       return
 
     try {
       const estimatedFees = await estimateFees(await getEstimateFeesArgs())
+
+      contextDispatch({
+        type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
+        payload: {
+          networkFeeCryptoBaseUnit: estimatedFees.fast.txFee,
+        },
+      })
+
       const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
         bn(10).pow(asset.precision),
       )
@@ -334,7 +359,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state?.withdraw?.estimatedGasCrypto,
     state?.withdraw.cryptoAmount,
     opportunityData?.stakedAmountCryptoBaseUnit,
-    opportunityData?.rewardsCryptoBaseUnit,
+    opportunityData?.rewardsCryptoBaseUnit?.amounts,
+    contextDispatch,
     getEstimateFeesArgs,
     asset,
     chainId,
@@ -343,10 +369,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   ])
 
   const getWithdrawInput: () => Promise<SendInput | undefined> = useCallback(async () => {
-    if (!(accountId && assetId && opportunityData?.stakedAmountCryptoBaseUnit)) return
+    if (!(accountId && assetId && opportunityData?.stakedAmountCryptoBaseUnit && contextDispatch))
+      return
 
     try {
       const estimatedFees = await estimateFees(await getEstimateFeesArgs())
+
+      contextDispatch({
+        type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
+        payload: {
+          networkFeeCryptoBaseUnit: estimatedFees.fast.txFee,
+        },
+      })
+
       const amountCryptoBaseUnit = bnOrZero(state?.withdraw.cryptoAmount).times(
         bn(10).pow(asset.precision),
       )
@@ -393,8 +428,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     accountId,
     assetId,
     opportunityData?.stakedAmountCryptoBaseUnit,
-    opportunityData?.rewardsCryptoBaseUnit,
+    opportunityData?.rewardsCryptoBaseUnit?.amounts,
     getEstimateFeesArgs,
+    contextDispatch,
     state?.withdraw.cryptoAmount,
     asset,
     chainId,
@@ -506,7 +542,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
         payload: {
           dustAmountCryptoBaseUnit,
-          withdrawFeeCryptoBaseUnit,
+          protocolFeeCryptoBaseUnit,
           maybeFromUTXOAccountAddress,
         },
       })
@@ -552,7 +588,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     getWithdrawInput,
     handleMultiTxSend,
     dustAmountCryptoBaseUnit,
-    withdrawFeeCryptoBaseUnit,
+    protocolFeeCryptoBaseUnit,
     onNext,
     toast,
     translate,
@@ -613,8 +649,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         </Row>
         <Row variant='gutter'>
           <Row.Label>
-            <HelperTooltip label={translate('defi.modals.saversVaults.estimatedFeeTooltip')}>
-              <Text translation='defi.modals.saversVaults.estimatedFee' />
+            <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
+              <Text translation='trade.protocolFee' />
             </HelperTooltip>
           </Row.Label>
           <Row.Value>
@@ -622,14 +658,41 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Skeleton isLoaded={!quoteLoading}>
                 <Amount.Fiat
                   fontWeight='bold'
-                  value={bnOrZero(withdrawFeeCryptoBaseUnit)
+                  value={bnOrZero(networkFeeCryptoBaseUnit)
                     .div(bn(10).pow(asset.precision))
                     .times(marketData.price)
                     .toFixed()}
                 />
                 <Amount.Crypto
                   color='gray.500'
-                  value={bnOrZero(withdrawFeeCryptoBaseUnit)
+                  value={bnOrZero(networkFeeCryptoBaseUnit)
+                    .div(bn(10).pow(asset.precision))
+                    .toFixed()}
+                  symbol={asset.symbol}
+                />
+              </Skeleton>
+            </Box>
+          </Row.Value>
+        </Row>
+        <Row variant='gutter'>
+          <Row.Label>
+            <HelperTooltip label={translate('trade.tooltip.minerFee')}>
+              <Text translation='trade.minerFee' />
+            </HelperTooltip>
+          </Row.Label>
+          <Row.Value>
+            <Box textAlign='right'>
+              <Skeleton isLoaded={!quoteLoading}>
+                <Amount.Fiat
+                  fontWeight='bold'
+                  value={bnOrZero(protocolFeeCryptoBaseUnit)
+                    .div(bn(10).pow(asset.precision))
+                    .times(marketData.price)
+                    .toFixed()}
+                />
+                <Amount.Crypto
+                  color='gray.500'
+                  value={bnOrZero(protocolFeeCryptoBaseUnit)
                     .div(bn(10).pow(asset.precision))
                     .toFixed()}
                   symbol={asset.symbol}

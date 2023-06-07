@@ -20,7 +20,6 @@ export enum ThorchainChain {
   AVAX = 'AVAX',
   BNB = 'BNB',
   GAIA = 'GAIA',
-  RUNE = 'RUNE',
   THOR = 'THOR',
 }
 
@@ -33,6 +32,5 @@ export const ChainToChainIdMap: Map<ThorchainChain, ChainId> = new Map([
   [ThorchainChain.AVAX, avalancheChainId],
   [ThorchainChain.BNB, binanceChainId],
   [ThorchainChain.GAIA, cosmosChainId],
-  [ThorchainChain.RUNE, thorchainChainId],
   [ThorchainChain.THOR, thorchainChainId],
 ])

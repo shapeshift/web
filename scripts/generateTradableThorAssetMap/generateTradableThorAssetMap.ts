@@ -1,6 +1,8 @@
 import axios from 'axios'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 
+import { getAssetIdFromPool } from '.'
+
 const axiosConfig = {
   timeout: 10000,
   headers: {
@@ -17,7 +19,9 @@ export const generateTradableThorAssetMap = async () => {
   switch (response.status) {
     case 200:
       const poolData = response.data
-      console.log('poolData', poolData)
+      const assetIds = poolData.map(getAssetIdFromPool).filter(Boolean)
+      // todo: manually add rune
+      console.log('assetIds', assetIds)
       break
     default:
       console.error('xxx', response)

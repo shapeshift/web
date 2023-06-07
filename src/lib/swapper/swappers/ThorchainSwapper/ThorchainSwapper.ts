@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { adapters, CHAIN_NAMESPACE, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type {
   avalanche,
   ChainAdapterManager,
@@ -32,6 +32,7 @@ import type {
   ThornodePoolResponse,
   ThorTrade,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from '../../api'
@@ -107,7 +108,7 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         const availablePools = allPools.filter(pool => pool.status === 'Available')
 
         availablePools.forEach(pool => {
-          const assetId = adapters.poolAssetIdToAssetId(pool.asset)
+          const assetId = poolAssetIdToAssetId(pool.asset)
           if (!assetId) return
 
           const chainId = fromAssetId(assetId).chainId as ThorChainId

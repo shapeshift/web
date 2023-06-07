@@ -1,7 +1,8 @@
-import { adapters, thorchainAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { THORCHAIN_AFFILIATE_NAME } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { assertIsValidMemo } from 'lib/swapper/swappers/ThorchainSwapper/utils/makeSwapMemo/assertIsValidMemo'
+import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 
 /**
  * definition of THORChain asset notation
@@ -60,9 +61,7 @@ export const makeSwapMemo: MakeSwapMemo = ({
   affiliateBps,
 }): string => {
   const isRune = buyAssetId === thorchainAssetId
-  const fullThorAssetId = isRune
-    ? runeThorId
-    : adapters.assetIdToPoolAssetId({ assetId: buyAssetId })
+  const fullThorAssetId = isRune ? runeThorId : assetIdToPoolAssetId({ assetId: buyAssetId })
 
   if (!fullThorAssetId)
     throw new SwapError('[makeSwapMemo] - undefined thorAssetId for given buyAssetId', {

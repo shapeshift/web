@@ -75,7 +75,11 @@ export const getAssetIdPairFromPool = (
   const isFeeAsset = chain === symbol || thorchainAsset === 'GAIA.ATOM'
   if (isFeeAsset) {
     const assetId = chainId ? getFeeAssetFromThorchainChain(chain as ThorchainChain) : undefined
-    return assetId ? [thorchainAsset, assetId] : undefined
+    if (assetId) {
+      return [thorchainAsset, assetId]
+    } else {
+      console.error(`Could not parse ${thorchainAsset}`)
+    }
   } else {
     // It's a smart contract token
     const assetNamespace = chainId ? getSmartContractTokenStandardFromChainId(chainId) : undefined
@@ -84,27 +88,22 @@ export const getAssetIdPairFromPool = (
       const maybeChecksummedAddress = isAddress(uncheckedAddress)
         ? getAddress(uncheckedAddress)
         : undefined
-      const assetId =
-        assetNamespace && chainId && maybeChecksummedAddress
-          ? toAssetId({ chainId, assetNamespace, assetReference: maybeChecksummedAddress })
-          : undefined
-      if (!assetId) {
-        console.error('xxx could not parse asset', {
-          chain,
-          symbol,
-          id,
-          chainId,
-          isFeeAsset,
-          asset: thorchainAsset,
-        })
+      if (assetNamespace && chainId && maybeChecksummedAddress) {
+        try {
+          const assetId = toAssetId({
+            chainId,
+            assetNamespace,
+            assetReference: maybeChecksummedAddress,
+          })
+          return [thorchainAsset, assetId]
+        } catch (error) {
+          console.error(`Could not parse ${thorchainAsset}`, error)
+        }
+      } else {
+        console.error(`Could not parse ${thorchainAsset}`)
       }
-      return assetId ? [thorchainAsset, assetId] : undefined
     } catch (error) {
-      console.error('xxx', error)
-      /* toAssetId will throw if it gets a bad assetReference
-        As the id comes from an upstream network response, we don't want to throw here
-       */
-      return undefined
+      console.error(`Could not parse ${thorchainAsset}`, error)
     }
   }
 }

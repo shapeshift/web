@@ -36,12 +36,11 @@ export const generateTradableThorAssetMap = async () => {
         },
         {} as Record<string, AssetId>,
       )
-      console.log('assetIds', assetsRecord)
 
       await fs.promises.writeFile(
         path.join(
           __dirname,
-          '../../src/lib/asset-service/service/generatedTradableThorAssetMap.json',
+          '../../src/lib/swapper/swappers/ThorchainSwapper/generated/generatedTradableThorAssetMap.json',
         ),
         // beautify the file for github diff.
         JSON.stringify(assetsRecord, null, 2),
@@ -49,7 +48,7 @@ export const generateTradableThorAssetMap = async () => {
 
       break
     default:
-      console.error('xxx', response)
+      console.error('Network error', response)
   }
 }
 

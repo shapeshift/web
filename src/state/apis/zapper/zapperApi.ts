@@ -388,12 +388,27 @@ export const zapper = createApi({
               const appAccountOpportunities = appAccountBalance.products
                 .flatMap(({ assets }) => assets)
                 .map<ReadOnlyOpportunityType | undefined>(asset => {
-                  const stakedAmountCryptoBaseUnit =
-                    //  Liquidity Pool staking
-                    asset.tokens.find(token => token.metaType === 'supplied')?.balanceRaw ??
-                    // Single-sided staking
-                    asset.balanceRaw ??
-                    '0'
+                  const stakedAmountCryptoBaseUnitAccessor = (() => {
+                    //  Liquidity Pool of sorts
+                    const maybeLpAcesssor = asset.tokens.find(
+                      token => token.metaType === 'supplied' || token.metaType === 'borrowed',
+                    )
+                    // More general single-sided staking
+                    if (maybeLpAcesssor?.balanceRaw) return maybeLpAcesssor
+                    return asset
+                  })()
+                  // The balance itself is a positive amount, but the USD valance is negative, so we need to check for that
+                  const isNegativeStakedamount = bnOrZero(
+                    stakedAmountCryptoBaseUnitAccessor?.balanceUSD,
+                  ).isNegative()
+                  const stakedAmountCryptoBaseUnitBase = bnOrZero(
+                    stakedAmountCryptoBaseUnitAccessor?.balanceRaw,
+                  )
+                  const stakedAmountCryptoBaseUnit = (
+                    isNegativeStakedamount
+                      ? stakedAmountCryptoBaseUnitBase.negated()
+                      : stakedAmountCryptoBaseUnitBase
+                  ).toFixed()
                   const rewardTokens = asset.tokens.filter(token => token.metaType === 'claimable')
                   const rewardAssetIds = rewardTokens.reduce<AssetId[]>((acc, token) => {
                     const rewardAssetId = zapperAssetToMaybeAssetId(token)

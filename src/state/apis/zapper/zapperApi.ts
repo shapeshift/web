@@ -433,8 +433,15 @@ export const zapper = createApi({
                   // This is our best bet until we bring in the concept of an "DefiType.GenericOpportunity"
                   const defiType = DefiType.Staking
 
-                  // Actually defined because we pass networks in the query params
-                  const assetId = zapperAssetToMaybeAssetId(asset)
+                  const topLevelAsset = (() => {
+                    const maybeLpAsset = asset.tokens.find(
+                      token => token.metaType === 'supplied' || token.metaType === 'borrowed',
+                    )
+                    if (maybeLpAsset) return maybeLpAsset
+                    return asset
+                  })()
+
+                  const assetId = zapperAssetToMaybeAssetId(topLevelAsset)
 
                   if (!assetId) return undefined
 

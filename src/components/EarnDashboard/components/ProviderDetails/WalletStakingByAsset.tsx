@@ -44,6 +44,8 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ i
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
 
+  debugger
+
   const filteredDown = stakingOpportunities.filter(e => ids.includes(e.id as OpportunityId))
 
   const groupedItems = useMemo(() => {

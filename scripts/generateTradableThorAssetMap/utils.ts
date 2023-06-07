@@ -65,13 +65,17 @@ export const getSmartContractTokenStandardFromChainId = (
   Converts a ThorchainPoolResponse to an AssetId using THORChain asset notation: https://dev.thorchain.org/thorchain-dev/concepts/memos#asset-notation
   E.g. "ETH.USDT-0xdac17f958d2ee523a2206206994597c13d831ec7" returns "eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7"
  */
-export const getAssetIdFromPool = (pool: ThornodePoolResponse): AssetId | undefined => {
-  const [chain, symbol] = pool.asset.split('.')
+export const getAssetIdPairFromPool = (
+  pool: ThornodePoolResponse,
+): [thorchainAsset: string, assetId: AssetId] | undefined => {
+  const thorchainAsset = pool.asset
+  const [chain, symbol] = thorchainAsset.split('.')
   const [, id] = symbol.split('-')
   const chainId = ChainToChainIdMap.get(chain as ThorchainChain)
-  const isFeeAsset = chain === symbol || pool.asset === 'GAIA.ATOM'
+  const isFeeAsset = chain === symbol || thorchainAsset === 'GAIA.ATOM'
   if (isFeeAsset) {
-    return chainId ? getFeeAssetFromThorchainChain(chain as ThorchainChain) : undefined
+    const assetId = chainId ? getFeeAssetFromThorchainChain(chain as ThorchainChain) : undefined
+    return assetId ? [thorchainAsset, assetId] : undefined
   } else {
     // It's a smart contract token
     const assetNamespace = chainId ? getSmartContractTokenStandardFromChainId(chainId) : undefined
@@ -91,10 +95,10 @@ export const getAssetIdFromPool = (pool: ThornodePoolResponse): AssetId | undefi
           id,
           chainId,
           isFeeAsset,
-          asset: pool.asset,
+          asset: thorchainAsset,
         })
       }
-      return assetId
+      return assetId ? [thorchainAsset, assetId] : undefined
     } catch (error) {
       console.error('xxx', error)
       /* toAssetId will throw if it gets a bad assetReference

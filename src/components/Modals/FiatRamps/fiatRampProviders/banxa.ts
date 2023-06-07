@@ -1,4 +1,4 @@
-import { adapters } from '@shapeshiftoss/caip'
+import { adapters, fromAssetId } from '@shapeshiftoss/caip'
 
 import type { CommonFiatCurrencies } from '../config'
 import { FiatRampAction } from '../FiatRampsCommon'
@@ -54,11 +54,11 @@ export const createBanxaUrl = ({ assetId, address, action }: CreateUrlProps): st
   params.set('coinType', asset)
   params.set('walletAddress', address)
   /**
-   * select the blockchain from asset and pass it to the banxa,
+   * select the blockchain from ChainId and pass it to the banxa,
    * since some Banxa assets could be on multiple chains and their default
    * chain won't be exactly the same as ours.
    */
-  params.set('blockchain', adapters.getBanxaBlockchainFromBanxaAssetTicker(asset))
+  params.set('blockchain', adapters.getBanxaBlockchainFromChainId(fromAssetId(assetId).chainId))
   /**
    * based on https://docs.banxa.com/docs/referral-method
    * if sellMode query parameter is not passed `buyMode` will be used by default

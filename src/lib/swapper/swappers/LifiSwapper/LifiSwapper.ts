@@ -1,8 +1,6 @@
-import type { ChainId as LifiChainId, ChainKey as LifiChainKey, GetStatusRequest } from '@lifi/sdk'
+import type { ChainKey as LifiChainKey, GetStatusRequest } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -20,7 +18,6 @@ import { SwapperName } from 'lib/swapper/api'
 import { buildTrade } from 'lib/swapper/swappers/LifiSwapper/buildTrade/buildTrade'
 import { executeTrade } from 'lib/swapper/swappers/LifiSwapper/executeTrade/executeTrade'
 import { getTradeQuote } from 'lib/swapper/swappers/LifiSwapper/getTradeQuote/getTradeQuote'
-import { createLifiChainMap } from 'lib/swapper/swappers/LifiSwapper/utils/createLifiChainMap/createLifiChainMap'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getMinimumCryptoHuman } from 'lib/swapper/swappers/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
 import type {
@@ -31,6 +28,10 @@ import type {
 import { filterEvmAssetIdsBySellable } from 'lib/swapper/swappers/utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterCrossChainEvmBuyAssetsBySellAssetId } from 'lib/swapper/swappers/utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { createEmptyEvmTradeQuote } from 'lib/swapper/swappers/utils/helpers/helpers'
+import { selectAssets, selectMarketDataById } from 'state/slices/selectors'
+import { store } from 'state/store'
+
+import { getLifiChainMap } from './utils/getLifiChainMap'
 
 export class LifiSwapper implements Swapper<EvmChainId, true> {
   readonly name = SwapperName.LIFI
@@ -39,16 +40,11 @@ export class LifiSwapper implements Swapper<EvmChainId, true> {
 
   /** perform any necessary async initialization */
   async initialize(): Promise<Result<unknown, SwapErrorRight>> {
-    const supportedChainRefs = evmChainIds.map(
-      chainId => Number(fromChainId(chainId).chainReference) as LifiChainId,
-    )
+    const maybeLifiChainMap = await getLifiChainMap()
 
-    const { chains } = await getLifi().getPossibilities({
-      include: ['chains'],
-      chains: supportedChainRefs,
-    })
+    if (maybeLifiChainMap.isErr()) return maybeLifiChainMap
 
-    if (chains !== undefined) this.lifiChainMap = createLifiChainMap(chains)
+    this.lifiChainMap = maybeLifiChainMap.unwrap()
 
     return Ok(undefined)
   }
@@ -66,7 +62,11 @@ export class LifiSwapper implements Swapper<EvmChainId, true> {
   async getTradeQuote(
     input: GetEvmTradeQuoteInput,
   ): Promise<Result<LifiTradeQuote<true | false>, SwapErrorRight>> {
-    const minimumCryptoHuman = getMinimumCryptoHuman(input.sellAsset)
+    const { price: sellAssetPriceUsdPrecision } = selectMarketDataById(
+      store.getState(),
+      input.sellAsset.assetId,
+    )
+    const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetPriceUsdPrecision)
     const minimumSellAmountBaseUnit = toBaseUnit(minimumCryptoHuman, input.sellAsset.precision)
     const isBelowMinSellAmount = bnOrZero(input.sellAmountBeforeFeesCryptoBaseUnit).lt(
       minimumSellAmountBaseUnit,
@@ -82,7 +82,8 @@ export class LifiSwapper implements Swapper<EvmChainId, true> {
       return Ok(createEmptyEvmTradeQuote(input, minimumCryptoHuman.toString()))
     }
 
-    return await getTradeQuote(input, this.lifiChainMap)
+    const assets = selectAssets(store.getState())
+    return await getTradeQuote(input, this.lifiChainMap, assets, sellAssetPriceUsdPrecision)
   }
 
   /**
@@ -105,10 +106,18 @@ export class LifiSwapper implements Swapper<EvmChainId, true> {
     return filterCrossChainEvmBuyAssetsBySellAssetId(input)
   }
 
+  static filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
+    return filterCrossChainEvmBuyAssetsBySellAssetId(input)
+  }
+
   /**
    * Get supported sell AssetIds
    */
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
+    return filterEvmAssetIdsBySellable(assetIds)
+  }
+
+  static filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
     return filterEvmAssetIdsBySellable(assetIds)
   }
 

@@ -34,6 +34,7 @@ export enum MixPanelEvents {
   NativeCreate = 'Native Create',
   Click = 'Click',
   ClickdApp = 'Click dApp',
+  ConnectedTodApp = 'Connected to dApp',
   Error = 'Error',
   PageView = 'Page View',
 }

@@ -1,3 +1,4 @@
+import { skipToken } from '@reduxjs/toolkit/dist/query'
 import type { AssetReference, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE } from '@shapeshiftoss/caip'
 import type { ChainAdapter, EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -194,3 +195,6 @@ export const isUrl = (x: string) => {
     return false
   }
 }
+
+export const isSkipToken = (maybeSkipToken: unknown): maybeSkipToken is typeof skipToken =>
+  maybeSkipToken === skipToken

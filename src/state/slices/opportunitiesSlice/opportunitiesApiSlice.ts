@@ -99,7 +99,7 @@ export const opportunitiesApi = createApi({
             reduxApi: { dispatch, getState },
           })
 
-          dispatch(opportunities.actions.upsertOpportunityMetadata(resolved.data))
+          dispatch(opportunities.actions.upsertOpportunitiesMetadata(resolved.data))
 
           return { data: resolved.data }
         } catch (e) {
@@ -137,7 +137,7 @@ export const opportunitiesApi = createApi({
             reduxApi: { dispatch, getState },
           })
 
-          dispatch(opportunities.actions.upsertOpportunityMetadata(resolved.data))
+          dispatch(opportunities.actions.upsertOpportunitiesMetadata(resolved.data))
 
           return { data: resolved.data }
         } catch (e) {

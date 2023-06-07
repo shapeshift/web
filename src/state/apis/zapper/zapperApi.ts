@@ -397,7 +397,7 @@ export const zapper = createApi({
                     if (maybeLpAcesssor?.balanceRaw) return maybeLpAcesssor
                     return asset
                   })()
-                  // The balance itself is a positive amount, but the USD valance is negative, so we need to check for that
+                  // The balance itself is a positive amount, but the USD balance is negative, so we need to check for that
                   const isNegativeStakedamount = bnOrZero(
                     stakedAmountCryptoBaseUnitAccessor?.balanceUSD,
                   ).isNegative()

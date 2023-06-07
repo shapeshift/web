@@ -1,6 +1,7 @@
 import { CheckIcon } from '@chakra-ui/icons'
 import type { RadioProps } from '@chakra-ui/react'
-import { Box, chakra, useColorModeValue, useRadio } from '@chakra-ui/react'
+import { Box, chakra, Image, Skeleton, useColorModeValue, useRadio } from '@chakra-ui/react'
+import { useMemo, useState } from 'react'
 
 type AvatarRadioProps = {
   src: string
@@ -11,6 +12,26 @@ export const AvatarRadio: React.FC<AvatarRadioProps> = ({ src, ...rest }) => {
   const inputProps = getInputProps()
   const checkboxProps = getCheckboxProps()
   const borderColor = useColorModeValue('gray.200', 'white')
+  const [isLoaded, setIsLoaded] = useState(false)
+  const renderImage = useMemo(() => {
+    return (
+      <Box borderRadius='xl' overflow='hidden' width='full' style={{ aspectRatio: '4/4' }}>
+        <Skeleton width='100%' height='100%' position='absolute' isLoaded={isLoaded}>
+          <Image
+            onLoad={() => setIsLoaded(true)}
+            src={src}
+            width='100%'
+            height='100%'
+            left={0}
+            top={0}
+            objectFit='cover'
+            borderRadius='xl'
+          />
+        </Skeleton>
+      </Box>
+    )
+  }, [isLoaded, src])
+
   return (
     <chakra.label
       position='relative'
@@ -59,13 +80,7 @@ export const AvatarRadio: React.FC<AvatarRadioProps> = ({ src, ...rest }) => {
           color='white'
         />
       </chakra.span>
-      <Box
-        borderRadius='xl'
-        width='full'
-        backgroundImage={src}
-        backgroundSize='cover'
-        style={{ aspectRatio: '4/4' }}
-      />
+      {renderImage}
     </chakra.label>
   )
 }

@@ -10,15 +10,17 @@ const DefiHeader = () => {
   const translate = useTranslate()
   return (
     <Box pb={6}>
-      <Heading>{translate('defi.earn')}</Heading>
+      <Heading>{translate('navBar.defi')}</Heading>
     </Box>
   )
 }
 
 export const StakingVaults = () => {
+  const translate = useTranslate()
+
   return (
     <Main titleComponent={<DefiHeader />} hideBreadcrumbs>
-      <SEO title={'Earn'} description={'Earn'} />
+      <SEO title={translate('navBar.defi')} description={translate('navBar.defi')} />
       <EligibleSlider />
       <DeFiEarn mt={6} />
     </Main>

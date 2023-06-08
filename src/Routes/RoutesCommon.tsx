@@ -69,7 +69,7 @@ export const routes: NestedRoute[] = [
   },
   {
     path: '/earn',
-    label: 'defi.earn',
+    label: 'navBar.defi',
     icon: <DefiIcon />,
     main: StakingVaults,
     category: RouteCategory.Explore,

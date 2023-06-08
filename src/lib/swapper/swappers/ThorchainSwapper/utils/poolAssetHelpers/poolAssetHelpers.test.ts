@@ -1,7 +1,10 @@
-import { btcAssetId, ethAssetId } from '../../constants'
-import { assetIdToPoolAssetId, poolAssetIdToAssetId } from './index'
+import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
+import {
+  assetIdToPoolAssetId,
+  poolAssetIdToAssetId,
+} from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 
-describe('thortrading', () => {
+describe('poolAssetHelpers', () => {
   const usdcAssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 
   describe('poolAssetIdToAssetId', () => {

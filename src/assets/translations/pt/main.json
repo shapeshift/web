@@ -7,6 +7,7 @@
     "cancel": "Cancelar",
     "close": "Fechar",
     "loadMore": "Carregar mais",
+    "saveChanges": "Salvar Mudanças",
     "new": "Novo",
     "continue": "Continuar",
     "reward": "Recompensa",
@@ -84,6 +85,7 @@
     "txId": "Tx ID",
     "selectAsset": "Selecione um ativo.",
     "switchNetwork": "Mudar a rede",
+    "selectNetwork": "Selecione a rede",
     "unsupportedNetwork": "Rede não suportada",
     "chartUnavailable": "O gráfico do saldo está temporariamente indisponível para %{unavailableAssetNames}.",
     "search": "Procurar",
@@ -490,7 +492,6 @@
     "accounts": "Carteiras",
     "accountAsset": "Ativo da conta",
     "accountDetails": "Detalhes da conta",
-    "earn": "DeFi",
     "defi": "DeFi",
     "transactionHistory": "Histórico",
     "overview": "Visão geral",
@@ -508,7 +509,9 @@
     "tradeShort": "Swap",
     "buyCrypto": "Compre Cripto",
     "buyCryptoShort": "Compre/venda",
-    "arkeo": "Airdrop da Arkeo"
+    "arkeo": "Airdrop da Arkeo",
+    "foxMissions": "Missões FOX",
+    "foxMissionsShort": "Missões"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -1909,6 +1912,8 @@
     }
   },
   "nft": {
+    "customizeFoxatar": "Personalize o FOXatar",
+    "setAsAvatar": "Define como Avatar",
     "floorPrice": "Floor Price",
     "lastPrice": "Último preço",
     "overview": "Visão geral",
@@ -1924,5 +1929,50 @@
     "aboutCollection": "Sobre %{collectionName}",
     "emptyTitle": "Para onde foram todos os NFTs?",
     "emptyBody": "Não se preocupe, enviamos uma equipe de busca para trazer mais NFTs incríveis. Enquanto isso, sinta-se à vontade para olhar para este espaço em branco e refletir sobre o significado da existência."
+  },
+  "missions": {
+    "subtitle": "Missões FOX",
+    "missionEnded": "Missão Finalizada",
+    "viewMission": "Ver Missões",
+    "comingSoon": "Em Breve",
+    "activeMissions": "Missões Ativas",
+    "endedMissions": "Missões Finalizadas",
+    "title": {
+      "1": "Descubra o Universo Descentralizado e",
+      "2": "Ganha Recompensas"
+    },
+    "body": "Participe de Missões, Ganhe Recompensas, e expanda seu conhecimento sobre o Ecossistema Em Expansão da ShapeShift",
+    "ends": "Fim",
+    "ongoing": "Missão em Andamento",
+    "optimism": {
+      "title": "Ganhe 19.5 OP",
+      "subtitle": "Explore a Optimism",
+      "cta": "Começar Missão"
+    },
+    "foxatar": {
+      "title": "Ganhe um NFT Gratuito e Personalizado",
+      "subtitle": "Minte um FOXatar",
+      "cta": "Começar Missão"
+    },
+    "foxArmy": {
+      "subtitle": "Junte-se a Armada FOX",
+      "title": "Pool de 20.000 FOX",
+      "cta": "Começar Missão"
+    },
+    "yat": {
+      "subtitle": "Jogar Yat Fantasy",
+      "title": "Um Prêmio de 3.000 USDC",
+      "cta": "Começar Missão"
+    },
+    "getListed": {
+      "subtitle": "Seu Projeto Aqui",
+      "title": "Lançar Missão do Seu Projeto",
+      "cta": "Submeter Projeto"
+    }
+  },
+  "avatar": {
+    "modal": {
+      "title": "Definir um Novo Avatar"
+    }
   }
 }

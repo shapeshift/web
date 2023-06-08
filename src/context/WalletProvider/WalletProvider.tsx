@@ -1,4 +1,5 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
+import { useColorModeValue } from '@chakra-ui/react'
 import detectEthereumProvider from '@metamask/detect-provider'
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import type { CoinbaseProviderConfig } from '@shapeshiftoss/hdwallet-coinbase'
@@ -347,6 +348,7 @@ const getInitialState = () => {
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   // External, exposed state to be consumed with useWallet()
   const [state, dispatch] = useReducer(reducer, getInitialState())
+  const isDarkMode = useColorModeValue(false, true)
   // Internal state, for memoization purposes only
   const [walletType, setWalletType] = useState<KeyManagerWithProvider | null>(null)
 
@@ -744,7 +746,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                     appLogoUrl: 'https://avatars.githubusercontent.com/u/52928763?s=50&v=4',
                     defaultJsonRpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
                     defaultChainId: 1,
-                    darkMode: false,
+                    darkMode: isDarkMode,
                   }
                 default:
                   return undefined
@@ -775,7 +777,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
       })()
     }
-  }, [state.keyring])
+  }, [isDarkMode, state.keyring])
 
   const connect = useCallback((type: KeyManager) => {
     // remove existing dapp or wallet connections

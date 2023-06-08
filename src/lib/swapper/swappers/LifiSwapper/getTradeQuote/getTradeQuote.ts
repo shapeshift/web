@@ -35,6 +35,7 @@ export async function getTradeQuote(
       sellAmountBeforeFeesCryptoBaseUnit,
       receiveAddress,
       accountNumber,
+      allowMultiHop,
     } = input
 
     const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
@@ -80,9 +81,7 @@ export async function getTradeQuote(
         integrator: DAO_TREASURY_ETHEREUM_MAINNET,
         slippage: Number(defaultLifiSwapperSlippage),
         exchanges: { deny: ['dodo'] },
-        // as recommended by lifi, allowSwitchChain must be false to ensure single-hop transactions.
-        // This must remain disabled until our application supports multi-hop swaps
-        allowSwitchChain: false,
+        allowSwitchChain: allowMultiHop,
       },
     }
 

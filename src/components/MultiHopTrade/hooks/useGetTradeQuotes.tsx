@@ -1,13 +1,13 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { GetTradeQuoteInput } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { isSkipToken } from 'lib/utils'
 import {
   selectBuyAsset,
+  selectFeatureFlags,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
   selectReceiveAddress,
@@ -19,7 +19,7 @@ import { useGetLifiTradeQuoteQuery } from 'state/slices/swappersSlice/swappersSl
 import { store, useAppSelector } from 'state/store'
 
 export const useGetTradeQuotes = () => {
-  const isLifiEnabled = useFeatureFlag('LifiSwap')
+  const flags = useAppSelector(selectFeatureFlags)
   const wallet = useWallet().state.wallet
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
@@ -52,6 +52,7 @@ export const useGetTradeQuotes = () => {
           wallet,
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
+          allowMultiHop: flags.MultiHopTrades,
         })
 
         setTradeQuoteInput(tradeQuoteInputArgs ?? skipToken)
@@ -59,10 +60,18 @@ export const useGetTradeQuotes = () => {
     } else {
       setTradeQuoteInput(skipToken)
     }
-  }, [buyAsset, receiveAddress, sellAccountMetadata, sellAmountCryptoPrecision, sellAsset, wallet])
+  }, [
+    buyAsset,
+    flags.MultiHopTrades,
+    receiveAddress,
+    sellAccountMetadata,
+    sellAmountCryptoPrecision,
+    sellAsset,
+    wallet,
+  ])
 
   const { isFetching, data, error } = useGetLifiTradeQuoteQuery(tradeQuoteInput, {
-    skip: !isLifiEnabled,
+    skip: !flags.LifiSwap,
   })
 
   // TODO(woodenfurniture): sorting of quotes

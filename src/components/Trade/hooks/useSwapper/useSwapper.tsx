@@ -184,6 +184,7 @@ export const useSwapper = () => {
         receiveAddress,
         slippage,
         affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps ?? defaultAffiliateBps,
+        allowMultiHop: flags.MultiHopTrades,
       }
 
       if (isUtxoSwap(sellAsset.chainId)) {
@@ -239,6 +240,7 @@ export const useSwapper = () => {
       slippage,
       isDonationAmountBelowMinimum,
       defaultAffiliateBps,
+      flags.MultiHopTrades,
     ],
   )
 

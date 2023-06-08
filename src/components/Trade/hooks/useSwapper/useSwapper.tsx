@@ -15,13 +15,13 @@ import { toBaseUnit } from 'lib/math'
 import type { SwapperManager } from 'lib/swapper/manager/SwapperManager'
 import { erc20AllowanceAbi } from 'lib/swapper/swappers/utils/abi/erc20Allowance-abi'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
+import { isEvmChainAdapter } from 'lib/utils'
 import {
   buildAndBroadcast,
   getApproveContractData,
   getERC20Allowance,
-  getFeesFromContractData,
-} from 'lib/swapper/swappers/utils/helpers/helpers'
-import { isEvmChainAdapter } from 'lib/utils'
+  getFees,
+} from 'lib/utils/evm'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
@@ -136,7 +136,7 @@ export const useSwapper = () => {
   )
 
   const approve = useCallback(
-    (buildCustomTxArgs: evm.BuildCustomTxInput): Promise<string> => {
+    (buildCustomTxInput: evm.BuildCustomTxInput): Promise<string> => {
       const adapterManager = getChainAdapterManager()
       const adapter = adapterManager.get(sellAsset.chainId)
 
@@ -144,11 +144,7 @@ export const useSwapper = () => {
       if (!adapter || !isEvmChainAdapter(adapter))
         throw Error(`no valid EVM chain adapter found for chain Id: ${sellAsset.chainId}`)
 
-      return buildAndBroadcast({
-        buildCustomTxArgs,
-        adapter,
-        wallet,
-      })
+      return buildAndBroadcast({ buildCustomTxInput, adapter, wallet })
     },
     [sellAsset.chainId, wallet],
   )
@@ -309,21 +305,13 @@ export const useSwapper = () => {
         web3,
       })
 
-      const [eip1559Support, from] = await Promise.all([
-        wallet.ethSupportsEIP1559(),
-        adapter.getAddress({
-          wallet,
-          accountNumber: activeQuote.steps[0].accountNumber,
-        }),
-      ])
-
-      const { feesWithGasLimit, networkFeeCryptoBaseUnit } = await getFeesFromContractData({
-        eip1559Support,
+      const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
+        accountNumber: activeQuote.steps[0].accountNumber,
         adapter,
-        from,
         to: assetReference,
         value,
         data,
+        wallet,
       })
 
       return {
@@ -334,7 +322,7 @@ export const useSwapper = () => {
           to: assetReference,
           value,
           wallet,
-          ...feesWithGasLimit,
+          ...fees,
         },
       }
     },

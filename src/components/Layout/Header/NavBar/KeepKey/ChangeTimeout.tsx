@@ -1,5 +1,4 @@
-import { useColorModeValue } from '@chakra-ui/react'
-import { useToast } from '@chakra-ui/toast'
+import { useColorModeValue, useToast } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'

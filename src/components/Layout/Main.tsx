@@ -1,6 +1,5 @@
-import type { ContainerProps } from '@chakra-ui/layout'
-import { Box, Container, HStack, Stack } from '@chakra-ui/layout'
-import { useColorModeValue } from '@chakra-ui/react'
+import type { ContainerProps } from '@chakra-ui/react'
+import { Box, Container, HStack, Stack, useColorModeValue } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'

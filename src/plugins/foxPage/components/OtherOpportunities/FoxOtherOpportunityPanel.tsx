@@ -1,9 +1,11 @@
-import { Badge, Box, Flex } from '@chakra-ui/layout'
 import {
   AccordionButton,
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
+  Badge,
+  Box,
+  Flex,
   useColorModeValue,
 } from '@chakra-ui/react'
 import { useMemo } from 'react'

@@ -1,5 +1,4 @@
-import { Button, Input, ModalBody, ModalHeader } from '@chakra-ui/react'
-import { useToast } from '@chakra-ui/toast'
+import { Button, Input, ModalBody, ModalHeader, useToast } from '@chakra-ui/react'
 import type { ResetDevice } from '@shapeshiftoss/hdwallet-core'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'

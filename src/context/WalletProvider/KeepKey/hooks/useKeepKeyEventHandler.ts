@@ -1,4 +1,4 @@
-import { useToast } from '@chakra-ui/toast'
+import { useToast } from '@chakra-ui/react'
 import type { Event } from '@shapeshiftoss/hdwallet-core'
 import { Events } from '@shapeshiftoss/hdwallet-core'
 import type { Dispatch } from 'react'

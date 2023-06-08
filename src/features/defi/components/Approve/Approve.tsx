@@ -1,6 +1,15 @@
-import { Button } from '@chakra-ui/button'
-import { Box, Link, Stack, Text as CText } from '@chakra-ui/layout'
-import { Divider, Icon, Switch, Tooltip, useColorModeValue } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Divider,
+  Icon,
+  Link,
+  Stack,
+  Switch,
+  Text as CText,
+  Tooltip,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import isUndefined from 'lodash/isUndefined'
 import { FaExchangeAlt, FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'

@@ -1,6 +1,13 @@
 import { CloseIcon } from '@chakra-ui/icons'
-import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
-import { Box, Collapse, Flex, useDisclosure } from '@chakra-ui/react'
+import {
+  Box,
+  Collapse,
+  Flex,
+  MenuDivider,
+  MenuGroup,
+  MenuItem,
+  useDisclosure,
+} from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'

@@ -114,7 +114,7 @@ export const OpportunityRow: React.FC<
     const hasBalanceElement = <RawText textTransform='capitalize'>{type}</RawText>
     const subText = [
       aprElement,
-      ...(bnOrZero(cryptoAmountBaseUnit).gt(0) ? [hasBalanceElement] : []),
+      ...(!bnOrZero(cryptoAmountBaseUnit).isZero() ? [hasBalanceElement] : []),
     ]
 
     return subText.map((element, index) => (

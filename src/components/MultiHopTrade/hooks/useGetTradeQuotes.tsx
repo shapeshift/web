@@ -1,8 +1,6 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import { fromAssetId } from '@shapeshiftoss/caip'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { GetTradeQuoteInput } from 'lib/swapper/api'
@@ -18,7 +16,7 @@ import {
   selectSellAssetAccountId,
 } from 'state/slices/selectors'
 import { useGetLifiTradeQuoteQuery } from 'state/slices/swappersSlice/swappersSlice'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 export const useGetTradeQuotes = () => {
   const isLifiEnabled = useFeatureFlag('LifiSwap')
@@ -32,24 +30,18 @@ export const useGetTradeQuotes = () => {
   const receiveAddress = useAppSelector(selectReceiveAddress)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
-  const sellAssetAccountIds = useAppSelector(state =>
-    selectPortfolioAccountIdsByAssetId(state, {
+  const sellAccountMetadata = useMemo(() => {
+    const sellAssetAccountIds = selectPortfolioAccountIdsByAssetId(store.getState(), {
       assetId: sellAsset.assetId,
-    }),
-  )
-  const sellAccountFilter = { accountId: sellAssetAccountId ?? sellAssetAccountIds[0] }
-  const sellAccountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, sellAccountFilter),
-  )
+    })
+    return selectPortfolioAccountMetadataByAccountId(store.getState(), {
+      accountId: sellAssetAccountId ?? sellAssetAccountIds[0],
+    })
+  }, [sellAsset.assetId, sellAssetAccountId])
 
   useEffect(() => {
     if (wallet && sellAccountMetadata) {
       ;(async () => {
-        const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
-        const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
-
-        if (!chainAdapter)
-          throw new Error(`couldn't get chain adapter for ${receiveAddressChainId}`)
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
 
         const tradeQuoteInputArgs: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
@@ -61,6 +53,7 @@ export const useGetTradeQuotes = () => {
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         })
+
         setTradeQuoteInput(tradeQuoteInputArgs ?? skipToken)
       })()
     } else {
@@ -68,13 +61,29 @@ export const useGetTradeQuotes = () => {
     }
   }, [buyAsset, receiveAddress, sellAccountMetadata, sellAmountCryptoPrecision, sellAsset, wallet])
 
-  const { isLoading, data, error } = useGetLifiTradeQuoteQuery(tradeQuoteInput, {
+  const { isFetching, data, error } = useGetLifiTradeQuoteQuery(tradeQuoteInput, {
     skip: !isLifiEnabled,
   })
 
-  if (isSkipToken(tradeQuoteInput)) return {}
+  // TODO(woodenfurniture): sorting of quotes
+  // TODO(woodenfurniture): quote selection
+  const sortedQuotes = useMemo(() => {
+    if (isSkipToken(tradeQuoteInput)) return []
 
+    const lifiInputOutputRatio = 1 // TODO(woodenfurniture): calculate this
+
+    return [
+      {
+        isLoading: isFetching,
+        data,
+        error,
+        swapperName: SwapperName.LIFI,
+        inputOutputRatio: lifiInputOutputRatio,
+      },
+    ]
+  }, [data, error, isFetching, tradeQuoteInput])
   return {
-    [SwapperName.LIFI]: { isLoading, data, error },
+    sortedQuotes,
+    selectedQuote: sortedQuotes[0],
   }
 }

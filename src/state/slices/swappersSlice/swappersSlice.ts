@@ -7,6 +7,7 @@ import type { MarketData } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
 import type { Asset } from 'lib/asset-service'
 import { localAssetData } from 'lib/asset-service'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type {
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
@@ -72,7 +73,8 @@ export const swappers = createSlice({
       state.receiveAddress = action.payload
     },
     setSellAmountCryptoPrecision: (state, action: PayloadAction<string>) => {
-      state.sellAmountCryptoPrecision = action.payload
+      // dedupe 0, 0., 0.0, 0.00 etc
+      state.sellAmountCryptoPrecision = bnOrZero(action.payload).toString()
     },
   },
 })

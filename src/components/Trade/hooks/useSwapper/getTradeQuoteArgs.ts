@@ -19,7 +19,6 @@ export type GetTradeQuoteInputArgs = {
   sellAccountType: UtxoAccountType | undefined
   sellAccountNumber: number
   wallet: HDWallet
-  sendAddress: string | undefined
   receiveAddress: string | undefined
   sellAmountBeforeFeesCryptoPrecision: string
 }
@@ -30,7 +29,6 @@ export const getTradeQuoteArgs = async ({
   sellAccountNumber,
   sellAccountType,
   wallet,
-  sendAddress,
   receiveAddress,
   sellAmountBeforeFeesCryptoPrecision,
 }: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput | undefined> => {
@@ -42,7 +40,6 @@ export const getTradeQuoteArgs = async ({
     ),
     sellAsset,
     buyAsset,
-    sendAddress,
     receiveAddress,
     accountNumber: sellAccountNumber,
     affiliateBps: '0',

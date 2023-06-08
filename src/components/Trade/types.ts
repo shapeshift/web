@@ -42,7 +42,6 @@ export type TradeQuoteInputCommonArgs = Pick<
   | 'sellAmountBeforeFeesCryptoBaseUnit'
   | 'sellAsset'
   | 'buyAsset'
-  | 'sendAddress'
   | 'receiveAddress'
   | 'accountNumber'
   | 'affiliateBps'

@@ -10,7 +10,10 @@ import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
-import { SELECTED_ROUTE_INDEX } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
+import {
+  DUMMY_SEND_ADDRESS,
+  SELECTED_ROUTE_INDEX,
+} from 'lib/swapper/swappers/LifiSwapper/utils/constants'
 import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwapper/utils/getIntermediaryTransactionOutputs/getIntermediaryTransactionOutputs'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
@@ -33,7 +36,6 @@ export async function getTradeQuote(
       sellAsset,
       buyAsset,
       sellAmountBeforeFeesCryptoBaseUnit,
-      sendAddress,
       receiveAddress,
       accountNumber,
     } = input
@@ -68,7 +70,8 @@ export async function getTradeQuote(
       toChainId: Number(fromChainId(buyAsset.chainId).chainReference),
       fromTokenAddress: getLifiEvmAssetAddress(sellAsset),
       toTokenAddress: getLifiEvmAssetAddress(buyAsset),
-      fromAddress: sendAddress,
+      // we only need a dummy send address to get quotes
+      fromAddress: DUMMY_SEND_ADDRESS,
       toAddress: receiveAddress,
       fromAmount: sellAmountBeforeFeesCryptoBaseUnit,
       // as recommended by lifi, dodo is denied until they fix their gas estimates

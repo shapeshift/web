@@ -1,7 +1,6 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { GetTradeQuoteInput } from 'lib/swapper/api'
@@ -45,20 +44,12 @@ export const useGetTradeQuotes = () => {
       ;(async () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
 
-        const chainAdapterManager = getChainAdapterManager()
-        const chainAdapter = chainAdapterManager.get(sellAsset.chainId)
-        const sendAddress = await chainAdapter?.getAddress({
-          wallet,
-          accountNumber: sellAccountNumber,
-        })
-
         const tradeQuoteInputArgs: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,
           sellAccountNumber,
           sellAccountType: sellAccountMetadata.accountType,
           buyAsset,
           wallet,
-          sendAddress,
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         })

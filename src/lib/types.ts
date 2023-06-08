@@ -11,3 +11,8 @@ export type DeepPick<T, K extends string> = T extends object
         : DeepPick<T[P], Tail<Extract<K, `${P}.${string}`>>>
     }
   : T
+
+// allows use to mark a property of an object as non-nullable
+export type RequireFields<T, K extends keyof T> = {
+  [P in keyof T]: P extends K ? NonNullable<T[P]> : T[P]
+}

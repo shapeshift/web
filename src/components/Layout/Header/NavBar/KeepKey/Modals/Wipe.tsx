@@ -1,14 +1,14 @@
-import { ModalCloseButton } from '@chakra-ui/modal'
 import {
   Button,
   Checkbox,
   Modal,
   ModalBody,
+  ModalCloseButton,
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  useToast,
 } from '@chakra-ui/react'
-import { useToast } from '@chakra-ui/toast'
 import { useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'

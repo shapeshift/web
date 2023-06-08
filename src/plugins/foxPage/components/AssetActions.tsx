@@ -1,10 +1,11 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Box, Stack } from '@chakra-ui/layout'
 import {
+  Box,
   Button,
   Link,
   Skeleton,
   SkeletonText,
+  Stack,
   Tab,
   TabList,
   TabPanel,

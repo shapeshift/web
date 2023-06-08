@@ -1,6 +1,5 @@
-import { Button } from '@chakra-ui/button'
 import { DarkMode } from '@chakra-ui/color-mode'
-import { Center, Circle, Flex, Link, Stack } from '@chakra-ui/layout'
+import { Button, Center, Circle, Flex, Link, Stack } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useHistory } from 'react-router-dom'

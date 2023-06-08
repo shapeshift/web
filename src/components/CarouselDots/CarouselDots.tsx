@@ -1,5 +1,4 @@
-import { Box, Flex } from '@chakra-ui/layout'
-import { Link, useColorModeValue } from '@chakra-ui/react'
+import { Box, Flex, Link, useColorModeValue } from '@chakra-ui/react'
 
 type CarouselDotsProps = {
   length: number

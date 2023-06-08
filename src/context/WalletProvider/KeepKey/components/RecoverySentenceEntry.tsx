@@ -1,4 +1,4 @@
-import type { PinInputFieldProps } from '@chakra-ui/pin-input/dist/declarations/src/pin-input'
+import type { PinInputFieldProps } from '@chakra-ui/react'
 import {
   Box,
   Button,

@@ -1,5 +1,4 @@
-import { Alert } from '@chakra-ui/alert'
-import { AlertIcon, Button, Heading, HStack, Stack, StackDivider } from '@chakra-ui/react'
+import { Alert, AlertIcon, Button, Heading, HStack, Stack, StackDivider } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'

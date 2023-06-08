@@ -1,4 +1,4 @@
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
+import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import React from 'react'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 

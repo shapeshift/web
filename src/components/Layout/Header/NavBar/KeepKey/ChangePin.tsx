@@ -1,5 +1,4 @@
-import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
-import { useToast } from '@chakra-ui/toast'
+import { Box, Button, Flex, useColorModeValue, useToast } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'

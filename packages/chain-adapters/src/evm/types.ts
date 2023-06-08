@@ -42,6 +42,10 @@ export type FeeData = {
   gasLimit: string
   maxFeePerGas?: string
   maxPriorityFeePerGas?: string
+
+  // optimism l1 fees
+  l1GasPrice?: string
+  l1GasLimit?: string
 }
 
 export type Fees =
@@ -56,7 +60,7 @@ export type Fees =
       maxPriorityFeePerGas: string
     }
 
-export type GasFeeData = Omit<FeeData, 'gasLimit'>
+export type GasFeeData = Omit<FeeData, 'gasLimit' | 'l1GasLimit'>
 
 export type GasFeeDataEstimate = {
   [common.FeeDataKey.Fast]: GasFeeData

@@ -115,7 +115,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         accessor: 'fiatAmount',
         Cell: ({ value, row }: { value: string; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            {bnOrZero(value).gt(0) ? (
+            {!bnOrZero(value).isZero() ? (
               <Amount.Fiat
                 value={value}
                 color={row.original.expired ? 'yellow.500' : 'green.500'}

@@ -82,16 +82,6 @@ export const OpportunityRow: React.FC<
     underlyingAssetRatiosBaseUnit,
   ])
 
-  const nestedAssetIds = useMemo(() => {
-    if ((opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) {
-      const earnOpportunity = opportunity as StakingEarnOpportunityType
-      return earnOpportunity.rewardAssetIds
-    } else {
-      const lpOpportunity = opportunity as LpEarnOpportunityType
-      return lpOpportunity.underlyingAssetIds
-    }
-  }, [opportunity])
-
   const handleClick = useCallback(
     (action: DefiAction) => {
       if (opportunity.isReadOnly) {
@@ -120,8 +110,7 @@ export const OpportunityRow: React.FC<
     ))
   }, [apy, cryptoAmountBaseUnit, group, type])
 
-  const renderRewardAssets = useMemo(() => {
-    if (!nestedAssetIds) return null
+  const renderNestedAssets = useMemo(() => {
     return (
       <List style={{ marginTop: 0 }}>
         {Object.entries(rewardsBalances).map(([rewardAssetId, rewardBalance]) => {
@@ -159,7 +148,6 @@ export const OpportunityRow: React.FC<
       </List>
     )
   }, [
-    nestedAssetIds,
     rewardsBalances,
     underlyingAssetBalances,
     isClaimableRewards,
@@ -230,7 +218,7 @@ export const OpportunityRow: React.FC<
             />
           </Flex>
         </Button>
-        {renderRewardAssets}
+        {renderNestedAssets}
       </List>
     </Flex>
   )

@@ -594,7 +594,7 @@ export const zapper = createApi({
                       tvl,
                       type: defiType,
                       version: asset.label,
-                      label: asset.groupId,
+                      group: asset.groupId,
                       isClaimableRewards: Boolean(rewardTokens.length),
                       isReadOnly: true,
                     }

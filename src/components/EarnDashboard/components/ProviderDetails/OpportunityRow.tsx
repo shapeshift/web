@@ -52,24 +52,19 @@ export const OpportunityRow: React.FC<
   const assets = useAppSelector(selectAssets)
   const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
 
-  const underlyingAssetLabel = useMemo(() => {
-    if ((opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) {
-      return 'common.reward'
-    } else {
-      return 'defi.underlyingAsset'
-    }
-  }, [opportunity])
+  const rewardsBalances = useMemo(() => {
+    if (!(opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) return []
+
+    const earnOpportunity = opportunity as StakingEarnOpportunityType
+    return getRewardBalances({
+      rewardAssetIds: earnOpportunity.rewardAssetIds,
+      rewardsCryptoBaseUnit: earnOpportunity.rewardsCryptoBaseUnit,
+      assets,
+      marketData,
+    })
+  }, [assets, marketData, opportunity])
 
   const underlyingAssetBalances = useMemo(() => {
-    if ((opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) {
-      const earnOpportunity = opportunity as StakingEarnOpportunityType
-      return getRewardBalances({
-        rewardAssetIds: earnOpportunity.rewardAssetIds,
-        rewardsCryptoBaseUnit: earnOpportunity.rewardsCryptoBaseUnit,
-        assets,
-        marketData,
-      })
-    }
     return getUnderlyingAssetIdsBalances({
       assetId,
       underlyingAssetIds,
@@ -83,7 +78,6 @@ export const OpportunityRow: React.FC<
     assets,
     cryptoAmountBaseUnit,
     marketData,
-    opportunity,
     underlyingAssetIds,
     underlyingAssetRatiosBaseUnit,
   ])
@@ -130,17 +124,31 @@ export const OpportunityRow: React.FC<
     if (!nestedAssetIds) return null
     return (
       <List style={{ marginTop: 0 }}>
-        {nestedAssetIds.map(assetId => {
-          if (bnOrZero(underlyingAssetBalances[assetId]?.cryptoBalancePrecision).eq(0)) return null
+        {Object.entries(rewardsBalances).map(([assetId, rewardBalance]) => {
+          if (bnOrZero(rewardBalance.cryptoBalancePrecision).isZero()) return null
           return (
             <NestedAsset
               key={assetId}
               isClaimableRewards={isClaimableRewards}
               isExternal={opportunity.isReadOnly}
               assetId={assetId}
-              balances={underlyingAssetBalances[assetId]}
+              balances={rewardBalance}
               onClick={() => handleClick(DefiAction.Claim)}
-              type={translate(underlyingAssetLabel)}
+              type={translate('common.reward')}
+            />
+          )
+        })}
+        {Object.entries(underlyingAssetBalances).map(([assetId, underlyingAssetBalance]) => {
+          if (bnOrZero(underlyingAssetBalance.cryptoBalancePrecision).isZero()) return null
+          return (
+            <NestedAsset
+              key={assetId}
+              isClaimableRewards={isClaimableRewards}
+              isExternal={opportunity.isReadOnly}
+              assetId={assetId}
+              balances={underlyingAssetBalance}
+              onClick={() => handleClick(DefiAction.Claim)}
+              type={translate('defi.underlyingAsset')}
             />
           )
         })}
@@ -148,11 +156,11 @@ export const OpportunityRow: React.FC<
     )
   }, [
     nestedAssetIds,
+    rewardsBalances,
     underlyingAssetBalances,
     isClaimableRewards,
     opportunity.isReadOnly,
     translate,
-    underlyingAssetLabel,
     handleClick,
   ])
   if (!asset) return null

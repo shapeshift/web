@@ -130,11 +130,7 @@ export const ScrollCarousel: React.FC<FeatureListProps> = ({
           '::-webkit-scrollbar': {
             display: 'none',
           },
-        }}
-        _after={{
-          content: '""',
-          width: gridGap,
-          display: 'block',
+          '::-webkit-overflow-scrolling': 'touch',
         }}
       >
         {children}

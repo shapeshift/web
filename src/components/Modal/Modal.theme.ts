@@ -17,7 +17,16 @@ export const ModalStyle = {
     },
   }),
   // Styles for the size variations
-  sizes: {},
+  sizes: {
+    full: {
+      header: {
+        paddingTop: 'calc(1rem + env(safe-area-inset-top))',
+      },
+      footer: {
+        paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))',
+      },
+    },
+  },
   // Styles for the visual style variations
   variants: {
     fluid: {

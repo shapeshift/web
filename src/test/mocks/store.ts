@@ -1,5 +1,6 @@
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import type { ReduxState } from 'state/reducer'
+import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
@@ -29,6 +30,7 @@ export const mockStore: ReduxState = {
   covalentApi: mockApiFactory('covalentApi' as const),
   zapper: mockApiFactory('zapper' as const),
   swapperApi: mockApiFactory('swapperApi' as const),
+  swappersApi: mockApiFactory('swappersApi' as const),
   foxyApi: mockApiFactory('foxyApi' as const),
   fiatRampApi: mockApiFactory('fiatRampApi' as const),
   opportunitiesApi: mockApiFactory('opportunitiesApi' as const),
@@ -155,5 +157,13 @@ export const mockStore: ReduxState = {
       byId: {},
       ids: [],
     },
+  },
+  swappers: {
+    selectedQuote: undefined,
+    buyAsset: defaultAsset,
+    sellAsset: defaultAsset,
+    sellAssetAccountId: undefined,
+    receiveAddress: undefined,
+    sellAmountCryptoPrecision: '0',
   },
 }

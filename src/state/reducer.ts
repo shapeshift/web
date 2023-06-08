@@ -16,6 +16,7 @@ import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSl
 import { opportunities } from './slices/opportunitiesSlice/opportunitiesSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
+import { swappers, swappersApi } from './slices/swappersSlice/swappersSlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
 export const slices = {
@@ -26,6 +27,7 @@ export const slices = {
   preferences,
   opportunities,
   nft,
+  swappers,
 }
 
 const preferencesPersistConfig = {
@@ -41,6 +43,7 @@ export const sliceReducers = {
   portfolio: portfolio.reducer,
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
   swapperApi: swapperApi.reducer,
+  swappers: swappers.reducer,
   opportunities: opportunities.reducer,
   nft: nft.reducer,
 }
@@ -51,6 +54,7 @@ export const apiSlices = {
   marketApi,
   txHistoryApi,
   swapperApi,
+  swappersApi,
   foxyApi,
   fiatRampApi,
   zapper,
@@ -68,6 +72,7 @@ export const apiReducers = {
   [marketApi.reducerPath]: marketApi.reducer,
   [txHistoryApi.reducerPath]: txHistoryApi.reducer,
   [swapperApi.reducerPath]: swapperApi.reducer,
+  [swappersApi.reducerPath]: swappersApi.reducer,
   [foxyApi.reducerPath]: foxyApi.reducer,
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
   [zapperApi.reducerPath]: zapperApi.reducer,

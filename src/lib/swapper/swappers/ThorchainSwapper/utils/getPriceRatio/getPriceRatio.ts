@@ -1,5 +1,4 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -10,6 +9,7 @@ import type {
   ThornodePoolResponse,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
+import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 
 export const getPriceRatio = async (
@@ -17,8 +17,8 @@ export const getPriceRatio = async (
   input: { buyAssetId: AssetId; sellAssetId: AssetId },
 ): Promise<Result<string, SwapErrorRight>> => {
   const { buyAssetId, sellAssetId } = input
-  const buyPoolId = adapters.assetIdToPoolAssetId({ assetId: buyAssetId })
-  const sellPoolId = adapters.assetIdToPoolAssetId({ assetId: sellAssetId })
+  const buyPoolId = assetIdToPoolAssetId({ assetId: buyAssetId })
+  const sellPoolId = assetIdToPoolAssetId({ assetId: sellAssetId })
 
   if (!buyPoolId && !isRune(buyAssetId)) {
     throw new SwapError(`[getPriceRatio]: No buyPoolId found for asset ${buyAssetId}`, {

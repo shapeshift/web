@@ -25,9 +25,10 @@ export const getTotalReceiveAmountCryptoPrecision = ({
   quote: TradeQuote
   swapperName: SwapperName
 }) => {
-  const buyAsset = selectBuyAsset(store.getState())
-  const buyAssetUsdRate = selectBuyAssetUsdRate(store.getState())
-  const cryptoMarketDataById = selectCryptoMarketData(store.getState())
+  const state = store.getState()
+  const buyAsset = selectBuyAsset(state)
+  const buyAssetUsdRate = selectBuyAssetUsdRate(state)
+  const cryptoMarketDataById = selectCryptoMarketData(state)
 
   const buyAmountCryptoPrecision = fromBaseUnit(
     quote.steps[0].buyAmountBeforeFeesCryptoBaseUnit,

@@ -568,7 +568,7 @@ export const zapper = createApi({
 
                   const underlyingAssetRatiosBaseUnit = (() =>
                     (asset.dataProps?.reserves ?? [])
-                      .map(reserve => {
+                      .map((reserve, i) => {
                         const reserveBaseUnit = bnOrZero(
                           bnOrZero(bnOrZero(reserve).toFixed()).toString(),
                         ).times(bn(10).pow(asset.decimals ?? 18))
@@ -588,7 +588,7 @@ export const zapper = createApi({
                         if (!tokenPoolRatio) return undefined
                         const ratio = toBaseUnit(
                           tokenPoolRatio.toString(),
-                          asset.tokens[0].decimals,
+                          asset.tokens[i].decimals,
                         )
                         return ratio
                       })

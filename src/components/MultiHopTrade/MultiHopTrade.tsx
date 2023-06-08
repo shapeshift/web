@@ -1,6 +1,5 @@
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, Flex, IconButton, Stack, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { useCallback, useMemo } from 'react'
@@ -22,7 +21,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee } from 'lib/swapper/api'
 import {
   selectBuyAsset,
   selectSellAsset,
@@ -33,6 +31,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { SellAssetInput } from './components/SellAssetInput'
+import { getTotalProtocolFeeForAsset } from './components/TradeQuotes/helpers'
 import { useAccountIds } from './hooks/useAccountIds'
 import { useGetTradeQuotes } from './hooks/useGetTradeQuotes'
 import { useSupportedAssets } from './hooks/useSupportedAssets'
@@ -41,7 +40,7 @@ export const MultiHopTrade = (props: CardProps) => {
   const {
     state: { wallet },
   } = useWallet()
-  const [showTradeQuotes, handleToggleShowTradeQuotes] = useToggle(false)
+  const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(false)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
   const methods = useForm({ mode: 'onChange' })
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
@@ -101,32 +100,17 @@ export const MultiHopTrade = (props: CardProps) => {
 
   const totalProtocolFees = useMemo(() => {
     if (!quoteData) return {}
-    return quoteData.steps.reduce<Record<AssetId, ProtocolFee>>((acc, step) => {
-      return Object.entries(step.feeData.protocolFees).reduce<Record<AssetId, ProtocolFee>>(
-        (innerAcc, [assetId, protocolFee]) => {
-          if (innerAcc[assetId] === undefined) {
-            innerAcc[assetId] = protocolFee
-            return innerAcc
-          }
-
-          innerAcc[assetId].amountCryptoBaseUnit = bn(innerAcc[assetId].amountCryptoBaseUnit)
-            .plus(protocolFee.amountCryptoBaseUnit)
-            .toString()
-          return innerAcc
-        },
-        acc,
-      )
-    }, {})
+    return getTotalProtocolFeeForAsset(quoteData)
   }, [quoteData])
 
   const buyAmountAfterFeesCryptoPrecision = useMemo(() => {
     if (!quoteData) return '0'
     const lastStep = quoteData.steps[quoteData.steps.length - 1]
-    const buyAssetProtocolFeesTotal = bnOrZero(
+    const buyAssetProtocolFeesTotalBaseUnit = bnOrZero(
       totalProtocolFees[lastStep.buyAsset.assetId]?.amountCryptoBaseUnit,
     )
     return fromBaseUnit(
-      bn(lastStep.buyAmountBeforeFeesCryptoBaseUnit).minus(buyAssetProtocolFeesTotal),
+      bn(lastStep.buyAmountBeforeFeesCryptoBaseUnit).minus(buyAssetProtocolFeesTotalBaseUnit),
       buyAsset.precision,
     ).toString()
   }, [buyAsset.precision, quoteData, totalProtocolFees])
@@ -203,7 +187,7 @@ export const MultiHopTrade = (props: CardProps) => {
                         size='sm'
                         icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
                         aria-label='Expand Quotes'
-                        onClick={handleToggleShowTradeQuotes}
+                        onClick={toggleShowTradeQuotes}
                       />
                     ) : (
                       <></>

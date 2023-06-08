@@ -96,7 +96,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
 
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
-  const handleSwapperSelection = useCallback(() => {
+  const handleQuoteSelection = useCallback(() => {
     dispatch(swappers.actions.setSelectedQuote(quoteData.swapperName))
   }, [dispatch, quoteData.swapperName])
 
@@ -198,7 +198,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       px={4}
       py={2}
       fontSize='sm'
-      onClick={handleSwapperSelection}
+      onClick={handleQuoteSelection}
       transitionProperty='common'
       transitionDuration='normal'
     >

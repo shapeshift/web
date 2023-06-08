@@ -1,7 +1,8 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { SwapperName, TradeQuote } from 'lib/swapper/api'
+import type { ProtocolFee, SwapperName, TradeQuote } from 'lib/swapper/api'
 import {
   selectBuyAsset,
   selectBuyAssetUsdRate,
@@ -10,7 +11,11 @@ import {
   selectMarketDataByFilter,
 } from 'state/slices/selectors'
 import { store } from 'state/store'
-import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
+import {
+  convertDecimalPercentageToBasisPoints,
+  subtractBasisPointAmount,
+  sumProtocolFeesToDenom,
+} from 'state/zustand/swapperStore/utils'
 
 /**
  * Computes the total receive amount across all hops after protocol fees are deducted
@@ -37,9 +42,10 @@ export const getTotalReceiveAmountCryptoPrecision = ({
   const slippageDecimalPercentage =
     quote?.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(swapperName)
 
-  const buyAmountCryptoPrecisionAfterSlippage = bnOrZero(buyAmountCryptoPrecision)
-    .times(bn(1).minus(bnOrZero(slippageDecimalPercentage)))
-    .toString()
+  const buyAmountAfterSlippageCryptoPrecision = subtractBasisPointAmount(
+    buyAmountCryptoPrecision,
+    convertDecimalPercentageToBasisPoints(slippageDecimalPercentage).toString(),
+  )
 
   const bestTotalProtocolFeeCryptoPrecision = fromBaseUnit(
     sumProtocolFeesToDenom({
@@ -51,7 +57,7 @@ export const getTotalReceiveAmountCryptoPrecision = ({
     buyAsset.precision,
   )
 
-  return bnOrZero(buyAmountCryptoPrecisionAfterSlippage)
+  return bnOrZero(buyAmountAfterSlippageCryptoPrecision)
     .minus(bestTotalProtocolFeeCryptoPrecision)
     .toString()
 }
@@ -82,3 +88,21 @@ export const getTotalNetworkFeeFiatPrecision = (quote: TradeQuote) =>
       return acc.plus(networkFeeFiatPrecision)
     }, bn(0))
     .toString()
+
+export const getTotalProtocolFeeForAsset = (quote: TradeQuote) =>
+  quote.steps.reduce<Record<AssetId, ProtocolFee>>((acc, step) => {
+    return Object.entries(step.feeData.protocolFees).reduce<Record<AssetId, ProtocolFee>>(
+      (innerAcc, [assetId, protocolFee]) => {
+        if (innerAcc[assetId] === undefined) {
+          innerAcc[assetId] = protocolFee
+          return innerAcc
+        }
+
+        innerAcc[assetId].amountCryptoBaseUnit = bn(innerAcc[assetId].amountCryptoBaseUnit)
+          .plus(protocolFee.amountCryptoBaseUnit)
+          .toString()
+        return innerAcc
+      },
+      acc,
+    )
+  }, {})

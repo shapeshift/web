@@ -43,6 +43,7 @@ import type {
   V2NftUserItem,
   V2NftUserTokensResponseType,
   ZapperAssetBase,
+  ZapperTokenWithBalances,
 } from './validators'
 import {
   chainIdToZapperNetwork,
@@ -567,7 +568,13 @@ export const zapper = createApi({
                   }
 
                   const underlyingAssetRatiosBaseUnit = (() =>
-                    (asset.dataProps?.reserves ?? [])
+                    (
+                      asset.dataProps?.reserves ??
+                      topLevelAsset.tokens?.map(
+                        token => (token as ZapperTokenWithBalances).balance,
+                      ) ??
+                      []
+                    )
                       .map((reserve, i) => {
                         const reserveBaseUnit = bnOrZero(
                           bnOrZero(bnOrZero(reserve).toFixed()).toString(),

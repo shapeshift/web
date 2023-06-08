@@ -1,6 +1,5 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Button } from '@chakra-ui/react'
-import { forwardRef, useColorModeValue } from '@chakra-ui/system'
+import { Button, forwardRef, useColorModeValue } from '@chakra-ui/react'
 
 export const ResultButton = forwardRef<ButtonProps, 'div'>((props, ref) => (
   <Button

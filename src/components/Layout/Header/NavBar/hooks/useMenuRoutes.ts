@@ -1,4 +1,4 @@
-import { useToast } from '@chakra-ui/toast'
+import { useToast } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'

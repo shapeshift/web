@@ -1,5 +1,12 @@
-import { Modal, ModalContent } from '@chakra-ui/modal'
-import { HStack, ModalCloseButton, ModalHeader, ModalOverlay, VStack } from '@chakra-ui/react'
+import {
+  HStack,
+  Modal,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  VStack,
+} from '@chakra-ui/react'
 import { formatJsonRpcError } from '@json-rpc-tools/utils'
 import type {
   ChainAdapter,

@@ -1,6 +1,6 @@
-import { Alert } from '@chakra-ui/alert'
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import {
+  Alert,
   AlertDescription,
   AlertIcon,
   AlertTitle,

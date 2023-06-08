@@ -1,5 +1,11 @@
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
-import { HStack, ModalCloseButton, ModalHeader } from '@chakra-ui/react'
+import {
+  HStack,
+  Modal,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+} from '@chakra-ui/react'
 import { maybeConvertHexEncodedMessageToUtf8 } from 'plugins/walletConnectToDapps/utils'
 import type { WalletConnectCallRequest } from 'plugins/walletConnectToDapps/v1/bridge/types'
 import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'

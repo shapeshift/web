@@ -1,6 +1,5 @@
 import { CloseIcon } from '@chakra-ui/icons'
-import { MenuGroup } from '@chakra-ui/menu'
-import { Box, HStack, Link, MenuDivider, MenuItem, VStack } from '@chakra-ui/react'
+import { Box, HStack, Link, MenuDivider, MenuGroup, MenuItem, VStack } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/v1/WalletConnectBridgeContext'
 import { useTranslate } from 'react-polyglot'

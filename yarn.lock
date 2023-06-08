@@ -6200,18 +6200,16 @@ __metadata:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/errors": "workspace:^"
-    "@shapeshiftoss/eslint-plugin-logger": "workspace:^"
-    "@shapeshiftoss/hdwallet-coinbase": 1.50.4
-    "@shapeshiftoss/hdwallet-core": 1.50.4
-    "@shapeshiftoss/hdwallet-keepkey": 1.50.4
-    "@shapeshiftoss/hdwallet-keepkey-webusb": 1.50.4
-    "@shapeshiftoss/hdwallet-keplr": 1.50.4
-    "@shapeshiftoss/hdwallet-metamask": 1.50.4
-    "@shapeshiftoss/hdwallet-native": 1.50.4
-    "@shapeshiftoss/hdwallet-native-vault": 1.50.4
-    "@shapeshiftoss/hdwallet-walletconnect": 1.50.4
-    "@shapeshiftoss/hdwallet-xdefi": 1.50.4
-    "@shapeshiftoss/logger": "workspace:^"
+    "@shapeshiftoss/hdwallet-coinbase": 1.50.4-alpha.1
+    "@shapeshiftoss/hdwallet-core": 1.50.4-alpha.1
+    "@shapeshiftoss/hdwallet-keepkey": 1.50.4-alpha.1
+    "@shapeshiftoss/hdwallet-keepkey-webusb": 1.50.4-alpha.1
+    "@shapeshiftoss/hdwallet-keplr": 1.50.4-alpha.1
+    "@shapeshiftoss/hdwallet-metamask": 1.50.4-alpha.1
+    "@shapeshiftoss/hdwallet-native": 1.50.4-alpha.1
+    "@shapeshiftoss/hdwallet-native-vault": 1.50.4-alpha.1
+    "@shapeshiftoss/hdwallet-walletconnect": 1.50.4-alpha.1
+    "@shapeshiftoss/hdwallet-xdefi": 1.50.4-alpha.1
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@sniptt/monads": ^0.5.10

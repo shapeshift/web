@@ -5,12 +5,10 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import type { LocationState } from '../../NativeWallet/types'
 import { CoinbaseConfig } from '../config'
-const moduleLogger = logger.child({ namespace: ['Connect'] })
 
 export interface CoinbaseSetupProps
   extends RouteComponentProps<
@@ -61,7 +59,7 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
         setLocalWalletTypeAndDeviceId(KeyManager.Coinbase, deviceId)
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
-        moduleLogger.error(e, 'Coinbase Connect: There was an error initializing the wallet')
+        console.error(e, 'Coinbase Connect: There was an error initializing the wallet')
         setErrorLoading(e.message)
         history.push('/coinbase/failure')
       }

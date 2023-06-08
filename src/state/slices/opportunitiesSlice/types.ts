@@ -41,7 +41,11 @@ export type OpportunityMetadataBase = {
   id: OpportunityId
   provider: string
   tvl: string
-  type: DefiType
+  type?: DefiType
+  // An optional user-facing `type` equivalent to allow us to display the opportunity type in the UI
+  // our `type` property is an implementation detail that somehow ended up being user-facing, and might go away
+  // Currently for read-only opportunities only
+  label?: string
   // An opportunity might have its own icon e.g Cosmos SDK validators each have their own icon
   // If not specified, the underlying asset IDs' icons are used as icons
   icon?: string

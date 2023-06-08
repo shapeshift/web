@@ -63,12 +63,15 @@ export const selectSwapperSupportsCrossAccountTrade = createSelector(
     switch (selectedQuote) {
       case SwapperName.Thorchain:
       case SwapperName.Osmosis:
-      case SwapperName.LIFI:
         return true
+      // NOTE: Before enabling cross-account for LIFI and OneInch - we must pass the sending address
+      // to the swappers up so allowance checks work. They're currently using the receive address
+      // assuming its the same address as the sending address.
+      case SwapperName.LIFI:
+      case SwapperName.OneInch:
       case SwapperName.Zrx:
       case SwapperName.CowSwap:
       case SwapperName.Test:
-      case SwapperName.OneInch:
         return false
       default:
         assertUnreachable(selectedQuote)

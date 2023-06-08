@@ -9,7 +9,7 @@ import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
 
-import { DEFAULT_SLIPPAGE, DEFAULT_SOURCE, DUMMY_SEND_ADDRESS } from '../utils/constants'
+import { DEFAULT_SLIPPAGE, DEFAULT_SOURCE } from '../utils/constants'
 import { getRate } from '../utils/helpers'
 import { oneInchService } from '../utils/oneInchService'
 import type {
@@ -81,7 +81,10 @@ export const buildTrade = async (
   const swapApiInput: OneInchSwapApiInput = {
     fromTokenAddress: fromAssetAddress,
     toTokenAddress: toAssetAddress,
-    fromAddress: DUMMY_SEND_ADDRESS,
+    // HACK: use the receive address as the send address
+    // 1inch uses this to check allowance on their side
+    // this swapper is not cross-account so this works
+    fromAddress: receiveAddress,
     amount: sellAmountBeforeFeesCryptoBaseUnit,
     slippage: slippagePercentage,
     allowPartialFill: false,

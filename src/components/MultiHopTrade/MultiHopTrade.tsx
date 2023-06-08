@@ -31,6 +31,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { SellAssetInput } from './components/SellAssetInput'
+import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
 import { getTotalProtocolFeeForAsset } from './components/TradeQuotes/helpers'
 import { useAccountIds } from './hooks/useAccountIds'
 import { useGetTradeQuotes } from './hooks/useGetTradeQuotes'
@@ -123,6 +124,7 @@ export const MultiHopTrade = (props: CardProps) => {
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
+      <TradeConfirm />
       <Card flex={1} {...props}>
         <FormProvider {...methods}>
           <SlideTransition>
@@ -245,4 +247,3 @@ export const MultiHopTrade = (props: CardProps) => {
     </MessageOverlay>
   )
 }
-MultiHopTrade.whyDidYouRender = true

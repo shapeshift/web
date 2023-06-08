@@ -104,7 +104,7 @@ export const NftTable = () => {
   return (
     <>
       <Box mb={4} px={{ base: 4, xl: 0 }}>
-        <Flex>
+        <Flex gap={2}>
           <NftNetworkFilter
             availableChainIds={availableChainIds}
             resetFilters={() => setNetworkFilters([])}

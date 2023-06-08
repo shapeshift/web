@@ -398,14 +398,14 @@ export const zapper = createApi({
                     return asset
                   })()
                   // The balance itself is a positive amount, but the USD balance is negative, so we need to check for that
-                  const isNegativeStakedamount = bnOrZero(
+                  const isNegativeStakedAmount = bnOrZero(
                     stakedAmountCryptoBaseUnitAccessor?.balanceUSD,
                   ).isNegative()
                   const stakedAmountCryptoBaseUnitBase = bnOrZero(
                     stakedAmountCryptoBaseUnitAccessor?.balanceRaw,
                   )
                   const stakedAmountCryptoBaseUnit = (
-                    isNegativeStakedamount
+                    isNegativeStakedAmount
                       ? stakedAmountCryptoBaseUnitBase.negated()
                       : stakedAmountCryptoBaseUnitBase
                   ).toFixed()

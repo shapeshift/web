@@ -2,6 +2,7 @@ import partition from 'lodash/partition'
 import { useEffect, useState } from 'react'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
+import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import type { GetSwappersWithQuoteMetadataReturn } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { isSome } from 'lib/utils'
@@ -25,7 +26,6 @@ export const useAvailableSwappers = () => {
   const [swappersWithQuoteMetadataAndTimestamp, setSwappersWithQuoteMetadataAndTimestamp] =
     useState<[GetSwappersWithQuoteMetadataReturn, number]>()
 
-  // Form hooks
   const { tradeQuoteArgs } = useTradeQuoteService()
 
   const updateAvailableSwappersWithMetadata = useSwapperStore(
@@ -54,6 +54,8 @@ export const useAvailableSwappers = () => {
   const featureFlags = useAppSelector(selectFeatureFlags)
   const { getAvailableSwappers } = getSwappersApi.endpoints
 
+  const debouncedTradeQuoteArgs = useDebounce(tradeQuoteArgs, 500)
+
   /*
      This effect is responsible for fetching the available swappers for a given trade pair and corresponding args.
    */
@@ -62,8 +64,8 @@ export const useAvailableSwappers = () => {
       // Capture the request start time so we can resolve race conditions when setting swapper/quote data
       const requestStartedTimestamp = Date.now()
 
-      const availableSwapperTypesWithQuoteMetadataResponse = tradeQuoteArgs
-        ? await dispatch(getAvailableSwappers.initiate(tradeQuoteArgs))
+      const availableSwapperTypesWithQuoteMetadataResponse = debouncedTradeQuoteArgs
+        ? await dispatch(getAvailableSwappers.initiate(debouncedTradeQuoteArgs))
         : undefined
 
       const availableSwapperTypesWithQuoteMetadata =
@@ -85,8 +87,8 @@ export const useAvailableSwappers = () => {
         .filter(isSome)
       // Handle a race condition between form state and useTradeQuoteService
       if (
-        tradeQuoteArgs?.buyAsset.assetId === buyAssetId &&
-        tradeQuoteArgs?.sellAsset.assetId === sellAssetId &&
+        debouncedTradeQuoteArgs?.buyAsset.assetId === buyAssetId &&
+        debouncedTradeQuoteArgs?.sellAsset.assetId === sellAssetId &&
         availableSwappersWithQuoteMetadata
       ) {
         setSwappersWithQuoteMetadataAndTimestamp([
@@ -101,7 +103,7 @@ export const useAvailableSwappers = () => {
     featureFlags,
     getAvailableSwappers,
     sellAssetId,
-    tradeQuoteArgs,
+    debouncedTradeQuoteArgs,
     buyAssetUsdRate,
     sellAssetUsdRate,
     feeAssetUsdRate,

@@ -124,34 +124,38 @@ export const OpportunityRow: React.FC<
     if (!nestedAssetIds) return null
     return (
       <List style={{ marginTop: 0 }}>
-        {Object.entries(rewardsBalances).map(([assetId, rewardBalance]) => {
+        {Object.entries(rewardsBalances).map(([rewardAssetId, rewardBalance]) => {
           if (bnOrZero(rewardBalance.cryptoBalancePrecision).isZero()) return null
           return (
             <NestedAsset
-              key={assetId}
+              key={rewardAssetId}
               isClaimableRewards={isClaimableRewards}
               isExternal={opportunity.isReadOnly}
-              assetId={assetId}
+              assetId={rewardAssetId}
               balances={rewardBalance}
               onClick={() => handleClick(DefiAction.Claim)}
               type={translate('common.reward')}
             />
           )
         })}
-        {Object.entries(underlyingAssetBalances).map(([assetId, underlyingAssetBalance]) => {
-          if (bnOrZero(underlyingAssetBalance.cryptoBalancePrecision).isZero()) return null
-          return (
-            <NestedAsset
-              key={assetId}
-              isClaimableRewards={isClaimableRewards}
-              isExternal={opportunity.isReadOnly}
-              assetId={assetId}
-              balances={underlyingAssetBalance}
-              onClick={() => handleClick(DefiAction.Claim)}
-              type={translate('defi.underlyingAsset')}
-            />
-          )
-        })}
+        {Object.entries(underlyingAssetBalances).map(
+          ([underlyingAssetId, underlyingAssetBalance]) => {
+            // Don't display the same asset as an underlying, that's an implementation detail, but shouldn't be user-facing
+            if (underlyingAssetId === assetId) return null
+            if (bnOrZero(underlyingAssetBalance.cryptoBalancePrecision).isZero()) return null
+            return (
+              <NestedAsset
+                key={underlyingAssetId}
+                isClaimableRewards={isClaimableRewards}
+                isExternal={opportunity.isReadOnly}
+                assetId={underlyingAssetId}
+                balances={underlyingAssetBalance}
+                onClick={() => handleClick(DefiAction.Claim)}
+                type={translate('defi.underlyingAsset')}
+              />
+            )
+          },
+        )}
       </List>
     )
   }, [
@@ -162,6 +166,7 @@ export const OpportunityRow: React.FC<
     opportunity.isReadOnly,
     translate,
     handleClick,
+    assetId,
   ])
   if (!asset) return null
   return (

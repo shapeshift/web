@@ -153,6 +153,7 @@ const validators = {
   REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_API_KEY: str(),
+  REACT_APP_ZRX_API_KEY: str(),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

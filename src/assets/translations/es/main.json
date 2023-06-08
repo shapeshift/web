@@ -7,6 +7,7 @@
     "cancel": "Cancelar",
     "close": "Cerrar",
     "loadMore": "Cargar más",
+    "saveChanges": "Guardar cambios",
     "new": "Nueva",
     "continue": "Continuar",
     "reward": "Recompensa",
@@ -84,6 +85,7 @@
     "txId": "ID Tx",
     "selectAsset": "Seleccione un Activo",
     "switchNetwork": "Cambiar Red",
+    "selectNetwork": "Seleccione red",
     "unsupportedNetwork": "Red No Soportada",
     "chartUnavailable": "Los datos del balance gráfico no están disponibles temporalmente para %{unavailableAssetNames}.",
     "search": "Búsqueda",
@@ -507,7 +509,9 @@
     "tradeShort": "Intercambie",
     "buyCrypto": "Comprar/Vender Cripto",
     "buyCryptoShort": "Comprar/Vender",
-    "arkeo": "Airdrop Arkeo "
+    "arkeo": "Airdrop Arkeo ",
+    "foxMissions": "Misiones FOX",
+    "foxMissionsShort": "Misiones"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -1908,6 +1912,8 @@
     }
   },
   "nft": {
+    "customizeFoxatar": "Personalizar FOXatar",
+    "setAsAvatar": "Establecer Avatar",
     "floorPrice": "Precio Base",
     "lastPrice": "Ultimo Precio",
     "overview": "Visión general",
@@ -1923,5 +1929,50 @@
     "aboutCollection": "Acerca de %{nombreColección}",
     "emptyTitle": "¿Dónde fueron mis NFT?",
     "emptyBody": "No se preocupe, estamos en búsqueda de más NFT sorprendentes. Mientras tanto, sea libre de mirar este espacio blanco y reflexionar sobre el significado de la existencia."
+  },
+  "missions": {
+    "subtitle": "Misiones FOX",
+    "missionEnded": "Misión terminada",
+    "viewMission": "Ver Misión",
+    "comingSoon": "Muy pronto",
+    "activeMissions": "Misiones Activas",
+    "endedMissions": "Misiones finalizadas",
+    "title": {
+      "1": "Libere el universo descentralizado y",
+      "2": "Coseche recompensas"
+    },
+    "body": "Embárquese en misiones, gane recompensas y amplíe su conocimiento del ecosistema ShapeShift en constante expansión",
+    "ends": "Finaliza",
+    "ongoing": "Misión en curso",
+    "optimism": {
+      "title": "Gane hasta 19.5 OP",
+      "subtitle": "Explore Optimism",
+      "cta": "Inicie Misión"
+    },
+    "foxatar": {
+      "title": "Obten un NFT gratis y personalizable",
+      "subtitle": "Acuñe un FOXatar",
+      "cta": "Inicie Misión"
+    },
+    "foxArmy": {
+      "subtitle": "Únete al Ejército FOX",
+      "title": "20,000 FOX recompensas",
+      "cta": "Inicie Misión"
+    },
+    "yat": {
+      "subtitle": "Juega Yat Fantasy",
+      "title": "3000 USDC en premios",
+      "cta": "Inicie Misión"
+    },
+    "getListed": {
+      "subtitle": "Tu proyecto aquí",
+      "title": "Lanza una misión para tu proyecto",
+      "cta": "Enviar proyecto"
+    }
+  },
+  "avatar": {
+    "modal": {
+      "title": "Establecer Avatar"
+    }
   }
 }

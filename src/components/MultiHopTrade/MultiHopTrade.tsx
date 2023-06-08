@@ -1,29 +1,37 @@
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, Flex, IconButton, Stack, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { useCallback, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
+import { TradeQuotes } from 'components/MultiHopTrade/components/TradeQuotes/TradeQuotes'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TradeAssetSelect } from 'components/Trade/Components/AssetSelection'
 import { RateGasRow } from 'components/Trade/Components/RateGasRow'
 import { TradeAssetInput } from 'components/Trade/Components/TradeAssetInput'
-import { TradeQuotes } from 'components/Trade/Components/TradeQuotes/TradeQuotes'
 import { ReceiveSummary } from 'components/Trade/TradeConfirm/ReceiveSummary'
 import { useModal } from 'hooks/useModal/useModal'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { SwapperName } from 'lib/swapper/api'
-import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
+import {
+  selectBuyAsset,
+  selectSellAsset,
+  selectSwapperSupportsCrossAccountTrade,
+} from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { SellAssetInput } from './components/SellAssetInput'
+import { getTotalProtocolFeeForAsset } from './components/TradeQuotes/helpers'
 import { useAccountIds } from './hooks/useAccountIds'
 import { useGetTradeQuotes } from './hooks/useGetTradeQuotes'
 import { useSupportedAssets } from './hooks/useSupportedAssets'
@@ -32,12 +40,14 @@ export const MultiHopTrade = (props: CardProps) => {
   const {
     state: { wallet },
   } = useWallet()
+  const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(false)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
   const methods = useForm({ mode: 'onChange' })
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { assetSearch } = useModal()
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
+  const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
   const dispatch = useAppDispatch()
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(swappers.actions.setBuyAsset(asset)),
@@ -49,21 +59,23 @@ export const MultiHopTrade = (props: CardProps) => {
   )
 
   const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
-  const quotes = useGetTradeQuotes()
+  const { selectedQuote } = useGetTradeQuotes()
 
-  const lifiResult = quotes[SwapperName.LIFI]?.data
-
-  console.log({
-    isLoading: quotes[SwapperName.LIFI]?.isLoading,
-    data: lifiResult?.isErr() ? lifiResult.unwrapErr() : lifiResult?.unwrap(),
-  })
+  const isLoading = useMemo(() => selectedQuote?.isLoading, [selectedQuote?.isLoading])
+  const quoteData = useMemo(
+    () => (selectedQuote?.data?.isOk() ? selectedQuote.data.unwrap() : undefined),
+    [selectedQuote?.data],
+  )
+  const errorData = useMemo(
+    () => (selectedQuote?.data?.isErr() ? selectedQuote.data.unwrapErr() : undefined),
+    [selectedQuote?.data],
+  )
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds({
       buyAsset,
       sellAsset,
     })
-
   const translate = useTranslate()
   const overlayTitle = useMemo(
     () => translate('trade.swappingComingSoonForWallet', { walletName: 'Keplr' }),
@@ -85,6 +97,29 @@ export const MultiHopTrade = (props: CardProps) => {
       assets: supportedBuyAssets,
     })
   }, [assetSearch, setBuyAsset, supportedBuyAssets])
+
+  const totalProtocolFees = useMemo(() => {
+    if (!quoteData) return {}
+    return getTotalProtocolFeeForAsset(quoteData)
+  }, [quoteData])
+
+  const buyAmountAfterFeesCryptoPrecision = useMemo(() => {
+    if (!quoteData) return '0'
+    const lastStep = quoteData.steps[quoteData.steps.length - 1]
+    const buyAssetProtocolFeesTotalBaseUnit = bnOrZero(
+      totalProtocolFees[lastStep.buyAsset.assetId]?.amountCryptoBaseUnit,
+    )
+    return fromBaseUnit(
+      bn(lastStep.buyAmountBeforeFeesCryptoBaseUnit).minus(buyAssetProtocolFeesTotalBaseUnit),
+      buyAsset.precision,
+    ).toString()
+  }, [buyAsset.precision, quoteData, totalProtocolFees])
+
+  const buyAmountBeforeFeesCryptoPrecision = useMemo(() => {
+    if (!quoteData) return '0'
+    const lastStep = quoteData.steps[quoteData.steps.length - 1]
+    return fromBaseUnit(lastStep.buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
+  }, [buyAsset.precision, quoteData])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
@@ -124,7 +159,7 @@ export const MultiHopTrade = (props: CardProps) => {
                     assetId={buyAsset.assetId}
                     onAssetClick={handleBuyAssetClick}
                     onAccountIdChange={setBuyAssetAccountId}
-                    accountSelectionDisabled={false}
+                    accountSelectionDisabled={swapperSupportsCrossAccountTrade}
                     label={translate('trade.to')}
                   />
                 </Flex>
@@ -140,27 +175,26 @@ export const MultiHopTrade = (props: CardProps) => {
                   assetId={buyAsset.assetId}
                   assetSymbol={buyAsset.symbol}
                   assetIcon={buyAsset.icon}
-                  cryptoAmount={'0.0012300000'}
+                  cryptoAmount={buyAmountAfterFeesCryptoPrecision}
                   fiatAmount={'1.234'}
-                  onChange={() => {}}
                   percentOptions={[1]}
-                  showInputSkeleton={false}
-                  showFiatSkeleton={false}
+                  showInputSkeleton={isLoading}
+                  showFiatSkeleton={isLoading}
                   label={translate('trade.youGet')}
                   rightRegion={
-                    false ? (
+                    quoteData ? (
                       <IconButton
                         size='sm'
-                        icon={false ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                        icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
                         aria-label='Expand Quotes'
-                        onClick={() => {}}
+                        onClick={toggleShowTradeQuotes}
                       />
                     ) : (
                       <></>
                     )
                   }
                 >
-                  {false && <TradeQuotes isOpen={false} isLoading={false} />}
+                  {quoteData && <TradeQuotes isOpen={showTradeQuotes} />}
                 </TradeAssetInput>
               </Stack>
               <Stack
@@ -175,19 +209,22 @@ export const MultiHopTrade = (props: CardProps) => {
                   buySymbol={''}
                   gasFee={'0'}
                   rate={undefined}
-                  isLoading={false}
-                  isError={false}
+                  isLoading={isLoading}
+                  isError={errorData !== undefined}
                 />
-                {false ? (
+                {selectedQuote && quoteData ? (
                   <ReceiveSummary
-                    isLoading={false}
-                    symbol={''}
-                    amountCryptoPrecision={''}
-                    amountBeforeFeesCryptoPrecision={''}
-                    protocolFees={{}}
+                    isLoading={isLoading}
+                    symbol={buyAsset.symbol}
+                    amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
+                    amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
+                    protocolFees={totalProtocolFees}
                     shapeShiftFee='0'
-                    slippage={'0'}
-                    swapperName={''}
+                    slippage={
+                      quoteData.recommendedSlippage ??
+                      getDefaultSlippagePercentageForSwapper(selectedQuote.swapperName)
+                    }
+                    swapperName={selectedQuote.swapperName}
                   />
                 ) : null}
               </Stack>
@@ -196,8 +233,8 @@ export const MultiHopTrade = (props: CardProps) => {
                 colorScheme={false ? 'red' : 'blue'}
                 size='lg-multiline'
                 data-test='trade-form-preview-button'
-                isDisabled={false}
-                isLoading={false}
+                isDisabled={true}
+                isLoading={isLoading}
               >
                 <Text translation='trade.previewTrade' />
               </Button>
@@ -208,3 +245,4 @@ export const MultiHopTrade = (props: CardProps) => {
     </MessageOverlay>
   )
 }
+MultiHopTrade.whyDidYouRender = true

@@ -75,9 +75,9 @@
   },
   "dependencies": {
     "@axelar-network/axelarjs-sdk": "^0.6.18",
-    "@chakra-ui/icons": "^2.0.2",
-    "@chakra-ui/react": "^2.2.1",
-    "@chakra-ui/system": "^2.1.3",
+    "@chakra-ui/icons": "^2.0.19",
+    "@chakra-ui/react": "^2.7.0",
+    "@chakra-ui/system": "^2.5.8",
     "@chakra-ui/tag": "^2.0.2",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",

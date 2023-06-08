@@ -1,5 +1,4 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { ModalCloseButton } from '@chakra-ui/modal'
 import {
   Alert,
   AlertDescription,
@@ -8,6 +7,7 @@ import {
   Code,
   IconButton,
   ModalBody,
+  ModalCloseButton,
   ModalFooter,
   ModalHeader,
   Tag,

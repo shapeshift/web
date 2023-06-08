@@ -7,6 +7,7 @@
     "cancel": "Annuler",
     "close": "Fermer",
     "loadMore": "Charger plus",
+    "saveChanges": "Enregistrer les modifications",
     "new": "Nouveau",
     "continue": "Continuer",
     "reward": "Récompense",
@@ -491,7 +492,6 @@
     "accounts": "Comptes",
     "accountAsset": "Actif de compte",
     "accountDetails": "Détails de compte",
-    "earn": "Gagner",
     "defi": "DeFi",
     "transactionHistory": "Historique des transactions",
     "overview": "Vue d'ensemble",
@@ -509,7 +509,9 @@
     "tradeShort": "Échanger",
     "buyCrypto": "Acheter/Vendre des cryptos",
     "buyCryptoShort": "Achat/Vente",
-    "arkeo": "Airdrop Arkeo"
+    "arkeo": "Airdrop Arkeo",
+    "foxMissions": "Missions FOX",
+    "foxMissionsShort": "Missions"
   },
   "transactionRow": {
     "send": "Envoi",
@@ -1910,6 +1912,8 @@
     }
   },
   "nft": {
+    "customizeFoxatar": "Personnaliser le FOXatar",
+    "setAsAvatar": "Définir comme avatar",
     "floorPrice": "Prix plancher",
     "lastPrice": "Dernier prix",
     "overview": "Vue d'ensemble",
@@ -1925,5 +1929,50 @@
     "aboutCollection": "Informations sur %{collectionName}",
     "emptyTitle": "Où sont passés tous les NFT ?",
     "emptyBody": "Ne vous inquiétez pas, nous avons envoyé une équipe de recherche pour ramener plus de NFT incroyables. En attendant, n'hésitez pas à regarder cet espace vide et à réfléchir au sens de l'existence."
+  },
+  "missions": {
+    "subtitle": "Missions FOX",
+    "missionEnded": "Mission terminée",
+    "viewMission": "Voir la mission",
+    "comingSoon": "Prochainement",
+    "activeMissions": "Missions actives",
+    "endedMissions": "Missions terminées",
+    "title": {
+      "1": "Découvrez l'univers décentralisé et",
+      "2": "récoltez des récompenses"
+    },
+    "body": "Lancez-vous dans des missions, gagnez des récompenses et approfondissez vos connaissances sur l'écosystème en constante expansion de ShapeShift",
+    "ends": "Finit",
+    "ongoing": "Mission en cours",
+    "optimism": {
+      "title": "Gagnez jusqu'à 19,5 OP",
+      "subtitle": "Explorez Optimism",
+      "cta": "Commencez la mission"
+    },
+    "foxatar": {
+      "title": "Obtenez un NFT gratuit et personnalisable",
+      "subtitle": "Mintez un FOXatar",
+      "cta": "Commencez la mission"
+    },
+    "foxArmy": {
+      "subtitle": "Rejoignez l'armée FOX",
+      "title": "Cagnotte de 20 000 FOX",
+      "cta": "Commencez la mission"
+    },
+    "yat": {
+      "subtitle": "Jouez à Yat Fantasy",
+      "title": "Cagnotte de 3 000 USDC",
+      "cta": "Commencez la mission"
+    },
+    "getListed": {
+      "subtitle": "Votre projet ici",
+      "title": "Lancez une Mission pour votre projet",
+      "cta": "Soumettez un projet"
+    }
+  },
+  "avatar": {
+    "modal": {
+      "title": "Définir un nouvel avatar"
+    }
   }
 }

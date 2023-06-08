@@ -10,8 +10,8 @@ import {
   Spinner,
   Stack,
   Switch,
+  useToast,
 } from '@chakra-ui/react'
-import { useToast } from '@chakra-ui/toast'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'

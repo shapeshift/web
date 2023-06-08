@@ -81,6 +81,9 @@ export const buildTrade = async (
   const swapApiInput: OneInchSwapApiInput = {
     fromTokenAddress: fromAssetAddress,
     toTokenAddress: toAssetAddress,
+    // HACK: use the receive address as the send address
+    // 1inch uses this to check allowance on their side
+    // this swapper is not cross-account so this works
     fromAddress: receiveAddress,
     amount: sellAmountBeforeFeesCryptoBaseUnit,
     slippage: slippagePercentage,

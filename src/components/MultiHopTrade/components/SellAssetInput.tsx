@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react'
 import { TradeAssetInput } from 'components/Trade/Components/TradeAssetInput'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectMarketDataByFilter, selectSellAmountCryptoPrecision } from 'state/slices/selectors'
+import { selectMarketDataByFilter } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -21,7 +21,7 @@ export const SellAssetInput = ({
   onClickSendMax,
 }: SellAssetInputProps) => {
   const [sellAmountFiatHuman, setSellAmountFiatHuman] = useState('0')
-  const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
+  const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
   const dispatch = useAppDispatch()
 
   const { price: sellAssetFiatRate } = useAppSelector(state =>
@@ -31,12 +31,13 @@ export const SellAssetInput = ({
   const handleSellAssetInputChange = useCallback(
     (value: string, isFiat: boolean | undefined) => {
       const sellAmountFiatHuman = isFiat
-        ? value ?? '0'
+        ? value
         : bnOrZero(value).times(sellAssetFiatRate).toFixed(2)
       const sellAmountCryptoPrecision = isFiat
         ? bnOrZero(value).div(sellAssetFiatRate).toFixed()
-        : value ?? '0'
+        : value
       setSellAmountFiatHuman(sellAmountFiatHuman)
+      setSellAmountCryptoPrecision(sellAmountCryptoPrecision)
       dispatch(swappers.actions.setSellAmountCryptoPrecision(sellAmountCryptoPrecision))
     },
     [dispatch, sellAssetFiatRate],

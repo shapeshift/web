@@ -1,7 +1,18 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import type { BoxProps } from '@chakra-ui/react'
-import { Box, Button, Flex, Text, Tooltip, useColorModeValue } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Flex,
+  Menu,
+  MenuButton,
+  MenuGroup,
+  MenuItem,
+  MenuList,
+  Text,
+  Tooltip,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, gnosisChainId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'

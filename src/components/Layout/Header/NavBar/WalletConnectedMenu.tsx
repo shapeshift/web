@@ -1,6 +1,5 @@
 import { ChevronRightIcon, CloseIcon, RepeatIcon, WarningTwoIcon } from '@chakra-ui/icons'
-import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
-import { Flex } from '@chakra-ui/react'
+import { Flex, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

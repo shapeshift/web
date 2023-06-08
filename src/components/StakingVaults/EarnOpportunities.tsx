@@ -106,7 +106,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
         <HStack gap={6} width='full'>
           <Box>
             <Card.Heading>
-              <Text translation='defi.earn' />
+              <Text translation='navBar.defi' />
             </Card.Heading>
             <Text color='gray.500' translation='defi.earnBody' />
           </Box>

@@ -67,6 +67,9 @@ export async function getTradeQuote(
       toChainId: Number(fromChainId(buyAsset.chainId).chainReference),
       fromTokenAddress: getLifiEvmAssetAddress(sellAsset),
       toTokenAddress: getLifiEvmAssetAddress(buyAsset),
+      // HACK: use the receive address as the send address
+      // lifi's exchanges may use this to check allowance on their side
+      // this swapper is not cross-account so this works
       fromAddress: receiveAddress,
       toAddress: receiveAddress,
       fromAmount: sellAmountBeforeFeesCryptoBaseUnit,
@@ -154,6 +157,8 @@ export async function getTradeQuote(
             protocolFees,
             networkFeeCryptoBaseUnit,
           },
+          // TODO(woodenfurniture): the rate should be top level not step level
+          // might be better replaced by inputOutputRatio downstream
           rate: estimateRate,
           sellAmountBeforeFeesCryptoBaseUnit,
           sellAsset,

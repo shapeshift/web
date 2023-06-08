@@ -6,8 +6,8 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalOverlay,
+  useToast,
 } from '@chakra-ui/react'
-import { useToast } from '@chakra-ui/toast'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

@@ -10,6 +10,7 @@ import type {
 } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
+import type { RequireFields } from 'lib/types'
 
 export const SwapError = createErrorClass('SwapError')
 
@@ -124,7 +125,7 @@ export type GetTradeQuoteInput =
   | GetEvmTradeQuoteInput
   | GetCosmosSdkTradeQuoteInput
 
-export type BuildTradeInput = GetTradeQuoteInput & {
+export type BuildTradeInput = RequireFields<GetTradeQuoteInput, 'receiveAddress'> & {
   slippage?: string
   wallet: HDWallet
 }

@@ -7,6 +7,7 @@
     "cancel": "Отмена",
     "close": "Закрыть",
     "loadMore": "Загрузить еще",
+    "saveChanges": "Сохранить изменения",
     "new": "Новое",
     "continue": "Продолжить",
     "reward": "Вознаграждение",
@@ -84,6 +85,7 @@
     "txId": "ID трансакции",
     "selectAsset": "Выберите актив",
     "switchNetwork": "Переключить сеть",
+    "selectNetwork": "Выбрать сеть",
     "unsupportedNetwork": "Неподдерживаемая сеть",
     "chartUnavailable": "Данные графика баланса временно недоступны для %{unavailableAssetNames}.",
     "search": "Поиск",
@@ -510,7 +512,9 @@
     "tradeShort": "Торговля",
     "buyCrypto": "Купить криптовалюту",
     "buyCryptoShort": "Купить/Продать",
-    "arkeo": "Arkeo Airdrop"
+    "arkeo": "Arkeo Airdrop",
+    "foxMissions": "Миссии FOX",
+    "foxMissionsShort": "Миссии"
   },
   "transactionRow": {
     "send": "Отправлено",
@@ -1911,6 +1915,8 @@
     }
   },
   "nft": {
+    "customizeFoxatar": "Настроить FOXatar",
+    "setAsAvatar": "Установить в качестве Аватара",
     "floorPrice": "Нижняя цена",
     "lastPrice": "Последняя цена",
     "overview": "Обзор",
@@ -1926,5 +1932,50 @@
     "aboutCollection": "О %{collectionName}",
     "emptyTitle": "Куда делись все NFT?",
     "emptyBody": "Не волнуйтесь, мы отправили поисковую группу, чтобы вернуть больше удивительных NFT. А тем временем, не стесняйтесь смотреть на это пустое место и размышлять о смысле существования."
+  },
+  "missions": {
+    "subtitle": "Миссии FOX",
+    "missionEnded": "Миссия завершена",
+    "viewMission": "Просмотреть миссию",
+    "comingSoon": "Скоро будет",
+    "activeMissions": "Активные миссии",
+    "endedMissions": "Законченные миссии",
+    "title": {
+      "1": "Раскройте Децентрализованную Вселенную и",
+      "2": "Получайте вознаграждение"
+    },
+    "body": "Выполняйте задания, получайте награды и расширяйте свои знания о постоянно расширяющейся экосистеме ShapeShift.",
+    "ends": "Конец",
+    "ongoing": "Текущая миссия",
+    "optimism": {
+      "title": "Зарабатывайте до 19,5 OP",
+      "subtitle": "Исследуйте оптимизм",
+      "cta": "Начать миссию"
+    },
+    "foxatar": {
+      "title": "Получите бесплатный и индивидуальный NFT",
+      "subtitle": "Сминтить FOXatar",
+      "cta": "Начать миссию"
+    },
+    "foxArmy": {
+      "subtitle": "Вступайте в армию FOX",
+      "title": "20,000 FOX Pool",
+      "cta": "Начать миссию"
+    },
+    "yat": {
+      "subtitle": "Играйте в  Yat Fantasy",
+      "title": "Призовой фонд 3,000 USDC ",
+      "cta": "Начать миссию"
+    },
+    "getListed": {
+      "subtitle": "Ваш проект здесь",
+      "title": "Создайте миссию для вашего проекта",
+      "cta": "Создать проект"
+    }
+  },
+  "avatar": {
+    "modal": {
+      "title": "Установить новый аватар"
+    }
   }
 }

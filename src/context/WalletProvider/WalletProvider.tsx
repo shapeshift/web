@@ -1,6 +1,7 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import detectEthereumProvider from '@metamask/detect-provider'
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import type { CoinbaseProviderConfig } from '@shapeshiftoss/hdwallet-coinbase'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
@@ -722,7 +723,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         const adapters: Adapters = new Map()
         for (const keyManager of Object.values(KeyManager)) {
           try {
-            type KeyManagerOptions = undefined | WalletConnectProviderConfig
+            type KeyManagerOptions =
+              | undefined
+              | WalletConnectProviderConfig
+              | CoinbaseProviderConfig
 
             type GetKeyManagerOptions = (keyManager: KeyManager) => KeyManagerOptions
 
@@ -733,6 +737,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                     rpc: {
                       1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
                     },
+                  }
+                case 'coinbase':
+                  return {
+                    appName: 'ShapeShift',
+                    appLogoUrl: 'https://avatars.githubusercontent.com/u/52928763?s=50&v=4',
+                    defaultJsonRpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+                    defaultChainId: 1,
+                    darkMode: false,
                   }
                 default:
                   return undefined

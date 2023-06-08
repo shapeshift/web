@@ -51,17 +51,15 @@ const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress
   merge({ gasPrice, gasLimit }, chainSpecificAdditionalProps)
 
 const makeGetGasFeesMockedResponse = (overrideArgs?: {
-  gasPrice?: string
   slow: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
   average: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
   fast: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
 }) =>
   merge(
     {
-      gasPrice: '5',
-      slow: { gasPrice: '5', maxFeePerGas: '240', maxPriorityFeePerGas: '8' },
+      slow: { gasPrice: '4', maxFeePerGas: '240', maxPriorityFeePerGas: '8' },
       average: { gasPrice: '5', maxFeePerGas: '300', maxPriorityFeePerGas: '10' },
-      fast: { gasPrice: '5', maxFeePerGas: '360', maxPriorityFeePerGas: '12' },
+      fast: { gasPrice: '6', maxFeePerGas: '360', maxPriorityFeePerGas: '12' },
     },
     overrideArgs,
   )
@@ -146,7 +144,7 @@ describe('AvalancheChainAdapter', () => {
           average: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '300',
+              gasPrice: '5',
               maxFeePerGas: '300',
               maxPriorityFeePerGas: '10',
             },
@@ -155,7 +153,7 @@ describe('AvalancheChainAdapter', () => {
           fast: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '360',
+              gasPrice: '6',
               maxFeePerGas: '360',
               maxPriorityFeePerGas: '12',
             },
@@ -164,7 +162,7 @@ describe('AvalancheChainAdapter', () => {
           slow: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '240',
+              gasPrice: '4',
               maxFeePerGas: '240',
               maxPriorityFeePerGas: '8',
             },
@@ -189,17 +187,17 @@ describe('AvalancheChainAdapter', () => {
       expect(data).toEqual(
         expect.objectContaining({
           average: {
-            gasPrice: '300',
+            gasPrice: '5',
             maxFeePerGas: '300',
             maxPriorityFeePerGas: '10',
           },
           fast: {
-            gasPrice: '360',
+            gasPrice: '6',
             maxFeePerGas: '360',
             maxPriorityFeePerGas: '12',
           },
           slow: {
-            gasPrice: '240',
+            gasPrice: '4',
             maxFeePerGas: '240',
             maxPriorityFeePerGas: '8',
           },

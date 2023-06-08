@@ -45,8 +45,21 @@ const value = 400
 const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress: string }) =>
   merge({ gasPrice, gasLimit }, chainSpecificAdditionalProps)
 
-const makeGetGasFeesMockedResponse = (overrideArgs?: { gasPrice?: string; l1GasPrice?: string }) =>
-  merge({ gasPrice: '5', l1GasPrice: '10' }, overrideArgs)
+const makeGetGasFeesMockedResponse = (overrideArgs?: {
+  l1GasPrice?: string
+  slow: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
+  average: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
+  fast: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
+}) =>
+  merge(
+    {
+      l1GasPrice: '10',
+      slow: { gasPrice: '4', maxFeePerGas: '240', maxPriorityFeePerGas: '8' },
+      average: { gasPrice: '5', maxFeePerGas: '300', maxPriorityFeePerGas: '10' },
+      fast: { gasPrice: '6', maxFeePerGas: '360', maxPriorityFeePerGas: '12' },
+    },
+    overrideArgs,
+  )
 
 const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string; l1GasLimit?: string }) =>
   merge({ gasLimit: '21000', l1GasLimit: '3500' }, overrideArgs)
@@ -129,22 +142,34 @@ describe('OptimismChainAdapter', () => {
             chainSpecific: {
               gasLimit: '21000',
               gasPrice: '5',
+              l1GasLimit: '3500',
+              l1GasPrice: '10',
+              maxFeePerGas: '300',
+              maxPriorityFeePerGas: '10',
             },
-            txFee: '140000',
+            txFee: '6335000',
           },
           fast: {
             chainSpecific: {
               gasLimit: '21000',
               gasPrice: '6',
+              l1GasLimit: '3500',
+              l1GasPrice: '10',
+              maxFeePerGas: '360',
+              maxPriorityFeePerGas: '12',
             },
-            txFee: '161000',
+            txFee: '7595000',
           },
           slow: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '5',
+              gasPrice: '4',
+              l1GasLimit: '3500',
+              l1GasPrice: '10',
+              maxFeePerGas: '240',
+              maxPriorityFeePerGas: '8',
             },
-            txFee: '140000',
+            txFee: '5075000',
           },
         }),
       )
@@ -166,12 +191,21 @@ describe('OptimismChainAdapter', () => {
         expect.objectContaining({
           average: {
             gasPrice: '5',
+            l1GasPrice: '10',
+            maxFeePerGas: '300',
+            maxPriorityFeePerGas: '10',
           },
           fast: {
             gasPrice: '6',
+            l1GasPrice: '10',
+            maxFeePerGas: '360',
+            maxPriorityFeePerGas: '12',
           },
           slow: {
-            gasPrice: '5',
+            gasPrice: '4',
+            l1GasPrice: '10',
+            maxFeePerGas: '240',
+            maxPriorityFeePerGas: '8',
           },
         }),
       )

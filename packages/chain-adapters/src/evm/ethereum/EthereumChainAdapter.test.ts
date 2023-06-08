@@ -54,17 +54,15 @@ describe('EthereumChainAdapter', () => {
     )
 
   const makeGetGasFeesMockedResponse = (overrideArgs?: {
-    gasPrice?: string
     slow: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
     average: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
     fast: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
   }) =>
     merge(
       {
-        gasPrice: '1',
         slow: { gasPrice: '1', maxFeePerGas: '274', maxPriorityFeePerGas: '10' },
-        average: { gasPrice: '1', maxFeePerGas: '300', maxPriorityFeePerGas: '10' },
-        fast: { gasPrice: '1', maxFeePerGas: '335', maxPriorityFeePerGas: '12' },
+        average: { gasPrice: '2', maxFeePerGas: '300', maxPriorityFeePerGas: '10' },
+        fast: { gasPrice: '3', maxFeePerGas: '335', maxPriorityFeePerGas: '12' },
       },
       overrideArgs,
     )
@@ -151,7 +149,7 @@ describe('EthereumChainAdapter', () => {
           average: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '300',
+              gasPrice: '2',
               maxFeePerGas: '300',
               maxPriorityFeePerGas: '10',
             },
@@ -160,7 +158,7 @@ describe('EthereumChainAdapter', () => {
           fast: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '335',
+              gasPrice: '3',
               maxFeePerGas: '335',
               maxPriorityFeePerGas: '12',
             },
@@ -169,7 +167,7 @@ describe('EthereumChainAdapter', () => {
           slow: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '274',
+              gasPrice: '1',
               maxFeePerGas: '274',
               maxPriorityFeePerGas: '10',
             },
@@ -194,17 +192,17 @@ describe('EthereumChainAdapter', () => {
       expect(data).toEqual(
         expect.objectContaining({
           average: {
-            gasPrice: '300',
+            gasPrice: '2',
             maxFeePerGas: '300',
             maxPriorityFeePerGas: '10',
           },
           fast: {
-            gasPrice: '335',
+            gasPrice: '3',
             maxFeePerGas: '335',
             maxPriorityFeePerGas: '12',
           },
           slow: {
-            gasPrice: '274',
+            gasPrice: '1',
             maxFeePerGas: '274',
             maxPriorityFeePerGas: '10',
           },

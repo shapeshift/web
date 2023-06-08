@@ -227,11 +227,11 @@ export const Overview: React.FC<OverviewProps> = ({
   const renderFiatOptions = useMemo(() => {
     const options: FiatCurrencyItem[] = Object.values(commonFiatCurrencyList)
     return options.map(option => (
-      <option value={option.code} selected={option.code === selectedCurrency}>
+      <option key={option.code} value={option.code}>
         {`${option.code} - ${option.name}`}
       </option>
     ))
-  }, [selectedCurrency])
+  }, [])
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   return asset ? (
@@ -245,7 +245,10 @@ export const Overview: React.FC<OverviewProps> = ({
               fiatRampAction === FiatRampAction.Buy ? 'fiatRamps.buyWith' : 'fiatRamps.sellFor'
             }
           />
-          <Select onChange={e => setFiatCurrency(e.target.value as CommonFiatCurrencies)}>
+          <Select
+            value={fiatCurrency}
+            onChange={e => setFiatCurrency(e.target.value as CommonFiatCurrencies)}
+          >
             {renderFiatOptions}
           </Select>
         </Stack>

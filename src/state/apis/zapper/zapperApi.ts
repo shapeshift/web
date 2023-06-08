@@ -388,12 +388,27 @@ export const zapper = createApi({
               const appAccountOpportunities = appAccountBalance.products
                 .flatMap(({ assets }) => assets)
                 .map<ReadOnlyOpportunityType | undefined>(asset => {
-                  const stakedAmountCryptoBaseUnit =
-                    //  Liquidity Pool staking
-                    asset.tokens.find(token => token.metaType === 'supplied')?.balanceRaw ??
-                    // Single-sided staking
-                    asset.balanceRaw ??
-                    '0'
+                  const stakedAmountCryptoBaseUnitAccessor = (() => {
+                    //  Liquidity Pool of sorts
+                    const maybeLpAcesssor = asset.tokens.find(
+                      token => token.metaType === 'supplied' || token.metaType === 'borrowed',
+                    )
+                    // More general single-sided staking
+                    if (maybeLpAcesssor?.balanceRaw) return maybeLpAcesssor
+                    return asset
+                  })()
+                  // The balance itself is a positive amount, but the USD balance is negative, so we need to check for that
+                  const isNegativeStakedAmount = bnOrZero(
+                    stakedAmountCryptoBaseUnitAccessor?.balanceUSD,
+                  ).isNegative()
+                  const stakedAmountCryptoBaseUnitBase = bnOrZero(
+                    stakedAmountCryptoBaseUnitAccessor?.balanceRaw,
+                  )
+                  const stakedAmountCryptoBaseUnit = (
+                    isNegativeStakedAmount
+                      ? stakedAmountCryptoBaseUnitBase.negated()
+                      : stakedAmountCryptoBaseUnitBase
+                  ).toFixed()
                   const rewardTokens = asset.tokens.filter(token => token.metaType === 'claimable')
                   const rewardAssetIds = rewardTokens.reduce<AssetId[]>((acc, token) => {
                     const rewardAssetId = zapperAssetToMaybeAssetId(token)
@@ -418,8 +433,15 @@ export const zapper = createApi({
                   // This is our best bet until we bring in the concept of an "DefiType.GenericOpportunity"
                   const defiType = DefiType.Staking
 
-                  // Actually defined because we pass networks in the query params
-                  const assetId = zapperAssetToMaybeAssetId(asset)
+                  const topLevelAsset = (() => {
+                    const maybeLpAsset = asset.tokens.find(
+                      token => token.metaType === 'supplied' || token.metaType === 'borrowed',
+                    )
+                    if (maybeLpAsset) return maybeLpAsset
+                    return asset
+                  })()
+
+                  const assetId = zapperAssetToMaybeAssetId(topLevelAsset)
 
                   if (!assetId) return undefined
 

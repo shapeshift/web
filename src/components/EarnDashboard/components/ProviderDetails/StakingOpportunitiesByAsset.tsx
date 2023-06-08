@@ -124,7 +124,7 @@ export const StakingPositionsByAsset: React.FC<StakingPositionsByAssetProps> = (
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
           const opportunity = row.original
-          const hasValue = bnOrZero(opportunity.fiatAmount).gt(0)
+          const hasValue = !bnOrZero(opportunity.fiatAmount).isZero()
           return hasValue ? (
             <Flex flexDir='column' alignItems={{ base: 'flex-end', md: 'flex-start' }}>
               <Amount.Fiat value={row.original.fiatAmount} />

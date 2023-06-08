@@ -533,7 +533,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
       const results = aggregatedEarnUserStakingOpportunitiesIncludeEmpty.filter(opportunity => {
         if (opportunity?.expired) {
           return (
-            bnOrZero(opportunity.stakedAmountCryptoBaseUnit).gt(0) ||
+            !bnOrZero(opportunity.stakedAmountCryptoBaseUnit).isZero() ||
             opportunity?.rewardsCryptoBaseUnit?.amounts.some(rewardsAmount =>
               bnOrZero(rewardsAmount).gt(0),
             )
@@ -547,8 +547,9 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
         bnOrZero(a.fiatAmount).gte(bnOrZero(b.fiatAmount)) ? -1 : 1,
       )
 
-      const [activeResults, inactiveResults] = partition(sortedResultsByFiatAmount, opportunity =>
-        bnOrZero(opportunity.fiatAmount).gt(0),
+      const [activeResults, inactiveResults] = partition(
+        sortedResultsByFiatAmount,
+        opportunity => !bnOrZero(opportunity.fiatAmount).isZero(),
       )
       inactiveResults.sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
 
@@ -606,10 +607,10 @@ export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEq
     const eligibleOpportunities = aggregatedEarnUserStakingOpportunities.reduce<
       StakingEarnOpportunityType[]
     >((acc, opportunity) => {
-      const hasBalance = opportunity.underlyingAssetIds.some(assetId =>
-        bnOrZero(assetBalances[assetId]).gt(0),
+      const hasBalance = opportunity.underlyingAssetIds.some(
+        assetId => !bnOrZero(assetBalances[assetId]).isZero(),
       )
-      const hasOpportunityBalance = bnOrZero(opportunity.fiatAmount).gt(0)
+      const hasOpportunityBalance = !bnOrZero(opportunity.fiatAmount).isZero()
       if (hasBalance && !opportunity.expired && !hasOpportunityBalance) acc.push(opportunity)
       return acc
     }, [])
@@ -726,7 +727,7 @@ export const selectAllEarnUserStakingOpportunitiesByFilter = createDeepEqualOutp
             .times(marketDataPrice ?? '0')
             .toString(),
         }
-        if (bnOrZero(opportunityBalance).gt(0)) {
+        if (!bnOrZero(opportunityBalance).isZero()) {
           opportunities.push(opportunity)
         }
       }

@@ -56,7 +56,7 @@ export const StakingResult = forwardRef<StakingResultProps, 'div'>(
       const hasBalanceElement = <RawText textTransform='capitalize'>{opportunity?.type}</RawText>
       const subText = [
         aprElement,
-        ...(bnOrZero(opportunity?.cryptoAmountBaseUnit).gt(0) ? [hasBalanceElement] : []),
+        ...(!bnOrZero(opportunity?.cryptoAmountBaseUnit).isZero() ? [hasBalanceElement] : []),
       ]
 
       return subText.map((element, index) => (
@@ -83,7 +83,7 @@ export const StakingResult = forwardRef<StakingResultProps, 'div'>(
             }
           />
         </Flex>
-        {bnOrZero(opportunity.fiatAmount).gt(0) && (
+        {!bnOrZero(opportunity.fiatAmount).isZero() && (
           <Flex flexDir='column' alignItems='flex-end'>
             <Amount.Fiat
               color='chakra-body-text'

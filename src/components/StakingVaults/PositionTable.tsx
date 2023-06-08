@@ -100,7 +100,8 @@ export const PositionTable: React.FC<PositionTableProps> = ({
         id: 'fiatAmount',
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
-          const hasValue = bnOrZero(row.original.fiatAmount).gt(0)
+          // A fiat amount can be positive or negative (debt) but not zero
+          const hasValue = !bnOrZero(row.original.fiatAmount).isZero()
           return hasValue ? (
             <Amount.Fiat value={row.original.fiatAmount} />
           ) : (

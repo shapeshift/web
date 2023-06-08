@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react'
 
-export function useDebounce<T>(value: T | undefined, delay: number): T | undefined {
+export function useDebounce<T>(value: T | undefined, delayMilliseconds: number): T | undefined {
   const [debouncedValue, setDebouncedValue] = useState(value)
 
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedValue(value)
-    }, delay)
+    }, delayMilliseconds)
     return () => {
       clearTimeout(handler)
     }
-  }, [value, delay])
+  }, [value, delayMilliseconds])
 
   return debouncedValue
 }

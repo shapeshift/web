@@ -216,7 +216,7 @@ export const zapperApi = createApi({
     }),
     getZapperNftUserTokens: build.query<NftItemWithCollection[], GetZapperNftUserTokensInput>({
       queryFn: async ({ accountIds }) => {
-        let data: V2NftUserItem[] = []
+        let data: (V2NftUserItem & { ownerAddress: string })[] = []
 
         const userAddresses = accountIdsToEvmAddresses(accountIds)
         for (const userAddress of userAddresses) {
@@ -235,7 +235,10 @@ export const zapperApi = createApi({
               const payload = { ...options, params, headers, url }
               const { data: res } = await axios.request<V2NftUserTokensResponseType>({ ...payload })
               if (!res?.items?.length) break
-              if (res?.items?.length) data = data.concat(res.items)
+              if (res?.items?.length)
+                data = data.concat(
+                  res.items.map(item => Object.assign(item, { ownerAddress: userAddress })),
+                )
               if (res?.items?.length < limit) break
             } catch (e) {
               console.error(e)

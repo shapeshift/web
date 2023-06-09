@@ -9,7 +9,8 @@ import { isRejected, isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
-import type { WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
+import type { Portfolio, WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioAssetIds } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
@@ -219,7 +220,54 @@ export const nftApi = createApi({
           { byId: {}, ids: [] },
         )
 
+        const portfolioDataToUpsert: Portfolio = {
+          accounts: {
+            byId: {},
+            ids: [],
+          },
+          accountBalances: {
+            byId: {},
+            ids: [],
+          },
+          accountMetadata: {
+            byId: {},
+            ids: [],
+          },
+          wallet: {
+            byId: {},
+            ids: [],
+          },
+        }
+
+        // TODO: may want to do this in the upsert methods if we can
+        missingPortfolioNfts.forEach(nft => {
+          // TODO
+          const accountId = nft.ownerAccountId
+
+          if (!portfolioDataToUpsert.accounts.byId[accountId]) {
+            portfolioDataToUpsert.accounts.byId[accountId] = {
+              assetIds: [nft.assetId],
+            }
+            portfolioDataToUpsert.accounts.ids.push(accountId)
+          } else {
+            portfolioDataToUpsert.accounts.byId[accountId].assetIds.push(nft.assetId)
+          }
+
+          const balanceData = {
+            [nft.assetId]: '1', // Placeholder, TODO double check this works
+          }
+          if (!portfolioDataToUpsert.accountBalances.byId[accountId]) {
+            portfolioDataToUpsert.accountBalances.byId[accountId] = balanceData
+            portfolioDataToUpsert.accountBalances.ids.push(accountId)
+          } else {
+            portfolioDataToUpsert.accountBalances.byId[accountId] = Object.assign(
+              portfolioDataToUpsert.accountBalances.byId[accountId],
+              balanceData,
+            )
+          }
+        })
         dispatch(assetsSlice.actions.upsertAssets(assetsToUpsert))
+        dispatch(portfolio.actions.upsertPortfolio(portfolioDataToUpsert))
 
         return { data }
       },

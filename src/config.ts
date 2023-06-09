@@ -1,4 +1,3 @@
-/* eslint-disable @shapeshiftoss/logger/no-native-console */
 import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
@@ -23,6 +22,8 @@ const validators = {
   REACT_APP_UNCHAINED_BNBSMARTCHAIN_WS_URL: url(),
   REACT_APP_UNCHAINED_POLYGON_HTTP_URL: url(),
   REACT_APP_UNCHAINED_POLYGON_WS_URL: url(),
+  REACT_APP_UNCHAINED_GNOSIS_HTTP_URL: url(),
+  REACT_APP_UNCHAINED_GNOSIS_WS_URL: url(),
   REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: url(),
   REACT_APP_UNCHAINED_BITCOIN_WS_URL: url(),
   REACT_APP_UNCHAINED_BITCOINCASH_HTTP_URL: url(),
@@ -44,6 +45,7 @@ const validators = {
   REACT_APP_OPTIMISM_NODE_URL: url(),
   REACT_APP_BNBSMARTCHAIN_NODE_URL: url(),
   REACT_APP_POLYGON_NODE_URL: url(),
+  REACT_APP_GNOSIS_NODE_URL: url(),
   REACT_APP_ALCHEMY_POLYGON_URL: url(),
   REACT_APP_KEEPKEY_VERSIONS_URL: url(),
   REACT_APP_WALLET_MIGRATION_URL: url(),
@@ -64,8 +66,10 @@ const validators = {
   REACT_APP_ZERION_API_KEY: str(),
   REACT_APP_FEATURE_DEFI_DASHBOARD: bool({ default: false }),
   REACT_APP_ZAPPER_API_KEY: str(),
+  REACT_APP_COVALENT_API_KEY: str(),
   REACT_APP_FEATURE_LIFI_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
+  REACT_APP_FEATURE_COWSWAP_GNOSIS: bool({ default: false }),
   REACT_APP_FEATURE_JAYPEGZ: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_SEND: bool({ default: false }),
   REACT_APP_FEATURE_OSMOSIS_LP: bool({ default: false }),
@@ -75,11 +79,8 @@ const validators = {
   REACT_APP_FEATURE_OPTIMISM: bool({ default: false }),
   REACT_APP_FEATURE_BNBSMARTCHAIN: bool({ default: false }),
   REACT_APP_FEATURE_POLYGON: bool({ default: false }),
-  REACT_APP_FEATURE_ZRX_AVALANCHE: bool({ default: false }),
-  REACT_APP_FEATURE_ZRX_BNBSMARTCHAIN: bool({ default: false }),
-  REACT_APP_FEATURE_ZRX_POLYGON: bool({ default: false }),
-  REACT_APP_FEATURE_ZRX_ETHEREUM: bool({ default: false }),
-  REACT_APP_FEATURE_ZRX_OPTIMISM: bool({ default: false }),
+  REACT_APP_FEATURE_GNOSIS: bool({ default: false }),
+  REACT_APP_FEATURE_ZRX_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_IDLE: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),
@@ -87,11 +88,11 @@ const validators = {
   REACT_APP_FEATURE_SAVERS_VAULTS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2: bool({ default: false }),
+  REACT_APP_FEATURE_MULTI_HOP_TRADES: bool({ default: false }),
   REACT_APP_WALLET_CONNECT_PROJECT_ID: str({ default: '' }),
   REACT_APP_WALLET_CONNECT_RELAY_URL: str({ default: 'wss://relay.walletconnect.com' }),
   REACT_APP_YAT_NODE_URL: url({ default: 'https://a.y.at' }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
-  REACT_APP_COINGECKO_API_KEY: str({ default: '' }), // not required, we can fall back to the free tier
   REACT_APP_LOCAL_IP: str({ default: '192.168.1.222' }),
   REACT_APP_BOARDROOM_API_BASE_URL: url({
     default: 'https://api.boardroom.info/v1/protocols/shapeshift/',
@@ -102,8 +103,8 @@ const validators = {
   REACT_APP_MIDGARD_URL: url({
     default: 'https://midgard.thorchain.info/v2',
   }),
-  REACT_APP_COWSWAP_HTTP_URL: url({
-    default: 'https://api.cow.fi/mainnet/api',
+  REACT_APP_COWSWAP_BASE_URL: url({
+    default: 'https://api.cow.fi',
   }),
   REACT_APP_COSMOS_NODE_URL: url({
     default: 'https://dev-daemon.osmosis.shapeshift.com',
@@ -143,10 +144,15 @@ const validators = {
   REACT_APP_FEATURE_MIXPANEL: bool({ default: false }),
   REACT_APP_FEATURE_FOX_BOND_CTA: bool({ default: false }),
   REACT_APP_FEATURE_DYNAMIC_LP_ASSETS: bool({ default: false }),
+  REACT_APP_FEATURE_READ_ONLY_ASSETS: bool({ default: false }),
   REACT_APP_FEATURE_ONE_INCH: bool({ default: false }),
   REACT_APP_ONE_INCH_API_URL: url({
     default: 'https://api.1inch.io/v5.0',
   }),
+  REACT_APP_FEATURE_COVALENT_JAYPEGS: bool({ default: false }),
+  REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY: str(),
+  REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_API_KEY: str(),
+  REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_API_KEY: str(),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

@@ -1,4 +1,4 @@
-import { Center } from '@chakra-ui/layout'
+import { Center } from '@chakra-ui/react'
 import InfiniteScroll from 'react-infinite-scroller'
 import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'

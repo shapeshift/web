@@ -94,6 +94,7 @@ export const LpPositionsByAsset: React.FC<LpPositionsByAssetProps> = ({ ids }) =
             icons={row.original.icons}
             opportunityName={row.original.opportunityName}
             showAssetSymbol={row.original.showAssetSymbol}
+            isExternal={row.original.isReadOnly}
           />
         ),
         disableSortBy: true,

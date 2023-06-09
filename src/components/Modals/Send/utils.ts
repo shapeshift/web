@@ -1,5 +1,4 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
   CHAIN_NAMESPACE,
@@ -27,16 +26,15 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { isOsmosisLpAsset, tokenOrUndefined } from 'lib/utils'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
+import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 import type { SendInput } from './Form'
 
 export type EstimateFeesInput = {
   cryptoAmount: string
-  asset: Asset
+  assetId: AssetId
   // Optional hex-encoded calldata
   // NOT to be used with ERC20s since this will be used in-place of the ERC20 calldata
   memo?: string
@@ -47,11 +45,9 @@ export type EstimateFeesInput = {
   contractAddress: string | undefined
 }
 
-const moduleLogger = logger.child({ namespace: ['Modals', 'Send', 'utils'] })
-
 export const estimateFees = ({
   cryptoAmount,
-  asset,
+  assetId,
   from,
   memo,
   to,
@@ -61,6 +57,9 @@ export const estimateFees = ({
 }: EstimateFeesInput): Promise<FeeDataEstimate<ChainId>> => {
   const chainAdapterManager = getChainAdapterManager()
   const { account } = fromAccountId(accountId)
+  const state = store.getState()
+  const asset = selectAssetById(state, assetId)
+  if (!asset) throw new Error(`Asset not found for ${assetId}`)
   const value = bnOrZero(cryptoAmount).times(bn(10).exponentiatedBy(asset.precision)).toFixed(0)
 
   const adapter = chainAdapterManager.get(asset.chainId)
@@ -107,22 +106,23 @@ export const handleSend = async ({
 
   try {
     const state = store.getState()
+    const asset = selectAssetById(state, sendInput.assetId ?? '')
+    if (!asset) return ''
     const acccountMetadataFilter = { accountId: sendInput.accountId }
     const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, acccountMetadataFilter)
     // Native and KeepKey hdwallets only support offline signing, not broadcasting signed TXs like e.g Metamask
     if (
-      fromChainId(sendInput.asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk &&
+      fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk &&
       !wallet.supportsOfflineSigning()
     ) {
       throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
     }
 
-    const adapter = chainAdapterManager.get(sendInput.asset.chainId) as ChainAdapter<KnownChainIds>
-    if (!adapter)
-      throw new Error(`useFormSend: no adapter available for ${sendInput.asset.chainId}`)
+    const adapter = chainAdapterManager.get(asset.chainId) as ChainAdapter<KnownChainIds>
+    if (!adapter) throw new Error(`useFormSend: no adapter available for ${asset.chainId}`)
 
     const value = bnOrZero(sendInput.cryptoAmount)
-      .times(bn(10).exponentiatedBy(sendInput.asset.precision))
+      .times(bn(10).exponentiatedBy(asset.precision))
       .toFixed(0)
 
     const chainId = adapter.getChainId()
@@ -150,9 +150,7 @@ export const handleSend = async ({
         if (!shouldUseEIP1559Fees && gasPrice === undefined) {
           throw new Error(`useFormSend: missing gasPrice for non-EIP-1559 tx`)
         }
-        const tokenContractAddress = tokenOrUndefined(
-          fromAssetId(sendInput.asset.assetId).assetReference,
-        )
+        const tokenContractAddress = tokenOrUndefined(fromAssetId(asset.assetId).assetReference)
         const { accountNumber } = bip44Params
         return await (adapter as unknown as EvmBaseAdapter<EvmChainId>).buildSendTransaction({
           memo,
@@ -193,7 +191,7 @@ export const handleSend = async ({
         })
       }
 
-      if (fromChainId(sendInput.asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
+      if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
         const fees = estimatedFees[feeType] as FeeData<CosmosSdkChainId>
         const { accountNumber } = bip44Params
         const params = {
@@ -206,9 +204,9 @@ export const handleSend = async ({
           sendMax: sendInput.sendMax,
         }
 
-        const { assetReference, assetNamespace } = fromAssetId(sendInput.asset.assetId)
+        const { assetReference, assetNamespace } = fromAssetId(asset.assetId)
         if (
-          sendInput.asset.chainId === KnownChainIds.OsmosisMainnet &&
+          asset.chainId === KnownChainIds.OsmosisMainnet &&
           assetNamespace === ASSET_NAMESPACE.ibc
         ) {
           return (
@@ -256,8 +254,8 @@ export const handleSend = async ({
     }
 
     return broadcastTXID
-  } catch (error: any) {
-    moduleLogger.error(error, { fn: 'handleSend' }, 'Error handling send')
-    throw new Error(error)
+  } catch (error) {
+    console.error(error)
+    throw error
   }
 }

@@ -16,7 +16,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
@@ -38,8 +37,6 @@ type FoxFarmingApproveProps = {
   accountId: AccountId | undefined
   onNext: (arg: DefiStep) => void
 }
-
-const moduleLogger = logger.child({ namespace: ['FoxFarmingDeposit:Approve'] })
 
 export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
@@ -68,7 +65,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
   )
   assertIsFoxEthStakingContractAddress(contractAddress)
 
-  const { allowance, approve, getStakeGasData } = useFoxFarming(contractAddress)
+  const { allowance, approve, getStakeFeeData } = useFoxFarming(contractAddress)
 
   const assets = useAppSelector(selectAssets)
 
@@ -109,9 +106,9 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
         maxAttempts: 30,
       })
       // Get deposit gas estimate
-      const gasData = await getStakeGasData(state.deposit.cryptoAmount)
-      if (!gasData) return
-      const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
+      const feeData = await getStakeFeeData(state.deposit.cryptoAmount)
+      if (!feeData) return
+      const estimatedGasCryptoPrecision = bnOrZero(feeData.txFee)
         .div(bn(10).pow(feeAsset.precision))
         .toPrecision()
       dispatch({
@@ -130,7 +127,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
         assets,
       )
     } catch (error) {
-      moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -147,7 +144,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
     wallet,
     asset,
     approve,
-    getStakeGasData,
+    getStakeFeeData,
     feeAsset.precision,
     onNext,
     assets,

@@ -1,66 +1,56 @@
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { numberToHex } from 'web3-utils'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
-import { isNativeEvmAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
-import type { ZrxExecuteTradeInput, ZrxSwapperDeps } from 'lib/swapper/swappers/ZrxSwapper/types'
-import type { ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
+import {
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+  isNativeEvmAsset,
+} from 'lib/swapper/swappers/utils/helpers/helpers'
+import type { ZrxExecuteTradeInput } from 'lib/swapper/swappers/ZrxSwapper/types'
+import { isEvmChainAdapter } from 'lib/utils'
 
-export async function zrxExecuteTrade<T extends ZrxSupportedChainId>(
-  { adapter }: ZrxSwapperDeps,
-  { trade, wallet }: ZrxExecuteTradeInput<T>,
-): Promise<Result<TradeResult, SwapErrorRight>> {
-  const { accountNumber, sellAsset } = trade
+export async function zrxExecuteTrade({
+  trade,
+  wallet,
+}: ZrxExecuteTradeInput): Promise<Result<TradeResult, SwapErrorRight>> {
+  const { accountNumber, depositAddress, sellAmountBeforeFeesCryptoBaseUnit, sellAsset, txData } =
+    trade
+
+  const adapterManager = getChainAdapterManager()
+  const adapter = adapterManager.get(sellAsset.chainId)
+
+  if (!adapter || !isEvmChainAdapter(adapter)) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Invalid chain adapter',
+        code: SwapErrorType.UNSUPPORTED_CHAIN,
+        details: { adapter },
+      }),
+    )
+  }
 
   try {
-    // value is 0 for erc20s
-    const value = isNativeEvmAsset(sellAsset.assetId)
-      ? trade.sellAmountBeforeFeesCryptoBaseUnit
-      : '0'
-
-    const buildTxResponse = await adapter.buildSendTransaction({
-      value,
-      wallet,
-      to: trade.depositAddress,
-      chainSpecific: {
-        gasPrice: numberToHex(trade.feeData?.chainSpecific?.gasPriceCryptoBaseUnit || 0),
-        gasLimit: numberToHex(trade.feeData?.chainSpecific?.estimatedGasCryptoBaseUnit || 0),
-      },
+    const buildCustomTxArgs = await createBuildCustomTxInput({
       accountNumber,
+      adapter,
+      to: depositAddress,
+      data: txData,
+      value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountBeforeFeesCryptoBaseUnit : '0',
+      wallet,
     })
 
-    const { txToSign } = buildTxResponse
+    const txid = await buildAndBroadcast({
+      buildCustomTxArgs,
+      adapter,
+      wallet,
+    })
 
-    const txWithQuoteData = { ...txToSign, data: trade.txData ?? '' }
-
-    if (wallet.supportsOfflineSigning()) {
-      const signedTx = await adapter.signTransaction({ txToSign: txWithQuoteData, wallet })
-
-      const txid = await adapter.broadcastTransaction(signedTx)
-
-      return Ok({ tradeId: txid })
-    } else if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
-      const txid = await adapter.signAndBroadcastTransaction?.({
-        txToSign: txWithQuoteData,
-        wallet,
-      })
-
-      return Ok({ tradeId: txid })
-    } else {
-      throw new SwapError('[zrxExecuteTrade]', {
-        code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
-      })
-    }
+    return Ok({ tradeId: txid })
   } catch (e) {
     if (e instanceof SwapError)
-      return Err(
-        makeSwapErrorRight({
-          message: e.message,
-          code: e.code,
-          details: e.details,
-        }),
-      )
+      return Err(makeSwapErrorRight({ message: e.message, code: e.code, details: e.details }))
     return Err(
       makeSwapErrorRight({
         message: '[zrxExecuteTrade]',

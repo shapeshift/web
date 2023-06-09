@@ -1,25 +1,13 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import { getFormFees } from 'components/Trade/hooks/useSwapper/utils'
 import { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import { TradeAmountInputField } from 'components/Trade/types'
+import type { Asset } from 'lib/asset-service'
 import {
   selectTradeAmountsByActionAndAmount,
   selectTradeAmountsByActionAndAmountFromQuote,
 } from 'state/zustand/swapperStore/amountSelectors'
-import { selectQuote } from 'state/zustand/swapperStore/selectors'
+import { selectActiveSwapperWithMetadata, selectQuote } from 'state/zustand/swapperStore/selectors'
 import type { SetSwapperStoreAction, SwapperState } from 'state/zustand/swapperStore/types'
-
-export const toggleIsExactAllowance =
-  (set: SetSwapperStoreAction<SwapperState>): SwapperState['toggleIsExactAllowance'] =>
-  () =>
-    set(
-      draft => {
-        draft.isExactAllowance = !draft.isExactAllowance
-        return draft
-      },
-      false,
-      `swapper/toggleIsExactAllowance`,
-    )
 
 export const clearAmounts =
   (set: SetSwapperStoreAction<SwapperState>): SwapperState['clearAmounts'] =>
@@ -31,7 +19,6 @@ export const clearAmounts =
         draft.buyAmountFiat = '0'
         draft.sellAmountFiat = '0'
         draft.amount = '0'
-        draft.isSendMax = false
         draft.action = TradeAmountInputField.SELL_FIAT
         draft.trade = undefined
         draft.buyAmountFiat = '0'
@@ -49,8 +36,6 @@ export const handleSwitchAssets =
       draft => {
         const sellAsset = draft.sellAsset
         const buyAsset = draft.buyAsset
-        const sellAssetFiatRate = draft.sellAssetFiatRate
-        const buyAssetFiatRate = draft.buyAssetFiatRate
 
         draft.buyAsset = sellAsset
         draft.sellAsset = buyAsset
@@ -59,15 +44,12 @@ export const handleSwitchAssets =
         draft.sellAmountFiat = '0'
         draft.buyAmountFiat = '0'
         draft.amount = '0'
-        draft.feeAssetFiatRate = undefined
         draft.fees = undefined
         draft.trade = undefined
         draft.selectedSellAssetAccountId = undefined
         draft.selectedBuyAssetAccountId = undefined
         draft.buyAssetAccountId = undefined
         draft.sellAssetAccountId = undefined
-        draft.buyAssetFiatRate = sellAssetFiatRate
-        draft.sellAssetFiatRate = buyAssetFiatRate
         return draft
       },
       false,
@@ -110,7 +92,6 @@ export const handleAssetSelection =
 
         if (isBuy) {
           draft.buyAsset = asset
-          draft.buyAssetFiatRate = undefined
           if (isSameAsset) draft.sellAsset = buyAsset
           draft.selectedBuyAssetAccountId = undefined
           draft.buyAssetAccountId = undefined
@@ -121,8 +102,6 @@ export const handleAssetSelection =
           if (isSameAsset) draft.buyAsset = sellAsset
           draft.selectedSellAssetAccountId = undefined
           draft.sellAssetAccountId = undefined
-          draft.sellAssetFiatRate = undefined
-          draft.feeAssetFiatRate = undefined
         }
 
         draft.fees = undefined
@@ -148,9 +127,10 @@ export const handleAssetSelection =
 export const updateFees = (set: SetSwapperStoreAction<SwapperState>) => (sellFeeAsset: Asset) =>
   set(
     draft => {
-      const feeTrade = draft.trade ?? selectQuote(draft)
+      const feeTrade = draft.trade ?? selectQuote(draft)?.steps[0]
       const sellAsset = draft.sellAsset
-      const activeTradeSwapper = draft.activeSwapperWithMetadata?.swapper
+      const activeSwapperWithMetadata = selectActiveSwapperWithMetadata(draft)
+      const activeTradeSwapper = activeSwapperWithMetadata?.swapper
       if (sellAsset && activeTradeSwapper && feeTrade) {
         const fees = getFormFees({
           trade: feeTrade,

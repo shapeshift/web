@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { cosmosAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkBaseAdapter, thorchain } from '@shapeshiftoss/chain-adapters'
@@ -6,6 +5,7 @@ import type { CosmosSignTx, HDWallet, ThorchainSignTx } from '@shapeshiftoss/hdw
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { Asset } from 'lib/asset-service'
 import type { SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { ThorCosmosSdkSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
@@ -26,6 +26,7 @@ type GetCosmosTxDataInput = {
   quote: TradeQuote<ThorCosmosSdkSupportedChainId>
   chainId: ChainId
   sellAdapter: CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
+  affiliateBps: string
 }
 
 export const getCosmosTxData = async (
@@ -42,10 +43,13 @@ export const getCosmosTxData = async (
     quote,
     wallet,
     sellAdapter,
+    affiliateBps,
   } = input
   const fromThorAsset = sellAsset.chainId === KnownChainIds.ThorchainMainnet
-  const gaiaAddressData = await getInboundAddressDataForChain(deps.daemonUrl, cosmosAssetId)
-  const vault = gaiaAddressData?.address
+  const maybeGaiaAddressData = await getInboundAddressDataForChain(deps.daemonUrl, cosmosAssetId)
+  if (maybeGaiaAddressData.isErr()) return Err(maybeGaiaAddressData.unwrapErr())
+  const gaiaAddressData = maybeGaiaAddressData.unwrap()
+  const vault = gaiaAddressData.address
 
   if (!vault && !fromThorAsset)
     return Err(
@@ -57,13 +61,14 @@ export const getCosmosTxData = async (
     )
 
   const maybeLimit = await getLimit({
-    buyAssetId: buyAsset.assetId,
+    buyAsset,
     sellAmountCryptoBaseUnit,
     sellAsset,
     slippageTolerance,
     deps,
-    buyAssetTradeFeeUsd: quote.feeData.buyAssetTradeFeeUsd,
+    protocolFees: quote.steps[0].feeData.protocolFees,
     receiveAddress: destinationAddress,
+    affiliateBps,
   })
 
   if (maybeLimit.isErr()) return Err(maybeLimit.unwrapErr())
@@ -73,6 +78,7 @@ export const getCosmosTxData = async (
     buyAssetId: buyAsset.assetId,
     destinationAddress,
     limit,
+    affiliateBps,
   })
 
   const maybeBuiltTxResponse = (() => {
@@ -85,8 +91,8 @@ export const getCosmosTxData = async (
             wallet,
             memo,
             chainSpecific: {
-              gas: quote.feeData.chainSpecific.estimatedGasCryptoBaseUnit,
-              fee: quote.feeData.networkFeeCryptoBaseUnit,
+              gas: quote.steps[0].feeData.chainSpecific.estimatedGasCryptoBaseUnit,
+              fee: quote.steps[0].feeData.networkFeeCryptoBaseUnit,
             },
           }),
         )
@@ -109,9 +115,9 @@ export const getCosmosTxData = async (
             to: vault,
             memo,
             chainSpecific: {
-              gas: (quote as TradeQuote<ThorCosmosSdkSupportedChainId>).feeData.chainSpecific
-                .estimatedGasCryptoBaseUnit,
-              fee: quote.feeData.networkFeeCryptoBaseUnit,
+              gas: (quote as TradeQuote<ThorCosmosSdkSupportedChainId>).steps[0].feeData
+                .chainSpecific.estimatedGasCryptoBaseUnit,
+              fee: quote.steps[0].feeData.networkFeeCryptoBaseUnit,
             },
           }),
         )

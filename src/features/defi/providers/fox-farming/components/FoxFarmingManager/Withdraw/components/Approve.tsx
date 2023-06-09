@@ -18,7 +18,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
@@ -35,10 +34,6 @@ import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'FoxFarming', 'Withdraw', 'Approve'],
-})
 
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
@@ -67,7 +62,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
-  const { allowance, approve, getUnstakeGasData } = useFoxFarming(contractAddress)
+  const { allowance, approve, getUnstakeFeeData } = useFoxFarming(contractAddress)
   const toast = useToast()
   const assets = useAppSelector(selectAssets)
 
@@ -107,9 +102,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         maxAttempts: 30,
       })
       // Get withdraw gas estimate
-      const gasData = await getUnstakeGasData(state.withdraw.lpAmount, state.withdraw.isExiting)
-      if (!gasData) return
-      const estimatedGasCrypto = bnOrZero(gasData.average.txFee)
+      const feeData = await getUnstakeFeeData(state.withdraw.lpAmount, state.withdraw.isExiting)
+      if (!feeData) return
+      const estimatedGasCrypto = bnOrZero(feeData.txFee)
         .div(bn(10).pow(underlyingAsset?.precision ?? 0))
         .toPrecision()
       dispatch({
@@ -128,7 +123,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -145,7 +140,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     opportunity,
     wallet,
     approve,
-    getUnstakeGasData,
+    getUnstakeFeeData,
     underlyingAsset?.precision,
     onNext,
     assets,

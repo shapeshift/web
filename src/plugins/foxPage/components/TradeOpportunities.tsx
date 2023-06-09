@@ -1,5 +1,4 @@
-import { Box, Flex, Link } from '@chakra-ui/layout'
-import { Image, Text as CText } from '@chakra-ui/react'
+import { Box, Flex, Image, Link, Text as CText } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'

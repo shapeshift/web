@@ -1,10 +1,9 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import type { DisplayFeeData, TradeAmountInputField } from 'components/Trade/types'
-import type { SwapperWithQuoteMetadata, Trade } from 'lib/swapper/api'
-import type { CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
+import type { Asset } from 'lib/asset-service'
+import type { SwapperName, SwapperWithQuoteMetadata, Trade } from 'lib/swapper/api'
 
 export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   selectedSellAssetAccountId?: AccountId
@@ -17,19 +16,14 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   buyAsset: Asset
   sellAmountFiat: string
   buyAmountFiat: string
-  sellAssetFiatRate?: string
-  buyAssetFiatRate?: string
-  feeAssetFiatRate?: string
   action: TradeAmountInputField
-  isExactAllowance: boolean
-  isSendMax: boolean
   amount: string
   receiveAddress?: string
   fees?: DisplayFeeData<C>
-  trade?: Trade<C> | CowTrade<C>
-  activeSwapperWithMetadata?: SwapperWithQuoteMetadata
+  trade?: Trade<C>
   availableSwappersWithMetadata?: SwapperWithQuoteMetadata[]
-  selectedCurrencyToUsdRate?: string
+  activeAffiliateBps: string
+  preferredSwapper?: SwapperName
 }
 
 type HandleAssetSelectionInput = { asset: Asset; action: AssetClickAction }
@@ -41,33 +35,21 @@ export type SwapperAction = {
   updateBuyAssetAccountId: (accountId: SwapperStore['buyAssetAccountId']) => void
   updateSellAmountFiat: (sellAmountFiat: SwapperStore['sellAmountFiat']) => void
   updateBuyAmountFiat: (buyAmountFiat: SwapperStore['buyAmountFiat']) => void
-  updateSellAssetFiatRate: (sellAssetFiatRate: SwapperStore['sellAssetFiatRate']) => void
-  updateBuyAssetFiatRate: (buyAssetFiatRate: SwapperStore['buyAssetFiatRate']) => void
-  updateFeeAssetFiatRate: (feeAssetFiatRate: SwapperStore['feeAssetFiatRate']) => void
   clearAmounts: () => void
   updateAction: (action: SwapperStore['action']) => void
-  updateIsExactAllowance: (isExactAllowance: SwapperStore['isExactAllowance']) => void
-  updateIsSendMax: (isSendMax: SwapperStore['isSendMax']) => void
   updateAmount: (amount: SwapperStore['amount']) => void
   updateReceiveAddress: (receiveAddress: SwapperStore['receiveAddress']) => void
-  toggleIsExactAllowance: () => void
   updateTrade: (trade: SwapperStore['trade']) => void
-  updateActiveSwapperWithMetadata: (
-    activeSwapperWithMetadata: SwapperStore['activeSwapperWithMetadata'],
-  ) => void
   updateAvailableSwappersWithMetadata: (
     availableSwappersWithMetadata: SwapperStore['availableSwappersWithMetadata'],
   ) => void
-  updateSellAsset: (sellAsset: SwapperStore['sellAsset']) => void
-  updateBuyAsset: (buyAsset: SwapperStore['buyAsset']) => void
-  updateBuyAmountCryptoPrecision: (buyAmountCryptoPrecision: string) => void
-  updateSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
   handleSwitchAssets: () => void
-  updateSelectedCurrencyToUsdRate: (selectedCurrencyToUsdRate: string) => void
   handleInputAmountChange: () => void
   handleAssetSelection: (handleAssetSelectionInput: HandleAssetSelectionInput) => void
   updateFees: (sellFeeAsset: Asset) => void
   updateTradeAmountsFromQuote: () => void
+  updateActiveAffiliateBps: (activeAffiliateBps: string) => void
+  updatePreferredSwapper: (preferredSwapper: SwapperStore['preferredSwapper']) => void
 }
 
 // https://github.com/pmndrs/zustand/blob/main/src/vanilla.ts#L1

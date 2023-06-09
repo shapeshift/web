@@ -1,5 +1,4 @@
 import { useToast } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
@@ -16,8 +15,8 @@ import { useHistory } from 'react-router-dom'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
@@ -34,8 +33,6 @@ import { useAppSelector } from 'state/store'
 
 import { IdleDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-
-const moduleLogger = logger.child({ namespace: ['IdleDeposit:Deposit'] })
 
 type DepositProps = StepComponentProps & {
   accountId?: AccountId | undefined
@@ -119,10 +116,7 @@ export const Deposit: React.FC<DepositProps> = ({
           .integerValue()
           .toString()
       } catch (error) {
-        moduleLogger.error(
-          { fn: 'getDepositGasEstimateCryptoBaseUnit', error },
-          'Error getting deposit gas estimate',
-        )
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
@@ -154,10 +148,7 @@ export const Deposit: React.FC<DepositProps> = ({
         .integerValue()
         .toString()
     } catch (error) {
-      moduleLogger.error(
-        { fn: 'getApproveEstimate', error },
-        'Error getting deposit approval gas estimate',
-      )
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -212,7 +203,7 @@ export const Deposit: React.FC<DepositProps> = ({
           dispatch({ type: IdleDepositActionType.SET_LOADING, payload: false })
         }
       } catch (error) {
-        moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),

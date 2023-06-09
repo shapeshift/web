@@ -5,3 +5,5 @@ global.console = {
     warn: jest.fn(),
     error: jest.fn(),
 }
+
+process.env.REACT_APP_FEATURE_NFT_METADATA=true

@@ -135,6 +135,19 @@
           "useSingleRequestParameter": true
         }
       },
+      "gnosis": {
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/gnosis/api/src/swagger.json",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/gnosis",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
       "osmosis": {
         "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/go/coinstacks/osmosis/api/swagger.json",
         "generatorName": "typescript-fetch",

@@ -57,7 +57,7 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
     },
   })
 
-  if (!walletConnect.connector || !walletConnect.dapp) return null
+  if (!walletConnect.connector || !walletConnect.dapp || !feeAsset) return null
   const address = walletConnect.connector.accounts[0]
 
   if (isInteractingWithContract === null)
@@ -131,7 +131,7 @@ export const SendTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
             type='submit'
             onClick={form.handleSubmit(onConfirm)}
             isLoading={form.formState.isSubmitting}
-            disabled={!fees}
+            isDisabled={!fees}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
           </Button>

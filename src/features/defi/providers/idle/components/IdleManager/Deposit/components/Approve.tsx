@@ -1,9 +1,7 @@
 import { useToast } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { ssRouterContractAddress } from '@shapeshiftoss/investor-idle'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
@@ -19,9 +17,10 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { Asset } from 'lib/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
+import { ssRouterContractAddress } from 'lib/investor/constants'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
@@ -39,8 +38,6 @@ import { IdleDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type IdleApproveProps = StepComponentProps & { accountId: AccountId | undefined }
-
-const moduleLogger = logger.child({ namespace: ['IdleDeposit:Approve'] })
 
 export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
@@ -102,10 +99,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
           .integerValue()
           .toString()
       } catch (error) {
-        moduleLogger.error(
-          { fn: 'getDepositGasEstimateCryptoBaseUnit', error },
-          'Error getting deposit gas estimate',
-        )
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
@@ -174,7 +168,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.error({ fn: 'handleApprove', error }, 'Error getting approval gas estimate')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

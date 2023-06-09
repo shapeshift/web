@@ -10,11 +10,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import {
-  DefiAction,
-  DefiProviderMetadata,
-  DefiStep,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
@@ -24,13 +20,13 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAssetById,
   selectAssets,
@@ -47,8 +43,6 @@ type UniV2ApproveProps = StepComponentProps & {
   onNext: (arg: DefiStep) => void
 }
 
-const moduleLogger = logger.child({ namespace: ['UniV2Deposit:Approve'] })
-
 export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(DepositContext)
   const approve0 = state?.approve0
@@ -57,25 +51,27 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const [approve1Loading, setApprove1Loading] = useState<boolean>(false)
 
   const isApprove0Needed = useMemo(
-    () => Boolean(state?.approve0?.estimatedGasCryptoPrecision),
-    [state?.approve0?.estimatedGasCryptoPrecision],
+    () => Boolean(approve0?.estimatedGasCryptoPrecision),
+    [approve0?.estimatedGasCryptoPrecision],
   )
   const isApprove1Needed = useMemo(
-    () => Boolean(state?.approve1?.estimatedGasCryptoPrecision),
-    [state?.approve1?.estimatedGasCryptoPrecision],
+    () => Boolean(approve1?.estimatedGasCryptoPrecision),
+    [approve1?.estimatedGasCryptoPrecision],
   )
 
-  // Initially set to true optimistically, see the comments in the useEffect below
-  const [isAsset0AllowanceGranted, setIsAsset0AllowanceGranted] = useState<boolean>(true)
-  const [isAsset1AllowanceGranted, setIsAsset1AllowanceGranted] = useState<boolean>(true)
+  const [isAsset0AllowanceGranted, setIsAsset0AllowanceGranted] = useState<boolean>(false)
+  const [isAsset1AllowanceGranted, setIsAsset1AllowanceGranted] = useState<boolean>(false)
 
   useEffect(() => {
+    // Handles the modal renders when the modal isn't actually displayed
+    // This is because of our current modals routing where we have to bail until they're ready and displayed
+    if (!(approve0 || approve1)) return
     // We could theoretically do the same as an initial state field value
     // However routing is tricky and this component re-renders every step, no matter the current step
     // This gives us additional safety
     setIsAsset0AllowanceGranted(!isApprove0Needed)
     setIsAsset1AllowanceGranted(!isApprove1Needed)
-  }, [isApprove0Needed, isApprove1Needed])
+  }, [approve0, approve1, isApprove0Needed, isApprove1Needed])
 
   const estimatedGasCryptoPrecision =
     approve0?.estimatedGasCryptoPrecision ?? approve1?.estimatedGasCryptoPrecision
@@ -113,7 +109,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     isApprove0Needed && asset0ContractAddress,
     isApprove1Needed && asset1ContractAddress,
   ].filter(Boolean)
-  const { approveAsset, asset0Allowance, asset1Allowance, getDepositGasDataCryptoBaseUnit } =
+  const { approveAsset, asset0Allowance, asset1Allowance, getDepositFeeData } =
     useUniV2LiquidityPool({
       accountId: accountId ?? '',
       lpAssetId,
@@ -172,10 +168,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
           ? setIsAsset0AllowanceGranted(true)
           : setIsAsset1AllowanceGranted(true)
       } catch (error) {
-        moduleLogger.error(
-          { fn: 'handleApprove', error },
-          'Error getting deposit approval gas estimate',
-        )
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.transactionFailedBody'),
@@ -241,13 +234,12 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       if (!(state && dispatch && lpOpportunity)) return
       if (!(isApprove0Needed || isApprove1Needed)) return
       if (isAsset0AllowanceGranted && isAsset1AllowanceGranted) {
-        // Get deposit gas estimate
-        const gasData = await getDepositGasDataCryptoBaseUnit({
+        const feeData = await getDepositFeeData({
           token0Amount: state.deposit.asset0CryptoAmount,
           token1Amount: state.deposit.asset1CryptoAmount,
         })
-        if (!gasData) return
-        const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
+        if (!feeData) return
+        const estimatedGasCryptoPrecision = bnOrZero(feeData.txFee)
           .div(bn(10).pow(feeAsset.precision))
           .toPrecision()
         dispatch({
@@ -290,7 +282,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     assets,
     dispatch,
     feeAsset.precision,
-    getDepositGasDataCryptoBaseUnit,
+    getDepositFeeData,
     isApprove0Needed,
     isApprove1Needed,
     isAsset0AllowanceGranted,
@@ -322,7 +314,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
                 loading={approve0Loading}
                 loadingText={translate('common.approve')}
                 preFooter={preFooter}
-                providerIcon={DefiProviderMetadata[lpOpportunity!.provider].icon}
+                providerIcon={getMetadataForProvider(lpOpportunity!.provider)?.icon ?? ''}
                 learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
                 onCancel={() => onNext(DefiStep.Info)}
                 onConfirm={() => handleApprove(asset0ContractAddress)}
@@ -351,7 +343,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
                 loading={approve1Loading}
                 loadingText={translate('common.approve')}
                 preFooter={preFooter}
-                providerIcon={DefiProviderMetadata[lpOpportunity!.provider].icon}
+                providerIcon={getMetadataForProvider(lpOpportunity!.provider)?.icon ?? ''}
                 learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
                 onCancel={() => onNext(DefiStep.Info)}
                 onConfirm={() => handleApprove(asset1ContractAddress)}

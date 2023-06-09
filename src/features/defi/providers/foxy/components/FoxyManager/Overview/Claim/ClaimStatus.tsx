@@ -1,13 +1,12 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { ethers } from 'ethers'
 import isNil from 'lodash/isNil'
 import { useCallback, useEffect, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
-import type { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -18,10 +17,10 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -44,7 +43,7 @@ enum TxStatus {
 
 type ClaimState = {
   txStatus: TxStatus
-  usedGasFee?: string
+  usedGasFeeCryptoBaseUnit?: string
 }
 
 const StatusInfo = {
@@ -63,10 +62,6 @@ const StatusInfo = {
     icon: <FaTimes />,
   },
 }
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Foxy', 'Overview', 'ClaimStatus'],
-})
 
 type ClaimStatusProps = {
   accountId: AccountId | undefined
@@ -108,7 +103,6 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
           accountId,
           defiType: DefiType.Staking,
           defiProvider: DefiProvider.ShapeShift,
-          opportunityType: DefiType.Staking,
         },
         { forceRefetch: true },
       ),
@@ -121,11 +115,10 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
       try {
         const transactionReceipt = await poll({
           fn: () => foxyApi.getTxReceipt({ txid }),
-          validate: (result: TransactionReceipt) => !isNil(result),
+          validate: (result: ethers.providers.TransactionReceipt) => !isNil(result),
           interval: 15000,
           maxAttempts: 30,
         })
-        const gasPrice = await foxyApi.getGasPrice()
 
         if (transactionReceipt.status) {
           refetchFoxyBalances()
@@ -134,14 +127,16 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
         setState({
           ...state,
           txStatus: transactionReceipt.status ? TxStatus.SUCCESS : TxStatus.FAILED,
-          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0),
+          usedGasFeeCryptoBaseUnit: transactionReceipt.effectiveGasPrice
+            .mul(transactionReceipt.gasUsed)
+            .toString(),
         })
       } catch (error) {
-        moduleLogger.error(error, 'ClaimStatus error')
+        console.error(error)
         setState({
           ...state,
           txStatus: TxStatus.FAILED,
-          usedGasFee: estimatedGas,
+          usedGasFeeCryptoBaseUnit: estimatedGas,
         })
       }
     })()
@@ -220,7 +215,9 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
                 <Amount.Fiat
                   fontWeight='bold'
                   value={bnOrZero(
-                    state.txStatus === TxStatus.PENDING ? estimatedGas : state.usedGasFee,
+                    state.txStatus === TxStatus.PENDING
+                      ? estimatedGas
+                      : state.usedGasFeeCryptoBaseUnit,
                   )
                     .div(`1e+${feeAsset.precision}`)
                     .times(feeMarketData.price)
@@ -229,7 +226,9 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
                 <Amount.Crypto
                   color='gray.500'
                   value={bnOrZero(
-                    state.txStatus === TxStatus.PENDING ? estimatedGas : state.usedGasFee,
+                    state.txStatus === TxStatus.PENDING
+                      ? estimatedGas
+                      : state.usedGasFeeCryptoBaseUnit,
                   )
                     .div(`1e+${feeAsset.precision}`)
                     .toFixed(5)}

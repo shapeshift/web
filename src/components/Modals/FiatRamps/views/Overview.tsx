@@ -41,6 +41,7 @@ import {
   selectAssets,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioFiatBalanceByFilter,
+  selectSelectedCurrency,
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -73,7 +74,8 @@ export const Overview: React.FC<OverviewProps> = ({
   vanityAddress,
 }) => {
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
-  const [fiatCurrency, setFiatCurrency] = useState<CommonFiatCurrencies>('USD')
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const [fiatCurrency, setFiatCurrency] = useState<CommonFiatCurrencies>(selectedCurrency)
   const { popup } = useModal()
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const { colorMode } = useColorMode()
@@ -158,6 +160,7 @@ export const Overview: React.FC<OverviewProps> = ({
         action: fiatRampAction,
         assetId,
         address,
+        fiatCurrency,
         options: {
           language: selectedLocale,
           mode: colorMode,
@@ -166,7 +169,7 @@ export const Overview: React.FC<OverviewProps> = ({
       })
       if (url) popup.open({ url, title: 'Buy' })
     },
-    [assets, assetId, colorMode, fiatRampAction, popup, selectedLocale],
+    [assets, assetId, colorMode, fiatCurrency, fiatRampAction, popup, selectedLocale],
   )
 
   const renderProviders = useMemo(() => {
@@ -224,10 +227,11 @@ export const Overview: React.FC<OverviewProps> = ({
   const renderFiatOptions = useMemo(() => {
     const options: FiatCurrencyItem[] = Object.values(commonFiatCurrencyList)
     return options.map(option => (
-      <option value={option.code}>{`${option.code} - ${option.name}`}</option>
+      <option key={option.code} value={option.code}>
+        {`${option.code} - ${option.name}`}
+      </option>
     ))
   }, [])
-
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   return asset ? (
@@ -241,7 +245,10 @@ export const Overview: React.FC<OverviewProps> = ({
               fiatRampAction === FiatRampAction.Buy ? 'fiatRamps.buyWith' : 'fiatRamps.sellFor'
             }
           />
-          <Select onChange={e => setFiatCurrency(e.target.value as CommonFiatCurrencies)}>
+          <Select
+            value={fiatCurrency}
+            onChange={e => setFiatCurrency(e.target.value as CommonFiatCurrencies)}
+          >
             {renderFiatOptions}
           </Select>
         </Stack>

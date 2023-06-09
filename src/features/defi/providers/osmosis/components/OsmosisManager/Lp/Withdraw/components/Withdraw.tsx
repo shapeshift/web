@@ -1,5 +1,4 @@
 import { useToast } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, ASSET_REFERENCE, fromAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
@@ -19,8 +18,8 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import type { Asset } from 'lib/asset-service'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -34,8 +33,8 @@ import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/u
 import {
   selectAssetById,
   selectAssets,
-  selectMarketDataSortedByMarketCap,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -56,10 +55,6 @@ type ReceiveAmount = {
   cryptoAmountBaseUnit: string
   fiatAmount: string
 }
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Osmosis', 'Withdraw', 'Withdraw'],
-})
 
 type WithdrawProps = StepComponentProps & {
   accountId: AccountId | undefined
@@ -90,7 +85,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const { setValue } = methods
 
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
+  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
   const lpAsset: Asset | undefined = useAppSelector(state =>
     selectAssetById(state, osmosisOpportunity?.assetId ?? ''),
   )
@@ -146,10 +141,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
       return fastFeeCryptoBaseUnit
     } catch (error) {
-      moduleLogger.error(
-        { fn: 'getDepositFeeEstimate', error },
-        'Error getting deposit fee estimate',
-      )
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -368,34 +360,32 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           assets,
           marketData,
         })
-        if (underlyingAssetBalances) {
-          trackOpportunityEvent(
-            MixPanelEvents.WithdrawContinue,
-            {
-              opportunity: osmosisOpportunity,
-              fiatAmounts: [
-                underlyingAssetBalances[underlyingAsset0.assetId].fiatAmount,
-                underlyingAssetBalances[underlyingAsset1.assetId].fiatAmount,
-              ],
-              cryptoAmounts: [
-                { assetId: lpAsset.assetId, amountCryptoHuman: formValues.cryptoAmount },
-                {
-                  assetId: underlyingAsset0.assetId,
-                  amountCryptoHuman:
-                    underlyingAssetBalances[underlyingAsset0.assetId].cryptoBalancePrecision,
-                },
-                {
-                  assetId: underlyingAsset1.assetId,
-                  amountCryptoHuman:
-                    underlyingAssetBalances[underlyingAsset1.assetId].cryptoBalancePrecision,
-                },
-              ],
-            },
-            assets,
-          )
-        }
+        trackOpportunityEvent(
+          MixPanelEvents.WithdrawContinue,
+          {
+            opportunity: osmosisOpportunity,
+            fiatAmounts: [
+              underlyingAssetBalances[underlyingAsset0.assetId].fiatAmount,
+              underlyingAssetBalances[underlyingAsset1.assetId].fiatAmount,
+            ],
+            cryptoAmounts: [
+              { assetId: lpAsset.assetId, amountCryptoHuman: formValues.cryptoAmount },
+              {
+                assetId: underlyingAsset0.assetId,
+                amountCryptoHuman:
+                  underlyingAssetBalances[underlyingAsset0.assetId].cryptoBalancePrecision,
+              },
+              {
+                assetId: underlyingAsset1.assetId,
+                amountCryptoHuman:
+                  underlyingAssetBalances[underlyingAsset1.assetId].cryptoBalancePrecision,
+              },
+            ],
+          },
+          assets,
+        )
       } catch (error) {
-        moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),

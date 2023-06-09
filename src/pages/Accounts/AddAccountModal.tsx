@@ -137,7 +137,7 @@ export const AddAccountModal = () => {
           <Button
             colorScheme='blue'
             width='full'
-            disabled={!isAbleToAddAccount}
+            isDisabled={!isAbleToAddAccount}
             onClick={handleAddAccount}
           >
             {translate('accounts.addAccount')}

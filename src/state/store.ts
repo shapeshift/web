@@ -8,8 +8,10 @@ import { getStateWith, registerSelectors } from 'reselect-tools'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 
 import { abiApi } from './apis/abi/abiApi'
+import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
+import { nftApi } from './apis/nft/nftApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
 import { zerionApi } from './apis/zerion/zerionApi'
 import { migrations } from './migrations'
@@ -17,16 +19,17 @@ import type { ReduxState } from './reducer'
 import { apiSlices, reducer, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
-import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesSlice'
+import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as selectors from './slices/selectors'
+import { swappersApi } from './slices/swappersSlice/swappersSlice'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 import { updateWindowStoreMiddleware } from './windowMiddleware'
 
 const persistConfig = {
   key: 'root',
   version: 1,
-  whitelist: ['txHistory', 'portfolio', 'opportunities'],
+  whitelist: ['txHistory', 'portfolio', 'opportunities', 'nft'],
   storage: localforage,
   // @ts-ignore createMigrate typings are wrong
   migrate: createMigrate(migrations, { debug: false }),
@@ -39,9 +42,12 @@ const apiMiddleware = [
   txHistoryApi.middleware,
   foxyApi.middleware,
   swapperApi.middleware,
+  swappersApi.middleware,
   fiatRampApi.middleware,
   zapper.middleware,
   zapperApi.middleware,
+  nftApi.middleware,
+  covalentApi.middleware,
   opportunitiesApi.middleware,
   abiApi.middleware,
   zerionApi.middleware,
@@ -55,6 +61,7 @@ export const clearState = () => {
   store.dispatch(slices.txHistory.actions.clear())
   store.dispatch(slices.portfolio.actions.clear())
   store.dispatch(slices.opportunities.actions.clear())
+  store.dispatch(slices.swappers.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())
@@ -62,7 +69,11 @@ export const clearState = () => {
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
   store.dispatch(apiSlices.opportunitiesApi.util.resetApiState())
   store.dispatch(apiSlices.zapperApi.util.resetApiState())
+  store.dispatch(apiSlices.nftApi.util.resetApiState())
+  store.dispatch(apiSlices.covalentApi.util.resetApiState())
   store.dispatch(apiSlices.zapper.util.resetApiState())
+  store.dispatch(apiSlices.swapperApi.util.resetApiState())
+  store.dispatch(apiSlices.swappersApi.util.resetApiState())
 }
 
 /**
@@ -84,6 +95,8 @@ const actionSanitizer = (action: any) => {
     'marketApi/executeQuery/fulfilled',
     'txHistoryApi/executeQuery/fulfilled',
     'zapperApi/executeQuery/fulfilled',
+    'nftApi/executeQuery/fulfilled',
+    'covalentApi/executeQuery/fulfilled',
     'zapper/executeQuery/fulfilled',
   ]
   return blackList.includes(action.type)

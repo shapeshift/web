@@ -9,6 +9,7 @@ import { generatePath } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
+import { middleEllipsis } from 'lib/utils'
 import {
   selectPortfolioAccountsCryptoHumanBalancesIncludingStaking,
   selectPortfolioAccountsFiatBalancesIncludingStaking,
@@ -67,7 +68,9 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
         data-test='account-asset-row-button'
         fontSize={{ base: 'sm', md: 'md' }}
         leftIcon={<AssetIcon size='sm' {...assetIdOrIconSrcProps} />}
-        onClick={() => history.push(generatePath('/accounts/:accountId/:assetId', filter))}
+        onClick={() =>
+          history.push(generatePath('/dashboard/accounts/:accountId/:assetId', filter))
+        }
         {...buttonProps}
       >
         <Stack alignItems='flex-start' spacing={0} flex={1}>
@@ -76,8 +79,9 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
             {subtitle}
           </RawText>
         </Stack>
-        <Flex flex={1} justifyContent='flex-end' display={{ base: 'none', md: 'flex' }}>
+        <Flex flex={1} justifyContent='flex-end' display={{ base: 'none', md: 'flex' }} gap={2}>
           <Amount.Crypto value={cryptoBalance} symbol={symbol ?? ''} />
+          {asset?.id && <RawText color='gray.500'>{middleEllipsis(asset?.id)}</RawText>}
         </Flex>
         <Flex flex={1} justifyContent='flex-end' alignItems='flex-end' direction='column'>
           <Amount.Fiat value={fiatBalance} />

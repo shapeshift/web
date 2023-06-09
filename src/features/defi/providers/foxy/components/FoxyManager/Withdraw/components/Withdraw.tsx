@@ -17,7 +17,6 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
@@ -33,8 +32,6 @@ import { WithdrawTypeField } from './WithdrawType'
 export type FoxyWithdrawValues = {
   [Field.WithdrawType]: WithdrawType
 } & WithdrawValues
-
-const moduleLogger = logger.child({ namespace: ['FoxyWithdraw:Withdraw'] })
 
 export const Withdraw: React.FC<
   StepComponentProps & {
@@ -104,17 +101,19 @@ export const Withdraw: React.FC<
         if (!accountAddress) return
 
         try {
-          const [gasLimit, gasPrice] = await Promise.all([
-            foxyApi.estimateApproveGas({
-              tokenContractAddress: rewardId,
-              contractAddress,
-              userAddress: accountAddress,
-            }),
-            foxyApi.getGasPrice(),
-          ])
+          const feeDataEstimate = await foxyApi.estimateApproveFees({
+            tokenContractAddress: rewardId,
+            contractAddress,
+            userAddress: accountAddress,
+          })
+
+          const {
+            chainSpecific: { gasPrice, gasLimit },
+          } = feeDataEstimate.fast
+
           return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
         } catch (error) {
-          moduleLogger.error(error, { fn: 'getApproveEstimate' }, 'getApproveEstimate error')
+          console.error(error)
           toast({
             position: 'top-right',
             description: translate('common.somethingWentWrongBody'),
@@ -128,25 +127,24 @@ export const Withdraw: React.FC<
         if (!accountAddress) return
 
         try {
-          const [gasLimit, gasPrice] = await Promise.all([
-            foxyApi.estimateWithdrawGas({
-              tokenContractAddress: rewardId,
-              contractAddress,
-              amountDesired: bnOrZero(
-                bn(withdraw.cryptoAmount).times(bn(10).pow(asset.precision)),
-              ).decimalPlaces(0),
-              userAddress: accountAddress,
-              type: withdraw.withdrawType,
-              bip44Params,
-            }),
-            foxyApi.getGasPrice(),
-          ])
+          const feeDataEstimate = await foxyApi.estimateWithdrawFees({
+            tokenContractAddress: rewardId,
+            contractAddress,
+            amountDesired: bnOrZero(
+              bn(withdraw.cryptoAmount).times(bn(10).pow(asset.precision)),
+            ).decimalPlaces(0),
+            userAddress: accountAddress,
+            type: withdraw.withdrawType,
+            bip44Params,
+          })
+
+          const {
+            chainSpecific: { gasPrice, gasLimit },
+          } = feeDataEstimate.fast
+
           return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
         } catch (error) {
-          moduleLogger.error(
-            { fn: 'getWithdrawGasEstimate', error },
-            'Error getting withdraw gas estimate',
-          )
+          console.error(error)
           const fundsError =
             error instanceof Error && error.message.includes('Not enough funds in reserve')
           toast({
@@ -206,7 +204,7 @@ export const Withdraw: React.FC<
           })
         }
       } catch (error) {
-        moduleLogger.error({ fn: 'handleContinue', error }, 'Error with withdraw')
+        console.error(error)
         dispatch({
           type: FoxyWithdrawActionType.SET_LOADING,
           payload: false,

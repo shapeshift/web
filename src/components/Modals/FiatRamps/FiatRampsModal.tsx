@@ -1,5 +1,4 @@
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
-import { useMediaQuery } from '@chakra-ui/react'
+import { Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { FiatForm } from 'components/Modals/FiatRamps/views/FiatForm'
 import { useModal } from 'hooks/useModal/useModal'

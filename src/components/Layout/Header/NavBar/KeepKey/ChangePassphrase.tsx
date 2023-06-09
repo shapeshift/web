@@ -10,22 +10,17 @@ import {
   Spinner,
   Stack,
   Switch,
+  useToast,
 } from '@chakra-ui/react'
-import { useToast } from '@chakra-ui/toast'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import { SubMenuBody } from '../SubMenuBody'
 import { SubMenuContainer } from '../SubMenuContainer'
-
-const moduleLogger = logger.child({
-  namespace: ['Layout', 'Header', 'NavBar', 'KeepKey', 'ChangePassphrase'],
-})
 
 export const ChangePassphrase = () => {
   const translate = useTranslate()
@@ -42,13 +37,10 @@ export const ChangePassphrase = () => {
   } = useWallet()
 
   const handleToggle = async () => {
-    const fnLogger = moduleLogger.child({ namespace: ['handleToggle'], hasPassphrase })
-    fnLogger.trace('Applying Passphrase setting...')
-
     const currentValue = !!hasPassphrase
     setHasPassphrase(!hasPassphrase)
     await keepKeyWallet?.applySettings({ usePassphrase: !currentValue }).catch(e => {
-      fnLogger.error(e, 'Error applying Passphrase setting')
+      console.error(e)
       toast({
         title: translate('common.error'),
         description: e?.message ?? translate('common.somethingWentWrong'),
@@ -56,8 +48,6 @@ export const ChangePassphrase = () => {
         isClosable: true,
       })
     })
-
-    fnLogger.trace({ enabled: !hasPassphrase }, 'Passphrase setting changed')
   }
 
   const onCancel = () => {

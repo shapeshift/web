@@ -20,7 +20,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -34,8 +33,8 @@ import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
-  selectMarketDataSortedByMarketCap,
   selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -43,8 +42,6 @@ import { IdleClaimActionType } from '../ClaimCommon'
 import { ClaimContext } from '../ClaimContext'
 import type { ClaimAmount } from '../types'
 import { ClaimableAsset } from './ClaimableAsset'
-
-const moduleLogger = logger.child({ namespace: ['IdleClaim:Confirm'] })
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
@@ -70,7 +67,9 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
   const feeAssetId = chainAdapter?.getFeeAssetId()
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId ?? ''))
-  const marketData = useAppSelector(state => selectMarketDataSortedByMarketCap(state))
+  const marketData = useAppSelector(state =>
+    selectSelectedCurrencyMarketDataSortedByMarketCap(state),
+  )
 
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
@@ -136,7 +135,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         dispatch({ type: IdleClaimActionType.SET_LOADING, payload: false })
         dispatch({ type: IdleClaimActionType.SET_CLAIM, payload: { estimatedGasCrypto } })
       } catch (error) {
-        moduleLogger.error({ fn: 'handleClaim', error }, 'Error getting opportunity')
+        console.error(error)
       }
     })()
   }, [userAddress, dispatch, assetId, idleInvestor])
@@ -246,7 +245,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.error(error, 'IdleClaim:Confirm:handleConfirm error')
+      console.error(error)
     } finally {
       dispatch({ type: IdleClaimActionType.SET_LOADING, payload: false })
     }

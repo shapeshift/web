@@ -1,5 +1,5 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from 'lib/asset-service'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { selectFeeAssetByChainId } from 'state/slices/selectors'
 import { store } from 'state/store'

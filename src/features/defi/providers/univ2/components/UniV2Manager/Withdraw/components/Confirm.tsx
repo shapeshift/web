@@ -21,7 +21,6 @@ import { RawText, Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -37,8 +36,6 @@ import { useAppSelector } from 'state/store'
 
 import { UniV2WithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
-
-const moduleLogger = logger.child({ namespace: ['Confirm'] })
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
@@ -155,7 +152,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.error(error, 'UniV2Withdraw:handleConfirm error')
+      console.error(error)
     } finally {
       dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: false })
     }

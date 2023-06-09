@@ -6,6 +6,8 @@
     "error": "Erro",
     "cancel": "Cancelar",
     "close": "Fechar",
+    "loadMore": "Carregar mais",
+    "saveChanges": "Salvar Mudanças",
     "new": "Novo",
     "continue": "Continuar",
     "reward": "Recompensa",
@@ -15,6 +17,7 @@
     "activity": "Atividade",
     "reject": "Rejeitar",
     "connected": "Conectado",
+    "allocation": "Alocação",
     "value": "Valor",
     "created": "Criado em %{date}",
     "noResultsFound": "Nenhum resultado encontrado.",
@@ -47,7 +50,7 @@
     "or": "ou",
     "somethingWentWrong": "Algo de errado aconteceu",
     "somethingWentWrongBody": "Algo de errado aconteceu",
-    "accountError": "Erro no carregamento de contas para %{erroredAccountNames}.",
+    "accountError": "Temporariamente incapaz de buscar dados para as seguintes redes:",
     "degradedState": "Este aplicativo foi descontinuado.",
     "degradedInfo": "Incapaz de encontrar dados de algumas contas. ",
     "success": "Sucesso",
@@ -82,6 +85,7 @@
     "txId": "Tx ID",
     "selectAsset": "Selecione um ativo.",
     "switchNetwork": "Mudar a rede",
+    "selectNetwork": "Selecione a rede",
     "unsupportedNetwork": "Rede não suportada",
     "chartUnavailable": "O gráfico do saldo está temporariamente indisponível para %{unavailableAssetNames}.",
     "search": "Procurar",
@@ -99,7 +103,9 @@
     "buyNow": "Comprar agora",
     "manage": "Gerenciar",
     "selectedAccount": "Conta selecionada",
-    "allChains": "Todas as redes"
+    "allChains": "Todas as redes",
+    "wallet": "Carteira",
+    "action": "Ação"
   },
   "consentBanner": {
     "body": {
@@ -126,7 +132,7 @@
     "cta": {
       "title": {
         "first": "Você também pode usar a ShapeShift com todas as melhores carteiras para negociar, ganhar recompensas e",
-        "second": "monitorar suas criptos em 8 redes diferentes."
+        "second": "monitorar suas criptos em %{chainCount} redes diferentes."
       }
     },
     "availableAssets": "Ativos disponíveis"
@@ -172,7 +178,7 @@
       "recentTransactions": "Transações Recentes"
     },
     "tradeCard": {
-      "trade": "Negocie",
+      "trade": "Swap",
       "bridge": "Bridge",
       "earn": "Ganhe"
     }
@@ -318,9 +324,7 @@
         "vaultCapTooltip": "Capacidade máxima atual para este cofre",
         "haltedTitle": "Depósitos estão temporariamente desabilitados. ",
         "haltedDescription": "Por favor, twitte em @THORChain para aumentar o limite!",
-        "estimatedFee": "Taxa estimada",
         "fee": "Taxa",
-        "estimatedFeeTooltip": "Taxa para transferir ativos de uma blockchain Layer 1",
         "dustAmount": "Saldo Restante",
         "dustAmountTooltip": "Uma pequena quantidade de saldo é necessário para identificar seus endereços, e será separada para um uso posterior, quando você realizar seu saque",
         "sendDustBody": "Você precisar enviar um pouco de suas criptos para este endereço, permitindo a você sacar seu dinheiro. ",
@@ -393,10 +397,10 @@
     "startEarning": "Comece a Ganhar",
     "eligibleOpportunities": "Oportunidades Elegíveis",
     "defiBody": "Explore o crescente universo DeFi.",
-    "netWorth": "Seu Patrimônio",
-    "walletBalance": "Saldo na Carteira",
-    "earnBalance": "Saldo de Investimentos",
-    "rewardsBalance": "Saldo Restante",
+    "netWorth": "Total",
+    "walletBalance": "Disponível",
+    "earnBalance": "Investimentos",
+    "rewardsBalance": "Recompensas",
     "earnBody": "Deposite seus ativos em estratégias DeFi de renda passiva.",
     "clickHereToEarn": "Clique aqui para ganhar %{apr} APR* farmando na sua pool de ETH-FOX",
     "overview": "Visão Geral",
@@ -479,30 +483,35 @@
   },
   "navBar": {
     "home": "Início",
-    "dashboard": "Painel de Controle",
+    "activity": "Atividade",
+    "myWallet": "Minha carteira",
+    "dashboard": "Dashboard",
     "dashboardShort": "Painel",
-    "assets": "Ativos",
+    "assets": "Tokens",
     "assetDetails": "Detalhes do recurso",
-    "accounts": "Contas",
+    "accounts": "Carteiras",
     "accountAsset": "Ativo da conta",
     "accountDetails": "Detalhes da conta",
-    "earn": "Investimentos",
     "defi": "DeFi",
-    "transactionHistory": "Histórico de transações",
+    "transactionHistory": "Histórico",
     "overview": "Visão geral",
     "transactions": "Transações",
-    "tradeHistory": "Histórico de Negociações",
-    "foxToken": "Oportunidades FOX",
-    "dApps": "dApps",
+    "tradeHistory": "Histórico",
+    "foxToken": "Ganhe FOX",
+    "dApps": "Conectar dApps",
     "featureFlags": "Recursos",
     "demoMode": "Modo de demonstração",
     "clickToConnect": "Clique para conectar uma carteira",
     "wallet": "Carteira",
-    "explore": "Explorar",
-    "trade": "Negocie",
+    "explore": "Menu",
+    "rewards": "Recompensas",
+    "trade": "Swap/Bridge",
+    "tradeShort": "Swap",
     "buyCrypto": "Compre Cripto",
     "buyCryptoShort": "Compre/venda",
-    "arkeo": "Airdrop da Arkeo"
+    "arkeo": "Airdrop da Arkeo",
+    "foxMissions": "Missões FOX",
+    "foxMissionsShort": "Missões"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -618,7 +627,7 @@
     "noSupportedAssets": "Nenhum ativo suportado no portfólio."
   },
   "trade": {
-    "trade": "Negocie",
+    "trade": "Swap",
     "allowance": "Quota",
     "allowanceTooltip": "O valor que você concederá ao contrato inteligente para usar em sua assinatura.",
     "searchingRate": "Procurando a melhor taxa...",
@@ -629,9 +638,10 @@
     "from": "De",
     "to": "Para",
     "youPay": "Você paga",
-    "youGet": "Você ganha",
+    "youGet": "Você recebe",
     "tradeTo": "Negocie para",
     "minerFee": "Taxa de Mineração",
+    "donation": "Doações da ShapeShift",
     "protocolFee": "Taxa do Protocolo",
     "protocol": "Protocolo",
     "tradeFeeSource": "%{tradeFeeSource} Taxa",
@@ -661,7 +671,9 @@
       "rate": "Esta é a taxa esperada para a negociação do par.",
       "noRateAvailable": "Isso geralmente ocorre devido à liquidez limitada ou inexistente no par negociado.",
       "minerFee": "Esta é a taxa para processar a transação no blockchain, não é uma taxa cobrada pela ShapeShift.",
+      "donation": "Ajude a manter a ShapeShift funcionando!",
       "protocol": "Este é o protocolo onde sua negociação está sendo direcionada.",
+      "protocolLifi": "Este é o protocolo para onde sua negociação está sendo direcionada. LI.FI intermedeia negociações, combinando o melhor preço, segurança e velocidade.",
       "protocolFee": "Esta é a taxa cobrada pelo protocolo selecionado para processar esta transação, esta não é uma taxa cobrada pela ShapeShift",
       "shapeshiftFee": "A ShapeShift não adiciona taxas nas negociações 🎉"
     },
@@ -678,6 +690,7 @@
       "buyAssetMiddleSentence": "comprar ativo",
       "notEnoughEth": "Saldo ETH insuficiente para a efetivar Taxa da Rede.",
       "amountTooSmall": "Valor insuficiente. O valor mínimo de negociação para este par é %{minLimit}.",
+      "amountTooSmallOrInvalidTradePair": "Valor muito baixo ou sem liquidez",
       "sellAmountDoesNotCoverFee": "Quantidade muito pequena. O valor de venda para este par é menor do que a taxa.",
       "negativeMax": "Não há fundos suficientes para efetivr a taxa de mineração. Taxa de mineração %{estimatedMinerFee}",
       "invalidMax": "Montante inválido. O valor máximo de negociação para este par é %{maxLimit}.",
@@ -686,6 +699,7 @@
       "broadcastFailed": "Ocorreu um erro ao transmitir a transação",
       "insufficientFundsForLimit": "Saldo insuficiente. O valor mínimo de negociação para este par é %{minLimit}",
       "insufficientFundsForAmount": "Saldo insuficiente. Seu saldo de %{symbol} é menor do que o selecionado",
+      "insufficientFundsForProtocolFee": "Insuficiente %{symbol} na %{chainName} para taxas",
       "invalidTradePair": "Par de Negociação Inválido: %{sellAssetName} e %{buyAssetName}",
       "invalidTradePairBtnText": "Par de Negociação Inválido",
       "noLiquidityError": "Não há liquidez suficiente disponível",
@@ -721,7 +735,14 @@
       "tradeFailed": "A troca falhou. Os ativos foram devolvidos, menos taxa de gás"
     },
     "swappingComingSoonForWallet": "A troca para %{walletName} logo ocorrerá.",
-    "recentTrades": "Negociações recentes"
+    "recentTrades": "Negociações recentes",
+    "lifiWarning": "Esta negociação é roteado através da LI.FI, que intermedeia swaps. Se alguma etapa falhar, você receberá o token da última etapa bem-sucedida da sequência.",
+    "or": "ou",
+    "onChainName": "na %{chainName}",
+    "unknownGas": "(desconhecido)",
+    "receiveAddress": "Endereço de recebimento",
+    "receiveAddressDescription": "Nenhum %{chainName} endereço encontrado na carteira conectada. Insira o endereço manualmente para continuar. ",
+    "addressPlaceholder": "%{chainName} endereço"
   },
   "modals": {
     "popup": {
@@ -849,6 +870,7 @@
       "tokenAddress": "Endereço do token",
       "addressInput": "Para o endereço, ENS ou Yat",
       "scanQrCode": "Digitalizar código QR",
+      "qrCode": "QR Code",
       "permissionsButton": "Tente novamente",
       "sent": "enviado %{asset}",
       "errorTitle": "Seu envio de %{asset} falhou",
@@ -969,7 +991,8 @@
       "depositFee": "Haverá incidência de taxa ao depositar.",
       "estimatedGas": "Taxa Estimada da Rede",
       "confirm": "Confirmar",
-      "reject": "Rejeitar"
+      "reject": "Rejeitar",
+      "approved": "Aprovado"
     },
     "confirm": {
       "withdraw": {
@@ -1444,6 +1467,7 @@
         "sell": "Vender",
         "trade": "Trocar"
       },
+      "equity": "Participação",
       "accountTokens": "Meus Tokens",
       "relatedAssets": "Ativos Relacionados",
       "showTokens": "Mostrar Tokens (%{amount})",
@@ -1457,7 +1481,7 @@
         "currentAPYLabel": "APY atual de suas recompensas",
         "claimRewards": "Resgatar recompensas"
       },
-      "accounts": "Contas",
+      "accounts": "Carteiras",
       "stakingVaults": "Poupança e Cofres",
       "stakingBody": "Deposite seus ativos em estratégias DeFi de renda passiva.",
       "pools": "Pools"
@@ -1543,7 +1567,7 @@
       "totalFoxValue": "Valor total de FOX",
       "foxToken": "ShapeShift %{assetSymbol} Token",
       "foxDescription": "Desde 2019, nosso token FOX oferece aos usuários um mundo em constante expansão de utilidade e vantagens. Hoje, nosso token de governança ERC-20 não apenas permite que você influencie o futuro da ShapeShift por meio de seu voto, mas também tem um universo cada vez maior de oportunidades de investimento. Invista, acompanhe e gerencie suas participações na FOX aqui.",
-      "getAsset": "Obtenha %{assetSymbol}",
+      "getAsset": "Compre %{assetSymbol}",
       "trade": "Trocar",
       "receive": "Receber",
       "mainStakingTitle": "%{assetSymbol} Token Staking",
@@ -1568,7 +1592,7 @@
       "farming": "Farming",
       "borrowingAndLending": "Borrowing & Lending",
       "governanceTitle": "Governança",
-      "governanceDescription": "Como titular FOX, você pode ter voz no futuro da ShapeShift.  Confira abaixo a propostas ativas na DAO ou aprovadas recentemente  pelos detentores de FOX.",
+      "governanceDescription": "Como holder FOX, você tem voz no futuro da ShapeShift.  Confira abaixo a propostas ativas na DAO ou aprovadas recentemente pelos membros da comunidade.",
       "seeAllProposals": "Ver todas as propostas",
       "availableToTradeOn": "Disponível para negociação",
       "dex": "DEX",
@@ -1850,7 +1874,7 @@
       "secondary": "Compre FOX"
     },
     "foxFarmers": {
-      "title": "Fazendeiros de LPs de FOX/ETH",
+      "title": "Farmers de LPs de FOX/ETH",
       "body": "Ganhe até %{apy} APR por depositar seus LPs de FOX/ETH na pool de FOX. Além disso, o FOX dentro do seu LP em stake na v5 da pool de FOX/ETH, será contado no airdrop da Arkeo!",
       "cta": "Deposite o LP de FOX/ETH"
     },
@@ -1865,7 +1889,7 @@
       "cta": "Forneça Liquidez"
     },
     "atomOsmoProviders": {
-      "title": "Provedores de Liquidez na pool de ATOM/OSMO",
+      "title": "Delegadores de ATOM/OSMO",
       "body": "Tem ATOM e OSMO? Forneça liquidez ao pool, para ganhar %{apy} APR e se qualificar para o airdrop.",
       "cta": "Forneça Liquidez"
     },
@@ -1888,6 +1912,8 @@
     }
   },
   "nft": {
+    "customizeFoxatar": "Personalize o FOXatar",
+    "setAsAvatar": "Define como Avatar",
     "floorPrice": "Floor Price",
     "lastPrice": "Último preço",
     "overview": "Visão geral",
@@ -1903,5 +1929,50 @@
     "aboutCollection": "Sobre %{collectionName}",
     "emptyTitle": "Para onde foram todos os NFTs?",
     "emptyBody": "Não se preocupe, enviamos uma equipe de busca para trazer mais NFTs incríveis. Enquanto isso, sinta-se à vontade para olhar para este espaço em branco e refletir sobre o significado da existência."
+  },
+  "missions": {
+    "subtitle": "Missões FOX",
+    "missionEnded": "Missão Finalizada",
+    "viewMission": "Ver Missões",
+    "comingSoon": "Em Breve",
+    "activeMissions": "Missões Ativas",
+    "endedMissions": "Missões Finalizadas",
+    "title": {
+      "1": "Descubra o Universo Descentralizado e",
+      "2": "Ganha Recompensas"
+    },
+    "body": "Participe de Missões, Ganhe Recompensas, e expanda seu conhecimento sobre o Ecossistema Em Expansão da ShapeShift",
+    "ends": "Fim",
+    "ongoing": "Missão em Andamento",
+    "optimism": {
+      "title": "Ganhe 19.5 OP",
+      "subtitle": "Explore a Optimism",
+      "cta": "Começar Missão"
+    },
+    "foxatar": {
+      "title": "Ganhe um NFT Gratuito e Personalizado",
+      "subtitle": "Minte um FOXatar",
+      "cta": "Começar Missão"
+    },
+    "foxArmy": {
+      "subtitle": "Junte-se a Armada FOX",
+      "title": "Pool de 20.000 FOX",
+      "cta": "Começar Missão"
+    },
+    "yat": {
+      "subtitle": "Jogar Yat Fantasy",
+      "title": "Um Prêmio de 3.000 USDC",
+      "cta": "Começar Missão"
+    },
+    "getListed": {
+      "subtitle": "Seu Projeto Aqui",
+      "title": "Lançar Missão do Seu Projeto",
+      "cta": "Submeter Projeto"
+    }
+  },
+  "avatar": {
+    "modal": {
+      "title": "Definir um Novo Avatar"
+    }
   }
 }

@@ -1,14 +1,11 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
-import {
-  DefiAction,
-  DefiProvider,
-  DefiStep,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useCallback, useContext, useMemo } from 'react'
@@ -17,17 +14,15 @@ import { useHistory } from 'react-router-dom'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { selectBIP44ParamsByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-
-const moduleLogger = logger.child({ namespace: ['FoxyDeposit:Approve'] })
 
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
@@ -68,23 +63,21 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     async (deposit: DepositValues) => {
       if (!accountAddress || !assetReference || !foxyApi) return
       try {
-        const [gasLimit, gasPrice] = await Promise.all([
-          foxyApi.estimateDepositGas({
-            tokenContractAddress: assetReference,
-            contractAddress,
-            amountDesired: bnOrZero(deposit.cryptoAmount)
-              .times(bn(10).pow(asset.precision))
-              .decimalPlaces(0),
-            userAddress: accountAddress,
-          }),
-          foxyApi.getGasPrice(),
-        ])
+        const feeDataEstimate = await foxyApi.estimateDepositFees({
+          tokenContractAddress: assetReference,
+          contractAddress,
+          amountDesired: bnOrZero(deposit.cryptoAmount)
+            .times(bn(10).pow(asset.precision))
+            .decimalPlaces(0),
+          userAddress: accountAddress,
+        })
+
+        const {
+          chainSpecific: { gasPrice, gasLimit },
+        } = feeDataEstimate.fast
         return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
       } catch (error) {
-        moduleLogger.error(
-          { fn: 'getDepositGasEstimateCryptoBaseUnit', error },
-          'Error getting deposit gas estimate',
-        )
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
@@ -111,6 +104,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       return
     try {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
+
+      if (!supportsETH(walletState.wallet))
+        throw new Error(`handleApprove: wallet does not support ethereum`)
+
       await foxyApi.approve({
         tokenContractAddress: assetReference,
         contractAddress,
@@ -145,7 +142,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
       onNext(DefiStep.Confirm)
     } catch (error) {
-      moduleLogger.error({ fn: 'handleApprove', error }, 'Error on approval')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

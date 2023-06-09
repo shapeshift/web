@@ -1,5 +1,8 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { Trade } from 'lib/swapper/api'
+import type { ethereum, gnosis } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { Trade, TradeResult } from 'lib/swapper/api'
 
 export type CowSwapQuoteResponse = {
   quote: {
@@ -16,7 +19,17 @@ export type CowSwapQuoteResponse = {
   }
   from: string
   expiration: string
+  id: string
 }
+
+export enum CowNetwork {
+  Mainnet = 'mainnet',
+  Xdai = 'xdai',
+}
+
+export type CowChainId = KnownChainIds.EthereumMainnet | KnownChainIds.GnosisMainnet
+
+export type CowswapSupportedChainAdapter = ethereum.ChainAdapter | gnosis.ChainAdapter
 
 export type CowSwapGetOrdersResponse = {
   status: string
@@ -28,7 +41,18 @@ export type CowSwapGetTradesElement = {
 
 export type CowSwapGetTradesResponse = CowSwapGetTradesElement[]
 
-export interface CowTrade<C extends ChainId> extends Trade<C> {
+export interface CowTrade<C extends CowChainId> extends Trade<C> {
   feeAmountInSellTokenCryptoBaseUnit: string
   sellAmountDeductFeeCryptoBaseUnit: string
+  minimumBuyAmountAfterFeesCryptoBaseUnit: string
+  id: string
+}
+
+export type CowswapExecuteTradeInput<T extends CowChainId> = {
+  trade: CowTrade<T>
+  wallet: HDWallet
+}
+
+export interface CowTradeResult extends TradeResult {
+  chainId: ChainId
 }

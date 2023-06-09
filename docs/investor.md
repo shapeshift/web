@@ -3,7 +3,7 @@ The `investor` package is an abstraction to implement protocols that allow for s
 
 [Yearn Finance](https://yearn.finance) is an example of this type of single-sided staking protocol.
 
-You can look at [@shapeshiftoss/investor-yearn](https://github.com/shapeshift/lib/tree/main/packages/investor-yearn) as an example implementation.
+You can look at [lib/investor/investor-yearn](https://github.com/shapeshift/web/tree/main/lib/investor/investor-yearn) as an example implementation.
 
 ### 
 The `investor` package is made up of three parts.
@@ -87,7 +87,7 @@ This is the `Asset` that can be deposited into the `Opportunity`.
 
 For example, `AssetId` for Ethereum is `eip155:1/slip44:60`
 
-The `@shapeshiftoss/asset-service` package has a full list of `AssetIds` that we currently support. You can submit a PR to that package to add new assets.
+The `src/lib/asset-service` directory has a full list of `AssetIds` that we currently support. You can submit a PR to add new assets.
 
 ### `positionAsset: { assetId: string, balance: BigNumber, underlyingPerPosition: BigNumber }`
 

@@ -1,39 +1,30 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { SwapErrorRight } from 'lib/swapper/api'
+import type { Asset } from 'lib/asset-service'
+import type { QuoteFeeData, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
-import type { ThorEvmSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
+import type { ThorEvmSupportedChainAdapter } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { getFeesFromContractData } from 'lib/swapper/swappers/utils/helpers/helpers'
 
-type MakeTradeTxArgs = {
+type MakeTradeTxArgs<T extends EvmChainId> = {
   wallet: HDWallet
   accountNumber: number
   sellAmountCryptoBaseUnit: string
   buyAsset: Asset
   sellAsset: Asset
   destinationAddress: string
-  adapter: EvmBaseAdapter<ThorEvmSupportedChainId>
+  adapter: ThorEvmSupportedChainAdapter
   slippageTolerance: string
+  feeData: QuoteFeeData<T>
+  affiliateBps: string
   deps: ThorchainSwapperDeps
-  gasLimit: string
-  buyAssetTradeFeeUsd: string
-} & (
-  | {
-      gasPriceCryptoBaseUnit: string
-      maxFeePerGas?: never
-      maxPriorityFeePerGas?: never
-    }
-  | {
-      gasPriceCryptoBaseUnit?: never
-      maxFeePerGas: string
-      maxPriorityFeePerGas: string
-    }
-)
+}
 
 export const makeTradeTx = async ({
   wallet,
@@ -43,14 +34,11 @@ export const makeTradeTx = async ({
   sellAsset,
   destinationAddress,
   adapter,
-  maxFeePerGas,
-  maxPriorityFeePerGas,
-  gasPriceCryptoBaseUnit,
   slippageTolerance,
+  feeData,
+  affiliateBps,
   deps,
-  gasLimit,
-  buyAssetTradeFeeUsd,
-}: MakeTradeTxArgs): Promise<
+}: MakeTradeTxArgs<EvmChainId>): Promise<
   Result<
     {
       txToSign: ETHSignTx
@@ -58,19 +46,34 @@ export const makeTradeTx = async ({
     SwapErrorRight
   >
 > => {
+  if (!supportsETH(wallet)) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'eth wallet required',
+        code: SwapErrorType.BUILD_TRADE_FAILED,
+        details: { wallet },
+      }),
+    )
+  }
+
   try {
     const { assetNamespace } = fromAssetId(sellAsset.assetId)
     const isErc20Trade = assetNamespace === 'erc20'
 
-    const maybeThorTxInfo = await getThorTxInfo({
-      deps,
-      sellAsset,
-      buyAsset,
-      sellAmountCryptoBaseUnit,
-      slippageTolerance,
-      destinationAddress,
-      buyAssetTradeFeeUsd,
-    })
+    const [maybeThorTxInfo, from, eip1559Support] = await Promise.all([
+      getThorTxInfo({
+        deps,
+        sellAsset,
+        buyAsset,
+        sellAmountCryptoBaseUnit,
+        slippageTolerance,
+        destinationAddress,
+        protocolFees: feeData.protocolFees,
+        affiliateBps,
+      }),
+      adapter.getAddress({ accountNumber, wallet }),
+      wallet.ethSupportsEIP1559(),
+    ])
 
     if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
 
@@ -78,17 +81,25 @@ export const makeTradeTx = async ({
 
     const { data, router } = thorTxInfo
 
+    const value = isErc20Trade ? '0' : sellAmountCryptoBaseUnit
+
+    const { feesWithGasLimit } = await getFeesFromContractData({
+      eip1559Support,
+      adapter,
+      from,
+      to: router,
+      value,
+      data,
+    })
+
     return Ok(
       await adapter.buildCustomTx({
         wallet,
         accountNumber,
         to: router,
-        gasLimit,
-        ...(gasPriceCryptoBaseUnit !== undefined
-          ? { gasPrice: gasPriceCryptoBaseUnit }
-          : { maxFeePerGas, maxPriorityFeePerGas }),
-        value: isErc20Trade ? '0' : sellAmountCryptoBaseUnit,
+        value,
         data,
+        ...feesWithGasLimit,
       }),
     )
   } catch (e) {

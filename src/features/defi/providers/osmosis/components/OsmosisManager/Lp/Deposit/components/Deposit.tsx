@@ -1,5 +1,4 @@
 import { useToast } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
@@ -24,8 +23,8 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import type { Asset } from 'lib/asset-service'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { useFindByAssetIdQuery } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -45,10 +44,6 @@ import { OsmosisDepositActionType } from '../LpDepositCommon'
 import { DepositContext } from '../LpDepositContext'
 
 const DEFAULT_SLIPPAGE = '0.025' // Allow for 2.5% slippage. TODO(pastaghost): is there a better way to do this?
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Osmosis', 'Deposit', 'Deposit'],
-})
 
 type DepositProps = StepComponentProps & {
   accountId?: AccountId | undefined
@@ -123,10 +118,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
       return bnOrZero(fastFeeCryptoBaseUnit).toString()
     } catch (error) {
-      moduleLogger.error(
-        { fn: 'getDepositFeeEstimate', error },
-        'Error getting deposit fee estimate',
-      )
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -173,7 +165,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
       const poolTotalSharesBaseUnit = poolData.total_shares?.amount
       if (!poolTotalSharesBaseUnit) {
-        moduleLogger.error(`Could not get total shares for pool ${poolData.id}`)
+        console.error(`Could not get total shares for pool ${poolData.id}`)
         return undefined
       }
 
@@ -287,7 +279,7 @@ export const Deposit: React.FC<DepositProps> = ({
           assets,
         )
       } catch (error) {
-        moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),

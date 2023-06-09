@@ -1,6 +1,4 @@
-import { Button } from '@chakra-ui/button'
-import { Box, Container, HStack } from '@chakra-ui/layout'
-import { useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Container, HStack, useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, NavLink, useLocation, useParams } from 'react-router-dom'

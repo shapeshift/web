@@ -1,3 +1,4 @@
+import { skipToken } from '@reduxjs/toolkit/dist/query'
 import type { AssetReference, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE } from '@shapeshiftoss/caip'
 import type { ChainAdapter, EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -6,6 +7,8 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import crypto from 'crypto-browserify'
 import { isNull } from 'lodash'
 import difference from 'lodash/difference'
@@ -36,6 +39,9 @@ export function partitionCompare<T>(first: T[], second: T[]) {
     add: difference<T>(second, first),
   }
 }
+
+export const middleEllipsis = (value: string): string =>
+  value.length >= 12 ? `${value.slice(0, 4)}...${value.slice(-4)}` : value
 
 /**
  * Compare two arrays and call an "add" or "remove" function
@@ -159,3 +165,36 @@ export const isEvmChainAdapter = <T extends ChainId>(
 ): chainAdapter is EvmChainAdapter => {
   return evmChainIds.includes(chainAdapter.getChainId() as EvmChainId)
 }
+
+// https://github.com/sniptt-official/monads/issues/111
+export const AsyncResultOf = async <T>(promise: Promise<T>): Promise<Result<T, Error>> => {
+  try {
+    return Ok(await promise)
+  } catch (err) {
+    return Err(err as Error)
+  }
+}
+// Predicates, to be used with myzod's `withPredicate`, or without if you feel like it
+
+export const isNonEmpty = (x: string | any[] | Set<any>) => {
+  // Array.prototype.length || String.prototype.length for arrays and strings
+  if (typeof x === 'string' || Array.isArray(x)) {
+    return Boolean(x.length)
+  }
+  // Set.prototype.size for sets
+  if (x instanceof Set) {
+    return Boolean(x.size)
+  }
+  return false
+}
+export const isUrl = (x: string) => {
+  try {
+    new URL(x)
+    return true
+  } catch {
+    return false
+  }
+}
+
+export const isSkipToken = (maybeSkipToken: unknown): maybeSkipToken is typeof skipToken =>
+  maybeSkipToken === skipToken

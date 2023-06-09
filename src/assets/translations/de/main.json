@@ -6,6 +6,8 @@
     "error": "Fehler",
     "cancel": "Abbrechen",
     "close": "Schließen",
+    "loadMore": "Mehr laden",
+    "saveChanges": "Änderungen speichern",
     "new": "Neu",
     "continue": "Fortsetzen",
     "reward": "Belohnung",
@@ -15,6 +17,7 @@
     "activity": "Aktivität",
     "reject": "Ablehnen",
     "connected": "Verbunden",
+    "allocation": "Zuweisung",
     "value": "Wert",
     "created": "Erstellt %{date}",
     "noResultsFound": "Keine Ergebnisse gefunden.",
@@ -47,7 +50,7 @@
     "or": "oder",
     "somethingWentWrong": "Etwas ist schief gelaufen",
     "somethingWentWrongBody": "Etwas ist schief gelaufen",
-    "accountError": "Fehler beim Laden der Konten für %{erroredAccountNames}.",
+    "accountError": "Für die folgenden Ketten können vorübergehend keine Daten abgerufen werden:",
     "degradedState": "Die App befindet sich in einem heruntergestuften Zustand",
     "degradedInfo": "Für einige Konten können keine Daten abgerufen werden.",
     "success": "Erfolgreich",
@@ -82,6 +85,7 @@
     "txId": "Tx ID",
     "selectAsset": "Wählen Sie einen Vermögenswert aus",
     "switchNetwork": "Netzwerk wechseln",
+    "selectNetwork": "Netzwerk auswählen",
     "unsupportedNetwork": "Nicht unterstütztes Netzwerk",
     "chartUnavailable": "Vermögen Diagrammdaten sind für %{unavailableAssetNames} vorübergehend nicht verfügbar.",
     "search": "Suchen",
@@ -99,7 +103,9 @@
     "buyNow": "Kaufe jetzt",
     "manage": "Verwalten",
     "selectedAccount": "Ausgewähltes Konto",
-    "allChains": "All Blockchains"
+    "allChains": "All Blockchains",
+    "wallet": "Wallet",
+    "action": "Aktion"
   },
   "consentBanner": {
     "body": {
@@ -126,7 +132,7 @@
     "cta": {
       "title": {
         "first": "Sie können ShapeShift auch mit allen Top-Wallets verwenden, um zu handeln, Erträge zu erzielen und",
-        "second": "Verfolgen Sie Ihre Krypto über 8 Ketten"
+        "second": "Verfolgen Sie Ihre Krypto über %{chainCount} Ketten"
       }
     },
     "availableAssets": "Verfügbare Vermögenswerte"
@@ -318,9 +324,7 @@
         "vaultCapTooltip": "Akt. max. Kapazität für diesen Tresor",
         "haltedTitle": "Einzahlungen sind vorübergehend gestoppt.",
         "haltedDescription": "Bitte twittern Sie an @THORChain, um die Obergrenzen zu erhöhen!",
-        "estimatedFee": "Geschätzte Gebühr",
         "fee": "Gebühr",
-        "estimatedFeeTooltip": "Gebühr für die Überweisung von Vermögenswerten einer Layer-1-Blockchain",
         "dustAmount": "Kleinbetrag",
         "dustAmountTooltip": "Ein Kleinbetrag ist erforderlich, um Ihre Adresse zu identifizieren, und wird für die spätere Verwendung reserviert, wenn Sie eine Auszahlung vornehmen möchten",
         "sendDustBody": "Sie müssen einen Kleinbetrag an diese Adresse senden, um Abheben zu können.",
@@ -479,6 +483,8 @@
   },
   "navBar": {
     "home": "Startseite",
+    "activity": "Aktivität",
+    "myWallet": "Meine Wallet",
     "dashboard": "Dashboard",
     "dashboardShort": "Dashboard",
     "assets": "Vermögenswerte",
@@ -486,7 +492,6 @@
     "accounts": "Konten",
     "accountAsset": "Konto Vermögenswert",
     "accountDetails": "Kontodetails",
-    "earn": "Verdiene",
     "defi": "DeFi",
     "transactionHistory": "Bisherige Transaktionen",
     "overview": "Übersicht",
@@ -499,10 +504,14 @@
     "clickToConnect": "Klicken Sie hier, um eine Wallet zu verbinden",
     "wallet": "Wallet",
     "explore": "Entdecken",
-    "trade": "Handeln",
+    "rewards": "Belohnung",
+    "trade": "Handeln/Bridge",
+    "tradeShort": "Handeln",
     "buyCrypto": "Krypto kaufen/verkaufen",
     "buyCryptoShort": "Kauf/Verkauf",
-    "arkeo": "Arkeo Airdrop"
+    "arkeo": "Arkeo Airdrop",
+    "foxMissions": "FOX Mission",
+    "foxMissionsShort": "Missionen"
   },
   "transactionRow": {
     "send": "Gesendet",
@@ -632,6 +641,7 @@
     "youGet": "Sie bekommen",
     "tradeTo": "Handel bis",
     "minerFee": "Miner-Gebühr",
+    "donation": "Spende an ShapeShift",
     "protocolFee": "Protokollgebühr",
     "protocol": "Protokoll",
     "tradeFeeSource": "%{tradeFeeSource} Gebühr",
@@ -661,7 +671,9 @@
       "rate": "Dies ist die erwartete Rate für dieses Handelspaar.",
       "noRateAvailable": "Dies ist häufig auf eine sehr begrenzte oder keine Liquidität des Handelspaars zurückzuführen.",
       "minerFee": "Dies ist die Gebühr für die Verarbeitung der Transaktion auf der Blockchain, dies ist keine Gebühr, die von ShapeShift erhoben wird.",
+      "donation": "Unterstützen Sie ShapeShift und halten Sie uns am Laufen.",
       "protocol": "Dies ist das Protokoll, über das Ihr Handel geleitet wird.",
+      "protocolLifi": "Dies ist das Protokoll, über das Ihr Handel geleitet wird. LI.FI führt eine Reihe von Zwischengeschäften durch, um die beste Gesamtkombination aus Preis, Sicherheit und Geschwindigkeit zu erzielen.",
       "protocolFee": "Dies ist die Gebühr, die von dem für die Verarbeitung dieser Transaktion ausgewählten Protokoll erhoben wird, dies ist keine Gebühr, die von ShapeShift erhoben wird",
       "shapeshiftFee": "ShapeShift erhebt keine Gebühren fürs Handeln 🎉"
     },
@@ -678,6 +690,7 @@
       "buyAssetMiddleSentence": "Vermögenswerte kaufen",
       "notEnoughEth": "Nicht genug ETH für die Gasgebühr bei dieser Transaktion.",
       "amountTooSmall": "Minimum: %{minLimit}",
+      "amountTooSmallOrInvalidTradePair": "Betrag zu gering oder keine Paarung",
       "sellAmountDoesNotCoverFee": "Verkaufsbetrag niedriger als die Gebühr",
       "negativeMax": "Nicht genügend Kapital für die Miner-Gebühr für diese Transaktion. Geschätzte Minergebühr %{estimatedMinerFee}",
       "invalidMax": "Ungültige Menge. Der maximale Handelsbetrag für dieses Paar beträgt %{maxLimit}.",
@@ -686,6 +699,7 @@
       "broadcastFailed": "Beim Senden der Transaktion ist ein Fehler aufgetreten",
       "insufficientFundsForLimit": "Unzureichende Mittel. Der minimale Handelsbetrag für dieses Paar beträgt %{minLimit}",
       "insufficientFundsForAmount": "Unzureichende Mittel. Ihr %{symbol} Guthaben liegt unter dem ausgewählten Betrag",
+      "insufficientFundsForProtocolFee": "Nicht genügend %{symbol} auf %{chainName} für Gebühren",
       "invalidTradePair": "Ungültiges Handelspaar: %{sellAssetName} und %{buyAssetName}",
       "invalidTradePairBtnText": "Ungültiges Handelspaar",
       "noLiquidityError": "Nicht genügend Liquidität vorhanden",
@@ -721,7 +735,14 @@
       "tradeFailed": "Handel fehlgeschlagen. Zurückgegebene Vermögenswerte abzüglich Gasgebühr"
     },
     "swappingComingSoonForWallet": "Der Tausch gegen %{walletName} ist in Kürze verfügbar",
-    "recentTrades": "Letzte Handelsaktionen"
+    "recentTrades": "Letzte Handelsaktionen",
+    "lifiWarning": "Dieser Handel wird über LI.FI geleitet, das eine Reihe von Zwischengeschäften ausführt, um einen Swap durchzuführen. Wenn ein Schritt fehlschlägt, erhalten Sie das Token für den letzten erfolgreichen Schritt in der Sequenz.",
+    "or": "oder",
+    "onChainName": "auf %{chainName}",
+    "unknownGas": "(unbekannt)",
+    "receiveAddress": "Empfangsadresse ",
+    "receiveAddressDescription": "Keine %{chainName}-Adresse in verbundener Wallet gefunden. Geben Sie die Adresse manuell ein, um fortzufahren.",
+    "addressPlaceholder": "%{chainName} Adresse"
   },
   "modals": {
     "popup": {
@@ -849,6 +870,7 @@
       "tokenAddress": "An Adresse",
       "addressInput": "an Addresse, ENS oder Yat",
       "scanQrCode": "QR-Code scannen",
+      "qrCode": "QR Code",
       "permissionsButton": "Versuchen Sie es nochmal",
       "sent": "%{asset} gesendet",
       "errorTitle": "Ihr Versand von %{asset} ist fehlgeschlagen",
@@ -969,7 +991,8 @@
       "depositFee": "Es wird eine separate Gasgebühr zu hinterlegen sein.",
       "estimatedGas": "Geschätzte Gasgebühr",
       "confirm": "Bestätigen",
-      "reject": "Ablehnen"
+      "reject": "Ablehnen",
+      "approved": "Genehmigt"
     },
     "confirm": {
       "withdraw": {
@@ -1442,8 +1465,9 @@
       "assetActions": {
         "buy": "Kaufen",
         "sell": "Verkaufen",
-        "trade": "Handeln"
+        "trade": "Handeln/Bridge"
       },
+      "equity": "Eigenkapital",
       "accountTokens": "Konto-Token",
       "relatedAssets": "Zugehörige Vermögenswerte",
       "showTokens": "zeige Token (%{amount})",
@@ -1888,6 +1912,8 @@
     }
   },
   "nft": {
+    "customizeFoxatar": "FOXatar anpassen",
+    "setAsAvatar": "Als Avatar festlegen",
     "floorPrice": "niedrigster Preis",
     "lastPrice": "Letzter Preis",
     "overview": "Übersicht",
@@ -1900,8 +1926,53 @@
     "description": "Beschreibung",
     "details": "Details",
     "attributes": "Eigenschaften",
-    "aboutCollection": "über %{collectionName}",
+    "aboutCollection": "Über %{collectionName}",
     "emptyTitle": "Wo sind all die NFTs hin?",
     "emptyBody": "Keine Sorge, wir haben einen Suchtrupp ausgesandt, um noch mehr erstaunliche NFTs zurückzubringen. Nutzen Sie bis dahin die Zeit auf diese leere Stelle zu starren und über den Sinn des Daseins nachzudenken;-)"
+  },
+  "missions": {
+    "subtitle": "FOX Missionen",
+    "missionEnded": "Mission beendet",
+    "viewMission": "Zeige Mission",
+    "comingSoon": "Demnächst",
+    "activeMissions": "Aktive Missionen",
+    "endedMissions": "Beendete Missionen",
+    "title": {
+      "1": "Entfessle das dezentrale Universum und",
+      "2": "erhalte Belohnungen"
+    },
+    "body": "Begeben Sie sich auf Missionen, verdienen Sie Belohnungen und erweitern Sie Ihr Wissen über das ständig wachsende ShapeShift-Ökosystem",
+    "ends": "Endet",
+    "ongoing": "laufende Mission",
+    "optimism": {
+      "title": "Verdiene bis zu 19,5 OP",
+      "subtitle": "Entdecke Optimism",
+      "cta": "Beginne Mission"
+    },
+    "foxatar": {
+      "title": "Holen Sie sich ein kostenloses und anpassbares NFT",
+      "subtitle": "Minte einen FOXatar",
+      "cta": "Beginne Mission"
+    },
+    "foxArmy": {
+      "subtitle": "Treten Sie der FOX-Armee bei",
+      "title": "20,000 FOX Pool",
+      "cta": "Beginne Mission"
+    },
+    "yat": {
+      "subtitle": "Spiele Yat Fantasy",
+      "title": "3,000 USDC Preis Pool",
+      "cta": "Beginne Mission"
+    },
+    "getListed": {
+      "subtitle": "Ihr Projekt hier",
+      "title": "Starten Sie eine Mission für Ihr Projekt",
+      "cta": "Projekt einreichen"
+    }
+  },
+  "avatar": {
+    "modal": {
+      "title": "Legen Sie einen neuen Avatar fest"
+    }
   }
 }

@@ -1,12 +1,22 @@
 import { useToast } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { CHAIN_REFERENCE, ethChainId, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId, ChainReference } from '@shapeshiftoss/caip'
+import {
+  assertIsChainReference,
+  CHAIN_NAMESPACE,
+  CHAIN_REFERENCE,
+  ethChainId,
+  fromAccountId,
+  fromChainId,
+  toAccountId,
+  toChainId,
+} from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import { WalletConnectHDWallet } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnect from '@walletconnect/client'
-import type { IClientMeta } from '@walletconnect/legacy-types'
+import type { IClientMeta, IUpdateChainParams } from '@walletconnect/legacy-types'
 import { useIsWalletConnectToDappsSupportedWallet } from 'plugins/walletConnectToDapps/hooks/useIsWalletConnectToDappsSupportedWallet'
+import { convertHexToNumber } from 'plugins/walletConnectToDapps/utils'
 import type {
   WalletConnectCallRequest,
   WalletConnectSessionRequest,
@@ -22,12 +32,16 @@ import { useTranslate } from 'react-polyglot'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
-import { selectAssets, selectWalletAccountIds } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
-const moduleLogger = logger.child({ namespace: ['WalletConnectBridge'] })
+import { httpProviderByChainId } from 'lib/web3-provider'
+import {
+  selectAssets,
+  selectFeeAssetByChainId,
+  selectWalletAccountIds,
+} from 'state/slices/selectors'
+import { store, useAppSelector } from 'state/store'
 
 const bridge = 'https://bridge.walletconnect.org'
 
@@ -40,7 +54,8 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const [wcAccountId, setWcAccountId] = useState<AccountId | undefined>()
   const [connector, setConnector] = useState<WalletConnect | undefined>()
   const [dapp, setDapp] = useState<IClientMeta | null>(null)
-  const { supportedEvmChainIds, connectedEvmChainId } = useEvm()
+  const { supportedEvmChainIds } = useEvm()
+  const [connectedEvmChainId, setConnectedEvmChainId] = useState<ChainId>(ethChainId)
   const { eth_signTransaction, eth_sendTransaction, eth_signTypedData, personal_sign, eth_sign } =
     useApprovalHandler(wcAccountId)
 
@@ -48,11 +63,11 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   const evmChainId = useMemo(() => connectedEvmChainId ?? ethChainId, [connectedEvmChainId])
   const chainName = useMemo(() => {
     const name = getChainAdapterManager()
-      .get(supportedEvmChainIds.find(chainId => chainId === evmChainId) ?? '')
+      .get(supportedEvmChainIds.find(chainId => chainId === connectedEvmChainId) ?? '')
       ?.getDisplayName()
 
     return name ?? translate('plugins.walletConnectToDapps.header.menu.unsupportedNetwork')
-  }, [evmChainId, supportedEvmChainIds, translate])
+  }, [connectedEvmChainId, supportedEvmChainIds, translate])
 
   const assets = useAppSelector(selectAssets)
 
@@ -68,28 +83,34 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const handleSessionRequest = useCallback(
     (error: Error | null, payload: WalletConnectSessionRequestPayload) => {
-      if (error) moduleLogger.error(error, { fn: '_onSessionRequest' }, 'Error session request')
-      if (!connector) return
-      if (!wcAccountId) return
+      if (error) console.error(error)
+      if (!connector || !wcAccountId) return
       const { account } = fromAccountId(wcAccountId)
-      moduleLogger.info(payload, 'approve wc session')
       // evm chain id integers (chain references in caip parlance, chainId in EVM parlance)
       const supportedEvmChainReferenceInts = evmChainIds.map(chainId =>
         parseInt(fromChainId(chainId).chainReference),
       )
-      const candidateChainIdInt = payload.params[0].chainId
+
+      const candidateChainIdRaw = payload.params[0].chainId
+      const candidateChainIdInt =
+        // Apotheosis: In the wild I've seen both hex and decimal representations of chainId provided in the payload
+        typeof candidateChainIdRaw === 'string'
+          ? convertHexToNumber(candidateChainIdRaw)
+          : candidateChainIdRaw
+
       // some dapps don't send a chainId - default to eth mainnet
       if (supportedEvmChainReferenceInts.includes(candidateChainIdInt) || !candidateChainIdInt) {
         connector.approveSession({
           chainId: candidateChainIdInt ?? parseInt(CHAIN_REFERENCE.EthereumMainnet),
           accounts: [account],
         })
+        const connectedEvmChain = toChainId({
+          chainNamespace: CHAIN_NAMESPACE.Evm,
+          chainReference: candidateChainIdInt.toString() as ChainReference,
+        })
+        setConnectedEvmChainId(connectedEvmChain)
       } else {
         connector.rejectSession()
-        moduleLogger.error(
-          { chainId: candidateChainIdInt },
-          'Unsupported chain id for wallet connect',
-        )
         const supportedChainNames = evmChainIds
           .map(chainId => {
             return getChainAdapterManager().get(chainId)?.getDisplayName()
@@ -114,18 +135,19 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     async (request: WalletConnectCallRequest, approveData: ConfirmData) => {
       if (!connector) return
 
-      const result: any = await (async () => {
+      const result = await (() => {
         switch (request.method) {
           case 'eth_sign':
-            return await eth_sign(request)
+            return eth_sign(request)
           case 'eth_signTypedData':
-            return await eth_signTypedData(request)
+          case 'eth_signTypedData_v4':
+            return eth_signTypedData(request)
           case 'eth_sendTransaction':
-            return await eth_sendTransaction(request, approveData)
+            return eth_sendTransaction(request, approveData)
           case 'eth_signTransaction':
-            return await eth_signTransaction(request, approveData)
+            return eth_signTransaction(request, approveData)
           case 'personal_sign':
-            return await personal_sign(request)
+            return personal_sign(request)
           default:
             return
         }
@@ -158,9 +180,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     [connector],
   )
 
-  const handleSessionUpdate = useCallback((args: unknown) => {
-    moduleLogger.info(args, 'handleSessionUpdate')
-  }, [])
+  const handleSessionUpdate = useCallback((_args: unknown) => {}, [])
 
   const handleDisconnect = useCallback(async () => {
     connector?.off('session_request')
@@ -168,10 +188,13 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     connector?.off('connect')
     connector?.off('disconnect')
     connector?.off('call_request')
+    connector?.off('wc_sessionRequest')
+    connector?.off('wc_sessionUpdate')
+    connector?.off('wallet_switchEthereumChain')
     try {
       await connector?.killSession()
     } catch (e) {
-      moduleLogger.error(e, { fn: 'handleDisconnect' }, 'Error killing session')
+      console.error(e)
     }
     setDapp(null)
     setConnector(undefined)
@@ -180,9 +203,10 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
 
   const handleConnect = useCallback(
     (err: Error | null, payload: { params: [{ peerMeta: IClientMeta }] }) => {
-      if (err) moduleLogger.error(err, { fn: 'handleConnect' }, 'Error connecting')
-      moduleLogger.info(payload, { fn: 'handleConnect' }, 'Payload')
-      setDapp(payload.params[0].peerMeta)
+      if (err) console.error(err)
+      const dapp = payload.params[0].peerMeta
+      setDapp(dapp)
+      getMixPanel()?.track(MixPanelEvents.ConnectedTodApp, dapp)
     },
     [],
   )
@@ -190,33 +214,54 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
   // incoming ws message, render the modal by setting the call request
   // then approve or reject based on user inputs.
   const handleCallRequest = useCallback((err: Error | null, request: WalletConnectCallRequest) => {
-    err
-      ? moduleLogger.error(err, { fn: 'handleCallRequest' }, 'Error handling call request')
-      : setCallRequest(request)
+    err ? console.error(err) : setCallRequest(request)
   }, [])
 
   const handleWcSessionRequest = useCallback(
-    (err: Error | null, request: WalletConnectSessionRequest) => {
-      err
-        ? moduleLogger.error(
-            err,
-            { fn: 'handleWcSessionRequest' },
-            'Error handling session request',
-          )
-        : moduleLogger.info(request, { fn: 'handleWcSessionRequest' }, 'handleWcSessionRequest')
+    (err: Error | null, _request: WalletConnectSessionRequest) => {
+      err && console.error(err)
     },
     [],
   )
 
   const handleWcSessionUpdate = useCallback(
     (err: Error | null, payload: any) => {
-      if (err) {
-        moduleLogger.error(err, 'handleWcSessionUpdate')
-      }
-      moduleLogger.info('handleWcSessionUpdate', payload)
+      if (err) console.error(err)
       if (!payload?.params?.[0]?.accounts) handleDisconnect()
     },
     [handleDisconnect],
+  )
+
+  const handleSwitchChain = useCallback(
+    (err: Error | null, payload: any) => {
+      if (err) return console.error(err)
+      if (!wcAccountId) return console.error('No account id found for wallet connect')
+      const walletConnectChainIdHex = payload.params[0].chainId
+      const chainReference = parseInt(walletConnectChainIdHex, 16).toString()
+      assertIsChainReference(chainReference)
+      const chainId = toChainId({ chainNamespace: CHAIN_NAMESPACE.Evm, chainReference })
+      const state = store.getState()
+      const feeAsset = selectFeeAssetByChainId(state, chainId)
+      if (!feeAsset) return console.error('No fee asset found for chainId', chainId)
+      const selectedAccount = fromAccountId(wcAccountId).account
+      const accountIdOnNewChain = toAccountId({ chainId, account: selectedAccount })
+      const updateChainParams: IUpdateChainParams = {
+        chainId: walletConnectChainIdHex, // chain reference as hex
+        networkId: parseInt(chainReference),
+        rpcUrl: httpProviderByChainId(chainId),
+        nativeCurrency: { name: feeAsset.name, symbol: feeAsset.symbol },
+      }
+      setWcAccountId(accountIdOnNewChain)
+      setConnectedEvmChainId(chainId)
+      connector?.updateChain(updateChainParams)
+      connector?.updateSession({
+        chainId: parseInt(chainReference), // chain reference as integer
+        accounts: [fromAccountId(accountIdOnNewChain).account], // our implementation only supports one connected account per chain
+        networkId: parseInt(chainReference),
+        rpcUrl: httpProviderByChainId(chainId),
+      })
+    },
+    [connector, wcAccountId],
   )
 
   useEffect(() => {
@@ -228,6 +273,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     connector.on('call_request', handleCallRequest)
     connector.on('wc_sessionRequest', handleWcSessionRequest)
     connector.on('wc_sessionUpdate', handleWcSessionUpdate)
+    connector.on('wallet_switchEthereumChain', handleSwitchChain)
   }, [
     connector,
     handleCallRequest,
@@ -235,6 +281,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
     handleDisconnect,
     handleSessionRequest,
     handleSessionUpdate,
+    handleSwitchChain,
     handleWcSessionRequest,
     handleWcSessionUpdate,
   ])
@@ -251,7 +298,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         setConnector(c)
         return { successful: true }
       } catch (error) {
-        moduleLogger.error(error, { fn: 'fromURI' }, 'Error connecting with uri')
+        console.error(error)
         const duration = 2500
         const isClosable = true
         const toastPayload = { duration, isClosable }

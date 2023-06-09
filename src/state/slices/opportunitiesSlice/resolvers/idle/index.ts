@@ -1,14 +1,9 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { bn } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
-import {
-  selectAssetById,
-  selectFeatureFlags,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
+import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
   AssetIdsTuple,
@@ -20,6 +15,7 @@ import type {
   OpportunityMetadata,
   StakingId,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
   OpportunitiesMetadataResolverInput,
@@ -29,10 +25,8 @@ import type {
 import { BASE_OPPORTUNITIES_BY_ID } from './constants'
 import { getIdleInvestor } from './idleInvestorSingleton'
 
-const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'idle'] })
-
 export const idleStakingOpportunitiesMetadataResolver = async ({
-  opportunityType,
+  defiType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{
   data: GetOpportunityMetadataOutput
@@ -54,7 +48,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     return {
       data: {
         byId: {},
-        type: opportunityType,
+        type: defiType,
       },
     }
   }
@@ -66,7 +60,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
           { ...opportunityMetadata, apy: '0', tvl: '0' },
         ]),
       ),
-      type: opportunityType,
+      type: defiType,
     } as const
 
     return {
@@ -94,16 +88,13 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
     if (!asset || !underlyingAsset) continue
 
     const rewardAssetIds = (await opportunity.getRewardAssetIds().catch(error => {
-      moduleLogger.debug(
-        { fn: 'idleStakingOpportunitiesMetadataResolver', error },
-        `Error fetching Idle opportunities metadata for opportunity ${opportunityId}`,
-      )
+      console.error(error)
       return []
     })) as AssetIdsTuple
 
     const baseOpportunity = BASE_OPPORTUNITIES_BY_ID[opportunityId]
     if (!baseOpportunity) {
-      moduleLogger.warn(`
+      console.warn(`
         No base opportunity found for ${opportunityId} in BASE_OPPORTUNITIES_BY_ID, refetching.
         Add me to avoid re-fetching from the contract.
         `)
@@ -152,30 +143,28 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
 
   const data = {
     byId: stakingOpportunitiesById,
-    type: opportunityType,
+    type: defiType,
   }
 
   return { data }
 }
 
 export const idleStakingOpportunitiesUserDataResolver = async ({
-  opportunityType,
+  defiType,
   accountId,
   reduxApi,
   opportunityIds,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
-  const { chainId: accountChainId } = fromAccountId(accountId)
-
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
   const { IdleFinance } = selectFeatureFlags(state)
 
-  if (accountChainId !== ethChainId || !IdleFinance)
+  if (!IdleFinance)
     return Promise.resolve({
       data: {
         byId: {},
-        type: opportunityType,
+        type: defiType,
       },
     })
 
@@ -228,7 +217,9 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     // TODO: lib tranches rewardAssetIds / reward amount implementation
     // Currently, lib is only able to get reward AssetIds / amounts for best yield, which is only 8 assets
     if (!opportunity.metadata.cdoAddress) {
-      const claimableTokens = await opportunity.getClaimableTokens(fromAccountId(accountId).account)
+      const claimableTokens = await opportunity
+        .getClaimableTokens(fromAccountId(accountId).account)
+        .catch(_e => [])
       rewardsAmountsCryptoBaseUnit = claimableTokens.map(token => {
         const asset = selectAssetById(state, token.assetId)
         if (!asset) return '0'
@@ -237,10 +228,7 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
     }
 
     const rewardAssetIds = (await opportunity.getRewardAssetIds().catch(error => {
-      moduleLogger.debug(
-        { fn: 'idleStakingOpportunitiesMetadataResolver', error },
-        `Error fetching Idle opportunities metadata for opportunity ${opportunityId}`,
-      )
+      console.error(error)
       return []
     })) as AssetIdsTuple
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
@@ -255,7 +243,7 @@ export const idleStakingOpportunitiesUserDataResolver = async ({
 
   const data = {
     byId: stakingOpportunitiesUserDataByUserStakingId,
-    type: opportunityType,
+    type: defiType,
   }
 
   return Promise.resolve({ data })

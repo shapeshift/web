@@ -2,16 +2,13 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Flex, Heading } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Link as NavLink } from 'react-router-dom'
-import { Main } from 'components/Layout/Main'
 import { DeFiEarn } from 'components/StakingVaults/DeFiEarn'
 import { RawText } from 'components/Text'
-
-import { DashboardHeader } from './components/DashboardHeader'
 
 const RewardsHeader = () => {
   const translate = useTranslate()
   return (
-    <Flex alignItems={{ base: 'flex-start', md: 'center' }} px={{ base: 4, md: 0 }} flexWrap='wrap'>
+    <Flex alignItems={{ base: 'flex-start', md: 'center' }} px={{ base: 4, xl: 0 }} flexWrap='wrap'>
       <Flex width='full' justifyContent='space-between' alignItems='center'>
         <Heading fontSize='xl'>{translate('defi.myRewards')}</Heading>
         <Button
@@ -31,9 +28,5 @@ const RewardsHeader = () => {
 }
 
 export const RewardsDashboard = () => {
-  return (
-    <Main headerComponent={<DashboardHeader />}>
-      <DeFiEarn includeRewardsBalances header={<RewardsHeader />} />
-    </Main>
-  )
+  return <DeFiEarn includeRewardsBalances header={<RewardsHeader />} />
 }

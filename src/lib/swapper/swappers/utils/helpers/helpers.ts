@@ -1,171 +1,195 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   avalancheAssetId,
   bscAssetId,
   ethAssetId,
   fromAssetId,
+  gnosisAssetId,
   optimismAssetId,
   polygonAssetId,
 } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { evm, EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { optimism } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type Web3 from 'web3'
 import type { AbiItem } from 'web3-utils'
-import { numberToHex } from 'web3-utils'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { TradeQuote } from 'lib/swapper/api'
+import type { GetTradeQuoteInput, TradeQuote } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
-import { MAX_ALLOWANCE } from 'lib/swapper/swappers/CowSwapper/utils/constants'
-import { erc20Abi as erc20AbiImported } from 'lib/swapper/swappers/utils/abi/erc20-abi'
+import { erc20Abi } from 'lib/swapper/swappers/utils/abi/erc20-abi'
 
-export type IsApprovalRequiredArgs = {
+type GetApproveContractDataArgs = {
+  approvalAmountCryptoBaseUnit: string
+  to: string
+  spender: string
+  web3: Web3
+}
+
+type BuildAndBroadcastArgs = {
   adapter: EvmChainAdapter
-  receiveAddress: string
-  allowanceContract: string
-  sellAsset: Asset
-  sellAmountExcludeFeeCryptoBaseUnit: string
-  web3: Web3
-  erc20AllowanceAbi: AbiItem[]
-}
-
-export type GetERC20AllowanceArgs = {
-  erc20AllowanceAbi: AbiItem[]
-  web3: Web3
-  sellAssetErc20Address: string
-  ownerAddress: string
-  spenderAddress: string
-}
-
-export type GetApproveContractDataArgs = {
-  web3: Web3
-  spenderAddress: string
-  contractAddress: string
-}
-
-type GrantAllowanceArgs<T extends EvmChainId> = {
-  quote: TradeQuote<T>
+  buildCustomTxArgs: evm.BuildCustomTxInput
   wallet: HDWallet
+}
+
+type CreateBuildCustomTxInputArgs = {
+  accountNumber: number
   adapter: EvmChainAdapter
-  erc20Abi: AbiItem[]
+  to: string
+  data: string
+  value: string
+  wallet: HDWallet
+}
+
+type GetERC20AllowanceArgs = {
+  erc20AllowanceAbi: AbiItem[]
   web3: Web3
+  address: string
+  from: string
+  spender: string
+}
+
+type GetFeesFromContractDataArgs = {
+  adapter: EvmChainAdapter
+  eip1559Support: boolean
+  from: string
+  to: string
+  value: string
+  data: string
 }
 
 export const getERC20Allowance = ({
   erc20AllowanceAbi,
   web3,
-  sellAssetErc20Address,
-  ownerAddress,
-  spenderAddress,
-}: GetERC20AllowanceArgs): Promise<any> => {
-  const erc20Contract = new web3.eth.Contract(erc20AllowanceAbi, sellAssetErc20Address)
-  return erc20Contract.methods.allowance(ownerAddress, spenderAddress).call()
+  address,
+  from,
+  spender,
+}: GetERC20AllowanceArgs): Promise<number> => {
+  const erc20Contract = new web3.eth.Contract(erc20AllowanceAbi, address)
+  return erc20Contract.methods.allowance(from, spender).call()
 }
 
-export const isApprovalRequired = async ({
+export const getFeesFromContractData = async ({
   adapter,
-  receiveAddress,
-  allowanceContract,
-  sellAsset,
-  sellAmountExcludeFeeCryptoBaseUnit,
-  web3,
-  erc20AllowanceAbi,
-}: IsApprovalRequiredArgs): Promise<boolean> => {
-  try {
-    if (sellAsset.assetId === adapter.getFeeAssetId()) {
-      return false
+  eip1559Support,
+  from,
+  to,
+  value,
+  data,
+}: GetFeesFromContractDataArgs): Promise<{
+  networkFeeCryptoBaseUnit: string
+  feesWithGasLimit: evm.Fees & { gasLimit: string }
+}> => {
+  const getFeeDataInput = {
+    to,
+    value,
+    chainSpecific: { from, contractData: data },
+  }
+
+  const { average, l1GasLimit, l1GasPrice } = await (async () => {
+    if (optimism.isOptimismChainAdapter(adapter)) {
+      const feeData = await adapter.getFeeData(getFeeDataInput)
+      return {
+        average: feeData.average,
+        l1GasLimit: feeData.l1GasLimit,
+        l1GasPrice: feeData.l1GasPrice,
+      }
     }
+    const feeData = await adapter.getFeeData(getFeeDataInput)
+    return { average: feeData.average }
+  })()
 
-    const ownerAddress = receiveAddress
-    const spenderAddress = allowanceContract
+  const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } = average.chainSpecific
 
-    const { assetReference: sellAssetErc20Address } = fromAssetId(sellAsset.assetId)
-
-    const allowanceOnChain = await getERC20Allowance({
-      web3,
-      erc20AllowanceAbi,
-      ownerAddress,
-      spenderAddress,
-      sellAssetErc20Address,
-    })
-    if (!allowanceOnChain) {
-      throw new SwapError(`[isApprovalRequired] - No allowance data`, {
-        details: { allowanceContract, receiveAddress },
-        code: SwapErrorType.RESPONSE_ERROR,
-      })
-    }
-
-    if (bn(allowanceOnChain).isZero()) return true
-
-    const allowanceRequired = bnOrZero(sellAmountExcludeFeeCryptoBaseUnit).minus(allowanceOnChain)
-    return allowanceRequired.gt(0)
-  } catch (e) {
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[isApprovalRequired]', {
-      cause: e,
-      code: SwapErrorType.ALLOWANCE_REQUIRED_FAILED,
+  if (!gasLimit) {
+    throw new SwapError('[getFeesFromContractData]', {
+      cause: 'gasLimit is required',
+      code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
     })
   }
+
+  if (eip1559Support && maxFeePerGas && maxPriorityFeePerGas) {
+    return {
+      networkFeeCryptoBaseUnit: bn(gasLimit).times(maxFeePerGas).toString(),
+      feesWithGasLimit: { gasLimit, maxFeePerGas, maxPriorityFeePerGas },
+    }
+  }
+
+  if (gasPrice) {
+    const networkFeeCryptoBaseUnit = (() => {
+      // calculate optimism network fee
+      if (l1GasLimit && l1GasPrice) {
+        const l1Fee = bn(l1GasPrice).times(l1GasLimit)
+        return bn(gasLimit).times(gasPrice).plus(l1Fee)
+      }
+
+      return bn(gasLimit).times(gasPrice)
+    })()
+
+    return {
+      networkFeeCryptoBaseUnit: networkFeeCryptoBaseUnit.toString(),
+      feesWithGasLimit: { gasLimit, gasPrice },
+    }
+  }
+
+  throw new SwapError('[getFeesFromContractData]', {
+    cause: 'legacy gas or eip1559 gas required',
+    code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
+  })
 }
 
-export const grantAllowance = async <T extends EvmChainId>({
-  quote,
-  wallet,
-  adapter,
-  erc20Abi,
-  web3,
-}: GrantAllowanceArgs<T>): Promise<string> => {
-  try {
-    const { assetReference: sellAssetErc20Address } = fromAssetId(quote.sellAsset.assetId)
-
-    const erc20Contract = new web3.eth.Contract(erc20Abi, sellAssetErc20Address)
-    const approveTx = erc20Contract.methods
-      .approve(quote.allowanceContract, quote.sellAmountBeforeFeesCryptoBaseUnit)
-      .encodeABI()
-
-    const { accountNumber } = quote
-
-    const { txToSign } = await adapter.buildSendTransaction({
-      wallet,
-      to: sellAssetErc20Address,
-      accountNumber,
-      value: '0',
-      chainSpecific: {
-        tokenContractAddress: sellAssetErc20Address,
-        gasPrice: numberToHex(quote.feeData?.chainSpecific?.gasPriceCryptoBaseUnit || 0),
-        gasLimit: numberToHex(quote.feeData?.chainSpecific?.estimatedGasCryptoBaseUnit || 0),
-      },
+export const createBuildCustomTxInput = async (
+  buildCustomTxArgs: CreateBuildCustomTxInputArgs,
+): Promise<evm.BuildCustomTxInput> => {
+  const { accountNumber, adapter, wallet } = buildCustomTxArgs
+  if (!supportsETH(wallet)) {
+    throw new SwapError('[createBuildCustomTxInput]', {
+      cause: 'eth wallet required',
+      code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
+      details: { wallet: buildCustomTxArgs.wallet },
     })
+  }
 
-    const grantAllowanceTxToSign = {
-      ...txToSign,
-      data: approveTx,
-    }
+  const from = await adapter.getAddress({ accountNumber, wallet })
+  const eip1559Support = await wallet.ethSupportsEIP1559()
+  const { feesWithGasLimit } = await getFeesFromContractData({
+    ...buildCustomTxArgs,
+    from,
+    eip1559Support,
+  })
+  return { ...buildCustomTxArgs, ...feesWithGasLimit }
+}
+
+export const buildAndBroadcast = async ({
+  adapter,
+  buildCustomTxArgs,
+  wallet,
+}: BuildAndBroadcastArgs) => {
+  try {
+    const { txToSign } = await adapter.buildCustomTx(buildCustomTxArgs)
+
     if (wallet.supportsOfflineSigning()) {
-      const signedTx = await adapter.signTransaction({ txToSign: grantAllowanceTxToSign, wallet })
-
-      const broadcastedTxId = await adapter.broadcastTransaction(signedTx)
-
-      return broadcastedTxId
-    } else if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
-      const broadcastedTxId = await adapter.signAndBroadcastTransaction?.({
-        txToSign: grantAllowanceTxToSign,
-        wallet,
-      })
-
-      return broadcastedTxId
-    } else {
-      throw new SwapError('[grantAllowance] - invalid HDWallet config', {
-        code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
-      })
+      const signedTx = await adapter.signTransaction({ txToSign, wallet })
+      const txid = await adapter.broadcastTransaction(signedTx)
+      return txid
     }
+
+    if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
+      const txid = await adapter.signAndBroadcastTransaction({ txToSign, wallet })
+      return txid
+    }
+
+    throw new SwapError('[buildAndBroadcast]', {
+      cause: 'no broadcast support',
+      code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
+    })
   } catch (e) {
     if (e instanceof SwapError) throw e
-    throw new SwapError('[grantAllowance]', {
+    throw new SwapError('[buildAndBroadcast]', {
       cause: e,
-      code: SwapErrorType.GRANT_ALLOWANCE_FAILED,
+      code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
     })
   }
 }
@@ -187,12 +211,13 @@ export const normalizeIntegerAmount = (amount: string | number | BigNumber): str
 }
 
 export const getApproveContractData = ({
+  approvalAmountCryptoBaseUnit,
+  to,
+  spender,
   web3,
-  spenderAddress,
-  contractAddress,
 }: GetApproveContractDataArgs): string => {
-  const contract = new web3.eth.Contract(erc20AbiImported, contractAddress)
-  return contract.methods.approve(spenderAddress, MAX_ALLOWANCE).encodeABI()
+  const contract = new web3.eth.Contract(erc20Abi, to)
+  return contract.methods.approve(spender, approvalAmountCryptoBaseUnit).encodeABI()
 }
 
 export const isNativeEvmAsset = (assetId: AssetId): boolean => {
@@ -208,7 +233,34 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
       return assetId === bscAssetId
     case KnownChainIds.PolygonMainnet:
       return assetId === polygonAssetId
+    case KnownChainIds.GnosisMainnet:
+      return assetId === gnosisAssetId
     default:
       return false
+  }
+}
+
+export const createEmptyEvmTradeQuote = (
+  input: GetTradeQuoteInput,
+  minimumCryptoHuman: string,
+): TradeQuote<EvmChainId, true> => {
+  return {
+    minimumCryptoHuman,
+    steps: [
+      {
+        allowanceContract: '',
+        buyAmountBeforeFeesCryptoBaseUnit: '0',
+        sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
+        feeData: {
+          networkFeeCryptoBaseUnit: undefined,
+          protocolFees: {},
+        },
+        rate: '0',
+        sources: [],
+        buyAsset: input.buyAsset,
+        sellAsset: input.sellAsset,
+        accountNumber: input.accountNumber,
+      },
+    ],
   }
 }

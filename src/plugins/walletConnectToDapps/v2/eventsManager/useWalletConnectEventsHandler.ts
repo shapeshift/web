@@ -12,9 +12,6 @@ import {
   WalletConnectModal,
 } from 'plugins/walletConnectToDapps/v2/types'
 import { useCallback } from 'react'
-import { logger } from 'lib/logger'
-
-const moduleLogger = logger.child({ namespace: ['useWalletConnectEventsHandler'] })
 
 export const useWalletConnectEventsHandler = (
   dispatch: WalletConnectContextType['dispatch'],
@@ -31,9 +28,7 @@ export const useWalletConnectEventsHandler = (
     [dispatch],
   )
 
-  const handleAuthRequest = useCallback((request: Web3WalletTypes.AuthRequest) => {
-    moduleLogger.info(request, 'auth_request received')
-  }, [])
+  const handleAuthRequest = useCallback((_request: Web3WalletTypes.AuthRequest) => {}, [])
 
   // Open request handling modal based on method that was used
   const handleSessionRequest = useCallback(
@@ -92,7 +87,6 @@ export const useWalletConnectEventsHandler = (
           })
 
         default:
-          moduleLogger.info(request, 'Unsupported method received')
           return
       }
     },

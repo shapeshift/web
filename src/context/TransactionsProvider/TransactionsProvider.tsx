@@ -1,40 +1,37 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { ethChainId, foxAssetId, foxatarAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { IDLE_PROXY_1_CONTRACT_ADDRESS, IDLE_PROXY_2_CONTRACT_ADDRESS } from 'contracts/constants'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
+import { nftApi } from 'state/apis/nft/nftApi'
+import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
+import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import type { IdleStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/idle/types'
 import {
   isSupportedThorchainSaversAssetId,
   isSupportedThorchainSaversChainId,
   waitForSaversUpdate,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import {
-  fetchAllOpportunitiesIds,
-  fetchAllOpportunitiesMetadata,
-  fetchAllOpportunitiesUserData,
-} from 'state/slices/opportunitiesSlice/thunks'
+import { fetchAllOpportunitiesUserDataByAccountId } from 'state/slices/opportunitiesSlice/thunks'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioAccountMetadata,
   selectPortfolioLoadingStatus,
   selectStakingOpportunitiesById,
+  selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch } from 'state/store'
 
 import { usePlugins } from '../PluginProvider/PluginProvider'
-
-const moduleLogger = logger.child({ namespace: ['TransactionsProvider'] })
 
 type TransactionsProviderProps = {
   children: React.ReactNode
@@ -48,6 +45,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
   } = useWallet()
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
+  const walletAccountIds = useSelector(selectWalletAccountIds)
   const { supportedChains } = usePlugins()
 
   const stakingOpportunitiesById = useSelector(selectStakingOpportunitiesById)
@@ -106,9 +104,8 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
           getOpportunitiesUserData.initiate(
             {
               accountId,
-              defiType: DefiType.Staking,
               defiProvider: DefiProvider.Idle,
-              opportunityType: DefiType.Staking,
+              defiType: DefiType.Staking,
             },
             { forceRefetch: true },
           ),
@@ -118,9 +115,8 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
           getOpportunitiesUserData.initiate(
             {
               accountId,
-              defiType: DefiType.Staking,
               defiProvider: DefiProvider.CosmosSdk,
-              opportunityType: DefiType.Staking,
+              defiType: DefiType.Staking,
             },
             { forceRefetch: true },
           ),
@@ -133,9 +129,8 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
             getOpportunitiesUserData.initiate(
               {
                 accountId,
-                defiType: DefiType.Staking,
                 defiProvider: DefiProvider.ThorchainSavers,
-                opportunityType: DefiType.Staking,
+                defiType: DefiType.Staking,
               },
               { forceRefetch: true },
             ),
@@ -143,9 +138,8 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
         })
       } else if (shouldRefetchAllOpportunities) return
       ;(async () => {
-        await fetchAllOpportunitiesIds({ forceRefetch: true })
-        await fetchAllOpportunitiesMetadata({ forceRefetch: true })
-        await fetchAllOpportunitiesUserData(accountId, { forceRefetch: true })
+        // We don't know the chainId of the Tx, so we refetch all opportunities
+        await fetchAllOpportunitiesUserDataByAccountId(accountId, { forceRefetch: true })
       })()
     },
     // TODO: This is drunk and will evaluate stakingOpportunitiesById to an empty object despite not being empty when debugged in its outer scope
@@ -153,13 +147,30 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
+
+  const maybeRefetchNfts = useCallback(
+    ({ transfers, status }: Transaction) => {
+      if (status !== TxStatus.Confirmed) return
+
+      // Only on FOXatar for now, we may want to generalize this to all NFTs with isNft(assetId) in the future
+      if (transfers.some(({ assetId }) => assetId.includes(foxatarAssetId))) {
+        const { getNftUserTokens } = nftApi.endpoints
+        dispatch(
+          getNftUserTokens.initiate({ accountIds: walletAccountIds }, { forceRefetch: true }),
+        )
+      }
+    },
+    // Disabling for safety similar to maybeRefetchOpportunities
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [walletAccountIds],
+  )
+
   /**
    * unsubscribe and cleanup logic
    */
   useEffect(() => {
     // we've disconnected/switched a wallet, unsubscribe from tx history and clear tx history
     if (!isSubscribed) return
-    moduleLogger.debug({ supportedChains }, 'unsubscribing txs')
     // this is heavy handed but will ensure we're unsubscribed from everything
     supportedChains.forEach(chainId => getChainAdapterManager().get(chainId)?.unsubscribeTxs())
     setIsSubscribed(false)
@@ -180,7 +191,6 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     // even though it shouldn't
     if (portfolioLoadingStatus === 'loading') return
     ;(() => {
-      moduleLogger.debug({ accountIds }, 'subscribing txs')
       accountIds.forEach(accountId => {
         const { chainId } = fromAccountId(accountId)
         const adapter = getChainAdapterManager().get(chainId)
@@ -204,14 +214,18 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
               )
 
               maybeRefetchOpportunities(msg, accountId)
+              maybeRefetchNfts(msg)
+
+              // upsert any new nft assets if detected
+              dispatch(assetsSlice.actions.upsertAssets(makeNftAssetsFromTxs([msg])))
 
               // deal with incoming message
               dispatch(onMessage({ message: { ...msg, accountType }, accountId }))
             },
-            (err: any) => moduleLogger.error(err),
+            err => console.error(err),
           )
-        } catch (e: unknown) {
-          moduleLogger.error(e, { accountId }, 'error subscribing to txs')
+        } catch (e) {
+          console.error(e)
         }
       })
 
@@ -224,6 +238,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     portfolioAccountMetadata,
     wallet,
     maybeRefetchOpportunities,
+    maybeRefetchNfts,
   ])
 
   return <>{children}</>

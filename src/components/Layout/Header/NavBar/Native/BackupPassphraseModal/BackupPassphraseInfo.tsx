@@ -1,5 +1,4 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { ModalCloseButton } from '@chakra-ui/modal'
 import {
   Alert,
   AlertDescription,
@@ -8,6 +7,7 @@ import {
   Code,
   IconButton,
   ModalBody,
+  ModalCloseButton,
   ModalFooter,
   ModalHeader,
   Tag,
@@ -24,14 +24,9 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { Revocable, revocable } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import { useModal } from 'hooks/useModal/useModal'
-import { logger } from 'lib/logger'
 
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
-
-const moduleLogger = logger.child({
-  namespace: ['Layout', 'Header', 'NavBar', 'Native', 'BackupNativePassphrase'],
-})
 
 export const BackupPassphraseInfo: React.FC<LocationState> = props => {
   const { revocableWallet } = props
@@ -80,7 +75,7 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
         ) ?? null
       )
     } catch (e) {
-      moduleLogger.error(e, 'failed to get Secret Recovery Phrase')
+      console.error(e)
     }
 
     return null

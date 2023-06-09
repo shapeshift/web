@@ -31,7 +31,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -53,10 +52,6 @@ type ClaimConfirmProps = {
   onBack: () => void
 }
 
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'FoxFarming', 'Overview', 'ClaimConfirm'],
-})
-
 export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfirmProps) => {
   const [estimatedGas, setEstimatedGas] = useState<string>('0')
   const [loading, setLoading] = useState<boolean>(false)
@@ -70,7 +65,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
-  const { claimRewards, getClaimGasData, foxFarmingContract } = useFoxFarming(contractAddress)
+  const { claimRewards, getClaimFeeData, foxFarmingContract } = useFoxFarming(contractAddress)
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { onOngoingFarmingTxIdChange } = useFoxEth()
@@ -137,7 +132,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
         assets,
       )
     } catch (error) {
-      moduleLogger.error(error, 'ClaimWithdraw error')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -156,16 +151,16 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
           !(walletState.wallet && feeAsset && feeMarketData && foxFarmingContract && accountAddress)
         )
           return
-        const gasEstimate = await getClaimGasData(accountAddress)
-        if (!gasEstimate) throw new Error('Gas estimation failed')
-        const estimatedGasCrypto = bnOrZero(gasEstimate.average.txFee)
+        const feeData = await getClaimFeeData(accountAddress)
+        if (!feeData) throw new Error('Gas estimation failed')
+        const estimatedGasCrypto = bnOrZero(feeData.txFee)
           .div(`1e${feeAsset.precision}`)
           .toPrecision()
         setCanClaim(true)
         setEstimatedGas(estimatedGasCrypto)
       } catch (error) {
         // TODO: handle client side errors
-        moduleLogger.error(error, 'FoxFarmingClaim error')
+        console.error(error)
       }
     })()
   }, [
@@ -174,7 +169,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
     feeAsset.precision,
     feeMarketData,
     feeMarketData.price,
-    getClaimGasData,
+    getClaimFeeData,
     walletState.wallet,
     foxFarmingContract,
   ])

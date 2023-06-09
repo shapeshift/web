@@ -1,14 +1,11 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
+import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { USDC_PRECISION } from 'constants/constants'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getYearnInvestor } from 'features/defi/contexts/YearnProvider/yearnInvestorSingleton'
-import {
-  selectAssetById,
-  selectFeatureFlags,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -18,6 +15,7 @@ import type {
   OpportunityMetadata,
   StakingId,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
   OpportunitiesMetadataResolverInput,
@@ -26,7 +24,7 @@ import type {
 } from '../types'
 
 export const yearnStakingOpportunitiesMetadataResolver = async ({
-  opportunityType,
+  defiType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{
   data: GetOpportunityMetadataOutput
@@ -37,7 +35,7 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
   const { Yearn } = selectFeatureFlags(state)
 
   if (!Yearn) {
-    return { data: { byId: {}, type: opportunityType } }
+    return { data: { byId: {}, type: defiType } }
   }
   const opportunities = await (async () => {
     const maybeOpportunities = await getYearnInvestor().findAll()
@@ -82,14 +80,14 @@ export const yearnStakingOpportunitiesMetadataResolver = async ({
   }
   const data = {
     byId: stakingOpportunitiesById,
-    type: opportunityType,
+    type: defiType,
   }
 
   return { data }
 }
 
 export const yearnStakingOpportunitiesUserDataResolver = async ({
-  opportunityType,
+  defiType,
   accountId,
   reduxApi,
   opportunityIds,
@@ -98,9 +96,8 @@ export const yearnStakingOpportunitiesUserDataResolver = async ({
   const state: any = getState() // ReduxState causes circular dependency
 
   const { Yearn } = selectFeatureFlags(state)
-  const { chainId: accountChainId } = fromAccountId(accountId)
 
-  if (!Yearn || accountChainId !== ethChainId)
+  if (!Yearn)
     return {
       data: {
         byId: {},
@@ -158,7 +155,7 @@ export const yearnStakingOpportunitiesUserDataResolver = async ({
 
   const data = {
     byId: stakingOpportunitiesUserDataByUserStakingId,
-    type: opportunityType,
+    type: defiType,
   }
 
   return Promise.resolve({ data })

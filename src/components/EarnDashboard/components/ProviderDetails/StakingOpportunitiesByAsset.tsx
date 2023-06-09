@@ -1,8 +1,7 @@
 import { Button, Flex } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
-import { DefiAction, DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -15,12 +14,14 @@ import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type {
   OpportunityId,
   StakingEarnOpportunityType,
 } from 'state/slices/opportunitiesSlice/types'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssets,
@@ -123,7 +124,7 @@ export const StakingPositionsByAsset: React.FC<StakingPositionsByAssetProps> = (
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
           const opportunity = row.original
-          const hasValue = bnOrZero(opportunity.fiatAmount).gt(0)
+          const hasValue = !bnOrZero(opportunity.fiatAmount).isZero()
           return hasValue ? (
             <Flex flexDir='column' alignItems={{ base: 'flex-end', md: 'flex-start' }}>
               <Amount.Fiat value={row.original.fiatAmount} />

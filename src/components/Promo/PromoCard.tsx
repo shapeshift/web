@@ -12,6 +12,7 @@ import { Carousel } from 'components/Carousel/Carousel'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 
 import type { PromoItem } from './types'
 
@@ -32,6 +33,7 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
     dispatch,
     state: { wallet, isDemoWallet },
   } = useWallet()
+  const mixpanel = getMixPanel()
   const history = useHistory()
   const translate = useTranslate()
 
@@ -45,11 +47,14 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
       href,
       walletRequired,
       isExternal,
+      id,
     }: {
       href: string
       walletRequired: boolean
       isExternal?: boolean
+      id: string
     }) => {
+      mixpanel?.track('Promo Click', { id })
       if (walletRequired) {
         if (wallet && !isDemoWallet && supportsETH(wallet)) {
           isExternal ? window.open(href) : history.push(href)
@@ -60,7 +65,7 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
         isExternal ? window.open(href) : history.push(href)
       }
     },
-    [handleWalletModalOpen, history, isDemoWallet, wallet],
+    [handleWalletModalOpen, history, isDemoWallet, mixpanel, wallet],
   )
 
   const renderPromos = useMemo(() => {
@@ -106,7 +111,7 @@ export const PromoCard: React.FC<PromoCardProps> = ({ data }) => {
                   variant='link'
                   colorScheme={colorScheme}
                   mt={4}
-                  onClick={() => handleClick({ href, walletRequired, isExternal })}
+                  onClick={() => handleClick({ href, walletRequired, isExternal, id })}
                   rightIcon={<ArrowForwardIcon />}
                   data-test={`${id}-button`}
                   letterSpacing='0.012em'

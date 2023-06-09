@@ -1,20 +1,22 @@
+import { Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import toLower from 'lodash/toLower'
 import { useSelector } from 'react-redux'
 import { Redirect, useParams } from 'react-router-dom'
-import type { Route } from 'Routes/helpers'
-import { AssetAccountDetails } from 'components/AssetAccountDetails'
+import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'
+import { Equity } from 'components/Equity/Equity'
+import { EarnOpportunities } from 'components/StakingVaults/EarnOpportunities'
+import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
+import { TradeCard } from 'pages/Dashboard/TradeCard'
 import { selectWalletAccountIds } from 'state/slices/selectors'
+
+import { AccountBalance } from './AccountBalance'
 export type MatchParams = {
   accountId: AccountId
   assetId: AssetId
 }
 
-type AccountTokenProps = {
-  route?: Route
-}
-
-export const AccountToken = ({ route }: AccountTokenProps) => {
+export const AccountToken = () => {
   const { accountId, assetId } = useParams<MatchParams>()
 
   /**
@@ -30,5 +32,29 @@ export const AccountToken = ({ route }: AccountTokenProps) => {
 
   const id = assetId ? decodeURIComponent(assetId) : null
   if (!id) return null
-  return <AssetAccountDetails assetId={id} accountId={accountId} route={route} key={accountId} />
+  return (
+    <Stack
+      alignItems='flex-start'
+      spacing={4}
+      width='full'
+      direction={{ base: 'column', xl: 'row' }}
+    >
+      <Stack spacing={4} flex='1 1 0%' width='full'>
+        <AccountBalance assetId={id} accountId={accountId} />
+        <Equity assetId={id} accountId={accountId} />
+        <AssetAccounts assetId={id} accountId={accountId} />
+        <EarnOpportunities assetId={id} accountId={accountId} />
+        <AssetTransactionHistory assetId={id} accountId={accountId} />
+      </Stack>
+      <Flex
+        flexDir='column'
+        flex='1 1 0%'
+        width='full'
+        maxWidth={{ base: 'full', xl: 'sm' }}
+        gap={4}
+      >
+        <TradeCard display={{ base: 'none', md: 'block' }} />
+      </Flex>
+    </Stack>
+  )
 }

@@ -1,8 +1,8 @@
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { IdleInvestor } from '@shapeshiftoss/investor-idle'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { IdleInvestor } from 'lib/investor/investor-idle'
 
 // don't export me, access me through the getter
 let _idleInvestor: IdleInvestor | undefined = undefined

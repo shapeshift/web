@@ -25,13 +25,7 @@ export const RecentTransactions: React.FC<RecentTransactionProps> = ({
           <Text translation={'dashboard.recentTransactions.recentTransactions'} />
         </Card.Heading>
         {viewMoreLink && (
-          <Button
-            as={NavLink}
-            to='/transaction-history'
-            variant='link'
-            size='sm'
-            colorScheme='blue'
-          >
+          <Button as={NavLink} to='/dashboard/activity' variant='link' size='sm' colorScheme='blue'>
             {translate('common.viewAll')}
           </Button>
         )}

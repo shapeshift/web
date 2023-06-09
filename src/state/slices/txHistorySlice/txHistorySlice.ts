@@ -1,17 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, ethChainId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
-import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
 import identity from 'lodash/identity'
 import orderBy from 'lodash/orderBy'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { logger } from 'lib/logger'
+import type { RebaseHistory } from 'lib/investor/investor-foxy'
+import { foxyAddresses } from 'lib/investor/investor-foxy'
 import type { PartialRecord } from 'lib/utils'
 import { deepUpsertArray, isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -20,8 +19,6 @@ import type { State } from 'state/apis/types'
 import type { Nominal } from 'types/common'
 
 import { getRelatedAssetIds, serializeTxIndex, UNIQUE_TX_ID_DELIMITER } from './utils'
-
-const moduleLogger = logger.child({ namespace: ['txHistorySlice'] })
 
 export type TxId = Nominal<string, 'TxId'>
 export type Tx = Transaction & { accountType?: UtxoAccountType }
@@ -174,7 +171,6 @@ export const txHistory = createSlice({
   initialState,
   reducers: {
     clear: () => {
-      moduleLogger.info('clearing tx history')
       return initialState
     },
     onMessage: (txState, { payload }: TxMessage) =>
@@ -198,104 +194,81 @@ export const txHistoryApi = createApi({
   reducerPath: 'txHistoryApi',
   endpoints: build => ({
     getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], RebaseTxHistoryArgs>({
-      queryFn: async ({ accountId, portfolioAssetIds }, { dispatch }) => {
+      queryFn: ({ accountId, portfolioAssetIds }, { dispatch }) => {
         const { chainId, account: userAddress } = fromAccountId(accountId)
         // foxy is only on eth mainnet, and [] is a valid return type and won't upsert anything
         if (chainId !== ethChainId) return { data: [] }
         // foxy contract address, note not assetIds
-        const foxyTokenContractAddressWithBalances = foxyAddresses.reduce<string[]>(
-          (acc, { foxy }) => {
-            const contractAddress = foxy.toLowerCase()
-            portfolioAssetIds.some(id => id.includes(contractAddress)) && acc.push(contractAddress)
-            return acc
-          },
-          [],
-        )
+        const foxyTokenContractAddress = (() => {
+          const contractAddress = foxyAddresses[0].foxy.toLowerCase()
+          if (portfolioAssetIds.some(id => id.includes(contractAddress))) return contractAddress
+        })()
 
-        // don't do anything below if we don't hold a version of foxy
-        if (!foxyTokenContractAddressWithBalances.length) return { data: [] }
+        // don't do anything below if we don't have FOXy as a portfolio AssetId
+        if (!foxyTokenContractAddress) return { data: [] }
 
         // setup foxy api
         const foxyApi = getFoxyApi()
 
-        await Promise.all(
-          foxyTokenContractAddressWithBalances.map(async tokenContractAddress => {
-            const rebaseHistoryArgs = { userAddress, tokenContractAddress }
-            const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
-            const assetReference = tokenContractAddress
-            const assetNamespace = 'erc20'
-            const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-            const upsertPayload = { accountId, assetId, data }
-            if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
-          }),
-        )
-
-        // we don't really care about the caching of this, we're dispatching
-        // into another part of the portfolio above, we kind of abuse RTK query,
-        // and we're always force refetching these anyway
+        ;(async () => {
+          const rebaseHistoryArgs = { userAddress, tokenContractAddress: foxyTokenContractAddress }
+          const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
+          const assetReference = foxyTokenContractAddress
+          const assetNamespace = ASSET_NAMESPACE.erc20
+          const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+          const upsertPayload = { accountId, assetId, data }
+          if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
+        })()
         return { data: [] }
       },
     }),
-    getAllTxHistory: build.query<Transaction[], AccountId[]>({
-      queryFn: async (accountIds, { dispatch, getState }) => {
-        if (!accountIds.length) {
-          return { error: { data: 'getAllTxHistory: no account ids provided', status: 400 } }
-        }
-
-        const txHistories = await Promise.allSettled(
-          accountIds.map(async accountId => {
-            const { chainId, account: pubkey } = fromAccountId(accountId)
-            const adapter = getChainAdapterManager().get(chainId)
-            if (!adapter)
-              return {
-                error: {
-                  data: `getAllTxHistory: no adapter available for chainId ${chainId}`,
-                  status: 400,
-                },
-              }
-
-            let currentCursor: string = ''
-            try {
-              do {
-                const { cursor, transactions } = await adapter.getTxHistory({
-                  cursor: currentCursor,
-                  pubkey,
-                  pageSize: 100,
-                })
-
-                currentCursor = cursor
-
-                const state = getState() as State
-                const txState = state.txHistory.txs
-                // the existing tx indexes for this account
-                const existingTxIndexes = Object.values(
-                  txState?.byAccountIdAssetId?.[accountId] ?? {},
-                ).flatMap(identity)
-                // freshly fetched - unchained returns latest txs first
-                const fetchedTxIndexes: TxId[] = transactions.map(tx =>
-                  serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
-                )
-                // diff the two - if we haven't seen any of these txs before, upsert them
-                const diffedTxIds = difference(fetchedTxIndexes, existingTxIndexes)
-                if (diffedTxIds.length) {
-                  // new txs to upsert
-                  dispatch(txHistory.actions.upsertTxs({ txs: transactions, accountId }))
-                } else {
-                  // we've previously fetched all txs for this account, don't keep paginating
-                  break
-                }
-              } while (currentCursor)
-            } catch (err) {
-              throw new Error(`failed to fetch tx history for account: ${accountId}: ${err}`)
-            }
-          }),
-        )
-
-        txHistories.forEach(promise => {
-          if (promise.status === 'rejected') {
-            moduleLogger.child({ fn: 'getAllTxHistory' }).error(promise.reason)
+    getAllTxHistory: build.query<Transaction[], AccountId>({
+      queryFn: async (accountId, { dispatch, getState }) => {
+        const { chainId, account: pubkey } = fromAccountId(accountId)
+        const adapter = getChainAdapterManager().get(chainId)
+        if (!adapter)
+          return {
+            error: {
+              data: `getAllTxHistory: no adapter available for chainId ${chainId}`,
+              status: 400,
+            },
           }
-        })
+
+        let currentCursor: string = ''
+        try {
+          do {
+            const { cursor, transactions } = await adapter.getTxHistory({
+              cursor: currentCursor,
+              pubkey,
+              pageSize: 100,
+            })
+
+            currentCursor = cursor
+
+            const state = getState() as State
+            const txState = state.txHistory.txs
+
+            const existingTxIndexes = Object.values(
+              txState?.byAccountIdAssetId?.[accountId] ?? {},
+            ).flatMap(identity)
+
+            // freshly fetched - unchained returns latest txs first
+            const fetchedTxIndexes: TxId[] = transactions.map(tx =>
+              serializeTxIndex(accountId, tx.txid, tx.address, tx.data),
+            )
+            // diff the two - if we haven't seen any of these txs before, upsert them
+            const diffedTxIds = difference(fetchedTxIndexes, existingTxIndexes)
+            if (diffedTxIds.length) {
+              // new txs to upsert
+              dispatch(txHistory.actions.upsertTxs({ txs: transactions, accountId }))
+            } else {
+              // we've previously fetched all txs for this account, don't keep paginating
+              break
+            }
+          } while (currentCursor)
+        } catch (err) {
+          console.error(err)
+        }
 
         return { data: [] }
       },

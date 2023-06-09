@@ -16,6 +16,7 @@ import { Allocations } from 'components/AccountRow/Allocations'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
+import { middleEllipsis } from 'lib/utils'
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
@@ -63,7 +64,7 @@ export const AssetAccountRow = ({
       selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId }),
     ) ?? 0
   const path = generatePath(
-    assetId ? '/accounts/:accountId/:assetId' : '/accounts/:accountId',
+    assetId ? '/dashboard/accounts/:accountId/:assetId' : '/dashboard/accounts/:accountId',
     filter,
   )
   const label = accountIdToLabel(accountId)
@@ -136,8 +137,14 @@ export const AssetAccountRow = ({
         </Flex>
       )}
       {!isCompact && (
-        <Flex justifyContent='flex-end' textAlign='right' display={{ base: 'none', md: 'flex' }}>
+        <Flex
+          flexDir='column'
+          justifyContent='flex-end'
+          textAlign='right'
+          display={{ base: 'none', md: 'flex' }}
+        >
           <Amount.Crypto value={cryptoHumanBalance} symbol={asset?.symbol} />
+          {asset.id && <RawText>{middleEllipsis(asset.id)}</RawText>}
         </Flex>
       )}
 

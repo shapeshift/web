@@ -1,6 +1,5 @@
-import type { ContainerProps } from '@chakra-ui/layout'
-import { Box, Container, HStack, Stack } from '@chakra-ui/layout'
-import { useColorModeValue } from '@chakra-ui/react'
+import type { ContainerProps } from '@chakra-ui/react'
+import { Box, Container, HStack, Stack, useColorModeValue } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
@@ -47,7 +46,7 @@ export const Main: React.FC<MainProps> = ({
           shadow={y > height ? 'sm' : undefined}
         >
           <>
-            <Container maxW='container.xl' px={{ base: 4, xl: 8 }} pt={4}>
+            <Container maxW='container.4xl' px={{ base: 4, xl: 16 }} pt={4}>
               <Stack>
                 {!hideBreadcrumbs && (
                   <HStack width='full' justifyContent='space-between'>
@@ -63,7 +62,7 @@ export const Main: React.FC<MainProps> = ({
         </Box>
       )}
       {headerComponent}
-      <Container maxW='container.xl' py={8} px={{ base: 0, xl: 8 }} {...rest}>
+      <Container maxW='container.4xl' py={8} px={{ base: 0, xl: 4, '2xl': 16 }} {...rest}>
         {children}
       </Container>
     </Page>

@@ -1,5 +1,4 @@
-import { Flex } from '@chakra-ui/layout'
-import { Accordion } from '@chakra-ui/react'
+import { Accordion, Flex } from '@chakra-ui/react'
 import type { OpportunitiesBucket } from 'plugins/foxPage/FoxCommon'
 import { useMemo } from 'react'
 import { Card } from 'components/Card/Card'

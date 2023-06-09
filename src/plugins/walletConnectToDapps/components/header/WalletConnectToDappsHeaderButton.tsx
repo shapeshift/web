@@ -1,6 +1,5 @@
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons'
-import { Menu, MenuButton, MenuList } from '@chakra-ui/menu'
-import { Button, useDisclosure } from '@chakra-ui/react'
+import { Button, Menu, MenuButton, MenuList, useDisclosure } from '@chakra-ui/react'
 import { DappHeaderMenuSummaryV2 } from 'plugins/walletConnectToDapps/components/header/DappHeaderMenuSummaryV2'
 import { ConnectModal } from 'plugins/walletConnectToDapps/components/modals/connect/Connect'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/v1/WalletConnectBridgeContext'
@@ -37,6 +36,7 @@ export const WalletConnectToDappsHeaderButton: FC = () => {
           leftIcon={<WalletConnectIcon />}
           rightIcon={<ChevronRightIcon />}
           onClick={handleOpen}
+          width={{ base: 'full', md: 'auto' }}
         >
           {translate('plugins.walletConnectToDapps.header.connectDapp')}
         </Button>

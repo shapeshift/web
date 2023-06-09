@@ -38,6 +38,7 @@ export const AssetTransfer: React.FC<AssetTransferProps> = ({ index, compactMode
       textAlign={index === 0 ? 'left' : 'right'}
     >
       <AssetIcon
+        src={transfer.asset.icon}
         assetId={transfer.asset?.assetId}
         boxSize={{ base: '24px', lg: compactMode ? '24px' : '40px' }}
       />

@@ -47,9 +47,6 @@ export const btcAddresses = Object.freeze([
   'bc1q4cqvc3ul562uuz358y77hmqhlfex8jhvfzzek8',
 ])
 
-export const cosmosPubKeys = Object.freeze(['cosmos1wc4rv7dv8lafv38s50pfp5qsgv7eknetyml669'])
-export const osmoPubKeys = Object.freeze(['osmo1n89secc5fgu4cje3jw6c3pu264vy2yavzm8khe'])
-
 export const mockEthToken = (obj?: { balance?: string; assetId?: string }) => ({
   balance: '100',
   assetId: foxAssetId,

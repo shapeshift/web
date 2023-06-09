@@ -1,9 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
-import type { SupportedFiatCurrencies } from '@shapeshiftoss/market-service'
+import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
+import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import { simpleLocale } from 'lib/browserLocale'
+import type { SupportedFiatCurrencies } from 'lib/market-service'
 
 dayjs.extend(localizedFormat)
 
@@ -16,6 +18,7 @@ export type FeatureFlags = {
   Optimism: boolean
   BnbSmartChain: boolean
   Polygon: boolean
+  Gnosis: boolean
   ThorSwap: boolean
   IdleFinance: boolean
   Axelar: boolean
@@ -29,17 +32,17 @@ export type FeatureFlags = {
   ArkeoAirdrop: boolean
   TradeRates: boolean
   Cowswap: boolean
-  ZrxAvalancheSwap: boolean
-  ZrxBnbSmartChainSwap: boolean
-  ZrxPolygonSwap: boolean
-  ZrxEthereumSwap: boolean
-  ZrxOptimismSwap: boolean
+  CowswapGnosis: boolean
+  ZrxSwap: boolean
   Mixpanel: boolean
   LifiSwap: boolean
   FoxBondCTA: boolean
   DynamicLpAssets: boolean
+  ReadOnlyAssets: boolean
   Jaypegz: boolean
   OneInch: boolean
+  CovalentJaypegs: boolean
+  MultiHopTrades: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -55,6 +58,7 @@ export type Preferences = {
   balanceThreshold: string
   selectedCurrency: SupportedFiatCurrencies
   currencyFormat: CurrencyFormats
+  chartTimeframe: HistoryTimeframe
   showWelcomeModal: boolean
   showConsentBanner: boolean
 }
@@ -70,6 +74,7 @@ const initialState: Preferences = {
     Optimism: getConfig().REACT_APP_FEATURE_OPTIMISM,
     BnbSmartChain: getConfig().REACT_APP_FEATURE_BNBSMARTCHAIN,
     Polygon: getConfig().REACT_APP_FEATURE_POLYGON,
+    Gnosis: getConfig().REACT_APP_FEATURE_GNOSIS,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     IdleFinance: getConfig().REACT_APP_FEATURE_IDLE,
     Axelar: getConfig().REACT_APP_FEATURE_AXELAR,
@@ -83,21 +88,22 @@ const initialState: Preferences = {
     ArkeoAirdrop: getConfig().REACT_APP_FEATURE_ARKEO_AIRDROP,
     TradeRates: getConfig().REACT_APP_FEATURE_TRADE_RATES,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
-    ZrxAvalancheSwap: getConfig().REACT_APP_FEATURE_ZRX_AVALANCHE,
-    ZrxBnbSmartChainSwap: getConfig().REACT_APP_FEATURE_ZRX_BNBSMARTCHAIN,
-    ZrxPolygonSwap: getConfig().REACT_APP_FEATURE_ZRX_POLYGON,
-    ZrxEthereumSwap: getConfig().REACT_APP_FEATURE_ZRX_ETHEREUM,
-    ZrxOptimismSwap: getConfig().REACT_APP_FEATURE_ZRX_OPTIMISM,
+    CowswapGnosis: getConfig().REACT_APP_FEATURE_COWSWAP_GNOSIS,
+    ZrxSwap: getConfig().REACT_APP_FEATURE_ZRX_SWAP,
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
+    CovalentJaypegs: getConfig().REACT_APP_FEATURE_COVALENT_JAYPEGS,
     Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
     FoxBondCTA: getConfig().REACT_APP_FEATURE_FOX_BOND_CTA,
     DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
+    ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
     OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
+    MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
   selectedCurrency: 'USD',
   currencyFormat: CurrencyFormats.DotDecimal,
+  chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
   showWelcomeModal: false,
   showConsentBanner: true,
 }
@@ -123,6 +129,9 @@ export const preferences = createSlice({
     },
     setCurrencyFormat(state, { payload }: { payload: { currencyFormat: CurrencyFormats } }) {
       state.currencyFormat = payload.currencyFormat
+    },
+    setChartTimeframe(state, { payload }: { payload: { timeframe: HistoryTimeframe } }) {
+      state.chartTimeframe = payload.timeframe
     },
     setWelcomeModal(state, { payload }: { payload: { show: boolean } }) {
       state.showWelcomeModal = payload.show

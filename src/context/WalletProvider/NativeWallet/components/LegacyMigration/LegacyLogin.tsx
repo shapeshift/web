@@ -21,7 +21,6 @@ import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { FriendlyCaptcha } from 'context/WalletProvider/NativeWallet/components/LegacyMigration/Captcha'
 import { getPasswordHash } from 'lib/cryptography/login'
-import { logger } from 'lib/logger'
 
 import type { LoginResponseError, NativeWalletValues, RateLimitError } from './types'
 import { LoginErrors } from './types'
@@ -35,8 +34,6 @@ export type OnLoginSuccess = (args: {
 type LegacyLoginProps = {
   onLoginSuccess: OnLoginSuccess
 }
-
-const moduleLogger = logger.child({ namespace: ['WalletProvider', 'NativeWallet', 'LegacyLogin'] })
 
 export const LegacyLogin: React.FC<LegacyLoginProps> = ({ onLoginSuccess }) => {
   const [error, setError] = useState<boolean | string>(false)
@@ -86,8 +83,8 @@ export const LegacyLogin: React.FC<LegacyLoginProps> = ({ onLoginSuccess }) => {
         password: values.password,
       })
       reset()
-    } catch (err: any) {
-      moduleLogger.error(err, { response: err?.response }, 'Login error')
+    } catch (err) {
+      console.error(err)
       setError(false)
       setCaptchaSolution(null)
       if (isRateLimitError(err)) {
@@ -235,7 +232,7 @@ export const LegacyLogin: React.FC<LegacyLoginProps> = ({ onLoginSuccess }) => {
           )}
 
           <Button
-            disabled={!captchaSolution}
+            isDisabled={!captchaSolution}
             colorScheme='blue'
             width='full'
             size='lg'

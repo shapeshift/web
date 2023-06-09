@@ -1,8 +1,7 @@
 // Snapshotted as this data is actually deterministic
 
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-
 import type { OpportunityMetadata, StakingId } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 
 export enum IdleTag {
   BestYield = 'Best Yield',
@@ -482,5 +481,35 @@ export const BASE_OPPORTUNITIES_BY_ID: Record<
     version: 'Lido Junior Tranche',
     tags: ['Junior Tranche'],
     isClaimableRewards: true,
+  },
+  'eip155:1/erc20:0x9cacd44cfdf22731bc99facf3531c809d56bd4a2': {
+    active: true,
+    assetId: 'eip155:1/erc20:0x9cacd44cfdf22731bc99facf3531c809d56bd4a2',
+    id: 'eip155:1/erc20:0x9cacd44cfdf22731bc99facf3531c809d56bd4a2',
+    provider: DefiProvider.Idle,
+    type: DefiType.Staking,
+    underlyingAssetId: 'eip155:1/erc20:0x9cacd44cfdf22731bc99facf3531c809d56bd4a2',
+    underlyingAssetIds: ['eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'],
+    rewardAssetIds: ['eip155:1/erc20:0x66761fa41377003622aee3c7675fc7b5c1c2fac5'],
+    isClaimableRewards: true,
+    underlyingAssetRatiosBaseUnit: ['1012850'],
+    name: 'USDC Vault',
+    version: 'Clearpool Senior Tranche',
+    tags: ['Senior Tranche'],
+  },
+  'eip155:1/erc20:0xf85fd280b301c0a6232d515001da8b6c8503d714': {
+    active: true,
+    assetId: 'eip155:1/erc20:0xf85fd280b301c0a6232d515001da8b6c8503d714',
+    id: 'eip155:1/erc20:0xf85fd280b301c0a6232d515001da8b6c8503d714',
+    provider: DefiProvider.Idle,
+    type: DefiType.Staking,
+    underlyingAssetId: 'eip155:1/erc20:0xf85fd280b301c0a6232d515001da8b6c8503d714',
+    underlyingAssetIds: ['eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'],
+    rewardAssetIds: ['eip155:1/erc20:0x66761fa41377003622aee3c7675fc7b5c1c2fac5'],
+    isClaimableRewards: true,
+    underlyingAssetRatiosBaseUnit: ['1020637'],
+    name: 'USDC Vault',
+    version: 'Clearpool Junior Tranche',
+    tags: ['Junior Tranche'],
   },
 }

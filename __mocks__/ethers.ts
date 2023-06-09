@@ -3,6 +3,7 @@ const ethers = {
   ...jest.requireActual('ethers').ethers,
   providers: {
     JsonRpcProvider: jest.fn(),
+    JsonRpcBatchProvider: jest.fn(),
   },
   Contract: jest.fn().mockImplementation(address => ({
     decimals: () => {

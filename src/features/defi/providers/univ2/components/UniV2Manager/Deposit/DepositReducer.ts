@@ -4,8 +4,6 @@ import { UniV2DepositActionType } from './DepositCommon'
 export const initialState: UniV2DepositState = {
   txid: null,
   loading: false,
-  approve0: {},
-  approve1: {},
   deposit: {
     asset1FiatAmount: '',
     asset1CryptoAmount: '',

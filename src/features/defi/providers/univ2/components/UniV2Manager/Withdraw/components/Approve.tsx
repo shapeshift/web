@@ -10,11 +10,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import {
-  DefiAction,
-  DefiProviderMetadata,
-  DefiStep,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
@@ -23,13 +19,13 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAssetById,
   selectAssets,
@@ -45,8 +41,6 @@ type UniV2ApproveProps = StepComponentProps & {
   accountId: AccountId | undefined
   onNext: (arg: DefiStep) => void
 }
-
-const moduleLogger = logger.child({ namespace: ['UniV2Withdraw:Approve'] })
 
 export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const { state, dispatch } = useContext(WithdrawContext)
@@ -77,7 +71,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
 
-  const { approveAsset, lpAllowance, getWithdrawGasData } = useUniV2LiquidityPool({
+  const { approveAsset, lpAllowance, getWithdrawFeeData } = useUniV2LiquidityPool({
     accountId: accountId ?? '',
     assetId0: lpOpportunity?.underlyingAssetIds[0] ?? '',
     assetId1: lpOpportunity?.underlyingAssetIds[1] ?? '',
@@ -127,14 +121,13 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
         interval: 15000,
         maxAttempts: 30,
       })
-      // Get withdraw gas estimate
-      const gasData = await getWithdrawGasData(
+      const feeData = await getWithdrawFeeData(
         state.withdraw.lpAmount,
         state.withdraw.asset0Amount,
         state.withdraw.asset1Amount,
       )
-      if (!gasData) return
-      const estimatedGasCryptoPrecision = bnOrZero(gasData.average.txFee)
+      if (!feeData) return
+      const estimatedGasCryptoPrecision = bnOrZero(feeData.txFee)
         .div(bn(10).pow(feeAsset.precision))
         .toPrecision()
       dispatch({
@@ -153,10 +146,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.error(
-        { fn: 'handleApprove', error },
-        'Error getting withdraw approval gas estimate',
-      )
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -174,7 +164,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     wallet,
     approveAsset,
     lpAssetId,
-    getWithdrawGasData,
+    getWithdrawFeeData,
     feeAsset.precision,
     onNext,
     assets,
@@ -228,7 +218,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       loading={state.loading}
       loadingText={translate('common.approve')}
       preFooter={preFooter}
-      providerIcon={DefiProviderMetadata[lpOpportunity.provider].icon}
+      providerIcon={getMetadataForProvider(lpOpportunity.provider)?.icon ?? ''}
       learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={() => onNext(DefiStep.Info)}
       onConfirm={handleApprove}

@@ -5,6 +5,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
+import { ethereum as mockEthereum } from 'test/mocks/assets'
 import { EthSend } from 'test/mocks/txs'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
@@ -24,6 +25,8 @@ jest.mock('state/slices/selectors', () => ({
       accountNumber: 0,
     },
   }),
+  selectAssetById: jest.fn(() => mockEthereum),
+  selectMarketDataById: () => ({ price: '2000' }),
 }))
 
 jest.mock('@chakra-ui/react', () => ({
@@ -63,19 +66,7 @@ const formData: SendInput<KnownChainIds.EthereumMainnet> = {
   [SendFormFields.From]: '',
   [SendFormFields.To]: EthSend.address,
   [SendFormFields.VanityAddress]: '',
-  [SendFormFields.Asset]: {
-    chainId: ethChainId,
-    assetId: ethAssetId,
-    description: '',
-    symbol: 'ETH',
-    name: 'Ethereum',
-    precision: 18,
-    color: '#FFFFFF',
-    icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
-    explorer: 'https://etherscan.io',
-    explorerTxLink: 'https://etherscan.io/tx/',
-    explorerAddressLink: 'https://etherscan.io/address/',
-  },
+  [SendFormFields.AssetId]: ethAssetId,
   [SendFormFields.AmountFieldError]: '',
   [SendFormFields.FeeType]: FeeDataKey.Average,
   [SendFormFields.EstimatedFees]: {
@@ -108,7 +99,6 @@ const formData: SendInput<KnownChainIds.EthereumMainnet> = {
     },
   },
   [SendFormFields.CryptoAmount]: '1',
-  [SendFormFields.CryptoSymbol]: 'ETH',
   [SendFormFields.FiatAmount]: '3500',
   [SendFormFields.FiatSymbol]: 'USD',
   [SendFormFields.SendMax]: false,
@@ -152,7 +142,11 @@ describe.each([
     ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
 
     const sendClose = jest.fn()
-    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+    const qrClose = jest.fn()
+    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({
+      qrCode: { close: qrClose },
+      send: { close: sendClose },
+    }))
     const mockAdapter = {
       buildSendTransaction: () => Promise.resolve(textTxToSign),
       signTransaction: () => Promise.resolve(testSignedTx),
@@ -162,6 +156,7 @@ describe.each([
       ...mockAdapter,
       getType: () => KnownChainIds.EthereumMainnet,
       getChainId: () => KnownChainIds.EthereumMainnet,
+      getFeeAssetId: () => ethAssetId,
     }
 
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
@@ -179,6 +174,7 @@ describe.each([
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
+    expect(qrClose).toHaveBeenCalled()
   })
 
   it('handles successfully sending a tx with ENS name', async () => {
@@ -195,13 +191,17 @@ describe.each([
     ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
 
     const sendClose = jest.fn()
+    const qrClose = jest.fn()
     ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(() =>
       Promise.resolve({
         address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
         error: false,
       }),
     )
-    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({
+      qrCode: { close: qrClose },
+      send: { close: sendClose },
+    }))
     const mockAdapter = {
       buildSendTransaction: () => Promise.resolve(textTxToSign),
       signTransaction: () => Promise.resolve(testSignedTx),
@@ -212,6 +212,7 @@ describe.each([
       ...mockAdapter,
       getType: () => KnownChainIds.EthereumMainnet,
       getChainId: () => KnownChainIds.EthereumMainnet,
+      getFeeAssetId: () => ethAssetId,
     }
 
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
@@ -229,6 +230,7 @@ describe.each([
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
+    expect(qrClose).toHaveBeenCalled()
   })
 
   it('handles successfully sending an ETH address tx without offline signing', async () => {
@@ -247,7 +249,11 @@ describe.each([
     ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
 
     const sendClose = jest.fn()
-    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+    const qrClose = jest.fn()
+    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({
+      qrCode: { close: qrClose },
+      send: { close: sendClose },
+    }))
     const mockAdapter = {
       buildSendTransaction: () => Promise.resolve(textTxToSign),
       signAndBroadcastTransaction,
@@ -257,6 +263,7 @@ describe.each([
       ...mockAdapter,
       getType: () => KnownChainIds.EthereumMainnet,
       getChainId: () => KnownChainIds.EthereumMainnet,
+      getFeeAssetId: () => ethAssetId,
     }
 
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
@@ -274,6 +281,7 @@ describe.each([
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
+    expect(qrClose).toHaveBeenCalled()
     expect(signAndBroadcastTransaction).toHaveBeenCalled()
   })
 
@@ -298,7 +306,11 @@ describe.each([
     ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
 
     const sendClose = jest.fn()
-    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+    const qrClose = jest.fn()
+    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({
+      qrCode: { close: qrClose },
+      send: { close: sendClose },
+    }))
     const mockAdapter = {
       buildSendTransaction: () => Promise.resolve(textTxToSign),
       signAndBroadcastTransaction,
@@ -308,6 +320,7 @@ describe.each([
       ...mockAdapter,
       getType: () => KnownChainIds.EthereumMainnet,
       getChainId: () => KnownChainIds.EthereumMainnet,
+      getFeeAssetId: () => ethAssetId,
     }
 
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
@@ -325,6 +338,7 @@ describe.each([
     jest.advanceTimersByTime(5000)
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
     expect(sendClose).toHaveBeenCalled()
+    expect(qrClose).toHaveBeenCalled()
     expect(signAndBroadcastTransaction).toHaveBeenCalled()
   })
 
@@ -336,7 +350,11 @@ describe.each([
     }))
 
     const sendClose = jest.fn()
-    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+    const qrClose = jest.fn()
+    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({
+      qrCode: { close: qrClose },
+      send: { close: sendClose },
+    }))
 
     const mockAdapter = {
       buildSendTransaction: () => Promise.reject('All these calls failed'),
@@ -348,6 +366,7 @@ describe.each([
       ...mockAdapter,
       getType: () => KnownChainIds.EthereumMainnet,
       getChainId: () => KnownChainIds.EthereumMainnet,
+      getFeeAssetId: () => ethAssetId,
     }
 
     ;(getChainAdapterManager as jest.Mock<unknown>).mockImplementation(
@@ -363,5 +382,6 @@ describe.each([
     await expect(result.current.handleFormSend(formData)).rejects.toThrow()
     expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'error' }))
     expect(sendClose).toHaveBeenCalled()
+    expect(qrClose).toHaveBeenCalled()
   })
 })

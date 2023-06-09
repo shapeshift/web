@@ -8,6 +8,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 // Make sure this array remains ordered from most to least specific to avoid early matching
 export const assetIdPaths = [
   '/:chainId/:assetSubId/pool/:poolId', // Osmosis LP token path template
+  '/:chainId/:assetSubId/:nftId', // NFT token path template
   '/:chainId/:assetSubId', // Standard asset path template
 ]
 
@@ -17,6 +18,7 @@ const getRouteAssetId = (pathname: string) => {
     chainId: string
     assetSubId: string
     poolId?: string
+    nftId?: string
   }>(pathname, {
     path: assetIdPaths.map(path => `/assets${path}`),
   })
@@ -31,12 +33,15 @@ const getRouteAssetId = (pathname: string) => {
   })
 
   if (assetIdAssetsPathMatch?.params) {
-    const { chainId, assetSubId, poolId = undefined } = assetIdAssetsPathMatch.params
+    const { chainId, assetSubId, poolId, nftId } = assetIdAssetsPathMatch.params
 
-    // Reconstitutes the assetId from valid matched params
-    // If it's an Osmosis pool asset we need to add the pool segment and poolId attribute
-    const assetId = `${chainId}/${assetSubId}${poolId ? `/pool/${poolId}` : ''}`
-    return assetId
+    // add pool segment and poolId attribute for osmosis lp assets
+    if (poolId) return `${chainId}/${assetSubId}/pool/${poolId}`
+
+    // add nft segment and nftId attribute for nft assets
+    if (nftId) return `${chainId}/${assetSubId}/${nftId}`
+
+    return `${chainId}/${assetSubId}`
   }
 
   if (assetIdAccountsPathMatch?.params) {

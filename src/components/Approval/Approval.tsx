@@ -6,14 +6,16 @@ import {
   Icon,
   Image,
   Link,
+  Skeleton,
   SkeletonCircle,
   Switch,
   Text as CText,
   Tooltip,
 } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { useCallback, useRef, useState } from 'react'
+import type { evm, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
@@ -30,29 +32,27 @@ import { TradeRoutePaths } from 'components/Trade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { baseUnitToHuman, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
+import { baseUnitToHuman } from 'lib/bignumber/bignumber'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import {
-  selectCheckApprovalNeededForWallet,
-  selectFeeAssetFiatRate,
-  selectFees,
-  selectIsExactAllowance,
-  selectQuote,
-} from 'state/zustand/swapperStore/selectors'
+import { selectFeeAssetFiatRate } from 'state/zustand/swapperStore/amountSelectors'
+import { selectFees, selectQuote } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 import { theme } from 'theme/theme'
 
 const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
 
-const moduleLogger = logger.child({ namespace: ['Approval'] })
-
 export const Approval = () => {
   const history = useHistory()
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const [approvalTxId, setApprovalTxId] = useState<string>()
+  const [approvalTxData, setApprovalTxData] = useState<{
+    networkFeeCryptoBaseUnit: string
+    buildCustomTxInput: evm.BuildCustomTxInput
+  }>()
+  const [isExactAllowance, toggleIsExactAllowance] = useToggle(false)
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
 
@@ -63,13 +63,10 @@ export const Approval = () => {
 
   const activeQuote = useSwapperStore(selectQuote)
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
-  const isExactAllowance = useSwapperStore(selectIsExactAllowance)
-  const toggleIsExactAllowance = useSwapperStore(state => state.toggleIsExactAllowance)
   const fees = useSwapperStore(selectFees) as DisplayFeeData<EvmChainId> | undefined
   const updateTrade = useSwapperStore(state => state.updateTrade)
-  const checkApprovalNeeded = useSwapperStore(selectCheckApprovalNeededForWallet)
 
-  const { approve, getTrade } = useSwapper()
+  const { approve, checkApprovalNeeded, getApprovalTxData, getTrade } = useSwapper()
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
@@ -79,29 +76,17 @@ export const Approval = () => {
   } = useWallet()
   const { showErrorToast } = useErrorHandler()
 
-  const symbol = activeQuote?.sellAsset?.symbol
+  const symbol = activeQuote?.steps[0].sellAsset?.symbol
+
   const sellFeeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, activeQuote?.sellAsset?.assetId ?? ethAssetId),
+    selectFeeAssetById(state, activeQuote?.steps[0].sellAsset.assetId ?? ethAssetId),
   )
 
-  if (fees && !fees.chainSpecific) {
-    moduleLogger.debug({ fees }, 'chainSpecific undefined for fees')
-  }
-
-  const approvalFeeCryptoHuman = baseUnitToHuman({
-    value: bnOrZero(fees?.chainSpecific?.approvalFeeCryptoBaseUnit),
-    inputExponent: sellFeeAsset?.precision ?? 0,
-  })
-
   const approveContract = useCallback(async () => {
-    if (!activeQuote) {
-      moduleLogger.error('No quote available')
+    if (!activeQuote || !wallet || !approvalTxData) {
       return
     }
-    if (!wallet) {
-      moduleLogger.error('No wallet available')
-      return
-    }
+
     try {
       if (!isConnected) {
         /**
@@ -112,17 +97,14 @@ export const Approval = () => {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
-      const fnLogger = logger.child({ name: 'approve' })
-      fnLogger.trace('Attempting Approval...')
 
-      const txId = await approve()
+      const txId = await approve(approvalTxData.buildCustomTxInput)
 
       setApprovalTxId(txId)
 
       approvalInterval.current = setInterval(async () => {
-        fnLogger.trace({ fn: 'checkApprovalNeeded' }, 'Checking Approval Needed...')
         try {
-          const approvalNeeded = await checkApprovalNeeded(wallet)
+          const approvalNeeded = await checkApprovalNeeded()
           if (approvalNeeded) return
         } catch (e) {
           showErrorToast(e)
@@ -145,6 +127,7 @@ export const Approval = () => {
   }, [
     activeQuote,
     wallet,
+    approvalTxData,
     isConnected,
     approve,
     history,
@@ -154,6 +137,27 @@ export const Approval = () => {
     checkApprovalNeeded,
     showErrorToast,
   ])
+
+  useEffect(() => {
+    setApprovalTxData(undefined)
+    ;(async () => {
+      try {
+        const approvalTxData = await getApprovalTxData(isExactAllowance)
+        setApprovalTxData(approvalTxData)
+      } catch (e) {
+        showErrorToast(e)
+        history.push(TradeRoutePaths.Input)
+      }
+    })()
+  }, [isExactAllowance, getApprovalTxData, history, showErrorToast])
+
+  const approvalNetworkFeeCryptoHuman = useMemo(() => {
+    if (!approvalTxData || sellFeeAsset === undefined) return
+    return baseUnitToHuman({
+      value: approvalTxData.networkFeeCryptoBaseUnit,
+      inputExponent: sellFeeAsset.precision,
+    })
+  }, [approvalTxData, sellFeeAsset])
 
   return (
     <SlideTransition>
@@ -183,7 +187,7 @@ export const Approval = () => {
             >
               {() => (
                 <Image
-                  src={activeQuote?.sellAsset?.icon}
+                  src={activeQuote?.steps[0].sellAsset.icon}
                   boxSize='60px'
                   fallback={<SkeletonCircle boxSize='60px' />}
                 />
@@ -198,7 +202,7 @@ export const Approval = () => {
             />
             <CText color='gray.500' textAlign='center'>
               <Link
-                href={`${activeQuote?.sellAsset.explorerAddressLink}${activeQuote?.allowanceContract}`}
+                href={`${activeQuote?.steps[0].sellAsset.explorerAddressLink}${activeQuote?.steps[0].allowanceContract}`}
                 color='blue.500'
                 me={1}
                 isExternal
@@ -212,7 +216,7 @@ export const Approval = () => {
             </Link>
             <Divider my={4} />
             <Flex flexDirection='column' width='full'>
-              {approvalTxId && activeQuote?.sellAsset?.explorerTxLink && (
+              {approvalTxId && activeQuote?.steps[0].sellAsset.explorerTxLink && (
                 <Row>
                   <Row.Label>
                     <Text translation={['trade.approvingAsset', { symbol }]} />
@@ -221,7 +225,7 @@ export const Approval = () => {
                     <Link
                       isExternal
                       color='blue.500'
-                      href={`${activeQuote?.sellAsset?.explorerTxLink}${approvalTxId}`}
+                      href={`${activeQuote?.steps[0].sellAsset.explorerTxLink}${approvalTxId}`}
                     >
                       <MiddleEllipsis value={approvalTxId} />
                     </Link>
@@ -259,7 +263,7 @@ export const Approval = () => {
               <Button
                 type='submit'
                 size='lg'
-                isLoading={isSubmitting || !!approvalTxId}
+                isLoading={isSubmitting || !!approvalTxId || !approvalNetworkFeeCryptoHuman}
                 colorScheme='blue'
                 mt={2}
               >
@@ -276,12 +280,18 @@ export const Approval = () => {
                   <Text color='gray.500' translation='trade.estimatedGasFee' />
                 </Row.Label>
                 <Row.Value textAlign='right'>
-                  <RawText>
-                    {toFiat(approvalFeeCryptoHuman.times(feeAssetFiatRate ?? 1).toString())}
-                  </RawText>
-                  <RawText color='gray.500'>
-                    {toCrypto(approvalFeeCryptoHuman.toNumber(), sellFeeAsset?.symbol)}
-                  </RawText>
+                  <Skeleton isLoaded={approvalNetworkFeeCryptoHuman !== undefined}>
+                    <RawText>
+                      {approvalNetworkFeeCryptoHuman && !bnOrZero(feeAssetFiatRate).isZero()
+                        ? toFiat(approvalNetworkFeeCryptoHuman.times(feeAssetFiatRate).toString())
+                        : ''}
+                    </RawText>
+                    <RawText color='gray.500'>
+                      {approvalNetworkFeeCryptoHuman && !approvalNetworkFeeCryptoHuman.isZero()
+                        ? toCrypto(approvalNetworkFeeCryptoHuman.toNumber(), sellFeeAsset?.symbol)
+                        : ''}
+                    </RawText>
+                  </Skeleton>
                 </Row.Value>
               </Row>
             </Flex>

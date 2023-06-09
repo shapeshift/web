@@ -1,6 +1,16 @@
 import { ChevronDownIcon, WarningTwoIcon } from '@chakra-ui/icons'
-import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
-import { Button, ButtonGroup, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
+import {
+  Button,
+  ButtonGroup,
+  Flex,
+  HStack,
+  Menu,
+  MenuButton,
+  MenuGroup,
+  MenuItem,
+  MenuList,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'

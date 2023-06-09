@@ -5,12 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router'
 import { Text } from 'components/Text'
 
-import { mobileLogger } from '../config'
 import { getWalletCount } from '../mobileMessageHandlers'
-
-const moduleLogger = mobileLogger.child({
-  namespace: ['components', 'MobileStart'],
-})
 
 export const MobileStart = ({ history }: RouteComponentProps) => {
   const [hasLocalWallet, setHasLocalWallet] = useState<boolean>(false)
@@ -22,7 +17,7 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
         const localWallets = await getWalletCount()
         setHasLocalWallet(localWallets > 0)
       } catch (e) {
-        moduleLogger.error(e, 'Error checking for wallets')
+        console.log(e)
         setHasLocalWallet(false)
       }
     })()
@@ -45,7 +40,7 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             py={4}
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
-            disabled={!hasLocalWallet}
+            isDisabled={!hasLocalWallet}
             onClick={() => history.push('/mobile/load')}
             data-test='wallet-native-load-button'
           >

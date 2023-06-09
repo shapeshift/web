@@ -15,6 +15,8 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useFetchFiatAssetMarketData } from 'state/apis/fiatRamps/hooks'
+import { selectFiatRampChainCount } from 'state/apis/fiatRamps/selectors'
+import { useAppSelector } from 'state/store'
 
 import { PageContainer } from './components/PageContainer'
 import { TopAssets } from './TopAssets'
@@ -32,8 +34,9 @@ export const Buy = () => {
     state: { isConnected, isDemoWallet },
   } = useWallet()
   const translate = useTranslate()
-
   useFetchFiatAssetMarketData()
+
+  const chainCount = useAppSelector(selectFiatRampChainCount)
 
   const handleConnect = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -106,7 +109,11 @@ export const Buy = () => {
               >
                 <Heading fontSize='2xl' fontWeight='bold' as='h4' color='whiteAlpha.500'>
                   {translate('buyPage.cta.title.first')}{' '}
-                  <Text as='span' color='white' translation='buyPage.cta.title.second' />
+                  <Text
+                    as='span'
+                    color='white'
+                    translation={['buyPage.cta.title.second', { chainCount }]}
+                  />
                 </Heading>
                 <Button
                   size='lg'

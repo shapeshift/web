@@ -3,17 +3,81 @@ import { createSelector } from 'reselect'
 import { TradeAmountInputField } from 'components/Trade/types'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import type { AmountDisplayMeta } from 'lib/swapper/api'
+import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import { getFeeAssetByAssetId } from 'state/slices/assetsSlice/utils'
+import { selectAssets, selectCryptoMarketData, selectFiatToUsdRate } from 'state/slices/selectors'
+import { store } from 'state/store'
 import {
   selectAction,
+  selectActiveSwapperWithMetadata,
   selectAmount,
   selectBuyAsset,
-  selectBuyAssetFiatRate,
-  selectSelectedCurrencyToUsdRate,
+  selectProtocolFees,
+  selectSellAmountFiat,
   selectSellAsset,
-  selectSellAssetFiatRate,
   selectSlippage,
+  selectSwapperDefaultAffiliateBps,
 } from 'state/zustand/swapperStore/selectors'
 import type { SwapperState } from 'state/zustand/swapperStore/types'
+import {
+  convertBasisPointsToDecimalPercentage,
+  sumProtocolFeesToDenom,
+} from 'state/zustand/swapperStore/utils'
+
+const selectCryptoMarketDataById = () => selectCryptoMarketData(store.getState())
+const selectAssetsById = () => selectAssets(store.getState())
+const selectSelectedCurrencyToUsdRate = () => selectFiatToUsdRate(store.getState()) ?? '0'
+
+export const selectBuyAssetUsdRate = createSelector(
+  selectBuyAsset,
+  selectCryptoMarketDataById,
+  (buyAsset, cryptoMarketDataById) => cryptoMarketDataById[buyAsset.assetId]?.price ?? '0',
+)
+
+export const selectSellAssetUsdRate = createSelector(
+  selectSellAsset,
+  selectCryptoMarketDataById,
+  (sellAsset, cryptoMarketDataById) => cryptoMarketDataById[sellAsset.assetId]?.price ?? '0',
+)
+
+const selectFeeAssetId = createSelector(
+  selectSellAsset,
+  selectAssetsById,
+  (sellAsset, assetsById) => getFeeAssetByAssetId(assetsById, sellAsset.assetId)?.assetId,
+)
+
+export const selectFeeAssetUsdRate = createSelector(
+  selectFeeAssetId,
+  selectCryptoMarketDataById,
+  (feeAssetId, cryptoMarketDataById) => {
+    return feeAssetId ? cryptoMarketDataById[feeAssetId]?.price ?? '0' : '0'
+  },
+)
+
+export const selectSellAssetFiatRate = createSelector(
+  selectSelectedCurrencyToUsdRate,
+  selectSellAssetUsdRate,
+  (selectedCurrencyToUsdRate, sellAssetUsdRate) => {
+    return bnOrZero(sellAssetUsdRate).times(selectedCurrencyToUsdRate).toString()
+  },
+)
+
+export const selectBuyAssetFiatRate = createSelector(
+  selectSelectedCurrencyToUsdRate,
+  selectBuyAssetUsdRate,
+  (selectedCurrencyToUsdRate, buyAssetUsdRate) => {
+    return bnOrZero(buyAssetUsdRate).times(selectedCurrencyToUsdRate).toString()
+  },
+)
+
+export const selectFeeAssetFiatRate = createSelector(
+  selectSelectedCurrencyToUsdRate,
+  selectFeeAssetUsdRate,
+  (selectedCurrencyToUsdRate, feeAssetUsdRate) => {
+    return bnOrZero(feeAssetUsdRate).times(selectedCurrencyToUsdRate).toString()
+  },
+)
 
 const selectAssetPriceRatio = createSelector(
   selectBuyAssetFiatRate,
@@ -106,123 +170,19 @@ export const selectBuyAmountBeforeFeesBuyAssetCryptoPrecision = createSelector(
   },
 )
 
-export const selectSellAssetTradeFeeSellAssetBaseUnit = createSelector(
-  selectSellAssetFiatRate,
-  selectSelectedCurrencyToUsdRate,
-  (state: SwapperState) => state.fees?.sellAssetTradeFeeUsd,
-  (state: SwapperState) => state.sellAsset?.precision,
-  (
-    sellAssetFiatRate,
-    selectedCurrencyToUsdRate,
-    sellAssetTradeFeeUsd,
-    sellAssetPrecision,
-  ): string | undefined => {
-    if (!sellAssetFiatRate || !selectedCurrencyToUsdRate || !sellAssetPrecision) return undefined
-    const sellAssetTradeFeeFiat = bnOrZero(sellAssetTradeFeeUsd).times(selectedCurrencyToUsdRate)
-    return toBaseUnit(sellAssetTradeFeeFiat.div(sellAssetFiatRate), sellAssetPrecision)
-  },
-)
-
-export const selectBuyAssetTradeFeeBuyAssetBaseUnit = createSelector(
-  selectBuyAssetFiatRate,
-  selectSelectedCurrencyToUsdRate,
-  (state: SwapperState) => state.fees?.buyAssetTradeFeeUsd,
-  (state: SwapperState) => state.buyAsset?.precision,
-  (
-    buyAssetFiatRate,
-    selectedCurrencyToUsdRate,
-    buyAssetTradeFeeUsd,
-    buyAssetPrecision,
-  ): string | undefined => {
-    if (!buyAssetFiatRate || !selectedCurrencyToUsdRate || !buyAssetPrecision) return undefined
-    const buyAssetTradeFeeFiat = bnOrZero(buyAssetTradeFeeUsd).times(selectedCurrencyToUsdRate)
-    return toBaseUnit(buyAssetTradeFeeFiat.div(buyAssetFiatRate), buyAssetPrecision)
-  },
-)
-
-export const selectSellAssetTradeFeeBuyAssetBaseUnit = createSelector(
-  selectSellAssetTradeFeeSellAssetBaseUnit,
-  selectAssetPriceRatio,
-  (state: SwapperState) => state.sellAsset?.precision,
-  (state: SwapperState) => state.buyAsset?.precision,
-  (
-    sellAssetTradeFeeSellAssetBaseUnit,
-    assetPriceRatio,
-    sellAssetPrecision,
-    buyAssetPrecision,
-  ): string | undefined => {
-    if (!sellAssetTradeFeeSellAssetBaseUnit || !sellAssetPrecision || !buyAssetPrecision)
-      return undefined
-    return toBaseUnit(
-      fromBaseUnit(
-        bnOrZero(sellAssetTradeFeeSellAssetBaseUnit).div(assetPriceRatio),
-        sellAssetPrecision,
-      ),
-      buyAssetPrecision,
-    )
-  },
-)
-
-export const selectBuyAssetTradeFeeSellAssetBaseUnit = createSelector(
-  selectBuyAssetTradeFeeBuyAssetBaseUnit,
-  selectAssetPriceRatio,
-  (state: SwapperState) => state.sellAsset?.precision,
-  (state: SwapperState) => state.buyAsset?.precision,
-  (
-    buyAssetTradeFeeBuyAssetBaseUnit,
-    assetPriceRatio,
-    sellAssetPrecision,
-    buyAssetPrecision,
-  ): string | undefined => {
-    if (!buyAssetTradeFeeBuyAssetBaseUnit || !sellAssetPrecision || !buyAssetPrecision)
-      return undefined
-    return toBaseUnit(
-      fromBaseUnit(
-        bnOrZero(buyAssetTradeFeeBuyAssetBaseUnit).times(assetPriceRatio),
-        buyAssetPrecision,
-      ),
-      sellAssetPrecision,
-    )
-  },
-)
-
-export const selectTotalTradeFeeSellAssetBaseUnit = createSelector(
-  selectSellAssetTradeFeeSellAssetBaseUnit,
-  selectBuyAssetTradeFeeSellAssetBaseUnit,
-  (sellAssetTradeFeeSellAssetBaseUnit, buyAssetTradeFeeSellAssetBaseUnit): string | undefined => {
-    if (!sellAssetTradeFeeSellAssetBaseUnit || !buyAssetTradeFeeSellAssetBaseUnit) return undefined
-    return bnOrZero(sellAssetTradeFeeSellAssetBaseUnit)
-      .plus(buyAssetTradeFeeSellAssetBaseUnit)
-      .toString()
-  },
-)
-
 export const selectTotalTradeFeeBuyAssetBaseUnit = createSelector(
-  selectSellAssetTradeFeeBuyAssetBaseUnit,
-  selectBuyAssetTradeFeeBuyAssetBaseUnit,
-  (sellAssetTradeFeeBuyAssetBaseUnit, buyAssetTradeFeeBuyAssetBaseUnit): string | undefined => {
-    if (!sellAssetTradeFeeBuyAssetBaseUnit || !buyAssetTradeFeeBuyAssetBaseUnit) return undefined
-    return bnOrZero(sellAssetTradeFeeBuyAssetBaseUnit)
-      .plus(buyAssetTradeFeeBuyAssetBaseUnit)
-      .toString()
-  },
-)
-
-export const selectTotalTradeFeeBuyAssetCryptoPrecision = createSelector(
-  selectTotalTradeFeeBuyAssetBaseUnit,
-  (state: SwapperState) => state.buyAsset?.precision,
-  (totalTradeFeeBuyAssetBaseUnit, buyAssetPrecision): string | undefined => {
-    if (!totalTradeFeeBuyAssetBaseUnit || !buyAssetPrecision) return undefined
-    return fromBaseUnit(totalTradeFeeBuyAssetBaseUnit, buyAssetPrecision)
-  },
-)
-
-export const selectSellAmountPlusFeesBaseUnit = createSelector(
-  selectSellAmountBeforeFeesBaseUnitByAction,
-  selectTotalTradeFeeSellAssetBaseUnit,
-  (sellAmountBeforeFeesBaseUnit, totalTradeFeeSellAssetBaseUnit): string | undefined => {
-    if (!sellAmountBeforeFeesBaseUnit || !totalTradeFeeSellAssetBaseUnit) return undefined
-    return bnOrZero(sellAmountBeforeFeesBaseUnit).plus(totalTradeFeeSellAssetBaseUnit).toString()
+  selectProtocolFees,
+  selectCryptoMarketDataById,
+  selectBuyAssetUsdRate,
+  selectBuyAsset,
+  (protocolFees, cryptoMarketDataById, outputAssetPriceUsd, buyAsset) => {
+    if (protocolFees === undefined) return '0'
+    return sumProtocolFeesToDenom({
+      cryptoMarketDataById,
+      protocolFees,
+      outputAssetPriceUsd,
+      outputExponent: buyAsset.precision,
+    })
   },
 )
 
@@ -250,36 +210,35 @@ export const selectSellAmountBeforeFeesFiat = createSelector(
   },
 )
 
-export const selectSellAmountPlusFeesFiat = createSelector(
-  selectSellAmountPlusFeesBaseUnit,
-  (state: SwapperState) => state.sellAsset?.precision,
-  selectSellAssetFiatRate,
-  (sellAmountPlusFeesBaseUnit, sellAssetPrecision, sellAssetFiatRate): string | undefined => {
-    if (!sellAssetPrecision || !sellAssetFiatRate || !sellAmountPlusFeesBaseUnit) return undefined
-    return bnOrZero(fromBaseUnit(sellAmountPlusFeesBaseUnit, sellAssetPrecision))
-      .times(sellAssetFiatRate)
-      .toFixed()
-  },
+export const selectTradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit = createSelector(
+  selectActiveSwapperWithMetadata,
+  (state: SwapperState) => state.trade?.sellAmountBeforeFeesCryptoBaseUnit,
+  (activeSwapperWithMetadata, tradeSellAmountBeforeFeesBaseUnit): string | undefined =>
+    // Use the trade amount if we have it, otherwise use the quote amount
+    tradeSellAmountBeforeFeesBaseUnit ??
+    activeSwapperWithMetadata?.quote?.steps[0].sellAmountBeforeFeesCryptoBaseUnit,
 )
 
-export const selectQuoteSellAmountBeforeFeesSellAssetBaseUnit = createSelector(
-  (state: SwapperState) =>
-    state.activeSwapperWithMetadata?.quote?.sellAmountBeforeFeesCryptoBaseUnit,
-  (quoteSellAmountBeforeFeesBaseUnit): string | undefined => quoteSellAmountBeforeFeesBaseUnit,
+export const selectTradeOrQuoteBuyAmountCryptoBaseUnit = createSelector(
+  selectActiveSwapperWithMetadata,
+  (state: SwapperState) => state.trade?.buyAmountBeforeFeesCryptoBaseUnit,
+  (activeSwapperWithMetadata, tradeBuyAmountBeforeFeesBaseUnit): string | undefined =>
+    // Use the trade amount if we have it, otherwise use the quote amount
+    tradeBuyAmountBeforeFeesBaseUnit ??
+    activeSwapperWithMetadata?.quote?.steps[0].buyAmountBeforeFeesCryptoBaseUnit,
 )
 
+// used to compute the gross sell amount based on the quote
+// needs to add the protocol fee for the sell asset
 export const selectQuoteSellAmountPlusFeesBaseUnit = createSelector(
-  selectQuoteSellAmountBeforeFeesSellAssetBaseUnit,
-  selectSellAssetTradeFeeSellAssetBaseUnit,
-  (
-    quoteSellAmountBeforeFeesSellAssetBaseUnit,
-    sellAssetTradeFeeSellAssetBaseUnit,
-  ): string | undefined => {
-    if (!quoteSellAmountBeforeFeesSellAssetBaseUnit || !sellAssetTradeFeeSellAssetBaseUnit)
-      return undefined
+  selectTradeOrQuoteSellAmountBeforeFeesCryptoBaseUnit,
+  selectProtocolFees,
+  selectSellAsset,
+  (quoteSellAmountBeforeFeesSellAssetBaseUnit, protocolFees, sellAsset): string | undefined => {
+    if (!quoteSellAmountBeforeFeesSellAssetBaseUnit) return undefined
     return bnOrZero(quoteSellAmountBeforeFeesSellAssetBaseUnit)
-      .plus(sellAssetTradeFeeSellAssetBaseUnit)
-      .toFixed()
+      .plus(protocolFees?.[sellAsset.assetId]?.amountCryptoBaseUnit ?? 0)
+      .toFixed(0)
   },
 )
 
@@ -296,11 +255,13 @@ export const selectQuoteSellAmountPlusFeesFiat = createSelector(
   },
 )
 
+// used to compute the net buy amount based on the user input and fees
+// needs to deduct to the total of all protocol fees
 export const selectBuyAmountAfterFeesBaseUnit = createSelector(
   selectSellAmountBeforeFeesBuyAssetBaseUnit,
   selectTotalTradeFeeBuyAssetBaseUnit,
   (sellAmountBeforeFeesBuyAssetBaseUnit, totalTradeFeeBuyAssetBaseUnit): string | undefined => {
-    if (!sellAmountBeforeFeesBuyAssetBaseUnit || !totalTradeFeeBuyAssetBaseUnit) return undefined
+    if (!sellAmountBeforeFeesBuyAssetBaseUnit) return undefined
     return bnOrZero(sellAmountBeforeFeesBuyAssetBaseUnit)
       .minus(totalTradeFeeBuyAssetBaseUnit)
       .toString()
@@ -329,20 +290,11 @@ export const selectBuyAmountAfterFeesFiat = createSelector(
 )
 
 export const selectQuoteBuyAmountCryptoPrecision = createSelector(
-  (state: SwapperState) => state.activeSwapperWithMetadata?.quote?.buyAmountCryptoBaseUnit,
-  (state: SwapperState) => state.buyAsset?.precision,
-  (quoteBuyAmountCryptoBaseUnit, buyAssetPrecision): string | undefined => {
-    if (!quoteBuyAmountCryptoBaseUnit || !buyAssetPrecision) return undefined
-    return fromBaseUnit(quoteBuyAmountCryptoBaseUnit, buyAssetPrecision)
-  },
-)
-
-export const selectQuoteBuyAmountFiat = createSelector(
-  selectQuoteBuyAmountCryptoPrecision,
-  selectBuyAssetFiatRate,
-  (quoteBuyAmountCryptoPrecision, buyAssetFiatRate): string | undefined => {
-    if (!quoteBuyAmountCryptoPrecision || !buyAssetFiatRate) return undefined
-    return bnOrZero(quoteBuyAmountCryptoPrecision).times(buyAssetFiatRate).toFixed()
+  selectTradeOrQuoteBuyAmountCryptoBaseUnit,
+  selectBuyAsset,
+  (tradeOrQuoteBuyAmountCryptoBaseUnit, buyAsset): string | undefined => {
+    if (!tradeOrQuoteBuyAmountCryptoBaseUnit) return undefined
+    return fromBaseUnit(tradeOrQuoteBuyAmountCryptoBaseUnit, buyAsset.precision)
   },
 )
 
@@ -424,33 +376,14 @@ export const selectTradeAmountsByActionAndAmount: Selector<
   },
 )
 
+// used to compute the net buy amount based on the quote
+// needs to deduct to the total of all protocol fees
 export const selectQuoteBuyAmountAfterFeesBaseUnit = createSelector(
-  selectBuyAssetTradeFeeBuyAssetBaseUnit,
-  selectSellAssetTradeFeeBuyAssetBaseUnit,
-  selectQuoteBuyAmountCryptoPrecision,
-  (state: SwapperState) => state.buyAsset?.precision,
-  (
-    buyAssetTradeFeeBuyAssetBaseUnit,
-    sellAssetTradeFeeBuyAssetBaseUnit,
-    quoteBuyAmountCryptoPrecision,
-    buyAssetPrecision,
-  ): string | undefined => {
-    if (
-      !buyAssetTradeFeeBuyAssetBaseUnit ||
-      !sellAssetTradeFeeBuyAssetBaseUnit ||
-      !quoteBuyAmountCryptoPrecision ||
-      !buyAssetPrecision
-    )
-      return undefined
-
-    const quoteBuyAmountCryptoBaseUnit = toBaseUnit(
-      quoteBuyAmountCryptoPrecision,
-      buyAssetPrecision,
-    )
-    return bnOrZero(quoteBuyAmountCryptoBaseUnit)
-      .minus(buyAssetTradeFeeBuyAssetBaseUnit)
-      .minus(sellAssetTradeFeeBuyAssetBaseUnit)
-      .toFixed()
+  selectTradeOrQuoteBuyAmountCryptoBaseUnit,
+  selectTotalTradeFeeBuyAssetBaseUnit,
+  (quoteBuyAmountCryptoBaseUnit, totalTradeFeeBuyAssetBaseUnit): string | undefined => {
+    if (!quoteBuyAmountCryptoBaseUnit) return undefined
+    return bnOrZero(quoteBuyAmountCryptoBaseUnit).minus(totalTradeFeeBuyAssetBaseUnit).toFixed()
   },
 )
 
@@ -563,4 +496,26 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
         return defaultReturn
     }
   },
+)
+
+export const selectDonationAmountFiat = createSelector(
+  selectSellAmountFiat,
+  selectSwapperDefaultAffiliateBps,
+  (sellAmountFiat, defaultAffiliateBps): string => {
+    const affiliatePercentage = convertBasisPointsToDecimalPercentage(defaultAffiliateBps)
+    // The donation amount is a percentage of the sell amount
+    return bnOrZero(sellAmountFiat).times(affiliatePercentage).toFixed()
+  },
+)
+
+export const selectIntermediaryTransactionOutputs = createDeepEqualOutputSelector(
+  selectActiveSwapperWithMetadata,
+  (state: SwapperState) => state.trade?.intermediaryTransactionOutputs,
+  (
+    activeSwapperWithMetadata,
+    tradeIntermediaryTransactionOutputs,
+  ): AmountDisplayMeta[] | undefined =>
+    // Use the trade amount if we have it, otherwise use the quote amount
+    tradeIntermediaryTransactionOutputs ??
+    activeSwapperWithMetadata?.quote.steps[0].intermediaryTransactionOutputs,
 )

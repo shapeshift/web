@@ -1,13 +1,13 @@
 import type { ListProps } from '@chakra-ui/react'
 import { Center } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { FC } from 'react'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'components/Text'
 import { useRefCallback } from 'hooks/useRefCallback/useRefCallback'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
+import type { Asset } from 'lib/asset-service'
 
 import { AssetRow } from './AssetRow'
 
@@ -27,23 +27,30 @@ export const AssetList: FC<AssetListProps> = ({
   hideZeroBalanceAmounts = true,
 }) => {
   const assetId = useRouteAssetId()
-  const [tokenListRef, setTokenListRef] = useRefCallback<FixedSizeList<AssetData>>({
+  const tokenListRef = useRef<FixedSizeList<AssetData> | null>(null)
+
+  useRefCallback<FixedSizeList<AssetData>>({
     deps: [assetId],
     onInit: node => {
       if (!node) return
-      const parsedAssetId = assetId ? decodeURIComponent(assetId) : undefined
-      const index = node.props.itemData?.assets.findIndex(
-        ({ assetId }: Asset) => assetId === parsedAssetId,
-      )
-      if (typeof index === 'number' && index >= 0) {
-        node.scrollToItem?.(index, 'center')
-      }
+      tokenListRef.current = node
     },
   })
 
   useEffect(() => {
-    if (!tokenListRef) return
-    tokenListRef?.scrollTo(0)
+    if (!tokenListRef.current) return
+    const parsedAssetId = assetId ? decodeURIComponent(assetId) : undefined
+    const index = tokenListRef.current.props.itemData?.assets.findIndex(
+      ({ assetId }: Asset) => assetId === parsedAssetId,
+    )
+    if (typeof index === 'number' && index >= 0) {
+      tokenListRef.current.scrollToItem(index, 'center')
+    }
+  }, [assetId, assets])
+
+  useEffect(() => {
+    if (!tokenListRef.current) return
+    tokenListRef.current.scrollTo(0)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assets])
 
@@ -66,7 +73,7 @@ export const AssetList: FC<AssetListProps> = ({
               hideZeroBalanceAmounts,
             }}
             itemCount={assets.length}
-            ref={setTokenListRef}
+            ref={tokenListRef}
             className='token-list'
             overscanCount={6}
           >

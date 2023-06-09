@@ -72,7 +72,7 @@ If you are using Linux and macOS it works out of the box following these steps:
 5. Build Packages:
 
     ```sh
-    yarn build
+    yarn build:packages
     ```
 
 6. Run `yarn env dev` to generate a `.env` file.

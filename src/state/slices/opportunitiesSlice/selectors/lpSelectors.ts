@@ -2,6 +2,7 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
+import partition from 'lodash/partition'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
@@ -20,12 +21,11 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '../../common-selectors'
-import { selectMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
+import { selectSelectedCurrencyMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
 import { getUnderlyingAssetIdsBalances } from '../utils'
-import type { LpEarnOpportunityType, StakingEarnOpportunityType } from './../types'
+import type { LpEarnOpportunityType } from './../types'
 
-export const selectLpOpportunitiesByAccountId = (state: ReduxState) =>
-  state.opportunities.lp.byAccountId
+export const selectLpIds = (state: ReduxState) => state.opportunities.lp.ids
 export const selectLpOpportunitiesById = (state: ReduxState) => state.opportunities.lp.byId
 
 // A user LpOpportunity, parsed as an EarnOpportunityType
@@ -35,7 +35,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
   selectLpIdParamFromFilter,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectAssets,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   (
     lpOpportunitiesById,
     lpId,
@@ -110,14 +110,14 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
   selectLpIdParamFromFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectAssets,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   (
     lpOpportunitiesById,
     lpId,
     aggregatedLpAssetBalance,
     assets,
     marketData,
-  ): StakingEarnOpportunityType | undefined => {
+  ): LpEarnOpportunityType | undefined => {
     if (!lpId || !aggregatedLpAssetBalance) return
 
     const marketDataPrice = marketData[lpId as AssetId]?.price
@@ -192,7 +192,7 @@ export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
   selectLpOpportunitiesById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectAssets,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   (
     lpId,
     lpOpportunitiesById,
@@ -241,7 +241,7 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
   selectLpOpportunitiesById,
   selectPortfolioAssetBalancesBaseUnit,
   selectAssets,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   (
     lpOpportunitiesById,
     portfolioAssetBalancesById,
@@ -299,7 +299,17 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
       opportunities.push(opportunity)
     }
 
-    return opportunities
+    const sortedOpportunitiesByFiatAmount = opportunities.sort((a, b) =>
+      bnOrZero(a.fiatAmount).gte(bnOrZero(b.fiatAmount)) ? -1 : 1,
+    )
+
+    const [activeOpportunities, inactiveOpportunities] = partition(
+      sortedOpportunitiesByFiatAmount,
+      opportunity => bnOrZero(opportunity.fiatAmount).gt(0),
+    )
+    inactiveOpportunities.sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
+
+    return activeOpportunities.concat(inactiveOpportunities)
   },
 )
 
@@ -316,7 +326,7 @@ export const selectAllEarnUserLpOpportunitiesByFilter = createDeepEqualOutputSel
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectAssets,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectAssetIdParamFromFilter,
   selectAccountIdParamFromFilter,
   (

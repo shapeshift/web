@@ -1,22 +1,19 @@
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { AxiosResponse } from 'axios'
-import axios from 'axios'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
+import type { Result } from '@sniptt/monads'
+import { Ok } from '@sniptt/monads'
+import type { SwapErrorRight } from 'lib/swapper/api'
 
-import type { OneInchSpenderResponse, OneInchSwapperDeps } from '../utils/types'
+import { oneInchService } from '../utils/oneInchService'
+import type { OneInchSpenderResponse } from '../utils/types'
 
 export async function getApprovalAddress(
-  deps: OneInchSwapperDeps,
+  apiUrl: string,
   chainId: EvmChainId,
-): Promise<string> {
+): Promise<Result<string, SwapErrorRight>> {
   const { chainReference } = fromChainId(chainId)
-  try {
-    const spenderResponse: AxiosResponse<OneInchSpenderResponse> = await axios.get(
-      `${deps.apiUrl}/${chainReference}/approve/spender`,
-    )
-    return spenderResponse.data.address
-  } catch (e) {
-    throw new SwapError('[getApprovalAddress]', { cause: e, code: SwapErrorType.RESPONSE_ERROR })
-  }
+  const maybeSpenderResponse = await oneInchService.get<OneInchSpenderResponse>(
+    `${apiUrl}/${chainReference}/approve/spender`,
+  )
+  return maybeSpenderResponse.andThen(spenderResponse => Ok(spenderResponse.data.address))
 }

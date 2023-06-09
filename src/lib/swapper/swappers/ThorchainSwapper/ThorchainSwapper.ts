@@ -1,9 +1,10 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { adapters, CHAIN_NAMESPACE, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type {
+  avalanche,
   ChainAdapterManager,
   CosmosSdkBaseAdapter,
+  ethereum,
   EvmBaseAdapter,
   SignTx,
   UtxoBaseAdapter,
@@ -13,9 +14,6 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type Web3 from 'web3'
 import type {
-  ApprovalNeededInput,
-  ApprovalNeededOutput,
-  ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
   ExecuteTradeInput,
@@ -28,18 +26,16 @@ import type {
 } from 'lib/swapper/api'
 import { buildTrade } from 'lib/swapper/swappers/ThorchainSwapper/buildThorTrade/buildThorTrade'
 import { getThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import { thorTradeApprovalNeeded } from 'lib/swapper/swappers/ThorchainSwapper/thorTradeApprovalNeeded/thorTradeApprovalNeeded'
-import { thorTradeApproveInfinite } from 'lib/swapper/swappers/ThorchainSwapper/thorTradeApproveInfinite/thorTradeApproveInfinite'
 import type {
   MidgardActionsResponse,
   ThorchainSwapperDeps,
   ThornodePoolResponse,
   ThorTrade,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
-import { getUsdRate } from 'lib/swapper/swappers/ThorchainSwapper/utils/getUsdRate/getUsdRate'
+import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 
-import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName, SwapperType } from '../../api'
+import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from '../../api'
 
 export * from 'lib/swapper/swappers/ThorchainSwapper/types'
 
@@ -50,6 +46,8 @@ export type ThorUtxoSupportedChainId =
   | KnownChainIds.BitcoinCashMainnet
 
 export type ThorEvmSupportedChainId = KnownChainIds.EthereumMainnet | KnownChainIds.AvalancheMainnet
+
+export type ThorEvmSupportedChainAdapter = ethereum.ChainAdapter | avalanche.ChainAdapter
 
 export type ThorCosmosSdkSupportedChainId =
   | KnownChainIds.ThorchainMainnet
@@ -104,23 +102,23 @@ export class ThorchainSwapper implements Swapper<ChainId> {
 
   async initialize() {
     try {
-      const { data: allPools } = await thorService.get<ThornodePoolResponse[]>(
-        `${this.deps.daemonUrl}/lcd/thorchain/pools`,
-      )
+      return (
+        await thorService.get<ThornodePoolResponse[]>(`${this.deps.daemonUrl}/lcd/thorchain/pools`)
+      ).andThen(({ data: allPools }) => {
+        const availablePools = allPools.filter(pool => pool.status === 'Available')
 
-      const availablePools = allPools.filter(pool => pool.status === 'Available')
+        availablePools.forEach(pool => {
+          const assetId = poolAssetIdToAssetId(pool.asset)
+          if (!assetId) return
 
-      availablePools.forEach(pool => {
-        const assetId = adapters.poolAssetIdToAssetId(pool.asset)
-        if (!assetId) return
+          const chainId = fromAssetId(assetId).chainId as ThorChainId
 
-        const chainId = fromAssetId(assetId).chainId as ThorChainId
+          this.sellSupportedChainIds[chainId] && this.supportedSellAssetIds.push(assetId)
+          this.buySupportedChainIds[chainId] && this.supportedBuyAssetIds.push(assetId)
+        })
 
-        this.sellSupportedChainIds[chainId] && this.supportedSellAssetIds.push(assetId)
-        this.buySupportedChainIds[chainId] && this.supportedBuyAssetIds.push(assetId)
+        return Ok(undefined)
       })
-
-      return Ok(undefined)
     } catch (e: unknown) {
       return Err(
         makeSwapErrorRight({
@@ -130,30 +128,6 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         }),
       )
     }
-  }
-
-  getType() {
-    return SwapperType.Thorchain
-  }
-
-  getUsdRate({ assetId }: Pick<Asset, 'assetId'>): Promise<string> {
-    return getUsdRate(this.daemonUrl, assetId)
-  }
-
-  approvalNeeded(
-    input: ApprovalNeededInput<ThorEvmSupportedChainId>,
-  ): Promise<ApprovalNeededOutput> {
-    return thorTradeApprovalNeeded({ deps: this.deps, input })
-  }
-
-  approveInfinite(input: ApproveInfiniteInput<ThorEvmSupportedChainId>): Promise<string> {
-    return thorTradeApproveInfinite({ deps: this.deps, input })
-  }
-
-  approveAmount(): Promise<string> {
-    throw new SwapError('ThorchainSwapper: approveAmount unimplemented', {
-      code: SwapErrorType.RESPONSE_ERROR,
-    })
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
@@ -242,15 +216,15 @@ export class ThorchainSwapper implements Swapper<ChainId> {
   }
 
   async getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
-    try {
-      const midgardTxid = tradeResult.tradeId.startsWith('0x')
-        ? tradeResult.tradeId.slice(2)
-        : tradeResult.tradeId
+    const midgardTxid = tradeResult.tradeId.startsWith('0x')
+      ? tradeResult.tradeId.slice(2)
+      : tradeResult.tradeId
 
-      const { data } = await thorService.get<MidgardActionsResponse>(
+    return (
+      await thorService.get<MidgardActionsResponse>(
         `${this.deps.midgardUrl}/actions?txid=${midgardTxid}`,
       )
-
+    ).andThen<TradeTxs>(({ data }) => {
       // https://gitlab.com/thorchain/thornode/-/blob/develop/common/tx.go#L22
       // responseData?.actions[0].out[0].txID should be the txId for consistency, but the outbound Tx for Thor rune swaps is actually a BlankTxId
       // so we use the buyTxId for completion detection
@@ -261,10 +235,13 @@ export class ThorchainSwapper implements Swapper<ChainId> {
 
       // This will detect all the errors I have seen.
       if (data?.actions[0]?.status === 'success' && data?.actions[0]?.type !== 'swap')
-        throw new SwapError('[getTradeTxs]: trade failed', {
-          code: SwapErrorType.TRADE_FAILED,
-          cause: data,
-        })
+        return Err(
+          makeSwapErrorRight({
+            message: '[getTradeTxs]: trade failed',
+            code: SwapErrorType.TRADE_FAILED,
+            cause: data,
+          }),
+        )
 
       const standardBuyTxid = (() => {
         const outCoinAsset = data?.actions[0]?.out[0]?.coins[0]?.asset
@@ -276,12 +253,6 @@ export class ThorchainSwapper implements Swapper<ChainId> {
         sellTxid: tradeResult.tradeId,
         buyTxid: standardBuyTxid,
       })
-    } catch (e) {
-      if (e instanceof SwapError) throw e
-      throw new SwapError('[getTradeTxs]: error', {
-        code: SwapErrorType.GET_TRADE_TXS_FAILED,
-        cause: e,
-      })
-    }
+    })
   }
 }

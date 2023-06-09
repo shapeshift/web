@@ -1,10 +1,17 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
-import type { ETHSignMessage, ETHSignTx, ETHWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type {
+  ETHSignMessage,
+  ETHSignTx,
+  ETHSignTypedData,
+  ETHWallet,
+  HDWallet,
+} from '@shapeshiftoss/hdwallet-core'
 import {
   supportsAvalanche,
   supportsBSC,
   supportsETH,
+  supportsGnosis,
   supportsOptimism,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
@@ -12,7 +19,6 @@ import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { utils } from 'ethers'
-import WAValidator from 'multicoin-address-validator'
 import { numberToHex } from 'web3-utils'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -27,6 +33,7 @@ import type {
   SignMessageInput,
   SignTx,
   SignTxInput,
+  SignTypedDataInput,
   SubscribeError,
   SubscribeTxsInput,
   Transaction,
@@ -35,15 +42,9 @@ import type {
   ValidAddressResult,
 } from '../types'
 import { ValidAddressResultType } from '../types'
-import {
-  chainIdToChainLabel,
-  convertNumberToHex,
-  getAssetNamespace,
-  toAddressNList,
-  toRootDerivationPath,
-} from '../utils'
+import { getAssetNamespace, toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
-import type { avalanche, bnbsmartchain, ethereum, optimism, polygon } from '.'
+import type { avalanche, bnbsmartchain, ethereum, gnosis, optimism, polygon } from '.'
 import type { BuildCustomTxInput, EstimateGasRequest, Fees, GasFeeDataEstimate } from './types'
 import { getErc20Data } from './utils'
 
@@ -53,6 +54,7 @@ export const evmChainIds = [
   KnownChainIds.OptimismMainnet,
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.PolygonMainnet,
+  KnownChainIds.GnosisMainnet,
 ] as const
 
 export type EvmChainId = typeof evmChainIds[number]
@@ -63,6 +65,7 @@ export type EvmChainAdapter =
   | optimism.ChainAdapter
   | bnbsmartchain.ChainAdapter
   | polygon.ChainAdapter
+  | gnosis.ChainAdapter
 
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,
@@ -70,14 +73,7 @@ export const isEvmChainId = (
   return evmChainIds.includes(maybeEvmChainId as EvmChainId)
 }
 
-type EvmApi =
-  | unchained.ethereum.V1Api
-  | unchained.avalanche.V1Api
-  | unchained.optimism.V1Api
-  | unchained.bnbsmartchain.V1Api
-  | unchained.polygon.V1Api
-
-export interface ChainAdapterArgs<T = EvmApi> {
+export interface ChainAdapterArgs<T = unchained.evm.Api> {
   chainId?: EvmChainId
   providers: {
     http: T
@@ -99,7 +95,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   protected readonly defaultBIP44Params: BIP44Params
   protected readonly supportedChainIds: ChainId[]
   protected readonly providers: {
-    http: EvmApi
+    http: unchained.evm.Api
     ws: unchained.ws.Client<unchained.evm.types.Tx>
   }
 
@@ -155,6 +151,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         return supportsOptimism(wallet)
       case Number(fromChainId(KnownChainIds.PolygonMainnet).chainReference):
         return supportsPolygon(wallet)
+      case Number(fromChainId(KnownChainIds.GnosisMainnet).chainReference):
+        return supportsGnosis(wallet)
       default:
         return false
     }
@@ -192,6 +190,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Polygon',
         symbol: 'MATIC',
         explorer: 'https://polygonscan.com/',
+      },
+      [KnownChainIds.GnosisMainnet]: {
+        name: 'xDAI',
+        symbol: 'xDAI',
+        explorer: 'https://gnosisscan.io/',
       },
       [KnownChainIds.EthereumMainnet]: {
         name: 'Ethereum',
@@ -337,7 +340,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
             assetId: toAssetId({
               chainId: this.chainId,
               assetNamespace: getAssetNamespace(token.type),
-              assetReference: token.contract,
+              assetReference: token.id ? `${token.contract}/${token.id}` : token.contract,
             }),
           })),
         },
@@ -377,6 +380,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
             to: transfer.to,
             type: transfer.type,
             value: transfer.totalValue,
+            id: transfer.id,
+            token: transfer.token,
           })),
           data: parsedTx.data,
         }
@@ -447,6 +452,28 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
+  async signTypedData(input: SignTypedDataInput<ETHSignTypedData>): Promise<string> {
+    try {
+      const { typedDataToSign, wallet } = input
+
+      if (!this.supportsChain(wallet)) {
+        throw new Error(`wallet does not support ${this.getDisplayName()}`)
+      }
+
+      if (!wallet.ethSignTypedData) {
+        throw new Error('wallet does not support signing typed data')
+      }
+
+      const result = await wallet.ethSignTypedData(typedDataToSign)
+
+      if (!result) throw new Error('EvmBaseAdapter: error signing typed data')
+
+      return result.signature
+    } catch (err) {
+      return ErrorHandler(err)
+    }
+  }
+
   async getAddress(input: GetAddressInput): Promise<string> {
     const { accountNumber, wallet, showOnDevice = false } = input
     const bip44Params = this.getBIP44Params({ accountNumber })
@@ -462,8 +489,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   // eslint-disable-next-line require-await
   async validateAddress(address: string): Promise<ValidAddressResult> {
-    const chainLabel = chainIdToChainLabel(this.chainId)
-    const isValidAddress = WAValidator.validate(address, chainLabel)
+    const isValidAddress = utils.isAddress(address)
     if (isValidAddress) return { valid: true, result: ValidAddressResultType.Valid }
     return { valid: false, result: ValidAddressResultType.Invalid }
   }
@@ -501,6 +527,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
             to: transfer.to,
             type: transfer.type,
             value: transfer.totalValue,
+            id: transfer.id,
+            token: transfer.token,
           })),
           txid: tx.txid,
           data: tx.data,
@@ -548,7 +576,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       const bip44Params = this.getBIP44Params({ accountNumber })
       const txToSign = {
         addressNList: toAddressNList(bip44Params),
-        value: convertNumberToHex(value),
+        value: numberToHex(value),
         to,
         chainId: Number(fromChainId(this.chainId).chainReference),
         data,

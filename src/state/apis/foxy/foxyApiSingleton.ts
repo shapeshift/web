@@ -1,8 +1,8 @@
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { foxyAddresses, FoxyApi } from '@shapeshiftoss/investor-foxy'
+import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { foxyAddresses, FoxyApi } from 'lib/investor/investor-foxy'
 
 // don't export me, access me through the getter
 let _foxyApi: FoxyApi | undefined = undefined
@@ -22,7 +22,7 @@ export const getFoxyApi = (): FoxyApi => {
   const foxyApi = new FoxyApi({
     adapter: getChainAdapterManager().get(
       KnownChainIds.EthereumMainnet,
-    ) as ChainAdapter<KnownChainIds.EthereumMainnet>,
+    ) as unknown as EvmBaseAdapter<KnownChainIds.EthereumMainnet>,
     providerUrl: getConfig()[RPC_PROVIDER_ENV],
     foxyAddresses,
   })

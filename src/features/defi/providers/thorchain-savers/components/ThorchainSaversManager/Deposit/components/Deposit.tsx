@@ -1,8 +1,9 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { Result } from '@sniptt/monads/build'
+import { Ok } from '@sniptt/monads/build'
 import { getConfig } from 'config'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
@@ -24,11 +25,12 @@ import { Row } from 'components/Row/Row'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { getSupportedEvmChainIds } from 'hooks/useEvm/useEvm'
+import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import type { SwapErrorRight } from 'lib/swapper/api'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import {
   BASE_BPS_POINTS,
@@ -51,8 +53,6 @@ import { useAppSelector } from 'state/store'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-
-const moduleLogger = logger.child({ namespace: ['ThorchainSaversDeposit:Deposit'] })
 
 type DepositProps = StepComponentProps & {
   accountId?: AccountId | undefined
@@ -129,15 +129,21 @@ export const Deposit: React.FC<DepositProps> = ({
     // We only want to display the outbound fee as a minimum for assets which have a zero dust threshold i.e EVM and Cosmos assets
     if (!bn(THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId]).isZero()) return '0'
     const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-    const inboundAddressData = await getInboundAddressDataForChain(daemonUrl, assetId)
+    const maybeInboundAddressData = await getInboundAddressDataForChain(daemonUrl, assetId)
 
-    if (!inboundAddressData) return '0'
+    return maybeInboundAddressData
+      .match<Result<string, SwapErrorRight>>({
+        ok: ({ outbound_fee }) => {
+          const outboundFeeCryptoBaseUnit = toBaseUnit(
+            fromThorBaseUnit(outbound_fee),
+            asset.precision,
+          )
 
-    const { outbound_fee } = inboundAddressData
-
-    const outboundFeeCryptoBaseUnit = toBaseUnit(fromThorBaseUnit(outbound_fee), asset.precision)
-
-    return outboundFeeCryptoBaseUnit
+          return Ok(outboundFeeCryptoBaseUnit)
+        },
+        err: _err => Ok('0'),
+      })
+      .unwrap()
   }, [asset.precision, assetId])
 
   useEffect(() => {
@@ -185,10 +191,7 @@ export const Deposit: React.FC<DepositProps> = ({
         )
         return bnOrZero(fastFeeCryptoPrecision).toString()
       } catch (error) {
-        moduleLogger.error(
-          { fn: 'getDepositGasEstimateCryptoPrecision', error },
-          'Error getting deposit gas estimate',
-        )
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
@@ -236,7 +239,7 @@ export const Deposit: React.FC<DepositProps> = ({
           assets,
         )
       } catch (error) {
-        moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),

@@ -19,7 +19,6 @@ import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
@@ -34,10 +33,6 @@ import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
-
-const moduleLogger = logger.child({
-  namespace: ['Providers', 'FoxFarming', 'FoxFarmingManager', 'Withdraw', 'ExpiredWithdraw'],
-})
 
 type ExpiredWithdrawProps = StepComponentProps & {
   accountId?: AccountId | undefined
@@ -70,7 +65,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
-  const { getUnstakeGasData, allowance, getApproveGasData } = useFoxFarming(contractAddress)
+  const { getUnstakeFeeData, allowance, getApproveFeeData } = useFoxFarming(contractAddress)
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
 
@@ -108,18 +103,12 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
 
   const getWithdrawGasEstimate = async () => {
     try {
-      const fee = await getUnstakeGasData(amountAvailableCryptoPrecision.toFixed(), true)
-      if (!fee) return
-      return bnOrZero(fee.average.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
+      const feeData = await getUnstakeFeeData(amountAvailableCryptoPrecision.toFixed(), true)
+      if (!feeData) return
+      return bnOrZero(feeData.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
-      moduleLogger.error(
-        error,
-        {
-          fn: 'getWithdrawGasEstimate',
-        },
-        'FoxFarmingWithdraw:getWithdrawGasEstimate error',
-      )
+      console.error(error)
     }
   }
 
@@ -162,12 +151,12 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
         assets,
       )
     } else {
-      const estimatedGasCrypto = await getApproveGasData()
-      if (!estimatedGasCrypto) return
+      const feeData = await getApproveFeeData()
+      if (!feeData) return
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_APPROVE,
         payload: {
-          estimatedGasCryptoPrecision: bnOrZero(estimatedGasCrypto.average.txFee)
+          estimatedGasCryptoPrecision: bnOrZero(feeData.txFee)
             .div(bn(10).pow(feeAsset.precision))
             .toPrecision(),
         },

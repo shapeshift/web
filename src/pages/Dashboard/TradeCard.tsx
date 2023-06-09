@@ -1,6 +1,8 @@
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Bridge } from 'components/Bridge/Bridge'
@@ -8,11 +10,24 @@ import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { Text } from 'components/Text/Text'
+import { AssetClickAction } from 'components/Trade/hooks/useTradeRoutes/types'
 import { Trade } from 'components/Trade/Trade'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
+import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
-export const TradeCard = (props: CardProps) => {
+export type TradeCardProps = {
+  defaultBuyAssetId?: AssetId
+  defaultSellAssetId?: AssetId
+} & CardProps
+
+export const TradeCard = ({
+  defaultBuyAssetId = foxAssetId,
+  defaultSellAssetId = ethAssetId,
+  ...cardProps
+}: TradeCardProps) => {
   const { Axelar } = useSelector(selectFeatureFlags)
   const {
     state: { wallet },
@@ -25,9 +40,22 @@ export const TradeCard = (props: CardProps) => {
     [translate],
   )
 
+  const clearAmounts = useSwapperStore(state => state.clearAmounts)
+  const handleAssetSelection = useSwapperStore(state => state.handleAssetSelection)
+  const defaultBuyAsset = useAppSelector(state => selectAssetById(state, defaultBuyAssetId))
+  const defaultSellAsset = useAppSelector(state => selectAssetById(state, defaultSellAssetId))
+
+  useEffect(() => {
+    if (defaultSellAsset)
+      handleAssetSelection({ asset: defaultSellAsset, action: AssetClickAction.Sell })
+    if (defaultBuyAsset)
+      handleAssetSelection({ asset: defaultBuyAsset, action: AssetClickAction.Buy })
+    clearAmounts()
+  }, [defaultBuyAsset, defaultSellAsset, clearAmounts, handleAssetSelection])
+
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
-      <Card flex={1} {...props}>
+      <Card flex={1} {...cardProps}>
         <Tabs isFitted variant='enclosed'>
           {Axelar && (
             <TabList>

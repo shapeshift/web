@@ -1,4 +1,4 @@
-import type { IdleOpportunity } from '@shapeshiftoss/investor-idle'
+import type { IdleOpportunity } from 'lib/investor/investor-idle'
 
 type EstimatedGas = {
   estimatedGasCrypto?: string

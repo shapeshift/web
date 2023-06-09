@@ -15,20 +15,25 @@ export async function findAsyncSequential<T, U>(
   return undefined
 }
 
+export interface AggregateTransferArgs {
+  assetId: string
+  from: string
+  id?: string
+  to: string
+  token?: Token
+  transfers: Transfer[]
+  type: TransferType
+  value: string
+}
+
 // keep track of all individual tx components and add up the total value transferred
-export function aggregateTransfer(
-  transfers: Transfer[],
-  type: TransferType,
-  assetId: string,
-  from: string,
-  to: string,
-  value: string,
-  token?: Token,
-): Transfer[] {
+export function aggregateTransfer(args: AggregateTransferArgs): Transfer[] {
+  const { assetId, from, id, to, token, transfers, type, value } = args
+
   if (!new BigNumber(value).gt(0)) return transfers
 
   const index = transfers?.findIndex(
-    t => t.type === type && t.assetId === assetId && t.from === from && t.to === to,
+    t => t.type === type && t.assetId === assetId && t.from === from && t.to === to && t.id === id,
   )
   const transfer = transfers?.[index]
 
@@ -37,18 +42,16 @@ export function aggregateTransfer(
     transfer.components.push({ value })
     transfers[index] = transfer
   } else {
-    transfers = [
-      ...transfers,
-      {
-        type,
-        assetId,
-        from,
-        to,
-        totalValue: value,
-        components: [{ value }],
-        token,
-      },
-    ]
+    transfers.push({
+      type,
+      assetId,
+      from,
+      to,
+      totalValue: value,
+      components: [{ value }],
+      token,
+      id,
+    })
   }
 
   return transfers

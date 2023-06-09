@@ -1,57 +1,69 @@
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import type { ZrxExecuteTradeInput, ZrxSwapperDeps, ZrxTrade } from '../types'
+import type { ZrxExecuteTradeInput, ZrxTrade } from '../types'
 import { zrxExecuteTrade } from './zrxExecuteTrade'
+
+const txid = '0xffaac3dd529171e8a9a2adaf36b0344877c4894720d65dfd86e4b3a56c5a857e'
+const receiveAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+
+jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
+  const { KnownChainIds } = require('@shapeshiftoss/types')
+  const { feeData } = require('../../utils/test-data/setupDeps')
+  return {
+    getChainAdapterManager: jest.fn(
+      () =>
+        new Map([
+          [
+            KnownChainIds.EthereumMainnet,
+            {
+              buildCustomTx: () => Promise.resolve({ txToSign: '0000000000000000' }),
+              signTransaction: () => Promise.resolve('0000000000000000000'),
+              broadcastTransaction: () => Promise.resolve(txid),
+              signAndBroadcastTransaction: () => Promise.resolve(txid),
+              getFeeData: () => Promise.resolve(feeData),
+              getAddress: () => Promise.resolve(receiveAddress),
+              getChainId: () => KnownChainIds.EthereumMainnet,
+            } as unknown as ethereum.ChainAdapter,
+          ],
+        ]),
+    ),
+  }
+})
 
 describe('ZrxExecuteTrade', () => {
   const { sellAsset, buyAsset } = setupQuote()
-  const txid = '0xffaac3dd529171e8a9a2adaf36b0344877c4894720d65dfd86e4b3a56c5a857e'
   let wallet = {
+    _supportsETH: true,
     supportsOfflineSigning: jest.fn(() => true),
+    ethSupportsEIP1559: jest.fn(() => false),
   } as unknown as HDWallet
 
-  const adapter = {
-    buildSendTransaction: jest.fn(() => Promise.resolve({ txToSign: '0000000000000000' })),
-    signTransaction: jest.fn(() => Promise.resolve('0000000000000000000')),
-    broadcastTransaction: jest.fn(() => Promise.resolve(txid)),
-    signAndBroadcastTransaction: jest.fn(() => Promise.resolve(txid)),
-  } as unknown as ChainAdapter<'eip155:1'>
-
-  const deps = { adapter } as unknown as ZrxSwapperDeps
-
-  const trade: ZrxTrade<KnownChainIds.EthereumMainnet> = {
+  const trade: ZrxTrade = {
     buyAsset,
     sellAsset,
     sellAmountBeforeFeesCryptoBaseUnit: '1',
-    buyAmountCryptoBaseUnit: '',
+    buyAmountBeforeFeesCryptoBaseUnit: '',
     depositAddress: '0x123',
-    receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+    receiveAddress,
     accountNumber: 0,
     txData: '0x123',
     rate: '1',
     feeData: {
-      chainSpecific: {
-        approvalFeeCryptoBaseUnit: '123600000',
-        estimatedGasCryptoBaseUnit: '1235',
-        gasPriceCryptoBaseUnit: '1236',
-      },
-      buyAssetTradeFeeUsd: '0',
-      sellAssetTradeFeeUsd: '0',
+      protocolFees: {},
       networkFeeCryptoBaseUnit: '0',
     },
     sources: [],
   }
 
-  const execTradeInput: ZrxExecuteTradeInput<KnownChainIds.EthereumMainnet> = {
+  const execTradeInput: ZrxExecuteTradeInput = {
     trade,
     wallet,
   }
 
   it('returns txid if offline signing is supported', async () => {
-    const maybeTradeResult = await zrxExecuteTrade<KnownChainIds.EthereumMainnet>(deps, {
+    const maybeTradeResult = await zrxExecuteTrade({
       ...execTradeInput,
     })
     expect(maybeTradeResult.isErr()).toBe(false)
@@ -65,7 +77,7 @@ describe('ZrxExecuteTrade', () => {
       supportsBroadcast: jest.fn(() => true),
     } as unknown as HDWallet
 
-    const maybeTradeResult = await zrxExecuteTrade<KnownChainIds.EthereumMainnet>(deps, {
+    const maybeTradeResult = await zrxExecuteTrade({
       ...execTradeInput,
     })
     expect(maybeTradeResult.isErr()).toBe(false)

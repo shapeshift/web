@@ -1,44 +1,55 @@
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { Ok } from '@sniptt/monads'
+import type { AxiosResponse, AxiosStatic } from 'axios'
 import type Web3 from 'web3'
+import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
-import { ETH, FOX } from '../../utils/test-data/assets'
+import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import type { ThorchainSwapperDeps } from '../types'
-import { getUsdRate } from '../utils/getUsdRate/getUsdRate'
+import type { InboundAddressResponse, ThorchainSwapperDeps, ThornodePoolResponse } from '../types'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { setupThorswapDeps } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
 import { getThorTradeQuote } from './getTradeQuote'
 
-jest.mock('../utils/thorService')
-jest.mock('../utils/getUsdRate/getUsdRate')
+jest.mock('../utils/thorService', () => {
+  const axios: AxiosStatic = jest.createMockFromModule('axios')
+  axios.create = jest.fn(() => axios)
 
-const mockedAxios = thorService as jest.Mocked<typeof thorService>
+  return {
+    thorService: axios.create(),
+  }
+})
+const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
+const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
 
 const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  minimumCryptoHuman: '59.658672054814851787728',
-  maximumCryptoHuman: '100000000000000000000000000',
-  sellAmountBeforeFeesCryptoBaseUnit: '10000000000000000000', // 10 FOX
-  allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-  buyAmountCryptoBaseUnit: '4633547338118093212830055',
-  feeData: {
-    chainSpecific: {
-      estimatedGasCryptoBaseUnit: '100000',
-      approvalFeeCryptoBaseUnit: '700000',
-      gasPriceCryptoBaseUnit: '7',
+  minimumCryptoHuman: '149.14668013703712946932',
+  recommendedSlippage: '0.04357',
+  steps: [
+    {
+      allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
+      sellAmountBeforeFeesCryptoBaseUnit: '713014679420',
+      buyAmountBeforeFeesCryptoBaseUnit: '114321610000000000',
+      feeData: {
+        protocolFees: {
+          [ETH.assetId]: {
+            amountCryptoBaseUnit: '12000000000000000',
+            requiresBalance: false,
+            asset: ETH,
+          },
+        },
+        networkFeeCryptoBaseUnit: '400000',
+      },
+      rate: '144114.94366197183098591549',
+      sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
+      buyAsset: ETH,
+      sellAsset: FOX_MAINNET,
+      accountNumber: 0,
     },
-    buyAssetTradeFeeUsd: '7.656',
-    sellAssetTradeFeeUsd: '0',
-    networkFeeCryptoBaseUnit: '700000',
-  },
-  rate: '463354.73381180932128300549',
-  sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
-  buyAsset: ETH,
-  sellAsset: FOX,
-  accountNumber: 0,
-  recommendedSlippage: '0.00000608624714961082',
+  ],
 }
 
 describe('getTradeQuote', () => {
@@ -52,46 +63,56 @@ describe('getTradeQuote', () => {
   }
 
   it('should get a thorchain quote for a thorchain trade', async () => {
-    mockedAxios.get.mockImplementation(url => {
+    ;(thorService.get as unknown as jest.Mock<unknown>).mockImplementation(url => {
       switch (url) {
         case '/lcd/thorchain/pools':
-          return Promise.resolve({ data: thornodePools })
+          return Promise.resolve(
+            Ok({ data: thornodePools } as unknown as AxiosResponse<ThornodePoolResponse, any>),
+          )
         case '/lcd/thorchain/inbound_addresses':
-          return Promise.resolve({ data: mockInboundAddresses })
+          return Promise.resolve(
+            Ok({ data: mockInboundAddresses } as unknown as AxiosResponse<
+              InboundAddressResponse[],
+              any
+            >),
+          )
         default:
           // '/lcd/thorchain/quote/swap/<swapQueryParams>' fallthrough
-          return Promise.resolve({
-            data: {
-              dust_threshold: '10000',
-              expected_amount_out: '261454522054192',
-              expiry: 1681132269,
-              fees: {
-                affiliate: '0',
-                asset: 'ETH.FOX-0XC770EEFAD204B5180DF6A14EE197D99D808EE52D',
-                outbound: '16554235812',
+          return Promise.resolve(
+            Ok({
+              data: {
+                dust_threshold: '10000',
+                expected_amount_out: '10232161',
+                expiry: 1681132269,
+                fees: {
+                  affiliate: '0',
+                  asset: 'ETH.ETH',
+                  outbound: '1200000',
+                },
+                inbound_address: 'bc1qucjrczghvwl5d66klz6npv7tshkpwpzlw0zzj8',
+                inbound_confirmation_blocks: 2,
+                inbound_confirmation_seconds: 1200,
+                notes:
+                  'First output should be to inbound_address, second output should be change back to self, third output should be OP_RETURN, limited to 80 bytes. Do not send below the dust threshold. Do not use exotic spend scripts, locks or address formats (P2WSH with Bech32 address format preferred).',
+                outbound_delay_blocks: 575,
+                outbound_delay_seconds: 6900,
+                slippage_bps: 4357,
+                warning: 'Do not cache this response. Do not send funds after the expiry.',
+                memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6::ss:0',
               },
-              inbound_address: 'bc1qucjrczghvwl5d66klz6npv7tshkpwpzlw0zzj8',
-              inbound_confirmation_blocks: 2,
-              inbound_confirmation_seconds: 1200,
-              notes:
-                'First output should be to inbound_address, second output should be change back to self, third output should be OP_RETURN, limited to 80 bytes. Do not send below the dust threshold. Do not use exotic spend scripts, locks or address formats (P2WSH with Bech32 address format preferred).',
-              outbound_delay_blocks: 575,
-              outbound_delay_seconds: 6900,
-              slippage_bps: 4357,
-              warning: 'Do not cache this response. Do not send funds after the expiry.',
-            },
-          })
+            }),
+          )
       }
     })
-    ;(getUsdRate as jest.Mock<unknown>)
-      .mockReturnValueOnce(Promise.resolve('0.15399605260336216')) // sellAsset
-      .mockReturnValueOnce(Promise.resolve('1595')) // buyAsset
+
+    selectSellAssetUsdRateSpy.mockReturnValueOnce('0.15399605260336216')
+    selectBuyAssetUsdRateSpy.mockReturnValueOnce('1595')
 
     const input: GetTradeQuoteInput = {
       ...quoteInput,
-      sellAmountBeforeFeesCryptoBaseUnit: '10000000000000000000', // 10 FOX
+      sellAmountBeforeFeesCryptoBaseUnit: '713014679420',
       buyAsset: ETH,
-      sellAsset: FOX,
+      sellAsset: FOX_MAINNET,
     }
 
     const maybeTradeQuote = await getThorTradeQuote({ deps, input })

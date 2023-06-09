@@ -14,13 +14,10 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import { KeepKeyConfig } from '../config'
 import { FailureType, MessageType } from '../KeepKeyTypes'
 import { setupKeepKeySDK } from '../setupKeepKeySdk'
-
-const moduleLogger = logger.child({ namespace: ['Connect'] })
 
 const translateError = (event: Event) => {
   let t: string
@@ -72,7 +69,7 @@ export const KeepKeyConnect = () => {
               setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
               return
             }
-            moduleLogger.error(err, 'KeepKey Connect: There was an error initializing the wallet')
+            console.error(e)
             setErrorLoading('walletProvider.errors.walletNotFound')
             return
           })
@@ -112,7 +109,7 @@ export const KeepKeyConnect = () => {
         setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
-        moduleLogger.error(e, 'KeepKey Connect: There was an error initializing the wallet')
+        console.error(e)
         setErrorLoading('walletProvider.keepKey.errors.unknown')
       }
     }
@@ -126,7 +123,7 @@ export const KeepKeyConnect = () => {
       </ModalHeader>
       <ModalBody>
         <Text mb={4} color='gray.500' translation={'walletProvider.keepKey.connect.body'} />
-        <Button width='full' colorScheme='blue' onClick={pairDevice} disabled={loading}>
+        <Button width='full' colorScheme='blue' onClick={pairDevice} isDisabled={loading}>
           {loading ? (
             <CircularProgress size='5' />
           ) : (

@@ -164,7 +164,7 @@ export const NativeCreate = () => {
         <Button
           colorScheme='blue'
           size='lg'
-          disabled={!(vault && words && revealedOnce.current)}
+          isDisabled={!(vault && words && revealedOnce.current)}
           onClick={handleClick}
         >
           <Text translation={'walletProvider.shapeShift.create.button'} />

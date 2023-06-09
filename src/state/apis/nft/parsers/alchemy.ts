@@ -166,6 +166,7 @@ export const parseAlchemyNftToNftItem = async (
       assetNamespace: alchemyNft.contract.tokenType.toLowerCase() as AssetNamespace,
       chainId,
     }),
+    symbol: alchemyNft.contract.symbol ?? '',
     name:
       (alchemyNft.title ||
         alchemyNft.contract.name ||

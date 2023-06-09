@@ -206,7 +206,7 @@ export const nftApi = createApi({
             acc.byId[nft.assetId] = makeAsset({
               assetId: nft.assetId,
               id: nft.id,
-              symbol: 'N/A', // TODO: add to NftItem, we do get this data from Alchemy when applicable
+              symbol: nft.symbol ?? 'N/A',
               name: nft.name,
               precision: 0,
               icon: nft.medias[0]?.originalUrl,

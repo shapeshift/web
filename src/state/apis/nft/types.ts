@@ -33,6 +33,7 @@ export type NftItem = {
   collectionId: AssetId
   medias: MediaUrl[]
   rarityRank: number | null
+  symbol: string
 }
 
 export type NftItemWithCollection = Omit<NftItem, 'collectionId'> & {

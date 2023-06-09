@@ -41,6 +41,7 @@ export const parseToNftItem = (
     collection: collectionItem,
     medias,
     rarityRank,
+    symbol: '', // Zapper doesn't provide this
   }
 
   return nftItem

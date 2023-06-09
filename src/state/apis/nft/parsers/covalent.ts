@@ -35,6 +35,7 @@ export const parseToNftItem = (
           chainId,
         }),
         id: nftData.token_id,
+        symbol: covalentItem.contract_ticker_symbol,
         medias,
         price: '', // Covalent doesn't provide spot pricing for NFT items
         rarityRank: null, // Covalent doesn't provide rarity rank

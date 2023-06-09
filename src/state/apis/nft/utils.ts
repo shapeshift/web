@@ -86,6 +86,10 @@ export const updateNftItem = (
     originalItem.name = currentItem.name
   }
 
+  if (!originalItem.symbol && currentItem.symbol) {
+    originalItem.symbol = currentItem.symbol
+  }
+
   return originalItem
 }
 

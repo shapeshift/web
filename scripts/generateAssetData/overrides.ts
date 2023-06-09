@@ -12,6 +12,10 @@ export const overrideAssets: Record<AssetId, Partial<Asset>> = {
     name: 'FOX on Ethereum',
     ...fox,
   },
+  'eip155:10/erc20:0xf1a0da3367bc7aa04f8d94ba57b862ff37ced174': {
+    name: 'FOX on Optimism',
+    ...fox,
+  },
   'eip155:100/erc20:0x21a42669643f45bc0e086b8fc2ed70c23d67509d': {
     name: 'FOX on Gnosis',
     ...fox,

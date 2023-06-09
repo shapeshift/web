@@ -143,15 +143,28 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
               </Box>
             </ModalBody>
             <ModalFooter gap={4}>
-              <Button width={{ base: 'full', md: 'auto' }} onClick={handleRestoreDefault} mr='auto'>
+              <Button
+                width={{ base: 'full', md: 'auto' }}
+                height='100%'
+                size='sm-multiline'
+                onClick={handleRestoreDefault}
+                mr='auto'
+              >
                 {translate('avatar.modal.restoreDefault')}
               </Button>
-              <Button display={{ base: 'none', md: 'block' }} onClick={props.onClose}>
+              <Button
+                display={{ base: 'none', md: 'block' }}
+                height='100%'
+                size='sm-multiline'
+                onClick={props.onClose}
+              >
                 {translate('common.cancel')}
               </Button>
               <Button
                 width={{ base: 'full', md: 'auto' }}
+                height='100%'
                 colorScheme='blue'
+                size='sm-multiline'
                 onClick={() => handleSaveChanges(selected)}
               >
                 {translate('common.saveChanges')}

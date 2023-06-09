@@ -7,7 +7,7 @@ import type { CovalentNftItemSchemaType } from 'state/apis/covalent/validators'
 import type { NftItemWithCollection } from '../types'
 
 export const parseToNftItem = (
-  covalentItem: CovalentNftItemSchemaType,
+  covalentItem: CovalentNftItemSchemaType & { ownerAddress: string },
   chainId: ChainId,
 ): NftItemWithCollection[] => {
   return (covalentItem.nft_data ?? [])
@@ -28,7 +28,7 @@ export const parseToNftItem = (
         chainId,
         ownerAccountId: toAccountId({
           chainId,
-          account: nftData.owner,
+          account: covalentItem.ownerAddress,
         }),
         assetId: toAssetId({
           // Yeah, it's weird, but this is how Covalent does it

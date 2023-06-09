@@ -151,7 +151,7 @@ const NftItemSchema = z.object({
       owner: z.string().nullable(),
     })
     .nullable(),
-  owner: z.string(),
+  owner: z.string().nullable(),
   owner_address: z.string().nullable(),
   burned: z.boolean().nullable(),
 })

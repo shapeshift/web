@@ -3,7 +3,6 @@ import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
-import type { MarketData } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
 import type { Asset } from 'lib/asset-service'
 import { localAssetData } from 'lib/asset-service'
@@ -16,12 +15,14 @@ import type {
 } from 'lib/swapper/api'
 import { getLifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/getTradeQuote/getTradeQuote'
 import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
+import { getThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'
-import { selectAssets } from '../assetsSlice/selectors'
-import { selectMarketDataById } from '../marketDataSlice/selectors'
+import { selectAssets, selectFeeAssetById } from '../assetsSlice/selectors'
+import { selectCryptoMarketData } from '../marketDataSlice/selectors'
+import type { MarketDataById } from '../marketDataSlice/types'
 
 export enum StepTransactionStatus {
   Identified = 'identified', // The step is identified as being part of the execution flow
@@ -90,10 +91,13 @@ export const swappersApi = createApi({
       queryFn: async (getTradeQuoteInput: GetEvmTradeQuoteInput, { getState }) => {
         const state: ReduxState = getState() as ReduxState
         const assets: Partial<Record<AssetId, Asset>> = selectAssets(state)
-        const sellAssetMarketData = selectMarketDataById(
-          state,
-          getTradeQuoteInput.sellAsset.assetId,
-        ) as MarketData
+        // selectCryptoMarketData is used because prives are always in USD
+        const marketDataById = selectCryptoMarketData(state) as MarketDataById<AssetId>
+        const sellAssetMarketData = marketDataById[getTradeQuoteInput.sellAsset.assetId]
+        if (!sellAssetMarketData)
+          return {
+            error: `no market data available for assetId ${getTradeQuoteInput.sellAsset.assetId}`,
+          }
         const maybeQuote = await getLifiTradeQuote(
           getTradeQuoteInput,
           assets,
@@ -102,7 +106,45 @@ export const swappersApi = createApi({
         return { data: maybeQuote }
       },
     }),
+    getThorTradeQuote: build.query<
+      Result<LifiTradeQuote<false>, SwapErrorRight>,
+      GetTradeQuoteInput
+    >({
+      queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { getState }) => {
+        const state: ReduxState = getState() as ReduxState
+        // selectCryptoMarketData is used because prives are always in USD
+        const marketDataById = selectCryptoMarketData(state) as MarketDataById<AssetId>
+        const feeAsset = selectFeeAssetById(state, getTradeQuoteInput.sellAsset.assetId) as
+          | Asset
+          | undefined
+        const sellAssetMarketData = marketDataById[getTradeQuoteInput.sellAsset.assetId]
+        const buyAssetMarketData = marketDataById[getTradeQuoteInput.buyAsset.assetId]
+        const feeAssetMarketData = feeAsset ? marketDataById[feeAsset.assetId] : undefined
+
+        if (!sellAssetMarketData)
+          return {
+            error: `no market data available for assetId ${getTradeQuoteInput.sellAsset.assetId}`,
+          }
+
+        if (!buyAssetMarketData)
+          return {
+            error: `no market data available for assetId ${getTradeQuoteInput.buyAsset.assetId}`,
+          }
+
+        if (!feeAssetMarketData)
+          return {
+            error: `no market data available for assetId ${feeAsset?.assetId}`,
+          }
+
+        const maybeQuote = await getThorTradeQuote(getTradeQuoteInput, {
+          sellAssetUsdRate: sellAssetMarketData.price,
+          buyAssetUsdRate: buyAssetMarketData.price,
+          feeAssetUsdRate: feeAssetMarketData.price,
+        })
+        return { data: maybeQuote }
+      },
+    }),
   }),
 })
 
-export const { useGetLifiTradeQuoteQuery } = swappersApi
+export const { useGetLifiTradeQuoteQuery, useGetThorTradeQuoteQuery } = swappersApi

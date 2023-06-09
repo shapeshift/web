@@ -15,7 +15,10 @@ import {
   selectSellAsset,
   selectSellAssetAccountId,
 } from 'state/slices/selectors'
-import { useGetLifiTradeQuoteQuery } from 'state/slices/swappersSlice/swappersSlice'
+import {
+  useGetLifiTradeQuoteQuery,
+  useGetThorTradeQuoteQuery,
+} from 'state/slices/swappersSlice/swappersSlice'
 import { store, useAppSelector } from 'state/store'
 
 export const useGetTradeQuotes = () => {
@@ -70,8 +73,12 @@ export const useGetTradeQuotes = () => {
     wallet,
   ])
 
-  const { isFetching, data, error } = useGetLifiTradeQuoteQuery(tradeQuoteInput, {
+  const lifiQuery = useGetLifiTradeQuoteQuery(tradeQuoteInput, {
     skip: !flags.LifiSwap,
+  })
+
+  const thorQuery = useGetThorTradeQuoteQuery(tradeQuoteInput, {
+    skip: !flags.ThorSwap,
   })
 
   // TODO(woodenfurniture): sorting of quotes
@@ -79,18 +86,37 @@ export const useGetTradeQuotes = () => {
   const sortedQuotes = useMemo(() => {
     if (isSkipToken(tradeQuoteInput)) return []
 
-    const lifiInputOutputRatio = 1 // TODO(woodenfurniture): calculate this
+    const thorInputOutputRatio = 0.9 // TODO(woodenfurniture): calculate this
+    const lifiInputOutputRatio = 0.8 // TODO(woodenfurniture): calculate this
+
+    lifiQuery.data?.isErr() && console.log('lifiQuery', lifiQuery.data?.unwrapErr())
+    thorQuery.data?.isErr() && console.log('thorQuery', thorQuery.data?.unwrapErr())
 
     return [
       {
-        isLoading: isFetching,
-        data,
-        error,
+        isLoading: thorQuery.isFetching,
+        data: thorQuery.data,
+        error: thorQuery.error,
+        swapperName: SwapperName.Thorchain,
+        inputOutputRatio: thorInputOutputRatio,
+      },
+      {
+        isLoading: lifiQuery.isFetching,
+        data: lifiQuery.data,
+        error: lifiQuery.error,
         swapperName: SwapperName.LIFI,
         inputOutputRatio: lifiInputOutputRatio,
       },
     ]
-  }, [data, error, isFetching, tradeQuoteInput])
+  }, [
+    lifiQuery.data,
+    lifiQuery.error,
+    lifiQuery.isFetching,
+    thorQuery.data,
+    thorQuery.error,
+    thorQuery.isFetching,
+    tradeQuoteInput,
+  ])
   return {
     sortedQuotes,
     selectedQuote: sortedQuotes[0],

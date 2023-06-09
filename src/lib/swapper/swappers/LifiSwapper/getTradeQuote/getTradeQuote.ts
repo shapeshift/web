@@ -33,6 +33,7 @@ export async function getTradeQuote(
       sellAsset,
       buyAsset,
       sellAmountBeforeFeesCryptoBaseUnit,
+      sendAddress,
       receiveAddress,
       accountNumber,
       allowMultiHop,
@@ -71,7 +72,7 @@ export async function getTradeQuote(
       // HACK: use the receive address as the send address
       // lifi's exchanges may use this to check allowance on their side
       // this swapper is not cross-account so this works
-      fromAddress: receiveAddress,
+      fromAddress: sendAddress,
       toAddress: receiveAddress,
       fromAmount: sellAmountBeforeFeesCryptoBaseUnit,
       // as recommended by lifi, dodo is denied until they fix their gas estimates

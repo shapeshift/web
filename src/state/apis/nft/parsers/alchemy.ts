@@ -1,5 +1,5 @@
 import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
-import { polygonChainId, toAssetId } from '@shapeshiftoss/caip'
+import { polygonChainId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { TokenType } from '@shapeshiftoss/unchained-client/src/evm/ethereum'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -72,7 +72,7 @@ export const parseAlchemyNftContractToCollectionItem = (
 }
 
 export const parseAlchemyNftToNftItem = async (
-  alchemyNft: OwnedNft | Nft,
+  alchemyNft: (OwnedNft | Nft) & { ownerAddress?: string },
   chainId: ChainId,
 ): Promise<NftItemWithCollection> => {
   const collectionId = toAssetId({
@@ -166,6 +166,12 @@ export const parseAlchemyNftToNftItem = async (
       assetNamespace: alchemyNft.contract.tokenType.toLowerCase() as AssetNamespace,
       chainId,
     }),
+    ownerAccountId: alchemyNft.ownerAddress
+      ? toAccountId({
+          account: alchemyNft.ownerAddress,
+          chainId,
+        })
+      : '',
     symbol: alchemyNft.contract.symbol ?? '',
     name:
       (alchemyNft.title ||

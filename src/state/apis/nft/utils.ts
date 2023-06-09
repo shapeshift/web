@@ -90,6 +90,10 @@ export const updateNftItem = (
     originalItem.symbol = currentItem.symbol
   }
 
+  if (!originalItem.ownerAccountId && currentItem.ownerAccountId) {
+    originalItem.ownerAccountId = currentItem.ownerAccountId
+  }
+
   return originalItem
 }
 
@@ -133,7 +137,11 @@ export const getAlchemyNftsUserData = async (
         const { ownedNfts } = await alchemy.nft.getNftsForOwner(address, {
           excludeFilters: [NftFilters.SPAM],
         })
-        return Promise.all(ownedNfts.map(ownedNft => parseAlchemyNftToNftItem(ownedNft, chainId)))
+        return Promise.all(
+          ownedNfts.map(ownedNft =>
+            parseAlchemyNftToNftItem(Object.assign(ownedNft, { ownerAddress: address }), chainId),
+          ),
+        )
       }),
     )
   )

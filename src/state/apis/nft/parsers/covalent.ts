@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { AssetNamespace } from '@shapeshiftoss/caip/src/assetId/assetId'
 import { isSome } from 'lib/utils'
 import type { CovalentNftItemSchemaType } from 'state/apis/covalent/validators'
@@ -26,6 +26,10 @@ export const parseToNftItem = (
       const item: NftItemWithCollection = {
         name: covalentItem.contract_name,
         chainId,
+        ownerAccountId: toAccountId({
+          chainId,
+          account: nftData.owner,
+        }),
         assetId: toAssetId({
           // Yeah, it's weird, but this is how Covalent does it
           assetReference: `${covalentItem.contract_address}/${nftData.token_id}`,

@@ -8,8 +8,8 @@ import { ResultsEmpty } from 'components/ResultsEmpty'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
 import {
-  makeSelectNftItemsWithCollectionSelector,
   selectGetNftUserTokensPending,
+  selectNftItemsWithCollection,
 } from 'state/apis/nft/selectors'
 import type { NftItemWithCollection } from 'state/apis/nft/types'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
@@ -41,7 +41,7 @@ export const NftTable = () => {
 
   const isLoading = useAppSelector(selectGetNftUserTokensPending)
   const selectNftItemsWithCollectionSelector = useMemo(
-    () => makeSelectNftItemsWithCollectionSelector(accountIds),
+    () => selectNftItemsWithCollection(accountIds),
     [accountIds],
   )
   const nftItems = useAppSelector(selectNftItemsWithCollectionSelector)

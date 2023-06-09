@@ -24,8 +24,8 @@ import { RawText } from 'components/Text'
 import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
 import { nft } from 'state/apis/nft/nftApi'
 import {
-  makeSelectNftItemsWithCollectionSelector,
   selectGetNftUserTokensPending,
+  selectNftItemsWithCollection,
   selectSelectedNftAvatar,
 } from 'state/apis/nft/selectors'
 import type { NftItemWithCollection } from 'state/apis/nft/types'
@@ -49,7 +49,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
 
   const isLoading = useAppSelector(selectGetNftUserTokensPending)
   const selectNftItemsWithCollectionSelector = useMemo(
-    () => makeSelectNftItemsWithCollectionSelector(accountIds),
+    () => selectNftItemsWithCollection(accountIds),
     [accountIds],
   )
   const nftItems = useAppSelector(selectNftItemsWithCollectionSelector)

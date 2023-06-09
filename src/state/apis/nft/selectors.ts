@@ -1,6 +1,11 @@
+import { QueryStatus } from '@reduxjs/toolkit/query'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
+import {
+  selectEndpointNameParamFromFilter,
+  selectQueryStatusParamFromFilter,
+} from 'state/selectors'
 import { selectWalletId } from 'state/slices/common-selectors'
 
 import { nftApi } from './nftApi'
@@ -8,6 +13,28 @@ import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
 
 const selectNfts = (state: ReduxState) => state.nft.nfts.byId
 const selectNftCollections = (state: ReduxState) => state.nft.collections.byId
+export const selectNftApiQueries = (state: ReduxState) => state.nftApi.queries
+
+export const selectNftApiQueriesByEndpointAndStatus = createSelector(
+  selectNftApiQueries,
+  selectEndpointNameParamFromFilter,
+  selectQueryStatusParamFromFilter,
+  (queries, endpointName, status) =>
+    Object.values(queries).filter(
+      query =>
+        (!endpointName || query?.endpointName === endpointName) &&
+        (!status || query?.status === status),
+    ),
+)
+
+export const selectGetNftUserTokensPending = createSelector(
+  (state: ReduxState) =>
+    selectNftApiQueriesByEndpointAndStatus(state, {
+      endpointName: 'getNftUserTokens',
+      queryStatus: QueryStatus.pending,
+    }),
+  queries => Boolean(queries.length),
+)
 
 // Would be nice if this was normalized as well but we can't, See the PR description of https://github.com/shapeshift/web/pull/4597
 // TODO(gomes): normalize me

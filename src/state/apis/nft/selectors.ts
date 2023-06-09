@@ -46,12 +46,17 @@ export const makeSelectNftItemsWithCollectionSelector = (accountIds: AccountId[]
   return createSelector(
     selectGetNftUserTokens,
     selectNftCollections,
-    (nftUserTokens, collections): NftItemWithCollection[] => {
+    selectPortfolioAssetIds,
+    (nftUserTokens, collections, portfolioAssetIds): NftItemWithCollection[] => {
       const { data: nfts } = nftUserTokens
 
       if (!nfts) return []
 
-      return Object.values(nfts).reduce<NftItemWithCollection[]>((acc, nft) => {
+      const portfolioNftAssetIds = portfolioAssetIds.filter(isNft)
+
+      return portfolioNftAssetIds.reduce<NftItemWithCollection[]>((acc, nftAssetId) => {
+        if (!nftAssetId) return acc
+        const nft = nfts.find(({ assetId }) => assetId === nftAssetId)
         if (!nft) return acc
         const collection = collections[nft.collectionId]
         if (!collection) return acc

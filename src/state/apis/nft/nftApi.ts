@@ -241,7 +241,6 @@ export const nftApi = createApi({
 
         // TODO: may want to do this in the upsert methods if we can
         missingPortfolioNfts.forEach(nft => {
-          // TODO
           const accountId = nft.ownerAccountId
 
           if (!portfolioDataToUpsert.accounts.byId[accountId]) {

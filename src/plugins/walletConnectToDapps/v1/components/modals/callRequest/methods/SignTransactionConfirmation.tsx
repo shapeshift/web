@@ -131,7 +131,7 @@ export const SignTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
             type='submit'
             onClick={form.handleSubmit(onConfirm)}
             isLoading={form.formState.isSubmitting}
-            disabled={!fees}
+            isDisabled={!fees}
           >
             {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
           </Button>

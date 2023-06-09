@@ -59,7 +59,13 @@ export const KeepKeyPassphrase = ({ deviceId }: { deviceId: string }) => {
             </AlertDescription>
           </Alert>
         )}
-        <Button width='full' size='lg' colorScheme='blue' onClick={handleSubmit} disabled={loading}>
+        <Button
+          width='full'
+          size='lg'
+          colorScheme='blue'
+          onClick={handleSubmit}
+          isDisabled={loading}
+        >
           <Text translation={'modals.keepKey.passphrase.button'} />
         </Button>
       </ModalBody>

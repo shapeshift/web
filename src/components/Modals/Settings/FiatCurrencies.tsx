@@ -54,7 +54,7 @@ export const FiatCurrencies = () => {
             const active = currency === selectedCurrency
             const buttonProps = active
               ? {
-                  disabled: true,
+                  isDisabled: true,
                   _disabled: { opacity: 1 },
                 }
               : {

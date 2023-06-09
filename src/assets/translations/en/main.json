@@ -1282,7 +1282,7 @@
       },
       "import": {
         "header": "Import your wallet",
-        "body": "Enter your Secret Recovery Phrase to import an existing wallet",
+        "body": "Type or paste your Secret Recovery Phrase in all lower case with no commas or numbers and a single space between each word.",
         "button": "Next",
         "secretRecoveryPhraseError": "Enter your Secret Recovery Phrase with a single space in between words. Omit any commas, returns, or any additional characters.",
         "secretRecoveryPhraseRequired": "Secret Recovery Phrase is required",

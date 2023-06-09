@@ -115,12 +115,7 @@ export const Header = () => {
         <HStack height='4.5rem' width='full' px={4}>
           <HStack width='full' margin='0 auto' px={{ base: 0, xl: 12 }} spacing={0} columnGap={4}>
             <Box flex={1} display={{ base: 'block', md: 'none' }}>
-              <IconButton
-                aria-label='Open menu'
-                variant='ghost'
-                onClick={onToggle}
-                icon={<HamburgerIcon />}
-              />
+              <IconButton aria-label='Open menu' onClick={onToggle} icon={<HamburgerIcon />} />
             </Box>
 
             <Box display={{ base: 'block', md: 'none' }} mx='auto'>

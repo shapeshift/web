@@ -40,7 +40,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             py={4}
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
-            disabled={!hasLocalWallet}
+            isDisabled={!hasLocalWallet}
             onClick={() => history.push('/native/load')}
             data-test='wallet-native-load-button'
           >

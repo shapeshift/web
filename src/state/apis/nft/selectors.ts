@@ -1,5 +1,6 @@
 import { QueryStatus } from '@reduxjs/toolkit/query'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { isNft } from '@shapeshiftoss/caip'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
 import {
@@ -7,6 +8,7 @@ import {
   selectQueryStatusParamFromFilter,
 } from 'state/selectors'
 import { selectWalletId } from 'state/slices/common-selectors'
+import { selectPortfolioAssetIds } from 'state/slices/selectors'
 
 import { nftApi } from './nftApi'
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
@@ -46,6 +48,7 @@ export const makeSelectNftItemsWithCollectionSelector = (accountIds: AccountId[]
     selectNftCollections,
     (nftUserTokens, collections): NftItemWithCollection[] => {
       const { data: nfts } = nftUserTokens
+
       if (!nfts) return []
 
       return Object.values(nfts).reduce<NftItemWithCollection[]>((acc, nft) => {

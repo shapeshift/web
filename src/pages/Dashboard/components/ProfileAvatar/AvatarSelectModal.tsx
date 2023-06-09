@@ -154,14 +154,6 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
                 {translate('avatar.modal.restoreDefault')}
               </Button>
               <Button
-                display={{ base: 'none', md: 'block' }}
-                height='100%'
-                size='sm-multiline'
-                onClick={props.onClose}
-              >
-                {translate('common.cancel')}
-              </Button>
-              <Button
                 width={{ base: 'full', md: 'auto' }}
                 height='100%'
                 colorScheme='blue'

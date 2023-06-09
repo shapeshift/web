@@ -1,17 +1,13 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { ethChainId, foxyAssetId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import dayjs from 'dayjs'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { foxyApi } from 'state/apis/foxy/foxyApi'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import {
-  selectAssetById,
-  selectBIP44ParamsByAccountId,
-  selectMarketDataById,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectBIP44ParamsByAccountId } from 'state/slices/portfolioSlice/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -21,6 +17,7 @@ import type {
   OpportunityMetadata,
   StakingId,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
   OpportunitiesMetadataResolverInput,
@@ -28,7 +25,7 @@ import type {
 } from '../types'
 
 export const foxyStakingOpportunitiesMetadataResolver = async ({
-  opportunityType,
+  defiType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
   const allOpportunities = await getFoxyApi().getFoxyOpportunities()
@@ -53,6 +50,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
       assetNamespace: 'erc20',
       assetReference: opportunity.stakingToken,
     })
+    // FOXy staking contract
     const toAssetIdParts: ToAssetIdArgs = {
       assetNamespace: 'erc20',
       assetReference: opportunity.contractAddress,
@@ -93,7 +91,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
 
   const data = {
     byId: stakingOpportunitiesById,
-    type: opportunityType,
+    type: defiType,
   }
 
   return { data }
@@ -104,14 +102,6 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
   reduxApi,
   opportunityIds,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
-  const { chainId: accountChainId } = fromAccountId(accountId)
-  if (accountChainId !== ethChainId)
-    return {
-      data: {
-        byId: {},
-      },
-    }
-
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 

@@ -1,9 +1,7 @@
 import entries from 'lodash/entries'
-import invert from 'lodash/invert'
 import toLower from 'lodash/toLower'
 
 import type { AssetId } from '../../assetId/assetId'
-import { fromAssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
 import {
   avalancheAssetId,
@@ -59,18 +57,14 @@ const AssetIdToBanxaTickerMap = {
   'eip155:10/erc20:0x94b008aa00579c1307b0ef2c499ad98a8ce58e58': 'usdt',
 } as Record<AssetId, string>
 
-const banxaTickerToAssetIdMap = invert(AssetIdToBanxaTickerMap)
-
-export const banxaTickerToAssetId = (id: string): string | undefined => banxaTickerToAssetIdMap[id]
-
-export const assetIdToBanxaTicker = (assetId: string): string | undefined =>
-  AssetIdToBanxaTickerMap[toLower(assetId)]
-
 export const getSupportedBanxaAssets = () =>
   entries(AssetIdToBanxaTickerMap).map(([assetId, ticker]) => ({
     assetId,
     ticker,
   }))
+
+export const assetIdToBanxaTicker = (assetId: string): string | undefined =>
+  AssetIdToBanxaTickerMap[toLower(assetId)]
 
 /**
  * map ChainIds to Banxa blockchain codes (ETH, BTC, COSMOS),
@@ -90,15 +84,16 @@ const chainIdToBanxaBlockchainCodeMap: Record<ChainId, string> = {
 } as const
 
 /**
- * Convert a banxa asset identifier to a Banxa chain identifier for use in Banxa HTTP URLs
+ * Convert a ChainId to a Banxa chain identifier for use in Banxa HTTP URLs
  *
- * @param {string} banxaAssetId - a Banxa asset string referencing a specific asset; e.g., 'atom'
+ * @param {ChainId} chainId - a ChainId
  * @returns {string} - a Banxa chain identifier; e.g., 'cosmos'
  */
-export const getBanxaBlockchainFromBanxaAssetTicker = (banxaAssetId: string): string => {
-  const assetId = banxaTickerToAssetId(banxaAssetId.toLowerCase())
-  if (!assetId)
-    throw new Error(`getBanxaBlockchainFromBanxaAssetTicker: ${banxaAssetId} is not supported`)
-  const { chainId } = fromAssetId(assetId)
-  return chainIdToBanxaBlockchainCodeMap[chainId]
+export const getBanxaBlockchainFromChainId = (chainId: ChainId): string => {
+  const banxaChainId = chainIdToBanxaBlockchainCodeMap[chainId]
+
+  if (!banxaChainId)
+    throw new Error(`getBanxaBlockchainFromChainId: ${chainId} is not supported on Banxa`)
+
+  return banxaChainId
 }

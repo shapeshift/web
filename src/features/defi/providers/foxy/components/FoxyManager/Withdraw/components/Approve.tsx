@@ -5,11 +5,7 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
-import {
-  DefiAction,
-  DefiProvider,
-  DefiStep,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useCallback, useContext, useMemo } from 'react'
@@ -17,19 +13,15 @@ import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { selectBIP44ParamsByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Foxy', 'Withdraw', 'Approve'],
-})
 
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
@@ -86,7 +78,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
         return returVal
       } catch (error) {
-        moduleLogger.error(error, { fn: 'getWithdrawGasEstimate' }, 'getWithdrawGasEstimate error')
+        console.error(error)
         const fundsError =
           error instanceof Error && error.message.includes('Not enough funds in reserve')
         toast({
@@ -161,7 +153,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       })
       onNext(DefiStep.Confirm)
     } catch (error) {
-      moduleLogger.error(error, { fn: 'handleApprove' }, 'handleApprove error')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

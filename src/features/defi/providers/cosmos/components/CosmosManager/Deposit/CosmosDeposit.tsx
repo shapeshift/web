@@ -19,7 +19,6 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
@@ -35,10 +34,6 @@ import { Status } from './components/Status'
 import { CosmosDepositActionType } from './DepositCommon'
 import { DepositContext } from './DepositContext'
 import { initialState, reducer } from './DepositReducer'
-
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Cosmos', 'CosmosDeposit'],
-})
 
 type CosmosDepositProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
@@ -93,7 +88,7 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
       })
     } catch (error) {
       // TODO: handle client side errors
-      moduleLogger.error(error, 'CosmosDeposit error')
+      console.error(error)
     }
   }, [chainId, validatorAddress, walletState.wallet, earnOpportunityData])
 

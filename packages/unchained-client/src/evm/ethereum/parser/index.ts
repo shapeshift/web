@@ -2,6 +2,7 @@ import type { Tx } from '../../../generated/ethereum'
 import type { TransactionParserArgs } from '../../parser'
 import { BaseTransactionParser } from '../../parser'
 import * as erc20 from '../../parser/erc20'
+import * as nft from '../../parser/nft'
 import * as zrx from '../../parser/zrx'
 import * as cowswap from './cowswap'
 import * as foxy from './foxy'
@@ -19,6 +20,11 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
     // due to the current parser logic, order here matters (register most generic first to most specific last)
     // weth and yearn have the same sigHash for deposit(), but the weth parser is stricter resulting in faster processing times
     this.registerParsers([
+      new nft.Parser({
+        chainId: this.chainId,
+        provider: this.provider,
+        api: this.api,
+      }),
       new erc20.Parser({ chainId: this.chainId, provider: this.provider }),
       new yearn.Parser({ chainId: this.chainId }),
       new foxy.Parser(),

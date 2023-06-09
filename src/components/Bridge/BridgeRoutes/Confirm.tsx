@@ -25,7 +25,6 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
@@ -37,8 +36,6 @@ import { EditableAddress } from '../components/EditableAddress'
 import type { BridgeState } from '../types'
 import { BridgeRoutePaths } from '../types'
 import { WithBackButton } from './WithBackButton'
-
-const moduleLogger = logger.child({ namespace: ['Confirm'] })
 
 export const Confirm: React.FC = () => {
   const history = useHistory()
@@ -107,7 +104,7 @@ export const Confirm: React.FC = () => {
 
         setIsLoadingRelayerFee(false)
       } catch (e) {
-        moduleLogger.error(e, 'GasFee error')
+        console.error(e)
       }
     })()
   }, [
@@ -137,7 +134,7 @@ export const Confirm: React.FC = () => {
 
       const estimateFeesArgs: EstimateFeesInput = {
         cryptoAmount,
-        asset,
+        assetId: asset.assetId,
         to: depositAddress,
         sendMax: false,
         accountId: accountId ?? '',
@@ -148,13 +145,12 @@ export const Confirm: React.FC = () => {
 
       const handleSendArgs: SendInput = {
         cryptoAmount,
-        asset,
+        assetId: asset.assetId,
         from: '',
         to: depositAddress,
         sendMax: false,
         accountId: accountId ?? '',
         amountFieldError: '',
-        cryptoSymbol: bridgeAsset?.symbol ?? '',
         estimatedFees,
         feeType: FeeDataKey.Average,
         fiatAmount: '',
@@ -166,7 +162,7 @@ export const Confirm: React.FC = () => {
       await handleFormSend(handleSendArgs)
       history.push(BridgeRoutePaths.Status)
     } catch (e) {
-      moduleLogger.error(e, 'GasFee error')
+      console.error(e)
       setIsExecutingTransaction(false)
     }
   }

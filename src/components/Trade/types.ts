@@ -1,15 +1,13 @@
-import { type Asset } from '@shapeshiftoss/asset-service'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { type ChainId } from '@shapeshiftoss/caip'
-import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import type { SwapperName } from 'lib/swapper/api'
-import {
-  type BuildTradeInput,
-  type GetTradeQuoteInput,
-  type QuoteFeeData,
-  type Trade,
-  type TradeQuote,
+import type { Asset } from 'lib/asset-service'
+import type {
+  BuildTradeInput,
+  GetTradeQuoteInput,
+  QuoteFeeData,
+  SwapperName,
+  TradeBase,
 } from 'lib/swapper/api'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
@@ -44,9 +42,9 @@ export type TradeQuoteInputCommonArgs = Pick<
   | 'sellAmountBeforeFeesCryptoBaseUnit'
   | 'sellAsset'
   | 'buyAsset'
-  | 'sendMax'
   | 'receiveAddress'
   | 'accountNumber'
+  | 'affiliateBps'
 >
 
 export type BuildTradeInputCommonArgs = Pick<
@@ -54,14 +52,14 @@ export type BuildTradeInputCommonArgs = Pick<
   | 'sellAmountBeforeFeesCryptoBaseUnit'
   | 'sellAsset'
   | 'buyAsset'
-  | 'sendMax'
   | 'receiveAddress'
   | 'wallet'
   | 'slippage'
+  | 'affiliateBps'
 >
 
 export type GetFormFeesArgs = {
-  trade: Trade<KnownChainIds> | TradeQuote<KnownChainIds>
+  trade: TradeBase<KnownChainIds>
   sellAsset: Asset
   tradeFeeSource: SwapperName
   feeAsset: Asset

@@ -38,14 +38,14 @@ export class BaseTransactionParser<T extends utxo.Tx> {
         // send amount
         const sendValue = new BigNumber(vin.value ?? 0)
         if (sendValue.gt(0)) {
-          parsedTx.transfers = aggregateTransfer(
-            parsedTx.transfers,
-            TransferType.Send,
-            this.assetId,
-            vin.addresses?.[0] ?? '',
-            tx.vout[0].addresses?.[0] ?? '',
-            sendValue.toString(10),
-          )
+          parsedTx.transfers = aggregateTransfer({
+            assetId: this.assetId,
+            from: vin.addresses?.[0] ?? '',
+            to: tx.vout[0].addresses?.[0] ?? '',
+            transfers: parsedTx.transfers,
+            type: TransferType.Send,
+            value: sendValue.toString(10),
+          })
         }
 
         // network fee
@@ -61,14 +61,14 @@ export class BaseTransactionParser<T extends utxo.Tx> {
         // receive amount
         const receiveValue = new BigNumber(vout.value ?? 0)
         if (receiveValue.gt(0)) {
-          parsedTx.transfers = aggregateTransfer(
-            parsedTx.transfers,
-            TransferType.Receive,
-            this.assetId,
-            tx.vin[0].addresses?.[0] ?? '',
-            vout.addresses?.[0] ?? '',
-            receiveValue.toString(10),
-          )
+          parsedTx.transfers = aggregateTransfer({
+            assetId: this.assetId,
+            from: tx.vin[0].addresses?.[0] ?? '',
+            to: vout.addresses?.[0] ?? '',
+            transfers: parsedTx.transfers,
+            type: TransferType.Receive,
+            value: receiveValue.toString(10),
+          })
         }
       }
     })

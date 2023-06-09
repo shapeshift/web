@@ -1,16 +1,16 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { IconButton, ModalBody, ModalCloseButton, ModalHeader, Stack } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { SlideTransition } from 'components/SlideTransition'
 
 type SelectAssetsProps = {
-  onClick(asset: Asset): void
+  onClick(assetId: AssetId): void
   onBack?: () => void
 }
 
-export const SelectAssets = ({ onClick, onBack: handleBack }: SelectAssetsProps) => {
+export const SelectAssets = ({ onClick: handleClick, onBack: handleBack }: SelectAssetsProps) => {
   const translate = useTranslate()
   return (
     <SlideTransition>
@@ -30,7 +30,7 @@ export const SelectAssets = ({ onClick, onBack: handleBack }: SelectAssetsProps)
         <ModalCloseButton position='static' />
       </Stack>
       <ModalBody height='600px' px={2} display='flex' flexDir='column'>
-        <AssetSearch onClick={onClick} />
+        <AssetSearch onClick={asset => handleClick(asset.assetId)} />
       </ModalBody>
     </SlideTransition>
   )

@@ -196,7 +196,10 @@ export const ButtonStyle: ComponentStyleConfig = {
         lineHeight: 'normal',
         verticalAlign: 'baseline',
         borderBottomWidth: '2px',
-        marginBottom: '-1px;',
+        marginBottom: {
+          base: 0,
+          md: '-1px',
+        },
         borderColor: 'transparent',
         borderRadius: 0,
         color: 'gray.500',

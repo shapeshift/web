@@ -18,7 +18,6 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
@@ -33,9 +32,6 @@ import { useAppSelector } from 'state/store'
 
 import { UniV2DepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-
-const moduleLogger = logger.child({ namespace: ['UniV2Deposit:Deposit'] })
-
 type DepositProps = StepComponentProps & {
   accountId: AccountId | undefined
   onAccountIdChange?: AccountDropdownProps['onChange']
@@ -125,10 +121,7 @@ export const Deposit: React.FC<DepositProps> = ({
       if (!feeData) return
       return bnOrZero(feeData.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
     } catch (error) {
-      moduleLogger.error(
-        { fn: 'getDepositGasEstimateCryptoPrecision', error },
-        'Error getting deposit gas estimate',
-      )
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -235,7 +228,7 @@ export const Deposit: React.FC<DepositProps> = ({
         dispatch({ type: UniV2DepositActionType.SET_LOADING, payload: false })
       }
     } catch (error) {
-      moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -290,13 +283,14 @@ export const Deposit: React.FC<DepositProps> = ({
     })
   }
 
-  if (!accountId) return null
+  if (!accountId || !lpOpportunity) return null
   return (
     <PairDeposit
       accountId={accountId}
       asset0={asset0}
       asset1={asset1}
       icons={lpOpportunity?.icons}
+      underlyingAssetRatiosBaseUnit={lpOpportunity.underlyingAssetRatiosBaseUnit}
       destAsset={lpAsset}
       apy={lpOpportunity?.apy?.toString() ?? ''}
       cryptoAmountAvailable0={asset0CryptoAmountAvailable.toPrecision()}

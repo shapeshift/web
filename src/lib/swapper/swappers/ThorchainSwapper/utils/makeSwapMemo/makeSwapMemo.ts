@@ -1,10 +1,8 @@
-import { adapters, thorchainAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
-import {
-  THORCHAIN_AFFILIATE_BIPS,
-  THORCHAIN_AFFILIATE_NAME,
-} from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
+import { THORCHAIN_AFFILIATE_NAME } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { assertIsValidMemo } from 'lib/swapper/swappers/ThorchainSwapper/utils/makeSwapMemo/assertIsValidMemo'
+import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 
 /**
  * definition of THORChain asset notation
@@ -44,8 +42,9 @@ export const abbreviateThorAssetId = (fullThorAssetId: string): string => {
 
 type MakeSwapMemoArgs = {
   buyAssetId: string
-  destinationAddress: string
+  destinationAddress: string | undefined
   limit: string
+  affiliateBps: string
 }
 type MakeSwapMemo = (args: MakeSwapMemoArgs) => string
 
@@ -55,11 +54,14 @@ const runeThorId = 'RUNE'
  * @returns thorchain memo shortened to a max of 80 characters as described:
  * https://dev.thorchain.org/thorchain-dev/memos#mechanism-for-transaction-intent
  */
-export const makeSwapMemo: MakeSwapMemo = ({ buyAssetId, destinationAddress, limit }): string => {
+export const makeSwapMemo: MakeSwapMemo = ({
+  buyAssetId,
+  destinationAddress,
+  limit,
+  affiliateBps,
+}): string => {
   const isRune = buyAssetId === thorchainAssetId
-  const fullThorAssetId = isRune
-    ? runeThorId
-    : adapters.assetIdToPoolAssetId({ assetId: buyAssetId })
+  const fullThorAssetId = isRune ? runeThorId : assetIdToPoolAssetId({ assetId: buyAssetId })
 
   if (!fullThorAssetId)
     throw new SwapError('[makeSwapMemo] - undefined thorAssetId for given buyAssetId', {
@@ -71,13 +73,14 @@ export const makeSwapMemo: MakeSwapMemo = ({ buyAssetId, destinationAddress, lim
   // Our bitcoin cash addresses are prefixed with `bitcoincash:`
   // But thorchain memos need to be short (under 80 bytes for utxo)
   // For this reason thorchain doesnt allow / need bitcoincash: in the memo
-  const parsedDestinationAddress = destinationAddress.includes('bitcoincash:')
-    ? destinationAddress.replace('bitcoincash:', '')
-    : destinationAddress
+  const parsedDestinationAddress =
+    destinationAddress && destinationAddress.includes('bitcoincash:')
+      ? destinationAddress.replace('bitcoincash:', '')
+      : destinationAddress
 
   const abbreviatedThorAssetId = abbreviateThorAssetId(fullThorAssetId)
 
-  const memo = `s:${abbreviatedThorAssetId}:${parsedDestinationAddress}:${limit}:${THORCHAIN_AFFILIATE_NAME}:${THORCHAIN_AFFILIATE_BIPS}`
+  const memo = `s:${abbreviatedThorAssetId}:${parsedDestinationAddress}:${limit}:${THORCHAIN_AFFILIATE_NAME}:${affiliateBps}`
   assertIsValidMemo(memo)
 
   return memo

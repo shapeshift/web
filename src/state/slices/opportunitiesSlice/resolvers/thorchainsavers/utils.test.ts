@@ -1,7 +1,7 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
-import { AssetService } from '@shapeshiftoss/asset-service'
 import { btcAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
+import type { Asset } from 'lib/asset-service'
+import { AssetService } from 'lib/asset-service'
 
 import { getThorchainSaversDepositQuote } from './utils'
 

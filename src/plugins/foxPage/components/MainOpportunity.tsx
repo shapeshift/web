@@ -2,7 +2,6 @@ import { Box, Button, Flex, Skeleton, Text as CText, useColorModeValue } from '@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { ethChainId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/dist/wallet'
-import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -10,6 +9,7 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { foxyAddresses } from 'lib/investor/investor-foxy'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,

@@ -1,8 +1,8 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { osmosisChainId, toAssetId } from '@shapeshiftoss/caip'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { bn } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectFeatureFlags } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -10,6 +10,7 @@ import type {
   LpId,
   OpportunityMetadata,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import { toOpportunityId } from '../../utils'
 import type { OpportunitiesMetadataResolverInput, OpportunityIdsResolverInput } from '../types'
 import { generateAssetIdFromOsmosisDenom, getPools } from './utils'
@@ -17,7 +18,7 @@ import { generateAssetIdFromOsmosisDenom, getPools } from './utils'
 const OSMO_ATOM_LIQUIDITY_POOL_ID = '1'
 
 export const osmosisLpOpportunitiesMetadataResolver = async ({
-  opportunityType,
+  defiType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{ data: GetOpportunityMetadataOutput }> => {
   const { getState } = reduxApi
@@ -77,7 +78,7 @@ export const osmosisLpOpportunitiesMetadataResolver = async ({
 
   const data = {
     byId: lpOpportunitiesById,
-    type: opportunityType,
+    type: defiType,
   }
 
   return { data }

@@ -1,9 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import {
-  DefiAction,
-  DefiProviderMetadata,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import React, { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
@@ -13,12 +10,13 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAllEarnUserLpOpportunitiesByFilter,
   selectAssetById,
   selectAssets,
-  selectMarketDataSortedByMarketCap,
   selectOpportunityApiPending,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -46,7 +44,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
   const location = useLocation()
   const isLoading = useAppSelector(selectOpportunityApiPending)
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
+  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
   const filter = useMemo(() => {
     return {
       assetId,
@@ -120,10 +118,10 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
   return (
     <EquityRow
       onClick={handleClick}
-      icon={DefiProviderMetadata[opportunity.provider].icon}
+      icon={getMetadataForProvider(opportunity.provider)?.icon ?? ''}
       label={opportunity.provider}
-      fiatAmount={underlyingBalances[assetId]?.fiatAmount}
-      cryptoBalancePrecision={underlyingBalances[assetId]?.cryptoBalancePrecision}
+      fiatAmount={underlyingBalances[assetId].fiatAmount}
+      cryptoBalancePrecision={underlyingBalances[assetId].cryptoBalancePrecision}
       symbol={asset.symbol}
       totalFiatBalance={totalFiatBalance}
       color={color}

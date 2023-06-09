@@ -1,7 +1,15 @@
-import { Button } from '@chakra-ui/button'
-import { Box, Link, Stack, Text as CText } from '@chakra-ui/layout'
-import { Divider, Icon, Switch, Tooltip, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
+import {
+  Box,
+  Button,
+  Divider,
+  Icon,
+  Link,
+  Stack,
+  Switch,
+  Text as CText,
+  Tooltip,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import isUndefined from 'lodash/isUndefined'
 import { FaExchangeAlt, FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -11,6 +19,7 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { Asset } from 'lib/asset-service'
 
 import { PairIcons } from './PairIcons'
 

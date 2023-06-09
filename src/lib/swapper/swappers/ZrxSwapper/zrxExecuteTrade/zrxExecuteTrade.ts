@@ -1,27 +1,50 @@
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
-import { buildAndBroadcast, isNativeEvmAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
-import type { ZrxExecuteTradeInput, ZrxSwapperDeps } from 'lib/swapper/swappers/ZrxSwapper/types'
-import type { ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
+import {
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+  isNativeEvmAsset,
+} from 'lib/swapper/swappers/utils/helpers/helpers'
+import type { ZrxExecuteTradeInput } from 'lib/swapper/swappers/ZrxSwapper/types'
+import { isEvmChainAdapter } from 'lib/utils'
 
-export async function zrxExecuteTrade<T extends ZrxSupportedChainId>(
-  { adapter }: ZrxSwapperDeps,
-  { trade, wallet }: ZrxExecuteTradeInput<T>,
-): Promise<Result<TradeResult, SwapErrorRight>> {
-  const { accountNumber, depositAddress, feeData, sellAsset, txData } = trade
-  const { sellAmountBeforeFeesCryptoBaseUnit } = trade
+export async function zrxExecuteTrade({
+  trade,
+  wallet,
+}: ZrxExecuteTradeInput): Promise<Result<TradeResult, SwapErrorRight>> {
+  const { accountNumber, depositAddress, sellAmountBeforeFeesCryptoBaseUnit, sellAsset, txData } =
+    trade
+
+  const adapterManager = getChainAdapterManager()
+  const adapter = adapterManager.get(sellAsset.chainId)
+
+  if (!adapter || !isEvmChainAdapter(adapter)) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Invalid chain adapter',
+        code: SwapErrorType.UNSUPPORTED_CHAIN,
+        details: { adapter },
+      }),
+    )
+  }
 
   try {
-    const txid = await buildAndBroadcast({
+    const buildCustomTxArgs = await createBuildCustomTxInput({
       accountNumber,
       adapter,
-      feeData: feeData.chainSpecific,
       to: depositAddress,
+      data: txData,
       value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountBeforeFeesCryptoBaseUnit : '0',
       wallet,
-      data: txData,
+    })
+
+    const txid = await buildAndBroadcast({
+      buildCustomTxArgs,
+      adapter,
+      wallet,
     })
 
     return Ok({ tradeId: txid })

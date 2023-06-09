@@ -12,7 +12,6 @@ import {
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import difference from 'lodash/difference'
 import pull from 'lodash/pull'
 import React, { useEffect, useMemo } from 'react'
@@ -30,19 +29,21 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { setTimeoutAsync } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { zapper } from 'state/apis/zapper/zapperApi'
-import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { assets as assetsSlice, useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
 import {
   marketApi,
   useFindAllQuery,
   useFindByFiatSymbolQuery,
   useFindPriceHistoryByFiatSymbolQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import {
-  fetchAllOpportunitiesIds,
-  fetchAllOpportunitiesMetadata,
-  fetchAllOpportunitiesUserData,
+  fetchAllOpportunitiesIdsByChainId,
+  fetchAllOpportunitiesMetadataByChainId,
+  fetchAllOpportunitiesUserDataByAccountId,
 } from 'state/slices/opportunitiesSlice/thunks'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
@@ -55,7 +56,7 @@ import {
   selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -161,11 +162,23 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // once portfolio is done loading, fetch all transaction history
   useEffect(() => {
-    if (portfolioLoadingStatus === 'loading') return
+    ;(async () => {
+      if (portfolioLoadingStatus === 'loading') return
 
-    const { getAllTxHistory } = txHistoryApi.endpoints
+      const { getAllTxHistory } = txHistoryApi.endpoints
 
-    dispatch(getAllTxHistory.initiate(requestedAccountIds))
+      try {
+        await Promise.all(
+          requestedAccountIds.map(accountId => dispatch(getAllTxHistory.initiate(accountId))),
+        )
+      } finally {
+        // add any nft assets detected in the tx history state.
+        // this will ensure we have all nft assets that have been associated with the account in the assetSlice with parsed metadata.
+        // additional nft asset upserts will be handled by the transactions websocket subscription.
+        const txsById = store.getState().txHistory.txs.byId
+        dispatch(assetsSlice.actions.upsertAssets(makeNftAssetsFromTxs(Object.values(txsById))))
+      }
+    })()
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
 
   // once portfolio is loaded, fetch remaining chain specific data
@@ -175,17 +188,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
       const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
 
-      // forceRefetch is enabled here to make sure that we always have the latest state from chain
-      // and ensure the queryFn runs resulting in dispatches occuring to update client state
-      const options = { forceRefetch: true }
+      dispatch(zapper.endpoints.getZapperAppsBalancesOutput.initiate())
 
       const maybeFetchZapperData = DynamicLpAssets
         ? dispatch(zapper.endpoints.getZapperUniV2PoolAssetIds.initiate())
         : () => setTimeoutAsync(0)
 
       await maybeFetchZapperData
-      await fetchAllOpportunitiesIds()
-      await fetchAllOpportunitiesMetadata()
 
       requestedAccountIds.forEach(accountId => {
         const { chainId } = fromAccountId(accountId)
@@ -194,19 +203,21 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           case ltcChainId:
           case dogeChainId:
           case bchChainId:
-            fetchAllOpportunitiesUserData(accountId)
-            break
           case cosmosChainId:
           case osmosisChainId:
-            // Don't await me, we don't want to block execution while this resolves and populates the store
-            fetchAllOpportunitiesUserData(accountId)
-            break
           case avalancheChainId:
-            fetchAllOpportunitiesUserData(accountId)
+            ;(async () => {
+              await fetchAllOpportunitiesIdsByChainId(chainId)
+              await fetchAllOpportunitiesMetadataByChainId(chainId)
+              await fetchAllOpportunitiesUserDataByAccountId(accountId)
+            })()
             break
           case ethChainId:
-            // Don't await me, we don't want to block execution while this resolves and populates the store
-            fetchAllOpportunitiesUserData(accountId)
+            ;(async () => {
+              await fetchAllOpportunitiesIdsByChainId(chainId)
+              await fetchAllOpportunitiesMetadataByChainId(chainId)
+              await fetchAllOpportunitiesUserDataByAccountId(accountId)
+            })()
 
             /**
              * fetch all rebase history for foxy
@@ -219,9 +230,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
              * stop, and make a getRebaseHistoryByAccountId that takes
              * an accountId and assetId[] in the txHistoryApi
              */
-            dispatch(
-              getFoxyRebaseHistoryByAccountId.initiate({ accountId, portfolioAssetIds }, options),
-            )
+            dispatch(getFoxyRebaseHistoryByAccountId.initiate({ accountId, portfolioAssetIds }))
             break
           default:
         }
@@ -251,20 +260,20 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     // Exclude assets for which we are unable to get market data
     // We would fire query thunks / XHRs that would slow down the app
     // We insert price data for these as resolver-level, and are unable to get market data
-    const excluded: AssetId[] = [...(uniV2LpIdsData.data ?? [])]
+    const excluded: AssetId[] = uniV2LpIdsData.data ?? []
     const portfolioAssetIdsExcludeNoMarketData = difference(portfolioAssetIds, excluded)
 
-    const fetchMarketData = () =>
-      portfolioAssetIdsExcludeNoMarketData.forEach(assetId => {
-        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
-        const timeframe = DEFAULT_HISTORY_TIMEFRAME
-        const payload = { assetId, timeframe }
-        dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload))
-      })
+    // https://redux-toolkit.js.org/rtk-query/api/created-api/endpoints#initiate
+    // TODO(0xdef1cafe): bring polling back once we point at markets.shapeshift.com
+    // const pollingInterval = 1000 * 2 * 60 // refetch data every two minutes
+    // const opts = { subscriptionOptions: { pollingInterval } }
+    const timeframe = DEFAULT_HISTORY_TIMEFRAME
 
-    fetchMarketData() // fetch every time assetIds change
-    const interval = setInterval(fetchMarketData, 1000 * 60 * 2) // refetch every two minutes
-    return () => clearInterval(interval) // clear interval when portfolioAssetIds change
+    portfolioAssetIdsExcludeNoMarketData.forEach(assetId => {
+      dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
+      const payload = { assetId, timeframe }
+      dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate(payload))
+    })
   }, [dispatch, portfolioLoadingStatus, portfolioAssetIds, uniV2LpIdsData.data])
 
   /**

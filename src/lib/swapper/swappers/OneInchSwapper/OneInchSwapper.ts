@@ -1,20 +1,19 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type {
   avalanche,
   bnbsmartchain,
   ethereum,
   EvmChainId,
+  gnosis,
   optimism,
 } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
-import { Ok } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
 import type {
-  ApprovalNeededInput,
-  ApprovalNeededOutput,
-  ApproveAmountInput,
-  ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
   GetEvmTradeQuoteInput,
@@ -24,16 +23,18 @@ import type {
   TradeResult,
   TradeTxs,
 } from 'lib/swapper/api'
-import { SwapperName, SwapperType } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
+import { filterEvmAssetIdsBySellable } from 'lib/swapper/swappers/utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
+import {
+  createEmptyEvmTradeQuote,
+  isNativeEvmAsset,
+} from 'lib/swapper/swappers/utils/helpers/helpers'
 
-import { approveAmount, approveInfinite } from '../LifiSwapper/approve/approve'
-import { filterAssetIdsBySellable } from '../LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
-import { approvalNeeded } from './approvalNeeded/approvalNeeded'
 import { buildTrade } from './buildTrade/buildTrade'
 import { executeTrade } from './executeTrade/executeTrade'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
+import { getMinimumAmountCryptoHuman } from './getMinimumAmountCryptoHuman/getMinimumAmountCryptoHuman'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
-import { getUsdRate } from './getUsdRate/getUsdRate'
 import type { OneInchExecuteTradeInput, OneInchSwapperDeps, OneInchTrade } from './utils/types'
 
 export type OneInchSupportedChainId =
@@ -41,14 +42,16 @@ export type OneInchSupportedChainId =
   | KnownChainIds.BnbSmartChainMainnet
   | KnownChainIds.OptimismMainnet
   | KnownChainIds.AvalancheMainnet
+  | KnownChainIds.GnosisMainnet
 
 export type OneInchSupportedChainAdapter =
   | ethereum.ChainAdapter
   | bnbsmartchain.ChainAdapter
   | optimism.ChainAdapter
   | avalanche.ChainAdapter
+  | gnosis.ChainAdapter
 
-export class OneInchSwapper implements Swapper<EvmChainId> {
+export class OneInchSwapper implements Swapper<EvmChainId, true> {
   readonly name = SwapperName.OneInch
   deps: OneInchSwapperDeps
 
@@ -56,38 +59,78 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
     this.deps = deps
   }
 
-  /** Returns the swapper type */
-  getType(): SwapperType {
-    return SwapperType.OneInch
-  }
-
   /**
    * Get a trade quote
    */
-  getTradeQuote(
+  async getTradeQuote(
     input: GetEvmTradeQuoteInput,
-  ): Promise<Result<TradeQuote<EvmChainId>, SwapErrorRight>> {
-    return getTradeQuote(this.deps, input)
-  }
+  ): Promise<Result<TradeQuote<EvmChainId, true | false>, SwapErrorRight>> {
+    const { chainId, sellAsset, buyAsset } = input
 
-  getUsdRate(input: Asset): Promise<string> {
-    return getUsdRate(this.deps, input)
-  }
+    if (sellAsset.chainId !== buyAsset.chainId) {
+      return Err(
+        makeSwapErrorRight({
+          message: '[getTradeQuote] cross chain swaps not supported',
+          code: SwapErrorType.UNSUPPORTED_PAIR,
+        }),
+      )
+    }
 
-  approvalNeeded(input: ApprovalNeededInput<EvmChainId>): Promise<ApprovalNeededOutput> {
-    return approvalNeeded(this.deps, input)
+    if (
+      !isEvmChainId(chainId) ||
+      !isEvmChainId(sellAsset.chainId) ||
+      !isEvmChainId(buyAsset.chainId)
+    ) {
+      return Err(
+        makeSwapErrorRight({
+          message: '[getTradeQuote] invalid chainId',
+          code: SwapErrorType.UNSUPPORTED_CHAIN,
+        }),
+      )
+    }
+
+    if (isNativeEvmAsset(sellAsset.assetId) || isNativeEvmAsset(buyAsset.assetId)) {
+      return Err(
+        makeSwapErrorRight({
+          message: '[getTradeQuote] 1inch swapper only supports ERC20s',
+          code: SwapErrorType.UNSUPPORTED_CHAIN,
+        }),
+      )
+    }
+
+    const maybeMinimumAmountCryptoHuman = getMinimumAmountCryptoHuman(
+      input.sellAsset,
+      input.buyAsset,
+    )
+
+    return await maybeMinimumAmountCryptoHuman.match({
+      ok: minimumAmountCryptoHuman => {
+        const minimumSellAmountBaseUnit = toBaseUnit(
+          minimumAmountCryptoHuman,
+          input.sellAsset.precision,
+        )
+        const isBelowMinSellAmount = bnOrZero(input.sellAmountBeforeFeesCryptoBaseUnit).lt(
+          minimumSellAmountBaseUnit,
+        )
+
+        // TEMP: return an empty quote to allow the UI to render state where buy amount is below minimum
+        // TODO(gomes): the guts of this, handle properly in a follow-up after monads PR is merged
+        // This is currently the same flow as before, but we may want to e.g propagate the below minimum error all the way to the client
+        // then let the client return the same Ok() value, except it is now fully aware of the fact this isn't a quote from an actual rate
+        // but rather a "mock" quote from a minimum sell amount.
+        // https://github.com/shapeshift/web/issues/4237
+        if (isBelowMinSellAmount) {
+          return Ok(createEmptyEvmTradeQuote(input, minimumAmountCryptoHuman.toString()))
+        }
+
+        return getTradeQuote(this.deps, input)
+      },
+      err: err => Promise.resolve(Err(err)),
+    })
   }
 
   buildTrade(input: BuildTradeInput): Promise<Result<OneInchTrade<EvmChainId>, SwapErrorRight>> {
     return buildTrade(this.deps, input)
-  }
-
-  approveAmount(input: ApproveAmountInput<EvmChainId>): Promise<string> {
-    return approveAmount(input) // NOTE: should we abstract the lifi implementation into a base class, it should work the same for all EVM based swappers
-  }
-
-  approveInfinite(input: ApproveInfiniteInput<EvmChainId>): Promise<string> {
-    return approveInfinite(input)
   }
 
   executeTrade(
@@ -97,7 +140,7 @@ export class OneInchSwapper implements Swapper<EvmChainId> {
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    return filterAssetIdsBySellable(assetIds) // we can use lifis implementation for this also
+    return filterEvmAssetIdsBySellable(assetIds)
   }
 
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {

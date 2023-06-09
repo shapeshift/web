@@ -1,18 +1,21 @@
 import { CHAIN_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
-import { osmosis, toAddressNList } from '@shapeshiftoss/chain-adapters'
+import type { osmosis } from '@shapeshiftoss/chain-adapters'
+import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet, Osmosis } from '@shapeshiftoss/hdwallet-core'
-import { Logger } from '@shapeshiftoss/logger'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { find } from 'lodash'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { TradeResult } from 'lib/swapper/api'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
+import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { OsmosisSupportedChainAdapter } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapper'
-import { OSMOSIS_PRECISION } from 'lib/swapper/swappers/OsmosisSwapper/utils/constants'
 import { osmoService } from 'lib/swapper/swappers/OsmosisSwapper/utils/osmoService'
-import type { IbcTransferInput, PoolInfo } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
-
-const logger = new Logger({ namespace: ['swapper', 'osmosis', 'utils', 'helpers'] })
+import type {
+  IbcTransferInput,
+  PoolInfo,
+  PoolRateInfo,
+} from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
 
 export interface SymbolDenomMapping {
   OSMO: string
@@ -26,13 +29,19 @@ export const symbolDenomMapping = {
   USDC: 'ibc/D189335C6E4A68B513C10AB227BF1C1D38C746766278BA3EEB4FB14124F1D858',
 }
 
+type FindPoolOutput = {
+  pool: PoolInfo
+  sellAssetIndex: number
+  buyAssetIndex: number
+}
+
 const txStatus = async (txid: string, baseUrl: string): Promise<string> => {
   try {
     const txResponse = await axios.get(`${baseUrl}/txs/${txid}`)
     if (!txResponse?.data?.codespace && !!txResponse?.data?.gas_used) return 'success'
     if (txResponse?.data?.codespace) return 'failed'
   } catch (e) {
-    logger.warn('Retrying to retrieve status')
+    console.warn('Retrying to retrieve status')
   }
   return 'not found'
 }
@@ -80,7 +89,7 @@ export const getAtomChannelBalance = async (address: string, osmoUrl: string) =>
     )
     toAtomChannelBalance = Number(amount)
   } catch (e) {
-    logger.warn('Retrying to get ibc balance')
+    console.warn('Retrying to get ibc balance')
   }
   return toAtomChannelBalance
 }
@@ -109,53 +118,51 @@ export const pollForAtomChannelBalance = (address: string, osmoUrl: string): Pro
   })
 }
 
-const findPool = async (sellAssetSymbol: string, buyAssetSymbol: string, osmoUrl: string) => {
+const findPool = async (
+  sellAssetSymbol: string,
+  buyAssetSymbol: string,
+  osmoUrl: string,
+): Promise<Result<FindPoolOutput, SwapErrorRight>> => {
   const sellAssetDenom = symbolDenomMapping[sellAssetSymbol as keyof SymbolDenomMapping]
   const buyAssetDenom = symbolDenomMapping[buyAssetSymbol as keyof SymbolDenomMapping]
 
   const poolsUrl = osmoUrl + '/osmosis/gamm/v1beta1/pools?pagination.limit=1000'
 
-  const poolsResponse = await (() => {
-    try {
-      return osmoService.get(poolsUrl)
-    } catch (e) {
-      throw new SwapError('failed to get pool', {
-        code: SwapErrorType.POOL_NOT_FOUND,
-      })
-    }
-  })()
+  const maybePoolsResponse = await osmoService.get(poolsUrl)
 
-  const foundPool = find(poolsResponse.data.pools, pool => {
-    const token0Denom = pool.pool_assets[0].token.denom
-    const token1Denom = pool.pool_assets[1].token.denom
-    return (
-      (token0Denom === sellAssetDenom && token1Denom === buyAssetDenom) ||
-      (token0Denom === buyAssetDenom && token1Denom === sellAssetDenom)
-    )
-  })
-
-  if (!foundPool)
-    throw new SwapError('could not find pool', {
-      code: SwapErrorType.POOL_NOT_FOUND,
+  return maybePoolsResponse.andThen<FindPoolOutput>(poolsResponse => {
+    const foundPool = find(poolsResponse.data.pools, pool => {
+      const token0Denom = pool.pool_assets[0].token.denom
+      const token1Denom = pool.pool_assets[1].token.denom
+      return (
+        (token0Denom === sellAssetDenom && token1Denom === buyAssetDenom) ||
+        (token0Denom === buyAssetDenom && token1Denom === sellAssetDenom)
+      )
     })
 
-  const { sellAssetIndex, buyAssetIndex } = (() => {
-    if (foundPool.pool_assets[0].token.denom === sellAssetDenom) {
-      return { sellAssetIndex: 0, buyAssetIndex: 1 }
-    } else {
-      return { sellAssetIndex: 1, buyAssetIndex: 0 }
-    }
-  })()
+    if (!foundPool)
+      return Err(
+        makeSwapErrorRight({ message: 'could not find pool', code: SwapErrorType.POOL_NOT_FOUND }),
+      )
 
-  return { pool: foundPool, sellAssetIndex, buyAssetIndex }
+    const { sellAssetIndex, buyAssetIndex } = (() => {
+      if (foundPool.pool_assets[0].token.denom === sellAssetDenom) {
+        return { sellAssetIndex: 0, buyAssetIndex: 1 }
+      } else {
+        return { sellAssetIndex: 1, buyAssetIndex: 0 }
+      }
+    })()
+
+    return Ok({ pool: foundPool, sellAssetIndex, buyAssetIndex })
+  })
 }
 
-const getInfoFromPool = (
+const getPoolRateInfo = (
   sellAmount: string,
   pool: PoolInfo,
   sellAssetIndex: number,
   buyAssetIndex: number,
-) => {
+): PoolRateInfo => {
   const constantProduct = bnOrZero(pool.pool_assets[0].token.amount).times(
     pool.pool_assets[1].token.amount,
   )
@@ -169,15 +176,14 @@ const getInfoFromPool = (
   const buyAmountCryptoBaseUnit = buyAssetInitialPoolSize.minus(buyAssetFinalPoolSize).toString()
   const rate = bnOrZero(buyAmountCryptoBaseUnit).dividedBy(sellAmount).toString()
   const priceImpact = bn(1).minus(initialMarketPrice.dividedBy(finalMarketPrice)).abs().toString()
-  const tradeFeeBase = bnOrZero(buyAmountCryptoBaseUnit).times(bnOrZero(pool.pool_params.swap_fee))
-  const buyAssetTradeFeeUsd = tradeFeeBase
-    .dividedBy(bn(10).exponentiatedBy(OSMOSIS_PRECISION))
+  const buyAssetTradeFeeCryptoBaseUnit = bnOrZero(buyAmountCryptoBaseUnit)
+    .times(bnOrZero(pool.pool_params.swap_fee))
     .toString()
 
   return {
     rate,
     priceImpact,
-    buyAssetTradeFeeUsd,
+    buyAssetTradeFeeCryptoBaseUnit,
     buyAmountCryptoBaseUnit,
   }
 }
@@ -187,9 +193,11 @@ export const getRateInfo = async (
   buyAsset: string,
   sellAmount: string,
   osmoUrl: string,
-) => {
-  const { pool, sellAssetIndex, buyAssetIndex } = await findPool(sellAsset, buyAsset, osmoUrl)
-  return getInfoFromPool(sellAmount, pool, sellAssetIndex, buyAssetIndex)
+): Promise<Result<PoolRateInfo, SwapErrorRight>> => {
+  const maybePool = await findPool(sellAsset, buyAsset, osmoUrl)
+  return maybePool.andThen(({ pool, sellAssetIndex, buyAssetIndex }) =>
+    Ok(getPoolRateInfo(sellAmount, pool, sellAssetIndex, buyAssetIndex)),
+  )
 }
 
 // TODO: move to chain adapters
@@ -281,6 +289,8 @@ export const buildTradeTx = async ({
   sellAssetDenom,
   sellAmount,
   gas,
+  feeAmount,
+  feeDenom,
   wallet,
 }: {
   osmoAddress: string
@@ -290,6 +300,8 @@ export const buildTradeTx = async ({
   sellAssetDenom: string
   sellAmount: string
   gas: string
+  feeAmount: string
+  feeDenom: string
   wallet: HDWallet
 }) => {
   const responseAccount = await adapter.getAccount(osmoAddress)
@@ -303,8 +315,8 @@ export const buildTradeTx = async ({
     fee: {
       amount: [
         {
-          amount: osmosis.MIN_FEE,
-          denom: 'uosmo',
+          amount: feeAmount,
+          denom: feeDenom,
         },
       ],
       gas,

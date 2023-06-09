@@ -1,5 +1,4 @@
-import { useColorModeValue } from '@chakra-ui/react'
-import { useToast } from '@chakra-ui/toast'
+import { useColorModeValue, useToast } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
@@ -8,14 +7,9 @@ import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { Radio } from 'components/Radio/Radio'
 import { DeviceTimeout, timeoutOptions, useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 
 import { SubMenuBody } from '../SubMenuBody'
 import { SubMenuContainer } from '../SubMenuContainer'
-
-const moduleLogger = logger.child({
-  namespace: ['Layout', 'Header', 'NavBar', 'KeepKey', 'ChangeTimeout'],
-})
 
 export const ChangeTimeout = () => {
   const translate = useTranslate()
@@ -32,14 +26,11 @@ export const ChangeTimeout = () => {
   const [radioTimeout, setRadioTimeout] = useState<DeviceTimeout>()
 
   const handleChange = async (value: DeviceTimeout) => {
-    const fnLogger = moduleLogger.child({ namespace: ['handleChange'] })
-
     const parsedTimeout = value ? parseInt(value) : parseInt(DeviceTimeout.TenMinutes)
-    fnLogger.trace({ autoLockDelayMs: parsedTimeout }, 'Applying autoLockDelayMs...')
 
     value && setRadioTimeout(value)
     await keepKeyWallet?.applySettings({ autoLockDelayMs: parsedTimeout }).catch(e => {
-      fnLogger.error(e, { autoLockDelayMs: parsedTimeout }, 'Error applying autoLockDelayMs')
+      console.error(e)
       toast({
         title: translate('common.error'),
         description: e?.message ?? translate('common.somethingWentWrong'),
@@ -47,8 +38,6 @@ export const ChangeTimeout = () => {
         isClosable: true,
       })
     })
-
-    fnLogger.trace({ autoLockDelayMs: parsedTimeout }, 'Applied autoLockDelayMs')
   }
 
   const setting = 'timeout'

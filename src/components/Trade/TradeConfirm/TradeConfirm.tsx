@@ -1,14 +1,16 @@
-import { Alert } from '@chakra-ui/alert'
 import { WarningTwoIcon } from '@chakra-ui/icons'
 import {
+  Alert,
   AlertDescription,
   AlertIcon,
   AlertTitle,
   Box,
   Button,
+  Checkbox,
   Divider,
   Flex,
   Link,
+  Skeleton,
   Stack,
   StackDivider,
   useColorModeValue,
@@ -27,9 +29,12 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { useDonationAmountBelowMinimum } from 'components/Trade/hooks/useDonationAmountBelowMinimum'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
@@ -47,19 +52,24 @@ import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 import {
   selectBuyAmountBeforeFeesBaseUnit,
+  selectDonationAmountFiat,
+  selectFeeAssetFiatRate,
+  selectIntermediaryTransactionOutputs,
   selectQuoteBuyAmountCryptoPrecision,
   selectSellAmountBeforeFeesBaseUnitByAction,
   selectSellAmountBeforeFeesFiat,
-  selectTotalTradeFeeBuyAssetCryptoPrecision,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
+  selectActiveSwapperName,
+  selectActiveSwapperWithMetadata,
   selectBuyAmountCryptoPrecision,
   selectBuyAmountFiat,
   selectBuyAssetAccountId,
-  selectFeeAssetFiatRate,
   selectFees,
+  selectProtocolFees,
   selectSellAssetAccountId,
   selectSlippage,
+  selectSwapperDefaultAffiliateBps,
   selectTrade,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
@@ -83,6 +93,8 @@ export const TradeConfirm = () => {
   } = useFormContext()
   const translate = useTranslate()
   const [swapper, setSwapper] = useState<Swapper<ChainId>>()
+  const [hasUserOptedOutOfDonation, toggleHasUserOptedOutOfDonation] = useToggle(false)
+  const [isReloadingTrade, setIsReloadingTrade] = useState(false)
 
   const {
     number: { toFiat },
@@ -93,20 +105,26 @@ export const TradeConfirm = () => {
     dispatch: walletDispatch,
   } = useWallet()
 
+  const isDonationAmountBelowMinimum = useDonationAmountBelowMinimum()
+
+  const { getTrade } = useSwapper()
+
   const trade = useSwapperStore(selectTrade)
   const fees = useSwapperStore(selectFees)
+  const swapperName = useSwapperStore(selectActiveSwapperName)
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const slippage = useSwapperStore(selectSlippage)
   const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
   const sellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
   const buyAmountCryptoPrecision = useSwapperStore(selectBuyAmountCryptoPrecision)
+  const intermediaryTransactionOutputsCryptoBaseUnit = useSwapperStore(
+    selectIntermediaryTransactionOutputs,
+  )
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const sellAmountBeforeFeesBaseUnit = useSwapperStore(selectSellAmountBeforeFeesBaseUnitByAction)
   const sellAmountBeforeFeesFiat = useSwapperStore(selectSellAmountBeforeFeesFiat)
   const quoteBuyAmountCryptoPrecision = useSwapperStore(selectQuoteBuyAmountCryptoPrecision)
-  const totalTradeFeeBuyAssetCryptoPrecision = useSwapperStore(
-    selectTotalTradeFeeBuyAssetCryptoPrecision,
-  )
+  const protocolFees = useSwapperStore(selectProtocolFees)
   const fiatBuyAmount = useSwapperStore(selectBuyAmountFiat)
   const buyAmountBeforeFeesBaseUnit = useSwapperStore(selectBuyAmountBeforeFeesBaseUnit)
 
@@ -117,7 +135,44 @@ export const TradeConfirm = () => {
   )
 
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
-  const activeSwapper = useSwapperStore(state => state.activeSwapperWithMetadata?.swapper)
+  const activeSwapper = useSwapperStore(state => selectActiveSwapperWithMetadata(state)?.swapper)
+  const updateActiveAffiliateBps = useSwapperStore(state => state.updateActiveAffiliateBps)
+  const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
+  const updateFees = useSwapperStore(state => state.updateFees)
+  const defaultAffiliateBps = useSwapperStore(selectSwapperDefaultAffiliateBps)
+
+  const handleDonationToggle = useCallback(async () => {
+    if (!defaultFeeAsset) {
+      throw new Error('No default fee asset')
+    }
+    setIsReloadingTrade(true)
+    const newAffiliateBps = hasUserOptedOutOfDonation ? defaultAffiliateBps : '0'
+    updateActiveAffiliateBps(newAffiliateBps)
+    toggleHasUserOptedOutOfDonation()
+    // Refresh trade
+    try {
+      const trade = await getTrade({ affiliateBps: newAffiliateBps })
+      if (trade.isErr()) {
+        // Actually throw so we can catch the error and show the error toast
+        throw new Error(trade.unwrapErr().message)
+      }
+      updateTrade(trade.unwrap())
+      updateFees(defaultFeeAsset)
+      updateTradeAmountsFromQuote()
+    } finally {
+      setIsReloadingTrade(false)
+    }
+  }, [
+    defaultAffiliateBps,
+    defaultFeeAsset,
+    getTrade,
+    hasUserOptedOutOfDonation,
+    toggleHasUserOptedOutOfDonation,
+    updateActiveAffiliateBps,
+    updateFees,
+    updateTrade,
+    updateTradeAmountsFromQuote,
+  ])
 
   const parsedBuyTxId = useMemo(() => {
     const isThorTrade = [trade?.sellAsset.assetId, trade?.buyAsset.assetId].includes(
@@ -194,6 +249,8 @@ export const TradeConfirm = () => {
 
   const { showErrorToast } = useErrorHandler()
 
+  const donationAmountFiat = useSwapperStore(selectDonationAmountFiat)
+
   // Track these data here so we don't have to do this again for the other states
   const eventData = useMemo(() => {
     if (!(swapper && trade)) return null
@@ -204,23 +261,25 @@ export const TradeConfirm = () => {
     if (!trade?.buyAsset?.precision) return
     const buyAmountCryptoPrecision = fromBaseUnit(
       buyAmountBeforeFeesBaseUnit,
-      trade.sellAsset.precision,
+      trade.buyAsset.precision,
     )
     const sellAmountCryptoPrecision = fromBaseUnit(
       sellAmountBeforeFeesBaseUnit,
-      trade.buyAsset.precision,
+      trade.sellAsset.precision,
     )
     return {
       buyAsset: compositeBuyAsset,
       sellAsset: compositeSellAsset,
       fiatAmount: sellAmountBeforeFeesFiat,
       swapperName: swapper.name,
+      donationAmountFiat,
       [compositeBuyAsset]: buyAmountCryptoPrecision,
       [compositeSellAsset]: sellAmountCryptoPrecision,
     }
   }, [
     assets,
     buyAmountBeforeFeesBaseUnit,
+    donationAmountFiat,
     sellAmountBeforeFeesBaseUnit,
     sellAmountBeforeFeesFiat,
     swapper,
@@ -251,13 +310,15 @@ export const TradeConfirm = () => {
         return
       }
 
+      const result = await swapper.executeTrade({ trade, wallet })
+
+      // only track after swapper successfully executes trade
+      // otherwise unsigned txs will be tracked as confirmed trades
       if (mixpanel && eventData) {
         mixpanel.track(MixPanelEvents.TradeConfirm, eventData)
       }
 
-      const result = await swapper.executeTrade({ trade, wallet })
-      // TODO(gomes): should we we throw so the catch clause handles this?
-      if (result.isErr()) return
+      if (result.isErr()) throw result.unwrapErr()
       setSellTradeId(result.unwrap().tradeId)
 
       // Poll until we have a "buy" txid
@@ -326,6 +387,45 @@ export const TradeConfirm = () => {
     )
   }, [handleBack, tradeStatus])
 
+  const donationOption: JSX.Element = useMemo(
+    () => (
+      <Stack spacing={4}>
+        <Row>
+          <HelperTooltip label={translate('trade.tooltip.donation')}>
+            <Row.Label>
+              <Checkbox
+                isChecked={!hasUserOptedOutOfDonation}
+                onChange={handleDonationToggle}
+                isDisabled={isSubmitting || isReloadingTrade || tradeStatus === TxStatus.Confirmed}
+              >
+                <Text translation='trade.donation' />
+              </Checkbox>
+            </Row.Label>
+          </HelperTooltip>
+          <Row.Value>{toFiat(donationAmountFiat ?? '0')}</Row.Value>
+        </Row>
+      </Stack>
+    ),
+    [
+      donationAmountFiat,
+      handleDonationToggle,
+      hasUserOptedOutOfDonation,
+      isReloadingTrade,
+      isSubmitting,
+      toFiat,
+      tradeStatus,
+      translate,
+    ],
+  )
+
+  const shouldShowDonationOption = useMemo(() => {
+    return (
+      !isDonationAmountBelowMinimum &&
+      swapperName &&
+      [SwapperName.Thorchain, SwapperName.Zrx, SwapperName.OneInch].includes(swapperName)
+    )
+  }, [swapperName, isDonationAmountBelowMinimum])
+
   const tradeWarning: JSX.Element | null = useMemo(() => {
     if (!trade) return null
 
@@ -388,13 +488,15 @@ export const TradeConfirm = () => {
           </Row>
           <ReceiveSummary
             symbol={trade.buyAsset.symbol ?? ''}
-            amount={buyAmountCryptoPrecision ?? ''}
-            beforeFees={quoteBuyAmountCryptoPrecision ?? ''}
-            protocolFee={totalTradeFeeBuyAssetCryptoPrecision ?? ''}
+            amountCryptoPrecision={buyAmountCryptoPrecision ?? ''}
+            amountBeforeFeesCryptoPrecision={quoteBuyAmountCryptoPrecision ?? ''}
+            protocolFees={protocolFees}
             shapeShiftFee='0'
             slippage={slippage}
             fiatAmount={positiveOrZero(fiatBuyAmount).toFixed(2)}
             swapperName={swapper?.name ?? ''}
+            isLoading={isReloadingTrade}
+            intermediaryTransactionOutputs={intermediaryTransactionOutputsCryptoBaseUnit}
           />
         </Stack>
       ) : null,
@@ -405,10 +507,12 @@ export const TradeConfirm = () => {
       sellAmountBeforeFeesFiat,
       buyAmountCryptoPrecision,
       quoteBuyAmountCryptoPrecision,
-      totalTradeFeeBuyAssetCryptoPrecision,
+      protocolFees,
       slippage,
       fiatBuyAmount,
       swapper?.name,
+      isReloadingTrade,
+      intermediaryTransactionOutputsCryptoBaseUnit,
     ],
   )
 
@@ -416,20 +520,29 @@ export const TradeConfirm = () => {
     () => (
       <Card.Footer px={0} py={0}>
         {!sellTradeId && !isSubmitting && (
-          <Button
-            colorScheme='blue'
-            size='lg'
-            width='full'
-            mt={6}
-            data-test='trade-form-confirm-and-trade-button'
-            type='submit'
-          >
-            <Text translation='trade.confirmAndTrade' />
-          </Button>
+          <>
+            {swapper?.name === SwapperName.LIFI && (
+              <Alert status='warning' fontSize='sm' mt={6}>
+                <AlertIcon />
+                {translate('trade.lifiWarning')}
+              </Alert>
+            )}
+            <Button
+              colorScheme='blue'
+              size='lg'
+              width='full'
+              mt={6}
+              data-test='trade-form-confirm-and-trade-button'
+              type='submit'
+              isLoading={isReloadingTrade}
+            >
+              <Text translation='trade.confirmAndTrade' />
+            </Button>
+          </>
         )}
       </Card.Footer>
     ),
-    [isSubmitting, sellTradeId],
+    [isReloadingTrade, isSubmitting, sellTradeId, swapper?.name, translate],
   )
 
   if (!trade) return null
@@ -475,14 +588,16 @@ export const TradeConfirm = () => {
                       <Text translation='trade.rate' />
                     </Row.Label>
                   </HelperTooltip>
-                  <Box textAlign='right'>
-                    <RawText>{`1 ${trade.sellAsset.symbol} = ${firstNonZeroDecimal(
-                      bnOrZero(trade.rate),
-                    )} ${trade.buyAsset?.symbol}`}</RawText>
-                    {!!fees?.tradeFeeSource && (
-                      <RawText color='gray.500'>@{fees?.tradeFeeSource}</RawText>
-                    )}
-                  </Box>
+                  <Skeleton isLoaded={!isReloadingTrade}>
+                    <Box textAlign='right'>
+                      <RawText>{`1 ${trade.sellAsset.symbol} = ${firstNonZeroDecimal(
+                        bnOrZero(trade.rate),
+                      )} ${trade.buyAsset?.symbol}`}</RawText>
+                      {!!fees?.tradeFeeSource && (
+                        <RawText color='gray.500'>@{fees?.tradeFeeSource}</RawText>
+                      )}
+                    </Box>
+                  </Skeleton>
                 </Row>
                 <Row>
                   <HelperTooltip label={translate('trade.tooltip.minerFee')}>
@@ -510,6 +625,7 @@ export const TradeConfirm = () => {
                   </Flex>
                 )}
               </Stack>
+              {shouldShowDonationOption && donationOption}
             </Stack>
           </Card.Body>
           {footer}

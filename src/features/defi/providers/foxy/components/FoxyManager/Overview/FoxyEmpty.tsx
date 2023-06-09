@@ -1,9 +1,9 @@
 import { Button, Skeleton, Stack, Text as CText } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverview'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
+import type { Asset } from 'lib/asset-service'
 
 type FoxyEmptyProps = {
   assets: Asset[]

@@ -1,12 +1,11 @@
-import { ethereum } from '@shapeshiftoss/chain-adapters'
+import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import * as unchained from '@shapeshiftoss/unchained-client'
+import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 import Web3 from 'web3'
 
 import type { BuildTradeInput, QuoteFeeData } from '../../../api'
-import { feeData } from '../../utils/test-data/setupDeps'
 import type { ZrxTrade } from '../types'
 import { setupZrxTradeQuoteResponse } from '../utils/test-data/setupZrxSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'
@@ -21,6 +20,34 @@ jest.mock('lib/swapper/swappers/ZrxSwapper/utils/zrxService', () => {
 
   return {
     zrxServiceFactory: () => axios.create(),
+  }
+})
+jest.mock('@shapeshiftoss/chain-adapters', () => {
+  const { KnownChainIds } = require('@shapeshiftoss/types')
+  return {
+    isEvmChainId: jest.fn(() => true),
+    evmChainIds: [KnownChainIds.EthereumMainnet],
+    optimism: {
+      isOptimismChainAdapter: jest.fn(() => false),
+    },
+  }
+})
+jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
+  const { KnownChainIds } = require('@shapeshiftoss/types')
+  const { feeData } = require('../../utils/test-data/setupDeps')
+  return {
+    getChainAdapterManager: jest.fn(
+      () =>
+        new Map([
+          [
+            KnownChainIds.EthereumMainnet,
+            {
+              getChainId: () => KnownChainIds.EthereumMainnet,
+              getFeeData: () => Promise.resolve(feeData),
+            } as unknown as ethereum.ChainAdapter,
+          ],
+        ]),
+    ),
   }
 })
 
@@ -41,66 +68,45 @@ const setup = () => {
   const ethNodeUrl = 'http://localhost:1000'
   const web3Provider = new Web3.providers.HttpProvider(ethNodeUrl)
   const web3Instance = new Web3(web3Provider)
-  const adapter = new ethereum.ChainAdapter({
-    providers: {
-      ws: new unchained.ws.Client<unchained.ethereum.Tx>('ws://localhost:31300'),
-      http: new unchained.ethereum.V1Api(
-        new unchained.ethereum.Configuration({
-          basePath: 'http://localhost:31300',
-        }),
-      ),
-    },
-    rpcUrl: ethNodeUrl,
-  })
-  adapter.getFeeData = () => Promise.resolve(feeData)
-  const zrxService = zrxServiceFactory('https://api.0x.org/')
 
-  return { web3Instance, adapter, zrxService }
+  const zrxService = zrxServiceFactory({ baseUrl: 'https://api.0x.org/' })
+
+  return { web3Instance, zrxService }
 }
 
 describe('zrxBuildTrade', () => {
   const { quoteResponse, sellAsset, buyAsset } = setupZrxTradeQuoteResponse()
-  const { web3Instance, adapter, zrxService } = setup()
+  const { web3Instance, zrxService } = setup()
   const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
   const wallet = {
     ethGetAddress: jest.fn(() => Promise.resolve(walletAddress)),
   } as unknown as HDWallet
-  const deps = {
-    adapter,
-    web3: web3Instance,
-  }
 
   const buildTradeInput: BuildTradeInput = {
     chainId: KnownChainIds.EthereumMainnet,
-    sendMax: false,
     sellAsset,
     buyAsset,
     sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
     accountNumber: 0,
     wallet,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+    affiliateBps: '0',
+    eip1559Support: false,
   }
 
-  const buildTradeResponse: ZrxTrade<ZrxSupportedChainId> = {
+  const buildTradeResponse: ZrxTrade = {
     sellAsset,
     buyAsset,
     sellAmountBeforeFeesCryptoBaseUnit: quoteResponse.sellAmount,
-    buyAmountCryptoBaseUnit: '',
+    buyAmountBeforeFeesCryptoBaseUnit: '',
     depositAddress: quoteResponse.to,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     accountNumber: 0,
     txData: quoteResponse.data,
     rate: quoteResponse.price,
     feeData: {
-      chainSpecific: {
-        estimatedGasCryptoBaseUnit: '1235',
-        gasPriceCryptoBaseUnit: '79036500000',
-        maxFeePerGas: '216214758112',
-        maxPriorityFeePerGas: '2982734547',
-      },
-      networkFeeCryptoBaseUnit: '21621475811200000',
-      sellAssetTradeFeeUsd: '0',
-      buyAssetTradeFeeUsd: '0',
+      networkFeeCryptoBaseUnit: '4080654495000000',
+      protocolFees: {},
     },
     sources: [],
   }
@@ -117,9 +123,9 @@ describe('zrxBuildTrade', () => {
         })),
       },
     }))
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
+    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({ data })))
 
-    const maybeBuiltTrade = await zrxBuildTrade(deps, { ...buildTradeInput })
+    const maybeBuiltTrade = await zrxBuildTrade({ ...buildTradeInput })
     expect(maybeBuiltTrade.isOk()).toBe(true)
     expect(maybeBuiltTrade.unwrap()).toEqual({
       ...buildTradeResponse,
@@ -141,9 +147,9 @@ describe('zrxBuildTrade', () => {
         })),
       },
     }))
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
+    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({ data })))
 
-    const maybeBuiltTrade = await zrxBuildTrade(deps, { ...buildTradeInput })
+    const maybeBuiltTrade = await zrxBuildTrade({ ...buildTradeInput })
     expect(maybeBuiltTrade.isOk()).toBe(true)
     expect(maybeBuiltTrade.unwrap()).toEqual({
       ...buildTradeResponse,
@@ -159,21 +165,14 @@ describe('zrxBuildTrade', () => {
       gas: '100',
       gasPrice: '10000',
     }
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
+    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({ data })))
 
     const expectedFeeData: QuoteFeeData<ZrxSupportedChainId> = {
-      chainSpecific: {
-        gasPriceCryptoBaseUnit: '79036500000',
-        estimatedGasCryptoBaseUnit: '100',
-        maxFeePerGas: '216214758112',
-        maxPriorityFeePerGas: '2982734547',
-      },
-      buyAssetTradeFeeUsd: '0',
-      sellAssetTradeFeeUsd: '0',
-      networkFeeCryptoBaseUnit: '21621475811200000',
+      protocolFees: {},
+      networkFeeCryptoBaseUnit: '4080654495000000',
     }
 
-    const maybeBuiltTrade = await zrxBuildTrade(deps, { ...buildTradeInput, wallet })
+    const maybeBuiltTrade = await zrxBuildTrade({ ...buildTradeInput, wallet })
     expect(maybeBuiltTrade.isOk()).toBe(true)
     expect(maybeBuiltTrade.unwrap()).toEqual({
       ...buildTradeResponse,

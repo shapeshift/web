@@ -22,6 +22,15 @@ export const InputStyle = {
         borderRadius: 'xl',
       },
     },
+    xl: {
+      field: {
+        height: 16,
+        borderRadius: 'xl',
+      },
+      addon: {
+        height: 16,
+      },
+    },
   },
   // Styles for the visual style variations
   variants: {

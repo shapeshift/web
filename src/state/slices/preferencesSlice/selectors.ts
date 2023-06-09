@@ -16,6 +16,7 @@ export const selectSelectedLocale = (state: ReduxState) => state.preferences.sel
 export const selectSelectedCurrency = (state: ReduxState) => state.preferences.selectedCurrency
 export const selectBalanceThreshold = (state: ReduxState) => state.preferences.balanceThreshold
 export const selectCurrencyFormat = (state: ReduxState) => state.preferences.currencyFormat
+export const selectChartTimeframe = (state: ReduxState) => state.preferences.chartTimeframe
 export const selectShowWelcomeModal = (state: ReduxState) => state.preferences.showWelcomeModal
 export const selectShowConsentBanner = (state: ReduxState) => {
   const consentEnabled = selectFeatureFlag(state, 'Mixpanel')

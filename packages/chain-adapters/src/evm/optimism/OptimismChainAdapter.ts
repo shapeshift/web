@@ -14,6 +14,10 @@ import type { GasFeeDataEstimate } from '../types'
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.OptimismMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.OptimismMainnet
 
+export const isOptimismChainAdapter = (adapter: unknown): adapter is ChainAdapter => {
+  return (adapter as ChainAdapter).getType() === KnownChainIds.OptimismMainnet
+}
+
 export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.OptimismMainnet> {
   public static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
@@ -32,6 +36,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.OptimismMainnet> 
         assetId: optimismAssetId,
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
         rpcUrl: args.rpcUrl,
+        api: args.providers.http,
       }),
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       ...args,
@@ -74,7 +79,9 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.OptimismMainnet> 
 
   async getFeeData(
     input: GetFeeDataInput<KnownChainIds.OptimismMainnet>,
-  ): Promise<FeeDataEstimate<KnownChainIds.OptimismMainnet>> {
+  ): Promise<
+    FeeDataEstimate<KnownChainIds.OptimismMainnet> & { l1GasPrice: string; l1GasLimit: string }
+  > {
     const req = await this.buildEstimateGasRequest(input)
 
     const { gasLimit, l1GasLimit } = await this.api.estimateGas(req)
@@ -95,6 +102,8 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.OptimismMainnet> 
         txFee: bnOrZero(bn(slow.gasPrice).times(gasLimit).plus(l1Fee)).toFixed(0),
         chainSpecific: { gasLimit, ...slow },
       },
+      l1GasPrice,
+      l1GasLimit,
     }
   }
 }

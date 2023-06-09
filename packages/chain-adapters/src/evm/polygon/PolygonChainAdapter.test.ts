@@ -141,7 +141,7 @@ describe('PolygonChainAdapter', () => {
           average: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '5',
+              gasPrice: '300',
               maxFeePerGas: '300',
               maxPriorityFeePerGas: '10',
             },
@@ -150,7 +150,7 @@ describe('PolygonChainAdapter', () => {
           fast: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '6',
+              gasPrice: '360',
               maxFeePerGas: '360',
               maxPriorityFeePerGas: '12',
             },
@@ -159,7 +159,7 @@ describe('PolygonChainAdapter', () => {
           slow: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '4',
+              gasPrice: '240',
               maxFeePerGas: '240',
               maxPriorityFeePerGas: '8',
             },
@@ -184,17 +184,17 @@ describe('PolygonChainAdapter', () => {
       expect(data).toEqual(
         expect.objectContaining({
           average: {
-            gasPrice: '5',
+            gasPrice: '300',
             maxFeePerGas: '300',
             maxPriorityFeePerGas: '10',
           },
           fast: {
-            gasPrice: '6',
+            gasPrice: '360',
             maxFeePerGas: '360',
             maxPriorityFeePerGas: '12',
           },
           slow: {
-            gasPrice: '4',
+            gasPrice: '240',
             maxFeePerGas: '240',
             maxPriorityFeePerGas: '8',
           },

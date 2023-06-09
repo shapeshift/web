@@ -1,10 +1,8 @@
 import { CloseIcon } from '@chakra-ui/icons'
-import { MenuGroup } from '@chakra-ui/menu'
-import { Box, Flex, HStack, MenuDivider, MenuItem, VStack } from '@chakra-ui/react'
+import { Box, Flex, HStack, MenuDivider, MenuGroup, MenuItem, VStack } from '@chakra-ui/react'
 import { getSdkError } from '@walletconnect/utils'
 import dayjs from 'dayjs'
 import { useWalletConnectState } from 'plugins/walletConnectToDapps/v2/hooks/useWalletConnectState'
-import type { WalletConnectState } from 'plugins/walletConnectToDapps/v2/types'
 import { WalletConnectActionType } from 'plugins/walletConnectToDapps/v2/types'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/v2/WalletConnectV2Provider'
 import { useCallback, useMemo } from 'react'
@@ -15,19 +13,6 @@ import { useAppSelector } from 'state/store'
 
 import { AddressAndChain } from './AddressAndChain'
 import { DappAvatar } from './DappAvatar'
-
-export const extractChainIds = (session: WalletConnectState['session']): string[] => {
-  const requiredNamespaces = session?.requiredNamespaces
-
-  const requiredNamespacesValues = requiredNamespaces ? Object.values(requiredNamespaces) : []
-  const allChains = requiredNamespacesValues
-    .map(v => v.chains)
-    .reduce(
-      (acc, namespaceChains) => (acc && namespaceChains ? acc.concat(namespaceChains) : []),
-      [],
-    )
-  return allChains ?? []
-}
 
 export const DappHeaderMenuSummaryV2 = () => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
@@ -79,7 +64,7 @@ export const DappHeaderMenuSummaryV2 = () => {
         <HStack spacing={4} px={4} py={1}>
           <DappAvatar
             name={session.peer.metadata.name}
-            image={session.peer.metadata.icons[0]}
+            image={session.peer.metadata.icons?.[0]}
             connected={session.acknowledged}
           />
           <Box fontWeight='medium'>

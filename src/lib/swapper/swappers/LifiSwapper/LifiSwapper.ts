@@ -1,18 +1,11 @@
-import type { ChainId as LifiChainId, ChainKey as LifiChainKey, GetStatusRequest } from '@lifi/sdk'
-import type { Asset } from '@shapeshiftoss/asset-service'
+import type { ChainKey as LifiChainKey, GetStatusRequest } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type {
-  ApprovalNeededInput,
-  ApprovalNeededOutput,
-  ApproveAmountInput,
-  ApproveInfiniteInput,
   BuildTradeInput,
   BuyAssetBySellIdInput,
   GetEvmTradeQuoteInput,
@@ -21,17 +14,10 @@ import type {
   TradeResult,
   TradeTxs,
 } from 'lib/swapper/api'
-import { SwapperName, SwapperType } from 'lib/swapper/api'
-import { approvalNeeded } from 'lib/swapper/swappers/LifiSwapper/approvalNeeded/approvalNeeded'
-import { approveAmount, approveInfinite } from 'lib/swapper/swappers/LifiSwapper/approve/approve'
+import { SwapperName } from 'lib/swapper/api'
 import { buildTrade } from 'lib/swapper/swappers/LifiSwapper/buildTrade/buildTrade'
 import { executeTrade } from 'lib/swapper/swappers/LifiSwapper/executeTrade/executeTrade'
-import { filterAssetIdsBySellable } from 'lib/swapper/swappers/LifiSwapper/filterAssetIdsBySellable/filterAssetIdsBySellable'
-import { filterBuyAssetsBySellAssetId } from 'lib/swapper/swappers/LifiSwapper/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { getTradeQuote } from 'lib/swapper/swappers/LifiSwapper/getTradeQuote/getTradeQuote'
-import { getUsdRate } from 'lib/swapper/swappers/LifiSwapper/getUsdRate/getUsdRate'
-import { MAX_LIFI_TRADE } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
-import { createLifiChainMap } from 'lib/swapper/swappers/LifiSwapper/utils/createLifiChainMap/createLifiChainMap'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getMinimumCryptoHuman } from 'lib/swapper/swappers/LifiSwapper/utils/getMinimumCryptoHuman/getMinimumCryptoHuman'
 import type {
@@ -39,31 +25,28 @@ import type {
   LifiTrade,
   LifiTradeQuote,
 } from 'lib/swapper/swappers/LifiSwapper/utils/types'
+import { filterEvmAssetIdsBySellable } from 'lib/swapper/swappers/utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
+import { filterCrossChainEvmBuyAssetsBySellAssetId } from 'lib/swapper/swappers/utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
+import { createEmptyEvmTradeQuote } from 'lib/swapper/swappers/utils/helpers/helpers'
+import { selectAssets, selectMarketDataById } from 'state/slices/selectors'
+import { store } from 'state/store'
 
-export class LifiSwapper implements Swapper<EvmChainId> {
+import { getLifiChainMap } from './utils/getLifiChainMap'
+
+export class LifiSwapper implements Swapper<EvmChainId, true> {
   readonly name = SwapperName.LIFI
   private lifiChainMap: Map<ChainId, LifiChainKey> = new Map()
   private executedTrades: Map<string, GetStatusRequest> = new Map()
 
   /** perform any necessary async initialization */
   async initialize(): Promise<Result<unknown, SwapErrorRight>> {
-    const supportedChainRefs = evmChainIds.map(
-      chainId => Number(fromChainId(chainId).chainReference) as LifiChainId,
-    )
+    const maybeLifiChainMap = await getLifiChainMap()
 
-    const { chains } = await getLifi().getPossibilities({
-      include: ['chains'],
-      chains: supportedChainRefs,
-    })
+    if (maybeLifiChainMap.isErr()) return maybeLifiChainMap
 
-    if (chains !== undefined) this.lifiChainMap = createLifiChainMap(chains)
+    this.lifiChainMap = maybeLifiChainMap.unwrap()
 
     return Ok(undefined)
-  }
-
-  /** Returns the swapper type */
-  getType(): SwapperType {
-    return SwapperType.LIFI
   }
 
   /**
@@ -78,8 +61,12 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    */
   async getTradeQuote(
     input: GetEvmTradeQuoteInput,
-  ): Promise<Result<LifiTradeQuote, SwapErrorRight>> {
-    const minimumCryptoHuman = getMinimumCryptoHuman(input.sellAsset)
+  ): Promise<Result<LifiTradeQuote<true | false>, SwapErrorRight>> {
+    const { price: sellAssetPriceUsdPrecision } = selectMarketDataById(
+      store.getState(),
+      input.sellAsset.assetId,
+    )
+    const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetPriceUsdPrecision)
     const minimumSellAmountBaseUnit = toBaseUnit(minimumCryptoHuman, input.sellAsset.precision)
     const isBelowMinSellAmount = bnOrZero(input.sellAmountBeforeFeesCryptoBaseUnit).lt(
       minimumSellAmountBaseUnit,
@@ -92,33 +79,11 @@ export class LifiSwapper implements Swapper<EvmChainId> {
     // but rather a "mock" quote from a minimum sell amount.
     // https://github.com/shapeshift/web/issues/4237
     if (isBelowMinSellAmount) {
-      return Ok({
-        buyAmountCryptoBaseUnit: '0',
-        sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
-        feeData: {
-          networkFeeCryptoBaseUnit: '0',
-          buyAssetTradeFeeUsd: '0',
-          chainSpecific: {},
-        },
-        rate: '0',
-        sources: [],
-        buyAsset: input.buyAsset,
-        sellAsset: input.sellAsset,
-        accountNumber: input.accountNumber,
-        allowanceContract: '',
-        minimumCryptoHuman: minimumCryptoHuman.toString(),
-        maximumCryptoHuman: MAX_LIFI_TRADE,
-      })
+      return Ok(createEmptyEvmTradeQuote(input, minimumCryptoHuman.toString()))
     }
 
-    return await getTradeQuote(input, this.lifiChainMap)
-  }
-
-  /**
-   * Get the usd rate from either the assets symbol or tokenId
-   */
-  async getUsdRate(asset: Asset): Promise<string> {
-    return await getUsdRate(asset, this.lifiChainMap, getLifi())
+    const assets = selectAssets(store.getState())
+    return await getTradeQuote(input, this.lifiChainMap, assets, sellAssetPriceUsdPrecision)
   }
 
   /**
@@ -135,39 +100,25 @@ export class LifiSwapper implements Swapper<EvmChainId> {
   }
 
   /**
-   * Get a boolean if a quote needs approval
-   */
-  async approvalNeeded(input: ApprovalNeededInput<EvmChainId>): Promise<ApprovalNeededOutput> {
-    return await approvalNeeded(input)
-  }
-
-  /**
-   * Broadcasts an infinite approval Tx and returns the Txid
-   */
-  async approveInfinite(input: ApproveInfiniteInput<EvmChainId>): Promise<string> {
-    return await approveInfinite(input)
-  }
-
-  /**
-   * Get the txid of an approve amount transaction
-   * If no amount is specified the sell amount of the quote will be used
-   */
-  async approveAmount(input: ApproveAmountInput<EvmChainId>): Promise<string> {
-    return await approveAmount(input)
-  }
-
-  /**
    * Get supported buyAssetId's by sellAssetId
    */
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
-    return filterBuyAssetsBySellAssetId(input)
+    return filterCrossChainEvmBuyAssetsBySellAssetId(input)
+  }
+
+  static filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
+    return filterCrossChainEvmBuyAssetsBySellAssetId(input)
   }
 
   /**
    * Get supported sell AssetIds
    */
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    return filterAssetIdsBySellable(assetIds)
+    return filterEvmAssetIdsBySellable(assetIds)
+  }
+
+  static filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
+    return filterEvmAssetIdsBySellable(assetIds)
   }
 
   /**

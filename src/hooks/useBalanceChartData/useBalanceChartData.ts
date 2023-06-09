@@ -1,6 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import type { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import type { HistoryData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
@@ -19,7 +18,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
-import { logger } from 'lib/logger'
+import type { RebaseHistory } from 'lib/investor/investor-foxy'
+import type { SupportedFiatCurrencies } from 'lib/market-service'
 import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
 import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
@@ -29,6 +29,7 @@ import {
   selectCryptoPriceHistoryTimeframe,
   selectFiatPriceHistoryTimeframe,
   selectRebasesByFilter,
+  selectSelectedCurrency,
   selectTxsByFilter,
   selectWalletId,
 } from 'state/slices/selectors'
@@ -37,8 +38,6 @@ import { useAppSelector } from 'state/store'
 
 import { excludeTransaction } from './cosmosUtils'
 import { CHART_ASSET_ID_BLACKLIST, makeBalanceChartData } from './utils'
-
-const moduleLogger = logger.child({ namespace: ['useBalanceChartData'] })
 
 type BalanceByAssetId = {
   [k: AssetId]: BigNumber // map of asset to base units
@@ -144,7 +143,7 @@ export const bucketEvents = (
     // the number of time units from start of chart to this tx
     const bucketIndex = Math.floor(eventDayJs.diff(start, unit as dayjs.OpUnitType) / duration)
     if (bucketIndex < 0 || bucketIndex > buckets.length - 1) {
-      moduleLogger.error(
+      console.error(
         `bucketTxs: event outside buckets: ${event}, start: ${start.valueOf()}, end: ${end.valueOf()}, meta: ${meta}`,
       )
       return acc
@@ -163,6 +162,7 @@ type FiatBalanceAtBucketArgs = {
   assets: AssetsById
   cryptoPriceHistoryData: PriceHistoryData
   fiatPriceHistoryData: HistoryData[]
+  selectedCurrency: SupportedFiatCurrencies
 }
 
 type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => BalanceByAssetId
@@ -172,28 +172,28 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   cryptoPriceHistoryData,
   fiatPriceHistoryData,
   assets,
+  selectedCurrency,
 }) => {
-  const { balance, end } = bucket
-  const date = end.valueOf()
-  const { crypto } = balance
-  const initial: Record<AssetId, BigNumber> = {}
+  const date = bucket.end.valueOf()
+  const balanceAtBucket: Record<AssetId, BigNumber> = {}
+  const isUSD = selectedCurrency === 'USD'
+  const fiatToUsdRate = isUSD
+    ? 1 // don't convert USD to USD
+    : // fallback to 1 if fiat data is missing, note || required over ?? here
+      priceAtDate({ priceHistoryData: fiatPriceHistoryData, date }) || 1
 
-  return Object.entries(crypto).reduce((acc, [assetId, assetCryptoBalance]) => {
-    const assetPriceHistoryData = cryptoPriceHistoryData[assetId]
-    if (!assetPriceHistoryData?.length) return acc
-    const portfolioAsset = assets[assetId]
-    if (!portfolioAsset) return acc
-    const price = priceAtDate({ priceHistoryData: assetPriceHistoryData, date })
-    // fallback to 1 if fiat data is missing, note || required over ?? here
-    const fiatToUsdRate = priceAtDate({ priceHistoryData: fiatPriceHistoryData, date }) || 1
-    const { precision } = portfolioAsset
-    const assetFiatBalance = assetCryptoBalance
-      .div(bn(10).exponentiatedBy(precision))
+  for (const [assetId, assetCryptoBalance] of Object.entries(bucket.balance.crypto)) {
+    if (!cryptoPriceHistoryData[assetId]?.length) continue
+    if (!assets[assetId]) continue
+    const price = priceAtDate({ priceHistoryData: cryptoPriceHistoryData[assetId]!, date })
+    balanceAtBucket[assetId] = assetCryptoBalance
+      .times(`1e-${assets[assetId]?.precision!}`)
       .times(price)
-      .times(fiatToUsdRate)
-    acc[assetId] = assetFiatBalance
-    return acc
-  }, initial)
+    // dont unnecessarily multiply again
+    if (!isUSD) balanceAtBucket[assetId] = balanceAtBucket[assetId].times(fiatToUsdRate)
+  }
+
+  return balanceAtBucket
 }
 
 type CalculateBucketPricesArgs = {
@@ -202,13 +202,21 @@ type CalculateBucketPricesArgs = {
   assets: AssetsById
   cryptoPriceHistoryData: PriceHistoryData
   fiatPriceHistoryData: HistoryData[]
+  selectedCurrency: SupportedFiatCurrencies
 }
 
 type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 // note - this mutates buckets
 export const calculateBucketPrices: CalculateBucketPrices = args => {
-  const { assetIds, buckets, assets, cryptoPriceHistoryData, fiatPriceHistoryData } = args
+  const {
+    assetIds,
+    buckets,
+    assets,
+    cryptoPriceHistoryData,
+    fiatPriceHistoryData,
+    selectedCurrency,
+  } = args
 
   const startingBucket = buckets[buckets.length - 1]
 
@@ -255,9 +263,8 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
             // we're going backwards, so a receive means we had less before
             bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
             break
-          default: {
-            moduleLogger.warn(`calculateBucketPrices: unknown tx type ${transfer.type}`)
-          }
+          default:
+            break
         }
       })
     })
@@ -275,6 +282,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
       cryptoPriceHistoryData,
       fiatPriceHistoryData,
       assets,
+      selectedCurrency,
     })
     buckets[i] = bucket
   }
@@ -376,6 +384,8 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // and we need to account for this in charts
   const rebases = useAppSelector(state => selectRebasesByFilter(state, txFilter))
 
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+
   // kick off requests for all the price histories we need
   useFetchPriceHistories({ assetIds, timeframe })
   const cryptoPriceHistoryData = useAppSelector(state =>
@@ -411,6 +421,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       cryptoPriceHistoryData,
       fiatPriceHistoryData,
       assets,
+      selectedCurrency,
     })
 
     debugCharts({ assets, calculatedBuckets, timeframe, txs })
@@ -431,6 +442,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     setBalanceChartData,
     walletId,
     rebases,
+    selectedCurrency,
   ])
 
   return { balanceChartData, balanceChartDataLoading }
@@ -467,9 +479,12 @@ const debugCharts: DebugCharts = ({ assets, calculatedBuckets, timeframe, txs })
     const asset = assets[assetId]
     const baseUnitBalance = balance.toString()
     const baseUnitHuman = balance.div(bn(10).exponentiatedBy(asset?.precision ?? 1)).toString()
-    moduleLogger.error(
-      { asset, assetId, baseUnitBalance, baseUnitHuman, balance },
-      'NON-ZERO BALANCE AT START OF CHART',
-    )
+    console.error('NON-ZERO BALANCE AT START OF CHART', {
+      asset,
+      assetId,
+      baseUnitBalance,
+      baseUnitHuman,
+      balance,
+    })
   })
 }

@@ -21,8 +21,14 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 /**
  * Converts hex to utf8 string if it is valid bytes
  */
-export const convertHexToUtf8 = (value: string) =>
-  utils.isHexString(value) ? utils.toUtf8String(value) : value
+export const maybeConvertHexEncodedMessageToUtf8 = (value: string) => {
+  try {
+    return utils.isHexString(value) ? utils.toUtf8String(value) : value
+  } catch (e) {
+    // use raw hex string if unable to convert to utf8 (ex. keccak256)
+    return value
+  }
+}
 
 export const convertNumberToHex = (value: number | string): string =>
   typeof value === 'number' ? utils.hexlify(value) : utils.hexlify(utils.hexlify(parseInt(value)))
@@ -70,7 +76,7 @@ export const getGasData = (
  */
 export const getSignParamsMessage = (params: [string, string]) => {
   const message = params.filter(p => !utils.isAddress(p))[0]
-  return convertHexToUtf8(message)
+  return maybeConvertHexEncodedMessageToUtf8(message)
 }
 
 export const extractConnectedAccounts = (session: WalletConnectState['session']): AccountId[] => {

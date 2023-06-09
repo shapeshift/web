@@ -4,15 +4,12 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { logger } from 'lib/logger'
 import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { FEE_ASSET_IDS } from 'state/slices/selectors'
 
 import { zerionImplementationToMaybeAssetId } from './mapping'
 import { zerionFungiblesSchema } from './validators/fungible'
-
-const moduleLogger = logger.child({ module: 'zerionApi' })
 
 const ZERION_BASE_URL = 'https://api.zerion.io/v1'
 
@@ -44,22 +41,17 @@ export const zerionApi = createApi({
           const filter = { params: { 'filter[implementation_address]': assetReference } }
           const url = '/fungibles/' // trailing slash is important!
           const payload = { ...options, ...filter, url }
-          const { data } = await axios.request(payload)
-          const validationResult = zerionFungiblesSchema.safeParse(data)
-          if (validationResult.success) {
-            const implementations = validationResult.data.data?.[0]?.attributes?.implementations
-            const data =
-              implementations
-                ?.map(zerionImplementationToMaybeAssetId)
-                .filter(isSome)
-                .filter(id => id !== assetId) ?? [] // don't show input assetId in list of related assetIds
-            return { data }
-          } else {
-            moduleLogger.warn(validationResult.error, '')
-            return { error: { error: validationResult.error } }
-          }
+          const { data: res } = await axios.request(payload)
+          const validationResult = zerionFungiblesSchema.parse(res)
+          const implementations = validationResult.data?.[0]?.attributes?.implementations
+          const data =
+            implementations
+              ?.map(zerionImplementationToMaybeAssetId)
+              .filter(isSome)
+              .filter(id => id !== assetId) ?? [] // don't show input assetId in list of related assetIds
+          return { data }
         } catch (e) {
-          moduleLogger.warn(e, '')
+          console.error(e)
           return { error: { error: e } }
         }
       },

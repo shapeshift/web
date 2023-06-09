@@ -1,9 +1,20 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import type { BoxProps } from '@chakra-ui/react'
-import { Box, Button, Flex, Text, Tooltip, useColorModeValue } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Flex,
+  Menu,
+  MenuButton,
+  MenuGroup,
+  MenuItem,
+  MenuList,
+  Text,
+  Tooltip,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromChainId } from '@shapeshiftoss/caip'
+import { fromChainId, gnosisChainId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
@@ -15,13 +26,8 @@ import { CircleIcon } from 'components/Icons/Circle'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-const moduleLogger = logger.child({
-  namespace: ['Layout', 'Header', 'NavBar', 'ChainMenu'],
-})
 
 const ChainMenuItem: React.FC<{
   chainId: ChainId
@@ -92,6 +98,11 @@ export const ChainMenu = (props: ChainMenuProps) => {
         if (!requestedChainFeeAsset)
           throw new Error(`Asset not found for AssetId ${requestedChainFeeAssetId}`)
 
+        // Temporary hack to add the official Gnosis RPC to wallets until stabilized - we don't want to bork users' wallets
+        // https://docs.metamask.io/wallet/reference/rpc-api/#parameters-1
+        // "rpcUrls - An array of RPC URL strings. At least one item is required, and only the first item is used."
+        const maybeGnosisOfficialRpcUrl =
+          requestedChainId === gnosisChainId ? ['https://rpc.gnosischain.com'] : []
         const requestedChainRpcUrl = requestedChainChainAdapter.getRpcUrl()
         await (state.wallet as ETHWallet).ethSwitchChain?.({
           chainId: utils.hexValue(Number(requestedEthNetwork)),
@@ -101,17 +112,13 @@ export const ChainMenu = (props: ChainMenuProps) => {
             symbol: requestedChainFeeAsset.symbol,
             decimals: 18,
           },
-          rpcUrls: [requestedChainRpcUrl],
+          rpcUrls: [...maybeGnosisOfficialRpcUrl, requestedChainRpcUrl],
           blockExplorerUrls: [requestedChainFeeAsset.explorer],
         })
         setEthNetwork(requestedEthNetwork)
         load()
       } catch (e) {
-        moduleLogger.error(
-          e,
-          { fn: 'handleChainClick' },
-          `Error switching to chain: ${requestedEthNetwork}`,
-        )
+        console.error(e)
       }
     },
     [assets, chainAdapterManager, getChainIdFromEthNetwork, load, setEthNetwork, state.wallet],
@@ -156,7 +163,7 @@ export const ChainMenu = (props: ChainMenuProps) => {
         </Tooltip>
 
         <MenuList p='10px' zIndex={2}>
-          <MenuGroup title={'Select a network'} ml={3} color='gray.500'>
+          <MenuGroup title={translate('common.selectNetwork')} ml={3} color='gray.500'>
             {supportedEvmChainIds.map(chainId => (
               <ChainMenuItem
                 isConnected={chainId === connectedEvmChainId}

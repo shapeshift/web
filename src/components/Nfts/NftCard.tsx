@@ -8,24 +8,35 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
 import Placeholder from 'assets/placeholder.png'
 import PlaceholderDrk from 'assets/placeholder-drk.png'
 import { Amount } from 'components/Amount/Amount'
 import { DiamondIcon } from 'components/Icons/DiamondIcon'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import type { V2ZapperNft } from 'state/apis/zapper/client'
-import { getMediaType } from 'state/apis/zapper/client'
+import { selectNftById, selectNftCollectionById } from 'state/apis/nft/selectors'
+import { getMediaType } from 'state/apis/zapper/validators'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type NftCardProps = {
-  zapperNft: V2ZapperNft
+  nftAssetId: AssetId
 }
 
-export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
-  const { collection, medias, name, rarityRank } = zapperNft
-  const { floorPriceEth } = collection
+export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
+  const nftItem = useAppSelector(state => selectNftById(state, nftAssetId))
+
+  if (!nftItem) throw new Error(`NFT not found for assetId: ${nftAssetId}`)
+
+  const { collectionId, medias, name, rarityRank } = nftItem
+
+  const collection = useAppSelector(state => selectNftCollectionById(state, collectionId))
+  const floorPrice = collection?.floorPrice
   const mediaUrl = medias?.[0]?.originalUrl
   const mediaType = getMediaType(mediaUrl)
   const bg = useColorModeValue('gray.50', 'gray.750')
@@ -33,24 +44,31 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
   const placeholderImage = useColorModeValue(PlaceholderDrk, Placeholder)
   const [isMediaLoaded, setIsMediaLoaded] = useState(false)
 
-  const { nft } = useModal()
+  const chainId = fromAssetId(nftItem.assetId).chainId
+  const maybeChainAdapter = getChainAdapterManager().get(chainId as ChainId)
+  const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
+  const maybeFeeAsset = useAppSelector(state => selectAssetById(state, maybeFeeAssetId ?? ''))
+
+  const { nft: nftModal } = useModal()
 
   const handleClick = useCallback(() => {
-    nft.open({ zapperNft })
+    if (!collection) return
+
+    nftModal.open({ nftAssetId: nftItem.assetId })
 
     const mixpanel = getMixPanel()
     const eventData = {
-      name: zapperNft.name,
-      id: zapperNft.id,
-      collectionName: zapperNft.collection.name,
-      collectionAddress: zapperNft.collection.address,
-      estimatedValueEth: zapperNft.estimatedValueEth,
-      collectionFloorPriceEth: zapperNft.collection.floorPriceEth,
-      nftMediaUrls: (zapperNft.medias ?? []).map(media => media.originalUrl),
+      name: nftItem.name,
+      id: nftItem.id,
+      collectionName: collection.name,
+      collectionAddress: fromAssetId(collection.assetId).assetReference,
+      price: nftItem.price,
+      collectionFloorPrice: collection.floorPrice,
+      nftMediaUrls: (nftItem.medias ?? []).map(media => media.originalUrl),
     }
 
     mixpanel?.track(MixPanelEvents.ClickNft, eventData)
-  }, [nft, zapperNft])
+  }, [collection, nftItem, nftModal])
 
   const mediaBoxProps = useMemo(
     () =>
@@ -113,22 +131,32 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
             {...mediaBoxProps}
           />
         )}
-        {rarityRank && (
-          <Tag
-            colorScheme='black'
-            className='rarity-tag'
-            flexShrink={0}
-            position='absolute'
-            right='0.5rem'
-            top='0.5rem'
-            backdropFilter='auto'
-            backdropBlur='3xl'
-            transform='translate3d(0, 0, 0)'
-          >
-            <TagLeftIcon as={DiamondIcon} />
-            {rarityRank}
-          </Tag>
-        )}
+        <Flex position='absolute' right='0.5rem' top='0.5rem' minHeight='24px' alignItems='center'>
+          {rarityRank && (
+            <Tag
+              colorScheme='black'
+              className='rarity-tag'
+              flexShrink={0}
+              backdropFilter='auto'
+              backdropBlur='3xl'
+              transform='translate3d(0, 0, 0)'
+            >
+              <TagLeftIcon as={DiamondIcon} />
+              {rarityRank}
+            </Tag>
+          )}
+          {maybeFeeAsset && (
+            <Image
+              src={maybeFeeAsset.icon}
+              boxSize='17px'
+              ml='8px'
+              style={{
+                opacity: 0.5,
+                filter: 'grayscale(50%)',
+              }}
+            />
+          )}
+        </Flex>
       </Box>
       <Flex p={4} flexDir='column' height='100%'>
         <Flex justifyContent='space-between' alignItems='center'>
@@ -136,15 +164,16 @@ export const NftCard: React.FC<NftCardProps> = ({ zapperNft }) => {
             {name}
           </Text>
         </Flex>
-
-        <Box mt='auto'>
-          <Amount.Crypto
-            color='gray.500'
-            fontWeight='bold'
-            value={floorPriceEth ?? ''}
-            symbol='ETH'
-          />
-        </Box>
+        {floorPrice && maybeFeeAsset && (
+          <Box mt='auto'>
+            <Amount.Crypto
+              color='gray.500'
+              fontWeight='bold'
+              value={floorPrice}
+              symbol={maybeFeeAsset.symbol}
+            />
+          </Box>
+        )}
       </Flex>
     </Flex>
   )

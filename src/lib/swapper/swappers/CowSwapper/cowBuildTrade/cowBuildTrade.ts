@@ -1,63 +1,101 @@
-import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
-import type { CowSwapperDeps } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+import type { CowChainId } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import type { CowSwapQuoteResponse, CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
 import {
-  COW_SWAP_ETH_MARKER_ADDRESS,
+  COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   DEFAULT_APP_DATA,
   DEFAULT_SOURCE,
   ORDER_KIND_SELL,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
-import type { CowSwapSellQuoteApiInput } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import {
+  getCowswapNetwork,
   getNowPlusThirtyMinutesTimestamp,
-  getUsdRate,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
+import {
+  selectBuyAssetUsdRate,
+  selectSellAssetUsdRate,
+} from 'state/zustand/swapperStore/amountSelectors'
+import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
+import {
+  convertDecimalPercentageToBasisPoints,
+  subtractBasisPointAmount,
+} from 'state/zustand/swapperStore/utils'
 
-export async function cowBuildTrade(
-  deps: CowSwapperDeps,
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { isCowswapSupportedChainId } from '../utils/utils'
+
+export async function cowBuildTrade<T extends CowChainId>(
   input: BuildTradeInput,
-): Promise<Result<CowTrade<KnownChainIds.EthereumMainnet>, SwapErrorRight>> {
-  try {
-    const { adapter } = deps
-    const { sellAsset, buyAsset, accountNumber, wallet } = input
-    const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
+  supportedChainIds: CowChainId[],
+): Promise<Result<CowTrade<T>, SwapErrorRight>> {
+  const { accountNumber, sellAsset, buyAsset, slippage, receiveAddress, chainId } = input
 
-    const { assetReference: sellAssetErc20Address, assetNamespace: sellAssetNamespace } =
-      fromAssetId(sellAsset.assetId)
+  const maybeNetwork = getCowswapNetwork(chainId)
+  if (maybeNetwork.isErr()) return Err(maybeNetwork.unwrapErr())
+  const network = maybeNetwork.unwrap()
 
-    const { assetReference: buyAssetErc20Address, chainId: buyAssetChainId } = fromAssetId(
-      buyAsset.assetId,
+  if (!receiveAddress)
+    return Err(
+      makeSwapErrorRight({
+        message: 'Receive address is required to build CoW trades',
+        code: SwapErrorType.MISSING_INPUT,
+      }),
     )
 
-    if (sellAssetNamespace !== 'erc20') {
-      throw new SwapError('[cowBuildTrade] - Sell asset needs to be ERC-20 to use CowSwap', {
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { sellAssetNamespace },
-      })
-    }
+  const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
 
-    if (buyAssetChainId !== KnownChainIds.EthereumMainnet) {
-      throw new SwapError('[cowBuildTrade] - Buy asset needs to be on ETH mainnet to use CowSwap', {
+  const {
+    assetReference: sellAssetAddress,
+    assetNamespace: sellAssetNamespace,
+    chainId: sellAssetChainId,
+  } = fromAssetId(sellAsset.assetId)
+  const { assetReference: buyAssetAddress, chainId: buyAssetChainId } = fromAssetId(
+    buyAsset.assetId,
+  )
+
+  if (sellAssetNamespace !== 'erc20') {
+    return Err(
+      makeSwapErrorRight({
+        message: `[cowBuildTrade] - Sell asset needs to be ERC-20 to use CowSwap`,
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+        details: { sellAssetNamespace, sellAssetChainId },
+      }),
+    )
+  }
+
+  if (
+    !(
+      isCowswapSupportedChainId(buyAssetChainId, supportedChainIds) &&
+      buyAssetChainId === sellAssetChainId
+    )
+  ) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[cowBuildTrade] - Both assets need to be on a network supported by CowSwap`,
         code: SwapErrorType.UNSUPPORTED_PAIR,
         details: { buyAssetChainId },
-      })
-    }
+      }),
+    )
+  }
 
-    const buyToken =
-      buyAsset.assetId !== ethAssetId ? buyAssetErc20Address : COW_SWAP_ETH_MARKER_ADDRESS
+  const buyToken = !isNativeEvmAsset(buyAsset.assetId)
+    ? buyAssetAddress
+    : COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS
 
-    const receiveAddress = await adapter.getAddress({ accountNumber, wallet })
-
-    // https://api.cow.fi/docs/#/default/post_api_v1_quote
-    const { data } = await cowService.post<CowSwapQuoteResponse>(`${deps.apiUrl}/v1/quote/`, {
-      sellToken: sellAssetErc20Address,
+  const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
+  // https://api.cow.fi/docs/#/default/post_api_v1_quote
+  const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
+    `${baseUrl}/${network}/api/v1/quote/`,
+    {
+      sellToken: sellAssetAddress,
       buyToken,
       receiver: receiveAddress,
       validTo: getNowPlusThirtyMinutesTimestamp(),
@@ -65,66 +103,86 @@ export async function cowBuildTrade(
       partiallyFillable: false,
       from: receiveAddress,
       kind: ORDER_KIND_SELL,
-      sellAmountBeforeFee: sellAmount,
-    } as CowSwapSellQuoteApiInput)
+      sellAmountBeforeFee: sellAmountBeforeFeesCryptoBaseUnit,
+    },
+  )
 
-    const {
+  if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())
+
+  const {
+    data: {
       quote: {
-        buyAmount: buyAmountCryptoBaseUnit,
+        buyAmount: buyAmountAfterFeesCryptoBaseUnit,
         sellAmount: quoteSellAmountExcludeFeeCryptoBaseUnit,
         feeAmount: feeAmountInSellTokenCryptoBaseUnit,
       },
-    } = data
+      id,
+    },
+  } = maybeQuoteResponse.unwrap()
 
-    const sellAssetUsdRate = await getUsdRate(deps, sellAsset)
-    const sellAssetTradeFeeUsd = bnOrZero(feeAmountInSellTokenCryptoBaseUnit)
-      .div(bn(10).exponentiatedBy(sellAsset.precision))
-      .multipliedBy(bnOrZero(sellAssetUsdRate))
-      .toString()
+  const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+  const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
 
-    const buyAmountCryptoPrecision = bn(buyAmountCryptoBaseUnit).div(
-      bn(10).exponentiatedBy(buyAsset.precision),
-    )
-    const quoteSellAmountCryptoPrecision = bn(quoteSellAmountExcludeFeeCryptoBaseUnit).div(
-      bn(10).exponentiatedBy(sellAsset.precision),
-    )
-    const rate = buyAmountCryptoPrecision.div(quoteSellAmountCryptoPrecision).toString()
+  const sellAssetTradeFeeUsd = bnOrZero(feeAmountInSellTokenCryptoBaseUnit)
+    .div(bn(10).exponentiatedBy(sellAsset.precision))
+    .multipliedBy(bnOrZero(sellAssetUsdRate))
+    .toString()
 
-    const trade: CowTrade<KnownChainIds.EthereumMainnet> = {
-      rate,
-      feeData: {
-        networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
-        chainSpecific: {}, // no on chain fees for CowSwap
-        buyAssetTradeFeeUsd: '0', // Trade fees for buy Asset are always 0 since trade fees are subtracted from sell asset
-        sellAssetTradeFeeUsd,
+  const feeAmountInBuyTokenCryptoPrecision = bnOrZero(sellAssetTradeFeeUsd).div(
+    bnOrZero(buyAssetUsdRate),
+  )
+  const feeAmountInBuyTokenCryptoBaseUnit = toBaseUnit(
+    feeAmountInBuyTokenCryptoPrecision,
+    buyAsset.precision,
+  )
+  const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(feeAmountInBuyTokenCryptoBaseUnit)
+    .plus(buyAmountAfterFeesCryptoBaseUnit)
+    .toFixed()
+
+  const quoteSellAmountCryptoPrecision = bn(quoteSellAmountExcludeFeeCryptoBaseUnit).div(
+    bn(10).exponentiatedBy(sellAsset.precision),
+  )
+
+  const buyCryptoAmountAfterFeesCryptoPrecision = fromBaseUnit(
+    buyAmountAfterFeesCryptoBaseUnit,
+    buyAsset.precision,
+  )
+  const rate = bnOrZero(buyCryptoAmountAfterFeesCryptoPrecision)
+    .div(quoteSellAmountCryptoPrecision)
+    .toString()
+
+  const slippageBps = convertDecimalPercentageToBasisPoints(slippage ?? '0').toString()
+
+  const minimumBuyAmountAfterFeesCryptoBaseUnit = subtractBasisPointAmount(
+    buyAmountAfterFeesCryptoBaseUnit,
+    slippageBps,
+    true,
+  )
+
+  const trade: CowTrade<CowChainId> = {
+    rate,
+    feeData: {
+      networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
+      protocolFees: {
+        [sellAsset.assetId]: {
+          amountCryptoBaseUnit: feeAmountInSellTokenCryptoBaseUnit,
+          requiresBalance: false,
+          asset: sellAsset,
+        },
       },
-      sellAmountBeforeFeesCryptoBaseUnit: sellAmount,
-      buyAmountCryptoBaseUnit,
-      sources: DEFAULT_SOURCE,
-      buyAsset,
-      sellAsset,
-      accountNumber,
-      receiveAddress,
-      feeAmountInSellTokenCryptoBaseUnit,
-      sellAmountDeductFeeCryptoBaseUnit: quoteSellAmountExcludeFeeCryptoBaseUnit,
-    }
-
-    return Ok(trade)
-  } catch (e) {
-    if (e instanceof SwapError)
-      return Err(
-        makeSwapErrorRight({
-          message: e.message,
-          code: e.code,
-          details: e.details,
-        }),
-      )
-    return Err(
-      makeSwapErrorRight({
-        message: '[cowBuildTrade]',
-        cause: e,
-        code: SwapErrorType.TRADE_QUOTE_FAILED,
-      }),
-    )
+    },
+    sellAmountBeforeFeesCryptoBaseUnit,
+    buyAmountBeforeFeesCryptoBaseUnit,
+    sources: DEFAULT_SOURCE,
+    buyAsset,
+    sellAsset,
+    accountNumber,
+    receiveAddress,
+    feeAmountInSellTokenCryptoBaseUnit,
+    sellAmountDeductFeeCryptoBaseUnit: quoteSellAmountExcludeFeeCryptoBaseUnit,
+    id,
+    minimumBuyAmountAfterFeesCryptoBaseUnit,
   }
+
+  return Ok(trade as CowTrade<T>)
 }

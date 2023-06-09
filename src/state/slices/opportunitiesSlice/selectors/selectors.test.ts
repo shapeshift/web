@@ -1,12 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { mockStore } from 'test/mocks/store'
 import type {
   OpportunitiesState,
   OpportunityId,
   OpportunityMetadata,
 } from 'state/slices/opportunitiesSlice/types'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 
 import { foxEthLpAssetId, foxEthPair, foxEthStakingAssetIdV5 } from '../constants'
 import {

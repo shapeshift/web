@@ -1,6 +1,5 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
-import { MenuDivider, MenuItem } from '@chakra-ui/menu'
-import { Button } from '@chakra-ui/react'
+import { Button, MenuDivider, MenuItem } from '@chakra-ui/react'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 

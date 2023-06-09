@@ -1,5 +1,4 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import type {
@@ -12,6 +11,7 @@ import { Amount } from 'components/Amount/Amount'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   serializeUserStakingId,
@@ -44,7 +44,12 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
 
   const undelegationEntries = useMemo(() => {
     if (!opportunityData) return []
-    if (supportsUndelegations(opportunityData) && opportunityData.undelegations.length) {
+    if (
+      supportsUndelegations(opportunityData) &&
+      opportunityData.undelegations.some(undelegation =>
+        dayjs().isBefore(dayjs(undelegation.completionTime).unix()),
+      )
+    ) {
       return opportunityData.undelegations
     }
     return []

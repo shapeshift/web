@@ -28,7 +28,7 @@ import {
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataById,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -73,7 +73,9 @@ export const Status = () => {
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
-  const marketData = useAppSelector(state => selectMarketDataSortedByMarketCap(state))
+  const marketData = useAppSelector(state =>
+    selectSelectedCurrencyMarketDataSortedByMarketCap(state),
+  )
 
   const accountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
 

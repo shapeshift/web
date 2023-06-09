@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -7,22 +6,18 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ParseAddressInputReturn } from 'lib/address/address'
-import { parseAddressInput } from 'lib/address/address'
-import { logger } from 'lib/logger'
+import { parseAddressInputWithChainId } from 'lib/address/address'
+import type { Asset } from 'lib/asset-service'
 import type { PartialRecord } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import {
+  selectAssetsSortedByMarketCapFiatBalanceAndName,
   selectPortfolioAccountMetadata,
-  selectSortedAssets,
   selectWalletAccountIds,
 } from 'state/slices/selectors'
 
 import { FiatRampAction } from '../FiatRampsCommon'
 import { Overview } from './Overview'
-
-const moduleLogger = logger.child({
-  namespace: ['Modals', 'FiatRamps', 'Views', 'Manager'],
-})
 
 type AddressesByAccountId = PartialRecord<AccountId, Partial<ParseAddressInputReturn>>
 
@@ -39,7 +34,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 }) => {
   const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
-  const sortedAssets = useSelector(selectSortedAssets)
+  const sortedAssets = useSelector(selectAssetsSortedByMarketCapFiatBalanceAndName)
   const [accountId, setAccountId] = useState<AccountId | undefined>(selectedAccountId)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
@@ -89,7 +84,6 @@ export const FiatForm: React.FC<FiatFormProps> = ({
         walletAccountIds.map(accountId => {
           const accountMetadata = portfolioAccountMetadata[accountId]
           const { accountType, bip44Params } = accountMetadata
-          moduleLogger.trace({ fn: 'getAddress' }, 'Getting Addresses...')
           const { accountNumber } = bip44Params
           const payload = { accountType, accountNumber, wallet }
           const { chainId } = fromAccountId(accountId)
@@ -100,7 +94,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
       )
       const plainAddresses = plainAddressResults.reduce<(string | undefined)[]>((acc, result) => {
         if (result.status === 'rejected') {
-          moduleLogger.error(result.reason, 'failed to get address')
+          console.error(result.reason)
           acc.push(undefined) // keep same length of accumulator
           return acc
         }
@@ -112,7 +106,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
         plainAddresses.map((value, idx) => {
           if (!value) return Promise.resolve({ address: '', vanityAddress: '' })
           const { chainId } = fromAccountId(walletAccountIds[idx])
-          return parseAddressInput({ chainId, value })
+          return parseAddressInputWithChainId({ chainId, urlOrAddress: value })
         }),
       )
 

@@ -66,12 +66,19 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsByMarketCap)
   const isLoading = useAppSelector(selectOpportunityApiPending)
-  const positions = useAppSelector(state =>
-    selectAggregatedEarnOpportunitiesByAssetId(state, {
+  const selectAggregatedEarnOpportunitiesByAssetIdParams = useMemo(
+    () => ({
       chainId,
       includeEarnBalances,
       includeRewardsBalances,
     }),
+    [chainId, includeEarnBalances, includeRewardsBalances],
+  )
+  const positions = useAppSelector(state =>
+    selectAggregatedEarnOpportunitiesByAssetId(
+      state,
+      selectAggregatedEarnOpportunitiesByAssetIdParams,
+    ),
   )
 
   const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(
@@ -93,7 +100,8 @@ export const PositionTable: React.FC<PositionTableProps> = ({
         id: 'fiatAmount',
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
-          const hasValue = bnOrZero(row.original.fiatAmount).gt(0)
+          // A fiat amount can be positive or negative (debt) but not zero
+          const hasValue = !bnOrZero(row.original.fiatAmount).isZero()
           return hasValue ? (
             <Amount.Fiat value={row.original.fiatAmount} />
           ) : (
@@ -175,7 +183,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
       renderEmptyComponent={() =>
         searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty ctaHref='/earn' />
       }
-      initialState={{ sortBy: [{ id: 'fiatAmount', desc: true }], pageSize: 30 }}
+      initialState={{ pageSize: 30 }}
     />
   )
 }

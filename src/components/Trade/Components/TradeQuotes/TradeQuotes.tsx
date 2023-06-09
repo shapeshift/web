@@ -1,14 +1,17 @@
 import { Collapse, Flex } from '@chakra-ui/react'
-import { DEFAULT_SLIPPAGE } from 'constants/constants'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { selectCryptoMarketData } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
+import { selectBuyAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import {
-  selectActiveSwapperWithMetadata,
+  selectActiveSwapperName,
   selectAvailableSwappersWithMetadata,
   selectBuyAsset,
-  selectBuyAssetFiatRate,
 } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
+import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
 
 import { TradeQuote } from './TradeQuote'
 
@@ -18,25 +21,42 @@ type TradeQuotesProps = {
 }
 
 export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) => {
-  const buyAssetFiatRate = useSwapperStore(selectBuyAssetFiatRate)
+  const buyAssetUsdRate = useSwapperStore(selectBuyAssetUsdRate)
   const availableSwappersWithMetadata = useSwapperStore(selectAvailableSwappersWithMetadata)
-  const activeSwapperWithMetadata = useSwapperStore(selectActiveSwapperWithMetadata)
-  const activeSwapperName = activeSwapperWithMetadata?.swapper.name
+  const activeSwapperName = useSwapperStore(selectActiveSwapperName)
   const buyAsset = useSwapperStore(selectBuyAsset)
+  const cryptoMarketDataById = useAppSelector(selectCryptoMarketData)
 
-  const bestQuote = availableSwappersWithMetadata?.[0]?.quote
+  const { quote: bestQuote, swapper: bestSwapper } = availableSwappersWithMetadata?.[0] ?? {}
+
   const bestBuyAmountCryptoPrecision =
-    bestQuote && fromBaseUnit(bestQuote.buyAmountCryptoBaseUnit, bestQuote.buyAsset.precision)
+    bestQuote &&
+    fromBaseUnit(
+      bestQuote.steps[0].buyAmountBeforeFeesCryptoBaseUnit,
+      bestQuote.steps[0].buyAsset.precision,
+    )
+  const slippageDecimalPercentage =
+    bestQuote?.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(bestSwapper?.name)
   const bestBuyAmountCryptoPrecisionAfterSlippage = bnOrZero(bestBuyAmountCryptoPrecision)
-    .times(bn(1).minus(bnOrZero(bestQuote?.recommendedSlippage ?? DEFAULT_SLIPPAGE)))
+    .times(bn(1).minus(bnOrZero(slippageDecimalPercentage)))
     .toString()
-  const bestBuyAssetTradeFeeCryptoPrecision =
-    buyAssetFiatRate && bestQuote
-      ? bnOrZero(bestQuote.feeData.buyAssetTradeFeeUsd).div(buyAssetFiatRate)
-      : undefined
-  const bestTotalReceiveAmountCryptoPrecision = bestBuyAssetTradeFeeCryptoPrecision
+
+  const bestTotalProtocolFeeCryptoPrecision =
+    bestQuote !== undefined
+      ? fromBaseUnit(
+          sumProtocolFeesToDenom({
+            cryptoMarketDataById,
+            protocolFees: bestQuote.steps[0].feeData.protocolFees,
+            outputExponent: buyAsset.precision,
+            outputAssetPriceUsd: buyAssetUsdRate,
+          }),
+          buyAsset.precision,
+        )
+      : '0'
+
+  const bestTotalReceiveAmountCryptoPrecision = bestQuote
     ? bnOrZero(bestBuyAmountCryptoPrecisionAfterSlippage)
-        .minus(bestBuyAssetTradeFeeCryptoPrecision)
+        .minus(bestTotalProtocolFeeCryptoPrecision)
         .toString()
     : undefined
 
@@ -44,21 +64,29 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, isLoading }) =
     ? availableSwappersWithMetadata.map((swapperWithMetadata, i) => {
         const quote = swapperWithMetadata.quote
         const buyAmountBeforeFeesCryptoPrecision = buyAsset
-          ? fromBaseUnit(quote.buyAmountCryptoBaseUnit, buyAsset.precision)
+          ? fromBaseUnit(quote.steps[0].buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
           : undefined
 
-        const buyAssetTradeFeeBuyAssetCryptoPrecision = buyAssetFiatRate
-          ? bnOrZero(quote.feeData.buyAssetTradeFeeUsd).div(buyAssetFiatRate)
-          : undefined
-
-        const sellAssetTradeFeeBuyCryptoPrecision = buyAssetFiatRate
-          ? bnOrZero(quote.feeData.sellAssetTradeFeeUsd).div(buyAssetFiatRate)
-          : undefined
+        const totalProtocolFeeCryptoPrecision = fromBaseUnit(
+          sumProtocolFeesToDenom({
+            cryptoMarketDataById,
+            protocolFees: quote.steps[0].feeData.protocolFees,
+            outputExponent: buyAsset.precision,
+            outputAssetPriceUsd: buyAssetUsdRate,
+          }),
+          buyAsset.precision,
+        )
 
         const totalReceiveAmountCryptoPrecision = bnOrZero(buyAmountBeforeFeesCryptoPrecision)
-          .minus(buyAssetTradeFeeBuyAssetCryptoPrecision ?? 0)
-          .minus(sellAssetTradeFeeBuyCryptoPrecision ?? 0)
-          .times(bn(1).minus(bnOrZero(quote.recommendedSlippage ?? DEFAULT_SLIPPAGE)))
+          .minus(totalProtocolFeeCryptoPrecision)
+          .times(
+            bn(1).minus(
+              bnOrZero(
+                quote.recommendedSlippage ??
+                  getDefaultSlippagePercentageForSwapper(swapperWithMetadata.swapper.name),
+              ),
+            ),
+          )
           .toString()
 
         const isActive = activeSwapperName === swapperWithMetadata.swapper.name

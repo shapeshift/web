@@ -1,4 +1,3 @@
-/* eslint-disable @shapeshiftoss/logger/no-native-console */
 export const renderConsoleArt = () => {
   console.info(`%c 🦊 ShapeShift DAO`, 'color: #3761F9; font-size: 16px; font-family: monospace')
   console.info(

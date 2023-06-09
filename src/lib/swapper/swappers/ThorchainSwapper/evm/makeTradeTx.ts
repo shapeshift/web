@@ -1,16 +1,16 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { Asset } from 'lib/asset-service'
 import type { QuoteFeeData, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
-import type { ThorEvmSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
+import type { ThorEvmSupportedChainAdapter } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
-
-import { getFeesFromFeeData } from '../../utils/helpers/helpers'
+import { getFeesFromContractData } from 'lib/swapper/swappers/utils/helpers/helpers'
 
 type MakeTradeTxArgs<T extends EvmChainId> = {
   wallet: HDWallet
@@ -19,9 +19,10 @@ type MakeTradeTxArgs<T extends EvmChainId> = {
   buyAsset: Asset
   sellAsset: Asset
   destinationAddress: string
-  adapter: EvmBaseAdapter<ThorEvmSupportedChainId>
+  adapter: ThorEvmSupportedChainAdapter
   slippageTolerance: string
   feeData: QuoteFeeData<T>
+  affiliateBps: string
   deps: ThorchainSwapperDeps
 }
 
@@ -35,6 +36,7 @@ export const makeTradeTx = async ({
   adapter,
   slippageTolerance,
   feeData,
+  affiliateBps,
   deps,
 }: MakeTradeTxArgs<EvmChainId>): Promise<
   Result<
@@ -44,19 +46,34 @@ export const makeTradeTx = async ({
     SwapErrorRight
   >
 > => {
+  if (!supportsETH(wallet)) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'eth wallet required',
+        code: SwapErrorType.BUILD_TRADE_FAILED,
+        details: { wallet },
+      }),
+    )
+  }
+
   try {
     const { assetNamespace } = fromAssetId(sellAsset.assetId)
     const isErc20Trade = assetNamespace === 'erc20'
 
-    const maybeThorTxInfo = await getThorTxInfo({
-      deps,
-      sellAsset,
-      buyAsset,
-      sellAmountCryptoBaseUnit,
-      slippageTolerance,
-      destinationAddress,
-      buyAssetTradeFeeUsd: feeData.buyAssetTradeFeeUsd,
-    })
+    const [maybeThorTxInfo, from, eip1559Support] = await Promise.all([
+      getThorTxInfo({
+        deps,
+        sellAsset,
+        buyAsset,
+        sellAmountCryptoBaseUnit,
+        slippageTolerance,
+        destinationAddress,
+        protocolFees: feeData.protocolFees,
+        affiliateBps,
+      }),
+      adapter.getAddress({ accountNumber, wallet }),
+      wallet.ethSupportsEIP1559(),
+    ])
 
     if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
 
@@ -64,14 +81,25 @@ export const makeTradeTx = async ({
 
     const { data, router } = thorTxInfo
 
+    const value = isErc20Trade ? '0' : sellAmountCryptoBaseUnit
+
+    const { feesWithGasLimit } = await getFeesFromContractData({
+      eip1559Support,
+      adapter,
+      from,
+      to: router,
+      value,
+      data,
+    })
+
     return Ok(
       await adapter.buildCustomTx({
         wallet,
         accountNumber,
         to: router,
-        value: isErc20Trade ? '0' : sellAmountCryptoBaseUnit,
+        value,
         data,
-        ...(await getFeesFromFeeData({ wallet, feeData: feeData.chainSpecific })),
+        ...feesWithGasLimit,
       }),
     )
   } catch (e) {

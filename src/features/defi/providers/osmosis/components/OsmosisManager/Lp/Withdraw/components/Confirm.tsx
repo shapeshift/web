@@ -1,5 +1,4 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId, FeeData, osmosis } from '@shapeshiftoss/chain-adapters'
@@ -21,8 +20,8 @@ import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { Asset } from 'lib/asset-service'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -36,8 +35,8 @@ import {
   selectAssets,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
-  selectMarketDataSortedByMarketCap,
   selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -45,10 +44,6 @@ import { OsmosisWithdrawActionType } from '../LpWithdrawCommon'
 import { WithdrawContext } from '../LpWithdrawContext'
 
 const DEFAULT_SLIPPAGE = '0.025' // Allow for 2.5% slippage. TODO:(pastaghost) is there a better way to do this?
-
-const moduleLogger = logger.child({
-  namespace: ['Defi', 'Providers', 'Osmosis', 'OsmosisManager', 'Withdraw', 'Confirm'],
-})
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
@@ -63,7 +58,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const chainAdapter = getChainAdapterManager().get(chainId) as unknown as osmosis.ChainAdapter
 
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
+  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
 
   const underlyingAssetBalances = useMemo(() => {
     if (!osmosisOpportunity || !state) return null
@@ -233,7 +228,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.error({ fn: 'handleWithdraw', error }, 'Error removing liquidity')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

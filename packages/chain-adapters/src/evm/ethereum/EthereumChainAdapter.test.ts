@@ -38,25 +38,6 @@ const getWallet = async (): Promise<ETHWallet> => {
   return wallet
 }
 
-jest.mock('axios', () => ({
-  get: jest.fn(() =>
-    Promise.resolve({
-      data: {
-        result: [
-          {
-            source: 'MEDIAN',
-            timestamp: 1639978534,
-            instant: 55477500000,
-            fast: 50180000000,
-            standard: 45000000000,
-            low: 41000000000,
-          },
-        ],
-      },
-    }),
-  ),
-}))
-
 describe('EthereumChainAdapter', () => {
   const gasPrice = '42'
   const gasLimit = '42000'
@@ -170,29 +151,29 @@ describe('EthereumChainAdapter', () => {
           average: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '45000000000',
+              gasPrice: '300',
               maxFeePerGas: '300',
               maxPriorityFeePerGas: '10',
             },
-            txFee: '945000000000000',
+            txFee: '6300000',
           },
           fast: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '50180000000',
+              gasPrice: '335',
               maxFeePerGas: '335',
               maxPriorityFeePerGas: '12',
             },
-            txFee: '1053780000000000',
+            txFee: '7035000',
           },
           slow: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '41000000000',
+              gasPrice: '274',
               maxFeePerGas: '274',
               maxPriorityFeePerGas: '10',
             },
-            txFee: '861000000000000',
+            txFee: '5754000',
           },
         }),
       )
@@ -213,17 +194,17 @@ describe('EthereumChainAdapter', () => {
       expect(data).toEqual(
         expect.objectContaining({
           average: {
-            gasPrice: '45000000000',
+            gasPrice: '300',
             maxFeePerGas: '300',
             maxPriorityFeePerGas: '10',
           },
           fast: {
-            gasPrice: '50180000000',
+            gasPrice: '335',
             maxFeePerGas: '335',
             maxPriorityFeePerGas: '12',
           },
           slow: {
-            gasPrice: '41000000000',
+            gasPrice: '274',
             maxFeePerGas: '274',
             maxPriorityFeePerGas: '10',
           },
@@ -262,9 +243,15 @@ describe('EthereumChainAdapter', () => {
   const invalidAddressTuple = { valid: false, result: ValidAddressResultType.Invalid }
 
   describe('validateAddress', () => {
-    it('should return true for a valid address', async () => {
+    it('should return true for a valid checksummed address', async () => {
       const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
       const res = await adapter.validateAddress('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045')
+      expect(res).toMatchObject(validAddressTuple)
+    })
+
+    it('should return true for a valid lowercased address', async () => {
+      const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
+      const res = await adapter.validateAddress('0xd8da6bf26964af9d7eed9e03e53415d37aa96045')
       expect(res).toMatchObject(validAddressTuple)
     })
 

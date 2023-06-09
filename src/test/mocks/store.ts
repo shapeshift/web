@@ -1,4 +1,6 @@
+import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import type { ReduxState } from 'state/reducer'
+import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
@@ -24,8 +26,11 @@ export const mockStore: ReduxState = {
   marketApi: mockApiFactory('marketApi' as const),
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
   zapperApi: mockApiFactory('zapperApi' as const),
+  nftApi: mockApiFactory('nftApi' as const),
+  covalentApi: mockApiFactory('covalentApi' as const),
   zapper: mockApiFactory('zapper' as const),
   swapperApi: mockApiFactory('swapperApi' as const),
+  swappersApi: mockApiFactory('swappersApi' as const),
   foxyApi: mockApiFactory('foxyApi' as const),
   fiatRampApi: mockApiFactory('fiatRampApi' as const),
   opportunitiesApi: mockApiFactory('opportunitiesApi' as const),
@@ -54,12 +59,9 @@ export const mockStore: ReduxState = {
       Jaypegz: false,
       Optimism: false,
       Polygon: false,
+      Gnosis: false,
       BnbSmartChain: false,
-      ZrxAvalancheSwap: false,
-      ZrxBnbSmartChainSwap: false,
-      ZrxEthereumSwap: false,
-      ZrxOptimismSwap: false,
-      ZrxPolygonSwap: false,
+      ZrxSwap: false,
       OsmosisSend: false,
       OsmosisStaking: false,
       OsmosisLP: false,
@@ -67,6 +69,7 @@ export const mockStore: ReduxState = {
       OsmosisSwap: false,
       ThorSwap: false,
       Cowswap: false,
+      CowswapGnosis: false,
       IdleFinance: false,
       Axelar: false,
       Yat: false,
@@ -82,12 +85,16 @@ export const mockStore: ReduxState = {
       LifiSwap: false,
       FoxBondCTA: false,
       DynamicLpAssets: false,
+      ReadOnlyAssets: false,
       OneInch: false,
+      CovalentJaypegs: false,
+      MultiHopTrades: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
     selectedCurrency: 'USD',
     currencyFormat: CurrencyFormats.DotDecimal,
+    chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
     showWelcomeModal: false,
     showConsentBanner: true,
     // the following object is required by redux-persist
@@ -139,5 +146,24 @@ export const mockStore: ReduxState = {
       byId: {},
       ids: [],
     },
+  },
+  nft: {
+    selectedNftAvatarByWalletId: {},
+    nfts: {
+      byId: {},
+      ids: [],
+    },
+    collections: {
+      byId: {},
+      ids: [],
+    },
+  },
+  swappers: {
+    selectedQuote: undefined,
+    buyAsset: defaultAsset,
+    sellAsset: defaultAsset,
+    sellAssetAccountId: undefined,
+    receiveAddress: undefined,
+    sellAmountCryptoPrecision: '0',
   },
 }

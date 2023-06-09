@@ -20,12 +20,10 @@ import { FaEye } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
-import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 
 import type { LocationState } from '../types'
-const moduleLogger = logger.child({ namespace: ['NativeCreate'] })
 
 const getVault = async (): Promise<Vault> => {
   const vault = await Vault.create(undefined, false)
@@ -87,8 +85,7 @@ export const NativeCreate = () => {
         const vault = isLegacyWallet ? location.state.vault : await getVault()
         setVault(vault)
       } catch (e) {
-        // @TODO
-        moduleLogger.error(e, 'NativeCreate error')
+        console.error(e)
       }
     })()
   }, [setVault, location.state?.vault, isLegacyWallet])
@@ -116,7 +113,7 @@ export const NativeCreate = () => {
           ),
         )
       } catch (e) {
-        moduleLogger.error(e, 'failed to get Secret Recovery Phrase:')
+        console.error(e)
         setWords(null)
       }
     })()
@@ -167,7 +164,7 @@ export const NativeCreate = () => {
         <Button
           colorScheme='blue'
           size='lg'
-          disabled={!(vault && words && revealedOnce.current)}
+          isDisabled={!(vault && words && revealedOnce.current)}
           onClick={handleClick}
         >
           <Text translation={'walletProvider.shapeShift.create.button'} />

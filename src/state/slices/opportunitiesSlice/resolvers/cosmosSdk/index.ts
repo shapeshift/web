@@ -1,18 +1,14 @@
 import { cosmosChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
 import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { isFulfilled, isRejected, isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
+import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectWalletAccountIds } from 'state/slices/common-selectors'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
-import {
-  selectAssetById,
-  selectFeatureFlags,
-  selectMarketDataById,
-  selectWalletAccountIds,
-} from 'state/slices/selectors'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -22,14 +18,13 @@ import type {
   OpportunityMetadata,
   StakingId,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
   OpportunityIdsResolverInput,
 } from '../types'
 import { makeAccountUserData, makeUniqueValidatorAccountIds } from './utils'
-
-const moduleLogger = logger.child({ namespace: ['opportunities', 'resolvers', 'cosmosSdk'] })
 
 export const cosmosSdkOpportunityIdsResolver = async ({
   reduxApi,
@@ -63,7 +58,7 @@ export const cosmosSdkOpportunityIdsResolver = async ({
     settledAccountsPromises
       .map(settledAccount => {
         if (isRejected(settledAccount)) {
-          moduleLogger.error(settledAccount.reason, 'Error fetching Cosmos SDK account')
+          console.error(settledAccount.reason)
           return undefined
         }
         if (isFulfilled(settledAccount)) return settledAccount.value
@@ -85,7 +80,7 @@ export const cosmosSdkOpportunityIdsResolver = async ({
 
 export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
   opportunityIds: validatorIds = [],
-  opportunityType,
+  defiType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{
   data: GetOpportunityMetadataOutput
@@ -156,7 +151,7 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
     settledValidatorPromises.reduce<Record<StakingId, OpportunityMetadata>>(
       (acc, settledValidatorPromise) => {
         if (isRejected(settledValidatorPromise)) {
-          moduleLogger.error(settledValidatorPromise.reason, 'Error fetching Cosmos SDK validator')
+          console.error(settledValidatorPromise.reason)
         }
         if (isFulfilled(settledValidatorPromise) && settledValidatorPromise.value) {
           const { validatorId, ...opportunityMetadata } = settledValidatorPromise.value
@@ -171,16 +166,17 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
   )
   const data = {
     byId: metadataByValidatorId,
-    type: opportunityType,
+    type: defiType,
   }
 
   return { data }
 }
 export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
   opportunityIds: validatorIds,
-  opportunityType,
+  defiType,
   accountId,
   reduxApi,
+  onInvalidate,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
@@ -192,7 +188,7 @@ export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
     const { account: pubKey, chainId } = fromAccountId(accountId)
     if (![cosmosChainId, osmosisChainId].includes(chainId)) {
       return Promise.resolve({
-        data: { byId: emptyStakingOpportunitiesUserDataByUserStakingId, type: opportunityType },
+        data: { byId: emptyStakingOpportunitiesUserDataByUserStakingId, type: defiType },
       })
     }
     const chainAdapters = getChainAdapterManager()
@@ -206,14 +202,18 @@ export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
     const asset = selectAssetById(state, assetId)
     if (!asset) throw new Error(`Cannot get asset for AssetId: ${assetId}`)
 
-    const byId = makeAccountUserData({ cosmosSdkAccount: cosmosAccount, validatorIds })
+    const byId = makeAccountUserData({
+      cosmosSdkAccount: cosmosAccount,
+      validatorIds,
+      onInvalidate,
+    })
 
-    return Promise.resolve({ data: { byId, type: opportunityType } })
+    return Promise.resolve({ data: { byId, type: defiType } })
   } catch (e) {
     return Promise.resolve({
       data: {
         byId: emptyStakingOpportunitiesUserDataByUserStakingId,
-        type: opportunityType,
+        type: defiType,
       },
     })
   }

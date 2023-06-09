@@ -7,21 +7,27 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
-import { type FC } from 'react'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { type RowProps, Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
+import type { AmountDisplayMeta, ProtocolFee } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
   symbol: string
-  amount: string
+  amountCryptoPrecision: string
+  intermediaryTransactionOutputs?: AmountDisplayMeta[]
   fiatAmount?: string
-  beforeFees?: string
-  protocolFee?: string
+  amountBeforeFeesCryptoPrecision?: string
+  protocolFees?: Record<AssetId, ProtocolFee>
   shapeShiftFee?: string
   slippage: string
   swapperName: string
@@ -29,10 +35,11 @@ type ReceiveSummaryProps = {
 
 export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   symbol,
-  amount,
+  amountCryptoPrecision,
+  intermediaryTransactionOutputs,
   fiatAmount,
-  beforeFees,
-  protocolFee,
+  amountBeforeFeesCryptoPrecision,
+  protocolFees,
   shapeShiftFee,
   slippage,
   swapperName,
@@ -49,7 +56,40 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
 
   const slippageAsPercentageString = bnOrZero(slippage).times(100).toString()
-  const isAmountPositive = bnOrZero(amount).gt(0)
+  const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
+
+  const parseAmountDisplayMeta = useCallback((items: AmountDisplayMeta[]) => {
+    return items
+      .filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
+      .map(({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
+        symbol: asset.symbol,
+        chainName: getChainAdapterManager().get(asset.chainId)?.getDisplayName(),
+        amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
+      }))
+  }, [])
+
+  const protocolFeesParsed = useMemo(
+    () => (protocolFees ? parseAmountDisplayMeta(Object.values(protocolFees)) : undefined),
+    [protocolFees, parseAmountDisplayMeta],
+  )
+
+  const intermediaryTransactionOutputsParsed = useMemo(
+    () =>
+      intermediaryTransactionOutputs
+        ? parseAmountDisplayMeta(intermediaryTransactionOutputs)
+        : undefined,
+    [intermediaryTransactionOutputs, parseAmountDisplayMeta],
+  )
+
+  const hasProtocolFees = useMemo(
+    () => protocolFeesParsed && protocolFeesParsed.length > 0,
+    [protocolFeesParsed],
+  )
+
+  const hasIntermediaryTransactionOutputs = useMemo(
+    () => intermediaryTransactionOutputsParsed && intermediaryTransactionOutputsParsed.length > 0,
+    [intermediaryTransactionOutputsParsed],
+  )
 
   return (
     <>
@@ -63,7 +103,10 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
         <Row.Value display='flex' columnGap={2} alignItems='center'>
           <Stack spacing={0} alignItems='flex-end'>
             <Skeleton isLoaded={!isLoading}>
-              <Amount.Crypto value={isAmountPositive ? amount : '0'} symbol={symbol} />
+              <Amount.Crypto
+                value={isAmountPositive ? amountCryptoPrecision : '0'}
+                symbol={symbol}
+              />
             </Skeleton>
             {fiatAmount && (
               <Skeleton isLoaded={!isLoading}>
@@ -85,7 +128,13 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
           py={2}
         >
           <Row>
-            <HelperTooltip label={translate('trade.tooltip.protocol')}>
+            <HelperTooltip
+              label={
+                swapperName === SwapperName.LIFI
+                  ? translate('trade.tooltip.protocolLifi')
+                  : translate('trade.tooltip.protocol')
+              }
+            >
               <Row.Label>
                 <Text translation='trade.protocol' />
               </Row.Label>
@@ -98,19 +147,19 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
               </Row.Label>
             </Row.Value>
           </Row>
-          {beforeFees && (
+          {amountBeforeFeesCryptoPrecision && (
             <Row>
               <Row.Label>
                 <Text translation='trade.beforeFees' />
               </Row.Label>
               <Row.Value>
                 <Skeleton isLoaded={!isLoading}>
-                  <Amount.Crypto value={beforeFees} symbol={symbol} />
+                  <Amount.Crypto value={amountBeforeFeesCryptoPrecision} symbol={symbol} />
                 </Skeleton>
               </Row.Value>
             </Row>
           )}
-          {protocolFee && bnOrZero(protocolFee).gt(0) && (
+          {hasProtocolFees && (
             <Row>
               <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
                 <Row.Label>
@@ -118,9 +167,22 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
                 </Row.Label>
               </HelperTooltip>
               <Row.Value>
-                <Skeleton isLoaded={!isLoading}>
-                  <Amount.Crypto color={redColor} value={protocolFee} symbol={symbol} />
-                </Skeleton>
+                {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol, chainName }) => (
+                  <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
+                    <Amount.Crypto
+                      color={redColor}
+                      value={amountCryptoPrecision}
+                      symbol={symbol}
+                      suffix={
+                        chainName
+                          ? translate('trade.onChainName', {
+                              chainName,
+                            })
+                          : undefined
+                      }
+                    />
+                  </Skeleton>
+                ))}
               </Row.Value>
             </Row>
           )}
@@ -150,9 +212,34 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
                 />
               </Row.Label>
               <Row.Value whiteSpace='nowrap'>
-                <Skeleton isLoaded={!isLoading}>
-                  <Amount.Crypto value={isAmountPositive ? amount : '0'} symbol={symbol} />
-                </Skeleton>
+                <Stack spacing={0} alignItems='flex-end'>
+                  <Skeleton isLoaded={!isLoading}>
+                    <Amount.Crypto
+                      value={isAmountPositive ? amountCryptoPrecision : '0'}
+                      symbol={symbol}
+                    />
+                  </Skeleton>
+                  {isAmountPositive &&
+                    hasIntermediaryTransactionOutputs &&
+                    intermediaryTransactionOutputsParsed?.map(
+                      ({ amountCryptoPrecision, symbol, chainName }) => (
+                        <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
+                          <Amount.Crypto
+                            value={amountCryptoPrecision}
+                            symbol={symbol}
+                            prefix={translate('trade.or')}
+                            suffix={
+                              chainName
+                                ? translate('trade.onChainName', {
+                                    chainName,
+                                  })
+                                : undefined
+                            }
+                          />
+                        </Skeleton>
+                      ),
+                    )}
+                </Stack>
               </Row.Value>
             </Row>
           </>

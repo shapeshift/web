@@ -6,8 +6,8 @@ import { createContext, useContext } from 'react'
 
 type WalletConnectBridgeContextValue = {
   setWcAccountId: (accountId: AccountId) => void
-  chainName: string
-  evmChainId: ChainId
+  chainName: string | undefined
+  evmChainId: ChainId | undefined
   accountExplorerAddressLink: string
   connector: WalletConnect | undefined
   dapp: IClientMeta | null
@@ -19,8 +19,8 @@ type WalletConnectBridgeContextValue = {
 }
 
 export const WalletConnectBridgeContext = createContext<WalletConnectBridgeContextValue>({
-  chainName: '',
-  evmChainId: 'eip155:1',
+  chainName: undefined,
+  evmChainId: undefined,
   accountExplorerAddressLink: '',
   connector: undefined,
   dapp: null,

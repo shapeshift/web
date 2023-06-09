@@ -13,7 +13,6 @@ import {
 import { useAppSelector } from 'state/store'
 import {
   selectBuyAsset,
-  selectIsSendMax,
   selectReceiveAddress,
   selectSellAmountCryptoPrecision,
   selectSellAsset,
@@ -31,7 +30,6 @@ export const useTradeQuoteService = () => {
   const [tradeQuoteArgs, setTradeQuoteArgs] = useState<GetTradeQuoteInput | SkipToken>(skipToken)
 
   // Selectors
-  const isSendMax = useSwapperStore(selectIsSendMax)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
   const sellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
   const sellAsset = useSwapperStore(selectSellAsset)
@@ -51,14 +49,7 @@ export const useTradeQuoteService = () => {
   // Effects
   // Set trade quote args and trigger trade quote query
   useEffect(() => {
-    if (
-      sellAsset &&
-      buyAsset &&
-      wallet &&
-      sellAmountCryptoPrecision &&
-      receiveAddress &&
-      sellAccountMetadata
-    ) {
+    if (sellAsset && buyAsset && wallet && sellAmountCryptoPrecision && sellAccountMetadata) {
       ;(async () => {
         const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
         const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
@@ -75,20 +66,11 @@ export const useTradeQuoteService = () => {
           wallet,
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
-          isSendMax,
         })
         tradeQuoteInputArgs && setTradeQuoteArgs(tradeQuoteInputArgs)
       })()
     }
-  }, [
-    buyAsset,
-    isSendMax,
-    receiveAddress,
-    sellAccountMetadata,
-    sellAmountCryptoPrecision,
-    sellAsset,
-    wallet,
-  ])
+  }, [buyAsset, receiveAddress, sellAccountMetadata, sellAmountCryptoPrecision, sellAsset, wallet])
 
   return {
     tradeQuoteArgs: typeof tradeQuoteArgs === 'symbol' ? undefined : tradeQuoteArgs,

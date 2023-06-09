@@ -1,68 +1,53 @@
-import { type Asset } from '@shapeshiftoss/asset-service'
-import {
-  type ChainId,
-  avalancheAssetId,
-  bchAssetId,
-  bscAssetId,
-  btcAssetId,
-  CHAIN_NAMESPACE,
-  cosmosAssetId,
-  dogeAssetId,
-  ethAssetId,
-  foxAssetId,
-  fromAssetId,
-  ltcAssetId,
-  optimismAssetId,
-  osmosisAssetId,
-  polygonAssetId,
-  thorchainAssetId,
-} from '@shapeshiftoss/caip'
-import type { EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import type { GetReceiveAddressArgs } from 'components/Trade/types'
-import {
-  type AssetIdTradePair,
-  type DisplayFeeData,
-  type GetFormFeesArgs,
-} from 'components/Trade/types'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { DisplayFeeData, GetFormFeesArgs, GetReceiveAddressArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
-import type { SwapperName, Trade, TradeQuote } from 'lib/swapper/api'
-import { type FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
+import type { ProtocolFee, SwapperName, TradeBase, TradeQuote } from 'lib/swapper/api'
 
-const moduleLogger = logger.child({ namespace: ['useSwapper', 'utils'] })
+// used to handle market fluctations and variations in gas estimates (e.g shapeshift vs metamask) to prevent failed trades
+const FEE_FLUCTUATION_DECIMAL_PERCENTAGE = 0.25
 
-// Pure functions
-export const filterAssetsByIds = (assets: Asset[], assetIds: string[]) => {
-  const assetIdSet = new Set(...assetIds)
-  return assets.filter(asset => assetIdSet.has(asset.assetId))
-}
-
-export const getSendMaxAmount = (
+export const getSendMaxAmountCryptoPrecision = (
   sellAsset: Asset,
   feeAsset: Asset,
   quote: TradeQuote<KnownChainIds>,
-  sellAssetBalance: string,
+  sellAssetBalanceCryptoBaseUnit: string,
+  networkFeeRequiresBalance: boolean,
+  isBuyingOsmoWithOmosisSwapper: boolean,
 ) => {
   // Only subtract fee if sell asset is the fee asset
   const isFeeAsset = feeAsset.assetId === sellAsset.assetId
-  const feeEstimate = bnOrZero(quote?.feeData?.networkFeeCryptoBaseUnit)
-  // sell asset balance minus expected fee = maxTradeAmount
-  // only subtract if sell asset is fee asset
+  const protocolFee: ProtocolFee | undefined =
+    quote.steps[0].feeData.protocolFees[sellAsset.assetId]
+
+  const protocolFeeCryptoBaseUnit =
+    protocolFee?.requiresBalance && !isBuyingOsmoWithOmosisSwapper
+      ? bn(protocolFee.amountCryptoBaseUnit)
+      : bn(0)
+
+  const networkFeeCryptoBaseUnit =
+    networkFeeRequiresBalance && isFeeAsset
+      ? bnOrZero(quote.steps[0].feeData.networkFeeCryptoBaseUnit)
+      : bn(0)
+
+  const totalFeesCryptoBaseUnit = networkFeeCryptoBaseUnit.plus(protocolFeeCryptoBaseUnit)
+  // sell asset balance minus expected fees = maxTradeAmount
   return positiveOrZero(
     fromBaseUnit(
-      bnOrZero(sellAssetBalance)
-        .minus(isFeeAsset ? feeEstimate : 0)
-        .toString(),
+      bnOrZero(sellAssetBalanceCryptoBaseUnit).minus(
+        totalFeesCryptoBaseUnit.times(1 + FEE_FLUCTUATION_DECIMAL_PERCENTAGE),
+      ),
       sellAsset.precision,
     ),
-  ).toString()
+  ).toFixed()
 }
 
 const getEvmFees = <T extends EvmChainId>(
-  trade: Trade<T> | TradeQuote<T>,
+  trade: TradeBase<T>,
   feeAsset: Asset,
   tradeFeeSource: SwapperName,
 ): DisplayFeeData<EvmChainId> => {
@@ -70,34 +55,9 @@ const getEvmFees = <T extends EvmChainId>(
     .div(bn(10).exponentiatedBy(feeAsset.precision))
     .toFixed()
 
-  if (trade.feeData && !trade.feeData.chainSpecific) {
-    moduleLogger.debug({ trade }, 'feeData.chainSpecific undefined for trade')
-  }
-  const approvalFeeCryptoPrecision = bnOrZero(
-    trade.feeData.chainSpecific?.approvalFeeCryptoBaseUnit,
-  )
-    .dividedBy(bn(10).exponentiatedBy(feeAsset.precision))
-    .toString()
-  const totalFeeCryptoPrecision = bnOrZero(networkFeeCryptoPrecision)
-    .plus(approvalFeeCryptoPrecision)
-    .toString()
-  const gasPriceCryptoBaseUnit = bnOrZero(
-    trade.feeData.chainSpecific?.gasPriceCryptoBaseUnit,
-  ).toString()
-  const estimatedGasCryptoBaseUnit = bnOrZero(
-    trade.feeData.chainSpecific?.estimatedGasCryptoBaseUnit,
-  ).toString()
-
   return {
-    chainSpecific: {
-      approvalFeeCryptoBaseUnit: trade.feeData.chainSpecific?.approvalFeeCryptoBaseUnit ?? '0',
-      gasPriceCryptoBaseUnit,
-      estimatedGasCryptoBaseUnit,
-      totalFee: totalFeeCryptoPrecision,
-    },
     tradeFeeSource,
-    buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd,
-    sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd,
+    protocolFees: trade.feeData.protocolFees,
     networkFeeCryptoHuman: networkFeeCryptoPrecision,
     networkFeeCryptoBaseUnit: trade?.feeData?.networkFeeCryptoBaseUnit ?? '0',
   }
@@ -110,120 +70,33 @@ export const getFormFees = ({
   feeAsset,
 }: GetFormFeesArgs): DisplayFeeData<KnownChainIds> => {
   const networkFeeCryptoHuman = fromBaseUnit(
-    trade?.feeData?.networkFeeCryptoBaseUnit,
+    trade.feeData?.networkFeeCryptoBaseUnit,
     feeAsset.precision,
   )
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm:
-      return getEvmFees(
-        trade as Trade<EvmChainId> | TradeQuote<EvmChainId>,
-        feeAsset,
-        tradeFeeSource,
-      )
+      return getEvmFees(trade, feeAsset, tradeFeeSource)
     case CHAIN_NAMESPACE.CosmosSdk: {
       return {
         networkFeeCryptoHuman,
         networkFeeCryptoBaseUnit: trade.feeData.networkFeeCryptoBaseUnit ?? '0',
-        sellAssetTradeFeeUsd: trade.feeData.sellAssetTradeFeeUsd ?? '',
-        buyAssetTradeFeeUsd: trade.feeData.buyAssetTradeFeeUsd ?? '',
+        protocolFees: trade.feeData.protocolFees,
         tradeFeeSource,
       }
     }
     case CHAIN_NAMESPACE.Utxo: {
-      const utxoTrade = trade as Trade<UtxoChainId>
       return {
         networkFeeCryptoHuman,
-        networkFeeCryptoBaseUnit: utxoTrade.feeData.networkFeeCryptoBaseUnit,
-        chainSpecific: utxoTrade.feeData.chainSpecific,
-        buyAssetTradeFeeUsd: utxoTrade.feeData.buyAssetTradeFeeUsd ?? '',
+        networkFeeCryptoBaseUnit: trade.feeData.networkFeeCryptoBaseUnit,
+        chainSpecific: trade.feeData.chainSpecific,
+        protocolFees: trade.feeData.protocolFees,
         tradeFeeSource,
-        sellAssetTradeFeeUsd: utxoTrade.feeData.sellAssetTradeFeeUsd ?? '',
       }
     }
     default:
       throw new Error('Unsupported chain ' + sellAsset.chainId)
-  }
-}
-
-export const getDefaultAssetIdPairByChainId = (
-  buyAssetChainId: ChainId | undefined,
-  featureFlags: FeatureFlags,
-): AssetIdTradePair => {
-  const osmosisEnabled = featureFlags.OsmosisSwap
-  const ethFoxPair = {
-    sellAssetId: ethAssetId,
-    buyAssetId: foxAssetId,
-  }
-
-  switch (buyAssetChainId) {
-    case KnownChainIds.AvalancheMainnet:
-      return {
-        sellAssetId: avalancheAssetId,
-        // WETH.e
-        buyAssetId: 'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
-      }
-    case KnownChainIds.OptimismMainnet:
-      return featureFlags.ZrxOptimismSwap
-        ? {
-            sellAssetId: optimismAssetId,
-            // OP token
-            buyAssetId: 'eip155:10/erc20:0x4200000000000000000000000000000000000042',
-          }
-        : ethFoxPair
-    case KnownChainIds.BnbSmartChainMainnet:
-      return featureFlags.ZrxBnbSmartChainSwap
-        ? {
-            sellAssetId: bscAssetId,
-            // BUSD
-            buyAssetId: 'eip155:56/bep20:0xe9e7cea3dedca5984780bafc599bd69add087d56',
-          }
-        : ethFoxPair
-    case KnownChainIds.PolygonMainnet:
-      return featureFlags.ZrxPolygonSwap
-        ? {
-            sellAssetId: polygonAssetId,
-            // USDC on Polygon
-            buyAssetId: 'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
-          }
-        : ethFoxPair
-    case KnownChainIds.CosmosMainnet:
-      return osmosisEnabled
-        ? { sellAssetId: cosmosAssetId, buyAssetId: osmosisAssetId }
-        : ethFoxPair
-    case KnownChainIds.OsmosisMainnet:
-      return osmosisEnabled
-        ? { sellAssetId: osmosisAssetId, buyAssetId: cosmosAssetId }
-        : ethFoxPair
-    case KnownChainIds.BitcoinMainnet:
-      return {
-        sellAssetId: ethAssetId,
-        buyAssetId: btcAssetId,
-      }
-    case KnownChainIds.BitcoinCashMainnet:
-      return {
-        sellAssetId: ethAssetId,
-        buyAssetId: bchAssetId,
-      }
-    case KnownChainIds.DogecoinMainnet:
-      return {
-        sellAssetId: ethAssetId,
-        buyAssetId: dogeAssetId,
-      }
-    case KnownChainIds.LitecoinMainnet:
-      return {
-        sellAssetId: ethAssetId,
-        buyAssetId: ltcAssetId,
-      }
-    case KnownChainIds.ThorchainMainnet:
-      return {
-        sellAssetId: ethAssetId,
-        buyAssetId: thorchainAssetId,
-      }
-    case KnownChainIds.EthereumMainnet:
-    default:
-      return ethFoxPair
   }
 }
 
@@ -240,6 +113,6 @@ export const getReceiveAddress = async ({
   try {
     return await chainAdapter.getAddress({ wallet, accountNumber, accountType })
   } catch (e) {
-    moduleLogger.info(e, 'No receive address for buy asset, using default asset pair')
+    console.log(e)
   }
 }

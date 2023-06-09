@@ -6,6 +6,7 @@ export type OneInchQuoteApiInput = {
   fromTokenAddress: string
   toTokenAddress: string
   amount: string
+  fee: number // fee as a percentage, e.g. to set a fee to 1.5%: fee=1.5
 }
 
 // https://docs.1inch.io/docs/aggregation-protocol/api/swap-params/
@@ -15,6 +16,7 @@ export type OneInchSwapApiInput = OneInchQuoteApiInput & {
   referrerAddress: string
   allowPartialFill: boolean
   disableEstimate: boolean
+  fee: number // fee as a percentage, e.g. to set a fee to 1.5%: fee=1.5, paid to the referrerAddress
 }
 
 export type OneInchAllowanceApiInput = {

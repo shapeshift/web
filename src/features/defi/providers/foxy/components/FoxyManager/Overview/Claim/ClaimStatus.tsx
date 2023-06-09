@@ -2,7 +2,6 @@ import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakr
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import type { ethers } from 'ethers'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import isNil from 'lodash/isNil'
 import { useCallback, useEffect, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
@@ -18,10 +17,10 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { poll } from 'lib/poll/poll'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -64,10 +63,6 @@ const StatusInfo = {
   },
 }
 
-const moduleLogger = logger.child({
-  namespace: ['DeFi', 'Providers', 'Foxy', 'Overview', 'ClaimStatus'],
-})
-
 type ClaimStatusProps = {
   accountId: AccountId | undefined
 }
@@ -108,7 +103,6 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
           accountId,
           defiType: DefiType.Staking,
           defiProvider: DefiProvider.ShapeShift,
-          opportunityType: DefiType.Staking,
         },
         { forceRefetch: true },
       ),
@@ -138,7 +132,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
             .toString(),
         })
       } catch (error) {
-        moduleLogger.error(error, 'ClaimStatus error')
+        console.error(error)
         setState({
           ...state,
           txStatus: TxStatus.FAILED,

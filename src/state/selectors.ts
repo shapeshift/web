@@ -2,12 +2,18 @@
 
 import type { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import createCachedSelector from 're-reselect'
 import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 
 import type { ReduxState } from './reducer'
-import type { LpId, StakingId, UserStakingId, ValidatorId } from './slices/opportunitiesSlice/types'
+import type {
+  DefiProvider,
+  DefiType,
+  LpId,
+  StakingId,
+  UserStakingId,
+  ValidatorId,
+} from './slices/opportunitiesSlice/types'
 
 /**
  * List of all the params filter consumed with selectParamFromFilter

@@ -6,8 +6,7 @@ import { OsmosisManager } from 'features/defi/providers/osmosis/components/Osmos
 import { ThorchainSaversManager } from 'features/defi/providers/thorchain-savers/components/ThorchainSaversManager/ThorchainSaversManager'
 import { UniV2LpManager } from 'features/defi/providers/univ2/components/UniV2Manager/UniV2LpManager'
 import { YearnManager } from 'features/defi/providers/yearn/components/YearnManager/YearnManager'
-
-import { DefiProvider, DefiType } from './DefiCommon'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 
 export const DefiProviderToDefiModuleResolverByDeFiType = {
   [`${DefiProvider.UniV2}`]: {

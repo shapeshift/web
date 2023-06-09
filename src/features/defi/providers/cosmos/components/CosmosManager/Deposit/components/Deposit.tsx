@@ -18,7 +18,6 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -34,8 +33,6 @@ import { useAppSelector } from 'state/store'
 
 import { CosmosDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
-
-const moduleLogger = logger.child({ namespace: ['CosmosDeposit:Deposit'] })
 
 type DepositProps = StepComponentProps & {
   accountId: AccountId | undefined
@@ -94,7 +91,7 @@ export const Deposit: React.FC<DepositProps> = ({
       if (!accountId) return
       const estimatedFees = await estimateFees({
         cryptoAmount: cryptoAmountAvailable.toString(),
-        asset,
+        assetId,
         to: '',
         sendMax: true,
         accountId,
@@ -113,7 +110,7 @@ export const Deposit: React.FC<DepositProps> = ({
         shouldValidate: true,
       })
     },
-    [accountId, asset, cryptoAmountAvailable, marketData.price],
+    [accountId, asset.precision, assetId, cryptoAmountAvailable, marketData.price],
   )
 
   const handleContinue = useCallback(
@@ -128,10 +125,7 @@ export const Deposit: React.FC<DepositProps> = ({
         try {
           return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
         } catch (error) {
-          moduleLogger.error(
-            { fn: 'getStakingGasEstimate', error },
-            'Error getting deposit gas estimate',
-          )
+          console.error(error)
           toast({
             position: 'top-right',
             description: translate('common.somethingWentWrongBody'),
@@ -163,7 +157,7 @@ export const Deposit: React.FC<DepositProps> = ({
           assets,
         )
       } catch (error) {
-        moduleLogger.error({ fn: 'handleContinue', error }, 'Error on continue')
+        console.error(error)
         toast({
           position: 'top-right',
           description: translate('common.somethingWentWrongBody'),

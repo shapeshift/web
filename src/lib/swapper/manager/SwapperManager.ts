@@ -11,14 +11,13 @@ import type {
   SupportedSellAssetsInput,
   SwapErrorRight,
   Swapper,
-  SwapperType,
   SwapperWithQuoteMetadata,
 } from 'lib/swapper/api'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
+import { SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { getRatioFromQuote } from 'lib/swapper/manager/utils'
 
 function validateSwapper(swapper: Swapper<ChainId>) {
-  if (!(typeof swapper === 'object' && typeof swapper.getType === 'function'))
+  if (!(typeof swapper === 'object' && Object.values(SwapperName).includes(swapper.name)))
     throw new SwapError('[validateSwapper] - invalid swapper instance', {
       code: SwapErrorType.MANAGER_ERROR,
     })
@@ -26,10 +25,10 @@ function validateSwapper(swapper: Swapper<ChainId>) {
 
 // TODO: remove me
 export class SwapperManager {
-  public swappers: Map<SwapperType, Swapper<ChainId>>
+  public swappers: Map<SwapperName, Swapper<ChainId>>
 
   constructor() {
-    this.swappers = new Map<SwapperType, Swapper<ChainId>>()
+    this.swappers = new Map<SwapperName, Swapper<ChainId, boolean>>()
   }
 
   /**
@@ -37,41 +36,9 @@ export class SwapperManager {
    * @param swapperInstance swapper instance {Swapper}
    * @returns {SwapperManager}
    */
-  addSwapper(swapperInstance: Swapper<ChainId>): this {
+  addSwapper(swapperInstance: Swapper<ChainId, boolean>): this {
     validateSwapper(swapperInstance)
-    const swapperType = swapperInstance.getType()
-    this.swappers.set(swapperType, swapperInstance)
-    return this
-  }
-
-  /**
-   *
-   * @param swapperType swapper type {SwapperType|string}
-   * @returns {Swapper}
-   */
-  getSwapper(swapperType: SwapperType): Swapper<ChainId> {
-    const swapper = this.swappers.get(swapperType)
-    if (!swapper)
-      throw new SwapError('[getSwapper] - swapperType doesnt exist', {
-        code: SwapErrorType.MANAGER_ERROR,
-        details: { swapperType },
-      })
-    return swapper
-  }
-
-  /**
-   *
-   * @param swapperType swapper type {SwapperType|string}
-   * @returns {SwapperManager}
-   */
-  removeSwapper(swapperType: SwapperType): this {
-    const swapper = this.swappers.get(swapperType)
-    if (!swapper)
-      throw new SwapError('[removeSwapper] - swapperType doesnt exist', {
-        code: SwapErrorType.MANAGER_ERROR,
-        details: { swapperType },
-      })
-    this.swappers.delete(swapperType)
+    this.swappers.set(swapperInstance.name, swapperInstance)
     return this
   }
 
@@ -85,10 +52,10 @@ export class SwapperManager {
   async getSwappersWithQuoteMetadata(
     args: GetSwappersWithQuoteMetadataArgs,
   ): Promise<GetSwappersWithQuoteMetadataReturn> {
-    const { sellAsset, buyAsset, feeAsset } = args
+    const { sellAsset, buyAsset, feeAsset, cryptoMarketDataById } = args
 
     // Get all swappers that support the pair
-    const supportedSwappers: Swapper<ChainId>[] = this.getSwappersByPair({
+    const supportedSwappers: Swapper<ChainId, boolean>[] = this.getSwappersByPair({
       sellAssetId: sellAsset.assetId,
       buyAssetId: buyAsset.assetId,
     })
@@ -101,7 +68,11 @@ export class SwapperManager {
           if (maybeQuote.isErr()) return Promise.resolve(Err(maybeQuote.unwrapErr()))
           const quote = maybeQuote.unwrap()
 
-          const ratio = await getRatioFromQuote(quote, swapper, feeAsset)
+          const ratio = getRatioFromQuote({
+            quote,
+            feeAsset,
+            cryptoMarketDataById,
+          })
 
           return Ok({
             swapper,
@@ -127,18 +98,18 @@ export class SwapperManager {
    * @param pair type {GetQuoteInput}
    * @returns {SwapperType}
    */
-  getSwappersByPair(pair: ByPairInput): Swapper<ChainId>[] {
+  getSwappersByPair(pair: ByPairInput): Swapper<ChainId, boolean>[] {
     const { sellAssetId, buyAssetId } = pair
     const availableSwappers = Array.from(this.swappers.values())
     return availableSwappers.filter(
-      (swapper: Swapper<ChainId>) =>
+      (swapper: Swapper<ChainId, boolean>) =>
         swapper.filterBuyAssetsBySellAssetId({ sellAssetId, assetIds: [buyAssetId] }).length,
     )
   }
 
   getSupportedBuyAssetIdsFromSellId(args: BuyAssetBySellIdInput) {
     return uniq(
-      Array.from(this.swappers.values()).flatMap((swapper: Swapper<ChainId>) =>
+      Array.from(this.swappers.values()).flatMap((swapper: Swapper<ChainId, boolean>) =>
         swapper.filterBuyAssetsBySellAssetId(args),
       ),
     )
@@ -148,7 +119,7 @@ export class SwapperManager {
     const { assetIds } = args
 
     return uniq(
-      Array.from(this.swappers.values()).flatMap((swapper: Swapper<ChainId>) =>
+      Array.from(this.swappers.values()).flatMap((swapper: Swapper<ChainId, boolean>) =>
         swapper.filterAssetIdsBySellable(assetIds),
       ),
     )

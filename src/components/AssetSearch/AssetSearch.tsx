@@ -1,8 +1,8 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
 import { Box, Input, InputGroup, InputLeftElement, SlideFade } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { isNft } from '@shapeshiftoss/caip'
 import { debounce } from 'lodash'
 import intersection from 'lodash/intersection'
 import uniq from 'lodash/uniq'
@@ -13,17 +13,16 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
 import { Card } from 'components/Card/Card'
-import { logger } from 'lib/logger'
-import { selectChainIdsByMarketCap, selectSortedAssets } from 'state/slices/selectors'
+import type { Asset } from 'lib/asset-service'
+import {
+  selectAssetsSortedByMarketCapFiatBalanceAndName,
+  selectChainIdsByMarketCap,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetList } from './AssetList'
 import { ChainList } from './Chains/ChainList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
-
-const moduleLogger = logger.child({
-  namespace: ['AssetSearch'],
-})
 
 export type AssetSearchProps = {
   assets?: Asset[]
@@ -47,13 +46,18 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 
   const chainIdsByMarketCap = useSelector(selectChainIdsByMarketCap)
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
-  const assets = useAppSelector(state => selectedAssets ?? selectSortedAssets(state))
+  const assets = useAppSelector(
+    state => selectedAssets ?? selectAssetsSortedByMarketCapFiatBalanceAndName(state),
+  )
 
   /**
    * assets filtered by selected chain ids
    */
   const filteredAssets = useMemo(
-    () => (activeChain === 'All' ? assets : assets.filter(a => a.chainId === activeChain)),
+    () =>
+      activeChain === 'All'
+        ? assets.filter(a => !isNft(a.assetId))
+        : assets.filter(a => a.chainId === activeChain && !isNft(a.assetId)),
     [activeChain, assets],
   )
 
@@ -87,8 +91,6 @@ export const AssetSearch: FC<AssetSearchProps> = ({
       setSearchTermAssets(
         searching ? filterAssetsBySearchTerm(searchString, filteredAssets) : filteredAssets,
       )
-    } else {
-      moduleLogger.error('sortedAssets not defined')
     }
   }, [searchString, searching, filteredAssets])
 

@@ -6,6 +6,8 @@
     "error": "Error",
     "cancel": "Cancel",
     "close": "Close",
+    "loadMore": "Load More",
+    "saveChanges": "Save Changes",
     "new": "New",
     "continue": "Continue",
     "reward": "Reward",
@@ -83,6 +85,7 @@
     "txId": "Tx ID",
     "selectAsset": "Select an Asset",
     "switchNetwork": "Switch Network",
+    "selectNetwork": "Select a network",
     "unsupportedNetwork": "Unsupported Network",
     "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}.",
     "search": "Search",
@@ -101,7 +104,8 @@
     "manage": "Manage",
     "selectedAccount": "Selected Account",
     "allChains": "All Chains",
-    "wallet": "Wallet"
+    "wallet": "Wallet",
+    "action": "Action"
   },
   "consentBanner": {
     "body": {
@@ -128,7 +132,7 @@
     "cta": {
       "title": {
         "first": "You can also use ShapeShift with all the top wallets to trade, earn yield and",
-        "second": "track your crypto across 8 chains"
+        "second": "track your crypto across %{chainCount} chains"
       }
     },
     "availableAssets": "Available Assets"
@@ -320,9 +324,8 @@
         "vaultCapTooltip": "Current maximum capacity for this vault",
         "haltedTitle": "Deposits are temporarily halted.",
         "haltedDescription": "Please tweet at @THORChain to raise the caps!",
-        "estimatedFee": "Estimated Fee",
+        "protocolFee": "Protocol Fee",
         "fee": "Fee",
-        "estimatedFeeTooltip": "Fee for transferring funds from a layer 1 blockchain",
         "dustAmount": "Dust Amount",
         "dustAmountTooltip": "A tiny amount of dust is required to identify your address, and will be reserved for later use, when you want to make a withdrawal",
         "sendDustBody": "You need to send some dust to this address to be able to withdraw.",
@@ -481,6 +484,8 @@
   },
   "navBar": {
     "home": "Home",
+    "activity": "Activity",
+    "myWallet": "My Wallet",
     "dashboard": "Dashboard",
     "dashboardShort": "Dashboard",
     "assets": "Assets",
@@ -488,7 +493,6 @@
     "accounts": "Accounts",
     "accountAsset": "Account Asset",
     "accountDetails": "Account Details",
-    "earn": "Earn",
     "defi": "DeFi",
     "transactionHistory": "Transaction History",
     "overview": "Overview",
@@ -501,10 +505,14 @@
     "clickToConnect": "Click to connect a wallet",
     "wallet": "Wallet",
     "explore": "Explore",
-    "trade": "Trade",
+    "rewards": "Rewards",
+    "trade": "Trade/Bridge",
+    "tradeShort": "Trade",
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
-    "arkeo": "Arkeo Airdrop"
+    "arkeo": "Arkeo Airdrop",
+    "foxMissions": "FOX Missions",
+    "foxMissionsShort": "Missions"
   },
   "transactionRow": {
     "send": "Sent",
@@ -634,6 +642,7 @@
     "youGet": "You Get",
     "tradeTo": "Trade to",
     "minerFee": "Miner Fee",
+    "donation": "ShapeShift Donation",
     "protocolFee": "Protocol Fee",
     "protocol": "Protocol",
     "tradeFeeSource": "%{tradeFeeSource} Fee",
@@ -663,7 +672,9 @@
       "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
+      "donation": "Help support ShapeShift and keep us up and running.",
       "protocol": "This is the protocol where your trade is being routed.",
+      "protocolLifi": "This is the protocol where your trade is being routed. LI.FI executes a series of intermediary trades under the hood for the best overall combination of price, safety and speed.",
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
       "shapeshiftFee": "ShapeShift does not add fees on trades 🎉"
     },
@@ -689,6 +700,7 @@
       "broadcastFailed": "An error occurred while broadcasting the transaction",
       "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
       "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
+      "insufficientFundsForProtocolFee": "Insufficient %{symbol} on %{chainName} for fees",
       "invalidTradePair": "Invalid trade pair: %{sellAssetName} and %{buyAssetName}",
       "invalidTradePairBtnText": "Invalid Trade Pair",
       "noLiquidityError": "Not enough liquidity available",
@@ -724,7 +736,14 @@
       "tradeFailed": "Trade failed. Assets returned minus gas fee"
     },
     "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
-    "recentTrades": "Recent Trades"
+    "recentTrades": "Recent Trades",
+    "lifiWarning": "This trade routes via LI.FI, which executes a series of intermediary trades to perform a swap. If any steps fail you'll receive the token for the last successful step in the sequence.",
+    "or": "or",
+    "onChainName": "on %{chainName}",
+    "unknownGas": "(unknown)",
+    "receiveAddress": "Receive Address",
+    "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter address to continue.",
+    "addressPlaceholder": "%{chainName} address"
   },
   "modals": {
     "popup": {
@@ -852,6 +871,7 @@
       "tokenAddress": "To Address",
       "addressInput": "To Address, ENS or Yat",
       "scanQrCode": "Scan QR Code",
+      "qrCode": "QR Code",
       "permissionsButton": "Try again",
       "sent": "%{asset} sent",
       "errorTitle": "Your send of %{asset} failed",
@@ -1893,6 +1913,8 @@
     }
   },
   "nft": {
+    "customizeFoxatar": "Customize FOXatar",
+    "setAsAvatar": "Set as Avatar",
     "floorPrice": "Floor Price",
     "lastPrice": "Last Price",
     "overview": "Overview",
@@ -1908,5 +1930,51 @@
     "aboutCollection": "About %{collectionName}",
     "emptyTitle": "Where did all the NFTs go?",
     "emptyBody": "Don't worry, we've sent out a search party to bring back more amazing NFTs. In the meantime, feel free to stare at this blank space and ponder the meaning of existence."
+  },
+  "missions": {
+    "subtitle": "FOX Missions",
+    "missionEnded": "Mission Ended",
+    "viewMission": "View Mission",
+    "comingSoon": "Coming Soon",
+    "activeMissions": "Active Missions",
+    "endedMissions": "Ended Missions",
+    "title": {
+      "1": "Unleash the Decentralized Universe and",
+      "2": "Reap Rewards"
+    },
+    "body": "Embark on Missions, Earn Rewards, and expand your knowledge of the Ever-Expanding ShapeShift Ecosystem",
+    "ends": "Ends",
+    "ongoing": "Ongoing Mission",
+    "optimism": {
+      "title": "Earn up to 19.5 OP",
+      "subtitle": "Explore Optimism",
+      "cta": "Start Mission"
+    },
+    "foxatar": {
+      "title": "Get a Free & Customizable NFT",
+      "subtitle": "Mint a FOXatar",
+      "cta": "Start Mission"
+    },
+    "foxArmy": {
+      "subtitle": "Join the FOX Army",
+      "title": "20,000 FOX Pool",
+      "cta": "Start Mission"
+    },
+    "yat": {
+      "subtitle": "Play Yat Fantasy",
+      "title": "3,000 USDC Prize Pool",
+      "cta": "Start Mission"
+    },
+    "getListed": {
+      "subtitle": "Your Project Here",
+      "title": "Launch a Mission for Your Project",
+      "cta": "Submit Project"
+    }
+  },
+  "avatar": {
+    "modal": {
+      "title": "Set a New Avatar",
+      "restoreDefault": "Restore default"
+    }
   }
 }

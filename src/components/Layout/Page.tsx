@@ -24,7 +24,7 @@ export const Page: React.FC<PageProps> = ({
   ...rest
 }: PageProps) => {
   return (
-    <Flex flex={1} flexDir='column' {...rest}>
+    <Flex flex={1} flexDir='column' height='calc(100% - 72px)' {...rest}>
       {error && !loading ? renderError() : loading ? renderLoading() : children}
     </Flex>
   )

@@ -59,7 +59,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) =>
         <Switch location={location} key={location.key}>
           <Route exact path='/'>
             <ClaimConfirm
-              assetId={stakingAssetId}
+              stakingAssetId={stakingAssetId}
               accountId={accountId}
               chainId={chainId}
               contractAddress={contractAddress}

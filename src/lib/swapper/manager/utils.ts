@@ -1,9 +1,10 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { MarketData } from '@shapeshiftoss/types'
+import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { Swapper, TradeQuote } from 'lib/swapper/api'
-import { isFulfilled } from 'lib/swapper/typeGuards'
+import type { TradeQuote } from 'lib/swapper/api'
+import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
 
 /*
   The ratio is calculated by dividing the total fiat value of the receive amount
@@ -17,41 +18,46 @@ import { isFulfilled } from 'lib/swapper/typeGuards'
   Negative ratios are possible when the fees exceed the sell amount.
   This is allowed to let us choose 'the best from a bad bunch'.
 */
-export const getRatioFromQuote = async (
-  quote: TradeQuote<ChainId>,
-  swapper: Swapper<ChainId>,
-  feeAsset: Asset,
-): Promise<number | undefined> => {
-  /*
-    We make an assumption here that swappers return comparable asset rates.
-    If a swapper were to undervalue the outbound asset and overvalue the inbound asset
-    then the ratio would be incorrectly in its favour.
-  */
-  const quoteAssets = [quote.sellAsset, quote.buyAsset, feeAsset]
-  const usdRatePromises = quoteAssets.map(asset => swapper.getUsdRate(asset))
-  const [sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate] = (
-    await Promise.allSettled(usdRatePromises)
-  )
-    .filter(isFulfilled)
-    .map(p => p.value)
+export const getRatioFromQuote = ({
+  quote,
+  feeAsset,
+  cryptoMarketDataById,
+}: {
+  quote: TradeQuote<ChainId>
+  feeAsset: Asset
+  cryptoMarketDataById: Partial<Record<AssetId, Pick<MarketData, 'price'>>>
+}): number | undefined => {
+  const buyAssetUsdRate = cryptoMarketDataById[quote.steps[0].buyAsset.assetId]?.price
+  const sellAssetUsdRate = cryptoMarketDataById[quote.steps[0].sellAsset.assetId]?.price
+  const feeAssetUsdRate = cryptoMarketDataById[feeAsset.assetId]?.price
 
-  const totalSellAmountFiat = bnOrZero(
-    fromBaseUnit(quote.sellAmountBeforeFeesCryptoBaseUnit, quote.sellAsset.precision),
-  )
-    .times(sellAssetUsdRate)
-    .plus(bnOrZero(quote.feeData.sellAssetTradeFeeUsd))
+  const sellAmountUsd = bnOrZero(
+    fromBaseUnit(
+      quote.steps[0].sellAmountBeforeFeesCryptoBaseUnit,
+      quote.steps[0].sellAsset.precision,
+    ),
+  ).times(sellAssetUsdRate ?? '0')
 
-  const totalReceiveAmountFiat = bnOrZero(
-    fromBaseUnit(quote.buyAmountCryptoBaseUnit, quote.buyAsset.precision),
-  )
-    .times(buyAssetUsdRate)
-    .minus(bnOrZero(quote.feeData.buyAssetTradeFeeUsd))
-  const networkFeeFiat = bnOrZero(
-    fromBaseUnit(quote.feeData.networkFeeCryptoBaseUnit, feeAsset.precision),
-  ).times(feeAssetUsdRate)
+  const receiveAmountUsd = bnOrZero(
+    fromBaseUnit(
+      quote.steps[0].buyAmountBeforeFeesCryptoBaseUnit,
+      quote.steps[0].buyAsset.precision,
+    ),
+  ).times(buyAssetUsdRate ?? '0')
 
-  const totalSendAmountFiat = totalSellAmountFiat.plus(networkFeeFiat)
-  const ratio = totalReceiveAmountFiat.div(totalSendAmountFiat)
+  const networkFeeUsd = bnOrZero(
+    fromBaseUnit(quote.steps[0].feeData.networkFeeCryptoBaseUnit, feeAsset.precision),
+  ).times(feeAssetUsdRate ?? '0')
 
-  return ratio.isFinite() ? ratio.toNumber() : undefined
+  const totalProtocolFeesUsd = sumProtocolFeesToDenom({
+    cryptoMarketDataById,
+    outputAssetPriceUsd: '1', // 1 USD costs 1 USD
+    outputExponent: 0, // 0 exponent = human
+    protocolFees: quote.steps[0].feeData.protocolFees,
+  })
+
+  const totalSendAmountUsd = sellAmountUsd.plus(networkFeeUsd).plus(totalProtocolFeesUsd)
+  const ratio = receiveAmountUsd.div(totalSendAmountUsd)
+
+  return ratio.isFinite() && networkFeeUsd.gte(0) ? ratio.toNumber() : -Infinity
 }

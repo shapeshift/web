@@ -1,10 +1,11 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Box, Stack } from '@chakra-ui/layout'
 import {
+  Box,
   Button,
   Link,
   Skeleton,
   SkeletonText,
+  Stack,
   Tab,
   TabList,
   TabPanel,
@@ -15,8 +16,6 @@ import {
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/dist/wallet'
-import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
-import { DefiProvider } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import isEqual from 'lodash/isEqual'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
@@ -28,9 +27,11 @@ import { Text } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { foxyAddresses } from 'lib/investor/investor-foxy'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { trimWithEndEllipsis } from 'state/slices/portfolioSlice/utils'
 import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -169,7 +170,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
               </Stack>
             </TabPanel>
             <TabPanel textAlign='center' p={0}>
-              {isFoxAsset && <TradeCard />}
+              {isFoxAsset && <TradeCard defaultBuyAssetId={assetId} />}
               {!isFoxAsset && (
                 <Stack width='full' p={6}>
                   <SkeletonText isLoaded={Boolean(description?.length)} noOfLines={3}>

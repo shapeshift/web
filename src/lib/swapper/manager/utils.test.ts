@@ -1,23 +1,21 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from 'lib/asset-service'
 
-import type { Swapper, TradeQuote } from '../api'
+import type { TradeQuote } from '../api'
 import { ETH } from '../swappers/utils/test-data/assets'
+import { cryptoMarketDataById } from '../swappers/utils/test-data/cryptoMarketDataById'
 import { tradeQuote } from './testData'
 import { getRatioFromQuote } from './utils'
 
 describe('getRatioFromQuote', () => {
-  it('should get the ratio for a quote', async () => {
+  it('should get the ratio for a quote', () => {
     const quote: TradeQuote<ChainId> = tradeQuote
-    const swapper: Swapper<ChainId> = {
-      getUsdRate: jest
-        .fn()
-        .mockResolvedValueOnce(0.04)
-        .mockResolvedValueOnce(1300)
-        .mockResolvedValueOnce(1300),
-    } as unknown as Swapper<ChainId>
     const feeAsset: Asset = ETH
-    const result = await getRatioFromQuote(quote, swapper, feeAsset)
-    expect(result).toBe(0.5162013781611758)
+    const result = getRatioFromQuote({
+      quote,
+      feeAsset,
+      cryptoMarketDataById,
+    })
+    expect(result).toBe(0.5876006170074233)
   })
 })

@@ -18,11 +18,6 @@ import type { Column, Row, TableState } from 'react-table'
 import { useExpanded, usePagination, useSortBy, useTable } from 'react-table'
 import { RawText } from 'components/Text'
 
-export type TableHeaderProps = {
-  searchQuery: any
-  setSearchQuery: (filterValue: any) => void
-}
-
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]
   data: T[]
@@ -200,7 +195,7 @@ export const ReactTable = <T extends {}>({
       {(canNextPage || canPreviousPage) && (
         <Tfoot>
           <Tr>
-            <Td colSpan={visibleColumns.length} py={0}>
+            <Td colSpan={visibleColumns.length} style={{ paddingLeft: 4, paddingRight: 4 }}>
               <Flex width='full' justifyContent='space-between' alignItems='center'>
                 <IconButton
                   icon={<ArrowBackIcon />}

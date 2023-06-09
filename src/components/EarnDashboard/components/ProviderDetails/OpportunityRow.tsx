@@ -14,10 +14,11 @@ import {
   getRewardBalances,
   getUnderlyingAssetIdsBalances,
 } from 'state/slices/opportunitiesSlice/utils'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAssetById,
   selectAssets,
-  selectMarketDataSortedByMarketCap,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -48,7 +49,7 @@ export const OpportunityRow: React.FC<
   const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
   const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
+  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
 
   const underlyingAssetLabel = useMemo(() => {
     if ((opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) {
@@ -98,6 +99,11 @@ export const OpportunityRow: React.FC<
 
   const handleClick = useCallback(
     (action: DefiAction) => {
+      if (opportunity.isReadOnly) {
+        const url = getMetadataForProvider(opportunity.provider)?.url
+        url && window.open(url, '_blank')
+        return
+      }
       onClick(opportunity, action)
     },
     [onClick, opportunity],
@@ -108,7 +114,7 @@ export const OpportunityRow: React.FC<
     const hasBalanceElement = <RawText textTransform='capitalize'>{type}</RawText>
     const subText = [
       aprElement,
-      ...(bnOrZero(cryptoAmountBaseUnit).gt(0) ? [hasBalanceElement] : []),
+      ...(!bnOrZero(cryptoAmountBaseUnit).isZero() ? [hasBalanceElement] : []),
     ]
 
     return subText.map((element, index) => (
@@ -124,12 +130,12 @@ export const OpportunityRow: React.FC<
     return (
       <List style={{ marginTop: 0 }}>
         {nestedAssetIds.map(assetId => {
-          if (!underlyingAssetBalances[assetId]) return null
-          if (bnOrZero(underlyingAssetBalances[assetId].cryptoBalancePrecision).eq(0)) return null
+          if (bnOrZero(underlyingAssetBalances[assetId]?.cryptoBalancePrecision).eq(0)) return null
           return (
             <NestedAsset
               key={assetId}
               isClaimableRewards={isClaimableRewards}
+              isExternal={opportunity.isReadOnly}
               assetId={assetId}
               balances={underlyingAssetBalances[assetId]}
               onClick={() => handleClick(DefiAction.Claim)}
@@ -143,6 +149,7 @@ export const OpportunityRow: React.FC<
     nestedAssetIds,
     underlyingAssetBalances,
     isClaimableRewards,
+    opportunity.isReadOnly,
     translate,
     underlyingAssetLabel,
     handleClick,
@@ -178,6 +185,7 @@ export const OpportunityRow: React.FC<
               </Flex>
             }
             justifyContent='flex-start'
+            isExternal={opportunity.isReadOnly}
           />
           <Amount.Crypto
             value={bnOrZero(cryptoAmountBaseUnit)

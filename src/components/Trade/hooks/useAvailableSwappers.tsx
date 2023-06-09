@@ -1,7 +1,9 @@
+import partition from 'lodash/partition'
 import { useEffect, useState } from 'react'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import { useTradeQuoteService } from 'components/Trade/hooks/useTradeQuoteService'
-import type { GetSwappersWithQuoteMetadataReturn, SwapperWithQuoteMetadata } from 'lib/swapper/api'
+import { useDebounce } from 'hooks/useDebounce/useDebounce'
+import type { GetSwappersWithQuoteMetadataReturn } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { isSome } from 'lib/utils'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
@@ -9,6 +11,11 @@ import { getSwappersApi } from 'state/apis/swapper/getSwappersApi'
 import { selectFeeAssetByChainId } from 'state/slices/assetsSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
+import {
+  selectBuyAssetUsdRate,
+  selectFeeAssetUsdRate,
+  selectSellAssetUsdRate,
+} from 'state/zustand/swapperStore/amountSelectors'
 import { selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
@@ -19,17 +26,17 @@ export const useAvailableSwappers = () => {
   const [swappersWithQuoteMetadataAndTimestamp, setSwappersWithQuoteMetadataAndTimestamp] =
     useState<[GetSwappersWithQuoteMetadataReturn, number]>()
 
-  // Form hooks
   const { tradeQuoteArgs } = useTradeQuoteService()
 
   const updateAvailableSwappersWithMetadata = useSwapperStore(
     state => state.updateAvailableSwappersWithMetadata,
   )
-  const updateActiveSwapperWithMetadata = useSwapperStore(
-    state => state.updateActiveSwapperWithMetadata,
-  )
+
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
+  const buyAssetUsdRate = useSwapperStore(selectBuyAssetUsdRate)
+  const sellAssetUsdRate = useSwapperStore(selectSellAssetUsdRate)
+  const feeAssetUsdRate = useSwapperStore(selectFeeAssetUsdRate)
   const updateFees = useSwapperStore(state => state.updateFees)
   const updateTradeAmountsFromQuote = useSwapperStore(state => state.updateTradeAmountsFromQuote)
 
@@ -47,6 +54,8 @@ export const useAvailableSwappers = () => {
   const featureFlags = useAppSelector(selectFeatureFlags)
   const { getAvailableSwappers } = getSwappersApi.endpoints
 
+  const debouncedTradeQuoteArgs = useDebounce(tradeQuoteArgs, 500)
+
   /*
      This effect is responsible for fetching the available swappers for a given trade pair and corresponding args.
    */
@@ -55,15 +64,9 @@ export const useAvailableSwappers = () => {
       // Capture the request start time so we can resolve race conditions when setting swapper/quote data
       const requestStartedTimestamp = Date.now()
 
-      const availableSwapperTypesWithQuoteMetadataResponse =
-        tradeQuoteArgs && feeAsset
-          ? await dispatch(
-              getAvailableSwappers.initiate({
-                ...tradeQuoteArgs,
-                feeAsset,
-              }),
-            )
-          : undefined
+      const availableSwapperTypesWithQuoteMetadataResponse = debouncedTradeQuoteArgs
+        ? await dispatch(getAvailableSwappers.initiate(debouncedTradeQuoteArgs))
+        : undefined
 
       const availableSwapperTypesWithQuoteMetadata =
         availableSwapperTypesWithQuoteMetadataResponse?.data
@@ -72,7 +75,7 @@ export const useAvailableSwappers = () => {
       const swappers = swapperManager.swappers
       const availableSwappersWithQuoteMetadata = availableSwapperTypesWithQuoteMetadata
         ?.map(s => {
-          const swapper = swappers.get(s.swapperType)
+          const swapper = swappers.get(s.swapperName)
           return swapper
             ? {
                 swapper,
@@ -84,8 +87,8 @@ export const useAvailableSwappers = () => {
         .filter(isSome)
       // Handle a race condition between form state and useTradeQuoteService
       if (
-        tradeQuoteArgs?.buyAsset.assetId === buyAssetId &&
-        tradeQuoteArgs?.sellAsset.assetId === sellAssetId &&
+        debouncedTradeQuoteArgs?.buyAsset.assetId === buyAssetId &&
+        debouncedTradeQuoteArgs?.sellAsset.assetId === sellAssetId &&
         availableSwappersWithQuoteMetadata
       ) {
         setSwappersWithQuoteMetadataAndTimestamp([
@@ -98,10 +101,12 @@ export const useAvailableSwappers = () => {
     buyAssetId,
     dispatch,
     featureFlags,
-    feeAsset,
     getAvailableSwappers,
     sellAssetId,
-    tradeQuoteArgs,
+    debouncedTradeQuoteArgs,
+    buyAssetUsdRate,
+    sellAssetUsdRate,
+    feeAssetUsdRate,
   ])
 
   useEffect(() => {
@@ -122,9 +127,7 @@ export const useAvailableSwappers = () => {
         The available swappers endpoint returns all available swappers for a given trade pair, ordered by rate, including halted.
         A halted swapper may well have the best rate, but we don't want to show it unless there are none other available.
        */
-      const active: SwapperWithQuoteMetadata[] = []
-      const halted: SwapperWithQuoteMetadata[] = []
-      await Promise.all(
+      const swappersWithQuoteMetadataAndTradingStatus = await Promise.all(
         swappersWithQuoteMetadata.map(async swapperWithQuoteMetadata => {
           const isActive = await (async () => {
             const activeSwapper = swapperWithQuoteMetadata.swapper
@@ -158,11 +161,7 @@ export const useAvailableSwappers = () => {
             } else return true
           })()
 
-          if (isActive) {
-            active.push(swapperWithQuoteMetadata)
-          } else {
-            halted.push(swapperWithQuoteMetadata)
-          }
+          return { swapperWithQuoteMetadata, isActive }
         }),
       )
 
@@ -170,10 +169,15 @@ export const useAvailableSwappers = () => {
         If we have active swappers, show only them. Else, show any halted swappers so the user knows the trade pair
         is actually supported by us, it's just currently halted.
        */
-      const swappersToDisplay = active.length > 0 ? active : halted
-      const activeSwapperWithQuoteMetadata = swappersToDisplay?.[0]
+      const [active, halted] = partition(
+        swappersWithQuoteMetadataAndTradingStatus,
+        ({ isActive }) => isActive,
+      )
+      const swappersToDisplay = (active.length > 0 ? active : halted).map(
+        ({ swapperWithQuoteMetadata }) => swapperWithQuoteMetadata,
+      )
+
       updateAvailableSwappersWithMetadata(swappersToDisplay)
-      updateActiveSwapperWithMetadata(activeSwapperWithQuoteMetadata)
       updateTradeAmountsFromQuote()
       feeAsset && updateFees(feeAsset)
     })()
@@ -185,7 +189,6 @@ export const useAvailableSwappers = () => {
     mostRecentRequestStartedTimeStamp,
     sellAssetId,
     swappersWithQuoteMetadataAndTimestamp,
-    updateActiveSwapperWithMetadata,
     updateAvailableSwappersWithMetadata,
     updateFees,
     updateTradeAmountsFromQuote,

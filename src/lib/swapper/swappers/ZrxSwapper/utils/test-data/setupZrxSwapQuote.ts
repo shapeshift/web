@@ -1,9 +1,9 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
-import { FOX, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
+import type { Asset } from 'lib/asset-service'
+import { FOX_MAINNET, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 import type { ZrxQuoteResponse } from 'lib/swapper/swappers/ZrxSwapper/types'
 
 export const setupZrxTradeQuoteResponse = () => {
-  const sellAsset: Asset = { ...FOX }
+  const sellAsset: Asset = { ...FOX_MAINNET }
   const buyAsset: Asset = { ...WETH }
   const quoteResponse: ZrxQuoteResponse = {
     sellAmount: '1000000000000000000',
@@ -22,7 +22,7 @@ export const setupZrxTradeQuoteResponse = () => {
 }
 
 export const setupExecuteTrade = () => {
-  const sellAsset: Asset = { ...FOX }
+  const sellAsset: Asset = { ...FOX_MAINNET }
   const buyAsset: Asset = { ...WETH }
   const executeTradeInput = {
     sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
@@ -31,7 +31,7 @@ export const setupExecuteTrade = () => {
     to: '0x123',
     gas: '1235',
     gasPrice: '1236',
-    buyAmountCryptoBaseUnit: '',
+    buyAmountBeforeFeesCryptoBaseUnit: '',
     buyAsset,
     sellAsset,
     sendMax: false,
@@ -40,9 +40,7 @@ export const setupExecuteTrade = () => {
     depositAddress: '0x0',
     receiveAddress: '0x0',
     feeData: {
-      chainSpecific: {},
-      buyAssetTradeFeeUsd: '0',
-      sellAssetTradeFeeUsd: '0',
+      protocolFees: {},
       networkFeeCryptoBaseUnit: '0',
     },
     rate: '0',

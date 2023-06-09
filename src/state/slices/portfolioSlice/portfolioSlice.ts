@@ -1,11 +1,12 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
+import merge from 'lodash/merge'
+import uniq from 'lodash/uniq'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { logger } from 'lib/logger'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -14,8 +15,6 @@ import type { ReduxState } from 'state/reducer'
 import type { AccountMetadataById, Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio } from './utils'
-
-const moduleLogger = logger.child({ namespace: ['portfolioSlice'] })
 
 type WalletMetaPayload = {
   walletId?: WalletId | undefined
@@ -27,7 +26,6 @@ export const portfolio = createSlice({
   initialState,
   reducers: {
     clear: () => {
-      moduleLogger.info('clearing portfolio')
       return initialState
     },
     setWalletMeta: (state, { payload }: { payload: WalletMetaPayload }) => {
@@ -36,7 +34,6 @@ export const portfolio = createSlice({
       if (state.walletId === walletId) return
       // note this function can unset the walletId to undefined
       if (walletId) {
-        moduleLogger.info(payload, 'setting wallet id and name')
         const data = { 'Wallet Id': walletId, 'Wallet Name': walletName }
         // if we already have state.walletId, we're switching wallets, otherwise connecting
         getMixPanel()?.track(
@@ -47,44 +44,45 @@ export const portfolio = createSlice({
         state.walletName = walletName
         state.wallet.ids = Array.from(new Set([...state.wallet.ids, walletId])).filter(Boolean)
       } else {
-        moduleLogger.info(payload, 'unsetting wallet id and name')
         state.walletId = undefined
         state.walletName = undefined
         getMixPanel()?.track(MixPanelEvents.DisconnectWallet)
       }
     },
-    upsertAccountMetadata: (state, { payload }: { payload: AccountMetadataById }) => {
-      moduleLogger.debug('upserting account metadata')
-      state.accountMetadata.byId = {
-        ...state.accountMetadata.byId,
-        ...payload,
-      }
+    upsertAccountMetadata: {
+      reducer: (draftState, { payload }: { payload: AccountMetadataById }) => {
+        draftState.accountMetadata.byId = merge(draftState.accountMetadata.byId, payload)
+        draftState.accountMetadata.ids = Object.keys(draftState.accountMetadata.byId)
 
-      state.accountMetadata.ids = Object.keys(state.accountMetadata.byId)
+        if (!draftState.walletId) return // realistically, at this point, we should have a walletId set
+        const existingWalletAccountIds = draftState.wallet.byId[draftState.walletId] ?? []
+        const newWalletAccountIds = Object.keys(payload)
+        // keep an index of what account ids belong to this wallet
+        draftState.wallet.byId[draftState.walletId] = uniq(
+          existingWalletAccountIds.concat(newWalletAccountIds),
+        )
+      },
 
-      if (!state.walletId) return // realistically, at this point, we should have a walletId set
-      const existingWalletAccountIds = state.wallet.byId[state.walletId] ?? []
-      const newWalletAccountIds = Object.keys(payload)
-      // keep an index of what account ids belong to this wallet
-      state.wallet.byId[state.walletId] = Array.from(
-        new Set([...existingWalletAccountIds, ...newWalletAccountIds]),
-      )
+      // Use the `prepareAutoBatched` utility to automatically
+      // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
+      prepare: prepareAutoBatched<AccountMetadataById>(),
     },
-    upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {
-      moduleLogger.debug('upserting portfolio')
-      // upsert all
-      state.accounts.byId = { ...state.accounts.byId, ...payload.accounts.byId }
-      const accountIds = Array.from(new Set([...state.accounts.ids, ...payload.accounts.ids]))
-      state.accounts.ids = accountIds
+    upsertPortfolio: {
+      reducer: (draftState, { payload }: { payload: Portfolio }) => {
+        // upsert all
+        draftState.accounts.byId = merge(draftState.accounts.byId, payload.accounts.byId)
+        draftState.accounts.ids = Object.keys(draftState.accounts.byId)
 
-      state.accountBalances.byId = {
-        ...state.accountBalances.byId,
-        ...payload.accountBalances.byId,
-      }
-      const accountBalanceIds = Array.from(
-        new Set([...state.accountBalances.ids, ...payload.accountBalances.ids]),
-      )
-      state.accountBalances.ids = accountBalanceIds
+        draftState.accountBalances.byId = merge(
+          draftState.accountBalances.byId,
+          payload.accountBalances.byId,
+        )
+        draftState.accountBalances.ids = Object.keys(draftState.accountBalances.byId)
+      },
+
+      // Use the `prepareAutoBatched` utility to automatically
+      // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
+      prepare: prepareAutoBatched<Portfolio>(),
     },
   },
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
@@ -115,7 +113,7 @@ export const portfolioApi = createApi({
           upsertOnFetch && dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {
-          moduleLogger.error(e, `error fetching account ${accountId}`)
+          console.error(e)
           const data = cloneDeep(initialState)
           data.accounts.ids.push(accountId)
           data.accounts.byId[accountId] = { assetIds: [] }

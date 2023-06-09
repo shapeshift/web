@@ -21,7 +21,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -36,17 +35,13 @@ import {
   selectAssets,
   selectBIP44ParamsByAccountId,
   selectMarketDataById,
-  selectMarketDataSortedByMarketCap,
   selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { OsmosisDepositActionType } from '../LpDepositCommon'
 import { DepositContext } from '../LpDepositContext'
-
-const moduleLogger = logger.child({
-  namespace: ['Defi', 'Providers', 'Osmosis', 'OsmosisManager', 'Deposit', 'Confirm'],
-})
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
@@ -61,7 +56,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const chainAdapter = getChainAdapterManager().get(chainId) as unknown as osmosis.ChainAdapter
 
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
+  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
 
   const underlyingAssetBalances = useMemo(() => {
     if (!osmosisOpportunity || !state) return null
@@ -226,7 +221,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         assets,
       )
     } catch (error) {
-      moduleLogger.error({ fn: 'handleDeposit', error }, 'Error adding liquidity')
+      console.error(error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),

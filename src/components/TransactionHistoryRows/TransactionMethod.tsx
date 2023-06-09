@@ -2,7 +2,6 @@ import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Method } from 'hooks/useTxDetails/useTxDetails'
-import { logger } from 'lib/logger'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -84,7 +83,6 @@ export const TransactionMethod = ({
       case Method.Revoke:
         return Method.Approve
       default: {
-        logger.warn(`unhandled method: ${txMetadata.method}`)
         const transferTypes = Object.keys(transfersByType)
         if (transferTypes.length === 1) return transferTypes[0] // known single direction
         return ''
@@ -110,7 +108,7 @@ export const TransactionMethod = ({
         parentWidth={parentWidth}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
-        <Transfers compactMode={compactMode} transfers={txDetails.tx.transfers} />
+        <Transfers compactMode={compactMode} transfers={txDetails.transfers} />
         <TxGrid compactMode={compactMode}>
           {(txMetadata.method === 'approve' || txMetadata.method === 'revoke') &&
             txMetadataWithAssetId?.assetId &&

@@ -8,8 +8,6 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { FailureType, MessageType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { logger } from 'lib/logger'
-const moduleLogger = logger.child({ namespace: ['Pin'] })
 
 type KeepKeyPinProps = {
   translationType: string
@@ -80,7 +78,7 @@ export const KeepKeyPin = ({
             break
         }
       } catch (e) {
-        moduleLogger.error(e, 'KeepKey PIN Submit error: ')
+        console.error(e)
       } finally {
         if (pinFieldRef?.current) {
           pinFieldRef.current.value = ''
@@ -198,7 +196,7 @@ export const KeepKeyPin = ({
         size={confirmButtonSize ?? 'lg'}
         colorScheme='blue'
         onClick={handleSubmit}
-        disabled={loading || isPinEmpty}
+        isDisabled={loading || isPinEmpty}
       >
         <Text translation={`walletProvider.keepKey.${translationType}.button`} />
       </Button>

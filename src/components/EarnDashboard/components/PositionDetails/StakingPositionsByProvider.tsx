@@ -1,15 +1,10 @@
-import { ArrowForwardIcon } from '@chakra-ui/icons'
+import { ArrowForwardIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, Flex } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/investor-foxy'
 import type { MarketData } from '@shapeshiftoss/types'
-import {
-  DefiAction,
-  DefiProviderMetadata,
-} from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -21,7 +16,8 @@ import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn } from 'lib/bignumber/bignumber'
+import type { Asset } from 'lib/asset-service'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type {
@@ -29,6 +25,7 @@ import type {
   StakingEarnOpportunityType,
 } from 'state/slices/opportunitiesSlice/types'
 import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssets,
@@ -92,6 +89,12 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
   const handleClick = useCallback(
     (row: RowProps, action: DefiAction) => {
       const { original: opportunity } = row
+
+      if (opportunity.isReadOnly) {
+        const url = getMetadataForProvider(opportunity.provider)?.url
+        url && window.open(url, '_blank')
+      }
+
       const {
         type,
         provider,
@@ -151,7 +154,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
               <LazyLoadAvatar
                 size='sm'
                 bg='transparent'
-                src={row.original.icon ?? DefiProviderMetadata[row.original.provider].icon}
+                src={row.original.icon ?? getMetadataForProvider(row.original.provider)?.icon ?? ''}
                 key={`provider-icon-${row.original.id}`}
               />
               <Flex flexDir='column'>
@@ -172,7 +175,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
           const opportunity = row.original
           const opportunityAssetId = opportunity.assetId
           const opportunityUnderlyingAssetId = opportunity.underlyingAssetId
-          const hasValue = bnOrZero(opportunity.fiatAmount).gt(0)
+          const hasValue = !bnOrZero(opportunity.fiatAmount).isZero()
           if (!opportunity.underlyingAssetIds.length) return null
           const isUnderlyingAsset = opportunity.underlyingAssetIds.includes(assetId)
           const underlyingAssetIndex = opportunity.underlyingAssetIds.indexOf(assetId)
@@ -273,6 +276,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
               size='sm'
               colorScheme='blue'
               width={{ base: 'full', md: 'auto' }}
+              rightIcon={row.original.isReadOnly ? <ExternalLinkIcon boxSize={3} /> : undefined}
               onClick={() => handleClick(row, DefiAction.Overview)}
             >
               {translate('common.manage')}

@@ -16,8 +16,8 @@ type UniV2DepositValues = DepositValues &
   }
 
 export type UniV2DepositState = {
-  approve0: EstimatedGas
-  approve1: EstimatedGas
+  approve0?: EstimatedGas
+  approve1?: EstimatedGas
   deposit: UniV2DepositValues
   loading: boolean
   txid: string | null

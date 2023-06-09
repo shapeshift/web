@@ -1,7 +1,5 @@
-import type { Asset } from '@shapeshiftoss/asset-service'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  adapters,
   avalancheAssetId,
   bchAssetId,
   binanceAssetId,
@@ -18,9 +16,11 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { Asset } from 'lib/asset-service'
 import type { BN } from 'lib/bignumber/bignumber'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { setTimeoutAsync } from 'lib/utils'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 
@@ -114,7 +114,7 @@ export const getThorchainPools = async (): Promise<ThornodePoolResponse[]> => {
 export const getAllThorchainSaversPositions = async (
   assetId: AssetId,
 ): Promise<ThorchainSaverPositionResponse[]> => {
-  const poolId = adapters.assetIdToPoolAssetId({ assetId })
+  const poolId = assetIdToPoolAssetId({ assetId })
 
   if (!poolId) return []
 
@@ -163,7 +163,7 @@ export const getThorchainSaversDepositQuote = async ({
   asset: Asset
   amountCryptoBaseUnit: BigNumber.Value | null | undefined
 }): Promise<ThorchainSaversDepositQuoteResponseSuccess> => {
-  const poolId = adapters.assetIdToPoolAssetId({ assetId: asset.assetId })
+  const poolId = assetIdToPoolAssetId({ assetId: asset.assetId })
 
   if (!poolId) throw new Error(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
 
@@ -196,7 +196,7 @@ export const getThorchainSaversWithdrawQuote = async ({
   accountId: AccountId
   bps: string
 }): Promise<ThorchainSaversWithdrawQuoteResponseSuccess> => {
-  const poolId = adapters.assetIdToPoolAssetId({ assetId: asset.assetId })
+  const poolId = assetIdToPoolAssetId({ assetId: asset.assetId })
 
   if (!poolId) throw new Error(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
 

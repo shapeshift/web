@@ -35,6 +35,7 @@ export const breakpoints = {
   lg: '992px',
   xl: '1280px',
   '2xl': '1440px',
+  '3xl': '2200px',
 }
 
 const styles = {
@@ -94,6 +95,7 @@ const styles = {
       flexDirection: 'column',
       alignItems: 'stretch',
     },
+    '--shapeshift-header-bg': mode('white', 'blackAlpha.100')(props),
   }),
 }
 
@@ -141,6 +143,7 @@ export const theme = extendTheme({
     container: {
       '2xl': '1440px',
       '3xl': '1600px',
+      '4xl': '1955px',
     },
   },
   shadows: {

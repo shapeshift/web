@@ -1,16 +1,17 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Result } from '@sniptt/monads/build'
-import { Ok } from '@sniptt/monads/build'
-import type { AxiosResponse } from 'axios'
-import axios from 'axios'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
+import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
 
-import { DEFAULT_SLIPPAGE, DEFAULT_SOURCE, REFERRAL_ADDRESS } from '../utils/constants'
+import { DEFAULT_SLIPPAGE, DEFAULT_SOURCE } from '../utils/constants'
 import { getRate } from '../utils/helpers'
+import { oneInchService } from '../utils/oneInchService'
 import type {
   OneInchSwapApiInput,
   OneInchSwapperDeps,
@@ -22,61 +23,83 @@ export const buildTrade = async (
   deps: OneInchSwapperDeps,
   input: BuildTradeInput,
 ): Promise<Result<OneInchTrade<EvmChainId>, SwapErrorRight>> => {
-  try {
-    const {
-      chainId,
-      sellAsset,
-      buyAsset,
-      sellAmountBeforeFeesCryptoBaseUnit,
-      accountNumber,
-      slippage,
-      receiveAddress,
-    } = input
-    if (sellAsset.chainId !== buyAsset.chainId || sellAsset.chainId !== chainId) {
-      throw new SwapError('[buildTrade] cross chain swaps not supported', {
+  const {
+    chainId,
+    sellAsset,
+    buyAsset,
+    sellAmountBeforeFeesCryptoBaseUnit,
+    accountNumber,
+    slippage,
+    receiveAddress,
+    affiliateBps,
+  } = input
+  if (sellAsset.chainId !== buyAsset.chainId || sellAsset.chainId !== chainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[buildTrade] cross chain swaps not supported',
         code: SwapErrorType.UNSUPPORTED_PAIR,
-      })
-    }
-
-    if (
-      !isEvmChainId(chainId) ||
-      !isEvmChainId(sellAsset.chainId) ||
-      !isEvmChainId(buyAsset.chainId)
-    ) {
-      throw new SwapError('[buildTrade] invalid chainId', {
-        code: SwapErrorType.UNSUPPORTED_CHAIN,
-      })
-    }
-
-    const { assetReference: fromAssetAddress } = fromAssetId(sellAsset.assetId)
-    const { assetReference: toAssetAddress } = fromAssetId(buyAsset.assetId)
-
-    /**
-     * limit of price slippage you are willing to accept in percentage,
-     * may be set with decimals. &slippage=0.5 means 0.5% slippage is acceptable.
-     * Low values increase chances that transaction will fail,
-     * high values increase chances of front running. Set values in the range from 0 to 50
-     */
-    const slippagePercentage = (slippage ? bnOrZero(slippage) : bnOrZero(DEFAULT_SLIPPAGE))
-      .times(100)
-      .toNumber()
-
-    const swapApiInput: OneInchSwapApiInput = {
-      fromTokenAddress: fromAssetAddress,
-      toTokenAddress: toAssetAddress,
-      fromAddress: receiveAddress,
-      amount: sellAmountBeforeFeesCryptoBaseUnit,
-      slippage: slippagePercentage,
-      allowPartialFill: false,
-      referrerAddress: REFERRAL_ADDRESS,
-      disableEstimate: false,
-    }
-
-    const { chainReference } = fromChainId(chainId)
-    const swapResponse: AxiosResponse<OneInchSwapResponse> = await axios.get(
-      `${deps.apiUrl}/${chainReference}/swap`,
-      { params: swapApiInput },
+      }),
     )
+  }
+
+  if (
+    !isEvmChainId(chainId) ||
+    !isEvmChainId(sellAsset.chainId) ||
+    !isEvmChainId(buyAsset.chainId)
+  ) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[buildTrade] invalid chainId',
+        code: SwapErrorType.UNSUPPORTED_CHAIN,
+      }),
+    )
+  }
+
+  const { assetReference: fromAssetAddress } = fromAssetId(sellAsset.assetId)
+  const { assetReference: toAssetAddress } = fromAssetId(buyAsset.assetId)
+
+  /**
+   * limit of price slippage you are willing to accept in percentage,
+   * may be set with decimals. &slippage=0.5 means 0.5% slippage is acceptable.
+   * Low values increase chances that transaction will fail,
+   * high values increase chances of front running. Set values in the range from 0 to 50
+   */
+  const slippagePercentage = (slippage ? bnOrZero(slippage) : bnOrZero(DEFAULT_SLIPPAGE))
+    .times(100)
+    .toNumber()
+
+  const buyTokenPercentageFee = convertBasisPointsToPercentage(affiliateBps).toNumber()
+
+  if (!receiveAddress)
+    return Err(
+      makeSwapErrorRight({
+        message: 'Receive address is required to build Oneinch trades',
+        code: SwapErrorType.MISSING_INPUT,
+      }),
+    )
+
+  const swapApiInput: OneInchSwapApiInput = {
+    fromTokenAddress: fromAssetAddress,
+    toTokenAddress: toAssetAddress,
+    // HACK: use the receive address as the send address
+    // 1inch uses this to check allowance on their side
+    // this swapper is not cross-account so this works
+    fromAddress: receiveAddress,
+    amount: sellAmountBeforeFeesCryptoBaseUnit,
+    slippage: slippagePercentage,
+    allowPartialFill: false,
+    referrerAddress: DAO_TREASURY_ETHEREUM_MAINNET,
+    disableEstimate: false,
+    fee: buyTokenPercentageFee,
+  }
+
+  const { chainReference } = fromChainId(chainId)
+  const maybeSwapResponse = await oneInchService.get<OneInchSwapResponse>(
+    `${deps.apiUrl}/${chainReference}/swap`,
+    { params: swapApiInput },
+  )
+
+  return maybeSwapResponse.andThen(swapResponse => {
     const fee = bnOrZero(swapResponse.data.tx.gasPrice).times(bnOrZero(swapResponse.data.tx.gas))
 
     // Note: 1inch will not return a response to the above API if the needed approval is not in place.
@@ -87,19 +110,13 @@ export const buildTrade = async (
     const trade: OneInchTrade<EvmChainId> = {
       rate: getRate(swapResponse.data).toString(),
       feeData: {
-        buyAssetTradeFeeUsd: '0',
-        sellAssetTradeFeeUsd: '0',
+        protocolFees: {},
         networkFeeCryptoBaseUnit: fee.toString(),
-        chainSpecific: {
-          estimatedGasCryptoBaseUnit: swapResponse.data.tx.gas,
-          gasPriceCryptoBaseUnit: swapResponse.data.tx.gasPrice,
-          approvalFeeCryptoBaseUnit: '0',
-        },
       },
       sellAsset,
       sellAmountBeforeFeesCryptoBaseUnit,
       buyAsset,
-      buyAmountCryptoBaseUnit: swapResponse.data.toTokenAmount,
+      buyAmountBeforeFeesCryptoBaseUnit: swapResponse.data.toTokenAmount,
       accountNumber,
       receiveAddress,
       sources: DEFAULT_SOURCE,
@@ -107,10 +124,5 @@ export const buildTrade = async (
     }
 
     return Ok(trade)
-  } catch (e) {
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[buildTrade]', {
-      code: SwapErrorType.BUILD_TRADE_FAILED,
-    })
-  }
+  })
 }

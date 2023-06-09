@@ -1,9 +1,11 @@
 import type { AssetId, ToAssetIdArgs } from '@shapeshiftoss/caip'
-import { adapters, fromAssetId } from '@shapeshiftoss/caip'
-import { DefiProvider, DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { selectAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
-import { selectAssetById, selectFeatureFlags, selectMarketDataById } from 'state/slices/selectors'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
   GetOpportunityIdsOutput,
@@ -14,6 +16,7 @@ import type {
   OpportunityMetadata,
   StakingId,
 } from '../../types'
+import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId, toOpportunityId } from '../../utils'
 import type {
   OpportunitiesMetadataResolverInput,
@@ -37,7 +40,7 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   }
 
   const opportunityIds = thorchainPools.reduce<OpportunityId[]>((acc, currentPool) => {
-    const maybeOpportunityId = adapters.poolAssetIdToAssetId(currentPool.asset)
+    const maybeOpportunityId = poolAssetIdToAssetId(currentPool.asset)
 
     if (
       bnOrZero(currentPool.savers_depth).gt(0) &&
@@ -57,7 +60,7 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
 
 export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   opportunityIds,
-  opportunityType,
+  defiType,
   reduxApi,
 }: OpportunitiesMetadataResolverInput): Promise<{
   data: GetOpportunityMetadataOutput
@@ -71,7 +74,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     return Promise.resolve({
       data: {
         byId: {},
-        type: opportunityType,
+        type: defiType,
       },
     })
   }
@@ -93,7 +96,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
   for (const thorchainPool of thorchainPools) {
-    const assetId = adapters.poolAssetIdToAssetId(thorchainPool.asset)
+    const assetId = poolAssetIdToAssetId(thorchainPool.asset)
     if (!assetId || !opportunityIds.includes(assetId as OpportunityId)) continue
 
     const opportunityId = assetId as StakingId
@@ -141,14 +144,14 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 
   const data = {
     byId: stakingOpportunitiesById,
-    type: opportunityType,
+    type: defiType,
   }
 
   return { data }
 }
 
 export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
-  opportunityType,
+  defiType,
   accountId,
   reduxApi,
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
@@ -158,7 +161,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
   const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
   const data = {
     byId: stakingOpportunitiesUserDataByUserStakingId,
-    type: opportunityType,
+    type: defiType,
   }
 
   try {
@@ -227,7 +230,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
     return Promise.resolve({
       data: {
         byId: stakingOpportunitiesUserDataByUserStakingId,
-        type: opportunityType,
+        type: defiType,
       },
     })
   }

@@ -17,7 +17,6 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { logger } from 'lib/logger'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -27,15 +26,13 @@ import {
   selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketDataById,
-  selectMarketDataSortedByMarketCap,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { UniV2WithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
-
-const moduleLogger = logger.child({ namespace: ['Withdraw'] })
 
 type WithdrawProps = StepComponentProps & {
   accountId: AccountId | undefined
@@ -47,7 +44,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   onAccountIdChange: handleAccountIdChange,
   onNext,
 }) => {
-  const marketData = useAppSelector(selectMarketDataSortedByMarketCap)
+  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
   const { state, dispatch } = useContext(WithdrawContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -145,7 +142,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       return bnOrZero(feeData.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
-      moduleLogger.error(error, 'UniV2Withdraw:getWithdrawGasEstimate error:')
+      console.error(error)
     }
   }
 

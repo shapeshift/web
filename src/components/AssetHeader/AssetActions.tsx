@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, isNft } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
@@ -54,7 +54,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   const handleSendClick = () =>
-    isConnected ? send.open({ asset, accountId }) : handleWalletModalOpen()
+    isConnected ? send.open({ assetId, accountId }) : handleWalletModalOpen()
   const handleReceiveClick = () =>
     isConnected ? receive.open({ asset, accountId }) : handleWalletModalOpen()
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
@@ -108,7 +108,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
           onClick={handleSendClick}
           leftIcon={<ArrowUpIcon />}
           width={{ base: '100%', md: 'auto' }}
-          isDisabled={!hasValidBalance || !isValidChainId}
+          isDisabled={!hasValidBalance || !isValidChainId || isNft(assetId)}
           data-test='asset-action-send'
           flex={{ base: 1, md: 'auto' }}
         >

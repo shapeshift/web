@@ -1,8 +1,8 @@
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { YearnInvestor } from '@shapeshiftoss/investor-yearn'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { YearnInvestor } from 'lib/investor/investor-yearn'
 
 let maybeYearnInvestor: YearnInvestor | undefined
 export const getYearnInvestor = () => {

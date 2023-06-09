@@ -9,11 +9,6 @@ export const selectSwapperApiTradeQuotePending = (state: ReduxState) =>
     query => query?.endpointName === 'getTradeQuote' && query?.status === QueryStatus.pending,
   )
 
-export const selectSwapperApiUsdRatesPending = (state: ReduxState) =>
-  Object.values(state.swapperApi.queries).some(
-    query => query?.endpointName === 'getUsdRates' && query?.status === QueryStatus.pending,
-  )
-
 export const selectSwapperApiTradingActivePending = (state: ReduxState) =>
   Object.values(state.swapperApi.queries).some(
     query => query?.endpointName === 'getIsTradingActive' && query?.status === QueryStatus.pending,

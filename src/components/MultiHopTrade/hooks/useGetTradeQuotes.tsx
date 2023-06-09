@@ -1,6 +1,7 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
+import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { GetTradeQuoteInput } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
@@ -27,6 +28,7 @@ export const useGetTradeQuotes = () => {
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
+  const debouncedTradeQuoteInput = useDebounce(tradeQuoteInput, 500)
   const sellAsset = useAppSelector(selectSellAsset)
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAssetAccountId = useAppSelector(selectSellAssetAccountId)
@@ -73,24 +75,21 @@ export const useGetTradeQuotes = () => {
     wallet,
   ])
 
-  const lifiQuery = useGetLifiTradeQuoteQuery(tradeQuoteInput, {
+  const lifiQuery = useGetLifiTradeQuoteQuery(debouncedTradeQuoteInput, {
     skip: !flags.LifiSwap,
   })
 
-  const thorQuery = useGetThorTradeQuoteQuery(tradeQuoteInput, {
+  const thorQuery = useGetThorTradeQuoteQuery(debouncedTradeQuoteInput, {
     skip: !flags.ThorSwap,
   })
 
   // TODO(woodenfurniture): sorting of quotes
   // TODO(woodenfurniture): quote selection
   const sortedQuotes = useMemo(() => {
-    if (isSkipToken(tradeQuoteInput)) return []
+    if (isSkipToken(debouncedTradeQuoteInput)) return []
 
     const thorInputOutputRatio = 0.9 // TODO(woodenfurniture): calculate this
     const lifiInputOutputRatio = 0.8 // TODO(woodenfurniture): calculate this
-
-    lifiQuery.data?.isErr() && console.log('lifiQuery', lifiQuery.data?.unwrapErr())
-    thorQuery.data?.isErr() && console.log('thorQuery', thorQuery.data?.unwrapErr())
 
     return [
       {
@@ -115,7 +114,7 @@ export const useGetTradeQuotes = () => {
     thorQuery.data,
     thorQuery.error,
     thorQuery.isFetching,
-    tradeQuoteInput,
+    debouncedTradeQuoteInput,
   ])
   return {
     sortedQuotes,

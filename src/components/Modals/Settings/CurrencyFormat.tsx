@@ -50,7 +50,7 @@ export const CurrencyFormat = () => {
             const active = currencyFormat === currentCurrencyFormat
             const buttonProps = active
               ? {
-                  disabled: true,
+                  isDisabled: true,
                   _disabled: { opacity: 1 },
                 }
               : {

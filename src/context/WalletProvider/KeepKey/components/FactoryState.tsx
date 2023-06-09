@@ -42,7 +42,7 @@ export const KeepKeyFactoryState = () => {
           size='lg'
           colorScheme='blue'
           onClick={handleCreateWalletPress}
-          disabled={loading}
+          isDisabled={loading}
           mb={3}
         >
           <Text translation={'modals.keepKey.factoryState.createButton'} />
@@ -51,7 +51,7 @@ export const KeepKeyFactoryState = () => {
           width='full'
           size='lg'
           onClick={handleRecoverWalletPress}
-          disabled={loading}
+          isDisabled={loading}
           variant='outline'
           border='none'
         >

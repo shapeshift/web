@@ -120,7 +120,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
           </ModalBody>
         ) : (
           <>
-            <ModalBody pb={4} display='flex' flexDir='column' gap={4}>
+            <ModalBody pb={4} display='flex' flexDir='column' gap={4} overflow='hidden'>
               <Box flex={1} minHeight={{ base: '100%', md: '500px' }} {...group}>
                 <AutoSizer>
                   {({ width, height }) => {
@@ -134,6 +134,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
                         rowHeight={width / columnCount}
                         columnCount={columnCount}
                         overscanRowCount={15}
+                        style={{ overflowX: 'hidden', overflowY: 'auto' }}
                       >
                         {NftRow}
                       </FixedSizeGrid>

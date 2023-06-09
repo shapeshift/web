@@ -37,7 +37,7 @@ export const selectGetNftUserTokensPending = createSelector(
   queries => Boolean(queries.length),
 )
 
-export const selectNftItemsWithCollection = createSelector(
+export const selectPortfolioNftItemsWithCollection = createSelector(
   selectNfts,
   selectNftCollections,
   selectPortfolioAssetIds,

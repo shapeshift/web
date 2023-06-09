@@ -9,10 +9,9 @@ import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
 import {
   selectGetNftUserTokensPending,
-  selectNftItemsWithCollection,
+  selectPortfolioNftItemsWithCollection,
 } from 'state/apis/nft/selectors'
 import type { NftItemWithCollection } from 'state/apis/nft/types'
-import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
 import { NftCard } from './NftCard'
@@ -35,16 +34,11 @@ const NftGrid: React.FC<SimpleGridProps> = props => (
 
 export const NftTable = () => {
   const [searchQuery, setSearchQuery] = useState('')
-  const accountIds = useAppSelector(selectWalletAccountIds)
 
   const [networkFilters, setNetworkFilters] = useState<ChainId[]>([])
 
   const isLoading = useAppSelector(selectGetNftUserTokensPending)
-  const selectNftItemsWithCollectionSelector = useMemo(
-    () => selectNftItemsWithCollection(accountIds),
-    [accountIds],
-  )
-  const nftItems = useAppSelector(selectNftItemsWithCollectionSelector)
+  const nftItems = useAppSelector(selectPortfolioNftItemsWithCollection)
 
   const availableChainIds = useMemo(
     () =>

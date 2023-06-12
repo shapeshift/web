@@ -22,9 +22,10 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { RawText } from 'components/Text'
 import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
-import { nft, useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
+import { nft } from 'state/apis/nft/nftApi'
 import {
   makeSelectNftItemsWithCollectionSelector,
+  selectGetNftUserTokensPending,
   selectSelectedNftAvatar,
 } from 'state/apis/nft/selectors'
 import type { NftItemWithCollection } from 'state/apis/nft/types'
@@ -46,7 +47,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const selectedNftAvatar = useAppSelector(selectSelectedNftAvatar)
   const columnCount = useBreakpointValue({ base: 2, md: 3 }, { ssr: false }) ?? 2
 
-  const { isLoading } = useGetNftUserTokensQuery({ accountIds })
+  const isLoading = useAppSelector(selectGetNftUserTokensPending)
   const selectNftItemsWithCollectionSelector = useMemo(
     () => makeSelectNftItemsWithCollectionSelector(accountIds),
     [accountIds],

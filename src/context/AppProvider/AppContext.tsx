@@ -28,6 +28,7 @@ import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { setTimeoutAsync } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
+import { nftApi } from 'state/apis/nft/nftApi'
 import { zapper } from 'state/apis/zapper/zapperApi'
 import { assets as assetsSlice, useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
@@ -187,6 +188,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       if (portfolioLoadingStatus === 'loading') return
 
       const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
+
+      dispatch(nftApi.endpoints.getNftUserTokens.initiate({ accountIds: requestedAccountIds }))
 
       dispatch(zapper.endpoints.getZapperAppsBalancesOutput.initiate())
 

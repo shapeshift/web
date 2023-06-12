@@ -29,7 +29,7 @@ import type {
   ReadOnlyOpportunityType,
   StakingId,
 } from 'state/slices/opportunitiesSlice/types'
-import { DefiType } from 'state/slices/opportunitiesSlice/types'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
@@ -376,6 +376,13 @@ export const zapper = createApi({
             (acc, appAccountBalance) => {
               const appId = appAccountBalance.appId
               const appName = appAccountBalance.appName
+
+              // Avoids duplicates from out full-fledged opportunities
+              // Note, this assumes our DefiProvider value is the same as the AppName
+              if (Object.values(DefiProvider).includes(appName as DefiProvider)) {
+                return acc
+              }
+
               const appImage = appAccountBalance.appImage
               const accountId = toAccountId({
                 chainId:

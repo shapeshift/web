@@ -21,6 +21,8 @@ import { useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
+import type { StepperStep } from 'components/MultiHopTrade/types'
+import { MultiHopExecutionStatus } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { WithBackButton } from 'components/Trade/WithBackButton'
@@ -28,15 +30,45 @@ import { localAssetData } from 'lib/asset-service'
 
 import LiFiIcon from '../TradeQuotes/lifi-icon.png'
 
-const getIsHopComplete = (_tradeExecutionStatus: unknown, isFirstHop: boolean) => {
-  // TODO: mock function for now
-  return isFirstHop
+const getIsHopComplete = (tradeExecutionStatus: MultiHopExecutionStatus, isFirstHop: boolean) => {
+  switch (true) {
+    case isFirstHop:
+      return tradeExecutionStatus >= MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation
+    case !isFirstHop:
+      return tradeExecutionStatus >= MultiHopExecutionStatus.TradeComplete
+    default:
+      return false
+  }
 }
 
-const getActiveStepperStep = (_tradeExecutionStatus: unknown, isFirstHop: boolean) => {
-  // TODO: mock function for now
-  // Infinity means "render all steps as completed"
-  return isFirstHop ? Infinity : 2
+const getActiveStepperStep = (
+  tradeExecutionStatus: MultiHopExecutionStatus,
+  isFirstHop: boolean,
+  isApprovalRequired: boolean,
+) => {
+  if (isFirstHop) {
+    switch (tradeExecutionStatus) {
+      case MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation:
+      case MultiHopExecutionStatus.Hop1AwaitingApprovalExecution:
+        return 2
+      case MultiHopExecutionStatus.Hop1AwaitingTradeConfirmation:
+      case MultiHopExecutionStatus.Hop1AwaitingTradeExecution:
+        return isApprovalRequired ? 3 : 2
+      default:
+        return 0
+    }
+  } else {
+    switch (tradeExecutionStatus) {
+      case MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation:
+      case MultiHopExecutionStatus.Hop2AwaitingApprovalExecution:
+        return 1
+      case MultiHopExecutionStatus.Hop2AwaitingTradeConfirmation:
+      case MultiHopExecutionStatus.Hop2AwaitingTradeExecution:
+        return isApprovalRequired ? 2 : 1
+      default:
+        return 0
+    }
+  }
 }
 
 const Hop = ({
@@ -51,17 +83,19 @@ const Hop = ({
   const backgroundColor = useColorModeValue('gray.100', 'gray.750')
   const borderColor = useColorModeValue('gray.50', 'gray.650')
 
-  const tradeExecutionStatus = 'mock_status_123'
+  // TODO: move me to store and use that
+  const initialStatus = isFirstHop
+    ? MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation
+    : MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation
+
+  // const tradeExecutionStatus = initialStatus
+  // Fixme: debugging only
+  const tradeExecutionStatus = MultiHopExecutionStatus.Hop1AwaitingTradeConfirmation
 
   const isComplete = getIsHopComplete(tradeExecutionStatus, isFirstHop)
-  const activeStep = getActiveStepperStep(tradeExecutionStatus, isFirstHop)
+  const activeStep = getActiveStepperStep(tradeExecutionStatus, isFirstHop, isApprovalRequired)
 
-  const steps: {
-    title: string
-    description?: string
-    stepIndicator: JSX.Element
-    content?: JSX.Element
-  }[] = useMemo(() => {
+  const steps: StepperStep[] = useMemo(() => {
     const steps = []
 
     steps.push({
@@ -95,10 +129,14 @@ const Hop = ({
         stepIndicator: <StepStatus complete={<StepIcon />} active={<Spinner />} />,
         content: (
           <Card p='2'>
-            <HStack>
-              <Button>Approve</Button>
-              <Button>Reject</Button>
-            </HStack>
+            {tradeExecutionStatus === MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation ? (
+              <HStack>
+                <Button>Approve</Button>
+                <Button>Reject</Button>
+              </HStack>
+            ) : (
+              <RawText>TXID: 1234</RawText>
+            )}
           </Card>
         ),
       })
@@ -139,7 +177,7 @@ const Hop = ({
     }
 
     return steps
-  }, [isApprovalRequired, isComplete, shouldRenderDonation, isFirstHop])
+  }, [isComplete, isFirstHop, isApprovalRequired, shouldRenderDonation, tradeExecutionStatus])
 
   return (
     <Card

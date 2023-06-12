@@ -569,17 +569,17 @@ export const zapper = createApi({
                   const underlyingAssetRatiosBaseUnit = (() =>
                     (asset.dataProps?.reserves ?? [])
                       .map(reserve => {
-                      const reserveBaseUnit = toBaseUnit(reserve, asset.decimals ?? 18)
-                      const totalSupplyBaseUnit =
-                        typeof asset.supply === 'number'
-                          ? toBaseUnit(asset.supply, asset.decimals ?? 18)
+                        const reserveBaseUnit = toBaseUnit(reserve, asset.decimals ?? 18)
+                        const totalSupplyBaseUnit =
+                          typeof asset.supply === 'number'
+                            ? toBaseUnit(asset.supply, asset.decimals ?? 18)
+                            : undefined
+                        const tokenPoolRatio = totalSupplyBaseUnit
+                          ? bn(reserveBaseUnit).div(totalSupplyBaseUnit).toString()
                           : undefined
-                      const tokenPoolRatio = totalSupplyBaseUnit
-                        ? bn(reserveBaseUnit).div(totalSupplyBaseUnit).toString()
-                        : undefined
-                      if (!tokenPoolRatio) return '0'
-                      const ratio = toBaseUnit(tokenPoolRatio, asset.tokens[0].decimals)
-                      return ratio
+                        if (!tokenPoolRatio) return '0'
+                        const ratio = toBaseUnit(tokenPoolRatio, asset.tokens[0].decimals)
+                        return ratio
                       })
                       .filter(
                         isSome,
@@ -591,7 +591,7 @@ export const zapper = createApi({
                       assetId,
                       underlyingAssetId,
                       underlyingAssetIds,
-                      underlyingAssetRatiosBaseUnit: underlyingAssetRatiosBaseUnit ?? ['0', '0'],
+                      underlyingAssetRatiosBaseUnit,
                       id: opportunityId,
                       icon,
                       name,

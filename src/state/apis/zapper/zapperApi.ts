@@ -569,28 +569,17 @@ export const zapper = createApi({
                   const underlyingAssetRatiosBaseUnit = (() =>
                     (asset.dataProps?.reserves ?? [])
                       .map(reserve => {
-                        const reserveBaseUnit = bnOrZero(
-                          bnOrZero(bnOrZero(reserve).toFixed()).toString(),
-                        ).times(bn(10).pow(asset.decimals ?? 18))
-
-                        const totalSupplyBaseUnit =
-                          typeof asset.supply === 'number'
-                            ? bnOrZero(asset.supply)
-                                .times(bn(10).pow(asset.decimals ?? 18))
-                                .toString()
-                            : undefined
-
-                        const tokenPoolRatio =
-                          reserveBaseUnit && totalSupplyBaseUnit
-                            ? reserveBaseUnit.div(totalSupplyBaseUnit).toString()
-                            : undefined
-
-                        if (!tokenPoolRatio) return undefined
-                        const ratio = toBaseUnit(
-                          tokenPoolRatio.toString(),
-                          asset.tokens[0].decimals,
-                        )
-                        return ratio
+                      const reserveBaseUnit = toBaseUnit(reserve, asset.decimals ?? 18)
+                      const totalSupplyBaseUnit =
+                        typeof asset.supply === 'number'
+                          ? toBaseUnit(asset.supply, asset.decimals ?? 18)
+                          : undefined
+                      const tokenPoolRatio = totalSupplyBaseUnit
+                        ? bn(reserveBaseUnit).div(totalSupplyBaseUnit).toString()
+                        : undefined
+                      if (!tokenPoolRatio) return '0'
+                      const ratio = toBaseUnit(tokenPoolRatio, asset.tokens[0].decimals)
+                      return ratio
                       })
                       .filter(
                         isSome,

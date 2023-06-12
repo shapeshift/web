@@ -427,6 +427,31 @@ export const zapper = createApi({
                     acc.push(rewardAssetId)
                     return acc
                   }, []) as unknown as AssetIdsTuple
+
+                  // Upsert rewardAssetIds if they don't exist in store
+                  const rewardAssetsToUpsert = rewardTokens.reduce<AssetsState>(
+                    (acc, token, i) => {
+                      const rewardAssetId = zapperAssetToMaybeAssetId(token)
+                      if (!rewardAssetId) return acc
+                      if (assets[rewardAssetId]) return acc
+
+                      acc.byId[rewardAssetId] = makeAsset({
+                        assetId: rewardAssetId,
+                        symbol: token.symbol,
+                        // No dice here, there's no name property
+                        name: token.symbol,
+                        precision: token.decimals,
+                        icon: token.displayProps?.images[i] ?? '',
+                      })
+                      acc.ids = acc.ids.concat(rewardAssetId)
+
+                      return acc
+                    },
+                    { byId: {}, ids: [] },
+                  )
+
+                  dispatch(assetsSlice.actions.upsertAssets(rewardAssetsToUpsert))
+
                   const rewardsCryptoBaseUnit = {
                     amounts: rewardTokens.map(token => token.balanceRaw),
                     claimable: true,
@@ -541,43 +566,20 @@ export const zapper = createApi({
                     dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
                   }
 
-                  const underlyingAssetRatiosBaseUnit = (() => {
-                    const token0ReservesCryptoPrecision = asset.dataProps?.reserves?.[0]
-                    const token1ReservesCryptoPrecision = asset.dataProps?.reserves?.[1]
-                    const token0ReservesBaseUnit =
-                      typeof token0ReservesCryptoPrecision === 'number'
-                        ? bnOrZero(
-                            bnOrZero(bnOrZero(token0ReservesCryptoPrecision.toFixed()).toString()),
-                          ).times(bn(10).pow(asset.decimals ?? 18))
+                  const underlyingAssetRatiosBaseUnit = (() =>
+                    (asset.dataProps?.reserves ?? []).map(reserve => {
+                      const reserveBaseUnit = toBaseUnit(reserve, asset.decimals ?? 18)
+                      const totalSupplyBaseUnit =
+                        typeof asset.supply === 'number'
+                          ? toBaseUnit(asset.supply, asset.decimals ?? 18)
+                          : undefined
+                      const tokenPoolRatio = totalSupplyBaseUnit
+                        ? bn(reserveBaseUnit).div(totalSupplyBaseUnit).toString()
                         : undefined
-                    const token1ReservesBaseUnit =
-                      typeof token1ReservesCryptoPrecision === 'number'
-                        ? bnOrZero(
-                            bnOrZero(bnOrZero(token1ReservesCryptoPrecision.toFixed()).toString()),
-                          ).times(bn(10).pow(asset.decimals ?? 18))
-                        : undefined
-                    const totalSupplyBaseUnit =
-                      typeof asset.supply === 'number'
-                        ? bnOrZero(asset.supply)
-                            .times(bn(10).pow(asset.decimals ?? 18))
-                            .toString()
-                        : undefined
-                    const token0PoolRatio =
-                      token0ReservesBaseUnit && totalSupplyBaseUnit
-                        ? token0ReservesBaseUnit.div(totalSupplyBaseUnit).toString()
-                        : undefined
-                    const token1PoolRatio =
-                      token1ReservesBaseUnit && totalSupplyBaseUnit
-                        ? token1ReservesBaseUnit.div(totalSupplyBaseUnit).toString()
-                        : undefined
-
-                    if (!(token0PoolRatio && token1PoolRatio)) return
-
-                    return [
-                      toBaseUnit(token0PoolRatio.toString(), asset.tokens[0].decimals),
-                      toBaseUnit(token1PoolRatio.toString(), asset.tokens[1].decimals),
-                    ] as const
-                  })()
+                      if (!tokenPoolRatio) return '0'
+                      const ratio = toBaseUnit(tokenPoolRatio, asset.tokens[0].decimals)
+                      return ratio
+                    }) as unknown as OpportunityMetadataBase['underlyingAssetRatiosBaseUnit'])()
 
                   if (!acc.opportunities[opportunityId]) {
                     acc.opportunities[opportunityId] = {
@@ -585,7 +587,7 @@ export const zapper = createApi({
                       assetId,
                       underlyingAssetId,
                       underlyingAssetIds,
-                      underlyingAssetRatiosBaseUnit: underlyingAssetRatiosBaseUnit ?? ['0', '0'],
+                      underlyingAssetRatiosBaseUnit,
                       id: opportunityId,
                       icon,
                       name,

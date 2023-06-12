@@ -567,30 +567,25 @@ export const zapper = createApi({
                     dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
                   }
 
-                  const underlyingAssetRatiosBaseUnit = (() =>
-                    (
-                      asset.dataProps?.reserves ??
-                      topLevelAsset.tokens?.map(
-                        token => (token as ZapperTokenWithBalances).balance,
-                      ) ??
-                      []
-                    )
-                      .map((reserve, i) => {
-                        const reserveBaseUnit = toBaseUnit(reserve, asset.decimals ?? 18)
-                        const totalSupplyBaseUnit =
-                          typeof asset.supply === 'number'
-                            ? toBaseUnit(asset.supply, asset.decimals ?? 18)
-                            : undefined
-                        const tokenPoolRatio = totalSupplyBaseUnit
-                          ? bn(reserveBaseUnit).div(totalSupplyBaseUnit).toString()
-                          : undefined
-                        if (!tokenPoolRatio) return '0'
-                        const ratio = toBaseUnit(tokenPoolRatio, asset.tokens[i].decimals)
-                        return ratio
-                      })
-                      .filter(
-                        isSome,
-                      ) as unknown as OpportunityMetadataBase['underlyingAssetRatiosBaseUnit'])()
+                  const underlyingAssetRatiosBaseUnit = (
+                    asset.dataProps?.reserves ??
+                    topLevelAsset.tokens?.map(
+                      token => (token as ZapperTokenWithBalances).balance,
+                    ) ??
+                    []
+                  ).map(reserve => {
+                    const reserveBaseUnit = toBaseUnit(reserve, asset.decimals ?? 18)
+                    const totalSupplyBaseUnit =
+                      typeof asset.supply === 'number'
+                        ? toBaseUnit(asset.supply, asset.decimals ?? 18)
+                        : undefined
+                    const tokenPoolRatio = totalSupplyBaseUnit
+                      ? bn(reserveBaseUnit).div(totalSupplyBaseUnit).toString()
+                      : undefined
+                    if (!tokenPoolRatio) return '0'
+                    const ratio = toBaseUnit(tokenPoolRatio, asset.tokens[0].decimals)
+                    return ratio
+                  }) as unknown as OpportunityMetadataBase['underlyingAssetRatiosBaseUnit']
 
                   if (!acc.opportunities[opportunityId]) {
                     acc.opportunities[opportunityId] = {

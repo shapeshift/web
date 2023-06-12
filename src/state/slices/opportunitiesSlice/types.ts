@@ -13,7 +13,7 @@ export enum DefiType {
 }
 
 export enum DefiProvider {
-  Idle = 'idle',
+  Idle = 'Idle',
   ShapeShift = 'ShapeShift',
   EthFoxStaking = 'ETH/FOX Staking',
   UniV2 = 'Uniswap V2',

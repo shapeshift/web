@@ -576,27 +576,16 @@ export const zapper = createApi({
                       []
                     )
                       .map((reserve, i) => {
-                        const reserveBaseUnit = bnOrZero(
-                          bnOrZero(bnOrZero(reserve).toFixed()).toString(),
-                        ).times(bn(10).pow(asset.decimals ?? 18))
-
+                        const reserveBaseUnit = toBaseUnit(reserve, asset.decimals ?? 18)
                         const totalSupplyBaseUnit =
                           typeof asset.supply === 'number'
-                            ? bnOrZero(asset.supply)
-                                .times(bn(10).pow(asset.decimals ?? 18))
-                                .toString()
+                            ? toBaseUnit(asset.supply, asset.decimals ?? 18)
                             : undefined
-
-                        const tokenPoolRatio =
-                          reserveBaseUnit && totalSupplyBaseUnit
-                            ? reserveBaseUnit.div(totalSupplyBaseUnit).toString()
-                            : undefined
-
-                        if (!tokenPoolRatio) return undefined
-                        const ratio = toBaseUnit(
-                          tokenPoolRatio.toString(),
-                          asset.tokens[i].decimals,
-                        )
+                        const tokenPoolRatio = totalSupplyBaseUnit
+                          ? bn(reserveBaseUnit).div(totalSupplyBaseUnit).toString()
+                          : undefined
+                        if (!tokenPoolRatio) return '0'
+                        const ratio = toBaseUnit(tokenPoolRatio, asset.tokens[i].decimals)
                         return ratio
                       })
                       .filter(
@@ -609,7 +598,7 @@ export const zapper = createApi({
                       assetId,
                       underlyingAssetId,
                       underlyingAssetIds,
-                      underlyingAssetRatiosBaseUnit: underlyingAssetRatiosBaseUnit ?? ['0', '0'],
+                      underlyingAssetRatiosBaseUnit,
                       id: opportunityId,
                       icon,
                       name,

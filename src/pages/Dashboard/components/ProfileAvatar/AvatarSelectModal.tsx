@@ -120,7 +120,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
           </ModalBody>
         ) : (
           <>
-            <ModalBody pb={4} display='flex' flexDir='column' gap={4}>
+            <ModalBody pb={4} display='flex' flexDir='column' gap={4} overflow='hidden'>
               <Box flex={1} minHeight={{ base: '100%', md: '500px' }} {...group}>
                 <AutoSizer>
                   {({ width, height }) => {
@@ -134,6 +134,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
                         rowHeight={width / columnCount}
                         columnCount={columnCount}
                         overscanRowCount={15}
+                        style={{ overflowX: 'hidden', overflowY: 'auto' }}
                       >
                         {NftRow}
                       </FixedSizeGrid>
@@ -143,15 +144,20 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
               </Box>
             </ModalBody>
             <ModalFooter gap={4}>
-              <Button width={{ base: 'full', md: 'auto' }} onClick={handleRestoreDefault} mr='auto'>
+              <Button
+                width={{ base: 'full', md: 'auto' }}
+                height='100%'
+                size='sm-multiline'
+                onClick={handleRestoreDefault}
+                mr='auto'
+              >
                 {translate('avatar.modal.restoreDefault')}
-              </Button>
-              <Button display={{ base: 'none', md: 'block' }} onClick={props.onClose}>
-                {translate('common.cancel')}
               </Button>
               <Button
                 width={{ base: 'full', md: 'auto' }}
+                height='100%'
                 colorScheme='blue'
+                size='sm-multiline'
                 onClick={() => handleSaveChanges(selected)}
               >
                 {translate('common.saveChanges')}

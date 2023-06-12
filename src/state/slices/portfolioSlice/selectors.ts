@@ -185,11 +185,17 @@ export const selectPortfolioTotalFiatBalance = createSelector(
 
 export const selectPortfolioTotalFiatBalanceExcludeEarnDupes = createSelector(
   selectPortfolioFiatBalances,
-  (portfolioFiatBalances): string => {
-    // ETH/FOX LP token and FOXy are portfolio assets, but they're also part of DeFi opportunities
+  selectGetReadOnlyOpportunities,
+  (portfolioFiatBalances, readOnlyOpportunities): string => {
+    const readOnlyOpportunitiesDuplicates = Object.values(
+      readOnlyOpportunities.data?.opportunities ?? {},
+    ).map(opportunity => opportunity.assetId)
+    // ETH/FOX LP token, FOXy, and other held tokens can be both portfolio assets, but also part of DeFi opportunities
     // With the current architecture (having them both as portfolio assets and earn opportunities), we have to remove these two some place or another
     // This obviously won't scale as we support more LP tokens, but for now, this at least gives this deduction a sane home we can grep with `dupes` or `duplicates`
-    const portfolioEarnAssetIdsDuplicates = [foxEthLpAssetId, foxyAssetId]
+    const portfolioEarnAssetIdsDuplicates = [foxEthLpAssetId, foxyAssetId].concat(
+      readOnlyOpportunitiesDuplicates,
+    )
     return Object.entries(portfolioFiatBalances)
       .reduce<BN>((acc, [assetId, assetFiatBalance]) => {
         if (portfolioEarnAssetIdsDuplicates.includes(assetId)) return acc

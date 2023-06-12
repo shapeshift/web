@@ -393,7 +393,6 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
     const initial = {
       [DefiProvider.Idle]: makeEmptyPayload(DefiProvider.Idle),
-      [DefiProvider.Yearn]: makeEmptyPayload(DefiProvider.Yearn),
       [DefiProvider.ShapeShift]: makeEmptyPayload(DefiProvider.ShapeShift),
       [DefiProvider.EthFoxStaking]: makeEmptyPayload(DefiProvider.EthFoxStaking),
       [DefiProvider.UniV2]: makeEmptyPayload(DefiProvider.UniV2),

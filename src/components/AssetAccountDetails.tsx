@@ -17,7 +17,6 @@ import { Main } from './Layout/Main'
 import { MaybeChartUnavailable } from './MaybeChartUnavailable'
 import { RelatedAssets } from './RelatedAssets/RelatedAssets'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
-import { UnderlyingToken } from './UnderlyingToken'
 
 type AssetDetailsProps = {
   assetId: AssetId
@@ -44,7 +43,6 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}
           <RelatedAssets assetId={assetId} />
           <EarnOpportunities assetId={assetId} accountId={accountId} />
-          <UnderlyingToken assetId={assetId} accountId={accountId} />
           <AssetTransactionHistory limit={10} assetId={assetId} accountId={accountId} />
         </Stack>
         <Flex

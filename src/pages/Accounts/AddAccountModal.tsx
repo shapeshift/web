@@ -112,7 +112,7 @@ export const AddAccountModal = () => {
           <Stack>
             <Stack spacing={0}>
               <RawText fontWeight='semibold'>{translate('accounts.accountChain')}</RawText>
-              <RawText mt={-4} fontSize='sm' color='gray.500'>
+              <RawText mt={4} fontSize='sm' color='gray.500'>
                 {translate('accounts.selectChain')}
               </RawText>
             </Stack>

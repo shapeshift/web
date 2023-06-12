@@ -123,7 +123,10 @@ export const parseAlchemyNftToNftItem = async (
 
       return Ok([
         {
-          originalUrl: tokenMetadata.media.url.replace('ipfs://', 'https://ipfs.io/ipfs/'),
+          originalUrl: tokenMetadata.media.url.replace(
+            'ipfs://',
+            'https://gateway.shapeshift.com/ipfs/',
+          ),
           type: 'image',
         },
       ])
@@ -141,7 +144,7 @@ export const parseAlchemyNftToNftItem = async (
 
       if (!data) return Err('Cannot get metadata from IPNS gateway')
 
-      const image = data.image.replace('ipfs://', 'https://ipfs.io/ipfs/')
+      const image = data.image.replace('ipfs://', 'https://gateway.shapeshift.com/ipfs/')
 
       return Ok([
         {

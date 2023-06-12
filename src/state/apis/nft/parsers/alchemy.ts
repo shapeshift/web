@@ -1,5 +1,5 @@
 import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
-import { polygonChainId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, polygonChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { TokenType } from '@shapeshiftoss/unchained-client/src/evm/ethereum'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -9,7 +9,7 @@ import { http as v1HttpApi } from 'plugins/polygon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getMediaType } from 'state/apis/zapper/validators'
 
-import type { ERC721Metadata, NftCollectionType, NftItemWithCollection } from '../types'
+import type { ERC721Metadata, NftCollectionType, NftItem, NftItemWithCollection } from '../types'
 
 const makeSocialLinks = (openseaCollectionMetadata: OpenSeaCollectionMetadata | undefined) => {
   if (!openseaCollectionMetadata) return []
@@ -159,6 +159,12 @@ export const parseAlchemyNftToNftItem = async (
 
   const medias = maybeMedias.unwrap()
 
+  const maybeBalance: Pick<NftItem, 'balance'> = (
+    alchemyNft.tokenType.toLowerCase() === ASSET_NAMESPACE.erc1155
+      ? { balance: bnOrZero((alchemyNft as OwnedNft).balance).toNumber() }
+      : {}
+  ) as Pick<NftItem, 'balance'>
+
   const nftItem = {
     id: alchemyNft.tokenId,
     assetId: toAssetId({
@@ -166,6 +172,7 @@ export const parseAlchemyNftToNftItem = async (
       assetNamespace: alchemyNft.contract.tokenType.toLowerCase() as AssetNamespace,
       chainId,
     }),
+    ...maybeBalance,
     name:
       (alchemyNft.title ||
         alchemyNft.contract.name ||

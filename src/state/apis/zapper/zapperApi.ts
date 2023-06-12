@@ -393,7 +393,9 @@ export const zapper = createApi({
               })
 
               const appAccountOpportunities = appAccountBalance.products
-                .flatMap(({ assets }) => assets)
+                .flatMap(({ assets, label }) =>
+                  assets.map(asset => Object.assign(asset, { label })),
+                )
                 .map<ReadOnlyOpportunityType | undefined>(asset => {
                   const stakedAmountCryptoBaseUnitAccessor = (() => {
                     //  Liquidity Pool of sorts
@@ -591,6 +593,8 @@ export const zapper = createApi({
                       provider: appName,
                       tvl,
                       type: defiType,
+                      version: asset.label,
+                      group: asset.groupId,
                       isClaimableRewards: Boolean(rewardTokens.length),
                       isReadOnly: true,
                     }
@@ -604,7 +608,9 @@ export const zapper = createApi({
                     stakedAmountCryptoBaseUnit,
                     rewardsCryptoBaseUnit,
                     fiatAmount,
+                    label: asset.groupId,
                     type: defiType,
+                    version: asset.label,
                   }
                 })
                 .filter(isSome)

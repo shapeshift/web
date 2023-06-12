@@ -2,6 +2,7 @@ import { Button, Flex, List, useColorModeValue } from '@chakra-ui/react'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText } from 'components/Text'
@@ -47,6 +48,7 @@ export const OpportunityRow: React.FC<
     icons,
   } = opportunity
   const translate = useTranslate()
+  const history = useHistory()
   const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
   const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assets = useAppSelector(selectAssets)
@@ -136,10 +138,9 @@ export const OpportunityRow: React.FC<
               <NestedAsset
                 key={underlyingAssetId}
                 isClaimableRewards={isClaimableRewards}
-                isExternal={opportunity.isReadOnly}
                 assetId={underlyingAssetId}
                 balances={underlyingAssetBalance}
-                onClick={() => handleClick(DefiAction.Claim)}
+                onClick={() => history.push(`/assets/${underlyingAssetId}`)}
                 type={translate('defi.underlyingAsset')}
               />
             )
@@ -155,6 +156,7 @@ export const OpportunityRow: React.FC<
     translate,
     handleClick,
     assetId,
+    history,
   ])
   if (!asset) return null
   return (

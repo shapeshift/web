@@ -43,7 +43,6 @@ import type {
   V2NftUserItem,
   V2NftUserTokensResponseType,
   ZapperAssetBase,
-  ZapperTokenWithBalances,
 } from './validators'
 import {
   chainIdToZapperNetwork,
@@ -567,25 +566,21 @@ export const zapper = createApi({
                     dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
                   }
 
-                  const underlyingAssetRatiosBaseUnit = (
-                    asset.dataProps?.reserves ??
-                    topLevelAsset.tokens?.map(
-                      token => (token as ZapperTokenWithBalances).balance,
-                    ) ??
-                    []
-                  ).map(reserve => {
-                    const reserveBaseUnit = toBaseUnit(reserve, asset.decimals ?? 18)
-                    const totalSupplyBaseUnit =
-                      typeof asset.supply === 'number'
-                        ? toBaseUnit(asset.supply, asset.decimals ?? 18)
+                  const underlyingAssetRatiosBaseUnit = (asset.dataProps?.reserves ?? []).map(
+                    reserve => {
+                      const reserveBaseUnit = toBaseUnit(reserve, asset.decimals ?? 18)
+                      const totalSupplyBaseUnit =
+                        typeof asset.supply === 'number'
+                          ? toBaseUnit(asset.supply, asset.decimals ?? 18)
+                          : undefined
+                      const tokenPoolRatio = totalSupplyBaseUnit
+                        ? bn(reserveBaseUnit).div(totalSupplyBaseUnit).toString()
                         : undefined
-                    const tokenPoolRatio = totalSupplyBaseUnit
-                      ? bn(reserveBaseUnit).div(totalSupplyBaseUnit).toString()
-                      : undefined
-                    if (!tokenPoolRatio) return '0'
-                    const ratio = toBaseUnit(tokenPoolRatio, asset.tokens[0].decimals)
-                    return ratio
-                  })
+                      if (!tokenPoolRatio) return '0'
+                      const ratio = toBaseUnit(tokenPoolRatio, asset.tokens[0].decimals)
+                      return ratio
+                    },
+                  )
 
                   if (!acc.opportunities[opportunityId]) {
                     acc.opportunities[opportunityId] = {

@@ -23,6 +23,9 @@ const convertCryptoBaseUnitToUsdPrecision = (
   return bnOrZero(fromBaseUnit(amountCryptoBaseUnit, asset.precision)).times(usdRate)
 }
 
+// NOTE: "Receive side" refers to "last hop AND buy asset AND receive account".
+// TODO: we'll need a check to ensure any fees included here impact the final amount received in the
+// receive account
 const getReceiveSideAmountsCryptoBaseUnit = ({
   quote,
   swapperName,
@@ -82,7 +85,7 @@ export const getNetReceiveAmountCryptoPrecision = ({
   return netReceiveAmountCryptoPrecision.toString()
 }
 
-const _getTotalNetworkFeePrecision = (
+const _getTotalNetworkFeeFiatPrecision = (
   quote: TradeQuote,
   getFeeAssetRate: (feeAssetId: AssetId) => string,
 ): BigNumber =>
@@ -106,7 +109,7 @@ const _getTotalNetworkFeePrecision = (
 /**
  * Computes the total network fee across all hops
  * @param quote The trade quote
- * @returns The total network fee across all hops in fiat precision
+ * @returns The total network fee across all hops in USD precision
  */
 const getTotalNetworkFeeUsdPrecision = (quote: TradeQuote): BigNumber => {
   const state = store.getState()
@@ -120,7 +123,7 @@ const getTotalNetworkFeeUsdPrecision = (quote: TradeQuote): BigNumber => {
     return feeAssetMarketData.price
   }
 
-  return _getTotalNetworkFeePrecision(quote, getFeeAssetUsdRate)
+  return _getTotalNetworkFeeFiatPrecision(quote, getFeeAssetUsdRate)
 }
 
 /**
@@ -135,7 +138,7 @@ export const getTotalNetworkFeeFiatPrecision = (quote: TradeQuote) => {
       assetId: feeAssetId,
     }).price
 
-  return _getTotalNetworkFeePrecision(quote, getFeeAssetFiatRate).toString()
+  return _getTotalNetworkFeeFiatPrecision(quote, getFeeAssetFiatRate).toString()
 }
 
 // TODO(woodenfurniture): this assumes `requiresBalance` is the same for steps for a given asset

@@ -42,6 +42,7 @@ export type FeatureFlags = {
   Jaypegz: boolean
   OneInch: boolean
   CovalentJaypegs: boolean
+  Chatwoot: boolean
   MultiHopTrades: boolean
   CoinbaseWallet: boolean
 }
@@ -98,6 +99,7 @@ const initialState: Preferences = {
     DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
     ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
     OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
+    Chatwoot: getConfig().REACT_APP_FEATURE_CHATWOOT,
     MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
     CoinbaseWallet: getConfig().REACT_APP_FEATURE_COINBASE_WALLET,
   },

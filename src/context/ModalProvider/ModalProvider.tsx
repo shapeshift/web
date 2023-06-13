@@ -3,6 +3,7 @@ import React, { useCallback, useMemo, useReducer } from 'react'
 import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
 import { AssetSearchModal } from 'components/Modals/AssetSearch/AssetSearchModal'
+import { FeedbackAndSupport } from 'components/Modals/FeedbackSupport/FeedbackSupport'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRampsModal'
 import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcomeModal'
 import { NativeOnboarding } from 'components/Modals/NativeOnboarding/NativeOnboarding'
@@ -33,6 +34,7 @@ const MODALS = {
   popup: PopupWindowModal,
   nativeOnboard: NativeOnboarding,
   nft: NftModal,
+  feedbackSupport: FeedbackAndSupport,
 }
 
 // state

@@ -7,6 +7,8 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { GetTradeQuoteInput } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { isSkipToken } from 'lib/utils'
+import { useGetLifiTradeQuoteQuery } from 'state/apis/swappers/lifiSwapperApi'
+import { useGetThorTradeQuoteQuery } from 'state/apis/swappers/thorSwapperApi'
 import {
   selectBuyAsset,
   selectFeatureFlags,
@@ -17,10 +19,6 @@ import {
   selectSellAsset,
   selectSellAssetAccountId,
 } from 'state/slices/selectors'
-import {
-  useGetLifiTradeQuoteQuery,
-  useGetThorTradeQuoteQuery,
-} from 'state/slices/swappersSlice/swappersSlice'
 import { store, useAppSelector } from 'state/store'
 
 import { getInputOutputRatioFromQuote } from '../helpers'

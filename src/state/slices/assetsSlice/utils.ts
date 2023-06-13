@@ -117,7 +117,9 @@ export const makeNftAssetsFromTxs = (txs: Transaction[]): AssetsState => {
         const icon = (() => {
           if (!tx.data || !transfer.id || !('mediaById' in tx.data)) return
           const url = tx.data.mediaById[transfer.id]?.url
-          if (!url || url.startsWith('ipfs://')) return
+          if (!url) return
+          if (url.startsWith('ipfs://'))
+            return url.replace('ipfs://', 'https://gateway.shapeshift.com/ipfs/')
           return url
         })()
 

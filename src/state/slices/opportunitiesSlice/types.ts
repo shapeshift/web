@@ -62,7 +62,7 @@ export type OpportunityMetadataBase = {
   // For opportunities a la Idle, that's the asset the opportunity wraps
   underlyingAssetIds: AssetIdsTuple
   // The underlying amount of underlyingAssetId 0 and maybe 1 per 1 LP token, in base unit
-  underlyingAssetRatiosBaseUnit: readonly [string, string] | readonly [string]
+  underlyingAssetRatiosBaseUnit: readonly string[]
   // The reward assets this opportunity yields, typically 1/2 or 3 assets max.
   // Can also be empty in case there are no denominated rewards or we are unable to track them
   rewardAssetIds: AssetIdsTuple

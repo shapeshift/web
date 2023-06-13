@@ -23,6 +23,10 @@ export type NftItem = {
   id: string
   // The owner of the NFT item
   ownerAccountId: AccountId
+  // An "NftItem" is not the representation of a "NFT Item" as thought by users, but of an NFT entity at a lower-level i.e a CAIP-22 (ERC721) or CAIP-29 (ERC1155) token
+  // e.g eip155:1/erc721:0x06012c8cf97BEaD5deAe237070F9587f8E7A266d/771769 / eip155:1/erc1155:0x28959Cf125ccB051E70711D0924a62FB28EAF186/1
+  // While ERC-721s do represent an actual NFT as thought by users, ERC-1155s are a bit different, as one contract can represent multiple NFTs, and each of these can have a balance
+  balance?: string
   // the actual CAIP-22/29 of the asset
   assetId: AssetId
   name: string // the name for this specific ID, should always be defined

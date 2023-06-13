@@ -21,6 +21,8 @@ import { useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
+import type { StepperStep } from 'components/MultiHopTrade/types'
+import { MultiHopExecutionStatus } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { WithBackButton } from 'components/Trade/WithBackButton'
@@ -28,15 +30,45 @@ import { localAssetData } from 'lib/asset-service'
 
 import LiFiIcon from '../TradeQuotes/lifi-icon.png'
 
-const getIsHopComplete = (_tradeExecutionStatus: unknown, isFirstHop: boolean) => {
-  // TODO: mock function for now
-  return isFirstHop
+const getIsHopComplete = (tradeExecutionStatus: MultiHopExecutionStatus, isFirstHop: boolean) => {
+  switch (true) {
+    case isFirstHop:
+      return tradeExecutionStatus >= MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation
+    case !isFirstHop:
+      return tradeExecutionStatus >= MultiHopExecutionStatus.TradeComplete
+    default:
+      return false
+  }
 }
 
-const getActiveStepperStep = (_tradeExecutionStatus: unknown, isFirstHop: boolean) => {
-  // TODO: mock function for now
-  // Infinity means "render all steps as completed"
-  return isFirstHop ? Infinity : 2
+const getActiveStepperStep = (
+  tradeExecutionStatus: MultiHopExecutionStatus,
+  isFirstHop: boolean,
+  isApprovalRequired: boolean,
+) => {
+  if (isFirstHop) {
+    switch (tradeExecutionStatus) {
+      case MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation:
+      case MultiHopExecutionStatus.Hop1AwaitingApprovalExecution:
+        return 3
+      case MultiHopExecutionStatus.Hop1AwaitingTradeConfirmation:
+      case MultiHopExecutionStatus.Hop1AwaitingTradeExecution:
+        return isApprovalRequired ? 4 : 3
+      default:
+        return Infinity
+    }
+  } else {
+    switch (tradeExecutionStatus) {
+      case MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation:
+      case MultiHopExecutionStatus.Hop2AwaitingApprovalExecution:
+        return 2
+      case MultiHopExecutionStatus.Hop2AwaitingTradeConfirmation:
+      case MultiHopExecutionStatus.Hop2AwaitingTradeExecution:
+        return isApprovalRequired ? 3 : 2
+      default:
+        return Infinity
+    }
+  }
 }
 
 const Hop = ({
@@ -51,17 +83,14 @@ const Hop = ({
   const backgroundColor = useColorModeValue('gray.100', 'gray.750')
   const borderColor = useColorModeValue('gray.50', 'gray.650')
 
-  const tradeExecutionStatus = 'mock_status_123'
+  // TODO: move me to store and use that
+  // Fixme: debugging only - set this to whatever you want the UI state to be
+  const tradeExecutionStatus = MultiHopExecutionStatus.TradeComplete
 
   const isComplete = getIsHopComplete(tradeExecutionStatus, isFirstHop)
-  const activeStep = getActiveStepperStep(tradeExecutionStatus, isFirstHop)
+  const activeStep = getActiveStepperStep(tradeExecutionStatus, isFirstHop, isApprovalRequired)
 
-  const steps: {
-    title: string
-    description?: string
-    stepIndicator: JSX.Element
-    content?: JSX.Element
-  }[] = useMemo(() => {
+  const steps: StepperStep[] = useMemo(() => {
     const steps = []
 
     steps.push({
@@ -89,30 +118,50 @@ const Hop = ({
     })
 
     if (isApprovalRequired) {
+      const hasApprovalTx =
+        tradeExecutionStatus.valueOf() >=
+        (isFirstHop
+          ? MultiHopExecutionStatus.Hop1AwaitingApprovalExecution
+          : MultiHopExecutionStatus.Hop2AwaitingApprovalExecution)
+      const approvalTx = '0x1234'
       steps.push({
         title: 'Token allowance approval',
-        description: 'Approval gas fee 900ETH',
+        description: hasApprovalTx ? approvalTx : 'Approval gas fee 900ETH',
         stepIndicator: <StepStatus complete={<StepIcon />} active={<Spinner />} />,
         content: (
           <Card p='2'>
-            <HStack>
-              <Button>Approve</Button>
-              <Button>Reject</Button>
-            </HStack>
+            {hasApprovalTx ? (
+              <RawText>TX: ${approvalTx}</RawText>
+            ) : (
+              <HStack>
+                <Button>Approve</Button>
+                <Button>Reject</Button>
+              </HStack>
+            )}
           </Card>
         ),
       })
     }
 
+    const hasTradeTx =
+      tradeExecutionStatus.valueOf() >=
+      (isFirstHop
+        ? MultiHopExecutionStatus.Hop1AwaitingTradeExecution
+        : MultiHopExecutionStatus.Hop2AwaitingTradeExecution)
+    const tradeTx = '0x5678'
     steps.push({
       title: 'Sign bridge transaction',
       stepIndicator: <StepStatus complete={<StepIcon />} active={<Spinner />} />,
       content: (
         <Card p='2'>
-          <HStack>
-            <Button>Sign message</Button>
-            <Button>Reject</Button>
-          </HStack>
+          {hasTradeTx ? (
+            <RawText>TX: ${tradeTx}</RawText>
+          ) : (
+            <HStack>
+              <Button>Sign message</Button>
+              <Button>Reject</Button>
+            </HStack>
+          )}
         </Card>
       ),
     })
@@ -139,7 +188,7 @@ const Hop = ({
     }
 
     return steps
-  }, [isApprovalRequired, isComplete, shouldRenderDonation, isFirstHop])
+  }, [isComplete, isFirstHop, isApprovalRequired, shouldRenderDonation, tradeExecutionStatus])
 
   return (
     <Card

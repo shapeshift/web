@@ -22,6 +22,7 @@ import {
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
 import type { CowSwapOrder } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import {
+  assertValidTrade,
   domain,
   getCowswapNetwork,
   getNowPlusThirtyMinutesTimestamp,
@@ -30,7 +31,6 @@ import {
 import { isEvmChainAdapter } from 'lib/utils'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { isCowswapSupportedChainId } from '../utils/utils'
 
 export async function cowExecuteTrade<T extends CowChainId>(
   { trade, wallet }: ExecuteTradeInput<T>,
@@ -45,12 +45,13 @@ export async function cowExecuteTrade<T extends CowChainId>(
     id,
     minimumBuyAmountAfterFeesCryptoBaseUnit,
     sellAsset,
+    receiveAddress,
   } = cowTrade
 
   const adapterManager = getChainAdapterManager()
   const adapter = adapterManager.get(sellAsset.chainId)
 
-  if (!adapter || !isEvmChainAdapter(adapter)) {
+  if (!isEvmChainAdapter(adapter)) {
     return Err(
       makeSwapErrorRight({
         message: 'Invalid chain adapter',
@@ -60,50 +61,15 @@ export async function cowExecuteTrade<T extends CowChainId>(
     )
   }
 
-  const maybeNetwork = getCowswapNetwork(sellAsset.chainId)
-  if (maybeNetwork.isErr()) return Err(maybeNetwork.unwrapErr())
-  const network = maybeNetwork.unwrap()
-
-  const {
-    assetReference: sellAssetAddress,
-    assetNamespace: sellAssetNamespace,
-    chainId: sellAssetChainId,
-  } = fromAssetId(sellAsset.assetId)
-  const { assetReference: buyAssetAddress, chainId: buyAssetChainId } = fromAssetId(
-    buyAsset.assetId,
-  )
-
-  if (sellAssetNamespace !== 'erc20') {
-    return Err(
-      makeSwapErrorRight({
-        message: `[cowExecuteTrade] - Sell asset needs to be ERC-20 to use CowSwap`,
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { sellAssetNamespace, sellAssetChainId },
-      }),
-    )
-  }
-
-  if (
-    !(
-      isCowswapSupportedChainId(buyAssetChainId, supportedChainIds) &&
-      buyAssetChainId === sellAssetChainId
-    )
-  ) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[cowExecuteTrade] - Sell asset need to be on a network supported by CowSwap`,
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-        details: { buyAssetChainId },
-      }),
-    )
-  }
+  const assertion = assertValidTrade({ buyAsset, sellAsset, supportedChainIds, receiveAddress })
+  if (assertion.isErr()) return Err(assertion.unwrapErr())
 
   const buyToken = !isNativeEvmAsset(buyAsset.assetId)
-    ? buyAssetAddress
+    ? fromAssetId(buyAsset.assetId).assetReference
     : COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS
 
   const orderToSign: CowSwapOrder = {
-    sellToken: sellAssetAddress,
+    sellToken: fromAssetId(sellAsset.assetId).assetReference,
     buyToken,
     sellAmount: sellAmountWithoutFee,
     buyAmount: minimumBuyAmountAfterFeesCryptoBaseUnit, // this is used as the minimum accepted receive amount before the trade will execute
@@ -142,27 +108,12 @@ export async function cowExecuteTrade<T extends CowChainId>(
   // `splitSignature` pads it if needed, and `joinSignature` simply puts it back together
   const signature = ethers.utils.joinSignature(ethers.utils.splitSignature(signatureOrderDigest))
 
-  /**
-   * /v1/orders
-   * params: {
-   * sellToken: contract address of token to sell
-   * buyToken: contractAddress of token to buy
-   * receiver: receiver address
-   * validTo: time duration during which order is valid (putting current timestamp + 30 minutes for real order)
-   * appData: appData that can be used later, can be defaulted to "0x0000000000000000000000000000000000000000000000000000000000000000"
-   * partiallyFillable: false
-   * from: sender address
-   * kind: "sell" or "buy"
-   * feeAmount: amount of fee in sellToken base
-   * sellTokenBalance: "erc20" string,
-   * buyTokenBalance: "erc20" string,
-   * signingScheme: the signing scheme used for the signature
-   * signature: a signed message specific to cowswap for this order
-   * from: same as receiver address in our case
-   * orderId: Orders can optionally include a quote ID. This way the order can be linked to a quote and enable providing more metadata when analyzing order slippage.
-   * }
-   */
+  const maybeNetwork = getCowswapNetwork(sellAsset.chainId)
+  if (maybeNetwork.isErr()) return Err(maybeNetwork.unwrapErr())
+
+  const network = maybeNetwork.unwrap()
   const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
+
   const maybeOrdersResponse = await cowService.post<string>(
     `${baseUrl}/${network}/api/v1/orders/`,
     {

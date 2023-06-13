@@ -272,6 +272,7 @@ export const TradeConfirm = () => {
       sellAsset: compositeSellAsset,
       fiatAmount: sellAmountBeforeFeesFiat,
       swapperName: swapper.name,
+      hasUserOptedOutOfDonation,
       donationAmountFiat,
       [compositeBuyAsset]: buyAmountCryptoPrecision,
       [compositeSellAsset]: sellAmountCryptoPrecision,
@@ -279,6 +280,7 @@ export const TradeConfirm = () => {
   }, [
     assets,
     buyAmountBeforeFeesBaseUnit,
+    hasUserOptedOutOfDonation,
     donationAmountFiat,
     sellAmountBeforeFeesBaseUnit,
     sellAmountBeforeFeesFiat,

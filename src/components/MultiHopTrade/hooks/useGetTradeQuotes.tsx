@@ -1,4 +1,5 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
+import { orderBy } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
@@ -21,6 +22,8 @@ import {
   useGetThorTradeQuoteQuery,
 } from 'state/slices/swappersSlice/swappersSlice'
 import { store, useAppSelector } from 'state/store'
+
+import { getInputOutputRatioFromQuote } from '../helpers'
 
 export const useGetTradeQuotes = () => {
   const flags = useAppSelector(selectFeatureFlags)
@@ -83,30 +86,36 @@ export const useGetTradeQuotes = () => {
     skip: !flags.ThorSwap,
   })
 
-  // TODO(woodenfurniture): sorting of quotes
   // TODO(woodenfurniture): quote selection
   const sortedQuotes = useMemo(() => {
     if (isSkipToken(debouncedTradeQuoteInput)) return []
 
-    const thorInputOutputRatio = 0.9 // TODO(woodenfurniture): calculate this
-    const lifiInputOutputRatio = 0.8 // TODO(woodenfurniture): calculate this
-
-    return [
+    const results = [
       {
         isLoading: thorQuery.isFetching,
         data: thorQuery.data,
         error: thorQuery.error,
         swapperName: SwapperName.Thorchain,
-        inputOutputRatio: thorInputOutputRatio,
       },
       {
         isLoading: lifiQuery.isFetching,
         data: lifiQuery.data,
         error: lifiQuery.error,
         swapperName: SwapperName.LIFI,
-        inputOutputRatio: lifiInputOutputRatio,
       },
-    ]
+    ].map(result => {
+      const quote = result.data && result.data.isOk() ? result.data.unwrap() : undefined
+      const inputOutputRatio = quote
+        ? getInputOutputRatioFromQuote({
+            quote,
+            swapperName: result.swapperName,
+          })
+        : -Infinity
+
+      return Object.assign(result, { inputOutputRatio })
+    })
+
+    return orderBy(results, ['inputOutputRatio', 'swapperName'], ['asc', 'asc'])
   }, [
     lifiQuery.data,
     lifiQuery.error,

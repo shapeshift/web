@@ -104,7 +104,7 @@ const upsertPortfolioAndAssets = createAsyncThunk<void, PortfolioAndAssetsUpsert
     )
     dispatch(nft.actions.upsertNfts({ byId: nftsById, ids: Object.keys(nftsById) }))
 
-    const portfolioNfts = portfolioAssetIds.filter(isNft) // Note: You will need to define `isNft` somewhere or replace this with the actual condition
+    const portfolioNfts = portfolioAssetIds.filter(isNft)
     const missingPortfolioNfts = Object.values(nftsById).filter(
       nft => !portfolioNfts.includes(nft?.assetId ?? ''),
     )

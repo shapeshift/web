@@ -2,6 +2,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { deserializeNftAssetReference, fromAssetId } from '@shapeshiftoss/caip'
 import { PURGE } from 'redux-persist'
 import type { PartialRecord } from 'lib/utils'
 import { isRejected, isSome } from 'lib/utils'
@@ -137,11 +138,23 @@ export const nftApi = createApi({
 
             data.forEach(item => {
               const { assetId } = item
+              const { assetReference, chainId } = fromAssetId(assetId)
 
-              if (!acc[assetId]) {
+              const [contractAddress, id] = deserializeNftAssetReference(assetReference)
+
+              const foundNftAssetId = Object.keys(acc).find(accAssetId => {
+                const { assetReference: accAssetReference, chainId: accChainId } =
+                  fromAssetId(accAssetId)
+                const [accContractAddress, accId] = deserializeNftAssetReference(accAssetReference)
+                return (
+                  accContractAddress === contractAddress && accId === id && accChainId === chainId
+                )
+              })
+
+              if (!foundNftAssetId) {
                 acc[assetId] = item
               } else {
-                acc[assetId] = updateNftItem(acc[assetId], item)
+                acc[assetId] = updateNftItem(acc[foundNftAssetId], item)
               }
             })
             // An actual RTK error, different from a rejected promise i.e getAlchemyNftData rejecting

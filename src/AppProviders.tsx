@@ -14,6 +14,7 @@ import { Provider as ReduxProvider } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
 import { ScrollToTop } from 'Routes/ScrollToTop'
+import { ChatwootWidget } from 'components/ChatWoot'
 import { AppProvider } from 'context/AppProvider/AppContext'
 import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { FoxEthProvider } from 'context/FoxEthProvider/FoxEthProvider'
@@ -46,6 +47,7 @@ export function AppProviders({ children }: ProvidersProps) {
       <ReduxProvider store={store}>
         <PluginProvider>
           <ColorModeScript storageKey='ss-theme' />
+          <ChatwootWidget />
           <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
             <ToastContainer />
             <PersistGate loading={<SplashScreen />} persistor={persistor}>

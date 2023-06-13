@@ -22,9 +22,10 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { RawText } from 'components/Text'
 import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
-import { nft, useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
+import { nft } from 'state/apis/nft/nftApi'
 import {
   makeSelectNftItemsWithCollectionSelector,
+  selectGetNftUserTokensPending,
   selectSelectedNftAvatar,
 } from 'state/apis/nft/selectors'
 import type { NftItemWithCollection } from 'state/apis/nft/types'
@@ -46,7 +47,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const selectedNftAvatar = useAppSelector(selectSelectedNftAvatar)
   const columnCount = useBreakpointValue({ base: 2, md: 3 }, { ssr: false }) ?? 2
 
-  const { isLoading } = useGetNftUserTokensQuery({ accountIds })
+  const isLoading = useAppSelector(selectGetNftUserTokensPending)
   const selectNftItemsWithCollectionSelector = useMemo(
     () => makeSelectNftItemsWithCollectionSelector(accountIds),
     [accountIds],
@@ -120,7 +121,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
           </ModalBody>
         ) : (
           <>
-            <ModalBody pb={4} display='flex' flexDir='column' gap={4}>
+            <ModalBody pb={4} display='flex' flexDir='column' gap={4} overflow='hidden'>
               <Box flex={1} minHeight={{ base: '100%', md: '500px' }} {...group}>
                 <AutoSizer>
                   {({ width, height }) => {
@@ -134,6 +135,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
                         rowHeight={width / columnCount}
                         columnCount={columnCount}
                         overscanRowCount={15}
+                        style={{ overflowX: 'hidden', overflowY: 'auto' }}
                       >
                         {NftRow}
                       </FixedSizeGrid>
@@ -143,15 +145,20 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
               </Box>
             </ModalBody>
             <ModalFooter gap={4}>
-              <Button width={{ base: 'full', md: 'auto' }} onClick={handleRestoreDefault} mr='auto'>
+              <Button
+                width={{ base: 'full', md: 'auto' }}
+                height='100%'
+                size='sm-multiline'
+                onClick={handleRestoreDefault}
+                mr='auto'
+              >
                 {translate('avatar.modal.restoreDefault')}
-              </Button>
-              <Button display={{ base: 'none', md: 'block' }} onClick={props.onClose}>
-                {translate('common.cancel')}
               </Button>
               <Button
                 width={{ base: 'full', md: 'auto' }}
+                height='100%'
                 colorScheme='blue'
+                size='sm-multiline'
                 onClick={() => handleSaveChanges(selected)}
               >
                 {translate('common.saveChanges')}

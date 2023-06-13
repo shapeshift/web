@@ -1,4 +1,3 @@
-import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import React, { useMemo } from 'react'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
@@ -49,10 +48,8 @@ export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
 
   return (
     <DefiManagerContext.Provider value={null}>
-      <YearnProvider>
-        {children}
-        {provider && renderModules}
-      </YearnProvider>
+      {children}
+      {provider && renderModules}
     </DefiManagerContext.Provider>
   )
 }

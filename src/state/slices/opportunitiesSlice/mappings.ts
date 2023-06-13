@@ -44,11 +44,6 @@ import {
   uniV2LpOpportunitiesMetadataResolver,
   uniV2LpUserDataResolver,
 } from './resolvers/uniV2'
-import {
-  yearnStakingOpportunitiesMetadataResolver,
-  yearnStakingOpportunitiesUserDataResolver,
-  yearnStakingOpportunityIdsResolver,
-} from './resolvers/yearn'
 import { DefiProvider, DefiType } from './types'
 
 export const DefiProviderToMetadataResolverByDeFiType = {
@@ -67,9 +62,6 @@ export const DefiProviderToOpportunitiesMetadataResolverByDeFiType = {
   [`${DefiProvider.CosmosSdk}`]: {
     [`${DefiType.Staking}`]: cosmosSdkStakingOpportunitiesMetadataResolver,
   },
-  [`${DefiProvider.Yearn}`]: {
-    [`${DefiType.Staking}`]: yearnStakingOpportunitiesMetadataResolver,
-  },
   [`${DefiProvider.OsmosisLp}`]: {
     [`${DefiType.LiquidityPool}`]: osmosisLpOpportunitiesMetadataResolver,
   },
@@ -84,9 +76,6 @@ export const DefiProviderToOpportunitiesMetadataResolverByDeFiType = {
 export const DefiProviderToOpportunitiesUserDataResolverByDeFiType = {
   [`${DefiProvider.Idle}`]: {
     [`${DefiType.Staking}`]: idleStakingOpportunitiesUserDataResolver,
-  },
-  [`${DefiProvider.Yearn}`]: {
-    [`${DefiType.Staking}`]: yearnStakingOpportunitiesUserDataResolver,
   },
   [`${DefiProvider.ShapeShift}`]: {
     [`${DefiType.Staking}`]: foxyStakingOpportunitiesUserDataResolver,
@@ -108,9 +97,6 @@ export const DefiProviderToOpportunityIdsResolverByDeFiType = {
   },
   [`${DefiProvider.Idle}`]: {
     [`${DefiType.Staking}`]: idleStakingOpportunityIdsResolver,
-  },
-  [`${DefiProvider.Yearn}`]: {
-    [`${DefiType.Staking}`]: yearnStakingOpportunityIdsResolver,
   },
   [`${DefiProvider.OsmosisLp}`]: {
     [`${DefiType.LiquidityPool}`]: osmosisLpOpportunityIdsResolver,
@@ -177,10 +163,6 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES = {
     },
     {
       defiProvider: DefiProvider.Idle,
-      defiType: DefiType.Staking,
-    },
-    {
-      defiProvider: DefiProvider.Yearn,
       defiType: DefiType.Staking,
     },
     {

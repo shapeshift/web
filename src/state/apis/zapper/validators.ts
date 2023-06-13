@@ -592,6 +592,8 @@ const ZapperTokenBaseSchema: Type<ZapperTokenBase> = z.intersection(
     .partial(),
 )
 
+export type ZapperTokenWithBalances = Infer<typeof ZapperTokenWithBalancesSchema>
+
 const ZapperTokenWithBalancesSchema = z.intersection(
   ZapperTokenBaseSchema,
   z.object({

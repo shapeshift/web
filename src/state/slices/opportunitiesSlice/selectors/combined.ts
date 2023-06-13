@@ -193,11 +193,11 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             acc[assetId].apy = BigNumber.maximum(acc[assetId].apy, cur.apy).toFixed()
           } else if (isActiveOpportunityByFilter) {
             totalFiatAmountByAssetId[assetId] = bnOrZero(totalFiatAmountByAssetId[assetId]).plus(
-              amountFiat,
+              BigNumber.max(amountFiat, 0),
             )
             projectedAnnualizedYieldByAssetId[assetId] = bnOrZero(
               projectedAnnualizedYieldByAssetId[assetId],
-            ).plus(bnOrZero(amountFiat).times(cur.apy))
+            ).plus(BigNumber.max(amountFiat, 0).times(cur.apy))
           }
 
           acc[assetId].cryptoBalancePrecision = bnOrZero(acc[assetId].cryptoBalancePrecision)
@@ -393,7 +393,6 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
     const initial = {
       [DefiProvider.Idle]: makeEmptyPayload(DefiProvider.Idle),
-      [DefiProvider.Yearn]: makeEmptyPayload(DefiProvider.Yearn),
       [DefiProvider.ShapeShift]: makeEmptyPayload(DefiProvider.ShapeShift),
       [DefiProvider.EthFoxStaking]: makeEmptyPayload(DefiProvider.EthFoxStaking),
       [DefiProvider.UniV2]: makeEmptyPayload(DefiProvider.UniV2),
@@ -451,11 +450,11 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
           acc[provider].apy = BigNumber.maximum(acc[provider].apy, cur.apy).toFixed()
         } else if (isActiveOpportunityByFilter) {
           totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(
-            cur.fiatAmount,
+            BigNumber.max(cur.fiatAmount, 0),
           )
           projectedAnnualizedYieldByProvider[provider] = bnOrZero(
             projectedAnnualizedYieldByProvider[provider],
-          ).plus(bnOrZero(cur.fiatAmount).times(cur.apy))
+          ).plus(BigNumber.max(cur.fiatAmount, 0).times(cur.apy))
         }
 
         if (cur.type === DefiType.LiquidityPool) {

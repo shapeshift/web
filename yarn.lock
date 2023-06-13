@@ -5037,23 +5037,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keepkey/hdwallet-keepkey-rest@npm:1.40.25":
-  version: 1.40.25
-  resolution: "@keepkey/hdwallet-keepkey-rest@npm:1.40.25"
+"@keepkey/hdwallet-keepkey-rest@npm:1.40.29":
+  version: 1.40.29
+  resolution: "@keepkey/hdwallet-keepkey-rest@npm:1.40.29"
   dependencies:
-    "@keepkey/keepkey-sdk": ^0.2.41
+    "@keepkey/keepkey-sdk": 0.2.47
     lodash: ^4.17.21
     semver: ^6.3.0
   peerDependencies:
-    "@shapeshiftoss/hdwallet-core": 1.41.0
-  checksum: 004c6bfd17f0039ce5fe8c0370c7d7c47e98eb226956ecfe7c211fc935bd67c2cd7a188951c968745f39d3eda089674100039e3180294cc690f86c1189b3cdd7
+    "@shapeshiftoss/hdwallet-core": ^1.50.3
+  checksum: 1dd29605a24d8298ab8ee15cf6c4bc7ad4b9a919666c5d79842c34e74899b62c6ce65ad5c42fa912bb241a92eba02c5039cd306219d24e11796f5fab03f1a288
   languageName: node
   linkType: hard
 
-"@keepkey/keepkey-sdk@npm:0.2.41, @keepkey/keepkey-sdk@npm:^0.2.41":
-  version: 0.2.41
-  resolution: "@keepkey/keepkey-sdk@npm:0.2.41"
-  checksum: b40856dcba1330a8aff4dd58072cd38e1506bfc1260b882c6ce421df1c83095110ba3136a048a58232a69b61b8b3f05d6636f9ca3cf0d6e7e676f3ac46e9680a
+"@keepkey/keepkey-sdk@npm:0.2.47":
+  version: 0.2.47
+  resolution: "@keepkey/keepkey-sdk@npm:0.2.47"
+  checksum: f1dcdfd17e70ce65e99187267b7fa860fcc0011a8d69b0a762a1a5c8414bed543aefcc052c518136dbd1060bc795ac28277247c3d1ec08d2f5d0476101b7eef6
+  languageName: node
+  linkType: hard
+
+"@keepkey/keepkey-sdk@npm:0.2.48":
+  version: 0.2.48
+  resolution: "@keepkey/keepkey-sdk@npm:0.2.48"
+  checksum: 544340de018238e9f90dd0aff17aa56d265d0f4f531601229fe6b381e8fa07932eebe5c7b3fd631a78443b6493506d3ea0159a680f5c8a54643acdaebc5dc584
   languageName: node
   linkType: hard
 
@@ -6189,8 +6196,8 @@ __metadata:
     "@formatjs/intl-numberformat": ^8.0.2
     "@formatjs/intl-pluralrules": ^5.0.2
     "@jest/types": ^27.1.0
-    "@keepkey/hdwallet-keepkey-rest": 1.40.25
-    "@keepkey/keepkey-sdk": 0.2.41
+    "@keepkey/hdwallet-keepkey-rest": 1.40.29
+    "@keepkey/keepkey-sdk": 0.2.48
     "@keplr-wallet/types": ^0.10.5
     "@lifi/sdk": ^1.7.2
     "@metamask/detect-provider": ^1.2.0

@@ -123,7 +123,7 @@ export const KeepKeyConnect = () => {
       </ModalHeader>
       <ModalBody>
         <Text mb={4} color='gray.500' translation={'walletProvider.keepKey.connect.body'} />
-        <Button width='full' colorScheme='blue' onClick={pairDevice} disabled={loading}>
+        <Button width='full' colorScheme='blue' onClick={pairDevice} isDisabled={loading}>
           {loading ? (
             <CircularProgress size='5' />
           ) : (

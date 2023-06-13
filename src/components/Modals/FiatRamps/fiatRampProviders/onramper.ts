@@ -9,20 +9,19 @@ import { FiatRampAction } from '../FiatRampsCommon'
 import type { CreateUrlProps } from '../types'
 
 // Non-exhaustive required types definition. Full reference: https://github.com/onramper/widget/blob/master/package/src/ApiContext/api/types/gateways.ts
-type OnRamperGatewaysResponse = {
-  gateways: GatewayItem[]
-}
-
-type Currency = {
-  code: string
+type Crypto = {
   id: string
-  network?: string
-  displayName?: string
+  code: string
+  name: string
+  symbol: string
+  network: string
+  icon: string
 }
 
-type GatewayItem = {
-  identifier: string
-  cryptoCurrencies: Currency[]
+type OnRamperGatewaysResponse = {
+  message: {
+    crypto: Crypto[]
+  }
 }
 
 const getGatewayData = async () => {
@@ -30,9 +29,9 @@ const getGatewayData = async () => {
     const baseUrl = getConfig().REACT_APP_ONRAMPER_API_URL
     const apiKey = getConfig().REACT_APP_ONRAMPER_API_KEY
     return (
-      await axios.get<OnRamperGatewaysResponse>(`${baseUrl}gateways?includeIcons=true`, {
+      await axios.get<OnRamperGatewaysResponse>(`${baseUrl}supported`, {
         headers: {
-          Authorization: `Basic ${apiKey}`,
+          Authorization: apiKey,
         },
       })
     ).data
@@ -137,15 +136,16 @@ export const getOnRamperAssets = async (): Promise<AssetId[]> => {
   return convertOnRamperDataToFiatRampAsset(data)
 }
 
-const convertOnRamperDataToFiatRampAsset = (response: OnRamperGatewaysResponse): AssetId[] =>
-  Array.from(
+const convertOnRamperDataToFiatRampAsset = (response: OnRamperGatewaysResponse): AssetId[] => {
+  console.info(response.message)
+  return Array.from(
     new Set(
-      response.gateways
-        .flatMap(gateway => gateway.cryptoCurrencies)
-        .map(currency => adapters.onRamperTokenIdToAssetId(currency.code))
+      response.message.crypto
+        .map(currency => adapters.onRamperTokenIdToAssetId(currency.id))
         .filter((assetId): assetId is AssetId => Boolean(assetId)),
     ),
   )
+}
 
 export const createOnRamperUrl = ({
   action,

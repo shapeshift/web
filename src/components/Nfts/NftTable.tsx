@@ -7,8 +7,10 @@ import { NarwhalIcon } from 'components/Icons/Narwhal'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
-import { useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
-import { makeSelectNftItemsWithCollectionSelector } from 'state/apis/nft/selectors'
+import {
+  makeSelectNftItemsWithCollectionSelector,
+  selectGetNftUserTokensPending,
+} from 'state/apis/nft/selectors'
 import type { NftItemWithCollection } from 'state/apis/nft/types'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
@@ -37,7 +39,7 @@ export const NftTable = () => {
 
   const [networkFilters, setNetworkFilters] = useState<ChainId[]>([])
 
-  const { isLoading } = useGetNftUserTokensQuery({ accountIds })
+  const isLoading = useAppSelector(selectGetNftUserTokensPending)
   const selectNftItemsWithCollectionSelector = useMemo(
     () => makeSelectNftItemsWithCollectionSelector(accountIds),
     [accountIds],
@@ -104,7 +106,7 @@ export const NftTable = () => {
   return (
     <>
       <Box mb={4} px={{ base: 4, xl: 0 }}>
-        <Flex>
+        <Flex gap={2}>
           <NftNetworkFilter
             availableChainIds={availableChainIds}
             resetFilters={() => setNetworkFilters([])}

@@ -15,14 +15,12 @@ export const ChatwootWidget: React.FC = () => {
     }
 
     // Paste the script from inbox settings except the <script> tag
-    ;(function (d: Document, t: string) {
+    ;(function (d: Document) {
       const BASE_URL = getConfig().REACT_APP_CHATWOOT_URL
-      const g = d.createElement(t)
-      const s = d.getElementsByTagName(t)[0]
-      // @ts-ignore
+      const g = d.createElement('script')
+      const s = d.getElementsByTagName('script')[0]
       g.src = BASE_URL + '/packs/js/sdk.js'
       s.parentNode?.insertBefore(g, s)
-      // @ts-ignore
       g.async = true
       g.onload = function () {
         ;(window as any).chatwootSDK.run({
@@ -30,7 +28,7 @@ export const ChatwootWidget: React.FC = () => {
           baseUrl: BASE_URL,
         })
       }
-    })(document, 'script')
+    })(document)
   }, [chatWoodEnabled])
 
   return null

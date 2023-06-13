@@ -8,6 +8,7 @@ import {
   ModalHeader,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { getConfig } from 'config'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
@@ -43,6 +44,9 @@ export const SelectModal = () => {
             wallets.map(walletType => {
               const option = SUPPORTED_WALLETS[walletType]
               // some wallets (e.g. keepkey) do not exist on mobile
+
+              const isCoinbaseEnabled = getConfig().REACT_APP_FEATURE_COINBASE_WALLET
+              if (walletType === KeyManager.Coinbase && !isCoinbaseEnabled) return null
 
               const isSupported = (() => {
                 if (isMobileApp) {

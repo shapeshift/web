@@ -1,5 +1,5 @@
 import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
-import { polygonChainId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, polygonChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { TokenType } from '@shapeshiftoss/unchained-client/src/evm/ethereum'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -123,7 +123,10 @@ export const parseAlchemyNftToNftItem = async (
 
       return Ok([
         {
-          originalUrl: tokenMetadata.media.url.replace('ipfs://', 'https://ipfs.io/ipfs/'),
+          originalUrl: tokenMetadata.media.url.replace(
+            'ipfs://',
+            'https://gateway.shapeshift.com/ipfs/',
+          ),
           type: 'image',
         },
       ])
@@ -134,14 +137,11 @@ export const parseAlchemyNftToNftItem = async (
 
       if (!ipnsMetadataUrl) return Err('No IPNS metadata gateway URL found')
 
-      // Fetch IPNS meta so we can introspect the IPFS gateway media URL
-      // Note, this only works for Mercle NFTs because of CSP
-      // Theoretically, we could fetch from https://ipfs.io/ipns/{ipns-name} gateway, but this is broken upstream
       const { data } = await axios.get<ERC721Metadata>(ipnsMetadataUrl)
 
       if (!data) return Err('Cannot get metadata from IPNS gateway')
 
-      const image = data.image.replace('ipfs://', 'https://ipfs.io/ipfs/')
+      const image = data.image.replace('ipfs://', 'https://gateway.shapeshift.com/ipfs/')
 
       return Ok([
         {
@@ -159,6 +159,11 @@ export const parseAlchemyNftToNftItem = async (
 
   const medias = maybeMedias.unwrap()
 
+  const maybeBalance =
+    alchemyNft.tokenType.toLowerCase() === ASSET_NAMESPACE.erc1155
+      ? { balance: bnOrZero((alchemyNft as OwnedNft).balance).toString() }
+      : {}
+
   const nftItem = {
     id: alchemyNft.tokenId,
     assetId: toAssetId({
@@ -166,6 +171,7 @@ export const parseAlchemyNftToNftItem = async (
       assetNamespace: alchemyNft.contract.tokenType.toLowerCase() as AssetNamespace,
       chainId,
     }),
+    ...maybeBalance,
     name:
       (alchemyNft.title ||
         alchemyNft.contract.name ||

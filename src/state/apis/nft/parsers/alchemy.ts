@@ -9,7 +9,7 @@ import { http as v1HttpApi } from 'plugins/polygon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getMediaType } from 'state/apis/zapper/validators'
 
-import type { ERC721Metadata, NftCollectionType, NftItem, NftItemWithCollection } from '../types'
+import type { ERC721Metadata, NftCollectionType, NftItemWithCollection } from '../types'
 
 const makeSocialLinks = (openseaCollectionMetadata: OpenSeaCollectionMetadata | undefined) => {
   if (!openseaCollectionMetadata) return []
@@ -159,11 +159,10 @@ export const parseAlchemyNftToNftItem = async (
 
   const medias = maybeMedias.unwrap()
 
-  const maybeBalance: Pick<NftItem, 'balance'> = (
+  const maybeBalance =
     alchemyNft.tokenType.toLowerCase() === ASSET_NAMESPACE.erc1155
-      ? { balance: bnOrZero((alchemyNft as OwnedNft).balance).toNumber() }
+      ? { balance: bnOrZero((alchemyNft as OwnedNft).balance).toString() }
       : {}
-  ) as Pick<NftItem, 'balance'>
 
   const nftItem = {
     id: alchemyNft.tokenId,

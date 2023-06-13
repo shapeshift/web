@@ -50,23 +50,23 @@ const getActiveStepperStep = (
     switch (tradeExecutionStatus) {
       case MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation:
       case MultiHopExecutionStatus.Hop1AwaitingApprovalExecution:
-        return 2
+        return 3
       case MultiHopExecutionStatus.Hop1AwaitingTradeConfirmation:
       case MultiHopExecutionStatus.Hop1AwaitingTradeExecution:
-        return isApprovalRequired ? 3 : 2
+        return isApprovalRequired ? 4 : 3
       default:
-        return 0
+        return Infinity
     }
   } else {
     switch (tradeExecutionStatus) {
       case MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation:
       case MultiHopExecutionStatus.Hop2AwaitingApprovalExecution:
-        return 1
+        return 2
       case MultiHopExecutionStatus.Hop2AwaitingTradeConfirmation:
       case MultiHopExecutionStatus.Hop2AwaitingTradeExecution:
-        return isApprovalRequired ? 2 : 1
+        return isApprovalRequired ? 3 : 2
       default:
-        return 0
+        return Infinity
     }
   }
 }
@@ -84,13 +84,8 @@ const Hop = ({
   const borderColor = useColorModeValue('gray.50', 'gray.650')
 
   // TODO: move me to store and use that
-  const initialStatus = isFirstHop
-    ? MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation
-    : MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation
-
-  // const tradeExecutionStatus = initialStatus
-  // Fixme: debugging only
-  const tradeExecutionStatus = MultiHopExecutionStatus.Hop1AwaitingTradeConfirmation
+  // Fixme: debugging only - set this to whatever you want the UI state to be
+  const tradeExecutionStatus = MultiHopExecutionStatus.TradeComplete
 
   const isComplete = getIsHopComplete(tradeExecutionStatus, isFirstHop)
   const activeStep = getActiveStepperStep(tradeExecutionStatus, isFirstHop, isApprovalRequired)
@@ -123,34 +118,50 @@ const Hop = ({
     })
 
     if (isApprovalRequired) {
+      const hasApprovalTx =
+        tradeExecutionStatus.valueOf() >=
+        (isFirstHop
+          ? MultiHopExecutionStatus.Hop1AwaitingApprovalExecution
+          : MultiHopExecutionStatus.Hop2AwaitingApprovalExecution)
+      const approvalTx = '0x1234'
       steps.push({
         title: 'Token allowance approval',
-        description: 'Approval gas fee 900ETH',
+        description: hasApprovalTx ? approvalTx : 'Approval gas fee 900ETH',
         stepIndicator: <StepStatus complete={<StepIcon />} active={<Spinner />} />,
         content: (
           <Card p='2'>
-            {tradeExecutionStatus === MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation ? (
+            {hasApprovalTx ? (
+              <RawText>TX: ${approvalTx}</RawText>
+            ) : (
               <HStack>
                 <Button>Approve</Button>
                 <Button>Reject</Button>
               </HStack>
-            ) : (
-              <RawText>TXID: 1234</RawText>
             )}
           </Card>
         ),
       })
     }
 
+    const hasTradeTx =
+      tradeExecutionStatus.valueOf() >=
+      (isFirstHop
+        ? MultiHopExecutionStatus.Hop1AwaitingTradeExecution
+        : MultiHopExecutionStatus.Hop2AwaitingTradeExecution)
+    const tradeTx = '0x5678'
     steps.push({
       title: 'Sign bridge transaction',
       stepIndicator: <StepStatus complete={<StepIcon />} active={<Spinner />} />,
       content: (
         <Card p='2'>
-          <HStack>
-            <Button>Sign message</Button>
-            <Button>Reject</Button>
-          </HStack>
+          {hasTradeTx ? (
+            <RawText>TX: ${tradeTx}</RawText>
+          ) : (
+            <HStack>
+              <Button>Sign message</Button>
+              <Button>Reject</Button>
+            </HStack>
+          )}
         </Card>
       ),
     })
@@ -176,8 +187,16 @@ const Hop = ({
       })
     }
 
+    console.log('xxx steps', { steps, activeStep, isFirstHop, isComplete, isApprovalRequired })
     return steps
-  }, [isComplete, isFirstHop, isApprovalRequired, shouldRenderDonation, tradeExecutionStatus])
+  }, [
+    isComplete,
+    isFirstHop,
+    isApprovalRequired,
+    shouldRenderDonation,
+    activeStep,
+    tradeExecutionStatus,
+  ])
 
   return (
     <Card

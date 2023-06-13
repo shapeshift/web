@@ -14,7 +14,9 @@ import { defaultMarketData } from './marketDataSlice'
 import type { MarketDataById } from './types'
 
 // TODO(woodenfurniture): rename this to clarify that prices are in USD not fiat
-export const selectCryptoMarketData = (state: ReduxState) => state.marketData.crypto.byId
+export const selectCryptoMarketData = ((state: ReduxState) => state.marketData.crypto.byId) as (
+  state: ReduxState,
+) => MarketDataById<AssetId>
 export const selectCryptoMarketDataIds = (state: ReduxState) => state.marketData.crypto.ids
 const selectFiatMarketData = (state: ReduxState) => state.marketData.fiat.byId
 

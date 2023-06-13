@@ -22,7 +22,6 @@ import type { ReduxState } from 'state/reducer'
 import { defaultAsset } from '../assetsSlice/assetsSlice'
 import { selectAssets, selectFeeAssetById } from '../assetsSlice/selectors'
 import { selectCryptoMarketData } from '../marketDataSlice/selectors'
-import type { MarketDataById } from '../marketDataSlice/types'
 
 export enum StepTransactionStatus {
   Identified = 'identified', // The step is identified as being part of the execution flow
@@ -92,7 +91,7 @@ export const swappersApi = createApi({
         const state: ReduxState = getState() as ReduxState
         const assets: Partial<Record<AssetId, Asset>> = selectAssets(state)
         // selectCryptoMarketData is used because prives are always in USD
-        const marketDataById = selectCryptoMarketData(state) as MarketDataById<AssetId>
+        const marketDataById = selectCryptoMarketData(state)
         const sellAssetMarketData = marketDataById[getTradeQuoteInput.sellAsset.assetId]
         if (!sellAssetMarketData)
           return {
@@ -113,10 +112,8 @@ export const swappersApi = createApi({
       queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { getState }) => {
         const state: ReduxState = getState() as ReduxState
         // selectCryptoMarketData is used because prives are always in USD
-        const marketDataById = selectCryptoMarketData(state) as MarketDataById<AssetId>
-        const feeAsset = selectFeeAssetById(state, getTradeQuoteInput.sellAsset.assetId) as
-          | Asset
-          | undefined
+        const marketDataById = selectCryptoMarketData(state)
+        const feeAsset = selectFeeAssetById(state, getTradeQuoteInput.sellAsset.assetId)
         const sellAssetMarketData = marketDataById[getTradeQuoteInput.sellAsset.assetId]
         const buyAssetMarketData = marketDataById[getTradeQuoteInput.buyAsset.assetId]
         const feeAssetMarketData = feeAsset ? marketDataById[feeAsset.assetId] : undefined

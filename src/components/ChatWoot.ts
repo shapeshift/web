@@ -16,7 +16,7 @@ export const ChatwootWidget: React.FC = () => {
 
     // Paste the script from inbox settings except the <script> tag
     ;(function (d: Document, t: string) {
-      const BASE_URL = getConfig().REACT_APP_CHATWOOT_TOKEN
+      const BASE_URL = getConfig().REACT_APP_CHATWOOT_URL
       const g = d.createElement(t)
       const s = d.getElementsByTagName(t)[0]
       // @ts-ignore

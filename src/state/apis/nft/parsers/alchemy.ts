@@ -123,7 +123,10 @@ export const parseAlchemyNftToNftItem = async (
 
       return Ok([
         {
-          originalUrl: tokenMetadata.media.url.replace('ipfs://', 'https://ipfs.io/ipfs/'),
+          originalUrl: tokenMetadata.media.url.replace(
+            'ipfs://',
+            'https://gateway.shapeshift.com/ipfs/',
+          ),
           type: 'image',
         },
       ])
@@ -134,14 +137,11 @@ export const parseAlchemyNftToNftItem = async (
 
       if (!ipnsMetadataUrl) return Err('No IPNS metadata gateway URL found')
 
-      // Fetch IPNS meta so we can introspect the IPFS gateway media URL
-      // Note, this only works for Mercle NFTs because of CSP
-      // Theoretically, we could fetch from https://ipfs.io/ipns/{ipns-name} gateway, but this is broken upstream
       const { data } = await axios.get<ERC721Metadata>(ipnsMetadataUrl)
 
       if (!data) return Err('Cannot get metadata from IPNS gateway')
 
-      const image = data.image.replace('ipfs://', 'https://ipfs.io/ipfs/')
+      const image = data.image.replace('ipfs://', 'https://gateway.shapeshift.com/ipfs/')
 
       return Ok([
         {

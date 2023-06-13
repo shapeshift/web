@@ -43,6 +43,7 @@ export type FeatureFlags = {
   OneInch: boolean
   CovalentJaypegs: boolean
   MultiHopTrades: boolean
+  CoinbaseWallet: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -98,6 +99,7 @@ const initialState: Preferences = {
     ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
     OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
     MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
+    CoinbaseWallet: getConfig().REACT_APP_FEATURE_COINBASE_WALLET,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

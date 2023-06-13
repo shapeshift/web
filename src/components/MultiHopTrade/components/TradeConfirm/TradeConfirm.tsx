@@ -187,16 +187,8 @@ const Hop = ({
       })
     }
 
-    console.log('xxx steps', { steps, activeStep, isFirstHop, isComplete, isApprovalRequired })
     return steps
-  }, [
-    isComplete,
-    isFirstHop,
-    isApprovalRequired,
-    shouldRenderDonation,
-    activeStep,
-    tradeExecutionStatus,
-  ])
+  }, [isComplete, isFirstHop, isApprovalRequired, shouldRenderDonation, tradeExecutionStatus])
 
   return (
     <Card

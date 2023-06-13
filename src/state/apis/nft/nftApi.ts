@@ -164,7 +164,8 @@ const upsertPortfolioAndAssets = createAsyncThunk<void, PortfolioAndAssetsUpsert
       }
 
       const balanceData = {
-        [nft.assetId]: '1',
+        // i.e 1 for ERC-721s / 0, 1, or more for ERC-1155s
+        [nft.assetId]: nft.balance === undefined ? '1' : nft.balance,
       }
       if (!portfolioDataToUpsert.accountBalances.byId[accountId]) {
         portfolioDataToUpsert.accountBalances.byId[accountId] = balanceData

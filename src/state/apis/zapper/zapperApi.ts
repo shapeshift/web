@@ -566,8 +566,8 @@ export const zapper = createApi({
                     dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
                   }
 
-                  const underlyingAssetRatiosBaseUnit = (() =>
-                    (asset.dataProps?.reserves ?? []).map(reserve => {
+                  const underlyingAssetRatiosBaseUnit = (asset.dataProps?.reserves ?? []).map(
+                    reserve => {
                       const reserveBaseUnit = toBaseUnit(reserve, asset.decimals ?? 18)
                       const totalSupplyBaseUnit =
                         typeof asset.supply === 'number'
@@ -579,7 +579,8 @@ export const zapper = createApi({
                       if (!tokenPoolRatio) return '0'
                       const ratio = toBaseUnit(tokenPoolRatio, asset.tokens[0].decimals)
                       return ratio
-                    }) as unknown as OpportunityMetadataBase['underlyingAssetRatiosBaseUnit'])()
+                    },
+                  )
 
                   if (!acc.opportunities[opportunityId]) {
                     acc.opportunities[opportunityId] = {

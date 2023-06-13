@@ -196,7 +196,7 @@ export const KeepKeyPin = ({
         size={confirmButtonSize ?? 'lg'}
         colorScheme='blue'
         onClick={handleSubmit}
-        disabled={loading || isPinEmpty}
+        isDisabled={loading || isPinEmpty}
       >
         <Text translation={`walletProvider.keepKey.${translationType}.button`} />
       </Button>

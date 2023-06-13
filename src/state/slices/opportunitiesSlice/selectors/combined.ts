@@ -115,8 +115,8 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
         })
 
         if (
-          (!includeEarnBalances && !includeRewardsBalances && bnOrZero(amountFiat).gt(0)) ||
-          (includeEarnBalances && bnOrZero(amountFiat).gt(0)) ||
+          (!includeEarnBalances && !includeRewardsBalances && !bnOrZero(amountFiat).isZero()) ||
+          (includeEarnBalances && !bnOrZero(amountFiat).isZero()) ||
           (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
         ) {
           acc[assetId] = true
@@ -170,7 +170,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
 
           const isActiveOpportunityByFilter =
             (!includeEarnBalances && !includeRewardsBalances) ||
-            (includeEarnBalances && bnOrZero(amountFiat).gt(0)) ||
+            (includeEarnBalances && !bnOrZero(amountFiat).isZero()) ||
             (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
 
           acc[assetId].fiatRewardsAmount = bnOrZero(maybeStakingRewardsAmountFiat)
@@ -193,11 +193,11 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             acc[assetId].apy = BigNumber.maximum(acc[assetId].apy, cur.apy).toFixed()
           } else if (isActiveOpportunityByFilter) {
             totalFiatAmountByAssetId[assetId] = bnOrZero(totalFiatAmountByAssetId[assetId]).plus(
-              amountFiat,
+              BigNumber.max(amountFiat, 0),
             )
             projectedAnnualizedYieldByAssetId[assetId] = bnOrZero(
               projectedAnnualizedYieldByAssetId[assetId],
-            ).plus(bnOrZero(amountFiat).times(cur.apy))
+            ).plus(BigNumber.max(amountFiat, 0).times(cur.apy))
           }
 
           acc[assetId].cryptoBalancePrecision = bnOrZero(acc[assetId].cryptoBalancePrecision)
@@ -230,7 +230,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
 
     const [activeOpportunities, inactiveOpportunities] = partition(
       sortedAggregatedEarnOpportunitiesByFiatAmount,
-      opportunity => bnOrZero(opportunity.fiatAmount).gt(0),
+      opportunity => !bnOrZero(opportunity.fiatAmount).isZero(),
     )
     inactiveOpportunities.sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
 
@@ -240,7 +240,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
       return sortedOpportunitiesByFiatAmountAndApy
 
     const withEarnBalances = aggregatedEarnOpportunitiesByAssetId.filter(opportunity =>
-      Boolean(includeEarnBalances && bnOrZero(opportunity.fiatAmount).gt(0)),
+      Boolean(includeEarnBalances && !bnOrZero(opportunity.fiatAmount).isZero()),
     )
     const withRewardsBalances = Object.values(byAssetId).filter(opportunity =>
       Boolean(includeRewardsBalances && bnOrZero(opportunity.fiatRewardsAmount).gt(0)),
@@ -393,7 +393,6 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
     const initial = {
       [DefiProvider.Idle]: makeEmptyPayload(DefiProvider.Idle),
-      [DefiProvider.Yearn]: makeEmptyPayload(DefiProvider.Yearn),
       [DefiProvider.ShapeShift]: makeEmptyPayload(DefiProvider.ShapeShift),
       [DefiProvider.EthFoxStaking]: makeEmptyPayload(DefiProvider.EthFoxStaking),
       [DefiProvider.UniV2]: makeEmptyPayload(DefiProvider.UniV2),
@@ -414,8 +413,8 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       })
 
       const isActiveOpportunityByFilter =
-        (!includeEarnBalances && !includeRewardsBalances && bnOrZero(cur.fiatAmount).gt(0)) ||
-        (includeEarnBalances && bnOrZero(cur.fiatAmount).gt(0)) ||
+        (!includeEarnBalances && !includeRewardsBalances && !bnOrZero(cur.fiatAmount).isZero()) ||
+        (includeEarnBalances && !bnOrZero(cur.fiatAmount).isZero()) ||
         (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
 
       if (isActiveOpportunityByFilter) {
@@ -444,18 +443,18 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
         const isActiveOpportunityByFilter =
           (!includeEarnBalances && !includeRewardsBalances) ||
-          (includeEarnBalances && bnOrZero(cur.fiatAmount).gt(0)) ||
+          (includeEarnBalances && !bnOrZero(cur.fiatAmount).isZero()) ||
           (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
         // No active staking for the current provider, show the highest APY
         if (!isActiveProvider) {
           acc[provider].apy = BigNumber.maximum(acc[provider].apy, cur.apy).toFixed()
         } else if (isActiveOpportunityByFilter) {
           totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(
-            cur.fiatAmount,
+            BigNumber.max(cur.fiatAmount, 0),
           )
           projectedAnnualizedYieldByProvider[provider] = bnOrZero(
             projectedAnnualizedYieldByProvider[provider],
-          ).plus(bnOrZero(cur.fiatAmount).times(cur.apy))
+          ).plus(BigNumber.max(cur.fiatAmount, 0).times(cur.apy))
         }
 
         if (cur.type === DefiType.LiquidityPool) {
@@ -505,7 +504,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
     const [activeOpportunities, inactiveOpportunities] = partition(
       sortedListByFiatAmount,
-      opportunity => bnOrZero(opportunity.netProviderFiatAmount).gt(0),
+      opportunity => !bnOrZero(opportunity.netProviderFiatAmount).isZero(),
     )
     inactiveOpportunities.sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
 
@@ -515,7 +514,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     if (!includeEarnBalances && !includeRewardsBalances) return sortedListByFiatAmountAndApy
 
     const withEarnBalances = Object.values(aggregatedEarnOpportunitiesByProvider).filter(
-      opportunity => Boolean(includeEarnBalances && bnOrZero(opportunity.fiatAmount).gt(0)),
+      opportunity => Boolean(includeEarnBalances && !bnOrZero(opportunity.fiatAmount).isZero()),
     )
     const withRewardsBalances = Object.values(aggregatedEarnOpportunitiesByProvider).filter(
       opportunity =>

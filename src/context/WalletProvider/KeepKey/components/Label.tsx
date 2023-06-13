@@ -64,7 +64,7 @@ export const KeepKeyLabel = () => {
           size='lg'
           colorScheme='blue'
           onClick={disposition === 'initializing' ? handleInitializeSubmit : handleRecoverSubmit}
-          disabled={loading}
+          isDisabled={loading}
           mb={3}
         >
           <Text

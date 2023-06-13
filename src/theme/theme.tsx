@@ -44,6 +44,7 @@ const styles = {
       backgroundColor: mode('gray.50', 'gray.800')(props),
       backgroundSize: 'cover',
       fontFeatureSettings: `'zero' on`,
+      overflowX: 'hidden',
     },
     html: {
       scrollBehavior: 'smooth',

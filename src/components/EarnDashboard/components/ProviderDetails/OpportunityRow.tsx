@@ -41,6 +41,7 @@ export const OpportunityRow: React.FC<
     underlyingAssetRatiosBaseUnit,
     cryptoAmountBaseUnit,
     underlyingAssetIds,
+    group,
     type,
     apy,
     icons,
@@ -111,10 +112,10 @@ export const OpportunityRow: React.FC<
 
   const subTextJoined = useMemo(() => {
     const aprElement = <Amount.Percent value={bnOrZero(apy).toString()} suffix='APY' autoColor />
-    const hasBalanceElement = <RawText textTransform='capitalize'>{type}</RawText>
+    const hasBalanceElement = <RawText textTransform='capitalize'>{group ?? type}</RawText>
     const subText = [
       aprElement,
-      ...(bnOrZero(cryptoAmountBaseUnit).gt(0) ? [hasBalanceElement] : []),
+      ...(!bnOrZero(cryptoAmountBaseUnit).isZero() ? [hasBalanceElement] : []),
     ]
 
     return subText.map((element, index) => (
@@ -123,7 +124,7 @@ export const OpportunityRow: React.FC<
         {element}
       </Flex>
     ))
-  }, [apy, cryptoAmountBaseUnit, type])
+  }, [apy, cryptoAmountBaseUnit, group, type])
 
   const renderRewardAssets = useMemo(() => {
     if (!nestedAssetIds) return null

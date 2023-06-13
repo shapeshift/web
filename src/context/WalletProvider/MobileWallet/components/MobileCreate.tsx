@@ -146,7 +146,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
           colorScheme='blue'
           size='lg'
           isLoading={isSaving}
-          disabled={isSaving || !(words && revealedOnce.current && label)}
+          isDisabled={isSaving || !(words && revealedOnce.current && label)}
           onClick={() => {
             if (vault?.mnemonic && label) {
               try {

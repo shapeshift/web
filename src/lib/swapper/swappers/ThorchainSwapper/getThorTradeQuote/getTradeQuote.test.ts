@@ -8,12 +8,14 @@ import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
+import { getThorTxInfo } from '../evm/utils/getThorTxData'
 import type { InboundAddressResponse, ThorchainSwapperDeps, ThornodePoolResponse } from '../types'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { setupThorswapDeps } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
 import { getThorTradeQuote } from './getTradeQuote'
 
+jest.mock('../evm/utils/getThorTxData')
 jest.mock('../utils/thorService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')
   axios.create = jest.fn(() => axios)
@@ -22,12 +24,17 @@ jest.mock('../utils/thorService', () => {
     thorService: axios.create(),
   }
 })
+
+const mockOk = Ok as jest.MockedFunction<typeof Ok>
+
 const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
 const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
 
 const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '149.14668013703712946932',
   recommendedSlippage: '0.04357',
+  data: '0x',
+  router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
   steps: [
     {
       allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
@@ -53,6 +60,10 @@ const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
 }
 
 describe('getTradeQuote', () => {
+  ;(getThorTxInfo as jest.Mock<unknown>).mockReturnValue(
+    Promise.resolve(mockOk({ data: '0x', router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976' })),
+  )
+
   const { quoteInput } = setupQuote()
   const { adapterManager } = setupThorswapDeps()
   const deps: ThorchainSwapperDeps = {

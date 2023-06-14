@@ -1,11 +1,10 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type {
   avalanche,
   ChainAdapterManager,
   CosmosSdkBaseAdapter,
   ethereum,
-  EvmBaseAdapter,
   SignTx,
   UtxoBaseAdapter,
 } from '@shapeshiftoss/chain-adapters'
@@ -34,6 +33,7 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
+import { evm } from 'lib/utils/index'
 
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from '../../api'
 
@@ -58,7 +58,7 @@ export type ThorChainId =
   | ThorEvmSupportedChainId
   | ThorUtxoSupportedChainId
 
-export class ThorchainSwapper implements Swapper<ChainId> {
+export class ThorchainSwapper implements Swapper<ThorChainId> {
   readonly name = SwapperName.Thorchain
 
   private sellSupportedChainIds: Record<ThorChainId, boolean> = {
@@ -142,16 +142,18 @@ export class ThorchainSwapper implements Swapper<ChainId> {
     return this.supportedSellAssetIds
   }
 
-  buildTrade(input: BuildTradeInput): Promise<Result<ThorTrade<ChainId>, SwapErrorRight>> {
+  buildTrade(input: BuildTradeInput): Promise<Result<ThorTrade<ThorChainId>, SwapErrorRight>> {
     return buildTrade({ deps: this.deps, input })
   }
 
-  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>> {
+  getTradeQuote(
+    input: GetTradeQuoteInput,
+  ): Promise<Result<TradeQuote<ThorChainId>, SwapErrorRight>> {
     return getThorTradeQuote({ deps: this.deps, input })
   }
 
   async executeTrade(
-    args: ExecuteTradeInput<ChainId>,
+    args: ExecuteTradeInput<ThorChainId>,
   ): Promise<Result<TradeResult, SwapErrorRight>> {
     try {
       const { trade, wallet } = args
@@ -168,15 +170,10 @@ export class ThorchainSwapper implements Swapper<ChainId> {
       }
 
       if (chainNamespace === CHAIN_NAMESPACE.Evm) {
-        const evmAdapter = adapter as unknown as EvmBaseAdapter<ThorEvmSupportedChainId>
-        const txToSign = (trade as ThorTrade<ThorEvmSupportedChainId>)
-          .txData as SignTx<ThorEvmSupportedChainId>
-        if (wallet.supportsBroadcast()) {
-          const tradeId = await evmAdapter.signAndBroadcastTransaction({ txToSign, wallet })
-          return Ok({ tradeId })
-        }
-        const signedTx = await evmAdapter.signTransaction({ txToSign, wallet })
-        const tradeId = await adapter.broadcastTransaction(signedTx)
+        const evmAdapter = adapter as unknown as ThorEvmSupportedChainAdapter
+        const { txData } = trade as ThorTrade<ThorEvmSupportedChainId>
+        const txToSign = txData as SignTx<ThorEvmSupportedChainId>
+        const tradeId = await evm.broadcast({ adapter: evmAdapter, txToSign, wallet })
         return Ok({ tradeId })
       } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
         const signedTx = await (

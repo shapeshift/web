@@ -2,15 +2,17 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type {
   CosmosSdkBaseAdapter,
-  EvmBaseAdapter,
+  EvmChainAdapter,
   UtxoBaseAdapter,
 } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type {
+  GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
   GetUtxoTradeQuoteInput,
   ProtocolFee,
@@ -18,8 +20,8 @@ import type {
   TradeQuote,
 } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
+import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
 import type {
-  ThorChainId,
   ThorCosmosSdkSupportedChainId,
   ThorEvmSupportedChainId,
   ThorUtxoSupportedChainId,
@@ -32,9 +34,8 @@ import {
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
 import { getTradeRateBelowMinimum } from 'lib/swapper/swappers/ThorchainSwapper/utils/getTradeRate/getTradeRate'
-import { getEvmTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
-import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
+import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
 import {
   selectBuyAssetUsdRate,
@@ -42,12 +43,24 @@ import {
 } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
+import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
+
 type GetThorTradeQuoteInput = {
   deps: ThorchainSwapperDeps
-  input: GetTradeQuoteInput
+  input: GetTradeQuoteInput & { wallet?: HDWallet }
 }
 
-type GetThorTradeQuoteReturn = Promise<Result<TradeQuote<ThorChainId>, SwapErrorRight>>
+export type ThorEvmTradeQuote = TradeQuote<ThorEvmSupportedChainId> & {
+  router: string
+  data: string
+}
+
+type ThorTradeQuote =
+  | TradeQuote<ThorCosmosSdkSupportedChainId>
+  | TradeQuote<ThorUtxoSupportedChainId>
+  | ThorEvmTradeQuote
+
+type GetThorTradeQuoteReturn = Promise<Result<ThorTradeQuote, SwapErrorRight>>
 
 type GetThorTradeQuote = (args: GetThorTradeQuoteInput) => GetThorTradeQuoteReturn
 
@@ -60,13 +73,15 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     chainId,
     receiveAddress,
     affiliateBps,
+    wallet,
   } = input
 
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
 
   const sellAdapter = deps.adapterManager.get(chainId)
   const buyAdapter = deps.adapterManager.get(buyAssetChainId)
-  if (!sellAdapter || !buyAdapter)
+
+  if (!sellAdapter || !buyAdapter) {
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote] - No chain adapter found for ${chainId} or ${buyAssetChainId}.`,
@@ -74,6 +89,16 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         details: { sellAssetChainId: chainId, buyAssetChainId },
       }),
     )
+  }
+
+  if (!receiveAddress) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[buildThorTrade]: receiveAddress is required',
+        code: SwapErrorType.MISSING_INPUT,
+      }),
+    )
+  }
 
   const quote = await getQuote({
     sellAsset,
@@ -223,38 +248,49 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm:
-      return (async (): Promise<
-        Promise<Result<TradeQuote<ThorEvmSupportedChainId>, SwapErrorRight>>
-      > => {
-        const sellChainFeeAssetId = sellAdapter.getFeeAssetId()
-        const maybeEvmAddressData = await getInboundAddressDataForChain(
-          deps.daemonUrl,
-          sellChainFeeAssetId,
-          false,
-        )
-        if (maybeEvmAddressData.isErr()) return Err(maybeEvmAddressData.unwrapErr())
-        const evmAddressData = maybeEvmAddressData.unwrap()
-
-        const router = evmAddressData?.router
-        if (!router)
-          return Err(
-            makeSwapErrorRight({
-              message: `[getThorTradeQuote] No router address found for ${sellChainFeeAssetId}`,
-            }),
-          )
-
-        const feeData = await getEvmTxFees({
-          adapter: sellAdapter as unknown as EvmBaseAdapter<ThorEvmSupportedChainId>,
+      return (async (): Promise<Promise<Result<ThorEvmTradeQuote, SwapErrorRight>>> => {
+        const maybeThorTxInfo = await getEvmThorTxInfo({
+          deps,
+          sellAsset,
+          buyAsset,
+          sellAmountCryptoBaseUnit,
+          slippageTolerance: DEFAULT_SLIPPAGE,
+          destinationAddress: receiveAddress,
           protocolFees,
+          affiliateBps,
         })
+
+        if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
+        const { data, router } = maybeThorTxInfo.unwrap()
+
+        const { assetNamespace } = fromAssetId(sellAsset.assetId)
+        const isErc20Trade = assetNamespace === 'erc20'
+
+        const maybeEvmTxFees = await getEvmTxFees({
+          accountNumber,
+          adapter: sellAdapter as unknown as EvmChainAdapter,
+          data,
+          eip1559Support: (input as GetEvmTradeQuoteInput).eip1559Support,
+          router,
+          value: isErc20Trade ? '0' : sellAmountCryptoBaseUnit,
+          wallet,
+        })
+
+        if (maybeEvmTxFees.isErr()) return Err(maybeEvmTxFees.unwrapErr())
+        const { networkFeeCryptoBaseUnit } = maybeEvmTxFees.unwrap()
 
         return Ok({
           ...commonQuoteFields,
+          data,
+          router,
           steps: [
             {
               ...commonStepFields,
               allowanceContract: router,
-              feeData,
+              feeData: {
+                networkFeeCryptoBaseUnit,
+                protocolFees,
+              },
             },
           ],
         })
@@ -262,7 +298,7 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
 
     case CHAIN_NAMESPACE.Utxo:
       return (async (): Promise<Result<TradeQuote<ThorUtxoSupportedChainId>, SwapErrorRight>> => {
-        const maybeThorTxInfo = await getThorTxInfo({
+        const maybeThorTxInfo = await getUtxoThorTxInfo({
           deps,
           sellAsset,
           buyAsset,

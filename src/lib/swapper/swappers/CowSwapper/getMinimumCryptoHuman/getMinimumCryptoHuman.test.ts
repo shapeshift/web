@@ -7,7 +7,7 @@ jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
   selectSellAssetUsdRate: jest.fn(() => '0.25'),
 }))
 
-describe('getMinimumAmountCryptoHuman', () => {
+describe('getMinimumCryptoHuman', () => {
   it('returns minimum for ethereum network', () => {
     const minimumCryptoHuman = getMinimumCryptoHuman(KnownChainIds.EthereumMainnet)
     expect(minimumCryptoHuman).toBe('80')

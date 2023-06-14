@@ -48,7 +48,7 @@ export async function getCowSwapTradeQuote(
   const minimumCryptoBaseUnit = toBaseUnit(minimumCryptoHuman, sellAsset.precision)
 
   // making sure we do not have decimals for cowswap api (can happen at least from minQuoteSellAmount)
-  const normalizedSellAmountCryptoBaseUnit = normalizeIntegerAmount(
+  const normalizedSellAmount = normalizeIntegerAmount(
     bnOrZero(sellAmount).eq(0) ? minimumCryptoBaseUnit : sellAmount,
   )
 
@@ -70,7 +70,7 @@ export async function getCowSwapTradeQuote(
       partiallyFillable: false,
       from: receiveAddress,
       kind: ORDER_KIND_SELL,
-      sellAmountBeforeFee: normalizedSellAmountCryptoBaseUnit,
+      sellAmountBeforeFee: normalizedSellAmount,
     },
   )
 
@@ -92,14 +92,9 @@ export async function getCowSwapTradeQuote(
     response: data,
   })
 
-  const isSellAmountBelowMinimum = bnOrZero(normalizedSellAmountCryptoBaseUnit).lt(
-    minimumCryptoBaseUnit,
-  )
-
   // don't show buy amount if less than min sell amount
-  const quoteBuyAmountCryptoBaseUnit = isSellAmountBelowMinimum
-    ? '0'
-    : buyAmountBeforeFeesCryptoBaseUnit
+  const isSellAmountBelowMinimum = bnOrZero(normalizedSellAmount).lt(minimumCryptoBaseUnit)
+  const buyAmountCryptoBaseUnit = isSellAmountBelowMinimum ? '0' : buyAmountBeforeFeesCryptoBaseUnit
 
   const quote: TradeQuote<CowChainId> = {
     minimumCryptoHuman,
@@ -118,8 +113,8 @@ export async function getCowSwapTradeQuote(
             },
           },
         },
-        sellAmountBeforeFeesCryptoBaseUnit: normalizedSellAmountCryptoBaseUnit,
-        buyAmountBeforeFeesCryptoBaseUnit: quoteBuyAmountCryptoBaseUnit,
+        sellAmountBeforeFeesCryptoBaseUnit: normalizedSellAmount,
+        buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
         sources: DEFAULT_SOURCE,
         buyAsset,
         sellAsset,

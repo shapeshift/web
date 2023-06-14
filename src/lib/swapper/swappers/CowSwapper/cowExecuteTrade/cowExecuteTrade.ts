@@ -54,7 +54,7 @@ export async function cowExecuteTrade<T extends CowChainId>(
   if (!isEvmChainAdapter(adapter)) {
     return Err(
       makeSwapErrorRight({
-        message: 'Invalid chain adapter',
+        message: '[CowSwap: executeTrade] - invalid chain adapter',
         code: SwapErrorType.UNSUPPORTED_CHAIN,
         details: { adapter },
       }),
@@ -101,7 +101,24 @@ export async function cowExecuteTrade<T extends CowChainId>(
     wallet,
   }
 
-  const signatureOrderDigest = await adapter.signMessage(message)
+  const maybeSignatureOrderDigest = await (async () => {
+    try {
+      const signatureOrderDigest = await adapter.signMessage(message)
+      return Ok(signatureOrderDigest)
+    } catch (err) {
+      return Err(
+        makeSwapErrorRight({
+          message: '[CowSwap: executeTrade] - failed to sign message',
+          cause: err,
+          code: SwapErrorType.EXECUTE_TRADE_FAILED,
+          details: { message },
+        }),
+      )
+    }
+  })()
+
+  if (maybeSignatureOrderDigest.isErr()) return Err(maybeSignatureOrderDigest.unwrapErr())
+  const signatureOrderDigest = maybeSignatureOrderDigest.unwrap()
 
   // Passing the signature through split/join to normalize the `v` byte.
   // Some wallets do not pad it with `27`, which causes a signature failure
@@ -124,7 +141,8 @@ export async function cowExecuteTrade<T extends CowChainId>(
     },
   )
 
-  return maybeOrdersResponse.andThen(({ data: tradeId }) =>
-    Ok({ tradeId, chainId: sellAsset.chainId }),
-  )
+  if (maybeOrdersResponse.isErr()) return Err(maybeOrdersResponse.unwrapErr())
+  const { data: tradeId } = maybeOrdersResponse.unwrap()
+
+  return Ok({ tradeId, chainId: sellAsset.chainId })
 }

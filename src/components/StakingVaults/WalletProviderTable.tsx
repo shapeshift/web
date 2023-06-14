@@ -45,11 +45,11 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
       return (
         <Card>
           <Card.Body>
-            {searchQuery ? (
-              <SearchEmpty searchQuery={searchQuery} />
-            ) : (
-              <ResultsEmpty ctaHref='/earn' />
-            )}
+            {(() => {
+              if (!(includeEarnBalances || includeRewardsBalances)) return null
+              if (searchQuery) return <SearchEmpty searchQuery={searchQuery} />
+              return <ResultsEmpty ctaHref='/earn' />
+            })()}
           </Card.Body>
         </Card>
       )
@@ -65,7 +65,7 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
           Array.from({ length: 3 }).map((_, index) => <ProviderCardLoading key={index} />)}
       </Flex>
     )
-  }, [isLoading, rows, searchQuery])
+  }, [includeEarnBalances, includeRewardsBalances, isLoading, rows, searchQuery])
 
   return renderProviders
 }

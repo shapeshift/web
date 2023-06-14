@@ -178,7 +178,7 @@ export const createOnRamperUrl = ({
   }
   params.set('language', language)
 
-  params.set('darkMode', mode === 'dark' ? 'true' : 'false')
+  params.set('themeName', mode === 'dark' ? 'dark' : 'light')
   currentUrl && params.set('redirectURL', currentUrl)
 
   return `${baseUrl.toString()}?${params.toString()}`

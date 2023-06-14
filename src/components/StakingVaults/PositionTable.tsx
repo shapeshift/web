@@ -180,9 +180,14 @@ export const PositionTable: React.FC<PositionTableProps> = ({
       renderSubComponent={({ original }) => (
         <PositionDetails key={original.assetId} {...original} />
       )}
-      renderEmptyComponent={() =>
-        searchQuery ? <SearchEmpty searchQuery={searchQuery} /> : <ResultsEmpty ctaHref='/earn' />
-      }
+      renderEmptyComponent={() => {
+        if (!(includeEarnBalances || includeRewardsBalances)) return null
+        return searchQuery ? (
+          <SearchEmpty searchQuery={searchQuery} />
+        ) : (
+          <ResultsEmpty ctaHref='/earn' />
+        )
+      }}
       initialState={{ pageSize: 30 }}
     />
   )

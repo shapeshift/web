@@ -216,7 +216,7 @@ export const zapperApi = createApi({
     }),
     getZapperNftUserTokens: build.query<NftItemWithCollection[], GetZapperNftUserTokensInput>({
       queryFn: async ({ accountIds }) => {
-        let data: V2NftUserItem[] = []
+        let data: (V2NftUserItem & { ownerAddress: string })[] = []
 
         const userAddresses = accountIdsToEvmAddresses(accountIds)
         for (const userAddress of userAddresses) {
@@ -235,7 +235,10 @@ export const zapperApi = createApi({
               const payload = { ...options, params, headers, url }
               const { data: res } = await axios.request<V2NftUserTokensResponseType>({ ...payload })
               if (!res?.items?.length) break
-              if (res?.items?.length) data = data.concat(res.items)
+              if (res?.items?.length)
+                data = data.concat(
+                  res.items.map(item => Object.assign(item, { ownerAddress: userAddress })),
+                )
               if (res?.items?.length < limit) break
             } catch (e) {
               console.error(e)
@@ -566,8 +569,8 @@ export const zapper = createApi({
                     dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
                   }
 
-                  const underlyingAssetRatiosBaseUnit = (() =>
-                    (asset.dataProps?.reserves ?? []).map(reserve => {
+                  const underlyingAssetRatiosBaseUnit = (asset.dataProps?.reserves ?? []).map(
+                    reserve => {
                       const reserveBaseUnit = toBaseUnit(reserve, asset.decimals ?? 18)
                       const totalSupplyBaseUnit =
                         typeof asset.supply === 'number'
@@ -579,7 +582,8 @@ export const zapper = createApi({
                       if (!tokenPoolRatio) return '0'
                       const ratio = toBaseUnit(tokenPoolRatio, asset.tokens[0].decimals)
                       return ratio
-                    }) as unknown as OpportunityMetadataBase['underlyingAssetRatiosBaseUnit'])()
+                    },
+                  )
 
                   if (!acc.opportunities[opportunityId]) {
                     acc.opportunities[opportunityId] = {

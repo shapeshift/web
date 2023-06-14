@@ -136,7 +136,7 @@ const NftItemSchema = z.object({
   supports_erc: z.array(z.string()).nullable(),
   token_price_wei: z.string().nullable(),
   token_quote_rate_eth: z.string().nullable(),
-  original_owner: z.string().nullable(),
+  original_owner: z.string(),
   external_data: z
     .object({
       name: z.string().nullable(),

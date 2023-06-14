@@ -1,5 +1,6 @@
 import { QueryStatus } from '@reduxjs/toolkit/query'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { isNft } from '@shapeshiftoss/caip'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
 import {
@@ -7,8 +8,8 @@ import {
   selectQueryStatusParamFromFilter,
 } from 'state/selectors'
 import { selectWalletId } from 'state/slices/common-selectors'
+import { selectPortfolioAssetIds } from 'state/slices/selectors'
 
-import { nftApi } from './nftApi'
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
 
 const selectNfts = (state: ReduxState) => state.nft.nfts.byId
@@ -36,32 +37,28 @@ export const selectGetNftUserTokensPending = createSelector(
   queries => Boolean(queries.length),
 )
 
-// Would be nice if this was normalized as well but we can't, See the PR description of https://github.com/shapeshift/web/pull/4597
-// TODO(gomes): normalize me
-export const makeSelectNftItemsWithCollectionSelector = (accountIds: AccountId[]) => {
-  const selectGetNftUserTokens = nftApi.endpoints.getNftUserTokens.select({ accountIds })
+export const selectPortfolioNftItemsWithCollection = createSelector(
+  selectNfts,
+  selectNftCollections,
+  selectPortfolioAssetIds,
+  (nftsById, collections, portfolioAssetIds): NftItemWithCollection[] => {
+    const portfolioNftAssetIds = portfolioAssetIds.filter(isNft)
 
-  return createSelector(
-    selectGetNftUserTokens,
-    selectNftCollections,
-    (nftUserTokens, collections): NftItemWithCollection[] => {
-      const { data: nfts } = nftUserTokens
-      if (!nfts) return []
+    return portfolioNftAssetIds.reduce<NftItemWithCollection[]>((acc, nftAssetId) => {
+      if (!nftAssetId) return acc
+      const nft = nftsById[nftAssetId]
+      if (!nft) return acc
+      const collection = collections[nft.collectionId]
+      if (!collection) return acc
 
-      return Object.values(nfts).reduce<NftItemWithCollection[]>((acc, nft) => {
-        if (!nft) return acc
-        const collection = collections[nft.collectionId]
-        if (!collection) return acc
+      const nftItemWithCollection = Object.assign({}, nft, { collection })
 
-        const nftItemWithCollection = Object.assign({}, nft, { collection })
+      acc.push(nftItemWithCollection)
 
-        acc.push(nftItemWithCollection)
-
-        return acc
-      }, [])
-    },
-  )
-}
+      return acc
+    }, [])
+  },
+)
 
 export const selectNftCollectionById = createSelector(
   selectNftCollections,

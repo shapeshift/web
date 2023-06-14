@@ -88,6 +88,7 @@ export const mockStore: ReduxState = {
       ReadOnlyAssets: false,
       OneInch: false,
       CovalentJaypegs: false,
+      Chatwoot: false,
       MultiHopTrades: false,
       CoinbaseWallet: false,
     },

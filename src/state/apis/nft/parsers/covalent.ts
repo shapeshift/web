@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { AssetNamespace } from '@shapeshiftoss/caip/src/assetId/assetId'
 import { isSome } from 'lib/utils'
 import type { CovalentNftItemSchemaType } from 'state/apis/covalent/validators'
@@ -7,7 +7,7 @@ import type { CovalentNftItemSchemaType } from 'state/apis/covalent/validators'
 import type { NftItemWithCollection } from '../types'
 
 export const parseToNftItem = (
-  covalentItem: CovalentNftItemSchemaType,
+  covalentItem: CovalentNftItemSchemaType & { ownerAddress: string },
   chainId: ChainId,
 ): NftItemWithCollection[] => {
   return (covalentItem.nft_data ?? [])
@@ -26,6 +26,10 @@ export const parseToNftItem = (
       const item: NftItemWithCollection = {
         name: covalentItem.contract_name,
         chainId,
+        ownerAccountId: toAccountId({
+          chainId,
+          account: covalentItem.ownerAddress,
+        }),
         assetId: toAssetId({
           // Yeah, it's weird, but this is how Covalent does it
           assetReference: `${covalentItem.contract_address}/${nftData.token_id}`,
@@ -35,6 +39,7 @@ export const parseToNftItem = (
           chainId,
         }),
         id: nftData.token_id,
+        symbol: covalentItem.contract_ticker_symbol,
         medias,
         price: '', // Covalent doesn't provide spot pricing for NFT items
         rarityRank: null, // Covalent doesn't provide rarity rank

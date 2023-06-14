@@ -2,6 +2,7 @@ import { Button, Flex, List, useColorModeValue } from '@chakra-ui/react'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText } from 'components/Text'
@@ -47,29 +48,25 @@ export const OpportunityRow: React.FC<
     icons,
   } = opportunity
   const translate = useTranslate()
+  const history = useHistory()
   const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
   const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assets = useAppSelector(selectAssets)
   const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
 
-  const underlyingAssetLabel = useMemo(() => {
-    if ((opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) {
-      return 'common.reward'
-    } else {
-      return 'defi.underlyingAsset'
-    }
-  }, [opportunity])
+  const rewardsBalances = useMemo(() => {
+    if (!(opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) return []
+
+    const earnOpportunity = opportunity as StakingEarnOpportunityType
+    return getRewardBalances({
+      rewardAssetIds: earnOpportunity.rewardAssetIds,
+      rewardsCryptoBaseUnit: earnOpportunity.rewardsCryptoBaseUnit,
+      assets,
+      marketData,
+    })
+  }, [assets, marketData, opportunity])
 
   const underlyingAssetBalances = useMemo(() => {
-    if ((opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) {
-      const earnOpportunity = opportunity as StakingEarnOpportunityType
-      return getRewardBalances({
-        rewardAssetIds: earnOpportunity.rewardAssetIds,
-        rewardsCryptoBaseUnit: earnOpportunity.rewardsCryptoBaseUnit,
-        assets,
-        marketData,
-      })
-    }
     return getUnderlyingAssetIdsBalances({
       assetId,
       underlyingAssetIds,
@@ -83,20 +80,9 @@ export const OpportunityRow: React.FC<
     assets,
     cryptoAmountBaseUnit,
     marketData,
-    opportunity,
     underlyingAssetIds,
     underlyingAssetRatiosBaseUnit,
   ])
-
-  const nestedAssetIds = useMemo(() => {
-    if ((opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) {
-      const earnOpportunity = opportunity as StakingEarnOpportunityType
-      return earnOpportunity.rewardAssetIds
-    } else {
-      const lpOpportunity = opportunity as LpEarnOpportunityType
-      return lpOpportunity.underlyingAssetIds
-    }
-  }, [opportunity])
 
   const handleClick = useCallback(
     (action: DefiAction) => {
@@ -126,34 +112,51 @@ export const OpportunityRow: React.FC<
     ))
   }, [apy, cryptoAmountBaseUnit, group, type])
 
-  const renderRewardAssets = useMemo(() => {
-    if (!nestedAssetIds) return null
+  const renderNestedAssets = useMemo(() => {
     return (
       <List style={{ marginTop: 0 }}>
-        {nestedAssetIds.map(assetId => {
-          if (bnOrZero(underlyingAssetBalances[assetId]?.cryptoBalancePrecision).eq(0)) return null
+        {Object.entries(rewardsBalances).map(([rewardAssetId, rewardBalance]) => {
+          if (bnOrZero(rewardBalance.cryptoBalancePrecision).isZero()) return null
           return (
             <NestedAsset
-              key={assetId}
+              key={rewardAssetId}
               isClaimableRewards={isClaimableRewards}
               isExternal={opportunity.isReadOnly}
-              assetId={assetId}
-              balances={underlyingAssetBalances[assetId]}
+              assetId={rewardAssetId}
+              balances={rewardBalance}
               onClick={() => handleClick(DefiAction.Claim)}
-              type={translate(underlyingAssetLabel)}
+              type={translate('common.reward')}
             />
           )
         })}
+        {Object.entries(underlyingAssetBalances).map(
+          ([underlyingAssetId, underlyingAssetBalance]) => {
+            // Don't display the same asset as an underlying, that's an implementation detail, but shouldn't be user-facing
+            if (underlyingAssetId === assetId) return null
+            if (bnOrZero(underlyingAssetBalance.cryptoBalancePrecision).isZero()) return null
+            return (
+              <NestedAsset
+                key={underlyingAssetId}
+                isClaimableRewards={isClaimableRewards}
+                assetId={underlyingAssetId}
+                balances={underlyingAssetBalance}
+                onClick={() => history.push(`/assets/${underlyingAssetId}`)}
+                type={translate('defi.underlyingAsset')}
+              />
+            )
+          },
+        )}
       </List>
     )
   }, [
-    nestedAssetIds,
+    rewardsBalances,
     underlyingAssetBalances,
     isClaimableRewards,
     opportunity.isReadOnly,
     translate,
-    underlyingAssetLabel,
     handleClick,
+    assetId,
+    history,
   ])
   if (!asset) return null
   return (
@@ -217,7 +220,7 @@ export const OpportunityRow: React.FC<
             />
           </Flex>
         </Button>
-        {renderRewardAssets}
+        {renderNestedAssets}
       </List>
     </Flex>
   )

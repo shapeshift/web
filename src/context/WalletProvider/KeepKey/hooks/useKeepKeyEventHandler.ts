@@ -7,7 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import type { DeviceState, InitialState } from 'context/WalletProvider/WalletProvider'
-import { poll } from 'lib/poll/poll'
+import { usePoll } from 'hooks/usePoll/usePoll'
 
 import { ButtonRequestType, FailureType, Message, MessageType } from '../KeepKeyTypes'
 
@@ -25,6 +25,7 @@ export const useKeepKeyEventHandler = (
 
   const toast = useToast()
   const translate = useTranslate()
+  const poll = usePoll()
 
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
@@ -263,5 +264,6 @@ export const useKeepKeyEventHandler = (
     disposition,
     toast,
     translate,
+    poll,
   ])
 }

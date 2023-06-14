@@ -14,11 +14,11 @@ import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -39,6 +39,7 @@ type FoxFarmingApproveProps = {
 }
 
 export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext }) => {
+  const poll = usePoll()
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()
@@ -144,6 +145,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
     wallet,
     asset,
     approve,
+    poll,
     getStakeFeeData,
     feeAsset.precision,
     onNext,

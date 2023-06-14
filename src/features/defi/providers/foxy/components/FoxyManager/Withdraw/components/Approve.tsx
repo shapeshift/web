@@ -11,9 +11,9 @@ import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManage
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
@@ -26,6 +26,7 @@ import { WithdrawContext } from '../WithdrawContext'
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
+  const poll = usePoll()
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(WithdrawContext)
   const estimatedGasCryptoBaseUnit = state?.approve.estimatedGasCryptoBaseUnit
@@ -172,6 +173,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     foxyApi,
     getWithdrawGasEstimate,
     onNext,
+    poll,
     rewardId,
     state?.withdraw,
     toast,

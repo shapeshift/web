@@ -18,12 +18,12 @@ import { useTranslate } from 'react-polyglot'
 import type { Address } from 'viem'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
@@ -44,6 +44,7 @@ type UniV2ApproveProps = StepComponentProps & {
 }
 
 export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
+  const poll = usePoll()
   const { state, dispatch } = useContext(DepositContext)
   const approve0 = state?.approve0
   const approve1 = state?.approve1
@@ -189,6 +190,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       wallet,
       asset0ContractAddress,
       approveAsset,
+      poll,
       asset0Allowance,
       asset1Allowance,
       asset0.precision,

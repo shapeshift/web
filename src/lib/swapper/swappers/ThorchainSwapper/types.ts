@@ -1,6 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { ChainAdapterManager, SignTx } from '@shapeshiftoss/chain-adapters'
-import type Web3 from 'web3'
+import type { SignTx } from '@shapeshiftoss/chain-adapters'
 import type { Trade } from 'lib/swapper/api'
 import type {
   ThorCosmosSdkSupportedChainId,
@@ -80,13 +79,6 @@ export type InboundAddressResponse = {
   chain_lp_actions_paused: boolean
   outbound_tx_size: string
   outbound_fee: string
-}
-
-export type ThorchainSwapperDeps = {
-  daemonUrl: string
-  midgardUrl: string
-  adapterManager: ChainAdapterManager
-  web3: Web3
 }
 
 export interface UtxoThorTrade<C extends ChainId> extends Trade<C> {

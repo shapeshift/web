@@ -19,7 +19,6 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import {
   selectBuyAsset,
@@ -32,7 +31,7 @@ import { breakpoints } from 'theme/theme'
 
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
-import { getTotalProtocolFeeForAsset } from './components/TradeQuotes/helpers'
+import { getNetReceiveAmountCryptoPrecision, getTotalProtocolFeeForAsset } from './helpers'
 import { useAccountIds } from './hooks/useAccountIds'
 import { useGetTradeQuotes } from './hooks/useGetTradeQuotes'
 import { useSupportedAssets } from './hooks/useSupportedAssets'
@@ -105,16 +104,13 @@ export const MultiHopTrade = (props: CardProps) => {
   }, [quoteData])
 
   const buyAmountAfterFeesCryptoPrecision = useMemo(() => {
-    if (!quoteData) return '0'
-    const lastStep = quoteData.steps[quoteData.steps.length - 1]
-    const buyAssetProtocolFeesTotalBaseUnit = bnOrZero(
-      totalProtocolFees[lastStep.buyAsset.assetId]?.amountCryptoBaseUnit,
-    )
-    return fromBaseUnit(
-      bn(lastStep.buyAmountBeforeFeesCryptoBaseUnit).minus(buyAssetProtocolFeesTotalBaseUnit),
-      buyAsset.precision,
-    ).toString()
-  }, [buyAsset.precision, quoteData, totalProtocolFees])
+    if (!quoteData || !selectedQuote) return '0'
+
+    return getNetReceiveAmountCryptoPrecision({
+      quote: quoteData,
+      swapperName: selectedQuote.swapperName,
+    })
+  }, [selectedQuote, quoteData])
 
   const buyAmountBeforeFeesCryptoPrecision = useMemo(() => {
     if (!quoteData) return '0'

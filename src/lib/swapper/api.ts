@@ -98,10 +98,12 @@ type CommonTradeInput = {
   sellAsset: Asset
   buyAsset: Asset
   sellAmountBeforeFeesCryptoBaseUnit: string
+  sendAddress?: string
   receiveAddress: string | undefined
   accountNumber: number
   receiveAccountNumber?: number
   affiliateBps: string
+  allowMultiHop: boolean
 }
 
 export type GetEvmTradeQuoteInput = CommonTradeInput & {

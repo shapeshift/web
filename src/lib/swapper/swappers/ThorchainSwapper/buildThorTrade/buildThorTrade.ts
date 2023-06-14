@@ -3,6 +3,7 @@ import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkBaseAdapter, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type {
   BuildTradeInput,
   GetUtxoTradeQuoteInput,
@@ -20,19 +21,18 @@ import type {
   ThorEvmSupportedChainId,
   ThorUtxoSupportedChainId,
 } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
-import type { ThorchainSwapperDeps, ThorTrade } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type { ThorTrade } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
 
-type BuildTradeArgs = {
-  deps: ThorchainSwapperDeps
-  input: BuildTradeInput
-}
-
-export const buildTrade = async ({
-  deps,
-  input,
-}: BuildTradeArgs): Promise<Result<ThorTrade<ChainId>, SwapErrorRight>> => {
+export const buildTrade = async (
+  input: BuildTradeInput,
+  {
+    sellAssetUsdRate,
+    buyAssetUsdRate,
+    feeAssetUsdRate,
+  }: { sellAssetUsdRate: string; buyAssetUsdRate: string; feeAssetUsdRate: string },
+): Promise<Result<ThorTrade<ChainId>, SwapErrorRight>> => {
   const {
     buyAsset,
     receiveAddress: destinationAddress,
@@ -44,8 +44,9 @@ export const buildTrade = async ({
     affiliateBps = '0',
   } = input
 
+  const chainAdapterManager = getChainAdapterManager()
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
-  const sellAdapter = deps.adapterManager.get(sellAsset.chainId)
+  const sellAdapter = chainAdapterManager.get(sellAsset.chainId)
 
   if (!sellAdapter)
     return Err(
@@ -56,7 +57,11 @@ export const buildTrade = async ({
       }),
     )
 
-  const maybeQuote = await getThorTradeQuote({ deps, input })
+  const maybeQuote = await getThorTradeQuote(input, {
+    sellAssetUsdRate,
+    buyAssetUsdRate,
+    feeAssetUsdRate,
+  })
 
   if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
 
@@ -82,8 +87,9 @@ export const buildTrade = async ({
       sellAmountCryptoBaseUnit,
       destinationAddress,
       feeData: quote.steps[0].feeData as QuoteFeeData<ThorEvmSupportedChainId>,
-      deps,
       affiliateBps,
+      buyAssetUsdRate,
+      feeAssetUsdRate,
     })
 
     return maybeEthTradeTx.andThen(ethTradeTx =>
@@ -96,7 +102,6 @@ export const buildTrade = async ({
     )
   } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
     const maybeThorTxInfo = await getThorTxInfo({
-      deps,
       sellAsset,
       buyAsset,
       sellAmountCryptoBaseUnit,
@@ -105,6 +110,8 @@ export const buildTrade = async ({
       xpub: (input as GetUtxoTradeQuoteInput).xpub,
       protocolFees: quote.steps[0].feeData.protocolFees,
       affiliateBps,
+      buyAssetUsdRate,
+      feeAssetUsdRate,
     })
 
     if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
@@ -134,7 +141,6 @@ export const buildTrade = async ({
   } else if (chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
     const maybeTxData = await getCosmosTxData({
       accountNumber,
-      deps,
       sellAdapter: sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>,
       sellAmountCryptoBaseUnit,
       sellAsset,
@@ -145,6 +151,8 @@ export const buildTrade = async ({
       destinationAddress,
       quote: quote as TradeQuote<ThorCosmosSdkSupportedChainId>,
       affiliateBps,
+      buyAssetUsdRate,
+      feeAssetUsdRate,
     })
 
     return maybeTxData.andThen(txData =>

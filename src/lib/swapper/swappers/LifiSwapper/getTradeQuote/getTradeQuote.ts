@@ -33,8 +33,10 @@ export async function getTradeQuote(
       sellAsset,
       buyAsset,
       sellAmountBeforeFeesCryptoBaseUnit,
+      sendAddress,
       receiveAddress,
       accountNumber,
+      allowMultiHop,
     } = input
 
     const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
@@ -70,7 +72,7 @@ export async function getTradeQuote(
       // HACK: use the receive address as the send address
       // lifi's exchanges may use this to check allowance on their side
       // this swapper is not cross-account so this works
-      fromAddress: receiveAddress,
+      fromAddress: sendAddress,
       toAddress: receiveAddress,
       fromAmount: sellAmountBeforeFeesCryptoBaseUnit,
       // as recommended by lifi, dodo is denied until they fix their gas estimates
@@ -80,9 +82,7 @@ export async function getTradeQuote(
         integrator: DAO_TREASURY_ETHEREUM_MAINNET,
         slippage: Number(defaultLifiSwapperSlippage),
         exchanges: { deny: ['dodo'] },
-        // as recommended by lifi, allowSwitchChain must be false to ensure single-hop transactions.
-        // This must remain disabled until our application supports multi-hop swaps
-        allowSwitchChain: false,
+        allowSwitchChain: allowMultiHop,
       },
     }
 
@@ -109,45 +109,34 @@ export async function getTradeQuote(
       })
     }
 
-    if (selectedLifiRoute.steps.length !== 1) {
-      throw new SwapError('[getTradeQuote] multi hop trades not currently supported', {
-        code: SwapErrorType.TRADE_QUOTE_FAILED,
-      })
-    }
-
     // this corresponds to a "hop", so we could map the below code over selectedLifiRoute.steps to
     // generate a multi-hop quote
-    const lifiStep = selectedLifiRoute.steps[0]
+    const steps = await Promise.all(
+      selectedLifiRoute.steps.map(async lifiStep => {
+        // for the rate to be valid, both amounts must be converted to the same precision
+        const estimateRate = convertPrecision({
+          value: selectedLifiRoute.toAmountMin,
+          inputExponent: buyAsset.precision,
+          outputExponent: sellAsset.precision,
+        })
+          .dividedBy(bn(selectedLifiRoute.fromAmount))
+          .toString()
 
-    // for the rate to be valid, both amounts must be converted to the same precision
-    const estimateRate = convertPrecision({
-      value: selectedLifiRoute.toAmountMin,
-      inputExponent: buyAsset.precision,
-      outputExponent: sellAsset.precision,
-    })
-      .dividedBy(bn(selectedLifiRoute.fromAmount))
-      .toString()
+        const protocolFees = transformLifiStepFeeData({
+          chainId,
+          lifiStep,
+          assets,
+        })
 
-    const protocolFees = transformLifiStepFeeData({
-      chainId,
-      lifiStep,
-      assets,
-    })
+        const buyAmountCryptoBaseUnit = bnOrZero(selectedLifiRoute.toAmountMin)
+        const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(assets, lifiStep)
 
-    const buyAmountCryptoBaseUnit = bnOrZero(selectedLifiRoute.toAmountMin)
-    const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(assets, lifiStep)
+        const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
+          chainId,
+          lifiStep,
+        })
 
-    const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
-      chainId,
-      lifiStep,
-    })
-
-    // TODO(gomes): intermediary error-handling within this module function calls
-    return Ok({
-      minimumCryptoHuman: getMinimumCryptoHuman(sellAssetPriceUsdPrecision).toString(),
-      recommendedSlippage: lifiStep.action.slippage.toString(),
-      steps: [
-        {
+        return {
           allowanceContract: lifiStep.estimate.approvalAddress,
           accountNumber,
           buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
@@ -165,8 +154,14 @@ export async function getTradeQuote(
           sources: [
             { name: `${selectedLifiRoute.steps[0].tool} (${SwapperName.LIFI})`, proportion: '1' },
           ],
-        },
-      ],
+        }
+      }),
+    )
+
+    // TODO(gomes): intermediary error-handling within this module function calls
+    return Ok({
+      minimumCryptoHuman: getMinimumCryptoHuman(sellAssetPriceUsdPrecision).toString(),
+      steps,
       selectedLifiRoute,
     })
   } catch (e) {

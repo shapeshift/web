@@ -5,11 +5,11 @@ import type { CosmosSignTx, HDWallet, ThorchainSignTx } from '@shapeshiftoss/hdw
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
 import type { Asset } from 'lib/asset-service'
 import type { SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { ThorCosmosSdkSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
-import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { getLimit } from 'lib/swapper/swappers/ThorchainSwapper/utils/getLimit/getLimit'
 import { makeSwapMemo } from 'lib/swapper/swappers/ThorchainSwapper/utils/makeSwapMemo/makeSwapMemo'
@@ -17,7 +17,6 @@ import { makeSwapMemo } from 'lib/swapper/swappers/ThorchainSwapper/utils/makeSw
 type GetCosmosTxDataInput = {
   accountNumber: number
   destinationAddress: string
-  deps: ThorchainSwapperDeps
   sellAmountCryptoBaseUnit: string
   sellAsset: Asset
   buyAsset: Asset
@@ -27,6 +26,8 @@ type GetCosmosTxDataInput = {
   chainId: ChainId
   sellAdapter: CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
   affiliateBps: string
+  buyAssetUsdRate: string
+  feeAssetUsdRate: string
 }
 
 export const getCosmosTxData = async (
@@ -34,7 +35,6 @@ export const getCosmosTxData = async (
 ): Promise<Result<ThorchainSignTx | CosmosSignTx, SwapErrorRight>> => {
   const {
     accountNumber,
-    deps,
     destinationAddress,
     sellAmountCryptoBaseUnit,
     sellAsset,
@@ -44,9 +44,12 @@ export const getCosmosTxData = async (
     wallet,
     sellAdapter,
     affiliateBps,
+    buyAssetUsdRate,
+    feeAssetUsdRate,
   } = input
   const fromThorAsset = sellAsset.chainId === KnownChainIds.ThorchainMainnet
-  const maybeGaiaAddressData = await getInboundAddressDataForChain(deps.daemonUrl, cosmosAssetId)
+  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+  const maybeGaiaAddressData = await getInboundAddressDataForChain(daemonUrl, cosmosAssetId)
   if (maybeGaiaAddressData.isErr()) return Err(maybeGaiaAddressData.unwrapErr())
   const gaiaAddressData = maybeGaiaAddressData.unwrap()
   const vault = gaiaAddressData.address
@@ -65,10 +68,11 @@ export const getCosmosTxData = async (
     sellAmountCryptoBaseUnit,
     sellAsset,
     slippageTolerance,
-    deps,
     protocolFees: quote.steps[0].feeData.protocolFees,
     receiveAddress: destinationAddress,
     affiliateBps,
+    buyAssetUsdRate,
+    feeAssetUsdRate,
   })
 
   if (maybeLimit.isErr()) return Err(maybeLimit.unwrapErr())

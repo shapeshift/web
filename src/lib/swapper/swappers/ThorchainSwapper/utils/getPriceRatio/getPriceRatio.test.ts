@@ -1,9 +1,6 @@
-import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
-import type Web3 from 'web3'
 
-import type { ThorchainSwapperDeps } from '../../types'
 import { ethThornodePool, foxThornodePool } from '../test-data/responses'
 import { thorService } from '../thorService'
 import { getPriceRatio } from './getPriceRatio'
@@ -18,13 +15,6 @@ jest.mock('../thorService', () => {
 })
 
 describe('getPriceRatio', () => {
-  const deps: ThorchainSwapperDeps = {
-    midgardUrl: '',
-    daemonUrl: '',
-    adapterManager: {} as ChainAdapterManager,
-    web3: {} as Web3,
-  }
-
   it('should correctly calculate price ratio of between a given buy and sell asset', async () => {
     const foxId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
     const ethId = 'eip155:1/slip44:60'
@@ -32,7 +22,7 @@ describe('getPriceRatio', () => {
       Promise.resolve(Ok({ data: [foxThornodePool, ethThornodePool] })),
     )
 
-    const ratio = await getPriceRatio(deps, { buyAssetId: foxId, sellAssetId: ethId })
+    const ratio = await getPriceRatio({ buyAssetId: foxId, sellAssetId: ethId })
 
     const expectedRatio = '12749.78930665263109581403'
 
@@ -47,7 +37,7 @@ describe('getPriceRatio', () => {
       Promise.resolve(Ok({ data: [foxThornodePool, ethThornodePool] })),
     )
 
-    await expect(getPriceRatio(deps, { buyAssetId: derpId, sellAssetId: ethId })).rejects.toThrow(
+    await expect(getPriceRatio({ buyAssetId: derpId, sellAssetId: ethId })).rejects.toThrow(
       `[getPriceRatio]: No buyPoolId found for asset ${derpId}`,
     )
   })

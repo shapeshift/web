@@ -13,10 +13,14 @@ import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 import { defaultMarketData } from './marketDataSlice'
 import type { MarketDataById } from './types'
 
-export const selectCryptoMarketData = (state: ReduxState) => state.marketData.crypto.byId
+// TODO(woodenfurniture): rename this to clarify that prices are in USD not fiat
+export const selectCryptoMarketData = ((state: ReduxState) => state.marketData.crypto.byId) as (
+  state: ReduxState,
+) => MarketDataById<AssetId>
 export const selectCryptoMarketDataIds = (state: ReduxState) => state.marketData.crypto.ids
 const selectFiatMarketData = (state: ReduxState) => state.marketData.fiat.byId
 
+// TODO(woodenfurniture): rename this to clarify that prices are in fiat not USD
 export const selectSelectedCurrencyMarketDataSortedByMarketCap = createDeepEqualOutputSelector(
   selectCryptoMarketData,
   selectCryptoMarketDataIds,
@@ -120,3 +124,11 @@ export const selectFiatPriceHistoryTimeframe = createSelector(
   (fiatPriceHistory, selectedCurrency, timeframe): HistoryData[] =>
     fiatPriceHistory?.[timeframe]?.[selectedCurrency] ?? [],
 )
+
+export const selectUsdRateByAssetId = createCachedSelector(
+  selectCryptoMarketData,
+  selectAssetId,
+  (cryptoMarketData, assetId): string | undefined => {
+    return cryptoMarketData[assetId]?.price
+  },
+)((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')

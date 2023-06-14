@@ -92,6 +92,7 @@ describe('zrxBuildTrade', () => {
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
     eip1559Support: false,
+    allowMultiHop: false,
   }
 
   const buildTradeResponse: ZrxTrade = {

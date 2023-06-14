@@ -7,7 +7,7 @@ import { Amount } from 'components/Amount/Amount'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
 import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
@@ -21,10 +21,10 @@ import {
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
+import { getNetReceiveAmountCryptoPrecision, getTotalNetworkFeeFiatPrecision } from '../../helpers'
 import ZrxIcon from './0x-icon.png'
 import OneInchIcon from './1inch-icon.png'
 import CowIcon from './cow-icon.png'
-import { getTotalNetworkFeeFiatPrecision, getTotalReceiveAmountCryptoPrecision } from './helpers'
 import LiFiIcon from './lifi-icon.png'
 import OsmosisIcon from './osmosis-icon.png'
 import THORChainIcon from './thorchain-icon.png'
@@ -72,14 +72,14 @@ type TradeQuoteLoadedProps = {
     swapperName: SwapperName
     inputOutputRatio: number
   }
-  bestTotalReceiveAmountCryptoPrecision: string
+  bestInputOutputRatio: number
 }
 
 export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   isActive,
   isBest,
   quoteData,
-  bestTotalReceiveAmountCryptoPrecision,
+  bestInputOutputRatio,
 }) => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -114,7 +114,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const totalReceiveAmountCryptoPrecision = useMemo(
     () =>
       quote
-        ? getTotalReceiveAmountCryptoPrecision({
+        ? getNetReceiveAmountCryptoPrecision({
             quote,
             swapperName: quoteData.swapperName,
           })
@@ -122,11 +122,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     [quote, quoteData.swapperName],
   )
 
-  const quoteDifference = bn(1)
-    .minus(
-      bnOrZero(totalReceiveAmountCryptoPrecision).div(bestTotalReceiveAmountCryptoPrecision ?? 1),
-    )
-    .toString()
+  const quoteDifferenceDecimalPercentage = quoteData.inputOutputRatio / bestInputOutputRatio - 1
 
   const isAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
   const hasNegativeRatio =
@@ -207,7 +203,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           {tag}
           {!isBest && hasAmountWithPositiveReceive && (
             <Tag size='sm' colorScheme='red' variant='xs-subtle'>
-              <Amount.Percent value={quoteDifference} />
+              <Amount.Percent value={quoteDifferenceDecimalPercentage} suffix='more expensive' />
             </Tag>
           )}
         </Flex>

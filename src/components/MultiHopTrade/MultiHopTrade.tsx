@@ -1,5 +1,13 @@
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Button, Flex, IconButton, Stack, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
+import {
+  Button,
+  Flex,
+  IconButton,
+  Stack,
+  Tooltip,
+  useColorModeValue,
+  useMediaQuery,
+} from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { useCallback, useMemo } from 'react'
@@ -233,16 +241,18 @@ export const MultiHopTrade = (props: CardProps) => {
                   />
                 ) : null}
               </Stack>
-              <Button
-                type='submit'
-                colorScheme={false ? 'red' : 'blue'}
-                size='lg-multiline'
-                data-test='trade-form-preview-button'
-                isDisabled={selectedQuoteStatus.quoteHasError}
-                isLoading={isLoading}
-              >
-                <Text translation={selectedQuoteStatus.quoteStatusTranslationKey} />
-              </Button>
+              <Tooltip label={selectedQuoteStatus.errorMessage}>
+                <Button
+                  type='submit'
+                  colorScheme={selectedQuoteStatus.quoteHasError ? 'red' : 'blue'}
+                  size='lg-multiline'
+                  data-test='trade-form-preview-button'
+                  isDisabled={selectedQuoteStatus.quoteHasError}
+                  isLoading={isLoading}
+                >
+                  <Text translation={selectedQuoteStatus.quoteStatusTranslationKey} />
+                </Button>
+              </Tooltip>
             </Stack>
           </SlideTransition>
         </FormProvider>

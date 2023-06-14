@@ -331,7 +331,7 @@ export const TradeConfirm = () => {
         fn: () => swapper.getTradeTxs(result.unwrap()).catch(e => Err(e)),
         validate: txsResult => txsResult.isOk() && !!txsResult.unwrap().buyTxid,
         interval: 10000, // 10 seconds
-        maxAttempts: 300, // Lots of attempts because some trade are slow (thorchain to bitcoin)
+        maxAttempts: Infinity, // infinite attempts because some trade are verrry slow (hours, days, years?)
       })
       if (txs.isErr()) throw txs.unwrapErr()
       setBuyTxid(txs.unwrap().buyTxid ?? '')

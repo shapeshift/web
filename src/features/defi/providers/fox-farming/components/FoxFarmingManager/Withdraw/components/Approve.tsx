@@ -16,11 +16,11 @@ import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -38,6 +38,7 @@ import { WithdrawContext } from '../WithdrawContext'
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
+  const poll = usePoll()
   const { state, dispatch } = useContext(WithdrawContext)
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()
@@ -140,6 +141,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     opportunity,
     wallet,
     approve,
+    poll,
     getUnstakeFeeData,
     underlyingAsset?.precision,
     onNext,

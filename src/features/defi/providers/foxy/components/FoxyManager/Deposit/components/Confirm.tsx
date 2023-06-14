@@ -15,9 +15,9 @@ import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { poll } from 'lib/poll/poll'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
@@ -31,6 +31,7 @@ import { DepositContext } from '../DepositContext'
 type ConfirmProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
+  const poll = usePoll<ethers.providers.TransactionReceipt>()
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
@@ -121,18 +122,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
     }
   }, [
-    foxyApi,
-    asset.precision,
-    assetReference,
-    bip44Params,
-    contractAddress,
-    dispatch,
-    onNext,
-    state?.deposit.cryptoAmount,
     accountAddress,
+    assetReference,
+    walletState.wallet,
+    foxyApi,
+    bip44Params,
+    dispatch,
+    state?.deposit.cryptoAmount,
+    asset.precision,
+    contractAddress,
+    onNext,
+    poll,
     toast,
     translate,
-    walletState.wallet,
   ])
 
   if (!state || !dispatch) return null

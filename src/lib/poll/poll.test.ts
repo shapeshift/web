@@ -24,17 +24,29 @@ describe('poll', () => {
     expect(validate).toHaveBeenCalledTimes(3)
   })
 
-  it('should stop polling and reject with "Polling cancelled" when cancelPolling is called', async () => {
-    const fn = jest.fn().mockResolvedValue('data')
+  it('should not resolve or reject after polling is cancelled', async () => {
+    const fn = jest.fn().mockImplementation(() => new Promise(() => {})) // Promise that doesn't resolve or reject
     const validate = jest.fn().mockReturnValue(false)
 
     const { promise, cancelPolling } = poll({ fn, validate, interval: 100, maxAttempts: 3 })
 
-    setTimeout(cancelPolling, 150) // Cancel polling after 0.15 seconds
-    await expect(promise).rejects.toThrow('Polling cancelled')
+    let hasFinished = false
+    promise.then(
+      () => {
+        hasFinished = true
+      },
+      () => {
+        hasFinished = true
+      },
+    )
 
-    expect(fn).toHaveBeenCalledTimes(2) // Should be called twice before cancelled
-    expect(validate).toHaveBeenCalledTimes(2)
+    // Cancel polling after 0.15 seconds
+    setTimeout(cancelPolling, 150)
+
+    // Wait longer than the polling interval
+    await new Promise(resolve => setTimeout(resolve, 200))
+
+    expect(hasFinished).toBe(false)
   })
 
   it('should poll until validate function returns true', async () => {

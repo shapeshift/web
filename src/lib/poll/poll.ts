@@ -38,16 +38,23 @@ export const poll = <T>({
   cancelPolling: () => void
 } => {
   let isCancelled = false
-  const promise = (async () => {
+  const execute = async (resolve: (arg: T) => void, reject: (err: unknown) => void) => {
     for (let attempts = 0; attempts < maxAttempts; attempts++) {
-      if (isCancelled) throw Error('Polling cancelled')
-      const result = await fn()
-      if (validate(result)) return result
-      await sleep(interval)
+      if (isCancelled) return // dont resolve/reject - leave promise on event loop
+      try {
+        const result = await fn()
+        if (validate(result)) resolve(result)
+        await sleep(interval)
+      } catch (e) {
+        reject(e)
+        return
+      }
     }
 
-    throw Error('Exceeded max attempts')
-  })()
+    reject(Error('Exceeded max attempts'))
+  }
+
+  const promise = new Promise(execute)
 
   const cancelPolling = () => {
     isCancelled = true

@@ -18,6 +18,14 @@ jest.mock('../utils/oneInchService', () => {
   }
 })
 
+jest.mock('lib/utils/evm', () => ({
+  getFees: () => ({ networkFeeCryptoBaseUnit: '32388859301500' }),
+}))
+
+jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
+  getChainAdapterManager: () => ({ get: () => ({ getChainId: () => 'eip155:1' }) }),
+}))
+
 describe('buildTrade', () => {
   const deps: OneInchSwapperDeps = {
     apiUrl: 'https://api.1inch.io/v5.0',

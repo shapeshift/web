@@ -18,6 +18,7 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -34,6 +35,7 @@ import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
@@ -42,8 +44,7 @@ import { firstNonZeroDecimal, fromBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { poll } from 'lib/poll/poll'
-import type { Swapper } from 'lib/swapper/api'
+import type { SwapErrorRight, Swapper, TradeTxs } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
 import { assertUnreachable } from 'lib/utils'
@@ -81,6 +82,7 @@ import { AssetToAsset } from './AssetToAsset'
 import { ReceiveSummary } from './ReceiveSummary'
 
 export const TradeConfirm = () => {
+  const poll = usePoll<Result<TradeTxs, SwapErrorRight>>()
   const history = useHistory()
   const mixpanel = getMixPanel()
   const borderColor = useColorModeValue('gray.100', 'gray.750')

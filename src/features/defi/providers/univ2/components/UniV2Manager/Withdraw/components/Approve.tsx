@@ -17,12 +17,12 @@ import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
@@ -43,6 +43,7 @@ type UniV2ApproveProps = StepComponentProps & {
 }
 
 export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
+  const poll = usePoll()
   const { state, dispatch } = useContext(WithdrawContext)
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()
@@ -162,8 +163,9 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     state?.withdraw,
     lpOpportunity,
     wallet,
-    approveAsset,
     lpAssetId,
+    approveAsset,
+    poll,
     getWithdrawFeeData,
     feeAsset.precision,
     onNext,

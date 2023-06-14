@@ -19,6 +19,9 @@ export const ModalStyle = {
   // Styles for the size variations
   sizes: {
     full: {
+      closeButton: {
+        top: 'calc(0.5rem + env(safe-area-inset-top))',
+      },
       header: {
         paddingTop: 'calc(1rem + env(safe-area-inset-top))',
       },

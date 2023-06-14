@@ -9,6 +9,7 @@ import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { TradeQuotes } from 'components/MultiHopTrade/components/TradeQuotes/TradeQuotes'
+import { useSelectedQuoteStatus } from 'components/MultiHopTrade/hooks/useSelectedQuoteStatus'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TradeAssetSelect } from 'components/Trade/Components/AssetSelection'
@@ -49,6 +50,7 @@ export const MultiHopTrade = (props: CardProps) => {
   const sellAsset = useAppSelector(selectSellAsset)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
 
+  const selectedQuoteStatus = useSelectedQuoteStatus()
   const dispatch = useAppDispatch()
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(swappers.actions.setBuyAsset(asset)),
@@ -236,10 +238,10 @@ export const MultiHopTrade = (props: CardProps) => {
                 colorScheme={false ? 'red' : 'blue'}
                 size='lg-multiline'
                 data-test='trade-form-preview-button'
-                isDisabled={true}
+                isDisabled={selectedQuoteStatus.quoteHasError}
                 isLoading={isLoading}
               >
-                <Text translation='trade.previewTrade' />
+                <Text translation={selectedQuoteStatus.quoteStatusTranslationKey} />
               </Button>
             </Stack>
           </SlideTransition>

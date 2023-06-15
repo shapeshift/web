@@ -55,7 +55,11 @@ export const MultiHopTrade = (props: CardProps) => {
     [dispatch],
   )
   const setSellAsset = useCallback(
-    (asset: Asset) => dispatch(swappers.actions.setBuyAsset(asset)),
+    (asset: Asset) => dispatch(swappers.actions.setSellAsset(asset)),
+    [dispatch],
+  )
+  const handleSwitchAssets = useCallback(
+    () => dispatch(swappers.actions.switchAssets()),
     [dispatch],
   )
 
@@ -136,7 +140,7 @@ export const MultiHopTrade = (props: CardProps) => {
                     label={translate('trade.from')}
                   />
                   <IconButton
-                    onClick={() => {}}
+                    onClick={handleSwitchAssets}
                     isRound
                     mx={{ base: 0, md: -3 }}
                     my={{ base: -3, md: 0 }}

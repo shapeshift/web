@@ -24,7 +24,7 @@ import { isEvmChainAdapter } from 'lib/utils'
 import {
   buildAndBroadcast,
   getApproveContractData,
-  getERC20Allowance,
+  getErc20Allowance,
   getFees,
 } from 'lib/utils/evm'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
@@ -282,7 +282,7 @@ export const useSwapper = () => {
     const { assetReference: sellAssetContractAddress } = fromAssetId(sellAsset.assetId)
     const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
 
-    const allowanceOnChainCryptoBaseUnit = await getERC20Allowance({
+    const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
       web3,
       erc20AllowanceAbi,
       address: sellAssetContractAddress,

@@ -6,7 +6,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn } from 'lib/bignumber/bignumber'
 import type { TradeQuote } from 'lib/swapper/api'
 import { erc20AllowanceAbi } from 'lib/swapper/swappers/utils/abi/erc20Allowance-abi'
-import { getERC20Allowance } from 'lib/swapper/swappers/utils/helpers/helpers'
+import { getErc20Allowance } from 'lib/utils/evm'
 import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 
 const APPROVAL_CHECK_INTERVAL_MILLISECONDS = 10_000
@@ -37,7 +37,7 @@ export const useIsApprovalNeeded = (tradeQuoteStep: TradeQuote['steps'][number])
     const { assetReference: sellAssetContractAddress } = fromAssetId(sellAsset.assetId)
     const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
 
-    const allowanceOnChainCryptoBaseUnit = await getERC20Allowance({
+    const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
       web3,
       erc20AllowanceAbi,
       address: sellAssetContractAddress,

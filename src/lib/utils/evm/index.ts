@@ -35,7 +35,7 @@ type CreateBuildCustomTxInputArgs = {
   wallet: HDWallet
 }
 
-type GetERC20AllowanceArgs = {
+type GetErc20AllowanceArgs = {
   erc20AllowanceAbi: AbiItem[]
   web3: Web3
   address: string
@@ -155,13 +155,13 @@ export const getApproveContractData = ({
   return contract.methods.approve(spender, approvalAmountCryptoBaseUnit).encodeABI()
 }
 
-export const getERC20Allowance = ({
+export const getErc20Allowance = ({
   erc20AllowanceAbi,
   web3,
   address,
   from,
   spender,
-}: GetERC20AllowanceArgs): Promise<number> => {
+}: GetErc20AllowanceArgs): Promise<number> => {
   const erc20Contract = new web3.eth.Contract(erc20AllowanceAbi, address)
   return erc20Contract.methods.allowance(from, spender).call()
 }

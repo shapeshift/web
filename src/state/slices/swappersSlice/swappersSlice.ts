@@ -60,5 +60,10 @@ export const swappers = createSlice({
       if (state.tradeExecutionStatus === MultiHopExecutionStatus.TradeComplete) return
       state.tradeExecutionStatus += 1 as MultiHopExecutionStatus
     },
+    switchAssets: state => {
+      const buyAsset = state.sellAsset
+      state.sellAsset = state.buyAsset
+      state.buyAsset = buyAsset
+    },
   },
 })

@@ -46,7 +46,7 @@ export const useIsApprovalNeeded = (tradeQuoteStep: TradeQuote['steps'][number])
     })
 
     // TODO(woodenfurniture): This was pulled from the old implementation but we should check whether we should be
-    // including protocol feess in the sell asset here
+    // including protocol fees in the sell asset here
     return bn(allowanceOnChainCryptoBaseUnit).lt(tradeQuoteStep.sellAmountBeforeFeesCryptoBaseUnit)
   }, [tradeQuoteStep, wallet])
 

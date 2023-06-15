@@ -1,8 +1,8 @@
 import type { Result } from '@sniptt/monads'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { SwapErrorRight, SwapperName, TradeQuote } from 'lib/swapper/api'
-import type { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 import type { ThorChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
+import type { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 
 export type StepperStep = {
   title: string

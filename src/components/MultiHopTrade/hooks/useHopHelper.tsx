@@ -77,8 +77,11 @@ export const useHopHelper = () => {
   )
 
   const sellAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit), firstHopSellAsset?.precision),
-    [sellAmountCryptoBaseUnit, firstHopSellAsset?.precision],
+    () =>
+      firstHopSellAsset
+        ? fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit), firstHopSellAsset?.precision)
+        : undefined,
+    [firstHopSellAsset, sellAmountCryptoBaseUnit],
   )
 
   // when trading from fee asset, the value of TX in fee asset is deducted

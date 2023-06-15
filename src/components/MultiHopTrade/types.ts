@@ -1,6 +1,8 @@
+import type { Result } from '@sniptt/monads'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { SwapperName } from 'lib/swapper/api'
+import type { SwapErrorRight, SwapperName, TradeQuote } from 'lib/swapper/api'
 import type { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
+import type { ThorChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 
 export type StepperStep = {
   title: string
@@ -39,6 +41,11 @@ export type QuoteStatus = {
 }
 
 export type TradeQuoteResult =
-  | { isLoading: any; data: any; swapperName: SwapperName; error: any } & {
+  | {
+      isLoading: boolean
+      data: Result<TradeQuote<ThorChainId>, SwapErrorRight> | undefined
+      swapperName: SwapperName
+      error: unknown
+    } & {
       inputOutputRatio: number
     }

@@ -1,6 +1,7 @@
-import type { AssetReference, ChainId } from '@shapeshiftoss/caip'
+import { skipToken } from '@reduxjs/toolkit/dist/query'
+import type { AssetReference } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE } from '@shapeshiftoss/caip'
-import type { ChainAdapter, EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
@@ -40,6 +41,9 @@ export function partitionCompare<T>(first: T[], second: T[]) {
     add: difference<T>(second, first),
   }
 }
+
+export const middleEllipsis = (value: string): string =>
+  value.length >= 12 ? `${value.slice(0, 4)}...${value.slice(-4)}` : value
 
 /**
  * Compare two arrays and call an "add" or "remove" function
@@ -158,10 +162,8 @@ export const hashCode = (str: string): string =>
 export const sha256 = (input: string): string =>
   crypto.createHash('sha256').update(input).digest('hex')
 
-export const isEvmChainAdapter = <T extends ChainId>(
-  chainAdapter: ChainAdapter<T> | EvmChainAdapter,
-): chainAdapter is EvmChainAdapter => {
-  return evmChainIds.includes(chainAdapter.getChainId() as EvmChainId)
+export const isEvmChainAdapter = (chainAdapter: unknown): chainAdapter is EvmChainAdapter => {
+  return evmChainIds.includes((chainAdapter as EvmChainAdapter).getChainId() as EvmChainId)
 }
 
 // https://github.com/sniptt-official/monads/issues/111
@@ -193,3 +195,6 @@ export const isUrl = (x: string) => {
     return false
   }
 }
+
+export const isSkipToken = (maybeSkipToken: unknown): maybeSkipToken is typeof skipToken =>
+  maybeSkipToken === skipToken

@@ -70,51 +70,44 @@ export async function getTradeQuote(
   if (maybeAdapter.isErr()) return Err(maybeAdapter.unwrapErr())
   const adapter = maybeAdapter.unwrap()
 
-  const maybeFeeData = await (async () => {
-    try {
-      const feeData = await adapter.getGasFeeData()
-      return Ok(feeData)
-    } catch (err) {
-      return Err(
-        makeSwapErrorRight({
-          message: '[OneInch: tradeQuote] - failed to get fee data',
-          cause: err,
-          code: SwapErrorType.TRADE_QUOTE_FAILED,
-        }),
-      )
-    }
-  })()
+  try {
+    const { average } = await adapter.getGasFeeData()
+    const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
+      ...average,
+      eip1559Support,
+      gasLimit: quote.estimatedGas,
+    })
 
-  if (maybeFeeData.isErr()) return Err(maybeFeeData.unwrapErr())
-  const { average } = maybeFeeData.unwrap()
+    // don't show buy amount if less than min sell amount
+    const isSellAmountBelowMinimum = bnOrZero(normalizedSellAmount).lt(minimumCryptoBaseUnit)
+    const buyAmountCryptoBaseUnit = isSellAmountBelowMinimum ? '0' : quote.toTokenAmount
 
-  const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
-    ...average,
-    eip1559Support,
-    gasLimit: quote.estimatedGas,
-  })
-
-  // don't show buy amount if less than min sell amount
-  const isSellAmountBelowMinimum = bnOrZero(normalizedSellAmount).lt(minimumCryptoBaseUnit)
-  const buyAmountCryptoBaseUnit = isSellAmountBelowMinimum ? '0' : quote.toTokenAmount
-
-  return Ok({
-    minimumCryptoHuman,
-    steps: [
-      {
-        allowanceContract,
-        rate,
-        buyAsset,
-        sellAsset,
-        accountNumber,
-        buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
-        sellAmountBeforeFeesCryptoBaseUnit: normalizedSellAmount,
-        feeData: {
-          protocolFees: {},
-          networkFeeCryptoBaseUnit,
+    return Ok({
+      minimumCryptoHuman,
+      steps: [
+        {
+          allowanceContract,
+          rate,
+          buyAsset,
+          sellAsset,
+          accountNumber,
+          buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
+          sellAmountBeforeFeesCryptoBaseUnit: normalizedSellAmount,
+          feeData: {
+            protocolFees: {},
+            networkFeeCryptoBaseUnit,
+          },
+          sources: DEFAULT_SOURCE,
         },
-        sources: DEFAULT_SOURCE,
-      },
-    ],
-  })
+      ],
+    })
+  } catch (err) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[OneInch: tradeQuote] - failed to get fee data',
+        cause: err,
+        code: SwapErrorType.TRADE_QUOTE_FAILED,
+      }),
+    )
+  }
 }

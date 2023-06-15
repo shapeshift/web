@@ -1,4 +1,3 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -7,6 +6,8 @@ import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { ThorEvmSupportedChainAdapter } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { createBuildCustomTxInput } from 'lib/utils/evm'
+
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 
 type MakeTradeTxArgs = {
   accountNumber: number
@@ -26,15 +27,13 @@ export const makeTradeTx = async (
   args: MakeTradeTxArgs,
 ): Promise<Result<TradeTx, SwapErrorRight>> => {
   const { accountNumber, adapter, data, router, sellAmountCryptoBaseUnit, sellAsset, wallet } = args
-  const { assetNamespace } = fromAssetId(sellAsset.assetId)
-  const isErc20Trade = assetNamespace === 'erc20'
 
   try {
     const buildCustomTxInput = await createBuildCustomTxInput({
       accountNumber,
       adapter,
       to: router,
-      value: isErc20Trade ? '0' : sellAmountCryptoBaseUnit,
+      value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
       data,
       wallet,
     })

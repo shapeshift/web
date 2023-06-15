@@ -10,6 +10,7 @@ import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { getLimit } from 'lib/swapper/swappers/ThorchainSwapper/utils/getLimit/getLimit'
 import { makeSwapMemo } from 'lib/swapper/swappers/ThorchainSwapper/utils/makeSwapMemo/makeSwapMemo'
+import { isNativeEvmAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
 
 type GetBtcThorTxInfoArgs = {
   deps: ThorchainSwapperDeps
@@ -44,8 +45,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
   protocolFees,
   affiliateBps,
 }) => {
-  const { assetReference, assetNamespace } = fromAssetId(sellAsset.assetId)
-  const isErc20Trade = assetNamespace === 'erc20'
+  const { assetReference } = fromAssetId(sellAsset.assetId)
   const maybeInboundAddress = await getInboundAddressDataForChain(deps.daemonUrl, sellAsset.assetId)
   if (maybeInboundAddress.isErr()) return Err(maybeInboundAddress.unwrapErr())
   const inboundAddress = maybeInboundAddress.unwrap()
@@ -83,7 +83,9 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
     const data = deposit(
       router,
       vault,
-      isErc20Trade ? assetReference : '0x0000000000000000000000000000000000000000',
+      isNativeEvmAsset(sellAsset.assetId)
+        ? '0x0000000000000000000000000000000000000000'
+        : assetReference,
       sellAmountCryptoBaseUnit,
       memo,
     )

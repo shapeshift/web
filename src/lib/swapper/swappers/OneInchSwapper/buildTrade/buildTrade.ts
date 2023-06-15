@@ -78,49 +78,43 @@ export const buildTrade = async (
   if (maybeAdapter.isErr()) return Err(maybeAdapter.unwrapErr())
   const adapter = maybeAdapter.unwrap()
 
-  const maybeFees = await (async () => {
-    try {
-      const fees = await getFees({
-        adapter,
-        accountNumber,
-        to: swap.tx.to,
-        value: swap.tx.value,
-        data: swap.tx.data,
-        wallet,
-      })
-      return Ok(fees)
-    } catch (err) {
-      return Err(
-        makeSwapErrorRight({
-          message: '[OneInch: buildTrade] - failed to get fees',
-          cause: err,
-          code: SwapErrorType.BUILD_TRADE_FAILED,
-        }),
-      )
-    }
-  })()
+  try {
+    const { networkFeeCryptoBaseUnit } = await getFees({
+      adapter,
+      accountNumber,
+      to: swap.tx.to,
+      value: swap.tx.value,
+      data: swap.tx.data,
+      wallet,
+    })
 
-  if (maybeFees.isErr()) return Err(maybeFees.unwrapErr())
-  const { networkFeeCryptoBaseUnit } = maybeFees.unwrap()
-
-  // Note: 1inch will not return a response to the above API if the needed approval is not in place.
-  // this behavior can be disabled by setting `disableEstimate` to true, but the documentation
-  // is unclear on what other checks are disabled when that is set to true.
-  // I believe this is fine since we shouldn't be building trade transactions if no approval is in place
-  // but this may need to be altered after additional testing
-  return Ok({
-    rate: getRate(swap).toString(),
-    feeData: {
-      protocolFees: {},
-      networkFeeCryptoBaseUnit,
-    },
-    sellAsset,
-    sellAmountBeforeFeesCryptoBaseUnit,
-    buyAsset,
-    buyAmountBeforeFeesCryptoBaseUnit: swap.toTokenAmount,
-    accountNumber,
-    receiveAddress,
-    sources: DEFAULT_SOURCE,
-    tx: swap.tx,
-  })
+    // Note: 1inch will not return a response to the above API if the needed approval is not in place.
+    // this behavior can be disabled by setting `disableEstimate` to true, but the documentation
+    // is unclear on what other checks are disabled when that is set to true.
+    // I believe this is fine since we shouldn't be building trade transactions if no approval is in place
+    // but this may need to be altered after additional testing
+    return Ok({
+      rate: getRate(swap).toString(),
+      feeData: {
+        protocolFees: {},
+        networkFeeCryptoBaseUnit,
+      },
+      sellAsset,
+      sellAmountBeforeFeesCryptoBaseUnit,
+      buyAsset,
+      buyAmountBeforeFeesCryptoBaseUnit: swap.toTokenAmount,
+      accountNumber,
+      receiveAddress,
+      sources: DEFAULT_SOURCE,
+      tx: swap.tx,
+    })
+  } catch (err) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[OneInch: buildTrade] - failed to get fees',
+        cause: err,
+        code: SwapErrorType.BUILD_TRADE_FAILED,
+      }),
+    )
+  }
 }

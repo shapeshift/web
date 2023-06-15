@@ -1,5 +1,4 @@
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
@@ -21,16 +20,6 @@ export async function executeTrade({
   const maybeAdapter = getAdapter(sellAsset.chainId)
   if (maybeAdapter.isErr()) return Err(maybeAdapter.unwrapErr())
   const adapter = maybeAdapter.unwrap()
-
-  if (!supportsETH(wallet)) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'eth wallet required',
-        code: SwapErrorType.BUILD_TRADE_FAILED,
-        details: { wallet },
-      }),
-    )
-  }
 
   try {
     const buildCustomTxInput = await createBuildCustomTxInput({

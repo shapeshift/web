@@ -1,10 +1,9 @@
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse, AxiosStatic } from 'axios'
 import type Web3 from 'web3'
 import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
-import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
+import type { GetTradeQuoteInput } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
@@ -13,6 +12,7 @@ import type { InboundAddressResponse, ThorchainSwapperDeps, ThornodePoolResponse
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { setupThorswapDeps } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
+import type { ThorEvmTradeQuote } from './getTradeQuote'
 import { getThorTradeQuote } from './getTradeQuote'
 
 jest.mock('../evm/utils/getThorTxData')
@@ -30,7 +30,7 @@ const mockOk = Ok as jest.MockedFunction<typeof Ok>
 const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
 const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
 
-const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
+const expectedQuoteResponse: ThorEvmTradeQuote = {
   minimumCryptoHuman: '149.14668013703712946932',
   recommendedSlippage: '0.04357',
   data: '0x',

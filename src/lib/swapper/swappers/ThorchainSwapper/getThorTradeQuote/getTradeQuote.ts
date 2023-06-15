@@ -43,6 +43,7 @@ import {
 } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 
 type GetThorTradeQuoteInput = {
@@ -263,16 +264,13 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
         const { data, router } = maybeThorTxInfo.unwrap()
 
-        const { assetNamespace } = fromAssetId(sellAsset.assetId)
-        const isErc20Trade = assetNamespace === 'erc20'
-
         const maybeEvmTxFees = await getEvmTxFees({
           accountNumber,
           adapter: sellAdapter as unknown as EvmChainAdapter,
           data,
           eip1559Support: (input as GetEvmTradeQuoteInput).eip1559Support,
           router,
-          value: isErc20Trade ? '0' : sellAmountCryptoBaseUnit,
+          value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
           wallet,
         })
 

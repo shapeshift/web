@@ -15,6 +15,7 @@ import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import BigNumber from 'bignumber.js'
 import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -96,7 +97,10 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
       const maybeQuote = await getMaybeThorchainSaversDepositQuote({
         asset,
-        amountCryptoBaseUnit: THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId],
+        amountCryptoBaseUnit: BigNumber.max(
+          THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId],
+          bn(1).times(bn(10).pow(asset.precision)).toString(),
+        ).toString(),
       })
       if (
         maybeQuote.isErr() &&

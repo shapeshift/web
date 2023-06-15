@@ -37,6 +37,10 @@ import { SwapperName } from 'lib/swapper/api'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import { selectSwapperApiTradingActivePending } from 'state/apis/swapper/selectors'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
+import {
+  getMaybeThorchainSaversDepositQuote,
+  THORCHAIN_SAVERS_DUST_THRESHOLDS,
+} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import {
@@ -76,6 +80,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const { chainId, assetReference, assetNamespace } = query
   const alertBg = useColorModeValue('gray.200', 'gray.900')
   const [isHalted, setIsHalted] = useState(false)
+  const [isHardCapReached, setIsHardCapReached] = useState(false)
 
   const assetId = toAssetId({
     chainId,
@@ -84,6 +89,22 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   })
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  useEffect(() => {
+    ;(async () => {
+      if (!(asset && assetId)) return
+
+      const maybeQuote = await getMaybeThorchainSaversDepositQuote({
+        asset,
+        amountCryptoBaseUnit: THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId],
+      })
+      if (
+        maybeQuote.isErr() &&
+        maybeQuote.unwrapErr().includes('add liquidity rune is more than bond')
+      )
+        setIsHardCapReached(true)
+    })()
+  }, [asset, assetId])
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
@@ -255,7 +276,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     if (!earnOpportunityData) return []
 
     return makeDefaultMenu({
-      isFull: opportunityMetadata?.isFull,
+      isFull: opportunityMetadata?.isFull || isHardCapReached,
       hasPendingTxs,
       hasPendingQueries,
       isHalted,
@@ -264,6 +285,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     earnOpportunityData,
     makeDefaultMenu,
     opportunityMetadata?.isFull,
+    isHardCapReached,
     hasPendingTxs,
     hasPendingQueries,
     isHalted,
@@ -285,23 +307,27 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
             />
           </Flex>
         </Flex>
-        {bnOrZero(currentCapFillPercentage).eq(100) ? (
+        {isHardCapReached || bnOrZero(currentCapFillPercentage).eq(100) ? (
           <Alert status='warning' flexDir='column' bg={alertBg} py={4}>
             <AlertIcon />
             <AlertTitle>{translate('defi.modals.saversVaults.haltedTitle')}</AlertTitle>
-            <AlertDescription>
-              {translate('defi.modals.saversVaults.haltedDescription')}
-            </AlertDescription>
-            <Button
-              as={Link}
-              href={`https://twitter.com/intent/tweet?text=Hey%20%40THORChain%20%23raisethecaps%20already%20so%20I%20can%20deposit%20%23${underlyingAsset?.symbol}%20into%20a%20savers%20vault%20at%20%40ShapeShift`}
-              isExternal
-              mt={4}
-              colorScheme='twitter'
-              rightIcon={<FaTwitter />}
-            >
-              @THORChain
-            </Button>
+            {!isHardCapReached && (
+              <>
+                <AlertDescription>
+                  {translate('defi.modals.saversVaults.haltedDescription')}
+                </AlertDescription>
+                <Button
+                  as={Link}
+                  href={`https://twitter.com/intent/tweet?text=Hey%20%40THORChain%20%23raisethecaps%20already%20so%20I%20can%20deposit%20%23${underlyingAsset?.symbol}%20into%20a%20savers%20vault%20at%20%40ShapeShift`}
+                  isExternal
+                  mt={4}
+                  colorScheme='twitter'
+                  rightIcon={<FaTwitter />}
+                >
+                  @THORChain
+                </Button>
+              </>
+            )}
           </Alert>
         ) : (
           <Progress
@@ -316,6 +342,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   }, [
     alertBg,
     currentCapFillPercentage,
+    isHardCapReached,
     opportunityMetadata?.saversMaxSupplyFiat,
     opportunityMetadata?.tvl,
     translate,

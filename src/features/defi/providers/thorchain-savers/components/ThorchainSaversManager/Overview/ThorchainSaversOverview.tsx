@@ -99,7 +99,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
         asset,
         amountCryptoBaseUnit: BigNumber.max(
           THORCHAIN_SAVERS_DUST_THRESHOLDS[assetId],
-          1,
+          bn(1).times(bn(10).pow(asset.precision)).toString(),
         ).toString(),
       })
       if (

@@ -1,39 +1,13 @@
 import { useMemo } from 'react'
 import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes'
+import type { QuoteStatus } from 'components/MultiHopTrade/types'
+import { SelectedQuoteStatus } from 'components/MultiHopTrade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { SwapErrorType } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
-
-enum SelectedQuoteStatus {
-  ReadyToPreview = 'ReadyToPreview',
-  Loading = 'Loading',
-  Updating = 'Updating',
-  SellAmountBelowMinimum = 'SellAmountBelowMinimum',
-  SellAmountBelowTradeFee = 'SellAmountBelowTradeFee',
-  InsufficientSellSideFeeAssetBalance = 'InsufficientSellSideFeeAssetBalance',
-  InsufficientBuySideFeeAssetBalance = 'InsufficientBuySideFeeAssetBalance',
-  InsufficientSellAssetBalance = 'InsufficientSellAssetBalance',
-  NoConnectedWallet = 'NoConnectedWallet',
-  SellAssetNotNotSupportedByWallet = 'SellAssetNotNotSupportedByWallet',
-  BuyAssetNotNotSupportedByWallet = 'BuyAssetNotNotSupportedByWallet',
-  NoReceiveAddress = 'NoReceiveAddress',
-  NoQuotesAvailableForTradePair = 'NoQuotesAvailableForTradePair',
-  NoQuotesAvailableForSellAmount = 'NoQuotesAvailableForSellAmount',
-  TradingInactiveOnSellChain = 'TradingInactiveOnSellChain',
-  TradingInactiveOnBuyChain = 'TradingInactiveOnBuyChain',
-  NoQuotesAvailable = 'NoQuotesAvailable',
-  UnknownError = 'UnknownError',
-}
-
-type QuoteStatus = {
-  selectedQuoteStatus: SelectedQuoteStatus
-  quoteStatusTranslationKey: string
-  quoteHasError: boolean
-  errorMessage?: string
-}
 
 export const useSelectedQuoteStatus = (): QuoteStatus => {
   const { selectedQuote } = useGetTradeQuotes()
@@ -84,6 +58,7 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
     sellAssetBalanceCryptoBaseUnit,
   })
 
+  // fixme: maybe this returns an array of errors?
   const selectedQuoteStatus = useMemo(() => {
     if (errorData) {
       if (isLoading) return SelectedQuoteStatus.Updating

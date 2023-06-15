@@ -250,7 +250,7 @@ export const MultiHopTrade = (props: CardProps) => {
                   isDisabled={selectedQuoteStatus.quoteHasError}
                   isLoading={isLoading}
                 >
-                  <Text translation={selectedQuoteStatus.quoteStatusTranslationKey} />
+                  <Text translation={selectedQuoteStatus.quoteStatusTranslation} />
                 </Button>
               </Tooltip>
             </Stack>

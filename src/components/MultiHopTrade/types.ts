@@ -1,3 +1,5 @@
+import type { InterpolationOptions } from 'node-polyglot'
+import type { SwapperName } from 'lib/swapper/api'
 import type { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 
 export type StepperStep = {
@@ -14,8 +16,8 @@ export enum SelectedQuoteStatus {
   Updating = 'Updating',
   SellAmountBelowMinimum = 'SellAmountBelowMinimum',
   SellAmountBelowTradeFee = 'SellAmountBelowTradeFee',
-  InsufficientSellSideFeeAssetBalance = 'InsufficientSellSideFeeAssetBalance',
-  InsufficientBuySideFeeAssetBalance = 'InsufficientBuySideFeeAssetBalance',
+  InsufficientFirstHopFeeAssetBalance = 'InsufficientFirstHopFeeAssetBalance',
+  InsufficientLastHopFeeAssetBalance = 'InsufficientLastHopFeeAssetBalance',
   InsufficientSellAssetBalance = 'InsufficientSellAssetBalance',
   NoConnectedWallet = 'NoConnectedWallet',
   SellAssetNotNotSupportedByWallet = 'SellAssetNotNotSupportedByWallet',
@@ -31,7 +33,12 @@ export enum SelectedQuoteStatus {
 
 export type QuoteStatus = {
   selectedQuoteErrors: SelectedQuoteStatus[]
-  quoteStatusTranslationKey: string
+  quoteStatusTranslation: string | [string, InterpolationOptions]
   quoteHasError: boolean
   errorMessage?: string
 }
+
+export type TradeQuoteResult =
+  | { isLoading: any; data: any; swapperName: SwapperName; error: any } & {
+      inputOutputRatio: number
+    }

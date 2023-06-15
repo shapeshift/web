@@ -1,13 +1,17 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
+import { orderBy } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { GetTradeQuoteInput } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { isSkipToken } from 'lib/utils'
+import { useGetLifiTradeQuoteQuery } from 'state/apis/swappers/lifiSwapperApi'
+import { useGetThorTradeQuoteQuery } from 'state/apis/swappers/thorSwapperApi'
 import {
   selectBuyAsset,
+  selectFeatureFlags,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
   selectReceiveAddress,
@@ -15,15 +19,17 @@ import {
   selectSellAsset,
   selectSellAssetAccountId,
 } from 'state/slices/selectors'
-import { useGetLifiTradeQuoteQuery } from 'state/slices/swappersSlice/swappersSlice'
 import { store, useAppSelector } from 'state/store'
 
+import { getInputOutputRatioFromQuote } from '../helpers'
+
 export const useGetTradeQuotes = () => {
-  const isLifiEnabled = useFeatureFlag('LifiSwap')
+  const flags = useAppSelector(selectFeatureFlags)
   const wallet = useWallet().state.wallet
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
+  const debouncedTradeQuoteInput = useDebounce(tradeQuoteInput, 500)
   const sellAsset = useAppSelector(selectSellAsset)
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAssetAccountId = useAppSelector(selectSellAssetAccountId)
@@ -52,6 +58,7 @@ export const useGetTradeQuotes = () => {
           wallet,
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
+          allowMultiHop: flags.MultiHopTrades,
         })
 
         setTradeQuoteInput(tradeQuoteInputArgs ?? skipToken)
@@ -59,29 +66,63 @@ export const useGetTradeQuotes = () => {
     } else {
       setTradeQuoteInput(skipToken)
     }
-  }, [buyAsset, receiveAddress, sellAccountMetadata, sellAmountCryptoPrecision, sellAsset, wallet])
+  }, [
+    buyAsset,
+    flags.MultiHopTrades,
+    receiveAddress,
+    sellAccountMetadata,
+    sellAmountCryptoPrecision,
+    sellAsset,
+    wallet,
+  ])
 
-  const { isFetching, data, error } = useGetLifiTradeQuoteQuery(tradeQuoteInput, {
-    skip: !isLifiEnabled,
+  const lifiQuery = useGetLifiTradeQuoteQuery(debouncedTradeQuoteInput, {
+    skip: !flags.LifiSwap,
   })
 
-  // TODO(woodenfurniture): sorting of quotes
+  const thorQuery = useGetThorTradeQuoteQuery(debouncedTradeQuoteInput, {
+    skip: !flags.ThorSwap,
+  })
+
   // TODO(woodenfurniture): quote selection
   const sortedQuotes = useMemo(() => {
-    if (isSkipToken(tradeQuoteInput)) return []
+    if (isSkipToken(debouncedTradeQuoteInput)) return []
 
-    const lifiInputOutputRatio = 1 // TODO(woodenfurniture): calculate this
-
-    return [
+    const results = [
       {
-        isLoading: isFetching,
-        data,
-        error,
-        swapperName: SwapperName.LIFI,
-        inputOutputRatio: lifiInputOutputRatio,
+        isLoading: thorQuery.isFetching,
+        data: thorQuery.data,
+        error: thorQuery.error,
+        swapperName: SwapperName.Thorchain,
       },
-    ]
-  }, [data, error, isFetching, tradeQuoteInput])
+      {
+        isLoading: lifiQuery.isFetching,
+        data: lifiQuery.data,
+        error: lifiQuery.error,
+        swapperName: SwapperName.LIFI,
+      },
+    ].map(result => {
+      const quote = result.data && result.data.isOk() ? result.data.unwrap() : undefined
+      const inputOutputRatio = quote
+        ? getInputOutputRatioFromQuote({
+            quote,
+            swapperName: result.swapperName,
+          })
+        : -Infinity
+
+      return Object.assign(result, { inputOutputRatio })
+    })
+
+    return orderBy(results, ['inputOutputRatio', 'swapperName'], ['asc', 'asc'])
+  }, [
+    lifiQuery.data,
+    lifiQuery.error,
+    lifiQuery.isFetching,
+    thorQuery.data,
+    thorQuery.error,
+    thorQuery.isFetching,
+    debouncedTradeQuoteInput,
+  ])
   return {
     sortedQuotes,
     selectedQuote: sortedQuotes[0],

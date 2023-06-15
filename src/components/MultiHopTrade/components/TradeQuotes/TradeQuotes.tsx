@@ -1,8 +1,6 @@
 import { Collapse, Flex } from '@chakra-ui/react'
-import { useMemo } from 'react'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes'
 
-import { getTotalReceiveAmountCryptoPrecision } from './helpers'
 import { TradeQuote } from './TradeQuote'
 
 type TradeQuotesProps = {
@@ -14,18 +12,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen }) => {
 
   const activeSwapperName = selectedQuote?.swapperName
   const bestQuoteData = sortedQuotes[0]
-  const bestQuote = bestQuoteData?.data?.isOk() ? bestQuoteData.data.unwrap() : undefined
-
-  const bestTotalReceiveAmountCryptoPrecision = useMemo(
-    () =>
-      bestQuote && bestQuoteData
-        ? getTotalReceiveAmountCryptoPrecision({
-            quote: bestQuote,
-            swapperName: bestQuoteData.swapperName,
-          })
-        : '0',
-    [bestQuote, bestQuoteData],
-  )
 
   const quotes = sortedQuotes.map((quoteData, i) => {
     const { data, swapperName } = quoteData
@@ -43,7 +29,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen }) => {
         isBest={i === 0}
         key={swapperName}
         quoteData={quoteData}
-        bestTotalReceiveAmountCryptoPrecision={bestTotalReceiveAmountCryptoPrecision}
+        bestInputOutputRatio={bestQuoteData.inputOutputRatio}
       />
     )
   })

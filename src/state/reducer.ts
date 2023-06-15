@@ -8,6 +8,7 @@ import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { nft, nftApi } from './apis/nft/nftApi'
+import { swappersApi } from './apis/swappers/swappersApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
 import { zerionApi } from './apis/zerion/zerionApi'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
@@ -16,7 +17,7 @@ import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSl
 import { opportunities } from './slices/opportunitiesSlice/opportunitiesSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
-import { swappers, swappersApi } from './slices/swappersSlice/swappersSlice'
+import { swappers } from './slices/swappersSlice/swappersSlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
 export const slices = {

@@ -1,7 +1,5 @@
-import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { Err } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
-import type Web3 from 'web3'
 
 import { SwapperName } from '../../api'
 import { ThorchainSwapper } from './ThorchainSwapper'
@@ -17,12 +15,7 @@ jest.mock('./utils/thorService', () => {
 })
 
 describe('ThorchainSwapper', () => {
-  const swapper = new ThorchainSwapper({
-    midgardUrl: '',
-    daemonUrl: '',
-    adapterManager: {} as ChainAdapterManager,
-    web3: {} as Web3,
-  })
+  const swapper = new ThorchainSwapper()
 
   describe('name', () => {
     it('returns the correct human readable swapper name', () => {

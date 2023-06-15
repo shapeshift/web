@@ -12,6 +12,8 @@ import {
   ltcAssetId,
 } from '@shapeshiftoss/caip'
 import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
@@ -156,16 +158,16 @@ export const getThorchainSaversPosition = async ({
   return accountPosition
 }
 
-export const getThorchainSaversDepositQuote = async ({
+export const getMaybeThorchainSaversDepositQuote = async ({
   asset,
   amountCryptoBaseUnit,
 }: {
   asset: Asset
   amountCryptoBaseUnit: BigNumber.Value | null | undefined
-}): Promise<ThorchainSaversDepositQuoteResponseSuccess> => {
+}): Promise<Result<ThorchainSaversDepositQuoteResponseSuccess, string>> => {
   const poolId = assetIdToPoolAssetId({ assetId: asset.assetId })
 
-  if (!poolId) throw new Error(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
+  if (!poolId) return Err(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
 
   const amountThorBaseUnit = toThorBaseUnit({
     valueCryptoBaseUnit: amountCryptoBaseUnit,
@@ -179,12 +181,12 @@ export const getThorchainSaversDepositQuote = async ({
   )
 
   if (!quoteData || 'error' in quoteData)
-    throw new Error(`Error fetching THORChain savers quote: ${quoteData?.error}`)
+    return Err(`Error fetching THORChain savers quote: ${quoteData?.error}`)
 
-  return {
+  return Ok({
     ...quoteData,
     memo: `${quoteData.memo}::${THORCHAIN_AFFILIATE_NAME}:${AFFILIATE_BPS}`,
-  }
+  })
 }
 
 export const getThorchainSaversWithdrawQuote = async ({

@@ -1,19 +1,8 @@
-import {
-  btcAssetId,
-  btcChainId,
-  ethAssetId,
-  ethChainId,
-  thorchainAssetId,
-  thorchainChainId,
-} from '@shapeshiftoss/caip'
-import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { Ok } from '@sniptt/monads'
-import type Web3 from 'web3'
-import * as selectors from 'state/zustand/swapperStore/amountSelectors'
+import { mockChainAdapters } from 'test/mocks/portfolio'
 
 import { DEFAULT_SLIPPAGE } from '../../../utils/constants'
 import { BTC, ETH, FOX_MAINNET, RUNE } from '../../../utils/test-data/assets'
-import type { ThorchainSwapperDeps } from '../../types'
 import { getInboundAddressDataForChain } from '../getInboundAddressDataForChain'
 import { getTradeRate, getTradeRateBelowMinimum } from '../getTradeRate/getTradeRate'
 import { mockInboundAddresses } from '../test-data/responses'
@@ -22,20 +11,11 @@ import { getLimit } from './getLimit'
 
 jest.mock('../getTradeRate/getTradeRate')
 jest.mock('../getInboundAddressDataForChain')
-const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
-const selectFeeAssetUsdRateSpy = jest.spyOn(selectors, 'selectFeeAssetUsdRate')
-const mockOk = Ok as jest.MockedFunction<typeof Ok>
+jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
+  getChainAdapterManager: () => mockChainAdapters,
+}))
 
-const thorchainSwapperDeps: ThorchainSwapperDeps = {
-  midgardUrl: '',
-  daemonUrl: '',
-  adapterManager: new Map([
-    [thorchainChainId, { getFeeAssetId: () => thorchainAssetId }],
-    [ethChainId, { getFeeAssetId: () => ethAssetId }],
-    [btcChainId, { getFeeAssetId: () => btcAssetId }],
-  ]) as ChainAdapterManager,
-  web3: {} as Web3,
-}
+const mockOk = Ok as jest.MockedFunction<typeof Ok>
 
 describe('getLimit', () => {
   beforeEach(() => {
@@ -43,8 +23,6 @@ describe('getLimit', () => {
   })
 
   it('should get limit when sell asset is EVM fee asset and buy asset is a UTXO', async () => {
-    selectFeeAssetUsdRateSpy.mockReturnValueOnce('1595') // sellFeeAssetUsdRate (ETH)
-    selectBuyAssetUsdRateSpy.mockReturnValueOnce('20683') // buyAssetUsdRate (BTC)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(mockOk('0.07714399680893498205')),
     )
@@ -59,7 +37,6 @@ describe('getLimit', () => {
       buyAsset: BTC,
       receiveAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
       sellAmountCryptoBaseUnit: '82535000000000000',
-      deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
       protocolFees: {
         [BTC.assetId]: {
@@ -69,6 +46,8 @@ describe('getLimit', () => {
         },
       },
       affiliateBps: '0',
+      buyAssetUsdRate: '20683', // buyAssetUsdRate (BTC)
+      feeAssetUsdRate: '1595', // sellFeeAssetUsdRate (ETH)
     }
     const maybeLimit = await getLimit(getLimitArgs)
     expect(maybeLimit.isOk()).toBe(true)
@@ -76,8 +55,6 @@ describe('getLimit', () => {
   })
 
   it('should get limit when sell asset is EVM non-fee asset and buy asset is a UTXO', async () => {
-    selectFeeAssetUsdRateSpy.mockReturnValueOnce('1595') // sellFeeAssetUsdRate (ETH)
-    selectBuyAssetUsdRateSpy.mockReturnValueOnce('20683') // buyAssetUsdRate (BTC)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(mockOk('0.00000199048641810579')),
     )
@@ -92,7 +69,6 @@ describe('getLimit', () => {
       buyAsset: BTC,
       receiveAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
       sellAmountCryptoBaseUnit: '489830019000000000000',
-      deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
       protocolFees: {
         [BTC.assetId]: {
@@ -102,6 +78,8 @@ describe('getLimit', () => {
         },
       },
       affiliateBps: '0',
+      buyAssetUsdRate: '20683', // buyAssetUsdRate (BTC)
+      feeAssetUsdRate: '1595', // sellFeeAssetUsdRate (ETH)
     }
     const maybeLimit = await getLimit(getLimitArgs)
     expect(maybeLimit.isOk()).toBe(true)
@@ -109,8 +87,6 @@ describe('getLimit', () => {
   })
 
   it('should get limit when buy asset is RUNE and sell asset is not', async () => {
-    selectFeeAssetUsdRateSpy.mockReturnValueOnce('1595') // sellFeeAssetUsdRate (ETH)
-    selectBuyAssetUsdRateSpy.mockReturnValueOnce('14.51') // buyAssetUsdRate (RUNE)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(mockOk('0.02583433052665346349')),
     )
@@ -125,7 +101,6 @@ describe('getLimit', () => {
       buyAsset: RUNE,
       receiveAddress: 'thor1234j5yq9qg7xqf0yq9qg7xqf0yq9qg7xqf0yq9q',
       sellAmountCryptoBaseUnit: '984229076000000000000',
-      deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
       protocolFees: {
         [RUNE.assetId]: {
@@ -135,6 +110,8 @@ describe('getLimit', () => {
         },
       },
       affiliateBps: '0',
+      buyAssetUsdRate: '14.51', // buyAssetUsdRate (RUNE)
+      feeAssetUsdRate: '1595', // sellFeeAssetUsdRate (ETH)
     }
     const maybeLimit = await getLimit(getLimitArgs)
     expect(maybeLimit.isOk()).toBe(true)
@@ -142,8 +119,6 @@ describe('getLimit', () => {
   })
 
   it('should get limit when sell asset is RUNE and buy asset is not', async () => {
-    selectFeeAssetUsdRateSpy.mockReturnValueOnce('14.51') // sellFeeAssetUsdRate (RUNE)
-    selectBuyAssetUsdRateSpy.mockReturnValueOnce('0.04') // buyAssetUsdRate (FOX)
     ;(getTradeRate as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(mockOk('38.68447363336979738738')),
     )
@@ -158,7 +133,6 @@ describe('getLimit', () => {
       buyAsset: FOX_MAINNET,
       receiveAddress: '0xFooBar',
       sellAmountCryptoBaseUnit: '988381400',
-      deps: thorchainSwapperDeps,
       slippageTolerance: DEFAULT_SLIPPAGE,
       protocolFees: {
         [FOX_MAINNET.assetId]: {
@@ -168,8 +142,11 @@ describe('getLimit', () => {
         },
       },
       affiliateBps: '0',
+      buyAssetUsdRate: '0.04', // buyAssetUsdRate (FOX)
+      feeAssetUsdRate: '14.51', // sellFeeAssetUsdRate (RUNE)
     }
     const maybeLimit = await getLimit(getLimitArgs)
+    if (maybeLimit.isErr()) console.log(maybeLimit.unwrapErr())
     expect(maybeLimit.isOk()).toBe(true)
     expect(maybeLimit.unwrap()).toBe('37051458738')
   })

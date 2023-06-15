@@ -217,6 +217,7 @@ describe('cowBuildTrade', () => {
       affiliateBps: '0',
       eip1559Support: false,
       slippage: getDefaultSlippagePercentageForSwapper(SwapperName.Test),
+      allowMultiHop: false,
     }
 
     const maybeCowBuildTrade = await cowBuildTrade(tradeInput, supportedChainIds)
@@ -245,6 +246,7 @@ describe('cowBuildTrade', () => {
       affiliateBps: '0',
       eip1559Support: false,
       slippage: getDefaultSlippagePercentageForSwapper(SwapperName.Test),
+      allowMultiHop: false,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -290,6 +292,7 @@ describe('cowBuildTrade', () => {
       affiliateBps: '0',
       eip1559Support: false,
       slippage: getDefaultSlippagePercentageForSwapper(SwapperName.Test),
+      allowMultiHop: false,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -336,6 +339,7 @@ describe('cowBuildTrade', () => {
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       eip1559Support: false,
+      allowMultiHop: false,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -381,6 +385,7 @@ describe('cowBuildTrade', () => {
       affiliateBps: '0',
       eip1559Support: false,
       slippage: '0.005',
+      allowMultiHop: false,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(

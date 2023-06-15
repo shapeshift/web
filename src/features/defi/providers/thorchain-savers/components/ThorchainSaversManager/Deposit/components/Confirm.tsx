@@ -43,7 +43,7 @@ import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
-  getThorchainSaversDepositQuote,
+  getMaybeThorchainSaversDepositQuote,
   getThorchainSaversPosition,
   makeDaysToBreakEven,
   toThorBaseUnit,
@@ -148,7 +148,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         asset,
       })
 
-      const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
+      const maybeQuote = await getMaybeThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
+
+      if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+
+      const quote = maybeQuote.unwrap()
 
       const { expected_amount_out: expectedAmountOutThorBaseUnit, slippage_bps } = quote
 
@@ -191,7 +195,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     const amountCryptoBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
       bn(10).pow(asset.precision),
     )
-    const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
+    const maybeQuote = await getMaybeThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
+    if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+    const quote = maybeQuote.unwrap()
 
     const amountCryptoThorBaseUnit = toThorBaseUnit({
       valueCryptoBaseUnit: amountCryptoBaseUnit,
@@ -276,7 +282,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const amountCryptoBaseUnit = bnOrZero(state.deposit.cryptoAmount).times(
         bn(10).pow(asset.precision),
       )
-      const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
+      const maybeQuote = await getMaybeThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
+      if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+      const quote = maybeQuote.unwrap()
 
       let maybeGasDeductedCryptoAmountCryptoPrecision = ''
       if (isUtxoChainId(chainId)) {
@@ -372,7 +380,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const amountCryptoBaseUnit = bnOrZero(state?.deposit.cryptoAmount).times(
         bn(10).pow(asset.precision),
       )
-      const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
+      const maybeQuote = await getMaybeThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
+      if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+      const quote = maybeQuote.unwrap()
 
       if (isUtxoChainId(chainId) && !maybeFromUTXOAccountAddress) {
         throw new Error('Account address required to deposit in THORChain savers')

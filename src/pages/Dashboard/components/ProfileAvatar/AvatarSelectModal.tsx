@@ -19,7 +19,10 @@ import { useTranslate } from 'react-polyglot'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid } from 'react-window'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { NarwhalIcon } from 'components/Icons/Narwhal'
+import { ResultsEmpty } from 'components/ResultsEmpty'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
+import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
 import { RawText } from 'components/Text'
 import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
 import { nft } from 'state/apis/nft/nftApi'
@@ -99,6 +102,48 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
     handleSaveChanges(defaultWalletImage)
   }, [defaultWalletImage, handleSaveChanges, setValue])
 
+  const renderBody = useMemo(() => {
+    if (!isLoading && !nftItems?.length) {
+      return (
+        <ResultsEmpty
+          title='nft.emptyTitle'
+          body='nft.emptyBody'
+          icon={<NarwhalIcon color='pink.200' />}
+        />
+      )
+    }
+    return isSearching && !filteredNfts?.length ? (
+      <SearchEmpty searchQuery={searchQuery} />
+    ) : (
+      <AutoSizer>
+        {({ width, height }) => {
+          return (
+            <FixedSizeGrid
+              width={width}
+              height={height}
+              itemData={{ filteredNfts, columnCount, getRadioProps }}
+              columnWidth={width / columnCount}
+              rowCount={filteredNfts.length / columnCount}
+              rowHeight={width / columnCount}
+              columnCount={columnCount}
+              overscanRowCount={15}
+            >
+              {NftRow}
+            </FixedSizeGrid>
+          )
+        }}
+      </AutoSizer>
+    )
+  }, [
+    columnCount,
+    filteredNfts,
+    getRadioProps,
+    isLoading,
+    isSearching,
+    nftItems?.length,
+    searchQuery,
+  ])
+
   return (
     <Modal scrollBehavior='inside' size={{ base: 'full', md: 'lg' }} {...props}>
       <ModalOverlay />
@@ -118,25 +163,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
           <>
             <ModalBody pb={4} display='flex' flexDir='column' gap={4} overflow='hidden'>
               <Box flex={1} minHeight={{ base: '100%', md: '500px' }} {...group}>
-                <AutoSizer>
-                  {({ width, height }) => {
-                    return (
-                      <FixedSizeGrid
-                        width={width}
-                        height={height}
-                        itemData={{ filteredNfts, columnCount, getRadioProps }}
-                        columnWidth={width / columnCount}
-                        rowCount={filteredNfts.length / columnCount}
-                        rowHeight={width / columnCount}
-                        columnCount={columnCount}
-                        overscanRowCount={15}
-                        style={{ overflowX: 'hidden', overflowY: 'auto' }}
-                      >
-                        {NftRow}
-                      </FixedSizeGrid>
-                    )
-                  }}
-                </AutoSizer>
+                {renderBody}
               </Box>
             </ModalBody>
             <ModalFooter gap={4}>

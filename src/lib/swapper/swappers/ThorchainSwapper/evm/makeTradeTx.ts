@@ -9,7 +9,6 @@ import type { QuoteFeeData, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
 import type { ThorEvmSupportedChainAdapter } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
-import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getFeesFromContractData } from 'lib/swapper/swappers/utils/helpers/helpers'
 
 type MakeTradeTxArgs<T extends EvmChainId> = {
@@ -23,7 +22,8 @@ type MakeTradeTxArgs<T extends EvmChainId> = {
   slippageTolerance: string
   feeData: QuoteFeeData<T>
   affiliateBps: string
-  deps: ThorchainSwapperDeps
+  buyAssetUsdRate: string
+  feeAssetUsdRate: string
 }
 
 export const makeTradeTx = async ({
@@ -37,7 +37,8 @@ export const makeTradeTx = async ({
   slippageTolerance,
   feeData,
   affiliateBps,
-  deps,
+  buyAssetUsdRate,
+  feeAssetUsdRate,
 }: MakeTradeTxArgs<EvmChainId>): Promise<
   Result<
     {
@@ -62,7 +63,6 @@ export const makeTradeTx = async ({
 
     const [maybeThorTxInfo, from, eip1559Support] = await Promise.all([
       getThorTxInfo({
-        deps,
         sellAsset,
         buyAsset,
         sellAmountCryptoBaseUnit,
@@ -70,6 +70,8 @@ export const makeTradeTx = async ({
         destinationAddress,
         protocolFees: feeData.protocolFees,
         affiliateBps,
+        buyAssetUsdRate,
+        feeAssetUsdRate,
       }),
       adapter.getAddress({ accountNumber, wallet }),
       wallet.ethSupportsEIP1559(),

@@ -17,178 +17,524 @@ import {
   StepTitle,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { useCallback, useMemo } from 'react'
+import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
+import {
+  getHopTotalNetworkFeeFiatPrecision,
+  getHopTotalProtocolFeesFiatPrecision,
+} from 'components/MultiHopTrade/helpers'
+import { useIsApprovalNeeded } from 'components/MultiHopTrade/hooks/useIsApprovalNeeded'
 import type { StepperStep } from 'components/MultiHopTrade/types'
-import { MultiHopExecutionStatus } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { WithBackButton } from 'components/Trade/WithBackButton'
-import { localAssetData } from 'lib/asset-service'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import type { Asset } from 'lib/asset-service'
+import { fromBaseUnit } from 'lib/math'
+import type { SwapperName, TradeQuote } from 'lib/swapper/api'
+import { assertUnreachable, isSome } from 'lib/utils'
+import { selectFeeAssetById, selectTradeExecutionStatus } from 'state/slices/selectors'
+import { swappers } from 'state/slices/swappersSlice/swappersSlice'
+import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
-import LiFiIcon from '../TradeQuotes/lifi-icon.png'
+import { SwapperIcon } from '../SwapperIcon/SwapperIcon'
 
-const getIsHopComplete = (tradeExecutionStatus: MultiHopExecutionStatus, isFirstHop: boolean) => {
-  switch (true) {
-    case isFirstHop:
-      return tradeExecutionStatus >= MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation
-    case !isFirstHop:
-      return tradeExecutionStatus >= MultiHopExecutionStatus.TradeComplete
-    default:
-      return false
+const useTradeExecutor = () => {
+  const dispatch = useAppDispatch()
+  const mockExecute = useCallback(() => {
+    // next state
+    dispatch(swappers.actions.incrementTradeExecutionState())
+
+    // mock exection of tx
+    setTimeout(() => dispatch(swappers.actions.incrementTradeExecutionState()), 3000)
+  }, [dispatch])
+  const reject = useCallback(() => {
+    // TODO(woodenfurniture): rejecting a trade should do the following
+    // - present a confirmation modal rendering the resulting amounts etc
+    // - if user cancels rejecting, return to current flow
+    // - if user confirms rejecting, update UI to show cancelled steps and display resulting amounts
+    dispatch(swappers.actions.clear())
+  }, [dispatch])
+  const onSignApproval = mockExecute
+  const onRejectApproval = reject
+  const onSignTrade = mockExecute
+  const onRejectTrade = reject
+
+  return {
+    onSignApproval,
+    onRejectApproval,
+    onSignTrade,
+    onRejectTrade,
   }
 }
 
-const getActiveStepperStep = (
-  tradeExecutionStatus: MultiHopExecutionStatus,
-  isFirstHop: boolean,
-  isApprovalRequired: boolean,
-) => {
-  if (isFirstHop) {
+const getApprovalStep = ({
+  approvalNetworkFeeCryptoFormatted,
+  txId,
+  onSign,
+  onReject,
+}: {
+  approvalNetworkFeeCryptoFormatted: string
+  txId?: string
+  onSign: () => void
+  onReject: () => void
+}): StepperStep => {
+  return {
+    title: 'Token allowance approval',
+    description: txId ?? `Approval gas fee ${approvalNetworkFeeCryptoFormatted}`,
+    stepIndicator: <StepStatus complete={<StepIcon />} active={txId ? <Spinner /> : undefined} />,
+    content: (
+      <Card p='2'>
+        {txId ? (
+          <RawText>TX: {txId}</RawText>
+        ) : (
+          <HStack>
+            <Button onClick={onSign}>Approve</Button>
+            <Button onClick={onReject}>Reject</Button>
+          </HStack>
+        )}
+      </Card>
+    ),
+  }
+}
+
+const getTradeStep = ({
+  txId,
+  onSign,
+  onReject,
+}: {
+  txId?: string
+  onSign: () => void
+  onReject: () => void
+}): StepperStep => {
+  return {
+    title: 'Sign transaction',
+    stepIndicator: <StepStatus complete={<StepIcon />} active={txId ? <Spinner /> : undefined} />,
+    content: (
+      <Card p='2'>
+        {txId ? (
+          <RawText>TX: {txId}</RawText>
+        ) : (
+          <HStack>
+            <Button onClick={onSign}>Sign message</Button>
+            <Button onClick={onReject}>Reject</Button>
+          </HStack>
+        )}
+      </Card>
+    ),
+  }
+}
+
+enum TradeType {
+  Bridge = 'Bridge',
+  Swap = 'Swap',
+}
+
+const getTitleStep = ({
+  hopIndex,
+  isHopComplete,
+  swapperName,
+  tradeType,
+}: {
+  hopIndex: number
+  isHopComplete: boolean
+  swapperName: SwapperName
+  tradeType: TradeType
+}): StepperStep => {
+  return {
+    title: `${tradeType} via ${swapperName}`,
+    stepIndicator: isHopComplete ? <StepIcon /> : <StepNumber>{hopIndex + 1}</StepNumber>,
+  }
+}
+
+const getAssetSummaryStep = ({
+  amountCryptoFormatted,
+  asset,
+}: {
+  amountCryptoFormatted: string
+  asset: Asset
+}): StepperStep => {
+  const chainAdapterManager = getChainAdapterManager()
+  const chainName = chainAdapterManager.get(asset.chainId)?.getDisplayName()
+  return {
+    title: amountCryptoFormatted,
+    description: `${amountCryptoFormatted} on ${chainName}`,
+    stepIndicator: <AssetIcon src={asset.icon} boxSize='32px' />,
+  }
+}
+
+const getHopSummaryStep = ({
+  swapperName,
+  buyAssetChainId,
+  sellAssetChainId,
+  buyAmountCryptoFormatted,
+  sellAmountCryptoFormatted,
+}: {
+  swapperName: SwapperName
+  buyAssetChainId: ChainId
+  sellAssetChainId: ChainId
+  buyAmountCryptoFormatted: string
+  sellAmountCryptoFormatted: string
+}): StepperStep => {
+  const chainAdapterManager = getChainAdapterManager()
+  const sellChainName = chainAdapterManager.get(sellAssetChainId)?.getDisplayName()
+  const buyChainName = chainAdapterManager.get(buyAssetChainId)?.getDisplayName()
+  const tradeType = buyAssetChainId === sellAssetChainId ? TradeType.Swap : TradeType.Bridge
+  return {
+    title:
+      tradeType === TradeType.Swap
+        ? `${tradeType} on ${sellChainName} via ${swapperName}`
+        : `${tradeType} from ${sellChainName} to ${buyChainName} via ${swapperName}`,
+    description: `${sellAmountCryptoFormatted}.ETH -> ${buyAmountCryptoFormatted}.AVA`, // TODO: chain "symbol"
+    stepIndicator: <SwapperIcon swapperName={swapperName} />,
+  }
+}
+
+const getDonationSummaryStep = ({
+  donationAmountFiatFormatted,
+}: {
+  donationAmountFiatFormatted: string
+}): StepperStep => {
+  return {
+    title: donationAmountFiatFormatted,
+    description: 'ShapeShift Donation',
+    stepIndicator: <StarIcon />,
+  }
+}
+
+const FirstHop = ({
+  swapperName,
+  tradeQuote,
+}: {
+  swapperName: SwapperName
+  tradeQuote: TradeQuote
+}) => {
+  const {
+    number: { toCrypto, toFiat },
+  } = useLocaleFormatter()
+
+  const tradeQuoteStep = useMemo(() => tradeQuote.steps[0], [tradeQuote.steps])
+  const isApprovalRequired = useIsApprovalNeeded(tradeQuoteStep)
+  const shouldRenderDonation = true // TODO:
+  const { onSignApproval, onRejectApproval, onSignTrade, onRejectTrade } = useTradeExecutor()
+
+  const tradeExecutionStatus = useAppSelector(selectTradeExecutionStatus)
+
+  const activeStep = useMemo(() => {
     switch (tradeExecutionStatus) {
+      case MultiHopExecutionStatus.Unknown:
+        return -Infinity
       case MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation:
       case MultiHopExecutionStatus.Hop1AwaitingApprovalExecution:
         return 3
       case MultiHopExecutionStatus.Hop1AwaitingTradeConfirmation:
       case MultiHopExecutionStatus.Hop1AwaitingTradeExecution:
         return isApprovalRequired ? 4 : 3
-      default:
+      case MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation:
+      case MultiHopExecutionStatus.Hop2AwaitingApprovalExecution:
+      case MultiHopExecutionStatus.Hop2AwaitingTradeConfirmation:
+      case MultiHopExecutionStatus.Hop2AwaitingTradeExecution:
+      case MultiHopExecutionStatus.TradeComplete:
         return Infinity
+      default:
+        assertUnreachable(tradeExecutionStatus)
     }
-  } else {
+  }, [tradeExecutionStatus, isApprovalRequired])
+
+  const steps = useMemo(() => {
+    const {
+      buyAsset,
+      sellAsset,
+      sellAmountBeforeFeesCryptoBaseUnit,
+      buyAmountBeforeFeesCryptoBaseUnit,
+    } = tradeQuoteStep
+    const sellAmountCryptoPrecision = fromBaseUnit(
+      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAsset.precision,
+    )
+    const buyAmountCryptoPrecision = fromBaseUnit(
+      buyAmountBeforeFeesCryptoBaseUnit,
+      buyAsset.precision,
+    )
+    const sellAmountCryptoFormatted = toCrypto(sellAmountCryptoPrecision, sellAsset.symbol)
+    const buyAmountCryptoFormatted = toCrypto(buyAmountCryptoPrecision, buyAsset.symbol)
+    const hopSteps = [
+      getTitleStep({
+        hopIndex: 0,
+        isHopComplete:
+          tradeExecutionStatus === MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation,
+        swapperName,
+        tradeType: TradeType.Bridge,
+      }),
+      getAssetSummaryStep({
+        amountCryptoFormatted: sellAmountCryptoFormatted,
+        asset: sellAsset,
+      }),
+      getHopSummaryStep({
+        swapperName,
+        buyAssetChainId: buyAsset.chainId,
+        sellAssetChainId: sellAsset.chainId,
+        buyAmountCryptoFormatted,
+        sellAmountCryptoFormatted,
+      }),
+    ].filter(isSome)
+
+    if (isApprovalRequired) {
+      const feeAsset = selectFeeAssetById(store.getState(), sellAsset.assetId)
+      const approvalNetworkFeeCryptoFormatted = feeAsset ? toCrypto(0.0012, feeAsset.symbol) : ''
+      const approvalTx =
+        tradeExecutionStatus.valueOf() >= MultiHopExecutionStatus.Hop1AwaitingApprovalExecution
+          ? '0x1234'
+          : undefined
+      hopSteps.push(
+        getApprovalStep({
+          txId: approvalTx,
+          approvalNetworkFeeCryptoFormatted,
+          onSign: onSignApproval,
+          onReject: onRejectApproval,
+        }),
+      )
+    }
+
+    const tradeTx =
+      tradeExecutionStatus.valueOf() >= MultiHopExecutionStatus.Hop1AwaitingTradeExecution
+        ? '0x5678'
+        : undefined
+    hopSteps.push(getTradeStep({ txId: tradeTx, onSign: onSignTrade, onReject: onRejectTrade }))
+
+    if (tradeQuote.steps.length === 1) {
+      if (shouldRenderDonation) {
+        hopSteps.push(
+          getDonationSummaryStep({
+            donationAmountFiatFormatted: toFiat(1.2),
+          }),
+        )
+      }
+
+      hopSteps.push(
+        getAssetSummaryStep({
+          amountCryptoFormatted: toCrypto(buyAmountCryptoPrecision, buyAsset.symbol),
+          asset: buyAsset,
+        }),
+      )
+    }
+
+    return hopSteps
+  }, [
+    isApprovalRequired,
+    onRejectApproval,
+    onRejectTrade,
+    onSignApproval,
+    onSignTrade,
+    shouldRenderDonation,
+    swapperName,
+    toCrypto,
+    toFiat,
+    tradeExecutionStatus,
+    tradeQuote.steps.length,
+    tradeQuoteStep,
+  ])
+
+  const slippageDecimalPercentage = useMemo(
+    () => tradeQuote.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(swapperName),
+    [swapperName, tradeQuote.recommendedSlippage],
+  )
+
+  const networkFeeFiatPrecision = useMemo(
+    () => getHopTotalNetworkFeeFiatPrecision(tradeQuoteStep),
+    [tradeQuoteStep],
+  )
+
+  const protocolFeeFiatPrecision = useMemo(
+    () => getHopTotalProtocolFeesFiatPrecision(tradeQuoteStep),
+    [tradeQuoteStep],
+  )
+
+  return (
+    <Hop
+      steps={steps}
+      activeStep={activeStep}
+      slippageDecimalPercentage={slippageDecimalPercentage}
+      networkFeeFiatPrecision={networkFeeFiatPrecision}
+      protocolFeeFiatPrecision={protocolFeeFiatPrecision}
+    />
+  )
+}
+
+const SecondHop = ({
+  swapperName,
+  tradeQuote,
+}: {
+  swapperName: SwapperName
+  tradeQuote: TradeQuote
+}) => {
+  const {
+    number: { toCrypto, toFiat },
+  } = useLocaleFormatter()
+
+  const tradeQuoteStep = useMemo(() => tradeQuote.steps[1], [tradeQuote.steps])
+  const isApprovalRequired = useIsApprovalNeeded(tradeQuoteStep)
+  const shouldRenderDonation = true // TODO:
+  const { onSignApproval, onRejectApproval, onSignTrade, onRejectTrade } = useTradeExecutor()
+  const tradeExecutionStatus = useAppSelector(selectTradeExecutionStatus)
+
+  const activeStep = useMemo(() => {
     switch (tradeExecutionStatus) {
+      case MultiHopExecutionStatus.Unknown:
+      case MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation:
+      case MultiHopExecutionStatus.Hop1AwaitingApprovalExecution:
+      case MultiHopExecutionStatus.Hop1AwaitingTradeConfirmation:
+      case MultiHopExecutionStatus.Hop1AwaitingTradeExecution:
+        return -Infinity
       case MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation:
       case MultiHopExecutionStatus.Hop2AwaitingApprovalExecution:
         return 2
       case MultiHopExecutionStatus.Hop2AwaitingTradeConfirmation:
       case MultiHopExecutionStatus.Hop2AwaitingTradeExecution:
         return isApprovalRequired ? 3 : 2
-      default:
+      case MultiHopExecutionStatus.TradeComplete:
         return Infinity
+      default:
+        assertUnreachable(tradeExecutionStatus)
     }
-  }
+  }, [tradeExecutionStatus, isApprovalRequired])
+
+  const steps = useMemo(() => {
+    const {
+      buyAsset,
+      sellAsset,
+      sellAmountBeforeFeesCryptoBaseUnit,
+      buyAmountBeforeFeesCryptoBaseUnit,
+    } = tradeQuoteStep
+    const sellAmountCryptoPrecision = fromBaseUnit(
+      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAsset.precision,
+    )
+    const buyAmountCryptoPrecision = fromBaseUnit(
+      buyAmountBeforeFeesCryptoBaseUnit,
+      buyAsset.precision,
+    )
+    const sellAmountCryptoFormatted = toCrypto(sellAmountCryptoPrecision, sellAsset.symbol)
+    const buyAmountCryptoFormatted = toCrypto(buyAmountCryptoPrecision, buyAsset.symbol)
+    const hopSteps = [
+      getTitleStep({
+        hopIndex: 1,
+        isHopComplete: tradeExecutionStatus === MultiHopExecutionStatus.TradeComplete,
+        swapperName,
+        tradeType: TradeType.Bridge,
+      }),
+      getHopSummaryStep({
+        swapperName,
+        buyAssetChainId: buyAsset.chainId,
+        sellAssetChainId: sellAsset.chainId,
+        buyAmountCryptoFormatted,
+        sellAmountCryptoFormatted,
+      }),
+    ].filter(isSome)
+
+    if (isApprovalRequired) {
+      const feeAsset = selectFeeAssetById(store.getState(), sellAsset.assetId)
+      const approvalNetworkFeeCryptoFormatted = feeAsset ? toCrypto(0.0012, feeAsset.symbol) : ''
+      const approvalTx =
+        tradeExecutionStatus.valueOf() >= MultiHopExecutionStatus.Hop1AwaitingApprovalExecution
+          ? '0x1234'
+          : undefined
+      hopSteps.push(
+        getApprovalStep({
+          txId: approvalTx,
+          approvalNetworkFeeCryptoFormatted,
+          onSign: onSignApproval,
+          onReject: onRejectApproval,
+        }),
+      )
+    }
+
+    const tradeTx =
+      tradeExecutionStatus.valueOf() >= MultiHopExecutionStatus.Hop1AwaitingTradeExecution
+        ? '0x5678'
+        : undefined
+    hopSteps.push(getTradeStep({ txId: tradeTx, onSign: onSignTrade, onReject: onRejectTrade }))
+
+    if (tradeQuote.steps.length === 2) {
+      if (shouldRenderDonation) {
+        hopSteps.push(
+          getDonationSummaryStep({
+            donationAmountFiatFormatted: toFiat(1.2),
+          }),
+        )
+      }
+
+      hopSteps.push(
+        getAssetSummaryStep({
+          amountCryptoFormatted: toCrypto(buyAmountCryptoPrecision, buyAsset.symbol),
+          asset: buyAsset,
+        }),
+      )
+    }
+
+    return hopSteps
+  }, [
+    isApprovalRequired,
+    onRejectApproval,
+    onRejectTrade,
+    onSignApproval,
+    onSignTrade,
+    shouldRenderDonation,
+    swapperName,
+    toCrypto,
+    toFiat,
+    tradeExecutionStatus,
+    tradeQuote.steps.length,
+    tradeQuoteStep,
+  ])
+
+  const slippageDecimalPercentage = useMemo(
+    () => tradeQuote.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(swapperName),
+    [swapperName, tradeQuote.recommendedSlippage],
+  )
+
+  const networkFeeFiatPrecision = useMemo(
+    () => getHopTotalNetworkFeeFiatPrecision(tradeQuoteStep),
+    [tradeQuoteStep],
+  )
+
+  const protocolFeeFiatPrecision = useMemo(
+    () => getHopTotalProtocolFeesFiatPrecision(tradeQuoteStep),
+    [tradeQuoteStep],
+  )
+
+  return (
+    <Hop
+      steps={steps}
+      activeStep={activeStep}
+      slippageDecimalPercentage={slippageDecimalPercentage}
+      networkFeeFiatPrecision={networkFeeFiatPrecision}
+      protocolFeeFiatPrecision={protocolFeeFiatPrecision}
+    />
+  )
 }
 
 const Hop = ({
-  isApprovalRequired,
-  shouldRenderDonation,
-  isFirstHop,
+  steps,
+  activeStep,
+  slippageDecimalPercentage,
+  networkFeeFiatPrecision,
+  protocolFeeFiatPrecision,
 }: {
-  isApprovalRequired: boolean
-  shouldRenderDonation: boolean
-  isFirstHop: boolean
+  steps: StepperStep[]
+  activeStep: number
+  slippageDecimalPercentage: string
+  networkFeeFiatPrecision: string
+  protocolFeeFiatPrecision: string
 }) => {
   const backgroundColor = useColorModeValue('gray.100', 'gray.750')
   const borderColor = useColorModeValue('gray.50', 'gray.650')
-
-  // TODO: move me to store and use that
-  // Fixme: debugging only - set this to whatever you want the UI state to be
-  const tradeExecutionStatus = MultiHopExecutionStatus.TradeComplete
-
-  const isComplete = getIsHopComplete(tradeExecutionStatus, isFirstHop)
-  const activeStep = getActiveStepperStep(tradeExecutionStatus, isFirstHop, isApprovalRequired)
-
-  const steps: StepperStep[] = useMemo(() => {
-    const steps = []
-
-    steps.push({
-      title: 'Bridge via LIFI',
-      stepIndicator: isComplete ? <StepIcon /> : <StepNumber>{isFirstHop ? 1 : 2}</StepNumber>,
-    })
-
-    if (isFirstHop) {
-      steps.push({
-        title: '100 USDC',
-        description: '$100 USDC on Ethereum',
-        stepIndicator: (
-          <AssetIcon
-            src={localAssetData['eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'].icon}
-            boxSize='32px'
-          />
-        ),
-      })
-    }
-
-    steps.push({
-      title: 'Bridge from Ethereum to Optimism via LIFI',
-      description: '100 USCD.ETH -> 96.234 USCD.OP',
-      stepIndicator: <LazyLoadAvatar size='xs' src={LiFiIcon} />,
-    })
-
-    if (isApprovalRequired) {
-      const hasApprovalTx =
-        tradeExecutionStatus.valueOf() >=
-        (isFirstHop
-          ? MultiHopExecutionStatus.Hop1AwaitingApprovalExecution
-          : MultiHopExecutionStatus.Hop2AwaitingApprovalExecution)
-      const approvalTx = '0x1234'
-      steps.push({
-        title: 'Token allowance approval',
-        description: hasApprovalTx ? approvalTx : 'Approval gas fee 900ETH',
-        stepIndicator: <StepStatus complete={<StepIcon />} active={<Spinner />} />,
-        content: (
-          <Card p='2'>
-            {hasApprovalTx ? (
-              <RawText>TX: ${approvalTx}</RawText>
-            ) : (
-              <HStack>
-                <Button>Approve</Button>
-                <Button>Reject</Button>
-              </HStack>
-            )}
-          </Card>
-        ),
-      })
-    }
-
-    const hasTradeTx =
-      tradeExecutionStatus.valueOf() >=
-      (isFirstHop
-        ? MultiHopExecutionStatus.Hop1AwaitingTradeExecution
-        : MultiHopExecutionStatus.Hop2AwaitingTradeExecution)
-    const tradeTx = '0x5678'
-    steps.push({
-      title: 'Sign bridge transaction',
-      stepIndicator: <StepStatus complete={<StepIcon />} active={<Spinner />} />,
-      content: (
-        <Card p='2'>
-          {hasTradeTx ? (
-            <RawText>TX: ${tradeTx}</RawText>
-          ) : (
-            <HStack>
-              <Button>Sign message</Button>
-              <Button>Reject</Button>
-            </HStack>
-          )}
-        </Card>
-      ),
-    })
-
-    if (shouldRenderDonation) {
-      steps.push({
-        title: '$2.50',
-        description: 'ShapeShift Donation',
-        stepIndicator: <StarIcon />,
-      })
-    }
-
-    if (!isFirstHop) {
-      steps.push({
-        title: '95.3216 DAI',
-        description: '$96.23 DAI on Optimism',
-        stepIndicator: (
-          <AssetIcon
-            src={localAssetData['eip155:10/erc20:0xda10009cbd5d07dd0cecc66161fc93d7c9000da1'].icon}
-            boxSize='32px'
-          />
-        ),
-      })
-    }
-
-    return steps
-  }, [isComplete, isFirstHop, isApprovalRequired, shouldRenderDonation, tradeExecutionStatus])
 
   return (
     <Card
@@ -221,28 +567,26 @@ const Hop = ({
       <Card.Footer>
         <Divider />
         <HStack width='full'>
-          <RawText display='inline'>0.1%</RawText> {/* slippage */}
-          <RawText display='inline'>$0.01</RawText> {/* gas */}
-          <RawText display='inline'>$0.00</RawText> {/* protocol fee? */}
+          <Amount.Percent value={slippageDecimalPercentage} display='inline' />
+          {/* TODO: hovering over this should render a popover with details */}
+          <Amount.Fiat value={networkFeeFiatPrecision} display='inline' />
+          {/* TODO: hovering over this should render a popover with details */}
+          <Amount.Fiat value={protocolFeeFiatPrecision} display='inline' />
         </HStack>
       </Card.Footer>
     </Card>
   )
 }
 
-const FirstHop = () => {
-  // TODO: mock values
-  return <Hop isFirstHop={true} isApprovalRequired={true} shouldRenderDonation={false} />
-}
+export const TradeConfirm = ({
+  swapperName,
+  tradeQuote,
+}: {
+  swapperName: SwapperName
+  tradeQuote: TradeQuote
+}) => {
+  const isMultiHopTrade = tradeQuote.steps.length > 1
 
-const SecondHop = () => {
-  // TODO: mock values
-  return <Hop isFirstHop={false} isApprovalRequired={false} shouldRenderDonation={true} />
-}
-
-export const TradeConfirm = () => {
-  // TODO: use quote to determine this
-  const isMultiHopTrade = true
   return (
     <SlideTransition>
       <Card flex={1} borderRadius={{ base: 'xl' }} width='full' padding={6}>
@@ -255,8 +599,8 @@ export const TradeConfirm = () => {
         </Card.Header>
         <Card.Body pb={0} px={0}>
           <Stack spacing={6}>
-            <FirstHop />
-            {isMultiHopTrade && <SecondHop />}
+            <FirstHop tradeQuote={tradeQuote} swapperName={swapperName} />
+            {isMultiHopTrade && <SecondHop tradeQuote={tradeQuote} swapperName={swapperName} />}
           </Stack>
         </Card.Body>
       </Card>

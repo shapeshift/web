@@ -3,7 +3,6 @@ import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight } from 'lib/swapper/api'
 
 import { normalizeAmount } from '../../utils/helpers/helpers'
@@ -182,12 +181,11 @@ describe('getZrxTradeQuote', () => {
   })
 
   it('use minQuoteSellAmount when sellAmount is 0', async () => {
-    const { quoteInput, sellAsset } = setupQuote()
+    const { quoteInput } = setupQuote()
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(Ok({ data: { sellAmount: '20000000000000000000' } })),
+      Promise.resolve(Ok({ data: { price: '1' } })),
     )
 
-    const minimum = '20'
     const maybeQuote = await getZrxTradeQuote({
       ...quoteInput,
       sellAmountBeforeFeesCryptoBaseUnit: '0',
@@ -196,8 +194,6 @@ describe('getZrxTradeQuote', () => {
     expect(maybeQuote.isErr()).toBe(false)
     const quote = maybeQuote.unwrap()
 
-    expect(quote?.steps[0].sellAmountBeforeFeesCryptoBaseUnit).toBe(
-      bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision)).toString(),
-    )
+    expect(quote?.steps[0].sellAmountBeforeFeesCryptoBaseUnit).toBe('1000000000000000000')
   })
 })

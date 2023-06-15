@@ -8,6 +8,8 @@ import type {
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -22,11 +24,11 @@ import type {
 import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
 import type {
+  Rates,
   ThorCosmosSdkSupportedChainId,
   ThorEvmSupportedChainId,
   ThorUtxoSupportedChainId,
 } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
-import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import {
   THOR_MINIMUM_PADDING,
   THORCHAIN_FIXED_PRECISION,
@@ -37,19 +39,9 @@ import { getTradeRateBelowMinimum } from 'lib/swapper/swappers/ThorchainSwapper/
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
-import {
-  selectBuyAssetUsdRate,
-  selectSellAssetUsdRate,
-} from 'state/zustand/swapperStore/amountSelectors'
-import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
-
-type GetThorTradeQuoteInput = {
-  deps: ThorchainSwapperDeps
-  input: GetTradeQuoteInput & { wallet?: HDWallet }
-}
 
 export type ThorEvmTradeQuote = TradeQuote<ThorEvmSupportedChainId> & {
   router: string
@@ -61,11 +53,10 @@ type ThorTradeQuote =
   | TradeQuote<ThorUtxoSupportedChainId>
   | ThorEvmTradeQuote
 
-type GetThorTradeQuoteReturn = Promise<Result<ThorTradeQuote, SwapErrorRight>>
-
-type GetThorTradeQuote = (args: GetThorTradeQuoteInput) => GetThorTradeQuoteReturn
-
-export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
+export const getThorTradeQuote = async (
+  input: GetTradeQuoteInput & { wallet?: HDWallet },
+  rates: Rates,
+): Promise<Result<ThorTradeQuote, SwapErrorRight>> => {
   const {
     sellAsset,
     buyAsset,
@@ -77,10 +68,14 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     wallet,
   } = input
 
+  const { sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate } = rates
+
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
 
-  const sellAdapter = deps.adapterManager.get(chainId)
-  const buyAdapter = deps.adapterManager.get(buyAssetChainId)
+  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+  const chainAdapterManager = getChainAdapterManager()
+  const sellAdapter = chainAdapterManager.get(chainId)
+  const buyAdapter = chainAdapterManager.get(buyAssetChainId)
 
   if (!sellAdapter || !buyAdapter) {
     return Err(
@@ -107,7 +102,6 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     sellAmountCryptoBaseUnit,
     receiveAddress,
     affiliateBps,
-    deps,
   })
 
   const slippagePercentage = quote.isOk()
@@ -139,21 +133,18 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
         getTradeRateBelowMinimum({
           sellAssetId: sellAsset.assetId,
           buyAssetId: buyAsset.assetId,
-          deps,
         }),
     })
   ).unwrap()
 
   const fees = quote.isOk() ? quote.unwrap().fees : undefined
 
-  const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
-  const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
   const buySellAssetRate = bn(buyAssetUsdRate).div(sellAssetUsdRate)
 
   const maybeBuyAssetTradeFeeBuyAssetCryptoThorPrecision = fees
     ? Ok(bnOrZero(fees.outbound))
-    : (await getInboundAddressDataForChain(deps.daemonUrl, buyAsset.assetId)).andThen<BigNumber>(
-        data => Ok(bnOrZero(data?.outbound_fee)),
+    : (await getInboundAddressDataForChain(daemonUrl, buyAsset.assetId)).andThen<BigNumber>(data =>
+        Ok(bnOrZero(data?.outbound_fee)),
       )
 
   const buyAssetTradeFeeBuyAssetCryptoThorPrecision =
@@ -251,7 +242,6 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     case CHAIN_NAMESPACE.Evm:
       return (async (): Promise<Promise<Result<ThorEvmTradeQuote, SwapErrorRight>>> => {
         const maybeThorTxInfo = await getEvmThorTxInfo({
-          deps,
           sellAsset,
           buyAsset,
           sellAmountCryptoBaseUnit,
@@ -259,6 +249,8 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           destinationAddress: receiveAddress,
           protocolFees,
           affiliateBps,
+          buyAssetUsdRate,
+          feeAssetUsdRate,
         })
 
         if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
@@ -297,7 +289,6 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
     case CHAIN_NAMESPACE.Utxo:
       return (async (): Promise<Result<TradeQuote<ThorUtxoSupportedChainId>, SwapErrorRight>> => {
         const maybeThorTxInfo = await getUtxoThorTxInfo({
-          deps,
           sellAsset,
           buyAsset,
           sellAmountCryptoBaseUnit,
@@ -306,6 +297,8 @@ export const getThorTradeQuote: GetThorTradeQuote = async ({ deps, input }) => {
           xpub: (input as GetUtxoTradeQuoteInput).xpub,
           protocolFees,
           affiliateBps,
+          buyAssetUsdRate,
+          feeAssetUsdRate,
         })
 
         if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())

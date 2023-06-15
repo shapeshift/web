@@ -232,7 +232,7 @@ export const LegacyLogin: React.FC<LegacyLoginProps> = ({ onLoginSuccess }) => {
           )}
 
           <Button
-            disabled={!captchaSolution}
+            isDisabled={!captchaSolution}
             colorScheme='blue'
             width='full'
             size='lg'

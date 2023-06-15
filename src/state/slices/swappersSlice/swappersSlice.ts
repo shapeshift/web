@@ -1,36 +1,14 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import { createApi } from '@reduxjs/toolkit/query/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
-import type { MarketData } from '@shapeshiftoss/types'
-import type { Result } from '@sniptt/monads/build'
 import type { Asset } from 'lib/asset-service'
 import { localAssetData } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type {
-  GetEvmTradeQuoteInput,
-  GetTradeQuoteInput,
-  SwapErrorRight,
-  SwapperName,
-} from 'lib/swapper/api'
-import { getLifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/getTradeQuote/getTradeQuote'
-import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
-import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import type { ReduxState } from 'state/reducer'
+import type { SwapperName } from 'lib/swapper/api'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'
-import { selectAssets } from '../assetsSlice/selectors'
-import { selectMarketDataById } from '../marketDataSlice/selectors'
-
-export enum StepTransactionStatus {
-  Identified = 'identified', // The step is identified as being part of the execution flow
-  Built = 'built', // The transaction has been built, awaiting user confirmation
-  Executing = 'executing', // The transaction is in the process of being executed
-  Complete = 'complete', // The transaction has been executed successfully
-  Failed = 'failed', // The transaction failed at some point during its lifecycle
-  Cancelled = 'cancelled', // The user cancelled the transaction
-}
+import { MultiHopExecutionStatus } from './types'
 
 export type SwappersState = {
   selectedQuote: SwapperName | undefined
@@ -39,6 +17,7 @@ export type SwappersState = {
   sellAssetAccountId: AccountId | undefined
   receiveAddress: string | undefined
   sellAmountCryptoPrecision: string
+  tradeExecutionStatus: MultiHopExecutionStatus
 }
 
 // Define the initial state:
@@ -49,6 +28,7 @@ const initialState: SwappersState = {
   sellAssetAccountId: undefined,
   receiveAddress: undefined,
   sellAmountCryptoPrecision: '0',
+  tradeExecutionStatus: MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation,
 }
 
 // Create the slice:
@@ -76,33 +56,14 @@ export const swappers = createSlice({
       // dedupe 0, 0., 0.0, 0.00 etc
       state.sellAmountCryptoPrecision = bnOrZero(action.payload).toString()
     },
+    incrementTradeExecutionState: state => {
+      if (state.tradeExecutionStatus === MultiHopExecutionStatus.TradeComplete) return
+      state.tradeExecutionStatus += 1 as MultiHopExecutionStatus
+    },
+    switchAssets: state => {
+      const buyAsset = state.sellAsset
+      state.sellAsset = state.buyAsset
+      state.buyAsset = buyAsset
+    },
   },
 })
-
-export const swappersApi = createApi({
-  ...BASE_RTK_CREATE_API_CONFIG,
-  reducerPath: 'swappersApi',
-  endpoints: build => ({
-    getLifiTradeQuote: build.query<
-      Result<LifiTradeQuote<false>, SwapErrorRight>,
-      GetTradeQuoteInput
-    >({
-      queryFn: async (getTradeQuoteInput: GetEvmTradeQuoteInput, { getState }) => {
-        const state: ReduxState = getState() as ReduxState
-        const assets: Partial<Record<AssetId, Asset>> = selectAssets(state)
-        const sellAssetMarketData = selectMarketDataById(
-          state,
-          getTradeQuoteInput.sellAsset.assetId,
-        ) as MarketData
-        const maybeQuote = await getLifiTradeQuote(
-          getTradeQuoteInput,
-          assets,
-          sellAssetMarketData.price,
-        )
-        return { data: maybeQuote }
-      },
-    }),
-  }),
-})
-
-export const { useGetLifiTradeQuoteQuery } = swappersApi

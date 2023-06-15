@@ -36,6 +36,7 @@ export const WalletConnectToDappsHeaderButton: FC = () => {
           leftIcon={<WalletConnectIcon />}
           rightIcon={<ChevronRightIcon />}
           onClick={handleOpen}
+          width={{ base: 'full', md: 'auto' }}
         >
           {translate('plugins.walletConnectToDapps.header.connectDapp')}
         </Button>

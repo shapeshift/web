@@ -87,12 +87,6 @@ export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadat
     color: '#1B14DC',
     url: 'https://idle.finance',
   },
-  [DefiProvider.Yearn]: {
-    provider: DefiProvider.Yearn,
-    icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e/logo.png',
-    color: '#000',
-    url: 'https://yearn.finance',
-  },
   [DefiProvider.ShapeShift]: {
     provider: DefiProvider.ShapeShift,
     icon: 'https://assets.coincap.io/assets/icons/256/fox.png',

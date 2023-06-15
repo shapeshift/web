@@ -35,6 +35,7 @@ export const AvatarRadio: React.FC<AvatarRadioProps> = ({ src, ...rest }) => {
   return (
     <chakra.label
       position='relative'
+      display='block'
       cursor='pointer'
       _after={{
         content: '""',

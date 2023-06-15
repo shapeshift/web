@@ -278,7 +278,7 @@ export const KeepKeyRecoverySentenceEntry = () => {
               type='submit'
               onClick={handleWordSubmit}
               mb={3}
-              disabled={recoveryCharacterIndex ? recoveryCharacterIndex < 3 : true}
+              isDisabled={recoveryCharacterIndex ? recoveryCharacterIndex < 3 : true}
             >
               <Text translation={'modals.keepKey.recoverySentenceEntry.button'} />
             </Button>

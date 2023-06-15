@@ -1,4 +1,3 @@
-import { ethChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import stableStringify from 'fast-json-stable-stringify'
@@ -11,7 +10,6 @@ import { OneInchSwapper } from 'lib/swapper/swappers/OneInchSwapper/OneInchSwapp
 import { OsmosisSwapper } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapper'
 import { ThorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { ZrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
-import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 // singleton - do not export me, use getSwapperManager
@@ -25,7 +23,6 @@ export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMa
   // instantiate if it doesn't already exist
   const swapperManager = new SwapperManager()
   const adapterManager = getChainAdapterManager()
-  const ethWeb3 = getWeb3InstanceByChainId(ethChainId)
 
   if (flags.Cowswap) {
     const supportedChainIds: CowChainId[] = flags.CowswapGnosis
@@ -41,14 +38,7 @@ export const _getSwapperManager = async (flags: FeatureFlags): Promise<SwapperMa
   }
 
   if (flags.ThorSwap) {
-    const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
-    const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-    const thorSwapper = new ThorchainSwapper({
-      daemonUrl,
-      midgardUrl,
-      adapterManager,
-      web3: ethWeb3,
-    })
+    const thorSwapper = new ThorchainSwapper()
     await thorSwapper.initialize()
     swapperManager.addSwapper(thorSwapper)
   }

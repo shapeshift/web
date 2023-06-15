@@ -7,10 +7,11 @@ import { NarwhalIcon } from 'components/Icons/Narwhal'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
-import { useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
-import { makeSelectNftItemsWithCollectionSelector } from 'state/apis/nft/selectors'
+import {
+  selectGetNftUserTokensPending,
+  selectPortfolioNftItemsWithCollection,
+} from 'state/apis/nft/selectors'
 import type { NftItemWithCollection } from 'state/apis/nft/types'
-import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
 import { NftCard } from './NftCard'
@@ -33,16 +34,11 @@ const NftGrid: React.FC<SimpleGridProps> = props => (
 
 export const NftTable = () => {
   const [searchQuery, setSearchQuery] = useState('')
-  const accountIds = useAppSelector(selectWalletAccountIds)
 
   const [networkFilters, setNetworkFilters] = useState<ChainId[]>([])
 
-  const { isLoading } = useGetNftUserTokensQuery({ accountIds })
-  const selectNftItemsWithCollectionSelector = useMemo(
-    () => makeSelectNftItemsWithCollectionSelector(accountIds),
-    [accountIds],
-  )
-  const nftItems = useAppSelector(selectNftItemsWithCollectionSelector)
+  const isLoading = useAppSelector(selectGetNftUserTokensPending)
+  const nftItems = useAppSelector(selectPortfolioNftItemsWithCollection)
 
   const availableChainIds = useMemo(
     () =>
@@ -104,7 +100,7 @@ export const NftTable = () => {
   return (
     <>
       <Box mb={4} px={{ base: 4, xl: 0 }}>
-        <Flex>
+        <Flex gap={2}>
           <NftNetworkFilter
             availableChainIds={availableChainIds}
             resetFilters={() => setNetworkFilters([])}

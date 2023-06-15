@@ -40,7 +40,7 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
             py={4}
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
-            disabled={!hasLocalWallet}
+            isDisabled={!hasLocalWallet}
             onClick={() => history.push('/mobile/load')}
             data-test='wallet-native-load-button'
           >

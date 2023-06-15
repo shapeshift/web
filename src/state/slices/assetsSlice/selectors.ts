@@ -76,7 +76,10 @@ export const selectFeeAssetById = createCachedSelector(
   selectAssets,
   (_state: ReduxState, assetId: AssetId) => assetId,
   (assetsById, assetId): Asset | undefined => getFeeAssetByAssetId(assetsById, assetId),
-)((_s: ReduxState, assetId: AssetId) => assetId ?? 'assetId')
+)((_s: ReduxState, assetId: AssetId) => assetId ?? 'assetId') as (
+  state: ReduxState,
+  assetId: AssetId,
+) => ReturnType<typeof getFeeAssetByAssetId>
 
 export const selectAssetsBySearchQuery = createDeepEqualOutputSelector(
   selectAssetsByMarketCap,

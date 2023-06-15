@@ -89,6 +89,7 @@ const validators = {
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2: bool({ default: false }),
   REACT_APP_FEATURE_MULTI_HOP_TRADES: bool({ default: false }),
+  REACT_APP_FEATURE_COINBASE_WALLET: bool({ default: false }),
   REACT_APP_WALLET_CONNECT_PROJECT_ID: str({ default: '' }),
   REACT_APP_WALLET_CONNECT_RELAY_URL: str({ default: 'wss://relay.walletconnect.com' }),
   REACT_APP_YAT_NODE_URL: url({ default: 'https://a.y.at' }),
@@ -153,6 +154,9 @@ const validators = {
   REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_API_KEY: str(),
+  REACT_APP_CHATWOOT_TOKEN: str(),
+  REACT_APP_CHATWOOT_URL: str(),
+  REACT_APP_FEATURE_CHATWOOT: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

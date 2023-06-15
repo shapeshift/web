@@ -35,7 +35,7 @@ import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwa
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
-  getThorchainSaversDepositQuote,
+  getMaybeThorchainSaversDepositQuote,
   isAboveDepositDustThreshold,
   makeDaysToBreakEven,
   THORCHAIN_SAVERS_DUST_THRESHOLDS,
@@ -167,7 +167,13 @@ export const Deposit: React.FC<DepositProps> = ({
         const amountCryptoBaseUnit = bnOrZero(deposit.cryptoAmount).times(
           bn(10).pow(asset.precision),
         )
-        const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
+        const maybeQuote = await getMaybeThorchainSaversDepositQuote({
+          asset,
+          amountCryptoBaseUnit,
+        })
+        if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+        const quote = maybeQuote.unwrap()
+
         const chainAdapters = getChainAdapterManager()
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
         // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
@@ -374,10 +380,14 @@ export const Deposit: React.FC<DepositProps> = ({
 
     const debounced = debounce(async () => {
       setQuoteLoading(true)
-      const quote = await getThorchainSaversDepositQuote({
+      const maybeQuote = await getMaybeThorchainSaversDepositQuote({
         asset,
         amountCryptoBaseUnit,
       })
+
+      if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+
+      const quote = maybeQuote.unwrap()
       const { slippage_bps, expected_amount_out: expectedAmountOutThorBaseUnit } = quote
       const slippagePercentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
       // slippage going into position - 0.007 ETH for 5 ETH deposit

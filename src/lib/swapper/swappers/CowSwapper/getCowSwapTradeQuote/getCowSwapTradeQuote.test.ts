@@ -215,6 +215,7 @@ describe('getCowTradeQuote', () => {
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       eip1559Support: false,
+      allowMultiHop: false,
     }
 
     const maybeTradeQuote = await getCowSwapTradeQuote(input, supportedChainIds)
@@ -241,6 +242,7 @@ describe('getCowTradeQuote', () => {
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       eip1559Support: false,
+      allowMultiHop: false,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -284,6 +286,7 @@ describe('getCowTradeQuote', () => {
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       eip1559Support: false,
+      allowMultiHop: false,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -327,6 +330,7 @@ describe('getCowTradeQuote', () => {
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       eip1559Support: false,
+      allowMultiHop: false,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -370,6 +374,7 @@ describe('getCowTradeQuote', () => {
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       eip1559Support: false,
+      allowMultiHop: false,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(

@@ -1,6 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { evm, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  evm,
+  EvmChainAdapter,
+  UtxoBaseAdapter,
+  UtxoChainId,
+} from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -180,19 +185,25 @@ export const useSwapper = () => {
         receiveAddress,
         slippage,
         affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps ?? defaultAffiliateBps,
+        allowMultiHop: flags.MultiHopTrades,
       }
 
-      if (isUtxoSwap(sellAsset.chainId)) {
-        const {
-          accountType,
-          bip44Params: { accountNumber },
-        } = sellAccountMetadata
+      const {
+        accountType,
+        bip44Params: { accountNumber },
+      } = sellAccountMetadata
 
+      if (isUtxoSwap(sellAsset.chainId)) {
         if (!accountType) throw new Error('accountType required')
 
         const sellAssetChainAdapter = getChainAdapterManager().get(
           sellAsset.chainId,
         ) as unknown as UtxoBaseAdapter<UtxoChainId>
+
+        const sendAddress = await sellAssetChainAdapter.getAddress({
+          accountNumber,
+          wallet,
+        })
 
         const { xpub } = await sellAssetChainAdapter.getPublicKey(
           wallet,
@@ -206,15 +217,26 @@ export const useSwapper = () => {
           accountNumber,
           accountType,
           xpub,
+          sendAddress,
         })
       } else if (isEvmSwap(sellAsset.chainId) || isCosmosSdkSwap(sellAsset.chainId)) {
         const eip1559Support = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+        const sellAssetChainAdapter = getChainAdapterManager().get(
+          sellAsset.chainId,
+        ) as unknown as EvmChainAdapter
+
+        const sendAddress = await sellAssetChainAdapter.getAddress({
+          accountNumber,
+          wallet,
+        })
+
         return activeSwapper.buildTrade({
           ...buildTradeCommonArgs,
           chainId: sellAsset.chainId,
           accountNumber: sellAccountBip44Params.accountNumber,
           receiveAccountNumber: buyAccountBip44Params?.accountNumber,
           eip1559Support,
+          sendAddress,
         })
       } else {
         throw new Error('unsupported sellAsset.chainId')
@@ -235,6 +257,7 @@ export const useSwapper = () => {
       slippage,
       isDonationAmountBelowMinimum,
       defaultAffiliateBps,
+      flags.MultiHopTrades,
     ],
   )
 

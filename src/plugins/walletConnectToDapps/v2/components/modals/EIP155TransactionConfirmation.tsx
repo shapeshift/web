@@ -132,7 +132,7 @@ export const EIP155TransactionConfirmation: FC<
           type='submit'
           onClick={form.handleSubmit(handleConfirm)}
           isLoading={form.formState.isSubmitting}
-          disabled={!fees}
+          isDisabled={!fees}
         >
           {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
         </Button>

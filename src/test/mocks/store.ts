@@ -2,6 +2,7 @@ import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import type { ReduxState } from 'state/reducer'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
+import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -88,7 +89,9 @@ export const mockStore: ReduxState = {
       ReadOnlyAssets: false,
       OneInch: false,
       CovalentJaypegs: false,
+      Chatwoot: false,
       MultiHopTrades: false,
+      CoinbaseWallet: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
@@ -165,5 +168,6 @@ export const mockStore: ReduxState = {
     sellAssetAccountId: undefined,
     receiveAddress: undefined,
     sellAmountCryptoPrecision: '0',
+    tradeExecutionStatus: MultiHopExecutionStatus.Unknown,
   },
 }

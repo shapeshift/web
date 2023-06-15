@@ -1,8 +1,13 @@
 import type { LinkProps } from '@chakra-ui/react'
 import { Flex, Link, Tooltip, useMediaQuery } from '@chakra-ui/react'
+import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { YatIcon } from 'components/Icons/YatIcon'
 import { Text } from 'components/Text'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 type YatBannerProps = {
@@ -12,13 +17,38 @@ type YatBannerProps = {
 export const YatBanner: React.FC<YatBannerProps> = ({ isCompact, ...rest }) => {
   const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`, { ssr: false })
   const translate = useTranslate()
+  const { isDemoWallet } = useWallet().state
+
+  // we don't have UI/UX for switching accounts when clicking the yat banner
+  // account 0 is gonna have to cut it
+  const firstEvmAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, ethChainId),
+  )
+
+  const firstEvmAddress = useMemo(() => {
+    if (!firstEvmAccountId) return undefined
+    const { account } = fromAccountId(firstEvmAccountId)
+    return account
+  }, [firstEvmAccountId])
+
+  // spec https://github.com/shapeshift/web/issues/4604
+  const href = useMemo(() => {
+    const baseUrl = 'https://www.y03btrk.com/DFBHL/7XDN2/'
+    // don't track y.at purchases for demo wallet
+    if (isDemoWallet) return baseUrl
+    if (!firstEvmAddress) return baseUrl
+    const params = new URLSearchParams()
+    params.set('sub1', `0x1004=${firstEvmAddress}`)
+    const baseUrlWithAddress = `${baseUrl}?${params.toString()}`
+    return baseUrlWithAddress
+  }, [firstEvmAddress, isDemoWallet])
 
   const isBig = isLargerThan2xl || !isCompact
 
   return (
     <Tooltip label={translate('features.yat.banner.title')} isDisabled={isBig} placement='right'>
       <Link
-        href='https://www.y03btrk.com/DFBHL/7XDN2/'
+        href={href}
         isExternal
         display='block'
         aria-label={translate('features.yat.banner.title')}

@@ -86,7 +86,7 @@ export const useGetTradeQuotes = () => {
   })
 
   // TODO(woodenfurniture): quote selection
-  const sortedQuotes = useMemo(() => {
+  const sortedQuotes: TradeQuoteResult[] = useMemo(() => {
     if (isSkipToken(debouncedTradeQuoteInput)) return []
 
     const results = [

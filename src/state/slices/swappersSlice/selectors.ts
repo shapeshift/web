@@ -38,6 +38,11 @@ export const selectSellAmountCryptoPrecision = createSelector(
   swappers => swappers.sellAmountCryptoPrecision,
 )
 
+export const selectTradeExecutionStatus = createSelector(
+  selectSwappers,
+  swappers => swappers.tradeExecutionStatus,
+)
+
 export const selectBuyAssetUsdRate = createSelector(
   selectBuyAsset,
   selectCryptoMarketData,

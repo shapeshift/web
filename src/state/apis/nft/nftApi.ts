@@ -2,18 +2,16 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createAsyncThunk, createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { deserializeNftAssetReference, fromAssetId, isNft } from '@shapeshiftoss/caip'
+import { deserializeNftAssetReference, fromAssetId } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import { PURGE } from 'redux-persist'
 import type { PartialRecord } from 'lib/utils'
 import { isRejected } from 'lib/utils'
-import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { portfolio as portfolioSlice } from 'state/slices/portfolioSlice/portfolioSlice'
 import type { Portfolio, WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { initialState as initialPortfolioState } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { selectPortfolioAssetIds } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
@@ -67,18 +65,12 @@ export const initialState: NftState = {
 
 type PortfolioAndAssetsUpsertPayload = {
   nftsById: Record<AssetId, NftItem>
-  portfolioAssetIds: AssetId[]
 }
 
 const upsertPortfolioAndAssets = createAsyncThunk<void, PortfolioAndAssetsUpsertPayload>(
   'nft/upsertPortfolioAndAssets',
-  ({ nftsById, portfolioAssetIds }, { dispatch }) => {
-    const portfolioNfts = portfolioAssetIds.filter(isNft)
-    const missingPortfolioNfts = Object.values(nftsById).filter(
-      nft => !portfolioNfts.includes(nft.assetId),
-    )
-
-    const assetsToUpsert = missingPortfolioNfts.reduce<AssetsState>(
+  ({ nftsById }, { dispatch }) => {
+    const assetsToUpsert = Object.values(nftsById).reduce<AssetsState>(
       (acc, nft) => {
         acc.byId[nft.assetId] = makeAsset({
           assetId: nft.assetId,
@@ -96,7 +88,7 @@ const upsertPortfolioAndAssets = createAsyncThunk<void, PortfolioAndAssetsUpsert
 
     const portfolio = cloneDeep<Portfolio>(initialPortfolioState)
 
-    missingPortfolioNfts.forEach(nft => {
+    Object.values(nftsById).forEach(nft => {
       const accountId = nft.ownerAccountId
 
       if (!portfolio.accounts.byId[accountId]) {
@@ -177,9 +169,7 @@ export const nftApi = createApi({
   reducerPath: 'nftApi',
   endpoints: build => ({
     getNftUserTokens: build.query<NftItem[], GetNftUserTokensInput>({
-      queryFn: async ({ accountIds }, { dispatch, getState }) => {
-        const state = getState() as ReduxState
-        const portfolioAssetIds = selectPortfolioAssetIds(state)
+      queryFn: async ({ accountIds }, { dispatch }) => {
         const services = [
           getAlchemyNftsUserData,
           (accountIds: AccountId[]) =>
@@ -269,7 +259,7 @@ export const nftApi = createApi({
           }),
         )
 
-        dispatch(upsertPortfolioAndAssets({ nftsById, portfolioAssetIds }))
+        dispatch(upsertPortfolioAndAssets({ nftsById }))
 
         const data = Object.values(nftsById)
 

@@ -31,7 +31,7 @@ import { breakpoints } from 'theme/theme'
 
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
-import { getNetReceiveAmountCryptoPrecision, getTotalProtocolFeeForAsset } from './helpers'
+import { getNetReceiveAmountCryptoPrecision, getTotalProtocolFeeByAsset } from './helpers'
 import { useAccountIds } from './hooks/useAccountIds'
 import { useGetTradeQuotes } from './hooks/useGetTradeQuotes'
 import { useSupportedAssets } from './hooks/useSupportedAssets'
@@ -48,6 +48,7 @@ export const MultiHopTrade = (props: CardProps) => {
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
+
   const dispatch = useAppDispatch()
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(swappers.actions.setBuyAsset(asset)),
@@ -100,7 +101,7 @@ export const MultiHopTrade = (props: CardProps) => {
 
   const totalProtocolFees = useMemo(() => {
     if (!quoteData) return {}
-    return getTotalProtocolFeeForAsset(quoteData)
+    return getTotalProtocolFeeByAsset(quoteData)
   }, [quoteData])
 
   const buyAmountAfterFeesCryptoPrecision = useMemo(() => {
@@ -120,7 +121,7 @@ export const MultiHopTrade = (props: CardProps) => {
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
-      <TradeConfirm />
+      {quoteData && <TradeConfirm tradeQuote={quoteData} swapperName={selectedQuote.swapperName} />}
       <Card flex={1} {...props}>
         <FormProvider {...methods}>
           <SlideTransition>

@@ -8,15 +8,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapperName } from 'lib/swapper/api'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'
-
-export enum StepTransactionStatus {
-  Identified = 'identified', // The step is identified as being part of the execution flow
-  Built = 'built', // The transaction has been built, awaiting user confirmation
-  Executing = 'executing', // The transaction is in the process of being executed
-  Complete = 'complete', // The transaction has been executed successfully
-  Failed = 'failed', // The transaction failed at some point during its lifecycle
-  Cancelled = 'cancelled', // The user cancelled the transaction
-}
+import { MultiHopExecutionStatus } from './types'
 
 export type SwappersState = {
   selectedQuote: SwapperName | undefined
@@ -25,6 +17,7 @@ export type SwappersState = {
   sellAssetAccountId: AccountId | undefined
   receiveAddress: string | undefined
   sellAmountCryptoPrecision: string
+  tradeExecutionStatus: MultiHopExecutionStatus
 }
 
 // Define the initial state:
@@ -35,6 +28,7 @@ const initialState: SwappersState = {
   sellAssetAccountId: undefined,
   receiveAddress: undefined,
   sellAmountCryptoPrecision: '0',
+  tradeExecutionStatus: MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation,
 }
 
 // Create the slice:
@@ -61,6 +55,10 @@ export const swappers = createSlice({
     setSellAmountCryptoPrecision: (state, action: PayloadAction<string>) => {
       // dedupe 0, 0., 0.0, 0.00 etc
       state.sellAmountCryptoPrecision = bnOrZero(action.payload).toString()
+    },
+    incrementTradeExecutionState: state => {
+      if (state.tradeExecutionStatus === MultiHopExecutionStatus.TradeComplete) return
+      state.tradeExecutionStatus += 1 as MultiHopExecutionStatus
     },
   },
 })

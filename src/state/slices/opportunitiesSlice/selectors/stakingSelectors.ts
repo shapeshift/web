@@ -549,7 +549,11 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
 
       const [activeResults, inactiveResults] = partition(
         sortedResultsByFiatAmount,
-        opportunity => !bnOrZero(opportunity.fiatAmount).isZero(),
+        opportunity =>
+          bnOrZero(opportunity.fiatAmount).gt(0) ||
+          opportunity.rewardsCryptoBaseUnit?.amounts.some(rewardsAmount =>
+            bnOrZero(rewardsAmount).gt(0),
+          ),
       )
       inactiveResults.sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
 

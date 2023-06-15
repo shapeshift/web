@@ -5,7 +5,6 @@ import type { QuoteStatus } from 'components/MultiHopTrade/types'
 import { SelectedQuoteStatus } from 'components/MultiHopTrade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { SwapErrorType } from 'lib/swapper/api'
-import { assertUnreachable } from 'lib/utils'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
@@ -50,79 +49,58 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
     bnOrZero(sellAmountCryptoBaseUnit),
   )
 
+  const selectedQuoteErrors: SelectedQuoteStatus[] = useMemo(() => {
+    if (isLoading) return []
+    const errors: SelectedQuoteStatus[] = []
+    if (errorData) {
+      if (isLoading) errors.push(SelectedQuoteStatus.Updating)
+      if (errorData.code === SwapErrorType.UNSUPPORTED_PAIR)
+        errors.push(SelectedQuoteStatus.NoQuotesAvailableForTradePair)
+      // We didn't recognize the error, use a generic error message
+      if (errors.length === 0) errors.push(SelectedQuoteStatus.UnknownError)
+    } else if (quoteData) {
+      if (!hasSufficientSellAssetBalance)
+        errors.push(SelectedQuoteStatus.InsufficientSellAssetBalance)
+    } else {
+      // No quote or error data
+      errors.push(SelectedQuoteStatus.NoQuotesAvailable)
+    }
+    return errors
+  }, [errorData, hasSufficientSellAssetBalance, isLoading, quoteData])
+
+  const quoteStatusTranslationKey = useMemo(() => {
+    // Show the first error in the button
+    const firstError = selectedQuoteErrors[0]
+    const quoteStatusTranslationMap = new Map([
+      [SelectedQuoteStatus.ReadyToPreview, 'trade.previewTrade'],
+      [SelectedQuoteStatus.Loading, 'common.loadingText'],
+      [SelectedQuoteStatus.Updating, 'trade.updatingQuote'],
+      [SelectedQuoteStatus.InsufficientSellAssetBalance, 'common.insufficientFunds'],
+      [SelectedQuoteStatus.NoQuotesAvailableForTradePair, 'trade.errors.invalidTradePairBtnText'],
+      [SelectedQuoteStatus.UnknownError, 'trade.errors.quoteError'],
+      [SelectedQuoteStatus.NoQuotesAvailable, 'trade.errors.noQuotesAvailable'],
+    ])
+
+    return quoteStatusTranslationMap.get(firstError) ?? 'trade.previewTrade'
+  }, [selectedQuoteErrors])
+
+  const quoteHasError = useMemo(() => {
+    return selectedQuoteErrors.length > 0
+  }, [selectedQuoteErrors])
+
   console.log('xxx quoteData', {
     quoteData,
     errorData,
     hasSufficientSellAssetBalance,
     sellAmountCryptoBaseUnit,
     sellAssetBalanceCryptoBaseUnit,
+    selectedQuoteErrors,
   })
 
-  // fixme: maybe this returns an array of errors?
-  const selectedQuoteStatus = useMemo(() => {
-    if (errorData) {
-      if (isLoading) return SelectedQuoteStatus.Updating
-      switch (errorData.code) {
-        case SwapErrorType.UNSUPPORTED_PAIR:
-          return SelectedQuoteStatus.NoQuotesAvailableForTradePair
-        default:
-          // We have an error, but it's not known
-          return SelectedQuoteStatus.UnknownError
-      }
-    } else if (quoteData) {
-      // We have a quote, work out the status
-      switch (true) {
-        // We have a quote, but we're also looking for a quote, so we are updating it
-        case isLoading:
-          return SelectedQuoteStatus.Updating
-        case !hasSufficientSellAssetBalance:
-          return SelectedQuoteStatus.InsufficientSellAssetBalance
-        default:
-          // We didn't hit any known errors states, so we claim that we're ready to preview
-          return SelectedQuoteStatus.ReadyToPreview
-      }
-    } else {
-      switch (true) {
-        case isLoading:
-          return SelectedQuoteStatus.Loading
-        default:
-          // We don't have a quote, or an error, and we aren't looking for any`
-          return SelectedQuoteStatus.NoQuotesAvailable
-      }
-    }
-  }, [errorData, hasSufficientSellAssetBalance, isLoading, quoteData])
-
-  const quoteStatusTranslationKey = useMemo(() => {
-    switch (selectedQuoteStatus) {
-      case SelectedQuoteStatus.ReadyToPreview:
-        return 'trade.previewTrade'
-      case SelectedQuoteStatus.Loading:
-        return 'common.loadingText'
-      case SelectedQuoteStatus.Updating:
-        return 'trade.updatingQuote'
-      case SelectedQuoteStatus.InsufficientSellAssetBalance:
-        return 'common.insufficientFunds'
-      case SelectedQuoteStatus.NoQuotesAvailableForTradePair:
-        return 'trade.errors.invalidTradePairBtnText'
-      case SelectedQuoteStatus.UnknownError:
-        return 'trade.errors.quoteError'
-      case SelectedQuoteStatus.NoQuotesAvailable:
-        return 'trade.errors.noQuotesAvailable'
-      default:
-        assertUnreachable(selectedQuoteStatus)
-    }
-  }, [selectedQuoteStatus])
-
-  const quoteHasError = useMemo(() => {
-    switch (selectedQuoteStatus) {
-      case SelectedQuoteStatus.ReadyToPreview:
-      case SelectedQuoteStatus.Loading:
-      case SelectedQuoteStatus.Updating:
-        return false
-      default:
-        return true
-    }
-  }, [selectedQuoteStatus])
-
-  return { selectedQuoteStatus, quoteStatusTranslationKey, quoteHasError, errorMessage }
+  return {
+    selectedQuoteErrors,
+    quoteStatusTranslationKey,
+    quoteHasError,
+    errorMessage,
+  }
 }

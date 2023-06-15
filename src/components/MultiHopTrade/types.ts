@@ -30,7 +30,7 @@ export enum SelectedQuoteStatus {
 }
 
 export type QuoteStatus = {
-  selectedQuoteStatus: SelectedQuoteStatus
+  selectedQuoteErrors: SelectedQuoteStatus[]
   quoteStatusTranslationKey: string
   quoteHasError: boolean
   errorMessage?: string

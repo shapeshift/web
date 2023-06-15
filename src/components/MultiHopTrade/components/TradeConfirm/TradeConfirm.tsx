@@ -27,6 +27,7 @@ import {
   getHopTotalNetworkFeeFiatPrecision,
   getHopTotalProtocolFeesFiatPrecision,
 } from 'components/MultiHopTrade/helpers'
+import { useIsApprovalNeeded } from 'components/MultiHopTrade/hooks/useIsApprovalNeeded'
 import type { StepperStep } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
@@ -218,9 +219,9 @@ const FirstHop = ({
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
 
-  const isApprovalRequired = true // TODO:
+  const tradeQuoteStep = useMemo(() => tradeQuote.steps[0], [tradeQuote.steps])
+  const isApprovalRequired = useIsApprovalNeeded(tradeQuoteStep)
   const shouldRenderDonation = true // TODO:
-
   const { onSignApproval, onRejectApproval, onSignTrade, onRejectTrade } = useTradeExecutor()
 
   const tradeExecutionStatus = useAppSelector(selectTradeExecutionStatus)
@@ -245,8 +246,6 @@ const FirstHop = ({
         assertUnreachable(tradeExecutionStatus)
     }
   }, [tradeExecutionStatus, isApprovalRequired])
-
-  const tradeQuoteStep = useMemo(() => tradeQuote.steps[0], [tradeQuote.steps])
 
   const steps = useMemo(() => {
     const {
@@ -375,15 +374,14 @@ const SecondHop = ({
   swapperName: SwapperName
   tradeQuote: TradeQuote
 }) => {
-  const isApprovalRequired = true // TODO:
-  const shouldRenderDonation = true // TODO:
-
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
 
+  const tradeQuoteStep = useMemo(() => tradeQuote.steps[1], [tradeQuote.steps])
+  const isApprovalRequired = useIsApprovalNeeded(tradeQuoteStep)
+  const shouldRenderDonation = true // TODO:
   const { onSignApproval, onRejectApproval, onSignTrade, onRejectTrade } = useTradeExecutor()
-
   const tradeExecutionStatus = useAppSelector(selectTradeExecutionStatus)
 
   const activeStep = useMemo(() => {
@@ -406,8 +404,6 @@ const SecondHop = ({
         assertUnreachable(tradeExecutionStatus)
     }
   }, [tradeExecutionStatus, isApprovalRequired])
-
-  const tradeQuoteStep = useMemo(() => tradeQuote.steps[1], [tradeQuote.steps])
 
   const steps = useMemo(() => {
     const {

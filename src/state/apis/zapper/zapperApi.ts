@@ -453,7 +453,27 @@ export const zapper = createApi({
                     { byId: {}, ids: [] },
                   )
 
+                  const maybeTopLevelRewardAssetToUpsert: AssetsState = (() => {
+                    const rewardAssetId =
+                      asset.groupId === 'claimable' ? zapperAssetToMaybeAssetId(asset) : undefined
+                    return {
+                      byId: rewardAssetId
+                        ? {
+                            [rewardAssetId]: makeAsset({
+                              assetId: rewardAssetId,
+                              symbol: asset.tokens[0].symbol ?? '',
+                              name: asset.displayProps?.label ?? '',
+                              precision: bnOrZero(asset.decimals).toNumber(),
+                              icon: asset.displayProps?.images[0] ?? '',
+                            }),
+                          }
+                        : {},
+                      ids: rewardAssetId ? [rewardAssetId] : [],
+                    }
+                  })()
+
                   dispatch(assetsSlice.actions.upsertAssets(rewardAssetsToUpsert))
+                  dispatch(assetsSlice.actions.upsertAssets(maybeTopLevelRewardAssetToUpsert))
 
                   const rewardsCryptoBaseUnit = {
                     amounts: rewardTokens.map(token => token.balanceRaw),
@@ -501,11 +521,16 @@ export const zapper = createApi({
                   }) as unknown as AssetIdsTuple
 
                   const assetMarketData = selectMarketDataById(state, assetId)
-                  if (assetMarketData.price === '0' && asset.price) {
+                  const assetPrice =
+                    // Claimable assets may not have a price, if that's the case, we use the price of the underlying asset they wrap
+                    asset.groupId === 'claimable'
+                      ? bnOrZero(asset.tokens[0].price).toNumber()
+                      : asset.price
+                  if (assetMarketData.price === '0' && assetPrice) {
                     dispatch(
                       marketDataSlice.actions.setCryptoMarketData({
                         [assetId]: {
-                          price: bnOrZero(asset.price).toString(),
+                          price: bnOrZero(assetPrice).toString(),
                           marketCap: '0',
                           volume: bnOrZero(asset.dataProps?.volume).toString(),
                           changePercent24Hr: 0,
@@ -531,7 +556,9 @@ export const zapper = createApi({
                   })
 
                   const underlyingAssetId =
-                    asset.type === 'app-token' ? assetId : underlyingAssetIds[0]!
+                    asset.type === 'app-token' || asset.groupId === 'claimable'
+                      ? assetId
+                      : underlyingAssetIds[0]!
 
                   // Upsert underlyingAssetIds if they don't exist in store
                   const underlyingAssetsToUpsert = Object.values(

@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -11,9 +11,14 @@ import {
   DAO_TREASURY_OPTIMISM,
   DAO_TREASURY_POLYGON,
 } from 'constants/treasury'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { Asset } from 'lib/asset-service'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+import { isEvmChainAdapter } from 'lib/utils'
+
+import type { ZrxSupportedChainId } from '../../types'
+import { zrxSupportedChainIds } from '../../types'
 
 export const baseUrlFromChainId = (chainId: string): Result<string, SwapErrorRight> => {
   switch (chainId) {
@@ -43,29 +48,64 @@ export const assetToToken = (asset: Asset): string => {
   return assetNamespace === 'slip44' ? asset.symbol : assetReference
 }
 
-export const assertValidTradePair = ({
+export const assertValidTrade = ({
   buyAsset,
   sellAsset,
-  adapter,
+  receiveAddress,
 }: {
   buyAsset: Asset
   sellAsset: Asset
-  adapter: EvmChainAdapter
+  receiveAddress?: string
 }): Result<boolean, SwapErrorRight> => {
-  const chainId = adapter.getChainId()
+  if (!zrxSupportedChainIds.includes(sellAsset.chainId as ZrxSupportedChainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[Zrx: assertValidTrade] - unsupported chainId`,
+        code: SwapErrorType.UNSUPPORTED_CHAIN,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
+  }
 
-  if (buyAsset.chainId === chainId && sellAsset.chainId === chainId) return Ok(true)
+  if (sellAsset.chainId !== buyAsset.chainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[Zrx: assertValidTrade] - both assets must be on chainId ${sellAsset.chainId}`,
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+        details: { buyAsset, sellAsset },
+      }),
+    )
+  }
 
-  return Err(
-    makeSwapErrorRight({
-      message: `[assertValidTradePair] - both assets must be on chainId ${chainId}`,
-      code: SwapErrorType.UNSUPPORTED_PAIR,
-      details: {
-        buyAssetChainId: buyAsset.chainId,
-        sellAssetChainId: sellAsset.chainId,
-      },
-    }),
-  )
+  if (!receiveAddress) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[Zrx: assertValidTrade] - receive address is required',
+        code: SwapErrorType.MISSING_INPUT,
+      }),
+    )
+  }
+
+  return Ok(true)
+}
+
+export const getAdapter = (
+  chainId: ChainId | KnownChainIds,
+): Result<EvmChainAdapter, SwapErrorRight> => {
+  const chainAdapterManager = getChainAdapterManager()
+  const adapter = chainAdapterManager.get(chainId)
+
+  if (!isEvmChainAdapter(adapter)) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[OneInch: getAdapter] - invalid chain adapter',
+        code: SwapErrorType.UNSUPPORTED_NAMESPACE,
+        details: { chainId },
+      }),
+    )
+  }
+
+  return Ok(adapter)
 }
 
 export const getTreasuryAddressForReceiveAsset = (assetId: AssetId): string => {

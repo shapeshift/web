@@ -6,10 +6,9 @@ import type { AxiosStatic } from 'axios'
 import Web3 from 'web3'
 
 import type { BuildTradeInput, QuoteFeeData } from '../../../api'
-import type { ZrxTrade } from '../types'
+import type { ZrxSupportedChainId, ZrxTrade } from '../types'
 import { setupZrxTradeQuoteResponse } from '../utils/test-data/setupZrxSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'
-import type { ZrxSupportedChainId } from '../ZrxSwapper'
 import { zrxBuildTrade } from './zrxBuildTrade'
 
 jest.mock('web3')
@@ -22,6 +21,7 @@ jest.mock('lib/swapper/swappers/ZrxSwapper/utils/zrxService', () => {
     zrxServiceFactory: () => axios.create(),
   }
 })
+
 jest.mock('@shapeshiftoss/chain-adapters', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
   return {
@@ -32,6 +32,11 @@ jest.mock('@shapeshiftoss/chain-adapters', () => {
     },
   }
 })
+
+jest.mock('lib/utils/evm', () => ({
+  getFees: () => ({ networkFeeCryptoBaseUnit: '4080654495000000' }),
+}))
+
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
   const { feeData } = require('../../utils/test-data/setupDeps')

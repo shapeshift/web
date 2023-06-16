@@ -25,11 +25,9 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
     [selectedQuote?.data],
   )
 
-  const errorMessage = errorData?.message
-
   const isLoading = useMemo(() => selectedQuote?.isLoading, [selectedQuote?.isLoading])
 
-  const selectedQuoteErrors: SelectedQuoteStatus[] = useMemo(() => {
+  const validationErrors: SelectedQuoteStatus[] = useMemo(() => {
     if (isLoading) return []
     const errors: SelectedQuoteStatus[] = []
     if (errorData) {
@@ -62,7 +60,7 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
 
   const quoteStatusTranslation: QuoteStatus['quoteStatusTranslation'] = useMemo(() => {
     // Show the first error in the button
-    const firstError = selectedQuoteErrors[0]
+    const firstError = validationErrors[0]
 
     return (() => {
       switch (firstError) {
@@ -88,11 +86,11 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
           return 'trade.previewTrade'
       }
     })()
-  }, [firstHopSellFeeAsset?.symbol, lastHopSellFeeAsset?.symbol, selectedQuoteErrors])
+  }, [firstHopSellFeeAsset?.symbol, lastHopSellFeeAsset?.symbol, validationErrors])
 
   return {
-    selectedQuoteErrors,
+    validationErrors,
     quoteStatusTranslation,
-    errorMessage,
+    error: errorData,
   }
 }

@@ -134,8 +134,8 @@ export const MultiHopTrade = (props: CardProps) => {
   }, [buyAsset.precision, quoteData])
 
   const quoteHasError = useMemo(() => {
-    return selectedQuoteStatus.selectedQuoteErrors.length > 0
-  }, [selectedQuoteStatus.selectedQuoteErrors])
+    return selectedQuoteStatus.validationErrors.length > 0
+  }, [selectedQuoteStatus.validationErrors])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
@@ -245,7 +245,7 @@ export const MultiHopTrade = (props: CardProps) => {
                   />
                 ) : null}
               </Stack>
-              <Tooltip label={selectedQuoteStatus.errorMessage}>
+              <Tooltip label={selectedQuoteStatus.error?.message}>
                 <Button
                   type='submit'
                   colorScheme={quoteHasError ? 'red' : 'blue'}

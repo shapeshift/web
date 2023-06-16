@@ -35,7 +35,7 @@ export class OneInchSwapper implements Swapper<OneInchSupportedChainId, true> {
 
   getTradeQuote(
     input: GetEvmTradeQuoteInput,
-  ): Promise<Result<TradeQuote<OneInchSupportedChainId, true | false>, SwapErrorRight>> {
+  ): Promise<Result<TradeQuote<OneInchSupportedChainId, boolean>, SwapErrorRight>> {
     return getTradeQuote(this.deps, input)
   }
 

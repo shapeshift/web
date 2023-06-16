@@ -54,7 +54,7 @@ export const assertValidTrade = ({
   if (!oneInchSupportedChainIds.includes(sellAsset.chainId as OneInchSupportedChainId)) {
     return Err(
       makeSwapErrorRight({
-        message: `[CowSwap: assertValidTrade] - unsupported chainId`,
+        message: `[OneInch: assertValidTrade] - unsupported chainId`,
         code: SwapErrorType.UNSUPPORTED_CHAIN,
         details: { chainId: sellAsset.chainId },
       }),

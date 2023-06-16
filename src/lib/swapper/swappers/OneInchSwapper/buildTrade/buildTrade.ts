@@ -50,25 +50,25 @@ export const buildTrade = async (
 
   const buyTokenPercentageFee = convertBasisPointsToPercentage(affiliateBps).toNumber()
 
+  const params: OneInchSwapApiInput = {
+    fromTokenAddress: fromAssetId(sellAsset.assetId).assetReference,
+    toTokenAddress: fromAssetId(buyAsset.assetId).assetReference,
+    // HACK: use the receive address as the send address
+    // 1inch uses this to check allowance on their side
+    // this swapper is not cross-account so this works
+    fromAddress: receiveAddress,
+    amount: sellAmountBeforeFeesCryptoBaseUnit,
+    slippage: slippagePercentage,
+    allowPartialFill: false,
+    referrerAddress: DAO_TREASURY_ETHEREUM_MAINNET,
+    disableEstimate: false,
+    fee: buyTokenPercentageFee,
+  }
+
   const { chainReference } = fromChainId(chainId)
   const maybeSwapResponse = await oneInchService.get<OneInchSwapResponse>(
     `${deps.apiUrl}/${chainReference}/swap`,
-    {
-      params: {
-        fromTokenAddress: fromAssetId(sellAsset.assetId).assetReference,
-        toTokenAddress: fromAssetId(buyAsset.assetId).assetReference,
-        // HACK: use the receive address as the send address
-        // 1inch uses this to check allowance on their side
-        // this swapper is not cross-account so this works
-        fromAddress: receiveAddress,
-        amount: sellAmountBeforeFeesCryptoBaseUnit,
-        slippage: slippagePercentage,
-        allowPartialFill: false,
-        referrerAddress: DAO_TREASURY_ETHEREUM_MAINNET,
-        disableEstimate: false,
-        fee: buyTokenPercentageFee,
-      } as OneInchSwapApiInput,
-    },
+    { params },
   )
 
   if (maybeSwapResponse.isErr()) return Err(maybeSwapResponse.unwrapErr())

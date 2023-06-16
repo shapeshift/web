@@ -44,17 +44,17 @@ export async function getTradeQuote(
 
   const buyTokenPercentageFee = convertBasisPointsToPercentage(affiliateBps).toNumber()
 
+  const params: OneInchQuoteApiInput = {
+    fromTokenAddress: fromAssetId(sellAsset.assetId).assetReference,
+    toTokenAddress: fromAssetId(buyAsset.assetId).assetReference,
+    amount: normalizedSellAmount,
+    fee: buyTokenPercentageFee,
+  }
+
   const { chainReference } = fromChainId(chainId)
   const maybeQuoteResponse = await oneInchService.get<OneInchQuoteResponse>(
     `${apiUrl}/${chainReference}/quote`,
-    {
-      params: {
-        fromTokenAddress: fromAssetId(sellAsset.assetId).assetReference,
-        toTokenAddress: fromAssetId(buyAsset.assetId).assetReference,
-        amount: normalizedSellAmount,
-        fee: buyTokenPercentageFee,
-      } as OneInchQuoteApiInput,
-    },
+    { params },
   )
 
   if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())

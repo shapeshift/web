@@ -32,7 +32,7 @@ import {
 export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
   supportedChainIds: CowChainId[],
-): Promise<Result<TradeQuote<CowChainId, true | false>, SwapErrorRight>> {
+): Promise<Result<TradeQuote<CowChainId, boolean>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, chainId, receiveAddress } = input
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
 

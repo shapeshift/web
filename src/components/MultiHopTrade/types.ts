@@ -13,9 +13,6 @@ export type StepperStep = {
 }
 
 export enum SelectedQuoteStatus {
-  ReadyToPreview = 'ReadyToPreview',
-  Loading = 'Loading',
-  Updating = 'Updating',
   SellAmountBelowMinimum = 'SellAmountBelowMinimum',
   SellAmountBelowTradeFee = 'SellAmountBelowTradeFee',
   InsufficientFirstHopFeeAssetBalance = 'InsufficientFirstHopFeeAssetBalance',

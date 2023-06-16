@@ -64,12 +64,6 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
 
     return (() => {
       switch (firstError) {
-        case SelectedQuoteStatus.ReadyToPreview:
-          return 'trade.previewTrade'
-        case SelectedQuoteStatus.Loading:
-          return 'common.loadingText'
-        case SelectedQuoteStatus.Updating:
-          return 'trade.updatingQuote'
         case SelectedQuoteStatus.InsufficientSellAssetBalance:
           return 'common.insufficientFunds'
         case SelectedQuoteStatus.InsufficientFirstHopFeeAssetBalance:

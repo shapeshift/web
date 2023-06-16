@@ -158,8 +158,8 @@ export const getErc20Allowance = async ({
   from,
   spender,
   chainId,
-}: GetErc20AllowanceArgs): Promise<number> => {
+}: GetErc20AllowanceArgs): Promise<string> => {
   const contract = getOrCreateContractByType({ address, type: ContractType.ERC20, chainId })
   const allowance = await contract.allowance(from, spender)
-  return allowance.toNumber()
+  return allowance.toString()
 }

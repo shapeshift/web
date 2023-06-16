@@ -75,9 +75,9 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
         case SelectedQuoteStatus.InsufficientSellAssetBalance:
           return 'common.insufficientFunds'
         case SelectedQuoteStatus.InsufficientFirstHopFeeAssetBalance:
-          return 'common.insufficientAmountForGas'
+          return ['common.insufficientAmountForGas', { assetSymbol: firstHopSellFeeAsset?.symbol }]
         case SelectedQuoteStatus.InsufficientLastHopFeeAssetBalance:
-          return 'common.insufficientAmountForGas'
+          return ['common.insufficientAmountForGas', { assetSymbol: lastHopSellFeeAsset?.symbol }]
         case SelectedQuoteStatus.NoQuotesAvailableForTradePair:
           return 'trade.errors.invalidTradePairBtnText'
         case SelectedQuoteStatus.UnknownError:
@@ -88,7 +88,7 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
           return 'trade.previewTrade'
       }
     })()
-  }, [selectedQuoteErrors])
+  }, [firstHopSellFeeAsset?.symbol, lastHopSellFeeAsset?.symbol, selectedQuoteErrors])
 
   return {
     selectedQuoteErrors,

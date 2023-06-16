@@ -4,7 +4,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { TradeQuote } from 'lib/swapper/api'
 
 import { APPROVAL_CHECK_INTERVAL_MILLISECONDS } from '../../constants'
-import { checkApprovalNeeded } from '../../helpers'
+import { checkApprovalNeeded } from '../helpers'
 
 export const useIsApprovalNeeded = (tradeQuoteStep: TradeQuote['steps'][number]) => {
   const [isApprovalNeeded, setIsApprovalNeeded] = useState<boolean | undefined>(undefined)

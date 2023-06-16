@@ -10,7 +10,7 @@ import { buildAndBroadcast } from 'lib/swapper/swappers/utils/helpers/helpers'
 import { isEvmChainAdapter } from 'lib/utils'
 
 import { APPROVAL_CHECK_INTERVAL_MILLISECONDS } from '../../constants'
-import { checkApprovalNeeded } from '../../helpers'
+import { checkApprovalNeeded } from '../helpers'
 
 export const useExecuteAllowanceApproval = (
   tradeQuoteStep: TradeQuote['steps'][number],

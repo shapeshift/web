@@ -8,7 +8,7 @@ import type { TradeQuote } from 'lib/swapper/api'
 import { isEvmChainAdapter } from 'lib/utils'
 
 import { APPROVAL_CHECK_INTERVAL_MILLISECONDS } from '../../constants'
-import { getApprovalTxData } from '../../helpers'
+import { getApprovalTxData } from '../helpers'
 
 export const useBuildApprovalTx = (
   tradeQuoteStep: TradeQuote['steps'][number],

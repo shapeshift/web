@@ -76,7 +76,10 @@ export async function getCowSwapTradeQuote(
 
   if (maybeQuoteResponse.isErr()) {
     const err = maybeQuoteResponse.unwrapErr()
-    if ((err.cause as AxiosError)?.isAxiosError) {
+    if (
+      (err.cause as AxiosError)?.isAxiosError &&
+      (err.cause as AxiosError).response?.data.errorType === 'SellAmountDoesNotCoverFee'
+    ) {
       return Ok(createEmptyEvmTradeQuote(input, minimumCryptoHuman))
     }
     return Err(maybeQuoteResponse.unwrapErr())

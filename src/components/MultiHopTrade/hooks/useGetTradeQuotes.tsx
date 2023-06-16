@@ -1,6 +1,7 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { orderBy } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
+import type { TradeQuoteResult } from 'components/MultiHopTrade/types'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -85,7 +86,7 @@ export const useGetTradeQuotes = () => {
   })
 
   // TODO(woodenfurniture): quote selection
-  const sortedQuotes = useMemo(() => {
+  const sortedQuotes: TradeQuoteResult[] = useMemo(() => {
     if (isSkipToken(debouncedTradeQuoteInput)) return []
 
     const results = [

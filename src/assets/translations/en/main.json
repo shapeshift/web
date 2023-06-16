@@ -735,7 +735,9 @@
         "required": "A signed transaction is required"
       },
       "generalError": "A trade error has occurred",
-      "tradeFailed": "Trade failed. Assets returned minus gas fee"
+      "quoteError": "An error occurred getting a quote",
+      "tradeFailed": "Trade failed. Assets returned minus gas fee",
+      "noQuotesAvailable": "No quotes available for this trade"
     },
     "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
     "recentTrades": "Recent Trades",

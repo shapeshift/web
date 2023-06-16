@@ -6,14 +6,14 @@ import { poll as pollFn } from 'lib/poll/poll'
  * Wraps `poll` for use in react components. Cancels polling on component unmount.
  */
 export const usePoll = <T extends unknown>() => {
-  const cancelPollingRef = useRef<(() => void) | undefined>(undefined)
+  const cancelPollingRef = useRef<() => void>(() => {})
 
   // cancel on component unmount so polling doesn't cause chaos after the component has unmounted
   useEffect(() => {
     return () => cancelPollingRef.current && cancelPollingRef.current()
   }, [])
 
-  return useCallback((pollArgs: PollArgs<T>) => {
+  const poll = useCallback((pollArgs: PollArgs<T>) => {
     // cancel previous invocations
     cancelPollingRef.current && cancelPollingRef.current()
 
@@ -25,4 +25,6 @@ export const usePoll = <T extends unknown>() => {
 
     return promise
   }, [])
+
+  return { poll, cancelPolling: cancelPollingRef.current }
 }

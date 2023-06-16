@@ -28,6 +28,7 @@ function baseStyleItem(props: Record<string, any>) {
     transitionProperty: 'background',
     transitionDuration: 'ultra-fast',
     transitionTimingFunction: 'ease-in',
+    bg: 'transparent',
     _focus: {
       bg: mode(`gray.100`, `whiteAlpha.100`)(props),
     },

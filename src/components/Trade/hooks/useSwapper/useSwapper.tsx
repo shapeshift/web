@@ -18,7 +18,6 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { SwapperManager } from 'lib/swapper/manager/SwapperManager'
-import { erc20AllowanceAbi } from 'lib/swapper/swappers/utils/abi/erc20Allowance-abi'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import { isEvmChainAdapter } from 'lib/utils'
 import {
@@ -27,7 +26,6 @@ import {
   getErc20Allowance,
   getFees,
 } from 'lib/utils/evm'
-import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
   selectAssetIds,
@@ -280,14 +278,12 @@ export const useSwapper = () => {
     })
 
     const { assetReference: sellAssetContractAddress } = fromAssetId(sellAsset.assetId)
-    const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
 
     const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
-      web3,
-      erc20AllowanceAbi,
       address: sellAssetContractAddress,
       spender: activeQuote.steps[0].allowanceContract,
       from,
+      chainId: sellAsset.chainId,
     })
 
     return bn(allowanceOnChainCryptoBaseUnit).lt(
@@ -315,8 +311,6 @@ export const useSwapper = () => {
         ? activeQuote.steps[0].sellAmountBeforeFeesCryptoBaseUnit
         : MAX_ALLOWANCE
 
-      const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
-
       const { assetReference } = fromAssetId(sellAsset.assetId)
 
       const value = '0'
@@ -325,7 +319,6 @@ export const useSwapper = () => {
         approvalAmountCryptoBaseUnit,
         spender: activeQuote.steps[0].allowanceContract,
         to: assetReference,
-        web3,
       })
 
       const { networkFeeCryptoBaseUnit, ...fees } = await getFees({

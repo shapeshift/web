@@ -1,17 +1,41 @@
-import { ethChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import {
+  avalancheChainId,
+  bscChainId,
+  ethChainId,
+  gnosisChainId,
+  optimismChainId,
+  polygonChainId,
+} from '@shapeshiftoss/caip'
+import { getConfig } from 'config'
 import { providers } from 'ethers'
-import { getWeb3InstanceByChainId } from 'lib/web3-instance'
-let maybeEthersProvider: providers.Web3Provider | undefined
-// The provider we get from getWeb3Instance is a web3.js Provider
-// But uniswap SDK needs a Web3Provider from ethers.js
-export const getEthersProvider = () => {
-  if (maybeEthersProvider) return maybeEthersProvider
 
-  const provider = getWeb3InstanceByChainId(ethChainId).currentProvider
+export const urlByChainId = (chainId: ChainId): string => {
+  switch (chainId) {
+    case avalancheChainId:
+      return getConfig().REACT_APP_AVALANCHE_NODE_URL
+    case optimismChainId:
+      return getConfig().REACT_APP_OPTIMISM_NODE_URL
+    case bscChainId:
+      return getConfig().REACT_APP_BNBSMARTCHAIN_NODE_URL
+    case polygonChainId:
+      return getConfig().REACT_APP_POLYGON_NODE_URL
+    case gnosisChainId:
+      return getConfig().REACT_APP_GNOSIS_NODE_URL
+    case ethChainId:
+    default:
+      return getConfig().REACT_APP_ETHEREUM_NODE_URL
+  }
+}
 
-  maybeEthersProvider = new providers.Web3Provider(
-    provider as providers.ExternalProvider, // TODO(gomes): Can we remove this casting?
-  )
+const ethersProviders: Map<ChainId, providers.JsonRpcProvider> = new Map()
 
-  return maybeEthersProvider
+export const getEthersProvider = (chainId = ethChainId): providers.JsonRpcProvider => {
+  if (!ethersProviders.has(chainId)) {
+    const provider = new providers.JsonRpcProvider(urlByChainId(chainId))
+    ethersProviders.set(chainId, provider)
+    return provider
+  } else {
+    return ethersProviders.get(chainId)!
+  }
 }

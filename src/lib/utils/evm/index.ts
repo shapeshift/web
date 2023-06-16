@@ -1,17 +1,16 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { evm, EvmChainAdapter, EvmChainId, SignTx } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type Web3 from 'web3'
-import type { AbiItem } from 'web3-utils'
+import { getOrCreateContractByType } from 'contracts/contractManager'
+import { ContractType } from 'contracts/types'
+import { ethers } from 'ethers'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-
-import { erc20Abi } from './abis/erc20'
 
 type GetApproveContractDataArgs = {
   approvalAmountCryptoBaseUnit: string
   to: string
   spender: string
-  web3: Web3
 }
 
 type BuildArgs = {
@@ -36,11 +35,10 @@ type CreateBuildCustomTxInputArgs = {
 }
 
 type GetErc20AllowanceArgs = {
-  erc20AllowanceAbi: AbiItem[]
-  web3: Web3
   address: string
   from: string
   spender: string
+  chainId: ChainId
 }
 
 type GetFeesArgs = {
@@ -149,19 +147,19 @@ export const getApproveContractData = ({
   approvalAmountCryptoBaseUnit,
   to,
   spender,
-  web3,
 }: GetApproveContractDataArgs): string => {
-  const contract = new web3.eth.Contract(erc20Abi, to)
-  return contract.methods.approve(spender, approvalAmountCryptoBaseUnit).encodeABI()
+  const address = ethers.utils.getAddress(to)
+  const contract = getOrCreateContractByType({ address, type: ContractType.ERC20 })
+  return contract.interface.encodeFunctionData('approve', [spender, approvalAmountCryptoBaseUnit])
 }
 
-export const getErc20Allowance = ({
-  erc20AllowanceAbi,
-  web3,
+export const getErc20Allowance = async ({
   address,
   from,
   spender,
+  chainId,
 }: GetErc20AllowanceArgs): Promise<number> => {
-  const erc20Contract = new web3.eth.Contract(erc20AllowanceAbi, address)
-  return erc20Contract.methods.allowance(from, spender).call()
+  const contract = getOrCreateContractByType({ address, type: ContractType.ERC20, chainId })
+  const allowance = await contract.allowance(from, spender)
+  return allowance.toNumber()
 }

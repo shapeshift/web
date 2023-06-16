@@ -32,7 +32,7 @@ import { useTranslate } from 'react-polyglot'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { urlByChainId } from 'lib/ethersProviderSingleton'
+import { rpcUrlByChainId } from 'lib/ethersProviderSingleton'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
@@ -248,7 +248,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       const updateChainParams: IUpdateChainParams = {
         chainId: walletConnectChainIdHex, // chain reference as hex
         networkId: parseInt(chainReference),
-        rpcUrl: urlByChainId(chainId),
+        rpcUrl: rpcUrlByChainId(chainId),
         nativeCurrency: { name: feeAsset.name, symbol: feeAsset.symbol },
       }
       setWcAccountId(accountIdOnNewChain)
@@ -258,7 +258,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
         chainId: parseInt(chainReference), // chain reference as integer
         accounts: [fromAccountId(accountIdOnNewChain).account], // our implementation only supports one connected account per chain
         networkId: parseInt(chainReference),
-        rpcUrl: urlByChainId(chainId),
+        rpcUrl: rpcUrlByChainId(chainId),
       })
     },
     [connector, wcAccountId],

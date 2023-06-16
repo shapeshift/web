@@ -3,7 +3,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
-import Web3 from 'web3'
+import { ethers } from 'ethers'
 
 import type { BuildTradeInput, QuoteFeeData } from '../../../api'
 import type { ZrxSupportedChainId, ZrxTrade } from '../types'
@@ -11,7 +11,9 @@ import { setupZrxTradeQuoteResponse } from '../utils/test-data/setupZrxSwapQuote
 import { zrxServiceFactory } from '../utils/zrxService'
 import { zrxBuildTrade } from './zrxBuildTrade'
 
-jest.mock('web3')
+jest.mock('ethers')
+
+const mockedContract = jest.mocked(ethers.Contract)
 
 jest.mock('lib/swapper/swappers/ZrxSwapper/utils/zrxService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')
@@ -39,7 +41,7 @@ jest.mock('lib/utils/evm', () => ({
 
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
-  const { feeData } = require('../../utils/test-data/setupDeps')
+  const { feeData } = require('../../utils/test-data/fees')
   return {
     getChainAdapterManager: jest.fn(
       () =>
@@ -56,32 +58,14 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
   }
 })
 
-// @ts-ignore
-Web3.mockImplementation(() => ({
-  eth: {
-    Contract: jest.fn(() => ({
-      methods: {
-        allowance: jest.fn(() => ({
-          call: jest.fn(),
-        })),
-      },
-    })),
-  },
-}))
-
 const setup = () => {
-  const ethNodeUrl = 'http://localhost:1000'
-  const web3Provider = new Web3.providers.HttpProvider(ethNodeUrl)
-  const web3Instance = new Web3(web3Provider)
-
   const zrxService = zrxServiceFactory({ baseUrl: 'https://api.0x.org/' })
-
-  return { web3Instance, zrxService }
+  return { zrxService }
 }
 
 describe('zrxBuildTrade', () => {
   const { quoteResponse, sellAsset, buyAsset } = setupZrxTradeQuoteResponse()
-  const { web3Instance, zrxService } = setup()
+  const { zrxService } = setup()
   const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
   const wallet = {
     ethGetAddress: jest.fn(() => Promise.resolve(walletAddress)),
@@ -122,13 +106,16 @@ describe('zrxBuildTrade', () => {
     const data = {
       ...quoteResponse,
     }
-    ;(web3Instance.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
-      methods: {
-        allowance: jest.fn(() => ({
-          call: jest.fn(() => allowanceOnChain),
-        })),
-      },
-    }))
+    mockedContract.mockImplementationOnce(
+      () =>
+        ({
+          methods: {
+            allowance: jest.fn(() => ({
+              call: jest.fn(() => allowanceOnChain),
+            })),
+          },
+        } as unknown as ethers.Contract),
+    )
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({ data })))
 
     const maybeBuiltTrade = await zrxBuildTrade({ ...buildTradeInput })
@@ -146,13 +133,16 @@ describe('zrxBuildTrade', () => {
       ...quoteResponse,
       price,
     }
-    ;(web3Instance.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
-      methods: {
-        allowance: jest.fn(() => ({
-          call: jest.fn(() => allowanceOnChain),
-        })),
-      },
-    }))
+    mockedContract.mockImplementationOnce(
+      () =>
+        ({
+          methods: {
+            allowance: jest.fn(() => ({
+              call: jest.fn(() => allowanceOnChain),
+            })),
+          },
+        } as unknown as ethers.Contract),
+    )
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({ data })))
 
     const maybeBuiltTrade = await zrxBuildTrade({ ...buildTradeInput })

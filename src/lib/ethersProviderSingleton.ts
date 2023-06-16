@@ -10,7 +10,7 @@ import {
 import { getConfig } from 'config'
 import { providers } from 'ethers'
 
-export const urlByChainId = (chainId: ChainId): string => {
+export const rpcUrlByChainId = (chainId: ChainId): string => {
   switch (chainId) {
     case avalancheChainId:
       return getConfig().REACT_APP_AVALANCHE_NODE_URL
@@ -28,11 +28,11 @@ export const urlByChainId = (chainId: ChainId): string => {
   }
 }
 
-const ethersProviders: Map<ChainId, providers.JsonRpcProvider> = new Map()
+const ethersProviders: Map<ChainId, providers.JsonRpcBatchProvider> = new Map()
 
-export const getEthersProvider = (chainId = ethChainId): providers.JsonRpcProvider => {
+export const getEthersProvider = (chainId = ethChainId): providers.JsonRpcBatchProvider => {
   if (!ethersProviders.has(chainId)) {
-    const provider = new providers.JsonRpcProvider(urlByChainId(chainId))
+    const provider = new providers.JsonRpcBatchProvider(rpcUrlByChainId(chainId))
     ethersProviders.set(chainId, provider)
     return provider
   } else {

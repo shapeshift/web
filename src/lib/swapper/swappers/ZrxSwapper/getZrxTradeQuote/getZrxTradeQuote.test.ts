@@ -44,7 +44,7 @@ jest.mock('@shapeshiftoss/chain-adapters', () => {
 })
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
-  const { gasFeeData } = require('../../utils/test-data/setupDeps')
+  const { gasFeeData } = require('../../utils/test-data/fees')
   return {
     getChainAdapterManager: jest.fn(
       () =>

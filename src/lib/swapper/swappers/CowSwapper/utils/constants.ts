@@ -4,7 +4,7 @@ import { SwapperName } from 'lib/swapper/api'
 
 import type { CowChainId } from '../types'
 
-export const MIN_COWSWAP_TRADE_VALUES: Record<CowChainId, string> = {
+export const MIN_COWSWAP_USD_TRADE_VALUES_BY_CHAIN_ID: Record<CowChainId, string> = {
   [KnownChainIds.EthereumMainnet]: '20',
   [KnownChainIds.GnosisMainnet]: '0.01',
 }

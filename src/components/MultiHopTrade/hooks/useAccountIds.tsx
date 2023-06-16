@@ -12,8 +12,8 @@ export const useAccountIds = ({
   buyAsset,
   sellAsset,
 }: {
-  buyAsset: Asset
-  sellAsset: Asset
+  buyAsset?: Asset
+  sellAsset?: Asset
 }): {
   buyAssetAccountId?: AccountId
   sellAssetAccountId?: AccountId
@@ -24,19 +24,19 @@ export const useAccountIds = ({
 
   const highestFiatBalanceSellAccountId = useAppSelector(state =>
     selectHighestFiatBalanceAccountByAssetId(state, {
-      assetId: sellAsset.assetId,
+      assetId: sellAsset?.assetId,
     }),
   )
   const highestFiatBalanceBuyAccountId = useAppSelector(state =>
     selectHighestFiatBalanceAccountByAssetId(state, {
-      assetId: buyAsset.assetId,
+      assetId: buyAsset?.assetId,
     }),
   )
   const firstSellAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, sellAsset.chainId),
+    selectFirstAccountIdByChainId(state, sellAsset?.chainId ?? ''),
   )
   const firstBuyAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, buyAsset.chainId),
+    selectFirstAccountIdByChainId(state, buyAsset?.chainId ?? ''),
   )
 
   const [selectedSellAssetAccountId, setSelectedSellAssetAccountId] = useState<

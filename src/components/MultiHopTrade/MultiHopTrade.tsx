@@ -1,5 +1,13 @@
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Button, Flex, IconButton, Stack, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
+import {
+  Button,
+  Flex,
+  IconButton,
+  Stack,
+  Tooltip,
+  useColorModeValue,
+  useMediaQuery,
+} from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { useCallback, useMemo } from 'react'
@@ -9,6 +17,7 @@ import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { TradeQuotes } from 'components/MultiHopTrade/components/TradeQuotes/TradeQuotes'
+import { useSelectedQuoteStatus } from 'components/MultiHopTrade/hooks/useSelectedQuoteStatus'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TradeAssetSelect } from 'components/Trade/Components/AssetSelection'
@@ -49,6 +58,7 @@ export const MultiHopTrade = (props: CardProps) => {
   const sellAsset = useAppSelector(selectSellAsset)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
 
+  const selectedQuoteStatus = useSelectedQuoteStatus()
   const dispatch = useAppDispatch()
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(swappers.actions.setBuyAsset(asset)),
@@ -122,6 +132,10 @@ export const MultiHopTrade = (props: CardProps) => {
     const lastStep = quoteData.steps[quoteData.steps.length - 1]
     return fromBaseUnit(lastStep.buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
   }, [buyAsset.precision, quoteData])
+
+  const quoteHasError = useMemo(() => {
+    return selectedQuoteStatus.validationErrors.length > 0
+  }, [selectedQuoteStatus.validationErrors])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
@@ -231,16 +245,18 @@ export const MultiHopTrade = (props: CardProps) => {
                   />
                 ) : null}
               </Stack>
-              <Button
-                type='submit'
-                colorScheme={false ? 'red' : 'blue'}
-                size='lg-multiline'
-                data-test='trade-form-preview-button'
-                isDisabled={true}
-                isLoading={isLoading}
-              >
-                <Text translation='trade.previewTrade' />
-              </Button>
+              <Tooltip label={selectedQuoteStatus.error?.message}>
+                <Button
+                  type='submit'
+                  colorScheme={quoteHasError ? 'red' : 'blue'}
+                  size='lg-multiline'
+                  data-test='trade-form-preview-button'
+                  isDisabled={quoteHasError}
+                  isLoading={isLoading}
+                >
+                  <Text translation={selectedQuoteStatus.quoteStatusTranslation} />
+                </Button>
+              </Tooltip>
             </Stack>
           </SlideTransition>
         </FormProvider>

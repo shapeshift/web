@@ -36,16 +36,13 @@ export enum SelectedQuoteStatus {
 export type QuoteStatus = {
   selectedQuoteErrors: SelectedQuoteStatus[]
   quoteStatusTranslation: string | [string, InterpolationOptions]
-  quoteHasError: boolean
   errorMessage?: string
 }
 
-export type TradeQuoteResult =
-  | {
-      isLoading: boolean
-      data: Result<TradeQuote<ThorChainId>, SwapErrorRight> | undefined
-      swapperName: SwapperName
-      error: unknown
-    } & {
-      inputOutputRatio: number
-    }
+export type TradeQuoteResult = {
+  isLoading: boolean
+  data: Result<TradeQuote<ThorChainId>, SwapErrorRight> | undefined
+  swapperName: SwapperName
+  error: unknown
+  inputOutputRatio: number
+}

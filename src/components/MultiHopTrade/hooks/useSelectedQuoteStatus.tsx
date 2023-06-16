@@ -63,38 +63,36 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
   const quoteStatusTranslation: QuoteStatus['quoteStatusTranslation'] = useMemo(() => {
     // Show the first error in the button
     const firstError = selectedQuoteErrors[0]
-    const quoteStatusTranslationMap = new Map<
-      SelectedQuoteStatus,
-      QuoteStatus['quoteStatusTranslation']
-    >([
-      [SelectedQuoteStatus.ReadyToPreview, 'trade.previewTrade'],
-      [SelectedQuoteStatus.Loading, 'common.loadingText'],
-      [SelectedQuoteStatus.Updating, 'trade.updatingQuote'],
-      [SelectedQuoteStatus.InsufficientSellAssetBalance, 'common.insufficientFunds'],
-      [
-        SelectedQuoteStatus.InsufficientFirstHopFeeAssetBalance,
-        ['common.insufficientAmountForGas', { assetSymbol: firstHopSellFeeAsset?.symbol }],
-      ],
-      [
-        SelectedQuoteStatus.InsufficientLastHopFeeAssetBalance,
-        ['common.insufficientAmountForGas', { assetSymbol: lastHopSellFeeAsset?.symbol }],
-      ],
-      [SelectedQuoteStatus.NoQuotesAvailableForTradePair, 'trade.errors.invalidTradePairBtnText'],
-      [SelectedQuoteStatus.UnknownError, 'trade.errors.quoteError'],
-      [SelectedQuoteStatus.NoQuotesAvailable, 'trade.errors.noQuotesAvailable'],
-    ])
 
-    return quoteStatusTranslationMap.get(firstError) ?? 'trade.previewTrade'
-  }, [selectedQuoteErrors, firstHopSellFeeAsset?.symbol, lastHopSellFeeAsset?.symbol])
-
-  const quoteHasError = useMemo(() => {
-    return selectedQuoteErrors.length > 0
+    return (() => {
+      switch (firstError) {
+        case SelectedQuoteStatus.ReadyToPreview:
+          return 'trade.previewTrade'
+        case SelectedQuoteStatus.Loading:
+          return 'common.loadingText'
+        case SelectedQuoteStatus.Updating:
+          return 'trade.updatingQuote'
+        case SelectedQuoteStatus.InsufficientSellAssetBalance:
+          return 'common.insufficientFunds'
+        case SelectedQuoteStatus.InsufficientFirstHopFeeAssetBalance:
+          return 'common.insufficientAmountForGas'
+        case SelectedQuoteStatus.InsufficientLastHopFeeAssetBalance:
+          return 'common.insufficientAmountForGas'
+        case SelectedQuoteStatus.NoQuotesAvailableForTradePair:
+          return 'trade.errors.invalidTradePairBtnText'
+        case SelectedQuoteStatus.UnknownError:
+          return 'trade.errors.quoteError'
+        case SelectedQuoteStatus.NoQuotesAvailable:
+          return 'trade.errors.noQuotesAvailable'
+        default:
+          return 'trade.previewTrade'
+      }
+    })()
   }, [selectedQuoteErrors])
 
   return {
     selectedQuoteErrors,
     quoteStatusTranslation,
-    quoteHasError,
     errorMessage,
   }
 }

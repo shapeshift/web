@@ -133,6 +133,10 @@ export const MultiHopTrade = (props: CardProps) => {
     return fromBaseUnit(lastStep.buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
   }, [buyAsset.precision, quoteData])
 
+  const quoteHasError = useMemo(() => {
+    return selectedQuoteStatus.selectedQuoteErrors.length > 0
+  }, [selectedQuoteStatus.selectedQuoteErrors])
+
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       {quoteData && <TradeConfirm tradeQuote={quoteData} swapperName={selectedQuote.swapperName} />}
@@ -244,10 +248,10 @@ export const MultiHopTrade = (props: CardProps) => {
               <Tooltip label={selectedQuoteStatus.errorMessage}>
                 <Button
                   type='submit'
-                  colorScheme={selectedQuoteStatus.quoteHasError ? 'red' : 'blue'}
+                  colorScheme={quoteHasError ? 'red' : 'blue'}
                   size='lg-multiline'
                   data-test='trade-form-preview-button'
-                  isDisabled={selectedQuoteStatus.quoteHasError}
+                  isDisabled={quoteHasError}
                   isLoading={isLoading}
                 >
                   <Text translation={selectedQuoteStatus.quoteStatusTranslation} />

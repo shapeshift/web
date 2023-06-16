@@ -4,6 +4,7 @@ import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuo
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { SwapperName } from 'lib/swapper/api'
+import { assertIsDefined } from 'lib/utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -25,6 +26,12 @@ export const useHopHelper = () => {
   const firstHopBuyAsset = useMemo(() => firstHop?.buyAsset, [firstHop?.buyAsset])
   const lastHopSellAsset = useMemo(() => lastHop?.sellAsset, [lastHop?.sellAsset])
   const lastHopBuyAsset = useMemo(() => lastHop?.buyAsset, [lastHop?.buyAsset])
+
+  // This is a sanity check, we should always have these values
+  assertIsDefined(firstHopSellAsset)
+  assertIsDefined(firstHopBuyAsset)
+  assertIsDefined(lastHopSellAsset)
+  assertIsDefined(lastHopBuyAsset)
 
   const { sellAssetAccountId: firstHopSellAssetAccountId } = useAccountIds({
     buyAsset: firstHopBuyAsset,

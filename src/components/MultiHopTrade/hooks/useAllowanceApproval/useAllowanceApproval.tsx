@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import type { TradeQuote } from 'lib/swapper/api'
 
-import { useBuildApprovalTx } from './hooks/useBuildApprovalTx'
+import { useApprovalTx } from './hooks/useApprovalTx'
 import { useExecuteAllowanceApproval } from './hooks/useExecuteAllowanceApproval'
 import { useIsApprovalNeeded } from './hooks/useIsApprovalNeeded'
 
@@ -15,7 +15,7 @@ export const useAllowanceApproval = (
     approvalNetworkFeeCryptoBaseUnit,
     buildCustomTxInput,
     stopPolling: stopPollingBuildApprovalTx,
-  } = useBuildApprovalTx(tradeQuoteStep, isExactAllowance)
+  } = useApprovalTx(tradeQuoteStep, isExactAllowance)
 
   const { executeAllowanceApproval: _executeAllowanceApproval, txId: approvalTxId } =
     useExecuteAllowanceApproval(tradeQuoteStep, buildCustomTxInput)

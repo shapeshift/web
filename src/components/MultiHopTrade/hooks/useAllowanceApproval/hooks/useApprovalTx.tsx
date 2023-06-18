@@ -7,10 +7,10 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { TradeQuote } from 'lib/swapper/api'
 import { isEvmChainAdapter } from 'lib/utils'
 
-import { APPROVAL_CHECK_INTERVAL_MILLISECONDS } from '../../constants'
+import { APPROVAL_POLL_INTERVAL_MILLISECONDS } from '../../constants'
 import { getApprovalTxData } from '../helpers'
 
-export const useBuildApprovalTx = (
+export const useApprovalTx = (
   tradeQuoteStep: TradeQuote['steps'][number],
   isExactAllowance: boolean,
 ) => {
@@ -44,7 +44,7 @@ export const useBuildApprovalTx = (
         setBuildCustomTxInput(buildCustomTxInput)
       },
       validate: () => false,
-      interval: APPROVAL_CHECK_INTERVAL_MILLISECONDS,
+      interval: APPROVAL_POLL_INTERVAL_MILLISECONDS,
       maxAttempts: Infinity,
     })
   }, [isExactAllowance, poll, tradeQuoteStep, wallet])

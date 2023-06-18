@@ -45,8 +45,6 @@ export const checkApprovalNeeded = async (
     from,
   })
 
-  // TODO(woodenfurniture): This was pulled from the old implementation but we should check whether we should be
-  // including protocol fees in the sell asset here
   return bn(allowanceOnChainCryptoBaseUnit).lt(tradeQuoteStep.sellAmountBeforeFeesCryptoBaseUnit)
 }
 

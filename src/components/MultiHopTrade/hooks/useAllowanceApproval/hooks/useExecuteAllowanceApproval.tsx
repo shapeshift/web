@@ -9,7 +9,7 @@ import type { TradeQuote } from 'lib/swapper/api'
 import { buildAndBroadcast } from 'lib/swapper/swappers/utils/helpers/helpers'
 import { isEvmChainAdapter } from 'lib/utils'
 
-import { APPROVAL_CHECK_INTERVAL_MILLISECONDS } from '../../constants'
+import { APPROVAL_POLL_INTERVAL_MILLISECONDS } from '../../constants'
 import { checkApprovalNeeded } from '../helpers'
 
 export const useExecuteAllowanceApproval = (
@@ -47,7 +47,7 @@ export const useExecuteAllowanceApproval = (
           return await checkApprovalNeeded(tradeQuoteStep, wallet)
         },
         validate: (isApprovalNeeded?: boolean) => isApprovalNeeded === false,
-        interval: APPROVAL_CHECK_INTERVAL_MILLISECONDS,
+        interval: APPROVAL_POLL_INTERVAL_MILLISECONDS,
         maxAttempts: Infinity,
       })
     } catch (e) {

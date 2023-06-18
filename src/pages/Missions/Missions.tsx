@@ -143,7 +143,6 @@ export const Missions = () => {
         pb={12}
         display='flex'
         flexDir='column'
-        bg='gray.800'
         flex={1}
         width='full'
         hideBreadcrumbs

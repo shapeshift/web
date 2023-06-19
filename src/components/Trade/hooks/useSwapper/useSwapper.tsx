@@ -18,16 +18,14 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { SwapperManager } from 'lib/swapper/manager/SwapperManager'
-import { erc20AllowanceAbi } from 'lib/swapper/swappers/utils/abi/erc20Allowance-abi'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
+import { isEvmChainAdapter } from 'lib/utils'
 import {
   buildAndBroadcast,
   getApproveContractData,
-  getERC20Allowance,
-  getFeesFromContractData,
-} from 'lib/swapper/swappers/utils/helpers/helpers'
-import { isEvmChainAdapter } from 'lib/utils'
-import { getWeb3InstanceByChainId } from 'lib/web3-instance'
+  getErc20Allowance,
+  getFees,
+} from 'lib/utils/evm'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
   selectAssetIds,
@@ -141,7 +139,7 @@ export const useSwapper = () => {
   )
 
   const approve = useCallback(
-    (buildCustomTxArgs: evm.BuildCustomTxInput): Promise<string> => {
+    (buildCustomTxInput: evm.BuildCustomTxInput): Promise<string> => {
       const adapterManager = getChainAdapterManager()
       const adapter = adapterManager.get(sellAsset.chainId)
 
@@ -149,11 +147,7 @@ export const useSwapper = () => {
       if (!adapter || !isEvmChainAdapter(adapter))
         throw Error(`no valid EVM chain adapter found for chain Id: ${sellAsset.chainId}`)
 
-      return buildAndBroadcast({
-        buildCustomTxArgs,
-        adapter,
-        wallet,
-      })
+      return buildAndBroadcast({ buildCustomTxInput, adapter, wallet })
     },
     [sellAsset.chainId, wallet],
   )
@@ -284,14 +278,12 @@ export const useSwapper = () => {
     })
 
     const { assetReference: sellAssetContractAddress } = fromAssetId(sellAsset.assetId)
-    const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
 
-    const allowanceOnChainCryptoBaseUnit = await getERC20Allowance({
-      web3,
-      erc20AllowanceAbi,
+    const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
       address: sellAssetContractAddress,
       spender: activeQuote.steps[0].allowanceContract,
       from,
+      chainId: sellAsset.chainId,
     })
 
     return bn(allowanceOnChainCryptoBaseUnit).lt(
@@ -319,8 +311,6 @@ export const useSwapper = () => {
         ? activeQuote.steps[0].sellAmountBeforeFeesCryptoBaseUnit
         : MAX_ALLOWANCE
 
-      const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
-
       const { assetReference } = fromAssetId(sellAsset.assetId)
 
       const value = '0'
@@ -329,24 +319,15 @@ export const useSwapper = () => {
         approvalAmountCryptoBaseUnit,
         spender: activeQuote.steps[0].allowanceContract,
         to: assetReference,
-        web3,
       })
 
-      const [eip1559Support, from] = await Promise.all([
-        wallet.ethSupportsEIP1559(),
-        adapter.getAddress({
-          wallet,
-          accountNumber: activeQuote.steps[0].accountNumber,
-        }),
-      ])
-
-      const { feesWithGasLimit, networkFeeCryptoBaseUnit } = await getFeesFromContractData({
-        eip1559Support,
+      const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
+        accountNumber: activeQuote.steps[0].accountNumber,
         adapter,
-        from,
         to: assetReference,
         value,
         data,
+        wallet,
       })
 
       return {
@@ -357,7 +338,7 @@ export const useSwapper = () => {
           to: assetReference,
           value,
           wallet,
-          ...feesWithGasLimit,
+          ...fees,
         },
       }
     },

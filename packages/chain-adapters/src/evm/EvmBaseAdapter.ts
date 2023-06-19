@@ -18,6 +18,7 @@ import {
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
+import BigNumber from 'bignumber.js'
 import { utils } from 'ethers'
 import { numberToHex } from 'web3-utils'
 
@@ -119,10 +120,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   abstract getType(): T
   abstract getFeeAssetId(): AssetId
-  abstract getFeeData(input: Partial<GetFeeDataInput<T>>): Promise<FeeDataEstimate<T>>
   abstract getName(): string
   abstract getDisplayName(): string
-  abstract getGasFeeData(): Promise<GasFeeDataEstimate>
 
   getChainId(): ChainId {
     return this.chainId
@@ -589,5 +588,38 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     } catch (err) {
       return ErrorHandler(err)
     }
+  }
+
+  async getGasFeeData(): Promise<GasFeeDataEstimate> {
+    const { fast, average, slow } = await this.providers.http.getGasFees()
+    return { fast, average, slow }
+  }
+
+  async getFeeData(input: GetFeeDataInput<T>): Promise<FeeDataEstimate<T>> {
+    const req = await this.buildEstimateGasRequest(input)
+
+    const { gasLimit } = await this.providers.http.estimateGas(req)
+    const { fast, average, slow } = await this.getGasFeeData()
+
+    return {
+      fast: {
+        txFee: bnOrZero(
+          BigNumber.max(fast.gasPrice, fast.maxFeePerGas ?? 0).times(gasLimit),
+        ).toFixed(0),
+        chainSpecific: { gasLimit, ...fast },
+      },
+      average: {
+        txFee: bnOrZero(
+          BigNumber.max(average.gasPrice, average.maxFeePerGas ?? 0).times(gasLimit),
+        ).toFixed(0),
+        chainSpecific: { gasLimit, ...average },
+      },
+      slow: {
+        txFee: bnOrZero(
+          BigNumber.max(slow.gasPrice, slow.maxFeePerGas ?? 0).times(gasLimit),
+        ).toFixed(0),
+        chainSpecific: { gasLimit, ...slow },
+      },
+    } as FeeDataEstimate<T>
   }
 }

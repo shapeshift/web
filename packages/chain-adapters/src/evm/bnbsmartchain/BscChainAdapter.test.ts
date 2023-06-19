@@ -45,8 +45,19 @@ const value = 400
 const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress: string }) =>
   merge({ gasPrice, gasLimit }, chainSpecificAdditionalProps)
 
-const makeGetGasFeesMockedResponse = (overrideArgs?: { gasPrice?: string }) =>
-  merge({ gasPrice: '5' }, overrideArgs)
+const makeGetGasFeesMockedResponse = (overrideArgs?: {
+  slow: { gasPrice?: string }
+  average: { gasPrice?: string }
+  fast: { gasPrice?: string }
+}) =>
+  merge(
+    {
+      slow: { gasPrice: '4' },
+      average: { gasPrice: '5' },
+      fast: { gasPrice: '6' },
+    },
+    overrideArgs,
+  )
 
 const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string }) =>
   merge({ gasLimit: '21000' }, overrideArgs)
@@ -135,16 +146,16 @@ describe('BscChainAdapter', () => {
           fast: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '5',
+              gasPrice: '6',
             },
-            txFee: '105000',
+            txFee: '126000',
           },
           slow: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '5',
+              gasPrice: '4',
             },
-            txFee: '105000',
+            txFee: '84000',
           },
         }),
       )
@@ -165,8 +176,8 @@ describe('BscChainAdapter', () => {
       expect(data).toEqual(
         expect.objectContaining({
           average: { gasPrice: '5' },
-          fast: { gasPrice: '5' },
-          slow: { gasPrice: '5' },
+          fast: { gasPrice: '6' },
+          slow: { gasPrice: '4' },
         }),
       )
     })

@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { Token } from '@uniswap/sdk'
 import { Fetcher } from '@uniswap/sdk'
@@ -67,17 +67,19 @@ export const getOrCreateContractByAddress = <T extends KnownContractAddress>(
 export const getOrCreateContractByType = <T extends ContractType>({
   address,
   type,
+  chainId,
 }: {
-  address: `0x${string}`
+  address: string | `0x${string}`
   type: T
+  chainId?: ChainId
 }): KnownContractByType<T> => {
   const definedContract = definedContracts.find(contract => contract.address === address)
   if (definedContract && definedContract.contract)
     return definedContract.contract as KnownContractByType<T>
   const typechainContract = CONTRACT_TYPE_TO_TYPECHAIN_CONTRACT[type]
-  const ethersProvider = getEthersProvider()
+  const ethersProvider = getEthersProvider(chainId)
   const contract = typechainContract.connect(address, ethersProvider)
-  definedContracts.push({ contract, address })
+  definedContracts.push({ contract, address: ethers.utils.getAddress(address) })
   return contract as KnownContractByType<T>
 }
 

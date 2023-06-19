@@ -1,18 +1,19 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { GasFeeDataEstimate } from '@shapeshiftoss/chain-adapters/src/evm/types'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
 
+import { normalizeAmount } from '../../utils/helpers/helpers'
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
-import { getMinimumAmountCryptoHuman } from '../getMinimumAmountCryptoHuman/getMinimumAmountCryptoHuman'
+import { getMinimumCryptoHuman } from '../getMinimumCryptoHuman/getMinimumCryptoHuman'
 import { DEFAULT_SOURCE } from '../utils/constants'
-import { getRate } from '../utils/helpers'
+import { assertValidTrade, getAdapter, getRate } from '../utils/helpers'
 import { oneInchService } from '../utils/oneInchService'
 import type { OneInchQuoteApiInput, OneInchQuoteResponse, OneInchSwapperDeps } from '../utils/types'
 
@@ -24,72 +25,68 @@ export async function getTradeQuote(
     chainId,
     sellAsset,
     buyAsset,
-    sellAmountBeforeFeesCryptoBaseUnit,
     accountNumber,
     affiliateBps,
+    eip1559Support,
+    receiveAddress,
   } = input
+  const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
 
-  if (sellAmountBeforeFeesCryptoBaseUnit === '0') {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getTradeQuote] sellAmountBeforeFeesCryptoBaseUnit must be greater than 0',
-        code: SwapErrorType.TRADE_BELOW_MINIMUM,
-      }),
-    )
-  }
+  const assertion = assertValidTrade({ buyAsset, sellAsset, receiveAddress })
+  if (assertion.isErr()) return Err(assertion.unwrapErr())
 
-  const { assetReference: fromAssetAddress } = fromAssetId(sellAsset.assetId)
-  const { assetReference: toAssetAddress } = fromAssetId(buyAsset.assetId)
+  const minimumCryptoHuman = getMinimumCryptoHuman()
+  const minimumCryptoBaseUnit = toBaseUnit(minimumCryptoHuman, sellAsset.precision)
+
+  const normalizedSellAmountCryptoBaseUnit = normalizeAmount(
+    bnOrZero(sellAmount).eq(0) ? minimumCryptoBaseUnit : sellAmount,
+  )
 
   const buyTokenPercentageFee = convertBasisPointsToPercentage(affiliateBps).toNumber()
 
-  const apiInput: OneInchQuoteApiInput = {
-    fromTokenAddress: fromAssetAddress,
-    toTokenAddress: toAssetAddress,
-    amount: sellAmountBeforeFeesCryptoBaseUnit,
+  const params: OneInchQuoteApiInput = {
+    fromTokenAddress: fromAssetId(sellAsset.assetId).assetReference,
+    toTokenAddress: fromAssetId(buyAsset.assetId).assetReference,
+    amount: normalizedSellAmountCryptoBaseUnit,
     fee: buyTokenPercentageFee,
   }
 
   const { chainReference } = fromChainId(chainId)
   const maybeQuoteResponse = await oneInchService.get<OneInchQuoteResponse>(
     `${apiUrl}/${chainReference}/quote`,
-    { params: apiInput },
+    { params },
   )
 
   if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())
-  const quoteResponse = maybeQuoteResponse.unwrap()
+  const { data: quote } = maybeQuoteResponse.unwrap()
 
-  const rate = getRate(quoteResponse.data).toString()
+  const rate = getRate(quote).toString()
 
   const maybeAllowanceContract = await getApprovalAddress(apiUrl, chainId)
   if (maybeAllowanceContract.isErr()) return Err(maybeAllowanceContract.unwrapErr())
   const allowanceContract = maybeAllowanceContract.unwrap()
 
-  const maybeMinimumAmountCryptoHuman = getMinimumAmountCryptoHuman(sellAsset, buyAsset)
+  const maybeAdapter = getAdapter(chainId)
+  if (maybeAdapter.isErr()) return Err(maybeAdapter.unwrapErr())
+  const adapter = maybeAdapter.unwrap()
 
-  const chainAdapterManager = getChainAdapterManager()
-  // We guard against !isEvmChainId(chainId) above, so this cast is safe
-  const adapter = chainAdapterManager.get(chainId) as unknown as EvmBaseAdapter<EvmChainId>
-  if (adapter === undefined) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[getTradeQuote] - getChainAdapterManager returned undefined',
-        code: SwapErrorType.UNSUPPORTED_NAMESPACE,
-        details: { chainId: sellAsset.chainId },
-      }),
+  try {
+    const { average } = await adapter.getGasFeeData()
+    const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
+      ...average,
+      eip1559Support,
+      gasLimit: quote.estimatedGas,
+      l1GasLimit: '0', // TODO: support l1 gas limit for accurate optimism estimations
+    })
+
+    // don't show buy amount if less than min sell amount
+    const isSellAmountBelowMinimum = bnOrZero(normalizedSellAmountCryptoBaseUnit).lt(
+      minimumCryptoBaseUnit,
     )
-  }
+    const buyAmountCryptoBaseUnit = isSellAmountBelowMinimum ? '0' : quote.toTokenAmount
 
-  const gasFeeData: GasFeeDataEstimate = await adapter.getGasFeeData()
-
-  // TODO(woodenfurniture): l1 fees for optimism and eip-1551 gas estimation
-  const fee = bnOrZero(quoteResponse.data.estimatedGas)
-    .multipliedBy(gasFeeData.average.gasPrice)
-    .toString()
-
-  return maybeMinimumAmountCryptoHuman.andThen(minimumAmountCryptoHuman =>
-    Ok({
-      minimumCryptoHuman: minimumAmountCryptoHuman,
+    return Ok({
+      minimumCryptoHuman,
       steps: [
         {
           allowanceContract,
@@ -97,15 +94,23 @@ export async function getTradeQuote(
           buyAsset,
           sellAsset,
           accountNumber,
-          buyAmountBeforeFeesCryptoBaseUnit: quoteResponse.data.toTokenAmount,
-          sellAmountBeforeFeesCryptoBaseUnit,
+          buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
+          sellAmountBeforeFeesCryptoBaseUnit: normalizedSellAmountCryptoBaseUnit,
           feeData: {
             protocolFees: {},
-            networkFeeCryptoBaseUnit: fee,
+            networkFeeCryptoBaseUnit,
           },
           sources: DEFAULT_SOURCE,
         },
       ],
-    }),
-  )
+    })
+  } catch (err) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[OneInch: tradeQuote] - failed to get fee data',
+        cause: err,
+        code: SwapErrorType.TRADE_QUOTE_FAILED,
+      }),
+    )
+  }
 }

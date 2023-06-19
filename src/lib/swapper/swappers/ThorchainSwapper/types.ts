@@ -100,3 +100,9 @@ export type ThorTrade<C extends ChainId> =
   | UtxoThorTrade<C>
   | EvmThorTrade<C>
   | CosmosSdkThorTrade<C>
+
+export type Rates = {
+  sellAssetUsdRate: string
+  buyAssetUsdRate: string
+  feeAssetUsdRate: string
+}

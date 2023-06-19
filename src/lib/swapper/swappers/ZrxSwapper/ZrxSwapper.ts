@@ -1,5 +1,4 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
 import type {
@@ -14,7 +13,11 @@ import type {
 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { getZrxTradeQuote } from 'lib/swapper/swappers/ZrxSwapper/getZrxTradeQuote/getZrxTradeQuote'
-import type { ZrxExecuteTradeInput, ZrxTrade } from 'lib/swapper/swappers/ZrxSwapper/types'
+import type {
+  ZrxExecuteTradeInput,
+  ZrxSupportedChainId,
+  ZrxTrade,
+} from 'lib/swapper/swappers/ZrxSwapper/types'
 import {
   ZRX_SUPPORTED_CHAINIDS,
   ZRX_UNSUPPORTED_ASSETS,
@@ -26,13 +29,6 @@ import { store } from 'state/store'
 
 import { filterEvmAssetIdsBySellable } from '../utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterSameChainEvmBuyAssetsBySellAssetId } from '../utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
-
-export type ZrxSupportedChainId =
-  | KnownChainIds.EthereumMainnet
-  | KnownChainIds.AvalancheMainnet
-  | KnownChainIds.OptimismMainnet
-  | KnownChainIds.BnbSmartChainMainnet
-  | KnownChainIds.PolygonMainnet
 
 export class ZrxSwapper implements Swapper<ZrxSupportedChainId> {
   readonly name = SwapperName.Zrx

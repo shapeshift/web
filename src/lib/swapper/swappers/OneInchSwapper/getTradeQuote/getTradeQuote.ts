@@ -38,7 +38,7 @@ export async function getTradeQuote(
   const minimumCryptoHuman = getMinimumCryptoHuman()
   const minimumCryptoBaseUnit = toBaseUnit(minimumCryptoHuman, sellAsset.precision)
 
-  const normalizedSellAmount = normalizeAmount(
+  const normalizedSellAmountCryptoBaseUnit = normalizeAmount(
     bnOrZero(sellAmount).eq(0) ? minimumCryptoBaseUnit : sellAmount,
   )
 
@@ -47,7 +47,7 @@ export async function getTradeQuote(
   const params: OneInchQuoteApiInput = {
     fromTokenAddress: fromAssetId(sellAsset.assetId).assetReference,
     toTokenAddress: fromAssetId(buyAsset.assetId).assetReference,
-    amount: normalizedSellAmount,
+    amount: normalizedSellAmountCryptoBaseUnit,
     fee: buyTokenPercentageFee,
   }
 
@@ -76,10 +76,13 @@ export async function getTradeQuote(
       ...average,
       eip1559Support,
       gasLimit: quote.estimatedGas,
+      l1GasLimit: '0', // TODO: support l1 gas limit for accurate optimism estimations
     })
 
     // don't show buy amount if less than min sell amount
-    const isSellAmountBelowMinimum = bnOrZero(normalizedSellAmount).lt(minimumCryptoBaseUnit)
+    const isSellAmountBelowMinimum = bnOrZero(normalizedSellAmountCryptoBaseUnit).lt(
+      minimumCryptoBaseUnit,
+    )
     const buyAmountCryptoBaseUnit = isSellAmountBelowMinimum ? '0' : quote.toTokenAmount
 
     return Ok({
@@ -92,7 +95,7 @@ export async function getTradeQuote(
           sellAsset,
           accountNumber,
           buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
-          sellAmountBeforeFeesCryptoBaseUnit: normalizedSellAmount,
+          sellAmountBeforeFeesCryptoBaseUnit: normalizedSellAmountCryptoBaseUnit,
           feeData: {
             protocolFees: {},
             networkFeeCryptoBaseUnit,

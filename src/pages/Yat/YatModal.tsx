@@ -75,6 +75,7 @@ export const YatModal: React.FC<YatModalProps> = ({ eid }) => {
       if (!isValidYat) return
       const maybeResolvedAddress = await resolveYat({ assetId, maybeAddress: eid })
       // can return empty string
+      // TODO(0xdef1cafe): abuse the difference between null and empty string as a loading state
       if (!maybeResolvedAddress) return
       setter(maybeResolvedAddress)
     })

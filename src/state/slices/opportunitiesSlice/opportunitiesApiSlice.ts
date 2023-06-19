@@ -73,7 +73,6 @@ export const opportunitiesApi = createApi({
 
           return { data: resolved.data }
         } catch (e) {
-          console.error(e)
           const message = e instanceof Error ? e.message : 'Error getting opportunityIds'
           return {
             error: {
@@ -103,7 +102,6 @@ export const opportunitiesApi = createApi({
 
           return { data: resolved.data }
         } catch (e) {
-          console.error(e)
           const message = e instanceof Error ? e.message : 'Error getting opportunity metadata'
           return {
             error: {
@@ -141,7 +139,6 @@ export const opportunitiesApi = createApi({
 
           return { data: resolved.data }
         } catch (e) {
-          console.error(e)
           const message = e instanceof Error ? e.message : 'Error getting opportunities metadata'
           return {
             error: {
@@ -205,7 +202,6 @@ export const opportunitiesApi = createApi({
 
           return { data }
         } catch (e) {
-          console.error(e)
           const message = e instanceof Error ? e.message : 'Error getting opportunities data'
           return {
             error: {
@@ -270,7 +266,6 @@ export const opportunitiesApi = createApi({
 
           return { data }
         } catch (e) {
-          console.error(e)
           const message = e instanceof Error ? e.message : 'Error getting opportunities data'
           return {
             error: {

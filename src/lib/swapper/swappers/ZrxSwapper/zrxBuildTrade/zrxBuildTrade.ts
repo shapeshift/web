@@ -120,7 +120,7 @@ export async function zrxBuildTrade(
   } catch (err) {
     return Err(
       makeSwapErrorRight({
-        message: '[OneInch: buildTrade] - failed to get fees',
+        message: '[Zrx: buildTrade] - failed to get fees',
         cause: err,
         code: SwapErrorType.BUILD_TRADE_FAILED,
       }),

@@ -98,7 +98,7 @@ export const getAdapter = (
   if (!isEvmChainAdapter(adapter)) {
     return Err(
       makeSwapErrorRight({
-        message: '[OneInch: getAdapter] - invalid chain adapter',
+        message: '[Zrx: getAdapter] - invalid chain adapter',
         code: SwapErrorType.UNSUPPORTED_NAMESPACE,
         details: { chainId },
       }),

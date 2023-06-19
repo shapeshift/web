@@ -90,7 +90,7 @@ export const getThorTradeQuote = async (
   if (!receiveAddress) {
     return Err(
       makeSwapErrorRight({
-        message: '[buildThorTrade]: receiveAddress is required',
+        message: '[getThorTradeQuote]: receiveAddress is required',
         code: SwapErrorType.MISSING_INPUT,
       }),
     )

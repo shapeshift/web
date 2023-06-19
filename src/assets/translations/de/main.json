@@ -1281,7 +1281,6 @@
       },
       "import": {
         "header": "Importieren Sie Ihre Wallet",
-        "body": "Geben Sie Ihre geheime Wiederherstellungsphrase ein, um eine vorhandene Wallet zu importieren",
         "button": "Weiter",
         "secretRecoveryPhraseError": "Geben Sie Ihren geheimen Wiederherstellungsphrase mit einem einzelnen Leerzeichen zwischen den Wörtern ein. Lassen Sie Kommas, Returns oder zusätzliche Zeichen weg.",
         "secretRecoveryPhraseRequired": "Geheime Wiederherstellungsphrase ist erforderlich",

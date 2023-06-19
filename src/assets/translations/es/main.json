@@ -1281,7 +1281,6 @@
       },
       "import": {
         "header": "Importa tu billetera",
-        "body": "Ingrese frase de recuperación secreta para importar billetera ",
         "button": "Siguiente",
         "secretRecoveryPhraseError": "Ingrese su frase de recuperación secreta con un solo espacio entre palabras. Omita comas, retornos o carácter adicional.",
         "secretRecoveryPhraseRequired": "Frase de Recuperación Secreta requerida",

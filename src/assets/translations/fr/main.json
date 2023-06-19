@@ -1281,7 +1281,6 @@
       },
       "import": {
         "header": "Importer votre porte-monnaie",
-        "body": "Entrez votre phrase secrète de récupération pour importer un porte-monnaie existant",
         "button": "Suivant",
         "secretRecoveryPhraseError": "Saisissez votre phrase secrète de récupération en laissant un seul espace entre les mots. Omettez les virgules, les retours à la ligne ou tout autre caractère supplémentaire.",
         "secretRecoveryPhraseRequired": "La phrase secrète de récupération est requise",

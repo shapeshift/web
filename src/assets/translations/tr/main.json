@@ -1281,7 +1281,6 @@
       },
       "import": {
         "header": "Cüzdanınızı içe aktarın",
-        "body": "Mevcut bir cüzdanı içe aktarmak için Gizli Kurtarma İfadenizi girin",
         "button": "Sonraki",
         "secretRecoveryPhraseError": "Kelimeler arasında tek bir boşluk bırakarak Gizli Kurtarma İfadenizi girin. Virgülleri, dönüşleri veya ek karakterleri atlayın.",
         "secretRecoveryPhraseRequired": "Gizli Kurtarma İfadesi gereklidir",

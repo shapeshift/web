@@ -1281,7 +1281,6 @@
       },
       "import": {
         "header": "Importe sua carteira",
-        "body": "Digite sua Frase Secreta de Recuperação para importar uma carteira existente",
         "button": "Avançar",
         "secretRecoveryPhraseError": "Digite sua Frase Secreta de Recuperação com um único espaço entre as palavras. Não utilize vírgulas ou caracteres adicionais.",
         "secretRecoveryPhraseRequired": "A Frase Secreta de Recuperação é obrigatória",

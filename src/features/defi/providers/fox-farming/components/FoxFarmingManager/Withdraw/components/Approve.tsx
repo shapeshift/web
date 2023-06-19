@@ -38,7 +38,7 @@ import { WithdrawContext } from '../WithdrawContext'
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
-  const poll = usePoll()
+  const { poll } = usePoll()
   const { state, dispatch } = useContext(WithdrawContext)
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()

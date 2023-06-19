@@ -20,13 +20,14 @@ import {
   selectSellAsset,
   selectSellAssetAccountId,
 } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
-
-import { getInputOutputRatioFromQuote } from '../helpers'
+import { selectInputOutputRatio } from 'state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 export const useGetTradeQuotes = () => {
   const flags = useAppSelector(selectFeatureFlags)
   const wallet = useWallet().state.wallet
+  const dispatch = useAppDispatch()
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
@@ -104,25 +105,25 @@ export const useGetTradeQuotes = () => {
       },
     ].map(result => {
       const quote = result.data && result.data.isOk() ? result.data.unwrap() : undefined
-      const inputOutputRatio = quote
-        ? getInputOutputRatioFromQuote({
-            quote,
-            swapperName: result.swapperName,
-          })
-        : -Infinity
+      const error = result.data && result.data.isErr() ? result.data.unwrapErr() : undefined
+      dispatch(tradeQuoteSlice.actions.setSwapperName(result.swapperName))
+      dispatch(tradeQuoteSlice.actions.setQuote(quote))
+      dispatch(tradeQuoteSlice.actions.setError(error))
+      const inputOutputRatio = selectInputOutputRatio(store.getState())
 
       return Object.assign(result, { inputOutputRatio })
     })
 
     return orderBy(results, ['inputOutputRatio', 'swapperName'], ['asc', 'asc'])
   }, [
-    lifiQuery.data,
-    lifiQuery.error,
-    lifiQuery.isFetching,
+    debouncedTradeQuoteInput,
+    thorQuery.isFetching,
     thorQuery.data,
     thorQuery.error,
-    thorQuery.isFetching,
-    debouncedTradeQuoteInput,
+    lifiQuery.isFetching,
+    lifiQuery.data,
+    lifiQuery.error,
+    dispatch,
   ])
   return {
     sortedQuotes,

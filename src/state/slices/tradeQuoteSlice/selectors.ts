@@ -1,4 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
+import { getInputOutputRatioFromQuote } from 'components/MultiHopTrade/helpers'
 import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
@@ -40,4 +41,11 @@ export const selectSwapperSupportsCrossAccountTrade = createSelector(
         assertUnreachable(selectedSwapperName)
     }
   },
+)
+
+export const selectInputOutputRatio = createSelector(
+  selectSelectedQuote,
+  selectSelectedSwapperName,
+  (quote, swapperName) =>
+    quote && swapperName ? getInputOutputRatioFromQuote({ quote, swapperName }) : -Infinity,
 )

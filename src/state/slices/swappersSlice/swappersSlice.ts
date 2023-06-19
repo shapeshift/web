@@ -10,7 +10,6 @@ import { defaultAsset } from '../assetsSlice/assetsSlice'
 import { MultiHopExecutionStatus } from './types'
 
 export type SwappersState = {
-  // selectedQuote: SwapperName | undefined
   buyAsset: Asset
   sellAsset: Asset
   sellAssetAccountId: AccountId | undefined

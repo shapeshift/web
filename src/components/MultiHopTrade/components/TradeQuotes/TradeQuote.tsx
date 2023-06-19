@@ -89,15 +89,16 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
 
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
+  const quote = quoteData?.data?.isOk() ? quoteData.data.unwrap() : undefined
+
   const handleQuoteSelection = useCallback(() => {
     dispatch(tradeQuoteSlice.actions.setSwapperName(quoteData.swapperName))
-  }, [dispatch, quoteData.swapperName])
+    dispatch(tradeQuoteSlice.actions.setQuote(quote))
+  }, [dispatch, quote, quoteData.swapperName])
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset?.chainId ?? ''))
   if (!feeAsset)
     throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset?.chainId}!`)
-
-  const quote = quoteData?.data?.isOk() ? quoteData.data.unwrap() : undefined
 
   const networkFeeFiatPrecision = useMemo(
     () => (quote ? getTotalNetworkFeeFiatPrecision(quote) : '0'),

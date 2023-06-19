@@ -1,10 +1,11 @@
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { ChainAdapter, SignTx, UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { Ok } from '@sniptt/monads/build'
-import { Err } from '@sniptt/monads/build/result/result'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { Swapper3, TradeQuote } from 'lib/swapper/api'
+import type { SwapErrorRight, Swapper3, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
@@ -26,7 +27,7 @@ export const thorchain: Swapper3 = {
     wallet: HDWallet,
     chainId: ThorChainId,
     accountMetadata: AccountMetadata,
-  ) => {
+  ): Promise<Result<SignTx<KnownChainIds>, SwapErrorRight>> => {
     const chainAdapterManager = getChainAdapterManager()
     const adapter = chainAdapterManager.get(chainId) as ChainAdapter<ThorChainId>
     if (!adapter) throw new Error(`No adapter for ChainId: ${chainId}`)
@@ -102,12 +103,41 @@ export const thorchain: Swapper3 = {
         )
       }
     } catch (e) {
-      if (e instanceof SwapError) throw e
-      throw new SwapError('[executeTrade]: failed to sign or broadcast', {
-        code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
-        cause: e,
-      })
+      return Err(
+        makeSwapErrorRight({
+          message: '[executeTrade]: failed to sign or broadcast',
+          cause: e,
+          code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
+        }),
+      )
     }
   },
-  executeTrade: async ({ txToExecute, wallet }) => {},
+  executeTrade: async ({ txToExecute, wallet, chainId }) => {
+    const adapterManager = getChainAdapterManager()
+    const adapter = adapterManager.get(chainId) as ChainAdapter<ThorChainId>
+
+    if (wallet.supportsOfflineSigning()) {
+      const signedTx = await adapter.signTransaction({ txToSign: txToExecute, wallet })
+
+      const txid = await adapter.broadcastTransaction(signedTx)
+
+      return Ok(txid)
+    }
+
+    if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
+      const txid = await adapter.signAndBroadcastTransaction?.({
+        txToSign: txToExecute,
+        wallet,
+      })
+
+      return Ok(txid)
+    }
+
+    return Err(
+      makeSwapErrorRight({
+        message: '[executeTrade] - sign and broadcast failed',
+        code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
+      }),
+    )
+  },
 }

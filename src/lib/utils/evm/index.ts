@@ -23,7 +23,7 @@ type BroadcastArgs = {
   wallet: HDWallet
 }
 
-type BuildAndBroadcastArgs = BuildArgs & Omit<BroadcastArgs, 'txToSign'>
+type BuildAndBroadcastArgs = BuildArgs & Omit<BroadcastArgs, 'txToSign' | 'wallet'>
 
 type CreateBuildCustomTxInputArgs = {
   accountNumber: number
@@ -119,11 +119,8 @@ export const createBuildCustomTxInput = async (
   return { ...args, ...fees }
 }
 
-export const buildAndBroadcast = async ({
-  adapter,
-  buildCustomTxInput,
-  wallet,
-}: BuildAndBroadcastArgs) => {
+export const buildAndBroadcast = async ({ adapter, buildCustomTxInput }: BuildAndBroadcastArgs) => {
+  const { wallet } = buildCustomTxInput
   const { txToSign } = await adapter.buildCustomTx(buildCustomTxInput)
   return broadcast({ adapter, txToSign, wallet })
 }

@@ -1,5 +1,10 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  CosmosSdkChainId,
+  EvmChainId,
+  SignTx,
+  UtxoChainId,
+} from '@shapeshiftoss/chain-adapters'
 import { createErrorClass } from '@shapeshiftoss/errors'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type {
@@ -11,6 +16,7 @@ import type {
 import type { Result } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
 import type { RequireFields } from 'lib/types'
+import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export const SwapError = createErrorClass('SwapError')
 
@@ -287,7 +293,9 @@ export type Swapper3 = {
     wallet: HDWallet,
     // Similarly, this is for backwards compatibility. Do we want to only return the unsigned Tx, without the additional data here?
     // This is very hdwallet/chain-adapters specific, and won't catter to the needs of consumers
-  ): Promise<Result<ETHSignTx, SwapErrorRight>>
+    chainId?: ChainId,
+    accountMetadata?: AccountMetadata,
+  ): Promise<Result<SignTx<ChainId>, SwapErrorRight>>
   executeTrade(executeTradeArgs: {
     txToExecute: ETHSignTx
     wallet: HDWallet

@@ -162,12 +162,15 @@ export const mockStore: ReduxState = {
     },
   },
   swappers: {
-    selectedQuote: undefined,
     buyAsset: defaultAsset,
     sellAsset: defaultAsset,
     sellAssetAccountId: undefined,
     receiveAddress: undefined,
     sellAmountCryptoPrecision: '0',
     tradeExecutionStatus: MultiHopExecutionStatus.Unknown,
+  },
+  tradeQuoteSlice: {
+    swapperName: undefined,
+    quote: undefined,
   },
 }

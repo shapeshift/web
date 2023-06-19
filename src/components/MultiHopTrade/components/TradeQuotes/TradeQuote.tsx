@@ -16,7 +16,7 @@ import {
   selectSellAmountCryptoPrecision,
   selectSellAsset,
 } from 'state/slices/selectors'
-import { swappers } from 'state/slices/swappersSlice/swappersSlice'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { getNetReceiveAmountCryptoPrecision, getTotalNetworkFeeFiatPrecision } from '../../helpers'
@@ -90,7 +90,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
   const handleQuoteSelection = useCallback(() => {
-    dispatch(swappers.actions.setSelectedQuote(quoteData.swapperName))
+    dispatch(tradeQuoteSlice.actions.setSwapperName(quoteData.swapperName))
   }, [dispatch, quoteData.swapperName])
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset?.chainId ?? ''))

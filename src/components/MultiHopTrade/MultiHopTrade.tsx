@@ -29,12 +29,9 @@ import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { fromBaseUnit } from 'lib/math'
-import {
-  selectBuyAsset,
-  selectSellAsset,
-  selectSwapperSupportsCrossAccountTrade,
-} from 'state/slices/selectors'
+import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
+import { selectSwapperSupportsCrossAccountTrade } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 

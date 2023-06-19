@@ -2,6 +2,7 @@ import { combineReducers } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import { persistReducer } from 'redux-persist'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { abiApi } from './apis/abi/abiApi'
 import { covalentApi } from './apis/covalent/covalentApi'
@@ -29,6 +30,7 @@ export const slices = {
   opportunities,
   nft,
   swappers,
+  tradeQuoteSlice,
 }
 
 const preferencesPersistConfig = {
@@ -47,6 +49,7 @@ export const sliceReducers = {
   swappers: swappers.reducer,
   opportunities: opportunities.reducer,
   nft: nft.reducer,
+  tradeQuoteSlice: tradeQuoteSlice.reducer,
 }
 
 export const apiSlices = {
@@ -82,6 +85,7 @@ export const apiReducers = {
   [zapper.reducerPath]: zapper.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
+  [zerionApi.reducerPath]: zerionApi.reducer,
   [zerionApi.reducerPath]: zerionApi.reducer,
 }
 

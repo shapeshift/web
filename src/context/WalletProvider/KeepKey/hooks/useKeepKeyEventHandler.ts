@@ -25,7 +25,7 @@ export const useKeepKeyEventHandler = (
 
   const toast = useToast()
   const translate = useTranslate()
-  const { poll } = usePoll()
+  const poll = usePoll()
 
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {

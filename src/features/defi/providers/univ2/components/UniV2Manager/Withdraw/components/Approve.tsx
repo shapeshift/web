@@ -43,7 +43,7 @@ type UniV2ApproveProps = StepComponentProps & {
 }
 
 export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
-  const { poll } = usePoll()
+  const poll = usePoll()
   const { state, dispatch } = useContext(WithdrawContext)
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()

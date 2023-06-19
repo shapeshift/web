@@ -288,5 +288,9 @@ export type Swapper3 = {
     // Similarly, this is for backwards compatibility. Do we want to only return the unsigned Tx, without the additional data here?
     // This is very hdwallet/chain-adapters specific, and won't catter to the needs of consumers
   ): Promise<Result<ETHSignTx, SwapErrorRight>>
-  executeTrade(executeTradeArgs: { txToExecute: string; wallet: HDWallet }): string
+  executeTrade(executeTradeArgs: {
+    txToExecute: ETHSignTx
+    wallet: HDWallet
+    chainId: ChainId
+  }): Promise<Result<string, SwapErrorRight>>
 }

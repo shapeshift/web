@@ -1,4 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
@@ -84,4 +86,41 @@ export const selectTotalNetworkFeeFiatPrecision = createSelector(selectSelectedQ
 export const selectTotalProtocolFeeByAsset = createDeepEqualOutputSelector(
   selectSelectedQuote,
   quote => (quote ? getTotalProtocolFeeByAsset(quote) : undefined),
+)
+
+export const selectFirstHop = createSelector(selectSelectedQuote, quote =>
+  quote ? quote.steps[0] : undefined,
+)
+
+export const selectLastHop = createSelector(selectSelectedQuote, quote =>
+  quote ? quote.steps[quote.steps.length - 1] : undefined,
+)
+
+export const selectFirstHopSellAsset = createSelector(selectFirstHop, firstHop =>
+  firstHop ? firstHop.sellAsset : undefined,
+)
+
+export const selectFirstHopBuyAsset = createSelector(selectFirstHop, firstHop =>
+  firstHop ? firstHop.buyAsset : undefined,
+)
+
+export const selectLastHopSellAsset = createSelector(selectLastHop, lastHop =>
+  lastHop ? lastHop.sellAsset : undefined,
+)
+
+export const selectLastHopBuyAsset = createSelector(selectLastHop, lastHop =>
+  lastHop ? lastHop.buyAsset : undefined,
+)
+
+export const selectSellAmountCryptoBaseUnit = createSelector(selectFirstHop, firstHop =>
+  firstHop ? firstHop.sellAmountBeforeFeesCryptoBaseUnit : undefined,
+)
+
+export const selectSellAmountCryptoPrecision = createSelector(
+  selectFirstHopSellAsset,
+  selectSellAmountCryptoBaseUnit,
+  (firstHopSellAsset, sellAmountCryptoBaseUnit) =>
+    firstHopSellAsset
+      ? fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit), firstHopSellAsset?.precision)
+      : undefined,
 )

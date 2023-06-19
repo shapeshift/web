@@ -9,22 +9,27 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/common-selectors'
+import {
+  selectFirstHop,
+  selectFirstHopBuyAsset,
+  selectFirstHopSellAsset,
+  selectLastHop,
+  selectLastHopBuyAsset,
+  selectLastHopSellAsset,
+  selectSellAmountCryptoPrecision,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useHopHelper = () => {
   const { selectedQuote } = useGetTradeQuotes()
-  const quoteData = useMemo(
-    () => (selectedQuote?.data?.isOk() ? selectedQuote.data.unwrap() : undefined),
-    [selectedQuote?.data],
-  )
 
-  const firstHop = useMemo(() => quoteData?.steps[0], [quoteData?.steps])
-  const lastHop = useMemo(() => quoteData?.steps[quoteData.steps.length - 1], [quoteData?.steps])
-
-  const firstHopSellAsset = useMemo(() => firstHop?.sellAsset, [firstHop?.sellAsset])
-  const firstHopBuyAsset = useMemo(() => firstHop?.buyAsset, [firstHop?.buyAsset])
-  const lastHopSellAsset = useMemo(() => lastHop?.sellAsset, [lastHop?.sellAsset])
-  const lastHopBuyAsset = useMemo(() => lastHop?.buyAsset, [lastHop?.buyAsset])
+  const firstHop = useAppSelector(selectFirstHop)
+  const lastHop = useAppSelector(selectLastHop)
+  const firstHopSellAsset = useAppSelector(selectFirstHopSellAsset)
+  const firstHopBuyAsset = useAppSelector(selectFirstHopBuyAsset)
+  const lastHopSellAsset = useAppSelector(selectLastHopSellAsset)
+  const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
+  const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
   const { sellAssetAccountId: firstHopSellAssetAccountId } = useAccountIds({
     buyAsset: firstHopBuyAsset,
@@ -71,19 +76,6 @@ export const useHopHelper = () => {
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, sellAssetBalanceFilter),
   )
 
-  const sellAmountCryptoBaseUnit = useMemo(
-    () => firstHop?.sellAmountBeforeFeesCryptoBaseUnit,
-    [firstHop?.sellAmountBeforeFeesCryptoBaseUnit],
-  )
-
-  const sellAmountCryptoPrecision = useMemo(
-    () =>
-      firstHopSellAsset
-        ? fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit), firstHopSellAsset?.precision)
-        : undefined,
-    [firstHopSellAsset, sellAmountCryptoBaseUnit],
-  )
-
   // when trading from fee asset, the value of TX in fee asset is deducted
   const firstHopTradeDeductionCryptoPrecision =
     firstHopSellFeeAsset?.assetId === firstHopSellAsset?.assetId
@@ -122,7 +114,6 @@ export const useHopHelper = () => {
 
   return {
     sellAssetBalanceCryptoBaseUnit,
-    sellAmountCryptoBaseUnit,
     firstHopFeeAssetBalancePrecision,
     firstHopNetworkFeeCryptoPrecision,
     firstHopTradeDeductionCryptoPrecision,

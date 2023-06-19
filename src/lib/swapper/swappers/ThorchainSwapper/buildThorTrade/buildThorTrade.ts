@@ -1,16 +1,12 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkBaseAdapter, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { UtxoAccountType } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type {
-  BuildTradeInput,
-  GetUtxoTradeQuoteInput,
-  QuoteFeeData,
-  SwapErrorRight,
-  TradeQuote,
-} from 'lib/swapper/api'
+import type { BuildTradeInput, QuoteFeeData, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { getCosmosTxData } from 'lib/swapper/swappers/ThorchainSwapper/cosmossdk/getCosmosTxData'
 import { makeTradeTx } from 'lib/swapper/swappers/ThorchainSwapper/evm/makeTradeTx'
@@ -33,16 +29,51 @@ export const buildTrade = async (
     feeAssetUsdRate,
   }: { sellAssetUsdRate: string; buyAssetUsdRate: string; feeAssetUsdRate: string },
 ): Promise<Result<ThorTrade<ChainId>, SwapErrorRight>> => {
+  const maybeQuote = await getThorTradeQuote(input, {
+    sellAssetUsdRate,
+    buyAssetUsdRate,
+    feeAssetUsdRate,
+  })
+
+  if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
+
+  const tradeQuote = maybeQuote.unwrap()
+
+  return buildTradeFromQuote({
+    ...input,
+    tradeQuote,
+    buyAssetUsdRate,
+    feeAssetUsdRate,
+  })
+}
+
+export const buildTradeFromQuote = async ({
+  tradeQuote: quote,
+  wallet,
+  receiveAddress: destinationAddress,
+  affiliateBps = '0',
+  xpub,
+  accountType,
+  buyAssetUsdRate,
+  feeAssetUsdRate,
+}: {
+  tradeQuote: TradeQuote<ChainId>
+  wallet: HDWallet
+  receiveAddress: string
+  affiliateBps?: string
+  xpub?: string
+  accountType?: UtxoAccountType
+  buyAssetUsdRate: string
+  feeAssetUsdRate: string
+}): Promise<Result<ThorTrade<ChainId>, SwapErrorRight>> => {
+  const { recommendedSlippage: slippageTolerance = DEFAULT_SLIPPAGE } = quote
+
   const {
     buyAsset,
-    receiveAddress: destinationAddress,
     sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
     sellAsset,
     accountNumber,
-    slippage: slippageTolerance = DEFAULT_SLIPPAGE,
-    wallet,
-    affiliateBps = '0',
-  } = input
+  } = quote.steps[0]
 
   const chainAdapterManager = getChainAdapterManager()
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
@@ -56,16 +87,6 @@ export const buildTrade = async (
         details: { sellAsset },
       }),
     )
-
-  const maybeQuote = await getThorTradeQuote(input, {
-    sellAssetUsdRate,
-    buyAssetUsdRate,
-    feeAssetUsdRate,
-  })
-
-  if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
-
-  const quote = maybeQuote.unwrap()
 
   // A THORChain quote can be gotten without a destinationAddress, but a trade cannot be built without one.
   if (!destinationAddress)
@@ -101,13 +122,21 @@ export const buildTrade = async (
       }),
     )
   } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
+    if (!xpub || !accountType)
+      return Err(
+        makeSwapErrorRight({
+          message: '[buildThorTrade]: missing utxo specific parameters',
+          code: SwapErrorType.MISSING_INPUT,
+        }),
+      )
+
     const maybeThorTxInfo = await getThorTxInfo({
       sellAsset,
       buyAsset,
       sellAmountCryptoBaseUnit,
       slippageTolerance,
       destinationAddress,
-      xpub: (input as GetUtxoTradeQuoteInput).xpub,
+      xpub,
       protocolFees: quote.steps[0].feeData.protocolFees,
       affiliateBps,
       buyAssetUsdRate,
@@ -125,7 +154,7 @@ export const buildTrade = async (
       to: vault,
       accountNumber,
       chainSpecific: {
-        accountType: (input as GetUtxoTradeQuoteInput).accountType,
+        accountType,
         satoshiPerByte: (quote as TradeQuote<ThorUtxoSupportedChainId>).steps[0].feeData
           .chainSpecific.satsPerByte,
         opReturnData,
@@ -145,7 +174,7 @@ export const buildTrade = async (
       sellAmountCryptoBaseUnit,
       sellAsset,
       slippageTolerance,
-      chainId: input.chainId,
+      chainId: sellAsset.chainId,
       buyAsset,
       wallet,
       destinationAddress,

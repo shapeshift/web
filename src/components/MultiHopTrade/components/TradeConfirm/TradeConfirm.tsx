@@ -23,10 +23,6 @@ import { useCallback, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
-import {
-  getHopTotalNetworkFeeFiatPrecision,
-  getHopTotalProtocolFeesFiatPrecision,
-} from 'components/MultiHopTrade/helpers'
 import { useIsApprovalNeeded } from 'components/MultiHopTrade/hooks/useIsApprovalNeeded'
 import type { StepperStep } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
@@ -41,6 +37,10 @@ import { assertUnreachable, isSome } from 'lib/utils'
 import { selectFeeAssetById, selectTradeExecutionStatus } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
+import {
+  selectHopTotalNetworkFeeFiatPrecision,
+  selectHopTotalProtocolFeesFiatPrecision,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../SwapperIcon/SwapperIcon'
@@ -346,23 +346,16 @@ const FirstHop = ({
     [swapperName, tradeQuote.recommendedSlippage],
   )
 
-  const networkFeeFiatPrecision = useMemo(
-    () => getHopTotalNetworkFeeFiatPrecision(tradeQuoteStep),
-    [tradeQuoteStep],
-  )
-
-  const protocolFeeFiatPrecision = useMemo(
-    () => getHopTotalProtocolFeesFiatPrecision(tradeQuoteStep),
-    [tradeQuoteStep],
-  )
+  const networkFeeFiatPrecision = selectHopTotalNetworkFeeFiatPrecision(store.getState(), 1)
+  const protocolFeeFiatPrecision = selectHopTotalProtocolFeesFiatPrecision(store.getState(), 1)
 
   return (
     <Hop
       steps={steps}
       activeStep={activeStep}
       slippageDecimalPercentage={slippageDecimalPercentage}
-      networkFeeFiatPrecision={networkFeeFiatPrecision}
-      protocolFeeFiatPrecision={protocolFeeFiatPrecision}
+      networkFeeFiatPrecision={networkFeeFiatPrecision ?? '0'}
+      protocolFeeFiatPrecision={protocolFeeFiatPrecision ?? '0'}
     />
   )
 }
@@ -499,23 +492,16 @@ const SecondHop = ({
     [swapperName, tradeQuote.recommendedSlippage],
   )
 
-  const networkFeeFiatPrecision = useMemo(
-    () => getHopTotalNetworkFeeFiatPrecision(tradeQuoteStep),
-    [tradeQuoteStep],
-  )
-
-  const protocolFeeFiatPrecision = useMemo(
-    () => getHopTotalProtocolFeesFiatPrecision(tradeQuoteStep),
-    [tradeQuoteStep],
-  )
+  const networkFeeFiatPrecision = selectHopTotalNetworkFeeFiatPrecision(store.getState(), 2)
+  const protocolFeeFiatPrecision = selectHopTotalProtocolFeesFiatPrecision(store.getState(), 2)
 
   return (
     <Hop
       steps={steps}
       activeStep={activeStep}
       slippageDecimalPercentage={slippageDecimalPercentage}
-      networkFeeFiatPrecision={networkFeeFiatPrecision}
-      protocolFeeFiatPrecision={protocolFeeFiatPrecision}
+      networkFeeFiatPrecision={networkFeeFiatPrecision ?? '0'}
+      protocolFeeFiatPrecision={protocolFeeFiatPrecision ?? '0'}
     />
   )
 }

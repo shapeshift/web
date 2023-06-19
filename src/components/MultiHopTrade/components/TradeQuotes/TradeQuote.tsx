@@ -16,10 +16,13 @@ import {
   selectSellAmountCryptoPrecision,
   selectSellAsset,
 } from 'state/slices/selectors'
+import {
+  selectNetReceiveAmountCryptoPrecision,
+  selectTotalNetworkFeeFiatPrecision,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { getNetReceiveAmountCryptoPrecision, getTotalNetworkFeeFiatPrecision } from '../../helpers'
 import { SwapperIcon } from '../SwapperIcon/SwapperIcon'
 
 const TradeQuoteLoading = () => {
@@ -88,6 +91,8 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const sellAsset = useAppSelector(selectSellAsset)
 
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
+  const networkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeFiatPrecision)
+  const totalReceiveAmountCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
 
   const quote = quoteData?.data?.isOk() ? quoteData.data.unwrap() : undefined
 
@@ -99,22 +104,6 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset?.chainId ?? ''))
   if (!feeAsset)
     throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset?.chainId}!`)
-
-  const networkFeeFiatPrecision = useMemo(
-    () => (quote ? getTotalNetworkFeeFiatPrecision(quote) : '0'),
-    [quote],
-  )
-
-  const totalReceiveAmountCryptoPrecision = useMemo(
-    () =>
-      quote
-        ? getNetReceiveAmountCryptoPrecision({
-            quote,
-            swapperName: quoteData.swapperName,
-          })
-        : '0',
-    [quote, quoteData.swapperName],
-  )
 
   const quoteDifferenceDecimalPercentage = quoteData.inputOutputRatio / bestInputOutputRatio - 1
 
@@ -189,7 +178,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
             !isAmountEntered && quoteData.swapperName === SwapperName.OneInch ? (
               translate('trade.unknownGas')
             ) : (
-              <Amount.Fiat value={networkFeeFiatPrecision} />
+              <Amount.Fiat value={networkFeeFiatPrecision ?? '0'} />
             )
           }
         </Flex>

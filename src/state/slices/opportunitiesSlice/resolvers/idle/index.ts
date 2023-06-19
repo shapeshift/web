@@ -11,7 +11,6 @@ import type {
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
   OpportunitiesState,
-  OpportunityId,
   OpportunityMetadata,
   StakingId,
 } from '../../types'
@@ -22,7 +21,6 @@ import type {
   OpportunitiesUserDataResolverInput,
   OpportunityIdsResolverInput,
 } from '../types'
-import { BASE_OPPORTUNITIES_BY_ID } from './constants'
 import { getIdleInvestor } from './idleInvestorSingleton'
 
 export const idleStakingOpportunitiesMetadataResolver = async ({
@@ -54,12 +52,7 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
   }
   if (!opportunities?.length) {
     const data = {
-      byId: Object.fromEntries(
-        Object.entries(BASE_OPPORTUNITIES_BY_ID).map(([opportunityId, opportunityMetadata]) => [
-          opportunityId,
-          { ...opportunityMetadata, apy: '0', tvl: '0' },
-        ]),
-      ),
+      byId: {},
       type: defiType,
     } as const
 
@@ -92,53 +85,31 @@ export const idleStakingOpportunitiesMetadataResolver = async ({
       return []
     })) as AssetIdsTuple
 
-    const baseOpportunity = BASE_OPPORTUNITIES_BY_ID[opportunityId]
-    if (!baseOpportunity) {
-      console.warn(`
-        No base opportunity found for ${opportunityId} in BASE_OPPORTUNITIES_BY_ID, refetching.
-        Add me to avoid re-fetching from the contract.
-        `)
+    stakingOpportunitiesById[opportunityId] = {
+      active: opportunity.active,
+      apy: opportunity.apy.toFixed(),
+      assetId,
+      cdoAddress: opportunity.metadata.cdoAddress,
+      id: opportunityId,
+      provider: DefiProvider.Idle,
+      tvl: opportunity.tvl.balance.toFixed(),
+      type: DefiType.Staking,
+      underlyingAssetId: assetId,
+      underlyingAssetIds: [opportunity.underlyingAsset.assetId],
+      rewardAssetIds,
+      isClaimableRewards: Boolean(rewardAssetIds.length),
+      // Idle opportunities wrap a single yield-bearing asset, so in terms of ratio will always be "100%" of the pool
+      // However, since the ratio is used to calculate the underlying amounts, it needs to be greater than 1
+      // As 1 Idle token wraps ~1.0x* underlying
+      underlyingAssetRatiosBaseUnit: [
+        opportunity.positionAsset.underlyingPerPosition
+          .times(bn(10).pow(underlyingAsset.precision))
+          .toFixed(),
+      ],
+      name: `${underlyingAsset.symbol} Vault`,
+      version: opportunity.version,
+      tags: [opportunity.strategy],
     }
-    // If we have snapshotted opportunity metadata, all we need is to slap APY and TVL in
-    // Else, let's populate this opportunity from the fetched one and slap the rewardAssetId
-    stakingOpportunitiesById[opportunityId] = baseOpportunity
-      ? {
-          ...baseOpportunity,
-          cdoAddress: opportunity.metadata.cdoAddress,
-          apy: opportunity.apy.toFixed(),
-          tvl: opportunity.tvl.balanceUsdc.toFixed(),
-          name: `${underlyingAsset.symbol} Vault`,
-          version: opportunity.version,
-          provider: DefiProvider.Idle,
-          type: DefiType.Staking,
-          tags: [opportunity.strategy],
-          active: opportunity.active,
-        }
-      : {
-          active: opportunity.active,
-          apy: opportunity.apy.toFixed(),
-          assetId,
-          cdoAddress: opportunity.metadata.cdoAddress,
-          id: opportunityId,
-          provider: DefiProvider.Idle,
-          tvl: opportunity.tvl.balance.toFixed(),
-          type: DefiType.Staking,
-          underlyingAssetId: assetId,
-          underlyingAssetIds: [opportunity.underlyingAsset.assetId],
-          rewardAssetIds,
-          isClaimableRewards: Boolean(rewardAssetIds.length),
-          // Idle opportunities wrap a single yield-bearing asset, so in terms of ratio will always be "100%" of the pool
-          // However, since the ratio is used to calculate the underlying amounts, it needs to be greater than 1
-          // As 1 Idle token wraps ~1.0x* underlying
-          underlyingAssetRatiosBaseUnit: [
-            opportunity.positionAsset.underlyingPerPosition
-              .times(bn(10).pow(underlyingAsset.precision))
-              .toFixed(),
-          ],
-          name: `${underlyingAsset.symbol} Vault`,
-          version: opportunity.version,
-          tags: [opportunity.strategy],
-        }
   }
 
   const data = {
@@ -272,7 +243,7 @@ export const idleStakingOpportunityIdsResolver = async ({
 
   if (!opportunities?.length) {
     return {
-      data: Object.keys(BASE_OPPORTUNITIES_BY_ID) as OpportunityId[],
+      data: [],
     }
   }
 

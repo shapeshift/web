@@ -1,5 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type {
+  ChainSignTx,
   CosmosSdkChainId,
   EvmChainId,
   SignTx,
@@ -295,7 +296,7 @@ export type Swapper3 = {
     // This is very hdwallet/chain-adapters specific, and won't catter to the needs of consumers
     chainId?: ChainId,
     accountMetadata?: AccountMetadata,
-  ): Promise<Result<SignTx<ChainId>, SwapErrorRight>>
+  ): Promise<Result<SignTx<keyof ChainSignTx>, SwapErrorRight>>
   executeTrade(executeTradeArgs: {
     txToExecute: ETHSignTx
     wallet: HDWallet

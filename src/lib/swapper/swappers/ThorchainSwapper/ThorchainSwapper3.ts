@@ -1,7 +1,11 @@
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
-import type { ChainAdapter, SignTx, UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type {
+  ChainAdapter,
+  ChainSignTx,
+  SignTx,
+  UtxoChainAdapter,
+} from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -27,7 +31,7 @@ export const thorchain: Swapper3 = {
     wallet: HDWallet,
     chainId: ThorChainId,
     accountMetadata: AccountMetadata,
-  ): Promise<Result<SignTx<KnownChainIds>, SwapErrorRight>> => {
+  ): Promise<Result<SignTx<keyof ChainSignTx>, SwapErrorRight>> => {
     const chainAdapterManager = getChainAdapterManager()
     const adapter = chainAdapterManager.get(chainId) as ChainAdapter<ThorChainId>
     if (!adapter) throw new Error(`No adapter for ChainId: ${chainId}`)

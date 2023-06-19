@@ -1,4 +1,3 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 
@@ -27,7 +26,7 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => {
     return {
       get: () => ({
-        getChainId: () => KnownChainIds.EthereumMainnet,
+        getChainId: () => 'eip155:1',
         getGasFeeData: () => ({
           average: { gasPrice: averageGasPrice },
         }),

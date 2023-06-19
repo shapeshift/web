@@ -86,7 +86,6 @@ export const apiReducers = {
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
   [zerionApi.reducerPath]: zerionApi.reducer,
-  [zerionApi.reducerPath]: zerionApi.reducer,
 }
 
 export const reducer = combineReducers({ ...sliceReducers, ...apiReducers })

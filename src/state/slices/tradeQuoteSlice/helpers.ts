@@ -20,7 +20,7 @@ const _getHopTotalNetworkFeeFiatPrecision = (
   getFeeAssetRate: (feeAssetId: AssetId) => string,
 ): BigNumber => {
   // TODO(woodenfurniture): handle osmo swapper crazy netowrk fee logic here
-  const feeAsset = selectFeeAssetById(store.getState(), tradeQuoteStep.sellAsset.assetId)
+  const feeAsset = selectFeeAssetById(store.getState(), tradeQuoteStep?.sellAsset.assetId)
 
   if (feeAsset === undefined)
     throw Error(`missing fee asset for assetId ${tradeQuoteStep.sellAsset.assetId}`)
@@ -84,7 +84,6 @@ const _getTotalNetworkFeeFiatPrecision = (
 ): BigNumber =>
   quote.steps.reduce((acc, step) => {
     const networkFeeFiatPrecision = _getHopTotalNetworkFeeFiatPrecision(step, getFeeAssetRate)
-
     return acc.plus(networkFeeFiatPrecision)
   }, bn(0))
 

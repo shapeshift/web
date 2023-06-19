@@ -104,13 +104,7 @@ export const useGetTradeQuotes = () => {
         swapperName: SwapperName.LIFI,
       },
     ].map(result => {
-      const quote = result.data && result.data.isOk() ? result.data.unwrap() : undefined
-      const error = result.data && result.data.isErr() ? result.data.unwrapErr() : undefined
-      dispatch(tradeQuoteSlice.actions.setSwapperName(result.swapperName))
-      dispatch(tradeQuoteSlice.actions.setQuote(quote))
-      dispatch(tradeQuoteSlice.actions.setError(error))
       const inputOutputRatio = selectInputOutputRatio(store.getState())
-
       return Object.assign(result, { inputOutputRatio })
     })
 

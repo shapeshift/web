@@ -60,13 +60,17 @@ export const selectInputOutputRatio = createSelector(
 export const selectHopTotalProtocolFeesFiatPrecision = createSelector(
   selectSelectedQuote,
   (_state: ReduxState, step: 1 | 2) => step,
-  (quote, step) => (quote ? getHopTotalProtocolFeesFiatPrecision(quote.steps[step]) : undefined),
+  (quote, step) =>
+    quote && quote.steps[step]
+      ? getHopTotalProtocolFeesFiatPrecision(quote.steps[step])
+      : undefined,
 )
 
 export const selectHopTotalNetworkFeeFiatPrecision = createSelector(
   selectSelectedQuote,
   (_state: ReduxState, step: 1 | 2) => step,
-  (quote, step) => (quote ? getHopTotalNetworkFeeFiatPrecision(quote.steps[step]) : undefined),
+  (quote, step) =>
+    quote && quote.steps[step] ? getHopTotalNetworkFeeFiatPrecision(quote.steps[step]) : undefined,
 )
 
 export const selectNetReceiveAmountCryptoPrecision = createSelector(

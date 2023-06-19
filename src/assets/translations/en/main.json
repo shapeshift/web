@@ -1763,6 +1763,9 @@
       "banner": {
         "title": "Get a Yat",
         "description": "Your Yat is your universal emoji username, website URL, payment address, and more."
+      },
+      "modal": {
+        "title": "Successfully linked Yat"
       }
     }
   },

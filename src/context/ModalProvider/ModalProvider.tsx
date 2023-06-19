@@ -14,6 +14,7 @@ import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SettingsModal } from 'components/Modals/Settings/Settings'
 import { AddAccountModal } from 'pages/Accounts/AddAccountModal'
+import { YatModal } from 'pages/Yat/YatModal'
 
 import { ModalContext } from './ModalContext'
 
@@ -35,6 +36,7 @@ const MODALS = {
   nativeOnboard: NativeOnboarding,
   nft: NftModal,
   feedbackSupport: FeedbackAndSupport,
+  yat: YatModal,
 }
 
 // state

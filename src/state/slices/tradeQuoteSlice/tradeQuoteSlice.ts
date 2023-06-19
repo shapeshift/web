@@ -19,7 +19,7 @@ export const tradeQuoteSlice = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    setSwapperName: (state, action: PayloadAction<SwapperName>) => {
+    setSwapperName: (state, action: PayloadAction<SwapperName | undefined>) => {
       state.swapperName = action.payload
     },
     setQuote: (state, action: PayloadAction<TradeQuote | undefined>) => {

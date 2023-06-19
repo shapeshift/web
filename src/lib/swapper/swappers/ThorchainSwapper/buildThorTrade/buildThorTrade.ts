@@ -6,10 +6,11 @@ import type { UtxoAccountType } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { BuildTradeInput, QuoteFeeData, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
+import type { BuildTradeInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { getCosmosTxData } from 'lib/swapper/swappers/ThorchainSwapper/cosmossdk/getCosmosTxData'
 import { makeTradeTx } from 'lib/swapper/swappers/ThorchainSwapper/evm/makeTradeTx'
+import type { ThorEvmTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type {
   ThorCosmosSdkSupportedChainId,
@@ -98,21 +99,17 @@ export const buildTradeFromQuote = async ({
     )
 
   if (chainNamespace === CHAIN_NAMESPACE.Evm) {
-    const maybeEthTradeTx = await makeTradeTx({
-      wallet,
-      slippageTolerance,
-      accountNumber,
-      sellAsset,
-      buyAsset,
-      adapter: sellAdapter as unknown as ThorEvmSupportedChainAdapter,
-      sellAmountCryptoBaseUnit,
-      destinationAddress,
-      feeData: quote.steps[0].feeData as QuoteFeeData<ThorEvmSupportedChainId>,
-      affiliateBps,
-      buyAssetUsdRate,
-      feeAssetUsdRate,
-    })
+    const evmQuote = quote as ThorEvmTradeQuote
 
+    const maybeEthTradeTx = await makeTradeTx({
+      accountNumber,
+      adapter: sellAdapter as unknown as ThorEvmSupportedChainAdapter,
+      data: evmQuote.data,
+      router: evmQuote.router,
+      sellAmountCryptoBaseUnit,
+      sellAsset,
+      wallet,
+    })
     return maybeEthTradeTx.andThen(ethTradeTx =>
       Ok({
         chainId: sellAsset.chainId as ThorEvmSupportedChainId,

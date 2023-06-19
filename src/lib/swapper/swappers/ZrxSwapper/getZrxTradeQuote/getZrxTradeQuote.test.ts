@@ -1,12 +1,12 @@
-import { btcChainId, ethChainId } from '@shapeshiftoss/caip'
+import { btcChainId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight } from 'lib/swapper/api'
 
 import { normalizeAmount } from '../../utils/helpers/helpers'
+import { BTC, FOX_MAINNET } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { baseUrlFromChainId } from '../utils/helpers/helpers'
 import { zrxServiceFactory } from '../utils/zrxService'
@@ -44,7 +44,7 @@ jest.mock('@shapeshiftoss/chain-adapters', () => {
 })
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
-  const { gasFeeData } = require('../../utils/test-data/setupDeps')
+  const { gasFeeData } = require('../../utils/test-data/fees')
   return {
     getChainAdapterManager: jest.fn(
       () =>
@@ -139,12 +139,12 @@ describe('getZrxTradeQuote', () => {
   })
 
   it('returns an Err on non ethereum chain for buyAsset', async () => {
-    const { quoteInput, buyAsset } = setupQuote()
+    const { quoteInput } = setupQuote()
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({})))
 
     const maybeTradeQuote = await getZrxTradeQuote({
       ...quoteInput,
-      buyAsset: { ...buyAsset, chainId: btcChainId },
+      buyAsset: BTC,
     })
 
     expect(maybeTradeQuote.isErr()).toBe(true)
@@ -152,10 +152,10 @@ describe('getZrxTradeQuote', () => {
       cause: undefined,
       code: 'UNSUPPORTED_PAIR',
       details: {
-        buyAssetChainId: btcChainId,
-        sellAssetChainId: ethChainId,
+        buyAsset: BTC,
+        sellAsset: FOX_MAINNET,
       },
-      message: `[assertValidTradePair] - both assets must be on chainId eip155:1`,
+      message: `[Zrx: assertValidTrade] - both assets must be on chainId eip155:1`,
       name: 'SwapError',
     })
   })
@@ -171,23 +171,21 @@ describe('getZrxTradeQuote', () => {
 
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
-      code: 'UNSUPPORTED_PAIR',
+      code: 'UNSUPPORTED_CHAIN',
       details: {
-        buyAssetChainId: ethChainId,
-        sellAssetChainId: btcChainId,
+        chainId: 'bip122:000000000019d6689c085ae165831e93',
       },
-      message: '[assertValidTradePair] - both assets must be on chainId eip155:1',
+      message: '[Zrx: assertValidTrade] - unsupported chainId',
       name: 'SwapError',
     })
   })
 
   it('use minQuoteSellAmount when sellAmount is 0', async () => {
-    const { quoteInput, sellAsset } = setupQuote()
+    const { quoteInput } = setupQuote()
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(Ok({ data: { sellAmount: '20000000000000000000' } })),
+      Promise.resolve(Ok({ data: { price: '1' } })),
     )
 
-    const minimum = '20'
     const maybeQuote = await getZrxTradeQuote({
       ...quoteInput,
       sellAmountBeforeFeesCryptoBaseUnit: '0',
@@ -196,8 +194,6 @@ describe('getZrxTradeQuote', () => {
     expect(maybeQuote.isErr()).toBe(false)
     const quote = maybeQuote.unwrap()
 
-    expect(quote?.steps[0].sellAmountBeforeFeesCryptoBaseUnit).toBe(
-      bnOrZero(minimum).times(bn(10).exponentiatedBy(sellAsset.precision)).toString(),
-    )
+    expect(quote?.steps[0].sellAmountBeforeFeesCryptoBaseUnit).toBe('1000000000000000000')
   })
 })

@@ -1,22 +1,5 @@
-import Web3 from 'web3'
-
 import { bn } from '../../../../bignumber/bignumber'
 import { normalizeAmount, normalizeIntegerAmount } from './helpers'
-
-jest.mock('web3')
-
-// @ts-ignore
-Web3.mockImplementation(() => ({
-  eth: {
-    Contract: jest.fn(() => ({
-      methods: {
-        allowance: jest.fn(() => ({
-          call: jest.fn(),
-        })),
-      },
-    })),
-  },
-}))
 
 describe('utils', () => {
   describe('normalizeAmount', () => {

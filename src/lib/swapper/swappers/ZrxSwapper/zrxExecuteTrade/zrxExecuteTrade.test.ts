@@ -10,7 +10,7 @@ const receiveAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
-  const { feeData } = require('../../utils/test-data/setupDeps')
+  const { feeData } = require('../../utils/test-data/fees')
   return {
     getChainAdapterManager: jest.fn(
       () =>

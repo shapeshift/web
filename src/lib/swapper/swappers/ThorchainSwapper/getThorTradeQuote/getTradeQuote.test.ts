@@ -1,17 +1,19 @@
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse, AxiosStatic } from 'axios'
 
-import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
+import type { GetTradeQuoteInput } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
+import { getThorTxInfo } from '../evm/utils/getThorTxData'
 import type { InboundAddressResponse, ThornodePoolResponse } from '../types'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { mockChainAdapterManager } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
+import type { ThorEvmTradeQuote } from './getTradeQuote'
 import { getThorTradeQuote } from './getTradeQuote'
 
+jest.mock('../evm/utils/getThorTxData')
 jest.mock('../utils/thorService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')
   axios.create = jest.fn(() => axios)
@@ -20,6 +22,8 @@ jest.mock('../utils/thorService', () => {
     thorService: axios.create(),
   }
 })
+
+const mockOk = Ok as jest.MockedFunction<typeof Ok>
 
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
   return {
@@ -35,9 +39,11 @@ jest.mock('config', () => {
   }
 })
 
-const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
+const expectedQuoteResponse: ThorEvmTradeQuote = {
   minimumCryptoHuman: '149.14668013703712946932',
   recommendedSlippage: '0.04357',
+  data: '0x',
+  router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
   steps: [
     {
       allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
@@ -63,6 +69,10 @@ const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
 }
 
 describe('getTradeQuote', () => {
+  ;(getThorTxInfo as jest.Mock<unknown>).mockReturnValue(
+    Promise.resolve(mockOk({ data: '0x', router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976' })),
+  )
+
   const { quoteInput } = setupQuote()
 
   it('should get a thorchain quote for a thorchain trade', async () => {

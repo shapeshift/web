@@ -10,14 +10,14 @@ import {
   osmosisChainId,
 } from '@shapeshiftoss/caip'
 
-import { fauxmesAccountId } from '../state/slices/opportunitiesSlice/mocks'
+import { fauxmesAccountId } from '../../state/slices/opportunitiesSlice/mocks'
 import type {
   LpId,
   OpportunityId,
   StakingId,
   ValidatorId,
-} from '../state/slices/opportunitiesSlice/types'
-import { opportunityIdToChainId } from '../state/slices/opportunitiesSlice/utils'
+} from '../../state/slices/opportunitiesSlice/types'
+import { opportunityIdToChainId } from '../../state/slices/opportunitiesSlice/utils'
 import {
   assertIsDefined,
   deepUpsertArray,
@@ -35,7 +35,7 @@ import {
   sha256,
   tokenOrUndefined,
   upsertArray,
-} from './utils'
+} from '.'
 
 describe('lib/utils', () => {
   describe('opportunityIdToChainId', () => {

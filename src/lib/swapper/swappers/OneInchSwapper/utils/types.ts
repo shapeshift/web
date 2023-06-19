@@ -1,6 +1,31 @@
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  avalanche,
+  bnbsmartchain,
+  ethereum,
+  EvmChainId,
+  gnosis,
+  optimism,
+} from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Trade } from 'lib/swapper/api'
+
+export const oneInchSupportedChainIds = [
+  KnownChainIds.EthereumMainnet,
+  KnownChainIds.BnbSmartChainMainnet,
+  KnownChainIds.OptimismMainnet,
+  KnownChainIds.AvalancheMainnet,
+  KnownChainIds.GnosisMainnet,
+] as const
+
+export type OneInchSupportedChainId = typeof oneInchSupportedChainIds[number]
+
+export type OneInchSupportedChainAdapter =
+  | ethereum.ChainAdapter
+  | bnbsmartchain.ChainAdapter
+  | optimism.ChainAdapter
+  | avalanche.ChainAdapter
+  | gnosis.ChainAdapter
 
 export type OneInchQuoteApiInput = {
   fromTokenAddress: string

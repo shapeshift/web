@@ -1,7 +1,7 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import type { AssetReference, ChainId } from '@shapeshiftoss/caip'
+import type { AssetReference } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE } from '@shapeshiftoss/caip'
-import type { ChainAdapter, EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
@@ -15,6 +15,8 @@ import difference from 'lodash/difference'
 import intersection from 'lodash/intersection'
 import isUndefined from 'lodash/isUndefined'
 import union from 'lodash/union'
+
+export * as evm from './evm'
 
 // we don't want utils to mutate by default, so spreading here is ok
 export const upsertArray = <T extends unknown>(arr: T[], item: T): T[] =>
@@ -160,10 +162,8 @@ export const hashCode = (str: string): string =>
 export const sha256 = (input: string): string =>
   crypto.createHash('sha256').update(input).digest('hex')
 
-export const isEvmChainAdapter = <T extends ChainId>(
-  chainAdapter: ChainAdapter<T> | EvmChainAdapter,
-): chainAdapter is EvmChainAdapter => {
-  return evmChainIds.includes(chainAdapter.getChainId() as EvmChainId)
+export const isEvmChainAdapter = (chainAdapter: unknown): chainAdapter is EvmChainAdapter => {
+  return evmChainIds.includes((chainAdapter as EvmChainAdapter).getChainId() as EvmChainId)
 }
 
 // https://github.com/sniptt-official/monads/issues/111

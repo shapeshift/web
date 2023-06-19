@@ -1,12 +1,13 @@
 import type { Step } from '@lifi/sdk'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { AbiItem } from 'web3-utils'
+import type { BigNumber } from 'ethers'
+import { ethers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { isEvmChainAdapter } from 'lib/utils'
-import { getWeb3InstanceByChainId } from 'lib/web3-instance'
 
 import { OPTIMISM_GAS_ORACLE_ADDRESS } from '../constants'
 import { getLifi } from '../getLifi'
@@ -45,7 +46,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
   // interactions, so instead of calling our existing stack which relies on infura we call the
   // optimism gas oracle directly.
   if (chainId === KnownChainIds.OptimismMainnet) {
-    const optimismGasOracleAbi: AbiItem[] = [
+    const optimismGasOracleAbi: ethers.ContractInterface = [
       {
         inputs: [{ internalType: 'bytes', name: '_data', type: 'bytes' }],
         name: 'getL1Fee',
@@ -54,11 +55,15 @@ export const getNetworkFeeCryptoBaseUnit = async ({
         type: 'function',
       },
     ]
-    const web3 = getWeb3InstanceByChainId(chainId)
-    const tokenContract = new web3.eth.Contract(optimismGasOracleAbi, OPTIMISM_GAS_ORACLE_ADDRESS)
-    const l1Fee = await tokenContract.methods.getL1Fee(data).call()
 
-    return gasFee.plus(l1Fee).toString()
+    const tokenContract = new ethers.Contract(
+      OPTIMISM_GAS_ORACLE_ADDRESS,
+      optimismGasOracleAbi,
+      getEthersProvider(chainId),
+    )
+
+    const l1Fee = (await tokenContract.getL1Fee(data)) as BigNumber
+    return gasFee.plus(l1Fee.toString()).toString()
   }
 
   return gasFee.toString()

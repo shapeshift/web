@@ -222,8 +222,8 @@ describe('cowExecuteTrade', () => {
     expect((await cowExecuteTrade(tradeInput, supportedChainIds)).unwrapErr()).toMatchObject({
       cause: undefined,
       code: 'UNSUPPORTED_PAIR',
-      details: { sellAssetNamespace: 'slip44' },
-      message: '[cowExecuteTrade] - Sell asset needs to be ERC-20 to use CowSwap',
+      details: { sellAsset: ETH },
+      message: '[CowSwap: assertValidTrade] - Sell asset must be an ERC-20',
       name: 'SwapError',
     })
   })

@@ -4,12 +4,10 @@ import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
-import type { FeeDataEstimate, GetFeeDataInput, ValidAddressResult } from '../../types'
+import type { ValidAddressResult } from '../../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../../types'
-import { bn, bnOrZero } from '../../utils'
 import type { ChainAdapterArgs } from '../EvmBaseAdapter'
 import { EvmBaseAdapter } from '../EvmBaseAdapter'
-import type { GasFeeDataEstimate } from '../types'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.EthereumMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.EthereumMainnet
@@ -20,8 +18,6 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
     coinType: Number(ASSET_REFERENCE.Ethereum),
     accountNumber: 0,
   }
-
-  private readonly api: unchained.ethereum.V1Api
 
   constructor(args: ChainAdapterArgs<unchained.ethereum.V1Api>) {
     super({
@@ -37,8 +33,6 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       ...args,
     })
-
-    this.api = args.providers.http
   }
 
   getDisplayName() {
@@ -58,52 +52,6 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
 
   getFeeAssetId(): AssetId {
     return this.assetId
-  }
-
-  async getGasFeeData(): Promise<GasFeeDataEstimate> {
-    const { fast, average, slow } = await this.api.getGasFees()
-
-    return {
-      fast: {
-        gasPrice: fast.maxFeePerGas ?? '0',
-        maxFeePerGas: fast.maxFeePerGas,
-        maxPriorityFeePerGas: fast.maxPriorityFeePerGas,
-      },
-      average: {
-        gasPrice: average.maxFeePerGas ?? '0',
-        maxFeePerGas: average.maxFeePerGas,
-        maxPriorityFeePerGas: average.maxPriorityFeePerGas,
-      },
-      slow: {
-        gasPrice: slow.maxFeePerGas ?? '0',
-        maxFeePerGas: slow.maxFeePerGas,
-        maxPriorityFeePerGas: slow.maxPriorityFeePerGas,
-      },
-    }
-  }
-
-  async getFeeData(
-    input: GetFeeDataInput<KnownChainIds.EthereumMainnet>,
-  ): Promise<FeeDataEstimate<KnownChainIds.EthereumMainnet>> {
-    const req = await this.buildEstimateGasRequest(input)
-
-    const { gasLimit } = await this.api.estimateGas(req)
-    const { fast, average, slow } = await this.getGasFeeData()
-
-    return {
-      fast: {
-        txFee: bnOrZero(bn(fast.gasPrice).times(gasLimit)).toFixed(0),
-        chainSpecific: { gasLimit, ...fast },
-      },
-      average: {
-        txFee: bnOrZero(bn(average.gasPrice).times(gasLimit)).toFixed(0),
-        chainSpecific: { gasLimit, ...average },
-      },
-      slow: {
-        txFee: bnOrZero(bn(slow.gasPrice).times(gasLimit)).toFixed(0),
-        chainSpecific: { gasLimit, ...slow },
-      },
-    }
   }
 
   validateEnsAddress(address: string): ValidAddressResult {

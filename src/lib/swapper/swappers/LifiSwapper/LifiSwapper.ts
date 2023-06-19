@@ -61,7 +61,7 @@ export class LifiSwapper implements Swapper<EvmChainId, true> {
    */
   async getTradeQuote(
     input: GetEvmTradeQuoteInput,
-  ): Promise<Result<LifiTradeQuote<true | false>, SwapErrorRight>> {
+  ): Promise<Result<LifiTradeQuote<boolean>, SwapErrorRight>> {
     const { price: sellAssetPriceUsdPrecision } = selectMarketDataById(
       store.getState(),
       input.sellAsset.assetId,

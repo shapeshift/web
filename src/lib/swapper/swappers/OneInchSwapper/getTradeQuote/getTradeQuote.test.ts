@@ -26,6 +26,7 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => {
     return {
       get: () => ({
+        getChainId: () => 'eip155:1',
         getGasFeeData: () => ({
           average: { gasPrice: averageGasPrice },
         }),

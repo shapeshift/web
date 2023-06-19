@@ -17,16 +17,17 @@ import { cowGetTradeTxs } from 'lib/swapper/swappers/CowSwapper/cowGetTradeTxs/c
 import { getCowSwapTradeQuote } from 'lib/swapper/swappers/CowSwapper/getCowSwapTradeQuote/getCowSwapTradeQuote'
 import type {
   CowChainId,
-  CowswapExecuteTradeInput,
+  CowExecuteTradeInput,
   CowTrade,
   CowTradeResult,
 } from 'lib/swapper/swappers/CowSwapper/types'
+import { cowChainIds } from 'lib/swapper/swappers/CowSwapper/types'
 import { COWSWAP_UNSUPPORTED_ASSETS } from 'lib/swapper/swappers/CowSwapper/utils/blacklist'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
-import { isCowswapSupportedChainId } from './utils/utils'
+
 export class CowSwapper<T extends CowChainId> implements Swapper<T> {
   readonly name = SwapperName.CowSwap
   supportedChainIds: CowChainId[]
@@ -45,7 +46,7 @@ export class CowSwapper<T extends CowChainId> implements Swapper<T> {
     return getCowSwapTradeQuote(input, this.supportedChainIds)
   }
 
-  executeTrade(args: CowswapExecuteTradeInput<T>): Promise<Result<CowTradeResult, SwapErrorRight>> {
+  executeTrade(args: CowExecuteTradeInput<T>): Promise<Result<CowTradeResult, SwapErrorRight>> {
     return cowExecuteTrade<T>(args, this.supportedChainIds)
   }
 
@@ -56,8 +57,9 @@ export class CowSwapper<T extends CowChainId> implements Swapper<T> {
 
     if (
       sellAsset === undefined ||
+      !cowChainIds.includes(sellAsset.chainId as CowChainId) ||
+      !this.supportedChainIds.includes(sellAsset.chainId as CowChainId) ||
       isNativeEvmAsset(sellAssetId) ||
-      !isCowswapSupportedChainId(sellAsset.chainId, this.supportedChainIds) ||
       COWSWAP_UNSUPPORTED_ASSETS.includes(sellAssetId)
     )
       return []
@@ -68,27 +70,26 @@ export class CowSwapper<T extends CowChainId> implements Swapper<T> {
 
       return (
         id !== sellAssetId &&
-        sellAsset.chainId === assets[id]?.chainId &&
-        isCowswapSupportedChainId(asset.chainId, this.supportedChainIds) &&
-        !isNft(id) &&
-        !COWSWAP_UNSUPPORTED_ASSETS.includes(id)
+        sellAsset.chainId === asset.chainId &&
+        !COWSWAP_UNSUPPORTED_ASSETS.includes(id) &&
+        !isNft(id)
       )
     })
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
     const assets = selectAssets(store.getState())
+
     return assetIds.filter(id => {
       const asset = assets[id]
-      if (!asset) {
-        return false
-      }
+      if (!asset) return false
 
       return (
-        isCowswapSupportedChainId(asset.chainId, this.supportedChainIds) &&
+        cowChainIds.includes(asset.chainId as CowChainId) &&
+        this.supportedChainIds.includes(asset.chainId as CowChainId) &&
+        !COWSWAP_UNSUPPORTED_ASSETS.includes(id) &&
         !isNativeEvmAsset(id) &&
-        !isNft(id) &&
-        !COWSWAP_UNSUPPORTED_ASSETS.includes(id)
+        !isNft(id)
       )
     })
   }

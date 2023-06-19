@@ -1,13 +1,23 @@
 import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { ethers } from 'ethers'
+import type { Asset } from 'lib/asset-service'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+import {
+  selectBuyAssetUsdRate,
+  selectSellAssetUsdRate,
+} from 'state/zustand/swapperStore/amountSelectors'
+import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
-import { CowNetwork } from '../../types'
+import type { CowChainId, CowSwapQuoteResponse } from '../../types'
+import { cowChainIds, CowNetwork } from '../../types'
 
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },
@@ -112,4 +122,117 @@ export const domain = (chainId: number, verifyingContract: string): TypedDataDom
     chainId,
     verifyingContract,
   }
+}
+
+export const assertValidTrade = ({
+  buyAsset,
+  sellAsset,
+  supportedChainIds,
+  receiveAddress,
+}: {
+  buyAsset: Asset
+  sellAsset: Asset
+  supportedChainIds: CowChainId[]
+  receiveAddress?: string
+}): Result<boolean, SwapErrorRight> => {
+  if (
+    !cowChainIds.includes(sellAsset.chainId as CowChainId) ||
+    !supportedChainIds.includes(sellAsset.chainId as CowChainId)
+  ) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[CowSwap: assertValidTrade] - unsupported chainId`,
+        code: SwapErrorType.UNSUPPORTED_CHAIN,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
+  }
+
+  if (sellAsset.chainId !== buyAsset.chainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[CowSwap: assertValidTrade] - both assets must be on chainId ${sellAsset.chainId}`,
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+        details: { buyAsset, sellAsset },
+      }),
+    )
+  }
+
+  if (fromAssetId(sellAsset.assetId).assetNamespace !== 'erc20') {
+    return Err(
+      makeSwapErrorRight({
+        message: '[CowSwap: assertValidTrade] - Sell asset must be an ERC-20',
+        code: SwapErrorType.UNSUPPORTED_PAIR,
+        details: { sellAsset },
+      }),
+    )
+  }
+
+  if (!receiveAddress) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[CowSwap: assertValidTrade] - Receive address is required',
+        code: SwapErrorType.MISSING_INPUT,
+      }),
+    )
+  }
+
+  return Ok(true)
+}
+
+type GetValuesFromQuoteResponseArgs = {
+  buyAsset: Asset
+  sellAsset: Asset
+  response: CowSwapQuoteResponse
+}
+
+export const getValuesFromQuoteResponse = ({
+  buyAsset,
+  sellAsset,
+  response,
+}: GetValuesFromQuoteResponseArgs) => {
+  const {
+    sellAmount: sellAmountAfterFeesCryptoBaseUnit,
+    feeAmount: feeAmountInSellTokenCryptoBaseUnit,
+    buyAmount: buyAmountAfterFeesCryptoBaseUnit,
+  } = response.quote
+
+  const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+  const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
+
+  const sellAssetTradeFeeCryptoPrecision = fromBaseUnit(
+    feeAmountInSellTokenCryptoBaseUnit,
+    sellAsset.precision,
+  )
+
+  const sellAssetTradeFeeUsd = bn(sellAssetTradeFeeCryptoPrecision)
+    .multipliedBy(bnOrZero(sellAssetUsdRate))
+    .toString()
+
+  const feeAmountInBuyTokenCryptoPrecision = bnOrZero(sellAssetTradeFeeUsd).div(
+    bnOrZero(buyAssetUsdRate),
+  )
+
+  const feeAmountInBuyTokenCryptoBaseUnit = toBaseUnit(
+    feeAmountInBuyTokenCryptoPrecision,
+    buyAsset.precision,
+  )
+
+  const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(feeAmountInBuyTokenCryptoBaseUnit)
+    .plus(buyAmountAfterFeesCryptoBaseUnit)
+    .toFixed()
+
+  const buyAmountAfterFeesCryptoPrecision = fromBaseUnit(
+    buyAmountAfterFeesCryptoBaseUnit,
+    buyAsset.precision,
+  )
+
+  const sellAmountCryptoPrecision = fromBaseUnit(
+    sellAmountAfterFeesCryptoBaseUnit,
+    sellAsset.precision,
+  )
+
+  const rate = bnOrZero(buyAmountAfterFeesCryptoPrecision).div(sellAmountCryptoPrecision).toString()
+
+  return { rate, buyAmountBeforeFeesCryptoBaseUnit, buyAmountAfterFeesCryptoBaseUnit }
 }

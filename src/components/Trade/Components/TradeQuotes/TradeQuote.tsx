@@ -208,14 +208,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           <RawText color='gray.500'>
             <FaGasPump />
           </RawText>
-          {
-            // We cannot infer gas fees for 1inch swapper before an amount is entered
-            !isAmountEntered && protocol === SwapperName.OneInch ? (
-              translate('trade.unknownGas')
-            ) : (
-              <Amount.Fiat value={bnOrZero(networkFeeFiat).toString()} />
-            )
-          }
+          <Amount.Fiat value={bnOrZero(networkFeeFiat).toString()} />
         </Flex>
       </Flex>
       <Flex justifyContent='space-between' alignItems='center'>

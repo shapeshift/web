@@ -28,7 +28,7 @@ type GetApproveContractDataArgs = {
   web3: Web3
 }
 
-export type BuildAndBroadcastArgs = {
+type BuildAndBroadcastArgs = {
   adapter: EvmChainAdapter
   buildCustomTxArgs: evm.BuildCustomTxInput
   wallet: HDWallet

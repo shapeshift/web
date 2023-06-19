@@ -27,7 +27,7 @@ import { DepositContext } from '../DepositContext'
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
-  const { poll } = usePoll()
+  const poll = usePoll()
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCryptoBaseUnit = state?.approve.estimatedGasCryptoBaseUnit

@@ -82,7 +82,7 @@ import { AssetToAsset } from './AssetToAsset'
 import { ReceiveSummary } from './ReceiveSummary'
 
 export const TradeConfirm = () => {
-  const { poll } = usePoll<Result<TradeTxs, SwapErrorRight>>()
+  const poll = usePoll<Result<TradeTxs, SwapErrorRight>>()
   const history = useHistory()
   const mixpanel = getMixPanel()
   const borderColor = useColorModeValue('gray.100', 'gray.750')

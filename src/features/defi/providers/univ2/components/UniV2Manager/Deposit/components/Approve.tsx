@@ -44,7 +44,7 @@ type UniV2ApproveProps = StepComponentProps & {
 }
 
 export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
-  const { poll } = usePoll()
+  const poll = usePoll()
   const { state, dispatch } = useContext(DepositContext)
   const approve0 = state?.approve0
   const approve1 = state?.approve1

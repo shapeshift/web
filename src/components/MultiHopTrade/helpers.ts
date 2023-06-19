@@ -40,7 +40,7 @@ const getReceiveSideAmountsCryptoBaseUnit = ({
 
   const buyAmountCryptoBaseUnit = bn(lastStep.buyAmountBeforeFeesCryptoBaseUnit)
   const slippageAmountCryptoBaseUnit = buyAmountCryptoBaseUnit.times(slippageDecimalPercentage)
-  const buySideNetworkFeeCryptoBaseUnit = bn(0) // TODO(woodenfurniture): handle osmo swapper crazy network fee logic here
+  const buySideNetworkFeeCryptoBaseUnit = bn(0) // TODO(woodenfurniture): handle osmo swapper crazy netowrk fee logic here
   const buySideProtocolFeeCryptoBaseUnit = bnOrZero(
     lastStep.feeData.protocolFees[lastStep.buyAsset.assetId]?.amountCryptoBaseUnit,
   )
@@ -86,11 +86,11 @@ export const getNetReceiveAmountCryptoPrecision = ({
   return netReceiveAmountCryptoPrecision.toString()
 }
 
-const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate = (
+export const _getHopTotalNetworkFeeFiatPrecision = (
   tradeQuoteStep: TradeQuote['steps'][number],
   getFeeAssetRate: (feeAssetId: AssetId) => string,
 ): BigNumber => {
-  // TODO(woodenfurniture): handle osmo swapper crazy network fee logic here
+  // TODO(woodenfurniture): handle osmo swapper crazy netowrk fee logic here
   const feeAsset = selectFeeAssetById(store.getState(), tradeQuoteStep.sellAsset.assetId)
 
   if (feeAsset === undefined)
@@ -114,21 +114,15 @@ export const getHopTotalNetworkFeeFiatPrecision = (
     selectMarketDataByFilter(state, {
       assetId: feeAssetId,
     }).price
-  return getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate(
-    tradeQuoteStep,
-    getFeeAssetFiatRate,
-  ).toString()
+  return _getHopTotalNetworkFeeFiatPrecision(tradeQuoteStep, getFeeAssetFiatRate).toString()
 }
 
-const getTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate = (
+const _getTotalNetworkFeeFiatPrecision = (
   quote: TradeQuote,
   getFeeAssetRate: (feeAssetId: AssetId) => string,
 ): BigNumber =>
   quote.steps.reduce((acc, step) => {
-    const networkFeeFiatPrecision = getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate(
-      step,
-      getFeeAssetRate,
-    )
+    const networkFeeFiatPrecision = _getHopTotalNetworkFeeFiatPrecision(step, getFeeAssetRate)
 
     return acc.plus(networkFeeFiatPrecision)
   }, bn(0))
@@ -150,7 +144,7 @@ const getTotalNetworkFeeUsdPrecision = (quote: TradeQuote): BigNumber => {
     return feeAssetMarketData.price
   }
 
-  return getTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate(quote, getFeeAssetUsdRate)
+  return _getTotalNetworkFeeFiatPrecision(quote, getFeeAssetUsdRate)
 }
 
 /**
@@ -165,10 +159,7 @@ export const getTotalNetworkFeeFiatPrecision = (quote: TradeQuote) => {
       assetId: feeAssetId,
     }).price
 
-  return getTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate(
-    quote,
-    getFeeAssetFiatRate,
-  ).toString()
+  return _getTotalNetworkFeeFiatPrecision(quote, getFeeAssetFiatRate).toString()
 }
 
 // TODO(woodenfurniture): this assumes `requiresBalance` is the same for steps for a given asset

@@ -4,7 +4,6 @@ import {
   Button,
   Divider,
   HStack,
-  Icon,
   Spinner,
   Stack,
   Step,
@@ -16,15 +15,11 @@ import {
   StepSeparator,
   StepStatus,
   StepTitle,
-  Switch,
-  Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { useCallback, useMemo } from 'react'
-import { FaInfoCircle } from 'react-icons/fa'
-import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
@@ -32,15 +27,13 @@ import {
   getHopTotalNetworkFeeFiatPrecision,
   getHopTotalProtocolFeesFiatPrecision,
 } from 'components/MultiHopTrade/helpers'
-import { useAllowanceApproval } from 'components/MultiHopTrade/hooks/useAllowanceApproval/useAllowanceApproval'
+import { useIsApprovalNeeded } from 'components/MultiHopTrade/hooks/useIsApprovalNeeded'
 import type { StepperStep } from 'components/MultiHopTrade/types'
-import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { WithBackButton } from 'components/Trade/WithBackButton'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { useToggle } from 'hooks/useToggle/useToggle'
 import type { Asset } from 'lib/asset-service'
 import { fromBaseUnit } from 'lib/math'
 import type { SwapperName, TradeQuote } from 'lib/swapper/api'
@@ -58,7 +51,7 @@ const useTradeExecutor = () => {
     // next state
     dispatch(swappers.actions.incrementTradeExecutionState())
 
-    // mock execution of tx
+    // mock exection of tx
     setTimeout(() => dispatch(swappers.actions.incrementTradeExecutionState()), 3000)
   }, [dispatch])
   const reject = useCallback(() => {
@@ -84,17 +77,11 @@ const useTradeExecutor = () => {
 const getApprovalStep = ({
   approvalNetworkFeeCryptoFormatted,
   txId,
-  isExactAllowance,
-  toggleIsExactAllowance,
-  translate,
   onSign,
   onReject,
 }: {
   approvalNetworkFeeCryptoFormatted: string
   txId?: string
-  isExactAllowance: boolean
-  toggleIsExactAllowance: () => void
-  translate: ReturnType<typeof useTranslate>
   onSign: () => void
   onReject: () => void
 }): StepperStep => {
@@ -108,34 +95,6 @@ const getApprovalStep = ({
           <RawText>TX: {txId}</RawText>
         ) : (
           <HStack>
-            <Row>
-              <Row.Label display='flex' alignItems='center'>
-                <Text color='gray.500' translation='trade.allowance' />
-                <Tooltip label={translate('trade.allowanceTooltip')}>
-                  <Box ml={1}>
-                    <Icon as={FaInfoCircle} color='gray.500' fontSize='0.7em' />
-                  </Box>
-                </Tooltip>
-              </Row.Label>
-              <Row.Value textAlign='right' display='flex' alignItems='center'>
-                <Text
-                  color={isExactAllowance ? 'gray.500' : 'white'}
-                  translation='trade.unlimited'
-                  fontWeight='bold'
-                />
-                <Switch
-                  size='sm'
-                  mx={2}
-                  isChecked={isExactAllowance}
-                  onChange={toggleIsExactAllowance}
-                />
-                <Text
-                  color={isExactAllowance ? 'white' : 'gray.500'}
-                  translation='trade.exact'
-                  fontWeight='bold'
-                />
-              </Row.Value>
-            </Row>
             <Button onClick={onSign}>Approve</Button>
             <Button onClick={onReject}>Reject</Button>
           </HStack>
@@ -259,21 +218,11 @@ const FirstHop = ({
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
-  const translate = useTranslate()
-
-  const [isExactAllowance, toggleIsExactAllowance] = useToggle(false)
 
   const tradeQuoteStep = useMemo(() => tradeQuote.steps[0], [tradeQuote.steps])
-  // TODO: use `isApprovalNeeded === undefined` here to display placeholder loading during initial approval check
-  const {
-    isApprovalNeeded,
-    executeAllowanceApproval,
-    approvalTxId,
-    approvalNetworkFeeCryptoBaseUnit,
-  } = useAllowanceApproval(tradeQuoteStep, isExactAllowance)
-
+  const isApprovalRequired = useIsApprovalNeeded(tradeQuoteStep)
   const shouldRenderDonation = true // TODO:
-  const { onRejectApproval, onSignTrade, onRejectTrade } = useTradeExecutor()
+  const { onSignApproval, onRejectApproval, onSignTrade, onRejectTrade } = useTradeExecutor()
 
   const tradeExecutionStatus = useAppSelector(selectTradeExecutionStatus)
 
@@ -286,7 +235,7 @@ const FirstHop = ({
         return 3
       case MultiHopExecutionStatus.Hop1AwaitingTradeConfirmation:
       case MultiHopExecutionStatus.Hop1AwaitingTradeExecution:
-        return isApprovalNeeded ? 4 : 3
+        return isApprovalRequired ? 4 : 3
       case MultiHopExecutionStatus.Hop2AwaitingApprovalConfirmation:
       case MultiHopExecutionStatus.Hop2AwaitingApprovalExecution:
       case MultiHopExecutionStatus.Hop2AwaitingTradeConfirmation:
@@ -296,7 +245,7 @@ const FirstHop = ({
       default:
         assertUnreachable(tradeExecutionStatus)
     }
-  }, [tradeExecutionStatus, isApprovalNeeded])
+  }, [tradeExecutionStatus, isApprovalRequired])
 
   const steps = useMemo(() => {
     const {
@@ -336,23 +285,18 @@ const FirstHop = ({
       }),
     ].filter(isSome)
 
-    if (isApprovalNeeded) {
+    if (isApprovalRequired) {
       const feeAsset = selectFeeAssetById(store.getState(), sellAsset.assetId)
-      const approvalNetworkFeeCryptoFormatted =
-        feeAsset && approvalNetworkFeeCryptoBaseUnit
-          ? toCrypto(
-              fromBaseUnit(approvalNetworkFeeCryptoBaseUnit, feeAsset.precision),
-              feeAsset.symbol,
-            )
-          : ''
+      const approvalNetworkFeeCryptoFormatted = feeAsset ? toCrypto(0.0012, feeAsset.symbol) : ''
+      const approvalTx =
+        tradeExecutionStatus.valueOf() >= MultiHopExecutionStatus.Hop1AwaitingApprovalExecution
+          ? '0x1234'
+          : undefined
       hopSteps.push(
         getApprovalStep({
-          txId: approvalTxId,
+          txId: approvalTx,
           approvalNetworkFeeCryptoFormatted,
-          isExactAllowance,
-          translate,
-          toggleIsExactAllowance,
-          onSign: executeAllowanceApproval,
+          onSign: onSignApproval,
           onReject: onRejectApproval,
         }),
       )
@@ -383,23 +327,18 @@ const FirstHop = ({
 
     return hopSteps
   }, [
-    approvalNetworkFeeCryptoBaseUnit,
-    approvalTxId,
-    executeAllowanceApproval,
-    isApprovalNeeded,
-    isExactAllowance,
+    isApprovalRequired,
     onRejectApproval,
     onRejectTrade,
+    onSignApproval,
     onSignTrade,
     shouldRenderDonation,
     swapperName,
     toCrypto,
     toFiat,
-    toggleIsExactAllowance,
     tradeExecutionStatus,
     tradeQuote.steps.length,
     tradeQuoteStep,
-    translate,
   ])
 
   const slippageDecimalPercentage = useMemo(
@@ -438,20 +377,11 @@ const SecondHop = ({
   const {
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
-  const translate = useTranslate()
-
-  const [isExactAllowance, toggleIsExactAllowance] = useToggle(false)
 
   const tradeQuoteStep = useMemo(() => tradeQuote.steps[1], [tradeQuote.steps])
-  // TODO: use `isApprovalNeeded === undefined` here to display placeholder loading during initial approval check
-  const {
-    isApprovalNeeded,
-    executeAllowanceApproval,
-    approvalTxId,
-    approvalNetworkFeeCryptoBaseUnit,
-  } = useAllowanceApproval(tradeQuoteStep, isExactAllowance)
+  const isApprovalRequired = useIsApprovalNeeded(tradeQuoteStep)
   const shouldRenderDonation = true // TODO:
-  const { onRejectApproval, onSignTrade, onRejectTrade } = useTradeExecutor()
+  const { onSignApproval, onRejectApproval, onSignTrade, onRejectTrade } = useTradeExecutor()
   const tradeExecutionStatus = useAppSelector(selectTradeExecutionStatus)
 
   const activeStep = useMemo(() => {
@@ -467,13 +397,13 @@ const SecondHop = ({
         return 2
       case MultiHopExecutionStatus.Hop2AwaitingTradeConfirmation:
       case MultiHopExecutionStatus.Hop2AwaitingTradeExecution:
-        return isApprovalNeeded ? 3 : 2
+        return isApprovalRequired ? 3 : 2
       case MultiHopExecutionStatus.TradeComplete:
         return Infinity
       default:
         assertUnreachable(tradeExecutionStatus)
     }
-  }, [tradeExecutionStatus, isApprovalNeeded])
+  }, [tradeExecutionStatus, isApprovalRequired])
 
   const steps = useMemo(() => {
     const {
@@ -508,23 +438,18 @@ const SecondHop = ({
       }),
     ].filter(isSome)
 
-    if (isApprovalNeeded) {
+    if (isApprovalRequired) {
       const feeAsset = selectFeeAssetById(store.getState(), sellAsset.assetId)
-      const approvalNetworkFeeCryptoFormatted =
-        feeAsset && approvalNetworkFeeCryptoBaseUnit
-          ? toCrypto(
-              fromBaseUnit(approvalNetworkFeeCryptoBaseUnit, feeAsset.precision),
-              feeAsset.symbol,
-            )
-          : ''
+      const approvalNetworkFeeCryptoFormatted = feeAsset ? toCrypto(0.0012, feeAsset.symbol) : ''
+      const approvalTx =
+        tradeExecutionStatus.valueOf() >= MultiHopExecutionStatus.Hop1AwaitingApprovalExecution
+          ? '0x1234'
+          : undefined
       hopSteps.push(
         getApprovalStep({
-          txId: approvalTxId,
+          txId: approvalTx,
           approvalNetworkFeeCryptoFormatted,
-          isExactAllowance,
-          translate,
-          toggleIsExactAllowance,
-          onSign: executeAllowanceApproval,
+          onSign: onSignApproval,
           onReject: onRejectApproval,
         }),
       )
@@ -555,23 +480,18 @@ const SecondHop = ({
 
     return hopSteps
   }, [
-    approvalNetworkFeeCryptoBaseUnit,
-    approvalTxId,
-    executeAllowanceApproval,
-    isApprovalNeeded,
-    isExactAllowance,
+    isApprovalRequired,
     onRejectApproval,
     onRejectTrade,
+    onSignApproval,
     onSignTrade,
     shouldRenderDonation,
     swapperName,
     toCrypto,
     toFiat,
-    toggleIsExactAllowance,
     tradeExecutionStatus,
     tradeQuote.steps.length,
     tradeQuoteStep,
-    translate,
   ])
 
   const slippageDecimalPercentage = useMemo(

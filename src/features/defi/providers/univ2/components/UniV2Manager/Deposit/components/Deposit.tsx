@@ -18,6 +18,7 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
@@ -69,7 +70,7 @@ export const Deposit: React.FC<DepositProps> = ({
   })
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
-  const { asset0Allowance, asset1Allowance, getApproveFeeData, getDepositFeeData } =
+  const { asset0Allowance, asset1Allowance, getApproveFees, getDepositFees } =
     useUniV2LiquidityPool({
       accountId: accountId ?? '',
       lpAssetId,
@@ -114,12 +115,12 @@ export const Deposit: React.FC<DepositProps> = ({
     if (!feeAsset) return
     const { cryptoAmount0: token0Amount, cryptoAmount1: token1Amount } = deposit
     try {
-      const feeData = await getDepositFeeData({
+      const fees = await getDepositFees({
         token0Amount,
         token1Amount,
       })
-      if (!feeData) return
-      return bnOrZero(feeData.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
+      if (!fees) return
+      return fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision)
     } catch (error) {
       console.error(error)
       toast({
@@ -159,19 +160,16 @@ export const Deposit: React.FC<DepositProps> = ({
     dispatch({ type: UniV2DepositActionType.SET_LOADING, payload: true })
     try {
       // Check if approval is required for user address on any of the two assets
-      const asset0AllowanceCryptoBaseUnit = await asset0Allowance()
-      const asset0AllowanceAmount = bnOrZero(asset0AllowanceCryptoBaseUnit).div(
-        bn(10).pow(asset0.precision),
-      )
-      const asset1AllowanceCryptoBaseUnit = await asset1Allowance()
-      const asset1AllowanceAmount = bnOrZero(asset1AllowanceCryptoBaseUnit).div(
-        bn(10).pow(asset1.precision),
-      )
+      const asset0AllowanceCryptoBaseUnit = bnOrZero(await asset0Allowance())
+      const asset0AllowanceAmount = fromBaseUnit(asset0AllowanceCryptoBaseUnit, asset0.precision)
+      const asset1AllowanceCryptoBaseUnit = bnOrZero(await asset1Allowance())
+      const asset1AllowanceAmount = fromBaseUnit(asset1AllowanceCryptoBaseUnit, asset1.precision)
 
       const isAsset0AllowanceGranted =
-        assetId0 === ethAssetId || asset0AllowanceAmount.gte(bnOrZero(formValues.cryptoAmount0))
+        assetId0 === ethAssetId || bn(asset0AllowanceAmount).gte(bnOrZero(formValues.cryptoAmount0))
       const isAsset1AllowanceGranted =
-        assetId1 === ethAssetId || asset1AllowanceAmount.gte(bnOrZero(formValues.cryptoAmount1))
+        assetId1 === ethAssetId || bn(asset1AllowanceAmount).gte(bnOrZero(formValues.cryptoAmount1))
+
       // Skip approval step if user allowance is greater than or equal requested deposit amount for both assets
       if (isAsset0AllowanceGranted && isAsset1AllowanceGranted) {
         const estimatedGasCryptoPrecision = await getDepositGasEstimateCryptoPrecision(formValues)
@@ -196,9 +194,11 @@ export const Deposit: React.FC<DepositProps> = ({
         // this is not necesssarly true. Some ERC-20s approve() might have a bit more logic, and thus require more gas.
         // e.g https://github.com/Uniswap/governance/blob/eabd8c71ad01f61fb54ed6945162021ee419998e/contracts/Uni.sol#L119
         const asset0ApprovalFee =
-          asset0ContractAddress && bnOrZero((await getApproveFeeData(asset0ContractAddress))?.txFee)
+          asset0ContractAddress &&
+          bnOrZero((await getApproveFees(asset0ContractAddress))?.networkFeeCryptoBaseUnit)
         const asset1ApprovalFee =
-          asset1ContractAddress && bnOrZero((await getApproveFeeData(asset1ContractAddress))?.txFee)
+          asset1ContractAddress &&
+          bnOrZero((await getApproveFees(asset1ContractAddress))?.networkFeeCryptoBaseUnit)
 
         if (!(asset0ApprovalFee || asset1ApprovalFee)) return
 
@@ -206,9 +206,7 @@ export const Deposit: React.FC<DepositProps> = ({
           dispatch({
             type: UniV2DepositActionType.SET_APPROVE_0,
             payload: {
-              estimatedGasCryptoPrecision: bnOrZero(asset0ApprovalFee)
-                .div(bn(10).pow(feeAsset.precision))
-                .toPrecision(),
+              estimatedGasCryptoPrecision: fromBaseUnit(asset0ApprovalFee, feeAsset.precision),
             },
           })
         }
@@ -217,9 +215,7 @@ export const Deposit: React.FC<DepositProps> = ({
           dispatch({
             type: UniV2DepositActionType.SET_APPROVE_1,
             payload: {
-              estimatedGasCryptoPrecision: bnOrZero(asset1ApprovalFee)
-                .div(bn(10).pow(feeAsset.precision))
-                .toPrecision(),
+              estimatedGasCryptoPrecision: fromBaseUnit(asset1ApprovalFee, feeAsset.precision),
             },
           })
         }
@@ -244,34 +240,33 @@ export const Deposit: React.FC<DepositProps> = ({
   }
 
   const validateCryptoAmount = (value: string, isForAsset0: boolean) => {
-    const crypto = bnOrZero(isForAsset0 ? asset0Balance : asset1Balance).div(
-      bn(10).pow((isForAsset0 ? asset0 : asset1).precision),
+    const crypto = fromBaseUnit(
+      isForAsset0 ? asset0Balance : asset1Balance,
+      (isForAsset0 ? asset0 : asset1).precision,
     )
     const _value = bnOrZero(value)
-    const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+    const hasValidBalance = bn(crypto).gt(0) && _value.gt(0) && bn(crypto).gte(value)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
 
   const validateFiatAmount = (value: string, isForAsset0: boolean) => {
-    const crypto = bnOrZero(isForAsset0 ? asset0Balance : asset1Balance).div(
-      bn(10).pow((isForAsset0 ? asset0 : asset1).precision),
+    const crypto = fromBaseUnit(
+      isForAsset0 ? asset0Balance : asset1Balance,
+      (isForAsset0 ? asset0 : asset1).precision,
     )
-    const fiat = crypto.times((isForAsset0 ? asset0MarketData : asset1MarketData).price)
+    const fiat = bn(crypto).times((isForAsset0 ? asset0MarketData : asset1MarketData).price)
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
 
-  const asset1CryptoAmountAvailable = bnOrZero(asset1Balance).div(bn(10).pow(asset1.precision))
-  const asset1FiatAmountAvailable = bnOrZero(asset1CryptoAmountAvailable).times(
-    asset1MarketData.price,
-  )
-  const asset0CryptoAmountAvailable = bnOrZero(asset0Balance).div(bn(10).pow(asset0.precision))
-  const asset0FiatAmountAvailable = bnOrZero(asset0CryptoAmountAvailable).times(
-    asset0MarketData.price,
-  )
+  const asset0CryptoAmountAvailable = fromBaseUnit(asset0Balance, asset0.precision)
+  const asset0FiatAmountAvailable = bn(asset0CryptoAmountAvailable).times(asset0MarketData.price)
+
+  const asset1CryptoAmountAvailable = fromBaseUnit(asset1Balance, asset1.precision)
+  const asset1FiatAmountAvailable = bn(asset1CryptoAmountAvailable).times(asset1MarketData.price)
 
   const handleBack = () => {
     history.push({
@@ -293,8 +288,8 @@ export const Deposit: React.FC<DepositProps> = ({
       underlyingAssetRatiosBaseUnit={lpOpportunity.underlyingAssetRatiosBaseUnit}
       destAsset={lpAsset}
       apy={lpOpportunity?.apy?.toString() ?? ''}
-      cryptoAmountAvailable0={asset0CryptoAmountAvailable.toPrecision()}
-      cryptoAmountAvailable1={asset1CryptoAmountAvailable.toPrecision()}
+      cryptoAmountAvailable0={asset0CryptoAmountAvailable}
+      cryptoAmountAvailable1={asset1CryptoAmountAvailable}
       cryptoInputValidation0={{
         required: true,
         validate: { validateCryptoAmount0: (val: string) => validateCryptoAmount(val, true) },

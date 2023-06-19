@@ -9,13 +9,14 @@ import {
 import { getOrCreateContractByAddress, getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
-import { buildAndBroadcast, getFeeDataFromEstimate } from 'features/defi/helpers/utils'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
 import type { Address } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { buildAndBroadcast, createBuildCustomTxInput, getFees } from 'lib/utils/evm'
 import { uniswapV2Router02AssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAccountNumberByAccountId,
@@ -91,38 +92,32 @@ export const useUniV2LiquidityPool = ({
     [lpAssetId],
   )
 
-  const asset0Contract = useMemo(
-    () =>
-      skip
-        ? null
-        : getOrCreateContractByType({
-            address: asset0ContractAddress,
-            type: ContractType.ERC20,
-          }),
-    [asset0ContractAddress, skip],
-  )
+  const asset0Contract = useMemo(() => {
+    return skip
+      ? null
+      : getOrCreateContractByType({
+          address: asset0ContractAddress,
+          type: ContractType.ERC20,
+        })
+  }, [asset0ContractAddress, skip])
 
-  const asset1Contract = useMemo(
-    () =>
-      skip
-        ? null
-        : getOrCreateContractByType({
-            address: asset1ContractAddress,
-            type: ContractType.ERC20,
-          }),
-    [asset1ContractAddress, skip],
-  )
+  const asset1Contract = useMemo(() => {
+    return skip
+      ? null
+      : getOrCreateContractByType({
+          address: asset1ContractAddress,
+          type: ContractType.ERC20,
+        })
+  }, [asset1ContractAddress, skip])
 
-  const uniV2LPContract = useMemo(
-    () =>
-      skip
-        ? null
-        : getOrCreateContractByType({
-            address: lpContractAddress,
-            type: ContractType.UniV2Pair,
-          }),
-    [lpContractAddress, skip],
-  )
+  const uniV2LPContract = useMemo(() => {
+    return skip
+      ? null
+      : getOrCreateContractByType({
+          address: lpContractAddress,
+          type: ContractType.UniV2Pair,
+        })
+  }, [lpContractAddress, skip])
 
   const makeAddLiquidityData = useCallback(
     ({ token0Amount, token1Amount }: { token0Amount: string; token1Amount: string }) => {
@@ -147,7 +142,7 @@ export const useUniV2LiquidityPool = ({
 
         return uniswapRouterContract.interface.encodeFunctionData('addLiquidityETH', [
           otherAssetContractAddress,
-          bnOrZero(otherAssetAmount).times(bn(10).exponentiatedBy(otherAsset.precision)).toFixed(0),
+          toBaseUnit(otherAssetAmount, otherAsset.precision),
           amountOtherAssetMin,
           amountEthMin,
           accountAddress,
@@ -160,8 +155,8 @@ export const useUniV2LiquidityPool = ({
         return uniswapRouterContract.interface.encodeFunctionData('addLiquidity', [
           asset0ContractAddress,
           asset1ContractAddress,
-          bnOrZero(token0Amount).times(bn(10).exponentiatedBy(asset0.precision)).toFixed(0),
-          bnOrZero(token1Amount).times(bn(10).exponentiatedBy(asset1.precision)).toFixed(0),
+          toBaseUnit(token0Amount, asset0.precision),
+          toBaseUnit(token1Amount, asset1.precision),
           amountAsset0Min,
           amountAsset1Min,
           fromAccountId(accountId).account,
@@ -185,8 +180,7 @@ export const useUniV2LiquidityPool = ({
   const addLiquidity = useCallback(
     async ({ token0Amount, token1Amount }: { token0Amount: string; token1Amount: string }) => {
       try {
-        if (skip || !accountId || !isNumber(accountNumber) || !uniswapRouterContract || !wallet)
-          return
+        if (skip || !isNumber(accountNumber) || !uniswapRouterContract || !wallet) return
 
         if (!adapter) throw new Error(`no adapter available for ${asset0.chainId}`)
 
@@ -196,31 +190,16 @@ export const useUniV2LiquidityPool = ({
           return '0'
         })()
 
-        const value = bnOrZero(maybeEthAmount)
-          .times(bn(10).exponentiatedBy(weth.precision))
-          .toFixed(0)
-
-        const data = makeAddLiquidityData({ token0Amount, token1Amount })
-        const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-
-        const feeData = await adapter.getFeeData({
-          to: contractAddress,
-          value,
-          chainSpecific: {
-            contractData: data,
-            from: fromAccountId(accountId).account,
-          },
-        })
-
-        const txid = await buildAndBroadcast({
+        const buildCustomTxInput = await createBuildCustomTxInput({
           accountNumber,
           adapter,
-          feeData: getFeeDataFromEstimate(feeData).chainSpecific,
-          to: contractAddress,
-          value,
+          data: makeAddLiquidityData({ token0Amount, token1Amount }),
+          to: fromAssetId(uniswapV2Router02AssetId).assetReference,
+          value: toBaseUnit(maybeEthAmount, weth.precision),
           wallet,
-          data,
         })
+
+        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
 
         return txid
       } catch (err) {
@@ -228,7 +207,6 @@ export const useUniV2LiquidityPool = ({
       }
     },
     [
-      accountId,
       accountNumber,
       adapter,
       asset0,
@@ -258,10 +236,6 @@ export const useUniV2LiquidityPool = ({
     }) => {
       if (!uniswapRouterContract) throw new Error('uniswapRouterContract not defined')
 
-      const lpAmountBaseUnit = bnOrZero(lpAmount)
-        .times(bn(10).exponentiatedBy(lpAsset.precision))
-        .toFixed(0)
-
       const deadline = Date.now() + 1200000 // 20 minutes from now
       const to = fromAccountId(accountId).account
 
@@ -273,7 +247,7 @@ export const useUniV2LiquidityPool = ({
         const otherAssetAmount = assetId0OrWeth === wethAssetId ? asset1Amount : asset0Amount
         return uniswapRouterContract.interface.encodeFunctionData('removeLiquidityETH', [
           otherAssetContractAddress,
-          lpAmountBaseUnit,
+          toBaseUnit(lpAmount, lpAsset.precision),
           calculateSlippageMargin(otherAssetAmount, otherAsset.precision),
           calculateSlippageMargin(ethAmount, weth.precision),
           to,
@@ -284,7 +258,7 @@ export const useUniV2LiquidityPool = ({
       return uniswapRouterContract.interface.encodeFunctionData('removeLiquidity', [
         asset0ContractAddress,
         asset1ContractAddress,
-        lpAmountBaseUnit,
+        toBaseUnit(lpAmount, lpAsset.precision),
         calculateSlippageMargin(asset0Amount, asset0.precision),
         calculateSlippageMargin(asset1Amount, asset1.precision),
         to,
@@ -314,8 +288,7 @@ export const useUniV2LiquidityPool = ({
       asset0Amount: string
     }) => {
       try {
-        if (skip || !accountId || !isNumber(accountNumber) || !uniswapRouterContract || !wallet)
-          return
+        if (skip || !isNumber(accountNumber) || !uniswapRouterContract || !wallet) return
 
         if (!adapter) throw new Error(`no adapter available for ${asset0.chainId}`)
 
@@ -327,26 +300,16 @@ export const useUniV2LiquidityPool = ({
           asset0Amount,
         })
 
-        const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-
-        const feeData = await adapter.getFeeData({
-          to: contractAddress,
-          value: '0',
-          chainSpecific: {
-            contractData: data,
-            from: fromAccountId(accountId).account,
-          },
-        })
-
-        const txid = await buildAndBroadcast({
+        const buildCustomTxInput = await createBuildCustomTxInput({
           accountNumber,
           adapter,
-          feeData: getFeeDataFromEstimate(feeData).chainSpecific,
-          to: contractAddress,
+          data,
+          to: fromAssetId(uniswapV2Router02AssetId).assetReference,
           value: '0',
           wallet,
-          data,
         })
+
+        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
 
         return txid
       } catch (err) {
@@ -356,7 +319,6 @@ export const useUniV2LiquidityPool = ({
     [
       adapter,
       skip,
-      accountId,
       accountNumber,
       uniswapRouterContract,
       wallet,
@@ -375,12 +337,12 @@ export const useUniV2LiquidityPool = ({
     const reserves = await uniV2LPContract.getReserves()
 
     const userOwnershipOfPool = bnOrZero(balance.toString()).div(bnOrZero(totalSupply.toString()))
-    const asset0Balance = userOwnershipOfPool
-      .times(bnOrZero(reserves[0].toString()))
-      .div(bn(10).pow(asset0.precision))
-    const asset1Balance = userOwnershipOfPool
-      .times(bnOrZero(reserves[1].toString()))
-      .div(bn(10).pow(asset1.precision))
+    const asset0Balance = userOwnershipOfPool.times(
+      fromBaseUnit(reserves[0].toString(), asset0.precision),
+    )
+    const asset1Balance = userOwnershipOfPool.times(
+      fromBaseUnit(reserves[1].toString(), asset1.precision),
+    )
 
     return {
       asset0Balance,
@@ -393,8 +355,9 @@ export const useUniV2LiquidityPool = ({
     if (!uniV2LPContract) return
 
     const reserves = await uniV2LPContract.getReserves()
+
     // Amount of Eth in liquidity pool
-    const ethInReserve = bnOrZero(reserves?.[0]?.toString()).div(bn(10).pow(asset0.precision))
+    const ethInReserve = bn(fromBaseUnit(reserves?.[0]?.toString(), asset0.precision))
 
     // Total market cap of liquidity pool in usdc.
     // Multiplied by 2 to show equal amount of eth and fox.
@@ -408,7 +371,7 @@ export const useUniV2LiquidityPool = ({
     const tvl = await getLpTVL()
     const totalSupply = await uniV2LPContract.totalSupply()
 
-    return bnOrZero(tvl).div(bnOrZero(totalSupply.toString()).div(bn(10).pow(lpAsset.precision)))
+    return bnOrZero(tvl).div(fromBaseUnit(totalSupply.toString(), lpAsset.precision))
   }, [skip, getLpTVL, lpAsset.precision, uniV2LPContract])
 
   // TODO(gomes): consolidate me
@@ -442,9 +405,9 @@ export const useUniV2LiquidityPool = ({
     return _allowance.toString()
   }, [skip, uniV2LPContract, accountId])
 
-  const getApproveFeeData = useCallback(
-    async (contractAddress: Address) => {
-      if (skip || !adapter || !accountId) return
+  const getApproveFees = useCallback(
+    (contractAddress: Address) => {
+      if (skip || !adapter || !isNumber(accountNumber) || !wallet) return
 
       const contract = getOrCreateContractByType({
         address: contractAddress,
@@ -458,23 +421,29 @@ export const useUniV2LiquidityPool = ({
         MaxUint256,
       ])
 
-      const feeData = await adapter.getFeeData({
+      return getFees({
+        accountNumber,
+        adapter,
+        data,
         to: contract.address,
         value: '0',
-        chainSpecific: {
-          contractData: data,
-          from: fromAccountId(accountId).account,
-        },
+        wallet,
       })
-
-      return getFeeDataFromEstimate(feeData)
     },
-    [skip, adapter, accountId],
+    [skip, accountNumber, adapter, wallet],
   )
 
-  const getDepositFeeData = useCallback(
-    async ({ token0Amount, token1Amount }: { token0Amount: string; token1Amount: string }) => {
-      if (skip || !adapter || !accountId || !uniswapRouterContract) return
+  const getDepositFees = useCallback(
+    ({ token0Amount, token1Amount }: { token0Amount: string; token1Amount: string }) => {
+      if (
+        skip ||
+        !adapter ||
+        !accountId ||
+        !isNumber(accountNumber) ||
+        !uniswapRouterContract ||
+        !wallet
+      )
+        return
 
       // https://docs.uniswap.org/contracts/v2/reference/smart-contracts/router-02#addliquidityeth
       const deadline = Date.now() + 1200000 // 20 minutes from now
@@ -487,67 +456,57 @@ export const useUniV2LiquidityPool = ({
         const ethAmount = assetId0OrWeth === wethAssetId ? token0Amount : token1Amount
         const otherAssetAmount = assetId0OrWeth === wethAssetId ? token1Amount : token0Amount
 
-        const ethValueBaseUnit = bnOrZero(ethAmount)
-          .times(bn(10).exponentiatedBy(weth.precision))
-          .toFixed(0)
         const accountAddress = fromAccountId(accountId).account
-        const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-
         const amountOtherAssetMin = calculateSlippageMargin(otherAssetAmount, otherAsset.precision)
         const amountEthMin = calculateSlippageMargin(ethAmount, weth.precision)
 
         const data = uniswapRouterContract.interface.encodeFunctionData('addLiquidityETH', [
           otherAssetContractAddress,
-          bnOrZero(otherAssetAmount).times(bn(10).pow(otherAsset.precision)).toFixed(0),
+          toBaseUnit(otherAssetAmount, otherAsset.precision),
           amountOtherAssetMin,
           amountEthMin,
           accountAddress,
           deadline,
         ])
 
-        const feeData = await adapter.getFeeData({
-          to: contractAddress,
-          value: ethValueBaseUnit,
-          chainSpecific: {
-            contractData: data,
-            from: accountAddress,
-          },
+        return getFees({
+          accountNumber,
+          adapter,
+          data,
+          to: fromAssetId(uniswapV2Router02AssetId).assetReference,
+          value: toBaseUnit(ethAmount, weth.precision),
+          wallet,
         })
-
-        return getFeeDataFromEstimate(feeData)
       } else {
         const accountAddress = fromAccountId(accountId).account
-        const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-
         const amountAsset0Min = calculateSlippageMargin(token0Amount, asset0.precision)
         const amountAsset1Min = calculateSlippageMargin(token1Amount, asset1.precision)
 
         const data = uniswapRouterContract.interface.encodeFunctionData('addLiquidity', [
           asset0ContractAddress,
           asset1ContractAddress,
-          bnOrZero(token0Amount).times(bn(10).exponentiatedBy(asset0.precision)).toFixed(0),
-          bnOrZero(token1Amount).times(bn(10).exponentiatedBy(asset1.precision)).toFixed(0),
+          toBaseUnit(token0Amount, asset0.precision),
+          toBaseUnit(token1Amount, asset1.precision),
           amountAsset0Min,
           amountAsset1Min,
           accountAddress,
           deadline,
         ])
 
-        const feeData = await adapter.getFeeData({
-          to: contractAddress,
-          value: '0', // 0 ETH since these are ERC20 <-> ERC20 pools
-          chainSpecific: {
-            contractData: data,
-            from: accountAddress,
-          },
+        return getFees({
+          accountNumber,
+          adapter,
+          data,
+          to: fromAssetId(uniswapV2Router02AssetId).assetReference,
+          value: '0',
+          wallet,
         })
-
-        return getFeeDataFromEstimate(feeData)
       }
     },
     [
       skip,
       accountId,
+      accountNumber,
       uniswapRouterContract,
       assetId0OrWeth,
       assetId1OrWeth,
@@ -557,12 +516,13 @@ export const useUniV2LiquidityPool = ({
       asset0,
       weth.precision,
       adapter,
+      wallet,
     ],
   )
 
-  const getWithdrawFeeData = useCallback(
-    async (lpAmount: string, asset0Amount: string, asset1Amount: string) => {
-      if (skip || !adapter || !accountId || !uniswapRouterContract) return
+  const getWithdrawFees = useCallback(
+    (lpAmount: string, asset0Amount: string, asset1Amount: string) => {
+      if (skip || !adapter || !isNumber(accountNumber) || !uniswapRouterContract || !wallet) return
 
       const data = makeRemoveLiquidityData({
         lpAmount,
@@ -572,27 +532,24 @@ export const useUniV2LiquidityPool = ({
         asset1ContractAddress,
       })
 
-      const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
-
-      const feeData = await adapter.getFeeData({
-        to: contractAddress,
+      return getFees({
+        accountNumber,
+        adapter,
+        data,
+        to: fromAssetId(uniswapV2Router02AssetId).assetReference,
         value: '0',
-        chainSpecific: {
-          contractData: data,
-          from: fromAccountId(accountId).account,
-        },
+        wallet,
       })
-
-      return getFeeDataFromEstimate(feeData)
     },
     [
       skip,
-      accountId,
+      accountNumber,
       uniswapRouterContract,
       makeRemoveLiquidityData,
       asset0ContractAddress,
       asset1ContractAddress,
       adapter,
+      wallet,
     ],
   )
 
@@ -615,22 +572,24 @@ export const useUniV2LiquidityPool = ({
         MaxUint256,
       ])
 
-      const feeData = await getApproveFeeData(contractAddress)
-      if (!feeData) return
+      const fees = await getApproveFees(contractAddress)
+      if (!fees) return
 
       const txid = await buildAndBroadcast({
-        accountNumber,
         adapter,
-        feeData: feeData.chainSpecific,
-        to: contractAddress,
-        value: '0',
-        wallet,
-        data,
+        buildCustomTxInput: {
+          accountNumber,
+          to: contractAddress,
+          value: '0',
+          data,
+          wallet,
+          ...fees,
+        },
       })
 
       return txid
     },
-    [accountNumber, adapter, getApproveFeeData, skip, wallet],
+    [accountNumber, adapter, getApproveFees, skip, wallet],
   )
 
   return {
@@ -640,10 +599,10 @@ export const useUniV2LiquidityPool = ({
     asset1Allowance,
     approveAsset,
     calculateHoldings,
-    getApproveFeeData,
-    getDepositFeeData,
+    getApproveFees,
+    getDepositFees,
     getLpTVL,
-    getWithdrawFeeData,
+    getWithdrawFees,
     removeLiquidity,
     getLpTokenPrice,
   }

@@ -99,6 +99,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const handleQuoteSelection = useCallback(() => {
     dispatch(tradeQuoteSlice.actions.setSwapperName(quoteData.swapperName))
     dispatch(tradeQuoteSlice.actions.setQuote(quote))
+    dispatch(tradeQuoteSlice.actions.setError(undefined))
   }, [dispatch, quote, quoteData.swapperName])
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset?.chainId ?? ''))

@@ -26,7 +26,7 @@ import { WithdrawContext } from '../WithdrawContext'
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
-  const poll = usePoll()
+  const { poll } = usePoll()
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(WithdrawContext)
   const estimatedGasCryptoBaseUnit = state?.approve.estimatedGasCryptoBaseUnit

@@ -1,7 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { createErrorClass } from '@shapeshiftoss/errors'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type {
   ChainSpecific,
   KnownChainIds,
@@ -230,6 +230,7 @@ export enum SwapErrorType {
   // Catch-all for happy responses, but entity not found according to our criteria
   NOT_FOUND = 'NOT_FOUND',
 }
+
 export interface Swapper<T extends ChainId, MaybeUnknownNetworkFee extends boolean = false> {
   /** Human-readable swapper name */
   readonly name: SwapperName
@@ -273,4 +274,19 @@ export interface Swapper<T extends ChainId, MaybeUnknownNetworkFee extends boole
    * Get transactions related to a trade
    */
   getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>>
+}
+
+export type Swapper3 = {
+  getUnsignedTx(
+    tradeQuote: TradeQuote & { receiveAddress: string; affiliateBps: string },
+    // Note, `wallet` isn't going to cut it once this actually lives as an API - added for compatibility with current chain-adapters implementation
+    // adapter.buildSendTransaction() should be able to sign a Tx, without a wallet
+    // We will want to decouple building a "send trasaction" (i.e a Tx to sign with a few additional fields), and the actual unsigned Tx building in chain-adapters
+    // Alternatively, since wallet is used for chain support detection and getAddress() calls, we could build a `buildUnsignedTx` variant
+    // with a slightly different payload
+    wallet: HDWallet,
+    // Similarly, this is for backwards compatibility. Do we want to only return the unsigned Tx, without the additional data here?
+    // This is very hdwallet/chain-adapters specific, and won't catter to the needs of consumers
+  ): Promise<Result<ETHSignTx, SwapErrorRight>>
+  executeTrade(executeTradeArgs: { txToExecute: string; wallet: HDWallet }): string
 }

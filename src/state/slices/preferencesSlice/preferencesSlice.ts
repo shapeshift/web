@@ -45,6 +45,7 @@ export type FeatureFlags = {
   Chatwoot: boolean
   MultiHopTrades: boolean
   CoinbaseWallet: boolean
+  AdvancedSlippage: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -102,6 +103,7 @@ const initialState: Preferences = {
     Chatwoot: getConfig().REACT_APP_FEATURE_CHATWOOT,
     MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
     CoinbaseWallet: getConfig().REACT_APP_FEATURE_COINBASE_WALLET,
+    AdvancedSlippage: getConfig().REACT_APP_ADVANCED_SLIPPAGE,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

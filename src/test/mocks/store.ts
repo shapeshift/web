@@ -92,6 +92,7 @@ export const mockStore: ReduxState = {
       Chatwoot: false,
       MultiHopTrades: false,
       CoinbaseWallet: false,
+      AdvancedSlippage: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

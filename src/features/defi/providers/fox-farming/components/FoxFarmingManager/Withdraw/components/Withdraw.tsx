@@ -14,6 +14,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
@@ -61,7 +62,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
-  const { getUnstakeFeeData, allowance, getApproveFeeData } = useFoxFarming(contractAddress)
+  const { getUnstakeFees, allowance, getApproveFees } = useFoxFarming(contractAddress)
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
@@ -82,25 +83,22 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   )
 
   const amountAvailableCryptoPrecision = useMemo(
-    () =>
-      bnOrZero(opportunity?.cryptoAmountBaseUnit)
-        .div(bn(10).pow(underlyingAsset.precision))
-        .toFixed(),
+    () => fromBaseUnit(bnOrZero(opportunity?.cryptoAmountBaseUnit), underlyingAsset.precision),
     [underlyingAsset.precision, opportunity?.cryptoAmountBaseUnit],
   )
 
   const getWithdrawGasEstimateCryptoPrecision = useCallback(
     async (withdraw: WithdrawValues) => {
       try {
-        const feeData = await getUnstakeFeeData(withdraw.cryptoAmount, isExiting)
-        if (!feeData) return
-        return bnOrZero(feeData.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
+        const fees = await getUnstakeFees(withdraw.cryptoAmount, isExiting)
+        if (!fees) return
+        return fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision)
       } catch (error) {
         // TODO: handle client side errors maybe add a toast?
         console.error(error)
       }
     },
-    [feeAsset.precision, getUnstakeFeeData, isExiting],
+    [feeAsset.precision, getUnstakeFees, isExiting],
   )
 
   const handleContinue = useCallback(
@@ -117,7 +115,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         },
       })
       const lpAllowance = await allowance()
-      const allowanceAmount = bnOrZero(lpAllowance).div(bn(10).pow(underlyingAsset.precision))
+      const allowanceAmount = bn(fromBaseUnit(bnOrZero(lpAllowance), underlyingAsset.precision))
 
       // Skip approval step if user allowance is greater than or equal requested deposit amount
       if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount))) {
@@ -144,14 +142,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           assets,
         )
       } else {
-        const feeData = await getApproveFeeData()
-        if (!feeData) return
+        const fees = await getApproveFees()
+        if (!fees) return
         dispatch({
           type: FoxFarmingWithdrawActionType.SET_APPROVE,
           payload: {
-            estimatedGasCryptoPrecision: bnOrZero(feeData.txFee)
-              .div(bn(10).pow(feeAsset.precision))
-              .toPrecision(),
+            estimatedGasCryptoPrecision: fromBaseUnit(
+              fees.networkFeeCryptoBaseUnit,
+              feeAsset.precision,
+            ),
           },
         })
         onNext(DefiStep.Approve)
@@ -163,7 +162,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       assets,
       dispatch,
       feeAsset.precision,
-      getApproveFeeData,
+      getApproveFees,
       getWithdrawGasEstimateCryptoPrecision,
       isExiting,
       onNext,
@@ -176,10 +175,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const handlePercentClick = useCallback(
     (percent: number) => {
-      const cryptoAmount = bnOrZero(amountAvailableCryptoPrecision).times(percent)
+      const cryptoAmount = bnOrZero(amountAvailableCryptoPrecision).times(percent).toString()
       const fiatAmount = bnOrZero(opportunity?.fiatAmount).times(percent).toString()
-      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+      setValue(Field.FiatAmount, fiatAmount, { shouldValidate: true })
+      setValue(Field.CryptoAmount, cryptoAmount, { shouldValidate: true })
       // exit if max button was clicked
       setIsExiting(percent === 1)
     },

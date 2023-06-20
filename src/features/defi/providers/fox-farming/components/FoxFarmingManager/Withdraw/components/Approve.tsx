@@ -19,6 +19,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
@@ -63,7 +64,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
-  const { allowance, approve, getUnstakeFeeData } = useFoxFarming(contractAddress)
+  const { allowance, approve, getUnstakeFees } = useFoxFarming(contractAddress)
   const toast = useToast()
   const assets = useAppSelector(selectAssets)
 
@@ -96,21 +97,24 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       await poll({
         fn: () => allowance(),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(bn(10).pow(underlyingAsset?.precision ?? 0))
-          return bnOrZero(allowance).gte(bnOrZero(state?.withdraw.lpAmount))
+          const allowance = bn(fromBaseUnit(result, underlyingAsset?.precision ?? 0))
+          return allowance.gte(bnOrZero(state?.withdraw.lpAmount))
         },
         interval: 15000,
         maxAttempts: 30,
       })
       // Get withdraw gas estimate
-      const feeData = await getUnstakeFeeData(state.withdraw.lpAmount, state.withdraw.isExiting)
-      if (!feeData) return
-      const estimatedGasCrypto = bnOrZero(feeData.txFee)
-        .div(bn(10).pow(underlyingAsset?.precision ?? 0))
-        .toPrecision()
+      const fees = await getUnstakeFees(state.withdraw.lpAmount, state.withdraw.isExiting)
+      if (!fees) return
+
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedGasCryptoPrecision: estimatedGasCrypto },
+        payload: {
+          estimatedGasCryptoPrecision: fromBaseUnit(
+            fees.networkFeeCryptoBaseUnit,
+            underlyingAsset?.precision ?? 0,
+          ),
+        },
       })
 
       onNext(DefiStep.Confirm)
@@ -142,7 +146,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     wallet,
     approve,
     poll,
-    getUnstakeFeeData,
+    getUnstakeFees,
     underlyingAsset?.precision,
     onNext,
     assets,

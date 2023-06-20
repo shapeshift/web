@@ -31,6 +31,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -56,7 +57,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
   const [estimatedGas, setEstimatedGas] = useState<string>('0')
   const [loading, setLoading] = useState<boolean>(false)
   const [canClaim, setCanClaim] = useState<boolean>(false)
-  const { state: walletState } = useWallet()
+  const wallet = useWallet().state.wallet
 
   const assets = useAppSelector(selectAssets)
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -65,7 +66,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
-  const { claimRewards, getClaimFeeData, foxFarmingContract } = useFoxFarming(contractAddress)
+  const { claimRewards, getClaimFees, foxFarmingContract } = useFoxFarming(contractAddress)
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { onOngoingFarmingTxIdChange } = useFoxEth()
@@ -107,7 +108,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
   const toast = useToast()
 
   const handleConfirm = async () => {
-    if (!walletState.wallet || !contractAddress || !accountAddress || !opportunity || !asset) return
+    if (!wallet || !contractAddress || !accountAddress || !opportunity || !asset) return
     setLoading(true)
     try {
       const txid = await claimRewards()
@@ -147,15 +148,13 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
   useEffect(() => {
     ;(async () => {
       try {
-        if (
-          !(walletState.wallet && feeAsset && feeMarketData && foxFarmingContract && accountAddress)
-        )
-          return
-        const feeData = await getClaimFeeData(accountAddress)
-        if (!feeData) throw new Error('Gas estimation failed')
-        const estimatedGasCrypto = bnOrZero(feeData.txFee)
-          .div(`1e${feeAsset.precision}`)
-          .toPrecision()
+        if (!(wallet && feeMarketData && accountAddress)) return
+
+        const fees = await getClaimFees(accountAddress)
+        if (!fees) throw new Error('failed to get claim fees')
+
+        const estimatedGasCrypto = fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision)
+
         setCanClaim(true)
         setEstimatedGas(estimatedGasCrypto)
       } catch (error) {
@@ -165,18 +164,17 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
     })()
   }, [
     accountAddress,
-    feeAsset,
     feeAsset.precision,
     feeMarketData,
     feeMarketData.price,
-    getClaimFeeData,
-    walletState.wallet,
+    getClaimFees,
+    wallet,
     foxFarmingContract,
   ])
 
   const feeAssetBalanceFilter = useMemo(
-    () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
-    [accountId, feeAsset?.assetId],
+    () => ({ assetId: feeAsset.assetId, accountId: accountId ?? '' }),
+    [accountId, feeAsset.assetId],
   )
 
   const feeAssetBalance = useAppSelector(s =>

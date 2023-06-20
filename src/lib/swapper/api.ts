@@ -1,18 +1,13 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type {
+  ChainSignTx,
   CosmosSdkChainId,
   EvmChainId,
   SignTx,
   UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
 import { createErrorClass } from '@shapeshiftoss/errors'
-import type {
-  CosmosSignTx,
-  ETHSignTx,
-  HDWallet,
-  OsmosisSignTx,
-  ThorchainSignTx,
-} from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type {
   ChainSpecific,
   KnownChainIds,
@@ -286,12 +281,7 @@ export interface Swapper<T extends ChainId, MaybeUnknownNetworkFee extends boole
   getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>>
 }
 
-export type UnsignedTx =
-  | ETHSignTx
-  | ThorchainSignTx
-  | OsmosisSignTx
-  | CosmosSignTx
-  | SignTx<UtxoChainId>
+export type UnsignedTx = SignTx<keyof ChainSignTx>
 
 export type TradeQuote2 = TradeQuote & { id: string; receiveAddress: string; affiliateBps: string }
 

@@ -133,6 +133,7 @@ export const SlippagePopover = () => {
                     placeholder={slippageAmount}
                     value={value}
                     onBlur={handleOnBlur}
+                    type='number'
                     _focus={{ '&[aria-invalid=true]': { borderColor: 'red.500' } }}
                     onChange={e => handleChange(e.target.value)}
                     ref={inputRef}

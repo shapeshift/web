@@ -120,7 +120,7 @@ export type TxHistoryResponse = {
   transactions: Transaction[]
 }
 
-type ChainSignTx = {
+export type ChainSignTx = {
   [KnownChainIds.EthereumMainnet]: ETHSignTx
   [KnownChainIds.AvalancheMainnet]: ETHSignTx
   [KnownChainIds.OptimismMainnet]: ETHSignTx

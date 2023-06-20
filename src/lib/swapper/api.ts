@@ -1,5 +1,11 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  ChainSignTx,
+  CosmosSdkChainId,
+  EvmChainId,
+  SignTx,
+  UtxoChainId,
+} from '@shapeshiftoss/chain-adapters'
 import { createErrorClass } from '@shapeshiftoss/errors'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type {
@@ -11,6 +17,7 @@ import type {
 import type { Result } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
 import type { RequireFields } from 'lib/types'
+import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export const SwapError = createErrorClass('SwapError')
 
@@ -275,22 +282,23 @@ export interface Swapper<T extends ChainId, MaybeUnknownNetworkFee extends boole
   getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>>
 }
 
-export type ExecuteTradeInput2 = {
-  tradeQuote: TradeQuote<ChainId>
-  wallet: HDWallet
-  receiveAddress: string
-  affiliateBps?: string
-  xpub?: string
-  accountType?: UtxoAccountType
-}
-
 export type Swapper2 = {
   getTradeQuote: (
     input: GetEvmTradeQuoteInput,
     ...deps: any[]
   ) => Promise<Result<TradeQuote, SwapErrorRight>>
-  executeTrade: (input: ExecuteTradeInput2) => Promise<string>
-  checkTradeStatus: (txId: string) => Promise<{ isComplete: boolean; message?: string }>
+  getUnsignedTx: (input: {
+    from: string
+    tradeQuote: TradeQuote & { receiveAddress: string; affiliateBps: string }
+    chainId?: ChainId
+    accountMetadata?: AccountMetadata
+  }) => Promise<Result<SignTx<keyof ChainSignTx>, SwapErrorRight>>
+  executeTrade(executeTradeArgs: {
+    txToExecute: SignTx<keyof ChainSignTx>
+    wallet: HDWallet
+    chainId: ChainId
+  }): Promise<Result<string, SwapErrorRight>>
+  checkTradeStatus: (tradeId: string) => Promise<{ isComplete: boolean; message?: string }>
   filterAssetIdsBySellable: (assetIds: AssetId[]) => AssetId[]
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => AssetId[]
 }

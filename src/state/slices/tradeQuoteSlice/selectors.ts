@@ -117,8 +117,6 @@ export const selectSellAmountCryptoBaseUnit = createSelector(selectFirstHop, fir
   firstHop ? firstHop.sellAmountBeforeFeesCryptoBaseUnit : undefined,
 )
 
-// const selectFeeAssetByIdSelector = (state: ReduxState) => selectFeeAssetById(state)
-
 export const selectSellAmountCryptoPrecision = createSelector(
   [selectFirstHopSellAsset, selectSellAmountCryptoBaseUnit],
   (firstHopSellAsset, sellAmountCryptoBaseUnit) =>

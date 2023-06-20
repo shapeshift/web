@@ -43,12 +43,21 @@ type GetErc20AllowanceArgs = {
 
 type GetFeesArgs = {
   adapter: EvmChainAdapter
-  accountNumber: number
   to: string
   value: string
   data: string
   wallet: HDWallet
-}
+} & FromOrAccountNumber
+
+type FromOrAccountNumber =
+  | {
+      from: string
+      accountNumber?: never
+    }
+  | {
+      from?: never
+      accountNumber: number
+    }
 
 type Fees = evm.Fees & {
   gasLimit: string
@@ -58,6 +67,7 @@ type Fees = evm.Fees & {
 export const getFees = async ({
   accountNumber,
   adapter,
+  from: _from,
   to,
   value,
   data,
@@ -65,7 +75,7 @@ export const getFees = async ({
 }: GetFeesArgs): Promise<Fees> => {
   if (!supportsETH(wallet)) throw new Error('eth wallet required')
 
-  const from = await adapter.getAddress({ accountNumber, wallet })
+  const from = _from ?? (await adapter.getAddress({ accountNumber, wallet }))
 
   const getFeeDataInput = { to, value, chainSpecific: { from, contractData: data } }
 

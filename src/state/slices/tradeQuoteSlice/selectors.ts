@@ -89,27 +89,27 @@ export const selectTotalProtocolFeeByAsset = createDeepEqualOutputSelector(
   quote => (quote ? getTotalProtocolFeeByAsset(quote) : undefined),
 )
 
-export const selectFirstHop = createSelector(selectSelectedQuote, quote =>
+export const selectFirstHop = createDeepEqualOutputSelector(selectSelectedQuote, quote =>
   quote ? quote.steps[0] : undefined,
 )
 
-export const selectLastHop = createSelector(selectSelectedQuote, quote =>
+export const selectLastHop = createDeepEqualOutputSelector(selectSelectedQuote, quote =>
   quote ? quote.steps[quote.steps.length - 1] : undefined,
 )
 
-export const selectFirstHopSellAsset = createSelector(selectFirstHop, firstHop =>
+export const selectFirstHopSellAsset = createDeepEqualOutputSelector(selectFirstHop, firstHop =>
   firstHop ? firstHop.sellAsset : undefined,
 )
 
-export const selectFirstHopBuyAsset = createSelector(selectFirstHop, firstHop =>
+export const selectFirstHopBuyAsset = createDeepEqualOutputSelector(selectFirstHop, firstHop =>
   firstHop ? firstHop.buyAsset : undefined,
 )
 
-export const selectLastHopSellAsset = createSelector(selectLastHop, lastHop =>
+export const selectLastHopSellAsset = createDeepEqualOutputSelector(selectLastHop, lastHop =>
   lastHop ? lastHop.sellAsset : undefined,
 )
 
-export const selectLastHopBuyAsset = createSelector(selectLastHop, lastHop =>
+export const selectLastHopBuyAsset = createDeepEqualOutputSelector(selectLastHop, lastHop =>
   lastHop ? lastHop.buyAsset : undefined,
 )
 
@@ -125,12 +125,12 @@ export const selectSellAmountCryptoPrecision = createSelector(
       : undefined,
 )
 
-export const selectFirstHopSellFeeAsset = createSelector(
+export const selectFirstHopSellFeeAsset = createDeepEqualOutputSelector(
   (state: ReduxState) => selectFeeAssetById(state, selectFirstHopSellAsset(state)?.assetId ?? ''),
   firstHopSellFeeAsset => firstHopSellFeeAsset,
 )
 
-export const selectLastHopSellFeeAsset = createSelector(
+export const selectLastHopSellFeeAsset = createDeepEqualOutputSelector(
   (state: ReduxState) => selectFeeAssetById(state, selectLastHopSellAsset(state)?.assetId ?? ''),
   lastHopSellFeeAsset => lastHopSellFeeAsset,
 )

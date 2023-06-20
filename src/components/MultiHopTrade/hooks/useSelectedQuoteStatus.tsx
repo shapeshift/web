@@ -1,10 +1,14 @@
 import { useMemo } from 'react'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes'
-import { useHopHelper } from 'components/MultiHopTrade/hooks/useHopHelper'
 import { useQuoteValidationPredicateObject } from 'components/MultiHopTrade/hooks/useQuoteValidationPredicateObject'
 import type { QuoteStatus } from 'components/MultiHopTrade/types'
 import { SelectedQuoteStatus } from 'components/MultiHopTrade/types'
 import { SwapErrorType } from 'lib/swapper/api'
+import {
+  selectFirstHopSellFeeAsset,
+  selectLastHopSellFeeAsset,
+} from 'state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 export const useSelectedQuoteStatus = (): QuoteStatus => {
   const {
@@ -13,7 +17,8 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
     lastHopHasSufficientBalanceForGas,
   } = useQuoteValidationPredicateObject()
 
-  const { firstHopSellFeeAsset, lastHopSellFeeAsset } = useHopHelper()
+  const firstHopSellFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
+  const lastHopSellFeeAsset = useAppSelector(selectLastHopSellFeeAsset)
 
   const { selectedQuote } = useGetTradeQuotes()
   const quoteData = useMemo(

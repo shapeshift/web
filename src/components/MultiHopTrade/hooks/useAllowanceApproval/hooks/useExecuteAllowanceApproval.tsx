@@ -6,15 +6,15 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { TradeQuote } from 'lib/swapper/api'
-import { buildAndBroadcast } from 'lib/swapper/swappers/utils/helpers/helpers'
 import { isEvmChainAdapter } from 'lib/utils'
+import { buildAndBroadcast } from 'lib/utils/evm'
 
 import { APPROVAL_POLL_INTERVAL_MILLISECONDS } from '../../constants'
 import { checkApprovalNeeded } from '../helpers'
 
 export const useExecuteAllowanceApproval = (
   tradeQuoteStep: TradeQuote['steps'][number],
-  buildCustomTxArgs?: evm.BuildCustomTxInput,
+  buildCustomTxInput?: evm.BuildCustomTxInput,
 ) => {
   const [txId, setTxId] = useState<string | undefined>()
   const { poll } = usePoll()
@@ -31,13 +31,13 @@ export const useExecuteAllowanceApproval = (
         `no valid EVM chain adapter found for chain Id: ${tradeQuoteStep.sellAsset.chainId}`,
       )
 
-    if (!buildCustomTxArgs) {
-      console.error('missing buildCustomTxArgs')
+    if (!buildCustomTxInput) {
+      console.error('missing buildCustomTxInput')
       return
     }
 
     try {
-      const txId = await buildAndBroadcast({ wallet, buildCustomTxArgs, adapter })
+      const txId = await buildAndBroadcast({ wallet, buildCustomTxInput, adapter })
 
       setTxId(txId)
 
@@ -53,7 +53,7 @@ export const useExecuteAllowanceApproval = (
     } catch (e) {
       showErrorToast(e)
     }
-  }, [buildCustomTxArgs, poll, showErrorToast, tradeQuoteStep, wallet])
+  }, [buildCustomTxInput, poll, showErrorToast, tradeQuoteStep, wallet])
 
   return {
     executeAllowanceApproval,

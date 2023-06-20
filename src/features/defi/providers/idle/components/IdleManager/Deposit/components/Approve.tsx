@@ -40,7 +40,7 @@ import { DepositContext } from '../DepositContext'
 type IdleApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
-  const poll = usePoll()
+  const { poll } = usePoll()
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCryptoBaseUnit = state?.approve.estimatedGasCryptoBaseUnit

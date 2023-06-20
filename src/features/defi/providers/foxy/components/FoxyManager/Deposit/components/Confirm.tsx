@@ -31,7 +31,7 @@ import { DepositContext } from '../DepositContext'
 type ConfirmProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
-  const poll = usePoll<ethers.providers.TransactionReceipt>()
+  const { poll } = usePoll<ethers.providers.TransactionReceipt>()
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()

@@ -5,13 +5,11 @@ import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from 'lib/asset-service'
 import { localAssetData } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { SwapperName } from 'lib/swapper/api'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'
 import { MultiHopExecutionStatus } from './types'
 
 export type SwappersState = {
-  selectedQuote: SwapperName | undefined
   buyAsset: Asset
   sellAsset: Asset
   sellAssetAccountId: AccountId | undefined
@@ -22,7 +20,6 @@ export type SwappersState = {
 
 // Define the initial state:
 const initialState: SwappersState = {
-  selectedQuote: undefined,
   buyAsset: localAssetData[foxAssetId] ?? defaultAsset,
   sellAsset: localAssetData[ethAssetId] ?? defaultAsset,
   sellAssetAccountId: undefined,
@@ -37,9 +34,6 @@ export const swappers = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    setSelectedQuote: (state, action: PayloadAction<SwapperName>) => {
-      state.selectedQuote = action.payload
-    },
     setBuyAsset: (state, action: PayloadAction<Asset>) => {
       state.buyAsset = action.payload
     },

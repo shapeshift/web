@@ -147,6 +147,15 @@ export type BuildSendTxInput<T extends ChainId> = {
   memo?: string
 } & ChainSpecificBuildTxData<T>
 
+export type BuildSignTxInput<T extends ChainId> = {
+  to: string
+  value: string
+  from: string
+  accountNumber: number
+  sendMax?: boolean
+  memo?: string
+} & ChainSpecificBuildTxData<T>
+
 export type ChainSpecificBuildTxData<T> = ChainSpecific<
   T,
   {

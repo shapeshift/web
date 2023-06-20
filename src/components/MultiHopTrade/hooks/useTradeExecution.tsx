@@ -1,15 +1,14 @@
-import type { UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { Swapper2, TradeQuote } from 'lib/swapper/api'
+import type { Swapper2, TradeQuote2 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { lifi } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
 import { thorchain } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
-import { assertUnreachable } from 'lib/utils'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
+import { assertUnreachable, isEvmChainAdapter } from 'lib/utils'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -19,13 +18,9 @@ import { useAccountIds } from './useAccountIds'
 export const useTradeExecution = ({
   swapperName,
   tradeQuote,
-  receiveAddress,
-  affiliateBps,
 }: {
   swapperName: SwapperName
-  tradeQuote: TradeQuote
-  receiveAddress: string
-  affiliateBps: string
+  tradeQuote: TradeQuote2
 }) => {
   const [txId, setTxId] = useState<string | undefined>()
   const [message, setMessage] = useState<string | undefined>()
@@ -46,7 +41,6 @@ export const useTradeExecution = ({
     if (!sellAccountMetadata) throw Error('missing sellAccountMetadata')
 
     const {
-      accountType,
       bip44Params: { accountNumber },
     } = sellAccountMetadata
 
@@ -68,26 +62,34 @@ export const useTradeExecution = ({
     })()
 
     try {
-      const chainId = tradeQuote.steps[0].sellAsset.chainId
+      const stepIndex = 0 // TODO: multi-hop trades require this to be dynamic
+      const chainId = tradeQuote.steps[stepIndex].sellAsset.chainId
 
-      const { xpub } = await (async (): Promise<{ xpub?: string }> => {
-        if (!isUtxoChainId(chainId)) return {}
-        const sellAssetChainAdapter = getChainAdapterManager().get(
-          chainId,
-        ) as unknown as UtxoChainAdapter
+      const sellAssetChainAdapter = getChainAdapterManager().get(chainId)
 
-        if (!accountType) throw Error('missing accountType')
+      if (!sellAssetChainAdapter)
+        throw Error(`missing sellAssetChainAdapter for chainId ${chainId}`)
 
-        return await sellAssetChainAdapter.getPublicKey(wallet, accountNumber, accountType)
-      })()
+      if (isEvmChainAdapter(sellAssetChainAdapter)) {
+        if (!supportsEthSwitchChain(wallet))
+          throw Error(`wallet cannot switch to chainId ${chainId}`)
+        await sellAssetChainAdapter.assertSwitchChain(wallet)
+      }
+
+      const from = await sellAssetChainAdapter.getAddress({ wallet, accountNumber })
+
+      const unsignedTxResult = await swapper.getUnsignedTx({
+        from,
+        tradeQuote,
+        chainId,
+        accountMetadata: sellAccountMetadata,
+        stepIndex,
+      })
 
       const txId = await swapper.executeTrade({
-        tradeQuote,
+        txToExecute: unsignedTxResult,
         wallet,
-        receiveAddress,
-        affiliateBps,
-        xpub,
-        accountType,
+        chainId,
       })
 
       setTxId(txId)
@@ -107,16 +109,7 @@ export const useTradeExecution = ({
     } catch (e) {
       showErrorToast(e)
     }
-  }, [
-    affiliateBps,
-    poll,
-    receiveAddress,
-    sellAccountMetadata,
-    showErrorToast,
-    swapperName,
-    tradeQuote,
-    wallet,
-  ])
+  }, [poll, sellAccountMetadata, showErrorToast, swapperName, tradeQuote, wallet])
 
   return { executeTrade, txId, message }
 }

@@ -22,6 +22,11 @@ export type UnionMapping<T> = {
 /** Pick out the elements we know for sure and make everything else optional */
 export type UnionMerge<T> = Pick<UnionMapping<T>, keyof T> & Partial<UnionMapping<T>>
 
+/** Pick using a generic parameter */
+export type PickGeneric<T, M> = UnionMerge<
+  T extends unknown ? (T extends keyof M ? M[T] : undefined) : never
+>
+
 /** Adds all possible values of union(T) as a nested object under a `chainSpecific` key */
 export type ChainSpecific<T, M> = UnionMerge<
   T extends unknown ? (T extends keyof M ? { chainSpecific: M[T] } : undefined) : never

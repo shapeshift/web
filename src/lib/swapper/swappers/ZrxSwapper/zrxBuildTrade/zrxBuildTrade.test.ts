@@ -1,5 +1,4 @@
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
@@ -66,10 +65,6 @@ const setup = () => {
 describe('zrxBuildTrade', () => {
   const { quoteResponse, sellAsset, buyAsset } = setupZrxTradeQuoteResponse()
   const { zrxService } = setup()
-  const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
-  const wallet = {
-    ethGetAddress: jest.fn(() => Promise.resolve(walletAddress)),
-  } as unknown as HDWallet
 
   const buildTradeInput: BuildTradeInput = {
     chainId: KnownChainIds.EthereumMainnet,
@@ -77,10 +72,9 @@ describe('zrxBuildTrade', () => {
     buyAsset,
     sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
     accountNumber: 0,
-    wallet,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
-    eip1559Support: false,
+    supportsEIP1559: false,
     allowMultiHop: false,
   }
 
@@ -168,7 +162,7 @@ describe('zrxBuildTrade', () => {
       networkFeeCryptoBaseUnit: '4080654495000000',
     }
 
-    const maybeBuiltTrade = await zrxBuildTrade({ ...buildTradeInput, wallet })
+    const maybeBuiltTrade = await zrxBuildTrade({ ...buildTradeInput })
     expect(maybeBuiltTrade.isOk()).toBe(true)
     expect(maybeBuiltTrade.unwrap()).toEqual({
       ...buildTradeResponse,

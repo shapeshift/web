@@ -131,6 +131,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
 
       const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
+      if (!fee) throw new Error('fee is required')
       const amount = this.getAmount({ account, value, fee, sendMax })
 
       const msg: Message = {
@@ -142,6 +143,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
         },
       }
 
+      if (!tx.chainSpecific.fee) throw new Error('chainSpecific.fee is required')
       tx.chainSpecific.fee = calculateFee(tx.chainSpecific.fee)
 
       return this.buildTransaction<KnownChainIds.ThorchainMainnet>({ ...tx, account, msg })
@@ -170,6 +172,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
         },
       }
 
+      if (!tx.chainSpecific.fee) throw new Error('chainSpecific.fee is required')
       tx.chainSpecific.fee = calculateFee(tx.chainSpecific.fee)
 
       return this.buildTransaction<KnownChainIds.ThorchainMainnet>({ ...tx, account, msg })

@@ -252,6 +252,9 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     sendMax = false,
   }: BuildSendTxInput<T>): Promise<{ txToSign: SignTx<T> }> {
     try {
+      if (!accountType) throw new Error('accountType is required')
+      if (!satoshiPerByte)
+        throw new Error('satoshiPerByte is required to build an UTXO send transaction')
       this.assertIsAccountTypeSupported(accountType)
 
       if (!value) throw new Error('value is required')

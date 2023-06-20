@@ -1,5 +1,5 @@
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { ETHWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads/build'
 import { Err, Ok } from '@sniptt/monads/build'
 import type { SwapErrorRight } from 'lib/swapper/api'
@@ -15,6 +15,7 @@ type GetEvmTxFeesArgs = {
   eip1559Support: boolean
   value: string
   wallet?: HDWallet
+  from?: string
 }
 
 type EvmTxFees = {
@@ -24,17 +25,19 @@ type EvmTxFees = {
 export const getEvmTxFees = async (
   args: GetEvmTxFeesArgs,
 ): Promise<Result<EvmTxFees, SwapErrorRight>> => {
-  const { accountNumber, adapter, data, eip1559Support, value, router, wallet } = args
+  const { adapter, data, eip1559Support, value, router, wallet, from } = args
   try {
     // if we have a wallet, we are trying to build the actual trade, get accurate gas estimation
-    if (wallet) {
+
+    if (from && wallet) {
+      const supportsEIP1559 = await (wallet as ETHWallet)?.ethSupportsEIP1559()
       const { networkFeeCryptoBaseUnit } = await getFees({
-        accountNumber,
         adapter,
+        from,
+        supportsEIP1559,
         to: router,
         data,
         value,
-        wallet,
       })
 
       return Ok({ networkFeeCryptoBaseUnit })
@@ -44,7 +47,7 @@ export const getEvmTxFees = async (
 
     const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
       ...average,
-      eip1559Support,
+      supportsEIP1559: eip1559Support,
       gasLimit: THOR_EVM_GAS_LIMIT, // hardcoded default for quote estimation (no wallet)
     })
 

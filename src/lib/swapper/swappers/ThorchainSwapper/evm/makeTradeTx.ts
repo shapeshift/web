@@ -10,13 +10,15 @@ import { createBuildCustomTxInput } from 'lib/utils/evm'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 
 type MakeTradeTxArgs = {
-  accountNumber: number
+  from: string
   adapter: ThorEvmSupportedChainAdapter
   data: string
   router: string
   sellAmountCryptoBaseUnit: string
   sellAsset: Asset
-  wallet: HDWallet
+  wallet?: HDWallet
+  accountNumber: number
+  supportsEIP1559: boolean | undefined
 }
 
 type TradeTx = {
@@ -26,19 +28,36 @@ type TradeTx = {
 export const makeTradeTx = async (
   args: MakeTradeTxArgs,
 ): Promise<Result<TradeTx, SwapErrorRight>> => {
-  const { accountNumber, adapter, data, router, sellAmountCryptoBaseUnit, sellAsset, wallet } = args
+  const {
+    from,
+    adapter,
+    data,
+    router,
+    sellAmountCryptoBaseUnit,
+    sellAsset,
+    supportsEIP1559,
+    wallet,
+    accountNumber,
+  } = args
 
   try {
     const buildCustomTxInput = await createBuildCustomTxInput({
+      // TODO type me and implement me properly
+      // @ts-ignore
+      chainSpecific: {},
       accountNumber,
+      wallet,
+      supportsEIP1559,
+      from,
       adapter,
       to: router,
       value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
       data,
-      wallet,
     })
 
-    const { txToSign } = await adapter.buildCustomTx(buildCustomTxInput)
+    // TODO type chainSpecific and implement it properly
+    // @ts-ignore
+    const txToSign = await adapter.buildSignTx(buildCustomTxInput)
 
     return Ok({ txToSign })
   } catch (e) {

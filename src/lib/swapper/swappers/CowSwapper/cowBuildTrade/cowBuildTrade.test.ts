@@ -215,7 +215,7 @@ describe('cowBuildTrade', () => {
       wallet: {} as HDWallet,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
       slippage: getDefaultSlippagePercentageForSwapper(SwapperName.Test),
       allowMultiHop: false,
     }
@@ -244,7 +244,7 @@ describe('cowBuildTrade', () => {
       wallet: {} as HDWallet,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
       slippage: getDefaultSlippagePercentageForSwapper(SwapperName.Test),
       allowMultiHop: false,
     }
@@ -290,7 +290,7 @@ describe('cowBuildTrade', () => {
       wallet: {} as HDWallet,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
       slippage: getDefaultSlippagePercentageForSwapper(SwapperName.Test),
       allowMultiHop: false,
     }
@@ -338,7 +338,7 @@ describe('cowBuildTrade', () => {
       wallet: {} as HDWallet,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
       allowMultiHop: false,
     }
 
@@ -383,7 +383,7 @@ describe('cowBuildTrade', () => {
       wallet: {} as HDWallet,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
       slippage: '0.005',
       allowMultiHop: false,
     }

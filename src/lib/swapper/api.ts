@@ -114,7 +114,7 @@ type CommonTradeInput = {
 
 export type GetEvmTradeQuoteInput = CommonTradeInput & {
   chainId: EvmChainId
-  eip1559Support: boolean
+  supportsEIP1559: boolean
 }
 
 export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
@@ -135,7 +135,6 @@ export type GetTradeQuoteInput =
 
 export type BuildTradeInput = GetTradeQuoteInput & {
   slippage?: string
-  wallet: HDWallet
 }
 
 export type AmountDisplayMeta = {
@@ -299,13 +298,22 @@ export type ExecuteTradeArgs = {
   chainId: ChainId
 }
 
+export type ExecuteTradeInput2 = {
+  tradeQuote: TradeQuote<ChainId>
+  wallet: HDWallet
+  receiveAddress: string
+  affiliateBps?: string
+  xpub?: string
+  accountType?: UtxoAccountType
+}
+
 export type Swapper2 = {
   getTradeQuote: (
     input: GetTradeQuoteInput,
     ...deps: any[]
   ) => Promise<Result<TradeQuote2, SwapErrorRight>>
   getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx>
-  executeTrade: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
+  executeTrade: (executeTradeArgs: ExecuteTradeInput2) => Promise<string>
   checkTradeStatus: (tradeId: string) => Promise<{ isComplete: boolean; message?: string }>
   filterAssetIdsBySellable: (assetIds: AssetId[]) => AssetId[]
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => AssetId[]

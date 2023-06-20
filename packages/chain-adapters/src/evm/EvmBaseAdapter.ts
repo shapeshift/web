@@ -237,6 +237,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       if (!to) throw new Error(`${this.getName()}ChainAdapter: to is required`)
       if (!value) throw new Error(`${this.getName()}ChainAdapter: value is required`)
+      if (!gasLimit) throw new Error(`${this.getName()}ChainAdapter: gasLimit is required`)
 
       const destAddress = tokenContractAddress ?? to
 
@@ -573,6 +574,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     try {
       const { to, wallet, accountNumber, data, value } = tx
       const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } = tx
+
+      if (!wallet) throw new Error(`${this.getName()}ChainAdapter: wallet is required`)
 
       if (!this.supportsChain(wallet))
         throw new Error(`wallet does not support ${this.getDisplayName()}`)

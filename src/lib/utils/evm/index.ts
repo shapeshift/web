@@ -1,7 +1,14 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { evm, EvmChainAdapter, EvmChainId, SignTx } from '@shapeshiftoss/chain-adapters'
+import type {
+  ChainSpecificBuildTxData,
+  evm,
+  EvmChainAdapter,
+  EvmChainId,
+  SignTx,
+} from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+// import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
@@ -26,13 +33,16 @@ type BroadcastArgs = {
 type BuildAndBroadcastArgs = BuildArgs & Omit<BroadcastArgs, 'txToSign'>
 
 type CreateBuildCustomTxInputArgs = {
-  accountNumber: number
+  supportsEIP1559: boolean | undefined
   adapter: EvmChainAdapter
   to: string
   data: string
   value: string
-  wallet: HDWallet
-}
+  from: string
+} & {
+  accountNumber: number
+  wallet: HDWallet | undefined
+} & ChainSpecificBuildTxData<KnownChainIds>
 
 type GetErc20AllowanceArgs = {
   address: string
@@ -43,7 +53,7 @@ type GetErc20AllowanceArgs = {
 
 type GetFeesArgs = {
   adapter: EvmChainAdapter
-  accountNumber: number
+  supportsEIP1559: boolean | undefined
   to: string
   value: string
   data: string
@@ -56,15 +66,15 @@ type Fees = evm.Fees & {
 }
 
 export const getFees = async ({
-  accountNumber,
   adapter,
   to,
   value,
   data,
   from,
+  supportsEIP1559,
 }: GetFeesArgs): Promise<Fees> => {
   // TODO(gomes): lift me up as an assertion
-  if (!supportsETH(wallet)) throw new Error('eth wallet required')
+  // if (!supportsETH(wallet)) throw new Error('eth wallet required')
 
   const getFeeDataInput = { to, value, chainSpecific: { from, contractData: data } }
 
@@ -73,12 +83,15 @@ export const getFees = async ({
   } = await adapter.getFeeData(getFeeDataInput)
 
   // TODO(gomes): lift me up as a flag
-  const eip1559Support = await wallet.ethSupportsEIP1559()
-  const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({ ...feeData, eip1559Support })
+  // const eip1559Support = await wallet.ethSupportsEIP1559()
+  const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
+    ...feeData,
+    supportsEIP1559: Boolean(supportsEIP1559),
+  })
 
   const { gasLimit, gasPrice, maxFeePerGas, maxPriorityFeePerGas } = feeData
 
-  if (eip1559Support && maxFeePerGas && maxPriorityFeePerGas) {
+  if (supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas) {
     return { networkFeeCryptoBaseUnit, gasLimit, maxFeePerGas, maxPriorityFeePerGas }
   }
 
@@ -86,12 +99,12 @@ export const getFees = async ({
 }
 
 type CalcNetworkFeeCryptoBaseUnitArgs = evm.FeeData & {
-  eip1559Support: boolean
+  supportsEIP1559: boolean
 }
 
 export const calcNetworkFeeCryptoBaseUnit = (args: CalcNetworkFeeCryptoBaseUnitArgs) => {
   const {
-    eip1559Support,
+    supportsEIP1559,
     gasLimit,
     gasPrice,
     l1GasLimit,
@@ -101,7 +114,7 @@ export const calcNetworkFeeCryptoBaseUnit = (args: CalcNetworkFeeCryptoBaseUnitA
   } = args
 
   // eip1559 fees
-  if (eip1559Support && maxFeePerGas && maxPriorityFeePerGas) {
+  if (supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas) {
     return bn(gasLimit).times(maxFeePerGas).toString()
   }
 
@@ -114,7 +127,7 @@ export const calcNetworkFeeCryptoBaseUnit = (args: CalcNetworkFeeCryptoBaseUnitA
 
 export const createBuildCustomTxInput = async (
   args: CreateBuildCustomTxInputArgs,
-): Promise<evm.BuildCustomTxInput> => {
+): Promise<evm.BuildCustomTxInput & ChainSpecificBuildTxData<KnownChainIds>> => {
   const fees = await getFees(args)
   return { ...args, ...fees }
 }

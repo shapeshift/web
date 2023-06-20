@@ -23,7 +23,11 @@ export async function executeTrade({
 
   try {
     const buildCustomTxInput = await createBuildCustomTxInput({
+      // TODO: implement me
+      supportsEIP1559: true,
       accountNumber,
+      // TODO: implement me
+      from: '0xfoobar',
       adapter,
       to: tx.to,
       data: tx.data,

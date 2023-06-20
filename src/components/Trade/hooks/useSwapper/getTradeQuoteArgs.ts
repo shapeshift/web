@@ -59,7 +59,7 @@ export const getTradeQuoteArgs = async ({
     return {
       ...tradeQuoteInputCommonArgs,
       chainId: sellAsset.chainId,
-      eip1559Support,
+      supportsEIP1559: eip1559Support,
       sendAddress,
     }
   } else if (isUtxoSwap(sellAsset?.chainId)) {

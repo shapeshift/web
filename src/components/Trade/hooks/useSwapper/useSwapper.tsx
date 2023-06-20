@@ -233,7 +233,7 @@ export const useSwapper = () => {
           chainId: sellAsset.chainId,
           accountNumber: sellAccountBip44Params.accountNumber,
           receiveAccountNumber: buyAccountBip44Params?.accountNumber,
-          eip1559Support,
+          supportsEIP1559: eip1559Support,
           sendAddress,
         })
       } else {

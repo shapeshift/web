@@ -10,7 +10,8 @@ export type Account = {
 }
 
 export type BuildCustomTxInput = {
-  wallet: HDWallet
+  wallet?: HDWallet | undefined
+  from: string
   accountNumber: number
   to: string
   data: string

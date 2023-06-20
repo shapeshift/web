@@ -1,8 +1,12 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
-import type { CosmosSdkBaseAdapter, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import type {
+  ChainSpecificBuildTxData,
+  CosmosSdkBaseAdapter,
+  UtxoBaseAdapter,
+  UtxoChainId,
+} from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { UtxoAccountType } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -54,16 +58,16 @@ export const buildTradeFromQuote = async ({
   receiveAddress: destinationAddress,
   affiliateBps = '0',
   from,
-  accountType,
+  buildTxData: chainSpecific,
   buyAssetUsdRate,
   feeAssetUsdRate,
 }: {
   tradeQuote: TradeQuote<ChainId>
-  wallet: HDWallet
+  wallet?: HDWallet
   receiveAddress: string
   affiliateBps?: string
   from?: string
-  accountType?: UtxoAccountType
+  buildTxData?: ChainSpecificBuildTxData<UtxoChainId>
   buyAssetUsdRate: string
   feeAssetUsdRate: string
 }): Promise<Result<ThorTrade<ChainId>, SwapErrorRight>> => {
@@ -105,6 +109,8 @@ export const buildTradeFromQuote = async ({
 
     const maybeEthTradeTx = await makeTradeTx({
       accountNumber,
+      supportsEIP1559: true, // TODO
+      from,
       adapter: sellAdapter as unknown as ThorEvmSupportedChainAdapter,
       data: evmQuote.data,
       router: evmQuote.router,
@@ -121,10 +127,10 @@ export const buildTradeFromQuote = async ({
       }),
     )
   } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
-    if (!accountType)
+    if (!chainSpecific)
       return Err(
         makeSwapErrorRight({
-          message: '[buildThorTrade]: missing utxo specific parameters',
+          message: '[buildThorTrade]: missing UTXO ChainSpecific parameters',
           code: SwapErrorType.MISSING_INPUT,
         }),
       )
@@ -153,7 +159,7 @@ export const buildTradeFromQuote = async ({
       to: vault,
       accountNumber,
       chainSpecific: {
-        accountType,
+        ...chainSpecific,
         satoshiPerByte: (quote as TradeQuote<ThorUtxoSupportedChainId>).steps[0].feeData
           .chainSpecific.satsPerByte,
         opReturnData,
@@ -175,6 +181,7 @@ export const buildTradeFromQuote = async ({
       slippageTolerance,
       chainId: sellAsset.chainId,
       buyAsset,
+      // @ts-ignore TODO: do we want to ditch this at all here? or just make it maybe undefined?
       wallet,
       destinationAddress,
       quote: quote as TradeQuote<ThorCosmosSdkSupportedChainId>,

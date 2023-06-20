@@ -1,4 +1,3 @@
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { Asset } from 'lib/asset-service'
@@ -37,7 +36,7 @@ export const setupQuote = () => {
     accountNumber: 0,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
-    eip1559Support: false,
+    supportsEIP1559: false,
     allowMultiHop: false,
   }
   return { quoteInput, tradeQuote, buyAsset, sellAsset }
@@ -52,10 +51,9 @@ export const setupBuildTrade = () => {
     buyAsset,
     accountNumber: 0,
     sellAsset,
-    wallet: {} as HDWallet,
     receiveAddress: '',
     affiliateBps: '0',
-    eip1559Support: false,
+    supportsEIP1559: false,
     slippage: getDefaultSlippagePercentageForSwapper(SwapperName.Test),
     allowMultiHop: false,
   }

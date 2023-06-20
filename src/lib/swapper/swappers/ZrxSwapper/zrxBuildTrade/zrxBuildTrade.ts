@@ -32,7 +32,7 @@ export async function zrxBuildTrade(
     receiveAddress,
     affiliateBps,
     chainId,
-    wallet,
+    sendAddress: from,
   } = input
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
 
@@ -92,13 +92,14 @@ export async function zrxBuildTrade(
   const { data: quote } = maybeQuoteResponse.unwrap()
 
   try {
+    if (!from) throw new Error('sendAddress is required')
     const { networkFeeCryptoBaseUnit } = await getFees({
+      supportsEIP1559: false, // TODO
+      from,
       adapter,
-      accountNumber,
       to: quote.to,
       value: quote.value,
       data: quote.data,
-      wallet,
     })
 
     return Ok({

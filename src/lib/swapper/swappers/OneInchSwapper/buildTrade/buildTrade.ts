@@ -32,7 +32,6 @@ export const buildTrade = async (
     slippage,
     receiveAddress,
     affiliateBps,
-    wallet,
   } = input
 
   const assertion = assertValidTrade({ buyAsset, sellAsset, receiveAddress })
@@ -80,12 +79,13 @@ export const buildTrade = async (
 
   try {
     const { networkFeeCryptoBaseUnit } = await getFees({
+      // TODO
+      supportsEIP1559: true,
+      from: receiveAddress,
       adapter,
-      accountNumber,
       to: swap.tx.to,
       value: swap.tx.value,
       data: swap.tx.data,
-      wallet,
     })
 
     // Note: 1inch will not return a response to the above API if the needed approval is not in place.

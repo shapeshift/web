@@ -60,6 +60,7 @@ describe('ZrxExecuteTrade', () => {
   const execTradeInput: ZrxExecuteTradeInput = {
     trade,
     wallet,
+    from: '0xfoobar',
   }
 
   it('returns txid if offline signing is supported', async () => {

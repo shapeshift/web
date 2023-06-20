@@ -41,6 +41,7 @@ export const SlippagePopover = () => {
   const translate = useTranslate()
   const inputRef = useRef<HTMLInputElement>(null)
   const isAdvancedSlippageEnabled = useFeatureFlag('AdvancedSlippage')
+  const buttonGroupBg = useColorModeValue('blackAlpha.50', 'gray.850')
 
   const handleDebounce = useCallback(
     (value: string) => {
@@ -105,7 +106,7 @@ export const SlippagePopover = () => {
             <Row.Value>
               <ButtonGroup
                 size='sm'
-                bg={useColorModeValue('blackAlpha.50', 'gray.850')}
+                bg={buttonGroupBg}
                 px={1}
                 py={1}
                 borderRadius='xl'

@@ -124,6 +124,8 @@ export const useUniV2LiquidityPool = ({
     [lpContractAddress, skip],
   )
 
+  const accountAddress = useMemo(() => fromAccountId(accountId).account, [accountId])
+
   const makeAddLiquidityData = useCallback(
     ({ token0Amount, token1Amount }: { token0Amount: string; token1Amount: string }) => {
       if (!uniswapRouterContract) throw new Error('Uniswap router contract instance is undefined')
@@ -139,8 +141,6 @@ export const useUniV2LiquidityPool = ({
           assetId0OrWeth === wethAssetId ? asset1ContractAddress : asset0ContractAddress
         const otherAsset = assetId0OrWeth === wethAssetId ? asset1 : asset0
         const otherAssetAmount = assetId0OrWeth === wethAssetId ? token1Amount : token0Amount
-
-        const accountAddress = fromAccountId(accountId).account
 
         const amountOtherAssetMin = calculateSlippageMargin(otherAssetAmount, otherAsset.precision)
         const amountEthMin = calculateSlippageMargin(ethAmount, weth.precision)
@@ -170,6 +170,7 @@ export const useUniV2LiquidityPool = ({
       }
     },
     [
+      accountAddress,
       accountId,
       asset0,
       asset0ContractAddress,
@@ -214,6 +215,7 @@ export const useUniV2LiquidityPool = ({
 
         const txid = await buildAndBroadcast({
           accountNumber,
+          from: accountAddress,
           adapter,
           feeData: getFeeDataFromEstimate(feeData).chainSpecific,
           to: contractAddress,
@@ -228,17 +230,18 @@ export const useUniV2LiquidityPool = ({
       }
     },
     [
+      accountAddress,
       accountId,
       accountNumber,
       adapter,
-      asset0,
+      asset0.chainId,
       assetId0OrWeth,
       assetId1OrWeth,
       makeAddLiquidityData,
       skip,
       uniswapRouterContract,
       wallet,
-      weth,
+      weth.precision,
     ],
   )
 
@@ -340,6 +343,7 @@ export const useUniV2LiquidityPool = ({
 
         const txid = await buildAndBroadcast({
           accountNumber,
+          from: accountAddress,
           adapter,
           feeData: getFeeDataFromEstimate(feeData).chainSpecific,
           to: contractAddress,
@@ -354,16 +358,17 @@ export const useUniV2LiquidityPool = ({
       }
     },
     [
-      adapter,
       skip,
       accountId,
       accountNumber,
       uniswapRouterContract,
       wallet,
+      adapter,
       asset0.chainId,
       makeRemoveLiquidityData,
       asset0ContractAddress,
       asset1ContractAddress,
+      accountAddress,
     ],
   )
 
@@ -415,32 +420,29 @@ export const useUniV2LiquidityPool = ({
   const asset0Allowance = useCallback(async () => {
     if (skip || !accountId || !asset0Contract) return
 
-    const accountAddress = fromAccountId(accountId).account
     const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
     const _allowance = await asset0Contract.allowance(accountAddress, contractAddress)
 
     return _allowance.toString()
-  }, [skip, asset0Contract, accountId])
+  }, [skip, accountId, asset0Contract, accountAddress])
 
   const asset1Allowance = useCallback(async () => {
     if (skip || !accountId || !asset1Contract) return
 
-    const accountAddress = fromAccountId(accountId).account
     const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
     const _allowance = await asset1Contract.allowance(accountAddress, contractAddress)
 
     return _allowance.toString()
-  }, [skip, asset1Contract, accountId])
+  }, [skip, accountId, asset1Contract, accountAddress])
 
   const lpAllowance = useCallback(async () => {
     if (skip || !accountId || !uniV2LPContract) return
 
-    const accountAddress = fromAccountId(accountId).account
     const contractAddress = fromAssetId(uniswapV2Router02AssetId).assetReference
     const _allowance = await uniV2LPContract.allowance(accountAddress, contractAddress)
 
     return _allowance.toString()
-  }, [skip, uniV2LPContract, accountId])
+  }, [skip, accountId, uniV2LPContract, accountAddress])
 
   const getApproveFeeData = useCallback(
     async (contractAddress: Address) => {
@@ -621,6 +623,7 @@ export const useUniV2LiquidityPool = ({
       const txid = await buildAndBroadcast({
         accountNumber,
         adapter,
+        from: accountAddress,
         feeData: feeData.chainSpecific,
         to: contractAddress,
         value: '0',
@@ -630,7 +633,7 @@ export const useUniV2LiquidityPool = ({
 
       return txid
     },
-    [accountNumber, adapter, getApproveFeeData, skip, wallet],
+    [accountAddress, accountNumber, adapter, getApproveFeeData, skip, wallet],
   )
 
   return {

@@ -63,9 +63,14 @@ export const getApprovalTxData = async (
     to: assetReference,
   })
 
-  const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
-    accountNumber: tradeQuoteStep.accountNumber,
+  const from = await adapter.getAddress({
     wallet,
+    accountNumber: tradeQuoteStep.accountNumber,
+  })
+
+  const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
+    supportsEIP1559: false, // TODO
+    from,
     adapter,
     to: assetReference,
     value,
@@ -75,6 +80,7 @@ export const getApprovalTxData = async (
   return {
     networkFeeCryptoBaseUnit,
     buildCustomTxInput: {
+      from,
       accountNumber: tradeQuoteStep.accountNumber,
       data,
       to: assetReference,

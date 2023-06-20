@@ -1,4 +1,3 @@
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads/build'
 import type { AxiosStatic } from 'axios'
@@ -212,7 +211,6 @@ describe('cowBuildTrade', () => {
       buyAsset: FOX_MAINNET,
       sellAmountBeforeFeesCryptoBaseUnit: '11111',
       accountNumber: 0,
-      wallet: {} as HDWallet,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       supportsEIP1559: false,
@@ -241,7 +239,6 @@ describe('cowBuildTrade', () => {
       buyAsset: FOX_MAINNET,
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
       accountNumber: 0,
-      wallet: {} as HDWallet,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       supportsEIP1559: false,
@@ -287,7 +284,6 @@ describe('cowBuildTrade', () => {
       buyAsset: WETH,
       sellAmountBeforeFeesCryptoBaseUnit: '100000000',
       accountNumber: 0,
-      wallet: {} as HDWallet,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       supportsEIP1559: false,
@@ -335,7 +331,6 @@ describe('cowBuildTrade', () => {
       buyAsset: ETH,
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
       accountNumber: 0,
-      wallet: {} as HDWallet,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       supportsEIP1559: false,
@@ -380,7 +375,6 @@ describe('cowBuildTrade', () => {
       buyAsset: XDAI,
       sellAmountBeforeFeesCryptoBaseUnit: '20000000',
       accountNumber: 0,
-      wallet: {} as HDWallet,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       supportsEIP1559: false,

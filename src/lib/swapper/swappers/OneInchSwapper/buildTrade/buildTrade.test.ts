@@ -1,4 +1,3 @@
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
@@ -30,10 +29,6 @@ describe('buildTrade', () => {
   const deps: OneInchSwapperDeps = {
     apiUrl: 'https://api.1inch.io/v5.0',
   }
-  const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
-  const wallet = {
-    ethGetAddress: jest.fn(() => Promise.resolve(walletAddress)),
-  } as unknown as HDWallet
   const { buyAsset, sellAsset } = setupQuote()
 
   const buildTradeInput: BuildTradeInput = {
@@ -42,7 +37,6 @@ describe('buildTrade', () => {
     buyAsset,
     sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
     accountNumber: 0,
-    wallet,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
     supportsEIP1559: false,

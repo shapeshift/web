@@ -179,7 +179,6 @@ export const useSwapper = () => {
         ),
         sellAsset,
         buyAsset,
-        wallet,
         receiveAddress,
         slippage,
         affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps ?? defaultAffiliateBps,
@@ -321,20 +320,27 @@ export const useSwapper = () => {
         to: assetReference,
       })
 
-      const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
+      const from = await adapter.getAddress({
+        wallet,
         accountNumber: activeQuote.steps[0].accountNumber,
+      })
+
+      const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
+        // TODO: implement me
+        supportsEIP1559: false,
         adapter,
+        from,
         to: assetReference,
         value,
         data,
-        wallet,
       })
 
       return {
         networkFeeCryptoBaseUnit,
         buildCustomTxInput: {
-          accountNumber: activeQuote.steps[0].accountNumber,
           data,
+          from,
+          accountNumber: activeQuote.steps[0].accountNumber,
           to: assetReference,
           value,
           wallet,

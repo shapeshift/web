@@ -83,6 +83,7 @@ export const getFeesFromFeeData = async ({
 
 type BuildAndBroadcastArgs = GetFeesFromFeeDataArgs & {
   accountNumber: number
+  from: string
   adapter: EvmChainAdapter
   data: string
   to: string
@@ -91,6 +92,7 @@ type BuildAndBroadcastArgs = GetFeesFromFeeDataArgs & {
 
 export const buildAndBroadcast = async ({
   accountNumber,
+  from,
   adapter,
   data,
   feeData,
@@ -100,6 +102,7 @@ export const buildAndBroadcast = async ({
 }: BuildAndBroadcastArgs) => {
   const { txToSign } = await adapter.buildCustomTx({
     wallet,
+    from,
     to,
     accountNumber,
     value,

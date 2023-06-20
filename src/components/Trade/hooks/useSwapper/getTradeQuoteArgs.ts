@@ -34,6 +34,7 @@ export const getTradeQuoteArgs = async ({
   sellAmountBeforeFeesCryptoPrecision,
   allowMultiHop,
 }: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput | undefined> => {
+  if (!receiveAddress) throw new Error('Receive address is required')
   if (!sellAsset || !buyAsset) return undefined
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
     sellAmountBeforeFeesCryptoBaseUnit: toBaseUnit(

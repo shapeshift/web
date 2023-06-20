@@ -20,7 +20,7 @@ import {
   selectSellAsset,
   selectSellAssetAccountId,
 } from 'state/slices/selectors'
-import { selectInputOutputRatio } from 'state/slices/tradeQuoteSlice/selectors'
+import { getInputOutputRatioFromQuote } from 'state/slices/tradeQuoteSlice/helpers'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
@@ -104,7 +104,13 @@ export const useGetTradeQuotes = () => {
         swapperName: SwapperName.LIFI,
       },
     ].map(result => {
-      const inputOutputRatio = selectInputOutputRatio(store.getState())
+      const quote = result.data && result.data.isOk() ? result.data.unwrap() : undefined
+      const inputOutputRatio = quote
+        ? getInputOutputRatioFromQuote({
+            quote,
+            swapperName: result.swapperName,
+          })
+        : -Infinity
       return Object.assign(result, { inputOutputRatio })
     })
 

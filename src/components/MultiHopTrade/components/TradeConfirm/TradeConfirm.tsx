@@ -346,8 +346,8 @@ const FirstHop = ({
     [swapperName, tradeQuote.recommendedSlippage],
   )
 
-  const networkFeeFiatPrecision = selectHopTotalNetworkFeeFiatPrecision(store.getState(), 1)
-  const protocolFeeFiatPrecision = selectHopTotalProtocolFeesFiatPrecision(store.getState(), 1)
+  const networkFeeFiatPrecision = selectHopTotalNetworkFeeFiatPrecision(store.getState(), 0)
+  const protocolFeeFiatPrecision = selectHopTotalProtocolFeesFiatPrecision(store.getState(), 0)
 
   return (
     <Hop
@@ -492,8 +492,8 @@ const SecondHop = ({
     [swapperName, tradeQuote.recommendedSlippage],
   )
 
-  const networkFeeFiatPrecision = selectHopTotalNetworkFeeFiatPrecision(store.getState(), 2)
-  const protocolFeeFiatPrecision = selectHopTotalProtocolFeesFiatPrecision(store.getState(), 2)
+  const networkFeeFiatPrecision = selectHopTotalNetworkFeeFiatPrecision(store.getState(), 1)
+  const protocolFeeFiatPrecision = selectHopTotalProtocolFeesFiatPrecision(store.getState(), 1)
 
   return (
     <Hop

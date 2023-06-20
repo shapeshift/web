@@ -2,10 +2,10 @@ import { createSelector } from '@reduxjs/toolkit'
 import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
+import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
   getHopTotalNetworkFeeFiatPrecision,
   getHopTotalProtocolFeesFiatPrecision,
-  getInputOutputRatioFromQuote,
   getNetReceiveAmountCryptoPrecision,
   getTotalNetworkFeeFiatPrecision,
   getTotalProtocolFeeByAsset,
@@ -13,7 +13,11 @@ import {
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 
-export const selectSelectedQuote = createSelector(selectTradeQuoteSlice, swappers => swappers.quote)
+// TODO(apotheosis): Cache based on quote ID
+export const selectSelectedQuote = createDeepEqualOutputSelector(
+  selectTradeQuoteSlice,
+  swappers => swappers.quote,
+)
 
 export const selectSelectedSwapperName = createSelector(
   selectTradeQuoteSlice,
@@ -50,16 +54,9 @@ export const selectSwapperSupportsCrossAccountTrade = createSelector(
   },
 )
 
-export const selectInputOutputRatio = createSelector(
-  selectSelectedQuote,
-  selectSelectedSwapperName,
-  (quote, swapperName) =>
-    quote && swapperName ? getInputOutputRatioFromQuote({ quote, swapperName }) : -Infinity,
-)
-
 export const selectHopTotalProtocolFeesFiatPrecision = createSelector(
   selectSelectedQuote,
-  (_state: ReduxState, step: 1 | 2) => step,
+  (_state: ReduxState, step: 0 | 1) => step,
   (quote, step) =>
     quote && quote.steps[step]
       ? getHopTotalProtocolFeesFiatPrecision(quote.steps[step])
@@ -68,7 +65,7 @@ export const selectHopTotalProtocolFeesFiatPrecision = createSelector(
 
 export const selectHopTotalNetworkFeeFiatPrecision = createSelector(
   selectSelectedQuote,
-  (_state: ReduxState, step: 1 | 2) => step,
+  (_state: ReduxState, step: 0 | 1) => step,
   (quote, step) =>
     quote && quote.steps[step] ? getHopTotalNetworkFeeFiatPrecision(quote.steps[step]) : undefined,
 )
@@ -84,6 +81,7 @@ export const selectTotalNetworkFeeFiatPrecision = createSelector(selectSelectedQ
   quote ? getTotalNetworkFeeFiatPrecision(quote) : undefined,
 )
 
-export const selectTotalProtocolFeeByAsset = createSelector(selectSelectedQuote, quote =>
-  quote ? getTotalProtocolFeeByAsset(quote) : undefined,
+export const selectTotalProtocolFeeByAsset = createDeepEqualOutputSelector(
+  selectSelectedQuote,
+  quote => (quote ? getTotalProtocolFeeByAsset(quote) : undefined),
 )

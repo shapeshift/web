@@ -14,7 +14,7 @@ type GetThorTxInfoArgs = {
   sellAmountCryptoBaseUnit: string
   slippageTolerance: string
   destinationAddress: string | undefined
-  xpub: string
+  from: string
   protocolFees: Record<AssetId, ProtocolFee>
   affiliateBps: string
   buyAssetUsdRate: string
@@ -38,7 +38,7 @@ export const getThorTxInfo: GetThorTxInfo = async ({
   sellAmountCryptoBaseUnit,
   slippageTolerance,
   destinationAddress,
-  xpub,
+  from,
   protocolFees,
   affiliateBps,
   buyAssetUsdRate,
@@ -78,7 +78,7 @@ export const getThorTxInfo: GetThorTxInfo = async ({
     return {
       opReturnData: memo,
       vault,
-      pubkey: xpub,
+      pubkey: from,
     }
   })
 }

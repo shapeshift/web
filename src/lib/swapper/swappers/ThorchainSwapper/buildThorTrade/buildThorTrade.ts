@@ -53,7 +53,7 @@ export const buildTradeFromQuote = async ({
   wallet,
   receiveAddress: destinationAddress,
   affiliateBps = '0',
-  xpub,
+  from,
   accountType,
   buyAssetUsdRate,
   feeAssetUsdRate,
@@ -62,11 +62,13 @@ export const buildTradeFromQuote = async ({
   wallet: HDWallet
   receiveAddress: string
   affiliateBps?: string
-  xpub?: string
+  from?: string
   accountType?: UtxoAccountType
   buyAssetUsdRate: string
   feeAssetUsdRate: string
 }): Promise<Result<ThorTrade<ChainId>, SwapErrorRight>> => {
+  if (!from) throw new Error('from address required')
+
   const { recommendedSlippage: slippageTolerance = DEFAULT_SLIPPAGE } = quote
 
   const {
@@ -119,7 +121,7 @@ export const buildTradeFromQuote = async ({
       }),
     )
   } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
-    if (!xpub || !accountType)
+    if (!accountType)
       return Err(
         makeSwapErrorRight({
           message: '[buildThorTrade]: missing utxo specific parameters',
@@ -133,7 +135,7 @@ export const buildTradeFromQuote = async ({
       sellAmountCryptoBaseUnit,
       slippageTolerance,
       destinationAddress,
-      xpub,
+      from,
       protocolFees: quote.steps[0].feeData.protocolFees,
       affiliateBps,
       buyAssetUsdRate,
@@ -145,9 +147,9 @@ export const buildTradeFromQuote = async ({
 
     const buildTxResponse = await (
       sellAdapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
-    ).buildSendTransaction({
+    ).buildSignTx({
       value: sellAmountCryptoBaseUnit,
-      wallet,
+      from,
       to: vault,
       accountNumber,
       chainSpecific: {

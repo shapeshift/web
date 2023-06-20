@@ -1,9 +1,11 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { ChainAdapter, SignTx, UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BuyAssetBySellIdInput, Swapper2, UnsignedTx } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
+import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import { selectFeeAssetById, selectUsdRateByAssetId } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -20,26 +22,57 @@ import type {
 } from './ThorchainSwapper'
 import { ThorchainSwapper } from './ThorchainSwapper'
 
+// Gets a from addresss either
+// - derived from the input (for our own consumption with our AccountMetadata and ChainId structures)
+// - or simply falls the passed from address through, for external consumers
+type WithFromParams = {
+  chainId?: ChainId
+  accountMetadata?: AccountMetadata
+  wallet?: HDWallet
+  from?: string
+}
+
+export const withFrom =
+  <T, P>(wrappedFunction: (params: P & { from: string | undefined }) => Promise<T>) =>
+  async (params: P & WithFromParams): Promise<T> => {
+    const { chainId, accountMetadata, from: inputFrom, wallet } = params
+
+    let from: string | undefined
+    if (inputFrom) {
+      from = inputFrom
+    } else {
+      const chainAdapterManager = getChainAdapterManager()
+      if (!chainId) throw new Error('No chainId provided')
+      const adapter = chainAdapterManager.get(chainId) as ChainAdapter<ThorChainId>
+      if (!adapter) throw new Error(`No adapter for ChainId: ${chainId}`)
+      const accountNumber = accountMetadata?.bip44Params?.accountNumber
+      const accountType = accountMetadata?.accountType
+
+      from = await (async () => {
+        if (!wallet) throw new Error('Wallet required for adapter.getAddress() call')
+        if (!accountNumber) throw new Error('Account number required for adapter.getAddress() call')
+        if (!isUtxoChainId(chainId)) return adapter.getAddress({ wallet, accountNumber })
+        if (!accountType || !accountNumber) return undefined
+        const { xpub } = await (adapter as UtxoChainAdapter).getPublicKey(
+          wallet,
+          accountNumber,
+          accountType,
+        )
+        return xpub
+      })()
+    }
+
+    return wrappedFunction({ ...params, from })
+  }
+
 export const thorchain: Swapper2 = {
   getTradeQuote: getThorTradeQuote,
 
-  getUnsignedTx: async ({ tradeQuote, chainId, accountMetadata }): Promise<UnsignedTx> => {
+  getUnsignedTx: withFrom(async ({ tradeQuote, chainId, from }): Promise<UnsignedTx> => {
     const chainAdapterManager = getChainAdapterManager()
     if (!chainId) throw new Error('No chainId provided')
     const adapter = chainAdapterManager.get(chainId) as ChainAdapter<ThorChainId>
     if (!adapter) throw new Error(`No adapter for ChainId: ${chainId}`)
-    const bip44Params = accountMetadata?.bip44Params
-    const accountType = accountMetadata?.accountType
-    const xpub = await (async () => {
-      if (!chainId || !isUtxoChainId(chainId)) return undefined
-      if (!accountType || !bip44Params) return undefined
-      const { xpub } = await (adapter as UtxoChainAdapter).getPublicKey(
-        wallet,
-        bip44Params.accountNumber,
-        accountType,
-      )
-      return xpub
-    })()
 
     const { receiveAddress, affiliateBps } = tradeQuote
     const feeAsset = selectFeeAssetById(store.getState(), tradeQuote.steps[0].sellAsset.assetId)
@@ -56,10 +89,9 @@ export const thorchain: Swapper2 = {
 
     const maybeTrade = await buildTradeFromQuote({
       tradeQuote,
-      wallet,
       receiveAddress,
       affiliateBps,
-      xpub,
+      from,
       accountType,
       buyAssetUsdRate,
       feeAssetUsdRate,
@@ -105,7 +137,7 @@ export const thorchain: Swapper2 = {
         code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
       })
     }
-  },
+  }),
 
   executeTrade: async ({
     tradeQuote,

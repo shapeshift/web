@@ -47,7 +47,7 @@ type GetFeesArgs = {
   to: string
   value: string
   data: string
-  wallet: HDWallet
+  from: string
 }
 
 type Fees = evm.Fees & {
@@ -61,11 +61,10 @@ export const getFees = async ({
   to,
   value,
   data,
-  wallet,
+  from,
 }: GetFeesArgs): Promise<Fees> => {
+  // TODO(gomes): lift me up as an assertion
   if (!supportsETH(wallet)) throw new Error('eth wallet required')
-
-  const from = await adapter.getAddress({ accountNumber, wallet })
 
   const getFeeDataInput = { to, value, chainSpecific: { from, contractData: data } }
 
@@ -73,6 +72,7 @@ export const getFees = async ({
     average: { chainSpecific: feeData },
   } = await adapter.getFeeData(getFeeDataInput)
 
+  // TODO(gomes): lift me up as a flag
   const eip1559Support = await wallet.ethSupportsEIP1559()
   const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({ ...feeData, eip1559Support })
 

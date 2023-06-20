@@ -23,6 +23,7 @@ import { useTranslate } from 'react-polyglot'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 enum SlippageType {
   Auto = 'Auto',
@@ -39,6 +40,7 @@ export const SlippagePopover = () => {
   const [isInvalid, setIsInvalid] = useState(false)
   const translate = useTranslate()
   const inputRef = useRef<HTMLInputElement>(null)
+  const isAdvancedSlippageEnabled = useFeatureFlag('AdvancedSlippage')
 
   const handleDebounce = useCallback(
     (value: string) => {
@@ -79,6 +81,9 @@ export const SlippagePopover = () => {
 
   const isHighSlippage = useMemo(() => bnOrZero(slippageAmount).gt(1), [slippageAmount])
   const isLowSlippage = useMemo(() => bnOrZero(slippageAmount).lt(0.05), [slippageAmount])
+
+  if (!isAdvancedSlippageEnabled) return null
+
   return (
     <Popover placement='bottom-end'>
       <PopoverTrigger>

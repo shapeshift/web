@@ -274,3 +274,23 @@ export interface Swapper<T extends ChainId, MaybeUnknownNetworkFee extends boole
    */
   getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>>
 }
+
+export type ExecuteTradeInput2 = {
+  tradeQuote: TradeQuote<ChainId>
+  wallet: HDWallet
+  receiveAddress: string
+  affiliateBps?: string
+  xpub?: string
+  accountType?: UtxoAccountType
+}
+
+export type Swapper2 = {
+  getTradeQuote: (
+    input: GetEvmTradeQuoteInput,
+    ...deps: any[]
+  ) => Promise<Result<TradeQuote, SwapErrorRight>>
+  executeTrade: (input: ExecuteTradeInput2) => Promise<string>
+  checkTradeStatus: (txId: string) => Promise<{ isComplete: boolean; message?: string }>
+  filterAssetIdsBySellable: (assetIds: AssetId[]) => AssetId[]
+  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => AssetId[]
+}

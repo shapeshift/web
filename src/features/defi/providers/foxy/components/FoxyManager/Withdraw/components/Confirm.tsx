@@ -33,7 +33,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
   onNext,
   accountId,
 }) => {
-  const poll = usePoll<ethers.providers.TransactionReceipt>()
+  const { poll } = usePoll<ethers.providers.TransactionReceipt>()
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()

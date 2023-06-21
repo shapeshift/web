@@ -1,3 +1,4 @@
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance } from 'axios'
@@ -33,6 +34,7 @@ export async function zrxBuildTrade(
     affiliateBps,
     chainId,
     sendAddress: from,
+    wallet,
   } = input
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
 
@@ -91,10 +93,15 @@ export async function zrxBuildTrade(
   if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())
   const { data: quote } = maybeQuoteResponse.unwrap()
 
+  // Note, we pass the supportsEIP1559 for consistency, but this will always evaluate to false for external consumers, which won't pass a wallet
+  // That's expected and correct, since we can't assume which wallet they're using
+  const supportsEIP1559 = Boolean(
+    wallet && supportsETH(wallet) && (await wallet.ethSupportsEIP1559()),
+  )
   try {
     if (!from) throw new Error('sendAddress is required')
     const { networkFeeCryptoBaseUnit } = await getFees({
-      supportsEIP1559: false, // TODO
+      supportsEIP1559,
       from,
       adapter,
       to: quote.to,

@@ -31,7 +31,7 @@ export enum SelectedQuoteStatus {
 }
 
 export type QuoteStatus = {
-  validationErrors: SelectedQuoteStatus[]
+  quoteErrors: SelectedQuoteStatus[]
   quoteStatusTranslation: string | [string, InterpolationOptions]
   error?: SwapErrorRight
 }

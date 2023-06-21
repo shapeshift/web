@@ -122,8 +122,8 @@ export const MultiHopTrade = (props: CardProps) => {
   }, [buyAsset.precision, quoteData])
 
   const quoteHasError = useMemo(() => {
-    return selectedQuoteStatus.validationErrors.length > 0
-  }, [selectedQuoteStatus.validationErrors])
+    return selectedQuoteStatus.quoteErrors.length > 0
+  }, [selectedQuoteStatus.quoteErrors])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>

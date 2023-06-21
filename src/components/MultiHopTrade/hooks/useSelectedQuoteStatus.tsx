@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes'
-import { useQuoteValidationPredicateObject } from 'components/MultiHopTrade/hooks/useQuoteValidationPredicateObject'
+import { useQuoteValidationErrors } from 'components/MultiHopTrade/hooks/useQuoteValidationErrors'
 import type { QuoteStatus } from 'components/MultiHopTrade/types'
 import { SelectedQuoteStatus } from 'components/MultiHopTrade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -15,16 +15,11 @@ import {
 import { useAppSelector } from 'state/store'
 
 export const useSelectedQuoteStatus = (): QuoteStatus => {
-  const {
-    hasSufficientSellAssetBalance,
-    firstHopHasSufficientBalanceForGas,
-    lastHopHasSufficientBalanceForGas,
-    isBelowMinimumSellAmount,
-  } = useQuoteValidationPredicateObject()
+  const validationErrors = useQuoteValidationErrors()
 
   const selectedSwapperName = useAppSelector(selectSelectedSwapperName)
   const firstHopSellFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
-  const firstHopSellAssest = useAppSelector(selectFirstHopSellAsset)
+  const firstHopSellAsset = useAppSelector(selectFirstHopSellAsset)
   const lastHopSellFeeAsset = useAppSelector(selectLastHopSellFeeAsset)
   const minimumCryptoHuman = useAppSelector(selectMinimumSellAmountCryptoHuman)
 
@@ -41,7 +36,7 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
   const isLoading = useMemo(() => selectedQuote?.isLoading, [selectedQuote?.isLoading])
 
   // Build a list of validation errors
-  const validationErrors: SelectedQuoteStatus[] = useMemo(() => {
+  const quoteErrors: SelectedQuoteStatus[] = useMemo(() => {
     if (isLoading) return []
     const errors: SelectedQuoteStatus[] = []
     if (errorData) {
@@ -52,36 +47,22 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
       if (errors.length === 0) errors.push(SelectedQuoteStatus.UnknownError)
     } else if (quoteData) {
       // We have a quote, but something might be wrong
-      if (!hasSufficientSellAssetBalance)
-        errors.push(SelectedQuoteStatus.InsufficientSellAssetBalance)
-      if (!firstHopHasSufficientBalanceForGas)
-        errors.push(SelectedQuoteStatus.InsufficientFirstHopFeeAssetBalance)
-      if (!lastHopHasSufficientBalanceForGas)
-        errors.push(SelectedQuoteStatus.InsufficientLastHopFeeAssetBalance)
-      if (isBelowMinimumSellAmount) errors.push(SelectedQuoteStatus.SellAmountBelowMinimum)
+      return validationErrors
     } else {
       // No quote or error data
       errors.push(SelectedQuoteStatus.NoQuotesAvailable)
     }
     return errors
-  }, [
-    errorData,
-    firstHopHasSufficientBalanceForGas,
-    hasSufficientSellAssetBalance,
-    isBelowMinimumSellAmount,
-    isLoading,
-    lastHopHasSufficientBalanceForGas,
-    quoteData,
-  ])
+  }, [errorData, isLoading, quoteData, validationErrors])
 
   const minimumAmountUserMessage = `${bnOrZero(minimumCryptoHuman).decimalPlaces(6)} ${
-    firstHopSellAssest?.symbol
+    firstHopSellAsset?.symbol
   }`
 
   // Map validation errors to translation stings
   const quoteStatusTranslation: QuoteStatus['quoteStatusTranslation'] = useMemo(() => {
     // Show the first error in the button
-    const firstError = validationErrors[0]
+    const firstError = quoteErrors[0]
 
     // Return a translation string based on the first error. We might want to show multiple one day.
     return (() => {
@@ -111,11 +92,11 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
     lastHopSellFeeAsset?.symbol,
     minimumAmountUserMessage,
     selectedSwapperName,
-    validationErrors,
+    quoteErrors,
   ])
 
   return {
-    validationErrors,
+    quoteErrors,
     quoteStatusTranslation,
     error: errorData,
   }

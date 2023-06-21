@@ -76,6 +76,7 @@ describe('zrxBuildTrade', () => {
     affiliateBps: '0',
     supportsEIP1559: false,
     allowMultiHop: false,
+    sendAddress: '0xfoobar',
   }
 
   const buildTradeResponse: ZrxTrade = {

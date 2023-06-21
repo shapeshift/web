@@ -39,7 +39,7 @@ type FoxFarmingApproveProps = {
 }
 
 export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext }) => {
-  const poll = usePoll()
+  const { poll } = usePoll()
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()

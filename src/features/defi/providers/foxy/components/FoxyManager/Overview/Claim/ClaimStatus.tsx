@@ -68,7 +68,7 @@ type ClaimStatusProps = {
 }
 
 export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
-  const poll = usePoll<ethers.providers.TransactionReceipt>()
+  const { poll } = usePoll<ethers.providers.TransactionReceipt>()
   const { history: browserHistory } = useBrowserRouter()
   const foxyApi = getFoxyApi()
   const translate = useTranslate()

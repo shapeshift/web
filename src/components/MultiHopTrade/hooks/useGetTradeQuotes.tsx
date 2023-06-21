@@ -20,13 +20,14 @@ import {
   selectSellAsset,
   selectSellAssetAccountId,
 } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
-
-import { getInputOutputRatioFromQuote } from '../helpers'
+import { getInputOutputRatioFromQuote } from 'state/slices/tradeQuoteSlice/helpers'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 export const useGetTradeQuotes = () => {
   const flags = useAppSelector(selectFeatureFlags)
   const wallet = useWallet().state.wallet
+  const dispatch = useAppDispatch()
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
@@ -110,20 +111,26 @@ export const useGetTradeQuotes = () => {
             swapperName: result.swapperName,
           })
         : -Infinity
-
       return Object.assign(result, { inputOutputRatio })
     })
 
     return orderBy(results, ['inputOutputRatio', 'swapperName'], ['asc', 'asc'])
   }, [
-    lifiQuery.data,
-    lifiQuery.error,
-    lifiQuery.isFetching,
+    debouncedTradeQuoteInput,
+    thorQuery.isFetching,
     thorQuery.data,
     thorQuery.error,
-    thorQuery.isFetching,
-    debouncedTradeQuoteInput,
+    lifiQuery.isFetching,
+    lifiQuery.data,
+    lifiQuery.error,
   ])
+
+  const bestQuote: TradeQuoteResult = sortedQuotes[0]
+  const quote = bestQuote?.data && bestQuote.data.isOk() ? bestQuote.data.unwrap() : undefined
+  const error = bestQuote?.data && bestQuote.data.isErr() ? bestQuote.data.unwrapErr() : undefined
+  dispatch(tradeQuoteSlice.actions.setSwapperName(bestQuote?.swapperName))
+  dispatch(tradeQuoteSlice.actions.setQuote(quote))
+  dispatch(tradeQuoteSlice.actions.setError(error))
   return {
     sortedQuotes,
     selectedQuote: sortedQuotes[0],

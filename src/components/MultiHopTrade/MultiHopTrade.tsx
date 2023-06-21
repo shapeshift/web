@@ -29,18 +29,18 @@ import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { fromBaseUnit } from 'lib/math'
-import {
-  selectBuyAsset,
-  selectSellAsset,
-  selectSwapperSupportsCrossAccountTrade,
-} from 'state/slices/selectors'
+import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
+import {
+  selectNetReceiveAmountCryptoPrecision,
+  selectSwapperSupportsCrossAccountTrade,
+  selectTotalProtocolFeeByAsset,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
-import { getNetReceiveAmountCryptoPrecision, getTotalProtocolFeeByAsset } from './helpers'
 import { useAccountIds } from './hooks/useAccountIds'
 import { useGetTradeQuotes } from './hooks/useGetTradeQuotes'
 import { useSupportedAssets } from './hooks/useSupportedAssets'
@@ -57,6 +57,8 @@ export const MultiHopTrade = (props: CardProps) => {
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
+  const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
+  const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
 
   const selectedQuoteStatus = useSelectedQuoteStatus()
   const dispatch = useAppDispatch()
@@ -112,20 +114,6 @@ export const MultiHopTrade = (props: CardProps) => {
       assets: supportedBuyAssets,
     })
   }, [assetSearch, setBuyAsset, supportedBuyAssets])
-
-  const totalProtocolFees = useMemo(() => {
-    if (!quoteData) return {}
-    return getTotalProtocolFeeByAsset(quoteData)
-  }, [quoteData])
-
-  const buyAmountAfterFeesCryptoPrecision = useMemo(() => {
-    if (!quoteData || !selectedQuote) return '0'
-
-    return getNetReceiveAmountCryptoPrecision({
-      quote: quoteData,
-      swapperName: selectedQuote.swapperName,
-    })
-  }, [selectedQuote, quoteData])
 
   const buyAmountBeforeFeesCryptoPrecision = useMemo(() => {
     if (!quoteData) return '0'
@@ -233,7 +221,7 @@ export const MultiHopTrade = (props: CardProps) => {
                   <ReceiveSummary
                     isLoading={isLoading}
                     symbol={buyAsset.symbol}
-                    amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
+                    amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
                     amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
                     protocolFees={totalProtocolFees}
                     shapeShiftFee='0'

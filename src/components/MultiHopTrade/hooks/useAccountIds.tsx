@@ -2,10 +2,8 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
 import type { Asset } from 'lib/asset-service'
 import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
-import {
-  selectFirstAccountIdByChainId,
-  selectSwapperSupportsCrossAccountTrade,
-} from 'state/slices/selectors'
+import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
+import { selectSwapperSupportsCrossAccountTrade } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useAccountIds = ({

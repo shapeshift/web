@@ -127,7 +127,7 @@ export const handleSend = async ({
 
     const chainId = adapter.getChainId()
 
-    const { estimatedFees, feeType, to, memo } = sendInput
+    const { estimatedFees, feeType, from, to, memo } = sendInput
 
     if (!accountMetadata)
       throw new Error(`useFormSend: no accountMetadata for ${sendInput.accountId}`)
@@ -183,7 +183,7 @@ export const handleSend = async ({
           wallet,
           accountNumber,
           chainSpecific: {
-            from: fromAccountId(sendInput.accountId).account,
+            from,
             satoshiPerByte: fees.chainSpecific.satoshiPerByte,
             accountType,
             opReturnData: memo,

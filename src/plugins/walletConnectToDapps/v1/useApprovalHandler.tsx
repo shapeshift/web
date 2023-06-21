@@ -85,9 +85,11 @@ export const useApprovalHandler = (wcAccountId: AccountId | undefined) => {
 
       const { accountNumber } = accountMetadata.bip44Params
 
+      const from = await chainAdapter.getAddress({ wallet, accountNumber })
+
       const { txToSign: txToSignWithPossibleWrongNonce } = await chainAdapter.buildCustomTx({
-        wallet,
         accountNumber,
+        from,
         to: tx.to,
         data: tx.data,
         value: tx.value ?? '0',

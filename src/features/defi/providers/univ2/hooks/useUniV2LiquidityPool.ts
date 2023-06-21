@@ -215,7 +215,6 @@ export const useUniV2LiquidityPool = ({
 
         const txid = await buildAndBroadcast({
           accountNumber,
-          from: accountAddress,
           adapter,
           feeData: getFeeDataFromEstimate(feeData).chainSpecific,
           to: contractAddress,
@@ -230,7 +229,6 @@ export const useUniV2LiquidityPool = ({
       }
     },
     [
-      accountAddress,
       accountId,
       accountNumber,
       adapter,
@@ -343,7 +341,6 @@ export const useUniV2LiquidityPool = ({
 
         const txid = await buildAndBroadcast({
           accountNumber,
-          from: accountAddress,
           adapter,
           feeData: getFeeDataFromEstimate(feeData).chainSpecific,
           to: contractAddress,
@@ -368,7 +365,6 @@ export const useUniV2LiquidityPool = ({
       makeRemoveLiquidityData,
       asset0ContractAddress,
       asset1ContractAddress,
-      accountAddress,
     ],
   )
 
@@ -623,7 +619,6 @@ export const useUniV2LiquidityPool = ({
       const txid = await buildAndBroadcast({
         accountNumber,
         adapter,
-        from: accountAddress,
         feeData: feeData.chainSpecific,
         to: contractAddress,
         value: '0',
@@ -633,7 +628,7 @@ export const useUniV2LiquidityPool = ({
 
       return txid
     },
-    [accountAddress, accountNumber, adapter, getApproveFeeData, skip, wallet],
+    [accountNumber, adapter, getApproveFeeData, skip, wallet],
   )
 
   return {

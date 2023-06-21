@@ -337,7 +337,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     to,
     wallet,
     accountNumber,
-    chainSpecific: { satoshiPerByte, accountType, opReturnData },
+    chainSpecific: { xpub, satoshiPerByte, accountType, opReturnData },
     sendMax = false,
   }: BuildSendTxInput<T>): Promise<{ txToSign: SignTx<T> }> {
     if (!supportsBTC(wallet)) {
@@ -345,7 +345,6 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
 
     const from = await this.getAddress({ wallet, accountNumber })
-    const { xpub } = await this.getPublicKey(wallet, accountNumber, accountType)
 
     const txToSign = await this.buildSignTx({
       to,

@@ -127,7 +127,7 @@ export const handleSend = async ({
 
     const chainId = adapter.getChainId()
 
-    const { estimatedFees, feeType, to, memo, from } = sendInput
+    const { estimatedFees, feeType, to, memo } = sendInput
 
     if (!accountMetadata)
       throw new Error(`useFormSend: no accountMetadata for ${sendInput.accountId}`)
@@ -176,13 +176,15 @@ export const handleSend = async ({
           )
         }
         const { accountNumber } = bip44Params
-        return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).buildSendTransaction({
+        const utxoChainAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
+        const { xpub } = await utxoChainAdapter.getPublicKey(wallet, accountNumber, accountType)
+        return utxoChainAdapter.buildSendTransaction({
           to,
           value,
           wallet,
           accountNumber,
           chainSpecific: {
-            from,
+            xpub,
             satoshiPerByte: fees.chainSpecific.satoshiPerByte,
             accountType,
             opReturnData: memo,

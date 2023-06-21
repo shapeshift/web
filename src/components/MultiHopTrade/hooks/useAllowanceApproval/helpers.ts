@@ -85,7 +85,6 @@ export const getApprovalTxData = async (
       data,
       to: assetReference,
       value,
-      wallet,
       ...fees,
     },
   }

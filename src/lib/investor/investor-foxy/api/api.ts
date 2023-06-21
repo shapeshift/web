@@ -137,7 +137,6 @@ export class FoxyApi {
       from,
       value: payload.value,
       gasLimit,
-      wallet,
       data: payload.data,
       accountNumber: payload.bip44Params.accountNumber,
       ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),

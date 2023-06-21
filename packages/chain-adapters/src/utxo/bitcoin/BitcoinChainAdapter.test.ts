@@ -326,7 +326,6 @@ describe('BitcoinChainAdapter', () => {
       const adapter = new bitcoin.ChainAdapter(args)
 
       const data = await adapter.getFeeData({
-        from: '0x',
         to: '0x',
         value: '0',
         chainSpecific: { pubkey: '123' },

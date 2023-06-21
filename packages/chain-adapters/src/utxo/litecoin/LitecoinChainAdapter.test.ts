@@ -331,7 +331,6 @@ describe('LitecoinChainAdapter', () => {
       const adapter = new litecoin.ChainAdapter(args)
 
       const data = await adapter.getFeeData({
-        from: '0x',
         to: '0x',
         value: '0',
         chainSpecific: { pubkey: '123' },

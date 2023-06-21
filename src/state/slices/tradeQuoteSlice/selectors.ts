@@ -3,7 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Selector } from 'reselect'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { ProtocolFee, TradeQuote } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
@@ -185,3 +185,16 @@ export const selectLastHopNetworkFeeCryptoPrecision: Selector<ReduxState, string
       ? fromBaseUnit(bnOrZero(lastHopNetworkFeeCryptoBaseUnit), lastHopSellFeeAsset.precision)
       : bn(0).toFixed(),
 )
+
+export const selectMinimumSellAmountCryptoHuman: Selector<ReduxState, string | undefined> =
+  createSelector(selectSelectedQuote, quote => (quote ? quote.minimumCryptoHuman : undefined))
+
+export const selectMinimumSellAmountCryptoBaseUnit: Selector<ReduxState, string | undefined> =
+  createSelector(
+    selectMinimumSellAmountCryptoHuman,
+    selectFirstHopSellAsset,
+    (minimumSellAmountCryptoHuman, firstHopSellAsset) =>
+      minimumSellAmountCryptoHuman && firstHopSellAsset
+        ? toBaseUnit(minimumSellAmountCryptoHuman, firstHopSellAsset.precision)
+        : undefined,
+  )

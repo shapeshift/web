@@ -32,8 +32,6 @@ export async function zrxExecuteTrade({
       to: depositAddress,
       data: txData,
       value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
-      // @ts-ignore TODO: type me and implement me properly
-      chainSpecific: {},
       wallet,
     })
 

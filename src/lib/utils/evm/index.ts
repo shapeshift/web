@@ -1,14 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type {
-  ChainSpecificBuildTxData,
-  evm,
-  EvmChainAdapter,
-  EvmChainId,
-  SignTx,
-} from '@shapeshiftoss/chain-adapters'
+import type { evm, EvmChainAdapter, EvmChainId, SignTx } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-// import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
@@ -33,7 +25,7 @@ type BroadcastArgs = {
 type BuildAndBroadcastArgs = BuildArgs & Omit<BroadcastArgs, 'txToSign'>
 
 type CreateBuildCustomTxInputArgs = {
-  supportsEIP1559: boolean | undefined
+  supportsEIP1559: boolean
   adapter: EvmChainAdapter
   to: string
   data: string
@@ -42,7 +34,7 @@ type CreateBuildCustomTxInputArgs = {
 } & {
   accountNumber: number
   wallet: HDWallet | undefined
-} & ChainSpecificBuildTxData<KnownChainIds>
+}
 
 type GetErc20AllowanceArgs = {
   address: string
@@ -53,7 +45,7 @@ type GetErc20AllowanceArgs = {
 
 type GetFeesArgs = {
   adapter: EvmChainAdapter
-  supportsEIP1559: boolean | undefined
+  supportsEIP1559: boolean
   to: string
   value: string
   data: string
@@ -73,20 +65,15 @@ export const getFees = async ({
   from,
   supportsEIP1559,
 }: GetFeesArgs): Promise<Fees> => {
-  // TODO(gomes): lift me up as an assertion
-  // if (!supportsETH(wallet)) throw new Error('eth wallet required')
-
-  const getFeeDataInput = { to, value, chainSpecific: { from, contractData: data } }
+  const getFeeDataInput = { from, to, value, chainSpecific: { contractData: data } }
 
   const {
     average: { chainSpecific: feeData },
   } = await adapter.getFeeData(getFeeDataInput)
 
-  // TODO(gomes): lift me up as a flag
-  // const eip1559Support = await wallet.ethSupportsEIP1559()
   const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
     ...feeData,
-    supportsEIP1559: Boolean(supportsEIP1559),
+    supportsEIP1559,
   })
 
   const { gasLimit, gasPrice, maxFeePerGas, maxPriorityFeePerGas } = feeData
@@ -127,7 +114,7 @@ export const calcNetworkFeeCryptoBaseUnit = (args: CalcNetworkFeeCryptoBaseUnitA
 
 export const createBuildCustomTxInput = async (
   args: CreateBuildCustomTxInputArgs,
-): Promise<evm.BuildCustomTxInput & ChainSpecificBuildTxData<KnownChainIds>> => {
+): Promise<evm.BuildCustomTxInput> => {
   const fees = await getFees(args)
   return { ...args, ...fees }
 }

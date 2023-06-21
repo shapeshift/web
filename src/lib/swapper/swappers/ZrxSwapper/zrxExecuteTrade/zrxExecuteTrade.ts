@@ -1,4 +1,3 @@
-import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
@@ -12,7 +11,6 @@ import { getAdapter } from '../utils/helpers/helpers'
 export async function zrxExecuteTrade({
   trade,
   wallet,
-  from,
 }: ZrxExecuteTradeInput): Promise<Result<TradeResult, SwapErrorRight>> {
   const { accountNumber, depositAddress, sellAsset, txData } = trade
   const sellAmount = trade.sellAmountBeforeFeesCryptoBaseUnit
@@ -21,12 +19,8 @@ export async function zrxExecuteTrade({
   if (maybeAdapter.isErr()) return Err(maybeAdapter.unwrapErr())
   const adapter = maybeAdapter.unwrap()
 
-  const supportsEIP1559 = await (wallet as ETHWallet)?.ethSupportsEIP1559()
-
   try {
     const buildCustomTxInput = await createBuildCustomTxInput({
-      from,
-      supportsEIP1559,
       accountNumber,
       adapter,
       to: depositAddress,

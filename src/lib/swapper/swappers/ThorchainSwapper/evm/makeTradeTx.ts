@@ -16,9 +16,9 @@ type MakeTradeTxArgs = {
   router: string
   sellAmountCryptoBaseUnit: string
   sellAsset: Asset
-  wallet?: HDWallet
+  wallet: HDWallet
   accountNumber: number
-  supportsEIP1559: boolean | undefined
+  supportsEIP1559: boolean
 }
 
 type TradeTx = {
@@ -28,27 +28,12 @@ type TradeTx = {
 export const makeTradeTx = async (
   args: MakeTradeTxArgs,
 ): Promise<Result<TradeTx, SwapErrorRight>> => {
-  const {
-    from,
-    adapter,
-    data,
-    router,
-    sellAmountCryptoBaseUnit,
-    sellAsset,
-    supportsEIP1559,
-    wallet,
-    accountNumber,
-  } = args
+  const { adapter, data, router, sellAmountCryptoBaseUnit, sellAsset, wallet, accountNumber } = args
 
   try {
     const buildCustomTxInput = await createBuildCustomTxInput({
-      // TODO type me and implement me properly
-      // @ts-ignore
-      chainSpecific: {},
       accountNumber,
       wallet,
-      supportsEIP1559,
-      from,
       adapter,
       to: router,
       value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',

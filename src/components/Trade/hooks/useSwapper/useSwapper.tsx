@@ -22,9 +22,9 @@ import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import { isEvmChainAdapter } from 'lib/utils'
 import {
   buildAndBroadcast,
+  createBuildCustomTxInput,
   getApproveContractData,
   getErc20Allowance,
-  getFees,
 } from 'lib/utils/evm'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
@@ -320,32 +320,18 @@ export const useSwapper = () => {
         to: assetReference,
       })
 
-      const from = await adapter.getAddress({
+      const { networkFeeCryptoBaseUnit, ...buildCustomTxInput } = await createBuildCustomTxInput({
+        adapter,
+        to: assetReference,
+        value,
+        data,
         wallet,
         accountNumber: activeQuote.steps[0].accountNumber,
       })
 
-      const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
-        // TODO: implement me
-        supportsEIP1559: false,
-        adapter,
-        from,
-        to: assetReference,
-        value,
-        data,
-      })
-
       return {
         networkFeeCryptoBaseUnit,
-        buildCustomTxInput: {
-          data,
-          from,
-          accountNumber: activeQuote.steps[0].accountNumber,
-          to: assetReference,
-          value,
-          wallet,
-          ...fees,
-        },
+        buildCustomTxInput,
       }
     },
     [activeQuote, sellAsset.assetId, sellAsset.chainId, wallet],

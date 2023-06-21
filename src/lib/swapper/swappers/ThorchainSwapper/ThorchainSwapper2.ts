@@ -1,30 +1,33 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import type { ChainAdapter, SignTx, UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { CHAIN_NAMESPACE, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type {
+  ChainAdapter,
+  CosmosSdkChainAdapter,
+  EvmChainAdapter,
+  EvmChainId,
+  SignTx,
+  UtxoChainAdapter,
+  UtxoChainId,
+} from '@shapeshiftoss/chain-adapters'
+import type { HDWallet, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type {
   BuyAssetBySellIdInput,
-  ExecuteTradeInput2,
+  ExecuteTradeArgs,
   Swapper2,
+  TradeQuote,
   UnsignedTx,
 } from 'lib/swapper/api'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
+import { assertUnreachable, evm } from 'lib/utils'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import { selectFeeAssetById, selectUsdRateByAssetId } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-import { buildTradeFromQuote } from './buildThorTrade/buildThorTrade'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
-import type {
-  ThorChainId,
-  ThorCosmosSdkSupportedChainId,
-  ThorEvmSupportedChainId,
-  ThorTrade,
-  ThorUtxoSupportedChainId,
-} from './ThorchainSwapper'
+import type { ThorChainId, ThorUtxoSupportedChainId } from './ThorchainSwapper'
 import { ThorchainSwapper } from './ThorchainSwapper'
+import { getSignTxFromQuote } from './utils/getSignTxFromQuote'
 
 // Gets a from addresss either
 // - derived from the input (for our own consumption with our AccountMetadata and ChainId structures)
@@ -73,7 +76,13 @@ export const thorchain: Swapper2 = {
   getTradeQuote: getThorTradeQuote,
 
   getUnsignedTx: withFrom(
-    async ({ accountMetadata, tradeQuote, chainId, from }): Promise<UnsignedTx> => {
+    async ({
+      accountMetadata,
+      tradeQuote,
+      chainId,
+      from,
+      supportsEIP1559,
+    }): Promise<UnsignedTx> => {
       const chainAdapterManager = getChainAdapterManager()
       if (!chainId) throw new Error('No chainId provided')
       const adapter = chainAdapterManager.get(chainId) as ChainAdapter<ThorChainId>
@@ -92,110 +101,68 @@ export const thorchain: Swapper2 = {
       if (!buyAssetUsdRate) throw Error('missing buy asset usd rate')
       if (!feeAssetUsdRate) throw Error('missing fee asset usd rate')
 
-      const maybeTrade = await buildTradeFromQuote({
+      const accountType = accountMetadata?.accountType
+      const xpub = from // TODO: question - why are we mixing these?
+
+      const chainSpecific =
+        accountType && xpub
+          ? {
+              xpub,
+              accountType,
+              satoshiPerByte: (tradeQuote as TradeQuote<ThorUtxoSupportedChainId>).steps[0].feeData
+                .chainSpecific.satsPerByte,
+            }
+          : undefined
+
+      return await getSignTxFromQuote({
         tradeQuote,
         receiveAddress,
         affiliateBps,
-        from,
-        ...(accountMetadata?.accountType
-          ? // TODO sats per byte
-            {
-              buildTxData: {
-                chainSpecific: { accountType: accountMetadata?.accountType, satoshiPerByte: '0' },
-              },
-            }
-          : {}),
+        chainSpecific,
         buyAssetUsdRate,
         feeAssetUsdRate,
+        from,
+        supportsEIP1559,
       })
-
-      if (maybeTrade.isErr()) throw maybeTrade.unwrapErr()
-      const trade = maybeTrade.unwrap()
-
-      try {
-        const chainAdapterManager = getChainAdapterManager()
-        const { chainNamespace, chainId } = fromAssetId(trade.sellAsset.assetId)
-        const adapter = chainAdapterManager.get(chainId)
-
-        if (!adapter) {
-          throw new SwapError('[executeTrade]: no adapter for sell asset chain id', {
-            code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
-            details: { chainId },
-            fn: 'executeTrade',
-          })
-        }
-
-        if (chainNamespace === CHAIN_NAMESPACE.Evm) {
-          const txToSign = (trade as ThorTrade<ThorEvmSupportedChainId>)
-            .txData as SignTx<ThorEvmSupportedChainId>
-          return txToSign
-        } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
-          const txToSign = (trade as ThorTrade<ThorUtxoSupportedChainId>)
-            .txData as SignTx<ThorUtxoSupportedChainId>
-          return txToSign
-        } else if (chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
-          const txToSign = (trade as ThorTrade<ThorCosmosSdkSupportedChainId>)
-            .txData as SignTx<ThorCosmosSdkSupportedChainId>
-          return txToSign
-        } else {
-          throw new SwapError('[executeTrade]: unsupported chainNamespace', {
-            code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
-            details: { chainNamespace },
-          })
-        }
-      } catch (e) {
-        throw new SwapError('[executeTrade]: failed to sign or broadcast', {
-          cause: e,
-          code: SwapErrorType.SIGN_AND_BROADCAST_FAILED,
-        })
-      }
     },
   ),
 
-  executeTrade: async ({
-    tradeQuote,
-    wallet,
-    affiliateBps,
-    receiveAddress,
-    xpub,
-    accountType,
-  }: ExecuteTradeInput2): Promise<string> => {
-    const feeAsset = selectFeeAssetById(store.getState(), tradeQuote.steps[0].sellAsset.assetId)
-    const buyAssetUsdRate = selectUsdRateByAssetId(
-      store.getState(),
-      tradeQuote.steps[0].buyAsset.assetId,
-    )
-    const feeAssetUsdRate = feeAsset
-      ? selectUsdRateByAssetId(store.getState(), feeAsset.assetId)
-      : undefined
+  executeTrade: async ({ txToExecute, wallet, chainId }: ExecuteTradeArgs): Promise<string> => {
+    const { chainNamespace } = fromChainId(chainId)
+    const chainAdapterManager = getChainAdapterManager()
+    const adapter = chainAdapterManager.get(chainId)
 
-    if (!buyAssetUsdRate) throw Error('missing buy asset usd rate')
-    if (!feeAssetUsdRate) throw Error('missing fee asset usd rate')
+    switch (chainNamespace) {
+      case CHAIN_NAMESPACE.Evm: {
+        const evmChainAdapter = adapter as unknown as EvmChainAdapter
+        return evm.broadcast({
+          adapter: evmChainAdapter,
+          txToSign: txToExecute as SignTx<EvmChainId>,
+          wallet,
+        })
+      }
 
-    const trade = await buildTradeFromQuote({
-      tradeQuote,
-      wallet,
-      receiveAddress,
-      affiliateBps,
-      from: xpub,
-      ...(accountType
-        ? // TODO
-          { buildTxData: { chainSpecific: { accountType, satoshiPerByte: '0' } } }
-        : {}),
-      buyAssetUsdRate,
-      feeAssetUsdRate,
-    })
+      case CHAIN_NAMESPACE.CosmosSdk: {
+        const cosmosSdkChainAdapter = adapter as unknown as CosmosSdkChainAdapter
+        const signedTx = await cosmosSdkChainAdapter.signTransaction({
+          txToSign: txToExecute as ThorchainSignTx,
+          wallet,
+        })
+        return cosmosSdkChainAdapter.broadcastTransaction(signedTx)
+      }
 
-    if (trade.isErr()) throw trade.unwrapErr()
+      case CHAIN_NAMESPACE.Utxo: {
+        const utxoChainAdapter = adapter as unknown as UtxoChainAdapter
+        const signedTx = await utxoChainAdapter.signTransaction({
+          txToSign: txToExecute as SignTx<UtxoChainId>,
+          wallet,
+        })
+        return utxoChainAdapter.broadcastTransaction(signedTx)
+      }
 
-    const thorchainSwapper = new ThorchainSwapper()
-    const executeTradeResult = await thorchainSwapper.executeTrade({
-      trade: trade.unwrap(),
-      wallet,
-    })
-    if (executeTradeResult.isErr()) throw executeTradeResult.unwrapErr()
-
-    return executeTradeResult.unwrap().tradeId
+      default:
+        assertUnreachable(chainNamespace)
+    }
   },
 
   checkTradeStatus: async (txId: string): Promise<{ isComplete: boolean; message?: string }> => {

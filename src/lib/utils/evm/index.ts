@@ -1,5 +1,11 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { evm, EvmChainAdapter, EvmChainId, SignTx } from '@shapeshiftoss/chain-adapters'
+import type {
+  BuildSignTxInput,
+  evm,
+  EvmChainAdapter,
+  EvmChainId,
+  SignTx,
+} from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { getOrCreateContractByType } from 'contracts/contractManager'
@@ -34,6 +40,16 @@ type CreateBuildCustomTxInputArgs = {
   wallet: HDWallet
 }
 
+type CreateSignTxInputArgs = {
+  adapter: EvmChainAdapter
+  to: string
+  data: string
+  value: string
+  accountNumber: number
+  from: string
+  supportsEIP1559: boolean
+}
+
 type GetErc20AllowanceArgs = {
   address: string
   from: string
@@ -63,7 +79,7 @@ export const getFees = async ({
   from,
   supportsEIP1559,
 }: GetFeesArgs): Promise<Fees> => {
-  const getFeeDataInput = { from, to, value, chainSpecific: { contractData: data } }
+  const getFeeDataInput = { to, value, chainSpecific: { from, contractData: data } }
 
   const {
     average: { chainSpecific: feeData },
@@ -130,6 +146,30 @@ export const createBuildCustomTxInput = async (
     supportsEIP1559,
   })
   return { ...args, ...fees, from }
+}
+
+export const createSignTxInput = async (
+  args: CreateSignTxInputArgs,
+): Promise<BuildSignTxInput<EvmChainId>> => {
+  const { adapter, accountNumber, to, value, data, from, supportsEIP1559 } = args
+
+  const chainSpecific = await getFees({
+    adapter,
+    to,
+    value,
+    data,
+    from,
+    supportsEIP1559,
+  })
+
+  return {
+    value: value.toString(),
+    to,
+    from,
+    chainSpecific,
+    accountNumber,
+    memo: data.toString(),
+  }
 }
 
 export const buildAndBroadcast = async ({

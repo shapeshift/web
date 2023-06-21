@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { cosmosAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkBaseAdapter, thorchain } from '@shapeshiftoss/chain-adapters'
-import type { CosmosSignTx, HDWallet, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { CosmosSignTx, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -21,7 +21,7 @@ type GetCosmosTxDataInput = {
   sellAsset: Asset
   buyAsset: Asset
   slippageTolerance: string
-  wallet: HDWallet
+  from: string
   quote: TradeQuote<ThorCosmosSdkSupportedChainId>
   chainId: ChainId
   sellAdapter: CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
@@ -41,7 +41,7 @@ export const getCosmosTxData = async (
     buyAsset,
     slippageTolerance,
     quote,
-    wallet,
+    from,
     sellAdapter,
     affiliateBps,
     buyAssetUsdRate,
@@ -90,9 +90,9 @@ export const getCosmosTxData = async (
       case fromThorAsset:
         return Ok(
           (sellAdapter as unknown as thorchain.ChainAdapter).buildDepositTransaction({
+            from,
             accountNumber,
             value: sellAmountCryptoBaseUnit,
-            wallet,
             memo,
             chainSpecific: {
               gas: quote.steps[0].feeData.chainSpecific.estimatedGasCryptoBaseUnit,
@@ -112,10 +112,10 @@ export const getCosmosTxData = async (
         return Ok(
           (
             sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
-          ).buildSendTransaction({
+          ).buildSignTx({
             accountNumber,
             value: sellAmountCryptoBaseUnit,
-            wallet,
+            from,
             to: vault,
             memo,
             chainSpecific: {

@@ -156,26 +156,22 @@ export type BuildSignTxInput<T extends KnownChainIds> = {
   memo?: string
 } & ChainSpecificBuildTxData<T>
 
-type DeepPartial<T> = {
-  [P in keyof T]?: DeepPartial<T[P]>
-}
-// TODO(gomes): temporary recursive partial since we don't need gasLimit and gasPrice for this
 export type ChainSpecificBuildTxData<T> = ChainSpecific<
   T,
   {
-    [KnownChainIds.EthereumMainnet]: DeepPartial<evm.BuildTxInput>
-    [KnownChainIds.AvalancheMainnet]: DeepPartial<evm.BuildTxInput>
-    [KnownChainIds.OptimismMainnet]: DeepPartial<evm.BuildTxInput>
-    [KnownChainIds.BnbSmartChainMainnet]: DeepPartial<evm.BuildTxInput>
-    [KnownChainIds.PolygonMainnet]: DeepPartial<evm.BuildTxInput>
-    [KnownChainIds.GnosisMainnet]: DeepPartial<evm.BuildTxInput>
-    [KnownChainIds.BitcoinMainnet]: DeepPartial<utxo.BuildTxInput>
-    [KnownChainIds.BitcoinCashMainnet]: DeepPartial<utxo.BuildTxInput>
-    [KnownChainIds.DogecoinMainnet]: DeepPartial<utxo.BuildTxInput>
-    [KnownChainIds.LitecoinMainnet]: DeepPartial<utxo.BuildTxInput>
-    [KnownChainIds.CosmosMainnet]: DeepPartial<cosmossdk.BuildTxInput>
-    [KnownChainIds.OsmosisMainnet]: DeepPartial<cosmossdk.BuildTxInput>
-    [KnownChainIds.ThorchainMainnet]: DeepPartial<cosmossdk.BuildTxInput>
+    [KnownChainIds.EthereumMainnet]: evm.BuildTxInput
+    [KnownChainIds.AvalancheMainnet]: evm.BuildTxInput
+    [KnownChainIds.OptimismMainnet]: evm.BuildTxInput
+    [KnownChainIds.BnbSmartChainMainnet]: evm.BuildTxInput
+    [KnownChainIds.PolygonMainnet]: evm.BuildTxInput
+    [KnownChainIds.GnosisMainnet]: evm.BuildTxInput
+    [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
+    [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
+    [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
+    [KnownChainIds.LitecoinMainnet]: utxo.BuildTxInput
+    [KnownChainIds.CosmosMainnet]: cosmossdk.BuildTxInput
+    [KnownChainIds.OsmosisMainnet]: cosmossdk.BuildTxInput
+    [KnownChainIds.ThorchainMainnet]: cosmossdk.BuildTxInput
   }
 >
 
@@ -194,7 +190,7 @@ export type BuildRedelegateTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>
   toValidator: string
 }
 
-export type BuildDepositTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>, 'to'> & {
+export type BuildDepositTxInput<T extends KnownChainIds> = Omit<BuildSignTxInput<T>, 'to'> & {
   memo: string
 }
 

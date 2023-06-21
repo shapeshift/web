@@ -10,7 +10,6 @@ import { createBuildCustomTxInput } from 'lib/utils/evm'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 
 type MakeTradeTxArgs = {
-  from: string
   adapter: ThorEvmSupportedChainAdapter
   data: string
   router: string
@@ -18,7 +17,6 @@ type MakeTradeTxArgs = {
   sellAsset: Asset
   wallet: HDWallet
   accountNumber: number
-  supportsEIP1559: boolean
 }
 
 type TradeTx = {

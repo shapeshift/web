@@ -228,7 +228,6 @@ describe('DogecoinChainAdapter', () => {
         value: '400',
         wallet,
         chainSpecific: {
-          from: 'someDerivedPubkeyFromXpub',
           accountType: UtxoAccountType.P2pkh,
           satoshiPerByte: '1',
         },
@@ -293,7 +292,6 @@ describe('DogecoinChainAdapter', () => {
         value: '400000000',
         wallet,
         chainSpecific: {
-          from: 'someDerivedPubkeyFromXpub',
           accountType: UtxoAccountType.P2pkh,
           satoshiPerByte: '1',
         },

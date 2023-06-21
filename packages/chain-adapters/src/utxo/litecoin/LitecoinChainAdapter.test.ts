@@ -225,7 +225,6 @@ describe('LitecoinChainAdapter', () => {
         value: '400',
         wallet,
         chainSpecific: {
-          from: 'someDerivedPubkeyFromXpub',
           accountType: UtxoAccountType.P2pkh,
           satoshiPerByte: '1',
         },

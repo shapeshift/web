@@ -79,7 +79,7 @@ const getUnderlyingVaultTokens = async (): Promise<Asset[]> => {
       icon: '',
       // Idle have a requirement to have pools named a certain way, so we have to use the poolName property here, not tokenName
       // Since we use the `name` property in the DeFi section to display opportunities
-      name: vault.poolName,
+      name: vault.tokenName,
       precision: Number(18),
       symbol,
       chainId,

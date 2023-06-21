@@ -123,7 +123,6 @@ export const buildTrade = async (
       to: vault,
       accountNumber,
       chainSpecific: {
-        from: (input as GetUtxoTradeQuoteInput).xpub,
         accountType: (input as GetUtxoTradeQuoteInput).accountType,
         satoshiPerByte: (quote as TradeQuote<ThorUtxoSupportedChainId>).steps[0].feeData
           .chainSpecific.satsPerByte,

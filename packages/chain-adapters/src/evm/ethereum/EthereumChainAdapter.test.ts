@@ -447,7 +447,13 @@ describe('EthereumChainAdapter', () => {
     it('should throw if passed tx has no "to" property', async () => {
       const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
 
+      const wallet = await getWallet()
+      wallet.ethGetAddress = jest
+        .fn()
+        .mockResolvedValueOnce('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
+
       const tx = {
+        accountNumber: 0,
         wallet: await getWallet(),
         value,
         chainSpecific: makeChainSpecific({ tokenContractAddress }),
@@ -471,9 +477,14 @@ describe('EthereumChainAdapter', () => {
       const adapter = new ethereum.ChainAdapter(args)
       const accountNumber = 0
 
+      const wallet = await getWallet()
+      wallet.ethGetAddress = jest
+        .fn()
+        .mockResolvedValueOnce('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
+
       const tx = {
         accountNumber,
-        wallet: await getWallet(),
+        wallet,
         to: ENS_NAME,
         value,
         chainSpecific: makeChainSpecific({ tokenContractAddress }),
@@ -487,8 +498,14 @@ describe('EthereumChainAdapter', () => {
     it('should throw if passed tx has no "value" property', async () => {
       const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
 
+      const wallet = await getWallet()
+      wallet.ethGetAddress = jest
+        .fn()
+        .mockResolvedValueOnce('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
+
       const tx = {
-        wallet: await getWallet(),
+        accountNumber: 0,
+        wallet,
         to: EOA_ADDRESS,
         chainSpecific: makeChainSpecific(),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>

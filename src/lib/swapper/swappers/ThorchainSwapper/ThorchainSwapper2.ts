@@ -97,6 +97,7 @@ export const thorchain: Swapper2 = {
       tradeQuote,
       chainId,
       from,
+      xpub,
       supportsEIP1559,
     }): Promise<UnsignedTx> => {
       const chainAdapterManager = getChainAdapterManager()
@@ -118,7 +119,6 @@ export const thorchain: Swapper2 = {
       if (!feeAssetUsdRate) throw Error('missing fee asset usd rate')
 
       const accountType = accountMetadata?.accountType
-      const xpub = from // TODO: question - why are we mixing these?
 
       const chainSpecific =
         accountType && xpub
@@ -130,14 +130,15 @@ export const thorchain: Swapper2 = {
             }
           : undefined
 
+      const fromOrXpub = from ? { from } : { xpub: xpub! }
       return await getSignTxFromQuote({
         tradeQuote,
         receiveAddress,
         affiliateBps,
         chainSpecific,
         buyAssetUsdRate,
+        ...fromOrXpub,
         feeAssetUsdRate,
-        from,
         supportsEIP1559,
       })
     },

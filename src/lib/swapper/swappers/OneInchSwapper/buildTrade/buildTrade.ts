@@ -4,7 +4,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
+import type { BuildTradeInput, GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { getFees } from 'lib/utils/evm'
 import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
@@ -21,7 +21,7 @@ import type {
 
 export const buildTrade = async (
   deps: OneInchSwapperDeps,
-  input: BuildTradeInput,
+  input: BuildTradeInput & GetEvmTradeQuoteInput,
 ): Promise<Result<OneInchTrade<EvmChainId>, SwapErrorRight>> => {
   const {
     chainId,
@@ -29,6 +29,7 @@ export const buildTrade = async (
     buyAsset,
     sellAmountBeforeFeesCryptoBaseUnit,
     accountNumber,
+    supportsEIP1559,
     slippage,
     receiveAddress,
     affiliateBps,
@@ -79,8 +80,7 @@ export const buildTrade = async (
 
   try {
     const { networkFeeCryptoBaseUnit } = await getFees({
-      // TODO
-      supportsEIP1559: true,
+      supportsEIP1559,
       from: receiveAddress,
       adapter,
       to: swap.tx.to,

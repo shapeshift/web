@@ -75,7 +75,8 @@ export const lifi: Swapper2 = {
       lifiStep: lifiRoute.steps[stepIndex],
       accountNumber,
       sellAsset,
-      from,
+      // discriminated union between from or xpub in GetUnsignedTxArgs, but since Li.Fi only deals with EVMs, from is always going to be defined
+      from: from!,
     })
 
     // cast required because hdwallet typings return ETHSignTx which doesn't explicitly extends SignTx<C>

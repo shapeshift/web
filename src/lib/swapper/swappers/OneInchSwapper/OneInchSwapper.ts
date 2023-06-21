@@ -40,7 +40,7 @@ export class OneInchSwapper implements Swapper<OneInchSupportedChainId, true> {
   }
 
   buildTrade(
-    input: BuildTradeInput,
+    input: BuildTradeInput & GetEvmTradeQuoteInput,
   ): Promise<Result<OneInchTrade<OneInchSupportedChainId>, SwapErrorRight>> {
     return buildTrade(this.deps, input)
   }

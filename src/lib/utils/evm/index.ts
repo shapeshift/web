@@ -38,6 +38,8 @@ type CreateBuildCustomTxInputArgs = {
   value: string
   accountNumber: number
   wallet: HDWallet
+} & {
+  chainSpecific: evm.BuildTxInput
 }
 
 type CreateSignTxInputArgs = {
@@ -128,7 +130,11 @@ export const calcNetworkFeeCryptoBaseUnit = (args: CalcNetworkFeeCryptoBaseUnitA
 
 export const createBuildCustomTxInput = async (
   args: CreateBuildCustomTxInputArgs,
-): Promise<evm.BuildCustomTxInput & { networkFeeCryptoBaseUnit: string }> => {
+): Promise<
+  evm.BuildCustomTxInput & { networkFeeCryptoBaseUnit: string } & {
+    chainSpecific: evm.BuildTxInput
+  }
+> => {
   const { wallet, adapter, accountNumber, to, value, data } = args
   const [from, supportsEIP1559] = await Promise.all([
     adapter.getAddress({

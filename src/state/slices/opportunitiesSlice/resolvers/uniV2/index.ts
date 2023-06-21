@@ -54,6 +54,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
 }> => {
   const { dispatch, getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
+  const { DynamicLpAssets } = selectFeatureFlags(state)
 
   const assets: AssetsState = state.assets
 
@@ -78,10 +79,10 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
   for (const opportunityId of opportunityIds) {
     const zapperAppBalanceData = zapperAppTokensOutput.data?.[opportunityId]
 
-    if (!(zapperAppBalanceData?.tokens?.[0].decimals && zapperAppBalanceData?.tokens?.[1].decimals))
-      continue
-
-    if (!(zapperAppBalanceData?.tokens?.[0].decimals && zapperAppBalanceData?.tokens?.[1].decimals))
+    if (
+      DynamicLpAssets &&
+      !(zapperAppBalanceData?.tokens?.[0].decimals && zapperAppBalanceData?.tokens?.[1].decimals)
+    )
       continue
 
     const {

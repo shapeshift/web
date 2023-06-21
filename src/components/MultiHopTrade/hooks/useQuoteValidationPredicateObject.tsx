@@ -28,8 +28,8 @@ export const useQuoteValidationPredicateObject = (): QuoteValidationPredicateObj
     bnOrZero(sellAmountCryptoBaseUnit),
   )
   const firstHopHasSufficientBalanceForGas = bnOrZero(firstHopFeeAssetBalancePrecision)
-    .minus(firstHopNetworkFeeCryptoPrecision)
-    .minus(firstHopTradeDeductionCryptoPrecision)
+    .minus(firstHopNetworkFeeCryptoPrecision ?? 0)
+    .minus(firstHopTradeDeductionCryptoPrecision ?? 0)
     .gte(0)
 
   const lastHopHasSufficientBalanceForGas = bnOrZero(lastHopFeeAssetBalancePrecision)

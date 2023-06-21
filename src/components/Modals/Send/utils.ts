@@ -177,14 +177,13 @@ export const handleSend = async ({
         }
         const { accountNumber } = bip44Params
         const utxoChainAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
-        const { xpub } = await utxoChainAdapter.getPublicKey(wallet, accountNumber, accountType)
         return utxoChainAdapter.buildSendTransaction({
           to,
           value,
           wallet,
           accountNumber,
           chainSpecific: {
-            xpub,
+            from: fromAccountId(sendInput.accountId).account,
             satoshiPerByte: fees.chainSpecific.satoshiPerByte,
             accountType,
             opReturnData: memo,

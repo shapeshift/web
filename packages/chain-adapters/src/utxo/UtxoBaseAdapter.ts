@@ -20,7 +20,6 @@ import { ErrorHandler } from '../error/ErrorHandler'
 import type {
   Account,
   BuildSendTxInput,
-  BuildSignTxInput,
   FeeDataEstimate,
   GetBIP44ParamsInput,
   GetFeeDataInput,
@@ -31,6 +30,7 @@ import type {
   Transaction,
   TxHistoryInput,
   TxHistoryResponse,
+  UtxoBuildSignTxInput,
   ValidAddressResult,
 } from '../types'
 import { ValidAddressResultType } from '../types'
@@ -247,11 +247,11 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   async buildSignTx({
     value,
     to,
-    from,
+    xpub,
     accountNumber,
-    chainSpecific: { xpub, satoshiPerByte, accountType, opReturnData },
+    chainSpecific: { from, satoshiPerByte, accountType, opReturnData },
     sendMax = false,
-  }: BuildSignTxInput<T>): Promise<SignTx<T>> {
+  }: UtxoBuildSignTxInput): Promise<SignTx<T>> {
     try {
       if (!accountType) throw new Error('accountType is required')
       if (!satoshiPerByte)
@@ -337,23 +337,23 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     to,
     wallet,
     accountNumber,
-    chainSpecific: { xpub, satoshiPerByte, accountType, opReturnData },
+    chainSpecific,
     sendMax = false,
   }: BuildSendTxInput<T>): Promise<{ txToSign: SignTx<T> }> {
     if (!supportsBTC(wallet)) {
       throw new Error(`UtxoBaseAdapter: wallet does not support ${this.coinName}`)
     }
 
-    const from = await this.getAddress({ wallet, accountNumber })
+    const { xpub } = await this.getPublicKey(wallet, accountNumber, chainSpecific.accountType)
 
     const txToSign = await this.buildSignTx({
       to,
       value,
-      from,
+      xpub,
       accountNumber,
       sendMax,
-      chainSpecific: { xpub, satoshiPerByte, accountType, opReturnData },
-    } as BuildSignTxInput<T>)
+      chainSpecific,
+    })
 
     return { txToSign }
   }

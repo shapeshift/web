@@ -134,7 +134,7 @@ export type GetTradeQuoteInput =
   | GetCosmosSdkTradeQuoteInput
 
 export type BuildTradeInput = GetTradeQuoteInput & {
-  wallet: HDWallet
+  wallet?: HDWallet
   slippage?: string
 }
 

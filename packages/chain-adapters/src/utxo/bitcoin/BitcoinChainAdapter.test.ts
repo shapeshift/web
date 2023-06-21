@@ -222,7 +222,7 @@ describe('BitcoinChainAdapter', () => {
         value: '400',
         wallet,
         chainSpecific: {
-          xpub: '',
+          from: 'somePublicKeyDerivedFromAnXpub',
           accountType: UtxoAccountType.SegwitNative,
           satoshiPerByte: '1',
         },
@@ -285,7 +285,7 @@ describe('BitcoinChainAdapter', () => {
         value: '400',
         wallet,
         chainSpecific: {
-          xpub: '',
+          from: 'somePublicKeyDerivedFromAnXpub',
           accountType: UtxoAccountType.SegwitNative,
           satoshiPerByte: '1',
         },

@@ -29,6 +29,7 @@ export const getSignTxFromQuote = async ({
   buyAssetUsdRate,
   feeAssetUsdRate,
   from,
+  xpub,
   supportsEIP1559,
 }: {
   tradeQuote: TradeQuote<ChainId>
@@ -37,9 +38,8 @@ export const getSignTxFromQuote = async ({
   chainSpecific?: utxo.BuildTxInput
   buyAssetUsdRate: string
   feeAssetUsdRate: string
-  from: string
   supportsEIP1559: boolean
-}): Promise<UnsignedTx> => {
+} & ({ from: string; xpub?: never } | { from?: never; xpub: string })): Promise<UnsignedTx> => {
   const { recommendedSlippage: slippageTolerance = DEFAULT_SLIPPAGE } = quote
 
   const {
@@ -63,7 +63,7 @@ export const getSignTxFromQuote = async ({
       const { router, data } = quote as ThorEvmTradeQuote
       const sendTxInput = await createSignTxInput({
         accountNumber,
-        from,
+        from: from!,
         adapter: evmChainAdapter,
         to: router,
         value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
@@ -84,7 +84,7 @@ export const getSignTxFromQuote = async ({
         slippageTolerance,
         chainId: sellAsset.chainId,
         buyAsset,
-        from,
+        from: from!,
         destinationAddress: receiveAddress,
         quote: quote as TradeQuote<ThorCosmosSdkSupportedChainId>,
         affiliateBps,
@@ -101,15 +101,13 @@ export const getSignTxFromQuote = async ({
       const utxoChainAdapter = adapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
       if (!chainSpecific) throw Error('missing UTXO chainSpecific parameters')
 
-      const { xpub } = chainSpecific
-
       const maybeThorTxInfo = await getThorTxInfo({
         sellAsset,
         buyAsset,
         sellAmountCryptoBaseUnit,
         slippageTolerance,
         destinationAddress: receiveAddress,
-        xpub,
+        xpub: xpub!,
         protocolFees: quote.steps[0].feeData.protocolFees,
         affiliateBps,
         buyAssetUsdRate,
@@ -122,7 +120,7 @@ export const getSignTxFromQuote = async ({
 
       return utxoChainAdapter.buildSignTx({
         value: sellAmountCryptoBaseUnit,
-        from,
+        xpub: xpub!,
         to: vault,
         accountNumber,
         chainSpecific: {

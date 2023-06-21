@@ -215,6 +215,7 @@ export const useSwapper = () => {
           accountType,
           xpub,
           sendAddress,
+          wallet,
         })
       } else if (isEvmSwap(sellAsset.chainId) || isCosmosSdkSwap(sellAsset.chainId)) {
         const eip1559Support = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
@@ -234,6 +235,7 @@ export const useSwapper = () => {
           receiveAccountNumber: buyAccountBip44Params?.accountNumber,
           supportsEIP1559: eip1559Support,
           sendAddress,
+          wallet,
         })
       } else {
         throw new Error('unsupported sellAsset.chainId')

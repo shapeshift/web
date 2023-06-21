@@ -71,7 +71,6 @@ export type GasFeeDataEstimate = {
 
 export type GetFeeDataInput = {
   contractAddress?: string
-  from: string
   contractData?: string
 }
 

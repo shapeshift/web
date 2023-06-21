@@ -163,10 +163,10 @@ const testEthereum = async (wallet: NativeHDWallet, broadcast = false) => {
 
   try {
     const feeData = await chainAdapter.getFeeData({
+      from: '0x0000000000000000000000000000000000000000',
       to: '0x642F4Bda144C63f6DC47EE0fDfbac0a193e2eDb7',
       value: '123',
       chainSpecific: {
-        from: '0x0000000000000000000000000000000000000000',
         contractData: '0x',
       },
     })

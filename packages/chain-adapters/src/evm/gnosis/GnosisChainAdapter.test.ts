@@ -125,10 +125,10 @@ describe('GnosisChainAdapter', () => {
       const adapter = new gnosis.ChainAdapter(args)
 
       const data = await adapter.getFeeData({
+        from: AddressZero,
         to: '0x642F4Bda144C63f6DC47EE0fDfbac0a193e2eDb7',
         value: '123',
         chainSpecific: {
-          from: AddressZero,
           contractData: '0x',
         },
       })

@@ -310,9 +310,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   protected async buildEstimateGasRequest({
     memo,
+    from,
     to,
     value,
-    chainSpecific: { contractAddress, from, contractData },
+    chainSpecific: { contractAddress, contractData },
     sendMax = false,
   }: GetFeeDataInput<T>): Promise<EstimateGasRequest> {
     const isTokenSend = !!contractAddress

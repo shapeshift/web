@@ -126,10 +126,10 @@ describe('BscChainAdapter', () => {
       const adapter = new bsc.ChainAdapter(args)
 
       const data = await adapter.getFeeData({
+        from: ZERO_ADDRESS,
         to: '0x642F4Bda144C63f6DC47EE0fDfbac0a193e2eDb7',
         value: '123',
         chainSpecific: {
-          from: ZERO_ADDRESS,
           contractData: '0x',
         },
       })

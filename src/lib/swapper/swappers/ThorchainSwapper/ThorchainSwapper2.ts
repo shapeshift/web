@@ -10,12 +10,16 @@ import type {
   UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { Result } from '@sniptt/monads/build'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type {
   BuyAssetBySellIdInput,
   ExecuteTradeArgs,
+  GetTradeQuoteInput,
+  SwapErrorRight,
   Swapper2,
   TradeQuote,
+  TradeQuote2,
   UnsignedTx,
 } from 'lib/swapper/api'
 import { assertUnreachable, evm } from 'lib/utils'
@@ -25,11 +29,11 @@ import { selectFeeAssetById, selectUsdRateByAssetId } from 'state/slices/selecto
 import { store } from 'state/store'
 
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
-import type { ThorChainId, ThorUtxoSupportedChainId } from './ThorchainSwapper'
+import type { Rates, ThorChainId, ThorUtxoSupportedChainId } from './ThorchainSwapper'
 import { ThorchainSwapper } from './ThorchainSwapper'
 import { getSignTxFromQuote } from './utils/getSignTxFromQuote'
 
-// Gets a from addresss either
+// Gets a from address either
 // - derived from the input (for our own consumption with our AccountMetadata and ChainId structures)
 // - or simply falls the passed from address through, for external consumers
 type WithFromParams = {
@@ -73,7 +77,19 @@ export const withFrom =
   }
 
 export const thorchain: Swapper2 = {
-  getTradeQuote: getThorTradeQuote,
+  getTradeQuote: async (
+    input: GetTradeQuoteInput,
+    rates: Rates,
+  ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
+    const tradeQuoteResult = await getThorTradeQuote(input, rates)
+
+    return tradeQuoteResult.map(tradeQuote => {
+      const { receiveAddress, affiliateBps } = input
+      const id = String(Date.now()) // TODO: get thorchain quote ID or use uuid
+
+      return { id, receiveAddress, affiliateBps, ...tradeQuote }
+    })
+  },
 
   getUnsignedTx: withFrom(
     async ({

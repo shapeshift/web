@@ -294,7 +294,7 @@ export const getThorTradeQuote = async (
           sellAmountCryptoBaseUnit,
           slippageTolerance: DEFAULT_SLIPPAGE,
           destinationAddress: receiveAddress,
-          from: (input as GetUtxoTradeQuoteInput).xpub,
+          xpub: (input as GetUtxoTradeQuoteInput).xpub,
           protocolFees,
           affiliateBps,
           buyAssetUsdRate,

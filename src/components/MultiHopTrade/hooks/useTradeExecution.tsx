@@ -1,4 +1,4 @@
-import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH, supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -77,6 +77,7 @@ export const useTradeExecution = ({
       }
 
       const from = await sellAssetChainAdapter.getAddress({ wallet, accountNumber })
+      const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
       const unsignedTxResult = await swapper.getUnsignedTx({
         from,
@@ -84,6 +85,7 @@ export const useTradeExecution = ({
         chainId,
         accountMetadata: sellAccountMetadata,
         stepIndex,
+        supportsEIP1559,
       })
 
       const txId = await swapper.executeTrade({

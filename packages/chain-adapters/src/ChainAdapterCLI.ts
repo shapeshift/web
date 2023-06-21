@@ -120,13 +120,19 @@ const testBitcoin = async (wallet: NativeHDWallet, broadcast = false) => {
     err => console.log(err),
   )
 
+  const { xpub } = await chainAdapter.getPublicKey(
+    wallet,
+    accountNumber,
+    UtxoAccountType.SegwitNative,
+  )
+
   try {
     const unsignedTx = await chainAdapter.buildSendTransaction({
       to: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
       value: '400',
       wallet,
       accountNumber,
-      chainSpecific: { accountType: UtxoAccountType.SegwitNative, satoshiPerByte: '4' },
+      chainSpecific: { xpub, accountType: UtxoAccountType.SegwitNative, satoshiPerByte: '4' },
     })
 
     const signedTx = await chainAdapter.signTransaction({ wallet, txToSign: unsignedTx.txToSign })

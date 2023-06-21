@@ -227,6 +227,7 @@ describe('BitcoinCashChainAdapter', () => {
         value: '400',
         wallet,
         chainSpecific: {
+          xpub: '',
           accountType: UtxoAccountType.P2pkh,
           satoshiPerByte: '1',
         },

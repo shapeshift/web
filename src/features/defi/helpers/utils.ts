@@ -11,6 +11,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { isEvmChainAdapter } from 'lib/utils'
 import { selectPortfolioCryptoPrecisionBalanceByFilter } from 'state/slices/selectors'
 import { store } from 'state/store'
 
@@ -83,7 +84,6 @@ export const getFeesFromFeeData = async ({
 
 type BuildAndBroadcastArgs = GetFeesFromFeeDataArgs & {
   accountNumber: number
-  from: string
   adapter: EvmChainAdapter
   data: string
   to: string
@@ -92,7 +92,6 @@ type BuildAndBroadcastArgs = GetFeesFromFeeDataArgs & {
 
 export const buildAndBroadcast = async ({
   accountNumber,
-  from,
   adapter,
   data,
   feeData,
@@ -100,8 +99,17 @@ export const buildAndBroadcast = async ({
   value,
   wallet,
 }: BuildAndBroadcastArgs) => {
+  if (!isEvmChainAdapter(adapter)) throw Error('expected EVM chain adapter')
+
+  if (!adapter.supportsChain(wallet)) {
+    throw new Error(`wallet does not support ${adapter.getDisplayName()}`)
+  }
+
+  await adapter.assertSwitchChain(wallet)
+
+  const from = await adapter.getAddress({ accountNumber, wallet })
+
   const { txToSign } = await adapter.buildCustomTx({
-    wallet,
     from,
     to,
     accountNumber,

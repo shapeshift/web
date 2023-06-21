@@ -139,7 +139,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     return { ...this.defaultBIP44Params, accountNumber }
   }
 
-  private supportsChain(wallet: HDWallet, chainReference?: number): wallet is ETHWallet {
+  supportsChain(wallet: HDWallet, chainReference?: number): wallet is ETHWallet {
     switch (chainReference ?? Number(fromChainId(this.chainId).chainReference)) {
       case Number(fromChainId(KnownChainIds.AvalancheMainnet).chainReference):
         return supportsAvalanche(wallet)
@@ -572,17 +572,9 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async buildCustomTx(tx: BuildCustomTxInput): Promise<{ txToSign: SignTx<T> }> {
     try {
-      const { to, wallet, accountNumber, data, value } = tx
+      const { to, from, accountNumber, data, value } = tx
       const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } = tx
 
-      if (!wallet) throw new Error(`${this.getName()}ChainAdapter: wallet is required`)
-
-      if (!this.supportsChain(wallet))
-        throw new Error(`wallet does not support ${this.getDisplayName()}`)
-
-      await this.assertSwitchChain(wallet)
-
-      const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
 
       const fees: Fees =

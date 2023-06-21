@@ -225,6 +225,7 @@ describe('LitecoinChainAdapter', () => {
         value: '400',
         wallet,
         chainSpecific: {
+          xpub: '',
           accountType: UtxoAccountType.P2pkh,
           satoshiPerByte: '1',
         },
@@ -289,6 +290,7 @@ describe('LitecoinChainAdapter', () => {
         value: '400000000',
         wallet,
         chainSpecific: {
+          xpub: '',
           accountType: UtxoAccountType.P2pkh,
           satoshiPerByte: '1',
         },

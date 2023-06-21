@@ -12,6 +12,7 @@ import type {
   BuildDelegateTxInput,
   BuildRedelegateTxInput,
   BuildSendTxInput,
+  BuildSignTxInput,
   BuildUndelegateTxInput,
   FeeDataEstimate,
   GetAddressInput,
@@ -90,20 +91,18 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     }
   }
 
-  async buildSendTransaction(
-    tx: BuildSendTxInput<KnownChainIds.CosmosMainnet>,
+  async buildSignTx(
+    tx: BuildSignTxInput<KnownChainIds.CosmosMainnet>,
   ): Promise<{ txToSign: CosmosSignTx }> {
     try {
       const {
-        accountNumber,
         chainSpecific: { fee },
         sendMax,
         to,
         value,
-        wallet,
+        from,
       } = tx
 
-      const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
       if (!fee) throw new Error('fee is required')
       const amount = this.getAmount({ account, value, fee, sendMax })
@@ -121,6 +120,14 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     } catch (err) {
       return ErrorHandler(err)
     }
+  }
+
+  async buildSendTransaction(
+    input: BuildSendTxInput<KnownChainIds.CosmosMainnet>,
+  ): Promise<{ txToSign: CosmosSignTx }> {
+    const { accountNumber, wallet, ...rest } = input
+    const from = await this.getAddress({ accountNumber, wallet })
+    return this.buildSignTx({ ...rest, accountNumber, from })
   }
 
   async buildDelegateTransaction(

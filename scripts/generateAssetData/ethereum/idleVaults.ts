@@ -34,7 +34,7 @@ const explorerData = {
   explorerTxLink: ethereum.explorerTxLink,
 }
 
-const getIdleVaults = async (): Promise<Asset[]> => {
+export const getIdleTokens = async (): Promise<Asset[]> => {
   const vaults: IdleVault[] = await idleSdk.getVaults()
 
   const assets: Asset[] = []
@@ -57,44 +57,4 @@ const getIdleVaults = async (): Promise<Asset[]> => {
   }
 
   return assets
-}
-
-const getUnderlyingVaultTokens = async (): Promise<Asset[]> => {
-  const vaults: IdleVault[] = await idleSdk.getVaults()
-
-  const assets: Asset[] = []
-
-  for (const vault of vaults) {
-    const assetId = toAssetId({
-      chainId,
-      assetNamespace: 'erc20',
-      assetReference: vault.underlyingAddress,
-    })
-
-    const symbol = (await getAssetSymbol(vault.address)) ?? vault.tokenName // Alchemy XHRs might fail, you never know
-
-    assets.push({
-      ...explorerData,
-      color: colorMap[assetId] ?? '#FFFFFF',
-      icon: '',
-      // Idle have a requirement to have pools named a certain way, so we have to use the poolName property here, not tokenName
-      // Since we use the `name` property in the DeFi section to display opportunities
-      name: vault.tokenName,
-      precision: Number(18),
-      symbol,
-      chainId,
-      assetId,
-    })
-  }
-
-  return assets
-}
-
-export const getIdleTokens = async (): Promise<Asset[]> => {
-  const [idleVaults, underlyingVaultTokens] = await Promise.all([
-    getIdleVaults(),
-    getUnderlyingVaultTokens(),
-  ])
-
-  return [...idleVaults, ...underlyingVaultTokens]
 }

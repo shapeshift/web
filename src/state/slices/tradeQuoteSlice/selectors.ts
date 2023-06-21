@@ -44,19 +44,26 @@ export const selectQuoteResultBySwapperName = createDeepEqualOutputSelector(
   (queries, swapperName) => {
     if (!swapperName || queries?.length === 0) return undefined
 
-    const query = queries.find(query => {
-      const mappedSwapperName = (() => {
-        switch (query.endpointName) {
-          case 'getLifiTradeQuote':
-            return SwapperName.LIFI
-          case 'getThorTradeQuote':
-            return SwapperName.Thorchain
-          default:
-            return undefined
-        }
-      })()
-      return mappedSwapperName === swapperName
-    })
+    const query = queries
+      .filter(query => {
+        const mappedSwapperName = (() => {
+          switch (query.endpointName) {
+            case 'getLifiTradeQuote':
+              return SwapperName.LIFI
+            case 'getThorTradeQuote':
+              return SwapperName.Thorchain
+            default:
+              return undefined
+          }
+        })()
+        return mappedSwapperName === swapperName
+      })
+      .reduce((prev, current) => {
+        if (!prev) return current
+        return bnOrZero(prev.startedTimeStamp).gt(bnOrZero(current?.startedTimeStamp))
+          ? prev
+          : current
+      }, {} as QuerySubState)
 
     return query?.data
   },

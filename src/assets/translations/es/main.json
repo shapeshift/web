@@ -105,7 +105,9 @@
     "selectedAccount": "Cuenta Seleccionada",
     "allChains": "Todas las cadenas",
     "wallet": "Billetera",
-    "action": "Acción"
+    "action": "Acción",
+    "feedbackAndSupport": "Comentarios y soporte",
+    "getSupport": "Obtener Soporte"
   },
   "consentBanner": {
     "body": {
@@ -324,6 +326,7 @@
         "vaultCapTooltip": "Capacidad máxima actual para esta bóveda",
         "haltedTitle": "Los depositos estan temporalmente detenidos.",
         "haltedDescription": "¡Tuitee a @THORChain para aumentar los límites!",
+        "protocolFee": "Tarifa de Protocolo",
         "fee": "Comisión",
         "dustAmount": "Cantidad de polvo",
         "dustAmountTooltip": "Se requiere una pequeña cantidad de polvo para identificar su dirección, y se reservará para su uso posterior, cuando desee realizar un retiro",
@@ -732,7 +735,9 @@
         "required": "Se requiere una transacción firmada"
       },
       "generalError": "Ha ocurrido un error comercial",
-      "tradeFailed": "El intercambio fracasó. Activos devueltos menos tarifa de gas"
+      "quoteError": "Ocurrió un error al obtener cotización",
+      "tradeFailed": "El intercambio fracasó. Activos devueltos menos tarifa de gas",
+      "noQuotesAvailable": "No hay cotizaciones disponibles para operar"
     },
     "swappingComingSoonForWallet": "El intercambio por %{walletName} llegará pronto",
     "recentTrades": "Operaciones Recientes",
@@ -1231,6 +1236,22 @@
         "button": "Abrir"
       }
     },
+    "coinbase": {
+      "errors": {
+        "unknown": "Ocurrió un error inesperado al comunicarse con Coinbase",
+        "connectFailure": "No se puede conectar con billetera Coinbase",
+        "multipleWallets": "El proveedor de Ethereum detectado no es Coinbase. ¿Tienes varias carteras instaladas?"
+      },
+      "connect": {
+        "header": "Emparejar Coinbase",
+        "body": "Haga clic en Emparejar e inicie sesión Coinbase en la ventana",
+        "button": "Emparejar"
+      },
+      "failure": {
+        "header": "No se puede conectar la billetera Coinbase",
+        "body": "No se puede conectar con billetera Coinbase"
+      }
+    },
     "walletConnect": {
       "errors": {
         "unknown": "Ocurrió un error inesperado al comunicarse con WalletConnect",
@@ -1281,7 +1302,7 @@
       },
       "import": {
         "header": "Importa tu billetera",
-        "body": "Ingrese frase de recuperación secreta para importar billetera ",
+        "body": "Escriba o pegue su frase de recuperación secreta en minúsculas, sin comas ni números y con un solo espacio entre cada palabra.",
         "button": "Siguiente",
         "secretRecoveryPhraseError": "Ingrese su frase de recuperación secreta con un solo espacio entre palabras. Omita comas, retornos o carácter adicional.",
         "secretRecoveryPhraseRequired": "Frase de Recuperación Secreta requerida",
@@ -1972,7 +1993,8 @@
   },
   "avatar": {
     "modal": {
-      "title": "Establecer Avatar"
+      "title": "Establecer Avatar",
+      "restoreDefault": "Restaurar predeterminado"
     }
   }
 }

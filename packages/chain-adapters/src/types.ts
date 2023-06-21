@@ -156,6 +156,23 @@ export type BuildSignTxInput<T extends KnownChainIds> = {
   memo?: string
 } & ChainSpecificBuildTxData<T>
 
+/* TODO(gomes): 
+
+export type BuildSignTxInput = {
+  to: string
+  value: string
+  accountNumber: number
+  // sendMax?: boolean not used for swap api
+  memo?: string
+}
+
+// swap api
+export type BuildSignTxInputUtxo = BuildSignTxInput & utxo.BuildTxInput & { xpub: string }
+export type BuildSignTxInputEvm = BuildSignTxInput & evm.BuildTxInput & { from: string }
+export type BuildSignTxInputCosmosSdk = BuildSignTxInput & cosmossdk.BuildTxInput & { from: string }
+
+*/
+
 export type ChainSpecificBuildTxData<T> = ChainSpecific<
   T,
   {

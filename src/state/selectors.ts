@@ -4,6 +4,7 @@ import type { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import createCachedSelector from 're-reselect'
 import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
+import type { SwapperName } from 'lib/swapper/api'
 
 import type { ReduxState } from './reducer'
 import type {
@@ -43,6 +44,7 @@ type ParamFilter = Partial<{
   includeEarnBalances: boolean
   includeRewardsBalances: boolean
   searchQuery: string
+  swapperName: SwapperName
 }>
 
 type ParamFilterKey = keyof ParamFilter
@@ -73,3 +75,4 @@ export const selectIncludeEarnBalancesParamFromFilter = selectParamFromFilter('i
 export const selectIncludeRewardsBalancesParamFromFilter =
   selectParamFromFilter('includeRewardsBalances')
 export const selectSearchQueryFromFilter = selectParamFromFilter('searchQuery')
+export const selectSwapperNameFromFilter = selectParamFromFilter('swapperName')

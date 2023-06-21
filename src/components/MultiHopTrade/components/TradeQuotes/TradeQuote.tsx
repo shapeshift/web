@@ -94,13 +94,9 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const networkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeFiatPrecision)
   const totalReceiveAmountCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
 
-  const quote = quoteData?.data?.isOk() ? quoteData.data.unwrap() : undefined
-
   const handleQuoteSelection = useCallback(() => {
     dispatch(tradeQuoteSlice.actions.setSwapperName(quoteData.swapperName))
-    dispatch(tradeQuoteSlice.actions.setQuote(quote))
-    dispatch(tradeQuoteSlice.actions.setError(undefined))
-  }, [dispatch, quote, quoteData.swapperName])
+  }, [dispatch, quoteData.swapperName])
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset?.chainId ?? ''))
   if (!feeAsset)

@@ -1,14 +1,17 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { AssetId } from '@shapeshiftoss/caip'
+import { QueryStatus } from '@reduxjs/toolkit/query'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { Result } from '@sniptt/monads'
 import type { Selector } from 'reselect'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, TradeQuote } from 'lib/swapper/api'
+import type { ProtocolFee, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
-import { assertUnreachable } from 'lib/utils'
+import { assertUnreachable, isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import { selectSwapperNameFromFilter } from 'state/selectors'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   getHopTotalNetworkFeeFiatPrecision,
@@ -20,12 +23,80 @@ import {
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 
-// TODO(apotheosis): Cache based on quote ID
-export const selectSelectedQuote: Selector<ReduxState, TradeQuote | undefined> =
-  createDeepEqualOutputSelector(selectTradeQuoteSlice, swappers => swappers.quote)
+interface QuerySubState {
+  data?: Result<TradeQuote<ChainId, boolean>, SwapErrorRight>
+  endpointName?: string
+  fulfilledTimeStamp?: number
+  originalArgs?: unknown
+  requestId?: string
+  startedTimeStamp?: number
+  status?: QueryStatus
+}
+
+const selectFulfilledSwapperApiQueries = (state: ReduxState): QuerySubState[] =>
+  (Object.values(state.swappersApi.queries) as QuerySubState[])
+    .filter(query => query?.status === QueryStatus.fulfilled)
+    .filter(isSome)
+
+export const selectQuoteResultBySwapperName = createDeepEqualOutputSelector(
+  selectFulfilledSwapperApiQueries,
+  selectSwapperNameFromFilter,
+  (queries, swapperName) => {
+    if (!swapperName || queries?.length === 0) return undefined
+
+    const query = queries.find(query => {
+      const mappedSwapperName = (() => {
+        switch (query.endpointName) {
+          case 'getLifiTradeQuote':
+            return SwapperName.LIFI
+          case 'getThorTradeQuote':
+            return SwapperName.Thorchain
+          default:
+            return undefined
+        }
+      })()
+      return mappedSwapperName === swapperName
+    })
+
+    return query?.data
+  },
+)
+
+export const selectQuoteBySwapperName = createDeepEqualOutputSelector(
+  selectQuoteResultBySwapperName,
+  quoteResult => {
+    return quoteResult?.isOk() ? quoteResult.unwrap() : undefined
+  },
+)
+
+export const selectQuoteErrorBySwapperName = createDeepEqualOutputSelector(
+  selectQuoteResultBySwapperName,
+  quoteResult => {
+    return quoteResult?.isErr() ? quoteResult.unwrapErr() : undefined
+  },
+)
 
 export const selectSelectedSwapperName: Selector<ReduxState, SwapperName | undefined> =
   createSelector(selectTradeQuoteSlice, swappers => swappers.swapperName)
+
+// TODO(apotheosis): Cache based on quote ID
+export const selectSelectedQuote: Selector<ReduxState, TradeQuote | undefined> =
+  createDeepEqualOutputSelector(
+    (state: ReduxState) =>
+      selectQuoteBySwapperName(state, {
+        swapperName: selectSelectedSwapperName(state),
+      }),
+    quote => quote,
+  )
+
+export const selectSelectedQuoteError: Selector<ReduxState, SwapErrorRight | undefined> =
+  createDeepEqualOutputSelector(
+    (state: ReduxState) =>
+      selectQuoteErrorBySwapperName(state, {
+        swapperName: selectSelectedSwapperName(state),
+      }),
+    quote => quote,
+  )
 
 /*
   Cross-account trading means trades that are either:

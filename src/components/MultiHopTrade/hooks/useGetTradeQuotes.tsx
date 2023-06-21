@@ -126,11 +126,7 @@ export const useGetTradeQuotes = () => {
   ])
 
   const bestQuote: TradeQuoteResult = sortedQuotes[0]
-  const quote = bestQuote?.data && bestQuote.data.isOk() ? bestQuote.data.unwrap() : undefined
-  const error = bestQuote?.data && bestQuote.data.isErr() ? bestQuote.data.unwrapErr() : undefined
   dispatch(tradeQuoteSlice.actions.setSwapperName(bestQuote?.swapperName))
-  dispatch(tradeQuoteSlice.actions.setQuote(quote))
-  dispatch(tradeQuoteSlice.actions.setError(error))
   return {
     sortedQuotes,
     selectedQuote: sortedQuotes[0],

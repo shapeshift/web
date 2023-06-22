@@ -644,7 +644,7 @@
       "auto": "Auto",
       "custom": "Custom",
       "warning": "Your transaction may be frontrun and result in an unfavorable trade.",
-      "lowSlippage": "Slippage below 0.05% my result in a failed transaction."
+      "lowSlippage": "Slippage below 0.05% may result in a failed transaction."
     },
     "from": "From",
     "to": "To",

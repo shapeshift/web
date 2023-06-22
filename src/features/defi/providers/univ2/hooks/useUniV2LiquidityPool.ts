@@ -223,7 +223,7 @@ export const useUniV2LiquidityPool = ({
           chainSpecific: fees,
         })
 
-        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
+        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput, wallet })
 
         return txid
       } catch (err) {
@@ -345,7 +345,7 @@ export const useUniV2LiquidityPool = ({
           chainSpecific: fees,
         })
 
-        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
+        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput, wallet })
 
         return txid
       } catch (err) {
@@ -614,6 +614,7 @@ export const useUniV2LiquidityPool = ({
       if (!fees) return
 
       const txid = await buildAndBroadcast({
+        wallet,
         adapter,
         buildCustomTxInput: {
           from: accountAddress,

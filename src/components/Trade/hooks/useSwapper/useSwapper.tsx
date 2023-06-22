@@ -148,7 +148,7 @@ export const useSwapper = () => {
       if (!adapter || !isEvmChainAdapter(adapter))
         throw Error(`no valid EVM chain adapter found for chain Id: ${sellAsset.chainId}`)
 
-      return buildAndBroadcast({ buildCustomTxInput, adapter })
+      return buildAndBroadcast({ buildCustomTxInput, adapter, wallet })
     },
     [sellAsset.chainId, wallet],
   )

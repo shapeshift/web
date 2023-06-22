@@ -98,7 +98,7 @@ export const useFoxFarming = (
           chainSpecific: fees,
         })
 
-        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
+        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput, wallet })
 
         return txid
       } catch (err) {
@@ -151,7 +151,7 @@ export const useFoxFarming = (
           chainSpecific: fees,
         })
 
-        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
+        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput, wallet })
 
         return txid
       } catch (err) {
@@ -278,7 +278,7 @@ export const useFoxFarming = (
   )
 
   const approve = useCallback(async () => {
-    if (!isValidAccountNumber(accountNumber) || !accountAddress) return
+    if (!isValidAccountNumber(accountNumber) || !accountAddress || !wallet) return
 
     if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
@@ -291,6 +291,7 @@ export const useFoxFarming = (
     if (!fees) return
 
     const txid = await buildAndBroadcast({
+      wallet,
       adapter,
       buildCustomTxInput: {
         from: accountAddress,
@@ -303,7 +304,15 @@ export const useFoxFarming = (
     })
 
     return txid
-  }, [accountNumber, adapter, ethAsset.chainId, contractAddress, getApproveFees, accountAddress])
+  }, [
+    accountNumber,
+    accountAddress,
+    adapter,
+    ethAsset.chainId,
+    contractAddress,
+    getApproveFees,
+    wallet,
+  ])
 
   const claimRewards = useCallback(async () => {
     if (skip || !isValidAccountNumber(accountNumber) || !wallet || !accountAddress) return
@@ -331,7 +340,7 @@ export const useFoxFarming = (
       chainSpecific: fees,
     })
 
-    const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
+    const txid = await buildAndBroadcast({ adapter, buildCustomTxInput, wallet })
 
     return txid
   }, [

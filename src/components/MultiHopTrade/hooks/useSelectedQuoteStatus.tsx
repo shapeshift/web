@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes'
 import { useQuoteValidationErrors } from 'components/MultiHopTrade/hooks/useQuoteValidationErrors'
 import type { QuoteStatus } from 'components/MultiHopTrade/types'
@@ -8,6 +9,7 @@ import { SwapErrorType, SwapperName } from 'lib/swapper/api'
 import {
   selectFirstHopSellAsset,
   selectFirstHopSellFeeAsset,
+  selectLastHopBuyAsset,
   selectLastHopSellFeeAsset,
   selectMinimumSellAmountCryptoHuman,
   selectSelectedSwapperName,
@@ -16,11 +18,13 @@ import { useAppSelector } from 'state/store'
 
 export const useSelectedQuoteStatus = (): QuoteStatus => {
   const validationErrors = useQuoteValidationErrors()
+  const translate = useTranslate()
 
   const selectedSwapperName = useAppSelector(selectSelectedSwapperName)
   const firstHopSellFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
   const firstHopSellAsset = useAppSelector(selectFirstHopSellAsset)
   const lastHopSellFeeAsset = useAppSelector(selectLastHopSellFeeAsset)
+  const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const minimumCryptoHuman = useAppSelector(selectMinimumSellAmountCryptoHuman)
 
   const { selectedQuote } = useGetTradeQuotes()
@@ -83,16 +87,36 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
           return selectedSwapperName && [SwapperName.LIFI].includes(selectedSwapperName)
             ? 'trade.errors.amountTooSmallOrInvalidTradePair'
             : ['trade.errors.amountTooSmall', { minLimit: minimumAmountUserMessage }]
+        case SelectedQuoteStatus.SellAssetNotNotSupportedByWallet:
+          return [
+            'trade.errors.assetNotSupportedByWallet',
+            {
+              assetSymbol:
+                firstHopSellAsset?.symbol ?? translate('trade.errors.sellAssetStartSentence'),
+            },
+          ]
+        case SelectedQuoteStatus.NoReceiveAddress:
+          return [
+            'trade.errors.noReceiveAddress',
+            {
+              assetSymbol:
+                lastHopBuyAsset?.symbol ?? translate('trade.errors.buyAssetMiddleSentence'),
+            },
+          ]
+        case SelectedQuoteStatus.BuyAssetNotNotSupportedByWallet: // TODO: add translation for manual receive address required once implemented
         default:
           return 'trade.previewTrade'
       }
     })()
   }, [
+    quoteErrors,
     firstHopSellFeeAsset?.symbol,
     lastHopSellFeeAsset?.symbol,
-    minimumAmountUserMessage,
     selectedSwapperName,
-    quoteErrors,
+    minimumAmountUserMessage,
+    firstHopSellAsset?.symbol,
+    translate,
+    lastHopBuyAsset?.symbol,
   ])
 
   return {

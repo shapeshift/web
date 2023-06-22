@@ -1,5 +1,6 @@
 import { useHopHelper } from 'components/MultiHopTrade/hooks/useHopHelper'
 import { SelectedQuoteStatus } from 'components/MultiHopTrade/types'
+import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -24,6 +25,7 @@ export const useQuoteValidationErrors = (): QuoteValidationErrors => {
     lastHopFeeAssetBalancePrecision,
   } = useHopHelper()
   const wallet = useWallet().state.wallet
+  const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
 
   const sellAmountCryptoBaseUnit = useAppSelector(selectSellAmountCryptoBaseUnit)
   const firstHopNetworkFeeCryptoPrecision = useAppSelector(selectFirstHopNetworkFeeCryptoPrecision)
@@ -34,6 +36,8 @@ export const useQuoteValidationErrors = (): QuoteValidationErrors => {
   const minimumSellAmountBaseUnit = useAppSelector(selectMinimumSellAmountCryptoBaseUnit)
   const firstHopSellAsset = useAppSelector(selectFirstHopSellAsset)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
+  // const receiveAddress = useReceiveAddress() // FIXME: use multi-hop receive address once merged
+  const receiveAddress = '' // FIXME: temp
 
   const walletSupportsSellAssetChain = walletSupportsChain({
     chainId: firstHopSellAsset?.chainId ?? '',
@@ -66,6 +70,9 @@ export const useQuoteValidationErrors = (): QuoteValidationErrors => {
     lastHopHasSufficientBalanceForGas && SelectedQuoteStatus.InsufficientLastHopFeeAssetBalance,
     isBelowMinimumSellAmount && SelectedQuoteStatus.SellAmountBelowMinimum,
     walletSupportsSellAssetChain && SelectedQuoteStatus.SellAssetNotNotSupportedByWallet,
-    walletSupportsBuyAssetChain && SelectedQuoteStatus.BuyAssetNotNotSupportedByWallet,
+    walletSupportsBuyAssetChain && SelectedQuoteStatus.BuyAssetNotNotSupportedByWallet, // TODO: only show this if no manually entered receive address
+    !receiveAddress && SelectedQuoteStatus.NoReceiveAddress,
+    isTradingActiveOnSellPool && SelectedQuoteStatus.TradingInactiveOnSellChain,
+    isTradingActiveOnBuyPool && SelectedQuoteStatus.TradingInactiveOnBuyChain,
   ].filter(isTruthy)
 }

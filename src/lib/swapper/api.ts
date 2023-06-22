@@ -300,15 +300,6 @@ export type ExecuteTradeArgs = {
   chainId: ChainId
 }
 
-export type ExecuteTradeInput2 = {
-  tradeQuote: TradeQuote<ChainId>
-  wallet: HDWallet
-  receiveAddress: string
-  affiliateBps?: string
-  xpub?: string
-  accountType?: UtxoAccountType
-}
-
 export type Swapper2 = {
   getTradeQuote: (
     input: GetTradeQuoteInput,

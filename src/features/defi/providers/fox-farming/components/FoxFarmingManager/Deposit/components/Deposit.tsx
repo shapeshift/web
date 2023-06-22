@@ -19,6 +19,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
@@ -92,8 +93,8 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const {
     allowance: foxFarmingAllowance,
-    getStakeFeeData,
-    getApproveFeeData,
+    getStakeFees,
+    getApproveFees,
   } = useFoxFarming(contractAddress)
 
   const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
@@ -129,9 +130,9 @@ export const Deposit: React.FC<DepositProps> = ({
       ): Promise<string | undefined> => {
         if (!assetReference) return
         try {
-          const feeData = await getStakeFeeData(deposit.cryptoAmount)
-          if (!feeData) return
-          return bnOrZero(feeData.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
+          const fees = await getStakeFees(deposit.cryptoAmount)
+          if (!fees) return
+          return fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision)
         } catch (error) {
           console.error(error)
           toast({
@@ -150,7 +151,7 @@ export const Deposit: React.FC<DepositProps> = ({
         if (!asset) return
         // Check if approval is required for user address
         const _allowance = await foxFarmingAllowance()
-        const allowance = bnOrZero(_allowance).div(bn(10).pow(asset.precision))
+        const allowance = bn(fromBaseUnit(bnOrZero(_allowance), asset.precision))
 
         // Skip approval step if user allowance is greater than or equal requested deposit amount
         if (allowance.gte(formValues.cryptoAmount)) {
@@ -174,14 +175,15 @@ export const Deposit: React.FC<DepositProps> = ({
             assets,
           )
         } else {
-          const feeData = await getApproveFeeData()
-          if (!feeData) return
+          const fees = await getApproveFees()
+          if (!fees) return
           dispatch({
             type: FoxFarmingDepositActionType.SET_APPROVE,
             payload: {
-              estimatedGasCryptoPrecision: bnOrZero(feeData.txFee)
-                .div(bn(10).pow(feeAsset.precision))
-                .toPrecision(),
+              estimatedGasCryptoPrecision: fromBaseUnit(
+                fees.networkFeeCryptoBaseUnit,
+                feeAsset.precision,
+              ),
             },
           })
           dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: false })
@@ -204,19 +206,19 @@ export const Deposit: React.FC<DepositProps> = ({
       feeAsset,
       foxFarmingOpportunity,
       assetReference,
-      getStakeFeeData,
+      getStakeFees,
       toast,
       translate,
       asset,
       foxFarmingAllowance,
       onNext,
       assets,
-      getApproveFeeData,
+      getApproveFees,
     ],
   )
 
   const cryptoHumanAmountAvailable = useMemo(
-    () => bnOrZero(cryptoBalance).div(bn(10).pow(asset?.precision ?? 1)),
+    () => fromBaseUnit(cryptoBalance, asset?.precision ?? 1),
     [asset?.precision, cryptoBalance],
   )
   const fiatAmountAvailable = useMemo(
@@ -227,7 +229,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const validateCryptoAmount = useCallback(
     (value: string) => {
       if (!asset) return
-      const crypto = bnOrZero(cryptoBalance).div(bn(10).pow(asset.precision))
+      const crypto = bn(fromBaseUnit(cryptoBalance, asset.precision))
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
       if (_value.isEqualTo(0)) return ''
@@ -239,7 +241,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const validateFiatAmount = useCallback(
     (value: string) => {
       if (!asset) return
-      const crypto = bnOrZero(cryptoBalance).div(bn(10).pow(asset.precision))
+      const crypto = bn(fromBaseUnit(cryptoBalance, asset.precision))
       const fiat = crypto.times(marketData.price)
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
@@ -270,7 +272,7 @@ export const Deposit: React.FC<DepositProps> = ({
       rewardAsset={rewardAsset}
       inputIcons={foxFarmingOpportunity?.icons}
       apy={String(foxFarmingOpportunity?.apy)}
-      cryptoAmountAvailable={cryptoHumanAmountAvailable.toPrecision()}
+      cryptoAmountAvailable={cryptoHumanAmountAvailable}
       cryptoInputValidation={{
         required: true,
         validate: { validateCryptoAmount },

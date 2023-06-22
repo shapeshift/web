@@ -21,6 +21,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -110,13 +111,12 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     isApprove0Needed && asset0ContractAddress,
     isApprove1Needed && asset1ContractAddress,
   ].filter(Boolean)
-  const { approveAsset, asset0Allowance, asset1Allowance, getDepositFeeData } =
-    useUniV2LiquidityPool({
-      accountId: accountId ?? '',
-      lpAssetId,
-      assetId0,
-      assetId1,
-    })
+  const { approveAsset, asset0Allowance, asset1Allowance, getDepositFees } = useUniV2LiquidityPool({
+    accountId: accountId ?? '',
+    lpAssetId,
+    assetId0,
+    assetId1,
+  })
 
   const assets = useAppSelector(selectAssets)
   const asset0 = useAppSelector(state => selectAssetById(state, assetId0))
@@ -148,12 +148,11 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
           fn: () =>
             contractAddress === asset0ContractAddress ? asset0Allowance() : asset1Allowance(),
           validate: (result: string) => {
-            const allowance = bnOrZero(result).div(
-              bn(10).pow(
-                contractAddress === asset0ContractAddress ? asset0.precision : asset1.precision,
-              ),
+            const allowance = fromBaseUnit(
+              result,
+              contractAddress === asset0ContractAddress ? asset0.precision : asset1.precision,
             )
-            return bnOrZero(allowance).gte(
+            return bn(allowance).gte(
               bnOrZero(
                 contractAddress === asset0ContractAddress
                   ? state.deposit.asset0CryptoAmount
@@ -235,48 +234,53 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     ;(async () => {
       if (!(state && dispatch && lpOpportunity)) return
       if (!(isApprove0Needed || isApprove1Needed)) return
-      if (isAsset0AllowanceGranted && isAsset1AllowanceGranted) {
-        const feeData = await getDepositFeeData({
-          token0Amount: state.deposit.asset0CryptoAmount,
-          token1Amount: state.deposit.asset1CryptoAmount,
-        })
-        if (!feeData) return
-        const estimatedGasCryptoPrecision = bnOrZero(feeData.txFee)
-          .div(bn(10).pow(feeAsset.precision))
-          .toPrecision()
-        dispatch({
-          type: UniV2DepositActionType.SET_DEPOSIT,
-          payload: { estimatedGasCryptoPrecision },
-        })
+      if (!isAsset0AllowanceGranted || !isAsset1AllowanceGranted) return
 
-        trackOpportunityEvent(
-          MixPanelEvents.DepositApprove,
-          {
-            opportunity: lpOpportunity,
-            fiatAmounts: [state.deposit.asset0FiatAmount, state.deposit.asset1FiatAmount],
-            cryptoAmounts: [
-              { assetId: assetId0, amountCryptoHuman: state.deposit.asset0CryptoAmount },
-              { assetId: assetId1, amountCryptoHuman: state.deposit.asset1CryptoAmount },
-            ],
-          },
-          assets,
-        )
+      const fees = await getDepositFees({
+        token0Amount: state.deposit.asset0CryptoAmount,
+        token1Amount: state.deposit.asset1CryptoAmount,
+      })
 
-        // Set empty approve 0 and 1 gas estimation fields
-        // This is to prevent this effect from running again and re-routing to confirm step
-        // This is because of the way routing works in DeFi modals, components for **all** steps always render (possibly returning null)
-        // no matter the current step
-        dispatch({
-          type: UniV2DepositActionType.SET_APPROVE_0,
-          payload: {},
-        })
-        dispatch({
-          type: UniV2DepositActionType.SET_APPROVE_1,
-          payload: {},
-        })
+      if (!fees) return
 
-        onNext(DefiStep.Confirm)
-      }
+      const estimatedGasCryptoPrecision = fromBaseUnit(
+        fees.networkFeeCryptoBaseUnit,
+        feeAsset.precision,
+      )
+
+      dispatch({
+        type: UniV2DepositActionType.SET_DEPOSIT,
+        payload: { estimatedGasCryptoPrecision },
+      })
+
+      trackOpportunityEvent(
+        MixPanelEvents.DepositApprove,
+        {
+          opportunity: lpOpportunity,
+          fiatAmounts: [state.deposit.asset0FiatAmount, state.deposit.asset1FiatAmount],
+          cryptoAmounts: [
+            { assetId: assetId0, amountCryptoHuman: state.deposit.asset0CryptoAmount },
+            { assetId: assetId1, amountCryptoHuman: state.deposit.asset1CryptoAmount },
+          ],
+        },
+        assets,
+      )
+
+      // Set empty approve 0 and 1 gas estimation fields
+      // This is to prevent this effect from running again and re-routing to confirm step
+      // This is because of the way routing works in DeFi modals, components for **all** steps always render (possibly returning null)
+      // no matter the current step
+      dispatch({
+        type: UniV2DepositActionType.SET_APPROVE_0,
+        payload: {},
+      })
+
+      dispatch({
+        type: UniV2DepositActionType.SET_APPROVE_1,
+        payload: {},
+      })
+
+      onNext(DefiStep.Confirm)
     })()
   }, [
     assetId0,
@@ -284,7 +288,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     assets,
     dispatch,
     feeAsset.precision,
-    getDepositFeeData,
+    getDepositFees,
     isApprove0Needed,
     isApprove1Needed,
     isAsset0AllowanceGranted,

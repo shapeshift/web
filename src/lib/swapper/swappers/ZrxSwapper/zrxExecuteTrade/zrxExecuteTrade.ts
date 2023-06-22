@@ -29,11 +29,7 @@ export async function zrxExecuteTrade({
       wallet,
     })
 
-    const txid = await buildAndBroadcast({
-      buildCustomTxInput,
-      adapter,
-      wallet,
-    })
+    const txid = await buildAndBroadcast({ buildCustomTxInput, adapter })
 
     return Ok({ tradeId: txid })
   } catch (e) {

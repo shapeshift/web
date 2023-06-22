@@ -105,7 +105,9 @@
     "selectedAccount": "Conta selecionada",
     "allChains": "Todas as redes",
     "wallet": "Carteira",
-    "action": "Ação"
+    "action": "Ação",
+    "feedbackAndSupport": "Feedback & Suporte",
+    "getSupport": "Consiga Ajuda"
   },
   "consentBanner": {
     "body": {
@@ -324,6 +326,7 @@
         "vaultCapTooltip": "Capacidade máxima atual para este cofre",
         "haltedTitle": "Depósitos estão temporariamente desabilitados. ",
         "haltedDescription": "Por favor, twitte em @THORChain para aumentar o limite!",
+        "protocolFee": "Taxas do Protocolo",
         "fee": "Taxa",
         "dustAmount": "Saldo Restante",
         "dustAmountTooltip": "Uma pequena quantidade de saldo é necessário para identificar seus endereços, e será separada para um uso posterior, quando você realizar seu saque",
@@ -732,7 +735,9 @@
         "required": "É necessário assinar a transação"
       },
       "generalError": "Ocorreu um erro durante a troca.",
-      "tradeFailed": "A troca falhou. Os ativos foram devolvidos, menos taxa de gás"
+      "quoteError": "Ocorreu um erro ao obter a cotação",
+      "tradeFailed": "A troca falhou. Os ativos foram devolvidos, menos taxa de gás",
+      "noQuotesAvailable": "Nenhuma cotação disponível para esta negociação"
     },
     "swappingComingSoonForWallet": "A troca para %{walletName} logo ocorrerá.",
     "recentTrades": "Negociações recentes",
@@ -1231,6 +1236,22 @@
         "button": "Abrir"
       }
     },
+    "coinbase": {
+      "errors": {
+        "unknown": "Ocorreu um erro inesperado na comunicação com a Coinbase",
+        "connectFailure": "Não é possível conectar a carteira Coinbase",
+        "multipleWallets": "O provedor Ethereum detectado não é a Coinbase. Você tem várias carteiras instaladas?"
+      },
+      "connect": {
+        "header": "Parear a Coinbase",
+        "body": "Clique em Parear e faça login na Coinbase no pop-up que surgir para você. ",
+        "button": "Parear"
+      },
+      "failure": {
+        "header": "Não é possível conectar a carteira Coinbase",
+        "body": "Não é possível conectar a carteira Coinbase"
+      }
+    },
     "walletConnect": {
       "errors": {
         "unknown": "Ocorreu um erro inesperado na comunicação com a WalletConnect",
@@ -1281,7 +1302,7 @@
       },
       "import": {
         "header": "Importe sua carteira",
-        "body": "Digite sua Frase Secreta de Recuperação para importar uma carteira existente",
+        "body": "Digite ou cole sua Frase de Recuperação Secreta em letras minúsculas, sem vírgulas ou números e um único espaço entre cada palavra.",
         "button": "Avançar",
         "secretRecoveryPhraseError": "Digite sua Frase Secreta de Recuperação com um único espaço entre as palavras. Não utilize vírgulas ou caracteres adicionais.",
         "secretRecoveryPhraseRequired": "A Frase Secreta de Recuperação é obrigatória",
@@ -1972,7 +1993,8 @@
   },
   "avatar": {
     "modal": {
-      "title": "Definir um Novo Avatar"
+      "title": "Definir um Novo Avatar",
+      "restoreDefault": "Restaurar padrão"
     }
   }
 }

@@ -24,6 +24,7 @@ export type BuildTxInput = {
   memo?: string
   gasLimit: string
   tokenContractAddress?: string
+  contractData?: string
 } & Fees
 
 export type EstimateFeeDataInput<T extends ChainId> = common.GetFeeDataInput<T> & {

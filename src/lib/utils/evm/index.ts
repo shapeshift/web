@@ -153,6 +153,11 @@ export const createBuildCustomTxInput = async (
   })
   const buildCustomTxInputWithWallet = { ...args, ...fees, from }
   const { wallet: _wallet, ...buildCustomTxInputWithoutWallet } = buildCustomTxInputWithWallet
+
+  if (buildCustomTxInputWithoutWallet.data) {
+    buildCustomTxInputWithoutWallet.chainSpecific.contractData = data
+  }
+
   return buildCustomTxInputWithoutWallet
 }
 

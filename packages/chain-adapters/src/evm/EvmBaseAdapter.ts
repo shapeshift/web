@@ -232,8 +232,14 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     sendMax = false,
   }: BuildSignTxInput<T>): Promise<SignTx<T>> {
     try {
-      const { tokenContractAddress, gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } =
-        chainSpecific
+      const {
+        contractData,
+        tokenContractAddress,
+        gasPrice,
+        gasLimit,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+      } = chainSpecific
 
       if (!to) throw new Error(`${this.getName()}ChainAdapter: to is required`)
       if (!value) throw new Error(`${this.getName()}ChainAdapter: value is required`)
@@ -261,7 +267,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           value = bnOrZero(account.balance).minus(fee).toString()
         }
       }
-      const data = memo || (await getErc20Data(to, value, tokenContractAddress))
+      const data = memo || contractData || (await getErc20Data(to, value, tokenContractAddress))
 
       const fees = ((): Fees => {
         if (maxFeePerGas && maxPriorityFeePerGas) {

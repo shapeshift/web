@@ -219,7 +219,7 @@ export const useSwapper = () => {
           wallet,
         })
       } else if (isEvmSwap(sellAsset.chainId) || isCosmosSdkSwap(sellAsset.chainId)) {
-        const eip1559Support = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+        const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
         const sellAssetChainAdapter = getChainAdapterManager().get(
           sellAsset.chainId,
         ) as unknown as EvmChainAdapter
@@ -234,7 +234,7 @@ export const useSwapper = () => {
           chainId: sellAsset.chainId,
           accountNumber: sellAccountBip44Params.accountNumber,
           receiveAccountNumber: buyAccountBip44Params?.accountNumber,
-          supportsEIP1559: eip1559Support,
+          supportsEIP1559,
           sendAddress,
           wallet,
         })

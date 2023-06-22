@@ -151,8 +151,9 @@ export const createBuildCustomTxInput = async (
     from,
     supportsEIP1559,
   })
-  // @ts-ignore to make packages compile
-  return { ...args, ...fees, from }
+  const buildCustomTxInputWithWallet = { ...args, ...fees, from }
+  const { wallet: _wallet, ...buildCustomTxInputWithoutWallet } = buildCustomTxInputWithWallet
+  return buildCustomTxInputWithoutWallet
 }
 
 export const createSignTxInput = async (

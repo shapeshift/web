@@ -52,7 +52,6 @@ export const makeTradeTx = async (
       chainSpecific: fees,
     })
 
-    // @ts-ignore so we compile
     const txToSign = await adapter.buildSignTx(buildCustomTxInput)
 
     return Ok({ txToSign })

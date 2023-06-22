@@ -7,7 +7,7 @@ import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
 import {
-  getTreasuryAddressForReceiveAsset,
+  getTreasuryAddressFromChainId,
   normalizeAmount,
 } from 'lib/swapper/swappers/utils/helpers/helpers'
 import type { ZrxQuoteResponse, ZrxTrade } from 'lib/swapper/swappers/ZrxSwapper/types'
@@ -73,7 +73,7 @@ export async function zrxBuildTrade(
   })
 
   const buyTokenPercentageFee = convertBasisPointsToDecimalPercentage(affiliateBps).toNumber()
-  const feeRecipient = getTreasuryAddressForReceiveAsset(buyAsset.assetId)
+  const feeRecipient = getTreasuryAddressFromChainId(buyAsset.chainId)
 
   // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-quote
   const maybeQuoteResponse = await zrxService.get<ZrxQuoteResponse>('/swap/v1/quote', {

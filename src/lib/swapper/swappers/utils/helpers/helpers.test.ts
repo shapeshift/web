@@ -1,12 +1,8 @@
-import { ethAssetId, foxAssetId, optimismAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { DAO_TREASURY_ETHEREUM_MAINNET, DAO_TREASURY_OPTIMISM } from 'constants/treasury'
+import { thorchainChainId } from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 
 import { bn } from '../../../../bignumber/bignumber'
-import {
-  getTreasuryAddressForReceiveAsset,
-  normalizeAmount,
-  normalizeIntegerAmount,
-} from './helpers'
+import { getTreasuryAddressFromChainId, normalizeAmount, normalizeIntegerAmount } from './helpers'
 
 describe('utils', () => {
   describe('normalizeAmount', () => {
@@ -42,24 +38,9 @@ describe('normalizeIntegerAmount', () => {
   })
 })
 
-describe('getTreasuryAddressForReceiveAsset', () => {
-  it('gets the treasury address for an ERC20 asset', () => {
-    const treasuryAddress = getTreasuryAddressForReceiveAsset(foxAssetId)
-    expect(treasuryAddress).toStrictEqual(DAO_TREASURY_ETHEREUM_MAINNET)
-  })
-
-  it('gets the treasury address for ETH asset', () => {
-    const treasuryAddress = getTreasuryAddressForReceiveAsset(ethAssetId)
-    expect(treasuryAddress).toStrictEqual(DAO_TREASURY_ETHEREUM_MAINNET)
-  })
-
-  it('gets the treasury address for Optimism asset', () => {
-    const treasuryAddress = getTreasuryAddressForReceiveAsset(optimismAssetId)
-    expect(treasuryAddress).toStrictEqual(DAO_TREASURY_OPTIMISM)
-  })
-
+describe('getTreasuryAddressFromChainId', () => {
   it('throws for unsupported chains', () => {
-    expect(() => getTreasuryAddressForReceiveAsset(thorchainAssetId)).toThrow(
+    expect(() => getTreasuryAddressFromChainId(thorchainChainId as EvmChainId)).toThrow(
       '[getTreasuryAddressForReceiveAsset] - Unsupported chainId',
     )
   })

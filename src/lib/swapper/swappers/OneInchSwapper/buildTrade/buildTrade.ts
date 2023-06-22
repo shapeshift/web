@@ -5,7 +5,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import { getTreasuryAddressForReceiveAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
+import { getTreasuryAddressFromChainId } from 'lib/swapper/swappers/utils/helpers/helpers'
 import { getFees } from 'lib/utils/evm'
 import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
 
@@ -60,7 +60,7 @@ export const buildTrade = async (
     amount: sellAmountBeforeFeesCryptoBaseUnit,
     slippage: slippagePercentage,
     allowPartialFill: false,
-    referrerAddress: getTreasuryAddressForReceiveAsset(buyAsset.assetId),
+    referrerAddress: getTreasuryAddressFromChainId(buyAsset.chainId),
     disableEstimate: false,
     fee: buyTokenPercentageFee,
   }

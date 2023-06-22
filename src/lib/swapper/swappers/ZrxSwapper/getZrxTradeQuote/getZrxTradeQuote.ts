@@ -5,7 +5,7 @@ import { toBaseUnit } from 'lib/math'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import {
-  getTreasuryAddressForReceiveAsset,
+  getTreasuryAddressFromChainId,
   normalizeAmount,
 } from 'lib/swapper/swappers/utils/helpers/helpers'
 import type { ZrxPriceResponse, ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/types'
@@ -67,7 +67,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       takerAddress: receiveAddress,
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
       skipValidation: true,
-      feeRecipient: getTreasuryAddressForReceiveAsset(buyAsset.assetId), // Where affiliate fees are sent
+      feeRecipient: getTreasuryAddressFromChainId(buyAsset.chainId), // Where affiliate fees are sent
       buyTokenPercentageFee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
     },
   })

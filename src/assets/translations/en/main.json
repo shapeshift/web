@@ -643,7 +643,7 @@
       "maxSlippage": "Max Slippage",
       "auto": "Auto",
       "custom": "Custom",
-      "warning": "Your transaction may be frontrun and result in an unfavorable trade.",
+      "warning": "High slippage tolerances can result in unfavorable trades.",
       "lowSlippage": "Slippage below 0.05% my result in a failed transaction."
     },
     "from": "From",

@@ -30,12 +30,12 @@ enum SlippageType {
   Custom = 'Custom',
 }
 
-const defaultSlippage = '0.10'
-const maxSlippage = '50'
+const defaultSlippagePercentage = '0.10'
+const maxSlippagePercentage = '30'
 
 export const SlippagePopover = () => {
   const [slippageType, setSlippageType] = useState<SlippageType>(SlippageType.Auto)
-  const [slippageAmount, setSlippageAmount] = useState(defaultSlippage)
+  const [slippageAmount, setSlippageAmount] = useState(defaultSlippagePercentage)
   const [value, setValue] = useState('')
   const [isInvalid, setIsInvalid] = useState(false)
   const translate = useTranslate()
@@ -53,7 +53,7 @@ export const SlippagePopover = () => {
 
   const handleChange = useCallback(
     (value: string) => {
-      if (bnOrZero(value).gt(maxSlippage)) {
+      if (bnOrZero(value).gt(maxSlippagePercentage)) {
         setIsInvalid(true)
       } else {
         debounceFnc(value)
@@ -68,7 +68,7 @@ export const SlippagePopover = () => {
   const handleSlippageTypeChange = useCallback((type: SlippageType) => {
     if (type === SlippageType.Auto) {
       setValue('')
-      setSlippageAmount(defaultSlippage)
+      setSlippageAmount(defaultSlippagePercentage)
       setIsInvalid(false)
     } else {
       inputRef && inputRef.current && inputRef.current.focus()

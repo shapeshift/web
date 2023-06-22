@@ -124,7 +124,7 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
             >
               <Flex alignItems='center'>
                 <RawText color={selectedPreferenceValueColor} lineHeight={1} fontSize='sm'>
-                  {currencyFormatsRepresenter[selectedCurrencyFormat]}
+                  {translate(currencyFormatsRepresenter[selectedCurrencyFormat])}
                 </RawText>
                 <MdChevronRight color='gray.500' size='1.5em' />
               </Flex>

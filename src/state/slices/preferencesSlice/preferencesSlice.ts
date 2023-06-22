@@ -2,9 +2,10 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
+import { CurrencyFormats } from 'constants/CurrencyFormatsEnum'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
-import { simpleLocale } from 'lib/browserLocale'
+import { defaultBrowserLanguage } from 'lib/browserLocale'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
 
 dayjs.extend(localizedFormat)
@@ -48,11 +49,6 @@ export type FeatureFlags = {
 }
 
 export type Flag = keyof FeatureFlags
-
-export enum CurrencyFormats {
-  DotDecimal = 'en-US',
-  CommaDecimal = 'fr-FR',
-}
 
 export type Preferences = {
   featureFlags: FeatureFlags
@@ -103,10 +99,10 @@ const initialState: Preferences = {
     MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
     CoinbaseWallet: getConfig().REACT_APP_FEATURE_COINBASE_WALLET,
   },
-  selectedLocale: simpleLocale(),
+  selectedLocale: defaultBrowserLanguage(),
   balanceThreshold: '0',
   selectedCurrency: 'USD',
-  currencyFormat: CurrencyFormats.DotDecimal,
+  currencyFormat: CurrencyFormats.SystemDefault,
   chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
   showWelcomeModal: false,
   showConsentBanner: true,

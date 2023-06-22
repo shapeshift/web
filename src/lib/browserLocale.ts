@@ -1,3 +1,4 @@
+import { CurrencyFormats } from 'constants/CurrencyFormatsEnum'
 import { translations } from 'assets/translations'
 
 function assumeLocale() {
@@ -11,10 +12,15 @@ function assumeLocale() {
   }
 }
 
-export function simpleLocale() {
+export function defaultBrowserLanguage(): string {
   let locale: string = assumeLocale().split('-')[0] ?? assumeLocale()
   if (!Object.keys(translations).includes(locale)) {
     locale = 'en'
   }
   return locale
+}
+
+export function defaultBrowserCurrencyFormat(): CurrencyFormats | string {
+  const userLocale = window?.navigator?.languages?.[0] ?? navigator?.language
+  return userLocale ? userLocale : CurrencyFormats.CommaDecimal
 }

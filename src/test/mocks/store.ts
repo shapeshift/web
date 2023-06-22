@@ -1,7 +1,7 @@
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
+import { CurrencyFormats } from 'constants/CurrencyFormatsEnum'
 import type { ReduxState } from 'state/reducer'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
-import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
 import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
@@ -96,7 +96,7 @@ export const mockStore: ReduxState = {
     selectedLocale: 'en',
     balanceThreshold: '0',
     selectedCurrency: 'USD',
-    currencyFormat: CurrencyFormats.DotDecimal,
+    currencyFormat: CurrencyFormats.SystemDefault,
     chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
     showWelcomeModal: false,
     showConsentBanner: true,

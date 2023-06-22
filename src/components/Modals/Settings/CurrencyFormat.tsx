@@ -1,13 +1,13 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
-import identity from 'lodash/identity'
+import { CurrencyFormats } from 'constants/CurrencyFormatsEnum'
 import sortBy from 'lodash/sortBy'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
-import { CurrencyFormats, preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectCurrencyFormat } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -19,7 +19,10 @@ export const CurrencyFormat = () => {
   const translate = useTranslate()
   const history = useHistory()
   const { goBack } = history
-  const formats = sortBy(CurrencyFormats, identity)
+  const formats = sortBy(CurrencyFormats, format => [
+    format !== CurrencyFormats.SystemDefault, // Top option.
+    format,
+  ])
   const { setCurrencyFormat } = preferences.actions
 
   return (
@@ -69,7 +72,7 @@ export const CurrencyFormat = () => {
                 <Flex alignItems='center' textAlign='left'>
                   {active && <Icon as={FaCheck} color='blue.500' />}
                   <Flex ml={4}>
-                    <RawText>{currencyFormatsRepresenter[currencyFormat]}</RawText>
+                    <RawText>{translate(currencyFormatsRepresenter[currencyFormat])}</RawText>
                   </Flex>
                 </Flex>
               </Button>

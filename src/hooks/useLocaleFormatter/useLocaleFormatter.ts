@@ -1,4 +1,6 @@
+import { CurrencyFormats } from 'constants/CurrencyFormatsEnum'
 import { useCallback, useMemo } from 'react'
+import { defaultBrowserCurrencyFormat } from 'lib/browserLocale'
 import { getFiatNumberFractionDigits } from 'lib/getFiatNumberFractionDigits/getFiatNumberFractionDigits'
 import { selectCurrencyFormat, selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -122,8 +124,13 @@ type useLocaleFormatterArgs = {
  */
 
 export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatter => {
-  const currencyFormat = useAppSelector(selectCurrencyFormat)
-  const deviceLocale = args?.locale ?? currencyFormat
+  let currencyFormat = useAppSelector(selectCurrencyFormat) as string
+  // Get the default browser locale if no specific locale has been set for the currency format
+  const deviceLocale =
+    args?.locale ??
+    (currencyFormat === CurrencyFormats.SystemDefault
+      ? defaultBrowserCurrencyFormat()
+      : currencyFormat)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const fiatTypeToUse = args?.fiatType ?? selectedCurrency
   /**

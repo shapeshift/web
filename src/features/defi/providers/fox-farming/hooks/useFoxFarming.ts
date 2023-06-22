@@ -71,13 +71,22 @@ export const useFoxFarming = (
   const stake = useCallback(
     async (lpAmount: string) => {
       try {
-        if (skip || !isValidAccountNumber(accountNumber) || !wallet) return
+        if (skip || !isValidAccountNumber(accountNumber) || !wallet || !accountAddress) return
 
         if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
         const data = foxFarmingContract.interface.encodeFunctionData('stake', [
           toBaseUnit(lpAmount, lpAsset.precision),
         ])
+
+        const fees = await getFees({
+          from: accountAddress,
+          adapter,
+          data,
+          to: contractAddress,
+          value: '0',
+          supportsEIP1559,
+        })
 
         const buildCustomTxInput = await createBuildCustomTxInput({
           accountNumber,
@@ -86,6 +95,7 @@ export const useFoxFarming = (
           to: contractAddress,
           value: '0',
           wallet,
+          chainSpecific: fees,
         })
 
         const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
@@ -96,21 +106,23 @@ export const useFoxFarming = (
       }
     },
     [
-      adapter,
-      accountNumber,
-      contractAddress,
-      ethAsset.chainId,
-      foxFarmingContract,
-      lpAsset.precision,
       skip,
+      accountNumber,
       wallet,
+      adapter,
+      ethAsset.chainId,
+      foxFarmingContract.interface,
+      lpAsset.precision,
+      accountAddress,
+      contractAddress,
+      supportsEIP1559,
     ],
   )
 
   const unstake = useCallback(
     async (lpAmount: string, isExiting: boolean) => {
       try {
-        if (skip || !isValidAccountNumber(accountNumber) || !wallet) return
+        if (skip || !isValidAccountNumber(accountNumber) || !wallet || !accountAddress) return
 
         if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
@@ -120,6 +132,15 @@ export const useFoxFarming = (
               toBaseUnit(lpAmount, lpAsset.precision),
             ])
 
+        const fees = await getFees({
+          from: accountAddress,
+          adapter,
+          data,
+          to: contractAddress,
+          value: '0',
+          supportsEIP1559,
+        })
+
         const buildCustomTxInput = await createBuildCustomTxInput({
           accountNumber,
           adapter,
@@ -127,6 +148,7 @@ export const useFoxFarming = (
           to: contractAddress,
           value: '0',
           wallet,
+          chainSpecific: fees,
         })
 
         const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
@@ -137,14 +159,16 @@ export const useFoxFarming = (
       }
     },
     [
-      adapter,
-      accountNumber,
-      contractAddress,
-      ethAsset.chainId,
-      foxFarmingContract,
-      lpAsset.precision,
-      wallet,
       skip,
+      accountNumber,
+      wallet,
+      adapter,
+      ethAsset.chainId,
+      foxFarmingContract.interface,
+      lpAsset.precision,
+      accountAddress,
+      contractAddress,
+      supportsEIP1559,
     ],
   )
 
@@ -282,11 +306,20 @@ export const useFoxFarming = (
   }, [accountNumber, adapter, ethAsset.chainId, contractAddress, getApproveFees, accountAddress])
 
   const claimRewards = useCallback(async () => {
-    if (skip || !isValidAccountNumber(accountNumber) || !wallet) return
+    if (skip || !isValidAccountNumber(accountNumber) || !wallet || !accountAddress) return
 
     if (!adapter) throw new Error(`no adapter available for ${ethAsset.chainId}`)
 
     const data = foxFarmingContract.interface.encodeFunctionData('getReward')
+
+    const fees = await getFees({
+      from: accountAddress,
+      adapter,
+      data,
+      to: contractAddress,
+      value: '0',
+      supportsEIP1559,
+    })
 
     const buildCustomTxInput = await createBuildCustomTxInput({
       accountNumber,
@@ -295,12 +328,23 @@ export const useFoxFarming = (
       to: contractAddress,
       value: '0',
       wallet,
+      chainSpecific: fees,
     })
 
     const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
 
     return txid
-  }, [accountNumber, adapter, ethAsset.chainId, contractAddress, foxFarmingContract, skip, wallet])
+  }, [
+    skip,
+    accountNumber,
+    wallet,
+    adapter,
+    ethAsset.chainId,
+    foxFarmingContract.interface,
+    accountAddress,
+    contractAddress,
+    supportsEIP1559,
+  ])
 
   return {
     allowance,

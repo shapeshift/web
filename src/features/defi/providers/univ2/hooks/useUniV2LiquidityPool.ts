@@ -204,6 +204,15 @@ export const useUniV2LiquidityPool = ({
           return '0'
         })()
 
+        const fees = await getFees({
+          adapter,
+          data: makeAddLiquidityData({ token0Amount, token1Amount }),
+          to: fromAssetId(uniswapV2Router02AssetId).assetReference,
+          value: toBaseUnit(maybeEthAmount, weth.precision),
+          from: accountAddress,
+          supportsEIP1559,
+        })
+
         const buildCustomTxInput = await createBuildCustomTxInput({
           accountNumber,
           adapter,
@@ -211,6 +220,7 @@ export const useUniV2LiquidityPool = ({
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
           value: toBaseUnit(maybeEthAmount, weth.precision),
           wallet,
+          chainSpecific: fees,
         })
 
         const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
@@ -221,6 +231,7 @@ export const useUniV2LiquidityPool = ({
       }
     },
     [
+      accountAddress,
       accountNumber,
       adapter,
       asset0.chainId,
@@ -228,6 +239,7 @@ export const useUniV2LiquidityPool = ({
       assetId1OrWeth,
       makeAddLiquidityData,
       skip,
+      supportsEIP1559,
       uniswapRouterContract,
       wallet,
       weth.precision,
@@ -314,6 +326,15 @@ export const useUniV2LiquidityPool = ({
           asset0Amount,
         })
 
+        const fees = await getFees({
+          supportsEIP1559,
+          from: accountAddress,
+          adapter,
+          data,
+          to: fromAssetId(uniswapV2Router02AssetId).assetReference,
+          value: '0',
+        })
+
         const buildCustomTxInput = await createBuildCustomTxInput({
           accountNumber,
           wallet,
@@ -321,6 +342,7 @@ export const useUniV2LiquidityPool = ({
           data,
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
           value: '0',
+          chainSpecific: fees,
         })
 
         const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
@@ -340,6 +362,8 @@ export const useUniV2LiquidityPool = ({
       makeRemoveLiquidityData,
       asset0ContractAddress,
       asset1ContractAddress,
+      supportsEIP1559,
+      accountAddress,
     ],
   )
 

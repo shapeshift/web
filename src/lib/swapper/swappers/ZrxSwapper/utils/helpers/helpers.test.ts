@@ -1,8 +1,7 @@
 import { ethAssetId, foxAssetId, optimismAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { AxiosStatic } from 'axios'
 import { DAO_TREASURY_ETHEREUM_MAINNET, DAO_TREASURY_OPTIMISM } from 'constants/treasury'
-
-import { getTreasuryAddressForReceiveAsset } from './helpers'
+import { getTreasuryAddressForReceiveAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
 
 jest.mock('lib/swapper/swappers/ZrxSwapper/utils/zrxService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')

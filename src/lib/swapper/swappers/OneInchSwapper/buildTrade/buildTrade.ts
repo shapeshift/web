@@ -5,7 +5,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import { getTreasuryAddressForReceiveAsset } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
+import { getTreasuryAddressForReceiveAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
 import { getFees } from 'lib/utils/evm'
 import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
 

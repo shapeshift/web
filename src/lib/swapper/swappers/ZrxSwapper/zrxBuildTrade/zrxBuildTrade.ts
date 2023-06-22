@@ -6,7 +6,10 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
-import { normalizeAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
+import {
+  getTreasuryAddressForReceiveAsset,
+  normalizeAmount,
+} from 'lib/swapper/swappers/utils/helpers/helpers'
 import type { ZrxQuoteResponse, ZrxTrade } from 'lib/swapper/swappers/ZrxSwapper/types'
 import { withAxiosRetry } from 'lib/swapper/swappers/ZrxSwapper/utils/applyAxiosRetry'
 import { AFFILIATE_ADDRESS, DEFAULT_SOURCE } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
@@ -15,7 +18,6 @@ import {
   assetToToken,
   baseUrlFromChainId,
   getAdapter,
-  getTreasuryAddressForReceiveAsset,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
 import { getFees } from 'lib/utils/evm'

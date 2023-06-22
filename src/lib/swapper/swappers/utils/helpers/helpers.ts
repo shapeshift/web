@@ -10,6 +10,13 @@ import {
 } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import {
+  DAO_TREASURY_AVALANCHE,
+  DAO_TREASURY_BSC,
+  DAO_TREASURY_ETHEREUM_MAINNET,
+  DAO_TREASURY_OPTIMISM,
+  DAO_TREASURY_POLYGON,
+} from 'constants/treasury'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetTradeQuoteInput, TradeQuote } from 'lib/swapper/api'
@@ -72,5 +79,23 @@ export const createEmptyEvmTradeQuote = (
         accountNumber: input.accountNumber,
       },
     ],
+  }
+}
+
+export const getTreasuryAddressForReceiveAsset = (assetId: AssetId): string => {
+  const chainId = fromAssetId(assetId).chainId
+  switch (chainId) {
+    case KnownChainIds.EthereumMainnet:
+      return DAO_TREASURY_ETHEREUM_MAINNET
+    case KnownChainIds.AvalancheMainnet:
+      return DAO_TREASURY_AVALANCHE
+    case KnownChainIds.OptimismMainnet:
+      return DAO_TREASURY_OPTIMISM
+    case KnownChainIds.BnbSmartChainMainnet:
+      return DAO_TREASURY_BSC
+    case KnownChainIds.PolygonMainnet:
+      return DAO_TREASURY_POLYGON
+    default:
+      throw new Error(`[getTreasuryAddressForReceiveAsset] - Unsupported chainId: ${chainId}`)
   }
 }

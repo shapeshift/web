@@ -52,7 +52,9 @@ export const makeTradeTx = async (
       chainSpecific: fees,
     })
 
-    const txToSign = await adapter.buildSignTx(buildCustomTxInput)
+    const txToSign = await adapter.buildSignTx(
+      Object.assign(buildCustomTxInput, { from: buildCustomTxInput.from ?? from }),
+    )
 
     return Ok({ txToSign })
   } catch (e) {

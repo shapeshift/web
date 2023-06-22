@@ -41,7 +41,7 @@ describe('normalizeIntegerAmount', () => {
 describe('getTreasuryAddressFromChainId', () => {
   it('throws for unsupported chains', () => {
     expect(() => getTreasuryAddressFromChainId(thorchainChainId as EvmChainId)).toThrow(
-      '[getTreasuryAddressForReceiveAsset] - Unsupported chainId',
+      '[getTreasuryAddressFromChainId] - Unsupported chainId',
     )
   })
 })

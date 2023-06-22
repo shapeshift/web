@@ -121,18 +121,11 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     input: BuildSignTxInput<KnownChainIds.ThorchainMainnet>,
   ): Promise<{ txToSign: ThorchainSignTx }> {
     try {
-      const {
-        chainSpecific: { fee },
-        sendMax,
-        to,
-        value,
-        from,
-        chainSpecific,
-      } = input
+      const { sendMax, to, value, from, chainSpecific } = input
 
       const account = await this.getAccount(from)
-      if (!fee) throw new Error('fee is required')
-      const amount = this.getAmount({ account, value, fee, sendMax })
+      if (!chainSpecific.fee) throw new Error('fee is required')
+      const amount = this.getAmount({ account, value, fee: chainSpecific.fee, sendMax })
 
       const msg: Message = {
         type: 'thorchain/MsgSend',
@@ -143,7 +136,6 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
         },
       }
 
-      if (!chainSpecific.fee) throw new Error('chainSpecific.fee is required')
       chainSpecific.fee = calculateFee(chainSpecific.fee)
 
       return this.buildTransaction<KnownChainIds.ThorchainMainnet>({ ...input, account, msg })

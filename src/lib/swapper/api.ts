@@ -179,7 +179,6 @@ export type Trade<C extends ChainId> = TradeBase<C, false> & {
 export type ExecuteTradeInput<C extends ChainId> = {
   trade: Trade<C>
   wallet: HDWallet
-  from?: string
 }
 
 export type TradeResult = {

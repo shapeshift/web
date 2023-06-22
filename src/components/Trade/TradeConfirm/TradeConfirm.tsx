@@ -317,7 +317,6 @@ export const TradeConfirm = () => {
       const result = await swapper.executeTrade({
         trade,
         wallet,
-        from: fromAccountId(sellAssetAccountId!).account,
       })
 
       // only track after swapper successfully executes trade

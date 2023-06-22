@@ -11,7 +11,8 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import type { UserStakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -73,9 +74,10 @@ export const ClaimRoutes = ({
 
   const rewardAmountCryptoPrecision = useMemo(
     () =>
-      bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0])
-        .div(bn(10).pow(assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0))
-        .toFixed(),
+      fromBaseUnit(
+        bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]),
+        assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0,
+      ),
     [assets, opportunity?.rewardsCryptoBaseUnit, opportunity?.underlyingAssetId],
   )
 

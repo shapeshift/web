@@ -17,6 +17,7 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
@@ -109,9 +110,10 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const underlyingAssetsFiatBalance = useMemo(() => {
     if (!stakingAsset) return '0'
 
-    const cryptoAmount = bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
-      .div(bn(10).pow(stakingAsset.precision))
-      .toString()
+    const cryptoAmount = fromBaseUnit(
+      bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit),
+      stakingAsset.precision,
+    )
     const foxEthLpFiatPrice = marketData?.[opportunityData?.underlyingAssetId ?? '']?.price ?? '0'
     return bnOrZero(cryptoAmount).times(foxEthLpFiatPrice).toString()
   }, [
@@ -128,9 +130,11 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const lpAssetWithBalancesAndIcons = useMemo(
     () => ({
       ...lpAsset,
-      cryptoBalancePrecision: bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
-        .div(bn(10).pow(stakingAsset.precision))
-        .toFixed(6),
+      cryptoBalancePrecision: fromBaseUnit(
+        bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit),
+        stakingAsset.precision,
+        6,
+      ),
       allocationPercentage: '1',
       icons: underlyingAssetsIcons,
     }),
@@ -157,11 +161,14 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
   if (!rewardAsset) throw new Error(`Asset not found for AssetId ${rewardId}`)
 
-  const cryptoAmountAvailable = bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit).div(
-    bn(10).pow(stakingAsset.precision),
+  const cryptoAmountAvailable = bn(
+    fromBaseUnit(bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit), stakingAsset.precision),
   )
-  const rewardAmountAvailable = bnOrZero(opportunityData?.rewardsCryptoBaseUnit.amounts[0]).div(
-    bn(10).pow(rewardAsset.precision),
+  const rewardAmountAvailable = bn(
+    fromBaseUnit(
+      bnOrZero(opportunityData?.rewardsCryptoBaseUnit.amounts[0]),
+      rewardAsset.precision,
+    ),
   )
   const hasClaim = rewardAmountAvailable.gt(0)
 

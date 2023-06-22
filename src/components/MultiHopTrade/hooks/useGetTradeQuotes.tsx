@@ -1,6 +1,7 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { orderBy } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
+import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import type { TradeQuoteResult } from 'components/MultiHopTrade/types'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
@@ -15,7 +16,6 @@ import {
   selectFeatureFlags,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
-  selectReceiveAddress,
   selectSellAmountCryptoPrecision,
   selectSellAsset,
   selectSellAssetAccountId,
@@ -35,7 +35,7 @@ export const useGetTradeQuotes = () => {
   const sellAsset = useAppSelector(selectSellAsset)
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAssetAccountId = useAppSelector(selectSellAssetAccountId)
-  const receiveAddress = useAppSelector(selectReceiveAddress)
+  const receiveAddress = useReceiveAddress()
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
   const sellAccountMetadata = useMemo(() => {

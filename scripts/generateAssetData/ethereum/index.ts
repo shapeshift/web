@@ -43,13 +43,13 @@ export const getAssets = async (): Promise<Asset[]> => {
   ])
 
   const ethAssets = [
+    ...idleTokens,
     foxyToken,
     ...ethTokens,
     // ...yearnVaults,
     // ...zapperTokens,
     // ...underlyingTokens,
     ...uniV2PoolTokens,
-    ...idleTokens,
   ]
   const uniqueAssets = orderBy(uniqBy(ethAssets, 'assetId'), 'assetId') // Remove dups and order for PR readability
   const batchSize = 100 // tune this to keep rate limiting happy

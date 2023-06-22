@@ -287,7 +287,7 @@ export type TradeQuote2 = TradeQuote & { id: string; receiveAddress: string; aff
 
 export type GetUnsignedTxArgs = {
   tradeQuote: TradeQuote2
-  chainId?: ChainId
+  chainId: ChainId
   accountMetadata?: AccountMetadata
   stepIndex: number
   supportsEIP1559: boolean

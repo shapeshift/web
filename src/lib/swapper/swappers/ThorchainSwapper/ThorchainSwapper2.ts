@@ -101,7 +101,6 @@ export const thorchain: Swapper2 = {
       supportsEIP1559,
     }): Promise<UnsignedTx> => {
       const chainAdapterManager = getChainAdapterManager()
-      if (!chainId) throw new Error('No chainId provided')
       const adapter = chainAdapterManager.get(chainId) as ChainAdapter<ThorChainId>
       if (!adapter) throw new Error(`No adapter for ChainId: ${chainId}`)
 

@@ -24,24 +24,25 @@ export function simpleLocale() {
 }
 
 function getPreferredLanguageMaybeWithRegion(): string {
-  const languages = window?.navigator?.languages ?? navigator?.language
+  const languages = window?.navigator?.languages ?? [navigator?.language]
 
-  if (!languages || languages.length === 0) {
-    return 'en-US' // Return a default language-region there is no preference
+  if (languages.length === 0) {
+    return 'en-US' // Return a default language-region if there is no preference
   }
+
   const [baseLanguage, region] = languages[0].split('-')
+
   if (region) {
     return languages[0] // If the first language has a regional code, return it
   }
-  // Othereise look for a language with the same base language and a regional code
-  for (const lang of languages.slice(1)) {
-    const [otherBaseLanguage, otherRegion] = lang.split('-')
-    if (otherBaseLanguage === baseLanguage && otherRegion) {
-      return lang
-    }
-  }
 
-  return baseLanguage // If none was found found, return the base language
+  // Otherwise, look for a language with the same base language and a regional code
+  const languageWithRegion = languages.slice(1).find(lang => {
+    const [otherBaseLanguage, otherRegion] = lang.split('-')
+    return otherBaseLanguage === baseLanguage && otherRegion
+  })
+
+  return languageWithRegion ?? baseLanguage // If none was found, return the base language
 }
 
 export function defaultBrowserCurrency(): SupportedFiatCurrencies {

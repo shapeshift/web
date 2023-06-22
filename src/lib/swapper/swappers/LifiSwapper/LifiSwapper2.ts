@@ -79,7 +79,6 @@ export const lifi: Swapper2 = {
       from: from!,
     })
 
-    // cast required because hdwallet typings return ETHSignTx which doesn't explicitly extends SignTx<C>
     return unsignedTx
   },
 

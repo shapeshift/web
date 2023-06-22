@@ -13,7 +13,6 @@ export type SwappersState = {
   buyAsset: Asset
   sellAsset: Asset
   sellAssetAccountId: AccountId | undefined
-  receiveAddress: string | undefined
   sellAmountCryptoPrecision: string
   tradeExecutionStatus: MultiHopExecutionStatus
 }
@@ -23,7 +22,6 @@ const initialState: SwappersState = {
   buyAsset: localAssetData[foxAssetId] ?? defaultAsset,
   sellAsset: localAssetData[ethAssetId] ?? defaultAsset,
   sellAssetAccountId: undefined,
-  receiveAddress: undefined,
   sellAmountCryptoPrecision: '0',
   tradeExecutionStatus: MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation,
 }
@@ -42,9 +40,6 @@ export const swappers = createSlice({
     },
     setSellAssetAccountId: (state, action: PayloadAction<AccountId | undefined>) => {
       state.sellAssetAccountId = action.payload
-    },
-    setReceiveAddress: (state, action: PayloadAction<string | undefined>) => {
-      state.receiveAddress = action.payload
     },
     setSellAmountCryptoPrecision: (state, action: PayloadAction<string>) => {
       // dedupe 0, 0., 0.0, 0.00 etc

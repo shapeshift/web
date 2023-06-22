@@ -49,6 +49,7 @@ export const MultiHopTrade = (props: CardProps) => {
   const {
     state: { wallet },
   } = useWallet()
+  const dispatch = useAppDispatch()
   const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(false)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
   const methods = useForm({ mode: 'onChange' })
@@ -61,7 +62,6 @@ export const MultiHopTrade = (props: CardProps) => {
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
 
   const selectedQuoteStatus = useSelectedQuoteStatus()
-  const dispatch = useAppDispatch()
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(swappers.actions.setBuyAsset(asset)),
     [dispatch],

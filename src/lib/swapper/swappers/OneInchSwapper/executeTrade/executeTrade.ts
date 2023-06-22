@@ -31,11 +31,7 @@ export async function executeTrade({
       wallet,
     })
 
-    const txid = await buildAndBroadcast({
-      buildCustomTxInput,
-      adapter,
-      wallet,
-    })
+    const txid = await buildAndBroadcast({ buildCustomTxInput, adapter })
 
     return Ok({ tradeId: txid })
   } catch (e) {

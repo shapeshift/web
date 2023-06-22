@@ -27,7 +27,10 @@ export const useHopHelper = () => {
     sellAsset: firstHopSellAsset,
   })
 
-  const { sellAssetAccountId: lastHopSellAssetAccountId } = useAccountIds({
+  const {
+    sellAssetAccountId: lastHopSellAssetAccountId,
+    buyAssetAccountId: lastHopBuyAssetAccountId,
+  } = useAccountIds({
     buyAsset: lastHopBuyAsset,
     sellAsset: lastHopSellAsset,
   })
@@ -63,5 +66,6 @@ export const useHopHelper = () => {
     sellAssetBalanceCryptoBaseUnit,
     firstHopFeeAssetBalancePrecision,
     lastHopFeeAssetBalancePrecision,
+    lastHopBuyAssetAccountId,
   }
 }

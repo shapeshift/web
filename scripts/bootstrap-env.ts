@@ -24,6 +24,7 @@ const VALID_BRANCHES = [
   'wood',
   'gome',
   'cafe',
+  'arkeo',
 ] as const
 type Branch = typeof VALID_BRANCHES[number]
 
@@ -40,6 +41,7 @@ const BRANCH_TO_ENVIRONMENT: Record<Branch, Environment> = {
   wood: 'develop',
   gome: 'develop',
   cafe: 'develop',
+  arkeo: 'develop',
   yeet: 'develop', // free for all
   develop: 'develop',
   release: 'app', // for operations testing production releases

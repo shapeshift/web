@@ -797,7 +797,6 @@
       },
       "import": {
         "header": "지갑 가져오기",
-        "body": "기존 지갑을 기져오려면 시드 구문을 입력하세요.",
         "button": "다음",
         "secretRecoveryPhraseError": "복구용 시드 구문 단어들 사이에는 반드시 띄어쓰기를 이용해 구분하세요. 쉼표, 줄바꿈 혹은 특수문자를 절대 사용하지 마세요.",
         "secretRecoveryPhraseRequired": "복구용 시드 구문은 필수 항목입니다.",

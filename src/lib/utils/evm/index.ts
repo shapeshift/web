@@ -29,7 +29,7 @@ type BroadcastArgs = {
   wallet: HDWallet
 }
 
-type BuildAndBroadcastArgs = BuildArgs & Omit<BroadcastArgs, 'txToSign'>
+type BuildAndBroadcastArgs = BuildArgs & Omit<BroadcastArgs, 'txToSign' | 'wallet'>
 
 type CreateBuildCustomTxInputArgs = {
   adapter: EvmChainAdapter

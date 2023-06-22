@@ -37,7 +37,7 @@ export const useExecuteAllowanceApproval = (
     }
 
     try {
-      const txId = await buildAndBroadcast({ wallet, buildCustomTxInput, adapter })
+      const txId = await buildAndBroadcast({ buildCustomTxInput, adapter })
 
       setTxId(txId)
 

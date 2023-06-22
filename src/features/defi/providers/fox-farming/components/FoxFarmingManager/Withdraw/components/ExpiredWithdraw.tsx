@@ -19,6 +19,7 @@ import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
@@ -65,7 +66,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
-  const { getUnstakeFeeData, allowance, getApproveFeeData } = useFoxFarming(contractAddress)
+  const { getUnstakeFees, allowance, getApproveFees } = useFoxFarming(contractAddress)
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
 
@@ -88,13 +89,15 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   // user info
   const rewardAmountCryptoPrecision = useMemo(
     () =>
-      bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0])
-        .div(bn(10).pow(assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0))
-        .toFixed(),
+      fromBaseUnit(
+        bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]),
+        assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0,
+      ),
     [assets, opportunity?.rewardsCryptoBaseUnit, opportunity?.underlyingAssetId],
   )
+
   const amountAvailableCryptoPrecision = useMemo(
-    () => bnOrZero(opportunity?.cryptoAmountBaseUnit).div(bn(10).pow(asset?.precision ?? 18)),
+    () => fromBaseUnit(bnOrZero(opportunity?.cryptoAmountBaseUnit), asset?.precision ?? 18),
     [asset?.precision, opportunity?.cryptoAmountBaseUnit],
   )
   const totalFiatBalance = opportunity?.fiatAmount
@@ -103,9 +106,9 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
 
   const getWithdrawGasEstimate = async () => {
     try {
-      const feeData = await getUnstakeFeeData(amountAvailableCryptoPrecision.toFixed(), true)
-      if (!feeData) return
-      return bnOrZero(feeData.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
+      const fees = await getUnstakeFees(amountAvailableCryptoPrecision, true)
+      if (!fees) return
+      return fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision)
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       console.error(error)
@@ -118,10 +121,10 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
     dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: true })
     dispatch({
       type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-      payload: { lpAmount: amountAvailableCryptoPrecision.toString(), isExiting: true },
+      payload: { lpAmount: amountAvailableCryptoPrecision, isExiting: true },
     })
     const lpAllowance = await allowance()
-    const allowanceAmount = bnOrZero(lpAllowance).div(bn(10).pow(asset?.precision ?? 18))
+    const allowanceAmount = bn(fromBaseUnit(bnOrZero(lpAllowance), asset?.precision ?? 18))
 
     // Skip approval step if user allowance is greater than or equal requested deposit amount
     if (allowanceAmount.gte(amountAvailableCryptoPrecision)) {
@@ -144,21 +147,22 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
           cryptoAmounts: [
             {
               assetId: asset?.assetId,
-              amountCryptoHuman: amountAvailableCryptoPrecision.toString(),
+              amountCryptoHuman: amountAvailableCryptoPrecision,
             },
           ],
         },
         assets,
       )
     } else {
-      const feeData = await getApproveFeeData()
-      if (!feeData) return
+      const fees = await getApproveFees()
+      if (!fees) return
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_APPROVE,
         payload: {
-          estimatedGasCryptoPrecision: bnOrZero(feeData.txFee)
-            .div(bn(10).pow(feeAsset.precision))
-            .toPrecision(),
+          estimatedGasCryptoPrecision: fromBaseUnit(
+            fees.networkFeeCryptoBaseUnit,
+            feeAsset.precision,
+          ),
         },
       })
       onNext(DefiStep.Approve)
@@ -185,7 +189,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
         asset={asset}
         disableInput
         icons={opportunity?.icons}
-        cryptoAmountAvailable={amountAvailableCryptoPrecision.toPrecision()}
+        cryptoAmountAvailable={amountAvailableCryptoPrecision}
         cryptoInputValidation={{
           required: true,
           validate: { validateCryptoAmount },
@@ -200,7 +204,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
         enableSlippage={false}
         handlePercentClick={() => {}}
         inputDefaultValue={{
-          cryptoAmount: amountAvailableCryptoPrecision.toString(),
+          cryptoAmount: amountAvailableCryptoPrecision,
           fiatAmount: totalFiatBalance,
         }}
         inputChildren={

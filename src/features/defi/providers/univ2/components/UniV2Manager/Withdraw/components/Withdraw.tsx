@@ -78,7 +78,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const assetId0 = uniV2Opportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = uniV2Opportunity?.underlyingAssetIds[1] ?? ''
 
-  const { lpAllowance, getApproveFeeData, getWithdrawFeeData } = useUniV2LiquidityPool({
+  const { lpAllowance, getApproveFees, getWithdrawFees } = useUniV2LiquidityPool({
     accountId: accountId ?? '',
     assetId0: uniV2Opportunity?.underlyingAssetIds[0] ?? '',
     assetId1: uniV2Opportunity?.underlyingAssetIds[1] ?? '',
@@ -113,10 +113,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     [asset0.precision, asset0AmountCryptoBaseUnit],
   )
 
-  const fiatAmountAvailable = bnOrZero(uniV2Opportunity?.cryptoAmountBaseUnit)
-    .div(bn(10).pow(lpAsset.precision))
-    .times(marketData?.[lpAssetId]?.price ?? '0')
-    .toString()
+  const fiatAmountAvailable = bn(
+    fromBaseUnit(bnOrZero(uniV2Opportunity?.cryptoAmountBaseUnit), lpAsset.precision),
+  ).times(marketData?.[lpAssetId]?.price ?? '0')
 
   // user info
   const filter = useMemo(
@@ -129,17 +128,17 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   if (!state || !dispatch || !uniV2Opportunity?.icons || !lpAsset) return null
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(bn(10).pow(lpAsset.precision))
+  const cryptoAmountAvailable = bn(fromBaseUnit(balance, lpAsset.precision))
 
   const getWithdrawGasEstimateCryptoPrecision = async (withdraw: WithdrawValues) => {
     try {
-      const feeData = await getWithdrawFeeData(
+      const fees = await getWithdrawFees(
         withdraw.cryptoAmount,
         asset0AmountCryptoPrecision,
         asset1AmountCryptoPrecision,
       )
-      if (!feeData) return
-      return bnOrZero(feeData.txFee).div(bn(10).pow(feeAsset.precision)).toPrecision()
+      if (!fees) return
+      return fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision)
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       console.error(error)
@@ -160,8 +159,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       },
     })
     const lpAllowanceCryptoBaseUnit = await lpAllowance()
-    const lpAllowanceAmountCryptoPrecision = bnOrZero(lpAllowanceCryptoBaseUnit).div(
-      bn(10).pow(lpAsset.precision),
+    const lpAllowanceAmountCryptoPrecision = fromBaseUnit(
+      bnOrZero(lpAllowanceCryptoBaseUnit),
+      lpAsset.precision,
     )
 
     trackOpportunityEvent(
@@ -179,7 +179,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     )
 
     // Skip approval step if user allowance is greater than or equal requested withdraw amount
-    if (lpAllowanceAmountCryptoPrecision.gte(bnOrZero(formValues.cryptoAmount))) {
+    if (bn(lpAllowanceAmountCryptoPrecision).gte(bnOrZero(formValues.cryptoAmount))) {
       const estimatedGasCryptoPrecision = await getWithdrawGasEstimateCryptoPrecision(formValues)
       if (!estimatedGasCryptoPrecision) {
         dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: false })
@@ -193,14 +193,17 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: false })
     } else {
       const lpAssetContractAddress = ethers.utils.getAddress(fromAssetId(lpAssetId).assetReference)
-      const feeData = await getApproveFeeData(lpAssetContractAddress)
-      if (!feeData) return
+
+      const fees = await getApproveFees(lpAssetContractAddress)
+      if (!fees) return
+
       dispatch({
         type: UniV2WithdrawActionType.SET_APPROVE,
         payload: {
-          estimatedGasCryptoPrecision: bnOrZero(feeData.txFee)
-            .div(bn(10).pow(feeAsset.precision))
-            .toPrecision(),
+          estimatedGasCryptoPrecision: fromBaseUnit(
+            fees.networkFeeCryptoBaseUnit,
+            feeAsset.precision,
+          ),
         },
       })
       onNext(DefiStep.Approve)
@@ -213,8 +216,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   }
 
   const handlePercentClick = (percent: number) => {
-    const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(percent).toFixed()
-    const fiatAmount = bnOrZero(fiatAmountAvailable).times(percent).toString()
+    const cryptoAmount = cryptoAmountAvailable.times(percent).toFixed()
+    const fiatAmount = fiatAmountAvailable.times(percent).toString()
 
     setValue(Field.FiatAmount, fiatAmount, { shouldValidate: true })
     setValue(Field.CryptoAmount, cryptoAmount, { shouldValidate: true })
@@ -258,7 +261,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const validateFiatAmount = (value: string) => {
     const _value = bnOrZero(value)
-    const fiat = bnOrZero(fiatAmountAvailable)
+    const fiat = fiatAmountAvailable
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
     if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
@@ -275,7 +278,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           required: true,
           validate: { validateCryptoAmount },
         }}
-        fiatAmountAvailable={fiatAmountAvailable}
+        fiatAmountAvailable={fiatAmountAvailable.toString()}
         fiatInputValidation={{
           required: true,
           validate: { validateFiatAmount },
@@ -301,14 +304,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             showFiatAmount={true}
             assetIcon={asset0.icon}
             assetSymbol={asset0.symbol}
-            balance={bnOrZero(uniV2Opportunity.underlyingToken0AmountCryptoBaseUnit)
-              .div(
-                bn(10).pow(
-                  assets[uniV2Opportunity?.underlyingAssetIds?.[0] ?? '']?.precision ?? '0',
-                ),
-              )
-              .toFixed()}
-            fiatBalance={bnOrZero(
+            balance={fromBaseUnit(
+              bnOrZero(uniV2Opportunity.underlyingToken0AmountCryptoBaseUnit),
+              assets[uniV2Opportunity?.underlyingAssetIds?.[0] ?? '']?.precision ?? 0,
+            )}
+            fiatBalance={bn(
               fromBaseUnit(
                 uniV2Opportunity?.underlyingToken0AmountCryptoBaseUnit ?? '0',
                 asset0.precision,
@@ -328,14 +328,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             showFiatAmount={true}
             assetIcon={asset1.icon}
             assetSymbol={asset1.symbol}
-            balance={bnOrZero(uniV2Opportunity.underlyingToken1AmountCryptoBaseUnit)
-              .div(
-                bn(10).pow(
-                  assets[uniV2Opportunity?.underlyingAssetIds?.[1] ?? '']?.precision ?? '0',
-                ),
-              )
-              .toFixed()}
-            fiatBalance={bnOrZero(
+            balance={fromBaseUnit(
+              bnOrZero(uniV2Opportunity.underlyingToken1AmountCryptoBaseUnit),
+              assets[uniV2Opportunity?.underlyingAssetIds?.[1] ?? '']?.precision ?? 0,
+            )}
+            fiatBalance={bn(
               fromBaseUnit(
                 uniV2Opportunity?.underlyingToken1AmountCryptoBaseUnit ?? '0',
                 asset1.precision,

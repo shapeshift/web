@@ -23,8 +23,29 @@ export function simpleLocale() {
   return locale
 }
 
+function getPreferredLanguageMaybeWithRegion(): string {
+  const languages = window?.navigator?.languages ?? navigator?.language
+
+  if (!languages || languages.length === 0) {
+    return 'en-US' // Return a default language-region there is no preference
+  }
+  const [baseLanguage, region] = languages[0].split('-')
+  if (region) {
+    return languages[0] // If the first language has a regional code, return it
+  }
+  // Othereise look for a language with the same base language and a regional code
+  for (const lang of languages.slice(1)) {
+    const [otherBaseLanguage, otherRegion] = lang.split('-')
+    if (otherBaseLanguage === baseLanguage && otherRegion) {
+      return lang
+    }
+  }
+
+  return baseLanguage // If none was found found, return the base language
+}
+
 export function defaultBrowserCurrency(): SupportedFiatCurrencies {
-  const userLocale = window?.navigator?.languages?.[0] ?? navigator?.language
+  const userLocale = getPreferredLanguageMaybeWithRegion()
   const userCurrency = getCurrency(userLocale) as SupportedFiatCurrencies
   return SupportedFiatCurrenciesList?.includes(userCurrency) ? userCurrency : DEFAULT_FIAT_CURRENCY
 }

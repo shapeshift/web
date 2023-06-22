@@ -15,8 +15,7 @@ export type BuildCustomTxInput = {
   data: string
   value: string
   gasLimit: string
-} & Fees &
-  ({ from: string; wallet?: never } | { from?: never; wallet: HDWallet })
+} & Fees & { from?: string; wallet?: HDWallet }
 
 export type BuildTxInput = {
   // Optional hex-encoded calldata

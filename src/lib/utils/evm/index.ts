@@ -151,14 +151,13 @@ export const createBuildCustomTxInput = async (
     from,
     supportsEIP1559,
   })
-  const buildCustomTxInputWithWallet = { ...args, ...fees, from }
-  const { wallet: _wallet, ...buildCustomTxInputWithoutWallet } = buildCustomTxInputWithWallet
+  const buildCustomTxInputWithWalletAndFrom = { ...args, ...fees, from }
 
-  if (buildCustomTxInputWithoutWallet.data) {
-    buildCustomTxInputWithoutWallet.chainSpecific.contractData = data
+  if (buildCustomTxInputWithWalletAndFrom.data) {
+    buildCustomTxInputWithWalletAndFrom.chainSpecific.contractData = data
   }
 
-  return buildCustomTxInputWithoutWallet
+  return buildCustomTxInputWithWalletAndFrom
 }
 
 export const createSignTxInput = async (

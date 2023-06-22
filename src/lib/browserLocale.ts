@@ -26,5 +26,5 @@ export function simpleLocale() {
 export function defaultBrowserCurrency(): SupportedFiatCurrencies {
   const userLocale = window?.navigator?.languages?.[0] ?? navigator?.language
   const userCurrency = getCurrency(userLocale) as SupportedFiatCurrencies
-  return SupportedFiatCurrenciesList.includes(userCurrency) ? userCurrency : DEFAULT_FIAT_CURRENCY
+  return SupportedFiatCurrenciesList?.includes(userCurrency) ? userCurrency : DEFAULT_FIAT_CURRENCY
 }

@@ -37,7 +37,7 @@ import { getSignTxFromQuote } from './utils/getSignTxFromQuote'
 // - derived from the input (for our own consumption with our AccountMetadata and ChainId structures)
 // - or simply falls the passed from address through, for external consumers
 type WithFromParams = {
-  chainId?: ChainId
+  chainId: ChainId
   accountMetadata?: AccountMetadata
   wallet?: HDWallet
   from?: string
@@ -92,18 +92,7 @@ export const thorchain: Swapper2 = {
   },
 
   getUnsignedTx: withFrom(
-    async ({
-      accountMetadata,
-      tradeQuote,
-      chainId,
-      from,
-      xpub,
-      supportsEIP1559,
-    }): Promise<UnsignedTx> => {
-      const chainAdapterManager = getChainAdapterManager()
-      const adapter = chainAdapterManager.get(chainId) as ChainAdapter<ThorChainId>
-      if (!adapter) throw new Error(`No adapter for ChainId: ${chainId}`)
-
+    async ({ accountMetadata, tradeQuote, from, xpub, supportsEIP1559 }): Promise<UnsignedTx> => {
       const { receiveAddress, affiliateBps } = tradeQuote
       const feeAsset = selectFeeAssetById(store.getState(), tradeQuote.steps[0].sellAsset.assetId)
       const buyAssetUsdRate = selectUsdRateByAssetId(

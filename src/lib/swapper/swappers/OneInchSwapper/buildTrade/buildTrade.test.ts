@@ -1,3 +1,4 @@
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
@@ -32,6 +33,7 @@ describe('buildTrade', () => {
   const { buyAsset, sellAsset } = setupQuote()
 
   const buildTradeInput: BuildTradeInput = {
+    wallet: {} as HDWallet,
     chainId: KnownChainIds.EthereumMainnet,
     sellAsset,
     buyAsset,

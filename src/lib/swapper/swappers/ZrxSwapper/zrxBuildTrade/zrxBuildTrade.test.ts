@@ -1,4 +1,5 @@
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
@@ -67,6 +68,7 @@ describe('zrxBuildTrade', () => {
   const { zrxService } = setup()
 
   const buildTradeInput: BuildTradeInput = {
+    wallet: {} as HDWallet,
     chainId: KnownChainIds.EthereumMainnet,
     sellAsset,
     buyAsset,

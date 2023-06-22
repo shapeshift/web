@@ -1,3 +1,4 @@
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads/build'
 import type { AxiosStatic } from 'axios'
@@ -206,6 +207,7 @@ describe('cowBuildTrade', () => {
     selectSellAssetUsdRateSpy.mockImplementation(() => ethRate)
 
     const tradeInput: BuildTradeInput = {
+      wallet: {} as HDWallet,
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: ETH,
       buyAsset: FOX_MAINNET,
@@ -234,6 +236,7 @@ describe('cowBuildTrade', () => {
     selectSellAssetUsdRateSpy.mockImplementation(() => wethRate)
 
     const tradeInput: BuildTradeInput = {
+      wallet: {} as HDWallet,
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WETH,
       buyAsset: FOX_MAINNET,
@@ -279,6 +282,7 @@ describe('cowBuildTrade', () => {
     selectSellAssetUsdRateSpy.mockImplementation(() => wbtcRate)
 
     const tradeInput: BuildTradeInput = {
+      wallet: {} as HDWallet,
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WBTC,
       buyAsset: WETH,
@@ -326,6 +330,7 @@ describe('cowBuildTrade', () => {
     selectSellAssetUsdRateSpy.mockImplementation(() => foxRate)
 
     const tradeInput: BuildTradeInput = {
+      wallet: {} as HDWallet,
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: FOX_MAINNET,
       buyAsset: ETH,
@@ -370,6 +375,7 @@ describe('cowBuildTrade', () => {
     selectSellAssetUsdRateSpy.mockImplementation(() => '0.999457')
 
     const tradeInput: BuildTradeInput = {
+      wallet: {} as HDWallet,
       chainId: KnownChainIds.GnosisMainnet,
       sellAsset: USDC_GNOSIS,
       buyAsset: XDAI,

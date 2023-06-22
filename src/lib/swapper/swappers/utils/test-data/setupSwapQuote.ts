@@ -1,3 +1,4 @@
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { Asset } from 'lib/asset-service'
@@ -46,6 +47,7 @@ export const setupBuildTrade = () => {
   const sellAsset: Asset = { ...FOX_MAINNET }
   const buyAsset: Asset = { ...WETH }
   const buildTradeInput: BuildTradeInput = {
+    wallet: {} as HDWallet,
     chainId: KnownChainIds.EthereumMainnet,
     sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
     buyAsset,

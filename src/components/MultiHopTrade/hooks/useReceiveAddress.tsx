@@ -63,9 +63,10 @@ export const useReceiveAddress = () => {
     if (!buyAsset) return
     ;(async () => {
       try {
-        const _receiveAddress = await getReceiveAddressFromBuyAsset(buyAsset)
-        setReceiveAddress(_receiveAddress)
+        const updatedReceiveAddress = await getReceiveAddressFromBuyAsset(buyAsset)
+        setReceiveAddress(updatedReceiveAddress)
       } catch (e) {
+        console.error(e)
         setReceiveAddress(undefined)
       }
     })()

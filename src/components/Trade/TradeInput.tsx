@@ -76,7 +76,6 @@ import {
   selectPreferredSwapper,
   selectProtocolFees,
   selectQuote,
-  selectReceiveAddress,
   selectSellAmountCryptoPrecision,
   selectSellAmountFiat,
   selectSellAsset,
@@ -92,6 +91,7 @@ import { RateGasRow } from './Components/RateGasRow'
 import type { TradeAssetInputProps } from './Components/TradeAssetInput'
 import { TradeAssetInput } from './Components/TradeAssetInput'
 import { TradeQuotes } from './Components/TradeQuotes/TradeQuotes'
+import { useReceiveAddress } from './hooks/useReceiveAddress'
 import { useTradeRoutes } from './hooks/useTradeRoutes/useTradeRoutes'
 import { ReceiveSummary } from './TradeConfirm/ReceiveSummary'
 import { TradeAmountInputField, TradeRoutePaths } from './types'
@@ -133,7 +133,7 @@ export const TradeInput = () => {
   const updatePreferredSwapper = useSwapperStore(state => state.updatePreferredSwapper)
   const fiatBuyAmount = useSwapperStore(selectBuyAmountFiat)
   const fiatSellAmount = useSwapperStore(selectSellAmountFiat)
-  const receiveAddress = useSwapperStore(selectReceiveAddress)
+  const receiveAddress = useReceiveAddress()
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)

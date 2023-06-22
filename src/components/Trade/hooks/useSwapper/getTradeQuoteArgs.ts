@@ -19,7 +19,7 @@ export type GetTradeQuoteInputArgs = {
   sellAccountType: UtxoAccountType | undefined
   sellAccountNumber: number
   wallet: HDWallet
-  receiveAddress: string | undefined
+  receiveAddress: string
   sellAmountBeforeFeesCryptoPrecision: string
   allowMultiHop: boolean
 }
@@ -34,7 +34,6 @@ export const getTradeQuoteArgs = async ({
   sellAmountBeforeFeesCryptoPrecision,
   allowMultiHop,
 }: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput | undefined> => {
-  if (!receiveAddress) throw new Error('Receive address is required')
   if (!sellAsset || !buyAsset) return undefined
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
     sellAmountBeforeFeesCryptoBaseUnit: toBaseUnit(

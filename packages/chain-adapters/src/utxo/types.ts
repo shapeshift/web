@@ -74,7 +74,7 @@ export type FeeData = {
 }
 
 export type BuildTxInput = {
-  from?: string // used for savers, the address to consume the utxos
+  from?: string
   opReturnData?: string
   accountType: UtxoAccountType
   satoshiPerByte: string

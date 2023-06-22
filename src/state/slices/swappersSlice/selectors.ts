@@ -21,11 +21,6 @@ export const selectSellAssetAccountId = createSelector(
   swappers => swappers.sellAssetAccountId,
 )
 
-export const selectReceiveAddress = createSelector(
-  selectSwappers,
-  swappers => swappers.receiveAddress,
-)
-
 export const selectSellAmountCryptoPrecision = createSelector(
   selectSwappers,
   swappers => swappers.sellAmountCryptoPrecision,

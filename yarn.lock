@@ -6320,6 +6320,7 @@ __metadata:
     js-pixel-fonts: ^1.6.0
     limiter: ^2.1.0
     lit-html: ^2.6.1
+    locale-currency: ^0.0.2
     localforage: ^1.10.0
     lodash: ^4.17.21
     match-sorter: ^6.3.0
@@ -19955,6 +19956,13 @@ __metadata:
   version: 3.2.0
   resolution: "loader-utils@npm:3.2.0"
   checksum: c7b9a8dc4b3bc19e9ef563c48e3a18ea9f8bb2da1ad38a12e4b88358cfba5f148a7baf12d78fe78ffcb718ce1e062ab31fcf5c148459f1247a672a4213471e80
+  languageName: node
+  linkType: hard
+
+"locale-currency@npm:^0.0.2":
+  version: 0.0.2
+  resolution: "locale-currency@npm:0.0.2"
+  checksum: eb8760bdcd60118e1d14a95b6d6d6983073c54bddcc1b661dd88434a2e1ee3477f150693bc8d65205c8dc9b619369afb72222b192e2cd46002c6f4bb05f9bcec
   languageName: node
   linkType: hard
 

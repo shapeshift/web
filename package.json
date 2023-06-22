@@ -148,6 +148,7 @@
     "immer": "^9.0.19",
     "js-file-download": "^0.4.12",
     "js-pixel-fonts": "^1.6.0",
+    "locale-currency": "^0.0.2",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "match-sorter": "^6.3.0",

@@ -1,4 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 
 import type * as common from '../types'
@@ -9,13 +10,13 @@ export type Account = {
 }
 
 export type BuildCustomTxInput = {
-  from: string
   accountNumber: number
   to: string
   data: string
   value: string
   gasLimit: string
-} & Fees
+} & Fees &
+  ({ from: string; wallet?: never } | { from?: never; wallet: HDWallet })
 
 export type BuildTxInput = {
   // Optional hex-encoded calldata

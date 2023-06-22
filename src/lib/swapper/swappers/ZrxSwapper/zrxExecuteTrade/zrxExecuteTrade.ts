@@ -42,7 +42,7 @@ export async function zrxExecuteTrade({
       chainSpecific: fees,
     })
 
-    const txid = await buildAndBroadcast({ buildCustomTxInput, adapter, wallet })
+    const txid = await buildAndBroadcast({ buildCustomTxInput, adapter })
 
     return Ok({ tradeId: txid })
   } catch (e) {

@@ -98,7 +98,7 @@ export const useFoxFarming = (
           chainSpecific: fees,
         })
 
-        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput, wallet })
+        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
 
         return txid
       } catch (err) {
@@ -151,7 +151,7 @@ export const useFoxFarming = (
           chainSpecific: fees,
         })
 
-        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput, wallet })
+        const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
 
         return txid
       } catch (err) {
@@ -291,7 +291,6 @@ export const useFoxFarming = (
     if (!fees) return
 
     const txid = await buildAndBroadcast({
-      wallet,
       adapter,
       buildCustomTxInput: {
         from: accountAddress,
@@ -340,7 +339,7 @@ export const useFoxFarming = (
       chainSpecific: fees,
     })
 
-    const txid = await buildAndBroadcast({ adapter, buildCustomTxInput, wallet })
+    const txid = await buildAndBroadcast({ adapter, buildCustomTxInput })
 
     return txid
   }, [

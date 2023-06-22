@@ -575,6 +575,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       const { to, from, accountNumber, data, value } = tx
       const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } = tx
 
+      if (!from) throw new Error('from is required to build a custom Tx')
       const account = await this.getAccount(from)
 
       const fees: Fees =

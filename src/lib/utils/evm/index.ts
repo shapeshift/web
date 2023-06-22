@@ -29,7 +29,7 @@ type BroadcastArgs = {
   wallet: HDWallet
 }
 
-type BuildAndBroadcastArgs = BuildArgs & Omit<BroadcastArgs, 'txToSign'>
+type BuildAndBroadcastArgs = BuildArgs & Omit<BroadcastArgs, 'txToSign' | 'wallet'>
 
 type CreateBuildCustomTxInputArgs = {
   adapter: EvmChainAdapter
@@ -151,6 +151,7 @@ export const createBuildCustomTxInput = async (
     from,
     supportsEIP1559,
   })
+  // @ts-ignore to make packages compile
   return { ...args, ...fees, from }
 }
 
@@ -178,16 +179,16 @@ export const createSignTxInput = async (
   }
 }
 
-export const buildAndBroadcast = async ({
-  adapter,
-  buildCustomTxInput,
-  wallet,
-}: BuildAndBroadcastArgs) => {
+export const buildAndBroadcast = async ({ adapter, buildCustomTxInput }: BuildAndBroadcastArgs) => {
+  // @ts-ignore making this compile for now
+  const { wallet } = buildCustomTxInput
+  if (!wallet) throw new Error('Wallet is required to broadcast EVM Txs')
   const { txToSign } = await adapter.buildCustomTx(buildCustomTxInput)
   return broadcast({ adapter, txToSign, wallet })
 }
 
 export const broadcast = async ({ adapter, txToSign, wallet }: BroadcastArgs) => {
+  if (!wallet) throw new Error('Wallet is required to broadcast EVM Txs')
   if (wallet.supportsOfflineSigning()) {
     const signedTx = await adapter.signTransaction({ txToSign, wallet })
     const txid = await adapter.broadcastTransaction(signedTx)

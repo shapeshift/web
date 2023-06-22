@@ -730,7 +730,6 @@ describe('EthereumChainAdapter', () => {
       const adapter = new ethereum.ChainAdapter(args)
 
       const txArgs = {
-        wallet: await getWallet(),
         accountNumber: 0,
         from: '0xfoobar',
         to: `0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F`,
@@ -771,7 +770,6 @@ describe('EthereumChainAdapter', () => {
       const adapter = new ethereum.ChainAdapter(args)
 
       const txArgs = {
-        wallet: await getWallet(),
         accountNumber: 0,
         from: '0xfoobar',
         to: `0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F`,

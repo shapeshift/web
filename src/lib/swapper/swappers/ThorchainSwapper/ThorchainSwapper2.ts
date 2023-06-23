@@ -93,6 +93,7 @@ export const thorchain: Swapper2 = {
     })
   },
 
+  // TODO: getUnsignedTx isn't consumed anywhere yet. When it is, move the HOF to the caller, so we keep the inner function pure
   getUnsignedTx: withFromOrXpub(
     async ({ accountMetadata, tradeQuote, from, xpub, supportsEIP1559 }): Promise<UnsignedTx> => {
       const { receiveAddress, affiliateBps } = tradeQuote

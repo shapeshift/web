@@ -1,5 +1,5 @@
 import { DEFAULT_FIAT_CURRENCY } from 'constants/Config'
-import { getCurrency } from 'constants/FiatCurrenciesLangMap'
+import { getCurrency } from 'constants/LocaleFiatCurrenciesMap'
 import { translations } from 'assets/translations'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
 import { SupportedFiatCurrenciesList } from 'lib/market-service'

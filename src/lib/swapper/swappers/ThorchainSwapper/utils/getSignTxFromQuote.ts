@@ -6,8 +6,10 @@ import type {
   utxo,
   UtxoBaseAdapter,
 } from '@shapeshiftoss/chain-adapters'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { TradeQuote, UnsignedTx } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 import { getCosmosTxData } from 'lib/swapper/swappers/ThorchainSwapper/cosmossdk/getCosmosTxData'
 import type { ThorEvmTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type {
@@ -15,7 +17,6 @@ import type {
   ThorUtxoSupportedChainId,
 } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
-import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
 import { assertUnreachable } from 'lib/utils'
 import { createSignTxInput } from 'lib/utils/evm'
 
@@ -40,7 +41,10 @@ export const getSignTxFromQuote = async ({
   feeAssetUsdRate: string
   supportsEIP1559: boolean
 } & ({ from: string; xpub?: never } | { from?: never; xpub: string })): Promise<UnsignedTx> => {
-  const { recommendedSlippage: slippageTolerance = DEFAULT_SLIPPAGE } = quote
+  const { recommendedSlippage } = quote
+
+  const slippageTolerance =
+    recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain)
 
   const {
     buyAsset,

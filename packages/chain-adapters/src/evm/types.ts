@@ -9,14 +9,6 @@ export type Account = {
   tokens?: common.AssetBalance[]
 }
 
-// export type BuildCustomTxInput = {
-// accountNumber: number
-// to: string
-// data: string
-// value: string
-// gasLimit: string
-// } & Fees & { from?: string; wallet?: HDWallet }
-
 export type EvmFeesWithGasLimitAndNetworkFee = Fees & {
   gasLimit: string
   networkFeeCryptoBaseUnit?: string

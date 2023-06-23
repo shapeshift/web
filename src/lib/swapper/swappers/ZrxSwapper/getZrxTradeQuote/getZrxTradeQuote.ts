@@ -4,7 +4,10 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import { normalizeAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
+import {
+  getTreasuryAddressFromChainId,
+  normalizeAmount,
+} from 'lib/swapper/swappers/utils/helpers/helpers'
 import type { ZrxPriceResponse, ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/types'
 import {
   AFFILIATE_ADDRESS,
@@ -16,7 +19,6 @@ import {
   assetToToken,
   baseUrlFromChainId,
   getAdapter,
-  getTreasuryAddressForReceiveAsset,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
 import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
@@ -65,7 +67,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       takerAddress: receiveAddress,
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
       skipValidation: true,
-      feeRecipient: getTreasuryAddressForReceiveAsset(buyAsset.assetId), // Where affiliate fees are sent
+      feeRecipient: getTreasuryAddressFromChainId(buyAsset.chainId), // Where affiliate fees are sent
       buyTokenPercentageFee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
     },
   })

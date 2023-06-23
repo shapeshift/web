@@ -7,7 +7,10 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
-import { normalizeAmount } from 'lib/swapper/swappers/utils/helpers/helpers'
+import {
+  getTreasuryAddressFromChainId,
+  normalizeAmount,
+} from 'lib/swapper/swappers/utils/helpers/helpers'
 import type { ZrxQuoteResponse, ZrxTrade } from 'lib/swapper/swappers/ZrxSwapper/types'
 import { withAxiosRetry } from 'lib/swapper/swappers/ZrxSwapper/utils/applyAxiosRetry'
 import { AFFILIATE_ADDRESS, DEFAULT_SOURCE } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
@@ -16,7 +19,6 @@ import {
   assetToToken,
   baseUrlFromChainId,
   getAdapter,
-  getTreasuryAddressForReceiveAsset,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
 import { getApiFees } from 'lib/utils/evm'
@@ -73,7 +75,7 @@ export async function zrxBuildTrade(
   })
 
   const buyTokenPercentageFee = convertBasisPointsToDecimalPercentage(affiliateBps).toNumber()
-  const feeRecipient = getTreasuryAddressForReceiveAsset(buyAsset.assetId)
+  const feeRecipient = getTreasuryAddressFromChainId(buyAsset.chainId)
 
   // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-quote
   const maybeQuoteResponse = await zrxService.get<ZrxQuoteResponse>('/swap/v1/quote', {

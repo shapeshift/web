@@ -131,8 +131,10 @@ export const calcNetworkFeeCryptoBaseUnit = (args: CalcNetworkFeeCryptoBaseUnitA
 export const createBuildCustomTxInput = async (
   args: CreateBuildCustomTxInputArgs,
 ): Promise<
-  evm.BuildCustomTxInput & { networkFeeCryptoBaseUnit: string } & {
+  evm.BuildCustomTxInput & {
+    networkFeeCryptoBaseUnit: string
     chainSpecific: evm.BuildTxInput
+    from: string
   }
 > => {
   const { wallet, adapter, accountNumber, to, value, data } = args

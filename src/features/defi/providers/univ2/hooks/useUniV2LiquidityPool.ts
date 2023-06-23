@@ -422,12 +422,10 @@ export const useUniV2LiquidityPool = ({
       ])
 
       return getFees({
-        accountNumber,
         adapter,
         data,
         to: contract.address,
         value: '0',
-        wallet,
       })
     },
     [skip, accountNumber, adapter, wallet],
@@ -470,12 +468,10 @@ export const useUniV2LiquidityPool = ({
         ])
 
         return getFees({
-          accountNumber,
           adapter,
           data,
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
           value: toBaseUnit(ethAmount, weth.precision),
-          wallet,
         })
       } else {
         const accountAddress = fromAccountId(accountId).account
@@ -494,12 +490,10 @@ export const useUniV2LiquidityPool = ({
         ])
 
         return getFees({
-          accountNumber,
           adapter,
           data,
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
           value: '0',
-          wallet,
         })
       }
     },
@@ -533,12 +527,10 @@ export const useUniV2LiquidityPool = ({
       })
 
       return getFees({
-        accountNumber,
         adapter,
         data,
         to: fromAssetId(uniswapV2Router02AssetId).assetReference,
         value: '0',
-        wallet,
       })
     },
     [

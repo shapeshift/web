@@ -9,13 +9,22 @@ export type Account = {
   tokens?: common.AssetBalance[]
 }
 
+// export type BuildCustomTxInput = {
+// accountNumber: number
+// to: string
+// data: string
+// value: string
+// gasLimit: string
+// } & Fees & { from?: string; wallet?: HDWallet }
+
 export type BuildCustomTxInput = {
+  wallet: HDWallet
   accountNumber: number
   to: string
   data: string
   value: string
   gasLimit: string
-} & Fees & { from?: string; wallet?: HDWallet }
+} & Fees
 
 export type BuildTxInput = {
   // Optional hex-encoded calldata

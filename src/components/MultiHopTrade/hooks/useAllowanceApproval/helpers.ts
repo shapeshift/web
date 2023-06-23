@@ -82,7 +82,7 @@ export const getApprovalTxData = async (
   return {
     networkFeeCryptoBaseUnit,
     buildCustomTxInput: {
-      from,
+      wallet,
       accountNumber: tradeQuoteStep.accountNumber,
       data,
       to: assetReference,

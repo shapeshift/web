@@ -26,6 +26,7 @@ import type { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
 import type {
   Account,
+  BuildCustomApiTxInput,
   BuildSendTxInput,
   BuildSignTxInput,
   FeeDataEstimate,
@@ -576,12 +577,12 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     this.providers.ws.close('txs')
   }
 
-  async buildCustomTx(tx: BuildCustomTxInput): Promise<{ txToSign: SignTx<T> }> {
+  // builds a SignTx<T> using serializable input data
+  async buildCustomApiTx(input: BuildCustomApiTxInput): Promise<SignTx<T>> {
     try {
-      const { to, from, accountNumber, data, value } = tx
-      const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } = tx
+      const { to, from, accountNumber, data, value } = input
+      const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } = input
 
-      if (!from) throw new Error('from is required to build a custom Tx')
       const account = await this.getAccount(from)
 
       const fees: Fees =
@@ -604,12 +605,32 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         ...fees,
       } as SignTx<T>
 
-      return { txToSign }
+      return txToSign
     } catch (err) {
       return ErrorHandler(err)
     }
   }
 
+  async buildCustomTx(input: BuildCustomTxInput): Promise<{ txToSign: SignTx<T> }> {
+    const { wallet, accountNumber } = input
+    try {
+      if (!this.supportsChain(wallet))
+        throw new Error(`wallet does not support ${this.getDisplayName()}`)
+
+      await this.assertSwitchChain(wallet)
+
+      const from = await this.getAddress({ accountNumber, wallet })
+
+      const txToSign = await this.buildCustomApiTx({
+        ...input,
+        from,
+      })
+
+      return { txToSign }
+    } catch (err) {
+      return ErrorHandler(err)
+    }
+  }
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
     const { fast, average, slow } = await this.providers.http.getGasFees()
     return { fast, average, slow }

@@ -156,6 +156,8 @@ export type BuildSignTxInput<T extends KnownChainIds> = {
   memo?: string
 } & ChainSpecificBuildTxData<T>
 
+export type BuildCustomApiTxInput = Omit<evm.BuildCustomTxInput, 'wallet'> & { from: string }
+
 export type UtxoBuildSignTxInput = {
   to: string
   value: string

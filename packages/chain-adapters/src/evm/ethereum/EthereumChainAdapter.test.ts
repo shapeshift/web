@@ -454,7 +454,7 @@ describe('EthereumChainAdapter', () => {
 
       const tx = {
         accountNumber: 0,
-        wallet: await getWallet(),
+        wallet,
         value,
         chainSpecific: makeChainSpecific({ tokenContractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
@@ -730,8 +730,8 @@ describe('EthereumChainAdapter', () => {
       const adapter = new ethereum.ChainAdapter(args)
 
       const txArgs = {
+        wallet: await getWallet(),
         accountNumber: 0,
-        from: '0xfoobar',
         to: `0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F`,
         data: '0x420',
         value: '123',
@@ -770,8 +770,8 @@ describe('EthereumChainAdapter', () => {
       const adapter = new ethereum.ChainAdapter(args)
 
       const txArgs = {
+        wallet: await getWallet(),
         accountNumber: 0,
-        from: '0xfoobar',
         to: `0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F`,
         data: '0x420',
         value: '123',

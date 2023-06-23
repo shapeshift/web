@@ -128,15 +128,11 @@ export class FoxyApi {
       maxFeePerGas !== undefined &&
       maxPriorityFeePerGas !== undefined
 
-    const from = await this.adapter.getAddress({
-      accountNumber: payload.bip44Params.accountNumber,
-      wallet,
-    })
     const { txToSign } = await this.adapter.buildCustomTx({
       to: payload.to,
-      from,
       value: payload.value,
       gasLimit,
+      wallet,
       data: payload.data,
       accountNumber: payload.bip44Params.accountNumber,
       ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),

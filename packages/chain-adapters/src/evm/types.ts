@@ -19,7 +19,7 @@ export type Account = {
 
 export type EvmFeesWithGasLimitAndNetworkFee = Fees & {
   gasLimit: string
-  networkFeeCryptoBaseUnit: string
+  networkFeeCryptoBaseUnit?: string
 }
 
 export type BuildCustomTxInput = {

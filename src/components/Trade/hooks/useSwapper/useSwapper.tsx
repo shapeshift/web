@@ -331,8 +331,11 @@ export const useSwapper = () => {
         accountNumber: activeQuote.steps[0].accountNumber,
       })
 
+      // Only making types happy, this is actually guaranteed to be defined in this flow
+      if (!buildCustomTxInput.networkFeeCryptoBaseUnit)
+        throw new Error('networkFeeCryptoBaseUnit is required')
+
       return {
-        // @ts-ignore while we build:packages
         networkFeeCryptoBaseUnit: buildCustomTxInput.networkFeeCryptoBaseUnit,
         buildCustomTxInput,
       }

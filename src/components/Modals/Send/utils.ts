@@ -127,7 +127,7 @@ export const handleSend = async ({
 
     const chainId = adapter.getChainId()
 
-    const { estimatedFees, feeType, from, to, memo } = sendInput
+    const { estimatedFees, feeType, to, memo, from } = sendInput
 
     if (!accountMetadata)
       throw new Error(`useFormSend: no accountMetadata for ${sendInput.accountId}`)
@@ -176,8 +176,7 @@ export const handleSend = async ({
           )
         }
         const { accountNumber } = bip44Params
-        const utxoChainAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
-        return utxoChainAdapter.buildSendTransaction({
+        return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).buildSendTransaction({
           to,
           value,
           wallet,

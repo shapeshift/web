@@ -1,5 +1,8 @@
+import { thorchainChainId } from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+
 import { bn } from '../../../../bignumber/bignumber'
-import { normalizeAmount, normalizeIntegerAmount } from './helpers'
+import { getTreasuryAddressFromChainId, normalizeAmount, normalizeIntegerAmount } from './helpers'
 
 describe('utils', () => {
   describe('normalizeAmount', () => {
@@ -32,5 +35,13 @@ describe('normalizeIntegerAmount', () => {
 
     const result4 = normalizeIntegerAmount(586084736227728.3)
     expect(result4).toEqual('586084736227728')
+  })
+})
+
+describe('getTreasuryAddressFromChainId', () => {
+  it('throws for unsupported chains', () => {
+    expect(() => getTreasuryAddressFromChainId(thorchainChainId as EvmChainId)).toThrow(
+      '[getTreasuryAddressFromChainId] - Unsupported chainId',
+    )
   })
 })

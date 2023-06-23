@@ -4,15 +4,14 @@ import { Err, Ok } from '@sniptt/monads'
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { isNativeEvmAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
-import type { ZrxExecuteTradeInput } from 'lib/swapper/swappers/ZrxSwapper/types'
 import { buildAndBroadcast, createBuildCustomTxInput, getFees } from 'lib/utils/evm'
 
+import type { ZrxExecuteTradeInput } from '../types'
 import { getAdapter } from '../utils/helpers/helpers'
 
 export async function zrxExecuteTrade({
   trade,
   wallet,
-  from,
 }: ZrxExecuteTradeInput): Promise<Result<TradeResult, SwapErrorRight>> {
   const { accountNumber, depositAddress, sellAsset, txData } = trade
   const sellAmount = trade.sellAmountBeforeFeesCryptoBaseUnit
@@ -21,7 +20,13 @@ export async function zrxExecuteTrade({
   if (maybeAdapter.isErr()) return Err(maybeAdapter.unwrapErr())
   const adapter = maybeAdapter.unwrap()
 
-  const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+  const [from, supportsEIP1559] = await Promise.all([
+    adapter.getAddress({
+      wallet,
+      accountNumber,
+    }),
+    supportsETH(wallet) && (await wallet.ethSupportsEIP1559()),
+  ])
 
   const fees = await getFees({
     adapter,

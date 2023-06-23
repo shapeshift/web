@@ -39,5 +39,4 @@ export interface ZrxTrade extends Trade<ZrxSupportedChainId> {
 export type ZrxExecuteTradeInput = {
   trade: ZrxTrade
   wallet: HDWallet
-  from: string
 }

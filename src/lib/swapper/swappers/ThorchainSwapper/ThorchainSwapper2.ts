@@ -36,44 +36,46 @@ import { getSignTxFromQuote } from './utils/getSignTxFromQuote'
 // Gets a from address either
 // - derived from the input (for our own consumption with our AccountMetadata and ChainId structures)
 // - or simply falls the passed from address through, for external consumers
-type WithFromParams = {
-  chainId: ChainId
+
+type WithFromOrXpubParams = {
+  chainId?: ChainId
   accountMetadata?: AccountMetadata
   wallet?: HDWallet
   from?: string
+  xpub?: string
 }
 
-export const withFrom =
-  <T, P>(wrappedFunction: (params: P & { from: string | undefined }) => Promise<T>) =>
-  async (params: P & WithFromParams): Promise<T> => {
-    const { chainId, accountMetadata, from: inputFrom, wallet } = params
+const withFromOrXpub =
+  <T, P>(wrappedFunction: (params: P & { from?: string; xpub?: string }) => Promise<T>) =>
+  async (params: WithFromOrXpubParams & P): Promise<T> => {
+    const { chainId, accountMetadata, wallet, from: inputFrom, xpub: inputXpub } = params
 
-    let from: string | undefined
-    if (inputFrom) {
-      from = inputFrom
-    } else {
+    let from: string | undefined = inputFrom
+    let xpub: string | undefined = inputXpub
+
+    if (!from && !xpub) {
+      if (!wallet) throw new Error('Wallet required for getAddress and getPublicKey calls')
+
       const chainAdapterManager = getChainAdapterManager()
       if (!chainId) throw new Error('No chainId provided')
       const adapter = chainAdapterManager.get(chainId) as ChainAdapter<ThorChainId>
       if (!adapter) throw new Error(`No adapter for ChainId: ${chainId}`)
+
       const accountNumber = accountMetadata?.bip44Params?.accountNumber
       const accountType = accountMetadata?.accountType
 
-      from = await (async () => {
-        if (!wallet) throw new Error('Wallet required for adapter.getAddress() call')
-        if (!accountNumber) throw new Error('Account number required for adapter.getAddress() call')
-        if (!isUtxoChainId(chainId)) return adapter.getAddress({ wallet, accountNumber })
-        if (!accountType || !accountNumber) return undefined
-        const { xpub } = await (adapter as UtxoChainAdapter).getPublicKey(
-          wallet,
-          accountNumber,
-          accountType,
-        )
-        return xpub
-      })()
+      if (!accountNumber) throw new Error('Account number required')
+      if (isUtxoChainId(chainId)) {
+        if (!accountType) throw new Error('Account number required')
+        xpub = (
+          await (adapter as UtxoChainAdapter).getPublicKey(wallet, accountNumber, accountType)
+        ).xpub
+      } else {
+        from = await adapter.getAddress({ wallet, accountNumber })
+      }
     }
 
-    return wrappedFunction({ ...params, from })
+    return wrappedFunction({ ...params, from, xpub })
   }
 
 export const thorchain: Swapper2 = {
@@ -91,7 +93,7 @@ export const thorchain: Swapper2 = {
     })
   },
 
-  getUnsignedTx: withFrom(
+  getUnsignedTx: withFromOrXpub(
     async ({ accountMetadata, tradeQuote, from, xpub, supportsEIP1559 }): Promise<UnsignedTx> => {
       const { receiveAddress, affiliateBps } = tradeQuote
       const feeAsset = selectFeeAssetById(store.getState(), tradeQuote.steps[0].sellAsset.assetId)

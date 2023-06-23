@@ -6,7 +6,7 @@ import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import { getFees } from 'lib/utils/evm'
+import { getApiFees } from 'lib/utils/evm'
 import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
 
 import { DEFAULT_SLIPPAGE, DEFAULT_SOURCE } from '../utils/constants'
@@ -79,7 +79,7 @@ export const buildTrade = async (
   const adapter = maybeAdapter.unwrap()
 
   try {
-    const { networkFeeCryptoBaseUnit } = await getFees({
+    const { networkFeeCryptoBaseUnit } = await getApiFees({
       supportsEIP1559,
       from: receiveAddress,
       adapter,

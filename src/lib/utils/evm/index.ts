@@ -32,14 +32,12 @@ type BroadcastArgs = {
 type BuildAndBroadcastArgs = BuildArgs & Omit<BroadcastArgs, 'txToSign' | 'wallet'>
 
 type CreateBuildCustomTxInputArgs = {
+  accountNumber: number
   adapter: EvmChainAdapter
   to: string
   data: string
   value: string
-  accountNumber: number
   wallet: HDWallet
-} & {
-  chainSpecific: evm.BuildTxInput
 }
 
 type CreateSignTxInputArgs = {
@@ -82,7 +80,7 @@ type GetApiFeesArgs = Omit<GetFeesArgs, 'wallet'> & {
   supportsEIP1559: boolean
 }
 
-type Fees = evm.Fees & {
+export type Fees = evm.Fees & {
   gasLimit: string
   networkFeeCryptoBaseUnit: string
 }

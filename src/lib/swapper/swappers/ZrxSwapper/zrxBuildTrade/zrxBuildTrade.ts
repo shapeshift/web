@@ -19,7 +19,7 @@ import {
   getTreasuryAddressForReceiveAsset,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
-import { getFees } from 'lib/utils/evm'
+import { getApiFees } from 'lib/utils/evm'
 import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
 
 export async function zrxBuildTrade(
@@ -100,7 +100,7 @@ export async function zrxBuildTrade(
   )
   try {
     if (!from) throw new Error('sendAddress is required')
-    const { networkFeeCryptoBaseUnit } = await getFees({
+    const { networkFeeCryptoBaseUnit } = await getApiFees({
       supportsEIP1559,
       from,
       adapter,

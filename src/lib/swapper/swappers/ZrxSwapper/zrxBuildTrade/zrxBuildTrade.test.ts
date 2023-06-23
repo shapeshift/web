@@ -116,6 +116,9 @@ describe('zrxBuildTrade', () => {
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({ data })))
 
     const maybeBuiltTrade = await zrxBuildTrade({ ...buildTradeInput })
+    if (maybeBuiltTrade.isErr()) {
+      console.log({ errIs: maybeBuiltTrade.unwrapErr() })
+    }
     expect(maybeBuiltTrade.isOk()).toBe(true)
     expect(maybeBuiltTrade.unwrap()).toEqual({
       ...buildTradeResponse,

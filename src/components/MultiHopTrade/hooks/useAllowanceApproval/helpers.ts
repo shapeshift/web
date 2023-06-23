@@ -68,10 +68,8 @@ export const getApprovalTxData = async (
     accountNumber: tradeQuoteStep.accountNumber,
   })
 
-  const supportsEIP1559 = await (wallet as ETHWallet)?.ethSupportsEIP1559()
-
   const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
-    supportsEIP1559,
+    wallet,
     from,
     adapter,
     to: assetReference,

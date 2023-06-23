@@ -25,7 +25,6 @@ import {
   createBuildCustomTxInput,
   getApproveContractData,
   getErc20Allowance,
-  getFees,
 } from 'lib/utils/evm'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
@@ -323,32 +322,18 @@ export const useSwapper = () => {
         to: assetReference,
       })
 
-      const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
-      const from = await adapter.getAddress({
-        accountNumber: activeQuote.steps[0].accountNumber,
-        wallet,
-      })
-
-      const fees = await getFees({
-        adapter,
-        to: assetReference,
-        data,
-        value,
-        from,
-        supportsEIP1559,
-      })
-      const { networkFeeCryptoBaseUnit, ...buildCustomTxInput } = await createBuildCustomTxInput({
+      const buildCustomTxInput = await createBuildCustomTxInput({
         adapter,
         to: assetReference,
         value,
         data,
         wallet,
         accountNumber: activeQuote.steps[0].accountNumber,
-        chainSpecific: fees,
       })
 
       return {
-        networkFeeCryptoBaseUnit,
+        // @ts-ignore while we build:packages
+        networkFeeCryptoBaseUnit: buildCustomTxInput.networkFeeCryptoBaseUnit,
         buildCustomTxInput,
       }
     },

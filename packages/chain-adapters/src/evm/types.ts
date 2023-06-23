@@ -17,6 +17,11 @@ export type Account = {
 // gasLimit: string
 // } & Fees & { from?: string; wallet?: HDWallet }
 
+export type EvmFeesWithGasLimitAndNetworkFee = Fees & {
+  gasLimit: string
+  networkFeeCryptoBaseUnit: string
+}
+
 export type BuildCustomTxInput = {
   wallet: HDWallet
   accountNumber: number
@@ -24,7 +29,7 @@ export type BuildCustomTxInput = {
   data: string
   value: string
   gasLimit: string
-} & Fees
+} & EvmFeesWithGasLimitAndNetworkFee
 
 export type BuildTxInput = {
   // Optional hex-encoded calldata

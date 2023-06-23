@@ -19,6 +19,7 @@ jest.mock('../utils/oneInchService', () => {
 })
 
 jest.mock('lib/utils/evm', () => ({
+  getApiFees: () => ({ networkFeeCryptoBaseUnit: '32388859301500' }),
   getFees: () => ({ networkFeeCryptoBaseUnit: '32388859301500' }),
 }))
 

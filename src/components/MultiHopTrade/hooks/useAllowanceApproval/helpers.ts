@@ -68,7 +68,7 @@ export const getApprovalTxData = async (
     accountNumber: tradeQuoteStep.accountNumber,
   })
 
-  const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
+  const fees = await getFees({
     wallet,
     from,
     adapter,
@@ -78,7 +78,7 @@ export const getApprovalTxData = async (
   })
 
   return {
-    networkFeeCryptoBaseUnit,
+    networkFeeCryptoBaseUnit: fees.networkFeeCryptoBaseUnit,
     buildCustomTxInput: {
       wallet,
       accountNumber: tradeQuoteStep.accountNumber,

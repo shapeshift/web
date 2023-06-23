@@ -20,7 +20,29 @@ export function defaultBrowserLanguage(): string {
   return locale
 }
 
+function getPreferredLanguageMaybeWithRegion(): string {
+  const languages = window?.navigator?.languages ?? [navigator?.language]
+
+  if (languages.length === 0) {
+    return 'en-US' // Return a default language-region if there is no preference
+  }
+
+  const [baseLanguage, region] = languages[0].split('-')
+
+  if (region) {
+    return languages[0] // If the first language has a regional code, return it
+  }
+
+  // Otherwise, look for a language with the same base language and a regional code
+  const languageWithRegion = languages.slice(1).find(lang => {
+    const [otherBaseLanguage, otherRegion] = lang.split('-')
+    return otherBaseLanguage === baseLanguage && otherRegion
+  })
+
+  return languageWithRegion ?? baseLanguage // If none was found, return the base language
+}
+
 export function defaultBrowserCurrencyFormat(): CurrencyFormats | string {
-  const userLocale = window?.navigator?.languages?.[0] ?? navigator?.language
+  const userLocale = getPreferredLanguageMaybeWithRegion()
   return userLocale ? userLocale : CurrencyFormats.CommaDecimal
 }

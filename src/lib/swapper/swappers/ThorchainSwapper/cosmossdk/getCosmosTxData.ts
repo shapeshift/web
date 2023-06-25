@@ -49,10 +49,15 @@ export const getCosmosTxData = async (
   } = input
   const fromThorAsset = sellAsset.chainId === KnownChainIds.ThorchainMainnet
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-  const maybeGaiaAddressData = await getInboundAddressDataForChain(daemonUrl, cosmosAssetId)
-  if (maybeGaiaAddressData.isErr()) return Err(maybeGaiaAddressData.unwrapErr())
-  const gaiaAddressData = maybeGaiaAddressData.unwrap()
-  const vault = gaiaAddressData.address
+  const maybeVault = await (async () => {
+    if (fromThorAsset) return Ok(undefined)
+    const maybeGaiaAddressData = await getInboundAddressDataForChain(daemonUrl, cosmosAssetId)
+    if (maybeGaiaAddressData.isErr()) return Err(maybeGaiaAddressData.unwrapErr())
+    const gaiaAddressData = maybeGaiaAddressData.unwrap()
+    return Ok(gaiaAddressData.address)
+  })()
+
+  const vault = maybeVault.unwrap()
 
   if (!vault && !fromThorAsset)
     return Err(

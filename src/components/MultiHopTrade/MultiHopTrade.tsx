@@ -17,6 +17,7 @@ import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { TradeQuotes } from 'components/MultiHopTrade/components/TradeQuotes/TradeQuotes'
+import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes'
 import { useSelectedQuoteStatus } from 'components/MultiHopTrade/hooks/useSelectedQuoteStatus'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -29,10 +30,14 @@ import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { fromBaseUnit } from 'lib/math'
+import { SwapperName } from 'lib/swapper/api'
 import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
   selectNetReceiveAmountCryptoPrecision,
+  selectSelectedQuote,
+  selectSelectedQuoteError,
+  selectSelectedSwapperName,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalProtocolFeeByAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -42,10 +47,10 @@ import { breakpoints } from 'theme/theme'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
 import { useAccountIds } from './hooks/useAccountIds'
-import { useGetTradeQuotes } from './hooks/useGetTradeQuotes'
 import { useSupportedAssets } from './hooks/useSupportedAssets'
 
 export const MultiHopTrade = (props: CardProps) => {
+  useGetTradeQuotes()
   const {
     state: { wallet },
   } = useWallet()
@@ -76,17 +81,10 @@ export const MultiHopTrade = (props: CardProps) => {
   )
 
   const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
-  const { selectedQuote } = useGetTradeQuotes()
-
-  const isLoading = useMemo(() => selectedQuote?.isLoading, [selectedQuote?.isLoading])
-  const quoteData = useMemo(
-    () => (selectedQuote?.data?.isOk() ? selectedQuote.data.unwrap() : undefined),
-    [selectedQuote?.data],
-  )
-  const errorData = useMemo(
-    () => (selectedQuote?.data?.isErr() ? selectedQuote.data.unwrapErr() : undefined),
-    [selectedQuote?.data],
-  )
+  const selectedSwapperName = useAppSelector(selectSelectedSwapperName)
+  const selectedQuote = useAppSelector(selectSelectedQuote)
+  const selectedQuoteError = useAppSelector(selectSelectedQuoteError)
+  const isLoading = false // fixme
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds({
@@ -116,10 +114,10 @@ export const MultiHopTrade = (props: CardProps) => {
   }, [assetSearch, setBuyAsset, supportedBuyAssets])
 
   const buyAmountBeforeFeesCryptoPrecision = useMemo(() => {
-    if (!quoteData) return '0'
-    const lastStep = quoteData.steps[quoteData.steps.length - 1]
+    if (!selectedQuote) return '0'
+    const lastStep = selectedQuote.steps[selectedQuote.steps.length - 1]
     return fromBaseUnit(lastStep.buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
-  }, [buyAsset.precision, quoteData])
+  }, [buyAsset.precision, selectedQuote])
 
   const quoteHasError = useMemo(() => {
     return selectedQuoteStatus.validationErrors.length > 0
@@ -127,7 +125,12 @@ export const MultiHopTrade = (props: CardProps) => {
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
-      {quoteData && <TradeConfirm tradeQuote={quoteData} swapperName={selectedQuote.swapperName} />}
+      {selectedQuote && (
+        <TradeConfirm
+          tradeQuote={selectedQuote}
+          swapperName={selectedSwapperName ?? SwapperName.Thorchain}
+        /> // fixme
+      )}
       <Card flex={1} {...props}>
         <FormProvider {...methods}>
           <SlideTransition>
@@ -187,7 +190,7 @@ export const MultiHopTrade = (props: CardProps) => {
                   showFiatSkeleton={isLoading}
                   label={translate('trade.youGet')}
                   rightRegion={
-                    quoteData ? (
+                    selectedQuote ? (
                       <IconButton
                         size='sm'
                         icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
@@ -199,7 +202,7 @@ export const MultiHopTrade = (props: CardProps) => {
                     )
                   }
                 >
-                  {quoteData && <TradeQuotes isOpen={showTradeQuotes} />}
+                  {selectedQuote && <TradeQuotes isOpen={showTradeQuotes} />}
                 </TradeAssetInput>
               </Stack>
               <Stack
@@ -215,9 +218,9 @@ export const MultiHopTrade = (props: CardProps) => {
                   gasFee={'0'}
                   rate={undefined}
                   isLoading={isLoading}
-                  isError={errorData !== undefined}
+                  isError={selectedQuoteError !== undefined}
                 />
-                {selectedQuote && quoteData ? (
+                {selectedQuote ? (
                   <ReceiveSummary
                     isLoading={isLoading}
                     symbol={buyAsset.symbol}
@@ -226,10 +229,10 @@ export const MultiHopTrade = (props: CardProps) => {
                     protocolFees={totalProtocolFees}
                     shapeShiftFee='0'
                     slippage={
-                      quoteData.recommendedSlippage ??
-                      getDefaultSlippagePercentageForSwapper(selectedQuote.swapperName)
+                      selectedQuote.recommendedSlippage ??
+                      getDefaultSlippagePercentageForSwapper(selectedSwapperName)
                     }
-                    swapperName={selectedQuote.swapperName}
+                    swapperName={selectedSwapperName ?? ''}
                   />
                 ) : null}
               </Stack>

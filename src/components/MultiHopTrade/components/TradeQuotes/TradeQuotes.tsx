@@ -1,6 +1,8 @@
 import { Collapse, Flex } from '@chakra-ui/react'
-import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes'
+import { selectQuotes, selectSelectedSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from 'state/store'
 
+import type { TradeQuoteLoadedProps } from './TradeQuote'
 import { TradeQuote } from './TradeQuote'
 
 type TradeQuotesProps = {
@@ -8,17 +10,24 @@ type TradeQuotesProps = {
 }
 
 export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen }) => {
-  const { selectedQuote, sortedQuotes } = useGetTradeQuotes()
+  const sortedQuotes = useAppSelector(selectQuotes)
+  const activeSwapperName = useAppSelector(selectSelectedSwapperName)
 
-  const activeSwapperName = selectedQuote?.swapperName
-  const bestQuoteData = sortedQuotes[0]
+  const bestQuoteData = sortedQuotes?.[0]
 
-  const quotes = sortedQuotes.map((quoteData, i) => {
-    const { data, swapperName } = quoteData
-    const quote = data?.isOk() ? data.unwrap() : undefined
+  const quotes = sortedQuotes?.map((apiQuote, i) => {
+    const { quote, swapperName, inputOutputRatio, error } = apiQuote
+
+    const quoteDataShim: TradeQuoteLoadedProps['quoteData'] = {
+      isLoading: false,
+      quote,
+      error,
+      swapperName,
+      inputOutputRatio,
+    }
 
     // TODO(woodenfurniture): we may want to display per-swapper errors here
-    if (!quote) return null
+    if (!quote || !bestQuoteData) return null
 
     // TODO(woodenfurniture): use quote ID when we want to support multiple quotes per swapper
     const isActive = activeSwapperName === swapperName
@@ -28,8 +37,8 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen }) => {
         isActive={isActive}
         isBest={i === 0}
         key={swapperName}
-        quoteData={quoteData}
-        bestInputOutputRatio={bestQuoteData.inputOutputRatio}
+        quoteData={quoteDataShim}
+        bestInputOutputRatio={bestQuoteData?.inputOutputRatio}
       />
     )
   })

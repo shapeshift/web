@@ -1,5 +1,4 @@
 import { Flex, Skeleton, SkeletonCircle, Stack, Tag, useColorModeValue } from '@chakra-ui/react'
-import type { Result } from '@sniptt/monads/build'
 import { useCallback, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -57,13 +56,13 @@ const TradeQuoteLoading = () => {
   )
 }
 
-type TradeQuoteLoadedProps = {
+export type TradeQuoteLoadedProps = {
   isActive: boolean
   isBest: boolean
   quoteData: {
     isLoading: boolean
-    data: Result<TradeQuote2, SwapErrorRight> | undefined
-    error: unknown
+    quote: TradeQuote2 | undefined
+    error: SwapErrorRight | undefined
     swapperName: SwapperName
     inputOutputRatio: number
   }
@@ -93,13 +92,9 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const networkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeFiatPrecision)
   const totalReceiveAmountCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
 
-  const quote = quoteData?.data?.isOk() ? quoteData.data.unwrap() : undefined
-
   const handleQuoteSelection = useCallback(() => {
     dispatch(tradeQuoteSlice.actions.setSwapperName(quoteData.swapperName))
-    dispatch(tradeQuoteSlice.actions.setQuote(quote))
-    dispatch(tradeQuoteSlice.actions.setError(undefined))
-  }, [dispatch, quote, quoteData.swapperName])
+  }, [dispatch, quoteData.swapperName])
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset?.chainId ?? ''))
   if (!feeAsset)

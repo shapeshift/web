@@ -4,9 +4,10 @@ import type { Selector } from 'reselect'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, TradeQuote } from 'lib/swapper/api'
+import type { ProtocolFee, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
+import type { ApiQuote } from 'state/apis/swappers'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
@@ -20,12 +21,26 @@ import {
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 
-// TODO(apotheosis): Cache based on quote ID
-export const selectSelectedQuote: Selector<ReduxState, TradeQuote | undefined> =
-  createDeepEqualOutputSelector(selectTradeQuoteSlice, swappers => swappers.quote)
-
 export const selectSelectedSwapperName: Selector<ReduxState, SwapperName | undefined> =
   createSelector(selectTradeQuoteSlice, swappers => swappers.swapperName)
+
+export const selectQuotes: Selector<ReduxState, ApiQuote[] | undefined> =
+  createDeepEqualOutputSelector(selectTradeQuoteSlice, swappers => swappers.quotes)
+
+export const selectSelectedQuoteApiResponse: Selector<ReduxState, ApiQuote | undefined> =
+  createDeepEqualOutputSelector(
+    selectQuotes,
+    selectSelectedSwapperName,
+    (quotes, selectedSwapperName) =>
+      quotes?.find(quote => quote.swapperName === selectedSwapperName),
+  )
+
+// TODO(apotheosis): Cache based on quote ID
+export const selectSelectedQuote: Selector<ReduxState, TradeQuote | undefined> =
+  createDeepEqualOutputSelector(selectSelectedQuoteApiResponse, response => response?.quote)
+
+export const selectSelectedQuoteError: Selector<ReduxState, SwapErrorRight | undefined> =
+  createDeepEqualOutputSelector(selectSelectedQuoteApiResponse, response => response?.error)
 
 /*
   Cross-account trading means trades that are either:

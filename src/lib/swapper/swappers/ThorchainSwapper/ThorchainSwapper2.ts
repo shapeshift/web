@@ -10,6 +10,7 @@ import type {
   UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type {
@@ -173,11 +174,29 @@ export const thorchain: Swapper2 = {
     }
   },
 
-  checkTradeStatus: async (txId: string): Promise<{ isComplete: boolean; message?: string }> => {
+  checkTradeStatus: async (
+    tradeId: string,
+  ): Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }> => {
     const thorchainSwapper = new ThorchainSwapper()
-    const txsResult = await thorchainSwapper.getTradeTxs({ tradeId: txId })
+    const txsResult = await thorchainSwapper.getTradeTxs({ tradeId })
+
+    const status = (() => {
+      switch (true) {
+        case txsResult.isOk() && !!txsResult.unwrap().buyTxid:
+          return TxStatus.Confirmed
+        case txsResult.isOk() && !txsResult.unwrap().buyTxid:
+          return TxStatus.Pending
+        case txsResult.isErr():
+          return TxStatus.Failed
+        default:
+          return TxStatus.Unknown
+      }
+    })()
+
     return {
-      isComplete: txsResult.isOk() && !!txsResult.unwrap().buyTxid,
+      buyTxId: txsResult.isOk() ? txsResult.unwrap().buyTxid : undefined,
+      status,
+      message: undefined,
     }
   },
 

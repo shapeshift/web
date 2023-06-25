@@ -78,7 +78,7 @@ export const thorchain: Swapper2 = {
           }
         : undefined
 
-    const fromOrXpub = from ? { from } : { xpub: xpub! }
+    const fromOrXpub = from !== undefined ? { from } : { xpub }
     return await getSignTxFromQuote({
       tradeQuote,
       receiveAddress,

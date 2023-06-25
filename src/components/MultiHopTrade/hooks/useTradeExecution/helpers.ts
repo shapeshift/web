@@ -2,6 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { FromOrXpub } from 'lib/swapper/api'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
@@ -13,9 +14,7 @@ export type WithFromOrXpubParams = {
 
 // Gets a from address / xpub depending on the chain
 export const withFromOrXpub =
-  <T, P extends { from: string } | { xpub: string }>(
-    wrappedFunction: (fnParams: P) => Promise<T>,
-  ) =>
+  <T, P extends FromOrXpub>(wrappedFunction: (fnParams: P) => Promise<T>) =>
   async (
     { chainId, accountMetadata, wallet }: WithFromOrXpubParams,
     fnParams: Omit<P, 'from' | 'xpub'>,

@@ -286,13 +286,15 @@ export type UnsignedTx = SignTx<keyof ChainSignTx>
 
 export type TradeQuote2 = TradeQuote & { id: string; receiveAddress: string; affiliateBps: string }
 
+export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
+
 export type GetUnsignedTxArgs = {
   tradeQuote: TradeQuote2
   chainId: ChainId
   accountMetadata?: AccountMetadata
   stepIndex: number
   supportsEIP1559: boolean
-} & ({ from: string; xpub?: never } | { from?: never; xpub: string })
+} & FromOrXpub
 
 export type ExecuteTradeArgs = {
   txToSign: UnsignedTx

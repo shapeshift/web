@@ -12,8 +12,9 @@ import { assertUnreachable, isEvmChainAdapter } from 'lib/utils'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { TRADE_POLL_INTERVAL_MILLISECONDS } from './constants'
-import { useAccountIds } from './useAccountIds'
+import { TRADE_POLL_INTERVAL_MILLISECONDS } from '../constants'
+import { useAccountIds } from '../useAccountIds'
+import { withFromOrXpub } from './helpers'
 
 export const useTradeExecution = ({
   swapperName,
@@ -77,7 +78,7 @@ export const useTradeExecution = ({
     const from = await sellAssetChainAdapter.getAddress({ wallet, accountNumber })
     const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
-    const unsignedTxResult = await swapper.getUnsignedTx({
+    const unsignedTxResult = await withFromOrXpub(swapper.getUnsignedTx)({
       from,
       tradeQuote,
       chainId,

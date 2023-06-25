@@ -6,49 +6,38 @@ import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSlice
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
 export type WithFromOrXpubParams = {
-  chainId?: ChainId
-  accountMetadata?: AccountMetadata
-  wallet?: HDWallet
-  from?: string
-  xpub?: string
+  chainId: ChainId
+  accountMetadata: AccountMetadata
+  wallet: HDWallet
 }
 
-// Gets a from address either
-// - derived from the input (for our own consumption with our AccountMetadata and ChainId structures)
-// - or simply falls the passed from address through, for external consumers
+// Gets a from address / xpub depending on the chain
 export const withFromOrXpub =
-  <T, P>(wrappedFunction: (params: P & { from?: string; xpub?: string }) => Promise<T>) =>
-  async (params: WithFromOrXpubParams & P): Promise<T> => {
-    const { chainId, accountMetadata, wallet, from: inputFrom, xpub: inputXpub } = params
+  <T, P extends { from: string } | { xpub: string }>(
+    wrappedFunction: (fnParams: P) => Promise<T>,
+  ) =>
+  async (
+    { chainId, accountMetadata, wallet }: WithFromOrXpubParams,
+    fnParams: Omit<P, 'from' | 'xpub'>,
+  ): Promise<T> => {
+    const chainAdapterManager = getChainAdapterManager()
+    const adapter = chainAdapterManager.get(chainId)
+    if (!adapter) throw new Error(`No adapter for ChainId: ${chainId}`)
 
-    let from: string | undefined = inputFrom
-    let xpub: string | undefined = inputXpub
+    const accountNumber = accountMetadata.bip44Params.accountNumber
 
-    if (!from && !xpub) {
-      if (!wallet) throw new Error('Wallet required for getAddress and getPublicKey calls')
+    if (isUtxoChainId(chainId)) {
+      const accountType = accountMetadata.accountType
+      if (!accountType) throw new Error('Account number required')
+      const { xpub } = await (adapter as unknown as UtxoChainAdapter).getPublicKey(
+        wallet,
+        accountNumber,
+        accountType,
+      )
 
-      const chainAdapterManager = getChainAdapterManager()
-      if (!chainId) throw new Error('No chainId provided')
-      const adapter = chainAdapterManager.get(chainId)
-      if (!adapter) throw new Error(`No adapter for ChainId: ${chainId}`)
-
-      const accountNumber = accountMetadata?.bip44Params?.accountNumber
-      const accountType = accountMetadata?.accountType
-
-      if (!accountNumber) throw new Error('Account number required')
-      if (isUtxoChainId(chainId)) {
-        if (!accountType) throw new Error('Account number required')
-        xpub = (
-          await (adapter as unknown as UtxoChainAdapter).getPublicKey(
-            wallet,
-            accountNumber,
-            accountType,
-          )
-        ).xpub
-      } else {
-        from = await adapter.getAddress({ wallet, accountNumber })
-      }
+      return wrappedFunction({ ...fnParams, xpub } as P)
     }
 
-    return wrappedFunction({ ...params, from, xpub })
+    const from = await adapter.getAddress({ wallet, accountNumber })
+    return wrappedFunction({ ...fnParams, from } as P)
   }

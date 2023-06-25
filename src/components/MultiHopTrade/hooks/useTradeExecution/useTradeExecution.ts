@@ -1,4 +1,4 @@
-import { supportsETH, supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -34,17 +34,13 @@ export const useTradeExecution = ({
     sellAsset: tradeQuote.steps[0].sellAsset,
   })
 
-  const sellAccountMetadata = useAppSelector(state =>
+  const accountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: sellAssetAccountId }),
   )
 
   const executeTrade = useCallback(async () => {
     if (!wallet) throw Error('missing wallet')
-    if (!sellAccountMetadata) throw Error('missing sellAccountMetadata')
-
-    const {
-      bip44Params: { accountNumber },
-    } = sellAccountMetadata
+    if (!accountMetadata) throw Error('missing accountMetadata')
 
     const swapper: Swapper2 = (() => {
       switch (swapperName) {
@@ -70,22 +66,26 @@ export const useTradeExecution = ({
 
     if (!sellAssetChainAdapter) throw Error(`missing sellAssetChainAdapter for chainId ${chainId}`)
 
-    if (isEvmChainAdapter(sellAssetChainAdapter)) {
-      if (!supportsEthSwitchChain(wallet)) throw Error(`wallet cannot switch to chainId ${chainId}`)
+    if (isEvmChainAdapter(sellAssetChainAdapter) && supportsETH(wallet)) {
       await sellAssetChainAdapter.assertSwitchChain(wallet)
     }
 
-    const from = await sellAssetChainAdapter.getAddress({ wallet, accountNumber })
     const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
-    const unsignedTxResult = await withFromOrXpub(swapper.getUnsignedTx)({
-      from,
-      tradeQuote,
-      chainId,
-      accountMetadata: sellAccountMetadata,
-      stepIndex,
-      supportsEIP1559,
-    })
+    const unsignedTxResult = await withFromOrXpub(swapper.getUnsignedTx)(
+      {
+        wallet,
+        chainId,
+        accountMetadata,
+      },
+      {
+        tradeQuote,
+        chainId,
+        accountMetadata,
+        stepIndex,
+        supportsEIP1559,
+      },
+    )
 
     const sellTxId = await swapper.executeTrade({
       txToExecute: unsignedTxResult,
@@ -109,7 +109,7 @@ export const useTradeExecution = ({
       interval: TRADE_POLL_INTERVAL_MILLISECONDS,
       maxAttempts: Infinity,
     })
-  }, [poll, sellAccountMetadata, swapperName, tradeQuote, wallet])
+  }, [poll, accountMetadata, swapperName, tradeQuote, wallet])
 
   return { executeTrade, sellTxId, buyTxId, message, status }
 }

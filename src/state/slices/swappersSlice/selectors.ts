@@ -2,11 +2,13 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
+import { selectWalletAccountIds } from '../common-selectors'
 import { selectCryptoMarketData } from '../marketDataSlice/selectors'
+import { selectPortfolioAssetAccountBalancesSortedFiat } from '../portfolioSlice/selectors'
 import {
-  selectFirstAccountIdByChainId,
-  selectHighestFiatBalanceAccountByAssetId,
-} from '../portfolioSlice/selectors'
+  getFirstAccountIdByChainId,
+  getHighestFiatBalanceAccountByAssetId,
+} from '../portfolioSlice/utils'
 
 const selectSwappers = (state: ReduxState) => state.swappers
 
@@ -20,29 +22,43 @@ export const selectSellAsset = createDeepEqualOutputSelector(
   swappers => swappers.sellAsset,
 )
 
-export const selectSellAssetAccountId = createSelector(
-  (state: ReduxState) => state,
+// selects the account ID we're selling from
+// note lack of "asset" and "hop" vernacular - this is deliberate
+export const selectSellAccountId = createSelector(
   selectSwappers,
   selectSellAsset,
-  (state, swappers, sellAsset) => {
-    const highestFiatBalanceSellAccountId = selectHighestFiatBalanceAccountByAssetId(state, {
-      assetId: sellAsset?.assetId,
-    })
-    const firstSellAssetAccountId = selectFirstAccountIdByChainId(state, sellAsset?.chainId ?? '')
-    return swappers.sellAssetAccountId ?? highestFiatBalanceSellAccountId ?? firstSellAssetAccountId
+  selectPortfolioAssetAccountBalancesSortedFiat,
+  selectWalletAccountIds,
+  (swappers, sellAsset, accountIdAssetValues, accountIds) => {
+    if (swappers.sellAssetAccountId) return swappers.sellAssetAccountId
+
+    const highestFiatBalanceSellAccountId = getHighestFiatBalanceAccountByAssetId(
+      accountIdAssetValues,
+      sellAsset.assetId,
+    )
+    const firstSellAssetAccountId = getFirstAccountIdByChainId(accountIds, sellAsset.chainId)
+
+    return highestFiatBalanceSellAccountId ?? firstSellAssetAccountId
   },
 )
 
-export const selectBuyAssetAccountId = createSelector(
-  (state: ReduxState) => state,
+// selects the account ID we're buying into
+// note lack of "asset" and "hop" vernacular - this is deliberate
+export const selectBuyAccountId = createSelector(
   selectSwappers,
   selectBuyAsset,
-  (state, swappers, buyAsset) => {
-    const highestFiatBalanceBuyAccountId = selectHighestFiatBalanceAccountByAssetId(state, {
-      assetId: buyAsset?.assetId,
-    })
-    const firstBuyAssetAccountId = selectFirstAccountIdByChainId(state, buyAsset?.chainId ?? '')
-    return swappers.buyAssetAccountId ?? highestFiatBalanceBuyAccountId ?? firstBuyAssetAccountId
+  selectPortfolioAssetAccountBalancesSortedFiat,
+  selectWalletAccountIds,
+  (swappers, buyAsset, accountIdAssetValues, accountIds) => {
+    if (swappers.buyAssetAccountId) return swappers.buyAssetAccountId
+
+    const highestFiatBalanceBuyAccountId = getHighestFiatBalanceAccountByAssetId(
+      accountIdAssetValues,
+      buyAsset.assetId,
+    )
+    const firstBuyAssetAccountId = getFirstAccountIdByChainId(accountIds, buyAsset.chainId)
+
+    return highestFiatBalanceBuyAccountId ?? firstBuyAssetAccountId
   },
 )
 

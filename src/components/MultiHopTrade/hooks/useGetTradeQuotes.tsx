@@ -12,13 +12,13 @@ import { isSkipToken } from 'lib/utils'
 import { useGetLifiTradeQuoteQuery } from 'state/apis/swappers/lifiSwapperApi'
 import { useGetThorTradeQuoteQuery } from 'state/apis/swappers/thorSwapperApi'
 import {
+  selectBuyAccountId,
   selectBuyAsset,
-  selectBuyAssetAccountId,
   selectFeatureFlags,
   selectPortfolioAccountMetadataByAccountId,
+  selectSellAccountId,
   selectSellAmountCryptoPrecision,
   selectSellAsset,
-  selectSellAssetAccountId,
 } from 'state/slices/selectors'
 import {
   getInputOutputRatioFromQuote,
@@ -40,18 +40,18 @@ export const useGetTradeQuotes = () => {
   const receiveAddress = useReceiveAddress()
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
-  const sellAssetAccountId = useAppSelector(selectSellAssetAccountId)
-  const buyAssetAccountId = useAppSelector(selectBuyAssetAccountId)
+  const sellAccountId = useAppSelector(selectSellAccountId)
+  const buyAccountId = useAppSelector(selectBuyAccountId)
   const isCrossAccountTrade = useMemo(
-    () => sellAssetAccountId !== buyAssetAccountId,
-    [buyAssetAccountId, sellAssetAccountId],
+    () => sellAccountId !== buyAccountId,
+    [buyAccountId, sellAccountId],
   )
 
   const sellAccountMetadata = useMemo(() => {
     return selectPortfolioAccountMetadataByAccountId(store.getState(), {
-      accountId: sellAssetAccountId,
+      accountId: sellAccountId,
     })
-  }, [sellAssetAccountId])
+  }, [sellAccountId])
 
   useEffect(() => {
     if (wallet && sellAccountMetadata && receiveAddress) {

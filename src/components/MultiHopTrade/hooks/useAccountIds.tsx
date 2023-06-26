@@ -1,6 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
-import { selectBuyAssetAccountId, selectSellAssetAccountId } from 'state/slices/selectors'
+import { selectBuyAccountId, selectSellAccountId } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -11,8 +11,8 @@ export const useAccountIds = (): {
   setSellAssetAccountId: (accountId: AccountId) => void
 } => {
   const dispatch = useAppDispatch()
-  const sellAssetAccountId = useAppSelector(selectSellAssetAccountId)
-  const buyAssetAccountId = useAppSelector(selectBuyAssetAccountId)
+  const sellAssetAccountId = useAppSelector(selectSellAccountId)
+  const buyAssetAccountId = useAppSelector(selectBuyAccountId)
 
   const setSellAssetAccountId = useCallback(
     (accountId: AccountId | undefined) =>

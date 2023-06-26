@@ -11,7 +11,7 @@ type TradeQuotesProps = {
 }
 
 export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, sortedQuotes }) => {
-  const selectedSwapperName = useAppSelector(selectSelectedSwapperName)
+  const activeSwapperName = useAppSelector(selectSelectedSwapperName)
 
   const bestQuoteData = sortedQuotes[0]
 
@@ -23,7 +23,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, sortedQuotes }
     if (!quote) return null
 
     // TODO(woodenfurniture): use quote ID when we want to support multiple quotes per swapper
-    const isActive = selectedSwapperName === swapperName
+    const isActive = activeSwapperName === swapperName
 
     return (
       <TradeQuote

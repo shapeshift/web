@@ -3,7 +3,7 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/common-selectors'
-import { selectBuyAssetAccountId, selectSellAssetAccountId } from 'state/slices/selectors'
+import { selectSellAccountId } from 'state/slices/selectors'
 import {
   selectFirstHopSellAsset,
   selectFirstHopSellFeeAsset,
@@ -13,20 +13,25 @@ import { useAppSelector } from 'state/store'
 
 export const useHopHelper = () => {
   const firstHopSellAsset = useAppSelector(selectFirstHopSellAsset)
+
+  // the network fee asset for the first hop in the trade
   const firstHopSellFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
+
+  // the network fee asset for the last hop in the trade
   const lastHopSellFeeAsset = useAppSelector(selectLastHopSellFeeAsset)
 
-  const sellAssetAccountId = useAppSelector(selectSellAssetAccountId)
-  const buyAssetAccountId = useAppSelector(selectBuyAssetAccountId)
+  // this is the account we're selling from - in this implementation, network fees are always paid
+  // from the sell account regardless of how many hops we have (TODO: logic for osmo fees though)
+  const sellAccountId = useAppSelector(selectSellAccountId)
 
   const firstHopFeeAssetBalanceFilter = useMemo(
-    () => ({ assetId: firstHopSellFeeAsset?.assetId, accountId: sellAssetAccountId ?? '' }),
-    [sellAssetAccountId, firstHopSellFeeAsset?.assetId],
+    () => ({ assetId: firstHopSellFeeAsset?.assetId, accountId: sellAccountId ?? '' }),
+    [sellAccountId, firstHopSellFeeAsset?.assetId],
   )
 
   const lastHopFeeAssetBalanceFilter = useMemo(
-    () => ({ assetId: lastHopSellFeeAsset?.assetId, accountId: sellAssetAccountId ?? '' }),
-    [sellAssetAccountId, lastHopSellFeeAsset?.assetId],
+    () => ({ assetId: lastHopSellFeeAsset?.assetId, accountId: sellAccountId ?? '' }),
+    [sellAccountId, lastHopSellFeeAsset?.assetId],
   )
 
   const firstHopFeeAssetBalancePrecision = useAppSelector(s =>
@@ -38,8 +43,8 @@ export const useHopHelper = () => {
   )
 
   const sellAssetBalanceFilter = useMemo(
-    () => ({ accountId: buyAssetAccountId, assetId: firstHopSellAsset?.assetId ?? '' }),
-    [buyAssetAccountId, firstHopSellAsset?.assetId],
+    () => ({ accountId: sellAccountId, assetId: firstHopSellAsset?.assetId ?? '' }),
+    [sellAccountId, firstHopSellAsset?.assetId],
   )
 
   const sellAssetBalanceCryptoBaseUnit = useAppSelector(state =>

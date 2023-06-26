@@ -5,7 +5,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
-import { selectBuyAsset, selectBuyAssetAccountId } from 'state/slices/swappersSlice/selectors'
+import { selectBuyAccountId, selectBuyAsset } from 'state/slices/swappersSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const useReceiveAddress = () => {
@@ -17,19 +17,19 @@ export const useReceiveAddress = () => {
 
   // Selectors
   const buyAsset = useAppSelector(selectBuyAsset)
-  const buyAssetAccountId = useAppSelector(selectBuyAssetAccountId)
+  const buyAccountId = useAppSelector(selectBuyAccountId)
   const buyAccountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, { accountId: buyAssetAccountId }),
+    selectPortfolioAccountMetadataByAccountId(state, { accountId: buyAccountId }),
   )
 
   const getReceiveAddressFromBuyAsset = useCallback(
     async (buyAsset: Asset) => {
-      if (!buyAssetAccountId) return
+      if (!buyAccountId) return
       if (!buyAccountMetadata) return
-      if (isUtxoAccountId(buyAssetAccountId) && !buyAccountMetadata.accountType)
-        throw new Error(`Missing accountType for UTXO account ${buyAssetAccountId}`)
+      if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata.accountType)
+        throw new Error(`Missing accountType for UTXO account ${buyAccountId}`)
       const buyAssetChainId = buyAsset.chainId
-      const buyAssetAccountChainId = fromAccountId(buyAssetAccountId).chainId
+      const buyAssetAccountChainId = fromAccountId(buyAccountId).chainId
       /**
        * do NOT remove
        * super dangerous - don't use the wrong bip44 params to generate receive addresses
@@ -42,7 +42,7 @@ export const useReceiveAddress = () => {
       })
       return receiveAddress
     },
-    [buyAssetAccountId, buyAccountMetadata, wallet],
+    [buyAccountId, buyAccountMetadata, wallet],
   )
 
   // Set the receiveAddress when the buy asset changes

@@ -41,7 +41,7 @@ const gasLimit = '42000'
 const contractAddress = '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d'
 const value = 400
 
-const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress: string }) =>
+const makeChainSpecific = (chainSpecificAdditionalProps?: { contractAddress: string }) =>
   merge({ gasPrice, gasLimit }, chainSpecificAdditionalProps)
 
 const makeGetGasFeesMockedResponse = (overrideArgs?: {
@@ -407,7 +407,7 @@ describe('GnosisChainAdapter', () => {
         wallet: await getWallet(),
         accountNumber,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress: contractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.GnosisMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
@@ -467,7 +467,7 @@ describe('GnosisChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true without chainSpecific.tokenContractAddress should throw if balance is 0', async () => {
+    it('sendmax: true without chainSpecific.contractAddress should throw if balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
@@ -490,7 +490,7 @@ describe('GnosisChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendMax: true without chainSpecific.tokenContractAddress - should build a tx with full account balance - gas fee', async () => {
+    it('sendMax: true without chainSpecific.contractAddress - should build a tx with full account balance - gas fee', async () => {
       const balance = '2500000'
       const expectedValue = numberToHex(
         bn(balance).minus(bn(gasLimit).multipliedBy(gasPrice)) as any,
@@ -546,7 +546,7 @@ describe('GnosisChainAdapter', () => {
         accountNumber,
         to: AddressZero,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress: contractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.GnosisMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
@@ -565,7 +565,7 @@ describe('GnosisChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true with chainSpecific.tokenContractAddress should build a tx with full account balance - gas fee', async () => {
+    it('sendmax: true with chainSpecific.contractAddress should build a tx with full account balance - gas fee', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
@@ -582,7 +582,7 @@ describe('GnosisChainAdapter', () => {
         accountNumber,
         to: EOA_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress: contractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.GnosisMainnet>
 
@@ -602,7 +602,7 @@ describe('GnosisChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true with chainSpecific.tokenContractAddress should throw if token balance is 0', async () => {
+    it('sendmax: true with chainSpecific.contractAddress should throw if token balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
@@ -619,7 +619,7 @@ describe('GnosisChainAdapter', () => {
         accountNumber,
         to: EOA_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress: contractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.GnosisMainnet>
 

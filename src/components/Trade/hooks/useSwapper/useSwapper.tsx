@@ -22,9 +22,9 @@ import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import { isEvmChainAdapter } from 'lib/utils'
 import {
   buildAndBroadcast,
-  createBuildCustomTxInput,
   getApproveContractData,
   getErc20Allowance,
+  getFees,
 } from 'lib/utils/evm'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
@@ -304,40 +304,35 @@ export const useSwapper = () => {
 
       if (!activeQuote) throw new Error('no activeQuote available')
       if (!wallet) throw new Error('no wallet available')
-      if (!supportsETH(wallet)) throw Error('eth wallet required')
-      if (!adapter || !isEvmChainAdapter(adapter))
+      if (!isEvmChainAdapter(adapter))
         throw Error(`no valid EVM chain adapter found for chain Id: ${sellAsset.chainId}`)
 
       const approvalAmountCryptoBaseUnit = isExactAllowance
         ? activeQuote.steps[0].sellAmountBeforeFeesCryptoBaseUnit
         : MAX_ALLOWANCE
 
-      const { assetReference } = fromAssetId(sellAsset.assetId)
-
-      const value = '0'
+      const to = fromAssetId(sellAsset.assetId).assetReference
 
       const data = getApproveContractData({
         approvalAmountCryptoBaseUnit,
         spender: activeQuote.steps[0].allowanceContract,
-        to: assetReference,
+        to,
       })
 
-      const buildCustomTxInput = await createBuildCustomTxInput({
-        adapter,
-        to: assetReference,
-        value,
-        data,
-        wallet,
+      const args = {
         accountNumber: activeQuote.steps[0].accountNumber,
-      })
+        adapter,
+        data,
+        to,
+        value: '0',
+        wallet,
+      }
 
-      // Only making types happy, this is actually guaranteed to be defined in this flow
-      if (!buildCustomTxInput.networkFeeCryptoBaseUnit)
-        throw new Error('networkFeeCryptoBaseUnit is required')
+      const { networkFeeCryptoBaseUnit, ...fees } = await getFees(args)
 
       return {
-        networkFeeCryptoBaseUnit: buildCustomTxInput.networkFeeCryptoBaseUnit,
-        buildCustomTxInput,
+        networkFeeCryptoBaseUnit,
+        buildCustomTxInput: { ...args, ...fees },
       }
     },
     [activeQuote, sellAsset.assetId, sellAsset.chainId, wallet],

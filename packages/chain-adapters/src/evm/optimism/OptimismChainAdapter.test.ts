@@ -39,10 +39,10 @@ const getWallet = async (): Promise<ETHWallet> => {
 
 const gasPrice = '42'
 const gasLimit = '42000'
-const tokenContractAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+const contractAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 const value = 400
 
-const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress: string }) =>
+const makeChainSpecific = (chainSpecificAdditionalProps?: { contractAddress: string }) =>
   merge({ gasPrice, gasLimit }, chainSpecificAdditionalProps)
 
 const makeGetGasFeesMockedResponse = (overrideArgs?: {
@@ -419,7 +419,7 @@ describe('OptimismChainAdapter', () => {
         wallet: await getWallet(),
         accountNumber,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.OptimismMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
@@ -479,7 +479,7 @@ describe('OptimismChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true without chainSpecific.tokenContractAddress should throw if balance is 0', async () => {
+    it('sendmax: true without chainSpecific.contractAddress should throw if balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
@@ -502,7 +502,7 @@ describe('OptimismChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendMax: true without chainSpecific.tokenContractAddress - should build a tx with full account balance - gas fee', async () => {
+    it('sendMax: true without chainSpecific.contractAddress - should build a tx with full account balance - gas fee', async () => {
       const balance = '2500000'
       const expectedValue = numberToHex(
         bn(balance).minus(bn(gasLimit).multipliedBy(gasPrice)) as any,
@@ -558,7 +558,7 @@ describe('OptimismChainAdapter', () => {
         accountNumber,
         to: ZERO_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.OptimismMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
@@ -577,7 +577,7 @@ describe('OptimismChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true with chainSpecific.tokenContractAddress should build a tx with full account balance - gas fee', async () => {
+    it('sendmax: true with chainSpecific.contractAddress should build a tx with full account balance - gas fee', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
@@ -594,7 +594,7 @@ describe('OptimismChainAdapter', () => {
         accountNumber,
         to: EOA_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.OptimismMainnet>
 
@@ -614,7 +614,7 @@ describe('OptimismChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true with chainSpecific.tokenContractAddress should throw if token balance is 0', async () => {
+    it('sendmax: true with chainSpecific.contractAddress should throw if token balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
@@ -631,7 +631,7 @@ describe('OptimismChainAdapter', () => {
         accountNumber,
         to: EOA_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.OptimismMainnet>
 

@@ -9,7 +9,10 @@ import {
 } from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
-import { selectBuyAsset, selectBuyAssetAccountId } from 'state/zustand/swapperStore/selectors'
+import {
+  selectBuyAsset,
+  selectSelectedBuyAssetAccountId,
+} from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useReceiveAddress = () => {
@@ -17,7 +20,7 @@ export const useReceiveAddress = () => {
   const wallet = useWallet().state.wallet
 
   // Selectors
-  const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
+  const buyAssetAccountId = useSwapperStore(selectSelectedBuyAssetAccountId)
   const updateReceiveAddress = useSwapperStore(state => state.updateReceiveAddress)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const buyAssetAccountIds = useAppSelector(state =>

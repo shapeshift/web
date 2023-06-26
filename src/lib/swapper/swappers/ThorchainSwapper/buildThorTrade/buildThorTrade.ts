@@ -75,6 +75,8 @@ export const buildTrade = async (
   if (chainNamespace === CHAIN_NAMESPACE.Evm) {
     const evmQuote = quote as ThorEvmTradeQuote
 
+    // TODO(gomes): it is not - plumb from through
+    if (!wallet) throw new Error('wallet is required to make a trade Tx')
     const maybeEthTradeTx = await makeTradeTx({
       accountNumber,
       adapter: sellAdapter as unknown as ThorEvmSupportedChainAdapter,
@@ -111,11 +113,17 @@ export const buildTrade = async (
     if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
     const { vault, opReturnData } = maybeThorTxInfo.unwrap()
 
-    const buildTxResponse = await (
-      sellAdapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
-    ).buildSendTransaction({
-      value: sellAmountCryptoBaseUnit,
+    if (!wallet) throw new Error('wallet is required to make a trade Tx')
+    const adapter = sellAdapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
+    const { xpub } = await adapter.getPublicKey(
       wallet,
+      accountNumber,
+      (input as GetUtxoTradeQuoteInput).accountType,
+    )
+
+    const buildTxResponse = await adapter.buildSignTx({
+      xpub,
+      value: sellAmountCryptoBaseUnit,
       to: vault,
       accountNumber,
       chainSpecific: {
@@ -130,7 +138,7 @@ export const buildTrade = async (
       chainId: sellAsset.chainId as ThorUtxoSupportedChainId,
       ...quote.steps[0],
       receiveAddress,
-      txData: buildTxResponse.txToSign,
+      txData: buildTxResponse,
     })
   } else if (chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
     const from = await sellAdapter.getAddress({ accountNumber, wallet })

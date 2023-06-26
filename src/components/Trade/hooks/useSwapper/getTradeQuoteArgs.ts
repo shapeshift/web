@@ -19,7 +19,7 @@ export type GetTradeQuoteInputArgs = {
   sellAccountType: UtxoAccountType | undefined
   sellAccountNumber: number
   wallet: HDWallet
-  receiveAddress: string | undefined
+  receiveAddress: string
   sellAmountBeforeFeesCryptoPrecision: string
   allowMultiHop: boolean
 }
@@ -48,7 +48,7 @@ export const getTradeQuoteArgs = async ({
     allowMultiHop,
   }
   if (isEvmSwap(sellAsset?.chainId) || isCosmosSdkSwap(sellAsset?.chainId)) {
-    const eip1559Support = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+    const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
     const sellAssetChainAdapter = getChainAdapterManager().get(
       sellAsset.chainId,
     ) as unknown as EvmChainAdapter
@@ -59,7 +59,7 @@ export const getTradeQuoteArgs = async ({
     return {
       ...tradeQuoteInputCommonArgs,
       chainId: sellAsset.chainId,
-      eip1559Support,
+      supportsEIP1559,
       sendAddress,
     }
   } else if (isUtxoSwap(sellAsset?.chainId)) {

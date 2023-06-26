@@ -48,7 +48,7 @@ export const useGetTradeQuotes = () => {
   }, [sellAsset.assetId, sellAssetAccountId])
 
   useEffect(() => {
-    if (wallet && sellAccountMetadata) {
+    if (wallet && sellAccountMetadata && receiveAddress) {
       ;(async () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
 

@@ -9,6 +9,11 @@ export type Account = {
   tokens?: common.AssetBalance[]
 }
 
+export type EvmFeesWithGasLimitAndNetworkFee = Fees & {
+  gasLimit: string
+  networkFeeCryptoBaseUnit?: string
+}
+
 export type BuildCustomTxInput = {
   wallet: HDWallet
   accountNumber: number
@@ -16,7 +21,7 @@ export type BuildCustomTxInput = {
   data: string
   value: string
   gasLimit: string
-} & Fees
+} & EvmFeesWithGasLimitAndNetworkFee
 
 export type BuildTxInput = {
   // Optional hex-encoded calldata
@@ -24,6 +29,7 @@ export type BuildTxInput = {
   memo?: string
   gasLimit: string
   tokenContractAddress?: string
+  contractData?: string
 } & Fees
 
 export type EstimateFeeDataInput<T extends ChainId> = common.GetFeeDataInput<T> & {

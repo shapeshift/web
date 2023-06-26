@@ -30,6 +30,7 @@ import type {
   Transaction,
   TxHistoryInput,
   TxHistoryResponse,
+  UtxoBuildSignTxInput,
   ValidAddressResult,
 } from '../types'
 import { ValidAddressResultType } from '../types'
@@ -243,26 +244,25 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
-  async buildSendTransaction({
+  async buildSignTx({
     value,
     to,
-    wallet,
+    xpub,
     accountNumber,
     chainSpecific: { from, satoshiPerByte, accountType, opReturnData },
     sendMax = false,
-  }: BuildSendTxInput<T>): Promise<{ txToSign: SignTx<T> }> {
+  }: UtxoBuildSignTxInput): Promise<SignTx<T>> {
     try {
+      if (!accountType) throw new Error('accountType is required')
+      if (!satoshiPerByte)
+        throw new Error('satoshiPerByte is required to build an UTXO send transaction')
       this.assertIsAccountTypeSupported(accountType)
 
       if (!value) throw new Error('value is required')
       if (!to) throw new Error('to is required')
 
-      if (!supportsBTC(wallet)) {
-        throw new Error(`UtxoBaseAdapter: wallet does not support ${this.coinName}`)
-      }
-
       const bip44Params = this.getBIP44Params({ accountNumber, accountType })
-      const { xpub } = await this.getPublicKey(wallet, accountNumber, accountType)
+
       const utxos = await this.providers.http.getUtxos({ pubkey: xpub })
 
       const coinSelectResult = utxoSelect({
@@ -326,10 +326,36 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         opReturnData,
       } as SignTx<T>
 
-      return { txToSign }
+      return txToSign
     } catch (err) {
       return ErrorHandler(err)
     }
+  }
+
+  async buildSendTransaction({
+    value,
+    to,
+    wallet,
+    accountNumber,
+    chainSpecific,
+    sendMax = false,
+  }: BuildSendTxInput<T>): Promise<{ txToSign: SignTx<T> }> {
+    if (!supportsBTC(wallet)) {
+      throw new Error(`UtxoBaseAdapter: wallet does not support ${this.coinName}`)
+    }
+
+    const { xpub } = await this.getPublicKey(wallet, accountNumber, chainSpecific.accountType)
+
+    const txToSign = await this.buildSignTx({
+      to,
+      value,
+      xpub,
+      accountNumber,
+      sendMax,
+      chainSpecific,
+    })
+
+    return { txToSign }
   }
 
   async getFeeData({

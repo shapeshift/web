@@ -4,6 +4,7 @@ import {
   Flex,
   FormControl,
   FormLabel,
+  Heading,
   IconButton,
   Stack,
   useColorModeValue,
@@ -89,6 +90,7 @@ import { breakpoints } from 'theme/theme'
 
 import { TradeAssetSelect } from './Components/AssetSelection'
 import { RateGasRow } from './Components/RateGasRow'
+import { SlippagePopover } from './Components/SilppagePopover'
 import type { TradeAssetInputProps } from './Components/TradeAssetInput'
 import { TradeAssetInput } from './Components/TradeAssetInput'
 import { TradeQuotes } from './Components/TradeQuotes/TradeQuotes'
@@ -724,6 +726,12 @@ export const TradeInput = () => {
   return (
     <SlideTransition>
       <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
+        <Flex alignItems='center' justifyContent='space-between'>
+          <Heading as='h5' fontSize='md'>
+            {translate('navBar.trade')}
+          </Heading>
+          <SlippagePopover />
+        </Flex>
         <Stack spacing={2}>
           <Flex alignItems='center' flexDir={{ base: 'column', md: 'row' }} width='full'>
             <TradeAssetSelect

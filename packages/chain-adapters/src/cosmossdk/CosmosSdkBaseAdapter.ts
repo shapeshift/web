@@ -10,6 +10,7 @@ import { ErrorHandler } from '../error/ErrorHandler'
 import type {
   Account,
   BuildSendTxInput,
+  BuildSignTxInput,
   FeeDataEstimate,
   GetAddressInput,
   GetBIP44ParamsInput,
@@ -145,6 +146,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   abstract getName(): string
   abstract getDisplayName(): string
   abstract buildSendTransaction(tx: BuildSendTxInput<T>): Promise<{ txToSign: SignTx<T> }>
+  abstract buildSignTx(tx: BuildSignTxInput<T>): Promise<{ txToSign: SignTx<T> }>
   abstract getAddress(input: GetAddressInput): Promise<string>
   abstract getFeeData(input: Partial<GetFeeDataInput<T>>): Promise<FeeDataEstimate<T>>
   abstract signTransaction(signTxInput: SignTxInput<SignTx<T>>): Promise<string>

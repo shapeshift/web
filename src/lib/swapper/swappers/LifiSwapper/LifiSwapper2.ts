@@ -1,6 +1,6 @@
 import type { ChainKey, GetStatusRequest, Route } from '@lifi/sdk/dist/types'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { ChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
@@ -17,6 +17,7 @@ import type {
   TradeQuote2,
 } from 'lib/swapper/api'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
+import { broadcast } from 'lib/utils/evm'
 
 import { filterEvmAssetIdsBySellable } from '../utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterCrossChainEvmBuyAssetsBySellAssetId } from '../utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
@@ -82,31 +83,11 @@ export const lifi: Swapper2 = {
     return unsignedTx
   },
 
-  executeTrade: async ({ txToExecute, wallet, chainId }: ExecuteTradeArgs) => {
+  executeTrade: ({ txToSign, wallet, chainId }: ExecuteTradeArgs) => {
     const adapterManager = getChainAdapterManager()
-    const adapter = adapterManager.get(chainId) as unknown as ChainAdapter<EvmChainId>
+    const adapter = adapterManager.get(chainId) as unknown as EvmChainAdapter
 
-    if (wallet.supportsOfflineSigning()) {
-      const signedTx = await adapter.signTransaction({
-        txToSign: txToExecute as ETHSignTx,
-        wallet,
-      })
-
-      const txid = await adapter.broadcastTransaction(signedTx)
-
-      return txid
-    }
-
-    if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
-      const txid = await adapter.signAndBroadcastTransaction?.({
-        txToSign: txToExecute as ETHSignTx,
-        wallet,
-      })
-
-      return txid
-    }
-
-    throw Error('sign and broadcast failed')
+    return broadcast({ adapter, wallet, txToSign: txToSign as ETHSignTx })
   },
 
   checkTradeStatus: async (txId: string): Promise<{ isComplete: boolean; message?: string }> => {

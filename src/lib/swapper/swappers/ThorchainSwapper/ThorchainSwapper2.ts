@@ -135,7 +135,11 @@ export const thorchain: Swapper2 = {
     },
   ),
 
-  executeTrade: async ({ txToExecute, wallet, chainId }: ExecuteTradeArgs): Promise<string> => {
+  executeTrade: async ({
+    txToSign: txToExecute,
+    wallet,
+    chainId,
+  }: ExecuteTradeArgs): Promise<string> => {
     const { chainNamespace } = fromChainId(chainId)
     const chainAdapterManager = getChainAdapterManager()
     const adapter = chainAdapterManager.get(chainId)

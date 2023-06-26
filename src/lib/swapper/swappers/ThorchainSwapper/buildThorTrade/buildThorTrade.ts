@@ -76,7 +76,6 @@ export const buildTrade = async (
   if (chainNamespace === CHAIN_NAMESPACE.Evm) {
     const evmQuote = quote as ThorEvmTradeQuote
 
-    if (!wallet) throw new Error('wallet is required to make a trade Tx')
     if (!supportsETH(wallet)) throw new Error('eth wallet required')
 
     const adapter = sellAdapter as unknown as ThorEvmSupportedChainAdapter

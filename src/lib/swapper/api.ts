@@ -291,6 +291,8 @@ export type GetUnsignedTxArgs = {
   accountMetadata?: AccountMetadata
   stepIndex: number
   supportsEIP1559: boolean
+  buyAssetUsdRate: string
+  feeAssetUsdRate: string
 } & ({ from: string; xpub?: never } | { from?: never; xpub: string })
 
 export type ExecuteTradeArgs = {
@@ -300,13 +302,16 @@ export type ExecuteTradeArgs = {
 }
 
 export type Swapper2 = {
+  executeTrade: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
+  filterAssetIdsBySellable: (assetIds: AssetId[]) => AssetId[]
+  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => AssetId[]
+}
+
+export type Swapper2Api = {
   getTradeQuote: (
     input: GetTradeQuoteInput,
     ...deps: any[]
   ) => Promise<Result<TradeQuote2, SwapErrorRight>>
   getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx>
-  executeTrade: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
   checkTradeStatus: (tradeId: string) => Promise<{ isComplete: boolean; message?: string }>
-  filterAssetIdsBySellable: (assetIds: AssetId[]) => AssetId[]
-  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => AssetId[]
 }

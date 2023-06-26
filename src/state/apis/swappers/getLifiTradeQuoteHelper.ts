@@ -3,7 +3,7 @@ import { Err } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
 import type { GetEvmTradeQuoteInput } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import { lifi } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
+import { lifiApi } from 'lib/swapper/swappers/LifiSwapper/endpoints'
 import type { QuoteHelperType } from 'state/apis/swappers/types'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
@@ -20,7 +20,7 @@ export const getLifiTradeQuoteHelper: QuoteHelperType = async (getTradeQuoteInpu
       }),
     )
 
-  const maybeQuote = await lifi.getTradeQuote(
+  const maybeQuote = await lifiApi.getTradeQuote(
     getTradeQuoteInput as GetEvmTradeQuoteInput,
     assets,
     sellAssetUsdRate,

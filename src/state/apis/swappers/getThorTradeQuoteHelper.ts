@@ -1,6 +1,6 @@
 import { Err } from '@sniptt/monads'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import { thorchain } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
+import { thorswapperApi } from 'lib/swapper/swappers/ThorchainSwapper/endpoints'
 import type { QuoteHelperType } from 'state/apis/swappers/types'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
@@ -36,7 +36,7 @@ export const getThorTradeQuoteHelper: QuoteHelperType = async (getTradeQuoteInpu
       }),
     )
 
-  const maybeQuote = await thorchain.getTradeQuote(getTradeQuoteInput, {
+  const maybeQuote = await thorswapperApi.getTradeQuote(getTradeQuoteInput, {
     sellAssetUsdRate,
     buyAssetUsdRate,
     feeAssetUsdRate,

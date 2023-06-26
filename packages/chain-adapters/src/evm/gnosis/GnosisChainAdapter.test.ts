@@ -129,7 +129,7 @@ describe('GnosisChainAdapter', () => {
         value: '123',
         chainSpecific: {
           from: AddressZero,
-          contractData: '0x',
+          data: '0x',
         },
       })
 

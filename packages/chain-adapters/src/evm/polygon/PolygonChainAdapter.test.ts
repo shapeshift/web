@@ -130,7 +130,7 @@ describe('PolygonChainAdapter', () => {
         value: '123',
         chainSpecific: {
           from: ZERO_ADDRESS,
-          contractData: '0x',
+          data: '0x',
         },
       })
 

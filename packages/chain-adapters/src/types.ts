@@ -12,6 +12,7 @@ import type * as unchained from '@shapeshiftoss/unchained-client'
 
 import * as cosmossdk from './cosmossdk/types'
 import * as evm from './evm/types'
+import type { UtxoChainId } from './utxo'
 import * as utxo from './utxo/types'
 
 export { cosmossdk, evm, utxo }
@@ -147,25 +148,13 @@ export type BuildSendTxInput<T extends ChainId> = {
   memo?: string
 } & ChainSpecificBuildTxData<T>
 
-export type BuildSignTxInput<T extends KnownChainIds> = {
-  to: string
-  value: string
+export type BuildSendApiTxInput<T extends KnownChainIds> = Omit<BuildSendTxInput<T>, 'wallet'> & {
   from: string
-  accountNumber: number
-  sendMax?: boolean
-  memo?: string
-} & ChainSpecificBuildTxData<T>
+}
 
-export type BuildCustomApiTxInput = Omit<evm.BuildCustomTxInput, 'wallet'> & { from: string }
-
-export type UtxoBuildSignTxInput = {
-  to: string
-  value: string
+export type UtxoBuildSendApiTxInput<T extends UtxoChainId> = Omit<BuildSendTxInput<T>, 'wallet'> & {
   xpub: string
-  accountNumber: number
-  sendMax?: boolean
-  memo?: string
-} & { chainSpecific: utxo.BuildTxInput }
+}
 
 export type ChainSpecificBuildTxData<T> = ChainSpecific<
   T,
@@ -201,7 +190,7 @@ export type BuildRedelegateTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>
   toValidator: string
 }
 
-export type BuildDepositTxInput<T extends KnownChainIds> = Omit<BuildSignTxInput<T>, 'to'> & {
+export type BuildDepositTxInput<T extends KnownChainIds> = Omit<BuildSendApiTxInput<T>, 'to'> & {
   memo: string
 }
 

@@ -113,7 +113,6 @@ export const buildTrade = async (
     if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
     const { vault, opReturnData } = maybeThorTxInfo.unwrap()
 
-    if (!wallet) throw new Error('wallet is required to make a trade Tx')
     const adapter = sellAdapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
     const { xpub } = await adapter.getPublicKey(
       wallet,

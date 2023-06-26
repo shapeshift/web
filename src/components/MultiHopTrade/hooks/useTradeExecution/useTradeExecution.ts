@@ -6,8 +6,8 @@ import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Swapper2, TradeQuote2 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
-import { lifi } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
-import { thorchain } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
+import { lifi as lifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
+import { thorchain as thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
 import { assertUnreachable, isEvmChainAdapter } from 'lib/utils'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -43,9 +43,9 @@ export const useTradeExecution = ({
     const swapper: Swapper2 = (() => {
       switch (swapperName) {
         case SwapperName.LIFI:
-          return lifi
+          return lifiSwapper
         case SwapperName.Thorchain:
-          return thorchain
+          return thorchainSwapper
         case SwapperName.Zrx:
         case SwapperName.CowSwap:
         case SwapperName.Osmosis:

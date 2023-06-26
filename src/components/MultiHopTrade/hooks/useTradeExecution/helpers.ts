@@ -35,8 +35,8 @@ export const withFromOrXpub =
       )
 
       return wrappedFunction({ ...fnParams, xpub } as P)
+    } else {
+      const from = await adapter.getAddress({ wallet, accountNumber })
+      return wrappedFunction({ ...fnParams, from } as P)
     }
-
-    const from = await adapter.getAddress({ wallet, accountNumber })
-    return wrappedFunction({ ...fnParams, from } as P)
   }

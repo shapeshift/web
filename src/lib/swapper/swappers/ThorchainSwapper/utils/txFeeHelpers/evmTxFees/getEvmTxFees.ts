@@ -12,7 +12,7 @@ type GetEvmTxFeesArgs = {
   accountNumber: number
   data: string
   router: string
-  eip1559Support: boolean
+  supportsEIP1559: boolean
   value: string
   wallet?: HDWallet
 }
@@ -24,7 +24,7 @@ type EvmTxFees = {
 export const getEvmTxFees = async (
   args: GetEvmTxFeesArgs,
 ): Promise<Result<EvmTxFees, SwapErrorRight>> => {
-  const { accountNumber, adapter, data, eip1559Support, value, router, wallet } = args
+  const { accountNumber, adapter, data, supportsEIP1559, value, router, wallet } = args
   try {
     // if we have a wallet, we are trying to build the actual trade, get accurate gas estimation
     if (wallet) {
@@ -44,7 +44,7 @@ export const getEvmTxFees = async (
 
     const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
       ...average,
-      eip1559Support,
+      supportsEIP1559,
       gasLimit: THOR_EVM_GAS_LIMIT, // hardcoded default for quote estimation (no wallet)
     })
 

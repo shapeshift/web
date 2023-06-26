@@ -3,10 +3,10 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
+import type { BuildTradeInput, GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { getTreasuryAddressFromChainId } from 'lib/swapper/swappers/utils/helpers/helpers'
-import { getFees } from 'lib/utils/evm'
+import { getApiFees } from 'lib/utils/evm'
 import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
 
 import { DEFAULT_SLIPPAGE, DEFAULT_SOURCE } from '../utils/constants'
@@ -21,7 +21,7 @@ import type {
 
 export const buildTrade = async (
   deps: OneInchSwapperDeps,
-  input: BuildTradeInput,
+  input: BuildTradeInput & GetEvmTradeQuoteInput,
 ): Promise<Result<OneInchTrade<EvmChainId>, SwapErrorRight>> => {
   const {
     chainId,
@@ -29,10 +29,10 @@ export const buildTrade = async (
     buyAsset,
     sellAmountBeforeFeesCryptoBaseUnit,
     accountNumber,
+    supportsEIP1559,
     slippage,
     receiveAddress,
     affiliateBps,
-    wallet,
   } = input
 
   const assertion = assertValidTrade({ buyAsset, sellAsset, receiveAddress })
@@ -79,13 +79,13 @@ export const buildTrade = async (
   const adapter = maybeAdapter.unwrap()
 
   try {
-    const { networkFeeCryptoBaseUnit } = await getFees({
+    const { networkFeeCryptoBaseUnit } = await getApiFees({
+      supportsEIP1559,
+      from: receiveAddress,
       adapter,
-      accountNumber,
       to: swap.tx.to,
       value: swap.tx.value,
       data: swap.tx.data,
-      wallet,
     })
 
     // Note: 1inch will not return a response to the above API if the needed approval is not in place.

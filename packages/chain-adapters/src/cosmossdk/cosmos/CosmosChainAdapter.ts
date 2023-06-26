@@ -12,6 +12,7 @@ import type {
   BuildDelegateTxInput,
   BuildRedelegateTxInput,
   BuildSendTxInput,
+  BuildSignTxInput,
   BuildUndelegateTxInput,
   FeeDataEstimate,
   GetAddressInput,
@@ -90,21 +91,20 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     }
   }
 
-  async buildSendTransaction(
-    tx: BuildSendTxInput<KnownChainIds.CosmosMainnet>,
+  async buildSignTx(
+    tx: BuildSignTxInput<KnownChainIds.CosmosMainnet>,
   ): Promise<{ txToSign: CosmosSignTx }> {
     try {
       const {
-        accountNumber,
         chainSpecific: { fee },
         sendMax,
         to,
         value,
-        wallet,
+        from,
       } = tx
 
-      const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
+      if (!fee) throw new Error('fee is required')
       const amount = this.getAmount({ account, value, fee, sendMax })
 
       const msg: Message = {
@@ -120,6 +120,14 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     } catch (err) {
       return ErrorHandler(err)
     }
+  }
+
+  async buildSendTransaction(
+    input: BuildSendTxInput<KnownChainIds.CosmosMainnet>,
+  ): Promise<{ txToSign: CosmosSignTx }> {
+    const { accountNumber, wallet, ...rest } = input
+    const from = await this.getAddress({ accountNumber, wallet })
+    return this.buildSignTx({ ...rest, accountNumber, from })
   }
 
   async buildDelegateTransaction(
@@ -140,6 +148,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
       const validatorAction: ValidatorAction = { address: validator, type: 'delegate' }
+      if (!fee) throw new Error('fee is required')
       const amount = this.getAmount({ account, value, fee, sendMax, validatorAction })
 
       const msg: Message = {
@@ -175,6 +184,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
       const validatorAction: ValidatorAction = { address: validator, type: 'undelegate' }
+      if (!fee) throw new Error('fee is required')
       const amount = this.getAmount({ account, value, fee, sendMax, validatorAction })
 
       const msg: Message = {
@@ -212,6 +222,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
       const validatorAction: ValidatorAction = { address: fromValidator, type: 'redelegate' }
+      if (!fee) throw new Error('fee is required')
       const amount = this.getAmount({ account, value, fee, sendMax, validatorAction })
 
       const msg: Message = {

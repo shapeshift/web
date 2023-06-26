@@ -22,9 +22,9 @@ import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import { isEvmChainAdapter } from 'lib/utils'
 import {
   buildAndBroadcast,
+  createBuildCustomTxInput,
   getApproveContractData,
   getErc20Allowance,
-  getFees,
 } from 'lib/utils/evm'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
@@ -179,7 +179,6 @@ export const useSwapper = () => {
         ),
         sellAsset,
         buyAsset,
-        wallet,
         receiveAddress,
         slippage,
         affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps ?? defaultAffiliateBps,
@@ -216,9 +215,10 @@ export const useSwapper = () => {
           accountType,
           xpub,
           sendAddress,
+          wallet,
         })
       } else if (isEvmSwap(sellAsset.chainId) || isCosmosSdkSwap(sellAsset.chainId)) {
-        const eip1559Support = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+        const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
         const sellAssetChainAdapter = getChainAdapterManager().get(
           sellAsset.chainId,
         ) as unknown as EvmChainAdapter
@@ -233,8 +233,9 @@ export const useSwapper = () => {
           chainId: sellAsset.chainId,
           accountNumber: sellAccountBip44Params.accountNumber,
           receiveAccountNumber: buyAccountBip44Params?.accountNumber,
-          eip1559Support,
+          supportsEIP1559,
           sendAddress,
+          wallet,
         })
       } else {
         throw new Error('unsupported sellAsset.chainId')
@@ -321,25 +322,22 @@ export const useSwapper = () => {
         to: assetReference,
       })
 
-      const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
-        accountNumber: activeQuote.steps[0].accountNumber,
+      const buildCustomTxInput = await createBuildCustomTxInput({
         adapter,
         to: assetReference,
         value,
         data,
         wallet,
+        accountNumber: activeQuote.steps[0].accountNumber,
       })
 
+      // Only making types happy, this is actually guaranteed to be defined in this flow
+      if (!buildCustomTxInput.networkFeeCryptoBaseUnit)
+        throw new Error('networkFeeCryptoBaseUnit is required')
+
       return {
-        networkFeeCryptoBaseUnit,
-        buildCustomTxInput: {
-          accountNumber: activeQuote.steps[0].accountNumber,
-          data,
-          to: assetReference,
-          value,
-          wallet,
-          ...fees,
-        },
+        networkFeeCryptoBaseUnit: buildCustomTxInput.networkFeeCryptoBaseUnit,
+        buildCustomTxInput,
       }
     },
     [activeQuote, sellAsset.assetId, sellAsset.chainId, wallet],

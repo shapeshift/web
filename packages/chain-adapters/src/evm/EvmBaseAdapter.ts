@@ -26,7 +26,9 @@ import type { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
 import type {
   Account,
+  BuildCustomApiTxInput,
   BuildSendTxInput,
+  BuildSignTxInput,
   FeeDataEstimate,
   GetAddressInput,
   GetBIP44ParamsInput,
@@ -138,7 +140,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     return { ...this.defaultBIP44Params, accountNumber }
   }
 
-  private supportsChain(wallet: HDWallet, chainReference?: number): wallet is ETHWallet {
+  supportsChain(wallet: HDWallet, chainReference?: number): wallet is ETHWallet {
     switch (chainReference ?? Number(fromChainId(this.chainId).chainReference)) {
       case Number(fromChainId(KnownChainIds.AvalancheMainnet).chainReference):
         return supportsAvalanche(wallet)
@@ -157,7 +159,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  private async assertSwitchChain(wallet: ETHWallet) {
+  async assertSwitchChain(wallet: ETHWallet) {
     if (!wallet.ethGetChainId) return
 
     const walletChainReference = await wallet.ethGetChainId()
@@ -220,25 +222,32 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     })
   }
 
-  async buildSendTransaction(tx: BuildSendTxInput<T>): Promise<{
-    txToSign: SignTx<T>
-  }> {
+  // builds a SignTx<T> using serializable input data
+  async buildSignTx({
+    to,
+    from,
+    value,
+    memo,
+    accountNumber,
+    chainSpecific,
+    sendMax = false,
+  }: BuildSignTxInput<T>): Promise<SignTx<T>> {
     try {
-      const { to, wallet, accountNumber, sendMax = false } = tx
-      const { tokenContractAddress, gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } =
-        tx.chainSpecific
+      const {
+        contractData,
+        tokenContractAddress,
+        gasPrice,
+        gasLimit,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+      } = chainSpecific
 
-      if (!tx.to) throw new Error(`${this.getName()}ChainAdapter: to is required`)
-      if (!tx.value) throw new Error(`${this.getName()}ChainAdapter: value is required`)
-
-      if (!this.supportsChain(wallet))
-        throw new Error(`wallet does not support ${this.getDisplayName()}`)
-
-      await this.assertSwitchChain(wallet)
+      if (!to) throw new Error(`${this.getName()}ChainAdapter: to is required`)
+      if (!value) throw new Error(`${this.getName()}ChainAdapter: value is required`)
+      if (!gasLimit) throw new Error(`${this.getName()}ChainAdapter: gasLimit is required`)
 
       const destAddress = tokenContractAddress ?? to
 
-      const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
 
       const isTokenSend = !!tokenContractAddress
@@ -249,17 +258,17 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
             return fromAssetId(token.assetId).assetReference === tokenContractAddress.toLowerCase()
           })?.balance
           if (!tokenBalance) throw new Error('no balance')
-          tx.value = tokenBalance
+          value = tokenBalance
         } else {
           if (bnOrZero(account.balance).isZero()) throw new Error('no balance')
 
           // (The type system guarantees that either maxFeePerGas or gasPrice will be undefined, but not both)
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const fee = bnOrZero((maxFeePerGas ?? gasPrice)!).times(bnOrZero(gasLimit))
-          tx.value = bnOrZero(account.balance).minus(fee).toString()
+          value = bnOrZero(account.balance).minus(fee).toString()
         }
       }
-      const data = tx.memo || (await getErc20Data(to, tx.value, tokenContractAddress))
+      const data = memo || contractData || (await getErc20Data(to, value, tokenContractAddress))
 
       const fees = ((): Fees => {
         if (maxFeePerGas && maxPriorityFeePerGas) {
@@ -269,13 +278,13 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           }
         }
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return { gasPrice: numberToHex(tx.chainSpecific.gasPrice!) }
+        return { gasPrice: numberToHex(gasPrice!) }
       })()
 
       const bip44Params = this.getBIP44Params({ accountNumber })
       const txToSign = {
         addressNList: toAddressNList(bip44Params),
-        value: numberToHex(isTokenSend ? '0' : tx.value),
+        value: numberToHex(isTokenSend ? '0' : value),
         to: destAddress,
         chainId: Number(fromChainId(this.chainId).chainReference),
         data,
@@ -283,10 +292,27 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         gasLimit: numberToHex(gasLimit),
         ...fees,
       } as SignTx<T>
-      return { txToSign }
+      return txToSign
     } catch (err) {
       return ErrorHandler(err)
     }
+  }
+
+  async buildSendTransaction(input: BuildSendTxInput<T>): Promise<{
+    txToSign: SignTx<T>
+  }> {
+    if (!this.supportsChain(input.wallet)) {
+      throw new Error(`wallet does not support ${this.getDisplayName()}`)
+    }
+
+    await this.assertSwitchChain(input.wallet)
+
+    const from = await this.getAddress(input)
+    const txToSign = await this.buildSignTx({
+      ...input,
+      from,
+    })
+    return { txToSign }
   }
 
   protected async buildEstimateGasRequest({
@@ -551,17 +577,12 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     this.providers.ws.close('txs')
   }
 
-  async buildCustomTx(tx: BuildCustomTxInput): Promise<{ txToSign: SignTx<T> }> {
+  // builds a SignTx<T> using serializable input data
+  async buildCustomApiTx(input: BuildCustomApiTxInput): Promise<SignTx<T>> {
     try {
-      const { to, wallet, accountNumber, data, value } = tx
-      const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } = tx
+      const { to, from, accountNumber, data, value } = input
+      const { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } = input
 
-      if (!this.supportsChain(wallet))
-        throw new Error(`wallet does not support ${this.getDisplayName()}`)
-
-      await this.assertSwitchChain(wallet)
-
-      const from = await this.getAddress({ accountNumber, wallet })
       const account = await this.getAccount(from)
 
       const fees: Fees =
@@ -584,12 +605,32 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         ...fees,
       } as SignTx<T>
 
-      return { txToSign }
+      return txToSign
     } catch (err) {
       return ErrorHandler(err)
     }
   }
 
+  async buildCustomTx(input: BuildCustomTxInput): Promise<{ txToSign: SignTx<T> }> {
+    const { wallet, accountNumber } = input
+    try {
+      if (!this.supportsChain(wallet))
+        throw new Error(`wallet does not support ${this.getDisplayName()}`)
+
+      await this.assertSwitchChain(wallet)
+
+      const from = await this.getAddress({ accountNumber, wallet })
+
+      const txToSign = await this.buildCustomApiTx({
+        ...input,
+        from,
+      })
+
+      return { txToSign }
+    } catch (err) {
+      return ErrorHandler(err)
+    }
+  }
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
     const { fast, average, slow } = await this.providers.http.getGasFees()
     return { fast, average, slow }

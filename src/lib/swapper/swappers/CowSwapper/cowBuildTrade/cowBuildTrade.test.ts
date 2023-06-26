@@ -207,15 +207,15 @@ describe('cowBuildTrade', () => {
     selectSellAssetUsdRateSpy.mockImplementation(() => ethRate)
 
     const tradeInput: BuildTradeInput = {
+      wallet: {} as HDWallet,
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: ETH,
       buyAsset: FOX_MAINNET,
       sellAmountBeforeFeesCryptoBaseUnit: '11111',
       accountNumber: 0,
-      wallet: {} as HDWallet,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
       slippage: getDefaultSlippagePercentageForSwapper(SwapperName.Test),
       allowMultiHop: false,
     }
@@ -236,15 +236,15 @@ describe('cowBuildTrade', () => {
     selectSellAssetUsdRateSpy.mockImplementation(() => wethRate)
 
     const tradeInput: BuildTradeInput = {
+      wallet: {} as HDWallet,
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WETH,
       buyAsset: FOX_MAINNET,
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
       accountNumber: 0,
-      wallet: {} as HDWallet,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
       slippage: getDefaultSlippagePercentageForSwapper(SwapperName.Test),
       allowMultiHop: false,
     }
@@ -282,15 +282,15 @@ describe('cowBuildTrade', () => {
     selectSellAssetUsdRateSpy.mockImplementation(() => wbtcRate)
 
     const tradeInput: BuildTradeInput = {
+      wallet: {} as HDWallet,
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WBTC,
       buyAsset: WETH,
       sellAmountBeforeFeesCryptoBaseUnit: '100000000',
       accountNumber: 0,
-      wallet: {} as HDWallet,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
       slippage: getDefaultSlippagePercentageForSwapper(SwapperName.Test),
       allowMultiHop: false,
     }
@@ -330,15 +330,15 @@ describe('cowBuildTrade', () => {
     selectSellAssetUsdRateSpy.mockImplementation(() => foxRate)
 
     const tradeInput: BuildTradeInput = {
+      wallet: {} as HDWallet,
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: FOX_MAINNET,
       buyAsset: ETH,
       sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000000',
       accountNumber: 0,
-      wallet: {} as HDWallet,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
       allowMultiHop: false,
     }
 
@@ -375,15 +375,15 @@ describe('cowBuildTrade', () => {
     selectSellAssetUsdRateSpy.mockImplementation(() => '0.999457')
 
     const tradeInput: BuildTradeInput = {
+      wallet: {} as HDWallet,
       chainId: KnownChainIds.GnosisMainnet,
       sellAsset: USDC_GNOSIS,
       buyAsset: XDAI,
       sellAmountBeforeFeesCryptoBaseUnit: '20000000',
       accountNumber: 0,
-      wallet: {} as HDWallet,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
       slippage: '0.005',
       allowMultiHop: false,
     }

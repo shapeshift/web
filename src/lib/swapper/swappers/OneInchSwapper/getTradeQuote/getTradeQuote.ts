@@ -27,7 +27,7 @@ export async function getTradeQuote(
     buyAsset,
     accountNumber,
     affiliateBps,
-    eip1559Support,
+    supportsEIP1559: eip1559Support,
     receiveAddress,
   } = input
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
@@ -74,7 +74,7 @@ export async function getTradeQuote(
     const { average } = await adapter.getGasFeeData()
     const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
       ...average,
-      eip1559Support,
+      supportsEIP1559: eip1559Support,
       gasLimit: quote.estimatedGas,
       l1GasLimit: '0', // TODO: support l1 gas limit for accurate optimism estimations
     })

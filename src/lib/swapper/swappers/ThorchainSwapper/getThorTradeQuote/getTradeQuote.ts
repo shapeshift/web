@@ -260,7 +260,7 @@ export const getThorTradeQuote = async (
           accountNumber,
           adapter: sellAdapter as unknown as EvmChainAdapter,
           data,
-          eip1559Support: (input as GetEvmTradeQuoteInput).eip1559Support,
+          supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
           router,
           value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
           wallet,

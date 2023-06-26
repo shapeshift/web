@@ -36,7 +36,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     receiveAddress,
     affiliateBps,
     chainId,
-    eip1559Support,
+    supportsEIP1559: eip1559Support,
   } = input
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
 
@@ -90,7 +90,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     const { average } = await adapter.getGasFeeData()
     const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
       ...average,
-      eip1559Support,
+      supportsEIP1559: eip1559Support,
       // add gas limit buffer to account for the fact we perform all of our validation on the trade quote estimations
       // which are inaccurate and not what we use for the tx to broadcast
       gasLimit: bnOrZero(data.gas).times(1.2).toFixed(),

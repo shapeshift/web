@@ -7,9 +7,8 @@ import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { SwapErrorRight } from 'lib/swapper/api'
+import type { SwapErrorRight, TradeQuote2 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
-import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
 import {
   selectBuyAsset,
   selectFeeAssetByChainId,
@@ -63,7 +62,7 @@ type TradeQuoteLoadedProps = {
   isBest: boolean
   quoteData: {
     isLoading: boolean
-    data: Result<LifiTradeQuote<false>, SwapErrorRight> | undefined
+    data: Result<TradeQuote2, SwapErrorRight> | undefined
     error: unknown
     swapperName: SwapperName
     inputOutputRatio: number

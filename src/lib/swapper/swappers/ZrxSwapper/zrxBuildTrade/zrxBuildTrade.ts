@@ -1,3 +1,4 @@
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance } from 'axios'
@@ -20,7 +21,7 @@ import {
   getAdapter,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
-import { getFees } from 'lib/utils/evm'
+import { getApiFees } from 'lib/utils/evm'
 import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
 
 export async function zrxBuildTrade(
@@ -34,6 +35,7 @@ export async function zrxBuildTrade(
     receiveAddress,
     affiliateBps,
     chainId,
+    sendAddress: from,
     wallet,
   } = input
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
@@ -93,14 +95,20 @@ export async function zrxBuildTrade(
   if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())
   const { data: quote } = maybeQuoteResponse.unwrap()
 
+  // Note, we pass the supportsEIP1559 for consistency, but this will always evaluate to false for external consumers, which won't pass a wallet
+  // That's expected and correct, since we can't assume which wallet they're using
+  const supportsEIP1559 = Boolean(
+    wallet && supportsETH(wallet) && (await wallet.ethSupportsEIP1559()),
+  )
   try {
-    const { networkFeeCryptoBaseUnit } = await getFees({
+    if (!from) throw new Error('sendAddress is required')
+    const { networkFeeCryptoBaseUnit } = await getApiFees({
+      supportsEIP1559,
+      from,
       adapter,
-      accountNumber,
       to: quote.to,
       value: quote.value,
       data: quote.data,
-      wallet,
     })
 
     return Ok({

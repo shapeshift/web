@@ -120,7 +120,7 @@ export type TxHistoryResponse = {
   transactions: Transaction[]
 }
 
-type ChainSignTx = {
+export type ChainSignTx = {
   [KnownChainIds.EthereumMainnet]: ETHSignTx
   [KnownChainIds.AvalancheMainnet]: ETHSignTx
   [KnownChainIds.OptimismMainnet]: ETHSignTx
@@ -146,6 +146,26 @@ export type BuildSendTxInput<T extends ChainId> = {
   sendMax?: boolean
   memo?: string
 } & ChainSpecificBuildTxData<T>
+
+export type BuildSignTxInput<T extends KnownChainIds> = {
+  to: string
+  value: string
+  from: string
+  accountNumber: number
+  sendMax?: boolean
+  memo?: string
+} & ChainSpecificBuildTxData<T>
+
+export type BuildCustomApiTxInput = Omit<evm.BuildCustomTxInput, 'wallet'> & { from: string }
+
+export type UtxoBuildSignTxInput = {
+  to: string
+  value: string
+  xpub: string
+  accountNumber: number
+  sendMax?: boolean
+  memo?: string
+} & { chainSpecific: utxo.BuildTxInput }
 
 export type ChainSpecificBuildTxData<T> = ChainSpecific<
   T,
@@ -181,7 +201,7 @@ export type BuildRedelegateTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>
   toValidator: string
 }
 
-export type BuildDepositTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>, 'to'> & {
+export type BuildDepositTxInput<T extends KnownChainIds> = Omit<BuildSignTxInput<T>, 'to'> & {
   memo: string
 }
 

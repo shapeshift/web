@@ -3,6 +3,7 @@ import { useQuoteValidationPredicateObject } from 'components/MultiHopTrade/hook
 import type { QuoteStatus } from 'components/MultiHopTrade/types'
 import { SelectedQuoteStatus } from 'components/MultiHopTrade/types'
 import { SwapErrorType } from 'lib/swapper/api'
+import { selectSwappersApiTradeQuotePending } from 'state/apis/swappers/selectors'
 import {
   selectFirstHopSellFeeAsset,
   selectLastHopSellFeeAsset,
@@ -22,8 +23,7 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
   const lastHopSellFeeAsset = useAppSelector(selectLastHopSellFeeAsset)
   const selectedQuote = useAppSelector(selectSelectedQuote)
   const selectedQuoteError = useAppSelector(selectSelectedQuoteError)
-
-  const isLoading = false // fixme
+  const isLoading = useAppSelector(selectSwappersApiTradeQuotePending)
 
   const validationErrors: SelectedQuoteStatus[] = useMemo(() => {
     if (isLoading) return []

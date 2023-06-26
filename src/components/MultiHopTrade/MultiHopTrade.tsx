@@ -31,6 +31,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { fromBaseUnit } from 'lib/math'
 import { SwapperName } from 'lib/swapper/api'
+import { selectSwappersApiTradeQuotePending } from 'state/apis/swappers/selectors'
 import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
@@ -84,7 +85,7 @@ export const MultiHopTrade = (props: CardProps) => {
   const selectedSwapperName = useAppSelector(selectSelectedSwapperName)
   const selectedQuote = useAppSelector(selectSelectedQuote)
   const selectedQuoteError = useAppSelector(selectSelectedQuoteError)
-  const isLoading = false // fixme
+  const isLoading = useAppSelector(selectSwappersApiTradeQuotePending)
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds({

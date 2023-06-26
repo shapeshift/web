@@ -1,10 +1,11 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { Selector } from 'reselect'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
+import type { ProtocolFee, SwapErrorRight, TradeQuote2 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -17,12 +18,21 @@ import {
   getTotalProtocolFeeByAsset,
   isCrossAccountTradeSupported,
 } from 'state/slices/tradeQuoteSlice/helpers'
+import {
+  convertBasisPointsToDecimalPercentage,
+  sumProtocolFeesToDenom,
+} from 'state/zustand/swapperStore/utils'
+
+import { selectCryptoMarketData, selectFiatToUsdRate } from '../marketDataSlice/selectors'
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 
 // TODO(apotheosis): Cache based on quote ID
-export const selectSelectedQuote: Selector<ReduxState, TradeQuote | undefined> =
-  createDeepEqualOutputSelector(selectTradeQuoteSlice, swappers => swappers.quote)
+export const selectSelectedQuote: Selector<ReduxState, TradeQuote2 | undefined> =
+  createDeepEqualOutputSelector(
+    selectTradeQuoteSlice,
+    swappers => swappers.quote as TradeQuote2 | undefined,
+  )
 
 export const selectSelectedQuoteError: Selector<ReduxState, SwapErrorRight | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, swappers => swappers.error)
@@ -80,10 +90,10 @@ export const selectTotalProtocolFeeByAsset: Selector<
   quote ? getTotalProtocolFeeByAsset(quote) : undefined,
 )
 
-export const selectFirstHop: Selector<ReduxState, TradeQuote['steps'][number] | undefined> =
+export const selectFirstHop: Selector<ReduxState, TradeQuote2['steps'][number] | undefined> =
   createDeepEqualOutputSelector(selectSelectedQuote, quote => (quote ? quote.steps[0] : undefined))
 
-export const selectLastHop: Selector<ReduxState, TradeQuote['steps'][number] | undefined> =
+export const selectLastHop: Selector<ReduxState, TradeQuote2['steps'][number] | undefined> =
   createDeepEqualOutputSelector(selectSelectedQuote, quote =>
     quote ? quote.steps[quote.steps.length - 1] : undefined,
   )
@@ -111,7 +121,8 @@ export const selectSellAmountCryptoBaseUnit: Selector<ReduxState, string | undef
 
 export const selectSellAmountCryptoPrecision: Selector<ReduxState, string | undefined> =
   createSelector(
-    [selectFirstHopSellAsset, selectSellAmountCryptoBaseUnit],
+    selectFirstHopSellAsset,
+    selectSellAmountCryptoBaseUnit,
     (firstHopSellAsset, sellAmountCryptoBaseUnit) =>
       firstHopSellAsset
         ? fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit), firstHopSellAsset?.precision)
@@ -172,4 +183,144 @@ export const selectLastHopNetworkFeeCryptoPrecision: Selector<ReduxState, string
     networkFeeRequiresBalance && lastHopSellFeeAsset
       ? fromBaseUnit(bnOrZero(lastHopNetworkFeeCryptoBaseUnit), lastHopSellFeeAsset.precision)
       : bn(0).toFixed(),
+)
+
+export const selectSlippage = createSelector(
+  selectSelectedQuote,
+  selectSelectedSwapperName,
+  (selectedQuote, selectedSwapperName) =>
+    selectedQuote?.recommendedSlippage ??
+    getDefaultSlippagePercentageForSwapper(selectedSwapperName),
+)
+
+const selectSellAssetUsdRate = createSelector(
+  selectFirstHopSellAsset,
+  selectCryptoMarketData,
+  (sellAsset, cryptoMarketDataById) => {
+    if (sellAsset === undefined) return
+    return cryptoMarketDataById[sellAsset.assetId]?.price
+  },
+)
+
+const selectBuyAssetUsdRate = createSelector(
+  selectLastHopBuyAsset,
+  selectCryptoMarketData,
+  (buyAsset, cryptoMarketDataById) => {
+    if (buyAsset === undefined) return
+    return cryptoMarketDataById[buyAsset.assetId]?.price
+  },
+)
+
+const selectSellAssetFiatRate = createSelector(
+  selectSellAssetUsdRate,
+  selectFiatToUsdRate,
+  (sellAssetUsdRate, fiatToUsdRate) => {
+    if (sellAssetUsdRate === undefined) return
+    return bn(sellAssetUsdRate).times(fiatToUsdRate).toString()
+  },
+)
+
+const selectBuyAssetFiatRate = createSelector(
+  selectBuyAssetUsdRate,
+  selectFiatToUsdRate,
+  (buyAssetUsdRate, fiatToUsdRate) => {
+    if (buyAssetUsdRate === undefined) return
+    return bn(buyAssetUsdRate).times(fiatToUsdRate).toString()
+  },
+)
+
+export const selectTotalTradeFeeBuyAssetBaseUnit = createSelector(
+  selectLastHop,
+  selectCryptoMarketData,
+  selectBuyAssetUsdRate,
+  (lastHop, cryptoMarketDataById, buyAssetUsdRate) => {
+    if (!lastHop || !buyAssetUsdRate) return '0'
+
+    return sumProtocolFeesToDenom({
+      cryptoMarketDataById,
+      protocolFees: lastHop.feeData.protocolFees,
+      outputAssetPriceUsd: buyAssetUsdRate,
+      outputExponent: lastHop.buyAsset.precision,
+    })
+  },
+)
+
+export const selectSellAmountBeforeFeesCryptoBaseUnit = createSelector(
+  selectFirstHop,
+  firstHop => firstHop?.sellAmountBeforeFeesCryptoBaseUnit,
+)
+
+export const selectBuyAmountBeforeFeesCryptoBaseUnit = createSelector(
+  selectLastHop,
+  lastHop => lastHop?.buyAmountBeforeFeesCryptoBaseUnit,
+)
+
+export const selectSellAmountBeforeFeesCryptoPrecision = createSelector(
+  selectSellAmountBeforeFeesCryptoBaseUnit,
+  selectFirstHopSellAsset,
+  (sellAmountBeforeFeesCryptoBaseUnit, sellAsset) => {
+    if (!sellAmountBeforeFeesCryptoBaseUnit || !sellAsset) return
+    return fromBaseUnit(sellAmountBeforeFeesCryptoBaseUnit, sellAsset.precision)
+  },
+)
+
+export const selectBuyAmountBeforeFeesCryptoPrecision = createSelector(
+  selectBuyAmountBeforeFeesCryptoBaseUnit,
+  selectLastHopBuyAsset,
+  (buyAmountBeforeFeesCryptoBaseUnit, buyAsset) => {
+    if (!buyAmountBeforeFeesCryptoBaseUnit || !buyAsset) return
+    return fromBaseUnit(buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
+  },
+)
+
+export const selectBuyAssetProtocolFeesCryptoPrecision = createSelector(selectLastHop, lastHop => {
+  if (!lastHop) return '0'
+  const protocolFees = lastHop.feeData.protocolFees
+  return fromBaseUnit(
+    protocolFees[lastHop.buyAsset.assetId]?.amountCryptoBaseUnit ?? '0',
+    lastHop.buyAsset.precision,
+  )
+})
+
+export const selectNetBuyAmountCryptoPrecision = createSelector(
+  selectLastHop,
+  selectBuyAmountBeforeFeesCryptoPrecision,
+  selectBuyAssetProtocolFeesCryptoPrecision,
+  selectSlippage,
+  (lastHop, buyAmountBeforeFeesCryptoBaseUnit, buyAssetProtocolFeeCryptoBaseUnit, slippage) => {
+    if (!lastHop) return
+    return bnOrZero(buyAmountBeforeFeesCryptoBaseUnit)
+      .minus(buyAssetProtocolFeeCryptoBaseUnit)
+      .times(bn(1).minus(slippage))
+      .toFixed()
+  },
+)
+
+export const selectNetBuyAmountFiat = createSelector(
+  selectNetBuyAmountCryptoPrecision,
+  selectBuyAssetFiatRate,
+  (netBuyAmountCryptoPrecision, buyAssetFiatRate) => {
+    if (!netBuyAmountCryptoPrecision || !buyAssetFiatRate) return
+    return bn(netBuyAmountCryptoPrecision).times(buyAssetFiatRate).toFixed()
+  },
+)
+
+export const selectSellAmountFiat = createSelector(
+  selectSellAmountCryptoPrecision,
+  selectSellAssetFiatRate,
+  (sellAmountCryptoPrecision, sellAssetFiatRate) => {
+    if (!sellAmountCryptoPrecision || !sellAssetFiatRate) return
+    return bn(sellAmountCryptoPrecision).times(sellAssetFiatRate).toFixed()
+  },
+)
+
+export const selectDonationAmountFiat = createSelector(
+  selectSelectedQuote,
+  selectSellAmountFiat,
+  (selectedQuote, sellAmountFiat) => {
+    if (!selectedQuote) return
+    const affiliatePercentage = convertBasisPointsToDecimalPercentage(selectedQuote.affiliateBps)
+    // The donation amount is a percentage of the sell amount
+    return bnOrZero(sellAmountFiat).times(affiliatePercentage).toFixed()
+  },
 )

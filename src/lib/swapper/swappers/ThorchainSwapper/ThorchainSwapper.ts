@@ -172,7 +172,7 @@ export class ThorchainSwapper implements Swapper<ThorChainId> {
         const evmAdapter = adapter as unknown as ThorEvmSupportedChainAdapter
         const { txData } = trade as ThorTrade<ThorEvmSupportedChainId>
         const txToSign = txData as SignTx<ThorEvmSupportedChainId>
-        const tradeId = await evm.broadcast({ adapter: evmAdapter, txToSign, wallet })
+        const tradeId = await evm.signAndBroadcast({ adapter: evmAdapter, txToSign, wallet })
         return Ok({ tradeId })
       } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
         const signedTx = await (

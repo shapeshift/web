@@ -143,7 +143,7 @@ export const thorchain: Swapper2 = {
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm: {
         const evmChainAdapter = adapter as unknown as EvmChainAdapter
-        return evm.broadcast({
+        return evm.signAndBroadcast({
           adapter: evmChainAdapter,
           txToSign: txToSign as SignTx<EvmChainId>,
           wallet,

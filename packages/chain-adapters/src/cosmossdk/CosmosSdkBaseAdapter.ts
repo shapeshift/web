@@ -9,8 +9,8 @@ import type { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
 import type {
   Account,
+  BuildSendApiTxInput,
   BuildSendTxInput,
-  BuildSignTxInput,
   FeeDataEstimate,
   GetAddressInput,
   GetBIP44ParamsInput,
@@ -145,8 +145,8 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   abstract getFeeAssetId(): AssetId
   abstract getName(): string
   abstract getDisplayName(): string
+  abstract buildSendApiTransaction(tx: BuildSendApiTxInput<T>): Promise<{ txToSign: SignTx<T> }>
   abstract buildSendTransaction(tx: BuildSendTxInput<T>): Promise<{ txToSign: SignTx<T> }>
-  abstract buildSignTx(tx: BuildSignTxInput<T>): Promise<{ txToSign: SignTx<T> }>
   abstract getAddress(input: GetAddressInput): Promise<string>
   abstract getFeeData(input: Partial<GetFeeDataInput<T>>): Promise<FeeDataEstimate<T>>
   abstract signTransaction(signTxInput: SignTxInput<SignTx<T>>): Promise<string>
@@ -299,15 +299,10 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   }
 
   protected buildTransaction<U extends CosmosSdkChainId>(
-    tx: BuildTransactionInput<CosmosSdkChainId>,
+    input: BuildTransactionInput<CosmosSdkChainId>,
   ): { txToSign: SignTx<U> } {
-    const {
-      account,
-      accountNumber,
-      chainSpecific: { gas, fee },
-      msg,
-      memo = '',
-    } = tx
+    const { account, accountNumber, msg, memo = '', chainSpecific } = input
+    const { gas, fee } = chainSpecific
 
     const bip44Params = this.getBIP44Params({ accountNumber })
 

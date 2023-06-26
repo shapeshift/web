@@ -42,7 +42,7 @@ const gasLimit = '42000'
 const contractAddress = '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d'
 const value = 400
 
-const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress: string }) =>
+const makeChainSpecific = (chainSpecificAdditionalProps?: { contractAddress: string }) =>
   merge({ gasPrice, gasLimit }, chainSpecificAdditionalProps)
 
 const makeGetGasFeesMockedResponse = (overrideArgs?: {
@@ -130,7 +130,7 @@ describe('PolygonChainAdapter', () => {
         value: '123',
         chainSpecific: {
           from: ZERO_ADDRESS,
-          contractData: '0x',
+          data: '0x',
         },
       })
 
@@ -408,7 +408,7 @@ describe('PolygonChainAdapter', () => {
         wallet: await getWallet(),
         accountNumber,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress: contractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.PolygonMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
@@ -468,7 +468,7 @@ describe('PolygonChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true without chainSpecific.tokenContractAddress should throw if balance is 0', async () => {
+    it('sendmax: true without chainSpecific.contractAddress should throw if balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
@@ -491,7 +491,7 @@ describe('PolygonChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendMax: true without chainSpecific.tokenContractAddress - should build a tx with full account balance - gas fee', async () => {
+    it('sendMax: true without chainSpecific.contractAddress - should build a tx with full account balance - gas fee', async () => {
       const balance = '2500000'
       const expectedValue = numberToHex(
         bn(balance).minus(bn(gasLimit).multipliedBy(gasPrice)) as any,
@@ -547,7 +547,7 @@ describe('PolygonChainAdapter', () => {
         accountNumber,
         to: ZERO_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress: contractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.PolygonMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
@@ -566,7 +566,7 @@ describe('PolygonChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true with chainSpecific.tokenContractAddress should build a tx with full account balance - gas fee', async () => {
+    it('sendmax: true with chainSpecific.contractAddress should build a tx with full account balance - gas fee', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
@@ -583,7 +583,7 @@ describe('PolygonChainAdapter', () => {
         accountNumber,
         to: EOA_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress: contractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.PolygonMainnet>
 
@@ -603,7 +603,7 @@ describe('PolygonChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true with chainSpecific.tokenContractAddress should throw if token balance is 0', async () => {
+    it('sendmax: true with chainSpecific.contractAddress should throw if token balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
@@ -620,7 +620,7 @@ describe('PolygonChainAdapter', () => {
         accountNumber,
         to: EOA_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress: contractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.PolygonMainnet>
 

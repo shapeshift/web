@@ -9,11 +9,6 @@ export type Account = {
   tokens?: common.AssetBalance[]
 }
 
-export type EvmFeesWithGasLimitAndNetworkFee = Fees & {
-  gasLimit: string
-  networkFeeCryptoBaseUnit?: string
-}
-
 export type BuildCustomTxInput = {
   wallet: HDWallet
   accountNumber: number
@@ -21,15 +16,14 @@ export type BuildCustomTxInput = {
   data: string
   value: string
   gasLimit: string
-} & EvmFeesWithGasLimitAndNetworkFee
+} & Fees
+
+export type BuildCustomApiTxInput = Omit<BuildCustomTxInput, 'wallet'> & { from: string }
 
 export type BuildTxInput = {
-  // Optional hex-encoded calldata
-  // NOT to be used with ERC20s since this will be used in-place of the ERC20 calldata
-  memo?: string
   gasLimit: string
-  tokenContractAddress?: string
-  contractData?: string
+  contractAddress?: string
+  data?: string
 } & Fees
 
 export type EstimateFeeDataInput<T extends ChainId> = common.GetFeeDataInput<T> & {
@@ -77,7 +71,7 @@ export type GasFeeDataEstimate = {
 export type GetFeeDataInput = {
   contractAddress?: string
   from: string
-  contractData?: string
+  data?: string
 }
 
 export type TransactionMetadata = unchained.evm.TxMetadata

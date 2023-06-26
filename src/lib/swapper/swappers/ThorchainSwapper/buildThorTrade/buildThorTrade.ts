@@ -121,7 +121,7 @@ export const buildTrade = async (
       (input as GetUtxoTradeQuoteInput).accountType,
     )
 
-    const buildTxResponse = await adapter.buildSignTx({
+    const buildTxResponse = await adapter.buildSendApiTransaction({
       xpub,
       value: sellAmountCryptoBaseUnit,
       to: vault,

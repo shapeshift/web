@@ -1,6 +1,6 @@
 import type { Step } from '@lifi/sdk/dist/types'
 import type {
-  BuildSignTxInput,
+  BuildSendApiTxInput,
   ChainAdapter,
   EvmChainId,
   SignTx,
@@ -12,11 +12,11 @@ import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { isEvmChainAdapter } from 'lib/utils'
 
-const createBuildSendTxInput = async (
+const createBuildSendApiTxInput = async (
   from: string,
   accountNumber: number,
   lifiStep: Step,
-): Promise<BuildSignTxInput<EvmChainId>> => {
+): Promise<BuildSendApiTxInput<EvmChainId>> => {
   const lifi = getLifi()
 
   const transactionRequest: providers.TransactionRequest = await (async () => {
@@ -46,9 +46,9 @@ const createBuildSendTxInput = async (
       gasLimit: gasLimit.toString(),
       maxFeePerGas: undefined,
       maxPriorityFeePerGas: undefined,
+      data: data.toString(),
     },
     accountNumber,
-    memo: data.toString(),
   }
 }
 
@@ -84,9 +84,7 @@ export const getUnsignedTx = async ({
     })
   }
 
-  const buildSendTxInput = await createBuildSendTxInput(from, accountNumber, lifiStep)
+  const buildSendApiTxInput = await createBuildSendApiTxInput(from, accountNumber, lifiStep)
 
-  const signTx = await adapter.buildSignTx(buildSendTxInput)
-
-  return signTx
+  return adapter.buildSendApiTransaction(buildSendApiTxInput)
 }

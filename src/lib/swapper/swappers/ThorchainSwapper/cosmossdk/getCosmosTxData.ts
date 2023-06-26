@@ -117,7 +117,7 @@ export const getCosmosTxData = async (
         return Ok(
           (
             sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
-          ).buildSignTx({
+          ).buildSendApiTransaction({
             accountNumber,
             value: sellAmountCryptoBaseUnit,
             from,

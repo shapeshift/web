@@ -1,6 +1,7 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { ethereum } from '@shapeshiftoss/chain-adapters'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { getOrCreateContractByAddress } from 'contracts/contractManager'
 import { useCallback, useMemo } from 'react'
@@ -203,7 +204,7 @@ export const useFoxFarming = (
   )
 
   const getClaimFees = useCallback(
-    (userAddress: string) => {
+    async (userAddress: string) => {
       if (!adapter || !userAddress || !wallet) return
 
       const data = foxFarmingContract.interface.encodeFunctionData('getReward')
@@ -214,7 +215,7 @@ export const useFoxFarming = (
         from: userAddress,
         to: contractAddress,
         value: '0',
-        wallet,
+        supportsEIP1559: supportsETH(wallet) && (await wallet.ethSupportsEIP1559()),
       })
     },
     [adapter, contractAddress, foxFarmingContract, wallet],

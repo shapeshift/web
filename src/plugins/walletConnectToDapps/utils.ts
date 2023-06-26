@@ -45,7 +45,7 @@ export const getFeesForTx = async (
     value: bnOrZero(tx.value).toFixed(0),
     chainSpecific: {
       from: fromAccountId(wcAccountId).account,
-      contractData: tx.data,
+      data: tx.data,
     },
   })
 }

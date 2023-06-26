@@ -74,6 +74,8 @@ export type FeeData = {
 }
 
 export type BuildTxInput = {
+  // The from address UTXOs should be filtered by
+  // Note, this voids all privacy guarantees of UTXO-based chains
   from?: string
   opReturnData?: string
   accountType: UtxoAccountType

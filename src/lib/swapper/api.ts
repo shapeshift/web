@@ -294,7 +294,7 @@ export type GetUnsignedTxArgs = {
 } & ({ from: string; xpub?: never } | { from?: never; xpub: string })
 
 export type ExecuteTradeArgs = {
-  txToExecute: UnsignedTx
+  txToSign: UnsignedTx
   wallet: HDWallet
   chainId: ChainId
 }

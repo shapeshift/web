@@ -1,5 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { evm, EvmChainAdapter, EvmChainId, SignTx } from '@shapeshiftoss/chain-adapters'
+import type { BuildCustomApiTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { getOrCreateContractByType } from 'contracts/contractManager'
@@ -143,7 +144,7 @@ export const createBuildCustomTxInput = async (
 
 export const createBuildCustomApiTxInput = async (
   args: CreateBuildCustomApiTxInputArgs,
-): Promise<evm.BuildCustomApiTxInput> => {
+): Promise<BuildCustomApiTxInput> => {
   const { accountNumber, from, supportsEIP1559, ...rest } = args
   const fees = await getFees({ ...rest, from, supportsEIP1559 })
   return { ...args, ...fees }

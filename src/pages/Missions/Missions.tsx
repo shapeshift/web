@@ -49,9 +49,12 @@ export const Missions = () => {
         subtitle: translate('missions.foxArmy.subtitle'),
         buttonText: translate('missions.foxArmy.cta'),
         coverImage: FoxArmyBg,
-        onClick: () => window.open('https://x.postmint.xyz/'),
-        startDate: '2023-06-06 11:00 AM',
-        endDate: '2023-06-13 11:00 AM',
+        onClick: () =>
+          window.open(
+            'https://x.postmint.xyz/community/64665c31a6c1394b3a35be58/64997a2a590fc8641c50f51a',
+          ),
+        startDate: '2023-06-26 7:00 AM',
+        endDate: '2023-07-03 7:00 AM',
       },
       {
         title: translate('missions.yat.title'),

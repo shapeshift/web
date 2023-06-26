@@ -13,14 +13,17 @@ import { useGetLifiTradeQuoteQuery } from 'state/apis/swappers/lifiSwapperApi'
 import { useGetThorTradeQuoteQuery } from 'state/apis/swappers/thorSwapperApi'
 import {
   selectBuyAsset,
+  selectBuyAssetAccountId,
   selectFeatureFlags,
-  selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
   selectSellAmountCryptoPrecision,
   selectSellAsset,
   selectSellAssetAccountId,
 } from 'state/slices/selectors'
-import { getInputOutputRatioFromQuote } from 'state/slices/tradeQuoteSlice/helpers'
+import {
+  getInputOutputRatioFromQuote,
+  isCrossAccountTradeSupported,
+} from 'state/slices/tradeQuoteSlice/helpers'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
@@ -34,18 +37,21 @@ export const useGetTradeQuotes = () => {
   const debouncedTradeQuoteInput = useDebounce(tradeQuoteInput, 500)
   const sellAsset = useAppSelector(selectSellAsset)
   const buyAsset = useAppSelector(selectBuyAsset)
-  const sellAssetAccountId = useAppSelector(selectSellAssetAccountId)
   const receiveAddress = useReceiveAddress()
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
+  const sellAssetAccountId = useAppSelector(selectSellAssetAccountId)
+  const buyAssetAccountId = useAppSelector(selectBuyAssetAccountId)
+  const isCrossAccountTrade = useMemo(
+    () => sellAssetAccountId !== buyAssetAccountId,
+    [buyAssetAccountId, sellAssetAccountId],
+  )
+
   const sellAccountMetadata = useMemo(() => {
-    const sellAssetAccountIds = selectPortfolioAccountIdsByAssetId(store.getState(), {
-      assetId: sellAsset.assetId,
-    })
     return selectPortfolioAccountMetadataByAccountId(store.getState(), {
-      accountId: sellAssetAccountId ?? sellAssetAccountIds[0],
+      accountId: sellAssetAccountId,
     })
-  }, [sellAsset.assetId, sellAssetAccountId])
+  }, [sellAssetAccountId])
 
   useEffect(() => {
     if (wallet && sellAccountMetadata && receiveAddress) {
@@ -103,16 +109,18 @@ export const useGetTradeQuotes = () => {
         error: lifiQuery.error,
         swapperName: SwapperName.LIFI,
       },
-    ].map(result => {
-      const quote = result.data && result.data.isOk() ? result.data.unwrap() : undefined
-      const inputOutputRatio = quote
-        ? getInputOutputRatioFromQuote({
-            quote,
-            swapperName: result.swapperName,
-          })
-        : -Infinity
-      return Object.assign(result, { inputOutputRatio })
-    })
+    ]
+      .filter(result => !isCrossAccountTrade || isCrossAccountTradeSupported(result.swapperName))
+      .map(result => {
+        const quote = result.data && result.data.isOk() ? result.data.unwrap() : undefined
+        const inputOutputRatio = quote
+          ? getInputOutputRatioFromQuote({
+              quote,
+              swapperName: result.swapperName,
+            })
+          : -Infinity
+        return Object.assign(result, { inputOutputRatio })
+      })
 
     return orderBy(results, ['inputOutputRatio', 'swapperName'], ['asc', 'asc'])
   }, [
@@ -123,6 +131,7 @@ export const useGetTradeQuotes = () => {
     lifiQuery.isFetching,
     lifiQuery.data,
     lifiQuery.error,
+    isCrossAccountTrade,
   ])
 
   const bestQuote: TradeQuoteResult = sortedQuotes[0]

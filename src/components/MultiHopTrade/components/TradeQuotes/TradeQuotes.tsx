@@ -1,16 +1,18 @@
 import { Collapse, Flex } from '@chakra-ui/react'
-import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes'
+import type { TradeQuoteResult } from 'components/MultiHopTrade/types'
+import { selectSelectedSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 import { TradeQuote } from './TradeQuote'
 
 type TradeQuotesProps = {
   isOpen?: boolean
+  sortedQuotes: TradeQuoteResult[]
 }
 
-export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen }) => {
-  const { selectedQuote, sortedQuotes } = useGetTradeQuotes()
+export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, sortedQuotes }) => {
+  const selectedSwapperName = useAppSelector(selectSelectedSwapperName)
 
-  const activeSwapperName = selectedQuote?.swapperName
   const bestQuoteData = sortedQuotes[0]
 
   const quotes = sortedQuotes.map((quoteData, i) => {
@@ -21,7 +23,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen }) => {
     if (!quote) return null
 
     // TODO(woodenfurniture): use quote ID when we want to support multiple quotes per swapper
-    const isActive = activeSwapperName === swapperName
+    const isActive = selectedSwapperName === swapperName
 
     return (
       <TradeQuote

@@ -1,48 +1,32 @@
 import { useMemo } from 'react'
-import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
 import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/common-selectors'
+import { selectBuyAssetAccountId, selectSellAssetAccountId } from 'state/slices/selectors'
 import {
-  selectFirstHopBuyAsset,
   selectFirstHopSellAsset,
   selectFirstHopSellFeeAsset,
-  selectLastHopBuyAsset,
-  selectLastHopSellAsset,
   selectLastHopSellFeeAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useHopHelper = () => {
   const firstHopSellAsset = useAppSelector(selectFirstHopSellAsset)
-  const firstHopBuyAsset = useAppSelector(selectFirstHopBuyAsset)
-  const lastHopSellAsset = useAppSelector(selectLastHopSellAsset)
-  const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const firstHopSellFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
   const lastHopSellFeeAsset = useAppSelector(selectLastHopSellFeeAsset)
 
-  const { sellAssetAccountId: firstHopSellAssetAccountId } = useAccountIds({
-    buyAsset: firstHopBuyAsset,
-    sellAsset: firstHopSellAsset,
-  })
-
-  const {
-    sellAssetAccountId: lastHopSellAssetAccountId,
-    buyAssetAccountId: lastHopBuyAssetAccountId,
-  } = useAccountIds({
-    buyAsset: lastHopBuyAsset,
-    sellAsset: lastHopSellAsset,
-  })
+  const sellAssetAccountId = useAppSelector(selectSellAssetAccountId)
+  const buyAssetAccountId = useAppSelector(selectBuyAssetAccountId)
 
   const firstHopFeeAssetBalanceFilter = useMemo(
-    () => ({ assetId: firstHopSellFeeAsset?.assetId, accountId: firstHopSellAssetAccountId ?? '' }),
-    [firstHopSellAssetAccountId, firstHopSellFeeAsset?.assetId],
+    () => ({ assetId: firstHopSellFeeAsset?.assetId, accountId: sellAssetAccountId ?? '' }),
+    [sellAssetAccountId, firstHopSellFeeAsset?.assetId],
   )
 
   const lastHopFeeAssetBalanceFilter = useMemo(
-    () => ({ assetId: lastHopSellFeeAsset?.assetId, accountId: lastHopSellAssetAccountId ?? '' }),
-    [lastHopSellAssetAccountId, lastHopSellFeeAsset?.assetId],
+    () => ({ assetId: lastHopSellFeeAsset?.assetId, accountId: sellAssetAccountId ?? '' }),
+    [sellAssetAccountId, lastHopSellFeeAsset?.assetId],
   )
 
   const firstHopFeeAssetBalancePrecision = useAppSelector(s =>
@@ -54,8 +38,8 @@ export const useHopHelper = () => {
   )
 
   const sellAssetBalanceFilter = useMemo(
-    () => ({ accountId: firstHopSellAssetAccountId, assetId: firstHopSellAsset?.assetId ?? '' }),
-    [firstHopSellAssetAccountId, firstHopSellAsset?.assetId],
+    () => ({ accountId: buyAssetAccountId, assetId: firstHopSellAsset?.assetId ?? '' }),
+    [buyAssetAccountId, firstHopSellAsset?.assetId],
   )
 
   const sellAssetBalanceCryptoBaseUnit = useAppSelector(state =>
@@ -66,6 +50,5 @@ export const useHopHelper = () => {
     sellAssetBalanceCryptoBaseUnit,
     firstHopFeeAssetBalancePrecision,
     lastHopFeeAssetBalancePrecision,
-    lastHopBuyAssetAccountId,
   }
 }

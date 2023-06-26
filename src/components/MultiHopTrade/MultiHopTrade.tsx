@@ -76,7 +76,7 @@ export const MultiHopTrade = (props: CardProps) => {
   )
 
   const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
-  const { selectedQuote } = useGetTradeQuotes()
+  const { selectedQuote, sortedQuotes } = useGetTradeQuotes()
 
   const isLoading = useMemo(() => selectedQuote?.isLoading, [selectedQuote?.isLoading])
   const quoteData = useMemo(
@@ -89,10 +89,7 @@ export const MultiHopTrade = (props: CardProps) => {
   )
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
-    useAccountIds({
-      buyAsset,
-      sellAsset,
-    })
+    useAccountIds()
   const translate = useTranslate()
   const overlayTitle = useMemo(
     () => translate('trade.swappingComingSoonForWallet', { walletName: 'Keplr' }),
@@ -199,7 +196,9 @@ export const MultiHopTrade = (props: CardProps) => {
                     )
                   }
                 >
-                  {quoteData && <TradeQuotes isOpen={showTradeQuotes} />}
+                  {quoteData && (
+                    <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes} />
+                  )}
                 </TradeAssetInput>
               </Stack>
               <Stack

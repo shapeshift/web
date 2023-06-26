@@ -166,6 +166,7 @@ export const mockStore: ReduxState = {
     buyAsset: defaultAsset,
     sellAsset: defaultAsset,
     sellAssetAccountId: undefined,
+    buyAssetAccountId: undefined,
     sellAmountCryptoPrecision: '0',
     tradeExecutionStatus: MultiHopExecutionStatus.Unknown,
   },

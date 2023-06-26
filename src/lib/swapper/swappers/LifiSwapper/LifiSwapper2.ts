@@ -17,7 +17,7 @@ import type {
   TradeQuote2,
 } from 'lib/swapper/api'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
-import { broadcast } from 'lib/utils/evm'
+import { signAndBroadcast } from 'lib/utils/evm'
 
 import { filterEvmAssetIdsBySellable } from '../utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterCrossChainEvmBuyAssetsBySellAssetId } from '../utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
@@ -87,7 +87,7 @@ export const lifi: Swapper2 = {
     const adapterManager = getChainAdapterManager()
     const adapter = adapterManager.get(chainId) as unknown as EvmChainAdapter
 
-    return broadcast({ adapter, wallet, txToSign: txToSign as ETHSignTx })
+    return signAndBroadcast({ adapter, wallet, txToSign: txToSign as ETHSignTx })
   },
 
   checkTradeStatus: async (txId: string): Promise<{ isComplete: boolean; message?: string }> => {

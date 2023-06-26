@@ -70,6 +70,6 @@ export const useGetTradeQuotes = () => {
     wallet,
   ])
 
-  const quotes = useGetTradeQuoteQuery(debouncedTradeQuoteInput)
+  const quotes = useGetTradeQuoteQuery(debouncedTradeQuoteInput, { pollingInterval: 5000 })
   console.log('xxx quotes', quotes)
 }

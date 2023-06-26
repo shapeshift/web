@@ -150,7 +150,7 @@ export const handleSend = async ({
         if (!shouldUseEIP1559Fees && gasPrice === undefined) {
           throw new Error(`useFormSend: missing gasPrice for non-EIP-1559 tx`)
         }
-        const tokenContractAddress = tokenOrUndefined(fromAssetId(asset.assetId).assetReference)
+        const contractAddress = tokenOrUndefined(fromAssetId(asset.assetId).assetReference)
         const { accountNumber } = bip44Params
         return await (adapter as unknown as EvmBaseAdapter<EvmChainId>).buildSendTransaction({
           memo,
@@ -159,7 +159,7 @@ export const handleSend = async ({
           wallet,
           accountNumber,
           chainSpecific: {
-            tokenContractAddress,
+            contractAddress,
             gasLimit,
             ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
           },

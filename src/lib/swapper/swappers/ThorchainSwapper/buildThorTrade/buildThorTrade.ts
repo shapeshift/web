@@ -1,5 +1,6 @@
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkBaseAdapter, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -75,16 +76,21 @@ export const buildTrade = async (
   if (chainNamespace === CHAIN_NAMESPACE.Evm) {
     const evmQuote = quote as ThorEvmTradeQuote
 
-    // TODO(gomes): it is not - plumb from through
-    if (!wallet) throw new Error('wallet is required to make a trade Tx')
+    if (!supportsETH(wallet)) throw new Error('eth wallet required')
+
+    const adapter = sellAdapter as unknown as ThorEvmSupportedChainAdapter
+
+    const supportsEIP1559 = await wallet.ethSupportsEIP1559()
+    const from = await adapter.getAddress({ accountNumber, wallet })
     const maybeEthTradeTx = await makeTradeTx({
       accountNumber,
-      adapter: sellAdapter as unknown as ThorEvmSupportedChainAdapter,
+      adapter,
       data: evmQuote.data,
       router: evmQuote.router,
       sellAmountCryptoBaseUnit,
       sellAsset,
-      wallet,
+      from,
+      supportsEIP1559,
     })
 
     if (maybeEthTradeTx.isErr()) return Err(maybeEthTradeTx.unwrapErr())
@@ -113,13 +119,16 @@ export const buildTrade = async (
     if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
     const { vault, opReturnData } = maybeThorTxInfo.unwrap()
 
-    // TODO(gomes): it is not - plumb from through
-    if (!wallet) throw new Error('wallet is required to make a trade Tx')
-    const buildTxResponse = await (
-      sellAdapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
-    ).buildSendTransaction({
-      value: sellAmountCryptoBaseUnit,
+    const adapter = sellAdapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
+    const { xpub } = await adapter.getPublicKey(
       wallet,
+      accountNumber,
+      (input as GetUtxoTradeQuoteInput).accountType,
+    )
+
+    const buildTxResponse = await adapter.buildSendApiTransaction({
+      xpub,
+      value: sellAmountCryptoBaseUnit,
       to: vault,
       accountNumber,
       chainSpecific: {
@@ -134,11 +143,9 @@ export const buildTrade = async (
       chainId: sellAsset.chainId as ThorUtxoSupportedChainId,
       ...quote.steps[0],
       receiveAddress,
-      txData: buildTxResponse.txToSign,
+      txData: buildTxResponse,
     })
   } else if (chainNamespace === CHAIN_NAMESPACE.CosmosSdk) {
-    // TODO(gomes): it is not - plumb from through
-    if (!wallet) throw new Error('wallet is required to make a trade Tx')
     const from = await sellAdapter.getAddress({ accountNumber, wallet })
 
     const maybeTxData = await getCosmosTxData({

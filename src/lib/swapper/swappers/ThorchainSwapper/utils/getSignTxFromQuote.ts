@@ -18,9 +18,19 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import { assertUnreachable } from 'lib/utils'
-import { createSignTxInput } from 'lib/utils/evm'
+import { createBuildCustomApiTxInput } from 'lib/utils/evm'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+
+type GetSignTxFromQuoteArgs = {
+  tradeQuote: TradeQuote<ChainId>
+  receiveAddress: string
+  affiliateBps?: string
+  chainSpecific?: utxo.BuildTxInput
+  buyAssetUsdRate: string
+  feeAssetUsdRate: string
+  supportsEIP1559: boolean
+} & ({ from: string; xpub?: never } | { from?: never; xpub: string })
 
 export const getSignTxFromQuote = async ({
   tradeQuote: quote,
@@ -32,15 +42,7 @@ export const getSignTxFromQuote = async ({
   from,
   xpub,
   supportsEIP1559,
-}: {
-  tradeQuote: TradeQuote<ChainId>
-  receiveAddress: string
-  affiliateBps?: string
-  chainSpecific?: utxo.BuildTxInput
-  buyAssetUsdRate: string
-  feeAssetUsdRate: string
-  supportsEIP1559: boolean
-} & ({ from: string; xpub?: never } | { from?: never; xpub: string })): Promise<UnsignedTx> => {
+}: GetSignTxFromQuoteArgs): Promise<UnsignedTx> => {
   const { recommendedSlippage } = quote
 
   const slippageTolerance =
@@ -57,7 +59,7 @@ export const getSignTxFromQuote = async ({
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
   const adapter = chainAdapterManager.get(sellAsset.chainId)
 
-  // A THORChain quote can be gotten without a destinationAddress, but a trade cannot be built without one.
+  // A THORChain quote can be gotten without a receiveAddress, but a trade cannot be built without one.
   if (!receiveAddress) throw Error('receiveAddress is required')
   if (!adapter) throw Error('unsupported sell asset')
 
@@ -65,16 +67,16 @@ export const getSignTxFromQuote = async ({
     case CHAIN_NAMESPACE.Evm: {
       const evmChainAdapter = adapter as unknown as EvmChainAdapter
       const { router, data } = quote as ThorEvmTradeQuote
-      const sendTxInput = await createSignTxInput({
+      const buildCustomTxInput = await createBuildCustomApiTxInput({
         accountNumber,
-        from: from!,
         adapter: evmChainAdapter,
+        from: from!,
         to: router,
         value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
         data,
         supportsEIP1559,
       })
-      return evmChainAdapter.buildSignTx(sendTxInput)
+      return evmChainAdapter.buildCustomApiTx(buildCustomTxInput)
     }
 
     case CHAIN_NAMESPACE.CosmosSdk: {
@@ -122,7 +124,7 @@ export const getSignTxFromQuote = async ({
 
       const { vault, opReturnData } = maybeThorTxInfo.unwrap()
 
-      return utxoChainAdapter.buildSignTx({
+      return utxoChainAdapter.buildSendApiTransaction({
         value: sellAmountCryptoBaseUnit,
         xpub: xpub!,
         to: vault,

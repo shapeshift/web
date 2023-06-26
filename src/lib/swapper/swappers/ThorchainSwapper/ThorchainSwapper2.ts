@@ -135,7 +135,7 @@ export const thorchain: Swapper2 = {
     },
   ),
 
-  executeTrade: async ({ txToExecute, wallet, chainId }: ExecuteTradeArgs): Promise<string> => {
+  executeTrade: async ({ txToSign, wallet, chainId }: ExecuteTradeArgs): Promise<string> => {
     const { chainNamespace } = fromChainId(chainId)
     const chainAdapterManager = getChainAdapterManager()
     const adapter = chainAdapterManager.get(chainId)
@@ -143,9 +143,9 @@ export const thorchain: Swapper2 = {
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm: {
         const evmChainAdapter = adapter as unknown as EvmChainAdapter
-        return evm.broadcast({
+        return evm.signAndBroadcast({
           adapter: evmChainAdapter,
-          txToSign: txToExecute as SignTx<EvmChainId>,
+          txToSign: txToSign as SignTx<EvmChainId>,
           wallet,
         })
       }
@@ -153,7 +153,7 @@ export const thorchain: Swapper2 = {
       case CHAIN_NAMESPACE.CosmosSdk: {
         const cosmosSdkChainAdapter = adapter as unknown as CosmosSdkChainAdapter
         const signedTx = await cosmosSdkChainAdapter.signTransaction({
-          txToSign: txToExecute as ThorchainSignTx,
+          txToSign: txToSign as ThorchainSignTx,
           wallet,
         })
         return cosmosSdkChainAdapter.broadcastTransaction(signedTx)
@@ -162,7 +162,7 @@ export const thorchain: Swapper2 = {
       case CHAIN_NAMESPACE.Utxo: {
         const utxoChainAdapter = adapter as unknown as UtxoChainAdapter
         const signedTx = await utxoChainAdapter.signTransaction({
-          txToSign: txToExecute as SignTx<UtxoChainId>,
+          txToSign: txToSign as SignTx<UtxoChainId>,
           wallet,
         })
         return utxoChainAdapter.broadcastTransaction(signedTx)

@@ -248,7 +248,7 @@ export class FoxyApi {
         to: contractAddress,
         value: '0',
         chainSpecific: {
-          contractData: data,
+          data,
           from: userAddress,
         },
       })
@@ -279,7 +279,7 @@ export class FoxyApi {
         to: contractAddress,
         value: '0',
         chainSpecific: {
-          contractData: data,
+          data,
           from: userAddress,
         },
       })
@@ -313,7 +313,7 @@ export class FoxyApi {
         to: contractAddress,
         value: '0',
         chainSpecific: {
-          contractData: data,
+          data,
           from: userAddress,
         },
       })
@@ -348,7 +348,7 @@ export class FoxyApi {
         to: contractAddress,
         value: '0',
         chainSpecific: {
-          contractData: data,
+          data,
           from: userAddress,
         },
       })
@@ -388,7 +388,7 @@ export class FoxyApi {
         to: contractAddress,
         value: '0',
         chainSpecific: {
-          contractData: data,
+          data,
           from: userAddress,
         },
       })
@@ -422,7 +422,7 @@ export class FoxyApi {
         to: tokenContractAddress,
         value: '0',
         chainSpecific: {
-          contractData: data,
+          data,
           from: userAddress,
         },
       })
@@ -457,7 +457,7 @@ export class FoxyApi {
         to: contractAddress,
         value: '0',
         chainSpecific: {
-          contractData: data,
+          data,
           from: userAddress,
         },
       })

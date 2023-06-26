@@ -314,10 +314,7 @@ export const TradeConfirm = () => {
         return
       }
 
-      const result = await swapper.executeTrade({
-        trade,
-        wallet,
-      })
+      const result = await swapper.executeTrade({ trade, wallet })
 
       // only track after swapper successfully executes trade
       // otherwise unsigned txs will be tracked as confirmed trades

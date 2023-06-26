@@ -30,9 +30,7 @@ export const useTradeExecution = ({
   const { poll } = usePoll()
   const wallet = useWallet().state.wallet
 
-  const { sellAssetAccountId } = useAccountIds({
-    sellAsset: tradeQuote.steps[0].sellAsset,
-  })
+  const { sellAssetAccountId } = useAccountIds()
 
   const accountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: sellAssetAccountId }),
@@ -88,7 +86,7 @@ export const useTradeExecution = ({
     )
 
     const sellTxId = await swapper.executeTrade({
-      txToExecute: unsignedTxResult,
+      txToSign: unsignedTxResult,
       wallet,
       chainId,
     })

@@ -1,5 +1,6 @@
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSdkBaseAdapter, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -75,16 +76,21 @@ export const buildTrade = async (
   if (chainNamespace === CHAIN_NAMESPACE.Evm) {
     const evmQuote = quote as ThorEvmTradeQuote
 
-    // TODO(gomes): it is not - plumb from through
-    if (!wallet) throw new Error('wallet is required to make a trade Tx')
+    if (!supportsETH(wallet)) throw new Error('eth wallet required')
+
+    const adapter = sellAdapter as unknown as ThorEvmSupportedChainAdapter
+
+    const supportsEIP1559 = await wallet.ethSupportsEIP1559()
+    const from = await adapter.getAddress({ accountNumber, wallet })
     const maybeEthTradeTx = await makeTradeTx({
       accountNumber,
-      adapter: sellAdapter as unknown as ThorEvmSupportedChainAdapter,
+      adapter,
       data: evmQuote.data,
       router: evmQuote.router,
       sellAmountCryptoBaseUnit,
       sellAsset,
-      wallet,
+      from,
+      supportsEIP1559,
     })
 
     if (maybeEthTradeTx.isErr()) return Err(maybeEthTradeTx.unwrapErr())

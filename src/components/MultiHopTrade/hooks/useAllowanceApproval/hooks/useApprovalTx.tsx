@@ -33,14 +33,14 @@ export const useApprovalTx = (
             `no valid EVM chain adapter found for chain Id: ${tradeQuoteStep.sellAsset.chainId}`,
           )
 
-        const { buildCustomTxInput, networkFeeCryptoBaseUnit } = await getApprovalTxData(
+        const buildCustomTxInput = await getApprovalTxData(
           tradeQuoteStep,
           adapter,
           wallet,
           isExactAllowance,
         )
 
-        setApprovalNetworkFeeCryptoBaseUnit(networkFeeCryptoBaseUnit)
+        setApprovalNetworkFeeCryptoBaseUnit(buildCustomTxInput.networkFeeCryptoBaseUnit)
         setBuildCustomTxInput(buildCustomTxInput)
       },
       validate: () => false,

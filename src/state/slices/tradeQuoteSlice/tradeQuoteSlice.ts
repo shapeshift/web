@@ -1,10 +1,10 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import type { SwapErrorRight, SwapperName, TradeQuote } from 'lib/swapper/api'
+import type { SwapErrorRight, SwapperName, TradeQuote2 } from 'lib/swapper/api'
 
 export type TradeQuoteSliceState = {
   swapperName: SwapperName | undefined
-  quote: TradeQuote | undefined
+  quote: TradeQuote2 | undefined
   error: SwapErrorRight | undefined
 }
 
@@ -22,7 +22,7 @@ export const tradeQuoteSlice = createSlice({
     setSwapperName: (state, action: PayloadAction<SwapperName | undefined>) => {
       state.swapperName = action.payload
     },
-    setQuote: (state, action: PayloadAction<TradeQuote | undefined>) => {
+    setQuote: (state, action: PayloadAction<TradeQuote2 | undefined>) => {
       state.quote = action.payload
     },
     setError: (state, action: PayloadAction<SwapErrorRight | undefined>) => {

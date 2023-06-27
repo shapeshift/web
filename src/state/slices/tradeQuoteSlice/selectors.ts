@@ -4,9 +4,8 @@ import type { Selector } from 'reselect'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, TradeQuote } from 'lib/swapper/api'
+import type { ProtocolFee, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
-import { assertUnreachable } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
@@ -16,6 +15,7 @@ import {
   getNetReceiveAmountCryptoPrecision,
   getTotalNetworkFeeFiatPrecision,
   getTotalProtocolFeeByAsset,
+  isCrossAccountTradeSupported,
 } from 'state/slices/tradeQuoteSlice/helpers'
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
@@ -23,6 +23,9 @@ const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 // TODO(apotheosis): Cache based on quote ID
 export const selectSelectedQuote: Selector<ReduxState, TradeQuote | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, swappers => swappers.quote)
+
+export const selectSelectedQuoteError: Selector<ReduxState, SwapErrorRight | undefined> =
+  createDeepEqualOutputSelector(selectTradeQuoteSlice, swappers => swappers.error)
 
 export const selectSelectedSwapperName: Selector<ReduxState, SwapperName | undefined> =
   createSelector(selectTradeQuoteSlice, swappers => swappers.swapperName)
@@ -37,22 +40,7 @@ export const selectSwapperSupportsCrossAccountTrade: Selector<ReduxState, boolea
   createSelector(selectSelectedSwapperName, selectedSwapperName => {
     if (selectedSwapperName === undefined) return undefined
 
-    switch (selectedSwapperName) {
-      case SwapperName.Thorchain:
-      case SwapperName.Osmosis:
-        return true
-      // NOTE: Before enabling cross-account for LIFI and OneInch - we must pass the sending address
-      // to the swappers up so allowance checks work. They're currently using the receive address
-      // assuming it's the same address as the sending address.
-      case SwapperName.LIFI:
-      case SwapperName.OneInch:
-      case SwapperName.Zrx:
-      case SwapperName.CowSwap:
-      case SwapperName.Test:
-        return false
-      default:
-        assertUnreachable(selectedSwapperName)
-    }
+    return isCrossAccountTradeSupported(selectedSwapperName)
   })
 
 export const selectHopTotalProtocolFeesFiatPrecision: Selector<ReduxState, string | undefined> =

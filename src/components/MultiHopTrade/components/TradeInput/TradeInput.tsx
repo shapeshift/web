@@ -29,14 +29,16 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
+  selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectNetReceiveAmountCryptoPrecision,
+  selectSelectedQuote,
+  selectSelectedQuoteError,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalProtocolFeeByAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -91,14 +93,8 @@ export const TradeInput = (props: CardProps) => {
     () => isQuoteLoading || isConfirmationLoading,
     [isConfirmationLoading, isQuoteLoading],
   )
-  const quoteData = useMemo(
-    () => (selectedQuote?.data?.isOk() ? selectedQuote.data.unwrap() : undefined),
-    [selectedQuote?.data],
-  )
-  const errorData = useMemo(
-    () => (selectedQuote?.data?.isErr() ? selectedQuote.data.unwrapErr() : undefined),
-    [selectedQuote?.data],
-  )
+  const quoteData = useAppSelector(selectSelectedQuote)
+  const errorData = useAppSelector(selectSelectedQuoteError)
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()
@@ -124,11 +120,9 @@ export const TradeInput = (props: CardProps) => {
     })
   }, [assetSearch, setBuyAsset, supportedBuyAssets])
 
-  const buyAmountBeforeFeesCryptoPrecision = useMemo(() => {
-    if (!quoteData) return '0'
-    const lastStep = quoteData.steps[quoteData.steps.length - 1]
-    return fromBaseUnit(lastStep.buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
-  }, [buyAsset.precision, quoteData])
+  const buyAmountBeforeFeesCryptoPrecision = useAppSelector(
+    selectBuyAmountBeforeFeesCryptoPrecision,
+  )
 
   const quoteHasError = useMemo(() => {
     return selectedQuoteStatus.validationErrors.length > 0

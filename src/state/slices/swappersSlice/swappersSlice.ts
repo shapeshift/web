@@ -16,7 +16,7 @@ export type SwappersState = {
   buyAssetAccountId: AccountId | undefined
   sellAmountCryptoPrecision: string
   tradeExecutionStatus: MultiHopExecutionStatus
-  isDonating: boolean
+  willDonate: boolean
 }
 
 // Define the initial state:
@@ -27,7 +27,7 @@ const initialState: SwappersState = {
   buyAssetAccountId: undefined,
   sellAmountCryptoPrecision: '0',
   tradeExecutionStatus: MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation,
-  isDonating: true,
+  willDonate: true,
 }
 
 // Create the slice:

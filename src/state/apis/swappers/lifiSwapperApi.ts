@@ -7,7 +7,7 @@ import type {
   SwapErrorRight,
   TradeQuote2,
 } from 'lib/swapper/api'
-import { lifi } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
+import { lifiApi } from 'lib/swapper/swappers/LifiSwapper/endpoints'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
@@ -25,7 +25,7 @@ export const lifiSwapperApi = swappersApi.injectEndpoints({
           return {
             error: `no market data available for assetId ${getTradeQuoteInput.sellAsset.assetId}`,
           }
-        const maybeQuote = await lifi.getTradeQuote(getTradeQuoteInput, assets, sellAssetUsdRate)
+        const maybeQuote = await lifiApi.getTradeQuote(getTradeQuoteInput, assets, sellAssetUsdRate)
         return { data: maybeQuote }
       },
     }),

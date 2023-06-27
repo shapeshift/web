@@ -4,9 +4,11 @@ import { useCallback, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { Swapper2, TradeQuote2 } from 'lib/swapper/api'
+import type { Swapper2, Swapper2Api, TradeQuote2 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
+import { lifiApi } from 'lib/swapper/swappers/LifiSwapper/endpoints'
 import { lifi as lifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
+import { thorchainApi } from 'lib/swapper/swappers/ThorchainSwapper/endpoints'
 import { thorchain as thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
 import { assertUnreachable, isEvmChainAdapter } from 'lib/utils'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
@@ -42,12 +44,12 @@ export const useTradeExecution = ({
     if (!tradeQuote) throw Error('missing tradeQuote')
     if (!swapperName) throw Error('missing swapperName')
 
-    const swapper: Swapper2 = (() => {
+    const swapper: Swapper2 & Swapper2Api = (() => {
       switch (swapperName) {
         case SwapperName.LIFI:
-          return lifiSwapper
+          return { ...lifiSwapper, ...lifiApi }
         case SwapperName.Thorchain:
-          return thorchainSwapper
+          return { ...thorchainSwapper, ...thorchainApi }
         case SwapperName.Zrx:
         case SwapperName.CowSwap:
         case SwapperName.Osmosis:

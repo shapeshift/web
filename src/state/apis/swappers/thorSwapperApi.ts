@@ -1,6 +1,6 @@
 import type { Result } from '@sniptt/monads/build'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote2 } from 'lib/swapper/api'
-import { thorchain } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
+import { thorchainApi } from 'lib/swapper/swappers/ThorchainSwapper/endpoints'
 import type { ReduxState } from 'state/reducer'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
@@ -35,7 +35,7 @@ export const thorSwapperApi = swappersApi.injectEndpoints({
             error: `no usd rate available for assetId ${feeAsset?.assetId}`,
           }
 
-        const maybeQuote = await thorchain.getTradeQuote(getTradeQuoteInput, {
+        const maybeQuote = await thorchainApi.getTradeQuote(getTradeQuoteInput, {
           sellAssetUsdRate,
           buyAssetUsdRate,
           feeAssetUsdRate,

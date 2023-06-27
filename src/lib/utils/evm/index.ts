@@ -84,7 +84,7 @@ export const getFees = async (args: GetFeesArgs): Promise<Fees> => {
     value,
     chainSpecific: {
       from: from ?? (await adapter.getAddress({ accountNumber, wallet })),
-      contractData: data,
+      data,
     },
   }
 

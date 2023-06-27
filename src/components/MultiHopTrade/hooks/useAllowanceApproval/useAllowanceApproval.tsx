@@ -29,6 +29,8 @@ export const useAllowanceApproval = (
   }, [_executeAllowanceApproval, stopPollingBuildApprovalTx, stopPollingIsApprovalNeeded])
 
   useEffect(() => {
+    // update the loading state to true if the approval requirement is not undefined
+    // AND the current loading state is not already the same as the target loading state
     if (isApprovalNeeded !== undefined && isLoading) {
       setIsLoading(false)
     } else if (isApprovalNeeded === undefined && !isLoading) {

@@ -34,8 +34,11 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { baseUnitToHuman } from 'lib/bignumber/bignumber'
 import type { SwapperName, TradeQuote2 } from 'lib/swapper/api'
 import { selectFiatRateByAssetId } from 'state/slices/marketDataSlice/selectors'
-import { selectFeeAssetById } from 'state/slices/selectors'
-import { selectFirstHop, selectSelectedSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
+import {
+  selectFirstHop,
+  selectFirstHopSellFeeAsset,
+  selectSelectedSwapperName,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 import { theme } from 'theme/theme'
 
@@ -68,9 +71,7 @@ const ApprovalInner = ({
 
   const symbol = useMemo(() => tradeQuoteStep.sellAsset.symbol, [tradeQuoteStep.sellAsset.symbol])
 
-  const sellFeeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, tradeQuoteStep.sellAsset.assetId),
-  )
+  const sellFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
   const sellFeeAssetFiatRate = useAppSelector(state =>
     sellFeeAsset ? selectFiatRateByAssetId(state, sellFeeAsset.assetId) : undefined,
   )

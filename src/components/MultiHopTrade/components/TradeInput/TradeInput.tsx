@@ -25,6 +25,7 @@ import { TradeAssetSelect } from 'components/Trade/Components/AssetSelection'
 import { RateGasRow } from 'components/Trade/Components/RateGasRow'
 import { TradeAssetInput } from 'components/Trade/Components/TradeAssetInput'
 import { ReceiveSummary } from 'components/Trade/TradeConfirm/ReceiveSummary'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -59,6 +60,7 @@ export const TradeInput = (props: CardProps) => {
   const dispatch = useAppDispatch()
   const mixpanel = getMixPanel()
   const history = useHistory()
+  const { showErrorToast } = useErrorHandler()
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(false)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
@@ -148,11 +150,11 @@ export const TradeInput = (props: CardProps) => {
 
       history.push({ pathname: TradeRoutePaths.Confirm })
     } catch (e) {
-      console.error(e)
-    } finally {
-      setIsConfirmationLoading(false)
+      showErrorToast(e)
     }
-  }, [history, mixpanel, tradeQuoteStep, wallet])
+
+    setIsConfirmationLoading(false)
+  }, [history, mixpanel, showErrorToast, tradeQuoteStep, wallet])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>

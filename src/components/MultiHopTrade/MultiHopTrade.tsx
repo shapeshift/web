@@ -1,8 +1,8 @@
 import { AnimatePresence } from 'framer-motion'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
-import { Approval } from 'components/Approval/Approval'
 
+import { Approval } from './components/Approval/Approval'
 import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
 import { TradeInput } from './components/TradeInput/TradeInput'
 import { TradeRoutePaths } from './types'

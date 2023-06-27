@@ -302,6 +302,11 @@ export type ExecuteTradeArgs = {
   chainId: ChainId
 }
 
+export type CheckTradeStatusInput = {
+  tradeId: string
+  txId: string
+}
+
 export type Swapper2 = {
   filterAssetIdsBySellable: (assetIds: AssetId[]) => AssetId[]
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => AssetId[]
@@ -310,7 +315,7 @@ export type Swapper2 = {
 
 export type Swapper2Api = {
   checkTradeStatus: (
-    tradeId: string,
+    input: CheckTradeStatusInput,
   ) => Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }>
   getTradeQuote: (
     input: GetTradeQuoteInput,

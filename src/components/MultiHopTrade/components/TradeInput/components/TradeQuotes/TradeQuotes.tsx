@@ -1,5 +1,5 @@
 import { Collapse, Flex } from '@chakra-ui/react'
-import type { TradeQuoteResult } from 'components/MultiHopTrade/types'
+import type { ApiQuote } from 'state/apis/swappers'
 import { selectSelectedSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -7,7 +7,7 @@ import { TradeQuote } from './TradeQuote'
 
 type TradeQuotesProps = {
   isOpen?: boolean
-  sortedQuotes: TradeQuoteResult[]
+  sortedQuotes: ApiQuote[]
 }
 
 export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, sortedQuotes }) => {
@@ -16,8 +16,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, sortedQuotes }
   const bestQuoteData = sortedQuotes[0]
 
   const quotes = sortedQuotes.map((quoteData, i) => {
-    const { data, swapperName } = quoteData
-    const quote = data?.isOk() ? data.unwrap() : undefined
+    const { quote, swapperName } = quoteData
 
     // TODO(woodenfurniture): we may want to display per-swapper errors here
     if (!quote) return null

@@ -1,3 +1,4 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useState } from 'react'
@@ -11,7 +12,11 @@ import { lifi as lifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwappe
 import { thorchainApi } from 'lib/swapper/swappers/ThorchainSwapper/endpoints'
 import { thorchain as thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
 import { assertUnreachable, isEvmChainAdapter } from 'lib/utils'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
+import {
+  selectFeeAssetById,
+  selectPortfolioAccountMetadataByAccountId,
+  selectUsdRateByAssetId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TRADE_POLL_INTERVAL_MILLISECONDS } from '../constants'
@@ -38,8 +43,21 @@ export const useTradeExecution = ({
     selectPortfolioAccountMetadataByAccountId(state, { accountId: sellAssetAccountId }),
   )
 
+  const buyAssetUsdRate = useAppSelector(state =>
+    selectUsdRateByAssetId(state, tradeQuote?.steps[0].buyAsset.assetId ?? ('' as AssetId)),
+  )
+
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, tradeQuote?.steps[0].sellAsset.assetId ?? ''),
+  )
+  const feeAssetUsdRate = useAppSelector(state =>
+    selectUsdRateByAssetId(state, feeAsset?.assetId ?? ('' as AssetId)),
+  )
+
   const executeTrade = useCallback(async () => {
     if (!wallet) throw Error('missing wallet')
+    if (!buyAssetUsdRate) throw Error('missing buyAssetUsdRate')
+    if (!feeAssetUsdRate) throw Error('missing feeAssetUsdRate')
     if (!accountMetadata) throw Error('missing accountMetadata')
     if (!tradeQuote) throw Error('missing tradeQuote')
     if (!swapperName) throw Error('missing swapperName')
@@ -86,6 +104,8 @@ export const useTradeExecution = ({
         accountMetadata,
         stepIndex,
         supportsEIP1559,
+        buyAssetUsdRate,
+        feeAssetUsdRate,
       },
     )
 
@@ -114,7 +134,7 @@ export const useTradeExecution = ({
       interval: TRADE_POLL_INTERVAL_MILLISECONDS,
       maxAttempts: Infinity,
     })
-  }, [poll, accountMetadata, swapperName, tradeQuote, wallet])
+  }, [wallet, buyAssetUsdRate, feeAssetUsdRate, accountMetadata, tradeQuote, swapperName, poll])
 
   return { executeTrade, sellTxId, buyTxId, message, status }
 }

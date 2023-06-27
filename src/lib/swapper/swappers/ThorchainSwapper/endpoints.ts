@@ -9,8 +9,6 @@ import type {
   TradeQuote2,
   UnsignedTx,
 } from 'lib/swapper/api'
-import { selectFeeAssetById, selectUsdRateByAssetId } from 'state/slices/selectors'
-import { store } from 'state/store'
 
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import type { Rates, ThorUtxoSupportedChainId } from './ThorchainSwapper'
@@ -38,19 +36,10 @@ export const thorchainApi: Swapper2Api = {
     from,
     xpub,
     supportsEIP1559,
+    buyAssetUsdRate,
+    feeAssetUsdRate,
   }): Promise<UnsignedTx> => {
     const { receiveAddress, affiliateBps } = tradeQuote
-    const feeAsset = selectFeeAssetById(store.getState(), tradeQuote.steps[0].sellAsset.assetId)
-    const buyAssetUsdRate = selectUsdRateByAssetId(
-      store.getState(),
-      tradeQuote.steps[0].buyAsset.assetId,
-    )
-    const feeAssetUsdRate = feeAsset
-      ? selectUsdRateByAssetId(store.getState(), feeAsset.assetId)
-      : undefined
-
-    if (!buyAssetUsdRate) throw Error('missing buy asset usd rate')
-    if (!feeAssetUsdRate) throw Error('missing fee asset usd rate')
 
     const accountType = accountMetadata?.accountType
 

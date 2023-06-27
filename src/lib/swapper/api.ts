@@ -294,6 +294,8 @@ export type GetUnsignedTxArgs = {
   accountMetadata?: AccountMetadata
   stepIndex: number
   supportsEIP1559: boolean
+  buyAssetUsdRate: string
+  feeAssetUsdRate: string
 } & FromOrXpub
 
 export type ExecuteTradeArgs = {

@@ -32,14 +32,17 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { selectSwappersApiTradeQuotePending } from 'state/apis/swappers/selectors'
 import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectNetReceiveAmountCryptoPrecision,
+  selectQuotes,
   selectSelectedQuote,
   selectSelectedQuoteError,
+  selectSelectedSwapperName,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalProtocolFeeByAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -54,6 +57,7 @@ import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 
 export const TradeInput = (props: CardProps) => {
+  useGetTradeQuotes()
   const {
     state: { wallet },
   } = useWallet()
@@ -88,9 +92,11 @@ export const TradeInput = (props: CardProps) => {
   )
 
   const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
-  const { selectedQuote, sortedQuotes } = useGetTradeQuotes()
+  const selectedQuote = useAppSelector(selectSelectedQuote)
+  const selectedSwapperName = useAppSelector(selectSelectedSwapperName)
+  const sortedQuotes = useAppSelector(selectQuotes)
 
-  const isQuoteLoading = useMemo(() => selectedQuote?.isLoading, [selectedQuote?.isLoading])
+  const isQuoteLoading = useAppSelector(selectSwappersApiTradeQuotePending)
   const isLoading = useMemo(
     () => isQuoteLoading || isConfirmationLoading,
     [isConfirmationLoading, isQuoteLoading],
@@ -228,7 +234,9 @@ export const TradeInput = (props: CardProps) => {
                   )
                 }
               >
-                {quoteData && <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes} />}
+                {quoteData && (
+                  <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes ?? []} />
+                )}
               </TradeAssetInput>
             </Stack>
             <Stack
@@ -256,9 +264,9 @@ export const TradeInput = (props: CardProps) => {
                   shapeShiftFee='0'
                   slippage={
                     quoteData.recommendedSlippage ??
-                    getDefaultSlippagePercentageForSwapper(selectedQuote.swapperName)
+                    getDefaultSlippagePercentageForSwapper(selectedSwapperName)
                   }
-                  swapperName={selectedQuote.swapperName}
+                  swapperName={selectedSwapperName ?? ''}
                 />
               ) : null}
             </Stack>

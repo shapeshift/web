@@ -77,9 +77,9 @@ export const lifiApi: Swapper2Api = {
     return unsignedTx
   },
 
-  checkTradeStatus: async (
-    tradeId: string,
-  ): Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }> => {
+  checkTradeStatus: async ({
+    tradeId,
+  }): Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }> => {
     const getStatusRequest = executedTrades.get(tradeId)
     if (getStatusRequest === undefined)
       throw Error(`missing getStatusRequest for tradeId ${tradeId}`)

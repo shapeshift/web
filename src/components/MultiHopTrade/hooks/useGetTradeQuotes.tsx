@@ -110,7 +110,10 @@ export const useGetTradeQuotes = () => {
         swapperName: SwapperName.LIFI,
       },
     ]
-      .filter(result => !isCrossAccountTrade || isCrossAccountTradeSupported(result.swapperName))
+      .filter(result => {
+        const swapperSupportsCrossAccountTrade = isCrossAccountTradeSupported(result.swapperName)
+        return !isCrossAccountTrade || swapperSupportsCrossAccountTrade
+      })
       .map(result => {
         const quote = result.data && result.data.isOk() ? result.data.unwrap() : undefined
         const inputOutputRatio = quote

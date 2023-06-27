@@ -30,6 +30,7 @@ export const selectSellAccountId = createSelector(
   selectPortfolioAssetAccountBalancesSortedFiat,
   selectWalletAccountIds,
   (swappers, sellAsset, accountIdAssetValues, accountIds) => {
+    // return the users selection if it exists
     if (swappers.sellAssetAccountId) return swappers.sellAssetAccountId
 
     const highestFiatBalanceSellAccountId = getHighestFiatBalanceAccountByAssetId(
@@ -38,6 +39,7 @@ export const selectSellAccountId = createSelector(
     )
     const firstSellAssetAccountId = getFirstAccountIdByChainId(accountIds, sellAsset.chainId)
 
+    // otherwise return a sane default
     return highestFiatBalanceSellAccountId ?? firstSellAssetAccountId
   },
 )
@@ -50,6 +52,7 @@ export const selectBuyAccountId = createSelector(
   selectPortfolioAssetAccountBalancesSortedFiat,
   selectWalletAccountIds,
   (swappers, buyAsset, accountIdAssetValues, accountIds) => {
+    // return the users selection if it exists
     if (swappers.buyAssetAccountId) return swappers.buyAssetAccountId
 
     const highestFiatBalanceBuyAccountId = getHighestFiatBalanceAccountByAssetId(
@@ -58,6 +61,7 @@ export const selectBuyAccountId = createSelector(
     )
     const firstBuyAssetAccountId = getFirstAccountIdByChainId(accountIds, buyAsset.chainId)
 
+    // otherwise return a sane default
     return highestFiatBalanceBuyAccountId ?? firstBuyAssetAccountId
   },
 )

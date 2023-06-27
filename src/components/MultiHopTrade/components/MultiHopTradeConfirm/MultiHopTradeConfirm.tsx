@@ -50,7 +50,7 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
-import { SwapperIcon } from '../SwapperIcon/SwapperIcon'
+import { SwapperIcon } from '../TradeInput/components/SwapperIcon/SwapperIcon'
 
 const useTradeExecutor = () => {
   const dispatch = useAppDispatch()
@@ -644,7 +644,7 @@ const Hop = ({
   )
 }
 
-export const TradeConfirm = ({
+export const MultiHopTradeConfirm = ({
   swapperName,
   tradeQuote,
 }: {

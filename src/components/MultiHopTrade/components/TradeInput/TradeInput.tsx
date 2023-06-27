@@ -10,12 +10,15 @@ import {
 } from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
-import { useCallback, useMemo } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
 import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
+import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
+import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
+import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TradeAssetSelect } from 'components/Trade/Components/AssetSelection'
@@ -27,9 +30,12 @@ import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { fromBaseUnit } from 'lib/math'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
+  selectFirstHop,
   selectNetReceiveAmountCryptoPrecision,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalProtocolFeeByAsset,
@@ -42,7 +48,6 @@ import { useGetTradeQuotes } from '../../hooks/useGetTradeQuotes'
 import { useSelectedQuoteStatus } from '../../hooks/useSelectedQuoteStatus'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { SellAssetInput } from './components/SellAssetInput'
-import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 
 export const TradeInput = (props: CardProps) => {
@@ -50,13 +55,16 @@ export const TradeInput = (props: CardProps) => {
     state: { wallet },
   } = useWallet()
   const dispatch = useAppDispatch()
+  const mixpanel = getMixPanel()
+  const history = useHistory()
+  const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(false)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
-  const methods = useForm({ mode: 'onChange' })
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { assetSearch } = useModal()
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
+  const tradeQuoteStep = useAppSelector(selectFirstHop)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
@@ -78,7 +86,11 @@ export const TradeInput = (props: CardProps) => {
   const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
   const { selectedQuote, sortedQuotes } = useGetTradeQuotes()
 
-  const isLoading = useMemo(() => selectedQuote?.isLoading, [selectedQuote?.isLoading])
+  const isQuoteLoading = useMemo(() => selectedQuote?.isLoading, [selectedQuote?.isLoading])
+  const isLoading = useMemo(
+    () => isQuoteLoading || isConfirmationLoading,
+    [isConfirmationLoading, isQuoteLoading],
+  )
   const quoteData = useMemo(
     () => (selectedQuote?.data?.isOk() ? selectedQuote.data.unwrap() : undefined),
     [selectedQuote?.data],
@@ -122,131 +134,152 @@ export const TradeInput = (props: CardProps) => {
     return selectedQuoteStatus.validationErrors.length > 0
   }, [selectedQuoteStatus.validationErrors])
 
+  const onSubmit = useCallback(async () => {
+    setIsConfirmationLoading(true)
+    try {
+      const eventData = getMixpanelEventData()
+      if (mixpanel && eventData) {
+        mixpanel.track(MixPanelEvents.TradePreview, eventData)
+      }
+
+      if (!wallet) throw Error('missing wallet')
+      if (!tradeQuoteStep) throw Error('missing tradeQuoteStep')
+
+      const isApprovalNeeded = await checkApprovalNeeded(tradeQuoteStep, wallet)
+
+      if (isApprovalNeeded) {
+        history.push({ pathname: TradeRoutePaths.Approval })
+        return
+      }
+
+      history.push({ pathname: TradeRoutePaths.Confirm })
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setIsConfirmationLoading(false)
+    }
+  }, [history, mixpanel, tradeQuoteStep, wallet])
+
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
-      {quoteData && <TradeConfirm tradeQuote={quoteData} swapperName={selectedQuote.swapperName} />}
       <Card flex={1} {...props}>
-        <FormProvider {...methods}>
-          <SlideTransition>
-            <Stack spacing={6} as='form' onSubmit={() => {}}>
-              <Stack spacing={2}>
-                <Flex alignItems='center' flexDir={{ base: 'column', md: 'row' }} width='full'>
-                  <TradeAssetSelect
-                    accountId={sellAssetAccountId}
-                    onAccountIdChange={setSellAssetAccountId}
-                    assetId={sellAsset.assetId}
-                    onAssetClick={handleSellAssetClick}
-                    label={translate('trade.from')}
-                  />
-                  <IconButton
-                    onClick={handleSwitchAssets}
-                    isRound
-                    mx={{ base: 0, md: -3 }}
-                    my={{ base: -3, md: 0 }}
-                    size='sm'
-                    position='relative'
-                    borderColor={useColorModeValue('gray.100', 'gray.750')}
-                    borderWidth={1}
-                    boxShadow={`0 0 0 3px var(${useColorModeValue(
-                      '--chakra-colors-white',
-                      '--chakra-colors-gray-785',
-                    )})`}
-                    bg={useColorModeValue('white', 'gray.850')}
-                    zIndex={1}
-                    aria-label='Switch Assets'
-                    icon={isLargerThanMd ? <ArrowForwardIcon /> : <ArrowDownIcon />}
-                  />
-                  <TradeAssetSelect
-                    accountId={buyAssetAccountId}
-                    assetId={buyAsset.assetId}
-                    onAssetClick={handleBuyAssetClick}
-                    onAccountIdChange={setBuyAssetAccountId}
-                    accountSelectionDisabled={swapperSupportsCrossAccountTrade}
-                    label={translate('trade.to')}
-                  />
-                </Flex>
-                <SellAssetInput
+        <SlideTransition>
+          <Stack spacing={6} as='form' onSubmit={onSubmit}>
+            <Stack spacing={2}>
+              <Flex alignItems='center' flexDir={{ base: 'column', md: 'row' }} width='full'>
+                <TradeAssetSelect
                   accountId={sellAssetAccountId}
-                  asset={sellAsset}
-                  label={translate('trade.youPay')}
-                  onClickSendMax={() => {}}
+                  onAccountIdChange={setSellAssetAccountId}
+                  assetId={sellAsset.assetId}
+                  onAssetClick={handleSellAssetClick}
+                  label={translate('trade.from')}
                 />
-                <TradeAssetInput
-                  isReadOnly={true}
+                <IconButton
+                  onClick={handleSwitchAssets}
+                  isRound
+                  mx={{ base: 0, md: -3 }}
+                  my={{ base: -3, md: 0 }}
+                  size='sm'
+                  position='relative'
+                  borderColor={useColorModeValue('gray.100', 'gray.750')}
+                  borderWidth={1}
+                  boxShadow={`0 0 0 3px var(${useColorModeValue(
+                    '--chakra-colors-white',
+                    '--chakra-colors-gray-785',
+                  )})`}
+                  bg={useColorModeValue('white', 'gray.850')}
+                  zIndex={1}
+                  aria-label='Switch Assets'
+                  icon={isLargerThanMd ? <ArrowForwardIcon /> : <ArrowDownIcon />}
+                />
+                <TradeAssetSelect
                   accountId={buyAssetAccountId}
                   assetId={buyAsset.assetId}
-                  assetSymbol={buyAsset.symbol}
-                  assetIcon={buyAsset.icon}
-                  cryptoAmount={buyAmountAfterFeesCryptoPrecision}
-                  fiatAmount={'1.234'}
-                  percentOptions={[1]}
-                  showInputSkeleton={isLoading}
-                  showFiatSkeleton={isLoading}
-                  label={translate('trade.youGet')}
-                  rightRegion={
-                    quoteData ? (
-                      <IconButton
-                        size='sm'
-                        icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
-                        aria-label='Expand Quotes'
-                        onClick={toggleShowTradeQuotes}
-                      />
-                    ) : (
-                      <></>
-                    )
-                  }
-                >
-                  {quoteData && (
-                    <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes} />
-                  )}
-                </TradeAssetInput>
-              </Stack>
-              <Stack
-                boxShadow='sm'
-                p={4}
-                borderColor={useColorModeValue('gray.100', 'gray.750')}
-                borderRadius='xl'
-                borderWidth={1}
-              >
-                <RateGasRow
-                  sellSymbol={''}
-                  buySymbol={''}
-                  gasFee={'0'}
-                  rate={undefined}
-                  isLoading={isLoading}
-                  isError={errorData !== undefined}
+                  onAssetClick={handleBuyAssetClick}
+                  onAccountIdChange={setBuyAssetAccountId}
+                  accountSelectionDisabled={swapperSupportsCrossAccountTrade}
+                  label={translate('trade.to')}
                 />
-                {selectedQuote && quoteData ? (
-                  <ReceiveSummary
-                    isLoading={isLoading}
-                    symbol={buyAsset.symbol}
-                    amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
-                    amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
-                    protocolFees={totalProtocolFees}
-                    shapeShiftFee='0'
-                    slippage={
-                      quoteData.recommendedSlippage ??
-                      getDefaultSlippagePercentageForSwapper(selectedQuote.swapperName)
-                    }
-                    swapperName={selectedQuote.swapperName}
-                  />
-                ) : null}
-              </Stack>
-              <Tooltip label={selectedQuoteStatus.error?.message}>
-                <Button
-                  type='submit'
-                  colorScheme={quoteHasError ? 'red' : 'blue'}
-                  size='lg-multiline'
-                  data-test='trade-form-preview-button'
-                  isDisabled={quoteHasError}
-                  isLoading={isLoading}
-                >
-                  <Text translation={selectedQuoteStatus.quoteStatusTranslation} />
-                </Button>
-              </Tooltip>
+              </Flex>
+              <SellAssetInput
+                accountId={sellAssetAccountId}
+                asset={sellAsset}
+                label={translate('trade.youPay')}
+                onClickSendMax={() => {}}
+              />
+              <TradeAssetInput
+                isReadOnly={true}
+                accountId={buyAssetAccountId}
+                assetId={buyAsset.assetId}
+                assetSymbol={buyAsset.symbol}
+                assetIcon={buyAsset.icon}
+                cryptoAmount={buyAmountAfterFeesCryptoPrecision}
+                fiatAmount={'1.234'}
+                percentOptions={[1]}
+                showInputSkeleton={isLoading}
+                showFiatSkeleton={isLoading}
+                label={translate('trade.youGet')}
+                rightRegion={
+                  quoteData ? (
+                    <IconButton
+                      size='sm'
+                      icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                      aria-label='Expand Quotes'
+                      onClick={toggleShowTradeQuotes}
+                    />
+                  ) : (
+                    <></>
+                  )
+                }
+              >
+                {quoteData && <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes} />}
+              </TradeAssetInput>
             </Stack>
-          </SlideTransition>
-        </FormProvider>
+            <Stack
+              boxShadow='sm'
+              p={4}
+              borderColor={useColorModeValue('gray.100', 'gray.750')}
+              borderRadius='xl'
+              borderWidth={1}
+            >
+              <RateGasRow
+                sellSymbol={''}
+                buySymbol={''}
+                gasFee={'0'}
+                rate={undefined}
+                isLoading={isLoading}
+                isError={errorData !== undefined}
+              />
+              {selectedQuote && quoteData ? (
+                <ReceiveSummary
+                  isLoading={isLoading}
+                  symbol={buyAsset.symbol}
+                  amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
+                  amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
+                  protocolFees={totalProtocolFees}
+                  shapeShiftFee='0'
+                  slippage={
+                    quoteData.recommendedSlippage ??
+                    getDefaultSlippagePercentageForSwapper(selectedQuote.swapperName)
+                  }
+                  swapperName={selectedQuote.swapperName}
+                />
+              ) : null}
+            </Stack>
+            <Tooltip label={selectedQuoteStatus.error?.message}>
+              <Button
+                type='submit'
+                colorScheme={quoteHasError ? 'red' : 'blue'}
+                size='lg-multiline'
+                data-test='trade-form-preview-button'
+                isDisabled={quoteHasError}
+                isLoading={isLoading}
+              >
+                <Text translation={selectedQuoteStatus.quoteStatusTranslation} />
+              </Button>
+            </Tooltip>
+          </Stack>
+        </SlideTransition>
       </Card>
     </MessageOverlay>
   )

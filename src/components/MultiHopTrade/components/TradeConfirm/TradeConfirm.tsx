@@ -22,6 +22,7 @@ import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
+import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useTradeExecution } from 'components/MultiHopTrade/hooks/useTradeExecution/useTradeExecution'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -37,15 +38,12 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal } from 'lib/math'
-import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
-import { selectAssets, selectIsDonating } from 'state/slices/selectors'
 import {
   selectBuyAmountBeforeFeesCryptoPrecision,
-  selectDonationAmountFiat,
   selectFirstHop,
   selectFirstHopNetworkFeeCryptoPrecision,
   selectFirstHopSellAsset,
@@ -91,13 +89,10 @@ export const TradeConfirm = () => {
   const tradeQuote = useAppSelector(selectSelectedQuote)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const swapperName = useAppSelector(selectSelectedSwapperName)
-  const assets = useAppSelector(selectAssets)
   const defaultFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
-  const isDonating = useAppSelector(selectIsDonating)
   const netBuyAmountCryptoPrecision = useAppSelector(selectNetBuyAmountCryptoPrecision)
   const slippage = useAppSelector(selectSlippage)
   const netBuyAmountFiat = useAppSelector(selectNetBuyAmountFiat)
-  const donationAmountFiat = useAppSelector(selectDonationAmountFiat)
   const sellAmountBeforeFeesFiat = useAppSelector(selectSellAmountFiat)
   const networkFeeCryptoHuman = useAppSelector(selectFirstHopNetworkFeeCryptoPrecision)
   const networkFeeFiat = useAppSelector(selectTotalNetworkFeeFiatPrecision)
@@ -123,38 +118,9 @@ export const TradeConfirm = () => {
     [tradeQuoteStep?.sellAsset.explorerTxLink, tradeQuoteStep?.sources],
   )
 
-  // Track these data here so we don't have to do this again for the other states
-  const eventData = useMemo(() => {
-    // mixpanel paranoia seeing impossibly high values
-    if (!sellAsset?.precision) return
-    if (!buyAsset?.precision) return
-
-    const compositeBuyAsset = getMaybeCompositeAssetSymbol(buyAsset.assetId, assets)
-    const compositeSellAsset = getMaybeCompositeAssetSymbol(sellAsset.assetId, assets)
-
-    return {
-      buyAsset: compositeBuyAsset,
-      sellAsset: compositeSellAsset,
-      fiatAmount: sellAmountBeforeFeesFiat,
-      swapperName,
-      hasUserOptedOutOfDonation: isDonating,
-      donationAmountFiat,
-      [compositeBuyAsset]: buyAmountBeforeFeesCryptoPrecision,
-      [compositeSellAsset]: sellAmountBeforeFeesCryptoPrecision,
-    }
-  }, [
-    buyAsset,
-    sellAsset,
-    assets,
-    sellAmountBeforeFeesFiat,
-    swapperName,
-    isDonating,
-    donationAmountFiat,
-    buyAmountBeforeFeesCryptoPrecision,
-    sellAmountBeforeFeesCryptoPrecision,
-  ])
-
   useEffect(() => {
+    const eventData = getMixpanelEventData()
+
     if (!mixpanel || !eventData) return
     if (status === TxStatus.Confirmed) {
       mixpanel.track(MixPanelEvents.TradeSuccess, eventData)
@@ -162,7 +128,7 @@ export const TradeConfirm = () => {
     if (status === TxStatus.Failed) {
       mixpanel.track(MixPanelEvents.TradeFailed, eventData)
     }
-  }, [eventData, mixpanel, status])
+  }, [mixpanel, status])
 
   const handleBack = useCallback(() => {
     if (sellTxId) {

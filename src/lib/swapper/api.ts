@@ -303,15 +303,18 @@ export type ExecuteTradeArgs = {
 }
 
 export type Swapper2 = {
+  filterAssetIdsBySellable: (assetIds: AssetId[]) => AssetId[]
+  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => AssetId[]
+  executeTrade: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
+}
+
+export type Swapper2Api = {
+  checkTradeStatus: (
+    tradeId: string,
+  ) => Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }>
   getTradeQuote: (
     input: GetTradeQuoteInput,
     ...deps: any[]
   ) => Promise<Result<TradeQuote2, SwapErrorRight>>
   getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx>
-  executeTrade: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
-  checkTradeStatus: (
-    tradeId: string,
-  ) => Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }>
-  filterAssetIdsBySellable: (assetIds: AssetId[]) => AssetId[]
-  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => AssetId[]
 }

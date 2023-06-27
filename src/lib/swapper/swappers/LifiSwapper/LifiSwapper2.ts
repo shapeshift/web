@@ -2,6 +2,7 @@ import type { ChainKey, GetStatusRequest, Route } from '@lifi/sdk/dist/types'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -90,13 +91,30 @@ export const lifi: Swapper2 = {
     return signAndBroadcast({ adapter, wallet, txToSign: txToSign as ETHSignTx })
   },
 
-  checkTradeStatus: async (txId: string): Promise<{ isComplete: boolean; message?: string }> => {
-    const getStatusRequest = executedTrades.get(txId)
-    if (getStatusRequest === undefined) throw Error(`missing getStatusRequest for txId ${txId}`)
+  checkTradeStatus: async (
+    tradeId: string,
+  ): Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }> => {
+    const getStatusRequest = executedTrades.get(tradeId)
+    if (getStatusRequest === undefined)
+      throw Error(`missing getStatusRequest for tradeId ${tradeId}`)
     const statusResponse = await getLifi().getStatus(getStatusRequest)
 
+    const status = (() => {
+      switch (statusResponse.status) {
+        case 'DONE':
+          return TxStatus.Confirmed
+        case 'PENDING':
+          return TxStatus.Pending
+        case 'FAILED':
+          return TxStatus.Failed
+        default:
+          return TxStatus.Unknown
+      }
+    })()
+
     return {
-      isComplete: statusResponse.status === 'DONE',
+      status,
+      buyTxId: statusResponse.receiving?.txHash,
       message: statusResponse.substatusMessage,
     }
   },

@@ -14,6 +14,7 @@ import type {
   MarketData,
   UtxoAccountType,
 } from '@shapeshiftoss/types'
+import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
@@ -285,13 +286,15 @@ export type UnsignedTx = SignTx<keyof ChainSignTx>
 
 export type TradeQuote2 = TradeQuote & { id: string; receiveAddress: string; affiliateBps: string }
 
+export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
+
 export type GetUnsignedTxArgs = {
   tradeQuote: TradeQuote2
   chainId: ChainId
   accountMetadata?: AccountMetadata
   stepIndex: number
   supportsEIP1559: boolean
-} & ({ from: string; xpub?: never } | { from?: never; xpub: string })
+} & FromOrXpub
 
 export type ExecuteTradeArgs = {
   txToSign: UnsignedTx
@@ -306,7 +309,9 @@ export type Swapper2 = {
   ) => Promise<Result<TradeQuote2, SwapErrorRight>>
   getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx>
   executeTrade: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
-  checkTradeStatus: (tradeId: string) => Promise<{ isComplete: boolean; message?: string }>
+  checkTradeStatus: (
+    tradeId: string,
+  ) => Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }>
   filterAssetIdsBySellable: (assetIds: AssetId[]) => AssetId[]
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => AssetId[]
 }

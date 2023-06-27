@@ -1,7 +1,6 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type {
-  ChainAdapter,
   CosmosSdkChainAdapter,
   EvmChainAdapter,
   EvmChainId,
@@ -9,7 +8,8 @@ import type {
   UtxoChainAdapter,
   UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type {
@@ -23,60 +23,13 @@ import type {
   UnsignedTx,
 } from 'lib/swapper/api'
 import { assertUnreachable, evm } from 'lib/utils'
-import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import { selectFeeAssetById, selectUsdRateByAssetId } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
-import type { Rates, ThorChainId, ThorUtxoSupportedChainId } from './ThorchainSwapper'
+import type { Rates, ThorUtxoSupportedChainId } from './ThorchainSwapper'
 import { ThorchainSwapper } from './ThorchainSwapper'
 import { getSignTxFromQuote } from './utils/getSignTxFromQuote'
-
-// Gets a from address either
-// - derived from the input (for our own consumption with our AccountMetadata and ChainId structures)
-// - or simply falls the passed from address through, for external consumers
-
-type WithFromOrXpubParams = {
-  chainId?: ChainId
-  accountMetadata?: AccountMetadata
-  wallet?: HDWallet
-  from?: string
-  xpub?: string
-}
-
-const withFromOrXpub =
-  <T, P>(wrappedFunction: (params: P & { from?: string; xpub?: string }) => Promise<T>) =>
-  async (params: WithFromOrXpubParams & P): Promise<T> => {
-    const { chainId, accountMetadata, wallet, from: inputFrom, xpub: inputXpub } = params
-
-    let from: string | undefined = inputFrom
-    let xpub: string | undefined = inputXpub
-
-    if (!from && !xpub) {
-      if (!wallet) throw new Error('Wallet required for getAddress and getPublicKey calls')
-
-      const chainAdapterManager = getChainAdapterManager()
-      if (!chainId) throw new Error('No chainId provided')
-      const adapter = chainAdapterManager.get(chainId) as ChainAdapter<ThorChainId>
-      if (!adapter) throw new Error(`No adapter for ChainId: ${chainId}`)
-
-      const accountNumber = accountMetadata?.bip44Params?.accountNumber
-      const accountType = accountMetadata?.accountType
-
-      if (!accountNumber) throw new Error('Account number required')
-      if (isUtxoChainId(chainId)) {
-        if (!accountType) throw new Error('Account number required')
-        xpub = (
-          await (adapter as UtxoChainAdapter).getPublicKey(wallet, accountNumber, accountType)
-        ).xpub
-      } else {
-        from = await adapter.getAddress({ wallet, accountNumber })
-      }
-    }
-
-    return wrappedFunction({ ...params, from, xpub })
-  }
 
 export const thorchain: Swapper2 = {
   getTradeQuote: async (
@@ -93,47 +46,50 @@ export const thorchain: Swapper2 = {
     })
   },
 
-  // TODO: getUnsignedTx isn't consumed anywhere yet. When it is, move the HOF to the caller, so we keep the inner function pure
-  getUnsignedTx: withFromOrXpub(
-    async ({ accountMetadata, tradeQuote, from, xpub, supportsEIP1559 }): Promise<UnsignedTx> => {
-      const { receiveAddress, affiliateBps } = tradeQuote
-      const feeAsset = selectFeeAssetById(store.getState(), tradeQuote.steps[0].sellAsset.assetId)
-      const buyAssetUsdRate = selectUsdRateByAssetId(
-        store.getState(),
-        tradeQuote.steps[0].buyAsset.assetId,
-      )
-      const feeAssetUsdRate = feeAsset
-        ? selectUsdRateByAssetId(store.getState(), feeAsset.assetId)
+  getUnsignedTx: async ({
+    accountMetadata,
+    tradeQuote,
+    from,
+    xpub,
+    supportsEIP1559,
+  }): Promise<UnsignedTx> => {
+    const { receiveAddress, affiliateBps } = tradeQuote
+    const feeAsset = selectFeeAssetById(store.getState(), tradeQuote.steps[0].sellAsset.assetId)
+    const buyAssetUsdRate = selectUsdRateByAssetId(
+      store.getState(),
+      tradeQuote.steps[0].buyAsset.assetId,
+    )
+    const feeAssetUsdRate = feeAsset
+      ? selectUsdRateByAssetId(store.getState(), feeAsset.assetId)
+      : undefined
+
+    if (!buyAssetUsdRate) throw Error('missing buy asset usd rate')
+    if (!feeAssetUsdRate) throw Error('missing fee asset usd rate')
+
+    const accountType = accountMetadata?.accountType
+
+    const chainSpecific =
+      accountType && xpub
+        ? {
+            xpub,
+            accountType,
+            satoshiPerByte: (tradeQuote as TradeQuote<ThorUtxoSupportedChainId>).steps[0].feeData
+              .chainSpecific.satsPerByte,
+          }
         : undefined
 
-      if (!buyAssetUsdRate) throw Error('missing buy asset usd rate')
-      if (!feeAssetUsdRate) throw Error('missing fee asset usd rate')
-
-      const accountType = accountMetadata?.accountType
-
-      const chainSpecific =
-        accountType && xpub
-          ? {
-              xpub,
-              accountType,
-              satoshiPerByte: (tradeQuote as TradeQuote<ThorUtxoSupportedChainId>).steps[0].feeData
-                .chainSpecific.satsPerByte,
-            }
-          : undefined
-
-      const fromOrXpub = from ? { from } : { xpub: xpub! }
-      return await getSignTxFromQuote({
-        tradeQuote,
-        receiveAddress,
-        affiliateBps,
-        chainSpecific,
-        buyAssetUsdRate,
-        ...fromOrXpub,
-        feeAssetUsdRate,
-        supportsEIP1559,
-      })
-    },
-  ),
+    const fromOrXpub = from !== undefined ? { from } : { xpub }
+    return await getSignTxFromQuote({
+      tradeQuote,
+      receiveAddress,
+      affiliateBps,
+      chainSpecific,
+      buyAssetUsdRate,
+      ...fromOrXpub,
+      feeAssetUsdRate,
+      supportsEIP1559,
+    })
+  },
 
   executeTrade: async ({ txToSign, wallet, chainId }: ExecuteTradeArgs): Promise<string> => {
     const { chainNamespace } = fromChainId(chainId)
@@ -173,11 +129,29 @@ export const thorchain: Swapper2 = {
     }
   },
 
-  checkTradeStatus: async (txId: string): Promise<{ isComplete: boolean; message?: string }> => {
+  checkTradeStatus: async (
+    tradeId: string,
+  ): Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }> => {
     const thorchainSwapper = new ThorchainSwapper()
-    const txsResult = await thorchainSwapper.getTradeTxs({ tradeId: txId })
+    const txsResult = await thorchainSwapper.getTradeTxs({ tradeId })
+
+    const status = (() => {
+      switch (true) {
+        case txsResult.isOk() && !!txsResult.unwrap().buyTxid:
+          return TxStatus.Confirmed
+        case txsResult.isOk() && !txsResult.unwrap().buyTxid:
+          return TxStatus.Pending
+        case txsResult.isErr():
+          return TxStatus.Failed
+        default:
+          return TxStatus.Unknown
+      }
+    })()
+
     return {
-      isComplete: txsResult.isOk() && !!txsResult.unwrap().buyTxid,
+      buyTxId: txsResult.isOk() ? txsResult.unwrap().buyTxid : undefined,
+      status,
+      message: undefined,
     }
   },
 

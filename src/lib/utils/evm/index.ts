@@ -1,5 +1,11 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { evm, EvmChainAdapter, EvmChainId, SignTx } from '@shapeshiftoss/chain-adapters'
+import type {
+  evm,
+  EvmChainAdapter,
+  EvmChainId,
+  GetFeeDataInput,
+  SignTx,
+} from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { getOrCreateContractByType } from 'contracts/contractManager'
@@ -79,7 +85,7 @@ export type Fees = evm.Fees & {
 export const getFees = async (args: GetFeesArgs): Promise<Fees> => {
   const { accountNumber, adapter, data, to, value, from, supportsEIP1559, wallet } = args
 
-  const getFeeDataInput = {
+  const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
     to,
     value,
     chainSpecific: {

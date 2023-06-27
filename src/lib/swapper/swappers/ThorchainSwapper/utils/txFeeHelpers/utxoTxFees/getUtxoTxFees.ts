@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import type { GetFeeDataInput, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { bn } from 'lib/bignumber/bignumber'
 import type { ProtocolFee, QuoteFeeData } from 'lib/swapper/api'
@@ -24,11 +24,12 @@ export const getUtxoTxFees = async ({
   protocolFees,
 }: GetUtxoTxFeesInput): Promise<QuoteFeeData<ThorUtxoSupportedChainId>> => {
   try {
-    const feeDataOptions = await sellAdapter.getFeeData({
+    const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
       to: vault,
       value: sellAmountCryptoBaseUnit,
       chainSpecific: { pubkey, opReturnData },
-    })
+    }
+    const feeDataOptions = await sellAdapter.getFeeData(getFeeDataInput)
 
     const feeData = feeDataOptions['fast']
 

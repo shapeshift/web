@@ -1,7 +1,11 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, ASSET_REFERENCE, fromAssetId } from '@shapeshiftoss/caip'
-import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  CosmosSdkBaseAdapter,
+  CosmosSdkChainId,
+  GetFeeDataInput,
+} from '@shapeshiftoss/chain-adapters'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
@@ -23,6 +27,7 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import type { OsmosisSupportedChainId } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapper'
 import { useFindByAssetIdQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import type { OsmosisPool } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import {
@@ -133,11 +138,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       const adapter = chainAdapters.get(
         chainId,
       ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
-      const fastFeeCryptoBaseUnit = (
-        await adapter.getFeeData({
-          sendMax: false,
-        })
-      ).fast.txFee
+      const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {
+        sendMax: false,
+      }
+      const fastFeeCryptoBaseUnit = (await adapter.getFeeData(getFeeDataInput)).fast.txFee
 
       return fastFeeCryptoBaseUnit
     } catch (error) {

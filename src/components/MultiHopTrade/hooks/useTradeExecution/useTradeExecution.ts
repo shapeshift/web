@@ -99,7 +99,10 @@ export const useTradeExecution = ({
 
     await poll({
       fn: async () => {
-        const { status, message, buyTxId } = await swapper.checkTradeStatus(tradeQuote.id)
+        const { status, message, buyTxId } = await swapper.checkTradeStatus({
+          tradeId: tradeQuote.id,
+          txId: sellTxId,
+        })
 
         setMessage(message)
         setBuyTxId(buyTxId)

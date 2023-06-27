@@ -1,5 +1,6 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
+import { v4 as uuid } from 'uuid'
 import type {
   GetTradeQuoteInput,
   SwapErrorRight,
@@ -25,7 +26,7 @@ export const thorchainApi: Swapper2Api = {
 
     return tradeQuoteResult.map(tradeQuote => {
       const { receiveAddress, affiliateBps } = input
-      const id = String(Date.now()) // TODO: get thorchain quote ID or use uuid
+      const id = uuid()
 
       return { id, receiveAddress, affiliateBps, ...tradeQuote }
     })
@@ -76,11 +77,12 @@ export const thorchainApi: Swapper2Api = {
     })
   },
 
-  checkTradeStatus: async (
-    tradeId: string,
-  ): Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }> => {
+  checkTradeStatus: async ({
+    txId,
+  }): Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }> => {
     const thorchainSwapper = new ThorchainSwapper()
-    const txsResult = await thorchainSwapper.getTradeTxs({ tradeId })
+    // thorchain swapper uses txId to get tx status (not trade ID)
+    const txsResult = await thorchainSwapper.getTradeTxs({ tradeId: txId })
 
     const status = (() => {
       switch (true) {

@@ -42,3 +42,9 @@ export type TradeQuoteResult = {
   error: unknown
   inputOutputRatio: number
 }
+
+export enum TradeRoutePaths {
+  Input = '/trade/input',
+  Confirm = '/trade/confirm',
+  Approval = '/trade/approval',
+}

@@ -86,3 +86,5 @@ export const selectBuyAssetUsdRate = createSelector(
     return buyAssetMarketData.price
   },
 )
+
+export const selectWillDonate = createSelector(selectSwappers, swappers => swappers.willDonate)

@@ -20,8 +20,8 @@ export const useTradeExecution = ({
   swapperName,
   tradeQuote,
 }: {
-  swapperName: SwapperName
-  tradeQuote: TradeQuote2
+  swapperName?: SwapperName
+  tradeQuote?: TradeQuote2
 }) => {
   const [sellTxId, setSellTxId] = useState<string | undefined>()
   const [buyTxId, setBuyTxId] = useState<string | undefined>()
@@ -39,6 +39,8 @@ export const useTradeExecution = ({
   const executeTrade = useCallback(async () => {
     if (!wallet) throw Error('missing wallet')
     if (!accountMetadata) throw Error('missing accountMetadata')
+    if (!tradeQuote) throw Error('missing tradeQuote')
+    if (!swapperName) throw Error('missing swapperName')
 
     const swapper: Swapper2 = (() => {
       switch (swapperName) {

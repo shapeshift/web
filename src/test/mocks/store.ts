@@ -174,5 +174,6 @@ export const mockStore: ReduxState = {
   tradeQuoteSlice: {
     swapperName: undefined,
     quotes: [],
+    lastRequestStartTime: undefined,
   },
 }

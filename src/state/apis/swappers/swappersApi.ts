@@ -22,6 +22,7 @@ export const swappersApi = createApi({
   endpoints: build => ({
     getTradeQuote: build.query<ApiQuote[], GetTradeQuoteInput>({
       queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { getState, dispatch }) => {
+        const queryStartTime = Date.now()
         const state = getState() as ReduxState
         const { sendAddress, receiveAddress } = getTradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
@@ -77,9 +78,7 @@ export const swappersApi = createApi({
           ['asc', 'asc'],
         )
 
-        const bestQuote = orderedQuotes[0]
-        bestQuote && dispatch(tradeQuoteSlice.actions.setSwapperName(bestQuote.swapperName))
-        dispatch(tradeQuoteSlice.actions.setQuotes(orderedQuotes))
+        dispatch(tradeQuoteSlice.actions.setQuotes({ quotes: orderedQuotes, queryStartTime }))
         console.log('xxx orderedQuotes', orderedQuotes)
 
         return { data: orderedQuotes }

@@ -15,7 +15,7 @@ import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
 import { numberToHex } from 'web3-utils'
 
-import type { BuildSendTxInput, SignMessageInput, SignTxInput } from '../../types'
+import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
 import { bn } from '../../utils/bignumber'
@@ -124,14 +124,15 @@ describe('GnosisChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new gnosis.ChainAdapter(args)
 
-      const data = await adapter.getFeeData({
+      const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
         to: '0x642F4Bda144C63f6DC47EE0fDfbac0a193e2eDb7',
         value: '123',
         chainSpecific: {
           from: AddressZero,
           data: '0x',
         },
-      })
+      }
+      const data = await adapter.getFeeData(getFeeDataInput)
 
       expect(data).toEqual(
         expect.objectContaining({

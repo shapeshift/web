@@ -2,7 +2,9 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type {
   CosmosSdkBaseAdapter,
+  CosmosSdkChainId,
   EvmChainAdapter,
+  GetFeeDataInput,
   UtxoBaseAdapter,
 } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -329,9 +331,11 @@ export const getThorTradeQuote = async (
       return (async (): Promise<
         Result<TradeQuote<ThorCosmosSdkSupportedChainId>, SwapErrorRight>
       > => {
+        const getFeeDataInput: Partial<GetFeeDataInput<CosmosSdkChainId>> = {}
+
         const feeData = await (
           sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
-        ).getFeeData({})
+        ).getFeeData(getFeeDataInput)
 
         return Ok({
           ...commonQuoteFields,

@@ -12,8 +12,8 @@ import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 
-import type { Account, BuildSendTxInput } from '../../types'
-import type { ChainAdapterArgs } from '../UtxoBaseAdapter'
+import type { Account, BuildSendTxInput, GetFeeDataInput } from '../../types'
+import type { ChainAdapterArgs, UtxoChainId } from '../UtxoBaseAdapter'
 import * as dogecoin from './DogecoinChainAdapter'
 
 const testMnemonic = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'
@@ -333,11 +333,12 @@ describe('DogecoinChainAdapter', () => {
 
       const adapter = new dogecoin.ChainAdapter(args)
 
-      const data = await adapter.getFeeData({
+      const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
         to: '0x',
         value: '0',
         chainSpecific: { pubkey: '123' },
-      })
+      }
+      const data = await adapter.getFeeData(getFeeDataInput)
       expect(data).toEqual(
         expect.objectContaining({
           average: { chainSpecific: { satoshiPerByte: '1' }, txFee: '44' },

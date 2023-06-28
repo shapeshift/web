@@ -1,5 +1,5 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import type { Asset } from 'lib/asset-service'
 import { lifi } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
 import { thorchain } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
 import { selectAssetsSortedByMarketCapFiatBalanceAndName } from 'state/slices/common-selectors'
@@ -20,28 +20,29 @@ export const useSupportedAssets = () => {
     return result
   }, [LifiSwap, ThorSwap])
 
-  const supportedSellAssets = useMemo(() => {
-    const supportedAssetIdsSet = new Set(
-      new Array<AssetId>().concat(
-        // this spread is fast, dont optimise out without benchmarks
-        ...enabledSwappers.map(({ filterAssetIdsBySellable }) =>
-          filterAssetIdsBySellable(assetIds),
-        ),
-      ),
-    )
-    return sortedAssets.filter(asset => supportedAssetIdsSet.has(asset.assetId))
+  const [supportedSellAssets, setSupportedSellAssets] = useState<Asset[]>([])
+  const [supportedBuyAssets, setSupportedBuyAssets] = useState<Asset[]>([])
+
+  useEffect(() => {
+    ;(async () => {
+      const supportedAssetIds = await Promise.all(
+        enabledSwappers.map(({ filterAssetIdsBySellable }) => filterAssetIdsBySellable(assetIds)),
+      )
+      const supportedAssetIdsSet = new Set(supportedAssetIds.flat())
+      setSupportedSellAssets(sortedAssets.filter(asset => supportedAssetIdsSet.has(asset.assetId)))
+    })()
   }, [assetIds, enabledSwappers, sortedAssets])
 
-  const supportedBuyAssets = useMemo(() => {
-    const supportedAssetIdsSet = new Set(
-      new Array<AssetId>().concat(
-        // this spread is fast, dont optimise out without benchmarks
-        ...enabledSwappers.map(({ filterBuyAssetsBySellAssetId }) =>
+  useEffect(() => {
+    ;(async () => {
+      const supportedAssetIds = await Promise.all(
+        enabledSwappers.map(({ filterBuyAssetsBySellAssetId }) =>
           filterBuyAssetsBySellAssetId({ assetIds, sellAssetId: sellAsset.assetId }),
         ),
-      ),
-    )
-    return sortedAssets.filter(asset => supportedAssetIdsSet.has(asset.assetId))
+      )
+      const supportedAssetIdsSet = new Set(supportedAssetIds.flat())
+      setSupportedBuyAssets(sortedAssets.filter(asset => supportedAssetIdsSet.has(asset.assetId)))
+    })()
   }, [assetIds, enabledSwappers, sellAsset.assetId, sortedAssets])
 
   return {

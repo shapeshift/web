@@ -16,11 +16,11 @@ export const lifi: Swapper2 = {
     return signAndBroadcast({ adapter, wallet, txToSign: txToSign as ETHSignTx })
   },
 
-  filterAssetIdsBySellable: (assetIds: AssetId[]): AssetId[] => {
-    return filterEvmAssetIdsBySellable(assetIds)
+  filterAssetIdsBySellable: (assetIds: AssetId[]): Promise<AssetId[]> => {
+    return Promise.resolve(filterEvmAssetIdsBySellable(assetIds))
   },
 
-  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput): AssetId[] => {
-    return filterCrossChainEvmBuyAssetsBySellAssetId(input)
+  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput): Promise<AssetId[]> => {
+    return Promise.resolve(filterCrossChainEvmBuyAssetsBySellAssetId(input))
   },
 }

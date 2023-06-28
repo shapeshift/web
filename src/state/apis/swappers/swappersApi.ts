@@ -15,7 +15,6 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 
-// TODO: handle race conditions by checking the `startedTimeStamp`
 export const swappersApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'swappersApi',
@@ -79,7 +78,6 @@ export const swappersApi = createApi({
         )
 
         dispatch(tradeQuoteSlice.actions.setQuotes({ quotes: orderedQuotes, queryStartTime }))
-        console.log('xxx orderedQuotes', orderedQuotes)
 
         return { data: orderedQuotes }
       },

@@ -16,7 +16,6 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 
 // TODO: handle race conditions by checking the `startedTimeStamp`
-// TODO: handle exceptions from individual swappers
 export const swappersApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'swappersApi',
@@ -32,15 +31,27 @@ export const swappersApi = createApi({
         })[] = []
         const quoteHelperArgs = [getTradeQuoteInput, state] as const
         if (LifiSwap)
-          quotes.push({
-            ...(await getLifiTradeQuoteHelper(...quoteHelperArgs)),
-            swapperName: SwapperName.LIFI,
-          })
+          try {
+            const lifiTradeQuote: Result<TradeQuote2, SwapErrorRight> =
+              await getLifiTradeQuoteHelper(...quoteHelperArgs)
+            quotes.push({
+              ...lifiTradeQuote,
+              swapperName: SwapperName.LIFI,
+            })
+          } catch (error) {
+            console.error('[getLifiTradeQuoteHelper]', error)
+          }
         if (ThorSwap)
-          quotes.push({
-            ...(await getThorTradeQuoteHelper(...quoteHelperArgs)),
-            swapperName: SwapperName.Thorchain,
-          })
+          try {
+            const thorTradeQuote: Result<TradeQuote2, SwapErrorRight> =
+              await getThorTradeQuoteHelper(...quoteHelperArgs)
+            quotes.push({
+              ...thorTradeQuote,
+              swapperName: SwapperName.Thorchain,
+            })
+          } catch (error) {
+            console.error('[getThorTradeQuoteHelper]', error)
+          }
         const quotesWithInputOutputRatios = quotes
           .map(result => {
             const quote = result && result.isOk() ? result.unwrap() : undefined
@@ -60,15 +71,6 @@ export const swappersApi = createApi({
             )
             return !isCrossAccountTrade || swapperSupportsCrossAccountTrade
           })
-        // fixme: filter supports cross-account
-        //   const isCrossAccountTrade = useMemo(
-        //     () => sellAccountId !== buyAccountId,
-        //     [buyAccountId, sellAccountId],
-        //   )
-        //   .filter(result => {
-        //     const swapperSupportsCrossAccountTrade = isCrossAccountTradeSupported(result.swapperName)
-        //     return !isCrossAccountTrade || swapperSupportsCrossAccountTrade
-        //   })
         const orderedQuotes: ApiQuote[] = orderBy(
           quotesWithInputOutputRatios,
           ['inputOutputRatio', 'swapperName'],
@@ -76,8 +78,9 @@ export const swappersApi = createApi({
         )
 
         const bestQuote = orderedQuotes[0]
-        dispatch(tradeQuoteSlice.actions.setSwapperName(bestQuote.swapperName))
+        bestQuote && dispatch(tradeQuoteSlice.actions.setSwapperName(bestQuote.swapperName))
         dispatch(tradeQuoteSlice.actions.setQuotes(orderedQuotes))
+        console.log('xxx orderedQuotes', orderedQuotes)
 
         return { data: orderedQuotes }
       },

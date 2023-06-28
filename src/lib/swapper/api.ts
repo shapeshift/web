@@ -310,8 +310,8 @@ export type CheckTradeStatusInput = {
 }
 
 export type Swapper2 = {
-  filterAssetIdsBySellable: (assetIds: AssetId[]) => AssetId[]
-  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => AssetId[]
+  filterAssetIdsBySellable: (assetIds: AssetId[]) => Promise<AssetId[]>
+  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => Promise<AssetId[]>
   executeTrade: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
 }
 

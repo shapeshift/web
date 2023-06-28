@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type {
   CosmosSdkChainAdapter,
   EvmChainAdapter,
@@ -54,12 +54,15 @@ export const thorchain: Swapper2 = {
     }
   },
 
-  filterAssetIdsBySellable: (): AssetId[] => {
-    return [thorchainAssetId]
+  filterAssetIdsBySellable: async (): Promise<AssetId[]> => {
+    const thorchainSwapper = new ThorchainSwapper()
+    await thorchainSwapper.initialize()
+    return thorchainSwapper.filterAssetIdsBySellable()
   },
 
-  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput): AssetId[] => {
+  filterBuyAssetsBySellAssetId: async (input: BuyAssetBySellIdInput): Promise<AssetId[]> => {
     const thorchainSwapper = new ThorchainSwapper()
+    await thorchainSwapper.initialize()
     return thorchainSwapper.filterBuyAssetsBySellAssetId(input)
   },
 }

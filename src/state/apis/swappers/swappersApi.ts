@@ -19,7 +19,7 @@ export const swappersApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'swappersApi',
   endpoints: build => ({
-    getTradeQuote: build.query<ApiQuote[], GetTradeQuoteInput>({
+    getTradeQuote: build.query<null, GetTradeQuoteInput>({
       queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { getState, dispatch }) => {
         const queryStartTime = Date.now()
         const state = getState() as ReduxState
@@ -79,7 +79,7 @@ export const swappersApi = createApi({
 
         dispatch(tradeQuoteSlice.actions.setQuotes({ quotes: orderedQuotes, queryStartTime }))
 
-        return { data: orderedQuotes }
+        return { data: null }
       },
     }),
   }),

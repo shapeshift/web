@@ -10,6 +10,7 @@ import type {
   CosmosSdkBaseAdapter,
   CosmosSdkChainId,
   FeeDataEstimate,
+  GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
 import {
   type ChainAdapter,
@@ -68,10 +69,14 @@ export const estimateFees = ({
   const { chainNamespace } = fromChainId(asset.chainId)
 
   switch (chainNamespace) {
-    case CHAIN_NAMESPACE.CosmosSdk:
-      return adapter.getFeeData({})
-    case CHAIN_NAMESPACE.Evm:
-      return (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData({
+    case CHAIN_NAMESPACE.CosmosSdk: {
+      const getFeeDataInput: Partial<GetFeeDataInput<CosmosSdkChainId>> = {}
+      return (adapter as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>).getFeeData(
+        getFeeDataInput,
+      )
+    }
+    case CHAIN_NAMESPACE.Evm: {
+      const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
         memo,
         to,
         value,
@@ -80,14 +85,17 @@ export const estimateFees = ({
           contractAddress,
         },
         sendMax,
-      })
+      }
+      return (adapter as unknown as EvmBaseAdapter<EvmChainId>).getFeeData(getFeeDataInput)
+    }
     case CHAIN_NAMESPACE.Utxo: {
-      return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getFeeData({
+      const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
         to,
         value,
         chainSpecific: { from, pubkey: account },
         sendMax,
-      })
+      }
+      return (adapter as unknown as UtxoBaseAdapter<UtxoChainId>).getFeeData(getFeeDataInput)
     }
     default:
       throw new Error(`${chainNamespace} not supported`)

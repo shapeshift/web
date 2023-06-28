@@ -7,7 +7,11 @@ import {
   fromAssetId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import type { CosmosSdkBaseAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  CosmosSdkBaseAdapter,
+  CosmosSdkChainId,
+  GetFeeDataInput,
+} from '@shapeshiftoss/chain-adapters'
 import type { DepositValues } from 'features/defi/components/Deposit/PairDeposit'
 import { PairDepositWithAllocation } from 'features/defi/components/Deposit/PairDepositWithAllocation'
 import type {
@@ -110,11 +114,10 @@ export const Deposit: React.FC<DepositProps> = ({
       const adapter = chainAdapters.get(
         chainId,
       ) as unknown as CosmosSdkBaseAdapter<CosmosSdkChainId>
-      const fastFeeCryptoBaseUnit = (
-        await adapter.getFeeData({
-          sendMax: false,
-        })
-      ).fast.txFee
+      const getFeeDataInput: Partial<GetFeeDataInput<CosmosSdkChainId>> = {
+        sendMax: false,
+      }
+      const fastFeeCryptoBaseUnit = (await adapter.getFeeData(getFeeDataInput)).fast.txFee
 
       return bnOrZero(fastFeeCryptoBaseUnit).toString()
     } catch (error) {

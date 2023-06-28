@@ -600,7 +600,7 @@
       "balanceThresholdTooltip": "해당 금액보다 적은 자산은 목록에 표기하지 않습니다.",
       "currencies": {
         "CNY": "중국 위안",
-        "USD": "미국 달러(기본값)",
+        "USD": "미국 달러",
         "EUR": "유로화",
         "JPY": "일본 엔화",
         "GBP": "영국 파운드",

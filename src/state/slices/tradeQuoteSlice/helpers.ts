@@ -1,18 +1,14 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
-import type { Asset } from 'lib/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, TradeQuote } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
-import { assertUnreachable } from 'lib/utils'
+import type { ProtocolFee, SwapperName, TradeQuote } from 'lib/swapper/api'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectCryptoMarketData,
   selectFiatToUsdRate,
   selectMarketDataByFilter,
-  selectUsdRateByAssetId,
 } from 'state/slices/marketDataSlice/selectors'
 import { store } from 'state/store'
 import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
@@ -35,15 +31,6 @@ const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate = (
   ).times(feeAssetFiatRate)
 
   return networkFeeFiatPrecision
-}
-
-const _convertCryptoBaseUnitToUsdPrecision = (
-  asset: Asset,
-  amountCryptoBaseUnit: BigNumber.Value,
-): BigNumber => {
-  const usdRate = selectUsdRateByAssetId(store.getState(), asset.assetId)
-  if (usdRate === undefined) throw Error(`missing usd rate for assetId ${asset.assetId}`)
-  return bnOrZero(fromBaseUnit(amountCryptoBaseUnit, asset.precision)).times(usdRate)
 }
 
 // NOTE: "Receive side" refers to "last hop AND buy asset AND receive account".
@@ -91,97 +78,6 @@ const getTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate = (
     )
     return acc.plus(networkFeeFiatPrecision)
   }, bn(0))
-
-/**
- * Computes the total network fee across all hops
- * @param quote The trade quote
- * @returns The total network fee across all hops in USD precision
- */
-const _getTotalNetworkFeeUsdPrecision = (quote: TradeQuote): BigNumber => {
-  const state = store.getState()
-  const cryptoMarketDataById = selectCryptoMarketData(state)
-
-  const getFeeAssetUsdRate = (feeAssetId: AssetId) => {
-    const feeAsset = selectFeeAssetById(state, feeAssetId)
-    if (feeAsset === undefined) throw Error(`missing fee asset for assetId ${feeAssetId}`)
-    const feeAssetMarketData = cryptoMarketDataById[feeAsset.assetId]
-    if (feeAssetMarketData === undefined) throw Error(`missing fee asset for assetId ${feeAssetId}`)
-    return feeAssetMarketData.price
-  }
-
-  return getTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate(quote, getFeeAssetUsdRate)
-}
-
-const _getTotalProtocolFeesUsdPrecision = (quote: TradeQuote): BigNumber => {
-  const cryptoMarketDataById = selectCryptoMarketData(store.getState())
-  return quote.steps.reduce(
-    (acc, step) =>
-      acc.plus(
-        sumProtocolFeesToDenom({
-          cryptoMarketDataById,
-          protocolFees: step.feeData.protocolFees,
-          outputExponent: 0,
-          outputAssetPriceUsd: '1',
-        }),
-      ),
-    bn(0),
-  )
-}
-
-export const getInputOutputRatioFromQuote = ({
-  quote,
-  swapperName,
-}: {
-  quote: TradeQuote
-  swapperName: SwapperName
-}): number => {
-  const totalProtocolFeeUsdPrecision = _getTotalProtocolFeesUsdPrecision(quote)
-  const totalNetworkFeeUsdPrecision = _getTotalNetworkFeeUsdPrecision(quote)
-  const { sellAmountBeforeFeesCryptoBaseUnit, sellAsset } = quote.steps[0]
-  const { buyAsset } = quote.steps[quote.steps.length - 1]
-
-  const {
-    netReceiveAmountCryptoBaseUnit,
-    buySideNetworkFeeCryptoBaseUnit,
-    buySideProtocolFeeCryptoBaseUnit,
-  } = _getReceiveSideAmountsCryptoBaseUnit({
-    quote,
-    swapperName,
-  })
-
-  const netReceiveAmountUsdPrecision = _convertCryptoBaseUnitToUsdPrecision(
-    buyAsset,
-    netReceiveAmountCryptoBaseUnit,
-  )
-
-  const buySideNetworkFeeUsdPrecision = _convertCryptoBaseUnitToUsdPrecision(
-    buyAsset,
-    buySideNetworkFeeCryptoBaseUnit,
-  )
-
-  const buySideProtocolFeeUsdPrecision = _convertCryptoBaseUnitToUsdPrecision(
-    buyAsset,
-    buySideProtocolFeeCryptoBaseUnit,
-  )
-
-  const sellAmountCryptoBaseUnit = _convertCryptoBaseUnitToUsdPrecision(
-    sellAsset,
-    sellAmountBeforeFeesCryptoBaseUnit,
-  )
-
-  const sellSideNetworkFeeUsdPrecision = totalNetworkFeeUsdPrecision.minus(
-    buySideNetworkFeeUsdPrecision,
-  )
-  const sellSideProtocolFeeUsdPrecision = totalProtocolFeeUsdPrecision.minus(
-    buySideProtocolFeeUsdPrecision,
-  )
-
-  const netSendAmountUsdPrecision = sellAmountCryptoBaseUnit
-    .plus(sellSideNetworkFeeUsdPrecision)
-    .plus(sellSideProtocolFeeUsdPrecision)
-
-  return netSendAmountUsdPrecision.div(netReceiveAmountUsdPrecision).toNumber()
-}
 
 export const getHopTotalProtocolFeesFiatPrecision = (
   tradeQuoteStep: TradeQuote['steps'][number],
@@ -274,22 +170,3 @@ export const getTotalProtocolFeeByAsset = (quote: TradeQuote): Record<AssetId, P
       acc,
     )
   }, {})
-
-export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
-  switch (swapperName) {
-    case SwapperName.Thorchain:
-    case SwapperName.Osmosis:
-      return true
-    // NOTE: Before enabling cross-account for LIFI and OneInch - we must pass the sending address
-    // to the swappers up so allowance checks work. They're currently using the receive address
-    // assuming it's the same address as the sending address.
-    case SwapperName.LIFI:
-    case SwapperName.OneInch:
-    case SwapperName.Zrx:
-    case SwapperName.CowSwap:
-    case SwapperName.Test:
-      return false
-    default:
-      assertUnreachable(swapperName)
-  }
-}

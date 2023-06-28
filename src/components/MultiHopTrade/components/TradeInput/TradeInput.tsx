@@ -32,14 +32,16 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { selectSwappersApiTradeQuotePending } from 'state/apis/swappers/selectors'
+import {
+  selectSwappersApiTradeQuotePending,
+  selectSwappersApiTradeQuotes,
+} from 'state/apis/swappers/selectors'
 import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectNetReceiveAmountCryptoPrecision,
-  selectQuotes,
   selectSelectedQuote,
   selectSelectedQuoteError,
   selectSelectedSwapperName,
@@ -94,7 +96,7 @@ export const TradeInput = (props: CardProps) => {
   const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
   const selectedQuote = useAppSelector(selectSelectedQuote)
   const selectedSwapperName = useAppSelector(selectSelectedSwapperName)
-  const sortedQuotes = useAppSelector(selectQuotes)
+  const sortedQuotes = useAppSelector(selectSwappersApiTradeQuotes)
 
   const isQuoteLoading = useAppSelector(selectSwappersApiTradeQuotePending)
   const isLoading = useMemo(

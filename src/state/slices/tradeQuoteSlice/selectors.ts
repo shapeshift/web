@@ -8,6 +8,7 @@ import { fromBaseUnit } from 'lib/math'
 import type { ProtocolFee, SwapErrorRight, TradeQuote2 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import type { ApiQuote } from 'state/apis/swappers'
+import { selectSwappersApiTradeQuotes } from 'state/apis/swappers/selectors'
 import { isCrossAccountTradeSupported } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -31,17 +32,14 @@ const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 export const selectSelectedSwapperName: Selector<ReduxState, SwapperName | undefined> =
   createSelector(selectTradeQuoteSlice, swappers => swappers.swapperName)
 
-export const selectQuotes: Selector<ReduxState, ApiQuote[]> = createDeepEqualOutputSelector(
-  selectTradeQuoteSlice,
-  swappers => swappers.quotes,
-)
-
 export const selectSelectedSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined> =
   createDeepEqualOutputSelector(
-    selectQuotes,
+    selectSwappersApiTradeQuotes,
     selectSelectedSwapperName,
     (quotes, selectedSwapperName) =>
-      quotes.find(quote => quote.swapperName === selectedSwapperName),
+      quotes.find(quote => quote.swapperName === selectedSwapperName) ?? quotes.length > 0
+        ? quotes[0]
+        : undefined,
   )
 
 // TODO(apotheosis): Cache based on quote ID

@@ -9,6 +9,7 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 import { ErrorHandler } from '../../error/ErrorHandler'
 import type {
   BuildDepositTxInput,
+  BuildSendApiTxInput,
   BuildSendTxInput,
   FeeDataEstimate,
   GetAddressInput,
@@ -116,20 +117,15 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     }
   }
 
-  async buildSendTransaction(
-    tx: BuildSendTxInput<KnownChainIds.ThorchainMainnet>,
+  async buildSendApiTransaction(
+    input: BuildSendApiTxInput<KnownChainIds.ThorchainMainnet>,
   ): Promise<{ txToSign: ThorchainSignTx }> {
     try {
-      const {
-        accountNumber,
-        chainSpecific: { fee },
-        sendMax,
-        to,
-        value,
-        wallet,
-      } = tx
+      const { sendMax, to, value, from, chainSpecific } = input
+      const { fee } = chainSpecific
 
-      const from = await this.getAddress({ accountNumber, wallet })
+      if (!fee) throw new Error('fee is required')
+
       const account = await this.getAccount(from)
       const amount = this.getAmount({ account, value, fee, sendMax })
 
@@ -142,24 +138,39 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
         },
       }
 
-      tx.chainSpecific.fee = calculateFee(tx.chainSpecific.fee)
+      const tx = Object.assign(input, {
+        account,
+        msg,
+        chainSpecific: { ...input.chainSpecific, fee: calculateFee(fee) },
+      })
 
-      return this.buildTransaction<KnownChainIds.ThorchainMainnet>({ ...tx, account, msg })
+      return this.buildTransaction<KnownChainIds.ThorchainMainnet>(tx)
     } catch (err) {
       return ErrorHandler(err)
     }
   }
 
+  async buildSendTransaction(
+    input: BuildSendTxInput<KnownChainIds.ThorchainMainnet>,
+  ): Promise<{ txToSign: ThorchainSignTx }> {
+    const { accountNumber, wallet } = input
+    const from = await this.getAddress({ accountNumber, wallet })
+    return this.buildSendApiTransaction({ ...input, from })
+  }
+
   /* MsgDeposit is used for thorchain swap/lp operations */
   async buildDepositTransaction(
-    tx: BuildDepositTxInput<KnownChainIds.ThorchainMainnet>,
+    input: BuildDepositTxInput<KnownChainIds.ThorchainMainnet>,
   ): Promise<{ txToSign: ThorchainSignTx }> {
     try {
       // TODO memo validation
-      const { accountNumber, wallet, value, memo } = tx
+      const { from, value, memo, chainSpecific } = input
+      const { fee } = chainSpecific
 
-      const from = await this.getAddress({ accountNumber, wallet })
+      if (!fee) throw new Error('fee is required')
+
       const account = await this.getAccount(from)
+
       // https://dev.thorchain.org/thorchain-dev/concepts/memos#asset-notation
       const msg: Message = {
         type: 'thorchain/MsgDeposit',
@@ -170,9 +181,13 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
         },
       }
 
-      tx.chainSpecific.fee = calculateFee(tx.chainSpecific.fee)
+      const tx = Object.assign(input, {
+        account,
+        msg,
+        chainSpecific: { ...input.chainSpecific, fee: calculateFee(fee) },
+      })
 
-      return this.buildTransaction<KnownChainIds.ThorchainMainnet>({ ...tx, account, msg })
+      return this.buildTransaction<KnownChainIds.ThorchainMainnet>(tx)
     } catch (err) {
       return ErrorHandler(err)
     }

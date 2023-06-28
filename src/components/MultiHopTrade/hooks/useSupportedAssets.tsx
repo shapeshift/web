@@ -1,23 +1,24 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { LifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper'
+import { lifi } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
+import { thorchain } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
 import { selectAssetsSortedByMarketCapFiatBalanceAndName } from 'state/slices/common-selectors'
-import { selectAssetIds, selectSellAsset } from 'state/slices/selectors'
+import { selectAssetIds, selectFeatureFlags, selectSellAsset } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useSupportedAssets = () => {
   const sellAsset = useAppSelector(selectSellAsset)
   const assetIds = useAppSelector(selectAssetIds)
   const sortedAssets = useAppSelector(selectAssetsSortedByMarketCapFiatBalanceAndName)
-  const isLifiEnabled = useFeatureFlag('LifiSwap')
+  const { LifiSwap, ThorSwap } = useAppSelector(selectFeatureFlags)
 
   const enabledSwappers = useMemo(() => {
     const result = []
-    if (isLifiEnabled) result.push(LifiSwapper)
+    if (LifiSwap) result.push(lifi)
+    if (ThorSwap) result.push(thorchain)
     // TODO(woodenfurniture): add more swappers here
     return result
-  }, [isLifiEnabled])
+  }, [LifiSwap, ThorSwap])
 
   const supportedSellAssets = useMemo(() => {
     const supportedAssetIdsSet = new Set(

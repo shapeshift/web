@@ -5,7 +5,7 @@ import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { CurrencyFormats } from 'constants/CurrencyFormatsEnum'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
-import { defaultBrowserLanguage } from 'lib/browserLocale'
+import { defaultBrowserCurrency, defaultBrowserLanguage } from 'lib/browserLocale'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
 
 dayjs.extend(localizedFormat)
@@ -46,6 +46,7 @@ export type FeatureFlags = {
   Chatwoot: boolean
   MultiHopTrades: boolean
   CoinbaseWallet: boolean
+  AdvancedSlippage: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -98,10 +99,11 @@ const initialState: Preferences = {
     Chatwoot: getConfig().REACT_APP_FEATURE_CHATWOOT,
     MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
     CoinbaseWallet: getConfig().REACT_APP_FEATURE_COINBASE_WALLET,
+    AdvancedSlippage: getConfig().REACT_APP_ADVANCED_SLIPPAGE,
   },
   selectedLocale: defaultBrowserLanguage(),
   balanceThreshold: '0',
-  selectedCurrency: 'USD',
+  selectedCurrency: defaultBrowserCurrency(),
   currencyFormat: CurrencyFormats.SystemDefault,
   chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
   showWelcomeModal: false,

@@ -19,6 +19,7 @@ jest.mock('../utils/oneInchService', () => {
 })
 
 jest.mock('lib/utils/evm', () => ({
+  getApiFees: () => ({ networkFeeCryptoBaseUnit: '32388859301500' }),
   getFees: () => ({ networkFeeCryptoBaseUnit: '32388859301500' }),
 }))
 
@@ -30,22 +31,18 @@ describe('buildTrade', () => {
   const deps: OneInchSwapperDeps = {
     apiUrl: 'https://api.1inch.io/v5.0',
   }
-  const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
-  const wallet = {
-    ethGetAddress: jest.fn(() => Promise.resolve(walletAddress)),
-  } as unknown as HDWallet
   const { buyAsset, sellAsset } = setupQuote()
 
   const buildTradeInput: BuildTradeInput = {
+    wallet: {} as HDWallet,
     chainId: KnownChainIds.EthereumMainnet,
     sellAsset,
     buyAsset,
     sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
     accountNumber: 0,
-    wallet,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
-    eip1559Support: false,
+    supportsEIP1559: false,
     allowMultiHop: false,
   }
 

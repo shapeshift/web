@@ -1,9 +1,11 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type {
+  CosmosSdkChainId,
   EvmBaseAdapter,
   EvmChainId,
   FeeDataEstimate,
+  GetFeeDataInput,
   UtxoBaseAdapter,
   UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
@@ -227,29 +229,32 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         const { fastFee, adapterFees } = await (async () => {
           switch (chainNamespace) {
             case CHAIN_NAMESPACE.CosmosSdk: {
-              const adapterFees = await adapter.getFeeData({})
+              const getFeeDataInput: Partial<GetFeeDataInput<CosmosSdkChainId>> = {}
+              const adapterFees = await adapter.getFeeData(getFeeDataInput)
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
             case CHAIN_NAMESPACE.Evm: {
               const evmAdapter = adapter as unknown as EvmBaseAdapter<EvmChainId>
-              const adapterFees = await evmAdapter.getFeeData({
+              const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
                 to,
                 value: assetBalance,
                 chainSpecific: { contractAddress, from: account },
                 sendMax: true,
-              })
+              }
+              const adapterFees = await evmAdapter.getFeeData(getFeeDataInput)
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
             case CHAIN_NAMESPACE.Utxo: {
               const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
-              const adapterFees = await utxoAdapter.getFeeData({
+              const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
                 to,
                 value: assetBalance,
                 chainSpecific: { pubkey: account },
                 sendMax: true,
-              })
+              }
+              const adapterFees = await utxoAdapter.getFeeData(getFeeDataInput)
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }

@@ -632,12 +632,20 @@
   "trade": {
     "trade": "Trade",
     "allowance": "Allowance",
+    "slippageInfo": "Your transaction will revert if the price changes unfavorably by more than this percentage.",
     "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
     "searchingRate": "Fetching rate...",
     "noRateAvailable": "No rate available.",
     "previewTrade": "Preview Trade",
     "rate": "Rate",
     "tradeFrom": "Trade from",
+    "slippage": {
+      "maxSlippage": "Max Slippage",
+      "auto": "Auto",
+      "custom": "Custom",
+      "warning": "High slippage tolerances can result in unfavorable trades.",
+      "lowSlippage": "Slippage below 0.05% my result in a failed transaction."
+    },
     "from": "From",
     "to": "To",
     "youPay": "You Pay",
@@ -1063,7 +1071,7 @@
       "balanceThresholdTooltip": "On dashboard and charts, hide balances below this value",
       "currencies": {
         "CNY": "Chinese Yuan",
-        "USD": "United States Dollar (default)",
+        "USD": "United States Dollar",
         "EUR": "Euro",
         "JPY": "Japanese Yen",
         "GBP": "Great Britain Pound",

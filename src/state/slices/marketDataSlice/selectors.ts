@@ -132,3 +132,12 @@ export const selectUsdRateByAssetId = createCachedSelector(
     return cryptoMarketData[assetId]?.price
   },
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
+
+export const selectFiatRateByAssetId = createCachedSelector(
+  selectCryptoMarketData,
+  selectFiatToUsdRate,
+  selectAssetId,
+  (cryptoMarketData, fiatToUsdRate, assetId): string => {
+    return bnOrZero(cryptoMarketData[assetId]?.price).times(fiatToUsdRate).toString()
+  },
+)((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')

@@ -3,9 +3,9 @@ import { Err, Ok } from '@sniptt/monads'
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { isNativeEvmAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
-import type { ZrxExecuteTradeInput } from 'lib/swapper/swappers/ZrxSwapper/types'
 import { buildAndBroadcast, createBuildCustomTxInput } from 'lib/utils/evm'
 
+import type { ZrxExecuteTradeInput } from '../types'
 import { getAdapter } from '../utils/helpers/helpers'
 
 export async function zrxExecuteTrade({

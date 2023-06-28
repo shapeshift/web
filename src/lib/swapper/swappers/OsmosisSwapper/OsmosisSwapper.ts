@@ -1,6 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosAssetId, cosmosChainId, osmosisAssetId, osmosisChainId } from '@shapeshiftoss/caip'
-import type { cosmos } from '@shapeshiftoss/chain-adapters'
+import type { cosmos, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { osmosis } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
@@ -153,7 +153,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         }),
       )
 
-    const feeData = await osmosisAdapter.getFeeData({})
+    const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
+    const feeData = await osmosisAdapter.getFeeData(getFeeDataInput)
     const fee = feeData.fast.txFee
 
     if (!receiveAddress)
@@ -217,7 +218,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
     const maybeMin = this.getMin()
     if (maybeMin.isErr()) return Err(maybeMin.unwrapErr())
-    const minimumAmountCryptoHuman = maybeMin.unwrap()
+    const minimumCryptoHuman = maybeMin.unwrap()
 
     const osmosisAdapter = this.deps.adapterManager.get(osmosisChainId) as
       | osmosis.ChainAdapter
@@ -231,11 +232,12 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         }),
       )
 
-    const feeData = await osmosisAdapter.getFeeData({})
+    const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
+    const feeData = await osmosisAdapter.getFeeData(getFeeDataInput)
     const fee = feeData.fast.txFee
 
     return Ok({
-      minimumCryptoHuman: minimumAmountCryptoHuman, // TODO(gomes): shorthand?
+      minimumCryptoHuman,
       steps: [
         {
           allowanceContract: '',
@@ -341,7 +343,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
       const sequence = responseAccount.chainSpecific.sequence || '0'
 
-      const ibcFromCosmosFeeData = await cosmosAdapter.getFeeData({})
+      const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
+      const ibcFromCosmosFeeData = await cosmosAdapter.getFeeData(getFeeDataInput)
 
       const { tradeId } = await performIbcTransfer(
         transfer,
@@ -386,9 +389,11 @@ export class OsmosisSwapper implements Swapper<ChainId> {
      * be used as the fee asset automatically. See the whitelist of supported fee assets here:
      * https://github.com/osmosis-labs/osmosis/blob/04026675f75ca065fb89f965ab2d33c9840c965a/app/upgrades/v5/whitelist_feetokens.go
      */
+
+    const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
     const swapFeeData = await (sellAssetIsOnOsmosisNetwork
-      ? osmosisAdapter.getFeeData({})
-      : cosmosAdapter.getFeeData({}))
+      ? osmosisAdapter.getFeeData(getFeeDataInput)
+      : cosmosAdapter.getFeeData(getFeeDataInput))
 
     const feeDenom = sellAssetIsOnOsmosisNetwork
       ? 'uosmo'
@@ -444,7 +449,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         pageSize: 1,
       })
 
-      const ibcFromOsmosisFeeData = await osmosisAdapter.getFeeData({})
+      const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
+      const ibcFromOsmosisFeeData = await osmosisAdapter.getFeeData(getFeeDataInput)
 
       await performIbcTransfer(
         transfer,

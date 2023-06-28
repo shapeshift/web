@@ -1,5 +1,11 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  ChainSignTx,
+  CosmosSdkChainId,
+  EvmChainId,
+  SignTx,
+  UtxoChainId,
+} from '@shapeshiftoss/chain-adapters'
 import { createErrorClass } from '@shapeshiftoss/errors'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type {
@@ -8,9 +14,10 @@ import type {
   MarketData,
   UtxoAccountType,
 } from '@shapeshiftoss/types'
+import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
-import type { RequireFields } from 'lib/types'
+import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export const SwapError = createErrorClass('SwapError')
 
@@ -99,7 +106,7 @@ type CommonTradeInput = {
   buyAsset: Asset
   sellAmountBeforeFeesCryptoBaseUnit: string
   sendAddress?: string
-  receiveAddress: string | undefined
+  receiveAddress: string
   accountNumber: number
   receiveAccountNumber?: number
   affiliateBps: string
@@ -108,7 +115,7 @@ type CommonTradeInput = {
 
 export type GetEvmTradeQuoteInput = CommonTradeInput & {
   chainId: EvmChainId
-  eip1559Support: boolean
+  supportsEIP1559: boolean
 }
 
 export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
@@ -127,9 +134,9 @@ export type GetTradeQuoteInput =
   | GetEvmTradeQuoteInput
   | GetCosmosSdkTradeQuoteInput
 
-export type BuildTradeInput = RequireFields<GetTradeQuoteInput, 'receiveAddress'> & {
-  slippage?: string
+export type BuildTradeInput = GetTradeQuoteInput & {
   wallet: HDWallet
+  slippage?: string
 }
 
 export type AmountDisplayMeta = {
@@ -273,4 +280,48 @@ export interface Swapper<T extends ChainId, MaybeUnknownNetworkFee extends boole
    * Get transactions related to a trade
    */
   getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>>
+}
+
+export type UnsignedTx = SignTx<keyof ChainSignTx>
+
+export type TradeQuote2 = TradeQuote & { id: string; receiveAddress: string; affiliateBps: string }
+
+export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
+
+export type GetUnsignedTxArgs = {
+  tradeQuote: TradeQuote2
+  chainId: ChainId
+  accountMetadata?: AccountMetadata
+  stepIndex: number
+  supportsEIP1559: boolean
+  buyAssetUsdRate: string
+  feeAssetUsdRate: string
+} & FromOrXpub
+
+export type ExecuteTradeArgs = {
+  txToSign: UnsignedTx
+  wallet: HDWallet
+  chainId: ChainId
+}
+
+export type CheckTradeStatusInput = {
+  tradeId: string
+  txId: string
+}
+
+export type Swapper2 = {
+  filterAssetIdsBySellable: (assetIds: AssetId[]) => AssetId[]
+  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => AssetId[]
+  executeTrade: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
+}
+
+export type Swapper2Api = {
+  checkTradeStatus: (
+    input: CheckTradeStatusInput,
+  ) => Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }>
+  getTradeQuote: (
+    input: GetTradeQuoteInput,
+    ...deps: any[]
+  ) => Promise<Result<TradeQuote2, SwapErrorRight>>
+  getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx>
 }

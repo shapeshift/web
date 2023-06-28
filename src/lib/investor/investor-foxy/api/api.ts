@@ -1,6 +1,11 @@
 import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, CHAIN_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import type { EvmBaseAdapter, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import type {
+  EvmBaseAdapter,
+  EvmChainId,
+  FeeDataEstimate,
+  GetFeeDataInput,
+} from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import axios from 'axios'
 import type { BigNumber } from 'bignumber.js'
@@ -244,14 +249,15 @@ export class FoxyApi {
 
     try {
       const data = stakingContract.interface.encodeFunctionData('claimWithdraw', [addressToClaim])
-      const feeData = await this.adapter.getFeeData({
+      const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
         to: contractAddress,
         value: '0',
         chainSpecific: {
-          contractData: data,
+          data,
           from: userAddress,
         },
-      })
+      }
+      const feeData = await this.adapter.getFeeData(getFeeDataInput)
 
       const {
         chainSpecific: { gasLimit: gasLimitBase },
@@ -275,14 +281,15 @@ export class FoxyApi {
 
     try {
       const data = stakingContract.interface.encodeFunctionData('sendWithdrawalRequests', [])
-      const feeData = await this.adapter.getFeeData({
+      const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
         to: contractAddress,
         value: '0',
         chainSpecific: {
-          contractData: data,
+          data,
           from: userAddress,
         },
-      })
+      }
+      const feeData = await this.adapter.getFeeData(getFeeDataInput)
 
       const {
         chainSpecific: { gasLimit: gasLimitBase },
@@ -309,14 +316,15 @@ export class FoxyApi {
       const data = liquidityReserveContract.interface.encodeFunctionData('addLiquidity', [
         this.normalizeAmount(amountDesired),
       ])
-      const feeData = await this.adapter.getFeeData({
+      const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
         to: contractAddress,
         value: '0',
         chainSpecific: {
-          contractData: data,
+          data,
           from: userAddress,
         },
-      })
+      }
+      const feeData = await this.adapter.getFeeData(getFeeDataInput)
 
       const {
         chainSpecific: { gasLimit: gasLimitBase },
@@ -344,14 +352,15 @@ export class FoxyApi {
         this.normalizeAmount(amountDesired),
       ])
 
-      const feeData = await this.adapter.getFeeData({
+      const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
         to: contractAddress,
         value: '0',
         chainSpecific: {
-          contractData: data,
+          data,
           from: userAddress,
         },
-      })
+      }
+      const feeData = await this.adapter.getFeeData(getFeeDataInput)
 
       const {
         chainSpecific: { gasLimit: gasLimitBase },
@@ -384,14 +393,15 @@ export class FoxyApi {
           ])
         : stakingContract.interface.encodeFunctionData('instantUnstake', [true])
 
-      const feeData = await this.adapter.getFeeData({
+      const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
         to: contractAddress,
         value: '0',
         chainSpecific: {
-          contractData: data,
+          data,
           from: userAddress,
         },
-      })
+      }
+      const feeData = await this.adapter.getFeeData(getFeeDataInput)
 
       const {
         chainSpecific: { gasLimit: gasLimitBase },
@@ -418,14 +428,15 @@ export class FoxyApi {
         contractAddress,
         MAX_ALLOWANCE,
       ])
-      const feeData = await this.adapter.getFeeData({
+      const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
         to: tokenContractAddress,
         value: '0',
         chainSpecific: {
-          contractData: data,
+          data,
           from: userAddress,
         },
-      })
+      }
+      const feeData = await this.adapter.getFeeData(getFeeDataInput)
 
       const {
         chainSpecific: { gasLimit: gasLimitBase },
@@ -453,14 +464,15 @@ export class FoxyApi {
         this.normalizeAmount(amountDesired),
       ])
 
-      const feeData = await this.adapter.getFeeData({
+      const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
         to: contractAddress,
         value: '0',
         chainSpecific: {
-          contractData: data,
+          data,
           from: userAddress,
         },
-      })
+      }
+      const feeData = await this.adapter.getFeeData(getFeeDataInput)
 
       const {
         chainSpecific: { gasLimit: gasLimitBase },

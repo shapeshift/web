@@ -1,7 +1,7 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { GetFeeDataInput, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { getConfig } from 'config'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
@@ -170,19 +170,18 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, onNext }) => {
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
         // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
-        const fastFeeCryptoBaseUnit = (
-          await adapter.getFeeData({
-            to: quote.inbound_address,
-            value: dustAmountCryptoBaseUnit,
-            // EVM chains are the only ones explicitly requiring a `from` param for the gas estimation to work
-            // UTXOs simply call /api/v1/fees (common for all accounts), and Cosmos assets fees are hardcoded
-            chainSpecific: {
-              pubkey: userAddress,
-              from: supportedEvmChainIds.includes(chainId) ? userAddress : '',
-            },
-            sendMax: false,
-          })
-        ).fast.txFee
+        const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
+          to: quote.inbound_address,
+          value: dustAmountCryptoBaseUnit,
+          // EVM chains are the only ones explicitly requiring a `from` param for the gas estimation to work
+          // UTXOs simply call /api/v1/fees (common for all accounts), and Cosmos assets fees are hardcoded
+          chainSpecific: {
+            pubkey: userAddress,
+            from: supportedEvmChainIds.includes(chainId) ? userAddress : '',
+          },
+          sendMax: false,
+        }
+        const fastFeeCryptoBaseUnit = (await adapter.getFeeData(getFeeDataInput)).fast.txFee
 
         const fastFeeCryptoPrecision = bnOrZero(
           bn(fastFeeCryptoBaseUnit).div(bn(10).pow(asset.precision)),

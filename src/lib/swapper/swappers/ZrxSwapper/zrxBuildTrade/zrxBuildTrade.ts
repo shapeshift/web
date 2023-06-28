@@ -95,8 +95,8 @@ export async function zrxBuildTrade(
 
   try {
     const { networkFeeCryptoBaseUnit } = await getFees({
-      adapter,
       accountNumber,
+      adapter,
       to: quote.to,
       value: quote.value,
       data: quote.data,

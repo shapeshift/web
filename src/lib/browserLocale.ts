@@ -1,5 +1,9 @@
+import { DEFAULT_FIAT_CURRENCY } from 'constants/Config'
 import { CurrencyFormats } from 'constants/CurrencyFormatsEnum'
+import { getCurrency } from 'constants/LocaleFiatCurrenciesMap'
 import { translations } from 'assets/translations'
+import type { SupportedFiatCurrencies } from 'lib/market-service'
+import { SupportedFiatCurrenciesList } from 'lib/market-service'
 
 function assumeLocale() {
   if (typeof window === 'undefined' || typeof window.navigator === 'undefined') {
@@ -45,4 +49,10 @@ function getPreferredLanguageMaybeWithRegion(): string {
 export function defaultBrowserCurrencyFormat(): CurrencyFormats | string {
   const userLocale = getPreferredLanguageMaybeWithRegion()
   return userLocale ? userLocale : CurrencyFormats.CommaDecimal
+}
+
+export function defaultBrowserCurrency(): SupportedFiatCurrencies {
+  const userLocale = getPreferredLanguageMaybeWithRegion()
+  const userCurrency = getCurrency(userLocale) as SupportedFiatCurrencies
+  return SupportedFiatCurrenciesList?.includes(userCurrency) ? userCurrency : DEFAULT_FIAT_CURRENCY
 }

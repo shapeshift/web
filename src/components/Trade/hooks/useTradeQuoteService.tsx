@@ -51,7 +51,14 @@ export const useTradeQuoteService = () => {
   // Effects
   // Set trade quote args and trigger trade quote query
   useEffect(() => {
-    if (sellAsset && buyAsset && wallet && sellAmountCryptoPrecision && sellAccountMetadata) {
+    if (
+      sellAsset &&
+      buyAsset &&
+      wallet &&
+      sellAmountCryptoPrecision &&
+      sellAccountMetadata &&
+      receiveAddress
+    ) {
       ;(async () => {
         const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
         const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)

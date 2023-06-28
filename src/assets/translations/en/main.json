@@ -1070,7 +1070,7 @@
       "balanceThresholdTooltip": "On dashboard and charts, hide balances below this value",
       "currencies": {
         "CNY": "Chinese Yuan",
-        "USD": "United States Dollar (default)",
+        "USD": "United States Dollar",
         "EUR": "Euro",
         "JPY": "Japanese Yen",
         "GBP": "Great Britain Pound",

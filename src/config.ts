@@ -91,7 +91,7 @@ const validators = {
   REACT_APP_FEATURE_MULTI_HOP_TRADES: bool({ default: false }),
   REACT_APP_FEATURE_COINBASE_WALLET: bool({ default: false }),
   REACT_APP_WALLET_CONNECT_PROJECT_ID: str({ default: '' }),
-  REACT_APP_WALLET_CONNECT_RELAY_URL: str({ default: 'wss://relay.walletconnect.com' }),
+  REACT_APP_WALLET_CONNECT_RELAY_URL: str({ default: 'wss://derelay.rabby.io' }),
   REACT_APP_YAT_NODE_URL: url({ default: 'https://a.y.at' }),
   REACT_APP_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
   REACT_APP_LOCAL_IP: str({ default: '192.168.1.222' }),

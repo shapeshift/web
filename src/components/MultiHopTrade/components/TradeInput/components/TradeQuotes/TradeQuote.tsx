@@ -1,5 +1,4 @@
-import { Flex, Skeleton, SkeletonCircle, Stack, Tag, useColorModeValue } from '@chakra-ui/react'
-import type { Result } from '@sniptt/monads/build'
+import { Flex, Tag, useColorModeValue } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -7,8 +6,8 @@ import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { SwapErrorRight, TradeQuote2 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
+import type { ApiQuote } from 'state/apis/swappers'
 import {
   selectBuyAsset,
   selectFeeAssetByChainId,
@@ -24,51 +23,49 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../SwapperIcon/SwapperIcon'
 
-const TradeQuoteLoading = () => {
-  const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-  return (
-    <Stack
-      borderWidth={1}
-      cursor='not-allowed'
-      borderColor={borderColor}
-      borderRadius='xl'
-      flexDir='column'
-      spacing={2}
-      width='full'
-      px={4}
-      py={2}
-      fontSize='sm'
-    >
-      <Flex justifyContent='space-between'>
-        <Stack direction='row' spacing={2}>
-          <Skeleton height='20px' width='50px' />
-          <Skeleton height='20px' width='50px' />
-        </Stack>
-        <Skeleton height='20px' width='80px' />
-      </Flex>
-      <Flex justifyContent='space-between'>
-        <Stack direction='row' alignItems='center'>
-          <SkeletonCircle height='24px' width='24px' />
-          <Skeleton height='21px' width='50px' />
-        </Stack>
-        <Skeleton height='20px' width='100px' />
-      </Flex>
-    </Stack>
-  )
-}
-
 type TradeQuoteLoadedProps = {
   isActive: boolean
   isBest: boolean
-  quoteData: {
-    isLoading: boolean
-    data: Result<TradeQuote2, SwapErrorRight> | undefined
-    error: unknown
-    swapperName: SwapperName
-    inputOutputRatio: number
-  }
+  quoteData: ApiQuote
   bestInputOutputRatio: number
 }
+
+/*
+ TODO: Add loading skeleton - the below is an implementation for when trade quotes had separate loading states.
+ They are now unified.
+ */
+// const TradeQuoteLoading = () => {
+//   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+//   return (
+//     <Stack
+//       borderWidth={1}
+//       cursor='not-allowed'
+//       borderColor={borderColor}
+//       borderRadius='xl'
+//       flexDir='column'
+//       spacing={2}
+//       width='full'
+//       px={4}
+//       py={2}
+//       fontSize='sm'
+//     >
+//       <Flex justifyContent='space-between'>
+//         <Stack direction='row' spacing={2}>
+//           <Skeleton height='20px' width='50px' />
+//           <Skeleton height='20px' width='50px' />
+//         </Stack>
+//         <Skeleton height='20px' width='80px' />
+//       </Flex>
+//       <Flex justifyContent='space-between'>
+//         <Stack direction='row' alignItems='center'>
+//           <SkeletonCircle height='24px' width='24px' />
+//           <Skeleton height='21px' width='50px' />
+//         </Stack>
+//         <Skeleton height='20px' width='100px' />
+//       </Flex>
+//     </Stack>
+//   )
+// }
 
 export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   isActive,
@@ -93,13 +90,9 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const networkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeFiatPrecision)
   const totalReceiveAmountCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
 
-  const quote = quoteData?.data?.isOk() ? quoteData.data.unwrap() : undefined
-
   const handleQuoteSelection = useCallback(() => {
     dispatch(tradeQuoteSlice.actions.setSwapperName(quoteData.swapperName))
-    dispatch(tradeQuoteSlice.actions.setQuote(quote))
-    dispatch(tradeQuoteSlice.actions.setError(undefined))
-  }, [dispatch, quote, quoteData.swapperName])
+  }, [dispatch, quoteData.swapperName])
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset?.chainId ?? ''))
   if (!feeAsset)
@@ -198,6 +191,4 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   ) : null
 }
 
-export const TradeQuote: React.FC<TradeQuoteLoadedProps> = props => {
-  return props.quoteData.isLoading ? <TradeQuoteLoading /> : <TradeQuoteLoaded {...props} />
-}
+export const TradeQuote: React.FC<TradeQuoteLoadedProps> = props => <TradeQuoteLoaded {...props} />

@@ -173,7 +173,7 @@ export const mockStore: ReduxState = {
   },
   tradeQuoteSlice: {
     swapperName: undefined,
-    quote: undefined,
-    error: undefined,
+    quotes: [],
+    lastRequestStartTime: undefined,
   },
 }

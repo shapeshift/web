@@ -179,7 +179,6 @@ export const useSwapper = () => {
         ),
         sellAsset,
         buyAsset,
-        wallet,
         receiveAddress,
         slippage,
         affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps ?? defaultAffiliateBps,
@@ -216,9 +215,10 @@ export const useSwapper = () => {
           accountType,
           xpub,
           sendAddress,
+          wallet,
         })
       } else if (isEvmSwap(sellAsset.chainId) || isCosmosSdkSwap(sellAsset.chainId)) {
-        const eip1559Support = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+        const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
         const sellAssetChainAdapter = getChainAdapterManager().get(
           sellAsset.chainId,
         ) as unknown as EvmChainAdapter
@@ -233,8 +233,9 @@ export const useSwapper = () => {
           chainId: sellAsset.chainId,
           accountNumber: sellAccountBip44Params.accountNumber,
           receiveAccountNumber: buyAccountBip44Params?.accountNumber,
-          eip1559Support,
+          supportsEIP1559,
           sendAddress,
+          wallet,
         })
       } else {
         throw new Error('unsupported sellAsset.chainId')
@@ -303,43 +304,35 @@ export const useSwapper = () => {
 
       if (!activeQuote) throw new Error('no activeQuote available')
       if (!wallet) throw new Error('no wallet available')
-      if (!supportsETH(wallet)) throw Error('eth wallet required')
-      if (!adapter || !isEvmChainAdapter(adapter))
+      if (!isEvmChainAdapter(adapter))
         throw Error(`no valid EVM chain adapter found for chain Id: ${sellAsset.chainId}`)
 
       const approvalAmountCryptoBaseUnit = isExactAllowance
         ? activeQuote.steps[0].sellAmountBeforeFeesCryptoBaseUnit
         : MAX_ALLOWANCE
 
-      const { assetReference } = fromAssetId(sellAsset.assetId)
-
-      const value = '0'
+      const to = fromAssetId(sellAsset.assetId).assetReference
 
       const data = getApproveContractData({
         approvalAmountCryptoBaseUnit,
         spender: activeQuote.steps[0].allowanceContract,
-        to: assetReference,
+        to,
       })
 
-      const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
+      const args = {
         accountNumber: activeQuote.steps[0].accountNumber,
         adapter,
-        to: assetReference,
-        value,
         data,
+        to,
+        value: '0',
         wallet,
-      })
+      }
+
+      const { networkFeeCryptoBaseUnit, ...fees } = await getFees(args)
 
       return {
         networkFeeCryptoBaseUnit,
-        buildCustomTxInput: {
-          accountNumber: activeQuote.steps[0].accountNumber,
-          data,
-          to: assetReference,
-          value,
-          wallet,
-          ...fees,
-        },
+        buildCustomTxInput: { ...args, ...fees },
       }
     },
     [activeQuote, sellAsset.assetId, sellAsset.chainId, wallet],

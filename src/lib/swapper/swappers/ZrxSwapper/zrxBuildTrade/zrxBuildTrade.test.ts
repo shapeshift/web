@@ -37,6 +37,7 @@ jest.mock('@shapeshiftoss/chain-adapters', () => {
 
 jest.mock('lib/utils/evm', () => ({
   getFees: () => ({ networkFeeCryptoBaseUnit: '4080654495000000' }),
+  getApiFees: () => ({ networkFeeCryptoBaseUnit: '4080654495000000' }),
 }))
 
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
@@ -66,22 +67,19 @@ const setup = () => {
 describe('zrxBuildTrade', () => {
   const { quoteResponse, sellAsset, buyAsset } = setupZrxTradeQuoteResponse()
   const { zrxService } = setup()
-  const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
-  const wallet = {
-    ethGetAddress: jest.fn(() => Promise.resolve(walletAddress)),
-  } as unknown as HDWallet
 
   const buildTradeInput: BuildTradeInput = {
+    wallet: {} as HDWallet,
     chainId: KnownChainIds.EthereumMainnet,
     sellAsset,
     buyAsset,
     sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
     accountNumber: 0,
-    wallet,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
-    eip1559Support: false,
+    supportsEIP1559: false,
     allowMultiHop: false,
+    sendAddress: '0xfoobar',
   }
 
   const buildTradeResponse: ZrxTrade = {
@@ -168,7 +166,7 @@ describe('zrxBuildTrade', () => {
       networkFeeCryptoBaseUnit: '4080654495000000',
     }
 
-    const maybeBuiltTrade = await zrxBuildTrade({ ...buildTradeInput, wallet })
+    const maybeBuiltTrade = await zrxBuildTrade({ ...buildTradeInput })
     expect(maybeBuiltTrade.isOk()).toBe(true)
     expect(maybeBuiltTrade.unwrap()).toEqual({
       ...buildTradeResponse,

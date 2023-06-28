@@ -157,6 +157,7 @@ const validators = {
   REACT_APP_CHATWOOT_TOKEN: str(),
   REACT_APP_CHATWOOT_URL: str(),
   REACT_APP_FEATURE_CHATWOOT: bool({ default: false }),
+  REACT_APP_ADVANCED_SLIPPAGE: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

@@ -36,6 +36,7 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
+import maxBy from 'lodash/maxBy'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -303,3 +304,24 @@ export const genericBalanceIncludingStakingByFilter = (
     .reduce((acc, accountBalance) => acc.plus(accountBalance), bn(0))
     .toFixed()
 }
+
+export const getHighestFiatBalanceAccountByAssetId = (
+  accountIdAssetValues: PortfolioAccountBalancesById,
+  assetId?: AssetId,
+): AccountId | undefined => {
+  if (!assetId) return
+  const accountValueMap = Object.entries(accountIdAssetValues).reduce((acc, [k, v]) => {
+    const assetValue = v[assetId]
+    return assetValue ? acc.set(k, assetValue) : acc
+  }, new Map<AccountId, string>())
+  const highestBalanceAccountToAmount = maxBy([...accountValueMap], ([_, v]) =>
+    bnOrZero(v).toNumber(),
+  )
+  return highestBalanceAccountToAmount?.[0]
+}
+
+export const getFirstAccountIdByChainId = (
+  accountIds: AccountId[],
+  chainId: ChainId,
+): AccountId | undefined =>
+  accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)[0]

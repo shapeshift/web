@@ -54,7 +54,6 @@ export type BuildTradeInputCommonArgs = Pick<
   | 'sellAsset'
   | 'buyAsset'
   | 'receiveAddress'
-  | 'wallet'
   | 'slippage'
   | 'affiliateBps'
   | 'allowMultiHop'

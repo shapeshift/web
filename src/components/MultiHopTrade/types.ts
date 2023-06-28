@@ -1,7 +1,6 @@
 import type { Result } from '@sniptt/monads'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { SwapErrorRight, SwapperName, TradeQuote } from 'lib/swapper/api'
-import type { ThorChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
+import type { SwapErrorRight, SwapperName, TradeQuote2 } from 'lib/swapper/api'
 import type { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 
 export type StepperStep = {
@@ -38,8 +37,14 @@ export type QuoteStatus = {
 
 export type TradeQuoteResult = {
   isLoading: boolean
-  data: Result<TradeQuote<ThorChainId>, SwapErrorRight> | undefined
+  data: Result<TradeQuote2, SwapErrorRight> | undefined
   swapperName: SwapperName
   error: unknown
   inputOutputRatio: number
+}
+
+export enum TradeRoutePaths {
+  Input = '/trade/input',
+  Confirm = '/trade/confirm',
+  Approval = '/trade/approval',
 }

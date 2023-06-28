@@ -22,7 +22,6 @@ import type { BIP44Params } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
 import keys from 'lodash/keys'
-import maxBy from 'lodash/maxBy'
 import pickBy from 'lodash/pickBy'
 import sum from 'lodash/sum'
 import toNumber from 'lodash/toNumber'
@@ -54,7 +53,11 @@ import {
   selectStakingOpportunitiesById,
   selectUserStakingOpportunitiesById,
 } from 'state/slices/opportunitiesSlice/selectors/stakingSelectors'
-import { genericBalanceIncludingStakingByFilter } from 'state/slices/portfolioSlice/utils'
+import {
+  genericBalanceIncludingStakingByFilter,
+  getFirstAccountIdByChainId,
+  getHighestFiatBalanceAccountByAssetId,
+} from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import {
@@ -234,8 +237,7 @@ export const selectPortfolioFiatBalanceByFilter = createCachedSelector(
 export const selectFirstAccountIdByChainId = createCachedSelector(
   selectWalletAccountIds,
   (_s: ReduxState, chainId: ChainId) => chainId,
-  (accountIds, chainId): AccountId | undefined =>
-    accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)[0],
+  getFirstAccountIdByChainId,
 )((_s: ReduxState, chainId) => chainId ?? 'chainId')
 
 /**
@@ -354,17 +356,7 @@ export const selectPortfolioAssetAccountBalancesSortedFiat = createDeepEqualOutp
 export const selectHighestFiatBalanceAccountByAssetId = createCachedSelector(
   selectPortfolioAssetAccountBalancesSortedFiat,
   selectAssetIdParamFromFilter,
-  (accountIdAssetValues, assetId): AccountId | undefined => {
-    if (!assetId) return
-    const accountValueMap = Object.entries(accountIdAssetValues).reduce((acc, [k, v]) => {
-      const assetValue = v[assetId]
-      return assetValue ? acc.set(k, assetValue) : acc
-    }, new Map<AccountId, string>())
-    const highestBalanceAccountToAmount = maxBy([...accountValueMap], ([_, v]) =>
-      bnOrZero(v).toNumber(),
-    )
-    return highestBalanceAccountToAmount?.[0]
-  },
+  getHighestFiatBalanceAccountByAssetId,
 )((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
 
 export const selectPortfolioAllocationPercentByFilter = createCachedSelector(

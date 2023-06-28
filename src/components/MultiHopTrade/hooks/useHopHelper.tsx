@@ -1,48 +1,37 @@
 import { useMemo } from 'react'
-import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
 import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/common-selectors'
+import { selectSellAccountId } from 'state/slices/selectors'
 import {
-  selectFirstHopBuyAsset,
   selectFirstHopSellAsset,
   selectFirstHopSellFeeAsset,
-  selectLastHopBuyAsset,
-  selectLastHopSellAsset,
   selectLastHopSellFeeAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useHopHelper = () => {
   const firstHopSellAsset = useAppSelector(selectFirstHopSellAsset)
-  const firstHopBuyAsset = useAppSelector(selectFirstHopBuyAsset)
-  const lastHopSellAsset = useAppSelector(selectLastHopSellAsset)
-  const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
+
+  // the network fee asset for the first hop in the trade
   const firstHopSellFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
+
+  // the network fee asset for the last hop in the trade
   const lastHopSellFeeAsset = useAppSelector(selectLastHopSellFeeAsset)
 
-  const { sellAssetAccountId: firstHopSellAssetAccountId } = useAccountIds({
-    buyAsset: firstHopBuyAsset,
-    sellAsset: firstHopSellAsset,
-  })
-
-  const {
-    sellAssetAccountId: lastHopSellAssetAccountId,
-    buyAssetAccountId: lastHopBuyAssetAccountId,
-  } = useAccountIds({
-    buyAsset: lastHopBuyAsset,
-    sellAsset: lastHopSellAsset,
-  })
+  // this is the account we're selling from - in this implementation, network fees are always paid
+  // from the sell account regardless of how many hops we have (TODO: logic for osmo fees though)
+  const sellAccountId = useAppSelector(selectSellAccountId)
 
   const firstHopFeeAssetBalanceFilter = useMemo(
-    () => ({ assetId: firstHopSellFeeAsset?.assetId, accountId: firstHopSellAssetAccountId ?? '' }),
-    [firstHopSellAssetAccountId, firstHopSellFeeAsset?.assetId],
+    () => ({ assetId: firstHopSellFeeAsset?.assetId, accountId: sellAccountId ?? '' }),
+    [sellAccountId, firstHopSellFeeAsset?.assetId],
   )
 
   const lastHopFeeAssetBalanceFilter = useMemo(
-    () => ({ assetId: lastHopSellFeeAsset?.assetId, accountId: lastHopSellAssetAccountId ?? '' }),
-    [lastHopSellAssetAccountId, lastHopSellFeeAsset?.assetId],
+    () => ({ assetId: lastHopSellFeeAsset?.assetId, accountId: sellAccountId ?? '' }),
+    [sellAccountId, lastHopSellFeeAsset?.assetId],
   )
 
   const firstHopFeeAssetBalancePrecision = useAppSelector(s =>
@@ -54,8 +43,8 @@ export const useHopHelper = () => {
   )
 
   const sellAssetBalanceFilter = useMemo(
-    () => ({ accountId: firstHopSellAssetAccountId, assetId: firstHopSellAsset?.assetId ?? '' }),
-    [firstHopSellAssetAccountId, firstHopSellAsset?.assetId],
+    () => ({ accountId: sellAccountId, assetId: firstHopSellAsset?.assetId ?? '' }),
+    [sellAccountId, firstHopSellAsset?.assetId],
   )
 
   const sellAssetBalanceCryptoBaseUnit = useAppSelector(state =>
@@ -66,6 +55,5 @@ export const useHopHelper = () => {
     sellAssetBalanceCryptoBaseUnit,
     firstHopFeeAssetBalancePrecision,
     lastHopFeeAssetBalancePrecision,
-    lastHopBuyAssetAccountId,
   }
 }

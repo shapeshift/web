@@ -5,6 +5,7 @@ import type {
   EvmChainId,
   FeeDataEstimate,
   FeeDataKey,
+  GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
 import { utils } from 'ethers'
 import type { TransactionParams } from 'plugins/walletConnectToDapps/v1/bridge/types'
@@ -40,14 +41,15 @@ export const getFeesForTx = async (
   evmChainAdapter: EvmBaseAdapter<EvmChainId>,
   wcAccountId: AccountId,
 ) => {
-  return await evmChainAdapter.getFeeData({
+  const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
     to: tx.to,
     value: bnOrZero(tx.value).toFixed(0),
     chainSpecific: {
       from: fromAccountId(wcAccountId).account,
-      contractData: tx.data,
+      data: tx.data,
     },
-  })
+  }
+  return await evmChainAdapter.getFeeData(getFeeDataInput)
 }
 
 export const getGasData = (

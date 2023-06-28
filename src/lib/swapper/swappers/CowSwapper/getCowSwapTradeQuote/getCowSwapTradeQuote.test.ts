@@ -214,7 +214,7 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
       allowMultiHop: false,
     }
 
@@ -241,7 +241,7 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
       allowMultiHop: false,
     }
 
@@ -285,7 +285,7 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
       allowMultiHop: false,
     }
 
@@ -329,7 +329,7 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
       allowMultiHop: false,
     }
 
@@ -373,7 +373,7 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
       allowMultiHop: false,
     }
 

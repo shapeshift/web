@@ -59,9 +59,9 @@ const createBuildSendTxInput = async (
       gasLimit: gasLimit.toString(),
       maxFeePerGas: undefined,
       maxPriorityFeePerGas: undefined,
+      data: data.toString(),
     },
     accountNumber,
-    memo: data.toString(),
   })
 }
 

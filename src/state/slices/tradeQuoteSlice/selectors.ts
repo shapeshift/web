@@ -31,23 +31,25 @@ const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 export const selectSelectedSwapperName: Selector<ReduxState, SwapperName | undefined> =
   createSelector(selectTradeQuoteSlice, swappers => swappers.swapperName)
 
-export const selectQuotes: Selector<ReduxState, ApiQuote[] | undefined> =
-  createDeepEqualOutputSelector(selectTradeQuoteSlice, swappers => swappers.quotes)
+export const selectQuotes: Selector<ReduxState, ApiQuote[]> = createDeepEqualOutputSelector(
+  selectTradeQuoteSlice,
+  swappers => swappers.quotes,
+)
 
-export const selectSelectedQuoteApiResponse: Selector<ReduxState, ApiQuote | undefined> =
+export const selectSelectedSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined> =
   createDeepEqualOutputSelector(
     selectQuotes,
     selectSelectedSwapperName,
     (quotes, selectedSwapperName) =>
-      quotes?.find(quote => quote.swapperName === selectedSwapperName),
+      quotes.find(quote => quote.swapperName === selectedSwapperName),
   )
 
 // TODO(apotheosis): Cache based on quote ID
 export const selectSelectedQuote: Selector<ReduxState, TradeQuote2 | undefined> =
-  createDeepEqualOutputSelector(selectSelectedQuoteApiResponse, response => response?.quote)
+  createDeepEqualOutputSelector(selectSelectedSwapperApiResponse, response => response?.quote)
 
 export const selectSelectedQuoteError: Selector<ReduxState, SwapErrorRight | undefined> =
-  createDeepEqualOutputSelector(selectSelectedQuoteApiResponse, response => response?.error)
+  createDeepEqualOutputSelector(selectSelectedSwapperApiResponse, response => response?.error)
 
 /*
   Cross-account trading means trades that are either:

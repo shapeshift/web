@@ -1,4 +1,3 @@
-import type { AssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useState } from 'react'
@@ -13,10 +12,13 @@ import { thorchainApi } from 'lib/swapper/swappers/ThorchainSwapper/endpoints'
 import { thorchain as thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
 import { assertUnreachable, isEvmChainAdapter } from 'lib/utils'
 import {
-  selectFeeAssetById,
   selectPortfolioAccountMetadataByAccountId,
   selectUsdRateByAssetId,
 } from 'state/slices/selectors'
+import {
+  selectFirstHopSellFeeAsset,
+  selectLastHopBuyAsset,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TRADE_POLL_INTERVAL_MILLISECONDS } from '../constants'
@@ -37,6 +39,9 @@ export const useTradeExecution = ({
   const { poll } = usePoll()
   const wallet = useWallet().state.wallet
 
+  const buyAsset = useAppSelector(selectLastHopBuyAsset)
+  const feeAsset = useAppSelector(selectFirstHopSellFeeAsset)
+
   const { sellAssetAccountId } = useAccountIds()
 
   const accountMetadata = useAppSelector(state =>
@@ -44,14 +49,11 @@ export const useTradeExecution = ({
   )
 
   const buyAssetUsdRate = useAppSelector(state =>
-    selectUsdRateByAssetId(state, tradeQuote?.steps[0].buyAsset.assetId ?? ('' as AssetId)),
+    buyAsset ? selectUsdRateByAssetId(state, buyAsset.assetId) : undefined,
   )
 
-  const feeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, tradeQuote?.steps[0].sellAsset.assetId ?? ''),
-  )
   const feeAssetUsdRate = useAppSelector(state =>
-    selectUsdRateByAssetId(state, feeAsset?.assetId ?? ('' as AssetId)),
+    feeAsset ? selectUsdRateByAssetId(state, feeAsset.assetId) : undefined,
   )
 
   const executeTrade = useCallback(async () => {

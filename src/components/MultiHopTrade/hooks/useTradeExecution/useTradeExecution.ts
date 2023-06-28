@@ -10,6 +10,8 @@ import { lifiApi } from 'lib/swapper/swappers/LifiSwapper/endpoints'
 import { lifi as lifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
 import { thorchainApi } from 'lib/swapper/swappers/ThorchainSwapper/endpoints'
 import { thorchain as thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
+import { zrxApi } from 'lib/swapper/swappers/ZrxSwapper/endpoints'
+import { zrx as zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper2'
 import { assertUnreachable, isEvmChainAdapter } from 'lib/utils'
 import {
   selectPortfolioAccountMetadataByAccountId,
@@ -71,6 +73,7 @@ export const useTradeExecution = ({
         case SwapperName.Thorchain:
           return { ...thorchainSwapper, ...thorchainApi }
         case SwapperName.Zrx:
+          return { ...zrxSwapper, ...zrxApi }
         case SwapperName.CowSwap:
         case SwapperName.Osmosis:
         case SwapperName.OneInch:

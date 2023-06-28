@@ -3,6 +3,7 @@ import type { Result } from '@sniptt/monads'
 import { orderBy } from 'lodash'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote2 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
+import { zrxApi } from 'lib/swapper/swappers/ZrxSwapper/endpoints'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
 import { getLifiTradeQuoteHelper } from 'state/apis/swappers/helpers/getLifiTradeQuoteApiHelper'
 import { getThorTradeQuoteHelper } from 'state/apis/swappers/helpers/getThorTradeQuoteApiHelper'
@@ -25,7 +26,7 @@ export const swappersApi = createApi({
         const state = getState() as ReduxState
         const { sendAddress, receiveAddress } = getTradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
-        const { LifiSwap, ThorSwap }: FeatureFlags = selectFeatureFlags(state)
+        const { LifiSwap, ThorSwap, ZrxSwap }: FeatureFlags = selectFeatureFlags(state)
         const quotes: (Result<TradeQuote2, SwapErrorRight> & {
           swapperName: SwapperName
         })[] = []
@@ -51,6 +52,18 @@ export const swappersApi = createApi({
             })
           } catch (error) {
             console.error('[getThorTradeQuoteHelper]', error)
+          }
+        if (ZrxSwap)
+          try {
+            const zrxTradeQuote: Result<TradeQuote2, SwapErrorRight> = await zrxApi.getTradeQuote(
+              getTradeQuoteInput,
+            )
+            quotes.push({
+              ...zrxTradeQuote,
+              swapperName: SwapperName.Zrx,
+            })
+          } catch (error) {
+            console.error('[zrx.getTradeQuote]', error)
           }
         const quotesWithInputOutputRatios = quotes
           .map(result => {

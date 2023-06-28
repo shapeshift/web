@@ -8,6 +8,7 @@ import { fromBaseUnit } from 'lib/math'
 import type { ProtocolFee, SwapErrorRight, TradeQuote2 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import type { ApiQuote } from 'state/apis/swappers'
+import { isCrossAccountTradeSupported } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
@@ -17,7 +18,6 @@ import {
   getNetReceiveAmountCryptoPrecision,
   getTotalNetworkFeeFiatPrecision,
   getTotalProtocolFeeByAsset,
-  isCrossAccountTradeSupported,
 } from 'state/slices/tradeQuoteSlice/helpers'
 import {
   convertBasisPointsToDecimalPercentage,

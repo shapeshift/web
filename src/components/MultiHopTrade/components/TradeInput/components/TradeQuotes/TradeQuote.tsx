@@ -30,6 +30,43 @@ type TradeQuoteLoadedProps = {
   bestInputOutputRatio: number
 }
 
+/*
+ TODO: Add loading skeleton - the below is an implementation for when trade quotes had separate loading states.
+ They are now unified.
+ */
+// const TradeQuoteLoading = () => {
+//   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+//   return (
+//     <Stack
+//       borderWidth={1}
+//       cursor='not-allowed'
+//       borderColor={borderColor}
+//       borderRadius='xl'
+//       flexDir='column'
+//       spacing={2}
+//       width='full'
+//       px={4}
+//       py={2}
+//       fontSize='sm'
+//     >
+//       <Flex justifyContent='space-between'>
+//         <Stack direction='row' spacing={2}>
+//           <Skeleton height='20px' width='50px' />
+//           <Skeleton height='20px' width='50px' />
+//         </Stack>
+//         <Skeleton height='20px' width='80px' />
+//       </Flex>
+//       <Flex justifyContent='space-between'>
+//         <Stack direction='row' alignItems='center'>
+//           <SkeletonCircle height='24px' width='24px' />
+//           <Skeleton height='21px' width='50px' />
+//         </Stack>
+//         <Skeleton height='20px' width='100px' />
+//       </Flex>
+//     </Stack>
+//   )
+// }
+
 export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   isActive,
   isBest,

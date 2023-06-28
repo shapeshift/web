@@ -8,7 +8,7 @@ import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import * as native from '@shapeshiftoss/hdwallet-native'
-import type { IWCEthRpcConnectionOptions } from '@walletconnect/legacy-types'
+import type { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
@@ -678,8 +678,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             }
           }
           if (walletType === KeyManager.WalletConnect) {
-            const config: IWCEthRpcConnectionOptions = {
-              bridge: 'https://derelay.rabby.io',
+            const config: WalletConnectProviderConfig = {
               /** List of RPC URLs indexed by chain reference */
               rpc: {
                 [CHAIN_REFERENCE.EthereumMainnet]: getConfig().REACT_APP_ETHEREUM_NODE_URL,
@@ -726,7 +725,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         const adapters: Adapters = new Map()
         for (const keyManager of Object.values(KeyManager)) {
           try {
-            type KeyManagerOptions = undefined | IWCEthRpcConnectionOptions | CoinbaseProviderConfig
+            type KeyManagerOptions =
+              | undefined
+              | WalletConnectProviderConfig
+              | CoinbaseProviderConfig
 
             type GetKeyManagerOptions = (keyManager: KeyManager) => KeyManagerOptions
 

@@ -6261,7 +6261,6 @@ __metadata:
     "@visx/gradient": ^2.10.0
     "@visx/responsive": ^2.10.0
     "@visx/xychart": ^2.12.2
-    "@walletconnect/client": ^1.8.0
     "@walletconnect/legacy-types": ^2.0.0
     "@walletconnect/types": ^2.8.1
     "@walletconnect/utils": ^2.8.1

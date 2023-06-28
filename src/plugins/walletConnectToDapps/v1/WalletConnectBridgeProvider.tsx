@@ -43,7 +43,7 @@ import {
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
-const bridge = 'https://derelay.rabby.io'
+const bridge = 'https://bridge.walletconnect.org'
 
 export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children }) => {
   const translate = useTranslate()
@@ -294,12 +294,7 @@ export const WalletConnectBridgeProvider: FC<PropsWithChildren> = ({ children })
       if (!wcAccountId) return
       localStorage.removeItem('walletconnect') // purge any old sessions
       try {
-        const sanitizedURI = decodeURIComponent(uri).replace(
-          /https:\/\/.*walletconnect.org/,
-          encodeURIComponent('https://derelay.rabby.io'),
-        )
-
-        const c = new WalletConnect({ bridge, uri: sanitizedURI })
+        const c = new WalletConnect({ bridge, uri })
         setConnector(c)
         return { successful: true }
       } catch (error) {

@@ -1,6 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
-import { CurrencyFormats } from 'constants/CurrencyFormatsEnum'
+import { CurrencyFormat as CurrencyFormatEnum } from 'constants/constants'
 import sortBy from 'lodash/sortBy'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -19,8 +19,8 @@ export const CurrencyFormat = () => {
   const translate = useTranslate()
   const history = useHistory()
   const { goBack } = history
-  const formats = sortBy(CurrencyFormats, format => [
-    format !== CurrencyFormats.SystemDefault, // Top option.
+  const formats = sortBy(CurrencyFormatEnum, format => [
+    format !== CurrencyFormatEnum.SystemDefault, // Top option.
     format,
   ])
   const { setCurrencyFormat } = preferences.actions

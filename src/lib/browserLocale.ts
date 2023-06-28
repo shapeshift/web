@@ -1,38 +1,30 @@
-import { DEFAULT_FIAT_CURRENCY } from 'constants/Config'
-import { CurrencyFormats } from 'constants/CurrencyFormatsEnum'
+import { DEFAULT_FIAT_CURRENCY, DEFAULT_LANGUAGE } from 'constants/Config'
+import { CurrencyFormat } from 'constants/constants'
 import { getCurrency } from 'constants/LocaleFiatCurrenciesMap'
 import { translations } from 'assets/translations'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
 import { SupportedFiatCurrenciesList } from 'lib/market-service'
 
-function assumeLocale() {
-  if (typeof window === 'undefined' || typeof window.navigator === 'undefined') {
-    return 'en'
-  }
-  if (navigator.languages && navigator.languages.length) {
-    return navigator.languages[0]
-  } else {
-    return navigator.language || 'en'
+function isValidLocale(locale: string): boolean {
+  try {
+    const supportedLocales = Intl.Collator.supportedLocalesOf(locale)
+    return supportedLocales.length > 0
+  } catch (error) {
+    return false
   }
 }
 
-export function defaultBrowserLanguage(): string {
-  let locale: string = assumeLocale().split('-')[0] ?? assumeLocale()
-  if (!Object.keys(translations).includes(locale)) {
-    locale = 'en'
-  }
-  return locale
-}
-
-function getPreferredLanguageMaybeWithRegion(): string {
+function getPreferredLocaleMaybeWithRegion(): string {
   const languages = window?.navigator?.languages ?? [navigator?.language]
-
+  // Return a default language-region if there is no preference
   if (languages.length === 0) {
-    return 'en-US' // Return a default language-region if there is no preference
+    return CurrencyFormat.DotDecimal
   }
 
   const [baseLanguage, region] = languages[0].split('-')
-
+  if (!isValidLocale(baseLanguage)) {
+    return CurrencyFormat.DotDecimal
+  }
   if (region) {
     return languages[0] // If the first language has a regional code, return it
   }
@@ -46,13 +38,21 @@ function getPreferredLanguageMaybeWithRegion(): string {
   return languageWithRegion ?? baseLanguage // If none was found, return the base language
 }
 
-export function defaultBrowserCurrencyFormat(): CurrencyFormats | string {
-  const userLocale = getPreferredLanguageMaybeWithRegion()
-  return userLocale ? userLocale : CurrencyFormats.CommaDecimal
+export function defaultBrowserLanguage(): string {
+  let locale: string =
+    getPreferredLocaleMaybeWithRegion().split('-')[0] ?? getPreferredLocaleMaybeWithRegion()
+  if (!Object.keys(translations).includes(locale)) {
+    locale = DEFAULT_LANGUAGE
+  }
+  return locale
 }
 
 export function defaultBrowserCurrency(): SupportedFiatCurrencies {
-  const userLocale = getPreferredLanguageMaybeWithRegion()
+  const userLocale = getPreferredLocaleMaybeWithRegion()
   const userCurrency = getCurrency(userLocale) as SupportedFiatCurrencies
   return SupportedFiatCurrenciesList?.includes(userCurrency) ? userCurrency : DEFAULT_FIAT_CURRENCY
+}
+
+export function defaultBrowserCurrencyFormat(): CurrencyFormat | string {
+  return getPreferredLocaleMaybeWithRegion()
 }

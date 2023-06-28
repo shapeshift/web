@@ -25,3 +25,11 @@ export const getDefaultSlippagePercentageForSwapper = (swapperName?: SwapperName
       assertUnreachable(swapperName)
   }
 }
+
+export enum CurrencyFormat {
+  SystemDefault = 'default',
+  DotDecimal = 'en-US',
+  CommaDecimal = 'fr-FR',
+  CommaDecimalDotT = 'de-DE',
+  DotDecimalQuoteT = 'de-CH',
+}

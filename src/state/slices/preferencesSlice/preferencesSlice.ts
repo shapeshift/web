@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import { CurrencyFormats } from 'constants/CurrencyFormatsEnum'
+import { CurrencyFormat } from 'constants/constants'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import { defaultBrowserCurrency, defaultBrowserLanguage } from 'lib/browserLocale'
@@ -56,7 +56,7 @@ export type Preferences = {
   selectedLocale: string
   balanceThreshold: string
   selectedCurrency: SupportedFiatCurrencies
-  currencyFormat: CurrencyFormats
+  currencyFormat: CurrencyFormat
   chartTimeframe: HistoryTimeframe
   showWelcomeModal: boolean
   showConsentBanner: boolean
@@ -104,7 +104,7 @@ const initialState: Preferences = {
   selectedLocale: defaultBrowserLanguage(),
   balanceThreshold: '0',
   selectedCurrency: defaultBrowserCurrency(),
-  currencyFormat: CurrencyFormats.SystemDefault,
+  currencyFormat: CurrencyFormat.SystemDefault,
   chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
   showWelcomeModal: false,
   showConsentBanner: true,
@@ -129,7 +129,7 @@ export const preferences = createSlice({
     setBalanceThreshold(state, { payload }: { payload: { threshold: string } }) {
       state.balanceThreshold = payload.threshold
     },
-    setCurrencyFormat(state, { payload }: { payload: { currencyFormat: CurrencyFormats } }) {
+    setCurrencyFormat(state, { payload }: { payload: { currencyFormat: CurrencyFormat } }) {
       state.currencyFormat = payload.currencyFormat
     },
     setChartTimeframe(state, { payload }: { payload: { timeframe: HistoryTimeframe } }) {

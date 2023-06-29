@@ -28,7 +28,6 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { ErrorPage } from 'pages/ErrorPage/ErrorPage'
 import { SplashScreen } from 'pages/SplashScreen/SplashScreen'
-import { YatProvider } from 'pages/Yat/YatProvider'
 import { persistor, store } from 'state/store'
 import { theme } from 'theme/theme'
 
@@ -64,11 +63,9 @@ export function AppProviders({ children }: ProvidersProps) {
                               <ModalProvider>
                                 <TransactionsProvider>
                                   <AppProvider>
-                                    <YatProvider>
-                                      <FoxEthProvider>
-                                        <DefiManagerProvider>{children}</DefiManagerProvider>
-                                      </FoxEthProvider>
-                                    </YatProvider>
+                                    <FoxEthProvider>
+                                      <DefiManagerProvider>{children}</DefiManagerProvider>
+                                    </FoxEthProvider>
                                   </AppProvider>
                                 </TransactionsProvider>
                               </ModalProvider>

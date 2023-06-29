@@ -18,6 +18,7 @@ import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 export const swappersApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'swappersApi',
+  keepUnusedDataFor: 60, // this needs to be higher than the polling interval of any consumers
   endpoints: build => ({
     getTradeQuote: build.query<ApiQuote[], GetTradeQuoteInput>({
       queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { getState, dispatch }) => {

@@ -17,6 +17,7 @@ import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
+import { useActiveQuoteStatus } from 'components/MultiHopTrade/hooks/useActiveQuoteStatus'
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
@@ -39,12 +40,12 @@ import {
 import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
+  selectActiveQuote,
+  selectActiveQuoteError,
+  selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectNetReceiveAmountCryptoPrecision,
-  selectSelectedQuote,
-  selectSelectedQuoteError,
-  selectSelectedSwapperName,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalProtocolFeeByAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -53,7 +54,6 @@ import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { useGetTradeQuotes } from '../../hooks/useGetTradeQuotes'
-import { useSelectedQuoteStatus } from '../../hooks/useSelectedQuoteStatus'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
@@ -79,7 +79,7 @@ export const TradeInput = (props: CardProps) => {
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
 
-  const selectedQuoteStatus = useSelectedQuoteStatus()
+  const activeQuoteStatus = useActiveQuoteStatus()
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(swappers.actions.setBuyAsset(asset)),
     [dispatch],
@@ -94,9 +94,9 @@ export const TradeInput = (props: CardProps) => {
   )
 
   const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
-  const selectedQuote = useAppSelector(selectSelectedQuote)
-  const selectedQuoteError = useAppSelector(selectSelectedQuoteError)
-  const selectedSwapperName = useAppSelector(selectSelectedSwapperName)
+  const activeQuote = useAppSelector(selectActiveQuote)
+  const activeQuoteError = useAppSelector(selectActiveQuoteError)
+  const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const sortedQuotes = useAppSelector(selectSwappersApiTradeQuotes)
 
   const isQuoteLoading = useAppSelector(selectSwappersApiTradeQuotePending)
@@ -134,8 +134,8 @@ export const TradeInput = (props: CardProps) => {
   )
 
   const quoteHasError = useMemo(() => {
-    return selectedQuoteStatus.validationErrors.length > 0
-  }, [selectedQuoteStatus.validationErrors])
+    return activeQuoteStatus.validationErrors.length > 0
+  }, [activeQuoteStatus.validationErrors])
 
   const onSubmit = useCallback(async () => {
     setIsConfirmationLoading(true)
@@ -223,7 +223,7 @@ export const TradeInput = (props: CardProps) => {
                 showFiatSkeleton={isLoading}
                 label={translate('trade.youGet')}
                 rightRegion={
-                  selectedQuote ? (
+                  activeQuote ? (
                     <IconButton
                       size='sm'
                       icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
@@ -235,7 +235,7 @@ export const TradeInput = (props: CardProps) => {
                   )
                 }
               >
-                {selectedQuote && (
+                {activeQuote && (
                   <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes ?? []} />
                 )}
               </TradeAssetInput>
@@ -253,9 +253,9 @@ export const TradeInput = (props: CardProps) => {
                 gasFee={'0'}
                 rate={undefined}
                 isLoading={isLoading}
-                isError={selectedQuoteError !== undefined}
+                isError={activeQuoteError !== undefined}
               />
-              {selectedQuote ? (
+              {activeQuote ? (
                 <ReceiveSummary
                   isLoading={isLoading}
                   symbol={buyAsset.symbol}
@@ -264,14 +264,14 @@ export const TradeInput = (props: CardProps) => {
                   protocolFees={totalProtocolFees}
                   shapeShiftFee='0'
                   slippage={
-                    selectedQuote.recommendedSlippage ??
-                    getDefaultSlippagePercentageForSwapper(selectedSwapperName)
+                    activeQuote.recommendedSlippage ??
+                    getDefaultSlippagePercentageForSwapper(activeSwapperName)
                   }
-                  swapperName={selectedSwapperName ?? ''}
+                  swapperName={activeSwapperName ?? ''}
                 />
               ) : null}
             </Stack>
-            <Tooltip label={selectedQuoteStatus.error?.message}>
+            <Tooltip label={activeQuoteStatus.error?.message}>
               <Button
                 type='submit'
                 colorScheme={quoteHasError ? 'red' : 'blue'}
@@ -280,7 +280,7 @@ export const TradeInput = (props: CardProps) => {
                 isDisabled={quoteHasError}
                 isLoading={isLoading}
               >
-                <Text translation={selectedQuoteStatus.quoteStatusTranslation} />
+                <Text translation={activeQuoteStatus.quoteStatusTranslation} />
               </Button>
             </Tooltip>
           </Stack>

@@ -10,7 +10,7 @@ export type StepperStep = {
   status?: MultiHopExecutionStatus
 }
 
-export enum SelectedQuoteStatus {
+export enum ActiveQuoteStatus {
   SellAmountBelowMinimum = 'SellAmountBelowMinimum',
   SellAmountBelowTradeFee = 'SellAmountBelowTradeFee',
   InsufficientFirstHopFeeAssetBalance = 'InsufficientFirstHopFeeAssetBalance',
@@ -29,7 +29,7 @@ export enum SelectedQuoteStatus {
 }
 
 export type QuoteStatus = {
-  validationErrors: SelectedQuoteStatus[]
+  validationErrors: ActiveQuoteStatus[]
   quoteStatusTranslation: string | [string, InterpolationOptions]
   error?: SwapErrorRight
 }

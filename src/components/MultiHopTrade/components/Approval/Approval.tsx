@@ -35,9 +35,9 @@ import { baseUnitToHuman } from 'lib/bignumber/bignumber'
 import type { SwapperName, TradeQuote2 } from 'lib/swapper/api'
 import { selectFiatRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import {
+  selectActiveSwapperName,
   selectFirstHop,
   selectFirstHopSellFeeAsset,
-  selectSelectedSwapperName,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 import { theme } from 'theme/theme'
@@ -275,7 +275,7 @@ const ApprovalInner = ({
 export const Approval = () => {
   const history = useHistory()
   const tradeQuoteStep = useAppSelector(selectFirstHop)
-  const swapperName = useAppSelector(selectSelectedSwapperName)
+  const swapperName = useAppSelector(selectActiveSwapperName)
 
   if (!tradeQuoteStep || !swapperName) {
     history.goBack()

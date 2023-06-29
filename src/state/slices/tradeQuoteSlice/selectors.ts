@@ -29,25 +29,25 @@ import { selectCryptoMarketData, selectFiatToUsdRate } from '../marketDataSlice/
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 
-export const selectSelectedSwapperName: Selector<ReduxState, SwapperName | undefined> =
+export const selectActiveSwapperName: Selector<ReduxState, SwapperName | undefined> =
   createSelector(selectTradeQuoteSlice, swappers => swappers.swapperName)
 
-export const selectSelectedSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined> =
+export const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined> =
   createDeepEqualOutputSelector(
     selectSwappersApiTradeQuotes,
-    selectSelectedSwapperName,
-    (quotes, selectedSwapperName) =>
-      quotes.find(quote => quote.swapperName === selectedSwapperName) ?? quotes.length > 0
+    selectActiveSwapperName,
+    (quotes, activeSwapperName) =>
+      quotes.find(quote => quote.swapperName === activeSwapperName) ?? quotes.length > 0
         ? quotes[0]
         : undefined,
   )
 
 // TODO(apotheosis): Cache based on quote ID
-export const selectSelectedQuote: Selector<ReduxState, TradeQuote2 | undefined> =
-  createDeepEqualOutputSelector(selectSelectedSwapperApiResponse, response => response?.quote)
+export const selectActiveQuote: Selector<ReduxState, TradeQuote2 | undefined> =
+  createDeepEqualOutputSelector(selectActiveSwapperApiResponse, response => response?.quote)
 
-export const selectSelectedQuoteError: Selector<ReduxState, SwapErrorRight | undefined> =
-  createDeepEqualOutputSelector(selectSelectedSwapperApiResponse, response => response?.error)
+export const selectActiveQuoteError: Selector<ReduxState, SwapErrorRight | undefined> =
+  createDeepEqualOutputSelector(selectActiveSwapperApiResponse, response => response?.error)
 
 /*
   Cross-account trading means trades that are either:
@@ -56,15 +56,15 @@ export const selectSelectedQuoteError: Selector<ReduxState, SwapErrorRight | und
    When adding a new swapper, ensure that `true` is returned here if either of the above apply.
    */
 export const selectSwapperSupportsCrossAccountTrade: Selector<ReduxState, boolean | undefined> =
-  createSelector(selectSelectedSwapperName, selectedSwapperName => {
-    if (selectedSwapperName === undefined) return undefined
+  createSelector(selectActiveSwapperName, activeSwapperName => {
+    if (activeSwapperName === undefined) return undefined
 
-    return isCrossAccountTradeSupported(selectedSwapperName)
+    return isCrossAccountTradeSupported(activeSwapperName)
   })
 
 export const selectHopTotalProtocolFeesFiatPrecision: Selector<ReduxState, string | undefined> =
   createSelector(
-    selectSelectedQuote,
+    selectActiveQuote,
     (_state: ReduxState, step: 0 | 1) => step,
     (quote, step) =>
       quote && quote.steps[step]
@@ -74,7 +74,7 @@ export const selectHopTotalProtocolFeesFiatPrecision: Selector<ReduxState, strin
 
 export const selectHopTotalNetworkFeeFiatPrecision: Selector<ReduxState, string | undefined> =
   createSelector(
-    selectSelectedQuote,
+    selectActiveQuote,
     (_state: ReduxState, step: 0 | 1) => step,
     (quote, step) =>
       quote && quote.steps[step]
@@ -83,27 +83,27 @@ export const selectHopTotalNetworkFeeFiatPrecision: Selector<ReduxState, string 
   )
 
 export const selectNetReceiveAmountCryptoPrecision: Selector<ReduxState, string | undefined> =
-  createSelector(selectSelectedQuote, selectSelectedSwapperName, (quote, swapperName) =>
+  createSelector(selectActiveQuote, selectActiveSwapperName, (quote, swapperName) =>
     quote && swapperName ? getNetReceiveAmountCryptoPrecision({ quote, swapperName }) : undefined,
   )
 
 export const selectTotalNetworkFeeFiatPrecision: Selector<ReduxState, string | undefined> =
-  createSelector(selectSelectedQuote, quote =>
+  createSelector(selectActiveQuote, quote =>
     quote ? getTotalNetworkFeeFiatPrecision(quote) : undefined,
   )
 
 export const selectTotalProtocolFeeByAsset: Selector<
   ReduxState,
   Record<AssetId, ProtocolFee> | undefined
-> = createDeepEqualOutputSelector(selectSelectedQuote, quote =>
+> = createDeepEqualOutputSelector(selectActiveQuote, quote =>
   quote ? getTotalProtocolFeeByAsset(quote) : undefined,
 )
 
 export const selectFirstHop: Selector<ReduxState, TradeQuote2['steps'][number] | undefined> =
-  createDeepEqualOutputSelector(selectSelectedQuote, quote => (quote ? quote.steps[0] : undefined))
+  createDeepEqualOutputSelector(selectActiveQuote, quote => (quote ? quote.steps[0] : undefined))
 
 export const selectLastHop: Selector<ReduxState, TradeQuote2['steps'][number] | undefined> =
-  createDeepEqualOutputSelector(selectSelectedQuote, quote =>
+  createDeepEqualOutputSelector(selectActiveQuote, quote =>
     quote ? quote.steps[quote.steps.length - 1] : undefined,
   )
 
@@ -164,7 +164,7 @@ export const selectFirstHopTradeDeductionCryptoPrecision: Selector<ReduxState, s
 
 // TODO(woodenfurniture): update swappers to specify this as with protocol fees
 export const selectNetworkFeeRequiresBalance: Selector<ReduxState, boolean> = createSelector(
-  selectSelectedSwapperName,
+  selectActiveSwapperName,
   (swapperName): boolean => swapperName === SwapperName.CowSwap,
 )
 
@@ -195,11 +195,10 @@ export const selectLastHopNetworkFeeCryptoPrecision: Selector<ReduxState, string
 )
 
 export const selectSlippage = createSelector(
-  selectSelectedQuote,
-  selectSelectedSwapperName,
-  (selectedQuote, selectedSwapperName) =>
-    selectedQuote?.recommendedSlippage ??
-    getDefaultSlippagePercentageForSwapper(selectedSwapperName),
+  selectActiveQuote,
+  selectActiveSwapperName,
+  (activeQuote, activeSwapperName) =>
+    activeQuote?.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(activeSwapperName),
 )
 
 const selectSellAssetUsdRate = createSelector(
@@ -324,11 +323,11 @@ export const selectSellAmountFiat = createSelector(
 )
 
 export const selectDonationAmountFiat = createSelector(
-  selectSelectedQuote,
+  selectActiveQuote,
   selectSellAmountFiat,
-  (selectedQuote, sellAmountFiat) => {
-    if (!selectedQuote) return
-    const affiliatePercentage = convertBasisPointsToDecimalPercentage(selectedQuote.affiliateBps)
+  (activeQuote, sellAmountFiat) => {
+    if (!activeQuote) return
+    const affiliatePercentage = convertBasisPointsToDecimalPercentage(activeQuote.affiliateBps)
     // The donation amount is a percentage of the sell amount
     return bnOrZero(sellAmountFiat).times(affiliatePercentage).toFixed()
   },

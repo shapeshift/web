@@ -20,29 +20,33 @@ export const zrx: Swapper2 = {
     return signAndBroadcast({ adapter, wallet, txToSign: txToSign as ETHSignTx })
   },
 
-  filterAssetIdsBySellable: (assetIds: AssetId[]): AssetId[] => {
+  filterAssetIdsBySellable: (assetIds: AssetId[]): Promise<AssetId[]> => {
     const assets = selectAssets(store.getState())
-    return filterEvmAssetIdsBySellable(assetIds).filter(assetId => {
-      const asset = assets[assetId]
-      if (asset === undefined) return false
-      const { chainId } = asset
-      return (
-        !ZRX_UNSUPPORTED_ASSETS.includes(assetId) &&
-        ZRX_SUPPORTED_CHAINIDS.includes(chainId as ZrxSupportedChainId)
-      )
-    })
+    return Promise.resolve(
+      filterEvmAssetIdsBySellable(assetIds).filter(assetId => {
+        const asset = assets[assetId]
+        if (asset === undefined) return false
+        const { chainId } = asset
+        return (
+          !ZRX_UNSUPPORTED_ASSETS.includes(assetId) &&
+          ZRX_SUPPORTED_CHAINIDS.includes(chainId as ZrxSupportedChainId)
+        )
+      }),
+    )
   },
 
-  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput): AssetId[] => {
+  filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput): Promise<AssetId[]> => {
     const assets = selectAssets(store.getState())
-    return filterSameChainEvmBuyAssetsBySellAssetId(input).filter(assetId => {
-      const asset = assets[assetId]
-      if (asset === undefined) return false
-      const { chainId } = asset
-      return (
-        !ZRX_UNSUPPORTED_ASSETS.includes(assetId) &&
-        ZRX_SUPPORTED_CHAINIDS.includes(chainId as ZrxSupportedChainId)
-      )
-    })
+    return Promise.resolve(
+      filterSameChainEvmBuyAssetsBySellAssetId(input).filter(assetId => {
+        const asset = assets[assetId]
+        if (asset === undefined) return false
+        const { chainId } = asset
+        return (
+          !ZRX_UNSUPPORTED_ASSETS.includes(assetId) &&
+          ZRX_SUPPORTED_CHAINIDS.includes(chainId as ZrxSupportedChainId)
+        )
+      }),
+    )
   },
 }

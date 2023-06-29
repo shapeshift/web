@@ -22,6 +22,7 @@ jest.mock('lib/swapper/swappers/ZrxSwapper/utils/zrxService', () => {
 })
 
 const zrxService = zrxServiceFactory({ baseUrl: 'https://api.0x.org/' })
+const sellAssetUsdRate = '1'
 
 jest.mock('../utils/helpers/helpers', () => ({
   ...jest.requireActual('../utils/helpers/helpers'),
@@ -29,9 +30,6 @@ jest.mock('../utils/helpers/helpers', () => ({
 }))
 jest.mock('../../utils/helpers/helpers')
 jest.mock('../utils/zrxService')
-jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
-  selectSellAssetUsdRate: jest.fn(() => '1'),
-}))
 jest.mock('@shapeshiftoss/chain-adapters', () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
   return {
@@ -79,7 +77,7 @@ describe('getZrxTradeQuote', () => {
         }),
       ),
     )
-    const maybeQuote = await getZrxTradeQuote(quoteInput)
+    const maybeQuote = await getZrxTradeQuote(quoteInput, sellAssetUsdRate)
 
     expect(maybeQuote.isErr()).toBe(false)
     const quote = maybeQuote.unwrap()
@@ -95,7 +93,7 @@ describe('getZrxTradeQuote', () => {
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(mockErr({ some: 'error' })),
     )
-    const maybeTradeQuote = await getZrxTradeQuote(quoteInput)
+    const maybeTradeQuote = await getZrxTradeQuote(quoteInput, sellAssetUsdRate)
 
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
@@ -111,7 +109,7 @@ describe('getZrxTradeQuote', () => {
       }) as unknown as never,
     )
 
-    const maybeTradeQuote = await getZrxTradeQuote(quoteInput)
+    const maybeTradeQuote = await getZrxTradeQuote(quoteInput, sellAssetUsdRate)
 
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
@@ -128,7 +126,7 @@ describe('getZrxTradeQuote', () => {
         }),
       ),
     )
-    const maybeQuote = await getZrxTradeQuote(quoteInput)
+    const maybeQuote = await getZrxTradeQuote(quoteInput, sellAssetUsdRate)
     expect(maybeQuote.isErr()).toBe(false)
     const quote = maybeQuote.unwrap()
 
@@ -142,10 +140,13 @@ describe('getZrxTradeQuote', () => {
     const { quoteInput } = setupQuote()
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({})))
 
-    const maybeTradeQuote = await getZrxTradeQuote({
-      ...quoteInput,
-      buyAsset: BTC,
-    })
+    const maybeTradeQuote = await getZrxTradeQuote(
+      {
+        ...quoteInput,
+        buyAsset: BTC,
+      },
+      sellAssetUsdRate,
+    )
 
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
@@ -164,10 +165,13 @@ describe('getZrxTradeQuote', () => {
     const { quoteInput, sellAsset } = setupQuote()
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(Ok({})))
 
-    const maybeTradeQuote = await getZrxTradeQuote({
-      ...quoteInput,
-      sellAsset: { ...sellAsset, chainId: btcChainId },
-    })
+    const maybeTradeQuote = await getZrxTradeQuote(
+      {
+        ...quoteInput,
+        sellAsset: { ...sellAsset, chainId: btcChainId },
+      },
+      sellAssetUsdRate,
+    )
 
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
@@ -186,10 +190,13 @@ describe('getZrxTradeQuote', () => {
       Promise.resolve(Ok({ data: { price: '1' } })),
     )
 
-    const maybeQuote = await getZrxTradeQuote({
-      ...quoteInput,
-      sellAmountBeforeFeesCryptoBaseUnit: '0',
-    })
+    const maybeQuote = await getZrxTradeQuote(
+      {
+        ...quoteInput,
+        sellAmountBeforeFeesCryptoBaseUnit: '0',
+      },
+      sellAssetUsdRate,
+    )
 
     expect(maybeQuote.isErr()).toBe(false)
     const quote = maybeQuote.unwrap()

@@ -1,4 +1,5 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
+import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
@@ -14,9 +15,11 @@ import {
   selectSellAmountCryptoPrecision,
   selectSellAsset,
 } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 export const useGetTradeQuotes = () => {
+  const dispatch = useAppDispatch()
   const flags = useAppSelector(selectFeatureFlags)
   const wallet = useWallet().state.wallet
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
@@ -41,7 +44,7 @@ export const useGetTradeQuotes = () => {
       ;(async () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
 
-        const tradeQuoteInputArgs: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
+        const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,
           sellAccountNumber,
           sellAccountType: sellAccountMetadata.accountType,
@@ -52,18 +55,28 @@ export const useGetTradeQuotes = () => {
           allowMultiHop: flags.MultiHopTrades,
         })
 
-        setTradeQuoteInput(tradeQuoteInputArgs ?? skipToken)
+        // if the quote input args changed, reset the selected swapper and update the trade quote args
+        if (!isEqual(tradeQuoteInput, updatedTradeQuoteInput ?? skipToken)) {
+          setTradeQuoteInput(updatedTradeQuoteInput ?? skipToken)
+          dispatch(tradeQuoteSlice.actions.resetSwapperName())
+        }
       })()
     } else {
-      setTradeQuoteInput(skipToken)
+      // if the quote input args changed, reset the selected swapper and update the trade quote args
+      if (tradeQuoteInput !== skipToken) {
+        setTradeQuoteInput(skipToken)
+        dispatch(tradeQuoteSlice.actions.resetSwapperName())
+      }
     }
   }, [
     buyAsset,
+    dispatch,
     flags.MultiHopTrades,
     receiveAddress,
     sellAccountMetadata,
     sellAmountCryptoPrecision,
     sellAsset,
+    tradeQuoteInput,
     wallet,
   ])
 

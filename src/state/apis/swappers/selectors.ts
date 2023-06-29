@@ -1,11 +1,14 @@
+import type { Selector } from '@reduxjs/toolkit'
 import { createSelector } from '@reduxjs/toolkit'
 import { QueryStatus } from '@reduxjs/toolkit/query'
-import type { Selector } from 'reselect'
-import type { ApiQuote } from 'state/apis/swappers/types'
 import type { ReduxState } from 'state/reducer'
 
-export const selectMostRecentTradeQuoteQuery = (state: ReduxState) => {
-  const getTradeQuoteQueries = Object.values(state.swappersApi.queries).filter(
+import type { ApiQuote } from './types'
+
+const selectSwappersApi = (state: ReduxState) => state.swappersApi
+
+export const selectMostRecentTradeQuoteQuery = createSelector(selectSwappersApi, swappersApi => {
+  const getTradeQuoteQueries = Object.values(swappersApi.queries).filter(
     query => query?.endpointName === 'getTradeQuote',
   )
 
@@ -18,7 +21,7 @@ export const selectMostRecentTradeQuoteQuery = (state: ReduxState) => {
       ? query
       : mostRecentQuery,
   )
-}
+})
 
 export const selectSwappersApiTradeQuotes: Selector<ReduxState, ApiQuote[]> = createSelector(
   selectMostRecentTradeQuoteQuery,

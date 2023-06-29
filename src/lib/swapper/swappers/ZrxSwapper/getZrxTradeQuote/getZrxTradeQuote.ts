@@ -28,6 +28,7 @@ import { getMinimumCryptoHuman } from '../getMinimumCryptoHuman/getMinimumCrypto
 
 export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   input: GetEvmTradeQuoteInput,
+  sellAssetUsdRate: string,
 ): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
   const {
     sellAsset,
@@ -47,7 +48,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   if (maybeAdapter.isErr()) return Err(maybeAdapter.unwrapErr())
   const adapter = maybeAdapter.unwrap()
 
-  const minimumCryptoHuman = getMinimumCryptoHuman()
+  const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetUsdRate)
   const minimumCryptoBaseUnit = toBaseUnit(minimumCryptoHuman, sellAsset.precision)
 
   const normalizedSellAmountCryptoBaseUnit = normalizeAmount(

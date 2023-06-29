@@ -7,12 +7,14 @@ import { resolveYat, validateYat } from 'lib/address/yat'
 
 /**
  * see https://github.com/shapeshift/web/issues/4604
- * this modal is used to handle when a user successfully purchases a yat
+ * this route is used to handle when a user successfully purchases a yat
  *
  * https://a.y.at/emoji_id/%F0%9F%A6%8A%F0%9F%9A%80%F0%9F%8C%88 for example
  * which is 🦊🚀🌈 without URL encoding
  *
- * the app (including mobile app) will redirect to /yat/idOfPurchasedYat
+ * yat refers to them as "eid"s, i.e. emoji id's
+ *
+ * the app (including mobile app) will redirect to /yat/eid
  * full example url http://localhost:3000/#/yat/%F0%9F%A6%8A%F0%9F%9A%80%F0%9F%8C%88
  */
 export const Yat: React.FC = () => {

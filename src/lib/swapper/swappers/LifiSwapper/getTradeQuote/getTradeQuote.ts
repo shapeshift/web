@@ -5,14 +5,12 @@ import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
+import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
-import {
-  LIFI_INTEGRATOR_ID,
-  SELECTED_ROUTE_INDEX,
-} from 'lib/swapper/swappers/LifiSwapper/utils/constants'
+import { SELECTED_ROUTE_INDEX } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
 import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwapper/utils/getIntermediaryTransactionOutputs/getIntermediaryTransactionOutputs'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
@@ -80,8 +78,8 @@ export async function getTradeQuote(
       // as recommended by lifi, dodo is denied until they fix their gas estimates
       // TODO: convert this config to .env variable
       options: {
-        // used for analytics and donations - do not change this without considering impact
-        integrator: LIFI_INTEGRATOR_ID,
+        // used for analytics - do not change this without considering impact
+        integrator: DAO_TREASURY_ETHEREUM_MAINNET,
         slippage: Number(defaultLifiSwapperSlippage),
         exchanges: { deny: ['dodo'] },
         allowSwitchChain: allowMultiHop,

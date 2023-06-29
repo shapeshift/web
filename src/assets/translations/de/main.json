@@ -1062,7 +1062,7 @@
       "balanceThresholdTooltip": "auf Dashboard und Diagrammen Salden unterhalb dieses Werts ausblenden",
       "currencies": {
         "CNY": "Chinesische Yuan",
-        "USD": "US-Dollar",
+        "USD": "US-Dollar (Standard)",
         "EUR": "Euro",
         "JPY": "Japanische YEN",
         "GBP": "Britisches Pfund",

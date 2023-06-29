@@ -1062,7 +1062,7 @@
       "balanceThresholdTooltip": "Kontrol panelinde ve grafiklerde, bu değerin altındaki bakiyeleri gizleyin",
       "currencies": {
         "CNY": "Çin Yuanı",
-        "USD": "ABD Doları",
+        "USD": "ABD Doları (varsayılan)",
         "EUR": "Euro",
         "JPY": "Japon Yeni",
         "GBP": "İngiliz Sterlini",

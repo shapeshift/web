@@ -245,7 +245,7 @@ export const TradeInput = (props: CardProps) => {
                   )
                 }
               >
-                {sortedQuotes.length && (
+                {Boolean(sortedQuotes.length) && (
                   <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes ?? []} />
                 )}
               </TradeAssetInput>

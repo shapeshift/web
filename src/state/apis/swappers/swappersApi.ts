@@ -74,7 +74,7 @@ export const swappersApi = createApi({
         const orderedQuotes: ApiQuote[] = orderBy(
           quotesWithInputOutputRatios,
           ['inputOutputRatio', 'swapperName'],
-          ['asc', 'asc'],
+          ['desc', 'asc'],
         )
 
         dispatch(tradeQuoteSlice.actions.setSwapperName(orderedQuotes[0]?.swapperName))

@@ -4,7 +4,7 @@ import { getConfig } from 'config'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
-import { defaultBrowserCurrency, simpleLocale } from 'lib/browserLocale'
+import { simpleLocale } from 'lib/browserLocale'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
 
 dayjs.extend(localizedFormat)
@@ -107,7 +107,7 @@ const initialState: Preferences = {
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
-  selectedCurrency: defaultBrowserCurrency(),
+  selectedCurrency: 'USD',
   currencyFormat: CurrencyFormats.DotDecimal,
   chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
   showWelcomeModal: false,

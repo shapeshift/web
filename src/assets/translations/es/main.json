@@ -1062,7 +1062,7 @@
       "balanceThresholdTooltip": "Ocultar saldos por debajo de este valor",
       "currencies": {
         "CNY": "Yuan Chino",
-        "USD": "Dólar estadounidense",
+        "USD": "Dólar estadounidense (predeterminado)",
         "EUR": "Euro",
         "JPY": "Yen Japonés",
         "GBP": "Libra Esterlina",

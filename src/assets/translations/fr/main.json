@@ -1062,7 +1062,7 @@
       "balanceThresholdTooltip": "Sur le tableau de bord et les graphiques, masquer les soldes en dessous de cette valeur",
       "currencies": {
         "CNY": "Yuan chinois",
-        "USD": "Dollar américain",
+        "USD": "Dollar américain (par défaut)",
         "EUR": "Euro",
         "JPY": "Yen japonais",
         "GBP": "Livre britannique",

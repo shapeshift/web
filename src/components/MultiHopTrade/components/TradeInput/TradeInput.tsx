@@ -104,8 +104,6 @@ export const TradeInput = (props: CardProps) => {
     () => isQuoteLoading || isConfirmationLoading,
     [isConfirmationLoading, isQuoteLoading],
   )
-  const quoteData = useAppSelector(selectSelectedQuote)
-  const errorData = useAppSelector(selectSelectedQuoteError)
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()

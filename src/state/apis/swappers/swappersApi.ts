@@ -18,10 +18,10 @@ import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 export const swappersApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'swappersApi',
+  keepUnusedDataFor: 60, // this needs to be higher than the polling interval of any consumers
   endpoints: build => ({
-    getTradeQuote: build.query<null, GetTradeQuoteInput>({
+    getTradeQuote: build.query<ApiQuote[], GetTradeQuoteInput>({
       queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { getState, dispatch }) => {
-        const queryStartTime = Date.now()
         const state = getState() as ReduxState
         const { sendAddress, receiveAddress } = getTradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
@@ -74,12 +74,12 @@ export const swappersApi = createApi({
         const orderedQuotes: ApiQuote[] = orderBy(
           quotesWithInputOutputRatios,
           ['inputOutputRatio', 'swapperName'],
-          ['asc', 'asc'],
+          ['desc', 'asc'],
         )
 
-        dispatch(tradeQuoteSlice.actions.setQuotes({ quotes: orderedQuotes, queryStartTime }))
+        dispatch(tradeQuoteSlice.actions.setSwapperName(orderedQuotes[0]?.swapperName))
 
-        return { data: null }
+        return { data: orderedQuotes }
       },
     }),
   }),

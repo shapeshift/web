@@ -32,14 +32,16 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { selectSwappersApiTradeQuotePending } from 'state/apis/swappers/selectors'
+import {
+  selectSwappersApiTradeQuotePending,
+  selectSwappersApiTradeQuotes,
+} from 'state/apis/swappers/selectors'
 import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectNetReceiveAmountCryptoPrecision,
-  selectQuotes,
   selectSelectedQuote,
   selectSelectedQuoteError,
   selectSelectedSwapperName,
@@ -93,16 +95,15 @@ export const TradeInput = (props: CardProps) => {
 
   const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
   const selectedQuote = useAppSelector(selectSelectedQuote)
+  const selectedQuoteError = useAppSelector(selectSelectedQuoteError)
   const selectedSwapperName = useAppSelector(selectSelectedSwapperName)
-  const sortedQuotes = useAppSelector(selectQuotes)
+  const sortedQuotes = useAppSelector(selectSwappersApiTradeQuotes)
 
   const isQuoteLoading = useAppSelector(selectSwappersApiTradeQuotePending)
   const isLoading = useMemo(
     () => isQuoteLoading || isConfirmationLoading,
     [isConfirmationLoading, isQuoteLoading],
   )
-  const quoteData = useAppSelector(selectSelectedQuote)
-  const errorData = useAppSelector(selectSelectedQuoteError)
 
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()
@@ -222,7 +223,7 @@ export const TradeInput = (props: CardProps) => {
                 showFiatSkeleton={isLoading}
                 label={translate('trade.youGet')}
                 rightRegion={
-                  quoteData ? (
+                  selectedQuote ? (
                     <IconButton
                       size='sm'
                       icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
@@ -234,7 +235,7 @@ export const TradeInput = (props: CardProps) => {
                   )
                 }
               >
-                {quoteData && (
+                {selectedQuote && (
                   <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes ?? []} />
                 )}
               </TradeAssetInput>
@@ -252,9 +253,9 @@ export const TradeInput = (props: CardProps) => {
                 gasFee={'0'}
                 rate={undefined}
                 isLoading={isLoading}
-                isError={errorData !== undefined}
+                isError={selectedQuoteError !== undefined}
               />
-              {selectedQuote && quoteData ? (
+              {selectedQuote ? (
                 <ReceiveSummary
                   isLoading={isLoading}
                   symbol={buyAsset.symbol}
@@ -263,7 +264,7 @@ export const TradeInput = (props: CardProps) => {
                   protocolFees={totalProtocolFees}
                   shapeShiftFee='0'
                   slippage={
-                    quoteData.recommendedSlippage ??
+                    selectedQuote.recommendedSlippage ??
                     getDefaultSlippagePercentageForSwapper(selectedSwapperName)
                   }
                   swapperName={selectedSwapperName ?? ''}

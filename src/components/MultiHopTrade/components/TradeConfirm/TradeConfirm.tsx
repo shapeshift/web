@@ -43,6 +43,8 @@ import { MixPanelEvents } from 'lib/mixpanel/types'
 import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
 import {
+  selectActiveQuote,
+  selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectFirstHopNetworkFeeCryptoPrecision,
@@ -51,8 +53,6 @@ import {
   selectLastHopBuyAsset,
   selectNetBuyAmountCryptoPrecision,
   selectNetBuyAmountFiat,
-  selectSelectedQuote,
-  selectSelectedSwapperName,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountFiat,
   selectSlippage,
@@ -86,9 +86,9 @@ export const TradeConfirm = () => {
     dispatch: walletDispatch,
   } = useWallet()
 
-  const tradeQuote = useAppSelector(selectSelectedQuote)
+  const tradeQuote = useAppSelector(selectActiveQuote)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
-  const swapperName = useAppSelector(selectSelectedSwapperName)
+  const swapperName = useAppSelector(selectActiveSwapperName)
   const defaultFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
   const netBuyAmountCryptoPrecision = useAppSelector(selectNetBuyAmountCryptoPrecision)
   const slippage = useAppSelector(selectSlippage)

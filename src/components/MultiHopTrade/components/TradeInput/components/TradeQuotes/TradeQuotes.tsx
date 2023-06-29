@@ -1,6 +1,6 @@
 import { Collapse, Flex } from '@chakra-ui/react'
 import type { ApiQuote } from 'state/apis/swappers'
-import { selectSelectedSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
+import { selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TradeQuote } from './TradeQuote'
@@ -11,7 +11,7 @@ type TradeQuotesProps = {
 }
 
 export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, sortedQuotes }) => {
-  const activeSwapperName = useAppSelector(selectSelectedSwapperName)
+  const activeSwapperName = useAppSelector(selectActiveSwapperName)
 
   const bestQuoteData = sortedQuotes[0]
 

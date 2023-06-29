@@ -1,17 +1,17 @@
 import { useMemo } from 'react'
 import { useQuoteValidationPredicateObject } from 'components/MultiHopTrade/hooks/useQuoteValidationPredicateObject'
 import type { QuoteStatus } from 'components/MultiHopTrade/types'
-import { SelectedQuoteStatus } from 'components/MultiHopTrade/types'
+import { ActiveQuoteStatus } from 'components/MultiHopTrade/types'
 import { SwapErrorType } from 'lib/swapper/api'
 import {
+  selectActiveQuote,
+  selectActiveQuoteError,
   selectFirstHopSellFeeAsset,
   selectLastHopSellFeeAsset,
-  selectSelectedQuote,
-  selectSelectedQuoteError,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-export const useSelectedQuoteStatus = (): QuoteStatus => {
+export const useActiveQuoteStatus = (): QuoteStatus => {
   const {
     hasSufficientSellAssetBalance,
     firstHopHasSufficientBalanceForGas,
@@ -21,44 +21,44 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
   const firstHopSellFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
   const lastHopSellFeeAsset = useAppSelector(selectLastHopSellFeeAsset)
 
-  const selectedQuote = useAppSelector(selectSelectedQuote)
-  const selectedQuoteError = useAppSelector(selectSelectedQuoteError)
+  const activeQuote = useAppSelector(selectActiveQuote)
+  const activeQuoteError = useAppSelector(selectActiveQuoteError)
 
   // TODO: implement properly once we've got api loading state rigged up
   const isLoading = useMemo(
-    () => !selectedQuote && !selectedQuoteError,
-    [selectedQuote, selectedQuoteError],
+    () => !activeQuote && !activeQuoteError,
+    [activeQuote, activeQuoteError],
   )
 
-  const validationErrors: SelectedQuoteStatus[] = useMemo(() => {
+  const validationErrors: ActiveQuoteStatus[] = useMemo(() => {
     if (isLoading) return []
-    const errors: SelectedQuoteStatus[] = []
-    if (selectedQuoteError) {
+    const errors: ActiveQuoteStatus[] = []
+    if (activeQuoteError) {
       // Map known swapper errors to quote status
-      if (selectedQuoteError.code === SwapErrorType.UNSUPPORTED_PAIR)
-        errors.push(SelectedQuoteStatus.NoQuotesAvailableForTradePair)
+      if (activeQuoteError.code === SwapErrorType.UNSUPPORTED_PAIR)
+        errors.push(ActiveQuoteStatus.NoQuotesAvailableForTradePair)
       // We didn't recognize the error, use a generic error message
-      if (errors.length === 0) errors.push(SelectedQuoteStatus.UnknownError)
-    } else if (selectedQuote) {
+      if (errors.length === 0) errors.push(ActiveQuoteStatus.UnknownError)
+    } else if (activeQuote) {
       // We have a quote, but something might be wrong
       if (!hasSufficientSellAssetBalance)
-        errors.push(SelectedQuoteStatus.InsufficientSellAssetBalance)
+        errors.push(ActiveQuoteStatus.InsufficientSellAssetBalance)
       if (!firstHopHasSufficientBalanceForGas)
-        errors.push(SelectedQuoteStatus.InsufficientFirstHopFeeAssetBalance)
+        errors.push(ActiveQuoteStatus.InsufficientFirstHopFeeAssetBalance)
       if (!lastHopHasSufficientBalanceForGas)
-        errors.push(SelectedQuoteStatus.InsufficientLastHopFeeAssetBalance)
+        errors.push(ActiveQuoteStatus.InsufficientLastHopFeeAssetBalance)
     } else {
       // No quote or error data
-      errors.push(SelectedQuoteStatus.NoQuotesAvailable)
+      errors.push(ActiveQuoteStatus.NoQuotesAvailable)
     }
     return errors
   }, [
-    selectedQuoteError,
+    activeQuoteError,
     firstHopHasSufficientBalanceForGas,
     hasSufficientSellAssetBalance,
     isLoading,
     lastHopHasSufficientBalanceForGas,
-    selectedQuote,
+    activeQuote,
   ])
 
   const quoteStatusTranslation: QuoteStatus['quoteStatusTranslation'] = useMemo(() => {
@@ -67,17 +67,17 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
 
     return (() => {
       switch (firstError) {
-        case SelectedQuoteStatus.InsufficientSellAssetBalance:
+        case ActiveQuoteStatus.InsufficientSellAssetBalance:
           return 'common.insufficientFunds'
-        case SelectedQuoteStatus.InsufficientFirstHopFeeAssetBalance:
+        case ActiveQuoteStatus.InsufficientFirstHopFeeAssetBalance:
           return ['common.insufficientAmountForGas', { assetSymbol: firstHopSellFeeAsset?.symbol }]
-        case SelectedQuoteStatus.InsufficientLastHopFeeAssetBalance:
+        case ActiveQuoteStatus.InsufficientLastHopFeeAssetBalance:
           return ['common.insufficientAmountForGas', { assetSymbol: lastHopSellFeeAsset?.symbol }]
-        case SelectedQuoteStatus.NoQuotesAvailableForTradePair:
+        case ActiveQuoteStatus.NoQuotesAvailableForTradePair:
           return 'trade.errors.invalidTradePairBtnText'
-        case SelectedQuoteStatus.UnknownError:
+        case ActiveQuoteStatus.UnknownError:
           return 'trade.errors.quoteError'
-        case SelectedQuoteStatus.NoQuotesAvailable:
+        case ActiveQuoteStatus.NoQuotesAvailable:
           return 'trade.errors.noQuotesAvailable'
         default:
           return 'trade.previewTrade'
@@ -88,6 +88,6 @@ export const useSelectedQuoteStatus = (): QuoteStatus => {
   return {
     validationErrors,
     quoteStatusTranslation,
-    error: selectedQuoteError,
+    error: activeQuoteError,
   }
 }

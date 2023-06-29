@@ -110,34 +110,32 @@ export const getThorTradeQuote = async (
     ? bn(quote.unwrap().slippage_bps).div(1000)
     : bn(DEFAULT_SLIPPAGE).times(100)
 
-  const rate = (
-    await quote.match({
-      ok: quote => {
-        const THOR_PRECISION = 8
-        const expectedAmountOutThorBaseUnit = quote.expected_amount_out
-        const sellAmountCryptoPrecision = baseUnitToPrecision({
-          value: sellAmountCryptoBaseUnit,
-          inputExponent: sellAsset.precision,
-        })
-        // All thorchain pool amounts are base 8 regardless of token precision
-        const sellAmountCryptoThorBaseUnit = bn(
-          toBaseUnit(sellAmountCryptoPrecision, THOR_PRECISION),
-        )
+  const maybeRate = await quote.match({
+    ok: quote => {
+      const THOR_PRECISION = 8
+      const expectedAmountOutThorBaseUnit = quote.expected_amount_out
+      const sellAmountCryptoPrecision = baseUnitToPrecision({
+        value: sellAmountCryptoBaseUnit,
+        inputExponent: sellAsset.precision,
+      })
+      // All thorchain pool amounts are base 8 regardless of token precision
+      const sellAmountCryptoThorBaseUnit = bn(toBaseUnit(sellAmountCryptoPrecision, THOR_PRECISION))
 
-        return Promise.resolve(
-          Ok(bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed()),
-        )
-      },
-      // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
-      // Though realistically, TRADE_BELOW_MINIMUM is the only one we should really be seeing here,
-      // safety never hurts
-      err: _err =>
-        getTradeRateBelowMinimum({
-          sellAssetId: sellAsset.assetId,
-          buyAssetId: buyAsset.assetId,
-        }),
-    })
-  ).unwrap()
+      return Promise.resolve(
+        Ok(bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed()),
+      )
+    },
+    // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
+    // Though realistically, TRADE_BELOW_MINIMUM is the only one we should really be seeing here,
+    // safety never hurts
+    err: _err =>
+      getTradeRateBelowMinimum({
+        sellAssetId: sellAsset.assetId,
+        buyAssetId: buyAsset.assetId,
+      }),
+  })
+
+  const rate = maybeRate.isOk() ? maybeRate.unwrap() : '0'
 
   const fees = quote.isOk() ? quote.unwrap().fees : undefined
 

@@ -2,6 +2,7 @@ import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
@@ -15,11 +16,11 @@ import { getMinimumCryptoHuman } from '../getMinimumCryptoHuman/getMinimumCrypto
 import { DEFAULT_SOURCE } from '../utils/constants'
 import { assertValidTrade, getAdapter, getRate } from '../utils/helpers'
 import { oneInchService } from '../utils/oneInchService'
-import type { OneInchQuoteApiInput, OneInchQuoteResponse, OneInchSwapperDeps } from '../utils/types'
+import type { OneInchQuoteApiInput, OneInchQuoteResponse } from '../utils/types'
 
 export async function getTradeQuote(
-  { apiUrl }: OneInchSwapperDeps,
   input: GetEvmTradeQuoteInput,
+  sellAssetUsdRate: string,
 ): Promise<Result<TradeQuote<EvmChainId>, SwapErrorRight>> {
   const {
     chainId,
@@ -30,12 +31,13 @@ export async function getTradeQuote(
     supportsEIP1559,
     receiveAddress,
   } = input
+  const apiUrl = getConfig().REACT_APP_ONE_INCH_API_URL
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
 
   const assertion = assertValidTrade({ buyAsset, sellAsset, receiveAddress })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
-  const minimumCryptoHuman = getMinimumCryptoHuman()
+  const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetUsdRate)
   const minimumCryptoBaseUnit = toBaseUnit(minimumCryptoHuman, sellAsset.precision)
 
   const normalizedSellAmountCryptoBaseUnit = normalizeAmount(

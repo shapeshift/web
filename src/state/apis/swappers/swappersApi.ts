@@ -13,6 +13,7 @@ import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlic
 import { selectFeatureFlags } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
+import { getOneInchTradeQuoteHelper } from './helpers/getOneInchTradeQuoteHelper'
 import { getZrxTradeQuoteHelper } from './helpers/getZrxTradeQuoteHelper'
 
 export const swappersApi = createApi({
@@ -25,7 +26,7 @@ export const swappersApi = createApi({
         const state = getState() as ReduxState
         const { sendAddress, receiveAddress } = getTradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
-        const { LifiSwap, ThorSwap, ZrxSwap }: FeatureFlags = selectFeatureFlags(state)
+        const { LifiSwap, ThorSwap, ZrxSwap, OneInch }: FeatureFlags = selectFeatureFlags(state)
         const quotes: (Result<TradeQuote2, SwapErrorRight> & {
           swapperName: SwapperName
         })[] = []
@@ -39,7 +40,7 @@ export const swappersApi = createApi({
               swapperName: SwapperName.LIFI,
             })
           } catch (error) {
-            console.error('[getLifiTradeQuoteHelper]', error)
+            console.error(error)
           }
         if (ThorSwap)
           try {
@@ -50,7 +51,7 @@ export const swappersApi = createApi({
               swapperName: SwapperName.Thorchain,
             })
           } catch (error) {
-            console.error('[getThorTradeQuoteHelper]', error)
+            console.error(error)
           }
         if (ZrxSwap)
           try {
@@ -62,7 +63,18 @@ export const swappersApi = createApi({
               swapperName: SwapperName.Zrx,
             })
           } catch (error) {
-            console.error('[zrx.getTradeQuote]', error)
+            console.error(error)
+          }
+        if (OneInch)
+          try {
+            const oneInchQuote: Result<TradeQuote2, SwapErrorRight> =
+              await getOneInchTradeQuoteHelper(...quoteHelperArgs)
+            quotes.push({
+              ...oneInchQuote,
+              swapperName: SwapperName.OneInch,
+            })
+          } catch (error) {
+            console.error(error)
           }
         const quotesWithInputOutputRatios = quotes
           .map(result => {

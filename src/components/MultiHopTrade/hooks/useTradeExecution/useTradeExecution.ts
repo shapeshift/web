@@ -8,6 +8,8 @@ import type { Swapper2, Swapper2Api, TradeQuote2 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { lifiApi } from 'lib/swapper/swappers/LifiSwapper/endpoints'
 import { lifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
+import { oneInchApi } from 'lib/swapper/swappers/OneInchSwapper/endpoints'
+import { oneInchSwapper } from 'lib/swapper/swappers/OneInchSwapper/OneInchSwapper2'
 import { thorchainApi } from 'lib/swapper/swappers/ThorchainSwapper/endpoints'
 import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
 import { zrxApi } from 'lib/swapper/swappers/ZrxSwapper/endpoints'
@@ -78,6 +80,7 @@ export const useTradeExecution = ({
         case SwapperName.CowSwap:
         case SwapperName.Osmosis:
         case SwapperName.OneInch:
+          return { ...oneInchSwapper, ...oneInchApi }
         case SwapperName.Test:
           throw Error('not implemented')
         default:

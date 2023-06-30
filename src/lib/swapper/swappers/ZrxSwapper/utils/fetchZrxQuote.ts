@@ -30,7 +30,6 @@ export const fetchZrxQuote = async ({
   affiliateBps,
   sellAmountBeforeFeesCryptoBaseUnit,
 }: FetchZrxQuoteInput) => {
-  // TODO(gomes): Is this the right way to do the higher-order dance here?
   const withZrxAxiosRetry = (baseService: AxiosInstance) => {
     return withAxiosRetry(baseService, {
       statusCodesToRetry: [[400, 400]],

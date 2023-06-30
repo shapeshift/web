@@ -12,7 +12,7 @@ import { filterSameChainEvmBuyAssetsBySellAssetId } from '../utils/filterBuyAsse
 import type { ZrxSupportedChainId } from './types'
 import { ZRX_SUPPORTED_CHAINIDS, ZRX_UNSUPPORTED_ASSETS } from './utils/constants'
 
-export const zrx: Swapper2 = {
+export const zrxSwapper: Swapper2 = {
   executeTrade: ({ txToSign, wallet, chainId }: ExecuteTradeArgs) => {
     const adapterManager = getChainAdapterManager()
     const adapter = adapterManager.get(chainId) as unknown as EvmChainAdapter

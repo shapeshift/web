@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { Asset } from 'lib/asset-service'
-import { lifi } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
-import { thorchain } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
-import { zrx } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper2'
+import { lifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
+import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
+import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper2'
 import { selectAssetsSortedByMarketCapFiatBalanceAndName } from 'state/slices/common-selectors'
 import { selectAssetIds, selectFeatureFlags, selectSellAsset } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -15,9 +15,9 @@ export const useSupportedAssets = () => {
 
   const enabledSwappers = useMemo(() => {
     const result = []
-    if (LifiSwap) result.push(lifi)
-    if (ThorSwap) result.push(thorchain)
-    if (ZrxSwap) result.push(zrx)
+    if (LifiSwap) result.push(lifiSwapper)
+    if (ThorSwap) result.push(thorchainSwapper)
+    if (ZrxSwap) result.push(zrxSwapper)
     // TODO(woodenfurniture): add more swappers here
     return result
   }, [LifiSwap, ThorSwap, ZrxSwap])

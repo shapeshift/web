@@ -1,13 +1,9 @@
-import type { ChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { Tx } from '@shapeshiftoss/unchained-client/src/evm'
+import { getTxStatus } from '@shapeshiftoss/unchained-client/dist/evm'
 import type { Result } from '@sniptt/monads/build'
-import axios from 'axios'
-import { getConfig } from 'config'
 import { v4 as uuid } from 'uuid'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type {
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
@@ -16,11 +12,10 @@ import type {
   Swapper2Api,
   TradeQuote2,
 } from 'lib/swapper/api'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
-import { assertUnreachable, isEvmChainAdapter } from 'lib/utils'
 
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { fetchZrxQuote } from './utils/fetchZrxQuote'
+import { assertGetAdapter } from './utils/helpers/helpers'
 
 const createDefaultStatusResponse = (buyTxId: string) => ({
   status: TxStatus.Unknown,
@@ -29,34 +24,6 @@ const createDefaultStatusResponse = (buyTxId: string) => ({
 })
 
 const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
-
-const getUnchainedBaseUrl = (chainId: EvmChainId) => {
-  const {
-    REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL,
-    REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL,
-    REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
-    REACT_APP_UNCHAINED_GNOSIS_HTTP_URL,
-    REACT_APP_UNCHAINED_OPTIMISM_HTTP_URL,
-    REACT_APP_UNCHAINED_POLYGON_HTTP_URL,
-  } = getConfig()
-
-  switch (chainId) {
-    case KnownChainIds.AvalancheMainnet:
-      return REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL
-    case KnownChainIds.BnbSmartChainMainnet:
-      return REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL
-    case KnownChainIds.EthereumMainnet:
-      return REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL
-    case KnownChainIds.GnosisMainnet:
-      return REACT_APP_UNCHAINED_GNOSIS_HTTP_URL
-    case KnownChainIds.OptimismMainnet:
-      return REACT_APP_UNCHAINED_OPTIMISM_HTTP_URL
-    case KnownChainIds.PolygonMainnet:
-      return REACT_APP_UNCHAINED_POLYGON_HTTP_URL
-    default:
-      assertUnreachable(chainId)
-  }
-}
 
 export const zrxApi: Swapper2Api = {
   getTradeQuote: async (
@@ -82,26 +49,7 @@ export const zrxApi: Swapper2Api = {
 
     const { receiveAddress, recommendedSlippage, affiliateBps } = tradeQuote
 
-    const chainId = sellAsset.chainId
-    const adapterManager = getChainAdapterManager()
-    const adapter = adapterManager.get(chainId) as ChainAdapter<EvmChainId>
-
-    if (adapter === undefined) {
-      throw new SwapError('[executeTrade] - getChainAdapterManager returned undefined', {
-        code: SwapErrorType.UNSUPPORTED_CHAIN,
-        details: { chainId },
-      })
-    }
-
-    if (!isEvmChainAdapter(adapter)) {
-      throw new SwapError('[executeTrade] - non-EVM chain adapter detected', {
-        code: SwapErrorType.EXECUTE_TRADE_FAILED,
-        details: {
-          chainAdapterName: adapter.getDisplayName(),
-          chainId: adapter.getChainId(),
-        },
-      })
-    }
+    const adapter = assertGetAdapter(sellAsset.chainId)
 
     const maybeZrxQuote = await fetchZrxQuote({
       buyAsset,
@@ -140,28 +88,12 @@ export const zrxApi: Swapper2Api = {
     try {
       const maybeTradeQuoteMetadata = tradeQuoteMetadata.get(tradeId)
       if (!maybeTradeQuoteMetadata) {
-        console.log('missing trade quote metadata')
-        console.log(tradeId)
-        console.log(maybeTradeQuoteMetadata)
         return createDefaultStatusResponse(txId)
       }
-      const baseUrl = getUnchainedBaseUrl(maybeTradeQuoteMetadata.chainId)
-      const {
-        data: { status: rawStatus },
-      } = await axios.get<Tx>(`${baseUrl}/api/v1/tx/${txId}`)
 
-      // TODO: write a helper to map all 256 statuses to a status enum + message
-      // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1066.md#implementation
-      const status = (() => {
-        switch (rawStatus) {
-          case 0:
-            return TxStatus.Failed
-          case 1:
-            return TxStatus.Confirmed
-          default:
-            return TxStatus.Pending
-        }
-      })()
+      const adapter = assertGetAdapter(maybeTradeQuoteMetadata.chainId)
+      const tx = await adapter.httpProvider.getTransaction({ txid: txId })
+      const status = getTxStatus(tx)
 
       return {
         status,

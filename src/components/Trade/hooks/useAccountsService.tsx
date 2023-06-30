@@ -26,6 +26,12 @@ export const useAccountsService = () => {
   const updateSellAssetAccountId = useSwapperStore(state => state.updateSellAssetAccountId)
   const selectedBuyAssetAccountId = useSwapperStore(selectSelectedBuyAssetAccountId)
   const selectedSellAssetAccountId = useSwapperStore(selectSelectedSellAssetAccountId)
+  const updateSelectedBuyAssetAccountId = useSwapperStore(
+    state => state.updateSelectedBuyAssetAccountId,
+  )
+  const updateSelectedSellAssetAccountId = useSwapperStore(
+    state => state.updateSelectedSellAssetAccountId,
+  )
   const activeSwapper = useSwapperStore(state => selectActiveSwapperWithMetadata(state)?.swapper)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
@@ -63,9 +69,18 @@ export const useAccountsService = () => {
 
   // Set sellAssetAccountId
   useEffect(
-    () => updateSellAssetAccountId(sellAssetAccountId),
+    () => {
+      updateSellAssetAccountId(sellAssetAccountId)
+      !selectedSellAssetAccountId && updateSelectedSellAssetAccountId(sellAssetAccountId)
+    },
     // stateSellAssetAccountId is important here as it ensures this useEffect re-runs when the form value is cleared
-    [sellAssetAccountId, stateSellAssetAccountId, updateSellAssetAccountId],
+    [
+      selectedSellAssetAccountId,
+      sellAssetAccountId,
+      stateSellAssetAccountId,
+      updateSelectedSellAssetAccountId,
+      updateSellAssetAccountId,
+    ],
   )
 
   // Set buyAssetAccountId
@@ -79,6 +94,9 @@ export const useAccountsService = () => {
     const buyAssetAccountIdToSet =
       swapperSupportsCrossAccountTrade || !activeSwapper ? buyAssetAccountId : sellAssetAccountId
     updateBuyAssetAccountId(buyAssetAccountIdToSet)
+
+    !selectedBuyAssetAccountId && updateSelectedBuyAssetAccountId(buyAssetAccountIdToSet)
+
     // stateBuyAssetAccountId is important here as it ensures this useEffect re-runs when the form value is cleared
   }, [
     buyAssetAccountId,
@@ -87,5 +105,7 @@ export const useAccountsService = () => {
     stateBuyAssetAccountId,
     activeSwapper,
     updateBuyAssetAccountId,
+    selectedBuyAssetAccountId,
+    updateSelectedBuyAssetAccountId,
   ])
 }

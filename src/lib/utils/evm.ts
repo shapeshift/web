@@ -10,12 +10,14 @@ import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { getTxStatus } from '@shapeshiftoss/unchained-client/dist/evm'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { ExecuteTradeArgs } from 'lib/swapper/api'
+import type { CheckTradeStatusInput, ExecuteTradeArgs } from 'lib/swapper/api'
 
 type GetApproveContractDataArgs = {
   approvalAmountCryptoBaseUnit: string
@@ -220,4 +222,46 @@ export const assertGetEvmChainAdapter = (chainId: ChainId | KnownChainIds): EvmC
 export const executeEvmTrade = ({ txToSign, wallet, chainId }: ExecuteTradeArgs) => {
   const adapter = assertGetEvmChainAdapter(chainId)
   return signAndBroadcast({ adapter, wallet, txToSign: txToSign as ETHSignTx })
+}
+
+const createDefaultStatusResponse = (buyTxId: string) => ({
+  status: TxStatus.Unknown,
+  buyTxId,
+  message: undefined,
+})
+
+export const checkEvmSwapStatus = async ({
+  tradeId,
+  txId,
+  getChainId,
+}: CheckTradeStatusInput & {
+  getChainId: (input: CheckTradeStatusInput) => ChainId | undefined
+}): Promise<{
+  status: TxStatus
+  buyTxId: string | undefined
+  message: string | undefined
+}> => {
+  try {
+    const maybeChainId = getChainId({
+      tradeId,
+      txId,
+    })
+
+    if (!maybeChainId) {
+      return createDefaultStatusResponse(txId)
+    }
+
+    const adapter = assertGetEvmChainAdapter(maybeChainId)
+    const tx = await adapter.httpProvider.getTransaction({ txid: txId })
+    const status = getTxStatus(tx)
+
+    return {
+      status,
+      buyTxId: txId,
+      message: undefined,
+    }
+  } catch (e) {
+    console.error(e)
+    return createDefaultStatusResponse(txId)
+  }
 }

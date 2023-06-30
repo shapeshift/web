@@ -1,10 +1,10 @@
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { getTxStatus } from '@shapeshiftoss/unchained-client/dist/evm'
+import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { v4 as uuid } from 'uuid'
 import type {
+  CheckTradeStatusInput,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
   GetUnsignedTxArgs,
@@ -12,16 +12,10 @@ import type {
   Swapper2Api,
   TradeQuote2,
 } from 'lib/swapper/api'
-import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, checkEvmSwapStatus } from 'lib/utils/evm'
 
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { fetchZrxQuote } from './utils/fetchZrxQuote'
-
-const createDefaultStatusResponse = (buyTxId: string) => ({
-  status: TxStatus.Unknown,
-  buyTxId,
-  message: undefined,
-})
 
 const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 
@@ -81,28 +75,18 @@ export const zrxApi: Swapper2Api = {
     return adapter.buildSendApiTransaction(buildSendApiTxInput)
   },
 
-  checkTradeStatus: async ({
+  checkTradeStatus: ({
     tradeId,
     txId,
   }): Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }> => {
-    try {
-      const maybeTradeQuoteMetadata = tradeQuoteMetadata.get(tradeId)
-      if (!maybeTradeQuoteMetadata) {
-        return createDefaultStatusResponse(txId)
-      }
+    // TODO: it might be smart to pass in the chainId rather than having to pull it out of storage
+    const getChainId = ({ tradeId }: CheckTradeStatusInput) =>
+      tradeQuoteMetadata.get(tradeId)?.chainId
 
-      const adapter = assertGetEvmChainAdapter(maybeTradeQuoteMetadata.chainId)
-      const tx = await adapter.httpProvider.getTransaction({ txid: txId })
-      const status = getTxStatus(tx)
-
-      return {
-        status,
-        buyTxId: txId,
-        message: undefined,
-      }
-    } catch (e) {
-      console.error(e)
-      return createDefaultStatusResponse(txId)
-    }
+    return checkEvmSwapStatus({
+      tradeId,
+      txId,
+      getChainId,
+    })
   },
 }

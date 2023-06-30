@@ -6,12 +6,16 @@ import type {
   GetFeeDataInput,
   SignTx,
 } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { ExecuteTradeArgs } from 'lib/swapper/api'
 
 type GetApproveContractDataArgs = {
   approvalAmountCryptoBaseUnit: string
@@ -196,4 +200,24 @@ export const getErc20Allowance = async ({
   const contract = getOrCreateContractByType({ address, type: ContractType.ERC20, chainId })
   const allowance = await contract.allowance(from, spender)
   return allowance.toString()
+}
+
+export const isEvmChainAdapter = (chainAdapter: unknown): chainAdapter is EvmChainAdapter => {
+  return evmChainIds.includes((chainAdapter as EvmChainAdapter).getChainId() as EvmChainId)
+}
+
+export const assertGetEvmChainAdapter = (chainId: ChainId | KnownChainIds): EvmChainAdapter => {
+  const chainAdapterManager = getChainAdapterManager()
+  const adapter = chainAdapterManager.get(chainId)
+
+  if (!isEvmChainAdapter(adapter)) {
+    throw Error('invalid chain adapter')
+  }
+
+  return adapter
+}
+
+export const executeEvmTrade = ({ txToSign, wallet, chainId }: ExecuteTradeArgs) => {
+  const adapter = assertGetEvmChainAdapter(chainId)
+  return signAndBroadcast({ adapter, wallet, txToSign: txToSign as ETHSignTx })
 }

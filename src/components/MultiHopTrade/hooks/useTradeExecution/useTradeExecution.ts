@@ -12,7 +12,8 @@ import { thorchainApi } from 'lib/swapper/swappers/ThorchainSwapper/endpoints'
 import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
 import { zrxApi } from 'lib/swapper/swappers/ZrxSwapper/endpoints'
 import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper2'
-import { assertUnreachable, isEvmChainAdapter } from 'lib/utils'
+import { assertUnreachable } from 'lib/utils'
+import { isEvmChainAdapter } from 'lib/utils/evm'
 import {
   selectPortfolioAccountMetadataByAccountId,
   selectUsdRateByAssetId,

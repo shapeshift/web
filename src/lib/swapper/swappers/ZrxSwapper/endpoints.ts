@@ -12,10 +12,10 @@ import type {
   Swapper2Api,
   TradeQuote2,
 } from 'lib/swapper/api'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { fetchZrxQuote } from './utils/fetchZrxQuote'
-import { assertGetAdapter } from './utils/helpers/helpers'
 
 const createDefaultStatusResponse = (buyTxId: string) => ({
   status: TxStatus.Unknown,
@@ -49,7 +49,7 @@ export const zrxApi: Swapper2Api = {
 
     const { receiveAddress, recommendedSlippage, affiliateBps } = tradeQuote
 
-    const adapter = assertGetAdapter(sellAsset.chainId)
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
     const maybeZrxQuote = await fetchZrxQuote({
       buyAsset,
@@ -91,7 +91,7 @@ export const zrxApi: Swapper2Api = {
         return createDefaultStatusResponse(txId)
       }
 
-      const adapter = assertGetAdapter(maybeTradeQuoteMetadata.chainId)
+      const adapter = assertGetEvmChainAdapter(maybeTradeQuoteMetadata.chainId)
       const tx = await adapter.httpProvider.getTransaction({ txid: txId })
       const status = getTxStatus(tx)
 

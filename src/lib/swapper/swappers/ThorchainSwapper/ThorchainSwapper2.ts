@@ -11,7 +11,8 @@ import type {
 import type { ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper2 } from 'lib/swapper/api'
-import { assertUnreachable, evm } from 'lib/utils'
+import { assertUnreachable } from 'lib/utils'
+import { signAndBroadcast } from 'lib/utils/evm'
 
 import { ThorchainSwapper } from './ThorchainSwapper'
 
@@ -24,7 +25,7 @@ export const thorchainSwapper: Swapper2 = {
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm: {
         const evmChainAdapter = adapter as unknown as EvmChainAdapter
-        return evm.signAndBroadcast({
+        return signAndBroadcast({
           adapter: evmChainAdapter,
           txToSign: txToSign as SignTx<EvmChainId>,
           wallet,

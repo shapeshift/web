@@ -19,12 +19,12 @@ import { bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { SwapperManager } from 'lib/swapper/manager/SwapperManager'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
-import { isEvmChainAdapter } from 'lib/utils'
 import {
   buildAndBroadcast,
   getApproveContractData,
   getErc20Allowance,
   getFees,
+  isEvmChainAdapter,
 } from 'lib/utils/evm'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {

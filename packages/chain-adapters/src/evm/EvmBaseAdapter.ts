@@ -650,4 +650,12 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       },
     } as FeeDataEstimate<T>
   }
+
+  get httpProvider(): unchained.evm.Api {
+    return this.providers.http
+  }
+
+  get wsProvider(): unchained.ws.Client<unchained.evm.types.Tx> {
+    return this.providers.ws
+  }
 }

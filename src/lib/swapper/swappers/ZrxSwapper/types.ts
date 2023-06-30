@@ -31,6 +31,12 @@ export type ZrxQuoteResponse = ZrxCommonResponse & {
   value: string
 }
 
+export type ZrxSwapStatusResponse = {
+  status: 'pending' | 'submitted' | 'succeeded' | 'confirmed' | 'failed'
+  transactions: { hash: string; timestamp: number }[]
+  reason?: string
+}
+
 export interface ZrxTrade extends Trade<ZrxSupportedChainId> {
   txData: string
   depositAddress: string

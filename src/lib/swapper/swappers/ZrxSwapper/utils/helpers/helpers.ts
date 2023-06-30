@@ -100,3 +100,14 @@ export const getAdapter = (
 
   return Ok(adapter)
 }
+
+export const assertGetAdapter = (chainId: ChainId | KnownChainIds): EvmChainAdapter => {
+  const chainAdapterManager = getChainAdapterManager()
+  const adapter = chainAdapterManager.get(chainId)
+
+  if (!isEvmChainAdapter(adapter)) {
+    throw Error('invalid chain adapter')
+  }
+
+  return adapter
+}

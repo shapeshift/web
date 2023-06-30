@@ -11,21 +11,21 @@ import { isCrossAccountTradeSupported } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
+import { getZrxTradeQuoteHelper } from './helpers/getZrxTradeQuoteHelper'
 
 export const swappersApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'swappersApi',
-  keepUnusedDataFor: 60, // this needs to be higher than the polling interval of any consumers
+  keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
   endpoints: build => ({
     getTradeQuote: build.query<ApiQuote[], GetTradeQuoteInput>({
-      queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { getState, dispatch }) => {
+      queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { getState }) => {
         const state = getState() as ReduxState
         const { sendAddress, receiveAddress } = getTradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
-        const { LifiSwap, ThorSwap }: FeatureFlags = selectFeatureFlags(state)
+        const { LifiSwap, ThorSwap, ZrxSwap }: FeatureFlags = selectFeatureFlags(state)
         const quotes: (Result<TradeQuote2, SwapErrorRight> & {
           swapperName: SwapperName
         })[] = []
@@ -52,6 +52,18 @@ export const swappersApi = createApi({
           } catch (error) {
             console.error('[getThorTradeQuoteHelper]', error)
           }
+        if (ZrxSwap)
+          try {
+            const zrxTradeQuote: Result<TradeQuote2, SwapErrorRight> = await getZrxTradeQuoteHelper(
+              ...quoteHelperArgs,
+            )
+            quotes.push({
+              ...zrxTradeQuote,
+              swapperName: SwapperName.Zrx,
+            })
+          } catch (error) {
+            console.error('[zrx.getTradeQuote]', error)
+          }
         const quotesWithInputOutputRatios = quotes
           .map(result => {
             const quote = result && result.isOk() ? result.unwrap() : undefined
@@ -77,7 +89,12 @@ export const swappersApi = createApi({
           ['desc', 'asc'],
         )
 
-        dispatch(tradeQuoteSlice.actions.setSwapperName(orderedQuotes[0]?.swapperName))
+        // TODO: this causes a circular dependency
+        // // if the active swapper name doesn't exist in the returned quotes, reset it
+        // const activeSwapperName = selectActiveSwapperName(state)
+        // if (!orderedQuotes.some(apiQuote => apiQuote.swapperName === activeSwapperName)) {
+        //   dispatch(tradeQuoteSlice.actions.resetSwapperName())
+        // }
 
         return { data: orderedQuotes }
       },

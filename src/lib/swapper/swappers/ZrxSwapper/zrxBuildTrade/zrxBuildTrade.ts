@@ -1,32 +1,19 @@
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { AxiosInstance } from 'axios'
-import * as rax from 'retry-axios'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
-import {
-  getTreasuryAddressFromChainId,
-  normalizeAmount,
-} from 'lib/swapper/swappers/utils/helpers/helpers'
-import type { ZrxQuoteResponse, ZrxTrade } from 'lib/swapper/swappers/ZrxSwapper/types'
-import { withAxiosRetry } from 'lib/swapper/swappers/ZrxSwapper/utils/applyAxiosRetry'
-import { AFFILIATE_ADDRESS, DEFAULT_SOURCE } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
-import {
-  assertValidTrade,
-  assetToToken,
-  baseUrlFromChainId,
-  getAdapter,
-} from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
-import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
+import type { ZrxTrade } from 'lib/swapper/swappers/ZrxSwapper/types'
+import { DEFAULT_SOURCE } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
+import { assertValidTrade, getAdapter } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { getFees } from 'lib/utils/evm'
-import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
+
+import { fetchZrxQuote } from '../utils/fetchZrxQuote'
 
 export async function zrxBuildTrade(
   input: BuildTradeInput,
 ): Promise<Result<ZrxTrade, SwapErrorRight>> {
   const {
+    sellAmountBeforeFeesCryptoBaseUnit,
     sellAsset,
     buyAsset,
     slippage,
@@ -36,8 +23,6 @@ export async function zrxBuildTrade(
     chainId,
     wallet,
   } = input
-  const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
-
   const assertion = assertValidTrade({ buyAsset, sellAsset, receiveAddress })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
@@ -45,49 +30,13 @@ export async function zrxBuildTrade(
   if (maybeAdapter.isErr()) return Err(maybeAdapter.unwrapErr())
   const adapter = maybeAdapter.unwrap()
 
-  const maybeBaseUrl = baseUrlFromChainId(buyAsset.chainId)
-  if (maybeBaseUrl.isErr()) return Err(maybeBaseUrl.unwrapErr())
-
-  // TODO(gomes): Is this the right way to do the higher-order dance here?
-  const withZrxAxiosRetry = (baseService: AxiosInstance) => {
-    return withAxiosRetry(baseService, {
-      statusCodesToRetry: [[400, 400]],
-      shouldRetry: err => {
-        const cfg = rax.getConfig(err)
-        const retryAttempt = cfg?.currentRetryAttempt ?? 0
-        const retry = cfg?.retry ?? 3
-        // ensure max retries is always respected
-        if (retryAttempt >= retry) return false
-        // retry if 0x returns error code 111 Gas estimation failed
-        if (err?.response?.data?.code === 111) return true
-
-        // Handle the request based on your other config options, e.g. `statusCodesToRetry`
-        return rax.shouldRetryRequest(err)
-      },
-    })
-  }
-
-  const zrxService = zrxServiceFactory({
-    baseUrl: maybeBaseUrl.unwrap(),
-    wrapper: withZrxAxiosRetry,
-  })
-
-  const buyTokenPercentageFee = convertBasisPointsToDecimalPercentage(affiliateBps).toNumber()
-  const feeRecipient = getTreasuryAddressFromChainId(buyAsset.chainId)
-
-  // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-quote
-  const maybeQuoteResponse = await zrxService.get<ZrxQuoteResponse>('/swap/v1/quote', {
-    params: {
-      buyToken: assetToToken(buyAsset),
-      sellToken: assetToToken(sellAsset),
-      sellAmount: normalizeAmount(sellAmount),
-      takerAddress: receiveAddress,
-      slippagePercentage: slippage ? bnOrZero(slippage).toString() : DEFAULT_SLIPPAGE,
-      affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
-      skipValidation: false,
-      feeRecipient, // Where affiliate fees are sent
-      buyTokenPercentageFee,
-    },
+  const maybeQuoteResponse = await fetchZrxQuote({
+    buyAsset,
+    sellAsset,
+    receiveAddress,
+    slippage,
+    affiliateBps,
+    sellAmountBeforeFeesCryptoBaseUnit,
   })
 
   if (maybeQuoteResponse.isErr()) return Err(maybeQuoteResponse.unwrapErr())

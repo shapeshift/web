@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import type { CardProps } from 'components/Card/Card'
@@ -49,6 +49,7 @@ import {
   selectSwapperSupportsCrossAccountTrade,
   selectTotalProtocolFeeByAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
@@ -92,6 +93,12 @@ export const TradeInput = (props: CardProps) => {
     () => dispatch(swappers.actions.switchAssets()),
     [dispatch],
   )
+
+  useEffect(() => {
+    // WARNING: do not remove.
+    // clear the confirmed quote on mount to prevent stale data affecting the selectors
+    dispatch(tradeQuoteSlice.actions.resetConfirmedQuote())
+  }, [dispatch])
 
   const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
   const activeQuote = useAppSelector(selectActiveQuote)
@@ -147,6 +154,9 @@ export const TradeInput = (props: CardProps) => {
 
       if (!wallet) throw Error('missing wallet')
       if (!tradeQuoteStep) throw Error('missing tradeQuoteStep')
+      if (!activeQuote) throw Error('missing activeQuote')
+
+      dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
 
       const isApprovalNeeded = await checkApprovalNeeded(tradeQuoteStep, wallet)
 
@@ -161,7 +171,7 @@ export const TradeInput = (props: CardProps) => {
     }
 
     setIsConfirmationLoading(false)
-  }, [history, mixpanel, showErrorToast, tradeQuoteStep, wallet])
+  }, [activeQuote, dispatch, history, mixpanel, showErrorToast, tradeQuoteStep, wallet])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
@@ -235,7 +245,7 @@ export const TradeInput = (props: CardProps) => {
                   )
                 }
               >
-                {activeQuote && (
+                {Boolean(sortedQuotes.length) && (
                   <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes ?? []} />
                 )}
               </TradeAssetInput>

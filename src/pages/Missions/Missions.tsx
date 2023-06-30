@@ -45,6 +45,15 @@ export const Missions = () => {
         endDate: '2023-07-04 05:59 PM',
       },
       {
+        title: translate('missions.optimism.title'),
+        subtitle: translate('missions.optimism.subtitle'),
+        buttonText: translate('missions.optimism.cta'),
+        coverImage: OptimismBg,
+        onClick: () => window.open('https://rewards.shapeshift.com/optimistic-fox-2'),
+        startDate: '2023-07-04 05:59 PM',
+        endDate: '2023-07-31 05:59 PM',
+      },
+      {
         title: translate('missions.foxArmy.title'),
         subtitle: translate('missions.foxArmy.subtitle'),
         buttonText: translate('missions.foxArmy.cta'),

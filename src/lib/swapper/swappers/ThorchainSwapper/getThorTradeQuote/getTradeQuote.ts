@@ -319,7 +319,7 @@ export const getThorTradeQuote = async (
           steps: [
             {
               ...commonStepFields,
-              allowanceContract: '0x0', // not applicable to bitcoin
+              allowanceContract: '0x0', // not applicable to UTXOs
               feeData,
             },
           ],

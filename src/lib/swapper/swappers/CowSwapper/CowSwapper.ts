@@ -50,12 +50,12 @@ export class CowSwapper<T extends CowChainId> implements Swapper<T> {
 
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
     const assets = selectAssets(store.getState())
-    return filterBuyAssetsBySellAssetId(input, assets, this.supportedChainIds)
+    return filterBuyAssetsBySellAssetId(input, assets)
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
     const assets = selectAssets(store.getState())
-    return filterAssetIdsBySellable(assetIds, assets, this.supportedChainIds)
+    return filterAssetIdsBySellable(assetIds, assets)
   }
 
   getTradeTxs(args: CowTradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {

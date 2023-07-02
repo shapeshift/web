@@ -4,6 +4,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
 import { ethers } from 'ethers'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -235,4 +236,11 @@ export const getValuesFromQuoteResponse = ({
   const rate = bnOrZero(buyAmountAfterFeesCryptoPrecision).div(sellAmountCryptoPrecision).toString()
 
   return { rate, buyAmountBeforeFeesCryptoBaseUnit, buyAmountAfterFeesCryptoBaseUnit }
+}
+
+export const getSupportedChainIds = (): ChainId[] => {
+  const enableGnosis = getConfig().REACT_APP_FEATURE_COWSWAP_GNOSIS
+  return enableGnosis
+    ? [KnownChainIds.GnosisMainnet, KnownChainIds.EthereumMainnet]
+    : [KnownChainIds.EthereumMainnet]
 }

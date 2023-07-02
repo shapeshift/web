@@ -20,8 +20,6 @@ import type {
   CowTrade,
   CowTradeResult,
 } from 'lib/swapper/swappers/CowSwapper/types'
-import { selectAssets } from 'state/slices/selectors'
-import { store } from 'state/store'
 
 import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
@@ -49,13 +47,11 @@ export class CowSwapper<T extends CowChainId> implements Swapper<T> {
   }
 
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
-    const assets = selectAssets(store.getState())
-    return filterBuyAssetsBySellAssetId(input, assets)
+    return filterBuyAssetsBySellAssetId(input)
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    const assets = selectAssets(store.getState())
-    return filterAssetIdsBySellable(assetIds, assets)
+    return filterAssetIdsBySellable(assetIds)
   }
 
   getTradeTxs(args: CowTradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {

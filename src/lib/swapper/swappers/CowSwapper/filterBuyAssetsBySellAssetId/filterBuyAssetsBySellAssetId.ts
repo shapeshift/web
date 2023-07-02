@@ -1,17 +1,19 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { isNft } from '@shapeshiftoss/caip'
-import type { Asset } from 'lib/asset-service'
 import type { BuyAssetBySellIdInput } from 'lib/swapper/api'
+import { selectAssets } from 'state/slices/selectors'
+import { store } from 'state/store'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { COWSWAP_UNSUPPORTED_ASSETS } from '../utils/blacklist'
 import { getSupportedChainIds } from '../utils/helpers/helpers'
 
-export const filterBuyAssetsBySellAssetId = (
-  { assetIds = [], sellAssetId }: BuyAssetBySellIdInput,
-  assets: Partial<Record<AssetId, Asset>>,
-): AssetId[] => {
+export const filterBuyAssetsBySellAssetId = ({
+  assetIds = [],
+  sellAssetId,
+}: BuyAssetBySellIdInput): AssetId[] => {
   const supportedChainIds = getSupportedChainIds()
+  const assets = selectAssets(store.getState())
   const sellAsset = assets[sellAssetId]
 
   if (

@@ -27,6 +27,7 @@ import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
+import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 
 export class CowSwapper<T extends CowChainId> implements Swapper<T> {
   readonly name = SwapperName.CowSwap
@@ -50,31 +51,9 @@ export class CowSwapper<T extends CowChainId> implements Swapper<T> {
     return cowExecuteTrade<T>(args, this.supportedChainIds)
   }
 
-  filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
-    const { assetIds = [], sellAssetId } = args
+  filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
     const assets = selectAssets(store.getState())
-    const sellAsset = assets[sellAssetId]
-
-    if (
-      sellAsset === undefined ||
-      !cowChainIds.includes(sellAsset.chainId as CowChainId) ||
-      !this.supportedChainIds.includes(sellAsset.chainId as CowChainId) ||
-      isNativeEvmAsset(sellAssetId) ||
-      COWSWAP_UNSUPPORTED_ASSETS.includes(sellAssetId)
-    )
-      return []
-
-    return assetIds.filter(id => {
-      const asset = assets[id]
-      if (!asset) return false
-
-      return (
-        id !== sellAssetId &&
-        sellAsset.chainId === asset.chainId &&
-        !COWSWAP_UNSUPPORTED_ASSETS.includes(id) &&
-        !isNft(id)
-      )
-    })
+    return filterBuyAssetsBySellAssetId(input, assets, this.supportedChainIds)
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {

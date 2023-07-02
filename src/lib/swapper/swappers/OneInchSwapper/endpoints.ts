@@ -50,7 +50,7 @@ export const oneInchApi: Swapper2Api = {
       receiveAddress,
       sellAmountBeforeFeesCryptoBaseUnit,
       sellAsset,
-      slippage: recommendedSlippage, // TODO: use the slippage from user input
+      maximumSlippageDecimalPercentage: recommendedSlippage, // TODO: use the slippage from user input
     })
 
     const buildSendApiTxInput = {

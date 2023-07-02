@@ -20,6 +20,11 @@ import type {
   CowTrade,
   CowTradeResult,
 } from 'lib/swapper/swappers/CowSwapper/types'
+import {
+  selectBuyAssetUsdRate,
+  selectSellAssetUsdRate,
+} from 'state/zustand/swapperStore/amountSelectors'
+import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
@@ -28,13 +33,17 @@ export class CowSwapper<T extends CowChainId> implements Swapper<T> {
   readonly name = SwapperName.CowSwap
 
   buildTrade(input: BuildTradeInput): Promise<Result<CowTrade<T>, SwapErrorRight>> {
-    return cowBuildTrade(input)
+    const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+    const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
+    return cowBuildTrade(input, { sellAssetUsdRate, buyAssetUsdRate })
   }
 
   getTradeQuote(
     input: GetTradeQuoteInput,
   ): Promise<Result<TradeQuote<CowChainId>, SwapErrorRight>> {
-    return getCowSwapTradeQuote(input)
+    const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+    const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
+    return getCowSwapTradeQuote(input, { sellAssetUsdRate, buyAssetUsdRate })
   }
 
   executeTrade(args: CowExecuteTradeInput<T>): Promise<Result<CowTradeResult, SwapErrorRight>> {

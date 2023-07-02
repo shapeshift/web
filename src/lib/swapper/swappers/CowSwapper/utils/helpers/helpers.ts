@@ -11,11 +11,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import {
-  selectBuyAssetUsdRate,
-  selectSellAssetUsdRate,
-} from 'state/zustand/swapperStore/amountSelectors'
-import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import type { CowSwapQuoteResponse } from '../../types'
 import { CowNetwork } from '../../types'
@@ -182,21 +177,22 @@ type GetValuesFromQuoteResponseArgs = {
   buyAsset: Asset
   sellAsset: Asset
   response: CowSwapQuoteResponse
+  sellAssetUsdRate: string
+  buyAssetUsdRate: string
 }
 
 export const getValuesFromQuoteResponse = ({
   buyAsset,
   sellAsset,
   response,
+  sellAssetUsdRate,
+  buyAssetUsdRate,
 }: GetValuesFromQuoteResponseArgs) => {
   const {
     sellAmount: sellAmountAfterFeesCryptoBaseUnit,
     feeAmount: feeAmountInSellTokenCryptoBaseUnit,
     buyAmount: buyAmountAfterFeesCryptoBaseUnit,
   } = response.quote
-
-  const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
-  const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
 
   const sellAssetTradeFeeCryptoPrecision = fromBaseUnit(
     feeAmountInSellTokenCryptoBaseUnit,

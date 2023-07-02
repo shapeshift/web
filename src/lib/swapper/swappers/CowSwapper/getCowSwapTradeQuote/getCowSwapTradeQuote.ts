@@ -32,6 +32,7 @@ import {
 
 export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
+  { sellAssetUsdRate, buyAssetUsdRate }: { sellAssetUsdRate: string; buyAssetUsdRate: string },
 ): Promise<Result<TradeQuote<CowChainId, boolean>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, chainId, receiveAddress } = input
   const supportedChainIds = getSupportedChainIds()
@@ -45,7 +46,10 @@ export async function getCowSwapTradeQuote(
     : COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS
 
   // TODO: use cow quote error to get actual min sell amount as provided by cowswap instead of hardcoded limit
-  const minimumCryptoHuman = getMinimumCryptoHuman(sellAsset.chainId as CowChainId)
+  const minimumCryptoHuman = getMinimumCryptoHuman(
+    sellAsset.chainId as CowChainId,
+    sellAssetUsdRate,
+  )
   const minimumCryptoBaseUnit = toBaseUnit(minimumCryptoHuman, sellAsset.precision)
 
   // making sure we do not have decimals for cowswap api (can happen at least from minQuoteSellAmount)
@@ -94,6 +98,8 @@ export async function getCowSwapTradeQuote(
     buyAsset,
     sellAsset,
     response: data,
+    sellAssetUsdRate,
+    buyAssetUsdRate,
   })
 
   // don't show buy amount if less than min sell amount

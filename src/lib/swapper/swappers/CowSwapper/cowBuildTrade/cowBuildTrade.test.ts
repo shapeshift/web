@@ -3,7 +3,6 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads/build'
 import type { AxiosStatic } from 'axios'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
-import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { BuildTradeInput } from '../../../api'
 import { SwapperName } from '../../../api'
@@ -46,9 +45,6 @@ jest.mock('../../utils/helpers/helpers', () => {
     getApproveContractData: () => '0xABCDEFGHIJ',
   }
 })
-
-const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
-const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
 
 const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
   appData: DEFAULT_APP_DATA,
@@ -201,9 +197,6 @@ const expectedTradeQuoteUsdcToXdai: CowTrade<KnownChainIds.GnosisMainnet> = {
 
 describe('cowBuildTrade', () => {
   it('should throw an exception if both assets are not erc20s', async () => {
-    selectBuyAssetUsdRateSpy.mockImplementation(() => foxRate)
-    selectSellAssetUsdRateSpy.mockImplementation(() => ethRate)
-
     const tradeInput: BuildTradeInput = {
       wallet: {} as HDWallet,
       chainId: KnownChainIds.EthereumMainnet,
@@ -218,7 +211,10 @@ describe('cowBuildTrade', () => {
       allowMultiHop: false,
     }
 
-    const maybeCowBuildTrade = await cowBuildTrade(tradeInput)
+    const maybeCowBuildTrade = await cowBuildTrade(tradeInput, {
+      sellAssetUsdRate: ethRate,
+      buyAssetUsdRate: foxRate,
+    })
     expect(maybeCowBuildTrade.isErr()).toBe(true)
     expect(maybeCowBuildTrade.unwrapErr()).toMatchObject({
       cause: undefined,
@@ -230,9 +226,6 @@ describe('cowBuildTrade', () => {
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade when selling WETH', async () => {
-    selectBuyAssetUsdRateSpy.mockImplementation(() => foxRate)
-    selectSellAssetUsdRateSpy.mockImplementation(() => wethRate)
-
     const tradeInput: BuildTradeInput = {
       wallet: {} as HDWallet,
       chainId: KnownChainIds.EthereumMainnet,
@@ -265,7 +258,10 @@ describe('cowBuildTrade', () => {
       ),
     )
 
-    const maybeBuiltTrade = await cowBuildTrade(tradeInput)
+    const maybeBuiltTrade = await cowBuildTrade(tradeInput, {
+      sellAssetUsdRate: wethRate,
+      buyAssetUsdRate: foxRate,
+    })
 
     expect(maybeBuiltTrade.isOk()).toBe(true)
     expect(maybeBuiltTrade.unwrap()).toEqual(expectedTradeWethToFox)
@@ -276,9 +272,6 @@ describe('cowBuildTrade', () => {
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade when selling WBTC with allowance being required', async () => {
-    selectBuyAssetUsdRateSpy.mockImplementation(() => wethRate)
-    selectSellAssetUsdRateSpy.mockImplementation(() => wbtcRate)
-
     const tradeInput: BuildTradeInput = {
       wallet: {} as HDWallet,
       chainId: KnownChainIds.EthereumMainnet,
@@ -311,7 +304,10 @@ describe('cowBuildTrade', () => {
       ),
     )
 
-    const maybeBuiltTrade = await cowBuildTrade(tradeInput)
+    const maybeBuiltTrade = await cowBuildTrade(tradeInput, {
+      sellAssetUsdRate: wbtcRate,
+      buyAssetUsdRate: wethRate,
+    })
     expect(maybeBuiltTrade.isOk()).toBe(true)
 
     expect(maybeBuiltTrade.unwrap()).toEqual(
@@ -324,9 +320,6 @@ describe('cowBuildTrade', () => {
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade when buying ETH', async () => {
-    selectBuyAssetUsdRateSpy.mockImplementation(() => ethRate)
-    selectSellAssetUsdRateSpy.mockImplementation(() => foxRate)
-
     const tradeInput: BuildTradeInput = {
       wallet: {} as HDWallet,
       chainId: KnownChainIds.EthereumMainnet,
@@ -358,7 +351,10 @@ describe('cowBuildTrade', () => {
       ),
     )
 
-    const maybeBuiltTrade = await cowBuildTrade(tradeInput)
+    const maybeBuiltTrade = await cowBuildTrade(tradeInput, {
+      sellAssetUsdRate: foxRate,
+      buyAssetUsdRate: ethRate,
+    })
     expect(maybeBuiltTrade.isOk()).toBe(true)
 
     expect(maybeBuiltTrade.unwrap()).toEqual(expectedTradeQuoteFoxToEth)
@@ -369,9 +365,6 @@ describe('cowBuildTrade', () => {
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade when buying XDAI', async () => {
-    selectBuyAssetUsdRateSpy.mockImplementation(() => '1.008')
-    selectSellAssetUsdRateSpy.mockImplementation(() => '0.999457')
-
     const tradeInput: BuildTradeInput = {
       wallet: {} as HDWallet,
       chainId: KnownChainIds.GnosisMainnet,
@@ -404,7 +397,10 @@ describe('cowBuildTrade', () => {
       ),
     )
 
-    const maybeBuiltTrade = await cowBuildTrade(tradeInput)
+    const maybeBuiltTrade = await cowBuildTrade(tradeInput, {
+      sellAssetUsdRate: '0.999457',
+      buyAssetUsdRate: '1.008',
+    })
     expect(maybeBuiltTrade.isOk()).toBe(true)
 
     expect(maybeBuiltTrade.unwrap()).toEqual(expectedTradeQuoteUsdcToXdai)

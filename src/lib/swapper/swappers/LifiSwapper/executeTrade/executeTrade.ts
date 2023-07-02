@@ -10,7 +10,7 @@ import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import type { LifiExecuteTradeInput } from 'lib/swapper/swappers/LifiSwapper/utils/types'
-import { isEvmChainAdapter } from 'lib/utils'
+import { isEvmChainAdapter } from 'lib/utils/evm'
 
 const createBuildSendTxInput = async (
   lifi: Lifi,

@@ -14,20 +14,17 @@ import type {
 } from 'lib/swapper/api'
 import { assertGetEvmChainAdapter, checkEvmSwapStatus } from 'lib/utils/evm'
 
-import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
-import { fetchZrxQuote } from './utils/fetchZrxQuote'
+import { getTradeQuote } from './getTradeQuote/getTradeQuote'
+import { fetchOneInchSwap } from './utils/fetchOneInchSwap'
 
 const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 
-export const zrxApi: Swapper2Api = {
+export const oneInchApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     { sellAssetUsdRate }: { sellAssetUsdRate: string },
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
-    const tradeQuoteResult = await getZrxTradeQuote(
-      input as GetEvmTradeQuoteInput,
-      sellAssetUsdRate,
-    )
+    const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInput, sellAssetUsdRate)
 
     return tradeQuoteResult.map(tradeQuote => {
       const { receiveAddress, affiliateBps } = input
@@ -45,30 +42,27 @@ export const zrxApi: Swapper2Api = {
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    const maybeZrxQuote = await fetchZrxQuote({
-      buyAsset,
-      sellAsset,
-      receiveAddress,
-      slippage: recommendedSlippage, // TODO: use the slippage from user input
+    const {
+      tx: { value, to, gasPrice, gas, data },
+    } = await fetchOneInchSwap({
       affiliateBps,
+      buyAsset,
+      receiveAddress,
       sellAmountBeforeFeesCryptoBaseUnit,
+      sellAsset,
+      slippage: recommendedSlippage, // TODO: use the slippage from user input
     })
 
-    if (maybeZrxQuote.isErr()) throw maybeZrxQuote.unwrapErr()
-    const { data: zrxQuote } = maybeZrxQuote.unwrap()
-
-    const { value, to, gasPrice, gas, data } = zrxQuote
-
     const buildSendApiTxInput = {
-      value: value.toString(),
+      value,
       to,
       from: from!,
       chainSpecific: {
-        gasPrice: gasPrice.toString(),
-        gasLimit: gas.toString(),
+        gasPrice,
+        gasLimit: gas,
         maxFeePerGas: undefined,
         maxPriorityFeePerGas: undefined,
-        data: data.toString(),
+        data,
       },
       accountNumber,
     }

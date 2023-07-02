@@ -1,5 +1,4 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { isNft } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import type {
   BuildTradeInput,
@@ -21,12 +20,10 @@ import type {
   CowTrade,
   CowTradeResult,
 } from 'lib/swapper/swappers/CowSwapper/types'
-import { cowChainIds } from 'lib/swapper/swappers/CowSwapper/types'
-import { COWSWAP_UNSUPPORTED_ASSETS } from 'lib/swapper/swappers/CowSwapper/utils/blacklist'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-import { isNativeEvmAsset } from '../utils/helpers/helpers'
+import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 
 export class CowSwapper<T extends CowChainId> implements Swapper<T> {
@@ -58,19 +55,7 @@ export class CowSwapper<T extends CowChainId> implements Swapper<T> {
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
     const assets = selectAssets(store.getState())
-
-    return assetIds.filter(id => {
-      const asset = assets[id]
-      if (!asset) return false
-
-      return (
-        cowChainIds.includes(asset.chainId as CowChainId) &&
-        this.supportedChainIds.includes(asset.chainId as CowChainId) &&
-        !COWSWAP_UNSUPPORTED_ASSETS.includes(id) &&
-        !isNativeEvmAsset(id) &&
-        !isNft(id)
-      )
-    })
+    return filterAssetIdsBySellable(assetIds, assets, this.supportedChainIds)
   }
 
   getTradeTxs(args: CowTradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {

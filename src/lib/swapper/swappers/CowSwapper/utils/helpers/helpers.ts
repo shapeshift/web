@@ -17,8 +17,8 @@ import {
 } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
-import type { CowChainId, CowSwapQuoteResponse } from '../../types'
-import { cowChainIds, CowNetwork } from '../../types'
+import type { CowSwapQuoteResponse } from '../../types'
+import { CowNetwork } from '../../types'
 
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },
@@ -133,13 +133,10 @@ export const assertValidTrade = ({
 }: {
   buyAsset: Asset
   sellAsset: Asset
-  supportedChainIds: CowChainId[]
+  supportedChainIds: ChainId[]
   receiveAddress?: string
 }): Result<boolean, SwapErrorRight> => {
-  if (
-    !cowChainIds.includes(sellAsset.chainId as CowChainId) ||
-    !supportedChainIds.includes(sellAsset.chainId as CowChainId)
-  ) {
+  if (!supportedChainIds.includes(sellAsset.chainId)) {
     return Err(
       makeSwapErrorRight({
         message: `[CowSwap: assertValidTrade] - unsupported chainId`,

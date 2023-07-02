@@ -21,6 +21,7 @@ import {
   assertValidTrade,
   getCowswapNetwork,
   getNowPlusThirtyMinutesTimestamp,
+  getSupportedChainIds,
   getValuesFromQuoteResponse,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import {
@@ -31,9 +32,9 @@ import {
 
 export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
-  supportedChainIds: CowChainId[],
 ): Promise<Result<TradeQuote<CowChainId, boolean>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, chainId, receiveAddress } = input
+  const supportedChainIds = getSupportedChainIds()
   const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
 
   const assertion = assertValidTrade({ buyAsset, sellAsset, supportedChainIds, receiveAddress })

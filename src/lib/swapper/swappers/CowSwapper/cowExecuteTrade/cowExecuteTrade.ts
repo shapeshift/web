@@ -26,17 +26,19 @@ import {
   domain,
   getCowswapNetwork,
   getNowPlusThirtyMinutesTimestamp,
+  getSupportedChainIds,
   hashOrder,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import { isEvmChainAdapter } from 'lib/utils/evm'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 
-export async function cowExecuteTrade<T extends CowChainId>(
-  { trade, wallet }: ExecuteTradeInput<T>,
-  supportedChainIds: CowChainId[],
-): Promise<Result<CowTradeResult, SwapErrorRight>> {
+export async function cowExecuteTrade<T extends CowChainId>({
+  trade,
+  wallet,
+}: ExecuteTradeInput<T>): Promise<Result<CowTradeResult, SwapErrorRight>> {
   const cowTrade = trade as CowTrade<T>
+  const supportedChainIds = getSupportedChainIds()
   const {
     feeAmountInSellTokenCryptoBaseUnit: feeAmountInSellToken,
     sellAmountDeductFeeCryptoBaseUnit: sellAmountWithoutFee,

@@ -6,7 +6,6 @@ import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX_MAINNET, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
-import type { CowChainId } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   DEFAULT_ADDRESS,
@@ -21,7 +20,6 @@ const foxRate = '0.0873'
 const usdcXdaiRate = '1.001'
 const ethRate = '1233.65940923824103061992'
 const wethRate = '1233.65940923824103061992'
-const supportedChainIds: CowChainId[] = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
 
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mock('../utils/cowService', () => {
@@ -218,7 +216,7 @@ describe('getCowTradeQuote', () => {
       allowMultiHop: false,
     }
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input, supportedChainIds)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input)
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
       cause: undefined,
@@ -263,7 +261,7 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input, supportedChainIds)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input)
 
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteWethToFox)
@@ -307,7 +305,7 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input, supportedChainIds)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input)
 
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteFoxToEth)
@@ -351,7 +349,7 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input, supportedChainIds)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input)
 
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteUsdcToXdai)
@@ -395,7 +393,7 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input, supportedChainIds)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input)
 
     expect(maybeTradeQuote.isErr()).toBe(false)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteSmallAmountWethToFox)

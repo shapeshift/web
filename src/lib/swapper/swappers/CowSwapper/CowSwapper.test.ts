@@ -1,6 +1,6 @@
 import { ethChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import {
   BTC,
   ETH,
@@ -18,7 +18,7 @@ import { cowExecuteTrade } from './cowExecuteTrade/cowExecuteTrade'
 import { cowGetTradeTxs } from './cowGetTradeTxs/cowGetTradeTxs'
 import { CowSwapper } from './CowSwapper'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
-import type { CowChainId, CowTrade, CowTradeResult } from './types'
+import type { CowTrade, CowTradeResult } from './types'
 
 jest.mock('./utils/helpers/helpers')
 jest.mock('state/slices/selectors', () => {
@@ -70,11 +70,9 @@ const ASSET_IDS = [
   XDAI.assetId,
 ]
 
-const COW_SWAPPER_DEPS: CowChainId[] = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
-
 describe('CowSwapper', () => {
   const wallet = {} as HDWallet
-  const swapper = new CowSwapper(COW_SWAPPER_DEPS)
+  const swapper = new CowSwapper()
 
   describe('name', () => {
     it('returns the correct human readable swapper name', () => {
@@ -174,7 +172,7 @@ describe('CowSwapper', () => {
       const { quoteInput } = setupQuote()
       await swapper.getTradeQuote(quoteInput)
       expect(getCowSwapTradeQuote).toHaveBeenCalledTimes(1)
-      expect(getCowSwapTradeQuote).toHaveBeenCalledWith(quoteInput, COW_SWAPPER_DEPS)
+      expect(getCowSwapTradeQuote).toHaveBeenCalledWith(quoteInput)
     })
   })
 
@@ -184,7 +182,7 @@ describe('CowSwapper', () => {
       const args = { ...buildTradeInput, wallet }
       await swapper.buildTrade(args)
       expect(cowBuildTrade).toHaveBeenCalledTimes(1)
-      expect(cowBuildTrade).toHaveBeenCalledWith(args, COW_SWAPPER_DEPS)
+      expect(cowBuildTrade).toHaveBeenCalledWith(args)
     })
   })
 
@@ -211,7 +209,7 @@ describe('CowSwapper', () => {
       const args = { trade: cowSwapTrade, wallet }
       await swapper.executeTrade(args)
       expect(cowExecuteTrade).toHaveBeenCalledTimes(1)
-      expect(cowExecuteTrade).toHaveBeenCalledWith(args, COW_SWAPPER_DEPS)
+      expect(cowExecuteTrade).toHaveBeenCalledWith(args)
     })
 
     it('calls executeTrade on swapper.buildTrade for Gnosis', async () => {
@@ -236,7 +234,7 @@ describe('CowSwapper', () => {
       const args = { trade: cowSwapTrade, wallet }
       await swapper.executeTrade(args)
       expect(cowExecuteTrade).toHaveBeenCalledTimes(1)
-      expect(cowExecuteTrade).toHaveBeenCalledWith(args, COW_SWAPPER_DEPS)
+      expect(cowExecuteTrade).toHaveBeenCalledWith(args)
     })
   })
 

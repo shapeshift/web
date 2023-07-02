@@ -26,24 +26,19 @@ import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/fil
 
 export class CowSwapper<T extends CowChainId> implements Swapper<T> {
   readonly name = SwapperName.CowSwap
-  supportedChainIds: CowChainId[]
-
-  constructor(supportedChainIds: CowChainId[]) {
-    this.supportedChainIds = supportedChainIds
-  }
 
   buildTrade(input: BuildTradeInput): Promise<Result<CowTrade<T>, SwapErrorRight>> {
-    return cowBuildTrade(input, this.supportedChainIds)
+    return cowBuildTrade(input)
   }
 
   getTradeQuote(
     input: GetTradeQuoteInput,
   ): Promise<Result<TradeQuote<CowChainId>, SwapErrorRight>> {
-    return getCowSwapTradeQuote(input, this.supportedChainIds)
+    return getCowSwapTradeQuote(input)
   }
 
   executeTrade(args: CowExecuteTradeInput<T>): Promise<Result<CowTradeResult, SwapErrorRight>> {
-    return cowExecuteTrade<T>(args, this.supportedChainIds)
+    return cowExecuteTrade<T>(args)
   }
 
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {

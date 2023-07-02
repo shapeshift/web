@@ -9,7 +9,7 @@ import type { BuildTradeInput } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX_MAINNET, USDC_GNOSIS, WBTC, WETH, XDAI } from '../../utils/test-data/assets'
 import type { CowSwapQuoteResponse } from '../CowSwapper'
-import type { CowChainId, CowTrade } from '../types'
+import type { CowTrade } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   DEFAULT_ADDRESS,
@@ -49,8 +49,6 @@ jest.mock('../../utils/helpers/helpers', () => {
 
 const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
 const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
-
-const supportedChainIds: CowChainId[] = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
 
 const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
   appData: DEFAULT_APP_DATA,
@@ -220,7 +218,7 @@ describe('cowBuildTrade', () => {
       allowMultiHop: false,
     }
 
-    const maybeCowBuildTrade = await cowBuildTrade(tradeInput, supportedChainIds)
+    const maybeCowBuildTrade = await cowBuildTrade(tradeInput)
     expect(maybeCowBuildTrade.isErr()).toBe(true)
     expect(maybeCowBuildTrade.unwrapErr()).toMatchObject({
       cause: undefined,
@@ -267,7 +265,7 @@ describe('cowBuildTrade', () => {
       ),
     )
 
-    const maybeBuiltTrade = await cowBuildTrade(tradeInput, supportedChainIds)
+    const maybeBuiltTrade = await cowBuildTrade(tradeInput)
 
     expect(maybeBuiltTrade.isOk()).toBe(true)
     expect(maybeBuiltTrade.unwrap()).toEqual(expectedTradeWethToFox)
@@ -313,7 +311,7 @@ describe('cowBuildTrade', () => {
       ),
     )
 
-    const maybeBuiltTrade = await cowBuildTrade(tradeInput, supportedChainIds)
+    const maybeBuiltTrade = await cowBuildTrade(tradeInput)
     expect(maybeBuiltTrade.isOk()).toBe(true)
 
     expect(maybeBuiltTrade.unwrap()).toEqual(
@@ -360,7 +358,7 @@ describe('cowBuildTrade', () => {
       ),
     )
 
-    const maybeBuiltTrade = await cowBuildTrade(tradeInput, supportedChainIds)
+    const maybeBuiltTrade = await cowBuildTrade(tradeInput)
     expect(maybeBuiltTrade.isOk()).toBe(true)
 
     expect(maybeBuiltTrade.unwrap()).toEqual(expectedTradeQuoteFoxToEth)
@@ -406,7 +404,7 @@ describe('cowBuildTrade', () => {
       ),
     )
 
-    const maybeBuiltTrade = await cowBuildTrade(tradeInput, supportedChainIds)
+    const maybeBuiltTrade = await cowBuildTrade(tradeInput)
     expect(maybeBuiltTrade.isOk()).toBe(true)
 
     expect(maybeBuiltTrade.unwrap()).toEqual(expectedTradeQuoteUsdcToXdai)

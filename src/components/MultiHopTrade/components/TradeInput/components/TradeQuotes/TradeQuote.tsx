@@ -6,7 +6,6 @@ import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { useIsTradingActive } from 'components/Trade/hooks/useIsTradingActive'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { SwapperName } from 'lib/swapper/api'
 import type { ApiQuote } from 'state/apis/swappers'
 import {
   selectBuyAsset,
@@ -90,7 +89,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
 
   // NOTE: don't pull this from the slice - we're not displaying the active quote here
   const networkFeeFiatPrecision = useMemo(
-    () => (quoteData.quote ? getTotalNetworkFeeFiatPrecision(quoteData.quote) : '0'),
+    () => (quoteData.quote ? getTotalNetworkFeeFiatPrecision(quoteData.quote) : undefined),
     [quoteData.quote],
   )
 
@@ -183,11 +182,11 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
             <FaGasPump />
           </RawText>
           {
-            // We cannot infer gas fees for 1inch swapper before an amount is entered
-            !isAmountEntered && quoteData.swapperName === SwapperName.OneInch ? (
+            // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
+            !networkFeeFiatPrecision ? (
               translate('trade.unknownGas')
             ) : (
-              <Amount.Fiat value={networkFeeFiatPrecision ?? '0'} />
+              <Amount.Fiat value={networkFeeFiatPrecision} />
             )
           }
         </Flex>

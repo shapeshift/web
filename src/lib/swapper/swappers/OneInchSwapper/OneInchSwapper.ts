@@ -27,7 +27,7 @@ import type {
   OneInchTrade,
 } from './utils/types'
 
-export class OneInchSwapper implements Swapper<OneInchSupportedChainId, true> {
+export class OneInchSwapper implements Swapper<OneInchSupportedChainId> {
   readonly name = SwapperName.OneInch
   deps: OneInchSwapperDeps
 
@@ -37,7 +37,7 @@ export class OneInchSwapper implements Swapper<OneInchSupportedChainId, true> {
 
   getTradeQuote(
     input: GetEvmTradeQuoteInput,
-  ): Promise<Result<TradeQuote<OneInchSupportedChainId, boolean>, SwapErrorRight>> {
+  ): Promise<Result<TradeQuote<OneInchSupportedChainId>, SwapErrorRight>> {
     const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
     return getTradeQuote(input, sellAssetUsdRate)
   }

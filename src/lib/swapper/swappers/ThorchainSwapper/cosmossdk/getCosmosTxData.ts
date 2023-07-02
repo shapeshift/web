@@ -101,7 +101,7 @@ export const getCosmosTxData = async (
             memo,
             chainSpecific: {
               gas: quote.steps[0].feeData.chainSpecific.estimatedGasCryptoBaseUnit,
-              fee: quote.steps[0].feeData.networkFeeCryptoBaseUnit,
+              fee: quote.steps[0].feeData.networkFeeCryptoBaseUnit ?? '0',
             },
           }),
         )
@@ -126,7 +126,7 @@ export const getCosmosTxData = async (
             chainSpecific: {
               gas: (quote as TradeQuote<ThorCosmosSdkSupportedChainId>).steps[0].feeData
                 .chainSpecific.estimatedGasCryptoBaseUnit,
-              fee: quote.steps[0].feeData.networkFeeCryptoBaseUnit,
+              fee: quote.steps[0].feeData.networkFeeCryptoBaseUnit ?? '0',
             },
           }),
         )

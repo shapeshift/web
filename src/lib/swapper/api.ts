@@ -70,8 +70,8 @@ type ChainSpecificQuoteFeeData<T extends ChainId> = ChainSpecific<
 
 export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
 
-export type QuoteFeeData<T extends ChainId, MissingNetworkFee extends boolean = false> = {
-  networkFeeCryptoBaseUnit: MissingNetworkFee extends true ? undefined : string // fee paid to the network from the fee asset
+export type QuoteFeeData<T extends ChainId> = {
+  networkFeeCryptoBaseUnit: string | undefined // fee paid to the network from the fee asset (undefined if unknown)
   protocolFees: Record<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
 } & ChainSpecificQuoteFeeData<T>
 
@@ -144,10 +144,10 @@ export type AmountDisplayMeta = {
   asset: Pick<Asset, 'symbol' | 'chainId' | 'precision'>
 }
 
-export type TradeBase<C extends ChainId, MissingNetworkFee extends boolean = false> = {
+export type TradeBase<C extends ChainId> = {
   buyAmountBeforeFeesCryptoBaseUnit: string
   sellAmountBeforeFeesCryptoBaseUnit: string
-  feeData: QuoteFeeData<C, MissingNetworkFee>
+  feeData: QuoteFeeData<C>
   rate: string
   sources: SwapSource[]
   buyAsset: Asset
@@ -158,21 +158,18 @@ export type TradeBase<C extends ChainId, MissingNetworkFee extends boolean = fal
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
 }
 
-export type TradeQuoteStep<C extends ChainId, UnknownNetworkFee extends boolean> = TradeBase<
-  C,
-  UnknownNetworkFee
-> & {
+export type TradeQuoteStep<C extends ChainId> = TradeBase<C> & {
   allowanceContract: string
 }
 
-export type TradeQuote<C extends ChainId = ChainId, UnknownNetworkFee extends boolean = false> = {
+export type TradeQuote<C extends ChainId = ChainId> = {
   minimumCryptoHuman: string
   recommendedSlippage?: string
   id?: string
-  steps: TradeQuoteStep<C, UnknownNetworkFee>[]
+  steps: TradeQuoteStep<C>[]
 }
 
-export type Trade<C extends ChainId> = TradeBase<C, false> & {
+export type Trade<C extends ChainId> = TradeBase<C> & {
   receiveAddress: string
   receiveAccountNumber?: number
 }
@@ -237,7 +234,7 @@ export enum SwapErrorType {
   // Catch-all for happy responses, but entity not found according to our criteria
   NOT_FOUND = 'NOT_FOUND',
 }
-export interface Swapper<T extends ChainId, MaybeUnknownNetworkFee extends boolean = false> {
+export interface Swapper<T extends ChainId> {
   /** Human-readable swapper name */
   readonly name: SwapperName
 
@@ -252,14 +249,7 @@ export interface Swapper<T extends ChainId, MaybeUnknownNetworkFee extends boole
   /**
    * Get a trade quote
    */
-  getTradeQuote(
-    input: GetTradeQuoteInput,
-  ): Promise<
-    Result<
-      TradeQuote<ChainId, MaybeUnknownNetworkFee extends true ? true | false : false>,
-      SwapErrorRight
-    >
-  >
+  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>>
 
   /**
    * Execute a trade built with buildTrade by signing and broadcasting

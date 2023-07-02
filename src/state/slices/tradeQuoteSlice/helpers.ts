@@ -3,7 +3,7 @@ import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, SwapperName, TradeQuote } from 'lib/swapper/api'
+import type { ProtocolFee, SwapperName, TradeQuote2 } from 'lib/swapper/api'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectCryptoMarketData,
@@ -14,9 +14,9 @@ import { store } from 'state/store'
 import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
 
 const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate = (
-  tradeQuoteStep: TradeQuote['steps'][number],
+  tradeQuoteStep: TradeQuote2['steps'][number],
   getFeeAssetRate: (feeAssetId: AssetId) => string,
-): BigNumber => {
+): BigNumber | undefined => {
   // TODO(woodenfurniture): handle osmo swapper crazy network fee logic here
   const feeAsset = selectFeeAssetById(store.getState(), tradeQuoteStep?.sellAsset.assetId)
 
@@ -26,6 +26,9 @@ const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate = (
   const feeAssetFiatRate = getFeeAssetRate(feeAsset.assetId)
 
   const networkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
+
+  if (!networkFeeCryptoBaseUnit) return // network fee is unknown
+
   const networkFeeFiatPrecision = bnOrZero(
     fromBaseUnit(networkFeeCryptoBaseUnit, feeAsset.precision),
   ).times(feeAssetFiatRate)
@@ -40,7 +43,7 @@ const _getReceiveSideAmountsCryptoBaseUnit = ({
   quote,
   swapperName,
 }: {
-  quote: TradeQuote
+  quote: TradeQuote2
   swapperName: SwapperName
 }) => {
   const lastStep = quote.steps[quote.steps.length - 1]
@@ -68,7 +71,7 @@ const _getReceiveSideAmountsCryptoBaseUnit = ({
 }
 
 const getTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate = (
-  quote: TradeQuote,
+  quote: TradeQuote2,
   getFeeAssetRate: (feeAssetId: AssetId) => string,
 ): BigNumber =>
   quote.steps.reduce((acc, step) => {
@@ -76,11 +79,11 @@ const getTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate = (
       step,
       getFeeAssetRate,
     )
-    return acc.plus(networkFeeFiatPrecision)
+    return acc.plus(networkFeeFiatPrecision ?? '0')
   }, bn(0))
 
 export const getHopTotalProtocolFeesFiatPrecision = (
-  tradeQuoteStep: TradeQuote['steps'][number],
+  tradeQuoteStep: TradeQuote2['steps'][number],
 ): string => {
   const fiatToUsdRate = selectFiatToUsdRate(store.getState())
   const cryptoMarketDataById = selectCryptoMarketData(store.getState())
@@ -93,8 +96,8 @@ export const getHopTotalProtocolFeesFiatPrecision = (
 }
 
 export const getHopTotalNetworkFeeFiatPrecision = (
-  tradeQuoteStep: TradeQuote['steps'][number],
-): string => {
+  tradeQuoteStep: TradeQuote2['steps'][number],
+): string | undefined => {
   const state = store.getState()
   const getFeeAssetFiatRate = (feeAssetId: AssetId) =>
     selectMarketDataByFilter(state, {
@@ -103,7 +106,7 @@ export const getHopTotalNetworkFeeFiatPrecision = (
   return getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate(
     tradeQuoteStep,
     getFeeAssetFiatRate,
-  ).toString()
+  )?.toString()
 }
 
 /**
@@ -116,7 +119,7 @@ export const getNetReceiveAmountCryptoPrecision = ({
   quote,
   swapperName,
 }: {
-  quote: TradeQuote
+  quote: TradeQuote2
   swapperName: SwapperName
 }) => {
   const lastStep = quote.steps[quote.steps.length - 1]
@@ -139,7 +142,7 @@ export const getNetReceiveAmountCryptoPrecision = ({
  * @param quote The trade quote
  * @returns The total network fee across all hops in fiat precision
  */
-export const getTotalNetworkFeeFiatPrecision = (quote: TradeQuote) => {
+export const getTotalNetworkFeeFiatPrecision = (quote: TradeQuote2) => {
   const state = store.getState()
   const getFeeAssetFiatRate = (feeAssetId: AssetId) =>
     selectMarketDataByFilter(state, {
@@ -153,7 +156,7 @@ export const getTotalNetworkFeeFiatPrecision = (quote: TradeQuote) => {
 }
 
 // TODO(woodenfurniture): this assumes `requiresBalance` is the same for steps for a given asset
-export const getTotalProtocolFeeByAsset = (quote: TradeQuote): Record<AssetId, ProtocolFee> =>
+export const getTotalProtocolFeeByAsset = (quote: TradeQuote2): Record<AssetId, ProtocolFee> =>
   quote.steps.reduce<Record<AssetId, ProtocolFee>>((acc, step) => {
     return Object.entries(step.feeData.protocolFees).reduce<Record<AssetId, ProtocolFee>>(
       (innerAcc, [assetId, protocolFee]) => {

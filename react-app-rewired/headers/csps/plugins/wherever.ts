@@ -4,9 +4,10 @@ const agentCsp: Csp = {
   'connect-src': [
     'https://api.rudderlabs.com',
     'https://wherevernntiw.dataplane.rudderstack.com',
-    'https://api.wherever.to',
+    'https://api.wherever.im',
     'https://backend.epns.io',
     'wss://www.walletlink.org/rpc',
+    'wss://derelay.rabby.io',
     'https://eth-mainnet.alchemyapi.io',
   ],
   'img-src': [

@@ -306,7 +306,7 @@ export type ExecuteTradeArgs = {
 
 export type CheckTradeStatusInput = {
   tradeId: string
-  txId: string
+  txHash: string
 }
 
 export type Swapper2 = {
@@ -318,7 +318,7 @@ export type Swapper2 = {
 export type Swapper2Api = {
   checkTradeStatus: (
     input: CheckTradeStatusInput,
-  ) => Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }>
+  ) => Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }>
   getTradeQuote: (
     input: GetTradeQuoteInput,
     ...deps: any[]

@@ -77,15 +77,15 @@ export const zrxApi: Swapper2Api = {
 
   checkTradeStatus: ({
     tradeId,
-    txId,
-  }): Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }> => {
+    txHash,
+  }): Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }> => {
     // TODO: it might be smart to pass in the chainId rather than having to pull it out of storage
     const getChainId = ({ tradeId }: CheckTradeStatusInput) =>
       tradeQuoteMetadata.get(tradeId)?.chainId
 
     return checkEvmSwapStatus({
       tradeId,
-      txId,
+      txHash,
       getChainId,
     })
   },

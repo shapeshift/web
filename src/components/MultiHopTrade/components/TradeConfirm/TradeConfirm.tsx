@@ -114,7 +114,7 @@ export const TradeConfirm = () => {
   const sellAsset = useAppSelector(selectFirstHopSellAsset)
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
 
-  const { executeTrade, sellTxId, status } = useTradeExecution({ tradeQuote, swapperName })
+  const { executeTrade, sellTxHash, status } = useTradeExecution({ tradeQuote, swapperName })
 
   const getSellTxLink = useCallback(
     (sellTxId: string) =>
@@ -139,11 +139,11 @@ export const TradeConfirm = () => {
   }, [mixpanel, status])
 
   const handleBack = useCallback(() => {
-    if (sellTxId) {
+    if (sellTxHash) {
       dispatch(tradeQuoteSlice.actions.clear())
     }
     history.push(TradeRoutePaths.Input)
-  }, [dispatch, history, sellTxId])
+  }, [dispatch, history, sellTxHash])
 
   const onSubmit = useCallback(async () => {
     try {
@@ -300,7 +300,7 @@ export const TradeConfirm = () => {
   const footer: JSX.Element = useMemo(
     () => (
       <Card.Footer px={0} py={0}>
-        {!sellTxId && !isSubmitting && (
+        {!sellTxHash && !isSubmitting && (
           <>
             {swapperName === SwapperName.LIFI && (
               <Alert status='warning' fontSize='sm' mt={6}>
@@ -322,7 +322,7 @@ export const TradeConfirm = () => {
         )}
       </Card.Footer>
     ),
-    [isSubmitting, sellTxId, swapperName, translate],
+    [isSubmitting, sellTxHash, swapperName, translate],
   )
 
   if (!tradeQuoteStep) return null
@@ -350,13 +350,13 @@ export const TradeConfirm = () => {
               {tradeWarning}
               {sendReceiveSummary}
               <Stack spacing={4}>
-                {sellTxId && (
+                {sellTxHash && (
                   <Row>
                     <Row.Label>
                       <RawText>{translate('common.txId')}</RawText>
                     </Row.Label>
                     <Box textAlign='right'>
-                      <Link isExternal color='blue.500' href={getSellTxLink(sellTxId)}>
+                      <Link isExternal color='blue.500' href={getSellTxLink(sellTxHash)}>
                         <Text translation='trade.viewTransaction' />
                       </Link>
                     </Box>

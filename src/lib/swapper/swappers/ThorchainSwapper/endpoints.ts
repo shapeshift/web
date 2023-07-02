@@ -67,22 +67,22 @@ export const thorchainApi: Swapper2Api = {
   },
 
   checkTradeStatus: async ({
-    txId,
-  }): Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }> => {
+    txHash,
+  }): Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }> => {
     try {
       // thorchain swapper uses txId to get tx status (not trade ID)
-      const { buyTxId } = await getTradeTxs({ tradeId: txId })
-      const status = buyTxId ? TxStatus.Confirmed : TxStatus.Pending
+      const { buyTxId: buyTxHash } = await getTradeTxs({ tradeId: txHash })
+      const status = buyTxHash ? TxStatus.Confirmed : TxStatus.Pending
 
       return {
-        buyTxId,
+        buyTxHash,
         status,
         message: undefined,
       }
     } catch (e) {
       console.error(e)
       return {
-        buyTxId: undefined,
+        buyTxHash: undefined,
         status: TxStatus.Failed,
         message: undefined,
       }

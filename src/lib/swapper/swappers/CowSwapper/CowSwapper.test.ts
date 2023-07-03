@@ -20,28 +20,10 @@ import { CowSwapper } from './CowSwapper'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import type { CowTrade, CowTradeResult } from './types'
 
-jest.mock('./utils/helpers/helpers')
-jest.mock('state/slices/selectors', () => {
-  const {
-    BTC,
-    ETH,
-    FOX_MAINNET,
-    FOX_GNOSIS,
-    WBTC,
-    WETH,
-    XDAI,
-  } = require('lib/swapper/swappers/utils/test-data/assets') // Move the import inside the factory function
-
+jest.mock('./utils/helpers/helpers', () => {
+  const { KnownChainIds } = require('@shapeshiftoss/types')
   return {
-    selectAssets: () => ({
-      [BTC.assetId]: BTC,
-      [ETH.assetId]: ETH,
-      [FOX_MAINNET.assetId]: FOX_MAINNET,
-      [FOX_GNOSIS.assetId]: FOX_GNOSIS,
-      [WBTC.assetId]: WBTC,
-      [WETH.assetId]: WETH,
-      [XDAI.assetId]: XDAI,
-    }),
+    getSupportedChainIds: () => [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet],
   }
 })
 
@@ -60,6 +42,37 @@ jest.mock('./cowExecuteTrade/cowExecuteTrade', () => ({
 jest.mock('./cowGetTradeTxs/cowGetTradeTxs', () => ({
   cowGetTradeTxs: jest.fn(),
 }))
+
+jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
+  ...jest.requireActual('state/zustand/swapperStore/amountSelectors'),
+  selectSellAssetUsdRate: jest.fn(() => '1'),
+  selectBuyAssetUsdRate: jest.fn(() => '2'),
+}))
+
+jest.mock('state/slices/assetsSlice/selectors', () => {
+  const {
+    BTC,
+    ETH,
+    FOX_GNOSIS,
+    FOX_MAINNET,
+    WBTC,
+    WETH,
+    XDAI,
+  } = require('lib/swapper/swappers/utils/test-data/assets')
+
+  return {
+    ...jest.requireActual('state/slices/assetsSlice/selectors'),
+    selectAssets: jest.fn(() => ({
+      [BTC.assetId]: BTC,
+      [ETH.assetId]: ETH,
+      [FOX_GNOSIS.assetId]: FOX_GNOSIS,
+      [FOX_MAINNET.assetId]: FOX_MAINNET,
+      [WBTC.assetId]: WBTC,
+      [WETH.assetId]: WETH,
+      [XDAI.assetId]: XDAI,
+    })),
+  }
+})
 
 const ASSET_IDS = [
   ETH.assetId,
@@ -172,7 +185,10 @@ describe('CowSwapper', () => {
       const { quoteInput } = setupQuote()
       await swapper.getTradeQuote(quoteInput)
       expect(getCowSwapTradeQuote).toHaveBeenCalledTimes(1)
-      expect(getCowSwapTradeQuote).toHaveBeenCalledWith(quoteInput)
+      expect(getCowSwapTradeQuote).toHaveBeenCalledWith(quoteInput, {
+        buyAssetUsdRate: '2',
+        sellAssetUsdRate: '1',
+      })
     })
   })
 
@@ -182,7 +198,10 @@ describe('CowSwapper', () => {
       const args = { ...buildTradeInput, wallet }
       await swapper.buildTrade(args)
       expect(cowBuildTrade).toHaveBeenCalledTimes(1)
-      expect(cowBuildTrade).toHaveBeenCalledWith(args)
+      expect(cowBuildTrade).toHaveBeenCalledWith(args, {
+        buyAssetUsdRate: '2',
+        sellAssetUsdRate: '1',
+      })
     })
   })
 

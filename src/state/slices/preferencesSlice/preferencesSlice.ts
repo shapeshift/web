@@ -51,8 +51,11 @@ export type FeatureFlags = {
 export type Flag = keyof FeatureFlags
 
 export enum CurrencyFormats {
-  DotDecimal = 'en-US',
-  CommaDecimal = 'fr-FR',
+  DotDecimalCommaThousands = 'en-US', // $123,456.78 (examples for a user using USD)
+  DotDecimalCommaThousandsLakhCrore = 'en-IN', // $1,23,456.78
+  DotDecimalQuoteThousands = 'de-CH', // $ 123’456.78
+  CommaDecimalSpaceThousands = 'fr-FR', // 123 456,78 $US
+  CommaDecimalDotThousands = 'de-DE', // 123.456,78 $
 }
 
 export type Preferences = {
@@ -108,7 +111,7 @@ const initialState: Preferences = {
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
   selectedCurrency: 'USD',
-  currencyFormat: CurrencyFormats.DotDecimal,
+  currencyFormat: CurrencyFormats.DotDecimalCommaThousands,
   chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
   showWelcomeModal: false,
   showConsentBanner: true,

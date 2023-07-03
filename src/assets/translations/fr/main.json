@@ -632,12 +632,20 @@
   "trade": {
     "trade": "Échanger",
     "allowance": "Allocation",
+    "slippageInfo": "Votre transaction sera annulée si le prix change défavorablement de plus de ce pourcentage.",
     "allowanceTooltip": "Le montant que vous allez autoriser le contrat intelligent à utiliser en votre nom.",
     "searchingRate": "Recherche du meilleur taux...",
     "noRateAvailable": "Aucun taux disponible.",
     "previewTrade": "Prévisualiser l'échange",
     "rate": "Taux",
     "tradeFrom": "Échanger de",
+    "slippage": {
+      "maxSlippage": "Glissement/Slippage max.",
+      "auto": "Auto",
+      "custom": "Personnalisé",
+      "warning": "Des tolérances de glissement/slippage élevées peuvent entraîner des transactions défavorables.",
+      "lowSlippage": "Un glissement/slippage en dessous de 0,05% peut résulter en une transaction échouée."
+    },
     "from": "De",
     "to": "À",
     "youPay": "Vous payez",

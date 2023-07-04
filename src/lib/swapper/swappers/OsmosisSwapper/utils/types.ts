@@ -1,11 +1,4 @@
-import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import type { TradeResult } from 'lib/swapper/api'
-
-export type OsmoSwapperDeps = {
-  adapterManager: ChainAdapterManager
-  osmoUrl: string
-  cosmosUrl: string
-}
 
 export type IbcTransferInput = {
   sender: string

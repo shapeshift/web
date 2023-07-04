@@ -86,6 +86,14 @@ export const TradeConfirm = () => {
     dispatch: walletDispatch,
   } = useWallet()
 
+  useEffect(() => {
+    // WARNING: do not remove.
+    // clear the confirmed quote on dismount to prevent stale data affecting the selectors
+    return () => {
+      dispatch(tradeQuoteSlice.actions.resetConfirmedQuote())
+    }
+  }, [dispatch])
+
   const tradeQuote = useAppSelector(selectActiveQuote)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const swapperName = useAppSelector(selectActiveSwapperName)

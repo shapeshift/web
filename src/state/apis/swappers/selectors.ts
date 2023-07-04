@@ -1,24 +1,31 @@
+import type { Selector } from '@reduxjs/toolkit'
 import { createSelector } from '@reduxjs/toolkit'
 import { QueryStatus } from '@reduxjs/toolkit/query'
-import type { Selector } from 'reselect'
-import type { ApiQuote } from 'state/apis/swappers/types'
 import type { ReduxState } from 'state/reducer'
+import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
-export const selectMostRecentTradeQuoteQuery = (state: ReduxState) => {
-  const getTradeQuoteQueries = Object.values(state.swappersApi.queries).filter(
-    query => query?.endpointName === 'getTradeQuote',
-  )
+import type { ApiQuote } from './types'
 
-  if (!getTradeQuoteQueries.length) return undefined
+const selectSwappersApi = (state: ReduxState) => state.swappersApi
 
-  return getTradeQuoteQueries.reduce((mostRecentQuery, query) =>
-    query?.startedTimeStamp &&
-    mostRecentQuery?.startedTimeStamp &&
-    query?.startedTimeStamp > mostRecentQuery?.startedTimeStamp
-      ? query
-      : mostRecentQuery,
-  )
-}
+export const selectMostRecentTradeQuoteQuery = createDeepEqualOutputSelector(
+  selectSwappersApi,
+  swappersApi => {
+    const getTradeQuoteQueries = Object.values(swappersApi.queries).filter(
+      query => query?.endpointName === 'getTradeQuote',
+    )
+
+    if (!getTradeQuoteQueries.length) return undefined
+
+    return getTradeQuoteQueries.reduce((mostRecentQuery, query) =>
+      query?.startedTimeStamp &&
+      mostRecentQuery?.startedTimeStamp &&
+      query?.startedTimeStamp > mostRecentQuery?.startedTimeStamp
+        ? query
+        : mostRecentQuery,
+    )
+  },
+)
 
 export const selectSwappersApiTradeQuotes: Selector<ReduxState, ApiQuote[]> = createSelector(
   selectMostRecentTradeQuoteQuery,

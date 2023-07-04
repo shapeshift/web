@@ -29,22 +29,43 @@ import { selectCryptoMarketData, selectFiatToUsdRate } from '../marketDataSlice/
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 
+const selectConfirmedQuote: Selector<ReduxState, TradeQuote2 | undefined> =
+  createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
+
 export const selectActiveSwapperName: Selector<ReduxState, SwapperName | undefined> =
-  createSelector(selectTradeQuoteSlice, swappers => swappers.swapperName)
+  createSelector(
+    selectTradeQuoteSlice,
+    selectSwappersApiTradeQuotes,
+    (tradeQuote, apiQuotes) => tradeQuote.activeSwapperName ?? apiQuotes[0]?.swapperName,
+  )
 
 export const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined> =
   createDeepEqualOutputSelector(
     selectSwappersApiTradeQuotes,
     selectActiveSwapperName,
-    (quotes, activeSwapperName) =>
-      quotes.find(quote => quote.swapperName === activeSwapperName) ?? quotes.length > 0
-        ? quotes[0]
-        : undefined,
+    (quotes, activeSwapperName) => {
+      const selectedQuote = quotes.find(quote => quote.swapperName === activeSwapperName)
+      if (selectedQuote) {
+        return selectedQuote
+      } else {
+        return quotes.length > 0 ? quotes[0] : undefined
+      }
+    },
   )
 
-// TODO(apotheosis): Cache based on quote ID
 export const selectActiveQuote: Selector<ReduxState, TradeQuote2 | undefined> =
-  createDeepEqualOutputSelector(selectActiveSwapperApiResponse, response => response?.quote)
+  createDeepEqualOutputSelector(
+    selectActiveSwapperApiResponse,
+    selectConfirmedQuote,
+    (response, confirmedQuote) => {
+      // Return the confirmed quote for trading, if it exists.
+      // This prevents the quote changing during trade execution, but has implications on the UI
+      // displaying stale data. To prevent displaying stale data, we must ensure to clear the
+      // confirmedQuote when not executing a trade.
+      if (confirmedQuote) return confirmedQuote
+      return response?.quote
+    },
+  )
 
 export const selectActiveQuoteError: Selector<ReduxState, SwapErrorRight | undefined> =
   createDeepEqualOutputSelector(selectActiveSwapperApiResponse, response => response?.error)

@@ -8,7 +8,7 @@ import { signAndBroadcast } from 'lib/utils/evm'
 import { filterEvmAssetIdsBySellable } from '../utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterCrossChainEvmBuyAssetsBySellAssetId } from '../utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 
-export const lifi: Swapper2 = {
+export const lifiSwapper: Swapper2 = {
   executeTrade: ({ txToSign, wallet, chainId }: ExecuteTradeArgs) => {
     const adapterManager = getChainAdapterManager()
     const adapter = adapterManager.get(chainId) as unknown as EvmChainAdapter

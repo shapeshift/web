@@ -15,9 +15,9 @@ import {
   selectSellAsset,
 } from 'state/slices/selectors'
 import {
-  selectNetReceiveAmountCryptoPrecision,
-  selectTotalNetworkFeeFiatPrecision,
-} from 'state/slices/tradeQuoteSlice/selectors'
+  getNetReceiveAmountCryptoPrecision,
+  getTotalNetworkFeeFiatPrecision,
+} from 'state/slices/tradeQuoteSlice/helpers'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -87,8 +87,24 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const sellAsset = useAppSelector(selectSellAsset)
 
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
-  const networkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeFiatPrecision)
-  const totalReceiveAmountCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
+
+  // NOTE: don't pull this from the slice - we're not displaying the active quote here
+  const networkFeeFiatPrecision = useMemo(
+    () => (quoteData.quote ? getTotalNetworkFeeFiatPrecision(quoteData.quote) : '0'),
+    [quoteData.quote],
+  )
+
+  // NOTE: don't pull this from the slice - we're not displaying the active quote here
+  const totalReceiveAmountCryptoPrecision = useMemo(
+    () =>
+      quoteData.quote
+        ? getNetReceiveAmountCryptoPrecision({
+            quote: quoteData.quote,
+            swapperName: quoteData.swapperName,
+          })
+        : '0',
+    [quoteData.quote, quoteData.swapperName],
+  )
 
   const handleQuoteSelection = useCallback(() => {
     dispatch(tradeQuoteSlice.actions.setSwapperName(quoteData.swapperName))

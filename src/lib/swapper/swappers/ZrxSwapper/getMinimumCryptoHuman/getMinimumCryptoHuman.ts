@@ -1,9 +1,6 @@
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectSellAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
-import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
-export const getMinimumCryptoHuman = (): string => {
-  const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+export const getMinimumCryptoHuman = (sellAssetUsdRate: string): string => {
   const minimumCryptoHuman = bn(1).dividedBy(bnOrZero(sellAssetUsdRate)).toString() // $1 worth of the sell token.
   return minimumCryptoHuman
 }

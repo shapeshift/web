@@ -15,7 +15,7 @@ import { assertUnreachable, evm } from 'lib/utils'
 
 import { ThorchainSwapper } from './ThorchainSwapper'
 
-export const thorchain: Swapper2 = {
+export const thorchainSwapper: Swapper2 = {
   executeTrade: async ({ txToSign, wallet, chainId }: ExecuteTradeArgs): Promise<string> => {
     const { chainNamespace } = fromChainId(chainId)
     const chainAdapterManager = getChainAdapterManager()

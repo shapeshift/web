@@ -11,8 +11,7 @@ export const useAllowanceApproval = (
 ) => {
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
-  const { isApprovalNeeded, stopPolling: stopPollingIsApprovalNeeded } =
-    useIsApprovalNeeded(tradeQuoteStep)
+  const { isApprovalNeeded } = useIsApprovalNeeded(tradeQuoteStep)
   const {
     approvalNetworkFeeCryptoBaseUnit,
     buildCustomTxInput,
@@ -23,10 +22,9 @@ export const useAllowanceApproval = (
     useExecuteAllowanceApproval(tradeQuoteStep, buildCustomTxInput)
 
   const executeAllowanceApproval = useCallback(() => {
-    stopPollingIsApprovalNeeded() // prevent approval UI disappearing after approval is processed
     stopPollingBuildApprovalTx()
     return _executeAllowanceApproval()
-  }, [_executeAllowanceApproval, stopPollingBuildApprovalTx, stopPollingIsApprovalNeeded])
+  }, [_executeAllowanceApproval, stopPollingBuildApprovalTx])
 
   useEffect(() => {
     // update the loading state to true if the approval requirement is not undefined

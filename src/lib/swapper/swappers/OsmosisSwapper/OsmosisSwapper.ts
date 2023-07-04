@@ -23,7 +23,6 @@ import {
   atomOnOsmosisAssetId,
   COSMO_OSMO_CHANNEL,
   OSMO_COSMO_CHANNEL,
-  SUPPORTED_ASSET_IDS,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/constants'
 import type { SymbolDenomMapping } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 import {
@@ -41,6 +40,8 @@ import type {
 import { selectSellAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
+import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
+import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 
 export class OsmosisSwapper implements Swapper<ChainId> {
@@ -80,17 +81,12 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     }
   }
 
-  filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): string[] {
-    const { assetIds = [], sellAssetId } = args
-    if (!SUPPORTED_ASSET_IDS.includes(sellAssetId)) return []
-
-    return assetIds.filter(
-      assetId => SUPPORTED_ASSET_IDS.includes(assetId) && assetId !== sellAssetId,
-    )
+  filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): string[] {
+    return filterBuyAssetsBySellAssetId(input)
   }
 
   filterAssetIdsBySellable(): AssetId[] {
-    return [...SUPPORTED_ASSET_IDS]
+    return filterAssetIdsBySellable()
   }
 
   async buildTrade(args: BuildTradeInput): Promise<Result<Trade<ChainId>, SwapErrorRight>> {

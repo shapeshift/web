@@ -16,11 +16,6 @@ jest.mock('../utils/oneInchService', () => {
   }
 })
 
-jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
-  ...jest.requireActual('state/zustand/swapperStore/amountSelectors'),
-  selectSellAssetUsdRate: jest.fn(() => '0.02000'),
-}))
-
 const averageGasPrice = '15000000000' // 15 gwei
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => {
@@ -96,7 +91,7 @@ describe('getTradeQuote', () => {
     })
 
     const { quoteInput } = setupQuote()
-    const maybeQuote = await getTradeQuote(deps, quoteInput)
+    const maybeQuote = await getTradeQuote(quoteInput, '0.02000')
     expect(maybeQuote.isOk()).toBe(true)
     const quote = maybeQuote.unwrap()
     expect(quote.steps[0].rate).toBe('0.000016426735042245')

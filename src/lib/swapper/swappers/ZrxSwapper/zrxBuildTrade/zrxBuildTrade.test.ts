@@ -36,6 +36,7 @@ jest.mock('@shapeshiftoss/chain-adapters', () => {
 })
 
 jest.mock('lib/utils/evm', () => ({
+  ...jest.requireActual('lib/utils/evm'),
   getFees: () => ({ networkFeeCryptoBaseUnit: '4080654495000000' }),
   getApiFees: () => ({ networkFeeCryptoBaseUnit: '4080654495000000' }),
 }))

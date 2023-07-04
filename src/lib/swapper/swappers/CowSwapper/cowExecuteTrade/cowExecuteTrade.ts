@@ -28,7 +28,7 @@ import {
   getNowPlusThirtyMinutesTimestamp,
   hashOrder,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
-import { isEvmChainAdapter } from 'lib/utils'
+import { isEvmChainAdapter } from 'lib/utils/evm'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 

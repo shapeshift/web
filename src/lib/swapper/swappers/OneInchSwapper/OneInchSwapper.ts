@@ -13,6 +13,8 @@ import type {
 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { filterEvmAssetIdsBySellable } from 'lib/swapper/swappers/utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
+import { selectSellAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
+import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { buildTrade } from './buildTrade/buildTrade'
 import { executeTrade } from './executeTrade/executeTrade'
@@ -36,7 +38,8 @@ export class OneInchSwapper implements Swapper<OneInchSupportedChainId, true> {
   getTradeQuote(
     input: GetEvmTradeQuoteInput,
   ): Promise<Result<TradeQuote<OneInchSupportedChainId, boolean>, SwapErrorRight>> {
-    return getTradeQuote(this.deps, input)
+    const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+    return getTradeQuote(input, sellAssetUsdRate)
   }
 
   buildTrade(

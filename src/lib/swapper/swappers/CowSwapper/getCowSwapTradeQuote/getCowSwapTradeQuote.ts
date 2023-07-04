@@ -103,9 +103,7 @@ export async function getCowSwapTradeQuote(
   })
 
   // don't show buy amount if less than min sell amount
-  const isSellAmountBelowMinimum = bnOrZero(normalizedSellAmountCryptoBaseUnit).lt(
-    minimumCryptoBaseUnit,
-  )
+  const isSellAmountBelowMinimum = bnOrZero(sellAmount).lt(minimumCryptoBaseUnit)
   const buyAmountCryptoBaseUnit = isSellAmountBelowMinimum ? '0' : buyAmountBeforeFeesCryptoBaseUnit
 
   const quote: TradeQuote<CowChainId> = {

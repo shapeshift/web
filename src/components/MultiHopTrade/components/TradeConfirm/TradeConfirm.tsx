@@ -346,6 +346,7 @@ export const TradeConfirm = () => {
                 buyColor={buyAsset?.color ?? ''}
                 sellColor={sellAsset?.color ?? ''}
                 status={status}
+                isSubmitting={isSubmitting}
               />
               {tradeWarning}
               {sendReceiveSummary}

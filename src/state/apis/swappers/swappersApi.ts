@@ -13,6 +13,7 @@ import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlic
 import { selectFeatureFlags } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
+import { getCowTradeQuoteHelper } from './helpers/getCowTradeQuoteHelper'
 import { getOneInchTradeQuoteHelper } from './helpers/getOneInchTradeQuoteHelper'
 import { getZrxTradeQuoteHelper } from './helpers/getZrxTradeQuoteHelper'
 
@@ -26,17 +27,19 @@ export const swappersApi = createApi({
         const state = getState() as ReduxState
         const { sendAddress, receiveAddress } = getTradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
-        const { LifiSwap, ThorSwap, ZrxSwap, OneInch }: FeatureFlags = selectFeatureFlags(state)
+        const { LifiSwap, ThorSwap, ZrxSwap, OneInch, Cowswap }: FeatureFlags =
+          selectFeatureFlags(state)
         const quotes: (Result<TradeQuote2, SwapErrorRight> & {
           swapperName: SwapperName
         })[] = []
         const quoteHelperArgs = [getTradeQuoteInput, state] as const
         if (LifiSwap)
           try {
-            const lifiTradeQuote: Result<TradeQuote2, SwapErrorRight> =
-              await getLifiTradeQuoteHelper(...quoteHelperArgs)
+            const quote: Result<TradeQuote2, SwapErrorRight> = await getLifiTradeQuoteHelper(
+              ...quoteHelperArgs,
+            )
             quotes.push({
-              ...lifiTradeQuote,
+              ...quote,
               swapperName: SwapperName.LIFI,
             })
           } catch (error) {
@@ -44,10 +47,11 @@ export const swappersApi = createApi({
           }
         if (ThorSwap)
           try {
-            const thorTradeQuote: Result<TradeQuote2, SwapErrorRight> =
-              await getThorTradeQuoteHelper(...quoteHelperArgs)
+            const quote: Result<TradeQuote2, SwapErrorRight> = await getThorTradeQuoteHelper(
+              ...quoteHelperArgs,
+            )
             quotes.push({
-              ...thorTradeQuote,
+              ...quote,
               swapperName: SwapperName.Thorchain,
             })
           } catch (error) {
@@ -55,11 +59,11 @@ export const swappersApi = createApi({
           }
         if (ZrxSwap)
           try {
-            const zrxTradeQuote: Result<TradeQuote2, SwapErrorRight> = await getZrxTradeQuoteHelper(
+            const quote: Result<TradeQuote2, SwapErrorRight> = await getZrxTradeQuoteHelper(
               ...quoteHelperArgs,
             )
             quotes.push({
-              ...zrxTradeQuote,
+              ...quote,
               swapperName: SwapperName.Zrx,
             })
           } catch (error) {
@@ -67,11 +71,24 @@ export const swappersApi = createApi({
           }
         if (OneInch)
           try {
-            const oneInchQuote: Result<TradeQuote2, SwapErrorRight> =
-              await getOneInchTradeQuoteHelper(...quoteHelperArgs)
+            const quote: Result<TradeQuote2, SwapErrorRight> = await getOneInchTradeQuoteHelper(
+              ...quoteHelperArgs,
+            )
             quotes.push({
-              ...oneInchQuote,
+              ...quote,
               swapperName: SwapperName.OneInch,
+            })
+          } catch (error) {
+            console.error(error)
+          }
+        if (Cowswap)
+          try {
+            const quote: Result<TradeQuote2, SwapErrorRight> = await getCowTradeQuoteHelper(
+              ...quoteHelperArgs,
+            )
+            quotes.push({
+              ...quote,
+              swapperName: SwapperName.CowSwap,
             })
           } catch (error) {
             console.error(error)

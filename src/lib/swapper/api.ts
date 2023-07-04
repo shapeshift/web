@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainSignTx,
   CosmosSdkChainId,
@@ -288,15 +288,21 @@ export type GetUnsignedTxArgs = {
   feeAssetUsdRate: string
 } & FromOrXpub
 
+// the client should never need to know anything about this payload, and since it varies from
+// swapper to swapper, the type is declared this way to prevent generics hell while ensuring the
+// data originates from the correct place (assuming no casting).
+export type UnsignedTx2 = Nominal<object, 'UnsignedTx2'>
+
 export type ExecuteTradeArgs = {
-  txToSign: UnsignedTx
+  txToSign: UnsignedTx2
   wallet: HDWallet
   chainId: ChainId
 }
 
 export type CheckTradeStatusInput = {
-  tradeId: string
+  quoteId: string
   txHash: string
+  chainId: ChainId
 }
 
 export type Swapper2 = {
@@ -313,5 +319,5 @@ export type Swapper2Api = {
     input: GetTradeQuoteInput,
     ...deps: any[]
   ) => Promise<Result<TradeQuote2, SwapErrorRight>>
-  getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx>
+  getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx2>
 }

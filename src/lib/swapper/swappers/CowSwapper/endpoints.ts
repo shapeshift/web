@@ -66,7 +66,7 @@ export const cowApi: Swapper2Api = {
       tradeQuote.steps[stepIndex]
     const { receiveAddress } = tradeQuote
 
-    const buyToken = !isNativeEvmAsset(buyAsset.assetId)
+    const buyTokenAddress = !isNativeEvmAsset(buyAsset.assetId)
       ? fromAssetId(buyAsset.assetId).assetReference
       : COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS
 
@@ -81,7 +81,7 @@ export const cowApi: Swapper2Api = {
       `${baseUrl}/${network}/api/v1/quote/`,
       {
         sellToken: fromAssetId(sellAsset.assetId).assetReference,
-        buyToken,
+        buyToken: buyTokenAddress,
         receiver: receiveAddress,
         validTo: getNowPlusThirtyMinutesTimestamp(),
         appData: DEFAULT_APP_DATA,

@@ -291,7 +291,7 @@ export type GetUnsignedTxArgs = {
 // the client should never need to know anything about this payload, and since it varies from
 // swapper to swapper, the type is declared this way to prevent generics hell while ensuring the
 // data originates from the correct place (assuming no casting).
-export type UnsignedTx2 = Nominal<object, 'UnsignedTx2'>
+export type UnsignedTx2 = Nominal<Record<string, any>, 'UnsignedTx2'>
 
 export type ExecuteTradeArgs = {
   txToSign: UnsignedTx2

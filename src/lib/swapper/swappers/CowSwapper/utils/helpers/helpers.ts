@@ -232,8 +232,8 @@ export const getValuesFromQuoteResponse = ({
 }
 
 export const getSupportedChainIds = (): ChainId[] => {
-  const enableGnosis = getConfig().REACT_APP_FEATURE_COWSWAP_GNOSIS
-  return enableGnosis
+  const isGnosisEnabled = getConfig().REACT_APP_FEATURE_COWSWAP_GNOSIS
+  return isGnosisEnabled
     ? [KnownChainIds.GnosisMainnet, KnownChainIds.EthereumMainnet]
     : [KnownChainIds.EthereumMainnet]
 }

@@ -4,20 +4,16 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
 import { ethers } from 'ethers'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import {
-  selectBuyAssetUsdRate,
-  selectSellAssetUsdRate,
-} from 'state/zustand/swapperStore/amountSelectors'
-import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
-import type { CowChainId, CowSwapQuoteResponse } from '../../types'
-import { cowChainIds, CowNetwork } from '../../types'
+import type { CowSwapQuoteResponse } from '../../types'
+import { CowNetwork } from '../../types'
 
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },
@@ -132,13 +128,10 @@ export const assertValidTrade = ({
 }: {
   buyAsset: Asset
   sellAsset: Asset
-  supportedChainIds: CowChainId[]
+  supportedChainIds: ChainId[]
   receiveAddress?: string
 }): Result<boolean, SwapErrorRight> => {
-  if (
-    !cowChainIds.includes(sellAsset.chainId as CowChainId) ||
-    !supportedChainIds.includes(sellAsset.chainId as CowChainId)
-  ) {
+  if (!supportedChainIds.includes(sellAsset.chainId)) {
     return Err(
       makeSwapErrorRight({
         message: `[CowSwap: assertValidTrade] - unsupported chainId`,
@@ -184,21 +177,22 @@ type GetValuesFromQuoteResponseArgs = {
   buyAsset: Asset
   sellAsset: Asset
   response: CowSwapQuoteResponse
+  sellAssetUsdRate: string
+  buyAssetUsdRate: string
 }
 
 export const getValuesFromQuoteResponse = ({
   buyAsset,
   sellAsset,
   response,
+  sellAssetUsdRate,
+  buyAssetUsdRate,
 }: GetValuesFromQuoteResponseArgs) => {
   const {
     sellAmount: sellAmountAfterFeesCryptoBaseUnit,
     feeAmount: feeAmountInSellTokenCryptoBaseUnit,
     buyAmount: buyAmountAfterFeesCryptoBaseUnit,
   } = response.quote
-
-  const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
-  const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
 
   const sellAssetTradeFeeCryptoPrecision = fromBaseUnit(
     feeAmountInSellTokenCryptoBaseUnit,
@@ -235,4 +229,11 @@ export const getValuesFromQuoteResponse = ({
   const rate = bnOrZero(buyAmountAfterFeesCryptoPrecision).div(sellAmountCryptoPrecision).toString()
 
   return { rate, buyAmountBeforeFeesCryptoBaseUnit, buyAmountAfterFeesCryptoBaseUnit }
+}
+
+export const getSupportedChainIds = (): ChainId[] => {
+  const isGnosisEnabled = getConfig().REACT_APP_FEATURE_COWSWAP_GNOSIS
+  return isGnosisEnabled
+    ? [KnownChainIds.GnosisMainnet, KnownChainIds.EthereumMainnet]
+    : [KnownChainIds.EthereumMainnet]
 }

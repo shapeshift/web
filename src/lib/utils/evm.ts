@@ -224,44 +224,44 @@ export const executeEvmTrade = ({ txToSign, wallet, chainId }: ExecuteTradeArgs)
   return signAndBroadcast({ adapter, wallet, txToSign: txToSign as ETHSignTx })
 }
 
-const createDefaultStatusResponse = (buyTxId: string) => ({
+const createDefaultStatusResponse = (buyTxHash: string) => ({
   status: TxStatus.Unknown,
-  buyTxId,
+  buyTxHash,
   message: undefined,
 })
 
 export const checkEvmSwapStatus = async ({
   tradeId,
-  txId,
+  txHash,
   getChainId,
 }: CheckTradeStatusInput & {
   getChainId: (input: CheckTradeStatusInput) => ChainId | undefined
 }): Promise<{
   status: TxStatus
-  buyTxId: string | undefined
+  buyTxHash: string | undefined
   message: string | undefined
 }> => {
   try {
     const maybeChainId = getChainId({
       tradeId,
-      txId,
+      txHash,
     })
 
     if (!maybeChainId) {
-      return createDefaultStatusResponse(txId)
+      return createDefaultStatusResponse(txHash)
     }
 
     const adapter = assertGetEvmChainAdapter(maybeChainId)
-    const tx = await adapter.httpProvider.getTransaction({ txid: txId })
+    const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
     const status = getTxStatus(tx)
 
     return {
       status,
-      buyTxId: txId,
+      buyTxHash: txHash,
       message: undefined,
     }
   } catch (e) {
     console.error(e)
-    return createDefaultStatusResponse(txId)
+    return createDefaultStatusResponse(txHash)
   }
 }

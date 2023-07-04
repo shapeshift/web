@@ -1,4 +1,4 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { CowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { ThorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { ETH, FOX_MAINNET, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
@@ -9,8 +9,7 @@ import { SwapperName } from '../api'
 
 export const getZrxSwapper = () => new ZrxSwapper()
 
-export const getCowSwapper = () =>
-  new CowSwapper([KnownChainIds.GnosisMainnet, KnownChainIds.EthereumMainnet])
+export const getCowSwapper = () => new CowSwapper()
 
 export const getThorchainSwapper = () => new ThorchainSwapper()
 

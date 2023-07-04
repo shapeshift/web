@@ -37,8 +37,8 @@ export const useTradeExecution = ({
   swapperName?: SwapperName
   tradeQuote?: TradeQuote2
 }) => {
-  const [sellTxId, setSellTxId] = useState<string | undefined>()
-  const [buyTxId, setBuyTxId] = useState<string | undefined>()
+  const [sellTxHash, setSellTxHash] = useState<string | undefined>()
+  const [buyTxHash, setBuyTxHash] = useState<string | undefined>()
   const [message, setMessage] = useState<string | undefined>()
   const [status, setStatus] = useState<TxStatus>(TxStatus.Unknown)
   const { poll } = usePoll()
@@ -124,17 +124,17 @@ export const useTradeExecution = ({
       chainId,
     })
 
-    setSellTxId(sellTxId)
+    setSellTxHash(sellTxId)
 
     await poll({
       fn: async () => {
-        const { status, message, buyTxId } = await swapper.checkTradeStatus({
+        const { status, message, buyTxHash } = await swapper.checkTradeStatus({
           tradeId: tradeQuote.id,
-          txId: sellTxId,
+          txHash: sellTxId,
         })
 
         setMessage(message)
-        setBuyTxId(buyTxId)
+        setBuyTxHash(buyTxHash)
         setStatus(status)
 
         return status
@@ -145,5 +145,5 @@ export const useTradeExecution = ({
     })
   }, [wallet, buyAssetUsdRate, feeAssetUsdRate, accountMetadata, tradeQuote, swapperName, poll])
 
-  return { executeTrade, sellTxId, buyTxId, message, status }
+  return { executeTrade, sellTxHash, buyTxHash, message, status }
 }

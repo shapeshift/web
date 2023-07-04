@@ -46,7 +46,7 @@ export const getRatioFromQuote = ({
   ).times(buyAssetUsdRate ?? '0')
 
   const networkFeeUsd = bnOrZero(
-    fromBaseUnit(quote.steps[0].feeData.networkFeeCryptoBaseUnit, feeAsset.precision),
+    fromBaseUnit(quote.steps[0].feeData.networkFeeCryptoBaseUnit ?? '0', feeAsset.precision),
   ).times(feeAssetUsdRate ?? '0')
 
   const totalProtocolFeesUsd = sumProtocolFeesToDenom({

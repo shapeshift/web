@@ -113,11 +113,17 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   if (!feeAsset)
     throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset?.chainId}!`)
 
-  const networkFeeFiat = feeAssetFiatRate
-    ? bnOrZero(
-        fromBaseUnit(quote.steps[0].feeData.networkFeeCryptoBaseUnit, feeAsset.precision),
-      ).times(feeAssetFiatRate)
-    : undefined
+  const networkFeeCryptoBaseUnit = quote.steps[0].feeData.networkFeeCryptoBaseUnit
+
+  const networkFeeFiat = useMemo(
+    () =>
+      feeAssetFiatRate && networkFeeCryptoBaseUnit
+        ? bnOrZero(fromBaseUnit(networkFeeCryptoBaseUnit, feeAsset.precision))
+            .times(feeAssetFiatRate)
+            .toString()
+        : undefined,
+    [feeAsset.precision, feeAssetFiatRate, networkFeeCryptoBaseUnit],
+  )
 
   const protocol = swapperWithMetadata.swapper.name
   const isAmountEntered = bnOrZero(amount).gt(0)
@@ -208,7 +214,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           <RawText color='gray.500'>
             <FaGasPump />
           </RawText>
-          <Amount.Fiat value={bnOrZero(networkFeeFiat).toString()} />
+          {networkFeeFiat ? <Amount.Fiat value={networkFeeFiat} /> : translate('trade.unknownGas')}
         </Flex>
       </Flex>
       <Flex justifyContent='space-between' alignItems='center'>

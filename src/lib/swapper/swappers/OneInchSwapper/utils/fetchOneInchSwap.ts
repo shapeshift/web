@@ -15,7 +15,7 @@ export type FetchOneInchSwapInput = {
   receiveAddress: string
   sellAmountBeforeFeesCryptoBaseUnit: string
   sellAsset: Asset
-  slippage?: string
+  maximumSlippageDecimalPercentage?: string
 }
 
 export const fetchOneInchSwap = async ({
@@ -24,7 +24,7 @@ export const fetchOneInchSwap = async ({
   receiveAddress,
   sellAmountBeforeFeesCryptoBaseUnit,
   sellAsset,
-  slippage,
+  maximumSlippageDecimalPercentage: slippage,
 }: FetchOneInchSwapInput) => {
   const apiUrl = getConfig().REACT_APP_ONE_INCH_API_URL
 
@@ -34,7 +34,7 @@ export const fetchOneInchSwap = async ({
    * Low values increase chances that transaction will fail,
    * high values increase chances of front running. Set values in the range from 0 to 50
    */
-  const slippagePercentage = (slippage ? bnOrZero(slippage) : bnOrZero(DEFAULT_SLIPPAGE))
+  const maximumSlippagePercentage = (slippage ? bnOrZero(slippage) : bnOrZero(DEFAULT_SLIPPAGE))
     .times(100)
     .toNumber()
 
@@ -48,7 +48,7 @@ export const fetchOneInchSwap = async ({
     // this swapper is not cross-account so this works
     fromAddress: receiveAddress,
     amount: sellAmountBeforeFeesCryptoBaseUnit,
-    slippage: slippagePercentage,
+    slippage: maximumSlippagePercentage,
     allowPartialFill: false,
     referrerAddress: getTreasuryAddressFromChainId(buyAsset.chainId),
     disableEstimate: false,

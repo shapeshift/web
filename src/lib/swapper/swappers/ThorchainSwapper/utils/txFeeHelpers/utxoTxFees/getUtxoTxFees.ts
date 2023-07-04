@@ -39,7 +39,7 @@ export const getUtxoTxFees = async ({
     // it feels like possibly an off by-a-few-bytes bug with how we are using coinselect with opReturnData
     // Bumping BCH fees here resolves this for now until we have time to find a better solution
     const isFromBch = sellAdapter.getChainId() === KnownChainIds.BitcoinCashMainnet
-    const feeMultiplier = isFromBch ? bn(1.5) : bn(1)
+    const feeMultiplier = isFromBch ? bn(2) : bn(1)
 
     const networkFee = feeMultiplier.times(feeData.txFee).dp(0).toString()
     const satsPerByte = feeMultiplier.times(feeData.chainSpecific.satoshiPerByte).dp(0).toString()

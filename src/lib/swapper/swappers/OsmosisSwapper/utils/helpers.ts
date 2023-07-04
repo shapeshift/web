@@ -9,10 +9,10 @@ import { find } from 'lodash'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
-import type { OsmosisSupportedChainAdapter } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapper'
 import { osmoService } from 'lib/swapper/swappers/OsmosisSwapper/utils/osmoService'
 import type {
   IbcTransferInput,
+  OsmosisSupportedChainAdapter,
   PoolInfo,
   PoolRateInfo,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'

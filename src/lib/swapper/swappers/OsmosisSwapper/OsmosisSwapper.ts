@@ -1,8 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosAssetId, cosmosChainId, osmosisAssetId, osmosisChainId } from '@shapeshiftoss/caip'
+import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import type { cosmos, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { osmosis } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
@@ -25,6 +24,7 @@ import {
   COSMO_OSMO_CHANNEL,
   DEFAULT_SOURCE,
   OSMO_COSMO_CHANNEL,
+  SUPPORTED_ASSET_IDS,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/constants'
 import type { SymbolDenomMapping } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 import {
@@ -35,21 +35,15 @@ import {
   pollForComplete,
   symbolDenomMapping,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
-import type { OsmosisTradeResult } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
+import type {
+  OsmosisSupportedChainId,
+  OsmosisTradeResult,
+} from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
 import { selectSellAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
-export type OsmosisSupportedChainId = KnownChainIds.CosmosMainnet | KnownChainIds.OsmosisMainnet
-
-export type OsmosisSupportedChainAdapter = cosmos.ChainAdapter | osmosis.ChainAdapter
-
 export class OsmosisSwapper implements Swapper<ChainId> {
   readonly name = SwapperName.Osmosis
-  supportedAssetIds: string[]
-
-  constructor() {
-    this.supportedAssetIds = [cosmosAssetId, osmosisAssetId, atomOnOsmosisAssetId]
-  }
 
   async getTradeTxs(tradeResult: OsmosisTradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
     const adapterManager = getChainAdapterManager()
@@ -94,15 +88,15 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): string[] {
     const { assetIds = [], sellAssetId } = args
-    if (!this.supportedAssetIds.includes(sellAssetId)) return []
+    if (!SUPPORTED_ASSET_IDS.includes(sellAssetId)) return []
 
     return assetIds.filter(
-      assetId => this.supportedAssetIds.includes(assetId) && assetId !== sellAssetId,
+      assetId => SUPPORTED_ASSET_IDS.includes(assetId) && assetId !== sellAssetId,
     )
   }
 
   filterAssetIdsBySellable(): AssetId[] {
-    return this.supportedAssetIds
+    return [...SUPPORTED_ASSET_IDS]
   }
 
   async buildTrade(args: BuildTradeInput): Promise<Result<Trade<ChainId>, SwapErrorRight>> {

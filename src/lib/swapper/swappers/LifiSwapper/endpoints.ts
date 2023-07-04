@@ -19,7 +19,6 @@ import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getLifiChainMap } from './utils/getLifiChainMap'
 import { getUnsignedTx } from './utils/getUnsignedTx/getUnsignedTx'
 
-const executedTrades: Map<string, GetStatusRequest> = new Map()
 const tradeQuoteMetadata: Map<string, Route> = new Map()
 
 let lifiChainMapPromise: Promise<Result<Map<ChainId, ChainKey>, SwapErrorRight>> | undefined
@@ -61,8 +60,7 @@ export const lifiApi: Swapper2Api = {
 
   getUnsignedTx: async ({ from, tradeQuote, stepIndex }: GetUnsignedTxArgs): Promise<ETHSignTx> => {
     const lifiRoute = tradeQuoteMetadata.get(tradeQuote.id)
-
-    if (!lifiRoute) throw Error('missing trade quote metadata')
+    if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${tradeQuote.id}`)
 
     const { accountNumber, sellAsset } = tradeQuote.steps[stepIndex]
 
@@ -78,11 +76,19 @@ export const lifiApi: Swapper2Api = {
   },
 
   checkTradeStatus: async ({
-    tradeId,
+    quoteId,
+    txHash,
   }): Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }> => {
-    const getStatusRequest = executedTrades.get(tradeId)
-    if (getStatusRequest === undefined)
-      throw Error(`missing getStatusRequest for tradeId ${tradeId}`)
+    const lifiRoute = tradeQuoteMetadata.get(quoteId)
+    if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${quoteId}`)
+
+    const getStatusRequest: GetStatusRequest = {
+      txHash,
+      bridge: lifiRoute.steps[0].tool,
+      fromChain: lifiRoute.fromChainId,
+      toChain: lifiRoute.toChainId,
+    }
+
     const statusResponse = await getLifi().getStatus(getStatusRequest)
 
     const status = (() => {

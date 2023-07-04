@@ -186,5 +186,5 @@ export const getInputOutputRatioFromQuote = ({
     .plus(sellSideNetworkFeeUsdPrecision)
     .plus(sellSideProtocolFeeUsdPrecision)
 
-  return netSendAmountUsdPrecision.div(netReceiveAmountUsdPrecision).toNumber()
+  return netReceiveAmountUsdPrecision.div(netSendAmountUsdPrecision).toNumber()
 }

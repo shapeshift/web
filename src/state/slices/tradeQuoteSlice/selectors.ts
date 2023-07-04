@@ -45,10 +45,11 @@ export const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | und
     selectActiveSwapperName,
     (quotes, activeSwapperName) => {
       const selectedQuote = quotes.find(quote => quote.swapperName === activeSwapperName)
-      if (selectedQuote) {
+      if (selectedQuote?.quote !== undefined) {
         return selectedQuote
       } else {
-        return quotes.length > 0 ? quotes[0] : undefined
+        const successfulQuotes = quotes.filter(({ quote }) => quote !== undefined)
+        return successfulQuotes.length > 0 ? successfulQuotes[0] : undefined
       }
     },
   )

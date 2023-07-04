@@ -17,7 +17,7 @@ import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { CheckTradeStatusInput, ExecuteTradeArgs } from 'lib/swapper/api'
+import type { ExecuteTradeArgs } from 'lib/swapper/api'
 
 type GetApproveContractDataArgs = {
   approvalAmountCryptoBaseUnit: string
@@ -224,34 +224,25 @@ export const executeEvmTrade = ({ txToSign, wallet, chainId }: ExecuteTradeArgs)
   return signAndBroadcast({ adapter, wallet, txToSign: txToSign as ETHSignTx })
 }
 
-const createDefaultStatusResponse = (buyTxHash: string) => ({
+export const createDefaultStatusResponse = (buyTxHash?: string) => ({
   status: TxStatus.Unknown,
   buyTxHash,
   message: undefined,
 })
 
 export const checkEvmSwapStatus = async ({
-  tradeId,
   txHash,
-  getChainId,
-}: CheckTradeStatusInput & {
-  getChainId: (input: CheckTradeStatusInput) => ChainId | undefined
+  chainId,
+}: {
+  txHash: string
+  chainId: ChainId
 }): Promise<{
   status: TxStatus
   buyTxHash: string | undefined
   message: string | undefined
 }> => {
   try {
-    const maybeChainId = getChainId({
-      tradeId,
-      txHash,
-    })
-
-    if (!maybeChainId) {
-      return createDefaultStatusResponse(txHash)
-    }
-
-    const adapter = assertGetEvmChainAdapter(maybeChainId)
+    const adapter = assertGetEvmChainAdapter(chainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
     const status = getTxStatus(tx)
 

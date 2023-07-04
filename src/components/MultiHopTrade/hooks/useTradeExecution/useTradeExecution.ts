@@ -6,6 +6,8 @@ import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Swapper2, Swapper2Api, TradeQuote2 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
+import { cowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper2'
+import { cowApi } from 'lib/swapper/swappers/CowSwapper/endpoints'
 import { lifiApi } from 'lib/swapper/swappers/LifiSwapper/endpoints'
 import { lifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
 import { oneInchApi } from 'lib/swapper/swappers/OneInchSwapper/endpoints'
@@ -78,9 +80,10 @@ export const useTradeExecution = ({
         case SwapperName.Zrx:
           return { ...zrxSwapper, ...zrxApi }
         case SwapperName.CowSwap:
-        case SwapperName.Osmosis:
+          return { ...cowSwapper, ...cowApi }
         case SwapperName.OneInch:
           return { ...oneInchSwapper, ...oneInchApi }
+        case SwapperName.Osmosis:
         case SwapperName.Test:
           throw Error('not implemented')
         default:
@@ -118,19 +121,20 @@ export const useTradeExecution = ({
       },
     )
 
-    const sellTxId = await swapper.executeTrade({
+    const sellTxHash = await swapper.executeTrade({
       txToSign: unsignedTxResult,
       wallet,
       chainId,
     })
 
-    setSellTxHash(sellTxId)
+    setSellTxHash(sellTxHash)
 
     await poll({
       fn: async () => {
         const { status, message, buyTxHash } = await swapper.checkTradeStatus({
-          tradeId: tradeQuote.id,
-          txHash: sellTxId,
+          quoteId: tradeQuote.id,
+          txHash: sellTxHash,
+          chainId,
         })
 
         setMessage(message)
@@ -139,7 +143,7 @@ export const useTradeExecution = ({
 
         return status
       },
-      validate: status => status === TxStatus.Confirmed,
+      validate: status => status === TxStatus.Confirmed || status === TxStatus.Failed,
       interval: TRADE_POLL_INTERVAL_MILLISECONDS,
       maxAttempts: Infinity,
     })

@@ -6,7 +6,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type {
   BuildTradeInput,
   BuyAssetBySellIdInput,
@@ -22,7 +22,6 @@ import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/s
 import {
   atomOnOsmosisAssetId,
   COSMO_OSMO_CHANNEL,
-  DEFAULT_SOURCE,
   OSMO_COSMO_CHANNEL,
   SUPPORTED_ASSET_IDS,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/constants'
@@ -41,6 +40,8 @@ import type {
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
 import { selectSellAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
+
+import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 
 export class OsmosisSwapper implements Swapper<ChainId> {
   readonly name = SwapperName.Osmosis
@@ -77,13 +78,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         buyTxid: tradeResult.tradeId,
       })
     }
-  }
-
-  getMin(): Result<string, SwapErrorRight> {
-    const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
-    const minimumAmountCryptoHuman = bn(1).dividedBy(bnOrZero(sellAssetUsdRate)).toString()
-
-    return Ok(minimumAmountCryptoHuman)
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): string[] {
@@ -180,81 +174,9 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     })
   }
 
-  async getTradeQuote(
-    input: GetTradeQuoteInput,
-  ): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>> {
-    const {
-      accountNumber,
-      sellAsset,
-      buyAsset,
-      sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-    } = input
-    if (!sellAmountCryptoBaseUnit) {
-      return Err(
-        makeSwapErrorRight({
-          message: 'sellAmount is required',
-          code: SwapErrorType.RESPONSE_ERROR,
-        }),
-      )
-    }
-
-    const adapterManager = getChainAdapterManager()
-
-    const { REACT_APP_OSMOSIS_NODE_URL: osmoUrl } = getConfig()
-
-    const maybeRateInfo = await getRateInfo(
-      sellAsset.symbol,
-      buyAsset.symbol,
-      sellAmountCryptoBaseUnit !== '0' ? sellAmountCryptoBaseUnit : '1',
-      osmoUrl,
-    )
-
-    if (maybeRateInfo.isErr()) return Err(maybeRateInfo.unwrapErr())
-    const { buyAssetTradeFeeCryptoBaseUnit, rate, buyAmountCryptoBaseUnit } = maybeRateInfo.unwrap()
-
-    const maybeMin = this.getMin()
-    if (maybeMin.isErr()) return Err(maybeMin.unwrapErr())
-    const minimumCryptoHuman = maybeMin.unwrap()
-
-    const osmosisAdapter = adapterManager.get(osmosisChainId) as osmosis.ChainAdapter | undefined
-
-    if (!osmosisAdapter)
-      return Err(
-        makeSwapErrorRight({
-          message: 'Failed to get Osmosis adapter',
-          code: SwapErrorType.TRADE_QUOTE_FAILED,
-        }),
-      )
-
-    const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
-    const feeData = await osmosisAdapter.getFeeData(getFeeDataInput)
-    const fee = feeData.fast.txFee
-
-    return Ok({
-      minimumCryptoHuman,
-      steps: [
-        {
-          allowanceContract: '',
-          buyAsset,
-          feeData: {
-            networkFeeCryptoBaseUnit: fee,
-            protocolFees: {
-              [buyAsset.assetId]: {
-                amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
-                requiresBalance: true,
-                asset: buyAsset,
-              },
-            },
-          },
-          accountNumber,
-          rate,
-          sellAsset,
-          sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-          buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
-          sources: DEFAULT_SOURCE,
-        },
-      ],
-    })
+  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>> {
+    const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+    return getTradeQuote(input, { sellAssetUsdRate })
   }
 
   async executeTrade({

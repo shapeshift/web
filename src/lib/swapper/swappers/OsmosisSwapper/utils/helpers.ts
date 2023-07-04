@@ -356,3 +356,8 @@ export const buildTradeTx = async ({
     wallet,
   }
 }
+
+export const getMinimumCryptoHuman = (sellAssetUsdRate: string): string => {
+  const minimumAmountCryptoHuman = bn(1).dividedBy(bnOrZero(sellAssetUsdRate)).toString()
+  return minimumAmountCryptoHuman
+}

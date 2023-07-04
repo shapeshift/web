@@ -8,7 +8,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import type { Asset } from 'lib/asset-service'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import { isEvmChainAdapter } from 'lib/utils'
+import { isEvmChainAdapter } from 'lib/utils/evm'
 
 import type { ZrxSupportedChainId } from '../../types'
 import { zrxSupportedChainIds } from '../../types'
@@ -99,15 +99,4 @@ export const getAdapter = (
   }
 
   return Ok(adapter)
-}
-
-export const assertGetAdapter = (chainId: ChainId | KnownChainIds): EvmChainAdapter => {
-  const chainAdapterManager = getChainAdapterManager()
-  const adapter = chainAdapterManager.get(chainId)
-
-  if (!isEvmChainAdapter(adapter)) {
-    throw Error('invalid chain adapter')
-  }
-
-  return adapter
 }

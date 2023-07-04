@@ -7,7 +7,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
-import { isEvmChainAdapter } from 'lib/utils'
+import { isEvmChainAdapter } from 'lib/utils/evm'
 
 import { OPTIMISM_GAS_ORACLE_ADDRESS } from '../constants'
 import { getLifi } from '../getLifi'

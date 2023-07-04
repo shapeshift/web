@@ -6268,7 +6268,7 @@ __metadata:
     "@walletconnect/web3-provider": ^1.8.0
     "@walletconnect/web3wallet": ^1.8.5
     "@welldone-software/why-did-you-render": ^7.0.1
-    "@wherever/react-notification-feed": ^0.3.16
+    "@wherever/react-notification-feed": ^0.4.4
     alchemy-sdk: ^2.8.3
     allsettled-polyfill: ^1.0.4
     assert: ^2.0.0
@@ -9502,9 +9502,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wherever/react-notification-feed@npm:^0.3.16":
-  version: 0.3.16
-  resolution: "@wherever/react-notification-feed@npm:0.3.16"
+"@wherever/react-notification-feed@npm:^0.4.4":
+  version: 0.4.4
+  resolution: "@wherever/react-notification-feed@npm:0.4.4"
   dependencies:
     "@apollo/client": ^3.6.9
     "@epnsproject/sdk-restapi": ^0.1.20
@@ -9525,7 +9525,7 @@ __metadata:
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
     styled-components: ">=5"
-  checksum: a5b81c5a2fa23c439aa402929a53dd59b5f9a8352da7e42350dbea49b4c2de632d4cc2a27061567ec7d4af28f84398dd5b27ab7a6faa7a13022c51e9915367bc
+  checksum: 79143b478d8c81f560a489511f0a80d1a13722e088b94c7200a8e42f31f7cb2da801904793cffe5bb2e17e95b25b053dd35f317b960d40896cf7ee18da11c42c
   languageName: node
   linkType: hard
 

@@ -10,7 +10,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import type { Asset } from 'lib/asset-service'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
-import { isEvmChainAdapter } from 'lib/utils'
+import { isEvmChainAdapter } from 'lib/utils/evm'
 
 const createBuildSendApiTxInput = async (
   from: string,

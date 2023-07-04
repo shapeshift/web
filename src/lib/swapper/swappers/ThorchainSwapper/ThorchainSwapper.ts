@@ -32,7 +32,7 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
-import { evm } from 'lib/utils/index'
+import { signAndBroadcast } from 'lib/utils/evm'
 import {
   selectBuyAssetUsdRate,
   selectFeeAssetUsdRate,
@@ -172,7 +172,7 @@ export class ThorchainSwapper implements Swapper<ThorChainId> {
         const evmAdapter = adapter as unknown as ThorEvmSupportedChainAdapter
         const { txData } = trade as ThorTrade<ThorEvmSupportedChainId>
         const txToSign = txData as SignTx<ThorEvmSupportedChainId>
-        const tradeId = await evm.signAndBroadcast({ adapter: evmAdapter, txToSign, wallet })
+        const tradeId = await signAndBroadcast({ adapter: evmAdapter, txToSign, wallet })
         return Ok({ tradeId })
       } else if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
         const signedTx = await (

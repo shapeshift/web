@@ -529,6 +529,13 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
   },
 )
 
+export const selectSellAmountUsd = createSelector(
+  selectSellAmountUserCurrency,
+  selectSelectedCurrencyToUsdRate,
+  (sellAmountUserCurrency, selectedCurrencyToUsdRate) => {
+    return bnOrZero(sellAmountUserCurrency).div(selectedCurrencyToUsdRate).toFixed()
+  },
+)
 export const selectDonationAmountUserCurrency = createSelector(
   selectSellAmountUserCurrency,
   selectSwapperDefaultAffiliateBps,

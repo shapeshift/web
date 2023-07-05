@@ -64,6 +64,7 @@ import { useAppSelector } from 'state/store'
 import {
   selectFeeAssetUserCurrencyRate,
   selectQuoteBuyAmountCryptoPrecision,
+  selectSellAmountUsd,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectAction,
@@ -135,6 +136,7 @@ export const TradeInput = () => {
   const updatePreferredSwapper = useSwapperStore(state => state.updatePreferredSwapper)
   const fiatBuyAmount = useSwapperStore(selectBuyAmountUserCurrency)
   const fiatSellAmount = useSwapperStore(selectSellAmountUserCurrency)
+  const sellAmountUsd = useSwapperStore(selectSellAmountUsd)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
   const feeAssetUserCurrencyRate = useSwapperStore(selectFeeAssetUserCurrencyRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
@@ -338,7 +340,7 @@ export const TradeInput = () => {
         mixpanel.track(MixPanelEvents.TradePreview, {
           buyAsset: compositeBuyAsset,
           sellAsset: compositeSellAsset,
-          fiatAmount: fiatSellAmount,
+          amountUsd: sellAmountUsd,
           swapperName: activeSwapperName,
           [compositeBuyAsset]: buyAmountCryptoPrecision,
           [compositeSellAsset]: sellAmountCryptoPrecision,
@@ -362,22 +364,22 @@ export const TradeInput = () => {
       setIsLoading(false)
     }
   }, [
-    assets,
-    buyAmountCryptoPrecision,
-    buyAsset,
-    checkApprovalNeeded,
-    feeAsset,
-    fiatSellAmount,
-    getTrade,
-    history,
-    mixpanel,
-    sellAmountCryptoPrecision,
     sellAsset,
-    activeSwapperName,
-    updateFees,
-    updateTrade,
-    updateTradeAmountsFromQuote,
+    buyAsset,
+    mixpanel,
     wallet,
+    checkApprovalNeeded,
+    getTrade,
+    updateTrade,
+    feeAsset,
+    updateFees,
+    updateTradeAmountsFromQuote,
+    history,
+    assets,
+    sellAmountUsd,
+    activeSwapperName,
+    buyAmountCryptoPrecision,
+    sellAmountCryptoPrecision,
   ])
 
   const onSellAssetInputChange: TradeAssetInputProps['onChange'] = useCallback(

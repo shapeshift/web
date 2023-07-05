@@ -1,6 +1,7 @@
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import type { ReduxState } from 'state/reducer'
-import { selectAssets, selectWillDonate } from 'state/slices/selectors'
+import { selectAssets, selectFiatToUsdRate, selectWillDonate } from 'state/slices/selectors'
 import {
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
@@ -24,6 +25,10 @@ export const getMixpanelEventData = () => {
 
   const assets = selectAssets(state)
   const donationAmountFiat = selectDonationAmountFiat(state)
+  const selectedCurrencyToUsdRate = selectFiatToUsdRate(state)
+  const donationAmountFiatUsd = bnOrZero(donationAmountFiat)
+    .div(selectedCurrencyToUsdRate)
+    .toFixed()
   const sellAmountBeforeFeesFiat = selectSellAmountFiat(state)
   const buyAmountBeforeFeesCryptoPrecision = selectBuyAmountBeforeFeesCryptoPrecision(state)
   const sellAmountBeforeFeesCryptoPrecision = selectSellAmountBeforeFeesCryptoPrecision(state)
@@ -40,6 +45,7 @@ export const getMixpanelEventData = () => {
     swapperName,
     hasUserOptedOutOfDonation: isDonating,
     donationAmountFiat,
+    donationAmountFiatUsd,
     [compositeBuyAsset]: buyAmountBeforeFeesCryptoPrecision,
     [compositeSellAsset]: sellAmountBeforeFeesCryptoPrecision,
   }

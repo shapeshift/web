@@ -48,9 +48,14 @@ import type { SwapErrorRight, Swapper, TradeTxs } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
 import { assertUnreachable } from 'lib/utils'
-import { selectAssets, selectFeeAssetByChainId, selectTxStatusById } from 'state/slices/selectors'
+import {
+  selectAssets,
+  selectFeeAssetByChainId,
+  selectFiatToUsdRate,
+  selectTxStatusById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 import {
   selectBuyAmountBeforeFeesBaseUnit,
   selectDonationAmountFiat,
@@ -252,6 +257,10 @@ export const TradeConfirm = () => {
   const { showErrorToast } = useErrorHandler()
 
   const donationAmountFiat = useSwapperStore(selectDonationAmountFiat)
+  const selectedCurrencyToUsdRate = selectFiatToUsdRate(store.getState())
+  const donationAmountFiatUsd = bnOrZero(donationAmountFiat)
+    .div(selectedCurrencyToUsdRate)
+    .toFixed()
 
   // Track these data here so we don't have to do this again for the other states
   const eventData = useMemo(() => {
@@ -276,6 +285,7 @@ export const TradeConfirm = () => {
       swapperName: swapper.name,
       hasUserOptedOutOfDonation,
       donationAmountFiat,
+      donationAmountFiatUsd,
       [compositeBuyAsset]: buyAmountCryptoPrecision,
       [compositeSellAsset]: sellAmountCryptoPrecision,
     }
@@ -284,6 +294,7 @@ export const TradeConfirm = () => {
     buyAmountBeforeFeesBaseUnit,
     hasUserOptedOutOfDonation,
     donationAmountFiat,
+    donationAmountFiatUsd,
     sellAmountBeforeFeesBaseUnit,
     sellAmountBeforeFeesFiat,
     swapper,

@@ -141,8 +141,8 @@ export const TradeInput = (props: CardProps) => {
   )
 
   const quoteHasError = useMemo(() => {
-    return activeQuoteStatus.validationErrors.length > 0
-  }, [activeQuoteStatus.validationErrors])
+    return activeQuoteStatus.quoteErrors.length > 0
+  }, [activeQuoteStatus.quoteErrors])
 
   const onSubmit = useCallback(async () => {
     setIsConfirmationLoading(true)

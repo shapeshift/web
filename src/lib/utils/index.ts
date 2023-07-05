@@ -78,6 +78,11 @@ export const tokenOrUndefined = (assetReference: AssetReference | string) =>
 export const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)
 
+// export const isTruthy = <T>(value: T | false): value is T => Boolean(value)
+
+type Falsy = false | null | undefined | '' | 0
+export const isTruthy = <T>(value: T | Falsy): value is T => Boolean(value)
+
 // 0 is valid but falsy, dum language
 export const isValidAccountNumber = (
   accountNumber: number | undefined | null,

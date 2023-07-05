@@ -4,7 +4,7 @@ import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { Selector } from 'reselect'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { ProtocolFee, SwapErrorRight, TradeQuote2 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import type { ApiQuote } from 'state/apis/swappers'
@@ -354,3 +354,16 @@ export const selectDonationAmountFiat = createSelector(
     return bnOrZero(sellAmountFiat).times(affiliatePercentage).toFixed()
   },
 )
+
+export const selectMinimumSellAmountCryptoHuman: Selector<ReduxState, string | undefined> =
+  createSelector(selectActiveQuote, quote => (quote ? quote.minimumCryptoHuman : undefined))
+
+export const selectMinimumSellAmountCryptoBaseUnit: Selector<ReduxState, string | undefined> =
+  createSelector(
+    selectMinimumSellAmountCryptoHuman,
+    selectFirstHopSellAsset,
+    (minimumSellAmountCryptoHuman, firstHopSellAsset) =>
+      minimumSellAmountCryptoHuman && firstHopSellAsset
+        ? toBaseUnit(minimumSellAmountCryptoHuman, firstHopSellAsset.precision)
+        : undefined,
+  )

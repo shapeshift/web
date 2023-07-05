@@ -17,9 +17,7 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-type QuoteValidationErrors = ActiveQuoteStatus[]
-
-export const useQuoteValidationErrors = (): QuoteValidationErrors => {
+export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
   const {
     sellAssetBalanceCryptoBaseUnit,
     firstHopFeeAssetBalancePrecision,
@@ -39,14 +37,18 @@ export const useQuoteValidationErrors = (): QuoteValidationErrors => {
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const receiveAddress = useReceiveAddress()
 
-  const walletSupportsSellAssetChain = walletSupportsChain({
-    chainId: firstHopSellAsset?.chainId ?? '',
-    wallet,
-  })
-  const walletSupportsBuyAssetChain = walletSupportsChain({
-    chainId: lastHopBuyAsset?.chainId ?? '',
-    wallet,
-  })
+  const walletSupportsSellAssetChain =
+    firstHopSellAsset &&
+    walletSupportsChain({
+      chainId: firstHopSellAsset.chainId,
+      wallet,
+    })
+  const walletSupportsBuyAssetChain =
+    lastHopBuyAsset &&
+    walletSupportsChain({
+      chainId: lastHopBuyAsset.chainId,
+      wallet,
+    })
 
   const hasSufficientSellAssetBalance = bnOrZero(sellAssetBalanceCryptoBaseUnit).gte(
     bnOrZero(sellAmountCryptoBaseUnit),

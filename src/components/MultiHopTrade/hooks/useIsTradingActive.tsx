@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
+import { selectBuyAsset, selectSellAsset } from 'state/slices/swappersSlice/selectors'
 import { selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
-import { selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
-import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useIsTradingActive = () => {
   const [isTradingActiveOnSellPool, setIsTradingActiveOnSellPool] = useState(false)
@@ -11,10 +10,8 @@ export const useIsTradingActive = () => {
 
   const dispatch = useAppDispatch()
 
-  const buyAsset = useSwapperStore(selectBuyAsset)
-  const sellAsset = useSwapperStore(selectSellAsset)
-  const sellAssetId = sellAsset?.assetId
-  const buyAssetId = buyAsset?.assetId
+  const buyAssetId = useAppSelector(selectBuyAsset).assetId
+  const sellAssetId = useAppSelector(selectSellAsset).assetId
 
   const { getIsTradingActive } = getIsTradingActiveApi.endpoints
   const swapperName = useAppSelector(selectActiveSwapperName)
@@ -33,6 +30,12 @@ export const useIsTradingActive = () => {
           )
         ).data
 
+      setIsTradingActiveOnSellPool(!!isTradingActiveOnSellPoolResult)
+    })()
+  }, [dispatch, getIsTradingActive, sellAssetId, swapperName])
+
+  useEffect(() => {
+    ;(async () => {
       const isTradingActiveOnBuyPoolResult =
         buyAssetId &&
         swapperName &&
@@ -45,10 +48,9 @@ export const useIsTradingActive = () => {
           )
         ).data
 
-      setIsTradingActiveOnSellPool(!!isTradingActiveOnSellPoolResult)
       setIsTradingActiveOnBuyPool(!!isTradingActiveOnBuyPoolResult)
     })()
-  }, [swapperName, buyAssetId, dispatch, getIsTradingActive, sellAssetId])
+  }, [buyAssetId, dispatch, getIsTradingActive, swapperName])
 
   return {
     isTradingActiveOnSellPool,

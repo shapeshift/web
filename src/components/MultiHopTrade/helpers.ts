@@ -36,7 +36,7 @@ export const getMixpanelEventData = () => {
   return {
     buyAsset: compositeBuyAsset,
     sellAsset: compositeSellAsset,
-    fiatAmount: sellAmountBeforeFeesUserCurrency,
+    amountUSD: sellAmountBeforeFeesUserCurrency,
     swapperName,
     hasUserOptedOutOfDonation: isDonating,
     donationAmountFiat,

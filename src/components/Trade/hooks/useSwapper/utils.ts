@@ -70,7 +70,7 @@ export const getFormFees = ({
   feeAsset,
 }: GetFormFeesArgs): DisplayFeeData<KnownChainIds> => {
   const networkFeeCryptoHuman = fromBaseUnit(
-    trade.feeData?.networkFeeCryptoBaseUnit,
+    trade.feeData?.networkFeeCryptoBaseUnit ?? '0',
     feeAsset.precision,
   )
 

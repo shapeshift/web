@@ -28,7 +28,7 @@ const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate = (
 
   const networkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
   const networkFeeFiatPrecision = bnOrZero(
-    fromBaseUnit(networkFeeCryptoBaseUnit, feeAsset.precision),
+    fromBaseUnit(networkFeeCryptoBaseUnit ?? '0', feeAsset.precision),
   ).times(feeAssetFiatRate)
 
   return networkFeeFiatPrecision
@@ -186,5 +186,5 @@ export const getInputOutputRatioFromQuote = ({
     .plus(sellSideNetworkFeeUsdPrecision)
     .plus(sellSideProtocolFeeUsdPrecision)
 
-  return netSendAmountUsdPrecision.div(netReceiveAmountUsdPrecision).toNumber()
+  return netReceiveAmountUsdPrecision.div(netSendAmountUsdPrecision).toNumber()
 }

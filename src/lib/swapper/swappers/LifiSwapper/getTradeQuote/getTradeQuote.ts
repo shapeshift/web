@@ -28,7 +28,7 @@ export async function getTradeQuote(
   lifiChainMap: Map<ChainId, ChainKey>,
   assets: Partial<Record<AssetId, Asset>>,
   sellAssetPriceUsdPrecision: string,
-): Promise<Result<LifiTradeQuote<false>, SwapErrorRight>> {
+): Promise<Result<LifiTradeQuote, SwapErrorRight>> {
   try {
     const {
       chainId,
@@ -194,7 +194,7 @@ export const getLifiTradeQuote = async (
   input: GetEvmTradeQuoteInput,
   assets: Partial<Record<AssetId, Asset>>,
   sellAssetPriceUsdPrecision: string,
-): Promise<Result<LifiTradeQuote<false>, SwapErrorRight>> => {
+): Promise<Result<LifiTradeQuote, SwapErrorRight>> => {
   if (lifiChainMapPromise === undefined) lifiChainMapPromise = getLifiChainMap()
 
   const maybeLifiChainMap = await lifiChainMapPromise

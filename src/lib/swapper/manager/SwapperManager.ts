@@ -28,7 +28,7 @@ export class SwapperManager {
   public swappers: Map<SwapperName, Swapper<ChainId>>
 
   constructor() {
-    this.swappers = new Map<SwapperName, Swapper<ChainId, boolean>>()
+    this.swappers = new Map<SwapperName, Swapper<ChainId>>()
   }
 
   /**
@@ -36,7 +36,7 @@ export class SwapperManager {
    * @param swapperInstance swapper instance {Swapper}
    * @returns {SwapperManager}
    */
-  addSwapper(swapperInstance: Swapper<ChainId, boolean>): this {
+  addSwapper(swapperInstance: Swapper<ChainId>): this {
     validateSwapper(swapperInstance)
     this.swappers.set(swapperInstance.name, swapperInstance)
     return this
@@ -55,7 +55,7 @@ export class SwapperManager {
     const { sellAsset, buyAsset, feeAsset, cryptoMarketDataById } = args
 
     // Get all swappers that support the pair
-    const supportedSwappers: Swapper<ChainId, boolean>[] = this.getSwappersByPair({
+    const supportedSwappers: Swapper<ChainId>[] = this.getSwappersByPair({
       sellAssetId: sellAsset.assetId,
       buyAssetId: buyAsset.assetId,
     })
@@ -98,18 +98,18 @@ export class SwapperManager {
    * @param pair type {GetQuoteInput}
    * @returns {SwapperType}
    */
-  getSwappersByPair(pair: ByPairInput): Swapper<ChainId, boolean>[] {
+  getSwappersByPair(pair: ByPairInput): Swapper<ChainId>[] {
     const { sellAssetId, buyAssetId } = pair
     const availableSwappers = Array.from(this.swappers.values())
     return availableSwappers.filter(
-      (swapper: Swapper<ChainId, boolean>) =>
+      (swapper: Swapper<ChainId>) =>
         swapper.filterBuyAssetsBySellAssetId({ sellAssetId, assetIds: [buyAssetId] }).length,
     )
   }
 
   getSupportedBuyAssetIdsFromSellId(args: BuyAssetBySellIdInput) {
     return uniq(
-      Array.from(this.swappers.values()).flatMap((swapper: Swapper<ChainId, boolean>) =>
+      Array.from(this.swappers.values()).flatMap((swapper: Swapper<ChainId>) =>
         swapper.filterBuyAssetsBySellAssetId(args),
       ),
     )
@@ -119,7 +119,7 @@ export class SwapperManager {
     const { assetIds } = args
 
     return uniq(
-      Array.from(this.swappers.values()).flatMap((swapper: Swapper<ChainId, boolean>) =>
+      Array.from(this.swappers.values()).flatMap((swapper: Swapper<ChainId>) =>
         swapper.filterAssetIdsBySellable(assetIds),
       ),
     )

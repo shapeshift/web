@@ -7,8 +7,8 @@ import type { ProtocolFee, SwapperName, TradeQuote2 } from 'lib/swapper/api'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectCryptoMarketData,
-  selectFiatToUsdRate,
   selectMarketDataByFilter,
+  selectUserCurrencyToUsdRate,
 } from 'state/slices/marketDataSlice/selectors'
 import { store } from 'state/store'
 import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
@@ -85,13 +85,13 @@ const getTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate = (
 export const getHopTotalProtocolFeesFiatPrecision = (
   tradeQuoteStep: TradeQuote2['steps'][number],
 ): string => {
-  const fiatToUsdRate = selectFiatToUsdRate(store.getState())
+  const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
   const cryptoMarketDataById = selectCryptoMarketData(store.getState())
   return sumProtocolFeesToDenom({
     cryptoMarketDataById,
     protocolFees: tradeQuoteStep.feeData.protocolFees,
     outputExponent: 0,
-    outputAssetPriceUsd: fiatToUsdRate,
+    outputAssetPriceUsd: userCurrencyToUsdRate,
   })
 }
 

@@ -17,8 +17,8 @@ export const selectSellAmountCryptoPrecision = (state: SwapperState) =>
   state.sellAmountCryptoPrecision
 export const selectSellAsset = (state: SwapperState) => state.sellAsset
 export const selectBuyAsset = (state: SwapperState) => state.buyAsset
-export const selectSellAmountFiat = (state: SwapperState) => state.sellAmountFiat
-export const selectBuyAmountFiat = (state: SwapperState) => state.buyAmountFiat
+export const selectSellAmountUserCurrency = (state: SwapperState) => state.sellAmountUserCurrency
+export const selectBuyAmountUserCurrency = (state: SwapperState) => state.buyAmountUserCurrency
 
 export const selectAction = (state: SwapperState) => state.action
 export const selectAmount = (state: SwapperState) => state.amount

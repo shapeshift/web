@@ -58,13 +58,14 @@ import {
   selectIntermediaryTransactionOutputs,
   selectQuoteBuyAmountCryptoPrecision,
   selectSellAmountBeforeFeesBaseUnitByAction,
+  selectSellAmountBeforeFeesUsd,
   selectSellAmountBeforeFeesUserCurrencyFiat,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectActiveSwapperName,
   selectActiveSwapperWithMetadata,
   selectBuyAmountCryptoPrecision,
-  selectBuyAmountFiat,
+  selectBuyAmountUserCurrency,
   selectBuyAssetAccountId,
   selectFees,
   selectProtocolFees,
@@ -127,9 +128,11 @@ export const TradeConfirm = () => {
   const sellAmountBeforeFeesUserCurrencyFiat = useSwapperStore(
     selectSellAmountBeforeFeesUserCurrencyFiat,
   )
+  const sellAmountBeforeFeesUsd = useSwapperStore(selectSellAmountBeforeFeesUsd)
+
   const quoteBuyAmountCryptoPrecision = useSwapperStore(selectQuoteBuyAmountCryptoPrecision)
   const protocolFees = useSwapperStore(selectProtocolFees)
-  const fiatBuyAmount = useSwapperStore(selectBuyAmountFiat)
+  const fiatBuyAmount = useSwapperStore(selectBuyAmountUserCurrency)
   const buyAmountBeforeFeesBaseUnit = useSwapperStore(selectBuyAmountBeforeFeesBaseUnit)
 
   const assets = useAppSelector(selectAssets)
@@ -274,7 +277,7 @@ export const TradeConfirm = () => {
     return {
       buyAsset: compositeBuyAsset,
       sellAsset: compositeSellAsset,
-      fiatAmount: sellAmountBeforeFeesUserCurrencyFiat,
+      amountUSD: sellAmountBeforeFeesUsd,
       swapperName: swapper.name,
       hasUserOptedOutOfDonation,
       donationAmountFiat,
@@ -282,14 +285,14 @@ export const TradeConfirm = () => {
       [compositeSellAsset]: sellAmountCryptoPrecision,
     }
   }, [
-    assets,
-    buyAmountBeforeFeesBaseUnit,
-    hasUserOptedOutOfDonation,
-    donationAmountFiat,
-    sellAmountBeforeFeesBaseUnit,
-    sellAmountBeforeFeesUserCurrencyFiat,
     swapper,
     trade,
+    assets,
+    buyAmountBeforeFeesBaseUnit,
+    sellAmountBeforeFeesBaseUnit,
+    sellAmountBeforeFeesUsd,
+    hasUserOptedOutOfDonation,
+    donationAmountFiat,
   ])
 
   useEffect(() => {

@@ -6,7 +6,11 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { AmountDisplayMeta } from 'lib/swapper/api'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { getFeeAssetByAssetId } from 'state/slices/assetsSlice/utils'
-import { selectAssets, selectCryptoMarketData, selectFiatToUsdRate } from 'state/slices/selectors'
+import {
+  selectAssets,
+  selectCryptoMarketData,
+  selectUserCurrencyToUsdRate,
+} from 'state/slices/selectors'
 import { store } from 'state/store'
 import {
   selectAction,
@@ -14,7 +18,7 @@ import {
   selectAmount,
   selectBuyAsset,
   selectProtocolFees,
-  selectSellAmountFiat,
+  selectSellAmountUserCurrency,
   selectSellAsset,
   selectSlippage,
   selectSwapperDefaultAffiliateBps,
@@ -27,7 +31,7 @@ import {
 
 const selectCryptoMarketDataById = () => selectCryptoMarketData(store.getState())
 const selectAssetsById = () => selectAssets(store.getState())
-const selectSelectedCurrencyToUsdRate = () => selectFiatToUsdRate(store.getState()) ?? '0'
+const selectSelectedCurrencyToUsdRate = () => selectUserCurrencyToUsdRate(store.getState()) ?? '0'
 
 export const selectBuyAssetUsdRate = createSelector(
   selectBuyAsset,
@@ -206,6 +210,18 @@ export const selectSellAmountBeforeFeesUserCurrencyFiat = createSelector(
     if (!sellAssetPrecision || !sellAssetFiatRate) return undefined
     return bnOrZero(fromBaseUnit(sellAmountBeforeFeesBaseUnit, sellAssetPrecision))
       .times(sellAssetFiatRate)
+      .toFixed()
+  },
+)
+
+export const selectSellAmountBeforeFeesUsd = createSelector(
+  selectSellAmountBeforeFeesBaseUnitByAction,
+  (state: SwapperState) => state.sellAsset?.precision,
+  selectSellAssetUsdRate,
+  (sellAmountBeforeFeesBaseUnit, sellAssetPrecision, sellAssetUsdRate): string | undefined => {
+    if (!sellAssetPrecision || !sellAssetUsdRate) return undefined
+    return bnOrZero(fromBaseUnit(sellAmountBeforeFeesBaseUnit, sellAssetPrecision))
+      .times(sellAssetUsdRate)
       .toFixed()
   },
 )
@@ -499,12 +515,12 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
 )
 
 export const selectDonationAmountFiat = createSelector(
-  selectSellAmountFiat,
+  selectSellAmountUserCurrency,
   selectSwapperDefaultAffiliateBps,
-  (sellAmountFiat, defaultAffiliateBps): string => {
+  (sellAmountUserCurrency, defaultAffiliateBps): string => {
     const affiliatePercentage = convertBasisPointsToDecimalPercentage(defaultAffiliateBps)
     // The donation amount is a percentage of the sell amount
-    return bnOrZero(sellAmountFiat).times(affiliatePercentage).toFixed()
+    return bnOrZero(sellAmountUserCurrency).times(affiliatePercentage).toFixed()
   },
 )
 

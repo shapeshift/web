@@ -45,7 +45,7 @@ import {
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
-  selectNetBuyAmountFiat,
+  selectNetBuyAmountUserCurrency,
   selectNetReceiveAmountCryptoPrecision,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeFiatPrecision,
@@ -81,7 +81,7 @@ export const TradeInput = (props: CardProps) => {
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
-  const buyAmountAfterFeesFiat = useAppSelector(selectNetBuyAmountFiat)
+  const buyAmountAfterFeesFiat = useAppSelector(selectNetBuyAmountUserCurrency)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeFiatPrecision)
 
   const activeQuoteStatus = useActiveQuoteStatus()

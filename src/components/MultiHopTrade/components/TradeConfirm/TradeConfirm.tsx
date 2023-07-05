@@ -52,9 +52,9 @@ import {
   selectFirstHopSellFeeAsset,
   selectLastHopBuyAsset,
   selectNetBuyAmountCryptoPrecision,
-  selectNetBuyAmountFiat,
+  selectNetBuyAmountUserCurrency,
   selectSellAmountBeforeFeesCryptoPrecision,
-  selectSellAmountFiat,
+  selectSellAmountUserCurrency,
   selectSlippage,
   selectTotalNetworkFeeFiatPrecision,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -100,8 +100,8 @@ export const TradeConfirm = () => {
   const defaultFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
   const netBuyAmountCryptoPrecision = useAppSelector(selectNetBuyAmountCryptoPrecision)
   const slippage = useAppSelector(selectSlippage)
-  const netBuyAmountFiat = useAppSelector(selectNetBuyAmountFiat)
-  const sellAmountBeforeFeesFiat = useAppSelector(selectSellAmountFiat)
+  const netBuyAmountUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
+  const sellAmountBeforeFeesFiat = useAppSelector(selectSellAmountUserCurrency)
   const networkFeeCryptoHuman = useAppSelector(selectFirstHopNetworkFeeCryptoPrecision)
   const networkFeeFiat = useAppSelector(selectTotalNetworkFeeFiatPrecision)
   const buyAmountBeforeFeesCryptoPrecision = useAppSelector(
@@ -276,7 +276,7 @@ export const TradeConfirm = () => {
           protocolFees={tradeQuoteStep?.feeData.protocolFees}
           shapeShiftFee='0'
           slippage={slippage}
-          fiatAmount={positiveOrZero(netBuyAmountFiat).toFixed(2)}
+          fiatAmount={positiveOrZero(netBuyAmountUserCurrency).toFixed(2)}
           swapperName={swapperName ?? ''}
           intermediaryTransactionOutputs={tradeQuoteStep?.intermediaryTransactionOutputs}
         />
@@ -292,7 +292,7 @@ export const TradeConfirm = () => {
       buyAmountBeforeFeesCryptoPrecision,
       tradeQuoteStep,
       slippage,
-      netBuyAmountFiat,
+      netBuyAmountUserCurrency,
       swapperName,
     ],
   )

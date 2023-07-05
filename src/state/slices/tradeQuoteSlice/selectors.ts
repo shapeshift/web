@@ -25,7 +25,7 @@ import {
   sumProtocolFeesToDenom,
 } from 'state/zustand/swapperStore/utils'
 
-import { selectCryptoMarketData, selectFiatToUsdRate } from '../marketDataSlice/selectors'
+import { selectCryptoMarketData, selectUserCurrencyToUsdRate } from '../marketDataSlice/selectors'
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 
@@ -241,21 +241,21 @@ const selectBuyAssetUsdRate = createSelector(
   },
 )
 
-const selectSellAssetFiatRate = createSelector(
+const selectSellAssetUserCurrencyFiatRate = createSelector(
   selectSellAssetUsdRate,
-  selectFiatToUsdRate,
-  (sellAssetUsdRate, fiatToUsdRate) => {
+  selectUserCurrencyToUsdRate,
+  (sellAssetUsdRate, userCurrencyToUsdRate) => {
     if (sellAssetUsdRate === undefined) return
-    return bn(sellAssetUsdRate).times(fiatToUsdRate).toString()
+    return bn(sellAssetUsdRate).times(userCurrencyToUsdRate).toString()
   },
 )
 
-const selectBuyAssetFiatRate = createSelector(
+const selectBuyAssetUserCurrencyFiatRate = createSelector(
   selectBuyAssetUsdRate,
-  selectFiatToUsdRate,
-  (buyAssetUsdRate, fiatToUsdRate) => {
+  selectUserCurrencyToUsdRate,
+  (buyAssetUsdRate, userCurrencyToUsdRate) => {
     if (buyAssetUsdRate === undefined) return
-    return bn(buyAssetUsdRate).times(fiatToUsdRate).toString()
+    return bn(buyAssetUsdRate).times(userCurrencyToUsdRate).toString()
   },
 )
 
@@ -326,18 +326,18 @@ export const selectNetBuyAmountCryptoPrecision = createSelector(
   },
 )
 
-export const selectNetBuyAmountFiat = createSelector(
+export const selectNetBuyAmountUserCurrency = createSelector(
   selectNetBuyAmountCryptoPrecision,
-  selectBuyAssetFiatRate,
+  selectBuyAssetUserCurrencyFiatRate,
   (netBuyAmountCryptoPrecision, buyAssetFiatRate) => {
     if (!netBuyAmountCryptoPrecision || !buyAssetFiatRate) return
     return bn(netBuyAmountCryptoPrecision).times(buyAssetFiatRate).toFixed()
   },
 )
 
-export const selectSellAmountFiat = createSelector(
+export const selectSellAmountUserCurrency = createSelector(
   selectSellAmountCryptoPrecision,
-  selectSellAssetFiatRate,
+  selectSellAssetUserCurrencyFiatRate,
   (sellAmountCryptoPrecision, sellAssetFiatRate) => {
     if (!sellAmountCryptoPrecision || !sellAssetFiatRate) return
     return bn(sellAmountCryptoPrecision).times(sellAssetFiatRate).toFixed()
@@ -346,12 +346,12 @@ export const selectSellAmountFiat = createSelector(
 
 export const selectDonationAmountFiat = createSelector(
   selectActiveQuote,
-  selectSellAmountFiat,
-  (activeQuote, sellAmountFiat) => {
+  selectSellAmountUserCurrency,
+  (activeQuote, sellAmountUserCurrency) => {
     if (!activeQuote) return
     const affiliatePercentage = convertBasisPointsToDecimalPercentage(activeQuote.affiliateBps)
     // The donation amount is a percentage of the sell amount
-    return bnOrZero(sellAmountFiat).times(affiliatePercentage).toFixed()
+    return bnOrZero(sellAmountUserCurrency).times(affiliatePercentage).toFixed()
   },
 )
 

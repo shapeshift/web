@@ -53,7 +53,7 @@ export const selectSelectedCurrencyMarketDataSortedByMarketCap = createDeepEqual
   },
 )
 
-export const selectFiatToUsdRate = createSelector(
+export const selectUserCurrencyToUsdRate = createSelector(
   selectFiatMarketData,
   selectSelectedCurrency,
   (fiatMarketData, selectedCurrency) =>
@@ -135,7 +135,7 @@ export const selectUsdRateByAssetId = createCachedSelector(
 
 export const selectFiatRateByAssetId = createCachedSelector(
   selectCryptoMarketData,
-  selectFiatToUsdRate,
+  selectUserCurrencyToUsdRate,
   selectAssetId,
   (cryptoMarketData, fiatToUsdRate, assetId): string => {
     return bnOrZero(cryptoMarketData[assetId]?.price).times(fiatToUsdRate).toString()

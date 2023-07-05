@@ -70,7 +70,7 @@ import {
   selectActiveSwapperWithMetadata,
   selectAmount,
   selectBuyAmountCryptoPrecision,
-  selectBuyAmountFiat,
+  selectBuyAmountUserCurrency,
   selectBuyAsset,
   selectBuyAssetAccountId,
   selectFees,
@@ -79,7 +79,7 @@ import {
   selectQuote,
   selectReceiveAddress,
   selectSellAmountCryptoPrecision,
-  selectSellAmountFiat,
+  selectSellAmountUserCurrency,
   selectSellAsset,
   selectSellAssetAccountId,
   selectSlippage,
@@ -133,8 +133,8 @@ export const TradeInput = () => {
   const updateAmount = useSwapperStore(state => state.updateAmount)
   const updateReceiveAddress = useSwapperStore(state => state.updateReceiveAddress)
   const updatePreferredSwapper = useSwapperStore(state => state.updatePreferredSwapper)
-  const fiatBuyAmount = useSwapperStore(selectBuyAmountFiat)
-  const fiatSellAmount = useSwapperStore(selectSellAmountFiat)
+  const fiatBuyAmount = useSwapperStore(selectBuyAmountUserCurrency)
+  const fiatSellAmount = useSwapperStore(selectSellAmountUserCurrency)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
   const feeAssetFiatRate = useSwapperStore(selectFeeAssetUserCurrencyFiatRate)
   const buyAsset = useSwapperStore(selectBuyAsset)

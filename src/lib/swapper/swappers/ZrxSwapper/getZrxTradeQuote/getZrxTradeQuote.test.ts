@@ -5,7 +5,6 @@ import { Err, Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
 import type { SwapErrorRight } from 'lib/swapper/api'
 
-import { normalizeAmount } from '../../utils/helpers/helpers'
 import { BTC, FOX_MAINNET } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { baseUrlFromChainId } from '../utils/helpers/helpers'
@@ -62,8 +61,7 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
 const mockOk = Ok as jest.MockedFunction<typeof Ok>
 const mockErr = Err as jest.MockedFunction<typeof Err>
 describe('getZrxTradeQuote', () => {
-  const sellAmount = '1000000000000000000'
-  ;(normalizeAmount as jest.Mock<string>).mockReturnValue(sellAmount)
+  // const sellAmount = '1000000000000000000'
   ;(baseUrlFromChainId as jest.Mock<Result<string, SwapErrorRight>>).mockReturnValue(
     mockOk('https://api.0x.org/'),
   )

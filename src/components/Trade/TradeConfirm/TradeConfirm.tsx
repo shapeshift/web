@@ -53,13 +53,13 @@ import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 import {
   selectBuyAmountBeforeFeesBaseUnit,
-  selectDonationAmountFiat,
-  selectFeeAssetUserCurrencyFiatRate,
+  selectDonationAmountUserCurrency,
+  selectFeeAssetUserCurrencyRate,
   selectIntermediaryTransactionOutputs,
   selectQuoteBuyAmountCryptoPrecision,
   selectSellAmountBeforeFeesBaseUnitByAction,
   selectSellAmountBeforeFeesUsd,
-  selectSellAmountBeforeFeesUserCurrencyFiat,
+  selectSellAmountBeforeFeesUserCurrency,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectActiveSwapperName,
@@ -115,7 +115,7 @@ export const TradeConfirm = () => {
   const trade = useSwapperStore(selectTrade)
   const fees = useSwapperStore(selectFees)
   const swapperName = useSwapperStore(selectActiveSwapperName)
-  const feeAssetUserCurrencyFiatRate = useSwapperStore(selectFeeAssetUserCurrencyFiatRate)
+  const feeAssetUserCurrencyFiatRate = useSwapperStore(selectFeeAssetUserCurrencyRate)
   const slippage = useSwapperStore(selectSlippage)
   const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
   const sellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
@@ -126,7 +126,7 @@ export const TradeConfirm = () => {
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const sellAmountBeforeFeesBaseUnit = useSwapperStore(selectSellAmountBeforeFeesBaseUnitByAction)
   const sellAmountBeforeFeesUserCurrencyFiat = useSwapperStore(
-    selectSellAmountBeforeFeesUserCurrencyFiat,
+    selectSellAmountBeforeFeesUserCurrency,
   )
   const sellAmountBeforeFeesUsd = useSwapperStore(selectSellAmountBeforeFeesUsd)
 
@@ -256,7 +256,7 @@ export const TradeConfirm = () => {
 
   const { showErrorToast } = useErrorHandler()
 
-  const donationAmountFiat = useSwapperStore(selectDonationAmountFiat)
+  const donationAmountFiat = useSwapperStore(selectDonationAmountUserCurrency)
 
   // Track these data here so we don't have to do this again for the other states
   const eventData = useMemo(() => {

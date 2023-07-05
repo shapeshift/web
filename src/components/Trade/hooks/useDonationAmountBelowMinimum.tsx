@@ -23,9 +23,9 @@ export const useDonationAmountBelowMinimum = () => {
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellAssetChainId = sellAsset?.chainId
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAssetChainId ?? ''))
-  const buyAmountUserCurrencyFiat = useSwapperStore(state => state.buyAmountUserCurrency)
+  const buyAmountUserCurrency = useSwapperStore(state => state.buyAmountUserCurrency)
   const selectedCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
-  const buyAmountUsd = bnOrZero(buyAmountUserCurrencyFiat).div(selectedCurrencyToUsdRate)
+  const buyAmountUsd = bnOrZero(buyAmountUserCurrency).div(selectedCurrencyToUsdRate)
   const wallet = useWallet().state.wallet
   const walletIsKeepKey = wallet && isKeepKey(wallet)
 

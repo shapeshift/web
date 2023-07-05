@@ -115,7 +115,7 @@ export const TradeConfirm = () => {
   const trade = useSwapperStore(selectTrade)
   const fees = useSwapperStore(selectFees)
   const swapperName = useSwapperStore(selectActiveSwapperName)
-  const feeAssetUserCurrencyFiatRate = useSwapperStore(selectFeeAssetUserCurrencyRate)
+  const feeAssetUserCurrencyRate = useSwapperStore(selectFeeAssetUserCurrencyRate)
   const slippage = useSwapperStore(selectSlippage)
   const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
   const sellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
@@ -125,14 +125,12 @@ export const TradeConfirm = () => {
   )
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const sellAmountBeforeFeesBaseUnit = useSwapperStore(selectSellAmountBeforeFeesBaseUnitByAction)
-  const sellAmountBeforeFeesUserCurrencyFiat = useSwapperStore(
-    selectSellAmountBeforeFeesUserCurrency,
-  )
+  const sellAmountBeforeFeesUserCurrency = useSwapperStore(selectSellAmountBeforeFeesUserCurrency)
   const sellAmountBeforeFeesUsd = useSwapperStore(selectSellAmountBeforeFeesUsd)
 
   const quoteBuyAmountCryptoPrecision = useSwapperStore(selectQuoteBuyAmountCryptoPrecision)
   const protocolFees = useSwapperStore(selectProtocolFees)
-  const fiatBuyAmount = useSwapperStore(selectBuyAmountUserCurrency)
+  const userCurrencyBuyAmount = useSwapperStore(selectBuyAmountUserCurrency)
   const buyAmountBeforeFeesBaseUnit = useSwapperStore(selectBuyAmountBeforeFeesBaseUnit)
 
   const assets = useAppSelector(selectAssets)
@@ -356,13 +354,11 @@ export const TradeConfirm = () => {
     history.push(TradeRoutePaths.Input)
   }, [clearAmounts, history, sellTradeId, updateTrade])
 
-  const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman).times(
-    feeAssetUserCurrencyFiatRate ?? 1,
-  )
+  const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman).times(feeAssetUserCurrencyRate ?? 1)
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const networkFeeToTradeRatioPercentage = networkFeeFiat
-    .dividedBy(sellAmountBeforeFeesUserCurrencyFiat ?? 1)
+    .dividedBy(sellAmountBeforeFeesUserCurrency ?? 1)
     .times(100)
     .toNumber()
   const networkFeeToTradeRatioPercentageThreshold = 5
@@ -492,7 +488,7 @@ export const TradeConfirm = () => {
               />
               <Amount.Fiat
                 color='gray.500'
-                value={bnOrZero(sellAmountBeforeFeesUserCurrencyFiat).toFixed(2)}
+                value={bnOrZero(sellAmountBeforeFeesUserCurrency).toFixed(2)}
                 prefix='≈'
               />
             </Row.Value>
@@ -504,7 +500,7 @@ export const TradeConfirm = () => {
             protocolFees={protocolFees}
             shapeShiftFee='0'
             slippage={slippage}
-            fiatAmount={positiveOrZero(fiatBuyAmount).toFixed(2)}
+            fiatAmount={positiveOrZero(userCurrencyBuyAmount).toFixed(2)}
             swapperName={swapper?.name ?? ''}
             isLoading={isReloadingTrade}
             intermediaryTransactionOutputs={intermediaryTransactionOutputsCryptoBaseUnit}
@@ -515,12 +511,12 @@ export const TradeConfirm = () => {
       trade,
       translate,
       sellAmountBeforeFeesBaseUnit,
-      sellAmountBeforeFeesUserCurrencyFiat,
+      sellAmountBeforeFeesUserCurrency,
       buyAmountCryptoPrecision,
       quoteBuyAmountCryptoPrecision,
       protocolFees,
       slippage,
-      fiatBuyAmount,
+      userCurrencyBuyAmount,
       swapper?.name,
       isReloadingTrade,
       intermediaryTransactionOutputsCryptoBaseUnit,

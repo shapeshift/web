@@ -241,7 +241,7 @@ const selectBuyAssetUsdRate = createSelector(
   },
 )
 
-const selectSellAssetUserCurrencyFiatRate = createSelector(
+const selectSellAssetUserCurrencyRate = createSelector(
   selectSellAssetUsdRate,
   selectUserCurrencyToUsdRate,
   (sellAssetUsdRate, userCurrencyToUsdRate) => {
@@ -250,7 +250,7 @@ const selectSellAssetUserCurrencyFiatRate = createSelector(
   },
 )
 
-const selectBuyAssetUserCurrencyFiatRate = createSelector(
+const selectBuyAssetUserCurrencyRate = createSelector(
   selectBuyAssetUsdRate,
   selectUserCurrencyToUsdRate,
   (buyAssetUsdRate, userCurrencyToUsdRate) => {
@@ -328,7 +328,7 @@ export const selectNetBuyAmountCryptoPrecision = createSelector(
 
 export const selectNetBuyAmountUserCurrency = createSelector(
   selectNetBuyAmountCryptoPrecision,
-  selectBuyAssetUserCurrencyFiatRate,
+  selectBuyAssetUserCurrencyRate,
   (netBuyAmountCryptoPrecision, buyAssetFiatRate) => {
     if (!netBuyAmountCryptoPrecision || !buyAssetFiatRate) return
     return bn(netBuyAmountCryptoPrecision).times(buyAssetFiatRate).toFixed()
@@ -337,7 +337,7 @@ export const selectNetBuyAmountUserCurrency = createSelector(
 
 export const selectSellAmountUserCurrency = createSelector(
   selectSellAmountCryptoPrecision,
-  selectSellAssetUserCurrencyFiatRate,
+  selectSellAssetUserCurrencyRate,
   (sellAmountCryptoPrecision, sellAssetFiatRate) => {
     if (!sellAmountCryptoPrecision || !sellAssetFiatRate) return
     return bn(sellAmountCryptoPrecision).times(sellAssetFiatRate).toFixed()

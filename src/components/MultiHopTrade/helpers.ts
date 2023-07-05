@@ -24,7 +24,7 @@ export const getMixpanelEventData = () => {
 
   const assets = selectAssets(state)
   const donationAmountFiat = selectDonationAmountFiat(state)
-  const sellAmountBeforeFeesUserCurrencyFiat = selectSellAmountUserCurrency(state)
+  const sellAmountBeforeFeesUserCurrency = selectSellAmountUserCurrency(state)
   const buyAmountBeforeFeesCryptoPrecision = selectBuyAmountBeforeFeesCryptoPrecision(state)
   const sellAmountBeforeFeesCryptoPrecision = selectSellAmountBeforeFeesCryptoPrecision(state)
   const isDonating = selectWillDonate(state)
@@ -36,7 +36,7 @@ export const getMixpanelEventData = () => {
   return {
     buyAsset: compositeBuyAsset,
     sellAsset: compositeSellAsset,
-    amountUSD: sellAmountBeforeFeesUserCurrencyFiat,
+    amountUSD: sellAmountBeforeFeesUserCurrency,
     swapperName,
     hasUserOptedOutOfDonation: isDonating,
     donationAmountFiat,

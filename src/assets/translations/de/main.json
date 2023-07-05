@@ -632,12 +632,20 @@
   "trade": {
     "trade": "Handeln",
     "allowance": "Genehmigung",
+    "slippageInfo": "Ihre Transaktion wird rückgängig gemacht, wenn sich der Preis um mehr als diesen Prozentsatz ungünstig ändert.",
     "allowanceTooltip": "Der Betrag, den Sie dem Smart Contract zur Nutzung in Ihrem Namen erteilen.",
     "searchingRate": "Auf der Suche nach dem besten Preis...",
     "noRateAvailable": "Kein Wechselkurs verfügbar.",
     "previewTrade": "Vorschau des Handels",
     "rate": "Kurs",
     "tradeFrom": "Handel ab",
+    "slippage": {
+      "maxSlippage": "Maximaler Slippage",
+      "auto": "Automatisch",
+      "custom": "Benutzerdefiniert",
+      "warning": "Hohe Slippage-Toleranzen können zu ungünstigen Trades führen.",
+      "lowSlippage": "Ein Slippage unter 0,05 % führt zu einer fehlgeschlagenen Transaktion."
+    },
     "from": "von",
     "to": "zu",
     "youPay": "Sie bezahlen",

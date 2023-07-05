@@ -542,8 +542,8 @@ export const selectDonationAmountUserCurrency = createSelector(
 export const selectDonationAmountUsd = createSelector(
   selectDonationAmountUserCurrency,
   selectSelectedCurrencyToUsdRate,
-  (sellAmountUserCurrency, selectedCurrencyToUsdRate): string => {
-    return bnOrZero(sellAmountUserCurrency).times(selectedCurrencyToUsdRate).toFixed()
+  (donationAmountUserCurrency, selectedCurrencyToUsdRate): string => {
+    return bnOrZero(donationAmountUserCurrency).div(selectedCurrencyToUsdRate).toFixed()
   },
 )
 

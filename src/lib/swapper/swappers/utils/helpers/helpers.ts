@@ -29,7 +29,7 @@ import type { GetTradeQuoteInput, TradeQuote } from 'lib/swapper/api'
  * @param amount
  */
 export const normalizeAmount = (amount: string | number | BigNumber): string => {
-  return bnOrZero(amount).toNumber().toLocaleString('fullwide', { useGrouping: false })
+  return bnOrZero(amount).toFixed()
 }
 
 export const normalizeIntegerAmount = (amount: string | number | BigNumber): string => {

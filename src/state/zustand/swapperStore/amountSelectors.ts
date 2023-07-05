@@ -539,6 +539,14 @@ export const selectDonationAmountUserCurrency = createSelector(
   },
 )
 
+export const selectDonationAmountUsd = createSelector(
+  selectDonationAmountUserCurrency,
+  selectSelectedCurrencyToUsdRate,
+  (sellAmountUserCurrency, selectedCurrencyToUsdRate): string => {
+    return bnOrZero(sellAmountUserCurrency).times(selectedCurrencyToUsdRate).toFixed()
+  },
+)
+
 export const selectIntermediaryTransactionOutputs = createDeepEqualOutputSelector(
   selectActiveSwapperWithMetadata,
   (state: SwapperState) => state.trade?.intermediaryTransactionOutputs,

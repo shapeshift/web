@@ -53,6 +53,7 @@ import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 import {
   selectBuyAmountBeforeFeesBaseUnit,
+  selectDonationAmountUsd,
   selectDonationAmountUserCurrency,
   selectFeeAssetUserCurrencyRate,
   selectIntermediaryTransactionOutputs,
@@ -254,7 +255,8 @@ export const TradeConfirm = () => {
 
   const { showErrorToast } = useErrorHandler()
 
-  const donationAmountFiat = useSwapperStore(selectDonationAmountUserCurrency)
+  const donationAmountUserCurrency = useSwapperStore(selectDonationAmountUserCurrency)
+  const donationAmountUsd = useSwapperStore(selectDonationAmountUsd)
 
   // Track these data here so we don't have to do this again for the other states
   const eventData = useMemo(() => {
@@ -278,7 +280,7 @@ export const TradeConfirm = () => {
       amountUSD: sellAmountBeforeFeesUsd,
       swapperName: swapper.name,
       hasUserOptedOutOfDonation,
-      donationAmountFiat,
+      donationAmountUsd,
       [compositeBuyAsset]: buyAmountCryptoPrecision,
       [compositeSellAsset]: sellAmountCryptoPrecision,
     }
@@ -290,7 +292,7 @@ export const TradeConfirm = () => {
     sellAmountBeforeFeesBaseUnit,
     sellAmountBeforeFeesUsd,
     hasUserOptedOutOfDonation,
-    donationAmountFiat,
+    donationAmountUsd,
   ])
 
   useEffect(() => {
@@ -409,12 +411,12 @@ export const TradeConfirm = () => {
               </Checkbox>
             </Row.Label>
           </HelperTooltip>
-          <Row.Value>{toFiat(donationAmountFiat ?? '0')}</Row.Value>
+          <Row.Value>{toFiat(donationAmountUserCurrency ?? '0')}</Row.Value>
         </Row>
       </Stack>
     ),
     [
-      donationAmountFiat,
+      donationAmountUserCurrency,
       handleDonationToggle,
       hasUserOptedOutOfDonation,
       isReloadingTrade,

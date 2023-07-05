@@ -261,6 +261,7 @@ export const TradeConfirm = () => {
   const donationAmountFiatUsd = bnOrZero(donationAmountFiat)
     .div(selectedCurrencyToUsdRate)
     .toFixed()
+  const fiatAmountUsd = bnOrZero(sellAmountBeforeFeesFiat).div(selectedCurrencyToUsdRate).toFixed()
 
   // Track these data here so we don't have to do this again for the other states
   const eventData = useMemo(() => {
@@ -282,6 +283,7 @@ export const TradeConfirm = () => {
       buyAsset: compositeBuyAsset,
       sellAsset: compositeSellAsset,
       fiatAmount: sellAmountBeforeFeesFiat,
+      fiatAmountUsd,
       swapperName: swapper.name,
       hasUserOptedOutOfDonation,
       donationAmountFiat,
@@ -295,6 +297,7 @@ export const TradeConfirm = () => {
     hasUserOptedOutOfDonation,
     donationAmountFiat,
     donationAmountFiatUsd,
+    fiatAmountUsd,
     sellAmountBeforeFeesBaseUnit,
     sellAmountBeforeFeesFiat,
     swapper,

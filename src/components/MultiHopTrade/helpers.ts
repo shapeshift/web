@@ -30,6 +30,7 @@ export const getMixpanelEventData = () => {
     .div(selectedCurrencyToUsdRate)
     .toFixed()
   const sellAmountBeforeFeesFiat = selectSellAmountFiat(state)
+  const fiatAmountUsd = bnOrZero(sellAmountBeforeFeesFiat).div(selectedCurrencyToUsdRate).toFixed()
   const buyAmountBeforeFeesCryptoPrecision = selectBuyAmountBeforeFeesCryptoPrecision(state)
   const sellAmountBeforeFeesCryptoPrecision = selectSellAmountBeforeFeesCryptoPrecision(state)
   const isDonating = selectWillDonate(state)
@@ -42,6 +43,7 @@ export const getMixpanelEventData = () => {
     buyAsset: compositeBuyAsset,
     sellAsset: compositeSellAsset,
     fiatAmount: sellAmountBeforeFeesFiat,
+    fiatAmountUsd,
     swapperName,
     hasUserOptedOutOfDonation: isDonating,
     donationAmountFiat,

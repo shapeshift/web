@@ -10,7 +10,6 @@ import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
 
-import { normalizeAmount } from '../../utils/helpers/helpers'
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
 import { getMinimumCryptoHuman } from '../getMinimumCryptoHuman/getMinimumCryptoHuman'
 import { DEFAULT_SOURCE } from '../utils/constants'
@@ -32,7 +31,7 @@ export async function getTradeQuote(
     receiveAddress,
   } = input
   const apiUrl = getConfig().REACT_APP_ONE_INCH_API_URL
-  const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
+  const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
 
   const assertion = assertValidTrade({ buyAsset, sellAsset, receiveAddress })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
@@ -40,16 +39,16 @@ export async function getTradeQuote(
   const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetUsdRate)
   const minimumCryptoBaseUnit = toBaseUnit(minimumCryptoHuman, sellAsset.precision)
 
-  const normalizedSellAmountCryptoBaseUnit = normalizeAmount(
-    bnOrZero(sellAmount).eq(0) ? minimumCryptoBaseUnit : sellAmount,
-  )
+  const sellAmountCryptoBaseUnit = bnOrZero(sellAmountBeforeFeesCryptoBaseUnit).eq(0)
+    ? minimumCryptoBaseUnit
+    : sellAmountBeforeFeesCryptoBaseUnit
 
   const buyTokenPercentageFee = convertBasisPointsToPercentage(affiliateBps).toNumber()
 
   const params: OneInchQuoteApiInput = {
     fromTokenAddress: fromAssetId(sellAsset.assetId).assetReference,
     toTokenAddress: fromAssetId(buyAsset.assetId).assetReference,
-    amount: normalizedSellAmountCryptoBaseUnit,
+    amount: sellAmountCryptoBaseUnit,
     fee: buyTokenPercentageFee,
   }
 
@@ -82,9 +81,7 @@ export async function getTradeQuote(
     })
 
     // don't show buy amount if less than min sell amount
-    const isSellAmountBelowMinimum = bnOrZero(normalizedSellAmountCryptoBaseUnit).lt(
-      minimumCryptoBaseUnit,
-    )
+    const isSellAmountBelowMinimum = bnOrZero(sellAmountCryptoBaseUnit).lt(minimumCryptoBaseUnit)
     const buyAmountCryptoBaseUnit = isSellAmountBelowMinimum ? '0' : quote.toTokenAmount
 
     return Ok({
@@ -97,7 +94,7 @@ export async function getTradeQuote(
           sellAsset,
           accountNumber,
           buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
-          sellAmountBeforeFeesCryptoBaseUnit: normalizedSellAmountCryptoBaseUnit,
+          sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
           feeData: {
             protocolFees: {},
             networkFeeCryptoBaseUnit,

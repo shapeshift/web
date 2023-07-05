@@ -2,6 +2,7 @@ import type { ChainKey, LifiError, RoutesRequest } from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
@@ -24,7 +25,7 @@ import { getLifiChainMap } from '../utils/getLifiChainMap'
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 
 export async function getTradeQuote(
-  input: GetEvmTradeQuoteInput,
+  input: GetEvmTradeQuoteInput & { wallet?: HDWallet },
   lifiChainMap: Map<ChainId, ChainKey>,
   assets: Partial<Record<AssetId, Asset>>,
   sellAssetPriceUsdPrecision: string,
@@ -39,6 +40,8 @@ export async function getTradeQuote(
       receiveAddress,
       accountNumber,
       allowMultiHop,
+      supportsEIP1559,
+      wallet,
     } = input
 
     const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
@@ -134,8 +137,11 @@ export async function getTradeQuote(
         const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(assets, lifiStep)
 
         const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
+          accountNumber,
           chainId,
           lifiStep,
+          supportsEIP1559,
+          wallet,
         })
 
         return {

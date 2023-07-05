@@ -365,13 +365,10 @@ export const selectDonationAmountUserCurrency = createSelector(
 )
 
 export const selectDonationAmountUsd = createSelector(
-  selectActiveQuote,
-  selectSellAmountUsd,
-  (activeQuote, sellAmountUsd) => {
-    if (!activeQuote) return
-    const affiliatePercentage = convertBasisPointsToDecimalPercentage(activeQuote.affiliateBps)
-    // The donation amount is a percentage of the sell amount
-    return bnOrZero(sellAmountUsd).times(affiliatePercentage).toFixed()
+  selectDonationAmountUserCurrency,
+  selectUserCurrencyToUsdRate,
+  (donationAmountUserCurrency, userCurrencyToUsdRate) => {
+    return bnOrZero(donationAmountUserCurrency).times(userCurrencyToUsdRate).toFixed()
   },
 )
 

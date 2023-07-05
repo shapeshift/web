@@ -277,7 +277,7 @@ export const TradeConfirm = () => {
     return {
       buyAsset: compositeBuyAsset,
       sellAsset: compositeSellAsset,
-      amountUSD: sellAmountBeforeFeesUsd,
+      amountUsd: sellAmountBeforeFeesUsd,
       swapperName: swapper.name,
       hasUserOptedOutOfDonation,
       donationAmountUsd,

@@ -61,7 +61,6 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
 const mockOk = Ok as jest.MockedFunction<typeof Ok>
 const mockErr = Err as jest.MockedFunction<typeof Err>
 describe('getZrxTradeQuote', () => {
-  // const sellAmount = '1000000000000000000'
   ;(baseUrlFromChainId as jest.Mock<Result<string, SwapErrorRight>>).mockReturnValue(
     mockOk('https://api.0x.org/'),
   )

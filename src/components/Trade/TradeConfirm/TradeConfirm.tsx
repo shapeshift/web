@@ -48,6 +48,7 @@ import type { SwapErrorRight, Swapper, TradeTxs } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
 import { assertUnreachable } from 'lib/utils'
+import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 import { selectAssets, selectFeeAssetByChainId, selectTxStatusById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
@@ -134,6 +135,7 @@ export const TradeConfirm = () => {
   const userCurrencyBuyAmount = useSwapperStore(selectBuyAmountUserCurrency)
   const buyAmountBeforeFeesBaseUnit = useSwapperStore(selectBuyAmountBeforeFeesBaseUnit)
 
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const assets = useAppSelector(selectAssets)
 
   const defaultFeeAsset = useAppSelector(state =>
@@ -278,9 +280,12 @@ export const TradeConfirm = () => {
       buyAsset: compositeBuyAsset,
       sellAsset: compositeSellAsset,
       amountUsd: sellAmountBeforeFeesUsd,
+      amountUserCurrency: sellAmountBeforeFeesUserCurrency,
+      selectedCurrency,
       swapperName: swapper.name,
       hasUserOptedOutOfDonation,
       donationAmountUsd,
+      donationAmountUserCurrency,
       [compositeBuyAsset]: buyAmountCryptoPrecision,
       [compositeSellAsset]: sellAmountCryptoPrecision,
     }
@@ -291,8 +296,11 @@ export const TradeConfirm = () => {
     buyAmountBeforeFeesBaseUnit,
     sellAmountBeforeFeesBaseUnit,
     sellAmountBeforeFeesUsd,
+    sellAmountBeforeFeesUserCurrency,
+    selectedCurrency,
     hasUserOptedOutOfDonation,
     donationAmountUsd,
+    donationAmountUserCurrency,
   ])
 
   useEffect(() => {

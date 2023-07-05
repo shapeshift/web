@@ -29,7 +29,7 @@ export enum ActiveQuoteStatus {
 }
 
 export type QuoteStatus = {
-  validationErrors: ActiveQuoteStatus[]
+  quoteErrors: ActiveQuoteStatus[]
   quoteStatusTranslation: string | [string, InterpolationOptions]
   error?: SwapErrorRight
 }

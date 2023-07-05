@@ -14,7 +14,7 @@ import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
 import { selectFeeAssetByChainId, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import { selectFeeAssetFiatRate } from 'state/zustand/swapperStore/amountSelectors'
+import { selectFeeAssetUserCurrencyFiatRate } from 'state/zustand/swapperStore/amountSelectors'
 import { selectAmount, selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
@@ -82,7 +82,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
 
   const { isTradingActive } = useIsTradingActive()
 
-  const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
+  const feeAssetFiatRate = useSwapperStore(selectFeeAssetUserCurrencyFiatRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellFeeAsset = useAppSelector(state =>

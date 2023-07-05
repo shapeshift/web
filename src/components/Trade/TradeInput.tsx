@@ -62,7 +62,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
-  selectFeeAssetFiatRate,
+  selectFeeAssetUserCurrencyFiatRate,
   selectQuoteBuyAmountCryptoPrecision,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
@@ -136,7 +136,7 @@ export const TradeInput = () => {
   const fiatBuyAmount = useSwapperStore(selectBuyAmountFiat)
   const fiatSellAmount = useSwapperStore(selectSellAmountFiat)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
-  const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
+  const feeAssetFiatRate = useSwapperStore(selectFeeAssetUserCurrencyFiatRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellAssetChainId = sellAsset?.chainId

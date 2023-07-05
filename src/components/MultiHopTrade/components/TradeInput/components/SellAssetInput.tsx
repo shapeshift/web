@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { TradeAssetInput } from 'components/Trade/Components/TradeAssetInput'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -42,6 +42,10 @@ export const SellAssetInput = ({
     },
     [dispatch, sellAssetFiatRate],
   )
+
+  useEffect(() => {
+    handleSellAssetInputChange('0', undefined)
+  }, [asset, handleSellAssetInputChange])
 
   return (
     <TradeAssetInput

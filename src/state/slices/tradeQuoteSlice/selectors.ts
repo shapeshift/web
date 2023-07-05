@@ -346,7 +346,7 @@ export const selectSellAmountUserCurrency = createSelector(
 
 export const selectSellAmountUsd = createSelector(
   selectSellAmountCryptoPrecision,
-  selectUserCurrencyToUsdRate,
+  selectSellAssetUsdRate,
   (sellAmountCryptoPrecision, sellAssetUsdRate) => {
     if (!sellAmountCryptoPrecision || !sellAssetUsdRate) return
     return bn(sellAmountCryptoPrecision).times(sellAssetUsdRate).toFixed()
@@ -368,7 +368,7 @@ export const selectDonationAmountUsd = createSelector(
   selectDonationAmountUserCurrency,
   selectUserCurrencyToUsdRate,
   (donationAmountUserCurrency, userCurrencyToUsdRate) => {
-    return bnOrZero(donationAmountUserCurrency).times(userCurrencyToUsdRate).toFixed()
+    return bnOrZero(donationAmountUserCurrency).div(userCurrencyToUsdRate).toFixed()
   },
 )
 

@@ -58,7 +58,6 @@ import {
   selectIntermediaryTransactionOutputs,
   selectQuoteBuyAmountCryptoPrecision,
   selectSellAmountBeforeFeesBaseUnitByAction,
-  selectSellAmountBeforeFeesUsd,
   selectSellAmountBeforeFeesUserCurrency,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
@@ -126,7 +125,6 @@ export const TradeConfirm = () => {
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const sellAmountBeforeFeesBaseUnit = useSwapperStore(selectSellAmountBeforeFeesBaseUnitByAction)
   const sellAmountBeforeFeesUserCurrency = useSwapperStore(selectSellAmountBeforeFeesUserCurrency)
-  const sellAmountBeforeFeesUsd = useSwapperStore(selectSellAmountBeforeFeesUsd)
 
   const quoteBuyAmountCryptoPrecision = useSwapperStore(selectQuoteBuyAmountCryptoPrecision)
   const protocolFees = useSwapperStore(selectProtocolFees)
@@ -275,7 +273,7 @@ export const TradeConfirm = () => {
     return {
       buyAsset: compositeBuyAsset,
       sellAsset: compositeSellAsset,
-      amountUSD: sellAmountBeforeFeesUsd,
+      fiatAmount: sellAmountBeforeFeesUserCurrency,
       swapperName: swapper.name,
       hasUserOptedOutOfDonation,
       donationAmountFiat,
@@ -288,7 +286,7 @@ export const TradeConfirm = () => {
     assets,
     buyAmountBeforeFeesBaseUnit,
     sellAmountBeforeFeesBaseUnit,
-    sellAmountBeforeFeesUsd,
+    sellAmountBeforeFeesUserCurrency,
     hasUserOptedOutOfDonation,
     donationAmountFiat,
   ])

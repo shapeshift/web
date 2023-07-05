@@ -27,7 +27,7 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import type { OsmosisSupportedChainId } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapper'
+import type { OsmosisSupportedChainId } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
 import { useFindByAssetIdQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import type { OsmosisPool } from 'state/slices/opportunitiesSlice/resolvers/osmosis/utils'
 import {

@@ -45,8 +45,10 @@ import {
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
+  selectNetBuyAmountFiat,
   selectNetReceiveAmountCryptoPrecision,
   selectSwapperSupportsCrossAccountTrade,
+  selectTotalNetworkFeeFiatPrecision,
   selectTotalProtocolFeeByAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -79,6 +81,8 @@ export const TradeInput = (props: CardProps) => {
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
+  const buyAmountAfterFeesFiat = useAppSelector(selectNetBuyAmountFiat)
+  const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeFiatPrecision)
 
   const activeQuoteStatus = useActiveQuoteStatus()
   const setBuyAsset = useCallback(
@@ -227,7 +231,7 @@ export const TradeInput = (props: CardProps) => {
                 assetSymbol={buyAsset.symbol}
                 assetIcon={buyAsset.icon}
                 cryptoAmount={buyAmountAfterFeesCryptoPrecision}
-                fiatAmount={'1.234'}
+                fiatAmount={buyAmountAfterFeesFiat}
                 percentOptions={[1]}
                 showInputSkeleton={isLoading}
                 showFiatSkeleton={isLoading}
@@ -258,10 +262,10 @@ export const TradeInput = (props: CardProps) => {
               borderWidth={1}
             >
               <RateGasRow
-                sellSymbol={''}
-                buySymbol={''}
-                gasFee={'0'}
-                rate={undefined}
+                sellSymbol={sellAsset.symbol}
+                buySymbol={buyAsset.symbol}
+                gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
+                rate={activeQuote?.steps[0].rate}
                 isLoading={isLoading}
                 isError={activeQuoteError !== undefined}
               />

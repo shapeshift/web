@@ -1,4 +1,5 @@
 import { Checkbox, Stack } from '@chakra-ui/react'
+import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -10,7 +11,11 @@ import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { selectDonationAmountFiat, selectDonationBps } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-export const DonationCheckbox = (): JSX.Element | null => {
+type DonationCheckboxProps = {
+  isLoading: boolean
+}
+
+export const DonationCheckbox: FC<DonationCheckboxProps> = ({ isLoading }): JSX.Element | null => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const willDonate = useAppSelector(selectWillDonate)
@@ -22,11 +27,9 @@ export const DonationCheckbox = (): JSX.Element | null => {
 
   const donationAmountFiat = useAppSelector(selectDonationAmountFiat)
 
-  // FIXME: implement quote refetch
-  const handleDonationToggle = useCallback(
-    () => dispatch(swappers.actions.toggleWillDonate()),
-    [dispatch],
-  )
+  const handleDonationToggle = useCallback(() => {
+    dispatch(swappers.actions.toggleWillDonate())
+  }, [dispatch])
 
   const donationOption: JSX.Element = useMemo(
     () => (
@@ -37,7 +40,7 @@ export const DonationCheckbox = (): JSX.Element | null => {
               <Checkbox
                 isChecked={willDonate}
                 onChange={handleDonationToggle}
-                isDisabled={false} // FIXME: implement. Pass into component?
+                isDisabled={isLoading}
               >
                 <Text translation='trade.donation' />
               </Checkbox>
@@ -47,7 +50,7 @@ export const DonationCheckbox = (): JSX.Element | null => {
         </Row>
       </Stack>
     ),
-    [donationAmountFiat, handleDonationToggle, willDonate, toFiat, translate],
+    [translate, willDonate, handleDonationToggle, isLoading, toFiat, donationAmountFiat],
   )
 
   return affiliateBps !== undefined ? donationOption : null

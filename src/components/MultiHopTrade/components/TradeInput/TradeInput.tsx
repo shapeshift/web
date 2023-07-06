@@ -286,7 +286,9 @@ export const TradeInput = (props: CardProps) => {
                 />
               ) : null}
             </Stack>
-            <DonationCheckbox />
+            <Stack px={4}>
+              <DonationCheckbox isLoading={isLoading} />
+            </Stack>
             <Tooltip label={activeQuoteStatus.error?.message}>
               <Button
                 type='submit'

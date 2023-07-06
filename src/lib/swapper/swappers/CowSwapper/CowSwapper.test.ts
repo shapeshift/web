@@ -1,6 +1,6 @@
 import { ethChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import {
   BTC,
   ETH,
@@ -18,30 +18,12 @@ import { cowExecuteTrade } from './cowExecuteTrade/cowExecuteTrade'
 import { cowGetTradeTxs } from './cowGetTradeTxs/cowGetTradeTxs'
 import { CowSwapper } from './CowSwapper'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
-import type { CowChainId, CowTrade, CowTradeResult } from './types'
+import type { CowTrade, CowTradeResult } from './types'
 
-jest.mock('./utils/helpers/helpers')
-jest.mock('state/slices/selectors', () => {
-  const {
-    BTC,
-    ETH,
-    FOX_MAINNET,
-    FOX_GNOSIS,
-    WBTC,
-    WETH,
-    XDAI,
-  } = require('lib/swapper/swappers/utils/test-data/assets') // Move the import inside the factory function
-
+jest.mock('./utils/helpers/helpers', () => {
+  const { KnownChainIds } = require('@shapeshiftoss/types')
   return {
-    selectAssets: () => ({
-      [BTC.assetId]: BTC,
-      [ETH.assetId]: ETH,
-      [FOX_MAINNET.assetId]: FOX_MAINNET,
-      [FOX_GNOSIS.assetId]: FOX_GNOSIS,
-      [WBTC.assetId]: WBTC,
-      [WETH.assetId]: WETH,
-      [XDAI.assetId]: XDAI,
-    }),
+    getSupportedChainIds: () => [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet],
   }
 })
 
@@ -61,6 +43,37 @@ jest.mock('./cowGetTradeTxs/cowGetTradeTxs', () => ({
   cowGetTradeTxs: jest.fn(),
 }))
 
+jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
+  ...jest.requireActual('state/zustand/swapperStore/amountSelectors'),
+  selectSellAssetUsdRate: jest.fn(() => '1'),
+  selectBuyAssetUsdRate: jest.fn(() => '2'),
+}))
+
+jest.mock('state/slices/assetsSlice/selectors', () => {
+  const {
+    BTC,
+    ETH,
+    FOX_GNOSIS,
+    FOX_MAINNET,
+    WBTC,
+    WETH,
+    XDAI,
+  } = require('lib/swapper/swappers/utils/test-data/assets')
+
+  return {
+    ...jest.requireActual('state/slices/assetsSlice/selectors'),
+    selectAssets: jest.fn(() => ({
+      [BTC.assetId]: BTC,
+      [ETH.assetId]: ETH,
+      [FOX_GNOSIS.assetId]: FOX_GNOSIS,
+      [FOX_MAINNET.assetId]: FOX_MAINNET,
+      [WBTC.assetId]: WBTC,
+      [WETH.assetId]: WETH,
+      [XDAI.assetId]: XDAI,
+    })),
+  }
+})
+
 const ASSET_IDS = [
   ETH.assetId,
   WBTC.assetId,
@@ -70,11 +83,9 @@ const ASSET_IDS = [
   XDAI.assetId,
 ]
 
-const COW_SWAPPER_DEPS: CowChainId[] = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
-
 describe('CowSwapper', () => {
   const wallet = {} as HDWallet
-  const swapper = new CowSwapper(COW_SWAPPER_DEPS)
+  const swapper = new CowSwapper()
 
   describe('name', () => {
     it('returns the correct human readable swapper name', () => {
@@ -174,7 +185,10 @@ describe('CowSwapper', () => {
       const { quoteInput } = setupQuote()
       await swapper.getTradeQuote(quoteInput)
       expect(getCowSwapTradeQuote).toHaveBeenCalledTimes(1)
-      expect(getCowSwapTradeQuote).toHaveBeenCalledWith(quoteInput, COW_SWAPPER_DEPS)
+      expect(getCowSwapTradeQuote).toHaveBeenCalledWith(quoteInput, {
+        buyAssetUsdRate: '2',
+        sellAssetUsdRate: '1',
+      })
     })
   })
 
@@ -184,7 +198,10 @@ describe('CowSwapper', () => {
       const args = { ...buildTradeInput, wallet }
       await swapper.buildTrade(args)
       expect(cowBuildTrade).toHaveBeenCalledTimes(1)
-      expect(cowBuildTrade).toHaveBeenCalledWith(args, COW_SWAPPER_DEPS)
+      expect(cowBuildTrade).toHaveBeenCalledWith(args, {
+        buyAssetUsdRate: '2',
+        sellAssetUsdRate: '1',
+      })
     })
   })
 
@@ -211,7 +228,7 @@ describe('CowSwapper', () => {
       const args = { trade: cowSwapTrade, wallet }
       await swapper.executeTrade(args)
       expect(cowExecuteTrade).toHaveBeenCalledTimes(1)
-      expect(cowExecuteTrade).toHaveBeenCalledWith(args, COW_SWAPPER_DEPS)
+      expect(cowExecuteTrade).toHaveBeenCalledWith(args)
     })
 
     it('calls executeTrade on swapper.buildTrade for Gnosis', async () => {
@@ -236,7 +253,7 @@ describe('CowSwapper', () => {
       const args = { trade: cowSwapTrade, wallet }
       await swapper.executeTrade(args)
       expect(cowExecuteTrade).toHaveBeenCalledTimes(1)
-      expect(cowExecuteTrade).toHaveBeenCalledWith(args, COW_SWAPPER_DEPS)
+      expect(cowExecuteTrade).toHaveBeenCalledWith(args)
     })
   })
 

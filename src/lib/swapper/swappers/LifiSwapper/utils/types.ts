@@ -10,7 +10,6 @@ export interface LifiExecuteTradeInput extends Omit<ExecuteTradeInput<EvmChainId
   trade: LifiTrade
 }
 
-export interface LifiTradeQuote<MaybeUnknownNetworkFee extends boolean>
-  extends TradeQuote<EvmChainId, MaybeUnknownNetworkFee> {
+export interface LifiTradeQuote extends TradeQuote<EvmChainId> {
   selectedLifiRoute?: Route
 }

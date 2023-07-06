@@ -4,10 +4,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import {
-  getTreasuryAddressFromChainId,
-  normalizeAmount,
-} from 'lib/swapper/swappers/utils/helpers/helpers'
+import { getTreasuryAddressFromChainId } from 'lib/swapper/swappers/utils/helpers/helpers'
 import type { ZrxPriceResponse, ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/types'
 import {
   AFFILIATE_ADDRESS,
@@ -39,7 +36,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     chainId,
     supportsEIP1559,
   } = input
-  const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
+  const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
 
   const assertion = assertValidTrade({ buyAsset, sellAsset, receiveAddress })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
@@ -51,9 +48,9 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetUsdRate)
   const minimumCryptoBaseUnit = toBaseUnit(minimumCryptoHuman, sellAsset.precision)
 
-  const normalizedSellAmountCryptoBaseUnit = normalizeAmount(
-    bnOrZero(sellAmount).eq(0) ? minimumCryptoBaseUnit : sellAmount,
-  )
+  const sellAmountCryptoBaseUnit = bnOrZero(sellAmountBeforeFeesCryptoBaseUnit).eq(0)
+    ? minimumCryptoBaseUnit
+    : sellAmountBeforeFeesCryptoBaseUnit
 
   const maybeBaseUrl = baseUrlFromChainId(buyAsset.chainId)
   if (maybeBaseUrl.isErr()) return Err(maybeBaseUrl.unwrapErr())
@@ -64,7 +61,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     params: {
       buyToken: assetToToken(buyAsset),
       sellToken: assetToToken(sellAsset),
-      sellAmount: normalizedSellAmountCryptoBaseUnit,
+      sellAmount: sellAmountCryptoBaseUnit,
       takerAddress: receiveAddress,
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
       skipValidation: true,
@@ -76,13 +73,11 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
   const { data } = maybeZrxPriceResponse.unwrap()
 
-  const useSellAmount = !!sellAmount
+  const useSellAmount = !!sellAmountBeforeFeesCryptoBaseUnit
   const rate = useSellAmount ? data.price : bn(1).div(data.price).toString()
 
   // don't show buy amount if less than min sell amount
-  const isSellAmountBelowMinimum = bnOrZero(normalizedSellAmountCryptoBaseUnit).lt(
-    minimumCryptoBaseUnit,
-  )
+  const isSellAmountBelowMinimum = bnOrZero(sellAmountCryptoBaseUnit).lt(minimumCryptoBaseUnit)
   const buyAmountCryptoBaseUnit = isSellAmountBelowMinimum ? '0' : data.buyAmount
 
   // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
@@ -112,7 +107,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
             protocolFees: {},
           },
           buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
-          sellAmountBeforeFeesCryptoBaseUnit: normalizedSellAmountCryptoBaseUnit,
+          sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
           sources: data.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
         },
       ],

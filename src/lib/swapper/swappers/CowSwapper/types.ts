@@ -1,8 +1,10 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { ethereum, gnosis } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { ETHSignMessage, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Trade, TradeResult } from 'lib/swapper/api'
+
+import type { CowSwapOrder } from './utils/helpers/helpers'
 
 export type CowSwapQuoteResponse = {
   quote: {
@@ -27,9 +29,7 @@ export enum CowNetwork {
   Xdai = 'xdai',
 }
 
-export const cowChainIds = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet] as const
-
-export type CowChainId = typeof cowChainIds[number]
+export type CowChainId = KnownChainIds.EthereumMainnet | KnownChainIds.GnosisMainnet
 
 export type CowSupportedChainAdapter = ethereum.ChainAdapter | gnosis.ChainAdapter
 
@@ -37,11 +37,13 @@ export type CowSwapGetOrdersResponse = {
   status: string
 }
 
-export type CowSwapGetTradesElement = {
+export type CowSwapGetTradesResponse = {
   txHash: string
-}
+}[]
 
-export type CowSwapGetTradesResponse = CowSwapGetTradesElement[]
+export type CowSwapGetTransactionsResponse = {
+  status: 'presignaturePending' | 'open' | 'fulfilled' | 'cancelled' | 'expired'
+}[]
 
 export interface CowTrade<C extends CowChainId> extends Trade<C> {
   feeAmountInSellTokenCryptoBaseUnit: string
@@ -58,3 +60,5 @@ export type CowExecuteTradeInput<T extends CowChainId> = {
 export interface CowTradeResult extends TradeResult {
   chainId: ChainId
 }
+
+export type CowSignTx = { orderToSign: CowSwapOrder; messageToSign: ETHSignMessage }

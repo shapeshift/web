@@ -33,7 +33,7 @@ import { store } from 'state/store'
 
 import { getLifiChainMap } from './utils/getLifiChainMap'
 
-export class LifiSwapper implements Swapper<EvmChainId, true> {
+export class LifiSwapper implements Swapper<EvmChainId> {
   readonly name = SwapperName.LIFI
   private lifiChainMap: Map<ChainId, LifiChainKey> = new Map()
   private executedTrades: Map<string, GetStatusRequest> = new Map()
@@ -61,7 +61,7 @@ export class LifiSwapper implements Swapper<EvmChainId, true> {
    */
   async getTradeQuote(
     input: GetEvmTradeQuoteInput,
-  ): Promise<Result<LifiTradeQuote<boolean>, SwapErrorRight>> {
+  ): Promise<Result<LifiTradeQuote, SwapErrorRight>> {
     const { price: sellAssetPriceUsdPrecision } = selectMarketDataById(
       store.getState(),
       input.sellAsset.assetId,

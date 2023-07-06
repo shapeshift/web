@@ -16,6 +16,7 @@ import {
   assertValidTrade,
   getCowswapNetwork,
   getNowPlusThirtyMinutesTimestamp,
+  getSupportedChainIds,
   getValuesFromQuoteResponse,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import {
@@ -27,9 +28,10 @@ import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 
 export async function cowBuildTrade<T extends CowChainId>(
   input: BuildTradeInput,
-  supportedChainIds: CowChainId[],
+  { sellAssetUsdRate, buyAssetUsdRate }: { sellAssetUsdRate: string; buyAssetUsdRate: string },
 ): Promise<Result<CowTrade<T>, SwapErrorRight>> {
   const { accountNumber, sellAsset, buyAsset, slippage, receiveAddress, chainId } = input
+  const supportedChainIds = getSupportedChainIds()
   const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
 
   const assertion = assertValidTrade({ buyAsset, sellAsset, supportedChainIds, receiveAddress })
@@ -75,6 +77,8 @@ export async function cowBuildTrade<T extends CowChainId>(
       buyAsset,
       sellAsset,
       response: data,
+      sellAssetUsdRate,
+      buyAssetUsdRate,
     })
 
   const slippageBps = convertDecimalPercentageToBasisPoints(slippage ?? '0').toString()

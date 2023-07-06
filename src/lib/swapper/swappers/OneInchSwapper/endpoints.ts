@@ -1,10 +1,8 @@
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
-import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { v4 as uuid } from 'uuid'
 import type {
-  CheckTradeStatusInput,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
   GetUnsignedTxArgs,
@@ -50,7 +48,7 @@ export const oneInchApi: Swapper2Api = {
       receiveAddress,
       sellAmountBeforeFeesCryptoBaseUnit,
       sellAsset,
-      slippage: recommendedSlippage, // TODO: use the slippage from user input
+      maximumSlippageDecimalPercentage: recommendedSlippage, // TODO: use the slippage from user input
     })
 
     const buildSendApiTxInput = {
@@ -69,18 +67,5 @@ export const oneInchApi: Swapper2Api = {
     return adapter.buildSendApiTransaction(buildSendApiTxInput)
   },
 
-  checkTradeStatus: ({
-    tradeId,
-    txId,
-  }): Promise<{ status: TxStatus; buyTxId: string | undefined; message: string | undefined }> => {
-    // TODO: it might be smart to pass in the chainId rather than having to pull it out of storage
-    const getChainId = ({ tradeId }: CheckTradeStatusInput) =>
-      tradeQuoteMetadata.get(tradeId)?.chainId
-
-    return checkEvmSwapStatus({
-      tradeId,
-      txId,
-      getChainId,
-    })
-  },
+  checkTradeStatus: checkEvmSwapStatus,
 }

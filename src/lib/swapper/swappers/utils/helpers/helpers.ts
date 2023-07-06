@@ -23,15 +23,6 @@ import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetTradeQuoteInput, TradeQuote } from 'lib/swapper/api'
 
-/**
- * This function keeps 17 significant digits, so even if we try to trade 1 Billion of an
- * ETH or ERC20, we still keep 7 decimal places.
- * @param amount
- */
-export const normalizeAmount = (amount: string | number | BigNumber): string => {
-  return bnOrZero(amount).toNumber().toLocaleString('fullwide', { useGrouping: false })
-}
-
 export const normalizeIntegerAmount = (amount: string | number | BigNumber): string => {
   return bnOrZero(amount)
     .integerValue()
@@ -62,7 +53,7 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
 export const createEmptyEvmTradeQuote = (
   input: GetTradeQuoteInput,
   minimumCryptoHuman: string,
-): TradeQuote<EvmChainId, true> => {
+): TradeQuote<EvmChainId> => {
   return {
     minimumCryptoHuman,
     steps: [

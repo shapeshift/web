@@ -632,12 +632,20 @@
   "trade": {
     "trade": "Takas",
     "allowance": "Ödenek",
+    "slippageInfo": "Fiyat bu orandan daha fazla olumsuz yönde değişirse işleminiz geri alınır.",
     "allowanceTooltip": "Akıllı sözleşmeye sizin adınıza kullanması için izin vereceğiniz tutar.",
     "searchingRate": "Oran getiriliyor...",
     "noRateAvailable": "Uygun Oran Yok.",
     "previewTrade": "Takası Önizleyin",
     "rate": "Oran",
     "tradeFrom": "Buradan Takasla",
+    "slippage": {
+      "maxSlippage": "Maks. Kayma",
+      "auto": "Otomatik",
+      "custom": "Özel",
+      "warning": "Yüksek kayma toleransları, elverişsiz işlemlere neden olabilir.",
+      "lowSlippage": "0,05%'in altındaki kaymalar işlemin başarısız olmasına neden olur."
+    },
     "from": "'dan",
     "to": "'a",
     "youPay": "Öde",

@@ -632,12 +632,20 @@
   "trade": {
     "trade": "Intercambiar",
     "allowance": "Tolerancia",
+    "slippageInfo": "Su transacción se revertirá si el precio cambia desfavorablemente más de porcentaje.",
     "allowanceTooltip": "La cantidad que otorgará en permiso al contrato inteligente para utilizar.",
     "searchingRate": "Buscando la mejor tarifa...",
     "noRateAvailable": "No hay tarifa disponible.",
     "previewTrade": "Vista previa del intercambio",
     "rate": "Tasa",
     "tradeFrom": "Intercambia desde",
+    "slippage": {
+      "maxSlippage": "Deslizamiento Máx",
+      "auto": "Auto",
+      "custom": "Personalizado",
+      "warning": "Altas tolerancias en deslizamiento resultaran en intercambios desfavorables.",
+      "lowSlippage": "Deslizamiento debajo de 0,05% resulta en transacción fallida."
+    },
     "from": "De",
     "to": "A",
     "youPay": "Tu pagas",

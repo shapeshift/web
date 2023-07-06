@@ -1,11 +1,12 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosAssetId, cosmosChainId, osmosisAssetId, osmosisChainId } from '@shapeshiftoss/caip'
+import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import type { cosmos, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { osmosis } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getConfig } from 'config'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type {
   BuildTradeInput,
   BuyAssetBySellIdInput,
@@ -21,7 +22,6 @@ import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/s
 import {
   atomOnOsmosisAssetId,
   COSMO_OSMO_CHANNEL,
-  DEFAULT_SOURCE,
   OSMO_COSMO_CHANNEL,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/constants'
 import type { SymbolDenomMapping } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
@@ -34,31 +34,23 @@ import {
   symbolDenomMapping,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 import type {
+  OsmosisSupportedChainId,
   OsmosisTradeResult,
-  OsmoSwapperDeps,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
 import { selectSellAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
-export type OsmosisSupportedChainId = KnownChainIds.CosmosMainnet | KnownChainIds.OsmosisMainnet
-
-export type OsmosisSupportedChainAdapter = cosmos.ChainAdapter | osmosis.ChainAdapter
+import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
+import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
+import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 
 export class OsmosisSwapper implements Swapper<ChainId> {
   readonly name = SwapperName.Osmosis
-  supportedAssetIds: string[]
-  deps: OsmoSwapperDeps
-
-  constructor(deps: OsmoSwapperDeps) {
-    this.deps = deps
-    this.supportedAssetIds = [cosmosAssetId, osmosisAssetId, atomOnOsmosisAssetId]
-  }
 
   async getTradeTxs(tradeResult: OsmosisTradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {
+    const adapterManager = getChainAdapterManager()
     if (tradeResult.cosmosAddress) {
-      const cosmosAdapter = this.deps.adapterManager.get(cosmosChainId) as
-        | cosmos.ChainAdapter
-        | undefined
+      const cosmosAdapter = adapterManager.get(cosmosChainId) as cosmos.ChainAdapter | undefined
 
       if (!cosmosAdapter)
         return Err(
@@ -89,24 +81,12 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     }
   }
 
-  getMin(): Result<string, SwapErrorRight> {
-    const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
-    const minimumAmountCryptoHuman = bn(1).dividedBy(bnOrZero(sellAssetUsdRate)).toString()
-
-    return Ok(minimumAmountCryptoHuman)
-  }
-
-  filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): string[] {
-    const { assetIds = [], sellAssetId } = args
-    if (!this.supportedAssetIds.includes(sellAssetId)) return []
-
-    return assetIds.filter(
-      assetId => this.supportedAssetIds.includes(assetId) && assetId !== sellAssetId,
-    )
+  filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): string[] {
+    return filterBuyAssetsBySellAssetId(input)
   }
 
   filterAssetIdsBySellable(): AssetId[] {
-    return this.supportedAssetIds
+    return filterAssetIdsBySellable()
   }
 
   async buildTrade(args: BuildTradeInput): Promise<Result<Trade<ChainId>, SwapErrorRight>> {
@@ -128,11 +108,15 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       )
     }
 
+    const adapterManager = getChainAdapterManager()
+
+    const { REACT_APP_OSMOSIS_NODE_URL: osmoUrl } = getConfig()
+
     const maybeRateInfo = await getRateInfo(
       sellAsset.symbol,
       buyAsset.symbol,
       sellAmountCryptoBaseUnit !== '0' ? sellAmountCryptoBaseUnit : '1',
-      this.deps.osmoUrl,
+      osmoUrl,
     )
 
     if (!maybeRateInfo.isOk()) return Err(maybeRateInfo.unwrapErr())
@@ -141,9 +125,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     //convert amount to base
     const sellAmountCryptoBase = String(bnOrZero(sellAmountCryptoBaseUnit).dp(0))
 
-    const osmosisAdapter = this.deps.adapterManager.get(osmosisChainId) as
-      | osmosis.ChainAdapter
-      | undefined
+    const osmosisAdapter = adapterManager.get(osmosisChainId) as osmosis.ChainAdapter | undefined
 
     if (!osmosisAdapter)
       return Err(
@@ -188,79 +170,9 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     })
   }
 
-  async getTradeQuote(
-    input: GetTradeQuoteInput,
-  ): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>> {
-    const {
-      accountNumber,
-      sellAsset,
-      buyAsset,
-      sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-    } = input
-    if (!sellAmountCryptoBaseUnit) {
-      return Err(
-        makeSwapErrorRight({
-          message: 'sellAmount is required',
-          code: SwapErrorType.RESPONSE_ERROR,
-        }),
-      )
-    }
-
-    const maybeRateInfo = await getRateInfo(
-      sellAsset.symbol,
-      buyAsset.symbol,
-      sellAmountCryptoBaseUnit !== '0' ? sellAmountCryptoBaseUnit : '1',
-      this.deps.osmoUrl,
-    )
-
-    if (maybeRateInfo.isErr()) return Err(maybeRateInfo.unwrapErr())
-    const { buyAssetTradeFeeCryptoBaseUnit, rate, buyAmountCryptoBaseUnit } = maybeRateInfo.unwrap()
-
-    const maybeMin = this.getMin()
-    if (maybeMin.isErr()) return Err(maybeMin.unwrapErr())
-    const minimumCryptoHuman = maybeMin.unwrap()
-
-    const osmosisAdapter = this.deps.adapterManager.get(osmosisChainId) as
-      | osmosis.ChainAdapter
-      | undefined
-
-    if (!osmosisAdapter)
-      return Err(
-        makeSwapErrorRight({
-          message: 'Failed to get Osmosis adapter',
-          code: SwapErrorType.TRADE_QUOTE_FAILED,
-        }),
-      )
-
-    const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
-    const feeData = await osmosisAdapter.getFeeData(getFeeDataInput)
-    const fee = feeData.fast.txFee
-
-    return Ok({
-      minimumCryptoHuman,
-      steps: [
-        {
-          allowanceContract: '',
-          buyAsset,
-          feeData: {
-            networkFeeCryptoBaseUnit: fee,
-            protocolFees: {
-              [buyAsset.assetId]: {
-                amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
-                requiresBalance: true,
-                asset: buyAsset,
-              },
-            },
-          },
-          accountNumber,
-          rate,
-          sellAsset,
-          sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-          buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
-          sources: DEFAULT_SOURCE,
-        },
-      ],
-    })
+  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>> {
+    const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+    return getTradeQuote(input, { sellAssetUsdRate })
   }
 
   async executeTrade({
@@ -291,13 +203,12 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const buyAssetDenom = symbolDenomMapping[buyAsset.symbol as keyof SymbolDenomMapping]
     let ibcSellAmount
 
-    const osmosisAdapter = this.deps.adapterManager.get(osmosisChainId) as
-      | osmosis.ChainAdapter
-      | undefined
+    const adapterManager = getChainAdapterManager()
+    const osmosisAdapter = adapterManager.get(osmosisChainId) as osmosis.ChainAdapter | undefined
+    const cosmosAdapter = adapterManager.get(cosmosChainId) as cosmos.ChainAdapter | undefined
 
-    const cosmosAdapter = this.deps.adapterManager.get(cosmosChainId) as
-      | cosmos.ChainAdapter
-      | undefined
+    const { REACT_APP_OSMOSIS_NODE_URL: osmoUrl, REACT_APP_COSMOS_NODE_URL: cosmosUrl } =
+      getConfig()
 
     if (!cosmosAdapter || !osmosisAdapter) {
       return Err(
@@ -350,7 +261,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         transfer,
         cosmosAdapter,
         wallet,
-        this.deps.osmoUrl,
+        osmoUrl,
         'uatom',
         COSMO_OSMO_CHANNEL,
         ibcFromCosmosFeeData.fast.txFee,
@@ -364,7 +275,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       cosmosIbcTradeId = tradeId
 
       // wait till confirmed
-      const pollResult = await pollForComplete(tradeId, this.deps.cosmosUrl)
+      const pollResult = await pollForComplete(tradeId, cosmosUrl)
       if (pollResult !== 'success')
         return Err(
           makeSwapErrorRight({
@@ -373,7 +284,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
           }),
         )
 
-      ibcSellAmount = await pollForAtomChannelBalance(receiveAddress, this.deps.osmoUrl)
+      ibcSellAmount = await pollForAtomChannelBalance(receiveAddress, osmoUrl)
 
       // delay to ensure all nodes we interact with are up to date at this point
       // seeing intermittent bugs that suggest the balances and sequence numbers were sometimes off
@@ -415,7 +326,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const signed = await osmosisAdapter.signTransaction(signTxInput)
     const tradeId = await osmosisAdapter.broadcastTransaction(signed)
 
-    const pollResult = await pollForComplete(tradeId, this.deps.osmoUrl)
+    const pollResult = await pollForComplete(tradeId, osmoUrl)
     if (pollResult !== 'success')
       return Err(
         makeSwapErrorRight({
@@ -429,7 +340,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
        * asset from the Osmosis network to the buy asset network.
        */
 
-      const amount = await pollForAtomChannelBalance(sellAddress, this.deps.osmoUrl)
+      const amount = await pollForAtomChannelBalance(sellAddress, osmoUrl)
       const transfer = {
         sender: sellAddress,
         receiver: receiveAddress,
@@ -456,7 +367,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         transfer,
         osmosisAdapter,
         wallet,
-        this.deps.cosmosUrl,
+        cosmosUrl,
         buyAssetDenom,
         OSMO_COSMO_CHANNEL,
         osmosis.MIN_FEE,

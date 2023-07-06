@@ -320,7 +320,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     // We need to deduct the fees from the initial amount in case we're dealing with an IBC transfer + swap flow
     // or else, this will break for swaps to an Osmosis address that doesn't yet have ATOM
     const sellAmountAfterFeesCryptoBaseUnit = sellAssetIsOnOsmosisNetwork
-      ? buyAmountCryptoBaseUnit
+      ? sellAmountCryptoBaseUnit
       : bnOrZero(sellAmountCryptoBaseUnit).minus(swapFeeData.fast.txFee).toString()
     const signTxInput = await buildTradeTx({
       osmoAddress,
@@ -355,7 +355,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       const transfer = {
         sender: sellAddress,
         receiver: receiveAddress,
-        amount: sellAmountCryptoBaseUnit,
+        // IBC transfers are cheap compared to actual swaps, so we can rely on the slow "swap" tx fee
+        amount: bnOrZero(buyAmountCryptoBaseUnit).minus(swapFeeData.slow.txFee).toString(),
       }
 
       const ibcResponseAccount = await osmosisAdapter.getAccount(sellAddress)

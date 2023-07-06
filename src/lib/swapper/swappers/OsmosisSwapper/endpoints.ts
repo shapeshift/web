@@ -1,8 +1,10 @@
+import type { CosmosSignTx } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { v4 as uuid } from 'uuid'
 import type {
   GetTradeQuoteInput,
+  GetUnsignedTxArgs,
   SwapErrorRight,
   Swapper2Api,
   TradeQuote,
@@ -25,6 +27,9 @@ export const osmosisApi: Swapper2Api = {
     return tradeQuoteResult.map(tradeQuote => {
       const { receiveAddress, affiliateBps } = input
       const id = uuid()
+      // TODO(gomes): this will only work for the first hop, i.e IBC transfer or swap-exact-amount-in
+      // this should be programmatic based on the tradeQuote.steps
+      // osmosis getTradeQuote() will need to be revamped to handle this
       tradeQuoteMetadata.set(id, {
         chainId: tradeQuote.steps[0].sellAsset.chainId as OsmosisSupportedChainId,
       })
@@ -33,39 +38,25 @@ export const osmosisApi: Swapper2Api = {
   },
 
   getUnsignedTx: async ({
-    accountMetadata,
-    tradeQuote,
     from,
-    xpub,
-    supportsEIP1559,
-    buyAssetUsdRate,
-    feeAssetUsdRate,
-  }): Promise<UnsignedTx> => {
-    const { receiveAddress, affiliateBps } = tradeQuote
+    tradeQuote,
+    stepIndex,
+  }: GetUnsignedTxArgs): Promise<CosmosSignTx> => {
+    const osmosisRoute = tradeQuoteMetadata.get(tradeQuote.id)
+    if (!osmosisRoute) throw Error(`missing trade quote metadata for quoteId ${tradeQuote.id}`)
 
-    const accountType = accountMetadata?.accountType
+    const { accountNumber, sellAsset } = tradeQuote.steps[stepIndex]
 
-    const chainSpecific =
-      accountType && xpub
-        ? {
-            xpub,
-            accountType,
-            satoshiPerByte: (tradeQuote as TradeQuote<ThorUtxoSupportedChainId>).steps[0].feeData
-              .chainSpecific.satsPerByte,
-          }
-        : undefined
-
-    const fromOrXpub = from !== undefined ? { from } : { xpub }
-    return await getSignTxFromQuote({
-      tradeQuote,
-      receiveAddress,
-      affiliateBps,
-      chainSpecific,
-      buyAssetUsdRate,
-      ...fromOrXpub,
-      feeAssetUsdRate,
-      supportsEIP1559,
+    const unsignedTx = await getUnsignedTx({
+      // TODO(gomes)
+      osmosisStep: osmosisRoute.steps[stepIndex],
+      accountNumber,
+      sellAsset,
+      // discriminated union between from or xpub in GetUnsignedTxArgs, but since Osmosis only deals with IBC chains, from is always going to be defined
+      from: from!,
     })
+
+    return unsignedTx
   },
 
   checkTradeStatus: async ({

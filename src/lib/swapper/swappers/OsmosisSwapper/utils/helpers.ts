@@ -1,7 +1,7 @@
 import { CHAIN_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
 import type { osmosis } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet, Osmosis } from '@shapeshiftoss/hdwallet-core'
+import type { CosmosSignTx, HDWallet, Osmosis } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
@@ -153,21 +153,35 @@ export const getRateInfo = async (
   )
 }
 
-// TODO: move to chain adapters
-export const performIbcTransfer = async (
-  input: IbcTransferInput,
-  adapter: OsmosisSupportedChainAdapter,
-  wallet: HDWallet,
-  blockBaseUrl: string,
-  denom: string,
-  sourceChannel: string,
-  feeAmount: string,
-  accountNumber: number,
-  ibcAccountNumber: number,
-  sequence: string,
-  gas: string,
-  feeDenom: string,
-): Promise<TradeResult> => {
+type PerformIbcTransferInput = {
+  input: IbcTransferInput
+  adapter: OsmosisSupportedChainAdapter
+  wallet: HDWallet
+  blockBaseUrl: string
+  denom: string
+  sourceChannel: string
+  feeAmount: string
+  accountNumber: number
+  ibcAccountNumber: number
+  sequence: string
+  gas: string
+  feeDenom: string
+}
+
+export const buildPerformIbcTransferUnsignedTx = async ({
+  input,
+  adapter,
+  wallet,
+  blockBaseUrl,
+  denom,
+  sourceChannel,
+  feeAmount,
+  accountNumber,
+  ibcAccountNumber,
+  sequence,
+  gas,
+  feeDenom,
+}: PerformIbcTransferInput): Promise<CosmosSignTx> => {
   const { sender, receiver, amount } = input
 
   const responseLatestBlock = await (() => {
@@ -216,14 +230,22 @@ export const performIbcTransfer = async (
 
   const bip44Params = adapter.getBIP44Params({ accountNumber })
 
+  return {
+    tx,
+    addressNList: toAddressNList(bip44Params),
+    chain_id: fromChainId(adapter.getChainId()).chainReference,
+    account_number: ibcAccountNumber.toString(),
+    sequence,
+  }
+}
+
+export const performIbcTransfer = async (
+  ibcTransferInput: PerformIbcTransferInput,
+): Promise<TradeResult> => {
+  const { adapter, wallet } = ibcTransferInput
+  const txToSign = await buildPerformIbcTransferUnsignedTx(ibcTransferInput)
   const signed = await adapter.signTransaction({
-    txToSign: {
-      tx,
-      addressNList: toAddressNList(bip44Params),
-      chain_id: fromChainId(adapter.getChainId()).chainReference,
-      account_number: ibcAccountNumber.toString(),
-      sequence,
-    },
+    txToSign,
     wallet,
   })
   const tradeId = await adapter.broadcastTransaction(signed)

@@ -1,10 +1,9 @@
 import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
-import type { cosmos, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
-import { bnOrZero, osmosis } from '@shapeshiftoss/chain-adapters'
+import type { cosmos, GetFeeDataInput, osmosis } from '@shapeshiftoss/chain-adapters'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { CosmosSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
-import { Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { v4 as uuid } from 'uuid'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -25,7 +24,7 @@ import {
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
-import { atomOnOsmosisAssetId, COSMO_OSMO_CHANNEL, OSMO_COSMO_CHANNEL } from './utils/constants'
+import { atomOnOsmosisAssetId, COSMO_OSMO_CHANNEL } from './utils/constants'
 import type { OsmosisSupportedChainId } from './utils/types'
 
 const tradeQuoteMetadata: Map<string, { chainId: OsmosisSupportedChainId }> = new Map()
@@ -111,22 +110,20 @@ export const osmosisApi: Swapper2Api = {
       const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
       const ibcFromCosmosFeeData = await cosmosAdapter.getFeeData(getFeeDataInput)
 
-      const { tradeId } = await performIbcTransfer(
-        transfer,
-        cosmosAdapter,
+      const { tradeId } = await performIbcTransfer({
+        input: transfer,
+        adapter: cosmosAdapter,
         wallet,
-        osmoUrl,
-        'uatom',
-        COSMO_OSMO_CHANNEL,
-        ibcFromCosmosFeeData.fast.txFee,
+        blockBaseUrl: osmoUrl,
+        denom: 'uatom',
+        sourceChannel: COSMO_OSMO_CHANNEL,
+        feeAmount: ibcFromCosmosFeeData.fast.txFee,
         accountNumber,
         ibcAccountNumber,
         sequence,
-        ibcFromCosmosFeeData.fast.chainSpecific.gasLimit,
-        'uatom',
-      )
-
-      cosmosIbcTradeId = tradeId
+        gas: ibcFromCosmosFeeData.fast.chainSpecific.gasLimit,
+        feeDenom: 'uatom',
+      })
 
       // wait till confirmed
       const pollResult = await pollForComplete(tradeId, cosmosUrl)
@@ -139,7 +136,8 @@ export const osmosisApi: Swapper2Api = {
 
     /** Execute the swap on Osmosis DEX */
     const osmoAddress = sellAssetIsOnOsmosisNetwork ? sellAddress : receiveAddress
-    const cosmosAddress = sellAssetIsOnOsmosisNetwork ? receiveAddress : sellAddress
+    // TODO(gomes): uncomment me when actually implementing multi-hop
+    // const cosmosAddress = sellAssetIsOnOsmosisNetwork ? receiveAddress : sellAddress
 
     /** At the current time, only OSMO<->ATOM swaps are supported, so this is fine.
      * In the future, as more Osmosis network assets are added, the buy asset should
@@ -181,67 +179,14 @@ export const osmosisApi: Swapper2Api = {
       wallet,
     })
 
-    const signed = await osmosisAdapter.signTransaction(signTxInput)
+    const { txToSign } = await osmosisAdapter.buildSendApiTransaction({})
+    return txToSign
 
-    // TODO(gomes): anything broadcasty after this line doesn't belong here - all the first/second hop logic should be moved to getTradeQuote() above,
-    // so that this method does what it says on the box - gets an unsigned Tx for one hop
-    const tradeId = await osmosisAdapter.broadcastTransaction(signed)
-
-    const pollResult = await pollForComplete(tradeId, osmoUrl)
-    if (pollResult !== 'success') throw new Error('osmo swap failed')
-
-    if (!buyAssetIsOnOsmosisNetwork) {
-      /** If the buy asset is not on the Osmosis Network, we need to bridge the
-       * asset from the Osmosis network to the buy asset network.
-       */
-
-      const transfer = {
-        sender: sellAddress,
-        receiver: receiveAddress,
-        // IBC transfers are cheap compared to actual swaps, so we can rely on the slow "swap" tx fee
-        amount: bnOrZero(buyAmountBeforeFeesCryptoBaseUnit)
-          .minus(swapFeeData.slow.txFee)
-          .toString(),
-      }
-
-      const ibcResponseAccount = await osmosisAdapter.getAccount(sellAddress)
-      const ibcAccountNumber = Number(ibcResponseAccount.chainSpecific.accountNumber)
-      const ibcSequence = ibcResponseAccount.chainSpecific.sequence || '0'
-
-      // delay to ensure all nodes we interact with are up to date at this point
-      // seeing intermittent bugs that suggest the balances and sequence numbers were sometimes off
-      await new Promise(resolve => setTimeout(resolve, 5000))
-
-      const cosmosTxHistory = await cosmosAdapter.getTxHistory({
-        pubkey: cosmosAddress,
-        pageSize: 1,
-      })
-
-      const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
-      const ibcFromOsmosisFeeData = await osmosisAdapter.getFeeData(getFeeDataInput)
-
-      await performIbcTransfer(
-        transfer,
-        osmosisAdapter,
-        wallet,
-        cosmosUrl,
-        buyAssetDenom,
-        OSMO_COSMO_CHANNEL,
-        osmosis.MIN_FEE,
-        accountNumber,
-        ibcAccountNumber,
-        ibcSequence,
-        ibcFromOsmosisFeeData.fast.chainSpecific.gasLimit,
-        'uosmo',
-      )
-      return Ok({
-        tradeId,
-        previousCosmosTxid: cosmosTxHistory.transactions[0]?.txid,
-        cosmosAddress,
-      })
-    }
-
-    return Ok({ tradeId, previousCosmosTxid: sellAssetIsOnOsmosisNetwork ? '' : cosmosIbcTradeId })
+    // TODO(gomes): this is taken from the current OsmosisSwapper implementation and doesn't handle multi-hop trades yet
+    // i.e we *will* be stuck at the first hop for now, and this is expected.
+    // anything broadcasty after this line in the original implementation doesn't belong in this method
+    // all the first/second hop logic should be moved to getTradeQuote() above,
+    // so that this method does what it says on the box - gets an unsigned Tx for a *single* hop
 
     // TODO(gomes): we may need some additional properties here for Osmosis - or we may not?
     // const buildSendApiTxInput = {

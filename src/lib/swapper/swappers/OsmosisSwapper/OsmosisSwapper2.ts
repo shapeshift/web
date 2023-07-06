@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { CosmosSdkChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { cosmos, osmosis } from '@shapeshiftoss/chain-adapters'
+import type { CosmosSignTx } from '@shapeshiftoss/hdwallet-core'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper2 } from 'lib/swapper/api'
 
@@ -11,9 +12,9 @@ export const osmosisSwapper: Swapper2 = {
     const chainAdapterManager = getChainAdapterManager()
     const adapter = chainAdapterManager.get(chainId)
 
-    const cosmosSdkChainAdapter = adapter as unknown as CosmosSdkChainAdapter
+    const cosmosSdkChainAdapter = adapter as unknown as cosmos.ChainAdapter | osmosis.ChainAdapter
     const signedTx = await cosmosSdkChainAdapter.signTransaction({
-      txToSign,
+      txToSign: txToSign as CosmosSignTx,
       wallet,
     })
     return cosmosSdkChainAdapter.broadcastTransaction(signedTx)

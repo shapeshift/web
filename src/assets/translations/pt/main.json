@@ -632,12 +632,20 @@
   "trade": {
     "trade": "Swap",
     "allowance": "Quota",
+    "slippageInfo": "Sua transação será revertida se o preço mudar desfavoravelmente em mais do que esta porcentagem.",
     "allowanceTooltip": "O valor que você concederá ao contrato inteligente para usar em sua assinatura.",
     "searchingRate": "Procurando a melhor taxa...",
     "noRateAvailable": "Nenhuma taxa disponível.",
     "previewTrade": "Prévia da Negociação",
     "rate": "Taxa",
     "tradeFrom": "Negocie de",
+    "slippage": {
+      "maxSlippage": "Slippage máximo. ",
+      "auto": "Automático",
+      "custom": "Personalizado",
+      "warning": "Alta tolerância a slippage pode resultar em negociações ineficientes. ",
+      "lowSlippage": "Usar um slippage abaixo de 0,05% talvez resulte em uma transação com falha."
+    },
     "from": "De",
     "to": "Para",
     "youPay": "Você paga",

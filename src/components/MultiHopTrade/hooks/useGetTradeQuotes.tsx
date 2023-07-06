@@ -1,6 +1,7 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
+import { DEFAULT_DONATION_BPS } from 'components/MultiHopTrade/constants'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
@@ -40,9 +41,6 @@ export const useGetTradeQuotes = () => {
       accountId: sellAccountId,
     })
   }, [sellAccountId])
-
-  // TODO: extract to a constants file
-  const DEFAULT_DONATION_BPS = '30'
 
   useEffect(() => {
     if (wallet && sellAccountMetadata && receiveAddress) {

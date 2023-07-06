@@ -2,6 +2,7 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { Selector } from 'reselect'
+import { DEFAULT_DONATION_BPS } from 'components/MultiHopTrade/constants'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -352,7 +353,17 @@ export const selectDonationBps: Selector<ReduxState, string | undefined> = creat
   },
 )
 
-export const selectDonationAmountFiat = createSelector(
+export const selectPotentialDonationAmountFiat: Selector<ReduxState, string | undefined> =
+  createSelector(selectActiveQuote, selectSellAmountFiat, (activeQuote, sellAmountFiat) => {
+    if (activeQuote?.affiliateBps === undefined) return undefined
+    else {
+      const affiliatePercentage = convertBasisPointsToDecimalPercentage(DEFAULT_DONATION_BPS)
+      // The donation amount is a percentage of the sell amount
+      return bnOrZero(sellAmountFiat).times(affiliatePercentage).toFixed()
+    }
+  })
+
+export const selectActualDonationAmountFiat = createSelector(
   selectActiveQuote,
   selectSellAmountFiat,
   (activeQuote, sellAmountFiat) => {

@@ -8,7 +8,10 @@ import { Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { selectWillDonate } from 'state/slices/swappersSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
-import { selectDonationAmountFiat, selectDonationBps } from 'state/slices/tradeQuoteSlice/selectors'
+import {
+  selectDonationBps,
+  selectPotentialDonationAmountFiat,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 type DonationCheckboxProps = {
@@ -25,7 +28,7 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = ({ isLoading }): JSX.
     number: { toFiat },
   } = useLocaleFormatter()
 
-  const donationAmountFiat = useAppSelector(selectDonationAmountFiat)
+  const potentialDonationAmountFiat = useAppSelector(selectPotentialDonationAmountFiat)
 
   const handleDonationToggle = useCallback(() => {
     dispatch(swappers.actions.toggleWillDonate())
@@ -46,11 +49,11 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = ({ isLoading }): JSX.
               </Checkbox>
             </Row.Label>
           </HelperTooltip>
-          <Row.Value>{toFiat(donationAmountFiat ?? '0')}</Row.Value>
+          <Row.Value>{toFiat(potentialDonationAmountFiat ?? '0')}</Row.Value>
         </Row>
       </Stack>
     ),
-    [translate, willDonate, handleDonationToggle, isLoading, toFiat, donationAmountFiat],
+    [translate, willDonate, handleDonationToggle, isLoading, toFiat, potentialDonationAmountFiat],
   )
 
   return affiliateBps !== undefined ? donationOption : null

@@ -1,9 +1,15 @@
 import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
-import type { cosmos, GetFeeDataInput, osmosis } from '@shapeshiftoss/chain-adapters'
+import type {
+  cosmos,
+  CosmosSdkChainAdapter,
+  GetFeeDataInput,
+  osmosis,
+} from '@shapeshiftoss/chain-adapters'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { CosmosSignTx } from '@shapeshiftoss/hdwallet-core'
-import type { TxStatus } from '@shapeshiftoss/unchained-client'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
+import axios from 'axios'
 import { getConfig } from 'config'
 import { v4 as uuid } from 'uuid'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -21,6 +27,7 @@ import {
   buildPerformIbcTransferUnsignedTx,
   symbolDenomMapping,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
+import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { atomOnOsmosisAssetId, COSMO_OSMO_CHANNEL } from './utils/constants'
@@ -169,7 +176,35 @@ export const osmosisApi: Swapper2Api = {
 
   checkTradeStatus: async ({
     txHash,
+    chainId,
   }): Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }> => {
-    // TODO(gomes): implement me
+    try {
+      const { REACT_APP_OSMOSIS_NODE_URL: osmoUrl, REACT_APP_COSMOS_NODE_URL: cosmosUrl } =
+        getConfig()
+      const chainAdapterManager = getChainAdapterManager()
+      const adapter = chainAdapterManager.get(chainId) as CosmosSdkChainAdapter | undefined
+      if (!adapter) throw new Error('Failed to get adapter')
+
+      const status = await (async () => {
+        const baseUrl = chainId === osmosisChainId ? osmoUrl : cosmosUrl
+        const txResponse = await axios.get(`${baseUrl}/lcd/txs/${txHash}`)
+
+        if (!txResponse?.data) return TxStatus.Pending
+
+        if (!txResponse?.data?.codespace && !!txResponse?.data?.gas_used) return TxStatus.Confirmed
+        if (txResponse?.data?.codespace) return TxStatus.Failed
+
+        return TxStatus.Pending
+      })()
+
+      return {
+        status,
+        buyTxHash: txHash,
+        message: undefined,
+      }
+    } catch (e) {
+      console.error(e)
+      return createDefaultStatusResponse(txHash)
+    }
   },
 }

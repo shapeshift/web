@@ -156,7 +156,6 @@ export const getRateInfo = async (
 type PerformIbcTransferInput = {
   input: IbcTransferInput
   adapter: OsmosisSupportedChainAdapter
-  wallet: HDWallet
   blockBaseUrl: string
   denom: string
   sourceChannel: string
@@ -171,7 +170,6 @@ type PerformIbcTransferInput = {
 export const buildPerformIbcTransferUnsignedTx = async ({
   input,
   adapter,
-  wallet,
   blockBaseUrl,
   denom,
   sourceChannel,
@@ -240,7 +238,7 @@ export const buildPerformIbcTransferUnsignedTx = async ({
 }
 
 export const performIbcTransfer = async (
-  ibcTransferInput: PerformIbcTransferInput,
+  ibcTransferInput: PerformIbcTransferInput & { wallet: HDWallet },
 ): Promise<TradeResult> => {
   const { adapter, wallet } = ibcTransferInput
   const txToSign = await buildPerformIbcTransferUnsignedTx(ibcTransferInput)

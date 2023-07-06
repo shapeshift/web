@@ -3,6 +3,7 @@ import type { Asset } from 'lib/asset-service'
 import { cowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper2'
 import { lifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
 import { oneInchSwapper } from 'lib/swapper/swappers/OneInchSwapper/OneInchSwapper2'
+import { osmosisSwapper } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapper2'
 import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
 import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper2'
 import { selectAssetsSortedByMarketCapFiatBalanceAndName } from 'state/slices/common-selectors'
@@ -13,7 +14,8 @@ export const useSupportedAssets = () => {
   const sellAsset = useAppSelector(selectSellAsset)
   const assetIds = useAppSelector(selectAssetIds)
   const sortedAssets = useAppSelector(selectAssetsSortedByMarketCapFiatBalanceAndName)
-  const { LifiSwap, ThorSwap, ZrxSwap, OneInch, Cowswap } = useAppSelector(selectFeatureFlags)
+  const { LifiSwap, ThorSwap, ZrxSwap, OneInch, Cowswap, OsmosisSwap } =
+    useAppSelector(selectFeatureFlags)
 
   const enabledSwappers = useMemo(() => {
     const result = []
@@ -22,9 +24,9 @@ export const useSupportedAssets = () => {
     if (ZrxSwap) result.push(zrxSwapper)
     if (OneInch) result.push(oneInchSwapper)
     if (Cowswap) result.push(cowSwapper)
-    // TODO(woodenfurniture): add more swappers here
+    if (OsmosisSwap) result.push(osmosisSwapper)
     return result
-  }, [Cowswap, LifiSwap, OneInch, ThorSwap, ZrxSwap])
+  }, [Cowswap, LifiSwap, OneInch, ThorSwap, ZrxSwap, OsmosisSwap])
 
   const [supportedSellAssets, setSupportedSellAssets] = useState<Asset[]>([])
   const [supportedBuyAssets, setSupportedBuyAssets] = useState<Asset[]>([])

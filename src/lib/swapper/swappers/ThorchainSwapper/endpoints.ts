@@ -1,6 +1,8 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { v4 as uuid } from 'uuid'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import type {
   GetTradeQuoteInput,
   SwapErrorRight,
@@ -9,6 +11,7 @@ import type {
   TradeQuote2,
   UnsignedTx,
 } from 'lib/swapper/api'
+import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getTradeTxs } from './getTradeTxs/getTradeTxs'
@@ -19,14 +22,31 @@ export const thorchainApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     rates: Rates,
+    runeAssetUsdRate: string,
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
     const tradeQuoteResult = await getThorTradeQuote(input, rates)
+    const { receiveAddress, affiliateBps } = input
 
     return tradeQuoteResult.map(tradeQuote => {
-      const { receiveAddress, affiliateBps } = input
       const id = uuid()
 
-      return { id, receiveAddress, affiliateBps, ...tradeQuote }
+      const firstHop = tradeQuote.steps[0]
+      const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
+        firstHop.buyAmountBeforeFeesCryptoBaseUnit,
+        firstHop.buyAsset.precision,
+      )
+      const buyAmountUsd = bnOrZero(buyAmountBeforeFeesCryptoPrecision).times(buyAssetUsdRate)
+      const donationAmountUsd = buyAmountUsd.times(affiliateBps).div(10000)
+      const isDonationAmountBelowMinimum = bnOrZero(donationAmountUsd)
+        .div(runeAssetUsdRate)
+        .lte(RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN)
+
+      return {
+        id,
+        receiveAddress,
+        affiliateBps: isDonationAmountBelowMinimum ? undefined : affiliateBps,
+        ...tradeQuote,
+      }
     })
   },
 

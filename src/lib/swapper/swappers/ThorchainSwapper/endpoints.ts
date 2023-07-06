@@ -35,7 +35,7 @@ export const thorchainApi: Swapper2Api = {
         firstHop.buyAmountBeforeFeesCryptoBaseUnit,
         firstHop.buyAsset.precision,
       )
-      const buyAmountUsd = bnOrZero(buyAmountBeforeFeesCryptoPrecision).times(buyAssetUsdRate)
+      const buyAmountUsd = bnOrZero(buyAmountBeforeFeesCryptoPrecision).times(rates.buyAssetUsdRate)
       const donationAmountUsd = buyAmountUsd.times(affiliateBps).div(10000)
       const isDonationAmountBelowMinimum = bnOrZero(donationAmountUsd)
         .div(runeAssetUsdRate)

@@ -309,9 +309,9 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     // The actual amount that will end up on the IBC channel is the sell amount minus the fee for the IBC transfer Tx
     // We need to deduct the fees from the initial amount in case we're dealing with an IBC transfer + swap flow
     // or else, this will break for swaps to an Osmosis address that doesn't yet have ATOM
-    const sellAmountAfterFeesCryptoBaseUnit = sellAssetIsOnOsmosisNetwork
-      ? sellAmountCryptoBaseUnit
-      : bnOrZero(sellAmountCryptoBaseUnit).minus(swapFeeData.fast.txFee).toString()
+    const sellAmountAfterFeesCryptoBaseUnit = bnOrZero(sellAmountCryptoBaseUnit)
+      .minus(swapFeeData.fast.txFee)
+      .toString()
     const signTxInput = await buildTradeTx({
       osmoAddress,
       accountNumber: sellAssetIsOnOsmosisNetwork ? accountNumber : receiveAccountNumber,
@@ -337,7 +337,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         }),
       )
 
-    debugger
     if (!buyAssetIsOnOsmosisNetwork) {
       /** If the buy asset is not on the Osmosis Network, we need to bridge the
        * asset from the Osmosis network to the buy asset network.

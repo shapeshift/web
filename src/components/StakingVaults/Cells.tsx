@@ -15,6 +15,7 @@ import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { debounce } from 'lodash'
 import { isValidElement, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
+import { AssetIcon } from 'components/AssetIcon'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
 import type { Asset } from 'lib/asset-service'
@@ -90,7 +91,7 @@ export const AssetCell = ({
           {icons ? (
             <PairIcons icons={icons} iconSize='sm' bg='none' />
           ) : (
-            <LazyLoadAvatar src={asset.icon} size='sm' />
+            <AssetIcon assetId={asset.assetId} size='sm' />
           )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>

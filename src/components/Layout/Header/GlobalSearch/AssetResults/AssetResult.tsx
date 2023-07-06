@@ -2,7 +2,7 @@ import { Flex, forwardRef } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
+import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { middleEllipsis } from 'lib/utils'
@@ -41,7 +41,7 @@ export const AssetResult = forwardRef<AssetResultProps, 'div'>(
         onClick={() => onClick({ type: GlobalSearchResultType.Asset, id: assetId })}
       >
         <Flex gap={2} flex={1}>
-          <LazyLoadAvatar src={asset.icon} />
+          <AssetIcon assetId={asset.assetId} size='sm' />
           <Flex flexDir='column' alignItems='flex-start' textAlign='left'>
             <RawText
               color='chakra-body-text'

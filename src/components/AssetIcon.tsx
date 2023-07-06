@@ -28,24 +28,21 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, src,
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const showNetwork = feeAsset?.networkIcon || asset?.assetId !== feeAsset?.assetId
-  const boxShadow = useColorModeValue(
-    `0 0 0 0.2em ${feeAsset?.color ?? 'black'}35, 0 0 0.5em 2px rgba(255,255,255,.5)`,
-    `0 0 0 0.2em ${feeAsset?.color ?? 'white'}50, 0 0 0.5em 2px rgba(0,0,0,.5)`,
-  )
+
   return (
     <Avatar src={src ?? asset?.icon} icon={icon} border={0} bg='none' {...rest}>
       {showNetwork && (
         <Avatar
-          boxSize='0.85em'
+          boxSize='1.35em'
           zIndex={2}
           position='absolute'
-          right='-0.15em'
-          top='-0.15em'
+          right={0}
+          bottom='0'
           border={0}
           bg='none'
           fontSize='inherit'
+          boxShadow='-0.35em -0.35em 0.75em -0.35em rgba(0, 0, 0, 0.7)'
           src={feeAsset?.networkIcon ?? feeAsset?.icon}
-          boxShadow={boxShadow}
         />
       )}
     </Avatar>
@@ -77,9 +74,8 @@ export const AssetIcon = ({ assetId, showNetworkIcon, src, ...rest }: AssetIconP
       return (
         <Flex flexDirection='row' alignItems='center'>
           {asset.icons.map((iconSrc, i) => (
-            <AssetWithNetwork
+            <Avatar
               key={i}
-              assetId={assetId}
               src={iconSrc}
               ml={i === 0 ? '0' : '-2.5'}
               icon={<FoxIcon boxSize='16px' color={assetIconColor} />}

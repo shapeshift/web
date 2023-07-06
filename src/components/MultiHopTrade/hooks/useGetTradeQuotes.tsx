@@ -14,6 +14,7 @@ import {
   selectSellAccountId,
   selectSellAmountCryptoPrecision,
   selectSellAsset,
+  selectWillDonate,
 } from 'state/slices/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
@@ -30,6 +31,7 @@ export const useGetTradeQuotes = () => {
   const buyAsset = useAppSelector(selectBuyAsset)
   const receiveAddress = useReceiveAddress()
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
+  const willDonate = useAppSelector(selectWillDonate)
 
   const sellAccountId = useAppSelector(selectSellAccountId)
 
@@ -38,6 +40,9 @@ export const useGetTradeQuotes = () => {
       accountId: sellAccountId,
     })
   }, [sellAccountId])
+
+  // TODO: extract to a constants file
+  const DEFAULT_DONATION_BPS = '30'
 
   useEffect(() => {
     if (wallet && sellAccountMetadata && receiveAddress) {
@@ -53,6 +58,7 @@ export const useGetTradeQuotes = () => {
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: flags.MultiHopTrades,
+          affiliateBps: willDonate ? DEFAULT_DONATION_BPS : '0',
         })
 
         // if the quote input args changed, reset the selected swapper and update the trade quote args
@@ -78,6 +84,7 @@ export const useGetTradeQuotes = () => {
     sellAsset,
     tradeQuoteInput,
     wallet,
+    willDonate,
   ])
 
   useGetTradeQuoteQuery(debouncedTradeQuoteInput, { pollingInterval: 10000 })

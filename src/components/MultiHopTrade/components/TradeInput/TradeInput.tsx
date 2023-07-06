@@ -16,6 +16,7 @@ import { useHistory } from 'react-router'
 import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
+import { DonationCheckbox } from 'components/MultiHopTrade/components/TradeInput/components/DonationCheckbox'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useActiveQuoteStatus } from 'components/MultiHopTrade/hooks/useActiveQuoteStatus'
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
@@ -285,6 +286,7 @@ export const TradeInput = (props: CardProps) => {
                 />
               ) : null}
             </Stack>
+            <DonationCheckbox />
             <Tooltip label={activeQuoteStatus.error?.message}>
               <Button
                 type='submit'

@@ -18,7 +18,7 @@ export type FetchZrxQuoteInput = {
   sellAsset: Asset
   receiveAddress: string
   slippage?: string
-  affiliateBps: string
+  affiliateBps: string | undefined
   sellAmountBeforeFeesCryptoBaseUnit: string
 }
 
@@ -56,7 +56,9 @@ export const fetchZrxQuote = async ({
     wrapper: withZrxAxiosRetry,
   })
 
-  const buyTokenPercentageFee = convertBasisPointsToDecimalPercentage(affiliateBps).toNumber()
+  const buyTokenPercentageFee = affiliateBps
+    ? convertBasisPointsToDecimalPercentage(affiliateBps).toNumber()
+    : 0
   const feeRecipient = getTreasuryAddressFromChainId(buyAsset.chainId)
 
   // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-quote

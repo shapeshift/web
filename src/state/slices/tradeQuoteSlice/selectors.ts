@@ -344,12 +344,22 @@ export const selectSellAmountFiat = createSelector(
   },
 )
 
+export const selectDonationBps: Selector<ReduxState, string | undefined> = createSelector(
+  selectActiveQuote,
+  activeQuote => {
+    if (!activeQuote) return
+    return activeQuote.affiliateBps
+  },
+)
+
 export const selectDonationAmountFiat = createSelector(
   selectActiveQuote,
   selectSellAmountFiat,
   (activeQuote, sellAmountFiat) => {
     if (!activeQuote) return
-    const affiliatePercentage = convertBasisPointsToDecimalPercentage(activeQuote.affiliateBps)
+    const affiliatePercentage = activeQuote.affiliateBps
+      ? convertBasisPointsToDecimalPercentage(activeQuote.affiliateBps)
+      : 0
     // The donation amount is a percentage of the sell amount
     return bnOrZero(sellAmountFiat).times(affiliatePercentage).toFixed()
   },

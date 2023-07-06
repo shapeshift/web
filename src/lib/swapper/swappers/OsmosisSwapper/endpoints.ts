@@ -1,6 +1,5 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
-import { v4 as uuid } from 'uuid'
 import type {
   GetTradeQuoteInput,
   SwapErrorRight,
@@ -10,24 +9,14 @@ import type {
   UnsignedTx,
 } from 'lib/swapper/api'
 
-import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
-import { getTradeTxs } from './getTradeTxs/getTradeTxs'
-import type { Rates, ThorUtxoSupportedChainId } from './ThorchainSwapper'
-import { getSignTxFromQuote } from './utils/getSignTxFromQuote'
+import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 
 export const osmosisApi: Swapper2Api = {
-  getTradeQuote: async (
+  getTradeQuote: (
     input: GetTradeQuoteInput,
-    rates: Rates,
+    { sellAssetUsdRate }: { sellAssetUsdRate: string },
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
-    const tradeQuoteResult = await getThorTradeQuote(input, rates)
-
-    return tradeQuoteResult.map(tradeQuote => {
-      const { receiveAddress, affiliateBps } = input
-      const id = uuid()
-
-      return { id, receiveAddress, affiliateBps, ...tradeQuote }
-    })
+    return getTradeQuote(input, { sellAssetUsdRate })
   },
 
   getUnsignedTx: async ({

@@ -1,5 +1,6 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
+import { v4 as uuid } from 'uuid'
 import type {
   GetTradeQuoteInput,
   SwapErrorRight,
@@ -10,13 +11,25 @@ import type {
 } from 'lib/swapper/api'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
+import type { OsmosisSupportedChainId } from './utils/types'
+
+const tradeQuoteMetadata: Map<string, { chainId: OsmosisSupportedChainId }> = new Map()
 
 export const osmosisApi: Swapper2Api = {
-  getTradeQuote: (
+  getTradeQuote: async (
     input: GetTradeQuoteInput,
     { sellAssetUsdRate }: { sellAssetUsdRate: string },
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
-    return getTradeQuote(input, { sellAssetUsdRate })
+    const tradeQuoteResult = await getTradeQuote(input, { sellAssetUsdRate })
+
+    return tradeQuoteResult.map(tradeQuote => {
+      const { receiveAddress, affiliateBps } = input
+      const id = uuid()
+      tradeQuoteMetadata.set(id, {
+        chainId: tradeQuote.steps[0].sellAsset.chainId as OsmosisSupportedChainId,
+      })
+      return { id, receiveAddress, affiliateBps, ...tradeQuote }
+    })
   },
 
   getUnsignedTx: async ({

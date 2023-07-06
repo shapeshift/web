@@ -1,7 +1,7 @@
 import { CHAIN_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
-import type { osmosis } from '@shapeshiftoss/chain-adapters'
+import type { osmosis, SignTxInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { CosmosSignTx, HDWallet, Osmosis } from '@shapeshiftoss/hdwallet-core'
+import type { CosmosSignTx, HDWallet, Osmosis, OsmosisSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
@@ -253,19 +253,7 @@ export const performIbcTransfer = async (
   }
 }
 
-// TODO: move to chain adapters
-export const buildTradeTx = async ({
-  osmoAddress,
-  adapter,
-  accountNumber,
-  buyAssetDenom,
-  sellAssetDenom,
-  sellAmount,
-  gas,
-  feeAmount,
-  feeDenom,
-  wallet,
-}: {
+type BuildTradeTxInput = {
   osmoAddress: string
   adapter: osmosis.ChainAdapter
   accountNumber: number
@@ -275,8 +263,19 @@ export const buildTradeTx = async ({
   gas: string
   feeAmount: string
   feeDenom: string
-  wallet: HDWallet
-}) => {
+}
+
+export const buildApiTradeTx = async ({
+  osmoAddress,
+  adapter,
+  accountNumber,
+  buyAssetDenom,
+  sellAssetDenom,
+  sellAmount,
+  gas,
+  feeAmount,
+  feeDenom,
+}: BuildTradeTxInput): Promise<CosmosSignTx> => {
   const responseAccount = await adapter.getAccount(osmoAddress)
 
   // note - this is a cosmos sdk specific account_number, not a bip44Params accountNumber
@@ -319,15 +318,21 @@ export const buildTradeTx = async ({
   const bip44Params = adapter.getBIP44Params({ accountNumber })
 
   return {
-    txToSign: {
-      tx,
-      addressNList: toAddressNList(bip44Params),
-      chain_id: CHAIN_REFERENCE.OsmosisMainnet,
-      account_number,
-      sequence,
-    },
-    wallet,
+    tx,
+    addressNList: toAddressNList(bip44Params),
+    chain_id: CHAIN_REFERENCE.OsmosisMainnet,
+    account_number,
+    sequence,
   }
+}
+
+export const buildTradeTx = async (
+  input: BuildTradeTxInput & { wallet: HDWallet },
+): Promise<SignTxInput<OsmosisSignTx>> => {
+  const { wallet } = input
+  const txToSign = await buildApiTradeTx(input)
+
+  return { txToSign, wallet }
 }
 
 export const getMinimumCryptoHuman = (sellAssetUsdRate: string): string => {

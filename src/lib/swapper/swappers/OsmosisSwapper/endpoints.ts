@@ -17,9 +17,8 @@ import type {
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { SymbolDenomMapping } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 import {
-  buildTradeTx,
-  performIbcTransfer,
-  pollForComplete,
+  buildApiTradeTx,
+  buildPerformIbcTransferUnsignedTx,
   symbolDenomMapping,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 
@@ -54,16 +53,10 @@ export const osmosisApi: Swapper2Api = {
     tradeQuote,
     stepIndex,
   }: GetUnsignedTxArgs): Promise<CosmosSignTx> => {
-    const {
-      accountNumber,
-      buyAsset,
-      sellAsset,
-      buyAmountBeforeFeesCryptoBaseUnit,
-      sellAmountBeforeFeesCryptoBaseUnit,
-    } = tradeQuote.steps[stepIndex]
+    const { accountNumber, buyAsset, sellAsset, sellAmountBeforeFeesCryptoBaseUnit } =
+      tradeQuote.steps[stepIndex]
     const { receiveAddress } = tradeQuote
 
-    const buyAssetIsOnOsmosisNetwork = buyAsset.chainId === osmosisChainId
     const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
 
     const sellAssetDenom = symbolDenomMapping[sellAsset.symbol as keyof SymbolDenomMapping]
@@ -73,16 +66,14 @@ export const osmosisApi: Swapper2Api = {
     const osmosisAdapter = adapterManager.get(osmosisChainId) as osmosis.ChainAdapter | undefined
     const cosmosAdapter = adapterManager.get(cosmosChainId) as cosmos.ChainAdapter | undefined
 
-    const { REACT_APP_OSMOSIS_NODE_URL: osmoUrl, REACT_APP_COSMOS_NODE_URL: cosmosUrl } =
-      getConfig()
+    const { REACT_APP_OSMOSIS_NODE_URL: osmoUrl } = getConfig()
 
     if (!cosmosAdapter || !osmosisAdapter) throw new Error('Failed to get adapters')
 
     let sellAddress
-    let cosmosIbcTradeId = ''
 
     if (sellAssetIsOnOsmosisNetwork) {
-      sellAddress = await osmosisAdapter.getAddress({ wallet, accountNumber })
+      sellAddress = from
 
       if (!sellAddress)
         throw new SwapError('failed to get osmoAddress', {
@@ -92,7 +83,7 @@ export const osmosisApi: Swapper2Api = {
       /** If the sell asset is not on the Osmosis network, we need to bridge the
        * asset to the Osmosis network first in order to perform a swap on Osmosis DEX.
        */
-      sellAddress = await cosmosAdapter.getAddress({ wallet, accountNumber })
+      sellAddress = from
 
       if (!sellAddress) throw new Error('Failed to get address')
 
@@ -110,10 +101,9 @@ export const osmosisApi: Swapper2Api = {
       const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
       const ibcFromCosmosFeeData = await cosmosAdapter.getFeeData(getFeeDataInput)
 
-      const { tradeId } = await performIbcTransfer({
+      const unsignedTx = await buildPerformIbcTransferUnsignedTx({
         input: transfer,
         adapter: cosmosAdapter,
-        wallet,
         blockBaseUrl: osmoUrl,
         denom: 'uatom',
         sourceChannel: COSMO_OSMO_CHANNEL,
@@ -125,18 +115,11 @@ export const osmosisApi: Swapper2Api = {
         feeDenom: 'uatom',
       })
 
-      // wait till confirmed
-      const pollResult = await pollForComplete(tradeId, cosmosUrl)
-      if (pollResult !== 'success') throw new Error('ibc transfer failed')
-
-      // delay to ensure all nodes we interact with are up to date at this point
-      // seeing intermittent bugs that suggest the balances and sequence numbers were sometimes off
-      await new Promise(resolve => setTimeout(resolve, 5000))
+      return unsignedTx
     }
 
-    /** Execute the swap on Osmosis DEX */
-    const osmoAddress = sellAssetIsOnOsmosisNetwork ? sellAddress : receiveAddress
     // TODO(gomes): uncomment me when actually implementing multi-hop
+    // const osmoAddress = sellAssetIsOnOsmosisNetwork ? sellAddress : receiveAddress
     // const cosmosAddress = sellAssetIsOnOsmosisNetwork ? receiveAddress : sellAddress
 
     /** At the current time, only OSMO<->ATOM swaps are supported, so this is fine.
@@ -163,10 +146,13 @@ export const osmosisApi: Swapper2Api = {
 
     // TODO(gomes): this is temporary while we plumb things through, this won't work for cross-account trades
     // We shouldn't have a notion of an accountNumber once we hit the new Osmosis swapper endpoints
-    //
+    // or rather we should have it both on the sell and buy side?
+
     const receiveAccountNumber = accountNumber
 
-    const signTxInput = await buildTradeTx({
+    const osmoAddress = sellAssetIsOnOsmosisNetwork ? sellAddress : receiveAddress
+
+    const txToSign = await buildApiTradeTx({
       osmoAddress,
       accountNumber: sellAssetIsOnOsmosisNetwork ? accountNumber : receiveAccountNumber,
       adapter: osmosisAdapter,
@@ -176,33 +162,9 @@ export const osmosisApi: Swapper2Api = {
       gas: swapFeeData.fast.chainSpecific.gasLimit,
       feeAmount: swapFeeData.fast.txFee,
       feeDenom,
-      wallet,
     })
 
-    const { txToSign } = await osmosisAdapter.buildSendApiTransaction({})
     return txToSign
-
-    // TODO(gomes): this is taken from the current OsmosisSwapper implementation and doesn't handle multi-hop trades yet
-    // i.e we *will* be stuck at the first hop for now, and this is expected.
-    // anything broadcasty after this line in the original implementation doesn't belong in this method
-    // all the first/second hop logic should be moved to getTradeQuote() above,
-    // so that this method does what it says on the box - gets an unsigned Tx for a *single* hop
-
-    // TODO(gomes): we may need some additional properties here for Osmosis - or we may not?
-    // const buildSendApiTxInput = {
-    // value,
-    // to,
-    // from: from!,
-    // chainSpecific: {
-    // gasPrice,
-    // gasLimit: gas,
-    // maxFeePerGas: undefined,
-    // maxPriorityFeePerGas: undefined,
-    // data,
-    // },
-    // accountNumber,
-    // }
-    // return adapter.buildSendApiTransaction(buildSendApiTxInput)
   },
 
   checkTradeStatus: async ({

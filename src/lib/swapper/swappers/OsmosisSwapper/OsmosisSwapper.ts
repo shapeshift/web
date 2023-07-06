@@ -29,7 +29,6 @@ import {
   buildTradeTx,
   getRateInfo,
   performIbcTransfer,
-  pollForAtomChannelBalance,
   pollForComplete,
   symbolDenomMapping,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
@@ -201,7 +200,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
     const sellAssetDenom = symbolDenomMapping[sellAsset.symbol as keyof SymbolDenomMapping]
     const buyAssetDenom = symbolDenomMapping[buyAsset.symbol as keyof SymbolDenomMapping]
-    let ibcSellAmount
 
     const adapterManager = getChainAdapterManager()
     const osmosisAdapter = adapterManager.get(osmosisChainId) as osmosis.ChainAdapter | undefined
@@ -284,8 +282,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
           }),
         )
 
-      ibcSellAmount = await pollForAtomChannelBalance(receiveAddress, osmoUrl)
-
       // delay to ensure all nodes we interact with are up to date at this point
       // seeing intermittent bugs that suggest the balances and sequence numbers were sometimes off
       await new Promise(resolve => setTimeout(resolve, 5000))
@@ -341,16 +337,16 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         }),
       )
 
+    debugger
     if (!buyAssetIsOnOsmosisNetwork) {
       /** If the buy asset is not on the Osmosis Network, we need to bridge the
        * asset from the Osmosis network to the buy asset network.
        */
 
-      const amount = await pollForAtomChannelBalance(sellAddress, osmoUrl)
       const transfer = {
         sender: sellAddress,
         receiver: receiveAddress,
-        amount,
+        amount: sellAmountCryptoBaseUnit,
       }
 
       const ibcResponseAccount = await osmosisAdapter.getAccount(sellAddress)

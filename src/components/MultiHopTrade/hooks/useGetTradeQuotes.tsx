@@ -9,6 +9,7 @@ import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuo
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { GetTradeQuoteInput } from 'lib/swapper/api'
+import { isSkipToken } from 'lib/utils'
 import { useGetTradeQuoteQuery } from 'state/apis/swappers/swappersApi'
 import {
   selectBuyAsset,
@@ -21,6 +22,17 @@ import {
 } from 'state/slices/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
+
+const isEqualExceptAffiliateBps = (
+  a: GetTradeQuoteInput | typeof skipToken,
+  b: GetTradeQuoteInput | undefined,
+) => {
+  if (!isSkipToken(a) && b) {
+    const { affiliateBps: _affiliateBps, ...aWithoutAffiliateBps } = a
+    const { affiliateBps: _updatedAffiliateBps, ...bWithoutAffiliateBps } = b
+    return isEqual(aWithoutAffiliateBps, bWithoutAffiliateBps)
+  }
+}
 
 export const useGetTradeQuotes = () => {
   const dispatch = useAppDispatch()
@@ -67,7 +79,13 @@ export const useGetTradeQuotes = () => {
         // if the quote input args changed, reset the selected swapper and update the trade quote args
         if (!isEqual(tradeQuoteInput, updatedTradeQuoteInput ?? skipToken)) {
           setTradeQuoteInput(updatedTradeQuoteInput ?? skipToken)
-          dispatch(tradeQuoteSlice.actions.resetSwapperName())
+
+          // If only the donation amount changed, don't reset the swapper name
+          if (isEqualExceptAffiliateBps(tradeQuoteInput, updatedTradeQuoteInput)) {
+            return
+          } else {
+            dispatch(tradeQuoteSlice.actions.resetSwapperName())
+          }
         }
       })()
     } else {
@@ -90,5 +108,12 @@ export const useGetTradeQuotes = () => {
     userWillDonate,
   ])
 
-  useGetTradeQuoteQuery(debouncedTradeQuoteInput, { pollingInterval: 10000 })
+  useGetTradeQuoteQuery(debouncedTradeQuoteInput, {
+    pollingInterval: 10000,
+    /*
+      If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
+      We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.
+     */
+    refetchOnMountOrArgChange: true,
+  })
 }

@@ -53,9 +53,11 @@ export const thorchainApi: Swapper2Api = {
           rates.buyAssetUsdRate,
         )
         const donationAmountUsd = buyAmountUsd.times(affiliateBps).div(10000)
-        const isDonationAmountBelowMinimum = bnOrZero(donationAmountUsd)
-          .div(runeAssetUsdRate)
-          .lte(RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN)
+        const isDonationAmountBelowMinimum =
+          bnOrZero(affiliateBps).gt(0) &&
+          bnOrZero(donationAmountUsd)
+            .div(runeAssetUsdRate)
+            .lte(RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN)
 
         const quoteToUse = isDonationAmountBelowMinimum
           ? /*

@@ -1,4 +1,6 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { DEFAULT_DONATION_BPS } from 'components/MultiHopTrade/constants'
@@ -32,7 +34,7 @@ export const useGetTradeQuotes = () => {
   const buyAsset = useAppSelector(selectBuyAsset)
   const receiveAddress = useReceiveAddress()
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
-  const willDonate = useAppSelector(selectWillDonate)
+  const userWillDonate = useAppSelector(selectWillDonate)
 
   const sellAccountId = useAppSelector(selectSellAccountId)
 
@@ -46,6 +48,9 @@ export const useGetTradeQuotes = () => {
     if (wallet && sellAccountMetadata && receiveAddress) {
       ;(async () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
+        const walletIsKeepKey = wallet && isKeepKey(wallet)
+        const isFromEvm = isEvmChainId(sellAsset.chainId)
+        const shouldDonate = walletIsKeepKey ? userWillDonate && !isFromEvm : userWillDonate
 
         const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,
@@ -56,7 +61,7 @@ export const useGetTradeQuotes = () => {
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: flags.MultiHopTrades,
-          affiliateBps: willDonate ? DEFAULT_DONATION_BPS : '0',
+          affiliateBps: shouldDonate ? DEFAULT_DONATION_BPS : '0',
         })
 
         // if the quote input args changed, reset the selected swapper and update the trade quote args
@@ -82,7 +87,7 @@ export const useGetTradeQuotes = () => {
     sellAsset,
     tradeQuoteInput,
     wallet,
-    willDonate,
+    userWillDonate,
   ])
 
   useGetTradeQuoteQuery(debouncedTradeQuoteInput, { pollingInterval: 10000 })

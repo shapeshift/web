@@ -77,29 +77,31 @@ export const getTradeQuote = async (
   const secondHopFeeData = await secondHopAdapter.getFeeData(getSecondHopFeeDataInput)
   const secondHopFee = secondHopFeeData.fast.txFee
 
+  // TODO(gomes): this is incorrect, and reflects assuming the whole swap as a single hop
+  // It needs to be programmatic on the OSMO -> ATOM or ATOM -> OSMO direction
+  const firstStep = {
+    allowanceContract: '',
+    buyAsset,
+    feeData: {
+      networkFeeCryptoBaseUnit: firstHopFee,
+      protocolFees: {
+        [buyAsset.assetId]: {
+          amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
+          requiresBalance: true,
+          asset: buyAsset,
+        },
+      },
+    },
+    accountNumber,
+    rate,
+    sellAsset,
+    sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+    buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
+    sources: DEFAULT_SOURCE,
+  }
+
   return Ok({
     minimumCryptoHuman,
-    steps: [
-      {
-        allowanceContract: '',
-        buyAsset,
-        feeData: {
-          networkFeeCryptoBaseUnit: firstHopFee,
-          protocolFees: {
-            [buyAsset.assetId]: {
-              amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
-              requiresBalance: true,
-              asset: buyAsset,
-            },
-          },
-        },
-        accountNumber,
-        rate,
-        sellAsset,
-        sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-        buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
-        sources: DEFAULT_SOURCE,
-      },
-    ],
+    steps: [firstStep],
   })
 }

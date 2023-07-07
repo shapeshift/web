@@ -29,7 +29,7 @@ import {
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
   selectAssetIds,
-  selectAssetsSortedByMarketCapFiatBalanceAndName,
+  selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
   selectBIP44ParamsByAccountId,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
@@ -70,7 +70,7 @@ export const useSwapper = () => {
   // Selectors
   const flags = useSelector(selectFeatureFlags)
   const assetIds = useSelector(selectAssetIds)
-  const sortedAssets = useSelector(selectAssetsSortedByMarketCapFiatBalanceAndName)
+  const sortedAssets = useSelector(selectAssetsSortedByMarketCapUserCurrencyBalanceAndName)
 
   // Hooks
   const [swapperManager, setSwapperManager] = useState<SwapperManager>()

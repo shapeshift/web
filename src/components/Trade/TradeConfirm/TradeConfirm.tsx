@@ -364,10 +364,12 @@ export const TradeConfirm = () => {
     history.push(TradeRoutePaths.Input)
   }, [clearAmounts, history, sellTradeId, updateTrade])
 
-  const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman).times(feeAssetUserCurrencyRate ?? 1)
+  const networkFeeUserCurrency = bnOrZero(fees?.networkFeeCryptoHuman).times(
+    feeAssetUserCurrencyRate ?? 1,
+  )
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
-  const networkFeeToTradeRatioPercentage = networkFeeFiat
+  const networkFeeToTradeRatioPercentage = networkFeeUserCurrency
     .dividedBy(sellAmountBeforeFeesUserCurrency ?? 1)
     .times(100)
     .toNumber()
@@ -626,7 +628,7 @@ export const TradeConfirm = () => {
                     {defaultFeeAsset &&
                       `${bnOrZero(fees?.networkFeeCryptoHuman).toFixed()} ${
                         defaultFeeAsset.symbol
-                      } ≃ ${toFiat(networkFeeFiat.toNumber())}`}
+                      } ≃ ${toFiat(networkFeeUserCurrency.toNumber())}`}
                   </Row.Value>
                 </Row>
                 {isFeeRatioOverThreshold && (

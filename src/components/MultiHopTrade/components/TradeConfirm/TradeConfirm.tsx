@@ -56,7 +56,7 @@ import {
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,
   selectSlippage,
-  selectTotalNetworkFeeFiatPrecision,
+  selectTotalNetworkFeeUserCurrencyPrecision,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -101,9 +101,9 @@ export const TradeConfirm = () => {
   const netBuyAmountCryptoPrecision = useAppSelector(selectNetBuyAmountCryptoPrecision)
   const slippage = useAppSelector(selectSlippage)
   const netBuyAmountUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
-  const sellAmountBeforeFeesFiat = useAppSelector(selectSellAmountUserCurrency)
+  const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
   const networkFeeCryptoHuman = useAppSelector(selectFirstHopNetworkFeeCryptoPrecision)
-  const networkFeeFiat = useAppSelector(selectTotalNetworkFeeFiatPrecision)
+  const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const buyAmountBeforeFeesCryptoPrecision = useAppSelector(
     selectBuyAmountBeforeFeesCryptoPrecision,
   )
@@ -175,8 +175,8 @@ export const TradeConfirm = () => {
   ])
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
-  const networkFeeToTradeRatioPercentage = bnOrZero(networkFeeFiat)
-    .dividedBy(sellAmountBeforeFeesFiat ?? 1)
+  const networkFeeToTradeRatioPercentage = bnOrZero(networkFeeUserCurrency)
+    .dividedBy(sellAmountBeforeFeesUserCurrency ?? 1)
     .times(100)
     .toNumber()
   const networkFeeToTradeRatioPercentageThreshold = 5
@@ -264,7 +264,7 @@ export const TradeConfirm = () => {
             />
             <Amount.Fiat
               color='gray.500'
-              value={bnOrZero(sellAmountBeforeFeesFiat).toFixed(2)}
+              value={bnOrZero(sellAmountBeforeFeesUserCurrency).toFixed(2)}
               prefix='≈'
             />
           </Row.Value>
@@ -286,7 +286,7 @@ export const TradeConfirm = () => {
       translate,
       sellAmountBeforeFeesCryptoPrecision,
       sellAsset,
-      sellAmountBeforeFeesFiat,
+      sellAmountBeforeFeesUserCurrency,
       buyAsset,
       netBuyAmountCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
@@ -386,9 +386,9 @@ export const TradeConfirm = () => {
                   </HelperTooltip>
                   <Row.Value>
                     {defaultFeeAsset &&
-                      networkFeeFiat &&
+                      networkFeeUserCurrency &&
                       `${networkFeeCryptoHuman} ${defaultFeeAsset.symbol} ≃ ${toFiat(
-                        networkFeeFiat,
+                        networkFeeUserCurrency,
                       )}`}
                   </Row.Value>
                 </Row>

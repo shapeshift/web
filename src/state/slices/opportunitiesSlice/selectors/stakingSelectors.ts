@@ -24,7 +24,7 @@ import {
 import { selectAssetByFilter, selectAssets } from '../../assetsSlice/selectors'
 import {
   selectPortfolioAssetBalancesBaseUnit,
-  selectPortfolioFiatBalances,
+  selectPortfolioUserCurrencyBalances,
   selectWalletAccountIds,
 } from '../../common-selectors'
 import {
@@ -166,7 +166,7 @@ export const selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit = cr
     ),
 )
 // The same as selectUserStakingOpportunitiesWithMetadataByFilter, but reduces all data (delegated/undelegated/rewards) into one BN
-export const selectUserStakingOpportunitiesAggregatedByFilterFiat = createSelector(
+export const selectUserStakingOpportunitiesAggregatedByFilterUserCurrency = createSelector(
   selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit,
   selectAssetByFilter,
   selectMarketDataByFilter,
@@ -465,7 +465,7 @@ export const selectEarnBalancesFiatAmountFull = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunities,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectAssets,
-  selectPortfolioFiatBalances,
+  selectPortfolioUserCurrencyBalances,
   (aggregatedUserStakingOpportunities, marketData, assets, portfolioFiatBalances): BN =>
     aggregatedUserStakingOpportunities
       .map(opportunity => makeOpportunityTotalFiatBalance({ opportunity, marketData, assets }))

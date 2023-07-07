@@ -34,10 +34,10 @@ import {
   selectAssetById,
   selectChartTimeframe,
   selectCryptoHumanBalanceIncludingStakingByFilter,
-  selectFiatBalanceIncludingStakingByFilter,
   selectMarketDataById,
+  selectUserCurrencyBalanceIncludingStakingByFilter,
   selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit,
-  selectUserStakingOpportunitiesAggregatedByFilterFiat,
+  selectUserStakingOpportunitiesAggregatedByFilterUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -77,7 +77,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 
   const fiatBalance = useAppSelector(s =>
-    selectFiatBalanceIncludingStakingByFilter(s, opportunitiesFilter),
+    selectUserCurrencyBalanceIncludingStakingByFilter(s, opportunitiesFilter),
   )
   const cryptoHumanBalance = useAppSelector(s =>
     selectCryptoHumanBalanceIncludingStakingByFilter(s, opportunitiesFilter),
@@ -86,8 +86,8 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
     selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit(state, opportunitiesFilter),
   )
 
-  const stakingBalanceFiat = useAppSelector(state =>
-    selectUserStakingOpportunitiesAggregatedByFilterFiat(state, opportunitiesFilter),
+  const stakingBalanceUserCurrency = useAppSelector(state =>
+    selectUserStakingOpportunitiesAggregatedByFilterUserCurrency(state, opportunitiesFilter),
   )
 
   useEffect(() => {
@@ -153,7 +153,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
               </Stat>
             )}
           </StatGroup>
-          {bnOrZero(stakingBalanceFiat).gt(0) && view === View.Balance && (
+          {bnOrZero(stakingBalanceUserCurrency).gt(0) && view === View.Balance && (
             <Flex mt={4}>
               <Alert
                 as={Stack}

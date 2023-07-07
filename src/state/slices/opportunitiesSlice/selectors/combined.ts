@@ -36,7 +36,7 @@ import {
   selectUserStakingOpportunitiesWithMetadataByFilter,
 } from './stakingSelectors'
 
-const makeClaimableStakingRewardsAmountFiat = ({
+const makeClaimableStakingRewardsAmountUserCurrency = ({
   assets,
   maybeStakingOpportunity,
   marketData,
@@ -49,7 +49,7 @@ const makeClaimableStakingRewardsAmountFiat = ({
 
   const stakingOpportunity = maybeStakingOpportunity as StakingEarnOpportunityType
 
-  const rewardsAmountFiat = Array.from(stakingOpportunity.rewardAssetIds ?? []).reduce(
+  const rewardsAmountUserCurrency = Array.from(stakingOpportunity.rewardAssetIds ?? []).reduce(
     (sum, assetId, index) => {
       const asset = assets[assetId]
       if (!asset) return sum
@@ -67,7 +67,7 @@ const makeClaimableStakingRewardsAmountFiat = ({
     0,
   )
 
-  return rewardsAmountFiat
+  return rewardsAmountUserCurrency
 }
 export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputSelector(
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
@@ -108,16 +108,18 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             ? underlyingAssetBalances[assetId].fiatAmount
             : cur.fiatAmount
 
-        const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountFiat({
-          maybeStakingOpportunity: cur,
-          marketData,
-          assets,
-        })
+        const maybeStakingRewardsAmountUserCurrency = makeClaimableStakingRewardsAmountUserCurrency(
+          {
+            maybeStakingOpportunity: cur,
+            marketData,
+            assets,
+          },
+        )
 
         if (
           (!includeEarnBalances && !includeRewardsBalances && !bnOrZero(amountFiat).isZero()) ||
           (includeEarnBalances && !bnOrZero(amountFiat).isZero()) ||
-          (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
+          (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountUserCurrency).gt(0))
         ) {
           acc[assetId] = true
           return acc
@@ -162,7 +164,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
               ? underlyingAssetBalances[assetId].fiatAmount
               : cur.fiatAmount
 
-          const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountFiat({
+          const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountUserCurrency({
             maybeStakingOpportunity: cur,
             marketData,
             assets,
@@ -406,7 +408,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
       if (chainId && chainId !== cur.chainId) return acc
 
-      const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountFiat({
+      const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountUserCurrency({
         maybeStakingOpportunity: cur,
         marketData,
         assets,
@@ -435,16 +437,18 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
         if (chainId && chainId !== cur.chainId) return acc
 
-        const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountFiat({
-          maybeStakingOpportunity: cur,
-          marketData,
-          assets,
-        })
+        const maybeStakingRewardsAmountUserCurrency = makeClaimableStakingRewardsAmountUserCurrency(
+          {
+            maybeStakingOpportunity: cur,
+            marketData,
+            assets,
+          },
+        )
 
         const isActiveOpportunityByFilter =
           (!includeEarnBalances && !includeRewardsBalances) ||
           (includeEarnBalances && !bnOrZero(cur.fiatAmount).isZero()) ||
-          (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
+          (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountUserCurrency).gt(0))
         // No active staking for the current provider, show the highest APY
         if (!isActiveProvider) {
           acc[provider].apy = BigNumber.maximum(acc[provider].apy, cur.apy).toFixed()
@@ -464,17 +468,17 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
         if (cur.type === DefiType.Staking && isActiveOpportunityByFilter) {
           acc[provider].opportunities.staking.push(cur.id)
         }
-        const fiatRewardsAmount = bnOrZero(maybeStakingRewardsAmountFiat)
+        const userCurrencyRewardsAmount = bnOrZero(maybeStakingRewardsAmountUserCurrency)
           .plus(acc[provider].fiatRewardsAmount)
           .toFixed(2)
-        acc[provider].fiatRewardsAmount = fiatRewardsAmount
+        acc[provider].fiatRewardsAmount = userCurrencyRewardsAmount
         const fiatAmount = bnOrZero(acc[provider].fiatAmount)
           .plus(bnOrZero(cur.fiatAmount))
           .toFixed(2)
         acc[provider].fiatAmount = fiatAmount
 
         acc[provider].netProviderFiatAmount = bnOrZero(fiatAmount)
-          .plus(fiatRewardsAmount)
+          .plus(userCurrencyRewardsAmount)
           .toFixed(2)
 
         return acc

@@ -25,7 +25,7 @@ import {
   selectEarnBalancesFiatAmountFull,
   selectPortfolioAssetIds,
   selectPortfolioLoading,
-  selectPortfolioTotalFiatBalanceExcludeEarnDupes,
+  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -42,7 +42,9 @@ export const Portfolio = () => {
   const assetIds = useAppSelector(selectPortfolioAssetIds)
 
   const earnFiatBalance = useAppSelector(selectEarnBalancesFiatAmountFull).toFixed()
-  const portfolioTotalFiatBalance = useAppSelector(selectPortfolioTotalFiatBalanceExcludeEarnDupes)
+  const portfolioTotalFiatBalance = useAppSelector(
+    selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  )
   const claimableRewardsFiatBalanceFilter = useMemo(() => ({}), [])
   const claimableRewardsFiatBalance = useAppSelector(state =>
     selectClaimableRewards(state, claimableRewardsFiatBalanceFilter),

@@ -5,14 +5,14 @@ import { lifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
 import { oneInchSwapper } from 'lib/swapper/swappers/OneInchSwapper/OneInchSwapper2'
 import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
 import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper2'
-import { selectAssetsSortedByMarketCapFiatBalanceAndName } from 'state/slices/common-selectors'
+import { selectAssetsSortedByMarketCapUserCurrencyBalanceAndName } from 'state/slices/common-selectors'
 import { selectAssetIds, selectFeatureFlags, selectSellAsset } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useSupportedAssets = () => {
   const sellAsset = useAppSelector(selectSellAsset)
   const assetIds = useAppSelector(selectAssetIds)
-  const sortedAssets = useAppSelector(selectAssetsSortedByMarketCapFiatBalanceAndName)
+  const sortedAssets = useAppSelector(selectAssetsSortedByMarketCapUserCurrencyBalanceAndName)
   const { LifiSwap, ThorSwap, ZrxSwap, OneInch, Cowswap } = useAppSelector(selectFeatureFlags)
 
   const enabledSwappers = useMemo(() => {

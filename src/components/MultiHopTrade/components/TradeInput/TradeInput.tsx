@@ -48,7 +48,7 @@ import {
   selectNetBuyAmountUserCurrency,
   selectNetReceiveAmountCryptoPrecision,
   selectSwapperSupportsCrossAccountTrade,
-  selectTotalNetworkFeeFiatPrecision,
+  selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -81,8 +81,8 @@ export const TradeInput = (props: CardProps) => {
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
-  const buyAmountAfterFeesFiat = useAppSelector(selectNetBuyAmountUserCurrency)
-  const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeFiatPrecision)
+  const buyAmountAfterFeesUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
+  const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
 
   const activeQuoteStatus = useActiveQuoteStatus()
   const setBuyAsset = useCallback(
@@ -231,7 +231,7 @@ export const TradeInput = (props: CardProps) => {
                 assetSymbol={buyAsset.symbol}
                 assetIcon={buyAsset.icon}
                 cryptoAmount={buyAmountAfterFeesCryptoPrecision}
-                fiatAmount={buyAmountAfterFeesFiat}
+                fiatAmount={buyAmountAfterFeesUserCurrency}
                 percentOptions={[1]}
                 showInputSkeleton={isLoading}
                 showFiatSkeleton={isLoading}

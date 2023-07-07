@@ -16,7 +16,7 @@ import {
   selectClaimableRewards,
   selectEarnBalancesFiatAmountFull,
   selectPortfolioLoading,
-  selectPortfolioTotalFiatBalanceExcludeEarnDupes,
+  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -49,7 +49,9 @@ export const DashboardHeader = () => {
     selectClaimableRewards(state, claimableRewardsFiatBalanceFilter),
   )
   const earnFiatBalance = useAppSelector(selectEarnBalancesFiatAmountFull).toFixed()
-  const portfolioTotalFiatBalance = useAppSelector(selectPortfolioTotalFiatBalanceExcludeEarnDupes)
+  const portfolioTotalFiatBalance = useAppSelector(
+    selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  )
   const netWorth = useMemo(
     () =>
       bnOrZero(earnFiatBalance)

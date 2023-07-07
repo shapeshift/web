@@ -25,12 +25,12 @@ import { createStore } from 'state/store'
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
 import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioFiatBalancesByAccountId,
+  selectPortfolioUserCurrencyBalancesByAccountId,
 } from '../common-selectors'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
-  selectHighestFiatBalanceAccountByAssetId,
+  selectHighestUserCurrencyBalanceAccountByAssetId,
   selectPortfolioAccountRows,
   selectPortfolioAllocationPercentByFilter,
   selectPortfolioAssetIdsByAccountIdExcludeFeeAsset,
@@ -392,8 +392,8 @@ describe('portfolioSlice', () => {
           },
         }
 
-        const fiatAccountBalance = selectPortfolioFiatBalancesByAccountId(state)
-        expect(fiatAccountBalance).toEqual(returnValue)
+        const userCurrencyAccountBalance = selectPortfolioUserCurrencyBalancesByAccountId(state)
+        expect(userCurrencyAccountBalance).toEqual(returnValue)
       })
 
       it('returns 0 when no market data is available', () => {
@@ -412,8 +412,8 @@ describe('portfolioSlice', () => {
           },
         }
 
-        const fiatAccountBalance = selectPortfolioFiatBalancesByAccountId(state)
-        expect(fiatAccountBalance).toEqual(returnValue)
+        const userCurrencyAccountBalance = selectPortfolioUserCurrencyBalancesByAccountId(state)
+        expect(userCurrencyAccountBalance).toEqual(returnValue)
       })
     })
 
@@ -458,7 +458,7 @@ describe('portfolioSlice', () => {
 
       it('can select highest value account by assetId', () => {
         const state = store.getState()
-        const highestValueAccount = selectHighestFiatBalanceAccountByAssetId(state, {
+        const highestValueAccount = selectHighestUserCurrencyBalanceAccountByAssetId(state, {
           assetId: btcAssetId,
         })
 

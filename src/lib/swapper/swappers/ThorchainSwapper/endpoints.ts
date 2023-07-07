@@ -26,12 +26,12 @@ export const thorchainApi: Swapper2Api = {
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
     const { receiveAddress, affiliateBps } = input
 
-    const processQuote = (
+    const mapTradeQuoteToTradeQuote2 = (
       quote: Result<TradeQuote, SwapErrorRight>,
       receiveAddress: string,
       affiliateBps: string | undefined,
       isDonationAmountBelowMinimum?: boolean,
-    ) => {
+    ): Result<TradeQuote2, SwapErrorRight> => {
       const id = uuid()
       return quote.map<TradeQuote2>(quote => ({
         id,
@@ -65,9 +65,14 @@ export const thorchainApi: Swapper2Api = {
             await getThorTradeQuote({ ...input, affiliateBps: '0' }, rates)
           : firstQuote
 
-        return processQuote(quoteToUse, receiveAddress, affiliateBps, isDonationAmountBelowMinimum)
+        return mapTradeQuoteToTradeQuote2(
+          quoteToUse,
+          receiveAddress,
+          affiliateBps,
+          isDonationAmountBelowMinimum,
+        )
       } else {
-        return processQuote(firstQuote, receiveAddress, affiliateBps)
+        return mapTradeQuoteToTradeQuote2(firstQuote, receiveAddress, affiliateBps)
       }
     })
   },

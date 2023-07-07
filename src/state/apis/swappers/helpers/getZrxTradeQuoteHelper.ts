@@ -6,7 +6,6 @@ import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 
 export const getZrxTradeQuoteHelper: QuoteHelperType = async (getTradeQuoteInput, state) => {
   const sellAssetUsdRate = selectUsdRateByAssetId(state, getTradeQuoteInput.sellAsset.assetId)
-  const buyAssetUsdRate = selectUsdRateByAssetId(state, getTradeQuoteInput.buyAsset.assetId)
 
   if (!sellAssetUsdRate)
     return Err(
@@ -16,17 +15,8 @@ export const getZrxTradeQuoteHelper: QuoteHelperType = async (getTradeQuoteInput
       }),
     )
 
-  if (!buyAssetUsdRate)
-    return Err(
-      makeSwapErrorRight({
-        message: '[ZrxSwapper: getZrxTradeQuoteHelper] - missing buyAssetUsdRate',
-        code: SwapErrorType.TRADE_QUOTE_FAILED,
-      }),
-    )
-
   const maybeQuote = await zrxApi.getTradeQuote(getTradeQuoteInput, {
     sellAssetUsdRate,
-    buyAssetUsdRate,
   })
   return maybeQuote
 }

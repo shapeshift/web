@@ -1,5 +1,6 @@
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
 import { v4 as uuid } from 'uuid'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -12,7 +13,7 @@ import type {
   Swapper2Api,
   TradeQuote2,
 } from 'lib/swapper/api'
-import { MINIMUM_DONATION_RECEIVE_AMOUNT_USD_FROM_ETH_CHAIN } from 'lib/swapper/swappers/utils/constants'
+import { MINIMUM_DONATION_Sell_AMOUNT_USD_FROM_ETH_CHAIN } from 'lib/swapper/swappers/utils/constants'
 import { assertGetEvmChainAdapter, checkEvmSwapStatus } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -23,23 +24,33 @@ const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 export const oneInchApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    { sellAssetUsdRate, buyAssetUsdRate }: { sellAssetUsdRate: string; buyAssetUsdRate: string },
+    { sellAssetUsdRate }: { sellAssetUsdRate: string },
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
-    const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInput, sellAssetUsdRate)
-    const { receiveAddress, affiliateBps } = input
+    const { sellAsset, sellAmountBeforeFeesCryptoBaseUnit, affiliateBps, receiveAddress } = input
 
+    const sellAmountBeforeFeesCryptoPrecision = fromBaseUnit(
+      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAsset.precision,
+    )
+    const sellAmountBeforeFeesUsd = bnOrZero(sellAmountBeforeFeesCryptoPrecision).times(
+      sellAssetUsdRate,
+    )
+    // We use the sell amount so we don't have to make 2 network requests, as the receive amount requires a quote
+    const isDonationAmountBelowMinimum =
+      sellAmountBeforeFeesUsd.lt(MINIMUM_DONATION_Sell_AMOUNT_USD_FROM_ETH_CHAIN) &&
+      sellAsset.chainId === KnownChainIds.EthereumMainnet
+
+    const tradeQuoteResult = await getTradeQuote(
+      {
+        ...(input as GetEvmTradeQuoteInput),
+        affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps,
+      },
+      sellAssetUsdRate,
+    )
     return tradeQuoteResult.map(tradeQuote => {
       const id = uuid()
       const firstHop = tradeQuote.steps[0]
-      const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
-        firstHop.buyAmountBeforeFeesCryptoBaseUnit,
-        firstHop.buyAsset.precision,
-      )
-      const buyAmountUsd = bnOrZero(buyAmountBeforeFeesCryptoPrecision).times(buyAssetUsdRate)
-      const isDonationAmountBelowMinimum = buyAmountUsd.lt(
-        MINIMUM_DONATION_RECEIVE_AMOUNT_USD_FROM_ETH_CHAIN,
-      )
-      tradeQuoteMetadata.set(id, { chainId: tradeQuote.steps[0].sellAsset.chainId as EvmChainId })
+      tradeQuoteMetadata.set(id, { chainId: firstHop.sellAsset.chainId as EvmChainId })
       return {
         id,
         receiveAddress,

@@ -45,6 +45,7 @@ import { assertUnreachable } from 'lib/utils'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
+  selectActualDonationAmountFiat,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectFirstHopNetworkFeeCryptoPrecision,
@@ -110,6 +111,7 @@ export const TradeConfirm = () => {
   const sellAmountBeforeFeesCryptoPrecision = useAppSelector(
     selectSellAmountBeforeFeesCryptoPrecision,
   )
+  const donationAmount = useAppSelector(selectActualDonationAmountFiat)
 
   const sellAsset = useAppSelector(selectFirstHopSellAsset)
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
@@ -279,6 +281,7 @@ export const TradeConfirm = () => {
           fiatAmount={positiveOrZero(netBuyAmountFiat).toFixed(2)}
           swapperName={swapperName ?? ''}
           intermediaryTransactionOutputs={tradeQuoteStep?.intermediaryTransactionOutputs}
+          donationAmount={donationAmount}
         />
       </Stack>
     ),

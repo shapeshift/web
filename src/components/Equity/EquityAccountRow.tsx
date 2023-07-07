@@ -9,7 +9,7 @@ import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioFiatBalanceByFilter,
+  selectPortfolioUserCurrencyBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -39,7 +39,9 @@ export const EquityAccountRow = ({
   const cryptoHumanBalance = useAppSelector(state =>
     selectPortfolioCryptoPrecisionBalanceByFilter(state, filter),
   )
-  const fiatBalance = useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, filter))
+  const userCurrencyBalance = useAppSelector(state =>
+    selectPortfolioUserCurrencyBalanceByFilter(state, filter),
+  )
 
   const path = generatePath(
     assetId ? '/dashboard/accounts/:accountId/:assetId' : '/dashboard/accounts/:accountId',
@@ -66,7 +68,7 @@ export const EquityAccountRow = ({
       label={translate('accounts.accountNumber', { accountNumber })}
       totalFiatBalance={totalFiatBalance}
       color={color}
-      fiatAmount={fiatBalance}
+      fiatAmount={userCurrencyBalance}
       cryptoBalancePrecision={cryptoHumanBalance}
       symbol={asset.symbol}
       subText={translate('common.wallet')}

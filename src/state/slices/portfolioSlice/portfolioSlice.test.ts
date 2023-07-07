@@ -34,7 +34,7 @@ import {
   selectPortfolioAccountRows,
   selectPortfolioAllocationPercentByFilter,
   selectPortfolioAssetIdsByAccountIdExcludeFeeAsset,
-  selectPortfolioFiatBalanceByFilter,
+  selectPortfolioUserCurrencyBalanceByFilter,
 } from './selectors'
 
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
@@ -334,7 +334,7 @@ describe('portfolioSlice', () => {
       })
     })
 
-    describe('selectPortfolioFiatAccountBalance', () => {
+    describe('selectPortfolioUserCurrencyBalancesByAccountId', () => {
       const store = createStore()
       const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
         ethAccountObj: { balance: '1000000000000000000' },
@@ -417,7 +417,7 @@ describe('portfolioSlice', () => {
       })
     })
 
-    describe('selectHighestFiatBalanceAccountByAssetId', () => {
+    describe('selectHighestUserCurrencyBalanceAccountByAssetId', () => {
       const store = createStore()
       const { btcAccount, btcAccount2, btcAccount3, btcAccountId, btcAccount2Id, btcAccount3Id } =
         mockEthAndBtcAccounts()
@@ -515,13 +515,13 @@ describe('portfolioSlice', () => {
 
       it('should be able to filter by assetId', () => {
         const expected = '1200.01'
-        const result = selectPortfolioFiatBalanceByFilter(state, { assetId: ethAssetId })
+        const result = selectPortfolioUserCurrencyBalanceByFilter(state, { assetId: ethAssetId })
         expect(result).toEqual(expected)
       })
 
       it('should be able to filter by accountId and assetId', () => {
         const expected = '30.00'
-        const result = selectPortfolioFiatBalanceByFilter(state, {
+        const result = selectPortfolioUserCurrencyBalanceByFilter(state, {
           accountId: ethAccountId,
           assetId: foxAssetId,
         })

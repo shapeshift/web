@@ -48,17 +48,21 @@ export const DashboardHeader = () => {
   const claimableRewardsUserCurrencyBalance = useAppSelector(state =>
     selectClaimableRewards(state, claimableRewardsUserCurrencyBalanceFilter),
   )
-  const earnFiatBalance = useAppSelector(selectEarnBalancesUserCurrencyAmountFull).toFixed()
+  const earnUserCurrencyBalance = useAppSelector(selectEarnBalancesUserCurrencyAmountFull).toFixed()
   const portfolioTotalUserCurrencyBalance = useAppSelector(
     selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
   )
   const netWorth = useMemo(
     () =>
-      bnOrZero(earnFiatBalance)
+      bnOrZero(earnUserCurrencyBalance)
         .plus(portfolioTotalUserCurrencyBalance)
         .plus(claimableRewardsUserCurrencyBalance)
         .toFixed(),
-    [claimableRewardsUserCurrencyBalance, earnFiatBalance, portfolioTotalUserCurrencyBalance],
+    [
+      claimableRewardsUserCurrencyBalance,
+      earnUserCurrencyBalance,
+      portfolioTotalUserCurrencyBalance,
+    ],
   )
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const bgColor = useColorModeValue('white', 'blackAlpha.100')
@@ -87,7 +91,7 @@ export const DashboardHeader = () => {
         label: 'navBar.defi',
         path: '/dashboard/earn',
         color: 'purple',
-        rightElement: <Amount.Fiat value={earnFiatBalance} />,
+        rightElement: <Amount.Fiat value={earnUserCurrencyBalance} />,
       },
       {
         label: 'navBar.rewards',
@@ -110,7 +114,7 @@ export const DashboardHeader = () => {
     ]
   }, [
     claimableRewardsUserCurrencyBalance,
-    earnFiatBalance,
+    earnUserCurrencyBalance,
     isNftsEnabled,
     portfolioTotalUserCurrencyBalance,
     translate,

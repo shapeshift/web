@@ -45,17 +45,21 @@ export const Portfolio = () => {
   const portfolioTotalUserCurrencyBalance = useAppSelector(
     selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
   )
-  const claimableRewardsFiatBalanceFilter = useMemo(() => ({}), [])
-  const claimableRewardsFiatBalance = useAppSelector(state =>
-    selectClaimableRewards(state, claimableRewardsFiatBalanceFilter),
+  const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
+  const claimableRewardsUserCurrencyBalance = useAppSelector(state =>
+    selectClaimableRewards(state, claimableRewardsUserCurrencyBalanceFilter),
   )
   const totalBalance = useMemo(
     () =>
       bnOrZero(earnUserCurrencyBalance)
         .plus(portfolioTotalUserCurrencyBalance)
-        .plus(claimableRewardsFiatBalance)
+        .plus(claimableRewardsUserCurrencyBalance)
         .toFixed(),
-    [claimableRewardsFiatBalance, earnUserCurrencyBalance, portfolioTotalUserCurrencyBalance],
+    [
+      claimableRewardsUserCurrencyBalance,
+      earnUserCurrencyBalance,
+      portfolioTotalUserCurrencyBalance,
+    ],
   )
 
   const loading = useAppSelector(selectPortfolioLoading)

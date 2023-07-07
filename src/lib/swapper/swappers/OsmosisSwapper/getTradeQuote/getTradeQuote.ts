@@ -5,7 +5,13 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
+import type { Asset } from 'lib/asset-service'
+import type {
+  GetTradeQuoteInput,
+  SwapErrorRight,
+  TradeQuote,
+  TradeQuoteStep,
+} from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import {
   getMinimumCryptoHuman,
@@ -62,13 +68,17 @@ export const getTradeQuote = async (
       }),
     )
 
-  // First hop fees are always paid in the native asset of the sell asset
+  const buyAssetIsOnOsmosisNetwork = buyAsset.chainId === osmosisChainId
+  const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
+
+  // Fees
+
+  // First hop fees are always paid in the native asset of the sell chain
   // i.e ATOM for ATOM -> OSMO, OSMO for OSMO -> ATOM
-  const firstHopAdapter = sellAsset.chainId === osmosisChainId ? osmosisAdapter : cosmosAdapter
+  const firstHopAdapter = sellAssetIsOnOsmosisNetwork ? osmosisAdapter : cosmosAdapter
   const getFirstHopFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
   const firstHopFeeData = await firstHopAdapter.getFeeData(getFirstHopFeeDataInput)
   const firstHopFee = firstHopFeeData.fast.txFee
-
   // Second hop always happens on Osmosis, so the fee is always paid in OSMO. i.e:
   // 1. in OSMO for OSMO -> ATOM, since both the swap-exact-amount-in to ATOM on Osmosis, and the IBC transfer to Cosmos IBC channel are paid in OSMO
   // 2. in OSMO for ATOM -> OSMO, since the IBC transfer is paid in ATOM, but the second IBC transfer hop is paid in OSMO
@@ -77,25 +87,53 @@ export const getTradeQuote = async (
   const secondHopFeeData = await secondHopAdapter.getFeeData(getSecondHopFeeDataInput)
   const secondHopFee = secondHopFeeData.fast.txFee
 
+  // First hop buy asset is always ATOM on Osmosis i.e
+  // - for ATOM -> OSMO trades, we IBC transfer ATOM to ATOM on Osmosis so we can then swap it for OSMO
+  // - for OSMO -> ATOM trades, we swap OSMO for ATOM on Osmosis so we can then IBC transfer it
+
+  // Hardcoded to keep things simple, we may want to make an exchange request instead
+  // https://shapeshift.readme.io/reference/assets-search
+  const atomOnOsmosisAsset: Asset = {
+    assetId:
+      'cosmos:osmosis-1/ibc:27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
+    chainId: 'cosmos:osmosis-1',
+    symbol: 'ATOM',
+    name: 'Cosmos Hub Atom on Osmosis',
+    precision: 6,
+    color: '#272D45',
+    icon: 'https://rawcdn.githack.com/cosmos/chain-registry/master/cosmoshub/images/atom.png',
+    explorer: 'https://www.mintscan.io/osmosis',
+    explorerAddressLink: 'https://www.mintscan.io/osmosis/account/',
+    explorerTxLink: 'https://www.mintscan.io/osmosis/txs/',
+  }
+
+  const firstHopBuyAsset = atomOnOsmosisAsset
+
   // TODO(gomes): this is incorrect, and reflects assuming the whole swap as a single hop
   // It needs to be programmatic on the OSMO -> ATOM or ATOM -> OSMO direction
-  const firstStep = {
+  const firstStep: TradeQuoteStep<OsmosisSupportedChainId> = {
     allowanceContract: '',
-    buyAsset,
+    buyAsset: firstHopBuyAsset,
     feeData: {
       networkFeeCryptoBaseUnit: firstHopFee,
       protocolFees: {
-        [buyAsset.assetId]: {
-          amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
-          requiresBalance: true,
-          asset: buyAsset,
-        },
+        // TODO: OSMO -> ATOM should have protocol fees on the first hop since this is an actual swap
+        // However, ATOM -> OSMO shouldn't have protocol fees on the first hop since this is just an IBC transfer i.e network fees apply, not protocol fees
+        // [buyAsset.assetId]: {
+        // amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
+        // requiresBalance: true,
+        // asset: buyAsset,
+        // },
       },
     },
     accountNumber,
     rate,
     sellAsset,
     sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+    // TODO(gomes): this is incorrect, and reflects assuming the whole swap as a single hop
+    // we want this to be either:
+    // - for OSMO -> ATOM, the amount of ATOM on OSMO we're getting, i.e the original amount minus the swap fees
+    // - for ATOM -> OSMO, the exact amount being "sold" (IBC transfered to the Osmosis chain)
     buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
     sources: DEFAULT_SOURCE,
   }

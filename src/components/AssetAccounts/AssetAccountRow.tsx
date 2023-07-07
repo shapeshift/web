@@ -55,7 +55,7 @@ export const AssetAccountRow = ({
 
   const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
 
-  const fiatBalance = useAppSelector(s =>
+  const userCurrencyBalance = useAppSelector(s =>
     selectUserCurrencyBalanceIncludingStakingByFilter(s, filter),
   )
   const cryptoHumanBalance = useAppSelector(s =>
@@ -152,7 +152,7 @@ export const AssetAccountRow = ({
 
       <Flex justifyContent='flex-end'>
         <Flex flexDir='column' textAlign='right'>
-          <Amount.Fiat value={fiatBalance} />
+          <Amount.Fiat value={userCurrencyBalance} />
           {(isCompact || !isLargerThanMd) && (
             <Amount.Crypto color='gray.500' value={cryptoHumanBalance} symbol={asset?.symbol} />
           )}

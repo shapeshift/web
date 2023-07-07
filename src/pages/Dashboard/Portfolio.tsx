@@ -22,7 +22,7 @@ import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
 import {
   selectChartTimeframe,
   selectClaimableRewards,
-  selectEarnBalancesFiatAmountFull,
+  selectEarnBalancesUserCurrencyAmountFull,
   selectPortfolioAssetIds,
   selectPortfolioLoading,
   selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
@@ -41,8 +41,8 @@ export const Portfolio = () => {
 
   const assetIds = useAppSelector(selectPortfolioAssetIds)
 
-  const earnFiatBalance = useAppSelector(selectEarnBalancesFiatAmountFull).toFixed()
-  const portfolioTotalFiatBalance = useAppSelector(
+  const earnUserCurrencyBalance = useAppSelector(selectEarnBalancesUserCurrencyAmountFull).toFixed()
+  const portfolioTotalUserCurrencyBalance = useAppSelector(
     selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
   )
   const claimableRewardsFiatBalanceFilter = useMemo(() => ({}), [])
@@ -51,11 +51,11 @@ export const Portfolio = () => {
   )
   const totalBalance = useMemo(
     () =>
-      bnOrZero(earnFiatBalance)
-        .plus(portfolioTotalFiatBalance)
+      bnOrZero(earnUserCurrencyBalance)
+        .plus(portfolioTotalUserCurrencyBalance)
         .plus(claimableRewardsFiatBalance)
         .toFixed(),
-    [claimableRewardsFiatBalance, earnFiatBalance, portfolioTotalFiatBalance],
+    [claimableRewardsFiatBalance, earnUserCurrencyBalance, portfolioTotalUserCurrencyBalance],
   )
 
   const loading = useAppSelector(selectPortfolioLoading)

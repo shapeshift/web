@@ -38,7 +38,7 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
   buttonProps,
   ...menuProps
 }) => {
-  const totalPortfolioFiatBalance = useAppSelector(
+  const totalPortfolioUserCurrencyBalance = useAppSelector(
     selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
   )
   const translate = useTranslate()
@@ -69,7 +69,7 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
                   <GridIcon />
                 </IconCircle>
                 {translate('common.allChains')}
-                <Amount.Fiat ml='auto' value={totalPortfolioFiatBalance} />
+                <Amount.Fiat ml='auto' value={totalPortfolioUserCurrencyBalance} />
               </Flex>
             </MenuItemOption>
           )}

@@ -33,7 +33,7 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = ({
   const cryptoHumanBalance = useAppSelector(s =>
     selectPortfolioCryptoPrecisionBalanceByFilter(s, filter),
   )
-  const fiatBalance =
+  const userCurrencyBalance =
     useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, filter)) ?? '0'
   if (!asset) return null
 
@@ -76,7 +76,7 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = ({
       </Flex>
       {isConnected && !isDemoWallet && !hideAssetBalance && (
         <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
-          <Amount.Fiat color='var(--chakra-colors-chakra-body-text)' value={fiatBalance} />
+          <Amount.Fiat color='var(--chakra-colors-chakra-body-text)' value={userCurrencyBalance} />
           <Amount.Crypto
             fontSize='sm'
             fontWeight='normal'

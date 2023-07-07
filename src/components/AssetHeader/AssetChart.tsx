@@ -76,7 +76,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const translate = useTranslate()
   const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 
-  const fiatBalance = useAppSelector(s =>
+  const userCurrencyBalance = useAppSelector(s =>
     selectUserCurrencyBalanceIncludingStakingByFilter(s, opportunitiesFilter),
   )
   const cryptoHumanBalance = useAppSelector(s =>
@@ -92,9 +92,9 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
 
   useEffect(() => {
     if (isBalanceChartDataUnavailable) return
-    if (bnOrZero(fiatBalance).eq(0)) return
+    if (bnOrZero(userCurrencyBalance).eq(0)) return
     setView(View.Balance)
-  }, [fiatBalance, isBalanceChartDataUnavailable])
+  }, [userCurrencyBalance, isBalanceChartDataUnavailable])
 
   return (
     <Card>
@@ -125,7 +125,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
           <Card.Heading fontSize='4xl' lineHeight={1} mb={2}>
             <Skeleton isLoaded={isLoaded}>
               <NumberFormat
-                value={view === View.Price ? assetPrice : toFiat(fiatBalance)}
+                value={view === View.Price ? assetPrice : toFiat(userCurrencyBalance)}
                 displayType={'text'}
                 thousandSeparator={true}
                 isNumericString={true}

@@ -31,7 +31,7 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
   const cryptoValue =
     useAppSelector(state => selectPortfolioCryptoPrecisionBalanceByFilter(state, { assetId })) ??
     '0'
-  const fiatValue =
+  const userCurrencyValue =
     useAppSelector(state => selectPortfolioUserCurrencyBalanceByAssetId(state, { assetId })) ?? '0'
 
   if (!asset) return null // users may have assets we don't support
@@ -91,7 +91,7 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
           '--'
         ) : (
           <Flex flexDir='column' textAlign='right'>
-            <Amount.Fiat value={fiatValue} />
+            <Amount.Fiat value={userCurrencyValue} />
             <Amount.Crypto
               display={{ base: 'block', md: 'none' }}
               color='gray.500'

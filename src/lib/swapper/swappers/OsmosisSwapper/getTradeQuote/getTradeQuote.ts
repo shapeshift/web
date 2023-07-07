@@ -130,11 +130,9 @@ export const getTradeQuote = async (
     rate,
     sellAsset,
     sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-    // TODO(gomes): this is incorrect, and reflects assuming the whole swap as a single hop
-    // we want this to be either:
-    // - for OSMO -> ATOM, the amount of ATOM on OSMO we're getting, i.e the original amount minus the swap fees
-    // - for ATOM -> OSMO, the exact amount being "sold" (IBC transfered to the Osmosis chain)
-    buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
+    buyAmountBeforeFeesCryptoBaseUnit: sellAssetIsOnOsmosisNetwork
+      ? buyAmountCryptoBaseUnit
+      : sellAmountCryptoBaseUnit,
     sources: DEFAULT_SOURCE,
   }
 

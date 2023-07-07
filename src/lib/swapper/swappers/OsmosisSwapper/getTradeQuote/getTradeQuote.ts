@@ -6,6 +6,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { Asset } from 'lib/asset-service'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type {
   GetTradeQuoteInput,
   SwapErrorRight,
@@ -26,6 +27,7 @@ export const getTradeQuote = async (
   { sellAssetUsdRate }: { sellAssetUsdRate: string },
 ): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>> => {
   const {
+    // TODO(gomes): very very dangerous. We currently use account number both on the sending and receiving side and this will break cross-account.
     accountNumber,
     sellAsset,
     buyAsset,
@@ -85,11 +87,11 @@ export const getTradeQuote = async (
   const secondHopAdapter = osmosisAdapter
   const getSecondHopFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
   const secondHopFeeData = await secondHopAdapter.getFeeData(getSecondHopFeeDataInput)
-  const secondHopFee = secondHopFeeData.fast.txFee
-
-  // First hop buy asset is always ATOM on Osmosis i.e
-  // - for ATOM -> OSMO trades, we IBC transfer ATOM to ATOM on Osmosis so we can then swap it for OSMO
-  // - for OSMO -> ATOM trades, we swap OSMO for ATOM on Osmosis so we can then IBC transfer it
+  // For an actual OSMO swap, the fee is going to match the fast fee
+  // For an IBC transfer, the slow txFee is as close as we can get, while still being slightly overestimated
+  const secondHopFee = buyAssetIsOnOsmosisNetwork
+    ? secondHopFeeData.fast.txFee
+    : secondHopFeeData.slow.txFee
 
   // Hardcoded to keep things simple, we may want to make an exchange request instead
   // https://shapeshift.readme.io/reference/assets-search
@@ -107,10 +109,13 @@ export const getTradeQuote = async (
     explorerTxLink: 'https://www.mintscan.io/osmosis/txs/',
   }
 
+  // First hop buy asset is always ATOM on Osmosis i.e
+  // - for ATOM -> OSMO trades, we IBC transfer ATOM to ATOM on Osmosis so we can then swap it for OSMO
+  // - for OSMO -> ATOM trades, we swap OSMO for ATOM on Osmosis so we can then IBC transfer it
   const firstHopBuyAsset = atomOnOsmosisAsset
+  // Regardless of whether or not we're on the ATOM -> OSMO or OSMO -> ATOM direction, the second swap is the one we actually get the buy asset
+  const secondHopBuyAsset = buyAsset
 
-  // TODO(gomes): this is incorrect, and reflects assuming the whole swap as a single hop
-  // It needs to be programmatic on the OSMO -> ATOM or ATOM -> OSMO direction
   const firstStep: TradeQuoteStep<OsmosisSupportedChainId> = {
     allowanceContract: '',
     buyAsset: firstHopBuyAsset,
@@ -136,8 +141,38 @@ export const getTradeQuote = async (
     sources: DEFAULT_SOURCE,
   }
 
+  const secondStep: TradeQuoteStep<OsmosisSupportedChainId> = {
+    allowanceContract: '',
+    buyAsset: secondHopBuyAsset,
+    feeData: {
+      networkFeeCryptoBaseUnit: secondHopFee,
+      protocolFees: {
+        // Protocol fees are only paid on the ATOM -> OSMO direction
+        // IBC transfers don't incur protocol fees, only network ones
+        ...(buyAssetIsOnOsmosisNetwork
+          ? {
+              [buyAsset.assetId]: {
+                amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
+                requiresBalance: true,
+                asset: buyAsset,
+              },
+            }
+          : {}),
+      },
+    },
+    accountNumber,
+    rate,
+    sellAsset,
+    // TODO(gomes): deduct protocol fees for OSMO -> ATOM when implemented above
+    sellAmountBeforeFeesCryptoBaseUnit: sellAssetIsOnOsmosisNetwork
+      ? 'TODO'
+      : bnOrZero(firstStep.buyAmountBeforeFeesCryptoBaseUnit).minus(firstHopFee).toString(),
+    buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
+    sources: DEFAULT_SOURCE,
+  }
+
   return Ok({
     minimumCryptoHuman,
-    steps: [firstStep],
+    steps: [firstStep, secondStep],
   })
 }

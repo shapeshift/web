@@ -1,6 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { osmosisChainId } from '@shapeshiftoss/caip'
-import type { GetFeeDataInput, osmosis } from '@shapeshiftoss/chain-adapters'
+import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
+import type { cosmos, GetFeeDataInput, osmosis } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
@@ -51,18 +51,31 @@ export const getTradeQuote = async (
   const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetUsdRate)
 
   const osmosisAdapter = adapterManager.get(osmosisChainId) as osmosis.ChainAdapter | undefined
+  const cosmosAdapter = adapterManager.get(cosmosChainId) as cosmos.ChainAdapter | undefined
 
-  if (!osmosisAdapter)
+  // TODO(gomes): assertion util
+  if (!osmosisAdapter || !cosmosAdapter)
     return Err(
       makeSwapErrorRight({
-        message: 'Failed to get Osmosis adapter',
+        message: 'Failed to get Cosmos SDK adapters',
         code: SwapErrorType.TRADE_QUOTE_FAILED,
       }),
     )
 
-  const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
-  const feeData = await osmosisAdapter.getFeeData(getFeeDataInput)
-  const fee = feeData.fast.txFee
+  // First hop fees are always paid in the native asset of the sell asset
+  // i.e ATOM for ATOM -> OSMO, OSMO for OSMO -> ATOM
+  const firstHopAdapter = sellAsset.chainId === osmosisChainId ? osmosisAdapter : cosmosAdapter
+  const getFirstHopFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
+  const firstHopFeeData = await firstHopAdapter.getFeeData(getFirstHopFeeDataInput)
+  const firstHopFee = firstHopFeeData.fast.txFee
+
+  // Second hop always happens on Osmosis, so the fee is always paid in OSMO. i.e:
+  // 1. in OSMO for OSMO -> ATOM, since both the swap-exact-amount-in to ATOM on Osmosis, and the IBC transfer to Cosmos IBC channel are paid in OSMO
+  // 2. in OSMO for ATOM -> OSMO, since the IBC transfer is paid in ATOM, but the second IBC transfer hop is paid in OSMO
+  const secondHopAdapter = osmosisAdapter
+  const getSecondHopFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
+  const secondHopFeeData = await secondHopAdapter.getFeeData(getSecondHopFeeDataInput)
+  const secondHopFee = secondHopFeeData.fast.txFee
 
   return Ok({
     minimumCryptoHuman,
@@ -71,7 +84,7 @@ export const getTradeQuote = async (
         allowanceContract: '',
         buyAsset,
         feeData: {
-          networkFeeCryptoBaseUnit: fee,
+          networkFeeCryptoBaseUnit: firstHopFee,
           protocolFees: {
             [buyAsset.assetId]: {
               amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,

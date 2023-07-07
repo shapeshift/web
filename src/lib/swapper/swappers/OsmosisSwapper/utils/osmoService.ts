@@ -3,7 +3,7 @@ import axios from 'axios'
 import { createCache, makeSwapperAxiosServiceMonadic } from 'lib/swapper/utils'
 
 const maxAge = 3 * 1000 // 3 seconds
-const cachedUrls = ['/osmosis/gamm/v1beta1/pools']
+const cachedUrls = ['/lcd/osmosis/gamm/v1beta1/pools']
 const cache = createCache(maxAge, cachedUrls)
 
 const axiosConfig: AxiosRequestConfig = {

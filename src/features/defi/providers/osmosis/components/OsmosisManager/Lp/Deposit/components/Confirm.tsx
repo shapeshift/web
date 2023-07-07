@@ -29,7 +29,7 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import type { OsmosisSupportedChainId } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapper'
+import type { OsmosisSupportedChainId } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
 import {
   getPool,
   getPoolIdFromAssetReference,

@@ -9,10 +9,10 @@ import { find } from 'lodash'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
-import type { OsmosisSupportedChainAdapter } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapper'
 import { osmoService } from 'lib/swapper/swappers/OsmosisSwapper/utils/osmoService'
 import type {
   IbcTransferInput,
+  OsmosisSupportedChainAdapter,
   PoolInfo,
   PoolRateInfo,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
@@ -37,7 +37,7 @@ type FindPoolOutput = {
 
 const txStatus = async (txid: string, baseUrl: string): Promise<string> => {
   try {
-    const txResponse = await axios.get(`${baseUrl}/txs/${txid}`)
+    const txResponse = await axios.get(`${baseUrl}/lcd/txs/${txid}`)
     if (!txResponse?.data?.codespace && !!txResponse?.data?.gas_used) return 'success'
     if (txResponse?.data?.codespace) return 'failed'
   } catch (e) {
@@ -74,7 +74,7 @@ export const pollForComplete = (txid: string, baseUrl: string): Promise<string> 
 export const getAtomChannelBalance = async (address: string, osmoUrl: string) => {
   const osmoResponseBalance = await (() => {
     try {
-      return axios.get(`${osmoUrl}/bank/balances/${address}`)
+      return axios.get(`${osmoUrl}/lcd/bank/balances/${address}`)
     } catch (e) {
       throw new SwapError('failed to get balance', {
         code: SwapErrorType.RESPONSE_ERROR,
@@ -126,7 +126,7 @@ const findPool = async (
   const sellAssetDenom = symbolDenomMapping[sellAssetSymbol as keyof SymbolDenomMapping]
   const buyAssetDenom = symbolDenomMapping[buyAssetSymbol as keyof SymbolDenomMapping]
 
-  const poolsUrl = osmoUrl + '/osmosis/gamm/v1beta1/pools?pagination.limit=1000'
+  const poolsUrl = osmoUrl + '/lcd/osmosis/gamm/v1beta1/pools?pagination.limit=1000'
 
   const maybePoolsResponse = await osmoService.get(poolsUrl)
 
@@ -219,7 +219,7 @@ export const performIbcTransfer = async (
 
   const responseLatestBlock = await (() => {
     try {
-      return axios.get(`${blockBaseUrl}/blocks/latest`)
+      return axios.get(`${blockBaseUrl}/lcd/blocks/latest`)
     } catch (e) {
       throw new SwapError('failed to get latest block', {
         code: SwapErrorType.RESPONSE_ERROR,
@@ -355,4 +355,9 @@ export const buildTradeTx = async ({
     },
     wallet,
   }
+}
+
+export const getMinimumCryptoHuman = (sellAssetUsdRate: string): string => {
+  const minimumAmountCryptoHuman = bn(1).dividedBy(bnOrZero(sellAssetUsdRate)).toString()
+  return minimumAmountCryptoHuman
 }

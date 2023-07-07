@@ -24,28 +24,50 @@ export const thorchainApi: Swapper2Api = {
     rates: Rates,
     runeAssetUsdRate: string,
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
-    const tradeQuoteResult = await getThorTradeQuote(input, rates)
     const { receiveAddress, affiliateBps } = input
 
-    return tradeQuoteResult.map(tradeQuote => {
+    const processQuote = (
+      quote: Result<TradeQuote, SwapErrorRight>,
+      receiveAddress: string,
+      affiliateBps: string | undefined,
+      isDonationAmountBelowMinimum?: boolean,
+    ) => {
       const id = uuid()
-
-      const firstHop = tradeQuote.steps[0]
-      const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
-        firstHop.buyAmountBeforeFeesCryptoBaseUnit,
-        firstHop.buyAsset.precision,
-      )
-      const buyAmountUsd = bnOrZero(buyAmountBeforeFeesCryptoPrecision).times(rates.buyAssetUsdRate)
-      const donationAmountUsd = buyAmountUsd.times(affiliateBps).div(10000)
-      const isDonationAmountBelowMinimum = bnOrZero(donationAmountUsd)
-        .div(runeAssetUsdRate)
-        .lte(RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN)
-
-      return {
+      return quote.map<TradeQuote2>(quote => ({
         id,
         receiveAddress,
         affiliateBps: isDonationAmountBelowMinimum ? undefined : affiliateBps,
-        ...tradeQuote,
+        ...quote,
+      }))
+    }
+
+    return await getThorTradeQuote(input, rates).then(async firstQuote => {
+      if (firstQuote.isOk()) {
+        const successfulQuote = firstQuote.unwrap()
+        const firstHop = successfulQuote.steps[0]
+        const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
+          firstHop.buyAmountBeforeFeesCryptoBaseUnit,
+          firstHop.buyAsset.precision,
+        )
+        const buyAmountUsd = bnOrZero(buyAmountBeforeFeesCryptoPrecision).times(
+          rates.buyAssetUsdRate,
+        )
+        const donationAmountUsd = buyAmountUsd.times(affiliateBps).div(10000)
+        const isDonationAmountBelowMinimum = bnOrZero(donationAmountUsd)
+          .div(runeAssetUsdRate)
+          .lte(RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN)
+
+        const quoteToUse = isDonationAmountBelowMinimum
+          ? /*
+          If the donation amount is below the minimum,
+          we need to fetch a new quote with no affiliate fee
+        */
+            await getThorTradeQuote({ ...input, affiliateBps: '0' }, rates)
+          : firstQuote
+
+        return processQuote(quoteToUse, receiveAddress, affiliateBps, isDonationAmountBelowMinimum)
+      } else {
+        return processQuote(firstQuote, receiveAddress, affiliateBps)
       }
     })
   },

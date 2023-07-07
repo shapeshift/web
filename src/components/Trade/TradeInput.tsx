@@ -136,7 +136,7 @@ export const TradeInput = () => {
   const fiatBuyAmount = useSwapperStore(selectBuyAmountUserCurrency)
   const fiatSellAmount = useSwapperStore(selectSellAmountUserCurrency)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
-  const feeAssetFiatRate = useSwapperStore(selectFeeAssetUserCurrencyRate)
+  const feeAssetUserCurrencyRate = useSwapperStore(selectFeeAssetUserCurrencyRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellAssetChainId = sellAsset?.chainId
@@ -242,7 +242,7 @@ export const TradeInput = () => {
   const buyAssetChainName = chainAdapterManager.get(buyAsset.chainId)?.getDisplayName()
 
   const gasFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
-    .times(bnOrZero(feeAssetFiatRate))
+    .times(bnOrZero(feeAssetUserCurrencyRate))
     .toString()
 
   const hasValidSellAmount = bnOrZero(sellAmountCryptoPrecision).gt(0)

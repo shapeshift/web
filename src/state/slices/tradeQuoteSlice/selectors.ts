@@ -329,18 +329,18 @@ export const selectNetBuyAmountCryptoPrecision = createSelector(
 export const selectNetBuyAmountUserCurrency = createSelector(
   selectNetBuyAmountCryptoPrecision,
   selectBuyAssetUserCurrencyRate,
-  (netBuyAmountCryptoPrecision, buyAssetFiatRate) => {
-    if (!netBuyAmountCryptoPrecision || !buyAssetFiatRate) return
-    return bn(netBuyAmountCryptoPrecision).times(buyAssetFiatRate).toFixed()
+  (netBuyAmountCryptoPrecision, buyAssetUserCurrencyRate) => {
+    if (!netBuyAmountCryptoPrecision || !buyAssetUserCurrencyRate) return
+    return bn(netBuyAmountCryptoPrecision).times(buyAssetUserCurrencyRate).toFixed()
   },
 )
 
 export const selectSellAmountUserCurrency = createSelector(
   selectSellAmountCryptoPrecision,
   selectSellAssetUserCurrencyRate,
-  (sellAmountCryptoPrecision, sellAssetFiatRate) => {
-    if (!sellAmountCryptoPrecision || !sellAssetFiatRate) return
-    return bn(sellAmountCryptoPrecision).times(sellAssetFiatRate).toFixed()
+  (sellAmountCryptoPrecision, sellAssetUserCurrencyRate) => {
+    if (!sellAmountCryptoPrecision || !sellAssetUserCurrencyRate) return
+    return bn(sellAmountCryptoPrecision).times(sellAssetUserCurrencyRate).toFixed()
   },
 )
 

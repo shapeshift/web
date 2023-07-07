@@ -82,7 +82,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
 
   const { isTradingActive } = useIsTradingActive()
 
-  const feeAssetFiatRate = useSwapperStore(selectFeeAssetUserCurrencyRate)
+  const feeAssetUserCurrencyRate = useSwapperStore(selectFeeAssetUserCurrencyRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellFeeAsset = useAppSelector(state =>
@@ -117,12 +117,12 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
 
   const networkFeeFiat = useMemo(
     () =>
-      feeAssetFiatRate && networkFeeCryptoBaseUnit
+      feeAssetUserCurrencyRate && networkFeeCryptoBaseUnit
         ? bnOrZero(fromBaseUnit(networkFeeCryptoBaseUnit, feeAsset.precision))
-            .times(feeAssetFiatRate)
+            .times(feeAssetUserCurrencyRate)
             .toString()
         : undefined,
-    [feeAsset.precision, feeAssetFiatRate, networkFeeCryptoBaseUnit],
+    [feeAsset.precision, feeAssetUserCurrencyRate, networkFeeCryptoBaseUnit],
   )
 
   const protocol = swapperWithMetadata.swapper.name

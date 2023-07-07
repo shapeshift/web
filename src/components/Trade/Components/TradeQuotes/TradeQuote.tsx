@@ -115,7 +115,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
 
   const networkFeeCryptoBaseUnit = quote.steps[0].feeData.networkFeeCryptoBaseUnit
 
-  const networkFeeFiat = useMemo(
+  const networkFeeUserCurrency = useMemo(
     () =>
       feeAssetUserCurrencyRate && networkFeeCryptoBaseUnit
         ? bnOrZero(fromBaseUnit(networkFeeCryptoBaseUnit, feeAsset.precision))
@@ -214,7 +214,11 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           <RawText color='gray.500'>
             <FaGasPump />
           </RawText>
-          {networkFeeFiat ? <Amount.Fiat value={networkFeeFiat} /> : translate('trade.unknownGas')}
+          {networkFeeUserCurrency ? (
+            <Amount.Fiat value={networkFeeUserCurrency} />
+          ) : (
+            translate('trade.unknownGas')
+          )}
         </Flex>
       </Flex>
       <Flex justifyContent='space-between' alignItems='center'>

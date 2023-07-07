@@ -241,7 +241,7 @@ export const TradeInput = () => {
   const chainAdapterManager = getChainAdapterManager()
   const buyAssetChainName = chainAdapterManager.get(buyAsset.chainId)?.getDisplayName()
 
-  const gasFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
+  const gasFeeUserCurrency = bnOrZero(fees?.networkFeeCryptoHuman)
     .times(bnOrZero(feeAssetUserCurrencyRate))
     .toString()
 
@@ -818,7 +818,7 @@ export const TradeInput = () => {
           <RateGasRow
             sellSymbol={sellAsset?.symbol}
             buySymbol={buyAsset?.symbol}
-            gasFee={gasFeeFiat}
+            gasFee={gasFeeUserCurrency}
             rate={activeQuote?.steps[0].rate}
             isLoading={tradeStateLoading}
             isError={!walletSupportsSellAssetChain}

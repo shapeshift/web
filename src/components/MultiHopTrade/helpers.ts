@@ -4,7 +4,7 @@ import { selectAssets, selectWillDonate } from 'state/slices/selectors'
 import {
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
-  selectDonationAmountFiat,
+  selectDonationAmountUserCurrency,
   selectFirstHopSellAsset,
   selectLastHopBuyAsset,
   selectSellAmountBeforeFeesCryptoPrecision,
@@ -23,7 +23,7 @@ export const getMixpanelEventData = () => {
   if (!buyAsset?.precision) return
 
   const assets = selectAssets(state)
-  const donationAmountFiat = selectDonationAmountFiat(state)
+  const donationAmountUserCurrency = selectDonationAmountUserCurrency(state)
   const sellAmountBeforeFeesUserCurrency = selectSellAmountUserCurrency(state)
   const buyAmountBeforeFeesCryptoPrecision = selectBuyAmountBeforeFeesCryptoPrecision(state)
   const sellAmountBeforeFeesCryptoPrecision = selectSellAmountBeforeFeesCryptoPrecision(state)
@@ -39,7 +39,7 @@ export const getMixpanelEventData = () => {
     fiatAmount: sellAmountBeforeFeesUserCurrency,
     swapperName,
     hasUserOptedOutOfDonation: isDonating,
-    donationAmountFiat,
+    donationAmountFiat: donationAmountUserCurrency,
     [compositeBuyAsset]: buyAmountBeforeFeesCryptoPrecision,
     [compositeSellAsset]: sellAmountBeforeFeesCryptoPrecision,
   }

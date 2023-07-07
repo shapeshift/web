@@ -252,7 +252,7 @@ export const TradeConfirm = () => {
 
   const { showErrorToast } = useErrorHandler()
 
-  const donationAmountFiat = useSwapperStore(selectDonationAmountUserCurrency)
+  const donationAmountUserCurrency = useSwapperStore(selectDonationAmountUserCurrency)
 
   // Track these data here so we don't have to do this again for the other states
   const eventData = useMemo(() => {
@@ -276,7 +276,7 @@ export const TradeConfirm = () => {
       fiatAmount: sellAmountBeforeFeesUserCurrency,
       swapperName: swapper.name,
       hasUserOptedOutOfDonation,
-      donationAmountFiat,
+      donationAmountFiat: donationAmountUserCurrency,
       [compositeBuyAsset]: buyAmountCryptoPrecision,
       [compositeSellAsset]: sellAmountCryptoPrecision,
     }
@@ -288,7 +288,7 @@ export const TradeConfirm = () => {
     sellAmountBeforeFeesBaseUnit,
     sellAmountBeforeFeesUserCurrency,
     hasUserOptedOutOfDonation,
-    donationAmountFiat,
+    donationAmountUserCurrency,
   ])
 
   useEffect(() => {
@@ -352,10 +352,12 @@ export const TradeConfirm = () => {
     history.push(TradeRoutePaths.Input)
   }, [clearAmounts, history, sellTradeId, updateTrade])
 
-  const networkFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman).times(feeAssetUserCurrencyRate ?? 1)
+  const networkFeeUserCurrency = bnOrZero(fees?.networkFeeCryptoHuman).times(
+    feeAssetUserCurrencyRate ?? 1,
+  )
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
-  const networkFeeToTradeRatioPercentage = networkFeeFiat
+  const networkFeeToTradeRatioPercentage = networkFeeUserCurrency
     .dividedBy(sellAmountBeforeFeesUserCurrency ?? 1)
     .times(100)
     .toNumber()
@@ -407,12 +409,12 @@ export const TradeConfirm = () => {
               </Checkbox>
             </Row.Label>
           </HelperTooltip>
-          <Row.Value>{toFiat(donationAmountFiat ?? '0')}</Row.Value>
+          <Row.Value>{toFiat(donationAmountUserCurrency ?? '0')}</Row.Value>
         </Row>
       </Stack>
     ),
     [
-      donationAmountFiat,
+      donationAmountUserCurrency,
       handleDonationToggle,
       hasUserOptedOutOfDonation,
       isReloadingTrade,
@@ -614,7 +616,7 @@ export const TradeConfirm = () => {
                     {defaultFeeAsset &&
                       `${bnOrZero(fees?.networkFeeCryptoHuman).toFixed()} ${
                         defaultFeeAsset.symbol
-                      } ≃ ${toFiat(networkFeeFiat.toNumber())}`}
+                      } ≃ ${toFiat(networkFeeUserCurrency.toNumber())}`}
                   </Row.Value>
                 </Row>
                 {isFeeRatioOverThreshold && (

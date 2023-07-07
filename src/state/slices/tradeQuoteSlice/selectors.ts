@@ -17,7 +17,7 @@ import {
   getHopTotalNetworkFeeFiatPrecision,
   getHopTotalProtocolFeesFiatPrecision,
   getNetReceiveAmountCryptoPrecision,
-  getTotalNetworkFeeFiatPrecision,
+  getTotalNetworkFeeUserCurrencyPrecision,
   getTotalProtocolFeeByAsset,
 } from 'state/slices/tradeQuoteSlice/helpers'
 import {
@@ -109,9 +109,9 @@ export const selectNetReceiveAmountCryptoPrecision: Selector<ReduxState, string 
     quote && swapperName ? getNetReceiveAmountCryptoPrecision({ quote, swapperName }) : undefined,
   )
 
-export const selectTotalNetworkFeeFiatPrecision: Selector<ReduxState, string | undefined> =
+export const selectTotalNetworkFeeUserCurrencyPrecision: Selector<ReduxState, string | undefined> =
   createSelector(selectActiveQuote, quote =>
-    quote ? getTotalNetworkFeeFiatPrecision(quote) : undefined,
+    quote ? getTotalNetworkFeeUserCurrencyPrecision(quote) : undefined,
   )
 
 export const selectTotalProtocolFeeByAsset: Selector<
@@ -344,7 +344,7 @@ export const selectSellAmountUserCurrency = createSelector(
   },
 )
 
-export const selectDonationAmountFiat = createSelector(
+export const selectDonationAmountUserCurrency = createSelector(
   selectActiveQuote,
   selectSellAmountUserCurrency,
   (activeQuote, sellAmountUserCurrency) => {

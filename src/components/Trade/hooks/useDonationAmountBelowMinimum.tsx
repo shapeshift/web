@@ -17,8 +17,10 @@ import { selectActiveSwapperName, selectSellAsset } from 'state/zustand/swapperS
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 export const useDonationAmountBelowMinimum = () => {
-  const runePriceFiat = useAppSelector(state => selectMarketDataById(state, thorchainAssetId)).price
-  const donationAmountFiat = useSwapperStore(selectDonationAmountUserCurrency)
+  const runePriceUserCurrency = useAppSelector(state =>
+    selectMarketDataById(state, thorchainAssetId),
+  ).price
+  const donationAmountUserCurrency = useSwapperStore(selectDonationAmountUserCurrency)
   const activeSwapperName = useSwapperStore(selectActiveSwapperName)
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellAssetChainId = sellAsset?.chainId
@@ -33,8 +35,8 @@ export const useDonationAmountBelowMinimum = () => {
   const isDonationAmountBelowMinimum = useMemo(() => {
     switch (activeSwapperName) {
       case SwapperName.Thorchain: {
-        return bnOrZero(donationAmountFiat)
-          .div(runePriceFiat)
+        return bnOrZero(donationAmountUserCurrency)
+          .div(runePriceUserCurrency)
           .lte(RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN)
       }
       case SwapperName.Zrx:
@@ -50,9 +52,9 @@ export const useDonationAmountBelowMinimum = () => {
   }, [
     activeSwapperName,
     buyAmountUsd,
-    donationAmountFiat,
+    donationAmountUserCurrency,
     feeAsset?.assetId,
-    runePriceFiat,
+    runePriceUserCurrency,
     walletIsKeepKey,
   ])
 

@@ -37,7 +37,7 @@ import { type ReduxState } from 'state/reducer'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
-  selectHighestFiatBalanceAccountByAssetId,
+  selectHighestUserCurrencyBalanceAccountByAssetId,
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadata,
@@ -105,7 +105,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
   const accountBalances = useSelector(selectPortfolioAccountBalancesBaseUnit)
   const accountMetadata = useSelector(selectPortfolioAccountMetadata)
   const highestFiatBalanceAccountId = useAppSelector(state =>
-    selectHighestFiatBalanceAccountByAssetId(state, { assetId }),
+    selectHighestUserCurrencyBalanceAccountByAssetId(state, { assetId }),
   )
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | undefined>(
     defaultAccountId,

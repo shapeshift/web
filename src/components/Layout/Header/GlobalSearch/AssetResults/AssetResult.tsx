@@ -11,7 +11,7 @@ import { GlobalSearchResultType } from 'state/slices/search-selectors'
 import {
   selectAssetById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioFiatBalanceByAssetId,
+  selectPortfolioUserCurrencyBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -32,7 +32,8 @@ export const AssetResult = forwardRef<AssetResultProps, 'div'>(
     const cryptoHumanBalance = useAppSelector(s =>
       selectPortfolioCryptoPrecisionBalanceByFilter(s, filter),
     )
-    const fiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, filter)) ?? '0'
+    const fiatBalance =
+      useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, filter)) ?? '0'
     if (!asset) return null
     return (
       <ResultButton

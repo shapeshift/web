@@ -142,7 +142,7 @@ export const getNetReceiveAmountCryptoPrecision = ({
  * @param quote The trade quote
  * @returns The total network fee across all hops in fiat precision
  */
-export const getTotalNetworkFeeFiatPrecision = (quote: TradeQuote2) => {
+export const getTotalNetworkFeeUserCurrencyPrecision = (quote: TradeQuote2) => {
   const state = store.getState()
   const getFeeAssetUserCurrencyRate = (feeAssetId: AssetId) =>
     selectMarketDataByFilter(state, {

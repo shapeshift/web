@@ -9,7 +9,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectClaimableRewards,
   selectEarnBalancesFiatAmountFull,
-  selectPortfolioTotalFiatBalanceExcludeEarnDupes,
+  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -59,7 +59,9 @@ export const PortfolioBreakdown = () => {
   const claimableRewardsFiatBalance = useAppSelector(state =>
     selectClaimableRewards(state, claimableRewardsFiatBalanceFilter),
   )
-  const portfolioTotalFiatBalance = useAppSelector(selectPortfolioTotalFiatBalanceExcludeEarnDupes)
+  const portfolioTotalFiatBalance = useAppSelector(
+    selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  )
   const netWorth = useMemo(
     () =>
       bnOrZero(earnFiatBalance)

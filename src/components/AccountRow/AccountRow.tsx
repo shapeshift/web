@@ -10,7 +10,7 @@ import {
   selectAssetById,
   selectMarketDataById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioFiatBalanceByAssetId,
+  selectPortfolioUserCurrencyBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -32,7 +32,7 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
     useAppSelector(state => selectPortfolioCryptoPrecisionBalanceByFilter(state, { assetId })) ??
     '0'
   const fiatValue =
-    useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, { assetId })) ?? '0'
+    useAppSelector(state => selectPortfolioUserCurrencyBalanceByAssetId(state, { assetId })) ?? '0'
 
   if (!asset) return null // users may have assets we don't support
 

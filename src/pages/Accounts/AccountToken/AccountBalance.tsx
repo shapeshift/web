@@ -12,7 +12,7 @@ import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectCryptoHumanBalanceIncludingStakingByFilter,
-  selectFiatBalanceIncludingStakingByFilter,
+  selectUserCurrencyBalanceIncludingStakingByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -36,7 +36,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
   // const footerBg = useColorModeValue('white.100', 'rgba(255,255,255,.02)')
 
   const fiatBalance = useAppSelector(s =>
-    selectFiatBalanceIncludingStakingByFilter(s, opportunitiesFilter),
+    selectUserCurrencyBalanceIncludingStakingByFilter(s, opportunitiesFilter),
   )
   const cryptoHumanBalance = useAppSelector(s =>
     selectCryptoHumanBalanceIncludingStakingByFilter(s, opportunitiesFilter),

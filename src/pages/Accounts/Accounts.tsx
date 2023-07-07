@@ -8,7 +8,7 @@ import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectPortfolioChainIdsSortedFiat } from 'state/slices/selectors'
+import { selectPortfolioChainIdsSortedUserCurrency } from 'state/slices/selectors'
 
 import { Account } from './Account'
 import { ChainRow } from './components/ChainRow'
@@ -58,10 +58,13 @@ const AccountHeader = () => {
 
 export const Accounts = () => {
   const { path } = useRouteMatch()
-  const portfolioChainIdsSortedFiat = useSelector(selectPortfolioChainIdsSortedFiat)
+  const portfolioChainIdsSortedUserCurrency = useSelector(selectPortfolioChainIdsSortedUserCurrency)
   const chainRows = useMemo(
-    () => portfolioChainIdsSortedFiat.map(chainId => <ChainRow key={chainId} chainId={chainId} />),
-    [portfolioChainIdsSortedFiat],
+    () =>
+      portfolioChainIdsSortedUserCurrency.map(chainId => (
+        <ChainRow key={chainId} chainId={chainId} />
+      )),
+    [portfolioChainIdsSortedUserCurrency],
   )
 
   return (

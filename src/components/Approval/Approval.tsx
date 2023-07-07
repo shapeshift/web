@@ -62,7 +62,7 @@ export const Approval = () => {
   } = useFormContext()
 
   const activeQuote = useSwapperStore(selectQuote)
-  const feeAssetFiatRate = useSwapperStore(selectFeeAssetUserCurrencyRate)
+  const feeAssetUserCurrencyRate = useSwapperStore(selectFeeAssetUserCurrencyRate)
   const fees = useSwapperStore(selectFees) as DisplayFeeData<EvmChainId> | undefined
   const updateTrade = useSwapperStore(state => state.updateTrade)
 
@@ -282,8 +282,12 @@ export const Approval = () => {
                 <Row.Value textAlign='right'>
                   <Skeleton isLoaded={approvalNetworkFeeCryptoHuman !== undefined}>
                     <RawText>
-                      {approvalNetworkFeeCryptoHuman && !bnOrZero(feeAssetFiatRate).isZero()
-                        ? toFiat(approvalNetworkFeeCryptoHuman.times(feeAssetFiatRate).toString())
+                      {approvalNetworkFeeCryptoHuman && !bnOrZero(feeAssetUserCurrencyRate).isZero()
+                        ? toFiat(
+                            approvalNetworkFeeCryptoHuman
+                              .times(feeAssetUserCurrencyRate)
+                              .toString(),
+                          )
                         : ''}
                     </RawText>
                     <RawText color='gray.500'>

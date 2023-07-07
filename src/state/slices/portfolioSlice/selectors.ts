@@ -218,7 +218,7 @@ export const selectPortfolioUserCurrencyBalanceByAssetId = createCachedSelector(
     assetId && portfolioUserCurrencyBalances[assetId],
 )((state: ReduxState, filter) => `${state.portfolio.walletId}-${filter?.assetId}` ?? 'assetId')
 
-export const selectPortfolioFiatBalanceByFilter = createCachedSelector(
+export const selectPortfolioUserCurrencyBalanceByFilter = createCachedSelector(
   selectPortfolioUserCurrencyBalances,
   selectPortfolioUserCurrencyBalancesByAccountId,
   selectAssetIdParamFromFilter,

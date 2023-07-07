@@ -35,7 +35,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
   // Add back in once we add the performance stuff in
   // const footerBg = useColorModeValue('white.100', 'rgba(255,255,255,.02)')
 
-  const fiatBalance = useAppSelector(s =>
+  const userCurrencyBalance = useAppSelector(s =>
     selectUserCurrencyBalanceIncludingStakingByFilter(s, opportunitiesFilter),
   )
   const cryptoHumanBalance = useAppSelector(s =>
@@ -72,7 +72,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
             symbol={asset.symbol}
             lineHeight='shorter'
           />
-          <Amount.Fiat value={fiatBalance} fontSize='4xl' lineHeight='shorter' />
+          <Amount.Fiat value={userCurrencyBalance} fontSize='4xl' lineHeight='shorter' />
         </Flex>
         <AssetActions assetId={assetId} accountId={accountId} cryptoBalance={cryptoHumanBalance} />
       </Card.Body>

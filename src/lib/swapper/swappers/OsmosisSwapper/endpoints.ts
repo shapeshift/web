@@ -24,11 +24,7 @@ import {
 import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
-import {
-  atomOnOsmosisAssetId,
-  COSMOSHUB_TO_OSMOSIS_CHANNEL,
-  OSMOSIS_TO_COSMOSHUB_CHANNEL,
-} from './utils/constants'
+import { COSMOSHUB_TO_OSMOSIS_CHANNEL, OSMOSIS_TO_COSMOSHUB_CHANNEL } from './utils/constants'
 import type { OsmosisSupportedChainId } from './utils/types'
 
 const tradeQuoteMetadata: Map<string, { chainId: OsmosisSupportedChainId }> = new Map()
@@ -147,9 +143,8 @@ export const osmosisApi: Swapper2Api = {
       : cosmosAdapter.getFeeData(getFeeDataInput))
 
     const feeDenom = sellAssetIsOnOsmosisNetwork
-      ? 'uosmo'
-      : atomOnOsmosisAssetId.split('/')[1].replace(/:/g, '/')
-
+      ? symbolDenomMapping['OSMO']
+      : symbolDenomMapping['ATOM']
     // The actual amount that will end up on the IBC channel is the sell amount minus the fee for the IBC transfer Tx
     // We need to deduct the fees from the initial amount in case we're dealing with an IBC transfer + swap flow
     // or else, this will break for swaps to an Osmosis address that doesn't yet have ATOM

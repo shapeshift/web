@@ -248,7 +248,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       }
 
       const responseAccount = await cosmosAdapter.getAccount(sellAddress)
-      const ibcAccountNumber = parseInt(responseAccount.chainSpecific.accountNumber || '0')
+      const ibcAccountNumber = responseAccount.chainSpecific.accountNumber || '0'
 
       const sequence = responseAccount.chainSpecific.sequence || '0'
 
@@ -360,7 +360,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       }
 
       const ibcResponseAccount = await osmosisAdapter.getAccount(sellAddress)
-      const ibcAccountNumber = Number(ibcResponseAccount.chainSpecific.accountNumber)
+      const ibcAccountNumber = ibcResponseAccount.chainSpecific.accountNumber
       const ibcSequence = ibcResponseAccount.chainSpecific.sequence || '0'
 
       // delay to ensure all nodes we interact with are up to date at this point

@@ -97,7 +97,7 @@ export const osmosisApi: Swapper2Api = {
       }
 
       const responseAccount = await sellAssetAdapter.getAccount(from)
-      const ibcAccountNumber = parseInt(responseAccount.chainSpecific.accountNumber || '0')
+      const ibcAccountNumber = responseAccount.chainSpecific.accountNumber || '0'
 
       const sequence = responseAccount.chainSpecific.sequence || '0'
 

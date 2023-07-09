@@ -161,7 +161,7 @@ type PerformIbcTransferInput = {
   sourceChannel: string
   feeAmount: string
   accountNumber: number
-  ibcAccountNumber: number
+  ibcAccountNumber: string
   sequence: string
   gas: string
   feeDenom: string
@@ -232,7 +232,7 @@ export const buildPerformIbcTransferUnsignedTx = async ({
     tx,
     addressNList: toAddressNList(bip44Params),
     chain_id: fromChainId(adapter.getChainId()).chainReference,
-    account_number: ibcAccountNumber.toString(),
+    account_number: ibcAccountNumber,
     sequence,
   }
 }

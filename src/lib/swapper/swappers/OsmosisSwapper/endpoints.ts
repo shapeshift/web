@@ -127,10 +127,6 @@ export const osmosisApi: Swapper2Api = {
       return unsignedTx
     }
 
-    // TODO(gomes): uncomment me when actually implementing multi-hop
-    // const osmoAddress = sellAssetIsOnOsmosisNetwork ? sellAddress : receiveAddress
-    // const cosmosAddress = sellAssetIsOnOsmosisNetwork ? receiveAddress : sellAddress
-
     /** At the current time, only OSMO<->ATOM swaps are supported, so this is fine.
      * In the future, as more Osmosis network assets are added, the buy asset should
      * be used as the fee asset automatically. See the whitelist of supported fee assets here:
@@ -142,9 +138,7 @@ export const osmosisApi: Swapper2Api = {
       ? osmosisAdapter.getFeeData(getFeeDataInput)
       : cosmosAdapter.getFeeData(getFeeDataInput))
 
-    const feeDenom = sellAssetIsOnOsmosisNetwork
-      ? symbolDenomMapping['OSMO']
-      : symbolDenomMapping['ATOM']
+    const feeDenom = 'uosmo'
     // The actual amount that will end up on the IBC channel is the sell amount minus the fee for the IBC transfer Tx
     // We need to deduct the fees from the initial amount in case we're dealing with an IBC transfer + swap flow
     // or else, this will break for swaps to an Osmosis address that doesn't yet have ATOM

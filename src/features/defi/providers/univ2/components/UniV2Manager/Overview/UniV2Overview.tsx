@@ -17,11 +17,11 @@ import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectEarnUserLpOpportunity,
-  selectFiatBalanceIncludingStakingByFilter,
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByLpId,
   selectSelectedLocale,
   selectUnderlyingLpAssetsWithBalancesAndIcons,
+  selectUserCurrencyBalanceIncludingStakingByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -83,7 +83,7 @@ export const UniV2Overview: React.FC<UniV2OverviewProps> = ({
   )
 
   const underlyingAssetsFiatBalance = useAppSelector(state =>
-    selectFiatBalanceIncludingStakingByFilter(state, underlyingAssetsFiatBalanceFilter),
+    selectUserCurrencyBalanceIncludingStakingByFilter(state, underlyingAssetsFiatBalanceFilter),
   )
 
   const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))

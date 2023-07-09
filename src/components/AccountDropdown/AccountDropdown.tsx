@@ -37,7 +37,7 @@ import { type ReduxState } from 'state/reducer'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
-  selectHighestFiatBalanceAccountByAssetId,
+  selectHighestUserCurrencyBalanceAccountByAssetId,
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadata,
@@ -104,8 +104,8 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
 
   const accountBalances = useSelector(selectPortfolioAccountBalancesBaseUnit)
   const accountMetadata = useSelector(selectPortfolioAccountMetadata)
-  const highestFiatBalanceAccountId = useAppSelector(state =>
-    selectHighestFiatBalanceAccountByAssetId(state, { assetId }),
+  const highestUserCurrencyBalanceAccountId = useAppSelector(state =>
+    selectHighestUserCurrencyBalanceAccountByAssetId(state, { assetId }),
   )
   const [selectedAccountId, setSelectedAccountId] = useState<AccountId | undefined>(
     defaultAccountId,
@@ -135,7 +135,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
     // Use the first accountId if we don't have a valid defaultAccountId
     const preSelectedAccountId =
       validatedAccountIdFromArgs ??
-      (autoSelectHighestBalance ? highestFiatBalanceAccountId : undefined) ??
+      (autoSelectHighestBalance ? highestUserCurrencyBalanceAccountId : undefined) ??
       firstAccountId
     /**
      * assert asset the chainId of the accountId and assetId match
@@ -146,7 +146,13 @@ export const AccountDropdown: FC<AccountDropdownProps> = ({
       throw new Error('AccountDropdown: chainId mismatch!')
     }
     setSelectedAccountId(preSelectedAccountId)
-  }, [assetId, accountIds, defaultAccountId, highestFiatBalanceAccountId, autoSelectHighestBalance])
+  }, [
+    assetId,
+    accountIds,
+    defaultAccountId,
+    highestUserCurrencyBalanceAccountId,
+    autoSelectHighestBalance,
+  ])
 
   const handleClick = useCallback((accountId: AccountId) => setSelectedAccountId(accountId), [])
 

@@ -62,7 +62,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
-  selectFeeAssetFiatRate,
+  selectFeeAssetUserCurrencyRate,
   selectQuoteBuyAmountCryptoPrecision,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
@@ -70,7 +70,7 @@ import {
   selectActiveSwapperWithMetadata,
   selectAmount,
   selectBuyAmountCryptoPrecision,
-  selectBuyAmountFiat,
+  selectBuyAmountUserCurrency,
   selectBuyAsset,
   selectBuyAssetAccountId,
   selectFees,
@@ -79,7 +79,7 @@ import {
   selectQuote,
   selectReceiveAddress,
   selectSellAmountCryptoPrecision,
-  selectSellAmountFiat,
+  selectSellAmountUserCurrency,
   selectSellAsset,
   selectSellAssetAccountId,
   selectSlippage,
@@ -133,10 +133,10 @@ export const TradeInput = () => {
   const updateAmount = useSwapperStore(state => state.updateAmount)
   const updateReceiveAddress = useSwapperStore(state => state.updateReceiveAddress)
   const updatePreferredSwapper = useSwapperStore(state => state.updatePreferredSwapper)
-  const fiatBuyAmount = useSwapperStore(selectBuyAmountFiat)
-  const fiatSellAmount = useSwapperStore(selectSellAmountFiat)
+  const fiatBuyAmount = useSwapperStore(selectBuyAmountUserCurrency)
+  const fiatSellAmount = useSwapperStore(selectSellAmountUserCurrency)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
-  const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
+  const feeAssetUserCurrencyRate = useSwapperStore(selectFeeAssetUserCurrencyRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellAssetChainId = sellAsset?.chainId
@@ -241,8 +241,8 @@ export const TradeInput = () => {
   const chainAdapterManager = getChainAdapterManager()
   const buyAssetChainName = chainAdapterManager.get(buyAsset.chainId)?.getDisplayName()
 
-  const gasFeeFiat = bnOrZero(fees?.networkFeeCryptoHuman)
-    .times(bnOrZero(feeAssetFiatRate))
+  const gasFeeUserCurrency = bnOrZero(fees?.networkFeeCryptoHuman)
+    .times(bnOrZero(feeAssetUserCurrencyRate))
     .toString()
 
   const hasValidSellAmount = bnOrZero(sellAmountCryptoPrecision).gt(0)
@@ -818,7 +818,7 @@ export const TradeInput = () => {
           <RateGasRow
             sellSymbol={sellAsset?.symbol}
             buySymbol={buyAsset?.symbol}
-            gasFee={gasFeeFiat}
+            gasFee={gasFeeUserCurrency}
             rate={activeQuote?.steps[0].rate}
             isLoading={tradeStateLoading}
             isError={!walletSupportsSellAssetChain}

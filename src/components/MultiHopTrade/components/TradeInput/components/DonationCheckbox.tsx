@@ -10,7 +10,7 @@ import { selectWillDonate } from 'state/slices/swappersSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
   selectActiveQuoteDonationBps,
-  selectPotentialDonationAmountFiat,
+  selectPotentialDonationAmountUserCurrency,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -28,7 +28,7 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = ({ isLoading }): JSX.
     number: { toFiat },
   } = useLocaleFormatter()
 
-  const potentialDonationAmountFiat = useAppSelector(selectPotentialDonationAmountFiat)
+  const potentialDonationAmountFiat = useAppSelector(selectPotentialDonationAmountUserCurrency)
 
   const handleDonationToggle = useCallback(() => {
     dispatch(swappers.actions.toggleWillDonate())

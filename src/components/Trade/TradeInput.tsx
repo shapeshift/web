@@ -59,11 +59,13 @@ import {
   selectPortfolioAccountIdByNumberByChainId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectSelectedCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
   selectFeeAssetUserCurrencyRate,
   selectQuoteBuyAmountCryptoPrecision,
+  selectSellAmountUsd,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
   selectAction,
@@ -133,14 +135,16 @@ export const TradeInput = () => {
   const updateAmount = useSwapperStore(state => state.updateAmount)
   const updateReceiveAddress = useSwapperStore(state => state.updateReceiveAddress)
   const updatePreferredSwapper = useSwapperStore(state => state.updatePreferredSwapper)
-  const fiatBuyAmount = useSwapperStore(selectBuyAmountUserCurrency)
-  const fiatSellAmount = useSwapperStore(selectSellAmountUserCurrency)
+  const buyAmountUserCurrency = useSwapperStore(selectBuyAmountUserCurrency)
+  const sellAmountUserCurrency = useSwapperStore(selectSellAmountUserCurrency)
+  const sellAmountUsd = useSwapperStore(selectSellAmountUsd)
   const receiveAddress = useSwapperStore(selectReceiveAddress)
   const feeAssetUserCurrencyRate = useSwapperStore(selectFeeAssetUserCurrencyRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellAssetChainId = sellAsset?.chainId
   const buyAssetChainId = buyAsset?.chainId
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAssetChainId ?? ''))
   const buyAmountCryptoPrecision = useSwapperStore(selectBuyAmountCryptoPrecision)
   const sellAmountCryptoPrecision = useSwapperStore(selectSellAmountCryptoPrecision)
@@ -338,7 +342,9 @@ export const TradeInput = () => {
         mixpanel.track(MixPanelEvents.TradePreview, {
           buyAsset: compositeBuyAsset,
           sellAsset: compositeSellAsset,
-          fiatAmount: fiatSellAmount,
+          amountUsd: sellAmountUsd,
+          amountUserCurrency: sellAmountUserCurrency,
+          selectedCurrency,
           swapperName: activeSwapperName,
           [compositeBuyAsset]: buyAmountCryptoPrecision,
           [compositeSellAsset]: sellAmountCryptoPrecision,
@@ -362,22 +368,24 @@ export const TradeInput = () => {
       setIsLoading(false)
     }
   }, [
-    assets,
-    buyAmountCryptoPrecision,
-    buyAsset,
-    checkApprovalNeeded,
-    feeAsset,
-    fiatSellAmount,
-    getTrade,
-    history,
-    mixpanel,
-    sellAmountCryptoPrecision,
     sellAsset,
-    activeSwapperName,
-    updateFees,
-    updateTrade,
-    updateTradeAmountsFromQuote,
+    buyAsset,
+    mixpanel,
     wallet,
+    checkApprovalNeeded,
+    getTrade,
+    updateTrade,
+    feeAsset,
+    updateFees,
+    updateTradeAmountsFromQuote,
+    history,
+    assets,
+    sellAmountUsd,
+    sellAmountUserCurrency,
+    selectedCurrency,
+    activeSwapperName,
+    buyAmountCryptoPrecision,
+    sellAmountCryptoPrecision,
   ])
 
   const onSellAssetInputChange: TradeAssetInputProps['onChange'] = useCallback(
@@ -774,7 +782,7 @@ export const TradeInput = () => {
             assetSymbol={sellAsset?.symbol ?? ''}
             assetIcon={sellAsset?.icon ?? ''}
             cryptoAmount={positiveOrZero(sellAmountCryptoPrecision).toString()}
-            fiatAmount={positiveOrZero(fiatSellAmount).toFixed(2)}
+            fiatAmount={positiveOrZero(sellAmountUserCurrency).toFixed(2)}
             isSendMaxDisabled={tradeStateLoading}
             onChange={onSellAssetInputChange}
             percentOptions={[1]}
@@ -790,7 +798,7 @@ export const TradeInput = () => {
             assetSymbol={buyAsset?.symbol ?? ''}
             assetIcon={buyAsset?.icon ?? ''}
             cryptoAmount={positiveOrZero(buyAmountCryptoPrecision).toString()}
-            fiatAmount={positiveOrZero(fiatBuyAmount).toFixed(2)}
+            fiatAmount={positiveOrZero(buyAmountUserCurrency).toFixed(2)}
             onChange={onBuyAssetInputChange}
             percentOptions={[1]}
             showInputSkeleton={receiveAmountLoading}

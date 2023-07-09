@@ -48,16 +48,19 @@ import type { SwapErrorRight, Swapper, TradeTxs } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
 import { assertUnreachable } from 'lib/utils'
+import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 import { selectAssets, selectFeeAssetByChainId, selectTxStatusById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 import {
   selectBuyAmountBeforeFeesBaseUnit,
+  selectDonationAmountUsd,
   selectDonationAmountUserCurrency,
   selectFeeAssetUserCurrencyRate,
   selectIntermediaryTransactionOutputs,
   selectQuoteBuyAmountCryptoPrecision,
   selectSellAmountBeforeFeesBaseUnitByAction,
+  selectSellAmountBeforeFeesUsd,
   selectSellAmountBeforeFeesUserCurrency,
 } from 'state/zustand/swapperStore/amountSelectors'
 import {
@@ -125,12 +128,14 @@ export const TradeConfirm = () => {
   const updateTrade = useSwapperStore(state => state.updateTrade)
   const sellAmountBeforeFeesBaseUnit = useSwapperStore(selectSellAmountBeforeFeesBaseUnitByAction)
   const sellAmountBeforeFeesUserCurrency = useSwapperStore(selectSellAmountBeforeFeesUserCurrency)
+  const sellAmountBeforeFeesUsd = useSwapperStore(selectSellAmountBeforeFeesUsd)
 
   const quoteBuyAmountCryptoPrecision = useSwapperStore(selectQuoteBuyAmountCryptoPrecision)
   const protocolFees = useSwapperStore(selectProtocolFees)
   const userCurrencyBuyAmount = useSwapperStore(selectBuyAmountUserCurrency)
   const buyAmountBeforeFeesBaseUnit = useSwapperStore(selectBuyAmountBeforeFeesBaseUnit)
 
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const assets = useAppSelector(selectAssets)
 
   const defaultFeeAsset = useAppSelector(state =>
@@ -253,6 +258,7 @@ export const TradeConfirm = () => {
   const { showErrorToast } = useErrorHandler()
 
   const donationAmountUserCurrency = useSwapperStore(selectDonationAmountUserCurrency)
+  const donationAmountUsd = useSwapperStore(selectDonationAmountUsd)
 
   // Track these data here so we don't have to do this again for the other states
   const eventData = useMemo(() => {
@@ -273,10 +279,13 @@ export const TradeConfirm = () => {
     return {
       buyAsset: compositeBuyAsset,
       sellAsset: compositeSellAsset,
-      fiatAmount: sellAmountBeforeFeesUserCurrency,
+      amountUsd: sellAmountBeforeFeesUsd,
+      amountUserCurrency: sellAmountBeforeFeesUserCurrency,
+      selectedCurrency,
       swapperName: swapper.name,
       hasUserOptedOutOfDonation,
-      donationAmountFiat: donationAmountUserCurrency,
+      donationAmountUsd,
+      donationAmountUserCurrency,
       [compositeBuyAsset]: buyAmountCryptoPrecision,
       [compositeSellAsset]: sellAmountCryptoPrecision,
     }
@@ -286,8 +295,11 @@ export const TradeConfirm = () => {
     assets,
     buyAmountBeforeFeesBaseUnit,
     sellAmountBeforeFeesBaseUnit,
+    sellAmountBeforeFeesUsd,
     sellAmountBeforeFeesUserCurrency,
+    selectedCurrency,
     hasUserOptedOutOfDonation,
+    donationAmountUsd,
     donationAmountUserCurrency,
   ])
 

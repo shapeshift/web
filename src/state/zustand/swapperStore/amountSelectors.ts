@@ -529,6 +529,13 @@ export const selectTradeAmountsByActionAndAmountFromQuote: Selector<
   },
 )
 
+export const selectSellAmountUsd = createSelector(
+  selectSellAmountUserCurrency,
+  selectSelectedCurrencyToUsdRate,
+  (sellAmountUserCurrency, selectedCurrencyToUsdRate) => {
+    return bnOrZero(sellAmountUserCurrency).div(selectedCurrencyToUsdRate).toFixed()
+  },
+)
 export const selectDonationAmountUserCurrency = createSelector(
   selectSellAmountUserCurrency,
   selectSwapperDefaultAffiliateBps,
@@ -536,6 +543,14 @@ export const selectDonationAmountUserCurrency = createSelector(
     const affiliatePercentage = convertBasisPointsToDecimalPercentage(defaultAffiliateBps)
     // The donation amount is a percentage of the sell amount
     return bnOrZero(sellAmountUserCurrency).times(affiliatePercentage).toFixed()
+  },
+)
+
+export const selectDonationAmountUsd = createSelector(
+  selectDonationAmountUserCurrency,
+  selectSelectedCurrencyToUsdRate,
+  (donationAmountUserCurrency, selectedCurrencyToUsdRate): string => {
+    return bnOrZero(donationAmountUserCurrency).div(selectedCurrencyToUsdRate).toFixed()
   },
 )
 

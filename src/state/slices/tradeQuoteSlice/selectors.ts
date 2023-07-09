@@ -336,6 +336,15 @@ export const selectNetBuyAmountUserCurrency = createSelector(
   },
 )
 
+export const selectSellAmountUsd = createSelector(
+  selectSellAmountCryptoPrecision,
+  selectSellAssetUsdRate,
+  (sellAmountCryptoPrecision, sellAssetUsdRate) => {
+    if (!sellAmountCryptoPrecision || !sellAssetUsdRate) return
+    return bn(sellAmountCryptoPrecision).times(sellAssetUsdRate).toFixed()
+  },
+)
+
 export const selectSellAmountUserCurrency = createSelector(
   selectSellAmountCryptoPrecision,
   selectSellAssetUserCurrencyRate,
@@ -377,6 +386,13 @@ export const selectQuoteDonationAmountUserCurrency = createSelector(
       : 0
     // The donation amount is a percentage of the sell amount
     return bnOrZero(sellAmountUserCurrency).times(affiliatePercentage).toFixed()
+  },
+)
+export const selectQuoteDonationAmountUsd = createSelector(
+  selectQuoteDonationAmountUserCurrency,
+  selectUserCurrencyToUsdRate,
+  (donationAmountUserCurrency, userCurrencyToUsdRate) => {
+    return bnOrZero(donationAmountUserCurrency).div(userCurrencyToUsdRate).toFixed()
   },
 )
 

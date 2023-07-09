@@ -31,8 +31,8 @@ export const swapperStore = createStore<
     devtools(
       set => ({
         // State (initialize values)
-        sellAmountFiat: '0',
-        buyAmountFiat: '0',
+        sellAmountUserCurrency: '0',
+        buyAmountUserCurrency: '0',
         amount: '0',
         isExactAllowance: false,
         action: TradeAmountInputField.SELL_CRYPTO,
@@ -48,8 +48,8 @@ export const swapperStore = createStore<
         updateSelectedBuyAssetAccountId: createUpdateAction(set, 'selectedBuyAssetAccountId'),
         updateSellAssetAccountId: createUpdateAction(set, 'sellAssetAccountId'),
         updateBuyAssetAccountId: createUpdateAction(set, 'buyAssetAccountId'),
-        updateSellAmountFiat: createUpdateAction(set, 'sellAmountFiat'),
-        updateBuyAmountFiat: createUpdateAction(set, 'buyAmountFiat'),
+        updateSellAmountUserCurrency: createUpdateAction(set, 'sellAmountUserCurrency'),
+        updateBuyAmountUserCurrency: createUpdateAction(set, 'buyAmountUserCurrency'),
         clearAmounts: clearAmounts(set),
         updateAmount: createUpdateAction(set, 'amount'),
         updateAction: createUpdateAction(set, 'action'),

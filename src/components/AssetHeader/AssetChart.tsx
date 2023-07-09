@@ -34,10 +34,10 @@ import {
   selectAssetById,
   selectChartTimeframe,
   selectCryptoHumanBalanceIncludingStakingByFilter,
-  selectFiatBalanceIncludingStakingByFilter,
   selectMarketDataById,
+  selectUserCurrencyBalanceIncludingStakingByFilter,
   selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit,
-  selectUserStakingOpportunitiesAggregatedByFilterFiat,
+  selectUserStakingOpportunitiesAggregatedByFilterUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -76,8 +76,8 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const translate = useTranslate()
   const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 
-  const fiatBalance = useAppSelector(s =>
-    selectFiatBalanceIncludingStakingByFilter(s, opportunitiesFilter),
+  const userCurrencyBalance = useAppSelector(s =>
+    selectUserCurrencyBalanceIncludingStakingByFilter(s, opportunitiesFilter),
   )
   const cryptoHumanBalance = useAppSelector(s =>
     selectCryptoHumanBalanceIncludingStakingByFilter(s, opportunitiesFilter),
@@ -86,15 +86,15 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
     selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit(state, opportunitiesFilter),
   )
 
-  const stakingBalanceFiat = useAppSelector(state =>
-    selectUserStakingOpportunitiesAggregatedByFilterFiat(state, opportunitiesFilter),
+  const stakingBalanceUserCurrency = useAppSelector(state =>
+    selectUserStakingOpportunitiesAggregatedByFilterUserCurrency(state, opportunitiesFilter),
   )
 
   useEffect(() => {
     if (isBalanceChartDataUnavailable) return
-    if (bnOrZero(fiatBalance).eq(0)) return
+    if (bnOrZero(userCurrencyBalance).eq(0)) return
     setView(View.Balance)
-  }, [fiatBalance, isBalanceChartDataUnavailable])
+  }, [userCurrencyBalance, isBalanceChartDataUnavailable])
 
   return (
     <Card>
@@ -125,7 +125,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
           <Card.Heading fontSize='4xl' lineHeight={1} mb={2}>
             <Skeleton isLoaded={isLoaded}>
               <NumberFormat
-                value={view === View.Price ? assetPrice : toFiat(fiatBalance)}
+                value={view === View.Price ? assetPrice : toFiat(userCurrencyBalance)}
                 displayType={'text'}
                 thousandSeparator={true}
                 isNumericString={true}
@@ -153,7 +153,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
               </Stat>
             )}
           </StatGroup>
-          {bnOrZero(stakingBalanceFiat).gt(0) && view === View.Balance && (
+          {bnOrZero(stakingBalanceUserCurrency).gt(0) && view === View.Balance && (
             <Flex mt={4}>
               <Alert
                 as={Stack}

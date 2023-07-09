@@ -4,11 +4,13 @@ import { selectAssets, selectWillDonate } from 'state/slices/selectors'
 import {
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
-  selectDonationAmountFiat,
   selectFirstHopSellAsset,
   selectLastHopBuyAsset,
+  selectQuoteDonationAmountUsd,
+  selectQuoteDonationAmountUserCurrency,
   selectSellAmountBeforeFeesCryptoPrecision,
-  selectSellAmountFiat,
+  selectSellAmountUsd,
+  selectSellAmountUserCurrency,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { store } from 'state/store'
 
@@ -23,11 +25,13 @@ export const getMixpanelEventData = () => {
   if (!buyAsset?.precision) return
 
   const assets = selectAssets(state)
-  const donationAmountFiat = selectDonationAmountFiat(state)
-  const sellAmountBeforeFeesFiat = selectSellAmountFiat(state)
+  const donationAmountUserCurrency = selectQuoteDonationAmountUserCurrency(state)
+  const donationAmountUsd = selectQuoteDonationAmountUsd(state)
+  const sellAmountBeforeFeesUsd = selectSellAmountUsd(state)
+  const sellAmountBeforeFeesUserCurrency = selectSellAmountUserCurrency(state)
   const buyAmountBeforeFeesCryptoPrecision = selectBuyAmountBeforeFeesCryptoPrecision(state)
   const sellAmountBeforeFeesCryptoPrecision = selectSellAmountBeforeFeesCryptoPrecision(state)
-  const isDonating = selectWillDonate(state)
+  const willDonate = selectWillDonate(state)
   const swapperName = selectActiveSwapperName(state)
 
   const compositeBuyAsset = getMaybeCompositeAssetSymbol(buyAsset.assetId, assets)
@@ -36,10 +40,12 @@ export const getMixpanelEventData = () => {
   return {
     buyAsset: compositeBuyAsset,
     sellAsset: compositeSellAsset,
-    fiatAmount: sellAmountBeforeFeesFiat,
+    amountUsd: sellAmountBeforeFeesUsd,
+    amountUserCurrency: sellAmountBeforeFeesUserCurrency,
     swapperName,
-    hasUserOptedOutOfDonation: isDonating,
-    donationAmountFiat,
+    hasUserOptedOutOfDonation: !willDonate,
+    donationAmountUsd,
+    donationAmountUserCurrency,
     [compositeBuyAsset]: buyAmountBeforeFeesCryptoPrecision,
     [compositeSellAsset]: sellAmountBeforeFeesCryptoPrecision,
   }

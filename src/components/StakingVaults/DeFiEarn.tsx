@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ChainDropdown } from 'components/AssetSearch/Chains/ChainDropdown'
 import { useQuery } from 'hooks/useQuery/useQuery'
-import { selectPortfolioChainIdsSortedFiat } from 'state/slices/selectors'
+import { selectPortfolioChainIdsSortedUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { GlobalFilter } from './GlobalFilter'
@@ -34,7 +34,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
   const [searchQuery, setSearchQuery] = useState(q ?? '')
   const translate = useTranslate()
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>()
-  const portfolioChainIds = useAppSelector(selectPortfolioChainIdsSortedFiat)
+  const portfolioChainIds = useAppSelector(selectPortfolioChainIdsSortedUserCurrency)
 
   return (
     <Flex width='full' flexDir='column' gap={6}>

@@ -45,7 +45,6 @@ import { assertUnreachable } from 'lib/utils'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
-  selectActualDonationAmountFiat,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectFirstHopNetworkFeeCryptoPrecision,
@@ -54,6 +53,7 @@ import {
   selectLastHopBuyAsset,
   selectNetBuyAmountCryptoPrecision,
   selectNetBuyAmountFiat,
+  selectQuoteDonationAmountFiat,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountFiat,
   selectSlippage,
@@ -111,7 +111,7 @@ export const TradeConfirm = () => {
   const sellAmountBeforeFeesCryptoPrecision = useAppSelector(
     selectSellAmountBeforeFeesCryptoPrecision,
   )
-  const donationAmount = useAppSelector(selectActualDonationAmountFiat)
+  const donationAmount = useAppSelector(selectQuoteDonationAmountFiat)
 
   const sellAsset = useAppSelector(selectFirstHopSellAsset)
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
@@ -288,15 +288,17 @@ export const TradeConfirm = () => {
     [
       translate,
       sellAmountBeforeFeesCryptoPrecision,
-      sellAsset,
+      sellAsset?.symbol,
       sellAmountBeforeFeesFiat,
-      buyAsset,
+      buyAsset?.symbol,
       netBuyAmountCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
-      tradeQuoteStep,
+      tradeQuoteStep?.feeData.protocolFees,
+      tradeQuoteStep?.intermediaryTransactionOutputs,
       slippage,
       netBuyAmountFiat,
       swapperName,
+      donationAmount,
     ],
   )
 

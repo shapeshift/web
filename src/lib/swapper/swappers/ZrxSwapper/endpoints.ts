@@ -13,7 +13,7 @@ import type {
   Swapper2Api,
   TradeQuote2,
 } from 'lib/swapper/api'
-import { MINIMUM_DONATION_Sell_AMOUNT_USD_FROM_ETH_CHAIN } from 'lib/swapper/swappers/utils/constants'
+import { MINIMUM_DONATION_SELL_AMOUNT_USD_FROM_ETH_CHAIN } from 'lib/swapper/swappers/utils/constants'
 import { assertGetEvmChainAdapter, checkEvmSwapStatus } from 'lib/utils/evm'
 
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
@@ -36,7 +36,7 @@ export const zrxApi: Swapper2Api = {
     )
     // We use the sell amount so we don't have to make 2 network requests, as the receive amount requires a quote
     const isDonationAmountBelowMinimum =
-      sellAmountBeforeFeesUsd.lt(MINIMUM_DONATION_Sell_AMOUNT_USD_FROM_ETH_CHAIN) &&
+      sellAmountBeforeFeesUsd.lt(MINIMUM_DONATION_SELL_AMOUNT_USD_FROM_ETH_CHAIN) &&
       sellAsset.chainId === KnownChainIds.EthereumMainnet
     const tradeQuoteResult = await getZrxTradeQuote(
       {

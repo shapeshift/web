@@ -9,7 +9,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { selectWillDonate } from 'state/slices/swappersSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
-  selectDonationBps,
+  selectActiveQuoteDonationBps,
   selectPotentialDonationAmountFiat,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -22,7 +22,7 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = ({ isLoading }): JSX.
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const willDonate = useAppSelector(selectWillDonate)
-  const affiliateBps = useAppSelector(selectDonationBps)
+  const affiliateBps = useAppSelector(selectActiveQuoteDonationBps)
 
   const {
     number: { toFiat },

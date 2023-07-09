@@ -1,1 +1,1 @@
-export const DEFAULT_DONATION_BPS = '30'
+export const DEFAULT_SWAPPER_DONATION_BPS = '30'

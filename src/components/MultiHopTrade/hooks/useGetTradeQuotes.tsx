@@ -3,7 +3,7 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
-import { DEFAULT_DONATION_BPS } from 'components/MultiHopTrade/constants'
+import { DEFAULT_SWAPPER_DONATION_BPS } from 'components/MultiHopTrade/constants'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
@@ -62,7 +62,8 @@ export const useGetTradeQuotes = () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
         const walletIsKeepKey = wallet && isKeepKey(wallet)
         const isFromEvm = isEvmChainId(sellAsset.chainId)
-        const shouldDonate = walletIsKeepKey ? userWillDonate && !isFromEvm : userWillDonate
+        // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
+        const willDonate = walletIsKeepKey ? userWillDonate && !isFromEvm : userWillDonate
 
         const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,
@@ -73,14 +74,14 @@ export const useGetTradeQuotes = () => {
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: flags.MultiHopTrades,
-          affiliateBps: shouldDonate ? DEFAULT_DONATION_BPS : '0',
+          affiliateBps: willDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0',
         })
 
         // if the quote input args changed, reset the selected swapper and update the trade quote args
         if (!isEqual(tradeQuoteInput, updatedTradeQuoteInput ?? skipToken)) {
           setTradeQuoteInput(updatedTradeQuoteInput ?? skipToken)
 
-          // If only the donation amount changed, don't reset the swapper name
+          // If only the affiliateBps changed, we've toggled the donation checkbox - don't reset the swapper name
           if (isEqualExceptAffiliateBps(tradeQuoteInput, updatedTradeQuoteInput)) {
             return
           } else {

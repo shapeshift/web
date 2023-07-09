@@ -3,10 +3,10 @@ import type { ReduxState } from 'state/reducer'
 import { selectAssets, selectWillDonate } from 'state/slices/selectors'
 import {
   selectActiveSwapperName,
-  selectActualDonationAmountFiat,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHopSellAsset,
   selectLastHopBuyAsset,
+  selectQuoteDonationAmountFiat,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountFiat,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -23,7 +23,7 @@ export const getMixpanelEventData = () => {
   if (!buyAsset?.precision) return
 
   const assets = selectAssets(state)
-  const donationAmountFiat = selectActualDonationAmountFiat(state)
+  const donationAmountFiat = selectQuoteDonationAmountFiat(state)
   const sellAmountBeforeFeesFiat = selectSellAmountFiat(state)
   const buyAmountBeforeFeesCryptoPrecision = selectBuyAmountBeforeFeesCryptoPrecision(state)
   const sellAmountBeforeFeesCryptoPrecision = selectSellAmountBeforeFeesCryptoPrecision(state)

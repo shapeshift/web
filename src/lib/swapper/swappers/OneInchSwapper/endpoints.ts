@@ -1,6 +1,5 @@
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
 import { v4 as uuid } from 'uuid'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -13,7 +12,7 @@ import type {
   Swapper2Api,
   TradeQuote2,
 } from 'lib/swapper/api'
-import { MINIMUM_DONATION_SELL_AMOUNT_USD_FROM_ETH_CHAIN } from 'lib/swapper/swappers/utils/constants'
+import { getMinimumDonationUsdSellAmountByChainId } from 'lib/swapper/swappers/utils/getMinimumDonationUsdSellAmountByChainId'
 import { assertGetEvmChainAdapter, checkEvmSwapStatus } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -36,9 +35,9 @@ export const oneInchApi: Swapper2Api = {
       sellAssetUsdRate,
     )
     // We use the sell amount so we don't have to make 2 network requests, as the receive amount requires a quote
-    const isDonationAmountBelowMinimum =
-      sellAmountBeforeFeesUsd.lt(MINIMUM_DONATION_SELL_AMOUNT_USD_FROM_ETH_CHAIN) &&
-      sellAsset.chainId === KnownChainIds.EthereumMainnet
+    const isDonationAmountBelowMinimum = sellAmountBeforeFeesUsd.lt(
+      getMinimumDonationUsdSellAmountByChainId(sellAsset.chainId),
+    )
 
     const tradeQuoteResult = await getTradeQuote(
       {

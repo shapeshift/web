@@ -41,10 +41,9 @@ export const lifiApi: Swapper2Api = {
       assets,
       sellAssetPriceUsdPrecision,
     )
+    const { receiveAddress } = input
 
     return tradeQuoteResult.map(({ selectedLifiRoute, ...tradeQuote }) => {
-      const { receiveAddress, affiliateBps } = input
-
       // TODO: quotes below the minimum arent valid and should not be processed as such
       // selectedLifiRoute willbe missing for quotes below the minimum
       if (!selectedLifiRoute) throw Error('missing selectedLifiRoute')
@@ -54,7 +53,7 @@ export const lifiApi: Swapper2Api = {
       // store the lifi quote metadata for transaction building later
       tradeQuoteMetadata.set(id, selectedLifiRoute)
 
-      return { id, receiveAddress, affiliateBps, ...tradeQuote }
+      return { id, receiveAddress, affiliateBps: undefined, ...tradeQuote }
     })
   },
 

@@ -31,6 +31,7 @@ type ReceiveSummaryProps = {
   shapeShiftFee?: string
   slippage: string
   swapperName: string
+  donationAmount?: string
 } & RowProps
 
 export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
@@ -44,6 +45,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
   slippage,
   swapperName,
   isLoading,
+  donationAmount,
   ...rest
 }) => {
   const translate = useTranslate()
@@ -196,6 +198,20 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = ({
               <Row.Value>
                 <Skeleton isLoaded={!isLoading}>
                   <Text translation={'trade.free'} fontWeight={'semibold'} color={greenColor} />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+          )}
+          {donationAmount && (
+            <Row>
+              <HelperTooltip label={translate('trade.tooltip.donation')}>
+                <Row.Label>
+                  <Text translation={'trade.donation'} />
+                </Row.Label>
+              </HelperTooltip>
+              <Row.Value>
+                <Skeleton isLoaded={!isLoading}>
+                  <Amount.Fiat value={donationAmount} />
                 </Skeleton>
               </Row.Value>
             </Row>

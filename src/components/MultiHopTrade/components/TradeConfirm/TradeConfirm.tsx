@@ -53,6 +53,7 @@ import {
   selectLastHopBuyAsset,
   selectNetBuyAmountCryptoPrecision,
   selectNetBuyAmountUserCurrency,
+  selectQuoteDonationAmountUserCurrency,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,
   selectSlippage,
@@ -110,6 +111,7 @@ export const TradeConfirm = () => {
   const sellAmountBeforeFeesCryptoPrecision = useAppSelector(
     selectSellAmountBeforeFeesCryptoPrecision,
   )
+  const donationAmount = useAppSelector(selectQuoteDonationAmountUserCurrency)
 
   const sellAsset = useAppSelector(selectFirstHopSellAsset)
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
@@ -279,21 +281,24 @@ export const TradeConfirm = () => {
           fiatAmount={positiveOrZero(netBuyAmountUserCurrency).toFixed(2)}
           swapperName={swapperName ?? ''}
           intermediaryTransactionOutputs={tradeQuoteStep?.intermediaryTransactionOutputs}
+          donationAmount={donationAmount}
         />
       </Stack>
     ),
     [
       translate,
       sellAmountBeforeFeesCryptoPrecision,
-      sellAsset,
+      sellAsset?.symbol,
       sellAmountBeforeFeesUserCurrency,
-      buyAsset,
+      buyAsset?.symbol,
       netBuyAmountCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
-      tradeQuoteStep,
+      tradeQuoteStep?.feeData.protocolFees,
+      tradeQuoteStep?.intermediaryTransactionOutputs,
       slippage,
       netBuyAmountUserCurrency,
       swapperName,
+      donationAmount,
     ],
   )
 

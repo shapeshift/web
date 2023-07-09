@@ -1,5 +1,5 @@
 import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
-import type { cosmos, CosmosSdkChainAdapter, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import type { cosmos, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { bnOrZero, osmosis } from '@shapeshiftoss/chain-adapters'
 import type { CosmosSignTx } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -7,7 +7,6 @@ import type { Result } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { v4 as uuid } from 'uuid'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type {
   GetTradeQuoteInput,
   GetUnsignedTxArgs,
@@ -21,6 +20,7 @@ import {
   buildSwapExactAmountInTx,
   symbolDenomMapping,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -71,19 +71,14 @@ export const osmosisApi: Swapper2Api = {
     const buyAssetDenom = symbolDenomMapping[buyAsset.symbol as keyof SymbolDenomMapping]
     const nativeAssetDenom = sellAsset.chainId === osmosisChainId ? 'uosmo' : 'uatom'
 
-    const adapterManager = getChainAdapterManager()
-    const osmosisAdapter = adapterManager.get(osmosisChainId) as osmosis.ChainAdapter | undefined
-    const cosmosAdapter = adapterManager.get(cosmosChainId) as cosmos.ChainAdapter | undefined
-    const sellAssetAdapter = adapterManager.get(sellAsset.chainId) as
+    const osmosisAdapter = assertGetCosmosSdkChainAdapter(osmosisChainId) as osmosis.ChainAdapter
+    const cosmosAdapter = assertGetCosmosSdkChainAdapter(cosmosChainId) as cosmos.ChainAdapter
+    const sellAssetAdapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId) as
       | cosmos.ChainAdapter
       | osmosis.ChainAdapter
-      | undefined
 
     const { REACT_APP_OSMOSIS_NODE_URL: osmoUrl, REACT_APP_COSMOS_NODE_URL: cosmosUrl } =
       getConfig()
-
-    if (!cosmosAdapter || !osmosisAdapter || !sellAssetAdapter)
-      throw new Error('Failed to get adapters')
 
     if (isIbcTransfer) {
       /** If the sell asset is not on the Osmosis network, we need to bridge the
@@ -176,9 +171,7 @@ export const osmosisApi: Swapper2Api = {
     try {
       const { REACT_APP_OSMOSIS_NODE_URL: osmoUrl, REACT_APP_COSMOS_NODE_URL: cosmosUrl } =
         getConfig()
-      const chainAdapterManager = getChainAdapterManager()
-      const adapter = chainAdapterManager.get(chainId) as CosmosSdkChainAdapter | undefined
-      if (!adapter) throw new Error('Failed to get adapter')
+      assertGetCosmosSdkChainAdapter(chainId)
 
       const status = await (async () => {
         const baseUrl = chainId === osmosisChainId ? osmoUrl : cosmosUrl

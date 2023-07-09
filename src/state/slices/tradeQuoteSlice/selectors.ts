@@ -2,6 +2,7 @@ import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { Selector } from 'reselect'
+import { DEFAULT_SWAPPER_DONATION_BPS } from 'components/MultiHopTrade/constants'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -344,12 +345,36 @@ export const selectSellAmountUserCurrency = createSelector(
   },
 )
 
-export const selectDonationAmountUserCurrency = createSelector(
+export const selectActiveQuoteDonationBps: Selector<ReduxState, string | undefined> =
+  createSelector(selectActiveQuote, activeQuote => {
+    if (!activeQuote) return
+    return activeQuote.affiliateBps
+  })
+
+export const selectPotentialDonationAmountUserCurrency: Selector<ReduxState, string | undefined> =
+  createSelector(
+    selectActiveQuote,
+    selectSellAmountUserCurrency,
+    (activeQuote, sellAmountUserCurrency) => {
+      if (activeQuote?.affiliateBps === undefined) return undefined
+      else {
+        const affiliatePercentage = convertBasisPointsToDecimalPercentage(
+          DEFAULT_SWAPPER_DONATION_BPS,
+        )
+        // The donation amount is a percentage of the sell amount
+        return bnOrZero(sellAmountUserCurrency).times(affiliatePercentage).toFixed()
+      }
+    },
+  )
+
+export const selectQuoteDonationAmountUserCurrency = createSelector(
   selectActiveQuote,
   selectSellAmountUserCurrency,
   (activeQuote, sellAmountUserCurrency) => {
     if (!activeQuote) return
-    const affiliatePercentage = convertBasisPointsToDecimalPercentage(activeQuote.affiliateBps)
+    const affiliatePercentage = activeQuote.affiliateBps
+      ? convertBasisPointsToDecimalPercentage(activeQuote.affiliateBps)
+      : 0
     // The donation amount is a percentage of the sell amount
     return bnOrZero(sellAmountUserCurrency).times(affiliatePercentage).toFixed()
   },

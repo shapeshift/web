@@ -22,6 +22,7 @@ export type GetTradeQuoteInputArgs = {
   receiveAddress: string
   sellAmountBeforeFeesCryptoPrecision: string
   allowMultiHop: boolean
+  affiliateBps?: string
 }
 
 export const getTradeQuoteArgs = async ({
@@ -33,6 +34,7 @@ export const getTradeQuoteArgs = async ({
   receiveAddress,
   sellAmountBeforeFeesCryptoPrecision,
   allowMultiHop,
+  affiliateBps,
 }: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput | undefined> => {
   if (!sellAsset || !buyAsset) return undefined
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
@@ -44,7 +46,7 @@ export const getTradeQuoteArgs = async ({
     buyAsset,
     receiveAddress,
     accountNumber: sellAccountNumber,
-    affiliateBps: '0',
+    affiliateBps: affiliateBps ?? '0',
     allowMultiHop,
   }
   if (isEvmSwap(sellAsset?.chainId) || isCosmosSdkSwap(sellAsset?.chainId)) {

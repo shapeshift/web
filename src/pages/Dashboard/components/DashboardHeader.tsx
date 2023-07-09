@@ -14,9 +14,9 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectClaimableRewards,
-  selectEarnBalancesFiatAmountFull,
+  selectEarnBalancesUserCurrencyAmountFull,
   selectPortfolioLoading,
-  selectPortfolioTotalFiatBalanceExcludeEarnDupes,
+  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -44,19 +44,25 @@ export const DashboardHeader = () => {
   const loading = useAppSelector(selectPortfolioLoading)
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const claimableRewardsFiatBalanceFilter = useMemo(() => ({}), [])
-  const claimableRewardsFiatBalance = useAppSelector(state =>
-    selectClaimableRewards(state, claimableRewardsFiatBalanceFilter),
+  const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
+  const claimableRewardsUserCurrencyBalance = useAppSelector(state =>
+    selectClaimableRewards(state, claimableRewardsUserCurrencyBalanceFilter),
   )
-  const earnFiatBalance = useAppSelector(selectEarnBalancesFiatAmountFull).toFixed()
-  const portfolioTotalFiatBalance = useAppSelector(selectPortfolioTotalFiatBalanceExcludeEarnDupes)
+  const earnUserCurrencyBalance = useAppSelector(selectEarnBalancesUserCurrencyAmountFull).toFixed()
+  const portfolioTotalUserCurrencyBalance = useAppSelector(
+    selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  )
   const netWorth = useMemo(
     () =>
-      bnOrZero(earnFiatBalance)
-        .plus(portfolioTotalFiatBalance)
-        .plus(claimableRewardsFiatBalance)
+      bnOrZero(earnUserCurrencyBalance)
+        .plus(portfolioTotalUserCurrencyBalance)
+        .plus(claimableRewardsUserCurrencyBalance)
         .toFixed(),
-    [claimableRewardsFiatBalance, earnFiatBalance, portfolioTotalFiatBalance],
+    [
+      claimableRewardsUserCurrencyBalance,
+      earnUserCurrencyBalance,
+      portfolioTotalUserCurrencyBalance,
+    ],
   )
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const bgColor = useColorModeValue('white', 'blackAlpha.100')
@@ -79,19 +85,19 @@ export const DashboardHeader = () => {
         label: 'navBar.wallet',
         path: '/dashboard/accounts',
         color: 'blue',
-        rightElement: <Amount.Fiat value={portfolioTotalFiatBalance} />,
+        rightElement: <Amount.Fiat value={portfolioTotalUserCurrencyBalance} />,
       },
       {
         label: 'navBar.defi',
         path: '/dashboard/earn',
         color: 'purple',
-        rightElement: <Amount.Fiat value={earnFiatBalance} />,
+        rightElement: <Amount.Fiat value={earnUserCurrencyBalance} />,
       },
       {
         label: 'navBar.rewards',
         path: '/dashboard/rewards',
         color: 'green',
-        rightElement: <Amount.Fiat value={claimableRewardsFiatBalance} />,
+        rightElement: <Amount.Fiat value={claimableRewardsUserCurrencyBalance} />,
       },
       {
         label: 'NFTs',
@@ -107,10 +113,10 @@ export const DashboardHeader = () => {
       },
     ]
   }, [
-    claimableRewardsFiatBalance,
-    earnFiatBalance,
+    claimableRewardsUserCurrencyBalance,
+    earnUserCurrencyBalance,
     isNftsEnabled,
-    portfolioTotalFiatBalance,
+    portfolioTotalUserCurrencyBalance,
     translate,
   ])
 

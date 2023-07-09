@@ -13,7 +13,7 @@ import {
 } from 'state/slices/marketDataSlice/selectors'
 import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
 
-const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate = (
+const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   state: ReduxState,
   tradeQuoteStep: TradeQuote['steps'][number],
   getFeeAssetRate: (feeAssetId: AssetId) => string,
@@ -24,23 +24,23 @@ const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate = (
   if (feeAsset === undefined)
     throw Error(`missing fee asset for assetId ${tradeQuoteStep.sellAsset.assetId}`)
 
-  const feeAssetFiatRate = getFeeAssetRate(feeAsset.assetId)
+  const feeAssetUserCurrencyRate = getFeeAssetRate(feeAsset.assetId)
 
   const networkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
   const networkFeeFiatPrecision = bnOrZero(
     fromBaseUnit(networkFeeCryptoBaseUnit ?? '0', feeAsset.precision),
-  ).times(feeAssetFiatRate)
+  ).times(feeAssetUserCurrencyRate)
 
   return networkFeeFiatPrecision
 }
 
-const getTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate = (
+const getTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   state: ReduxState,
   quote: TradeQuote,
   getFeeAssetRate: (feeAssetId: AssetId) => string,
 ): BigNumber =>
   quote.steps.reduce((acc, step) => {
-    const networkFeeFiatPrecision = getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate(
+    const networkFeeFiatPrecision = getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate(
       state,
       step,
       getFeeAssetRate,
@@ -81,7 +81,7 @@ const _getTotalNetworkFeeUsdPrecision = (state: ReduxState, quote: TradeQuote): 
     return feeAssetMarketData.price
   }
 
-  return getTotalNetworkFeeFiatPrecisionWithGetFeeAssetFiatRate(state, quote, getFeeAssetUsdRate)
+  return getTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate(state, quote, getFeeAssetUsdRate)
 }
 
 // NOTE: "Receive side" refers to "last hop AND buy asset AND receive account".

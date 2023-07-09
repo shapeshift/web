@@ -14,8 +14,8 @@ export type SwapperStore<C extends KnownChainIds = KnownChainIds> = {
   sellAmountCryptoPrecision: string
   sellAsset: Asset
   buyAsset: Asset
-  sellAmountFiat: string
-  buyAmountFiat: string
+  sellAmountUserCurrency: string
+  buyAmountUserCurrency: string
   action: TradeAmountInputField
   amount: string
   receiveAddress?: string
@@ -33,8 +33,12 @@ export type SwapperAction = {
   updateSelectedBuyAssetAccountId: (accountId: SwapperStore['selectedBuyAssetAccountId']) => void
   updateSellAssetAccountId: (accountId: SwapperStore['sellAssetAccountId']) => void
   updateBuyAssetAccountId: (accountId: SwapperStore['buyAssetAccountId']) => void
-  updateSellAmountFiat: (sellAmountFiat: SwapperStore['sellAmountFiat']) => void
-  updateBuyAmountFiat: (buyAmountFiat: SwapperStore['buyAmountFiat']) => void
+  updateSellAmountUserCurrency: (
+    sellAmountUserCurrency: SwapperStore['sellAmountUserCurrency'],
+  ) => void
+  updateBuyAmountUserCurrency: (
+    buyAmountUserCurrency: SwapperStore['buyAmountUserCurrency'],
+  ) => void
   clearAmounts: () => void
   updateAction: (action: SwapperStore['action']) => void
   updateAmount: (amount: SwapperStore['amount']) => void

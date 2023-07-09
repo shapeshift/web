@@ -16,13 +16,13 @@ export const clearAmounts =
       draft => {
         draft.sellAmountCryptoPrecision = '0'
         draft.buyAmountCryptoPrecision = '0'
-        draft.buyAmountFiat = '0'
-        draft.sellAmountFiat = '0'
+        draft.buyAmountUserCurrency = '0'
+        draft.sellAmountUserCurrency = '0'
         draft.amount = '0'
         draft.action = TradeAmountInputField.SELL_FIAT
         draft.trade = undefined
-        draft.buyAmountFiat = '0'
-        draft.sellAmountFiat = '0'
+        draft.buyAmountUserCurrency = '0'
+        draft.sellAmountUserCurrency = '0'
         return draft
       },
       false,
@@ -41,8 +41,8 @@ export const handleSwitchAssets =
         draft.sellAsset = buyAsset
         draft.sellAmountCryptoPrecision = '0'
         draft.buyAmountCryptoPrecision = '0'
-        draft.sellAmountFiat = '0'
-        draft.buyAmountFiat = '0'
+        draft.sellAmountUserCurrency = '0'
+        draft.buyAmountUserCurrency = '0'
         draft.amount = '0'
         draft.fees = undefined
         draft.trade = undefined
@@ -71,8 +71,8 @@ export const handleInputAmountChange =
           draft.buyAmountCryptoPrecision = buyAmountBuyAssetCryptoPrecision
         if (sellAmountSellAssetCryptoPrecision)
           draft.sellAmountCryptoPrecision = sellAmountSellAssetCryptoPrecision
-        if (fiatBuyAmount) draft.buyAmountFiat = fiatBuyAmount
-        if (fiatSellAmount) draft.sellAmountFiat = fiatSellAmount
+        if (fiatBuyAmount) draft.buyAmountUserCurrency = fiatBuyAmount
+        if (fiatSellAmount) draft.sellAmountUserCurrency = fiatSellAmount
         return draft
       },
       false,
@@ -109,8 +109,8 @@ export const handleAssetSelection =
         draft.amount = '0'
         draft.buyAmountCryptoPrecision = '0'
         draft.sellAmountCryptoPrecision = '0'
-        draft.buyAmountFiat = '0'
-        draft.sellAmountFiat = '0'
+        draft.buyAmountUserCurrency = '0'
+        draft.sellAmountUserCurrency = '0'
 
         return draft
       },
@@ -160,8 +160,8 @@ export const updateTradeAmountsFromQuote = (set: SetSwapperStoreAction<SwapperSt
         draft.buyAmountCryptoPrecision = buyAmountBuyAssetCryptoPrecision
       if (sellAmountSellAssetCryptoPrecision)
         draft.sellAmountCryptoPrecision = sellAmountSellAssetCryptoPrecision
-      if (fiatBuyAmount) draft.buyAmountFiat = fiatBuyAmount
-      if (fiatSellAmount) draft.sellAmountFiat = fiatSellAmount
+      if (fiatBuyAmount) draft.buyAmountUserCurrency = fiatBuyAmount
+      if (fiatSellAmount) draft.sellAmountUserCurrency = fiatSellAmount
       return draft
     },
     false,

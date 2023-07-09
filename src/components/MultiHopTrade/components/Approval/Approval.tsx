@@ -33,7 +33,7 @@ import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { baseUnitToHuman } from 'lib/bignumber/bignumber'
 import type { SwapperName, TradeQuote2 } from 'lib/swapper/api'
-import { selectFiatRateByAssetId } from 'state/slices/marketDataSlice/selectors'
+import { selectUserCurrencyRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import {
   selectActiveSwapperName,
   selectFirstHop,
@@ -72,8 +72,8 @@ const ApprovalInner = ({
   const symbol = useMemo(() => tradeQuoteStep.sellAsset.symbol, [tradeQuoteStep.sellAsset.symbol])
 
   const sellFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
-  const sellFeeAssetFiatRate = useAppSelector(state =>
-    sellFeeAsset ? selectFiatRateByAssetId(state, sellFeeAsset.assetId) : undefined,
+  const sellFeeAssetUserCurrencyRate = useAppSelector(state =>
+    sellFeeAsset ? selectUserCurrencyRateByAssetId(state, sellFeeAsset.assetId) : undefined,
   )
 
   const {
@@ -99,11 +99,11 @@ const ApprovalInner = ({
   }, [approvalNetworkFeeCryptoHuman, sellFeeAsset?.symbol, toCrypto])
 
   const approvalNetworkFeeFiatDisplay = useMemo(() => {
-    const rate = bnOrZero(sellFeeAssetFiatRate)
+    const rate = bnOrZero(sellFeeAssetUserCurrencyRate)
     return approvalNetworkFeeCryptoHuman && !rate.isZero()
       ? toFiat(approvalNetworkFeeCryptoHuman.times(rate).toString())
       : ''
-  }, [approvalNetworkFeeCryptoHuman, sellFeeAssetFiatRate, toFiat])
+  }, [approvalNetworkFeeCryptoHuman, sellFeeAssetUserCurrencyRate, toFiat])
 
   const isInitializing = useMemo(
     () => !wallet || isAllowanceApprovalHookLoading,

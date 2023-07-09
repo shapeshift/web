@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { selectHighestFiatBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
+import { selectHighestUserCurrencyBalanceAccountByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import {
@@ -41,12 +41,12 @@ export const useAccountsService = () => {
   const buyAssetId = buyAsset?.assetId
 
   const highestFiatBalanceSellAccountId = useAppSelector(state =>
-    selectHighestFiatBalanceAccountByAssetId(state, {
+    selectHighestUserCurrencyBalanceAccountByAssetId(state, {
       assetId: sellAssetId ?? '',
     }),
   )
   const highestFiatBalanceBuyAccount = useAppSelector(state =>
-    selectHighestFiatBalanceAccountByAssetId(state, {
+    selectHighestUserCurrencyBalanceAccountByAssetId(state, {
       assetId: buyAssetId ?? '',
     }),
   )

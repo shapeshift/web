@@ -102,7 +102,7 @@ export const osmosisApi: Swapper2Api = {
       const unsignedTx = await buildPerformIbcTransferUnsignedTx({
         input: transfer,
         adapter: sellAssetAdapter,
-        // The blockheight of the destination chain for the IBC transfer
+        // Used to get blockheight of the *destination* chain for the IBC transfer
         blockBaseUrl: sellAsset.chainId === cosmosChainId ? osmoUrl : cosmosUrl,
         // Transfer uosmo if IBC transferring from Osmosis to Cosmos, else IBC transfer ATOM on Osmosis from Cosmos to Osmosis
         denom: buyAssetIsOnOsmosisNetwork ? symbolDenomMapping['OSMO'] : symbolDenomMapping['ATOM'],

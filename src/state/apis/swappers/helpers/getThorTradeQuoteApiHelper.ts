@@ -1,3 +1,4 @@
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { Err } from '@sniptt/monads'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { thorchainApi } from 'lib/swapper/swappers/ThorchainSwapper/endpoints'
@@ -11,6 +12,7 @@ export const getThorTradeQuoteHelper: QuoteHelperType = async (getTradeQuoteInpu
   const sellAssetUsdRate = selectUsdRateByAssetId(state, getTradeQuoteInput.sellAsset.assetId)
   const buyAssetUsdRate = selectUsdRateByAssetId(state, getTradeQuoteInput.buyAsset.assetId)
   const feeAssetUsdRate = feeAsset ? selectUsdRateByAssetId(state, feeAsset.assetId) : undefined
+  const runeAssetUsdRate = selectUsdRateByAssetId(state, thorchainAssetId)
 
   if (!sellAssetUsdRate)
     return Err(
@@ -36,10 +38,22 @@ export const getThorTradeQuoteHelper: QuoteHelperType = async (getTradeQuoteInpu
       }),
     )
 
-  const maybeQuote = await thorchainApi.getTradeQuote(getTradeQuoteInput, {
-    sellAssetUsdRate,
-    buyAssetUsdRate,
-    feeAssetUsdRate,
-  })
+  if (!runeAssetUsdRate)
+    return Err(
+      makeSwapErrorRight({
+        message: '[THORSwapper: getThorTradeQuoteHelper] - missing runeAssetUsdRate',
+        code: SwapErrorType.TRADE_QUOTE_FAILED,
+      }),
+    )
+
+  const maybeQuote = await thorchainApi.getTradeQuote(
+    getTradeQuoteInput,
+    {
+      sellAssetUsdRate,
+      buyAssetUsdRate,
+      feeAssetUsdRate,
+    },
+    runeAssetUsdRate,
+  )
   return maybeQuote
 }

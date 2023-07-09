@@ -40,7 +40,7 @@ import {
   selectAssetById,
   selectAssets,
   selectPortfolioAccountMetadataByAccountId,
-  selectPortfolioFiatBalanceByFilter,
+  selectPortfolioUserCurrencyBalanceByFilter,
   selectSelectedCurrency,
   selectSelectedLocale,
 } from 'state/slices/selectors'
@@ -95,7 +95,9 @@ export const Overview: React.FC<OverviewProps> = ({
     [assetId, accountId],
   )
   const accountMetadata = useAppSelector(s => selectPortfolioAccountMetadataByAccountId(s, filter))
-  const accountFiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByFilter(s, filter))
+  const accountUserCurrencyBalance = useAppSelector(s =>
+    selectPortfolioUserCurrencyBalanceByFilter(s, filter),
+  )
   const { data: ramps, isLoading: isRampsLoading } = useGetFiatRampsQuery()
 
   const isUnsupportedAsset = !Boolean(wallet && isAssetSupportedByWallet(assetId ?? '', wallet))
@@ -201,14 +203,14 @@ export const Overview: React.FC<OverviewProps> = ({
           <FiatRampButton
             key={rampId}
             onClick={() => handlePopupClick({ rampId, address: passedAddress })}
-            accountFiatBalance={accountFiatBalance}
+            accountFiatBalance={accountUserCurrencyBalance}
             action={fiatRampAction}
             {...ramp}
           />
         )
       })
   }, [
-    accountFiatBalance,
+    accountUserCurrencyBalance,
     address,
     assetId,
     fiatCurrency,

@@ -16,6 +16,7 @@ import { useHistory } from 'react-router'
 import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
+import { DonationCheckbox } from 'components/MultiHopTrade/components/TradeInput/components/DonationCheckbox'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useActiveQuoteStatus } from 'components/MultiHopTrade/hooks/useActiveQuoteStatus'
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
@@ -45,10 +46,10 @@ import {
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
-  selectNetBuyAmountFiat,
+  selectNetBuyAmountUserCurrency,
   selectNetReceiveAmountCryptoPrecision,
   selectSwapperSupportsCrossAccountTrade,
-  selectTotalNetworkFeeFiatPrecision,
+  selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -81,8 +82,8 @@ export const TradeInput = (props: CardProps) => {
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
-  const buyAmountAfterFeesFiat = useAppSelector(selectNetBuyAmountFiat)
-  const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeFiatPrecision)
+  const buyAmountAfterFeesUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
+  const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
 
   const activeQuoteStatus = useActiveQuoteStatus()
   const setBuyAsset = useCallback(
@@ -231,7 +232,7 @@ export const TradeInput = (props: CardProps) => {
                 assetSymbol={buyAsset.symbol}
                 assetIcon={buyAsset.icon}
                 cryptoAmount={buyAmountAfterFeesCryptoPrecision}
-                fiatAmount={buyAmountAfterFeesFiat}
+                fiatAmount={buyAmountAfterFeesUserCurrency}
                 percentOptions={[1]}
                 showInputSkeleton={isLoading}
                 showFiatSkeleton={isLoading}
@@ -284,6 +285,9 @@ export const TradeInput = (props: CardProps) => {
                   swapperName={activeSwapperName ?? ''}
                 />
               ) : null}
+            </Stack>
+            <Stack px={4}>
+              <DonationCheckbox isLoading={isLoading} />
             </Stack>
             <Tooltip label={activeQuoteStatus.error?.message}>
               <Button

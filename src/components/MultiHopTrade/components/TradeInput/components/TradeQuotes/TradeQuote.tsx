@@ -15,7 +15,7 @@ import {
 } from 'state/slices/selectors'
 import {
   getNetReceiveAmountCryptoPrecision,
-  getTotalNetworkFeeFiatPrecision,
+  getTotalNetworkFeeUserCurrencyPrecision,
 } from 'state/slices/tradeQuoteSlice/helpers'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -88,8 +88,8 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
   // NOTE: don't pull this from the slice - we're not displaying the active quote here
-  const networkFeeFiatPrecision = useMemo(
-    () => (quoteData.quote ? getTotalNetworkFeeFiatPrecision(quoteData.quote) : undefined),
+  const networkFeeUserCurrencyPrecision = useMemo(
+    () => (quoteData.quote ? getTotalNetworkFeeUserCurrencyPrecision(quoteData.quote) : undefined),
     [quoteData.quote],
   )
 
@@ -183,10 +183,10 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           </RawText>
           {
             // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
-            !networkFeeFiatPrecision ? (
+            !networkFeeUserCurrencyPrecision ? (
               translate('trade.unknownGas')
             ) : (
-              <Amount.Fiat value={networkFeeFiatPrecision} />
+              <Amount.Fiat value={networkFeeUserCurrencyPrecision} />
             )
           }
         </Flex>

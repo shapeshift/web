@@ -1,11 +1,15 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
+import { DEFAULT_SWAPPER_DONATION_BPS } from 'components/MultiHopTrade/constants'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { GetTradeQuoteInput } from 'lib/swapper/api'
+import { isSkipToken } from 'lib/utils'
 import { useGetTradeQuoteQuery } from 'state/apis/swappers/swappersApi'
 import {
   selectBuyAsset,
@@ -14,9 +18,21 @@ import {
   selectSellAccountId,
   selectSellAmountCryptoPrecision,
   selectSellAsset,
+  selectWillDonate,
 } from 'state/slices/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
+
+const isEqualExceptAffiliateBps = (
+  a: GetTradeQuoteInput | typeof skipToken,
+  b: GetTradeQuoteInput | undefined,
+) => {
+  if (!isSkipToken(a) && b) {
+    const { affiliateBps: _affiliateBps, ...aWithoutAffiliateBps } = a
+    const { affiliateBps: _updatedAffiliateBps, ...bWithoutAffiliateBps } = b
+    return isEqual(aWithoutAffiliateBps, bWithoutAffiliateBps)
+  }
+}
 
 export const useGetTradeQuotes = () => {
   const dispatch = useAppDispatch()
@@ -30,6 +46,7 @@ export const useGetTradeQuotes = () => {
   const buyAsset = useAppSelector(selectBuyAsset)
   const receiveAddress = useReceiveAddress()
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
+  const userWillDonate = useAppSelector(selectWillDonate)
 
   const sellAccountId = useAppSelector(selectSellAccountId)
 
@@ -43,6 +60,10 @@ export const useGetTradeQuotes = () => {
     if (wallet && sellAccountMetadata && receiveAddress) {
       ;(async () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
+        const walletIsKeepKey = wallet && isKeepKey(wallet)
+        const isFromEvm = isEvmChainId(sellAsset.chainId)
+        // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
+        const willDonate = walletIsKeepKey ? userWillDonate && !isFromEvm : userWillDonate
 
         const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,
@@ -53,12 +74,19 @@ export const useGetTradeQuotes = () => {
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: flags.MultiHopTrades,
+          affiliateBps: willDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0',
         })
 
         // if the quote input args changed, reset the selected swapper and update the trade quote args
         if (!isEqual(tradeQuoteInput, updatedTradeQuoteInput ?? skipToken)) {
           setTradeQuoteInput(updatedTradeQuoteInput ?? skipToken)
-          dispatch(tradeQuoteSlice.actions.resetSwapperName())
+
+          // If only the affiliateBps changed, we've toggled the donation checkbox - don't reset the swapper name
+          if (isEqualExceptAffiliateBps(tradeQuoteInput, updatedTradeQuoteInput)) {
+            return
+          } else {
+            dispatch(tradeQuoteSlice.actions.resetSwapperName())
+          }
         }
       })()
     } else {
@@ -78,7 +106,15 @@ export const useGetTradeQuotes = () => {
     sellAsset,
     tradeQuoteInput,
     wallet,
+    userWillDonate,
   ])
 
-  useGetTradeQuoteQuery(debouncedTradeQuoteInput, { pollingInterval: 10000 })
+  useGetTradeQuoteQuery(debouncedTradeQuoteInput, {
+    pollingInterval: 10000,
+    /*
+      If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
+      We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.
+     */
+    refetchOnMountOrArgChange: true,
+  })
 }

@@ -80,7 +80,7 @@ export const getTradeQuote = async (
   const firstHopAdapter = sellAssetIsOnOsmosisNetwork ? osmosisAdapter : cosmosAdapter
   const getFirstHopFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
   const firstHopFeeData = await firstHopAdapter.getFeeData(getFirstHopFeeDataInput)
-  const firstHopFee = firstHopFeeData.fast.txFee
+  const firstHopNetworkFee = firstHopFeeData.fast.txFee
   // Second hop always happens on Osmosis, so the fee is always paid in OSMO. i.e:
   // 1. in OSMO for OSMO -> ATOM, since both the swap-exact-amount-in to ATOM on Osmosis, and the IBC transfer to Cosmos IBC channel are paid in OSMO
   // 2. in OSMO for ATOM -> OSMO, since the IBC transfer is paid in ATOM, but the second IBC transfer hop is paid in OSMO
@@ -89,7 +89,7 @@ export const getTradeQuote = async (
   const secondHopFeeData = await secondHopAdapter.getFeeData(getSecondHopFeeDataInput)
   // For an actual OSMO swap, the fee is going to match the fast fee
   // For an IBC transfer, the slow txFee is as close as we can get, while still being slightly overestimated
-  const secondHopFee = buyAssetIsOnOsmosisNetwork
+  const secondHopNetworkFee = buyAssetIsOnOsmosisNetwork
     ? secondHopFeeData.fast.txFee
     : secondHopFeeData.slow.txFee
 
@@ -120,15 +120,18 @@ export const getTradeQuote = async (
     allowanceContract: '',
     buyAsset: firstHopBuyAsset,
     feeData: {
-      networkFeeCryptoBaseUnit: firstHopFee,
+      networkFeeCryptoBaseUnit: firstHopNetworkFee,
       protocolFees: {
-        // TODO: OSMO -> ATOM should have protocol fees on the first hop since this is an actual swap
-        // However, ATOM -> OSMO shouldn't have protocol fees on the first hop since this is just an IBC transfer i.e network fees apply, not protocol fees
-        // [buyAsset.assetId]: {
-        // amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
-        // requiresBalance: true,
-        // asset: buyAsset,
-        // },
+        ...(buyAssetIsOnOsmosisNetwork
+          ? {}
+          : {
+              [sellAsset.assetId]: {
+                // TODO(gomes): is this correct? There may be "0 fees" as amounts from rates are pessimistic by nature and assume fees
+                amountCryptoBaseUnit: firstHopFeeData.slow.txFee,
+                requiresBalance: true,
+                asset: sellAsset,
+              },
+            }),
       },
     },
     accountNumber,
@@ -145,7 +148,7 @@ export const getTradeQuote = async (
     allowanceContract: '',
     buyAsset: secondHopBuyAsset,
     feeData: {
-      networkFeeCryptoBaseUnit: secondHopFee,
+      networkFeeCryptoBaseUnit: secondHopNetworkFee,
       protocolFees: {
         // Protocol fees are only paid on the ATOM -> OSMO direction
         // IBC transfers don't incur protocol fees, only network ones
@@ -162,11 +165,10 @@ export const getTradeQuote = async (
     },
     accountNumber,
     rate,
-    sellAsset,
-    // TODO(gomes): deduct protocol fees for OSMO -> ATOM when implemented above
+    sellAsset: atomOnOsmosisAsset,
     sellAmountBeforeFeesCryptoBaseUnit: sellAssetIsOnOsmosisNetwork
-      ? 'TODO'
-      : bnOrZero(firstStep.buyAmountBeforeFeesCryptoBaseUnit).minus(firstHopFee).toString(),
+      ? bnOrZero(buyAmountCryptoBaseUnit).minus(firstHopNetworkFee).toString()
+      : bnOrZero(firstStep.buyAmountBeforeFeesCryptoBaseUnit).minus(firstHopNetworkFee).toString(),
     buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
     sources: DEFAULT_SOURCE,
   }

@@ -94,7 +94,7 @@ export const useTradeExecution = ({
       }
     })()
 
-    const stepIndex = 0 // TODO: multi-hop trades require this to be dynamic
+    const stepIndex = 1 // TODO: multi-hop trades require this to be dynamic
     const chainId = tradeQuote.steps[stepIndex].sellAsset.chainId
 
     const sellAssetChainAdapter = getChainAdapterManager().get(chainId)

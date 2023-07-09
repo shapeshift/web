@@ -1,11 +1,6 @@
 import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
-import type {
-  cosmos,
-  CosmosSdkChainAdapter,
-  GetFeeDataInput,
-  osmosis,
-} from '@shapeshiftoss/chain-adapters'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import type { cosmos, CosmosSdkChainAdapter, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import { bnOrZero, osmosis } from '@shapeshiftoss/chain-adapters'
 import type { CosmosSignTx } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
@@ -20,17 +15,20 @@ import type {
   Swapper2Api,
   TradeQuote2,
 } from 'lib/swapper/api'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import type { SymbolDenomMapping } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 import {
-  buildApiTradeTx,
   buildPerformIbcTransferUnsignedTx,
+  buildSwapExactAmountInTx,
   symbolDenomMapping,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
-import { atomOnOsmosisAssetId, COSMO_OSMO_CHANNEL } from './utils/constants'
+import {
+  atomOnOsmosisAssetId,
+  COSMOSHUB_TO_OSMOSIS_CHANNEL,
+  OSMOSIS_TO_COSMOSHUB_CHANNEL,
+} from './utils/constants'
 import type { OsmosisSupportedChainId } from './utils/types'
 
 const tradeQuoteMetadata: Map<string, { chainId: OsmosisSupportedChainId }> = new Map()
@@ -60,66 +58,74 @@ export const osmosisApi: Swapper2Api = {
     tradeQuote,
     stepIndex,
   }: GetUnsignedTxArgs): Promise<CosmosSignTx> => {
+    if (!from) throw new Error('from address is required')
+
     const { accountNumber, buyAsset, sellAsset, sellAmountBeforeFeesCryptoBaseUnit } =
       tradeQuote.steps[stepIndex]
     const { receiveAddress } = tradeQuote
+
+    // An osmosis step can be either an IBC transfer or a swap-exact-amount-in
+    const isIbcTransfer = buyAsset.chainId !== sellAsset.chainId
+    const isSwapExactAmountIn = !isIbcTransfer
 
     const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
 
     const sellAssetDenom = symbolDenomMapping[sellAsset.symbol as keyof SymbolDenomMapping]
     const buyAssetDenom = symbolDenomMapping[buyAsset.symbol as keyof SymbolDenomMapping]
+    // TODO(gomes): This should ideally be dynamic and fetched from exchange endpoints, but is perfectly fine as-is as we just support CosmosHub and Osmosis chains for now
+    const nativeAssetDenom =
+      symbolDenomMapping[sellAsset.chainId === osmosisChainId ? 'OSMO' : 'ATOM']
 
     const adapterManager = getChainAdapterManager()
     const osmosisAdapter = adapterManager.get(osmosisChainId) as osmosis.ChainAdapter | undefined
     const cosmosAdapter = adapterManager.get(cosmosChainId) as cosmos.ChainAdapter | undefined
+    const sellAssetAdapter = adapterManager.get(sellAsset.chainId) as
+      | cosmos.ChainAdapter
+      | osmosis.ChainAdapter
+      | undefined
 
-    const { REACT_APP_OSMOSIS_NODE_URL: osmoUrl } = getConfig()
+    const { REACT_APP_OSMOSIS_NODE_URL: osmoUrl, REACT_APP_COSMOS_NODE_URL: cosmosUrl } =
+      getConfig()
 
-    if (!cosmosAdapter || !osmosisAdapter) throw new Error('Failed to get adapters')
+    if (!cosmosAdapter || !osmosisAdapter || !sellAssetAdapter)
+      throw new Error('Failed to get adapters')
 
-    let sellAddress
-
-    if (sellAssetIsOnOsmosisNetwork) {
-      sellAddress = from
-
-      if (!sellAddress)
-        throw new SwapError('failed to get osmoAddress', {
-          code: SwapErrorType.EXECUTE_TRADE_FAILED,
-        })
-    } else {
+    if (isIbcTransfer) {
       /** If the sell asset is not on the Osmosis network, we need to bridge the
        * asset to the Osmosis network first in order to perform a swap on Osmosis DEX.
        */
-      sellAddress = from
-
-      if (!sellAddress) throw new Error('Failed to get address')
 
       const transfer = {
-        sender: sellAddress,
+        sender: from,
         receiver: receiveAddress,
         amount: sellAmountBeforeFeesCryptoBaseUnit,
       }
 
-      const responseAccount = await cosmosAdapter.getAccount(sellAddress)
+      const responseAccount = await sellAssetAdapter.getAccount(from)
       const ibcAccountNumber = parseInt(responseAccount.chainSpecific.accountNumber || '0')
 
       const sequence = responseAccount.chainSpecific.sequence || '0'
 
       const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
-      const ibcFromCosmosFeeData = await cosmosAdapter.getFeeData(getFeeDataInput)
+      const sellAssetFeeData = await sellAssetAdapter.getFeeData(getFeeDataInput)
 
       const unsignedTx = await buildPerformIbcTransferUnsignedTx({
         input: transfer,
-        adapter: cosmosAdapter,
-        blockBaseUrl: osmoUrl,
-        denom: 'uatom',
-        sourceChannel: COSMO_OSMO_CHANNEL,
-        feeAmount: ibcFromCosmosFeeData.fast.txFee,
+        adapter: sellAssetAdapter,
+        // The blockheight of the destination chain for the IBC transfer
+        blockBaseUrl: sellAsset.chainId === cosmosChainId ? osmoUrl : cosmosUrl,
+        denom: sellAssetDenom,
+        sourceChannel:
+          sellAsset.chainId === cosmosChainId
+            ? COSMOSHUB_TO_OSMOSIS_CHANNEL
+            : OSMOSIS_TO_COSMOSHUB_CHANNEL,
+        feeAmount:
+          sellAsset.chainId === cosmosChainId ? osmosis.MIN_FEE : sellAssetFeeData.fast.txFee,
         accountNumber,
         ibcAccountNumber,
         sequence,
-        gas: ibcFromCosmosFeeData.fast.chainSpecific.gasLimit,
-        feeDenom: 'uatom',
+        gas: sellAssetFeeData.fast.chainSpecific.gasLimit,
+        feeDenom: nativeAssetDenom,
       })
 
       return unsignedTx
@@ -157,9 +163,9 @@ export const osmosisApi: Swapper2Api = {
 
     const receiveAccountNumber = accountNumber
 
-    const osmoAddress = sellAssetIsOnOsmosisNetwork ? sellAddress : receiveAddress
+    const osmoAddress = sellAssetIsOnOsmosisNetwork ? from : receiveAddress
 
-    const txToSign = await buildApiTradeTx({
+    const txToSign = await buildSwapExactAmountInTx({
       osmoAddress,
       accountNumber: sellAssetIsOnOsmosisNetwork ? accountNumber : receiveAccountNumber,
       adapter: osmosisAdapter,

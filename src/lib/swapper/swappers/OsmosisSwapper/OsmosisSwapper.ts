@@ -21,8 +21,8 @@ import type {
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import {
   atomOnOsmosisAssetId,
-  COSMO_OSMO_CHANNEL,
-  OSMO_COSMO_CHANNEL,
+  COSMOSHUB_TO_OSMOSIS_CHANNEL,
+  OSMOSIS_TO_COSMOSHUB_CHANNEL,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/constants'
 import type { SymbolDenomMapping } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 import {
@@ -261,7 +261,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         wallet,
         blockBaseUrl: osmoUrl,
         denom: 'uatom',
-        sourceChannel: COSMO_OSMO_CHANNEL,
+        sourceChannel: COSMOSHUB_TO_OSMOSIS_CHANNEL,
         feeAmount: ibcFromCosmosFeeData.fast.txFee,
         accountNumber,
         ibcAccountNumber,
@@ -381,7 +381,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         wallet,
         blockBaseUrl: cosmosUrl,
         denom: buyAssetDenom,
-        sourceChannel: OSMO_COSMO_CHANNEL,
+        sourceChannel: OSMOSIS_TO_COSMOSHUB_CHANNEL,
         feeAmount: osmosis.MIN_FEE,
         accountNumber,
         ibcAccountNumber,

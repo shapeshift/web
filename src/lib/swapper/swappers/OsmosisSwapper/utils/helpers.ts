@@ -265,7 +265,7 @@ type BuildTradeTxInput = {
   feeDenom: string
 }
 
-export const buildApiTradeTx = async ({
+export const buildSwapExactAmountInTx = async ({
   osmoAddress,
   adapter,
   accountNumber,
@@ -330,7 +330,7 @@ export const buildTradeTx = async (
   input: BuildTradeTxInput & { wallet: HDWallet },
 ): Promise<SignTxInput<OsmosisSignTx>> => {
   const { wallet } = input
-  const txToSign = await buildApiTradeTx(input)
+  const txToSign = await buildSwapExactAmountInTx(input)
 
   return { txToSign, wallet }
 }

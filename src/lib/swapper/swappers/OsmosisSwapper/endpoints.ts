@@ -64,17 +64,16 @@ export const osmosisApi: Swapper2Api = {
       tradeQuote.steps[stepIndex]
     const { receiveAddress } = tradeQuote
 
-    // An osmosis step can be either an IBC transfer or a swap-exact-amount-in
+    // What we call an "Osmosis" swap is a stretch - it's really an IBC transfer and a swap-exact-amount-in
+    // Thus, an "Osmosis" swap step can be one of these two
     const isIbcTransfer = buyAsset.chainId !== sellAsset.chainId
-    const isSwapExactAmountIn = !isIbcTransfer
 
     const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
+    const buyAssetIsOnOsmosisNetwork = buyAsset.chainId === osmosisChainId
 
     const sellAssetDenom = symbolDenomMapping[sellAsset.symbol as keyof SymbolDenomMapping]
     const buyAssetDenom = symbolDenomMapping[buyAsset.symbol as keyof SymbolDenomMapping]
-    // TODO(gomes): This should ideally be dynamic and fetched from exchange endpoints, but is perfectly fine as-is as we just support CosmosHub and Osmosis chains for now
-    const nativeAssetDenom =
-      symbolDenomMapping[sellAsset.chainId === osmosisChainId ? 'OSMO' : 'ATOM']
+    const nativeAssetDenom = sellAsset.chainId === osmosisChainId ? 'uosmo' : 'uatom'
 
     const adapterManager = getChainAdapterManager()
     const osmosisAdapter = adapterManager.get(osmosisChainId) as osmosis.ChainAdapter | undefined
@@ -114,7 +113,8 @@ export const osmosisApi: Swapper2Api = {
         adapter: sellAssetAdapter,
         // The blockheight of the destination chain for the IBC transfer
         blockBaseUrl: sellAsset.chainId === cosmosChainId ? osmoUrl : cosmosUrl,
-        denom: sellAssetDenom,
+        // Transfer uosmo if IBC transferring from Osmosis to Cosmos, else IBC transfer ATOM on Osmosis from Cosmos to Osmosis
+        denom: buyAssetIsOnOsmosisNetwork ? symbolDenomMapping['OSMO'] : symbolDenomMapping['ATOM'],
         sourceChannel:
           sellAsset.chainId === cosmosChainId
             ? COSMOSHUB_TO_OSMOSIS_CHANNEL

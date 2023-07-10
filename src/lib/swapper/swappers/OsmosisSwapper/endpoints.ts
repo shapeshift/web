@@ -104,9 +104,7 @@ export const osmosisApi: Swapper2Api = {
         // Used to get blockheight of the *destination* chain for the IBC transfer
         blockBaseUrl: sellAsset.chainId === cosmosChainId ? osmoUrl : cosmosUrl,
         // Transfer uosmo if IBC transferring from Osmosis to Cosmos, else IBC transfer ATOM to ATOM on Osmosis
-        denom: sellAssetIsOnOsmosisNetwork
-          ? symbolDenomMapping['OSMO']
-          : symbolDenomMapping['ATOM'],
+        denom: nativeAssetDenom,
         sourceChannel: sellAssetIsOnOsmosisNetwork
           ? OSMOSIS_TO_COSMOSHUB_CHANNEL
           : COSMOSHUB_TO_OSMOSIS_CHANNEL,

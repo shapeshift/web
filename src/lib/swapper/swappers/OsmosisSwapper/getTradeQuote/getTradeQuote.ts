@@ -4,7 +4,6 @@ import type { cosmos, GetFeeDataInput, osmosis } from '@shapeshiftoss/chain-adap
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type {
@@ -19,6 +18,7 @@ import {
   getRateInfo,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 import type { OsmosisSupportedChainId } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 
 import { DEFAULT_SOURCE } from '../utils/constants'
 
@@ -42,8 +42,6 @@ export const getTradeQuote = async (
     )
   }
 
-  const adapterManager = getChainAdapterManager()
-
   const { REACT_APP_OSMOSIS_NODE_URL: osmoUrl } = getConfig()
 
   const maybeRateInfo = await getRateInfo(
@@ -58,17 +56,8 @@ export const getTradeQuote = async (
 
   const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetUsdRate)
 
-  const osmosisAdapter = adapterManager.get(osmosisChainId) as osmosis.ChainAdapter | undefined
-  const cosmosAdapter = adapterManager.get(cosmosChainId) as cosmos.ChainAdapter | undefined
-
-  // TODO(gomes): assertion util
-  if (!osmosisAdapter || !cosmosAdapter)
-    return Err(
-      makeSwapErrorRight({
-        message: 'Failed to get Cosmos SDK adapters',
-        code: SwapErrorType.TRADE_QUOTE_FAILED,
-      }),
-    )
+  const osmosisAdapter = assertGetCosmosSdkChainAdapter(osmosisChainId) as osmosis.ChainAdapter
+  const cosmosAdapter = assertGetCosmosSdkChainAdapter(cosmosChainId) as cosmos.ChainAdapter
 
   const buyAssetIsOnOsmosisNetwork = buyAsset.chainId === osmosisChainId
   const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
@@ -123,9 +112,8 @@ export const getTradeQuote = async (
       networkFeeCryptoBaseUnit: firstHopNetworkFee,
       protocolFees: {
         ...(buyAssetIsOnOsmosisNetwork
-          ? {} // First step is an IBC transfer on ATOM -> OSMO direction, so there are no protocol fees
+          ? {}
           : {
-              // First step is a swap on OSMO -> ATOM direction, so there *are* protocol fees incurring
               [sellAsset.assetId]: {
                 // TODO(gomes): is this correct? There may be "0 fees" as amounts from rates are pessimistic by nature and assume fees
                 amountCryptoBaseUnit: firstHopFeeData.slow.txFee,

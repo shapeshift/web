@@ -134,10 +134,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         }),
       )
 
-    const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
-    const osmosisFees = await osmosisAdapter.getFeeData(getFeeDataInput)
-    const fee = osmosisFees.fast.txFee
-
     if (!receiveAddress)
       return Err(
         makeSwapErrorRight({
@@ -147,41 +143,48 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       )
 
     const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
+
+    const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
     const cosmosFees = await cosmosAdapter.getFeeData(getFeeDataInput)
+    const osmosisFees = await osmosisAdapter.getFeeData(getFeeDataInput)
     const initiatingTxFeeData = sellAssetIsOnOsmosisNetwork ? osmosisFees : cosmosFees
+
+    const osmosisToCosmosProtocolFees = {
+      [sellAsset.assetId]: {
+        amountCryptoBaseUnit: osmosis.MIN_FEE,
+        requiresBalance: true, // network fee for second hop, represented as a protocol fee here
+
+        asset: sellAsset,
+      },
+      [buyAsset.assetId]: {
+        amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
+        requiresBalance: false,
+        asset: buyAsset,
+      },
+    }
+
+    const cosmosToOsmosisProtocolFees = {
+      [sellAsset.assetId]: {
+        amountCryptoBaseUnit: osmosisFees.fast.txFee,
+        requiresBalance: true, // network fee for second hop, represented as a protocol fee here
+        asset: sellAsset,
+      },
+      [buyAsset.assetId]: {
+        amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
+        requiresBalance: false,
+        asset: buyAsset,
+      },
+    }
 
     return Ok({
       buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
       buyAsset,
       feeData: {
-        networkFeeCryptoBaseUnit: fee,
-        protocolFees: {
+        networkFeeCryptoBaseUnit: initiatingTxFeeData.fast.txFee,
+        protocolFees:
           // Note, the current implementation is a hack where we consider the whole swap as one hop
           // This is only there to make the fees correct in the UI, but this isn't a "protocol fee", it's a network fee for the second hop (the IBC transfer)
-          ...(sellAssetIsOnOsmosisNetwork
-            ? {
-                [buyAsset.assetId]: {
-                  amountCryptoBaseUnit: cosmosFees.slow.txFee,
-                  requiresBalance: true,
-                  asset: buyAsset,
-                },
-              }
-            : {
-                [buyAsset.assetId]: {
-                  amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
-                  requiresBalance: true,
-                  asset: buyAsset,
-                },
-              }),
-          // When doing an IBC transfer, there is a fee occuring on the amount being transferred.
-          // We never accounted for it previously, thus the second hop for ATOM -> OSMO would consistently fail on the first try
-          // and "magically" work after a failed trade, since you now have balance to cover the fee deduction
-          [sellAsset.assetId]: {
-            amountCryptoBaseUnit: initiatingTxFeeData.fast.txFee,
-            requiresBalance: false,
-            asset: sellAsset,
-          },
-        },
+          sellAssetIsOnOsmosisNetwork ? osmosisToCosmosProtocolFees : cosmosToOsmosisProtocolFees,
       },
       rate,
       receiveAddress,
@@ -328,7 +331,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
     // Swaps happen on the Osmosis chain, so network fees are always paid in OSMO
     // That is different from the network fees that happen while making an IBC transfer, which are occured in the transfer denom
-    const nativeAssetSwapFee = await osmosisAdapter.getFeeData(getFeeDataInput)
+    const osmosisFees = await osmosisAdapter.getFeeData(getFeeDataInput)
     const feeDenom = sellAssetIsOnOsmosisNetwork
       ? symbolDenomMapping['OSMO']
       : symbolDenomMapping['ATOM']
@@ -355,8 +358,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       buyAssetDenom,
       sellAssetDenom,
       sellAmount: sellAmountAfterIbcTransferFeesCryptoBaseUnit,
-      gas: nativeAssetSwapFee.fast.chainSpecific.gasLimit,
-      feeAmount: nativeAssetSwapFee.fast.txFee,
+      gas: osmosisFees.fast.chainSpecific.gasLimit,
+      feeAmount: osmosisFees.fast.txFee,
       feeDenom,
       wallet,
     })
@@ -381,7 +384,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       const transfer = {
         sender: sellAddress,
         receiver: receiveAddress,
-        // IBC transfers are cheap compared to actual swaps, so we can rely on the slow "swap" tx fee
+        // TODO(gomes): That is too much of a deduction, and that's starting from "buyAmountCryptoBaseUnit" which is a rate/quote, not the actual amount that was IBC transfered
+        // We should be polling for, and send the actual amount that was IBC transfered, not the amount that was quoted
         amount: bnOrZero(buyAmountCryptoBaseUnit).minus(initiatingTxFeeData.slow.txFee).toString(),
       }
 

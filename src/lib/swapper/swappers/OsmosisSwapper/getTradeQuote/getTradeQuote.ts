@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
-import type { cosmos, GetFeeDataInput, osmosis } from '@shapeshiftoss/chain-adapters'
+import type { cosmos, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import { osmosis } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
@@ -61,14 +62,38 @@ export const getTradeQuote = async (
       }),
     )
 
-  const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
-  const feeData = await osmosisAdapter.getFeeData(getFeeDataInput)
-  const fee = feeData.fast.txFee
-
   const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
+  const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
   const cosmosFees = await cosmosAdapter.getFeeData(getFeeDataInput)
   const osmoFees = await osmosisAdapter.getFeeData(getFeeDataInput)
   const initiatingTxFeeData = sellAssetIsOnOsmosisNetwork ? osmoFees : cosmosFees
+
+  const osmosisToCosmosProtocolFees = {
+    [sellAsset.assetId]: {
+      amountCryptoBaseUnit: osmosis.MIN_FEE,
+      requiresBalance: true, // network fee for second hop, represented as a protocol fee here
+
+      asset: sellAsset,
+    },
+    [buyAsset.assetId]: {
+      amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
+      requiresBalance: false,
+      asset: buyAsset,
+    },
+  }
+
+  const cosmosToOsmosisProtocolFees = {
+    [sellAsset.assetId]: {
+      amountCryptoBaseUnit: osmoFees.fast.txFee,
+      requiresBalance: true, // network fee for second hop, represented as a protocol fee here
+      asset: sellAsset,
+    },
+    [buyAsset.assetId]: {
+      amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
+      requiresBalance: false,
+      asset: buyAsset,
+    },
+  }
 
   return Ok({
     minimumCryptoHuman,
@@ -77,34 +102,11 @@ export const getTradeQuote = async (
         allowanceContract: '',
         buyAsset,
         feeData: {
-          networkFeeCryptoBaseUnit: fee,
-          protocolFees: {
+          networkFeeCryptoBaseUnit: initiatingTxFeeData.fast.txFee,
+          protocolFees:
             // Note, the current implementation is a hack where we consider the whole swap as one hop
             // This is only there to make the fees correct in the UI, but this isn't a "protocol fee", it's a network fee for the second hop (the IBC transfer)
-            ...(sellAssetIsOnOsmosisNetwork
-              ? {
-                  [buyAsset.assetId]: {
-                    amountCryptoBaseUnit: cosmosFees.slow.txFee,
-                    requiresBalance: true,
-                    asset: buyAsset,
-                  },
-                }
-              : {
-                  [buyAsset.assetId]: {
-                    amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
-                    requiresBalance: true,
-                    asset: buyAsset,
-                  },
-                }),
-            // When doing an IBC transfer, there is a fee occuring on the amount being transferred.
-            // We never accounted for it previously, thus the second hop for ATOM -> OSMO would consistently fail on the first try
-            // and "magically" work after a failed trade, since you now have balance to cover the fee deduction
-            [sellAsset.assetId]: {
-              amountCryptoBaseUnit: initiatingTxFeeData.fast.txFee,
-              requiresBalance: false,
-              asset: sellAsset,
-            },
-          },
+            sellAssetIsOnOsmosisNetwork ? osmosisToCosmosProtocolFees : cosmosToOsmosisProtocolFees,
         },
         accountNumber,
         rate,

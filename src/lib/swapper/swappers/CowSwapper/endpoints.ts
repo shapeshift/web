@@ -52,12 +52,12 @@ export const cowApi: Swapper2Api = {
       sellAssetUsdRate,
       buyAssetUsdRate,
     })
+    const { receiveAddress } = input
 
     return tradeQuoteResult.map(tradeQuote => {
-      const { receiveAddress, affiliateBps } = input
       const id = uuid()
       tradeQuoteMetadata.set(id, { chainId: tradeQuote.steps[0].sellAsset.chainId as EvmChainId })
-      return { id, receiveAddress, affiliateBps, ...tradeQuote }
+      return { id, receiveAddress, affiliateBps: undefined, ...tradeQuote }
     })
   },
 

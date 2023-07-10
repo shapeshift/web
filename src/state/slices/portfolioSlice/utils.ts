@@ -305,7 +305,7 @@ export const genericBalanceIncludingStakingByFilter = (
     .toFixed()
 }
 
-export const getHighestFiatBalanceAccountByAssetId = (
+export const getHighestUserCurrencyBalanceAccountByAssetId = (
   accountIdAssetValues: PortfolioAccountBalancesById,
   assetId?: AssetId,
 ): AccountId | undefined => {

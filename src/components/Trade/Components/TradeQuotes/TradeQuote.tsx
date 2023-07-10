@@ -14,7 +14,7 @@ import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
 import { selectFeeAssetByChainId, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import { selectFeeAssetFiatRate } from 'state/zustand/swapperStore/amountSelectors'
+import { selectFeeAssetUserCurrencyRate } from 'state/zustand/swapperStore/amountSelectors'
 import { selectAmount, selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
@@ -82,7 +82,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
 
   const { isTradingActive } = useIsTradingActive()
 
-  const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
+  const feeAssetUserCurrencyRate = useSwapperStore(selectFeeAssetUserCurrencyRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellFeeAsset = useAppSelector(state =>
@@ -115,14 +115,14 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
 
   const networkFeeCryptoBaseUnit = quote.steps[0].feeData.networkFeeCryptoBaseUnit
 
-  const networkFeeFiat = useMemo(
+  const networkFeeUserCurrency = useMemo(
     () =>
-      feeAssetFiatRate && networkFeeCryptoBaseUnit
+      feeAssetUserCurrencyRate && networkFeeCryptoBaseUnit
         ? bnOrZero(fromBaseUnit(networkFeeCryptoBaseUnit, feeAsset.precision))
-            .times(feeAssetFiatRate)
+            .times(feeAssetUserCurrencyRate)
             .toString()
         : undefined,
-    [feeAsset.precision, feeAssetFiatRate, networkFeeCryptoBaseUnit],
+    [feeAsset.precision, feeAssetUserCurrencyRate, networkFeeCryptoBaseUnit],
   )
 
   const protocol = swapperWithMetadata.swapper.name
@@ -214,7 +214,11 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           <RawText color='gray.500'>
             <FaGasPump />
           </RawText>
-          {networkFeeFiat ? <Amount.Fiat value={networkFeeFiat} /> : translate('trade.unknownGas')}
+          {networkFeeUserCurrency ? (
+            <Amount.Fiat value={networkFeeUserCurrency} />
+          ) : (
+            translate('trade.unknownGas')
+          )}
         </Flex>
       </Flex>
       <Flex justifyContent='space-between' alignItems='center'>

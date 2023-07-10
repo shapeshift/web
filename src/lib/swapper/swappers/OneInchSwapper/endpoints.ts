@@ -2,6 +2,8 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads/build'
 import { v4 as uuid } from 'uuid'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import type {
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
@@ -10,6 +12,7 @@ import type {
   Swapper2Api,
   TradeQuote2,
 } from 'lib/swapper/api'
+import { getMinimumDonationUsdSellAmountByChainId } from 'lib/swapper/swappers/utils/getMinimumDonationUsdSellAmountByChainId'
 import { assertGetEvmChainAdapter, checkEvmSwapStatus } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -22,13 +25,37 @@ export const oneInchApi: Swapper2Api = {
     input: GetTradeQuoteInput,
     { sellAssetUsdRate }: { sellAssetUsdRate: string },
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
-    const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInput, sellAssetUsdRate)
+    const { sellAsset, sellAmountBeforeFeesCryptoBaseUnit, affiliateBps, receiveAddress } = input
 
+    const sellAmountBeforeFeesCryptoPrecision = fromBaseUnit(
+      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAsset.precision,
+    )
+    const sellAmountBeforeFeesUsd = bnOrZero(sellAmountBeforeFeesCryptoPrecision).times(
+      sellAssetUsdRate,
+    )
+    // We use the sell amount so we don't have to make 2 network requests, as the receive amount requires a quote
+    const isDonationAmountBelowMinimum = sellAmountBeforeFeesUsd.lt(
+      getMinimumDonationUsdSellAmountByChainId(sellAsset.chainId),
+    )
+
+    const tradeQuoteResult = await getTradeQuote(
+      {
+        ...(input as GetEvmTradeQuoteInput),
+        affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps,
+      },
+      sellAssetUsdRate,
+    )
     return tradeQuoteResult.map(tradeQuote => {
-      const { receiveAddress, affiliateBps } = input
       const id = uuid()
-      tradeQuoteMetadata.set(id, { chainId: tradeQuote.steps[0].sellAsset.chainId as EvmChainId })
-      return { id, receiveAddress, affiliateBps, ...tradeQuote }
+      const firstHop = tradeQuote.steps[0]
+      tradeQuoteMetadata.set(id, { chainId: firstHop.sellAsset.chainId as EvmChainId })
+      return {
+        id,
+        receiveAddress,
+        affiliateBps: isDonationAmountBelowMinimum ? undefined : affiliateBps,
+        ...tradeQuote,
+      }
     })
   },
 

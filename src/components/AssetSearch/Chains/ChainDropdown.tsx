@@ -15,7 +15,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { IconCircle } from 'components/IconCircle'
 import { GridIcon } from 'components/Icons/GridIcon'
-import { selectPortfolioTotalFiatBalanceExcludeEarnDupes } from 'state/slices/selectors'
+import { selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ChainRow } from './ChainRow'
@@ -38,7 +38,9 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
   buttonProps,
   ...menuProps
 }) => {
-  const totalPortfolioFiatBalance = useAppSelector(selectPortfolioTotalFiatBalanceExcludeEarnDupes)
+  const totalPortfolioUserCurrencyBalance = useAppSelector(
+    selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  )
   const translate = useTranslate()
   const renderChains = useMemo(() => {
     return chainIds.map(chainId => (
@@ -67,7 +69,7 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
                   <GridIcon />
                 </IconCircle>
                 {translate('common.allChains')}
-                <Amount.Fiat ml='auto' value={totalPortfolioFiatBalance} />
+                <Amount.Fiat ml='auto' value={totalPortfolioUserCurrencyBalance} />
               </Flex>
             </MenuItemOption>
           )}

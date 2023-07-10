@@ -107,7 +107,8 @@
     "wallet": "Wallet",
     "action": "Action",
     "feedbackAndSupport": "Feedback & Support",
-    "getSupport": "Get Support"
+    "getSupport": "Get Support",
+    "viewMyWallet": "View My Wallet"
   },
   "consentBanner": {
     "body": {
@@ -1766,7 +1767,11 @@
       },
       "modal": {
         "title": "Successfully linked Yat"
-      }
+      },
+      "linkedYat": "Linked Yat",
+      "yatConnected": "Yat Connected!",
+      "usdcAddress": "Yat USDC address",
+      "ethAddress": "Yat ETH address"
     }
   },
   "gasInput": {

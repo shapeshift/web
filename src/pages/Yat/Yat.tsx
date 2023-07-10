@@ -1,8 +1,14 @@
+import { Button, Card, CardHeader, Center, Heading } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
+import { Summary } from 'features/defi/components/Summary'
 import { useEffect, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { matchPath, useHistory, useLocation } from 'react-router'
+import { NavLink } from 'react-router-dom'
+import { YatIcon } from 'components/Icons/YatIcon'
 import { usdcAssetId } from 'components/Modals/FiatRamps/config'
+import { Row } from 'components/Row/Row'
 import { resolveYat, validateYat } from 'lib/address/yat'
 
 /**
@@ -20,6 +26,7 @@ import { resolveYat, validateYat } from 'lib/address/yat'
 export const Yat: React.FC = () => {
   // nulls here are the "loading" state
   const [eid, setEid] = useState<string | null>(null)
+  const translate = useTranslate()
   const [maybeYatEthAddress, setMaybeYatEthAddress] = useState<string | null>(null)
   const [maybeYatUsdcAddress, setMaybeYatUsdcAddress] = useState<string | null>(null)
   const history = useHistory()
@@ -80,26 +87,42 @@ export const Yat: React.FC = () => {
   }, [eid, history])
 
   return (
-    <>
-      <div>yat emojis: {eid}</div>
-      <div>
-        yat usdc address:{' '}
-        <pre>
-          {maybeYatUsdcAddress === null
-            ? 'loading'
-            : maybeYatUsdcAddress === ''
-            ? 'no usdc addy'
-            : maybeYatUsdcAddress}
-        </pre>
-      </div>
-      <div>
-        yat eth address:{' '}
-        {maybeYatEthAddress === null
-          ? 'loading'
-          : maybeYatEthAddress === ''
-          ? 'no eth addy'
-          : maybeYatEthAddress}
-      </div>
-    </>
+    <Center height='calc(100vh - 76px)'>
+      <Card overflow='hidden' bg='transparent'>
+        <CardHeader textAlign='center' pb={8}>
+          <YatIcon boxSize={16} color='green.200' />
+          <Heading as='h1'>{translate('features.yat.yatConnected')}</Heading>
+        </CardHeader>
+        <Summary>
+          <Row variant='gutter' alignItems='center'>
+            <Row.Label>{translate('features.yat.linkedYat')}</Row.Label>
+            <Row.Value fontSize='2xl'>{eid}</Row.Value>
+          </Row>
+          <Row variant='vert-gutter'>
+            <Row.Label>{translate('features.yat.usdcAddress')}</Row.Label>
+            <Row.Value>
+              {maybeYatUsdcAddress === null
+                ? 'loading'
+                : maybeYatUsdcAddress === ''
+                ? 'no usdc addy'
+                : maybeYatUsdcAddress}
+            </Row.Value>
+          </Row>
+          <Row variant='vert-gutter'>
+            <Row.Label>{translate('features.yat.ethAddress')}</Row.Label>
+            <Row.Value>
+              {maybeYatEthAddress === null
+                ? 'loading'
+                : maybeYatEthAddress === ''
+                ? 'no eth addy'
+                : maybeYatEthAddress}
+            </Row.Value>
+          </Row>
+        </Summary>
+        <Button as={NavLink} to='/dashboard' colorScheme='blue' size='lg' mt={6}>
+          {translate('common.viewMyWallet')}
+        </Button>
+      </Card>
+    </Center>
   )
 }

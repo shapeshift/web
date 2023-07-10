@@ -42,6 +42,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
+import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
@@ -68,6 +69,7 @@ export const TradeConfirm = () => {
   const history = useHistory()
   const mixpanel = getMixPanel()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const alertColor = useColorModeValue('yellow.500', 'yellow.200')
   const warningColor = useColorModeValue('red.600', 'red.400')
   const {
     handleSubmit,
@@ -115,6 +117,7 @@ export const TradeConfirm = () => {
 
   const sellAsset = useAppSelector(selectFirstHopSellAsset)
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
+  const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
   const { executeTrade, sellTxHash, status } = useTradeExecution({ tradeQuote, swapperName })
 
@@ -397,6 +400,22 @@ export const TradeConfirm = () => {
                       )}`}
                   </Row.Value>
                 </Row>
+                {maybeManualReceiveAddress && (
+                  <Row>
+                    <HelperTooltip label={translate('trade.tooltip.manualReceiveAddress')}>
+                      <Row.Label>
+                        <Text translation='trade.manualReceiveAddress' />
+                      </Row.Label>
+                    </HelperTooltip>
+                    <Row.Value>
+                      <Row.Label>
+                        <RawText fontWeight='semibold' color={alertColor}>
+                          {maybeManualReceiveAddress}
+                        </RawText>
+                      </Row.Label>
+                    </Row.Value>
+                  </Row>
+                )}
                 {isFeeRatioOverThreshold && (
                   <Flex justifyContent='center' gap={4} alignItems='center'>
                     <WarningTwoIcon w={5} h={5} color={warningColor} />

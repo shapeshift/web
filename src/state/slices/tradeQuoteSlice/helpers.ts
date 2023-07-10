@@ -165,9 +165,12 @@ export const getTotalProtocolFeeByAsset = (quote: TradeQuote2): Record<AssetId, 
           return innerAcc
         }
 
-        innerAcc[assetId].amountCryptoBaseUnit = bn(innerAcc[assetId].amountCryptoBaseUnit)
-          .plus(protocolFee.amountCryptoBaseUnit)
-          .toString()
+        innerAcc[assetId] = {
+          ...innerAcc[assetId],
+          amountCryptoBaseUnit: bn(innerAcc[assetId].amountCryptoBaseUnit)
+            .plus(protocolFee.amountCryptoBaseUnit)
+            .toString(),
+        }
         return innerAcc
       },
       acc,

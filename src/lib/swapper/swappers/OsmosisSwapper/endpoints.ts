@@ -137,7 +137,7 @@ export const osmosisApi: Swapper2Api = {
     // The actual amount that will end up on the IBC channel is the sell amount minus the fee for the IBC transfer Tx
     // We need to deduct the fees from the initial amount in case we're dealing with an IBC transfer + swap flow
     // or else, this will break for swaps to an Osmosis address that doesn't yet have ATOM
-    const sellAmountAfterFeesCryptoBaseUnit = sellAssetIsOnOsmosisNetwork
+    const sellAmountAfterIbcTransferFeesCryptoBaseUnit = sellAssetIsOnOsmosisNetwork
       ? sellAmountBeforeFeesCryptoBaseUnit
       : bnOrZero(sellAmountBeforeFeesCryptoBaseUnit).minus(swapFeeData.fast.txFee).toString()
 
@@ -155,7 +155,7 @@ export const osmosisApi: Swapper2Api = {
       adapter: osmosisAdapter,
       buyAssetDenom,
       sellAssetDenom,
-      sellAmount: sellAmountAfterFeesCryptoBaseUnit,
+      sellAmount: sellAmountAfterIbcTransferFeesCryptoBaseUnit,
       gas: swapFeeData.fast.chainSpecific.gasLimit,
       feeAmount: swapFeeData.fast.txFee,
       feeDenom,

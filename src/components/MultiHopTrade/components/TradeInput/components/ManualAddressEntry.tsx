@@ -11,7 +11,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInputWithChainId } from 'lib/address/address'
-import { selectBuyAsset } from 'state/slices/swappersSlice/selectors'
+import { selectBuyAsset, selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -42,6 +42,7 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = ({
 
   const chainAdapterManager = getChainAdapterManager()
   const buyAssetChainName = chainAdapterManager.get(buyAssetChainId)?.getDisplayName()
+  const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
   // Trigger re-validation of the manually entered receive address
   useEffect(() => {
@@ -50,8 +51,12 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = ({
 
   // Reset the manual address input state when the user changes the buy asset
   useEffect(() => {
-    setFormValue(SendFormFields.Input, '')
-  }, [buyAssetAssetId, setFormValue])
+    dispatch(swappers.actions.setManualReceiveAddress(undefined))
+  }, [buyAssetAssetId, dispatch])
+
+  useEffect(() => {
+    setFormValue(SendFormFields.Input, manualReceiveAddress ?? '')
+  }, [dispatch, manualReceiveAddress, setFormValue])
 
   // For safety, ensure we never have a receive address in the store if the form is invalid
   useEffect(() => {

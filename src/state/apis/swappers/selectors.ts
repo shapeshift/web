@@ -36,8 +36,3 @@ export const selectSwappersApiTradeQuotePending = createSelector(
   selectMostRecentTradeQuoteQuery,
   query => query?.status === QueryStatus.pending,
 )
-
-export const selectSwappersApiTradeQuoteUninitialized = createSelector(
-  selectMostRecentTradeQuoteQuery,
-  query => query?.status === QueryStatus.uninitialized,
-)

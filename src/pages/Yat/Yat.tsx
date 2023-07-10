@@ -31,7 +31,6 @@ export const Yat: React.FC = () => {
     })
 
     const maybeEid = eidMatch?.params?.eid || ''
-    console.log('Yat - maybeEid', maybeEid)
 
     // no eid on the route, e.g. just /yat, send them back home
     if (!maybeEid) history.replace('/dashboard')

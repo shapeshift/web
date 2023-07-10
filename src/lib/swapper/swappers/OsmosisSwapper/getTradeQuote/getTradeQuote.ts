@@ -114,16 +114,16 @@ export const getTradeQuote = async (
         // First hop for ATOM -> OSMO, which incur both network fees paid on ATOM, and IBC transfer fees deducted from the received ATOM on Osmosis
         ...(buyAssetIsOnOsmosisNetwork
           ? {
-              [buyAsset.assetId]: {
-                amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
+              [sellAsset.assetId]: {
+                amountCryptoBaseUnit: firstHopFeeData.slow.txFee,
                 requiresBalance: false,
-                asset: buyAsset,
+                asset: sellAsset,
               },
             }
           : // First hop for OSMO -> ATOM, which incur swap-exact-amount-in fees on the OSMO being swapped for ATOM on Osmosis
             {
               [sellAsset.assetId]: {
-                amountCryptoBaseUnit: firstHopFeeData.slow.txFee,
+                amountCryptoBaseUnit: firstHopFeeData.fast.txFee,
                 requiresBalance: false,
                 asset: sellAsset,
               },

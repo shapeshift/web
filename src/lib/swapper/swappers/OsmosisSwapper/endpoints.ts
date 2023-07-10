@@ -23,7 +23,7 @@ import {
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
 
-import { getTradeQuote } from './getTradeQuote/getTradeQuote'
+import { getTradeQuote } from './getTradeQuote/getMultiHopTradeQuote'
 import { COSMOSHUB_TO_OSMOSIS_CHANNEL, OSMOSIS_TO_COSMOSHUB_CHANNEL } from './utils/constants'
 import type { OsmosisSupportedChainId } from './utils/types'
 

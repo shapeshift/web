@@ -20,7 +20,6 @@ import type {
 } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import {
-  atomOnOsmosisAssetId,
   COSMO_OSMO_CHANNEL,
   OSMO_COSMO_CHANNEL,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/constants'

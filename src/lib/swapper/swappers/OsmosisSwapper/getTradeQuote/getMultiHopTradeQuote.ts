@@ -64,23 +64,22 @@ export const getTradeQuote = async (
 
   // Fees
 
-  // First hop fees are always paid in the native asset of the sell chain
+  // First hop network fees are always paid in the native asset of the sell chain
   // i.e ATOM for ATOM -> OSMO, OSMO for OSMO -> ATOM
   const firstHopAdapter = sellAssetIsOnOsmosisNetwork ? osmosisAdapter : cosmosAdapter
-  const getFirstHopFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
-  const firstHopFeeData = await firstHopAdapter.getFeeData(getFirstHopFeeDataInput)
+  const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
+  const firstHopFeeData = await firstHopAdapter.getFeeData(getFeeDataInput)
   const firstHopNetworkFee = firstHopFeeData.fast.txFee
-  // Second hop always happens on Osmosis, so the fee is always paid in OSMO. i.e:
-  // 1. in OSMO for OSMO -> ATOM, since both the swap-exact-amount-in to ATOM on Osmosis, and the IBC transfer to Cosmos IBC channel are paid in OSMO
-  // 2. in OSMO for ATOM -> OSMO, since the IBC transfer is paid in ATOM, but the second IBC transfer hop is paid in OSMO
+  // Second hop always happens on Osmosis, but the fee isn't necessarily paid in OSMO
+  // 1. for OSMO -> ATOM, the IBC transfer fee is paid in OSMO
+  // 2. for ATOM -> OSMO, the swap-exact-amount-in fee is paid in ATOM in OSMO, *not* in OSMO
   const secondHopAdapter = osmosisAdapter
-  const getSecondHopFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
-  const secondHopFeeData = await secondHopAdapter.getFeeData(getSecondHopFeeDataInput)
-  // For an actual OSMO swap, the fee is going to match the fast fee
-  // For an IBC transfer, the slow txFee is as close as we can get, while still being slightly overestimated
-  const secondHopNetworkFee = buyAssetIsOnOsmosisNetwork
-    ? secondHopFeeData.fast.txFee
-    : secondHopFeeData.slow.txFee
+  const secondHopFeeData = await secondHopAdapter.getFeeData(getFeeDataInput)
+
+  // ATOM -> OSMO swap-exact-amount-in doesn't fit our regular network fee model in that fees aren't paid in the chain's native asset
+  // So we can't represent them as network fees, but rather need to represent them as protocol fees
+  // Hence we zero out the network fees, which is semantically incorrect but the best we can do for now
+  const secondHopNetworkFee = buyAssetIsOnOsmosisNetwork ? '0' : secondHopFeeData.slow.txFee
 
   // Hardcoded to keep things simple, we may want to make an exchange request instead
   // https://shapeshift.readme.io/reference/assets-search

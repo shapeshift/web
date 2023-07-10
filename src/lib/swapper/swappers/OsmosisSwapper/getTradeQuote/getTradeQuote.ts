@@ -123,8 +123,9 @@ export const getTradeQuote = async (
       networkFeeCryptoBaseUnit: firstHopNetworkFee,
       protocolFees: {
         ...(buyAssetIsOnOsmosisNetwork
-          ? {}
+          ? {} // First step is an IBC transfer on ATOM -> OSMO direction, so there are no protocol fees
           : {
+              // First step is a swap on OSMO -> ATOM direction, so there *are* protocol fees incurring
               [sellAsset.assetId]: {
                 // TODO(gomes): is this correct? There may be "0 fees" as amounts from rates are pessimistic by nature and assume fees
                 amountCryptoBaseUnit: firstHopFeeData.slow.txFee,

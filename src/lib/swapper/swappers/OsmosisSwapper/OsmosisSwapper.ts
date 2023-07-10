@@ -124,11 +124,12 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const sellAmountCryptoBase = String(bnOrZero(sellAmountCryptoBaseUnit).dp(0))
 
     const osmosisAdapter = adapterManager.get(osmosisChainId) as osmosis.ChainAdapter | undefined
+    const cosmosAdapter = adapterManager.get(cosmosChainId) as cosmos.ChainAdapter | undefined
 
-    if (!osmosisAdapter)
+    if (!cosmosAdapter || !osmosisAdapter)
       return Err(
         makeSwapErrorRight({
-          message: 'Failed to get Osmosis adapter',
+          message: 'Failed to get Cosmos SDK adapters',
           code: SwapErrorType.BUILD_TRADE_FAILED,
         }),
       )
@@ -145,16 +146,35 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         }),
       )
 
+    const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
+    const ibcSwapfeeDeduction = await (sellAssetIsOnOsmosisNetwork
+      ? osmosisAdapter.getFeeData(getFeeDataInput)
+      : cosmosAdapter.getFeeData(getFeeDataInput))
+
     return Ok({
       buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
       buyAsset,
       feeData: {
         networkFeeCryptoBaseUnit: fee,
         protocolFees: {
-          [buyAsset.assetId]: {
-            amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
-            requiresBalance: true,
-            asset: buyAsset,
+          // Note, the current implementation is a hack where we consider the whole swap as one hop
+          // This is only there to make the fees correct in the UI, but this isn't a "protocol fee", it's a network fee for the second hop (the IBC transfer)
+          ...(sellAssetIsOnOsmosisNetwork
+            ? {}
+            : {
+                [buyAsset.assetId]: {
+                  amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
+                  requiresBalance: true,
+                  asset: buyAsset,
+                },
+              }),
+          // When doing an IBC transfer, there is a fee occuring on the amount being transferred.
+          // We never accounted for it previously, thus the second hop for ATOM -> OSMO would consistently fail on the first try
+          // and "magically" work after a failed trade, since you now have balance to cover the fee deduction
+          [sellAsset.assetId]: {
+            amountCryptoBaseUnit: ibcSwapfeeDeduction.fast.txFee,
+            requiresBalance: false,
+            asset: sellAsset,
           },
         },
       },

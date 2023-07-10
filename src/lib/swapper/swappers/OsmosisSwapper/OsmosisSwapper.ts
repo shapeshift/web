@@ -282,20 +282,20 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
       const ibcFromCosmosFeeData = await cosmosAdapter.getFeeData(getFeeDataInput)
 
-      const { tradeId } = await performIbcTransfer(
-        transfer,
-        cosmosAdapter,
+      const { tradeId } = await performIbcTransfer({
+        input: transfer,
+        adapter: cosmosAdapter,
         wallet,
-        osmoUrl,
-        'uatom',
-        COSMO_OSMO_CHANNEL,
-        ibcFromCosmosFeeData.fast.txFee,
+        blockBaseUrl: osmoUrl,
+        denom: 'uatom',
+        sourceChannel: COSMO_OSMO_CHANNEL,
+        feeAmount: ibcFromCosmosFeeData.fast.txFee,
         accountNumber,
         ibcAccountNumber,
         sequence,
-        ibcFromCosmosFeeData.fast.chainSpecific.gasLimit,
-        'uatom',
-      )
+        gas: ibcFromCosmosFeeData.fast.chainSpecific.gasLimit,
+        feeDenom: 'uatom',
+      })
 
       cosmosIbcTradeId = tradeId
 
@@ -408,20 +408,20 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
       const ibcFromOsmosisFeeData = await osmosisAdapter.getFeeData(getFeeDataInput)
 
-      await performIbcTransfer(
-        transfer,
-        osmosisAdapter,
+      await performIbcTransfer({
+        input: transfer,
+        adapter: osmosisAdapter,
         wallet,
-        cosmosUrl,
-        buyAssetDenom,
-        OSMO_COSMO_CHANNEL,
-        osmosis.MIN_FEE,
+        blockBaseUrl: cosmosUrl,
+        denom: buyAssetDenom,
+        sourceChannel: OSMO_COSMO_CHANNEL,
+        feeAmount: osmosis.MIN_FEE,
         accountNumber,
         ibcAccountNumber,
-        ibcSequence,
-        ibcFromOsmosisFeeData.fast.chainSpecific.gasLimit,
-        'uosmo',
-      )
+        sequence: ibcSequence,
+        gas: ibcFromOsmosisFeeData.fast.chainSpecific.gasLimit,
+        feeDenom: 'uosmo',
+      })
       return Ok({
         tradeId,
         previousCosmosTxid: cosmosTxHistory.transactions[0]?.txid,

@@ -112,6 +112,7 @@ export const TradeInput = (props: CardProps) => {
   const activeQuoteError = useAppSelector(selectActiveQuoteError)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const sortedQuotes = useAppSelector(selectSwappersApiTradeQuotes)
+  const rate = activeQuote?.steps[0].rate
 
   const isQuoteLoading = useAppSelector(selectSwappersApiTradeQuotePending)
   const isLoading = useMemo(
@@ -268,7 +269,7 @@ export const TradeInput = (props: CardProps) => {
                 sellSymbol={sellAsset.symbol}
                 buySymbol={buyAsset.symbol}
                 gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
-                rate={activeQuote?.steps[0].rate}
+                rate={rate}
                 isLoading={isLoading}
                 isError={activeQuoteError !== undefined}
               />
@@ -290,9 +291,11 @@ export const TradeInput = (props: CardProps) => {
             </Stack>
             <Stack px={4}>
               <DonationCheckbox isLoading={isLoading} />
-              <ManualAddressEntry
-                setIsManualAddressEntryValidating={setIsManualAddressEntryValidating}
-              />
+              {rate && (
+                <ManualAddressEntry
+                  setIsManualAddressEntryValidating={setIsManualAddressEntryValidating}
+                />
+              )}
             </Stack>
             <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
               <Button

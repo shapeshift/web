@@ -11,7 +11,6 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInputWithChainId } from 'lib/address/address'
-import { selectSwappersApiTradeQuotePending } from 'state/apis/swappers/selectors'
 import { selectBuyAsset } from 'state/slices/swappersSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -24,7 +23,6 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = ({
   setIsManualAddressEntryValidating,
 }): JSX.Element | null => {
   const dispatch = useAppDispatch()
-  const isQuoteLoading = useAppSelector(selectSwappersApiTradeQuotePending)
 
   const {
     formState: { isValid: isFormValid },
@@ -110,5 +108,5 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = ({
     translate,
   ])
 
-  return shouldShowManualReceiveAddressInput && !isQuoteLoading ? ManualReceiveAddressEntry : null
+  return shouldShowManualReceiveAddressInput ? ManualReceiveAddressEntry : null
 }

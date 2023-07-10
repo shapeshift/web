@@ -65,5 +65,5 @@ export const useReceiveAddress = () => {
   }, [buyAsset, dispatch, getReceiveAddressFromBuyAsset, setReceiveAddress])
 
   // Always use the manual receive address if it is set
-  return manualReceiveAddress ?? receiveAddress
+  return manualReceiveAddress || receiveAddress
 }

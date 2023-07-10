@@ -1,6 +1,6 @@
 import { FormControl, FormLabel } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
-import type { Dispatch, FC, SetStateAction } from 'react'
+import type { FC } from 'react'
 import { useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -16,7 +16,7 @@ import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 type ManualAddressEntryProps = {
-  setIsManualAddressEntryValidating: Dispatch<SetStateAction<boolean>>
+  setIsManualAddressEntryValidating: (isManualAddressEntryValidating: boolean) => void
 }
 
 export const ManualAddressEntry: FC<ManualAddressEntryProps> = ({

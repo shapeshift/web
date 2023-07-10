@@ -71,53 +71,6 @@ export const pollForComplete = (txid: string, baseUrl: string): Promise<string> 
   })
 }
 
-export const getAtomChannelBalance = async (address: string, osmoUrl: string) => {
-  const osmoResponseBalance = await (() => {
-    try {
-      return axios.get(`${osmoUrl}/lcd/bank/balances/${address}`)
-    } catch (e) {
-      throw new SwapError('failed to get balance', {
-        code: SwapErrorType.RESPONSE_ERROR,
-      })
-    }
-  })()
-  let toAtomChannelBalance = 0
-  try {
-    const { amount } = find(
-      osmoResponseBalance.data.result,
-      b => b.denom === symbolDenomMapping.ATOM,
-    )
-    toAtomChannelBalance = Number(amount)
-  } catch (e) {
-    console.warn('Retrying to get ibc balance')
-  }
-  return toAtomChannelBalance
-}
-
-export const pollForAtomChannelBalance = (address: string, osmoUrl: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const timeout = 300000 // 5 mins
-    const startTime = Date.now()
-    const interval = 5000 // 5 seconds
-
-    const poll = async function () {
-      const balance = await getAtomChannelBalance(address, osmoUrl)
-      if (balance > 0) {
-        resolve(balance.toString())
-      } else if (Date.now() - startTime > timeout) {
-        reject(
-          new SwapError(`Couldnt find channel balance for ${address}`, {
-            code: SwapErrorType.RESPONSE_ERROR,
-          }),
-        )
-      } else {
-        setTimeout(poll, interval)
-      }
-    }
-    poll()
-  })
-}
-
 const findPool = async (
   sellAssetSymbol: string,
   buyAssetSymbol: string,
@@ -173,12 +126,12 @@ const getPoolRateInfo = (
   const sellAssetFinalPoolSize = sellAssetInitialPoolSize.plus(sellAmount)
   const buyAssetFinalPoolSize = constantProduct.dividedBy(sellAssetFinalPoolSize)
   const finalMarketPrice = sellAssetFinalPoolSize.dividedBy(buyAssetFinalPoolSize)
-  const buyAmountCryptoBaseUnit = buyAssetInitialPoolSize.minus(buyAssetFinalPoolSize).toString()
+  const buyAmountCryptoBaseUnit = buyAssetInitialPoolSize.minus(buyAssetFinalPoolSize).toFixed(0)
   const rate = bnOrZero(buyAmountCryptoBaseUnit).dividedBy(sellAmount).toString()
   const priceImpact = bn(1).minus(initialMarketPrice.dividedBy(finalMarketPrice)).abs().toString()
   const buyAssetTradeFeeCryptoBaseUnit = bnOrZero(buyAmountCryptoBaseUnit)
     .times(bnOrZero(pool.pool_params.swap_fee))
-    .toString()
+    .toFixed(0)
 
   return {
     rate,

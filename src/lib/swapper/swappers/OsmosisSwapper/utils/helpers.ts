@@ -147,9 +147,10 @@ export const getRateInfo = async (
   sellAmount: string,
   osmoUrl: string,
 ): Promise<Result<PoolRateInfo, SwapErrorRight>> => {
+  const sellAmountOrDefault = sellAmount === '0' ? '1' : sellAmount
   const maybePool = await findPool(sellAsset, buyAsset, osmoUrl)
   return maybePool.andThen(({ pool, sellAssetIndex, buyAssetIndex }) =>
-    Ok(getPoolRateInfo(sellAmount, pool, sellAssetIndex, buyAssetIndex)),
+    Ok(getPoolRateInfo(sellAmountOrDefault, pool, sellAssetIndex, buyAssetIndex)),
   )
 }
 

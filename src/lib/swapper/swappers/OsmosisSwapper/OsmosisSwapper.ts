@@ -113,7 +113,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const maybeRateInfo = await getRateInfo(
       sellAsset.symbol,
       buyAsset.symbol,
-      sellAmountCryptoBaseUnit !== '0' ? sellAmountCryptoBaseUnit : '1',
+      sellAmountCryptoBaseUnit,
       osmoUrl,
     )
 
@@ -335,7 +335,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const maybeRateInfo = await getRateInfo(
       sellAsset.symbol,
       buyAsset.symbol,
-      sellAmountCryptoBaseUnit !== '0' ? sellAmountCryptoBaseUnit : '1',
+      sellAmountCryptoBaseUnit,
       osmoUrl,
     )
 

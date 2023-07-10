@@ -251,9 +251,6 @@ export const TradeInput = () => {
 
   const hasValidSellAmount = bnOrZero(sellAmountCryptoPrecision).gt(0)
 
-  const isBuyingOsmoWithOmosisSwapper =
-    activeSwapperName === SwapperName.Osmosis && buyAsset.assetId === osmosisAssetId
-
   // TODO(woodenfurniture): update swappers to specify this as with protocol fees
   const networkFeeRequiresBalance = activeSwapperName !== SwapperName.CowSwap
 
@@ -299,14 +296,12 @@ export const TradeInput = () => {
       activeSwapperWithMetadata.quote,
       sellAssetBalanceCryptoBaseUnit,
       networkFeeRequiresBalance,
-      isBuyingOsmoWithOmosisSwapper,
     )
 
     updateAmount(maxSendAmountCryptoPrecision)
     handleInputAmountChange()
   }, [
     preferredSwapper,
-    isBuyingOsmoWithOmosisSwapper,
     isSendMax,
     networkFeeRequiresBalance,
     sellAsset,
@@ -462,12 +457,10 @@ export const TradeInput = () => {
       ([assetId, protocolFee]: [AssetId, ProtocolFee]) => {
         if (!protocolFee.requiresBalance) return false
 
-        // TEMP: handle osmosis protocol fee payable on buy side for specific case until we implement general solution
-        const accountId = isBuyingOsmoWithOmosisSwapper
-          ? buyAssetAccountId
-          : portfolioAccountIdByNumberByChainId[tradeQuoteArgs.accountNumber][
-              protocolFee.asset.chainId
-            ]
+        const accountId =
+          portfolioAccountIdByNumberByChainId[tradeQuoteArgs.accountNumber][
+            protocolFee.asset.chainId
+          ]
         const balanceCryptoBaseUnit = portfolioAccountBalancesBaseUnit[accountId][assetId]
         return bnOrZero(balanceCryptoBaseUnit).lt(protocolFee.amountCryptoBaseUnit)
       },
@@ -486,7 +479,6 @@ export const TradeInput = () => {
     protocolFees,
     tradeQuoteArgs,
     buyAssetAccountId,
-    isBuyingOsmoWithOmosisSwapper,
     chainAdapterManager,
     portfolioAccountIdByNumberByChainId,
     portfolioAccountBalancesBaseUnit,

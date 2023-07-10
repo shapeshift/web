@@ -66,9 +66,9 @@ export const getTradeQuote = async (
   const fee = feeData.fast.txFee
 
   const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
-  const ibcSwapfeeDeduction = await (sellAssetIsOnOsmosisNetwork
-    ? osmosisAdapter.getFeeData(getFeeDataInput)
-    : cosmosAdapter.getFeeData(getFeeDataInput))
+  const cosmosFees = await cosmosAdapter.getFeeData(getFeeDataInput)
+  const osmoFees = await osmosisAdapter.getFeeData(getFeeDataInput)
+  const ibcSwapfeeDeduction = sellAssetIsOnOsmosisNetwork ? osmoFees : cosmosFees
 
   return Ok({
     minimumCryptoHuman,
@@ -82,7 +82,13 @@ export const getTradeQuote = async (
             // Note, the current implementation is a hack where we consider the whole swap as one hop
             // This is only there to make the fees correct in the UI, but this isn't a "protocol fee", it's a network fee for the second hop (the IBC transfer)
             ...(sellAssetIsOnOsmosisNetwork
-              ? {}
+              ? {
+                  [buyAsset.assetId]: {
+                    amountCryptoBaseUnit: cosmosFees.slow.txFee,
+                    requiresBalance: true,
+                    asset: buyAsset,
+                  },
+                }
               : {
                   [buyAsset.assetId]: {
                     amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,

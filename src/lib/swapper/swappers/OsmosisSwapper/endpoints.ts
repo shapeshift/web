@@ -65,11 +65,10 @@ export const osmosisApi: Swapper2Api = {
     const isIbcTransfer = buyAsset.chainId !== sellAsset.chainId
 
     const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
-    const buyAssetIsOnOsmosisNetwork = buyAsset.chainId === osmosisChainId
 
     const sellAssetDenom = symbolDenomMapping[sellAsset.symbol as keyof SymbolDenomMapping]
     const buyAssetDenom = symbolDenomMapping[buyAsset.symbol as keyof SymbolDenomMapping]
-    const nativeAssetDenom = sellAsset.chainId === osmosisChainId ? 'uosmo' : 'uatom'
+    const nativeAssetDenom = sellAssetIsOnOsmosisNetwork ? 'uosmo' : 'uatom'
 
     const osmosisAdapter = assertGetCosmosSdkChainAdapter(osmosisChainId) as osmosis.ChainAdapter
     const cosmosAdapter = assertGetCosmosSdkChainAdapter(cosmosChainId) as cosmos.ChainAdapter
@@ -104,14 +103,14 @@ export const osmosisApi: Swapper2Api = {
         adapter: sellAssetAdapter,
         // Used to get blockheight of the *destination* chain for the IBC transfer
         blockBaseUrl: sellAsset.chainId === cosmosChainId ? osmoUrl : cosmosUrl,
-        // Transfer uosmo if IBC transferring from Osmosis to Cosmos, else IBC transfer ATOM on Osmosis from Cosmos to Osmosis
-        denom: buyAssetIsOnOsmosisNetwork ? symbolDenomMapping['OSMO'] : symbolDenomMapping['ATOM'],
-        sourceChannel:
-          sellAsset.chainId === cosmosChainId
-            ? COSMOSHUB_TO_OSMOSIS_CHANNEL
-            : OSMOSIS_TO_COSMOSHUB_CHANNEL,
-        feeAmount:
-          sellAsset.chainId === cosmosChainId ? osmosis.MIN_FEE : sellAssetFeeData.fast.txFee,
+        // Transfer uosmo if IBC transferring from Osmosis to Cosmos, else IBC transfer ATOM to ATOM on Osmosis
+        denom: sellAssetIsOnOsmosisNetwork
+          ? symbolDenomMapping['OSMO']
+          : symbolDenomMapping['ATOM'],
+        sourceChannel: sellAssetIsOnOsmosisNetwork
+          ? OSMOSIS_TO_COSMOSHUB_CHANNEL
+          : COSMOSHUB_TO_OSMOSIS_CHANNEL,
+        feeAmount: sellAssetIsOnOsmosisNetwork ? sellAssetFeeData.fast.txFee : osmosis.MIN_FEE,
         accountNumber,
         ibcAccountNumber,
         sequence,

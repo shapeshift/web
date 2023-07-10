@@ -135,8 +135,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       )
 
     const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
-    const feeData = await osmosisAdapter.getFeeData(getFeeDataInput)
-    const fee = feeData.fast.txFee
+    const osmosisFees = await osmosisAdapter.getFeeData(getFeeDataInput)
+    const fee = osmosisFees.fast.txFee
 
     if (!receiveAddress)
       return Err(
@@ -148,8 +148,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
     const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
     const cosmosFees = await cosmosAdapter.getFeeData(getFeeDataInput)
-    const osmoFees = await osmosisAdapter.getFeeData(getFeeDataInput)
-    const ibcSwapfeeDeduction = sellAssetIsOnOsmosisNetwork ? osmoFees : cosmosFees
+    const initiatingTxFeeData = sellAssetIsOnOsmosisNetwork ? osmosisFees : cosmosFees
 
     return Ok({
       buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
@@ -178,7 +177,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
           // We never accounted for it previously, thus the second hop for ATOM -> OSMO would consistently fail on the first try
           // and "magically" work after a failed trade, since you now have balance to cover the fee deduction
           [sellAsset.assetId]: {
-            amountCryptoBaseUnit: ibcSwapfeeDeduction.fast.txFee,
+            amountCryptoBaseUnit: initiatingTxFeeData.fast.txFee,
             requiresBalance: false,
             asset: sellAsset,
           },
@@ -323,7 +322,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
      */
 
     const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
-    const ibcSwapfeeDeduction = await (sellAssetIsOnOsmosisNetwork
+    const initiatingTxFeeData = await (sellAssetIsOnOsmosisNetwork
       ? osmosisAdapter.getFeeData(getFeeDataInput)
       : cosmosAdapter.getFeeData(getFeeDataInput))
 
@@ -347,7 +346,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     // or else, this will break for swaps to an Osmosis address that doesn't yet have ATOM
     const sellAmountAfterIbcTransferFeesCryptoBaseUnit = sellAssetIsOnOsmosisNetwork
       ? sellAmountCryptoBaseUnit
-      : bnOrZero(sellAmountCryptoBaseUnit).minus(ibcSwapfeeDeduction.fast.txFee).toString()
+      : bnOrZero(sellAmountCryptoBaseUnit).minus(initiatingTxFeeData.fast.txFee).toString()
     const signTxInput = await buildTradeTx({
       osmoAddress,
       accountNumber: sellAssetIsOnOsmosisNetwork ? accountNumber : receiveAccountNumber,
@@ -382,7 +381,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         sender: sellAddress,
         receiver: receiveAddress,
         // IBC transfers are cheap compared to actual swaps, so we can rely on the slow "swap" tx fee
-        amount: bnOrZero(buyAmountCryptoBaseUnit).minus(ibcSwapfeeDeduction.slow.txFee).toString(),
+        amount: bnOrZero(buyAmountCryptoBaseUnit).minus(initiatingTxFeeData.slow.txFee).toString(),
       }
 
       const ibcResponseAccount = await osmosisAdapter.getAccount(sellAddress)

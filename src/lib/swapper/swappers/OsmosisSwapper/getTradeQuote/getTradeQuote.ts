@@ -68,7 +68,7 @@ export const getTradeQuote = async (
   const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
   const cosmosFees = await cosmosAdapter.getFeeData(getFeeDataInput)
   const osmoFees = await osmosisAdapter.getFeeData(getFeeDataInput)
-  const ibcSwapfeeDeduction = sellAssetIsOnOsmosisNetwork ? osmoFees : cosmosFees
+  const initiatingTxFeeData = sellAssetIsOnOsmosisNetwork ? osmoFees : cosmosFees
 
   return Ok({
     minimumCryptoHuman,
@@ -100,7 +100,7 @@ export const getTradeQuote = async (
             // We never accounted for it previously, thus the second hop for ATOM -> OSMO would consistently fail on the first try
             // and "magically" work after a failed trade, since you now have balance to cover the fee deduction
             [sellAsset.assetId]: {
-              amountCryptoBaseUnit: ibcSwapfeeDeduction.fast.txFee,
+              amountCryptoBaseUnit: initiatingTxFeeData.fast.txFee,
               requiresBalance: false,
               asset: sellAsset,
             },

@@ -111,13 +111,20 @@ export const getTradeQuote = async (
     feeData: {
       networkFeeCryptoBaseUnit: firstHopNetworkFee,
       protocolFees: {
+        // First hop for ATOM -> OSMO, which incur both network fees paid on ATOM, and IBC transfer fees deducted from the received ATOM on Osmosis
         ...(buyAssetIsOnOsmosisNetwork
-          ? {}
-          : {
+          ? {
+              [buyAsset.assetId]: {
+                amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
+                requiresBalance: false,
+                asset: buyAsset,
+              },
+            }
+          : // First hop for OSMO -> ATOM, which incur swap-exact-amount-in fees on the OSMO being swapped for ATOM on Osmosis
+            {
               [sellAsset.assetId]: {
-                // TODO(gomes): is this correct? There may be "0 fees" as amounts from rates are pessimistic by nature and assume fees
                 amountCryptoBaseUnit: firstHopFeeData.slow.txFee,
-                requiresBalance: true,
+                requiresBalance: false,
                 asset: sellAsset,
               },
             }),
@@ -139,17 +146,23 @@ export const getTradeQuote = async (
     feeData: {
       networkFeeCryptoBaseUnit: secondHopNetworkFee,
       protocolFees: {
-        // Protocol fees are only paid on the ATOM -> OSMO direction
-        // IBC transfers don't incur protocol fees, only network ones
+        // Second hop for ATOM -> OSMO, which incur swap-exact-amount-in fees
         ...(buyAssetIsOnOsmosisNetwork
           ? {
               [buyAsset.assetId]: {
                 amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
-                requiresBalance: true,
+                requiresBalance: false,
                 asset: buyAsset,
               },
             }
-          : {}),
+          : // Second hop for OSMO -> ATOM, which incur IBC transfer fees on the ATOM on Osmosis being swapped
+            {
+              [sellAsset.assetId]: {
+                amountCryptoBaseUnit: secondHopNetworkFee,
+                requiresBalance: false,
+                asset: sellAsset,
+              },
+            }),
       },
     },
     accountNumber,

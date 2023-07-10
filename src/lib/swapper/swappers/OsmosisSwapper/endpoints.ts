@@ -40,9 +40,6 @@ export const osmosisApi: Swapper2Api = {
     return tradeQuoteResult.map(tradeQuote => {
       const { receiveAddress, affiliateBps } = input
       const id = uuid()
-      // TODO(gomes): getTradeQuote() is currently a hack, which represents the swap as a single trade, and needs to be revamped
-      // This effectively means that getUnsignedTx() won't be able to be implemented for all steps, but only the first for now
-      // i.e either the IBC transfer or swap-exact-amount-in
       tradeQuoteMetadata.set(id, input as GetCosmosSdkTradeQuoteInput)
       return { id, receiveAddress, affiliateBps, ...tradeQuote }
     })

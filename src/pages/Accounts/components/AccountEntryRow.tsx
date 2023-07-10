@@ -12,7 +12,7 @@ import { RawText } from 'components/Text'
 import { middleEllipsis } from 'lib/utils'
 import {
   selectPortfolioAccountsCryptoHumanBalancesIncludingStaking,
-  selectPortfolioAccountsFiatBalancesIncludingStaking,
+  selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
 } from 'state/slices/portfolioSlice/selectors'
 import { accountIdToLabel, isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
@@ -34,7 +34,7 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   const accountNumber = useAppSelector(s => selectAccountNumberByAccountId(s, filter))
   const asset = useAppSelector(s => selectAssetById(s, assetId))
   const cryptoBalances = useSelector(selectPortfolioAccountsCryptoHumanBalancesIncludingStaking)
-  const fiatBalances = useSelector(selectPortfolioAccountsFiatBalancesIncludingStaking)
+  const fiatBalances = useSelector(selectPortfolioAccountsUserCurrencyBalancesIncludingStaking)
   const cryptoBalance = cryptoBalances?.[accountId]?.[assetId] ?? '0'
   const fiatBalance = fiatBalances?.[accountId]?.[assetId] ?? '0'
   const { icon, name, symbol } = asset ?? {}

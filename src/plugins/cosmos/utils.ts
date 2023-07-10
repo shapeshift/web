@@ -19,7 +19,7 @@ export type FeePrice = {
   [key in FeeDataKey]: FeePriceValueHuman
 }
 
-export const getFormFees = async (asset: Asset, fiatRate: string) => {
+export const getFormFees = async (asset: Asset, userCurrencyRate: string) => {
   // We don't use all of these fields for the return value but this is our standard FeeDataEstimate fees, for consistency
   const initialFees = {
     slow: {
@@ -65,7 +65,7 @@ export const getFormFees = async (asset: Asset, fiatRate: string) => {
       const txFee = bnOrZero(feeData[key].txFee)
         .dividedBy(bnOrZero(`1e+${asset.precision}`))
         .toPrecision()
-      const fiatFee = bnOrZero(txFee).times(fiatRate).toPrecision()
+      const fiatFee = bnOrZero(txFee).times(userCurrencyRate).toPrecision()
       acc[key] = { txFee, fiatFee, chainSpecific }
       return acc
     },

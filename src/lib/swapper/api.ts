@@ -274,7 +274,11 @@ export interface Swapper<T extends ChainId> {
 
 export type UnsignedTx = SignTx<keyof ChainSignTx>
 
-export type TradeQuote2 = TradeQuote & { id: string; receiveAddress: string; affiliateBps: string }
+export type TradeQuote2 = TradeQuote & {
+  id: string
+  receiveAddress: string
+  affiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper
+}
 
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
 

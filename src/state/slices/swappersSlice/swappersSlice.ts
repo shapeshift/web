@@ -79,5 +79,8 @@ export const swappers = createSlice({
       state.sellAsset = state.buyAsset
       state.buyAsset = buyAsset
     },
+    toggleWillDonate: state => {
+      state.willDonate = !state.willDonate
+    },
   },
 })

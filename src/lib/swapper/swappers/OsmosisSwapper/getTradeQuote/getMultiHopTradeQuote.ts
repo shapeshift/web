@@ -79,10 +79,10 @@ export const getTradeQuote = async (
   // ATOM -> OSMO swap-exact-amount-in doesn't fit our regular network fee model in that fees aren't paid in the chain's native asset
   // So we can't represent them as network fees, but rather need to represent them as protocol fees
   // Hence we zero out the network fees, which is semantically incorrect but the best we can do for now
-  const secondHopNetworkFee = buyAssetIsOnOsmosisNetwork ? '0' : osmosisFeeData.slow.txFee
+  const secondHopNetworkFee = buyAssetIsOnOsmosisNetwork ? '0' : osmosis.MIN_FEE
 
   // Protocol fees
-  //
+
   const osmosisToCosmosProtocolFees = [
     {
       [buyAsset.assetId]: {
@@ -91,14 +91,7 @@ export const getTradeQuote = async (
         asset: buyAsset,
       },
     },
-    {
-      [sellAsset.assetId]: {
-        amountCryptoBaseUnit: osmosis.MIN_FEE,
-        requiresBalance: true, // network fee for second hop, represented as a protocol fee here
-
-        asset: sellAsset,
-      },
-    },
+    {},
   ]
 
   const cosmosToOsmosisProtocolFees = [

@@ -95,17 +95,16 @@ export const getTradeQuote = async (
   ]
 
   const cosmosToOsmosisProtocolFees = [
+    {},
     {
       [buyAsset.assetId]: {
         amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
         requiresBalance: false,
         asset: buyAsset,
       },
-    },
-    {
       [sellAsset.assetId]: {
         amountCryptoBaseUnit: osmosisFeeData.fast.txFee,
-        requiresBalance: true, // network fee for second hop, represented as a protocol fee here
+        requiresBalance: false, // network fee for second hop, represented as a protocol fee here
         asset: sellAsset,
       },
     },
@@ -148,8 +147,8 @@ export const getTradeQuote = async (
     sellAsset,
     sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
     buyAmountBeforeFeesCryptoBaseUnit: sellAssetIsOnOsmosisNetwork
-      ? buyAmountCryptoBaseUnit
-      : sellAmountCryptoBaseUnit,
+      ? buyAmountCryptoBaseUnit // OSMO -> ATOM, the ATOM on OSMO before fees is the same as the ATOM buy amount intent
+      : sellAmountCryptoBaseUnit, // ATOM -> ATOM, the ATOM on OSMO before fees is the same as the sold ATOM amount
     sources: DEFAULT_SOURCE,
   }
 
@@ -169,8 +168,8 @@ export const getTradeQuote = async (
       ? bnOrZero(firstStep.buyAmountBeforeFeesCryptoBaseUnit)
           .minus(firstHopFeeData.slow.txFee)
           .toString()
-      : bnOrZero(buyAmountCryptoBaseUnit).toString(),
-    buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
+      : bnOrZero(buyAmountCryptoBaseUnit).minus(firstHopFeeData.fast.txFee).toString(),
+    buyAmountBeforeFeesCryptoBaseUnit: bnOrZero(buyAmountCryptoBaseUnit).toString(),
     sources: DEFAULT_SOURCE,
   }
 

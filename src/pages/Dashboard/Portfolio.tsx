@@ -18,7 +18,6 @@ import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { Text } from 'components/Text'
 import { useTimeframeChange } from 'hooks/useTimeframeChange/useTimeframeChange'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
 import {
   selectChartTimeframe,
   selectClaimableRewards,
@@ -126,7 +125,6 @@ export const Portfolio = () => {
       </Card>
       <MaybeChartUnavailable assetIds={assetIds} />
       <PortfolioBreakdown />
-      <EligibleCarousel display={{ base: 'flex', md: 'none' }} />
       <Card>
         <Card.Header>
           <Card.Heading>

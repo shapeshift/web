@@ -150,7 +150,7 @@ export const DashboardHeader = () => {
         width='full'
         display='flex'
         maxWidth='container.4xl'
-        px={{ base: 6, '2xl': 16 }}
+        px={{ base: 6, '2xl': 8 }}
         pt={8}
         pb={4}
         alignItems='center'
@@ -201,7 +201,7 @@ export const DashboardHeader = () => {
           className='navbar-scroller'
           display='flex'
           gap={8}
-          px={{ base: 6, '2xl': 16 }}
+          px={{ base: 6, '2xl': 8 }}
           overflowY='auto'
           css={{
             '&::-webkit-scrollbar': {

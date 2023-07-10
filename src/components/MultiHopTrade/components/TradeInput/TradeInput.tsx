@@ -17,6 +17,7 @@ import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { DonationCheckbox } from 'components/MultiHopTrade/components/TradeInput/components/DonationCheckbox'
+import { ManualAddressEntry } from 'components/MultiHopTrade/components/TradeInput/components/ManualAddressEntry'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useActiveQuoteStatus } from 'components/MultiHopTrade/hooks/useActiveQuoteStatus'
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
@@ -84,6 +85,7 @@ export const TradeInput = (props: CardProps) => {
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
+  const [isManualAddressEntryValidating, setIsManualAddressEntryValidating] = useState(false)
 
   const activeQuoteStatus = useActiveQuoteStatus()
   const setBuyAsset = useCallback(
@@ -288,14 +290,17 @@ export const TradeInput = (props: CardProps) => {
             </Stack>
             <Stack px={4}>
               <DonationCheckbox isLoading={isLoading} />
+              <ManualAddressEntry
+                setIsManualAddressEntryValidating={setIsManualAddressEntryValidating}
+              />
             </Stack>
-            <Tooltip label={activeQuoteStatus.error?.message}>
+            <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
               <Button
                 type='submit'
                 colorScheme={quoteHasError ? 'red' : 'blue'}
                 size='lg-multiline'
                 data-test='trade-form-preview-button'
-                isDisabled={quoteHasError}
+                isDisabled={quoteHasError || isManualAddressEntryValidating || isLoading}
                 isLoading={isLoading}
               >
                 <Text translation={activeQuoteStatus.quoteStatusTranslation} />

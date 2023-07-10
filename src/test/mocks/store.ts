@@ -170,6 +170,7 @@ export const mockStore: ReduxState = {
     sellAmountCryptoPrecision: '0',
     tradeExecutionStatus: MultiHopExecutionStatus.Unknown,
     willDonate: true,
+    manualReceiveAddress: undefined,
   },
   tradeQuoteSlice: {
     activeSwapperName: undefined,

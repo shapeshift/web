@@ -5,13 +5,13 @@ import type { QuoteStatus } from 'components/MultiHopTrade/types'
 import { ActiveQuoteStatus } from 'components/MultiHopTrade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { SwapErrorType, SwapperName } from 'lib/swapper/api'
+import { selectBuyAsset } from 'state/slices/swappersSlice/selectors'
 import {
   selectActiveQuote,
   selectActiveQuoteError,
   selectActiveSwapperName,
   selectFirstHopSellAsset,
   selectFirstHopSellFeeAsset,
-  selectLastHopBuyAsset,
   selectLastHopSellFeeAsset,
   selectMinimumSellAmountCryptoHuman,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -24,9 +24,9 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
   const selectedSwapperName = useAppSelector(selectActiveSwapperName)
   const firstHopSellAsset = useAppSelector(selectFirstHopSellAsset)
   const firstHopSellFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
-  const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const lastHopSellFeeAsset = useAppSelector(selectLastHopSellFeeAsset)
   const minimumCryptoHuman = useAppSelector(selectMinimumSellAmountCryptoHuman)
+  const tradeBuyAsset = useAppSelector(selectBuyAsset)
 
   const activeQuote = useAppSelector(selectActiveQuote)
   const activeQuoteError = useAppSelector(selectActiveQuoteError)
@@ -97,7 +97,7 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
             'trade.errors.noReceiveAddress',
             {
               assetSymbol:
-                lastHopBuyAsset?.symbol ?? translate('trade.errors.buyAssetMiddleSentence'),
+                tradeBuyAsset?.symbol ?? translate('trade.errors.buyAssetMiddleSentence'),
             },
           ]
         case ActiveQuoteStatus.BuyAssetNotNotSupportedByWallet: // TODO: add translation for manual receive address required once implemented
@@ -108,7 +108,7 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
   }, [
     firstHopSellAsset?.symbol,
     firstHopSellFeeAsset?.symbol,
-    lastHopBuyAsset?.symbol,
+    tradeBuyAsset?.symbol,
     lastHopSellFeeAsset?.symbol,
     minimumAmountUserMessage,
     quoteErrors,

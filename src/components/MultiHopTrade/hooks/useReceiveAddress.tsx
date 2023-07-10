@@ -5,7 +5,11 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
-import { selectBuyAccountId, selectBuyAsset } from 'state/slices/swappersSlice/selectors'
+import {
+  selectBuyAccountId,
+  selectBuyAsset,
+  selectManualReceiveAddress,
+} from 'state/slices/swappersSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const useReceiveAddress = () => {
@@ -21,6 +25,7 @@ export const useReceiveAddress = () => {
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: buyAccountId }),
   )
+  const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
   const getReceiveAddressFromBuyAsset = useCallback(
     async (buyAsset: Asset) => {
@@ -59,5 +64,6 @@ export const useReceiveAddress = () => {
     })()
   }, [buyAsset, dispatch, getReceiveAddressFromBuyAsset, setReceiveAddress])
 
-  return receiveAddress
+  // Always use the manual receive address if it is set
+  return manualReceiveAddress ?? receiveAddress
 }

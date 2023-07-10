@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
-import type { cosmos, GetFeeDataInput, osmosis } from '@shapeshiftoss/chain-adapters'
+import type { cosmos, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import { osmosis } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
@@ -62,7 +63,7 @@ export const getTradeQuote = async (
   const buyAssetIsOnOsmosisNetwork = buyAsset.chainId === osmosisChainId
   const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
 
-  // Fees
+  // Network fees
 
   // First hop network fees are always paid in the native asset of the sell chain
   // i.e ATOM for ATOM -> OSMO, OSMO for OSMO -> ATOM
@@ -74,12 +75,48 @@ export const getTradeQuote = async (
   // 1. for OSMO -> ATOM, the IBC transfer fee is paid in OSMO
   // 2. for ATOM -> OSMO, the swap-exact-amount-in fee is paid in ATOM in OSMO, *not* in OSMO
   const secondHopAdapter = osmosisAdapter
-  const secondHopFeeData = await secondHopAdapter.getFeeData(getFeeDataInput)
-
+  const osmosisFeeData = await secondHopAdapter.getFeeData(getFeeDataInput)
   // ATOM -> OSMO swap-exact-amount-in doesn't fit our regular network fee model in that fees aren't paid in the chain's native asset
   // So we can't represent them as network fees, but rather need to represent them as protocol fees
   // Hence we zero out the network fees, which is semantically incorrect but the best we can do for now
-  const secondHopNetworkFee = buyAssetIsOnOsmosisNetwork ? '0' : secondHopFeeData.slow.txFee
+  const secondHopNetworkFee = buyAssetIsOnOsmosisNetwork ? '0' : osmosisFeeData.slow.txFee
+
+  // Protocol fees
+  //
+  const osmosisToCosmosProtocolFees = [
+    {
+      [buyAsset.assetId]: {
+        amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
+        requiresBalance: false,
+        asset: buyAsset,
+      },
+    },
+    {
+      [sellAsset.assetId]: {
+        amountCryptoBaseUnit: osmosis.MIN_FEE,
+        requiresBalance: true, // network fee for second hop, represented as a protocol fee here
+
+        asset: sellAsset,
+      },
+    },
+  ]
+
+  const cosmosToOsmosisProtocolFees = [
+    {
+      [buyAsset.assetId]: {
+        amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
+        requiresBalance: false,
+        asset: buyAsset,
+      },
+    },
+    {
+      [sellAsset.assetId]: {
+        amountCryptoBaseUnit: osmosisFeeData.fast.txFee,
+        requiresBalance: true, // network fee for second hop, represented as a protocol fee here
+        asset: sellAsset,
+      },
+    },
+  ]
 
   // Hardcoded to keep things simple, we may want to make an exchange request instead
   // https://shapeshift.readme.io/reference/assets-search
@@ -109,25 +146,9 @@ export const getTradeQuote = async (
     buyAsset: firstHopBuyAsset,
     feeData: {
       networkFeeCryptoBaseUnit: firstHopNetworkFee,
-      protocolFees: {
-        // First hop for ATOM -> OSMO, which incur both network fees paid on ATOM, and IBC transfer fees deducted from the received ATOM on Osmosis
-        ...(buyAssetIsOnOsmosisNetwork
-          ? {
-              [sellAsset.assetId]: {
-                amountCryptoBaseUnit: firstHopFeeData.slow.txFee,
-                requiresBalance: false,
-                asset: sellAsset,
-              },
-            }
-          : // First hop for OSMO -> ATOM, which incur swap-exact-amount-in fees on the OSMO being swapped for ATOM on Osmosis
-            {
-              [sellAsset.assetId]: {
-                amountCryptoBaseUnit: firstHopFeeData.fast.txFee,
-                requiresBalance: false,
-                asset: sellAsset,
-              },
-            }),
-      },
+      protocolFees: sellAssetIsOnOsmosisNetwork
+        ? osmosisToCosmosProtocolFees[0]
+        : cosmosToOsmosisProtocolFees[0],
     },
     accountNumber,
     rate,
@@ -144,25 +165,9 @@ export const getTradeQuote = async (
     buyAsset: secondHopBuyAsset,
     feeData: {
       networkFeeCryptoBaseUnit: secondHopNetworkFee,
-      protocolFees: {
-        // Second hop for ATOM -> OSMO, which incur swap-exact-amount-in fees
-        ...(buyAssetIsOnOsmosisNetwork
-          ? {
-              [buyAsset.assetId]: {
-                amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
-                requiresBalance: false,
-                asset: buyAsset,
-              },
-            }
-          : // Second hop for OSMO -> ATOM, which incur IBC transfer fees on the ATOM on Osmosis being swapped
-            {
-              [sellAsset.assetId]: {
-                amountCryptoBaseUnit: secondHopNetworkFee,
-                requiresBalance: false,
-                asset: sellAsset,
-              },
-            }),
-      },
+      protocolFees: sellAssetIsOnOsmosisNetwork
+        ? osmosisToCosmosProtocolFees[1]
+        : cosmosToOsmosisProtocolFees[1],
     },
     accountNumber,
     rate,

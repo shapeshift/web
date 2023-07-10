@@ -1,6 +1,6 @@
 import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import type { cosmos, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
-import { bnOrZero, osmosis } from '@shapeshiftoss/chain-adapters'
+import { osmosis } from '@shapeshiftoss/chain-adapters'
 import type { CosmosSignTx } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
@@ -103,8 +103,8 @@ export const osmosisApi: Swapper2Api = {
         adapter: sellAssetAdapter,
         // Used to get blockheight of the *destination* chain for the IBC transfer
         blockBaseUrl: sellAsset.chainId === cosmosChainId ? osmoUrl : cosmosUrl,
-        // Transfer uosmo if IBC transferring from Osmosis to Cosmos, else IBC transfer ATOM to ATOM on Osmosis
-        denom: nativeAssetDenom,
+        // Transfer ATOM on Osmosis if IBC transferring from Osmosis to Cosmos, else IBC transfer ATOM to ATOM on Osmosis
+        denom: sellAsset.chainId === cosmosChainId ? nativeAssetDenom : symbolDenomMapping['ATOM'],
         sourceChannel: sellAssetIsOnOsmosisNetwork
           ? OSMOSIS_TO_COSMOSHUB_CHANNEL
           : COSMOSHUB_TO_OSMOSIS_CHANNEL,
@@ -131,12 +131,6 @@ export const osmosisApi: Swapper2Api = {
       : cosmosAdapter.getFeeData(getFeeDataInput))
 
     const feeDenom = 'uosmo'
-    // The actual amount that will end up on the IBC channel is the sell amount minus the fee for the IBC transfer Tx
-    // We need to deduct the fees from the initial amount in case we're dealing with an IBC transfer + swap flow
-    // or else, this will break for swaps to an Osmosis address that doesn't yet have ATOM
-    const sellAmountAfterIbcTransferFeesCryptoBaseUnit = sellAssetIsOnOsmosisNetwork
-      ? sellAmountBeforeFeesCryptoBaseUnit
-      : bnOrZero(sellAmountBeforeFeesCryptoBaseUnit).minus(swapFeeData.fast.txFee).toString()
 
     // TODO(gomes): this is temporary while we plumb things through, this won't work for cross-account trades
     // We shouldn't have a notion of an accountNumber once we hit the new Osmosis swapper endpoints
@@ -152,7 +146,7 @@ export const osmosisApi: Swapper2Api = {
       adapter: osmosisAdapter,
       buyAssetDenom,
       sellAssetDenom,
-      sellAmount: sellAmountAfterIbcTransferFeesCryptoBaseUnit,
+      sellAmount: sellAmountBeforeFeesCryptoBaseUnit,
       gas: swapFeeData.fast.chainSpecific.gasLimit,
       feeAmount: swapFeeData.fast.txFee,
       feeDenom,

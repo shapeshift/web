@@ -169,8 +169,10 @@ export const getTradeQuote = async (
     rate,
     sellAsset: atomOnOsmosisAsset,
     sellAmountBeforeFeesCryptoBaseUnit: sellAssetIsOnOsmosisNetwork
-      ? bnOrZero(buyAmountCryptoBaseUnit).minus(firstHopNetworkFee).toString()
-      : bnOrZero(firstStep.buyAmountBeforeFeesCryptoBaseUnit).minus(firstHopNetworkFee).toString(),
+      ? bnOrZero(firstStep.buyAmountBeforeFeesCryptoBaseUnit)
+          .minus(firstHopFeeData.slow.txFee)
+          .toString()
+      : bnOrZero(buyAmountCryptoBaseUnit).toString(),
     buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
     sources: DEFAULT_SOURCE,
   }

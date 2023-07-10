@@ -90,6 +90,9 @@ export const getTradeQuote = async (
                     asset: buyAsset,
                   },
                 }),
+            // When doing an IBC transfer, there is a fee occuring on the amount being transferred.
+            // We never accounted for it previously, thus the second hop for ATOM -> OSMO would consistently fail on the first try
+            // and "magically" work after a failed trade, since you now have balance to cover the fee deduction
             [sellAsset.assetId]: {
               amountCryptoBaseUnit: ibcSwapfeeDeduction.fast.txFee,
               requiresBalance: false,

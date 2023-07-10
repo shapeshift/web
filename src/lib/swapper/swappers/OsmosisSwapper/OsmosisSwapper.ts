@@ -329,8 +329,9 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     // Swaps happen on the Osmosis chain, so network fees are always paid in OSMO
     // That is different from the network fees that happen while making an IBC transfer, which are occured in the transfer denom
     const nativeAssetSwapFee = await osmosisAdapter.getFeeData(getFeeDataInput)
-    const feeDenom = 'uosmo'
-
+    const feeDenom = sellAssetIsOnOsmosisNetwork
+      ? symbolDenomMapping['OSMO']
+      : symbolDenomMapping['ATOM']
     const maybeRateInfo = await getRateInfo(
       sellAsset.symbol,
       buyAsset.symbol,

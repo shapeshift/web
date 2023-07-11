@@ -22,7 +22,10 @@ import { useHistory } from 'react-router-dom'
 import { getLocaleLabel } from 'assets/translations/utils'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
-import { deleteWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import {
+  deleteWallet,
+  reloadWebview,
+} from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
@@ -93,7 +96,7 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
       // send them back to dashboard in case the bug was something to do with the current page
       appHistory.replace('/')
       // reload the page
-      window.location.reload()
+      isMobileApp ? reloadWebview() : window.location.reload()
     } catch (e) {}
   }, [appHistory])
 

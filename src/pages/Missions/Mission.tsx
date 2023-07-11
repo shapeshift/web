@@ -12,6 +12,7 @@ import {
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import timezone from 'dayjs/plugin/timezone'
+import type { MouseEvent } from 'react'
 import React, { useCallback, useMemo, useState } from 'react'
 import { FaClock } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -35,6 +36,7 @@ export type MissionProps = {
   endDate?: string
   startDate?: string
   colspan?: number
+  minHeight?: string
 }
 
 export const Mission: React.FC<MissionProps> = ({
@@ -45,14 +47,19 @@ export const Mission: React.FC<MissionProps> = ({
   onClick,
   endDate,
   startDate,
+  minHeight = '350px',
   colspan = 1,
 }) => {
   const [isActive, setIsActive] = useState(false)
   const translate = useTranslate()
-  const handleClick = useCallback(() => {
-    getMixPanel()?.track('mission click', { mission: title })
-    onClick && onClick()
-  }, [onClick, title])
+  const handleClick = useCallback(
+    (e: MouseEvent) => {
+      if (e?.defaultPrevented) return
+      getMixPanel()?.track('mission click', { mission: title })
+      onClick && onClick()
+    },
+    [onClick, title],
+  )
 
   const renderFooter = useMemo(() => {
     const start = dayjs(startDate, dateFormat)
@@ -116,7 +123,7 @@ export const Mission: React.FC<MissionProps> = ({
       boxShadow='lg'
       borderWidth={useColorModeValue(0, 1)}
       gridColumn={`span ${colspan}`}
-      borderRadius={{ base: 'xl', lg: '3xl', xl: '3xl' }}
+      borderRadius={{ base: 'xl', lg: '2xl', xl: '2xl' }}
       transitionProperty='common'
       transitionDuration='normal'
       position='relative'
@@ -197,7 +204,7 @@ export const Mission: React.FC<MissionProps> = ({
       </Card.Body>
       <Box
         width='100%'
-        minHeight={{ base: '150px', md: '350px' }}
+        minHeight={{ base: `calc(${minHeight} / 2)`, md: minHeight }}
         mt='auto'
         backgroundPosition='center 100%'
         backgroundRepeat='no-repeat'

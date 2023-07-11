@@ -17,6 +17,8 @@ export type SwappersState = {
   sellAmountCryptoPrecision: string
   tradeExecutionStatus: MultiHopExecutionStatus
   willDonate: boolean
+  manualReceiveAddress: string | undefined
+  manualReceiveAddressIsValidating: boolean
 }
 
 // Define the initial state:
@@ -28,6 +30,8 @@ const initialState: SwappersState = {
   sellAmountCryptoPrecision: '0',
   tradeExecutionStatus: MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation,
   willDonate: true,
+  manualReceiveAddress: undefined,
+  manualReceiveAddressIsValidating: false,
 }
 
 // Create the slice:
@@ -81,6 +85,12 @@ export const swappers = createSlice({
     },
     toggleWillDonate: state => {
       state.willDonate = !state.willDonate
+    },
+    setManualReceiveAddress: (state, action: PayloadAction<string | undefined>) => {
+      state.manualReceiveAddress = action.payload
+    },
+    setManualReceiveAddressIsValidating: (state, action: PayloadAction<boolean>) => {
+      state.manualReceiveAddressIsValidating = action.payload
     },
   },
 })

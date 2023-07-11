@@ -1,4 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { cosmosChainId } from '@shapeshiftoss/caip'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -60,9 +61,18 @@ const _getReceiveSideAmountsCryptoBaseUnit = ({
   const buySideNetworkFeeCryptoBaseUnit =
     swapperName === SwapperName.Osmosis
       ? (() => {
-          const otherDenomFee = lastStep.feeData.protocolFees[firstStep.sellAsset.assetId]
-          if (!otherDenomFee) return '0'
-          return bnOrZero(otherDenomFee.amountCryptoBaseUnit).times(rate)
+          const isAtomOsmo = firstStep.sellAsset.chainId === cosmosChainId
+
+          // Subtract ATOM fees converted to OSMO for ATOM -> OSMO
+          if (isAtomOsmo) {
+            const otherDenomFee = lastStep.feeData.protocolFees[firstStep.sellAsset.assetId]
+            if (!otherDenomFee) return '0'
+            return bnOrZero(otherDenomFee.amountCryptoBaseUnit).times(rate)
+          }
+
+          const firstHopNetworkFee = firstStep.feeData.networkFeeCryptoBaseUnit
+          // Subtract the first-hop network fees for OSMO -> ATOM, which aren't automagically subtracted in the multi-hop abstraction
+          return bnOrZero(firstHopNetworkFee)
         })()
       : bn(0)
 

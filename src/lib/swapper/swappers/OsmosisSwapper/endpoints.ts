@@ -65,24 +65,24 @@ export const osmosisApi: Swapper2Api = {
 
     // What we call an "Osmosis" swap is a stretch - it's really an IBC transfer and a swap-exact-amount-in
     // Thus, an "Osmosis" swap step can be one of these two
-    const isIbcTransfer = stepBuyAsset.chainId !== stepSellAsset.chainId
+    const isIbcTransferStep = stepBuyAsset.chainId !== stepSellAsset.chainId
 
     const stepSellAssetIsOnOsmosisNetwork = stepSellAsset.chainId === osmosisChainId
 
-    const sellAssetDenom = symbolDenomMapping[stepSellAsset.symbol as keyof SymbolDenomMapping]
-    const buyAssetDenom = symbolDenomMapping[stepBuyAsset.symbol as keyof SymbolDenomMapping]
+    const stepSellAssetDenom = symbolDenomMapping[stepSellAsset.symbol as keyof SymbolDenomMapping]
+    const stepBuyAssetDenom = symbolDenomMapping[stepBuyAsset.symbol as keyof SymbolDenomMapping]
     const nativeAssetDenom = stepSellAssetIsOnOsmosisNetwork ? 'uosmo' : 'uatom'
 
     const osmosisAdapter = assertGetCosmosSdkChainAdapter(osmosisChainId) as osmosis.ChainAdapter
     const cosmosAdapter = assertGetCosmosSdkChainAdapter(cosmosChainId) as cosmos.ChainAdapter
-    const sellAssetAdapter = assertGetCosmosSdkChainAdapter(stepSellAsset.chainId) as
+    const stepSellAssetAdapter = assertGetCosmosSdkChainAdapter(stepSellAsset.chainId) as
       | cosmos.ChainAdapter
       | osmosis.ChainAdapter
 
     const { REACT_APP_OSMOSIS_NODE_URL: osmoUrl, REACT_APP_COSMOS_NODE_URL: cosmosUrl } =
       getConfig()
 
-    if (isIbcTransfer) {
+    if (isIbcTransferStep) {
       /** If the sell asset is not on the Osmosis network, we need to bridge the
        * asset to the Osmosis network first in order to perform a swap on Osmosis DEX.
        */
@@ -93,17 +93,17 @@ export const osmosisApi: Swapper2Api = {
         amount: stepSellAmountBeforeFeesCryptoBaseUnit,
       }
 
-      const responseAccount = await sellAssetAdapter.getAccount(from)
+      const responseAccount = await stepSellAssetAdapter.getAccount(from)
       const ibcAccountNumber = responseAccount.chainSpecific.accountNumber || '0'
 
       const sequence = responseAccount.chainSpecific.sequence || '0'
 
       const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
-      const sellAssetFeeData = await sellAssetAdapter.getFeeData(getFeeDataInput)
+      const sellAssetFeeData = await stepSellAssetAdapter.getFeeData(getFeeDataInput)
 
       const unsignedTx = await buildPerformIbcTransferUnsignedTx({
         input: transfer,
-        adapter: sellAssetAdapter,
+        adapter: stepSellAssetAdapter,
         // Used to get blockheight of the *destination* chain for the IBC transfer
         blockBaseUrl: stepSellAsset.chainId === cosmosChainId ? osmoUrl : cosmosUrl,
         // Transfer ATOM on Osmosis if IBC transferring from Osmosis to Cosmos, else IBC transfer ATOM to ATOM on Osmosis
@@ -130,12 +130,12 @@ export const osmosisApi: Swapper2Api = {
      */
 
     const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
-    const swapFeeData = await (stepSellAssetIsOnOsmosisNetwork
+    const stepFeeData = await (stepSellAssetIsOnOsmosisNetwork
       ? osmosisAdapter.getFeeData(getFeeDataInput)
       : cosmosAdapter.getFeeData(getFeeDataInput))
 
-    const inputSellAssetIsOnOsmosisNetwork = inputSellAsset.chainId === osmosisChainId
-    const feeDenom = inputSellAssetIsOnOsmosisNetwork
+    const quoteSellAssetIsOnOsmosisNetwork = inputSellAsset.chainId === osmosisChainId
+    const feeDenom = quoteSellAssetIsOnOsmosisNetwork
       ? symbolDenomMapping['OSMO']
       : symbolDenomMapping['ATOM']
 
@@ -151,11 +151,11 @@ export const osmosisApi: Swapper2Api = {
       osmoAddress,
       accountNumber: stepSellAssetIsOnOsmosisNetwork ? accountNumber : receiveAccountNumber,
       adapter: osmosisAdapter,
-      buyAssetDenom,
-      sellAssetDenom,
+      buyAssetDenom: stepBuyAssetDenom,
+      sellAssetDenom: stepSellAssetDenom,
       sellAmount: stepSellAmountBeforeFeesCryptoBaseUnit,
-      gas: swapFeeData.fast.chainSpecific.gasLimit,
-      feeAmount: swapFeeData.fast.txFee,
+      gas: stepFeeData.fast.chainSpecific.gasLimit,
+      feeAmount: stepFeeData.fast.txFee,
       feeDenom,
     })
 

@@ -171,7 +171,9 @@ export const getTradeQuote = async (
       ? bnOrZero(firstStep.buyAmountBeforeFeesCryptoBaseUnit)
           .minus(firstHopFeeData.slow.txFee)
           .toString()
-      : bnOrZero(buyAmountCryptoBaseUnit).minus(firstHopFeeData.fast.txFee).toString(),
+      : bnOrZero(firstStep.buyAmountBeforeFeesCryptoBaseUnit)
+          .minus(firstHopFeeData.fast.txFee)
+          .toString(),
     buyAmountBeforeFeesCryptoBaseUnit: bnOrZero(buyAmountCryptoBaseUnit).toString(),
     sources: DEFAULT_SOURCE,
   }

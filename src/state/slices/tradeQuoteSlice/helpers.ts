@@ -3,7 +3,8 @@ import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, SwapperName, TradeQuote2 } from 'lib/swapper/api'
+import type { ProtocolFee, TradeQuote2 } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectCryptoMarketData,
@@ -52,7 +53,13 @@ const _getReceiveSideAmountsCryptoBaseUnit = ({
 
   const buyAmountCryptoBaseUnit = bn(lastStep.buyAmountBeforeFeesCryptoBaseUnit)
   const slippageAmountCryptoBaseUnit = buyAmountCryptoBaseUnit.times(slippageDecimalPercentage)
-  const buySideNetworkFeeCryptoBaseUnit = bn(0) // TODO(woodenfurniture): handle osmo swapper crazy network fee logic here
+
+  // TODO:
+  // 1. this should get OSMO fees on the buy side for ATOM -> OSMO
+  // 2. This should convert said OSMO fees back into ATOM so it can be deducted in netReceiveAmountCryptoBaseUnit
+  // 3. Ensure both directions work
+  const buySideNetworkFeeCryptoBaseUnit = swapperName === SwapperName.Osmosis ? 'TODO' : bn(0)
+
   const buySideProtocolFeeCryptoBaseUnit = bnOrZero(
     lastStep.feeData.protocolFees[lastStep.buyAsset.assetId]?.amountCryptoBaseUnit,
   )

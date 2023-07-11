@@ -1,12 +1,13 @@
 import type { SkipToken } from '@reduxjs/toolkit/query'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { type GetTradeQuoteInput } from 'lib/swapper/api'
 import {
+  selectBIP44ParamsByAccountId,
   selectFeatureFlags,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
@@ -14,6 +15,7 @@ import {
 import { useAppSelector } from 'state/store'
 import {
   selectBuyAsset,
+  selectBuyAssetAccountId,
   selectReceiveAddress,
   selectSellAmountCryptoPrecision,
   selectSellAsset,
@@ -32,10 +34,22 @@ export const useTradeQuoteService = () => {
 
   // Selectors
   const receiveAddress = useSwapperStore(selectReceiveAddress)
+
   const sellAssetAccountId = useSwapperStore(selectSellAssetAccountId)
+  const buyAssetAccountId = useSwapperStore(selectBuyAssetAccountId)
   const sellAsset = useSwapperStore(selectSellAsset)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAmountCryptoPrecision = useSwapperStore(selectSellAmountCryptoPrecision)
+
+  // Osmosis-specific, this assumes client usage and won't work when consumed as an API
+  const buyAccountFilter = useMemo(() => ({ accountId: buyAssetAccountId }), [buyAssetAccountId])
+
+  const buyAccountBip44Params = useAppSelector(state =>
+    selectBIP44ParamsByAccountId(state, buyAccountFilter),
+  )
+
+  const receiveAccountNumber = buyAccountBip44Params?.accountNumber
+
   const flags = useAppSelector(selectFeatureFlags)
 
   const sellAssetAccountIds = useAppSelector(state =>
@@ -70,6 +84,7 @@ export const useTradeQuoteService = () => {
         const tradeQuoteInputArgs: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,
           sellAccountNumber,
+          receiveAccountNumber,
           sellAccountType: sellAccountMetadata.accountType,
           buyAsset,
           wallet,
@@ -83,6 +98,7 @@ export const useTradeQuoteService = () => {
   }, [
     buyAsset,
     flags.MultiHopTrades,
+    receiveAccountNumber,
     receiveAddress,
     sellAccountMetadata,
     sellAmountCryptoPrecision,

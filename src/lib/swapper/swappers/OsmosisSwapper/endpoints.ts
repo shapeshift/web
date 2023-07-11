@@ -35,9 +35,9 @@ export const osmosisApi: Swapper2Api = {
     const tradeQuoteResult = await getTradeQuote(input, { sellAssetUsdRate })
 
     return tradeQuoteResult.map(tradeQuote => {
-      const { receiveAddress, affiliateBps } = input
+      const { receiveAccountNumber, receiveAddress, affiliateBps } = input
       const id = uuid()
-      return { id, receiveAddress, affiliateBps, ...tradeQuote }
+      return { id, receiveAddress, receiveAccountNumber, affiliateBps, ...tradeQuote }
     })
   },
 
@@ -55,7 +55,7 @@ export const osmosisApi: Swapper2Api = {
       sellAmountBeforeFeesCryptoBaseUnit: stepSellAmountBeforeFeesCryptoBaseUnit,
     } = tradeQuote.steps[stepIndex]
     const quoteSellAsset = tradeQuote.steps[0].sellAsset
-    const { receiveAddress } = tradeQuote
+    const { receiveAddress, receiveAccountNumber } = tradeQuote
 
     // What we call an "Osmosis" swap is a stretch - it's really an IBC transfer and a swap-exact-amount-in
     // Thus, an "Osmosis" swap step can be one of these two
@@ -133,17 +133,14 @@ export const osmosisApi: Swapper2Api = {
       ? symbolDenomMapping['OSMO']
       : symbolDenomMapping['ATOM']
 
-    // TODO(gomes): this is temporary while we plumb things through, this won't work for cross-account trades
-    // We shouldn't have a notion of an accountNumber once we hit the new Osmosis swapper endpoints
-    // or rather we should have it both on the sell and buy side?
+    const osmoAddress = quoteSellAssetIsOnOsmosisNetwork ? from : receiveAddress
 
-    const receiveAccountNumber = accountNumber
-
-    const osmoAddress = stepSellAssetIsOnOsmosisNetwork ? from : receiveAddress
+    if (!quoteSellAssetIsOnOsmosisNetwork && receiveAccountNumber === undefined)
+      throw new Error('receiveAccountNumber is required for ATOM -> OSMO')
 
     const txToSign = await buildSwapExactAmountInTx({
       osmoAddress,
-      accountNumber: stepSellAssetIsOnOsmosisNetwork ? accountNumber : receiveAccountNumber,
+      accountNumber: quoteSellAssetIsOnOsmosisNetwork ? accountNumber : receiveAccountNumber!,
       adapter: osmosisAdapter,
       buyAssetDenom: stepBuyAssetDenom,
       sellAssetDenom: stepSellAssetDenom,

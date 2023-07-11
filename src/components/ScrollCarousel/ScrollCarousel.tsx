@@ -5,7 +5,7 @@ import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { PropsWithChildren } from 'react'
 import { Children, useCallback, useEffect, useRef, useState } from 'react'
 
-type FeatureListProps = {
+export type FeatureListProps = {
   slidesToShow?: Record<ThemeTypings['breakpoints'] | string, number>
   slideGap?: number
 } & PropsWithChildren &

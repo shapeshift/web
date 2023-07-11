@@ -77,7 +77,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId, ..
     <Container
       width='full'
       maxWidth='container.4xl'
-      px={{ base: 4, xl: 16 }}
+      px={{ base: 4, xl: 8 }}
       pb={4}
       pt={6}
       {...rest}

@@ -1,6 +1,5 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
-import identity from 'lodash/identity'
 import sortBy from 'lodash/sortBy'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -8,7 +7,7 @@ import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { CurrencyFormats, preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectCurrencyFormat } from 'state/slices/selectors'
+import { selectCurrencyFormat, selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { currencyFormatsRepresenter } from './SettingsCommon'
@@ -16,10 +15,13 @@ import { currencyFormatsRepresenter } from './SettingsCommon'
 export const CurrencyFormat = () => {
   const dispatch = useAppDispatch()
   const currentCurrencyFormat = useAppSelector(selectCurrencyFormat)
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const translate = useTranslate()
   const history = useHistory()
   const { goBack } = history
-  const formats = sortBy(CurrencyFormats, identity)
+  const formats = sortBy(CurrencyFormats, format =>
+    currencyFormatsRepresenter(format, selectedCurrency),
+  )
   const { setCurrencyFormat } = preferences.actions
 
   return (
@@ -69,7 +71,9 @@ export const CurrencyFormat = () => {
                 <Flex alignItems='center' textAlign='left'>
                   {active && <Icon as={FaCheck} color='blue.500' />}
                   <Flex ml={4}>
-                    <RawText>{currencyFormatsRepresenter[currencyFormat]}</RawText>
+                    <RawText>
+                      {currencyFormatsRepresenter(currencyFormat, selectedCurrency)}
+                    </RawText>
                   </Flex>
                 </Flex>
               </Button>

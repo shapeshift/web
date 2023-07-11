@@ -48,17 +48,23 @@ const _getReceiveSideAmountsCryptoBaseUnit = ({
   swapperName: SwapperName
 }) => {
   const lastStep = quote.steps[quote.steps.length - 1]
+  const firstStep = quote.steps[0]
+  const rate = lastStep.rate
   const slippageDecimalPercentage =
     quote.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(swapperName)
 
   const buyAmountCryptoBaseUnit = bn(lastStep.buyAmountBeforeFeesCryptoBaseUnit)
   const slippageAmountCryptoBaseUnit = buyAmountCryptoBaseUnit.times(slippageDecimalPercentage)
 
-  // TODO:
-  // 1. this should get OSMO fees on the buy side for ATOM -> OSMO
-  // 2. This should convert said OSMO fees back into ATOM so it can be deducted in netReceiveAmountCryptoBaseUnit
-  // 3. Ensure both directions work
-  const buySideNetworkFeeCryptoBaseUnit = swapperName === SwapperName.Osmosis ? 'TODO' : bn(0)
+  // Network fee represented as protocol fee for Osmosis swaps
+  const buySideNetworkFeeCryptoBaseUnit =
+    swapperName === SwapperName.Osmosis
+      ? (() => {
+          const otherDenomFee = lastStep.feeData.protocolFees[firstStep.sellAsset.assetId]
+          if (!otherDenomFee) return '0'
+          return bnOrZero(otherDenomFee.amountCryptoBaseUnit).times(rate)
+        })()
+      : bn(0)
 
   const buySideProtocolFeeCryptoBaseUnit = bnOrZero(
     lastStep.feeData.protocolFees[lastStep.buyAsset.assetId]?.amountCryptoBaseUnit,

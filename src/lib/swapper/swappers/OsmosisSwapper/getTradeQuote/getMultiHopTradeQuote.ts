@@ -91,7 +91,7 @@ export const getTradeQuote = async (
         asset: buyAsset,
       },
     },
-    {},
+    {}, // No need to represent the second hop's network fee as a protocol fee since it's the hop chain's native asset
   ]
 
   const cosmosToOsmosisProtocolFees = [

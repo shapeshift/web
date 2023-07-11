@@ -19,7 +19,7 @@ export const ManualAddressEntry: FC = (): JSX.Element | null => {
   const dispatch = useAppDispatch()
 
   const {
-    formState: { isValid: isFormValid, isValidating },
+    formState: { isValidating },
     trigger: formTrigger,
     setValue: setFormValue,
   } = useFormContext()
@@ -46,20 +46,17 @@ export const ManualAddressEntry: FC = (): JSX.Element | null => {
   // Reset the manual address input state when the user changes the buy asset
   useEffect(() => {
     dispatch(swappers.actions.setManualReceiveAddress(undefined))
-  }, [buyAssetAssetId, dispatch])
+    setFormValue(SendFormFields.Input, '')
+  }, [buyAssetAssetId, dispatch, setFormValue])
 
+  // If we have a valid manual receive address, set it in the form
   useEffect(() => {
-    setFormValue(SendFormFields.Input, manualReceiveAddress ?? '')
+    manualReceiveAddress && setFormValue(SendFormFields.Input, manualReceiveAddress)
   }, [dispatch, manualReceiveAddress, setFormValue])
 
   useEffect(() => {
     dispatch(swappers.actions.setManualReceiveAddressIsValidating(isValidating))
   }, [dispatch, isValidating])
-
-  // For safety, ensure we never have a receive address in the store if the form is invalid
-  useEffect(() => {
-    !isFormValid && dispatch(swappers.actions.setManualReceiveAddress(undefined))
-  }, [isFormValid, dispatch])
 
   const ManualReceiveAddressEntry: JSX.Element = useMemo(() => {
     return (

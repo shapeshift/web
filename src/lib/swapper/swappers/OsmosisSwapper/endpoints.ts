@@ -8,7 +8,6 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import { v4 as uuid } from 'uuid'
 import type {
-  GetCosmosSdkTradeQuoteInput,
   GetTradeQuoteInput,
   GetUnsignedTxArgs,
   SwapErrorRight,
@@ -28,8 +27,6 @@ import { getTradeQuote } from './getTradeQuote/getMultiHopTradeQuote'
 import { COSMOSHUB_TO_OSMOSIS_CHANNEL, OSMOSIS_TO_COSMOSHUB_CHANNEL } from './utils/constants'
 import type { OsmosisSupportedChainId } from './utils/types'
 
-const tradeQuoteMetadata: Map<string, GetCosmosSdkTradeQuoteInput> = new Map()
-
 export const osmosisApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
@@ -40,7 +37,6 @@ export const osmosisApi: Swapper2Api = {
     return tradeQuoteResult.map(tradeQuote => {
       const { receiveAddress, affiliateBps } = input
       const id = uuid()
-      tradeQuoteMetadata.set(id, input as GetCosmosSdkTradeQuoteInput)
       return { id, receiveAddress, affiliateBps, ...tradeQuote }
     })
   },
@@ -58,9 +54,7 @@ export const osmosisApi: Swapper2Api = {
       sellAsset: stepSellAsset,
       sellAmountBeforeFeesCryptoBaseUnit: stepSellAmountBeforeFeesCryptoBaseUnit,
     } = tradeQuote.steps[stepIndex]
-    const input = tradeQuoteMetadata.get(tradeQuote.id)
-    if (!input) throw new Error('tradeQuoteMetadata is missing')
-    const { sellAsset: inputSellAsset } = input
+    const quoteSellAsset = tradeQuote.steps[0].sellAsset
     const { receiveAddress } = tradeQuote
 
     // What we call an "Osmosis" swap is a stretch - it's really an IBC transfer and a swap-exact-amount-in
@@ -134,7 +128,7 @@ export const osmosisApi: Swapper2Api = {
       ? osmosisAdapter.getFeeData(getFeeDataInput)
       : cosmosAdapter.getFeeData(getFeeDataInput))
 
-    const quoteSellAssetIsOnOsmosisNetwork = inputSellAsset.chainId === osmosisChainId
+    const quoteSellAssetIsOnOsmosisNetwork = quoteSellAsset.chainId === osmosisChainId
     const feeDenom = quoteSellAssetIsOnOsmosisNetwork
       ? symbolDenomMapping['OSMO']
       : symbolDenomMapping['ATOM']

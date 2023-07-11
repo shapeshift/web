@@ -20,7 +20,6 @@ import type {
 } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import {
-  atomOnOsmosisAssetId,
   COSMO_OSMO_CHANNEL,
   OSMO_COSMO_CHANNEL,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/constants'
@@ -29,7 +28,6 @@ import {
   buildTradeTx,
   getRateInfo,
   performIbcTransfer,
-  pollForAtomChannelBalance,
   pollForComplete,
   symbolDenomMapping,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
@@ -126,18 +124,15 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const sellAmountCryptoBase = String(bnOrZero(sellAmountCryptoBaseUnit).dp(0))
 
     const osmosisAdapter = adapterManager.get(osmosisChainId) as osmosis.ChainAdapter | undefined
+    const cosmosAdapter = adapterManager.get(cosmosChainId) as cosmos.ChainAdapter | undefined
 
-    if (!osmosisAdapter)
+    if (!cosmosAdapter || !osmosisAdapter)
       return Err(
         makeSwapErrorRight({
-          message: 'Failed to get Osmosis adapter',
+          message: 'Failed to get Cosmos SDK adapters',
           code: SwapErrorType.BUILD_TRADE_FAILED,
         }),
       )
-
-    const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
-    const feeData = await osmosisAdapter.getFeeData(getFeeDataInput)
-    const fee = feeData.fast.txFee
 
     if (!receiveAddress)
       return Err(
@@ -147,18 +142,49 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         }),
       )
 
+    const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
+
+    const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
+    const cosmosFees = await cosmosAdapter.getFeeData(getFeeDataInput)
+    const osmosisFees = await osmosisAdapter.getFeeData(getFeeDataInput)
+    const initiatingTxFeeData = sellAssetIsOnOsmosisNetwork ? osmosisFees : cosmosFees
+
+    const osmosisToCosmosProtocolFees = {
+      [sellAsset.assetId]: {
+        amountCryptoBaseUnit: osmosis.MIN_FEE,
+        requiresBalance: true, // network fee for second hop, represented as a protocol fee here
+
+        asset: sellAsset,
+      },
+      [buyAsset.assetId]: {
+        amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
+        requiresBalance: false,
+        asset: buyAsset,
+      },
+    }
+
+    const cosmosToOsmosisProtocolFees = {
+      [sellAsset.assetId]: {
+        amountCryptoBaseUnit: osmosisFees.fast.txFee,
+        requiresBalance: true, // network fee for second hop, represented as a protocol fee here
+        asset: sellAsset,
+      },
+      [buyAsset.assetId]: {
+        amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
+        requiresBalance: false,
+        asset: buyAsset,
+      },
+    }
+
     return Ok({
       buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
       buyAsset,
       feeData: {
-        networkFeeCryptoBaseUnit: fee,
-        protocolFees: {
-          [buyAsset.assetId]: {
-            amountCryptoBaseUnit: buyAssetTradeFeeCryptoBaseUnit,
-            requiresBalance: true,
-            asset: buyAsset,
-          },
-        },
+        networkFeeCryptoBaseUnit: initiatingTxFeeData.fast.txFee,
+        protocolFees:
+          // Note, the current implementation is a hack where we consider the whole swap as one hop
+          // This is only there to make the fees correct in the UI, but this isn't a "protocol fee", it's a network fee for the second hop (the IBC transfer)
+          sellAssetIsOnOsmosisNetwork ? osmosisToCosmosProtocolFees : cosmosToOsmosisProtocolFees,
       },
       rate,
       receiveAddress,
@@ -201,7 +227,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
     const sellAssetDenom = symbolDenomMapping[sellAsset.symbol as keyof SymbolDenomMapping]
     const buyAssetDenom = symbolDenomMapping[buyAsset.symbol as keyof SymbolDenomMapping]
-    let ibcSellAmount
 
     const adapterManager = getChainAdapterManager()
     const osmosisAdapter = adapterManager.get(osmosisChainId) as osmosis.ChainAdapter | undefined
@@ -257,20 +282,20 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
       const ibcFromCosmosFeeData = await cosmosAdapter.getFeeData(getFeeDataInput)
 
-      const { tradeId } = await performIbcTransfer(
-        transfer,
-        cosmosAdapter,
+      const { tradeId } = await performIbcTransfer({
+        input: transfer,
+        adapter: cosmosAdapter,
         wallet,
-        osmoUrl,
-        'uatom',
-        COSMO_OSMO_CHANNEL,
-        ibcFromCosmosFeeData.fast.txFee,
+        blockBaseUrl: osmoUrl,
+        denom: 'uatom',
+        sourceChannel: COSMO_OSMO_CHANNEL,
+        feeAmount: ibcFromCosmosFeeData.fast.txFee,
         accountNumber,
         ibcAccountNumber,
         sequence,
-        ibcFromCosmosFeeData.fast.chainSpecific.gasLimit,
-        'uatom',
-      )
+        gas: ibcFromCosmosFeeData.fast.chainSpecific.gasLimit,
+        feeDenom: 'uatom',
+      })
 
       cosmosIbcTradeId = tradeId
 
@@ -284,7 +309,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
           }),
         )
 
-      ibcSellAmount = await pollForAtomChannelBalance(receiveAddress, osmoUrl)
+      // TODO(gomes): We should be polling for *actual* IBC transfer completion here, which a 5000ms only gives us partial guarantee about
+      // It will work in most cases, but isn't guaranteed if validators are slow to pick it up on the destination chain
 
       // delay to ensure all nodes we interact with are up to date at this point
       // seeing intermittent bugs that suggest the balances and sequence numbers were sometimes off
@@ -302,23 +328,41 @@ export class OsmosisSwapper implements Swapper<ChainId> {
      */
 
     const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
-    const swapFeeData = await (sellAssetIsOnOsmosisNetwork
+    const initiatingTxFeeData = await (sellAssetIsOnOsmosisNetwork
       ? osmosisAdapter.getFeeData(getFeeDataInput)
       : cosmosAdapter.getFeeData(getFeeDataInput))
 
+    // Swaps happen on the Osmosis chain, so network fees are always paid in OSMO
+    // That is different from the network fees that happen while making an IBC transfer, which are occured in the transfer denom
+    const osmosisFees = await osmosisAdapter.getFeeData(getFeeDataInput)
     const feeDenom = sellAssetIsOnOsmosisNetwork
-      ? 'uosmo'
-      : atomOnOsmosisAssetId.split('/')[1].replace(/:/g, '/')
+      ? symbolDenomMapping['OSMO']
+      : symbolDenomMapping['ATOM']
+    const maybeRateInfo = await getRateInfo(
+      sellAsset.symbol,
+      buyAsset.symbol,
+      sellAmountCryptoBaseUnit !== '0' ? sellAmountCryptoBaseUnit : '1',
+      osmoUrl,
+    )
 
+    if (!maybeRateInfo.isOk()) return Err(maybeRateInfo.unwrapErr())
+    const { buyAmountCryptoBaseUnit } = maybeRateInfo.unwrap()
+
+    // The actual amount that will end up on the IBC channel is the sell amount minus the fee for the IBC transfer Tx
+    // We need to deduct the fees from the initial amount in case we're dealing with an IBC transfer + swap flow
+    // or else, this will break for swaps to an Osmosis address that doesn't yet have ATOM
+    const sellAmountAfterIbcTransferFeesCryptoBaseUnit = sellAssetIsOnOsmosisNetwork
+      ? sellAmountCryptoBaseUnit
+      : bnOrZero(sellAmountCryptoBaseUnit).minus(initiatingTxFeeData.fast.txFee).toString()
     const signTxInput = await buildTradeTx({
       osmoAddress,
       accountNumber: sellAssetIsOnOsmosisNetwork ? accountNumber : receiveAccountNumber,
       adapter: osmosisAdapter,
       buyAssetDenom,
       sellAssetDenom,
-      sellAmount: ibcSellAmount ?? sellAmountCryptoBaseUnit,
-      gas: swapFeeData.fast.chainSpecific.gasLimit,
-      feeAmount: swapFeeData.fast.txFee,
+      sellAmount: sellAmountAfterIbcTransferFeesCryptoBaseUnit,
+      gas: osmosisFees.fast.chainSpecific.gasLimit,
+      feeAmount: osmosisFees.fast.txFee,
       feeDenom,
       wallet,
     })
@@ -340,11 +384,12 @@ export class OsmosisSwapper implements Swapper<ChainId> {
        * asset from the Osmosis network to the buy asset network.
        */
 
-      const amount = await pollForAtomChannelBalance(sellAddress, osmoUrl)
       const transfer = {
         sender: sellAddress,
         receiver: receiveAddress,
-        amount,
+        // TODO(gomes): That is too much of a deduction, and that's starting from "buyAmountCryptoBaseUnit" which is a rate/quote, not the actual amount that was IBC transfered
+        // We should be polling for, and send the actual amount that was IBC transfered, not the amount that was quoted
+        amount: bnOrZero(buyAmountCryptoBaseUnit).minus(initiatingTxFeeData.slow.txFee).toString(),
       }
 
       const ibcResponseAccount = await osmosisAdapter.getAccount(sellAddress)
@@ -363,20 +408,20 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
       const ibcFromOsmosisFeeData = await osmosisAdapter.getFeeData(getFeeDataInput)
 
-      await performIbcTransfer(
-        transfer,
-        osmosisAdapter,
+      await performIbcTransfer({
+        input: transfer,
+        adapter: osmosisAdapter,
         wallet,
-        cosmosUrl,
-        buyAssetDenom,
-        OSMO_COSMO_CHANNEL,
-        osmosis.MIN_FEE,
+        blockBaseUrl: cosmosUrl,
+        denom: buyAssetDenom,
+        sourceChannel: OSMO_COSMO_CHANNEL,
+        feeAmount: osmosis.MIN_FEE,
         accountNumber,
         ibcAccountNumber,
-        ibcSequence,
-        ibcFromOsmosisFeeData.fast.chainSpecific.gasLimit,
-        'uosmo',
-      )
+        sequence: ibcSequence,
+        gas: ibcFromOsmosisFeeData.fast.chainSpecific.gasLimit,
+        feeDenom: 'uosmo',
+      })
       return Ok({
         tradeId,
         previousCosmosTxid: cosmosTxHistory.transactions[0]?.txid,

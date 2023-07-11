@@ -22,6 +22,7 @@ export const SideNav = () => {
       boxShadow={shadow}
       flexDir='column'
       zIndex='modal'
+      gridArea='left-sidebar'
     >
       <Flex justifyContent={{ base: 'center', md: 'flex-start' }} pt={4} px={8}>
         <AppLoadingIcon />

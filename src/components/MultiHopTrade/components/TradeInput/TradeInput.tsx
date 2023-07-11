@@ -222,7 +222,7 @@ export const TradeInput = (props: CardProps) => {
                   assetId={buyAsset.assetId}
                   onAssetClick={handleBuyAssetClick}
                   onAccountIdChange={setBuyAssetAccountId}
-                  accountSelectionDisabled={swapperSupportsCrossAccountTrade}
+                  accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
                   label={translate('trade.to')}
                 />
               </Flex>

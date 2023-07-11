@@ -679,6 +679,7 @@
     "slowSwapBody": "This swap may take a few minutes to complete.",
     "updatingQuote": "Updating quote...",
     "intoAssetSymbolBody": "You can proceed with this trade, but transaction history for receiving %{assetSymbol} is temporarily unavailable",
+    "manualReceiveAddress": "Receive address",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
@@ -687,7 +688,8 @@
       "protocol": "This is the protocol where your trade is being routed.",
       "protocolLifi": "This is the protocol where your trade is being routed. LI.FI executes a series of intermediary trades under the hood for the best overall combination of price, safety and speed.",
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
-      "shapeshiftFee": "ShapeShift does not add fees on trades 🎉"
+      "shapeshiftFee": "ShapeShift does not add fees on trades 🎉",
+      "manualReceiveAddress": "This is the address you will receive your funds to. It has been manually entered, please ensure it is correct."
     },
     "rates": {
       "tags": {

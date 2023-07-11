@@ -6,6 +6,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isTruthy } from 'lib/utils'
+import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
 import {
   selectFirstHopNetworkFeeCryptoPrecision,
   selectFirstHopSellAsset,
@@ -36,6 +37,7 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
   const firstHopSellAsset = useAppSelector(selectFirstHopSellAsset)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const receiveAddress = useReceiveAddress()
+  const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
   const walletSupportsSellAssetChain =
     firstHopSellAsset &&
@@ -72,7 +74,9 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
     !lastHopHasSufficientBalanceForGas && ActiveQuoteStatus.InsufficientLastHopFeeAssetBalance,
     isBelowMinimumSellAmount && ActiveQuoteStatus.SellAmountBelowMinimum,
     !walletSupportsSellAssetChain && ActiveQuoteStatus.SellAssetNotNotSupportedByWallet,
-    !walletSupportsBuyAssetChain && ActiveQuoteStatus.BuyAssetNotNotSupportedByWallet, // TODO: only show this if no manually entered receive address
+    !walletSupportsBuyAssetChain &&
+      !manualReceiveAddress &&
+      ActiveQuoteStatus.BuyAssetNotNotSupportedByWallet,
     !receiveAddress && ActiveQuoteStatus.NoReceiveAddress,
     !isTradingActiveOnSellPool && ActiveQuoteStatus.TradingInactiveOnSellChain,
     !isTradingActiveOnBuyPool && ActiveQuoteStatus.TradingInactiveOnBuyChain,

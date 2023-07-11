@@ -15,17 +15,11 @@ import { selectBuyAsset, selectManualReceiveAddress } from 'state/slices/swapper
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-type ManualAddressEntryProps = {
-  setIsManualAddressEntryValidating: (isManualAddressEntryValidating: boolean) => void
-}
-
-export const ManualAddressEntry: FC<ManualAddressEntryProps> = ({
-  setIsManualAddressEntryValidating,
-}): JSX.Element | null => {
+export const ManualAddressEntry: FC = (): JSX.Element | null => {
   const dispatch = useAppDispatch()
 
   const {
-    formState: { isValid: isFormValid },
+    formState: { isValid: isFormValid, isValidating },
     trigger: formTrigger,
     setValue: setFormValue,
   } = useFormContext()
@@ -58,6 +52,10 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = ({
     setFormValue(SendFormFields.Input, manualReceiveAddress ?? '')
   }, [dispatch, manualReceiveAddress, setFormValue])
 
+  useEffect(() => {
+    dispatch(swappers.actions.setManualReceiveAddressIsValidating(isValidating))
+  }, [dispatch, isValidating])
+
   // For safety, ensure we never have a receive address in the store if the form is invalid
   useEffect(() => {
     !isFormValid && dispatch(swappers.actions.setManualReceiveAddress(undefined))
@@ -79,7 +77,6 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = ({
               validateAddress: async (rawInput: string) => {
                 dispatch(swappers.actions.setManualReceiveAddress(undefined))
                 const value = rawInput.trim() // trim leading/trailing spaces
-                setIsManualAddressEntryValidating(true)
                 // this does not throw, everything inside is handled
                 const parseAddressInputWithChainIdArgs = {
                   assetId: buyAssetAssetId,
@@ -90,7 +87,6 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = ({
                 const { address } = await parseAddressInputWithChainId(
                   parseAddressInputWithChainIdArgs,
                 )
-                setIsManualAddressEntryValidating(false)
                 dispatch(swappers.actions.setManualReceiveAddress(address || undefined))
                 const invalidMessage = isYatSupported
                   ? 'common.invalidAddressOrYat'
@@ -103,15 +99,7 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = ({
         />
       </FormControl>
     )
-  }, [
-    buyAssetAssetId,
-    buyAssetChainId,
-    buyAssetChainName,
-    dispatch,
-    isYatSupported,
-    setIsManualAddressEntryValidating,
-    translate,
-  ])
+  }, [buyAssetAssetId, buyAssetChainId, buyAssetChainName, dispatch, isYatSupported, translate])
 
   return shouldShowManualReceiveAddressInput ? ManualReceiveAddressEntry : null
 }

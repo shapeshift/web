@@ -93,3 +93,8 @@ export const selectManualReceiveAddress = createSelector(
   selectSwappers,
   swappers => swappers.manualReceiveAddress,
 )
+
+export const selectManualReceiveAddressIsValidating = createSelector(
+  selectSwappers,
+  swappers => swappers.manualReceiveAddressIsValidating,
+)

@@ -39,7 +39,11 @@ import {
   selectSwappersApiTradeQuotePending,
   selectSwappersApiTradeQuotes,
 } from 'state/apis/swappers/selectors'
-import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
+import {
+  selectBuyAsset,
+  selectManualReceiveAddressIsValidating,
+  selectSellAsset,
+} from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
   selectActiveQuote,
@@ -85,7 +89,7 @@ export const TradeInput = (props: CardProps) => {
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
-  const [isManualAddressEntryValidating, setIsManualAddressEntryValidating] = useState(false)
+  const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
 
   const activeQuoteStatus = useActiveQuoteStatus()
   const setBuyAsset = useCallback(
@@ -291,11 +295,7 @@ export const TradeInput = (props: CardProps) => {
             </Stack>
             <Stack px={4}>
               <DonationCheckbox isLoading={isLoading} />
-              {rate && (
-                <ManualAddressEntry
-                  setIsManualAddressEntryValidating={setIsManualAddressEntryValidating}
-                />
-              )}
+              {activeQuote && <ManualAddressEntry />}
             </Stack>
             <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
               <Button
@@ -303,7 +303,7 @@ export const TradeInput = (props: CardProps) => {
                 colorScheme={quoteHasError ? 'red' : 'blue'}
                 size='lg-multiline'
                 data-test='trade-form-preview-button'
-                isDisabled={quoteHasError || isManualAddressEntryValidating || isLoading}
+                isDisabled={quoteHasError || manualReceiveAddressIsValidating || isLoading}
                 isLoading={isLoading}
               >
                 <Text translation={activeQuoteStatus.quoteStatusTranslation} />

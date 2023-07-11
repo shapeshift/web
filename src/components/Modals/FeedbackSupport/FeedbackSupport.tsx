@@ -57,9 +57,9 @@ export const FeedbackAndSupport = () => {
               leftIcon={<EditIcon />}
               as={Link}
               size='sm'
-              label={translate('common.submitFeedback')}
+              label={translate('common.submitFeatureRequest')}
               isExternal
-              href='https://shapeshift.notion.site/Submit-Feedback-or-a-Feature-Request-af48a25fea574da4a05a980c347c055b'
+              href='https://shapeshift.canny.io/feature-requests'
             />
           </Stack>
         </ModalBody>

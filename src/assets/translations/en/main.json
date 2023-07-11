@@ -107,6 +107,7 @@
     "wallet": "Wallet",
     "action": "Action",
     "feedbackAndSupport": "Feedback & Support",
+    "submitFeatureRequest": "Submit a Feature Request",
     "getSupport": "Get Support"
   },
   "consentBanner": {

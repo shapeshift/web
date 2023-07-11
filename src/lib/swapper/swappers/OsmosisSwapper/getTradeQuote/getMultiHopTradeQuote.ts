@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
+import { osmosisChainId } from '@shapeshiftoss/caip'
 import type { cosmos, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { osmosis } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
@@ -57,21 +57,21 @@ export const getTradeQuote = async (
 
   const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetUsdRate)
 
-  const osmosisAdapter = assertGetCosmosSdkChainAdapter(osmosisChainId) as osmosis.ChainAdapter
-  const cosmosAdapter = assertGetCosmosSdkChainAdapter(cosmosChainId) as cosmos.ChainAdapter
-
   const buyAssetIsOnOsmosisNetwork = buyAsset.chainId === osmosisChainId
   const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
 
   // Network fees
 
+  const osmosisAdapter = assertGetCosmosSdkChainAdapter(osmosisChainId) as osmosis.ChainAdapter
   // First hop network fees are always paid in the native asset of the sell chain
-  // i.e ATOM for ATOM -> OSMO, OSMO for OSMO -> ATOM
-  const firstHopAdapter = sellAssetIsOnOsmosisNetwork ? osmosisAdapter : cosmosAdapter
+  // i.e ATOM for ATOM -> OSMO IBC transfer, OSMO for OSMO -> ATOM swap-exact-amount-in
+  const firstHopAdapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId) as
+    | cosmos.ChainAdapter
+    | osmosis.ChainAdapter
   const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
   const firstHopFeeData = await firstHopAdapter.getFeeData(getFeeDataInput)
   const firstHopNetworkFee = firstHopFeeData.fast.txFee
-  // Second hop always happens on Osmosis, but the fee isn't necessarily paid in OSMO
+  // Second hop *always* happens on Osmosis, but the fee isn't necessarily paid in OSMO
   // 1. for OSMO -> ATOM, the IBC transfer fee is paid in OSMO
   // 2. for ATOM -> OSMO, the swap-exact-amount-in fee is paid in ATOM in OSMO, *not* in OSMO
   const secondHopAdapter = osmosisAdapter
@@ -95,6 +95,9 @@ export const getTradeQuote = async (
   ]
 
   const cosmosToOsmosisProtocolFees = [
+    // Representing both as second hop fees, i.e both of these are effectively in the second hop:
+    // - the ATOM being used for network fees when doing a swap-exact-amount-in
+    // - the OSMO being deducted as pool fees when doing the same swap-exact-amount-in
     {},
     {
       [buyAsset.assetId]: {

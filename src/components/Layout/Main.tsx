@@ -62,7 +62,7 @@ export const Main: React.FC<MainProps> = ({
         </Box>
       )}
       {headerComponent}
-      <Container maxW='container.4xl' py={8} px={{ base: 0, xl: 4, '2xl': 16 }} {...rest}>
+      <Container maxW='container.4xl' py={8} px={{ base: 0, xl: 4, '2xl': 8 }} {...rest}>
         {children}
       </Container>
     </Page>

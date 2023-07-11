@@ -8,6 +8,7 @@ import type {
 import type { providers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { Asset } from 'lib/asset-service'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { isEvmChainAdapter } from 'lib/utils/evm'
@@ -43,7 +44,9 @@ const createBuildSendApiTxInput = async (
     from,
     chainSpecific: {
       gasPrice: gasPrice.toString(),
-      gasLimit: gasLimit.toString(),
+      // Conform to Li.Fi SDK's gasLimit buffer
+      // https://github.com/lifinance/sdk/blob/ca2c5d6fa789346d415f1d55a4b9bde15c683385/src/allowance/utils.ts#L60
+      gasLimit: bnOrZero(gasLimit?.toString()).times(1.25).toString(),
       maxFeePerGas: undefined,
       maxPriorityFeePerGas: undefined,
       data: data.toString(),

@@ -25,7 +25,7 @@ import {
   selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioFiatBalanceByFilter,
+  selectPortfolioUserCurrencyBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -83,8 +83,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     ),
   )
 
-  const fiatBalance = bnOrZero(
-    useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, { assetId, accountId })),
+  const userCurrencyBalance = bnOrZero(
+    useAppSelector(state =>
+      selectPortfolioUserCurrencyBalanceByFilter(state, { assetId, accountId }),
+    ),
   )
 
   const assetBalance = useAppSelector(state =>
@@ -194,7 +196,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     if (feeAsset.assetId !== assetId) {
       setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
-      setValue(SendFormFields.FiatAmount, fiatBalance.toFixed(2))
+      setValue(SendFormFields.FiatAmount, userCurrencyBalance.toFixed(2))
       setLoading(true)
 
       try {
@@ -368,7 +370,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     balancesLoading,
     fieldName,
     cryptoHumanBalance,
-    fiatBalance,
+    fiatBalance: userCurrencyBalance,
     handleNextClick,
     handleSendMax,
     handleInputChange,

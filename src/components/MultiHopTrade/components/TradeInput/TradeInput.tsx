@@ -16,6 +16,8 @@ import { useHistory } from 'react-router'
 import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
+import { DonationCheckbox } from 'components/MultiHopTrade/components/TradeInput/components/DonationCheckbox'
+import { ManualAddressEntry } from 'components/MultiHopTrade/components/TradeInput/components/ManualAddressEntry'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useActiveQuoteStatus } from 'components/MultiHopTrade/hooks/useActiveQuoteStatus'
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
@@ -37,7 +39,11 @@ import {
   selectSwappersApiTradeQuotePending,
   selectSwappersApiTradeQuotes,
 } from 'state/apis/swappers/selectors'
-import { selectBuyAsset, selectSellAsset } from 'state/slices/selectors'
+import {
+  selectBuyAsset,
+  selectManualReceiveAddressIsValidating,
+  selectSellAsset,
+} from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
   selectActiveQuote,
@@ -45,10 +51,10 @@ import {
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
-  selectNetBuyAmountFiat,
+  selectNetBuyAmountUserCurrency,
   selectNetReceiveAmountCryptoPrecision,
   selectSwapperSupportsCrossAccountTrade,
-  selectTotalNetworkFeeFiatPrecision,
+  selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -81,8 +87,9 @@ export const TradeInput = (props: CardProps) => {
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
-  const buyAmountAfterFeesFiat = useAppSelector(selectNetBuyAmountFiat)
-  const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeFiatPrecision)
+  const buyAmountAfterFeesUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
+  const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
+  const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
 
   const activeQuoteStatus = useActiveQuoteStatus()
   const setBuyAsset = useCallback(
@@ -109,6 +116,7 @@ export const TradeInput = (props: CardProps) => {
   const activeQuoteError = useAppSelector(selectActiveQuoteError)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const sortedQuotes = useAppSelector(selectSwappersApiTradeQuotes)
+  const rate = activeQuote?.steps[0].rate
 
   const isQuoteLoading = useAppSelector(selectSwappersApiTradeQuotePending)
   const isLoading = useMemo(
@@ -231,7 +239,7 @@ export const TradeInput = (props: CardProps) => {
                 assetSymbol={buyAsset.symbol}
                 assetIcon={buyAsset.icon}
                 cryptoAmount={buyAmountAfterFeesCryptoPrecision}
-                fiatAmount={buyAmountAfterFeesFiat}
+                fiatAmount={buyAmountAfterFeesUserCurrency}
                 percentOptions={[1]}
                 showInputSkeleton={isLoading}
                 showFiatSkeleton={isLoading}
@@ -265,7 +273,7 @@ export const TradeInput = (props: CardProps) => {
                 sellSymbol={sellAsset.symbol}
                 buySymbol={buyAsset.symbol}
                 gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
-                rate={activeQuote?.steps[0].rate}
+                rate={rate}
                 isLoading={isLoading}
                 isError={activeQuoteError !== undefined}
               />
@@ -285,13 +293,17 @@ export const TradeInput = (props: CardProps) => {
                 />
               ) : null}
             </Stack>
-            <Tooltip label={activeQuoteStatus.error?.message}>
+            <Stack px={4}>
+              <DonationCheckbox isLoading={isLoading} />
+              {activeQuote && <ManualAddressEntry />}
+            </Stack>
+            <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
               <Button
                 type='submit'
                 colorScheme={quoteHasError ? 'red' : 'blue'}
                 size='lg-multiline'
                 data-test='trade-form-preview-button'
-                isDisabled={quoteHasError}
+                isDisabled={quoteHasError || manualReceiveAddressIsValidating || isLoading}
                 isLoading={isLoading}
               >
                 <Text translation={activeQuoteStatus.quoteStatusTranslation} />

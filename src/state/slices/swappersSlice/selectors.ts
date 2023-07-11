@@ -4,10 +4,10 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import { selectWalletAccountIds } from '../common-selectors'
 import { selectCryptoMarketData } from '../marketDataSlice/selectors'
-import { selectPortfolioAssetAccountBalancesSortedFiat } from '../portfolioSlice/selectors'
+import { selectPortfolioAssetAccountBalancesSortedUserCurrency } from '../portfolioSlice/selectors'
 import {
   getFirstAccountIdByChainId,
-  getHighestFiatBalanceAccountByAssetId,
+  getHighestUserCurrencyBalanceAccountByAssetId,
 } from '../portfolioSlice/utils'
 
 const selectSwappers = (state: ReduxState) => state.swappers
@@ -27,13 +27,13 @@ export const selectSellAsset = createDeepEqualOutputSelector(
 export const selectSellAccountId = createSelector(
   selectSwappers,
   selectSellAsset,
-  selectPortfolioAssetAccountBalancesSortedFiat,
+  selectPortfolioAssetAccountBalancesSortedUserCurrency,
   selectWalletAccountIds,
   (swappers, sellAsset, accountIdAssetValues, accountIds) => {
     // return the users selection if it exists
     if (swappers.sellAssetAccountId) return swappers.sellAssetAccountId
 
-    const highestFiatBalanceSellAccountId = getHighestFiatBalanceAccountByAssetId(
+    const highestFiatBalanceSellAccountId = getHighestUserCurrencyBalanceAccountByAssetId(
       accountIdAssetValues,
       sellAsset.assetId,
     )
@@ -49,13 +49,13 @@ export const selectSellAccountId = createSelector(
 export const selectBuyAccountId = createSelector(
   selectSwappers,
   selectBuyAsset,
-  selectPortfolioAssetAccountBalancesSortedFiat,
+  selectPortfolioAssetAccountBalancesSortedUserCurrency,
   selectWalletAccountIds,
   (swappers, buyAsset, accountIdAssetValues, accountIds) => {
     // return the users selection if it exists
     if (swappers.buyAssetAccountId) return swappers.buyAssetAccountId
 
-    const highestFiatBalanceBuyAccountId = getHighestFiatBalanceAccountByAssetId(
+    const highestFiatBalanceBuyAccountId = getHighestUserCurrencyBalanceAccountByAssetId(
       accountIdAssetValues,
       buyAsset.assetId,
     )
@@ -88,3 +88,13 @@ export const selectBuyAssetUsdRate = createSelector(
 )
 
 export const selectWillDonate = createSelector(selectSwappers, swappers => swappers.willDonate)
+
+export const selectManualReceiveAddress = createSelector(
+  selectSwappers,
+  swappers => swappers.manualReceiveAddress,
+)
+
+export const selectManualReceiveAddressIsValidating = createSelector(
+  selectSwappers,
+  swappers => swappers.manualReceiveAddressIsValidating,
+)

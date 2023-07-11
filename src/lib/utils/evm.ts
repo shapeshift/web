@@ -104,15 +104,17 @@ export const getFees = async (args: GetFeesArgs): Promise<Fees> => {
     average: { chainSpecific: feeData },
   } = await adapter.getFeeData(getFeeDataInput)
 
+  const _supportsEIP1559 =
+    supportsEIP1559 ?? (supportsETH(wallet) && (await wallet.ethSupportsEIP1559()))
+
   const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
     ...feeData,
-    supportsEIP1559:
-      supportsEIP1559 ?? (supportsETH(wallet) && (await wallet.ethSupportsEIP1559())),
+    supportsEIP1559: _supportsEIP1559,
   })
 
   const { gasLimit, gasPrice, maxFeePerGas, maxPriorityFeePerGas } = feeData
 
-  if (supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas) {
+  if (_supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas) {
     return { networkFeeCryptoBaseUnit, gasLimit, maxFeePerGas, maxPriorityFeePerGas }
   }
 

@@ -13,7 +13,7 @@ import { middleEllipsis } from 'lib/utils'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioFiatBalanceByAssetId,
+  selectPortfolioUserCurrencyBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -33,7 +33,8 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = ({
   const cryptoHumanBalance = useAppSelector(s =>
     selectPortfolioCryptoPrecisionBalanceByFilter(s, filter),
   )
-  const fiatBalance = useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, filter)) ?? '0'
+  const userCurrencyBalance =
+    useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, filter)) ?? '0'
   if (!asset) return null
 
   const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoHumanBalance).isZero())
@@ -75,7 +76,7 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = ({
       </Flex>
       {isConnected && !isDemoWallet && !hideAssetBalance && (
         <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
-          <Amount.Fiat color='var(--chakra-colors-chakra-body-text)' value={fiatBalance} />
+          <Amount.Fiat color='var(--chakra-colors-chakra-body-text)' value={userCurrencyBalance} />
           <Amount.Crypto
             fontSize='sm'
             fontWeight='normal'

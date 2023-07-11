@@ -53,7 +53,7 @@ export const selectSelectedCurrencyMarketDataSortedByMarketCap = createDeepEqual
   },
 )
 
-export const selectFiatToUsdRate = createSelector(
+export const selectUserCurrencyToUsdRate = createSelector(
   selectFiatMarketData,
   selectSelectedCurrency,
   (fiatMarketData, selectedCurrency) =>
@@ -133,11 +133,11 @@ export const selectUsdRateByAssetId = createCachedSelector(
   },
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
 
-export const selectFiatRateByAssetId = createCachedSelector(
+export const selectUserCurrencyRateByAssetId = createCachedSelector(
   selectCryptoMarketData,
-  selectFiatToUsdRate,
+  selectUserCurrencyToUsdRate,
   selectAssetId,
-  (cryptoMarketData, fiatToUsdRate, assetId): string => {
-    return bnOrZero(cryptoMarketData[assetId]?.price).times(fiatToUsdRate).toString()
+  (cryptoMarketData, userCurrencyToUsdRate, assetId): string => {
+    return bnOrZero(cryptoMarketData[assetId]?.price).times(userCurrencyToUsdRate).toString()
   },
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')

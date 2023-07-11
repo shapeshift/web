@@ -6,7 +6,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
 
 import { DEFAULT_SLIPPAGE } from '../../utils/constants'
-import { getTreasuryAddressFromChainId, normalizeAmount } from '../../utils/helpers/helpers'
+import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
 import type { ZrxQuoteResponse } from '../types'
 import { withAxiosRetry } from './applyAxiosRetry'
 import { AFFILIATE_ADDRESS } from './constants'
@@ -18,7 +18,7 @@ export type FetchZrxQuoteInput = {
   sellAsset: Asset
   receiveAddress: string
   slippage?: string
-  affiliateBps: string
+  affiliateBps: string | undefined
   sellAmountBeforeFeesCryptoBaseUnit: string
 }
 
@@ -56,7 +56,9 @@ export const fetchZrxQuote = async ({
     wrapper: withZrxAxiosRetry,
   })
 
-  const buyTokenPercentageFee = convertBasisPointsToDecimalPercentage(affiliateBps).toNumber()
+  const buyTokenPercentageFee = affiliateBps
+    ? convertBasisPointsToDecimalPercentage(affiliateBps).toNumber()
+    : 0
   const feeRecipient = getTreasuryAddressFromChainId(buyAsset.chainId)
 
   // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-quote
@@ -64,7 +66,7 @@ export const fetchZrxQuote = async ({
     params: {
       buyToken: assetToToken(buyAsset),
       sellToken: assetToToken(sellAsset),
-      sellAmount: normalizeAmount(sellAmountBeforeFeesCryptoBaseUnit),
+      sellAmount: sellAmountBeforeFeesCryptoBaseUnit,
       takerAddress: receiveAddress,
       slippagePercentage: slippage ? bnOrZero(slippage).toString() : DEFAULT_SLIPPAGE,
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics

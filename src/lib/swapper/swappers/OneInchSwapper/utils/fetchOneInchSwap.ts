@@ -10,7 +10,7 @@ import { oneInchService } from './oneInchService'
 import type { OneInchSwapApiInput, OneInchSwapResponse } from './types'
 
 export type FetchOneInchSwapInput = {
-  affiliateBps: string
+  affiliateBps: string | undefined
   buyAsset: Asset
   receiveAddress: string
   sellAmountBeforeFeesCryptoBaseUnit: string
@@ -38,7 +38,9 @@ export const fetchOneInchSwap = async ({
     .times(100)
     .toNumber()
 
-  const buyTokenPercentageFee = convertBasisPointsToPercentage(affiliateBps).toNumber()
+  const buyTokenPercentageFee = affiliateBps
+    ? convertBasisPointsToPercentage(affiliateBps).toNumber()
+    : 0
 
   const params: OneInchSwapApiInput = {
     fromTokenAddress: fromAssetId(sellAsset.assetId).assetReference,

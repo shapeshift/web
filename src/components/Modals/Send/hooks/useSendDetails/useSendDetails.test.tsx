@@ -18,7 +18,7 @@ import {
   selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioFiatBalanceByFilter,
+  selectPortfolioUserCurrencyBalanceByFilter,
 } from 'state/slices/selectors'
 
 import { useSendDetails } from './useSendDetails'
@@ -43,7 +43,7 @@ jest.mock('state/slices/selectors', () => ({
   selectFeeAssetById: jest.fn(),
   selectPortfolioCryptoPrecisionBalanceByFilter: jest.fn(),
   selectPortfolioCryptoBalanceBaseUnitByFilter: jest.fn(),
-  selectPortfolioFiatBalanceByFilter: jest.fn(),
+  selectPortfolioUserCurrencyBalanceByFilter: jest.fn(),
   selectMarketDataById: jest.fn(() => ({
     [ethAssetId]: { price: '2000' },
   })),
@@ -108,7 +108,7 @@ const setup = ({
     fromBaseUnit(assetBalance, asset.precision),
   )
   mocked(selectPortfolioCryptoBalanceBaseUnitByFilter).mockReturnValue(assetBalance)
-  mocked(selectPortfolioFiatBalanceByFilter).mockReturnValue(runeFiatAmount)
+  mocked(selectPortfolioUserCurrencyBalanceByFilter).mockReturnValue(runeFiatAmount)
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     clearErrors: jest.fn(),
     setError,

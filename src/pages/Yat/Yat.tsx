@@ -87,7 +87,7 @@ export const Yat: React.FC = () => {
   }, [eid, history])
 
   return (
-    <Center height='calc(100vh - 76px)'>
+    <Center height='calc(100vh - 76px)' px={6}>
       <Card overflow='hidden' bg='transparent'>
         <CardHeader textAlign='center' pb={8}>
           <YatIcon boxSize={16} color='green.200' />
@@ -100,7 +100,7 @@ export const Yat: React.FC = () => {
           </Row>
           <Row variant='vert-gutter'>
             <Row.Label>{translate('features.yat.usdcAddress')}</Row.Label>
-            <Row.Value>
+            <Row.Value wordBreak='break-all'>
               {maybeYatUsdcAddress === null
                 ? 'loading'
                 : maybeYatUsdcAddress === ''
@@ -110,7 +110,7 @@ export const Yat: React.FC = () => {
           </Row>
           <Row variant='vert-gutter'>
             <Row.Label>{translate('features.yat.ethAddress')}</Row.Label>
-            <Row.Value>
+            <Row.Value wordBreak='break-all'>
               {maybeYatEthAddress === null
                 ? 'loading'
                 : maybeYatEthAddress === ''

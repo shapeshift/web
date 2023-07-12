@@ -53,7 +53,8 @@ export const useInsufficientBalanceProtocolFeeMeta = () => {
     // This is an oversimplification where protocol fees are assumed to be only deducted from
     // account IDs corresponding to the sell asset account number and protocol fee asset chain ID.
     // Later we'll need to handle protocol fees payable from the buy side.
-    const insufficientBalanceProtocolFees = Object.entries(totalProtocolFees).filter(
+    // The UI can currently only show one error message at a time, so we get the first
+    const insufficientBalanceProtocolFee = Object.entries(totalProtocolFees).find(
       ([assetId, protocolFee]: [AssetId, ProtocolFee]) => {
         if (!protocolFee.requiresBalance) return false
 
@@ -63,10 +64,9 @@ export const useInsufficientBalanceProtocolFeeMeta = () => {
         return bnOrZero(balanceCryptoBaseUnit).lt(protocolFee.amountCryptoBaseUnit)
       },
     )
-    if (!insufficientBalanceProtocolFees[0]) return
+    if (!insufficientBalanceProtocolFee) return
 
-    // UI can currently only show one error message at a time, so we show the first
-    const protocolFee = insufficientBalanceProtocolFees[0][1]
+    const [, protocolFee] = insufficientBalanceProtocolFee
     return {
       symbol: protocolFee.asset.symbol,
       chainName: getChainAdapterManager().get(protocolFee.asset.chainId)?.getDisplayName(),

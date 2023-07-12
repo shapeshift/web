@@ -19,7 +19,7 @@ import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { DonationCheckbox } from 'components/MultiHopTrade/components/TradeInput/components/DonationCheckbox'
 import { ManualAddressEntry } from 'components/MultiHopTrade/components/TradeInput/components/ManualAddressEntry'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
-import { useActiveQuoteStatus } from 'components/MultiHopTrade/hooks/useActiveQuoteStatus'
+import { useActiveQuoteStatus } from 'components/MultiHopTrade/hooks/quoteValidation/useActiveQuoteStatus'
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
@@ -33,6 +33,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
+import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
@@ -53,6 +54,7 @@ import {
   selectFirstHop,
   selectNetBuyAmountUserCurrency,
   selectNetReceiveAmountCryptoPrecision,
+  selectSellAmountCryptoPrecision,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
@@ -90,6 +92,7 @@ export const TradeInput = (props: CardProps) => {
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
+  const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
   const activeQuoteStatus = useActiveQuoteStatus()
   const setBuyAsset = useCallback(
@@ -185,6 +188,11 @@ export const TradeInput = (props: CardProps) => {
     setIsConfirmationLoading(false)
   }, [activeQuote, dispatch, history, mixpanel, showErrorToast, tradeQuoteStep, wallet])
 
+  const shouldDisablePreviewButton = useMemo(() => {
+    const sellAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
+    return quoteHasError || manualReceiveAddressIsValidating || isLoading || !sellAmountEntered
+  }, [isLoading, manualReceiveAddressIsValidating, quoteHasError, sellAmountCryptoPrecision])
+
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <Card flex={1} {...props}>
@@ -238,8 +246,8 @@ export const TradeInput = (props: CardProps) => {
                 assetId={buyAsset.assetId}
                 assetSymbol={buyAsset.symbol}
                 assetIcon={buyAsset.icon}
-                cryptoAmount={buyAmountAfterFeesCryptoPrecision}
-                fiatAmount={buyAmountAfterFeesUserCurrency}
+                cryptoAmount={positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()}
+                fiatAmount={positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed()}
                 percentOptions={[1]}
                 showInputSkeleton={isLoading}
                 showFiatSkeleton={isLoading}
@@ -303,7 +311,7 @@ export const TradeInput = (props: CardProps) => {
                 colorScheme={quoteHasError ? 'red' : 'blue'}
                 size='lg-multiline'
                 data-test='trade-form-preview-button'
-                isDisabled={quoteHasError || manualReceiveAddressIsValidating || isLoading}
+                isDisabled={shouldDisablePreviewButton}
                 isLoading={isLoading}
               >
                 <Text translation={activeQuoteStatus.quoteStatusTranslation} />

@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+import { useInsufficientBalanceProtocolFeeMeta } from 'components/MultiHopTrade/hooks/quoteValidation/useInsufficientBalanceProtocolFeeMeta'
 import { useHopHelper } from 'components/MultiHopTrade/hooks/useHopHelper'
 import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
@@ -6,8 +8,10 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isTruthy } from 'lib/utils'
+import { selectSwappersApiTradeQuotes } from 'state/apis/swappers/selectors'
 import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
 import {
+  selectBuyAmountBeforeFeesCryptoBaseUnit,
   selectFirstHopNetworkFeeCryptoPrecision,
   selectFirstHopSellAsset,
   selectFirstHopTradeDeductionCryptoPrecision,
@@ -26,8 +30,10 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
   } = useHopHelper()
   const wallet = useWallet().state.wallet
   const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = useIsTradingActive()
+  const insufficientBalanceProtocolFeeMeta = useInsufficientBalanceProtocolFeeMeta()
 
   const sellAmountCryptoBaseUnit = useAppSelector(selectSellAmountCryptoBaseUnit)
+  const buyAmountCryptoBaseUnit = useAppSelector(selectBuyAmountBeforeFeesCryptoBaseUnit)
   const firstHopNetworkFeeCryptoPrecision = useAppSelector(selectFirstHopNetworkFeeCryptoPrecision)
   const lastHopNetworkFeeCryptoPrecision = useAppSelector(selectLastHopNetworkFeeCryptoPrecision)
   const firstHopTradeDeductionCryptoPrecision = useAppSelector(
@@ -38,6 +44,7 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const receiveAddress = useReceiveAddress()
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
+  const quotes = useAppSelector(selectSwappersApiTradeQuotes)
 
   const walletSupportsSellAssetChain =
     firstHopSellAsset &&
@@ -64,21 +71,51 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
     .minus(lastHopNetworkFeeCryptoPrecision)
     .gte(0)
 
-  const isBelowMinimumSellAmount = bnOrZero(sellAmountCryptoBaseUnit).lt(
-    minimumSellAmountBaseUnit ?? 0,
+  const isBelowMinimumSellAmount =
+    bnOrZero(sellAmountCryptoBaseUnit).gt(0) &&
+    bnOrZero(sellAmountCryptoBaseUnit).lt(minimumSellAmountBaseUnit ?? 0)
+
+  const feesExceedsSellAmount =
+    bnOrZero(sellAmountCryptoBaseUnit).isGreaterThan(0) &&
+    bnOrZero(buyAmountCryptoBaseUnit).isLessThanOrEqualTo(0)
+
+  const quoteStatuses: ActiveQuoteStatus[] = useMemo(
+    () =>
+      [
+        !wallet && ActiveQuoteStatus.NoConnectedWallet,
+        !walletSupportsSellAssetChain && ActiveQuoteStatus.SellAssetNotNotSupportedByWallet,
+        !walletSupportsBuyAssetChain &&
+          !manualReceiveAddress &&
+          ActiveQuoteStatus.BuyAssetNotNotSupportedByWallet,
+        !hasSufficientSellAssetBalance && ActiveQuoteStatus.InsufficientSellAssetBalance,
+        !firstHopHasSufficientBalanceForGas &&
+          ActiveQuoteStatus.InsufficientFirstHopFeeAssetBalance,
+        !lastHopHasSufficientBalanceForGas && ActiveQuoteStatus.InsufficientLastHopFeeAssetBalance,
+        isBelowMinimumSellAmount && ActiveQuoteStatus.SellAmountBelowMinimum,
+        !receiveAddress && ActiveQuoteStatus.NoReceiveAddress,
+        !isTradingActiveOnSellPool && ActiveQuoteStatus.TradingInactiveOnSellChain,
+        !isTradingActiveOnBuyPool && ActiveQuoteStatus.TradingInactiveOnBuyChain,
+        feesExceedsSellAmount && ActiveQuoteStatus.SellAmountBelowTradeFee,
+        insufficientBalanceProtocolFeeMeta && ActiveQuoteStatus.InsufficientFundsForProtocolFee,
+        quotes.length === 0 && ActiveQuoteStatus.NoQuotesAvailable,
+      ].filter(isTruthy),
+    [
+      feesExceedsSellAmount,
+      firstHopHasSufficientBalanceForGas,
+      hasSufficientSellAssetBalance,
+      insufficientBalanceProtocolFeeMeta,
+      isBelowMinimumSellAmount,
+      isTradingActiveOnBuyPool,
+      isTradingActiveOnSellPool,
+      lastHopHasSufficientBalanceForGas,
+      manualReceiveAddress,
+      quotes.length,
+      receiveAddress,
+      wallet,
+      walletSupportsBuyAssetChain,
+      walletSupportsSellAssetChain,
+    ],
   )
 
-  return [
-    !hasSufficientSellAssetBalance && ActiveQuoteStatus.InsufficientSellAssetBalance,
-    !firstHopHasSufficientBalanceForGas && ActiveQuoteStatus.InsufficientFirstHopFeeAssetBalance,
-    !lastHopHasSufficientBalanceForGas && ActiveQuoteStatus.InsufficientLastHopFeeAssetBalance,
-    isBelowMinimumSellAmount && ActiveQuoteStatus.SellAmountBelowMinimum,
-    !walletSupportsSellAssetChain && ActiveQuoteStatus.SellAssetNotNotSupportedByWallet,
-    !walletSupportsBuyAssetChain &&
-      !manualReceiveAddress &&
-      ActiveQuoteStatus.BuyAssetNotNotSupportedByWallet,
-    !receiveAddress && ActiveQuoteStatus.NoReceiveAddress,
-    !isTradingActiveOnSellPool && ActiveQuoteStatus.TradingInactiveOnSellChain,
-    !isTradingActiveOnBuyPool && ActiveQuoteStatus.TradingInactiveOnBuyChain,
-  ].filter(isTruthy)
+  return quoteStatuses
 }

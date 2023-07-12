@@ -110,7 +110,7 @@ export const useGetTradeQuotes = () => {
   ])
 
   useGetTradeQuoteQuery(debouncedTradeQuoteInput, {
-    pollingInterval: 10000,
+    pollingInterval: 20000,
     /*
       If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
       We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.

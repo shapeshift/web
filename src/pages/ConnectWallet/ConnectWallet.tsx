@@ -6,6 +6,7 @@ import { generatePath, matchPath, useHistory } from 'react-router-dom'
 import AuroraBg from 'assets/aurorabg.jpg'
 import { AuroraBackground } from 'components/AuroraBackground'
 import { FoxIcon } from 'components/Icons/FoxIcon'
+import { LanguageSelector } from 'components/LanguageSelector'
 import { Page } from 'components/Layout/Page'
 import { SEO } from 'components/Layout/Seo'
 import { RawText, Text } from 'components/Text'
@@ -49,8 +50,12 @@ export const ConnectWallet = () => {
         width='100vw'
         alignItems='center'
         justifyContent='center'
+        position={'relative'}
       >
         <Flex flexDir='column' zIndex={4} width='full'>
+          <Flex position={'absolute'} top={6} right={6}>
+            <LanguageSelector size={'sm'} />
+          </Flex>
           <Center flexDir='column' height='100vh' px={6}>
             <Circle size='100px' mb={6}>
               <FoxIcon boxSize='100%' color='white' />

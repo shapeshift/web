@@ -126,12 +126,20 @@ export const pollForCrossChainComplete = ({
         const receiver = tx.tx.value.msg[0].value.receiver
 
         // TODO(gomes): handle for OSMO -> ATOM direction too
-        const { REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: osmoUnchainedUrl } = getConfig()
+        const {
+          REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: osmoUnchainedUrl,
+          REACT_APP_UNCHAINED_COSMOS_HTTP_URL: cosmosUnchainedUrl,
+          REACT_APP_COSMOS_NODE_URL: cosmosNodeUrl,
+        } = getConfig()
+
+        const destinationChainUnchainedBaseUrl =
+          baseUrl === cosmosNodeUrl ? osmoUnchainedUrl : cosmosUnchainedUrl
+
         // TODO(gomes): CosmosSdkBaseAdapter doesn't expose Tx sequence, but it should
+        // This is a very hacky way to get the sequence, obviously don't open me in such state
         const { data: destinationChainTxs } = await axios.get(
-          `${osmoUnchainedUrl}/api/v1/account/${receiver}/txs`,
+          `${destinationChainUnchainedBaseUrl}/api/v1/account/${receiver}/txs`,
         )
-        debugger
         const maybeFoundTx = destinationChainTxs.txs.find(destinationChainTx => {
           const eventsArray = destinationChainTx.events
             ? Object.keys(destinationChainTx.events).map(key => destinationChainTx.events[key])
@@ -142,7 +150,7 @@ export const pollForCrossChainComplete = ({
         })
 
         if (maybeFoundTx) resolve('success')
-        else setTimeout(poll, interval)
+        else return setTimeout(poll, interval)
       } else if (Date.now() - startTime > timeout) {
         reject(
           new SwapError(`Couldnt find tx ${txid}`, {

@@ -412,7 +412,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
       const ibcFromOsmosisFeeData = await osmosisAdapter.getFeeData(getFeeDataInput)
 
-      await performIbcTransfer({
+      const { tradeId } = await performIbcTransfer({
         input: transfer,
         adapter: osmosisAdapter,
         wallet,
@@ -426,6 +426,21 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         gas: ibcFromOsmosisFeeData.fast.chainSpecific.gasLimit,
         feeDenom: 'uosmo',
       })
+
+      // wait till confirmed
+      const pollResult = await pollForCrossChainComplete({
+        txid: tradeId,
+        baseUrl: osmoUrl,
+      })
+
+      if (pollResult !== 'success')
+        return Err(
+          makeSwapErrorRight({
+            message: 'ibc transfer failed',
+            code: SwapErrorType.EXECUTE_TRADE_FAILED,
+          }),
+        )
+
       return Ok({
         tradeId,
         previousCosmosTxid: cosmosTxHistory.transactions[0]?.txid,

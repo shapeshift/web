@@ -149,7 +149,7 @@ export const pollForCrossChainComplete = ({
           )
         })
 
-        if (maybeFoundTx) resolve('success')
+        if (maybeFoundTx) return resolve('success')
         else return setTimeout(poll, interval)
       } else if (Date.now() - startTime > timeout) {
         reject(

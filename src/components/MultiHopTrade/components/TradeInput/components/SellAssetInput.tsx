@@ -2,7 +2,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useState } from 'react'
 import { TradeAssetInput } from 'components/Trade/Components/TradeAssetInput'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { selectMarketDataByFilter } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -53,8 +53,8 @@ export const SellAssetInput = ({
       assetId={asset.assetId}
       assetSymbol={asset.symbol}
       assetIcon={asset.icon}
-      cryptoAmount={sellAmountCryptoPrecision}
-      fiatAmount={sellAmountUserCurrencyHuman}
+      cryptoAmount={positiveOrZero(sellAmountCryptoPrecision).toString()}
+      fiatAmount={positiveOrZero(sellAmountUserCurrencyHuman).toString()}
       isSendMaxDisabled={false}
       onChange={handleSellAssetInputChange}
       percentOptions={[1]}

@@ -5,7 +5,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn } from 'lib/bignumber/bignumber'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { calcNetworkFeeCryptoBaseUnit, getFees, isEvmChainAdapter } from 'lib/utils/evm'
@@ -88,9 +88,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
   const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
     ...average,
     supportsEIP1559,
-    // Conform to Li.Fi SDK's gasLimit buffer
-    // https://github.com/lifinance/sdk/blob/ca2c5d6fa789346d415f1d55a4b9bde15c683385/src/allowance/utils.ts#L60
-    gasLimit: bnOrZero(gasLimit?.toString()).times(1.25).toString(),
+    gasLimit: gasLimit?.toString(),
     l1GasLimit,
   })
 

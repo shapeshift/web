@@ -129,7 +129,6 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       return
 
     try {
-      debugger
       dispatch({ type: IdleDepositActionType.SET_LOADING, payload: true })
       const idleOpportunity = await idleInvestor.findByOpportunityId(opportunity.assetId ?? '')
       if (!idleOpportunity) throw new Error('No opportunity')

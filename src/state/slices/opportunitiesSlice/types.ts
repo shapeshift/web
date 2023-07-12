@@ -13,8 +13,7 @@ export enum DefiType {
 }
 
 export enum DefiProvider {
-  Idle = 'idle',
-  Yearn = 'yearn',
+  Idle = 'Idle',
   ShapeShift = 'ShapeShift',
   EthFoxStaking = 'ETH/FOX Staking',
   UniV2 = 'Uniswap V2',
@@ -43,6 +42,11 @@ export type OpportunityMetadataBase = {
   provider: string
   tvl: string
   type: DefiType
+  // An optional user-facing `type` equivalent to allow us to display the opportunity type in the UI
+  // our `type` property is an implementation detail that somehow ended up being user-facing, and might go away
+  // This is actually more granular than the `type` property, i.e different opportunities of the same type/version might be part of different groups
+  // Currently for read-only opportunities only
+  group?: string
   // An opportunity might have its own icon e.g Cosmos SDK validators each have their own icon
   // If not specified, the underlying asset IDs' icons are used as icons
   icon?: string
@@ -58,7 +62,7 @@ export type OpportunityMetadataBase = {
   // For opportunities a la Idle, that's the asset the opportunity wraps
   underlyingAssetIds: AssetIdsTuple
   // The underlying amount of underlyingAssetId 0 and maybe 1 per 1 LP token, in base unit
-  underlyingAssetRatiosBaseUnit: readonly [string, string] | readonly [string]
+  underlyingAssetRatiosBaseUnit: readonly string[]
   // The reward assets this opportunity yields, typically 1/2 or 3 assets max.
   // Can also be empty in case there are no denominated rewards or we are unable to track them
   rewardAssetIds: AssetIdsTuple

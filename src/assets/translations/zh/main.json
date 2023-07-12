@@ -716,7 +716,6 @@
       },
       "import": {
         "header": "导入您的钱包",
-        "body": "输入您的私钥助记词导入钱包",
         "button": "下一步",
         "secretRecoveryPhraseError": "输入私钥助记词，词间以一个空格隔开。忽略逗号，回车，或其他额外字符。",
         "secretRecoveryPhraseRequired": "私钥助记词是必须的",

@@ -1,7 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromChainId } from '@shapeshiftoss/caip'
 import { useEffect, useState } from 'react'
-import { getWeb3InstanceByChainId } from 'lib/web3-instance'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
 export const useIsInteractingWithContract = ({
   evmChainId,
@@ -14,11 +13,7 @@ export const useIsInteractingWithContract = ({
   useEffect(() => {
     ;(async () => {
       const result =
-        evmChainId && address
-          ? await getWeb3InstanceByChainId(fromChainId(evmChainId).chainReference).eth.getCode(
-              address,
-            )
-          : undefined
+        evmChainId && address ? await getEthersProvider(evmChainId).getCode(address) : undefined
       // this util function returns '0x' if the recipient address is not a contract address
       setIsInteractingWithContract(result ? result !== '0x' : null)
     })()

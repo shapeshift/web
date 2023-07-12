@@ -1,21 +1,19 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
-import type {
-  ThorchainSwapperDeps,
-  ThornodePoolResponse,
-} from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 
-export const getPriceRatio = async (
-  deps: ThorchainSwapperDeps,
-  input: { buyAssetId: AssetId; sellAssetId: AssetId },
-): Promise<Result<string, SwapErrorRight>> => {
+export const getPriceRatio = async (input: {
+  buyAssetId: AssetId
+  sellAssetId: AssetId
+}): Promise<Result<string, SwapErrorRight>> => {
   const { buyAssetId, sellAssetId } = input
   const buyPoolId = assetIdToPoolAssetId({ assetId: buyAssetId })
   const sellPoolId = assetIdToPoolAssetId({ assetId: sellAssetId })
@@ -36,8 +34,10 @@ export const getPriceRatio = async (
     })
   }
 
+  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+
   return (
-    await thorService.get<ThornodePoolResponse[]>(`${deps.daemonUrl}/lcd/thorchain/pools`)
+    await thorService.get<ThornodePoolResponse[]>(`${daemonUrl}/lcd/thorchain/pools`)
   ).andThen<string>(({ data: responseData }) => {
     const buyPool = responseData.find(response => response.asset === buyPoolId)
     const sellPool = responseData.find(response => response.asset === sellPoolId)

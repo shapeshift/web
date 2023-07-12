@@ -16,9 +16,9 @@ import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { poll } from 'lib/poll/poll'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
@@ -33,6 +33,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
   onNext,
   accountId,
 }) => {
+  const { poll } = usePoll<ethers.providers.TransactionReceipt>()
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
@@ -119,16 +120,17 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
       console.error(error)
     }
   }, [
+    state,
+    accountAddress,
+    rewardId,
+    walletState.wallet,
     foxyApi,
-    underlyingAsset.precision,
+    dispatch,
     bip44Params,
     contractAddress,
-    dispatch,
+    underlyingAsset.precision,
     onNext,
-    rewardId,
-    accountAddress,
-    state,
-    walletState.wallet,
+    poll,
   ])
 
   if (!state || !dispatch) return null

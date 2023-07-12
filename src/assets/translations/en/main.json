@@ -105,7 +105,10 @@
     "selectedAccount": "Selected Account",
     "allChains": "All Chains",
     "wallet": "Wallet",
-    "action": "Action"
+    "action": "Action",
+    "feedbackAndSupport": "Feedback & Support",
+    "submitFeatureRequest": "Submit a Feature Request",
+    "getSupport": "Get Support"
   },
   "consentBanner": {
     "body": {
@@ -630,12 +633,20 @@
   "trade": {
     "trade": "Trade",
     "allowance": "Allowance",
+    "slippageInfo": "Your transaction will revert if the price changes unfavorably by more than this percentage.",
     "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
     "searchingRate": "Fetching rate...",
     "noRateAvailable": "No rate available.",
     "previewTrade": "Preview Trade",
     "rate": "Rate",
     "tradeFrom": "Trade from",
+    "slippage": {
+      "maxSlippage": "Max Slippage",
+      "auto": "Auto",
+      "custom": "Custom",
+      "warning": "High slippage tolerances can result in unfavorable trades.",
+      "lowSlippage": "Slippage below 0.05% my result in a failed transaction."
+    },
     "from": "From",
     "to": "To",
     "youPay": "You Pay",
@@ -668,6 +679,7 @@
     "slowSwapBody": "This swap may take a few minutes to complete.",
     "updatingQuote": "Updating quote...",
     "intoAssetSymbolBody": "You can proceed with this trade, but transaction history for receiving %{assetSymbol} is temporarily unavailable",
+    "manualReceiveAddress": "Receive address",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
@@ -676,7 +688,8 @@
       "protocol": "This is the protocol where your trade is being routed.",
       "protocolLifi": "This is the protocol where your trade is being routed. LI.FI executes a series of intermediary trades under the hood for the best overall combination of price, safety and speed.",
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
-      "shapeshiftFee": "ShapeShift does not add fees on trades 🎉"
+      "shapeshiftFee": "ShapeShift does not add fees on trades 🎉",
+      "manualReceiveAddress": "This is the address you will receive your funds to. It has been manually entered, please ensure it is correct."
     },
     "rates": {
       "tags": {
@@ -733,7 +746,9 @@
         "required": "A signed transaction is required"
       },
       "generalError": "A trade error has occurred",
-      "tradeFailed": "Trade failed. Assets returned minus gas fee"
+      "quoteError": "An error occurred getting a quote",
+      "tradeFailed": "Trade failed. Assets returned minus gas fee",
+      "noQuotesAvailable": "No quotes available for this trade"
     },
     "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
     "recentTrades": "Recent Trades",
@@ -1232,6 +1247,22 @@
         "button": "Open"
       }
     },
+    "coinbase": {
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with Coinbase",
+        "connectFailure": "Unable to connect Coinbase wallet",
+        "multipleWallets": "Detected Ethereum provider is not Coinbase. Do you have multiple wallets installed?"
+      },
+      "connect": {
+        "header": "Pair Coinbase",
+        "body": "Click Pair and login to Coinbase from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Unable to connect Coinbase wallet",
+        "body": "Unable to connect Coinbase wallet"
+      }
+    },
     "walletConnect": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with WalletConnect",
@@ -1282,7 +1313,7 @@
       },
       "import": {
         "header": "Import your wallet",
-        "body": "Enter your Secret Recovery Phrase to import an existing wallet",
+        "body": "Type or paste your Secret Recovery Phrase in all lower case with no commas or numbers and a single space between each word.",
         "button": "Next",
         "secretRecoveryPhraseError": "Enter your Secret Recovery Phrase with a single space in between words. Omit any commas, returns, or any additional characters.",
         "secretRecoveryPhraseRequired": "Secret Recovery Phrase is required",

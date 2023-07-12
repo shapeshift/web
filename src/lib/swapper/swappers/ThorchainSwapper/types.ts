@@ -1,6 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { ChainAdapterManager, SignTx } from '@shapeshiftoss/chain-adapters'
-import type Web3 from 'web3'
+import type { SignTx } from '@shapeshiftoss/chain-adapters'
 import type { Trade } from 'lib/swapper/api'
 import type {
   ThorCosmosSdkSupportedChainId,
@@ -82,13 +81,6 @@ export type InboundAddressResponse = {
   outbound_fee: string
 }
 
-export type ThorchainSwapperDeps = {
-  daemonUrl: string
-  midgardUrl: string
-  adapterManager: ChainAdapterManager
-  web3: Web3
-}
-
 export interface UtxoThorTrade<C extends ChainId> extends Trade<C> {
   chainId: ThorUtxoSupportedChainId
   txData: SignTx<ThorUtxoSupportedChainId>
@@ -108,3 +100,9 @@ export type ThorTrade<C extends ChainId> =
   | UtxoThorTrade<C>
   | EvmThorTrade<C>
   | CosmosSdkThorTrade<C>
+
+export type Rates = {
+  sellAssetUsdRate: string
+  buyAssetUsdRate: string
+  feeAssetUsdRate: string
+}

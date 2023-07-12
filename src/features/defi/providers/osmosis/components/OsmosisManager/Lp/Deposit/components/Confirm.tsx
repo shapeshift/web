@@ -1,7 +1,12 @@
 import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
-import type { CosmosSdkChainId, FeeData, osmosis } from '@shapeshiftoss/chain-adapters'
+import type {
+  CosmosSdkChainId,
+  FeeData,
+  GetFeeDataInput,
+  osmosis,
+} from '@shapeshiftoss/chain-adapters'
 import { supportsOsmosis } from '@shapeshiftoss/hdwallet-core'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -24,6 +29,7 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import type { OsmosisSupportedChainId } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
 import {
   getPool,
   getPoolIdFromAssetReference,
@@ -118,7 +124,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     try {
       contextDispatch({ type: OsmosisDepositActionType.SET_LOADING, payload: true })
 
-      const estimatedFees = await chainAdapter.getFeeData({ sendMax: false })
+      const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = { sendMax: false }
+      const estimatedFees = await chainAdapter.getFeeData(getFeeDataInput)
       const result = await (async () => {
         const fees = estimatedFees.average as FeeData<CosmosSdkChainId>
         const {

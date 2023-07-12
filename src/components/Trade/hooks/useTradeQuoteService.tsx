@@ -7,6 +7,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { type GetTradeQuoteInput } from 'lib/swapper/api'
 import {
+  selectFeatureFlags,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
@@ -35,6 +36,7 @@ export const useTradeQuoteService = () => {
   const sellAsset = useSwapperStore(selectSellAsset)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAmountCryptoPrecision = useSwapperStore(selectSellAmountCryptoPrecision)
+  const flags = useAppSelector(selectFeatureFlags)
 
   const sellAssetAccountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetId(state, {
@@ -49,7 +51,14 @@ export const useTradeQuoteService = () => {
   // Effects
   // Set trade quote args and trigger trade quote query
   useEffect(() => {
-    if (sellAsset && buyAsset && wallet && sellAmountCryptoPrecision && sellAccountMetadata) {
+    if (
+      sellAsset &&
+      buyAsset &&
+      wallet &&
+      sellAmountCryptoPrecision &&
+      sellAccountMetadata &&
+      receiveAddress
+    ) {
       ;(async () => {
         const { chainId: receiveAddressChainId } = fromAssetId(buyAsset.assetId)
         const chainAdapter = getChainAdapterManager().get(receiveAddressChainId)
@@ -66,11 +75,20 @@ export const useTradeQuoteService = () => {
           wallet,
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
+          allowMultiHop: flags.MultiHopTrades,
         })
         tradeQuoteInputArgs && setTradeQuoteArgs(tradeQuoteInputArgs)
       })()
     }
-  }, [buyAsset, receiveAddress, sellAccountMetadata, sellAmountCryptoPrecision, sellAsset, wallet])
+  }, [
+    buyAsset,
+    flags.MultiHopTrades,
+    receiveAddress,
+    sellAccountMetadata,
+    sellAmountCryptoPrecision,
+    sellAsset,
+    wallet,
+  ])
 
   return {
     tradeQuoteArgs: typeof tradeQuoteArgs === 'symbol' ? undefined : tradeQuoteArgs,

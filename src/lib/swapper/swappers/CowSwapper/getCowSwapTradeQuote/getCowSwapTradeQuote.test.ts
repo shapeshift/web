@@ -1,13 +1,10 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
-import type { Asset } from 'lib/asset-service'
-import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
 import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX_MAINNET, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
-import type { CowChainId } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   DEFAULT_ADDRESS,
@@ -18,13 +15,10 @@ import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote'
 
-const mockOk = Ok as jest.MockedFunction<typeof Ok>
-
 const foxRate = '0.0873'
 const usdcXdaiRate = '1.001'
 const ethRate = '1233.65940923824103061992'
 const wethRate = '1233.65940923824103061992'
-const supportedChainIds: CowChainId[] = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
 
 jest.mock('@shapeshiftoss/chain-adapters')
 jest.mock('../utils/cowService', () => {
@@ -49,23 +43,6 @@ jest.mock('../../utils/helpers/helpers', () => {
   }
 })
 
-jest.mock('../getMinimumAmountCryptoHuman/getMinimumAmountCryptoHuman', () => {
-  const { FOX_MAINNET } = require('../../utils/test-data/assets') // Move the import inside the factory function
-
-  return {
-    getMinimumAmountCryptoHuman: (sellAsset: Asset) => {
-      if (sellAsset.assetId === FOX_MAINNET.assetId) {
-        return mockOk('229.09507445589919816724')
-      }
-
-      return mockOk('0.011624')
-    },
-  }
-})
-
-const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
-const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
-
 const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
   appData: DEFAULT_APP_DATA,
   buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
@@ -85,7 +62,7 @@ const expectedApiInputSmallAmountWethToFox: CowSwapSellQuoteApiInput = {
   kind: 'sell',
   partiallyFillable: false,
   receiver: '0x0000000000000000000000000000000000000000',
-  sellAmountBeforeFee: '11624000000000000',
+  sellAmountBeforeFee: '1000000000000',
   sellToken: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   validTo: 1656797787,
 }
@@ -115,7 +92,7 @@ const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
 }
 
 const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  minimumCryptoHuman: '0.011624',
+  minimumCryptoHuman: '0.01621193001101461472',
   steps: [
     {
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
@@ -167,7 +144,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
 }
 
 const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
-  minimumCryptoHuman: '0.011624',
+  minimumCryptoHuman: '0.00999000999000999001',
   steps: [
     {
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
@@ -193,7 +170,7 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
 }
 
 const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
-  minimumCryptoHuman: '0.011624',
+  minimumCryptoHuman: '0.01621193001101461472',
   steps: [
     {
       allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
@@ -219,10 +196,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
 }
 
 describe('getCowTradeQuote', () => {
-  it('should throw an exception if both assets are not erc20s', async () => {
-    selectBuyAssetUsdRateSpy.mockImplementation(() => foxRate)
-    selectSellAssetUsdRateSpy.mockImplementation(() => ethRate)
-
+  it('should throw an exception if sell asset is not an erc20', async () => {
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: ETH,
@@ -231,24 +205,25 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
+      allowMultiHop: false,
     }
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input, supportedChainIds)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input, {
+      sellAssetUsdRate: ethRate,
+      buyAssetUsdRate: foxRate,
+    })
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
       cause: undefined,
       code: 'UNSUPPORTED_PAIR',
-      details: { sellAssetNamespace: 'slip44' },
-      message: '[getCowSwapTradeQuote] - Sell asset needs to be ERC-20 to use CowSwap',
+      details: { sellAsset: ETH },
+      message: '[CowSwap: assertValidTrade] - Sell asset must be an ERC-20',
       name: 'SwapError',
     })
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade quote when selling WETH', async () => {
-    selectBuyAssetUsdRateSpy.mockImplementation(() => foxRate)
-    selectSellAssetUsdRateSpy.mockImplementation(() => wethRate)
-
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WETH,
@@ -257,7 +232,8 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
+      allowMultiHop: false,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -278,7 +254,10 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input, supportedChainIds)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input, {
+      sellAssetUsdRate: wethRate,
+      buyAssetUsdRate: foxRate,
+    })
 
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteWethToFox)
@@ -289,9 +268,6 @@ describe('getCowTradeQuote', () => {
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade quote when buying ETH', async () => {
-    selectBuyAssetUsdRateSpy.mockImplementation(() => ethRate)
-    selectSellAssetUsdRateSpy.mockImplementation(() => foxRate)
-
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: FOX_MAINNET,
@@ -300,7 +276,8 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
+      allowMultiHop: false,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -321,7 +298,10 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input, supportedChainIds)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input, {
+      sellAssetUsdRate: foxRate,
+      buyAssetUsdRate: ethRate,
+    })
 
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteFoxToEth)
@@ -332,9 +312,6 @@ describe('getCowTradeQuote', () => {
   })
 
   it('should call cowService with correct parameters, handle the fees and return the correct trade quote when buying XDAI', async () => {
-    selectBuyAssetUsdRateSpy.mockImplementation(() => usdcXdaiRate)
-    selectSellAssetUsdRateSpy.mockImplementation(() => usdcXdaiRate)
-
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.GnosisMainnet,
       sellAsset: USDC_GNOSIS,
@@ -343,7 +320,8 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
+      allowMultiHop: false,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -364,7 +342,10 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input, supportedChainIds)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input, {
+      sellAssetUsdRate: usdcXdaiRate,
+      buyAssetUsdRate: usdcXdaiRate,
+    })
 
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteUsdcToXdai)
@@ -375,9 +356,6 @@ describe('getCowTradeQuote', () => {
   })
 
   it('should call cowService with correct parameters and return quote with original sellAmount when selling a very small amount of WETH', async () => {
-    selectBuyAssetUsdRateSpy.mockImplementation(() => foxRate)
-    selectSellAssetUsdRateSpy.mockImplementation(() => wethRate)
-
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
       sellAsset: WETH,
@@ -386,7 +364,8 @@ describe('getCowTradeQuote', () => {
       accountNumber: 0,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
-      eip1559Support: false,
+      supportsEIP1559: false,
+      allowMultiHop: false,
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -407,7 +386,10 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input, supportedChainIds)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input, {
+      sellAssetUsdRate: wethRate,
+      buyAssetUsdRate: foxRate,
+    })
 
     expect(maybeTradeQuote.isErr()).toBe(false)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteSmallAmountWethToFox)

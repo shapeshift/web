@@ -14,7 +14,7 @@ import { SwapperName } from 'lib/swapper/api'
 import { assertUnreachable } from 'lib/utils'
 import { selectFeeAssetByChainId, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import { selectFeeAssetFiatRate } from 'state/zustand/swapperStore/amountSelectors'
+import { selectFeeAssetUserCurrencyRate } from 'state/zustand/swapperStore/amountSelectors'
 import { selectAmount, selectBuyAsset, selectSellAsset } from 'state/zustand/swapperStore/selectors'
 import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
@@ -82,7 +82,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
 
   const { isTradingActive } = useIsTradingActive()
 
-  const feeAssetFiatRate = useSwapperStore(selectFeeAssetFiatRate)
+  const feeAssetUserCurrencyRate = useSwapperStore(selectFeeAssetUserCurrencyRate)
   const buyAsset = useSwapperStore(selectBuyAsset)
   const sellAsset = useSwapperStore(selectSellAsset)
   const sellFeeAsset = useAppSelector(state =>
@@ -113,11 +113,17 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   if (!feeAsset)
     throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset?.chainId}!`)
 
-  const networkFeeFiat = feeAssetFiatRate
-    ? bnOrZero(
-        fromBaseUnit(quote.steps[0].feeData.networkFeeCryptoBaseUnit, feeAsset.precision),
-      ).times(feeAssetFiatRate)
-    : undefined
+  const networkFeeCryptoBaseUnit = quote.steps[0].feeData.networkFeeCryptoBaseUnit
+
+  const networkFeeUserCurrency = useMemo(
+    () =>
+      feeAssetUserCurrencyRate && networkFeeCryptoBaseUnit
+        ? bnOrZero(fromBaseUnit(networkFeeCryptoBaseUnit, feeAsset.precision))
+            .times(feeAssetUserCurrencyRate)
+            .toString()
+        : undefined,
+    [feeAsset.precision, feeAssetUserCurrencyRate, networkFeeCryptoBaseUnit],
+  )
 
   const protocol = swapperWithMetadata.swapper.name
   const isAmountEntered = bnOrZero(amount).gt(0)
@@ -208,14 +214,11 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           <RawText color='gray.500'>
             <FaGasPump />
           </RawText>
-          {
-            // We cannot infer gas fees for 1inch swapper before an amount is entered
-            !isAmountEntered && protocol === SwapperName.OneInch ? (
-              translate('trade.unknownGas')
-            ) : (
-              <Amount.Fiat value={bnOrZero(networkFeeFiat).toString()} />
-            )
-          }
+          {networkFeeUserCurrency ? (
+            <Amount.Fiat value={networkFeeUserCurrency} />
+          ) : (
+            translate('trade.unknownGas')
+          )}
         </Flex>
       </Flex>
       <Flex justifyContent='space-between' alignItems='center'>

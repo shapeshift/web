@@ -1,65 +1,96 @@
 import type { Step } from '@lifi/sdk'
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { AbiItem } from 'web3-utils'
+import type { BigNumber } from 'ethers'
+import { ethers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn } from 'lib/bignumber/bignumber'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
-import { isEvmChainAdapter } from 'lib/utils'
-import { getWeb3InstanceByChainId } from 'lib/web3-instance'
+import { calcNetworkFeeCryptoBaseUnit, getFees, isEvmChainAdapter } from 'lib/utils/evm'
 
 import { OPTIMISM_GAS_ORACLE_ADDRESS } from '../constants'
 import { getLifi } from '../getLifi'
 
-export const getNetworkFeeCryptoBaseUnit = async ({
-  chainId,
-  lifiStep,
-}: {
+type GetNetworkFeeArgs = {
+  accountNumber: number
   chainId: ChainId
   lifiStep: Step
-}) => {
+  supportsEIP1559: boolean
+  wallet?: HDWallet
+}
+
+export const getNetworkFeeCryptoBaseUnit = async ({
+  accountNumber,
+  chainId,
+  lifiStep,
+  supportsEIP1559,
+  wallet,
+}: GetNetworkFeeArgs) => {
   const lifi = getLifi()
   const adapter = getChainAdapterManager().get(chainId)
 
-  if (adapter === undefined || !isEvmChainAdapter(adapter)) {
-    throw new SwapError('[getNetworkFeeCryptoBaseUnit] invalid chain adapter', {
-      code: SwapErrorType.TRADE_QUOTE_FAILED,
+  if (!isEvmChainAdapter(adapter)) {
+    throw new SwapError('[getNetworkFeeCryptoBaseUnit] - unsupported chain adapter', {
+      code: SwapErrorType.VALIDATION_FAILED,
       details: { chainId },
     })
   }
 
   const { transactionRequest } = await lifi.getStepTransaction(lifiStep)
-  const { value, from, to, data, gasLimit, gasPrice, maxFeePerGas } = transactionRequest ?? {}
+  const { value, to, data, gasLimit } = transactionRequest ?? {}
 
-  if (value === undefined || from === undefined || to === undefined || data === undefined) {
+  if (!value || !to || !data || !gasLimit) {
     throw new SwapError('[getNetworkFeeCryptoBaseUnit] getStepTransaction failed', {
-      code: SwapErrorType.TRADE_QUOTE_FAILED,
+      code: SwapErrorType.VALIDATION_FAILED,
     })
   }
 
-  const gasFee = maxFeePerGas
-    ? bn(maxFeePerGas as string)
-    : bnOrZero(gasLimit as string).times(gasPrice as string)
+  // if we have a wallet, we are trying to build the actual trade, get accurate gas estimation
+  if (wallet) {
+    const { networkFeeCryptoBaseUnit } = await getFees({
+      accountNumber,
+      adapter,
+      to,
+      data: data.toString(),
+      value: bn(value.toString()).toFixed(),
+      wallet,
+    })
 
-  // TEMP: this is necessary because infura currently cannot estimate gas for some lifi contract
-  // interactions, so instead of calling our existing stack which relies on infura we call the
-  // optimism gas oracle directly.
-  if (chainId === KnownChainIds.OptimismMainnet) {
-    const optimismGasOracleAbi: AbiItem[] = [
+    return networkFeeCryptoBaseUnit
+  }
+
+  const { average } = await adapter.getGasFeeData()
+
+  const l1GasLimit = await (async () => {
+    if (chainId !== KnownChainIds.OptimismMainnet) return
+
+    const provider = getEthersProvider(chainId)
+
+    const abi = [
       {
         inputs: [{ internalType: 'bytes', name: '_data', type: 'bytes' }],
-        name: 'getL1Fee',
+        name: 'getL1GasUsed',
         outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
         stateMutability: 'view',
         type: 'function',
       },
     ]
-    const web3 = getWeb3InstanceByChainId(chainId)
-    const tokenContract = new web3.eth.Contract(optimismGasOracleAbi, OPTIMISM_GAS_ORACLE_ADDRESS)
-    const l1Fee = await tokenContract.methods.getL1Fee(data).call()
 
-    return gasFee.plus(l1Fee).toString()
-  }
+    const contract = new ethers.Contract(OPTIMISM_GAS_ORACLE_ADDRESS, abi, provider)
 
-  return gasFee.toString()
+    const l1GasUsed = (await contract.getL1GasUsed(data)) as BigNumber
+
+    return l1GasUsed.toString()
+  })()
+
+  const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
+    ...average,
+    supportsEIP1559,
+    gasLimit: gasLimit?.toString(),
+    l1GasLimit,
+  })
+
+  return networkFeeCryptoBaseUnit
 }

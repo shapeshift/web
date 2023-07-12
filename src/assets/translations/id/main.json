@@ -725,7 +725,6 @@
       },
       "import": {
         "header": "Impor dompet Anda",
-        "body": "Masukkan Frase Pemulihan Rahasia Anda untuk mengimpor dompet yang ada",
         "button": "Selanjutnya",
         "secretRecoveryPhraseError": "Masukkan Frase Pemulihan Rahasia Anda dengan satu spasi di antara kata-kata. Hilangkan koma, pengembalian, atau karakter tambahan apa pun.",
         "secretRecoveryPhraseRequired": "Frase Pemulihan Rahasia diperlukan",

@@ -1,19 +1,19 @@
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse, AxiosStatic } from 'axios'
-import type Web3 from 'web3'
-import * as selectors from 'state/zustand/swapperStore/amountSelectors'
 
-import type { GetTradeQuoteInput, TradeQuote } from '../../../api'
+import type { GetTradeQuoteInput } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import type { InboundAddressResponse, ThorchainSwapperDeps, ThornodePoolResponse } from '../types'
+import { getThorTxInfo } from '../evm/utils/getThorTxData'
+import type { InboundAddressResponse, ThornodePoolResponse } from '../types'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
-import { setupThorswapDeps } from '../utils/test-data/setupThorswapDeps'
+import { mockChainAdapterManager } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
+import type { ThorEvmTradeQuote } from './getTradeQuote'
 import { getThorTradeQuote } from './getTradeQuote'
 
+jest.mock('../evm/utils/getThorTxData')
 jest.mock('../utils/thorService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')
   axios.create = jest.fn(() => axios)
@@ -22,12 +22,28 @@ jest.mock('../utils/thorService', () => {
     thorService: axios.create(),
   }
 })
-const selectBuyAssetUsdRateSpy = jest.spyOn(selectors, 'selectBuyAssetUsdRate')
-const selectSellAssetUsdRateSpy = jest.spyOn(selectors, 'selectSellAssetUsdRate')
 
-const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
+const mockOk = Ok as jest.MockedFunction<typeof Ok>
+
+jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
+  return {
+    getChainAdapterManager: () => mockChainAdapterManager,
+  }
+})
+
+jest.mock('config', () => {
+  return {
+    getConfig: () => ({
+      REACT_APP_THORCHAIN_NODE_URL: '',
+    }),
+  }
+})
+
+const expectedQuoteResponse: ThorEvmTradeQuote = {
   minimumCryptoHuman: '149.14668013703712946932',
   recommendedSlippage: '0.04357',
+  data: '0x',
+  router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
   steps: [
     {
       allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
@@ -53,14 +69,11 @@ const expectedQuoteResponse: TradeQuote<KnownChainIds.EthereumMainnet> = {
 }
 
 describe('getTradeQuote', () => {
+  ;(getThorTxInfo as jest.Mock<unknown>).mockReturnValue(
+    Promise.resolve(mockOk({ data: '0x', router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976' })),
+  )
+
   const { quoteInput } = setupQuote()
-  const { adapterManager } = setupThorswapDeps()
-  const deps: ThorchainSwapperDeps = {
-    midgardUrl: '',
-    daemonUrl: '',
-    adapterManager,
-    web3: {} as Web3,
-  }
 
   it('should get a thorchain quote for a thorchain trade', async () => {
     ;(thorService.get as unknown as jest.Mock<unknown>).mockImplementation(url => {
@@ -105,9 +118,6 @@ describe('getTradeQuote', () => {
       }
     })
 
-    selectSellAssetUsdRateSpy.mockReturnValueOnce('0.15399605260336216')
-    selectBuyAssetUsdRateSpy.mockReturnValueOnce('1595')
-
     const input: GetTradeQuoteInput = {
       ...quoteInput,
       sellAmountBeforeFeesCryptoBaseUnit: '713014679420',
@@ -115,7 +125,11 @@ describe('getTradeQuote', () => {
       sellAsset: FOX_MAINNET,
     }
 
-    const maybeTradeQuote = await getThorTradeQuote({ deps, input })
+    const maybeTradeQuote = await getThorTradeQuote(input, {
+      sellAssetUsdRate: '0.15399605260336216',
+      buyAssetUsdRate: '1595',
+      feeAssetUsdRate: '1595',
+    })
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedQuoteResponse)
   })

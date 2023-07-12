@@ -17,12 +17,13 @@ import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
@@ -43,6 +44,7 @@ type UniV2ApproveProps = StepComponentProps & {
 }
 
 export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
+  const { poll } = usePoll()
   const { state, dispatch } = useContext(WithdrawContext)
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()
@@ -71,7 +73,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const assetId0 = lpOpportunity?.underlyingAssetIds[0] ?? ''
   const assetId1 = lpOpportunity?.underlyingAssetIds[1] ?? ''
 
-  const { approveAsset, lpAllowance, getWithdrawFeeData } = useUniV2LiquidityPool({
+  const { approveAsset, lpAllowance, getWithdrawFees } = useUniV2LiquidityPool({
     accountId: accountId ?? '',
     assetId0: lpOpportunity?.underlyingAssetIds[0] ?? '',
     assetId1: lpOpportunity?.underlyingAssetIds[1] ?? '',
@@ -115,21 +117,22 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       await poll({
         fn: () => lpAllowance(),
         validate: (result: string) => {
-          const lpAllowance = bnOrZero(result).div(bn(10).pow(lpAsset.precision))
-          return bnOrZero(lpAllowance).gte(bnOrZero(state.withdraw.lpAmount))
+          const lpAllowance = bn(fromBaseUnit(result, lpAsset.precision))
+          return lpAllowance.gte(bnOrZero(state.withdraw.lpAmount))
         },
         interval: 15000,
         maxAttempts: 30,
       })
-      const feeData = await getWithdrawFeeData(
+      const fees = await getWithdrawFees(
         state.withdraw.lpAmount,
         state.withdraw.asset0Amount,
         state.withdraw.asset1Amount,
       )
-      if (!feeData) return
-      const estimatedGasCryptoPrecision = bnOrZero(feeData.txFee)
-        .div(bn(10).pow(feeAsset.precision))
-        .toPrecision()
+      if (!fees) return
+      const estimatedGasCryptoPrecision = fromBaseUnit(
+        fees.networkFeeCryptoBaseUnit,
+        feeAsset.precision,
+      )
       dispatch({
         type: UniV2WithdrawActionType.SET_WITHDRAW,
         payload: { estimatedGasCryptoPrecision },
@@ -162,9 +165,10 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     state?.withdraw,
     lpOpportunity,
     wallet,
-    approveAsset,
     lpAssetId,
-    getWithdrawFeeData,
+    approveAsset,
+    poll,
+    getWithdrawFees,
     feeAsset.precision,
     onNext,
     assets,

@@ -29,7 +29,7 @@ import type {
   ReadOnlyOpportunityType,
   StakingId,
 } from 'state/slices/opportunitiesSlice/types'
-import { DefiType } from 'state/slices/opportunitiesSlice/types'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId } from 'state/slices/opportunitiesSlice/utils'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
@@ -216,7 +216,7 @@ export const zapperApi = createApi({
     }),
     getZapperNftUserTokens: build.query<NftItemWithCollection[], GetZapperNftUserTokensInput>({
       queryFn: async ({ accountIds }) => {
-        let data: V2NftUserItem[] = []
+        let data: (V2NftUserItem & { ownerAddress: string })[] = []
 
         const userAddresses = accountIdsToEvmAddresses(accountIds)
         for (const userAddress of userAddresses) {
@@ -235,7 +235,10 @@ export const zapperApi = createApi({
               const payload = { ...options, params, headers, url }
               const { data: res } = await axios.request<V2NftUserTokensResponseType>({ ...payload })
               if (!res?.items?.length) break
-              if (res?.items?.length) data = data.concat(res.items)
+              if (res?.items?.length)
+                data = data.concat(
+                  res.items.map(item => Object.assign(item, { ownerAddress: userAddress })),
+                )
               if (res?.items?.length < limit) break
             } catch (e) {
               console.error(e)
@@ -376,6 +379,13 @@ export const zapper = createApi({
             (acc, appAccountBalance) => {
               const appId = appAccountBalance.appId
               const appName = appAccountBalance.appName
+
+              // Avoids duplicates from out full-fledged opportunities
+              // Note, this assumes our DefiProvider value is the same as the AppName
+              if (Object.values(DefiProvider).includes(appName as DefiProvider)) {
+                return acc
+              }
+
               const appImage = appAccountBalance.appImage
               const accountId = toAccountId({
                 chainId:
@@ -386,7 +396,9 @@ export const zapper = createApi({
               })
 
               const appAccountOpportunities = appAccountBalance.products
-                .flatMap(({ assets }) => assets)
+                .flatMap(({ assets, label }) =>
+                  assets.map(asset => Object.assign(asset, { label })),
+                )
                 .map<ReadOnlyOpportunityType | undefined>(asset => {
                   const stakedAmountCryptoBaseUnitAccessor = (() => {
                     //  Liquidity Pool of sorts
@@ -418,6 +430,51 @@ export const zapper = createApi({
                     acc.push(rewardAssetId)
                     return acc
                   }, []) as unknown as AssetIdsTuple
+
+                  // Upsert rewardAssetIds if they don't exist in store
+                  const rewardAssetsToUpsert = rewardTokens.reduce<AssetsState>(
+                    (acc, token, i) => {
+                      const rewardAssetId = zapperAssetToMaybeAssetId(token)
+                      if (!rewardAssetId) return acc
+                      if (assets[rewardAssetId]) return acc
+
+                      acc.byId[rewardAssetId] = makeAsset({
+                        assetId: rewardAssetId,
+                        symbol: token.symbol,
+                        // No dice here, there's no name property
+                        name: token.symbol,
+                        precision: token.decimals,
+                        icon: token.displayProps?.images[i] ?? '',
+                      })
+                      acc.ids = acc.ids.concat(rewardAssetId)
+
+                      return acc
+                    },
+                    { byId: {}, ids: [] },
+                  )
+
+                  const maybeTopLevelRewardAssetToUpsert: AssetsState = (() => {
+                    const rewardAssetId =
+                      asset.groupId === 'claimable' ? zapperAssetToMaybeAssetId(asset) : undefined
+                    return {
+                      byId: rewardAssetId
+                        ? {
+                            [rewardAssetId]: makeAsset({
+                              assetId: rewardAssetId,
+                              symbol: asset.tokens[0].symbol ?? '',
+                              name: asset.displayProps?.label ?? '',
+                              precision: bnOrZero(asset.decimals).toNumber(),
+                              icon: asset.displayProps?.images[0] ?? '',
+                            }),
+                          }
+                        : {},
+                      ids: rewardAssetId ? [rewardAssetId] : [],
+                    }
+                  })()
+
+                  dispatch(assetsSlice.actions.upsertAssets(rewardAssetsToUpsert))
+                  dispatch(assetsSlice.actions.upsertAssets(maybeTopLevelRewardAssetToUpsert))
+
                   const rewardsCryptoBaseUnit = {
                     amounts: rewardTokens.map(token => token.balanceRaw),
                     claimable: true,
@@ -464,11 +521,16 @@ export const zapper = createApi({
                   }) as unknown as AssetIdsTuple
 
                   const assetMarketData = selectMarketDataById(state, assetId)
-                  if (assetMarketData.price === '0' && asset.price) {
+                  const assetPrice =
+                    // Claimable assets may not have a price, if that's the case, we use the price of the underlying asset they wrap
+                    asset.groupId === 'claimable'
+                      ? bnOrZero(asset.tokens[0].price).toNumber()
+                      : asset.price
+                  if (assetMarketData.price === '0' && assetPrice) {
                     dispatch(
                       marketDataSlice.actions.setCryptoMarketData({
                         [assetId]: {
-                          price: bnOrZero(asset.price).toString(),
+                          price: bnOrZero(assetPrice).toString(),
                           marketCap: '0',
                           volume: bnOrZero(asset.dataProps?.volume).toString(),
                           changePercent24Hr: 0,
@@ -494,7 +556,9 @@ export const zapper = createApi({
                   })
 
                   const underlyingAssetId =
-                    asset.type === 'app-token' ? assetId : underlyingAssetIds[0]!
+                    asset.type === 'app-token' || asset.groupId === 'claimable'
+                      ? assetId
+                      : underlyingAssetIds[0]!
 
                   // Upsert underlyingAssetIds if they don't exist in store
                   const underlyingAssetsToUpsert = Object.values(
@@ -532,43 +596,21 @@ export const zapper = createApi({
                     dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
                   }
 
-                  const underlyingAssetRatiosBaseUnit = (() => {
-                    const token0ReservesCryptoPrecision = asset.dataProps?.reserves?.[0]
-                    const token1ReservesCryptoPrecision = asset.dataProps?.reserves?.[1]
-                    const token0ReservesBaseUnit =
-                      typeof token0ReservesCryptoPrecision === 'number'
-                        ? bnOrZero(
-                            bnOrZero(bnOrZero(token0ReservesCryptoPrecision.toFixed()).toString()),
-                          ).times(bn(10).pow(asset.decimals ?? 18))
+                  const underlyingAssetRatiosBaseUnit = (asset.dataProps?.reserves ?? []).map(
+                    (reserve, i) => {
+                      const reserveBaseUnit = toBaseUnit(reserve, asset.decimals ?? 18)
+                      const totalSupplyBaseUnit =
+                        typeof asset.supply === 'number'
+                          ? toBaseUnit(asset.supply, asset.decimals ?? 18)
+                          : undefined
+                      const tokenPoolRatio = totalSupplyBaseUnit
+                        ? bn(reserveBaseUnit).div(totalSupplyBaseUnit).toString()
                         : undefined
-                    const token1ReservesBaseUnit =
-                      typeof token1ReservesCryptoPrecision === 'number'
-                        ? bnOrZero(
-                            bnOrZero(bnOrZero(token1ReservesCryptoPrecision.toFixed()).toString()),
-                          ).times(bn(10).pow(asset.decimals ?? 18))
-                        : undefined
-                    const totalSupplyBaseUnit =
-                      typeof asset.supply === 'number'
-                        ? bnOrZero(asset.supply)
-                            .times(bn(10).pow(asset.decimals ?? 18))
-                            .toString()
-                        : undefined
-                    const token0PoolRatio =
-                      token0ReservesBaseUnit && totalSupplyBaseUnit
-                        ? token0ReservesBaseUnit.div(totalSupplyBaseUnit).toString()
-                        : undefined
-                    const token1PoolRatio =
-                      token1ReservesBaseUnit && totalSupplyBaseUnit
-                        ? token1ReservesBaseUnit.div(totalSupplyBaseUnit).toString()
-                        : undefined
-
-                    if (!(token0PoolRatio && token1PoolRatio)) return
-
-                    return [
-                      toBaseUnit(token0PoolRatio.toString(), asset.tokens[0].decimals),
-                      toBaseUnit(token1PoolRatio.toString(), asset.tokens[1].decimals),
-                    ] as const
-                  })()
+                      if (!tokenPoolRatio) return '0'
+                      const ratio = toBaseUnit(tokenPoolRatio, asset.tokens[i].decimals)
+                      return ratio
+                    },
+                  )
 
                   if (!acc.opportunities[opportunityId]) {
                     acc.opportunities[opportunityId] = {
@@ -576,7 +618,7 @@ export const zapper = createApi({
                       assetId,
                       underlyingAssetId,
                       underlyingAssetIds,
-                      underlyingAssetRatiosBaseUnit: underlyingAssetRatiosBaseUnit ?? ['0', '0'],
+                      underlyingAssetRatiosBaseUnit,
                       id: opportunityId,
                       icon,
                       name,
@@ -584,6 +626,8 @@ export const zapper = createApi({
                       provider: appName,
                       tvl,
                       type: defiType,
+                      version: asset.label,
+                      group: asset.groupId,
                       isClaimableRewards: Boolean(rewardTokens.length),
                       isReadOnly: true,
                     }
@@ -597,7 +641,9 @@ export const zapper = createApi({
                     stakedAmountCryptoBaseUnit,
                     rewardsCryptoBaseUnit,
                     fiatAmount,
+                    label: asset.groupId,
                     type: defiType,
+                    version: asset.label,
                   }
                 })
                 .filter(isSome)

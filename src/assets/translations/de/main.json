@@ -105,7 +105,9 @@
     "selectedAccount": "Ausgewähltes Konto",
     "allChains": "All Blockchains",
     "wallet": "Wallet",
-    "action": "Aktion"
+    "action": "Aktion",
+    "feedbackAndSupport": "Feedback & Unterstützung",
+    "getSupport": "Hole dir Unterstützung"
   },
   "consentBanner": {
     "body": {
@@ -324,6 +326,7 @@
         "vaultCapTooltip": "Akt. max. Kapazität für diesen Tresor",
         "haltedTitle": "Einzahlungen sind vorübergehend gestoppt.",
         "haltedDescription": "Bitte twittern Sie an @THORChain, um die Obergrenzen zu erhöhen!",
+        "protocolFee": "Protokollgebühr",
         "fee": "Gebühr",
         "dustAmount": "Kleinbetrag",
         "dustAmountTooltip": "Ein Kleinbetrag ist erforderlich, um Ihre Adresse zu identifizieren, und wird für die spätere Verwendung reserviert, wenn Sie eine Auszahlung vornehmen möchten",
@@ -629,12 +632,20 @@
   "trade": {
     "trade": "Handeln",
     "allowance": "Genehmigung",
+    "slippageInfo": "Ihre Transaktion wird rückgängig gemacht, wenn sich der Preis um mehr als diesen Prozentsatz ungünstig ändert.",
     "allowanceTooltip": "Der Betrag, den Sie dem Smart Contract zur Nutzung in Ihrem Namen erteilen.",
     "searchingRate": "Auf der Suche nach dem besten Preis...",
     "noRateAvailable": "Kein Wechselkurs verfügbar.",
     "previewTrade": "Vorschau des Handels",
     "rate": "Kurs",
     "tradeFrom": "Handel ab",
+    "slippage": {
+      "maxSlippage": "Maximaler Slippage",
+      "auto": "Automatisch",
+      "custom": "Benutzerdefiniert",
+      "warning": "Hohe Slippage-Toleranzen können zu ungünstigen Trades führen.",
+      "lowSlippage": "Ein Slippage unter 0,05 % führt zu einer fehlgeschlagenen Transaktion."
+    },
     "from": "von",
     "to": "zu",
     "youPay": "Sie bezahlen",
@@ -732,7 +743,9 @@
         "required": "Eine unterzeichnete Transaktion ist erforderlich"
       },
       "generalError": "Ein Handelsfehler ist aufgetreten",
-      "tradeFailed": "Handel fehlgeschlagen. Zurückgegebene Vermögenswerte abzüglich Gasgebühr"
+      "quoteError": "Beim Abruf des Angebots ist ein Fehler aufgetreten",
+      "tradeFailed": "Handel fehlgeschlagen. Zurückgegebene Vermögenswerte abzüglich Gasgebühr",
+      "noQuotesAvailable": "Für diesen Handel sind keine Angebote verfügbar"
     },
     "swappingComingSoonForWallet": "Der Tausch gegen %{walletName} ist in Kürze verfügbar",
     "recentTrades": "Letzte Handelsaktionen",
@@ -1231,6 +1244,22 @@
         "button": "Öffnen"
       }
     },
+    "coinbase": {
+      "errors": {
+        "unknown": "Bei der Kommunikation mit Coinbase ist ein unerwarteter Fehler aufgetreten",
+        "connectFailure": "Verbindung zum Coinbase-Wallet nicht möglich",
+        "multipleWallets": "Der erkannte Ethereum-Anbieter ist nicht Coinbase. Haben Sie mehrere Wallets installiert?"
+      },
+      "connect": {
+        "header": "Koppeln Sie Coinbase",
+        "body": "Klicken Sie im Popup-Fenster auf „Koppeln“ und melden Sie sich bei Coinbase an",
+        "button": "Koppeln"
+      },
+      "failure": {
+        "header": "Verbindung zum Coinbase-Wallet nicht möglich",
+        "body": "Verbindung zum Coinbase-Wallet nicht möglich"
+      }
+    },
     "walletConnect": {
       "errors": {
         "unknown": "Bei der Kommunikation mit WalletConnect ist ein unerwarteter Fehler aufgetreten",
@@ -1281,7 +1310,7 @@
       },
       "import": {
         "header": "Importieren Sie Ihre Wallet",
-        "body": "Geben Sie Ihre geheime Wiederherstellungsphrase ein, um eine vorhandene Wallet zu importieren",
+        "body": "Geben oder fügen Sie Ihre geheime Wiederherstellungsphrase in Kleinbuchstaben ein, ohne Kommas oder Zahlen und mit einem Leerzeichen zwischen den einzelnen Wörtern.",
         "button": "Weiter",
         "secretRecoveryPhraseError": "Geben Sie Ihren geheimen Wiederherstellungsphrase mit einem einzelnen Leerzeichen zwischen den Wörtern ein. Lassen Sie Kommas, Returns oder zusätzliche Zeichen weg.",
         "secretRecoveryPhraseRequired": "Geheime Wiederherstellungsphrase ist erforderlich",
@@ -1972,7 +2001,8 @@
   },
   "avatar": {
     "modal": {
-      "title": "Legen Sie einen neuen Avatar fest"
+      "title": "Legen Sie einen neuen Avatar fest",
+      "restoreDefault": "Standard wiederherstellen"
     }
   }
 }

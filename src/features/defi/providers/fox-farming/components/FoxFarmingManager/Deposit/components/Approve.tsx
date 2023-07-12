@@ -14,11 +14,12 @@ import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -39,7 +40,10 @@ type FoxFarmingApproveProps = {
 }
 
 export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext }) => {
+  const { poll } = usePoll()
   const { state, dispatch } = useContext(DepositContext)
+  const wallet = useWallet().state.wallet
+  const toast = useToast()
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -65,7 +69,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
   )
   assertIsFoxEthStakingContractAddress(contractAddress)
 
-  const { allowance, approve, getStakeFeeData } = useFoxFarming(contractAddress)
+  const { allowance, approve, getStakeFees } = useFoxFarming(contractAddress)
 
   const assets = useAppSelector(selectAssets)
 
@@ -73,14 +77,6 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
     selectAssetById(state, foxFarmingOpportunity?.underlyingAssetId ?? ''),
   )
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
-
-  // user info
-  const {
-    state: { wallet },
-  } = useWallet()
-
-  // notify
-  const toast = useToast()
 
   const handleApprove = useCallback(async () => {
     if (
@@ -99,21 +95,25 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       await poll({
         fn: () => allowance(),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(bn(10).pow(asset.precision))
-          return bnOrZero(allowance).gte(bnOrZero(state?.deposit.cryptoAmount))
+          const allowance = bn(fromBaseUnit(result, asset.precision))
+          return allowance.gte(bnOrZero(state?.deposit.cryptoAmount))
         },
         interval: 15000,
         maxAttempts: 30,
       })
+
       // Get deposit gas estimate
-      const feeData = await getStakeFeeData(state.deposit.cryptoAmount)
-      if (!feeData) return
-      const estimatedGasCryptoPrecision = bnOrZero(feeData.txFee)
-        .div(bn(10).pow(feeAsset.precision))
-        .toPrecision()
+      const fees = await getStakeFees(state.deposit.cryptoAmount)
+      if (!fees) return
+
       dispatch({
         type: FoxFarmingDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCryptoPrecision },
+        payload: {
+          estimatedGasCryptoPrecision: fromBaseUnit(
+            fees.networkFeeCryptoBaseUnit,
+            feeAsset.precision,
+          ),
+        },
       })
 
       onNext(DefiStep.Confirm)
@@ -144,7 +144,8 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
     wallet,
     asset,
     approve,
-    getStakeFeeData,
+    poll,
+    getStakeFees,
     feeAsset.precision,
     onNext,
     assets,

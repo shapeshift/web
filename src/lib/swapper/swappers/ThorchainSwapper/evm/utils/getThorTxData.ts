@@ -2,17 +2,17 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
 import type { Asset } from 'lib/asset-service'
 import type { ProtocolFee, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { deposit } from 'lib/swapper/swappers/ThorchainSwapper/evm/routerCalldata'
-import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { getLimit } from 'lib/swapper/swappers/ThorchainSwapper/utils/getLimit/getLimit'
 import { makeSwapMemo } from 'lib/swapper/swappers/ThorchainSwapper/utils/makeSwapMemo/makeSwapMemo'
+import { isNativeEvmAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
 
-type GetBtcThorTxInfoArgs = {
-  deps: ThorchainSwapperDeps
+type GetEvmThorTxInfoArgs = {
   sellAsset: Asset
   buyAsset: Asset
   sellAmountCryptoBaseUnit: string
@@ -20,9 +20,11 @@ type GetBtcThorTxInfoArgs = {
   destinationAddress: string
   protocolFees: Record<AssetId, ProtocolFee>
   affiliateBps: string
+  buyAssetUsdRate: string
+  feeAssetUsdRate: string
 }
 
-type GetBtcThorTxInfoReturn = Promise<
+type GetEvmThorTxInfoReturn = Promise<
   Result<
     {
       data: string
@@ -32,10 +34,9 @@ type GetBtcThorTxInfoReturn = Promise<
   >
 >
 
-type GetBtcThorTxInfo = (args: GetBtcThorTxInfoArgs) => GetBtcThorTxInfoReturn
+type GetBtcThorTxInfo = (args: GetEvmThorTxInfoArgs) => GetEvmThorTxInfoReturn
 
 export const getThorTxInfo: GetBtcThorTxInfo = async ({
-  deps,
   sellAsset,
   buyAsset,
   sellAmountCryptoBaseUnit,
@@ -43,12 +44,16 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
   destinationAddress,
   protocolFees,
   affiliateBps,
+  buyAssetUsdRate,
+  feeAssetUsdRate,
 }) => {
-  const { assetReference, assetNamespace } = fromAssetId(sellAsset.assetId)
-  const isErc20Trade = assetNamespace === 'erc20'
-  const maybeInboundAddress = await getInboundAddressDataForChain(deps.daemonUrl, sellAsset.assetId)
+  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+  const { assetReference } = fromAssetId(sellAsset.assetId)
+
+  const maybeInboundAddress = await getInboundAddressDataForChain(daemonUrl, sellAsset.assetId)
   if (maybeInboundAddress.isErr()) return Err(maybeInboundAddress.unwrapErr())
   const inboundAddress = maybeInboundAddress.unwrap()
+
   const router = inboundAddress.router
   const vault = inboundAddress.address
 
@@ -66,10 +71,11 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
     sellAmountCryptoBaseUnit,
     sellAsset,
     slippageTolerance,
-    deps,
     protocolFees,
     receiveAddress: destinationAddress,
     affiliateBps,
+    buyAssetUsdRate,
+    feeAssetUsdRate,
   })
 
   return maybeLimit.andThen(limit => {
@@ -83,7 +89,9 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
     const data = deposit(
       router,
       vault,
-      isErc20Trade ? assetReference : '0x0000000000000000000000000000000000000000',
+      isNativeEvmAsset(sellAsset.assetId)
+        ? '0x0000000000000000000000000000000000000000'
+        : assetReference,
       sellAmountCryptoBaseUnit,
       memo,
     )

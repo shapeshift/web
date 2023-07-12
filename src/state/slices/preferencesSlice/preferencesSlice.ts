@@ -42,14 +42,20 @@ export type FeatureFlags = {
   Jaypegz: boolean
   OneInch: boolean
   CovalentJaypegs: boolean
+  Chatwoot: boolean
   MultiHopTrades: boolean
+  CoinbaseWallet: boolean
+  AdvancedSlippage: boolean
 }
 
 export type Flag = keyof FeatureFlags
 
 export enum CurrencyFormats {
-  DotDecimal = 'en-US',
-  CommaDecimal = 'fr-FR',
+  DotDecimalCommaThousands = 'en-US', // $123,456.78 (examples for a user using USD)
+  DotDecimalCommaThousandsLakhCrore = 'en-IN', // $1,23,456.78
+  DotDecimalQuoteThousands = 'de-CH', // $ 123’456.78
+  CommaDecimalSpaceThousands = 'fr-FR', // 123 456,78 $US
+  CommaDecimalDotThousands = 'de-DE', // 123.456,78 $
 }
 
 export type Preferences = {
@@ -97,12 +103,15 @@ const initialState: Preferences = {
     DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
     ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
     OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
+    Chatwoot: getConfig().REACT_APP_FEATURE_CHATWOOT,
     MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
+    CoinbaseWallet: getConfig().REACT_APP_FEATURE_COINBASE_WALLET,
+    AdvancedSlippage: getConfig().REACT_APP_ADVANCED_SLIPPAGE,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
   selectedCurrency: 'USD',
-  currencyFormat: CurrencyFormats.DotDecimal,
+  currencyFormat: CurrencyFormats.DotDecimalCommaThousands,
   chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
   showWelcomeModal: false,
   showConsentBanner: true,

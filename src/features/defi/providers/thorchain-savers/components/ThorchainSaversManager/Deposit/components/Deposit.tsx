@@ -1,7 +1,7 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { GetFeeDataInput, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads/build'
 import { Ok } from '@sniptt/monads/build'
 import { getConfig } from 'config'
@@ -35,7 +35,7 @@ import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwa
 import {
   BASE_BPS_POINTS,
   fromThorBaseUnit,
-  getThorchainSaversDepositQuote,
+  getMaybeThorchainSaversDepositQuote,
   isAboveDepositDustThreshold,
   makeDaysToBreakEven,
   THORCHAIN_SAVERS_DUST_THRESHOLDS,
@@ -167,24 +167,29 @@ export const Deposit: React.FC<DepositProps> = ({
         const amountCryptoBaseUnit = bnOrZero(deposit.cryptoAmount).times(
           bn(10).pow(asset.precision),
         )
-        const quote = await getThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
+        const maybeQuote = await getMaybeThorchainSaversDepositQuote({
+          asset,
+          amountCryptoBaseUnit,
+        })
+        if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+        const quote = maybeQuote.unwrap()
+
         const chainAdapters = getChainAdapterManager()
         // We're lying to Ts, this isn't always an UtxoBaseAdapter
         // But typing this as any chain-adapter won't narrow down its type and we'll have errors at `chainSpecific` property
         const adapter = chainAdapters.get(chainId) as unknown as UtxoBaseAdapter<UtxoChainId>
-        const fastFeeCryptoBaseUnit = (
-          await adapter.getFeeData({
-            to: quote.inbound_address,
-            value: amountCryptoBaseUnit.toFixed(0),
-            // EVM chains are the only ones explicitly requiring a `from` param for the gas estimation to work
-            // UTXOs simply call /api/v1/fees (common for all accounts), and Cosmos assets fees are hardcoded
-            chainSpecific: {
-              pubkey: userAddress,
-              from: supportedEvmChainIds.includes(chainId) ? userAddress : '',
-            },
-            sendMax: Boolean(state?.deposit.sendMax),
-          })
-        ).fast.txFee
+        const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
+          to: quote.inbound_address,
+          value: amountCryptoBaseUnit.toFixed(0),
+          // EVM chains are the only ones explicitly requiring a `from` param for the gas estimation to work
+          // UTXOs simply call /api/v1/fees (common for all accounts), and Cosmos assets fees are hardcoded
+          chainSpecific: {
+            pubkey: userAddress,
+            from: supportedEvmChainIds.includes(chainId) ? userAddress : '',
+          },
+          sendMax: Boolean(state?.deposit.sendMax),
+        }
+        const fastFeeCryptoBaseUnit = (await adapter.getFeeData(getFeeDataInput)).fast.txFee
 
         const fastFeeCryptoPrecision = bnOrZero(
           bn(fastFeeCryptoBaseUnit).div(bn(10).pow(asset.precision)),
@@ -374,10 +379,14 @@ export const Deposit: React.FC<DepositProps> = ({
 
     const debounced = debounce(async () => {
       setQuoteLoading(true)
-      const quote = await getThorchainSaversDepositQuote({
+      const maybeQuote = await getMaybeThorchainSaversDepositQuote({
         asset,
         amountCryptoBaseUnit,
       })
+
+      if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+
+      const quote = maybeQuote.unwrap()
       const { slippage_bps, expected_amount_out: expectedAmountOutThorBaseUnit } = quote
       const slippagePercentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
       // slippage going into position - 0.007 ETH for 5 ETH deposit

@@ -1,17 +1,16 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { SwapperName } from 'lib/swapper/api'
-import { assertUnreachable } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
+import { selectWalletAccountIds } from '../common-selectors'
 import { selectCryptoMarketData } from '../marketDataSlice/selectors'
+import { selectPortfolioAssetAccountBalancesSortedUserCurrency } from '../portfolioSlice/selectors'
+import {
+  getFirstAccountIdByChainId,
+  getHighestUserCurrencyBalanceAccountByAssetId,
+} from '../portfolioSlice/utils'
 
 const selectSwappers = (state: ReduxState) => state.swappers
-
-export const selectSelectedQuote = createSelector(
-  selectSwappers,
-  swappers => swappers.selectedQuote,
-)
 
 export const selectBuyAsset = createDeepEqualOutputSelector(
   selectSwappers,
@@ -23,19 +22,58 @@ export const selectSellAsset = createDeepEqualOutputSelector(
   swappers => swappers.sellAsset,
 )
 
-export const selectSellAssetAccountId = createSelector(
+// selects the account ID we're selling from
+// note lack of "asset" and "hop" vernacular - this is deliberate
+export const selectSellAccountId = createSelector(
   selectSwappers,
-  swappers => swappers.sellAssetAccountId,
+  selectSellAsset,
+  selectPortfolioAssetAccountBalancesSortedUserCurrency,
+  selectWalletAccountIds,
+  (swappers, sellAsset, accountIdAssetValues, accountIds) => {
+    // return the users selection if it exists
+    if (swappers.sellAssetAccountId) return swappers.sellAssetAccountId
+
+    const highestFiatBalanceSellAccountId = getHighestUserCurrencyBalanceAccountByAssetId(
+      accountIdAssetValues,
+      sellAsset.assetId,
+    )
+    const firstSellAssetAccountId = getFirstAccountIdByChainId(accountIds, sellAsset.chainId)
+
+    // otherwise return a sane default
+    return highestFiatBalanceSellAccountId ?? firstSellAssetAccountId
+  },
 )
 
-export const selectReceiveAddress = createSelector(
+// selects the account ID we're buying into
+// note lack of "asset" and "hop" vernacular - this is deliberate
+export const selectBuyAccountId = createSelector(
   selectSwappers,
-  swappers => swappers.receiveAddress,
+  selectBuyAsset,
+  selectPortfolioAssetAccountBalancesSortedUserCurrency,
+  selectWalletAccountIds,
+  (swappers, buyAsset, accountIdAssetValues, accountIds) => {
+    // return the users selection if it exists
+    if (swappers.buyAssetAccountId) return swappers.buyAssetAccountId
+
+    const highestFiatBalanceBuyAccountId = getHighestUserCurrencyBalanceAccountByAssetId(
+      accountIdAssetValues,
+      buyAsset.assetId,
+    )
+    const firstBuyAssetAccountId = getFirstAccountIdByChainId(accountIds, buyAsset.chainId)
+
+    // otherwise return a sane default
+    return highestFiatBalanceBuyAccountId ?? firstBuyAssetAccountId
+  },
 )
 
 export const selectSellAmountCryptoPrecision = createSelector(
   selectSwappers,
   swappers => swappers.sellAmountCryptoPrecision,
+)
+
+export const selectTradeExecutionStatus = createSelector(
+  selectSwappers,
+  swappers => swappers.tradeExecutionStatus,
 )
 
 export const selectBuyAssetUsdRate = createSelector(
@@ -49,32 +87,14 @@ export const selectBuyAssetUsdRate = createSelector(
   },
 )
 
-/*
-  Cross-account trading means trades that are either:
-    - Trades between assets on the same chain but different accounts
-    - Trades between assets on different chains (and possibly different accounts)
-   When adding a new swapper, ensure that `true` is returned here if either of the above apply.
-   */
-export const selectSwapperSupportsCrossAccountTrade = createSelector(
-  selectSelectedQuote,
-  selectedQuote => {
-    if (selectedQuote === undefined) return undefined
+export const selectWillDonate = createSelector(selectSwappers, swappers => swappers.willDonate)
 
-    switch (selectedQuote) {
-      case SwapperName.Thorchain:
-      case SwapperName.Osmosis:
-        return true
-      // NOTE: Before enabling cross-account for LIFI and OneInch - we must pass the sending address
-      // to the swappers up so allowance checks work. They're currently using the receive address
-      // assuming its the same address as the sending address.
-      case SwapperName.LIFI:
-      case SwapperName.OneInch:
-      case SwapperName.Zrx:
-      case SwapperName.CowSwap:
-      case SwapperName.Test:
-        return false
-      default:
-        assertUnreachable(selectedQuote)
-    }
-  },
+export const selectManualReceiveAddress = createSelector(
+  selectSwappers,
+  swappers => swappers.manualReceiveAddress,
+)
+
+export const selectManualReceiveAddressIsValidating = createSelector(
+  selectSwappers,
+  swappers => swappers.manualReceiveAddressIsValidating,
 )

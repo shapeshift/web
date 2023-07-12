@@ -12,9 +12,9 @@ import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
@@ -27,6 +27,7 @@ import { DepositContext } from '../DepositContext'
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
+  const { poll } = usePoll()
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCryptoBaseUnit = state?.approve.estimatedGasCryptoBaseUnit
@@ -153,19 +154,20 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
     }
   }, [
-    accountAddress,
-    foxyApi,
-    asset.precision,
     assetReference,
-    bip44Params,
-    contractAddress,
+    accountAddress,
+    walletState.wallet,
+    foxyApi,
     dispatch,
+    bip44Params,
+    state,
+    contractAddress,
+    asset.precision,
+    poll,
     getDepositGasEstimateCryptoBaseUnit,
     onNext,
-    state,
     toast,
     translate,
-    walletState.wallet,
   ])
 
   const hasEnoughBalanceForGas = useMemo(

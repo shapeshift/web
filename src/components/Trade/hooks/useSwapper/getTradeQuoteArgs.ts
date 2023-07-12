@@ -1,4 +1,4 @@
-import type { UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainAdapter, UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
@@ -19,8 +19,10 @@ export type GetTradeQuoteInputArgs = {
   sellAccountType: UtxoAccountType | undefined
   sellAccountNumber: number
   wallet: HDWallet
-  receiveAddress: string | undefined
+  receiveAddress: string
   sellAmountBeforeFeesCryptoPrecision: string
+  allowMultiHop: boolean
+  affiliateBps?: string
 }
 
 export const getTradeQuoteArgs = async ({
@@ -31,6 +33,8 @@ export const getTradeQuoteArgs = async ({
   wallet,
   receiveAddress,
   sellAmountBeforeFeesCryptoPrecision,
+  allowMultiHop,
+  affiliateBps,
 }: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput | undefined> => {
   if (!sellAsset || !buyAsset) return undefined
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
@@ -42,20 +46,33 @@ export const getTradeQuoteArgs = async ({
     buyAsset,
     receiveAddress,
     accountNumber: sellAccountNumber,
-    affiliateBps: '0',
+    affiliateBps: affiliateBps ?? '0',
+    allowMultiHop,
   }
   if (isEvmSwap(sellAsset?.chainId) || isCosmosSdkSwap(sellAsset?.chainId)) {
-    const eip1559Support = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+    const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+    const sellAssetChainAdapter = getChainAdapterManager().get(
+      sellAsset.chainId,
+    ) as unknown as EvmChainAdapter
+    const sendAddress = await sellAssetChainAdapter.getAddress({
+      accountNumber: sellAccountNumber,
+      wallet,
+    })
     return {
       ...tradeQuoteInputCommonArgs,
       chainId: sellAsset.chainId,
-      eip1559Support,
+      supportsEIP1559,
+      sendAddress,
     }
   } else if (isUtxoSwap(sellAsset?.chainId)) {
     if (!sellAccountType) return
     const sellAssetChainAdapter = getChainAdapterManager().get(
       sellAsset.chainId,
-    ) as unknown as UtxoBaseAdapter<UtxoChainId>
+    ) as unknown as UtxoChainAdapter
+    const sendAddress = await sellAssetChainAdapter.getAddress({
+      accountNumber: sellAccountNumber,
+      wallet,
+    })
     const { xpub } = await sellAssetChainAdapter.getPublicKey(
       wallet,
       sellAccountNumber,
@@ -66,6 +83,7 @@ export const getTradeQuoteArgs = async ({
       chainId: sellAsset.chainId,
       accountType: sellAccountType,
       xpub,
+      sendAddress,
     }
   }
 }

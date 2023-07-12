@@ -5,7 +5,6 @@ import { IdleManager } from 'features/defi/providers/idle/components/IdleManager
 import { OsmosisManager } from 'features/defi/providers/osmosis/components/OsmosisManager/OsmosisManager'
 import { ThorchainSaversManager } from 'features/defi/providers/thorchain-savers/components/ThorchainSaversManager/ThorchainSaversManager'
 import { UniV2LpManager } from 'features/defi/providers/univ2/components/UniV2Manager/UniV2LpManager'
-import { YearnManager } from 'features/defi/providers/yearn/components/YearnManager/YearnManager'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 
 export const DefiProviderToDefiModuleResolverByDeFiType = {
@@ -17,9 +16,6 @@ export const DefiProviderToDefiModuleResolverByDeFiType = {
   },
   [DefiProvider.Idle]: {
     [`${DefiType.Staking}`]: IdleManager,
-  },
-  [DefiProvider.Yearn]: {
-    [`${DefiType.Staking}`]: YearnManager,
   },
   [DefiProvider.ThorchainSavers]: {
     [`${DefiType.Staking}`]: ThorchainSaversManager,

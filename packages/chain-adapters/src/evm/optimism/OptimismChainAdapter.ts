@@ -3,10 +3,11 @@ import { ASSET_REFERENCE, optimismAssetId } from '@shapeshiftoss/caip'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
+import BigNumber from 'bignumber.js'
 
 import type { FeeDataEstimate, GetFeeDataInput } from '../../types'
 import { ChainAdapterDisplayName } from '../../types'
-import { bn, bnOrZero, calcFee } from '../../utils'
+import { bnOrZero } from '../../utils'
 import type { ChainAdapterArgs } from '../EvmBaseAdapter'
 import { EvmBaseAdapter } from '../EvmBaseAdapter'
 import type { GasFeeDataEstimate } from '../types'
@@ -64,46 +65,49 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.OptimismMainnet> 
     return this.assetId
   }
 
-  async getGasFeeData(): Promise<GasFeeDataEstimate & { l1GasPrice: string }> {
-    const { gasPrice, l1GasPrice } = await this.api.getGasFees()
-
-    const scalars = { fast: bn(1.1), average: bn(1), slow: bn(0.9) }
+  async getGasFeeData(): Promise<GasFeeDataEstimate> {
+    const { fast, average, slow, l1GasPrice } = await this.api.getGasFees()
 
     return {
-      fast: { gasPrice: calcFee(gasPrice, 'fast', scalars) },
-      average: { gasPrice: calcFee(gasPrice, 'average', scalars) },
-      slow: { gasPrice: calcFee(gasPrice, 'slow', scalars) },
-      l1GasPrice,
+      fast: { ...fast, l1GasPrice },
+      average: { ...average, l1GasPrice },
+      slow: { ...slow, l1GasPrice },
     }
   }
 
   async getFeeData(
     input: GetFeeDataInput<KnownChainIds.OptimismMainnet>,
-  ): Promise<
-    FeeDataEstimate<KnownChainIds.OptimismMainnet> & { l1GasPrice: string; l1GasLimit: string }
-  > {
+  ): Promise<FeeDataEstimate<KnownChainIds.OptimismMainnet>> {
     const req = await this.buildEstimateGasRequest(input)
 
     const { gasLimit, l1GasLimit } = await this.api.estimateGas(req)
-    const { fast, average, slow, l1GasPrice } = await this.getGasFeeData()
-
-    const l1Fee = bn(l1GasPrice).times(l1GasLimit)
+    const { fast, average, slow } = await this.getGasFeeData()
 
     return {
       fast: {
-        txFee: bnOrZero(bn(fast.gasPrice).times(gasLimit).plus(l1Fee)).toFixed(0),
-        chainSpecific: { gasLimit, ...fast },
+        txFee: bnOrZero(
+          BigNumber.max(fast.gasPrice, fast.maxFeePerGas ?? 0)
+            .times(gasLimit)
+            .plus(bnOrZero(fast.l1GasPrice).times(l1GasLimit)),
+        ).toFixed(0),
+        chainSpecific: { gasLimit, l1GasLimit, ...fast },
       },
       average: {
-        txFee: bnOrZero(bn(average.gasPrice).times(gasLimit).plus(l1Fee)).toFixed(0),
-        chainSpecific: { gasLimit, ...average },
+        txFee: bnOrZero(
+          BigNumber.max(average.gasPrice, average.maxFeePerGas ?? 0)
+            .times(gasLimit)
+            .plus(bnOrZero(average.l1GasPrice).times(l1GasLimit)),
+        ).toFixed(0),
+        chainSpecific: { gasLimit, l1GasLimit, ...average },
       },
       slow: {
-        txFee: bnOrZero(bn(slow.gasPrice).times(gasLimit).plus(l1Fee)).toFixed(0),
-        chainSpecific: { gasLimit, ...slow },
+        txFee: bnOrZero(
+          BigNumber.max(slow.gasPrice, slow.maxFeePerGas ?? 0)
+            .times(gasLimit)
+            .plus(bnOrZero(slow.l1GasPrice).times(l1GasLimit)),
+        ).toFixed(0),
+        chainSpecific: { gasLimit, l1GasLimit, ...slow },
       },
-      l1GasPrice,
-      l1GasLimit,
     }
   }
 }

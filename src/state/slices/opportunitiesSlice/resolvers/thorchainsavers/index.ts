@@ -116,7 +116,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       midgardPools.find(pool => pool.asset === thorchainPool.asset)?.saversAPR,
     ).toString()
     const tvl = fromThorBaseUnit(thorchainPool.synth_supply).times(marketData.price).toFixed()
-    const saversMaxSupplyFiat = fromThorBaseUnit(
+    const saversMaxSupplyUserCurrency = fromThorBaseUnit(
       bnOrZero(thorchainPool.synth_supply).plus(thorchainPool.synth_supply_remaining),
     )
       .times(marketData.price)
@@ -136,7 +136,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       // Thorchain opportunities represent a single native asset being staked, so the ratio will always be 1
       underlyingAssetRatiosBaseUnit: [underlyingAssetRatioBaseUnit],
       name: `${underlyingAsset.symbol} Vault`,
-      saversMaxSupplyFiat,
+      saversMaxSupplyFiat: saversMaxSupplyUserCurrency,
       isFull: thorchainPool.synth_mint_paused,
       isClaimableRewards: false,
     }

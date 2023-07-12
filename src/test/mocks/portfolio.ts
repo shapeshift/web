@@ -7,6 +7,7 @@ import {
   optimismAssetId,
   osmosisAssetId,
   polygonAssetId,
+  thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -90,6 +91,13 @@ export const mockChainAdapters = new Map([
     {
       getFeeAssetId: () => osmosisAssetId,
       getDisplayName: () => 'Osmosis',
+    },
+  ],
+  [
+    KnownChainIds.ThorchainMainnet,
+    {
+      getFeeAssetId: () => thorchainAssetId,
+      getDisplayName: () => 'Thorchain',
     },
   ],
 ])

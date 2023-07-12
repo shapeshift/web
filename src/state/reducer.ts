@@ -2,12 +2,14 @@ import { combineReducers } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import { persistReducer } from 'redux-persist'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { abiApi } from './apis/abi/abiApi'
 import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { nft, nftApi } from './apis/nft/nftApi'
+import { swappersApi } from './apis/swappers/swappersApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
 import { zerionApi } from './apis/zerion/zerionApi'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
@@ -16,7 +18,7 @@ import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSl
 import { opportunities } from './slices/opportunitiesSlice/opportunitiesSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
-import { swappers, swappersApi } from './slices/swappersSlice/swappersSlice'
+import { swappers } from './slices/swappersSlice/swappersSlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
 export const slices = {
@@ -28,6 +30,7 @@ export const slices = {
   opportunities,
   nft,
   swappers,
+  tradeQuoteSlice,
 }
 
 const preferencesPersistConfig = {
@@ -46,6 +49,7 @@ export const sliceReducers = {
   swappers: swappers.reducer,
   opportunities: opportunities.reducer,
   nft: nft.reducer,
+  tradeQuoteSlice: tradeQuoteSlice.reducer,
 }
 
 export const apiSlices = {

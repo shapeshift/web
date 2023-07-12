@@ -14,7 +14,7 @@ import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
 import { numberToHex } from 'web3-utils'
 
-import type { BuildSendTxInput, SignMessageInput, SignTxInput } from '../../types'
+import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
 import { bn } from '../../utils/bignumber'
@@ -42,11 +42,22 @@ const gasLimit = '42000'
 const contractAddress = '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d'
 const value = 400
 
-const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress: string }) =>
+const makeChainSpecific = (chainSpecificAdditionalProps?: { contractAddress: string }) =>
   merge({ gasPrice, gasLimit }, chainSpecificAdditionalProps)
 
-const makeGetGasFeesMockedResponse = (overrideArgs?: { gasPrice?: string }) =>
-  merge({ gasPrice: '5' }, overrideArgs)
+const makeGetGasFeesMockedResponse = (overrideArgs?: {
+  slow: { gasPrice?: string }
+  average: { gasPrice?: string }
+  fast: { gasPrice?: string }
+}) =>
+  merge(
+    {
+      slow: { gasPrice: '4' },
+      average: { gasPrice: '5' },
+      fast: { gasPrice: '6' },
+    },
+    overrideArgs,
+  )
 
 const makeEstimateGasMockedResponse = (overrideArgs?: { gasLimit?: string }) =>
   merge({ gasLimit: '21000' }, overrideArgs)
@@ -114,14 +125,15 @@ describe('BscChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new bsc.ChainAdapter(args)
 
-      const data = await adapter.getFeeData({
+      const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
         to: '0x642F4Bda144C63f6DC47EE0fDfbac0a193e2eDb7',
         value: '123',
         chainSpecific: {
           from: ZERO_ADDRESS,
-          contractData: '0x',
+          data: '0x',
         },
-      })
+      }
+      const data = await adapter.getFeeData(getFeeDataInput)
 
       expect(data).toEqual(
         expect.objectContaining({
@@ -135,16 +147,16 @@ describe('BscChainAdapter', () => {
           fast: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '5',
+              gasPrice: '6',
             },
-            txFee: '105000',
+            txFee: '126000',
           },
           slow: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '5',
+              gasPrice: '4',
             },
-            txFee: '105000',
+            txFee: '84000',
           },
         }),
       )
@@ -165,8 +177,8 @@ describe('BscChainAdapter', () => {
       expect(data).toEqual(
         expect.objectContaining({
           average: { gasPrice: '5' },
-          fast: { gasPrice: '5' },
-          slow: { gasPrice: '5' },
+          fast: { gasPrice: '6' },
+          slow: { gasPrice: '4' },
         }),
       )
     })
@@ -379,7 +391,7 @@ describe('BscChainAdapter', () => {
         wallet: await getWallet(),
         accountNumber,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress: contractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
@@ -439,7 +451,7 @@ describe('BscChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true without chainSpecific.tokenContractAddress should throw if balance is 0', async () => {
+    it('sendmax: true without chainSpecific.contractAddress should throw if balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
@@ -462,7 +474,7 @@ describe('BscChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendMax: true without chainSpecific.tokenContractAddress - should build a tx with full account balance - gas fee', async () => {
+    it('sendMax: true without chainSpecific.contractAddress - should build a tx with full account balance - gas fee', async () => {
       const balance = '2500000'
       const expectedValue = numberToHex(
         bn(balance).minus(bn(gasLimit).multipliedBy(gasPrice)) as any,
@@ -518,7 +530,7 @@ describe('BscChainAdapter', () => {
         accountNumber,
         to: ZERO_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress: contractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
@@ -537,7 +549,7 @@ describe('BscChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true with chainSpecific.tokenContractAddress should build a tx with full account balance - gas fee', async () => {
+    it('sendmax: true with chainSpecific.contractAddress should build a tx with full account balance - gas fee', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
@@ -554,7 +566,7 @@ describe('BscChainAdapter', () => {
         accountNumber,
         to: EOA_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress: contractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
 
@@ -574,7 +586,7 @@ describe('BscChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true with chainSpecific.tokenContractAddress should throw if token balance is 0', async () => {
+    it('sendmax: true with chainSpecific.contractAddress should throw if token balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
@@ -591,7 +603,7 @@ describe('BscChainAdapter', () => {
         accountNumber,
         to: EOA_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress: contractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
 

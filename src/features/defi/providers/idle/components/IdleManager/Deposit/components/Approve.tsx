@@ -16,6 +16,7 @@ import { useTranslate } from 'react-polyglot'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
@@ -23,7 +24,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { ssRouterContractAddress } from 'lib/investor/constants'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { poll } from 'lib/poll/poll'
 import { isSome } from 'lib/utils'
 import { getIdleInvestor } from 'state/slices/opportunitiesSlice/resolvers/idle/idleInvestorSingleton'
 import {
@@ -40,6 +40,7 @@ import { DepositContext } from '../DepositContext'
 type IdleApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
+  const { poll } = usePoll()
   const idleInvestor = useMemo(() => getIdleInvestor(), [])
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCryptoBaseUnit = state?.approve.estimatedGasCryptoBaseUnit
@@ -188,6 +189,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
     chainAdapter,
     underlyingAsset,
     idleInvestor,
+    poll,
     getDepositGasEstimateCryptoBaseUnit,
     state?.deposit,
     onNext,

@@ -8,6 +8,9 @@ import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTim
 import { KeepKeyMenu } from 'components/Layout/Header/NavBar/KeepKey/KeepKeyMenu'
 import { NativeMenu } from 'components/Layout/Header/NavBar/Native/NativeMenu'
 
+import { CoinbaseConnect } from './Coinbase/components/Connect'
+import { CoinbaseFailure } from './Coinbase/components/Failure'
+import { CoinbaseConfig } from './Coinbase/config'
 import { DemoConfig } from './DemoWallet/config'
 import { KeepKeyConnect } from './KeepKey/components/Connect'
 import { KeepKeyDisconnect } from './KeepKey/components/Disconnect'
@@ -145,6 +148,13 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     routes: [
       { path: '/xdefi/connect', component: XDEFIConnect },
       { path: '/xdefi/failure', component: XDEFIFailure },
+    ],
+  },
+  [KeyManager.Coinbase]: {
+    ...CoinbaseConfig,
+    routes: [
+      { path: '/coinbase/connect', component: CoinbaseConnect },
+      { path: '/coinbase/failure', component: CoinbaseFailure },
     ],
   },
   [KeyManager.Demo]: {

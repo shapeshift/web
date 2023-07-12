@@ -28,9 +28,9 @@ import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { setTimeoutAsync } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
+import { nftApi } from 'state/apis/nft/nftApi'
 import { zapper } from 'state/apis/zapper/zapperApi'
-import { assets as assetsSlice, useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
+import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
   useFindAllQuery,
@@ -56,7 +56,7 @@ import {
   selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
-import { store, useAppDispatch, useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -175,8 +175,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         // add any nft assets detected in the tx history state.
         // this will ensure we have all nft assets that have been associated with the account in the assetSlice with parsed metadata.
         // additional nft asset upserts will be handled by the transactions websocket subscription.
-        const txsById = store.getState().txHistory.txs.byId
-        dispatch(assetsSlice.actions.upsertAssets(makeNftAssetsFromTxs(Object.values(txsById))))
+        // NOTE: We currently upsert NFTs in nftApi, which blockbook data currently overwrites, however, said blockbook data is borked
+        // TODO: remove me or uncomment me when blockbook data is fixed
+        // const txsById = store.getState().txHistory.txs.byId
+        // dispatch(assetsSlice.actions.upsertAssets(makeNftAssetsFromTxs(Object.values(txsById))))
       }
     })()
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
@@ -187,6 +189,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       if (portfolioLoadingStatus === 'loading') return
 
       const { getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
+
+      dispatch(nftApi.endpoints.getNftUserTokens.initiate({ accountIds: requestedAccountIds }))
 
       dispatch(zapper.endpoints.getZapperAppsBalancesOutput.initiate())
 

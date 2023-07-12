@@ -1,6 +1,8 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
+import { useColorModeValue } from '@chakra-ui/react'
 import detectEthereumProvider from '@metamask/detect-provider'
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import type { CoinbaseProviderConfig } from '@shapeshiftoss/hdwallet-coinbase'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
@@ -90,6 +92,7 @@ export type KeyManagerWithProvider =
   | KeyManager.XDefi
   | KeyManager.MetaMask
   | KeyManager.WalletConnect
+  | KeyManager.Coinbase
 
 export interface InitialState {
   keyring: Keyring
@@ -136,7 +139,12 @@ export const isKeyManagerWithProvider = (
 ): keyManager is KeyManagerWithProvider =>
   Boolean(
     keyManager &&
-      [KeyManager.XDefi, KeyManager.MetaMask, KeyManager.WalletConnect].includes(keyManager),
+      [
+        KeyManager.XDefi,
+        KeyManager.MetaMask,
+        KeyManager.WalletConnect,
+        KeyManager.Coinbase,
+      ].includes(keyManager),
   )
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -340,6 +348,7 @@ const getInitialState = () => {
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   // External, exposed state to be consumed with useWallet()
   const [state, dispatch] = useReducer(reducer, getInitialState())
+  const isDarkMode = useColorModeValue(false, true)
   // Internal state, for memoization purposes only
   const [walletType, setWalletType] = useState<KeyManagerWithProvider | null>(null)
 
@@ -470,6 +479,34 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                     type: WalletActions.SET_WALLET,
                     payload: {
                       wallet: localMetaMaskWallet,
+                      name,
+                      icon,
+                      deviceId,
+                    },
+                  })
+                  dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                } catch (e) {
+                  disconnect()
+                }
+              } else {
+                disconnect()
+              }
+              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+              break
+            case KeyManager.Coinbase:
+              const localCoinbaseWallet = await state.adapters
+                .get(KeyManager.Coinbase)?.[0]
+                ?.pairDevice()
+              if (localCoinbaseWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.Coinbase]
+                try {
+                  await localCoinbaseWallet.initialize()
+                  const deviceId = await localCoinbaseWallet.getDeviceID()
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localCoinbaseWallet,
                       name,
                       icon,
                       deviceId,
@@ -688,7 +725,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         const adapters: Adapters = new Map()
         for (const keyManager of Object.values(KeyManager)) {
           try {
-            type KeyManagerOptions = undefined | WalletConnectProviderConfig
+            type KeyManagerOptions =
+              | undefined
+              | WalletConnectProviderConfig
+              | CoinbaseProviderConfig
 
             type GetKeyManagerOptions = (keyManager: KeyManager) => KeyManagerOptions
 
@@ -699,6 +739,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                     rpc: {
                       1: getConfig().REACT_APP_ETHEREUM_NODE_URL,
                     },
+                  }
+                case 'coinbase':
+                  return {
+                    appName: 'ShapeShift',
+                    appLogoUrl: 'https://avatars.githubusercontent.com/u/52928763?s=50&v=4',
+                    defaultJsonRpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+                    defaultChainId: 1,
+                    darkMode: isDarkMode,
                   }
                 default:
                   return undefined
@@ -729,7 +777,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
       })()
     }
-  }, [state.keyring])
+  }, [isDarkMode, state.keyring])
 
   const connect = useCallback((type: KeyManager) => {
     // remove existing dapp or wallet connections

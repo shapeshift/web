@@ -86,7 +86,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         </Flex>
       </Card.Body>
       {assetId && (
-        <Card.Footer p={0} borderTopWidth={1} borderColor={borderColor}>
+        <Card.Footer p={{ base: 0, md: 0 }} borderTopWidth={1} borderColor={borderColor}>
           <AccountDropdown
             {...(accountId ? { defaultAccountId: accountId } : {})}
             assetId={assetId}

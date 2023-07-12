@@ -24,7 +24,7 @@ import {
 import { selectAssetByFilter, selectAssets } from '../../assetsSlice/selectors'
 import {
   selectPortfolioAssetBalancesBaseUnit,
-  selectPortfolioFiatBalances,
+  selectPortfolioUserCurrencyBalances,
   selectWalletAccountIds,
 } from '../../common-selectors'
 import {
@@ -166,7 +166,7 @@ export const selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit = cr
     ),
 )
 // The same as selectUserStakingOpportunitiesWithMetadataByFilter, but reduces all data (delegated/undelegated/rewards) into one BN
-export const selectUserStakingOpportunitiesAggregatedByFilterFiat = createSelector(
+export const selectUserStakingOpportunitiesAggregatedByFilterUserCurrency = createSelector(
   selectUserStakingOpportunitiesAggregatedByFilterCryptoBaseUnit,
   selectAssetByFilter,
   selectMarketDataByFilter,
@@ -461,11 +461,11 @@ export const selectActiveAggregatedEarnUserStakingOpportunitiesWithTotalFiatAmou
 // Returns a single aggregated amount, for all opportunities, accounts, and assets
 // Including delegations, undelegations, and rewards
 // Also slaps in ETH/FOX balances which value lives in the portfolio vs. being an "upstream earn opportunity"
-export const selectEarnBalancesFiatAmountFull = createDeepEqualOutputSelector(
+export const selectEarnBalancesUserCurrencyAmountFull = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunities,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectAssets,
-  selectPortfolioFiatBalances,
+  selectPortfolioUserCurrencyBalances,
   (aggregatedUserStakingOpportunities, marketData, assets, portfolioFiatBalances): BN =>
     aggregatedUserStakingOpportunities
       .map(opportunity => makeOpportunityTotalFiatBalance({ opportunity, marketData, assets }))
@@ -549,7 +549,11 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
 
       const [activeResults, inactiveResults] = partition(
         sortedResultsByFiatAmount,
-        opportunity => !bnOrZero(opportunity.fiatAmount).isZero(),
+        opportunity =>
+          bnOrZero(opportunity.fiatAmount).gt(0) ||
+          opportunity.rewardsCryptoBaseUnit?.amounts.some(rewardsAmount =>
+            bnOrZero(rewardsAmount).gt(0),
+          ),
       )
       inactiveResults.sort((a, b) => (bnOrZero(a.apy).gte(bnOrZero(b.apy)) ? -1 : 1))
 

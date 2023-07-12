@@ -5,7 +5,12 @@ import { Portfolio } from './Portfolio'
 
 export const WalletDashboard = () => {
   return (
-    <Stack alignItems='flex-start' spacing={4} mx='auto' direction={{ base: 'column', xl: 'row' }}>
+    <Stack
+      alignItems='flex-start'
+      spacing={6}
+      mx='auto'
+      direction={{ base: 'column', '2xl': 'row' }}
+    >
       <Stack spacing={4} flex='1 1 0%' width='full'>
         <Portfolio />
       </Stack>

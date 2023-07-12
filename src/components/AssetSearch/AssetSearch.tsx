@@ -15,7 +15,7 @@ import { useHistory } from 'react-router'
 import { Card } from 'components/Card/Card'
 import type { Asset } from 'lib/asset-service'
 import {
-  selectAssetsSortedByMarketCapFiatBalanceAndName,
+  selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
   selectChainIdsByMarketCap,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -47,7 +47,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const chainIdsByMarketCap = useSelector(selectChainIdsByMarketCap)
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
   const assets = useAppSelector(
-    state => selectedAssets ?? selectAssetsSortedByMarketCapFiatBalanceAndName(state),
+    state => selectedAssets ?? selectAssetsSortedByMarketCapUserCurrencyBalanceAndName(state),
   )
 
   /**

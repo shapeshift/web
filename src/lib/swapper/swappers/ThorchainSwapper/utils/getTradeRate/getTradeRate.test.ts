@@ -1,10 +1,7 @@
-import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { Ok } from '@sniptt/monads'
 import type { AxiosStatic } from 'axios'
-import type Web3 from 'web3'
 
 import { BTC, ETH, FOX_MAINNET, UNSUPPORTED } from '../../../utils/test-data/assets'
-import type { ThorchainSwapperDeps } from '../../types'
 import { thorService } from '../thorService'
 import { getTradeRate } from './getTradeRate'
 jest.mock('../thorService', () => {
@@ -17,13 +14,6 @@ jest.mock('../thorService', () => {
 })
 
 describe('getTradeRate', () => {
-  const deps: ThorchainSwapperDeps = {
-    midgardUrl: '',
-    daemonUrl: '',
-    adapterManager: {} as ChainAdapterManager,
-    web3: {} as Web3,
-  }
-
   it('should calculate a correct rate for trading ETH to FOX', async () => {
     ;(thorService.get as jest.Mock<unknown>).mockReturnValue(
       Promise.resolve(
@@ -57,7 +47,6 @@ describe('getTradeRate', () => {
       buyAssetId: FOX_MAINNET.assetId,
       sellAmountCryptoBaseUnit: '1000000000000000000000000',
       receiveAddress,
-      deps,
       affiliateBps: '0',
     })
     const expectedRate = '0.00001727627203157549'
@@ -97,7 +86,6 @@ describe('getTradeRate', () => {
       buyAssetId: ETH.assetId,
       sellAmountCryptoBaseUnit: '100000000000',
       receiveAddress,
-      deps,
       affiliateBps: '0',
     })
     const expectedRate = '188875.98759875987598759876'
@@ -137,7 +125,6 @@ describe('getTradeRate', () => {
       buyAssetId: BTC.assetId,
       sellAmountCryptoBaseUnit: '100000000000',
       receiveAddress,
-      deps,
       affiliateBps: '0',
     })
     const expectedRate = '12372.23722372237223722372'
@@ -179,7 +166,6 @@ describe('getTradeRate', () => {
       buyAssetId: FOX_MAINNET.assetId,
       sellAmountCryptoBaseUnit: '1000000000',
       receiveAddress,
-      deps,
       affiliateBps: '0',
     })
     const expectedRate = '463354.73381180932128300549'
@@ -200,7 +186,6 @@ describe('getTradeRate', () => {
         buyAssetId: ETH.assetId,
         sellAmountCryptoBaseUnit: '1000000000000000000',
         receiveAddress,
-        deps,
         affiliateBps: '0',
       }),
     ).rejects.toThrow(`[getTradeRate]: No sellPoolId for asset ${UNSUPPORTED.assetId}`)
@@ -239,7 +224,6 @@ describe('getTradeRate', () => {
       buyAssetId: FOX_MAINNET.assetId,
       sellAmountCryptoBaseUnit: '1000000000000000000000000',
       receiveAddress,
-      deps,
       affiliateBps: '100',
     })
     const expectedRate = '0.00001727627203157549'

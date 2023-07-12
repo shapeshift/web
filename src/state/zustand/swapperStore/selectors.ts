@@ -17,8 +17,8 @@ export const selectSellAmountCryptoPrecision = (state: SwapperState) =>
   state.sellAmountCryptoPrecision
 export const selectSellAsset = (state: SwapperState) => state.sellAsset
 export const selectBuyAsset = (state: SwapperState) => state.buyAsset
-export const selectSellAmountFiat = (state: SwapperState) => state.sellAmountFiat
-export const selectBuyAmountFiat = (state: SwapperState) => state.buyAmountFiat
+export const selectSellAmountUserCurrency = (state: SwapperState) => state.sellAmountUserCurrency
+export const selectBuyAmountUserCurrency = (state: SwapperState) => state.buyAmountUserCurrency
 
 export const selectAction = (state: SwapperState) => state.action
 export const selectAmount = (state: SwapperState) => state.amount
@@ -82,7 +82,9 @@ export const selectSwapperSupportsCrossAccountTrade = createSelector(
       // NOTE: Before enabling cross-account for LIFI and OneInch - we must pass the sending address
       // to the swappers up so allowance checks work. They're currently using the receive address
       // assuming its the same address as the sending address.
+      // PATCH: enable cross-account for lifi while we address root cause
       case SwapperName.LIFI:
+        return true
       case SwapperName.OneInch:
       case SwapperName.Zrx:
       case SwapperName.CowSwap:

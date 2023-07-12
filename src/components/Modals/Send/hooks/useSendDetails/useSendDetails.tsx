@@ -1,9 +1,11 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type {
+  CosmosSdkChainId,
   EvmBaseAdapter,
   EvmChainId,
   FeeDataEstimate,
+  GetFeeDataInput,
   UtxoBaseAdapter,
   UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
@@ -23,7 +25,7 @@ import {
   selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioFiatBalanceByFilter,
+  selectPortfolioUserCurrencyBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -81,8 +83,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     ),
   )
 
-  const fiatBalance = bnOrZero(
-    useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, { assetId, accountId })),
+  const userCurrencyBalance = bnOrZero(
+    useAppSelector(state =>
+      selectPortfolioUserCurrencyBalanceByFilter(state, { assetId, accountId }),
+    ),
   )
 
   const assetBalance = useAppSelector(state =>
@@ -192,7 +196,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     if (feeAsset.assetId !== assetId) {
       setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
-      setValue(SendFormFields.FiatAmount, fiatBalance.toFixed(2))
+      setValue(SendFormFields.FiatAmount, userCurrencyBalance.toFixed(2))
       setLoading(true)
 
       try {
@@ -227,29 +231,32 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         const { fastFee, adapterFees } = await (async () => {
           switch (chainNamespace) {
             case CHAIN_NAMESPACE.CosmosSdk: {
-              const adapterFees = await adapter.getFeeData({})
+              const getFeeDataInput: Partial<GetFeeDataInput<CosmosSdkChainId>> = {}
+              const adapterFees = await adapter.getFeeData(getFeeDataInput)
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
             case CHAIN_NAMESPACE.Evm: {
               const evmAdapter = adapter as unknown as EvmBaseAdapter<EvmChainId>
-              const adapterFees = await evmAdapter.getFeeData({
+              const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
                 to,
                 value: assetBalance,
                 chainSpecific: { contractAddress, from: account },
                 sendMax: true,
-              })
+              }
+              const adapterFees = await evmAdapter.getFeeData(getFeeDataInput)
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
             case CHAIN_NAMESPACE.Utxo: {
               const utxoAdapter = adapter as unknown as UtxoBaseAdapter<UtxoChainId>
-              const adapterFees = await utxoAdapter.getFeeData({
+              const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
                 to,
                 value: assetBalance,
                 chainSpecific: { pubkey: account },
                 sendMax: true,
-              })
+              }
+              const adapterFees = await utxoAdapter.getFeeData(getFeeDataInput)
               const fastFee = adapterFees.fast.txFee
               return { adapterFees, fastFee }
             }
@@ -363,7 +370,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     balancesLoading,
     fieldName,
     cryptoHumanBalance,
-    fiatBalance,
+    fiatBalance: userCurrencyBalance,
     handleNextClick,
     handleSendMax,
     handleInputChange,

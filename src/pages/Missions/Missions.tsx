@@ -1,17 +1,32 @@
-import { Box, chakra, Container, DarkMode, Heading, Stack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  chakra,
+  Container,
+  DarkMode,
+  Flex,
+  Heading,
+  Stack,
+} from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import timezone from 'dayjs/plugin/timezone'
+import type { PropsWithChildren } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { NavLink } from 'react-router-dom'
 import FoxMissionsBg from 'assets/fox-missions-bg.jpg'
 import FoxArmyBg from 'assets/foxarmy-bg.png'
 import FoxAtarBg from 'assets/foxatar-card-bg.png'
 import SponsorBg from 'assets/mission-sponsor-bg.jpg'
 import OptimismBg from 'assets/op-card-bg.png'
 import YatBg from 'assets/yat-mission-bg.png'
+import { Carousel } from 'components/Carousel/Carousel'
+import type { CarouselHeaderProps } from 'components/Carousel/types'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
+import type { FeatureListProps } from 'components/ScrollCarousel/ScrollCarousel'
 import { ScrollCarousel } from 'components/ScrollCarousel/ScrollCarousel'
 import { RawText } from 'components/Text'
 import { FOX_MISSION_REQUEST_PAGE } from 'pages/Missions/constants'
@@ -25,7 +40,8 @@ dayjs.extend(customParseFormat)
 dayjs.tz.setDefault('America/Denver')
 const dateFormat = 'YYYY-MM-DD hh:mm A'
 
-export const Missions = () => {
+export const useGetMissions = () => {
+  const now = dayjs()
   const translate = useTranslate()
   const missionItems: MissionProps[] = useMemo(() => {
     return [
@@ -42,16 +58,28 @@ export const Missions = () => {
         buttonText: translate('missions.optimism.cta'),
         coverImage: OptimismBg,
         onClick: () => window.open('https://rewards.shapeshift.com/optimistic-fox-1'),
-        endDate: '2023-06-30 08:00 AM',
+        endDate: '2023-07-04 05:59 PM',
+      },
+      {
+        title: translate('missions.optimism.title'),
+        subtitle: translate('missions.optimism.subtitle'),
+        buttonText: translate('missions.optimism.cta'),
+        coverImage: OptimismBg,
+        onClick: () => window.open('https://rewards.shapeshift.com/optimistic-fox-2'),
+        startDate: '2023-07-04 05:59 PM',
+        endDate: '2023-07-31 05:59 PM',
       },
       {
         title: translate('missions.foxArmy.title'),
         subtitle: translate('missions.foxArmy.subtitle'),
         buttonText: translate('missions.foxArmy.cta'),
         coverImage: FoxArmyBg,
-        onClick: () => window.open('https://x.postmint.xyz/'),
-        startDate: '2023-06-06 11:00 AM',
-        endDate: '2023-06-13 11:00 AM',
+        onClick: () =>
+          window.open(
+            'https://x.postmint.xyz/community/64665c31a6c1394b3a35be58/64997a2a590fc8641c50f51a',
+          ),
+        startDate: '2023-06-26 7:00 AM',
+        endDate: '2023-07-03 7:00 AM',
       },
       {
         title: translate('missions.yat.title'),
@@ -62,78 +90,109 @@ export const Missions = () => {
       },
     ]
   }, [translate])
+  const groupedMissions: {
+    future: MissionProps[]
+    past: MissionProps[]
+    active: MissionProps[]
+  } = missionItems.reduce(
+    (groups, mission) => {
+      const start = dayjs(mission.startDate, dateFormat)
+      const end = dayjs(mission.endDate, dateFormat)
+      if (now.isBefore(start) || !mission.onClick) {
+        groups.future.push(mission)
+      } else if (now.isAfter(end)) {
+        groups.past.push(mission)
+      } else {
+        groups.active.push(mission)
+      }
+      return groups
+    },
+    { future: [] as MissionProps[], past: [] as MissionProps[], active: [] as MissionProps[] },
+  )
+  return groupedMissions
+}
+type MissionCarouselProps = {
+  items?: MissionProps[]
+  label: string
+  sliderProps?: FeatureListProps
+} & PropsWithChildren
+
+export const MissionCarousel: React.FC<MissionCarouselProps> = ({
+  items,
+  label,
+  sliderProps,
+  children,
+}) => {
+  const translate = useTranslate()
+  if (!items || (items.length === 0 && !children)) return null
+  return (
+    <Stack spacing={6}>
+      <Heading as='h5' px={4}>
+        {translate(label)}
+      </Heading>
+      <ScrollCarousel {...sliderProps}>
+        {items.map(mission => (
+          <Mission key={mission.title} {...mission} />
+        ))}
+        {children}
+      </ScrollCarousel>
+    </Stack>
+  )
+}
+
+const MissionCarouselHeader: React.FC<CarouselHeaderProps> = ({ controls }) => {
+  const translate = useTranslate()
+  return (
+    <Flex alignItems='center' justifyContent='space-between' width='full'>
+      <Flex alignItems='center' gap={4}>
+        <Heading as='h4' fontSize='md'>
+          {translate('navBar.foxMissions')}
+        </Heading>
+        <Button as={NavLink} to='/missions' variant='link' colorScheme='blue'>
+          {translate('common.viewAll')}
+        </Button>
+      </Flex>
+      {controls}
+    </Flex>
+  )
+}
+
+export const MissionSidebar = () => {
+  const { active } = useGetMissions()
+  const renderMissions = useMemo(() => {
+    return active.map(mission => <Mission minHeight='250px' key={mission.title} {...mission} />)
+  }, [active])
+  return (
+    <Card px={{ base: 4, md: 0 }}>
+      <Carousel renderHeader={props => <MissionCarouselHeader {...props} />}>
+        {renderMissions}
+      </Carousel>
+    </Card>
+  )
+}
+
+export const Missions = () => {
+  const missionData = useGetMissions()
+  const translate = useTranslate()
 
   const renderMissions = useMemo(() => {
-    const now = dayjs()
-    const groupedMissions: {
-      future: MissionProps[]
-      past: MissionProps[]
-      active: MissionProps[]
-    } = missionItems.reduce(
-      (groups, mission) => {
-        const start = dayjs(mission.startDate, dateFormat)
-        const end = dayjs(mission.endDate, dateFormat)
-        if (now.isBefore(start) || !mission.onClick) {
-          groups.future.push(mission)
-        } else if (now.isAfter(end)) {
-          groups.past.push(mission)
-        } else {
-          groups.active.push(mission)
-        }
-        return groups
-      },
-      { future: [] as MissionProps[], past: [] as MissionProps[], active: [] as MissionProps[] },
-    )
-
     return (
       <Container maxWidth='full' display='flex' flexDir='column' gap={12} px={{ base: 0, md: 6 }}>
-        {groupedMissions.active.length > 0 && (
-          <Stack spacing={6}>
-            <Heading as='h5' px={4}>
-              {translate('missions.activeMissions')}
-            </Heading>
-            <ScrollCarousel>
-              {groupedMissions.active.map(mission => (
-                <Mission key={mission.title} {...mission} />
-              ))}
-            </ScrollCarousel>
-          </Stack>
-        )}
-
-        <Stack spacing={6}>
-          <Heading as='h5' px={4}>
-            {translate('missions.comingSoon')}
-          </Heading>
-          <ScrollCarousel>
-            {groupedMissions.future.map(mission => (
-              <Mission key={mission.title} {...mission} />
-            ))}
-            <Mission
-              key='sponsored'
-              title={translate('missions.getListed.title')}
-              subtitle={translate('missions.getListed.subtitle')}
-              onClick={() => window.open(FOX_MISSION_REQUEST_PAGE)}
-              buttonText={translate('missions.getListed.cta')}
-              coverImage={SponsorBg}
-            />
-          </ScrollCarousel>
-        </Stack>
-
-        {groupedMissions.past.length > 0 && (
-          <Stack spacing={6}>
-            <Heading as='h5' px={4}>
-              {translate('missions.endedMissions')}
-            </Heading>
-            <ScrollCarousel>
-              {groupedMissions.past.map(mission => (
-                <Mission key={mission.title} {...mission} />
-              ))}
-            </ScrollCarousel>
-          </Stack>
-        )}
+        <MissionCarousel items={missionData.active} label='missions.activeMissions' />
+        <MissionCarousel items={missionData.future} label='missions.comingSoon'>
+          <Mission
+            key='sponsored'
+            title={translate('missions.getListed.title')}
+            subtitle={translate('missions.getListed.subtitle')}
+            onClick={() => window.open(FOX_MISSION_REQUEST_PAGE)}
+            buttonText={translate('missions.getListed.cta')}
+            coverImage={SponsorBg}
+          />
+        </MissionCarousel>
+        <MissionCarousel items={missionData.past} label='missions.endedMissions' />
       </Container>
     )
-  }, [missionItems, translate])
+  }, [missionData, translate])
   return (
     <DarkMode>
       <SEO title={translate('missions.subtitle')} />
@@ -143,7 +202,6 @@ export const Missions = () => {
         pb={12}
         display='flex'
         flexDir='column'
-        bg='gray.800'
         flex={1}
         width='full'
         hideBreadcrumbs

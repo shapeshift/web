@@ -36,7 +36,7 @@ import {
   selectUserStakingOpportunitiesWithMetadataByFilter,
 } from './stakingSelectors'
 
-const makeClaimableStakingRewardsAmountFiat = ({
+const makeClaimableStakingRewardsAmountUserCurrency = ({
   assets,
   maybeStakingOpportunity,
   marketData,
@@ -49,7 +49,7 @@ const makeClaimableStakingRewardsAmountFiat = ({
 
   const stakingOpportunity = maybeStakingOpportunity as StakingEarnOpportunityType
 
-  const rewardsAmountFiat = Array.from(stakingOpportunity.rewardAssetIds ?? []).reduce(
+  const rewardsAmountUserCurrency = Array.from(stakingOpportunity.rewardAssetIds ?? []).reduce(
     (sum, assetId, index) => {
       const asset = assets[assetId]
       if (!asset) return sum
@@ -67,7 +67,7 @@ const makeClaimableStakingRewardsAmountFiat = ({
     0,
   )
 
-  return rewardsAmountFiat
+  return rewardsAmountUserCurrency
 }
 export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputSelector(
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
@@ -108,16 +108,18 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             ? underlyingAssetBalances[assetId].fiatAmount
             : cur.fiatAmount
 
-        const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountFiat({
-          maybeStakingOpportunity: cur,
-          marketData,
-          assets,
-        })
+        const maybeStakingRewardsAmountUserCurrency = makeClaimableStakingRewardsAmountUserCurrency(
+          {
+            maybeStakingOpportunity: cur,
+            marketData,
+            assets,
+          },
+        )
 
         if (
           (!includeEarnBalances && !includeRewardsBalances && !bnOrZero(amountFiat).isZero()) ||
           (includeEarnBalances && !bnOrZero(amountFiat).isZero()) ||
-          (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
+          (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountUserCurrency).gt(0))
         ) {
           acc[assetId] = true
           return acc
@@ -162,7 +164,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
               ? underlyingAssetBalances[assetId].fiatAmount
               : cur.fiatAmount
 
-          const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountFiat({
+          const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountUserCurrency({
             maybeStakingOpportunity: cur,
             marketData,
             assets,
@@ -193,11 +195,11 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             acc[assetId].apy = BigNumber.maximum(acc[assetId].apy, cur.apy).toFixed()
           } else if (isActiveOpportunityByFilter) {
             totalFiatAmountByAssetId[assetId] = bnOrZero(totalFiatAmountByAssetId[assetId]).plus(
-              amountFiat,
+              BigNumber.max(amountFiat, 0),
             )
             projectedAnnualizedYieldByAssetId[assetId] = bnOrZero(
               projectedAnnualizedYieldByAssetId[assetId],
-            ).plus(bnOrZero(amountFiat).times(cur.apy))
+            ).plus(BigNumber.max(amountFiat, 0).times(cur.apy))
           }
 
           acc[assetId].cryptoBalancePrecision = bnOrZero(acc[assetId].cryptoBalancePrecision)
@@ -393,7 +395,6 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
     const initial = {
       [DefiProvider.Idle]: makeEmptyPayload(DefiProvider.Idle),
-      [DefiProvider.Yearn]: makeEmptyPayload(DefiProvider.Yearn),
       [DefiProvider.ShapeShift]: makeEmptyPayload(DefiProvider.ShapeShift),
       [DefiProvider.EthFoxStaking]: makeEmptyPayload(DefiProvider.EthFoxStaking),
       [DefiProvider.UniV2]: makeEmptyPayload(DefiProvider.UniV2),
@@ -407,7 +408,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
       if (chainId && chainId !== cur.chainId) return acc
 
-      const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountFiat({
+      const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountUserCurrency({
         maybeStakingOpportunity: cur,
         marketData,
         assets,
@@ -436,26 +437,28 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
         if (chainId && chainId !== cur.chainId) return acc
 
-        const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountFiat({
-          maybeStakingOpportunity: cur,
-          marketData,
-          assets,
-        })
+        const maybeStakingRewardsAmountUserCurrency = makeClaimableStakingRewardsAmountUserCurrency(
+          {
+            maybeStakingOpportunity: cur,
+            marketData,
+            assets,
+          },
+        )
 
         const isActiveOpportunityByFilter =
           (!includeEarnBalances && !includeRewardsBalances) ||
           (includeEarnBalances && !bnOrZero(cur.fiatAmount).isZero()) ||
-          (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountFiat).gt(0))
+          (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountUserCurrency).gt(0))
         // No active staking for the current provider, show the highest APY
         if (!isActiveProvider) {
           acc[provider].apy = BigNumber.maximum(acc[provider].apy, cur.apy).toFixed()
         } else if (isActiveOpportunityByFilter) {
           totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(
-            cur.fiatAmount,
+            BigNumber.max(cur.fiatAmount, 0),
           )
           projectedAnnualizedYieldByProvider[provider] = bnOrZero(
             projectedAnnualizedYieldByProvider[provider],
-          ).plus(bnOrZero(cur.fiatAmount).times(cur.apy))
+          ).plus(BigNumber.max(cur.fiatAmount, 0).times(cur.apy))
         }
 
         if (cur.type === DefiType.LiquidityPool) {
@@ -465,17 +468,17 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
         if (cur.type === DefiType.Staking && isActiveOpportunityByFilter) {
           acc[provider].opportunities.staking.push(cur.id)
         }
-        const fiatRewardsAmount = bnOrZero(maybeStakingRewardsAmountFiat)
+        const userCurrencyRewardsAmount = bnOrZero(maybeStakingRewardsAmountUserCurrency)
           .plus(acc[provider].fiatRewardsAmount)
           .toFixed(2)
-        acc[provider].fiatRewardsAmount = fiatRewardsAmount
+        acc[provider].fiatRewardsAmount = userCurrencyRewardsAmount
         const fiatAmount = bnOrZero(acc[provider].fiatAmount)
           .plus(bnOrZero(cur.fiatAmount))
           .toFixed(2)
         acc[provider].fiatAmount = fiatAmount
 
         acc[provider].netProviderFiatAmount = bnOrZero(fiatAmount)
-          .plus(fiatRewardsAmount)
+          .plus(userCurrencyRewardsAmount)
           .toFixed(2)
 
         return acc

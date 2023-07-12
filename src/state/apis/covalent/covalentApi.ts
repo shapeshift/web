@@ -62,7 +62,10 @@ export const covalentApi = createApi({
                 const parsedData = nftUserItems.flatMap(nftUserItem => {
                   // Actually defined since we're passing supported EVM networks AccountIds
                   const chainId = covalentNetworkToChainId(network!)!
-                  return parseToNftItem(nftUserItem, chainId)
+                  return parseToNftItem(
+                    Object.assign(nftUserItem, { ownerAddress: address }),
+                    chainId,
+                  )
                 })
 
                 data = data.concat(parsedData)

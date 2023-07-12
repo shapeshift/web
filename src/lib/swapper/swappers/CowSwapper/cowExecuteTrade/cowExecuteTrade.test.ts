@@ -9,7 +9,7 @@ import { ethers } from 'ethers'
 import type { ExecuteTradeInput } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX_MAINNET, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
-import type { CowChainId, CowTrade } from '../types'
+import type { CowTrade } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   DEFAULT_APP_DATA,
@@ -25,8 +25,6 @@ import { cowExecuteTrade } from './cowExecuteTrade'
 const OrderDigest = '0xaf1d4f80d997d0cefa325dd6e003e5b5940247694eaba507b793c7ec60db10a0'
 const Signature =
   '0x521ff65fd1e679b15b3ded234c89a30c0a4af1b190466a2dae0e14b7f935ce2c260cf3c0e4a5d81e340b8e615c095cbd65d0920387bea32cf09ccf3d624bf8251b'
-
-const supportedChainIds: CowChainId[] = [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet]
 
 jest.mock('../utils/cowService', () => {
   const axios: AxiosStatic = jest.createMockFromModule('axios')
@@ -219,11 +217,11 @@ describe('cowExecuteTrade', () => {
       wallet: {} as HDWallet,
     }
 
-    expect((await cowExecuteTrade(tradeInput, supportedChainIds)).unwrapErr()).toMatchObject({
+    expect((await cowExecuteTrade(tradeInput)).unwrapErr()).toMatchObject({
       cause: undefined,
       code: 'UNSUPPORTED_PAIR',
-      details: { sellAssetNamespace: 'slip44' },
-      message: '[cowExecuteTrade] - Sell asset needs to be ERC-20 to use CowSwap',
+      details: { sellAsset: ETH },
+      message: '[CowSwap: assertValidTrade] - Sell asset must be an ERC-20',
       name: 'SwapError',
     })
   })
@@ -242,7 +240,7 @@ describe('cowExecuteTrade', () => {
       ),
     )
 
-    const maybeTrade = await cowExecuteTrade(tradeInput, supportedChainIds)
+    const maybeTrade = await cowExecuteTrade(tradeInput)
     expect(maybeTrade.isErr()).toBe(false)
     const trade = maybeTrade.unwrap()
 
@@ -290,7 +288,7 @@ describe('cowExecuteTrade', () => {
       ),
     )
 
-    const maybeTrade = await cowExecuteTrade(tradeInput, supportedChainIds)
+    const maybeTrade = await cowExecuteTrade(tradeInput)
 
     expect(maybeTrade.isErr()).toBe(false)
     const trade = maybeTrade.unwrap()
@@ -339,7 +337,7 @@ describe('cowExecuteTrade', () => {
       ),
     )
 
-    const maybeTrade = await cowExecuteTrade(tradeInput, supportedChainIds)
+    const maybeTrade = await cowExecuteTrade(tradeInput)
 
     expect(maybeTrade.isErr()).toBe(false)
     const trade = maybeTrade.unwrap()

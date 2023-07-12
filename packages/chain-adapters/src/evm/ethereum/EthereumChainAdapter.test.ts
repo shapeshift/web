@@ -14,7 +14,7 @@ import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
 import { numberToHex } from 'web3-utils'
 
-import type { BuildSendTxInput, SignMessageInput, SignTxInput } from '../../types'
+import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
 import { bn } from '../../utils/bignumber'
@@ -41,30 +41,22 @@ const getWallet = async (): Promise<ETHWallet> => {
 describe('EthereumChainAdapter', () => {
   const gasPrice = '42'
   const gasLimit = '42000'
-  const tokenContractAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+  const contractAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
   const value = 400
 
-  const makeChainSpecific = (chainSpecificAdditionalProps?: { tokenContractAddress: string }) =>
-    merge(
-      {
-        gasPrice,
-        gasLimit,
-      },
-      chainSpecificAdditionalProps,
-    )
+  const makeChainSpecific = (chainSpecificAdditionalProps?: { contractAddress: string }) =>
+    merge({ gasPrice, gasLimit }, chainSpecificAdditionalProps)
 
   const makeGetGasFeesMockedResponse = (overrideArgs?: {
-    gasPrice?: string
     slow: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
     average: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
     fast: { gasPrice?: string; maxFeePerGas?: string; maxPriorityFeePerGas?: string }
   }) =>
     merge(
       {
-        gasPrice: '1',
         slow: { gasPrice: '1', maxFeePerGas: '274', maxPriorityFeePerGas: '10' },
-        average: { gasPrice: '1', maxFeePerGas: '300', maxPriorityFeePerGas: '10' },
-        fast: { gasPrice: '1', maxFeePerGas: '335', maxPriorityFeePerGas: '12' },
+        average: { gasPrice: '2', maxFeePerGas: '300', maxPriorityFeePerGas: '10' },
+        fast: { gasPrice: '3', maxFeePerGas: '335', maxPriorityFeePerGas: '12' },
       },
       overrideArgs,
     )
@@ -137,21 +129,22 @@ describe('EthereumChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
 
-      const data = await adapter.getFeeData({
+      const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
         to: '0x642F4Bda144C63f6DC47EE0fDfbac0a193e2eDb7',
         value: '123',
         chainSpecific: {
           from: ZERO_ADDRESS,
-          contractData: '0x',
+          data: '0x',
         },
-      })
+      }
+      const data = await adapter.getFeeData(getFeeDataInput)
 
       expect(data).toEqual(
         expect.objectContaining({
           average: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '300',
+              gasPrice: '2',
               maxFeePerGas: '300',
               maxPriorityFeePerGas: '10',
             },
@@ -160,7 +153,7 @@ describe('EthereumChainAdapter', () => {
           fast: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '335',
+              gasPrice: '3',
               maxFeePerGas: '335',
               maxPriorityFeePerGas: '12',
             },
@@ -169,7 +162,7 @@ describe('EthereumChainAdapter', () => {
           slow: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '274',
+              gasPrice: '1',
               maxFeePerGas: '274',
               maxPriorityFeePerGas: '10',
             },
@@ -194,17 +187,17 @@ describe('EthereumChainAdapter', () => {
       expect(data).toEqual(
         expect.objectContaining({
           average: {
-            gasPrice: '300',
+            gasPrice: '2',
             maxFeePerGas: '300',
             maxPriorityFeePerGas: '10',
           },
           fast: {
-            gasPrice: '335',
+            gasPrice: '3',
             maxFeePerGas: '335',
             maxPriorityFeePerGas: '12',
           },
           slow: {
-            gasPrice: '274',
+            gasPrice: '1',
             maxFeePerGas: '274',
             maxPriorityFeePerGas: '10',
           },
@@ -449,10 +442,16 @@ describe('EthereumChainAdapter', () => {
     it('should throw if passed tx has no "to" property', async () => {
       const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
 
+      const wallet = await getWallet()
+      wallet.ethGetAddress = jest
+        .fn()
+        .mockResolvedValueOnce('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
+
       const tx = {
-        wallet: await getWallet(),
+        accountNumber: 0,
+        wallet,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
@@ -473,12 +472,17 @@ describe('EthereumChainAdapter', () => {
       const adapter = new ethereum.ChainAdapter(args)
       const accountNumber = 0
 
+      const wallet = await getWallet()
+      wallet.ethGetAddress = jest
+        .fn()
+        .mockResolvedValueOnce('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
+
       const tx = {
         accountNumber,
-        wallet: await getWallet(),
+        wallet,
         to: ENS_NAME,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
@@ -489,8 +493,14 @@ describe('EthereumChainAdapter', () => {
     it('should throw if passed tx has no "value" property', async () => {
       const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
 
+      const wallet = await getWallet()
+      wallet.ethGetAddress = jest
+        .fn()
+        .mockResolvedValueOnce('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
+
       const tx = {
-        wallet: await getWallet(),
+        accountNumber: 0,
+        wallet,
         to: EOA_ADDRESS,
         chainSpecific: makeChainSpecific(),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
@@ -535,7 +545,7 @@ describe('EthereumChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true without chainSpecific.tokenContractAddress should throw if balance is 0', async () => {
+    it('sendmax: true without chainSpecific.contractAddress should throw if balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
@@ -558,7 +568,7 @@ describe('EthereumChainAdapter', () => {
       await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('no balance')
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
-    it('sendMax: true without chainSpecific.tokenContractAddress - should build a tx with full account balance - gas fee', async () => {
+    it('sendMax: true without chainSpecific.contractAddress - should build a tx with full account balance - gas fee', async () => {
       const balance = '2500000'
       const expectedValue = numberToHex(
         bn(balance).minus(bn(gasLimit).multipliedBy(gasPrice)) as any,
@@ -616,7 +626,7 @@ describe('EthereumChainAdapter', () => {
         wallet: await getWallet(),
         to: ZERO_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
@@ -635,7 +645,7 @@ describe('EthereumChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true with chainSpecific.tokenContractAddress should build a tx with full account balance - gas fee', async () => {
+    it('sendmax: true with chainSpecific.contractAddress should build a tx with full account balance - gas fee', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
@@ -653,7 +663,7 @@ describe('EthereumChainAdapter', () => {
         wallet: await getWallet(),
         to: EOA_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
@@ -673,7 +683,7 @@ describe('EthereumChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true with chainSpecific.tokenContractAddress should throw if token balance is 0', async () => {
+    it('sendmax: true with chainSpecific.contractAddress should throw if token balance is 0', async () => {
       const httpProvider = {
         getAccount: jest
           .fn<any, any>()
@@ -691,7 +701,7 @@ describe('EthereumChainAdapter', () => {
         wallet: await getWallet(),
         to: EOA_ADDRESS,
         value,
-        chainSpecific: makeChainSpecific({ tokenContractAddress }),
+        chainSpecific: makeChainSpecific({ contractAddress }),
         sendMax: true,
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
@@ -722,6 +732,7 @@ describe('EthereumChainAdapter', () => {
         value: '123',
         gasPrice: '123',
         gasLimit: '456',
+        networkFeeCryptoBaseUnit: '424242424242',
       }
 
       const output = await adapter.buildCustomTx(txArgs)
@@ -763,6 +774,7 @@ describe('EthereumChainAdapter', () => {
         gasLimit: '456',
         maxFeePerGas: '421',
         maxPriorityFeePerGas: '422',
+        networkFeeCryptoBaseUnit: '424242424242',
       }
 
       const output = await adapter.buildCustomTx(txArgs)

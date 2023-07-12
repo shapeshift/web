@@ -5,7 +5,7 @@ import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { PropsWithChildren } from 'react'
 import { Children, useCallback, useEffect, useRef, useState } from 'react'
 
-type FeatureListProps = {
+export type FeatureListProps = {
   slidesToShow?: Record<ThemeTypings['breakpoints'] | string, number>
   slideGap?: number
 } & PropsWithChildren &
@@ -130,11 +130,7 @@ export const ScrollCarousel: React.FC<FeatureListProps> = ({
           '::-webkit-scrollbar': {
             display: 'none',
           },
-        }}
-        _after={{
-          content: '""',
-          width: gridGap,
-          display: 'block',
+          '::-webkit-overflow-scrolling': 'touch',
         }}
       >
         {children}

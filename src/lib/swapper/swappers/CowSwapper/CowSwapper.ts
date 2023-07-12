@@ -1,5 +1,4 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { isNft } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import type {
   BuildTradeInput,
@@ -17,80 +16,46 @@ import { cowGetTradeTxs } from 'lib/swapper/swappers/CowSwapper/cowGetTradeTxs/c
 import { getCowSwapTradeQuote } from 'lib/swapper/swappers/CowSwapper/getCowSwapTradeQuote/getCowSwapTradeQuote'
 import type {
   CowChainId,
-  CowswapExecuteTradeInput,
+  CowExecuteTradeInput,
   CowTrade,
   CowTradeResult,
 } from 'lib/swapper/swappers/CowSwapper/types'
-import { COWSWAP_UNSUPPORTED_ASSETS } from 'lib/swapper/swappers/CowSwapper/utils/blacklist'
-import { selectAssets } from 'state/slices/selectors'
-import { store } from 'state/store'
+import {
+  selectBuyAssetUsdRate,
+  selectSellAssetUsdRate,
+} from 'state/zustand/swapperStore/amountSelectors'
+import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
-import { isNativeEvmAsset } from '../utils/helpers/helpers'
-import { isCowswapSupportedChainId } from './utils/utils'
+import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
+import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
+
 export class CowSwapper<T extends CowChainId> implements Swapper<T> {
   readonly name = SwapperName.CowSwap
-  supportedChainIds: CowChainId[]
-
-  constructor(supportedChainIds: CowChainId[]) {
-    this.supportedChainIds = supportedChainIds
-  }
 
   buildTrade(input: BuildTradeInput): Promise<Result<CowTrade<T>, SwapErrorRight>> {
-    return cowBuildTrade(input, this.supportedChainIds)
+    const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+    const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
+    return cowBuildTrade(input, { sellAssetUsdRate, buyAssetUsdRate })
   }
 
   getTradeQuote(
     input: GetTradeQuoteInput,
   ): Promise<Result<TradeQuote<CowChainId>, SwapErrorRight>> {
-    return getCowSwapTradeQuote(input, this.supportedChainIds)
+    const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
+    const buyAssetUsdRate = selectBuyAssetUsdRate(swapperStore.getState())
+    return getCowSwapTradeQuote(input, { sellAssetUsdRate, buyAssetUsdRate })
   }
 
-  executeTrade(args: CowswapExecuteTradeInput<T>): Promise<Result<CowTradeResult, SwapErrorRight>> {
-    return cowExecuteTrade<T>(args, this.supportedChainIds)
+  executeTrade(args: CowExecuteTradeInput<T>): Promise<Result<CowTradeResult, SwapErrorRight>> {
+    return cowExecuteTrade<T>(args)
   }
 
-  filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
-    const { assetIds = [], sellAssetId } = args
-    const assets = selectAssets(store.getState())
-    const sellAsset = assets[sellAssetId]
-
-    if (
-      sellAsset === undefined ||
-      isNativeEvmAsset(sellAssetId) ||
-      !isCowswapSupportedChainId(sellAsset.chainId, this.supportedChainIds) ||
-      COWSWAP_UNSUPPORTED_ASSETS.includes(sellAssetId)
-    )
-      return []
-
-    return assetIds.filter(id => {
-      const asset = assets[id]
-      if (!asset) return false
-
-      return (
-        id !== sellAssetId &&
-        sellAsset.chainId === assets[id]?.chainId &&
-        isCowswapSupportedChainId(asset.chainId, this.supportedChainIds) &&
-        !isNft(id) &&
-        !COWSWAP_UNSUPPORTED_ASSETS.includes(id)
-      )
-    })
+  filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
+    return filterBuyAssetsBySellAssetId(input)
   }
 
   filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[] {
-    const assets = selectAssets(store.getState())
-    return assetIds.filter(id => {
-      const asset = assets[id]
-      if (!asset) {
-        return false
-      }
-
-      return (
-        isCowswapSupportedChainId(asset.chainId, this.supportedChainIds) &&
-        !isNativeEvmAsset(id) &&
-        !isNft(id) &&
-        !COWSWAP_UNSUPPORTED_ASSETS.includes(id)
-      )
-    })
+    return filterAssetIdsBySellable(assetIds)
   }
 
   getTradeTxs(args: CowTradeResult): Promise<Result<TradeTxs, SwapErrorRight>> {

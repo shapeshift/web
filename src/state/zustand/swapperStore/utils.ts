@@ -15,7 +15,7 @@ export const convertBasisPointsToPercentage = (basisPoints: string) =>
 
 type SumProtocolFeesToDenomArgs = {
   cryptoMarketDataById: Partial<Record<AssetId, Pick<MarketData, 'price'>>>
-  outputAssetPriceUsd: string
+  outputAssetPriceUsd: BigNumber.Value
   outputExponent: number
   protocolFees: Record<AssetId, ProtocolFee>
 }

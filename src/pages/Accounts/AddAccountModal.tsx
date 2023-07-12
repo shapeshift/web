@@ -29,7 +29,7 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import {
   selectAssets,
   selectMaybeNextAccountNumberByChainId,
-  selectPortfolioChainIdsSortedFiat,
+  selectPortfolioChainIdsSortedUserCurrency,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -43,11 +43,11 @@ export const AddAccountModal = () => {
   } = useWallet()
 
   const assets = useSelector(selectAssets)
-  const chainIds = useSelector(selectPortfolioChainIdsSortedFiat)
+  const chainIds = useSelector(selectPortfolioChainIdsSortedUserCurrency)
 
   const firstChainId = useMemo(() => chainIds[0], [chainIds])
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(firstChainId)
-  const portfolioChainIds = useAppSelector(selectPortfolioChainIdsSortedFiat)
+  const portfolioChainIds = useAppSelector(selectPortfolioChainIdsSortedUserCurrency)
 
   const filter = useMemo(() => ({ chainId: selectedChainId }), [selectedChainId])
   const [isAbleToAddAccount, nextAccountNumber] = useAppSelector(s =>
@@ -112,7 +112,7 @@ export const AddAccountModal = () => {
           <Stack>
             <Stack spacing={0}>
               <RawText fontWeight='semibold'>{translate('accounts.accountChain')}</RawText>
-              <RawText mt={-4} fontSize='sm' color='gray.500'>
+              <RawText mt={4} fontSize='sm' color='gray.500'>
                 {translate('accounts.selectChain')}
               </RawText>
             </Stack>
@@ -137,7 +137,7 @@ export const AddAccountModal = () => {
           <Button
             colorScheme='blue'
             width='full'
-            disabled={!isAbleToAddAccount}
+            isDisabled={!isAbleToAddAccount}
             onClick={handleAddAccount}
           >
             {translate('accounts.addAccount')}

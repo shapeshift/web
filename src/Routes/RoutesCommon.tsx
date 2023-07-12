@@ -114,6 +114,7 @@ export const routes: NestedRoute[] = [
     icon: <FoxIcon />,
     main: Missions,
     category: RouteCategory.Explore,
+    isNew: true,
   },
   {
     path: '/flags',

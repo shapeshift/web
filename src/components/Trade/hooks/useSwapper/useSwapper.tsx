@@ -1,6 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { evm, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  evm,
+  EvmChainAdapter,
+  UtxoBaseAdapter,
+  UtxoChainId,
+} from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -13,20 +18,18 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { SwapperManager } from 'lib/swapper/manager/SwapperManager'
-import { erc20AllowanceAbi } from 'lib/swapper/swappers/utils/abi/erc20Allowance-abi'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import {
   buildAndBroadcast,
   getApproveContractData,
-  getERC20Allowance,
-  getFeesFromContractData,
-} from 'lib/swapper/swappers/utils/helpers/helpers'
-import { isEvmChainAdapter } from 'lib/utils'
-import { getWeb3InstanceByChainId } from 'lib/web3-instance'
+  getErc20Allowance,
+  getFees,
+  isEvmChainAdapter,
+} from 'lib/utils/evm'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
   selectAssetIds,
-  selectAssetsSortedByMarketCapFiatBalanceAndName,
+  selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
   selectBIP44ParamsByAccountId,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
@@ -67,7 +70,7 @@ export const useSwapper = () => {
   // Selectors
   const flags = useSelector(selectFeatureFlags)
   const assetIds = useSelector(selectAssetIds)
-  const sortedAssets = useSelector(selectAssetsSortedByMarketCapFiatBalanceAndName)
+  const sortedAssets = useSelector(selectAssetsSortedByMarketCapUserCurrencyBalanceAndName)
 
   // Hooks
   const [swapperManager, setSwapperManager] = useState<SwapperManager>()
@@ -136,7 +139,7 @@ export const useSwapper = () => {
   )
 
   const approve = useCallback(
-    (buildCustomTxArgs: evm.BuildCustomTxInput): Promise<string> => {
+    (buildCustomTxInput: evm.BuildCustomTxInput): Promise<string> => {
       const adapterManager = getChainAdapterManager()
       const adapter = adapterManager.get(sellAsset.chainId)
 
@@ -144,11 +147,7 @@ export const useSwapper = () => {
       if (!adapter || !isEvmChainAdapter(adapter))
         throw Error(`no valid EVM chain adapter found for chain Id: ${sellAsset.chainId}`)
 
-      return buildAndBroadcast({
-        buildCustomTxArgs,
-        adapter,
-        wallet,
-      })
+      return buildAndBroadcast({ buildCustomTxInput, adapter })
     },
     [sellAsset.chainId, wallet],
   )
@@ -180,23 +179,28 @@ export const useSwapper = () => {
         ),
         sellAsset,
         buyAsset,
-        wallet,
         receiveAddress,
         slippage,
         affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps ?? defaultAffiliateBps,
+        allowMultiHop: flags.MultiHopTrades,
       }
 
-      if (isUtxoSwap(sellAsset.chainId)) {
-        const {
-          accountType,
-          bip44Params: { accountNumber },
-        } = sellAccountMetadata
+      const {
+        accountType,
+        bip44Params: { accountNumber },
+      } = sellAccountMetadata
 
+      if (isUtxoSwap(sellAsset.chainId)) {
         if (!accountType) throw new Error('accountType required')
 
         const sellAssetChainAdapter = getChainAdapterManager().get(
           sellAsset.chainId,
         ) as unknown as UtxoBaseAdapter<UtxoChainId>
+
+        const sendAddress = await sellAssetChainAdapter.getAddress({
+          accountNumber,
+          wallet,
+        })
 
         const { xpub } = await sellAssetChainAdapter.getPublicKey(
           wallet,
@@ -210,15 +214,28 @@ export const useSwapper = () => {
           accountNumber,
           accountType,
           xpub,
+          sendAddress,
+          wallet,
         })
       } else if (isEvmSwap(sellAsset.chainId) || isCosmosSdkSwap(sellAsset.chainId)) {
-        const eip1559Support = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+        const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+        const sellAssetChainAdapter = getChainAdapterManager().get(
+          sellAsset.chainId,
+        ) as unknown as EvmChainAdapter
+
+        const sendAddress = await sellAssetChainAdapter.getAddress({
+          accountNumber,
+          wallet,
+        })
+
         return activeSwapper.buildTrade({
           ...buildTradeCommonArgs,
           chainId: sellAsset.chainId,
           accountNumber: sellAccountBip44Params.accountNumber,
           receiveAccountNumber: buyAccountBip44Params?.accountNumber,
-          eip1559Support,
+          supportsEIP1559,
+          sendAddress,
+          wallet,
         })
       } else {
         throw new Error('unsupported sellAsset.chainId')
@@ -239,6 +256,7 @@ export const useSwapper = () => {
       slippage,
       isDonationAmountBelowMinimum,
       defaultAffiliateBps,
+      flags.MultiHopTrades,
     ],
   )
 
@@ -261,14 +279,12 @@ export const useSwapper = () => {
     })
 
     const { assetReference: sellAssetContractAddress } = fromAssetId(sellAsset.assetId)
-    const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
 
-    const allowanceOnChainCryptoBaseUnit = await getERC20Allowance({
-      web3,
-      erc20AllowanceAbi,
+    const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
       address: sellAssetContractAddress,
       spender: activeQuote.steps[0].allowanceContract,
       from,
+      chainId: sellAsset.chainId,
     })
 
     return bn(allowanceOnChainCryptoBaseUnit).lt(
@@ -288,54 +304,35 @@ export const useSwapper = () => {
 
       if (!activeQuote) throw new Error('no activeQuote available')
       if (!wallet) throw new Error('no wallet available')
-      if (!supportsETH(wallet)) throw Error('eth wallet required')
-      if (!adapter || !isEvmChainAdapter(adapter))
+      if (!isEvmChainAdapter(adapter))
         throw Error(`no valid EVM chain adapter found for chain Id: ${sellAsset.chainId}`)
 
       const approvalAmountCryptoBaseUnit = isExactAllowance
         ? activeQuote.steps[0].sellAmountBeforeFeesCryptoBaseUnit
         : MAX_ALLOWANCE
 
-      const web3 = getWeb3InstanceByChainId(sellAsset.chainId)
-
-      const { assetReference } = fromAssetId(sellAsset.assetId)
-
-      const value = '0'
+      const to = fromAssetId(sellAsset.assetId).assetReference
 
       const data = getApproveContractData({
         approvalAmountCryptoBaseUnit,
         spender: activeQuote.steps[0].allowanceContract,
-        to: assetReference,
-        web3,
+        to,
       })
 
-      const [eip1559Support, from] = await Promise.all([
-        wallet.ethSupportsEIP1559(),
-        adapter.getAddress({
-          wallet,
-          accountNumber: activeQuote.steps[0].accountNumber,
-        }),
-      ])
-
-      const { feesWithGasLimit, networkFeeCryptoBaseUnit } = await getFeesFromContractData({
-        eip1559Support,
+      const args = {
+        accountNumber: activeQuote.steps[0].accountNumber,
         adapter,
-        from,
-        to: assetReference,
-        value,
         data,
-      })
+        to,
+        value: '0',
+        wallet,
+      }
+
+      const { networkFeeCryptoBaseUnit, ...fees } = await getFees(args)
 
       return {
         networkFeeCryptoBaseUnit,
-        buildCustomTxInput: {
-          accountNumber: activeQuote.steps[0].accountNumber,
-          data,
-          to: assetReference,
-          value,
-          wallet,
-          ...feesWithGasLimit,
-        },
+        buildCustomTxInput: { ...args, ...fees },
       }
     },
     [activeQuote, sellAsset.assetId, sellAsset.chainId, wallet],

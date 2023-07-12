@@ -13,6 +13,7 @@ import type {
   BuildLPAddTxInput,
   BuildLPRemoveTxInput,
   BuildRedelegateTxInput,
+  BuildSendApiTxInput,
   BuildSendTxInput,
   BuildUndelegateTxInput,
   FeeDataEstimate,
@@ -111,20 +112,15 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
     }
   }
 
-  async buildSendTransaction(
-    tx: BuildSendTxInput<KnownChainIds.OsmosisMainnet>,
+  async buildSendApiTransaction(
+    input: BuildSendApiTxInput<KnownChainIds.OsmosisMainnet>,
   ): Promise<{ txToSign: OsmosisSignTx }> {
     try {
-      const {
-        accountNumber,
-        chainSpecific: { denom, fee },
-        sendMax,
-        to,
-        value,
-        wallet,
-      } = tx
+      const { sendMax, to, value, from, chainSpecific } = input
+      const { denom, fee } = chainSpecific
 
-      const from = await this.getAddress({ accountNumber, wallet })
+      if (!fee) throw new Error('fee is required')
+
       const account = await this.getAccount(from)
       const amount = this.getAmount({ account, value, fee, sendMax })
 
@@ -137,24 +133,28 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
         },
       }
 
-      return this.buildTransaction({ ...tx, account, msg })
+      return this.buildTransaction({ ...input, account, msg })
     } catch (err) {
       return ErrorHandler(err)
     }
+  }
+
+  async buildSendTransaction(
+    input: BuildSendTxInput<KnownChainIds.CosmosMainnet>,
+  ): Promise<{ txToSign: OsmosisSignTx }> {
+    const { accountNumber, wallet } = input
+    const from = await this.getAddress({ accountNumber, wallet })
+    return this.buildSendApiTransaction({ ...input, from })
   }
 
   async buildDelegateTransaction(
     tx: BuildDelegateTxInput<KnownChainIds.OsmosisMainnet>,
   ): Promise<{ txToSign: OsmosisSignTx }> {
     try {
-      const {
-        accountNumber,
-        chainSpecific: { fee },
-        sendMax,
-        validator,
-        value,
-        wallet,
-      } = tx
+      const { accountNumber, chainSpecific, sendMax, validator, value, wallet } = tx
+      const { fee } = chainSpecific
+
+      if (!fee) throw new Error('fee is required')
 
       assertIsValidatorAddress(validator, this.getType())
 
@@ -182,14 +182,10 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
     tx: BuildUndelegateTxInput<KnownChainIds.OsmosisMainnet>,
   ): Promise<{ txToSign: OsmosisSignTx }> {
     try {
-      const {
-        accountNumber,
-        chainSpecific: { fee },
-        sendMax,
-        validator,
-        value,
-        wallet,
-      } = tx
+      const { accountNumber, chainSpecific, sendMax, validator, value, wallet } = tx
+      const { fee } = chainSpecific
+
+      if (!fee) throw new Error('fee is required')
 
       assertIsValidatorAddress(validator, this.getType())
 
@@ -217,15 +213,11 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.OsmosisMain
     tx: BuildRedelegateTxInput<KnownChainIds.OsmosisMainnet>,
   ): Promise<{ txToSign: OsmosisSignTx }> {
     try {
-      const {
-        accountNumber,
-        chainSpecific: { fee },
-        fromValidator,
-        sendMax,
-        toValidator,
-        value,
-        wallet,
-      } = tx
+      const { accountNumber, chainSpecific, fromValidator, sendMax, toValidator, value, wallet } =
+        tx
+      const { fee } = chainSpecific
+
+      if (!fee) throw new Error('fee is required')
 
       assertIsValidatorAddress(toValidator, this.getType())
       assertIsValidatorAddress(fromValidator, this.getType())

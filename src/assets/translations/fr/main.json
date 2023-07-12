@@ -105,7 +105,9 @@
     "selectedAccount": "Compte sélectionné",
     "allChains": "Toutes les chaînes",
     "wallet": "Porte-monnaie",
-    "action": "Action"
+    "action": "Action",
+    "feedbackAndSupport": "Feedback & Support",
+    "getSupport": "Obtenir de l'aide"
   },
   "consentBanner": {
     "body": {
@@ -324,6 +326,7 @@
         "vaultCapTooltip": "Capacité maximale actuelle pour ce Vault",
         "haltedTitle": "Les dépôts sont temporairement suspendus.",
         "haltedDescription": "Veuillez tweeter @THORChain pour augmenter les plafonds !",
+        "protocolFee": "Frais de protocole",
         "fee": "Frais",
         "dustAmount": "Quantité de poussière",
         "dustAmountTooltip": "Une infime somme de crypto (de la poussière) est nécessaire pour identifier votre adresse et sera réservée pour une utilisation ultérieure, lorsque vous souhaiterez effectuer un retrait",
@@ -629,12 +632,20 @@
   "trade": {
     "trade": "Échanger",
     "allowance": "Allocation",
+    "slippageInfo": "Votre transaction sera annulée si le prix change défavorablement de plus de ce pourcentage.",
     "allowanceTooltip": "Le montant que vous allez autoriser le contrat intelligent à utiliser en votre nom.",
     "searchingRate": "Recherche du meilleur taux...",
     "noRateAvailable": "Aucun taux disponible.",
     "previewTrade": "Prévisualiser l'échange",
     "rate": "Taux",
     "tradeFrom": "Échanger de",
+    "slippage": {
+      "maxSlippage": "Glissement/Slippage max.",
+      "auto": "Auto",
+      "custom": "Personnalisé",
+      "warning": "Des tolérances de glissement/slippage élevées peuvent entraîner des transactions défavorables.",
+      "lowSlippage": "Un glissement/slippage en dessous de 0,05% peut résulter en une transaction échouée."
+    },
     "from": "De",
     "to": "À",
     "youPay": "Vous payez",
@@ -732,7 +743,9 @@
         "required": "Une transaction signée est requise"
       },
       "generalError": "Une erreur d'échange s'est produite",
-      "tradeFailed": "L'échange a échoué. Actifs restitués, moins les frais de carburant"
+      "quoteError": "Une erreur s'est produite lors de l'obtention d'un devis",
+      "tradeFailed": "L'échange a échoué. Actifs restitués, moins les frais de carburant",
+      "noQuotesAvailable": "Aucun devis disponible pour cet échange"
     },
     "swappingComingSoonForWallet": "Échanger avec %{walletName} sera bientôt possible",
     "recentTrades": "Échanges récents",
@@ -1231,6 +1244,22 @@
         "button": "Ouvrir"
       }
     },
+    "coinbase": {
+      "errors": {
+        "unknown": "Une erreur inattendue s'est produite lors de la communication avec Coinbase",
+        "connectFailure": "Impossible de connecter le porte-monnaie Coinbase",
+        "multipleWallets": "Le fournisseur Ethereum détecté n'est pas Coinbase. Avez-vous plusieurs porte-monnaie installés ?"
+      },
+      "connect": {
+        "header": "Appairer Coinbase",
+        "body": "Cliquez sur Appairer et identifiez-vous sur Coinbase à partir de la fenêtre popup",
+        "button": "Appairer"
+      },
+      "failure": {
+        "header": "Impossible de connecter le porte-monnaie Coinbase",
+        "body": "Impossible de connecter le porte-monnaie Coinbase"
+      }
+    },
     "walletConnect": {
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec WalletConnect",
@@ -1281,7 +1310,7 @@
       },
       "import": {
         "header": "Importer votre porte-monnaie",
-        "body": "Entrez votre phrase secrète de récupération pour importer un porte-monnaie existant",
+        "body": "Entrez ou collez votre phrase de récupération secrète en minuscules, sans virgule, ni chiffre et avec un seul espace entre chaque mot.",
         "button": "Suivant",
         "secretRecoveryPhraseError": "Saisissez votre phrase secrète de récupération en laissant un seul espace entre les mots. Omettez les virgules, les retours à la ligne ou tout autre caractère supplémentaire.",
         "secretRecoveryPhraseRequired": "La phrase secrète de récupération est requise",
@@ -1972,7 +2001,8 @@
   },
   "avatar": {
     "modal": {
-      "title": "Définir un nouvel avatar"
+      "title": "Définir un nouvel avatar",
+      "restoreDefault": "Restaurer à la valeur par défaut"
     }
   }
 }

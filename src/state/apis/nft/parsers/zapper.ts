@@ -1,12 +1,12 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { AssetNamespace } from '@shapeshiftoss/caip/src/assetId/assetId'
 import type { V2NftUserItem } from 'state/apis/zapper/validators'
 
 import type { NftCollectionType, NftItemWithCollection } from '../types'
 
 export const parseToNftItem = (
-  zapperItem: V2NftUserItem,
+  zapperItem: V2NftUserItem & { ownerAddress: string },
   chainId: ChainId,
 ): NftItemWithCollection => {
   const {
@@ -29,6 +29,10 @@ export const parseToNftItem = (
 
   const nftItem: NftItemWithCollection = {
     id: tokenId,
+    ownerAccountId: toAccountId({
+      chainId,
+      account: zapperItem.ownerAddress,
+    }),
     assetId: toAssetId({
       assetReference: `${collection.address}/${tokenId}`,
       assetNamespace: collection.nftStandard as AssetNamespace,
@@ -41,6 +45,7 @@ export const parseToNftItem = (
     collection: collectionItem,
     medias,
     rarityRank,
+    symbol: '', // Zapper doesn't provide this
   }
 
   return nftItem

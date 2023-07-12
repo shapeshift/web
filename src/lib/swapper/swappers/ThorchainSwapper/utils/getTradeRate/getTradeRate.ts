@@ -2,16 +2,14 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { bchAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
 import qs from 'qs'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
-import type {
-  ThorchainSwapperDeps,
-  ThornodeQuoteResponse,
-} from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type { ThornodeQuoteResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import {
   THORCHAIN_AFFILIATE_NAME,
   THORCHAIN_FIXED_PRECISION,
@@ -31,14 +29,12 @@ export const getTradeRate = async ({
   sellAmountCryptoBaseUnit,
   receiveAddress,
   affiliateBps,
-  deps,
 }: {
   sellAsset: Asset
   buyAssetId: AssetId
   sellAmountCryptoBaseUnit: string
   receiveAddress: string | undefined
   affiliateBps: string
-  deps: ThorchainSwapperDeps
 }): Promise<Result<string, SwapErrorRight>> => {
   // we can't get a quote for a zero amount so use getPriceRatio between pools instead
   if (bnOrZero(sellAmountCryptoBaseUnit).eq(0)) {
@@ -92,9 +88,10 @@ export const getTradeRate = async ({
     affiliate_bps: affiliateBps,
     affiliate: THORCHAIN_AFFILIATE_NAME,
   })
+  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   return (
     await thorService.get<ThornodeQuoteResponse>(
-      `${deps.daemonUrl}/lcd/thorchain/quote/swap?${queryString}`,
+      `${daemonUrl}/lcd/thorchain/quote/swap?${queryString}`,
     )
   ).andThen<string>(({ data }) => {
     // Massages the error so we know whether it is a below minimum error, or a more generic THOR quote response error
@@ -147,13 +144,11 @@ export const getTradeRate = async ({
 export const getTradeRateBelowMinimum = ({
   sellAssetId,
   buyAssetId,
-  deps,
 }: {
   sellAssetId: AssetId
   buyAssetId: AssetId
-  deps: ThorchainSwapperDeps
 }) =>
-  getPriceRatio(deps, {
+  getPriceRatio({
     sellAssetId,
     buyAssetId,
   })

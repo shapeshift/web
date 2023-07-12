@@ -1,46 +1,57 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { LifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper'
-import { selectAssetsSortedByMarketCapFiatBalanceAndName } from 'state/slices/common-selectors'
-import { selectAssetIds, selectSellAsset } from 'state/slices/selectors'
+import { useEffect, useMemo, useState } from 'react'
+import type { Asset } from 'lib/asset-service'
+import { cowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper2'
+import { lifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
+import { oneInchSwapper } from 'lib/swapper/swappers/OneInchSwapper/OneInchSwapper2'
+import { osmosisSwapper } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapper2'
+import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
+import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper2'
+import { selectAssetsSortedByMarketCapUserCurrencyBalanceAndName } from 'state/slices/common-selectors'
+import { selectAssetIds, selectFeatureFlags, selectSellAsset } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useSupportedAssets = () => {
   const sellAsset = useAppSelector(selectSellAsset)
   const assetIds = useAppSelector(selectAssetIds)
-  const sortedAssets = useAppSelector(selectAssetsSortedByMarketCapFiatBalanceAndName)
-  const isLifiEnabled = useFeatureFlag('LifiSwap')
+  const sortedAssets = useAppSelector(selectAssetsSortedByMarketCapUserCurrencyBalanceAndName)
+  const { LifiSwap, ThorSwap, ZrxSwap, OneInch, Cowswap, OsmosisSwap } =
+    useAppSelector(selectFeatureFlags)
+  useAppSelector(selectFeatureFlags)
 
   const enabledSwappers = useMemo(() => {
     const result = []
-    if (isLifiEnabled) result.push(LifiSwapper)
-    // TODO(woodenfurniture): add more swappers here
+    if (LifiSwap) result.push(lifiSwapper)
+    if (ThorSwap) result.push(thorchainSwapper)
+    if (ZrxSwap) result.push(zrxSwapper)
+    if (OneInch) result.push(oneInchSwapper)
+    if (Cowswap) result.push(cowSwapper)
+    if (OsmosisSwap) result.push(osmosisSwapper)
     return result
-  }, [isLifiEnabled])
+  }, [Cowswap, LifiSwap, OneInch, ThorSwap, ZrxSwap, OsmosisSwap])
 
-  const supportedSellAssets = useMemo(() => {
-    const supportedAssetIdsSet = new Set(
-      new Array<AssetId>().concat(
-        // this spread is fast, dont optimise out without benchmarks
-        ...enabledSwappers.map(({ filterAssetIdsBySellable }) =>
-          filterAssetIdsBySellable(assetIds),
-        ),
-      ),
-    )
-    return sortedAssets.filter(asset => supportedAssetIdsSet.has(asset.assetId))
+  const [supportedSellAssets, setSupportedSellAssets] = useState<Asset[]>([])
+  const [supportedBuyAssets, setSupportedBuyAssets] = useState<Asset[]>([])
+
+  useEffect(() => {
+    ;(async () => {
+      const supportedAssetIds = await Promise.all(
+        enabledSwappers.map(({ filterAssetIdsBySellable }) => filterAssetIdsBySellable(assetIds)),
+      )
+      const supportedAssetIdsSet = new Set(supportedAssetIds.flat())
+      setSupportedSellAssets(sortedAssets.filter(asset => supportedAssetIdsSet.has(asset.assetId)))
+    })()
   }, [assetIds, enabledSwappers, sortedAssets])
 
-  const supportedBuyAssets = useMemo(() => {
-    const supportedAssetIdsSet = new Set(
-      new Array<AssetId>().concat(
-        // this spread is fast, dont optimise out without benchmarks
-        ...enabledSwappers.map(({ filterBuyAssetsBySellAssetId }) =>
+  useEffect(() => {
+    ;(async () => {
+      const supportedAssetIds = await Promise.all(
+        enabledSwappers.map(({ filterBuyAssetsBySellAssetId }) =>
           filterBuyAssetsBySellAssetId({ assetIds, sellAssetId: sellAsset.assetId }),
         ),
-      ),
-    )
-    return sortedAssets.filter(asset => supportedAssetIdsSet.has(asset.assetId))
+      )
+      const supportedAssetIdsSet = new Set(supportedAssetIds.flat())
+      setSupportedBuyAssets(sortedAssets.filter(asset => supportedAssetIdsSet.has(asset.assetId)))
+    })()
   }, [assetIds, enabledSwappers, sellAsset.assetId, sortedAssets])
 
   return {

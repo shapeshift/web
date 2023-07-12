@@ -1,8 +1,5 @@
-import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import type Web3 from 'web3'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { CowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
-import type { ThorchainSwapperDeps } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { ThorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { ETH, FOX_MAINNET, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 import { ZrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
@@ -12,17 +9,9 @@ import { SwapperName } from '../api'
 
 export const getZrxSwapper = () => new ZrxSwapper()
 
-export const getCowSwapper = () =>
-  new CowSwapper([KnownChainIds.GnosisMainnet, KnownChainIds.EthereumMainnet])
+export const getCowSwapper = () => new CowSwapper()
 
-const thorchainSwapperDeps: ThorchainSwapperDeps = {
-  midgardUrl: '',
-  daemonUrl: '',
-  adapterManager: {} as ChainAdapterManager,
-  web3: {} as Web3,
-}
-
-export const getThorchainSwapper = () => new ThorchainSwapper(thorchainSwapperDeps)
+export const getThorchainSwapper = () => new ThorchainSwapper()
 
 export const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
   minimumCryptoHuman: '60',

@@ -105,7 +105,9 @@
     "selectedAccount": "Bir Hesap Seçin",
     "allChains": "Tüm Zincirler",
     "wallet": "Cüzdan",
-    "action": "Aksiyon"
+    "action": "Aksiyon",
+    "feedbackAndSupport": "Geribildirim ve Destek",
+    "getSupport": "Destek Al"
   },
   "consentBanner": {
     "body": {
@@ -324,6 +326,7 @@
         "vaultCapTooltip": "Bu kasa için mevcut maksimum kapasite",
         "haltedTitle": "Para yatırma işlemleri geçici olarak durdurulmuştur.",
         "haltedDescription": "Lütfen @THORChain adresine tweet atarak üst sınırınızı yükseltin!",
+        "protocolFee": "Protokol Ücreti",
         "fee": "Ücret",
         "dustAmount": "Toz Bakiye",
         "dustAmountTooltip": "Adresinizi tanımlamak için küçük bir miktar toz gereklidir ve daha sonra para çekmek istediğinizde kullanılmak üzere saklanacaktır",
@@ -629,12 +632,20 @@
   "trade": {
     "trade": "Takas",
     "allowance": "Ödenek",
+    "slippageInfo": "Fiyat bu orandan daha fazla olumsuz yönde değişirse işleminiz geri alınır.",
     "allowanceTooltip": "Akıllı sözleşmeye sizin adınıza kullanması için izin vereceğiniz tutar.",
     "searchingRate": "Oran getiriliyor...",
     "noRateAvailable": "Uygun Oran Yok.",
     "previewTrade": "Takası Önizleyin",
     "rate": "Oran",
     "tradeFrom": "Buradan Takasla",
+    "slippage": {
+      "maxSlippage": "Maks. Kayma",
+      "auto": "Otomatik",
+      "custom": "Özel",
+      "warning": "Yüksek kayma toleransları, elverişsiz işlemlere neden olabilir.",
+      "lowSlippage": "0,05%'in altındaki kaymalar işlemin başarısız olmasına neden olur."
+    },
     "from": "'dan",
     "to": "'a",
     "youPay": "Öde",
@@ -732,7 +743,9 @@
         "required": "İmzalanmış bir işlem gerekli"
       },
       "generalError": "Bir işlem hatası oluştu",
-      "tradeFailed": "Takas başarısız oldu. Varlıklar eksi gaz ücreti iade edildi"
+      "quoteError": "Fiyat teklifi alınırken bir hata oluştu",
+      "tradeFailed": "Takas başarısız oldu. Varlıklar eksi gaz ücreti iade edildi",
+      "noQuotesAvailable": "Bu işlem için teklif yok"
     },
     "swappingComingSoonForWallet": "%{walletName} için takas çok yakında",
     "recentTrades": "Son İşlemler",
@@ -1231,6 +1244,22 @@
         "button": "Aç"
       }
     },
+    "coinbase": {
+      "errors": {
+        "unknown": "Coinbase ile iletişim kurulurken beklenmeyen bir hata oluştu",
+        "connectFailure": "Coinbase cüzdanına bağlanılamıyor",
+        "multipleWallets": "Tespit edilen Ethereum sağlayıcısı Coinbase değil. Yüklü birden fazla cüzdanınız var mı?"
+      },
+      "connect": {
+        "header": "Coinbase'i Eşleştir",
+        "body": "Eşleştir'e tıklayın ve açılan pencereden Coinbase'e giriş yapın",
+        "button": "Eşleştir"
+      },
+      "failure": {
+        "header": "Coinbase cüzdanına bağlanılamıyor",
+        "body": "Coinbase cüzdanına bağlanılamıyor"
+      }
+    },
     "walletConnect": {
       "errors": {
         "unknown": "WalletConnect ile iletişim kurulurken beklenmeyen bir hata oluştu",
@@ -1281,7 +1310,7 @@
       },
       "import": {
         "header": "Cüzdanınızı içe aktarın",
-        "body": "Mevcut bir cüzdanı içe aktarmak için Gizli Kurtarma İfadenizi girin",
+        "body": "Gizli Kurtarma Cümlenizi tamamen küçük harflerle, virgül veya sayı olmadan ve her kelimenin arasına tek boşluk bırakarak yazın veya yapıştırın.",
         "button": "Sonraki",
         "secretRecoveryPhraseError": "Kelimeler arasında tek bir boşluk bırakarak Gizli Kurtarma İfadenizi girin. Virgülleri, dönüşleri veya ek karakterleri atlayın.",
         "secretRecoveryPhraseRequired": "Gizli Kurtarma İfadesi gereklidir",
@@ -1972,7 +2001,8 @@
   },
   "avatar": {
     "modal": {
-      "title": "Yeni Avatar Ayarla"
+      "title": "Yeni Avatar Ayarla",
+      "restoreDefault": "Varsayılan"
     }
   }
 }

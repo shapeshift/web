@@ -2,6 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { bchAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getConfig } from 'config'
 import qs from 'qs'
 import type { Asset } from 'lib/asset-service'
 import { baseUnitToPrecision, bn } from 'lib/bignumber/bignumber'
@@ -9,7 +10,6 @@ import { toBaseUnit } from 'lib/math'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type {
-  ThorchainSwapperDeps,
   ThornodeQuoteResponse,
   ThornodeQuoteResponseSuccess,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
@@ -27,7 +27,6 @@ export const getQuote = async ({
   sellAmountCryptoBaseUnit,
   receiveAddress,
   affiliateBps = '0',
-  deps,
 }: {
   sellAsset: Asset
   buyAssetId: AssetId
@@ -35,7 +34,6 @@ export const getQuote = async ({
   // Receive address is optional for THOR quotes, and will be in case we are getting a quote with a missing manual receive address
   receiveAddress: string | undefined
   affiliateBps: string
-  deps: ThorchainSwapperDeps
 }): Promise<Result<ThornodeQuoteResponseSuccess, SwapErrorRight>> => {
   const buyPoolId = assetIdToPoolAssetId({ assetId: buyAssetId })
   const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
@@ -63,9 +61,10 @@ export const getQuote = async ({
     affiliate_bps: affiliateBps,
     affiliate: THORCHAIN_AFFILIATE_NAME,
   })
+  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const maybeData = (
     await thorService.get<ThornodeQuoteResponse>(
-      `${deps.daemonUrl}/lcd/thorchain/quote/swap?${queryString}`,
+      `${daemonUrl}/lcd/thorchain/quote/swap?${queryString}`,
     )
   ).andThen(({ data }) => Ok(data))
 

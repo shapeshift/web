@@ -6,6 +6,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { PromoCard } from 'components/Promo/PromoCard'
 import type { PromoItem } from 'components/Promo/types'
 import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
+import { MissionSidebar } from 'pages/Missions/Missions'
 
 import { RecentTransactions } from './RecentTransactions'
 import { TradeCard } from './TradeCard'
@@ -69,7 +70,8 @@ export const DashboardSidebar = () => {
     <Flex width='full' flexDir='column' gap={6}>
       <PromoCard data={promoData} />
       <TradeCard display={{ base: 'none', xl: 'block' }} />
-      <EligibleCarousel display={{ base: 'none', md: 'flex' }} />
+      <MissionSidebar />
+      <EligibleCarousel />
       <RecentTransactions limit={8} viewMoreLink />
     </Flex>
   )

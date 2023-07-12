@@ -3,12 +3,13 @@ import { ASSET_NAMESPACE, ASSET_REFERENCE, ethChainId, toAssetId } from '@shapes
 import { BigNumber } from 'bignumber.js'
 import { ethers } from 'ethers'
 
-import type { Token } from '../../types'
-import { TransferType, TxStatus } from '../../types'
+import type { Token, TxStatus } from '../../types'
+import { TransferType } from '../../types'
 import type { AggregateTransferArgs } from '../../utils'
 import { aggregateTransfer, findAsyncSequential } from '../../utils'
 import type { Api } from '..'
 import type { ParsedTx, SubParser, Tx, TxSpecific } from './types'
+import { getTxStatus } from './utils'
 
 export * from './types'
 export * from './utils'
@@ -76,13 +77,7 @@ export class BaseTransactionParser<T extends Tx> {
   }
 
   private getStatus(tx: T): TxStatus {
-    const status = tx.status
-
-    if (status === -1 && tx.confirmations <= 0) return TxStatus.Pending
-    if (status === 1 && tx.confirmations > 0) return TxStatus.Confirmed
-    if (status === 0) return TxStatus.Failed
-
-    return TxStatus.Unknown
+    return getTxStatus(tx)
   }
 
   private getParsedTxWithTransfers(tx: T, parsedTx: ParsedTx, address: string) {

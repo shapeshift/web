@@ -18,14 +18,13 @@ import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { Text } from 'components/Text'
 import { useTimeframeChange } from 'hooks/useTimeframeChange/useTimeframeChange'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
 import {
   selectChartTimeframe,
   selectClaimableRewards,
-  selectEarnBalancesFiatAmountFull,
+  selectEarnBalancesUserCurrencyAmountFull,
   selectPortfolioAssetIds,
   selectPortfolioLoading,
-  selectPortfolioTotalFiatBalanceExcludeEarnDupes,
+  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -41,19 +40,25 @@ export const Portfolio = () => {
 
   const assetIds = useAppSelector(selectPortfolioAssetIds)
 
-  const earnFiatBalance = useAppSelector(selectEarnBalancesFiatAmountFull).toFixed()
-  const portfolioTotalFiatBalance = useAppSelector(selectPortfolioTotalFiatBalanceExcludeEarnDupes)
-  const claimableRewardsFiatBalanceFilter = useMemo(() => ({}), [])
-  const claimableRewardsFiatBalance = useAppSelector(state =>
-    selectClaimableRewards(state, claimableRewardsFiatBalanceFilter),
+  const earnUserCurrencyBalance = useAppSelector(selectEarnBalancesUserCurrencyAmountFull).toFixed()
+  const portfolioTotalUserCurrencyBalance = useAppSelector(
+    selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  )
+  const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
+  const claimableRewardsUserCurrencyBalance = useAppSelector(state =>
+    selectClaimableRewards(state, claimableRewardsUserCurrencyBalanceFilter),
   )
   const totalBalance = useMemo(
     () =>
-      bnOrZero(earnFiatBalance)
-        .plus(portfolioTotalFiatBalance)
-        .plus(claimableRewardsFiatBalance)
+      bnOrZero(earnUserCurrencyBalance)
+        .plus(portfolioTotalUserCurrencyBalance)
+        .plus(claimableRewardsUserCurrencyBalance)
         .toFixed(),
-    [claimableRewardsFiatBalance, earnFiatBalance, portfolioTotalFiatBalance],
+    [
+      claimableRewardsUserCurrencyBalance,
+      earnUserCurrencyBalance,
+      portfolioTotalUserCurrencyBalance,
+    ],
   )
 
   const loading = useAppSelector(selectPortfolioLoading)
@@ -126,7 +131,6 @@ export const Portfolio = () => {
       </Card>
       <MaybeChartUnavailable assetIds={assetIds} />
       <PortfolioBreakdown />
-      <EligibleCarousel display={{ base: 'flex', md: 'none' }} />
       <Card>
         <Card.Header>
           <Card.Heading>

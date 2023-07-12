@@ -8,8 +8,8 @@ import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectClaimableRewards,
-  selectEarnBalancesFiatAmountFull,
-  selectPortfolioTotalFiatBalanceExcludeEarnDupes,
+  selectEarnBalancesUserCurrencyAmountFull,
+  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -54,19 +54,25 @@ const BreakdownCard: React.FC<StatCardProps> = ({
 
 export const PortfolioBreakdown = () => {
   const history = useHistory()
-  const earnFiatBalance = useAppSelector(selectEarnBalancesFiatAmountFull).toFixed()
-  const claimableRewardsFiatBalanceFilter = useMemo(() => ({}), [])
-  const claimableRewardsFiatBalance = useAppSelector(state =>
-    selectClaimableRewards(state, claimableRewardsFiatBalanceFilter),
+  const earnUserCurrencyBalance = useAppSelector(selectEarnBalancesUserCurrencyAmountFull).toFixed()
+  const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
+  const claimableRewardsUserCurrencyBalance = useAppSelector(state =>
+    selectClaimableRewards(state, claimableRewardsUserCurrencyBalanceFilter),
   )
-  const portfolioTotalFiatBalance = useAppSelector(selectPortfolioTotalFiatBalanceExcludeEarnDupes)
+  const portfolioTotalUserCurrencyBalance = useAppSelector(
+    selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  )
   const netWorth = useMemo(
     () =>
-      bnOrZero(earnFiatBalance)
-        .plus(portfolioTotalFiatBalance)
-        .plus(claimableRewardsFiatBalance)
+      bnOrZero(earnUserCurrencyBalance)
+        .plus(portfolioTotalUserCurrencyBalance)
+        .plus(claimableRewardsUserCurrencyBalance)
         .toFixed(),
-    [claimableRewardsFiatBalance, earnFiatBalance, portfolioTotalFiatBalance],
+    [
+      claimableRewardsUserCurrencyBalance,
+      earnUserCurrencyBalance,
+      portfolioTotalUserCurrencyBalance,
+    ],
   )
 
   const isDefiDashboardEnabled = useFeatureFlag('DefiDashboard')
@@ -76,14 +82,14 @@ export const PortfolioBreakdown = () => {
   return (
     <Flex gap={{ base: 0, xl: 6 }} flexDir={{ base: 'column', md: 'row' }}>
       <BreakdownCard
-        value={portfolioTotalFiatBalance}
-        percentage={bnOrZero(portfolioTotalFiatBalance).div(netWorth).times(100).toNumber()}
+        value={portfolioTotalUserCurrencyBalance}
+        percentage={bnOrZero(portfolioTotalUserCurrencyBalance).div(netWorth).times(100).toNumber()}
         label='defi.walletBalance'
         onClick={() => history.push('/accounts')}
       />
       <BreakdownCard
-        value={earnFiatBalance}
-        percentage={bnOrZero(earnFiatBalance).div(netWorth).times(100).toNumber()}
+        value={earnUserCurrencyBalance}
+        percentage={bnOrZero(earnUserCurrencyBalance).div(netWorth).times(100).toNumber()}
         label='defi.earnBalance'
         color='green.500'
         onClick={() => history.push('/earn')}

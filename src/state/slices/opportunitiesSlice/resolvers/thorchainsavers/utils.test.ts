@@ -3,7 +3,7 @@ import axios from 'axios'
 import type { Asset } from 'lib/asset-service'
 import { AssetService } from 'lib/asset-service'
 
-import { getThorchainSaversDepositQuote } from './utils'
+import { getMaybeThorchainSaversDepositQuote } from './utils'
 
 jest.mock('axios')
 const mockAxios = axios as jest.Mocked<typeof axios>
@@ -48,14 +48,17 @@ describe('resolvers/thorchainSavers/utils', () => {
       )
 
       const btcAssetMock = getAssetService().getAll()[btcAssetId]
-      const saversQuote = await getThorchainSaversDepositQuote({
+      const maybeSaversQuote = await getMaybeThorchainSaversDepositQuote({
         asset: btcAssetMock,
         amountCryptoBaseUnit: '10000000',
       })
 
+      expect(maybeSaversQuote.isErr()).toBe(false)
+      const saversQuote = maybeSaversQuote.unwrap()
+
       expect(saversQuote).toMatchObject(thorchainSaversDepositQuote)
     })
-    it('throws for an invalid pool AssetId', async () => {
+    it('return an Err for an invalid pool AssetId', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
           data: thorchainErrorResponse,
@@ -63,11 +66,16 @@ describe('resolvers/thorchainSavers/utils', () => {
       )
 
       const osmoAssetMock = { assetId: osmosisAssetId, precision: 6 } as unknown as Asset
-      await expect(
-        getThorchainSaversDepositQuote({ asset: osmoAssetMock, amountCryptoBaseUnit: '10000000' }),
-      ).rejects.toThrow()
+      expect(
+        (
+          await getMaybeThorchainSaversDepositQuote({
+            asset: osmoAssetMock,
+            amountCryptoBaseUnit: '10000000',
+          })
+        ).isErr(),
+      ).toBe(true)
     })
-    it('throws when deposit is over the max synth mint supply', async () => {
+    it('return an Err when deposit is over the max synth mint supply', async () => {
       mockAxios.get.mockImplementationOnce(() =>
         Promise.resolve({
           data: thorchainErrorResponse,
@@ -75,12 +83,14 @@ describe('resolvers/thorchainSavers/utils', () => {
       )
 
       const btcAssetMock = getAssetService().getAll()[btcAssetId]
-      await expect(
-        getThorchainSaversDepositQuote({
-          asset: btcAssetMock,
-          amountCryptoBaseUnit: '10000000000000',
-        }),
-      ).rejects.toThrow()
+      expect(
+        (
+          await getMaybeThorchainSaversDepositQuote({
+            asset: btcAssetMock,
+            amountCryptoBaseUnit: '10000000000000',
+          })
+        ).isErr(),
+      ).toBe(true)
     })
   })
 })

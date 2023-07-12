@@ -20,8 +20,8 @@ jest.mock('./getZrxTradeQuote/getZrxTradeQuote', () => ({
   getZrxTradeQuote: jest.fn(),
 }))
 
-jest.mock('./getMinimumAmountCryptoHuman/getMinimumAmountCryptoHuman', () => ({
-  getMinimumAmountCryptoHuman: jest.fn(),
+jest.mock('./getMinimumCryptoHuman/getMinimumCryptoHuman', () => ({
+  getMinimumCryptoHuman: jest.fn(),
 }))
 
 describe('ZrxSwapper', () => {
@@ -46,7 +46,7 @@ describe('ZrxSwapper', () => {
   it('calls ZrxExecuteTrade on swapper.executeTrade', async () => {
     const { executeTradeInput } = setupExecuteTrade()
     const swapper = new ZrxSwapper()
-    const args = { trade: executeTradeInput, wallet }
+    const args = { trade: executeTradeInput, wallet, from: '0xfooBar' }
     await swapper.executeTrade(args)
     expect(zrxExecuteTrade).toHaveBeenCalled()
   })

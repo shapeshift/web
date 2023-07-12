@@ -16,8 +16,8 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { usePoll } from 'hooks/usePoll/usePoll'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { poll } from 'lib/poll/poll'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
@@ -68,6 +68,7 @@ type ClaimStatusProps = {
 }
 
 export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
+  const { poll } = usePoll<ethers.providers.TransactionReceipt>()
   const { history: browserHistory } = useBrowserRouter()
   const foxyApi = getFoxyApi()
   const translate = useTranslate()
@@ -140,7 +141,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
         })
       }
     })()
-  }, [refetchFoxyBalances, estimatedGas, foxyApi, state, txid])
+  }, [refetchFoxyBalances, estimatedGas, foxyApi, state, txid, poll])
 
   return (
     <SlideTransition>

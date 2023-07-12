@@ -2,6 +2,7 @@ import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import type { ReduxState } from 'state/reducer'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
+import { MultiHopExecutionStatus } from 'state/slices/swappersSlice/types'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -88,12 +89,15 @@ export const mockStore: ReduxState = {
       ReadOnlyAssets: false,
       OneInch: false,
       CovalentJaypegs: false,
+      Chatwoot: false,
       MultiHopTrades: false,
+      CoinbaseWallet: false,
+      AdvancedSlippage: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
     selectedCurrency: 'USD',
-    currencyFormat: CurrencyFormats.DotDecimal,
+    currencyFormat: CurrencyFormats.DotDecimalCommaThousands,
     chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
     showWelcomeModal: false,
     showConsentBanner: true,
@@ -159,11 +163,18 @@ export const mockStore: ReduxState = {
     },
   },
   swappers: {
-    selectedQuote: undefined,
     buyAsset: defaultAsset,
     sellAsset: defaultAsset,
     sellAssetAccountId: undefined,
-    receiveAddress: undefined,
+    buyAssetAccountId: undefined,
     sellAmountCryptoPrecision: '0',
+    tradeExecutionStatus: MultiHopExecutionStatus.Unknown,
+    willDonate: true,
+    manualReceiveAddress: undefined,
+    manualReceiveAddressIsValidating: false,
+  },
+  tradeQuoteSlice: {
+    activeSwapperName: undefined,
+    confirmedQuote: undefined,
   },
 }

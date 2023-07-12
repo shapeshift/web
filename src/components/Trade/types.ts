@@ -45,6 +45,7 @@ export type TradeQuoteInputCommonArgs = Pick<
   | 'receiveAddress'
   | 'accountNumber'
   | 'affiliateBps'
+  | 'allowMultiHop'
 >
 
 export type BuildTradeInputCommonArgs = Pick<
@@ -53,9 +54,9 @@ export type BuildTradeInputCommonArgs = Pick<
   | 'sellAsset'
   | 'buyAsset'
   | 'receiveAddress'
-  | 'wallet'
   | 'slippage'
   | 'affiliateBps'
+  | 'allowMultiHop'
 >
 
 export type GetFormFeesArgs = {

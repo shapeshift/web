@@ -41,7 +41,7 @@ import {
   selectAssetById,
   selectAssets,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioFiatBalanceByAssetId,
+  selectPortfolioUserCurrencyBalanceByAssetId,
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -109,9 +109,9 @@ export const FoxPage = () => {
   const foxFilter = useMemo(() => ({ assetId: foxAssetId }), [])
   const foxyFilter = useMemo(() => ({ assetId: foxyAssetId }), [])
   const fiatBalanceFox =
-    useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, foxFilter)) ?? '0'
+    useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, foxFilter)) ?? '0'
   const fiatBalanceFoxy =
-    useAppSelector(s => selectPortfolioFiatBalanceByAssetId(s, foxyFilter)) ?? '0'
+    useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, foxyFilter)) ?? '0'
   const cryptoHumanBalanceFox =
     useAppSelector(s => selectPortfolioCryptoPrecisionBalanceByFilter(s, foxFilter)) ?? '0'
   const cryptoHumanBalanceFoxy =

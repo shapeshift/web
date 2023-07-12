@@ -1,11 +1,17 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { deserializeNftAssetReference, fromAssetId } from '@shapeshiftoss/caip'
+import cloneDeep from 'lodash/cloneDeep'
 import { PURGE } from 'redux-persist'
 import type { PartialRecord } from 'lib/utils'
-import { isRejected, isSome } from 'lib/utils'
-import type { WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { isRejected } from 'lib/utils'
+import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
+import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
+import { portfolio as portfolioSlice } from 'state/slices/portfolioSlice/portfolioSlice'
+import type { Portfolio, WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { initialState as initialPortfolioState } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { covalentApi } from '../covalent/covalentApi'
@@ -56,6 +62,61 @@ export const initialState: NftState = {
     ids: [],
   },
 }
+
+type PortfolioAndAssetsUpsertPayload = {
+  nftsById: Record<AssetId, NftItem>
+}
+
+const upsertPortfolioAndAssets = createAsyncThunk<void, PortfolioAndAssetsUpsertPayload>(
+  'nft/upsertPortfolioAndAssets',
+  ({ nftsById }, { dispatch }) => {
+    const assetsToUpsert = Object.values(nftsById).reduce<AssetsState>(
+      (acc, nft) => {
+        acc.byId[nft.assetId] = makeAsset({
+          assetId: nft.assetId,
+          id: nft.id,
+          symbol: nft.symbol ?? 'N/A',
+          name: nft.name,
+          precision: 0,
+          icon: nft.medias[0]?.originalUrl,
+        })
+        acc.ids.push(nft.assetId)
+        return acc
+      },
+      { byId: {}, ids: [] },
+    )
+
+    const portfolio = cloneDeep<Portfolio>(initialPortfolioState)
+
+    Object.values(nftsById).forEach(nft => {
+      const accountId = nft.ownerAccountId
+
+      if (!portfolio.accounts.byId[accountId]) {
+        portfolio.accounts.byId[accountId] = { assetIds: [nft.assetId] }
+        portfolio.accounts.ids.push(accountId)
+      } else {
+        portfolio.accounts.byId[accountId].assetIds.push(nft.assetId)
+      }
+
+      const balanceData = {
+        // i.e 1 for ERC-721s / 0, 1, or more for ERC-1155s
+        [nft.assetId]: nft.balance === undefined ? '1' : nft.balance,
+      }
+      if (!portfolio.accountBalances.byId[accountId]) {
+        portfolio.accountBalances.byId[accountId] = balanceData
+        portfolio.accountBalances.ids.push(accountId)
+      } else {
+        portfolio.accountBalances.byId[accountId] = Object.assign(
+          portfolio.accountBalances.byId[accountId],
+          balanceData,
+        )
+      }
+    })
+
+    dispatch(assetsSlice.actions.upsertAssets(assetsToUpsert))
+    dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+  },
+)
 
 export const nft = createSlice({
   name: 'nftData',
@@ -129,55 +190,67 @@ export const nftApi = createApi({
 
         const results = await Promise.allSettled(services.map(service => service(accountIds)))
 
-        const dataById = results.reduce<Record<AssetId, NftItemWithCollection>>((acc, result) => {
-          if (isRejected(result)) return acc
+        const nftsWithCollectionById = results.reduce<Record<AssetId, NftItemWithCollection>>(
+          (acc, result) => {
+            if (isRejected(result)) return acc
 
-          if (result.value.data) {
-            const { data } = result.value
+            if (result.value.data) {
+              const { data } = result.value
 
-            data.forEach(item => {
-              const { assetId } = item
+              data.forEach(item => {
+                const { assetId } = item
+                const { assetReference, chainId } = fromAssetId(assetId)
 
-              if (!acc[assetId]) {
-                acc[assetId] = item
-              } else {
-                acc[assetId] = updateNftItem(acc[assetId], item)
-              }
-            })
-            // An actual RTK error, different from a rejected promise i.e getAlchemyNftData rejecting
-          } else if (result.value.isError) {
-            console.error(result.value.error)
-          }
+                const [contractAddress, id] = deserializeNftAssetReference(assetReference)
 
-          return acc
-        }, {})
+                const foundNftAssetId = Object.keys(acc).find(accAssetId => {
+                  const { assetReference: accAssetReference, chainId: accChainId } =
+                    fromAssetId(accAssetId)
+                  const [accContractAddress, accId] =
+                    deserializeNftAssetReference(accAssetReference)
+                  return (
+                    accContractAddress === contractAddress && accId === id && accChainId === chainId
+                  )
+                })
 
-        const data = Object.values(dataById)
+                if (!foundNftAssetId) {
+                  acc[assetId] = item
+                } else {
+                  acc[assetId] = updateNftItem(acc[foundNftAssetId], item)
+                }
+              })
+              // An actual RTK error, different from a rejected promise i.e getAlchemyNftData rejecting
+            } else if (result.value.isError) {
+              console.error(result.value.error)
+            }
 
-        const nftsById = data.reduce<NftState['nfts']['byId']>((acc, item) => {
-          if (!item.collection.assetId) return acc
+            return acc
+          },
+          {},
+        )
 
-          const nftAssetId: AssetId = `${item.collection.assetId}/${item.id}`
-          let { collection, ...nftItemWithoutId } = item
+        const nftsWithCollection = Object.values(nftsWithCollectionById)
+
+        const nftsById = nftsWithCollection.reduce<Record<AssetId, NftItem>>((acc, item) => {
+          const { collection, ...nftItemWithoutCollection } = item
           const nftItem: NftItem = {
-            ...nftItemWithoutId,
+            ...nftItemWithoutCollection,
             collectionId: item.collection.assetId,
           }
-          acc[nftAssetId] = nftItem
-
+          acc[item.assetId] = nftItem
           return acc
         }, {})
 
-        const collectionsById = data.reduce<NftState['collections']['byId']>((acc, item) => {
-          if (!item.collection.assetId) return acc
+        dispatch(nft.actions.upsertNfts({ byId: nftsById, ids: Object.keys(nftsById) }))
 
-          const collectionAssetId = item.collection.assetId
-          if (!collectionAssetId) return acc
-
-          acc[collectionAssetId] = item.collection
-
-          return acc
-        }, {})
+        const collectionsById = nftsWithCollection.reduce<NftState['collections']['byId']>(
+          (acc, item) => {
+            if (!item.collection.assetId) return acc
+            acc[item.collection.assetId] = item.collection
+            return acc
+          },
+          {},
+        )
 
         dispatch(
           nft.actions.upsertCollections({
@@ -185,9 +258,12 @@ export const nftApi = createApi({
             ids: Object.keys(collectionsById),
           }),
         )
-        dispatch(nft.actions.upsertNfts({ byId: nftsById, ids: Object.keys(nftsById) }))
 
-        return { data: Object.values(nftsById).filter(isSome) }
+        dispatch(upsertPortfolioAndAssets({ nftsById }))
+
+        const data = Object.values(nftsById)
+
+        return { data }
       },
     }),
     getNft: build.query<NftItemWithCollection, GetNftInput>({
@@ -268,4 +344,4 @@ export const nftApi = createApi({
   }),
 })
 
-export const { useGetNftUserTokensQuery, useGetNftCollectionQuery } = nftApi
+export const { useGetNftCollectionQuery } = nftApi

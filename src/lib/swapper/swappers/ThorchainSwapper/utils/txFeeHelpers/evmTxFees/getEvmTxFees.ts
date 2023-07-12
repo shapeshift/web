@@ -1,35 +1,60 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
-import { bn } from 'lib/bignumber/bignumber'
-import type { ProtocolFee, QuoteFeeData } from 'lib/swapper/api'
-import { SwapError, SwapErrorType } from 'lib/swapper/api'
-import type { ThorEvmSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { Result } from '@sniptt/monads/build'
+import { Err, Ok } from '@sniptt/monads/build'
+import type { SwapErrorRight } from 'lib/swapper/api'
+import { makeSwapErrorRight } from 'lib/swapper/api'
 import { THOR_EVM_GAS_LIMIT } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
+import { calcNetworkFeeCryptoBaseUnit, getFees } from 'lib/utils/evm'
 
 type GetEvmTxFeesArgs = {
-  adapter: EvmBaseAdapter<ThorEvmSupportedChainId>
-  protocolFees: Record<AssetId, ProtocolFee>
+  adapter: EvmChainAdapter
+  accountNumber: number
+  data: string
+  router: string
+  supportsEIP1559: boolean
+  value: string
+  wallet?: HDWallet
 }
 
-export const getEvmTxFees = async ({
-  adapter,
-  protocolFees,
-}: GetEvmTxFeesArgs): Promise<QuoteFeeData<ThorEvmSupportedChainId>> => {
+type EvmTxFees = {
+  networkFeeCryptoBaseUnit: string
+}
+
+export const getEvmTxFees = async (
+  args: GetEvmTxFeesArgs,
+): Promise<Result<EvmTxFees, SwapErrorRight>> => {
+  const { accountNumber, adapter, data, supportsEIP1559, value, router, wallet } = args
   try {
+    // if we have a wallet, we are trying to build the actual trade, get accurate gas estimation
+    if (wallet) {
+      const { networkFeeCryptoBaseUnit } = await getFees({
+        accountNumber,
+        adapter,
+        to: router,
+        data,
+        value,
+        wallet,
+      })
+
+      return Ok({ networkFeeCryptoBaseUnit })
+    }
+
     const { average } = await adapter.getGasFeeData()
 
-    // this is a good value to cover all thortrades out of EVMs
-    // in the future we may want to look at doing this more precisely and in a future-proof way
-    // TODO: calculate this dynamically
-    // https://github.com/shapeshift/web/issues/4512
-    const txFee = bn(THOR_EVM_GAS_LIMIT).times(average.gasPrice)
+    const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
+      ...average,
+      supportsEIP1559,
+      gasLimit: THOR_EVM_GAS_LIMIT, // hardcoded default for quote estimation (no wallet)
+    })
 
-    return {
-      networkFeeCryptoBaseUnit: txFee.toFixed(0),
-      protocolFees,
-    }
-  } catch (e) {
-    if (e instanceof SwapError) throw e
-    throw new SwapError('[getThorTxInfo]', { cause: e, code: SwapErrorType.TRADE_QUOTE_FAILED })
+    return Ok({ networkFeeCryptoBaseUnit })
+  } catch (err) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[Thorchain: getEvmTxFees] - failed to get networkFeeCryptoBaseUnit`,
+        cause: err,
+      }),
+    )
   }
 }

@@ -334,6 +334,8 @@ export const useSwapper = () => {
       const swapperName = activeSwapperWithMetadata?.swapper?.name ?? ''
 
       if (swapperName === SwapperName.LIFI) {
+        // Conform to Li.Fi SDK's gasLimit buffer
+        // https://github.com/lifinance/sdk/blob/ca2c5d6fa789346d415f1d55a4b9bde15c683385/src/allowance/utils.ts#L60
         fees.gasLimit = bnOrZero(fees.gasLimit).times(1.25).toString()
       }
 

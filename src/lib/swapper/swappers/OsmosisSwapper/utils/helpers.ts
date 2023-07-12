@@ -113,7 +113,7 @@ export const pollForCrossChainComplete = ({
       const tx = await fetchLcdTx(txid, baseUrl)
       if (initiatingChainStatus === 'success') {
         // Initiating Tx is successful, now we need to wait for the destination tx to be picked up by validators
-        //
+
         debugger
         const sendPacketMessage = tx.logs?.[0].events.find(event => event.type === 'send_packet')
         const sequence = sendPacketMessage?.attributes?.find(
@@ -125,7 +125,6 @@ export const pollForCrossChainComplete = ({
 
         const receiver = tx.tx.value.msg[0].value.receiver
 
-        // TODO(gomes): handle for OSMO -> ATOM direction too
         const {
           REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: osmoUnchainedUrl,
           REACT_APP_UNCHAINED_COSMOS_HTTP_URL: cosmosUnchainedUrl,

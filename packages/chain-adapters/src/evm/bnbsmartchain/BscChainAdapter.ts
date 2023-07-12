@@ -76,19 +76,19 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BnbSmartChainMain
         txFee: bnOrZero(
           BigNumber.max(fastGasPriceOrMinimum, fast.maxFeePerGas ?? 0).times(gasLimit),
         ).toFixed(0),
-        chainSpecific: { gasLimit, ...fast },
+        chainSpecific: { gasLimit, ...fast, gasPrice: fastGasPriceOrMinimum.toFixed(0) },
       },
       average: {
         txFee: bnOrZero(
           BigNumber.max(averageGasPriceOrMinimum, average.maxFeePerGas ?? 0).times(gasLimit),
         ).toFixed(0),
-        chainSpecific: { gasLimit, ...average },
+        chainSpecific: { gasLimit, ...average, gasPrice: averageGasPriceOrMinimum.toFixed(0) },
       },
       slow: {
         txFee: bnOrZero(
           BigNumber.max(slowGasPriceOrMinimum, slow.maxFeePerGas ?? 0).times(gasLimit),
         ).toFixed(0),
-        chainSpecific: { gasLimit, ...slow },
+        chainSpecific: { gasLimit, ...slow, gasPrice: slowGasPriceOrMinimum.toFixed(0) },
       },
     } as FeeDataEstimate<KnownChainIds.BnbSmartChainMainnet>
   }

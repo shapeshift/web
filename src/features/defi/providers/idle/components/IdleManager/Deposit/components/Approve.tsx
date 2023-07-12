@@ -21,7 +21,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { ssRouterContractAddress } from 'lib/investor/constants'
+import { ssRouterContractAddress } from 'lib/investor/investor-idle/constants/router-contract'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
@@ -129,6 +129,7 @@ export const Approve: React.FC<IdleApproveProps> = ({ accountId, onNext }) => {
       return
 
     try {
+      debugger
       dispatch({ type: IdleDepositActionType.SET_LOADING, payload: true })
       const idleOpportunity = await idleInvestor.findByOpportunityId(opportunity.assetId ?? '')
       if (!idleOpportunity) throw new Error('No opportunity')

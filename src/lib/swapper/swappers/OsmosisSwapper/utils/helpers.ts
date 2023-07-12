@@ -132,11 +132,14 @@ export const pollForCrossChainComplete = ({
           `${osmoUnchainedUrl}/api/v1/account/${receiver}/txs`,
         )
         debugger
-        const maybeFoundTx = destinationChainTxs.txs.find(tx =>
-          tx.events.some(
-            event => event => event.rcv_packet && event.rcv_packet_packet_sequence === sequence,
-          ),
-        )
+        const maybeFoundTx = destinationChainTxs.txs.find(destinationChainTx => {
+          const eventsArray = destinationChainTx.events
+            ? Object.keys(destinationChainTx.events).map(key => destinationChainTx.events[key])
+            : []
+          return eventsArray.some(
+            event => event.recv_packet && event.recv_packet.packet_sequence === sequence,
+          )
+        })
 
         if (maybeFoundTx) resolve('success')
         else setTimeout(poll, interval)

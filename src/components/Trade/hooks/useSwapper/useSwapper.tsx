@@ -15,8 +15,9 @@ import type { BuildTradeInputCommonArgs } from 'components/Trade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
+import { SwapperName } from 'lib/swapper/api'
 import type { SwapperManager } from 'lib/swapper/manager/SwapperManager'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import {
@@ -330,12 +331,24 @@ export const useSwapper = () => {
 
       const { networkFeeCryptoBaseUnit, ...fees } = await getFees(args)
 
+      const swapperName = activeSwapperWithMetadata?.swapper?.name ?? ''
+
+      if (swapperName === SwapperName.LIFI) {
+        fees.gasLimit = bnOrZero(fees.gasLimit).times(1.25).toString()
+      }
+
       return {
         networkFeeCryptoBaseUnit,
         buildCustomTxInput: { ...args, ...fees },
       }
     },
-    [activeQuote, sellAsset.assetId, sellAsset.chainId, wallet],
+    [
+      activeQuote,
+      activeSwapperWithMetadata?.swapper?.name,
+      sellAsset.assetId,
+      sellAsset.chainId,
+      wallet,
+    ],
   )
 
   useEffect(() => {

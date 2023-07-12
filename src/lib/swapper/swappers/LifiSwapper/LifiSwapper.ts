@@ -26,7 +26,10 @@ import type {
   LifiTradeQuote,
 } from 'lib/swapper/swappers/LifiSwapper/utils/types'
 import { filterEvmAssetIdsBySellable } from 'lib/swapper/swappers/utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
-import { filterCrossChainEvmBuyAssetsBySellAssetId } from 'lib/swapper/swappers/utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
+import {
+  filterCrossChainEvmBuyAssetsBySellAssetId,
+  filterSameChainEvmBuyAssetsBySellAssetId,
+} from 'lib/swapper/swappers/utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { createEmptyEvmTradeQuote } from 'lib/swapper/swappers/utils/helpers/helpers'
 import { selectAssets, selectMarketDataById } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -103,11 +106,17 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get supported buyAssetId's by sellAssetId
    */
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
-    return filterCrossChainEvmBuyAssetsBySellAssetId(input)
+    return [
+      ...filterCrossChainEvmBuyAssetsBySellAssetId(input),
+      ...filterSameChainEvmBuyAssetsBySellAssetId(input),
+    ]
   }
 
   static filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
-    return filterCrossChainEvmBuyAssetsBySellAssetId(input)
+    return [
+      ...filterCrossChainEvmBuyAssetsBySellAssetId(input),
+      ...filterSameChainEvmBuyAssetsBySellAssetId(input),
+    ]
   }
 
   /**

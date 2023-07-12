@@ -13,8 +13,6 @@ import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import type { CardProps } from 'components/Card/Card'
-import { Card } from 'components/Card/Card'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { DonationCheckbox } from 'components/MultiHopTrade/components/TradeInput/components/DonationCheckbox'
 import { ManualAddressEntry } from 'components/MultiHopTrade/components/TradeInput/components/ManualAddressEntry'
@@ -69,7 +67,7 @@ import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 
-export const TradeInput = (props: CardProps) => {
+export const TradeInput = () => {
   useGetTradeQuotes()
   const {
     state: { wallet },

@@ -313,11 +313,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
           }),
         )
 
-      // TODO(gomes): We should be polling for *actual* IBC transfer completion here, which a 5000ms only gives us partial guarantee about
-      // It will work in most cases, but isn't guaranteed if validators are slow to pick it up on the destination chain
-
-      // delay to ensure all nodes we interact with are up to date at this point
-      // seeing intermittent bugs that suggest the balances and sequence numbers were sometimes off
       await new Promise(resolve => setTimeout(resolve, 5000))
     }
 

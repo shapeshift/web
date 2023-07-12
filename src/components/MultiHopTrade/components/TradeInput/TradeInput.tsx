@@ -246,8 +246,8 @@ export const TradeInput = (props: CardProps) => {
                 assetId={buyAsset.assetId}
                 assetSymbol={buyAsset.symbol}
                 assetIcon={buyAsset.icon}
-                cryptoAmount={positiveOrZero(buyAmountAfterFeesCryptoPrecision).toString()}
-                fiatAmount={positiveOrZero(buyAmountAfterFeesUserCurrency).toString()}
+                cryptoAmount={positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()}
+                fiatAmount={positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed()}
                 percentOptions={[1]}
                 showInputSkeleton={isLoading}
                 showFiatSkeleton={isLoading}

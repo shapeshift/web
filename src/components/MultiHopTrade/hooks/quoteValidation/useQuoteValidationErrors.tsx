@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useInsufficientBalanceProtocolFeeMeta } from 'components/MultiHopTrade/hooks/quoteValidation/useInsufficientBalanceProtocolFeeMeta'
 import { useHopHelper } from 'components/MultiHopTrade/hooks/useHopHelper'
 import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
@@ -78,25 +79,43 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
     bnOrZero(sellAmountCryptoBaseUnit).isGreaterThan(0) &&
     bnOrZero(buyAmountCryptoBaseUnit).isLessThanOrEqualTo(0)
 
-  /* TODO:
-    - no quotes available
-   */
+  const quoteStatuses: ActiveQuoteStatus[] = useMemo(
+    () =>
+      [
+        !wallet && ActiveQuoteStatus.NoConnectedWallet,
+        !walletSupportsSellAssetChain && ActiveQuoteStatus.SellAssetNotNotSupportedByWallet,
+        !walletSupportsBuyAssetChain &&
+          !manualReceiveAddress &&
+          ActiveQuoteStatus.BuyAssetNotNotSupportedByWallet,
+        !hasSufficientSellAssetBalance && ActiveQuoteStatus.InsufficientSellAssetBalance,
+        !firstHopHasSufficientBalanceForGas &&
+          ActiveQuoteStatus.InsufficientFirstHopFeeAssetBalance,
+        !lastHopHasSufficientBalanceForGas && ActiveQuoteStatus.InsufficientLastHopFeeAssetBalance,
+        isBelowMinimumSellAmount && ActiveQuoteStatus.SellAmountBelowMinimum,
+        !receiveAddress && ActiveQuoteStatus.NoReceiveAddress,
+        !isTradingActiveOnSellPool && ActiveQuoteStatus.TradingInactiveOnSellChain,
+        !isTradingActiveOnBuyPool && ActiveQuoteStatus.TradingInactiveOnBuyChain,
+        feesExceedsSellAmount && ActiveQuoteStatus.SellAmountBelowTradeFee,
+        insufficientBalanceProtocolFeeMeta && ActiveQuoteStatus.InsufficientFundsForProtocolFee,
+        quotes.length === 0 && ActiveQuoteStatus.NoQuotesAvailable,
+      ].filter(isTruthy),
+    [
+      feesExceedsSellAmount,
+      firstHopHasSufficientBalanceForGas,
+      hasSufficientSellAssetBalance,
+      insufficientBalanceProtocolFeeMeta,
+      isBelowMinimumSellAmount,
+      isTradingActiveOnBuyPool,
+      isTradingActiveOnSellPool,
+      lastHopHasSufficientBalanceForGas,
+      manualReceiveAddress,
+      quotes.length,
+      receiveAddress,
+      wallet,
+      walletSupportsBuyAssetChain,
+      walletSupportsSellAssetChain,
+    ],
+  )
 
-  return [
-    !wallet && ActiveQuoteStatus.NoConnectedWallet,
-    !walletSupportsSellAssetChain && ActiveQuoteStatus.SellAssetNotNotSupportedByWallet,
-    !walletSupportsBuyAssetChain &&
-      !manualReceiveAddress &&
-      ActiveQuoteStatus.BuyAssetNotNotSupportedByWallet,
-    !hasSufficientSellAssetBalance && ActiveQuoteStatus.InsufficientSellAssetBalance,
-    !firstHopHasSufficientBalanceForGas && ActiveQuoteStatus.InsufficientFirstHopFeeAssetBalance,
-    !lastHopHasSufficientBalanceForGas && ActiveQuoteStatus.InsufficientLastHopFeeAssetBalance,
-    isBelowMinimumSellAmount && ActiveQuoteStatus.SellAmountBelowMinimum,
-    !receiveAddress && ActiveQuoteStatus.NoReceiveAddress,
-    !isTradingActiveOnSellPool && ActiveQuoteStatus.TradingInactiveOnSellChain,
-    !isTradingActiveOnBuyPool && ActiveQuoteStatus.TradingInactiveOnBuyChain,
-    feesExceedsSellAmount && ActiveQuoteStatus.SellAmountBelowTradeFee,
-    insufficientBalanceProtocolFeeMeta && ActiveQuoteStatus.InsufficientFundsForProtocolFee,
-    quotes.length === 0 && ActiveQuoteStatus.NoQuotesAvailable,
-  ].filter(isTruthy)
+  return quoteStatuses
 }

@@ -5,6 +5,7 @@ import type { CosmosSignTx, HDWallet, Osmosis, OsmosisSignTx } from '@shapeshift
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
+import { getConfig } from 'config'
 import { find } from 'lodash'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
@@ -35,11 +36,24 @@ type FindPoolOutput = {
   buyAssetIndex: number
 }
 
-const txStatus = async (txid: string, baseUrl: string): Promise<string> => {
+const fetchLcdTx = async (txid: string, baseUrl: string): Promise<any> => {
   try {
+    debugger
     const txResponse = await axios.get(`${baseUrl}/lcd/txs/${txid}`)
-    if (!txResponse?.data?.codespace && !!txResponse?.data?.gas_used) return 'success'
-    if (txResponse?.data?.codespace) return 'failed'
+    if (!txResponse?.data?.codespace && !!txResponse?.data?.gas_used) return txResponse.data
+    if (txResponse?.data?.codespace) throw new Error('Tx not found')
+  } catch (e) {
+    console.warn('Retrying to retrieve status')
+  }
+  return 'not found'
+}
+
+// TODO(gomes): Why aren't we using chain-adapters here? Do we need the LCD endpoint explicitly?
+const fetchLcdTxStatus = async (txid: string, baseUrl: string): Promise<string> => {
+  try {
+    const txResponse = await fetchLcdTx(txid, baseUrl)
+    if (txResponse) return 'success'
+    return 'failed'
   } catch (e) {
     console.warn('Retrying to retrieve status')
   }
@@ -47,16 +61,85 @@ const txStatus = async (txid: string, baseUrl: string): Promise<string> => {
 }
 
 // TODO: leverage chain-adapters websockets
-export const pollForComplete = (txid: string, baseUrl: string): Promise<string> => {
+export const pollForComplete = ({
+  txid,
+  baseUrl,
+}: {
+  txid: string
+  baseUrl: string
+}): Promise<string> => {
   return new Promise((resolve, reject) => {
     const timeout = 300000 // 5 mins
     const startTime = Date.now()
     const interval = 5000 // 5 seconds
 
     const poll = async function () {
-      const status = await txStatus(txid, baseUrl)
+      const status = await fetchLcdTxStatus(txid, baseUrl)
       if (status === 'success') {
         resolve(status)
+      } else if (Date.now() - startTime > timeout) {
+        reject(
+          new SwapError(`Couldnt find tx ${txid}`, {
+            code: SwapErrorType.RESPONSE_ERROR,
+          }),
+        )
+      } else {
+        setTimeout(poll, interval)
+      }
+    }
+    poll()
+  })
+}
+
+// More logic here, since an IBC transfer consists of 2 transactions
+// 1. MsgTransfer on the initiating chain i.e send from source chain to destination chain
+// 2. MsgRecvPacket on the receiving chain i.e receive on destination chain from source chain
+// While 1. can simply be polled for (which we do on the method above),
+// the destination Tx needs to be picked by validators on the destination chain, and we don't know anything about said Tx in advance
+export const pollForCrossChainComplete = ({
+  txid,
+  baseUrl,
+}: {
+  txid: string
+  baseUrl: string
+}): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const timeout = 300000 // 5 mins
+    const startTime = Date.now()
+    const interval = 5000 // 5 seconds
+
+    const poll = async function () {
+      const initiatingChainStatus = await fetchLcdTxStatus(txid, baseUrl)
+      const tx = await fetchLcdTx(txid, baseUrl)
+      if (initiatingChainStatus === 'success') {
+        // Initiating Tx is successful, now we need to wait for the destination tx to be picked up by validators
+        //
+        debugger
+        const sendPacketMessage = tx.logs?.[0].events.find(event => event.type === 'send_packet')
+        const sequence = sendPacketMessage?.attributes?.find(
+          attr => attr.key === 'packet_sequence',
+        ).value
+
+        // Should never happen but it may
+        if (!sequence) return setTimeout(poll, interval)
+
+        const receiver = tx.tx.value.msg[0].value.receiver
+
+        // TODO(gomes): handle for OSMO -> ATOM direction too
+        const { REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: osmoUnchainedUrl } = getConfig()
+        // TODO(gomes): CosmosSdkBaseAdapter doesn't expose Tx sequence, but it should
+        const { data: destinationChainTxs } = await axios.get(
+          `${osmoUnchainedUrl}/api/v1/account/${receiver}/txs`,
+        )
+        debugger
+        const maybeFoundTx = destinationChainTxs.txs.find(tx =>
+          tx.events.some(
+            event => event => event.rcv_packet && event.rcv_packet_packet_sequence === sequence,
+          ),
+        )
+
+        if (maybeFoundTx) resolve('success')
+        else setTimeout(poll, interval)
       } else if (Date.now() - startTime > timeout) {
         reject(
           new SwapError(`Couldnt find tx ${txid}`, {

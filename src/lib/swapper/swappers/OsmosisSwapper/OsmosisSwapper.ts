@@ -29,6 +29,7 @@ import {
   getRateInfo,
   performIbcTransfer,
   pollForComplete,
+  pollForCrossChainComplete,
   symbolDenomMapping,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 import type {
@@ -300,7 +301,10 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       cosmosIbcTradeId = tradeId
 
       // wait till confirmed
-      const pollResult = await pollForComplete(tradeId, cosmosUrl)
+      const pollResult = await pollForCrossChainComplete({
+        txid: tradeId,
+        baseUrl: cosmosUrl,
+      })
       if (pollResult !== 'success')
         return Err(
           makeSwapErrorRight({
@@ -370,7 +374,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const signed = await osmosisAdapter.signTransaction(signTxInput)
     const tradeId = await osmosisAdapter.broadcastTransaction(signed)
 
-    const pollResult = await pollForComplete(tradeId, osmoUrl)
+    const pollResult = await pollForComplete({ txid: tradeId, baseUrl: osmoUrl })
     if (pollResult !== 'success')
       return Err(
         makeSwapErrorRight({

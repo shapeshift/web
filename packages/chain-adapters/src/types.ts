@@ -105,6 +105,7 @@ export type TxMetadata = unchained.evm.TxMetadata | unchained.cosmossdk.TxMetada
 export type Transaction = Omit<unchained.StandardTx, 'transfers'> & {
   transfers: TxTransfer[]
   data?: TxMetadata
+  sequence?: string
 }
 
 export type TxTransfer = Omit<unchained.Transfer, 'components' | 'totalValue'> & {

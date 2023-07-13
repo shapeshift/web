@@ -89,7 +89,7 @@ export const FeaturedList: React.FC<FeatureListProps> = ({
           base: `300px`,
           sm: `calc((100% - 1 * ${gridGap})/ 2)`,
           md: `calc((100% - 2 * ${gridGap})/ 3)`,
-          lg: `calc((100% - ${
+          '2xl': `calc((100% - ${
             slidesToShow > 1 ? slidesToShow - 1 : 0
           } * ${gridGap})/ ${slidesToShow})`,
         }}

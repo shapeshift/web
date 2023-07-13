@@ -15,6 +15,7 @@ export enum ActiveQuoteStatus {
   SellAmountBelowTradeFee = 'SellAmountBelowTradeFee',
   InsufficientFirstHopFeeAssetBalance = 'InsufficientFirstHopFeeAssetBalance',
   InsufficientLastHopFeeAssetBalance = 'InsufficientLastHopFeeAssetBalance',
+  InsufficientFundsForProtocolFee = 'InsufficientFundsForProtocolFee',
   InsufficientSellAssetBalance = 'InsufficientSellAssetBalance',
   NoConnectedWallet = 'NoConnectedWallet',
   SellAssetNotNotSupportedByWallet = 'SellAssetNotNotSupportedByWallet',

@@ -2,7 +2,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useState } from 'react'
 import { TradeAssetInput } from 'components/Trade/Components/TradeAssetInput'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { selectMarketDataByFilter } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -11,36 +11,30 @@ export type SellAssetInputProps = {
   accountId?: AccountId
   label: string
   asset: Asset
-  onClickSendMax: () => void
 }
 
-export const SellAssetInput = ({
-  accountId,
-  asset,
-  label,
-  onClickSendMax,
-}: SellAssetInputProps) => {
-  const [sellAmountFiatHuman, setSellAmountFiatHuman] = useState('0')
+export const SellAssetInput = ({ accountId, asset, label }: SellAssetInputProps) => {
+  const [sellAmountUserCurrencyHuman, setSellAmountUserCurrencyHuman] = useState('0')
   const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
   const dispatch = useAppDispatch()
 
-  const { price: sellAssetFiatRate } = useAppSelector(state =>
+  const { price: sellAssetUserCurrencyRate } = useAppSelector(state =>
     selectMarketDataByFilter(state, { assetId: asset.assetId }),
   )
 
   const handleSellAssetInputChange = useCallback(
     (value: string, isFiat: boolean | undefined) => {
-      const sellAmountFiatHuman = isFiat
+      const sellAmountUserCurrencyHuman = isFiat
         ? value
-        : bnOrZero(value).times(sellAssetFiatRate).toFixed(2)
+        : bnOrZero(value).times(sellAssetUserCurrencyRate).toFixed(2)
       const sellAmountCryptoPrecision = isFiat
-        ? bnOrZero(value).div(sellAssetFiatRate).toFixed()
+        ? bnOrZero(value).div(sellAssetUserCurrencyRate).toFixed()
         : value
-      setSellAmountFiatHuman(sellAmountFiatHuman)
+      setSellAmountUserCurrencyHuman(sellAmountUserCurrencyHuman)
       setSellAmountCryptoPrecision(sellAmountCryptoPrecision)
       dispatch(swappers.actions.setSellAmountCryptoPrecision(sellAmountCryptoPrecision))
     },
-    [dispatch, sellAssetFiatRate],
+    [dispatch, sellAssetUserCurrencyRate],
   )
 
   useEffect(() => {
@@ -53,12 +47,11 @@ export const SellAssetInput = ({
       assetId={asset.assetId}
       assetSymbol={asset.symbol}
       assetIcon={asset.icon}
-      cryptoAmount={sellAmountCryptoPrecision}
-      fiatAmount={sellAmountFiatHuman}
+      cryptoAmount={positiveOrZero(sellAmountCryptoPrecision).toString()}
+      fiatAmount={positiveOrZero(sellAmountUserCurrencyHuman).toString()}
       isSendMaxDisabled={false}
       onChange={handleSellAssetInputChange}
       percentOptions={[1]}
-      onPercentOptionClick={onClickSendMax}
       showInputSkeleton={false}
       showFiatSkeleton={false}
       label={label}

@@ -17,17 +17,15 @@ export const getSendMaxAmountCryptoPrecision = (
   quote: TradeQuote<KnownChainIds>,
   sellAssetBalanceCryptoBaseUnit: string,
   networkFeeRequiresBalance: boolean,
-  isBuyingOsmoWithOmosisSwapper: boolean,
 ) => {
   // Only subtract fee if sell asset is the fee asset
   const isFeeAsset = feeAsset.assetId === sellAsset.assetId
   const protocolFee: ProtocolFee | undefined =
     quote.steps[0].feeData.protocolFees[sellAsset.assetId]
 
-  const protocolFeeCryptoBaseUnit =
-    protocolFee?.requiresBalance && !isBuyingOsmoWithOmosisSwapper
-      ? bn(protocolFee.amountCryptoBaseUnit)
-      : bn(0)
+  const protocolFeeCryptoBaseUnit = protocolFee?.requiresBalance
+    ? bn(protocolFee.amountCryptoBaseUnit)
+    : bn(0)
 
   const networkFeeCryptoBaseUnit =
     networkFeeRequiresBalance && isFeeAsset

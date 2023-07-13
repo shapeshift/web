@@ -97,7 +97,7 @@ export const mockStore: ReduxState = {
     selectedLocale: 'en',
     balanceThreshold: '0',
     selectedCurrency: 'USD',
-    currencyFormat: CurrencyFormats.DotDecimal,
+    currencyFormat: CurrencyFormats.DotDecimalCommaThousands,
     chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
     showWelcomeModal: false,
     showConsentBanner: true,
@@ -170,6 +170,8 @@ export const mockStore: ReduxState = {
     sellAmountCryptoPrecision: '0',
     tradeExecutionStatus: MultiHopExecutionStatus.Unknown,
     willDonate: true,
+    manualReceiveAddress: undefined,
+    manualReceiveAddressIsValidating: false,
   },
   tradeQuoteSlice: {
     activeSwapperName: undefined,

@@ -34,7 +34,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
   const history = useHistory()
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const filter = useMemo(() => ({ chainId }), [chainId])
-  const chainFiatBalance = useAppSelector(s =>
+  const chainUserCurrencyBalance = useAppSelector(s =>
     selectPortfolioTotalBalanceByChainIdIncludeStaking(s, filter),
   )
   const accountIdsByAccountNumber = useAppSelector(s =>
@@ -87,7 +87,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
           <RawText>{asset.networkName ?? asset.name}</RawText>
         </Stack>
         <Stack direction='row' alignItems='center' spacing={6}>
-          <Amount.Fiat value={chainFiatBalance} />
+          <Amount.Fiat value={chainUserCurrencyBalance} />
           <Center boxSize='32px'>{isOpen ? <ArrowUpIcon /> : <ArrowDownIcon />}</Center>
         </Stack>
       </Stack>

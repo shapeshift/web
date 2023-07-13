@@ -61,11 +61,6 @@ export async function getTradeQuote(
         { code: SwapErrorType.UNSUPPORTED_PAIR },
       )
     }
-    if (sellLifiChainKey === buyLifiChainKey) {
-      throw new SwapError('[getTradeQuote] same chains swaps not supported', {
-        code: SwapErrorType.UNSUPPORTED_PAIR,
-      })
-    }
 
     const lifi = getLifi()
 

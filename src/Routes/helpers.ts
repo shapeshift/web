@@ -28,6 +28,7 @@ export type Route = {
   disable?: boolean
   hide?: boolean
   breadcrumb?: string | React.ReactNode
+  isNew?: boolean
   category?: RouteCategory
 } & (
   | {

@@ -17,6 +17,8 @@ export type SwappersState = {
   sellAmountCryptoPrecision: string
   tradeExecutionStatus: MultiHopExecutionStatus
   willDonate: boolean
+  manualReceiveAddress: string | undefined
+  manualReceiveAddressIsValidating: boolean
 }
 
 // Define the initial state:
@@ -28,6 +30,8 @@ const initialState: SwappersState = {
   sellAmountCryptoPrecision: '0',
   tradeExecutionStatus: MultiHopExecutionStatus.Hop1AwaitingApprovalConfirmation,
   willDonate: true,
+  manualReceiveAddress: undefined,
+  manualReceiveAddressIsValidating: false,
 }
 
 // Create the slice:
@@ -37,7 +41,13 @@ export const swappers = createSlice({
   reducers: {
     clear: () => initialState,
     setBuyAsset: (state, action: PayloadAction<Asset>) => {
-      state.buyAsset = action.payload
+      const asset = action.payload
+
+      // Handle the user selecting the same asset for both buy and sell
+      const isSameAsSellAsset = asset.assetId === state.sellAsset.assetId
+      if (isSameAsSellAsset) state.sellAsset = state.buyAsset
+
+      state.buyAsset = asset
 
       const buyAssetChainId = state.buyAsset.chainId
       const buyAssetAccountChainId = state.buyAssetAccountId
@@ -49,6 +59,12 @@ export const swappers = createSlice({
         state.buyAssetAccountId = undefined
     },
     setSellAsset: (state, action: PayloadAction<Asset>) => {
+      const asset = action.payload
+
+      // Handle the user selecting the same asset for both buy and sell
+      const isSameAsBuyAsset = asset.assetId === state.buyAsset.assetId
+      if (isSameAsBuyAsset) state.buyAsset = state.sellAsset
+
       state.sellAsset = action.payload
 
       const sellAssetChainId = state.sellAsset.chainId
@@ -78,6 +94,15 @@ export const swappers = createSlice({
       const buyAsset = state.sellAsset
       state.sellAsset = state.buyAsset
       state.buyAsset = buyAsset
+    },
+    toggleWillDonate: state => {
+      state.willDonate = !state.willDonate
+    },
+    setManualReceiveAddress: (state, action: PayloadAction<string | undefined>) => {
+      state.manualReceiveAddress = action.payload
+    },
+    setManualReceiveAddressIsValidating: (state, action: PayloadAction<boolean>) => {
+      state.manualReceiveAddressIsValidating = action.payload
     },
   },
 })

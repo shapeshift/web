@@ -25,16 +25,16 @@ import { createStore } from 'state/store'
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
 import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioFiatBalancesByAccountId,
+  selectPortfolioUserCurrencyBalancesByAccountId,
 } from '../common-selectors'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
-  selectHighestFiatBalanceAccountByAssetId,
+  selectHighestUserCurrencyBalanceAccountByAssetId,
   selectPortfolioAccountRows,
   selectPortfolioAllocationPercentByFilter,
   selectPortfolioAssetIdsByAccountIdExcludeFeeAsset,
-  selectPortfolioFiatBalanceByFilter,
+  selectPortfolioUserCurrencyBalanceByFilter,
 } from './selectors'
 
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
@@ -334,7 +334,7 @@ describe('portfolioSlice', () => {
       })
     })
 
-    describe('selectPortfolioFiatAccountBalance', () => {
+    describe('selectPortfolioUserCurrencyBalancesByAccountId', () => {
       const store = createStore()
       const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
         ethAccountObj: { balance: '1000000000000000000' },
@@ -392,8 +392,8 @@ describe('portfolioSlice', () => {
           },
         }
 
-        const fiatAccountBalance = selectPortfolioFiatBalancesByAccountId(state)
-        expect(fiatAccountBalance).toEqual(returnValue)
+        const userCurrencyAccountBalance = selectPortfolioUserCurrencyBalancesByAccountId(state)
+        expect(userCurrencyAccountBalance).toEqual(returnValue)
       })
 
       it('returns 0 when no market data is available', () => {
@@ -412,12 +412,12 @@ describe('portfolioSlice', () => {
           },
         }
 
-        const fiatAccountBalance = selectPortfolioFiatBalancesByAccountId(state)
-        expect(fiatAccountBalance).toEqual(returnValue)
+        const userCurrencyAccountBalance = selectPortfolioUserCurrencyBalancesByAccountId(state)
+        expect(userCurrencyAccountBalance).toEqual(returnValue)
       })
     })
 
-    describe('selectHighestFiatBalanceAccountByAssetId', () => {
+    describe('selectHighestUserCurrencyBalanceAccountByAssetId', () => {
       const store = createStore()
       const { btcAccount, btcAccount2, btcAccount3, btcAccountId, btcAccount2Id, btcAccount3Id } =
         mockEthAndBtcAccounts()
@@ -458,7 +458,7 @@ describe('portfolioSlice', () => {
 
       it('can select highest value account by assetId', () => {
         const state = store.getState()
-        const highestValueAccount = selectHighestFiatBalanceAccountByAssetId(state, {
+        const highestValueAccount = selectHighestUserCurrencyBalanceAccountByAssetId(state, {
           assetId: btcAssetId,
         })
 
@@ -515,13 +515,13 @@ describe('portfolioSlice', () => {
 
       it('should be able to filter by assetId', () => {
         const expected = '1200.01'
-        const result = selectPortfolioFiatBalanceByFilter(state, { assetId: ethAssetId })
+        const result = selectPortfolioUserCurrencyBalanceByFilter(state, { assetId: ethAssetId })
         expect(result).toEqual(expected)
       })
 
       it('should be able to filter by accountId and assetId', () => {
         const expected = '30.00'
-        const result = selectPortfolioFiatBalanceByFilter(state, {
+        const result = selectPortfolioUserCurrencyBalanceByFilter(state, {
           accountId: ethAccountId,
           assetId: foxAssetId,
         })

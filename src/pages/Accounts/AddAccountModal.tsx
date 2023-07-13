@@ -29,7 +29,7 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import {
   selectAssets,
   selectMaybeNextAccountNumberByChainId,
-  selectPortfolioChainIdsSortedFiat,
+  selectPortfolioChainIdsSortedUserCurrency,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -43,11 +43,11 @@ export const AddAccountModal = () => {
   } = useWallet()
 
   const assets = useSelector(selectAssets)
-  const chainIds = useSelector(selectPortfolioChainIdsSortedFiat)
+  const chainIds = useSelector(selectPortfolioChainIdsSortedUserCurrency)
 
   const firstChainId = useMemo(() => chainIds[0], [chainIds])
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(firstChainId)
-  const portfolioChainIds = useAppSelector(selectPortfolioChainIdsSortedFiat)
+  const portfolioChainIds = useAppSelector(selectPortfolioChainIdsSortedUserCurrency)
 
   const filter = useMemo(() => ({ chainId: selectedChainId }), [selectedChainId])
   const [isAbleToAddAccount, nextAccountNumber] = useAppSelector(s =>

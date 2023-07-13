@@ -70,7 +70,8 @@ export class LifiSwapper implements Swapper<EvmChainId> {
       store.getState(),
       input.sellAsset.assetId,
     )
-    const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetPriceUsdPrecision)
+    const isSameChainSwap = input.buyAsset.chainId === input.sellAsset.chainId
+    const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetPriceUsdPrecision, isSameChainSwap)
     const minimumSellAmountBaseUnit = toBaseUnit(minimumCryptoHuman, input.sellAsset.precision)
     const isBelowMinSellAmount = bnOrZero(input.sellAmountBeforeFeesCryptoBaseUnit).lt(
       minimumSellAmountBaseUnit,

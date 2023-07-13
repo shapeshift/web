@@ -86,7 +86,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         </Flex>
       </Card.Body>
       {assetId && (
-        <Card.Footer p={{ base: 0, md: 0 }} borderTopWidth={1} borderColor={borderColor}>
+        <Card.Footer style={{ padding: 0 }} borderTopWidth={1} borderColor={borderColor}>
           <AccountDropdown
             {...(accountId ? { defaultAccountId: accountId } : {})}
             assetId={assetId}
@@ -96,7 +96,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
               borderTopRadius: 0,
               px: 4,
               fontSize: 'xs',
-              py: 2,
+              py: 4,
               height: 'auto',
             }}
             boxProps={{ m: 0, p: 0 }}

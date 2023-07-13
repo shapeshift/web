@@ -35,6 +35,24 @@ export class BaseTransactionParser<T extends Tx> {
       txid: tx.txid,
     }
 
+    const maybeIbcSendPacketSequence = (() => {
+      const eventsArray = tx.events ? Object.keys(tx.events).map(index => tx.events[index]) : []
+
+      for (let event of eventsArray) {
+        if (event.hasOwnProperty('send_packet')) {
+          return event.send_packet.packet_sequence
+        }
+      }
+
+      // Return null if no 'send_packet' event found
+      return null
+    })()
+
+    const sequence = maybeIbcSendPacketSequence
+    if (sequence) {
+      parsedTx.sequence = sequence
+    }
+
     tx.messages.forEach((msg, i) => {
       const { from, to, value, origin } = msg
 

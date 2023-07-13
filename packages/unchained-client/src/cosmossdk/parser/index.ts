@@ -50,7 +50,7 @@ export class BaseTransactionParser<T extends Tx> {
       const assetId = getAssetIdByDenom(value?.denom, this.assetId)
 
       if (!assetId) return
-      if (i === 0) parsedTx.data = metaData(msg, tx.events[String(i)], assetId)
+      if (i === 0) parsedTx.data = metaData(msg, tx.events[msg.index], assetId)
 
       const amount = new BigNumber(value?.amount ?? 0)
 

@@ -79,6 +79,15 @@ export const metaData = (
         destinationValidator: msg.to,
       }
     case 'transfer':
+      return {
+        parser: 'ibc',
+        method: msg.type,
+        value: msg.value.amount,
+        assetId: getAssetIdByDenom(msg.value.denom, assetId) ?? '',
+        ibcSource: msg.origin,
+        ibcDestination: msg.to,
+        sequence: event['send_packet']['packet_sequence'],
+      }
     case 'recv_packet':
       return {
         parser: 'ibc',
@@ -87,6 +96,7 @@ export const metaData = (
         assetId: getAssetIdByDenom(msg.value.denom, assetId) ?? '',
         ibcSource: msg.origin,
         ibcDestination: msg.to,
+        sequence: event['recv_packet']['packet_sequence'],
       }
     case 'deposit':
       if (event['add_liquidity']) {

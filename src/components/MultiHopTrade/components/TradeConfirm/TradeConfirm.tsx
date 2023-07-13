@@ -54,7 +54,6 @@ import {
   selectLastHopBuyAsset,
   selectNetBuyAmountCryptoPrecision,
   selectNetBuyAmountUserCurrency,
-  selectNetworkFeeRequiresBalance,
   selectQuoteDonationAmountUserCurrency,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,

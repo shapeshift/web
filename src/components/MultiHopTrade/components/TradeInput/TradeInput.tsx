@@ -228,7 +228,7 @@ export const TradeInput = () => {
                 assetId={buyAsset.assetId}
                 onAssetClick={handleBuyAssetClick}
                 onAccountIdChange={setBuyAssetAccountId}
-                accountSelectionDisabled={swapperSupportsCrossAccountTrade}
+                accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
                 label={translate('trade.to')}
               />
             </Flex>

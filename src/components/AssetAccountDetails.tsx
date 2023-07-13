@@ -2,9 +2,10 @@ import { Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import type { Route } from 'Routes/helpers'
+import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
-import { selectMarketDataById } from 'state/slices/selectors'
+import { selectFeatureFlags, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
@@ -25,6 +26,7 @@ type AssetDetailsProps = {
 }
 
 export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
+  const { MultiHopTrades } = useAppSelector(selectFeatureFlags)
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const assetIds = useMemo(() => [assetId], [assetId])
 
@@ -52,7 +54,12 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           maxWidth={{ base: 'full', xl: 'sm' }}
           gap={4}
         >
-          <TradeCard display={{ base: 'none', md: 'block' }} defaultBuyAssetId={assetId} />
+          {MultiHopTrades ? (
+            // TODO: Handle defaultBuyAssetId
+            <MultiHopTrade />
+          ) : (
+            <TradeCard display={{ base: 'none', md: 'block' }} defaultBuyAssetId={assetId} />
+          )}
           {marketData && <AssetMarketData assetId={assetId} />}
           <AssetDescription assetId={assetId} />
         </Flex>

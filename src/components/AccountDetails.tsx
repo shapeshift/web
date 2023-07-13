@@ -2,10 +2,13 @@ import { Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import type { Route } from 'Routes/helpers'
+import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { AccountBalance } from 'pages/Accounts/AccountToken/AccountBalance'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'
@@ -20,6 +23,7 @@ type AccountDetailsProps = {
 }
 
 export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
+  const { MultiHopTrades } = useAppSelector(selectFeatureFlags)
   const translate = useTranslate()
   if (!accountId || !assetId) return null
   return (
@@ -51,7 +55,7 @@ export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
         maxWidth={{ base: 'full', xl: 'md' }}
         gap={4}
       >
-        <TradeCard display={{ base: 'none', md: 'block' }} />
+        {MultiHopTrades ? <MultiHopTrade /> : <TradeCard display={{ base: 'none', md: 'block' }} />}
       </Flex>
     </Stack>
   )

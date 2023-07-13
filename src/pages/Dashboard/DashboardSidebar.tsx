@@ -3,10 +3,13 @@ import { btcAssetId, dogeAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import OnRamperLogo from 'assets/on-ramper.png'
 import SaversVaultTop from 'assets/savers-vault-top.png'
 import { AssetIcon } from 'components/AssetIcon'
+import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { PromoCard } from 'components/Promo/PromoCard'
 import type { PromoItem } from 'components/Promo/types'
 import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
 import { MissionSidebar } from 'pages/Missions/Missions'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 import { RecentTransactions } from './RecentTransactions'
 import { TradeCard } from './TradeCard'
@@ -66,10 +69,11 @@ const promoData: PromoItem[] = [
 ]
 
 export const DashboardSidebar = () => {
+  const { MultiHopTrades } = useAppSelector(selectFeatureFlags)
   return (
     <Flex width='full' flexDir='column' gap={6}>
       <PromoCard data={promoData} />
-      <TradeCard display={{ base: 'none', xl: 'block' }} />
+      {MultiHopTrades ? <MultiHopTrade /> : <TradeCard display={{ base: 'none', xl: 'block' }} />}
       <MissionSidebar />
       <EligibleCarousel />
       <RecentTransactions limit={8} viewMoreLink />

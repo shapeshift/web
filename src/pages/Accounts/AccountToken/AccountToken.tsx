@@ -5,12 +5,15 @@ import { useSelector } from 'react-redux'
 import { Redirect, useParams } from 'react-router-dom'
 import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'
 import { Equity } from 'components/Equity/Equity'
+import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { EarnOpportunities } from 'components/StakingVaults/EarnOpportunities'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
-import { selectWalletAccountIds } from 'state/slices/selectors'
+import { selectFeatureFlags, selectWalletAccountIds } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { AccountBalance } from './AccountBalance'
+
 export type MatchParams = {
   accountId: AccountId
   assetId: AssetId
@@ -18,6 +21,7 @@ export type MatchParams = {
 
 export const AccountToken = () => {
   const { accountId, assetId } = useParams<MatchParams>()
+  const { MultiHopTrades } = useAppSelector(selectFeatureFlags)
 
   /**
    * if the user switches the wallet while visiting this page,
@@ -53,7 +57,7 @@ export const AccountToken = () => {
         maxWidth={{ base: 'full', xl: 'sm' }}
         gap={4}
       >
-        <TradeCard display={{ base: 'none', md: 'block' }} />
+        {MultiHopTrades ? <MultiHopTrade /> : <TradeCard display={{ base: 'none', md: 'block' }} />}
       </Flex>
     </Stack>
   )

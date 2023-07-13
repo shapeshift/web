@@ -18,9 +18,10 @@ import type {
   FeePriority,
   InvestorOpportunity,
 } from '../../investor'
-import { MAX_ALLOWANCE, ssRouterContractAddress } from '../constants'
+import { MAX_ALLOWANCE } from '../constants'
 import type { IdleVault } from './constants'
 import { erc20Abi, idleCdoAbi, idleStrategyAbi, idleTokenV4Abi } from './constants'
+import { ssRouterContractAddress } from './constants/router-contract'
 
 export type PreparedTransaction = {
   chainId: number

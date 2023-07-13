@@ -85,6 +85,10 @@ export const Mission: React.FC<MissionProps> = ({
             onClick={handleClick}
             iconSpacing={3}
             className='mission-btn'
+            whiteSpace={'normal'}
+            display={'inline-flex'}
+            textAlign={'left'}
+            lineHeight={'none'}
             leftIcon={
               <IconCircle
                 bg='white'

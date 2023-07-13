@@ -46,16 +46,15 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, src,
           src={feeAsset?.networkIcon ?? feeAsset?.icon}
           _before={{
             content: '""',
-            width: '110%',
-            height: '110%',
-            backgroundImage: `url(${iconSrc})`,
-            backgroundSize: 'cover',
+            width: '115%',
+            height: '115%',
+            backgroundColor: 'var(--chakra-colors-chakra-body-bg)',
             borderRadius: 'full',
             position: 'absolute',
-            left: '-15%',
-            top: '-15%',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
             zIndex: -1,
-            filter: 'brightness(50%) blur(3px)',
           }}
         />
       )}

@@ -1,7 +1,10 @@
 import { AnimatePresence } from 'framer-motion'
+import { useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
+import { swappers } from 'state/slices/swappersSlice/swappersSlice'
+import { useAppDispatch } from 'state/store'
 
 import { Approval } from './components/Approval/Approval'
 import { TradeConfirm } from './components/TradeConfirm/TradeConfirm'
@@ -28,6 +31,17 @@ export const MultiHopTrade = () => {
 
 const MultiHopRoutes = () => {
   const location = useLocation()
+  const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    return () => {
+      // Reset the swapper slice to initial state on mount
+      // Don't move me to one of the trade route components, this needs to be at router-level
+      // We only want to clear swapper state when trade components are fully unmounted, not when trade routes change
+      dispatch(swappers.actions.clear())
+    }
+  }, [dispatch])
+
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch key={location.key} location={location}>

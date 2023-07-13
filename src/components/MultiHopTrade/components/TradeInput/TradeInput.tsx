@@ -41,6 +41,7 @@ import {
 import {
   selectBuyAsset,
   selectManualReceiveAddressIsValidating,
+  selectSellAmountCryptoPrecision,
   selectSellAsset,
 } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
@@ -52,7 +53,6 @@ import {
   selectFirstHop,
   selectNetBuyAmountUserCurrency,
   selectNetReceiveAmountCryptoPrecision,
-  selectSellAmountCryptoPrecision,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
@@ -186,10 +186,12 @@ export const TradeInput = () => {
     setIsConfirmationLoading(false)
   }, [activeQuote, dispatch, history, mixpanel, showErrorToast, tradeQuoteStep, wallet])
 
+  const isSellAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
+  console.log('xxx isSellAmountEntered', { isSellAmountEntered, sellAmountCryptoPrecision })
+
   const shouldDisablePreviewButton = useMemo(() => {
-    const sellAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
-    return quoteHasError || manualReceiveAddressIsValidating || isLoading || !sellAmountEntered
-  }, [isLoading, manualReceiveAddressIsValidating, quoteHasError, sellAmountCryptoPrecision])
+    return quoteHasError || manualReceiveAddressIsValidating || isLoading || !isSellAmountEntered
+  }, [isLoading, isSellAmountEntered, manualReceiveAddressIsValidating, quoteHasError])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
@@ -243,8 +245,14 @@ export const TradeInput = () => {
               assetId={buyAsset.assetId}
               assetSymbol={buyAsset.symbol}
               assetIcon={buyAsset.icon}
-              cryptoAmount={positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()}
-              fiatAmount={positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed()}
+              cryptoAmount={
+                isSellAmountEntered
+                  ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
+                  : '0'
+              }
+              fiatAmount={
+                isSellAmountEntered ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed() : '0'
+              }
               percentOptions={[1]}
               showInputSkeleton={isLoading}
               showFiatSkeleton={isLoading}

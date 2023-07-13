@@ -34,4 +34,6 @@ export type TxMetadata = StakingMetadata | IbcMetadata | SwapMetadata | LpMetada
 
 export interface ParsedTx extends StandardTx {
   data?: TxMetadata
+  // A MsgTransfer send or receive sequence
+  sequence?: string
 }

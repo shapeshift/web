@@ -11,15 +11,9 @@ export type SellAssetInputProps = {
   accountId?: AccountId
   label: string
   asset: Asset
-  onClickSendMax: () => void
 }
 
-export const SellAssetInput = ({
-  accountId,
-  asset,
-  label,
-  onClickSendMax,
-}: SellAssetInputProps) => {
+export const SellAssetInput = ({ accountId, asset, label }: SellAssetInputProps) => {
   const [sellAmountUserCurrencyHuman, setSellAmountUserCurrencyHuman] = useState('0')
   const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
   const dispatch = useAppDispatch()
@@ -58,7 +52,6 @@ export const SellAssetInput = ({
       isSendMaxDisabled={false}
       onChange={handleSellAssetInputChange}
       percentOptions={[1]}
-      onPercentOptionClick={onClickSendMax}
       showInputSkeleton={false}
       showFiatSkeleton={false}
       label={label}

@@ -187,7 +187,6 @@ export const TradeInput = () => {
   }, [activeQuote, dispatch, history, mixpanel, showErrorToast, tradeQuoteStep, wallet])
 
   const isSellAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
-  console.log('xxx isSellAmountEntered', { isSellAmountEntered, sellAmountCryptoPrecision })
 
   const shouldDisablePreviewButton = useMemo(() => {
     return quoteHasError || manualReceiveAddressIsValidating || isLoading || !isSellAmountEntered

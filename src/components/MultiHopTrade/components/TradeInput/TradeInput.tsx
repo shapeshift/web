@@ -237,7 +237,6 @@ export const TradeInput = () => {
               accountId={sellAssetAccountId}
               asset={sellAsset}
               label={translate('trade.youPay')}
-              onClickSendMax={() => {}}
             />
             <TradeAssetInput
               isReadOnly={true}

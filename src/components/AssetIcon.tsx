@@ -28,21 +28,35 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, src,
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const showNetwork = feeAsset?.networkIcon || asset?.assetId !== feeAsset?.assetId
+  const iconSrc = src ?? asset?.icon
 
   return (
-    <Avatar src={src ?? asset?.icon} icon={icon} border={0} bg='none' {...rest}>
+    <Avatar src={iconSrc} icon={icon} border={0} bg='none' {...rest}>
       {showNetwork && (
         <Avatar
-          boxSize='1.35em'
+          boxSize='50%'
           zIndex={2}
           position='absolute'
           right={0}
           bottom='0'
           border={0}
+          icon={icon}
           bg='none'
           fontSize='inherit'
-          boxShadow='-0.35em -0.35em 0.75em -0.35em rgba(0, 0, 0, 0.7)'
           src={feeAsset?.networkIcon ?? feeAsset?.icon}
+          _before={{
+            content: '""',
+            width: '110%',
+            height: '110%',
+            backgroundImage: `url(${iconSrc})`,
+            backgroundSize: 'cover',
+            borderRadius: 'full',
+            position: 'absolute',
+            left: '-15%',
+            top: '-15%',
+            zIndex: -1,
+            filter: 'brightness(50%) blur(3px)',
+          }}
         />
       )}
     </Avatar>

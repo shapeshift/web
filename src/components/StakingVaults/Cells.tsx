@@ -88,7 +88,7 @@ export const AssetCell = ({
       )}
       <HStack flex={1}>
         <SkeletonCircle isLoaded={!!asset} mr={2} width='auto'>
-          {icons ? (
+          {icons && icons.length > 1 ? (
             <PairIcons icons={icons} iconSize='sm' bg='none' />
           ) : (
             <AssetIcon assetId={asset.assetId} size='sm' />

@@ -21,7 +21,7 @@ export const PairIcons = ({
           src={iconSrc}
           boxSize={iconBoxSize}
           size={iconSize}
-          showNetworkIcon={false}
+          showNetworkIcon={i === 0}
           ml={i === 0 ? '0' : '-2.5'}
         />
       ))}

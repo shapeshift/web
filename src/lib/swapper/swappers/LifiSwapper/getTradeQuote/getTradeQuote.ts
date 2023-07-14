@@ -161,9 +161,13 @@ export async function getTradeQuote(
       }),
     )
 
+    const isSameChainSwap = sellAsset.chainId === buyAsset.chainId
     // TODO(gomes): intermediary error-handling within this module function calls
     return Ok({
-      minimumCryptoHuman: getMinimumCryptoHuman(sellAssetPriceUsdPrecision).toString(),
+      minimumCryptoHuman: getMinimumCryptoHuman(
+        sellAssetPriceUsdPrecision,
+        isSameChainSwap,
+      ).toString(),
       steps,
       selectedLifiRoute,
     })

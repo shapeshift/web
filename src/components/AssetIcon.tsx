@@ -28,24 +28,34 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, src,
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const showNetwork = feeAsset?.networkIcon || asset?.assetId !== feeAsset?.assetId
-  const boxShadow = useColorModeValue(
-    `0 0 0 0.2em ${feeAsset?.color ?? 'black'}35, 0 0 0.5em 2px rgba(255,255,255,.5)`,
-    `0 0 0 0.2em ${feeAsset?.color ?? 'white'}50, 0 0 0.5em 2px rgba(0,0,0,.5)`,
-  )
+  const iconSrc = src ?? asset?.icon
+
   return (
-    <Avatar src={src ?? asset?.icon} icon={icon} border={0} bg='none' {...rest}>
+    <Avatar src={iconSrc} icon={icon} border={0} bg='none' {...rest}>
       {showNetwork && (
         <Avatar
-          boxSize='0.85em'
+          boxSize='50%'
           zIndex={2}
           position='absolute'
-          right='-0.15em'
-          top='-0.15em'
+          right={0}
+          bottom='0'
           border={0}
+          icon={icon}
           bg='none'
           fontSize='inherit'
           src={feeAsset?.networkIcon ?? feeAsset?.icon}
-          boxShadow={boxShadow}
+          _before={{
+            content: '""',
+            width: '115%',
+            height: '115%',
+            backgroundColor: 'var(--chakra-colors-chakra-body-bg)',
+            borderRadius: 'full',
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: -1,
+          }}
         />
       )}
     </Avatar>
@@ -77,9 +87,8 @@ export const AssetIcon = ({ assetId, showNetworkIcon, src, ...rest }: AssetIconP
       return (
         <Flex flexDirection='row' alignItems='center'>
           {asset.icons.map((iconSrc, i) => (
-            <AssetWithNetwork
+            <Avatar
               key={i}
-              assetId={assetId}
               src={iconSrc}
               ml={i === 0 ? '0' : '-2.5'}
               icon={<FoxIcon boxSize='16px' color={assetIconColor} />}

@@ -322,6 +322,7 @@ describe('parseTx', () => {
         assetId:
           'cosmos:osmosis-1/ibc:27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2',
         value: '2898071',
+        sequence: '1248748',
       },
     }
 
@@ -368,6 +369,7 @@ describe('parseTx', () => {
         assetId:
           'cosmos:osmosis-1/ibc:6AE98883D4D5D5FF9E50D7130F1305DA2FFA0C652D1DD9C123657C6B4EB2DF8A',
         value: '4190000000000000000',
+        sequence: '554234',
       },
     }
 

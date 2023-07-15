@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
+import { cosmosChainId, osmosisChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { cosmos, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { osmosis } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
@@ -36,6 +36,7 @@ import type {
   OsmosisSupportedChainId,
   OsmosisTradeResult,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { selectSellAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
@@ -302,7 +303,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
       // wait till confirmed
       const pollResult = await pollForCrossChainComplete({
-        txid: tradeId,
+        initiatingChainTxid: tradeId,
         baseUrl: cosmosUrl,
       })
       if (pollResult !== 'success')
@@ -422,9 +423,14 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         feeDenom: 'uosmo',
       })
 
+      const accountId = toAccountId({ chainId: osmosisChainId, account: sellAddress })
+      const initiatingChainTxId = serializeTxIndex(accountId, tradeId, sellAddress)
+
+      console.log({ accountId, initiatingChainTxId })
+
       // wait till confirmed
       const pollResult = await pollForCrossChainComplete({
-        txid: tradeId,
+        initiatingChainTxid: tradeId,
         baseUrl: osmoUrl,
       })
 

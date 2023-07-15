@@ -97,10 +97,10 @@ export const pollForComplete = ({
 // While 1. can simply be polled for (which we do on the method above),
 // the destination Tx needs to be picked by validators on the destination chain, and we don't know anything about said Tx in advance
 export const pollForCrossChainComplete = ({
-  txid,
+  initiatingChainTxid,
   baseUrl,
 }: {
-  txid: string
+  initiatingChainTxid: string
   baseUrl: string
 }): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -109,8 +109,8 @@ export const pollForCrossChainComplete = ({
     const interval = 5000 // 5 seconds
 
     const poll = async function () {
-      const initiatingChainStatus = await fetchLcdTxStatus(txid, baseUrl)
-      const tx = await fetchLcdTx(txid, baseUrl)
+      const initiatingChainStatus = await fetchLcdTxStatus(initiatingChainTxid, baseUrl)
+      const tx = await fetchLcdTx(initiatingChainTxid, baseUrl)
       if (initiatingChainStatus === 'success') {
         // Initiating Tx is successful, now we need to wait for the destination tx to be picked up by validators
 
@@ -152,7 +152,7 @@ export const pollForCrossChainComplete = ({
         else return setTimeout(poll, interval)
       } else if (Date.now() - startTime > timeout) {
         reject(
-          new SwapError(`Couldnt find tx ${txid}`, {
+          new SwapError(`Couldnt find tx ${initiatingChainTxid}`, {
             code: SwapErrorType.RESPONSE_ERROR,
           }),
         )

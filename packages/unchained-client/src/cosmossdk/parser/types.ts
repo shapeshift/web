@@ -18,6 +18,7 @@ export interface IbcMetadata extends BaseTxMetadata {
   ibcSource: string
   assetId: string
   value: string
+  sequence: string
 }
 
 export interface SwapMetadata extends BaseTxMetadata {

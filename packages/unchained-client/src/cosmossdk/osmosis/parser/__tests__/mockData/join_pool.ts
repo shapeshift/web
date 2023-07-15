@@ -1,4 +1,4 @@
-import type { Tx } from '../../../../types'
+import type { Tx } from '../../..'
 
 // https://www.mintscan.io/osmosis/txs/AA58EDA8D4E86F1E532F1FEC4D4F1C645050DBF1261BAA607B74A9E92B2F17E3
 
@@ -18,6 +18,7 @@ const tx: Tx = {
   value: '',
   messages: [
     {
+      index: '0',
       origin: 'osmo1sa6w2c3glhnrfmgjklh9j7r54en2ng9yj6zewu',
       from: 'osmo1sa6w2c3glhnrfmgjklh9j7r54en2ng9yj6zewu',
       to: '',
@@ -28,6 +29,7 @@ const tx: Tx = {
       },
     },
     {
+      index: '0',
       origin: 'osmo1sa6w2c3glhnrfmgjklh9j7r54en2ng9yj6zewu',
       from: 'osmo1sa6w2c3glhnrfmgjklh9j7r54en2ng9yj6zewu',
       to: '',
@@ -38,6 +40,7 @@ const tx: Tx = {
       },
     },
     {
+      index: '0',
       origin: 'osmo1sa6w2c3glhnrfmgjklh9j7r54en2ng9yj6zewu',
       from: 'osmo1c9y7crgg6y9pfkq0y8mqzknqz84c3etr0kpcvj',
       to: 'osmo1sa6w2c3glhnrfmgjklh9j7r54en2ng9yj6zewu',

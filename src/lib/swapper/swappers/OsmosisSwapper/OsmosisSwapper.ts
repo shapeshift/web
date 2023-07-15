@@ -299,11 +299,14 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         feeDenom: 'uatom',
       })
 
+      const accountId = toAccountId({ chainId: cosmosChainId, account: sellAddress })
+      const initiatingChainTxid = serializeTxIndex(accountId, tradeId, sellAddress)
+
       cosmosIbcTradeId = tradeId
 
       // wait till confirmed
       const pollResult = await pollForCrossChainComplete({
-        initiatingChainTxid: tradeId,
+        initiatingChainTxid,
         baseUrl: cosmosUrl,
       })
       if (pollResult !== 'success')

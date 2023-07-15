@@ -1,7 +1,16 @@
-import { CHAIN_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
+import {
+  CHAIN_REFERENCE,
+  cosmosChainId,
+  fromAccountId,
+  fromChainId,
+  osmosisChainId,
+  toAccountId,
+} from '@shapeshiftoss/caip'
 import type { osmosis, SignTxInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { CosmosSignTx, HDWallet, Osmosis, OsmosisSignTx } from '@shapeshiftoss/hdwallet-core'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { IbcMetadata } from '@shapeshiftoss/unchained-client/src/cosmossdk'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
@@ -17,6 +26,10 @@ import type {
   PoolInfo,
   PoolRateInfo,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
+import { selectTxById, selectTxsByFilter } from 'state/slices/selectors'
+import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import { deserializeTxIndex } from 'state/slices/txHistorySlice/utils'
+import { store } from 'state/store'
 
 export interface SymbolDenomMapping {
   OSMO: string
@@ -36,27 +49,33 @@ type FindPoolOutput = {
   buyAssetIndex: number
 }
 
-const fetchLcdTx = async (txid: string, baseUrl: string): Promise<any> => {
+// We can probably ditch this fn altogether and straight up do the selectTxById dance?
+const getTx = (txid: string): Tx | undefined => {
   try {
-    debugger
-    const txResponse = await axios.get(`${baseUrl}/lcd/txs/${txid}`)
-    if (!txResponse?.data?.codespace && !!txResponse?.data?.gas_used) return txResponse.data
-    if (txResponse?.data?.codespace) throw new Error('Tx not found')
+    const tx = selectTxById(store.getState(), txid)
+    if (!tx) throw new Error('Tx not yet found')
+    return tx
   } catch (e) {
-    console.warn('Retrying to retrieve status')
+    // Making TS happy, this will never get hit - we poll until the Tx is found
+    console.warn('Retrying to retrieve tx')
   }
-  return 'not found'
+
+  return
 }
 
-// TODO(gomes): Why aren't we using chain-adapters here? Do we need the LCD endpoint explicitly?
-const fetchLcdTxStatus = async (txid: string, baseUrl: string): Promise<string> => {
+// We can probably ditch this fn altogether and straight up do the selectTxById dance?
+const getTxStatus = (txid: string): string => {
   try {
-    const txResponse = await fetchLcdTx(txid, baseUrl)
-    if (txResponse) return 'success'
-    return 'failed'
+    const tx = selectTxById(store.getState(), txid)
+    if (!tx) throw new Error('Tx not yet found')
+    if (tx.status === TxStatus.Confirmed) return 'success'
+    if (tx.status === TxStatus.Failed) return 'failed'
+
+    throw new Error('Tx pending')
   } catch (e) {
     console.warn('Retrying to retrieve status')
   }
+  // Making TS happy, this will never get hit - we poll until the Tx is found
   return 'not found'
 }
 
@@ -74,7 +93,7 @@ export const pollForComplete = ({
     const interval = 5000 // 5 seconds
 
     const poll = async function () {
-      const status = await fetchLcdTxStatus(txid, baseUrl)
+      const status = await getTxStatus(txid, baseUrl)
       if (status === 'success') {
         resolve(status)
       } else if (Date.now() - startTime > timeout) {
@@ -96,9 +115,9 @@ export const pollForComplete = ({
 // 2. MsgRecvPacket on the receiving chain i.e receive on destination chain from source chain
 // While 1. can simply be polled for (which we do on the method above),
 // the destination Tx needs to be picked by validators on the destination chain, and we don't know anything about said Tx in advance
+// TODO(gomes): Now that we're relying on Txhistory Txs, we could make this a usePoll hook, reactive on the TxHistory slice?
 export const pollForCrossChainComplete = ({
   initiatingChainTxid,
-  baseUrl,
 }: {
   initiatingChainTxid: string
   baseUrl: string
@@ -109,44 +128,37 @@ export const pollForCrossChainComplete = ({
     const interval = 5000 // 5 seconds
 
     const poll = async function () {
-      const initiatingChainStatus = await fetchLcdTxStatus(initiatingChainTxid, baseUrl)
-      const tx = await fetchLcdTx(initiatingChainTxid, baseUrl)
-      if (initiatingChainStatus === 'success') {
+      const initiatingChainStatus = getTxStatus(initiatingChainTxid)
+      const initiatingChainTx = getTx(initiatingChainTxid)
+      if (initiatingChainStatus === 'success' && initiatingChainTx) {
         // Initiating Tx is successful, now we need to wait for the destination tx to be picked up by validators
 
-        debugger
-        const sendPacketMessage = tx.logs?.[0].events.find(event => event.type === 'send_packet')
-        const sequence = sendPacketMessage?.attributes?.find(
-          attr => attr.key === 'packet_sequence',
-        ).value
+        // TODO(gomes): if we can pass initiating/destination accountId, we can avoid this whole dance
+        // Sure, we'll have more room for errors as we'll have to make sure to pass them right, but that will make this a lot cleaner
+        const initiatingChainAccountId = deserializeTxIndex(initiatingChainTxid).accountId
+        const initiatingChainId = fromAccountId(initiatingChainAccountId).chainId
+        const initiatingChainSequence = (initiatingChainTx.data as IbcMetadata | undefined)
+          ?.sequence
+        const destinationChainAddress = (initiatingChainTx.data as IbcMetadata | undefined)
+          ?.ibcDestination
 
-        // Should never happen but it may
-        if (!sequence) return setTimeout(poll, interval)
+        // None of these two should ever happen but it may - a confirmed MsgTransfer Tx contains an initiating sequence and a destination address
+        // if we don't parse them, we have bigger problems at unchained-client level
+        if (!initiatingChainSequence) throw new Error('sequence not found in initiating Tx')
+        if (!destinationChainAddress) throw new Error('ibcDestination not found in initiating Tx')
 
-        const receiver = tx.tx.value.msg[0].value.receiver
-
-        const {
-          REACT_APP_UNCHAINED_OSMOSIS_HTTP_URL: osmoUnchainedUrl,
-          REACT_APP_UNCHAINED_COSMOS_HTTP_URL: cosmosUnchainedUrl,
-          REACT_APP_COSMOS_NODE_URL: cosmosNodeUrl,
-        } = getConfig()
-
-        const destinationChainUnchainedBaseUrl =
-          baseUrl === cosmosNodeUrl ? osmoUnchainedUrl : cosmosUnchainedUrl
-
-        // TODO(gomes): CosmosSdkBaseAdapter doesn't expose Tx sequence, but it should
-        // This is a very hacky way to get the sequence, obviously don't open me in such state
-        const { data: destinationChainTxs } = await axios.get(
-          `${destinationChainUnchainedBaseUrl}/api/v1/account/${receiver}/txs`,
-        )
-        const maybeFoundTx = destinationChainTxs.txs.find(destinationChainTx => {
-          const eventsArray = destinationChainTx.events
-            ? Object.keys(destinationChainTx.events).map(key => destinationChainTx.events[key])
-            : []
-          return eventsArray.some(
-            event => event.recv_packet && event.recv_packet.packet_sequence === sequence,
-          )
+        const destinationChainId =
+          initiatingChainId === cosmosChainId ? osmosisChainId : cosmosChainId
+        const destinationChainAccountId = toAccountId({
+          chainId: destinationChainId,
+          account: destinationChainAddress,
         })
+
+        const destinationAccountTxs = selectTxsByFilter(store.getState(), {
+          accountId: destinationChainAccountId,
+        })
+        console.log({ initiatingChainSequence, destinationAccountTxs })
+        const maybeFoundTx = undefined
 
         if (maybeFoundTx) return resolve('success')
         else return setTimeout(poll, interval)

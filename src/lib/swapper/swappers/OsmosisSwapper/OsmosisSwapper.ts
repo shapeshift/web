@@ -299,8 +299,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         feeDenom: 'uatom',
       })
 
-      const accountId = toAccountId({ chainId: cosmosChainId, account: sellAddress })
-      const initiatingChainTxid = serializeTxIndex(accountId, tradeId, sellAddress)
+      const initiatingChainAccountId = toAccountId({ chainId: cosmosChainId, account: sellAddress })
+      const initiatingChainTxid = serializeTxIndex(initiatingChainAccountId, tradeId, sellAddress)
 
       cosmosIbcTradeId = tradeId
 
@@ -373,7 +373,10 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const signed = await osmosisAdapter.signTransaction(signTxInput)
     const tradeId = await osmosisAdapter.broadcastTransaction(signed)
 
-    const pollResult = await pollForComplete({ txid: tradeId, baseUrl: osmoUrl })
+    const destinationChainAccountId = toAccountId({ chainId: osmosisChainId, account: osmoAddress })
+    const destinationChainTxid = serializeTxIndex(destinationChainAccountId, tradeId, osmoAddress)
+
+    const pollResult = await pollForComplete({ txid: destinationChainTxid })
     if (pollResult !== 'success')
       return Err(
         makeSwapErrorRight({
@@ -426,14 +429,15 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         feeDenom: 'uosmo',
       })
 
-      const accountId = toAccountId({ chainId: osmosisChainId, account: sellAddress })
-      const initiatingChainTxId = serializeTxIndex(accountId, tradeId, sellAddress)
-
-      console.log({ accountId, initiatingChainTxId })
+      const initiatingChainAccountId = toAccountId({
+        chainId: osmosisChainId,
+        account: sellAddress,
+      })
+      const initiatingChainTxId = serializeTxIndex(initiatingChainAccountId, tradeId, sellAddress)
 
       // wait till confirmed
       const pollResult = await pollForCrossChainComplete({
-        initiatingChainTxid: tradeId,
+        initiatingChainTxid: initiatingChainTxId,
         baseUrl: osmoUrl,
       })
 

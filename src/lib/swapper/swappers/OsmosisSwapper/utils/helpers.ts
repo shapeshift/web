@@ -14,7 +14,6 @@ import type { IbcMetadata } from '@shapeshiftoss/unchained-client/src/cosmossdk'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
-import { getConfig } from 'config'
 import { find } from 'lodash'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
@@ -80,20 +79,14 @@ const getTxStatus = (txid: string): string => {
 }
 
 // TODO: leverage chain-adapters websockets
-export const pollForComplete = ({
-  txid,
-  baseUrl,
-}: {
-  txid: string
-  baseUrl: string
-}): Promise<string> => {
+export const pollForComplete = ({ txid }: { txid: string }): Promise<string> => {
   return new Promise((resolve, reject) => {
     const timeout = 300000 // 5 mins
     const startTime = Date.now()
     const interval = 5000 // 5 seconds
 
-    const poll = async function () {
-      const status = await getTxStatus(txid, baseUrl)
+    const poll = function () {
+      const status = getTxStatus(txid)
       if (status === 'success') {
         resolve(status)
       } else if (Date.now() - startTime > timeout) {
@@ -127,7 +120,7 @@ export const pollForCrossChainComplete = ({
     const startTime = Date.now()
     const interval = 5000 // 5 seconds
 
-    const poll = async function () {
+    const poll = function () {
       const initiatingChainStatus = getTxStatus(initiatingChainTxid)
       const initiatingChainTx = getTx(initiatingChainTxid)
       if (initiatingChainStatus === 'success' && initiatingChainTx) {
@@ -157,8 +150,9 @@ export const pollForCrossChainComplete = ({
         const destinationAccountTxs = selectTxsByFilter(store.getState(), {
           accountId: destinationChainAccountId,
         })
-        console.log({ initiatingChainSequence, destinationAccountTxs })
-        const maybeFoundTx = undefined
+        const maybeFoundTx = destinationAccountTxs.some(
+          tx => (tx.data as IbcMetadata | undefined)?.sequence === initiatingChainSequence,
+        )
 
         if (maybeFoundTx) return resolve('success')
         else return setTimeout(poll, interval)

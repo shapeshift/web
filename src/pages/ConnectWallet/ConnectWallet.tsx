@@ -53,10 +53,11 @@ export const ConnectWallet = () => {
         position={'relative'}
       >
         <Flex flexDir='column' zIndex={4} width='full'>
-          <Flex position={'absolute'} top={6} right={6}>
-            <LanguageSelector size={'sm'} />
-          </Flex>
-          <Center flexDir='column' height='100vh' px={6}>
+          {/* Full height with "-webkit-fill-available" polyfill, see https://chakra-ui.com/changelog/v2.3.1#styled-system-231 */}
+          <Center flexDir='column' height='$100vh' px={6}>
+            <Flex position={'absolute'} top={6} right={6}>
+              <LanguageSelector size={'sm'} />
+            </Flex>
             <Circle size='100px' mb={6}>
               <FoxIcon boxSize='100%' color='white' />
             </Circle>

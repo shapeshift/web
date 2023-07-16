@@ -20,6 +20,8 @@ import { Card } from 'components/Card/Card'
 import { IconCircle } from 'components/IconCircle'
 import { RawText } from 'components/Text'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { selectSelectedLocale } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 dayjs.extend(timezone)
 dayjs.extend(customParseFormat)
@@ -52,6 +54,7 @@ export const Mission: React.FC<MissionProps> = ({
 }) => {
   const [isActive, setIsActive] = useState(false)
   const translate = useTranslate()
+  const selectedLocale = useAppSelector(selectSelectedLocale)
   const handleClick = useCallback(
     (e: MouseEvent) => {
       if (e?.defaultPrevented) return
@@ -85,6 +88,10 @@ export const Mission: React.FC<MissionProps> = ({
             onClick={handleClick}
             iconSpacing={3}
             className='mission-btn'
+            whiteSpace={'normal'}
+            display={'inline-flex'}
+            textAlign={'left'}
+            lineHeight={'none'}
             leftIcon={
               <IconCircle
                 bg='white'
@@ -106,7 +113,9 @@ export const Mission: React.FC<MissionProps> = ({
             ) : (
               <RawText lineHeight='none'>
                 {endDate
-                  ? `${translate('missions.ends')} ${dayjs(endDate, dateFormat).fromNow()}`
+                  ? `${translate('missions.ends')} ${dayjs(endDate, dateFormat)
+                      .locale(selectedLocale)
+                      .fromNow()}`
                   : translate('missions.ongoing')}
               </RawText>
             )}
@@ -114,7 +123,7 @@ export const Mission: React.FC<MissionProps> = ({
         </>
       )
     }
-  }, [buttonText, endDate, handleClick, startDate, translate])
+  }, [buttonText, endDate, handleClick, selectedLocale, startDate, translate])
   return (
     <Card
       display='flex'

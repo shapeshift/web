@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import {
   CHAIN_REFERENCE,
   cosmosChainId,
@@ -27,7 +28,6 @@ import type {
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
 import { selectTxById, selectTxsByFilter } from 'state/slices/selectors'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
-import { deserializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { store } from 'state/store'
 
 export interface SymbolDenomMapping {
@@ -95,9 +95,10 @@ export const pollForComplete = ({ txid }: { txid: string }): Promise<string> => 
 // TODO(gomes): Now that we're relying on Txhistory Txs, we could make this a usePoll hook, reactive on the TxHistory slice?
 export const pollForCrossChainComplete = ({
   initiatingChainTxid,
+  initiatingChainAccountId,
 }: {
+  initiatingChainAccountId: AccountId
   initiatingChainTxid: string
-  baseUrl: string
 }): Promise<string> => {
   return new Promise((resolve, reject) => {
     const timeout = 300000 // 5 mins
@@ -109,9 +110,6 @@ export const pollForCrossChainComplete = ({
       if (initiatingChainTx && initiatingChainTx.status === TxStatus.Confirmed) {
         // Initiating Tx is successful, now we need to wait for the destination tx to be picked up by validators
 
-        // TODO(gomes): if we can pass initiating/destination accountId, we can avoid this whole dance
-        // Sure, we'll have more room for errors as we'll have to make sure to pass them right, but that will make this a lot cleaner
-        const initiatingChainAccountId = deserializeTxIndex(initiatingChainTxid).accountId
         const initiatingChainId = fromAccountId(initiatingChainAccountId).chainId
         const initiatingChainSequence = (initiatingChainTx.data as IbcMetadata | undefined)
           ?.sequence

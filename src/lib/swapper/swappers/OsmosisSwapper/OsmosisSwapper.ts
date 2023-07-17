@@ -307,7 +307,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       // wait till confirmed
       const pollResult = await pollForCrossChainComplete({
         initiatingChainTxid,
-        baseUrl: cosmosUrl,
+        initiatingChainAccountId,
       })
       if (pollResult !== 'success')
         return Err(
@@ -437,8 +437,8 @@ export class OsmosisSwapper implements Swapper<ChainId> {
 
       // wait till confirmed
       const pollResult = await pollForCrossChainComplete({
+        initiatingChainAccountId,
         initiatingChainTxid: initiatingChainTxId,
-        baseUrl: osmoUrl,
       })
 
       if (pollResult !== 'success')

@@ -39,7 +39,6 @@ export async function getTradeQuote(
       sendAddress,
       receiveAddress,
       accountNumber,
-      allowMultiHop,
       supportsEIP1559,
       wallet,
     } = input
@@ -82,7 +81,10 @@ export async function getTradeQuote(
         integrator: LIFI_INTEGRATOR_ID,
         slippage: Number(defaultLifiSwapperSlippage),
         exchanges: { deny: ['dodo'] },
-        allowSwitchChain: allowMultiHop,
+        // TODO(gomes): We don't currently handle trades that require a mid-trade user-initiated Tx on a different chain
+        // i.e we would theoretically handle the Tx itself, but not approvals on said chain if needed
+        // use the `allowSwitchChain` param above when implemented
+        allowSwitchChain: false,
       },
     }
 

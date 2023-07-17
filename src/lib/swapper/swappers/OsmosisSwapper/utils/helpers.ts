@@ -62,22 +62,6 @@ const getTx = (txid: string): Tx | undefined => {
   return
 }
 
-// We can probably ditch this fn altogether and straight up do the selectTxById dance?
-const getTxStatus = (txid: string): string => {
-  try {
-    const tx = selectTxById(store.getState(), txid)
-    if (!tx) throw new Error('Tx not yet found')
-    if (tx.status === TxStatus.Confirmed) return 'success'
-    if (tx.status === TxStatus.Failed) return 'failed'
-
-    throw new Error('Tx pending')
-  } catch (e) {
-    console.warn('Retrying to retrieve status')
-  }
-  // Making TS happy, this will never get hit - we poll until the Tx is found
-  return 'not found'
-}
-
 // TODO: leverage chain-adapters websockets
 export const pollForComplete = ({ txid }: { txid: string }): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -86,9 +70,9 @@ export const pollForComplete = ({ txid }: { txid: string }): Promise<string> => 
     const interval = 5000 // 5 seconds
 
     const poll = function () {
-      const status = getTxStatus(txid)
-      if (status === 'success') {
-        resolve(status)
+      const tx = getTx(txid)
+      if (tx?.status === TxStatus.Confirmed) {
+        resolve('success')
       } else if (Date.now() - startTime > timeout) {
         reject(
           new SwapError(`Couldnt find tx ${txid}`, {
@@ -121,9 +105,8 @@ export const pollForCrossChainComplete = ({
     const interval = 5000 // 5 seconds
 
     const poll = function () {
-      const initiatingChainStatus = getTxStatus(initiatingChainTxid)
       const initiatingChainTx = getTx(initiatingChainTxid)
-      if (initiatingChainStatus === 'success' && initiatingChainTx) {
+      if (initiatingChainTx && initiatingChainTx.status === TxStatus.Confirmed) {
         // Initiating Tx is successful, now we need to wait for the destination tx to be picked up by validators
 
         // TODO(gomes): if we can pass initiating/destination accountId, we can avoid this whole dance

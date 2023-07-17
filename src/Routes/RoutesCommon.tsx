@@ -17,6 +17,7 @@ import { Flags } from 'pages/Flags/Flags'
 import { Missions } from 'pages/Missions/Missions'
 import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
+import { Yat } from 'pages/Yat/Yat'
 
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
@@ -124,5 +125,11 @@ export const routes: NestedRoute[] = [
       window.location.hostname !== 'localhost' &&
       window.location.hostname !== getConfig().REACT_APP_LOCAL_IP,
     main: Flags,
+  },
+  {
+    path: '/yat',
+    label: 'Yat',
+    hide: true,
+    main: Yat,
   },
 ]

@@ -39,7 +39,7 @@ export async function getTradeQuote(
       sendAddress,
       receiveAddress,
       accountNumber,
-      allowMultiHop,
+      // allowMultiHop,
       supportsEIP1559,
       wallet,
     } = input

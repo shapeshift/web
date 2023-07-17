@@ -27,7 +27,6 @@ import type {
   PoolRateInfo,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
 import { selectTxById, selectTxsByFilter } from 'state/slices/selectors'
-import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { store } from 'state/store'
 
 export interface SymbolDenomMapping {
@@ -48,20 +47,6 @@ type FindPoolOutput = {
   buyAssetIndex: number
 }
 
-// We can probably ditch this fn altogether and straight up do the selectTxById dance?
-const getTx = (txid: string): Tx | undefined => {
-  try {
-    const tx = selectTxById(store.getState(), txid)
-    if (!tx) throw new Error('Tx not yet found')
-    return tx
-  } catch (e) {
-    // Making TS happy, this will never get hit - we poll until the Tx is found
-    console.warn('Retrying to retrieve tx')
-  }
-
-  return
-}
-
 // TODO: leverage chain-adapters websockets
 export const pollForComplete = ({ txid }: { txid: string }): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -70,7 +55,7 @@ export const pollForComplete = ({ txid }: { txid: string }): Promise<string> => 
     const interval = 5000 // 5 seconds
 
     const poll = function () {
-      const tx = getTx(txid)
+      const tx = selectTxById(store.getState(), txid)
       if (tx?.status === TxStatus.Confirmed) {
         resolve('success')
       } else if (Date.now() - startTime > timeout) {
@@ -106,7 +91,7 @@ export const pollForCrossChainComplete = ({
     const interval = 5000 // 5 seconds
 
     const poll = function () {
-      const initiatingChainTx = getTx(initiatingChainTxid)
+      const initiatingChainTx = selectTxById(store.getState(), initiatingChainTxid)
       if (initiatingChainTx && initiatingChainTx.status === TxStatus.Confirmed) {
         // Initiating Tx is successful, now we need to wait for the destination tx to be picked up by validators
 
@@ -136,7 +121,10 @@ export const pollForCrossChainComplete = ({
         )
 
         if (maybeFoundTx) return resolve('success')
-        else return setTimeout(poll, interval)
+        else {
+          setTimeout(poll, interval)
+          return
+        }
       } else if (Date.now() - startTime > timeout) {
         reject(
           new SwapError(`Couldnt find tx ${initiatingChainTxid}`, {

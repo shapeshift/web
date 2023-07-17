@@ -45,6 +45,7 @@ import { assertUnreachable } from 'lib/utils'
 import { selectManualReceiveAddress } from 'state/slices/swappersSlice/selectors'
 import {
   selectActiveQuote,
+  selectActiveStepOrDefault,
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
@@ -89,6 +90,8 @@ export const TradeConfirm = () => {
     dispatch: walletDispatch,
   } = useWallet()
 
+  const activeStepOrDefault = useAppSelector(selectActiveStepOrDefault)
+
   useEffect(() => {
     // WARNING: do not remove.
     // clear the confirmed quote on dismount to prevent stale data affecting the selectors
@@ -97,8 +100,10 @@ export const TradeConfirm = () => {
       // This is due to the way those react-router routes work. This is actually fired on mount, voiding the stated guarantees.
       // We will most likely want to move all these "WARNING: do not remove" effects up to the router-level, so they are *actually* fired on trade routes unmount
       dispatch(tradeQuoteSlice.actions.resetConfirmedQuote())
+
+      if (activeStepOrDefault > 1) dispatch(tradeQuoteSlice.actions.resetActiveStep())
     }
-  }, [dispatch])
+  }, [activeStepOrDefault, dispatch])
 
   const tradeQuote = useAppSelector(selectActiveQuote)
 

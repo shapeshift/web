@@ -433,12 +433,12 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         chainId: osmosisChainId,
         account: sellAddress,
       })
-      const initiatingChainTxId = serializeTxIndex(initiatingChainAccountId, tradeId, sellAddress)
+      const initiatingChainTxid = serializeTxIndex(initiatingChainAccountId, tradeId, sellAddress)
 
       // wait till confirmed
       const pollResult = await pollForCrossChainComplete({
         initiatingChainAccountId,
-        initiatingChainTxid: initiatingChainTxId,
+        initiatingChainTxid,
       })
 
       if (pollResult !== 'success')

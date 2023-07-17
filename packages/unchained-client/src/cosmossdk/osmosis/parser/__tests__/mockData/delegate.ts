@@ -1,4 +1,4 @@
-import type { Tx } from '../../../../types'
+import type { Tx } from '../../..'
 
 const tx: Tx = {
   txid: 'CA915A263C5FF8265B0D244DADF45F3F66AB684DCC160637EDA6E5F5FEC999B8',
@@ -16,6 +16,7 @@ const tx: Tx = {
   value: '',
   messages: [
     {
+      index: '0',
       origin: 'osmo1t5nts8y096tezaspwzanpsw6dgdh32u8ehu72v',
       from: 'osmo1t5nts8y096tezaspwzanpsw6dgdh32u8ehu72v',
       to: 'osmovaloper1lzhlnpahvznwfv4jmay2tgaha5kmz5qxwmj9we',

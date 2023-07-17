@@ -17,6 +17,7 @@ const tx: Tx = {
   value: '',
   messages: [
     {
+      index: '1',
       origin: 'evmos1mmxzd4c4kap3x60eu2rvnfrac264sjgxwu930y',
       from: 'evmos1mmxzd4c4kap3x60eu2rvnfrac264sjgxwu930y',
       to: 'osmo1242l37paupq0fxcqd8cvnth5x6s6gcczwmvwfc',

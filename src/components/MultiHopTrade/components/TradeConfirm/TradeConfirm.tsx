@@ -93,11 +93,24 @@ export const TradeConfirm = () => {
     // WARNING: do not remove.
     // clear the confirmed quote on dismount to prevent stale data affecting the selectors
     return () => {
+      // TODO(gomes): This is wrong. This isn't only working on unmount as the intent suggests.
+      // This is due to the way those react-router routes work. This is actually fired on mount, voiding the stated guarantees.
+      // We will most likely want to move all these "WARNING: do not remove" effects up to the router-level, so they are *actually* fired on trade routes unmount
       dispatch(tradeQuoteSlice.actions.resetConfirmedQuote())
     }
   }, [dispatch])
 
   const tradeQuote = useAppSelector(selectActiveQuote)
+
+  useEffect(() => {
+    if (!tradeQuote) return
+    // WARNING: do not remove.
+    // clear the confirmed quote on TradeInput unmount to prevent stale data affecting the selectors
+    // This sets it back as confirmedQuote, so tradeQuoteSlice action have access to the up-to-date quote
+    // TODO(gomes): this seems redundant if we're clearing it then setting it again here - can we remove both TradeInput unmount effect, and this one?
+    dispatch(tradeQuoteSlice.actions.setConfirmedQuote(tradeQuote))
+  }, [dispatch, tradeQuote])
+
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const swapperName = useAppSelector(selectActiveSwapperName)
   const defaultFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)

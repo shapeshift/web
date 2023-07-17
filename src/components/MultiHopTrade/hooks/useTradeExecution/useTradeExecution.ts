@@ -1,6 +1,6 @@
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -25,10 +25,12 @@ import {
   selectUsdRateByAssetId,
 } from 'state/slices/selectors'
 import {
+  selectActiveStepOrDefault,
   selectFirstHopSellFeeAsset,
   selectLastHopBuyAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { TRADE_POLL_INTERVAL_MILLISECONDS } from '../constants'
 import { useAccountIds } from '../useAccountIds'
@@ -41,6 +43,8 @@ export const useTradeExecution = ({
   swapperName?: SwapperName
   tradeQuote?: TradeQuote2
 }) => {
+  const dispatch = useAppDispatch()
+
   const [sellTxHash, setSellTxHash] = useState<string | undefined>()
   const [buyTxHash, setBuyTxHash] = useState<string | undefined>()
   const [message, setMessage] = useState<string | undefined>()
@@ -65,7 +69,11 @@ export const useTradeExecution = ({
     feeAsset ? selectUsdRateByAssetId(state, feeAsset.assetId) : undefined,
   )
 
+  const activeStepOrDefault = useAppSelector(selectActiveStepOrDefault)
+
+  debugger
   const executeTrade = useCallback(async () => {
+    debugger
     if (!wallet) throw Error('missing wallet')
     if (!buyAssetUsdRate) throw Error('missing buyAssetUsdRate')
     if (!feeAssetUsdRate) throw Error('missing feeAssetUsdRate')
@@ -94,8 +102,7 @@ export const useTradeExecution = ({
       }
     })()
 
-    const stepIndex = 0 // TODO: multi-hop trades require this to be dynamic
-    const chainId = tradeQuote.steps[stepIndex].sellAsset.chainId
+    const chainId = tradeQuote.steps[activeStepOrDefault].sellAsset.chainId
 
     const sellAssetChainAdapter = getChainAdapterManager().get(chainId)
 
@@ -117,7 +124,7 @@ export const useTradeExecution = ({
         tradeQuote,
         chainId,
         accountMetadata,
-        stepIndex,
+        stepIndex: activeStepOrDefault,
         supportsEIP1559,
         buyAssetUsdRate,
         feeAssetUsdRate,
@@ -150,7 +157,27 @@ export const useTradeExecution = ({
       interval: TRADE_POLL_INTERVAL_MILLISECONDS,
       maxAttempts: Infinity,
     })
-  }, [wallet, buyAssetUsdRate, feeAssetUsdRate, accountMetadata, tradeQuote, swapperName, poll])
+
+    dispatch(tradeQuoteSlice.actions.incrementStep())
+  }, [
+    wallet,
+    buyAssetUsdRate,
+    feeAssetUsdRate,
+    accountMetadata,
+    tradeQuote,
+    swapperName,
+    activeStepOrDefault,
+    poll,
+    dispatch,
+  ])
+
+  useEffect(() => {
+    // First step will always be ran from the executeTrade call fired by onSubmit()
+    // Subsequent steps will be ran here, following incrementStep() after step completion
+    if (activeStepOrDefault !== 0) {
+      executeTrade()
+    }
+  }, [activeStepOrDefault, executeTrade])
 
   return { executeTrade, sellTxHash, buyTxHash, message, status }
 }

@@ -1,6 +1,6 @@
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -27,6 +27,7 @@ import {
 import {
   selectActiveStepOrDefault,
   selectFirstHopSellFeeAsset,
+  selectIsLastStep,
   selectLastHopBuyAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -48,7 +49,7 @@ export const useTradeExecution = ({
   const [sellTxHash, setSellTxHash] = useState<string | undefined>()
   const [buyTxHash, setBuyTxHash] = useState<string | undefined>()
   const [message, setMessage] = useState<string | undefined>()
-  const [status, setStatus] = useState<TxStatus>(TxStatus.Unknown)
+  const [tradeStatus, setTradeStatus] = useState<TxStatus>(TxStatus.Unknown)
   const { poll } = usePoll()
   const wallet = useWallet().state.wallet
 
@@ -70,10 +71,15 @@ export const useTradeExecution = ({
   )
 
   const activeStepOrDefault = useAppSelector(selectActiveStepOrDefault)
+  const isLastStep = useAppSelector(selectIsLastStep)
 
-  debugger
+  // This is ugly, but we need to use refs to get around the fact that the
+  // poll fn effectively creates a closure and will hold stale variables forever
+  // Unless we use refs or another way to get around the closure (e.g hijacking `this`, we are doomed)
+  const sellTxHashRef = useRef<string | undefined>()
+  const isLastStepRef = useRef<boolean>(false)
+
   const executeTrade = useCallback(async () => {
-    debugger
     if (!wallet) throw Error('missing wallet')
     if (!buyAssetUsdRate) throw Error('missing buyAssetUsdRate')
     if (!feeAssetUsdRate) throw Error('missing feeAssetUsdRate')
@@ -131,29 +137,44 @@ export const useTradeExecution = ({
       },
     )
 
-    const sellTxHash = await swapper.executeTrade({
+    sellTxHashRef.current = await swapper.executeTrade({
       txToSign: unsignedTxResult,
       wallet,
       chainId,
     })
 
-    setSellTxHash(sellTxHash)
+    setSellTxHash(sellTxHashRef.current)
 
     await poll({
+      // TODO(gomes): this is wrong. poll fn is a closure and will never use the latest references to the outer variables
       fn: async () => {
+        // This should never happen, but TS mang
+        if (!sellTxHashRef.current) return
         const { status, message, buyTxHash } = await swapper.checkTradeStatus({
           quoteId: tradeQuote.id,
-          txHash: sellTxHash,
+          txHash: sellTxHashRef.current,
           chainId,
         })
 
-        setMessage(message)
-        setBuyTxHash(buyTxHash)
-        setStatus(status)
+        // TODO(gomes): do we want to bring in the concept of watching for a step execution in addition to trade execution?
+        // useTradeExecution seems to revolve around the idea of a holistic trade execution i.e a sell/buy asset for the whole trade,
+        // but we may want to make this granular to the step level?
+        if (isLastStepRef.current || status === TxStatus.Failed) {
+          setMessage(message)
+          setBuyTxHash(buyTxHash)
+          setTradeStatus(status)
+        }
+
+        // Tx confirmed/pending for a mid-trade hop, meaning the trade is still pending holistically
+        else if (status === TxStatus.Confirmed || status === TxStatus.Pending) {
+          setTradeStatus(TxStatus.Pending)
+        }
 
         return status
       },
-      validate: status => status === TxStatus.Confirmed || status === TxStatus.Failed,
+      validate: status => {
+        return status === TxStatus.Confirmed || status === TxStatus.Failed
+      },
       interval: TRADE_POLL_INTERVAL_MILLISECONDS,
       maxAttempts: Infinity,
     })
@@ -172,6 +193,11 @@ export const useTradeExecution = ({
   ])
 
   useEffect(() => {
+    sellTxHashRef.current = sellTxHash
+    isLastStepRef.current = isLastStep
+  }, [sellTxHash, isLastStep])
+
+  useEffect(() => {
     // First step will always be ran from the executeTrade call fired by onSubmit()
     // Subsequent steps will be ran here, following incrementStep() after step completion
     if (activeStepOrDefault !== 0) {
@@ -179,5 +205,5 @@ export const useTradeExecution = ({
     }
   }, [activeStepOrDefault, executeTrade])
 
-  return { executeTrade, sellTxHash, buyTxHash, message, status }
+  return { executeTrade, sellTxHash, buyTxHash, message, tradeStatus }
 }

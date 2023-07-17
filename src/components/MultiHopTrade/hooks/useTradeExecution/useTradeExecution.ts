@@ -146,7 +146,6 @@ export const useTradeExecution = ({
     setSellTxHash(sellTxHashRef.current)
 
     await poll({
-      // TODO(gomes): this is wrong. poll fn is a closure and will never use the latest references to the outer variables
       fn: async () => {
         // This should never happen, but TS mang
         if (!sellTxHashRef.current) return

@@ -280,6 +280,7 @@ describe('parseTx', () => {
         ibcSource: address,
         assetId: cosmosAssetId,
         value: '600000',
+        sequence: '1258481',
       },
     }
 
@@ -313,11 +314,12 @@ describe('parseTx', () => {
       ],
       data: {
         parser: 'ibc',
-        method: 'transfer',
+        method: 'recv_packet',
         ibcDestination: address,
         ibcSource: 'osmo1fx4jwv3aalxqwmrpymn34l582lnehr3eg40jnt',
         assetId: cosmosAssetId,
         value: '3230396',
+        sequence: '516701',
       },
     }
 

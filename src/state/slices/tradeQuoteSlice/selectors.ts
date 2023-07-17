@@ -74,6 +74,12 @@ export const selectActiveQuote: Selector<ReduxState, TradeQuote2 | undefined> =
     },
   )
 
+export const selectIsLastStep: Selector<ReduxState, boolean> = createSelector(
+  selectActiveStepOrDefault,
+  selectActiveQuote,
+  (activeStep, tradeQuote) => Boolean(tradeQuote && tradeQuote.steps.length - 1 === activeStep),
+)
+
 export const selectActiveQuoteError: Selector<ReduxState, SwapErrorRight | undefined> =
   createDeepEqualOutputSelector(selectActiveSwapperApiResponse, response => response?.error)
 

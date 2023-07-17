@@ -2,7 +2,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useState } from 'react'
 import { TradeAssetInput } from 'components/Trade/Components/TradeAssetInput'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { selectMarketDataByFilter } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -11,15 +11,9 @@ export type SellAssetInputProps = {
   accountId?: AccountId
   label: string
   asset: Asset
-  onClickSendMax: () => void
 }
 
-export const SellAssetInput = ({
-  accountId,
-  asset,
-  label,
-  onClickSendMax,
-}: SellAssetInputProps) => {
+export const SellAssetInput = ({ accountId, asset, label }: SellAssetInputProps) => {
   const [sellAmountUserCurrencyHuman, setSellAmountUserCurrencyHuman] = useState('0')
   const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
   const dispatch = useAppDispatch()
@@ -53,12 +47,11 @@ export const SellAssetInput = ({
       assetId={asset.assetId}
       assetSymbol={asset.symbol}
       assetIcon={asset.icon}
-      cryptoAmount={sellAmountCryptoPrecision}
-      fiatAmount={sellAmountUserCurrencyHuman}
+      cryptoAmount={positiveOrZero(sellAmountCryptoPrecision).toString()}
+      fiatAmount={positiveOrZero(sellAmountUserCurrencyHuman).toString()}
       isSendMaxDisabled={false}
       onChange={handleSellAssetInputChange}
       percentOptions={[1]}
-      onPercentOptionClick={onClickSendMax}
       showInputSkeleton={false}
       showFiatSkeleton={false}
       label={label}

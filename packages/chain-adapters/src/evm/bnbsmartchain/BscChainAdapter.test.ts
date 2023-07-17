@@ -52,9 +52,9 @@ const makeGetGasFeesMockedResponse = (overrideArgs?: {
 }) =>
   merge(
     {
-      slow: { gasPrice: '4' },
-      average: { gasPrice: '5' },
-      fast: { gasPrice: '6' },
+      slow: { gasPrice: '4000000000' },
+      average: { gasPrice: '5000000000' },
+      fast: { gasPrice: '6000000000' },
     },
     overrideArgs,
   )
@@ -140,23 +140,23 @@ describe('BscChainAdapter', () => {
           average: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '5',
+              gasPrice: '5000000000',
             },
-            txFee: '105000',
+            txFee: '105000000000000',
           },
           fast: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '6',
+              gasPrice: '6000000000',
             },
-            txFee: '126000',
+            txFee: '126000000000000',
           },
           slow: {
             chainSpecific: {
               gasLimit: '21000',
-              gasPrice: '4',
+              gasPrice: '4000000000',
             },
-            txFee: '84000',
+            txFee: '84000000000000',
           },
         }),
       )
@@ -176,9 +176,9 @@ describe('BscChainAdapter', () => {
 
       expect(data).toEqual(
         expect.objectContaining({
-          average: { gasPrice: '5' },
-          fast: { gasPrice: '6' },
-          slow: { gasPrice: '4' },
+          slow: { gasPrice: '4000000000' },
+          average: { gasPrice: '5000000000' },
+          fast: { gasPrice: '6000000000' },
         }),
       )
     })

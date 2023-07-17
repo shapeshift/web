@@ -137,11 +137,13 @@ const ApprovalInner = ({
   // proceed to trade confirmation when approval is no longer needed
   // this is managed async to approveContract so that approvals done external to this app propagate
   useEffect(() => {
+    // Wait for the form submit to be false before pushing the confirm route
+    if (isSubmitting) return
     // explicitly check for false as undefined indicates an unknown state
     if (isApprovalNeeded === false) {
       history.push({ pathname: TradeRoutePaths.Confirm })
     }
-  }, [history, isApprovalNeeded])
+  }, [history, isApprovalNeeded, isSubmitting])
 
   return (
     <SlideTransition>

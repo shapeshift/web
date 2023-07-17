@@ -97,7 +97,7 @@ export const mockStore: ReduxState = {
     selectedLocale: 'en',
     balanceThreshold: '0',
     selectedCurrency: 'USD',
-    currencyFormat: CurrencyFormats.DotDecimal,
+    currencyFormat: CurrencyFormats.DotDecimalCommaThousands,
     chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
     showWelcomeModal: false,
     showConsentBanner: true,

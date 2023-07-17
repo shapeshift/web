@@ -188,7 +188,7 @@ export const selectFirstHopTradeDeductionCryptoPrecision: Selector<ReduxState, s
 // TODO(woodenfurniture): update swappers to specify this as with protocol fees
 export const selectNetworkFeeRequiresBalance: Selector<ReduxState, boolean> = createSelector(
   selectActiveSwapperName,
-  (swapperName): boolean => swapperName === SwapperName.CowSwap,
+  (swapperName): boolean => swapperName !== SwapperName.CowSwap,
 )
 
 export const selectFirstHopNetworkFeeCryptoBaseUnit: Selector<ReduxState, string | undefined> =

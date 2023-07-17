@@ -1,5 +1,6 @@
 import type { ChainKey as LifiChainKey, GetStatusRequest } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, optimismChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
@@ -26,7 +27,10 @@ import type {
   LifiTradeQuote,
 } from 'lib/swapper/swappers/LifiSwapper/utils/types'
 import { filterEvmAssetIdsBySellable } from 'lib/swapper/swappers/utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
-import { filterCrossChainEvmBuyAssetsBySellAssetId } from 'lib/swapper/swappers/utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
+import {
+  filterCrossChainEvmBuyAssetsBySellAssetId,
+  filterSameChainEvmBuyAssetsBySellAssetId,
+} from 'lib/swapper/swappers/utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { createEmptyEvmTradeQuote } from 'lib/swapper/swappers/utils/helpers/helpers'
 import { selectAssets, selectMarketDataById } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -66,7 +70,8 @@ export class LifiSwapper implements Swapper<EvmChainId> {
       store.getState(),
       input.sellAsset.assetId,
     )
-    const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetPriceUsdPrecision)
+    const isSameChainSwap = input.buyAsset.chainId === input.sellAsset.chainId
+    const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetPriceUsdPrecision, isSameChainSwap)
     const minimumSellAmountBaseUnit = toBaseUnit(minimumCryptoHuman, input.sellAsset.precision)
     const isBelowMinSellAmount = bnOrZero(input.sellAmountBeforeFeesCryptoBaseUnit).lt(
       minimumSellAmountBaseUnit,
@@ -103,11 +108,27 @@ export class LifiSwapper implements Swapper<EvmChainId> {
    * Get supported buyAssetId's by sellAssetId
    */
   filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
-    return filterCrossChainEvmBuyAssetsBySellAssetId(input)
+    return [
+      ...filterCrossChainEvmBuyAssetsBySellAssetId(input),
+      // TODO(gomes): This is weird but a temporary product compromise to accomodate for the fact that OP rewards have weird heuristics
+      // and would detect same-chain swaps on Li.Fi as cross-chain swaps, making the rewards gameable by same-chain swaps
+      // Remove me when OP rewards ends
+      ...filterSameChainEvmBuyAssetsBySellAssetId(input).filter(
+        assetId => fromAssetId(assetId).chainId !== optimismChainId,
+      ),
+    ]
   }
 
   static filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
-    return filterCrossChainEvmBuyAssetsBySellAssetId(input)
+    return [
+      ...filterCrossChainEvmBuyAssetsBySellAssetId(input),
+      // TODO(gomes): This is weird but a temporary product compromise to accomodate for the fact that OP rewards have weird heuristics
+      // and would detect same-chain swaps on Li.Fi as cross-chain swaps, making the rewards gameable by same-chain swaps
+      // Remove me when OP rewards ends
+      ...filterSameChainEvmBuyAssetsBySellAssetId(input).filter(
+        assetId => fromAssetId(assetId).chainId !== optimismChainId,
+      ),
+    ]
   }
 
   /**

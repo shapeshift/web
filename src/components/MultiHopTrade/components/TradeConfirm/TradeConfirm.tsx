@@ -101,7 +101,7 @@ export const TradeConfirm = () => {
       // We will most likely want to move all these "WARNING: do not remove" effects up to the router-level, so they are *actually* fired on trade routes unmount
       dispatch(tradeQuoteSlice.actions.resetConfirmedQuote())
 
-      if (activeStepOrDefault > 1) dispatch(tradeQuoteSlice.actions.resetActiveStep())
+      if (activeStepOrDefault > 0) dispatch(tradeQuoteSlice.actions.resetActiveStep())
     }
   }, [activeStepOrDefault, dispatch])
 

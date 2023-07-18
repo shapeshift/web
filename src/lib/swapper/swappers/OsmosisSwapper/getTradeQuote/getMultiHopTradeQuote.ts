@@ -1,4 +1,3 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import { osmosisChainId } from '@shapeshiftoss/caip'
 import type { cosmos, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { osmosis } from '@shapeshiftoss/chain-adapters'
@@ -26,7 +25,7 @@ import { DEFAULT_SOURCE } from '../utils/constants'
 export const getTradeQuote = async (
   input: GetTradeQuoteInput,
   { sellAssetUsdRate }: { sellAssetUsdRate: string },
-): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>> => {
+): Promise<Result<TradeQuote, SwapErrorRight>> => {
   const {
     // TODO(gomes): very very dangerous. We currently use account number both on the sending and receiving side and this will break cross-account.
     accountNumber,

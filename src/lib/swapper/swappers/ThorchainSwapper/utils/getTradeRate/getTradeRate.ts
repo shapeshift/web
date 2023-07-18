@@ -147,8 +147,21 @@ export const getTradeRateBelowMinimum = ({
 }: {
   sellAssetId: AssetId
   buyAssetId: AssetId
-}) =>
-  getPriceRatio({
-    sellAssetId,
-    buyAssetId,
-  })
+}): Promise<Result<string, SwapErrorRight>> => {
+  try {
+    return getPriceRatio({
+      sellAssetId,
+      buyAssetId,
+    })
+  } catch {
+    return Promise.resolve(
+      Err(
+        makeSwapErrorRight({
+          message: `[getTradeRateBelowMinimum]: Could not get a trade rate from Thorchain.`,
+          code: SwapErrorType.TRADE_QUOTE_FAILED,
+          details: { sellAssetId, buyAssetId },
+        }),
+      ),
+    )
+  }
+}

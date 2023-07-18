@@ -12,6 +12,7 @@ import type { GetTradeQuoteInput } from 'lib/swapper/api'
 import { isSkipToken } from 'lib/utils'
 import { useGetTradeQuoteQuery } from 'state/apis/swappers/swappersApi'
 import {
+  selectBuyAccountId,
   selectBuyAsset,
   selectFeatureFlags,
   selectPortfolioAccountMetadataByAccountId,
@@ -49,6 +50,7 @@ export const useGetTradeQuotes = () => {
   const userWillDonate = useAppSelector(selectWillDonate)
 
   const sellAccountId = useAppSelector(selectSellAccountId)
+  const buyAccountId = useAppSelector(selectBuyAccountId)
 
   const sellAccountMetadata = useMemo(() => {
     return selectPortfolioAccountMetadataByAccountId(store.getState(), {
@@ -56,10 +58,18 @@ export const useGetTradeQuotes = () => {
     })
   }, [sellAccountId])
 
+  const receiveAccountMetadata = useMemo(() => {
+    return selectPortfolioAccountMetadataByAccountId(store.getState(), {
+      accountId: buyAccountId,
+    })
+  }, [buyAccountId])
+
   useEffect(() => {
     if (wallet && sellAccountMetadata && receiveAddress) {
       ;(async () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
+        const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
+        const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
         const walletIsKeepKey = wallet && isKeepKey(wallet)
         const isFromEvm = isEvmChainId(sellAsset.chainId)
         // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
@@ -68,6 +78,7 @@ export const useGetTradeQuotes = () => {
         const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
           sellAsset,
           sellAccountNumber,
+          receiveAccountNumber,
           sellAccountType: sellAccountMetadata.accountType,
           buyAsset,
           wallet,
@@ -107,6 +118,7 @@ export const useGetTradeQuotes = () => {
     tradeQuoteInput,
     wallet,
     userWillDonate,
+    receiveAccountMetadata?.bip44Params,
   ])
 
   useGetTradeQuoteQuery(debouncedTradeQuoteInput, {

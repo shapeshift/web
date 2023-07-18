@@ -44,7 +44,7 @@ const MultiHopRoutes = () => {
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
-      <Switch key={location.key} location={location}>
+      <Switch location={location}>
         <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
           <TradeInput />
         </Route>

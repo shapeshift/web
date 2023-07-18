@@ -42,7 +42,7 @@ export const getTradeQuote = async (
   const maybeRateInfo = await getRateInfo(
     sellAsset.symbol,
     buyAsset.symbol,
-    sellAmountCryptoBaseUnit !== '0' ? sellAmountCryptoBaseUnit : '1',
+    sellAmountCryptoBaseUnit,
     osmoUrl,
   )
 

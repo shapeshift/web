@@ -20,8 +20,8 @@ import type {
 } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import {
-  COSMO_OSMO_CHANNEL,
-  OSMO_COSMO_CHANNEL,
+  COSMOSHUB_TO_OSMOSIS_CHANNEL,
+  OSMOSIS_TO_COSMOSHUB_CHANNEL,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/constants'
 import type { SymbolDenomMapping } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 import {
@@ -113,7 +113,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const maybeRateInfo = await getRateInfo(
       sellAsset.symbol,
       buyAsset.symbol,
-      sellAmountCryptoBaseUnit !== '0' ? sellAmountCryptoBaseUnit : '1',
+      sellAmountCryptoBaseUnit,
       osmoUrl,
     )
 
@@ -275,7 +275,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       }
 
       const responseAccount = await cosmosAdapter.getAccount(sellAddress)
-      const ibcAccountNumber = parseInt(responseAccount.chainSpecific.accountNumber || '0')
+      const ibcAccountNumber = responseAccount.chainSpecific.accountNumber || '0'
 
       const sequence = responseAccount.chainSpecific.sequence || '0'
 
@@ -288,7 +288,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         wallet,
         blockBaseUrl: osmoUrl,
         denom: 'uatom',
-        sourceChannel: COSMO_OSMO_CHANNEL,
+        sourceChannel: COSMOSHUB_TO_OSMOSIS_CHANNEL,
         feeAmount: ibcFromCosmosFeeData.fast.txFee,
         accountNumber,
         ibcAccountNumber,
@@ -341,7 +341,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const maybeRateInfo = await getRateInfo(
       sellAsset.symbol,
       buyAsset.symbol,
-      sellAmountCryptoBaseUnit !== '0' ? sellAmountCryptoBaseUnit : '1',
+      sellAmountCryptoBaseUnit,
       osmoUrl,
     )
 
@@ -393,7 +393,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       }
 
       const ibcResponseAccount = await osmosisAdapter.getAccount(sellAddress)
-      const ibcAccountNumber = Number(ibcResponseAccount.chainSpecific.accountNumber)
+      const ibcAccountNumber = ibcResponseAccount.chainSpecific.accountNumber
       const ibcSequence = ibcResponseAccount.chainSpecific.sequence || '0'
 
       // delay to ensure all nodes we interact with are up to date at this point
@@ -414,7 +414,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         wallet,
         blockBaseUrl: cosmosUrl,
         denom: buyAssetDenom,
-        sourceChannel: OSMO_COSMO_CHANNEL,
+        sourceChannel: OSMOSIS_TO_COSMOSHUB_CHANNEL,
         feeAmount: osmosis.MIN_FEE,
         accountNumber,
         ibcAccountNumber,

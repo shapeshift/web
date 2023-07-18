@@ -147,9 +147,10 @@ export const getRateInfo = async (
   sellAmount: string,
   osmoUrl: string,
 ): Promise<Result<PoolRateInfo, SwapErrorRight>> => {
+  const sellAmountOrDefault = sellAmount === '0' ? '1' : sellAmount
   const maybePool = await findPool(sellAsset, buyAsset, osmoUrl)
   return maybePool.andThen(({ pool, sellAssetIndex, buyAssetIndex }) =>
-    Ok(getPoolRateInfo(sellAmount, pool, sellAssetIndex, buyAssetIndex)),
+    Ok(getPoolRateInfo(sellAmountOrDefault, pool, sellAssetIndex, buyAssetIndex)),
   )
 }
 
@@ -161,7 +162,7 @@ type PerformIbcTransferInput = {
   sourceChannel: string
   feeAmount: string
   accountNumber: number
-  ibcAccountNumber: number
+  ibcAccountNumber: string
   sequence: string
   gas: string
   feeDenom: string
@@ -232,7 +233,7 @@ export const buildPerformIbcTransferUnsignedTx = async ({
     tx,
     addressNList: toAddressNList(bip44Params),
     chain_id: fromChainId(adapter.getChainId()).chainReference,
-    account_number: ibcAccountNumber.toString(),
+    account_number: ibcAccountNumber,
     sequence,
   }
 }
@@ -265,7 +266,7 @@ type BuildTradeTxInput = {
   feeDenom: string
 }
 
-export const buildApiTradeTx = async ({
+export const buildSwapExactAmountInTx = async ({
   osmoAddress,
   adapter,
   accountNumber,
@@ -330,7 +331,7 @@ export const buildTradeTx = async (
   input: BuildTradeTxInput & { wallet: HDWallet },
 ): Promise<SignTxInput<OsmosisSignTx>> => {
   const { wallet } = input
-  const txToSign = await buildApiTradeTx(input)
+  const txToSign = await buildSwapExactAmountInTx(input)
 
   return { txToSign, wallet }
 }

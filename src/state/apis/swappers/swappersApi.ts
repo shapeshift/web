@@ -15,6 +15,7 @@ import { selectFeatureFlags } from 'state/slices/selectors'
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { getCowTradeQuoteHelper } from './helpers/getCowTradeQuoteHelper'
 import { getOneInchTradeQuoteHelper } from './helpers/getOneInchTradeQuoteHelper'
+import { getOsmosisTradeQuoteHelper } from './helpers/getOsmosisTradeQuoteApiHelper'
 import { getZrxTradeQuoteHelper } from './helpers/getZrxTradeQuoteHelper'
 
 export const swappersApi = createApi({
@@ -27,12 +28,25 @@ export const swappersApi = createApi({
         const state = getState() as ReduxState
         const { sendAddress, receiveAddress } = getTradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
-        const { LifiSwap, ThorSwap, ZrxSwap, OneInch, Cowswap }: FeatureFlags =
+        const { OsmosisSwap, LifiSwap, ThorSwap, ZrxSwap, OneInch, Cowswap }: FeatureFlags =
           selectFeatureFlags(state)
         const quotes: (Result<TradeQuote2, SwapErrorRight> & {
           swapperName: SwapperName
         })[] = []
         const quoteHelperArgs = [getTradeQuoteInput, state] as const
+        if (OsmosisSwap)
+          try {
+            const quote: Result<TradeQuote2, SwapErrorRight> = await getOsmosisTradeQuoteHelper(
+              ...quoteHelperArgs,
+            )
+            quotes.push({
+              ...quote,
+              swapperName: SwapperName.Osmosis,
+            })
+          } catch (error) {
+            console.error(error)
+          }
+
         if (LifiSwap)
           try {
             const quote: Result<TradeQuote2, SwapErrorRight> = await getLifiTradeQuoteHelper(

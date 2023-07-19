@@ -30,6 +30,11 @@ import { selectCryptoMarketData, selectUserCurrencyToUsdRate } from '../marketDa
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 
+export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSelector(
+  selectTradeQuoteSlice,
+  tradeQuote => tradeQuote.activeStep ?? 0,
+)
+
 const selectConfirmedQuote: Selector<ReduxState, TradeQuote2 | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
 
@@ -68,6 +73,12 @@ export const selectActiveQuote: Selector<ReduxState, TradeQuote2 | undefined> =
       return response?.quote
     },
   )
+
+export const selectIsLastStep: Selector<ReduxState, boolean> = createSelector(
+  selectActiveStepOrDefault,
+  selectActiveQuote,
+  (activeStep, tradeQuote) => Boolean(tradeQuote && tradeQuote.steps.length - 1 === activeStep),
+)
 
 export const selectActiveQuoteError: Selector<ReduxState, SwapErrorRight | undefined> =
   createDeepEqualOutputSelector(selectActiveSwapperApiResponse, response => response?.error)

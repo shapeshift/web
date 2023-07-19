@@ -277,6 +277,7 @@ export type UnsignedTx = SignTx<keyof ChainSignTx>
 export type TradeQuote2 = TradeQuote & {
   id: string
   receiveAddress: string
+  receiveAccountNumber?: number
   affiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper
 }
 

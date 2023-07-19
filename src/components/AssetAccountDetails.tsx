@@ -55,8 +55,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           gap={4}
         >
           {MultiHopTrades ? (
-            // TODO: Handle defaultBuyAssetId
-            <MultiHopTrade display={{ base: 'none', md: 'block' }} />
+            <MultiHopTrade display={{ base: 'none', md: 'block' }} defaultBuyAssetId={assetId} />
           ) : (
             <TradeCard display={{ base: 'none', md: 'block' }} defaultBuyAssetId={assetId} />
           )}

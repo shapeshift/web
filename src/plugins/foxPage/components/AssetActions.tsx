@@ -177,8 +177,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
             </TabPanel>
             <TabPanel textAlign='center' p={0}>
               {isFoxAsset && MultiHopTrades ? (
-                // TODO: Handle defaultBuyAssetId
-                <MultiHopTrade />
+                <MultiHopTrade defaultBuyAssetId={assetId} />
               ) : (
                 <TradeCard defaultBuyAssetId={assetId} />
               )}

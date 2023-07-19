@@ -43,6 +43,18 @@ export const routes: NestedRoute[] = [
     ],
   },
   {
+    path: '/assets/:chainId/:assetSubId/transactions',
+    label: 'navBar.transactions',
+    main: AssetTxHistory,
+    hide: true,
+  },
+  {
+    path: '/assets/:chainId/:assetSubId/:nftId/transactions',
+    label: 'navBar.transactions',
+    main: AssetTxHistory,
+    hide: true,
+  },
+  {
     path: '/assets',
     label: 'navBar.assets',
     main: Assets,
@@ -59,11 +71,6 @@ export const routes: NestedRoute[] = [
           path: '/',
           label: 'navBar.overview',
           main: Asset,
-        },
-        {
-          path: '/transactions',
-          label: 'navBar.transactions',
-          main: AssetTxHistory,
         },
       ],
     })),

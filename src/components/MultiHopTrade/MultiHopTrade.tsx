@@ -2,6 +2,7 @@ import { AnimatePresence } from 'framer-motion'
 import { useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch } from 'state/store'
@@ -13,11 +14,11 @@ import { TradeRoutePaths } from './types'
 
 const MultiHopEntries = [TradeRoutePaths.Input, TradeRoutePaths.Approval, TradeRoutePaths.Confirm]
 
-export const MultiHopTrade = () => {
+export const MultiHopTrade = ({ ...cardProps }: CardProps) => {
   const methods = useForm({ mode: 'onChange' })
 
   return (
-    <Card>
+    <Card {...cardProps}>
       <Card.Body py={6}>
         <FormProvider {...methods}>
           <MemoryRouter initialEntries={MultiHopEntries} initialIndex={0}>

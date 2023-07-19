@@ -55,7 +55,11 @@ export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
         maxWidth={{ base: 'full', xl: 'md' }}
         gap={4}
       >
-        {MultiHopTrades ? <MultiHopTrade /> : <TradeCard display={{ base: 'none', md: 'block' }} />}
+        {MultiHopTrades ? (
+          <MultiHopTrade display={{ base: 'none', md: 'block' }} />
+        ) : (
+          <TradeCard display={{ base: 'none', md: 'block' }} />
+        )}
       </Flex>
     </Stack>
   )

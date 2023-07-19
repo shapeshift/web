@@ -73,7 +73,11 @@ export const DashboardSidebar = () => {
   return (
     <Flex width='full' flexDir='column' gap={6}>
       <PromoCard data={promoData} />
-      {MultiHopTrades ? <MultiHopTrade /> : <TradeCard display={{ base: 'none', xl: 'block' }} />}
+      {MultiHopTrades ? (
+        <MultiHopTrade display={{ base: 'none', xl: 'block' }} />
+      ) : (
+        <TradeCard display={{ base: 'none', xl: 'block' }} />
+      )}
       <MissionSidebar />
       <EligibleCarousel />
       <RecentTransactions limit={8} viewMoreLink />

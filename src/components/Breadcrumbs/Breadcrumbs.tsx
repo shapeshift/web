@@ -90,6 +90,8 @@ const options: Options = {
     '/assets/:chainId/ibc\\:gamm/pool',
     '/trade/:chainId/ibc\\:gamm',
     '/trade/:chainId/ibc\\:gamm/pool',
+    // Making /assets/<nftAssetId>/transactions happy
+    '/assets/:chainId/:assetSubId',
   ],
 }
 

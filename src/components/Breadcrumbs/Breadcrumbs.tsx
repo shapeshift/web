@@ -62,11 +62,11 @@ const GetAssetName = (props: {
 
 const routes: BreadcrumbsRoute[] = [
   {
-    path: '/accounts/:accountId',
+    path: '/dashboard/accounts/:accountId',
     breadcrumb: GetAccountName,
     routes: [
-      { path: '/accounts/:accountId/transactions' },
-      { path: '/accounts/:accountId/:assetId', breadcrumb: GetAssetName },
+      { path: '/dashboard/accounts/:accountId/transactions' },
+      { path: '/dashboard/accounts/:accountId/:assetId', breadcrumb: GetAssetName },
     ],
   },
   {

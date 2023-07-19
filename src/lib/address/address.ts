@@ -38,6 +38,10 @@ export const parseMaybeUrlWithChainId = ({
       try {
         const parsedUrl = parseEthUrl(urlOrAddress)
 
+        if (parsedUrl.parameters?.address) {
+          throw new Error('QR codes with address parameter are not supported')
+        }
+
         return {
           assetId,
           maybeAddress: parsedUrl.target_address ?? urlOrAddress,

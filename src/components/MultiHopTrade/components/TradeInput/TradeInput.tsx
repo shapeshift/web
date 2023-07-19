@@ -11,6 +11,7 @@ import {
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
@@ -72,6 +73,7 @@ export const TradeInput = () => {
   const {
     state: { wallet },
   } = useWallet()
+  const { handleSubmit } = useFormContext()
   const dispatch = useAppDispatch()
   const mixpanel = getMixPanel()
   const history = useHistory()
@@ -195,7 +197,7 @@ export const TradeInput = () => {
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <SlideTransition>
-        <Stack spacing={6} as='form' onSubmit={onSubmit}>
+        <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={2}>
             <Flex alignItems='center' flexDir={{ base: 'column', md: 'row' }} width='full'>
               <TradeAssetSelect

@@ -1,9 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { cosmosChainId } from '@shapeshiftoss/caip'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ProtocolFee, SwapperName, TradeQuote2 } from 'lib/swapper/api'
+import type { ProtocolFee, TradeQuote2 } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectCryptoMarketData,
@@ -47,12 +49,33 @@ const _getReceiveSideAmountsCryptoBaseUnit = ({
   swapperName: SwapperName
 }) => {
   const lastStep = quote.steps[quote.steps.length - 1]
+  const firstStep = quote.steps[0]
+  const rate = lastStep.rate
   const slippageDecimalPercentage =
     quote.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(swapperName)
 
   const buyAmountCryptoBaseUnit = bn(lastStep.buyAmountBeforeFeesCryptoBaseUnit)
   const slippageAmountCryptoBaseUnit = buyAmountCryptoBaseUnit.times(slippageDecimalPercentage)
-  const buySideNetworkFeeCryptoBaseUnit = bn(0) // TODO(woodenfurniture): handle osmo swapper crazy network fee logic here
+
+  // Network fee represented as protocol fee for Osmosis swaps
+  const buySideNetworkFeeCryptoBaseUnit =
+    swapperName === SwapperName.Osmosis
+      ? (() => {
+          const isAtomOsmo = firstStep.sellAsset.chainId === cosmosChainId
+
+          // Subtract ATOM fees converted to OSMO for ATOM -> OSMO
+          if (isAtomOsmo) {
+            const otherDenomFee = lastStep.feeData.protocolFees[firstStep.sellAsset.assetId]
+            if (!otherDenomFee) return '0'
+            return bnOrZero(otherDenomFee.amountCryptoBaseUnit).times(rate)
+          }
+
+          const firstHopNetworkFee = firstStep.feeData.networkFeeCryptoBaseUnit
+          // Subtract the first-hop network fees for OSMO -> ATOM, which aren't automagically subtracted in the multi-hop abstraction
+          return bnOrZero(firstHopNetworkFee)
+        })()
+      : bn(0)
+
   const buySideProtocolFeeCryptoBaseUnit = bnOrZero(
     lastStep.feeData.protocolFees[lastStep.buyAsset.assetId]?.amountCryptoBaseUnit,
   )
@@ -165,9 +188,12 @@ export const getTotalProtocolFeeByAsset = (quote: TradeQuote2): Record<AssetId, 
           return innerAcc
         }
 
-        innerAcc[assetId].amountCryptoBaseUnit = bn(innerAcc[assetId].amountCryptoBaseUnit)
-          .plus(protocolFee.amountCryptoBaseUnit)
-          .toString()
+        innerAcc[assetId] = {
+          ...innerAcc[assetId],
+          amountCryptoBaseUnit: bn(innerAcc[assetId].amountCryptoBaseUnit)
+            .plus(protocolFee.amountCryptoBaseUnit)
+            .toString(),
+        }
         return innerAcc
       },
       acc,

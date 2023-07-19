@@ -107,8 +107,9 @@
     "wallet": "Wallet",
     "action": "Action",
     "feedbackAndSupport": "Feedback & Support",
-    "submitFeatureRequest": "Submit a Feature Request",
-    "getSupport": "Get Support"
+    "getSupport": "Get Support",
+    "viewMyWallet": "View My Wallet",
+    "submitFeatureRequest": "Submit a Feature Request"
   },
   "consentBanner": {
     "body": {
@@ -1782,7 +1783,14 @@
       "banner": {
         "title": "Get a Yat",
         "description": "Your Yat is your universal emoji username, website URL, payment address, and more."
-      }
+      },
+      "modal": {
+        "title": "Successfully linked Yat"
+      },
+      "linkedYat": "Linked Yat",
+      "yatConnected": "Yat Connected!",
+      "usdcAddress": "Yat USDC address",
+      "ethAddress": "Yat ETH address"
     }
   },
   "gasInput": {

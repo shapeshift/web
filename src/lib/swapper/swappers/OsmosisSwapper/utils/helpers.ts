@@ -85,8 +85,8 @@ const findPool = async (
 
   return maybePoolsResponse.andThen<FindPoolOutput>(poolsResponse => {
     const foundPool = find(poolsResponse.data.pools, pool => {
-      const token0Denom = pool.pool_assets[0].token.denom
-      const token1Denom = pool.pool_assets[1].token.denom
+      const token0Denom = pool.pool_assets?.[0].token.denom
+      const token1Denom = pool.pool_assets?.[1].token.denom
       return (
         (token0Denom === sellAssetDenom && token1Denom === buyAssetDenom) ||
         (token0Denom === buyAssetDenom && token1Denom === sellAssetDenom)
@@ -99,7 +99,7 @@ const findPool = async (
       )
 
     const { sellAssetIndex, buyAssetIndex } = (() => {
-      if (foundPool.pool_assets[0].token.denom === sellAssetDenom) {
+      if (foundPool.pool_assets?.[0].token.denom === sellAssetDenom) {
         return { sellAssetIndex: 0, buyAssetIndex: 1 }
       } else {
         return { sellAssetIndex: 1, buyAssetIndex: 0 }
@@ -115,12 +115,12 @@ const getPoolRateInfo = (
   pool: PoolInfo,
   sellAssetIndex: number,
   buyAssetIndex: number,
-): PoolRateInfo => {
-  const constantProduct = bnOrZero(pool.pool_assets[0].token.amount).times(
-    pool.pool_assets[1].token.amount,
-  )
-  const sellAssetInitialPoolSize = bnOrZero(pool.pool_assets[sellAssetIndex].token.amount)
-  const buyAssetInitialPoolSize = bnOrZero(pool.pool_assets[buyAssetIndex].token.amount)
+): Result<PoolRateInfo, SwapErrorRight> => {
+  const poolAssets = pool.pool_assets
+  if (!poolAssets) return Err(makeSwapErrorRight({ message: 'pool assets not found' }))
+  const constantProduct = bnOrZero(poolAssets[0].token.amount).times(poolAssets[1].token.amount)
+  const sellAssetInitialPoolSize = bnOrZero(poolAssets[sellAssetIndex].token.amount)
+  const buyAssetInitialPoolSize = bnOrZero(poolAssets[buyAssetIndex].token.amount)
 
   const initialMarketPrice = sellAssetInitialPoolSize.dividedBy(buyAssetInitialPoolSize)
   const sellAssetFinalPoolSize = sellAssetInitialPoolSize.plus(sellAmount)
@@ -133,12 +133,12 @@ const getPoolRateInfo = (
     .times(bnOrZero(pool.pool_params.swap_fee))
     .toFixed(0)
 
-  return {
+  return Ok({
     rate,
     priceImpact,
     buyAssetTradeFeeCryptoBaseUnit,
     buyAmountCryptoBaseUnit,
-  }
+  })
 }
 
 export const getRateInfo = async (
@@ -149,9 +149,12 @@ export const getRateInfo = async (
 ): Promise<Result<PoolRateInfo, SwapErrorRight>> => {
   const sellAmountOrDefault = sellAmount === '0' ? '1' : sellAmount
   const maybePool = await findPool(sellAsset, buyAsset, osmoUrl)
-  return maybePool.andThen(({ pool, sellAssetIndex, buyAssetIndex }) =>
-    Ok(getPoolRateInfo(sellAmountOrDefault, pool, sellAssetIndex, buyAssetIndex)),
-  )
+  return maybePool.match({
+    ok: ({ pool, sellAssetIndex, buyAssetIndex }) => {
+      return getPoolRateInfo(sellAmountOrDefault, pool, sellAssetIndex, buyAssetIndex)
+    },
+    err: err => Err(err),
+  })
 }
 
 type PerformIbcTransferInput = {

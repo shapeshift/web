@@ -19,6 +19,7 @@ import { NavLink } from 'react-router-dom'
 import FoxMissionsBg from 'assets/fox-missions-bg.jpg'
 import FoxArmyBg from 'assets/foxarmy-bg.png'
 import FoxAtarBg from 'assets/foxatar-card-bg.png'
+import FoxRewardsBg from 'assets/foxrewards-mission.png'
 import SponsorBg from 'assets/mission-sponsor-bg.jpg'
 import OptimismBg from 'assets/op-card-bg.png'
 import YatBg from 'assets/yat-mission-bg.png'
@@ -86,6 +87,14 @@ export const useGetMissions = () => {
         buttonText: translate('missions.yat.cta'),
         coverImage: YatBg,
         onClick: () => window.open('https://fantasy.y.at/invite/yduad7mm'),
+      },
+      {
+        title: translate('missions.foxRewards.title'),
+        subtitle: translate('missions.foxRewards.subtitle'),
+        buttonText: translate('missions.foxRewards.cta'),
+        coverImage: FoxRewardsBg,
+        startDate: '2025-01-01 7:00 AM',
+        onClick: () => window.open('https://app.shapeshift.com'),
       },
     ]
   }, [translate])

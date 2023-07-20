@@ -2008,6 +2008,11 @@
       "subtitle": "Your Project Here",
       "title": "Launch a Mission for Your Project",
       "cta": "Submit Project"
+    },
+    "foxRewards": {
+      "title": "Buy, sell, trade, earn, and more",
+      "subtitle": "Earn FOX",
+      "cta": "Start Mission"
     }
   },
   "avatar": {

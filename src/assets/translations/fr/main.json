@@ -107,6 +107,7 @@
     "wallet": "Porte-monnaie",
     "action": "Action",
     "feedbackAndSupport": "Feedback & Support",
+    "submitFeatureRequest": "Soumettre une idée de fonctionnalité",
     "getSupport": "Obtenir de l'aide"
   },
   "consentBanner": {
@@ -678,6 +679,7 @@
     "slowSwapBody": "Cet échange peut prendre quelques minutes pour se terminer.",
     "updatingQuote": "Mise à jour du devis...",
     "intoAssetSymbolBody": "Vous pouvez procéder à cet échange, mais l'historique des transactions de réception en %{assetSymbol} est temporairement indisponible",
+    "manualReceiveAddress": "Adresse de réception",
     "tooltip": {
       "rate": "C'est le taux estimé pour cette paire d'échange.",
       "noRateAvailable": "Cela est souvent dû à une liquidité très limitée ou inexistante sur la paire d'échange.",
@@ -686,7 +688,8 @@
       "protocol": "C'est le protocole avec lequel votre échange est routé.",
       "protocolLifi": "C'est le protocole par lequel votre échange est routé. LI.FI exécute une série de transactions intermédiaires pour trouver la meilleure combinaison globale de prix, de sécurité et de rapidité.",
       "protocolFee": "Il s'agit des frais facturés par le protocole sélectionné pour traiter cette transaction, il ne s'agit pas de frais facturés par ShapeShift",
-      "shapeshiftFee": "ShapeShift n'ajoute aucun frais sur les échanges 🎉"
+      "shapeshiftFee": "ShapeShift n'ajoute aucun frais sur les échanges 🎉",
+      "manualReceiveAddress": "C'est l'adresse à laquelle vous recevrez vos fonds. Elle a été saisie manuellement, veuillez vous assurer qu'elle est correcte."
     },
     "rates": {
       "tags": {

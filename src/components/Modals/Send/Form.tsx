@@ -2,7 +2,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
@@ -47,6 +47,8 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
+  const [addressError, setAddressError] = useState('')
+
   const methods = useForm<SendInput>({
     mode: 'onChange',
     defaultValues: {
@@ -76,6 +78,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   )
 
   const handleBack = useCallback(() => {
+    setAddressError('')
     history.goBack()
   }, [history])
 
@@ -83,21 +86,26 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     if (event.key === 'Enter') event.preventDefault()
   }, [])
 
+  // The QR code scanning was succesful, doesn't mean the address itself is valid
   const handleQrSuccess = useCallback(
     async (decodedText: string) => {
-      methods.setValue(SendFormFields.Input, decodedText.trim())
+      try {
+        methods.setValue(SendFormFields.Input, decodedText.trim())
 
-      const maybeUrlResult = await parseMaybeUrl({ urlOrAddress: decodedText })
-      if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision) {
-        const marketData = selectMarketDataById(store.getState(), maybeUrlResult.assetId ?? '')
-        methods.setValue(SendFormFields.CryptoAmount, maybeUrlResult.amountCryptoPrecision)
-        methods.setValue(
-          SendFormFields.FiatAmount,
-          bnOrZero(maybeUrlResult.amountCryptoPrecision).times(marketData.price).toString(),
-        )
+        const maybeUrlResult = await parseMaybeUrl({ urlOrAddress: decodedText })
+        if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision) {
+          const marketData = selectMarketDataById(store.getState(), maybeUrlResult.assetId ?? '')
+          methods.setValue(SendFormFields.CryptoAmount, maybeUrlResult.amountCryptoPrecision)
+          methods.setValue(
+            SendFormFields.FiatAmount,
+            bnOrZero(maybeUrlResult.amountCryptoPrecision).times(marketData.price).toString(),
+          )
+        }
+
+        history.push(SendRoutes.Address)
+      } catch (e: any) {
+        setAddressError(e.message)
       }
-
-      history.push(SendRoutes.Address)
     },
     [history, methods],
   )
@@ -124,7 +132,11 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
               <Details />
             </Route>
             <Route path={SendRoutes.Scan}>
-              <QrCodeScanner onSuccess={handleQrSuccess} onBack={handleBack} />
+              <QrCodeScanner
+                onSuccess={handleQrSuccess}
+                onBack={handleBack}
+                addressError={addressError}
+              />
             </Route>
             <Route path={SendRoutes.Confirm}>
               <Confirm />

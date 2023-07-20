@@ -29,8 +29,7 @@ const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   [ltcChainId]: 'litecoin',
 }
 
-const DANGEROUS_ETH_URL_ERROR =
-  'QR codes containing a contract address not supported. Please paste the destination address manually.'
+const DANGEROUS_ETH_URL_ERROR = 'modals.send.errors.qrDangerousEthUrl'
 
 export const parseMaybeUrlWithChainId = ({
   assetId,
@@ -133,7 +132,7 @@ export const parseMaybeUrl = async ({
   }
 
   // Validation failed for all ChainIds. Now this is an actual error.
-  throw new Error('Error decoding URL')
+  throw new Error('Address not found in QR code')
 }
 
 // validators - is a given value a valid vanity address, e.g. a .eth or a .crypto

@@ -140,15 +140,27 @@ export const getTradeRate = async ({
 
 // getTradeRate gets an *actual* trade rate from quote
 // In case it fails, we handle the error on the consumer and call this guy instead, which returns a price ratio from THOR pools instead
-// TODO(gomes): should this return a Result also?
 export const getTradeRateBelowMinimum = ({
   sellAssetId,
   buyAssetId,
 }: {
   sellAssetId: AssetId
   buyAssetId: AssetId
-}) =>
-  getPriceRatio({
-    sellAssetId,
-    buyAssetId,
-  })
+}): Promise<Result<string, SwapErrorRight>> => {
+  try {
+    return getPriceRatio({
+      sellAssetId,
+      buyAssetId,
+    })
+  } catch {
+    return Promise.resolve(
+      Err(
+        makeSwapErrorRight({
+          message: `[getTradeRateBelowMinimum]: Could not get a trade rate from Thorchain.`,
+          code: SwapErrorType.TRADE_QUOTE_FAILED,
+          details: { sellAssetId, buyAssetId },
+        }),
+      ),
+    )
+  }
+}

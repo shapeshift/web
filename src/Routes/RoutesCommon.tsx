@@ -17,6 +17,7 @@ import { Flags } from 'pages/Flags/Flags'
 import { Missions } from 'pages/Missions/Missions'
 import { Trade } from 'pages/Trade/Trade'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
+import { Yat } from 'pages/Yat/Yat'
 
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
@@ -42,6 +43,18 @@ export const routes: NestedRoute[] = [
     ],
   },
   {
+    path: '/assets/:chainId/:assetSubId/transactions',
+    label: 'navBar.transactions',
+    main: AssetTxHistory,
+    hide: true,
+  },
+  {
+    path: '/assets/:chainId/:assetSubId/:nftId/transactions',
+    label: 'navBar.transactions',
+    main: AssetTxHistory,
+    hide: true,
+  },
+  {
     path: '/assets',
     label: 'navBar.assets',
     main: Assets,
@@ -58,11 +71,6 @@ export const routes: NestedRoute[] = [
           path: '/',
           label: 'navBar.overview',
           main: Asset,
-        },
-        {
-          path: '/transactions',
-          label: 'navBar.transactions',
-          main: AssetTxHistory,
         },
       ],
     })),
@@ -124,5 +132,11 @@ export const routes: NestedRoute[] = [
       window.location.hostname !== 'localhost' &&
       window.location.hostname !== getConfig().REACT_APP_LOCAL_IP,
     main: Flags,
+  },
+  {
+    path: '/yat',
+    label: 'Yat',
+    hide: true,
+    main: Yat,
   },
 ]

@@ -113,7 +113,8 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   if (!feeAsset)
     throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset?.chainId}!`)
 
-  const quoteDifferenceDecimalPercentage = quoteData.inputOutputRatio / bestInputOutputRatio - 1
+  const quoteDifferenceDecimalPercentage =
+    (quoteData.inputOutputRatio / bestInputOutputRatio - 1) * -1
 
   const isAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
   const hasNegativeRatio =

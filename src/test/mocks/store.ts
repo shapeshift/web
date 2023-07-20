@@ -176,5 +176,6 @@ export const mockStore: ReduxState = {
   tradeQuoteSlice: {
     activeSwapperName: undefined,
     confirmedQuote: undefined,
+    activeStep: undefined,
   },
 }

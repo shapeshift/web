@@ -28,8 +28,6 @@ import {
   buildTradeTx,
   getRateInfo,
   performIbcTransfer,
-  pollForComplete,
-  pollForCrossChainComplete,
   symbolDenomMapping,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 import type {
@@ -43,6 +41,7 @@ import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
+import { pollForComplete, pollForCrossChainComplete } from './utils/poll'
 
 export class OsmosisSwapper implements Swapper<ChainId> {
   readonly name = SwapperName.Osmosis

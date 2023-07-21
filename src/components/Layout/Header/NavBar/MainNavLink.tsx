@@ -17,7 +17,7 @@ type SidebarLinkProps = {
 } & ButtonProps
 
 export const MainNavLink = memo(
-  forwardRef<SidebarLinkProps, 'div'>(({ isCompact, ...rest }: SidebarLinkProps, ref) => {
+  forwardRef<SidebarLinkProps, 'div'>(({ isCompact, onClick, ...rest }: SidebarLinkProps, ref) => {
     const { href, label, isNew } = rest
     const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`, { ssr: false })
     const translate = useTranslate()
@@ -37,6 +37,7 @@ export const MainNavLink = memo(
           justifyContent={{ base: isCompact ? 'center' : 'flex-start', '2xl': 'flex-start' }}
           variant='nav-link'
           isActive={isActive}
+          onClick={e => (isActive ? e.preventDefault() : onClick?.(e))}
           position='relative'
           minWidth={isCompact ? 'auto' : 10}
           iconSpacing={isLargerThan2xl ? 4 : isCompact ? 0 : 4}

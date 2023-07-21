@@ -7,12 +7,12 @@ import { osmosisSwapper } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapp
 import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
 import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper2'
 import { selectAssetsSortedByMarketCapUserCurrencyBalanceAndName } from 'state/slices/common-selectors'
-import { selectAssetIds, selectFeatureFlags, selectSellAsset } from 'state/slices/selectors'
+import { selectFeatureFlags, selectNonNftAssetIds, selectSellAsset } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useSupportedAssets = () => {
   const sellAsset = useAppSelector(selectSellAsset)
-  const assetIds = useAppSelector(selectAssetIds)
+  const nonNftAssetIds = useAppSelector(selectNonNftAssetIds)
   const sortedAssets = useAppSelector(selectAssetsSortedByMarketCapUserCurrencyBalanceAndName)
   const { LifiSwap, ThorSwap, ZrxSwap, OneInch, Cowswap, OsmosisSwap } =
     useAppSelector(selectFeatureFlags)
@@ -35,24 +35,26 @@ export const useSupportedAssets = () => {
   useEffect(() => {
     ;(async () => {
       const supportedAssetIds = await Promise.all(
-        enabledSwappers.map(({ filterAssetIdsBySellable }) => filterAssetIdsBySellable(assetIds)),
+        enabledSwappers.map(({ filterAssetIdsBySellable }) =>
+          filterAssetIdsBySellable(nonNftAssetIds),
+        ),
       )
       const supportedAssetIdsSet = new Set(supportedAssetIds.flat())
       setSupportedSellAssets(sortedAssets.filter(asset => supportedAssetIdsSet.has(asset.assetId)))
     })()
-  }, [assetIds, enabledSwappers, sortedAssets])
+  }, [nonNftAssetIds, enabledSwappers, sortedAssets])
 
   useEffect(() => {
     ;(async () => {
       const supportedAssetIds = await Promise.all(
         enabledSwappers.map(({ filterBuyAssetsBySellAssetId }) =>
-          filterBuyAssetsBySellAssetId({ assetIds, sellAssetId: sellAsset.assetId }),
+          filterBuyAssetsBySellAssetId({ nonNftAssetIds, sellAssetId: sellAsset.assetId }),
         ),
       )
       const supportedAssetIdsSet = new Set(supportedAssetIds.flat())
       setSupportedBuyAssets(sortedAssets.filter(asset => supportedAssetIdsSet.has(asset.assetId)))
     })()
-  }, [assetIds, enabledSwappers, sellAsset.assetId, sortedAssets])
+  }, [nonNftAssetIds, enabledSwappers, sellAsset.assetId, sortedAssets])
 
   return {
     supportedSellAssets,

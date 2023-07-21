@@ -27,7 +27,6 @@ export const WalletConnectV2Start = ({ history }: RouteComponentProps) => {
         <Text translation={'walletProvider.walletConnectV2.start.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={4} color='gray.500' translation={'walletProvider.walletConnectV2.start.body'} />
         <Stack mt={6} spacing={4}>
           <Button
             variant='ghost-filled'

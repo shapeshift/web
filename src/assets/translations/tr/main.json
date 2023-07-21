@@ -107,6 +107,7 @@
     "wallet": "Cüzdan",
     "action": "Aksiyon",
     "feedbackAndSupport": "Geribildirim ve Destek",
+    "submitFeatureRequest": "Özellik Talebi Gönderin",
     "getSupport": "Destek Al"
   },
   "consentBanner": {
@@ -678,6 +679,7 @@
     "slowSwapBody": "Bu takasın tamamlanması birkaç dakika sürebilir.",
     "updatingQuote": "Alıntı güncelleniyor...",
     "intoAssetSymbolBody": "Bu ticarete devam edebilirsiniz, ancak %{assetSymbol} almak için işlem geçmişi geçici olarak kullanılamıyor",
+    "manualReceiveAddress": "Alıcı adresi",
     "tooltip": {
       "rate": "Bu, bu işlem çifti için beklenen orandır.",
       "noRateAvailable": "Bunun nedeni genellikle ticaret çiftinde çok sınırlı veya hiç likidite olmamasıdır.",
@@ -686,7 +688,8 @@
       "protocol": "Bu, ticaretinizin yönlendirildiği protokoldür.",
       "protocolLifi": "Bu, ticaretinizin yönlendirildiği protokoldür. LI.FI, fiyat, güvenlik ve hızın en iyi genel kombinasyonu için başlık altında bir dizi aracı işlem yürütür.",
       "protocolFee": "Bu, bu işlemi gerçekleştirmek için seçilen protokol tarafından alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
-      "shapeshiftFee": "ShapeShift, işlemlerde ücret eklemiyor 🎉"
+      "shapeshiftFee": "ShapeShift, işlemlerde ücret eklemiyor 🎉",
+      "manualReceiveAddress": "Bu, fonunuzu çekeceğiniz adrestir. Manuel olarak girilmiştir, lütfen doğru olduğundan emin olun."
     },
     "rates": {
       "tags": {

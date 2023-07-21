@@ -28,6 +28,9 @@ const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   [dogeChainId]: 'doge',
   [ltcChainId]: 'litecoin',
 }
+
+const DANGEROUS_ETH_URL_ERROR = 'modals.send.errors.qrDangerousEthUrl'
+
 export const parseMaybeUrlWithChainId = ({
   assetId,
   chainId,
@@ -39,7 +42,7 @@ export const parseMaybeUrlWithChainId = ({
         const parsedUrl = parseEthUrl(urlOrAddress)
 
         if (parsedUrl.parameters?.address) {
-          throw new Error('QR codes with address parameter are not supported')
+          throw new Error(DANGEROUS_ETH_URL_ERROR)
         }
 
         return {
@@ -54,7 +57,8 @@ export const parseMaybeUrlWithChainId = ({
               }
             : {}),
         }
-      } catch (error) {
+      } catch (error: any) {
+        if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
         console.error(error)
       }
       break
@@ -119,14 +123,16 @@ export const parseMaybeUrl = async ({
           assetId,
         }
       }
-    } catch (error) {
-      // Error validating the current ChainId, not an actual error but the normal flow as we exhaust ChainIds parsing.
+    } catch (error: any) {
+      // We want this actual error to be rethrown as it's eventually user-facing
+      if (error.message === DANGEROUS_ETH_URL_ERROR) throw error
+      // All other errors means error validating the *current* ChainId, not an actual error but the normal flow as we exhaust ChainIds parsing.
       // Swallow the error and continue
     }
   }
 
   // Validation failed for all ChainIds. Now this is an actual error.
-  throw new Error('Invalid address')
+  throw new Error('Address not found in QR code')
 }
 
 // validators - is a given value a valid vanity address, e.g. a .eth or a .crypto

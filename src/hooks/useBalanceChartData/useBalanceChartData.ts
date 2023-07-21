@@ -5,13 +5,10 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
-import fill from 'lodash/fill'
 import head from 'lodash/head'
 import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
 import last from 'lodash/last'
-import reduce from 'lodash/reduce'
-import reverse from 'lodash/reverse'
 import values from 'lodash/values'
 import without from 'lodash/without'
 import { useEffect, useMemo, useState } from 'react'
@@ -39,9 +36,7 @@ import { useAppSelector } from 'state/store'
 import { excludeTransaction } from './cosmosUtils'
 import { CHART_ASSET_ID_BLACKLIST, makeBalanceChartData } from './utils'
 
-type BalanceByAssetId = {
-  [k: AssetId]: BigNumber // map of asset to base units
-}
+type BalanceByAssetId = Record<AssetId, BigNumber> // map of asset to base units
 
 type BucketBalance = {
   crypto: BalanceByAssetId
@@ -73,14 +68,25 @@ type MakeBucketsArgs = {
   balances: AssetBalancesById
 }
 
+// PERF: limit buckets to a limited number to prevent performance issues
+const NUM_BUCKETS = 100
+
 // adjust this to give charts more or less granularity
 export const timeframeMap: Record<HistoryTimeframe, BucketMeta> = {
-  [HistoryTimeframe.HOUR]: { count: 60, duration: 1, unit: 'minute' },
-  [HistoryTimeframe.DAY]: { count: 289, duration: 5, unit: 'minutes' },
-  [HistoryTimeframe.WEEK]: { count: 168, duration: 1, unit: 'hours' },
-  [HistoryTimeframe.MONTH]: { count: 362, duration: 2, unit: 'hours' },
-  [HistoryTimeframe.YEAR]: { count: 365, duration: 1, unit: 'days' },
-  [HistoryTimeframe.ALL]: { count: 262, duration: 1, unit: 'weeks' },
+  [HistoryTimeframe.HOUR]: { count: NUM_BUCKETS, duration: 60 / NUM_BUCKETS, unit: 'minute' },
+  [HistoryTimeframe.DAY]: {
+    count: NUM_BUCKETS,
+    duration: (24 * 60) / NUM_BUCKETS,
+    unit: 'minutes',
+  },
+  [HistoryTimeframe.WEEK]: { count: NUM_BUCKETS, duration: (7 * 24) / NUM_BUCKETS, unit: 'hours' },
+  [HistoryTimeframe.MONTH]: {
+    count: NUM_BUCKETS,
+    duration: (31 * 24) / NUM_BUCKETS,
+    unit: 'hours',
+  },
+  [HistoryTimeframe.YEAR]: { count: NUM_BUCKETS, duration: 365 / NUM_BUCKETS, unit: 'days' },
+  [HistoryTimeframe.ALL]: { count: NUM_BUCKETS, duration: 1, unit: 'weeks' },
 }
 
 type MakeBuckets = (args: MakeBucketsArgs) => MakeBucketsReturn
@@ -99,9 +105,14 @@ export const makeBuckets: MakeBuckets = args => {
     return acc
   }, {})
 
-  const makeReducer = (duration: number, unit: dayjs.ManipulateType) => {
-    const now = dayjs()
-    return (acc: Bucket[], _cur: unknown, idx: number) => {
+  const now = dayjs()
+
+  const meta = timeframeMap[timeframe]
+  const { count, duration, unit } = meta
+
+  const buckets = Array(count)
+    .fill(undefined)
+    .map((_value, idx) => {
       const end = now.subtract(idx * duration, unit)
       const start = end.subtract(duration, unit).add(1, 'second')
       const txs: Tx[] = []
@@ -110,15 +121,10 @@ export const makeBuckets: MakeBuckets = args => {
         crypto: assetBalances,
         fiat: zeroAssetBalances,
       }
-      const bucket = { start, end, txs, rebases, balance }
-      acc.push(bucket)
-      return acc
-    }
-  }
+      return { start, end, txs, rebases, balance }
+    })
+    .reverse()
 
-  const meta = timeframeMap[timeframe]
-  const { count, duration, unit } = meta
-  const buckets = reverse(reduce(fill(Array(count), 0), makeReducer(duration, unit), []))
   return { buckets, meta }
 }
 

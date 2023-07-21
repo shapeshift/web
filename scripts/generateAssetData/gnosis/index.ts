@@ -1,11 +1,11 @@
 import { gnosisChainId } from '@shapeshiftoss/caip'
 
 import { gnosis } from '../baseAssets'
-import * as coingecko from '../coingecko'
+import { getAssets as getCoingeckoAssets } from '../coingecko'
 import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIcon'
 
 export const getAssets = async () => {
-  const assets = await coingecko.getAssets(gnosisChainId)
+  const assets = await getCoingeckoAssets(gnosisChainId)
   return [...assets, gnosis].map(asset => ({
     ...asset,
     icon:

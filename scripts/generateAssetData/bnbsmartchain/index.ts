@@ -1,11 +1,11 @@
 import { bscChainId } from '@shapeshiftoss/caip'
 
 import { bnbsmartchain } from '../baseAssets'
-import * as coingecko from '../coingecko'
+import { getAssets as getCoingeckoAssets } from '../coingecko'
 import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIcon'
 
 export const getAssets = async () => {
-  const assets = await coingecko.getAssets(bscChainId)
+  const assets = await getCoingeckoAssets(bscChainId)
   return [...assets, bnbsmartchain].map(asset => ({
     ...asset,
     icon:

@@ -2,9 +2,6 @@ import { skipToken } from '@reduxjs/toolkit/dist/query'
 import type { AssetReference } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
-import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
-import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import crypto from 'crypto-browserify'
@@ -95,11 +92,11 @@ export const isValidAccountNumber = (
 export type PartialRecord<K extends keyof any, V> = Partial<Record<K, V>>
 
 export const walletCanEditMemo = (wallet: HDWallet): boolean => {
-  switch (true) {
-    case wallet instanceof KeepKeyHDWallet:
-    case wallet instanceof NativeHDWallet:
+  switch (wallet.getVendor()) {
+    case 'Native':
+    case 'KeepKey':
       return false
-    case wallet instanceof KeplrHDWallet:
+    case 'Keplr':
     default:
       return true
   }

@@ -11,8 +11,8 @@ import {
   Tag,
   Wrap,
 } from '@chakra-ui/react'
-import * as native from '@shapeshiftoss/hdwallet-native'
-import * as bip39 from 'bip39'
+import { crypto } from '@shapeshiftoss/hdwallet-native'
+import { generateMnemonic } from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
 import slice from 'lodash/slice'
@@ -27,8 +27,8 @@ import { useModal } from 'hooks/useModal/useModal'
 import type { LocationState } from './BackupPassphraseCommon'
 import { BackupPassphraseRoutes } from './BackupPassphraseCommon'
 
-const Revocable = native.crypto.Isolation.Engines.Default.Revocable
-const revocable = native.crypto.Isolation.Engines.Default.revocable
+const Revocable = crypto.Isolation.Engines.Default.Revocable
+const revocable = crypto.Isolation.Engines.Default.revocable
 
 const TEST_COUNT_REQUIRED = 3
 
@@ -65,7 +65,7 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
       if (!words || words.length < 12) {
         return setError('walletProvider.shapeShift.create.error')
       }
-      let randomWords = uniq(bip39.generateMnemonic(256).split(' '))
+      let randomWords = uniq(generateMnemonic(256).split(' '))
 
       const targetWordIndex = shuffledNumbers[testCount]
       const targetWord = words[targetWordIndex]

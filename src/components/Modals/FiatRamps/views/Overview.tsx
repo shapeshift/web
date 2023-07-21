@@ -18,7 +18,6 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -131,7 +130,7 @@ export const Overview: React.FC<OverviewProps> = ({
     }
   }, [address, toast, translate])
 
-  const supportsAddressVerification = useMemo(() => wallet instanceof KeepKeyHDWallet, [wallet])
+  const supportsAddressVerification = useMemo(() => wallet?.getVendor() === 'KeepKey', [wallet])
 
   const handleVerify = useCallback(async () => {
     if (!accountId) return

@@ -1,11 +1,9 @@
-import * as envalid from 'envalid'
-import { bool } from 'envalid'
+import type { ReporterOptions } from 'envalid'
+import { bool, cleanEnv, num, str, url } from 'envalid'
 import forEach from 'lodash/forEach'
 import memoize from 'lodash/memoize'
 
 import env from './env'
-
-const { cleanEnv, str, url, num } = envalid
 
 // add validators for each .env variable
 // note env vars must be prefixed with REACT_APP_
@@ -162,7 +160,7 @@ const validators = {
   REACT_APP_ADVANCED_SLIPPAGE: bool({ default: false }),
 }
 
-function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
+function reporter<T>({ errors }: ReporterOptions<T>) {
   forEach(errors, (err, key) => {
     if (!err) return
     err.message = key

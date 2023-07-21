@@ -6,7 +6,7 @@ import uniqBy from 'lodash/uniqBy'
 
 import type { Asset } from '../../../src/lib/asset-service'
 import { ethereum } from '../baseAssets'
-import * as coingecko from '../coingecko'
+import { getAssets as getCoingeckoAssets } from '../coingecko'
 import type { IdenticonOptions } from '../generateAssetIcon/generateAssetIcon'
 import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIcon'
 import { generateTrustWalletUrl } from '../generateTrustWalletUrl/generateTrustWalletUrl'
@@ -34,7 +34,7 @@ const foxyToken: Asset = {
 
 export const getAssets = async (): Promise<Asset[]> => {
   const [ethTokens, uniV2PoolTokens, idleTokens] = await Promise.all([
-    coingecko.getAssets(ethChainId),
+    getCoingeckoAssets(ethChainId),
     // getYearnVaults(),
     // getZapperTokens(),
     // getUnderlyingVaultTokens(),

@@ -4,7 +4,7 @@ import type { CosmosSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsCosmos } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import * as unchained from '@shapeshiftoss/unchained-client'
+import { cosmos } from '@shapeshiftoss/unchained-client'
 
 import { ErrorHandler } from '../../error/ErrorHandler'
 import type {
@@ -43,7 +43,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       chainId: DEFAULT_CHAIN_ID,
       defaultBIP44Params: ChainAdapter.defaultBIP44Params,
       denom: 'uatom',
-      parser: new unchained.cosmos.TransactionParser({
+      parser: new cosmos.TransactionParser({
         assetId: cosmosAssetId,
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
       }),

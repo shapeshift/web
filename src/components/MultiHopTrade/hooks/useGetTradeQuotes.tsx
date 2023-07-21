@@ -1,6 +1,5 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { DEFAULT_SWAPPER_DONATION_BPS } from 'components/MultiHopTrade/constants'
@@ -70,7 +69,7 @@ export const useGetTradeQuotes = () => {
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
         const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
         const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
-        const walletIsKeepKey = wallet && isKeepKey(wallet)
+        const walletIsKeepKey = wallet && wallet.getVendor() === 'KeepKey'
         const isFromEvm = isEvmChainId(sellAsset.chainId)
         // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
         const willDonate = walletIsKeepKey ? userWillDonate && !isFromEvm : userWillDonate

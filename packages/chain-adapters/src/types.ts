@@ -10,29 +10,42 @@ import type {
 import type { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 
-import * as cosmossdk from './cosmossdk/types'
-import * as evm from './evm/types'
+import type {
+  Account as CosmosSdkAccount,
+  BuildTxInput as CosmossdkBuildTxInput,
+  FeeData as CosmossdkFeeData,
+} from './cosmossdk/types'
+import type {
+  Account as EvmAccount,
+  BuildTxInput as EvmBuildTxInput,
+  FeeData as EvmFeeData,
+  GetFeeDataInput as EvmGetFeeDataInput,
+} from './evm/types'
 import type { UtxoChainId } from './utxo'
-import * as utxo from './utxo/types'
-
-export { cosmossdk, evm, utxo }
+import type {
+  Account as UtxoAccount,
+  BuildTxInput as UtxoBuildTxInput,
+  FeeData as UtxoFeeData,
+  GetAddressInput as UtxoGetAddressInput,
+  GetFeeDataInput as UtxoGetFeeDataInput,
+} from './utxo/types'
 
 type ChainSpecificAccount<T> = ChainSpecific<
   T,
   {
-    [KnownChainIds.EthereumMainnet]: evm.Account
-    [KnownChainIds.AvalancheMainnet]: evm.Account
-    [KnownChainIds.OptimismMainnet]: evm.Account
-    [KnownChainIds.BnbSmartChainMainnet]: evm.Account
-    [KnownChainIds.PolygonMainnet]: evm.Account
-    [KnownChainIds.GnosisMainnet]: evm.Account
-    [KnownChainIds.BitcoinMainnet]: utxo.Account
-    [KnownChainIds.BitcoinCashMainnet]: utxo.Account
-    [KnownChainIds.DogecoinMainnet]: utxo.Account
-    [KnownChainIds.LitecoinMainnet]: utxo.Account
-    [KnownChainIds.CosmosMainnet]: cosmossdk.Account
-    [KnownChainIds.OsmosisMainnet]: cosmossdk.Account
-    [KnownChainIds.ThorchainMainnet]: cosmossdk.Account
+    [KnownChainIds.EthereumMainnet]: EvmAccount
+    [KnownChainIds.AvalancheMainnet]: EvmAccount
+    [KnownChainIds.OptimismMainnet]: EvmAccount
+    [KnownChainIds.BnbSmartChainMainnet]: EvmAccount
+    [KnownChainIds.PolygonMainnet]: EvmAccount
+    [KnownChainIds.GnosisMainnet]: EvmAccount
+    [KnownChainIds.BitcoinMainnet]: UtxoAccount
+    [KnownChainIds.BitcoinCashMainnet]: UtxoAccount
+    [KnownChainIds.DogecoinMainnet]: UtxoAccount
+    [KnownChainIds.LitecoinMainnet]: UtxoAccount
+    [KnownChainIds.CosmosMainnet]: CosmosSdkAccount
+    [KnownChainIds.OsmosisMainnet]: CosmosSdkAccount
+    [KnownChainIds.ThorchainMainnet]: CosmosSdkAccount
   }
 >
 
@@ -58,19 +71,19 @@ export enum FeeDataKey {
 type ChainSpecificFeeData<T> = ChainSpecific<
   T,
   {
-    [KnownChainIds.EthereumMainnet]: evm.FeeData
-    [KnownChainIds.AvalancheMainnet]: evm.FeeData
-    [KnownChainIds.OptimismMainnet]: evm.FeeData
-    [KnownChainIds.BnbSmartChainMainnet]: evm.FeeData
-    [KnownChainIds.PolygonMainnet]: evm.FeeData
-    [KnownChainIds.GnosisMainnet]: evm.FeeData
-    [KnownChainIds.BitcoinMainnet]: utxo.FeeData
-    [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
-    [KnownChainIds.DogecoinMainnet]: utxo.FeeData
-    [KnownChainIds.LitecoinMainnet]: utxo.FeeData
-    [KnownChainIds.CosmosMainnet]: cosmossdk.FeeData
-    [KnownChainIds.OsmosisMainnet]: cosmossdk.FeeData
-    [KnownChainIds.ThorchainMainnet]: cosmossdk.FeeData
+    [KnownChainIds.EthereumMainnet]: EvmFeeData
+    [KnownChainIds.AvalancheMainnet]: EvmFeeData
+    [KnownChainIds.OptimismMainnet]: EvmFeeData
+    [KnownChainIds.BnbSmartChainMainnet]: EvmFeeData
+    [KnownChainIds.PolygonMainnet]: EvmFeeData
+    [KnownChainIds.GnosisMainnet]: EvmFeeData
+    [KnownChainIds.BitcoinMainnet]: UtxoFeeData
+    [KnownChainIds.BitcoinCashMainnet]: UtxoFeeData
+    [KnownChainIds.DogecoinMainnet]: UtxoFeeData
+    [KnownChainIds.LitecoinMainnet]: UtxoFeeData
+    [KnownChainIds.CosmosMainnet]: CosmossdkFeeData
+    [KnownChainIds.OsmosisMainnet]: CosmossdkFeeData
+    [KnownChainIds.ThorchainMainnet]: CosmossdkFeeData
   }
 >
 
@@ -159,19 +172,19 @@ export type UtxoBuildSendApiTxInput<T extends UtxoChainId> = Omit<BuildSendTxInp
 export type ChainSpecificBuildTxData<T> = ChainSpecific<
   T,
   {
-    [KnownChainIds.EthereumMainnet]: evm.BuildTxInput
-    [KnownChainIds.AvalancheMainnet]: evm.BuildTxInput
-    [KnownChainIds.OptimismMainnet]: evm.BuildTxInput
-    [KnownChainIds.BnbSmartChainMainnet]: evm.BuildTxInput
-    [KnownChainIds.PolygonMainnet]: evm.BuildTxInput
-    [KnownChainIds.GnosisMainnet]: evm.BuildTxInput
-    [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
-    [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
-    [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
-    [KnownChainIds.LitecoinMainnet]: utxo.BuildTxInput
-    [KnownChainIds.CosmosMainnet]: cosmossdk.BuildTxInput
-    [KnownChainIds.OsmosisMainnet]: cosmossdk.BuildTxInput
-    [KnownChainIds.ThorchainMainnet]: cosmossdk.BuildTxInput
+    [KnownChainIds.EthereumMainnet]: EvmBuildTxInput
+    [KnownChainIds.AvalancheMainnet]: EvmBuildTxInput
+    [KnownChainIds.OptimismMainnet]: EvmBuildTxInput
+    [KnownChainIds.BnbSmartChainMainnet]: EvmBuildTxInput
+    [KnownChainIds.PolygonMainnet]: EvmBuildTxInput
+    [KnownChainIds.GnosisMainnet]: EvmBuildTxInput
+    [KnownChainIds.BitcoinMainnet]: UtxoBuildTxInput
+    [KnownChainIds.BitcoinCashMainnet]: UtxoBuildTxInput
+    [KnownChainIds.DogecoinMainnet]: UtxoBuildTxInput
+    [KnownChainIds.LitecoinMainnet]: UtxoBuildTxInput
+    [KnownChainIds.CosmosMainnet]: CosmossdkBuildTxInput
+    [KnownChainIds.OsmosisMainnet]: CosmossdkBuildTxInput
+    [KnownChainIds.ThorchainMainnet]: CosmossdkBuildTxInput
   }
 >
 
@@ -240,21 +253,21 @@ export type GetAddressInputBase = {
   showOnDevice?: boolean
 }
 
-export type GetAddressInput = GetAddressInputBase | utxo.GetAddressInput
+export type GetAddressInput = GetAddressInputBase | UtxoGetAddressInput
 
 type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
   T,
   {
-    [KnownChainIds.EthereumMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.AvalancheMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.OptimismMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.BnbSmartChainMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.PolygonMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.GnosisMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
-    [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
-    [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
-    [KnownChainIds.LitecoinMainnet]: utxo.GetFeeDataInput
+    [KnownChainIds.EthereumMainnet]: EvmGetFeeDataInput
+    [KnownChainIds.AvalancheMainnet]: EvmGetFeeDataInput
+    [KnownChainIds.OptimismMainnet]: EvmGetFeeDataInput
+    [KnownChainIds.BnbSmartChainMainnet]: EvmGetFeeDataInput
+    [KnownChainIds.PolygonMainnet]: EvmGetFeeDataInput
+    [KnownChainIds.GnosisMainnet]: EvmGetFeeDataInput
+    [KnownChainIds.BitcoinMainnet]: UtxoGetFeeDataInput
+    [KnownChainIds.BitcoinCashMainnet]: UtxoGetFeeDataInput
+    [KnownChainIds.DogecoinMainnet]: UtxoGetFeeDataInput
+    [KnownChainIds.LitecoinMainnet]: UtxoGetFeeDataInput
   }
 >
 export type GetFeeDataInput<T extends ChainId> = {

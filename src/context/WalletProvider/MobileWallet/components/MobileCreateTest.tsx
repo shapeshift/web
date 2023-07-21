@@ -1,5 +1,5 @@
 import { Button, ModalBody, ModalHeader, SimpleGrid, Tag } from '@chakra-ui/react'
-import * as bip39 from 'bip39'
+import { generateMnemonic } from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
 import slice from 'lodash/slice'
@@ -39,7 +39,7 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
     if (testCount >= TEST_COUNT_REQUIRED || !vault) return
     try {
       const words = vault.getWords() ?? []
-      let randomWords = uniq(bip39.generateMnemonic(256).split(' '))
+      let randomWords = uniq(generateMnemonic(256).split(' '))
 
       const targetWordIndex = shuffledNumbers[testCount]
       const targetWord = words[targetWordIndex]

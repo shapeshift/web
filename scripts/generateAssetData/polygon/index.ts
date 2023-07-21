@@ -1,11 +1,11 @@
 import { polygonChainId } from '@shapeshiftoss/caip'
 
 import { polygon } from '../baseAssets'
-import * as coingecko from '../coingecko'
+import { getAssets as getCoingeckoAssets } from '../coingecko'
 import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIcon'
 
 export const getAssets = async () => {
-  const assets = await coingecko.getAssets(polygonChainId)
+  const assets = await getCoingeckoAssets(polygonChainId)
   return [...assets, polygon].map(asset => ({
     ...asset,
     icon:

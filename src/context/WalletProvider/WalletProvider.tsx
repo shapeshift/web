@@ -7,7 +7,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import * as native from '@shapeshiftoss/hdwallet-native'
+import { crypto } from '@shapeshiftoss/hdwallet-native'
 import type { WalletConnectProviderConfig } from '@shapeshiftoss/hdwallet-walletconnect'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { getConfig } from 'config'
@@ -803,7 +803,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: true })
     const adapterInstance = adapters[0].useKeyring(state.keyring)
     const wallet = (await adapterInstance.pairDevice(deviceId)) as NativeHDWallet
-    const { create } = native.crypto.Isolation.Engines.Dummy.BIP39.Mnemonic
+    const { create } = crypto.Isolation.Engines.Dummy.BIP39.Mnemonic
     await wallet.loadDevice({
       mnemonic: await create(PublicWalletXpubs),
       deviceId,

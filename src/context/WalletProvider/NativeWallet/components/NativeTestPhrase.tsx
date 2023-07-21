@@ -1,6 +1,6 @@
 import { Box, Button, Checkbox, Divider, ModalBody, ModalHeader, Tag, Wrap } from '@chakra-ui/react'
-import * as native from '@shapeshiftoss/hdwallet-native'
-import * as bip39 from 'bip39'
+import { crypto } from '@shapeshiftoss/hdwallet-native'
+import { generateMnemonic } from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
 import slice from 'lodash/slice'
@@ -11,8 +11,8 @@ import { RawText, Text } from 'components/Text'
 
 import type { NativeSetupProps } from '../types'
 
-const Revocable = native.crypto.Isolation.Engines.Default.Revocable
-const revocable = native.crypto.Isolation.Engines.Default.revocable
+const Revocable = crypto.Isolation.Engines.Default.Revocable
+const revocable = crypto.Isolation.Engines.Default.revocable
 
 const TEST_COUNT_REQUIRED = 3
 
@@ -49,7 +49,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
     try {
       const mnemonic = await vault.unwrap().get('#mnemonic')
       const words = mnemonic.split(' ')
-      let randomWords = uniq(bip39.generateMnemonic(256).split(' '))
+      let randomWords = uniq(generateMnemonic(256).split(' '))
 
       const targetWordIndex = shuffledNumbers[testCount]
       const targetWord = words[targetWordIndex]

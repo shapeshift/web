@@ -7,7 +7,7 @@ import {
   Textarea,
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
-import * as bip39 from 'bip39'
+import { validateMnemonic } from 'bip39'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -68,7 +68,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
                 },
                 validate: {
                   validMnemonic: value =>
-                    bip39.validateMnemonic(value.toLowerCase().trim()) ||
+                    validateMnemonic(value.toLowerCase().trim()) ||
                     translate('walletProvider.shapeShift.import.secretRecoveryPhraseError'),
                 },
               })}

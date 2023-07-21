@@ -1,11 +1,11 @@
 import { optimismChainId } from '@shapeshiftoss/caip'
 
 import { optimism } from '../baseAssets'
-import * as coingecko from '../coingecko'
+import { getAssets as getCoingeckoAssets } from '../coingecko'
 import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIcon'
 
 export const getAssets = async () => {
-  const assets = await coingecko.getAssets(optimismChainId)
+  const assets = await getCoingeckoAssets(optimismChainId)
   return [...assets, optimism].map(asset => ({
     ...asset,
     icon:

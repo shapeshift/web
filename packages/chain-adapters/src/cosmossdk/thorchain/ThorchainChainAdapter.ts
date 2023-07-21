@@ -4,7 +4,7 @@ import type { ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import * as unchained from '@shapeshiftoss/unchained-client'
+import { thorchain } from '@shapeshiftoss/unchained-client'
 
 import { ErrorHandler } from '../../error/ErrorHandler'
 import type {
@@ -50,7 +50,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       chainId: DEFAULT_CHAIN_ID,
       defaultBIP44Params: ChainAdapter.defaultBIP44Params,
       denom: 'rune',
-      parser: new unchained.thorchain.TransactionParser({
+      parser: new thorchain.TransactionParser({
         assetId: thorchainAssetId,
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
       }),

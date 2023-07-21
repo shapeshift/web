@@ -7,7 +7,7 @@ import {
   ModalHeader,
   Textarea,
 } from '@chakra-ui/react'
-import * as bip39 from 'bip39'
+import { validateMnemonic } from 'bip39'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -68,7 +68,7 @@ export const MobileImport = ({ history }: RouteComponentProps) => {
                 },
                 validate: {
                   validMnemonic: value =>
-                    bip39.validateMnemonic(value.toLowerCase().trim()) ||
+                    validateMnemonic(value.toLowerCase().trim()) ||
                     translate('walletProvider.shapeShift.import.secretRecoveryPhraseError'),
                 },
               })}

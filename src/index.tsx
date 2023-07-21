@@ -8,7 +8,7 @@ import { createRoot } from 'react-dom/client'
 import { renderConsoleArt } from 'lib/consoleArt'
 import { reportWebVitals } from 'lib/reportWebVitals'
 
-import * as serviceWorkerRegistration from './serviceWorkerRegistration'
+import { register as registerServiceWorker } from './serviceWorkerRegistration'
 
 const root = createRoot(document.getElementById('root')!)
 
@@ -20,7 +20,7 @@ root.render(
   </React.StrictMode>,
 )
 
-serviceWorkerRegistration.register()
+registerServiceWorker()
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

@@ -1,5 +1,4 @@
 import { ethAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { useMemo } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -29,7 +28,7 @@ export const useDonationAmountBelowMinimum = () => {
   const selectedCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
   const buyAmountUsd = bnOrZero(buyAmountUserCurrency).div(selectedCurrencyToUsdRate)
   const wallet = useWallet().state.wallet
-  const walletIsKeepKey = wallet && isKeepKey(wallet)
+  const walletIsKeepKey = wallet && wallet.getVendor() === 'KeepKey'
 
   // Some swappers have a minimum donation amount, whereby collecting below that amount will result in the donated amount being lost
   const isDonationAmountBelowMinimum = useMemo(() => {

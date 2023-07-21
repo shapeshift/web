@@ -36,7 +36,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
-  const [addressError, setAddressError] = useState('')
+  const [addressError, setAddressError] = useState<string | null>(null)
 
   const {
     qrCode: { isOpen, close: handleClose },
@@ -70,7 +70,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   )
 
   const handleBack = useCallback(() => {
-    setAddressError('')
+    setAddressError(null)
     history.goBack()
   }, [history])
 

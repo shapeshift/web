@@ -47,7 +47,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
-  const [addressError, setAddressError] = useState('')
+  const [addressError, setAddressError] = useState<string | null>(null)
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
@@ -78,7 +78,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   )
 
   const handleBack = useCallback(() => {
-    setAddressError('')
+    setAddressError(null)
     history.goBack()
   }, [history])
 

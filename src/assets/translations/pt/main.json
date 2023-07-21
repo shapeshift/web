@@ -107,6 +107,7 @@
     "wallet": "Carteira",
     "action": "Ação",
     "feedbackAndSupport": "Feedback & Suporte",
+    "submitFeatureRequest": "Requerer Uma Nova Funcionalidade",
     "getSupport": "Consiga Ajuda"
   },
   "consentBanner": {
@@ -678,6 +679,7 @@
     "slowSwapBody": "Este swap pode levar alguns minutos para ser concluído.",
     "updatingQuote": "Atualizando dados...",
     "intoAssetSymbolBody": "Você pode continuar com esta negociação, mas o histórico de transações para receber %{assetSymbol} está temporariamente indisponível",
+    "manualReceiveAddress": "Endereço de recebimento",
     "tooltip": {
       "rate": "Esta é a taxa esperada para a negociação do par.",
       "noRateAvailable": "Isso geralmente ocorre devido à liquidez limitada ou inexistente no par negociado.",
@@ -686,7 +688,8 @@
       "protocol": "Este é o protocolo onde sua negociação está sendo direcionada.",
       "protocolLifi": "Este é o protocolo para onde sua negociação está sendo direcionada. LI.FI intermedeia negociações, combinando o melhor preço, segurança e velocidade.",
       "protocolFee": "Esta é a taxa cobrada pelo protocolo selecionado para processar esta transação, esta não é uma taxa cobrada pela ShapeShift",
-      "shapeshiftFee": "A ShapeShift não adiciona taxas nas negociações 🎉"
+      "shapeshiftFee": "A ShapeShift não adiciona taxas nas negociações 🎉",
+      "manualReceiveAddress": "Este é o endereço para o qual você receberá seus fundos. Foi inserido manualmente, verifique se está correto."
     },
     "rates": {
       "tags": {

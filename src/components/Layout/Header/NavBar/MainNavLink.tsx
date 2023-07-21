@@ -1,9 +1,8 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Box, Button, forwardRef, Tag, Tooltip, useMediaQuery } from '@chakra-ui/react'
-import { memo, useMemo } from 'react'
+import { Box, Button, Tag, Tooltip, useMediaQuery } from '@chakra-ui/react'
+import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { NavLinkProps } from 'react-router-dom'
-import { matchPath, useLocation } from 'react-router-dom'
 import { CircleIcon } from 'components/Icons/Circle'
 import { breakpoints } from 'theme/theme'
 
@@ -14,22 +13,14 @@ type SidebarLinkProps = {
   to?: NavLinkProps['to']
   isCompact?: boolean
   isNew?: boolean
+  isActive?: boolean
 } & ButtonProps
 
 export const MainNavLink = memo(
-  forwardRef<SidebarLinkProps, 'div'>(({ isCompact, onClick, ...rest }: SidebarLinkProps, ref) => {
-    const { href, label, isNew } = rest
+  ({ isCompact, onClick, isNew, label, isActive, ...rest }: SidebarLinkProps) => {
     const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`, { ssr: false })
     const translate = useTranslate()
-    const location = useLocation()
-    const isActive = useMemo(() => {
-      const match = matchPath(location.pathname, {
-        path: href,
-        exact: false,
-        strict: false,
-      })
-      return !!match
-    }, [href, location.pathname])
+
     return (
       <Tooltip label={label} isDisabled={isLargerThan2xl || !isCompact} placement='right'>
         <Button
@@ -41,7 +32,6 @@ export const MainNavLink = memo(
           position='relative'
           minWidth={isCompact ? 'auto' : 10}
           iconSpacing={isLargerThan2xl ? 4 : isCompact ? 0 : 4}
-          ref={ref}
           {...rest}
         >
           <Box display={{ base: isCompact ? 'none' : 'flex', '2xl': 'block' }}>{label}</Box>
@@ -66,5 +56,5 @@ export const MainNavLink = memo(
         </Button>
       </Tooltip>
     )
-  }),
+  },
 )

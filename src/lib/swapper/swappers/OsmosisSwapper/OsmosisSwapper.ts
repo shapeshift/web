@@ -35,6 +35,7 @@ import type {
   OsmosisTradeResult,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
+import { store } from 'state/store'
 import { selectSellAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
@@ -307,6 +308,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       const pollResult = await pollForCrossChainComplete({
         initiatingChainTxid,
         initiatingChainAccountId,
+        getState: store.getState,
       })
       if (pollResult !== 'success')
         return Err(
@@ -375,7 +377,10 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const destinationChainAccountId = toAccountId({ chainId: osmosisChainId, account: osmoAddress })
     const destinationChainTxid = serializeTxIndex(destinationChainAccountId, tradeId, osmoAddress)
 
-    const pollResult = await pollForComplete({ txid: destinationChainTxid })
+    const pollResult = await pollForComplete({
+      txid: destinationChainTxid,
+      getState: store.getState,
+    })
     if (pollResult !== 'success')
       return Err(
         makeSwapErrorRight({
@@ -438,6 +443,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       const pollResult = await pollForCrossChainComplete({
         initiatingChainAccountId,
         initiatingChainTxid,
+        getState: store.getState,
       })
 
       if (pollResult !== 'success')

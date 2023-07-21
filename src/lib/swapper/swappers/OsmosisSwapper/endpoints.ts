@@ -1,10 +1,9 @@
-import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
+import { cosmosChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
 import type { cosmos, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { osmosis } from '@shapeshiftoss/chain-adapters'
 import type { CosmosSignTx } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
-import axios from 'axios'
 import { getConfig } from 'config'
 import { v4 as uuid } from 'uuid'
 import type {
@@ -22,10 +21,14 @@ import {
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 
 import { getTradeQuote } from './getTradeQuote/getMultiHopTradeQuote'
 import { COSMOSHUB_TO_OSMOSIS_CHANNEL, OSMOSIS_TO_COSMOSHUB_CHANNEL } from './utils/constants'
+import { pollForComplete, pollForCrossChainComplete } from './utils/poll'
 import type { OsmosisSupportedChainId } from './utils/types'
+
+const tradeQuoteMetadata: Map<string, TradeQuote2> = new Map()
 
 export const osmosisApi: Swapper2Api = {
   getTradeQuote: async (
@@ -37,7 +40,9 @@ export const osmosisApi: Swapper2Api = {
     return tradeQuoteResult.map(tradeQuote => {
       const { receiveAccountNumber, receiveAddress, affiliateBps } = input
       const id = uuid()
-      return { id, receiveAddress, receiveAccountNumber, affiliateBps, ...tradeQuote }
+      const quote = { id, receiveAddress, receiveAccountNumber, affiliateBps, ...tradeQuote }
+      tradeQuoteMetadata.set(id, quote)
+      return quote
     })
   },
 
@@ -155,29 +160,65 @@ export const osmosisApi: Swapper2Api = {
 
   checkTradeStatus: async ({
     txHash,
-    chainId,
+    quoteId,
+    stepIndex,
+    quoteSellAssetAccountId,
+    quoteBuyAssetAccountId,
+    getState,
   }): Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }> => {
     try {
-      const { REACT_APP_OSMOSIS_NODE_URL: osmoUrl, REACT_APP_COSMOS_NODE_URL: cosmosUrl } =
-        getConfig()
-      assertGetCosmosSdkChainAdapter(chainId)
+      const quote = tradeQuoteMetadata.get(quoteId)
+      const step = quote?.steps[stepIndex]
+      if (!step) throw new Error('Step not found')
+      const isAtomOsmoQuote =
+        step.sellAsset.chainId === cosmosChainId && step.buyAsset.chainId === osmosisChainId
+      const isIbcTransferStep = step.buyAsset.chainId !== step.sellAsset.chainId
+      if (!(quoteSellAssetAccountId && quoteBuyAssetAccountId))
+        throw new Error('quote AccountIds required to check osmosis trade status')
+      if (isIbcTransferStep) {
+        const stepSellAssetAccountId = isAtomOsmoQuote
+          ? quoteSellAssetAccountId
+          : quoteBuyAssetAccountId
+        const initiatingChainTxid = serializeTxIndex(
+          stepSellAssetAccountId,
+          txHash,
+          fromAccountId(stepSellAssetAccountId).account,
+        )
+        const pollResult = await pollForCrossChainComplete({
+          initiatingChainTxid,
+          initiatingChainAccountId: stepSellAssetAccountId,
+          getState,
+        })
+        const status = pollResult === 'success' ? TxStatus.Confirmed : TxStatus.Failed
 
-      const status = await (async () => {
-        const baseUrl = chainId === osmosisChainId ? osmoUrl : cosmosUrl
-        const txResponse = await axios.get(`${baseUrl}/lcd/txs/${txHash}`)
+        return {
+          status,
+          buyTxHash: txHash,
+          message: undefined,
+        }
+      } else {
+        const stepSellAssetAccountId = isAtomOsmoQuote
+          ? quoteBuyAssetAccountId
+          : quoteSellAssetAccountId
 
-        if (!txResponse?.data) return TxStatus.Pending
+        const txid = serializeTxIndex(
+          stepSellAssetAccountId,
+          txHash,
+          fromAccountId(stepSellAssetAccountId).account,
+        )
 
-        if (!txResponse?.data?.codespace && !!txResponse?.data?.gas_used) return TxStatus.Confirmed
-        if (txResponse?.data?.codespace) return TxStatus.Failed
+        const pollResult = await pollForComplete({
+          txid,
+          getState,
+        })
 
-        return TxStatus.Pending
-      })()
+        const status = pollResult === 'success' ? TxStatus.Confirmed : TxStatus.Failed
 
-      return {
-        status,
-        buyTxHash: txHash,
-        message: undefined,
+        return {
+          status,
+          buyTxHash: txHash,
+          message: undefined,
+        }
       }
     } catch (e) {
       console.error(e)

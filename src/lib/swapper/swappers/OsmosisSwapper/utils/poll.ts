@@ -3,18 +3,24 @@ import { cosmosChainId, fromAccountId, osmosisChainId, toAccountId } from '@shap
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { IbcMetadata } from '@shapeshiftoss/unchained-client/src/cosmossdk'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
+import type { ReduxState } from 'state/reducer'
 import { selectTxById, selectTxsByFilter } from 'state/slices/selectors'
-import { store } from 'state/store'
 
 // TODO: leverage chain-adapters websockets
-export const pollForComplete = ({ txid }: { txid: string }): Promise<string> => {
+export const pollForComplete = ({
+  txid,
+  getState,
+}: {
+  txid: string
+  getState: () => ReduxState
+}): Promise<string> => {
   return new Promise((resolve, reject) => {
     const timeout = 300000 // 5 mins
     const startTime = Date.now()
     const interval = 5000 // 5 seconds
 
     const poll = function () {
-      const tx = selectTxById(store.getState(), txid)
+      const tx = selectTxById(getState(), txid)
       if (tx?.status === TxStatus.Confirmed) {
         resolve('success')
       } else if (Date.now() - startTime > timeout) {
@@ -40,9 +46,12 @@ export const pollForComplete = ({ txid }: { txid: string }): Promise<string> => 
 export const pollForCrossChainComplete = ({
   initiatingChainTxid,
   initiatingChainAccountId,
+  getState,
 }: {
   initiatingChainAccountId: AccountId
   initiatingChainTxid: string
+  // Injecting this since we can't avoid circular dependencies when calling this from OsmosisSwapper/endpoints
+  getState: () => ReduxState
 }): Promise<string> => {
   return new Promise((resolve, reject) => {
     const timeout = 300000 // 5 mins
@@ -50,7 +59,7 @@ export const pollForCrossChainComplete = ({
     const interval = 5000 // 5 seconds
 
     const poll = function () {
-      const initiatingChainTx = selectTxById(store.getState(), initiatingChainTxid)
+      const initiatingChainTx = selectTxById(getState(), initiatingChainTxid)
       if (initiatingChainTx && initiatingChainTx.status === TxStatus.Confirmed) {
         // Initiating Tx is successful, now we need to wait for the destination tx to be picked up by validators
 
@@ -72,7 +81,7 @@ export const pollForCrossChainComplete = ({
           account: destinationChainAddress,
         })
 
-        const destinationAccountTxs = selectTxsByFilter(store.getState(), {
+        const destinationAccountTxs = selectTxsByFilter(getState(), {
           accountId: destinationChainAccountId,
         })
         const maybeFoundTx = destinationAccountTxs.some(

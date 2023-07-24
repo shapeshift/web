@@ -62,11 +62,11 @@ const GetAssetName = (props: {
 
 const routes: BreadcrumbsRoute[] = [
   {
-    path: '/accounts/:accountId',
+    path: '/dashboard/accounts/:accountId',
     breadcrumb: GetAccountName,
     routes: [
-      { path: '/accounts/:accountId/transactions' },
-      { path: '/accounts/:accountId/:assetId', breadcrumb: GetAssetName },
+      { path: '/dashboard/accounts/:accountId/transactions' },
+      { path: '/dashboard/accounts/:accountId/:assetId', breadcrumb: GetAssetName },
     ],
   },
   {
@@ -90,6 +90,8 @@ const options: Options = {
     '/assets/:chainId/ibc\\:gamm/pool',
     '/trade/:chainId/ibc\\:gamm',
     '/trade/:chainId/ibc\\:gamm/pool',
+    // Making /assets/<nftAssetId>/transactions happy
+    '/assets/:chainId/:assetSubId',
   ],
 }
 

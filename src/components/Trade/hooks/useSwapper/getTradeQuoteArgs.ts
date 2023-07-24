@@ -20,6 +20,8 @@ export type GetTradeQuoteInputArgs = {
   sellAccountNumber: number
   wallet: HDWallet
   receiveAddress: string
+  // Required for Osmo trades
+  receiveAccountNumber?: number
   sellAmountBeforeFeesCryptoPrecision: string
   allowMultiHop: boolean
   affiliateBps?: string
@@ -32,6 +34,7 @@ export const getTradeQuoteArgs = async ({
   sellAccountType,
   wallet,
   receiveAddress,
+  receiveAccountNumber,
   sellAmountBeforeFeesCryptoPrecision,
   allowMultiHop,
   affiliateBps,
@@ -63,6 +66,7 @@ export const getTradeQuoteArgs = async ({
       chainId: sellAsset.chainId,
       supportsEIP1559,
       sendAddress,
+      receiveAccountNumber,
     }
   } else if (isUtxoSwap(sellAsset?.chainId)) {
     if (!sellAccountType) return

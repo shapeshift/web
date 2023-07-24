@@ -107,8 +107,9 @@
     "wallet": "Wallet",
     "action": "Action",
     "feedbackAndSupport": "Feedback & Support",
-    "submitFeatureRequest": "Submit a Feature Request",
-    "getSupport": "Get Support"
+    "getSupport": "Get Support",
+    "viewMyWallet": "View My Wallet",
+    "submitFeatureRequest": "Submit a Feature Request"
   },
   "consentBanner": {
     "body": {
@@ -894,7 +895,8 @@
         "generic": "An error occurred.",
         "notEnoughNativeToken": "Not enough %{asset} to cover gas",
         "transactionRejected": "User has rejected the transaction",
-        "qrPermissions": "This feature needs camera access permissions in order to work. Please change your browser settings."
+        "qrPermissions": "This feature needs camera access permissions in order to work. Please change your browser settings.",
+        "qrDangerousEthUrl": "QR codes containing a contract address not supported. Please paste the destination address manually."
       },
       "confirm": {
         "sendAsset": "Send %{asset}",
@@ -1446,6 +1448,22 @@
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer.",
       "footer": "Don't have a wallet?",
       "create": "Create one"
+    },
+    "walletConnectV2": {
+      "start": {
+        "header": "Wallet Connect V2",
+        "load": "Saved connections",
+        "create": "Connect new wallet"
+      },
+      "load": {
+        "header": "Saved Connections",
+        "confirmForget": "Are you sure you want to forget %{connection}?",
+        "error": {
+          "delete": "Unable to delete your wallet, sorry.",
+          "noWallet": "You have no saved wallets",
+          "pair": "Unable to pair your wallet"
+        }
+      }
     }
   },
   "graph": {
@@ -1768,7 +1786,14 @@
       "banner": {
         "title": "Get a Yat",
         "description": "Your Yat is your universal emoji username, website URL, payment address, and more."
-      }
+      },
+      "modal": {
+        "title": "Successfully linked Yat"
+      },
+      "linkedYat": "Linked Yat",
+      "yatConnected": "Yat Connected!",
+      "usdcAddress": "Yat USDC address",
+      "ethAddress": "Yat ETH address"
     }
   },
   "gasInput": {
@@ -2002,6 +2027,11 @@
       "subtitle": "Your Project Here",
       "title": "Launch a Mission for Your Project",
       "cta": "Submit Project"
+    },
+    "foxRewards": {
+      "subtitle": "Buy, sell, trade, earn, and more",
+      "title": "Earn FOX",
+      "cta": "Start Mission"
     }
   },
   "avatar": {

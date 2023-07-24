@@ -93,6 +93,7 @@ export const mockStore: ReduxState = {
       MultiHopTrades: false,
       CoinbaseWallet: false,
       AdvancedSlippage: false,
+      WalletConnectV2: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
@@ -176,5 +177,6 @@ export const mockStore: ReduxState = {
   tradeQuoteSlice: {
     activeSwapperName: undefined,
     confirmedQuote: undefined,
+    activeStep: undefined,
   },
 }

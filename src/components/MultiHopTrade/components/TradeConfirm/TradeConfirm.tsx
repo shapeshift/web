@@ -52,6 +52,7 @@ import {
   selectFirstHopNetworkFeeCryptoPrecision,
   selectFirstHopSellAsset,
   selectFirstHopSellFeeAsset,
+  selectLastHop,
   selectLastHopBuyAsset,
   selectNetBuyAmountCryptoPrecision,
   selectNetBuyAmountUserCurrency,
@@ -117,6 +118,7 @@ export const TradeConfirm = () => {
   }, [dispatch, tradeQuote])
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
+  const lastStep = useAppSelector(selectLastHop)
   const swapperName = useAppSelector(selectActiveSwapperName)
   const defaultFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
   const netBuyAmountCryptoPrecision = useAppSelector(selectNetBuyAmountCryptoPrecision)
@@ -140,18 +142,38 @@ export const TradeConfirm = () => {
   const {
     executeTrade,
     sellTxHash,
+    buyTxHash,
     tradeStatus: status,
   } = useTradeExecution({ tradeQuote, swapperName })
 
+  const txHash = buyTxHash ?? sellTxHash
+
   const getSellTxLink = useCallback(
-    (sellTxId: string) =>
+    (sellTxHash: string) =>
       getTxLink({
         name: tradeQuoteStep?.sources[0]?.name,
         defaultExplorerBaseUrl: tradeQuoteStep?.sellAsset.explorerTxLink ?? '',
-        tradeId: sellTxId,
+        tradeId: sellTxHash,
       }),
     [tradeQuoteStep?.sellAsset.explorerTxLink, tradeQuoteStep?.sources],
   )
+
+  const getBuyTxLink = useCallback(
+    (buyTxHash: string) =>
+      getTxLink({
+        name: tradeQuoteStep?.sources[0]?.name,
+        defaultExplorerBaseUrl: lastStep?.buyAsset.explorerTxLink ?? '',
+        tradeId: buyTxHash,
+      }),
+    [lastStep?.buyAsset.explorerTxLink, tradeQuoteStep?.sources],
+  )
+
+  const txLink = useMemo(() => {
+    if (buyTxHash) return getBuyTxLink(buyTxHash)
+    if (sellTxHash) return getSellTxLink(sellTxHash)
+  }, [buyTxHash, getBuyTxLink, getSellTxLink, sellTxHash])
+
+  console.log({ sellTxHash, buyTxHash, txLink })
 
   useEffect(() => {
     const eventData = getMixpanelEventData()
@@ -166,11 +188,11 @@ export const TradeConfirm = () => {
   }, [mixpanel, status])
 
   const handleBack = useCallback(() => {
-    if (sellTxHash) {
+    if (txHash) {
       dispatch(tradeQuoteSlice.actions.clear())
     }
     history.push(TradeRoutePaths.Input)
-  }, [dispatch, history, sellTxHash])
+  }, [dispatch, history, txHash])
 
   const onSubmit = useCallback(async () => {
     try {
@@ -330,7 +352,7 @@ export const TradeConfirm = () => {
   const footer: JSX.Element = useMemo(
     () => (
       <Card.Footer px={0} py={0}>
-        {!sellTxHash && !isSubmitting && (
+        {!txHash && !isSubmitting && (
           <>
             {swapperName === SwapperName.LIFI && (
               <Alert status='warning' fontSize='sm' mt={6}>
@@ -352,7 +374,7 @@ export const TradeConfirm = () => {
         )}
       </Card.Footer>
     ),
-    [isSubmitting, sellTxHash, swapperName, translate],
+    [isSubmitting, txHash, swapperName, translate],
   )
 
   if (!tradeQuoteStep) return null
@@ -381,13 +403,13 @@ export const TradeConfirm = () => {
               {tradeWarning}
               {sendReceiveSummary}
               <Stack spacing={4}>
-                {sellTxHash && (
+                {txHash && (
                   <Row>
                     <Row.Label>
                       <RawText>{translate('common.txId')}</RawText>
                     </Row.Label>
                     <Box textAlign='right'>
-                      <Link isExternal color='blue.500' href={getSellTxLink(sellTxHash)}>
+                      <Link isExternal color='blue.500' href={txLink}>
                         <Text translation='trade.viewTransaction' />
                       </Link>
                     </Box>

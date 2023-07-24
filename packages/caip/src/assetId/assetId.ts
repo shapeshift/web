@@ -177,7 +177,10 @@ export const fromAssetId: FromAssetId = (assetId: string) => {
 
 // NOTE: perf critical - benchmark any changes
 export const isNft = (assetId: AssetId): boolean => {
-  const [, , assetNamespace] = assetId.split(':')
+  const slashIdx = assetId.indexOf('/')
+  const assetParts = assetId.substring(slashIdx + 1)
+  const idx = assetParts.indexOf(':')
+  const assetNamespace = assetParts.substring(0, idx)
   return ['erc721', 'erc1155', 'bep721', 'bep1155'].includes(assetNamespace)
 }
 

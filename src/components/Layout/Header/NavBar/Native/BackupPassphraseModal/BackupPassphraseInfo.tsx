@@ -40,10 +40,8 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
     setRevealed(!revealed)
   }
   const {
-    backupNativePassphrase: {
-      props: { preventClose },
-    },
-  } = useModal()
+    props: { preventClose },
+  } = useModal('backupNativePassphrase')
   const alertColor = useColorModeValue('blue.500', 'blue.200')
 
   useUnmountEffect(() => {

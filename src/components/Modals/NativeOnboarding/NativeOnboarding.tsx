@@ -20,9 +20,8 @@ import { OnboardPager } from './components/OnboardPager'
 import { OnboardingRoutes } from './config'
 
 export const NativeOnboarding = () => {
-  const { nativeOnboard } = useModal()
+  const { isOpen, close: closeModal } = useModal('nativeOnboard')
   const translate = useTranslate()
-  const { isOpen, close: closeModal } = nativeOnboard
   const renderRoutes = useMemo(() => {
     return OnboardingRoutes.map(route => (
       <Route key={route.path} path={route.path} component={route.component} />

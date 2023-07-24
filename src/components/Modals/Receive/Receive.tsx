@@ -15,8 +15,7 @@ type ReceivePropsType = {
 }
 
 const Receive = ({ asset, accountId }: ReceivePropsType) => {
-  const { receive } = useModal()
-  const { close, isOpen } = receive
+  const { close, isOpen } = useModal('receive')
 
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered>

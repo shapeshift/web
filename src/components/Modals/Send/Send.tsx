@@ -17,8 +17,7 @@ type SendModalProps = {
 
 export const SendModal = ({ assetId, accountId, input }: SendModalProps) => {
   const initialRef = useRef<HTMLInputElement>(null)
-  const { send } = useModal()
-  const { close, isOpen } = send
+  const { close, isOpen } = useModal('send')
 
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered initialFocusRef={initialRef}>

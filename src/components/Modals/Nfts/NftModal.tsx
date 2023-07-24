@@ -69,7 +69,7 @@ export type NftModalProps = {
 
 export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
   const dispatch = useAppDispatch()
-  const { nft: nftModal } = useModal()
+  const nftModal = useModal('nft')
   const nftItem = useAppSelector(state => selectNftById(state, nftAssetId))
 
   // This should never happen but it may

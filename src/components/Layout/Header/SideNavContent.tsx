@@ -21,7 +21,8 @@ type HeaderContentProps = {
 export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const { settings, feedbackSupport } = useModal()
+  const settings = useModal('settings')
+  const feedbackSupport = useModal('feedbackSupport')
   const isWalletConnectToDappsV1Enabled = useFeatureFlag('WalletConnectToDapps')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isWalletConnectToDappsEnabled =

@@ -13,8 +13,7 @@ type BackupPassphraseModalProps = {
 }
 
 export const BackupPassphraseModal: React.FC<BackupPassphraseModalProps> = ({ preventClose }) => {
-  const { backupNativePassphrase } = useModal()
-  const { close, isOpen } = backupNativePassphrase
+  const { close, isOpen } = useModal('backupNativePassphrase')
 
   return (
     <Modal

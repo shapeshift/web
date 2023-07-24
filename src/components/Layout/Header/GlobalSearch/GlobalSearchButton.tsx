@@ -76,7 +76,7 @@ export const GlobalSeachButton = () => {
   const resultsCount = flatResults.length
   const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
 
-  const { send } = useModal()
+  const send = useModal('send')
   useEffect(() => {
     if (!searchQuery) setActiveIndex(0)
   }, [searchQuery])

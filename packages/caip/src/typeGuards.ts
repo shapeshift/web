@@ -64,7 +64,9 @@ export const isChainId = (maybeChainId: ChainId | string): maybeChainId is Chain
 }
 
 export const isChainIdParts = (chainNamespace: string, chainReference: string): boolean => {
-  return !!VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference)
+  return !!VALID_CHAIN_IDS[chainNamespace as ChainNamespace]?.includes(
+    chainReference as ChainReference,
+  )
 }
 
 const getTypeGuardAssertion = <T>(

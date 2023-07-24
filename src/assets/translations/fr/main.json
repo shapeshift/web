@@ -107,8 +107,9 @@
     "wallet": "Porte-monnaie",
     "action": "Action",
     "feedbackAndSupport": "Feedback & Support",
-    "submitFeatureRequest": "Soumettre une idée de fonctionnalité",
-    "getSupport": "Obtenir de l'aide"
+    "getSupport": "Obtenir de l'aide",
+    "viewMyWallet": "Voir mon porte-monnaie",
+    "submitFeatureRequest": "Soumettre une idée de fonctionnalité"
   },
   "consentBanner": {
     "body": {
@@ -894,7 +895,8 @@
         "generic": "Une erreur s'est produite.",
         "notEnoughNativeToken": "Solde %{asset} insuffisant pour couvrir le carburant",
         "transactionRejected": "L'utilisateur a rejeté la transaction",
-        "qrPermissions": "Cette fonctionnalité nécessite des autorisations d'accès à la caméra pour fonctionner. Veuillez modifier les paramètres de votre navigateur."
+        "qrPermissions": "Cette fonctionnalité nécessite des autorisations d'accès à la caméra pour fonctionner. Veuillez modifier les paramètres de votre navigateur.",
+        "qrDangerousEthUrl": "Les codes QR contenant une adresse de contrat ne sont pas pris en charge. Veuillez coller l'adresse de destination manuellement."
       },
       "confirm": {
         "sendAsset": "Envoyer des %{asset}",
@@ -1444,6 +1446,22 @@
       "body": "En connectant un porte-monnaie, vous acceptez les conditions d'utilisation de ShapeShift et reconnaissez avoir lu et compris la clause de non-responsabilité de ShapeShift.",
       "footer": "Vous n'avez pas de porte-monnaie ?",
       "create": "Créez-en un"
+    },
+    "walletConnectV2": {
+      "start": {
+        "header": "Wallet Connect V2",
+        "load": "Connexions enregistrées",
+        "create": "Connecter un nouveau porte-monnaie"
+      },
+      "load": {
+        "header": "Connexions enregistrées",
+        "confirmForget": "Êtes-vous sûr de vouloir oublier %{connection} ?",
+        "error": {
+          "delete": "Impossible de supprimer votre porte-monnaie, désolé.",
+          "noWallet": "Vous n'avez aucun porte-monnaie enregistré",
+          "pair": "Impossible d'appairer votre porte-monnaie"
+        }
+      }
     }
   },
   "graph": {
@@ -1766,7 +1784,14 @@
       "banner": {
         "title": "Obtenir un Yat",
         "description": "Votre Yat est votre nom d'utilisateur emoji universel, l'URL de votre site Web, votre adresse de paiement, etc."
-      }
+      },
+      "modal": {
+        "title": "Yat lié avec succès"
+      },
+      "linkedYat": "Yat lié",
+      "yatConnected": "Yat connecté !",
+      "usdcAddress": "Adresse USDC du Yat",
+      "ethAddress": "Adresse ETH du Yat "
     }
   },
   "gasInput": {
@@ -2000,6 +2025,11 @@
       "subtitle": "Votre projet ici",
       "title": "Lancez une Mission pour votre projet",
       "cta": "Soumettez un projet"
+    },
+    "foxRewards": {
+      "subtitle": "Achat, vente, échange, gains et plus encore",
+      "title": "Gagnez des FOX",
+      "cta": "Commencez la mission"
     }
   },
   "avatar": {

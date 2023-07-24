@@ -1,5 +1,5 @@
 import { Collapse, Flex } from '@chakra-ui/react'
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import type { ApiQuote } from 'state/apis/swappers'
 import { selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -16,25 +16,29 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isOpen, sortedQuo
 
   const bestQuoteData = sortedQuotes[0]
 
-  const quotes = sortedQuotes.map((quoteData, i) => {
-    const { quote, swapperName } = quoteData
+  const quotes = useMemo(
+    () =>
+      sortedQuotes.map((quoteData, i) => {
+        const { quote, swapperName } = quoteData
 
-    // TODO(woodenfurniture): we may want to display per-swapper errors here
-    if (!quote) return null
+        // TODO(woodenfurniture): we may want to display per-swapper errors here
+        if (!quote) return null
 
-    // TODO(woodenfurniture): use quote ID when we want to support multiple quotes per swapper
-    const isActive = activeSwapperName === swapperName
+        // TODO(woodenfurniture): use quote ID when we want to support multiple quotes per swapper
+        const isActive = activeSwapperName === swapperName
 
-    return (
-      <TradeQuote
-        isActive={isActive}
-        isBest={i === 0}
-        key={swapperName}
-        quoteData={quoteData}
-        bestInputOutputRatio={bestQuoteData.inputOutputRatio}
-      />
-    )
-  })
+        return (
+          <TradeQuote
+            isActive={isActive}
+            isBest={i === 0}
+            key={swapperName}
+            quoteData={quoteData}
+            bestInputOutputRatio={bestQuoteData.inputOutputRatio}
+          />
+        )
+      }),
+    [activeSwapperName, bestQuoteData, sortedQuotes],
+  )
 
   return (
     <Collapse in={isOpen}>

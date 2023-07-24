@@ -8,7 +8,7 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useCallback } from 'react'
+import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { AssetSearchProps } from 'components/AssetSearch/AssetSearch'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
@@ -70,17 +70,17 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
 
 // multiple instances to prevent rerenders opening the modal in different parts of the app
 
-export const AssetSearchModal: FC<AssetSearchModalProps> = props => {
+export const AssetSearchModal: FC<AssetSearchModalProps> = memo(props => {
   const assetSearch = useModal('assetSearch')
   return <AssetSearchModalBase {...props} {...assetSearch} />
-}
+})
 
-export const SellAssetSearchModal: FC<AssetSearchModalProps> = props => {
+export const SellAssetSearchModal: FC<AssetSearchModalProps> = memo(props => {
   const sellAssetSearch = useModal('sellAssetSearch')
   return <AssetSearchModalBase {...props} {...sellAssetSearch} />
-}
+})
 
-export const BuyAssetSearchModal: FC<AssetSearchModalProps> = props => {
+export const BuyAssetSearchModal: FC<AssetSearchModalProps> = memo(props => {
   const buyAssetSearch = useModal('buyAssetSearch')
   return <AssetSearchModalBase {...props} {...buyAssetSearch} />
-}
+})

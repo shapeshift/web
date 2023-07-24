@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import { useMemo, useReducer } from 'react'
+import { useCallback, useMemo, useReducer } from 'react'
 
 import { modalContext } from './ModalContext'
 
@@ -56,11 +56,16 @@ export const createModalProviderInner = ({ key, Component }: CreateModalProvider
   return ({ children }: ModalProviderProps) => {
     const [state, dispatch] = useReducer(modalReducer, { isOpen: false })
 
+    const open = useCallback(
+      (props: React.ComponentProps<FC>) => dispatch({ type: OPEN_MODAL, props }),
+      [],
+    )
+
+    const close = useCallback(() => dispatch({ type: CLOSE_MODAL }), [])
+
     const value = useMemo(() => {
-      const open = (props: React.ComponentProps<FC>) => dispatch({ type: OPEN_MODAL, props })
-      const close = () => dispatch({ type: CLOSE_MODAL })
       return { open, close, isOpen: state.isOpen }
-    }, [state])
+    }, [close, open, state.isOpen])
 
     return (
       <Provider value={value}>

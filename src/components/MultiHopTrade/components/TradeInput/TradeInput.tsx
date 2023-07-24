@@ -143,11 +143,6 @@ export const TradeInput = memo(() => {
     [translate],
   )
 
-  // useEffect(() => console.log('sellAssetSearch'), [sellAssetSearch])
-  // useEffect(() => console.log('buyAssetSearch'), [buyAssetSearch])
-  // useEffect(() => console.log('setSellAsset'), [setSellAsset])
-  // useEffect(() => console.log('supportedSellAssets'), [supportedSellAssets])
-
   const handleSellAssetClick = useCallback(() => {
     sellAssetSearch.open({
       onClick: setSellAsset,
@@ -206,6 +201,26 @@ export const TradeInput = memo(() => {
   const shouldDisablePreviewButton = useMemo(() => {
     return quoteHasError || manualReceiveAddressIsValidating || isLoading || !isSellAmountEntered
   }, [isLoading, isSellAmountEntered, manualReceiveAddressIsValidating, quoteHasError])
+
+  const rightRegion = useMemo(
+    () =>
+      activeQuote ? (
+        <IconButton
+          size='sm'
+          icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
+          aria-label='Expand Quotes'
+          onClick={toggleShowTradeQuotes}
+        />
+      ) : (
+        <></>
+      ),
+    [activeQuote, showTradeQuotes, toggleShowTradeQuotes],
+  )
+
+  const tradeQuotes = useMemo(
+    () => <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes} />,
+    [showTradeQuotes, sortedQuotes],
+  )
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
@@ -270,20 +285,9 @@ export const TradeInput = memo(() => {
               showInputSkeleton={isLoading}
               showFiatSkeleton={isLoading}
               label={translate('trade.youGet')}
-              rightRegion={
-                activeQuote ? (
-                  <IconButton
-                    size='sm'
-                    icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
-                    aria-label='Expand Quotes'
-                    onClick={toggleShowTradeQuotes}
-                  />
-                ) : (
-                  <></>
-                )
-              }
+              rightRegion={rightRegion}
             >
-              <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes} />
+              {tradeQuotes}
             </TradeAssetInput>
           </Stack>
           <Stack

@@ -8,6 +8,8 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 // Make sure this array remains ordered from most to least specific to avoid early matching
 export const assetIdPaths = [
   '/:chainId/:assetSubId/pool/:poolId', // Osmosis LP token path template
+  '/:chainId/:assetSubId/:nftId/transactions', // DO NOT REMOVE - first match in case we're in a /transactions path, making sure the parsing is correct
+  '/:chainId/:assetSubId/transactions', // DO NOT REMOVE - first match in case we're in a /transactions path, making sure the parsing is correct
   '/:chainId/:assetSubId/:nftId', // NFT token path template
   '/:chainId/:assetSubId', // Standard asset path template
 ]

@@ -60,6 +60,10 @@ import { KeepKeyRoutes } from './routes'
 import { WalletConnectConnect } from './WalletConnect/components/Connect'
 import { WalletConnectFailure } from './WalletConnect/components/Failure'
 import { WalletConnectConfig } from './WalletConnect/config'
+import { WalletConnectV2Create } from './WalletConnectV2/components/Create'
+import { WalletConnectV2Load } from './WalletConnectV2/components/Load'
+import { WalletConnectV2Start } from './WalletConnectV2/components/Start'
+import { WalletConnectV2Config } from './WalletConnectV2/config'
 import { XDEFIConnect } from './XDEFI/components/Connect'
 import { XDEFIFailure } from './XDEFI/components/Failure'
 import { XDEFIConfig } from './XDEFI/config'
@@ -69,6 +73,7 @@ export interface SupportedWalletInfo {
   supportsMobile?: 'browser' | 'app' | 'both'
   icon: ComponentWithAs<'svg', IconProps>
   name: string
+  description?: string
   routes: RouteProps[]
   connectedWalletMenuRoutes?: RouteProps[]
   connectedWalletMenuInitialPath?: WalletConnectedRoutes
@@ -173,6 +178,14 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     routes: [
       { path: '/keplr/connect', component: KeplrConnect },
       { path: '/keplr/failure', component: KeplrFailure },
+    ],
+  },
+  [KeyManager.WalletConnectV2]: {
+    ...WalletConnectV2Config,
+    routes: [
+      { path: '/walletconnectv2/connect', component: WalletConnectV2Start },
+      { path: '/walletconnectv2/load', component: WalletConnectV2Load },
+      { path: '/walletconnectv2/create', component: WalletConnectV2Create },
     ],
   },
 }

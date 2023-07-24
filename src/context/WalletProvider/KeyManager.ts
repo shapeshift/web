@@ -8,4 +8,5 @@ export enum KeyManager {
   XDefi = 'xdefi',
   Keplr = 'keplr',
   Coinbase = 'coinbase',
+  WalletConnectV2 = 'walletconnectv2',
 }

@@ -110,6 +110,9 @@ export const isUtxoChainId = (chainId: ChainId): boolean =>
 export const accountIdToFeeAssetId = (accountId: AccountId): AssetId | undefined =>
   getChainAdapterManager().get(accountIdToChainId(accountId))?.getFeeAssetId()
 
+export const accountIdToChainDisplayName = (accountId: AccountId): AssetId | undefined =>
+  getChainAdapterManager().get(accountIdToChainId(accountId))?.getDisplayName()
+
 export const chainIdToFeeAssetId = (chainId: ChainId): AssetId | undefined =>
   getChainAdapterManager().get(chainId)?.getFeeAssetId()
 

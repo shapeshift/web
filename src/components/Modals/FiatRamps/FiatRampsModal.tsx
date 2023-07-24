@@ -17,8 +17,7 @@ export const FiatRampsModal: React.FC<FiatRampsModalProps> = ({
   assetId,
   accountId,
 }) => {
-  const { fiatRamps } = useModal()
-  const { close, isOpen } = fiatRamps
+  const { close, isOpen } = useModal('fiatRamps')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   return (

@@ -24,7 +24,7 @@ type ThorchainSaversEmptyProps = {
 
 export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyProps) => {
   const translate = useTranslate()
-  const { open: openFiatRamp } = useModal().fiatRamps
+  const { open: openFiatRamp } = useModal('fiatRamps')
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const filter = useMemo(() => ({ assetId }), [assetId])
   const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))

@@ -54,8 +54,7 @@ export const AddAccountModal = () => {
     selectMaybeNextAccountNumberByChainId(s, filter),
   )
 
-  const { addAccount } = useModal()
-  const { close, isOpen } = addAccount
+  const { close, isOpen } = useModal('addAccount')
 
   useEffect(() => {
     setSelectedChainId(chainIds[0])

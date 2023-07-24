@@ -52,10 +52,8 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
   const [, setError] = useState<string | null>(null)
   const [hasAlreadySaved, setHasAlreadySaved] = useState(false)
   const {
-    backupNativePassphrase: {
-      props: { preventClose },
-    },
-  } = useModal()
+    props: { preventClose },
+  } = useModal('backupNativePassphrase')
   const shuffledNumbers = useMemo(() => slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED), [])
 
   const shuffleMnemonic = useCallback(() => {

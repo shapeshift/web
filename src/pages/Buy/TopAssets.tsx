@@ -20,7 +20,7 @@ type AssetWithMarketData = ReturnType<typeof selectFiatRampBuyAssetsWithMarketDa
 type RowProps = Row<AssetWithMarketData>
 
 export const TopAssets: React.FC = () => {
-  const { fiatRamps } = useModal()
+  const fiatRamps = useModal('fiatRamps')
   const translate = useTranslate()
   const fiatRampBuyAssetsWithMarketData = useSelector(selectFiatRampBuyAssetsWithMarketData)
 

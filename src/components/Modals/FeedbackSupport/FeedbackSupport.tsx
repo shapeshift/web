@@ -17,8 +17,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 
 export const FeedbackAndSupport = () => {
-  const { feedbackSupport } = useModal()
-  const { close, isOpen } = feedbackSupport
+  const { close, isOpen } = useModal('feedbackSupport')
   const translate = useTranslate()
   const isChatwootEnabled = useFeatureFlag('Chatwoot')
 
@@ -46,7 +45,6 @@ export const FeedbackAndSupport = () => {
             )}
             <MainNavLink
               as={Link}
-              isExternal
               size='sm'
               href='https://discord.gg/RQhAMsadpu' // unique link to attribute visitors, rather than discord.gg/shapeshift
               label={translate('common.joinDiscord')}
@@ -58,7 +56,6 @@ export const FeedbackAndSupport = () => {
               as={Link}
               size='sm'
               label={translate('common.submitFeatureRequest')}
-              isExternal
               href='https://shapeshift.canny.io/feature-requests'
             />
           </Stack>

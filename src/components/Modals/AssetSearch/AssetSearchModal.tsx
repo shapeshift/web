@@ -17,13 +17,20 @@ import { useWindowSize } from 'hooks/useWindowSize/useWindowSize'
 import type { Asset } from 'lib/asset-service'
 import { breakpoints } from 'theme/theme'
 
-interface AssetSearchModalProps extends AssetSearchProps {
-  onClick: Required<AssetSearchProps>['onClick']
+type AssetSearchModalProps = AssetSearchProps & {
   title?: string
+  onClick: Required<AssetSearchProps>['onClick']
 }
 
-export const AssetSearchModal: FC<AssetSearchModalProps> = ({
+type AssetSearchModalBaseProps = AssetSearchModalProps & {
+  isOpen: boolean
+  close: () => void
+}
+
+export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   onClick,
+  close,
+  isOpen,
   assets,
   disableUnsupported,
   title = 'common.selectAsset',
@@ -31,9 +38,7 @@ export const AssetSearchModal: FC<AssetSearchModalProps> = ({
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { height: windowHeight } = useWindowSize()
-  const {
-    assetSearch: { close, isOpen },
-  } = useModal()
+
   const handleClick = useCallback(
     (asset: Asset) => {
       onClick(asset)
@@ -61,4 +66,21 @@ export const AssetSearchModal: FC<AssetSearchModalProps> = ({
       </ModalContent>
     </Modal>
   )
+}
+
+// multiple instances to prevent rerenders opening the modal in different parts of the app
+
+export const AssetSearchModal: FC<AssetSearchModalProps> = props => {
+  const assetSearch = useModal('assetSearch')
+  return <AssetSearchModalBase {...props} {...assetSearch} />
+}
+
+export const SellAssetSearchModal: FC<AssetSearchModalProps> = props => {
+  const sellAssetSearch = useModal('sellAssetSearch')
+  return <AssetSearchModalBase {...props} {...sellAssetSearch} />
+}
+
+export const BuyAssetSearchModal: FC<AssetSearchModalProps> = props => {
+  const buyAssetSearch = useModal('buyAssetSearch')
+  return <AssetSearchModalBase {...props} {...buyAssetSearch} />
 }

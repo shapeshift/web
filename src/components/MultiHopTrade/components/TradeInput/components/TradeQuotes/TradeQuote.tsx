@@ -151,13 +151,22 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     return borderColor
   })()
 
+  const hoverProps = useMemo(
+    () => ({ borderColor: isActive ? activeSwapperColor : hoverColor }),
+    [activeSwapperColor, hoverColor, isActive],
+  )
+  const activeProps = useMemo(
+    () => ({ borderColor: isActive ? activeSwapperColor : focusColor }),
+    [activeSwapperColor, focusColor, isActive],
+  )
+
   return totalReceiveAmountCryptoPrecision ? (
     <Flex
       borderWidth={1}
       cursor='pointer'
       borderColor={isActive ? activeSwapperColor : borderColor}
-      _hover={{ borderColor: isActive ? activeSwapperColor : hoverColor }}
-      _active={{ borderColor: isActive ? activeSwapperColor : focusColor }}
+      _hover={hoverProps}
+      _active={activeProps}
       borderRadius='xl'
       flexDir='column'
       gap={2}

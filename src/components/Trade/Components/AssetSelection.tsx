@@ -7,6 +7,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { memo, useEffect, useMemo } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
@@ -38,6 +39,18 @@ type TradeAssetSelectProps = {
   label: string
 }
 
+const footerPadding = { padding: 0 }
+const buttonProps = {
+  width: 'full',
+  borderTopRadius: 0,
+  px: 4,
+  fontSize: 'xs',
+  py: 4,
+  height: 'auto',
+}
+const boxProps = { m: 0, p: 0 }
+const borderRadius = { base: 'xl' }
+
 export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   onAccountIdChange: handleAccountIdChange,
   accountId,
@@ -52,12 +65,16 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, asset?.chainId ?? ''))
   const networkName = feeAsset?.networkName || feeAsset?.name
+
+  const hoverProps = useMemo(() => ({ bg: hoverBg }), [hoverBg])
+  const activeProps = useMemo(() => ({ bg: focusBg }), [focusBg])
+
   return (
     <Card
       bg={useColorModeValue('white', 'gray.850')}
       flex={1}
       borderColor={borderColor}
-      borderRadius={{ base: 'xl' }}
+      borderRadius={borderRadius}
       width='full'
       overflow='hidden'
     >
@@ -65,8 +82,8 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         display='flex'
         gap={1}
         flexDir='column'
-        _hover={{ bg: hoverBg }}
-        _active={{ bg: focusBg }}
+        _hover={hoverProps}
+        _active={activeProps}
         cursor='pointer'
         py={2}
         px={4}
@@ -86,20 +103,13 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         </Flex>
       </Card.Body>
       {assetId && (
-        <Card.Footer style={{ padding: 0 }} borderTopWidth={1} borderColor={borderColor}>
+        <Card.Footer style={footerPadding} borderTopWidth={1} borderColor={borderColor}>
           <AccountDropdown
-            {...(accountId ? { defaultAccountId: accountId } : {})}
+            defaultAccountId={accountId}
             assetId={assetId}
             onChange={handleAccountIdChange}
-            buttonProps={{
-              width: 'full',
-              borderTopRadius: 0,
-              px: 4,
-              fontSize: 'xs',
-              py: 4,
-              height: 'auto',
-            }}
-            boxProps={{ m: 0, p: 0 }}
+            buttonProps={buttonProps}
+            boxProps={boxProps}
             disabled={accountSelectionDisabled}
             autoSelectHighestBalance
           />
@@ -109,14 +119,12 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   )
 }
 
-export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
-  assetId,
-  accountId,
-  ...restAssetInputProps
-}) => {
-  return assetId ? (
-    <TradeAssetSelectWithAsset assetId={assetId} accountId={accountId} {...restAssetInputProps} />
-  ) : (
-    <TradeAssetAwaitingAsset />
-  )
-}
+export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(
+  ({ assetId, accountId, ...restAssetInputProps }) => {
+    return assetId ? (
+      <TradeAssetSelectWithAsset assetId={assetId} accountId={accountId} {...restAssetInputProps} />
+    ) : (
+      <TradeAssetAwaitingAsset />
+    )
+  },
+)

@@ -2,6 +2,7 @@ import type { AvatarProps } from '@chakra-ui/react'
 import { Avatar, Circle, Flex, useColorModeValue, useMultiStyleConfig } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { memo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -24,6 +25,19 @@ type AssetWithNetworkProps = {
   assetId: AssetId
 } & AvatarProps
 
+const before = {
+  content: '""',
+  width: '115%',
+  height: '115%',
+  backgroundColor: 'var(--chakra-colors-chakra-body-bg)',
+  borderRadius: 'full',
+  position: 'absolute',
+  left: '50%',
+  top: '50%',
+  transform: 'translate(-50%, -50%)',
+  zIndex: -1,
+}
+
 const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, src, ...rest }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
@@ -44,25 +58,14 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, src,
           bg='none'
           fontSize='inherit'
           src={feeAsset?.networkIcon ?? feeAsset?.icon}
-          _before={{
-            content: '""',
-            width: '115%',
-            height: '115%',
-            backgroundColor: 'var(--chakra-colors-chakra-body-bg)',
-            borderRadius: 'full',
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: -1,
-          }}
+          _before={before}
         />
       )}
     </Avatar>
   )
 }
 
-export const AssetIcon = ({ assetId, showNetworkIcon, src, ...rest }: AssetIconProps) => {
+export const AssetIcon = memo(({ assetId, showNetworkIcon, src, ...rest }: AssetIconProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const assetIconBg = useColorModeValue('gray.200', 'gray.700')
   const assetIconColor = useColorModeValue('gray.500', 'gray.500')
@@ -117,7 +120,7 @@ export const AssetIcon = ({ assetId, showNetworkIcon, src, ...rest }: AssetIconP
       {...rest}
     />
   )
-}
+})
 
 type WrappedIconProps = {
   wrapColor?: string

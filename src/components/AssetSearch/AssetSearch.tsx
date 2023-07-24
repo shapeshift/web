@@ -119,6 +119,8 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     [],
   )
 
+  const handleSubmit = useCallback((e: FormEvent<unknown>) => e.preventDefault(), [])
+
   return (
     <>
       <ChainList
@@ -126,14 +128,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
         onClick={handleChainClick}
         activeChain={activeChain}
       />
-      <Box
-        as='form'
-        mb={3}
-        px={4}
-        visibility='visible'
-        onSubmit={(e: FormEvent<unknown>) => e.preventDefault()}
-        {...formProps}
-      >
+      <Box as='form' mb={3} px={4} visibility='visible' onSubmit={handleSubmit} {...formProps}>
         <InputGroup size='lg'>
           {/* Override zIndex to prevent element displaying on overlay components */}
           <InputLeftElement pointerEvents='none' zIndex={1}>

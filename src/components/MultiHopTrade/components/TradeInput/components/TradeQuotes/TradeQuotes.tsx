@@ -1,4 +1,5 @@
 import { Collapse, Flex } from '@chakra-ui/react'
+import { memo } from 'react'
 import type { ApiQuote } from 'state/apis/swappers'
 import { selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -10,7 +11,7 @@ type TradeQuotesProps = {
   sortedQuotes: ApiQuote[]
 }
 
-export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, sortedQuotes }) => {
+export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isOpen, sortedQuotes }) => {
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
 
   const bestQuoteData = sortedQuotes[0]
@@ -42,4 +43,4 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = ({ isOpen, sortedQuotes }
       </Flex>
     </Collapse>
   )
-}
+})

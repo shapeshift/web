@@ -1,5 +1,5 @@
 import { Flex, Skeleton, useColorModeValue } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
@@ -52,7 +52,7 @@ const BreakdownCard: React.FC<StatCardProps> = ({
   )
 }
 
-export const PortfolioBreakdown = () => {
+export const PortfolioBreakdown = memo(() => {
   const history = useHistory()
   const earnUserCurrencyBalance = useAppSelector(selectEarnBalancesUserCurrencyAmountFull).toFixed()
   const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
@@ -96,4 +96,4 @@ export const PortfolioBreakdown = () => {
       />
     </Flex>
   )
-}
+})

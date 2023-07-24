@@ -31,9 +31,17 @@ export const isAssetReference = (
   Object.values(ASSET_REFERENCE).includes(maybeAssetReference as AssetReference)
 
 // NOTE: perf critical - benchmark any changes
-export const isAssetId = (maybeAssetId: AssetId | string): maybeAssetId is AssetReference => {
-  const [maybeChainNamespace, maybeChainReference, maybeAssetNamespace] = maybeAssetId.split(':')
-  return isAssetIdParts(maybeChainNamespace, maybeChainReference, maybeAssetNamespace)
+export const isAssetId = (maybeAssetId: AssetId | string): maybeAssetId is AssetId => {
+  const slashIdx = maybeAssetId.indexOf('/')
+  const chainId = maybeAssetId.substring(0, slashIdx)
+  const assetParts = maybeAssetId.substring(slashIdx + 1)
+
+  const { chainNamespace, chainReference } = fromChainId(chainId as ChainId)
+
+  const idx = assetParts.indexOf(':')
+  const assetNamespace = assetParts.substring(0, idx)
+
+  return isAssetIdParts(chainNamespace, chainReference, assetNamespace)
 }
 
 // NOTE: perf critical - benchmark any changes
@@ -52,6 +60,10 @@ export const isAssetIdParts = (
 // NOTE: perf critical - benchmark any changes
 export const isChainId = (maybeChainId: ChainId | string): maybeChainId is ChainId => {
   const { chainNamespace, chainReference } = fromChainId(maybeChainId as ChainId)
+  return !!VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference)
+}
+
+export const isChainIdParts = (chainNamespace: string, chainReference: string): boolean => {
   return !!VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference)
 }
 

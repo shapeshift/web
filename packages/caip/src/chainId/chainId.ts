@@ -1,5 +1,7 @@
 // https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-2.md
 
+import assert from 'assert'
+
 import type { CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../constants'
 import { assertIsChainId } from '../typeGuards'
 import type { Nominal } from '../utils'

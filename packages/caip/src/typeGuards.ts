@@ -1,50 +1,71 @@
 import type { AssetId, AssetNamespace, AssetReference } from './assetId/assetId'
 import type { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
-import { ASSET_NAMESPACE, ASSET_REFERENCE, CHAIN_NAMESPACE, CHAIN_REFERENCE } from './constants'
-import { isValidChainPartsPair, parseAssetIdRegExp } from './utils'
+import { fromChainId } from './chainId/chainId'
+import {
+  ASSET_NAMESPACE,
+  ASSET_REFERENCE,
+  CHAIN_NAMESPACE,
+  CHAIN_REFERENCE,
+  VALID_CHAIN_IDS,
+} from './constants'
+import { isValidChainPartsPair } from './utils'
 
 export const isChainNamespace = (
   maybeChainNamespace: ChainNamespace | string,
 ): maybeChainNamespace is ChainNamespace =>
-  Object.values(CHAIN_NAMESPACE).some(s => s === maybeChainNamespace)
+  Object.values(CHAIN_NAMESPACE).includes(maybeChainNamespace as ChainNamespace)
 
 export const isChainReference = (
   maybeChainReference: ChainReference | string,
 ): maybeChainReference is ChainReference =>
-  Object.values(CHAIN_REFERENCE).some(s => s === maybeChainReference)
+  Object.values(CHAIN_REFERENCE).includes(maybeChainReference as ChainReference)
 
 export const isAssetNamespace = (
   maybeAssetNamespace: AssetNamespace | string,
 ): maybeAssetNamespace is AssetNamespace =>
-  Object.values(ASSET_NAMESPACE).some(s => s === maybeAssetNamespace)
+  Object.values(ASSET_NAMESPACE).includes(maybeAssetNamespace as AssetNamespace)
 
 export const isAssetReference = (
   maybeAssetReference: AssetReference | string,
 ): maybeAssetReference is AssetReference =>
-  Object.values(ASSET_REFERENCE).some(s => s === maybeAssetReference)
+  Object.values(ASSET_REFERENCE).includes(maybeAssetReference as AssetReference)
 
-export const isAssetId = (maybeAssetId: AssetId | string): maybeAssetId is AssetReference => {
-  const matches = parseAssetIdRegExp.exec(maybeAssetId)
-  if (!matches) {
-    return false
-  }
-  const { 1: chainNamespace, 2: chainReference, 3: assetNamespace } = matches
+// NOTE: perf critical - benchmark any changes
+export const isAssetId = (maybeAssetId: AssetId | string): maybeAssetId is AssetId => {
+  const slashIdx = maybeAssetId.indexOf('/')
+  const chainId = maybeAssetId.substring(0, slashIdx)
+  const assetParts = maybeAssetId.substring(slashIdx + 1)
+
+  const { chainNamespace, chainReference } = fromChainId(chainId as ChainId)
+
+  const idx = assetParts.indexOf(':')
+  const assetNamespace = assetParts.substring(0, idx)
+
+  return isAssetIdParts(chainNamespace, chainReference, assetNamespace)
+}
+
+// NOTE: perf critical - benchmark any changes
+export const isAssetIdParts = (
+  maybeChainNamespace: string,
+  maybeChainReference: string,
+  maybeAssetNamespace: string,
+): boolean => {
   return (
-    isChainNamespace(chainNamespace) &&
-    isChainReference(chainReference) &&
-    isAssetNamespace(assetNamespace)
+    !!VALID_CHAIN_IDS[maybeChainNamespace as ChainNamespace]?.includes(
+      maybeChainReference as ChainReference,
+    ) && isAssetNamespace(maybeAssetNamespace)
   )
 }
 
+// NOTE: perf critical - benchmark any changes
 export const isChainId = (maybeChainId: ChainId | string): maybeChainId is ChainId => {
-  // https://regex101.com/r/iCqlyB/1
-  const chainIdRegExp = /(?<chainNamespace>[-a-z\d]{3,8}):(?<chainReference>[-a-zA-Z\d]{1,32})/
-  const [maybeChainNamespace, maybeChainReference] =
-    chainIdRegExp.exec(maybeChainId)?.slice(1) ?? []
-  return (
-    isChainNamespace(maybeChainNamespace) &&
-    isChainReference(maybeChainReference) &&
-    isValidChainPartsPair(maybeChainNamespace, maybeChainReference)
+  const { chainNamespace, chainReference } = fromChainId(maybeChainId as ChainId)
+  return !!VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference)
+}
+
+export const isChainIdParts = (chainNamespace: string, chainReference: string): boolean => {
+  return !!VALID_CHAIN_IDS[chainNamespace as ChainNamespace]?.includes(
+    chainReference as ChainReference,
   )
 }
 

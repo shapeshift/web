@@ -28,9 +28,9 @@ import {
 } from 'lib/utils/evm'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import {
-  selectAssetIds,
   selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
   selectBIP44ParamsByAccountId,
+  selectNonNftAssetIds,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
@@ -69,7 +69,7 @@ export const useSwapper = () => {
 
   // Selectors
   const flags = useSelector(selectFeatureFlags)
-  const assetIds = useSelector(selectAssetIds)
+  const nonNftAssetIds = useSelector(selectNonNftAssetIds)
   const sortedAssets = useSelector(selectAssetsSortedByMarketCapUserCurrencyBalanceAndName)
 
   // Hooks
@@ -82,7 +82,7 @@ export const useSwapper = () => {
     if (!swapperManager) return []
 
     const sellableAssetIds = swapperManager.getSupportedSellableAssetIds({
-      assetIds,
+      nonNftAssetIds,
     })
 
     const sellableAssetIdsSet: Set<AssetId> = new Set(sellableAssetIds)
@@ -94,21 +94,21 @@ export const useSwapper = () => {
     )
 
     return walletSupportedAssets
-  }, [swapperManager, assetIds, sortedAssets, wallet])
+  }, [swapperManager, nonNftAssetIds, sortedAssets, wallet])
 
   const supportedBuyAssetsByMarketCap = useMemo(() => {
     const sellAssetId = sellAsset?.assetId
     if (sellAssetId === undefined || !swapperManager) return []
 
     const buyableAssetIds = swapperManager.getSupportedBuyAssetIdsFromSellId({
-      assetIds,
+      nonNftAssetIds,
       sellAssetId,
     })
 
     const buyableAssetIdsSet: Set<AssetId> = new Set(buyableAssetIds)
 
     return sortedAssets.filter(asset => buyableAssetIdsSet.has(asset.assetId))
-  }, [sortedAssets, sellAsset?.assetId, assetIds, swapperManager])
+  }, [sortedAssets, sellAsset?.assetId, nonNftAssetIds, swapperManager])
 
   const sellAssetAccountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetId(state, { assetId: sellAsset?.assetId ?? '' }),

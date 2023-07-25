@@ -6,7 +6,7 @@ import { breakpoints } from 'theme/theme'
 
 import type { FiatRampAction } from './FiatRampsCommon'
 
-type FiatRampsModalProps = {
+export type FiatRampsModalProps = {
   assetId: AssetId
   accountId?: AccountId
   fiatRampAction: FiatRampAction

@@ -8,7 +8,7 @@ import { BackupPassphraseRouter } from './BackupPassphraseRouter'
 
 export const entries = Object.values(BackupPassphraseRoutes)
 
-type BackupPassphraseModalProps = {
+export type BackupPassphraseModalProps = {
   preventClose?: boolean
 }
 

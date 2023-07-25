@@ -1,31 +1,13 @@
 import { createContext } from 'react'
 
-import type { BaseProps } from './ModalContainer'
+import { MODAL_KEYS } from './constants'
+import type { BaseProps, ModalContext, Modals } from './types'
 
-export const modalContext: Record<string, React.Context<any>> = [
-  'receive',
-  'qrCode',
-  'send',
-  'fiatRamps',
-  'settings',
-  'keepKeyWipe',
-  'backupNativePassphrase',
-  'mobileWelcomeModal',
-  'addAccount',
-  'assetSearch',
-  'buyAssetSearch',
-  'sellAssetSearch',
-  'popup',
-  'nativeOnboard',
-  'nft',
-  'feedbackSupport',
-].reduce((acc, key) => ({ ...acc, [key]: createContext<any>({} as any) }), {})
-
-// testability
-export function createModalContext<M>(context?: M) {
-  return createContext<M>((context ?? {}) as M)
-}
-
-// context
-// If initial state is removed/set to null, the KeepKey wallet modals will break
-export const InnerModalContext = createModalContext<BaseProps>()
+export const modalContext: ModalContext = MODAL_KEYS.reduce<ModalContext>(
+  (acc, key: keyof Modals) => ({
+    ...acc,
+    // blatant cast as we inject the correct props during provider creation in ModalContainer
+    [key]: createContext<BaseProps<keyof Modals>>({} as BaseProps<keyof Modals>),
+  }),
+  {} as ModalContext,
+)

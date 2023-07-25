@@ -9,7 +9,7 @@ import { Form } from './Form'
 
 export const entries = Object.values(SendRoutes)
 
-type QrCodeModalProps = {
+export type QrCodeModalProps = {
   assetId?: AssetId
   accountId?: AccountId
 }

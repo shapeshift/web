@@ -136,11 +136,6 @@ export const TradeInput = () => {
     [translate],
   )
 
-  // useEffect(() => console.log('sellAssetSearch'), [sellAssetSearch])
-  // useEffect(() => console.log('buyAssetSearch'), [buyAssetSearch])
-  // useEffect(() => console.log('setSellAsset'), [setSellAsset])
-  // useEffect(() => console.log('supportedSellAssets'), [supportedSellAssets])
-
   const handleSellAssetClick = useCallback(() => {
     sellAssetSearch.open({
       onClick: setSellAsset,

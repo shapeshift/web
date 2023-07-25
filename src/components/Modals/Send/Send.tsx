@@ -9,7 +9,7 @@ import { SendRoutes } from './SendCommon'
 
 export const entries = Object.values(SendRoutes)
 
-type SendModalProps = {
+export type SendModalProps = {
   assetId?: AssetId
   accountId?: AccountId
   input?: string

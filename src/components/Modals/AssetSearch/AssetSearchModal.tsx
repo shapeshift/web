@@ -17,7 +17,7 @@ import { useWindowSize } from 'hooks/useWindowSize/useWindowSize'
 import type { Asset } from 'lib/asset-service'
 import { breakpoints } from 'theme/theme'
 
-type AssetSearchModalProps = AssetSearchProps & {
+export type AssetSearchModalProps = AssetSearchProps & {
   title?: string
   onClick: Required<AssetSearchProps>['onClick']
 }

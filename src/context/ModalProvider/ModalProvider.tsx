@@ -1,4 +1,3 @@
-import type { FC } from 'react'
 import React from 'react'
 import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
 import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
@@ -20,11 +19,12 @@ import { SettingsModal } from 'components/Modals/Settings/Settings'
 import { AddAccountModal } from 'pages/Accounts/AddAccountModal'
 
 import { createModalProviderInner } from './ModalContainer'
+import type { Modals } from './types'
 
 // to add new modals, add a new key: value pair below
 // the key is the name returned by the hook and the
 // component is the modal to be rendered
-const MODALS: Record<string, FC<any>> = {
+const MODALS: Modals = {
   receive: ReceiveModal,
   qrCode: QrCodeModal,
   send: SendModal,
@@ -41,14 +41,14 @@ const MODALS: Record<string, FC<any>> = {
   nativeOnboard: NativeOnboarding,
   nft: NftModal,
   feedbackSupport: FeedbackAndSupport,
-}
+} as const
 
 // provider
 export const createModalProvider = () => {
   let CombinedProvider = ({ children }: { children: React.ReactNode }) => <>{children}</>
 
   Object.entries(MODALS).forEach(([key, Component]) => {
-    const InnerProvider = createModalProviderInner({ key, Component })
+    const InnerProvider = createModalProviderInner({ key: key as keyof Modals, Component })
 
     const CurrentProvider = CombinedProvider
     CombinedProvider = ({ children }) => (

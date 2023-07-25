@@ -25,7 +25,7 @@ function popupCenterWindow(url: string, windowName: string, w: number, h: number
   )
 }
 
-type PopupWindowModalProps = {
+export type PopupWindowModalProps = {
   url: string
   title: string
   width?: number

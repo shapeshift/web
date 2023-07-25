@@ -1,6 +1,6 @@
 import type { ButtonProps } from '@chakra-ui/react'
 import { Box, Button, Tag, Tooltip, useMediaQuery } from '@chakra-ui/react'
-import { memo } from 'react'
+import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { NavLinkProps } from 'react-router-dom'
 import { CircleIcon } from 'components/Icons/Circle'
@@ -20,6 +20,10 @@ export const MainNavLink = memo(
   ({ isCompact, onClick, isNew, label, isActive, ...rest }: SidebarLinkProps) => {
     const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`, { ssr: false })
     const translate = useTranslate()
+    const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+      e => (isActive ? e.preventDefault() : onClick?.(e)),
+      [isActive, onClick],
+    )
 
     return (
       <Tooltip label={label} isDisabled={isLargerThan2xl || !isCompact} placement='right'>
@@ -28,7 +32,7 @@ export const MainNavLink = memo(
           justifyContent={{ base: isCompact ? 'center' : 'flex-start', '2xl': 'flex-start' }}
           variant='nav-link'
           isActive={isActive}
-          onClick={e => (isActive ? e.preventDefault() : onClick?.(e))}
+          onClick={handleClick}
           position='relative'
           minWidth={isCompact ? 'auto' : 10}
           iconSpacing={isLargerThan2xl ? 4 : isCompact ? 0 : 4}

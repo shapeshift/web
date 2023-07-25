@@ -3,7 +3,7 @@ import { Input, InputGroup, InputLeftElement, useColorModeValue } from '@chakra-
 import { forwardRef, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-const InputGroupMargin = [2, 3, 6]
+const inputGroupMargin = [2, 3, 6]
 
 export const TransactionHistorySearch = forwardRef<
   HTMLInputElement,
@@ -15,7 +15,7 @@ export const TransactionHistorySearch = forwardRef<
     [handleInputChange],
   )
   return (
-    <InputGroup mr={InputGroupMargin}>
+    <InputGroup mr={inputGroupMargin}>
       <InputLeftElement pointerEvents='none'>
         <SearchIcon color={useColorModeValue('gray.300', 'gray.750')} />
       </InputLeftElement>

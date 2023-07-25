@@ -81,7 +81,7 @@ export const Routes = memo(() => {
     [appRoutes, hasWallet, isUnstableRoute, location],
   )
 
-  const switchLocation = useMemo(() => location.state?.background || location, [location])
+  const locationProps = useMemo(() => location.state?.background || location, [location])
 
   const renderRedirect = useCallback(() => {
     return shouldRedirectDemoRoute ? (
@@ -93,7 +93,7 @@ export const Routes = memo(() => {
   }, [matchDemoPath?.params.appRoute, shouldRedirectDemoRoute])
 
   return (
-    <Switch location={switchLocation}>
+    <Switch location={locationProps}>
       <Route path='/demo'>{renderRedirect}</Route>
 
       <Route path='/connect-wallet'>

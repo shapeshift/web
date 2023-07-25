@@ -123,20 +123,20 @@ describe('CowSwapper', () => {
   describe('filterBuyAssetsBySellAssetId', () => {
     it('returns empty array when called with an empty assetIds array', () => {
       expect(
-        swapper.filterBuyAssetsBySellAssetId({ assetIds: [], sellAssetId: WETH.assetId }),
+        swapper.filterBuyAssetsBySellAssetId({ nonNftAssetIds: [], sellAssetId: WETH.assetId }),
       ).toEqual([])
     })
 
     it('returns empty array when called with sellAssetId that is not sellable', () => {
       expect(
         swapper.filterBuyAssetsBySellAssetId({
-          assetIds: ASSET_IDS,
+          nonNftAssetIds: ASSET_IDS,
           sellAssetId: ETH.assetId,
         }),
       ).toEqual([])
       expect(
         swapper.filterBuyAssetsBySellAssetId({
-          assetIds: ASSET_IDS,
+          nonNftAssetIds: ASSET_IDS,
           sellAssetId: 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
         }),
       ).toEqual([])
@@ -145,37 +145,37 @@ describe('CowSwapper', () => {
     it('returns array filtered out of non erc20 tokens when called with a sellable sellAssetId', () => {
       expect(
         swapper.filterBuyAssetsBySellAssetId({
-          assetIds: ASSET_IDS,
+          nonNftAssetIds: ASSET_IDS,
           sellAssetId: WETH.assetId,
         }),
       ).toEqual([ETH.assetId, WBTC.assetId, FOX_MAINNET.assetId])
       expect(
         swapper.filterBuyAssetsBySellAssetId({
-          assetIds: ASSET_IDS,
+          nonNftAssetIds: ASSET_IDS,
           sellAssetId: WBTC.assetId,
         }),
       ).toEqual([ETH.assetId, WETH.assetId, FOX_MAINNET.assetId])
       expect(
         swapper.filterBuyAssetsBySellAssetId({
-          assetIds: ASSET_IDS,
+          nonNftAssetIds: ASSET_IDS,
           sellAssetId: FOX_MAINNET.assetId,
         }),
       ).toEqual([ETH.assetId, WBTC.assetId, WETH.assetId])
     })
 
     it('returns array filtered out of unsupported tokens when called with a sellable sellAssetId', () => {
-      const assetIds = [
+      const nonNftAssetIds = [
         FOX_MAINNET.assetId,
         'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
       ]
       expect(
         swapper.filterBuyAssetsBySellAssetId({
-          assetIds,
+          nonNftAssetIds,
           sellAssetId: WETH.assetId,
         }),
       ).toEqual([FOX_MAINNET.assetId])
       expect(
-        swapper.filterBuyAssetsBySellAssetId({ assetIds, sellAssetId: FOX_MAINNET.assetId }),
+        swapper.filterBuyAssetsBySellAssetId({ nonNftAssetIds, sellAssetId: FOX_MAINNET.assetId }),
       ).toEqual([])
     })
   })

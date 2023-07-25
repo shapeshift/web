@@ -44,10 +44,7 @@ export const isTransactionParams = (
   !!transaction?.from &&
   !!transaction?.to &&
   !!transaction?.data &&
-  !!transaction?.value &&
-  !!transaction?.gasLimit &&
-  !!transaction?.gasPrice &&
-  !!transaction?.nonce
+  ((!!transaction?.gasLimit && !!transaction?.gasPrice) || !!transaction?.gas)
 
 export const assertIsTransactionParams: (
   transaction: TransactionParams | string | undefined,

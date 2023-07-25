@@ -87,6 +87,7 @@ export enum WalletConnectModal {
 
 export type CustomTransactionData = {
   nonce?: string
+  gas?: string
   gasLimit?: string
   speed: WalletConnectFeeDataKey
   customFee?: {
@@ -100,6 +101,7 @@ export type TransactionParams = {
   to: string
   data: string
   gasLimit?: string
+  gas?: string
   gasPrice?: string
   value?: string
   nonce?: string

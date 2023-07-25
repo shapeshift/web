@@ -2,7 +2,7 @@ import { Button, useMediaQuery } from '@chakra-ui/react'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import fileDownload from 'js-file-download'
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { getTransfers, getTxType } from 'hooks/useTxDetails/useTxDetails'
@@ -41,6 +41,8 @@ const jsonToCsv = (fields: Record<string, string>, rows: ReportRow[]): string =>
   return `${csvRows}\r\n`
 }
 
+const buttonMargin = [3, 3, 6]
+
 export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`, { ssr: false })
@@ -48,22 +50,25 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
   const assets = useAppSelector(selectAssets)
   const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
   const translate = useTranslate()
-  const fields = {
-    txid: translate('transactionHistory.csv.txid'),
-    type: translate('transactionHistory.csv.type'),
-    status: translate('transactionHistory.csv.status'),
-    timestamp: translate('transactionHistory.csv.timestamp'),
-    minerFee: translate('transactionHistory.csv.minerFee'),
-    minerFeeCurrency: translate('transactionHistory.csv.minerFeeCurrency'),
-    inputAmount: translate('transactionHistory.csv.inputAmount'),
-    inputCurrency: translate('transactionHistory.csv.inputCurrency'),
-    inputAddress: translate('transactionHistory.csv.inputAddress'),
-    outputAmount: translate('transactionHistory.csv.outputAmount'),
-    outputCurrency: translate('transactionHistory.csv.outputCurrency'),
-    outputAddress: translate('transactionHistory.csv.outputAddress'),
-  }
+  const fields = useMemo(
+    () => ({
+      txid: translate('transactionHistory.csv.txid'),
+      type: translate('transactionHistory.csv.type'),
+      status: translate('transactionHistory.csv.status'),
+      timestamp: translate('transactionHistory.csv.timestamp'),
+      minerFee: translate('transactionHistory.csv.minerFee'),
+      minerFeeCurrency: translate('transactionHistory.csv.minerFeeCurrency'),
+      inputAmount: translate('transactionHistory.csv.inputAmount'),
+      inputCurrency: translate('transactionHistory.csv.inputCurrency'),
+      inputAddress: translate('transactionHistory.csv.inputAddress'),
+      outputAmount: translate('transactionHistory.csv.outputAmount'),
+      outputCurrency: translate('transactionHistory.csv.outputCurrency'),
+      outputAddress: translate('transactionHistory.csv.outputAddress'),
+    }),
+    [translate],
+  )
 
-  const generateCSV = () => {
+  const generateCSV = useCallback(() => {
     setIsLoading(true)
 
     const report: ReportRow[] = []
@@ -121,11 +126,11 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [allTxs, assets, fields, marketData, translate, txIds])
 
   return isLargerThanLg ? (
     <Button
-      ml={[3, 3, 6]}
+      ml={buttonMargin}
       colorScheme='blue'
       variant='ghost-filled'
       isLoading={isLoading}

@@ -12,7 +12,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter } from 'react-router-dom'
@@ -150,10 +150,10 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
 
   if (isLocked) disconnect()
   const hasWallet = Boolean(walletInfo?.deviceId)
-  const handleConnect = () => {
+  const handleConnect = useCallback(() => {
     onClick && onClick()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }
+  }, [dispatch, onClick])
   return (
     <ButtonGroup width='full'>
       <Menu autoSelect={false}>

@@ -37,10 +37,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
   const [addressError, setAddressError] = useState<string | null>(null)
-
-  const {
-    qrCode: { isOpen, close: handleClose },
-  } = useModal()
+  const { isOpen, close: handleClose } = useModal('qrCode')
   const [walletConnectDappUrl, setWalletConnectDappUrl] = useState('')
 
   const methods = useForm<SendInput>({

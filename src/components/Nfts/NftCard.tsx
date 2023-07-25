@@ -49,7 +49,7 @@ export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
   const maybeFeeAssetId = maybeChainAdapter?.getFeeAssetId()
   const maybeFeeAsset = useAppSelector(state => selectAssetById(state, maybeFeeAssetId ?? ''))
 
-  const { nft: nftModal } = useModal()
+  const nftModal = useModal('nft')
 
   const handleClick = useCallback(() => {
     if (!collection) return

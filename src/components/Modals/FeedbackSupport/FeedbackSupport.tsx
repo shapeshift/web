@@ -17,8 +17,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 
 export const FeedbackAndSupport = () => {
-  const { feedbackSupport } = useModal()
-  const { close, isOpen } = feedbackSupport
+  const { close, isOpen } = useModal('feedbackSupport')
   const translate = useTranslate()
   const isChatwootEnabled = useFeatureFlag('Chatwoot')
 

@@ -9,14 +9,13 @@ import { ReceiveRouter } from './ReceiveRouter'
 
 export const entries = [ReceiveRoutes.Info, ReceiveRoutes.Select]
 
-type ReceivePropsType = {
+export type ReceivePropsType = {
   asset?: Asset
   accountId?: AccountId
 }
 
 const Receive = ({ asset, accountId }: ReceivePropsType) => {
-  const { receive } = useModal()
-  const { close, isOpen } = receive
+  const { close, isOpen } = useModal('receive')
 
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered>

@@ -7,8 +7,7 @@ import { ImportSuccess } from './views/ImportSuccess'
 import { Notice } from './views/Notice'
 
 export const MobileWelcomeModal = () => {
-  const { mobileWelcomeModal } = useModal()
-  const { close: handleClose, isOpen } = mobileWelcomeModal
+  const { close: handleClose, isOpen } = useModal('mobileWelcomeModal')
 
   return (
     <Modal

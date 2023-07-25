@@ -82,7 +82,8 @@ export const TradeInput = () => {
   const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(false)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const { assetSearch } = useModal()
+  const buyAssetSearch = useModal('buyAssetSearch')
+  const sellAssetSearch = useModal('sellAssetSearch')
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
@@ -136,20 +137,20 @@ export const TradeInput = () => {
   )
 
   const handleSellAssetClick = useCallback(() => {
-    assetSearch.open({
+    sellAssetSearch.open({
       onClick: setSellAsset,
       title: 'trade.tradeFrom',
       assets: supportedSellAssets,
     })
-  }, [assetSearch, setSellAsset, supportedSellAssets])
+  }, [sellAssetSearch, setSellAsset, supportedSellAssets])
 
   const handleBuyAssetClick = useCallback(() => {
-    assetSearch.open({
+    buyAssetSearch.open({
       onClick: setBuyAsset,
       title: 'trade.tradeTo',
       assets: supportedBuyAssets,
     })
-  }, [assetSearch, setBuyAsset, supportedBuyAssets])
+  }, [buyAssetSearch, setBuyAsset, supportedBuyAssets])
 
   const buyAmountBeforeFeesCryptoPrecision = useAppSelector(
     selectBuyAmountBeforeFeesCryptoPrecision,

@@ -4,7 +4,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 
 export const NativeMenu = () => {
-  const { backupNativePassphrase } = useModal()
+  const backupNativePassphrase = useModal('backupNativePassphrase')
 
   return (
     <>

@@ -25,8 +25,7 @@ const AccountHeader = () => {
     setIsMultiAccountWallet(wallet.supportsBip44Accounts())
   }, [wallet])
 
-  const { addAccount } = useModal()
-  const { open } = addAccount
+  const { open } = useModal('addAccount')
 
   return (
     <Stack

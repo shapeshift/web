@@ -19,9 +19,7 @@ export const App = () => {
   const translate = useTranslate()
   const showWelcomeModal = useSelector(selectShowWelcomeModal)
   const showConsentBanner = useSelector(selectShowConsentBanner)
-  const {
-    nativeOnboard: { isOpen: isNativeOnboardOpen, open: openNativeOnboard },
-  } = useModal()
+  const { isOpen: isNativeOnboardOpen, open: openNativeOnboard } = useModal('nativeOnboard')
 
   useEffect(() => {
     if (shouldUpdate && !toast.isActive(updateId)) {

@@ -33,7 +33,8 @@ export const EIP155TransactionConfirmation: FC<
   WalletConnectRequestModalProps<EthSendTransactionCallRequest | EthSignTransactionCallRequest>
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state }) => {
   const { address, transaction, isInteractingWithContract, method } = useWalletConnectState(state)
-  assertIsTransactionParams(transaction)
+
+  transaction && assertIsTransactionParams(transaction)
 
   const { feeAsset, fees, feeAssetPrice } = useCallRequestEvmFees(state)
 
@@ -46,10 +47,11 @@ export const EIP155TransactionConfirmation: FC<
 
   const form = useForm<CustomTransactionData>({
     defaultValues: {
-      nonce: transaction.nonce ? convertHexToNumber(transaction.nonce).toString() : undefined,
-      gasLimit: transaction.gasLimit
-        ? convertHexToNumber(transaction.gasLimit).toString()
-        : undefined,
+      nonce: transaction?.nonce ? convertHexToNumber(transaction.nonce).toString() : undefined,
+      gasLimit:
+        transaction?.gasLimit ?? transaction?.gas
+          ? convertHexToNumber((transaction?.gasLimit ?? transaction?.gas)!).toString()
+          : undefined,
       speed: FeeDataKey.Average,
       customFee: {
         baseFee: '0',
@@ -65,6 +67,7 @@ export const EIP155TransactionConfirmation: FC<
       </Center>
     )
 
+  if (!transaction) return null
   return (
     <FormProvider {...form}>
       <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.sendingFrom'>

@@ -8,6 +8,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import type { GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import {
@@ -88,6 +89,7 @@ export async function getTradeQuote(
       },
     }
 
+    getMixPanel()?.track('Swapper API request', { swapper: SwapperName.LIFI })
     const routesResponse = await lifi.getRoutes(routesRequest).catch((e: LifiError) => {
       const code = (() => {
         switch (e.code) {

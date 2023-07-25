@@ -1,5 +1,6 @@
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
+import { SwapperName } from 'lib/swapper/api'
 import { createCache, makeSwapperAxiosServiceMonadic } from 'lib/swapper/utils'
 
 const maxAge = 5 * 1000 // 5 seconds
@@ -17,4 +18,7 @@ const axiosConfig: AxiosRequestConfig = {
 }
 
 const oneInchServiceBase = axios.create(axiosConfig)
-export const oneInchService = makeSwapperAxiosServiceMonadic(oneInchServiceBase)
+export const oneInchService = makeSwapperAxiosServiceMonadic(
+  oneInchServiceBase,
+  SwapperName.OneInch,
+)

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { SwapperName } from 'lib/swapper/api'
 import { createCache, makeSwapperAxiosServiceMonadic } from 'lib/swapper/utils'
 
 // Important: maxAge should be small because inbound address info must be recent
@@ -20,4 +21,4 @@ const axiosConfig = {
 }
 
 const thorServiceBase = axios.create(axiosConfig)
-export const thorService = makeSwapperAxiosServiceMonadic(thorServiceBase)
+export const thorService = makeSwapperAxiosServiceMonadic(thorServiceBase, SwapperName.Thorchain)

@@ -171,7 +171,7 @@ export const TradeInput = () => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const { handleSubmit } = useFormContext()
   const wallet = useWallet().state.wallet
-  const { assetSearch } = useModal()
+  const assetSearch = useModal('assetSearch')
   const { handleAssetClick } = useTradeRoutes()
 
   const walletSupportsSellAssetChain = walletSupportsChain({ chainId: sellAssetChainId, wallet })

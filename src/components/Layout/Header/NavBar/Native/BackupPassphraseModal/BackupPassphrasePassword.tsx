@@ -37,11 +37,9 @@ export const BackupPassphrasePassword: React.FC<LocationState> = props => {
   const history = useHistory()
   const { state } = useWallet()
   const { walletInfo } = state
-  const {
-    backupNativePassphrase: {
-      props: { preventClose },
-    },
-  } = useModal()
+
+  const { props: backupNativePassphraseProps } = useModal('backupNativePassphrase')
+  const preventClose = backupNativePassphraseProps?.preventClose
 
   const [showPw, setShowPw] = useState<boolean>(false)
 

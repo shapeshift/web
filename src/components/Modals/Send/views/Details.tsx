@@ -64,7 +64,7 @@ export const Details = () => {
     [cryptoAmount, fiatAmount, setValue],
   )
 
-  const { send } = useModal()
+  const send = useModal('send')
   const {
     balancesLoading,
     fieldName,

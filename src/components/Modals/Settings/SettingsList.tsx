@@ -48,7 +48,7 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
   const history = useHistory()
   const { disconnect } = useWallet()
   const translate = useTranslate()
-  const { settings } = useModal()
+  const settings = useModal('settings')
   const { toggleColorMode } = useColorMode()
   const [clickCount, setClickCount] = useState<number>(0)
   const isLightMode = useColorModeValue(true, false)

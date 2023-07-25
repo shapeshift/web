@@ -44,7 +44,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
   } = useWallet()
 
   const { data: ramps } = useGetFiatRampsQuery()
-  const { assetSearch } = useModal()
+  const assetSearch = useModal('assetSearch')
 
   const buyAssets: Asset[] = useMemo(() => {
     const buyAssetIdsSet = new Set(ramps?.buyAssetIds ?? [])

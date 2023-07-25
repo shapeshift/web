@@ -69,7 +69,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
     state: { isConnected, isDemoWallet, wallet },
     dispatch,
   } = useWallet()
-  const { receive } = useModal()
+  const receive = useModal('receive')
 
   const walletSupportsETH = useMemo(() => Boolean(wallet && supportsETH(wallet)), [wallet])
 

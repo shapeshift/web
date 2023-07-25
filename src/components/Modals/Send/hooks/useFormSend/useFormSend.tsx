@@ -13,7 +13,8 @@ import { handleSend } from '../../utils'
 export const useFormSend = () => {
   const toast = useToast()
   const translate = useTranslate()
-  const { send, qrCode } = useModal()
+  const send = useModal('send')
+  const qrCode = useModal('qrCode')
   const {
     state: { wallet },
   } = useWallet()

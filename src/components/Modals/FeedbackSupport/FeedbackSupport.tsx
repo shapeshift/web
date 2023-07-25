@@ -45,6 +45,7 @@ export const FeedbackAndSupport = () => {
             )}
             <MainNavLink
               as={Link}
+              isExternal
               size='sm'
               href='https://discord.gg/RQhAMsadpu' // unique link to attribute visitors, rather than discord.gg/shapeshift
               label={translate('common.joinDiscord')}
@@ -56,6 +57,7 @@ export const FeedbackAndSupport = () => {
               as={Link}
               size='sm'
               label={translate('common.submitFeatureRequest')}
+              isExternal
               href='https://shapeshift.canny.io/feature-requests'
             />
           </Stack>

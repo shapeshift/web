@@ -161,11 +161,11 @@ export const TradeConfirm = () => {
   const getBuyTxLink = useCallback(
     (buyTxHash: string) =>
       getTxLink({
-        name: tradeQuoteStep?.sources[0]?.name,
+        name: lastStep?.sources[0]?.name,
         defaultExplorerBaseUrl: lastStep?.buyAsset.explorerTxLink ?? '',
         tradeId: buyTxHash,
       }),
-    [lastStep?.buyAsset.explorerTxLink, tradeQuoteStep?.sources],
+    [lastStep?.buyAsset.explorerTxLink, lastStep?.sources],
   )
 
   const txLink = useMemo(() => {

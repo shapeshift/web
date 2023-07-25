@@ -21,9 +21,6 @@ import { AddAccountModal } from 'pages/Accounts/AddAccountModal'
 import { createModalProviderInner } from './ModalContainer'
 import type { Modals } from './types'
 
-// to add new modals, add a new key: value pair below
-// the key is the name returned by the hook and the
-// component is the modal to be rendered
 const MODALS: Modals = {
   receive: ReceiveModal,
   qrCode: QrCodeModal,
@@ -43,7 +40,6 @@ const MODALS: Modals = {
   feedbackSupport: FeedbackAndSupport,
 } as const
 
-// provider
 export const createModalProvider = () => {
   let CombinedProvider = ({ children }: { children: React.ReactNode }) => <>{children}</>
 

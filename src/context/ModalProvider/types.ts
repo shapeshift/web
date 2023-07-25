@@ -1,6 +1,3 @@
-// to add new modals, add a new key: value pair below
-// the key is the name returned by the hook and the
-
 import type { FC } from 'react'
 import type { BackupPassphraseModalProps } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
 import type { AssetSearchModalProps } from 'components/Modals/AssetSearch/AssetSearchModal'
@@ -13,7 +10,6 @@ import type { SendModalProps } from 'components/Modals/Send/Send'
 
 import type { CLOSE_MODAL, OPEN_MODAL } from './constants'
 
-// component is the modal to be rendered
 export type Modals = {
   receive: ({ asset, accountId }: ReceivePropsType) => JSX.Element
   qrCode: ({ assetId, accountId }: QrCodeModalProps) => JSX.Element

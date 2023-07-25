@@ -5,6 +5,7 @@ import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import type { ISetupCache } from 'axios-cache-adapter'
 import { setupCache } from 'axios-cache-adapter'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import { AsyncResultOf } from 'lib/utils'
 
 import type { SwapErrorRight, SwapperName } from './api'
@@ -61,7 +62,11 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, swapperNa
     get: (trappedAxios, method: 'get' | 'post') => {
       const originalMethodPromise = trappedAxios[method]
       return async (...args: [url: string, dataOrConfig?: any, dataOrConfig?: any]) => {
-        getMixPanel()?.track('Swapper API request', { swapper: swapperName, url: args[0], method })
+        getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
+          swapper: swapperName,
+          url: args[0],
+          method,
+        })
         const result = await AsyncResultOf(originalMethodPromise(...args))
 
         return result

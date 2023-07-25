@@ -74,7 +74,7 @@ export const GlobalSeachButton = () => {
   const [assetResults, stakingResults, lpResults, txResults] = results
   const flatResults = useMemo(() => [...results, sendResults].flat(), [results, sendResults])
   const resultsCount = flatResults.length
-  const isMac = /Mac/.test(navigator.userAgent)
+  const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
 
   const send = useModal('send')
   useEffect(() => {

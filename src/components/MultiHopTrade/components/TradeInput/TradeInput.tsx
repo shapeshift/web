@@ -1,4 +1,5 @@
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Button,
   Flex,
@@ -10,7 +11,8 @@ import {
 } from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import type { Property } from 'csstype'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -68,7 +70,12 @@ import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 
-export const TradeInput = () => {
+const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+const marginHorizontal = { base: 0, md: -3 }
+const marginVertical = { base: -3, md: 0 }
+const percentOptions = [1]
+
+export const TradeInput = memo(() => {
   useGetTradeQuotes()
   const {
     state: { wallet },
@@ -195,12 +202,32 @@ export const TradeInput = () => {
     return quoteHasError || manualReceiveAddressIsValidating || isLoading || !isSellAmountEntered
   }, [isLoading, isSellAmountEntered, manualReceiveAddressIsValidating, quoteHasError])
 
+  const rightRegion = useMemo(
+    () =>
+      activeQuote ? (
+        <IconButton
+          size='sm'
+          icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
+          aria-label='Expand Quotes'
+          onClick={toggleShowTradeQuotes}
+        />
+      ) : (
+        <></>
+      ),
+    [activeQuote, showTradeQuotes, toggleShowTradeQuotes],
+  )
+
+  const tradeQuotes = useMemo(
+    () => <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes} />,
+    [showTradeQuotes, sortedQuotes],
+  )
+
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <SlideTransition>
         <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={2}>
-            <Flex alignItems='center' flexDir={{ base: 'column', md: 'row' }} width='full'>
+            <Flex alignItems='center' flexDir={flexDir} width='full'>
               <TradeAssetSelect
                 accountId={sellAssetAccountId}
                 onAccountIdChange={setSellAssetAccountId}
@@ -211,8 +238,8 @@ export const TradeInput = () => {
               <IconButton
                 onClick={handleSwitchAssets}
                 isRound
-                mx={{ base: 0, md: -3 }}
-                my={{ base: -3, md: 0 }}
+                mx={marginHorizontal}
+                my={marginVertical}
                 size='sm'
                 position='relative'
                 borderColor={useColorModeValue('gray.100', 'gray.750')}
@@ -254,26 +281,13 @@ export const TradeInput = () => {
               fiatAmount={
                 isSellAmountEntered ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed() : '0'
               }
-              percentOptions={[1]}
+              percentOptions={percentOptions}
               showInputSkeleton={isLoading}
               showFiatSkeleton={isLoading}
               label={translate('trade.youGet')}
-              rightRegion={
-                activeQuote ? (
-                  <IconButton
-                    size='sm'
-                    icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
-                    aria-label='Expand Quotes'
-                    onClick={toggleShowTradeQuotes}
-                  />
-                ) : (
-                  <></>
-                )
-              }
+              rightRegion={rightRegion}
             >
-              {Boolean(sortedQuotes.length) && (
-                <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes ?? []} />
-              )}
+              {tradeQuotes}
             </TradeAssetInput>
           </Stack>
           <Stack
@@ -327,4 +341,4 @@ export const TradeInput = () => {
       </SlideTransition>
     </MessageOverlay>
   )
-}
+})

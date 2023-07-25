@@ -1,5 +1,6 @@
 import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
-import { useEffect, useMemo, useState } from 'react'
+import type { Location } from 'history'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { Layout } from 'components/Layout/Layout'
@@ -16,16 +17,9 @@ import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { PrivateRoute } from './PrivateRoute'
-
-function useLocationBackground() {
-  const location = useLocation<{ background: any }>()
-  const background = location.state && location.state.background
-  return { background, location }
-}
-
-export const Routes = () => {
+export const Routes = memo(() => {
   const dispatch = useDispatch()
-  const { background, location } = useLocationBackground()
+  const location = useLocation<{ background: Location }>()
   const { connectDemo, state } = useWallet()
   const { appRoutes } = useBrowserRouter()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
@@ -87,20 +81,20 @@ export const Routes = () => {
     [appRoutes, hasWallet, isUnstableRoute, location],
   )
 
+  const locationProps = useMemo(() => location.state?.background || location, [location])
+
+  const renderRedirect = useCallback(() => {
+    return shouldRedirectDemoRoute ? (
+      <Redirect
+        from='/'
+        to={matchDemoPath?.params.appRoute ? `/${matchDemoPath.params.appRoute}` : '/dashboard'}
+      />
+    ) : null
+  }, [matchDemoPath?.params.appRoute, shouldRedirectDemoRoute])
+
   return (
-    <Switch location={background || location}>
-      <Route path='/demo'>
-        {() => {
-          return shouldRedirectDemoRoute ? (
-            <Redirect
-              from='/'
-              to={
-                matchDemoPath?.params?.appRoute ? `/${matchDemoPath.params.appRoute}` : '/dashboard'
-              }
-            />
-          ) : null
-        }}
-      </Route>
+    <Switch location={locationProps}>
+      <Route path='/demo'>{renderRedirect}</Route>
 
       <Route path='/connect-wallet'>
         <ConnectWallet />
@@ -131,4 +125,4 @@ export const Routes = () => {
       </Layout>
     </Switch>
   )
-}
+})

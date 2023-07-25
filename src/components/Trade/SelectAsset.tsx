@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { Card } from 'components/Card/Card'
@@ -14,9 +15,9 @@ type SelectAssetProps = {
 } & RouteComponentProps
 
 export const SelectAsset: React.FC<SelectAssetProps> = ({ assets, onClick, history }) => {
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     history.push(TradeRoutePaths.Input)
-  }
+  }, [history])
 
   return (
     <SlideTransition>

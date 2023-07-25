@@ -10,7 +10,7 @@ import {
   MenuOptionGroup,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { IconCircle } from 'components/IconCircle'
@@ -29,6 +29,8 @@ type ChainDropdownProps = {
   buttonProps?: ButtonProps
 } & Omit<MenuProps, 'children'>
 
+const width = { base: 'full', md: 'auto' }
+
 export const ChainDropdown: React.FC<ChainDropdownProps> = ({
   chainIds,
   chainId,
@@ -42,6 +44,7 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
     selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
   )
   const translate = useTranslate()
+
   const renderChains = useMemo(() => {
     return chainIds.map(chainId => (
       <MenuItemOption value={chainId} key={chainId}>
@@ -50,18 +53,15 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
     ))
   }, [chainIds, includeBalance])
 
+  const onChange = useCallback((value: string | string[]) => onClick(value as ChainId), [onClick])
+
   return (
     <Menu {...menuProps}>
-      <MenuButton
-        width={{ base: 'full', md: 'auto' }}
-        as={Button}
-        rightIcon={<ChevronDownIcon />}
-        {...buttonProps}
-      >
+      <MenuButton width={width} as={Button} rightIcon={<ChevronDownIcon />} {...buttonProps}>
         {chainId ? <ChainRow chainId={chainId} /> : translate('common.allChains')}
       </MenuButton>
       <MenuList zIndex='banner'>
-        <MenuOptionGroup type='radio' value={chainId} onChange={value => onClick(value as ChainId)}>
+        <MenuOptionGroup type='radio' value={chainId} onChange={onChange}>
           {showAll && (
             <MenuItemOption value=''>
               <Flex alignItems='center' gap={4}>

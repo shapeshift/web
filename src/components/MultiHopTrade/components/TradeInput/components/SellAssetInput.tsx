@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { useCallback, useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import { TradeAssetInput } from 'components/Trade/Components/TradeAssetInput'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
@@ -13,7 +13,9 @@ export type SellAssetInputProps = {
   asset: Asset
 }
 
-export const SellAssetInput = ({ accountId, asset, label }: SellAssetInputProps) => {
+const percentOptions = [1]
+
+export const SellAssetInput = memo(({ accountId, asset, label }: SellAssetInputProps) => {
   const [sellAmountUserCurrencyHuman, setSellAmountUserCurrencyHuman] = useState('0')
   const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
   const dispatch = useAppDispatch()
@@ -51,10 +53,10 @@ export const SellAssetInput = ({ accountId, asset, label }: SellAssetInputProps)
       fiatAmount={positiveOrZero(sellAmountUserCurrencyHuman).toString()}
       isSendMaxDisabled={false}
       onChange={handleSellAssetInputChange}
-      percentOptions={[1]}
+      percentOptions={percentOptions}
       showInputSkeleton={false}
       showFiatSkeleton={false}
       label={label}
     />
   )
-}
+})

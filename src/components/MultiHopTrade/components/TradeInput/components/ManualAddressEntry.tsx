@@ -1,7 +1,7 @@
 import { FormControl, FormLabel } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
-import { useEffect, useMemo } from 'react'
+import { memo, useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { AddressInput } from 'components/Modals/Send/AddressInput/AddressInput'
@@ -15,7 +15,7 @@ import { selectBuyAsset, selectManualReceiveAddress } from 'state/slices/swapper
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-export const ManualAddressEntry: FC = (): JSX.Element | null => {
+export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
   const dispatch = useAppDispatch()
 
   const {
@@ -58,6 +58,32 @@ export const ManualAddressEntry: FC = (): JSX.Element | null => {
     dispatch(swappers.actions.setManualReceiveAddressIsValidating(isValidating))
   }, [dispatch, isValidating])
 
+  const rules = useMemo(
+    () => ({
+      required: true,
+      validate: {
+        validateAddress: async (rawInput: string) => {
+          dispatch(swappers.actions.setManualReceiveAddress(undefined))
+          const value = rawInput.trim() // trim leading/trailing spaces
+          // this does not throw, everything inside is handled
+          const parseAddressInputWithChainIdArgs = {
+            assetId: buyAssetAssetId,
+            chainId: buyAssetChainId,
+            urlOrAddress: value,
+            disableUrlParsing: true,
+          }
+          const { address } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
+          dispatch(swappers.actions.setManualReceiveAddress(address || undefined))
+          const invalidMessage = isYatSupported
+            ? 'common.invalidAddressOrYat'
+            : 'common.invalidAddress'
+          return address ? true : invalidMessage
+        },
+      },
+    }),
+    [buyAssetAssetId, buyAssetChainId, dispatch, isYatSupported],
+  )
+
   const ManualReceiveAddressEntry: JSX.Element = useMemo(() => {
     return (
       <FormControl>
@@ -68,35 +94,12 @@ export const ManualAddressEntry: FC = (): JSX.Element | null => {
           {translate('trade.receiveAddressDescription', { chainName: buyAssetChainName })}
         </FormLabel>
         <AddressInput
-          rules={{
-            required: true,
-            validate: {
-              validateAddress: async (rawInput: string) => {
-                dispatch(swappers.actions.setManualReceiveAddress(undefined))
-                const value = rawInput.trim() // trim leading/trailing spaces
-                // this does not throw, everything inside is handled
-                const parseAddressInputWithChainIdArgs = {
-                  assetId: buyAssetAssetId,
-                  chainId: buyAssetChainId,
-                  urlOrAddress: value,
-                  disableUrlParsing: true,
-                }
-                const { address } = await parseAddressInputWithChainId(
-                  parseAddressInputWithChainIdArgs,
-                )
-                dispatch(swappers.actions.setManualReceiveAddress(address || undefined))
-                const invalidMessage = isYatSupported
-                  ? 'common.invalidAddressOrYat'
-                  : 'common.invalidAddress'
-                return address ? true : invalidMessage
-              },
-            },
-          }}
+          rules={rules}
           placeholder={translate('trade.addressPlaceholder', { chainName: buyAssetChainName })}
         />
       </FormControl>
     )
-  }, [buyAssetAssetId, buyAssetChainId, buyAssetChainName, dispatch, isYatSupported, translate])
+  }, [buyAssetChainName, rules, translate])
 
   return shouldShowManualReceiveAddressInput ? ManualReceiveAddressEntry : null
-}
+})

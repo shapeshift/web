@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { useEffect } from 'react'
+import { memo, useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 import type { CardProps } from 'components/Card/Card'
@@ -22,37 +22,39 @@ export type TradeCardProps = {
   defaultSellAssetId?: AssetId
 } & CardProps
 
-export const MultiHopTrade = ({
-  defaultBuyAssetId = foxAssetId,
-  defaultSellAssetId = ethAssetId,
-  ...cardProps
-}: TradeCardProps) => {
-  const dispatch = useAppDispatch()
-  const methods = useForm({ mode: 'onChange' })
+export const MultiHopTrade = memo(
+  ({
+    defaultBuyAssetId = foxAssetId,
+    defaultSellAssetId = ethAssetId,
+    ...cardProps
+  }: TradeCardProps) => {
+    const dispatch = useAppDispatch()
+    const methods = useForm({ mode: 'onChange' })
 
-  const defaultBuyAsset = useAppSelector(state => selectAssetById(state, defaultBuyAssetId))
-  const defaultSellAsset = useAppSelector(state => selectAssetById(state, defaultSellAssetId))
+    const defaultBuyAsset = useAppSelector(state => selectAssetById(state, defaultBuyAssetId))
+    const defaultSellAsset = useAppSelector(state => selectAssetById(state, defaultSellAssetId))
 
-  useEffect(() => {
-    dispatch(swappers.actions.clear())
-    if (defaultSellAsset) dispatch(swappers.actions.setSellAsset(defaultSellAsset))
-    if (defaultBuyAsset) dispatch(swappers.actions.setBuyAsset(defaultBuyAsset))
-  }, [defaultBuyAsset, defaultSellAsset, dispatch])
+    useEffect(() => {
+      dispatch(swappers.actions.clear())
+      if (defaultSellAsset) dispatch(swappers.actions.setSellAsset(defaultSellAsset))
+      if (defaultBuyAsset) dispatch(swappers.actions.setBuyAsset(defaultBuyAsset))
+    }, [defaultBuyAsset, defaultSellAsset, dispatch])
 
-  return (
-    <Card {...cardProps}>
-      <Card.Body py={6}>
-        <FormProvider {...methods}>
-          <MemoryRouter initialEntries={MultiHopEntries} initialIndex={0}>
-            <MultiHopRoutes />
-          </MemoryRouter>
-        </FormProvider>
-      </Card.Body>
-    </Card>
-  )
-}
+    return (
+      <Card {...cardProps}>
+        <Card.Body py={6}>
+          <FormProvider {...methods}>
+            <MemoryRouter initialEntries={MultiHopEntries} initialIndex={0}>
+              <MultiHopRoutes />
+            </MemoryRouter>
+          </FormProvider>
+        </Card.Body>
+      </Card>
+    )
+  },
+)
 
-const MultiHopRoutes = () => {
+const MultiHopRoutes = memo(() => {
   const location = useLocation()
   const dispatch = useAppDispatch()
 
@@ -80,4 +82,4 @@ const MultiHopRoutes = () => {
       </Switch>
     </AnimatePresence>
   )
-}
+})

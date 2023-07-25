@@ -1,5 +1,6 @@
 import { Flex, Image } from '@chakra-ui/react'
 import { btcAssetId, dogeAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { memo } from 'react'
 import OnRamperLogo from 'assets/on-ramper.png'
 import SaversVaultTop from 'assets/savers-vault-top.png'
 import { AssetIcon } from 'components/AssetIcon'
@@ -68,19 +69,17 @@ const promoData: PromoItem[] = [
   },
 ]
 
-export const DashboardSidebar = () => {
+const display = { base: 'none', xl: 'block' }
+
+export const DashboardSidebar = memo(() => {
   const { MultiHopTrades } = useAppSelector(selectFeatureFlags)
   return (
     <Flex width='full' flexDir='column' gap={6}>
       <PromoCard data={promoData} />
-      {MultiHopTrades ? (
-        <MultiHopTrade display={{ base: 'none', xl: 'block' }} />
-      ) : (
-        <TradeCard display={{ base: 'none', xl: 'block' }} />
-      )}
+      {MultiHopTrades ? <MultiHopTrade display={display} /> : <TradeCard display={display} />}
       <MissionSidebar />
       <EligibleCarousel />
       <RecentTransactions limit={8} viewMoreLink />
     </Flex>
   )
-}
+})

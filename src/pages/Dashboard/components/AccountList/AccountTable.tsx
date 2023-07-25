@@ -1,6 +1,6 @@
 import { Stack, Stat, StatArrow, StatNumber, useColorModeValue } from '@chakra-ui/react'
 import { range } from 'lodash'
-import { useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
@@ -15,7 +15,7 @@ import { selectPortfolioAccountRows, selectPortfolioLoading } from 'state/slices
 
 type RowProps = Row<AccountRowData>
 
-export const AccountTable = () => {
+export const AccountTable = memo(() => {
   const loading = useSelector(selectPortfolioLoading)
   const rowData = useSelector(selectPortfolioAccountRows)
   const textColor = useColorModeValue('black', 'white')
@@ -121,4 +121,4 @@ export const AccountTable = () => {
       onRowClick={handleRowClick}
     />
   )
-}
+})

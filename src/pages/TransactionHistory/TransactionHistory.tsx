@@ -1,5 +1,5 @@
 import { Flex } from '@chakra-ui/react'
-import { useCallback, useMemo, useRef } from 'react'
+import { memo, useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useRouteMatch } from 'react-router'
 import { Card } from 'components/Card/Card'
@@ -16,7 +16,9 @@ import { SingleTransaction } from './SingleTransaction'
 import { TransactionHistoryFilter } from './TransactionHistoryFilter'
 import { TransactionHistorySearch } from './TransactionHistorySearch'
 
-export const TransactionHistory = () => {
+const headingPadding = [2, 3, 6]
+
+export const TransactionHistory = memo(() => {
   const translate = useTranslate()
   const { path } = useRouteMatch()
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -46,7 +48,7 @@ export const TransactionHistory = () => {
       <Route exact path={`${path}/`}>
         <Card>
           <SEO title={translate('transactionHistory.transactionHistory')} />
-          <Card.Heading p={[2, 3, 6]}>
+          <Card.Heading p={headingPadding}>
             <Flex justifyContent='space-between'>
               <Flex>
                 <TransactionHistorySearch ref={inputRef} handleInputChange={handleInputChange} />
@@ -67,4 +69,4 @@ export const TransactionHistory = () => {
       </Route>
     </Switch>
   )
-}
+})

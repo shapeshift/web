@@ -3,7 +3,7 @@ import { Divider, Stack, useColorModeValue, useMediaQuery } from '@chakra-ui/rea
 import { union } from 'lodash'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Link as ReactRouterLink } from 'react-router-dom'
+import { Link as ReactRouterLink, matchPath, useLocation } from 'react-router-dom'
 import type { Route } from 'Routes/helpers'
 import { routes } from 'Routes/RoutesCommon'
 import { YatBanner } from 'components/Banners/YatBanner'
@@ -26,6 +26,7 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
   const isYatFeatureEnabled = useFeatureFlag('Yat')
   const groupColor = useColorModeValue('gray.400', 'gray.600')
   const dividerColor = useColorModeValue('gray.200', 'whiteAlpha.100')
+  const { pathname } = useLocation()
 
   const navItemGroups = useMemo(() => {
     const allRoutes = union(routes, pluginRoutes).filter(route =>
@@ -75,12 +76,19 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
               label={translate(item.label)}
               aria-label={translate(item.label)}
               data-test={`navigation-${item.label.split('.')[1]}-button`}
+              isActive={
+                !!matchPath(pathname, {
+                  path: item.path,
+                  exact: false,
+                  strict: false,
+                })
+              }
             />
           ))}
         </Stack>
       )
     })
-  }, [groupColor, isCompact, navItemGroups, onClick, translate])
+  }, [groupColor, isCompact, navItemGroups, onClick, pathname, translate])
 
   return (
     <Stack

@@ -3,7 +3,7 @@ import { Box, forwardRef, useColorModeValue } from '@chakra-ui/react'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { TransactionMethod } from 'components/TransactionHistoryRows/TransactionMethod'
 import { TransactionReceive } from 'components/TransactionHistoryRows/TransactionReceive'
 import { TransactionSend } from 'components/TransactionHistoryRows/TransactionSend'
@@ -34,6 +34,48 @@ type TxRowProps = {
   disableCollapse?: boolean
 } & BoxProps
 
+const TransactionType = ({
+  txDetails,
+  showDateAndGuide,
+  useCompactMode,
+  isOpen,
+  parentWidth,
+  toggleOpen,
+}: {
+  txDetails: TxDetails
+  showDateAndGuide: boolean
+  useCompactMode: boolean
+  isOpen: boolean
+  parentWidth: number
+  toggleOpen: () => void
+}): JSX.Element => {
+  const props: TransactionRowProps = useMemo(
+    () => ({
+      txDetails,
+      showDateAndGuide,
+      compactMode: useCompactMode,
+      toggleOpen,
+      isOpen,
+      parentWidth,
+    }),
+    [isOpen, parentWidth, showDateAndGuide, toggleOpen, txDetails, useCompactMode],
+  )
+
+  switch (txDetails.type) {
+    case TransferType.Send:
+      return <TransactionSend {...props} />
+    case TransferType.Receive:
+      return <TransactionReceive {...props} />
+    case TradeType.Trade:
+    case TradeType.Refund:
+      return <TransactionTrade {...props} />
+    case 'method':
+      return <TransactionMethod {...props} />
+    default:
+      return <UnknownTransaction {...props} />
+  }
+}
+
 export const TransactionRow = forwardRef<TxRowProps, 'div'>(
   (
     {
@@ -48,52 +90,36 @@ export const TransactionRow = forwardRef<TxRowProps, 'div'>(
     ref,
   ) => {
     const [isOpen, setIsOpen] = useState(initOpen)
-    const toggleOpen = () => (disableCollapse ? null : setIsOpen(!isOpen))
+    const toggleOpen = useCallback(
+      () => (disableCollapse ? null : setIsOpen(!isOpen)),
+      [disableCollapse, isOpen],
+    )
     const rowHoverBg = useColorModeValue('gray.100', 'gray.750')
     const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
     const txDetails = useTxDetails(txId)
 
-    const renderTransactionType = (
-      txDetails: TxDetails,
-      showDateAndGuide: boolean,
-      useCompactMode: boolean,
-    ): JSX.Element => {
-      const props: TransactionRowProps = {
-        txDetails,
-        showDateAndGuide,
-        compactMode: useCompactMode,
-        toggleOpen,
-        isOpen,
-        parentWidth,
-      }
+    const backgroundProps = useMemo(() => ({ bg: rowHoverBg }), [rowHoverBg])
 
-      switch (txDetails.type) {
-        case TransferType.Send:
-          return <TransactionSend {...props} />
-        case TransferType.Receive:
-          return <TransactionReceive {...props} />
-        case TradeType.Trade:
-        case TradeType.Refund:
-          return <TransactionTrade {...props} />
-        case 'method':
-          return <TransactionMethod {...props} />
-        default:
-          return <UnknownTransaction {...props} />
-      }
-    }
     return (
       <Box
         width='full'
         rounded='lg'
-        _hover={{ bg: rowHoverBg }}
-        _selected={{ bg: rowHoverBg }}
+        _hover={backgroundProps}
+        _selected={backgroundProps}
         bg={isOpen ? rowHoverBg : 'transparent'}
         borderColor={isOpen ? borderColor : 'transparent'}
         borderWidth={1}
         ref={ref}
         {...rest}
       >
-        {renderTransactionType(txDetails, showDateAndGuide, useCompactMode)}
+        <TransactionType
+          txDetails={txDetails}
+          showDateAndGuide={showDateAndGuide}
+          useCompactMode={useCompactMode}
+          isOpen={isOpen}
+          toggleOpen={toggleOpen}
+          parentWidth={parentWidth}
+        />
       </Box>
     )
   },

@@ -9,7 +9,7 @@ import {
   Switch,
 } from '@chakra-ui/react'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
-import { useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
@@ -31,7 +31,7 @@ import { useAppSelector } from 'state/store'
 import { AccountTable } from './components/AccountList/AccountTable'
 import { PortfolioBreakdown } from './PortfolioBreakdown'
 
-export const Portfolio = () => {
+export const Portfolio = memo(() => {
   const userChartTimeframe = useAppSelector(selectChartTimeframe)
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(userChartTimeframe)
   const handleTimeframeChange = useTimeframeChange(setTimeframe)
@@ -143,4 +143,4 @@ export const Portfolio = () => {
       </Card>
     </Stack>
   )
-}
+})

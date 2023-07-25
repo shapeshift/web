@@ -35,9 +35,14 @@ export const selectAssets = createDeepEqualOutputSelector(
 )
 export const selectAssetIds = (state: ReduxState) => state.assets.ids
 
-export const selectNftAssetIds = createDeepEqualOutputSelector(
-  selectAssetIds,
-  (assetIds): AssetId[] => assetIds.filter(assetId => isNft(assetId)),
+// not deep equal output selector for perf reasons - hashing more expensive than selecting
+export const selectNonNftAssetIds = createSelector(selectAssetIds, (assetIds): AssetId[] =>
+  assetIds.filter(assetId => !isNft(assetId)),
+)
+
+// not deep equal output selector for perf reasons - hashing more expensive than selecting
+export const selectNftAssetIds = createSelector(selectAssetIds, (assetIds): AssetId[] =>
+  assetIds.filter(assetId => isNft(assetId)),
 )
 
 export const selectAssetsByMarketCap = createDeepEqualOutputSelector(

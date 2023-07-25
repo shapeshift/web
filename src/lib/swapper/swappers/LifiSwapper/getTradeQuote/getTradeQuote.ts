@@ -90,7 +90,12 @@ export async function getTradeQuote(
       },
     }
 
-    getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, { swapper: SwapperName.LIFI })
+    getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
+      swapper: SwapperName.LIFI,
+      method: 'get',
+      // Note, this may change if the Li.Fi SDK changes
+      url: 'https://li.quest/v1/advanced/routes',
+    })
     const routesResponse = await lifi.getRoutes(routesRequest).catch((e: LifiError) => {
       const code = (() => {
         switch (e.code) {

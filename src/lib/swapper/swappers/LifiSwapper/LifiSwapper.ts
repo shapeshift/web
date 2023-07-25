@@ -6,6 +6,7 @@ import type { Result } from '@sniptt/monads'
 import { Ok } from '@sniptt/monads'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import type {
   BuildTradeInput,
   BuyAssetBySellIdInput,
@@ -152,6 +153,7 @@ export class LifiSwapper implements Swapper<EvmChainId> {
       return Ok({ sellTxid: tradeResult.tradeId })
     }
 
+    getMixPanel()?.track('Swapper API request', { swapper: SwapperName.LIFI })
     const statusResponse = await getLifi().getStatus(getStatusRequest)
 
     return Ok({

@@ -4,9 +4,10 @@ import { AssertionError } from 'assert'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import type { ISetupCache } from 'axios-cache-adapter'
 import { setupCache } from 'axios-cache-adapter'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { AsyncResultOf } from 'lib/utils'
 
-import type { SwapErrorRight } from './api'
+import type { SwapErrorRight, SwapperName } from './api'
 import { makeSwapErrorRight, SwapErrorType } from './api'
 
 // asserts x is type doesn't work when using arrow functions
@@ -42,7 +43,7 @@ interface ProxyConstructor {
 }
 declare var Proxy: ProxyConstructor
 
-export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance) =>
+export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, swapperName: SwapperName) =>
   new Proxy<
     AxiosInstance,
     {
@@ -60,6 +61,7 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance) =>
     get: (trappedAxios, method: 'get' | 'post') => {
       const originalMethodPromise = trappedAxios[method]
       return async (...args: [url: string, dataOrConfig?: any, dataOrConfig?: any]) => {
+        getMixPanel()?.track('Swapper API request', { swapper: swapperName })
         const result = await AsyncResultOf(originalMethodPromise(...args))
 
         return result

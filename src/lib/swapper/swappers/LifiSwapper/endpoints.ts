@@ -5,6 +5,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
 import type { Asset } from 'lib/asset-service'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import type {
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
@@ -13,7 +14,7 @@ import type {
   Swapper2Api,
   TradeQuote2,
 } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -97,6 +98,7 @@ export const lifiApi: Swapper2Api = {
       toChain: lifiRoute.toChainId,
     }
 
+    getMixPanel()?.track('Swapper API request', { swapper: SwapperName.LIFI })
     const statusResponse = await getLifi().getStatus(getStatusRequest)
 
     const status = (() => {

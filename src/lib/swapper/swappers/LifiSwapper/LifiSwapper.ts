@@ -154,7 +154,12 @@ export class LifiSwapper implements Swapper<EvmChainId> {
       return Ok({ sellTxid: tradeResult.tradeId })
     }
 
-    getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, { swapper: SwapperName.LIFI })
+    getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
+      swapper: SwapperName.LIFI,
+      method: 'get',
+      // Note, this may change if the Li.Fi SDK changes
+      url: 'https://li.quest/v1/status',
+    })
     const statusResponse = await getLifi().getStatus(getStatusRequest)
 
     return Ok({

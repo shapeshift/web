@@ -6,6 +6,7 @@ import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
 import type { Asset } from 'lib/asset-service'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import type {
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
@@ -98,7 +99,7 @@ export const lifiApi: Swapper2Api = {
       toChain: lifiRoute.toChainId,
     }
 
-    getMixPanel()?.track('Swapper API request', { swapper: SwapperName.LIFI })
+    getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, { swapper: SwapperName.LIFI })
     const statusResponse = await getLifi().getStatus(getStatusRequest)
 
     const status = (() => {

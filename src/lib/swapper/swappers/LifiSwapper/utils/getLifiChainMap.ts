@@ -5,6 +5,7 @@ import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads/build'
 import { Err, Ok } from '@sniptt/monads/build'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapperName } from 'lib/swapper/api'
 
@@ -18,7 +19,7 @@ export const getLifiChainMap = async (): Promise<
     chainId => Number(fromChainId(chainId).chainReference) as LifiChainId,
   )
 
-  getMixPanel()?.track('Swapper API request', { swapper: SwapperName.LIFI })
+  getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, { swapper: SwapperName.LIFI })
   const { chains } = await getLifi().getPossibilities({
     include: ['chains'],
     chains: supportedChainRefs,

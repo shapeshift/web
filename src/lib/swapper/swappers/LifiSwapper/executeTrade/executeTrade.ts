@@ -51,7 +51,12 @@ export const executeTrade = async ({
   const transactionRequest = await (async () => {
     try {
       if (startStep?.transactionRequest) return Ok(startStep.transactionRequest)
-      getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, { swapper: SwapperName.LIFI })
+      getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
+        swapper: SwapperName.LIFI,
+        method: 'get',
+        // Note, this may change if the Li.Fi SDK changes
+        url: 'https://li.quest/v1/advanced/stepTransaction',
+      })
       return Ok((await lifi.getStepTransaction(startStep)).transactionRequest)
     } catch (err) {
       return Err(

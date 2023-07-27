@@ -1,4 +1,6 @@
 import { Checkbox, Stack } from '@chakra-ui/react'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -6,7 +8,8 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { selectWillDonate } from 'state/slices/swappersSlice/selectors'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectSellAsset, selectWillDonate } from 'state/slices/swappersSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
   selectActiveQuoteDonationBps,
@@ -22,7 +25,12 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = memo(
   ({ isLoading }): JSX.Element | null => {
     const translate = useTranslate()
     const dispatch = useAppDispatch()
-    const willDonate = useAppSelector(selectWillDonate)
+    const userWillDonate = useAppSelector(selectWillDonate)
+    const wallet = useWallet().state.wallet
+    const walletIsKeepKey = wallet && isKeepKey(wallet)
+    const sellAsset = useAppSelector(selectSellAsset)
+    const isFromEvm = isEvmChainId(sellAsset.chainId)
+    const willDonate = walletIsKeepKey ? userWillDonate && !isFromEvm : userWillDonate
     const affiliateBps = useAppSelector(selectActiveQuoteDonationBps)
 
     const {

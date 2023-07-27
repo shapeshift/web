@@ -83,7 +83,7 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
         case ActiveQuoteStatus.NoConnectedWallet:
           return 'common.connectWallet'
         case ActiveQuoteStatus.BuyAssetNotNotSupportedByWallet:
-          return ['trade.quote.noReceiveAddress', { assetSymbol: tradeBuyAsset?.symbol }]
+          return ['trade.errors.noReceiveAddress', { assetSymbol: tradeBuyAsset?.symbol }]
         case ActiveQuoteStatus.InsufficientSellAssetBalance:
           return 'common.insufficientFunds'
         case ActiveQuoteStatus.InsufficientFirstHopFeeAssetBalance:

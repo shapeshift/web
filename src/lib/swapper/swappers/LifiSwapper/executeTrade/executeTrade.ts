@@ -3,10 +3,8 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn } from 'lib/bignumber/bignumber'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import type { LifiExecuteTradeInput } from 'lib/swapper/swappers/LifiSwapper/utils/types'
 import { buildAndBroadcast, createBuildCustomTxInput, isEvmChainAdapter } from 'lib/utils/evm'
@@ -51,12 +49,12 @@ export const executeTrade = async ({
   const transactionRequest = await (async () => {
     try {
       if (startStep?.transactionRequest) return Ok(startStep.transactionRequest)
-      getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
-        swapper: SwapperName.LIFI,
-        method: 'get',
-        // Note, this may change if the Li.Fi SDK changes
-        url: 'https://li.quest/v1/advanced/stepTransaction',
-      })
+      // getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
+      //   swapper: SwapperName.LIFI,
+      //   method: 'get',
+      //   // Note, this may change if the Li.Fi SDK changes
+      //   url: 'https://li.quest/v1/advanced/stepTransaction',
+      // })
       return Ok((await lifi.getStepTransaction(startStep)).transactionRequest)
     } catch (err) {
       return Err(

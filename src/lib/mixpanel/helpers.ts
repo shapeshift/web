@@ -10,16 +10,16 @@ import type { MixPanelEvents, TrackOpportunityProps } from './types'
 
 export const mapMixpanelPathname = (pathname: string, assets: AssetsById): string => {
   switch (true) {
-    case pathname.startsWith('/accounts/'): {
+    case pathname.startsWith('/dashboard/accounts/'): {
       // example path
-      // /accounts/eip155:1:0xa4..35/eip155:1%2Ferc20:0x1f9840a85d5af5bf1d1762f925bdaddc4201f984
+      // /dashboard/accounts/eip155:1:0xef678d1ad8c897c71d0a6145390a474035db8f1f/eip155:1%2Ferc20:0xc770eefad204b5180df6a14ee197d99d808ee52d
       const parts = pathname.split('/')
-      const [_, accountLiteral, accountId, maybeEscapedAssetId] = parts
+      const [dashboard, accounts, accountLiteral, accountId, maybeEscapedAssetId] = parts
       const { chainId } = fromAccountId(accountId)
       const chainName = getChainAdapterManager().get(chainId)?.getDisplayName()
       const assetId = maybeEscapedAssetId && decodeURIComponent(maybeEscapedAssetId)
       const mixpanelAssetId = getMaybeCompositeAssetSymbol(assetId, assets)
-      const newParts = [_, accountLiteral, chainName]
+      const newParts = [dashboard, accounts, accountLiteral, chainName]
       if (mixpanelAssetId) newParts.push(mixpanelAssetId)
       return newParts.join('/')
     }

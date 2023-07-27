@@ -85,6 +85,7 @@ export const TradeInput = memo(() => {
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
+  const borderColor = useColorModeValue('gray.100', 'gray.750')
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(false)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
@@ -102,6 +103,10 @@ export const TradeInput = memo(() => {
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
+  const hasUserEnteredAmount = useMemo(
+    () => bnOrZero(sellAmountCryptoPrecision).gt(0),
+    [sellAmountCryptoPrecision],
+  )
   const activeQuoteStatus = useActiveQuoteStatus()
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(swappers.actions.setBuyAsset(asset)),
@@ -204,7 +209,7 @@ export const TradeInput = memo(() => {
 
   const rightRegion = useMemo(
     () =>
-      activeQuote ? (
+      activeQuote && hasUserEnteredAmount ? (
         <IconButton
           size='sm'
           icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
@@ -214,12 +219,15 @@ export const TradeInput = memo(() => {
       ) : (
         <></>
       ),
-    [activeQuote, showTradeQuotes, toggleShowTradeQuotes],
+    [activeQuote, hasUserEnteredAmount, showTradeQuotes, toggleShowTradeQuotes],
   )
 
   const tradeQuotes = useMemo(
-    () => <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes} />,
-    [showTradeQuotes, sortedQuotes],
+    () =>
+      hasUserEnteredAmount ? (
+        <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes} />
+      ) : null,
+    [hasUserEnteredAmount, showTradeQuotes, sortedQuotes],
   )
 
   return (
@@ -290,40 +298,37 @@ export const TradeInput = memo(() => {
               {tradeQuotes}
             </TradeAssetInput>
           </Stack>
-          <Stack
-            boxShadow='sm'
-            p={4}
-            borderColor={useColorModeValue('gray.100', 'gray.750')}
-            borderRadius='xl'
-            borderWidth={1}
-          >
-            <RateGasRow
-              sellSymbol={sellAsset.symbol}
-              buySymbol={buyAsset.symbol}
-              gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
-              rate={rate}
-              isLoading={isLoading}
-              isError={activeQuoteError !== undefined}
-            />
-            {activeQuote ? (
-              <ReceiveSummary
+          {hasUserEnteredAmount && (
+            <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
+              <RateGasRow
+                sellSymbol={sellAsset.symbol}
+                buySymbol={buyAsset.symbol}
+                gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
+                rate={rate}
                 isLoading={isLoading}
-                symbol={buyAsset.symbol}
-                amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
-                amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
-                protocolFees={totalProtocolFees}
-                shapeShiftFee='0'
-                slippage={
-                  activeQuote.recommendedSlippage ??
-                  getDefaultSlippagePercentageForSwapper(activeSwapperName)
-                }
-                swapperName={activeSwapperName ?? ''}
+                isError={activeQuoteError !== undefined}
               />
-            ) : null}
-          </Stack>
+
+              {activeQuote ? (
+                <ReceiveSummary
+                  isLoading={isLoading}
+                  symbol={buyAsset.symbol}
+                  amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
+                  amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
+                  protocolFees={totalProtocolFees}
+                  shapeShiftFee='0'
+                  slippage={
+                    activeQuote.recommendedSlippage ??
+                    getDefaultSlippagePercentageForSwapper(activeSwapperName)
+                  }
+                  swapperName={activeSwapperName ?? ''}
+                />
+              ) : null}
+            </Stack>
+          )}
           <Stack px={4}>
-            <DonationCheckbox isLoading={isLoading} />
-            {activeQuote && <ManualAddressEntry />}
+            {hasUserEnteredAmount && <DonationCheckbox isLoading={isLoading} />}
+            <ManualAddressEntry />
           </Stack>
           <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
             <Button

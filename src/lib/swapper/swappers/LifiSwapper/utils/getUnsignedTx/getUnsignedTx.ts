@@ -8,9 +8,7 @@ import type {
 import type { providers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { Asset } from 'lib/asset-service'
-import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvents } from 'lib/mixpanel/types'
-import { SwapError, SwapErrorType, SwapperName } from 'lib/swapper/api'
+import { SwapError, SwapErrorType } from 'lib/swapper/api'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { isEvmChainAdapter } from 'lib/utils/evm'
 
@@ -22,12 +20,12 @@ const createBuildSendApiTxInput = async (
   const lifi = getLifi()
 
   const transactionRequest: providers.TransactionRequest = await (async () => {
-    getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
-      swapper: SwapperName.LIFI,
-      method: 'get',
-      // Note, this may change if the Li.Fi SDK changes
-      url: 'https://li.quest/v1/advanced/stepTransaction',
-    })
+    // getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
+    //   swapper: SwapperName.LIFI,
+    //   method: 'get',
+    //   // Note, this may change if the Li.Fi SDK changes
+    //   url: 'https://li.quest/v1/advanced/stepTransaction',
+    // })
     const { transactionRequest: newTransactionRequest } = await lifi.getStepTransaction(lifiStep)
     return newTransactionRequest ?? {}
   })()

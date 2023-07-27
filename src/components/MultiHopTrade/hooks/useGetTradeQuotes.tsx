@@ -169,7 +169,6 @@ export const useGetTradeQuotes = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      console.log('document.hasFocus()', document.hasFocus())
       setHasFocus(document.hasFocus())
     }, 2000)
     return () => clearInterval(interval)

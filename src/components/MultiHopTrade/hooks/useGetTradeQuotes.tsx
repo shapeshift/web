@@ -34,7 +34,7 @@ import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
-  quoteDifferenceDecimalPercentage: number
+  differenceFromBestQuoteDecimalPercentage: number
 }
 
 type GetMixPanelDataFromApiQuotesReturn = {
@@ -51,10 +51,11 @@ const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromAp
   const sellAmountUsd = selectSellAmountUsd(store.getState())
   const quoteMeta: MixPanelQuoteMeta[] = quotes
     .map(({ quote, swapperName, inputOutputRatio }) => {
-      const quoteDifferenceDecimalPercentage = (inputOutputRatio / bestInputOutputRatio - 1) * -1
+      const differenceFromBestQuoteDecimalPercentage =
+        (inputOutputRatio / bestInputOutputRatio - 1) * -1
       return {
         swapperName,
-        quoteDifferenceDecimalPercentage,
+        differenceFromBestQuoteDecimalPercentage,
         quoteReceived: !!quote,
       }
     })

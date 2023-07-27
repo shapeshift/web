@@ -5,7 +5,7 @@ import { memo } from 'react'
 import { DashboardSidebar } from './DashboardSidebar'
 import { Portfolio } from './Portfolio'
 
-const direction: StackDirection = { base: 'column', '2xl': 'row' }
+const direction: StackDirection = { base: 'column', xl: 'row' }
 const maxWidth = { base: 'full', xl: 'sm' }
 
 export const WalletDashboard = memo(() => {

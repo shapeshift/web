@@ -1,3 +1,4 @@
+import type { StackDirection } from '@chakra-ui/react'
 import { Flex, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
@@ -25,6 +26,10 @@ type AssetDetailsProps = {
   route?: Route
 }
 
+const direction: StackDirection = { base: 'column', xl: 'row' }
+const maxWidth = { base: 'full', xl: 'sm' }
+const display = { base: 'none', md: 'block' }
+
 export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
   const { MultiHopTrades } = useAppSelector(selectFeatureFlags)
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
@@ -32,12 +37,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
 
   return (
     <Main headerComponent={<AssetHeader assetId={assetId} accountId={accountId} />}>
-      <Stack
-        alignItems='flex-start'
-        spacing={4}
-        mx='auto'
-        direction={{ base: 'column', xl: 'row' }}
-      >
+      <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <AssetChart accountId={accountId} assetId={assetId} isLoaded={true} />
           <MaybeChartUnavailable assetIds={assetIds} />
@@ -47,17 +47,11 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           <EarnOpportunities assetId={assetId} accountId={accountId} />
           <AssetTransactionHistory limit={10} assetId={assetId} accountId={accountId} />
         </Stack>
-        <Flex
-          flexDir='column'
-          flex='1 1 0%'
-          width='full'
-          maxWidth={{ base: 'full', xl: 'sm' }}
-          gap={4}
-        >
+        <Flex flexDir='column' flex='1 1 0%' width='full' maxWidth={maxWidth} gap={4}>
           {MultiHopTrades ? (
-            <MultiHopTrade display={{ base: 'none', md: 'block' }} defaultBuyAssetId={assetId} />
+            <MultiHopTrade display={display} defaultBuyAssetId={assetId} />
           ) : (
-            <TradeCard display={{ base: 'none', md: 'block' }} defaultBuyAssetId={assetId} />
+            <TradeCard display={display} defaultBuyAssetId={assetId} />
           )}
           {marketData && <AssetMarketData assetId={assetId} />}
           <AssetDescription assetId={assetId} />

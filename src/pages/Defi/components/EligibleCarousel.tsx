@@ -30,6 +30,8 @@ const Header: React.FC<CarouselHeaderProps> = ({ controls }) => {
   )
 }
 
+const cardPadding = { base: 4, xl: 0 }
+
 export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
   const eligibleOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
   const filteredEligibleOpportunities = useMemo(() => {
@@ -48,7 +50,7 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
   if (!filteredEligibleOpportunities.length) return null
 
   return (
-    <Card px={{ base: 4, md: 0 }}>
+    <Card px={cardPadding}>
       <Carousel autoPlay slideSize='100%' renderHeader={props => <Header {...props} />} {...props}>
         {renderEligibleCards}
       </Carousel>

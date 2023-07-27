@@ -19,7 +19,7 @@ import { RewardsDashboard } from './RewardsDashboard'
 import { WalletDashboard } from './WalletDashboard'
 
 const direction: StackDirection = { base: 'column', xl: 'row' }
-const maxWidth = { base: 'full', xl: 'sm' }
+const maxWidth = { base: 'full', lg: 'full', xl: 'sm' }
 
 export const Dashboard = memo(() => {
   const translate = useTranslate()

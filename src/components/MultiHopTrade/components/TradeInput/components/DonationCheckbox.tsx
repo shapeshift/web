@@ -25,13 +25,14 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = memo(
   ({ isLoading }): JSX.Element | null => {
     const translate = useTranslate()
     const dispatch = useAppDispatch()
-    const userWillDonate = useAppSelector(selectWillDonate)
+    const willDonate = useAppSelector(selectWillDonate)
     const wallet = useWallet().state.wallet
     const walletIsKeepKey = wallet && isKeepKey(wallet)
     const sellAsset = useAppSelector(selectSellAsset)
     const isFromEvm = isEvmChainId(sellAsset.chainId)
-    const willDonate = walletIsKeepKey ? userWillDonate && !isFromEvm : userWillDonate
     const affiliateBps = useAppSelector(selectActiveQuoteDonationBps)
+    // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
+    const showDonationOption = (walletIsKeepKey ? !isFromEvm : true) && affiliateBps !== undefined
 
     const {
       number: { toFiat },
@@ -65,6 +66,6 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = memo(
       [translate, willDonate, handleDonationToggle, isLoading, toFiat, potentialDonationAmountFiat],
     )
 
-    return affiliateBps !== undefined ? donationOption : null
+    return showDonationOption ? donationOption : null
   },
 )

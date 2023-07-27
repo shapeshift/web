@@ -27,7 +27,9 @@ describe('mixpanel helpers', () => {
 
     it('should redact account id', () => {
       const pathname = '/dashboard/accounts/eip155:1:0xa4..35/eip155:1%2Fslip44:60'
-      expect(mapMixpanelPathname(pathname, assets)).toEqual('/dashboard/accounts/Ethereum/Ethereum.ETH')
+      expect(mapMixpanelPathname(pathname, assets)).toEqual(
+        '/dashboard/accounts/Ethereum/Ethereum.ETH',
+      )
     })
 
     it('can handle missing assetId', () => {

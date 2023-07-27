@@ -39,6 +39,7 @@ export enum MixPanelEvents {
   Error = 'Error',
   PageView = 'Page View',
   SwapperApiRequest = 'Swapper API request',
+  QuotesReceived = 'Quotes Received',
 }
 
 export type TrackOpportunityProps = {

@@ -83,6 +83,7 @@ export const useGetTradeQuotes = () => {
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
+  const [hasFocus, setHasFocus] = useState(document.hasFocus())
   const debouncedTradeQuoteInput = useDebounce(tradeQuoteInput, 500)
   const sellAsset = useAppSelector(selectSellAsset)
   const buyAsset = useAppSelector(selectBuyAsset)
@@ -166,8 +167,16 @@ export const useGetTradeQuotes = () => {
     receiveAccountMetadata?.bip44Params,
   ])
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('document.hasFocus()', document.hasFocus())
+      setHasFocus(document.hasFocus())
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [])
+
   const { data } = useGetTradeQuoteQuery(debouncedTradeQuoteInput, {
-    pollingInterval: 20000,
+    pollingInterval: hasFocus ? 20000 : undefined,
     /*
       If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
       We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.

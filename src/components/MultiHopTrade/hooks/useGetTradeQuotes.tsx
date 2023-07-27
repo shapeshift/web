@@ -27,7 +27,6 @@ import {
 import {
   selectFirstHopSellAsset,
   selectLastHopBuyAsset,
-  selectQuoteDonationAmountUsd,
   selectSellAmountUsd,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -43,7 +42,6 @@ type GetMixPanelDataFromApiQuotesReturn = {
   sellAssetId: string | undefined
   buyAssetId: string | undefined
   sellAmountUsd: string | undefined
-  plannedDonationAmountUsd: string
 }
 
 const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromApiQuotesReturn => {
@@ -51,7 +49,6 @@ const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromAp
   const sellAssetId = selectFirstHopSellAsset(store.getState())?.assetId
   const buyAssetId = selectLastHopBuyAsset(store.getState())?.assetId
   const sellAmountUsd = selectSellAmountUsd(store.getState())
-  const plannedDonationAmountUsd = selectQuoteDonationAmountUsd(store.getState())
   const quoteMeta: MixPanelQuoteMeta[] = quotes
     .map(({ quote, swapperName, inputOutputRatio }) => {
       const quoteDifferenceDecimalPercentage = (inputOutputRatio / bestInputOutputRatio - 1) * -1
@@ -63,7 +60,7 @@ const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromAp
     })
     .filter(isSome)
 
-  return { quoteMeta, sellAssetId, buyAssetId, sellAmountUsd, plannedDonationAmountUsd }
+  return { quoteMeta, sellAssetId, buyAssetId, sellAmountUsd }
 }
 
 const isEqualExceptAffiliateBps = (

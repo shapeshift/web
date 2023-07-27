@@ -452,6 +452,7 @@ export enum ZapperAppId {
   VectorFinance = 'vector-finance',
   Vela = 'vela',
   Velodrome = 'velodrome',
+  VelodromeV2 = 'velodrome-v2',
   VendorFinance = 'vendor-finance',
   Venus = 'venus',
   Vesper = 'vesper',

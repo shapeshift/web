@@ -606,7 +606,7 @@ export const zapper = createApi({
                       const tokenPoolRatio = totalSupplyBaseUnit
                         ? bn(reserveBaseUnit).div(totalSupplyBaseUnit).toString()
                         : undefined
-                      if (!tokenPoolRatio) return '0'
+                      if (bnOrZero(tokenPoolRatio).isZero()) return '0'
                       const ratio = toBaseUnit(tokenPoolRatio, asset.tokens[i].decimals)
                       return ratio
                     },

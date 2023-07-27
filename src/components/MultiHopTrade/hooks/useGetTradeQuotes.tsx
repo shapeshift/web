@@ -8,8 +8,11 @@ import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddr
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { GetTradeQuoteInput } from 'lib/swapper/api'
-import { isSkipToken } from 'lib/utils'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import type { GetTradeQuoteInput, SwapperName } from 'lib/swapper/api'
+import { isSkipToken, isSome } from 'lib/utils'
+import type { ApiQuote } from 'state/apis/swappers'
 import { useGetTradeQuoteQuery } from 'state/apis/swappers/swappersApi'
 import {
   selectBuyAccountId,
@@ -21,8 +24,45 @@ import {
   selectSellAsset,
   selectWillDonate,
 } from 'state/slices/selectors'
+import {
+  selectFirstHopSellAsset,
+  selectLastHopBuyAsset,
+  selectSellAmountUsd,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
+
+type MixPanelQuoteMeta = {
+  swapperName: SwapperName
+  differenceFromBestQuoteDecimalPercentage: number
+}
+
+type GetMixPanelDataFromApiQuotesReturn = {
+  quoteMeta: MixPanelQuoteMeta[]
+  sellAssetId: string | undefined
+  buyAssetId: string | undefined
+  sellAmountUsd: string | undefined
+}
+
+const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromApiQuotesReturn => {
+  const bestInputOutputRatio = quotes[0].inputOutputRatio
+  const sellAssetId = selectFirstHopSellAsset(store.getState())?.assetId
+  const buyAssetId = selectLastHopBuyAsset(store.getState())?.assetId
+  const sellAmountUsd = selectSellAmountUsd(store.getState())
+  const quoteMeta: MixPanelQuoteMeta[] = quotes
+    .map(({ quote, swapperName, inputOutputRatio }) => {
+      const differenceFromBestQuoteDecimalPercentage =
+        (inputOutputRatio / bestInputOutputRatio - 1) * -1
+      return {
+        swapperName,
+        differenceFromBestQuoteDecimalPercentage,
+        quoteReceived: !!quote,
+      }
+    })
+    .filter(isSome)
+
+  return { quoteMeta, sellAssetId, buyAssetId, sellAmountUsd }
+}
 
 const isEqualExceptAffiliateBps = (
   a: GetTradeQuoteInput | typeof skipToken,
@@ -63,6 +103,8 @@ export const useGetTradeQuotes = () => {
       accountId: buyAccountId,
     })
   }, [buyAccountId])
+
+  const mixpanel = getMixPanel()
 
   useEffect(() => {
     if (wallet && sellAccountMetadata && receiveAddress) {
@@ -121,7 +163,7 @@ export const useGetTradeQuotes = () => {
     receiveAccountMetadata?.bip44Params,
   ])
 
-  useGetTradeQuoteQuery(debouncedTradeQuoteInput, {
+  const { data } = useGetTradeQuoteQuery(debouncedTradeQuoteInput, {
     pollingInterval: 20000,
     /*
       If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
@@ -129,4 +171,11 @@ export const useGetTradeQuotes = () => {
      */
     refetchOnMountOrArgChange: true,
   })
+
+  useEffect(() => {
+    if (data && mixpanel) {
+      const quoteData = getMixPanelDataFromApiQuotes(data)
+      mixpanel.track(MixPanelEvents.QuotesReceived, quoteData)
+    }
+  }, [data, mixpanel])
 }

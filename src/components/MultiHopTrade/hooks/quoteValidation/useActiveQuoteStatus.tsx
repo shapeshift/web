@@ -6,7 +6,10 @@ import type { QuoteStatus } from 'components/MultiHopTrade/types'
 import { ActiveQuoteStatus } from 'components/MultiHopTrade/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { SwapErrorType, SwapperName } from 'lib/swapper/api'
-import { selectBuyAsset } from 'state/slices/swappersSlice/selectors'
+import {
+  selectBuyAsset,
+  selectSellAmountCryptoPrecision,
+} from 'state/slices/swappersSlice/selectors'
 import {
   selectActiveQuote,
   selectActiveQuoteError,
@@ -28,11 +31,17 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
   const lastHopSellFeeAsset = useAppSelector(selectLastHopSellFeeAsset)
   const minimumCryptoHuman = useAppSelector(selectMinimumSellAmountCryptoHuman)
   const tradeBuyAsset = useAppSelector(selectBuyAsset)
+  const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
   const insufficientBalanceProtocolFeeMeta = useInsufficientBalanceProtocolFeeMeta()
 
   const activeQuote = useAppSelector(selectActiveQuote)
   const activeQuoteError = useAppSelector(selectActiveQuoteError)
+
+  const hasUserEnteredAmount = useMemo(
+    () => bnOrZero(sellAmountCryptoPrecision).gt(0),
+    [sellAmountCryptoPrecision],
+  )
 
   // TODO: implement properly once we've got api loading state rigged up
   const isLoading = useMemo(
@@ -41,7 +50,7 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
   )
 
   const quoteErrors: ActiveQuoteStatus[] = useMemo(() => {
-    if (isLoading) return []
+    if (isLoading || hasUserEnteredAmount) return []
     const errors: ActiveQuoteStatus[] = []
     if (activeQuoteError) {
       // Map known swapper errors to quote status

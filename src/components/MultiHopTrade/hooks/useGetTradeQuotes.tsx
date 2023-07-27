@@ -8,6 +8,7 @@ import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddr
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { GetTradeQuoteInput, SwapperName } from 'lib/swapper/api'
@@ -132,7 +133,9 @@ export const useGetTradeQuotes = () => {
 
         // if the quote input args changed, reset the selected swapper and update the trade quote args
         if (!isEqual(tradeQuoteInput, updatedTradeQuoteInput ?? skipToken)) {
-          setTradeQuoteInput(updatedTradeQuoteInput ?? skipToken)
+          updatedTradeQuoteInput && bnOrZero(sellAmountCryptoPrecision).gt(0)
+            ? setTradeQuoteInput(updatedTradeQuoteInput)
+            : setTradeQuoteInput(skipToken)
 
           // If only the affiliateBps changed, we've toggled the donation checkbox - don't reset the swapper name
           if (isEqualExceptAffiliateBps(tradeQuoteInput, updatedTradeQuoteInput)) {

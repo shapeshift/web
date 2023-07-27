@@ -97,7 +97,9 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
         !isTradingActiveOnBuyPool && ActiveQuoteStatus.TradingInactiveOnBuyChain,
         feesExceedsSellAmount && ActiveQuoteStatus.SellAmountBelowTradeFee,
         insufficientBalanceProtocolFeeMeta && ActiveQuoteStatus.InsufficientFundsForProtocolFee,
-        quotes.length === 0 && ActiveQuoteStatus.NoQuotesAvailable,
+        quotes.length === 0 &&
+          bnOrZero(sellAmountCryptoBaseUnit).gt(0) &&
+          ActiveQuoteStatus.NoQuotesAvailable,
       ].filter(isTruthy),
     [
       feesExceedsSellAmount,

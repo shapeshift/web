@@ -51,7 +51,6 @@ import {
   V2AppTokensResponse,
   V2NftBalancesCollectionsResponse,
   ZAPPER_NETWORKS_TO_CHAIN_ID_MAP,
-  ZapperAppId,
   zapperAssetToMaybeAssetId,
   ZapperGroupId,
   zapperNetworkToChainId,
@@ -108,7 +107,7 @@ export const zapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'zapperApi',
   endpoints: build => ({
-    getZapperAppsOutput: build.query<Record<ZapperAppId, V2AppResponseType>, void>({
+    getZapperAppsOutput: build.query<Record<string, V2AppResponseType>, void>({
       queryFn: async () => {
         const url = `/v2/apps`
         const payload = { ...options, headers, url }
@@ -117,10 +116,10 @@ export const zapperApi = createApi({
           const parsedZapperV2AppsData = V2AppsResponse.parse(res)
 
           const zapperV2AppsDataByAppId = parsedZapperV2AppsData.reduce<
-            Record<ZapperAppId, V2AppResponseType>
+            Record<string, V2AppResponseType>
           >(
             (acc, app) => Object.assign(acc, { [app.id]: app }),
-            {} as Record<ZapperAppId, V2AppResponseType>,
+            {} as Record<string, V2AppResponseType>,
           )
 
           return { data: zapperV2AppsDataByAppId }
@@ -142,7 +141,7 @@ export const zapperApi = createApi({
         const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
 
         // only UNI-V2 supported for now
-        const url = `/v2/apps/${ZapperAppId.UniswapV2}/tokens`
+        const url = `/v2/apps/uniswap-v2/tokens`
         const params = {
           groupId: ZapperGroupId.Pool,
           networks: evmNetworks,

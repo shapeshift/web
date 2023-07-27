@@ -66,7 +66,7 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
       errors.push(ActiveQuoteStatus.NoQuotesAvailable)
     }
     return errors
-  }, [activeQuoteError, isLoading, activeQuote, validationErrors])
+  }, [isLoading, hasUserEnteredAmount, activeQuoteError, activeQuote, validationErrors])
 
   const minimumAmountUserMessage = `${bnOrZero(minimumCryptoHuman).decimalPlaces(6)} ${
     firstHopSellAsset?.symbol

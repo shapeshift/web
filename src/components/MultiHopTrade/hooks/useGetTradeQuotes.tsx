@@ -8,6 +8,7 @@ import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddr
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import type { GetTradeQuoteInput, SwapperName } from 'lib/swapper/api'
@@ -82,6 +83,7 @@ export const useGetTradeQuotes = () => {
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
+  const [hasFocus, setHasFocus] = useState(document.hasFocus())
   const debouncedTradeQuoteInput = useDebounce(tradeQuoteInput, 500)
   const sellAsset = useAppSelector(selectSellAsset)
   const buyAsset = useAppSelector(selectBuyAsset)
@@ -132,7 +134,9 @@ export const useGetTradeQuotes = () => {
 
         // if the quote input args changed, reset the selected swapper and update the trade quote args
         if (!isEqual(tradeQuoteInput, updatedTradeQuoteInput ?? skipToken)) {
-          setTradeQuoteInput(updatedTradeQuoteInput ?? skipToken)
+          updatedTradeQuoteInput && bnOrZero(sellAmountCryptoPrecision).gt(0)
+            ? setTradeQuoteInput(updatedTradeQuoteInput)
+            : setTradeQuoteInput(skipToken)
 
           // If only the affiliateBps changed, we've toggled the donation checkbox - don't reset the swapper name
           if (isEqualExceptAffiliateBps(tradeQuoteInput, updatedTradeQuoteInput)) {
@@ -163,8 +167,15 @@ export const useGetTradeQuotes = () => {
     receiveAccountMetadata?.bip44Params,
   ])
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHasFocus(document.hasFocus())
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [])
+
   const { data } = useGetTradeQuoteQuery(debouncedTradeQuoteInput, {
-    pollingInterval: 20000,
+    pollingInterval: hasFocus ? 20000 : undefined,
     /*
       If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
       We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.

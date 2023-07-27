@@ -113,6 +113,7 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
       manualReceiveAddress,
       quotes.length,
       receiveAddress,
+      sellAmountCryptoBaseUnit,
       wallet,
       walletSupportsBuyAssetChain,
       walletSupportsSellAssetChain,

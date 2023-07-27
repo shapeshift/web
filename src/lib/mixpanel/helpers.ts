@@ -14,12 +14,15 @@ export const mapMixpanelPathname = (pathname: string, assets: AssetsById): strin
       // example path
       // /dashboard/accounts/eip155:1:0xef678d1ad8c897c71d0a6145390a474035db8f1f/eip155:1%2Ferc20:0xc770eefad204b5180df6a14ee197d99d808ee52d
       const parts = pathname.split('/')
-      const [dashboard, accounts, accountLiteral, accountId, maybeEscapedAssetId] = parts
+      /**
+       * note - paths have a leading '/', ignore the first destructured element from the split
+       */
+      const [_, dashboardLiteral, accountsLiteral, accountId, maybeAssetId] = parts
       const { chainId } = fromAccountId(accountId)
       const chainName = getChainAdapterManager().get(chainId)?.getDisplayName()
-      const assetId = maybeEscapedAssetId && decodeURIComponent(maybeEscapedAssetId)
+      const assetId = maybeAssetId && decodeURIComponent(maybeAssetId)
       const mixpanelAssetId = getMaybeCompositeAssetSymbol(assetId, assets)
-      const newParts = [dashboard, accounts, accountLiteral, chainName]
+      const newParts = [_, dashboardLiteral, accountsLiteral, chainName]
       if (mixpanelAssetId) newParts.push(mixpanelAssetId)
       return newParts.join('/')
     }

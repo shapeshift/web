@@ -46,7 +46,7 @@ type GetMixPanelDataFromApiQuotesReturn = {
 }
 
 const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromApiQuotesReturn => {
-  const bestInputOutputRatio = quotes[0].inputOutputRatio
+  const bestInputOutputRatio = quotes[0]?.inputOutputRatio
   const sellAssetId = selectFirstHopSellAsset(store.getState())?.assetId
   const buyAssetId = selectLastHopBuyAsset(store.getState())?.assetId
   const sellAmountUsd = selectSellAmountUsd(store.getState())

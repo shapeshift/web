@@ -7,11 +7,11 @@ import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import { getMixPanel } from './mixPanelSingleton'
 import type { MixPanelEvents, TrackOpportunityProps } from './types'
 
-// Returns an altered path when necessary or false if the path should not be tracked for privacy
-export const mapMixpanelPathname = (pathname: string, assets: AssetsById): string | boolean => {
+// Returns an altered path when necessary or null if the path should not be tracked for privacy
+export const mapMixpanelPathname = (pathname: string, assets: AssetsById): string | null  => {
   switch (true) {
     case pathname.startsWith('/dashboard/accounts/'): {
-      return false
+      return null
     }
     case pathname.startsWith('/assets/'): {
       // example path

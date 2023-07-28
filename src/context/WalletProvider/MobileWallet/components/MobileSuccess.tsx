@@ -44,6 +44,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
               icon,
               deviceId,
               meta: { label: walletLabel },
+              connectedType: KeyManager.Mobile,
             },
           })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })

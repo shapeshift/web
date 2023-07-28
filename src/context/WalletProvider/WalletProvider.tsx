@@ -98,7 +98,8 @@ export interface InitialState {
   keyring: Keyring
   adapters: Adapters | null
   wallet: HDWallet | null
-  type: KeyManager | null
+  type: KeyManager | null // todo: rename me. connectingType?
+  connectedType: KeyManager | null
   initialRoute: string | null
   walletInfo: WalletInfo | null
   isConnected: boolean
@@ -119,6 +120,7 @@ const initialState: InitialState = {
   adapters: null,
   wallet: null,
   type: null,
+  connectedType: null,
   initialRoute: null,
   walletInfo: null,
   isConnected: false,
@@ -160,6 +162,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         ...state,
         isDemoWallet: Boolean(action.payload.isDemoWallet),
         wallet: action.payload.wallet,
+        connectedType: action.payload.connectedType,
         walletInfo: {
           name: action?.payload?.name,
           icon: action?.payload?.icon,
@@ -393,6 +396,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                         icon,
                         deviceId: w.id || localWalletDeviceId,
                         meta: { label: w.label },
+                        connectedType: KeyManager.Mobile,
                       },
                     })
                     dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
@@ -455,6 +459,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       icon,
                       deviceId,
                       meta: { label },
+                      connectedType: KeyManager.KeepKey,
                     },
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
@@ -482,6 +487,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       name,
                       icon,
                       deviceId,
+                      connectedType: KeyManager.MetaMask,
                     },
                   })
                   dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
@@ -510,6 +516,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       name,
                       icon,
                       deviceId,
+                      connectedType: KeyManager.Coinbase,
                     },
                   })
                   dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
@@ -536,6 +543,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       name,
                       icon,
                       deviceId,
+                      connectedType: KeyManager.XDefi,
                     },
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
@@ -561,6 +569,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       name,
                       icon,
                       deviceId,
+                      connectedType: KeyManager.Keplr,
                     },
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
@@ -588,6 +597,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       name,
                       icon,
                       deviceId,
+                      connectedType: KeyManager.WalletConnect,
                     },
                   })
                   dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
@@ -635,6 +645,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         name,
         icon,
         deviceId,
+        connectedType: walletType,
       },
     })
   }, [state, walletType])
@@ -782,7 +793,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const connect = useCallback((type: KeyManager) => {
     // remove existing dapp or wallet connections
     if (type === KeyManager.WalletConnect) localStorage.removeItem('walletconnect')
-    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
+    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type }) // todo: what uses you?
     const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
       String(path).endsWith('connect'),
     )
@@ -818,6 +829,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         icon,
         deviceId,
         meta: { label: name },
+        connectedType: KeyManager.Demo,
       },
     })
     dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })

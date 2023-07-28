@@ -83,7 +83,14 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
         } else {
           dispatch({
             type: WalletActions.SET_WALLET,
-            payload: { wallet, name, icon, deviceId, meta: { label: item.name } },
+            payload: {
+              wallet,
+              name,
+              icon,
+              deviceId,
+              meta: { label: item.name },
+              connectedType: KeyManager.Native,
+            },
           })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
           // The wallet is already initialized so we can close the modal

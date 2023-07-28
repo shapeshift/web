@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import type { DeviceState, InitialState } from 'context/WalletProvider/WalletProvider'
 import { usePoll } from 'hooks/usePoll/usePoll'
 
@@ -216,6 +217,7 @@ export const useKeepKeyEventHandler = (
               name,
               deviceId: id,
               meta: { label: name },
+              connectedType: KeyManager.KeepKey,
               icon: state.walletInfo.icon, // We're reconnecting the same wallet so we can reuse the walletInfo
             },
           })

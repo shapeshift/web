@@ -98,7 +98,7 @@ export interface InitialState {
   keyring: Keyring
   adapters: Adapters | null
   wallet: HDWallet | null
-  type: KeyManager | null // todo: rename me. connectingType?
+  connectingType: KeyManager | null
   connectedType: KeyManager | null
   initialRoute: string | null
   walletInfo: WalletInfo | null
@@ -119,7 +119,7 @@ const initialState: InitialState = {
   keyring: new Keyring(),
   adapters: null,
   wallet: null,
-  type: null,
+  connectingType: null,
   connectedType: null,
   initialRoute: null,
   walletInfo: null,

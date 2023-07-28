@@ -6,10 +6,11 @@ import { LinearGradient } from '@visx/gradient'
 import { ScaleSVG } from '@visx/responsive'
 import { scaleLinear } from '@visx/scale'
 import { AnimatedAreaSeries, AnimatedAxis, Tooltip, XYChart } from '@visx/xychart'
+import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip'
 import type { Numeric } from 'd3-array'
 import { extent, max, min } from 'd3-array'
 import dayjs from 'dayjs'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -24,19 +25,34 @@ export interface PrimaryChartProps {
   data: HistoryData[]
   width: number
   height: number
-  margin?: { top: number; right: number; bottom: number; left: number }
+  margin: { top: number; right: number; bottom: number; left: number }
   color?: string
 }
 
 // accessors
 const getStockValue = (d: HistoryData) => d?.price || 0
 
+const verticalCrosshairStyle = {
+  stroke: colors.blue[500],
+  strokeWidth: 2,
+  opacity: 0.5,
+  strokeDasharray: '5,2',
+  pointerEvents: 'none',
+}
+
+const tooltipStyle = { zIndex: 10 } // render over swapper TokenButton component
+
+const accessors = {
+  xAccessor: (d: HistoryData) => d.date,
+  yAccessor: (d: HistoryData) => d.price,
+}
+
 export const PrimaryChart = ({
   data,
   width = 10,
   height,
   color = 'green.500',
-  margin = { top: 0, right: 0, bottom: 0, left: 0 },
+  margin,
 }: PrimaryChartProps) => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
 
@@ -50,24 +66,30 @@ export const PrimaryChart = ({
   const tooltipColor = useColorModeValue(colors.gray[800], 'white')
 
   // bounds
-  const xMax = Math.max(width - margin.left - margin.right, 0)
-  const yMax = Math.max(height - margin.top - margin.bottom, 0)
+  const xMax = useMemo(
+    () => Math.max(width - margin.left - margin.right, 0),
+    [margin.left, margin.right, width],
+  )
+  const yMax = useMemo(
+    () => Math.max(height - margin.top - margin.bottom, 0),
+    [height, margin.bottom, margin.top],
+  )
 
-  const minPrice = Math.min(...data.map(getStockValue))
-  const maxPrice = Math.max(...data.map(getStockValue))
+  const minPrice = useMemo(() => Math.min(...data.map(getStockValue)), [data])
+  const maxPrice = useMemo(() => Math.max(...data.map(getStockValue)), [data])
 
   const priceScale = useMemo(() => {
     return scaleLinear({
       range: [yMax + margin.top - 32, margin.top + 32],
       domain: [min(data, getStockValue) || 0, max(data, getStockValue) || 0],
     })
-    //
-  }, [margin.top, yMax, data])
+  }, [yMax, margin.top, data])
 
-  const accessors = {
-    xAccessor: (d: HistoryData) => d.date,
-    yAccessor: (d: HistoryData) => d.price,
-  }
+  const xyChartMargin = useMemo(
+    () => ({ top: 0, bottom: margin.bottom, left: 0, right: 0 }),
+    [margin],
+  )
+
   const labelColor = useColorModeValue(colors.gray[300], colors.gray[600])
   const tickLabelProps = useMemo(
     () => ({
@@ -98,21 +120,43 @@ export const PrimaryChart = ({
     [yMax, margin.top, margin.bottom, minPrice, maxPrice],
   )
 
+  const renderTooltip = useCallback(
+    ({ tooltipData }: RenderTooltipParams<HistoryData>) => {
+      const { datum } = tooltipData?.nearestDatum!
+      const { date, price } = datum as HistoryData
+      return (
+        <CStack
+          borderRadius={'lg'}
+          borderColor={tooltipBorder}
+          borderWidth={1}
+          color={tooltipColor}
+          bgColor={tooltipBg}
+          direction='column'
+          spacing={0}
+          p={2}
+        >
+          <Amount.Fiat value={price} fontWeight='bold' />
+          <RawText fontSize={'xs'} color={colors.gray[500]}>
+            {dayjs(date).locale(selectedLocale).format('LLL')}
+          </RawText>
+        </CStack>
+      )
+    },
+    [selectedLocale, tooltipBg, tooltipBorder, tooltipColor],
+  )
+
+  const lineProps = useMemo(() => ({ stroke: chartColor }), [chartColor])
+  const tickLabelPropsFn = useCallback(() => tickLabelProps, [tickLabelProps])
+
   return (
     <ScaleSVG width={width} height={height}>
-      <XYChart
-        width={width}
-        height={height}
-        margin={{ top: 0, bottom: margin.bottom, left: 0, right: 0 }}
-        xScale={xScale}
-        yScale={yScale}
-      >
+      <XYChart width={width} height={height} margin={xyChartMargin} xScale={xScale} yScale={yScale}>
         <LinearGradient id='area-gradient' from={chartColor} to={chartColor} toOpacity={0} />
         <AnimatedAxis
           orientation='bottom'
           hideTicks
           hideAxisLine
-          tickLabelProps={() => tickLabelProps}
+          tickLabelProps={tickLabelPropsFn}
           numTicks={5}
           labelOffset={16}
         />
@@ -121,45 +165,19 @@ export const PrimaryChart = ({
           data={data}
           fill='url(#area-gradient)'
           fillOpacity={0.1}
-          lineProps={{ stroke: chartColor }}
+          lineProps={lineProps}
           offset={16}
           {...accessors}
         />
         <Tooltip
           applyPositionStyle
-          style={{ zIndex: 10 }} // render over swapper TokenButton component
+          style={tooltipStyle}
           showVerticalCrosshair
           snapTooltipToDatumX
           showSeriesGlyphs
-          verticalCrosshairStyle={{
-            stroke: colors.blue[500],
-            strokeWidth: 2,
-            opacity: 0.5,
-            strokeDasharray: '5,2',
-            pointerEvents: 'none',
-          }}
+          verticalCrosshairStyle={verticalCrosshairStyle}
           detectBounds
-          renderTooltip={({ tooltipData }) => {
-            const { datum } = tooltipData?.nearestDatum!
-            const { date, price } = datum as HistoryData
-            return (
-              <CStack
-                borderRadius={'lg'}
-                borderColor={tooltipBorder}
-                borderWidth={1}
-                color={tooltipColor}
-                bgColor={tooltipBg}
-                direction='column'
-                spacing={0}
-                p={2}
-              >
-                <Amount.Fiat value={price} fontWeight='bold' />
-                <RawText fontSize={'xs'} color={colors.gray[500]}>
-                  {dayjs(date).locale(selectedLocale).format('LLL')}
-                </RawText>
-              </CStack>
-            )
-          }}
+          renderTooltip={renderTooltip}
         />
         <MaxPrice
           yText={priceScale(maxPrice)}

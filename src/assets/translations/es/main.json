@@ -107,8 +107,9 @@
     "wallet": "Billetera",
     "action": "Acción",
     "feedbackAndSupport": "Comentarios y soporte",
-    "submitFeatureRequest": "Solicitar una función",
-    "getSupport": "Obtener Soporte"
+    "getSupport": "Obtener Soporte",
+    "viewMyWallet": "Ver mi Billetera",
+    "submitFeatureRequest": "Solicitar una función"
   },
   "consentBanner": {
     "body": {
@@ -894,7 +895,8 @@
         "generic": "Ocurrió un error.",
         "notEnoughNativeToken": "No hay suficiente %{asset} para cubrir gas",
         "transactionRejected": "El usuario ha rechazado la transacción.",
-        "qrPermissions": "Esta función necesita permisos de acceso a la cámara para funcionar. Por favor cambia la configuración de tu navegador."
+        "qrPermissions": "Esta función necesita permisos de acceso a la cámara para funcionar. Por favor cambia la configuración de tu navegador.",
+        "qrDangerousEthUrl": "Los códigos QR contienen una dirección no compatible. Pegue la dirección manualmente."
       },
       "confirm": {
         "sendAsset": "Enviar %{asset}",
@@ -1444,6 +1446,22 @@
       "body": "Al conectar una billetera, acepta los Términos de servicio de ShapeShift y reconoce que ha leído y comprende el descargo de responsabilidad de ShapeShift.",
       "footer": "¿No tienes billetera?",
       "create": "Crea una"
+    },
+    "walletConnectV2": {
+      "start": {
+        "header": "Wallet Connect V2",
+        "load": "Conexiones Guardadas",
+        "create": "Conectar nueva billetera"
+      },
+      "load": {
+        "header": "Conexiones Guardadas",
+        "confirmForget": "¿Estás seguro que quieres olvidar %{connection}?",
+        "error": {
+          "delete": "No se puede eliminar tu billetera, lo siento.",
+          "noWallet": "No hay billeteras guardadas",
+          "pair": "No se puede emparejar billetera"
+        }
+      }
     }
   },
   "graph": {
@@ -1766,7 +1784,14 @@
       "banner": {
         "title": "Consigue un Yat",
         "description": "Su Yat es su nombre de usuario emoji universal, URL del sitio web, dirección de pago y más."
-      }
+      },
+      "modal": {
+        "title": "Yat vinculado con éxito"
+      },
+      "linkedYat": "Yat vinculado",
+      "yatConnected": "Yat conectado!",
+      "usdcAddress": "Dirección Yat USDC",
+      "ethAddress": "Dirección Yat ETH"
     }
   },
   "gasInput": {
@@ -2000,6 +2025,11 @@
       "subtitle": "Tu proyecto aquí",
       "title": "Lanza una misión para tu proyecto",
       "cta": "Enviar proyecto"
+    },
+    "foxRewards": {
+      "subtitle": "Compre, venda, intercambie, gane y más",
+      "title": "Gane FOX",
+      "cta": "Iniciar Misión"
     }
   },
   "avatar": {

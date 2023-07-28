@@ -17,7 +17,7 @@ import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { Text } from 'components/Text'
 import { useToggle } from 'hooks/useToggle/useToggle'
 
-type Option = [string, string, ReactChild?]
+export type Option = [string, string, ReactChild?]
 
 export const FilterGroup = ({
   title,

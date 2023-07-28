@@ -1,4 +1,5 @@
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Button,
   Flex,
@@ -10,7 +11,8 @@ import {
 } from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import type { Property } from 'csstype'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -68,7 +70,12 @@ import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 
-export const TradeInput = () => {
+const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+const marginHorizontal = { base: 0, md: -3 }
+const marginVertical = { base: -3, md: 0 }
+const percentOptions = [1]
+
+export const TradeInput = memo(() => {
   useGetTradeQuotes()
   const {
     state: { wallet },
@@ -78,11 +85,13 @@ export const TradeInput = () => {
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
+  const borderColor = useColorModeValue('gray.100', 'gray.750')
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(false)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const { assetSearch } = useModal()
+  const buyAssetSearch = useModal('buyAssetSearch')
+  const sellAssetSearch = useModal('sellAssetSearch')
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
@@ -94,6 +103,10 @@ export const TradeInput = () => {
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
+  const hasUserEnteredAmount = useMemo(
+    () => bnOrZero(sellAmountCryptoPrecision).gt(0),
+    [sellAmountCryptoPrecision],
+  )
   const activeQuoteStatus = useActiveQuoteStatus()
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(swappers.actions.setBuyAsset(asset)),
@@ -136,20 +149,20 @@ export const TradeInput = () => {
   )
 
   const handleSellAssetClick = useCallback(() => {
-    assetSearch.open({
+    sellAssetSearch.open({
       onClick: setSellAsset,
       title: 'trade.tradeFrom',
       assets: supportedSellAssets,
     })
-  }, [assetSearch, setSellAsset, supportedSellAssets])
+  }, [sellAssetSearch, setSellAsset, supportedSellAssets])
 
   const handleBuyAssetClick = useCallback(() => {
-    assetSearch.open({
+    buyAssetSearch.open({
       onClick: setBuyAsset,
       title: 'trade.tradeTo',
       assets: supportedBuyAssets,
     })
-  }, [assetSearch, setBuyAsset, supportedBuyAssets])
+  }, [buyAssetSearch, setBuyAsset, supportedBuyAssets])
 
   const buyAmountBeforeFeesCryptoPrecision = useAppSelector(
     selectBuyAmountBeforeFeesCryptoPrecision,
@@ -194,12 +207,35 @@ export const TradeInput = () => {
     return quoteHasError || manualReceiveAddressIsValidating || isLoading || !isSellAmountEntered
   }, [isLoading, isSellAmountEntered, manualReceiveAddressIsValidating, quoteHasError])
 
+  const rightRegion = useMemo(
+    () =>
+      activeQuote && hasUserEnteredAmount ? (
+        <IconButton
+          size='sm'
+          icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
+          aria-label='Expand Quotes'
+          onClick={toggleShowTradeQuotes}
+        />
+      ) : (
+        <></>
+      ),
+    [activeQuote, hasUserEnteredAmount, showTradeQuotes, toggleShowTradeQuotes],
+  )
+
+  const tradeQuotes = useMemo(
+    () =>
+      hasUserEnteredAmount ? (
+        <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes} />
+      ) : null,
+    [hasUserEnteredAmount, showTradeQuotes, sortedQuotes],
+  )
+
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <SlideTransition>
         <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={2}>
-            <Flex alignItems='center' flexDir={{ base: 'column', md: 'row' }} width='full'>
+            <Flex alignItems='center' flexDir={flexDir} width='full'>
               <TradeAssetSelect
                 accountId={sellAssetAccountId}
                 onAccountIdChange={setSellAssetAccountId}
@@ -210,8 +246,8 @@ export const TradeInput = () => {
               <IconButton
                 onClick={handleSwitchAssets}
                 isRound
-                mx={{ base: 0, md: -3 }}
-                my={{ base: -3, md: 0 }}
+                mx={marginHorizontal}
+                my={marginVertical}
                 size='sm'
                 position='relative'
                 borderColor={useColorModeValue('gray.100', 'gray.750')}
@@ -253,62 +289,46 @@ export const TradeInput = () => {
               fiatAmount={
                 isSellAmountEntered ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed() : '0'
               }
-              percentOptions={[1]}
+              percentOptions={percentOptions}
               showInputSkeleton={isLoading}
               showFiatSkeleton={isLoading}
               label={translate('trade.youGet')}
-              rightRegion={
-                activeQuote ? (
-                  <IconButton
-                    size='sm'
-                    icon={showTradeQuotes ? <ArrowUpIcon /> : <ArrowDownIcon />}
-                    aria-label='Expand Quotes'
-                    onClick={toggleShowTradeQuotes}
-                  />
-                ) : (
-                  <></>
-                )
-              }
+              rightRegion={rightRegion}
             >
-              {Boolean(sortedQuotes.length) && (
-                <TradeQuotes isOpen={showTradeQuotes} sortedQuotes={sortedQuotes ?? []} />
-              )}
+              {tradeQuotes}
             </TradeAssetInput>
           </Stack>
-          <Stack
-            boxShadow='sm'
-            p={4}
-            borderColor={useColorModeValue('gray.100', 'gray.750')}
-            borderRadius='xl'
-            borderWidth={1}
-          >
-            <RateGasRow
-              sellSymbol={sellAsset.symbol}
-              buySymbol={buyAsset.symbol}
-              gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
-              rate={rate}
-              isLoading={isLoading}
-              isError={activeQuoteError !== undefined}
-            />
-            {activeQuote ? (
-              <ReceiveSummary
+          {hasUserEnteredAmount && (
+            <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
+              <RateGasRow
+                sellSymbol={sellAsset.symbol}
+                buySymbol={buyAsset.symbol}
+                gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
+                rate={rate}
                 isLoading={isLoading}
-                symbol={buyAsset.symbol}
-                amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
-                amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
-                protocolFees={totalProtocolFees}
-                shapeShiftFee='0'
-                slippage={
-                  activeQuote.recommendedSlippage ??
-                  getDefaultSlippagePercentageForSwapper(activeSwapperName)
-                }
-                swapperName={activeSwapperName ?? ''}
+                isError={activeQuoteError !== undefined}
               />
-            ) : null}
-          </Stack>
+
+              {activeQuote ? (
+                <ReceiveSummary
+                  isLoading={isLoading}
+                  symbol={buyAsset.symbol}
+                  amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
+                  amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
+                  protocolFees={totalProtocolFees}
+                  shapeShiftFee='0'
+                  slippage={
+                    activeQuote.recommendedSlippage ??
+                    getDefaultSlippagePercentageForSwapper(activeSwapperName)
+                  }
+                  swapperName={activeSwapperName ?? ''}
+                />
+              ) : null}
+            </Stack>
+          )}
           <Stack px={4}>
-            <DonationCheckbox isLoading={isLoading} />
-            {activeQuote && <ManualAddressEntry />}
+            {hasUserEnteredAmount && <DonationCheckbox isLoading={isLoading} />}
+            <ManualAddressEntry />
           </Stack>
           <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
             <Button
@@ -326,4 +346,4 @@ export const TradeInput = () => {
       </SlideTransition>
     </MessageOverlay>
   )
-}
+})

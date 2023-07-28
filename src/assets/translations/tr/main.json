@@ -107,8 +107,9 @@
     "wallet": "Cüzdan",
     "action": "Aksiyon",
     "feedbackAndSupport": "Geribildirim ve Destek",
-    "submitFeatureRequest": "Özellik Talebi Gönderin",
-    "getSupport": "Destek Al"
+    "getSupport": "Destek Al",
+    "viewMyWallet": "Cüzdanımı Görüntüle",
+    "submitFeatureRequest": "Özellik Talebi Gönderin"
   },
   "consentBanner": {
     "body": {
@@ -894,7 +895,8 @@
         "generic": "Bir hata oluştu.",
         "notEnoughNativeToken": "Gazı kapatmak için yeterli %{asset} yok",
         "transactionRejected": "Kullanıcı işlemi reddetti",
-        "qrPermissions": "Bu özelliğin çalışması için kamera erişim izinlerine ihtiyacı var. Lütfen tarayıcı ayarlarınızı değiştirin."
+        "qrPermissions": "Bu özelliğin çalışması için kamera erişim izinlerine ihtiyacı var. Lütfen tarayıcı ayarlarınızı değiştirin.",
+        "qrDangerousEthUrl": "Bir sözleşme adresi içeren QR kodları desteklenmez. Lütfen hedef adresi manuel olarak yapıştırın."
       },
       "confirm": {
         "sendAsset": "%{asset} gönder",
@@ -1444,6 +1446,22 @@
       "body": "Bir cüzdan bağlayarak, ShapeShift'in Hizmet Şartlarını kabul etmiş ve ShapeShift sorumluluk reddini okuyup anladığınızı kabul etmiş olursunuz.",
       "footer": "Cüzdanınız yok mu?",
       "create": "Bir tane yaratın"
+    },
+    "walletConnectV2": {
+      "start": {
+        "header": "Wallet Connect V2",
+        "load": "Kayıtlı bağlantılar",
+        "create": "Yeni cüzdan bağla"
+      },
+      "load": {
+        "header": "Kayıtlı Bağlantılar",
+        "confirmForget": "%{connection}'ı unutmak istediğinizden emin misiniz?",
+        "error": {
+          "delete": "Cüzdanınız silinemiyor, üzgünüz.",
+          "noWallet": "Kayıtlı cüzdanınız yok",
+          "pair": "Cüzdanınız eşleştirilemiyor"
+        }
+      }
     }
   },
   "graph": {
@@ -1766,7 +1784,14 @@
       "banner": {
         "title": "Yat Alın",
         "description": "Yat'ınız evrensel emoji kullanıcı adınız, web sitesi URL'niz, ödeme adresiniz ve daha fazlasıdır."
-      }
+      },
+      "modal": {
+        "title": "Yat başarıyla bağlandı"
+      },
+      "linkedYat": "Yat bağla",
+      "yatConnected": "Yat Bağlandı!",
+      "usdcAddress": "Yat USDC adresi",
+      "ethAddress": "Yat ETH adresi"
     }
   },
   "gasInput": {
@@ -2000,6 +2025,11 @@
       "subtitle": "Projeniz Burada",
       "title": "Görevler İçin Bir Proje Başlatın",
       "cta": "Projeyi Gönder"
+    },
+    "foxRewards": {
+      "subtitle": "Satın alın, satın, ticaret yapın, kazanın ve daha fazlasını yapın",
+      "title": "FOX Kazanın",
+      "cta": "Göreve Başla"
     }
   },
   "avatar": {

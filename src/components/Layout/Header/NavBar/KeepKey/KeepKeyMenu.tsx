@@ -36,7 +36,7 @@ export const KeepKeyMenu = () => {
     setDeviceState,
     state: { isConnected, walletInfo },
   } = useWallet()
-  const { keepKeyWipe } = useModal()
+  const keepKeyWipe = useModal('keepKeyWipe')
 
   // Reset ephemeral device state properties when opening the KeepKey menu
   useEffect(() => {

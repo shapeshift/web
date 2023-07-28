@@ -100,8 +100,7 @@ type IdleEmptyProps = {
 
 export const IdleEmpty = ({ assetId, onClick, tags, apy }: IdleEmptyProps) => {
   const translate = useTranslate()
-  const { fiatRamps } = useModal()
-  const { open: openFiatRamp } = fiatRamps
+  const { open: openFiatRamp } = useModal('fiatRamps')
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const filter = useMemo(() => ({ assetId }), [assetId])
   const bgImage = useColorModeValue('none', IdleBg)

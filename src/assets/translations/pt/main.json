@@ -107,8 +107,9 @@
     "wallet": "Carteira",
     "action": "Ação",
     "feedbackAndSupport": "Feedback & Suporte",
-    "submitFeatureRequest": "Requerer Uma Nova Funcionalidade",
-    "getSupport": "Consiga Ajuda"
+    "getSupport": "Consiga Ajuda",
+    "viewMyWallet": "Ver Minha Carteira",
+    "submitFeatureRequest": "Requerer Uma Nova Funcionalidade"
   },
   "consentBanner": {
     "body": {
@@ -894,7 +895,8 @@
         "generic": "Um erro ocorreu.",
         "notEnoughNativeToken": "Não há %{asset} suficiente para efetivar taxas na rede",
         "transactionRejected": "O usuário rejeitou a transação",
-        "qrPermissions": "Esse recurso precisa de permissões de acesso à câmera para funcionar. Por favor, altere as configurações do seu navegador."
+        "qrPermissions": "Esse recurso precisa de permissões de acesso à câmera para funcionar. Por favor, altere as configurações do seu navegador.",
+        "qrDangerousEthUrl": "Códigos QR contendo endereços de contratos não são suportados. Cole o endereço de destino manualmente."
       },
       "confirm": {
         "sendAsset": "Enviar %{asset}",
@@ -1444,6 +1446,22 @@
       "body": "Ao conectar sua carteira, você concorda com os Termos de Serviço da ShapeShift e reconhece que leu e entendeu o aviso legal da ShapeShift.",
       "footer": "Não tem carteira?",
       "create": "Crie uma"
+    },
+    "walletConnectV2": {
+      "start": {
+        "header": "Wallet Connect V2",
+        "load": "Conexões salvas",
+        "create": "Conectar nova carteira"
+      },
+      "load": {
+        "header": "Conexões salvas",
+        "confirmForget": "Tem certeza de que deseja esquecer %{connection}?",
+        "error": {
+          "delete": "Não foi possível excluir sua carteira, desculpe.",
+          "noWallet": "Você não tem carteiras salvas",
+          "pair": "Não foi possível conectar sua carteira, desculpe."
+        }
+      }
     }
   },
   "graph": {
@@ -1766,7 +1784,14 @@
       "banner": {
         "title": "Pegue um Yat",
         "description": "Seu Yat será seu emoji universal para identificações em redes sociais, sites, endereço para pagamentos e muito mais. "
-      }
+      },
+      "modal": {
+        "title": "Yat vinculado com sucesso"
+      },
+      "linkedYat": "Yat conectado",
+      "yatConnected": "Yat Conectado!",
+      "usdcAddress": "Endereço USDC do Yat",
+      "ethAddress": "Endereço ETH do Yat"
     }
   },
   "gasInput": {
@@ -2000,6 +2025,11 @@
       "subtitle": "Seu Projeto Aqui",
       "title": "Lançar Missão do Seu Projeto",
       "cta": "Submeter Projeto"
+    },
+    "foxRewards": {
+      "subtitle": "Compre, venda, negocie, ganhe e muito mais",
+      "title": "Ganhe FOX",
+      "cta": "Iniciar missão"
     }
   },
   "avatar": {

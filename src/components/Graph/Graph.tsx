@@ -1,7 +1,8 @@
 import { Center, Fade } from '@chakra-ui/react'
 import { ParentSize } from '@visx/responsive'
+import type { ParentSizeProvidedProps } from '@visx/responsive/lib/components/ParentSize'
 import { isEmpty } from 'lodash'
-import { useMemo } from 'react'
+import { useCallback } from 'react'
 import type { BalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 
 import { GraphLoading } from './GraphLoading'
@@ -16,38 +17,38 @@ type GraphProps = {
   isRainbowChart?: boolean
 }
 
+const margin = {
+  top: 16,
+  right: 0,
+  bottom: 32,
+  left: 0,
+}
+
 export const Graph: React.FC<GraphProps> = ({ data, isLoaded, loading, color, isRainbowChart }) => {
-  return useMemo(() => {
-    const { total, rainbow } = data
-    return (
-      <ParentSize debounceTime={10}>
-        {parent => {
-          const primaryChartProps = {
-            height: parent.height,
-            width: parent.width,
-            color,
-            margin: {
-              top: 16,
-              right: 0,
-              bottom: 32,
-              left: 0,
-            },
-          }
-          return loading || !isLoaded ? (
-            <Fade in={loading || !isLoaded}>
-              <Center width='full' height={parent.height} overflow='hidden'>
-                <GraphLoading />
-              </Center>
-            </Fade>
-          ) : !isEmpty(data) ? (
-            isRainbowChart ? (
-              <RainbowChart {...primaryChartProps} data={rainbow} />
-            ) : (
-              <PrimaryChart {...primaryChartProps} data={total} />
-            )
-          ) : null
-        }}
-      </ParentSize>
-    )
-  }, [color, data, isLoaded, loading, isRainbowChart])
+  const { total, rainbow } = data
+  const renderGraph = useCallback(
+    ({ height, width }: ParentSizeProvidedProps) => {
+      return loading || !isLoaded ? (
+        <Fade in={loading || !isLoaded}>
+          <Center width='full' height={height} overflow='hidden'>
+            <GraphLoading />
+          </Center>
+        </Fade>
+      ) : !isEmpty(data) ? (
+        isRainbowChart ? (
+          <RainbowChart
+            height={height}
+            width={width}
+            color={color}
+            margin={margin}
+            data={rainbow}
+          />
+        ) : (
+          <PrimaryChart height={height} width={width} color={color} margin={margin} data={total} />
+        )
+      ) : null
+    },
+    [color, data, isLoaded, isRainbowChart, loading, rainbow, total],
+  )
+  return <ParentSize debounceTime={10}>{renderGraph}</ParentSize>
 }

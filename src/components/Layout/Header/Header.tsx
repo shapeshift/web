@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
@@ -30,7 +30,7 @@ import { Notifications } from './NavBar/Notifications'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
-export const Header = () => {
+export const Header = memo(() => {
   const { onToggle, isOpen, onClose } = useDisclosure()
   const isDegradedState = useSelector(selectPortfolioLoadingStatus) === 'error'
 
@@ -42,7 +42,7 @@ export const Header = () => {
   const bg = useColorModeValue('gray.100', 'gray.800')
   const ref = useRef<HTMLDivElement>(null)
   const [y, setY] = useState(0)
-  const { height = 0 } = ref.current?.getBoundingClientRect() ?? {}
+  const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
   const { scrollY } = useScroll()
   useEffect(() => {
     return scrollY.onChange(() => setY(scrollY.get()))
@@ -71,7 +71,10 @@ export const Header = () => {
     return () => document.removeEventListener('keydown', handleKeyPress)
   }, [handleKeyPress])
 
-  const handleBannerClick = () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  const handleBannerClick = useCallback(
+    () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
+    [dispatch],
+  )
 
   return (
     <>
@@ -159,4 +162,4 @@ export const Header = () => {
       <MobileNavBar />
     </>
   )
-}
+})

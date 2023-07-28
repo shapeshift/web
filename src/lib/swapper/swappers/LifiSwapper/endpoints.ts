@@ -97,6 +97,12 @@ export const lifiApi: Swapper2Api = {
       toChain: lifiRoute.toChainId,
     }
 
+    // getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
+    //   swapper: SwapperName.LIFI,
+    //   method: 'get',
+    //   // Note, this may change if the Li.Fi SDK changes
+    //   url: 'https://li.quest/v1/status',
+    // })
     const statusResponse = await getLifi().getStatus(getStatusRequest)
 
     const status = (() => {

@@ -164,14 +164,14 @@ const MissionCarouselHeader: React.FC<CarouselHeaderProps> = ({ controls }) => {
     </Flex>
   )
 }
-
+const sideBarPadding = { base: 4, xl: 0 }
 export const MissionSidebar = () => {
   const { active } = useGetMissions()
   const renderMissions = useMemo(() => {
     return active.map(mission => <Mission minHeight='250px' key={mission.title} {...mission} />)
   }, [active])
   return (
-    <Card px={{ base: 4, md: 0 }}>
+    <Card px={sideBarPadding}>
       <Carousel renderHeader={props => <MissionCarouselHeader {...props} />}>
         {renderMissions}
       </Carousel>
@@ -179,13 +179,27 @@ export const MissionSidebar = () => {
   )
 }
 
+const containerPadding = { base: 0, md: 6 }
+const backgroundSize = { base: 'contain', md: 'cover' }
+const backgroundPosition = { base: 'center -12em', md: 'center 110%' }
+const headingFontSize = { base: '3xl', md: '5xl' }
+const spanAfter = {
+  content: 'attr(data-text)',
+  position: 'absolute',
+  left: 0,
+  top: 0,
+  textShadow: '0 4px 15px #000',
+  zIndex: -1,
+  display: { base: 'none', md: 'inline' },
+}
+const bodyFontSize = { base: 'xl', md: '2xl' }
 export const Missions = () => {
   const missionData = useGetMissions()
   const translate = useTranslate()
 
   const renderMissions = useMemo(() => {
     return (
-      <Container maxWidth='full' display='flex' flexDir='column' gap={12} px={{ base: 0, md: 6 }}>
+      <Container maxWidth='full' display='flex' flexDir='column' gap={12} px={containerPadding}>
         <MissionCarousel items={missionData.active} label='missions.activeMissions' />
         <MissionCarousel items={missionData.future} label='missions.comingSoon'>
           <Mission
@@ -217,9 +231,9 @@ export const Missions = () => {
         <Box
           mt='-4.5rem'
           bgImage={FoxMissionsBg}
-          backgroundSize={{ base: 'contain', md: 'cover' }}
+          backgroundSize={backgroundSize}
           backgroundRepeat='no-repeat'
-          backgroundPosition={{ base: 'center -12em', md: 'center 110%' }}
+          backgroundPosition={backgroundPosition}
           pt='22%'
         >
           <Container textAlign='center' maxWidth='container.md' py={16}>
@@ -228,7 +242,7 @@ export const Missions = () => {
             </Heading>
             <Heading
               color='white'
-              fontSize={{ base: '3xl', md: '5xl' }}
+              fontSize={headingFontSize}
               lineHeight='none'
               letterSpacing='-0.015em'
             >
@@ -241,22 +255,14 @@ export const Missions = () => {
                 data-text={translate('missions.title.2')}
                 position='relative'
                 zIndex='1'
-                _after={{
-                  content: 'attr(data-text)',
-                  position: 'absolute',
-                  left: 0,
-                  top: 0,
-                  textShadow: '0 4px 15px #000',
-                  zIndex: -1,
-                  display: { base: 'none', md: 'inline' },
-                }}
+                _after={spanAfter}
               >
                 {translate('missions.title.2')}
               </chakra.span>
             </Heading>
             <RawText
               textShadow='0 3px rgba(0,0,0,.4)'
-              fontSize={{ base: 'xl', md: '2xl' }}
+              fontSize={bodyFontSize}
               letterSpacing='0.012em'
               mt={4}
               mx={4}

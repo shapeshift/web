@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 type TransactionFilterType = {
   fromDate: number | null
@@ -15,7 +15,7 @@ const initialState = {
 export const useFilters = () => {
   const [filters, setFilters] = useState<TransactionFilterType>(initialState)
 
-  const resetFilters = () => setFilters(initialState)
+  const resetFilters = useCallback(() => setFilters(initialState), [])
 
   return {
     filters,

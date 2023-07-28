@@ -9,15 +9,14 @@ import { Form } from './Form'
 
 export const entries = Object.values(SendRoutes)
 
-type QrCodeModalProps = {
+export type QrCodeModalProps = {
   assetId?: AssetId
   accountId?: AccountId
 }
 
 export const QrCodeModal = ({ assetId, accountId }: QrCodeModalProps) => {
   const initialRef = useRef<HTMLInputElement>(null)
-  const { qrCode } = useModal()
-  const { close, isOpen } = qrCode
+  const { close, isOpen } = useModal('qrCode')
 
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered initialFocusRef={initialRef}>

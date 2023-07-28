@@ -17,6 +17,12 @@ export const getLifiChainMap = async (): Promise<
     chainId => Number(fromChainId(chainId).chainReference) as LifiChainId,
   )
 
+  // getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
+  //   swapper: SwapperName.LIFI,
+  //   method: 'get',
+  //   // Note, this may change if the Li.Fi SDK changes
+  //   url: 'https://li.quest/v1/chains',
+  // })
   const { chains } = await getLifi().getPossibilities({
     include: ['chains'],
     chains: supportedChainRefs,

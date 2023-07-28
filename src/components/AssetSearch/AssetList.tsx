@@ -1,7 +1,8 @@
 import type { ListProps } from '@chakra-ui/react'
 import { Center } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
+import type { Size } from 'react-virtualized-auto-sizer'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'components/Text'
@@ -54,33 +55,47 @@ export const AssetList: FC<AssetListProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assets])
 
-  return (
-    <AutoSizer disableWidth className='auto-sizered'>
-      {({ height }) =>
-        assets?.length === 0 ? (
+  const itemData = useMemo(
+    () => ({
+      assets,
+      handleClick,
+      disableUnsupported,
+      hideZeroBalanceAmounts,
+    }),
+    [assets, disableUnsupported, handleClick, hideZeroBalanceAmounts],
+  )
+
+  const renderContent = useCallback(
+    ({ height }: Size) => {
+      if (assets?.length === 0) {
+        return (
           <Center>
             <Text color='gray.500' translation='common.noResultsFound' />
           </Center>
-        ) : (
-          <FixedSizeList
-            itemSize={60}
-            height={height}
-            width='100%'
-            itemData={{
-              assets,
-              handleClick,
-              disableUnsupported,
-              hideZeroBalanceAmounts,
-            }}
-            itemCount={assets.length}
-            ref={tokenListRef}
-            className='token-list'
-            overscanCount={6}
-          >
-            {AssetRow}
-          </FixedSizeList>
         )
       }
+
+      return (
+        <FixedSizeList
+          itemSize={60}
+          height={height}
+          width='100%'
+          itemData={itemData}
+          itemCount={assets.length}
+          ref={tokenListRef}
+          className='token-list'
+          overscanCount={3}
+        >
+          {AssetRow}
+        </FixedSizeList>
+      )
+    },
+    [assets.length, itemData],
+  )
+
+  return (
+    <AutoSizer disableWidth className='auto-sizered'>
+      {renderContent}
     </AutoSizer>
   )
 }

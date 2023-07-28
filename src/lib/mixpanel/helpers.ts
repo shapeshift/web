@@ -1,5 +1,4 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -8,23 +7,11 @@ import type { AssetsById } from 'state/slices/assetsSlice/assetsSlice'
 import { getMixPanel } from './mixPanelSingleton'
 import type { MixPanelEvents, TrackOpportunityProps } from './types'
 
-export const mapMixpanelPathname = (pathname: string, assets: AssetsById): string => {
+// Returns an altered path when necessary or false if the path should not be tracked for privacy
+export const mapMixpanelPathname = (pathname: string, assets: AssetsById): string | boolean => {
   switch (true) {
     case pathname.startsWith('/dashboard/accounts/'): {
-      // example path
-      // /dashboard/accounts/eip155:1:0xef678d1ad8c897c71d0a6145390a474035db8f1f/eip155:1%2Ferc20:0xc770eefad204b5180df6a14ee197d99d808ee52d
-      const parts = pathname.split('/')
-      /**
-       * note - paths have a leading '/', ignore the first destructured element from the split
-       */
-      const [_, dashboardLiteral, accountsLiteral, accountId, maybeAssetId] = parts
-      const { chainId } = fromAccountId(accountId)
-      const chainName = getChainAdapterManager().get(chainId)?.getDisplayName()
-      const assetId = maybeAssetId && decodeURIComponent(maybeAssetId)
-      const mixpanelAssetId = getMaybeCompositeAssetSymbol(assetId, assets)
-      const newParts = [_, dashboardLiteral, accountsLiteral, chainName]
-      if (mixpanelAssetId) newParts.push(mixpanelAssetId)
-      return newParts.join('/')
+      return false
     }
     case pathname.startsWith('/assets/'): {
       // example path

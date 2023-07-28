@@ -34,8 +34,9 @@ export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) 
   }, [appRoutes, location.pathname])
 
   useEffect(() => {
-    const redactedPathname = mapMixpanelPathname(location.pathname, assets)
-    getMixPanel()?.track(MixPanelEvents.PageView, { pathname: redactedPathname })
+    const processedPathname = mapMixpanelPathname(location.pathname, assets)
+    if (processedPathname !== false)
+      getMixPanel()?.track(MixPanelEvents.PageView, { pathname: processedPathname })
   }, [assets, location.pathname])
 
   const router = useMemo(

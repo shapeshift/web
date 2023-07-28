@@ -22,6 +22,14 @@ import { Yat } from 'pages/Yat/Yat'
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
 
+/**
+ * WARNING: whenever routes that contain user addresses are edited here, we need
+ * to make sure that we update the tests in lib/mixpanel/helpers.test.ts and
+ * the corresponding parsed routes in lib/mixpanel/helpers.ts
+ *
+ * THIS IS CRITICAL FOR MIXPANEL TO NOT COLLECT USER ADDRESSES
+ */
+
 export const routes: NestedRoute[] = [
   {
     path: '/dashboard',

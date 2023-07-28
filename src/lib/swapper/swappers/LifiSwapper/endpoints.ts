@@ -13,6 +13,7 @@ import type {
   Swapper2Api,
   TradeQuote2,
 } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -29,6 +30,14 @@ export const lifiApi: Swapper2Api = {
     assets: Partial<Record<AssetId, Asset>>,
     sellAssetPriceUsdPrecision: string,
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
+    if (input.sellAmountBeforeFeesCryptoBaseUnit === '0') {
+      return Err(
+        makeSwapErrorRight({
+          message: 'sell amount too low',
+          code: SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL,
+        }),
+      )
+    }
     if (lifiChainMapPromise === undefined) lifiChainMapPromise = getLifiChainMap()
 
     const maybeLifiChainMap = await lifiChainMapPromise
@@ -88,6 +97,12 @@ export const lifiApi: Swapper2Api = {
       toChain: lifiRoute.toChainId,
     }
 
+    // getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
+    //   swapper: SwapperName.LIFI,
+    //   method: 'get',
+    //   // Note, this may change if the Li.Fi SDK changes
+    //   url: 'https://li.quest/v1/status',
+    // })
     const statusResponse = await getLifi().getStatus(getStatusRequest)
 
     const status = (() => {

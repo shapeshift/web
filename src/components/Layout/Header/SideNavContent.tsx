@@ -2,7 +2,7 @@ import { ChatIcon, CloseIcon, SettingsIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
 import { Box, Flex, IconButton, Stack, useMediaQuery } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
-import { useCallback } from 'react'
+import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useModal } from 'hooks/useModal/useModal'
 import { breakpoints } from 'theme/theme'
@@ -18,22 +18,25 @@ type HeaderContentProps = {
   onClose?: () => void
 } & FlexProps
 
-export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
+export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const { settings, feedbackSupport } = useModal()
+  const settings = useModal('settings')
+  const feedbackSupport = useModal('feedbackSupport')
   const isWalletConnectToDappsV1Enabled = useFeatureFlag('WalletConnectToDapps')
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isWalletConnectToDappsEnabled =
     isWalletConnectToDappsV1Enabled || isWalletConnectToDappsV2Enabled
 
-  const handleClick = useCallback(
-    (onClick?: () => void) => {
-      onClose && onClose()
-      onClick && onClick()
-    },
-    [onClose],
-  )
+  const handleClickSettings = useCallback(() => {
+    settings.open({})
+    onClose && onClose()
+  }, [onClose, settings])
+
+  const handleClickSupport = useCallback(() => {
+    feedbackSupport.open({})
+    onClose && onClose()
+  }, [onClose, feedbackSupport])
 
   return (
     <Flex
@@ -55,11 +58,11 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
             aria-label='Close Nav'
             variant='ghost'
             icon={<CloseIcon boxSize={3} />}
-            onClick={() => handleClick()}
+            onClick={onClose}
           />
           <Flex gap={2}>
             <Flex width='full'>
-              <UserMenu onClick={() => handleClick()} />
+              <UserMenu onClick={onClose} />
             </Flex>
             <ChainMenu />
           </Flex>
@@ -71,12 +74,12 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
         </Flex>
       )}
 
-      <NavBar isCompact={isCompact} mt={6} onClick={() => handleClick()} />
+      <NavBar isCompact={isCompact} mt={6} onClick={onClose} />
       <Stack width='full' mt={6} spacing={0}>
         <MainNavLink
           isCompact={isCompact}
           size='sm'
-          onClick={() => handleClick(() => settings.open({}))}
+          onClick={handleClickSettings}
           label={translate('common.settings')}
           leftIcon={<SettingsIcon />}
           data-test='navigation-settings-button'
@@ -84,11 +87,11 @@ export const SideNavContent = ({ isCompact, onClose }: HeaderContentProps) => {
         <MainNavLink
           isCompact={isCompact}
           size='sm'
-          onClick={() => handleClick(() => feedbackSupport.open({}))}
+          onClick={handleClickSupport}
           label={translate('common.feedbackAndSupport')}
           leftIcon={<ChatIcon />}
         />
       </Stack>
     </Flex>
   )
-}
+})

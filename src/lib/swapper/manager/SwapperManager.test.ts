@@ -65,47 +65,49 @@ describe('SwapperManager', () => {
 
   describe('getSupportedBuyAssetIdsFromSellId', () => {
     it('should return an array of supported buy assetIds given a sell asset Id', () => {
-      const assetIds = [BTC.assetId, WETH.assetId, FOX_MAINNET.assetId]
+      const nonNftAssetIds = [BTC.assetId, WETH.assetId, FOX_MAINNET.assetId]
 
       const sellAssetId = FOX_MAINNET.assetId
       const swapperManager = new SwapperManager()
       swapperManager.addSwapper(zrxSwapper)
 
       expect(
-        swapperManager.getSupportedBuyAssetIdsFromSellId({ sellAssetId, assetIds }),
+        swapperManager.getSupportedBuyAssetIdsFromSellId({ sellAssetId, nonNftAssetIds }),
       ).toStrictEqual([WETH.assetId, FOX_MAINNET.assetId])
     })
 
     it('should return unique assetIds', () => {
-      const assetIds = [BTC.assetId, WETH.assetId, WETH.assetId, FOX_MAINNET.assetId]
+      const nonNftAssetIds = [BTC.assetId, WETH.assetId, WETH.assetId, FOX_MAINNET.assetId]
 
       const sellAssetId = FOX_MAINNET.assetId
       const swapperManager = new SwapperManager()
       swapperManager.addSwapper(zrxSwapper)
 
       expect(
-        swapperManager.getSupportedBuyAssetIdsFromSellId({ sellAssetId, assetIds }),
+        swapperManager.getSupportedBuyAssetIdsFromSellId({ sellAssetId, nonNftAssetIds }),
       ).toStrictEqual([WETH.assetId, FOX_MAINNET.assetId])
     })
   })
 
   describe('getSupportedSellableAssets', () => {
     it('should return an array of supported sell assetIds', () => {
-      const assetIds = [BSC.assetId, BTC.assetId]
+      const nonNftAssetIds = [BSC.assetId, BTC.assetId]
 
       const swapperManager = new SwapperManager()
       swapperManager.addSwapper(zrxSwapper)
 
-      expect(swapperManager.getSupportedSellableAssetIds({ assetIds })).toStrictEqual([BSC.assetId])
+      expect(swapperManager.getSupportedSellableAssetIds({ nonNftAssetIds })).toStrictEqual([
+        BSC.assetId,
+      ])
     })
 
     it('should return unique assetIds', () => {
-      const assetIds = [BTC.assetId, WETH.assetId, FOX_MAINNET.assetId, FOX_GNOSIS.assetId]
+      const nonNftAssetIds = [BTC.assetId, WETH.assetId, FOX_MAINNET.assetId, FOX_GNOSIS.assetId]
 
       const swapperManager = new SwapperManager()
       swapperManager.addSwapper(zrxSwapper)
 
-      expect(swapperManager.getSupportedSellableAssetIds({ assetIds })).toStrictEqual([
+      expect(swapperManager.getSupportedSellableAssetIds({ nonNftAssetIds })).toStrictEqual([
         WETH.assetId,
         FOX_MAINNET.assetId,
       ])

@@ -7,6 +7,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
 import { ethereum as mockEthereum } from 'test/mocks/assets'
 import { EthSend } from 'test/mocks/txs'
+import type { Modals } from 'context/ModalProvider/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -143,10 +144,16 @@ describe.each([
 
     const sendClose = jest.fn()
     const qrClose = jest.fn()
-    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({
-      qrCode: { close: qrClose },
-      send: { close: sendClose },
-    }))
+    ;(useModal as jest.Mock<unknown>).mockImplementation((key: keyof Modals) => {
+      switch (key) {
+        case 'qrCode':
+          return { close: qrClose }
+        case 'send':
+          return { close: sendClose }
+        default:
+          throw Error('invalid key')
+      }
+    })
     const mockAdapter = {
       buildSendTransaction: () => Promise.resolve(textTxToSign),
       signTransaction: () => Promise.resolve(testSignedTx),
@@ -198,10 +205,16 @@ describe.each([
         error: false,
       }),
     )
-    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({
-      qrCode: { close: qrClose },
-      send: { close: sendClose },
-    }))
+    ;(useModal as jest.Mock<unknown>).mockImplementation((key: keyof Modals) => {
+      switch (key) {
+        case 'qrCode':
+          return { close: qrClose }
+        case 'send':
+          return { close: sendClose }
+        default:
+          throw Error('invalid key')
+      }
+    })
     const mockAdapter = {
       buildSendTransaction: () => Promise.resolve(textTxToSign),
       signTransaction: () => Promise.resolve(testSignedTx),
@@ -250,10 +263,16 @@ describe.each([
 
     const sendClose = jest.fn()
     const qrClose = jest.fn()
-    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({
-      qrCode: { close: qrClose },
-      send: { close: sendClose },
-    }))
+    ;(useModal as jest.Mock<unknown>).mockImplementation((key: keyof Modals) => {
+      switch (key) {
+        case 'qrCode':
+          return { close: qrClose }
+        case 'send':
+          return { close: sendClose }
+        default:
+          throw Error('invalid key')
+      }
+    })
     const mockAdapter = {
       buildSendTransaction: () => Promise.resolve(textTxToSign),
       signAndBroadcastTransaction,
@@ -307,10 +326,16 @@ describe.each([
 
     const sendClose = jest.fn()
     const qrClose = jest.fn()
-    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({
-      qrCode: { close: qrClose },
-      send: { close: sendClose },
-    }))
+    ;(useModal as jest.Mock<unknown>).mockImplementation((key: keyof Modals) => {
+      switch (key) {
+        case 'qrCode':
+          return { close: qrClose }
+        case 'send':
+          return { close: sendClose }
+        default:
+          throw Error('invalid key')
+      }
+    })
     const mockAdapter = {
       buildSendTransaction: () => Promise.resolve(textTxToSign),
       signAndBroadcastTransaction,
@@ -351,10 +376,16 @@ describe.each([
 
     const sendClose = jest.fn()
     const qrClose = jest.fn()
-    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({
-      qrCode: { close: qrClose },
-      send: { close: sendClose },
-    }))
+    ;(useModal as jest.Mock<unknown>).mockImplementation((key: keyof Modals) => {
+      switch (key) {
+        case 'qrCode':
+          return { close: qrClose }
+        case 'send':
+          return { close: sendClose }
+        default:
+          throw Error('invalid key')
+      }
+    })
 
     const mockAdapter = {
       buildSendTransaction: () => Promise.reject('All these calls failed'),

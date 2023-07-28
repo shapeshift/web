@@ -20,7 +20,7 @@ import { ArkeoCard } from './ArkeoCard'
 export const FoxTokenHolders = () => {
   const history = useHistory()
   const translate = useTranslate()
-  const { fiatRamps } = useModal()
+  const fiatRamps = useModal('fiatRamps')
 
   const clearAmounts = useSwapperStore(state => state.clearAmounts)
   const handleAssetSelection = useSwapperStore(state => state.handleAssetSelection)

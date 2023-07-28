@@ -12,10 +12,9 @@ import { store } from 'state/store'
 export const Notice = () => {
   const translate = useTranslate()
   const iconColor = useColorModeValue('gray.200', 'gray.700')
-  const {
-    mobileWelcomeModal: { close: handleClose },
-    backupNativePassphrase: { open },
-  } = useModal()
+
+  const { close: handleClose } = useModal('mobileWelcomeModal')
+  const { open } = useModal('backupNativePassphrase')
 
   const handleRecoveryClick = useCallback(() => {
     handleClose()

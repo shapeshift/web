@@ -103,7 +103,7 @@ export class SwapperManager {
     const availableSwappers = Array.from(this.swappers.values())
     return availableSwappers.filter(
       (swapper: Swapper<ChainId>) =>
-        swapper.filterBuyAssetsBySellAssetId({ sellAssetId, assetIds: [buyAssetId] }).length,
+        swapper.filterBuyAssetsBySellAssetId({ sellAssetId, nonNftAssetIds: [buyAssetId] }).length,
     )
   }
 
@@ -116,11 +116,11 @@ export class SwapperManager {
   }
 
   getSupportedSellableAssetIds(args: SupportedSellAssetsInput) {
-    const { assetIds } = args
+    const { nonNftAssetIds } = args
 
     return uniq(
       Array.from(this.swappers.values()).flatMap((swapper: Swapper<ChainId>) =>
-        swapper.filterAssetIdsBySellable(assetIds),
+        swapper.filterAssetIdsBySellable(nonNftAssetIds),
       ),
     )
   }

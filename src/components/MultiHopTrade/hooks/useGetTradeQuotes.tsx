@@ -8,8 +8,12 @@ import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddr
 import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { GetTradeQuoteInput } from 'lib/swapper/api'
-import { isSkipToken } from 'lib/utils'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvents } from 'lib/mixpanel/types'
+import type { GetTradeQuoteInput, SwapperName } from 'lib/swapper/api'
+import { isSkipToken, isSome } from 'lib/utils'
+import type { ApiQuote } from 'state/apis/swappers'
 import { useGetTradeQuoteQuery } from 'state/apis/swappers/swappersApi'
 import {
   selectBuyAccountId,
@@ -21,8 +25,45 @@ import {
   selectSellAsset,
   selectWillDonate,
 } from 'state/slices/selectors'
+import {
+  selectFirstHopSellAsset,
+  selectLastHopBuyAsset,
+  selectSellAmountUsd,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
+
+type MixPanelQuoteMeta = {
+  swapperName: SwapperName
+  differenceFromBestQuoteDecimalPercentage: number
+}
+
+type GetMixPanelDataFromApiQuotesReturn = {
+  quoteMeta: MixPanelQuoteMeta[]
+  sellAssetId: string | undefined
+  buyAssetId: string | undefined
+  sellAmountUsd: string | undefined
+}
+
+const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromApiQuotesReturn => {
+  const bestInputOutputRatio = quotes[0]?.inputOutputRatio
+  const sellAssetId = selectFirstHopSellAsset(store.getState())?.assetId
+  const buyAssetId = selectLastHopBuyAsset(store.getState())?.assetId
+  const sellAmountUsd = selectSellAmountUsd(store.getState())
+  const quoteMeta: MixPanelQuoteMeta[] = quotes
+    .map(({ quote, swapperName, inputOutputRatio }) => {
+      const differenceFromBestQuoteDecimalPercentage =
+        (inputOutputRatio / bestInputOutputRatio - 1) * -1
+      return {
+        swapperName,
+        differenceFromBestQuoteDecimalPercentage,
+        quoteReceived: !!quote,
+      }
+    })
+    .filter(isSome)
+
+  return { quoteMeta, sellAssetId, buyAssetId, sellAmountUsd }
+}
 
 const isEqualExceptAffiliateBps = (
   a: GetTradeQuoteInput | typeof skipToken,
@@ -42,6 +83,7 @@ export const useGetTradeQuotes = () => {
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
+  const [hasFocus, setHasFocus] = useState(document.hasFocus())
   const debouncedTradeQuoteInput = useDebounce(tradeQuoteInput, 500)
   const sellAsset = useAppSelector(selectSellAsset)
   const buyAsset = useAppSelector(selectBuyAsset)
@@ -63,6 +105,8 @@ export const useGetTradeQuotes = () => {
       accountId: buyAccountId,
     })
   }, [buyAccountId])
+
+  const mixpanel = getMixPanel()
 
   useEffect(() => {
     if (wallet && sellAccountMetadata && receiveAddress) {
@@ -90,7 +134,9 @@ export const useGetTradeQuotes = () => {
 
         // if the quote input args changed, reset the selected swapper and update the trade quote args
         if (!isEqual(tradeQuoteInput, updatedTradeQuoteInput ?? skipToken)) {
-          setTradeQuoteInput(updatedTradeQuoteInput ?? skipToken)
+          updatedTradeQuoteInput && bnOrZero(sellAmountCryptoPrecision).gt(0)
+            ? setTradeQuoteInput(updatedTradeQuoteInput)
+            : setTradeQuoteInput(skipToken)
 
           // If only the affiliateBps changed, we've toggled the donation checkbox - don't reset the swapper name
           if (isEqualExceptAffiliateBps(tradeQuoteInput, updatedTradeQuoteInput)) {
@@ -121,12 +167,26 @@ export const useGetTradeQuotes = () => {
     receiveAccountMetadata?.bip44Params,
   ])
 
-  useGetTradeQuoteQuery(debouncedTradeQuoteInput, {
-    pollingInterval: 20000,
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHasFocus(document.hasFocus())
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const { data } = useGetTradeQuoteQuery(debouncedTradeQuoteInput, {
+    pollingInterval: hasFocus ? 20000 : undefined,
     /*
       If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
       We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.
      */
     refetchOnMountOrArgChange: true,
   })
+
+  useEffect(() => {
+    if (data && mixpanel) {
+      const quoteData = getMixPanelDataFromApiQuotes(data)
+      mixpanel.track(MixPanelEvents.QuotesReceived, quoteData)
+    }
+  }, [data, mixpanel])
 }

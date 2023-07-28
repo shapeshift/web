@@ -8,13 +8,12 @@ import { BackupPassphraseRouter } from './BackupPassphraseRouter'
 
 export const entries = Object.values(BackupPassphraseRoutes)
 
-type BackupPassphraseModalProps = {
+export type BackupPassphraseModalProps = {
   preventClose?: boolean
 }
 
 export const BackupPassphraseModal: React.FC<BackupPassphraseModalProps> = ({ preventClose }) => {
-  const { backupNativePassphrase } = useModal()
-  const { close, isOpen } = backupNativePassphrase
+  const { close, isOpen } = useModal('backupNativePassphrase')
 
   return (
     <Modal

@@ -31,7 +31,9 @@ export const AssetActions: React.FC<AssetActionProps> = ({ assetId, accountId, c
 
   const [isValidChainId, setIsValidChainId] = useState(true)
   const chainAdapterManager = getChainAdapterManager()
-  const { send, receive, fiatRamps } = useModal()
+  const send = useModal('send')
+  const receive = useModal('receive')
+  const fiatRamps = useModal('fiatRamps')
   const translate = useTranslate()
   const {
     state: { isConnected },

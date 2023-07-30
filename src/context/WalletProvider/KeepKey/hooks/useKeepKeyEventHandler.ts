@@ -190,7 +190,11 @@ export const useKeepKeyEventHandler = (
       }
     }
 
-    const handleConnect = async (deviceId: string) => {
+    const handleConnect = async (e: [deviceId: string, message: Event]) => {
+      const [deviceId] = e
+
+      console.log('xxx handleConnect', e)
+
       /*
         Understanding KeepKey DeviceID aliases:
 
@@ -210,6 +214,7 @@ export const useKeepKeyEventHandler = (
           const name = (await wallet.getLabel()) || state.walletInfo.name
           // The keyring might have a new HDWallet instance for the device.
           // We'll replace the one we have in state with the new one
+          console.log('xxx 3')
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: {
@@ -244,11 +249,14 @@ export const useKeepKeyEventHandler = (
       }
     }
 
-    // Handle all KeepKey events
-    keyring.on(['KeepKey', '*', '*'], handleEvent)
-    // HDWallet emits (DIS)CONNECT events as "KeepKey - {LABEL}" so we can't just listen for "KeepKey"
-    keyring.on(['*', '*', Events.CONNECT], handleConnect)
-    keyring.on(['*', '*', Events.DISCONNECT], handleDisconnect)
+    // check if keepkey
+    if (state.connectedType === KeyManager.KeepKey) {
+      // Handle all KeepKey events
+      keyring.on(['KeepKey', '*', '*'], handleEvent)
+      // HDWallet emits (DIS)CONNECT events as "KeepKey - {LABEL}" so we can't just listen for "KeepKey"
+      keyring.on(['*', '*', Events.CONNECT], handleConnect)
+      keyring.on(['*', '*', Events.DISCONNECT], handleDisconnect)
+    }
 
     return () => {
       keyring.off(['KeepKey', '*', '*'], handleEvent)
@@ -267,5 +275,6 @@ export const useKeepKeyEventHandler = (
     toast,
     translate,
     poll,
+    state.connectedType,
   ])
 }

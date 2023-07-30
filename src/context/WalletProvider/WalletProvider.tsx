@@ -98,7 +98,7 @@ export interface InitialState {
   keyring: Keyring
   adapters: Adapters | null
   wallet: HDWallet | null
-  connectingType: KeyManager | null
+  modalType: KeyManager | null
   connectedType: KeyManager | null
   initialRoute: string | null
   walletInfo: WalletInfo | null
@@ -119,7 +119,7 @@ const initialState: InitialState = {
   keyring: new Keyring(),
   adapters: null,
   wallet: null,
-  connectingType: null,
+  modalType: null,
   connectedType: null,
   initialRoute: null,
   walletInfo: null,
@@ -154,6 +154,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
     case WalletActions.SET_WALLET:
+      console.log('xxx setting wallet', action.payload)
       const deviceId = action?.payload?.deviceId
       // set walletId in redux store
       const walletMeta = { walletId: deviceId, walletName: action?.payload?.name }
@@ -367,6 +368,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   const load = useCallback(() => {
     const localWalletType = getLocalWalletType()
+    console.log('xxx localWalletType', localWalletType)
     const localWalletDeviceId = getLocalWalletDeviceId()
     if (localWalletType && localWalletDeviceId && state.adapters) {
       ;(async () => {
@@ -451,6 +453,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
                   await localKeepKeyWallet.initialize()
 
+                  console.log('xxx 1')
                   dispatch({
                     type: WalletActions.SET_WALLET,
                     payload: {

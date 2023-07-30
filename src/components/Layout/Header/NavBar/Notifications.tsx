@@ -21,7 +21,7 @@ export const Notifications = () => {
   const isWhereverEnabled = useFeatureFlag('Wherever')
   const { colorMode } = useColorMode()
   const {
-    state: { wallet, connectingType },
+    state: { wallet, modalType },
   } = useWallet()
 
   const [addressNList, setAddressNList] = useState<BIP32Path>()
@@ -110,7 +110,7 @@ export const Notifications = () => {
     !isWhereverEnabled ||
     !ethAddress ||
     !wallet ||
-    !eip712SupportedWallets.includes(connectingType as KeyManager) ||
+    !eip712SupportedWallets.includes(modalType as KeyManager) ||
     !supportsETH(wallet)
   )
     return null

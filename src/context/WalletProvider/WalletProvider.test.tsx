@@ -122,7 +122,7 @@ describe('WalletProvider', () => {
         result.current.connect(type)
       })
 
-      expect(result.current.state.connectingType).toBe(type)
+      expect(result.current.state.modalType).toBe(type)
       expect(result.current.state.initialRoute).toBe(SUPPORTED_WALLETS[type].routes[0].path)
     })
   })
@@ -139,7 +139,7 @@ describe('WalletProvider', () => {
         result.current.create(type)
       })
 
-      expect(result.current.state.connectingType).toBe(type)
+      expect(result.current.state.modalType).toBe(type)
       expect(result.current.state.initialRoute).toBe(SUPPORTED_WALLETS[type].routes[5].path)
     })
   })

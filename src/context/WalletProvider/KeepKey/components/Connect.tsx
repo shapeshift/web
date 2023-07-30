@@ -96,6 +96,7 @@ export const KeepKeyConnect = () => {
 
         await wallet.initialize()
 
+        console.log('xxx 2')
         dispatch({
           type: WalletActions.SET_WALLET,
           payload: {

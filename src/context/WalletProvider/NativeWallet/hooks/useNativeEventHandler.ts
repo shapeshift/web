@@ -4,12 +4,11 @@ import type { Dispatch } from 'react'
 import { useEffect } from 'react'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 
-type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo' | 'modal'>
-
-export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<ActionTypes>) => {
-  const { keyring, modal } = state
+export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<ActionTypes>) => {
+  const { keyring, modal, modalType } = state
 
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
@@ -31,7 +30,7 @@ export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<Ac
       }
     }
 
-    if (keyring) {
+    if (keyring && modalType && [KeyManager.Native, KeyManager.Mobile].includes(modalType)) {
       keyring.on(['Native', '*', NativeEvents.MNEMONIC_REQUIRED], handleEvent)
       keyring.on(['Native', '*', NativeEvents.READY], handleEvent)
     }
@@ -39,5 +38,5 @@ export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<Ac
       keyring.off(['Native', '*', NativeEvents.MNEMONIC_REQUIRED], handleEvent)
       keyring.off(['Native', '*', NativeEvents.READY], handleEvent)
     }
-  }, [dispatch, keyring, modal])
+  }, [modalType, dispatch, keyring, modal])
 }

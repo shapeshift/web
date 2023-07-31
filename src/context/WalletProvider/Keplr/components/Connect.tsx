@@ -48,7 +48,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
 
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name, icon, deviceId },
+          payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Keplr },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         setLocalWalletTypeAndDeviceId(KeyManager.Keplr, deviceId)

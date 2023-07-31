@@ -18,7 +18,7 @@ const ConnectedMenu = memo(
   ({
     connectedWalletMenuRoutes,
     isConnected,
-    type,
+    connectedType,
     walletInfo,
     onDisconnect,
     onSwitchProvider,
@@ -28,17 +28,17 @@ const ConnectedMenu = memo(
     const { navigateToRoute } = useMenuRoutes()
     const translate = useTranslate()
     const ConnectMenuComponent = useMemo(
-      () => type && SUPPORTED_WALLETS[type].connectedMenuComponent,
-      [type],
+      () => connectedType && SUPPORTED_WALLETS[connectedType].connectedMenuComponent,
+      [connectedType],
     )
 
     const handleClick = useCallback(() => {
       if (!connectedWalletMenuRoutes) return
       navigateToRoute(
-        (type && SUPPORTED_WALLETS[type])?.connectedWalletMenuInitialPath ??
+        (connectedType && SUPPORTED_WALLETS[connectedType])?.connectedWalletMenuInitialPath ??
           WalletConnectedRoutes.Connected,
       )
-    }, [connectedWalletMenuRoutes, navigateToRoute, type])
+    }, [connectedWalletMenuRoutes, navigateToRoute, connectedType])
 
     return (
       <MenuGroup title={translate('common.connectedWallet')} color='gray.500'>
@@ -84,13 +84,13 @@ export const WalletConnectedMenu = ({
   onSwitchProvider,
   walletInfo,
   isConnected,
-  type,
+  connectedType,
 }: WalletConnectedProps) => {
   const location = useLocation()
 
   const connectedWalletMenuRoutes = useMemo(
-    () => type && SUPPORTED_WALLETS[type].connectedWalletMenuRoutes,
-    [type],
+    () => connectedType && SUPPORTED_WALLETS[connectedType].connectedWalletMenuRoutes,
+    [connectedType],
   )
 
   return (
@@ -101,7 +101,7 @@ export const WalletConnectedMenu = ({
             <ConnectedMenu
               connectedWalletMenuRoutes={!!connectedWalletMenuRoutes}
               isConnected={isConnected}
-              type={type}
+              connectedType={connectedType}
               walletInfo={walletInfo}
               onDisconnect={onDisconnect}
               onSwitchProvider={onSwitchProvider}

@@ -1,16 +1,23 @@
-import { Alert, AlertDescription, AlertIcon, Button, ModalBody, ModalHeader } from "@chakra-ui/react";
-import type { Event } from "@shapeshiftoss/hdwallet-core";
-import { useCallback, useState } from "react";
-import { CircularProgress } from "components/CircularProgress/CircularProgress";
-import { Text } from "components/Text";
-import { WalletActions } from "context/WalletProvider/actions";
-import { KeyManager } from "context/WalletProvider/KeyManager";
-import { setLocalWalletTypeAndDeviceId } from "context/WalletProvider/local-wallet";
-import { useWallet } from "hooks/useWallet/useWallet";
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Button,
+  ModalBody,
+  ModalHeader,
+} from '@chakra-ui/react'
+import type { Event } from '@shapeshiftoss/hdwallet-core'
+import { useCallback, useState } from 'react'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { KeepKeyConfig } from "../config";
-import { FailureType, MessageType } from "../KeepKeyTypes";
-import { setupKeepKeySDK } from "../setupKeepKeySdk";
+import { KeepKeyConfig } from '../config'
+import { FailureType, MessageType } from '../KeepKeyTypes'
+import { setupKeepKeySDK } from '../setupKeepKeySdk'
 
 const translateError = (event: Event) => {
   let t: string

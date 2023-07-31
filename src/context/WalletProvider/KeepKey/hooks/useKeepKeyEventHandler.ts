@@ -1,16 +1,16 @@
-import { useToast } from "@chakra-ui/react";
-import type { Event } from "@shapeshiftoss/hdwallet-core";
-import { Events } from "@shapeshiftoss/hdwallet-core";
-import type { Dispatch } from "react";
-import { useEffect } from "react";
-import { useTranslate } from "react-polyglot";
-import type { ActionTypes } from "context/WalletProvider/actions";
-import { WalletActions } from "context/WalletProvider/actions";
-import { KeyManager } from "context/WalletProvider/KeyManager";
-import type { DeviceState, InitialState } from "context/WalletProvider/WalletProvider";
-import { usePoll } from "hooks/usePoll/usePoll";
+import { useToast } from '@chakra-ui/react'
+import type { Event } from '@shapeshiftoss/hdwallet-core'
+import { Events } from '@shapeshiftoss/hdwallet-core'
+import type { Dispatch } from 'react'
+import { useEffect } from 'react'
+import { useTranslate } from 'react-polyglot'
+import type { ActionTypes } from 'context/WalletProvider/actions'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
+import type { DeviceState, InitialState } from 'context/WalletProvider/WalletProvider'
+import { usePoll } from 'hooks/usePoll/usePoll'
 
-import { ButtonRequestType, FailureType, Message, MessageType } from "../KeepKeyTypes";
+import { ButtonRequestType, FailureType, Message, MessageType } from '../KeepKeyTypes'
 
 export const useKeepKeyEventHandler = (
   state: InitialState,

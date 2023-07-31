@@ -25,16 +25,14 @@ describe('mixpanel helpers', () => {
       expect(mapMixpanelPathname(pathname, assets)).toEqual('/dashboard/accounts')
     })
 
-    it('should redact account id', () => {
+    it('should flag path with account id', () => {
       const pathname = '/dashboard/accounts/eip155:1:0xa4..35/eip155:1%2Fslip44:60'
-      expect(mapMixpanelPathname(pathname, assets)).toEqual(
-        '/dashboard/accounts/Ethereum/Ethereum.ETH',
-      )
+      expect(mapMixpanelPathname(pathname, assets)).toEqual(null)
     })
 
-    it('can handle missing assetId', () => {
+    it('should flag path with account id and asset id', () => {
       const pathname = '/dashboard/accounts/eip155:1:0xa4..35'
-      expect(mapMixpanelPathname(pathname, assets)).toEqual('/dashboard/accounts/Ethereum')
+      expect(mapMixpanelPathname(pathname, assets)).toEqual(null)
     })
 
     it('can handle base assets path', () => {

@@ -35,8 +35,8 @@
     "withdrawAndClaim": "Abheben & Beanspruchen",
     "overview": "Übersicht",
     "getStarted": "Loslegen",
-    "connectWallet": "verbinde Wallet",
-    "connectedWallet": "verbundene Wallet",
+    "connectWallet": "Verbinde Wallet",
+    "connectedWallet": "Verbundene Wallet",
     "connectedWalletSettings": "Wallet Einstellungen",
     "noWallet": "Keine Wallet verbunden",
     "seeAll": "Alles ansehen",
@@ -107,8 +107,9 @@
     "wallet": "Wallet",
     "action": "Aktion",
     "feedbackAndSupport": "Feedback & Unterstützung",
-    "submitFeatureRequest": "Senden Sie einen Funktionswunsch",
-    "getSupport": "Hole dir Unterstützung"
+    "getSupport": "Hole dir Unterstützung",
+    "viewMyWallet": "Meine Wallet anzeigen",
+    "submitFeatureRequest": "Senden Sie einen Funktionswunsch"
   },
   "consentBanner": {
     "body": {
@@ -894,7 +895,8 @@
         "generic": "Ein Fehler ist aufgetreten.",
         "notEnoughNativeToken": "Nicht genug %{asset}, um Gaskosten abzudecken",
         "transactionRejected": "Der Benutzer hat die Transaktion abgelehnt",
-        "qrPermissions": "Diese Funktion benötigt Kamerazugriffsberechtigungen, um zu funktionieren. Bitte ändern Sie Ihre Browsereinstellungen."
+        "qrPermissions": "Diese Funktion benötigt Kamerazugriffsberechtigungen, um zu funktionieren. Bitte ändern Sie Ihre Browsereinstellungen.",
+        "qrDangerousEthUrl": "QR-Codes, die eine Vertragsadresse enthalten, werden nicht unterstützt. Bitte fügen Sie die Zieladresse manuell ein."
       },
       "confirm": {
         "sendAsset": "%{asset} senden",
@@ -1444,6 +1446,22 @@
       "body": "Indem Sie eine Wallet verbinden, stimmen Sie den Nutzungsbedingungen von ShapeShift zu und bestätigen, dass Sie den Haftungsausschluss von ShapeShift gelesen und verstanden haben.",
       "footer": "Sie haben keine Wallet?",
       "create": "Erstelle eine"
+    },
+    "walletConnectV2": {
+      "start": {
+        "header": "Wallet Connect V2",
+        "load": "Gespeicherte Verbindungen",
+        "create": "Neue Wallet verbinden"
+      },
+      "load": {
+        "header": "Gespeicherte Verbindungen",
+        "confirmForget": "Sind Sie sicher, dass Sie %{connection} entfernen möchten?",
+        "error": {
+          "delete": "Leider konnte Ihre Wallet nicht gelöscht werden.",
+          "noWallet": "Sie haben keine gespeicherten Wallets",
+          "pair": "Ihre Wallet konnte nicht gekoppelt werden"
+        }
+      }
     }
   },
   "graph": {
@@ -1766,7 +1784,14 @@
       "banner": {
         "title": "Holen Sie sich Yat",
         "description": "Yat ist Ihr universeller Emoji-Benutzername, Webseiten-URL, Zahlungsadresse und mehr."
-      }
+      },
+      "modal": {
+        "title": "Yat erfolgreich verlinkt"
+      },
+      "linkedYat": "Verlinktes Yat",
+      "yatConnected": "Yat verbunden!",
+      "usdcAddress": "Yat USDC-Adresse",
+      "ethAddress": "Yat ETH-Adresse"
     }
   },
   "gasInput": {
@@ -2000,6 +2025,11 @@
       "subtitle": "Ihr Projekt hier",
       "title": "Starten Sie eine Mission für Ihr Projekt",
       "cta": "Projekt einreichen"
+    },
+    "foxRewards": {
+      "subtitle": "Kaufen, verkaufen, handeln, verdienen und mehr",
+      "title": "Verdiene FOX",
+      "cta": "Starte Mission"
     }
   },
   "avatar": {

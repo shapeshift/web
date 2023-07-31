@@ -171,14 +171,14 @@ export const osmosisApi: Swapper2Api = {
       const step = quote?.steps[stepIndex]
       if (!step) throw new Error('Step not found')
       const isAtomOsmoQuote =
-        step.sellAsset.chainId === cosmosChainId && step.buyAsset.chainId === osmosisChainId
+        quote.steps[0].sellAsset.chainId === cosmosChainId &&
+        quote.steps[1].buyAsset.chainId === osmosisChainId
       const isIbcTransferStep = step.buyAsset.chainId !== step.sellAsset.chainId
       if (!(quoteSellAssetAccountId && quoteBuyAssetAccountId))
         throw new Error('quote AccountIds required to check osmosis trade status')
       if (isIbcTransferStep) {
-        const stepSellAssetAccountId = isAtomOsmoQuote
-          ? quoteSellAssetAccountId
-          : quoteBuyAssetAccountId
+        // IBC transfer is initiated from Osmosis chain on OSMO -> ATOM, and Cosmos on ATOM -> OSMO
+        const stepSellAssetAccountId = quoteSellAssetAccountId
         const initiatingChainTxid = serializeTxIndex(
           stepSellAssetAccountId,
           txHash,

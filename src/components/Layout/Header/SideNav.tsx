@@ -1,9 +1,10 @@
 import { chakra, Flex, useColorModeValue } from '@chakra-ui/react'
+import { memo } from 'react'
 
 import { AppLoadingIcon } from './AppLoadingIcon'
 import { SideNavContent } from './SideNavContent'
 
-export const SideNav = () => {
+export const SideNav = memo(() => {
   const bgColor = useColorModeValue('white', 'blackAlpha.300')
   const shadow = useColorModeValue('lg', 'none')
   return (
@@ -30,4 +31,4 @@ export const SideNav = () => {
       <SideNavContent isCompact={true} />
     </chakra.header>
   )
-}
+})

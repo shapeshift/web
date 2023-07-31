@@ -1,4 +1,5 @@
 import { Container, Stack } from '@chakra-ui/react'
+import { memo } from 'react'
 import foxPageBg from 'assets/foxpage-bg.png'
 import { Main } from 'components/Layout/Main'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
@@ -7,7 +8,10 @@ import { TradeCard } from 'pages/Dashboard/TradeCard'
 import { selectFeatureFlags } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export const Trade = () => {
+const maxWidth = { base: '100%', lg: 'container.sm' }
+const padding = { base: 0, md: 8 }
+
+export const Trade = memo(() => {
   const { MultiHopTrades } = useAppSelector(selectFeatureFlags)
   return (
     <Main
@@ -24,12 +28,7 @@ export const Trade = () => {
       backgroundRepeat='no-repeat'
     >
       <Stack alignSelf='stretch' flex={1} minHeight={0} spacing={0}>
-        <Container
-          maxWidth={{ base: '100%', lg: 'container.sm' }}
-          p={{ base: 0, md: 8 }}
-          position='relative'
-          zIndex='2'
-        >
+        <Container maxWidth={maxWidth} p={padding} position='relative' zIndex='2'>
           {MultiHopTrades ? <MultiHopTrade /> : <TradeCard />}
         </Container>
 
@@ -39,4 +38,4 @@ export const Trade = () => {
       </Stack>
     </Main>
   )
-}
+})

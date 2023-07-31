@@ -46,6 +46,7 @@ export type FeatureFlags = {
   MultiHopTrades: boolean
   CoinbaseWallet: boolean
   AdvancedSlippage: boolean
+  WalletConnectV2: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -107,6 +108,7 @@ const initialState: Preferences = {
     MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
     CoinbaseWallet: getConfig().REACT_APP_FEATURE_COINBASE_WALLET,
     AdvancedSlippage: getConfig().REACT_APP_ADVANCED_SLIPPAGE,
+    WalletConnectV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_V2,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

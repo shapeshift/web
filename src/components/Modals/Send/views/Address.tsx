@@ -42,7 +42,7 @@ export const Address = () => {
   } = useFormContext<SendInput>()
   const address = useWatch<SendInput, SendFormFields.To>({ name: SendFormFields.To })
   const input = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
-  const { send } = useModal()
+  const send = useModal('send')
   const assetId = useWatch<SendInput, SendFormFields.AssetId>({ name: SendFormFields.AssetId })
   const isYatFeatureEnabled = useFeatureFlag('Yat')
 

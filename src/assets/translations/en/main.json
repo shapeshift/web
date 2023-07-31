@@ -895,7 +895,8 @@
         "generic": "An error occurred.",
         "notEnoughNativeToken": "Not enough %{asset} to cover gas",
         "transactionRejected": "User has rejected the transaction",
-        "qrPermissions": "This feature needs camera access permissions in order to work. Please change your browser settings."
+        "qrPermissions": "This feature needs camera access permissions in order to work. Please change your browser settings.",
+        "qrDangerousEthUrl": "QR codes containing a contract address not supported. Please paste the destination address manually."
       },
       "confirm": {
         "sendAsset": "Send %{asset}",
@@ -1445,6 +1446,22 @@
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer.",
       "footer": "Don't have a wallet?",
       "create": "Create one"
+    },
+    "walletConnectV2": {
+      "start": {
+        "header": "Wallet Connect V2",
+        "load": "Saved connections",
+        "create": "Connect new wallet"
+      },
+      "load": {
+        "header": "Saved Connections",
+        "confirmForget": "Are you sure you want to forget %{connection}?",
+        "error": {
+          "delete": "Unable to delete your wallet, sorry.",
+          "noWallet": "You have no saved wallets",
+          "pair": "Unable to pair your wallet"
+        }
+      }
     }
   },
   "graph": {

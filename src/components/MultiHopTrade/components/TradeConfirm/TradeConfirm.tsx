@@ -15,7 +15,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -72,6 +72,7 @@ export const TradeConfirm = () => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const alertColor = useColorModeValue('yellow.500', 'yellow.200')
   const warningColor = useColorModeValue('red.600', 'red.400')
+  const [hasMixpanelFired, setHasMixpanelFired] = useState(false)
   const {
     handleSubmit,
     formState: { isSubmitting },
@@ -80,6 +81,7 @@ export const TradeConfirm = () => {
   const dispatch = useAppDispatch()
 
   const { showErrorToast } = useErrorHandler()
+  const eventData = getMixpanelEventData()
 
   const {
     number: { toFiat },
@@ -154,16 +156,16 @@ export const TradeConfirm = () => {
   )
 
   useEffect(() => {
-    const eventData = getMixpanelEventData()
-
-    if (!mixpanel || !eventData) return
+    if (!mixpanel || !eventData || hasMixpanelFired) return
     if (status === TxStatus.Confirmed) {
       mixpanel.track(MixPanelEvents.TradeSuccess, eventData)
+      setHasMixpanelFired(true)
     }
     if (status === TxStatus.Failed) {
       mixpanel.track(MixPanelEvents.TradeFailed, eventData)
+      setHasMixpanelFired(true)
     }
-  }, [mixpanel, status])
+  }, [eventData, hasMixpanelFired, mixpanel, status])
 
   const handleBack = useCallback(() => {
     if (sellTxHash) {
@@ -185,6 +187,11 @@ export const TradeConfirm = () => {
       }
 
       await executeTrade()
+      // only track after swapper successfully executes trade
+      // otherwise unsigned txs will be tracked as confirmed trades
+      if (mixpanel && eventData) {
+        mixpanel.track(MixPanelEvents.TradeConfirm, eventData)
+      }
     } catch (e) {
       showErrorToast(e)
       dispatch(tradeQuoteSlice.actions.clear())
@@ -192,10 +199,12 @@ export const TradeConfirm = () => {
     }
   }, [
     dispatch,
+    eventData,
     executeTrade,
     handleBack,
     history,
     isConnected,
+    mixpanel,
     showErrorToast,
     wallet,
     walletDispatch,

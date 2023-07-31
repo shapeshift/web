@@ -1,7 +1,7 @@
 import { ChevronRightIcon, CloseIcon, RepeatIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Flex, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
-import { useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useLocation } from 'react-router-dom'
 import {
@@ -14,41 +14,39 @@ import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from 'components/Text'
 import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 
-export const WalletConnectedMenu = ({
-  onDisconnect,
-  onSwitchProvider,
-  walletInfo,
-  isConnected,
-  type,
-}: WalletConnectedProps) => {
-  const { navigateToRoute } = useMenuRoutes()
-  const location = useLocation()
-  const translate = useTranslate()
-  const connectedWalletMenuRoutes = useMemo(
-    () => type && SUPPORTED_WALLETS[type].connectedWalletMenuRoutes,
-    [type],
-  )
-  const ConnectMenuComponent = useMemo(
-    () => type && SUPPORTED_WALLETS[type].connectedMenuComponent,
-    [type],
-  )
+const ConnectedMenu = memo(
+  ({
+    connectedWalletMenuRoutes,
+    isConnected,
+    connectedType,
+    walletInfo,
+    onDisconnect,
+    onSwitchProvider,
+  }: WalletConnectedProps & {
+    connectedWalletMenuRoutes: boolean
+  }) => {
+    const { navigateToRoute } = useMenuRoutes()
+    const translate = useTranslate()
+    const ConnectMenuComponent = useMemo(
+      () => connectedType && SUPPORTED_WALLETS[connectedType].connectedMenuComponent,
+      [connectedType],
+    )
 
-  const ConnectedMenu = () => {
+    const handleClick = useCallback(() => {
+      if (!connectedWalletMenuRoutes) return
+      navigateToRoute(
+        (connectedType && SUPPORTED_WALLETS[connectedType])?.connectedWalletMenuInitialPath ??
+          WalletConnectedRoutes.Connected,
+      )
+    }, [connectedWalletMenuRoutes, navigateToRoute, connectedType])
+
     return (
       <MenuGroup title={translate('common.connectedWallet')} color='gray.500'>
         {walletInfo ? (
           <MenuItem
             closeOnSelect={!connectedWalletMenuRoutes}
             isDisabled={!connectedWalletMenuRoutes}
-            onClick={
-              connectedWalletMenuRoutes
-                ? () =>
-                    navigateToRoute(
-                      (type && SUPPORTED_WALLETS[type])?.connectedWalletMenuInitialPath ??
-                        WalletConnectedRoutes.Connected,
-                    )
-                : undefined
-            }
+            onClick={handleClick}
             icon={<WalletImage walletInfo={walletInfo} />}
           >
             <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
@@ -78,21 +76,43 @@ export const WalletConnectedMenu = ({
         </MenuItem>
       </MenuGroup>
     )
-  }
+  },
+)
+
+export const WalletConnectedMenu = ({
+  onDisconnect,
+  onSwitchProvider,
+  walletInfo,
+  isConnected,
+  connectedType,
+}: WalletConnectedProps) => {
+  const location = useLocation()
+
+  const connectedWalletMenuRoutes = useMemo(
+    () => connectedType && SUPPORTED_WALLETS[connectedType].connectedWalletMenuRoutes,
+    [connectedType],
+  )
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch location={location} key={location.key}>
         <Route exact path={WalletConnectedRoutes.Connected}>
           <SubMenuContainer>
-            <ConnectedMenu />
+            <ConnectedMenu
+              connectedWalletMenuRoutes={!!connectedWalletMenuRoutes}
+              isConnected={isConnected}
+              connectedType={connectedType}
+              walletInfo={walletInfo}
+              onDisconnect={onDisconnect}
+              onSwitchProvider={onSwitchProvider}
+            />
           </SubMenuContainer>
         </Route>
-        {connectedWalletMenuRoutes?.map(route => {
+        {connectedWalletMenuRoutes?.map((route, i) => {
           const Component = route.component
           return !Component ? null : (
             <Route
-              key='walletConnectedMenuRoute'
+              key={`walletConnectedMenuRoute_${i}`}
               exact
               path={route.path}
               render={routeProps => <Component {...routeProps} />}

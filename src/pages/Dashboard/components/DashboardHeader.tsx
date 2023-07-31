@@ -35,7 +35,9 @@ type TabItem = {
 export const DashboardHeader = () => {
   const isNftsEnabled = useFeatureFlag('Jaypegz')
   const location = useLocation()
-  const { qrCode, send, receive } = useModal()
+  const send = useModal('send')
+  const receive = useModal('receive')
+  const qrCode = useModal('qrCode')
   const { history } = useBrowserRouter()
   const {
     state: { isConnected },

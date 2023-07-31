@@ -1,12 +1,15 @@
 import { Checkbox, Stack } from '@chakra-ui/react'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import type { FC } from 'react'
-import { useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { selectWillDonate } from 'state/slices/swappersSlice/selectors'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectSellAsset, selectWillDonate } from 'state/slices/swappersSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import {
   selectActiveQuoteDonationBps,
@@ -18,43 +21,51 @@ type DonationCheckboxProps = {
   isLoading: boolean
 }
 
-export const DonationCheckbox: FC<DonationCheckboxProps> = ({ isLoading }): JSX.Element | null => {
-  const translate = useTranslate()
-  const dispatch = useAppDispatch()
-  const willDonate = useAppSelector(selectWillDonate)
-  const affiliateBps = useAppSelector(selectActiveQuoteDonationBps)
+export const DonationCheckbox: FC<DonationCheckboxProps> = memo(
+  ({ isLoading }): JSX.Element | null => {
+    const translate = useTranslate()
+    const dispatch = useAppDispatch()
+    const willDonate = useAppSelector(selectWillDonate)
+    const wallet = useWallet().state.wallet
+    const walletIsKeepKey = wallet && isKeepKey(wallet)
+    const sellAsset = useAppSelector(selectSellAsset)
+    const isFromEvm = isEvmChainId(sellAsset.chainId)
+    const affiliateBps = useAppSelector(selectActiveQuoteDonationBps)
+    // disable EVM donations on KeepKey until https://github.com/shapeshift/web/issues/4518 is resolved
+    const showDonationOption = (walletIsKeepKey ? !isFromEvm : true) && affiliateBps !== undefined
 
-  const {
-    number: { toFiat },
-  } = useLocaleFormatter()
+    const {
+      number: { toFiat },
+    } = useLocaleFormatter()
 
-  const potentialDonationAmountFiat = useAppSelector(selectPotentialDonationAmountUserCurrency)
+    const potentialDonationAmountFiat = useAppSelector(selectPotentialDonationAmountUserCurrency)
 
-  const handleDonationToggle = useCallback(() => {
-    dispatch(swappers.actions.toggleWillDonate())
-  }, [dispatch])
+    const handleDonationToggle = useCallback(() => {
+      dispatch(swappers.actions.toggleWillDonate())
+    }, [dispatch])
 
-  const donationOption: JSX.Element = useMemo(
-    () => (
-      <Stack spacing={4}>
-        <Row>
-          <HelperTooltip label={translate('trade.tooltip.donation')}>
-            <Row.Label>
-              <Checkbox
-                isChecked={willDonate}
-                onChange={handleDonationToggle}
-                isDisabled={isLoading}
-              >
-                <Text translation='trade.donation' />
-              </Checkbox>
-            </Row.Label>
-          </HelperTooltip>
-          <Row.Value>{toFiat(potentialDonationAmountFiat ?? '0')}</Row.Value>
-        </Row>
-      </Stack>
-    ),
-    [translate, willDonate, handleDonationToggle, isLoading, toFiat, potentialDonationAmountFiat],
-  )
+    const donationOption: JSX.Element = useMemo(
+      () => (
+        <Stack spacing={4}>
+          <Row>
+            <HelperTooltip label={translate('trade.tooltip.donation')}>
+              <Row.Label>
+                <Checkbox
+                  isChecked={willDonate}
+                  onChange={handleDonationToggle}
+                  isDisabled={isLoading}
+                >
+                  <Text translation='trade.donation' />
+                </Checkbox>
+              </Row.Label>
+            </HelperTooltip>
+            <Row.Value>{toFiat(potentialDonationAmountFiat ?? '0')}</Row.Value>
+          </Row>
+        </Stack>
+      ),
+      [translate, willDonate, handleDonationToggle, isLoading, toFiat, potentialDonationAmountFiat],
+    )
 
-  return affiliateBps !== undefined ? donationOption : null
-}
+    return showDonationOption ? donationOption : null
+  },
+)

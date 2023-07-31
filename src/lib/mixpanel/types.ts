@@ -5,6 +5,7 @@ import type {
   OpportunityMetadata,
   StakingEarnOpportunityType,
 } from 'state/slices/opportunitiesSlice/types'
+
 export type MixPanelType = typeof Mixpanel | undefined
 
 export enum MixPanelEvents {
@@ -37,6 +38,8 @@ export enum MixPanelEvents {
   ConnectedTodApp = 'Connected to dApp',
   Error = 'Error',
   PageView = 'Page View',
+  SwapperApiRequest = 'Swapper API request',
+  QuotesReceived = 'Quotes Received',
 }
 
 export type TrackOpportunityProps = {

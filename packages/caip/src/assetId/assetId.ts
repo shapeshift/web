@@ -9,11 +9,10 @@ import {
   assertIsChainNamespace,
   assertIsChainReference,
   assertValidChainPartsPair,
-  isAssetId,
+  isAssetIdParts,
   isAssetNamespace,
 } from '../typeGuards'
 import type { Nominal } from '../utils'
-import { parseAssetIdRegExp } from '../utils'
 
 export type AssetId = Nominal<string, 'AssetId'>
 
@@ -138,19 +137,20 @@ type FromAssetIdReturn = {
 
 export type FromAssetId = (assetId: AssetId) => FromAssetIdReturn
 
-export const fromAssetId: FromAssetId = assetId => {
-  if (!isAssetId(assetId)) throw new Error(`fromAssetId: invalid AssetId: ${assetId}`)
-  const matches = parseAssetIdRegExp.exec(assetId)
-  if (!matches) throw new Error(`fromAssetId: could not parse AssetId: ${assetId}`)
+// NOTE: perf critical - benchmark any changes
+export const fromAssetId: FromAssetId = (assetId: string) => {
+  const slashIdx = assetId.indexOf('/')
+  const chainId = assetId.substring(0, slashIdx)
+  const assetParts = assetId.substring(slashIdx + 1)
 
-  const { 1: chainNamespace, 2: chainReference, 3: assetNamespace, 4: assetReference } = matches
+  const { chainNamespace, chainReference } = fromChainId(chainId as ChainId)
 
-  // These should never throw because isAssetId() would have already caught it, but they help with type inference
-  assertIsChainNamespace(chainNamespace)
-  assertIsChainReference(chainReference)
-  assertIsAssetNamespace(assetNamespace)
+  const idx = assetParts.indexOf(':')
+  const assetNamespace = assetParts.substring(0, idx)
+  const assetReference = assetParts.substring(idx + 1)
 
-  const chainId = toChainId({ chainNamespace, chainReference })
+  if (!isAssetIdParts(chainNamespace, chainReference, assetNamespace))
+    throw new Error(`fromAssetId: invalid AssetId: ${assetId}`)
 
   const assetReferenceNormalized = (() => {
     switch (assetNamespace) {
@@ -168,23 +168,20 @@ export const fromAssetId: FromAssetId = assetId => {
 
   return {
     chainId,
-    chainReference,
-    chainNamespace,
-    assetNamespace,
+    chainNamespace: chainNamespace as ChainNamespace,
+    chainReference: chainReference as ChainReference,
+    assetNamespace: assetNamespace as AssetNamespace,
     assetReference: assetReferenceNormalized,
   }
 }
 
+// NOTE: perf critical - benchmark any changes
 export const isNft = (assetId: AssetId): boolean => {
-  switch (fromAssetId(assetId).assetNamespace) {
-    case 'erc721':
-    case 'erc1155':
-    case 'bep721':
-    case 'bep1155':
-      return true
-    default:
-      return false
-  }
+  const slashIdx = assetId.indexOf('/')
+  const assetParts = assetId.substring(slashIdx + 1)
+  const idx = assetParts.indexOf(':')
+  const assetNamespace = assetParts.substring(0, idx)
+  return ['erc721', 'erc1155', 'bep721', 'bep1155'].includes(assetNamespace)
 }
 
 export const deserializeNftAssetReference = (

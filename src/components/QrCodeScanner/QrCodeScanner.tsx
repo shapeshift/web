@@ -35,13 +35,17 @@ export const QrCodeScanner = ({
   onSuccess,
   onBack,
   onError,
+  addressError,
 }: {
   onSuccess: (decodedText: string, result: Html5QrcodeResult) => void
   onBack: () => void
   onError?: (errorMessage: string, error: Html5QrcodeError) => void
+  addressError?: string | null
 }) => {
   const translate = useTranslate()
-  const [error, setError] = useState<DOMException['message'] | null>(null)
+  const [scanError, setScanError] = useState<DOMException['message'] | null>(null)
+
+  const error = addressError ?? scanError
 
   const handleScanSuccess: QrcodeSuccessCallback = (decodedText, _result) => {
     onSuccess(decodedText, _result)
@@ -54,7 +58,7 @@ export const QrCodeScanner = ({
       return
     }
 
-    setError(_errorMessage)
+    setScanError(_errorMessage)
     if (onError) onError(_errorMessage, error)
   }
 
@@ -71,12 +75,12 @@ export const QrCodeScanner = ({
                 translation={
                   isPermissionError(error)
                     ? 'modals.send.errors.qrPermissions'
-                    : 'modals.send.errors.generic'
+                    : addressError ?? 'modals.send.errors.generic'
                 }
               />
             </Alert>
             {isPermissionError(error) && (
-              <Button colorScheme='blue' mt='5' onClick={() => setError(null)}>
+              <Button colorScheme='blue' mt='5' onClick={() => setScanError(null)}>
                 {translate('modals.send.permissionsButton')}
               </Button>
             )}

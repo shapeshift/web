@@ -12,7 +12,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter } from 'react-router-dom'
@@ -44,7 +44,7 @@ const NoWallet = ({ onClick }: { onClick: () => void }) => {
 export type WalletConnectedProps = {
   onDisconnect: () => void
   onSwitchProvider: () => void
-} & Pick<InitialState, 'walletInfo' | 'isConnected' | 'type'>
+} & Pick<InitialState, 'walletInfo' | 'isConnected' | 'connectedType'>
 
 export const WalletConnected = (props: WalletConnectedProps) => {
   return (
@@ -54,7 +54,7 @@ export const WalletConnected = (props: WalletConnectedProps) => {
         walletInfo={props.walletInfo}
         onDisconnect={props.onDisconnect}
         onSwitchProvider={props.onSwitchProvider}
-        type={props.type}
+        connectedType={props.connectedType}
       />
     </MemoryRouter>
   )
@@ -146,14 +146,15 @@ const WalletButton: FC<WalletButtonProps> = ({
 
 export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   const { state, dispatch, disconnect } = useWallet()
-  const { isConnected, isDemoWallet, walletInfo, type, isLocked, isLoadingLocalWallet } = state
+  const { isConnected, isDemoWallet, walletInfo, connectedType, isLocked, isLoadingLocalWallet } =
+    state
 
   if (isLocked) disconnect()
   const hasWallet = Boolean(walletInfo?.deviceId)
-  const handleConnect = () => {
+  const handleConnect = useCallback(() => {
     onClick && onClick()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }
+  }, [dispatch, onClick])
   return (
     <ButtonGroup width='full'>
       <Menu autoSelect={false}>
@@ -178,7 +179,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
               walletInfo={walletInfo}
               onDisconnect={disconnect}
               onSwitchProvider={handleConnect}
-              type={type}
+              connectedType={connectedType}
             />
           ) : (
             <NoWallet onClick={handleConnect} />

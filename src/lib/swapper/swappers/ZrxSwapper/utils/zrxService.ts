@@ -3,6 +3,7 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import identity from 'lodash/identity'
 import type { RetryConfig } from 'retry-axios'
+import { SwapperName } from 'lib/swapper/api'
 import type { MonadicSwapperAxiosService } from 'lib/swapper/utils'
 import { createCache, makeSwapperAxiosServiceMonadic } from 'lib/swapper/utils'
 
@@ -34,5 +35,5 @@ export const zrxServiceFactory = ({
   wrapper?: AxiosInstanceHoF
 }): MonadicSwapperAxiosService => {
   const axiosInstance = wrapper(axios.create({ ...axiosConfig, baseURL: baseUrl }))
-  return makeSwapperAxiosServiceMonadic(axiosInstance)
+  return makeSwapperAxiosServiceMonadic(axiosInstance, SwapperName.Zrx)
 }

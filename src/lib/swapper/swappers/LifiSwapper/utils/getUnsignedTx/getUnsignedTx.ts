@@ -20,6 +20,12 @@ const createBuildSendApiTxInput = async (
   const lifi = getLifi()
 
   const transactionRequest: providers.TransactionRequest = await (async () => {
+    // getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
+    //   swapper: SwapperName.LIFI,
+    //   method: 'get',
+    //   // Note, this may change if the Li.Fi SDK changes
+    //   url: 'https://li.quest/v1/advanced/stepTransaction',
+    // })
     const { transactionRequest: newTransactionRequest } = await lifi.getStepTransaction(lifiStep)
     return newTransactionRequest ?? {}
   })()

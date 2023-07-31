@@ -1,4 +1,6 @@
+import type { StackDirection } from '@chakra-ui/react'
 import { Stack } from '@chakra-ui/react'
+import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useRouteMatch } from 'react-router'
 import { Main } from 'components/Layout/Main'
@@ -16,7 +18,10 @@ import { Portfolio } from './Portfolio'
 import { RewardsDashboard } from './RewardsDashboard'
 import { WalletDashboard } from './WalletDashboard'
 
-export const Dashboard = () => {
+const direction: StackDirection = { base: 'column', xl: 'row' }
+const maxWidth = { base: 'full', lg: 'full', xl: 'sm' }
+
+export const Dashboard = memo(() => {
   const translate = useTranslate()
   const isDefiDashboardEnabled = useFeatureFlag('DefiDashboard')
   const { path } = useRouteMatch()
@@ -58,19 +63,14 @@ export const Dashboard = () => {
   return (
     <Main>
       <SEO title={translate('navBar.dashboard')} />
-      <Stack
-        alignItems='flex-start'
-        spacing={4}
-        mx='auto'
-        direction={{ base: 'column', xl: 'row' }}
-      >
+      <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <Portfolio />
         </Stack>
-        <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
+        <Stack flex='1 1 0%' width='full' maxWidth={maxWidth} spacing={4}>
           <DashboardSidebar />
         </Stack>
       </Stack>
     </Main>
   )
-}
+})

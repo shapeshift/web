@@ -1,5 +1,4 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { isNft } from '@shapeshiftoss/caip'
 import type { BuyAssetBySellIdInput } from 'lib/swapper/api'
 import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -9,7 +8,7 @@ import { COWSWAP_UNSUPPORTED_ASSETS } from '../utils/blacklist'
 import { getSupportedChainIds } from '../utils/helpers/helpers'
 
 export const filterBuyAssetsBySellAssetId = ({
-  assetIds = [],
+  nonNftAssetIds = [],
   sellAssetId,
 }: BuyAssetBySellIdInput): AssetId[] => {
   const supportedChainIds = getSupportedChainIds()
@@ -24,15 +23,14 @@ export const filterBuyAssetsBySellAssetId = ({
   )
     return []
 
-  return assetIds.filter(id => {
+  return nonNftAssetIds.filter(id => {
     const asset = assets[id]
     if (!asset) return false
 
     return (
       id !== sellAssetId &&
       sellAsset.chainId === asset.chainId &&
-      !COWSWAP_UNSUPPORTED_ASSETS.includes(id) &&
-      !isNft(id)
+      !COWSWAP_UNSUPPORTED_ASSETS.includes(id)
     )
   })
 }

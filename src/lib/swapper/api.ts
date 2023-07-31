@@ -95,11 +95,11 @@ export type GetSwappersWithQuoteMetadataReturn = SwapperWithQuoteMetadata[]
 
 export type BuyAssetBySellIdInput = {
   sellAssetId: AssetId
-  assetIds: AssetId[]
+  nonNftAssetIds: AssetId[]
 }
 
 export type SupportedSellAssetsInput = {
-  assetIds: AssetId[]
+  nonNftAssetIds: AssetId[]
 }
 
 type CommonTradeInput = {
@@ -265,7 +265,7 @@ export interface Swapper<T extends ChainId> {
   /**
    * Get supported sell assetIds
    */
-  filterAssetIdsBySellable(assetIds: AssetId[]): AssetId[]
+  filterAssetIdsBySellable(nonNftAssetIds: AssetId[]): AssetId[]
 
   /**
    * Get transactions related to a trade

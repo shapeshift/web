@@ -52,7 +52,7 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
         await wallet.initialize()
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name, icon, deviceId },
+          payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Coinbase },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })

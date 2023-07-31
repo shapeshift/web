@@ -123,9 +123,9 @@ export class ThorchainSwapper implements Swapper<ThorChainId> {
   }
 
   filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[] {
-    const { assetIds = [], sellAssetId } = args
+    const { nonNftAssetIds, sellAssetId } = args
     if (!this.supportedSellAssetIds.includes(sellAssetId)) return []
-    return assetIds.filter(
+    return nonNftAssetIds.filter(
       assetId => this.supportedBuyAssetIds.includes(assetId) && assetId !== sellAssetId,
     )
   }

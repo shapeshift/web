@@ -14,8 +14,7 @@ import EasyToUseIcon from '../easy-to-use.svg'
 const NativeFeatureList = ['trackBalance', 'sendReceive', 'buyCrypto', 'tradeAssets', 'earnYield']
 
 export const EasyToUse = () => {
-  const { nativeOnboard } = useModal()
-  const { close: closeModal } = nativeOnboard
+  const { close: closeModal } = useModal('nativeOnboard')
   const translate = useTranslate()
   const { history } = useBrowserRouter()
   const translateKey = (key: string) => `walletProvider.shapeShift.onboarding.easyToUse.${key}`

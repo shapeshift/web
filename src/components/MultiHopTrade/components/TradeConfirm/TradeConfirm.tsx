@@ -165,7 +165,7 @@ export const TradeConfirm = () => {
       getTxLink({
         name: lastStep?.sources[0]?.name,
         defaultExplorerBaseUrl: lastStep?.buyAsset.explorerTxLink ?? '',
-        tradeId: buyTxHash,
+        txId: buyTxHash,
       }),
     [lastStep?.buyAsset.explorerTxLink, lastStep?.sources],
   )
@@ -174,8 +174,6 @@ export const TradeConfirm = () => {
     if (buyTxHash) return getBuyTxLink(buyTxHash)
     if (sellTxHash) return getSellTxLink(sellTxHash)
   }, [buyTxHash, getBuyTxLink, getSellTxLink, sellTxHash])
-
-  console.log({ sellTxHash, buyTxHash, txLink })
 
   useEffect(() => {
     if (!mixpanel || !eventData || hasMixpanelFired) return
@@ -412,7 +410,7 @@ export const TradeConfirm = () => {
               {tradeWarning}
               {sendReceiveSummary}
               <Stack spacing={4}>
-                {txHash && (
+                {txLink && (
                   <Row>
                     <Row.Label>
                       <RawText>{translate('common.txId')}</RawText>

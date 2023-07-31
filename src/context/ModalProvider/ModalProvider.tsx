@@ -41,20 +41,17 @@ const MODALS: Modals = {
 } as const
 
 export const createModalProvider = () => {
-  let CombinedProvider = ({ children }: { children: React.ReactNode }) => <>{children}</>
-
-  Object.entries(MODALS).forEach(([key, Component]) => {
-    const InnerProvider = createModalProviderInner({ key: key as keyof Modals, Component })
-
-    const CurrentProvider = CombinedProvider
-    CombinedProvider = ({ children }) => (
-      <InnerProvider>
-        <CurrentProvider>{children}</CurrentProvider>
-      </InnerProvider>
-    )
+  const providers = Object.entries(MODALS).map(([key, Component]) => {
+    return createModalProviderInner({ key: key as keyof Modals, Component })
   })
 
-  return CombinedProvider
+  return ({ children }: { children: React.ReactNode }) => (
+    <>
+      {providers.reduceRight((children, Provider, index) => {
+        return <Provider key={index}>{children}</Provider>
+      }, children)}
+    </>
+  )
 }
 
 export const ModalProvider = createModalProvider()

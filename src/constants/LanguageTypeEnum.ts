@@ -15,7 +15,7 @@ export enum LanguageTypeEnum {
   ru = 'ru',
   /** Português */
   pt = 'pt',
-  /** 简体中文 */
+  /** 中文 */
   zh = 'zh',
   /** Français */
   fr = 'fr',

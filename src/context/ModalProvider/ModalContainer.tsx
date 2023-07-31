@@ -46,7 +46,7 @@ export const createModalProviderInner = <T extends keyof Modals>({
     }, [close, open, state])
 
     return (
-      <Provider value={value}>
+      <Provider key={key} value={value}>
         {children}
         {/* @ts-ignore ts not smart enough to know React.ComponentProps<Modals[T]> are props for Modals[T] */}
         {state.isOpen && <Component {...state.props} />}

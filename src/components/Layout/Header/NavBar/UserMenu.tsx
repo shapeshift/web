@@ -149,8 +149,6 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   const { isConnected, isDemoWallet, walletInfo, connectedType, isLocked, isLoadingLocalWallet } =
     state
 
-  console.log('xxx state', { state, walletInfo, connectedType })
-
   if (isLocked) disconnect()
   const hasWallet = Boolean(walletInfo?.deviceId)
   const handleConnect = useCallback(() => {

@@ -1,16 +1,16 @@
-import { useToast } from '@chakra-ui/react'
-import type { Event } from '@shapeshiftoss/hdwallet-core'
-import { Events } from '@shapeshiftoss/hdwallet-core'
-import type { Dispatch } from 'react'
-import { useEffect } from 'react'
-import { useTranslate } from 'react-polyglot'
-import type { ActionTypes } from 'context/WalletProvider/actions'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import type { DeviceState, InitialState } from 'context/WalletProvider/WalletProvider'
-import { usePoll } from 'hooks/usePoll/usePoll'
+import { useToast } from "@chakra-ui/react";
+import type { Event } from "@shapeshiftoss/hdwallet-core";
+import { Events } from "@shapeshiftoss/hdwallet-core";
+import type { Dispatch } from "react";
+import { useEffect } from "react";
+import { useTranslate } from "react-polyglot";
+import type { ActionTypes } from "context/WalletProvider/actions";
+import { WalletActions } from "context/WalletProvider/actions";
+import { KeyManager } from "context/WalletProvider/KeyManager";
+import type { DeviceState, InitialState } from "context/WalletProvider/WalletProvider";
+import { usePoll } from "hooks/usePoll/usePoll";
 
-import { ButtonRequestType, FailureType, Message, MessageType } from '../KeepKeyTypes'
+import { ButtonRequestType, FailureType, Message, MessageType } from "../KeepKeyTypes";
 
 export const useKeepKeyEventHandler = (
   state: InitialState,
@@ -193,8 +193,6 @@ export const useKeepKeyEventHandler = (
     const handleConnect = async (e: [deviceId: string, message: Event]) => {
       const [deviceId] = e
 
-      console.log('xxx handleConnect', e)
-
       /*
         Understanding KeepKey DeviceID aliases:
 
@@ -214,7 +212,6 @@ export const useKeepKeyEventHandler = (
           const name = (await wallet.getLabel()) || state.walletInfo.name
           // The keyring might have a new HDWallet instance for the device.
           // We'll replace the one we have in state with the new one
-          console.log('xxx 3')
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: {

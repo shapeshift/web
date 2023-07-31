@@ -21,6 +21,7 @@ import { useTranslate } from 'react-polyglot'
 import { IconCircle } from 'components/IconCircle'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { getNativeLocalWalletName } from 'context/WalletProvider/local-wallet'
 import { NativeConfig } from 'context/WalletProvider/NativeWallet/config'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -60,6 +61,7 @@ export const EnterPassword = () => {
           name,
           icon,
           deviceId,
+          connectedType: KeyManager.Native,
           meta: { label: vault.meta.get('name') as string },
         },
       })

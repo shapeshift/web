@@ -3,6 +3,12 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Tx } from './txHistorySlice'
 
 type TxIndex = string
+type TxDescriptor = {
+  accountId: AccountId
+  txid: Tx['txid']
+  address: Tx['address']
+  data?: Tx['data']
+}
 
 export const getRelatedAssetIds = (tx: Tx): AssetId[] => {
   // we only want unique ids
@@ -35,10 +41,10 @@ export const getRelatedAssetIds = (tx: Tx): AssetId[] => {
 // we can't use a hyphen as a delimiter, as it appears in the chain reference for cosmos
 export const UNIQUE_TX_ID_DELIMITER = '*'
 export const serializeTxIndex = (
-  accountId: AccountId,
-  txid: Tx['txid'],
-  address: Tx['address'],
-  data?: Tx['data'],
+  accountId: TxDescriptor['accountId'],
+  txid: TxDescriptor['txid'],
+  address: TxDescriptor['address'],
+  data?: TxDescriptor['data'],
 ): TxIndex => {
   // special case for thorchain transactions sent back in multiple parts
   if (data && data.parser === 'swap' && address.toLowerCase().startsWith('thor')) {
@@ -46,4 +52,25 @@ export const serializeTxIndex = (
   }
 
   return [accountId, txid, address.toLowerCase()].join(UNIQUE_TX_ID_DELIMITER)
+}
+
+export const deserializeTxIndex = (txIndex: TxIndex): TxDescriptor => {
+  // Split the serialized index back into its components
+  const parts = txIndex.split(UNIQUE_TX_ID_DELIMITER)
+
+  const result: TxDescriptor = {
+    accountId: parts[0],
+    txid: parts[1],
+    address: parts[2],
+  }
+
+  // If there are four parts, the fourth is the data, and we know it's a thorchain transaction with a memo
+  if (parts.length === 4) {
+    result.data = {
+      parser: 'swap',
+      memo: parts[3],
+    }
+  }
+
+  return result
 }

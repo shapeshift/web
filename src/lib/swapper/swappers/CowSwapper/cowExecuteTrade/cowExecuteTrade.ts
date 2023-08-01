@@ -9,8 +9,7 @@ import { ethers } from 'ethers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { ExecuteTradeInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import type { CowChainId } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
-import type { CowTrade, CowTradeResult } from 'lib/swapper/swappers/CowSwapper/types'
+import type { CowChainId, CowTrade, CowTradeResult } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_SETTLEMENT_ADDRESS,

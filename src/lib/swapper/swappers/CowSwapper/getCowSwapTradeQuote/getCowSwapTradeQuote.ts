@@ -6,9 +6,8 @@ import { getConfig } from 'config'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
-import type { CowChainId } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { getMinimumCryptoHuman } from 'lib/swapper/swappers/CowSwapper/getMinimumCryptoHuman/getMinimumCryptoHuman'
-import type { CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
+import type { CowChainId, CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,

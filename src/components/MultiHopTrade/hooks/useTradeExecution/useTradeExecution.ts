@@ -31,7 +31,7 @@ import {
   selectLastHopBuyAsset,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { TRADE_POLL_INTERVAL_MILLISECONDS } from '../constants'
 import { useAccountIds } from '../useAccountIds'
@@ -56,7 +56,7 @@ export const useTradeExecution = ({
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
   const feeAsset = useAppSelector(selectFirstHopSellFeeAsset)
 
-  const { sellAssetAccountId } = useAccountIds()
+  const { sellAssetAccountId, buyAssetAccountId } = useAccountIds()
 
   const accountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: sellAssetAccountId }),
@@ -153,6 +153,10 @@ export const useTradeExecution = ({
           quoteId: tradeQuote.id,
           txHash: sellTxHashRef.current,
           chainId,
+          stepIndex: activeStepOrDefault,
+          quoteSellAssetAccountId: sellAssetAccountId,
+          quoteBuyAssetAccountId: buyAssetAccountId,
+          getState: store.getState,
         })
 
         // TODO(gomes): do we want to bring in the concept of watching for a step execution in addition to trade execution?
@@ -189,6 +193,8 @@ export const useTradeExecution = ({
     activeStepOrDefault,
     poll,
     dispatch,
+    sellAssetAccountId,
+    buyAssetAccountId,
   ])
 
   useEffect(() => {

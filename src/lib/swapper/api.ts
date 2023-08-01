@@ -1,4 +1,4 @@
-import type { AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainSignTx,
   CosmosSdkChainId,
@@ -17,6 +17,7 @@ import type {
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
+import type { ReduxState } from 'state/reducer'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 export const SwapError = createErrorClass('SwapError')
@@ -308,6 +309,10 @@ export type CheckTradeStatusInput = {
   quoteId: string
   txHash: string
   chainId: ChainId
+  stepIndex: number
+  quoteSellAssetAccountId?: AccountId
+  quoteBuyAssetAccountId?: AccountId
+  getState: () => ReduxState
 }
 
 export type Swapper2 = {

@@ -96,7 +96,7 @@ export class SwapperManager {
   /**
    *
    * @param pair type {GetQuoteInput}
-   * @returns {SwapperType}
+   * @returns {Swapper<ChainId>[]}
    */
   getSwappersByPair(pair: ByPairInput): Swapper<ChainId>[] {
     const { sellAssetId, buyAssetId } = pair

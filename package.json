@@ -47,8 +47,7 @@
     "test:cypress:clean": "yarn cypress run --browser chrome --headless --env cleanMocks=true",
     "test:dev:web": "yarn react-app-rewired test --watch",
     "test:dev:packages": "yarn test:packages --watch",
-    "translations:count-words-since": "yarn ts-node --skipProject ./scripts/translations/countEnglishWordsSince.ts",
-    "translations:invalidate-outdated": "yarn ts-node --skipProject ./scripts/translations/invalidateOutdated.ts",
+    "translations:count-words-invalidate-since": "yarn ts-node --skipProject ./scripts/translations/countWordsInvalidateSince.ts",
     "translations:update-path": "yarn ts-node --skipProject ./scripts/translations/updateTranslationPath.ts",
     "type-check": "yarn tsc --noEmit",
     "type-check-watch": "yarn tsc --noEmit --watch"

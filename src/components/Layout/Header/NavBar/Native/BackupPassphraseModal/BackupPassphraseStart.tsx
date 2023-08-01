@@ -15,7 +15,7 @@ export const BackupPassphraseStart: React.FC<LocationState> = props => {
 
   useEffect(() => {
     ;(async () => {
-      switch (state.type) {
+      switch (state.modalType) {
         case KeyManager.Native:
           // Native wallets require a password to decrypt
           history.push(BackupPassphraseRoutes.Password)
@@ -35,7 +35,7 @@ export const BackupPassphraseStart: React.FC<LocationState> = props => {
           break
       }
     })()
-  }, [history, revocableWallet, state.walletInfo, state.type])
+  }, [history, revocableWallet, state.walletInfo, state.modalType])
 
   return error ? <div>{error}</div> : null
 }

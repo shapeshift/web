@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
+import { cosmosChainId, osmosisChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { cosmos, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { osmosis } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
@@ -28,19 +28,21 @@ import {
   buildTradeTx,
   getRateInfo,
   performIbcTransfer,
-  pollForComplete,
   symbolDenomMapping,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 import type {
   OsmosisSupportedChainId,
   OsmosisTradeResult,
 } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
+import { store } from 'state/store'
 import { selectSellAssetUsdRate } from 'state/zustand/swapperStore/amountSelectors'
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
+import { pollForComplete, pollForCrossChainComplete } from './utils/poll'
 
 export class OsmosisSwapper implements Swapper<ChainId> {
   readonly name = SwapperName.Osmosis
@@ -297,10 +299,17 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         feeDenom: 'uatom',
       })
 
+      const initiatingChainAccountId = toAccountId({ chainId: cosmosChainId, account: sellAddress })
+      const initiatingChainTxid = serializeTxIndex(initiatingChainAccountId, tradeId, sellAddress)
+
       cosmosIbcTradeId = tradeId
 
       // wait till confirmed
-      const pollResult = await pollForComplete(tradeId, cosmosUrl)
+      const pollResult = await pollForCrossChainComplete({
+        initiatingChainTxid,
+        initiatingChainAccountId,
+        getState: store.getState,
+      })
       if (pollResult !== 'success')
         return Err(
           makeSwapErrorRight({
@@ -309,11 +318,6 @@ export class OsmosisSwapper implements Swapper<ChainId> {
           }),
         )
 
-      // TODO(gomes): We should be polling for *actual* IBC transfer completion here, which a 5000ms only gives us partial guarantee about
-      // It will work in most cases, but isn't guaranteed if validators are slow to pick it up on the destination chain
-
-      // delay to ensure all nodes we interact with are up to date at this point
-      // seeing intermittent bugs that suggest the balances and sequence numbers were sometimes off
       await new Promise(resolve => setTimeout(resolve, 5000))
     }
 
@@ -370,7 +374,13 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     const signed = await osmosisAdapter.signTransaction(signTxInput)
     const tradeId = await osmosisAdapter.broadcastTransaction(signed)
 
-    const pollResult = await pollForComplete(tradeId, osmoUrl)
+    const destinationChainAccountId = toAccountId({ chainId: osmosisChainId, account: osmoAddress })
+    const destinationChainTxid = serializeTxIndex(destinationChainAccountId, tradeId, osmoAddress)
+
+    const pollResult = await pollForComplete({
+      txid: destinationChainTxid,
+      getState: store.getState,
+    })
     if (pollResult !== 'success')
       return Err(
         makeSwapErrorRight({
@@ -408,7 +418,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
       const getFeeDataInput: Partial<GetFeeDataInput<OsmosisSupportedChainId>> = {}
       const ibcFromOsmosisFeeData = await osmosisAdapter.getFeeData(getFeeDataInput)
 
-      await performIbcTransfer({
+      const { tradeId } = await performIbcTransfer({
         input: transfer,
         adapter: osmosisAdapter,
         wallet,
@@ -422,6 +432,28 @@ export class OsmosisSwapper implements Swapper<ChainId> {
         gas: ibcFromOsmosisFeeData.fast.chainSpecific.gasLimit,
         feeDenom: 'uosmo',
       })
+
+      const initiatingChainAccountId = toAccountId({
+        chainId: osmosisChainId,
+        account: sellAddress,
+      })
+      const initiatingChainTxid = serializeTxIndex(initiatingChainAccountId, tradeId, sellAddress)
+
+      // wait till confirmed
+      const pollResult = await pollForCrossChainComplete({
+        initiatingChainAccountId,
+        initiatingChainTxid,
+        getState: store.getState,
+      })
+
+      if (pollResult !== 'success')
+        return Err(
+          makeSwapErrorRight({
+            message: 'ibc transfer failed',
+            code: SwapErrorType.EXECUTE_TRADE_FAILED,
+          }),
+        )
+
       return Ok({
         tradeId,
         previousCosmosTxid: cosmosTxHistory.transactions[0]?.txid,

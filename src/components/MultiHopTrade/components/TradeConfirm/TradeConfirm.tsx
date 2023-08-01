@@ -15,7 +15,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -52,6 +52,7 @@ import {
   selectFirstHopNetworkFeeCryptoPrecision,
   selectFirstHopSellAsset,
   selectFirstHopSellFeeAsset,
+  selectLastHop,
   selectLastHopBuyAsset,
   selectNetBuyAmountCryptoPrecision,
   selectNetBuyAmountUserCurrency,
@@ -72,6 +73,7 @@ export const TradeConfirm = () => {
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const alertColor = useColorModeValue('yellow.500', 'yellow.200')
   const warningColor = useColorModeValue('red.600', 'red.400')
+  const [hasMixpanelFired, setHasMixpanelFired] = useState(false)
   const {
     handleSubmit,
     formState: { isSubmitting },
@@ -118,6 +120,7 @@ export const TradeConfirm = () => {
   }, [dispatch, tradeQuote])
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
+  const lastStep = useAppSelector(selectLastHop)
   const swapperName = useAppSelector(selectActiveSwapperName)
   const defaultFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
   const netBuyAmountCryptoPrecision = useAppSelector(selectNetBuyAmountCryptoPrecision)
@@ -141,35 +144,55 @@ export const TradeConfirm = () => {
   const {
     executeTrade,
     sellTxHash,
+    buyTxHash,
     tradeStatus: status,
   } = useTradeExecution({ tradeQuote, swapperName })
 
+  const txHash = buyTxHash ?? sellTxHash
+
   const getSellTxLink = useCallback(
-    (sellTxId: string) =>
+    (sellTxHash: string) =>
       getTxLink({
         name: tradeQuoteStep?.sources[0]?.name,
         defaultExplorerBaseUrl: tradeQuoteStep?.sellAsset.explorerTxLink ?? '',
-        tradeId: sellTxId,
+        tradeId: sellTxHash,
       }),
     [tradeQuoteStep?.sellAsset.explorerTxLink, tradeQuoteStep?.sources],
   )
 
+  const getBuyTxLink = useCallback(
+    (buyTxHash: string) =>
+      getTxLink({
+        name: lastStep?.sources[0]?.name,
+        defaultExplorerBaseUrl: lastStep?.buyAsset.explorerTxLink ?? '',
+        txId: buyTxHash,
+      }),
+    [lastStep?.buyAsset.explorerTxLink, lastStep?.sources],
+  )
+
+  const txLink = useMemo(() => {
+    if (buyTxHash) return getBuyTxLink(buyTxHash)
+    if (sellTxHash) return getSellTxLink(sellTxHash)
+  }, [buyTxHash, getBuyTxLink, getSellTxLink, sellTxHash])
+
   useEffect(() => {
-    if (!mixpanel || !eventData) return
+    if (!mixpanel || !eventData || hasMixpanelFired) return
     if (status === TxStatus.Confirmed) {
       mixpanel.track(MixPanelEvents.TradeSuccess, eventData)
+      setHasMixpanelFired(true)
     }
     if (status === TxStatus.Failed) {
       mixpanel.track(MixPanelEvents.TradeFailed, eventData)
+      setHasMixpanelFired(true)
     }
-  }, [eventData, mixpanel, status])
+  }, [eventData, hasMixpanelFired, mixpanel, status])
 
   const handleBack = useCallback(() => {
-    if (sellTxHash) {
+    if (txHash) {
       dispatch(tradeQuoteSlice.actions.clear())
     }
     history.push(TradeRoutePaths.Input)
-  }, [dispatch, history, sellTxHash])
+  }, [dispatch, history, txHash])
 
   const onSubmit = useCallback(async () => {
     try {
@@ -336,7 +359,7 @@ export const TradeConfirm = () => {
   const footer: JSX.Element = useMemo(
     () => (
       <Card.Footer px={0} py={0}>
-        {!sellTxHash && !isSubmitting && (
+        {!txHash && !isSubmitting && (
           <>
             {swapperName === SwapperName.LIFI && (
               <Alert status='warning' fontSize='sm' mt={6}>
@@ -358,7 +381,7 @@ export const TradeConfirm = () => {
         )}
       </Card.Footer>
     ),
-    [isSubmitting, sellTxHash, swapperName, translate],
+    [isSubmitting, txHash, swapperName, translate],
   )
 
   if (!tradeQuoteStep) return null
@@ -387,13 +410,13 @@ export const TradeConfirm = () => {
               {tradeWarning}
               {sendReceiveSummary}
               <Stack spacing={4}>
-                {sellTxHash && (
+                {txLink && (
                   <Row>
                     <Row.Label>
                       <RawText>{translate('common.txId')}</RawText>
                     </Row.Label>
                     <Box textAlign='right'>
-                      <Link isExternal color='blue.500' href={getSellTxLink(sellTxHash)}>
+                      <Link isExternal color='blue.500' href={txLink}>
                         <Text translation='trade.viewTransaction' />
                       </Link>
                     </Box>

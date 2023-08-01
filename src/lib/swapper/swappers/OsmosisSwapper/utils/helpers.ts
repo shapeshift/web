@@ -35,42 +35,6 @@ type FindPoolOutput = {
   buyAssetIndex: number
 }
 
-const txStatus = async (txid: string, baseUrl: string): Promise<string> => {
-  try {
-    const txResponse = await axios.get(`${baseUrl}/lcd/txs/${txid}`)
-    if (!txResponse?.data?.codespace && !!txResponse?.data?.gas_used) return 'success'
-    if (txResponse?.data?.codespace) return 'failed'
-  } catch (e) {
-    console.warn('Retrying to retrieve status')
-  }
-  return 'not found'
-}
-
-// TODO: leverage chain-adapters websockets
-export const pollForComplete = (txid: string, baseUrl: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const timeout = 300000 // 5 mins
-    const startTime = Date.now()
-    const interval = 5000 // 5 seconds
-
-    const poll = async function () {
-      const status = await txStatus(txid, baseUrl)
-      if (status === 'success') {
-        resolve(status)
-      } else if (Date.now() - startTime > timeout) {
-        reject(
-          new SwapError(`Couldnt find tx ${txid}`, {
-            code: SwapErrorType.RESPONSE_ERROR,
-          }),
-        )
-      } else {
-        setTimeout(poll, interval)
-      }
-    }
-    poll()
-  })
-}
-
 const findPool = async (
   sellAssetSymbol: string,
   buyAssetSymbol: string,

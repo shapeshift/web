@@ -44,6 +44,7 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
             icon,
             deviceId,
             meta: { label: walletLabel },
+            connectedType: KeyManager.Native,
           },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })

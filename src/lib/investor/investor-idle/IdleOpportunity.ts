@@ -307,7 +307,7 @@ export class IdleOpportunity
   }
 
   async getRewardAssetIds(): Promise<AssetId[]> {
-    let govTokens = []
+    let govTokens: any[]
 
     if (this.metadata.cdoAddress) {
       const cdoContract: Contract = new this.#internals.web3.eth.Contract(

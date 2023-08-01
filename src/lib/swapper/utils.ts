@@ -49,12 +49,12 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
       get: <T = any>(
         url: string,
         config?: AxiosRequestConfig<any>,
-      ) => Promise<Result<AxiosResponse<T, any>, SwapErrorRight>>
+      ) => Promise<Result<AxiosResponse<T>, SwapErrorRight>>
       post: <T = any>(
         url: string,
         data: any,
         config?: AxiosRequestConfig<any>,
-      ) => Promise<Result<AxiosResponse<T, any>, SwapErrorRight>>
+      ) => Promise<Result<AxiosResponse<T>, SwapErrorRight>>
     }
   >(service, {
     get: (trappedAxios, method: 'get' | 'post') => {

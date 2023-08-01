@@ -37,7 +37,7 @@ import { DepositContext } from '../DepositContext'
 type DepositProps = StepComponentProps & {
   accountId?: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
-} & StepComponentProps
+}
 
 export const Deposit: React.FC<DepositProps> = ({
   accountId,

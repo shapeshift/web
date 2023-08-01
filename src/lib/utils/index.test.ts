@@ -9,15 +9,15 @@ import {
   osmosisAssetId,
   osmosisChainId,
 } from '@shapeshiftoss/caip'
-
-import { fauxmesAccountId } from '../../state/slices/opportunitiesSlice/mocks'
+import { fauxmesAccountId } from 'state/slices/opportunitiesSlice/mocks'
 import type {
   LpId,
   OpportunityId,
   StakingId,
   ValidatorId,
-} from '../../state/slices/opportunitiesSlice/types'
-import { opportunityIdToChainId } from '../../state/slices/opportunitiesSlice/utils'
+} from 'state/slices/opportunitiesSlice/types'
+import { opportunityIdToChainId } from 'state/slices/opportunitiesSlice/utils'
+
 import {
   assertIsDefined,
   deepUpsertArray,

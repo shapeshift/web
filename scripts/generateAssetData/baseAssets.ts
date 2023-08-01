@@ -1,6 +1,5 @@
 import * as caip from '@shapeshiftoss/caip'
-
-import type { Asset } from '../../src/lib/asset-service'
+import type { Asset } from 'lib/asset-service'
 
 type AssetWithNetworkName = Asset & { networkName: string }
 

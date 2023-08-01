@@ -1,4 +1,4 @@
-import type { Asset } from '../../src/lib/asset-service'
+import type { Asset } from 'lib/asset-service'
 
 const colorThief = require('colorthief') as any
 

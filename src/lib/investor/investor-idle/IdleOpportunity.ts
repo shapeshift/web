@@ -5,13 +5,13 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params, KnownChainIds } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
+import { DAO_TREASURY_ETHEREUM_MAINNET } from 'constants/treasury'
 import toLower from 'lodash/toLower'
 import type Web3 from 'web3'
 import type { Contract } from 'web3-eth-contract'
 import { numberToHex } from 'web3-utils'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
-import { DAO_TREASURY_ETHEREUM_MAINNET } from '../../../constants/treasury'
-import { bn, bnOrZero } from '../../../lib/bignumber/bignumber'
 import type {
   ApprovalRequired,
   DepositWithdrawArgs,

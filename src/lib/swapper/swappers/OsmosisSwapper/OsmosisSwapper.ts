@@ -198,7 +198,7 @@ export class OsmosisSwapper implements Swapper<ChainId> {
     })
   }
 
-  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>> {
+  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote, SwapErrorRight>> {
     const sellAssetUsdRate = selectSellAssetUsdRate(swapperStore.getState())
     return getTradeQuote(input, { sellAssetUsdRate })
   }

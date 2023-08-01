@@ -98,7 +98,8 @@ export interface InitialState {
   keyring: Keyring
   adapters: Adapters | null
   wallet: HDWallet | null
-  type: KeyManager | null
+  modalType: KeyManager | null
+  connectedType: KeyManager | null
   initialRoute: string | null
   walletInfo: WalletInfo | null
   isConnected: boolean
@@ -118,7 +119,8 @@ const initialState: InitialState = {
   keyring: new Keyring(),
   adapters: null,
   wallet: null,
-  type: null,
+  modalType: null,
+  connectedType: null,
   initialRoute: null,
   walletInfo: null,
   isConnected: false,
@@ -147,7 +149,7 @@ export const isKeyManagerWithProvider = (
       ].includes(keyManager),
   )
 
-const reducer = (state: InitialState, action: ActionTypes) => {
+const reducer = (state: InitialState, action: ActionTypes): InitialState => {
   switch (action.type) {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
@@ -160,6 +162,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         ...state,
         isDemoWallet: Boolean(action.payload.isDemoWallet),
         wallet: action.payload.wallet,
+        connectedType: action.payload.connectedType,
         walletInfo: {
           name: action?.payload?.name,
           icon: action?.payload?.icon,
@@ -177,7 +180,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_IS_LOCKED:
       return { ...state, isLocked: action.payload }
     case WalletActions.SET_CONNECTOR_TYPE:
-      return { ...state, type: action.payload }
+      return { ...state, modalType: action.payload }
     case WalletActions.SET_INITIAL_ROUTE:
       return { ...state, initialRoute: action.payload }
     case WalletActions.SET_PIN_REQUEST_TYPE:
@@ -222,7 +225,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return {
         ...state,
         modal: action.payload.modal,
-        type: KeyManager.Native,
+        modalType: KeyManager.Native,
         showBackButton: !state.isLoadingLocalWallet,
         deviceId: action.payload.deviceId,
         initialRoute: '/native/enter-password',
@@ -232,7 +235,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return {
         ...state,
         modal: true,
-        type: KeyManager.KeepKey,
+        modalType: KeyManager.KeepKey,
         showBackButton: showBackButton ?? false,
         deviceId,
         keepKeyPinRequestType: pinRequestType ?? null,
@@ -246,7 +249,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         ...state,
         modal: true,
         showBackButton: false,
-        type: KeyManager.KeepKey,
+        modalType: KeyManager.KeepKey,
         initialRoute: KeepKeyRoutes.RecoverySentenceEntry,
         deviceState: {
           ...deviceState,
@@ -259,7 +262,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return {
         ...state,
         modal: true,
-        type: KeyManager.KeepKey,
+        modalType: KeyManager.KeepKey,
         showBackButton: false,
         deviceId: action.payload.deviceId,
         initialRoute: KeepKeyRoutes.Passphrase,
@@ -270,7 +273,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         modal: true,
         showBackButton: false,
         disconnectOnCloseModal: true,
-        type: KeyManager.KeepKey,
+        modalType: KeyManager.KeepKey,
         deviceId: action.payload.deviceId,
         initialRoute: KeepKeyRoutes.FactoryState,
       }
@@ -278,7 +281,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return {
         ...state,
         modal: true,
-        type: KeyManager.KeepKey,
+        modalType: KeyManager.KeepKey,
         deviceId: action.payload.deviceId,
         initialRoute: KeepKeyRoutes.NewRecoverySentence,
       }
@@ -286,7 +289,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return {
         ...state,
         modal: true,
-        type: KeyManager.KeepKey,
+        modalType: KeyManager.KeepKey,
         deviceId: action.payload.deviceId,
         initialRoute: KeepKeyRoutes.RecoverySentenceInvalid,
       }
@@ -314,7 +317,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return {
         ...state,
         modal: true,
-        type: KeyManager.KeepKey,
+        modalType: KeyManager.KeepKey,
         initialRoute: KeepKeyRoutes.DownloadUpdater,
       }
     case WalletActions.OPEN_KEEPKEY_DISCONNECT:
@@ -322,7 +325,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         ...state,
         modal: true,
         showBackButton: false,
-        type: KeyManager.KeepKey,
+        modalType: KeyManager.KeepKey,
         initialRoute: KeepKeyRoutes.Disconnect,
       }
     default:
@@ -393,6 +396,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                         icon,
                         deviceId: w.id || localWalletDeviceId,
                         meta: { label: w.label },
+                        connectedType: KeyManager.Mobile,
                       },
                     })
                     dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
@@ -455,6 +459,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       icon,
                       deviceId,
                       meta: { label },
+                      connectedType: KeyManager.KeepKey,
                     },
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
@@ -482,6 +487,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       name,
                       icon,
                       deviceId,
+                      connectedType: KeyManager.MetaMask,
                     },
                   })
                   dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
@@ -510,6 +516,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       name,
                       icon,
                       deviceId,
+                      connectedType: KeyManager.Coinbase,
                     },
                   })
                   dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
@@ -536,6 +543,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       name,
                       icon,
                       deviceId,
+                      connectedType: KeyManager.XDefi,
                     },
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
@@ -561,6 +569,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       name,
                       icon,
                       deviceId,
+                      connectedType: KeyManager.Keplr,
                     },
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
@@ -588,6 +597,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       name,
                       icon,
                       deviceId,
+                      connectedType: KeyManager.WalletConnect,
                     },
                   })
                   dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
@@ -635,6 +645,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         name,
         icon,
         deviceId,
+        connectedType: walletType,
       },
     })
   }, [state, walletType])
@@ -818,6 +829,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         icon,
         deviceId,
         meta: { label: name },
+        connectedType: KeyManager.Demo,
       },
     })
     dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })

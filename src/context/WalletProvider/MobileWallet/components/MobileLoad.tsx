@@ -70,7 +70,14 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
         }
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name, icon, deviceId, meta: { label: item.label } },
+          payload: {
+            wallet,
+            name,
+            icon,
+            deviceId,
+            meta: { label: item.label },
+            connectedType: KeyManager.Mobile,
+          },
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })

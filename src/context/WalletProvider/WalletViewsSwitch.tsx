@@ -32,7 +32,7 @@ export const WalletViewsSwitch = () => {
       modal,
       showBackButton,
       initialRoute,
-      type,
+      modalType,
       disconnectOnCloseModal,
       deviceState: { disposition },
     },
@@ -92,8 +92,8 @@ export const WalletViewsSwitch = () => {
    */
   const walletRoutesList = useMemo(
     () =>
-      type
-        ? SUPPORTED_WALLETS[type].routes.map(route => {
+      modalType
+        ? SUPPORTED_WALLETS[modalType].routes.map(route => {
             const Component = route.component
             return !Component ? null : (
               <Route
@@ -105,7 +105,7 @@ export const WalletViewsSwitch = () => {
             )
           })
         : [],
-    [type],
+    [modalType],
   )
 
   return (

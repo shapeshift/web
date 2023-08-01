@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import type { DeviceState, InitialState } from 'context/WalletProvider/WalletProvider'
 import { usePoll } from 'hooks/usePoll/usePoll'
 
@@ -189,7 +190,9 @@ export const useKeepKeyEventHandler = (
       }
     }
 
-    const handleConnect = async (deviceId: string) => {
+    const handleConnect = async (e: [deviceId: string, message: Event]) => {
+      const [deviceId] = e
+
       /*
         Understanding KeepKey DeviceID aliases:
 
@@ -216,6 +219,7 @@ export const useKeepKeyEventHandler = (
               name,
               deviceId: id,
               meta: { label: name },
+              connectedType: KeyManager.KeepKey,
               icon: state.walletInfo.icon, // We're reconnecting the same wallet so we can reuse the walletInfo
             },
           })
@@ -242,11 +246,14 @@ export const useKeepKeyEventHandler = (
       }
     }
 
-    // Handle all KeepKey events
-    keyring.on(['KeepKey', '*', '*'], handleEvent)
-    // HDWallet emits (DIS)CONNECT events as "KeepKey - {LABEL}" so we can't just listen for "KeepKey"
-    keyring.on(['*', '*', Events.CONNECT], handleConnect)
-    keyring.on(['*', '*', Events.DISCONNECT], handleDisconnect)
+    // We only want to listen to these events if a KeepKey is actually connected, or we are showing a KeepKey modal
+    if ([state.connectedType, state.modalType].includes(KeyManager.KeepKey)) {
+      // Handle all KeepKey events
+      keyring.on(['KeepKey', '*', '*'], handleEvent)
+      // HDWallet emits (DIS)CONNECT events as "KeepKey - {LABEL}" so we can't just listen for "KeepKey"
+      keyring.on(['*', '*', Events.CONNECT], handleConnect)
+      keyring.on(['*', '*', Events.DISCONNECT], handleDisconnect)
+    }
 
     return () => {
       keyring.off(['KeepKey', '*', '*'], handleEvent)
@@ -265,5 +272,7 @@ export const useKeepKeyEventHandler = (
     toast,
     translate,
     poll,
+    state.connectedType,
+    state.modalType,
   ])
 }

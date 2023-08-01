@@ -44,7 +44,7 @@ const NoWallet = ({ onClick }: { onClick: () => void }) => {
 export type WalletConnectedProps = {
   onDisconnect: () => void
   onSwitchProvider: () => void
-} & Pick<InitialState, 'walletInfo' | 'isConnected' | 'type'>
+} & Pick<InitialState, 'walletInfo' | 'isConnected' | 'connectedType'>
 
 export const WalletConnected = (props: WalletConnectedProps) => {
   return (
@@ -54,7 +54,7 @@ export const WalletConnected = (props: WalletConnectedProps) => {
         walletInfo={props.walletInfo}
         onDisconnect={props.onDisconnect}
         onSwitchProvider={props.onSwitchProvider}
-        type={props.type}
+        connectedType={props.connectedType}
       />
     </MemoryRouter>
   )
@@ -146,7 +146,8 @@ const WalletButton: FC<WalletButtonProps> = ({
 
 export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
   const { state, dispatch, disconnect } = useWallet()
-  const { isConnected, isDemoWallet, walletInfo, type, isLocked, isLoadingLocalWallet } = state
+  const { isConnected, isDemoWallet, walletInfo, connectedType, isLocked, isLoadingLocalWallet } =
+    state
 
   if (isLocked) disconnect()
   const hasWallet = Boolean(walletInfo?.deviceId)
@@ -178,7 +179,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
               walletInfo={walletInfo}
               onDisconnect={disconnect}
               onSwitchProvider={handleConnect}
-              type={type}
+              connectedType={connectedType}
             />
           ) : (
             <NoWallet onClick={handleConnect} />

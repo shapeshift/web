@@ -1,5 +1,5 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosAssetId, cosmosChainId, osmosisAssetId, osmosisChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import type { cosmos, osmosis } from '@shapeshiftoss/chain-adapters'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -15,12 +15,6 @@ export enum StakingAction {
 // https://docs.cosmos.network/v0.44/modules/staking/08_params.html
 export const COSMOS_UNBONDING_DAYS = '21'
 export const OSMOSIS_UNBONDING_DAYS = '14'
-
-export const supportsStaking = (chainId: ChainId) => {
-  if (chainId === cosmosChainId) return true
-  if (chainId === osmosisChainId) return true
-  return false
-}
 
 export const isStakingChainAdapter = (
   adapter: unknown,

@@ -100,7 +100,8 @@ export const swappersApi = createApi({
             ),
         )
 
-        // Successful quotes promises - this doesn't mean the quote Result monad itself is Ok
+        // This should never happen but it may - we should be using monadic error handling all the way through swapper call stack
+        // in case this logs an error from a rejected promise, it means we throw somewhere and forgot to handle errors the monadic way
         const successfulQuotes = quotes
           .filter(result => {
             const isFulfilled = isFulfilledPredicate(result)

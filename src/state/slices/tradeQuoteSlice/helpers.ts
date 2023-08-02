@@ -12,8 +12,8 @@ import {
   selectMarketDataByFilter,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/marketDataSlice/selectors'
+import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
 import { store } from 'state/store'
-import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
 
 const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   tradeQuoteStep: TradeQuote2['steps'][number],

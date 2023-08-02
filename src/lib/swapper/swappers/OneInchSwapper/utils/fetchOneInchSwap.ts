@@ -2,7 +2,7 @@ import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import { getConfig } from 'config'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
+import { convertBasisPointsToPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
 import { DEFAULT_SLIPPAGE } from './constants'

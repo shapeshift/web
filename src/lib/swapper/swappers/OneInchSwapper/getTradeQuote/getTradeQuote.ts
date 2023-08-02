@@ -8,7 +8,7 @@ import { toBaseUnit } from 'lib/math'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
-import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
+import { convertBasisPointsToPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
 import { getMinimumCryptoHuman } from '../getMinimumCryptoHuman/getMinimumCryptoHuman'

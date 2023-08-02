@@ -1,12 +1,8 @@
 import { useEffect, useState } from 'react'
 import { getIsTradingActiveApi } from 'state/apis/swapper/getIsTradingActiveApi'
-import { useAppDispatch } from 'state/store'
-import {
-  selectActiveSwapperWithMetadata,
-  selectBuyAsset,
-  selectSellAsset,
-} from 'state/zustand/swapperStore/selectors'
-import { useSwapperStore } from 'state/zustand/swapperStore/useSwapperStore'
+import { selectBuyAsset, selectSellAsset } from 'state/slices/swappersSlice/selectors'
+import { selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const useIsTradingActive = () => {
   const [isTradingActiveOnSellPool, setIsTradingActiveOnSellPool] = useState(false)
@@ -14,13 +10,11 @@ export const useIsTradingActive = () => {
 
   const dispatch = useAppDispatch()
 
-  const buyAsset = useSwapperStore(selectBuyAsset)
-  const sellAsset = useSwapperStore(selectSellAsset)
-  const sellAssetId = sellAsset?.assetId
-  const buyAssetId = buyAsset?.assetId
+  const sellAssetId = useAppSelector(selectSellAsset).assetId
+  const buyAssetId = useAppSelector(selectBuyAsset).assetId
+  const activeSwapper = useAppSelector(selectActiveSwapperName)
 
   const { getIsTradingActive } = getIsTradingActiveApi.endpoints
-  const activeSwapper = useSwapperStore(state => selectActiveSwapperWithMetadata(state)?.swapper)
 
   useEffect(() => {
     ;(async () => {
@@ -31,7 +25,7 @@ export const useIsTradingActive = () => {
           await dispatch(
             getIsTradingActive.initiate({
               assetId: sellAssetId,
-              swapperName: activeSwapper.name,
+              swapperName: activeSwapper,
             }),
           )
         ).data
@@ -43,7 +37,7 @@ export const useIsTradingActive = () => {
           await dispatch(
             getIsTradingActive.initiate({
               assetId: buyAssetId,
-              swapperName: activeSwapper.name,
+              swapperName: activeSwapper,
             }),
           )
         ).data

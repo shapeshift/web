@@ -1,6 +1,6 @@
 import { btcAssetId } from '@shapeshiftoss/caip'
 import { Err, Ok } from '@sniptt/monads'
-import { isTradingActive } from 'components/Trade/utils'
+import { isTradingActive } from 'components/MultiHopTrade/utils'
 import { SwapperName } from 'lib/swapper/api'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 

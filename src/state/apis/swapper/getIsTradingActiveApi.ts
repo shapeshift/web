@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { isTradingActive } from 'components/Trade/utils'
+import { isTradingActive } from 'components/MultiHopTrade/utils'
 import type { SwapperName } from 'lib/swapper/api'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { apiErrorHandler } from 'state/apis/utils'

@@ -1,6 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useEffect, useState } from 'react'
-import { TradeAssetInput } from 'components/Trade/Components/TradeAssetInput'
+import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { selectMarketDataByFilter } from 'state/slices/selectors'

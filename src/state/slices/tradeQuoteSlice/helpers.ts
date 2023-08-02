@@ -134,8 +134,8 @@ export const getHopTotalNetworkFeeFiatPrecision = (
 
 /**
  * Computes the total receive amount across all hops after protocol fees are deducted
- * @param param0.quote The trade quote
- * @param param0.swapperName The swapper name
+ * @param quote The trade quote
+ * @param swapperName The swapper name
  * @returns The total receive amount across all hops in crypto precision after protocol fees are deducted
  */
 export const getNetReceiveAmountCryptoPrecision = ({

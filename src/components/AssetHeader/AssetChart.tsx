@@ -26,6 +26,7 @@ import { IconCircle } from 'components/IconCircle'
 import { StakingUpArrowIcon } from 'components/Icons/StakingUpArrow'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText, Text } from 'components/Text'
+import { useIsBalanceChartDataUnavailable } from 'hooks/useBalanceChartData/utils'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useTimeframeChange } from 'hooks/useTimeframeChange/useTimeframeChange'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -41,7 +42,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { useIsBalanceChartDataUnavailable } from '../../hooks/useBalanceChartData/utils'
 import { HelperTooltip } from '../HelperTooltip/HelperTooltip'
 
 enum View {

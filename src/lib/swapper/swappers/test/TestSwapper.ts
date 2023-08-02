@@ -49,7 +49,7 @@ export class TestSwapper implements Swapper<ChainId> {
     throw new Error('TestSwapper: buildTrade unimplemented')
   }
 
-  getTradeQuote(): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>> {
+  getTradeQuote(): Promise<Result<TradeQuote, SwapErrorRight>> {
     throw new Error('TestSwapper: getTradeQuote unimplemented')
   }
 

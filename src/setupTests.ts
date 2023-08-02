@@ -4,7 +4,7 @@
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
 
-import { server } from './test/msw-utils'
+import { server } from 'test/msw-utils'
 
 global.console = {
   ...console,

@@ -21,7 +21,6 @@ import { getMinimumCryptoHuman } from 'lib/swapper/swappers/LifiSwapper/utils/ge
 import { transformLifiStepFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
 
-import { getLifiChainMap } from '../utils/getLifiChainMap'
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 
 export async function getTradeQuote(
@@ -197,22 +196,4 @@ export async function getTradeQuote(
       }),
     )
   }
-}
-
-let lifiChainMapPromise: Promise<Result<Map<ChainId, ChainKey>, SwapErrorRight>> | undefined
-
-// TODO(woodenfurniture): this function and its singletons should be moved elsewhere once we have
-// more visibility on the pattern for multi-hop swappers
-export const getLifiTradeQuote = async (
-  input: GetEvmTradeQuoteInput,
-  assets: Partial<Record<AssetId, Asset>>,
-  sellAssetPriceUsdPrecision: string,
-): Promise<Result<LifiTradeQuote, SwapErrorRight>> => {
-  if (lifiChainMapPromise === undefined) lifiChainMapPromise = getLifiChainMap()
-
-  const maybeLifiChainMap = await lifiChainMapPromise
-
-  if (maybeLifiChainMap.isErr()) return Err(maybeLifiChainMap.unwrapErr())
-
-  return getTradeQuote(input, maybeLifiChainMap.unwrap(), assets, sellAssetPriceUsdPrecision)
 }

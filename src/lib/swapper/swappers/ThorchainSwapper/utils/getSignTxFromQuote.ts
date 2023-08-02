@@ -1,4 +1,3 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type {
   CosmosSdkBaseAdapter,
@@ -23,7 +22,7 @@ import { createBuildCustomApiTxInput } from 'lib/utils/evm'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 
 type GetSignTxFromQuoteArgs = {
-  tradeQuote: TradeQuote<ChainId>
+  tradeQuote: TradeQuote
   receiveAddress: string
   affiliateBps?: string
   chainSpecific?: utxo.BuildTxInput

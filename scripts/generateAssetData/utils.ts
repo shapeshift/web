@@ -1,6 +1,6 @@
 import filter from 'lodash/filter'
+import type { Asset } from 'lib/asset-service'
 
-import type { Asset } from '../../src/lib/asset-service'
 import blacklist from './blacklist.json'
 
 // blacklist wormhole assets as well - users can't hold a balance and we don't support wormholes

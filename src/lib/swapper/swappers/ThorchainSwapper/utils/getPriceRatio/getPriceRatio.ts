@@ -4,7 +4,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { SwapErrorRight } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
@@ -19,21 +19,24 @@ export const getPriceRatio = async (input: {
   const sellPoolId = assetIdToPoolAssetId({ assetId: sellAssetId })
 
   if (!buyPoolId && !isRune(buyAssetId)) {
-    throw new SwapError(`[getPriceRatio]: No buyPoolId found for asset ${buyAssetId}`, {
-      code: SwapErrorType.POOL_NOT_FOUND,
-      fn: 'getPriceRatio',
-      details: { buyAssetId },
-    })
+    return Err(
+      makeSwapErrorRight({
+        message: `[getPriceRatio]: No buyPoolId found for asset ${buyAssetId}`,
+        code: SwapErrorType.POOL_NOT_FOUND,
+        details: { buyAssetId },
+      }),
+    )
   }
 
   if (!sellPoolId && !isRune(sellAssetId)) {
-    throw new SwapError(`[getPriceRatio]: No sellPoolId found for asset ${sellAssetId}`, {
-      code: SwapErrorType.POOL_NOT_FOUND,
-      fn: 'getPriceRatio',
-      details: { sellAssetId },
-    })
+    return Err(
+      makeSwapErrorRight({
+        message: `[getPriceRatio]: No sellPoolId found for asset ${sellAssetId}`,
+        code: SwapErrorType.POOL_NOT_FOUND,
+        details: { sellAssetId },
+      }),
+    )
   }
-
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
 
   return (

@@ -37,7 +37,9 @@ describe('getPriceRatio', () => {
       Promise.resolve(Ok({ data: [foxThornodePool, ethThornodePool] })),
     )
 
-    await expect(getPriceRatio({ buyAssetId: derpId, sellAssetId: ethId })).rejects.toThrow(
+    const result = await getPriceRatio({ buyAssetId: derpId, sellAssetId: ethId })
+    expect(result.isErr()).toBe(true)
+    expect(result.unwrapErr().message).toEqual(
       `[getPriceRatio]: No buyPoolId found for asset ${derpId}`,
     )
   })

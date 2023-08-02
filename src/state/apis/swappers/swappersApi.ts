@@ -4,6 +4,7 @@ import { Err } from '@sniptt/monads'
 import { orderBy } from 'lodash'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote2 } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapperName } from 'lib/swapper/api'
+import { isFulfilled as isFulfilledPredicate } from 'lib/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
 import { getLifiTradeQuoteHelper } from 'state/apis/swappers/helpers/getLifiTradeQuoteApiHelper'
 import { getThorTradeQuoteHelper } from 'state/apis/swappers/helpers/getThorTradeQuoteApiHelper'
@@ -85,7 +86,7 @@ export const swappersApi = createApi({
           },
         ]
 
-        const quotes = await Promise.all(
+        const quotes = await Promise.allSettled(
           swappers
             .filter(({ isEnabled }) => isEnabled)
             .map(({ swapperName, getTradeQuote }) =>
@@ -97,12 +98,29 @@ export const swappersApi = createApi({
                 swapperName,
               })),
             ),
-        ).catch(e => {
-          console.error(e)
-          return []
-        })
+        )
 
-        const quotesWithInputOutputRatios = quotes
+        // Successful quotes promises - this doesn't mean the quote Result monad itself is Ok
+        const successfulQuotes = quotes
+          .filter(result => {
+            const isFulfilled = isFulfilledPredicate(result)
+            if (!isFulfilled) {
+              console.error(result.reason)
+            }
+            return isFulfilled
+          })
+          .map(
+            result =>
+              (
+                result as PromiseFulfilledResult<
+                  Result<TradeQuote2, SwapErrorRight> & {
+                    swapperName: SwapperName
+                  }
+                >
+              ).value,
+          )
+
+        const quotesWithInputOutputRatios = successfulQuotes
           .map(result => {
             const quote = result && result.isOk() ? result.unwrap() : undefined
             const error = result && result.isErr() ? result.unwrapErr() : undefined

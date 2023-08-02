@@ -25,7 +25,7 @@ import {
 import {
   convertDecimalPercentageToBasisPoints,
   subtractBasisPointAmount,
-} from 'state/zustand/swapperStore/utils'
+} from 'state/slices/tradeQuoteSlice/utils'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 

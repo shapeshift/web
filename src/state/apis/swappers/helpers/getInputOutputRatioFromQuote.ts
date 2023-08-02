@@ -11,7 +11,7 @@ import {
   selectCryptoMarketData,
   selectUsdRateByAssetId,
 } from 'state/slices/marketDataSlice/selectors'
-import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
+import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
 
 const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   state: ReduxState,

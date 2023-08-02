@@ -3,8 +3,10 @@ import { baseUnitToHuman, bn, convertPrecision } from 'lib/bignumber/bignumber'
 import type { ProtocolFee } from 'lib/swapper/api'
 import { BTC, ETH, FOX_MAINNET } from 'lib/swapper/swappers/utils/test-data/assets'
 import { cryptoMarketDataById } from 'lib/swapper/swappers/utils/test-data/cryptoMarketDataById'
-
-import { subtractBasisPointAmount, sumProtocolFeesToDenom } from './utils'
+import {
+  subtractBasisPointAmount,
+  sumProtocolFeesToDenom,
+} from 'state/slices/tradeQuoteSlice/utils'
 
 describe('sumProtocolFeesToDenom', () => {
   it("returns '0' for empty object", () => {

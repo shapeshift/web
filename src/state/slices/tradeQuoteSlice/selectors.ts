@@ -24,7 +24,7 @@ import {
 import {
   convertBasisPointsToDecimalPercentage,
   sumProtocolFeesToDenom,
-} from 'state/zustand/swapperStore/utils'
+} from 'state/slices/tradeQuoteSlice/utils'
 
 import { selectCryptoMarketData, selectUserCurrencyToUsdRate } from '../marketDataSlice/selectors'
 

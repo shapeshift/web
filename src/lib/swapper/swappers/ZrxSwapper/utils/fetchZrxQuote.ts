@@ -3,7 +3,7 @@ import type { AxiosInstance } from 'axios'
 import * as rax from 'retry-axios'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
+import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { DEFAULT_SLIPPAGE } from '../../utils/constants'
 import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'

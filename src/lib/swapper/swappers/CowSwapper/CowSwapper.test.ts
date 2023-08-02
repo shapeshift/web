@@ -34,12 +34,6 @@ jest.mock('./cowGetTradeTxs/cowGetTradeTxs', () => ({
   cowGetTradeTxs: jest.fn(),
 }))
 
-jest.mock('state/zustand/swapperStore/amountSelectors', () => ({
-  ...jest.requireActual('state/zustand/swapperStore/amountSelectors'),
-  selectSellAssetUsdRate: jest.fn(() => '1'),
-  selectBuyAssetUsdRate: jest.fn(() => '2'),
-}))
-
 jest.mock('state/slices/assetsSlice/selectors', () => {
   const {
     BTC,

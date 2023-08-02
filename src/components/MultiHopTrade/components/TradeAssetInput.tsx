@@ -2,15 +2,14 @@ import { Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/r
 import type { AssetId } from '@shapeshiftoss/caip'
 import React, { memo, useMemo } from 'react'
 import type { AssetInputProps } from 'components/DeFi/components/AssetInput'
+import type { TradeAmountInputProps } from 'components/MultiHopTrade/components/TradeAmountInput'
+import { TradeAmountInput } from 'components/MultiHopTrade/components/TradeAmountInput'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectMarketDataById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-import type { TradeAmountInputProps } from './TradeAmountInput'
-import { TradeAmountInput } from './TradeAmountInput'
 
 const AssetInputAwaitingAsset = () => {
   const bgColor = useColorModeValue('white', 'gray.850')

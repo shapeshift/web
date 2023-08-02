@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type {
   CosmosSdkChainAdapter,
   SignTx,
@@ -57,7 +57,7 @@ export const thorchainSwapper: Swapper2 = {
   },
 
   filterAssetIdsBySellable: async (): Promise<AssetId[]> => {
-    let supportedSellAssetIds: AssetId[] = []
+    let supportedSellAssetIds: AssetId[] = [thorchainAssetId]
     const poolResponse = await thorService.get<ThornodePoolResponse[]>(
       `${daemonUrl}/lcd/thorchain/pools`,
     )
@@ -78,8 +78,8 @@ export const thorchainSwapper: Swapper2 = {
 
   filterBuyAssetsBySellAssetId: async (input: BuyAssetBySellIdInput): Promise<AssetId[]> => {
     const { nonNftAssetIds, sellAssetId } = input
-    let supportedSellAssetIds: AssetId[] = []
-    let supportedBuyAssetIds: AssetId[] = []
+    let supportedSellAssetIds: AssetId[] = [thorchainAssetId]
+    let supportedBuyAssetIds: AssetId[] = [thorchainAssetId]
     const poolResponse = await thorService.get<ThornodePoolResponse[]>(
       `${daemonUrl}/lcd/thorchain/pools`,
     )

@@ -13,7 +13,7 @@ import values from 'lodash/values'
 import without from 'lodash/without'
 import { useEffect, useMemo, useState } from 'react'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import type { RebaseHistory } from 'lib/investor/investor-foxy'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
@@ -430,8 +430,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       selectedCurrency,
     })
 
-    debugCharts({ assets, calculatedBuckets, timeframe, txs })
-
     const chartData = bucketsToChartData(calculatedBuckets)
 
     setBalanceChartData(chartData)
@@ -452,45 +450,4 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   ])
 
   return { balanceChartData, balanceChartDataLoading }
-}
-
-type DebugChartsArgs = {
-  assets: AssetsById
-  timeframe: HistoryTimeframe
-  calculatedBuckets: Bucket[]
-  txs: Tx[]
-}
-
-type DebugCharts = (args: DebugChartsArgs) => void
-
-const debugCharts: DebugCharts = ({ assets, calculatedBuckets, timeframe, txs }) => {
-  if (timeframe !== HistoryTimeframe.ALL) return
-  /**
-   * there is a long tail of potentially obscure bugs in the charts
-   * the best way to address this is log when it happens, and fix the edge cases
-   */
-  if (!txs?.length) return // no chart if no txs
-  const firstTxTimestamp = txs[0].blockTime * 1000 // unchained uses seconds
-  const firstBucket = calculatedBuckets[0]
-  const startOfChartTimestamp = firstBucket.start.valueOf()
-  const shouldHaveZeroBalance = firstTxTimestamp > startOfChartTimestamp
-  if (!shouldHaveZeroBalance) return
-  Object.entries(firstBucket.balance.crypto).forEach(([assetId, balance]) => {
-    if (balance.eq(0)) return // this is expected, charts should be zero at the beginning
-    /**
-     * at this point, we have a non zero balance for an asset at the start of the chart
-     * but the earlierst tx is after the start of the chart - this should not happen
-     * and something is wrong
-     */
-    const asset = assets[assetId]
-    const baseUnitBalance = balance.toString()
-    const baseUnitHuman = balance.div(bn(10).exponentiatedBy(asset?.precision ?? 1)).toString()
-    console.error('NON-ZERO BALANCE AT START OF CHART', {
-      asset,
-      assetId,
-      baseUnitBalance,
-      baseUnitHuman,
-      balance,
-    })
-  })
 }

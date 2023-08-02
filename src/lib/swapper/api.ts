@@ -8,12 +8,7 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import { createErrorClass } from '@shapeshiftoss/errors'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type {
-  ChainSpecific,
-  KnownChainIds,
-  MarketData,
-  UtxoAccountType,
-} from '@shapeshiftoss/types'
+import type { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
@@ -76,29 +71,14 @@ export type QuoteFeeData<T extends ChainId> = {
   protocolFees: Record<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
 } & ChainSpecificQuoteFeeData<T>
 
-export type ByPairInput = {
-  sellAssetId: AssetId
-  buyAssetId: AssetId
-}
-
-export type GetSwappersWithQuoteMetadataArgs = GetTradeQuoteInput & {
-  feeAsset: Asset
-  cryptoMarketDataById: Partial<Record<AssetId, Pick<MarketData, 'price'>>>
-}
-
 export type SwapperWithQuoteMetadata = {
   swapper: Swapper<ChainId>
   quote: TradeQuote<ChainId>
   inputOutputRatio: number | undefined
 }
-export type GetSwappersWithQuoteMetadataReturn = SwapperWithQuoteMetadata[]
 
 export type BuyAssetBySellIdInput = {
   sellAssetId: AssetId
-  nonNftAssetIds: AssetId[]
-}
-
-export type SupportedSellAssetsInput = {
   nonNftAssetIds: AssetId[]
 }
 
@@ -208,7 +188,6 @@ export type TradeTxs = {
 export enum SwapErrorType {
   BUILD_TRADE_FAILED = 'BUILD_TRADE_FAILED',
   EXECUTE_TRADE_FAILED = 'EXECUTE_TRADE_FAILED',
-  INITIALIZE_FAILED = 'INITIALIZE_FAILED',
   MANAGER_ERROR = 'MANAGER_ERROR',
   MIN_MAX_FAILED = 'MIN_MAX_FAILED',
   RESPONSE_ERROR = 'RESPONSE_ERROR',

@@ -1,7 +1,7 @@
 import { getConfig } from 'config'
 import type { TradeResult } from 'lib/swapper/api'
+import type { MidgardActionsResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 
-import type { MidgardActionsResponse } from '../ThorchainSwapper'
 import { thorService } from '../utils/thorService'
 
 export const getTradeTxs = async (

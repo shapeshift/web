@@ -9,10 +9,9 @@ import type {
 import type { ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper2 } from 'lib/swapper/api'
+import { ThorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 import { assertUnreachable } from 'lib/utils'
 import { executeEvmTrade } from 'lib/utils/evm'
-
-import { ThorchainSwapper } from './ThorchainSwapper'
 
 export const thorchainSwapper: Swapper2 = {
   executeTrade: async ({ txToSign, wallet, chainId }: ExecuteTradeArgs): Promise<string> => {

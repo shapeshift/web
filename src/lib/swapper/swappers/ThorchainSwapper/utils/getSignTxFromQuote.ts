@@ -15,7 +15,7 @@ import type { ThorEvmTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/ge
 import type {
   ThorCosmosSdkSupportedChainId,
   ThorUtxoSupportedChainId,
-} from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
+} from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import { assertUnreachable } from 'lib/utils'
 import { createBuildCustomApiTxInput } from 'lib/utils/evm'

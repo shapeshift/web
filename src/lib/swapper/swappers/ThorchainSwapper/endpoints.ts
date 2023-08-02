@@ -12,10 +12,10 @@ import type {
   UnsignedTx,
 } from 'lib/swapper/api'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers/ThorchainSwapper/constants'
+import type { Rates, ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
 
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getTradeTxs } from './getTradeTxs/getTradeTxs'
-import type { Rates, ThorUtxoSupportedChainId } from './ThorchainSwapper'
 import { getSignTxFromQuote } from './utils/getSignTxFromQuote'
 
 export const thorchainApi: Swapper2Api = {

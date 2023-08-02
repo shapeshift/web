@@ -21,9 +21,9 @@ import type {
   ThorCosmosSdkSupportedChainId,
   ThorEvmSupportedChainAdapter,
   ThorEvmSupportedChainId,
+  ThorTrade,
   ThorUtxoSupportedChainId,
-} from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
-import type { ThorTrade } from 'lib/swapper/swappers/ThorchainSwapper/types'
+} from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
 

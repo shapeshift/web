@@ -3,7 +3,7 @@ import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
+import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router-dom'
 import type { CardProps } from 'components/Card/Card'
 import { Card } from 'components/Card/Card'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
@@ -22,6 +22,11 @@ export type TradeCardProps = {
   defaultSellAssetId?: AssetId
 } & CardProps
 
+type MatchParams = {
+  chainId?: string
+  assetSubId?: string
+}
+
 export const MultiHopTrade = memo(
   ({
     defaultBuyAssetId = foxAssetId,
@@ -30,15 +35,20 @@ export const MultiHopTrade = memo(
   }: TradeCardProps) => {
     const dispatch = useAppDispatch()
     const methods = useForm({ mode: 'onChange' })
+    const { assetSubId, chainId } = useParams<MatchParams>()
 
     const defaultBuyAsset = useAppSelector(state => selectAssetById(state, defaultBuyAssetId))
+    const routeBuyAsset = useAppSelector(state =>
+      selectAssetById(state, `${chainId}/${assetSubId}`),
+    )
     const defaultSellAsset = useAppSelector(state => selectAssetById(state, defaultSellAssetId))
 
     useEffect(() => {
       dispatch(swappers.actions.clear())
       if (defaultSellAsset) dispatch(swappers.actions.setSellAsset(defaultSellAsset))
-      if (defaultBuyAsset) dispatch(swappers.actions.setBuyAsset(defaultBuyAsset))
-    }, [defaultBuyAsset, defaultSellAsset, dispatch])
+      if (routeBuyAsset) dispatch(swappers.actions.setBuyAsset(routeBuyAsset))
+      else if (defaultBuyAsset) dispatch(swappers.actions.setBuyAsset(defaultBuyAsset))
+    }, [defaultBuyAsset, defaultSellAsset, dispatch, routeBuyAsset])
 
     return (
       <Card {...cardProps}>

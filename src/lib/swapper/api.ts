@@ -71,12 +71,6 @@ export type QuoteFeeData<T extends ChainId> = {
   protocolFees: Record<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
 } & ChainSpecificQuoteFeeData<T>
 
-export type SwapperWithQuoteMetadata = {
-  swapper: Swapper<ChainId>
-  quote: TradeQuote
-  inputOutputRatio: number | undefined
-}
-
 export type BuyAssetBySellIdInput = {
   sellAssetId: AssetId
   nonNftAssetIds: AssetId[]

@@ -1,8 +1,7 @@
 import * as fs from 'fs'
 import fetch from 'node-fetch'
 import * as path from 'path'
-
-import type { APIRegistryItem, RegistryItem } from '../src/plugins/walletConnectToDapps/types'
+import type { APIRegistryItem, RegistryItem } from 'src/plugins/walletConnectToDapps/types'
 
 const registryJsonUrl =
   'https://explorer-api.walletconnect.com/v3/all?projectId=2f05ae7f1116030fde2d36508f472bfb'

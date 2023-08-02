@@ -1,4 +1,3 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, osmosisChainId } from '@shapeshiftoss/caip'
 import type { cosmos, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { osmosis } from '@shapeshiftoss/chain-adapters'
@@ -19,7 +18,7 @@ import { DEFAULT_SOURCE } from '../utils/constants'
 export const getTradeQuote = async (
   input: GetTradeQuoteInput,
   { sellAssetUsdRate }: { sellAssetUsdRate: string },
-): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>> => {
+): Promise<Result<TradeQuote, SwapErrorRight>> => {
   const {
     accountNumber,
     sellAsset,

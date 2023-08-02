@@ -52,7 +52,7 @@ const DEFAULT_SLIPPAGE = '0.025' // Allow for 2.5% slippage. TODO(pastaghost): i
 type DepositProps = StepComponentProps & {
   accountId?: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
-} & StepComponentProps
+}
 
 export const Deposit: React.FC<DepositProps> = ({
   accountId,

@@ -88,7 +88,7 @@ export type GetSwappersWithQuoteMetadataArgs = GetTradeQuoteInput & {
 
 export type SwapperWithQuoteMetadata = {
   swapper: Swapper<ChainId>
-  quote: TradeQuote<ChainId>
+  quote: TradeQuote
   inputOutputRatio: number | undefined
 }
 export type GetSwappersWithQuoteMetadataReturn = SwapperWithQuoteMetadata[]
@@ -250,7 +250,7 @@ export interface Swapper<T extends ChainId> {
   /**
    * Get a trade quote
    */
-  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>>
+  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote, SwapErrorRight>>
 
   /**
    * Execute a trade built with buildTrade by signing and broadcasting

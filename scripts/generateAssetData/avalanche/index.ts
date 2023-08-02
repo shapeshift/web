@@ -1,6 +1,6 @@
 import { avalancheChainId } from '@shapeshiftoss/caip'
+import type { Asset } from 'lib/asset-service'
 
-import type { Asset } from '../../../src/lib/asset-service'
 import { avax } from '../baseAssets'
 import * as coingecko from '../coingecko'
 import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIcon'

@@ -2,17 +2,17 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { Token } from '@uniswap/sdk'
 import { Fetcher } from '@uniswap/sdk'
-import { ethers } from 'ethers'
-import memoize from 'lodash/memoize'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
-
-import type { IUniswapV2Pair } from './__generated'
 import {
   ERC20ABI__factory,
   FarmingAbi__factory,
   IUniswapV2Pair__factory,
   IUniswapV2Router02__factory,
-} from './__generated/factories'
+} from 'contracts/__generated'
+import { ethers } from 'ethers'
+import memoize from 'lodash/memoize'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
+
+import type { IUniswapV2Pair } from './__generated'
 import {
   ETH_FOX_POOL_CONTRACT_ADDRESS,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V1,

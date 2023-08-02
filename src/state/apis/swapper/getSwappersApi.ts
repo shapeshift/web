@@ -1,4 +1,3 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import { getSwapperManager } from 'components/Trade/hooks/useSwapper/swapperManager'
 import type { GetTradeQuoteInput, SwapperName, TradeQuote } from 'lib/swapper/api'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
@@ -18,7 +17,7 @@ type GetAvailableSwappersReturn = {
     to a swapper in the swapperManager, which is keyed by SwapperType
  */
   swapperName: SwapperName
-  quote: TradeQuote<ChainId>
+  quote: TradeQuote
   inputOutputRatio: number | undefined
 }[]
 

@@ -1,6 +1,6 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
 import { Err, Ok } from '@sniptt/monads/build'
 import type BigNumber from 'bignumber.js'
@@ -13,7 +13,6 @@ import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { isEvmChainAdapter } from 'lib/utils/evm'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { WAVAX_ASSET_ID, WBNB_ASSET_ID, WETH_ASSET_ID, WOP_ASSET_ID } from './constants'
 import type { OneInchBaseResponse, OneInchSupportedChainId } from './types'
 import { oneInchSupportedChainIds } from './types'
 
@@ -24,22 +23,6 @@ export const getRate = (response: OneInchBaseResponse): BigNumber => {
   )
   const toTokenAmountCryptoHuman = fromBaseUnit(response.toTokenAmount, response.toToken.decimals)
   return bn(toTokenAmountCryptoHuman).div(fromTokenAmountCryptoHuman)
-}
-
-export const getNativeWrappedAssetId = (chainId: ChainId): AssetId => {
-  switch (chainId) {
-    case KnownChainIds.EthereumMainnet:
-      return WETH_ASSET_ID
-    case KnownChainIds.BnbSmartChainMainnet:
-      return WBNB_ASSET_ID
-    // TODO: We should double check that the fee calculations work correctly on optimism and using this wETH contract.
-    case KnownChainIds.OptimismMainnet:
-      return WOP_ASSET_ID
-    case KnownChainIds.AvalancheMainnet:
-      return WAVAX_ASSET_ID
-    default:
-      throw new Error(`${chainId} not supported`)
-  }
 }
 
 export const assertValidTrade = ({

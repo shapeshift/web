@@ -5,6 +5,7 @@ import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectClaimableRewards,
@@ -12,8 +13,6 @@ import {
   selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-import { useFeatureFlag } from '../../hooks/useFeatureFlag/useFeatureFlag'
 
 type StatCardProps = {
   percentage: number

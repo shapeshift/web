@@ -80,13 +80,12 @@ describe('getTradeQuote', () => {
       switch (url) {
         case '/lcd/thorchain/pools':
           return Promise.resolve(
-            Ok({ data: thornodePools } as unknown as AxiosResponse<ThornodePoolResponse, any>),
+            Ok({ data: thornodePools } as unknown as AxiosResponse<ThornodePoolResponse>),
           )
         case '/lcd/thorchain/inbound_addresses':
           return Promise.resolve(
             Ok({ data: mockInboundAddresses } as unknown as AxiosResponse<
-              InboundAddressResponse[],
-              any
+              InboundAddressResponse[]
             >),
           )
         default:

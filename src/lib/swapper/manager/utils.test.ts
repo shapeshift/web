@@ -1,4 +1,3 @@
-import type { ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from 'lib/asset-service'
 
 import type { TradeQuote } from '../api'
@@ -9,7 +8,7 @@ import { getRatioFromQuote } from './utils'
 
 describe('getRatioFromQuote', () => {
   it('should get the ratio for a quote', () => {
-    const quote: TradeQuote<ChainId> = tradeQuote
+    const quote: TradeQuote = tradeQuote
     const feeAsset: Asset = ETH
     const result = getRatioFromQuote({
       quote,

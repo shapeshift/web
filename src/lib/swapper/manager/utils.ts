@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -23,7 +23,7 @@ export const getRatioFromQuote = ({
   feeAsset,
   cryptoMarketDataById,
 }: {
-  quote: TradeQuote<ChainId>
+  quote: TradeQuote
   feeAsset: Asset
   cryptoMarketDataById: Partial<Record<AssetId, Pick<MarketData, 'price'>>>
 }): number | undefined => {

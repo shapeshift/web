@@ -31,14 +31,9 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { foxyAddresses } from 'lib/investor/investor-foxy'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { TradeCard } from 'pages/Dashboard/TradeCard'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { trimWithEndEllipsis } from 'state/slices/portfolioSlice/utils'
-import {
-  selectAccountIdsByAssetId,
-  selectAssetById,
-  selectFeatureFlags,
-} from 'state/slices/selectors'
+import { selectAccountIdsByAssetId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TrimmedDescriptionLength } from '../FoxCommon'
@@ -51,7 +46,6 @@ const BuyFoxCoinbaseUrl = 'https://www.coinbase.com/price/fox-token'
 const TradeFoxyElasticSwapUrl = `https://elasticswap.org/#/swap`
 
 export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
-  const { MultiHopTrades } = useAppSelector(selectFeatureFlags)
   const translate = useTranslate()
   const location = useLocation()
   const history = useHistory()
@@ -176,11 +170,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
               </Stack>
             </TabPanel>
             <TabPanel textAlign='center' p={0}>
-              {isFoxAsset && MultiHopTrades ? (
-                <MultiHopTrade defaultBuyAssetId={assetId} />
-              ) : (
-                <TradeCard defaultBuyAssetId={assetId} />
-              )}
+              {isFoxAsset ? <MultiHopTrade defaultBuyAssetId={assetId} /> : null}
               {!isFoxAsset && (
                 <Stack width='full' p={6}>
                   <SkeletonText isLoaded={Boolean(description?.length)} noOfLines={3}>

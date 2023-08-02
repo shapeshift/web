@@ -43,7 +43,6 @@ export type FeatureFlags = {
   OneInch: boolean
   CovalentJaypegs: boolean
   Chatwoot: boolean
-  MultiHopTrades: boolean
   CoinbaseWallet: boolean
   AdvancedSlippage: boolean
   WalletConnectV2: boolean
@@ -105,7 +104,6 @@ const initialState: Preferences = {
     ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
     OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
     Chatwoot: getConfig().REACT_APP_FEATURE_CHATWOOT,
-    MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
     CoinbaseWallet: getConfig().REACT_APP_FEATURE_COINBASE_WALLET,
     AdvancedSlippage: getConfig().REACT_APP_ADVANCED_SLIPPAGE,
     WalletConnectV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_V2,

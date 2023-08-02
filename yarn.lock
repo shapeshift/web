@@ -6386,7 +6386,6 @@ __metadata:
     web3-types: ^0.1.0-alpha.0
     webpack: 5.76.0
     webpack-subresource-integrity: ^5.0.0
-    zustand: ^4.3.6
   peerDependencies:
     lit-html: ^2.6.1
   languageName: unknown
@@ -29523,7 +29522,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"zustand@npm:^4.1.4, zustand@npm:^4.3.6":
+"zustand@npm:^4.1.4":
   version: 4.3.6
   resolution: "zustand@npm:4.3.6"
   dependencies:

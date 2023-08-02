@@ -4,8 +4,8 @@ import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { DEFAULT_SWAPPER_DONATION_BPS } from 'components/MultiHopTrade/constants'
+import { getTradeQuoteArgs } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteArgs'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
-import { getTradeQuoteArgs } from 'components/Trade/hooks/useSwapper/getTradeQuoteArgs'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -18,7 +18,6 @@ import { useGetTradeQuoteQuery } from 'state/apis/swappers/swappersApi'
 import {
   selectBuyAccountId,
   selectBuyAsset,
-  selectFeatureFlags,
   selectPortfolioAccountMetadataByAccountId,
   selectSellAccountId,
   selectSellAmountCryptoPrecision,
@@ -78,7 +77,6 @@ const isEqualExceptAffiliateBps = (
 
 export const useGetTradeQuotes = () => {
   const dispatch = useAppDispatch()
-  const flags = useAppSelector(selectFeatureFlags)
   const wallet = useWallet().state.wallet
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
@@ -128,7 +126,7 @@ export const useGetTradeQuotes = () => {
           wallet,
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
-          allowMultiHop: flags.MultiHopTrades,
+          allowMultiHop: true,
           affiliateBps: willDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0',
         })
 
@@ -156,7 +154,6 @@ export const useGetTradeQuotes = () => {
   }, [
     buyAsset,
     dispatch,
-    flags.MultiHopTrades,
     receiveAddress,
     sellAccountMetadata,
     sellAmountCryptoPrecision,

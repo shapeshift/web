@@ -8,9 +8,7 @@ import { Equity } from 'components/Equity/Equity'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { EarnOpportunities } from 'components/StakingVaults/EarnOpportunities'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
-import { TradeCard } from 'pages/Dashboard/TradeCard'
-import { selectFeatureFlags, selectWalletAccountIds } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { selectWalletAccountIds } from 'state/slices/selectors'
 
 import { AccountBalance } from './AccountBalance'
 
@@ -21,7 +19,6 @@ export type MatchParams = {
 
 export const AccountToken = () => {
   const { accountId, assetId } = useParams<MatchParams>()
-  const { MultiHopTrades } = useAppSelector(selectFeatureFlags)
 
   /**
    * if the user switches the wallet while visiting this page,
@@ -57,11 +54,7 @@ export const AccountToken = () => {
         maxWidth={{ base: 'full', xl: 'sm' }}
         gap={4}
       >
-        {MultiHopTrades ? (
-          <MultiHopTrade display={{ base: 'none', md: 'block' }} />
-        ) : (
-          <TradeCard display={{ base: 'none', md: 'block' }} />
-        )}
+        <MultiHopTrade display={{ base: 'none', md: 'block' }} />
       </Flex>
     </Stack>
   )

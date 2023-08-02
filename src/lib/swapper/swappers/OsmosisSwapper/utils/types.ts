@@ -1,6 +1,5 @@
 import type { cosmos, osmosis } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import type { TradeResult } from 'lib/swapper/api'
 
 export type IbcTransferInput = {
   sender: string
@@ -26,11 +25,6 @@ export type PoolAssetInfo = {
   token: {
     amount: string
   }
-}
-
-export interface OsmosisTradeResult extends TradeResult {
-  previousCosmosTxid: string
-  cosmosAddress?: string
 }
 
 export type OsmosisSupportedChainId = KnownChainIds.CosmosMainnet | KnownChainIds.OsmosisMainnet

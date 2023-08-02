@@ -11,7 +11,7 @@ import {
   selectCryptoMarketData,
   selectUsdRateByAssetId,
 } from 'state/slices/marketDataSlice/selectors'
-import { sumProtocolFeesToDenom } from 'state/zustand/swapperStore/utils'
+import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
 
 const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   state: ReduxState,
@@ -128,6 +128,18 @@ const _convertCryptoBaseUnitToUsdPrecision = (
   return bnOrZero(fromBaseUnit(amountCryptoBaseUnit, asset.precision)).times(usdRate)
 }
 
+/*
+  The ratio is calculated by dividing the total fiat value of the receive amount
+  by the total fiat value of the sell amount (including network fees).
+
+  Higher ratios are better.
+
+  E.g. if the fiat value of the sell amount is 100 and the fiat value of the receive amount is 90,
+  the ratio is 0.9.
+
+  Negative ratios are possible when the fees exceed the sell amount.
+  This is allowed to let us choose 'the best from a bad bunch'.
+*/
 export const getInputOutputRatioFromQuote = ({
   state,
   quote,

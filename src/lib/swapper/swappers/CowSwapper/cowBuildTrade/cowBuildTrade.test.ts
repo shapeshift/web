@@ -7,8 +7,7 @@ import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { BuildTradeInput } from '../../../api'
 import { SwapperName } from '../../../api'
 import { ETH, FOX_MAINNET, USDC_GNOSIS, WBTC, WETH, XDAI } from '../../utils/test-data/assets'
-import type { CowSwapQuoteResponse } from '../CowSwapper'
-import type { CowTrade } from '../types'
+import type { CowSwapQuoteResponse, CowTrade } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   DEFAULT_ADDRESS,

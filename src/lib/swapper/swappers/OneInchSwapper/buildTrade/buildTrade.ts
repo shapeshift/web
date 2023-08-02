@@ -7,7 +7,7 @@ import type { BuildTradeInput, GetEvmTradeQuoteInput, SwapErrorRight } from 'lib
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { getTreasuryAddressFromChainId } from 'lib/swapper/swappers/utils/helpers/helpers'
 import { getFees } from 'lib/utils/evm'
-import { convertBasisPointsToPercentage } from 'state/zustand/swapperStore/utils'
+import { convertBasisPointsToPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { DEFAULT_SLIPPAGE, DEFAULT_SOURCE } from '../utils/constants'
 import { assertValidTrade, getAdapter, getRate } from '../utils/helpers'

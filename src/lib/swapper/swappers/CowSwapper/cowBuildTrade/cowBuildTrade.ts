@@ -3,8 +3,11 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import type { BuildTradeInput, SwapErrorRight } from 'lib/swapper/api'
-import type { CowChainId } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
-import type { CowSwapQuoteResponse, CowTrade } from 'lib/swapper/swappers/CowSwapper/types'
+import type {
+  CowChainId,
+  CowSwapQuoteResponse,
+  CowTrade,
+} from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   DEFAULT_APP_DATA,
@@ -22,7 +25,7 @@ import {
 import {
   convertDecimalPercentageToBasisPoints,
   subtractBasisPointAmount,
-} from 'state/zustand/swapperStore/utils'
+} from 'state/slices/tradeQuoteSlice/utils'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 

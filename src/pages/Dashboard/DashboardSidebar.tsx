@@ -9,11 +9,8 @@ import { PromoCard } from 'components/Promo/PromoCard'
 import type { PromoItem } from 'components/Promo/types'
 import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
 import { MissionSidebar } from 'pages/Missions/Missions'
-import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
-import { useAppSelector } from 'state/store'
 
 import { RecentTransactions } from './RecentTransactions'
-import { TradeCard } from './TradeCard'
 
 const promoData: PromoItem[] = [
   {
@@ -72,11 +69,10 @@ const promoData: PromoItem[] = [
 const display = { base: 'none', xl: 'block' }
 
 export const DashboardSidebar = memo(() => {
-  const { MultiHopTrades } = useAppSelector(selectFeatureFlags)
   return (
     <Flex width='full' flexDir='column' gap={6}>
       <PromoCard data={promoData} />
-      {MultiHopTrades ? <MultiHopTrade display={display} /> : <TradeCard display={display} />}
+      <MultiHopTrade display={display} />
       <MissionSidebar />
       <EligibleCarousel />
       <RecentTransactions limit={8} viewMoreLink />

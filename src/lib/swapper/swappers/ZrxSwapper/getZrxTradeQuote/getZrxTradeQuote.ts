@@ -19,7 +19,7 @@ import {
 } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxService'
 import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
-import { convertBasisPointsToDecimalPercentage } from 'state/zustand/swapperStore/utils'
+import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { getMinimumCryptoHuman } from '../getMinimumCryptoHuman/getMinimumCryptoHuman'
 

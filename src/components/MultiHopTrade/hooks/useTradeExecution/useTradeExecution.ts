@@ -1,24 +1,11 @@
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { getSwapperBySwapperName } from 'components/MultiHopTrade/helpers'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { Swapper2, Swapper2Api, TradeQuote2 } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
-import { cowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper2'
-import { cowApi } from 'lib/swapper/swappers/CowSwapper/endpoints'
-import { lifiApi } from 'lib/swapper/swappers/LifiSwapper/endpoints'
-import { lifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
-import { oneInchApi } from 'lib/swapper/swappers/OneInchSwapper/endpoints'
-import { oneInchSwapper } from 'lib/swapper/swappers/OneInchSwapper/OneInchSwapper2'
-import { osmosisApi } from 'lib/swapper/swappers/OsmosisSwapper/endpoints'
-import { osmosisSwapper } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapper2'
-import { thorchainApi } from 'lib/swapper/swappers/ThorchainSwapper/endpoints'
-import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
-import { zrxApi } from 'lib/swapper/swappers/ZrxSwapper/endpoints'
-import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper2'
-import { assertUnreachable } from 'lib/utils'
+import type { SwapperName, TradeQuote2 } from 'lib/swapper/api'
 import { isEvmChainAdapter } from 'lib/utils/evm'
 import {
   selectPortfolioAccountMetadataByAccountId,
@@ -87,26 +74,7 @@ export const useTradeExecution = ({
     if (!tradeQuote) throw Error('missing tradeQuote')
     if (!swapperName) throw Error('missing swapperName')
 
-    const swapper: Swapper2 & Swapper2Api = (() => {
-      switch (swapperName) {
-        case SwapperName.LIFI:
-          return { ...lifiSwapper, ...lifiApi }
-        case SwapperName.Thorchain:
-          return { ...thorchainSwapper, ...thorchainApi }
-        case SwapperName.Zrx:
-          return { ...zrxSwapper, ...zrxApi }
-        case SwapperName.CowSwap:
-          return { ...cowSwapper, ...cowApi }
-        case SwapperName.OneInch:
-          return { ...oneInchSwapper, ...oneInchApi }
-        case SwapperName.Osmosis:
-          return { ...osmosisSwapper, ...osmosisApi }
-        case SwapperName.Test:
-          throw Error('not implemented')
-        default:
-          assertUnreachable(swapperName)
-      }
-    })()
+    const swapper = getSwapperBySwapperName(swapperName)
 
     const chainId = tradeQuote.steps[activeStepOrDefault].sellAsset.chainId
 

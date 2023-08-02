@@ -88,7 +88,6 @@ const validators = {
   REACT_APP_FEATURE_SAVERS_VAULTS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2: bool({ default: false }),
-  REACT_APP_FEATURE_MULTI_HOP_TRADES: bool({ default: false }),
   REACT_APP_FEATURE_COINBASE_WALLET: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_V2: bool({ default: false }),
   REACT_APP_WALLET_CONNECT_PROJECT_ID: str({ default: '' }),

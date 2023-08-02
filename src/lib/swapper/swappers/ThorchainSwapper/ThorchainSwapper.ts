@@ -1,12 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import type {
-  avalanche,
-  CosmosSdkBaseAdapter,
-  ethereum,
-  SignTx,
-  UtxoBaseAdapter,
-} from '@shapeshiftoss/chain-adapters'
+import type { CosmosSdkBaseAdapter, SignTx, UtxoBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -27,8 +21,13 @@ import { buildTrade } from 'lib/swapper/swappers/ThorchainSwapper/buildThorTrade
 import { getThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type {
   MidgardActionsResponse,
+  ThorChainId,
+  ThorCosmosSdkSupportedChainId,
+  ThorEvmSupportedChainAdapter,
+  ThorEvmSupportedChainId,
   ThornodePoolResponse,
   ThorTrade,
+  ThorUtxoSupportedChainId,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
@@ -41,27 +40,6 @@ import {
 import { swapperStore } from 'state/zustand/swapperStore/useSwapperStore'
 
 import { makeSwapErrorRight, SwapError, SwapErrorType, SwapperName } from '../../api'
-
-export * from 'lib/swapper/swappers/ThorchainSwapper/types'
-
-export type ThorUtxoSupportedChainId =
-  | KnownChainIds.BitcoinMainnet
-  | KnownChainIds.DogecoinMainnet
-  | KnownChainIds.LitecoinMainnet
-  | KnownChainIds.BitcoinCashMainnet
-
-export type ThorEvmSupportedChainId = KnownChainIds.EthereumMainnet | KnownChainIds.AvalancheMainnet
-
-export type ThorEvmSupportedChainAdapter = ethereum.ChainAdapter | avalanche.ChainAdapter
-
-export type ThorCosmosSdkSupportedChainId =
-  | KnownChainIds.ThorchainMainnet
-  | KnownChainIds.CosmosMainnet
-
-export type ThorChainId =
-  | ThorCosmosSdkSupportedChainId
-  | ThorEvmSupportedChainId
-  | ThorUtxoSupportedChainId
 
 export class ThorchainSwapper implements Swapper<ThorChainId> {
   readonly name = SwapperName.Thorchain

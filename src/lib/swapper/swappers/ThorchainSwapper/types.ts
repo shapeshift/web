@@ -1,11 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { SignTx } from '@shapeshiftoss/chain-adapters'
+import type { avalanche, ethereum, SignTx } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Trade } from 'lib/swapper/api'
-import type {
-  ThorCosmosSdkSupportedChainId,
-  ThorEvmSupportedChainId,
-  ThorUtxoSupportedChainId,
-} from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
 
 export type ThornodePoolResponse = {
   LP_units: string
@@ -106,3 +102,22 @@ export type Rates = {
   buyAssetUsdRate: string
   feeAssetUsdRate: string
 }
+
+export type ThorUtxoSupportedChainId =
+  | KnownChainIds.BitcoinMainnet
+  | KnownChainIds.DogecoinMainnet
+  | KnownChainIds.LitecoinMainnet
+  | KnownChainIds.BitcoinCashMainnet
+
+export type ThorEvmSupportedChainId = KnownChainIds.EthereumMainnet | KnownChainIds.AvalancheMainnet
+
+export type ThorEvmSupportedChainAdapter = ethereum.ChainAdapter | avalanche.ChainAdapter
+
+export type ThorCosmosSdkSupportedChainId =
+  | KnownChainIds.ThorchainMainnet
+  | KnownChainIds.CosmosMainnet
+
+export type ThorChainId =
+  | ThorCosmosSdkSupportedChainId
+  | ThorEvmSupportedChainId
+  | ThorUtxoSupportedChainId

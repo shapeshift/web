@@ -4,7 +4,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
 import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import type { ThorEvmSupportedChainAdapter } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
+import type { ThorEvmSupportedChainAdapter } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { createBuildCustomApiTxInput } from 'lib/utils/evm'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'

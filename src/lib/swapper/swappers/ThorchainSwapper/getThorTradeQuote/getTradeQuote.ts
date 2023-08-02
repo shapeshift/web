@@ -30,7 +30,7 @@ import type {
   ThorCosmosSdkSupportedChainId,
   ThorEvmSupportedChainId,
   ThorUtxoSupportedChainId,
-} from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
+} from 'lib/swapper/swappers/ThorchainSwapper/types'
 import {
   THOR_MINIMUM_PADDING,
   THORCHAIN_FIXED_PRECISION,

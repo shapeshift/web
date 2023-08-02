@@ -4,7 +4,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { bn } from 'lib/bignumber/bignumber'
 import type { ProtocolFee, QuoteFeeData } from 'lib/swapper/api'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
-import type { ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper'
+import type { ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
 
 type GetUtxoTxFeesInput = {
   opReturnData: string

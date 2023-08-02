@@ -71,12 +71,6 @@ export type QuoteFeeData<T extends ChainId> = {
   protocolFees: Record<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
 } & ChainSpecificQuoteFeeData<T>
 
-export type SwapperWithQuoteMetadata = {
-  swapper: Swapper<ChainId>
-  quote: TradeQuote<ChainId>
-  inputOutputRatio: number | undefined
-}
-
 export type BuyAssetBySellIdInput = {
   sellAssetId: AssetId
   nonNftAssetIds: AssetId[]
@@ -229,7 +223,7 @@ export interface Swapper<T extends ChainId> {
   /**
    * Get a trade quote
    */
-  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote<ChainId>, SwapErrorRight>>
+  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote, SwapErrorRight>>
 
   /**
    * Execute a trade built with buildTrade by signing and broadcasting

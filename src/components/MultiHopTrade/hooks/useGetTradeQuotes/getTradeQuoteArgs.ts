@@ -6,8 +6,8 @@ import {
   isCosmosSdkSwap,
   isEvmSwap,
   isUtxoSwap,
-} from 'components/Trade/hooks/useSwapper/typeGuards'
-import type { TradeQuoteInputCommonArgs } from 'components/Trade/types'
+} from 'components/MultiHopTrade/hooks/useGetTradeQuotes/typeGuards'
+import type { TradeQuoteInputCommonArgs } from 'components/MultiHopTrade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { Asset } from 'lib/asset-service'
 import { toBaseUnit } from 'lib/math'

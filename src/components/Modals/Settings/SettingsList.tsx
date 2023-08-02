@@ -94,7 +94,7 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
       // clear store
       await persistor.purge()
       // send them back to dashboard in case the bug was something to do with the current page
-      appHistory.replace('/')
+      appHistory.replace('/connect-wallet')
       // reload the page
       isMobileApp ? reloadWebview() : window.location.reload()
     } catch (e) {}

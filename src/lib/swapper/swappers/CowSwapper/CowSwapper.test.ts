@@ -11,13 +11,6 @@ import {
 
 import { SwapperName } from '../../api'
 
-jest.mock('./utils/helpers/helpers', () => {
-  const { KnownChainIds } = require('@shapeshiftoss/types')
-  return {
-    getSupportedChainIds: () => [KnownChainIds.EthereumMainnet, KnownChainIds.GnosisMainnet],
-  }
-})
-
 jest.mock('./getCowSwapTradeQuote/getCowSwapTradeQuote', () => ({
   getCowSwapTradeQuote: jest.fn(),
 }))

@@ -1,8 +1,10 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { Result } from '@sniptt/monads'
+import { Err } from '@sniptt/monads'
 import { orderBy } from 'lodash'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote2 } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapperName } from 'lib/swapper/api'
+import { isFulfilled as isFulfilledPredicate } from 'lib/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
 import { getLifiTradeQuoteHelper } from 'state/apis/swappers/helpers/getLifiTradeQuoteApiHelper'
 import { getThorTradeQuoteHelper } from 'state/apis/swappers/helpers/getThorTradeQuoteApiHelper'
@@ -18,6 +20,26 @@ import { getOneInchTradeQuoteHelper } from './helpers/getOneInchTradeQuoteHelper
 import { getOsmosisTradeQuoteHelper } from './helpers/getOsmosisTradeQuoteApiHelper'
 import { getZrxTradeQuoteHelper } from './helpers/getZrxTradeQuoteHelper'
 
+const QUOTE_TIMEOUT_MS = 10_000
+
+const TIMEOUT_ERROR = makeSwapErrorRight({
+  message: `quote timed out after ${QUOTE_TIMEOUT_MS / 1000}s`,
+})
+
+const timeout = <Left, Right>(
+  promise: Promise<Result<Left, Right>>,
+  timeoutRight: Right,
+): Promise<Result<Left, Right>> => {
+  return Promise.race([
+    promise,
+    new Promise<Result<Left, Right>>(resolve =>
+      setTimeout(() => {
+        resolve(Err(timeoutRight) as Result<Left, Right>)
+      }, QUOTE_TIMEOUT_MS),
+    ),
+  ])
+}
+
 export const swappersApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'swappersApi',
@@ -30,84 +52,75 @@ export const swappersApi = createApi({
         const isCrossAccountTrade = sendAddress !== receiveAddress
         const { OsmosisSwap, LifiSwap, ThorSwap, ZrxSwap, OneInch, Cowswap }: FeatureFlags =
           selectFeatureFlags(state)
-        const quotes: (Result<TradeQuote2, SwapErrorRight> & {
-          swapperName: SwapperName
-        })[] = []
-        const quoteHelperArgs = [getTradeQuoteInput, state] as const
-        if (OsmosisSwap)
-          try {
-            const quote: Result<TradeQuote2, SwapErrorRight> = await getOsmosisTradeQuoteHelper(
-              ...quoteHelperArgs,
-            )
-            quotes.push({
-              ...quote,
-              swapperName: SwapperName.Osmosis,
-            })
-          } catch (error) {
-            console.error(error)
-          }
 
-        if (LifiSwap)
-          try {
-            const quote: Result<TradeQuote2, SwapErrorRight> = await getLifiTradeQuoteHelper(
-              ...quoteHelperArgs,
-            )
-            quotes.push({
-              ...quote,
-              swapperName: SwapperName.LIFI,
-            })
-          } catch (error) {
-            console.error(error)
-          }
-        if (ThorSwap)
-          try {
-            const quote: Result<TradeQuote2, SwapErrorRight> = await getThorTradeQuoteHelper(
-              ...quoteHelperArgs,
-            )
-            quotes.push({
-              ...quote,
-              swapperName: SwapperName.Thorchain,
-            })
-          } catch (error) {
-            console.error(error)
-          }
-        if (ZrxSwap)
-          try {
-            const quote: Result<TradeQuote2, SwapErrorRight> = await getZrxTradeQuoteHelper(
-              ...quoteHelperArgs,
-            )
-            quotes.push({
-              ...quote,
-              swapperName: SwapperName.Zrx,
-            })
-          } catch (error) {
-            console.error(error)
-          }
-        if (OneInch)
-          try {
-            const quote: Result<TradeQuote2, SwapErrorRight> = await getOneInchTradeQuoteHelper(
-              ...quoteHelperArgs,
-            )
-            quotes.push({
-              ...quote,
-              swapperName: SwapperName.OneInch,
-            })
-          } catch (error) {
-            console.error(error)
-          }
-        if (Cowswap)
-          try {
-            const quote: Result<TradeQuote2, SwapErrorRight> = await getCowTradeQuoteHelper(
-              ...quoteHelperArgs,
-            )
-            quotes.push({
-              ...quote,
-              swapperName: SwapperName.CowSwap,
-            })
-          } catch (error) {
-            console.error(error)
-          }
-        const quotesWithInputOutputRatios = quotes
+        const swappers = [
+          {
+            isEnabled: OsmosisSwap,
+            swapperName: SwapperName.Osmosis,
+            getTradeQuote: getOsmosisTradeQuoteHelper,
+          },
+          {
+            isEnabled: LifiSwap,
+            swapperName: SwapperName.LIFI,
+            getTradeQuote: getLifiTradeQuoteHelper,
+          },
+          {
+            isEnabled: ThorSwap,
+            swapperName: SwapperName.Thorchain,
+            getTradeQuote: getThorTradeQuoteHelper,
+          },
+          {
+            isEnabled: ZrxSwap,
+            swapperName: SwapperName.Zrx,
+            getTradeQuote: getZrxTradeQuoteHelper,
+          },
+          {
+            isEnabled: OneInch,
+            swapperName: SwapperName.OneInch,
+            getTradeQuote: getOneInchTradeQuoteHelper,
+          },
+          {
+            isEnabled: Cowswap,
+            swapperName: SwapperName.CowSwap,
+            getTradeQuote: getCowTradeQuoteHelper,
+          },
+        ]
+
+        const quotes = await Promise.allSettled(
+          swappers
+            .filter(({ isEnabled }) => isEnabled)
+            .map(({ swapperName, getTradeQuote }) =>
+              timeout<TradeQuote2, SwapErrorRight>(
+                getTradeQuote(getTradeQuoteInput, state),
+                TIMEOUT_ERROR,
+              ).then(quote => ({
+                ...quote,
+                swapperName,
+              })),
+            ),
+        )
+
+        // Successful quotes promises - this doesn't mean the quote Result monad itself is Ok
+        const successfulQuotes = quotes
+          .filter(result => {
+            const isFulfilled = isFulfilledPredicate(result)
+            if (!isFulfilled) {
+              console.error(result.reason)
+            }
+            return isFulfilled
+          })
+          .map(
+            result =>
+              (
+                result as PromiseFulfilledResult<
+                  Result<TradeQuote2, SwapErrorRight> & {
+                    swapperName: SwapperName
+                  }
+                >
+              ).value,
+          )
+
+        const quotesWithInputOutputRatios = successfulQuotes
           .map(result => {
             const quote = result && result.isOk() ? result.unwrap() : undefined
             const error = result && result.isErr() ? result.unwrapErr() : undefined

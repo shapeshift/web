@@ -27,6 +27,7 @@ export const selectSellAsset = createDeepEqualOutputSelector(
 export const selectSlippagePreferencePercentage: Selector<ReduxState, string | undefined> =
   createSelector(selectSwappers, swappers => swappers.slippagePreferencePercentage)
 
+// User input comes in as an actual percentage e.g 1 for 1%, so we need to convert it to a decimal e.g 0.01 for 1%
 export const selectSlippagePreferencePercentageDecimal: Selector<ReduxState, string | undefined> =
   createSelector(selectSlippagePreferencePercentage, slippagePercentage => {
     if (!slippagePercentage) return

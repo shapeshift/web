@@ -229,15 +229,21 @@ export const selectLastHopNetworkFeeCryptoPrecision: Selector<ReduxState, string
       : bn(0).toFixed(),
 )
 
-export const selectQuoteOrDefaultSlippagePercentage = createSelector(
-  selectActiveQuote,
-  selectActiveSwapperName,
-  (activeQuote, activeSwapperName) =>
-    activeQuote?.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(activeSwapperName),
+export const selectQuoteOrDefaultSlippagePercentageDecimal: Selector<ReduxState, string> =
+  createSelector(
+    selectActiveQuote,
+    selectActiveSwapperName,
+    (activeQuote, activeSwapperName) =>
+      activeQuote?.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(activeSwapperName),
+  )
+
+export const selectQuoteOrDefaultSlippagePercentage: Selector<ReduxState, string> = createSelector(
+  selectQuoteOrDefaultSlippagePercentageDecimal,
+  slippagePercentageDecimal => bn(slippagePercentageDecimal).times(100).toString(),
 )
 
-export const selectTradeSlippagePercentage = createSelector(
-  selectQuoteOrDefaultSlippagePercentage,
+export const selectTradeSlippagePercentageDecimal: Selector<ReduxState, string> = createSelector(
+  selectQuoteOrDefaultSlippagePercentageDecimal,
   selectSlippagePreferencePercentageDecimal,
   (quoteOrDefaultSlippagePercentage, slippagePreferencePercentage) => {
     return slippagePreferencePercentage ?? quoteOrDefaultSlippagePercentage
@@ -337,7 +343,7 @@ export const selectNetBuyAmountCryptoPrecision = createSelector(
   selectLastHop,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectBuyAssetProtocolFeesCryptoPrecision,
-  selectQuoteOrDefaultSlippagePercentage,
+  selectQuoteOrDefaultSlippagePercentageDecimal,
   (lastHop, buyAmountBeforeFeesCryptoBaseUnit, buyAssetProtocolFeeCryptoBaseUnit, slippage) => {
     if (!lastHop) return
     return bnOrZero(buyAmountBeforeFeesCryptoBaseUnit)

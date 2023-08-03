@@ -28,7 +28,7 @@ import {
   selectFirstHopSellAsset,
   selectLastHopBuyAsset,
   selectSellAmountUsd,
-  selectTradeSlippagePercentage,
+  selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
@@ -103,7 +103,7 @@ export const useGetTradeQuotes = () => {
   const sellAccountId = useAppSelector(selectSellAccountId)
   const buyAccountId = useAppSelector(selectBuyAccountId)
 
-  const slippageTolerancePercentage = useAppSelector(selectTradeSlippagePercentage)
+  const slippageTolerancePercentage = useAppSelector(selectTradeSlippagePercentageDecimal)
 
   const sellAccountMetadata = useMemo(() => {
     return selectPortfolioAccountMetadataByAccountId(store.getState(), {

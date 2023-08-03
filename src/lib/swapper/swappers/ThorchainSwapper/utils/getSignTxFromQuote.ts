@@ -29,6 +29,7 @@ type GetSignTxFromQuoteArgs = {
   buyAssetUsdRate: string
   feeAssetUsdRate: string
   supportsEIP1559: boolean
+  slippageTolerancePercentage: string
 } & ({ from: string; xpub?: never } | { from?: never; xpub: string })
 
 export const getSignTxFromQuote = async ({
@@ -41,11 +42,14 @@ export const getSignTxFromQuote = async ({
   from,
   xpub,
   supportsEIP1559,
+  slippageTolerancePercentage,
 }: GetSignTxFromQuoteArgs): Promise<UnsignedTx> => {
   const { recommendedSlippage } = quote
 
   const slippageTolerance =
-    recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain)
+    slippageTolerancePercentage ??
+    recommendedSlippage ??
+    getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain)
 
   const {
     buyAsset,

@@ -14,6 +14,7 @@ import { isCrossAccountTradeSupported } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectSlippagePreferencePercentage } from 'state/slices/swappersSlice/selectors'
 import {
   getHopTotalNetworkFeeFiatPrecision,
   getHopTotalProtocolFeesFiatPrecision,
@@ -228,11 +229,18 @@ export const selectLastHopNetworkFeeCryptoPrecision: Selector<ReduxState, string
       : bn(0).toFixed(),
 )
 
-export const selectSlippagePercentage = createSelector(
+export const selectQuoteOrDefaultSlippagePercentage = createSelector(
   selectActiveQuote,
   selectActiveSwapperName,
   (activeQuote, activeSwapperName) =>
     activeQuote?.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(activeSwapperName),
+)
+
+export const selectTradeSlippagePercentage = createSelector(
+  selectQuoteOrDefaultSlippagePercentage,
+  selectSlippagePreferencePercentage,
+  (quoteOrDefaultSlippagePercentage, slippagePreferencePercentage) =>
+    slippagePreferencePercentage ?? quoteOrDefaultSlippagePercentage,
 )
 
 const selectSellAssetUsdRate = createSelector(
@@ -328,7 +336,7 @@ export const selectNetBuyAmountCryptoPrecision = createSelector(
   selectLastHop,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectBuyAssetProtocolFeesCryptoPrecision,
-  selectSlippagePercentage,
+  selectQuoteOrDefaultSlippagePercentage,
   (lastHop, buyAmountBeforeFeesCryptoBaseUnit, buyAssetProtocolFeeCryptoBaseUnit, slippage) => {
     if (!lastHop) return
     return bnOrZero(buyAmountBeforeFeesCryptoBaseUnit)

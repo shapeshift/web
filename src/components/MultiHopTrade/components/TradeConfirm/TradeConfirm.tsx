@@ -57,9 +57,9 @@ import {
   selectNetBuyAmountCryptoPrecision,
   selectNetBuyAmountUserCurrency,
   selectQuoteDonationAmountUserCurrency,
+  selectQuoteOrDefaultSlippagePercentage,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,
-  selectSlippagePercentage,
   selectTotalNetworkFeeUserCurrencyPrecision,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -124,7 +124,7 @@ export const TradeConfirm = () => {
   const swapperName = useAppSelector(selectActiveSwapperName)
   const defaultFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
   const netBuyAmountCryptoPrecision = useAppSelector(selectNetBuyAmountCryptoPrecision)
-  const slippage = useAppSelector(selectSlippagePercentage)
+  const slippage = useAppSelector(selectQuoteOrDefaultSlippagePercentage)
   const netBuyAmountUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
   const networkFeeCryptoHuman = useAppSelector(selectFirstHopNetworkFeeCryptoPrecision)

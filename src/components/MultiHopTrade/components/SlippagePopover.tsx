@@ -52,6 +52,11 @@ export const SlippagePopover: FC = () => {
   const buttonGroupBg = useColorModeValue('blackAlpha.50', 'gray.850')
   const dispatch = useAppDispatch()
 
+  useEffect(() => {
+    // Handles re-opening the slippage popover and/or going back to input step
+    if (userSlippagePercentage) setSlippageType(SlippageType.Custom)
+    else setSlippageType(SlippageType.Auto)
+  }, [userSlippagePercentage])
   const handleDebounce = useCallback(
     (value: string) => {
       setSlippageAmount(value)

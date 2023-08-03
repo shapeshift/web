@@ -55,7 +55,6 @@ export const SlippagePopover: FC = () => {
   useEffect(() => {
     // Handles re-opening the slippage popover and/or going back to input step
     if (userSlippagePercentage) setSlippageType(SlippageType.Custom)
-    else setSlippageType(SlippageType.Auto)
   }, [userSlippagePercentage])
   const handleDebounce = useCallback(
     (value: string) => {

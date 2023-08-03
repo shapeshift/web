@@ -55,7 +55,10 @@ export const SlippagePopover: FC = () => {
   useEffect(() => {
     // Handles re-opening the slippage popover and/or going back to input step
     if (userSlippagePercentage) setSlippageType(SlippageType.Custom)
-  }, [userSlippagePercentage])
+    else setSlippageType(SlippageType.Auto)
+    // We only want this to run on mount, not to be reactive
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const handleDebounce = useCallback(
     (value: string) => {
       setSlippageAmount(value)

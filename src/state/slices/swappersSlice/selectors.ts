@@ -1,4 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
@@ -25,6 +26,11 @@ export const selectSellAsset = createDeepEqualOutputSelector(
 export const selectSlippagePreferencePercentage = createSelector(
   selectSwappers,
   swappers => swappers.slippagePreferencePercentage,
+)
+
+export const selectSlippagePreferencePercentageDecimal = createSelector(
+  selectSlippagePreferencePercentage,
+  slippagePercentage => bnOrZero(slippagePercentage).div(100).toString(),
 )
 
 // selects the account ID we're selling from

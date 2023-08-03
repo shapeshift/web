@@ -14,7 +14,7 @@ import { isCrossAccountTradeSupported } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectSlippagePreferencePercentage } from 'state/slices/swappersSlice/selectors'
+import { selectSlippagePreferencePercentageDecimal } from 'state/slices/swappersSlice/selectors'
 import {
   getHopTotalNetworkFeeFiatPrecision,
   getHopTotalProtocolFeesFiatPrecision,
@@ -238,7 +238,7 @@ export const selectQuoteOrDefaultSlippagePercentage = createSelector(
 
 export const selectTradeSlippagePercentage = createSelector(
   selectQuoteOrDefaultSlippagePercentage,
-  selectSlippagePreferencePercentage,
+  selectSlippagePreferencePercentageDecimal,
   (quoteOrDefaultSlippagePercentage, slippagePreferencePercentage) =>
     slippagePreferencePercentage ?? quoteOrDefaultSlippagePercentage,
 )

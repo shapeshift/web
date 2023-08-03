@@ -33,6 +33,8 @@ enum SlippageType {
 const defaultSlippagePercentage = '0.10'
 const maxSlippagePercentage = '30'
 
+const focusStyle = { '&[aria-invalid=true]': { borderColor: 'red.500' } }
+
 export const SlippagePopover = () => {
   const [slippageType, setSlippageType] = useState<SlippageType>(SlippageType.Auto)
   const [slippageAmount, setSlippageAmount] = useState(defaultSlippagePercentage)
@@ -134,7 +136,7 @@ export const SlippagePopover = () => {
                     value={value}
                     onBlur={handleOnBlur}
                     type='number'
-                    _focus={{ '&[aria-invalid=true]': { borderColor: 'red.500' } }}
+                    _focus={focusStyle}
                     onChange={e => handleChange(e.target.value)}
                     ref={inputRef}
                   />

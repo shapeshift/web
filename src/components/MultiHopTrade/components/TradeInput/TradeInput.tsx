@@ -3,6 +3,7 @@ import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Button,
   Flex,
+  Heading,
   IconButton,
   Stack,
   Tooltip,
@@ -19,6 +20,7 @@ import { useHistory } from 'react-router'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { RateGasRow } from 'components/MultiHopTrade/components/RateGasRow'
+import { SlippagePopover } from 'components/MultiHopTrade/components/SilppagePopover'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeConfirm/ReceiveSummary'
 import { DonationCheckbox } from 'components/MultiHopTrade/components/TradeInput/components/DonationCheckbox'
@@ -234,6 +236,12 @@ export const TradeInput = memo(() => {
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <SlideTransition>
         <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
+          <Flex alignItems='center' justifyContent='space-between'>
+            <Heading as='h5' fontSize='md'>
+              {translate('navBar.trade')}
+            </Heading>
+            <SlippagePopover />
+          </Flex>
           <Stack spacing={2}>
             <Flex alignItems='center' flexDir={flexDir} width='full'>
               <TradeAssetSelect

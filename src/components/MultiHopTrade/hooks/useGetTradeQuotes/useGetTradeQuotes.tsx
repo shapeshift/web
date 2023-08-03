@@ -65,14 +65,24 @@ const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromAp
   return { quoteMeta, sellAssetId, buyAssetId, sellAmountUsd }
 }
 
-const isEqualExceptAffiliateBps = (
+const isEqualExceptAffiliateBpsAndSlippage = (
   a: GetTradeQuoteInput | typeof skipToken,
   b: GetTradeQuoteInput | undefined,
 ) => {
   if (!isSkipToken(a) && b) {
-    const { affiliateBps: _affiliateBps, ...aWithoutAffiliateBps } = a
-    const { affiliateBps: _updatedAffiliateBps, ...bWithoutAffiliateBps } = b
-    return isEqual(aWithoutAffiliateBps, bWithoutAffiliateBps)
+    const {
+      affiliateBps: _affiliateBps,
+      slippageTolerancePercentage: _slippageTolerancePercentage,
+      ...aWithoutAffiliateBpsAndSlippage
+    } = a
+
+    const {
+      affiliateBps: _updatedAffiliateBps,
+      slippageTolerancePercentage: _updatedSlippageTolerancePercentage,
+      ...bWithoutAffiliateBpsAndSlippage
+    } = b
+
+    return isEqual(aWithoutAffiliateBpsAndSlippage, bWithoutAffiliateBpsAndSlippage)
   }
 }
 
@@ -140,8 +150,8 @@ export const useGetTradeQuotes = () => {
             ? setTradeQuoteInput(updatedTradeQuoteInput)
             : setTradeQuoteInput(skipToken)
 
-          // If only the affiliateBps changed, we've toggled the donation checkbox - don't reset the swapper name
-          if (isEqualExceptAffiliateBps(tradeQuoteInput, updatedTradeQuoteInput)) {
+          // If only the affiliateBps or the slippageTolerancePercentage changed, we've toggled the donation checkbox - don't reset the swapper name
+          if (isEqualExceptAffiliateBpsAndSlippage(tradeQuoteInput, updatedTradeQuoteInput)) {
             return
           } else {
             dispatch(tradeQuoteSlice.actions.resetSwapperName())

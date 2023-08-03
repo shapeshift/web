@@ -20,6 +20,7 @@ export type GetTradeQuoteInputArgs = {
   sellAccountNumber: number
   wallet: HDWallet
   receiveAddress: string
+  slippageTolerancePercentage: string
   // Required for Osmo trades
   receiveAccountNumber?: number
   sellAmountBeforeFeesCryptoPrecision: string
@@ -38,6 +39,7 @@ export const getTradeQuoteArgs = async ({
   sellAmountBeforeFeesCryptoPrecision,
   allowMultiHop,
   affiliateBps,
+  slippageTolerancePercentage,
 }: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput | undefined> => {
   if (!sellAsset || !buyAsset) return undefined
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
@@ -51,6 +53,7 @@ export const getTradeQuoteArgs = async ({
     accountNumber: sellAccountNumber,
     affiliateBps: affiliateBps ?? '0',
     allowMultiHop,
+    slippageTolerancePercentage,
   }
   if (isEvmSwap(sellAsset?.chainId) || isCosmosSdkSwap(sellAsset?.chainId)) {
     const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())

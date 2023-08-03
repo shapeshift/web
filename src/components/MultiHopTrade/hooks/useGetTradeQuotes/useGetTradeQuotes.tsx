@@ -28,6 +28,7 @@ import {
   selectFirstHopSellAsset,
   selectLastHopBuyAsset,
   selectSellAmountUsd,
+  selectTradeSlippagePercentage,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
@@ -92,6 +93,8 @@ export const useGetTradeQuotes = () => {
   const sellAccountId = useAppSelector(selectSellAccountId)
   const buyAccountId = useAppSelector(selectBuyAccountId)
 
+  const slippageTolerancePercentage = useAppSelector(selectTradeSlippagePercentage)
+
   const sellAccountMetadata = useMemo(() => {
     return selectPortfolioAccountMetadataByAccountId(store.getState(), {
       accountId: sellAccountId,
@@ -128,6 +131,7 @@ export const useGetTradeQuotes = () => {
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: true,
           affiliateBps: willDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0',
+          slippageTolerancePercentage,
         })
 
         // if the quote input args changed, reset the selected swapper and update the trade quote args
@@ -162,6 +166,7 @@ export const useGetTradeQuotes = () => {
     wallet,
     userWillDonate,
     receiveAccountMetadata?.bip44Params,
+    slippageTolerancePercentage,
   ])
 
   useEffect(() => {

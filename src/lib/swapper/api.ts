@@ -86,6 +86,7 @@ type CommonTradeInput = {
   receiveAccountNumber?: number
   affiliateBps: string
   allowMultiHop: boolean
+  slippageTolerancePercentage: string
 }
 
 export type GetEvmTradeQuoteInput = CommonTradeInput & {

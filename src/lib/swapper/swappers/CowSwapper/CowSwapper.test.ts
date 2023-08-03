@@ -15,10 +15,6 @@ jest.mock('./getCowSwapTradeQuote/getCowSwapTradeQuote', () => ({
   getCowSwapTradeQuote: jest.fn(),
 }))
 
-jest.mock('./cowBuildTrade/cowBuildTrade', () => ({
-  cowBuildTrade: jest.fn(),
-}))
-
 jest.mock('./cowExecuteTrade/cowExecuteTrade', () => ({
   cowExecuteTrade: jest.fn(),
 }))

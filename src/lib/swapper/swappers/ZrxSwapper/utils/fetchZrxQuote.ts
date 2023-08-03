@@ -16,7 +16,7 @@ export type FetchZrxQuoteInput = {
   buyAsset: Asset
   sellAsset: Asset
   receiveAddress: string
-  slippage: string
+  slippageTolerancePercentageDecimal: string
   affiliateBps: string | undefined
   sellAmountBeforeFeesCryptoBaseUnit: string
 }
@@ -25,7 +25,7 @@ export const fetchZrxQuote = async ({
   buyAsset,
   sellAsset,
   receiveAddress,
-  slippage,
+  slippageTolerancePercentageDecimal,
   affiliateBps,
   sellAmountBeforeFeesCryptoBaseUnit,
 }: FetchZrxQuoteInput) => {
@@ -67,7 +67,7 @@ export const fetchZrxQuote = async ({
       sellToken: assetToToken(sellAsset),
       sellAmount: sellAmountBeforeFeesCryptoBaseUnit,
       takerAddress: receiveAddress,
-      slippagePercentage: bnOrZero(slippage).toString(),
+      slippagePercentage: bnOrZero(slippageTolerancePercentageDecimal).toString(),
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
       skipValidation: false,
       feeRecipient, // Where affiliate fees are sent

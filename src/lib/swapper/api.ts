@@ -266,7 +266,7 @@ export type GetUnsignedTxArgs = {
   supportsEIP1559: boolean
   buyAssetUsdRate: string
   feeAssetUsdRate: string
-  slippageTolerancePercentage: string
+  slippageTolerancePercentageDecimal: string
 } & FromOrXpub
 
 // the client should never need to know anything about this payload, and since it varies from

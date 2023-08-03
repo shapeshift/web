@@ -26,11 +26,11 @@ export const fetchOneInchSwap = async ({
   receiveAddress,
   sellAmountBeforeFeesCryptoBaseUnit,
   sellAsset,
-  maximumSlippageDecimalPercentage: slippage,
+  maximumSlippageDecimalPercentage,
 }: FetchOneInchSwapInput) => {
   const apiUrl = getConfig().REACT_APP_ONE_INCH_API_URL
 
-  const maximumSlippagePercentage = bnOrZero(slippage).times(100).toNumber()
+  const maximumSlippagePercentage = bnOrZero(maximumSlippageDecimalPercentage).times(100).toNumber()
 
   const buyTokenPercentageFee = affiliateBps
     ? convertBasisPointsToPercentage(affiliateBps).toNumber()

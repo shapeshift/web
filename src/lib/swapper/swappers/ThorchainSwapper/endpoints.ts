@@ -85,7 +85,7 @@ export const thorchainApi: Swapper2Api = {
     supportsEIP1559,
     buyAssetUsdRate,
     feeAssetUsdRate,
-    slippageTolerancePercentage,
+    slippageTolerancePercentageDecimal,
   }): Promise<UnsignedTx> => {
     const { receiveAddress, affiliateBps } = tradeQuote
 
@@ -111,7 +111,7 @@ export const thorchainApi: Swapper2Api = {
       ...fromOrXpub,
       feeAssetUsdRate,
       supportsEIP1559,
-      slippageTolerancePercentage,
+      slippageTolerancePercentage: slippageTolerancePercentageDecimal,
     })
   },
 

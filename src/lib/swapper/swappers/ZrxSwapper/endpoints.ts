@@ -63,7 +63,7 @@ export const zrxApi: Swapper2Api = {
     from,
     tradeQuote,
     stepIndex,
-    slippageTolerancePercentage,
+    slippageTolerancePercentageDecimal,
   }: GetUnsignedTxArgs): Promise<ETHSignTx> => {
     const { accountNumber, buyAsset, sellAsset, sellAmountBeforeFeesCryptoBaseUnit } =
       tradeQuote.steps[stepIndex]
@@ -76,7 +76,7 @@ export const zrxApi: Swapper2Api = {
       buyAsset,
       sellAsset,
       receiveAddress,
-      slippage: slippageTolerancePercentage,
+      slippageTolerancePercentageDecimal,
       affiliateBps,
       sellAmountBeforeFeesCryptoBaseUnit,
     })

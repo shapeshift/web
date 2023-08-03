@@ -61,7 +61,7 @@ export const oneInchApi: Swapper2Api = {
 
   getUnsignedTx: async ({
     from,
-    slippageTolerancePercentage,
+    slippageTolerancePercentageDecimal,
     tradeQuote,
     stepIndex,
   }: GetUnsignedTxArgs): Promise<ETHSignTx> => {
@@ -80,7 +80,7 @@ export const oneInchApi: Swapper2Api = {
       receiveAddress,
       sellAmountBeforeFeesCryptoBaseUnit,
       sellAsset,
-      maximumSlippageDecimalPercentage: slippageTolerancePercentage,
+      maximumSlippageDecimalPercentage: slippageTolerancePercentageDecimal,
     })
 
     const buildSendApiTxInput = {

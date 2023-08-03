@@ -22,6 +22,11 @@ export const selectSellAsset = createDeepEqualOutputSelector(
   swappers => swappers.sellAsset,
 )
 
+export const selectSlippagePreferencePercentage = createSelector(
+  selectSwappers,
+  swappers => swappers.slippagePreferencePercentage,
+)
+
 // selects the account ID we're selling from
 // note lack of "asset" and "hop" vernacular - this is deliberate
 export const selectSellAccountId = createSelector(

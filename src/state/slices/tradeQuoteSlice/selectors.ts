@@ -228,7 +228,7 @@ export const selectLastHopNetworkFeeCryptoPrecision: Selector<ReduxState, string
       : bn(0).toFixed(),
 )
 
-export const selectSlippage = createSelector(
+export const selectSlippagePercentage = createSelector(
   selectActiveQuote,
   selectActiveSwapperName,
   (activeQuote, activeSwapperName) =>
@@ -328,7 +328,7 @@ export const selectNetBuyAmountCryptoPrecision = createSelector(
   selectLastHop,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectBuyAssetProtocolFeesCryptoPrecision,
-  selectSlippage,
+  selectSlippagePercentage,
   (lastHop, buyAmountBeforeFeesCryptoBaseUnit, buyAssetProtocolFeeCryptoBaseUnit, slippage) => {
     if (!lastHop) return
     return bnOrZero(buyAmountBeforeFeesCryptoBaseUnit)

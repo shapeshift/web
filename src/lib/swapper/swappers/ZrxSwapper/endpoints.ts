@@ -59,11 +59,16 @@ export const zrxApi: Swapper2Api = {
     })
   },
 
-  getUnsignedTx: async ({ from, tradeQuote, stepIndex }: GetUnsignedTxArgs): Promise<ETHSignTx> => {
+  getUnsignedTx: async ({
+    from,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentage,
+  }: GetUnsignedTxArgs): Promise<ETHSignTx> => {
     const { accountNumber, buyAsset, sellAsset, sellAmountBeforeFeesCryptoBaseUnit } =
       tradeQuote.steps[stepIndex]
 
-    const { receiveAddress, recommendedSlippage, affiliateBps } = tradeQuote
+    const { receiveAddress, affiliateBps } = tradeQuote
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -71,7 +76,7 @@ export const zrxApi: Swapper2Api = {
       buyAsset,
       sellAsset,
       receiveAddress,
-      slippage: recommendedSlippage, // TODO: use the slippage from user input
+      slippage: slippageTolerancePercentage,
       affiliateBps,
       sellAmountBeforeFeesCryptoBaseUnit,
     })

@@ -62,6 +62,7 @@ import {
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
+  selectTradeSlippagePercentage,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -104,6 +105,7 @@ export const TradeInput = memo(() => {
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
+  const slippagePercentage = useAppSelector(selectTradeSlippagePercentage)
 
   const hasUserEnteredAmount = useMemo(
     () => bnOrZero(sellAmountCryptoPrecision).gt(0),
@@ -325,10 +327,7 @@ export const TradeInput = memo(() => {
                   amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
                   protocolFees={totalProtocolFees}
                   shapeShiftFee='0'
-                  slippage={
-                    activeQuote.recommendedSlippage ??
-                    getDefaultSlippagePercentageForSwapper(activeSwapperName)
-                  }
+                  slippage={slippagePercentage}
                   swapperName={activeSwapperName ?? ''}
                 />
               ) : null}

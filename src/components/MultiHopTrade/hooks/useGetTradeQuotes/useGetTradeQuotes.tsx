@@ -150,7 +150,10 @@ export const useGetTradeQuotes = () => {
             ? setTradeQuoteInput(updatedTradeQuoteInput)
             : setTradeQuoteInput(skipToken)
 
-          // If only the affiliateBps or the slippageTolerancePercentage changed, we've toggled the donation checkbox - don't reset the swapper name
+          // If only the affiliateBps or the slippageTolerancePercentage changed, we've either:
+          // - toggled the donation checkbox
+          // - switched swappers where one has a different default slippageTolerancePercentage
+          // In either case, we don't want to reset the selected swapper
           if (isEqualExceptAffiliateBpsAndSlippage(tradeQuoteInput, updatedTradeQuoteInput)) {
             return
           } else {

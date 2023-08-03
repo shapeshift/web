@@ -239,8 +239,9 @@ export const selectQuoteOrDefaultSlippagePercentage = createSelector(
 export const selectTradeSlippagePercentage = createSelector(
   selectQuoteOrDefaultSlippagePercentage,
   selectSlippagePreferencePercentageDecimal,
-  (quoteOrDefaultSlippagePercentage, slippagePreferencePercentage) =>
-    slippagePreferencePercentage ?? quoteOrDefaultSlippagePercentage,
+  (quoteOrDefaultSlippagePercentage, slippagePreferencePercentage) => {
+    return slippagePreferencePercentage ?? quoteOrDefaultSlippagePercentage
+  },
 )
 
 const selectSellAssetUsdRate = createSelector(

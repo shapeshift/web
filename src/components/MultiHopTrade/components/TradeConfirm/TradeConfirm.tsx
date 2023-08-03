@@ -57,7 +57,6 @@ import {
   selectNetBuyAmountCryptoPrecision,
   selectNetBuyAmountUserCurrency,
   selectQuoteDonationAmountUserCurrency,
-  selectQuoteOrDefaultSlippagePercentage,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,

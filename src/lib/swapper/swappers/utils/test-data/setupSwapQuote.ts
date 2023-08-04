@@ -6,6 +6,8 @@ import type { BuildTradeInput, GetTradeQuoteInput, TradeQuote } from 'lib/swappe
 import { SwapperName } from 'lib/swapper/api'
 import { FOX_MAINNET, WETH } from 'lib/swapper/swappers/utils/test-data/assets'
 
+import { DEFAULT_SLIPPAGE } from '../constants'
+
 export const setupQuote = () => {
   const sellAsset: Asset = { ...FOX_MAINNET }
   const buyAsset: Asset = { ...WETH }
@@ -39,6 +41,7 @@ export const setupQuote = () => {
     affiliateBps: '0',
     supportsEIP1559: false,
     allowMultiHop: false,
+    slippageTolerancePercentage: DEFAULT_SLIPPAGE,
   }
   return { quoteInput, tradeQuote, buyAsset, sellAsset }
 }
@@ -58,6 +61,7 @@ export const setupBuildTrade = () => {
     supportsEIP1559: false,
     slippage: getDefaultSlippagePercentageForSwapper(SwapperName.Test),
     allowMultiHop: false,
+    slippageTolerancePercentage: DEFAULT_SLIPPAGE,
   }
   return { buildTradeInput, buyAsset, sellAsset }
 }

@@ -19,6 +19,7 @@ export type SwappersState = {
   willDonate: boolean
   manualReceiveAddress: string | undefined
   manualReceiveAddressIsValidating: boolean
+  slippagePreferencePercentage: string | undefined
 }
 
 // Define the initial state:
@@ -32,6 +33,7 @@ const initialState: SwappersState = {
   willDonate: true,
   manualReceiveAddress: undefined,
   manualReceiveAddressIsValidating: false,
+  slippagePreferencePercentage: undefined,
 }
 
 // Create the slice:
@@ -103,6 +105,9 @@ export const swappers = createSlice({
     },
     setManualReceiveAddressIsValidating: (state, action: PayloadAction<boolean>) => {
       state.manualReceiveAddressIsValidating = action.payload
+    },
+    setSlippagePreferencePercentage: (state, action: PayloadAction<string | undefined>) => {
+      state.slippagePreferencePercentage = action.payload
     },
   },
 })

@@ -59,11 +59,16 @@ export const oneInchApi: Swapper2Api = {
     })
   },
 
-  getUnsignedTx: async ({ from, tradeQuote, stepIndex }: GetUnsignedTxArgs): Promise<ETHSignTx> => {
+  getUnsignedTx: async ({
+    from,
+    slippageTolerancePercentageDecimal,
+    tradeQuote,
+    stepIndex,
+  }: GetUnsignedTxArgs): Promise<ETHSignTx> => {
     const { accountNumber, buyAsset, sellAsset, sellAmountBeforeFeesCryptoBaseUnit } =
       tradeQuote.steps[stepIndex]
 
-    const { receiveAddress, recommendedSlippage, affiliateBps } = tradeQuote
+    const { receiveAddress, affiliateBps } = tradeQuote
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -75,7 +80,7 @@ export const oneInchApi: Swapper2Api = {
       receiveAddress,
       sellAmountBeforeFeesCryptoBaseUnit,
       sellAsset,
-      maximumSlippageDecimalPercentage: recommendedSlippage, // TODO: use the slippage from user input
+      maximumSlippageDecimalPercentage: slippageTolerancePercentageDecimal,
     })
 
     const buildSendApiTxInput = {

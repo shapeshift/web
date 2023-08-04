@@ -105,7 +105,7 @@ const initialState: Preferences = {
     OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
     Chatwoot: getConfig().REACT_APP_FEATURE_CHATWOOT,
     CoinbaseWallet: getConfig().REACT_APP_FEATURE_COINBASE_WALLET,
-    AdvancedSlippage: getConfig().REACT_APP_ADVANCED_SLIPPAGE,
+    AdvancedSlippage: getConfig().REACT_APP_FEATURE_ADVANCED_SLIPPAGE,
     WalletConnectV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_V2,
   },
   selectedLocale: simpleLocale(),

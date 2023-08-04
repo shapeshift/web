@@ -5,7 +5,6 @@ import type { Asset } from 'lib/asset-service'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
-import { DEFAULT_SLIPPAGE } from '../../utils/constants'
 import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
 import type { ZrxQuoteResponse } from '../types'
 import { withAxiosRetry } from './applyAxiosRetry'
@@ -17,7 +16,7 @@ export type FetchZrxQuoteInput = {
   buyAsset: Asset
   sellAsset: Asset
   receiveAddress: string
-  slippage?: string
+  slippageTolerancePercentageDecimal: string
   affiliateBps: string | undefined
   sellAmountBeforeFeesCryptoBaseUnit: string
 }
@@ -26,7 +25,7 @@ export const fetchZrxQuote = async ({
   buyAsset,
   sellAsset,
   receiveAddress,
-  slippage,
+  slippageTolerancePercentageDecimal,
   affiliateBps,
   sellAmountBeforeFeesCryptoBaseUnit,
 }: FetchZrxQuoteInput) => {
@@ -68,7 +67,7 @@ export const fetchZrxQuote = async ({
       sellToken: assetToToken(sellAsset),
       sellAmount: sellAmountBeforeFeesCryptoBaseUnit,
       takerAddress: receiveAddress,
-      slippagePercentage: slippage ? bnOrZero(slippage).toString() : DEFAULT_SLIPPAGE,
+      slippagePercentage: bnOrZero(slippageTolerancePercentageDecimal).toString(),
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
       skipValidation: false,
       feeRecipient, // Where affiliate fees are sent

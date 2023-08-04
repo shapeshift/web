@@ -35,6 +35,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     affiliateBps,
     chainId,
     supportsEIP1559,
+    slippageTolerancePercentage,
   } = input
   const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
 
@@ -65,6 +66,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       takerAddress: receiveAddress,
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
       skipValidation: true,
+      slippagePercentage: slippageTolerancePercentage,
       feeRecipient: getTreasuryAddressFromChainId(buyAsset.chainId), // Where affiliate fees are sent
       buyTokenPercentageFee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
     },

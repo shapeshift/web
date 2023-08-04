@@ -3,13 +3,16 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { useEffect, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
-import { matchPath, useHistory, useLocation } from 'react-router'
+import { matchPath, useLocation } from 'react-router'
 import { NavLink } from 'react-router-dom'
 import { YatIcon } from 'components/Icons/YatIcon'
 import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { Row } from 'components/Row/Row'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { resolveYat, validateYat } from 'lib/address/yat'
+import { isMobile as isMobileApp } from 'lib/globals'
 
 /**
  * see https://github.com/shapeshift/web/issues/4604
@@ -29,8 +32,20 @@ export const Yat: React.FC = () => {
   const translate = useTranslate()
   const [maybeYatEthAddress, setMaybeYatEthAddress] = useState<string | null>(null)
   const [maybeYatUsdcAddress, setMaybeYatUsdcAddress] = useState<string | null>(null)
-  const history = useHistory()
+  const { history } = useBrowserRouter()
   const { pathname } = useLocation()
+
+  /**
+   * yat can't, or doesn't want to do device detection on their
+   * successful payment page to link back to shapeshift
+   *
+   * the user will be in a browser to buy a yat, not on the mobile app.
+   * hence, when yat sends them back to the app.shapeshift.com/#/yat/eid
+   * link, we detect if they're on a mobile device, but not the app,
+   * and invoke the handler to open the mobile app, otherwise link back to desktop
+   */
+
+  const showMobileHandler = isMobile && !isMobileApp
 
   useEffect(() => {
     const eidMatch = matchPath<{ eid?: string }>(pathname, {
@@ -102,9 +117,9 @@ export const Yat: React.FC = () => {
             <Row.Label>{translate('features.yat.usdcAddress')}</Row.Label>
             <Row.Value wordBreak='break-all'>
               {maybeYatUsdcAddress === null
-                ? 'loading'
+                ? translate('common.loadingText')
                 : maybeYatUsdcAddress === ''
-                ? 'no usdc addy'
+                ? translate('features.yat.noAddressFound', { symbol: 'USDC' })
                 : maybeYatUsdcAddress}
             </Row.Value>
           </Row>
@@ -112,16 +127,22 @@ export const Yat: React.FC = () => {
             <Row.Label>{translate('features.yat.ethAddress')}</Row.Label>
             <Row.Value wordBreak='break-all'>
               {maybeYatEthAddress === null
-                ? 'loading'
+                ? translate('common.loadingText')
                 : maybeYatEthAddress === ''
-                ? 'no eth addy'
+                ? translate('features.yat.noAddressFound', { symbol: 'ETH' })
                 : maybeYatEthAddress}
             </Row.Value>
           </Row>
         </Summary>
-        <Button as={NavLink} to='/dashboard' colorScheme='blue' size='lg' mt={6}>
-          {translate('common.viewMyWallet')}
-        </Button>
+        {showMobileHandler ? (
+          <Button as='a' href={`shapeshift://yat/${eid}`} colorScheme='blue' size='lg' mt={6}>
+            {translate('features.yat.viewInApp')}
+          </Button>
+        ) : (
+          <Button as={NavLink} to='/dashboard' colorScheme='blue' size='lg' mt={6}>
+            {translate('common.viewMyWallet')}
+          </Button>
+        )}
       </Card>
     </Center>
   )

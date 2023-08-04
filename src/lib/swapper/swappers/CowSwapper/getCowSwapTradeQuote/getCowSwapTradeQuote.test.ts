@@ -207,6 +207,7 @@ describe('getCowTradeQuote', () => {
       affiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
+      slippageTolerancePercentage: '0.005', // 0.5%
     }
 
     const maybeTradeQuote = await getCowSwapTradeQuote(input, {
@@ -234,6 +235,7 @@ describe('getCowTradeQuote', () => {
       affiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
+      slippageTolerancePercentage: '0.005', // 0.5%
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -278,6 +280,7 @@ describe('getCowTradeQuote', () => {
       affiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
+      slippageTolerancePercentage: '0.005', // 0.5%
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -322,6 +325,7 @@ describe('getCowTradeQuote', () => {
       affiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
+      slippageTolerancePercentage: '0.005', // 0.5%
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(
@@ -366,6 +370,7 @@ describe('getCowTradeQuote', () => {
       affiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
+      slippageTolerancePercentage: '0.005', // 0.5%
     }
 
     ;(cowService.post as jest.Mock<unknown>).mockReturnValue(

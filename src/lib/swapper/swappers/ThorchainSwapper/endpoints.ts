@@ -9,7 +9,7 @@ import type {
   Swapper2Api,
   TradeQuote,
   TradeQuote2,
-  UnsignedTx,
+  UnsignedTx2,
 } from 'lib/swapper/api'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { Rates, ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
@@ -85,7 +85,8 @@ export const thorchainApi: Swapper2Api = {
     supportsEIP1559,
     buyAssetUsdRate,
     feeAssetUsdRate,
-  }): Promise<UnsignedTx> => {
+    slippageTolerancePercentageDecimal,
+  }): Promise<UnsignedTx2> => {
     const { receiveAddress, affiliateBps } = tradeQuote
 
     const accountType = accountMetadata?.accountType
@@ -110,6 +111,7 @@ export const thorchainApi: Swapper2Api = {
       ...fromOrXpub,
       feeAssetUsdRate,
       supportsEIP1559,
+      slippageTolerancePercentage: slippageTolerancePercentageDecimal,
     })
   },
 
@@ -118,7 +120,7 @@ export const thorchainApi: Swapper2Api = {
   }): Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }> => {
     try {
       // thorchain swapper uses txId to get tx status (not trade ID)
-      const { buyTxId: buyTxHash } = await getTradeTxs({ tradeId: txHash })
+      const { buyTxId: buyTxHash } = await getTradeTxs(txHash)
       const status = buyTxHash ? TxStatus.Confirmed : TxStatus.Pending
 
       return {

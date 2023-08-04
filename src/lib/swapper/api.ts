@@ -1,11 +1,5 @@
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
-import type {
-  ChainSignTx,
-  CosmosSdkChainId,
-  EvmChainId,
-  SignTx,
-  UtxoChainId,
-} from '@shapeshiftoss/chain-adapters'
+import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { createErrorClass } from '@shapeshiftoss/errors'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
@@ -86,6 +80,7 @@ type CommonTradeInput = {
   receiveAccountNumber?: number
   affiliateBps: string
   allowMultiHop: boolean
+  slippageTolerancePercentage: string
 }
 
 export type GetEvmTradeQuoteInput = CommonTradeInput & {
@@ -108,11 +103,6 @@ export type GetTradeQuoteInput =
   | GetUtxoTradeQuoteInput
   | GetEvmTradeQuoteInput
   | GetCosmosSdkTradeQuoteInput
-
-export type BuildTradeInput = GetTradeQuoteInput & {
-  wallet: HDWallet
-  slippage?: string
-}
 
 export type AmountDisplayMeta = {
   amountCryptoBaseUnit: string
@@ -144,20 +134,6 @@ export type TradeQuote<C extends ChainId = ChainId> = {
   steps: TradeQuoteStep<C>[]
 }
 
-export type Trade<C extends ChainId> = TradeBase<C> & {
-  receiveAddress: string
-  receiveAccountNumber?: number
-}
-
-export type ExecuteTradeInput<C extends ChainId> = {
-  trade: Trade<C>
-  wallet: HDWallet
-}
-
-export type TradeResult = {
-  tradeId: string
-}
-
 export type SwapSource = {
   name: SwapperName | string
   proportion: string
@@ -171,11 +147,6 @@ export enum SwapperName {
   Test = 'Test',
   LIFI = 'LI.FI',
   OneInch = '1INCH',
-}
-
-export type TradeTxs = {
-  sellTxid: string
-  buyTxid?: string
 }
 
 // Swap Errors
@@ -208,45 +179,6 @@ export enum SwapErrorType {
   // Catch-all for happy responses, but entity not found according to our criteria
   NOT_FOUND = 'NOT_FOUND',
 }
-export interface Swapper<T extends ChainId> {
-  /** Human-readable swapper name */
-  readonly name: SwapperName
-
-  /** perform any necessary async initialization */
-  initialize?(): Promise<Result<unknown, SwapErrorRight>>
-
-  /**
-   * Get builds a trade with definitive rate & txData that can be executed with executeTrade
-   **/
-  buildTrade(args: BuildTradeInput): Promise<Result<Trade<T>, SwapErrorRight>>
-
-  /**
-   * Get a trade quote
-   */
-  getTradeQuote(input: GetTradeQuoteInput): Promise<Result<TradeQuote, SwapErrorRight>>
-
-  /**
-   * Execute a trade built with buildTrade by signing and broadcasting
-   */
-  executeTrade(args: ExecuteTradeInput<T>): Promise<Result<TradeResult, SwapErrorRight>>
-
-  /**
-   * Get supported buyAssetId's by sellAssetId
-   */
-  filterBuyAssetsBySellAssetId(args: BuyAssetBySellIdInput): AssetId[]
-
-  /**
-   * Get supported sell assetIds
-   */
-  filterAssetIdsBySellable(nonNftAssetIds: AssetId[]): AssetId[]
-
-  /**
-   * Get transactions related to a trade
-   */
-  getTradeTxs(tradeResult: TradeResult): Promise<Result<TradeTxs, SwapErrorRight>>
-}
-
-export type UnsignedTx = SignTx<keyof ChainSignTx>
 
 export type TradeQuote2 = TradeQuote & {
   id: string
@@ -265,6 +197,7 @@ export type GetUnsignedTxArgs = {
   supportsEIP1559: boolean
   buyAssetUsdRate: string
   feeAssetUsdRate: string
+  slippageTolerancePercentageDecimal: string
 } & FromOrXpub
 
 // the client should never need to know anything about this payload, and since it varies from

@@ -5,7 +5,6 @@ import { fromChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
@@ -38,14 +37,13 @@ export async function getTradeQuote(
       sendAddress,
       receiveAddress,
       accountNumber,
+      slippageTolerancePercentage,
       supportsEIP1559,
       wallet,
     } = input
 
     const sellLifiChainKey = lifiChainMap.get(sellAsset.chainId)
     const buyLifiChainKey = lifiChainMap.get(buyAsset.chainId)
-
-    const defaultLifiSwapperSlippage = getDefaultSlippagePercentageForSwapper(SwapperName.LIFI)
 
     if (sellLifiChainKey === undefined) {
       throw new SwapError(
@@ -78,7 +76,7 @@ export async function getTradeQuote(
       options: {
         // used for analytics and donations - do not change this without considering impact
         integrator: LIFI_INTEGRATOR_ID,
-        slippage: Number(defaultLifiSwapperSlippage),
+        slippage: Number(slippageTolerancePercentage),
         exchanges: { deny: ['dodo'] },
         // TODO(gomes): We don't currently handle trades that require a mid-trade user-initiated Tx on a different chain
         // i.e we would theoretically handle the Tx itself, but not approvals on said chain if needed

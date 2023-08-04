@@ -16,6 +16,7 @@ import {
   selectFirstHopSellFeeAsset,
   selectIsLastStep,
   selectLastHopBuyAsset,
+  selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
@@ -39,6 +40,7 @@ export const useTradeExecution = ({
   const [tradeStatus, setTradeStatus] = useState<TxStatus>(TxStatus.Unknown)
   const { poll } = usePoll()
   const wallet = useWallet().state.wallet
+  const slippageTolerancePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
 
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
   const feeAsset = useAppSelector(selectFirstHopSellFeeAsset)
@@ -102,6 +104,7 @@ export const useTradeExecution = ({
         supportsEIP1559,
         buyAssetUsdRate,
         feeAssetUsdRate,
+        slippageTolerancePercentageDecimal,
       },
     )
 
@@ -159,6 +162,7 @@ export const useTradeExecution = ({
     tradeQuote,
     swapperName,
     activeStepOrDefault,
+    slippageTolerancePercentageDecimal,
     poll,
     dispatch,
     sellAssetAccountId,

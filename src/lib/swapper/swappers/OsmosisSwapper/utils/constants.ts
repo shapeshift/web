@@ -3,7 +3,6 @@ import { cosmosAssetId, osmosisAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from 'lib/swapper/api'
 
 export const DEFAULT_SOURCE = [{ name: SwapperName.Osmosis, proportion: '1' }]
-export const OSMOSIS_PRECISION = 6
 export const COSMOSHUB_TO_OSMOSIS_CHANNEL = 'channel-141'
 export const OSMOSIS_TO_COSMOSHUB_CHANNEL = 'channel-0'
 export const atomOnOsmosisAssetId: AssetId =

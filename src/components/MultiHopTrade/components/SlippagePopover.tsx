@@ -17,37 +17,54 @@ import {
 } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { debounce } from 'lodash'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import type { FC } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaSlidersH } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { selectSlippagePreferencePercentage } from 'state/slices/swappersSlice/selectors'
+import { swappers } from 'state/slices/swappersSlice/swappersSlice'
+import { selectQuoteOrDefaultSlippagePercentage } from 'state/slices/tradeQuoteSlice/selectors'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 enum SlippageType {
   Auto = 'Auto',
   Custom = 'Custom',
 }
 
-const defaultSlippagePercentage = '0.10'
 const maxSlippagePercentage = '30'
 
-export const SlippagePopover = () => {
+const focusStyle = { '&[aria-invalid=true]': { borderColor: 'red.500' } }
+
+export const SlippagePopover: FC = () => {
+  const defaultSlippagePercentage = useAppSelector(selectQuoteOrDefaultSlippagePercentage)
+  const userSlippagePercentage = useAppSelector(selectSlippagePreferencePercentage)
+
   const [slippageType, setSlippageType] = useState<SlippageType>(SlippageType.Auto)
   const [slippageAmount, setSlippageAmount] = useState(defaultSlippagePercentage)
-  const [value, setValue] = useState('')
   const [isInvalid, setIsInvalid] = useState(false)
   const translate = useTranslate()
   const inputRef = useRef<HTMLInputElement>(null)
   const isAdvancedSlippageEnabled = useFeatureFlag('AdvancedSlippage')
   const buttonGroupBg = useColorModeValue('blackAlpha.50', 'gray.850')
+  const dispatch = useAppDispatch()
 
+  useEffect(() => {
+    // Handles re-opening the slippage popover and/or going back to input step
+    if (userSlippagePercentage) setSlippageType(SlippageType.Custom)
+    else setSlippageType(SlippageType.Auto)
+    // We only want this to run on mount, not to be reactive
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const handleDebounce = useCallback(
     (value: string) => {
       setSlippageAmount(value)
+      dispatch(swappers.actions.setSlippagePreferencePercentage(value))
     },
-    [setSlippageAmount],
+    [dispatch],
   )
   const debounceFnc = useMemo(() => debounce(handleDebounce, 100), [handleDebounce])
 
@@ -59,26 +76,32 @@ export const SlippagePopover = () => {
         debounceFnc(value)
         setIsInvalid(false)
       }
-      setValue(value)
+      dispatch(swappers.actions.setSlippagePreferencePercentage(value))
       setSlippageType(SlippageType.Custom)
     },
-    [debounceFnc],
+    [debounceFnc, dispatch],
   )
 
-  const handleSlippageTypeChange = useCallback((type: SlippageType) => {
-    if (type === SlippageType.Auto) {
-      setValue('')
+  useEffect(() => {
+    if (slippageType === SlippageType.Auto) {
       setSlippageAmount(defaultSlippagePercentage)
-      setIsInvalid(false)
     } else {
-      inputRef && inputRef.current && inputRef.current.focus()
+      setSlippageAmount(userSlippagePercentage ?? defaultSlippagePercentage)
     }
-    setSlippageType(type)
-  }, [])
+  }, [defaultSlippagePercentage, slippageType, userSlippagePercentage])
 
-  const handleOnBlur = useCallback(() => {
-    if (isInvalid) setValue(slippageAmount)
-  }, [isInvalid, slippageAmount])
+  const handleSlippageTypeChange = useCallback(
+    (type: SlippageType) => {
+      if (type === SlippageType.Auto) {
+        setSlippageAmount(defaultSlippagePercentage)
+        setIsInvalid(false)
+      } else {
+        inputRef && inputRef.current && inputRef.current.focus()
+      }
+      setSlippageType(type)
+    },
+    [defaultSlippagePercentage],
+  )
 
   const isHighSlippage = useMemo(() => bnOrZero(slippageAmount).gt(1), [slippageAmount])
   const isLowSlippage = useMemo(() => bnOrZero(slippageAmount).lt(0.05), [slippageAmount])
@@ -98,9 +121,7 @@ export const SlippagePopover = () => {
                 <Text translation='trade.slippage.maxSlippage' />
               </HelperTooltip>
             </Row.Label>
-            <Row.Value>
-              {slippageType === SlippageType.Custom ? `${slippageAmount}%` : 'Auto'}
-            </Row.Value>
+            <Row.Value>{slippageType === SlippageType.Auto && 'Auto'}</Row.Value>
           </Row>
           <Row py={2} gap={2} mt={2}>
             <Row.Value>
@@ -131,12 +152,14 @@ export const SlippagePopover = () => {
                 <InputGroup variant='filled'>
                   <Input
                     placeholder={slippageAmount}
-                    value={value}
-                    onBlur={handleOnBlur}
+                    value={
+                      slippageType === SlippageType.Auto ? slippageAmount : userSlippagePercentage
+                    }
                     type='number'
-                    _focus={{ '&[aria-invalid=true]': { borderColor: 'red.500' } }}
+                    _focus={focusStyle}
                     onChange={e => handleChange(e.target.value)}
                     ref={inputRef}
+                    isDisabled={slippageType === SlippageType.Auto}
                   />
                   <InputRightElement>%</InputRightElement>
                 </InputGroup>

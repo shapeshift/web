@@ -4,8 +4,8 @@ import type { CosmosSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper2 } from 'lib/swapper/api'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 
-import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
+import { SUPPORTED_ASSET_IDS } from './utils/constants'
 
 export const osmosisSwapper: Swapper2 = {
   executeTrade: async ({ txToSign, wallet, chainId }: ExecuteTradeArgs) => {
@@ -21,7 +21,7 @@ export const osmosisSwapper: Swapper2 = {
   },
 
   filterAssetIdsBySellable: (_assetIds: AssetId[]): Promise<AssetId[]> => {
-    return Promise.resolve(filterAssetIdsBySellable())
+    return Promise.resolve([...SUPPORTED_ASSET_IDS])
   },
 
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput): Promise<AssetId[]> => {

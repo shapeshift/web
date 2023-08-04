@@ -1,10 +1,10 @@
 import { Text as CText, useColorModeValue } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { FaBolt } from 'react-icons/fa'
+import { MdOfflineBolt } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 
 interface PriceImpactProps {
   impactPercentage: string
@@ -17,8 +17,10 @@ export const PriceImpact: FC<PriceImpactProps> = ({ impactPercentage }) => {
   return (
     <Row fontSize='sm' flex={1}>
       <Row.Label display='flex' alignItems='center' gap={1}>
-        <FaBolt color='red.500' />
         <Text translation='trade.priceImpact' />
+        <RawText as='span' fontSize='lg' color={redText}>
+          <MdOfflineBolt />
+        </RawText>
       </Row.Label>
       <Row.Value>
         <HelperTooltip

@@ -350,7 +350,7 @@ export const TradeInput = memo(() => {
                 />
               ) : null}
               {isModeratePriceImpact && (
-                <PriceImpact impactPercentage={bn(priceImpactPercentage).toFixed(2)} />
+                <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
               )}
             </Stack>
           )}

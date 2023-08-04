@@ -20,14 +20,12 @@ export const PriceImpact: FC<PriceImpactProps> = ({ impactPercentage }) => {
         <Row fontSize='sm' flex={1}>
           <Row.Value fontSize='sm'>
             <HelperTooltip
-              label={translate(
-                'A swap of this size may have a high price impact given the current liquidity in the pool. There may be a large difference between the amount of your input token and what you will receive in the output token',
-              )}
+              label={translate('trade.tooltip.priceImpact')}
               flexProps={{ flexDirection: 'row' }}
             >
               <Stack direction='row'>
                 <FaBolt color='red.500' />
-                <Text translation='Price Impact' />
+                <Text translation='trade.priceImpact' />
               </Stack>
             </HelperTooltip>
           </Row.Value>

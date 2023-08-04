@@ -411,7 +411,7 @@ export const TradeConfirm = () => {
               type='submit'
             >
               <Text
-                translation={isModeratePriceImpact ? 'Trade anyway' : 'trade.confirmAndTrade'}
+                translation={isModeratePriceImpact ? 'trade.tradeAnyway' : 'trade.confirmAndTrade'}
               />
             </Button>
           </>

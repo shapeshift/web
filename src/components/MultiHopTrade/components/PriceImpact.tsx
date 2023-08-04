@@ -1,4 +1,4 @@
-import { useColorModeValue } from '@chakra-ui/react'
+import { Text as CText, useColorModeValue } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { FaBolt } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -26,7 +26,7 @@ export const PriceImpact: FC<PriceImpactProps> = ({ impactPercentage }) => {
           flexProps={{ flexDirection: 'row' }}
           iconProps={{ color: redText }}
         >
-          <Text translation={`${impactPercentage} %`} color={redText} />
+          <CText color={redText}>{impactPercentage} %</CText>
         </HelperTooltip>
       </Row.Value>
     </Row>

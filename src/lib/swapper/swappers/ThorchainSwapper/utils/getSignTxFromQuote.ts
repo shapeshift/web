@@ -6,7 +6,7 @@ import type {
   UtxoBaseAdapter,
 } from '@shapeshiftoss/chain-adapters'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { TradeQuote, UnsignedTx } from 'lib/swapper/api'
+import type { TradeQuote, UnsignedTx2 } from 'lib/swapper/api'
 import { getCosmosTxData } from 'lib/swapper/swappers/ThorchainSwapper/cosmossdk/getCosmosTxData'
 import type { ThorEvmTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type {
@@ -41,7 +41,7 @@ export const getSignTxFromQuote = async ({
   xpub,
   supportsEIP1559,
   slippageTolerancePercentage,
-}: GetSignTxFromQuoteArgs): Promise<UnsignedTx> => {
+}: GetSignTxFromQuoteArgs): Promise<UnsignedTx2> => {
   const { recommendedSlippage } = quote
 
   const slippageTolerance = slippageTolerancePercentage ?? recommendedSlippage

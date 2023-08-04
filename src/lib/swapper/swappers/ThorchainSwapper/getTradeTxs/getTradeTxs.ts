@@ -1,15 +1,12 @@
 import { getConfig } from 'config'
-import type { TradeResult } from 'lib/swapper/api'
 import type { MidgardActionsResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 
 import { thorService } from '../utils/thorService'
 
 export const getTradeTxs = async (
-  tradeResult: TradeResult,
+  txHash: string,
 ): Promise<{ sellTxId: string; buyTxId?: string }> => {
-  const midgardTxid = tradeResult.tradeId.startsWith('0x')
-    ? tradeResult.tradeId.slice(2)
-    : tradeResult.tradeId
+  const midgardTxid = txHash.startsWith('0x') ? txHash.slice(2) : txHash
 
   const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
 
@@ -37,7 +34,7 @@ export const getTradeTxs = async (
   })().toLowerCase()
 
   return {
-    sellTxId: tradeResult.tradeId,
+    sellTxId: txHash,
     buyTxId: standardBuyTxid,
   }
 }

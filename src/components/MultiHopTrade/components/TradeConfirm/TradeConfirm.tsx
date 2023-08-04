@@ -35,7 +35,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { BigNumber, bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -60,7 +60,6 @@ import {
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,
-  selectTradeSlippagePercentage,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -126,7 +125,6 @@ export const TradeConfirm = () => {
   const defaultFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
   const netBuyAmountCryptoPrecision = useAppSelector(selectNetBuyAmountCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
-  const slippagePercentage = useAppSelector(selectTradeSlippagePercentage)
   const netBuyAmountUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
   const networkFeeCryptoHuman = useAppSelector(selectFirstHopNetworkFeeCryptoPrecision)
@@ -153,7 +151,7 @@ export const TradeConfirm = () => {
   const txHash = buyTxHash ?? sellTxHash
 
   const priceImpactPercentage = useMemo(() => {
-    if (!sellAmountBeforeFeesUserCurrency || !netBuyAmountUserCurrency) return '0'
+    if (!sellAmountBeforeFeesUserCurrency || !netBuyAmountUserCurrency) return bn(0)
 
     const tradeDifference = bn(sellAmountBeforeFeesUserCurrency)
       .minus(netBuyAmountUserCurrency)
@@ -165,15 +163,8 @@ export const TradeConfirm = () => {
   const isHighPriceImpact = useMemo(() => {
     if (!priceImpactPercentage) return false
 
-    return bn(priceImpactPercentage).gt(10)
+    return priceImpactPercentage.gt(10)
   }, [priceImpactPercentage])
-  const isHighSlippage = bn(slippageDecimal).gt(0.1)
-
-  const highestImpactPercentage = useMemo(() => {
-    if (!(isHighPriceImpact || isHighSlippage)) return null
-
-    return BigNumber.max(priceImpactPercentage, slippagePercentage).toFixed(2)
-  }, [isHighPriceImpact, isHighSlippage, priceImpactPercentage, slippagePercentage])
 
   const getSellTxLink = useCallback(
     (sellTxHash: string) =>
@@ -232,9 +223,11 @@ export const TradeConfirm = () => {
       }
 
       const shouldContinueTrade =
-        !highestImpactPercentage ||
+        !isHighPriceImpact ||
         window.confirm(
-          `Due to the size of this trade relative to available liquidity, the expected price impact of this trade is ${highestImpactPercentage}%. Are you sure you want to trade?`,
+          `Due to the size of this trade relative to available liquidity, the expected price impact of this trade is ${priceImpactPercentage.toFixed(
+            2,
+          )}%. Are you sure you want to trade?`,
         )
 
       if (!shouldContinueTrade) return
@@ -255,10 +248,11 @@ export const TradeConfirm = () => {
     eventData,
     executeTrade,
     handleBack,
-    highestImpactPercentage,
     history,
     isConnected,
+    isHighPriceImpact,
     mixpanel,
+    priceImpactPercentage,
     showErrorToast,
     wallet,
     walletDispatch,

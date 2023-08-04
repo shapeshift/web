@@ -14,6 +14,7 @@ import { isCrossAccountTradeSupported } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
+import { selectSlippagePreferencePercentageDecimal } from 'state/slices/swappersSlice/selectors'
 import {
   getHopTotalNetworkFeeFiatPrecision,
   getHopTotalProtocolFeesFiatPrecision,
@@ -228,11 +229,25 @@ export const selectLastHopNetworkFeeCryptoPrecision: Selector<ReduxState, string
       : bn(0).toFixed(),
 )
 
-export const selectSlippage = createSelector(
-  selectActiveQuote,
-  selectActiveSwapperName,
-  (activeQuote, activeSwapperName) =>
-    activeQuote?.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(activeSwapperName),
+export const selectQuoteOrDefaultSlippagePercentageDecimal: Selector<ReduxState, string> =
+  createSelector(
+    selectActiveQuote,
+    selectActiveSwapperName,
+    (activeQuote, activeSwapperName) =>
+      activeQuote?.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(activeSwapperName),
+  )
+
+export const selectQuoteOrDefaultSlippagePercentage: Selector<ReduxState, string> = createSelector(
+  selectQuoteOrDefaultSlippagePercentageDecimal,
+  slippagePercentageDecimal => bn(slippagePercentageDecimal).times(100).toString(),
+)
+
+export const selectTradeSlippagePercentageDecimal: Selector<ReduxState, string> = createSelector(
+  selectQuoteOrDefaultSlippagePercentageDecimal,
+  selectSlippagePreferencePercentageDecimal,
+  (quoteOrDefaultSlippagePercentage, slippagePreferencePercentage) => {
+    return slippagePreferencePercentage ?? quoteOrDefaultSlippagePercentage
+  },
 )
 
 const selectSellAssetUsdRate = createSelector(
@@ -328,7 +343,7 @@ export const selectNetBuyAmountCryptoPrecision = createSelector(
   selectLastHop,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectBuyAssetProtocolFeesCryptoPrecision,
-  selectSlippage,
+  selectQuoteOrDefaultSlippagePercentageDecimal,
   (lastHop, buyAmountBeforeFeesCryptoBaseUnit, buyAssetProtocolFeeCryptoBaseUnit, slippage) => {
     if (!lastHop) return
     return bnOrZero(buyAmountBeforeFeesCryptoBaseUnit)

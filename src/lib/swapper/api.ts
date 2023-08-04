@@ -86,6 +86,7 @@ type CommonTradeInput = {
   receiveAccountNumber?: number
   affiliateBps: string
   allowMultiHop: boolean
+  slippageTolerancePercentage: string
 }
 
 export type GetEvmTradeQuoteInput = CommonTradeInput & {
@@ -265,6 +266,7 @@ export type GetUnsignedTxArgs = {
   supportsEIP1559: boolean
   buyAssetUsdRate: string
   feeAssetUsdRate: string
+  slippageTolerancePercentageDecimal: string
 } & FromOrXpub
 
 // the client should never need to know anything about this payload, and since it varies from

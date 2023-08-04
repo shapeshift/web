@@ -28,6 +28,7 @@ import {
   selectFirstHopSellAsset,
   selectLastHopBuyAsset,
   selectSellAmountUsd,
+  selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
@@ -64,14 +65,24 @@ const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromAp
   return { quoteMeta, sellAssetId, buyAssetId, sellAmountUsd }
 }
 
-const isEqualExceptAffiliateBps = (
+const isEqualExceptAffiliateBpsAndSlippage = (
   a: GetTradeQuoteInput | typeof skipToken,
   b: GetTradeQuoteInput | undefined,
 ) => {
   if (!isSkipToken(a) && b) {
-    const { affiliateBps: _affiliateBps, ...aWithoutAffiliateBps } = a
-    const { affiliateBps: _updatedAffiliateBps, ...bWithoutAffiliateBps } = b
-    return isEqual(aWithoutAffiliateBps, bWithoutAffiliateBps)
+    const {
+      affiliateBps: _affiliateBps,
+      slippageTolerancePercentage: _slippageTolerancePercentage,
+      ...aWithoutAffiliateBpsAndSlippage
+    } = a
+
+    const {
+      affiliateBps: _updatedAffiliateBps,
+      slippageTolerancePercentage: _updatedSlippageTolerancePercentage,
+      ...bWithoutAffiliateBpsAndSlippage
+    } = b
+
+    return isEqual(aWithoutAffiliateBpsAndSlippage, bWithoutAffiliateBpsAndSlippage)
   }
 }
 
@@ -91,6 +102,8 @@ export const useGetTradeQuotes = () => {
 
   const sellAccountId = useAppSelector(selectSellAccountId)
   const buyAccountId = useAppSelector(selectBuyAccountId)
+
+  const slippageTolerancePercentage = useAppSelector(selectTradeSlippagePercentageDecimal)
 
   const sellAccountMetadata = useMemo(() => {
     return selectPortfolioAccountMetadataByAccountId(store.getState(), {
@@ -128,6 +141,7 @@ export const useGetTradeQuotes = () => {
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: true,
           affiliateBps: willDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0',
+          slippageTolerancePercentage,
         })
 
         // if the quote input args changed, reset the selected swapper and update the trade quote args
@@ -136,8 +150,11 @@ export const useGetTradeQuotes = () => {
             ? setTradeQuoteInput(updatedTradeQuoteInput)
             : setTradeQuoteInput(skipToken)
 
-          // If only the affiliateBps changed, we've toggled the donation checkbox - don't reset the swapper name
-          if (isEqualExceptAffiliateBps(tradeQuoteInput, updatedTradeQuoteInput)) {
+          // If only the affiliateBps or the slippageTolerancePercentage changed, we've either:
+          // - toggled the donation checkbox
+          // - switched swappers where one has a different default slippageTolerancePercentage
+          // In either case, we don't want to reset the selected swapper
+          if (isEqualExceptAffiliateBpsAndSlippage(tradeQuoteInput, updatedTradeQuoteInput)) {
             return
           } else {
             dispatch(tradeQuoteSlice.actions.resetSwapperName())
@@ -162,6 +179,7 @@ export const useGetTradeQuotes = () => {
     wallet,
     userWillDonate,
     receiveAccountMetadata?.bip44Params,
+    slippageTolerancePercentage,
   ])
 
   useEffect(() => {

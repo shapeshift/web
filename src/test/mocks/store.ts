@@ -172,6 +172,7 @@ export const mockStore: ReduxState = {
     willDonate: true,
     manualReceiveAddress: undefined,
     manualReceiveAddressIsValidating: false,
+    slippagePreferencePercentage: undefined,
   },
   tradeQuoteSlice: {
     activeSwapperName: undefined,

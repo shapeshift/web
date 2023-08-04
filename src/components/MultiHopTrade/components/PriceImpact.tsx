@@ -18,7 +18,7 @@ export const PriceImpact: FC<PriceImpactProps> = ({ impactPercentage }) => {
     <Row fontSize='sm' flex={1}>
       <Row.Label display='flex' alignItems='center' gap={1}>
         <Text translation='trade.priceImpact' />
-        <RawText as='span' fontSize='lg' color={redText}>
+        <RawText as='span' fontSize='lg' color='gray.500'>
           <MdOfflineBolt />
         </RawText>
       </Row.Label>

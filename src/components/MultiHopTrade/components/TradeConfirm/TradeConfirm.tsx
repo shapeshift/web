@@ -67,6 +67,7 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { TradeRoutePaths } from '../../types'
+import { PriceImpact } from '../PriceImpact'
 
 export const TradeConfirm = () => {
   const history = useHistory()
@@ -167,13 +168,26 @@ export const TradeConfirm = () => {
 
     return bn(priceImpactPercentage).gt(10)
   }, [priceImpactPercentage])
-  const isHighSlippage = bn(slippageDecimal).gt(0.1)
+  const isModeratePriceImpact = useMemo(() => {
+    if (!priceImpactPercentage) return false
 
-  const highestImpactPercentage = useMemo(() => {
+    return bn(priceImpactPercentage).gt(5)
+  }, [priceImpactPercentage])
+
+  const isHighSlippage = bn(slippageDecimal).gt(0.1)
+  const isModerateSlippage = bn(slippageDecimal).gt(0.05)
+
+  const highestHighImpactPercentage = useMemo(() => {
     if (!(isHighPriceImpact || isHighSlippage)) return null
 
     return BigNumber.max(priceImpactPercentage, slippagePercentage).toFixed(2)
   }, [isHighPriceImpact, isHighSlippage, priceImpactPercentage, slippagePercentage])
+
+  const highestModerateImpactPercentage = useMemo(() => {
+    if (!(isModeratePriceImpact || isModerateSlippage)) return null
+
+    return BigNumber.max(priceImpactPercentage, slippagePercentage).toFixed(2)
+  }, [isModeratePriceImpact, isModerateSlippage, priceImpactPercentage, slippagePercentage])
 
   const getSellTxLink = useCallback(
     (sellTxHash: string) =>
@@ -232,9 +246,9 @@ export const TradeConfirm = () => {
       }
 
       const shouldContinueTrade =
-        !highestImpactPercentage ||
+        !highestHighImpactPercentage ||
         window.confirm(
-          `Due to the size of this trade relative to available liquidity, the expected price impact of this trade is ${highestImpactPercentage}%. Are you sure you want to trade?`,
+          `Due to the size of this trade relative to available liquidity, the expected price impact of this trade is ${highestHighImpactPercentage}%. Are you sure you want to trade?`,
         )
 
       if (!shouldContinueTrade) return
@@ -255,7 +269,7 @@ export const TradeConfirm = () => {
     eventData,
     executeTrade,
     handleBack,
-    highestImpactPercentage,
+    highestHighImpactPercentage,
     history,
     isConnected,
     mixpanel,
@@ -402,20 +416,22 @@ export const TradeConfirm = () => {
               </Alert>
             )}
             <Button
-              colorScheme='blue'
+              colorScheme={isModeratePriceImpact ? 'red' : 'blue'}
               size='lg'
               width='full'
               mt={6}
               data-test='trade-form-confirm-and-trade-button'
               type='submit'
             >
-              <Text translation='trade.confirmAndTrade' />
+              <Text
+                translation={isModeratePriceImpact ? 'Trade anyway' : 'trade.confirmAndTrade'}
+              />
             </Button>
           </>
         )}
       </Card.Footer>
     ),
-    [isSubmitting, txHash, swapperName, translate],
+    [txHash, isSubmitting, swapperName, translate, isModeratePriceImpact],
   )
 
   if (!tradeQuoteStep) return null
@@ -455,6 +471,9 @@ export const TradeConfirm = () => {
                       </Link>
                     </Box>
                   </Row>
+                )}
+                {highestModerateImpactPercentage && (
+                  <PriceImpact impactPercentage={highestModerateImpactPercentage} />
                 )}
                 <Row>
                   <HelperTooltip label={translate('trade.tooltip.rate')}>

@@ -36,7 +36,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
@@ -58,9 +58,11 @@ import {
   selectFirstHop,
   selectNetBuyAmountUserCurrency,
   selectNetReceiveAmountCryptoPrecision,
+  selectSellAmountUserCurrency,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
+  selectTradeSlippagePercentage,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -69,6 +71,7 @@ import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
+import { PriceImpact } from '../PriceImpact'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 
@@ -104,7 +107,33 @@ export const TradeInput = memo(() => {
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
-  const slippagePercentage = useAppSelector(selectTradeSlippagePercentageDecimal)
+  const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
+  const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
+  const slippagePercentage = useAppSelector(selectTradeSlippagePercentage)
+
+  const priceImpactPercentage = useMemo(() => {
+    if (!sellAmountBeforeFeesUserCurrency || !buyAmountAfterFeesUserCurrency) return '0'
+
+    const tradeDifference = bn(sellAmountBeforeFeesUserCurrency)
+      .minus(buyAmountAfterFeesUserCurrency)
+      .abs()
+
+    return tradeDifference.div(sellAmountBeforeFeesUserCurrency).times(100).toFixed(2)
+  }, [sellAmountBeforeFeesUserCurrency, buyAmountAfterFeesUserCurrency])
+
+  const isModeratePriceImpact = useMemo(() => {
+    if (!priceImpactPercentage) return false
+
+    return bn(priceImpactPercentage).gt(5)
+  }, [priceImpactPercentage])
+
+  const isModerateSlippage = bn(slippageDecimal).gt(0.1)
+
+  const highestModerateImpactPercentage = useMemo(() => {
+    if (!(isModerateSlippage || isModeratePriceImpact)) return null
+
+    return BigNumber.max(priceImpactPercentage, slippagePercentage).toFixed(2)
+  }, [isModeratePriceImpact, isModerateSlippage, priceImpactPercentage, slippagePercentage])
 
   const hasUserEnteredAmount = useMemo(
     () => bnOrZero(sellAmountCryptoPrecision).gt(0),
@@ -307,6 +336,9 @@ export const TradeInput = memo(() => {
               {tradeQuotes}
             </TradeAssetInput>
           </Stack>
+          {hasUserEnteredAmount && highestModerateImpactPercentage && (
+            <PriceImpact impactPercentage={highestModerateImpactPercentage} />
+          )}
           {hasUserEnteredAmount && (
             <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
               <RateGasRow
@@ -317,7 +349,6 @@ export const TradeInput = memo(() => {
                 isLoading={isLoading}
                 isError={activeQuoteError !== undefined}
               />
-
               {activeQuote ? (
                 <ReceiveSummary
                   isLoading={isLoading}
@@ -326,7 +357,7 @@ export const TradeInput = memo(() => {
                   amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
                   protocolFees={totalProtocolFees}
                   shapeShiftFee='0'
-                  slippage={slippagePercentage}
+                  slippage={slippageDecimal}
                   swapperName={activeSwapperName ?? ''}
                 />
               ) : null}

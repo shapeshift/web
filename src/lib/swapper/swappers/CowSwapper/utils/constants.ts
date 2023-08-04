@@ -16,10 +16,8 @@ export const COW_SWAP_VAULT_RELAYER_ADDRESS = '0xc92e8bdf79f0507f65a392b0ab46677
 export const COW_SWAP_SETTLEMENT_ADDRESS = '0x9008D19f58AAbD9eD0D60971565AA8510560ab41'
 
 export const ORDER_KIND_SELL = 'sell'
-export const ORDER_KIND_BUY = 'buy'
 export const SIGNING_SCHEME = 'ethsign'
 export const ERC20_TOKEN_BALANCE = 'erc20'
-export const ORDER_STATUS_FULFILLED = 'fulfilled'
 
 // Address used by CowSwap to buy ETH
 // See https://github.com/gnosis/gp-v2-contracts/commit/821b5a8da213297b0f7f1d8b17c893c5627020af#diff-12bbbe13cd5cf42d639e34a39d8795021ba40d3ee1e1a8282df652eb161a11d6R13

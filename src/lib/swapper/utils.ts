@@ -1,6 +1,5 @@
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { AssertionError } from 'assert'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import type { ISetupCache } from 'axios-cache-adapter'
 import { setupCache } from 'axios-cache-adapter'
@@ -8,13 +7,6 @@ import { AsyncResultOf } from 'lib/utils'
 
 import type { SwapErrorRight, SwapperName } from './api'
 import { makeSwapErrorRight, SwapErrorType } from './api'
-
-// asserts x is type doesn't work when using arrow functions
-export function assertIsDefined<T>(val: T): asserts val is NonNullable<T> {
-  if (val === undefined || val === null) {
-    throw new AssertionError({ message: `Expected 'val' to be defined, but received ${val}` })
-  }
-}
 
 const getRequestFilter = (cachedUrls: string[]) => (request: Request) =>
   !cachedUrls.some(url => request.url.includes(url))

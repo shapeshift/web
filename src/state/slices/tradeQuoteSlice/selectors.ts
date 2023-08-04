@@ -250,6 +250,11 @@ export const selectTradeSlippagePercentageDecimal: Selector<ReduxState, string> 
   },
 )
 
+export const selectTradeSlippagePercentage: Selector<ReduxState, string> = createSelector(
+  selectTradeSlippagePercentageDecimal,
+  tradeSlippagePercentageDecimal => bn(tradeSlippagePercentageDecimal).times(100).toString(),
+)
+
 const selectSellAssetUsdRate = createSelector(
   selectFirstHopSellAsset,
   selectCryptoMarketData,

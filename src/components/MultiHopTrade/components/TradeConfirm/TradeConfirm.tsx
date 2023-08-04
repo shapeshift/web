@@ -225,9 +225,9 @@ export const TradeConfirm = () => {
       const shouldContinueTrade =
         !isHighPriceImpact ||
         window.confirm(
-          `Due to the size of this trade relative to available liquidity, the expected price impact of this trade is ${priceImpactPercentage.toFixed(
-            2,
-          )}%. Are you sure you want to trade?`,
+          translate('trade.priceImpactWarning', {
+            priceImpactWarning: priceImpactPercentage.toFixed(2),
+          }),
         )
 
       if (!shouldContinueTrade) return
@@ -254,6 +254,7 @@ export const TradeConfirm = () => {
     mixpanel,
     priceImpactPercentage,
     showErrorToast,
+    translate,
     wallet,
     walletDispatch,
   ])

@@ -1,13 +1,13 @@
 import { CHAIN_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
-import type { osmosis, SignTxInput } from '@shapeshiftoss/chain-adapters'
+import type { osmosis } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { CosmosSignTx, HDWallet, Osmosis, OsmosisSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { CosmosSignTx, Osmosis } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { find } from 'lodash'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { SwapErrorRight, TradeResult } from 'lib/swapper/api'
+import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import { osmoService } from 'lib/swapper/swappers/OsmosisSwapper/utils/osmoService'
 import type {
@@ -205,22 +205,6 @@ export const buildPerformIbcTransferUnsignedTx = async ({
   }
 }
 
-export const performIbcTransfer = async (
-  ibcTransferInput: PerformIbcTransferInput & { wallet: HDWallet },
-): Promise<TradeResult> => {
-  const { adapter, wallet } = ibcTransferInput
-  const txToSign = await buildPerformIbcTransferUnsignedTx(ibcTransferInput)
-  const signed = await adapter.signTransaction({
-    txToSign,
-    wallet,
-  })
-  const tradeId = await adapter.broadcastTransaction(signed)
-
-  return {
-    tradeId,
-  }
-}
-
 type BuildTradeTxInput = {
   osmoAddress: string
   adapter: osmosis.ChainAdapter
@@ -292,15 +276,6 @@ export const buildSwapExactAmountInTx = async ({
     account_number,
     sequence,
   }
-}
-
-export const buildTradeTx = async (
-  input: BuildTradeTxInput & { wallet: HDWallet },
-): Promise<SignTxInput<OsmosisSignTx>> => {
-  const { wallet } = input
-  const txToSign = await buildSwapExactAmountInTx(input)
-
-  return { txToSign, wallet }
 }
 
 export const getMinimumCryptoHuman = (sellAssetUsdRate: string): string => {

@@ -1,7 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import type { avalanche, ethereum, SignTx } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import type { Trade } from 'lib/swapper/api'
 
 export type ThornodePoolResponse = {
   LP_units: string
@@ -77,26 +74,6 @@ export type InboundAddressResponse = {
   outbound_fee: string
 }
 
-export interface UtxoThorTrade<C extends ChainId> extends Trade<C> {
-  chainId: ThorUtxoSupportedChainId
-  txData: SignTx<ThorUtxoSupportedChainId>
-}
-
-export interface EvmThorTrade<C extends ChainId> extends Trade<C> {
-  chainId: ThorEvmSupportedChainId
-  txData: SignTx<ThorEvmSupportedChainId>
-}
-
-export interface CosmosSdkThorTrade<C extends ChainId> extends Trade<C> {
-  chainId: ThorCosmosSdkSupportedChainId
-  txData: SignTx<ThorCosmosSdkSupportedChainId>
-}
-
-export type ThorTrade<C extends ChainId> =
-  | UtxoThorTrade<C>
-  | EvmThorTrade<C>
-  | CosmosSdkThorTrade<C>
-
 export type Rates = {
   sellAssetUsdRate: string
   buyAssetUsdRate: string
@@ -110,8 +87,6 @@ export type ThorUtxoSupportedChainId =
   | KnownChainIds.BitcoinCashMainnet
 
 export type ThorEvmSupportedChainId = KnownChainIds.EthereumMainnet | KnownChainIds.AvalancheMainnet
-
-export type ThorEvmSupportedChainAdapter = ethereum.ChainAdapter | avalanche.ChainAdapter
 
 export type ThorCosmosSdkSupportedChainId =
   | KnownChainIds.ThorchainMainnet

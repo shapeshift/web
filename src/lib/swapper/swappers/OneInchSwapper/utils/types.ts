@@ -1,14 +1,4 @@
-import type {
-  avalanche,
-  bnbsmartchain,
-  ethereum,
-  EvmChainId,
-  gnosis,
-  optimism,
-} from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { Trade } from 'lib/swapper/api'
 
 export const oneInchSupportedChainIds = [
   KnownChainIds.EthereumMainnet,
@@ -19,13 +9,6 @@ export const oneInchSupportedChainIds = [
 ] as const
 
 export type OneInchSupportedChainId = typeof oneInchSupportedChainIds[number]
-
-export type OneInchSupportedChainAdapter =
-  | ethereum.ChainAdapter
-  | bnbsmartchain.ChainAdapter
-  | optimism.ChainAdapter
-  | avalanche.ChainAdapter
-  | gnosis.ChainAdapter
 
 export type OneInchQuoteApiInput = {
   fromTokenAddress: string
@@ -42,15 +25,6 @@ export type OneInchSwapApiInput = OneInchQuoteApiInput & {
   allowPartialFill: boolean
   disableEstimate: boolean
   fee: number // fee as a percentage, e.g. to set a fee to 1.5%: fee=1.5, paid to the referrerAddress
-}
-
-export type OneInchAllowanceApiInput = {
-  tokenAddress: string
-  walletAddress: string
-}
-
-export type OneInchAllowanceResponse = {
-  allowance: string
 }
 
 export type OneInchSpenderResponse = {
@@ -80,10 +54,6 @@ export type OneInchBaseResponse = {
   fromTokenAmount: string
 }
 
-export type OneInchSwapperDeps = {
-  apiUrl: string
-}
-
 export type EvmTransaction = {
   from: string
   to: string
@@ -91,13 +61,4 @@ export type EvmTransaction = {
   value: string
   gasPrice: string
   gas: string
-}
-
-export interface OneInchTrade<T extends EvmChainId> extends Trade<T> {
-  tx: EvmTransaction
-}
-
-export type OneInchExecuteTradeInput<T extends EvmChainId> = {
-  trade: OneInchTrade<T>
-  wallet: HDWallet
 }

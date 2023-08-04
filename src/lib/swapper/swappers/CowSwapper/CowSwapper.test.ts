@@ -15,14 +15,6 @@ jest.mock('./getCowSwapTradeQuote/getCowSwapTradeQuote', () => ({
   getCowSwapTradeQuote: jest.fn(),
 }))
 
-jest.mock('./cowExecuteTrade/cowExecuteTrade', () => ({
-  cowExecuteTrade: jest.fn(),
-}))
-
-jest.mock('./cowGetTradeTxs/cowGetTradeTxs', () => ({
-  cowGetTradeTxs: jest.fn(),
-}))
-
 jest.mock('state/slices/assetsSlice/selectors', () => {
   const {
     BTC,

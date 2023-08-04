@@ -4,7 +4,6 @@ import type { AxiosStatic } from 'axios'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { DEFAULT_SOURCE } from '../utils/constants'
 import { oneInchService } from '../utils/oneInchService'
-import type { OneInchSwapperDeps } from '../utils/types'
 import { getTradeQuote } from './getTradeQuote'
 
 jest.mock('../utils/oneInchService', () => {
@@ -31,11 +30,9 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
 }))
 
 describe('getTradeQuote', () => {
-  const deps: OneInchSwapperDeps = {
-    apiUrl: 'https://api.1inch.io/v5.0',
-  }
-  const quoteURL = `${deps.apiUrl}/1/quote`
-  const approvalURL = `${deps.apiUrl}/1/approve/spender`
+  const apiUrl = 'https://api.1inch.io/v5.0'
+  const quoteURL = `${apiUrl}/1/quote`
+  const approvalURL = `${apiUrl}/1/approve/spender`
 
   it('returns the correct quote', async () => {
     ;(oneInchService.get as jest.Mock<unknown>).mockImplementation(async url => {

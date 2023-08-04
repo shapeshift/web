@@ -1,4 +1,4 @@
-import { Stack, useColorModeValue } from '@chakra-ui/react'
+import { useColorModeValue } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { FaBolt } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -12,30 +12,23 @@ interface PriceImpactProps {
 
 export const PriceImpact: FC<PriceImpactProps> = ({ impactPercentage }) => {
   const translate = useTranslate()
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const redText = useColorModeValue('red.500', 'red.400')
 
   return (
-    <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
-      <Stack direction='row' fontWeight='medium'>
-        <Row fontSize='sm' flex={1}>
-          <Row.Value fontSize='sm'>
-            <HelperTooltip
-              label={translate('trade.tooltip.priceImpact')}
-              flexProps={{ flexDirection: 'row' }}
-            >
-              <Stack direction='row'>
-                <FaBolt color='red.500' />
-                <Text translation='trade.priceImpact' />
-              </Stack>
-            </HelperTooltip>
-          </Row.Value>
-        </Row>
-        <Row justifyContent='flex-end' alignItems='center' width='auto' columnGap={2}>
-          <Row.Value>
-            <Text translation={`${impactPercentage} %`} color='red.500' />
-          </Row.Value>
-        </Row>
-      </Stack>
-    </Stack>
+    <Row fontSize='sm' flex={1}>
+      <Row.Label display='flex' alignItems='center' gap={1}>
+        <FaBolt color='red.500' />
+        <Text translation='trade.priceImpact' />
+      </Row.Label>
+      <Row.Value>
+        <HelperTooltip
+          label={translate('trade.tooltip.priceImpact')}
+          flexProps={{ flexDirection: 'row' }}
+          iconProps={{ color: redText }}
+        >
+          <Text translation={`${impactPercentage} %`} color={redText} />
+        </HelperTooltip>
+      </Row.Value>
+    </Row>
   )
 }

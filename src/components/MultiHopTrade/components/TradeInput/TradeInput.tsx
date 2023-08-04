@@ -336,9 +336,6 @@ export const TradeInput = memo(() => {
               {tradeQuotes}
             </TradeAssetInput>
           </Stack>
-          {hasUserEnteredAmount && highestModerateImpactPercentage && (
-            <PriceImpact impactPercentage={highestModerateImpactPercentage} />
-          )}
           {hasUserEnteredAmount && (
             <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
               <RateGasRow
@@ -349,6 +346,7 @@ export const TradeInput = memo(() => {
                 isLoading={isLoading}
                 isError={activeQuoteError !== undefined}
               />
+
               {activeQuote ? (
                 <ReceiveSummary
                   isLoading={isLoading}
@@ -361,12 +359,13 @@ export const TradeInput = memo(() => {
                   swapperName={activeSwapperName ?? ''}
                 />
               ) : null}
+              {highestModerateImpactPercentage && (
+                <PriceImpact impactPercentage={highestModerateImpactPercentage} />
+              )}
             </Stack>
           )}
-          <Stack px={4}>
-            {hasUserEnteredAmount && <DonationCheckbox isLoading={isLoading} />}
-            <ManualAddressEntry />
-          </Stack>
+          {hasUserEnteredAmount && <DonationCheckbox isLoading={isLoading} />}
+          <ManualAddressEntry />
           <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
             <Button
               type='submit'

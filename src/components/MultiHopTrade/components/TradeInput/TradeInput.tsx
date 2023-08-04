@@ -36,7 +36,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { BigNumber, bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
@@ -62,7 +62,6 @@ import {
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
-  selectTradeSlippagePercentage,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -109,16 +108,15 @@ export const TradeInput = memo(() => {
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
-  const slippagePercentage = useAppSelector(selectTradeSlippagePercentage)
 
   const priceImpactPercentage = useMemo(() => {
-    if (!sellAmountBeforeFeesUserCurrency || !buyAmountAfterFeesUserCurrency) return '0'
+    if (!sellAmountBeforeFeesUserCurrency || !buyAmountAfterFeesUserCurrency) return bn('0')
 
     const tradeDifference = bn(sellAmountBeforeFeesUserCurrency)
       .minus(buyAmountAfterFeesUserCurrency)
       .abs()
 
-    return tradeDifference.div(sellAmountBeforeFeesUserCurrency).times(100).toFixed(2)
+    return tradeDifference.div(sellAmountBeforeFeesUserCurrency).times(100)
   }, [sellAmountBeforeFeesUserCurrency, buyAmountAfterFeesUserCurrency])
 
   const isModeratePriceImpact = useMemo(() => {
@@ -126,14 +124,6 @@ export const TradeInput = memo(() => {
 
     return bn(priceImpactPercentage).gt(5)
   }, [priceImpactPercentage])
-
-  const isModerateSlippage = bn(slippageDecimal).gt(0.1)
-
-  const highestModerateImpactPercentage = useMemo(() => {
-    if (!(isModerateSlippage || isModeratePriceImpact)) return null
-
-    return BigNumber.max(priceImpactPercentage, slippagePercentage).toFixed(2)
-  }, [isModeratePriceImpact, isModerateSlippage, priceImpactPercentage, slippagePercentage])
 
   const hasUserEnteredAmount = useMemo(
     () => bnOrZero(sellAmountCryptoPrecision).gt(0),
@@ -359,8 +349,8 @@ export const TradeInput = memo(() => {
                   swapperName={activeSwapperName ?? ''}
                 />
               ) : null}
-              {highestModerateImpactPercentage && (
-                <PriceImpact impactPercentage={highestModerateImpactPercentage} />
+              {isModeratePriceImpact && (
+                <PriceImpact impactPercentage={bn(priceImpactPercentage).toFixed(2)} />
               )}
             </Stack>
           )}

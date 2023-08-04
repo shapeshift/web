@@ -226,7 +226,7 @@ export const TradeConfirm = () => {
         !isHighPriceImpact ||
         window.confirm(
           translate('trade.priceImpactWarning', {
-            priceImpactWarning: priceImpactPercentage.toFixed(2),
+            priceImpactPercentage: priceImpactPercentage.toFixed(2),
           }),
         )
 

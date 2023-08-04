@@ -12,6 +12,7 @@ import { Flags } from 'pages/Flags/Flags'
 import { PrivacyPolicy } from 'pages/Legal/PrivacyPolicy'
 import { TermsOfService } from 'pages/Legal/TermsOfService'
 import { NotFound } from 'pages/NotFound/NotFound'
+import { Yat } from 'pages/Yat/Yat'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -95,7 +96,9 @@ export const Routes = memo(() => {
   return (
     <Switch location={locationProps}>
       <Route path='/demo'>{renderRedirect}</Route>
-
+      <Route path='/yat/:eid'>
+        <Yat />
+      </Route>
       <Route path='/connect-wallet'>
         <ConnectWallet />
       </Route>

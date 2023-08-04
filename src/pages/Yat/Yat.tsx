@@ -117,9 +117,9 @@ export const Yat: React.FC = () => {
             <Row.Label>{translate('features.yat.usdcAddress')}</Row.Label>
             <Row.Value wordBreak='break-all'>
               {maybeYatUsdcAddress === null
-                ? 'Loading...'
+                ? translate('common.loadingText')
                 : maybeYatUsdcAddress === ''
-                ? 'No USDC Address Found'
+                ? translate('features.yat.noAddressFound', { symbol: 'USDC' })
                 : maybeYatUsdcAddress}
             </Row.Value>
           </Row>
@@ -127,22 +127,16 @@ export const Yat: React.FC = () => {
             <Row.Label>{translate('features.yat.ethAddress')}</Row.Label>
             <Row.Value wordBreak='break-all'>
               {maybeYatEthAddress === null
-                ? 'Loading...'
+                ? translate('common.loadingText')
                 : maybeYatEthAddress === ''
-                ? 'No ETH Address Found'
+                ? translate('features.yat.noAddressFound', { symbol: 'ETH' })
                 : maybeYatEthAddress}
             </Row.Value>
           </Row>
         </Summary>
         {showMobileHandler ? (
-          <Button
-            as='a'
-            href={'shapeshift://yat/%F0%9F%A6%8A%F0%9F%9A%80%F0%9F%8C%88'}
-            colorScheme='blue'
-            size='lg'
-            mt={6}
-          >
-            View in ShapeShift mobile app
+          <Button as='a' href={`shapeshift://yat/${eid}`} colorScheme='blue' size='lg' mt={6}>
+            {translate('features.yat.viewInApp')}
           </Button>
         ) : (
           <Button as={NavLink} to='/dashboard' colorScheme='blue' size='lg' mt={6}>

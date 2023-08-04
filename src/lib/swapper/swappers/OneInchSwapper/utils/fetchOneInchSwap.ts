@@ -14,9 +14,6 @@ export type FetchOneInchSwapInput = {
   receiveAddress: string
   sellAmountBeforeFeesCryptoBaseUnit: string
   sellAsset: Asset
-  // The maximum acceptable slippage percentage for the swap (e.g., 1 for 1%)
-  // Note, we internally represent slippage as a decimal across the app (e.g., 0.01 for 1%)
-  // so we need to multiply it by 100 when calling 1inch swap endpoint
   maximumSlippageDecimalPercentage: string
 }
 
@@ -30,6 +27,9 @@ export const fetchOneInchSwap = async ({
 }: FetchOneInchSwapInput) => {
   const apiUrl = getConfig().REACT_APP_ONE_INCH_API_URL
 
+  // The maximum acceptable slippage percentage for the swap (e.g., 1 for 1%)
+  // Note, we internally represent slippage as a decimal across the app (e.g., 0.01 for 1%)
+  // so we need to multiply it by 100 when calling 1inch swap endpoint
   const maximumSlippagePercentage = bnOrZero(maximumSlippageDecimalPercentage).times(100).toNumber()
 
   const buyTokenPercentageFee = affiliateBps

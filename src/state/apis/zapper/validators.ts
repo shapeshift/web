@@ -35,6 +35,7 @@ export enum SupportedZapperNetwork {
 
 export enum SupportedZapperNetworkIncludeUnsupported {
   Avalanche = 'avalanche',
+  Base = 'base',
   BinanceSmartChain = 'binance-smart-chain',
   Ethereum = 'ethereum',
   Optimism = 'optimism',

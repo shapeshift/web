@@ -41,6 +41,10 @@ export class AssetService {
     return this.assets
   }
 
+  get allIds(): AssetId[] {
+    return Object.keys(this.assets)
+  }
+
   async description(assetId: AssetId, locale = 'en'): Promise<DescriptionData> {
     const localeDescriptions = descriptions[locale]
     // Return overridden asset description if it exists and add isTrusted for description links

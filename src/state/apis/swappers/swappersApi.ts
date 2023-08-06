@@ -2,12 +2,10 @@ import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import orderBy from 'lodash/orderBy'
 import type { GetTradeQuoteInput } from 'lib/swapper/api'
-import { SwapperName } from 'lib/swapper/api'
 import { getTradeQuotes } from 'lib/swapper/swapper'
-import { isTruthy } from 'lib/utils'
+import { getEnabledSwappers } from 'lib/swapper/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote } from 'state/apis/swappers/types'
-import { isCrossAccountTradeSupported } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets, selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
@@ -49,23 +47,8 @@ export const swappersApi = createApi({
         const state = getState() as ReduxState
         const { sendAddress, receiveAddress } = getTradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
-        const { OsmosisSwap, LifiSwap, ThorSwap, ZrxSwap, OneInch, Cowswap }: FeatureFlags =
-          selectFeatureFlags(state)
-
-        const enabledSwappers: SwapperName[] = [
-          OsmosisSwap && SwapperName.Osmosis,
-          LifiSwap && SwapperName.LIFI,
-          ThorSwap && SwapperName.Thorchain,
-          ZrxSwap && SwapperName.Zrx,
-          OneInch && SwapperName.OneInch,
-          Cowswap && SwapperName.CowSwap,
-        ]
-          .filter(isTruthy)
-          .filter(swapperName => {
-            const swapperSupportsCrossAccountTrade = isCrossAccountTradeSupported(swapperName)
-            return !isCrossAccountTrade || swapperSupportsCrossAccountTrade
-          })
-
+        const featureFlags: FeatureFlags = selectFeatureFlags(state)
+        const enabledSwappers = getEnabledSwappers(featureFlags, isCrossAccountTrade)
         const deps = getDependencies(state, getTradeQuoteInput)
 
         const quotes = await getTradeQuotes(getTradeQuoteInput, enabledSwappers, deps)

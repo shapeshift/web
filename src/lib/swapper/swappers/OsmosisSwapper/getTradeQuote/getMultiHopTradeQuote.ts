@@ -12,11 +12,7 @@ import type {
   TradeQuote,
   TradeQuoteStep,
 } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import {
-  getMinimumCryptoHuman,
-  getRateInfo,
-} from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
+import { getRateInfo } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 import type { OsmosisSupportedChainId } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 
@@ -24,37 +20,25 @@ import { DEFAULT_SOURCE } from '../utils/constants'
 
 export const getTradeQuote = async (
   input: GetTradeQuoteInput,
-  { sellAssetUsdRate }: { sellAssetUsdRate: string },
 ): Promise<Result<TradeQuote, SwapErrorRight>> => {
   const {
     // TODO(gomes): very very dangerous. We currently use account number both on the sending and receiving side and this will break cross-account.
     accountNumber,
     sellAsset,
     buyAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
-  if (!sellAmountCryptoBaseUnit) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'sellAmount is required',
-        code: SwapErrorType.RESPONSE_ERROR,
-      }),
-    )
-  }
-
   const { REACT_APP_OSMOSIS_NODE_URL: osmoUrl } = getConfig()
 
   const maybeRateInfo = await getRateInfo(
     sellAsset.symbol,
     buyAsset.symbol,
-    sellAmountCryptoBaseUnit,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
     osmoUrl,
   )
 
   if (maybeRateInfo.isErr()) return Err(maybeRateInfo.unwrapErr())
   const { buyAssetTradeFeeCryptoBaseUnit, rate, buyAmountCryptoBaseUnit } = maybeRateInfo.unwrap()
-
-  const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetUsdRate)
 
   const buyAssetIsOnOsmosisNetwork = buyAsset.chainId === osmosisChainId
   const sellAssetIsOnOsmosisNetwork = sellAsset.chainId === osmosisChainId
@@ -147,10 +131,10 @@ export const getTradeQuote = async (
     accountNumber,
     rate,
     sellAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
     buyAmountBeforeFeesCryptoBaseUnit: sellAssetIsOnOsmosisNetwork
       ? buyAmountCryptoBaseUnit // OSMO -> ATOM, the ATOM on OSMO before fees is the same as the ATOM buy amount intent
-      : sellAmountCryptoBaseUnit, // ATOM -> ATOM, the ATOM on OSMO before fees is the same as the sold ATOM amount
+      : sellAmountIncludingProtocolFeesCryptoBaseUnit, // ATOM -> ATOM, the ATOM on OSMO before fees is the same as the sold ATOM amount
     sources: DEFAULT_SOURCE,
   }
 
@@ -179,7 +163,7 @@ export const getTradeQuote = async (
 
   return Ok({
     rate,
-    minimumCryptoHuman,
+    minimumCryptoHuman: '0',
     steps: [firstStep, secondStep],
   })
 }

@@ -1,4 +1,3 @@
-import { getSwapperBySwapperName } from 'components/MultiHopTrade/helpers'
 import {
   BTC,
   ETH,
@@ -9,7 +8,7 @@ import {
   XDAI,
 } from 'lib/swapper/swappers/utils/test-data/assets'
 
-import { SwapperName } from '../../api'
+import { cowSwapper } from './CowSwapper2'
 
 jest.mock('./getCowSwapTradeQuote/getCowSwapTradeQuote', () => ({
   getCowSwapTradeQuote: jest.fn(),
@@ -50,15 +49,13 @@ const ASSET_IDS = [
 ]
 
 describe('CowSwapper', () => {
-  const swapper = getSwapperBySwapperName(SwapperName.CowSwap)
-
   describe('filterAssetIdsBySellable', () => {
     it('returns empty array when called with an empty array', async () => {
-      expect(await swapper.filterAssetIdsBySellable([])).toEqual([])
+      expect(await cowSwapper.filterAssetIdsBySellable([])).toEqual([])
     })
 
     it('returns array filtered out of non erc20 tokens', async () => {
-      expect(await swapper.filterAssetIdsBySellable(ASSET_IDS)).toEqual([
+      expect(await cowSwapper.filterAssetIdsBySellable(ASSET_IDS)).toEqual([
         WBTC.assetId,
         WETH.assetId,
         FOX_MAINNET.assetId,
@@ -72,7 +69,7 @@ describe('CowSwapper', () => {
         'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
       ]
 
-      expect(await swapper.filterAssetIdsBySellable(assetIds)).toEqual([
+      expect(await cowSwapper.filterAssetIdsBySellable(assetIds)).toEqual([
         FOX_MAINNET.assetId,
         FOX_GNOSIS.assetId,
       ])
@@ -82,7 +79,7 @@ describe('CowSwapper', () => {
   describe('filterBuyAssetsBySellAssetId', () => {
     it('returns empty array when called with an empty assetIds array', async () => {
       expect(
-        await swapper.filterBuyAssetsBySellAssetId({
+        await cowSwapper.filterBuyAssetsBySellAssetId({
           nonNftAssetIds: [],
           sellAssetId: WETH.assetId,
         }),
@@ -91,13 +88,13 @@ describe('CowSwapper', () => {
 
     it('returns empty array when called with sellAssetId that is not sellable', async () => {
       expect(
-        await swapper.filterBuyAssetsBySellAssetId({
+        await cowSwapper.filterBuyAssetsBySellAssetId({
           nonNftAssetIds: ASSET_IDS,
           sellAssetId: ETH.assetId,
         }),
       ).toEqual([])
       expect(
-        await swapper.filterBuyAssetsBySellAssetId({
+        await cowSwapper.filterBuyAssetsBySellAssetId({
           nonNftAssetIds: ASSET_IDS,
           sellAssetId: 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
         }),
@@ -106,19 +103,19 @@ describe('CowSwapper', () => {
 
     it('returns array filtered out of non erc20 tokens when called with a sellable sellAssetId', async () => {
       expect(
-        await swapper.filterBuyAssetsBySellAssetId({
+        await cowSwapper.filterBuyAssetsBySellAssetId({
           nonNftAssetIds: ASSET_IDS,
           sellAssetId: WETH.assetId,
         }),
       ).toEqual([ETH.assetId, WBTC.assetId, FOX_MAINNET.assetId])
       expect(
-        await swapper.filterBuyAssetsBySellAssetId({
+        await cowSwapper.filterBuyAssetsBySellAssetId({
           nonNftAssetIds: ASSET_IDS,
           sellAssetId: WBTC.assetId,
         }),
       ).toEqual([ETH.assetId, WETH.assetId, FOX_MAINNET.assetId])
       expect(
-        await swapper.filterBuyAssetsBySellAssetId({
+        await cowSwapper.filterBuyAssetsBySellAssetId({
           nonNftAssetIds: ASSET_IDS,
           sellAssetId: FOX_MAINNET.assetId,
         }),
@@ -131,13 +128,13 @@ describe('CowSwapper', () => {
         'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
       ]
       expect(
-        await swapper.filterBuyAssetsBySellAssetId({
+        await cowSwapper.filterBuyAssetsBySellAssetId({
           nonNftAssetIds,
           sellAssetId: WETH.assetId,
         }),
       ).toEqual([FOX_MAINNET.assetId])
       expect(
-        await swapper.filterBuyAssetsBySellAssetId({
+        await cowSwapper.filterBuyAssetsBySellAssetId({
           nonNftAssetIds,
           sellAssetId: FOX_MAINNET.assetId,
         }),

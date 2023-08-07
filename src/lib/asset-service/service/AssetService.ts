@@ -31,14 +31,18 @@ export type Asset = {
 export type AssetsById = Record<AssetId, Asset>
 
 export class AssetService {
-  readonly assets: AssetsById
+  readonly assetsById: AssetsById
 
   constructor() {
-    this.assets = localAssetData as AssetsById
+    this.assetsById = localAssetData as AssetsById
   }
 
   get assetIds(): AssetId[] {
-    return Object.keys(this.assets)
+    return Object.keys(this.assetsById)
+  }
+
+  get assets(): Asset[] {
+    return Object.values(this.assetsById)
   }
 
   async description(assetId: AssetId, locale = 'en'): Promise<DescriptionData> {

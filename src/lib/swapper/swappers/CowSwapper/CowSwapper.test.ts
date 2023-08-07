@@ -39,14 +39,7 @@ jest.mock('state/slices/assetsSlice/selectors', () => {
   }
 })
 
-const ASSET_IDS = [
-  ETH.assetId,
-  WBTC.assetId,
-  WETH.assetId,
-  BTC.assetId,
-  FOX_MAINNET.assetId,
-  XDAI.assetId,
-]
+const ASSETS = [ETH, WBTC, WETH, BTC, FOX_MAINNET, XDAI]
 
 describe('CowSwapper', () => {
   describe('filterAssetIdsBySellable', () => {
@@ -55,7 +48,7 @@ describe('CowSwapper', () => {
     })
 
     it('returns array filtered out of non erc20 tokens', async () => {
-      expect(await cowSwapper.filterAssetIdsBySellable(ASSET_IDS)).toEqual([
+      expect(await cowSwapper.filterAssetIdsBySellable(ASSETS)).toEqual([
         WBTC.assetId,
         WETH.assetId,
         FOX_MAINNET.assetId,
@@ -63,11 +56,7 @@ describe('CowSwapper', () => {
     })
 
     it('returns array filtered out of unsupported tokens', async () => {
-      const assetIds = [
-        FOX_MAINNET.assetId,
-        FOX_GNOSIS.assetId,
-        'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
-      ]
+      const assetIds = [FOX_MAINNET, FOX_GNOSIS, BTC]
 
       expect(await cowSwapper.filterAssetIdsBySellable(assetIds)).toEqual([
         FOX_MAINNET.assetId,
@@ -80,8 +69,8 @@ describe('CowSwapper', () => {
     it('returns empty array when called with an empty assetIds array', async () => {
       expect(
         await cowSwapper.filterBuyAssetsBySellAssetId({
-          nonNftAssetIds: [],
-          sellAssetId: WETH.assetId,
+          assets: [],
+          sellAsset: WETH,
         }),
       ).toEqual([])
     })
@@ -89,14 +78,14 @@ describe('CowSwapper', () => {
     it('returns empty array when called with sellAssetId that is not sellable', async () => {
       expect(
         await cowSwapper.filterBuyAssetsBySellAssetId({
-          nonNftAssetIds: ASSET_IDS,
-          sellAssetId: ETH.assetId,
+          assets: ASSETS,
+          sellAsset: ETH,
         }),
       ).toEqual([])
       expect(
         await cowSwapper.filterBuyAssetsBySellAssetId({
-          nonNftAssetIds: ASSET_IDS,
-          sellAssetId: 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
+          assets: ASSETS,
+          sellAsset: BTC,
         }),
       ).toEqual([])
     })
@@ -104,39 +93,36 @@ describe('CowSwapper', () => {
     it('returns array filtered out of non erc20 tokens when called with a sellable sellAssetId', async () => {
       expect(
         await cowSwapper.filterBuyAssetsBySellAssetId({
-          nonNftAssetIds: ASSET_IDS,
-          sellAssetId: WETH.assetId,
+          assets: ASSETS,
+          sellAsset: WETH,
         }),
       ).toEqual([ETH.assetId, WBTC.assetId, FOX_MAINNET.assetId])
       expect(
         await cowSwapper.filterBuyAssetsBySellAssetId({
-          nonNftAssetIds: ASSET_IDS,
-          sellAssetId: WBTC.assetId,
+          assets: ASSETS,
+          sellAsset: WBTC,
         }),
       ).toEqual([ETH.assetId, WETH.assetId, FOX_MAINNET.assetId])
       expect(
         await cowSwapper.filterBuyAssetsBySellAssetId({
-          nonNftAssetIds: ASSET_IDS,
-          sellAssetId: FOX_MAINNET.assetId,
+          assets: ASSETS,
+          sellAsset: FOX_MAINNET,
         }),
       ).toEqual([ETH.assetId, WBTC.assetId, WETH.assetId])
     })
 
     it('returns array filtered out of unsupported tokens when called with a sellable sellAssetId', async () => {
-      const nonNftAssetIds = [
-        FOX_MAINNET.assetId,
-        'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
-      ]
+      const assets = [FOX_MAINNET, BTC]
       expect(
         await cowSwapper.filterBuyAssetsBySellAssetId({
-          nonNftAssetIds,
-          sellAssetId: WETH.assetId,
+          assets,
+          sellAsset: WETH,
         }),
       ).toEqual([FOX_MAINNET.assetId])
       expect(
         await cowSwapper.filterBuyAssetsBySellAssetId({
-          nonNftAssetIds,
-          sellAssetId: FOX_MAINNET.assetId,
+          assets,
+          sellAsset: FOX_MAINNET,
         }),
       ).toEqual([])
     })

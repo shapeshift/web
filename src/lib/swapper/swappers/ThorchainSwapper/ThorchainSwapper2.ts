@@ -76,8 +76,10 @@ export const thorchainSwapper: Swapper2 = {
     return supportedSellAssetIds
   },
 
-  filterBuyAssetsBySellAssetId: async (input: BuyAssetBySellIdInput): Promise<AssetId[]> => {
-    const { nonNftAssetIds, sellAssetId } = input
+  filterBuyAssetsBySellAssetId: async ({
+    assets,
+    sellAsset,
+  }: BuyAssetBySellIdInput): Promise<AssetId[]> => {
     let supportedSellAssetIds: AssetId[] = [thorchainAssetId]
     let supportedBuyAssetIds: AssetId[] = [thorchainAssetId]
     const poolResponse = await thorService.get<ThornodePoolResponse[]>(
@@ -96,9 +98,12 @@ export const thorchainSwapper: Swapper2 = {
         buySupportedChainIds[chainId] && supportedBuyAssetIds.push(assetId)
       })
     }
-    if (!supportedSellAssetIds.includes(sellAssetId)) return []
-    return nonNftAssetIds.filter(
-      assetId => supportedBuyAssetIds.includes(assetId) && assetId !== sellAssetId,
-    )
+    if (!supportedSellAssetIds.includes(sellAsset.assetId)) return []
+    return assets
+      .filter(
+        asset =>
+          supportedBuyAssetIds.includes(asset.assetId) && asset.assetId !== sellAsset.assetId,
+      )
+      .map(asset => asset.assetId)
   },
 }

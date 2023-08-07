@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from 'lib/asset-service'
 import { AssetService } from 'lib/asset-service'
 import { isFulfilled as isFulfilledPredicate, timeout } from 'lib/utils'
 
@@ -45,24 +45,21 @@ export const getTradeQuotes = async (
 }
 
 export const getSupportedSellAssets = async (enabledSwappers: SwapperName[]) => {
-  const assetIds = new AssetService().assetIds
+  const { assets } = new AssetService()
   const supportedAssetIds = await Promise.all(
     swappers
       .filter(({ swapperName }) => enabledSwappers.includes(swapperName))
-      .map(({ swapper }) => swapper.filterAssetIdsBySellable(assetIds)),
+      .map(({ swapper }) => swapper.filterAssetIdsBySellable(assets)),
   )
   return new Set(supportedAssetIds.flat())
 }
 
-export const getSupportedBuyAssets = async (
-  enabledSwappers: SwapperName[],
-  sellAssetId: AssetId,
-) => {
-  const nonNftAssetIds = new AssetService().assetIds
+export const getSupportedBuyAssets = async (enabledSwappers: SwapperName[], sellAsset: Asset) => {
+  const { assets } = new AssetService()
   const supportedAssetIds = await Promise.all(
     swappers
       .filter(({ swapperName }) => enabledSwappers.includes(swapperName))
-      .map(({ swapper }) => swapper.filterBuyAssetsBySellAssetId({ nonNftAssetIds, sellAssetId })),
+      .map(({ swapper }) => swapper.filterBuyAssetsBySellAssetId({ assets, sellAsset })),
   )
   return new Set(supportedAssetIds.flat())
 }

@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId, optimismChainId } from '@shapeshiftoss/caip'
+import { optimismChainId } from '@shapeshiftoss/caip'
 import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { Asset } from 'lib/asset-service'
 import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper2 } from 'lib/swapper/api'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 
@@ -16,19 +17,21 @@ export const lifiSwapper: Swapper2 = {
     return signAndBroadcast({ adapter, wallet, txToSign: txToSign as ETHSignTx })
   },
 
-  filterAssetIdsBySellable: (assetIds: AssetId[]): Promise<AssetId[]> => {
-    return Promise.resolve(filterEvmAssetIdsBySellable(assetIds))
+  filterAssetIdsBySellable: (assets: Asset[]): Promise<AssetId[]> => {
+    return Promise.resolve(filterEvmAssetIdsBySellable(assets).map(asset => asset.assetId))
   },
 
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput): Promise<AssetId[]> => {
-    return Promise.resolve([
-      ...filterCrossChainEvmBuyAssetsBySellAssetId(input),
-      // TODO(gomes): This is weird but a temporary product compromise to accomodate for the fact that OP rewards have weird heuristics
-      // and would detect same-chain swaps on Li.Fi as cross-chain swaps, making the rewards gameable by same-chain swaps
-      // Remove me when OP rewards ends
-      ...filterSameChainEvmBuyAssetsBySellAssetId(input).filter(
-        assetId => fromAssetId(assetId).chainId !== optimismChainId,
-      ),
-    ])
+    return Promise.resolve(
+      [
+        ...filterCrossChainEvmBuyAssetsBySellAssetId(input),
+        // TODO(gomes): This is weird but a temporary product compromise to accomodate for the fact that OP rewards have weird heuristics
+        // and would detect same-chain swaps on Li.Fi as cross-chain swaps, making the rewards gameable by same-chain swaps
+        // Remove me when OP rewards ends
+        ...filterSameChainEvmBuyAssetsBySellAssetId(input).filter(
+          asset => asset.chainId !== optimismChainId,
+        ),
+      ].map(asset => asset.assetId),
+    )
   },
 }

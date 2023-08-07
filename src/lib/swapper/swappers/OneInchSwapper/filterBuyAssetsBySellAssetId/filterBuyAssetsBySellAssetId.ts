@@ -5,7 +5,7 @@ import { isNativeEvmAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
 
 export function filterBuyAssetsBySellAssetId(input: BuyAssetBySellIdInput): AssetId[] {
   // 1inch swapper currently supports erc20s only
-  if (isNativeEvmAsset(input.sellAssetId)) return []
+  if (isNativeEvmAsset(input.sellAsset.assetId)) return []
 
-  return filterSameChainEvmBuyAssetsBySellAssetId(input)
+  return filterSameChainEvmBuyAssetsBySellAssetId(input).map(asset => asset.assetId)
 }

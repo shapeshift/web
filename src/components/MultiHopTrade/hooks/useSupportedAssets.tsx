@@ -29,10 +29,10 @@ export const useSupportedAssets = () => {
 
   useEffect(() => {
     ;(async () => {
-      const assetIds = await getSupportedBuyAssets(enabledSwappers, sellAsset.assetId)
+      const assetIds = await getSupportedBuyAssets(enabledSwappers, sellAsset)
       setSupportedBuyAssetsIds(assetIds)
     })()
-  }, [enabledSwappers, sellAsset.assetId, sortedAssets])
+  }, [enabledSwappers, sellAsset, sortedAssets])
 
   useEffect(() => {
     setSupportedSellAssets(sortedAssets.filter(asset => supportedSellAssetsIds.has(asset.assetId)))

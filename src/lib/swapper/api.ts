@@ -66,8 +66,8 @@ export type QuoteFeeData<T extends ChainId> = {
 } & ChainSpecificQuoteFeeData<T>
 
 export type BuyAssetBySellIdInput = {
-  sellAssetId: AssetId
-  nonNftAssetIds: AssetId[]
+  sellAsset: Asset
+  assets: Asset[]
 }
 
 type CommonTradeInput = {
@@ -235,7 +235,7 @@ export type CheckTradeStatusInput = {
 }
 
 export type Swapper2 = {
-  filterAssetIdsBySellable: (assetIds: AssetId[]) => Promise<AssetId[]>
+  filterAssetIdsBySellable: (assets: Asset[]) => Promise<AssetId[]>
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => Promise<AssetId[]>
   executeTrade: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
 }

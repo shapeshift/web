@@ -82,45 +82,51 @@ export const useTradeExecution = ({
 
     const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
-    const execution = new TradeExecution()
+    return new Promise<void>(async (resolve, reject) => {
+      const execution = new TradeExecution()
 
-    execution.on('error', err => {
-      throw err
-    })
-    execution.on('sellTxHash', ({ sellTxHash }) => {
-      setSellTxHash(sellTxHash)
-    })
-    execution.on('status', ({ status, message, buyTxHash }) => {
-      // TODO(gomes): do we want to bring in the concept of watching for a step execution in addition to trade execution?
-      // useTradeExecution seems to revolve around the idea of a holistic trade execution i.e a sell/buy asset for the whole trade,
-      // but we may want to make this granular to the step level?
-      if (isLastStepRef.current || status === TxStatus.Failed) {
-        setMessage(message)
-        setBuyTxHash(buyTxHash)
-        setTradeStatus(status)
-      }
+      execution.on('error', reject)
+      execution.on('sellTxHash', ({ sellTxHash }) => {
+        setSellTxHash(sellTxHash)
+      })
+      execution.on('status', ({ status, message, buyTxHash }) => {
+        // TODO(gomes): do we want to bring in the concept of watching for a step execution in addition to trade execution?
+        // useTradeExecution seems to revolve around the idea of a holistic trade execution i.e a sell/buy asset for the whole trade,
+        // but we may want to make this granular to the step level?
+        if (isLastStepRef.current || status === TxStatus.Failed) {
+          setMessage(message)
+          setBuyTxHash(buyTxHash)
+          setTradeStatus(status)
+        }
 
-      // Tx confirmed/pending for a mid-trade hop, meaning the trade is still pending holistically
-      else if (status === TxStatus.Confirmed || status === TxStatus.Pending) {
-        setTradeStatus(TxStatus.Pending)
-      }
-    })
-    execution.on('complete', () => dispatch(tradeQuoteSlice.actions.incrementStep()))
+        // Tx confirmed/pending for a mid-trade hop, meaning the trade is still pending holistically
+        else if (status === TxStatus.Confirmed || status === TxStatus.Pending) {
+          setTradeStatus(TxStatus.Pending)
+        }
+      })
+      execution.on('success', () => {
+        dispatch(tradeQuoteSlice.actions.incrementStep())
+        resolve()
+      })
+      execution.on('fail', cause => {
+        reject(new Error('Transaction failed', { cause }))
+      })
 
-    // execute the trade and attach then cancel callback
-    cancelPollingRef.current = await execution.exec({
-      swapperName,
-      tradeQuote,
-      stepIndex: activeStepOrDefault,
-      accountMetadata,
-      quoteSellAssetAccountId: sellAssetAccountId,
-      quoteBuyAssetAccountId: buyAssetAccountId,
-      wallet,
-      supportsEIP1559,
-      buyAssetUsdRate,
-      feeAssetUsdRate,
-      slippageTolerancePercentageDecimal,
-      getState: store.getState,
+      // execute the trade and attach then cancel callback
+      cancelPollingRef.current = await execution.exec({
+        swapperName,
+        tradeQuote,
+        stepIndex: activeStepOrDefault,
+        accountMetadata,
+        quoteSellAssetAccountId: sellAssetAccountId,
+        quoteBuyAssetAccountId: buyAssetAccountId,
+        wallet,
+        supportsEIP1559,
+        buyAssetUsdRate,
+        feeAssetUsdRate,
+        slippageTolerancePercentageDecimal,
+        getState: store.getState,
+      })
     })
   }, [
     wallet,
@@ -145,11 +151,7 @@ export const useTradeExecution = ({
     // First step will always be ran from the executeTrade call fired by onSubmit()
     // Subsequent steps will be ran here, following incrementStep() after step completion
     if (activeStepOrDefault !== 0) {
-      try {
-        executeTrade()
-      } catch (e) {
-        showErrorToast(e)
-      }
+      void executeTrade().catch(showErrorToast)
     }
   }, [activeStepOrDefault, executeTrade, showErrorToast])
 

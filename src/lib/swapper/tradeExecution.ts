@@ -59,7 +59,7 @@ export class TradeExecution extends EventEmitter {
 
       this.emit('sellTxHash', { stepIndex, sellTxHash })
 
-      const { promise, cancelPolling } = poll({
+      const { cancelPolling } = poll({
         fn: async () => {
           const { status, message, buyTxHash } = await swapper.checkTradeStatus({
             quoteId: tradeQuote.id,
@@ -71,7 +71,12 @@ export class TradeExecution extends EventEmitter {
             getState,
           })
 
-          this.emit('status', { stepIndex, status, message, buyTxHash })
+          const payload = { stepIndex, status, message, buyTxHash }
+
+          this.emit('status', payload)
+
+          if (status === TxStatus.Confirmed) this.emit('success', payload)
+          if (status === TxStatus.Failed) this.emit('fail', payload)
 
           return status
         },
@@ -81,8 +86,6 @@ export class TradeExecution extends EventEmitter {
         interval: TRADE_POLL_INTERVAL_MILLISECONDS,
         maxAttempts: Infinity,
       })
-
-      promise.then(() => this.emit('complete', { stepIndex }))
 
       return cancelPolling
     } catch (e) {

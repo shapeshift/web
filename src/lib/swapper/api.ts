@@ -9,6 +9,8 @@ import type { Asset } from 'lib/asset-service'
 import type { ReduxState } from 'state/reducer'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
+import type { TradeQuoteDeps } from './types'
+
 export const SwapError = createErrorClass('SwapError')
 
 export type SwapErrorRight = {
@@ -246,7 +248,7 @@ export type Swapper2Api = {
   ) => Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }>
   getTradeQuote: (
     input: GetTradeQuoteInput,
-    ...deps: any[]
+    deps: TradeQuoteDeps,
   ) => Promise<Result<TradeQuote2, SwapErrorRight>>
   getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx2>
 }

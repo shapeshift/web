@@ -1,4 +1,4 @@
-import type { Step } from '@lifi/sdk/dist/types'
+import type { LifiStep } from '@lifi/types'
 import type {
   BuildSendApiTxInput,
   ChainAdapter,
@@ -15,7 +15,7 @@ import { isEvmChainAdapter } from 'lib/utils/evm'
 const createBuildSendApiTxInput = async (
   from: string,
   accountNumber: number,
-  lifiStep: Step,
+  lifiStep: LifiStep,
 ): Promise<BuildSendApiTxInput<EvmChainId>> => {
   const lifi = getLifi()
 
@@ -64,7 +64,7 @@ export const getUnsignedTx = async ({
   sellAsset,
   from,
 }: {
-  lifiStep: Step
+  lifiStep: LifiStep
   accountNumber: number
   sellAsset: Asset
   from: string

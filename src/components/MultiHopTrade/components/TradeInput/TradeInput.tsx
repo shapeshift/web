@@ -39,6 +39,7 @@ import type { Asset } from 'lib/asset-service'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
+import { SwapperName } from 'lib/swapper/api'
 import {
   selectSwappersApiTradeQuotePending,
   selectSwappersApiTradeQuotes,
@@ -134,6 +135,7 @@ export const TradeInput = memo(() => {
   const activeQuote = useAppSelector(selectActiveQuote)
   const activeQuoteError = useAppSelector(selectActiveQuoteError)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
+  const isOsmosisSwapper = activeSwapperName === SwapperName.Osmosis
   const sortedQuotes = useAppSelector(selectSwappersApiTradeQuotes)
   const rate = activeQuote?.steps[0].rate
 
@@ -241,7 +243,7 @@ export const TradeInput = memo(() => {
             <Heading as='h5' fontSize='md'>
               {translate('navBar.trade')}
             </Heading>
-            <SlippagePopover />
+            {!isOsmosisSwapper && <SlippagePopover />}
           </Flex>
           <Stack spacing={2}>
             <Flex alignItems='center' flexDir={flexDir} width='full'>

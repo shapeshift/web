@@ -11,6 +11,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
@@ -70,6 +71,9 @@ export const getThorTradeQuote = async (
     affiliateBps,
     wallet,
   } = input
+
+  const slippageTolerance =
+    slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain)
 
   const { sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate } = rates
 
@@ -246,7 +250,7 @@ export const getThorTradeQuote = async (
           sellAsset,
           buyAsset,
           sellAmountCryptoBaseUnit,
-          slippageTolerance: slippageTolerancePercentage,
+          slippageTolerance,
           destinationAddress: receiveAddress,
           protocolFees,
           affiliateBps,
@@ -293,7 +297,7 @@ export const getThorTradeQuote = async (
           sellAsset,
           buyAsset,
           sellAmountCryptoBaseUnit,
-          slippageTolerance: slippageTolerancePercentage,
+          slippageTolerance,
           destinationAddress: receiveAddress,
           xpub: (input as GetUtxoTradeQuoteInput).xpub,
           protocolFees,

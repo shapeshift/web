@@ -22,13 +22,13 @@ import {
   selectSellAccountId,
   selectSellAmountCryptoPrecision,
   selectSellAsset,
+  selectSlippagePreferencePercentageDecimal,
   selectWillDonate,
 } from 'state/slices/selectors'
 import {
   selectFirstHopSellAsset,
   selectLastHopBuyAsset,
   selectSellAmountUsd,
-  selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
@@ -103,7 +103,7 @@ export const useGetTradeQuotes = () => {
   const sellAccountId = useAppSelector(selectSellAccountId)
   const buyAccountId = useAppSelector(selectBuyAccountId)
 
-  const slippageTolerancePercentage = useAppSelector(selectTradeSlippagePercentageDecimal)
+  const userSlippageTolerancePercentage = useAppSelector(selectSlippagePreferencePercentageDecimal)
 
   const sellAccountMetadata = useMemo(() => {
     return selectPortfolioAccountMetadataByAccountId(store.getState(), {
@@ -141,7 +141,8 @@ export const useGetTradeQuotes = () => {
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: true,
           affiliateBps: willDonate ? DEFAULT_SWAPPER_DONATION_BPS : '0',
-          slippageTolerancePercentage,
+          // Pass in the user's slippage preference if it's set, else let the swapper use its default
+          slippageTolerancePercentage: userSlippageTolerancePercentage,
         })
 
         // if the quote input args changed, reset the selected swapper and update the trade quote args
@@ -150,7 +151,7 @@ export const useGetTradeQuotes = () => {
             ? setTradeQuoteInput(updatedTradeQuoteInput)
             : setTradeQuoteInput(skipToken)
 
-          // If only the affiliateBps or the slippageTolerancePercentage changed, we've either:
+          // If only the affiliateBps or the userSlippageTolerancePercentage changed, we've either:
           // - toggled the donation checkbox
           // - switched swappers where one has a different default slippageTolerancePercentage
           // In either case, we don't want to reset the selected swapper
@@ -179,7 +180,7 @@ export const useGetTradeQuotes = () => {
     wallet,
     userWillDonate,
     receiveAccountMetadata?.bip44Params,
-    slippageTolerancePercentage,
+    userSlippageTolerancePercentage,
   ])
 
   useEffect(() => {

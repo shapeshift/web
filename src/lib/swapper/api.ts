@@ -19,7 +19,7 @@ export type SwapErrorRight = {
   message: string
   cause?: unknown
   details?: unknown
-  code?: string
+  code?: SwapErrorType
 }
 
 export const makeSwapErrorRight = ({
@@ -31,7 +31,7 @@ export const makeSwapErrorRight = ({
   message: string
   details?: unknown
   cause?: unknown
-  code?: string
+  code?: SwapErrorType
 }): SwapErrorRight => ({
   name: 'SwapError',
   message,

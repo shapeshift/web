@@ -105,3 +105,12 @@ export const getEnabledSwappers = (
       return !isCrossAccountTrade || swapperSupportsCrossAccountTrade
     })
 }
+
+export const createSellAmountTooLowErr = (minSellAmountCryptoPrecision: string) =>
+  makeSwapErrorRight({
+    code: SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL,
+    message: 'Sell amount too low',
+    details: {
+      minSellAmountCryptoPrecision,
+    },
+  })

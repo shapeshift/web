@@ -24,6 +24,7 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeConfirm/ReceiveSummary'
 import { DonationCheckbox } from 'components/MultiHopTrade/components/TradeInput/components/DonationCheckbox'
 import { ManualAddressEntry } from 'components/MultiHopTrade/components/TradeInput/components/ManualAddressEntry'
+import { getSwapperSupportsSlippage } from 'components/MultiHopTrade/components/TradeInput/getSwapperSupportsSlippage'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useActiveQuoteStatus } from 'components/MultiHopTrade/hooks/quoteValidation/useActiveQuoteStatus'
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
@@ -39,7 +40,6 @@ import type { Asset } from 'lib/asset-service'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
-import { SwapperName } from 'lib/swapper/api'
 import {
   selectSwappersApiTradeQuotePending,
   selectSwappersApiTradeQuotes,
@@ -135,7 +135,7 @@ export const TradeInput = memo(() => {
   const activeQuote = useAppSelector(selectActiveQuote)
   const activeQuoteError = useAppSelector(selectActiveQuoteError)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
-  const isOsmosisSwapper = activeSwapperName === SwapperName.Osmosis
+  const activeSwapperSupportsSlippage = getSwapperSupportsSlippage(activeSwapperName)
   const sortedQuotes = useAppSelector(selectSwappersApiTradeQuotes)
   const rate = activeQuote?.steps[0].rate
 
@@ -243,7 +243,7 @@ export const TradeInput = memo(() => {
             <Heading as='h5' fontSize='md'>
               {translate('navBar.trade')}
             </Heading>
-            {!isOsmosisSwapper && <SlippagePopover />}
+            {activeSwapperSupportsSlippage && <SlippagePopover />}
           </Flex>
           <Stack spacing={2}>
             <Flex alignItems='center' flexDir={flexDir} width='full'>

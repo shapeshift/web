@@ -63,6 +63,12 @@ export const useTradeExecution = ({
   // Unless we use refs or another way to get around the closure (e.g hijacking `this`, we are doomed)
   const sellTxHashRef = useRef<string | undefined>()
   const isLastStepRef = useRef<boolean>(false)
+  const cancelPollingRef = useRef<() => void | undefined>()
+
+  // cancel on component unmount so polling doesn't cause chaos after the component has unmounted
+  useEffect(() => {
+    return cancelPollingRef.current
+  }, [])
 
   const executeTrade = useCallback(async () => {
     if (!wallet) throw Error('missing wallet')
@@ -82,8 +88,7 @@ export const useTradeExecution = ({
       throw err
     })
     execution.on('sellTxHash', ({ sellTxHash }) => {
-      sellTxHashRef.current = sellTxHash
-      setSellTxHash(sellTxHashRef.current)
+      setSellTxHash(sellTxHash)
     })
     execution.on('status', ({ status, message, buyTxHash }) => {
       // TODO(gomes): do we want to bring in the concept of watching for a step execution in addition to trade execution?
@@ -102,7 +107,8 @@ export const useTradeExecution = ({
     })
     execution.on('complete', () => dispatch(tradeQuoteSlice.actions.incrementStep()))
 
-    execution.exec({
+    // execute the trade and attach then cancel callback
+    cancelPollingRef.current = await execution.exec({
       swapperName,
       tradeQuote,
       stepIndex: activeStepOrDefault,

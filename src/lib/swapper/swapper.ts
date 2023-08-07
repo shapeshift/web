@@ -45,7 +45,7 @@ export const getTradeQuotes = async (
 }
 
 export const getSupportedSellAssets = async (enabledSwappers: SwapperName[]) => {
-  const assetIds = new AssetService().allIds
+  const assetIds = new AssetService().assetIds
   const supportedAssetIds = await Promise.all(
     swappers
       .filter(({ swapperName }) => enabledSwappers.includes(swapperName))
@@ -58,7 +58,7 @@ export const getSupportedBuyAssets = async (
   enabledSwappers: SwapperName[],
   sellAssetId: AssetId,
 ) => {
-  const nonNftAssetIds = new AssetService().allIds
+  const nonNftAssetIds = new AssetService().assetIds
   const supportedAssetIds = await Promise.all(
     swappers
       .filter(({ swapperName }) => enabledSwappers.includes(swapperName))

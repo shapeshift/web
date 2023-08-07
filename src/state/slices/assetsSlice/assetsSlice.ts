@@ -88,7 +88,7 @@ export const makeAsset = (minimalAsset: MinimalAsset): Asset => {
   const explorerLinks = ((): ExplorerLinks => {
     const feeAssetId = chainIdToFeeAssetId(chainId)
     if (!feeAssetId) throw new Error('makeAsset: feeAssetId not found')
-    const feeAsset = getAssetService().getAll()[feeAssetId]
+    const feeAsset = getAssetService().assets[feeAssetId]
     return {
       explorer: feeAsset.explorer,
       explorerTxLink: feeAsset.explorerTxLink,
@@ -125,7 +125,7 @@ export const assetApi = createApi({
       queryFn: (_, { getState }) => {
         const flags = selectFeatureFlags(getState() as ReduxState)
         const service = getAssetService()
-        const assets = Object.entries(service?.getAll() ?? {}).reduce<AssetsById>(
+        const assets = Object.entries(service?.assets ?? {}).reduce<AssetsById>(
           (prev, [assetId, asset]) => {
             if (!flags.Optimism && asset.chainId === optimismChainId) return prev
             if (!flags.BnbSmartChain && asset.chainId === bscChainId) return prev

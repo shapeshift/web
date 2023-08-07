@@ -31,17 +31,13 @@ export type Asset = {
 export type AssetsById = Record<AssetId, Asset>
 
 export class AssetService {
-  private readonly assets: AssetsById
+  readonly assets: AssetsById
 
   constructor() {
     this.assets = localAssetData as AssetsById
   }
 
-  getAll(): AssetsById {
-    return this.assets
-  }
-
-  get allIds(): AssetId[] {
+  get assetIds(): AssetId[] {
     return Object.keys(this.assets)
   }
 

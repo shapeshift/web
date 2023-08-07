@@ -50,7 +50,7 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
   )
 
   const quoteErrors: ActiveQuoteStatus[] = useMemo(() => {
-    if (isLoading || hasUserEnteredAmount) return []
+    if (isLoading || !hasUserEnteredAmount) return []
     const errors: ActiveQuoteStatus[] = []
     if (activeQuoteError) {
       // Map known swapper errors to quote status

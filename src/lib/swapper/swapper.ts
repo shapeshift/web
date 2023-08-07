@@ -1,50 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AssetService } from 'lib/asset-service'
-import { cowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper2'
-import { cowApi } from 'lib/swapper/swappers/CowSwapper/endpoints'
-import { lifiApi } from 'lib/swapper/swappers/LifiSwapper/endpoints'
-import { lifiSwapper } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper2'
-import { oneInchApi } from 'lib/swapper/swappers/OneInchSwapper/endpoints'
-import { oneInchSwapper } from 'lib/swapper/swappers/OneInchSwapper/OneInchSwapper2'
-import { osmosisApi } from 'lib/swapper/swappers/OsmosisSwapper/endpoints'
-import { osmosisSwapper } from 'lib/swapper/swappers/OsmosisSwapper/OsmosisSwapper2'
-import { thorchainApi } from 'lib/swapper/swappers/ThorchainSwapper/endpoints'
-import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/ThorchainSwapper2'
-import { zrxApi } from 'lib/swapper/swappers/ZrxSwapper/endpoints'
-import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper2'
 import { isFulfilled as isFulfilledPredicate, timeout } from 'lib/utils'
 
-import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote2 } from './api'
-import { SwapperName } from './api'
-import { QUOTE_TIMEOUT_ERROR, QUOTE_TIMEOUT_MS } from './constants'
+import type { GetTradeQuoteInput, SwapErrorRight, SwapperName, TradeQuote2 } from './api'
+import { QUOTE_TIMEOUT_ERROR, QUOTE_TIMEOUT_MS, swappers } from './constants'
 import type { QuoteResult, TradeQuoteDeps } from './types'
 
-const swappers = [
-  {
-    swapperName: SwapperName.LIFI,
-    swapper: { ...lifiSwapper, ...lifiApi },
-  },
-  {
-    swapperName: SwapperName.Thorchain,
-    swapper: { ...thorchainSwapper, ...thorchainApi },
-  },
-  {
-    swapperName: SwapperName.Zrx,
-    swapper: { ...zrxSwapper, ...zrxApi },
-  },
-  {
-    swapperName: SwapperName.CowSwap,
-    swapper: { ...cowSwapper, ...cowApi },
-  },
-  {
-    swapperName: SwapperName.OneInch,
-    swapper: { ...oneInchSwapper, ...oneInchApi },
-  },
-  {
-    swapperName: SwapperName.Osmosis,
-    swapper: { ...osmosisSwapper, ...osmosisApi },
-  },
-]
+export { TradeExecution } from './tradeExecution'
 
 // gets trade quotes
 export const getTradeQuotes = async (

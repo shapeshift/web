@@ -1,12 +1,10 @@
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { getSwapperBySwapperName } from 'components/MultiHopTrade/helpers'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { usePoll } from 'hooks/usePoll/usePoll'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { SwapperName, TradeQuote2 } from 'lib/swapper/api'
-import { isEvmChainAdapter } from 'lib/utils/evm'
+import { TradeExecution } from 'lib/swapper/tradeExecution'
 import {
   selectPortfolioAccountMetadataByAccountId,
   selectUsdRateByAssetId,
@@ -21,9 +19,7 @@ import {
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
-import { TRADE_POLL_INTERVAL_MILLISECONDS } from '../constants'
 import { useAccountIds } from '../useAccountIds'
-import { withFromOrXpub } from './helpers'
 
 export const useTradeExecution = ({
   swapperName,
@@ -38,9 +34,9 @@ export const useTradeExecution = ({
   const [buyTxHash, setBuyTxHash] = useState<string | undefined>()
   const [message, setMessage] = useState<string | undefined>()
   const [tradeStatus, setTradeStatus] = useState<TxStatus>(TxStatus.Unknown)
-  const { poll } = usePoll()
   const wallet = useWallet().state.wallet
   const slippageTolerancePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
+  const { showErrorToast } = useErrorHandler()
 
   const buyAsset = useAppSelector(selectLastHopBuyAsset)
   const feeAsset = useAppSelector(selectFirstHopSellFeeAsset)
@@ -75,85 +71,51 @@ export const useTradeExecution = ({
     if (!accountMetadata) throw Error('missing accountMetadata')
     if (!tradeQuote) throw Error('missing tradeQuote')
     if (!swapperName) throw Error('missing swapperName')
-
-    const swapper = getSwapperBySwapperName(swapperName)
-
-    const chainId = tradeQuote.steps[activeStepOrDefault].sellAsset.chainId
-
-    const sellAssetChainAdapter = getChainAdapterManager().get(chainId)
-
-    if (!sellAssetChainAdapter) throw Error(`missing sellAssetChainAdapter for chainId ${chainId}`)
-
-    if (isEvmChainAdapter(sellAssetChainAdapter) && supportsETH(wallet)) {
-      await sellAssetChainAdapter.assertSwitchChain(wallet)
-    }
+    if (!sellAssetAccountId) throw Error('missing sellAssetAccountId')
+    if (!buyAssetAccountId) throw Error('missing buyAssetAccountId')
 
     const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
-    const unsignedTxResult = await withFromOrXpub(swapper.getUnsignedTx)(
-      {
-        wallet,
-        chainId,
-        accountMetadata,
-      },
-      {
-        tradeQuote,
-        chainId,
-        accountMetadata,
-        stepIndex: activeStepOrDefault,
-        supportsEIP1559,
-        buyAssetUsdRate,
-        feeAssetUsdRate,
-        slippageTolerancePercentageDecimal,
-      },
-    )
+    const execution = new TradeExecution()
 
-    sellTxHashRef.current = await swapper.executeTrade({
-      txToSign: unsignedTxResult,
+    execution.on('error', err => {
+      throw err
+    })
+    execution.on('sellTxHash', ({ sellTxHash }) => {
+      sellTxHashRef.current = sellTxHash
+      setSellTxHash(sellTxHashRef.current)
+    })
+    execution.on('status', ({ status, message, buyTxHash }) => {
+      // TODO(gomes): do we want to bring in the concept of watching for a step execution in addition to trade execution?
+      // useTradeExecution seems to revolve around the idea of a holistic trade execution i.e a sell/buy asset for the whole trade,
+      // but we may want to make this granular to the step level?
+      if (isLastStepRef.current || status === TxStatus.Failed) {
+        setMessage(message)
+        setBuyTxHash(buyTxHash)
+        setTradeStatus(status)
+      }
+
+      // Tx confirmed/pending for a mid-trade hop, meaning the trade is still pending holistically
+      else if (status === TxStatus.Confirmed || status === TxStatus.Pending) {
+        setTradeStatus(TxStatus.Pending)
+      }
+    })
+    execution.on('complete', () => dispatch(tradeQuoteSlice.actions.incrementStep()))
+
+    execution.exec({
+      swapperName,
+      tradeQuote,
+      stepIndex: activeStepOrDefault,
+      accountMetadata,
+      quoteSellAssetAccountId: sellAssetAccountId,
+      quoteBuyAssetAccountId: buyAssetAccountId,
       wallet,
-      chainId,
+      supportsEIP1559,
+      buyAssetUsdRate,
+      feeAssetUsdRate,
+      slippageTolerancePercentageDecimal,
+      getState: store.getState,
     })
-
-    setSellTxHash(sellTxHashRef.current)
-
-    await poll({
-      fn: async () => {
-        // This should never happen, but TS mang
-        if (!sellTxHashRef.current) return
-        const { status, message, buyTxHash } = await swapper.checkTradeStatus({
-          quoteId: tradeQuote.id,
-          txHash: sellTxHashRef.current,
-          chainId,
-          stepIndex: activeStepOrDefault,
-          quoteSellAssetAccountId: sellAssetAccountId,
-          quoteBuyAssetAccountId: buyAssetAccountId,
-          getState: store.getState,
-        })
-
-        // TODO(gomes): do we want to bring in the concept of watching for a step execution in addition to trade execution?
-        // useTradeExecution seems to revolve around the idea of a holistic trade execution i.e a sell/buy asset for the whole trade,
-        // but we may want to make this granular to the step level?
-        if (isLastStepRef.current || status === TxStatus.Failed) {
-          setMessage(message)
-          setBuyTxHash(buyTxHash)
-          setTradeStatus(status)
-        }
-
-        // Tx confirmed/pending for a mid-trade hop, meaning the trade is still pending holistically
-        else if (status === TxStatus.Confirmed || status === TxStatus.Pending) {
-          setTradeStatus(TxStatus.Pending)
-        }
-
-        return status
-      },
-      validate: status => {
-        return status === TxStatus.Confirmed || status === TxStatus.Failed
-      },
-      interval: TRADE_POLL_INTERVAL_MILLISECONDS,
-      maxAttempts: Infinity,
-    })
-
-    dispatch(tradeQuoteSlice.actions.incrementStep())
   }, [
     wallet,
     buyAssetUsdRate,
@@ -163,7 +125,6 @@ export const useTradeExecution = ({
     swapperName,
     activeStepOrDefault,
     slippageTolerancePercentageDecimal,
-    poll,
     dispatch,
     sellAssetAccountId,
     buyAssetAccountId,
@@ -178,9 +139,13 @@ export const useTradeExecution = ({
     // First step will always be ran from the executeTrade call fired by onSubmit()
     // Subsequent steps will be ran here, following incrementStep() after step completion
     if (activeStepOrDefault !== 0) {
-      executeTrade()
+      try {
+        executeTrade()
+      } catch (e) {
+        showErrorToast(e)
+      }
     }
-  }, [activeStepOrDefault, executeTrade])
+  }, [activeStepOrDefault, executeTrade, showErrorToast])
 
   return { executeTrade, sellTxHash, buyTxHash, message, tradeStatus }
 }

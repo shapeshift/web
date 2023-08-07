@@ -44,13 +44,10 @@ export const oneInchApi: Swapper2Api = {
       getMinimumDonationUsdSellAmountByChainId(sellAsset.chainId),
     )
 
-    const tradeQuoteResult = await getTradeQuote(
-      {
-        ...(input as GetEvmTradeQuoteInput),
-        affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps,
-      },
-      sellAssetUsdRate,
-    )
+    const tradeQuoteResult = await getTradeQuote({
+      ...(input as GetEvmTradeQuoteInput),
+      affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps,
+    })
     return tradeQuoteResult.map(tradeQuote => {
       const id = uuid()
       const firstHop = tradeQuote.steps[0]

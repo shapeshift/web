@@ -7,7 +7,37 @@ import { poll } from 'lib/poll/poll'
 import { swappers } from './constants'
 import type { TradeExecutionInput } from './types'
 
-export class TradeExecution extends EventEmitter {
+export enum TradeExecutionEvent {
+  SellTxHash = 'sellTxHash',
+  Status = 'status',
+  Success = 'success',
+  Fail = 'fail',
+  Error = 'error',
+}
+
+export type SellTxHashArgs = { stepIndex: number; sellTxHash: string }
+export type StatusArgs = {
+  stepIndex: number
+  status: TxStatus
+  message?: string
+  buyTxHash?: string
+}
+
+type TradeExecutionEventMap = {
+  [TradeExecutionEvent.SellTxHash]: (args: SellTxHashArgs) => void
+  [TradeExecutionEvent.Status]: (args: StatusArgs) => void
+  [TradeExecutionEvent.Success]: (args: StatusArgs) => void
+  [TradeExecutionEvent.Fail]: (args: StatusArgs) => void
+  [TradeExecutionEvent.Error]: (args: unknown) => void
+}
+
+export class TradeExecution {
+  private emitter = new EventEmitter()
+
+  on<T extends TradeExecutionEvent>(eventName: T, callback: TradeExecutionEventMap[T]): void {
+    this.emitter.on(eventName, callback)
+  }
+
   async exec({
     swapperName,
     tradeQuote,
@@ -57,7 +87,8 @@ export class TradeExecution extends EventEmitter {
         chainId,
       })
 
-      this.emit('sellTxHash', { stepIndex, sellTxHash })
+      const sellTxHashArgs: SellTxHashArgs = { stepIndex, sellTxHash }
+      this.emitter.emit(TradeExecutionEvent.SellTxHash, sellTxHashArgs)
 
       const { cancelPolling } = poll({
         fn: async () => {
@@ -71,12 +102,11 @@ export class TradeExecution extends EventEmitter {
             getState,
           })
 
-          const payload = { stepIndex, status, message, buyTxHash }
+          const payload: StatusArgs = { stepIndex, status, message, buyTxHash }
+          this.emitter.emit(TradeExecutionEvent.Status, payload)
 
-          this.emit('status', payload)
-
-          if (status === TxStatus.Confirmed) this.emit('success', payload)
-          if (status === TxStatus.Failed) this.emit('fail', payload)
+          if (status === TxStatus.Confirmed) this.emitter.emit(TradeExecutionEvent.Success, payload)
+          if (status === TxStatus.Failed) this.emitter.emit(TradeExecutionEvent.Fail, payload)
 
           return status
         },
@@ -89,7 +119,7 @@ export class TradeExecution extends EventEmitter {
 
       return cancelPolling
     } catch (e) {
-      this.emit('error', e)
+      this.emitter.emit(TradeExecutionEvent.Error, e)
     }
   }
 }

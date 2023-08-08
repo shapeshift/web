@@ -29,6 +29,12 @@ export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<Ac
       }
     }
 
+    /*
+      Ideally we'd only listen to these events if modalType is KeyManager.Native or KeyManager.Mobile.
+      Unfortunately, state.adapters is set in the React event loop via a useEffect, and so is null on initial load.
+      This prevents SET_CONNECTOR_TYPE from being dispatched on the first WalletProvider.load() cycle, which means we'd
+      miss the NativeEvents.MNEMONIC_REQUIRED event.
+     */
     if (keyring) {
       keyring.on(['Native', '*', NativeEvents.MNEMONIC_REQUIRED], handleEvent)
       keyring.on(['Native', '*', NativeEvents.READY], handleEvent)

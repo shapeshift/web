@@ -4,7 +4,6 @@ import type { Dispatch } from 'react'
 import { useEffect } from 'react'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 
 export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<ActionTypes>) => {
@@ -30,7 +29,7 @@ export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<Ac
       }
     }
 
-    if (keyring && modalType && [KeyManager.Native, KeyManager.Mobile].includes(modalType)) {
+    if (keyring) {
       keyring.on(['Native', '*', NativeEvents.MNEMONIC_REQUIRED], handleEvent)
       keyring.on(['Native', '*', NativeEvents.READY], handleEvent)
     }

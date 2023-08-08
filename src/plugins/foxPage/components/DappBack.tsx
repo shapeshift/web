@@ -1,7 +1,6 @@
-import { Button, Link } from '@chakra-ui/react'
+import { Button, Card, CardBody, CardHeader, Heading, Link } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -17,12 +16,12 @@ export const DappBack = () => {
   if (!isFoxBondCTAEnabled) return null
   return (
     <Card>
-      <Card.Header>
-        <Card.Heading>
+      <CardHeader>
+        <Heading>
           <Text translation='plugins.foxPage.dappBack.title' />
-        </Card.Heading>
-      </Card.Header>
-      <Card.Body display='flex' gap={6} flexDirection='column'>
+        </Heading>
+      </CardHeader>
+      <CardBody display='flex' gap={6} flexDirection='column'>
         <Text color='gray.500' translation='plugins.foxPage.dappBack.body' />
         <Button
           as={Link}
@@ -33,7 +32,7 @@ export const DappBack = () => {
         >
           {translate('plugins.foxPage.dappBack.cta')}
         </Button>
-      </Card.Body>
+      </CardBody>
     </Card>
   )
 }

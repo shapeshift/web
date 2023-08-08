@@ -5,7 +5,17 @@ import {
   ChevronRightIcon,
   CloseIcon,
 } from '@chakra-ui/icons'
-import { Button, Circle, Collapse, Divider, Stack, useDisclosure } from '@chakra-ui/react'
+import {
+  Button,
+  Card,
+  CardHeader,
+  Circle,
+  Collapse,
+  Divider,
+  Heading,
+  Stack,
+  useDisclosure,
+} from '@chakra-ui/react'
 import { Summary } from 'features/defi/components/Summary'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -13,7 +23,6 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { WrappedIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
@@ -79,11 +88,11 @@ export const Status = () => {
   return (
     <SlideTransition>
       <Card variant='unstyled'>
-        <Card.Header px={0} pt={0}>
-          <Card.Heading textAlign='center'>
+        <CardHeader px={0} pt={0}>
+          <Heading textAlign='center'>
             <Text translation={statusText} />
-          </Card.Heading>
-        </Card.Header>
+          </Heading>
+        </CardHeader>
         <Stack spacing={0} justifyContent='center'>
           <Stack py={8} spacing={6}>
             <Stack direction='row' alignItems='center' justifyContent='center'>

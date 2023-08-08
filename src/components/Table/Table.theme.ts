@@ -68,7 +68,7 @@ export const TableStyle = {
         },
         thead: {
           tr: {
-            bg: mode('white', 'gray.785')(props),
+            bg: mode('white', 'black')(props),
             'th:first-of-type': {
               borderTopLeftRadius: 'xl',
             },
@@ -91,16 +91,16 @@ export const TableStyle = {
             },
             _hover: {
               color: mode('inherit', 'whiteAlpha.800')(props),
-              bg: mode('gray.100', 'gray.750')(props),
+              bg: mode('gray.100', 'whiteAlpha.100')(props),
               textDecoration: 'none',
               _disabled: {
                 bg: 'initial',
               },
             },
-            bg: mode('white', 'gray.785')(props),
+            bg: mode('white', 'black')(props),
             td: {
               borderTop: '1px',
-              borderColor: mode('gray.200', 'gray.750')(props),
+              borderColor: mode('gray.200', 'gray.900')(props),
               fontWeight: 'medium',
             },
           },
@@ -159,7 +159,7 @@ export const TableStyle = {
         tfoot: {
           tr: {
             td: {
-              bg: mode('white', 'gray.785')(props),
+              bg: mode('white', 'black')(props),
             },
           },
         },

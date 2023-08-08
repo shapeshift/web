@@ -1,11 +1,20 @@
-import { Box, Button, Flex, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Flex,
+  Skeleton,
+  Text as CText,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { ethChainId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/dist/wallet'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -74,7 +83,7 @@ export const MainOpportunity = ({
 
   return (
     <Card display='block' width='auto'>
-      <Card.Header>
+      <CardHeader>
         <Flex flexDirection='row' alignItems='center' mb={2}>
           <AssetIcon src={selectedAsset.icon} boxSize='6' mr={2} zIndex={2} />
           <Text
@@ -89,8 +98,8 @@ export const MainOpportunity = ({
           />
         </Flex>
         <Text translation='plugins.foxPage.mainStakingDescription' color='gray.500' />
-      </Card.Header>
-      <Card.Body>
+      </CardHeader>
+      <CardBody>
         <Flex
           width='full'
           justifyContent='space-between'
@@ -140,7 +149,7 @@ export const MainOpportunity = ({
             </Box>
           </Skeleton>
         </Flex>
-      </Card.Body>
+      </CardBody>
     </Card>
   )
 }

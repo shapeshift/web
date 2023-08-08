@@ -1,4 +1,13 @@
-import { Box, Button, Center, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  Center,
+  HStack,
+  Image,
+  useColorModeValue,
+  VStack,
+} from '@chakra-ui/react'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AddressSummaryCard } from 'plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
 import { AmountCard } from 'plugins/walletConnectToDapps/components/modals/AmountCard'
@@ -23,7 +32,6 @@ import type { FC } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { FaGasPump, FaWrench } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'

@@ -1,6 +1,5 @@
-import { Box, Flex, Image, Link, Text as CText } from '@chakra-ui/react'
+import { Box, Card, CardBody, CardHeader, Flex, Image, Link, Text as CText } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
 
 type TradeOpportunity = {
@@ -22,12 +21,12 @@ export const TradeOpportunities: React.FC<TradeOpportunitiesProps> = ({ opportun
 
   return (
     <Card display='block' width='full'>
-      <Card.Header pb={0}>
+      <CardHeader pb={0}>
         <CText fontWeight='bold' color='inherit'>
           {translate('plugins.foxPage.availableToTradeOn')}
         </CText>
-      </Card.Header>
-      <Card.Body>
+      </CardHeader>
+      <CardBody>
         {opportunities.map((bucket, index) => (
           <Box my={2} key={index}>
             <Text translation={bucket.title} color='gray.500' fontWeight='semibold' mb={4} />
@@ -45,7 +44,7 @@ export const TradeOpportunities: React.FC<TradeOpportunitiesProps> = ({ opportun
             </Flex>
           </Box>
         ))}
-      </Card.Body>
+      </CardBody>
     </Card>
   )
 }

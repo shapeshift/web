@@ -1,11 +1,10 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Button, Flex } from '@chakra-ui/react'
+import { Button, Card, CardBody, CardHeader, Flex } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetActions } from 'components/AssetHeader/AssetActions'
-import { Card } from 'components/Card/Card'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
@@ -45,7 +44,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
   if (!asset) return null
   return (
     <Card variant='footer-stub' overflow='hidden'>
-      <Card.Header display='flex' justifyContent='space-between' alignItems='center'>
+      <CardHeader display='flex' justifyContent='space-between' alignItems='center'>
         <Button
           size='sm'
           leftIcon={<ArrowBackIcon />}
@@ -57,8 +56,8 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           <LazyLoadAvatar src={asset.icon} />
           <RawText fontWeight='bold'>{asset.name}</RawText>
         </Flex>
-      </Card.Header>
-      <Card.Body
+      </CardHeader>
+      <CardBody
         gap={4}
         fontWeight='bold'
         display='flex'
@@ -75,19 +74,19 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           <Amount.Fiat value={userCurrencyBalance} fontSize='4xl' lineHeight='shorter' />
         </Flex>
         <AssetActions assetId={assetId} accountId={accountId} cryptoBalance={cryptoHumanBalance} />
-      </Card.Body>
+      </CardBody>
       {/* 
       @TODO: Hide for now until we have the data to hook this up
-      <Card.Footer
+      <CardFooter
         bg={footerBg}
         display='flex'
         alignItems='flex-start'
         justifyContent='space-between'
         gap={4}
       >
-        <Card.Heading lineHeight='shorter' flex={1}>
+        <Heading lineHeight='shorter' flex={1}>
           Performance
-        </Card.Heading>
+        </Heading>
         <StatGroup gap={8} flex={1}>
           <Stat>
             <StatLabel lineHeight='shorter'>24hr return</StatLabel>
@@ -108,7 +107,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
             </StatNumber>
           </Stat>
         </StatGroup>
-      </Card.Footer> */}
+      </CardFooter> */}
     </Card>
   )
 }

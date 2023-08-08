@@ -1,10 +1,9 @@
-import { Button, Flex } from '@chakra-ui/react'
+import { Button, CardBody, Flex } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
 import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
@@ -32,7 +31,7 @@ export const FoxTokenHolders = () => {
 
   return (
     <ArkeoCard>
-      <Card.Body display='flex' flexDir='column' gap={4} height='100%'>
+      <CardBody display='flex' flexDir='column' gap={4} height='100%'>
         <Flex>
           <AssetIcon assetId={foxAssetId} />
         </Flex>
@@ -46,7 +45,7 @@ export const FoxTokenHolders = () => {
             {translate('arkeo.foxTokenHolders.secondary')}
           </Button>
         </Flex>
-      </Card.Body>
+      </CardBody>
     </ArkeoCard>
   )
 }

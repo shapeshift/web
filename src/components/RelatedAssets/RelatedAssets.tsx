@@ -1,8 +1,8 @@
+import { Card, CardBody, CardHeader, Heading } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
-import { Card } from 'components/Card/Card'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
@@ -50,14 +50,14 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
 
   return (
     <Card>
-      <Card.Header>
-        <Card.Heading>
+      <CardHeader>
+        <Heading>
           <Text translation='assets.assetCards.relatedAssets' />
-        </Card.Heading>
-      </Card.Header>
-      <Card.Body px={2} pt={0}>
+        </Heading>
+      </CardHeader>
+      <CardBody px={2} pt={0}>
         <ReactTable columns={columns} data={data ?? []} onRowClick={handleRowClick} />
-      </Card.Body>
+      </CardBody>
     </Card>
   )
 }

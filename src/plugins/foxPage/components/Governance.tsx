@@ -1,6 +1,9 @@
 import {
   Badge,
   Box,
+  Card,
+  CardBody,
+  CardHeader,
   Flex,
   Link,
   Progress,
@@ -10,7 +13,6 @@ import {
 } from '@chakra-ui/react'
 import { getConfig } from 'config'
 import { Amount } from 'components/Amount/Amount'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -25,7 +27,7 @@ export const Governance = () => {
 
   return (
     <Card display='block' width='full'>
-      <Card.Header>
+      <CardHeader>
         <Flex flexDirection='row' justifyContent='space-between' alignItems='center' mb={2}>
           <Text translation='plugins.foxPage.governanceTitle' fontWeight='bold' color='inherit' />
           <Link isExternal href={SNAPSHOT_BASE_URL} fontWeight='semibold' color={linkColor}>
@@ -33,13 +35,13 @@ export const Governance = () => {
           </Link>
         </Flex>
         <Text translation='plugins.foxPage.governanceDescription' color='gray.500' />
-      </Card.Header>
+      </CardHeader>
       <Skeleton
         isLoaded={governanceData.loaded}
         minHeight={governanceData.loaded ? 'auto' : '176px'}
       >
         {governanceData?.data.map((proposal, i) => (
-          <Card.Body key={i}>
+          <CardBody key={i}>
             <Box>
               <Link
                 isExternal
@@ -83,7 +85,7 @@ export const Governance = () => {
                 </Box>
               ))}
             </Box>
-          </Card.Body>
+          </CardBody>
         ))}
       </Skeleton>
     </Card>

@@ -15,7 +15,7 @@ export const SideNav = memo(() => {
       height={'100vh'}
       position='sticky'
       borderRightWidth={1}
-      borderColor='rgba(255,255,255,.05)'
+      borderColor={useColorModeValue('gray.50', 'gray.900')}
       bg={bgColor}
       top={0}
       width={{ base: 'auto', '2xl': 'xs' }}

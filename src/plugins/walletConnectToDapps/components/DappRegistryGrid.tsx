@@ -1,6 +1,7 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import {
   Box,
+  Card,
   Flex,
   Heading,
   Image,
@@ -17,7 +18,6 @@ import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'

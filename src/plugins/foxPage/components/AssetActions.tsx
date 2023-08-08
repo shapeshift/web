@@ -2,6 +2,8 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
+  Card,
+  CardBody,
   Link,
   Skeleton,
   SkeletonText,
@@ -22,7 +24,6 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { Text } from 'components/Text/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -110,7 +111,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
 
   return (
     <Card display='block' borderRadius={8}>
-      <Card.Body p={0}>
+      <CardBody p={0}>
         <Tabs isFitted>
           <TabList>
             <Tab py={4} color='gray.500' fontWeight='semibold'>
@@ -200,7 +201,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
             </TabPanel>
           </TabPanels>
         </Tabs>
-      </Card.Body>
+      </CardBody>
     </Card>
   )
 }

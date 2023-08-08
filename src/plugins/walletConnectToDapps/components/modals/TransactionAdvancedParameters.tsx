@@ -1,6 +1,7 @@
 import {
   Alert,
   AlertIcon,
+  Card,
   FormControl,
   FormLabel,
   NumberInput,
@@ -11,7 +12,6 @@ import {
 import type { ConfirmData } from 'plugins/walletConnectToDapps/v1/components/modals/callRequest/CallRequestCommon'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Text } from 'components/Text'
 

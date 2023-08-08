@@ -41,7 +41,7 @@ export const breakpoints = {
 const styles = {
   global: (props: StyleFunctionProps) => ({
     body: {
-      backgroundColor: mode('gray.50', 'gray.800')(props),
+      backgroundColor: mode('gray.50', 'black')(props),
       backgroundSize: 'cover',
       fontFeatureSettings: `'zero' on`,
       overflowX: 'hidden',

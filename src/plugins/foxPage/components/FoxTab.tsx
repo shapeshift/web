@@ -1,8 +1,7 @@
 import type { TabProps } from '@chakra-ui/react'
-import { Flex, SkeletonText, Tab, useColorModeValue } from '@chakra-ui/react'
+import { Card, CardBody, Flex, SkeletonText, Tab, useColorModeValue } from '@chakra-ui/react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
 
 type FoxTabProps = {
   assetIcon: string
@@ -41,7 +40,7 @@ export const FoxTab: React.FC<FoxTabProps> = ({
       {...props}
     >
       <Card display='block' bg='none' border='none' boxShadow='none' p={0} width='full'>
-        <Card.Body
+        <CardBody
           p={4}
           px={{ base: 6, md: 4 }}
           display='flex'
@@ -67,7 +66,7 @@ export const FoxTab: React.FC<FoxTabProps> = ({
               maximumFractionDigits={2}
             />
           </SkeletonText>
-        </Card.Body>
+        </CardBody>
       </Card>
     </Tab>
   )

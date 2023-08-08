@@ -2,6 +2,8 @@ import { ArrowBackIcon, CheckIcon, CopyIcon, ExternalLinkIcon, ViewIcon } from '
 import {
   Box,
   Button,
+  Card,
+  CardBody,
   Circle,
   Flex,
   HStack,
@@ -26,7 +28,6 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { Address } from 'viem'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
-import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
@@ -189,7 +190,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
               bg='white'
               boxShadow='lg'
             >
-              <Card.Body display='inline-block' textAlign='center' p={6}>
+              <CardBody display='inline-block' textAlign='center' p={6}>
                 <LightMode>
                   <Skeleton isLoaded={!!receiveAddress} mb={2}>
                     <QRCode text={receiveAddress} data-test='receive-qr-code' />
@@ -212,7 +213,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                     </Flex>
                   </Skeleton>
                 </LightMode>
-              </Card.Body>
+              </CardBody>
             </Card>
           </ModalBody>
           <ModalFooter flexDir='column'>

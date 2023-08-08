@@ -1,5 +1,5 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Box, Button, Tag, Tooltip, useMediaQuery } from '@chakra-ui/react'
+import { Box, Button, Tag, Tooltip, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
 import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { NavLinkProps } from 'react-router-dom'
@@ -34,8 +34,15 @@ export const MainNavLink = memo(
           isActive={isActive}
           onClick={handleClick}
           position='relative'
+          fontWeight='medium'
           minWidth={isCompact ? 'auto' : 10}
           iconSpacing={isLargerThan2xl ? 4 : isCompact ? 0 : 4}
+          _active={{
+            bg: 'transparent',
+            color: useColorModeValue('black', 'white'),
+            fontWeight: 'bold',
+          }}
+          _hover={{ bg: useColorModeValue('blackAlpha.100', 'whiteAlpha.100') }}
           {...rest}
         >
           <Box display={{ base: isCompact ? 'none' : 'flex', '2xl': 'block' }}>{label}</Box>

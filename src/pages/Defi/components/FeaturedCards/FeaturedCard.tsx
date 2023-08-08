@@ -1,4 +1,13 @@
-import { Box, Button, Tag, useColorModeValue } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Tag,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import qs from 'qs'
@@ -7,7 +16,6 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
 import { RawText } from 'components/Text'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -105,13 +113,13 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = opportunity =>
       <Box filter='blur(30px)' opacity='0.2' position='absolute' left='-10%' top='-10%'>
         {backgroundIcons}
       </Box>
-      <Card.Header display='flex' justifyContent='space-between' alignItems='center' gap={4}>
+      <CardHeader display='flex' justifyContent='space-between' alignItems='center' gap={4}>
         <PairIcons icons={icons ?? []} iconSize='sm' bg='transparent' />
         <Tag mt={2} textTransform='capitalize'>
           {providerDisplayName}
         </Tag>
-      </Card.Header>
-      <Card.Body py={0}>
+      </CardHeader>
+      <CardBody py={0}>
         <RawText fontWeight='bold' textShadow={textShadow}>
           {opportunityName}
         </RawText>
@@ -119,8 +127,8 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = opportunity =>
         <RawText fontSize='sm' color='gray.500'>
           {subText.join(' • ')}
         </RawText>
-      </Card.Body>
-      <Card.Footer display='flex' flexDir='column' mt='auto'>
+      </CardBody>
+      <CardFooter display='flex' flexDir='column' mt='auto'>
         <Amount.Percent value={apy} fontSize='2xl' autoColor suffix='APY' />
         <Button
           mt={4}
@@ -131,7 +139,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = opportunity =>
         >
           {translate('defi.startEarning')}
         </Button>
-      </Card.Footer>
+      </CardFooter>
     </Card>
   )
 }

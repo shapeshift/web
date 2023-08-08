@@ -1,7 +1,6 @@
-import { Button, Link } from '@chakra-ui/react'
+import { Button, Card, CardBody, CardHeader, Heading, Link } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
@@ -14,12 +13,12 @@ export const BondProtocolCta = () => {
   }, [])
   return (
     <Card>
-      <Card.Header>
-        <Card.Heading>
+      <CardHeader>
+        <Heading>
           <Text translation='plugins.foxPage.bondProtocol.title' />
-        </Card.Heading>
-      </Card.Header>
-      <Card.Body display='flex' gap={6} flexDirection='column'>
+        </Heading>
+      </CardHeader>
+      <CardBody display='flex' gap={6} flexDirection='column'>
         <Text color='gray.500' translation='plugins.foxPage.bondProtocol.body' />
         <Button
           as={Link}
@@ -30,7 +29,7 @@ export const BondProtocolCta = () => {
         >
           {translate('plugins.foxPage.bondProtocol.cta')}
         </Button>
-      </Card.Body>
+      </CardBody>
     </Card>
   )
 }

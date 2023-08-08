@@ -1,5 +1,5 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
-import { Button, Circle, Stack } from '@chakra-ui/react'
+import { Button, Card, CardBody, CardHeader, Circle, Heading, Stack } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -9,7 +9,6 @@ import {
   getBridgeDestinationAsset,
   unwrapAxelarAssetIdFromAvalancheToEthereum,
 } from 'components/Bridge/utils'
-import { Card } from 'components/Card/Card'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
@@ -117,14 +116,14 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) =>
   return (
     <SlideTransition>
       <Card variant='unstyled'>
-        <Card.Header px={0} pt={0}>
+        <CardHeader px={0} pt={0}>
           <WithBackButton handleBack={handleBack}>
-            <Card.Heading textAlign='center'>
+            <Heading textAlign='center'>
               <Text translation='bridge.selectAsset' />
-            </Card.Heading>
+            </Heading>
           </WithBackButton>
-        </Card.Header>
-        <Card.Body p={0} height='400px' display='flex' flexDir='column'>
+        </CardHeader>
+        <CardBody p={0} height='400px' display='flex' flexDir='column'>
           <Stack>
             {supportedAssets.length ? (
               supportedAssets.map(asset => (
@@ -134,7 +133,7 @@ export const SelectAsset: React.FC<SelectAssetProps> = ({ onClick, history }) =>
               <Text translation='bridge.noSupportedAssets' />
             )}
           </Stack>
-        </Card.Body>
+        </CardBody>
       </Card>
     </SlideTransition>
   )

@@ -1,5 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import {
+  Card,
   Center,
   Circle,
   Collapse,
@@ -12,7 +13,6 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { Card } from 'components/Card/Card'
 import { NestedList } from 'components/NestedList'
 import { RawText } from 'components/Text'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'

@@ -66,7 +66,7 @@ export const DashboardHeader = () => {
       portfolioTotalUserCurrencyBalance,
     ],
   )
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const borderColor = useColorModeValue('gray.100', 'gray.900')
   const bgColor = useColorModeValue('white', 'blackAlpha.100')
 
   useEffect(() => {
@@ -153,7 +153,14 @@ export const DashboardHeader = () => {
   }, [history])
 
   return (
-    <Stack spacing={0} borderColor={borderColor} bg={bgColor} pt='4.5rem' mt='-4.5rem'>
+    <Stack
+      spacing={0}
+      borderColor={borderColor}
+      bg={bgColor}
+      borderBottomWidth={1}
+      pt='4.5rem'
+      mt='-4.5rem'
+    >
       <Container
         width='full'
         display='flex'

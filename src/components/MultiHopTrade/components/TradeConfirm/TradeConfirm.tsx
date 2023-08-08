@@ -6,8 +6,13 @@ import {
   AlertTitle,
   Box,
   Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
   Divider,
   Flex,
+  Heading,
   Link,
   Skeleton,
   Stack,
@@ -20,7 +25,6 @@ import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
-import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { AssetToAsset } from 'components/MultiHopTrade/components/TradeConfirm/AssetToAsset'
 import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeConfirm/ReceiveSummary'
@@ -256,13 +260,13 @@ export const TradeConfirm = () => {
     })()
     return (
       <>
-        <Card.Header px={0} pt={0}>
+        <CardHeader px={0} pt={0}>
           <WithBackButton handleBack={handleBack}>
-            <Card.Heading textAlign='center'>
+            <Heading textAlign='center'>
               <Text translation={statusText} />
-            </Card.Heading>
+            </Heading>
           </WithBackButton>
-        </Card.Header>
+        </CardHeader>
         <Divider />
       </>
     )
@@ -358,7 +362,7 @@ export const TradeConfirm = () => {
 
   const footer: JSX.Element = useMemo(
     () => (
-      <Card.Footer px={0} py={0}>
+      <CardFooter px={0} py={0}>
         {!txHash && !isSubmitting && (
           <>
             {swapperName === SwapperName.LIFI && (
@@ -379,7 +383,7 @@ export const TradeConfirm = () => {
             </Button>
           </>
         )}
-      </Card.Footer>
+      </CardFooter>
     ),
     [isSubmitting, txHash, swapperName, translate],
   )
@@ -391,7 +395,7 @@ export const TradeConfirm = () => {
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
         <Card variant='unstyled'>
           {header}
-          <Card.Body pb={0} px={0}>
+          <CardBody pb={0} px={0}>
             <Stack
               spacing={4}
               borderColor={borderColor}
@@ -481,7 +485,7 @@ export const TradeConfirm = () => {
                 )}
               </Stack>
             </Stack>
-          </Card.Body>
+          </CardBody>
           {footer}
         </Card>
       </Box>

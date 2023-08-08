@@ -1,7 +1,6 @@
-import { Box, HStack, Image, useColorModeValue } from '@chakra-ui/react'
+import { Box, Card, HStack, Image, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { Amount } from 'components/Amount/Amount'
-import { Card } from 'components/Card/Card'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

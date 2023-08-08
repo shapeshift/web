@@ -1,8 +1,7 @@
-import { Skeleton } from '@chakra-ui/react'
+import { Card, CardBody, CardHeader, Heading, Skeleton } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { AssetDescriptionTeaser } from 'components/AssetDescriptionTeaser'
-import { Card } from 'components/Card/Card'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -23,18 +22,20 @@ export const AssetDescription = ({ assetId }: AssetDescriptionProps) => {
 
   return (
     <Card>
-      <Card.Body>
+      <CardHeader>
         <Skeleton isLoaded={isLoaded} size='md'>
-          <Card.Heading mb={4}>
+          <Heading mb={4}>
             {translate('assets.assetDetails.assetHeader.aboutAsset', { asset: name })}
-          </Card.Heading>
+          </Heading>
         </Skeleton>
+      </CardHeader>
+      <CardBody>
         <AssetDescriptionTeaser
           description={description}
           isLoaded={isLoaded}
           isTrustedDescription={isTrustedDescription}
         />
-      </Card.Body>
+      </CardBody>
     </Card>
   )
 }

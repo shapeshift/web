@@ -1,4 +1,4 @@
-import { Button, Stack } from '@chakra-ui/react'
+import { Button, Card, CardHeader, Heading, Stack } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
@@ -16,7 +16,6 @@ import {
   chainNameToGasToken,
   getDenomFromBridgeAsset,
 } from 'components/Bridge/utils'
-import { Card } from 'components/Card/Card'
 import type { SendInput } from 'components/Modals/Send/Form'
 import { useFormSend } from 'components/Modals/Send/hooks/useFormSend/useFormSend'
 import type { EstimateFeesInput } from 'components/Modals/Send/utils'
@@ -184,13 +183,13 @@ export const Confirm: React.FC = () => {
   return (
     <SlideTransition>
       <Card variant='unstyled'>
-        <Card.Header px={0} pt={0}>
+        <CardHeader px={0} pt={0}>
           <WithBackButton handleBack={handleBack}>
-            <Card.Heading textAlign='center'>
+            <Heading textAlign='center'>
               <Text translation='bridge.confirm' />
-            </Card.Heading>
+            </Heading>
           </WithBackButton>
-        </Card.Header>
+        </CardHeader>
         <Stack spacing={6}>
           <Summary>
             <Row variant='vert-gutter'>

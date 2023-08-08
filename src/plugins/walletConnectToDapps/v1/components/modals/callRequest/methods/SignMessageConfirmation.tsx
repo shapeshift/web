@@ -1,10 +1,18 @@
-import { Box, Button, Divider, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  Divider,
+  HStack,
+  Image,
+  useColorModeValue,
+  VStack,
+} from '@chakra-ui/react'
 import { AddressSummaryCard } from 'plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
 import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
 import { useWalletConnect } from 'plugins/walletConnectToDapps/v1/WalletConnectBridgeContext'
 import { useTranslate } from 'react-polyglot'
-import { Card } from 'components/Card/Card'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'

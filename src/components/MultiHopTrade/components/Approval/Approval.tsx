@@ -1,8 +1,12 @@
 import {
   Box,
   Button,
+  Card,
+  CardBody,
+  CardHeader,
   Divider,
   Flex,
+  Heading,
   Icon,
   Image,
   Link,
@@ -19,7 +23,6 @@ import { useFormContext } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { useAllowanceApproval } from 'components/MultiHopTrade/hooks/useAllowanceApproval/useAllowanceApproval'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
@@ -148,12 +151,12 @@ const ApprovalInner = ({
   return (
     <SlideTransition>
       <Card variant='unstyled'>
-        <Card.Header textAlign='center' px={0} pt={0}>
-          <Card.Heading>
+        <CardHeader textAlign='center' px={0} pt={0}>
+          <Heading>
             <Text translation='assets.assetCards.assetActions.trade' />
-          </Card.Heading>
-        </Card.Header>
-        <Card.Body pb={0} px={0}>
+          </Heading>
+        </CardHeader>
+        <CardBody pb={0} px={0}>
           <Flex
             justifyContent='center'
             alignItems='center'
@@ -268,7 +271,7 @@ const ApprovalInner = ({
               </Row>
             </Flex>
           </Flex>
-        </Card.Body>
+        </CardBody>
       </Card>
     </SlideTransition>
   )

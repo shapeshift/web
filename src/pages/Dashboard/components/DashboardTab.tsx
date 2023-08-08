@@ -41,7 +41,7 @@ export const DashboardTab = forwardRef<DashboardTabProps, 'button'>(
         borderBottomWidth={4}
         iconSpacing={4}
         letterSpacing='0.012em'
-        fontWeight='bold'
+        fontWeight='medium'
         _active={{ borderColor: `${color}.500`, color: 'chakra-body-text' }}
         {...(rightElement && {
           rightIcon: <Tag colorScheme={color}>{rightElement}</Tag>,

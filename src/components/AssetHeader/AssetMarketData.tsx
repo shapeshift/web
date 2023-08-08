@@ -63,7 +63,7 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => 
   return (
     <Card>
       <CardHeader>
-        <Heading>{translate('assets.assetDetails.assetHeader.marketData')}</Heading>
+        <Heading as='h5'>{translate('assets.assetDetails.assetHeader.marketData')}</Heading>
       </CardHeader>
       <CardBody>
         <SimpleGrid gridTemplateColumns={{ base: '1fr', md: '1fr' }} gridGap={6} width='full'>

@@ -18,6 +18,7 @@ import type { FieldError } from 'react-hook-form'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Balance } from 'components/DeFi/components/Balance'
@@ -80,6 +81,7 @@ const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
 export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
   ({
     assetId,
+    accountId,
     assetSymbol,
     onChange,
     onMaxClick,
@@ -154,13 +156,12 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         borderColor={isFocused ? focusBorder : borderColor}
         bg={isFocused ? focusBg : bgColor}
         borderRadius='xl'
-        _hover={hover}
         isInvalid={!!errors}
         pt={3}
         pb={2}
         {...formControlProps}
       >
-        <Flex justifyContent='space-between' alignItems='center' px={4} width='full' mb={2}>
+        <Flex justifyContent='space-between' alignItems='center' px={4} width='full' mb={4}>
           {label && (
             <Flex alignItems='center'>
               <FormLabel mb={0} fontSize='sm'>
@@ -177,7 +178,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               disabled={showFiatSkeleton}
               fontWeight='medium'
               variant='link'
-              color='gray.500'
+              color='GrayText'
             >
               <Skeleton isLoaded={!showFiatSkeleton}>
                 {isFiat ? (
@@ -201,6 +202,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 customInput={CryptoInput}
                 isNumericString={true}
                 disabled={isReadOnly}
+                _disabled={{ opacity: 1, cursor: 'not-allowed' }}
                 suffix={isFiat ? localeParts.postfix : ''}
                 prefix={isFiat ? localeParts.prefix : ''}
                 decimalSeparator={localeParts.decimal}
@@ -219,7 +221,8 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         <Flex
           direction='row'
           gap={2}
-          py={2}
+          pt={4}
+          pb={2}
           px={4}
           justifyContent='space-between'
           alignItems='center'
@@ -230,7 +233,19 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               fiatBalance={fiatBalance ?? ''}
               symbol={assetSymbol}
               isFiat={isFiat}
-              label={translate('common.balance')}
+              label={''}
+            />
+          )}
+          {assetId && (
+            <AccountDropdown
+              defaultAccountId={accountId}
+              assetId={assetId}
+              onChange={() => console.info('blop')}
+              disabled={false}
+              autoSelectHighestBalance
+              buttonProps={{ variant: 'unstyled', display: 'flex', height: 'auto' }}
+              boxProps={{ px: 0, m: 0 }}
+              showLabel={false}
             />
           )}
           {onPercentOptionClick && (

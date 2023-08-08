@@ -51,7 +51,7 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
   return (
     <Card>
       <CardHeader>
-        <Heading>
+        <Heading as='h5'>
           <Text translation='assets.assetCards.relatedAssets' />
         </Heading>
       </CardHeader>

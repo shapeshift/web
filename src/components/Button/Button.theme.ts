@@ -62,11 +62,11 @@ export const ButtonStyle: ComponentStyleConfig = {
     solid: (props: StyleFunctionProps) => {
       const { colorScheme: c } = props
       if (c === 'gray') {
-        const bg = mode('gray.100', 'gray.700')(props)
+        const bg = mode('gray.100', 'whiteAlpha.200')(props)
         return {
           bg,
           _hover: {
-            bg: mode('gray.200', 'gray.600')(props),
+            bg: mode('gray.200', 'whiteAlpha.300')(props),
             textDecoration: 'none',
             _disabled: {
               bg,

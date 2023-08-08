@@ -136,7 +136,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     <Card variant='default'>
       <CardHeader display='flex' gap={4} alignItems='center'>
         <Flex flexDir='column' flex={1}>
-          <Heading>{translate('common.allocation')}</Heading>
+          <Heading as='h5'>{translate('common.allocation')}</Heading>
           <Flex flexDir='column' gap={1}>
             <Skeleton isLoaded={!isLoading}>
               <Amount.Fiat fontSize='xl' value={totalFiatBalance} lineHeight={1} />

@@ -46,23 +46,41 @@ export const CardStyle = {
     },
   },
   variants: {
+    elevated: (props: Record<string, any>) => ({
+      container: {
+        bg: mode('white', 'whiteAlpha.50')(props),
+      },
+    }),
+    unstyled: {
+      container: {
+        bg: 'transparent',
+        border: 0,
+      },
+      header: {
+        border: 0,
+      },
+      footer: {
+        border: 0,
+      },
+    },
     outline: (props: Record<string, any>) => ({
       container: {
+        bg: mode('white', 'black')(props),
         borderWidth: 1,
-        borderColor: mode('blackAlpha.50', 'gray.750')(props),
+        borderColor: mode('blackAlpha.50', 'whiteAlpha.200')(props),
       },
       header: {
         borderBottomWidth: 1,
-        borderColor: mode('gray.200', 'gray.750')(props),
+        borderColor: mode('gray.200', 'whiteAlpha.200')(props),
       },
       footer: {
         borderTopWidth: 1,
-        borderColor: mode('gray.200', 'gray.750')(props),
+        borderColor: mode('gray.200', 'whiteAlpha.200')(props),
       },
     }),
   },
   defaultProps: {
     size: 'md',
-    variant: 'solid',
+    variant: 'elevated',
   },
 }

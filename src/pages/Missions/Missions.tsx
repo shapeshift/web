@@ -171,7 +171,7 @@ export const MissionSidebar = () => {
     return active.map(mission => <Mission minHeight='250px' key={mission.title} {...mission} />)
   }, [active])
   return (
-    <Card px={sideBarPadding}>
+    <Card variant='unstyled' px={sideBarPadding}>
       <Carousel renderHeader={props => <MissionCarouselHeader {...props} />}>
         {renderMissions}
       </Carousel>

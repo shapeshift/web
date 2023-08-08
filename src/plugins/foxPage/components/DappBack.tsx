@@ -17,7 +17,7 @@ export const DappBack = () => {
   return (
     <Card>
       <CardHeader>
-        <Heading>
+        <Heading as='h5'>
           <Text translation='plugins.foxPage.dappBack.title' />
         </Heading>
       </CardHeader>

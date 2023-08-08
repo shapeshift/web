@@ -57,6 +57,7 @@ export const SellAssetInput = memo(({ accountId, asset, label }: SellAssetInputP
       showInputSkeleton={false}
       showFiatSkeleton={false}
       label={label}
+      formControlProps={{ borderRadius: 0, background: 'transparent', borderWidth: 0 }}
     />
   )
 })

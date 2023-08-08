@@ -21,7 +21,7 @@ export const AssetAccounts = ({ assetId, accountId }: AssetAccountsProps) => {
   return (
     <Card>
       <CardHeader>
-        <Heading>{translate('assets.assetDetails.assetAccounts.assetAllocation')}</Heading>
+        <Heading as='h5'>{translate('assets.assetDetails.assetAccounts.assetAllocation')}</Heading>
       </CardHeader>
       <CardBody pt={0}>
         <Stack spacing={2} mt={2} mx={-4}>

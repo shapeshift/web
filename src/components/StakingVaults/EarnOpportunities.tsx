@@ -104,7 +104,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
       <CardHeader flexDir='row' display='flex'>
         <HStack gap={6} width='full'>
           <Box>
-            <Heading>
+            <Heading as='h5'>
               <Text translation='navBar.defi' />
             </Heading>
             <Text color='gray.500' translation='defi.earnBody' />

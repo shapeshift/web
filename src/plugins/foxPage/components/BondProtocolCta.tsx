@@ -14,7 +14,7 @@ export const BondProtocolCta = () => {
   return (
     <Card>
       <CardHeader>
-        <Heading>
+        <Heading as='h5'>
           <Text translation='plugins.foxPage.bondProtocol.title' />
         </Heading>
       </CardHeader>

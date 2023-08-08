@@ -66,7 +66,7 @@ export const DashboardHeader = () => {
       portfolioTotalUserCurrencyBalance,
     ],
   )
-  const borderColor = useColorModeValue('gray.100', 'gray.900')
+  const borderColor = useColorModeValue('gray.100', 'whiteAlpha.200')
   const bgColor = useColorModeValue('white', 'blackAlpha.100')
 
   useEffect(() => {

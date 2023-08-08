@@ -28,7 +28,7 @@ export const AccountAssets = ({ assetId, accountId }: AccountAssetsProps) => {
   return (
     <Card>
       <CardHeader>
-        <Heading>
+        <Heading as='h5'>
           <Text translation='assets.assetCards.accountTokens' />
         </Heading>
       </CardHeader>

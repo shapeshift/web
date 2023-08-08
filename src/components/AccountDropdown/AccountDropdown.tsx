@@ -309,7 +309,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
               justifyContent='space-between'
               flexWrap='wrap'
             >
-              <RawText fontWeight='bold'>
+              <RawText fontWeight='medium'>
                 {translate('accounts.accountNumber', { accountNumber })}
               </RawText>
               {showLabel && (

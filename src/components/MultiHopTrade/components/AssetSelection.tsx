@@ -1,3 +1,4 @@
+import type { BoxProps, CardProps } from '@chakra-ui/react'
 import {
   Card,
   CardBody,
@@ -39,7 +40,8 @@ type TradeAssetSelectProps = {
   accountSelectionDisabled?: boolean
   onAssetClick?: () => void
   label: string
-}
+  align?: 'left' | 'right'
+} & CardProps
 
 const footerPadding = { padding: 0 }
 const buttonProps = {
@@ -51,7 +53,6 @@ const buttonProps = {
   height: 'auto',
 }
 const boxProps = { m: 0, p: 0 }
-const borderRadius = { base: 'xl' }
 
 export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   onAccountIdChange: handleAccountIdChange,
@@ -60,6 +61,8 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   onAssetClick,
   assetId,
   label,
+  align,
+  ...rest
 }) => {
   const hoverBg = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
   const focusBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
@@ -73,12 +76,15 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
 
   return (
     <Card
-      bg={useColorModeValue('white', 'gray.850')}
+      bg={useColorModeValue('white', 'black')}
       flex={1}
       borderColor={borderColor}
-      borderRadius={borderRadius}
       width='full'
       overflow='hidden'
+      variant='unstyled'
+      borderRadius={0}
+      boxShadow='none'
+      {...rest}
     >
       <CardBody
         display='flex'
@@ -87,16 +93,21 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         _hover={hoverProps}
         _active={activeProps}
         cursor='pointer'
-        py={2}
+        alignItems={align === 'right' ? 'flex-end' : 'flex-start'}
+        py={4}
         px={4}
         onClick={onAssetClick}
       >
         <FormLabel mb={0} fontSize='sm'>
           {label}
         </FormLabel>
-        <Flex gap={2} alignItems='center'>
+        <Flex gap={2} alignItems='center' flexDir={align === 'right' ? 'row-reverse' : 'row'}>
           <AssetIcon assetId={assetId} size='sm' />
-          <Flex flexDir='column' fontWeight='medium'>
+          <Flex
+            flexDir='column'
+            fontWeight='medium'
+            alignItems={align === 'right' ? 'flex-end' : 'flex-start'}
+          >
             <RawText lineHeight='shorter'>{asset?.symbol}</RawText>
             <RawText fontSize='xs' color='gray.500' lineHeight='shorter'>
               on {networkName}
@@ -104,7 +115,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
           </Flex>
         </Flex>
       </CardBody>
-      {assetId && (
+      {/* {assetId && (
         <CardFooter style={footerPadding} borderTopWidth={1} borderColor={borderColor}>
           <AccountDropdown
             defaultAccountId={accountId}
@@ -116,7 +127,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
             autoSelectHighestBalance
           />
         </CardFooter>
-      )}
+      )} */}
     </Card>
   )
 }

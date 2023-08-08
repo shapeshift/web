@@ -24,7 +24,7 @@ export const AssetDescription = ({ assetId }: AssetDescriptionProps) => {
     <Card>
       <CardHeader>
         <Skeleton isLoaded={isLoaded} size='md'>
-          <Heading mb={4}>
+          <Heading as='h5'>
             {translate('assets.assetDetails.assetHeader.aboutAsset', { asset: name })}
           </Heading>
         </Skeleton>

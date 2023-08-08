@@ -50,7 +50,7 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
   if (!filteredEligibleOpportunities.length) return null
 
   return (
-    <Card px={cardPadding}>
+    <Card variant='unstyled' px={cardPadding}>
       <Carousel autoPlay slideSize='100%' renderHeader={props => <Header {...props} />} {...props}>
         {renderEligibleCards}
       </Carousel>

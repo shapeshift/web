@@ -1,3 +1,4 @@
+import type { ExtendedTransactionInfo } from '@lifi/sdk'
 import type { ChainKey, GetStatusRequest, Route } from '@lifi/sdk/dist/types'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
@@ -120,7 +121,7 @@ export const lifiApi: Swapper2Api = {
 
     return {
       status,
-      buyTxHash: statusResponse.receiving?.txHash,
+      buyTxHash: (statusResponse.receiving as ExtendedTransactionInfo)?.txHash,
       message: statusResponse.substatusMessage,
     }
   },

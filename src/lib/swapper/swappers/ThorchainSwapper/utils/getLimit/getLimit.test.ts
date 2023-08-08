@@ -3,6 +3,7 @@ import { mockChainAdapters } from 'test/mocks/portfolio'
 
 import { DEFAULT_SLIPPAGE } from '../../../utils/constants'
 import { BTC, ETH, FOX_MAINNET, RUNE } from '../../../utils/test-data/assets'
+import type { ThornodeQuoteResponseSuccess } from '../../types'
 import { getInboundAddressDataForChain } from '../getInboundAddressDataForChain'
 import { getTradeRate, getTradeRateBelowMinimum } from '../getTradeRate/getTradeRate'
 import { mockInboundAddresses } from '../test-data/responses'
@@ -35,7 +36,6 @@ describe('getLimit', () => {
     const getLimitArgs: GetLimitArgs = {
       sellAsset: ETH,
       buyAsset: BTC,
-      receiveAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
       sellAmountCryptoBaseUnit: '82535000000000000',
       slippageTolerance: DEFAULT_SLIPPAGE,
       protocolFees: {
@@ -45,9 +45,9 @@ describe('getLimit', () => {
           asset: BTC,
         },
       },
-      affiliateBps: '0',
       buyAssetUsdRate: '20683', // buyAssetUsdRate (BTC)
       feeAssetUsdRate: '1595', // sellFeeAssetUsdRate (ETH)
+      thornodeQuote: {} as unknown as ThornodeQuoteResponseSuccess,
     }
     const maybeLimit = await getLimit(getLimitArgs)
     expect(maybeLimit.isOk()).toBe(true)
@@ -67,7 +67,6 @@ describe('getLimit', () => {
     const getLimitArgs: GetLimitArgs = {
       sellAsset: FOX_MAINNET,
       buyAsset: BTC,
-      receiveAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
       sellAmountCryptoBaseUnit: '489830019000000000000',
       slippageTolerance: DEFAULT_SLIPPAGE,
       protocolFees: {
@@ -77,9 +76,9 @@ describe('getLimit', () => {
           asset: BTC,
         },
       },
-      affiliateBps: '0',
       buyAssetUsdRate: '20683', // buyAssetUsdRate (BTC)
       feeAssetUsdRate: '1595', // sellFeeAssetUsdRate (ETH)
+      thornodeQuote: {} as unknown as ThornodeQuoteResponseSuccess,
     }
     const maybeLimit = await getLimit(getLimitArgs)
     expect(maybeLimit.isOk()).toBe(true)
@@ -99,7 +98,6 @@ describe('getLimit', () => {
     const getLimitArgs: GetLimitArgs = {
       sellAsset: FOX_MAINNET,
       buyAsset: RUNE,
-      receiveAddress: 'thor1234j5yq9qg7xqf0yq9qg7xqf0yq9qg7xqf0yq9q',
       sellAmountCryptoBaseUnit: '984229076000000000000',
       slippageTolerance: DEFAULT_SLIPPAGE,
       protocolFees: {
@@ -109,9 +107,9 @@ describe('getLimit', () => {
           asset: RUNE,
         },
       },
-      affiliateBps: '0',
       buyAssetUsdRate: '14.51', // buyAssetUsdRate (RUNE)
       feeAssetUsdRate: '1595', // sellFeeAssetUsdRate (ETH)
+      thornodeQuote: {} as unknown as ThornodeQuoteResponseSuccess,
     }
     const maybeLimit = await getLimit(getLimitArgs)
     expect(maybeLimit.isOk()).toBe(true)
@@ -131,7 +129,6 @@ describe('getLimit', () => {
     const getLimitArgs: GetLimitArgs = {
       sellAsset: RUNE,
       buyAsset: FOX_MAINNET,
-      receiveAddress: '0xFooBar',
       sellAmountCryptoBaseUnit: '988381400',
       slippageTolerance: DEFAULT_SLIPPAGE,
       protocolFees: {
@@ -141,9 +138,9 @@ describe('getLimit', () => {
           asset: FOX_MAINNET,
         },
       },
-      affiliateBps: '0',
       buyAssetUsdRate: '0.04', // buyAssetUsdRate (FOX)
       feeAssetUsdRate: '14.51', // sellFeeAssetUsdRate (RUNE)
+      thornodeQuote: {} as unknown as ThornodeQuoteResponseSuccess,
     }
     const maybeLimit = await getLimit(getLimitArgs)
     if (maybeLimit.isErr()) console.log(maybeLimit.unwrapErr())

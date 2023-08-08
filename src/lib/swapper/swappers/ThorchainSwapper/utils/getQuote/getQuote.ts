@@ -18,6 +18,7 @@ import {
   THORCHAIN_FIXED_PRECISION,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { createTradeBelowMinimumErr } from 'lib/swapper/utils'
 
 import { thorService } from '../thorService'
 
@@ -72,14 +73,11 @@ export const getQuote = async ({
   const data = maybeData.unwrap()
   const isError = 'error' in data
 
-  if (isError && /not enough fee/.test(data.error)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getTradeRate]: Sell amount is below the THOR minimum, cannot get a trade rate from Thorchain.`,
-        code: SwapErrorType.TRADE_BELOW_MINIMUM,
-        details: { sellAssetId: sellAsset.assetId, buyAssetId },
-      }),
-    )
+  if (
+    isError &&
+    (/not enough fee/.test(data.error) || /not enough to pay transaction fee/.test(data.error))
+  ) {
+    return Err(createTradeBelowMinimumErr())
   } else if (isError && /trading is halted/.test(data.error)) {
     return Err(
       makeSwapErrorRight({
@@ -91,9 +89,8 @@ export const getQuote = async ({
   } else if (isError) {
     return Err(
       makeSwapErrorRight({
-        message: `[getTradeRate]: THORChain quote returned an error: ${data.error}`,
+        message: data.error,
         code: SwapErrorType.TRADE_QUOTE_FAILED,
-        details: { sellAssetId: sellAsset.assetId, buyAssetId },
       }),
     )
   } else {

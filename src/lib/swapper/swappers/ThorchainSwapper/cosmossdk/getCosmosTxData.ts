@@ -9,7 +9,10 @@ import { getConfig } from 'config'
 import type { Asset } from 'lib/asset-service'
 import type { SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import type { ThorCosmosSdkSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type {
+  ThorCosmosSdkSupportedChainId,
+  ThornodeQuoteResponseSuccess,
+} from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { getLimit } from 'lib/swapper/swappers/ThorchainSwapper/utils/getLimit/getLimit'
 import { makeSwapMemo } from 'lib/swapper/swappers/ThorchainSwapper/utils/makeSwapMemo/makeSwapMemo'
@@ -28,6 +31,7 @@ type GetCosmosTxDataInput = {
   affiliateBps: string
   buyAssetUsdRate: string
   feeAssetUsdRate: string
+  thornodeQuote: ThornodeQuoteResponseSuccess
 }
 
 export const getCosmosTxData = async (
@@ -46,6 +50,7 @@ export const getCosmosTxData = async (
     affiliateBps,
     buyAssetUsdRate,
     feeAssetUsdRate,
+    thornodeQuote,
   } = input
   const fromThorAsset = sellAsset.chainId === KnownChainIds.ThorchainMainnet
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
@@ -74,10 +79,9 @@ export const getCosmosTxData = async (
     sellAsset,
     slippageTolerance,
     protocolFees: quote.steps[0].feeData.protocolFees,
-    receiveAddress: destinationAddress,
-    affiliateBps,
     buyAssetUsdRate,
     feeAssetUsdRate,
+    thornodeQuote,
   })
 
   if (maybeLimit.isErr()) return Err(maybeLimit.unwrapErr())

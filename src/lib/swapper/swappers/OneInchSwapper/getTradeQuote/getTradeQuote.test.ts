@@ -88,7 +88,7 @@ describe('getTradeQuote', () => {
     })
 
     const { quoteInput } = setupQuote()
-    const maybeQuote = await getTradeQuote(quoteInput, '0.02000')
+    const maybeQuote = await getTradeQuote(quoteInput)
     expect(maybeQuote.isOk()).toBe(true)
     const quote = maybeQuote.unwrap()
     expect(quote.steps[0].rate).toBe('0.000016426735042245')

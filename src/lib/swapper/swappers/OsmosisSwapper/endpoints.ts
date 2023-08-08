@@ -33,9 +33,8 @@ const tradeQuoteMetadata: Map<string, TradeQuote2> = new Map()
 export const osmosisApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    { sellAssetUsdRate }: { sellAssetUsdRate: string },
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
-    const tradeQuoteResult = await getTradeQuote(input, { sellAssetUsdRate })
+    const tradeQuoteResult = await getTradeQuote(input)
 
     return tradeQuoteResult.map(tradeQuote => {
       const { receiveAccountNumber, receiveAddress, affiliateBps } = input

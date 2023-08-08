@@ -9,6 +9,8 @@ import { getLimit } from 'lib/swapper/swappers/ThorchainSwapper/utils/getLimit/g
 import { makeSwapMemo } from 'lib/swapper/swappers/ThorchainSwapper/utils/makeSwapMemo/makeSwapMemo'
 import type { PartialRecord } from 'lib/utils'
 
+import type { ThornodeQuoteResponseSuccess } from '../../types'
+
 type GetThorTxInfoArgs = {
   sellAsset: Asset
   buyAsset: Asset
@@ -20,6 +22,7 @@ type GetThorTxInfoArgs = {
   affiliateBps: string
   buyAssetUsdRate: string
   feeAssetUsdRate: string
+  thornodeQuote: ThornodeQuoteResponseSuccess
 }
 type GetThorTxInfoReturn = Promise<
   Result<
@@ -44,6 +47,7 @@ export const getThorTxInfo: GetThorTxInfo = async ({
   affiliateBps,
   buyAssetUsdRate,
   feeAssetUsdRate,
+  thornodeQuote,
 }) => {
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const maybeInboundAddress = await getInboundAddressDataForChain(
@@ -62,10 +66,9 @@ export const getThorTxInfo: GetThorTxInfo = async ({
     sellAsset,
     slippageTolerance,
     protocolFees,
-    receiveAddress: destinationAddress,
-    affiliateBps,
     buyAssetUsdRate,
     feeAssetUsdRate,
+    thornodeQuote,
   })
 
   return maybeLimit.map(limit => {

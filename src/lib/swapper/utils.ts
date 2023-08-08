@@ -1,3 +1,4 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
@@ -106,11 +107,12 @@ export const getEnabledSwappers = (
     })
 }
 
-export const createSellAmountTooLowErr = (minSellAmountCryptoPrecision: string) =>
+export const createTradeBelowMinimumErr = (details?: {
+  minAmountCryptoPrecision: string
+  assetId: AssetId
+}) =>
   makeSwapErrorRight({
-    code: SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL,
-    message: 'Sell amount too low',
-    details: {
-      minSellAmountCryptoPrecision,
-    },
+    code: SwapErrorType.TRADE_BELOW_MINIMUM,
+    message: 'Sell amount is below the minimum',
+    details,
   })

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { SwapperName, TradeQuote2 } from 'lib/swapper/api'
-import { TradeExecution } from 'lib/swapper/tradeExecution'
+import { TradeExecution, TradeExecutionEvent } from 'lib/swapper/tradeExecution'
 import {
   selectPortfolioAccountMetadataByAccountId,
   selectUsdRateByAssetId,
@@ -85,11 +85,11 @@ export const useTradeExecution = ({
     return new Promise<void>(async (resolve, reject) => {
       const execution = new TradeExecution()
 
-      execution.on('error', reject)
-      execution.on('sellTxHash', ({ sellTxHash }) => {
+      execution.on(TradeExecutionEvent.Error, reject)
+      execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
         setSellTxHash(sellTxHash)
       })
-      execution.on('status', ({ status, message, buyTxHash }) => {
+      execution.on(TradeExecutionEvent.Status, ({ status, message, buyTxHash }) => {
         // TODO(gomes): do we want to bring in the concept of watching for a step execution in addition to trade execution?
         // useTradeExecution seems to revolve around the idea of a holistic trade execution i.e a sell/buy asset for the whole trade,
         // but we may want to make this granular to the step level?
@@ -104,11 +104,11 @@ export const useTradeExecution = ({
           setTradeStatus(TxStatus.Pending)
         }
       })
-      execution.on('success', () => {
+      execution.on(TradeExecutionEvent.Success, () => {
         dispatch(tradeQuoteSlice.actions.incrementStep())
         resolve()
       })
-      execution.on('fail', cause => {
+      execution.on(TradeExecutionEvent.Fail, cause => {
         reject(new Error('Transaction failed', { cause }))
       })
 

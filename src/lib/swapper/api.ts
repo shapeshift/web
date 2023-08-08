@@ -151,19 +151,6 @@ export enum SwapperName {
   OneInch = '1INCH',
 }
 
-export const ALL_SWAPPERS = [
-  SwapperName.CowSwap,
-  SwapperName.LIFI,
-  SwapperName.OneInch,
-  SwapperName.Osmosis,
-  SwapperName.Thorchain,
-  SwapperName.Zrx,
-]
-
-export type SwapperConfig = {
-  swappers?: SwapperName[]
-}
-
 // Swap Errors
 export enum SwapErrorType {
   BUILD_TRADE_FAILED = 'BUILD_TRADE_FAILED',

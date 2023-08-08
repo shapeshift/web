@@ -8,7 +8,6 @@ import type { QuoteResult, TradeQuoteDeps } from './types'
 
 export { TradeExecution } from './tradeExecution'
 
-// gets trade quotes
 export const getTradeQuotes = async (
   getTradeQuoteInput: GetTradeQuoteInput,
   enabledSwappers: SwapperName[],
@@ -44,7 +43,7 @@ export const getTradeQuotes = async (
   return successfulQuotes
 }
 
-export const getSupportedSellAssets = async (enabledSwappers: SwapperName[]) => {
+export const getSupportedSellAssetIds = async (enabledSwappers: SwapperName[]) => {
   const { assets } = new AssetService()
   const supportedAssetIds = await Promise.all(
     swappers
@@ -54,7 +53,7 @@ export const getSupportedSellAssets = async (enabledSwappers: SwapperName[]) => 
   return new Set(supportedAssetIds.flat())
 }
 
-export const getSupportedBuyAssets = async (enabledSwappers: SwapperName[], sellAsset: Asset) => {
+export const getSupportedBuyAssetIds = async (enabledSwappers: SwapperName[], sellAsset: Asset) => {
   const { assets } = new AssetService()
   const supportedAssetIds = await Promise.all(
     swappers

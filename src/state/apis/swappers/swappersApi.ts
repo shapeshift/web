@@ -3,6 +3,7 @@ import { thorchainAssetId } from '@shapeshiftoss/caip'
 import orderBy from 'lodash/orderBy'
 import type { GetTradeQuoteInput } from 'lib/swapper/api'
 import { getTradeQuotes } from 'lib/swapper/swapper'
+import type { TradeQuoteDeps } from 'lib/swapper/types'
 import { getEnabledSwappers } from 'lib/swapper/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote } from 'state/apis/swappers/types'
@@ -14,7 +15,10 @@ import { selectFeatureFlags } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 
-const getDependencies = (state: ReduxState, getTradeQuoteInput: GetTradeQuoteInput) => {
+const getDependencies = (
+  state: ReduxState,
+  getTradeQuoteInput: GetTradeQuoteInput,
+): TradeQuoteDeps => {
   const assets = selectAssets(state)
   const feeAsset = selectFeeAssetById(state, getTradeQuoteInput.sellAsset.assetId)
 

@@ -137,7 +137,6 @@ export const getOnRamperAssets = async (): Promise<AssetId[]> => {
 }
 
 const convertOnRamperDataToFiatRampAsset = (response: OnRamperGatewaysResponse): AssetId[] => {
-  console.info(response.message)
   return Array.from(
     new Set(
       response.message.crypto

@@ -3,6 +3,7 @@ import type { SignMessageInput } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignMessage } from '@shapeshiftoss/hdwallet-core'
 import { getConfig } from 'config'
 import { ethers } from 'ethers'
+import type { Asset } from 'lib/asset-service'
 import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper2 } from 'lib/swapper/api'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 
@@ -51,8 +52,8 @@ export const cowSwapper: Swapper2 = {
     return orderUid
   },
 
-  filterAssetIdsBySellable: (assetIds: AssetId[]): Promise<AssetId[]> => {
-    return Promise.resolve(filterAssetIdsBySellable(assetIds))
+  filterAssetIdsBySellable: (assets: Asset[]): Promise<AssetId[]> => {
+    return Promise.resolve(filterAssetIdsBySellable(assets))
   },
 
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput): Promise<AssetId[]> => {

@@ -47,7 +47,7 @@ describe('resolvers/thorchainSavers/utils', () => {
         }),
       )
 
-      const btcAssetMock = getAssetService().getAll()[btcAssetId]
+      const btcAssetMock = getAssetService().assetsById[btcAssetId]
       const maybeSaversQuote = await getMaybeThorchainSaversDepositQuote({
         asset: btcAssetMock,
         amountCryptoBaseUnit: '10000000',
@@ -82,7 +82,7 @@ describe('resolvers/thorchainSavers/utils', () => {
         }),
       )
 
-      const btcAssetMock = getAssetService().getAll()[btcAssetId]
+      const btcAssetMock = getAssetService().assetsById[btcAssetId]
       expect(
         (
           await getMaybeThorchainSaversDepositQuote({

@@ -165,7 +165,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   })()
 
   const hoverProps = useMemo(
-    () => ({ borderColor: isActive ? activeSwapperColor : hoverColor }),
+    () => ({ borderColor: isActive ? activeSwapperColor : hoverColor, cursor: 'pointer' }),
     [activeSwapperColor, hoverColor, isActive],
   )
   const activeProps = useMemo(
@@ -183,14 +183,14 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   return showSwapper ? (
     <Card
       borderWidth={1}
-      variant='elevated'
+      bg='background.surface.raised.accent'
       cursor={isDisabled ? 'not-allowed' : 'pointer'}
       borderColor={isActive ? activeSwapperColor : borderColor}
       _hover={isDisabled ? undefined : hoverProps}
       _active={isDisabled ? undefined : activeProps}
-      borderRadius='xl'
+      borderRadius='lg'
       flexDir='column'
-      gap={2}
+      gap={4}
       width='full'
       px={4}
       py={2}

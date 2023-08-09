@@ -2,12 +2,14 @@ import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Button,
+  CardFooter,
+  CardHeader,
+  Divider,
   Flex,
   Heading,
   IconButton,
   Stack,
   Tooltip,
-  useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
@@ -91,7 +93,6 @@ export const TradeInput = memo(() => {
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(false)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
@@ -265,14 +266,16 @@ export const TradeInput = memo(() => {
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <SlideTransition>
-        <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
-          <Flex alignItems='center' justifyContent='space-between'>
-            <Heading as='h5' fontSize='md'>
-              {translate('navBar.trade')}
-            </Heading>
-            {activeSwapperSupportsSlippage && <SlippagePopover />}
-          </Flex>
-          <Stack spacing={2}>
+        <Stack spacing={0} as='form' onSubmit={handleSubmit(onSubmit)}>
+          <CardHeader px={4}>
+            <Flex alignItems='center' justifyContent='space-between'>
+              <Heading as='h5' fontSize='md'>
+                {translate('navBar.trade')}
+              </Heading>
+              {activeSwapperSupportsSlippage && <SlippagePopover />}
+            </Flex>
+          </CardHeader>
+          <Stack spacing={0} divider={<Divider />}>
             <Flex alignItems='center' flexDir={flexDir} width='full'>
               <TradeAssetSelect
                 accountId={sellAssetAccountId}
@@ -280,6 +283,9 @@ export const TradeInput = memo(() => {
                 assetId={sellAsset.assetId}
                 onAssetClick={handleSellAssetClick}
                 label={translate('trade.from')}
+                borderTopRightRadius={0}
+                borderWidth={0}
+                bg='transparent'
               />
               <IconButton
                 onClick={handleSwitchAssets}
@@ -288,13 +294,7 @@ export const TradeInput = memo(() => {
                 my={marginVertical}
                 size='sm'
                 position='relative'
-                borderColor={useColorModeValue('gray.100', 'gray.750')}
-                borderWidth={1}
-                boxShadow={`0 0 0 3px var(${useColorModeValue(
-                  '--chakra-colors-white',
-                  '--chakra-colors-gray-785',
-                )})`}
-                bg={useColorModeValue('white', 'gray.850')}
+                variant='outline'
                 zIndex={1}
                 aria-label='Switch Assets'
                 icon={isLargerThanMd ? <ArrowForwardIcon /> : <ArrowDownIcon />}
@@ -306,12 +306,16 @@ export const TradeInput = memo(() => {
                 onAccountIdChange={setBuyAssetAccountId}
                 accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
                 label={translate('trade.to')}
+                borderWidth={0}
+                bg='transparent'
+                align='right'
               />
             </Flex>
             <SellAssetInput
               accountId={sellAssetAccountId}
               asset={sellAsset}
               label={translate('trade.youPay')}
+              onAccountIdChange={setSellAssetAccountId}
             />
             <TradeAssetInput
               isReadOnly={true}
@@ -332,52 +336,64 @@ export const TradeInput = memo(() => {
               showFiatSkeleton={isLoading}
               label={translate('trade.youGet')}
               rightRegion={rightRegion}
+              onAccountIdChange={setBuyAssetAccountId}
+              formControlProps={{ borderRadius: 0, background: 'transparent', borderWidth: 0 }}
             >
               {tradeQuotes}
             </TradeAssetInput>
           </Stack>
-          {hasUserEnteredAmount && (
-            <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
-              <RateGasRow
-                sellSymbol={sellAsset.symbol}
-                buySymbol={buyAsset.symbol}
-                gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
-                rate={rate}
-                isLoading={isLoading}
-                isError={activeQuoteError !== undefined}
-              />
-
-              {activeQuote ? (
-                <ReceiveSummary
+          <CardFooter
+            borderTopWidth={1}
+            borderColor='border.subtle'
+            flexDir='column'
+            gap={4}
+            px={4}
+            bg='background.surface.raised.accent'
+            borderBottomRadius='xl'
+          >
+            {hasUserEnteredAmount && (
+              <>
+                <RateGasRow
+                  sellSymbol={sellAsset.symbol}
+                  buySymbol={buyAsset.symbol}
+                  gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
+                  rate={rate}
                   isLoading={isLoading}
-                  symbol={buyAsset.symbol}
-                  amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
-                  amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
-                  protocolFees={totalProtocolFees}
-                  shapeShiftFee='0'
-                  slippage={slippageDecimal}
-                  swapperName={activeSwapperName ?? ''}
+                  isError={activeQuoteError !== undefined}
                 />
-              ) : null}
-              {isModeratePriceImpact && (
-                <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
-              )}
-            </Stack>
-          )}
-          {hasUserEnteredAmount && <DonationCheckbox isLoading={isLoading} />}
-          <ManualAddressEntry />
-          <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
-            <Button
-              type='submit'
-              colorScheme={quoteHasError ? 'red' : 'blue'}
-              size='lg-multiline'
-              data-test='trade-form-preview-button'
-              isDisabled={shouldDisablePreviewButton}
-              isLoading={isLoading}
-            >
-              <Text translation={activeQuoteStatus.quoteStatusTranslation} />
-            </Button>
-          </Tooltip>
+
+                {activeQuote ? (
+                  <ReceiveSummary
+                    isLoading={isLoading}
+                    symbol={buyAsset.symbol}
+                    amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
+                    amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
+                    protocolFees={totalProtocolFees}
+                    shapeShiftFee='0'
+                    slippage={slippageDecimal}
+                    swapperName={activeSwapperName ?? ''}
+                  />
+                ) : null}
+                {isModeratePriceImpact && (
+                  <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
+                )}
+              </>
+            )}
+            {hasUserEnteredAmount && <DonationCheckbox isLoading={isLoading} />}
+            <ManualAddressEntry />
+            <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
+              <Button
+                type='submit'
+                colorScheme={quoteHasError ? 'red' : 'blue'}
+                size='lg-multiline'
+                data-test='trade-form-preview-button'
+                isDisabled={shouldDisablePreviewButton}
+                isLoading={isLoading}
+              >
+                <Text translation={activeQuoteStatus.quoteStatusTranslation} />
+              </Button>
+            </Tooltip>
+          </CardFooter>
         </Stack>
       </SlideTransition>
     </MessageOverlay>

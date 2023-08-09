@@ -1,36 +1,24 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from 'lib/asset-service'
 import type { BuyAssetBySellIdInput } from 'lib/swapper/api'
-import { selectAssets } from 'state/slices/selectors'
-import { store } from 'state/store'
 
 type ChainIdPredicate = (buyAssetChainId: ChainId, sellAssetChainId: ChainId) => boolean
 
 const _filterEvmBuyAssetsBySellAssetId = (
-  input: BuyAssetBySellIdInput,
+  { assets, sellAsset }: BuyAssetBySellIdInput,
   chainIdPredicate: ChainIdPredicate,
-): AssetId[] => {
-  const { nonNftAssetIds = [], sellAssetId } = input
-
-  const assets = selectAssets(store.getState())
-  const sellAsset = assets[sellAssetId]
-
+): Asset[] => {
   // evm only
-  if (sellAsset === undefined || !isEvmChainId(sellAsset.chainId)) return []
+  if (!isEvmChainId(sellAsset.chainId)) return []
 
-  return nonNftAssetIds.filter(buyAssetId => {
-    const buyAsset = assets[buyAssetId]
-
-    if (buyAsset === undefined) return false
-
+  return assets.filter(buyAsset => {
     // evm only AND chain id predicate
     return isEvmChainId(buyAsset.chainId) && chainIdPredicate(buyAsset.chainId, sellAsset.chainId)
   })
 }
 
-export const filterSameChainEvmBuyAssetsBySellAssetId = (
-  input: BuyAssetBySellIdInput,
-): AssetId[] => {
+export const filterSameChainEvmBuyAssetsBySellAssetId = (input: BuyAssetBySellIdInput): Asset[] => {
   const sameChainIdPredicate = (buyAssetChainId: ChainId, sellAssetChainId: ChainId): boolean =>
     buyAssetChainId === sellAssetChainId
   return _filterEvmBuyAssetsBySellAssetId(input, sameChainIdPredicate)
@@ -38,7 +26,7 @@ export const filterSameChainEvmBuyAssetsBySellAssetId = (
 
 export const filterCrossChainEvmBuyAssetsBySellAssetId = (
   input: BuyAssetBySellIdInput,
-): AssetId[] => {
+): Asset[] => {
   const crossChainIdPredicate = (buyAssetChainId: ChainId, sellAssetChainId: ChainId): boolean =>
     buyAssetChainId !== sellAssetChainId
   return _filterEvmBuyAssetsBySellAssetId(input, crossChainIdPredicate)

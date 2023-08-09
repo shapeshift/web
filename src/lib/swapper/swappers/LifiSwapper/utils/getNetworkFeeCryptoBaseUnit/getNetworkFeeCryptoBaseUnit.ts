@@ -1,4 +1,4 @@
-import type { Step } from '@lifi/sdk'
+import type { LifiStep } from '@lifi/types'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -16,7 +16,7 @@ import { getLifi } from '../getLifi'
 type GetNetworkFeeArgs = {
   accountNumber: number
   chainId: ChainId
-  lifiStep: Step
+  lifiStep: LifiStep
   supportsEIP1559: boolean
   wallet?: HDWallet
 }

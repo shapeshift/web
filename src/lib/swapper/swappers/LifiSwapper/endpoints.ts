@@ -1,10 +1,10 @@
+import type { ExtendedTransactionInfo } from '@lifi/sdk'
 import type { ChainKey, GetStatusRequest, Route } from '@lifi/sdk/dist/types'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
-import type { Asset } from 'lib/asset-service'
 import type {
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
@@ -15,6 +15,7 @@ import type {
 } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
+import type { TradeQuoteDeps } from 'lib/swapper/types'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getLifiChainMap } from './utils/getLifiChainMap'
@@ -27,8 +28,7 @@ let lifiChainMapPromise: Promise<Result<Map<ChainId, ChainKey>, SwapErrorRight>>
 export const lifiApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    assets: Partial<Record<AssetId, Asset>>,
-    sellAssetPriceUsdPrecision: string,
+    { assets, sellAssetUsdRate }: TradeQuoteDeps,
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
     if (input.sellAmountBeforeFeesCryptoBaseUnit === '0') {
       return Err(
@@ -48,7 +48,7 @@ export const lifiApi: Swapper2Api = {
       input as GetEvmTradeQuoteInput,
       maybeLifiChainMap.unwrap(),
       assets,
-      sellAssetPriceUsdPrecision,
+      sellAssetUsdRate,
     )
     const { receiveAddress } = input
 
@@ -120,7 +120,7 @@ export const lifiApi: Swapper2Api = {
 
     return {
       status,
-      buyTxHash: statusResponse.receiving?.txHash,
+      buyTxHash: (statusResponse.receiving as ExtendedTransactionInfo)?.txHash,
       message: statusResponse.substatusMessage,
     }
   },

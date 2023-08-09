@@ -70,11 +70,9 @@ export const getQuote = async ({
 
   if (maybeData.isErr()) return Err(maybeData.unwrapErr())
   const data = maybeData.unwrap()
+  const isError = 'error' in data
 
-  if ('error' in data && /not enough fee/.test(data.error)) {
-    // TODO(gomes): How much do we want to bubble the error property up?
-    // In other words, is the consumer calling getTradeRateBelowMinimum() in case of a sell amount below minimum enough,
-    // or do we need to bubble the error up all the way so "web" is aware that the rate that was gotten was a below minimum one?
+  if (isError && /not enough fee/.test(data.error)) {
     return Err(
       makeSwapErrorRight({
         message: `[getTradeRate]: Sell amount is below the THOR minimum, cannot get a trade rate from Thorchain.`,
@@ -82,7 +80,7 @@ export const getQuote = async ({
         details: { sellAssetId: sellAsset.assetId, buyAssetId },
       }),
     )
-  } else if ('error' in data) {
+  } else if (isError) {
     return Err(
       makeSwapErrorRight({
         message: `[getTradeRate]: THORChain quote returned an error: ${data.error}`,

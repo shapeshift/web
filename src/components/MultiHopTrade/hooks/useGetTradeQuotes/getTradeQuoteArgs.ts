@@ -20,7 +20,7 @@ export type GetTradeQuoteInputArgs = {
   sellAccountNumber: number
   wallet: HDWallet
   receiveAddress: string
-  slippageTolerancePercentage: string
+  slippageTolerancePercentage?: string
   // Required for Osmo trades
   receiveAccountNumber?: number
   sellAmountBeforeFeesCryptoPrecision: string

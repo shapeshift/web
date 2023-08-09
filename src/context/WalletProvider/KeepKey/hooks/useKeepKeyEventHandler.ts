@@ -246,14 +246,11 @@ export const useKeepKeyEventHandler = (
       }
     }
 
-    // We only want to listen to these events if a KeepKey is actually connected, or we are showing a KeepKey modal
-    if ([state.connectedType, state.modalType].includes(KeyManager.KeepKey)) {
-      // Handle all KeepKey events
-      keyring.on(['KeepKey', '*', '*'], handleEvent)
-      // HDWallet emits (DIS)CONNECT events as "KeepKey - {LABEL}" so we can't just listen for "KeepKey"
-      keyring.on(['*', '*', Events.CONNECT], handleConnect)
-      keyring.on(['*', '*', Events.DISCONNECT], handleDisconnect)
-    }
+    // Handle all KeepKey events
+    keyring.on(['KeepKey', '*', '*'], handleEvent)
+    // HDWallet emits (DIS)CONNECT events as "KeepKey - {LABEL}" so we can't just listen for "KeepKey"
+    keyring.on(['*', '*', Events.CONNECT], handleConnect)
+    keyring.on(['*', '*', Events.DISCONNECT], handleDisconnect)
 
     return () => {
       keyring.off(['KeepKey', '*', '*'], handleEvent)

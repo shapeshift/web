@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { cosmos, osmosis } from '@shapeshiftoss/chain-adapters'
 import type { CosmosSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { Asset } from 'lib/asset-service'
 import type { BuyAssetBySellIdInput, ExecuteTradeArgs, Swapper2 } from 'lib/swapper/api'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 
@@ -20,7 +21,7 @@ export const osmosisSwapper: Swapper2 = {
     return adapter.broadcastTransaction(signedTx)
   },
 
-  filterAssetIdsBySellable: (_assetIds: AssetId[]): Promise<AssetId[]> => {
+  filterAssetIdsBySellable: (_assetIds: Asset[]): Promise<AssetId[]> => {
     return Promise.resolve([...SUPPORTED_ASSET_IDS])
   },
 

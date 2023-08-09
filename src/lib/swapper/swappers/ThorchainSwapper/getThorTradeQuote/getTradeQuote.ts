@@ -11,6 +11,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
@@ -37,10 +38,8 @@ import {
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
-import { getTradeRateBelowMinimum } from 'lib/swapper/swappers/ThorchainSwapper/utils/getTradeRate/getTradeRate'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
-import { DEFAULT_SLIPPAGE } from 'lib/swapper/swappers/utils/constants'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
@@ -71,6 +70,9 @@ export const getThorTradeQuote = async (
     wallet,
   } = input
 
+  const slippageTolerance =
+    slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain)
+
   const { sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate } = rates
 
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
@@ -99,7 +101,7 @@ export const getThorTradeQuote = async (
     )
   }
 
-  const quote = await getQuote({
+  const maybeQuote = await getQuote({
     sellAsset,
     buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit,
@@ -107,38 +109,23 @@ export const getThorTradeQuote = async (
     affiliateBps,
   })
 
-  const slippagePercentage = quote.isOk()
-    ? bn(quote.unwrap().slippage_bps).div(1000)
-    : bn(DEFAULT_SLIPPAGE).times(100)
+  if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
+  const quote = maybeQuote.unwrap()
+  const { fees, expected_amount_out: expectedAmountOutThorBaseUnit } = quote
 
-  const maybeRate = await quote.match({
-    ok: quote => {
-      const THOR_PRECISION = 8
-      const expectedAmountOutThorBaseUnit = quote.expected_amount_out
-      const sellAmountCryptoPrecision = baseUnitToPrecision({
-        value: sellAmountCryptoBaseUnit,
-        inputExponent: sellAsset.precision,
-      })
-      // All thorchain pool amounts are base 8 regardless of token precision
-      const sellAmountCryptoThorBaseUnit = bn(toBaseUnit(sellAmountCryptoPrecision, THOR_PRECISION))
+  const slippagePercentage = bn(quote.slippage_bps).div(1000)
 
-      return Promise.resolve(
-        Ok(bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed()),
-      )
-    },
-    // TODO: Handle TRADE_BELOW_MINIMUM specifically and return a result here as well
-    // Though realistically, TRADE_BELOW_MINIMUM is the only one we should really be seeing here,
-    // safety never hurts
-    err: _err =>
-      getTradeRateBelowMinimum({
-        sellAssetId: sellAsset.assetId,
-        buyAssetId: buyAsset.assetId,
-      }),
-  })
+  const rate = (() => {
+    const THOR_PRECISION = 8
+    const sellAmountCryptoPrecision = baseUnitToPrecision({
+      value: sellAmountCryptoBaseUnit,
+      inputExponent: sellAsset.precision,
+    })
+    // All thorchain pool amounts are base 8 regardless of token precision
+    const sellAmountCryptoThorBaseUnit = bn(toBaseUnit(sellAmountCryptoPrecision, THOR_PRECISION))
 
-  const rate = maybeRate.isOk() ? maybeRate.unwrap() : '0'
-
-  const fees = quote.isOk() ? quote.unwrap().fees : undefined
+    return bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed()
+  })()
 
   const buySellAssetRate = bn(buyAssetUsdRate).div(sellAssetUsdRate)
 
@@ -171,24 +158,18 @@ export const getThorTradeQuote = async (
     outputExponent: sellAsset.precision,
   }).times(buySellAssetRate)
 
-  // If we have a quote, we can use the quote's expected amount out. If not it's either a 0-value trade or an error, so use '0'.
   // Because the expected_amount_out is the amount after fees, we need to add them back on to get the "before fees" amount
   const buyAmountCryptoBaseUnit = (() => {
-    if (quote.isOk()) {
-      const unwrappedQuote = quote.unwrap()
-      const expectedAmountOutThorBaseUnit = unwrappedQuote.expected_amount_out
-      // Add back the outbound fees
-      const expectedAmountPlusFeesCryptoThorBaseUnit = bn(expectedAmountOutThorBaseUnit)
-        .plus(unwrappedQuote.fees.outbound)
-        .plus(unwrappedQuote.fees.affiliate)
+    const expectedAmountOutThorBaseUnit = quote.expected_amount_out
+    // Add back the outbound fees
+    const expectedAmountPlusFeesCryptoThorBaseUnit = bn(expectedAmountOutThorBaseUnit)
+      .plus(quote.fees.outbound)
+      .plus(quote.fees.affiliate)
 
-      return toBaseUnit(
-        fromBaseUnit(expectedAmountPlusFeesCryptoThorBaseUnit, THORCHAIN_FIXED_PRECISION),
-        buyAsset.precision,
-      )
-    } else {
-      return '0'
-    }
+    return toBaseUnit(
+      fromBaseUnit(expectedAmountPlusFeesCryptoThorBaseUnit, THORCHAIN_FIXED_PRECISION),
+      buyAsset.precision,
+    )
   })()
 
   const buyAssetTradeFeeUsd = bn(buyAssetUsdRate)
@@ -246,7 +227,7 @@ export const getThorTradeQuote = async (
           sellAsset,
           buyAsset,
           sellAmountCryptoBaseUnit,
-          slippageTolerance: slippageTolerancePercentage,
+          slippageTolerance,
           destinationAddress: receiveAddress,
           protocolFees,
           affiliateBps,
@@ -293,7 +274,7 @@ export const getThorTradeQuote = async (
           sellAsset,
           buyAsset,
           sellAmountCryptoBaseUnit,
-          slippageTolerance: slippageTolerancePercentage,
+          slippageTolerance,
           destinationAddress: receiveAddress,
           xpub: (input as GetUtxoTradeQuoteInput).xpub,
           protocolFees,

@@ -462,7 +462,7 @@ export const TradeConfirm = () => {
                     </Box>
                   </Row>
                 )}
-                {isHighPriceImpact && (
+                {isModeratePriceImpact && (
                   <PriceImpact impactPercentage={bn(priceImpactPercentage).toFixed(2)} />
                 )}
                 <Row>

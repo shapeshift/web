@@ -19,7 +19,7 @@ export const MobileNavBar = () => {
       bottom={0}
       left={0}
       width='100%'
-      bg='gray.800'
+      bg='background.surface.base'
       zIndex='banner'
       justifyContent='space-between'
       px={4}

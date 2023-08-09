@@ -1,5 +1,4 @@
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Button,
   CardFooter,
@@ -13,7 +12,6 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
-import type { Property } from 'csstype'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -78,7 +76,6 @@ import { PriceImpact } from '../PriceImpact'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 
-const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const marginHorizontal = { base: 0, md: -3 }
 const marginVertical = { base: -3, md: 0 }
 const percentOptions = [1]
@@ -276,7 +273,7 @@ export const TradeInput = memo(() => {
             </Flex>
           </CardHeader>
           <Stack spacing={0} divider={<Divider />}>
-            <Flex alignItems='center' flexDir={flexDir} width='full'>
+            <Flex alignItems='center' width='full'>
               <TradeAssetSelect
                 accountId={sellAssetAccountId}
                 onAccountIdChange={setSellAssetAccountId}
@@ -379,7 +376,7 @@ export const TradeInput = memo(() => {
                 )}
               </>
             )}
-            {hasUserEnteredAmount && <DonationCheckbox isLoading={isLoading} />}
+
             <ManualAddressEntry />
             <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
               <Button
@@ -393,6 +390,7 @@ export const TradeInput = memo(() => {
                 <Text translation={activeQuoteStatus.quoteStatusTranslation} />
               </Button>
             </Tooltip>
+            {hasUserEnteredAmount && <DonationCheckbox isLoading={isLoading} />}
           </CardFooter>
         </Stack>
       </SlideTransition>

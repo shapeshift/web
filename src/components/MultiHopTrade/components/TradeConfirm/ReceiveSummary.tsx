@@ -51,8 +51,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
-    const summaryBg = useColorModeValue('gray.50', 'gray.800')
-    const borderColor = useColorModeValue('gray.100', 'gray.750')
     const hoverColor = useColorModeValue('black', 'white')
     const redColor = useColorModeValue('red.500', 'red.300')
     const greenColor = useColorModeValue('green.600', 'green.200')
@@ -120,16 +118,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
           </Row.Value>
         </Row>
         <Collapse in={isOpen}>
-          <Stack
-            fontSize='sm'
-            bg={summaryBg}
-            fontWeight='medium'
-            borderWidth={1}
-            borderColor={borderColor}
-            borderRadius='xl'
-            px={4}
-            py={2}
-          >
+          <Stack fontSize='sm' borderTopWidth={1} borderColor='border.base' pt={2}>
             <Row>
               <HelperTooltip
                 label={
@@ -220,7 +209,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               </Row>
             )}
             <>
-              <Divider />
+              <Divider borderColor='border.base' />
               <Row>
                 <Row.Label>
                   <Text

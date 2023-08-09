@@ -203,7 +203,7 @@ export const ButtonStyle: ComponentStyleConfig = {
         borderRadius: 0,
         color: 'text.subtle',
         _hover: {
-          borderColor: 'text.subtle',
+          borderColor: 'border.bold',
         },
         _active: {
           color: mode(`${c}.500`, `${c}.200`)(props),

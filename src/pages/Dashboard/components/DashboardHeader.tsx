@@ -67,7 +67,7 @@ export const DashboardHeader = () => {
     ],
   )
   const borderColor = useColorModeValue('gray.100', 'whiteAlpha.200')
-  const bgColor = useColorModeValue('white', 'blackAlpha.100')
+  const bgColor = useColorModeValue('white', 'background.surface.base')
 
   useEffect(() => {
     if (activeRef.current) {
@@ -155,7 +155,7 @@ export const DashboardHeader = () => {
   return (
     <Stack
       spacing={0}
-      borderColor={borderColor}
+      borderColor='border.base'
       bg={bgColor}
       borderBottomWidth={1}
       pt='4.5rem'

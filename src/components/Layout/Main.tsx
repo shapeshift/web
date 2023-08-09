@@ -34,7 +34,7 @@ export const Main: React.FC<MainProps> = memo(
             as='header'
             borderBottomWidth={1}
             borderColor='border.base'
-            bg='background'
+            bg='background.surface.base'
             ref={ref}
             shadow={y > height ? 'sm' : undefined}
           >

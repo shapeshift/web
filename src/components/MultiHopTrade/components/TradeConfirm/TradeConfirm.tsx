@@ -67,6 +67,7 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { TradeRoutePaths } from '../../types'
+import { PriceImpact } from '../PriceImpact'
 
 export const TradeConfirm = () => {
   const history = useHistory()
@@ -166,6 +167,12 @@ export const TradeConfirm = () => {
     if (!priceImpactPercentage) return false
 
     return priceImpactPercentage.gt(10)
+  }, [priceImpactPercentage])
+
+  const isModeratePriceImpact = useMemo(() => {
+    if (!priceImpactPercentage) return false
+
+    return bn(priceImpactPercentage).gt(5)
   }, [priceImpactPercentage])
 
   const getSellTxLink = useCallback(
@@ -399,20 +406,22 @@ export const TradeConfirm = () => {
               </Alert>
             )}
             <Button
-              colorScheme='blue'
+              colorScheme={isModeratePriceImpact ? 'red' : 'blue'}
               size='lg'
               width='full'
               mt={6}
               data-test='trade-form-confirm-and-trade-button'
               type='submit'
             >
-              <Text translation='trade.confirmAndTrade' />
+              <Text
+                translation={isModeratePriceImpact ? 'trade.tradeAnyway' : 'trade.confirmAndTrade'}
+              />
             </Button>
           </>
         )}
       </Card.Footer>
     ),
-    [isSubmitting, txHash, swapperName, translate],
+    [txHash, isSubmitting, swapperName, translate, isModeratePriceImpact],
   )
 
   if (!tradeQuoteStep) return null
@@ -452,6 +461,9 @@ export const TradeConfirm = () => {
                       </Link>
                     </Box>
                   </Row>
+                )}
+                {isHighPriceImpact && (
+                  <PriceImpact impactPercentage={bn(priceImpactPercentage).toFixed(2)} />
                 )}
                 <Row>
                   <HelperTooltip label={translate('trade.tooltip.rate')}>

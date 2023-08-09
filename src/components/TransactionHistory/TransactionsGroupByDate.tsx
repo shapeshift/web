@@ -27,7 +27,7 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = m
       for (let index = 0; index < transactions.length; index++) {
         const transaction = transactions[index]
         const transactionDate = dayjs(transaction.date * 1000)
-          .startOf('day')
+          .startOf('month')
           .unix()
         const group = groups.find(g => g.date === transactionDate)
         if (group) {

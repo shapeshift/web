@@ -80,6 +80,14 @@ export const getQuote = async ({
         details: { sellAssetId: sellAsset.assetId, buyAssetId },
       }),
     )
+  } else if (isError && /trading is halted/.test(data.error)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getTradeRate]: Trading is halted, cannot process swap`,
+        code: SwapErrorType.TRADING_HALTED,
+        details: { sellAssetId: sellAsset.assetId, buyAssetId },
+      }),
+    )
   } else if (isError) {
     return Err(
       makeSwapErrorRight({

@@ -230,8 +230,14 @@ export const TradeInput = memo(() => {
   const isSellAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
 
   const shouldDisablePreviewButton = useMemo(() => {
-    return quoteHasError || manualReceiveAddressIsValidating || isLoading || !isSellAmountEntered
-  }, [isLoading, isSellAmountEntered, manualReceiveAddressIsValidating, quoteHasError])
+    return (
+      quoteHasError ||
+      manualReceiveAddressIsValidating ||
+      isLoading ||
+      !isSellAmountEntered ||
+      !activeQuote
+    )
+  }, [activeQuote, isLoading, isSellAmountEntered, manualReceiveAddressIsValidating, quoteHasError])
 
   const rightRegion = useMemo(
     () =>

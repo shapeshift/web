@@ -128,6 +128,7 @@ describe('getTradeQuote', () => {
       sellAssetUsdRate: '0.15399605260336216',
       buyAssetUsdRate: '1595',
       feeAssetUsdRate: '1595',
+      runeAssetUsdRate: '0.30',
     })
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedQuoteResponse)

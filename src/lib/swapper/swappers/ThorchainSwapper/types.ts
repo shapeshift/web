@@ -78,6 +78,7 @@ export type Rates = {
   sellAssetUsdRate: string
   buyAssetUsdRate: string
   feeAssetUsdRate: string
+  runeAssetUsdRate: string
 }
 
 export type ThorUtxoSupportedChainId =

@@ -3,10 +3,12 @@ import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import type { ISetupCache } from 'axios-cache-adapter'
 import { setupCache } from 'axios-cache-adapter'
-import { AsyncResultOf } from 'lib/utils'
+import { AsyncResultOf, isTruthy } from 'lib/utils'
+import { isCrossAccountTradeSupported } from 'state/helpers'
+import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
-import type { SwapErrorRight, SwapperName } from './api'
-import { makeSwapErrorRight, SwapErrorType } from './api'
+import type { SwapErrorRight } from './api'
+import { makeSwapErrorRight, SwapErrorType, SwapperName } from './api'
 
 const getRequestFilter = (cachedUrls: string[]) => (request: Request) =>
   !cachedUrls.some(url => request.url.includes(url))
@@ -84,3 +86,22 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
   })
 
 export type MonadicSwapperAxiosService = ReturnType<typeof makeSwapperAxiosServiceMonadic>
+
+export const getEnabledSwappers = (
+  { OsmosisSwap, LifiSwap, ThorSwap, ZrxSwap, OneInch, Cowswap }: FeatureFlags,
+  isCrossAccountTrade: boolean,
+) => {
+  return [
+    OsmosisSwap && SwapperName.Osmosis,
+    LifiSwap && SwapperName.LIFI,
+    ThorSwap && SwapperName.Thorchain,
+    ZrxSwap && SwapperName.Zrx,
+    OneInch && SwapperName.OneInch,
+    Cowswap && SwapperName.CowSwap,
+  ]
+    .filter(isTruthy)
+    .filter(swapperName => {
+      const swapperSupportsCrossAccountTrade = isCrossAccountTradeSupported(swapperName)
+      return !isCrossAccountTrade || swapperSupportsCrossAccountTrade
+    })
+}

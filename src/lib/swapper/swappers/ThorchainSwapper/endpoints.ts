@@ -22,7 +22,6 @@ export const thorchainApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     rates: Rates,
-    runeAssetUsdRate: string,
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
     const { receiveAddress, affiliateBps } = input
 
@@ -57,7 +56,7 @@ export const thorchainApi: Swapper2Api = {
       const isDonationAmountBelowMinimum =
         bnOrZero(affiliateBps).gt(0) &&
         bnOrZero(donationAmountUsd)
-          .div(runeAssetUsdRate)
+          .div(rates.runeAssetUsdRate)
           .lte(RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN)
 
       const quoteToUse = isDonationAmountBelowMinimum

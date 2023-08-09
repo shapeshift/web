@@ -65,6 +65,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
       as={Card}
       py={4}
       pl={2}
+      variant='outline'
       fontWeight='semibold'
       transitionProperty='common'
       transitionDuration='normal'

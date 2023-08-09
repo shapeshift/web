@@ -1,4 +1,4 @@
-import { Flex, Tag, useColorModeValue } from '@chakra-ui/react'
+import { Card, Flex, Tag, useColorModeValue } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -161,13 +161,14 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   )
 
   return totalReceiveAmountCryptoPrecision ? (
-    <Flex
+    <Card
+      variant='elevated'
       borderWidth={1}
       cursor='pointer'
       borderColor={isActive ? activeSwapperColor : borderColor}
       _hover={hoverProps}
       _active={activeProps}
-      borderRadius='xl'
+      borderRadius='lg'
       flexDir='column'
       gap={2}
       width='full'
@@ -212,7 +213,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           color={isBest ? greenColor : 'inherit'}
         />
       </Flex>
-    </Flex>
+    </Card>
   ) : null
 }
 

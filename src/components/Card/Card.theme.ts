@@ -48,7 +48,7 @@ export const CardStyle = {
   variants: {
     elevated: (props: Record<string, any>) => ({
       container: {
-        bg: mode('white', 'whiteAlpha.50')(props),
+        bg: mode('white', 'whiteAlpha.100')(props),
       },
     }),
     unstyled: {

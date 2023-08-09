@@ -100,7 +100,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
   if (allRows.length === 0) return null
 
   return (
-    <Card>
+    <Card variant='outline'>
       <CardHeader flexDir='row' display='flex'>
         <HStack gap={6} width='full'>
           <Box>

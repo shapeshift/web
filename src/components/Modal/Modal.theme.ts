@@ -4,10 +4,10 @@ export const ModalStyle = {
   // Styles for the base style
   baseStyle: (props: Record<string, any>) => ({
     dialog: {
-      bg: mode('white', 'gray.785')(props),
+      bg: mode('white', '#111')(props),
       borderRadius: '2xl',
       borderColor: mode('gray.50', 'gray.750')(props),
-      borderWidth: 1,
+      borderWidth: 0,
     },
     header: {
       borderTopRadius: '2xl',

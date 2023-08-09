@@ -1,5 +1,13 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Button, Container, Flex, Skeleton, Stack, useColorModeValue } from '@chakra-ui/react'
+import {
+  Button,
+  Container,
+  Flex,
+  IconButton,
+  Skeleton,
+  Stack,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
@@ -182,7 +190,82 @@ export const DashboardHeader = () => {
             </Skeleton>
           </Flex>
         </Flex>
-        <Flex gap={4} flexWrap={'wrap'} justifyContent={'center'}>
+        <Flex gap={4} mb={8} width='full' px={4} justifyContent='space-between'>
+          <IconButton
+            aria-label={translate('modals.send.qrCode')}
+            icon={<QRCodeIcon />}
+            onClick={handleQrCodeClick}
+            size='lg'
+            boxSize={16}
+            isRound
+            position='relative'
+            _after={{
+              content: 'attr(aria-label)',
+              position: 'absolute',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              bottom: '-1.5rem',
+              fontSize: '12px',
+            }}
+          />
+          <IconButton
+            aria-label={translate('common.receive')}
+            icon={<ArrowDownIcon />}
+            onClick={handleReceiveClick}
+            size='lg'
+            boxSize={16}
+            isRound
+            position='relative'
+            _after={{
+              content: 'attr(aria-label)',
+              position: 'absolute',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              bottom: '-1.5rem',
+              fontSize: '12px',
+            }}
+          />
+          <IconButton
+            aria-label={translate('common.send')}
+            icon={<ArrowUpIcon />}
+            onClick={handleQrCodeClick}
+            size='lg'
+            isRound
+            boxSize={16}
+            position='relative'
+            _after={{
+              content: 'attr(aria-label)',
+              position: 'absolute',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              bottom: '-1.5rem',
+              fontSize: '12px',
+            }}
+          />
+          <IconButton
+            aria-label={translate('navBar.tradeShort')}
+            icon={<IoSwapVerticalSharp />}
+            onClick={handleQrCodeClick}
+            size='lg'
+            boxSize={16}
+            isRound
+            position='relative'
+            _after={{
+              content: 'attr(aria-label)',
+              position: 'absolute',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              bottom: '-1.5rem',
+              fontSize: '12px',
+            }}
+          />
+        </Flex>
+        <Flex
+          gap={4}
+          flexWrap={'wrap'}
+          justifyContent={'center'}
+          display={{ base: 'none', md: 'flex' }}
+        >
           <Button isDisabled={!isConnected} onClick={handleQrCodeClick} leftIcon={<QRCodeIcon />}>
             {translate('modals.send.qrCode')}
           </Button>

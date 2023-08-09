@@ -56,6 +56,7 @@ import {
   selectActiveQuoteError,
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
+  selectBuyAmountBeforeFeesUserCurrency,
   selectFirstHop,
   selectNetBuyAmountUserCurrency,
   selectNetReceiveAmountCryptoPrecision,
@@ -103,6 +104,7 @@ export const TradeInput = memo(() => {
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
+  const buyAmountBeforeFeesUserCurrency = useAppSelector(selectBuyAmountBeforeFeesUserCurrency)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
@@ -111,14 +113,14 @@ export const TradeInput = memo(() => {
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
 
   const priceImpactPercentage = useMemo(() => {
-    if (!sellAmountBeforeFeesUserCurrency || !buyAmountAfterFeesUserCurrency) return bn('0')
+    if (!sellAmountBeforeFeesUserCurrency || !buyAmountBeforeFeesUserCurrency) return bn('0')
 
     const tradeDifference = bn(sellAmountBeforeFeesUserCurrency)
-      .minus(buyAmountAfterFeesUserCurrency)
+      .minus(buyAmountBeforeFeesUserCurrency)
       .abs()
 
     return tradeDifference.div(sellAmountBeforeFeesUserCurrency).times(100)
-  }, [sellAmountBeforeFeesUserCurrency, buyAmountAfterFeesUserCurrency])
+  }, [sellAmountBeforeFeesUserCurrency, buyAmountBeforeFeesUserCurrency])
 
   const isModeratePriceImpact = useMemo(() => {
     if (!priceImpactPercentage) return false

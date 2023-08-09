@@ -1065,6 +1065,8 @@
       "loadingText": "Wallet koppeln"
     },
     "settings": {
+      "clearCache": "Cache leeren",
+      "clearCacheTooltip": "Cache leeren und App neu laden",
       "settings": "Einstellungen",
       "currency": "Währung",
       "clearWalletAccountData": "Löschen Sie alle Konten und Wallets",
@@ -1791,7 +1793,9 @@
       "linkedYat": "Verlinktes Yat",
       "yatConnected": "Yat verbunden!",
       "usdcAddress": "Yat USDC-Adresse",
-      "ethAddress": "Yat ETH-Adresse"
+      "ethAddress": "Yat ETH-Adresse",
+      "noAddressFound": "Keine %{symbol} Adresse gefunden",
+      "viewInApp": "In der mobilen ShapeShift-App anzeigen"
     }
   },
   "gasInput": {

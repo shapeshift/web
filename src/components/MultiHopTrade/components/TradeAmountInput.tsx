@@ -18,6 +18,7 @@ import type { FieldError } from 'react-hook-form'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -58,6 +59,7 @@ export type TradeAmountInputProps = {
   onChange?: (value: string, isFiat?: boolean) => void
   onMaxClick?: () => Promise<void>
   onPercentOptionClick?: (args: number) => void
+  onAccountIdChange: AccountDropdownProps['onChange']
   isReadOnly?: boolean
   isSendMaxDisabled?: boolean
   cryptoAmount?: string
@@ -86,6 +88,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     onChange,
     onMaxClick,
     onPercentOptionClick,
+    onAccountIdChange,
     cryptoAmount,
     isReadOnly,
     isSendMaxDisabled,
@@ -107,7 +110,6 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const {
       number: { localeParts },
     } = useLocaleFormatter()
-    const translate = useTranslate()
     const amountRef = useRef<string | null>(null)
     const [isFiat, toggleIsFiat] = useToggle(false)
     const [isFocused, setIsFocused] = useState(false)
@@ -138,11 +140,6 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       setIsFocused(true)
       e.target.select()
     }, [])
-
-    const hover = useMemo(
-      () => ({ bg: isReadOnly ? bgColor : focusBg }),
-      [bgColor, focusBg, isReadOnly],
-    )
 
     const handleValueChange = useCallback((values: NumberFormatValues) => {
       // This fires anytime value changes including setting it on max click
@@ -240,7 +237,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
             <AccountDropdown
               defaultAccountId={accountId}
               assetId={assetId}
-              onChange={() => console.info('blop')}
+              onChange={onAccountIdChange}
               disabled={false}
               autoSelectHighestBalance
               buttonProps={{ variant: 'unstyled', display: 'flex', height: 'auto' }}

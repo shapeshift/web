@@ -10,7 +10,6 @@ import {
   IconButton,
   Stack,
   Tooltip,
-  useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
@@ -289,6 +288,7 @@ export const TradeInput = memo(() => {
               accountId={sellAssetAccountId}
               asset={sellAsset}
               label={translate('trade.youPay')}
+              onAccountIdChange={setSellAssetAccountId}
             />
             <TradeAssetInput
               isReadOnly={true}
@@ -310,6 +310,7 @@ export const TradeInput = memo(() => {
               label={translate('trade.youGet')}
               rightRegion={rightRegion}
               formControlProps={{ borderRadius: 0, background: 'transparent', borderWidth: 0 }}
+              onAccountIdChange={setBuyAssetAccountId}
             >
               {tradeQuotes}
             </TradeAssetInput>

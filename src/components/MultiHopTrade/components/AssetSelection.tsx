@@ -1,8 +1,7 @@
-import type { BoxProps, CardProps } from '@chakra-ui/react'
+import type { CardProps } from '@chakra-ui/react'
 import {
   Card,
   CardBody,
-  CardFooter,
   Flex,
   FormLabel,
   Skeleton,
@@ -13,7 +12,6 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { memo, useMemo } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 import { selectAssetById, selectFeeAssetByChainId } from 'state/slices/selectors'
@@ -42,17 +40,6 @@ type TradeAssetSelectProps = {
   label: string
   align?: 'left' | 'right'
 } & CardProps
-
-const footerPadding = { padding: 0 }
-const buttonProps = {
-  width: 'full',
-  borderTopRadius: 0,
-  px: 4,
-  fontSize: 'xs',
-  py: 4,
-  height: 'auto',
-}
-const boxProps = { m: 0, p: 0 }
 
 export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   onAccountIdChange: handleAccountIdChange,

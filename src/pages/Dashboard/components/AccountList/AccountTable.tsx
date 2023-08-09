@@ -119,6 +119,7 @@ export const AccountTable = memo(() => {
       data={rowData}
       initialState={{ sortBy: [{ id: 'balance', desc: true }] }}
       onRowClick={handleRowClick}
+      variant='clickable'
     />
   )
 })

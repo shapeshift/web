@@ -181,7 +181,7 @@ export const TableStyle = {
             },
             _hover: {
               color: mode('inherit', 'whiteAlpha.800')(props),
-              bg: 'surface',
+              bg: 'background.surface.raised.base',
               textDecoration: 'none',
               _disabled: {
                 bg: 'initial',
@@ -189,11 +189,11 @@ export const TableStyle = {
             },
             color: 'text.subtle',
             _active: {
-              bg: mode('gray.200', 'gray.700')(props),
+              bg: 'background.surface.raised.base',
               color: mode('gray.800', 'white')(props),
             },
             _checked: {
-              bg: mode('gray.200', 'gray.700')(props),
+              bg: 'background.surface.raised.pressed',
             },
             'td:first-of-type': {
               borderLeftRadius: 'xl',

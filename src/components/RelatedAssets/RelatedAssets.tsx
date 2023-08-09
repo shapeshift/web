@@ -56,7 +56,12 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
         </Heading>
       </CardHeader>
       <CardBody px={2} pt={0}>
-        <ReactTable columns={columns} data={data ?? []} onRowClick={handleRowClick} />
+        <ReactTable
+          columns={columns}
+          data={data ?? []}
+          onRowClick={handleRowClick}
+          variant='clickable'
+        />
       </CardBody>
     </Card>
   )

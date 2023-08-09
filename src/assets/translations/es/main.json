@@ -1065,6 +1065,8 @@
       "loadingText": "Emparejando Billetera"
     },
     "settings": {
+      "clearCache": "Limpiar cache",
+      "clearCacheTooltip": "Borrar caché y recargar app",
       "settings": "Ajustes",
       "currency": "Divisa",
       "clearWalletAccountData": "Eliminar todas las cuentas y los datos de la billetera",
@@ -1791,7 +1793,9 @@
       "linkedYat": "Yat vinculado",
       "yatConnected": "Yat conectado!",
       "usdcAddress": "Dirección Yat USDC",
-      "ethAddress": "Dirección Yat ETH"
+      "ethAddress": "Dirección Yat ETH",
+      "noAddressFound": "No %{symbol} dirección encontrada",
+      "viewInApp": "Ver en la App Móvil ShapeShift"
     }
   },
   "gasInput": {

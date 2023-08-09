@@ -15,7 +15,7 @@ export const PopoverStyle = {
       borderColor: 'gray.200',
       boxShadow: 'lg',
       _dark: {
-        [$popperBg.variable]: 'background.surface.overlay.base',
+        [$popperBg.variable]: 'colors.background.surface.overlay.base',
         borderColor: 'gray.700',
         boxShadow: 'dark-lg',
       },

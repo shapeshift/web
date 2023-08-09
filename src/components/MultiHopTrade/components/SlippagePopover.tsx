@@ -13,7 +13,6 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { debounce } from 'lodash'
@@ -49,7 +48,6 @@ export const SlippagePopover: FC = () => {
   const translate = useTranslate()
   const inputRef = useRef<HTMLInputElement>(null)
   const isAdvancedSlippageEnabled = useFeatureFlag('AdvancedSlippage')
-  const buttonGroupBg = useColorModeValue('blackAlpha.50', 'gray.850')
   const dispatch = useAppDispatch()
 
   useEffect(() => {
@@ -127,7 +125,7 @@ export const SlippagePopover: FC = () => {
             <Row.Value>
               <ButtonGroup
                 size='sm'
-                bg={buttonGroupBg}
+                bg='background.input.base'
                 px={1}
                 py={1}
                 borderRadius='xl'

@@ -49,13 +49,13 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = memo(
         <Stack spacing={4}>
           <Row fontSize='sm'>
             <HelperTooltip label={translate('trade.tooltip.donation')}>
-              <Row.Label fontSize='sm'>
+              <Row.Label>
                 <Checkbox
                   isChecked={willDonate}
                   onChange={handleDonationToggle}
                   isDisabled={isLoading}
                 >
-                  <Text translation='trade.donation' />
+                  <Text fontSize='sm' translation='trade.donation' />
                 </Checkbox>
               </Row.Label>
             </HelperTooltip>

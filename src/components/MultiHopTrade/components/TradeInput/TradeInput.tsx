@@ -91,7 +91,6 @@ export const TradeInput = memo(() => {
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(false)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])

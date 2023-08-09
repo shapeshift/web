@@ -180,6 +180,7 @@ export enum SwapErrorType {
   MISSING_INPUT = 'MISSING_INPUT',
   // Catch-all for happy responses, but entity not found according to our criteria
   NOT_FOUND = 'NOT_FOUND',
+  TRADING_HALTED = 'TRADING_HALTED',
 }
 
 export type TradeQuote2 = TradeQuote & {

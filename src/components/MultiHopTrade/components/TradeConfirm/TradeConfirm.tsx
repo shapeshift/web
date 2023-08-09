@@ -48,6 +48,7 @@ import {
   selectActiveStepOrDefault,
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
+  selectBuyAmountBeforeFeesUserCurrency,
   selectFirstHop,
   selectFirstHopNetworkFeeCryptoPrecision,
   selectFirstHopSellAsset,
@@ -126,6 +127,7 @@ export const TradeConfirm = () => {
   const netBuyAmountCryptoPrecision = useAppSelector(selectNetBuyAmountCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const netBuyAmountUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
+  const buyAmountBeforeFeesUserCurrency = useAppSelector(selectBuyAmountBeforeFeesUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
   const networkFeeCryptoHuman = useAppSelector(selectFirstHopNetworkFeeCryptoPrecision)
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
@@ -151,14 +153,14 @@ export const TradeConfirm = () => {
   const txHash = buyTxHash ?? sellTxHash
 
   const priceImpactPercentage = useMemo(() => {
-    if (!sellAmountBeforeFeesUserCurrency || !netBuyAmountUserCurrency) return bn(0)
+    if (!sellAmountBeforeFeesUserCurrency || !buyAmountBeforeFeesUserCurrency) return bn(0)
 
     const tradeDifference = bn(sellAmountBeforeFeesUserCurrency)
-      .minus(netBuyAmountUserCurrency)
+      .minus(buyAmountBeforeFeesUserCurrency)
       .abs()
 
     return tradeDifference.div(sellAmountBeforeFeesUserCurrency).times(100)
-  }, [sellAmountBeforeFeesUserCurrency, netBuyAmountUserCurrency])
+  }, [sellAmountBeforeFeesUserCurrency, buyAmountBeforeFeesUserCurrency])
 
   const isHighPriceImpact = useMemo(() => {
     if (!priceImpactPercentage) return false

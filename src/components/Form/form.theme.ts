@@ -6,7 +6,7 @@ export const FormStyle = {
       color: 'red.500',
     },
     helperText: {
-      color: 'gray.500',
+      color: 'text.subtle',
     },
   }),
   // Styles for the size variations

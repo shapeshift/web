@@ -228,7 +228,7 @@ export const TransactionGenericRow = ({
             }}
             fontSize={{ base: 'sm', lg: compactMode ? 'sm' : 'md' }}
             divider={
-              <Box border={0} color='gray.500' fontSize='sm'>
+              <Box border={0} color='text.subtle' fontSize='sm'>
                 <FaArrowRight />
               </Box>
             }
@@ -248,7 +248,7 @@ export const TransactionGenericRow = ({
                     symbol={fee.asset.symbol}
                     maximumFractionDigits={6}
                   />
-                  <Amount.Fiat color='gray.500' fontSize='sm' lineHeight='1' value={fiatValue} />
+                  <Amount.Fiat color='text.subtle' fontSize='sm' lineHeight='1' value={fiatValue} />
                 </Box>
               </Flex>
             )}

@@ -12,7 +12,7 @@ export const TransactionTime = ({ blockTime, format = 'hh:mm A' }: TransactionTi
   const selectedLocale = useAppSelector(selectSelectedLocale)
 
   return (
-    <RawText color='gray.500' fontSize='sm'>
+    <RawText color='text.subtle' fontSize='sm'>
       {dayjs(blockTime * 1000)
         .locale(selectedLocale)
         .format(format)}

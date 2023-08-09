@@ -68,7 +68,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, src,
 export const AssetIcon = memo(({ assetId, showNetworkIcon, src, ...rest }: AssetIconProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const assetIconBg = useColorModeValue('gray.200', 'gray.700')
-  const assetIconColor = useColorModeValue('gray.500', 'gray.500')
+  const assetIconColor = useColorModeValue('text.subtle', 'text.subtle')
 
   const chainAdapterManager = getChainAdapterManager()
   const chainId = assetId && fromAssetId(assetId).chainId

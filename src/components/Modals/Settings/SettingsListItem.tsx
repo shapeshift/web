@@ -38,7 +38,7 @@ export const SettingsListItem = ({
         {tooltipText && (
           <Tooltip label={translate(tooltipText)}>
             <Box ml={1}>
-              <Icon as={FaInfoCircle} color='gray.500' fontSize='0.7em' />
+              <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
             </Box>
           </Tooltip>
         )}

@@ -315,13 +315,13 @@ export const TradeInput = memo(() => {
               {tradeQuotes}
             </TradeAssetInput>
           </Stack>
-          <Divider />
           <CardFooter
-            borderTopWidth={0}
+            borderTopWidth={1}
+            borderColor='border.subtle'
             flexDir='column'
             gap={4}
             px={4}
-            bg='whiteAlpha.50'
+            bg='background.surface.raised.accent'
             borderBottomRadius='xl'
           >
             {hasUserEnteredAmount && (

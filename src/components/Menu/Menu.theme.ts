@@ -4,9 +4,9 @@ const parts = ['item', 'command', 'list', 'button', 'groupTitle', 'divider']
 
 function baseStyleList(props: Record<string, any>) {
   return {
-    bg: mode(`#fff`, `gray.750`)(props),
+    bg: 'background.surface.overlay.base',
     boxShadow: mode(`lg`, `lg`)(props),
-    borderColor: mode('gray.100', 'whiteAlpha.100')(props),
+    borderColor: 'border.base',
     color: 'inherit',
     minW: '3xs',
     py: '2',

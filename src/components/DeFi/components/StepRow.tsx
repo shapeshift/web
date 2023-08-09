@@ -61,7 +61,7 @@ export const StepRow: React.FC<StepRowProps> = ({
       </Stack>
       <Collapse in={isActive}>
         {description && (
-          <RawText color='gray.500' fontWeight='medium' fontSize='sm' mb={6}>
+          <RawText color='text.subtle' fontWeight='medium' fontSize='sm' mb={6}>
             {description}
           </RawText>
         )}

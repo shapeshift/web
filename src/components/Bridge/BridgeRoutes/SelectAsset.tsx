@@ -41,7 +41,7 @@ const AssetRow: React.FC<AssetRowProps> = ({ onClick, ...rest }) => {
         <AssetIcon src={icon} size='sm' />
         <Stack spacing={0} width='full' justifyContent='center' alignItems='flex-start'>
           <RawText>{`${symbol} on ${chainName}`}</RawText>
-          <RawText color='gray.500'>{`${cryptoAmount} available`}</RawText>
+          <RawText color='text.subtle'>{`${cryptoAmount} available`}</RawText>
         </Stack>
         {chains.length > 1 && (
           <Circle size={8} ml='auto' borderWidth={2} borderColor='gray.700'>

@@ -137,12 +137,12 @@ export const DappRegistryGrid: FC = () => {
             borderWidth={0}
             mb={4}
           >
-            <SearchIcon color='gray.500' fontSize='xl' />{' '}
+            <SearchIcon color='text.subtle' fontSize='xl' />{' '}
           </Card>
           <Text translation='common.noResultsFound' fontWeight='medium' fontSize='lg' />
           <Text
             translation='plugins.walletConnectToDapps.registry.emptyStateDescription'
-            color='gray.500'
+            color='text.subtle'
           />
         </VStack>
       )}

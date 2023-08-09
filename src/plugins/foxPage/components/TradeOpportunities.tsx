@@ -29,7 +29,7 @@ export const TradeOpportunities: React.FC<TradeOpportunitiesProps> = ({ opportun
       <CardBody>
         {opportunities.map((bucket, index) => (
           <Box my={2} key={index}>
-            <Text translation={bucket.title} color='gray.500' fontWeight='semibold' mb={4} />
+            <Text translation={bucket.title} color='text.subtle' fontWeight='semibold' mb={4} />
             <Flex flexDirection='row' flexWrap='wrap' m={-2}>
               {bucket.opportunities.map((opportunity, index) => (
                 <Link href={opportunity.link} isExternal key={index}>

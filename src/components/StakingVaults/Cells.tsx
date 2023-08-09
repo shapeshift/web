@@ -127,7 +127,7 @@ export const AssetCell = ({
               {isExternal && <ExternalLinkIcon boxSize={3} />}
             </HStack>
             {typeof subText === 'string' && (
-              <RawText fontSize='sm' color='gray.500' lineHeight='shorter'>
+              <RawText fontSize='sm' color='text.subtle' lineHeight='shorter'>
                 {subText}
               </RawText>
             )}

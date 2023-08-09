@@ -12,7 +12,7 @@ export const AccountSegment: FC<AccountGroupProps> = ({ title, subtitle }) => (
     direction='row'
     px={4}
     py={2}
-    color='gray.500'
+    color='text.subtle'
     fontSize='sm'
     fontWeight='bold'
     justifyContent='space-between'

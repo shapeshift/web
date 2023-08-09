@@ -124,7 +124,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = opportunity =>
           {opportunityName}
         </RawText>
 
-        <RawText fontSize='sm' color='gray.500'>
+        <RawText fontSize='sm' color='text.subtle'>
           {subText.join(' • ')}
         </RawText>
       </CardBody>

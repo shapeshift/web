@@ -189,7 +189,7 @@ const ApprovalInner = ({
               textAlign='center'
               translation={['trade.approveAsset', { symbol }]}
             />
-            <CText color='gray.500' textAlign='center'>
+            <CText color='text.subtle' textAlign='center'>
               <Link
                 href={`${tradeQuoteStep.sellAsset.explorerAddressLink}${tradeQuoteStep.allowanceContract}`}
                 color='blue.500'
@@ -223,16 +223,16 @@ const ApprovalInner = ({
               )}
               <Row>
                 <Row.Label display='flex' alignItems='center'>
-                  <Text color='gray.500' translation='trade.allowance' />
+                  <Text color='text.subtle' translation='trade.allowance' />
                   <Tooltip label={translate('trade.allowanceTooltip')}>
                     <Box ml={1}>
-                      <Icon as={FaInfoCircle} color='gray.500' fontSize='0.7em' />
+                      <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
                     </Box>
                   </Tooltip>
                 </Row.Label>
                 <Row.Value textAlign='right' display='flex' alignItems='center'>
                   <Text
-                    color={isExactAllowance ? 'gray.500' : 'white'}
+                    color={isExactAllowance ? 'text.subtle' : 'white'}
                     translation='trade.unlimited'
                     fontWeight='bold'
                   />
@@ -243,7 +243,7 @@ const ApprovalInner = ({
                     onChange={toggleIsExactAllowance}
                   />
                   <Text
-                    color={isExactAllowance ? 'white' : 'gray.500'}
+                    color={isExactAllowance ? 'white' : 'text.subtle'}
                     translation='trade.exact'
                     fontWeight='bold'
                   />
@@ -260,12 +260,12 @@ const ApprovalInner = ({
               <Divider my={4} />
               <Row>
                 <Row.Label>
-                  <Text color='gray.500' translation='trade.estimatedGasFee' />
+                  <Text color='text.subtle' translation='trade.estimatedGasFee' />
                 </Row.Label>
                 <Row.Value textAlign='right'>
                   <Skeleton isLoaded={approvalNetworkFeeCryptoHuman !== undefined}>
                     <RawText>{approvalNetworkFeeFiatDisplay}</RawText>
-                    <RawText color='gray.500'>{approvalNetworkFeeCryptoHumanDisplay}</RawText>
+                    <RawText color='text.subtle'>{approvalNetworkFeeCryptoHumanDisplay}</RawText>
                   </Skeleton>
                 </Row.Value>
               </Row>

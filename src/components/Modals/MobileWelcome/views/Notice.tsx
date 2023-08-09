@@ -42,7 +42,7 @@ export const Notice = () => {
               fontWeight='bold'
               translation='modals.mobileWelcome.notice.header'
             />
-            <Text color='gray.500' translation='modals.mobileWelcome.notice.body' />
+            <Text color='text.subtle' translation='modals.mobileWelcome.notice.body' />
           </Stack>
         </Stack>
       </ModalBody>

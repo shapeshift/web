@@ -189,7 +189,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
           )}
         </Flex>
         <Flex gap={2} alignItems='center'>
-          <RawText color='gray.500'>
+          <RawText color='text.subtle'>
             <FaGasPump />
           </RawText>
           {

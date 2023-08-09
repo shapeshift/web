@@ -114,12 +114,12 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
       <CardBody p={0}>
         <Tabs isFitted>
           <TabList>
-            <Tab py={4} color='gray.500' fontWeight='semibold'>
+            <Tab py={4} color='text.subtle' fontWeight='semibold'>
               {translate('plugins.foxPage.getAsset', {
                 assetSymbol: asset.symbol,
               })}
             </Tab>
-            <Tab py={4} color='gray.500' fontWeight='semibold'>
+            <Tab py={4} color='text.subtle' fontWeight='semibold'>
               {translate('plugins.foxPage.trade')}
             </Tab>
           </TabList>
@@ -129,7 +129,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
                 <AssetIcon src={asset.icon} boxSize='16' />
               </Box>
               <SkeletonText isLoaded={Boolean(description?.length)} noOfLines={3}>
-                <CText color='gray.500' mb={6}>
+                <CText color='text.subtle' mb={6}>
                   {trimmedDescription}
                 </CText>
               </SkeletonText>
@@ -175,7 +175,7 @@ export const AssetActions: React.FC<FoxTabProps> = ({ assetId }) => {
               {!isFoxAsset && (
                 <Stack width='full' p={6}>
                   <SkeletonText isLoaded={Boolean(description?.length)} noOfLines={3}>
-                    <CText color='gray.500' mt={6} mb={6}>
+                    <CText color='text.subtle' mt={6} mb={6}>
                       {translate('plugins.foxPage.tradingUnavailable', {
                         assetSymbol: asset.symbol,
                       })}

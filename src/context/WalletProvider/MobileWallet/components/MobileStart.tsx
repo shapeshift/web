@@ -29,7 +29,7 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
         <Text translation={'walletProvider.shapeShift.start.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={4} color='gray.500' translation={'walletProvider.shapeShift.start.body'} />
+        <Text mb={4} color='text.subtle' translation={'walletProvider.shapeShift.start.body'} />
         <Stack mt={6} spacing={4}>
           <Button
             variant='ghost-filled'

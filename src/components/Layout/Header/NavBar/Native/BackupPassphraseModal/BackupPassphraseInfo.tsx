@@ -113,7 +113,7 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
       {!preventClose && <ModalCloseButton />}
       <ModalBody>
         <Text
-          color='gray.500'
+          color='text.subtle'
           translation={'modals.shapeShift.backupPassphrase.info.description'}
           mb={6}
         />

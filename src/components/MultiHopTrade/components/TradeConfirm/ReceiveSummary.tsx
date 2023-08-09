@@ -113,7 +113,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               </Skeleton>
               {fiatAmount && (
                 <Skeleton isLoaded={!isLoading}>
-                  <Amount.Fiat color='gray.500' value={fiatAmount} prefix='≈' />
+                  <Amount.Fiat color='text.subtle' value={fiatAmount} prefix='≈' />
                 </Skeleton>
               )}
             </Stack>

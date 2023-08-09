@@ -60,7 +60,7 @@ export const FoxTab: React.FC<FoxTabProps> = ({
               maximumFractionDigits={2}
             />
             <Amount.Fiat
-              color='gray.500'
+              color='text.subtle'
               value={fiatAmount}
               lineHeight={'1.2'}
               maximumFractionDigits={2}

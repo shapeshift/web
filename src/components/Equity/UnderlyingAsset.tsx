@@ -26,7 +26,7 @@ export const UnderlyingAsset: React.FC<AssetWithBalance> = ({
       <LazyLoadAvatar display='flex' src={icon} size='2xs' />
       <Amount.Crypto value={cryptoBalancePrecision} symbol={asset?.symbol ?? ''} />
       <Amount.Fiat
-        color='gray.500'
+        color='text.subtle'
         value={fiatAmount}
         _before={{ content: '"("' }}
         _after={{ content: '")"' }}

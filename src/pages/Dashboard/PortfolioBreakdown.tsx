@@ -40,7 +40,7 @@ const BreakdownCard: React.FC<StatCardProps> = ({
           color={color ? color : 'blue.500'}
         />
         <Flex direction='column'>
-          <Text color='gray.500' fontWeight='medium' translation={label} />
+          <Text color='text.subtle' fontWeight='medium' translation={label} />
           <Skeleton isLoaded={!isLoading}>
             <Amount.Fiat fontWeight='bold' fontSize='xl' value={value} />
           </Skeleton>

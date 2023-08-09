@@ -198,7 +198,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
     <SlideTransition>
       <ModalBody>
         <Stack alignItems='center' justifyContent='center' py={8}>
-          <Text color='gray.500' translation='defi.modals.claim.claimAmount' />
+          <Text color='text.subtle' translation='defi.modals.claim.claimAmount' />
           <Stack direction='row' alignItems='center' justifyContent='center'>
             <AssetIcon boxSize='10' src={asset.icon} />
             <Skeleton minWidth='100px' isLoaded={!!amount}>
@@ -211,7 +211,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
             </Skeleton>
           </Stack>
           <Skeleton minWidth='100px' isLoaded={!!amount} textAlign='center'>
-            <Amount.Fiat value={claimFiatAmount} color='gray.500' prefix='≈' />
+            <Amount.Fiat value={claimFiatAmount} color='text.subtle' prefix='≈' />
           </Skeleton>
         </Stack>
       </ModalBody>
@@ -251,7 +251,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
                     value={bnOrZero(estimatedGas).times(feeMarketData.price).toFixed(2)}
                   />
                   <Amount.Crypto
-                    color='gray.500'
+                    color='text.subtle'
                     value={bnOrZero(estimatedGas).toFixed(5)}
                     symbol={feeAsset.symbol}
                   />

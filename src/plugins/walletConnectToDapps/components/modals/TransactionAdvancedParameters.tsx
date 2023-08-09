@@ -38,7 +38,7 @@ export const TransactionAdvancedParameters = () => {
         <FormControl>
           <FormLabel display='flex' columnGap={1}>
             <Text
-              color='gray.500'
+              color='text.subtle'
               fontWeight='medium'
               translation='plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.nonce.title'
             />
@@ -61,7 +61,7 @@ export const TransactionAdvancedParameters = () => {
         <FormControl>
           <FormLabel display='flex' columnGap={1}>
             <Text
-              color='gray.500'
+              color='text.subtle'
               fontWeight='medium'
               translation='plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.gasLimit.title'
             />

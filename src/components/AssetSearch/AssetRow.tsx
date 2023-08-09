@@ -23,7 +23,7 @@ const focus = {
 
 export const AssetRow: FC<ListChildComponentProps<AssetData>> = memo(
   ({ data: { handleClick, disableUnsupported, assets, hideZeroBalanceAmounts }, index, style }) => {
-    const color = useColorModeValue('gray.500', 'whiteAlpha.500')
+    const color = useColorModeValue('text.subtle', 'whiteAlpha.500')
     const {
       state: { isConnected, isDemoWallet, wallet },
     } = useWallet()

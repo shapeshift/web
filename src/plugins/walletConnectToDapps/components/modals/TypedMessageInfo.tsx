@@ -15,7 +15,7 @@ const PresentKeyValues = ({ object }: { object: any }) => {
       return (
         <Fragment key={index}>
           <>
-            <RawText color='gray.500' fontWeight='medium' fontSize='sm'>
+            <RawText color='text.subtle' fontWeight='medium' fontSize='sm'>
               {startCase(key)}
             </RawText>
             {typeof value === 'object' ? (

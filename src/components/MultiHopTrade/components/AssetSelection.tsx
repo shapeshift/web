@@ -96,7 +96,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
             alignItems={align === 'right' ? 'flex-end' : 'flex-start'}
           >
             <RawText lineHeight='shorter'>{asset?.symbol}</RawText>
-            <RawText fontSize='xs' color='gray.500' lineHeight='shorter'>
+            <RawText fontSize='xs' color='text.subtle' lineHeight='shorter'>
               on {networkName}
             </RawText>
           </Flex>

@@ -8,7 +8,6 @@ import {
   Skeleton,
   SkeletonCircle,
   Tag,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import { Amount } from 'components/Amount/Amount'
 import { opportunityRowGrid } from 'components/EarnDashboard/components/ProviderDetails/OpportunityTableHeader'
@@ -30,15 +29,13 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   opportunities: { staking, lp },
   isLoading,
 }) => {
-  const headerBg = useColorModeValue('white', 'black')
-
   const icon = getMetadataForProvider(provider)?.icon
   const isLoaded = !isLoading
   return (
     <Card variant='outline'>
       <CardHeader
         display='flex'
-        bg={headerBg}
+        bg='background.surface.raised.base'
         borderTopLeftRadius={{ base: 0, md: '2xl' }}
         borderTopRightRadius={{ base: '0', md: '2xl' }}
         flexDir={{ base: 'column', md: 'row' }}

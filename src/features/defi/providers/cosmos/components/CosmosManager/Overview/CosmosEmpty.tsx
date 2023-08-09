@@ -37,8 +37,8 @@ export const CosmosEmpty = ({ assets, apy, onStakeClick, onLearnMoreClick }: Cos
             </Skeleton>
           </CText>
         </Stack>
-        <Text color='gray.500' translation='defi.modals.getStarted.body' />
-        <Text color='gray.500' translation='defi.modals.getStarted.userProtectionInfo' />
+        <Text color='text.subtle' translation='defi.modals.getStarted.body' />
+        <Text color='text.subtle' translation='defi.modals.getStarted.userProtectionInfo' />
       </EmptyOverview>
     </DefiModalContent>
   )

@@ -664,7 +664,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                     .toFixed()}
                 />
                 <Amount.Crypto
-                  color='gray.500'
+                  color='text.subtle'
                   value={bnOrZero(networkFeeCryptoBaseUnit)
                     .div(bn(10).pow(asset.precision))
                     .toFixed()}
@@ -691,7 +691,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                     .toFixed()}
                 />
                 <Amount.Crypto
-                  color='gray.500'
+                  color='text.subtle'
                   value={bnOrZero(protocolFeeCryptoBaseUnit)
                     .div(bn(10).pow(asset.precision))
                     .toFixed()}
@@ -718,7 +718,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                     .toFixed(2)}
                 />
                 <Amount.Crypto
-                  color='gray.500'
+                  color='text.subtle'
                   value={bnOrZero(dustAmountCryptoBaseUnit)
                     .div(bn(10).pow(asset.precision))
                     .toFixed()}

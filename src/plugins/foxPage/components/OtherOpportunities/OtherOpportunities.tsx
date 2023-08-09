@@ -39,7 +39,7 @@ export const OtherOpportunities: React.FC<OtherOpportunitiesProps> = ({
         <Flex flexDirection='row' alignItems='center' mb={2}>
           <Text translation={title} fontWeight='bold' color='inherit' />
         </Flex>
-        <Text translation={description} color='gray.500' />
+        <Text translation={description} color='text.subtle' />
       </CardHeader>
       <Accordion defaultIndex={[0]} allowToggle allowMultiple>
         {renderRows}

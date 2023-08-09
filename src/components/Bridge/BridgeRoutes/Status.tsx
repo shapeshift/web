@@ -112,7 +112,12 @@ export const Status = () => {
                 value={cryptoAmount ?? '0'}
                 symbol={bridgeAsset?.symbol ?? ''}
               />
-              <Stack direction='row' justifyContent='center' alignItems='center' color='gray.500'>
+              <Stack
+                direction='row'
+                justifyContent='center'
+                alignItems='center'
+                color='text.subtle'
+              >
                 <RawText>{fromChain?.name}</RawText>
                 <ArrowForwardIcon />
                 <RawText>{toChain?.name}</RawText>
@@ -154,7 +159,7 @@ export const Status = () => {
                       />
                       <Stack spacing={0} alignItems='flex-start' justifyContent='center'>
                         <RawText>{bridgeAsset?.symbol}</RawText>
-                        <RawText fontSize='sm' color='gray.500'>
+                        <RawText fontSize='sm' color='text.subtle'>
                           {fromChain?.name}
                         </RawText>
                       </Stack>
@@ -184,7 +189,7 @@ export const Status = () => {
                       />
                       <Stack spacing={0} alignItems='flex-start' justifyContent='center'>
                         <RawText>{bridgeAsset?.symbol}</RawText>
-                        <RawText fontSize='sm' color='gray.500'>
+                        <RawText fontSize='sm' color='text.subtle'>
                           {toChain?.name}
                         </RawText>
                       </Stack>
@@ -223,7 +228,7 @@ export const Status = () => {
                       <Stack textAlign='right' spacing={0}>
                         <Amount.Fiat fontWeight='bold' value={relayerFeeUsdc ?? '0'} />
                         <Amount.Crypto
-                          color='gray.500'
+                          color='text.subtle'
                           value={transferFeeNativeToken ?? '0'}
                           symbol={bridgeAsset?.symbol ?? ''}
                         />

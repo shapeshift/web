@@ -1,5 +1,3 @@
-import { mode } from '@chakra-ui/theme-tools'
-
 export const CardStyle = {
   parts: ['container', 'header', 'body', 'footer'],
   baseStyle: () => ({
@@ -46,9 +44,10 @@ export const CardStyle = {
     },
   },
   variants: {
-    elevated: (props: Record<string, any>) => ({
+    elevated: () => ({
       container: {
-        bg: mode('white', 'whiteAlpha.100')(props),
+        bg: 'background.surface.raised.base',
+        borderColor: 'border.base',
       },
     }),
     unstyled: {
@@ -63,19 +62,19 @@ export const CardStyle = {
         border: 0,
       },
     },
-    outline: (props: Record<string, any>) => ({
+    outline: () => ({
       container: {
-        bg: mode('white', 'black')(props),
+        bg: 'transparent',
         borderWidth: 1,
-        borderColor: mode('blackAlpha.50', 'whiteAlpha.200')(props),
+        borderColor: 'border.base',
       },
       header: {
         borderBottomWidth: 1,
-        borderColor: mode('gray.200', 'whiteAlpha.200')(props),
+        borderColor: 'border.base',
       },
       footer: {
         borderTopWidth: 1,
-        borderColor: mode('gray.200', 'whiteAlpha.200')(props),
+        borderColor: 'border.base',
       },
     }),
   },

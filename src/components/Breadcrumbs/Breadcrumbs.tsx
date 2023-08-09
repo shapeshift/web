@@ -100,7 +100,7 @@ export const Breadcrumbs = withBreadcrumbs(
   options,
 )(({ breadcrumbs }: { breadcrumbs: any[] }) => {
   return (
-    <Breadcrumb fontWeight='medium' fontSize='sm' color='gray.500'>
+    <Breadcrumb fontWeight='medium' fontSize='sm' color='text.subtle'>
       {breadcrumbs.map(
         ({ breadcrumb, match }: { breadcrumb: ReactNode; match: { url: string } }) => {
           return (

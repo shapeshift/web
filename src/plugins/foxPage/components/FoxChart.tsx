@@ -41,7 +41,7 @@ export const FoxChart: React.FC<FoxChartProps> = ({ assetId }) => {
     <Card>
       <CardBody pb={2}>
         <Box textAlign='center'>
-          <Text color='gray.500' fontWeight='semibold'>
+          <Text color='text.subtle' fontWeight='semibold'>
             {translate('plugins.foxPage.currentPrice')}
           </Text>
           <Box fontSize='4xl' lineHeight={1} mb={2}>

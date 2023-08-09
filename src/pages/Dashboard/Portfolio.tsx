@@ -80,6 +80,7 @@ export const Portfolio = memo(() => {
           textAlign={{ base: 'center', md: 'inherit' }}
           width='full'
           flexDir={{ base: 'column', md: 'row' }}
+          borderBottomWidth={0}
         >
           <Button size='sm' flexDirection='row' onClick={toggleChartType} variant='outline'>
             <Text translation='dashboard.portfolio.totalChart' />
@@ -91,7 +92,7 @@ export const Portfolio = memo(() => {
           </Skeleton>
         </CardHeader>
         <Flex flexDir='column' justifyContent='center' alignItems='center'>
-          <Heading as='div' color='gray.500'>
+          <Heading as='div' color='text.subtle'>
             <Skeleton isLoaded={isLoaded}>
               <Text translation='defi.netWorth' />
             </Skeleton>

@@ -72,7 +72,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
         <Text translation={'walletProvider.shapeShift.success.header'} />
       </ModalHeader>
       <ModalBody>
-        <Box color='gray.500'>
+        <Box color='text.subtle'>
           {isSuccessful === true ? (
             <Text translation={'walletProvider.shapeShift.success.success'} />
           ) : isSuccessful === false ? (

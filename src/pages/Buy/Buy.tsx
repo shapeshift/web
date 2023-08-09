@@ -83,7 +83,7 @@ export const Buy = () => {
                 />
               </Heading>
               <Text fontSize='lg' translation='buyPage.body' color='whiteAlpha.900' />
-              <Text fontSize='sm' color='gray.500' translation='buyPage.disclaimer' />
+              <Text fontSize='sm' color='text.subtle' translation='buyPage.disclaimer' />
             </Flex>
             <Box flexBasis='400px'>
               <Card mx={{ base: -4, md: 0 }}>

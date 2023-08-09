@@ -57,7 +57,7 @@ export const StakingCard: React.FC<StakingCardProps> = props => {
         <Text fontSize='xl' fontWeight='bold' translation={[title, { asset: asset?.name }]} />
         <SkeletonText noOfLines={4} isLoaded={bnOrZero(opportunityApy).gt(0)}>
           <Text
-            color='gray.500'
+            color='text.subtle'
             translation={[
               body,
               { asset: asset?.name, apy: `${opportunityApy}%`, provider: providerName },

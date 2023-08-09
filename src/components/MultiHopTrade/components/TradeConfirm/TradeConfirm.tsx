@@ -323,7 +323,7 @@ export const TradeConfirm = () => {
               symbol={sellAsset?.symbol ?? ''}
             />
             <Amount.Fiat
-              color='gray.500'
+              color='text.subtle'
               value={bnOrZero(sellAmountBeforeFeesUserCurrency).toFixed(2)}
               prefix='≈'
             />
@@ -437,7 +437,7 @@ export const TradeConfirm = () => {
                       <RawText>{`1 ${sellAsset?.symbol ?? ''} = ${firstNonZeroDecimal(
                         bnOrZero(tradeQuoteStep?.rate),
                       )} ${buyAsset?.symbol}`}</RawText>
-                      {!!swapperName && <RawText color='gray.500'>@{swapperName}</RawText>}
+                      {!!swapperName && <RawText color='text.subtle'>@{swapperName}</RawText>}
                     </Box>
                   </Skeleton>
                 </Row>

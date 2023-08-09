@@ -35,7 +35,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
       <CardBody>
         <Text
           textAlign='center'
-          color='gray.500'
+          color='text.subtle'
           translation='assets.assetDetails.assetHistory.emptyTransactions'
         />
       </CardBody>

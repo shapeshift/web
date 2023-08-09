@@ -97,7 +97,7 @@ export const MainOpportunity = ({
             ]}
           />
         </Flex>
-        <Text translation='plugins.foxPage.mainStakingDescription' color='gray.500' />
+        <Text translation='plugins.foxPage.mainStakingDescription' color='text.subtle' />
       </CardHeader>
       <CardBody>
         <Flex
@@ -112,7 +112,7 @@ export const MainOpportunity = ({
             justifyContent='space-between'
             alignItems={{ base: 'center', md: 'flex-start' }}
           >
-            <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
+            <Text translation='plugins.foxPage.currentApy' color='text.subtle' mb={1} />
             <Skeleton isLoaded={Boolean(apy)}>
               <Box color={greenColor} fontSize={'xl'}>
                 <Amount.Percent value={apy} />
@@ -125,7 +125,7 @@ export const MainOpportunity = ({
             justifyContent='space-between'
             alignItems={{ base: 'center', md: 'flex-start' }}
           >
-            <Text translation='plugins.foxPage.tvl' color='gray.500' mb={1} />
+            <Text translation='plugins.foxPage.tvl' color='text.subtle' mb={1} />
             <Skeleton isLoaded={isLoaded}>
               <Amount.Fiat color='inherit' fontSize={'xl'} fontWeight='semibold' value={tvl} />
             </Skeleton>
@@ -136,7 +136,7 @@ export const MainOpportunity = ({
             justifyContent='space-between'
             alignItems={{ base: 'center', md: 'flex-start' }}
           >
-            <Text translation='plugins.foxPage.balance' color='gray.500' mb={1} />
+            <Text translation='plugins.foxPage.balance' color='text.subtle' mb={1} />
             <CText color='inherit' fontSize={'xl'}>
               {balance}
             </CText>

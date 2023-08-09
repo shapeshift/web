@@ -144,7 +144,7 @@ export const NativeCreate = () => {
         <Text translation={'walletProvider.shapeShift.create.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' translation={'walletProvider.shapeShift.create.body'} />
+        <Text color='text.subtle' translation={'walletProvider.shapeShift.create.body'} />
         {location?.state?.error && (
           <Alert status='error'>
             <AlertIcon />

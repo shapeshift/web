@@ -91,7 +91,7 @@ export const Approve = ({
           direction='row'
           alignItems='center'
           justifyContent='center'
-          color='gray.500'
+          color='text.subtle'
           pt={6}
         >
           {icons ? <PairIcons icons={icons} /> : <AssetIcon src={asset.icon} size='md' />}
@@ -107,7 +107,7 @@ export const Approve = ({
             fontWeight='bold'
             translation={['modals.approve.header', { asset: asset.name, spenderName }]}
           />
-          <CText color='gray.500'>
+          <CText color='text.subtle'>
             <Link
               href={`${asset.explorerAddressLink}${spenderContractAddress}`}
               color='blue.500'
@@ -127,22 +127,22 @@ export const Approve = ({
         {!isUndefined(isExactAllowance) && (
           <Row justifyContent='space-between'>
             <Row.Label display='flex' alignItems='center'>
-              <Text color='gray.500' translation='trade.allowance' />
+              <Text color='text.subtle' translation='trade.allowance' />
               <Tooltip label={translate('trade.allowanceTooltip')}>
                 <Box ml={1}>
-                  <Icon as={FaInfoCircle} color='gray.500' fontSize='0.7em' />
+                  <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
                 </Box>
               </Tooltip>
             </Row.Label>
             <Row.Value textAlign='right' display='flex' alignItems='center'>
               <Text
-                color={isExactAllowance ? 'gray.500' : 'white'}
+                color={isExactAllowance ? 'text.subtle' : 'white'}
                 translation='trade.unlimited'
                 fontWeight='bold'
               />
               <Switch size='sm' mx={2} isChecked={isExactAllowance} onChange={onToggle} />
               <Text
-                color={isExactAllowance ? 'white' : 'gray.500'}
+                color={isExactAllowance ? 'white' : 'text.subtle'}
                 translation='trade.exact'
                 fontWeight='bold'
               />
@@ -175,7 +175,7 @@ export const Approve = ({
             <Box textAlign='right'>
               <Amount.Fiat value={fiatEstimatedGasFee} />
               <Amount.Crypto
-                color='gray.500'
+                color='text.subtle'
                 value={estimatedGasFeeCryptoPrecision}
                 symbol={feeAsset.symbol}
               />

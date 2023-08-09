@@ -37,7 +37,7 @@ export const UnderlyingAssetTag = ({
         symbol={asset.symbol}
       />
       {showPercentage && asset.allocationPercentage && (
-        <Amount.Percent color='gray.500' value={asset.allocationPercentage} />
+        <Amount.Percent color='text.subtle' value={asset.allocationPercentage} />
       )}
       {children}
     </Flex>

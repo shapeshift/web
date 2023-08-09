@@ -34,7 +34,7 @@ export const Governance = () => {
             <Text translation='plugins.foxPage.seeAllProposals' />
           </Link>
         </Flex>
-        <Text translation='plugins.foxPage.governanceDescription' color='gray.500' />
+        <Text translation='plugins.foxPage.governanceDescription' color='text.subtle' />
       </CardHeader>
       <Skeleton
         isLoaded={governanceData.loaded}

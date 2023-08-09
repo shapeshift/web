@@ -2,11 +2,11 @@ import { mode } from '@chakra-ui/theme-tools'
 export const ModalStyle = {
   parts: ['dialog', 'footer', 'closeButton', 'header'],
   // Styles for the base style
-  baseStyle: (props: Record<string, any>) => ({
+  baseStyle: () => ({
     dialog: {
-      bg: mode('white', '#111')(props),
+      bg: 'background.surface.overlay.base',
       borderRadius: '2xl',
-      borderColor: mode('gray.50', 'gray.750')(props),
+      borderColor: 'border.base',
       borderWidth: 0,
     },
     header: {

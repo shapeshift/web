@@ -22,7 +22,7 @@ export const DappBack = () => {
         </Heading>
       </CardHeader>
       <CardBody display='flex' gap={6} flexDirection='column'>
-        <Text color='gray.500' translation='plugins.foxPage.dappBack.body' />
+        <Text color='text.subtle' translation='plugins.foxPage.dappBack.body' />
         <Button
           as={Link}
           href='https://dappback.com/shapeshift'

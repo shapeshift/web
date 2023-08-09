@@ -107,7 +107,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
             <Heading as='h5'>
               <Text translation='navBar.defi' />
             </Heading>
-            <Text color='gray.500' translation='defi.earnBody' />
+            <Text color='text.subtle' translation='defi.earnBody' />
           </Box>
           <Box flex={1} textAlign='right'>
             <Button

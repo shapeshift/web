@@ -90,7 +90,7 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
         {request.value && (
           <>
             <Text
-              color='gray.500'
+              color='text.subtle'
               fontWeight='medium'
               translation='plugins.walletConnectToDapps.modal.sendTransaction.amount'
               fontSize='sm'
@@ -116,7 +116,7 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
             return (
               <Fragment key={index}>
                 <Wrapper {...wrapperProps}>
-                  <RawText color='gray.500' fontWeight='medium' fontSize='sm'>
+                  <RawText color='text.subtle' fontWeight='medium' fontSize='sm'>
                     {startCase(input.name)} ({input.type})
                   </RawText>
                   {renderAbiInput(input, index)}
@@ -129,7 +129,7 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
         <Flex justifyContent='space-between' alignItems='center'>
           <Box>
             <Text
-              color='gray.500'
+              color='text.subtle'
               fontWeight='medium'
               fontSize='sm'
               translation='plugins.walletConnectToDapps.modal.sendTransaction.contractInteraction.data'

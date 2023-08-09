@@ -128,7 +128,7 @@ export const EIP155TransactionConfirmation: FC<
       </ModalCollapsableSection>
       <Text
         fontWeight='medium'
-        color='gray.500'
+        color='text.subtle'
         translation={
           method === EIP155_SigningMethod.ETH_SEND_TRANSACTION
             ? 'plugins.walletConnectToDapps.modal.sendTransaction.description'

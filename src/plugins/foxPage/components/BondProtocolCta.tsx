@@ -19,7 +19,7 @@ export const BondProtocolCta = () => {
         </Heading>
       </CardHeader>
       <CardBody display='flex' gap={6} flexDirection='column'>
-        <Text color='gray.500' translation='plugins.foxPage.bondProtocol.body' />
+        <Text color='text.subtle' translation='plugins.foxPage.bondProtocol.body' />
         <Button
           as={Link}
           href='https://app.bondprotocol.finance/#/market/1/90'

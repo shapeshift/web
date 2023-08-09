@@ -23,7 +23,7 @@ export const Transfers = ({ compactMode, transfers }: TransfersProps) => {
         direction='row'
         justifyContent={{ base: 'space-between', md: compactMode ? 'space-between' : 'flex-start' }}
       >
-        <Text color='gray.500' fontWeight='medium' translation='transactionHistory.transfers' />
+        <Text color='text.subtle' fontWeight='medium' translation='transactionHistory.transfers' />
         <Tag size='sm'>{transfers.length}</Tag>
       </Stack>
       {transfers.map((transfer, i) => {

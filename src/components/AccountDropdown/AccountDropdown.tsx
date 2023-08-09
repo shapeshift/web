@@ -91,7 +91,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     const { chainId } = fromAssetId(assetId)
 
     const color = useColorModeValue('black', 'white')
-    const labelColor = useColorModeValue('gray.600', 'gray.500')
+    const labelColor = useColorModeValue('gray.600', 'text.subtle')
 
     const filter = useMemo(() => ({ assetId }), [assetId])
     const accountIds = useAppSelector((s: ReduxState) =>

@@ -94,11 +94,10 @@ export const TransactionRow = forwardRef<TxRowProps, 'div'>(
       () => (disableCollapse ? null : setIsOpen(!isOpen)),
       [disableCollapse, isOpen],
     )
-    const rowHoverBg = useColorModeValue('gray.100', 'gray.750')
     const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
     const txDetails = useTxDetails(txId)
 
-    const backgroundProps = useMemo(() => ({ bg: rowHoverBg }), [rowHoverBg])
+    const backgroundProps = useMemo(() => ({ bg: 'background.surface.hover' }), [])
 
     return (
       <Box
@@ -106,7 +105,7 @@ export const TransactionRow = forwardRef<TxRowProps, 'div'>(
         rounded='lg'
         _hover={backgroundProps}
         _selected={backgroundProps}
-        bg={isOpen ? rowHoverBg : 'transparent'}
+        bg={isOpen ? 'background.surface.hover' : 'transparent'}
         borderColor={isOpen ? borderColor : 'transparent'}
         borderWidth={1}
         ref={ref}

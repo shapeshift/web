@@ -201,7 +201,7 @@ export const Confirm: React.FC = () => {
                   <WrappedIcon size='sm' src={bridgeAsset?.icon} wrapColor={fromChain?.color} />
                   <Stack spacing={0} alignItems='flex-start' justifyContent='center'>
                     <RawText>{fromChain?.symbol}</RawText>
-                    <RawText fontSize='sm' color='gray.500'>
+                    <RawText fontSize='sm' color='text.subtle'>
                       {fromChain?.name}
                     </RawText>
                   </Stack>
@@ -226,7 +226,7 @@ export const Confirm: React.FC = () => {
                   <WrappedIcon size='sm' src={bridgeAsset?.icon} wrapColor={toChain?.color} />
                   <Stack spacing={0} alignItems='flex-start' justifyContent='center'>
                     <RawText>{toChain?.symbol}</RawText>
-                    <RawText fontSize='sm' color='gray.500'>
+                    <RawText fontSize='sm' color='text.subtle'>
                       {toChain?.name}
                     </RawText>
                   </Stack>
@@ -273,7 +273,7 @@ export const Confirm: React.FC = () => {
                       <>
                         <Amount.Fiat fontWeight='bold' value={relayerFeeUsdc ?? '0'} />
                         <Amount.Crypto
-                          color='gray.500'
+                          color='text.subtle'
                           value={transferFeeNativeToken ?? '0'}
                           symbol={bridgeAsset?.symbol ?? ''}
                         />

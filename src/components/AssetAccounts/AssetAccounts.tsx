@@ -37,23 +37,23 @@ export const AssetAccounts = ({ assetId, accountId }: AssetAccountsProps) => {
             fontSize='sm'
             lineHeight='shorter'
           >
-            <Text translation='assets.assetDetails.assetAccounts.account' color='gray.500' />
+            <Text translation='assets.assetDetails.assetAccounts.account' color='text.subtle' />
             <Text
               translation='assets.assetDetails.assetAccounts.allocation'
-              color='gray.500'
+              color='text.subtle'
               textAlign='right'
               display={{ base: 'none', lg: 'block' }}
             />
             <Text
               translation='assets.assetDetails.assetAccounts.amount'
               display={{ base: 'none', md: 'block', lg: 'block' }}
-              color='gray.500'
+              color='text.subtle'
               textAlign='right'
             />
             <Text
               translation='assets.assetDetails.assetAccounts.value'
               textAlign='right'
-              color='gray.500'
+              color='text.subtle'
             />
           </Grid>
           {accountIds.map(accountId => (

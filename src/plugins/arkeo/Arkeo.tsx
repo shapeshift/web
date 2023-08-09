@@ -55,7 +55,7 @@ export const ArkeoPage = () => {
               <Text translation='arkeo.whatIsArkeo.title' />
             </Heading>
             <Flex>
-              <RawText fontSize='lg' color='gray.500'>
+              <RawText fontSize='lg' color='text.subtle'>
                 {`
               ${translate('arkeo.whatIsArkeo.bodyParts.1')} `}
                 <Link
@@ -84,7 +84,7 @@ export const ArkeoPage = () => {
             <Heading fontSize='2xl'>
               <Text translation='arkeo.whoQualifies.title' />
             </Heading>
-            <Text fontSize='lg' color='gray.500' translation='arkeo.whoQualifies.body' />
+            <Text fontSize='lg' color='text.subtle' translation='arkeo.whoQualifies.body' />
           </Flex>
         </Flex>
         <Flex flex={1} alignItems='center' justifyContent='center'>
@@ -136,7 +136,7 @@ export const ArkeoPage = () => {
             justifyContent='flex-start'
             alignItems='flex-start'
           >
-            <Text translation='arkeo.footer.disclaimer.body' color='gray.500' />
+            <Text translation='arkeo.footer.disclaimer.body' color='text.subtle' />
             <Button variant='link' colorScheme='blue' size='sm' onClick={handleCreateCtaClick}>
               {translate('arkeo.footer.disclaimer.cta')}
             </Button>

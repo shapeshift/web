@@ -167,7 +167,7 @@ export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
         {floorPrice && maybeFeeAsset && (
           <Box mt='auto'>
             <Amount.Crypto
-              color='gray.500'
+              color='text.subtle'
               fontWeight='bold'
               value={floorPrice}
               symbol={maybeFeeAsset.symbol}

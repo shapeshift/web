@@ -176,7 +176,7 @@ export const FoxOtherOpportunityPanelRow: React.FC<FoxOtherOpportunityPanelRowPr
       </Flex>
       <Skeleton isLoaded={Boolean(earnOpportunity)} textAlign={{ base: 'right', md: 'center' }}>
         <Box>
-          <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
+          <Text translation='plugins.foxPage.currentApy' color='text.subtle' mb={1} />
           <Box
             color={opportunity.apy ? greenColor : undefined}
             fontSize={'xl'}

@@ -84,7 +84,7 @@ export const AccountTable = memo(() => {
         accessor: 'allocation',
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value }: { value: number }) => (
-          <Amount.Percent fontWeight='medium' textColor='gray.500' value={value * 0.01} />
+          <Amount.Percent fontWeight='medium' textColor='text.subtle' value={value * 0.01} />
         ),
         sortType: (a: RowProps, b: RowProps): number =>
           bnOrZero(a.original.allocation).gt(bnOrZero(b.original.allocation)) ? 1 : -1,

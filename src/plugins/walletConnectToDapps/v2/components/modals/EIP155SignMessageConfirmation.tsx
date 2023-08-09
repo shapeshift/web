@@ -55,7 +55,7 @@ export const EIP155SignMessageConfirmationModal: FC<
               fontWeight='medium'
               mb={1}
             />
-            <RawText fontWeight='medium' color='gray.500'>
+            <RawText fontWeight='medium' color='text.subtle'>
               {message}
             </RawText>
           </Box>
@@ -63,7 +63,7 @@ export const EIP155SignMessageConfirmationModal: FC<
       </ModalSection>
       <Text
         fontWeight='medium'
-        color='gray.500'
+        color='text.subtle'
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
       <VStack spacing={4}>

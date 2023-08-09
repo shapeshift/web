@@ -192,7 +192,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                   .toFixed()}
               />
               <Amount.Crypto
-                color='gray.500'
+                color='text.subtle'
                 value={bnOrZero(state.deposit.protocolFeeCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
                   .toFixed()}
@@ -217,7 +217,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                   .toFixed()}
               />
               <Amount.Crypto
-                color='gray.500'
+                color='text.subtle'
                 value={bnOrZero(state.deposit.networkFeeCryptoBaseUnit)
                   .div(bn(10).pow(asset.precision))
                   .toFixed()}

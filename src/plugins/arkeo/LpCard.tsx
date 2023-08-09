@@ -60,7 +60,7 @@ export const LpCard: React.FC<LpCardProps> = props => {
           translation={[title, { asset1: asset1?.symbol, asset2: asset2?.symbol }]}
         />
         <Text
-          color='gray.500'
+          color='text.subtle'
           translation={[
             body,
             { asset1: asset1?.symbol, asset2: asset2?.symbol, apy: `${opportunityApy}%` },

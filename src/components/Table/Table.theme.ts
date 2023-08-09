@@ -68,7 +68,7 @@ export const TableStyle = {
         },
         thead: {
           tr: {
-            bg: mode('white', 'black')(props),
+            bg: 'background.surface.raised.base',
             'th:first-of-type': {
               borderTopLeftRadius: 'xl',
             },
@@ -97,15 +97,15 @@ export const TableStyle = {
                 bg: 'initial',
               },
             },
-            bg: mode('white', 'black')(props),
+            bg: 'transparent',
             td: {
               borderTop: '1px',
-              borderColor: mode('gray.200', 'gray.900')(props),
+              borderColor: 'border.base',
               fontWeight: 'medium',
             },
           },
           'tr.expanded-details': {
-            bg: mode('white', 'gray.785')(props),
+            bg: 'transparent',
             '> td': {
               bg: mode('gray.100', 'blackAlpha.400')(props),
             },
@@ -124,7 +124,7 @@ export const TableStyle = {
                       justifyContent: 'space-between',
                       _before: {
                         content: 'attr(data-label)',
-                        color: 'gray.500',
+                        color: 'text.subtle',
                       },
                     },
                     'td:first-of-type': {
@@ -151,7 +151,7 @@ export const TableStyle = {
               },
             },
             _hover: {
-              bg: mode('white', 'gray.785')(props),
+              bg: 'surface',
               color: 'inherit',
             },
           },
@@ -159,7 +159,7 @@ export const TableStyle = {
         tfoot: {
           tr: {
             td: {
-              bg: mode('white', 'black')(props),
+              bg: 'background',
             },
           },
         },
@@ -181,13 +181,13 @@ export const TableStyle = {
             },
             _hover: {
               color: mode('inherit', 'whiteAlpha.800')(props),
-              bg: mode('gray.100', 'gray.750')(props),
+              bg: 'surface',
               textDecoration: 'none',
               _disabled: {
                 bg: 'initial',
               },
             },
-            color: 'gray.500',
+            color: 'text.subtle',
             _active: {
               bg: mode('gray.200', 'gray.700')(props),
               color: mode('gray.800', 'white')(props),

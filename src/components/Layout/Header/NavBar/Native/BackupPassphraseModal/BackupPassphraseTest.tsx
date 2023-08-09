@@ -134,7 +134,7 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
         <RawText>
           <Text
             as='span'
-            color='gray.500'
+            color='text.subtle'
             translation={'walletProvider.shapeShift.testPhrase.body'}
           />{' '}
           <Tag colorScheme='green'>
@@ -147,7 +147,7 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
           </Tag>{' '}
           <Text
             as='span'
-            color='gray.500'
+            color='text.subtle'
             translation={'walletProvider.shapeShift.testPhrase.body3'}
           />
         </RawText>
@@ -177,7 +177,7 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
               transform='translate(-50%, -50%)'
               left='50%'
               position='absolute'
-              color='gray.500'
+              color='text.subtle'
             />
           </Box>
           <Checkbox mb={4} spacing={4} onChange={onCheckBoxClick} isChecked={hasAlreadySaved}>

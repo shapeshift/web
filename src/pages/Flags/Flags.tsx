@@ -75,7 +75,7 @@ export const Flags = () => {
       <Stack direction={{ base: 'column', md: 'row' }} spacing={6}>
         <Card flex={1}>
           <CardHeader>
-            <RawText color='gray.500'>
+            <RawText color='text.subtle'>
               Turn on and off flags by toggling the switch then press "Apply" to reset the
               application.
             </RawText>

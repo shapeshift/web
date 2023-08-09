@@ -176,7 +176,7 @@ export const DashboardHeader = () => {
         <Flex alignItems='center' flexDir={{ base: 'column', md: 'row' }} gap={4}>
           <ProfileAvatar />
           <Flex flexDir='column' alignItems={{ base: 'center', md: 'flex-start' }}>
-            <Text fontWeight='semibold' translation='defi.netWorth' color='gray.500' />
+            <Text fontWeight='semibold' translation='defi.netWorth' color='text.subtle' />
             <Skeleton isLoaded={!loading}>
               <Amount.Fiat lineHeight='shorter' value={netWorth} fontSize='4xl' fontWeight='bold' />
             </Skeleton>

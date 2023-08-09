@@ -128,7 +128,7 @@ export const SignTransactionConfirmation = ({ request, onConfirm, onReject }: Pr
         </ModalCollapsableSection>
         <Text
           fontWeight='medium'
-          color='gray.500'
+          color='text.subtle'
           translation='plugins.walletConnectToDapps.modal.signTransaction.description'
         />
         <VStack spacing={4}>

@@ -34,7 +34,7 @@ export const AddressSummaryCard: React.FC<AddressSummaryCardProps> = ({
         <Box flex={1}>
           <MiddleEllipsis value={address} fontSize='lg' fontWeight='medium' />
           {showWalletProviderName && (
-            <RawText color='gray.500' fontWeight='medium' mt={1}>
+            <RawText color='text.subtle' fontWeight='medium' mt={1}>
               {walletName}
             </RawText>
           )}

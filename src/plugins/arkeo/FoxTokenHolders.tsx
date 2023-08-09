@@ -36,7 +36,7 @@ export const FoxTokenHolders = () => {
           <AssetIcon assetId={foxAssetId} />
         </Flex>
         <Text fontSize='xl' fontWeight='bold' translation={'arkeo.foxTokenHolders.title'} />
-        <Text color='gray.500' translation={'arkeo.foxTokenHolders.body'} />
+        <Text color='text.subtle' translation={'arkeo.foxTokenHolders.body'} />
         <Flex mt='auto' gap={4}>
           <Button width='full' colorScheme='blue' onClick={handleClick}>
             {translate('arkeo.foxTokenHolders.cta')}

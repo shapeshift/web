@@ -66,7 +66,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
       >
         <Flex flexDir='column'>
           <Amount.Crypto
-            color='gray.500'
+            color='text.subtle'
             value={cryptoHumanBalance}
             symbol={asset.symbol}
             lineHeight='shorter'

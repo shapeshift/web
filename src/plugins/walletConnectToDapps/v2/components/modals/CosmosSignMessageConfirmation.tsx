@@ -51,7 +51,7 @@ export const CosmosSignMessageConfirmationModal: FC<
             fontWeight='medium'
             mb={1}
           />
-          <RawText fontWeight='medium' color='gray.500'>
+          <RawText fontWeight='medium' color='text.subtle'>
             {memo}
           </RawText>
           <Text
@@ -59,7 +59,7 @@ export const CosmosSignMessageConfirmationModal: FC<
             fontWeight='medium'
             mb={1}
           />
-          <RawText fontWeight='medium' color='gray.500'>
+          <RawText fontWeight='medium' color='text.subtle'>
             {messages.length > 0
               ? messages
               : translate('plugins.walletConnectToDapps.modal.signMessage.noMessages')}
@@ -69,7 +69,7 @@ export const CosmosSignMessageConfirmationModal: FC<
             fontWeight='medium'
             mb={1}
           />
-          <RawText fontWeight='medium' color='gray.500'>
+          <RawText fontWeight='medium' color='text.subtle'>
             {sequence}
           </RawText>
           <Text
@@ -77,7 +77,7 @@ export const CosmosSignMessageConfirmationModal: FC<
             fontWeight='medium'
             mb={1}
           />
-          <RawText fontWeight='medium' color='gray.500'>
+          <RawText fontWeight='medium' color='text.subtle'>
             {accountNumber}
           </RawText>
           <Text
@@ -85,7 +85,7 @@ export const CosmosSignMessageConfirmationModal: FC<
             fontWeight='medium'
             mb={1}
           />
-          <RawText fontWeight='medium' color='gray.500'>
+          <RawText fontWeight='medium' color='text.subtle'>
             {chainId}
           </RawText>
         </Box>
@@ -101,7 +101,7 @@ export const CosmosSignMessageConfirmationModal: FC<
             fontWeight='medium'
             mb={1}
           />
-          <RawText fontWeight='medium' color='gray.500'>
+          <RawText fontWeight='medium' color='text.subtle'>
             {authInfo}
           </RawText>
           <Text
@@ -109,7 +109,7 @@ export const CosmosSignMessageConfirmationModal: FC<
             fontWeight='medium'
             mb={1}
           />
-          <RawText fontWeight='medium' color='gray.500'>
+          <RawText fontWeight='medium' color='text.subtle'>
             {body}
           </RawText>
         </Box>
@@ -137,7 +137,7 @@ export const CosmosSignMessageConfirmationModal: FC<
       </ModalSection>
       <Text
         fontWeight='medium'
-        color='gray.500'
+        color='text.subtle'
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
       <VStack spacing={4}>

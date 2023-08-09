@@ -1,5 +1,5 @@
 import type { ContainerProps } from '@chakra-ui/react'
-import { Box, Container, HStack, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Box, Container, HStack, Stack } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { memo, useEffect, useRef, useState } from 'react'
@@ -19,7 +19,6 @@ export const Main: React.FC<MainProps> = memo(
   ({ children, titleComponent, headerComponent, hideBreadcrumbs = false, ...rest }) => {
     const ref = useRef<HTMLDivElement>(null)
     const { currentRoute } = useBrowserRouter()
-    const bg = useColorModeValue('white', 'black')
     const [y, setY] = useState(0)
     const { height = 0 } = ref.current?.getBoundingClientRect() ?? {}
     const { scrollY } = useScroll()
@@ -34,7 +33,8 @@ export const Main: React.FC<MainProps> = memo(
             transition='box-shadow 0.2s, background-color 0.2s'
             as='header'
             borderBottomWidth={1}
-            bg={bg}
+            borderColor='border.base'
+            bg='background'
             ref={ref}
             shadow={y > height ? 'sm' : undefined}
           >

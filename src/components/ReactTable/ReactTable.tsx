@@ -159,10 +159,10 @@ export const ReactTable = <T extends {}>({
               {headerGroup.headers.map(column => (
                 <Th
                   {...column.getHeaderProps(column.getSortByToggleProps())}
-                  color='gray.500'
+                  color='text.subtle'
                   textAlign={column.textAlign}
                   display={column.display}
-                  _hover={{ color: column.canSort ? hoverColor : 'gray.500' }}
+                  _hover={{ color: column.canSort ? hoverColor : 'text.subtle' }}
                 >
                   <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
                     {column.render('Header')}

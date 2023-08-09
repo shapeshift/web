@@ -30,7 +30,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({
       </Stack>
       <Stack spacing={0} ml='auto' alignItems='flex-end' fontSize='sm'>
         <Amount.Fiat value={fiatBalance} />
-        <Amount.Crypto color='gray.500' value={balance} symbol={symbol} />
+        <Amount.Crypto color='text.subtle' value={balance} symbol={symbol} />
       </Stack>
     </Stack>
   )

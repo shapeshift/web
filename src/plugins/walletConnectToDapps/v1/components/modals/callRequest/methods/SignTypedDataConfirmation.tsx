@@ -36,7 +36,7 @@ export const SignTypedDataConfirmation: React.FC<SignTypedDataConfirmationPropsP
       <TypedMessageInfo typedData={request.params[1]} />
       <Text
         fontWeight='medium'
-        color='gray.500'
+        color='text.subtle'
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
       <VStack spacing={4}>

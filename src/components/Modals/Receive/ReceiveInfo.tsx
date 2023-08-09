@@ -160,7 +160,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                     'modals.receive.onlySend',
                     { asset: name, symbol: symbol.toUpperCase() },
                   ]}
-                  color='gray.500'
+                  color='text.subtle'
                   textAlign='center'
                 />
               </SkeletonText>
@@ -173,7 +173,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
             />
             <Flex justifyContent='center'>
               {ensName && (
-                <Tag bg={bg} borderRadius='full' color='gray.500' mt={8} pl={4} pr={4}>
+                <Tag bg={bg} borderRadius='full' color='text.subtle' mt={8} pl={4} pr={4}>
                   {ensName}
                 </Tag>
               )}
@@ -197,7 +197,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                   </Skeleton>
                   <Skeleton isLoaded={!!receiveAddress}>
                     <Flex
-                      color='gray.500'
+                      color='text.subtle'
                       alignItems='center'
                       justifyContent='center'
                       fontSize='sm'
@@ -221,21 +221,26 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
               <Button
                 onClick={handleCopyClick}
                 padding={2}
-                color='gray.500'
+                color='text.subtle'
                 flexDir='column'
                 role='group'
                 isDisabled={!receiveAddress}
                 variant='link'
                 _hover={{ textDecoration: 'none', color: hoverColor }}
               >
-                <Circle bg={bg} mb={2} size='40px' _groupHover={{ bg: 'blue.500', color: 'white' }}>
+                <Circle
+                  bg='background.button.secondary.base'
+                  mb={2}
+                  size='40px'
+                  _groupHover={{ bg: 'background.button.secondary.hover', color: 'white' }}
+                >
                   <CopyIcon />
                 </Circle>
                 <Text translation='modals.receive.copy' />
               </Button>
               {!(wallet.getVendor() === 'Native') ? (
                 <Button
-                  color={verified ? 'green.500' : verified === false ? 'red.500' : 'gray.500'}
+                  color={verified ? 'green.500' : verified === false ? 'red.500' : 'text.subtle'}
                   flexDir='column'
                   role='group'
                   variant='link'
@@ -244,10 +249,10 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                   onClick={handleVerify}
                 >
                   <Circle
-                    bg={bg}
+                    bg='background.button.secondary.base'
                     mb={2}
                     size='40px'
-                    _groupHover={{ bg: 'blue.500', color: 'white' }}
+                    _groupHover={{ bg: 'background.button.secondary.hover', color: 'white' }}
                   >
                     {verified ? <CheckIcon /> : <ViewIcon />}
                   </Circle>
@@ -263,14 +268,19 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                 href={`${asset?.explorerAddressLink}${receiveAddress}`}
                 isExternal
                 padding={2}
-                color='gray.500'
+                color='text.subtle'
                 flexDir='column'
                 role='group'
                 isDisabled={!receiveAddress}
                 variant='link'
                 _hover={{ textDecoration: 'none', color: hoverColor }}
               >
-                <Circle bg={bg} mb={2} size='40px' _groupHover={{ bg: 'blue.500', color: 'white' }}>
+                <Circle
+                  bg='background.button.secondary.base'
+                  mb={2}
+                  size='40px'
+                  _groupHover={{ bg: 'background.button.secondary.hover', color: 'white' }}
+                >
                   <ExternalLinkIcon />
                 </Circle>
                 <Text translation='modals.receive.blockExplorer' />

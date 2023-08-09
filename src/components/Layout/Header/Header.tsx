@@ -7,7 +7,6 @@ import {
   Flex,
   HStack,
   IconButton,
-  useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
@@ -39,7 +38,6 @@ export const Header = memo(() => {
     state: { isDemoWallet },
     dispatch,
   } = useWallet()
-  const bg = useColorModeValue('gray.100', 'black')
   const ref = useRef<HTMLDivElement>(null)
   const [y, setY] = useState(0)
   const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
@@ -108,7 +106,7 @@ export const Header = memo(() => {
         position='sticky'
         zIndex='banner'
         ref={ref}
-        bg={y > height ? bg : 'transparent'}
+        bg={y > height ? 'background' : 'transparent'}
         transitionDuration='200ms'
         transitionProperty='all'
         transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'

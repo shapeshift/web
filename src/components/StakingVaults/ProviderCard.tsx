@@ -30,12 +30,12 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   opportunities: { staking, lp },
   isLoading,
 }) => {
-  const headerBg = useColorModeValue('white', 'gray.785')
+  const headerBg = useColorModeValue('white', 'black')
 
   const icon = getMetadataForProvider(provider)?.icon
   const isLoaded = !isLoading
   return (
-    <Card variant='default'>
+    <Card variant='outline'>
       <CardHeader
         display='flex'
         bg={headerBg}

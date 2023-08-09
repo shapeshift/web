@@ -116,7 +116,7 @@ export const ButtonStyle: ComponentStyleConfig = {
           color: 'gray.500',
           _hover: {
             color: mode('inherit', 'whiteAlpha.800')(props),
-            bg: mode('gray.100', 'gray.750')(props),
+            bg: mode('gray.200', 'whiteAlpha.100')(props),
           },
           _active: {
             bg: mode('gray.200', 'gray.700')(props),

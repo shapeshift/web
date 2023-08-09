@@ -19,8 +19,7 @@ export const Main: React.FC<MainProps> = memo(
   ({ children, titleComponent, headerComponent, hideBreadcrumbs = false, ...rest }) => {
     const ref = useRef<HTMLDivElement>(null)
     const { currentRoute } = useBrowserRouter()
-    const bg = useColorModeValue('white', 'gray.800')
-    const borderColor = useColorModeValue('gray.100', 'gray.750')
+    const bg = useColorModeValue('white', 'black')
     const [y, setY] = useState(0)
     const { height = 0 } = ref.current?.getBoundingClientRect() ?? {}
     const { scrollY } = useScroll()
@@ -36,7 +35,6 @@ export const Main: React.FC<MainProps> = memo(
             as='header'
             borderBottomWidth={1}
             bg={bg}
-            borderColor={borderColor}
             ref={ref}
             shadow={y > height ? 'sm' : undefined}
           >

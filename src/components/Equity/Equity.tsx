@@ -133,7 +133,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   if (!asset) return null
 
   return (
-    <Card variant='default'>
+    <Card variant='outline'>
       <CardHeader display='flex' gap={4} alignItems='center'>
         <Flex flexDir='column' flex={1}>
           <Heading as='h5'>{translate('common.allocation')}</Heading>

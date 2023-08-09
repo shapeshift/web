@@ -21,7 +21,7 @@ export const AssetDescription = ({ assetId }: AssetDescriptionProps) => {
   if (!description || !isLoaded) return null
 
   return (
-    <Card>
+    <Card variant='outline'>
       <CardHeader>
         <Skeleton isLoaded={isLoaded} size='md'>
           <Heading as='h5'>

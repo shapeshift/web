@@ -1,6 +1,5 @@
 import { Container, Stack } from '@chakra-ui/react'
 import { memo } from 'react'
-import foxPageBg from 'assets/foxpage-bg.png'
 import { Main } from 'components/Layout/Main'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { RecentTransactions } from 'pages/Dashboard/RecentTransactions'

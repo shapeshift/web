@@ -42,9 +42,9 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
   if (!walletSupportsChain) return null
 
   return (
-    <Card>
+    <Card variant='outline'>
       <CardHeader display='flex' justifyContent='space-between' alignItems='center'>
-        <Heading>
+        <Heading as='h5'>
           {translate(
             useCompactMode
               ? 'transactionHistory.recentTransactions'

@@ -99,7 +99,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   }, [userCurrencyBalance, isBalanceChartDataUnavailable])
 
   return (
-    <Card>
+    <Card variant='outline'>
       <CardHeader>
         <Flex
           justifyContent={{ base: 'center', md: 'space-between' }}

@@ -9,6 +9,8 @@ import type { Asset } from 'lib/asset-service'
 import type { ReduxState } from 'state/reducer'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
+import type { TradeQuoteDeps } from './types'
+
 export const SwapError = createErrorClass('SwapError')
 
 export type SwapErrorRight = {
@@ -66,8 +68,8 @@ export type QuoteFeeData<T extends ChainId> = {
 } & ChainSpecificQuoteFeeData<T>
 
 export type BuyAssetBySellIdInput = {
-  sellAssetId: AssetId
-  nonNftAssetIds: AssetId[]
+  sellAsset: Asset
+  assets: Asset[]
 }
 
 type CommonTradeInput = {
@@ -178,6 +180,7 @@ export enum SwapErrorType {
   MISSING_INPUT = 'MISSING_INPUT',
   // Catch-all for happy responses, but entity not found according to our criteria
   NOT_FOUND = 'NOT_FOUND',
+  TRADING_HALTED = 'TRADING_HALTED',
 }
 
 export type TradeQuote2 = TradeQuote & {
@@ -222,7 +225,7 @@ export type CheckTradeStatusInput = {
 }
 
 export type Swapper2 = {
-  filterAssetIdsBySellable: (assetIds: AssetId[]) => Promise<AssetId[]>
+  filterAssetIdsBySellable: (assets: Asset[]) => Promise<AssetId[]>
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => Promise<AssetId[]>
   executeTrade: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
 }
@@ -233,7 +236,7 @@ export type Swapper2Api = {
   ) => Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }>
   getTradeQuote: (
     input: GetTradeQuoteInput,
-    ...deps: any[]
+    deps: TradeQuoteDeps,
   ) => Promise<Result<TradeQuote2, SwapErrorRight>>
   getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx2>
 }

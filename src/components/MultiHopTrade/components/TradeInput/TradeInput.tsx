@@ -37,7 +37,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
@@ -56,9 +56,11 @@ import {
   selectActiveQuoteError,
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
+  selectBuyAmountBeforeFeesUserCurrency,
   selectFirstHop,
   selectNetBuyAmountUserCurrency,
   selectNetReceiveAmountCryptoPrecision,
+  selectSellAmountUserCurrency,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
@@ -70,6 +72,7 @@ import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
+import { PriceImpact } from '../PriceImpact'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 
@@ -101,11 +104,29 @@ export const TradeInput = memo(() => {
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
+  const buyAmountBeforeFeesUserCurrency = useAppSelector(selectBuyAmountBeforeFeesUserCurrency)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
-  const slippagePercentage = useAppSelector(selectTradeSlippagePercentageDecimal)
+  const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
+  const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
+
+  const priceImpactPercentage = useMemo(() => {
+    if (!sellAmountBeforeFeesUserCurrency || !buyAmountBeforeFeesUserCurrency) return bn('0')
+
+    const tradeDifference = bn(sellAmountBeforeFeesUserCurrency)
+      .minus(buyAmountBeforeFeesUserCurrency)
+      .abs()
+
+    return tradeDifference.div(sellAmountBeforeFeesUserCurrency).times(100)
+  }, [sellAmountBeforeFeesUserCurrency, buyAmountBeforeFeesUserCurrency])
+
+  const isModeratePriceImpact = useMemo(() => {
+    if (!priceImpactPercentage) return false
+
+    return bn(priceImpactPercentage).gt(5)
+  }, [priceImpactPercentage])
 
   const hasUserEnteredAmount = useMemo(
     () => bnOrZero(sellAmountCryptoPrecision).gt(0),
@@ -209,8 +230,14 @@ export const TradeInput = memo(() => {
   const isSellAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
 
   const shouldDisablePreviewButton = useMemo(() => {
-    return quoteHasError || manualReceiveAddressIsValidating || isLoading || !isSellAmountEntered
-  }, [isLoading, isSellAmountEntered, manualReceiveAddressIsValidating, quoteHasError])
+    return (
+      quoteHasError ||
+      manualReceiveAddressIsValidating ||
+      isLoading ||
+      !isSellAmountEntered ||
+      !activeQuote
+    )
+  }, [activeQuote, isLoading, isSellAmountEntered, manualReceiveAddressIsValidating, quoteHasError])
 
   const rightRegion = useMemo(
     () =>
@@ -328,16 +355,17 @@ export const TradeInput = memo(() => {
                   amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
                   protocolFees={totalProtocolFees}
                   shapeShiftFee='0'
-                  slippage={slippagePercentage}
+                  slippage={slippageDecimal}
                   swapperName={activeSwapperName ?? ''}
                 />
               ) : null}
+              {isModeratePriceImpact && (
+                <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
+              )}
             </Stack>
           )}
-          <Stack px={4}>
-            {hasUserEnteredAmount && <DonationCheckbox isLoading={isLoading} />}
-            <ManualAddressEntry />
-          </Stack>
+          {hasUserEnteredAmount && <DonationCheckbox isLoading={isLoading} />}
+          <ManualAddressEntry />
           <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
             <Button
               type='submit'

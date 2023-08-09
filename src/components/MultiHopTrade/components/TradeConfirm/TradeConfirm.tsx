@@ -35,7 +35,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -48,6 +48,7 @@ import {
   selectActiveStepOrDefault,
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
+  selectBuyAmountBeforeFeesUserCurrency,
   selectFirstHop,
   selectFirstHopNetworkFeeCryptoPrecision,
   selectFirstHopSellAsset,
@@ -66,6 +67,7 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { TradeRoutePaths } from '../../types'
+import { PriceImpact } from '../PriceImpact'
 
 export const TradeConfirm = () => {
   const history = useHistory()
@@ -124,8 +126,9 @@ export const TradeConfirm = () => {
   const swapperName = useAppSelector(selectActiveSwapperName)
   const defaultFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
   const netBuyAmountCryptoPrecision = useAppSelector(selectNetBuyAmountCryptoPrecision)
-  const slippage = useAppSelector(selectTradeSlippagePercentageDecimal)
+  const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const netBuyAmountUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
+  const buyAmountBeforeFeesUserCurrency = useAppSelector(selectBuyAmountBeforeFeesUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
   const networkFeeCryptoHuman = useAppSelector(selectFirstHopNetworkFeeCryptoPrecision)
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
@@ -149,6 +152,28 @@ export const TradeConfirm = () => {
   } = useTradeExecution({ tradeQuote, swapperName })
 
   const txHash = buyTxHash ?? sellTxHash
+
+  const priceImpactPercentage = useMemo(() => {
+    if (!sellAmountBeforeFeesUserCurrency || !buyAmountBeforeFeesUserCurrency) return bn(0)
+
+    const tradeDifference = bn(sellAmountBeforeFeesUserCurrency)
+      .minus(buyAmountBeforeFeesUserCurrency)
+      .abs()
+
+    return tradeDifference.div(sellAmountBeforeFeesUserCurrency).times(100)
+  }, [sellAmountBeforeFeesUserCurrency, buyAmountBeforeFeesUserCurrency])
+
+  const isHighPriceImpact = useMemo(() => {
+    if (!priceImpactPercentage) return false
+
+    return priceImpactPercentage.gt(10)
+  }, [priceImpactPercentage])
+
+  const isModeratePriceImpact = useMemo(() => {
+    if (!priceImpactPercentage) return false
+
+    return bn(priceImpactPercentage).gt(5)
+  }, [priceImpactPercentage])
 
   const getSellTxLink = useCallback(
     (sellTxHash: string) =>
@@ -206,6 +231,16 @@ export const TradeConfirm = () => {
         return
       }
 
+      const shouldContinueTrade =
+        !isHighPriceImpact ||
+        window.confirm(
+          translate('trade.priceImpactWarning', {
+            priceImpactPercentage: priceImpactPercentage.toFixed(2),
+          }),
+        )
+
+      if (!shouldContinueTrade) return
+
       await executeTrade()
       // only track after swapper successfully executes trade
       // otherwise unsigned txs will be tracked as confirmed trades
@@ -224,8 +259,11 @@ export const TradeConfirm = () => {
     handleBack,
     history,
     isConnected,
+    isHighPriceImpact,
     mixpanel,
+    priceImpactPercentage,
     showErrorToast,
+    translate,
     wallet,
     walletDispatch,
   ])
@@ -331,7 +369,7 @@ export const TradeConfirm = () => {
           amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision ?? ''}
           protocolFees={tradeQuoteStep?.feeData.protocolFees}
           shapeShiftFee='0'
-          slippage={slippage}
+          slippage={slippageDecimal}
           fiatAmount={positiveOrZero(netBuyAmountUserCurrency).toFixed(2)}
           swapperName={swapperName ?? ''}
           intermediaryTransactionOutputs={tradeQuoteStep?.intermediaryTransactionOutputs}
@@ -349,7 +387,7 @@ export const TradeConfirm = () => {
       buyAmountBeforeFeesCryptoPrecision,
       tradeQuoteStep?.feeData.protocolFees,
       tradeQuoteStep?.intermediaryTransactionOutputs,
-      slippage,
+      slippageDecimal,
       netBuyAmountUserCurrency,
       swapperName,
       donationAmount,
@@ -368,20 +406,22 @@ export const TradeConfirm = () => {
               </Alert>
             )}
             <Button
-              colorScheme='blue'
+              colorScheme={isModeratePriceImpact ? 'red' : 'blue'}
               size='lg'
               width='full'
               mt={6}
               data-test='trade-form-confirm-and-trade-button'
               type='submit'
             >
-              <Text translation='trade.confirmAndTrade' />
+              <Text
+                translation={isModeratePriceImpact ? 'trade.tradeAnyway' : 'trade.confirmAndTrade'}
+              />
             </Button>
           </>
         )}
       </Card.Footer>
     ),
-    [isSubmitting, txHash, swapperName, translate],
+    [txHash, isSubmitting, swapperName, translate, isModeratePriceImpact],
   )
 
   if (!tradeQuoteStep) return null
@@ -421,6 +461,9 @@ export const TradeConfirm = () => {
                       </Link>
                     </Box>
                   </Row>
+                )}
+                {isHighPriceImpact && (
+                  <PriceImpact impactPercentage={bn(priceImpactPercentage).toFixed(2)} />
                 )}
                 <Row>
                   <HelperTooltip label={translate('trade.tooltip.rate')}>

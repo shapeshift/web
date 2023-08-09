@@ -2,14 +2,12 @@ import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Button,
-  CardFooter,
-  CardHeader,
-  Divider,
   Flex,
   Heading,
   IconButton,
   Stack,
   Tooltip,
+  useColorModeValue,
   useMediaQuery,
 } from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
@@ -39,7 +37,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
@@ -58,9 +56,11 @@ import {
   selectActiveQuoteError,
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
+  selectBuyAmountBeforeFeesUserCurrency,
   selectFirstHop,
   selectNetBuyAmountUserCurrency,
   selectNetReceiveAmountCryptoPrecision,
+  selectSellAmountUserCurrency,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
@@ -72,6 +72,7 @@ import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
+import { PriceImpact } from '../PriceImpact'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 
@@ -90,6 +91,7 @@ export const TradeInput = memo(() => {
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
+  const borderColor = useColorModeValue('gray.100', 'gray.750')
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(false)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
@@ -102,11 +104,29 @@ export const TradeInput = memo(() => {
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
+  const buyAmountBeforeFeesUserCurrency = useAppSelector(selectBuyAmountBeforeFeesUserCurrency)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
-  const slippagePercentage = useAppSelector(selectTradeSlippagePercentageDecimal)
+  const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
+  const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
+
+  const priceImpactPercentage = useMemo(() => {
+    if (!sellAmountBeforeFeesUserCurrency || !buyAmountBeforeFeesUserCurrency) return bn('0')
+
+    const tradeDifference = bn(sellAmountBeforeFeesUserCurrency)
+      .minus(buyAmountBeforeFeesUserCurrency)
+      .abs()
+
+    return tradeDifference.div(sellAmountBeforeFeesUserCurrency).times(100)
+  }, [sellAmountBeforeFeesUserCurrency, buyAmountBeforeFeesUserCurrency])
+
+  const isModeratePriceImpact = useMemo(() => {
+    if (!priceImpactPercentage) return false
+
+    return bn(priceImpactPercentage).gt(5)
+  }, [priceImpactPercentage])
 
   const hasUserEnteredAmount = useMemo(
     () => bnOrZero(sellAmountCryptoPrecision).gt(0),
@@ -210,8 +230,14 @@ export const TradeInput = memo(() => {
   const isSellAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
 
   const shouldDisablePreviewButton = useMemo(() => {
-    return quoteHasError || manualReceiveAddressIsValidating || isLoading || !isSellAmountEntered
-  }, [isLoading, isSellAmountEntered, manualReceiveAddressIsValidating, quoteHasError])
+    return (
+      quoteHasError ||
+      manualReceiveAddressIsValidating ||
+      isLoading ||
+      !isSellAmountEntered ||
+      !activeQuote
+    )
+  }, [activeQuote, isLoading, isSellAmountEntered, manualReceiveAddressIsValidating, quoteHasError])
 
   const rightRegion = useMemo(
     () =>
@@ -239,16 +265,14 @@ export const TradeInput = memo(() => {
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <SlideTransition>
-        <Stack spacing={0} as='form' onSubmit={handleSubmit(onSubmit)}>
-          <CardHeader px={4}>
-            <Flex alignItems='center' justifyContent='space-between'>
-              <Heading as='h5' fontSize='md'>
-                {translate('navBar.trade')}
-              </Heading>
-              {activeSwapperSupportsSlippage && <SlippagePopover />}
-            </Flex>
-          </CardHeader>
-          <Stack spacing={0} divider={<Divider />}>
+        <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
+          <Flex alignItems='center' justifyContent='space-between'>
+            <Heading as='h5' fontSize='md'>
+              {translate('navBar.trade')}
+            </Heading>
+            {activeSwapperSupportsSlippage && <SlippagePopover />}
+          </Flex>
+          <Stack spacing={2}>
             <Flex alignItems='center' flexDir={flexDir} width='full'>
               <TradeAssetSelect
                 accountId={sellAssetAccountId}
@@ -256,9 +280,6 @@ export const TradeInput = memo(() => {
                 assetId={sellAsset.assetId}
                 onAssetClick={handleSellAssetClick}
                 label={translate('trade.from')}
-                borderTopRightRadius={0}
-                borderWidth={0}
-                bg='transparent'
               />
               <IconButton
                 onClick={handleSwitchAssets}
@@ -267,7 +288,13 @@ export const TradeInput = memo(() => {
                 my={marginVertical}
                 size='sm'
                 position='relative'
-                variant='outline'
+                borderColor={useColorModeValue('gray.100', 'gray.750')}
+                borderWidth={1}
+                boxShadow={`0 0 0 3px var(${useColorModeValue(
+                  '--chakra-colors-white',
+                  '--chakra-colors-gray-785',
+                )})`}
+                bg={useColorModeValue('white', 'gray.850')}
                 zIndex={1}
                 aria-label='Switch Assets'
                 icon={isLargerThanMd ? <ArrowForwardIcon /> : <ArrowDownIcon />}
@@ -279,16 +306,12 @@ export const TradeInput = memo(() => {
                 onAccountIdChange={setBuyAssetAccountId}
                 accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
                 label={translate('trade.to')}
-                borderWidth={0}
-                bg='transparent'
-                align='right'
               />
             </Flex>
             <SellAssetInput
               accountId={sellAssetAccountId}
               asset={sellAsset}
               label={translate('trade.youPay')}
-              onAccountIdChange={setSellAssetAccountId}
             />
             <TradeAssetInput
               isReadOnly={true}
@@ -309,61 +332,52 @@ export const TradeInput = memo(() => {
               showFiatSkeleton={isLoading}
               label={translate('trade.youGet')}
               rightRegion={rightRegion}
-              formControlProps={{ borderRadius: 0, background: 'transparent', borderWidth: 0 }}
-              onAccountIdChange={setBuyAssetAccountId}
             >
               {tradeQuotes}
             </TradeAssetInput>
           </Stack>
-          <CardFooter
-            borderTopWidth={1}
-            borderColor='border.subtle'
-            flexDir='column'
-            gap={4}
-            px={4}
-            bg='background.surface.raised.accent'
-            borderBottomRadius='xl'
-          >
-            {hasUserEnteredAmount && (
-              <Stack>
-                <RateGasRow
-                  sellSymbol={sellAsset.symbol}
-                  buySymbol={buyAsset.symbol}
-                  gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
-                  rate={rate}
-                  isLoading={isLoading}
-                  isError={activeQuoteError !== undefined}
-                />
-
-                {activeQuote ? (
-                  <ReceiveSummary
-                    isLoading={isLoading}
-                    symbol={buyAsset.symbol}
-                    amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
-                    amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
-                    protocolFees={totalProtocolFees}
-                    shapeShiftFee='0'
-                    slippage={slippagePercentage}
-                    swapperName={activeSwapperName ?? ''}
-                  />
-                ) : null}
-              </Stack>
-            )}
-            <ManualAddressEntry />
-            <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
-              <Button
-                type='submit'
-                colorScheme={quoteHasError ? 'red' : 'blue'}
-                size='lg-multiline'
-                data-test='trade-form-preview-button'
-                isDisabled={shouldDisablePreviewButton}
+          {hasUserEnteredAmount && (
+            <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
+              <RateGasRow
+                sellSymbol={sellAsset.symbol}
+                buySymbol={buyAsset.symbol}
+                gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
+                rate={rate}
                 isLoading={isLoading}
-              >
-                <Text translation={activeQuoteStatus.quoteStatusTranslation} />
-              </Button>
-            </Tooltip>
-            {hasUserEnteredAmount && <DonationCheckbox isLoading={isLoading} />}
-          </CardFooter>
+                isError={activeQuoteError !== undefined}
+              />
+
+              {activeQuote ? (
+                <ReceiveSummary
+                  isLoading={isLoading}
+                  symbol={buyAsset.symbol}
+                  amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
+                  amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
+                  protocolFees={totalProtocolFees}
+                  shapeShiftFee='0'
+                  slippage={slippageDecimal}
+                  swapperName={activeSwapperName ?? ''}
+                />
+              ) : null}
+              {isModeratePriceImpact && (
+                <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
+              )}
+            </Stack>
+          )}
+          {hasUserEnteredAmount && <DonationCheckbox isLoading={isLoading} />}
+          <ManualAddressEntry />
+          <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
+            <Button
+              type='submit'
+              colorScheme={quoteHasError ? 'red' : 'blue'}
+              size='lg-multiline'
+              data-test='trade-form-preview-button'
+              isDisabled={shouldDisablePreviewButton}
+              isLoading={isLoading}
+            >
+              <Text translation={activeQuoteStatus.quoteStatusTranslation} />
+            </Button>
+          </Tooltip>
         </Stack>
       </SlideTransition>
     </MessageOverlay>

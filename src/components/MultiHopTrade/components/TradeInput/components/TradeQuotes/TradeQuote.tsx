@@ -3,9 +3,11 @@ import { useCallback, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
+import { quoteStatusTranslation } from 'components/MultiHopTrade/components/TradeInput/components/TradeQuotes/getQouteErrorTranslation'
 import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { SwapErrorType } from 'lib/swapper/api'
 import type { ApiQuote } from 'state/apis/swappers'
 import {
   selectBuyAsset,
@@ -80,6 +82,8 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   const hoverColor = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
   const focusColor = useColorModeValue('blackAlpha.400', 'whiteAlpha.400')
 
+  const { quote, error } = quoteData
+
   const { isTradingActive } = useIsTradingActive()
 
   const buyAsset = useAppSelector(selectBuyAsset)
@@ -89,20 +93,20 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
 
   // NOTE: don't pull this from the slice - we're not displaying the active quote here
   const networkFeeUserCurrencyPrecision = useMemo(
-    () => (quoteData.quote ? getTotalNetworkFeeUserCurrencyPrecision(quoteData.quote) : undefined),
-    [quoteData.quote],
+    () => (quote ? getTotalNetworkFeeUserCurrencyPrecision(quote) : undefined),
+    [quote],
   )
 
   // NOTE: don't pull this from the slice - we're not displaying the active quote here
   const totalReceiveAmountCryptoPrecision = useMemo(
     () =>
-      quoteData.quote
+      quote
         ? getNetReceiveAmountCryptoPrecision({
-            quote: quoteData.quote,
+            quote,
             swapperName: quoteData.swapperName,
           })
         : '0',
-    [quoteData.quote, quoteData.swapperName],
+    [quote, quoteData.swapperName],
   )
 
   const handleQuoteSelection = useCallback(() => {
@@ -126,23 +130,32 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     bnOrZero(totalReceiveAmountCryptoPrecision).isGreaterThan(0)
 
   const tag: JSX.Element = useMemo(() => {
-    switch (true) {
-      case !hasAmountWithPositiveReceive && isAmountEntered:
-        return (
-          <Tag size='sm' colorScheme='red'>
-            {translate('trade.rates.tags.negativeRatio')}
-          </Tag>
-        )
-      case isBest:
-        return (
-          <Tag size='sm' colorScheme='green'>
-            {translate('common.best')}
-          </Tag>
-        )
-      default:
-        return <Tag size='sm'>{translate('common.alternative')}</Tag>
+    if (quote)
+      switch (true) {
+        case !hasAmountWithPositiveReceive && isAmountEntered:
+          return (
+            <Tag size='sm' colorScheme='red'>
+              {translate('trade.rates.tags.negativeRatio')}
+            </Tag>
+          )
+        case isBest:
+          return (
+            <Tag size='sm' colorScheme='green'>
+              {translate('common.best')}
+            </Tag>
+          )
+        default:
+          return <Tag size='sm'>{translate('common.alternative')}</Tag>
+      }
+    else {
+      // Add helper to get user-friendly error message from code
+      return (
+        <Tag size='sm' colorScheme='red'>
+          {translate(quoteStatusTranslation(error))}
+        </Tag>
+      )
     }
-  }, [hasAmountWithPositiveReceive, isAmountEntered, translate, isBest])
+  }, [quote, hasAmountWithPositiveReceive, isAmountEntered, translate, isBest, error])
 
   const activeSwapperColor = (() => {
     if (!isTradingActive) return redColor
@@ -160,24 +173,32 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     [activeSwapperColor, focusColor, isActive],
   )
 
-  return totalReceiveAmountCryptoPrecision ? (
+  const isDisabled = !!error
+
+  // TODO: work out for which error codes we want to show a swapper with a human-readable error vs hiding it
+  const showSwapperError =
+    error?.code === SwapErrorType.TRADING_HALTED || error?.code === SwapErrorType.UNSUPPORTED_PAIR
+  const showSwapper = !!quote || showSwapperError
+
+  return showSwapper ? (
     <Card
-      variant='elevated'
       borderWidth={1}
-      cursor='pointer'
+      variant='elevated'
+      cursor={isDisabled ? 'not-allowed' : 'pointer'}
       borderColor={isActive ? activeSwapperColor : borderColor}
-      _hover={hoverProps}
-      _active={activeProps}
-      borderRadius='lg'
+      _hover={isDisabled ? undefined : hoverProps}
+      _active={isDisabled ? undefined : activeProps}
+      borderRadius='xl'
       flexDir='column'
       gap={2}
       width='full'
       px={4}
       py={2}
       fontSize='sm'
-      onClick={handleQuoteSelection}
+      onClick={isDisabled ? undefined : handleQuoteSelection}
       transitionProperty='common'
       transitionDuration='normal'
+      opacity={isDisabled ? 0.4 : 1}
     >
       <Flex justifyContent='space-between' alignItems='center'>
         <Flex gap={2}>
@@ -188,30 +209,34 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
             </Tag>
           )}
         </Flex>
-        <Flex gap={2} alignItems='center'>
-          <RawText color='text.subtle'>
-            <FaGasPump />
-          </RawText>
-          {
-            // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
-            !networkFeeUserCurrencyPrecision ? (
-              translate('trade.unknownGas')
-            ) : (
-              <Amount.Fiat value={networkFeeUserCurrencyPrecision} />
-            )
-          }
-        </Flex>
+        {quote && (
+          <Flex gap={2} alignItems='center'>
+            <RawText color='gray.500'>
+              <FaGasPump />
+            </RawText>
+            {
+              // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
+              !networkFeeUserCurrencyPrecision ? (
+                translate('trade.unknownGas')
+              ) : (
+                <Amount.Fiat value={networkFeeUserCurrencyPrecision} />
+              )
+            }
+          </Flex>
+        )}
       </Flex>
       <Flex justifyContent='space-between' alignItems='center'>
         <Flex gap={2} alignItems='center'>
           <SwapperIcon swapperName={quoteData.swapperName} />
           <RawText>{quoteData.swapperName}</RawText>
         </Flex>
-        <Amount.Crypto
-          value={hasAmountWithPositiveReceive ? totalReceiveAmountCryptoPrecision : '0'}
-          symbol={buyAsset?.symbol ?? ''}
-          color={isBest ? greenColor : 'inherit'}
-        />
+        {quote && (
+          <Amount.Crypto
+            value={hasAmountWithPositiveReceive ? totalReceiveAmountCryptoPrecision : '0'}
+            symbol={buyAsset?.symbol ?? ''}
+            color={isBest ? greenColor : 'inherit'}
+          />
+        )}
       </Flex>
     </Card>
   ) : null

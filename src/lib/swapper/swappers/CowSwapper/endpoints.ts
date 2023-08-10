@@ -102,7 +102,7 @@ export const cowApi: Swapper2Api = {
       // from,
       sellTokenBalance: ERC20_TOKEN_BALANCE,
       buyTokenBalance: ERC20_TOKEN_BALANCE,
-      quoteId: id,
+      quoteId: id.toString(),
     }
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)

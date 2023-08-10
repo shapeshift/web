@@ -105,9 +105,11 @@ export async function getCowSwapTradeQuote(
   const isSellAmountBelowMinimum = bnOrZero(sellAmount).lt(minimumCryptoBaseUnit)
   const buyAmountCryptoBaseUnit = isSellAmountBelowMinimum ? '0' : buyAmountBeforeFeesCryptoBaseUnit
 
+  console.log('xxx data', data)
+
   const quote: TradeQuote<CowChainId> = {
     minimumCryptoHuman,
-    id: data.id,
+    id: data.id.toString(),
     steps: [
       {
         allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,

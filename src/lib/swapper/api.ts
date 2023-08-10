@@ -108,7 +108,7 @@ export type GetTradeQuoteInput =
 
 export type AmountDisplayMeta = {
   amountCryptoBaseUnit: string
-  asset: Pick<Asset, 'symbol' | 'chainId' | 'precision'>
+  asset: Partial<Asset> & Pick<Asset, 'symbol' | 'chainId' | 'precision'>
 }
 
 export type TradeBase<C extends ChainId> = {

@@ -1,4 +1,3 @@
-import { WarningTwoIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
@@ -6,7 +5,6 @@ import {
   AlertTitle,
   Box,
   Button,
-  Card,
   CardBody,
   CardFooter,
   CardHeader,
@@ -78,7 +76,6 @@ export const TradeConfirm = () => {
   const mixpanel = getMixPanel()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const alertColor = useColorModeValue('yellow.500', 'yellow.200')
-  const warningColor = useColorModeValue('red.600', 'red.400')
   const [hasMixpanelFired, setHasMixpanelFired] = useState(false)
   const {
     handleSubmit,
@@ -298,9 +295,9 @@ export const TradeConfirm = () => {
     })()
     return (
       <>
-        <CardHeader px={0} pt={0}>
+        <CardHeader>
           <WithBackButton handleBack={handleBack}>
-            <Heading textAlign='center'>
+            <Heading as='h5' textAlign='center'>
               <Text translation={statusText} />
             </Heading>
           </WithBackButton>
@@ -352,7 +349,7 @@ export const TradeConfirm = () => {
 
   const sendReceiveSummary: JSX.Element | null = useMemo(
     () => (
-      <Stack spacing={4}>
+      <>
         <Row>
           <Row.Label>{translate('common.send')}</Row.Label>
           <Row.Value textAlign='right'>
@@ -379,7 +376,7 @@ export const TradeConfirm = () => {
           intermediaryTransactionOutputs={tradeQuoteStep?.intermediaryTransactionOutputs}
           donationAmount={donationAmount}
         />
-      </Stack>
+      </>
     ),
     [
       translate,
@@ -400,20 +397,33 @@ export const TradeConfirm = () => {
 
   const footer: JSX.Element = useMemo(
     () => (
-      <CardFooter px={0} py={0}>
+      <CardFooter flexDir='column' gap={2} px={4}>
         {!txHash && !isSubmitting && (
           <>
+            {tradeWarning}
             {swapperName === SwapperName.LIFI && (
-              <Alert status='warning' fontSize='sm' mt={6}>
+              <Alert status='warning' size='sm'>
                 <AlertIcon />
-                {translate('trade.lifiWarning')}
+                <AlertDescription>{translate('trade.lifiWarning')}</AlertDescription>
+              </Alert>
+            )}
+            {isFeeRatioOverThreshold && (
+              <Alert status='warning' size='sm'>
+                <AlertIcon />
+                <AlertDescription>
+                  <Text
+                    translation={[
+                      'trade.gasFeeExceedsTradeAmountThreshold',
+                      { percentage: networkFeeToTradeRatioPercentage.toFixed(0) },
+                    ]}
+                  />
+                </AlertDescription>
               </Alert>
             )}
             <Button
               colorScheme={isModeratePriceImpact ? 'red' : 'blue'}
               size='lg'
               width='full'
-              mt={6}
               data-test='trade-form-confirm-and-trade-button'
               type='submit'
             >
@@ -425,7 +435,16 @@ export const TradeConfirm = () => {
         )}
       </CardFooter>
     ),
-    [txHash, isSubmitting, swapperName, translate, isModeratePriceImpact],
+    [
+      txHash,
+      isSubmitting,
+      tradeWarning,
+      swapperName,
+      translate,
+      isFeeRatioOverThreshold,
+      networkFeeToTradeRatioPercentage,
+      isModeratePriceImpact,
+    ],
   )
 
   if (!tradeQuoteStep) return null
@@ -433,104 +452,90 @@ export const TradeConfirm = () => {
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
-        <Card variant='unstyled'>
-          {header}
-          <CardBody pb={0} px={0}>
-            <Stack
-              spacing={4}
-              borderColor={borderColor}
-              divider={<StackDivider />}
-              fontSize='sm'
-              fontWeight='medium'
-            >
-              <AssetToAsset
-                buyIcon={buyAsset?.icon ?? ''}
-                sellIcon={sellAsset?.icon ?? ''}
-                buyColor={buyAsset?.color ?? ''}
-                sellColor={sellAsset?.color ?? ''}
-                status={status}
-                isSubmitting={isSubmitting}
-              />
-              {tradeWarning}
-              {sendReceiveSummary}
-              <Stack spacing={4}>
-                {txLink && (
-                  <Row>
-                    <Row.Label>
-                      <RawText>{translate('common.txId')}</RawText>
-                    </Row.Label>
-                    <Box textAlign='right'>
-                      <Link isExternal color='blue.500' href={txLink}>
-                        <Text translation='trade.viewTransaction' />
-                      </Link>
-                    </Box>
-                  </Row>
-                )}
-                {isModeratePriceImpact && (
-                  <PriceImpact impactPercentage={bn(priceImpactPercentage).toFixed(2)} />
-                )}
-                <Row>
-                  <HelperTooltip label={translate('trade.tooltip.rate')}>
-                    <Row.Label>
-                      <Text translation='trade.rate' />
-                    </Row.Label>
-                  </HelperTooltip>
-                  <Skeleton isLoaded>
-                    <Box textAlign='right'>
-                      <RawText>{`1 ${sellAsset?.symbol ?? ''} = ${firstNonZeroDecimal(
-                        bnOrZero(tradeQuoteStep?.rate),
-                      )} ${buyAsset?.symbol}`}</RawText>
-                      {!!swapperName && <RawText color='text.subtle'>@{swapperName}</RawText>}
-                    </Box>
-                  </Skeleton>
+        {header}
+        <CardBody px={0}>
+          <Stack
+            spacing={4}
+            borderColor={borderColor}
+            divider={<StackDivider />}
+            fontSize='sm'
+            fontWeight='medium'
+          >
+            <AssetToAsset
+              buyIcon={buyAsset?.icon ?? ''}
+              sellIcon={sellAsset?.icon ?? ''}
+              buyColor={buyAsset?.color ?? ''}
+              sellColor={sellAsset?.color ?? ''}
+              status={status}
+              isSubmitting={isSubmitting}
+              px={4}
+            />
+            <Stack px={4}>{sendReceiveSummary}</Stack>
+            <Stack spacing={4}>
+              {txLink && (
+                <Row px={4}>
+                  <Row.Label>
+                    <RawText>{translate('common.txId')}</RawText>
+                  </Row.Label>
+                  <Box textAlign='right'>
+                    <Link isExternal color='blue.500' href={txLink}>
+                      <Text translation='trade.viewTransaction' />
+                    </Link>
+                  </Box>
                 </Row>
-                <Row>
-                  <HelperTooltip label={translate('trade.tooltip.minerFee')}>
+              )}
+              {isModeratePriceImpact && (
+                <PriceImpact impactPercentage={bn(priceImpactPercentage).toFixed(2)} />
+              )}
+              <Row px={4}>
+                <HelperTooltip label={translate('trade.tooltip.rate')}>
+                  <Row.Label>
+                    <Text translation='trade.rate' />
+                  </Row.Label>
+                </HelperTooltip>
+                <Skeleton isLoaded>
+                  <Box textAlign='right'>
+                    <RawText>{`1 ${sellAsset?.symbol ?? ''} = ${firstNonZeroDecimal(
+                      bnOrZero(tradeQuoteStep?.rate),
+                    )} ${buyAsset?.symbol}`}</RawText>
+                    {!!swapperName && <RawText color='text.subtle'>@{swapperName}</RawText>}
+                  </Box>
+                </Skeleton>
+              </Row>
+              <Row px={4}>
+                <HelperTooltip label={translate('trade.tooltip.minerFee')}>
+                  <Row.Label>
+                    <Text translation='trade.minerFee' />
+                  </Row.Label>
+                </HelperTooltip>
+                <Row.Value>
+                  {defaultFeeAsset &&
+                    networkFeeUserCurrency &&
+                    `${networkFeeCryptoHuman} ${defaultFeeAsset.symbol} ≃ ${toFiat(
+                      networkFeeUserCurrency,
+                    )}`}
+                </Row.Value>
+              </Row>
+              {maybeManualReceiveAddress && (
+                <Row px={4}>
+                  <HelperTooltip label={translate('trade.tooltip.manualReceiveAddress')}>
                     <Row.Label>
-                      <Text translation='trade.minerFee' />
+                      <Text translation='trade.manualReceiveAddress' />
                     </Row.Label>
                   </HelperTooltip>
                   <Row.Value>
-                    {defaultFeeAsset &&
-                      networkFeeUserCurrency &&
-                      `${networkFeeCryptoHuman} ${defaultFeeAsset.symbol} ≃ ${toFiat(
-                        networkFeeUserCurrency,
-                      )}`}
+                    <Row.Label>
+                      <RawText fontWeight='semibold' color={alertColor}>
+                        {maybeManualReceiveAddress}
+                      </RawText>
+                    </Row.Label>
                   </Row.Value>
                 </Row>
-                {maybeManualReceiveAddress && (
-                  <Row>
-                    <HelperTooltip label={translate('trade.tooltip.manualReceiveAddress')}>
-                      <Row.Label>
-                        <Text translation='trade.manualReceiveAddress' />
-                      </Row.Label>
-                    </HelperTooltip>
-                    <Row.Value>
-                      <Row.Label>
-                        <RawText fontWeight='semibold' color={alertColor}>
-                          {maybeManualReceiveAddress}
-                        </RawText>
-                      </Row.Label>
-                    </Row.Value>
-                  </Row>
-                )}
-                {isFeeRatioOverThreshold && (
-                  <Flex justifyContent='center' gap={4} alignItems='center'>
-                    <WarningTwoIcon w={5} h={5} color={warningColor} />
-                    <Text
-                      color={warningColor}
-                      translation={[
-                        'trade.gasFeeExceedsTradeAmountThreshold',
-                        { percentage: networkFeeToTradeRatioPercentage.toFixed(0) },
-                      ]}
-                    />
-                  </Flex>
-                )}
-              </Stack>
+              )}
             </Stack>
-          </CardBody>
-          {footer}
-        </Card>
+          </Stack>
+        </CardBody>
+        {footer}
       </Box>
     </SlideTransition>
   )

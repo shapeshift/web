@@ -14,8 +14,11 @@ export const CardStyle = {
   sizes: {
     md: {
       header: {
-        fontSize: 'md',
-        as: 'h5',
+        py: 4,
+        px: {
+          base: 4,
+          md: 6,
+        },
       },
       body: {
         py: 4,

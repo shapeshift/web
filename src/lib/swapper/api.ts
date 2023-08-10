@@ -75,7 +75,7 @@ export type BuyAssetBySellIdInput = {
 type CommonTradeInput = {
   sellAsset: Asset
   buyAsset: Asset
-  sellAmountBeforeFeesCryptoBaseUnit: string
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sendAddress?: string
   receiveAddress: string
   accountNumber: number
@@ -113,7 +113,7 @@ export type AmountDisplayMeta = {
 
 export type TradeBase<C extends ChainId> = {
   buyAmountBeforeFeesCryptoBaseUnit: string
-  sellAmountBeforeFeesCryptoBaseUnit: string
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   feeData: QuoteFeeData<C>
   rate: string
   sources: SwapSource[]

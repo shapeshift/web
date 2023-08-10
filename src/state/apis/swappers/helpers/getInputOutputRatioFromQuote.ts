@@ -151,7 +151,7 @@ export const getInputOutputRatioFromQuote = ({
 }): number => {
   const totalProtocolFeeUsdPrecision = _getTotalProtocolFeesUsdPrecision(state, quote)
   const totalNetworkFeeUsdPrecision = _getTotalNetworkFeeUsdPrecision(state, quote)
-  const { sellAmountBeforeFeesCryptoBaseUnit, sellAsset } = quote.steps[0]
+  const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = quote.steps[0]
   const { buyAsset } = quote.steps[quote.steps.length - 1]
 
   const {
@@ -184,7 +184,7 @@ export const getInputOutputRatioFromQuote = ({
   const sellAmountCryptoBaseUnit = _convertCryptoBaseUnitToUsdPrecision(
     state,
     sellAsset,
-    sellAmountBeforeFeesCryptoBaseUnit,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
   )
 
   const sellSideNetworkFeeUsdPrecision = totalNetworkFeeUsdPrecision.minus(
@@ -197,6 +197,14 @@ export const getInputOutputRatioFromQuote = ({
   const netSendAmountUsdPrecision = sellAmountCryptoBaseUnit
     .plus(sellSideNetworkFeeUsdPrecision)
     .plus(sellSideProtocolFeeUsdPrecision)
+
+  console.log(`xxx getInputOutputRatioFromQuote: ${quote.steps[0]?.sources[0]}`, {
+    sellSideNetworkFeeUsdPrecision: sellSideNetworkFeeUsdPrecision.toPrecision(),
+    sellSideProtocolFeeUsdPrecision: sellSideProtocolFeeUsdPrecision.toPrecision(),
+    netSendAmountUsdPrecision: netSendAmountUsdPrecision.toPrecision(),
+    netReceiveAmountUsdPrecision: netReceiveAmountUsdPrecision.toPrecision(),
+    buySideNetworkFeeUsdPrecision: buySideNetworkFeeUsdPrecision.toPrecision(),
+  })
 
   return netReceiveAmountUsdPrecision.div(netSendAmountUsdPrecision).toNumber()
 }

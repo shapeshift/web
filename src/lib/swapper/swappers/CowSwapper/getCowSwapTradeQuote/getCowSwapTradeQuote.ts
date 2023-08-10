@@ -35,7 +35,7 @@ export async function getCowSwapTradeQuote(
 ): Promise<Result<TradeQuote<CowChainId>, SwapErrorRight>> {
   const { sellAsset, buyAsset, accountNumber, chainId, receiveAddress } = input
   const supportedChainIds = getSupportedChainIds()
-  const sellAmount = input.sellAmountBeforeFeesCryptoBaseUnit
+  const sellAmount = input.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
   const assertion = assertValidTrade({ buyAsset, sellAsset, supportedChainIds, receiveAddress })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
@@ -122,7 +122,7 @@ export async function getCowSwapTradeQuote(
             },
           },
         },
-        sellAmountBeforeFeesCryptoBaseUnit: normalizedSellAmountCryptoBaseUnit,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit: normalizedSellAmountCryptoBaseUnit,
         buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
         sources: DEFAULT_SOURCE,
         buyAsset,

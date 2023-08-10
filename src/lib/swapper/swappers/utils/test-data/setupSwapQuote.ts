@@ -14,7 +14,7 @@ export const setupQuote = () => {
       {
         allowanceContract: 'allowanceContractAddress',
         buyAmountBeforeFeesCryptoBaseUnit: '',
-        sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
+        sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
         sellAsset,
         buyAsset,
         accountNumber: 0,
@@ -30,7 +30,7 @@ export const setupQuote = () => {
 
   const quoteInput: GetTradeQuoteInput = {
     chainId: KnownChainIds.EthereumMainnet,
-    sellAmountBeforeFeesCryptoBaseUnit: '1000000000000000000',
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
     sellAsset,
     buyAsset,
     accountNumber: 0,

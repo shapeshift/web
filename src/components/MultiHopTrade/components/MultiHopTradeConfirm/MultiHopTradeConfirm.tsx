@@ -302,11 +302,11 @@ const FirstHop = ({
     const {
       buyAsset,
       sellAsset,
-      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAmountBeforeFeesCryptoBaseUnit,
     } = tradeQuoteStep
     const sellAmountCryptoPrecision = fromBaseUnit(
-      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset.precision,
     )
     const buyAmountCryptoPrecision = fromBaseUnit(
@@ -472,11 +472,11 @@ const SecondHop = ({
     const {
       buyAsset,
       sellAsset,
-      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAmountBeforeFeesCryptoBaseUnit,
     } = tradeQuoteStep
     const sellAmountCryptoPrecision = fromBaseUnit(
-      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset.precision,
     )
     const buyAmountCryptoPrecision = fromBaseUnit(

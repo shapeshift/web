@@ -31,7 +31,7 @@ export const getTradeQuote = async (
     accountNumber,
     sellAsset,
     buyAsset,
-    sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
   } = input
   if (!sellAmountCryptoBaseUnit) {
     return Err(
@@ -147,7 +147,7 @@ export const getTradeQuote = async (
     accountNumber,
     rate,
     sellAsset,
-    sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
     buyAmountBeforeFeesCryptoBaseUnit: sellAssetIsOnOsmosisNetwork
       ? buyAmountCryptoBaseUnit // OSMO -> ATOM, the ATOM on OSMO before fees is the same as the ATOM buy amount intent
       : sellAmountCryptoBaseUnit, // ATOM -> ATOM, the ATOM on OSMO before fees is the same as the sold ATOM amount
@@ -166,7 +166,7 @@ export const getTradeQuote = async (
     accountNumber,
     rate,
     sellAsset: atomOnOsmosisAsset,
-    sellAmountBeforeFeesCryptoBaseUnit: sellAssetIsOnOsmosisNetwork
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAssetIsOnOsmosisNetwork
       ? bnOrZero(firstStep.buyAmountBeforeFeesCryptoBaseUnit)
           .minus(firstHopFeeData.slow.txFee)
           .toString()

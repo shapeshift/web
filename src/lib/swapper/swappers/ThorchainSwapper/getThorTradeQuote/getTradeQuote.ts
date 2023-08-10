@@ -61,7 +61,7 @@ export const getThorTradeQuote = async (
   const {
     sellAsset,
     buyAsset,
-    sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
     slippageTolerancePercentage,
     accountNumber,
     chainId,
@@ -193,7 +193,7 @@ export const getThorTradeQuote = async (
 
   const commonStepFields = {
     rate,
-    sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
     buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
     sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
     buyAsset,

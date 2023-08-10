@@ -60,7 +60,8 @@ export const createEmptyEvmTradeQuote = (
       {
         allowanceContract: '',
         buyAmountBeforeFeesCryptoBaseUnit: '0',
-        sellAmountBeforeFeesCryptoBaseUnit: input.sellAmountBeforeFeesCryptoBaseUnit,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit:
+          input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
         feeData: {
           networkFeeCryptoBaseUnit: undefined,
           protocolFees: {},

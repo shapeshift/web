@@ -31,7 +31,7 @@ export async function getTradeQuote(
     receiveAddress,
   } = input
   const apiUrl = getConfig().REACT_APP_ONE_INCH_API_URL
-  const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
+  const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
   const assertion = assertValidTrade({ buyAsset, sellAsset, receiveAddress })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
@@ -94,7 +94,7 @@ export async function getTradeQuote(
           sellAsset,
           accountNumber,
           buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
-          sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
           feeData: {
             protocolFees: {},
             networkFeeCryptoBaseUnit,

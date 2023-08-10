@@ -34,7 +34,7 @@ export async function getTradeQuote(
       chainId,
       sellAsset,
       buyAsset,
-      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sendAddress,
       receiveAddress,
       accountNumber,
@@ -71,7 +71,7 @@ export async function getTradeQuote(
       // this swapper is not cross-account so this works
       fromAddress: sendAddress,
       toAddress: receiveAddress,
-      fromAmount: sellAmountBeforeFeesCryptoBaseUnit,
+      fromAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       // as recommended by lifi, dodo is denied until they fix their gas estimates
       // TODO: convert this config to .env variable
       options: {
@@ -160,7 +160,7 @@ export async function getTradeQuote(
           // TODO(woodenfurniture): the rate should be top level not step level
           // might be better replaced by inputOutputRatio downstream
           rate: estimateRate,
-          sellAmountBeforeFeesCryptoBaseUnit,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
           sellAsset,
           sources: [
             { name: `${selectedLifiRoute.steps[0].tool} (${SwapperName.LIFI})`, proportion: '1' },

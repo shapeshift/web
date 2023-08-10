@@ -160,7 +160,7 @@ export const selectLastHopBuyAsset: Selector<ReduxState, Asset | undefined> =
 
 export const selectSellAmountCryptoBaseUnit: Selector<ReduxState, string | undefined> =
   createSelector(selectFirstHop, firstHop =>
-    firstHop ? firstHop.sellAmountBeforeFeesCryptoBaseUnit : undefined,
+    firstHop ? firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit : undefined,
   )
 
 export const selectSellAmountCryptoPrecision: Selector<ReduxState, string | undefined> =
@@ -302,9 +302,9 @@ export const selectTotalTradeFeeBuyAssetBaseUnit = createSelector(
   },
 )
 
-export const selectSellAmountBeforeFeesCryptoBaseUnit = createSelector(
+export const selectSellAmountIncludingProtocolFeesCryptoBaseUnit = createSelector(
   selectFirstHop,
-  firstHop => firstHop?.sellAmountBeforeFeesCryptoBaseUnit,
+  firstHop => firstHop?.sellAmountIncludingProtocolFeesCryptoBaseUnit,
 )
 
 export const selectBuyAmountBeforeFeesCryptoBaseUnit = createSelector(
@@ -313,7 +313,7 @@ export const selectBuyAmountBeforeFeesCryptoBaseUnit = createSelector(
 )
 
 export const selectSellAmountBeforeFeesCryptoPrecision = createSelector(
-  selectSellAmountBeforeFeesCryptoBaseUnit,
+  selectSellAmountIncludingProtocolFeesCryptoBaseUnit,
   selectFirstHopSellAsset,
   (sellAmountBeforeFeesCryptoBaseUnit, sellAsset) => {
     if (!sellAmountBeforeFeesCryptoBaseUnit || !sellAsset) return

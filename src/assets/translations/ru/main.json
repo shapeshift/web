@@ -1065,6 +1065,8 @@
       "loadingText": "Подключить кошелек"
     },
     "settings": {
+      "clearCache": "Очистить кэш",
+      "clearCacheTooltip": "Очистите кэш и перезагрузите приложение",
       "settings": "Настройки",
       "currency": "Валюта",
       "clearWalletAccountData": "Удалить все аккаунты и данные кошелька",
@@ -1791,7 +1793,9 @@
       "linkedYat": "Linked Yat",
       "yatConnected": "Yat подключен!",
       "usdcAddress": "Yat USDC адрес",
-      "ethAddress": "Yat ETH адрес"
+      "ethAddress": "Yat ETH адрес",
+      "noAddressFound": "Адрес %{symbol} не найден",
+      "viewInApp": "Посмотреть в мобильном приложении ShapeShift"
     }
   },
   "gasInput": {

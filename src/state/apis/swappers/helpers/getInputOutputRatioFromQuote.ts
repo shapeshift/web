@@ -11,7 +11,6 @@ import {
   selectCryptoMarketData,
   selectUsdRateByAssetId,
 } from 'state/slices/marketDataSlice/selectors'
-import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
 
 const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   state: ReduxState,
@@ -47,22 +46,6 @@ const getTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
     )
     return acc.plus(networkFeeFiatPrecision)
   }, bn(0))
-
-const _getTotalProtocolFeesUsdPrecision = (state: ReduxState, quote: TradeQuote): BigNumber => {
-  const cryptoMarketDataById = selectCryptoMarketData(state)
-  return quote.steps.reduce(
-    (acc, step) =>
-      acc.plus(
-        sumProtocolFeesToDenom({
-          cryptoMarketDataById,
-          protocolFees: step.feeData.protocolFees,
-          outputExponent: 0,
-          outputAssetPriceUsd: '1',
-        }),
-      ),
-    bn(0),
-  )
-}
 
 /**
  * Computes the total network fee across all hops
@@ -149,19 +132,15 @@ export const getInputOutputRatioFromQuote = ({
   quote: TradeQuote
   swapperName: SwapperName
 }): number => {
-  const totalProtocolFeeUsdPrecision = _getTotalProtocolFeesUsdPrecision(state, quote)
   const totalNetworkFeeUsdPrecision = _getTotalNetworkFeeUsdPrecision(state, quote)
   const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = quote.steps[0]
   const { buyAsset } = quote.steps[quote.steps.length - 1]
 
-  const {
-    netReceiveAmountCryptoBaseUnit,
-    buySideNetworkFeeCryptoBaseUnit,
-    buySideProtocolFeeCryptoBaseUnit,
-  } = _getReceiveSideAmountsCryptoBaseUnit({
-    quote,
-    swapperName,
-  })
+  const { netReceiveAmountCryptoBaseUnit, buySideNetworkFeeCryptoBaseUnit } =
+    _getReceiveSideAmountsCryptoBaseUnit({
+      quote,
+      swapperName,
+    })
 
   const netReceiveAmountUsdPrecision = _convertCryptoBaseUnitToUsdPrecision(
     state,
@@ -175,12 +154,6 @@ export const getInputOutputRatioFromQuote = ({
     buySideNetworkFeeCryptoBaseUnit,
   )
 
-  const buySideProtocolFeeUsdPrecision = _convertCryptoBaseUnitToUsdPrecision(
-    state,
-    buyAsset,
-    buySideProtocolFeeCryptoBaseUnit,
-  )
-
   const sellAmountCryptoBaseUnitUsdPrecision = _convertCryptoBaseUnitToUsdPrecision(
     state,
     sellAsset,
@@ -190,21 +163,10 @@ export const getInputOutputRatioFromQuote = ({
   const sellSideNetworkFeeUsdPrecision = totalNetworkFeeUsdPrecision.minus(
     buySideNetworkFeeUsdPrecision,
   )
-  const sellSideProtocolFeeUsdPrecision = totalProtocolFeeUsdPrecision.minus(
-    buySideProtocolFeeUsdPrecision,
-  )
 
   const netSendAmountUsdPrecision = sellAmountCryptoBaseUnitUsdPrecision.plus(
     sellSideNetworkFeeUsdPrecision,
   )
-
-  console.log(`xxx getInputOutputRatioFromQuote: ${quote.steps[0]?.sources[0]}`, {
-    sellSideNetworkFeeUsdPrecision: sellSideNetworkFeeUsdPrecision.toPrecision(),
-    sellSideProtocolFeeUsdPrecision: sellSideProtocolFeeUsdPrecision.toPrecision(),
-    netSendAmountUsdPrecision: netSendAmountUsdPrecision.toPrecision(),
-    netReceiveAmountUsdPrecision: netReceiveAmountUsdPrecision.toPrecision(),
-    buySideNetworkFeeUsdPrecision: buySideNetworkFeeUsdPrecision.toPrecision(),
-  })
 
   return netReceiveAmountUsdPrecision.div(netSendAmountUsdPrecision).toNumber()
 }

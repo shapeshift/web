@@ -1065,6 +1065,8 @@
       "loadingText": "Appairer le porte-monnaie"
     },
     "settings": {
+      "clearCache": "Vider le cache",
+      "clearCacheTooltip": "Vider le cache et recharger l'app",
       "settings": "Paramètres",
       "currency": "Devise",
       "clearWalletAccountData": "Supprimer les données du porte-monnaie",
@@ -1791,7 +1793,9 @@
       "linkedYat": "Yat lié",
       "yatConnected": "Yat connecté !",
       "usdcAddress": "Adresse USDC du Yat",
-      "ethAddress": "Adresse ETH du Yat"
+      "ethAddress": "Adresse ETH du Yat",
+      "noAddressFound": "Aucune adresse %{symbol} trouvée",
+      "viewInApp": "Consulter dans l'app mobile ShapeShift"
     }
   },
   "gasInput": {

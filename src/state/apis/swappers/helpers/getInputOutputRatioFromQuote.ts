@@ -181,7 +181,7 @@ export const getInputOutputRatioFromQuote = ({
     buySideProtocolFeeCryptoBaseUnit,
   )
 
-  const sellAmountCryptoBaseUnit = _convertCryptoBaseUnitToUsdPrecision(
+  const sellAmountCryptoBaseUnitUsdPrecision = _convertCryptoBaseUnitToUsdPrecision(
     state,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -194,9 +194,9 @@ export const getInputOutputRatioFromQuote = ({
     buySideProtocolFeeUsdPrecision,
   )
 
-  const netSendAmountUsdPrecision = sellAmountCryptoBaseUnit
-    .plus(sellSideNetworkFeeUsdPrecision)
-    .plus(sellSideProtocolFeeUsdPrecision)
+  const netSendAmountUsdPrecision = sellAmountCryptoBaseUnitUsdPrecision.plus(
+    sellSideNetworkFeeUsdPrecision,
+  )
 
   console.log(`xxx getInputOutputRatioFromQuote: ${quote.steps[0]?.sources[0]}`, {
     sellSideNetworkFeeUsdPrecision: sellSideNetworkFeeUsdPrecision.toPrecision(),

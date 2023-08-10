@@ -59,12 +59,7 @@ export const EasyToUse = () => {
           <Button width='full' colorScheme='blue' onClick={() => handleClick('/buy-crypto')}>
             {translate(translateKey('cta'))}
           </Button>
-          <Button
-            width='full'
-            variant='ghost'
-            colorScheme='blue'
-            onClick={() => handleClick('/dashboard')}
-          >
+          <Button width='full' variant='ghost' onClick={() => handleClick('/dashboard')}>
             {translate(translateKey('secondaryCta'))}
           </Button>
         </Flex>

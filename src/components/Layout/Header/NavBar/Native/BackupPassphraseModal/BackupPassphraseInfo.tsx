@@ -132,7 +132,7 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
         </Wrap>
       </ModalBody>
       <ModalFooter justifyContent='space-between'>
-        <Button colorScheme='blue' variant='ghost' onClick={handleShow} leftIcon={<FaEye />}>
+        <Button onClick={handleShow} leftIcon={<FaEye />}>
           <Text
             translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
           />

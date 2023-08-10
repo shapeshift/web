@@ -19,7 +19,7 @@ export const Balance: React.FC<AssetBalanceProps> = ({
   return isFiat ? (
     <Amount.Fiat
       flex={1}
-      color='GrayText'
+      color='text.subtle'
       fontSize='sm'
       fontWeight='medium'
       prefix={label}
@@ -28,7 +28,7 @@ export const Balance: React.FC<AssetBalanceProps> = ({
     />
   ) : (
     <Amount.Crypto
-      color='GrayText'
+      color='text.subtle'
       fontWeight='medium'
       fontSize='sm'
       flex={1}

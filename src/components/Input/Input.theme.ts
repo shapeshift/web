@@ -6,7 +6,7 @@ export const InputStyle = {
   baseStyle: () => ({
     field: {
       _placeholder: {
-        color: 'text.subtle',
+        color: 'text.subtlest',
       },
     },
   }),
@@ -37,13 +37,21 @@ export const InputStyle = {
     filled: () => ({
       field: {
         bg: 'background.input.base',
-        borderWidth: 0,
+        borderWidth: 2,
         borderColor: 'border.base',
         _hover: {
           bg: 'background.input.hover',
         },
         _focus: {
           bg: 'background.input.pressed',
+          borderColor: 'border.focused',
+          _invalid: {
+            borderColor: 'border.error',
+          },
+        },
+        _invalid: {
+          borderColor: 'border.error',
+          color: 'text.error',
         },
       },
     }),

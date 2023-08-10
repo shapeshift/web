@@ -16,7 +16,7 @@ export const semanticTokens = {
         },
         raised: {
           base: {
-            default: 'gray.100',
+            default: 'white',
             _dark: 'darkNeutralAlpha.800',
           },
           hover: {
@@ -35,7 +35,7 @@ export const semanticTokens = {
         overlay: {
           base: {
             default: 'white',
-            _dark: 'darkNeutral.800',
+            _dark: 'darkNeutral.700',
           },
         },
       },
@@ -92,6 +92,26 @@ export const semanticTokens = {
         default: 'gray.300',
         _dark: 'whiteAlpha.400',
       },
+      focused: {
+        default: 'blue.500',
+        _dark: 'blue.200',
+      },
+      error: {
+        default: 'red.500',
+        _dark: 'red.300',
+      },
+      info: {
+        default: 'blue.500',
+        _dark: 'blue.200',
+      },
+      warning: {
+        default: 'orange.500',
+        _dark: 'orange.200',
+      },
+      success: {
+        default: 'green.500',
+        _dark: 'green.200',
+      },
     },
     text: {
       base: {
@@ -100,12 +120,24 @@ export const semanticTokens = {
       },
       subtle: {
         default: 'gray.500',
-        _dark: 'darkNeutral.300',
+        _dark: 'darkNeutral.400',
       },
       subtlest: {
         default: 'gray.400',
-        _dark: 'darkNetural.400',
+        _dark: 'darkNeutralAlpha.500',
       },
+      success: {
+        default: 'green.500',
+        _dark: 'green.200',
+      },
+      error: {
+        default: 'red.500',
+        _dark: 'red.300',
+      },
+    },
+    blanket: {
+      default: '#10121499',
+      _dark: 'darkNeutralAlpha.900',
     },
   },
 }

@@ -1,4 +1,4 @@
-import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import {
   Button,
   CardFooter,
@@ -9,7 +9,6 @@ import {
   IconButton,
   Stack,
   Tooltip,
-  useMediaQuery,
 } from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
@@ -68,7 +67,6 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
@@ -76,8 +74,6 @@ import { PriceImpact } from '../PriceImpact'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 
-const marginHorizontal = { base: 0, md: -3 }
-const marginVertical = { base: -3, md: 0 }
 const percentOptions = [1]
 
 export const TradeInput = memo(() => {
@@ -93,7 +89,6 @@ export const TradeInput = memo(() => {
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(false)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const buyAssetSearch = useModal('buyAssetSearch')
   const sellAssetSearch = useModal('sellAssetSearch')
   const buyAsset = useAppSelector(selectBuyAsset)
@@ -272,48 +267,38 @@ export const TradeInput = memo(() => {
               {activeSwapperSupportsSlippage && <SlippagePopover />}
             </Flex>
           </CardHeader>
-          <Stack spacing={0} divider={<Divider />}>
-            <Flex alignItems='center' width='full'>
-              <TradeAssetSelect
-                accountId={sellAssetAccountId}
-                onAccountIdChange={setSellAssetAccountId}
-                assetId={sellAsset.assetId}
-                onAssetClick={handleSellAssetClick}
-                label={translate('trade.from')}
-                borderTopRightRadius={0}
-                borderWidth={0}
-                bg='transparent'
-              />
-              <IconButton
-                onClick={handleSwitchAssets}
-                isRound
-                mx={marginHorizontal}
-                my={marginVertical}
-                size='sm'
-                position='relative'
-                variant='outline'
-                zIndex={1}
-                aria-label='Switch Assets'
-                icon={isLargerThanMd ? <ArrowForwardIcon /> : <ArrowDownIcon />}
-              />
-              <TradeAssetSelect
-                accountId={buyAssetAccountId}
-                assetId={buyAsset.assetId}
-                onAssetClick={handleBuyAssetClick}
-                onAccountIdChange={setBuyAssetAccountId}
-                accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
-                label={translate('trade.to')}
-                borderWidth={0}
-                bg='transparent'
-                align='right'
-              />
-            </Flex>
+          <Stack spacing={0}>
             <SellAssetInput
               accountId={sellAssetAccountId}
               asset={sellAsset}
-              label={translate('trade.youPay')}
+              label={translate('trade.payWith')}
               onAccountIdChange={setSellAssetAccountId}
+              labelPostFix={
+                <TradeAssetSelect
+                  accountId={sellAssetAccountId}
+                  onAccountIdChange={setSellAssetAccountId}
+                  assetId={sellAsset.assetId}
+                  onAssetClick={handleSellAssetClick}
+                  label={translate('trade.from')}
+                  onAssetChange={setSellAsset}
+                />
+              }
             />
+            <Flex alignItems='center' justifyContent='center' my={-2}>
+              <Divider />
+              <IconButton
+                onClick={handleSwitchAssets}
+                isRound
+                size='sm'
+                position='relative'
+                variant='outline'
+                borderColor='border.base'
+                zIndex={1}
+                aria-label='Switch Assets'
+                icon={<ArrowDownIcon />}
+              />
+              <Divider />
+            </Flex>
             <TradeAssetInput
               isReadOnly={true}
               accountId={buyAssetAccountId}
@@ -335,6 +320,17 @@ export const TradeInput = memo(() => {
               rightRegion={rightRegion}
               onAccountIdChange={setBuyAssetAccountId}
               formControlProps={{ borderRadius: 0, background: 'transparent', borderWidth: 0 }}
+              labelPostFix={
+                <TradeAssetSelect
+                  accountId={buyAssetAccountId}
+                  assetId={buyAsset.assetId}
+                  onAssetClick={handleBuyAssetClick}
+                  onAccountIdChange={setBuyAssetAccountId}
+                  accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
+                  label={translate('trade.to')}
+                  onAssetChange={setBuyAsset}
+                />
+              }
             >
               {tradeQuotes}
             </TradeAssetInput>

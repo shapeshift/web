@@ -1,21 +1,17 @@
-import type { CardProps } from '@chakra-ui/react'
-import {
-  Card,
-  CardBody,
-  Flex,
-  FormLabel,
-  Skeleton,
-  SkeletonCircle,
-  Stack,
-  useColorModeValue,
-} from '@chakra-ui/react'
+import { ChevronDownIcon } from '@chakra-ui/icons'
+import { Button, Flex, Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { memo, useMemo } from 'react'
+import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
+import { memo, useCallback } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import { selectAssetById, selectFeeAssetByChainId } from 'state/slices/selectors'
+import type { Asset } from 'lib/asset-service'
+import { useGetRelatedAssetIdsQuery } from 'state/apis/zerion/zerionApi'
+import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { AssetChainDropdown } from './AssetChainDropdown'
 
 const TradeAssetAwaitingAsset = () => {
   const bgColor = useColorModeValue('white', 'gray.850')
@@ -37,85 +33,60 @@ type TradeAssetSelectProps = {
   accountId?: AccountId | undefined
   accountSelectionDisabled?: boolean
   onAssetClick?: () => void
+  onAssetChange: (asset: Asset) => void
   label: string
   align?: 'left' | 'right'
-} & CardProps
+}
 
 export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
-  onAccountIdChange: handleAccountIdChange,
-  accountId,
-  accountSelectionDisabled,
   onAssetClick,
+  onAssetChange,
   assetId,
-  label,
-  align,
-  ...rest
 }) => {
-  const hoverBg = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
-  const focusBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-  const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+  const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, asset?.chainId ?? ''))
-  const networkName = feeAsset?.networkName || feeAsset?.name
 
-  const hoverProps = useMemo(() => ({ bg: hoverBg }), [hoverBg])
-  const activeProps = useMemo(() => ({ bg: focusBg }), [focusBg])
+  const { data, isLoading } = useGetRelatedAssetIdsQuery(assetId ?? '')
+
+  const handleAssetChange = useCallback(
+    (assetId: AssetId) => {
+      const asset = assets[assetId]
+      if (!asset) return
+      onAssetChange(asset)
+    },
+    [assets, onAssetChange],
+  )
 
   return (
-    <Card
-      bg={useColorModeValue('white', 'black')}
-      flex={1}
-      borderColor={borderColor}
-      width='full'
-      overflow='hidden'
-      variant='unstyled'
-      borderRadius={0}
-      boxShadow='none'
-      {...rest}
-    >
-      <CardBody
-        display='flex'
-        gap={1}
-        flexDir='column'
-        _hover={hoverProps}
-        _active={activeProps}
-        cursor='pointer'
-        alignItems={align === 'right' ? 'flex-end' : 'flex-start'}
-        py={4}
-        px={4}
+    <Flex px={4} mb={4} alignItems='center' gap={2}>
+      <Button
+        justifyContent='flex-end'
+        height='auto'
+        px={2}
+        py={2}
+        gap={2}
+        size='sm'
+        borderRadius='full'
         onClick={onAssetClick}
+        rightIcon={<ChevronDownIcon />}
       >
-        <FormLabel mb={0} fontSize='sm'>
-          {label}
-        </FormLabel>
-        <Flex gap={2} alignItems='center' flexDir={align === 'right' ? 'row-reverse' : 'row'}>
-          <AssetIcon assetId={assetId} size='sm' />
-          <Flex
-            flexDir='column'
-            fontWeight='medium'
-            alignItems={align === 'right' ? 'flex-end' : 'flex-start'}
-          >
-            <RawText lineHeight='shorter'>{asset?.symbol}</RawText>
-            <RawText fontSize='xs' color='text.subtle' lineHeight='shorter'>
-              on {networkName}
-            </RawText>
-          </Flex>
-        </Flex>
-      </CardBody>
-      {/* {assetId && (
-        <CardFooter style={footerPadding} borderTopWidth={1} borderColor={borderColor}>
-          <AccountDropdown
-            defaultAccountId={accountId}
-            assetId={assetId}
-            onChange={handleAccountIdChange}
-            buttonProps={buttonProps}
-            boxProps={boxProps}
-            disabled={accountSelectionDisabled}
-            autoSelectHighestBalance
-          />
-        </CardFooter>
-      )} */}
-    </Card>
+        {asset?.icons ? (
+          <PairIcons icons={asset.icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
+        ) : (
+          <AssetIcon assetId={assetId} size='xs' showNetworkIcon={false} />
+        )}
+        {asset?.symbol}
+      </Button>
+      <RawText color='text.subtle' fontSize='sm'>
+        on
+      </RawText>
+      <AssetChainDropdown
+        assetIds={data}
+        assetId={assetId}
+        onClick={handleAssetChange}
+        isLoading={isLoading}
+      />
+    </Flex>
   )
 }
 

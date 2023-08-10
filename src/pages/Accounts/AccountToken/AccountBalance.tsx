@@ -43,7 +43,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
   const accountLabel = accountIdToLabel(accountId)
   if (!asset) return null
   return (
-    <Card variant='footer-stub' overflow='hidden'>
+    <Card overflow='hidden'>
       <CardHeader display='flex' justifyContent='space-between' alignItems='center'>
         <Button
           size='sm'

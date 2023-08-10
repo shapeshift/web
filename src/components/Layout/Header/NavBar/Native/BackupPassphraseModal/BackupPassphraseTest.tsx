@@ -159,8 +159,6 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
                   key={index}
                   flexGrow={4}
                   flexBasis='auto'
-                  variant='ghost-filled'
-                  colorScheme='blue'
                   onClick={() => handleClick(index)}
                 >
                   {word}

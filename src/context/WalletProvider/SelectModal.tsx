@@ -28,7 +28,6 @@ export const SelectModal = () => {
 
   const wallets = Object.values(KeyManager).filter(key => key !== KeyManager.Demo)
   const greenColor = useColorModeValue('green.500', 'green.200')
-  const activeBg = useColorModeValue('gray.200', 'gray.900')
 
   return (
     <>
@@ -82,7 +81,6 @@ export const SelectModal = () => {
                   size='md'
                   py={8}
                   isActive={activeWallet}
-                  _active={{ bg: activeBg }}
                   justifyContent='space-between'
                   onClick={() => connect(walletType)}
                   data-test={`connect-wallet-${walletType}-button`}

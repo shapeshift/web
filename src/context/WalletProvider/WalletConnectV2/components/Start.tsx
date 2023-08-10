@@ -29,8 +29,6 @@ export const WalletConnectV2Start = ({ history }: RouteComponentProps) => {
       <ModalBody>
         <Stack mt={6} spacing={4}>
           <Button
-            variant='ghost-filled'
-            colorScheme='blue'
             w='full'
             h='auto'
             px={6}
@@ -45,8 +43,6 @@ export const WalletConnectV2Start = ({ history }: RouteComponentProps) => {
           </Button>
           <Divider />
           <Button
-            variant='ghost-filled'
-            colorScheme='blue'
             w='full'
             h='auto'
             px={6}

@@ -137,7 +137,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
         </FormControl>
       </ModalBody>
       <ModalFooter justifyContent='space-between'>
-        <Button colorScheme='blue' variant='ghost' onClick={handleShow} leftIcon={<FaEye />}>
+        <Button variant='ghost' onClick={handleShow} leftIcon={<FaEye />}>
           <Text
             translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
           />

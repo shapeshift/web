@@ -14,10 +14,13 @@ export const AccountSegment: FC<AccountGroupProps> = ({ title, subtitle }) => (
     py={2}
     color='text.subtle'
     fontSize='sm'
-    fontWeight='bold'
     justifyContent='space-between'
   >
     <RawText>{title}</RawText>
-    {subtitle && <RawText fontFamily='monospace'>{subtitle}</RawText>}
+    {subtitle && (
+      <RawText fontFamily='monospace' fontWeight='bold'>
+        {subtitle}
+      </RawText>
+    )}
   </Stack>
 )

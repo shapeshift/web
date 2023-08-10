@@ -1,6 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useEffect, useState } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import type { TradeAssetInputProps } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import type { Asset } from 'lib/asset-service'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
@@ -13,12 +14,13 @@ export type SellAssetInputProps = {
   label: string
   asset: Asset
   onAccountIdChange: AccountDropdownProps['onChange']
+  labelPostFix?: TradeAssetInputProps['labelPostFix']
 }
 
 const percentOptions = [1]
 
 export const SellAssetInput = memo(
-  ({ accountId, asset, label, onAccountIdChange }: SellAssetInputProps) => {
+  ({ accountId, asset, label, onAccountIdChange, ...rest }: SellAssetInputProps) => {
     const [sellAmountUserCurrencyHuman, setSellAmountUserCurrencyHuman] = useState('0')
     const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
     const dispatch = useAppDispatch()
@@ -62,6 +64,7 @@ export const SellAssetInput = memo(
         label={label}
         formControlProps={{ borderRadius: 0, background: 'transparent', borderWidth: 0 }}
         onAccountIdChange={onAccountIdChange}
+        {...rest}
       />
     )
   },

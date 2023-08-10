@@ -32,8 +32,6 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
         <Text mb={4} color='text.subtle' translation={'walletProvider.shapeShift.start.body'} />
         <Stack mt={6} spacing={4}>
           <Button
-            variant='ghost-filled'
-            colorScheme='blue'
             w='full'
             h='auto'
             px={6}
@@ -48,8 +46,6 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
           </Button>
           <Divider />
           <Button
-            variant='ghost-filled'
-            colorScheme='blue'
             w='full'
             h='auto'
             px={6}
@@ -62,8 +58,6 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             <Text translation={'walletProvider.shapeShift.start.create'} />
           </Button>
           <Button
-            variant='ghost-filled'
-            colorScheme='blue'
             w='full'
             h='auto'
             px={6}

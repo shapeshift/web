@@ -86,7 +86,7 @@ export const Buy = () => {
               <Text fontSize='sm' color='text.subtle' translation='buyPage.disclaimer' />
             </Flex>
             <Box flexBasis='400px'>
-              <Card mx={{ base: -4, md: 0 }}>
+              <Card bg='background.surface.base' mx={{ base: -4, md: 0 }}>
                 <FiatForm assetId={selectedAssetId} fiatRampAction={FiatRampAction.Buy} />
               </Card>
             </Box>

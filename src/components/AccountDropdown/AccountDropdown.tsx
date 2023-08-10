@@ -60,6 +60,7 @@ export type AccountDropdownProps = {
   listProps?: MenuItemOptionProps
   boxProps?: BoxProps
   showLabel?: boolean
+  label?: JSX.Element
 }
 
 const utxoAccountTypeToDisplayPriority = (accountType: UtxoAccountType | undefined) => {
@@ -87,6 +88,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     autoSelectHighestBalance,
     boxProps,
     showLabel = true,
+    label,
   }) => {
     const { chainId } = fromAssetId(assetId)
 
@@ -239,7 +241,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
           <React.Fragment key={accountNumber}>
             <AccountSegment
               title={translate('accounts.accountNumber', { accountNumber })}
-              subtitle={''} // hide me until we have the option to "nickname" accounts
+              subtitle={accountLabel} // hide me until we have the option to "nickname" accounts
             />
             {sortedAccountIds.map((iterAccountId, index) => (
               <AccountChildOption
@@ -270,6 +272,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
       getAccountIdsSortedByBalance,
       getAccountIdsSortedByUtxoAccountType,
       translate,
+      accountLabel,
       accountBalances,
       assetId,
       selectedAccountId,
@@ -291,7 +294,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
 
     return (
       <Box px={2} my={2} {...boxProps}>
-        <Menu closeOnSelect={true} matchWidth autoSelect={false}>
+        <Menu closeOnSelect={true} autoSelect={false} flip>
           <MenuButton
             iconSpacing={1}
             as={Button}
@@ -309,13 +312,19 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
               justifyContent='space-between'
               flexWrap='wrap'
             >
-              <RawText fontWeight='medium'>
-                {translate('accounts.accountNumber', { accountNumber })}
-              </RawText>
-              {showLabel && (
-                <Text fontWeight='medium' color={labelColor}>
-                  {accountLabel}
-                </Text>
+              {label ? (
+                label
+              ) : (
+                <>
+                  <RawText fontWeight='medium'>
+                    {translate('accounts.accountNumber', { accountNumber })}
+                  </RawText>
+                  {showLabel && (
+                    <Text fontWeight='medium' color={labelColor}>
+                      {accountLabel}
+                    </Text>
+                  )}
+                </>
               )}
             </Flex>
           </MenuButton>

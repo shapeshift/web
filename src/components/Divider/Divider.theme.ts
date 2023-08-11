@@ -1,7 +1,7 @@
 export const DividerStyle = {
   // Styles for the base style
   baseStyle: () => ({
-    borderColor: 'border.subtlest',
+    borderColor: 'border.base',
   }),
   // Styles for the size variations
   sizes: {},

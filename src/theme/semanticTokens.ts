@@ -126,6 +126,10 @@ export const semanticTokens = {
         default: 'gray.400',
         _dark: 'darkNeutralAlpha.500',
       },
+      info: {
+        default: 'blue.500',
+        _dark: 'blue.200',
+      },
       success: {
         default: 'green.500',
         _dark: 'green.200',
@@ -133,6 +137,10 @@ export const semanticTokens = {
       error: {
         default: 'red.500',
         _dark: 'red.300',
+      },
+      warning: {
+        default: 'orange.500',
+        _dark: 'orange.200',
       },
     },
     blanket: {

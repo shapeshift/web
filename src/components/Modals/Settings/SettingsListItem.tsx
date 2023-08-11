@@ -1,5 +1,5 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Box, Button, Flex, Icon, Tooltip, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Flex, Icon, Tooltip } from '@chakra-ui/react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text/Text'
@@ -21,7 +21,6 @@ export const SettingsListItem = ({
   ...restProps
 }: SettingListItemProps) => {
   const translate = useTranslate()
-  const itemHover = useColorModeValue('gray.100', 'gray.750')
   return (
     <Button
       variant='none'
@@ -29,12 +28,12 @@ export const SettingsListItem = ({
       justifyContent='space-between'
       alignItems='center'
       onClick={onClick}
-      _hover={onClick ? { bg: itemHover } : {}}
+      _hover={onClick ? { bg: 'background.button.secondary.base' } : {}}
       {...restProps}
     >
       <Flex alignItems='center'>
         {icon}
-        <Text ml={2} translation={label} color={useColorModeValue('black.900', 'white.900')} />
+        <Text ml={2} translation={label} />
         {tooltipText && (
           <Tooltip label={translate(tooltipText)}>
             <Box ml={1}>

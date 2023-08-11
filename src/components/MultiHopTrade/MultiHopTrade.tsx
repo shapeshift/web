@@ -52,7 +52,7 @@ export const MultiHopTrade = memo(
 
     return (
       <Card variant='elevated' {...cardProps}>
-        <CardBody py={0} px={0}>
+        <CardBody>
           <FormProvider {...methods}>
             <MemoryRouter initialEntries={MultiHopEntries} initialIndex={0}>
               <MultiHopRoutes />

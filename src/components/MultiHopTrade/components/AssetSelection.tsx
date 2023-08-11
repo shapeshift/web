@@ -58,7 +58,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   )
 
   return (
-    <Flex px={4} mb={4} alignItems='center' gap={2}>
+    <Flex px={2} mb={4} alignItems='center' gap={2}>
       <Button
         justifyContent='flex-end'
         height='auto'
@@ -69,6 +69,8 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         borderRadius='full'
         onClick={onAssetClick}
         rightIcon={<ChevronDownIcon />}
+        flexGrow={0}
+        flexShrink={0}
       >
         {asset?.icons ? (
           <PairIcons icons={asset.icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />

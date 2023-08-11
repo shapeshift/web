@@ -18,7 +18,6 @@ import { AssetIcon } from 'components/AssetIcon'
 import { AutoTruncateText } from 'components/AutoTruncateText'
 import { IconCircle } from 'components/IconCircle'
 import { GridIcon } from 'components/Icons/GridIcon'
-import { RawText } from 'components/Text'
 import {
   selectFeeAssetById,
   selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
@@ -91,7 +90,6 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
         borderRadius='full'
         isDisabled={!assetIds?.length}
         rightIcon={<ChevronDownIcon />}
-        flex={1}
         {...buttonProps}
       >
         <AssetChainRow className='activeChain' assetId={assetId} />

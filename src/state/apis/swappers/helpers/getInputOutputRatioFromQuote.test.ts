@@ -3,7 +3,13 @@ import { mockMarketData } from 'test/mocks/marketData'
 import { mockStore } from 'test/mocks/store'
 import { SwapperName } from 'lib/swapper/api'
 import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInputOutputRatioFromQuote'
-import { cowQuote, lifiQuote } from 'state/apis/swappers/helpers/testData'
+import {
+  cowQuote,
+  lifiQuote,
+  oneInchQuote,
+  thorQuote,
+  zrxQuote,
+} from 'state/apis/swappers/helpers/testData'
 import type { ReduxState } from 'state/reducer'
 
 const usdcAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
@@ -35,7 +41,7 @@ jest.mock('state/slices/marketDataSlice/selectors', () => {
   return {
     ...jest.requireActual('state/slices/marketDataSlice/selectors'),
     selectCryptoMarketData: jest.fn(() => ({
-      [ethAssetId]: mockMarketData({ price: '2831' }),
+      [ethAssetId]: mockMarketData({ price: '1844' }),
       [foxAssetId]: mockMarketData({ price: '0.02' }),
       [usdcAssetId]: mockMarketData({ price: '1' }),
     })),
@@ -65,7 +71,7 @@ describe('getInputOutputRatioFromQuote', () => {
       swapperName: SwapperName.LIFI,
     })
 
-    expect(ratio).toBe(0.47610743584117404)
+    expect(ratio).toBe(0.5806430732969714)
   })
 
   test('should return correct ratio for a CoW quote', () => {
@@ -78,6 +84,45 @@ describe('getInputOutputRatioFromQuote', () => {
       swapperName: SwapperName.CowSwap,
     })
 
-    expect(ratio).toBe(0.6753421967591836) // fixme: this should be 0.71808142388545765894
+    expect(ratio).toBe(0.6753421967591836)
+  })
+
+  test('should return correct ratio for a THORSwap quote', () => {
+    const mockState = {
+      ...mockStore,
+    }
+    const ratio = getInputOutputRatioFromQuote({
+      state: mockState,
+      quote: thorQuote,
+      swapperName: SwapperName.Thorchain,
+    })
+
+    expect(ratio).toBe(0.6454036704419476)
+  })
+
+  test('should return correct ratio for a 0x quote', () => {
+    const mockState = {
+      ...mockStore,
+    }
+    const ratio = getInputOutputRatioFromQuote({
+      state: mockState,
+      quote: zrxQuote,
+      swapperName: SwapperName.Zrx,
+    })
+
+    expect(ratio).toBe(0.7499671179394174)
+  })
+
+  test('should return correct ratio for a 1inch quote', () => {
+    const mockState = {
+      ...mockStore,
+    }
+    const ratio = getInputOutputRatioFromQuote({
+      state: mockState,
+      quote: oneInchQuote,
+      swapperName: SwapperName.OneInch,
+    })
+
+    expect(ratio).toBe(0.6491538483448477)
   })
 })

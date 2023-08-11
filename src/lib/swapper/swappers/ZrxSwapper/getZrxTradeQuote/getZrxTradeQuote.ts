@@ -98,6 +98,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     })
 
     return Ok({
+      rate,
       minimumCryptoHuman,
       steps: [
         {
@@ -115,7 +116,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
           sources: data.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
         },
       ],
-    } as TradeQuote<T>)
+    } as TradeQuote<T>) // TODO: remove this cast, it's a recipe for bugs
   } catch (err) {
     return Err(
       makeSwapErrorRight({

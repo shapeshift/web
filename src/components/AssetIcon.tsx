@@ -23,6 +23,7 @@ type AssetIconProps = {
 
 type AssetWithNetworkProps = {
   assetId: AssetId
+  showNetworkIcon?: boolean
 } & AvatarProps
 
 const before = {
@@ -38,7 +39,13 @@ const before = {
   zIndex: -1,
 }
 
-const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, src, ...rest }) => {
+const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
+  assetId,
+  icon,
+  src,
+  showNetworkIcon = true,
+  ...rest
+}) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const showNetwork = feeAsset?.networkIcon || asset?.assetId !== feeAsset?.assetId
@@ -46,7 +53,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, src,
 
   return (
     <Avatar src={iconSrc} icon={icon} border={0} bg='none' {...rest}>
-      {showNetwork && (
+      {showNetwork && showNetworkIcon && (
         <Avatar
           boxSize='50%'
           zIndex={2}
@@ -68,7 +75,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({ assetId, icon, src,
 export const AssetIcon = memo(({ assetId, showNetworkIcon, src, ...rest }: AssetIconProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const assetIconBg = useColorModeValue('gray.200', 'gray.700')
-  const assetIconColor = useColorModeValue('gray.500', 'gray.500')
+  const assetIconColor = useColorModeValue('text.subtle', 'text.subtle')
 
   const chainAdapterManager = getChainAdapterManager()
   const chainId = assetId && fromAssetId(assetId).chainId
@@ -107,6 +114,7 @@ export const AssetIcon = memo(({ assetId, showNetworkIcon, src, ...rest }: Asset
         assetId={assetId}
         src={src}
         icon={<FoxIcon boxSize='16px' color={assetIconColor} />}
+        showNetworkIcon={showNetworkIcon}
         {...rest}
       />
     )

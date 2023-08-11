@@ -1,6 +1,7 @@
 import { Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import React, { memo, useMemo } from 'react'
+import type { AssetInputProps } from 'components/DeFi/components/AssetInput'
 import type { TradeAmountInputProps } from 'components/MultiHopTrade/components/TradeAmountInput'
 import { TradeAmountInput } from 'components/MultiHopTrade/components/TradeAmountInput'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -28,7 +29,7 @@ const AssetInputAwaitingAsset = () => {
   )
 }
 
-type AssetInputLoadedProps = TradeAmountInputProps & { assetId: AssetId }
+type AssetInputLoadedProps = AssetInputProps & { assetId: AssetId }
 
 const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = props => {
   const { assetId, accountId } = props

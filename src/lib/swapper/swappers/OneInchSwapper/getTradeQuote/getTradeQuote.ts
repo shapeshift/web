@@ -86,6 +86,7 @@ export async function getTradeQuote(
 
     return Ok({
       minimumCryptoHuman,
+      rate,
       steps: [
         {
           allowanceContract,

@@ -41,6 +41,7 @@ jest.mock('config', () => {
 
 const expectedQuoteResponse: ThorEvmTradeQuote = {
   minimumCryptoHuman: '149.14668013703712946932',
+  rate: '144114.94366197183098591549',
   recommendedSlippage: '0.04357',
   data: '0x',
   router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',

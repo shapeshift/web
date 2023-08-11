@@ -10,6 +10,7 @@ export const setupQuote = () => {
   const buyAsset: Asset = { ...WETH }
   const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
     minimumCryptoHuman: '0',
+    rate: '1',
     steps: [
       {
         allowanceContract: 'allowanceContractAddress',

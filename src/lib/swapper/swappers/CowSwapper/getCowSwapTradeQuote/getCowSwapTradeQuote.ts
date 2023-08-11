@@ -110,6 +110,7 @@ export async function getCowSwapTradeQuote(
   const quote: TradeQuote<CowChainId> = {
     minimumCryptoHuman,
     id: data.id.toString(),
+    rate,
     steps: [
       {
         allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,

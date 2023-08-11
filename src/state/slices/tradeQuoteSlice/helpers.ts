@@ -183,6 +183,7 @@ export const getTotalProtocolFeeByAsset = (quote: TradeQuote2): Record<AssetId, 
   quote.steps.reduce<Record<AssetId, ProtocolFee>>((acc, step) => {
     return Object.entries(step.feeData.protocolFees).reduce<Record<AssetId, ProtocolFee>>(
       (innerAcc, [assetId, protocolFee]) => {
+        if (!protocolFee) return innerAcc
         if (innerAcc[assetId] === undefined) {
           innerAcc[assetId] = protocolFee
           return innerAcc

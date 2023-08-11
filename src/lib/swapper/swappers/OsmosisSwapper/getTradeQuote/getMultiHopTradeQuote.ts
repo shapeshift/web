@@ -178,6 +178,7 @@ export const getTradeQuote = async (
   }
 
   return Ok({
+    rate,
     minimumCryptoHuman,
     steps: [firstStep, secondStep],
   })

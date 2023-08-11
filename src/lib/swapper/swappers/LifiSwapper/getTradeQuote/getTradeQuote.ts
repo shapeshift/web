@@ -122,6 +122,7 @@ export async function getTradeQuote(
     const steps = await Promise.all(
       selectedLifiRoute.steps.map(async lifiStep => {
         // for the rate to be valid, both amounts must be converted to the same precision
+        // TODO: this should be the step rate. It's currently the entire route rate.
         const estimateRate = convertPrecision({
           value: selectedLifiRoute.toAmountMin,
           inputExponent: buyAsset.precision,
@@ -157,7 +158,6 @@ export async function getTradeQuote(
             protocolFees,
             networkFeeCryptoBaseUnit,
           },
-          // TODO(woodenfurniture): the rate should be top level not step level
           // might be better replaced by inputOutputRatio downstream
           rate: estimateRate,
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -170,12 +170,22 @@ export async function getTradeQuote(
     )
 
     const isSameChainSwap = sellAsset.chainId === buyAsset.chainId
+
+    // The rate for the entire multi-hop swap
+    const netRate = convertPrecision({
+      value: selectedLifiRoute.toAmountMin,
+      inputExponent: buyAsset.precision,
+      outputExponent: sellAsset.precision,
+    })
+      .dividedBy(bn(selectedLifiRoute.fromAmount))
+      .toString()
     // TODO(gomes): intermediary error-handling within this module function calls
     return Ok({
       minimumCryptoHuman: getMinimumCryptoHuman(
         sellAssetPriceUsdPrecision,
         isSameChainSwap,
       ).toString(),
+      rate: netRate,
       steps,
       selectedLifiRoute,
     })

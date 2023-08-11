@@ -253,6 +253,7 @@ export const getThorTradeQuote = async (
 
         return Ok({
           ...commonQuoteFields,
+          rate,
           data,
           router,
           steps: [
@@ -298,6 +299,7 @@ export const getThorTradeQuote = async (
 
         return Ok({
           ...commonQuoteFields,
+          rate,
           steps: [
             {
               ...commonStepFields,
@@ -319,6 +321,7 @@ export const getThorTradeQuote = async (
 
         return Ok({
           ...commonQuoteFields,
+          rate,
           steps: [
             {
               ...commonStepFields,

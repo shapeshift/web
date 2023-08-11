@@ -7,6 +7,7 @@ import type { ProtocolFee, SwapErrorRight } from 'lib/swapper/api'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { getLimit } from 'lib/swapper/swappers/ThorchainSwapper/utils/getLimit/getLimit'
 import { makeSwapMemo } from 'lib/swapper/swappers/ThorchainSwapper/utils/makeSwapMemo/makeSwapMemo'
+import type { PartialRecord } from 'lib/utils'
 
 type GetThorTxInfoArgs = {
   sellAsset: Asset
@@ -15,7 +16,7 @@ type GetThorTxInfoArgs = {
   slippageTolerance: string
   destinationAddress: string | undefined
   xpub: string
-  protocolFees: Record<AssetId, ProtocolFee>
+  protocolFees: PartialRecord<AssetId, ProtocolFee>
   affiliateBps: string
   buyAssetUsdRate: string
   feeAssetUsdRate: string

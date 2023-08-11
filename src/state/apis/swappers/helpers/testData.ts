@@ -2,6 +2,7 @@ import type { TradeQuote2 } from 'lib/swapper/api'
 
 export const lifiQuote: TradeQuote2 = {
   id: '0x5ba393814e096f79f4316615b82462eaaee2cf4e1c935d35624a6390bc932b83',
+  rate: '51.34579860391078801712',
   affiliateBps: undefined,
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   minimumCryptoHuman: '0.01000010000100001',
@@ -52,6 +53,7 @@ export const lifiQuote: TradeQuote2 = {
 
 export const thorQuote: TradeQuote2 = {
   id: 'f4636745-bf07-4799-9efb-c056691b652f',
+  rate: '39.23942597524024759752',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   affiliateBps: '30',
   minimumCryptoHuman: '5.201707582929838658388',
@@ -136,6 +138,7 @@ export const thorQuote: TradeQuote2 = {
 
 export const oneInchQuote: TradeQuote2 = {
   id: '89654b4f-c90b-4578-bb9f-7c93e7ad227d',
+  rate: '51.63754486526613135844',
   affiliateBps: undefined,
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   minimumCryptoHuman: '1.00001000010000100001',
@@ -186,6 +189,7 @@ export const oneInchQuote: TradeQuote2 = {
 
 export const cowQuote: TradeQuote2 = {
   id: '220858750',
+  rate: '51.86127422365727736757',
   affiliateBps: undefined,
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   minimumCryptoHuman: '20.0002000020000200002',
@@ -253,6 +257,7 @@ export const cowQuote: TradeQuote2 = {
 
 export const zrxQuote: TradeQuote2 = {
   id: 'dfb5f2e6-9cb9-4865-9ef5-6b54d203affa',
+  rate: '51.603817692372651273',
   affiliateBps: undefined,
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   minimumCryptoHuman: '1.00001000010000100001',

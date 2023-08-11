@@ -6,6 +6,7 @@ import type { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshifto
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
+import type { PartialRecord } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
@@ -64,7 +65,7 @@ export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
 
 export type QuoteFeeData<T extends ChainId> = {
   networkFeeCryptoBaseUnit: string | undefined // fee paid to the network from the fee asset (undefined if unknown)
-  protocolFees: Record<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
+  protocolFees: PartialRecord<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
 } & ChainSpecificQuoteFeeData<T>
 
 export type BuyAssetBySellIdInput = {
@@ -134,6 +135,7 @@ export type TradeQuote<C extends ChainId = ChainId> = {
   recommendedSlippage?: string
   id?: string
   steps: TradeQuoteStep<C>[]
+  rate: string // top-level rate for all steps (i.e. output amount / input amount)
 }
 
 export type SwapSource = {

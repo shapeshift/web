@@ -56,6 +56,7 @@ export const createEmptyEvmTradeQuote = (
 ): TradeQuote<EvmChainId> => {
   return {
     minimumCryptoHuman,
+    rate: '0',
     steps: [
       {
         allowanceContract: '',

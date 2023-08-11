@@ -1,5 +1,5 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
-import type { ButtonProps, MenuProps } from '@chakra-ui/react'
+import type { ButtonProps, FlexProps, MenuProps } from '@chakra-ui/react'
 import {
   Button,
   Flex,
@@ -15,6 +15,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { AutoTruncateText } from 'components/AutoTruncateText'
 import { IconCircle } from 'components/IconCircle'
 import { GridIcon } from 'components/Icons/GridIcon'
 import { RawText } from 'components/Text'
@@ -34,13 +35,14 @@ type ChainDropdownProps = {
   isLoading?: boolean
 } & Omit<MenuProps, 'children'>
 
-const AssetChainRow: React.FC<{ assetId: AssetId }> = ({ assetId }) => {
+const AssetChainRow: React.FC<{ assetId: AssetId } & FlexProps> = ({ assetId, ...rest }) => {
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const iconSrc = feeAsset?.networkIcon ?? feeAsset?.icon
   return (
-    <Flex alignItems='center' gap={2}>
+    <Flex alignItems='center' gap={2} {...rest}>
       <AssetIcon size='xs' src={iconSrc} />
-      <RawText>{feeAsset?.networkName ?? feeAsset?.name}</RawText>
+      {/* <RawText className='chain-name'>{feeAsset?.networkName ?? feeAsset?.name}</RawText> */}
+      <AutoTruncateText value={feeAsset?.networkName ?? feeAsset?.name} />
     </Flex>
   )
 }
@@ -74,6 +76,8 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
     return <Skeleton width='80px' height='40px' borderRadius='full' />
   }
 
+  if (!assetId) return null
+
   return (
     <Menu {...menuProps}>
       <MenuButton
@@ -87,9 +91,10 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
         borderRadius='full'
         isDisabled={!assetIds?.length}
         rightIcon={<ChevronDownIcon />}
+        flex={1}
         {...buttonProps}
       >
-        {assetId ? <AssetChainRow assetId={assetId} /> : translate('common.allChains')}
+        <AssetChainRow className='activeChain' assetId={assetId} />
       </MenuButton>
       <MenuList zIndex='banner'>
         <MenuOptionGroup type='radio' value={assetId} onChange={onChange}>

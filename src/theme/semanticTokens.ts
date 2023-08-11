@@ -35,7 +35,7 @@ export const semanticTokens = {
         overlay: {
           base: {
             default: 'white',
-            _dark: 'darkNeutral.700',
+            _dark: 'darkNeutral.900',
           },
         },
       },
@@ -145,7 +145,7 @@ export const semanticTokens = {
     },
     blanket: {
       default: '#10121499',
-      _dark: 'darkNeutralAlpha.900',
+      _dark: 'darkNeutralAlpha.950',
     },
   },
 }

@@ -75,6 +75,7 @@ const commonColors = {
     50: '#C7D1DB',
   },
   darkNeutralAlpha: {
+    950: 'rgba(16, 18, 20, 0.80)',
     900: 'rgba(3,4,4,0.26)',
     800: 'rgba(188,214,240,0.04)',
     700: 'rgba(161,189,217,0.08)',

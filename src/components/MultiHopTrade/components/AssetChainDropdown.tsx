@@ -40,7 +40,6 @@ const AssetChainRow: React.FC<{ assetId: AssetId } & FlexProps> = ({ assetId, ..
   return (
     <Flex alignItems='center' gap={2} {...rest}>
       <AssetIcon size='xs' src={iconSrc} />
-      {/* <RawText className='chain-name'>{feeAsset?.networkName ?? feeAsset?.name}</RawText> */}
       <AutoTruncateText value={feeAsset?.networkName ?? feeAsset?.name} />
     </Flex>
   )
@@ -71,29 +70,27 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
 
   const onChange = useCallback((value: string | string[]) => onClick(value as AssetId), [onClick])
 
-  if (isLoading) {
-    return <Skeleton width='80px' height='40px' borderRadius='full' />
-  }
-
   if (!assetId) return null
 
   return (
     <Menu {...menuProps}>
-      <MenuButton
-        as={Button}
-        justifyContent='flex-end'
-        height='auto'
-        px={2}
-        py={2}
-        gap={2}
-        size='sm'
-        borderRadius='full'
-        isDisabled={!assetIds?.length}
-        rightIcon={<ChevronDownIcon />}
-        {...buttonProps}
-      >
-        <AssetChainRow className='activeChain' assetId={assetId} />
-      </MenuButton>
+      <Skeleton borderRadius='full' isLoaded={!isLoading}>
+        <MenuButton
+          as={Button}
+          justifyContent='flex-end'
+          height='auto'
+          px={2}
+          py={2}
+          gap={2}
+          size='sm'
+          borderRadius='full'
+          isDisabled={!assetIds?.length}
+          rightIcon={<ChevronDownIcon />}
+          {...buttonProps}
+        >
+          <AssetChainRow className='activeChain' assetId={assetId} />
+        </MenuButton>
+      </Skeleton>
       <MenuList zIndex='banner'>
         <MenuOptionGroup type='radio' value={assetId} onChange={onChange}>
           {showAll && (

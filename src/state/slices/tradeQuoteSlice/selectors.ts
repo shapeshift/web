@@ -339,26 +339,12 @@ export const selectBuyAssetProtocolFeesCryptoPrecision = createSelector(selectLa
   )
 })
 
-export const selectNetBuyAmountCryptoPrecision = createSelector(
-  selectLastHop,
-  selectBuyAmountBeforeFeesCryptoPrecision,
-  selectBuyAssetProtocolFeesCryptoPrecision,
-  selectQuoteOrDefaultSlippagePercentageDecimal,
-  (lastHop, buyAmountBeforeFeesCryptoBaseUnit, buyAssetProtocolFeeCryptoBaseUnit, slippage) => {
-    if (!lastHop) return
-    return bnOrZero(buyAmountBeforeFeesCryptoBaseUnit)
-      .minus(buyAssetProtocolFeeCryptoBaseUnit)
-      .times(bn(1).minus(slippage))
-      .toFixed()
-  },
-)
-
-export const selectNetBuyAmountUserCurrency = createSelector(
-  selectNetBuyAmountCryptoPrecision,
+export const selectReceiveBuyAmountUserCurrency = createSelector(
+  selectNetReceiveAmountCryptoPrecision,
   selectBuyAssetUserCurrencyRate,
-  (netBuyAmountCryptoPrecision, buyAssetUserCurrencyRate) => {
-    if (!netBuyAmountCryptoPrecision || !buyAssetUserCurrencyRate) return
-    return bn(netBuyAmountCryptoPrecision).times(buyAssetUserCurrencyRate).toFixed()
+  (netReceiveAmountCryptoPrecision, buyAssetUserCurrencyRate) => {
+    if (!netReceiveAmountCryptoPrecision || !buyAssetUserCurrencyRate) return
+    return bn(netReceiveAmountCryptoPrecision).times(buyAssetUserCurrencyRate).toFixed()
   },
 )
 

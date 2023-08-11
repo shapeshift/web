@@ -25,7 +25,7 @@ function baseStyleItem(props: Record<string, any>) {
     width: 'auto',
     minHeight: '40px',
     fontWeight: 'medium',
-    transitionProperty: 'background',
+    transitionProperty: 'background.surface.base',
     transitionDuration: 'ultra-fast',
     transitionTimingFunction: 'ease-in',
     bg: 'transparent',

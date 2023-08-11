@@ -159,7 +159,7 @@ export const TableStyle = {
         tfoot: {
           tr: {
             td: {
-              bg: 'background',
+              bg: 'background.surface.base',
             },
           },
         },

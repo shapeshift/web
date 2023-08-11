@@ -30,7 +30,7 @@ export const lifiApi: Swapper2Api = {
     input: GetTradeQuoteInput,
     { assets, sellAssetUsdRate }: TradeQuoteDeps,
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
-    if (input.sellAmountBeforeFeesCryptoBaseUnit === '0') {
+    if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(
         makeSwapErrorRight({
           message: 'sell amount too low',

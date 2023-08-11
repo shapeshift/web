@@ -37,7 +37,9 @@ export const checkApprovalNeeded = async (
     chainId: sellAsset.chainId,
   })
 
-  return bn(allowanceOnChainCryptoBaseUnit).lt(tradeQuoteStep.sellAmountBeforeFeesCryptoBaseUnit)
+  return bn(allowanceOnChainCryptoBaseUnit).lt(
+    tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+  )
 }
 
 export const getApprovalTxData = async (
@@ -47,7 +49,7 @@ export const getApprovalTxData = async (
   isExactAllowance: boolean,
 ): Promise<{ buildCustomTxInput: evm.BuildCustomTxInput; networkFeeCryptoBaseUnit: string }> => {
   const approvalAmountCryptoBaseUnit = isExactAllowance
-    ? tradeQuoteStep.sellAmountBeforeFeesCryptoBaseUnit
+    ? tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit
     : MAX_ALLOWANCE
 
   const { assetReference } = fromAssetId(tradeQuoteStep.sellAsset.assetId)

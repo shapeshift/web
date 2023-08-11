@@ -57,7 +57,7 @@ export const osmosisApi: Swapper2Api = {
       accountNumber,
       buyAsset: stepBuyAsset,
       sellAsset: stepSellAsset,
-      sellAmountBeforeFeesCryptoBaseUnit: stepSellAmountBeforeFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: stepSellAmountBeforeFeesCryptoBaseUnit,
     } = tradeQuote.steps[stepIndex]
     const quoteSellAsset = tradeQuote.steps[0].sellAsset
     const { receiveAddress, receiveAccountNumber } = tradeQuote

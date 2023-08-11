@@ -3,6 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
 import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { ProtocolFee } from 'lib/swapper/api'
+import type { PartialRecord } from 'lib/utils'
 
 export const convertBasisPointsToDecimalPercentage = (basisPoints: string) =>
   bnOrZero(basisPoints).div(10000)
@@ -17,7 +18,7 @@ type SumProtocolFeesToDenomArgs = {
   cryptoMarketDataById: Partial<Record<AssetId, Pick<MarketData, 'price'>>>
   outputAssetPriceUsd: BigNumber.Value
   outputExponent: number
-  protocolFees: Record<AssetId, ProtocolFee>
+  protocolFees: PartialRecord<AssetId, ProtocolFee>
 }
 
 /**
@@ -53,7 +54,8 @@ export const sumProtocolFeesToDenom = ({
   protocolFees,
 }: SumProtocolFeesToDenomArgs): string => {
   return Object.entries(protocolFees)
-    .reduce((acc: BigNumber, [assetId, protocolFee]: [AssetId, ProtocolFee]) => {
+    .reduce((acc: BigNumber, [assetId, protocolFee]: [AssetId, ProtocolFee | undefined]) => {
+      if (!protocolFee) return acc
       const inputExponent = protocolFee.asset.precision
       const priceUsd = cryptoMarketDataById[assetId]?.price
 

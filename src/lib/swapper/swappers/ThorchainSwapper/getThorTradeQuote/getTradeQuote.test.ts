@@ -41,13 +41,14 @@ jest.mock('config', () => {
 
 const expectedQuoteResponse: ThorEvmTradeQuote = {
   minimumCryptoHuman: '149.14668013703712946932',
+  rate: '144114.94366197183098591549',
   recommendedSlippage: '0.04357',
   data: '0x',
   router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
   steps: [
     {
       allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
-      sellAmountBeforeFeesCryptoBaseUnit: '713014679420',
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
       buyAmountBeforeFeesCryptoBaseUnit: '114321610000000000',
       feeData: {
         protocolFees: {
@@ -119,7 +120,7 @@ describe('getTradeQuote', () => {
 
     const input: GetTradeQuoteInput = {
       ...quoteInput,
-      sellAmountBeforeFeesCryptoBaseUnit: '713014679420',
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
       buyAsset: ETH,
       sellAsset: FOX_MAINNET,
     }

@@ -43,6 +43,7 @@ type GetMixPanelDataFromApiQuotesReturn = {
   sellAssetId: string | undefined
   buyAssetId: string | undefined
   sellAmountUsd: string | undefined
+  version: string // ISO 8601 standard basic format date
 }
 
 const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromApiQuotesReturn => {
@@ -62,7 +63,10 @@ const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromAp
     })
     .filter(isSome)
 
-  return { quoteMeta, sellAssetId, buyAssetId, sellAmountUsd }
+  // Add a version string, in the form of an ISO 8601 standard basic format date, to the JSON blob to help with reporting
+  const version = '20230823'
+
+  return { quoteMeta, sellAssetId, buyAssetId, sellAmountUsd, version }
 }
 
 const isEqualExceptAffiliateBpsAndSlippage = (

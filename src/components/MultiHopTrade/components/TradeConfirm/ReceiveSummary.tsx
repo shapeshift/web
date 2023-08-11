@@ -19,6 +19,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { AmountDisplayMeta, ProtocolFee } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
+import type { PartialRecord } from 'lib/utils'
+import { isSome } from 'lib/utils'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
@@ -27,7 +29,7 @@ type ReceiveSummaryProps = {
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
   fiatAmount?: string
   amountBeforeFeesCryptoPrecision?: string
-  protocolFees?: Record<AssetId, ProtocolFee>
+  protocolFees?: PartialRecord<AssetId, ProtocolFee>
   shapeShiftFee?: string
   slippage: string
   swapperName: string
@@ -72,7 +74,10 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     }, [])
 
     const protocolFeesParsed = useMemo(
-      () => (protocolFees ? parseAmountDisplayMeta(Object.values(protocolFees)) : undefined),
+      () =>
+        protocolFees
+          ? parseAmountDisplayMeta(Object.values(protocolFees).filter(isSome))
+          : undefined,
       [protocolFees, parseAmountDisplayMeta],
     )
 

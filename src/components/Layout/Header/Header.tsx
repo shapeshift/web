@@ -106,7 +106,7 @@ export const Header = memo(() => {
         position='sticky'
         zIndex='banner'
         ref={ref}
-        bg={y > height ? 'background' : 'transparent'}
+        bg={y > height ? 'background.surface.base' : 'transparent'}
         transitionDuration='200ms'
         transitionProperty='all'
         transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'

@@ -55,9 +55,9 @@ import {
   selectFirstHopSellFeeAsset,
   selectLastHop,
   selectLastHopBuyAsset,
-  selectNetBuyAmountCryptoPrecision,
-  selectNetBuyAmountUserCurrency,
+  selectNetReceiveAmountCryptoPrecision,
   selectQuoteDonationAmountUserCurrency,
+  selectReceiveBuyAmountUserCurrency,
   selectSellAmountBeforeFeesCryptoPrecision,
   selectSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,
@@ -125,9 +125,9 @@ export const TradeConfirm = () => {
   const lastStep = useAppSelector(selectLastHop)
   const swapperName = useAppSelector(selectActiveSwapperName)
   const defaultFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
-  const netBuyAmountCryptoPrecision = useAppSelector(selectNetBuyAmountCryptoPrecision)
+  const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
-  const netBuyAmountUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
+  const netBuyAmountUserCurrency = useAppSelector(selectReceiveBuyAmountUserCurrency)
   const buyAmountBeforeFeesUserCurrency = useAppSelector(selectBuyAmountBeforeFeesUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
   const networkFeeCryptoHuman = useAppSelector(selectFirstHopNetworkFeeCryptoPrecision)
@@ -365,7 +365,7 @@ export const TradeConfirm = () => {
         </Row>
         <ReceiveSummary
           symbol={buyAsset?.symbol ?? ''}
-          amountCryptoPrecision={netBuyAmountCryptoPrecision ?? ''}
+          amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? ''}
           amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision ?? ''}
           protocolFees={tradeQuoteStep?.feeData.protocolFees}
           shapeShiftFee='0'
@@ -383,7 +383,7 @@ export const TradeConfirm = () => {
       sellAsset?.symbol,
       sellAmountBeforeFeesUserCurrency,
       buyAsset?.symbol,
-      netBuyAmountCryptoPrecision,
+      buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
       tradeQuoteStep?.feeData.protocolFees,
       tradeQuoteStep?.intermediaryTransactionOutputs,

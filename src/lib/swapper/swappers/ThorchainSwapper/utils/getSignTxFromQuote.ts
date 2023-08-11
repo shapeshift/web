@@ -48,7 +48,7 @@ export const getSignTxFromQuote = async ({
 
   const {
     buyAsset,
-    sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
     sellAsset,
     accountNumber,
   } = quote.steps[0]

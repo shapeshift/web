@@ -62,7 +62,7 @@ export const cowApi: Swapper2Api = {
   },
 
   getUnsignedTx: async ({ from, tradeQuote, stepIndex }: GetUnsignedTxArgs): Promise<CowSignTx> => {
-    const { accountNumber, buyAsset, sellAsset, sellAmountBeforeFeesCryptoBaseUnit } =
+    const { accountNumber, buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
       tradeQuote.steps[stepIndex]
     const { receiveAddress } = tradeQuote
 
@@ -88,7 +88,7 @@ export const cowApi: Swapper2Api = {
         partiallyFillable: false,
         from,
         kind: ORDER_KIND_SELL,
-        sellAmountBeforeFee: sellAmountBeforeFeesCryptoBaseUnit,
+        sellAmountBeforeFee: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       },
     )
 

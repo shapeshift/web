@@ -18,7 +18,7 @@ export type CowSwapQuoteResponse = {
   }
   from: string
   expiration: string
-  id: string
+  id: number
 }
 
 export enum CowNetwork {

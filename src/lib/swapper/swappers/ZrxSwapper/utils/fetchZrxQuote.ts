@@ -18,7 +18,7 @@ export type FetchZrxQuoteInput = {
   receiveAddress: string
   slippageTolerancePercentageDecimal: string
   affiliateBps: string | undefined
-  sellAmountBeforeFeesCryptoBaseUnit: string
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
 }
 
 export const fetchZrxQuote = async ({
@@ -27,7 +27,7 @@ export const fetchZrxQuote = async ({
   receiveAddress,
   slippageTolerancePercentageDecimal,
   affiliateBps,
-  sellAmountBeforeFeesCryptoBaseUnit,
+  sellAmountIncludingProtocolFeesCryptoBaseUnit,
 }: FetchZrxQuoteInput) => {
   const withZrxAxiosRetry = (baseService: AxiosInstance) => {
     return withAxiosRetry(baseService, {
@@ -65,7 +65,7 @@ export const fetchZrxQuote = async ({
     params: {
       buyToken: assetToToken(buyAsset),
       sellToken: assetToToken(sellAsset),
-      sellAmount: sellAmountBeforeFeesCryptoBaseUnit,
+      sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       takerAddress: receiveAddress,
       slippagePercentage: bnOrZero(slippageTolerancePercentageDecimal).toString(),
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics

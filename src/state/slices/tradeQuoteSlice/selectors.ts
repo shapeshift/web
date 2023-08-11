@@ -160,7 +160,7 @@ export const selectLastHopBuyAsset: Selector<ReduxState, Asset | undefined> =
 
 export const selectSellAmountCryptoBaseUnit: Selector<ReduxState, string | undefined> =
   createSelector(selectFirstHop, firstHop =>
-    firstHop ? firstHop.sellAmountBeforeFeesCryptoBaseUnit : undefined,
+    firstHop ? firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit : undefined,
   )
 
 export const selectSellAmountCryptoPrecision: Selector<ReduxState, string | undefined> =
@@ -302,9 +302,9 @@ export const selectTotalTradeFeeBuyAssetBaseUnit = createSelector(
   },
 )
 
-export const selectSellAmountBeforeFeesCryptoBaseUnit = createSelector(
+export const selectSellAmountIncludingProtocolFeesCryptoBaseUnit = createSelector(
   selectFirstHop,
-  firstHop => firstHop?.sellAmountBeforeFeesCryptoBaseUnit,
+  firstHop => firstHop?.sellAmountIncludingProtocolFeesCryptoBaseUnit,
 )
 
 export const selectBuyAmountBeforeFeesCryptoBaseUnit = createSelector(
@@ -313,7 +313,7 @@ export const selectBuyAmountBeforeFeesCryptoBaseUnit = createSelector(
 )
 
 export const selectSellAmountBeforeFeesCryptoPrecision = createSelector(
-  selectSellAmountBeforeFeesCryptoBaseUnit,
+  selectSellAmountIncludingProtocolFeesCryptoBaseUnit,
   selectFirstHopSellAsset,
   (sellAmountBeforeFeesCryptoBaseUnit, sellAsset) => {
     if (!sellAmountBeforeFeesCryptoBaseUnit || !sellAsset) return
@@ -339,26 +339,12 @@ export const selectBuyAssetProtocolFeesCryptoPrecision = createSelector(selectLa
   )
 })
 
-export const selectNetBuyAmountCryptoPrecision = createSelector(
-  selectLastHop,
-  selectBuyAmountBeforeFeesCryptoPrecision,
-  selectBuyAssetProtocolFeesCryptoPrecision,
-  selectQuoteOrDefaultSlippagePercentageDecimal,
-  (lastHop, buyAmountBeforeFeesCryptoBaseUnit, buyAssetProtocolFeeCryptoBaseUnit, slippage) => {
-    if (!lastHop) return
-    return bnOrZero(buyAmountBeforeFeesCryptoBaseUnit)
-      .minus(buyAssetProtocolFeeCryptoBaseUnit)
-      .times(bn(1).minus(slippage))
-      .toFixed()
-  },
-)
-
-export const selectNetBuyAmountUserCurrency = createSelector(
-  selectNetBuyAmountCryptoPrecision,
+export const selectReceiveBuyAmountUserCurrency = createSelector(
+  selectNetReceiveAmountCryptoPrecision,
   selectBuyAssetUserCurrencyRate,
-  (netBuyAmountCryptoPrecision, buyAssetUserCurrencyRate) => {
-    if (!netBuyAmountCryptoPrecision || !buyAssetUserCurrencyRate) return
-    return bn(netBuyAmountCryptoPrecision).times(buyAssetUserCurrencyRate).toFixed()
+  (netReceiveAmountCryptoPrecision, buyAssetUserCurrencyRate) => {
+    if (!netReceiveAmountCryptoPrecision || !buyAssetUserCurrencyRate) return
+    return bn(netReceiveAmountCryptoPrecision).times(buyAssetUserCurrencyRate).toFixed()
   },
 )
 

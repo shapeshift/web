@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { cosmosChainId } from '@shapeshiftoss/caip'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { ProtocolFee, TradeQuote2 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
@@ -38,6 +38,7 @@ const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   return networkFeeFiatPrecision
 }
 
+// TODO: this logic is duplicated - consolidate it ASAP
 // NOTE: "Receive side" refers to "last hop AND buy asset AND receive account".
 // TODO: we'll need a check to ensure any fees included here impact the final amount received in the
 // receive account
@@ -76,14 +77,23 @@ const _getReceiveSideAmountsCryptoBaseUnit = ({
         })()
       : bn(0)
 
-  const buySideProtocolFeeCryptoBaseUnit = bnOrZero(
-    lastStep.feeData.protocolFees[lastStep.buyAsset.assetId]?.amountCryptoBaseUnit,
-  )
+  const sellAssetProtocolFee = firstStep.feeData.protocolFees[firstStep.sellAsset.assetId]
+  const buyAssetProtocolFee = lastStep.feeData.protocolFees[lastStep.buyAsset.assetId]
+  const sellSideProtocolFeeCryptoBaseUnit = bnOrZero(sellAssetProtocolFee?.amountCryptoBaseUnit)
+  const sellSideProtocolFeeBuyAssetBaseUnit = bnOrZero(
+    convertPrecision({
+      value: sellSideProtocolFeeCryptoBaseUnit,
+      inputExponent: firstStep.sellAsset.precision,
+      outputExponent: lastStep.buyAsset.precision,
+    }),
+  ).times(rate)
+  const buySideProtocolFeeCryptoBaseUnit = bnOrZero(buyAssetProtocolFee?.amountCryptoBaseUnit)
 
   const netReceiveAmountCryptoBaseUnit = buyAmountCryptoBaseUnit
     .minus(slippageAmountCryptoBaseUnit)
     .minus(buySideNetworkFeeCryptoBaseUnit)
     .minus(buySideProtocolFeeCryptoBaseUnit)
+    .minus(sellSideProtocolFeeBuyAssetBaseUnit)
 
   return {
     netReceiveAmountCryptoBaseUnit,

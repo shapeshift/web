@@ -41,6 +41,7 @@ export const transformLifiStepFeeData = ({
           chainId: asset?.chainId ?? lifiChainIdToChainId(token.chainId),
           precision: asset?.precision ?? token.decimals,
           symbol: asset?.symbol ?? token.symbol,
+          ...asset,
         },
         requiresBalance: true,
       }

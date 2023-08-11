@@ -48,7 +48,7 @@ export type CowSwapOrder = {
   receiver: string
   sellTokenBalance: string
   buyTokenBalance: string
-  quoteId: string
+  quoteId: number
 }
 
 export type CowSwapQuoteApiInputBase = {

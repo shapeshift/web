@@ -190,7 +190,7 @@ describe('getZrxTradeQuote', () => {
     const maybeQuote = await getZrxTradeQuote(
       {
         ...quoteInput,
-        sellAmountBeforeFeesCryptoBaseUnit: '0',
+        sellAmountIncludingProtocolFeesCryptoBaseUnit: '0',
       },
       sellAssetUsdRate,
     )
@@ -198,6 +198,8 @@ describe('getZrxTradeQuote', () => {
     expect(maybeQuote.isErr()).toBe(false)
     const quote = maybeQuote.unwrap()
 
-    expect(quote?.steps[0].sellAmountBeforeFeesCryptoBaseUnit).toBe('1000000000000000000')
+    expect(quote?.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit).toBe(
+      '1000000000000000000',
+    )
   })
 })

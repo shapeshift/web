@@ -52,7 +52,7 @@ export type GetReceiveAddressArgs = {
 
 export type TradeQuoteInputCommonArgs = Pick<
   GetTradeQuoteInput,
-  | 'sellAmountBeforeFeesCryptoBaseUnit'
+  | 'sellAmountIncludingProtocolFeesCryptoBaseUnit'
   | 'sellAsset'
   | 'buyAsset'
   | 'receiveAddress'

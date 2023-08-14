@@ -5,7 +5,7 @@ import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { memo, useCallback } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
-import { RawText } from 'components/Text'
+import { Text } from 'components/Text'
 import type { Asset } from 'lib/asset-service'
 import { useGetRelatedAssetIdsQuery } from 'state/apis/zerion/zerionApi'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
@@ -79,9 +79,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         )}
         {asset?.symbol}
       </Button>
-      <RawText color='text.subtle' fontSize='sm'>
-        on
-      </RawText>
+      <Text translation='trade.on' color='text.subtle' fontSize='sm' />
       <AssetChainDropdown
         assetIds={data}
         assetId={assetId}

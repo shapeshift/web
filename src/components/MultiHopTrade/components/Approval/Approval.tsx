@@ -166,6 +166,8 @@ const ApprovalInner = ({
     )
   }, [tradeQuoteStep.sellAsset.icon])
 
+  const handleBack = useCallback(() => history.goBack(), [history])
+
   return (
     <SlideTransition>
       <CardHeader textAlign='center'>
@@ -273,7 +275,7 @@ const ApprovalInner = ({
             <Text translation='common.confirm' />
           </Button>
           {!approvalTxId && !isSubmitting && (
-            <Button mt={2} size='lg' onClick={() => history.goBack()}>
+            <Button mt={2} size='lg' onClick={handleBack}>
               <Text translation='common.reject' />
             </Button>
           )}

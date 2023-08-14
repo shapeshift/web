@@ -46,7 +46,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
-  const { data, isLoading } = useGetRelatedAssetIdsQuery(assetId ?? '')
+  const { data, isLoading, isError } = useGetRelatedAssetIdsQuery(assetId ?? '')
 
   const handleAssetChange = useCallback(
     (assetId: AssetId) => {
@@ -58,7 +58,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   )
 
   return (
-    <Flex px={2} mb={4} alignItems='center' gap={2}>
+    <Flex px={4} mb={4} alignItems='center' gap={2}>
       <Button
         justifyContent='flex-end'
         height='auto'
@@ -87,6 +87,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         assetId={assetId}
         onClick={handleAssetChange}
         isLoading={isLoading}
+        isError={isError}
       />
     </Flex>
   )

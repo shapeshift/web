@@ -259,7 +259,7 @@ export const TradeInput = memo(() => {
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <SlideTransition>
         <Stack spacing={0} as='form' onSubmit={handleSubmit(onSubmit)}>
-          <CardHeader px={4}>
+          <CardHeader px={6}>
             <Flex alignItems='center' justifyContent='space-between'>
               <Heading as='h5' fontSize='md'>
                 {translate('navBar.trade')}
@@ -340,7 +340,7 @@ export const TradeInput = memo(() => {
             borderColor='border.subtle'
             flexDir='column'
             gap={4}
-            px={4}
+            px={6}
             bg='background.surface.raised.accent'
             borderBottomRadius='xl'
           >
@@ -382,6 +382,7 @@ export const TradeInput = memo(() => {
                 data-test='trade-form-preview-button'
                 isDisabled={shouldDisablePreviewButton}
                 isLoading={isLoading}
+                mx={-2}
               >
                 <Text translation={activeQuoteStatus.quoteStatusTranslation} />
               </Button>

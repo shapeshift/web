@@ -155,7 +155,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         pb={2}
         {...formControlProps}
       >
-        <Flex justifyContent='space-between' alignItems='center' px={4} width='full' mb={2}>
+        <Flex justifyContent='space-between' alignItems='center' px={6} width='full' mb={2}>
           {label && (
             <Flex alignItems='center'>
               <FormLabel mb={0} fontSize='sm'>
@@ -187,7 +187,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
           )}
         </Flex>
         {labelPostFix}
-        <Stack direction='row' alignItems='center' px={4}>
+        <Stack direction='row' alignItems='center' px={6}>
           <Flex gap={2} flex={1} alignItems='center'>
             <Skeleton isLoaded={!showInputSkeleton} width='full'>
               <NumberFormat
@@ -215,7 +215,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
           gap={2}
           pt={4}
           pb={2}
-          px={4}
+          px={6}
           justifyContent='space-between'
           alignItems='center'
         >

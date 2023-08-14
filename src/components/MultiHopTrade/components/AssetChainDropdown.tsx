@@ -8,7 +8,6 @@ import {
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
-  Skeleton,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import React, { useCallback, useMemo } from 'react'
@@ -32,6 +31,7 @@ type ChainDropdownProps = {
   includeBalance?: boolean
   buttonProps?: ButtonProps
   isLoading?: boolean
+  isError?: boolean
 } & Omit<MenuProps, 'children'>
 
 const AssetChainRow: React.FC<{ assetId: AssetId } & FlexProps> = ({ assetId, ...rest }) => {
@@ -53,6 +53,7 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
   includeBalance,
   buttonProps,
   isLoading,
+  isError,
   ...menuProps
 }) => {
   const totalPortfolioUserCurrencyBalance = useAppSelector(
@@ -70,27 +71,29 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
 
   const onChange = useCallback((value: string | string[]) => onClick(value as AssetId), [onClick])
 
+  const isDisabled = useMemo(() => {
+    return !assetIds?.length || isLoading || isError
+  }, [assetIds?.length, isError, isLoading])
+
   if (!assetId) return null
 
   return (
     <Menu {...menuProps}>
-      <Skeleton borderRadius='full' isLoaded={!isLoading}>
-        <MenuButton
-          as={Button}
-          justifyContent='flex-end'
-          height='auto'
-          px={2}
-          py={2}
-          gap={2}
-          size='sm'
-          borderRadius='full'
-          isDisabled={!assetIds?.length}
-          rightIcon={<ChevronDownIcon />}
-          {...buttonProps}
-        >
-          <AssetChainRow className='activeChain' assetId={assetId} />
-        </MenuButton>
-      </Skeleton>
+      <MenuButton
+        as={Button}
+        justifyContent='flex-end'
+        height='auto'
+        px={2}
+        py={2}
+        gap={2}
+        size='sm'
+        borderRadius='full'
+        isDisabled={isDisabled}
+        rightIcon={<ChevronDownIcon />}
+        {...buttonProps}
+      >
+        <AssetChainRow className='activeChain' assetId={assetId} />
+      </MenuButton>
       <MenuList zIndex='banner'>
         <MenuOptionGroup type='radio' value={assetId} onChange={onChange}>
           {showAll && (

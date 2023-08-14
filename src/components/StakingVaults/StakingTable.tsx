@@ -135,5 +135,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
     [onClick],
   )
 
-  return <ReactTable data={data} columns={columns} onRowClick={handleRowClick} />
+  return (
+    <ReactTable data={data} columns={columns} onRowClick={handleRowClick} variant='clickable' />
+  )
 }

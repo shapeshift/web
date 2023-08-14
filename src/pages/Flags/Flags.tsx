@@ -1,8 +1,19 @@
-import { Alert, AlertIcon, Button, Heading, HStack, Stack, StackDivider } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertIcon,
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Heading,
+  HStack,
+  Stack,
+  StackDivider,
+} from '@chakra-ui/react'
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { RawText } from 'components/Text'
 import { slices } from 'state/reducer'
@@ -63,27 +74,27 @@ export const Flags = () => {
     <Main titleComponent={<FlagHeader />}>
       <Stack direction={{ base: 'column', md: 'row' }} spacing={6}>
         <Card flex={1}>
-          <Card.Header>
-            <RawText color='gray.500'>
+          <CardHeader>
+            <RawText color='text.subtle'>
               Turn on and off flags by toggling the switch then press "Apply" to reset the
               application.
             </RawText>
-          </Card.Header>
-          <Card.Body>
+          </CardHeader>
+          <CardBody>
             <Stack divider={<StackDivider />}>
               {Object.keys(featureFlags).map((flag, idx) => (
                 <FlagRow key={idx} flag={flag as keyof FeatureFlags} />
               ))}
             </Stack>
-          </Card.Body>
-          <Card.Footer>
+          </CardBody>
+          <CardFooter>
             <HStack my={4} width='full'>
               <Button onClick={handleApply} colorScheme='blue'>
                 Apply
               </Button>
               <Button onClick={handleResetPreferences}>Reset Flags to Default</Button>
             </HStack>
-          </Card.Footer>
+          </CardFooter>
         </Card>
         <Debugging />
       </Stack>

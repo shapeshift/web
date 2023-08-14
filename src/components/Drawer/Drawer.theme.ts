@@ -1,10 +1,9 @@
-import { mode } from '@chakra-ui/theme-tools'
 export const DrawerStyle = {
   parts: ['dialog'],
   // Styles for the base style
-  baseStyle: (props: Record<string, any>) => ({
+  baseStyle: () => ({
     dialog: {
-      bg: mode('white', 'gray.785')(props),
+      bg: 'background.overlay.base',
     },
   }),
   // Styles for the size variations

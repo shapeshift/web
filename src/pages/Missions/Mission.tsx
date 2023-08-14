@@ -2,6 +2,8 @@ import { ArrowForwardIcon, InfoIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
+  Card,
+  CardBody,
   Flex,
   Heading,
   Tag,
@@ -16,7 +18,6 @@ import type { MouseEvent } from 'react'
 import React, { useCallback, useMemo, useState } from 'react'
 import { FaClock } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { Card } from 'components/Card/Card'
 import { IconCircle } from 'components/IconCircle'
 import { RawText } from 'components/Text'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -153,7 +154,7 @@ export const Mission: React.FC<MissionProps> = ({
           }
         : {})}
     >
-      <Card.Body pt={8} px={8} display='flex' flexDir='column' alignItems='center'>
+      <CardBody pt={8} px={8} display='flex' flexDir='column' alignItems='center'>
         <Heading
           as='h6'
           textTransform='uppercase'
@@ -210,7 +211,7 @@ export const Mission: React.FC<MissionProps> = ({
             {renderFooter}
           </Flex>
         </Flex>
-      </Card.Body>
+      </CardBody>
       <Box
         width='100%'
         minHeight={{ base: `calc(${minHeight} / 2)`, md: minHeight }}

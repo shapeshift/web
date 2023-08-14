@@ -18,7 +18,8 @@ export const TabsStyle = {
     },
     enclosed: (props: Record<string, any>) => ({
       tablist: {
-        borerColor: mode('gray.100', 'gray.750')(props),
+        borerColor: 'border.base',
+        borderBottomWidth: 0,
         'button:first-of-type': {
           borderLeftWidth: 0,
           borderTopRightRadius: 0,
@@ -33,16 +34,17 @@ export const TabsStyle = {
       tab: {
         py: 4,
         fontWeight: 'bold',
-        borderColor: mode('gray.100', 'gray.750')(props),
-        bg: mode('gray.100', 'gray.850')(props),
-        color: 'gray.500',
+        marginBottom: '1px',
+        borderColor: 'border.base',
+        bg: 'transparent',
+        color: 'text.subtle',
         _hover: {
           color: mode('black', 'white')(props),
         },
         _selected: {
-          bg: 'transparent',
-          borderBottomColor: mode('gray.100', 'gray.785')(props),
-          borderColor: mode('gray.100', 'gray.750')(props),
+          bg: 'background.surface.raised.base',
+          borderBottomColor: 'transparent',
+          borderColor: 'border.base',
           color: mode('black', 'white')(props),
         },
       },
@@ -51,7 +53,7 @@ export const TabsStyle = {
       tab: {
         bg: mode('gray.50', 'gray.750')(props),
         py: 4,
-        color: 'gray.500',
+        color: 'text.subtle',
         fontWeight: 'bold',
         _first: {
           borderTopLeftRadius: '2xl',
@@ -71,16 +73,17 @@ export const TabsStyle = {
     }),
     'soft-rounded': (props: Record<string, any>) => ({
       tablist: {
-        bg: mode('gray.50', 'gray.900')(props),
+        bg: 'background.surface.raised.base',
         margin: 2,
         padding: 1,
         borderWidth: 1,
         borderStyle: 'solid',
-        borderColor: mode('gray.100', 'gray.750')(props),
+        borderColor: 'border.base',
         borderRadius: '2xl',
       },
       tab: {
         borderRadius: 'xl',
+        color: 'text.subtle',
         _hover: {
           color: mode('gray.800', 'white')(props),
         },

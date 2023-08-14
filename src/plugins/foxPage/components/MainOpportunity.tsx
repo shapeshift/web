@@ -1,11 +1,20 @@
-import { Box, Button, Flex, Skeleton, Text as CText, useColorModeValue } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Flex,
+  Skeleton,
+  Text as CText,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { ethChainId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/dist/wallet'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -74,7 +83,7 @@ export const MainOpportunity = ({
 
   return (
     <Card display='block' width='auto'>
-      <Card.Header>
+      <CardHeader>
         <Flex flexDirection='row' alignItems='center' mb={2}>
           <AssetIcon src={selectedAsset.icon} boxSize='6' mr={2} zIndex={2} />
           <Text
@@ -88,9 +97,9 @@ export const MainOpportunity = ({
             ]}
           />
         </Flex>
-        <Text translation='plugins.foxPage.mainStakingDescription' color='gray.500' />
-      </Card.Header>
-      <Card.Body>
+        <Text translation='plugins.foxPage.mainStakingDescription' color='text.subtle' />
+      </CardHeader>
+      <CardBody>
         <Flex
           width='full'
           justifyContent='space-between'
@@ -103,7 +112,7 @@ export const MainOpportunity = ({
             justifyContent='space-between'
             alignItems={{ base: 'center', md: 'flex-start' }}
           >
-            <Text translation='plugins.foxPage.currentApy' color='gray.500' mb={1} />
+            <Text translation='plugins.foxPage.currentApy' color='text.subtle' mb={1} />
             <Skeleton isLoaded={Boolean(apy)}>
               <Box color={greenColor} fontSize={'xl'}>
                 <Amount.Percent value={apy} />
@@ -116,7 +125,7 @@ export const MainOpportunity = ({
             justifyContent='space-between'
             alignItems={{ base: 'center', md: 'flex-start' }}
           >
-            <Text translation='plugins.foxPage.tvl' color='gray.500' mb={1} />
+            <Text translation='plugins.foxPage.tvl' color='text.subtle' mb={1} />
             <Skeleton isLoaded={isLoaded}>
               <Amount.Fiat color='inherit' fontSize={'xl'} fontWeight='semibold' value={tvl} />
             </Skeleton>
@@ -127,7 +136,7 @@ export const MainOpportunity = ({
             justifyContent='space-between'
             alignItems={{ base: 'center', md: 'flex-start' }}
           >
-            <Text translation='plugins.foxPage.balance' color='gray.500' mb={1} />
+            <Text translation='plugins.foxPage.balance' color='text.subtle' mb={1} />
             <CText color='inherit' fontSize={'xl'}>
               {balance}
             </CText>
@@ -140,7 +149,7 @@ export const MainOpportunity = ({
             </Box>
           </Skeleton>
         </Flex>
-      </Card.Body>
+      </CardBody>
     </Card>
   )
 }

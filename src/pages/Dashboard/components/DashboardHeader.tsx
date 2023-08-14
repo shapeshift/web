@@ -66,8 +66,8 @@ export const DashboardHeader = () => {
       portfolioTotalUserCurrencyBalance,
     ],
   )
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const bgColor = useColorModeValue('white', 'blackAlpha.100')
+  const borderColor = useColorModeValue('gray.100', 'whiteAlpha.200')
+  const bgColor = useColorModeValue('white', 'background.surface.base')
 
   useEffect(() => {
     if (activeRef.current) {
@@ -153,7 +153,14 @@ export const DashboardHeader = () => {
   }, [history])
 
   return (
-    <Stack spacing={0} borderColor={borderColor} bg={bgColor} pt='4.5rem' mt='-4.5rem'>
+    <Stack
+      spacing={0}
+      borderColor='border.base'
+      bg={bgColor}
+      borderBottomWidth={1}
+      pt='4.5rem'
+      mt='-4.5rem'
+    >
       <Container
         width='full'
         display='flex'
@@ -169,13 +176,18 @@ export const DashboardHeader = () => {
         <Flex alignItems='center' flexDir={{ base: 'column', md: 'row' }} gap={4}>
           <ProfileAvatar />
           <Flex flexDir='column' alignItems={{ base: 'center', md: 'flex-start' }}>
-            <Text fontWeight='semibold' translation='defi.netWorth' color='gray.500' />
+            <Text fontWeight='semibold' translation='defi.netWorth' color='text.subtle' />
             <Skeleton isLoaded={!loading}>
               <Amount.Fiat lineHeight='shorter' value={netWorth} fontSize='4xl' fontWeight='bold' />
             </Skeleton>
           </Flex>
         </Flex>
-        <Flex gap={4} flexWrap={'wrap'} justifyContent={'center'}>
+        <Flex
+          gap={4}
+          flexWrap={'wrap'}
+          justifyContent={'center'}
+          display={{ base: 'none', md: 'flex' }}
+        >
           <Button isDisabled={!isConnected} onClick={handleQrCodeClick} leftIcon={<QRCodeIcon />}>
             {translate('modals.send.qrCode')}
           </Button>

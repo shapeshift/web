@@ -112,7 +112,7 @@ export const Allocation: React.FC<AllocationProps> = ({
     <Stack spacing={2}>
       <Row>
         <RawText fontWeight='medium'>{translate('modals.deposit.allocation.heading')}</RawText>
-        <Stack direction='row' fontSize='sm' color='gray.500' justifyContent='space-between'>
+        <Stack direction='row' fontSize='sm' color='text.subtle' justifyContent='space-between'>
           {allocationFraction && (
             <RawText>{`${formattedAllocationFraction}${translate(
               'modals.deposit.allocation.fractionDescription',
@@ -186,7 +186,7 @@ export const Allocation: React.FC<AllocationProps> = ({
               disabled={showFiatSkeleton}
               fontWeight='medium'
               variant='link'
-              color='gray.500'
+              color='text.subtle'
             >
               <Skeleton isLoaded={!showFiatSkeleton}>
                 {isFiat ? (

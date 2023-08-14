@@ -319,7 +319,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
                 value={bnOrZero(estimatedFeeCryptoPrecision).times(feeMarketData.price).toFixed(2)}
               />
               <Amount.Crypto
-                color='gray.500'
+                color='text.subtle'
                 value={bnOrZero(estimatedFeeCryptoPrecision).toFixed(5)}
                 symbol={feeAsset.symbol}
               />

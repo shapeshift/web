@@ -197,7 +197,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
                   .toFixed(2)}
               />
               <Amount.Crypto
-                color='gray.500'
+                color='text.subtle'
                 value={bnOrZero(state.withdraw.estimatedGasCryptoBaseUnit)
                   .div(bn(10).pow(feeAsset.precision))
                   .toFixed(5)}

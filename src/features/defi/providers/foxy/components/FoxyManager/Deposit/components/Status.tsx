@@ -113,7 +113,7 @@ export const Status = () => {
                   .toFixed(2)}
               />
               <Amount.Crypto
-                color='gray.500'
+                color='text.subtle'
                 value={bnOrZero(
                   state.deposit.txStatus === 'pending'
                     ? state.deposit.estimatedGasCryptoBaseUnit

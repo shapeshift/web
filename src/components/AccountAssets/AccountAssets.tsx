@@ -1,10 +1,10 @@
+import { Card, CardBody, CardHeader, Heading } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainNamespace } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { Text } from 'components/Text'
 import { selectPortfolioAssetIdsByAccountIdExcludeFeeAsset } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { Card } from '../Card/Card'
 import { AccountAssetsList } from './AccountAssetsList'
 
 type AccountAssetsProps = {
@@ -27,14 +27,14 @@ export const AccountAssets = ({ assetId, accountId }: AccountAssetsProps) => {
 
   return (
     <Card>
-      <Card.Header>
-        <Card.Heading>
+      <CardHeader>
+        <Heading as='h5'>
           <Text translation='assets.assetCards.accountTokens' />
-        </Card.Heading>
-      </Card.Header>
-      <Card.Body pt={0}>
+        </Heading>
+      </CardHeader>
+      <CardBody pt={0}>
         <AccountAssetsList accountId={accountId} assetIds={assetIds} limit={5} />
-      </Card.Body>
+      </CardBody>
     </Card>
   )
 }

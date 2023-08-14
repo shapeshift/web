@@ -14,7 +14,7 @@ export const HelperTooltip = ({ children, flexProps, iconProps, ...rest }: Helpe
     <Tooltip {...rest}>
       <Flex alignItems='center' columnGap={2} {...flexProps}>
         {children}
-        <QuestionIcon color='gray.500' {...iconProps} />
+        <QuestionIcon color='text.subtle' {...iconProps} />
       </Flex>
     </Tooltip>
   )

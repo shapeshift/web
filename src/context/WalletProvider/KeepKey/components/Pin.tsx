@@ -148,7 +148,7 @@ export const KeepKeyPin = ({
 
   return (
     <>
-      <Text color='gray.500' translation={`walletProvider.keepKey.${translationType}.body`} />
+      <Text color='text.subtle' translation={`walletProvider.keepKey.${translationType}.body`} />
       <SimpleGrid
         columns={3}
         spacing={6}

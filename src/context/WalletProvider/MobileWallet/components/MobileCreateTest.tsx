@@ -103,7 +103,7 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
         <RawText>
           <Text
             as='span'
-            color='gray.500'
+            color='text.subtle'
             translation={'walletProvider.shapeShift.testPhrase.body'}
           />{' '}
           <Tag colorScheme='green'>
@@ -116,7 +116,7 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
           </Tag>{' '}
           <Text
             as='span'
-            color='gray.500'
+            color='text.subtle'
             translation={'walletProvider.shapeShift.testPhrase.body3'}
           />
         </RawText>

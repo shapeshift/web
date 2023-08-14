@@ -86,7 +86,7 @@ export const TxStatus = ({
         )}
         <Stack>
           <Text translation={statusText} fontSize='xl' />
-          {statusBody && <RawText color='gray.500'>{statusBody}</RawText>}
+          {statusBody && <RawText color='text.subtle'>{statusBody}</RawText>}
         </Stack>
         {onContinue && (
           <Stack width='full'>

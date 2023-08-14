@@ -123,7 +123,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
                 value={current.txFee}
               />
               <Amount.Fiat
-                color='gray.500'
+                color='text.subtle'
                 fontSize='sm'
                 fontWeight='normal'
                 value={current.fiatFee}

@@ -51,7 +51,7 @@ export const AssetTransfer: React.FC<AssetTransferProps> = ({ index, compactMode
           maximumFractionDigits={4}
         />
         {transfer.marketData.price && (
-          <Amount.Fiat color='gray.500' fontSize='sm' lineHeight='1' value={fiatAmount} />
+          <Amount.Fiat color='text.subtle' fontSize='sm' lineHeight='1' value={fiatAmount} />
         )}
       </Box>
     </Stack>

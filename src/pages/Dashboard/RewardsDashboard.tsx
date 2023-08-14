@@ -26,7 +26,7 @@ const RewardsHeader = () => {
           {translate('defi.viewAllPositions')}
         </Button>
       </Flex>
-      <RawText color='gray.500'>{translate('defi.myRewardsBody')}</RawText>
+      <RawText color='text.subtle'>{translate('defi.myRewardsBody')}</RawText>
     </Flex>
   )
 }

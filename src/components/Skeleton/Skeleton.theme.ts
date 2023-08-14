@@ -1,6 +1,6 @@
 import { keyframes } from '@chakra-ui/system'
 import type { SystemStyleFunction } from '@chakra-ui/theme-tools'
-import { getColor, mode } from '@chakra-ui/theme-tools'
+import { getColor } from '@chakra-ui/theme-tools'
 
 const fade = (startColor: string, endColor: string) =>
   keyframes({
@@ -9,10 +9,12 @@ const fade = (startColor: string, endColor: string) =>
   })
 
 const baseStyle: SystemStyleFunction = props => {
-  const defaultStartColor = mode('gray.100', 'gray.750')(props)
-  const defaultEndColor = mode('gray.300', 'gray.700')(props)
-
-  const { startColor = defaultStartColor, endColor = defaultEndColor, speed, theme } = props
+  const {
+    startColor = 'background.surface.raised.base',
+    endColor = 'background.surface.rasied.pressed',
+    speed,
+    theme,
+  } = props
 
   const start = getColor(theme, startColor)
   const end = getColor(theme, endColor)
@@ -22,7 +24,7 @@ const baseStyle: SystemStyleFunction = props => {
     borderRadius: 'md',
     borderColor: start,
     background: end,
-    animation: `${speed}s linear infinite alternate ${fade(start, end)}`,
+    animation: `${speed}s linear infinite alternate ${fade('red', end)}`,
   }
 }
 
@@ -48,4 +50,8 @@ export const SkeletonStyle = {
   baseStyle,
   sizes,
   variants,
+  defaultProps: {
+    startColor: 'background.surface.raised.base', // Customize this value
+    endColor: 'background.surface.raised.pressed', // Customize this value
+  },
 }

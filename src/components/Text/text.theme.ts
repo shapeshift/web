@@ -11,7 +11,7 @@ export const TextStyle = {
   // Styles for the visual style variations
   variants: {
     'sub-text': {
-      color: 'gray.500',
+      color: 'text.subtle',
       fontWeight: '600',
     },
   },

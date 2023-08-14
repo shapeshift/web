@@ -48,7 +48,7 @@ export const KeepKeyLabel = () => {
         <Text translation={'modals.keepKey.label.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' translation={'modals.keepKey.label.body'} mb={4} />
+        <Text color='text.subtle' translation={'modals.keepKey.label.body'} mb={4} />
         <Input
           type='text'
           value={label}

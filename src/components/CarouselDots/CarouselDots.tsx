@@ -18,7 +18,7 @@ export const CarouselDots = ({ length, activeIndex, onClick }: CarouselDotsProps
           width='7px'
           height='7px'
           borderRadius='50%'
-          backgroundColor={i === activeIndex - 1 ? activeDotBackgroundColor : 'gray.500'}
+          backgroundColor={i === activeIndex - 1 ? activeDotBackgroundColor : 'text.subtle'}
           onClick={_ => onClick(i + 1)}
         />
       ))}

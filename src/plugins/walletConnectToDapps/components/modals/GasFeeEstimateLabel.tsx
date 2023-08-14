@@ -43,13 +43,13 @@ export const GasFeeEstimateLabel: FC<GasFeeEstimateLabelProps> = ({
         : fees?.[speed],
     [customFeeValue, feeAssetPrice, fees, speed],
   )
-  if (!fee) return <CircularProgress size='18px' color='gray.500' />
+  if (!fee) return <CircularProgress size='18px' color='text.subtle' />
   return (
     <HStack spacing={1}>
       <RawText fontWeight='medium'>
         <Amount.Fiat value={fee.fiatFee} />
       </RawText>
-      <RawText color='gray.500'>
+      <RawText color='text.subtle'>
         <Amount.Crypto prefix='≈' value={fee.txFee} symbol={feeAsset?.symbol ?? ''} />
       </RawText>
     </HStack>

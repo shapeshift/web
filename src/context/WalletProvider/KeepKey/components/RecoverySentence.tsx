@@ -13,7 +13,7 @@ export const KeepKeyRecoverySentence = () => {
         <Text translation={'modals.keepKey.recoverySentence.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' translation={'modals.keepKey.recoverySentence.body'} mb={3} />
+        <Text color='text.subtle' translation={'modals.keepKey.recoverySentence.body'} mb={3} />
         <Alert status='warning' color={yellowShade} borderRadius='lg' mb={3}>
           <AlertIcon color={yellowShade} alignSelf='self-start' />
           <Flex direction='column'>

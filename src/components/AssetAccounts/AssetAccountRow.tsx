@@ -98,7 +98,7 @@ export const AssetAccountRow = ({
         </Box>
         <Flex flexDir='column' ml={2} maxWidth='100%'>
           {assetNamespace !== 'slip44' && (
-            <RawText fontWeight='bold' color='gray.500' fontSize='sm'>
+            <RawText fontWeight='bold' color='text.subtle' fontSize='sm'>
               {feeAsset?.networkName ?? feeAsset?.name}
             </RawText>
           )}
@@ -154,7 +154,7 @@ export const AssetAccountRow = ({
         <Flex flexDir='column' textAlign='right'>
           <Amount.Fiat value={userCurrencyBalance} />
           {(isCompact || !isLargerThanMd) && (
-            <Amount.Crypto color='gray.500' value={cryptoHumanBalance} symbol={asset?.symbol} />
+            <Amount.Crypto color='text.subtle' value={cryptoHumanBalance} symbol={asset?.symbol} />
           )}
         </Flex>
       </Flex>

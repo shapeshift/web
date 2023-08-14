@@ -28,6 +28,7 @@ import { TextareaStyle as Textarea } from 'components/Textarea/Textarea.theme'
 import { TooltipStyle as Tooltip } from 'components/Tooltip/Tooltip.theme'
 
 import { colors } from './colors'
+import { semanticTokens } from './semanticTokens'
 
 export const breakpoints = {
   sm: '480px',
@@ -41,7 +42,7 @@ export const breakpoints = {
 const styles = {
   global: (props: StyleFunctionProps) => ({
     body: {
-      backgroundColor: mode('gray.50', 'gray.800')(props),
+      backgroundColor: 'background.surface.base',
       backgroundSize: 'cover',
       fontFeatureSettings: `'zero' on`,
       overflowX: 'hidden',
@@ -152,5 +153,6 @@ export const theme = extendTheme({
     'outline-inset': '0 0 0 3px rgba(66, 153, 225, 0.6) inset',
     right: '3px 0px 2px rgba(0,0,0,.5), 5px 0 10px rgba(0,0,0,.2)',
   },
+  semanticTokens,
   config,
 })

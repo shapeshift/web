@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Stack } from '@chakra-ui/react'
+import { Box, Button, Card, Flex, Heading, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useState } from 'react'
@@ -6,7 +6,6 @@ import { useTranslate } from 'react-polyglot'
 import { useParams } from 'react-router'
 import AuroraBg from 'assets/aurorabg.jpg'
 import FoxPane from 'assets/fox-cta-pane.png'
-import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
@@ -84,10 +83,10 @@ export const Buy = () => {
                 />
               </Heading>
               <Text fontSize='lg' translation='buyPage.body' color='whiteAlpha.900' />
-              <Text fontSize='sm' color='gray.500' translation='buyPage.disclaimer' />
+              <Text fontSize='sm' color='text.subtle' translation='buyPage.disclaimer' />
             </Flex>
             <Box flexBasis='400px'>
-              <Card mx={{ base: -4, md: 0 }}>
+              <Card bg='background.surface.base' mx={{ base: -4, md: 0 }}>
                 <FiatForm assetId={selectedAssetId} fiatRampAction={FiatRampAction.Buy} />
               </Card>
             </Box>

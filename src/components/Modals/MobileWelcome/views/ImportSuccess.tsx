@@ -23,7 +23,7 @@ export const ImportSuccess = () => {
               fontWeight='bold'
               translation='modals.mobileWelcome.success.header'
             />
-            <Text color='gray.500' translation='modals.mobileWelcome.success.body' />
+            <Text color='text.subtle' translation='modals.mobileWelcome.success.body' />
           </Stack>
         </Stack>
       </ModalBody>

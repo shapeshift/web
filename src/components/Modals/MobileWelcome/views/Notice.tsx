@@ -42,7 +42,7 @@ export const Notice = () => {
               fontWeight='bold'
               translation='modals.mobileWelcome.notice.header'
             />
-            <Text color='gray.500' translation='modals.mobileWelcome.notice.body' />
+            <Text color='text.subtle' translation='modals.mobileWelcome.notice.body' />
           </Stack>
         </Stack>
       </ModalBody>
@@ -56,7 +56,7 @@ export const Notice = () => {
         >
           {translate('modals.mobileWelcome.notice.primaryCta')}
         </Button>
-        <Button width='full' colorScheme='blue' variant='ghost' onClick={handleDismissClick}>
+        <Button width='full' variant='ghost' onClick={handleDismissClick}>
           {translate('modals.mobileWelcome.notice.secondaryCta')}
         </Button>
       </ModalFooter>

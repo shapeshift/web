@@ -60,7 +60,7 @@ export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
           >
             <Stack alignItems='center' spacing={1}>
               <RawText>{translate('modals.withdraw.instant')}</RawText>
-              <RawText color='gray.500' fontSize='sm'>
+              <RawText color='text.subtle' fontSize='sm'>
                 {translate('modals.withdraw.fee', {
                   fee: bnOrZero(feePercentage).times(100) ?? '0',
                   symbol: asset.symbol,
@@ -77,7 +77,7 @@ export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
           >
             <Stack alignItems='center' spacing={1}>
               <RawText>{translate('modals.withdraw.delayed')}</RawText>
-              <RawText color='gray.500' fontSize='sm'>
+              <RawText color='text.subtle' fontSize='sm'>
                 {translate('modals.withdraw.noFee', {
                   symbol: asset.symbol,
                 })}

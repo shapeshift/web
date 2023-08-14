@@ -7,7 +7,6 @@ import {
   Flex,
   HStack,
   IconButton,
-  useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
@@ -39,7 +38,6 @@ export const Header = memo(() => {
     state: { isDemoWallet },
     dispatch,
   } = useWallet()
-  const bg = useColorModeValue('gray.100', 'gray.800')
   const ref = useRef<HTMLDivElement>(null)
   const [y, setY] = useState(0)
   const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
@@ -108,7 +106,7 @@ export const Header = memo(() => {
         position='sticky'
         zIndex='banner'
         ref={ref}
-        bg={y > height ? bg : 'transparent'}
+        bg={y > height ? 'background.surface.base' : 'transparent'}
         transitionDuration='200ms'
         transitionProperty='all'
         transitionTimingFunction='cubic-bezier(0.4, 0, 0.2, 1)'
@@ -116,7 +114,7 @@ export const Header = memo(() => {
         paddingTop={{ base: isDemoWallet ? 0 : 'env(safe-area-inset-top)', md: 0 }}
       >
         <HStack height='4.5rem' width='full' px={4}>
-          <HStack width='full' margin='0 auto' px={{ base: 0, xl: 12 }} spacing={0} columnGap={4}>
+          <HStack width='full' margin='0 auto' px={{ base: 0, xl: 4 }} spacing={0} columnGap={4}>
             <Box flex={1} display={{ base: 'block', md: 'none' }}>
               <IconButton aria-label='Open menu' onClick={onToggle} icon={<HamburgerIcon />} />
             </Box>

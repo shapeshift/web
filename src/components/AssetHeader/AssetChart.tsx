@@ -4,7 +4,10 @@ import {
   Box,
   Button,
   ButtonGroup,
+  Card,
+  CardHeader,
   Flex,
+  Heading,
   Skeleton,
   Stack,
   Stat,
@@ -20,7 +23,6 @@ import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
-import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { IconCircle } from 'components/IconCircle'
 import { StakingUpArrowIcon } from 'components/Icons/StakingUpArrow'
@@ -97,8 +99,8 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   }, [userCurrencyBalance, isBalanceChartDataUnavailable])
 
   return (
-    <Card>
-      <Card.Header>
+    <Card variant='outline'>
+      <CardHeader>
         <Flex
           justifyContent={{ base: 'center', md: 'space-between' }}
           width='full'
@@ -122,7 +124,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
           </Skeleton>
         </Flex>
         <Box width='full' alignItems='center' display='flex' flexDir='column' mt={6}>
-          <Card.Heading fontSize='4xl' lineHeight={1} mb={2}>
+          <Heading fontSize='4xl' lineHeight={1} mb={2}>
             <Skeleton isLoaded={isLoaded}>
               <NumberFormat
                 value={view === View.Price ? assetPrice : toFiat(userCurrencyBalance)}
@@ -131,7 +133,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
                 isNumericString={true}
               />
             </Skeleton>
-          </Card.Heading>
+          </Heading>
           <StatGroup>
             <Stat size='sm' display='flex' flex='initial' mr={2}>
               <Skeleton isLoaded={isLoaded}>
@@ -146,7 +148,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
               </Skeleton>
             </Stat>
             {view === View.Balance && (
-              <Stat size='sm' color='gray.500'>
+              <Stat size='sm' color='text.subtle'>
                 <Skeleton isLoaded={isLoaded}>
                   <StatNumber>{`${cryptoHumanBalance} ${asset?.symbol ?? ''}`}</StatNumber>
                 </Skeleton>
@@ -183,7 +185,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
             </Flex>
           )}
         </Box>
-      </Card.Header>
+      </CardHeader>
       {view === View.Balance && marketData ? (
         <Box>
           <BalanceChart

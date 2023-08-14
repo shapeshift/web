@@ -27,7 +27,7 @@ export const App = () => {
         render: ({ onClose }) => {
           return (
             <Alert status='info' variant='update-box' borderRadius='lg' gap={3}>
-              <IconCircle boxSize={8} color='gray.500'>
+              <IconCircle boxSize={8} color='text.subtle'>
                 <FaSync />
               </IconCircle>
               <Flex

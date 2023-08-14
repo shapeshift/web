@@ -30,9 +30,9 @@ export const ModalCollapsableSection = ({
         _hover={{ textDecoration: 'none' }}
         textAlign='left'
         justifyContent='flex-start'
-        leftIcon={!!icon ? <Box color='gray.500'>{icon}</Box> : undefined}
+        leftIcon={!!icon ? <Box color='text.subtle'>{icon}</Box> : undefined}
         rightIcon={
-          isOpen ? <ChevronUpIcon color='gray.500' /> : <ChevronDownIcon color='gray.500' />
+          isOpen ? <ChevronUpIcon color='text.subtle' /> : <ChevronDownIcon color='text.subtle' />
         }
         fontWeight='medium'
         children={

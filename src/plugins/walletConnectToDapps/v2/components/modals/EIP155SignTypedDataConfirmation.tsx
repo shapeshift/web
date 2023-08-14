@@ -30,7 +30,7 @@ export const EIP155SignTypedDataConfirmation: FC<
       <TypedMessageInfo typedData={message} />
       <Text
         fontWeight='medium'
-        color='gray.500'
+        color='text.subtle'
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
       <VStack spacing={4}>

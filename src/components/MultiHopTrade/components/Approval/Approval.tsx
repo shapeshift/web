@@ -1,8 +1,12 @@
 import {
   Box,
   Button,
+  Card,
+  CardBody,
+  CardHeader,
   Divider,
   Flex,
+  Heading,
   Icon,
   Image,
   Link,
@@ -19,7 +23,6 @@ import { useFormContext } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { useAllowanceApproval } from 'components/MultiHopTrade/hooks/useAllowanceApproval/useAllowanceApproval'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
@@ -148,12 +151,12 @@ const ApprovalInner = ({
   return (
     <SlideTransition>
       <Card variant='unstyled'>
-        <Card.Header textAlign='center' px={0} pt={0}>
-          <Card.Heading>
+        <CardHeader textAlign='center' px={0} pt={0}>
+          <Heading>
             <Text translation='assets.assetCards.assetActions.trade' />
-          </Card.Heading>
-        </Card.Header>
-        <Card.Body pb={0} px={0}>
+          </Heading>
+        </CardHeader>
+        <CardBody pb={0} px={0}>
           <Flex
             justifyContent='center'
             alignItems='center'
@@ -186,7 +189,7 @@ const ApprovalInner = ({
               textAlign='center'
               translation={['trade.approveAsset', { symbol }]}
             />
-            <CText color='gray.500' textAlign='center'>
+            <CText color='text.subtle' textAlign='center'>
               <Link
                 href={`${tradeQuoteStep.sellAsset.explorerAddressLink}${tradeQuoteStep.allowanceContract}`}
                 color='blue.500'
@@ -220,16 +223,16 @@ const ApprovalInner = ({
               )}
               <Row>
                 <Row.Label display='flex' alignItems='center'>
-                  <Text color='gray.500' translation='trade.allowance' />
+                  <Text color='text.subtle' translation='trade.allowance' />
                   <Tooltip label={translate('trade.allowanceTooltip')}>
                     <Box ml={1}>
-                      <Icon as={FaInfoCircle} color='gray.500' fontSize='0.7em' />
+                      <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
                     </Box>
                   </Tooltip>
                 </Row.Label>
                 <Row.Value textAlign='right' display='flex' alignItems='center'>
                   <Text
-                    color={isExactAllowance ? 'gray.500' : 'white'}
+                    color={isExactAllowance ? 'text.subtle' : 'white'}
                     translation='trade.unlimited'
                     fontWeight='bold'
                   />
@@ -240,7 +243,7 @@ const ApprovalInner = ({
                     onChange={toggleIsExactAllowance}
                   />
                   <Text
-                    color={isExactAllowance ? 'white' : 'gray.500'}
+                    color={isExactAllowance ? 'white' : 'text.subtle'}
                     translation='trade.exact'
                     fontWeight='bold'
                   />
@@ -257,18 +260,18 @@ const ApprovalInner = ({
               <Divider my={4} />
               <Row>
                 <Row.Label>
-                  <Text color='gray.500' translation='trade.estimatedGasFee' />
+                  <Text color='text.subtle' translation='trade.estimatedGasFee' />
                 </Row.Label>
                 <Row.Value textAlign='right'>
                   <Skeleton isLoaded={approvalNetworkFeeCryptoHuman !== undefined}>
                     <RawText>{approvalNetworkFeeFiatDisplay}</RawText>
-                    <RawText color='gray.500'>{approvalNetworkFeeCryptoHumanDisplay}</RawText>
+                    <RawText color='text.subtle'>{approvalNetworkFeeCryptoHumanDisplay}</RawText>
                   </Skeleton>
                 </Row.Value>
               </Row>
             </Flex>
           </Flex>
-        </Card.Body>
+        </CardBody>
       </Card>
     </SlideTransition>
   )

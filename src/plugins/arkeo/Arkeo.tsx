@@ -11,7 +11,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
-import { foxEthLpAssetId, foxEthStakingAssetIdV6 } from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpAssetId, foxEthStakingAssetIdV7 } from 'state/slices/opportunitiesSlice/constants'
 import type { DefiType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 
 import { FoxTokenHolders } from './FoxTokenHolders'
@@ -28,7 +28,7 @@ const FOXY_STAKING_CONTRACT = 'eip155:1/erc20:0xee77aa3fd23bbebaf94386dd44b548e9
 const opportunities: OpportunityReturn = {
   staking: [
     FOXY_STAKING_CONTRACT,
-    foxEthStakingAssetIdV6,
+    foxEthStakingAssetIdV7,
     osmosisAssetId,
     cosmosAssetId,
   ] as OpportunityId[],

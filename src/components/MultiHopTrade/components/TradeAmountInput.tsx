@@ -28,6 +28,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { colors } from 'theme/colors'
 
 const cryptoInputStyle = { caretColor: colors.blue[200] }
+const buttonProps = { variant: 'unstyled', display: 'flex', height: 'auto' }
+const boxProps = { px: 0, m: 0 }
 
 const CryptoInput = (props: InputProps) => {
   const translate = useTranslate()
@@ -144,6 +146,14 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       amountRef.current = values.value
     }, [])
 
+    const renderOppositeCurrency = useMemo(() => {
+      return isFiat ? (
+        <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
+      ) : (
+        <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
+      )
+    }, [assetSymbol, cryptoAmount, fiatAmount, isFiat])
+
     return (
       <FormControl
         borderWidth={1}
@@ -170,8 +180,8 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               onChange={onAccountIdChange}
               disabled={false}
               autoSelectHighestBalance
-              buttonProps={{ variant: 'unstyled', display: 'flex', height: 'auto' }}
-              boxProps={{ px: 0, m: 0 }}
+              buttonProps={buttonProps}
+              boxProps={boxProps}
               showLabel={false}
               label={
                 <Balance
@@ -228,13 +238,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               variant='link'
               color='text.subtle'
             >
-              <Skeleton isLoaded={!showFiatSkeleton}>
-                {isFiat ? (
-                  <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
-                ) : (
-                  <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
-                )}
-              </Skeleton>
+              <Skeleton isLoaded={!showFiatSkeleton}>{renderOppositeCurrency}</Skeleton>
             </Button>
           )}
           {onPercentOptionClick && (

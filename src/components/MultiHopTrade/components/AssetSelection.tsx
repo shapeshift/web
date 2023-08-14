@@ -2,7 +2,7 @@ import { ChevronDownIcon } from '@chakra-ui/icons'
 import { Button, Flex, Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
@@ -56,6 +56,13 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
     },
     [assets, onAssetChange],
   )
+  const renderIcon = useMemo(() => {
+    return asset?.icons ? (
+      <PairIcons icons={asset.icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
+    ) : (
+      <AssetIcon assetId={assetId} size='xs' showNetworkIcon={false} />
+    )
+  }, [asset?.icons, assetId])
 
   return (
     <Flex px={4} mb={4} alignItems='center' gap={2}>
@@ -72,11 +79,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         flexGrow={0}
         flexShrink={0}
       >
-        {asset?.icons ? (
-          <PairIcons icons={asset.icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
-        ) : (
-          <AssetIcon assetId={assetId} size='xs' showNetworkIcon={false} />
-        )}
+        {renderIcon}
         {asset?.symbol}
       </Button>
       <Text translation='trade.on' color='text.subtle' fontSize='sm' />

@@ -9,6 +9,8 @@ import { selectMarketDataByFilter } from 'state/slices/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
+const formControlProps = { borderRadius: 0, background: 'transparent', borderWidth: 0 }
+
 export type SellAssetInputProps = {
   accountId?: AccountId
   label: string
@@ -62,7 +64,7 @@ export const SellAssetInput = memo(
         showInputSkeleton={false}
         showFiatSkeleton={false}
         label={label}
-        formControlProps={{ borderRadius: 0, background: 'transparent', borderWidth: 0 }}
+        formControlProps={formControlProps}
         onAccountIdChange={onAccountIdChange}
         {...rest}
       />

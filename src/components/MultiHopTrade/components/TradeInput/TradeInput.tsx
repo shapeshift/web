@@ -74,6 +74,8 @@ import { PriceImpact } from '../PriceImpact'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 
+const formControlProps = { borderRadius: 0, background: 'transparent', borderWidth: 0 }
+
 const percentOptions = [1]
 
 export const TradeInput = memo(() => {
@@ -319,7 +321,7 @@ export const TradeInput = memo(() => {
               label={translate('trade.youGet')}
               rightRegion={rightRegion}
               onAccountIdChange={setBuyAssetAccountId}
-              formControlProps={{ borderRadius: 0, background: 'transparent', borderWidth: 0 }}
+              formControlProps={formControlProps}
               labelPostFix={
                 <TradeAssetSelect
                   accountId={buyAssetAccountId}

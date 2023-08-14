@@ -41,15 +41,15 @@ export const ModalStyle = {
         width: 'auto',
       },
     },
-    'header-nav': (props: Record<string, any>) => ({
+    'header-nav': () => ({
       dialog: {
         maxWidth: '100%',
         width: 'auto',
       },
       header: {
         borderBottom: '1px solid',
-        bg: mode('gray.50', 'rgba(255,255,255,.01)')(props),
-        borderColor: mode('gray.100', 'rgba(255,255,255,.05)')(props),
+        bg: 'background.surface.raised.accent',
+        borderColor: 'border.base',
         borderTopRadius: '2xl',
         fontSize: 'md',
       },

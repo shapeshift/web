@@ -6,7 +6,7 @@ export const InputStyle = {
   baseStyle: () => ({
     field: {
       _placeholder: {
-        color: 'text.subtlest',
+        color: 'text.subtle',
       },
     },
   }),
@@ -38,7 +38,7 @@ export const InputStyle = {
       field: {
         bg: 'background.input.base',
         borderWidth: 2,
-        borderColor: 'border.base',
+        borderColor: 'border.input',
         _hover: {
           bg: 'background.input.hover',
         },

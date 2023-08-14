@@ -50,7 +50,7 @@ const buttonProps = {
   py: 4,
   height: 'auto',
 }
-const boxProps = { m: 0, p: 0 }
+const boxProps = { m: 0, p: 0, flex: 1 }
 const borderRadius = { base: 'xl' }
 
 export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({

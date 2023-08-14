@@ -35,7 +35,7 @@ export const semanticTokens = {
         overlay: {
           base: {
             default: 'white',
-            _dark: 'darkNeutral.900',
+            _dark: 'darkNeutral.750',
           },
         },
       },
@@ -58,7 +58,7 @@ export const semanticTokens = {
       input: {
         base: {
           default: 'gray.50',
-          _dark: 'darkNeutral.750',
+          _dark: 'darkNeutral.900',
         },
         hover: {
           default: 'gray.100',
@@ -66,7 +66,7 @@ export const semanticTokens = {
         },
         pressed: {
           default: 'gray.200',
-          _dark: 'darkNeutral.750',
+          _dark: 'darkNeutral.900',
         },
       },
     },
@@ -111,6 +111,10 @@ export const semanticTokens = {
       success: {
         default: 'green.500',
         _dark: 'green.200',
+      },
+      input: {
+        default: 'gray.100',
+        _dark: 'darkNeutralAlpha.500',
       },
     },
     text: {

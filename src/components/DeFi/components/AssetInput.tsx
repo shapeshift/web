@@ -109,8 +109,8 @@ export const AssetInput: React.FC<AssetInputProps> = ({
 
   return (
     <FormControl
-      borderWidth={1}
-      borderColor={isFocused ? 'border.pressed' : 'border.base'}
+      borderWidth={2}
+      borderColor={isFocused ? 'border.focused' : 'border.input.base'}
       bg={isFocused ? 'background.input.pressed' : 'background.input.base'}
       borderRadius='xl'
       _hover={{ bg: isReadOnly ? 'background.input.base' : 'background.input.hover' }}

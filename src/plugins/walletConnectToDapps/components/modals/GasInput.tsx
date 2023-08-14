@@ -91,7 +91,7 @@ export const GasInput: FC<GasInputProps> = ({ fees }) => {
     >
       <HStack justifyContent='space-between' mb={4}>
         <HelperTooltip label={translate('gasInput.gasPrice.tooltip')}>
-          <Text color='gray.500' fontWeight='medium' translation='gasInput.gasPrice.label' />
+          <Text color='text.subtle' fontWeight='medium' translation='gasInput.gasPrice.label' />
         </HelperTooltip>
         {!!selectedOption && (
           <RawText fontWeight='medium'>
@@ -116,7 +116,7 @@ export const GasInput: FC<GasInputProps> = ({ fees }) => {
                   <Radio color='blue' value={option.value}>
                     <HStack>
                       <RawText>{option.label}</RawText>
-                      <RawText color='gray.500' flex={1}>
+                      <RawText color='text.subtle' flex={1}>
                         {option.duration}
                       </RawText>
                     </HStack>
@@ -139,7 +139,11 @@ export const GasInput: FC<GasInputProps> = ({ fees }) => {
               >
                 <Box>
                   <HelperTooltip label={translate('gasInput.base.tooltip')}>
-                    <Text translation='gasInput.base.label' color='gray.500' fontWeight='medium' />
+                    <Text
+                      translation='gasInput.base.label'
+                      color='text.subtle'
+                      fontWeight='medium'
+                    />
                   </HelperTooltip>
                   <NumberInput borderColor={borderColor} mt={2}>
                     <NumberInputField placeholder='0 gwei' {...register('customFee.baseFee')} />
@@ -149,7 +153,7 @@ export const GasInput: FC<GasInputProps> = ({ fees }) => {
                   <HelperTooltip label={translate('gasInput.priority.tooltip')}>
                     <Text
                       translation='gasInput.priority.label'
-                      color='gray.500'
+                      color='text.subtle'
                       fontWeight='medium'
                     />
                   </HelperTooltip>

@@ -50,7 +50,7 @@ export const AccountCard = ({
 
         {showCrypto ? (
           <Amount.Crypto
-            color='gray.500'
+            color='text.subtle'
             lineHeight='1'
             maximumFractionDigits={6}
             symbol={asset.symbol}
@@ -62,7 +62,7 @@ export const AccountCard = ({
           <Amount.Fiat
             value={fiatAmountAvailable}
             lineHeight='1'
-            color='gray.500'
+            color='text.subtle'
             suffix={translate('common.available')}
             data-test='account-card-fiat-label'
           />

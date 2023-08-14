@@ -1,10 +1,19 @@
-import { Flex, Skeleton, Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Flex,
+  Heading,
+  Skeleton,
+  Stack,
+  StackDivider,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
-import { Card } from 'components/Card/Card'
 import type { LpId, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { AssetEquityType } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
@@ -124,10 +133,10 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   if (!asset) return null
 
   return (
-    <Card variant='default'>
-      <Card.Header display='flex' gap={4} alignItems='center'>
+    <Card variant='outline'>
+      <CardHeader display='flex' gap={4} alignItems='center'>
         <Flex flexDir='column' flex={1}>
-          <Card.Heading>{translate('common.allocation')}</Card.Heading>
+          <Heading as='h5'>{translate('common.allocation')}</Heading>
           <Flex flexDir='column' gap={1}>
             <Skeleton isLoaded={!isLoading}>
               <Amount.Fiat fontSize='xl' value={totalFiatBalance} lineHeight={1} />
@@ -143,8 +152,8 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
           </Flex>
           {renderUnderlyingAssets}
         </Flex>
-      </Card.Header>
-      <Card.Body pt={0} pb={2}>
+      </CardHeader>
+      <CardBody pt={0} pb={2}>
         <Stack
           spacing={0}
           mt={2}
@@ -153,7 +162,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
         >
           {renderEquityRows}
         </Stack>
-      </Card.Body>
+      </CardBody>
     </Card>
   )
 }

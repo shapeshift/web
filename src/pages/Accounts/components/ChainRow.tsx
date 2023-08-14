@@ -1,18 +1,9 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import {
-  Center,
-  Circle,
-  Collapse,
-  ListItem,
-  Stack,
-  useColorModeValue,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Card, Center, Circle, Collapse, ListItem, Stack, useDisclosure } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { Card } from 'components/Card/Card'
 import { NestedList } from 'components/NestedList'
 import { RawText } from 'components/Text'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
@@ -41,8 +32,6 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
     selectPortfolioAccountsGroupedByNumberByChainId(s, filter),
   )
 
-  const hoverBorderColor = useColorModeValue('gray.300', 'gray.700')
-
   const accountRows = useMemo(() => {
     return Object.entries(accountIdsByAccountNumber).map(([accountNumber, accountIds]) => (
       <AccountNumberRow
@@ -65,12 +54,13 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
       as={Card}
       py={4}
       pl={2}
+      variant='elevated'
       fontWeight='semibold'
       transitionProperty='common'
       transitionDuration='normal'
       fontSize={{ base: 'sm', md: 'md' }}
       borderWidth={{ base: 0, md: 1 }}
-      _hover={{ borderColor: hoverBorderColor }}
+      _hover={{ borderColor: 'border.hover' }}
     >
       <Stack
         direction='row'

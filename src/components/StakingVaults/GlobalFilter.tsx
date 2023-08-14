@@ -6,7 +6,6 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import { debounce } from 'lodash'
 import { useCallback, useMemo, useState } from 'react'
@@ -23,7 +22,6 @@ export const GlobalFilter: React.FC<GlobalFilterProps> = ({
   inputGroupProps,
   ...rest
 }) => {
-  const iconColor = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
   const [value, setValue] = useState(searchQuery)
   const [loading, setLoading] = useState(false)
 
@@ -53,7 +51,7 @@ export const GlobalFilter: React.FC<GlobalFilterProps> = ({
     <InputGroup size='md' {...inputGroupProps}>
       {/* Override zIndex to prevent element displaying on overlay components */}
       <InputLeftElement pointerEvents='none' zIndex={1}>
-        <SearchIcon color={iconColor} />
+        <SearchIcon color='text.subtle' />
       </InputLeftElement>
       <Input
         variant='filled'

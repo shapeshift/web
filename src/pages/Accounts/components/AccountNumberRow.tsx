@@ -163,7 +163,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
             <RawText color='var(--chakra-colors-chakra-body-text)' fontFamily={fontFamily}>
               {title}
             </RawText>
-            <RawText fontSize='sm' color='gray.500'>
+            <RawText fontSize='sm' color='text.subtle'>
               {translate('accounts.accountNumber', { accountNumber })}
             </RawText>
           </Stack>
@@ -183,7 +183,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
             <MenuList>
               <MenuGroup
                 title={translate('accounts.accountNumber', { accountNumber })}
-                color='gray.500'
+                color='text.subtle'
               >
                 <MenuItem
                   icon={<RiWindow2Line />}

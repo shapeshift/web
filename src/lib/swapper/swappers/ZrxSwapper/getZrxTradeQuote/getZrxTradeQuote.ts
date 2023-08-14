@@ -38,7 +38,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     supportsEIP1559,
     slippageTolerancePercentage,
   } = input
-  const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountBeforeFeesCryptoBaseUnit
+  const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
   const assertion = assertValidTrade({ buyAsset, sellAsset, receiveAddress })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
@@ -98,6 +98,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     })
 
     return Ok({
+      rate,
       minimumCryptoHuman,
       steps: [
         {
@@ -111,11 +112,11 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
             protocolFees: {},
           },
           buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
-          sellAmountBeforeFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
           sources: data.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
         },
       ],
-    } as TradeQuote<T>)
+    } as TradeQuote<T>) // TODO: remove this cast, it's a recipe for bugs
   } catch (err) {
     return Err(
       makeSwapErrorRight({

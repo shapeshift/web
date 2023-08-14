@@ -30,7 +30,7 @@ export const ResultsEmpty: React.FC<ResultsEmptyProp> = ({
       </Flex>
       <Flex alignItems='center' textAlign='center' flexDir='column' gap={2}>
         <Text fontWeight='bold' fontSize='lg' letterSpacing='0.02em' translation={title} />
-        <Text color='gray.500' letterSpacing='0.012em' translation={body} />
+        <Text color='text.subtle' letterSpacing='0.012em' translation={body} />
         {ctaHref && (
           <Button
             colorScheme='purple'

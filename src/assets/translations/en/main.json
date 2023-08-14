@@ -720,6 +720,7 @@
       "insufficientFundsForProtocolFee": "Insufficient %{symbol} on %{chainName} for fees",
       "invalidTradePair": "Invalid trade pair: %{sellAssetName} and %{buyAssetName}",
       "invalidTradePairBtnText": "Invalid Trade Pair",
+      "unsupportedTradePair": "Unsupported Trade Pair",
       "noLiquidityError": "Not enough liquidity available",
       "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price",
       "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
@@ -745,6 +746,7 @@
       "assetNotSupportedByWallet": "%{assetSymbol} not supported by wallet",
       "noReceiveAddress": "No receive address for %{assetSymbol}",
       "tradingNotActive": "Trades temporarily halted for %{assetSymbol}",
+      "tradingNotActiveNoAssetSymbol": "Trades temporarily halted for this route",
       "signing": {
         "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"

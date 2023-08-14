@@ -158,7 +158,7 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
                     <Text
                       fontSize='xs'
                       lineHeight='1.2'
-                      color='gray.500'
+                      color='text.subtle'
                       translation={['common.created', { date: dayjs(wallet.createdAt).fromNow() }]}
                     />
                   </Box>

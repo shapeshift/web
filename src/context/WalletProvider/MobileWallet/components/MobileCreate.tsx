@@ -111,7 +111,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
         <Text translation={'walletProvider.shapeShift.create.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' translation={'walletProvider.shapeShift.create.body'} />
+        <Text color='text.subtle' translation={'walletProvider.shapeShift.create.body'} />
         {location?.state?.error && (
           <Alert status='error'>
             <AlertIcon />
@@ -137,7 +137,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
         </FormControl>
       </ModalBody>
       <ModalFooter justifyContent='space-between'>
-        <Button colorScheme='blue' variant='ghost' onClick={handleShow} leftIcon={<FaEye />}>
+        <Button variant='ghost' onClick={handleShow} leftIcon={<FaEye />}>
           <Text
             translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
           />

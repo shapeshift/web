@@ -1,4 +1,7 @@
 import {
+  Card,
+  CardBody,
+  CardFooter,
   Flex,
   FormLabel,
   Skeleton,
@@ -11,7 +14,6 @@ import { memo, useMemo } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
 import { RawText } from 'components/Text'
 import { selectAssetById, selectFeeAssetByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -48,7 +50,7 @@ const buttonProps = {
   py: 4,
   height: 'auto',
 }
-const boxProps = { m: 0, p: 0 }
+const boxProps = { m: 0, p: 0, flex: 1 }
 const borderRadius = { base: 'xl' }
 
 export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
@@ -78,7 +80,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
       width='full'
       overflow='hidden'
     >
-      <Card.Body
+      <CardBody
         display='flex'
         gap={1}
         flexDir='column'
@@ -101,9 +103,9 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
             </RawText>
           </Flex>
         </Flex>
-      </Card.Body>
+      </CardBody>
       {assetId && (
-        <Card.Footer style={footerPadding} borderTopWidth={1} borderColor={borderColor}>
+        <CardFooter style={footerPadding} borderTopWidth={1} borderColor={borderColor}>
           <AccountDropdown
             defaultAccountId={accountId}
             assetId={assetId}
@@ -113,7 +115,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
             disabled={accountSelectionDisabled}
             autoSelectHighestBalance
           />
-        </Card.Footer>
+        </CardFooter>
       )}
     </Card>
   )

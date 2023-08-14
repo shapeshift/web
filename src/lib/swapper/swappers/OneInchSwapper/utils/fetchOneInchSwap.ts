@@ -12,7 +12,7 @@ export type FetchOneInchSwapInput = {
   affiliateBps: string | undefined
   buyAsset: Asset
   receiveAddress: string
-  sellAmountBeforeFeesCryptoBaseUnit: string
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sellAsset: Asset
   maximumSlippageDecimalPercentage: string
 }
@@ -21,7 +21,7 @@ export const fetchOneInchSwap = async ({
   affiliateBps,
   buyAsset,
   receiveAddress,
-  sellAmountBeforeFeesCryptoBaseUnit,
+  sellAmountIncludingProtocolFeesCryptoBaseUnit,
   sellAsset,
   maximumSlippageDecimalPercentage,
 }: FetchOneInchSwapInput) => {
@@ -43,7 +43,7 @@ export const fetchOneInchSwap = async ({
     // 1inch uses this to check allowance on their side
     // this swapper is not cross-account so this works
     fromAddress: receiveAddress,
-    amount: sellAmountBeforeFeesCryptoBaseUnit,
+    amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     slippage: maximumSlippagePercentage,
     allowPartialFill: false,
     referrerAddress: getTreasuryAddressFromChainId(buyAsset.chainId),

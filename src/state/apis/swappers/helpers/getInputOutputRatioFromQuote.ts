@@ -1,17 +1,18 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { cosmosChainId } from '@shapeshiftoss/caip'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { Asset } from 'lib/asset-service'
 import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { SwapperName, TradeQuote } from 'lib/swapper/api'
+import type { TradeQuote } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 import type { ReduxState } from 'state/reducer'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectCryptoMarketData,
   selectUsdRateByAssetId,
 } from 'state/slices/marketDataSlice/selectors'
-import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
 
 const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   state: ReduxState,
@@ -48,22 +49,6 @@ const getTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
     return acc.plus(networkFeeFiatPrecision)
   }, bn(0))
 
-const _getTotalProtocolFeesUsdPrecision = (state: ReduxState, quote: TradeQuote): BigNumber => {
-  const cryptoMarketDataById = selectCryptoMarketData(state)
-  return quote.steps.reduce(
-    (acc, step) =>
-      acc.plus(
-        sumProtocolFeesToDenom({
-          cryptoMarketDataById,
-          protocolFees: step.feeData.protocolFees,
-          outputExponent: 0,
-          outputAssetPriceUsd: '1',
-        }),
-      ),
-    bn(0),
-  )
-}
-
 /**
  * Computes the total network fee across all hops
  * @param state
@@ -94,21 +79,49 @@ const _getReceiveSideAmountsCryptoBaseUnit = ({
   quote: TradeQuote
   swapperName: SwapperName
 }) => {
+  const firstStep = quote.steps[0]
   const lastStep = quote.steps[quote.steps.length - 1]
   const slippageDecimalPercentage =
     quote.recommendedSlippage ?? getDefaultSlippagePercentageForSwapper(swapperName)
+  const rate = quote.rate
 
   const buyAmountCryptoBaseUnit = bn(lastStep.buyAmountBeforeFeesCryptoBaseUnit)
   const slippageAmountCryptoBaseUnit = buyAmountCryptoBaseUnit.times(slippageDecimalPercentage)
-  const buySideNetworkFeeCryptoBaseUnit = bn(0) // TODO(woodenfurniture): handle osmo swapper crazy network fee logic here
-  const buySideProtocolFeeCryptoBaseUnit = bnOrZero(
-    lastStep.feeData.protocolFees[lastStep.buyAsset.assetId]?.amountCryptoBaseUnit,
-  )
+  const sellAssetProtocolFee = firstStep.feeData.protocolFees[firstStep.sellAsset.assetId]
+  const buyAssetProtocolFee = lastStep.feeData.protocolFees[lastStep.buyAsset.assetId]
+  const sellSideProtocolFeeCryptoBaseUnit = bnOrZero(sellAssetProtocolFee?.amountCryptoBaseUnit)
+  const sellSideProtocolFeeBuyAssetBaseUnit = bnOrZero(
+    convertPrecision({
+      value: sellSideProtocolFeeCryptoBaseUnit,
+      inputExponent: firstStep.sellAsset.precision,
+      outputExponent: lastStep.buyAsset.precision,
+    }),
+  ).times(rate)
+  // Network fee represented as protocol fee for Osmosis swaps
+  const buySideNetworkFeeCryptoBaseUnit =
+    swapperName === SwapperName.Osmosis
+      ? (() => {
+          const isAtomOsmo = firstStep.sellAsset.chainId === cosmosChainId
+
+          // Subtract ATOM fees converted to OSMO for ATOM -> OSMO
+          if (isAtomOsmo) {
+            const otherDenomFee = lastStep.feeData.protocolFees[firstStep.sellAsset.assetId]
+            if (!otherDenomFee) return bn(0)
+            return bnOrZero(otherDenomFee.amountCryptoBaseUnit).times(rate)
+          }
+
+          const firstHopNetworkFee = firstStep.feeData.networkFeeCryptoBaseUnit
+          // Subtract the first-hop network fees for OSMO -> ATOM, which aren't automagically subtracted in the multi-hop abstraction
+          return bnOrZero(firstHopNetworkFee)
+        })()
+      : bn(0)
+  const buySideProtocolFeeCryptoBaseUnit = bnOrZero(buyAssetProtocolFee?.amountCryptoBaseUnit)
 
   const netReceiveAmountCryptoBaseUnit = buyAmountCryptoBaseUnit
     .minus(slippageAmountCryptoBaseUnit)
     .minus(buySideNetworkFeeCryptoBaseUnit)
     .minus(buySideProtocolFeeCryptoBaseUnit)
+    .minus(sellSideProtocolFeeBuyAssetBaseUnit)
 
   return {
     netReceiveAmountCryptoBaseUnit,
@@ -149,19 +162,15 @@ export const getInputOutputRatioFromQuote = ({
   quote: TradeQuote
   swapperName: SwapperName
 }): number => {
-  const totalProtocolFeeUsdPrecision = _getTotalProtocolFeesUsdPrecision(state, quote)
   const totalNetworkFeeUsdPrecision = _getTotalNetworkFeeUsdPrecision(state, quote)
-  const { sellAmountBeforeFeesCryptoBaseUnit, sellAsset } = quote.steps[0]
+  const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = quote.steps[0]
   const { buyAsset } = quote.steps[quote.steps.length - 1]
 
-  const {
-    netReceiveAmountCryptoBaseUnit,
-    buySideNetworkFeeCryptoBaseUnit,
-    buySideProtocolFeeCryptoBaseUnit,
-  } = _getReceiveSideAmountsCryptoBaseUnit({
-    quote,
-    swapperName,
-  })
+  const { netReceiveAmountCryptoBaseUnit, buySideNetworkFeeCryptoBaseUnit } =
+    _getReceiveSideAmountsCryptoBaseUnit({
+      quote,
+      swapperName,
+    })
 
   const netReceiveAmountUsdPrecision = _convertCryptoBaseUnitToUsdPrecision(
     state,
@@ -175,28 +184,17 @@ export const getInputOutputRatioFromQuote = ({
     buySideNetworkFeeCryptoBaseUnit,
   )
 
-  const buySideProtocolFeeUsdPrecision = _convertCryptoBaseUnitToUsdPrecision(
-    state,
-    buyAsset,
-    buySideProtocolFeeCryptoBaseUnit,
-  )
-
   const sellAmountCryptoBaseUnit = _convertCryptoBaseUnitToUsdPrecision(
     state,
     sellAsset,
-    sellAmountBeforeFeesCryptoBaseUnit,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
   )
 
   const sellSideNetworkFeeUsdPrecision = totalNetworkFeeUsdPrecision.minus(
     buySideNetworkFeeUsdPrecision,
   )
-  const sellSideProtocolFeeUsdPrecision = totalProtocolFeeUsdPrecision.minus(
-    buySideProtocolFeeUsdPrecision,
-  )
 
-  const netSendAmountUsdPrecision = sellAmountCryptoBaseUnit
-    .plus(sellSideNetworkFeeUsdPrecision)
-    .plus(sellSideProtocolFeeUsdPrecision)
+  const netSendAmountUsdPrecision = sellAmountCryptoBaseUnit.plus(sellSideNetworkFeeUsdPrecision)
 
   return netReceiveAmountUsdPrecision.div(netSendAmountUsdPrecision).toNumber()
 }

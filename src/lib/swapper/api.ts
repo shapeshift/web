@@ -6,6 +6,7 @@ import type { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshifto
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
+import type { PartialRecord } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
@@ -64,7 +65,7 @@ export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
 
 export type QuoteFeeData<T extends ChainId> = {
   networkFeeCryptoBaseUnit: string | undefined // fee paid to the network from the fee asset (undefined if unknown)
-  protocolFees: Record<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
+  protocolFees: PartialRecord<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
 } & ChainSpecificQuoteFeeData<T>
 
 export type BuyAssetBySellIdInput = {
@@ -75,7 +76,7 @@ export type BuyAssetBySellIdInput = {
 type CommonTradeInput = {
   sellAsset: Asset
   buyAsset: Asset
-  sellAmountBeforeFeesCryptoBaseUnit: string
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sendAddress?: string
   receiveAddress: string
   accountNumber: number
@@ -108,12 +109,12 @@ export type GetTradeQuoteInput =
 
 export type AmountDisplayMeta = {
   amountCryptoBaseUnit: string
-  asset: Pick<Asset, 'symbol' | 'chainId' | 'precision'>
+  asset: Partial<Asset> & Pick<Asset, 'symbol' | 'chainId' | 'precision'>
 }
 
 export type TradeBase<C extends ChainId> = {
   buyAmountBeforeFeesCryptoBaseUnit: string
-  sellAmountBeforeFeesCryptoBaseUnit: string
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   feeData: QuoteFeeData<C>
   rate: string
   sources: SwapSource[]
@@ -134,6 +135,7 @@ export type TradeQuote<C extends ChainId = ChainId> = {
   recommendedSlippage?: string
   id?: string
   steps: TradeQuoteStep<C>[]
+  rate: string // top-level rate for all steps (i.e. output amount / input amount)
 }
 
 export type SwapSource = {
@@ -180,6 +182,7 @@ export enum SwapErrorType {
   MISSING_INPUT = 'MISSING_INPUT',
   // Catch-all for happy responses, but entity not found according to our criteria
   NOT_FOUND = 'NOT_FOUND',
+  TRADING_HALTED = 'TRADING_HALTED',
 }
 
 export type TradeQuote2 = TradeQuote & {

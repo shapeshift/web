@@ -1,7 +1,6 @@
-import { Flex } from '@chakra-ui/react'
+import { Card, CardBody, Flex } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { Card } from 'components/Card/Card'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import {
   selectAggregatedEarnOpportunitiesByProvider,
@@ -43,14 +42,14 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
   const renderProviders = useMemo(() => {
     if (!rows.length && !isLoading) {
       return (
-        <Card>
-          <Card.Body>
+        <Card variant='outline'>
+          <CardBody>
             {(() => {
               if (!(includeEarnBalances || includeRewardsBalances)) return null
               if (searchQuery) return <SearchEmpty searchQuery={searchQuery} />
               return <ResultsEmpty ctaHref='/earn' />
             })()}
-          </Card.Body>
+          </CardBody>
         </Card>
       )
     }

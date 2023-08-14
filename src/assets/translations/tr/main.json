@@ -1065,6 +1065,8 @@
       "loadingText": "Cüzdan Eşleştirme"
     },
     "settings": {
+      "clearCache": "Önbelleği temizle",
+      "clearCacheTooltip": "Önbelleği temizle ve uygulamayı yeniden yükle",
       "settings": "Ayarlar",
       "currency": "Para birimi",
       "clearWalletAccountData": "Tüm hesapları ve cüzdan verilerini silin",
@@ -1791,7 +1793,9 @@
       "linkedYat": "Yat bağla",
       "yatConnected": "Yat Bağlandı!",
       "usdcAddress": "Yat USDC adresi",
-      "ethAddress": "Yat ETH adresi"
+      "ethAddress": "Yat ETH adresi",
+      "noAddressFound": "%{symbol} adresi bulunamadı",
+      "viewInApp": "ShapeShift Mobil Uygulamasında Görüntüle"
     }
   },
   "gasInput": {

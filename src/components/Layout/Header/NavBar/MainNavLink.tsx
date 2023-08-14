@@ -34,8 +34,15 @@ export const MainNavLink = memo(
           isActive={isActive}
           onClick={handleClick}
           position='relative'
+          fontWeight='medium'
           minWidth={isCompact ? 'auto' : 10}
           iconSpacing={isLargerThan2xl ? 4 : isCompact ? 0 : 4}
+          _active={{
+            bg: 'transparent',
+            color: 'text.base',
+            fontWeight: 'bold',
+          }}
+          _hover={{ bg: 'background.button.secondary.base' }}
           {...rest}
         >
           <Box display={{ base: isCompact ? 'none' : 'flex', '2xl': 'block' }}>{label}</Box>

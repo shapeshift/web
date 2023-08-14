@@ -19,10 +19,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isOpen, sortedQuo
   const quotes = useMemo(
     () =>
       sortedQuotes.map((quoteData, i) => {
-        const { quote, swapperName } = quoteData
-
-        // TODO(woodenfurniture): we may want to display per-swapper errors here
-        if (!quote) return null
+        const { swapperName } = quoteData
 
         // TODO(woodenfurniture): use quote ID when we want to support multiple quotes per swapper
         const isActive = activeSwapperName === swapperName

@@ -85,7 +85,7 @@ export const Dust: React.FC<DustProps> = () => {
             <Amount.Crypto fontSize='3xl' value='0.01' symbol='BTC' />
           </Row.Value>
           <Row.Label>
-            <Amount.Fiat fontSize='2xl' value='5.00' color='gray.500' prefix='≈' />
+            <Amount.Fiat fontSize='2xl' value='5.00' color='text.subtle' prefix='≈' />
           </Row.Label>
         </Row>
         <Summary bg='transparent' borderWidth={0} px={8} py={6} divider={<></>}>
@@ -100,7 +100,7 @@ export const Dust: React.FC<DustProps> = () => {
             <Row.Value>
               <Box textAlign='right'>
                 <Amount.Fiat fontWeight='bold' value='0' />
-                <Amount.Crypto color='gray.500' value='0' symbol='BTC' />
+                <Amount.Crypto color='text.subtle' value='0' symbol='BTC' />
               </Box>
             </Row.Value>
           </Row>

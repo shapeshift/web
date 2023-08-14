@@ -49,7 +49,7 @@ export const MobileRename = ({ history, location }: MobileSetupProps) => {
         <Text translation={'walletProvider.shapeShift.rename.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={6} color='gray.500' translation={'walletProvider.shapeShift.rename.body'} />
+        <Text mb={6} color='text.subtle' translation={'walletProvider.shapeShift.rename.body'} />
         <FormControl mb={6} isInvalid={Boolean(error)}>
           <Input
             size='lg'

@@ -1,4 +1,4 @@
-import { Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
+import { Stack, StackDivider } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import { memo, useMemo } from 'react'
 import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
@@ -22,7 +22,6 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = m
   ({ txIds, useCompactMode = false }) => {
     const { setNode, entry } = useResizeObserver()
     const transactions = useAppSelector(state => selectTxDateByIds(state, txIds))
-    const borderTopColor = useColorModeValue('gray.100', 'gray.750')
     const txRows = useMemo(() => {
       const groups: TransactionGroup[] = []
       for (let index = 0; index < transactions.length; index++) {
@@ -58,7 +57,7 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = m
     }, [entry?.contentRect.width, txRows, useCompactMode])
 
     return (
-      <Stack ref={setNode} divider={<StackDivider borderColor={borderTopColor} />}>
+      <Stack ref={setNode} divider={<StackDivider borderColor='border.base' />}>
         {renderTxRows}
       </Stack>
     )

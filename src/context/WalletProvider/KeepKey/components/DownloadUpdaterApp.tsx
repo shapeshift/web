@@ -48,7 +48,7 @@ export const KeepKeyDownloadUpdaterApp = () => {
             <CText fontWeight='bold'>{platform}</CText>
             <Link isExternal href={RELEASE_PAGE}>
               <Text
-                color='gray.500'
+                color='text.subtle'
                 translation={['modals.keepKey.downloadUpdater.wrongPlatform', { platform }]}
                 mb={2}
               />

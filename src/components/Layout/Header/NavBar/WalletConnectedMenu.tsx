@@ -41,7 +41,7 @@ const ConnectedMenu = memo(
     }, [connectedWalletMenuRoutes, navigateToRoute, connectedType])
 
     return (
-      <MenuGroup title={translate('common.connectedWallet')} color='gray.500'>
+      <MenuGroup title={translate('common.connectedWallet')} color='text.subtle'>
         {walletInfo ? (
           <MenuItem
             closeOnSelect={!connectedWalletMenuRoutes}

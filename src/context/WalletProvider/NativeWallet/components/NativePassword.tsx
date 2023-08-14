@@ -63,7 +63,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
         <Text translation={'walletProvider.shapeShift.password.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={4} color='gray.500' translation={'walletProvider.shapeShift.password.body'} />
+        <Text mb={4} color='text.subtle' translation={'walletProvider.shapeShift.password.body'} />
         <Alert
           mb={4}
           status='warning'

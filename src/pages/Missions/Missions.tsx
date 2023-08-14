@@ -16,7 +16,7 @@ import type { PropsWithChildren } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { NavLink } from 'react-router-dom'
-import FoxMissionsBg from 'assets/fox-missions-bg.jpg'
+import FoxMissionsBg from 'assets/fox-mission-bg.jpg'
 import FoxArmyBg from 'assets/foxarmy-bg.png'
 import FoxAtarBg from 'assets/foxatar-card-bg.png'
 import FoxRewardsBg from 'assets/foxrewards-mission.png'
@@ -171,7 +171,7 @@ export const MissionSidebar = () => {
     return active.map(mission => <Mission minHeight='250px' key={mission.title} {...mission} />)
   }, [active])
   return (
-    <Card px={sideBarPadding}>
+    <Card variant='unstyled' px={sideBarPadding}>
       <Carousel renderHeader={props => <MissionCarouselHeader {...props} />}>
         {renderMissions}
       </Carousel>

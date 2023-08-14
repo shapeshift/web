@@ -58,8 +58,8 @@ import {
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectBuyAmountBeforeFeesUserCurrency,
   selectFirstHop,
-  selectNetBuyAmountUserCurrency,
   selectNetReceiveAmountCryptoPrecision,
+  selectReceiveBuyAmountUserCurrency,
   selectSellAmountUserCurrency,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
@@ -105,7 +105,7 @@ export const TradeInput = memo(() => {
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
   const buyAmountBeforeFeesUserCurrency = useAppSelector(selectBuyAmountBeforeFeesUserCurrency)
-  const buyAmountAfterFeesUserCurrency = useAppSelector(selectNetBuyAmountUserCurrency)
+  const buyAmountAfterFeesUserCurrency = useAppSelector(selectReceiveBuyAmountUserCurrency)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
@@ -230,8 +230,14 @@ export const TradeInput = memo(() => {
   const isSellAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
 
   const shouldDisablePreviewButton = useMemo(() => {
-    return quoteHasError || manualReceiveAddressIsValidating || isLoading || !isSellAmountEntered
-  }, [isLoading, isSellAmountEntered, manualReceiveAddressIsValidating, quoteHasError])
+    return (
+      quoteHasError ||
+      manualReceiveAddressIsValidating ||
+      isLoading ||
+      !isSellAmountEntered ||
+      !activeQuote
+    )
+  }, [activeQuote, isLoading, isSellAmountEntered, manualReceiveAddressIsValidating, quoteHasError])
 
   const rightRegion = useMemo(
     () =>

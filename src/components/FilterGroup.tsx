@@ -54,9 +54,9 @@ export const FilterGroup = ({
         onClick={toggleIsOpen}
         rightIcon={
           isOpen ? (
-            <Icon as={IoIosArrowUp} color='gray.500' />
+            <Icon as={IoIosArrowUp} color='text.subtle' />
           ) : (
-            <Icon as={IoIosArrowDown} color='gray.500' />
+            <Icon as={IoIosArrowDown} color='text.subtle' />
           )
         }
       >

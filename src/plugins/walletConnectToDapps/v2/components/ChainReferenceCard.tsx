@@ -1,11 +1,21 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import { Collapse, Divider, Flex, Stack, useColorModeValue, useDisclosure } from '@chakra-ui/react'
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Collapse,
+  Divider,
+  Flex,
+  Heading,
+  Stack,
+  useColorModeValue,
+  useDisclosure,
+} from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
 import { Row } from 'components/Row/Row'
 import { selectFeeAssetByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -57,7 +67,7 @@ export const ChainReferenceCard: FC<ChainReferenceCardProps> = ({
       width='full'
       borderRadius={{ base: 'lg', md: 'xl' }}
     >
-      <Card.Header
+      <CardHeader
         px={{ base: 4, md: 4 }}
         display='flex'
         alignItems='center'
@@ -66,17 +76,17 @@ export const ChainReferenceCard: FC<ChainReferenceCardProps> = ({
         cursor='pointer'
         _hover={{ bg: useColorModeValue('blackAlpha.50', 'whiteAlpha.50') }}
       >
-        <Card.Heading display='flex' alignItems='center' gap={2}>
+        <Heading display='flex' alignItems='center' gap={2}>
           <AssetIcon src={asset?.networkIcon ?? asset?.icon} size='xs' />
           {asset?.networkName ?? asset?.name}
-        </Card.Heading>
+        </Heading>
         <Flex gap={2} alignItems='center'>
           <Tag>{chainNamespace}</Tag>
           {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
         </Flex>
-      </Card.Header>
+      </CardHeader>
       <Collapse in={isOpen}>
-        <Card.Body p={{ base: 0, md: 0 }} bg='whiteAlpha.50'>
+        <CardBody p={{ base: 0, md: 0 }} bg='whiteAlpha.50'>
           <Stack spacing={0} divider={<Divider />}>
             <Row gap={4} variant='gutter' py={3}>
               <Row.Label>{translate(translateKey('methods'))}</Row.Label>
@@ -96,7 +106,7 @@ export const ChainReferenceCard: FC<ChainReferenceCardProps> = ({
               selectedAccountIds={selectedAccountIds}
             />
           </Stack>
-        </Card.Body>
+        </CardBody>
       </Collapse>
     </Card>
   )

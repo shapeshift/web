@@ -1065,6 +1065,8 @@
       "loadingText": "Підключення гаманця"
     },
     "settings": {
+      "clearCache": "Очистити кеш",
+      "clearCacheTooltip": "Очистіть кеш і перезавантажте додаток",
       "settings": "Налаштування",
       "currency": "Валюта",
       "clearWalletAccountData": "Видалити всі облікові записи та дані гаманців",
@@ -1791,7 +1793,9 @@
       "linkedYat": "Linked Yat",
       "yatConnected": "Yat підключився!",
       "usdcAddress": "Yat USDC адрес",
-      "ethAddress": "Yat ETH адрес"
+      "ethAddress": "Yat ETH адрес",
+      "noAddressFound": "Адресу  %{symbol} не знайдено",
+      "viewInApp": "Переглянути в мобільному додатку ShapeShift"
     }
   },
   "gasInput": {

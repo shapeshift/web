@@ -2,7 +2,12 @@ import { StarIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
   Divider,
+  Heading,
   HStack,
   Icon,
   Spinner,
@@ -27,7 +32,6 @@ import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { useAllowanceApproval } from 'components/MultiHopTrade/hooks/useAllowanceApproval/useAllowanceApproval'
 import type { StepperStep } from 'components/MultiHopTrade/types'
@@ -110,16 +114,16 @@ const getApprovalStep = ({
           <HStack>
             <Row>
               <Row.Label display='flex' alignItems='center'>
-                <Text color='gray.500' translation='trade.allowance' />
+                <Text color='text.subtle' translation='trade.allowance' />
                 <Tooltip label={translate('trade.allowanceTooltip')}>
                   <Box ml={1}>
-                    <Icon as={FaInfoCircle} color='gray.500' fontSize='0.7em' />
+                    <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
                   </Box>
                 </Tooltip>
               </Row.Label>
               <Row.Value textAlign='right' display='flex' alignItems='center'>
                 <Text
-                  color={isExactAllowance ? 'gray.500' : 'white'}
+                  color={isExactAllowance ? 'text.subtle' : 'white'}
                   translation='trade.unlimited'
                   fontWeight='bold'
                 />
@@ -130,7 +134,7 @@ const getApprovalStep = ({
                   onChange={toggleIsExactAllowance}
                 />
                 <Text
-                  color={isExactAllowance ? 'white' : 'gray.500'}
+                  color={isExactAllowance ? 'white' : 'text.subtle'}
                   translation='trade.exact'
                   fontWeight='bold'
                 />
@@ -302,11 +306,11 @@ const FirstHop = ({
     const {
       buyAsset,
       sellAsset,
-      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAmountBeforeFeesCryptoBaseUnit,
     } = tradeQuoteStep
     const sellAmountCryptoPrecision = fromBaseUnit(
-      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset.precision,
     )
     const buyAmountCryptoPrecision = fromBaseUnit(
@@ -472,11 +476,11 @@ const SecondHop = ({
     const {
       buyAsset,
       sellAsset,
-      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAmountBeforeFeesCryptoBaseUnit,
     } = tradeQuoteStep
     const sellAmountCryptoPrecision = fromBaseUnit(
-      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset.precision,
     )
     const buyAmountCryptoPrecision = fromBaseUnit(
@@ -630,7 +634,7 @@ const Hop = ({
           </Step>
         ))}
       </Stepper>
-      <Card.Footer>
+      <CardFooter>
         <Divider />
         <HStack width='full'>
           <Amount.Percent value={slippageDecimalPercentage} display='inline' />
@@ -639,7 +643,7 @@ const Hop = ({
           {/* TODO: hovering over this should render a popover with details */}
           <Amount.Fiat value={protocolFeeFiatPrecision} display='inline' />
         </HStack>
-      </Card.Footer>
+      </CardFooter>
     </Card>
   )
 }
@@ -656,19 +660,19 @@ export const MultiHopTradeConfirm = ({
   return (
     <SlideTransition>
       <Card flex={1} borderRadius={{ base: 'xl' }} width='full' padding={6}>
-        <Card.Header px={0} pt={0}>
+        <CardHeader px={0} pt={0}>
           <WithBackButton handleBack={() => {}}>
-            <Card.Heading textAlign='center'>
+            <Heading textAlign='center'>
               <Text translation='trade.confirmDetails' />
-            </Card.Heading>
+            </Heading>
           </WithBackButton>
-        </Card.Header>
-        <Card.Body pb={0} px={0}>
+        </CardHeader>
+        <CardBody pb={0} px={0}>
           <Stack spacing={6}>
             <FirstHop tradeQuote={tradeQuote} swapperName={swapperName} />
             {isMultiHopTrade && <SecondHop tradeQuote={tradeQuote} swapperName={swapperName} />}
           </Stack>
-        </Card.Body>
+        </CardBody>
       </Card>
     </SlideTransition>
   )

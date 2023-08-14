@@ -249,7 +249,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                   .toFixed(2)}
               />
               <Amount.Crypto
-                color='gray.500'
+                color='text.subtle'
                 value={bnOrZero(
                   bnOrZero(state?.withdraw?.estimatedFeeCryptoBaseUnit)
                     .dividedBy(bn(10).pow(OSMOSIS_PRECISION))

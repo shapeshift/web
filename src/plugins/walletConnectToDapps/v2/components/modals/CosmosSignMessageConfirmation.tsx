@@ -1,4 +1,13 @@
-import { Box, Button, Divider, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  Divider,
+  HStack,
+  Image,
+  useColorModeValue,
+  VStack,
+} from '@chakra-ui/react'
 import { AddressSummaryCard } from 'plugins/walletConnectToDapps/components/modals/AddressSummaryCard'
 import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
@@ -11,7 +20,6 @@ import { CosmosSigningMethod } from 'plugins/walletConnectToDapps/v2/types'
 import type { WalletConnectRequestModalProps } from 'plugins/walletConnectToDapps/v2/WalletConnectModalManager'
 import type { FC } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Card } from 'components/Card/Card'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -43,7 +51,7 @@ export const CosmosSignMessageConfirmationModal: FC<
             fontWeight='medium'
             mb={1}
           />
-          <RawText fontWeight='medium' color='gray.500'>
+          <RawText fontWeight='medium' color='text.subtle'>
             {memo}
           </RawText>
           <Text
@@ -51,7 +59,7 @@ export const CosmosSignMessageConfirmationModal: FC<
             fontWeight='medium'
             mb={1}
           />
-          <RawText fontWeight='medium' color='gray.500'>
+          <RawText fontWeight='medium' color='text.subtle'>
             {messages.length > 0
               ? messages
               : translate('plugins.walletConnectToDapps.modal.signMessage.noMessages')}
@@ -61,7 +69,7 @@ export const CosmosSignMessageConfirmationModal: FC<
             fontWeight='medium'
             mb={1}
           />
-          <RawText fontWeight='medium' color='gray.500'>
+          <RawText fontWeight='medium' color='text.subtle'>
             {sequence}
           </RawText>
           <Text
@@ -69,7 +77,7 @@ export const CosmosSignMessageConfirmationModal: FC<
             fontWeight='medium'
             mb={1}
           />
-          <RawText fontWeight='medium' color='gray.500'>
+          <RawText fontWeight='medium' color='text.subtle'>
             {accountNumber}
           </RawText>
           <Text
@@ -77,7 +85,7 @@ export const CosmosSignMessageConfirmationModal: FC<
             fontWeight='medium'
             mb={1}
           />
-          <RawText fontWeight='medium' color='gray.500'>
+          <RawText fontWeight='medium' color='text.subtle'>
             {chainId}
           </RawText>
         </Box>
@@ -93,7 +101,7 @@ export const CosmosSignMessageConfirmationModal: FC<
             fontWeight='medium'
             mb={1}
           />
-          <RawText fontWeight='medium' color='gray.500'>
+          <RawText fontWeight='medium' color='text.subtle'>
             {authInfo}
           </RawText>
           <Text
@@ -101,7 +109,7 @@ export const CosmosSignMessageConfirmationModal: FC<
             fontWeight='medium'
             mb={1}
           />
-          <RawText fontWeight='medium' color='gray.500'>
+          <RawText fontWeight='medium' color='text.subtle'>
             {body}
           </RawText>
         </Box>
@@ -129,7 +137,7 @@ export const CosmosSignMessageConfirmationModal: FC<
       </ModalSection>
       <Text
         fontWeight='medium'
-        color='gray.500'
+        color='text.subtle'
         translation='plugins.walletConnectToDapps.modal.signMessage.description'
       />
       <VStack spacing={4}>

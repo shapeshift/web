@@ -43,7 +43,7 @@ export const getTradeQuoteArgs = async ({
 }: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput | undefined> => {
   if (!sellAsset || !buyAsset) return undefined
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
-    sellAmountBeforeFeesCryptoBaseUnit: toBaseUnit(
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
       sellAmountBeforeFeesCryptoPrecision,
       sellAsset?.precision || 0,
     ),

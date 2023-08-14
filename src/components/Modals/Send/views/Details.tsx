@@ -146,14 +146,16 @@ export const Details = () => {
         />
         <FormControl mt={6}>
           <Box display='flex' alignItems='center' justifyContent='space-between'>
-            <FormLabel color='gray.500'>{translate('modals.send.sendForm.sendAmount')}</FormLabel>
+            <FormLabel color='text.subtle'>
+              {translate('modals.send.sendForm.sendAmount')}
+            </FormLabel>
             <FormHelperText
               mt={0}
               mr={3}
               mb={2}
               as='button'
               type='button'
-              color='gray.500'
+              color='text.subtle'
               onClick={toggleCurrency}
               textTransform='uppercase'
               _hover={{ color: 'gray.400', transition: '.2s color ease' }}
@@ -228,7 +230,7 @@ export const Details = () => {
         {showMemoField && (
           <FormControl mt={6}>
             <Box display='flex' alignItems='center' justifyContent='space-between'>
-              <FormLabel color='gray.500' display='flex' alignItems='center'>
+              <FormLabel color='text.subtle' display='flex' alignItems='center'>
                 <Text
                   translation={['modals.send.sendForm.assetMemo', { assetSymbol: asset.symbol }]}
                 />
@@ -251,7 +253,7 @@ export const Details = () => {
                 mb={2}
                 as='button'
                 type='button'
-                color={memoFieldError ? 'red.500' : 'gray.500'}
+                color={memoFieldError ? 'red.500' : 'text.subtle'}
               >
                 {translate('modals.send.sendForm.charactersRemaining', {
                   charactersRemaining: remainingMemoChars.toString(),

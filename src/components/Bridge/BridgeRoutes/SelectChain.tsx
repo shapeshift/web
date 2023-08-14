@@ -1,8 +1,7 @@
-import { Button, Circle, Stack } from '@chakra-ui/react'
+import { Button, Card, CardBody, CardHeader, Circle, Heading, Stack } from '@chakra-ui/react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
-import { Card } from 'components/Card/Card'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 
@@ -28,14 +27,14 @@ export const SelectChain: React.FC<SelectAssetProps> = ({ onClick, history }) =>
   return (
     <SlideTransition>
       <Card variant='unstyled'>
-        <Card.Header px={0} pt={0}>
+        <CardHeader px={0} pt={0}>
           <WithBackButton handleBack={handleBack}>
-            <Card.Heading textAlign='center'>
+            <Heading textAlign='center'>
               <Text translation='bridge.selectChain' />
-            </Card.Heading>
+            </Heading>
           </WithBackButton>
-        </Card.Header>
-        <Card.Body p={0} height='400px' display='flex' flexDir='column'>
+        </CardHeader>
+        <CardBody p={0} height='400px' display='flex' flexDir='column'>
           <Stack width='full'>
             {chains.map(chainName => {
               const chain = implementations[chainName]
@@ -57,13 +56,17 @@ export const SelectChain: React.FC<SelectAssetProps> = ({ onClick, history }) =>
                   </Stack>
                   <Stack spacing={0} ml='auto' alignItems='flex-end' fontSize='sm'>
                     <Amount.Fiat value={chain.fiatBalance} />
-                    <Amount.Crypto color='gray.500' value={chain.balance} symbol={chain.symbol} />
+                    <Amount.Crypto
+                      color='text.subtle'
+                      value={chain.balance}
+                      symbol={chain.symbol}
+                    />
                   </Stack>
                 </Stack>
               )
             })}
           </Stack>
-        </Card.Body>
+        </CardBody>
       </Card>
     </SlideTransition>
   )

@@ -19,6 +19,7 @@ import {
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/getTradeRate/getTradeRate'
 import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
 import { ALLOWABLE_MARKET_MOVEMENT } from 'lib/swapper/swappers/utils/constants'
+import type { PartialRecord } from 'lib/utils'
 
 export type GetLimitArgs = {
   receiveAddress: string | undefined
@@ -26,7 +27,7 @@ export type GetLimitArgs = {
   sellAsset: Asset
   sellAmountCryptoBaseUnit: string
   slippageTolerance: string
-  protocolFees: Record<AssetId, ProtocolFee>
+  protocolFees: PartialRecord<AssetId, ProtocolFee>
   affiliateBps: string
   buyAssetUsdRate: string
   feeAssetUsdRate: string

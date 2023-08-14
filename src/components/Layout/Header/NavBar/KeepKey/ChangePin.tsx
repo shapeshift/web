@@ -29,7 +29,7 @@ export const ChangePin = () => {
   } = useWallet()
   const toast = useToast()
   const pinButtonBackground = useColorModeValue('gray.200', 'gray.600')
-  const pinButtonBackgroundHover = useColorModeValue('gray.100', 'gray.500')
+  const pinButtonBackgroundHover = useColorModeValue('gray.100', 'text.subtle')
 
   const translationType = (() => {
     switch (keepKeyPinRequestType) {

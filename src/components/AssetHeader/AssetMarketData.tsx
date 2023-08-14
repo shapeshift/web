@@ -1,9 +1,17 @@
 import type { BoxProps, TextProps } from '@chakra-ui/react'
-import { SimpleGrid, Skeleton, Stat, StatArrow } from '@chakra-ui/react'
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Heading,
+  SimpleGrid,
+  Skeleton,
+  Stat,
+  StatArrow,
+} from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
-import { Card } from 'components/Card/Card'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -53,11 +61,11 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => 
   const isLoaded = !!marketData
 
   return (
-    <Card>
-      <Card.Header>
-        <Card.Heading>{translate('assets.assetDetails.assetHeader.marketData')}</Card.Heading>
-      </Card.Header>
-      <Card.Body>
+    <Card variant='outline'>
+      <CardHeader>
+        <Heading as='h5'>{translate('assets.assetDetails.assetHeader.marketData')}</Heading>
+      </CardHeader>
+      <CardBody>
         <SimpleGrid gridTemplateColumns={{ base: '1fr', md: '1fr' }} gridGap={6} width='full'>
           <StatRow>
             <StatLabel isLoaded={isLoaded}>
@@ -124,7 +132,7 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => 
             </StatRow>
           )}
         </SimpleGrid>
-      </Card.Body>
+      </CardBody>
     </Card>
   )
 }

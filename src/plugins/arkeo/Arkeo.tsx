@@ -11,7 +11,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
-import { foxEthLpAssetId, foxEthStakingAssetIdV6 } from 'state/slices/opportunitiesSlice/constants'
+import { foxEthLpAssetId, foxEthStakingAssetIdV7 } from 'state/slices/opportunitiesSlice/constants'
 import type { DefiType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 
 import { FoxTokenHolders } from './FoxTokenHolders'
@@ -28,7 +28,7 @@ const FOXY_STAKING_CONTRACT = 'eip155:1/erc20:0xee77aa3fd23bbebaf94386dd44b548e9
 const opportunities: OpportunityReturn = {
   staking: [
     FOXY_STAKING_CONTRACT,
-    foxEthStakingAssetIdV6,
+    foxEthStakingAssetIdV7,
     osmosisAssetId,
     cosmosAssetId,
   ] as OpportunityId[],
@@ -55,7 +55,7 @@ export const ArkeoPage = () => {
               <Text translation='arkeo.whatIsArkeo.title' />
             </Heading>
             <Flex>
-              <RawText fontSize='lg' color='gray.500'>
+              <RawText fontSize='lg' color='text.subtle'>
                 {`
               ${translate('arkeo.whatIsArkeo.bodyParts.1')} `}
                 <Link
@@ -84,7 +84,7 @@ export const ArkeoPage = () => {
             <Heading fontSize='2xl'>
               <Text translation='arkeo.whoQualifies.title' />
             </Heading>
-            <Text fontSize='lg' color='gray.500' translation='arkeo.whoQualifies.body' />
+            <Text fontSize='lg' color='text.subtle' translation='arkeo.whoQualifies.body' />
           </Flex>
         </Flex>
         <Flex flex={1} alignItems='center' justifyContent='center'>
@@ -136,7 +136,7 @@ export const ArkeoPage = () => {
             justifyContent='flex-start'
             alignItems='flex-start'
           >
-            <Text translation='arkeo.footer.disclaimer.body' color='gray.500' />
+            <Text translation='arkeo.footer.disclaimer.body' color='text.subtle' />
             <Button variant='link' colorScheme='blue' size='sm' onClick={handleCreateCtaClick}>
               {translate('arkeo.footer.disclaimer.cta')}
             </Button>

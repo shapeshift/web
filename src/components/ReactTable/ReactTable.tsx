@@ -1,4 +1,5 @@
 import { ArrowBackIcon, ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import type { TableProps } from '@chakra-ui/react'
 import {
   Flex,
   IconButton,
@@ -29,6 +30,7 @@ type ReactTableProps<T extends {}> = {
   renderSubComponent?: (row: Row<T>) => ReactNode
   renderEmptyComponent?: () => ReactNode
   isLoading?: boolean
+  variant?: TableProps['variant']
 }
 
 export const ReactTable = <T extends {}>({
@@ -42,6 +44,7 @@ export const ReactTable = <T extends {}>({
   renderSubComponent,
   renderEmptyComponent,
   isLoading = false,
+  variant = 'default',
 }: ReactTableProps<T>) => {
   const tableRef = useRef<HTMLTableElement | null>(null)
   const hoverColor = useColorModeValue('black', 'white')
@@ -151,7 +154,7 @@ export const ReactTable = <T extends {}>({
   }, [nextPage, scrollToTableTop])
 
   return (
-    <Table ref={tableRef} variant='default' size={{ base: 'sm', md: 'md' }} {...getTableProps()}>
+    <Table ref={tableRef} variant={variant} size={{ base: 'sm', md: 'md' }} {...getTableProps()}>
       {displayHeaders && (
         <Thead>
           {headerGroups.map(headerGroup => (
@@ -159,10 +162,10 @@ export const ReactTable = <T extends {}>({
               {headerGroup.headers.map(column => (
                 <Th
                   {...column.getHeaderProps(column.getSortByToggleProps())}
-                  color='gray.500'
+                  color='text.subtle'
                   textAlign={column.textAlign}
                   display={column.display}
-                  _hover={{ color: column.canSort ? hoverColor : 'gray.500' }}
+                  _hover={{ color: column.canSort ? hoverColor : 'text.subtle' }}
                 >
                   <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
                     {column.render('Header')}

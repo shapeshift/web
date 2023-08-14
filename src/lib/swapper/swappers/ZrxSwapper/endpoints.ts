@@ -25,9 +25,14 @@ export const zrxApi: Swapper2Api = {
     input: GetTradeQuoteInput,
     { sellAssetUsdRate }: { sellAssetUsdRate: string },
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
-    const { sellAsset, sellAmountBeforeFeesCryptoBaseUnit, affiliateBps, receiveAddress } = input
+    const {
+      sellAsset,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      affiliateBps,
+      receiveAddress,
+    } = input
     const sellAmountBeforeFeesCryptoPrecision = fromBaseUnit(
-      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset.precision,
     )
     const sellAmountBeforeFeesUsd = bnOrZero(sellAmountBeforeFeesCryptoPrecision).times(
@@ -65,7 +70,7 @@ export const zrxApi: Swapper2Api = {
     stepIndex,
     slippageTolerancePercentageDecimal,
   }: GetUnsignedTxArgs): Promise<ETHSignTx> => {
-    const { accountNumber, buyAsset, sellAsset, sellAmountBeforeFeesCryptoBaseUnit } =
+    const { accountNumber, buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
       tradeQuote.steps[stepIndex]
 
     const { receiveAddress, affiliateBps } = tradeQuote
@@ -78,7 +83,7 @@ export const zrxApi: Swapper2Api = {
       receiveAddress,
       slippageTolerancePercentageDecimal,
       affiliateBps,
-      sellAmountBeforeFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
     })
 
     if (maybeZrxQuote.isErr()) throw maybeZrxQuote.unwrapErr()

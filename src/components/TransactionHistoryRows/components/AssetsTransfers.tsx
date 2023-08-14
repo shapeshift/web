@@ -53,7 +53,7 @@ export const AssetsTransfers: React.FC<AssetsTransfersProps> = ({
       </Circle>
       <Box flex={1}>
         <CText fontWeight='bold'>{`${transfers.length} Assets`}</CText>
-        <Amount.Fiat color='gray.500' fontSize='sm' lineHeight='1' value={aggregatedFiatValue} />
+        <Amount.Fiat color='text.subtle' fontSize='sm' lineHeight='1' value={aggregatedFiatValue} />
       </Box>
     </Stack>
   )

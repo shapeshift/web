@@ -1,14 +1,6 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import type { FormControlProps, InputProps } from '@chakra-ui/react'
-import {
-  Button,
-  FormControl,
-  FormErrorMessage,
-  Input,
-  Skeleton,
-  Stack,
-  useColorModeValue,
-} from '@chakra-ui/react'
+import { Button, FormControl, FormErrorMessage, Input, Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import type { PropsWithChildren } from 'react'
@@ -108,10 +100,6 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   const amountRef = useRef<string | null>(null)
   const [isFiat, toggleIsFiat] = useToggle(false)
   const [isFocused, setIsFocused] = useState(false)
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const bgColor = useColorModeValue('white', 'gray.850')
-  const focusBg = useColorModeValue('gray.50', 'gray.900')
-  const focusBorder = useColorModeValue('blue.500', 'blue.400')
 
   // Lower the decimal places when the integer is greater than 8 significant digits for better UI
   const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
@@ -121,11 +109,11 @@ export const AssetInput: React.FC<AssetInputProps> = ({
 
   return (
     <FormControl
-      borderWidth={1}
-      borderColor={isFocused ? focusBorder : borderColor}
-      bg={isFocused ? focusBg : bgColor}
+      borderWidth={2}
+      borderColor={isFocused ? 'border.focused' : 'border.input.base'}
+      bg={isFocused ? 'background.input.pressed' : 'background.input.base'}
       borderRadius='xl'
-      _hover={{ bg: isReadOnly ? bgColor : focusBg }}
+      _hover={{ bg: isReadOnly ? 'background.input.base' : 'background.input.hover' }}
       isInvalid={!!errors}
       pt={3}
       pb={2}
@@ -186,7 +174,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
             disabled={showFiatSkeleton}
             fontWeight='medium'
             variant='link'
-            color='gray.500'
+            color='text.subtle'
           >
             <Skeleton isLoaded={!showFiatSkeleton}>
               {isFiat ? (
@@ -231,7 +219,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       )}
       {errors && <FormErrorMessage px={4}>{errors?.message}</FormErrorMessage>}
       {children && (
-        <Stack mt={2} borderTopWidth={1} borderColor={borderColor}>
+        <Stack mt={2} borderTopWidth={1} borderColor='border.base'>
           {children}
         </Stack>
       )}

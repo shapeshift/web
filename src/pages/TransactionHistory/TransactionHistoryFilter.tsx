@@ -97,7 +97,7 @@ export const TransactionHistoryFilter = memo(
           <Text
             fontWeight='300'
             px={1}
-            color={'gray.500'}
+            color={'text.subtle'}
             translation='transactionHistory.filters.to'
           />
           <DatePicker name={FilterFormFields.ToDate} control={control} />

@@ -212,7 +212,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
             <Text
               fontSize='xs'
               translation='defi.steps.withdraw.info.rewardsInfo'
-              color='gray.500'
+              color='text.subtle'
             />
             <Stack direction='row'>
               <AssetIcon assetId={rewardAssetId} size='xs' />

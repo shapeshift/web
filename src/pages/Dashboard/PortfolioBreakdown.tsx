@@ -1,8 +1,7 @@
-import { Flex, Skeleton, useColorModeValue } from '@chakra-ui/react'
+import { Card, CardBody, Flex, Skeleton, useColorModeValue } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -34,19 +33,19 @@ const BreakdownCard: React.FC<StatCardProps> = ({
   const hoverBg = useColorModeValue('gray.100', 'gray.750')
   return (
     <Card flex={1} cursor='pointer' onClick={onClick} _hover={{ bg: hoverBg }}>
-      <Card.Body display='flex' gap={4} alignItems='center'>
+      <CardBody display='flex' gap={4} alignItems='center'>
         <CircularProgress
           isIndeterminate={isLoading}
           value={percentage}
           color={color ? color : 'blue.500'}
         />
         <Flex direction='column'>
-          <Text color='gray.500' fontWeight='medium' translation={label} />
+          <Text color='text.subtle' fontWeight='medium' translation={label} />
           <Skeleton isLoaded={!isLoading}>
             <Amount.Fiat fontWeight='bold' fontSize='xl' value={value} />
           </Skeleton>
         </Flex>
-      </Card.Body>
+      </CardBody>
     </Card>
   )
 }

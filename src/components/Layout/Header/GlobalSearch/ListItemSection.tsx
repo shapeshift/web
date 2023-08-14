@@ -7,7 +7,7 @@ export const ListItemSection: React.FC<{ title: string }> = ({ title }) => {
   return (
     <ListItem
       tabIndex={-1}
-      color='gray.500'
+      color='text.subtle'
       px={6}
       py={2}
       borderBottomWidth={1}

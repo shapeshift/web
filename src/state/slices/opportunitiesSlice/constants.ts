@@ -7,6 +7,7 @@ import {
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V4,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V5,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V6,
+  ETH_FOX_STAKING_CONTRACT_ADDRESS_V7,
 } from 'contracts/constants'
 import IdleFinanceLogo from 'assets/idle-finance.png'
 import { getTypeGuardAssertion } from 'lib/utils'
@@ -23,6 +24,7 @@ export const foxEthLpAssetId: LpId = 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e
 export const foxEthLpAssetIds = [foxEthLpAssetId] as const
 
 export const foxEthStakingContractAddresses = [
+  ETH_FOX_STAKING_CONTRACT_ADDRESS_V7,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V6,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V5,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V4,
@@ -57,6 +59,8 @@ export const foxEthStakingAssetIdV5: AssetId =
   'eip155:1/erc20:0xc14eaa8284feff79edc118e06cadbf3813a7e555'
 export const foxEthStakingAssetIdV6: AssetId =
   'eip155:1/erc20:0xebb1761ad43034fd7faa64d84e5bbd8cb5c40b68'
+export const foxEthStakingAssetIdV7: AssetId =
+  'eip155:1/erc20:0x5939783dbf3e9f453a69bc9ddc1e492efac1fbcb'
 
 // Tuple of all staking contracts as AssetIds, to iterate over and dispatch RTK queries for
 export const foxEthAssetIds = [
@@ -76,6 +80,7 @@ export const STAKING_ID_TO_VERSION = {
   [foxEthStakingAssetIdV4]: 'V4',
   [foxEthStakingAssetIdV5]: 'V5',
   [foxEthStakingAssetIdV6]: 'V6',
+  [foxEthStakingAssetIdV7]: 'V7',
 }
 
 export const STAKING_ID_DELIMITER = '*'

@@ -114,7 +114,7 @@ export const EnterPassword = () => {
             </Box>
           </Button>
         ) : (
-          <Text mb={6} color='gray.500' translation={'modals.shapeShift.password.body'} />
+          <Text mb={6} color='text.subtle' translation={'modals.shapeShift.password.body'} />
         )}
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl isInvalid={Boolean(errors.password)} mb={6}>
@@ -160,7 +160,7 @@ export const EnterPassword = () => {
         </form>
         {state.isLoadingLocalWallet && (
           <Flex direction={['column', 'row']} mt={4} justifyContent='center' alignItems='center'>
-            <Text mb={[3]} color='gray.500' translation={'common.or'} />
+            <Text mb={[3]} color='text.subtle' translation={'common.or'} />
             <Button
               variant='link'
               mb={[3]}

@@ -1,7 +1,6 @@
-import { Button, Skeleton, SkeletonText } from '@chakra-ui/react'
+import { Button, CardBody, Skeleton, SkeletonText } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { EarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
@@ -53,12 +52,12 @@ export const StakingCard: React.FC<StakingCardProps> = props => {
 
   return (
     <ArkeoCard>
-      <Card.Body display='flex' flexDir='column' gap={4} height='100%'>
+      <CardBody display='flex' flexDir='column' gap={4} height='100%'>
         <AssetIcon assetId={currentAssetId} />
         <Text fontSize='xl' fontWeight='bold' translation={[title, { asset: asset?.name }]} />
         <SkeletonText noOfLines={4} isLoaded={bnOrZero(opportunityApy).gt(0)}>
           <Text
-            color='gray.500'
+            color='text.subtle'
             translation={[
               body,
               { asset: asset?.name, apy: `${opportunityApy}%`, provider: providerName },
@@ -70,7 +69,7 @@ export const StakingCard: React.FC<StakingCardProps> = props => {
             {translate(cta, { asset: asset?.name })}
           </Button>
         </Skeleton>
-      </Card.Body>
+      </CardBody>
     </ArkeoCard>
   )
 }

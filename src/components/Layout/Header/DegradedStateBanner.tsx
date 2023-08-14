@@ -113,7 +113,7 @@ export const DegradedStateBanner = () => {
           <Text translation='common.degradedState' />
         </PopoverHeader>
         <PopoverBody display='flex' flexDir='column' gap={4} px={4} pb={4} pt={0}>
-          <Text color='gray.500' translation='common.accountError' />
+          <Text color='text.subtle' translation='common.accountError' />
           {renderIcons}
         </PopoverBody>
         <PopoverFooter borderWidth={0} bg={footerBg} p={4}>

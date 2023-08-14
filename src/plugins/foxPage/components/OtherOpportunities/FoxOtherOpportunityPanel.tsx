@@ -52,7 +52,7 @@ export const FoxOtherOpportunityPanel: React.FC<FoxOtherOpportunityPanelProps> =
           >
             {opportunities.length}
           </Badge>
-          <AccordionIcon color='gray.500' />
+          <AccordionIcon color='text.subtle' />
         </Flex>
       </AccordionButton>
       <AccordionPanel pb={8} pt={5} px={2} my={-4}>

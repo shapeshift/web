@@ -47,7 +47,7 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = memo(
     const donationOption: JSX.Element = useMemo(
       () => (
         <Stack spacing={4}>
-          <Row>
+          <Row fontSize='sm'>
             <HelperTooltip label={translate('trade.tooltip.donation')}>
               <Row.Label>
                 <Checkbox
@@ -55,7 +55,7 @@ export const DonationCheckbox: FC<DonationCheckboxProps> = memo(
                   onChange={handleDonationToggle}
                   isDisabled={isLoading}
                 >
-                  <Text translation='trade.donation' />
+                  <Text fontSize='sm' translation='trade.donation' />
                 </Checkbox>
               </Row.Label>
             </HelperTooltip>

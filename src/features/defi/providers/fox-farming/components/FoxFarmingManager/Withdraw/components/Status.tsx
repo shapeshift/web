@@ -216,7 +216,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                   .toFixed(2)}
               />
               <Amount.Crypto
-                color='gray.500'
+                color='text.subtle'
                 value={bnOrZero(
                   state.withdraw.txStatus === 'pending'
                     ? state.withdraw.estimatedGasCryptoPrecision

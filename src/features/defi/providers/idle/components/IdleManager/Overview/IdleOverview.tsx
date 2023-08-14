@@ -227,7 +227,7 @@ export const IdleOverview: React.FC<IdleOverviewProps> = ({
           <Flex flexDir='column' px={8} py={4} key={tag}>
             <Text fontSize='lg' fontWeight='medium' translation={tagDetails.title} />
             {tagDetails.description && (
-              <Text color='gray.500' translation={tagDetails.description} />
+              <Text color='text.subtle' translation={tagDetails.description} />
             )}
           </Flex>
         )

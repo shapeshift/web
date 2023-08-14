@@ -30,8 +30,8 @@ export const FoxyEmpty = ({ assets, apy, onClick }: FoxyEmptyProps) => {
             </Skeleton>
           </CText>
         </Stack>
-        <Text color='gray.500' translation='defi.modals.foxyOverview.body' />
-        <Text color='gray.500' translation='defi.modals.foxyOverview.rewards' />
+        <Text color='text.subtle' translation='defi.modals.foxyOverview.body' />
+        <Text color='text.subtle' translation='defi.modals.foxyOverview.rewards' />
       </EmptyOverview>
     </DefiModalContent>
   )

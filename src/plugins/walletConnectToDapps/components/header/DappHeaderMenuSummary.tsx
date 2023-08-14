@@ -30,7 +30,7 @@ export const DappHeaderMenuSummary = () => {
       <MenuGroup
         title={translate('plugins.walletConnectToDapps.header.connectedDapp')}
         ml={3}
-        color='gray.500'
+        color='text.subtle'
       >
         <HStack spacing={4} px={3} py={1}>
           <DappAvatar
@@ -44,7 +44,7 @@ export const DappHeaderMenuSummary = () => {
             </RawText>
             <RawText
               fontSize='sm'
-              color='gray.500'
+              color='text.subtle'
               maxWidth='215px'
               overflow='hidden'
               textOverflow='ellipsis'
@@ -59,7 +59,10 @@ export const DappHeaderMenuSummary = () => {
 
       <VStack px={3} py={1} fontWeight='medium' spacing={1} alignItems='stretch'>
         <HStack justifyContent='space-between' spacing={4}>
-          <Text translation='plugins.walletConnectToDapps.header.menu.connected' color='gray.500' />
+          <Text
+            translation='plugins.walletConnectToDapps.header.menu.connected'
+            color='text.subtle'
+          />
           <RawText>
             {dayjs(walletConnect.connector?.handshakeId / 1000)
               .locale(selectedLocale)
@@ -67,7 +70,10 @@ export const DappHeaderMenuSummary = () => {
           </RawText>
         </HStack>
         <HStack justifyContent='space-between' spacing={4}>
-          <Text translation='plugins.walletConnectToDapps.header.menu.address' color='gray.500' />
+          <Text
+            translation='plugins.walletConnectToDapps.header.menu.address'
+            color='text.subtle'
+          />
           <Link
             href={`${walletConnect.accountExplorerAddressLink}${connectedAccountAddress}`}
             isExternal
@@ -77,7 +83,10 @@ export const DappHeaderMenuSummary = () => {
         </HStack>
         {!!connectedEvmChainId && (
           <HStack justifyContent='space-between' spacing={4}>
-            <Text translation='plugins.walletConnectToDapps.header.menu.network' color='gray.500' />
+            <Text
+              translation='plugins.walletConnectToDapps.header.menu.network'
+              color='text.subtle'
+            />
             <RawText>{walletConnect.chainName}</RawText>
           </HStack>
         )}

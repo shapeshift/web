@@ -32,7 +32,7 @@ export const entries = [WalletConnectedRoutes.Connected]
 const NoWallet = ({ onClick }: { onClick: () => void }) => {
   const translate = useTranslate()
   return (
-    <MenuGroup title={translate('common.noWallet')} ml={3} color='gray.500'>
+    <MenuGroup title={translate('common.noWallet')} ml={3} color='text.subtle'>
       <MenuItem onClick={onClick} alignItems='center' justifyContent='space-between'>
         {translate('common.connectWallet')}
         <ChevronDownIcon />
@@ -109,7 +109,6 @@ const WalletButton: FC<WalletButtonProps> = ({
       as={Button}
       width={{ base: '100%', lg: 'auto' }}
       justifyContent='flex-start'
-      variant='outline'
       rightIcon={<ChevronDownIcon />}
       leftIcon={
         <HStack>

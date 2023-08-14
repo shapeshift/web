@@ -41,8 +41,8 @@ export const FoxFarmingEmpty = ({
             </Skeleton>
           </CText>
         </Stack>
-        <Text color='gray.500' translation='defi.modals.foxFarmingOverview.body' />
-        <Text color='gray.500' translation='defi.modals.foxFarmingOverview.rewards' />
+        <Text color='text.subtle' translation='defi.modals.foxFarmingOverview.body' />
+        <Text color='text.subtle' translation='defi.modals.foxFarmingOverview.rewards' />
       </EmptyOverview>
     </DefiModalContent>
   )

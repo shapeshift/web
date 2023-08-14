@@ -70,7 +70,7 @@ export const AssetList: FC<AssetListProps> = ({
       if (assets?.length === 0) {
         return (
           <Center>
-            <Text color='gray.500' translation='common.noResultsFound' />
+            <Text color='text.subtle' translation='common.noResultsFound' />
           </Center>
         )
       }

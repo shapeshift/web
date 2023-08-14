@@ -237,7 +237,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
                   .toFixed(2)}
               />
               <Amount.Crypto
-                color='gray.500'
+                color='text.subtle'
                 value={bnOrZero(state.withdraw.estimatedGasCryptoPrecision).toFixed(5)}
                 symbol={asset0.symbol}
               />

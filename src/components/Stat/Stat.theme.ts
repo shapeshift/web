@@ -3,7 +3,7 @@ export const StatStyle = {
   // Styles for the base style
   baseStyle: {
     label: {
-      color: 'gray.500',
+      color: 'text.subtle',
       lineHeight: 1,
       mb: 2,
     },

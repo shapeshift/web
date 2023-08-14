@@ -26,7 +26,7 @@ export const RedirectModal: React.FC<RedirectModalProps> = props => {
         <Text translation={props.headerText} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={4} color='gray.500' translation={props.bodyText} />
+        <Text mb={4} color='text.subtle' translation={props.bodyText} />
         <Button
           width='full'
           colorScheme='blue'

@@ -247,7 +247,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                   .toFixed(2)}
               />
               <Amount.Crypto
-                color='gray.500'
+                color='text.subtle'
                 value={bnOrZero(state.deposit.estimatedGasCryptoBaseUnit)
                   .div(`1e+${feeAsset.precision}`)
                   .toFixed(5)}

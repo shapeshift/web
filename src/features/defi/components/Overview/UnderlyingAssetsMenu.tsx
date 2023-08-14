@@ -37,7 +37,7 @@ export const UnderlyingAssetsMenu = ({ lpAsset, underlyingAssets }: UnderlyingAs
               />
               {asset.allocationPercentage && (
                 <Amount.Percent
-                  color='gray.500'
+                  color='text.subtle'
                   fontSize='sm'
                   ml='auto'
                   value={asset.allocationPercentage}

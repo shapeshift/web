@@ -101,7 +101,7 @@ export const WalletConnectV2Load = () => {
                     <Text
                       fontSize='xs'
                       lineHeight='1.2'
-                      color='gray.500'
+                      color='text.subtle'
                       translation={[
                         'common.created',
                         { date: dayjs(connection.createdAt).fromNow() },

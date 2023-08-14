@@ -9,7 +9,7 @@ export const RecoverySettingUp = () => {
         <Text translation={'modals.keepKey.recoverySettingUp.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' translation={'modals.keepKey.recoverySettingUp.body'} mb={4} />
+        <Text color='text.subtle' translation={'modals.keepKey.recoverySettingUp.body'} mb={4} />
       </ModalBody>
     </Flex>
   )

@@ -67,7 +67,7 @@ export const WalletConnectToDappsHeaderButton: FC = () => {
         <RawText pr={{ base: 0, md: '20px' }} fontSize='sm'>
           {trimWithEndEllipsis(walletConnectV1.dapp?.name, 16)}
         </RawText>
-        <RawText fontSize='xs' color='gray.500'>
+        <RawText fontSize='xs' color='text.subtle'>
           {trimWithEndEllipsis(walletConnectV1.dapp?.url.replace(/^https?:\/\//, ''), 18)}
         </RawText>
       </MenuButton>
@@ -99,7 +99,7 @@ export const WalletConnectToDappsHeaderButton: FC = () => {
         <RawText pr={{ base: 0, md: '20px' }} fontSize='sm'>
           {trimWithEndEllipsis(walletConnectV2.session?.peer.metadata.name, 16)}
         </RawText>
-        <RawText fontSize='xs' color='gray.500'>
+        <RawText fontSize='xs' color='text.subtle'>
           {trimWithEndEllipsis(
             walletConnectV2.session?.peer.metadata.url.replace(/^https?:\/\//, ''),
             18,

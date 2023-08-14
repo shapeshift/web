@@ -79,7 +79,7 @@ export const WipeModal = () => {
         <ModalCloseButton />
         <ModalBody>
           <Text
-            color='gray.500'
+            color='text.subtle'
             translation={'walletProvider.keepKey.modals.descriptions.wipeKeepKey'}
             mb={6}
           />

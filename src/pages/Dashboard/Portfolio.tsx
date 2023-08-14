@@ -1,6 +1,10 @@
 import {
   Button,
+  Card,
+  CardBody,
+  CardHeader,
   Flex,
+  Heading,
   Skeleton,
   Stack,
   Stat,
@@ -12,7 +16,6 @@ import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
-import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { Text } from 'components/Text'
@@ -69,14 +72,15 @@ export const Portfolio = memo(() => {
 
   return (
     <Stack spacing={6} width='full'>
-      <Card variant='footer-stub'>
-        <Card.Header
+      <Card variant='outline'>
+        <CardHeader
           display='flex'
           justifyContent={{ base: 'center', md: 'space-between' }}
           alignItems='center'
           textAlign={{ base: 'center', md: 'inherit' }}
           width='full'
           flexDir={{ base: 'column', md: 'row' }}
+          borderBottomWidth={0}
         >
           <Button size='sm' flexDirection='row' onClick={toggleChartType} variant='outline'>
             <Text translation='dashboard.portfolio.totalChart' />
@@ -86,18 +90,18 @@ export const Portfolio = memo(() => {
           <Skeleton isLoaded={isLoaded} display={{ base: 'none', md: 'block' }}>
             <TimeControls defaultTime={timeframe} onChange={handleTimeframeChange} />
           </Skeleton>
-        </Card.Header>
+        </CardHeader>
         <Flex flexDir='column' justifyContent='center' alignItems='center'>
-          <Card.Heading as='div' color='gray.500'>
+          <Heading as='div' color='text.subtle'>
             <Skeleton isLoaded={isLoaded}>
               <Text translation='defi.netWorth' />
             </Skeleton>
-          </Card.Heading>
-          <Card.Heading as='h2' fontSize='4xl' lineHeight='1'>
+          </Heading>
+          <Heading as='h2' fontSize='4xl' lineHeight='1'>
             <Skeleton isLoaded={isLoaded}>
               <Amount.Fiat value={totalBalance} />
             </Skeleton>
-          </Card.Heading>
+          </Heading>
           {isFinite(percentChange) && (
             <Skeleton mt={2} isLoaded={!!percentChange}>
               <Stat display='flex' justifyContent={{ base: 'center', md: 'flex-start' }}>
@@ -131,15 +135,15 @@ export const Portfolio = memo(() => {
       </Card>
       <MaybeChartUnavailable assetIds={assetIds} />
       <PortfolioBreakdown />
-      <Card>
-        <Card.Header>
-          <Card.Heading>
+      <Card variant='outline'>
+        <CardHeader>
+          <Heading as='h5'>
             <Text translation='dashboard.portfolio.yourAssets' />
-          </Card.Heading>
-        </Card.Header>
-        <Card.Body px={{ base: 2, md: 2 }} pt={0} pb={0}>
+          </Heading>
+        </CardHeader>
+        <CardBody px={{ base: 2, md: 2 }} pt={0} pb={0}>
           <AccountTable />
-        </Card.Body>
+        </CardBody>
       </Card>
     </Stack>
   )

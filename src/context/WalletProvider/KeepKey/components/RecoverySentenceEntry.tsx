@@ -229,7 +229,11 @@ export const KeepKeyRecoverySentenceEntry = () => {
         <Text translation={'modals.keepKey.recoverySentenceEntry.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' translation={'modals.keepKey.recoverySentenceEntry.body'} mb={4} />
+        <Text
+          color='text.subtle'
+          translation={'modals.keepKey.recoverySentenceEntry.body'}
+          mb={4}
+        />
         <AwaitKeepKey
           translation='modals.keepKey.recoverySentenceEntry.awaitingButtonPress'
           onCancel={handleCancel}

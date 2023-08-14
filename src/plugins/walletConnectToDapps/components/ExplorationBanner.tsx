@@ -37,7 +37,7 @@ export const ExplorationBanner: FC = () => {
             />
             <Text
               translation='plugins.walletConnectToDapps.registry.banner.subtitle'
-              color='gray.500'
+              color='text.subtle'
             />
           </Box>
 

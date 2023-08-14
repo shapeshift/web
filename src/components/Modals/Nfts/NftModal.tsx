@@ -54,7 +54,7 @@ const NftTab: React.FC<TabProps> = props => {
   const activeTabColor = useColorModeValue('blue.500', 'white')
   return (
     <Tab
-      color='gray.500'
+      color='text.subtle'
       fontWeight='medium'
       px={0}
       _selected={{ color: activeTabColor }}

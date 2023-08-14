@@ -1,11 +1,11 @@
+import type { CardProps } from '@chakra-ui/react'
+import { Card, CardBody } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router-dom'
-import type { CardProps } from 'components/Card/Card'
-import { Card } from 'components/Card/Card'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -51,14 +51,14 @@ export const MultiHopTrade = memo(
     }, [defaultBuyAsset, defaultSellAsset, dispatch, routeBuyAsset])
 
     return (
-      <Card {...cardProps}>
-        <Card.Body py={6}>
+      <Card variant='elevated' {...cardProps}>
+        <CardBody>
           <FormProvider {...methods}>
             <MemoryRouter initialEntries={MultiHopEntries} initialIndex={0}>
               <MultiHopRoutes />
             </MemoryRouter>
           </FormProvider>
-        </Card.Body>
+        </CardBody>
       </Card>
     )
   },

@@ -17,7 +17,7 @@ export const Account: FC<IProps> = ({ accountId, isSelected, toggleAccountId, ac
     <Checkbox isChecked={isSelected} onChange={() => toggleAccountId(accountId)} width='full'>
       <Flex gap={2} justifyContent='space-between'>
         <RawText fontWeight='bold'>Account #{accountNumber}</RawText>
-        <MiddleEllipsis value={accountIdToLabel(accountId)} color='gray.500' />
+        <MiddleEllipsis value={accountIdToLabel(accountId)} color='text.subtle' />
       </Flex>
     </Checkbox>
   )

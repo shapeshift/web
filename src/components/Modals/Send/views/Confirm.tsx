@@ -107,7 +107,7 @@ export const Confirm = () => {
             symbol={asset.symbol}
             value={cryptoAmount}
           />
-          <Amount.Fiat color='gray.500' fontSize='xl' lineHeight='short' value={fiatAmount} />
+          <Amount.Fiat color='text.subtle' fontSize='xl' lineHeight='short' value={fiatAmount} />
         </Flex>
         <Stack spacing={4} mb={4}>
           <Row alignItems='center'>
@@ -145,7 +145,7 @@ export const Confirm = () => {
           <FormControl mt={4}>
             <Row variant='vertical'>
               <Row.Label>
-                <FormLabel color='gray.500' htmlFor='tx-fee'>
+                <FormLabel color='text.subtle' htmlFor='tx-fee'>
                   {translate('modals.send.sendForm.transactionFee')}
                 </FormLabel>
               </Row.Label>

@@ -13,6 +13,7 @@ import {
   Text as CText,
 } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
@@ -69,6 +70,15 @@ const ApprovalInner = ({
   } = useWallet()
 
   const symbol = useMemo(() => tradeQuoteStep.sellAsset.symbol, [tradeQuoteStep.sellAsset.symbol])
+
+  const approveAssetLabel: [string, number | InterpolationOptions] = useMemo(
+    () => ['trade.approveAsset', { symbol }],
+    [symbol],
+  )
+  const approvingAssetLabel: [string, number | InterpolationOptions] = useMemo(
+    () => ['trade.approvingAsset', { symbol }],
+    [symbol],
+  )
 
   const sellFeeAsset = useAppSelector(selectFirstHopSellFeeAsset)
   const sellFeeAssetUserCurrencyRate = useAppSelector(state =>
@@ -144,6 +154,18 @@ const ApprovalInner = ({
     }
   }, [history, isApprovalNeeded, isSubmitting])
 
+  const handleComplete = useCallback(() => ({ shouldRepeat: true }), [])
+
+  const renderImage = useCallback(() => {
+    return (
+      <Image
+        src={tradeQuoteStep.sellAsset.icon}
+        boxSize='60px'
+        fallback={<SkeletonCircle boxSize='60px' />}
+      />
+    )
+  }, [tradeQuoteStep.sellAsset.icon])
+
   return (
     <SlideTransition>
       <CardHeader textAlign='center'>
@@ -167,22 +189,16 @@ const ApprovalInner = ({
             trailColor={theme.colors.whiteAlpha[500]}
             duration={60}
             colors={theme.colors.blue[500]}
-            onComplete={() => ({ shouldRepeat: true })}
+            onComplete={handleComplete}
           >
-            {() => (
-              <Image
-                src={tradeQuoteStep.sellAsset.icon}
-                boxSize='60px'
-                fallback={<SkeletonCircle boxSize='60px' />}
-              />
-            )}
+            {renderImage}
           </CountdownCircleTimer>
           <Text
             my={2}
             fontSize='lg'
             fontWeight='bold'
             textAlign='center'
-            translation={['trade.approveAsset', { symbol }]}
+            translation={approveAssetLabel}
           />
           <CText color='text.subtle' textAlign='center'>
             <Link
@@ -202,7 +218,7 @@ const ApprovalInner = ({
             {approvalTxId && tradeQuoteStep.sellAsset.explorerTxLink && (
               <Row>
                 <Row.Label>
-                  <Text translation={['trade.approvingAsset', { symbol }]} />
+                  <Text translation={approvingAssetLabel} />
                 </Row.Label>
                 <Row.Value>
                   <Link

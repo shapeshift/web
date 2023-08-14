@@ -3,7 +3,7 @@ export const DrawerStyle = {
   // Styles for the base style
   baseStyle: () => ({
     dialog: {
-      bg: 'background.overlay.base',
+      bg: 'background.surface.overlay.base',
     },
   }),
   // Styles for the size variations

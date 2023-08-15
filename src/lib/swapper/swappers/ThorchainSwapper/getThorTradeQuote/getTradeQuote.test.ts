@@ -49,7 +49,7 @@ const expectedQuoteResponse: ThorEvmTradeQuote = {
     {
       allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
-      buyAmountBeforeFeesCryptoBaseUnit: '114321610000000000',
+      buyAmountBeforeFeesCryptoBaseUnit: '114116966780000000',
       feeData: {
         protocolFees: {
           [ETH.assetId]: {

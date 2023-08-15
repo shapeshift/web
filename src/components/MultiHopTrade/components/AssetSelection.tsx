@@ -56,7 +56,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
     },
     [assets, onAssetChange],
   )
-  const renderIcon = useMemo(() => {
+  const icon = useMemo(() => {
     return asset?.icons ? (
       <PairIcons icons={asset.icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
     ) : (
@@ -79,7 +79,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         flexGrow={0}
         flexShrink={0}
       >
-        {renderIcon}
+        {icon}
         {asset?.symbol}
       </Button>
       <Text translation='trade.on' color='text.subtle' fontSize='sm' />

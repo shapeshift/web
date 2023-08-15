@@ -146,7 +146,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       amountRef.current = values.value
     }, [])
 
-    const renderOppositeCurrency = useMemo(() => {
+    const oppositeCurrency = useMemo(() => {
       return isFiat ? (
         <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
       ) : (
@@ -238,7 +238,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               variant='link'
               color='text.subtle'
             >
-              <Skeleton isLoaded={!showFiatSkeleton}>{renderOppositeCurrency}</Skeleton>
+              <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
             </Button>
           )}
           {onPercentOptionClick && (

@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   CardBody,
   CardFooter,
@@ -170,128 +171,123 @@ const ApprovalInner = ({
 
   return (
     <SlideTransition>
-      <CardHeader textAlign='center'>
-        <Heading as='h5'>
-          <Text translation='assets.assetCards.assetActions.trade' />
-        </Heading>
-      </CardHeader>
-      <CardBody>
-        <Flex
-          justifyContent='center'
-          alignItems='center'
-          flexDirection='column'
-          width='full'
-          as='form'
-          onSubmit={handleSubmit(approveContract)}
-        >
-          <CountdownCircleTimer
-            isPlaying={!!approvalTxId || isSubmitting}
-            size={90}
-            strokeWidth={6}
-            trailColor={theme.colors.whiteAlpha[500]}
-            duration={60}
-            colors={theme.colors.blue[500]}
-            onComplete={handleComplete}
-          >
-            {renderImage}
-          </CountdownCircleTimer>
-          <Text
-            my={2}
-            fontSize='lg'
-            fontWeight='bold'
-            textAlign='center'
-            translation={approveAssetLabel}
-          />
-          <CText color='text.subtle' textAlign='center'>
-            <Link
-              href={`${tradeQuoteStep.sellAsset.explorerAddressLink}${tradeQuoteStep.allowanceContract}`}
-              color='blue.500'
-              me={1}
-              isExternal
+      <Box as='form' onSubmit={handleSubmit(approveContract)}>
+        <CardHeader textAlign='center'>
+          <Heading as='h5'>
+            <Text translation='assets.assetCards.assetActions.trade' />
+          </Heading>
+        </CardHeader>
+        <CardBody>
+          <Flex justifyContent='center' alignItems='center' flexDirection='column' width='full'>
+            <CountdownCircleTimer
+              isPlaying={!!approvalTxId || isSubmitting}
+              size={90}
+              strokeWidth={6}
+              trailColor={theme.colors.whiteAlpha[500]}
+              duration={60}
+              colors={theme.colors.blue[500]}
+              onComplete={handleComplete}
             >
-              {swapperName}
+              {renderImage}
+            </CountdownCircleTimer>
+            <Text
+              my={2}
+              fontSize='lg'
+              fontWeight='bold'
+              textAlign='center'
+              translation={approveAssetLabel}
+            />
+            <CText color='text.subtle' textAlign='center'>
+              <Link
+                href={`${tradeQuoteStep.sellAsset.explorerAddressLink}${tradeQuoteStep.allowanceContract}`}
+                color='blue.500'
+                me={1}
+                isExternal
+              >
+                {swapperName}
+              </Link>
+              {translate('trade.needPermission', { symbol })}
+            </CText>
+            <Link isExternal color='blue.500' href={APPROVAL_PERMISSION_URL}>
+              <Text color='blue.500' translation='trade.whyNeedThis' />
             </Link>
-            {translate('trade.needPermission', { symbol })}
-          </CText>
-          <Link isExternal color='blue.500' href={APPROVAL_PERMISSION_URL}>
-            <Text color='blue.500' translation='trade.whyNeedThis' />
-          </Link>
-          <Flex flexDirection='column' width='full'>
-            {approvalTxId && tradeQuoteStep.sellAsset.explorerTxLink && (
-              <Row>
-                <Row.Label>
-                  <Text translation={approvingAssetLabel} />
-                </Row.Label>
-                <Row.Value>
-                  <Link
-                    isExternal
-                    color='blue.500'
-                    href={`${tradeQuoteStep.sellAsset.explorerTxLink}${approvalTxId}`}
-                  >
-                    <MiddleEllipsis value={approvalTxId} />
-                  </Link>
-                </Row.Value>
-              </Row>
+            <Flex flexDirection='column' width='full'>
+              {approvalTxId && tradeQuoteStep.sellAsset.explorerTxLink && (
+                <Row>
+                  <Row.Label>
+                    <Text translation={approvingAssetLabel} />
+                  </Row.Label>
+                  <Row.Value>
+                    <Link
+                      isExternal
+                      color='blue.500'
+                      href={`${tradeQuoteStep.sellAsset.explorerTxLink}${approvalTxId}`}
+                    >
+                      <MiddleEllipsis value={approvalTxId} />
+                    </Link>
+                  </Row.Value>
+                </Row>
+              )}
+            </Flex>
+          </Flex>
+        </CardBody>
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={6}
+          bg='background.surface.raised.accent'
+          borderBottomRadius='xl'
+        >
+          <Row>
+            <Row.Label display='flex' alignItems='center'>
+              <HelperTooltip label={translate('trade.allowanceTooltip')}>
+                <Text color='text.subtle' translation='trade.allowance' />
+              </HelperTooltip>
+            </Row.Label>
+            <Row.Value textAlign='right' display='flex' alignItems='center'>
+              <Text
+                color={isExactAllowance ? 'text.subtle' : 'white'}
+                translation='trade.unlimited'
+                fontWeight='bold'
+              />
+              <Switch
+                size='sm'
+                mx={2}
+                isChecked={isExactAllowance}
+                onChange={toggleIsExactAllowance}
+              />
+              <Text
+                color={isExactAllowance ? 'white' : 'text.subtle'}
+                translation='trade.exact'
+                fontWeight='bold'
+              />
+            </Row.Value>
+          </Row>
+          <Flex flexDir='column' gap={2} mx={-2}>
+            <Button type='submit' size='lg' isLoading={isLoading} colorScheme='blue' mt={2}>
+              <Text translation='common.confirm' />
+            </Button>
+            {!approvalTxId && !isSubmitting && (
+              <Button mt={2} size='lg' onClick={handleBack}>
+                <Text translation='common.reject' />
+              </Button>
             )}
           </Flex>
-        </Flex>
-      </CardBody>
-      <CardFooter
-        borderTopWidth={1}
-        borderColor='border.subtle'
-        flexDir='column'
-        gap={4}
-        px={6}
-        bg='background.surface.raised.accent'
-        borderBottomRadius='xl'
-      >
-        <Row>
-          <Row.Label display='flex' alignItems='center'>
-            <HelperTooltip label={translate('trade.allowanceTooltip')}>
-              <Text color='text.subtle' translation='trade.allowance' />
-            </HelperTooltip>
-          </Row.Label>
-          <Row.Value textAlign='right' display='flex' alignItems='center'>
-            <Text
-              color={isExactAllowance ? 'text.subtle' : 'white'}
-              translation='trade.unlimited'
-              fontWeight='bold'
-            />
-            <Switch
-              size='sm'
-              mx={2}
-              isChecked={isExactAllowance}
-              onChange={toggleIsExactAllowance}
-            />
-            <Text
-              color={isExactAllowance ? 'white' : 'text.subtle'}
-              translation='trade.exact'
-              fontWeight='bold'
-            />
-          </Row.Value>
-        </Row>
-        <Flex flexDir='column' gap={2} mx={-2}>
-          <Button type='submit' size='lg' isLoading={isLoading} colorScheme='blue' mt={2}>
-            <Text translation='common.confirm' />
-          </Button>
-          {!approvalTxId && !isSubmitting && (
-            <Button mt={2} size='lg' onClick={handleBack}>
-              <Text translation='common.reject' />
-            </Button>
-          )}
-        </Flex>
-        <Row>
-          <Row.Label>
-            <Text color='text.subtle' translation='trade.estimatedGasFee' />
-          </Row.Label>
-          <Row.Value textAlign='right'>
-            <Skeleton isLoaded={approvalNetworkFeeCryptoHuman !== undefined}>
-              <RawText>{approvalNetworkFeeFiatDisplay}</RawText>
-              <RawText color='text.subtle'>{approvalNetworkFeeCryptoHumanDisplay}</RawText>
-            </Skeleton>
-          </Row.Value>
-        </Row>
-      </CardFooter>
+          <Row>
+            <Row.Label>
+              <Text color='text.subtle' translation='trade.estimatedGasFee' />
+            </Row.Label>
+            <Row.Value textAlign='right'>
+              <Skeleton isLoaded={approvalNetworkFeeCryptoHuman !== undefined}>
+                <RawText>{approvalNetworkFeeFiatDisplay}</RawText>
+                <RawText color='text.subtle'>{approvalNetworkFeeCryptoHumanDisplay}</RawText>
+              </Skeleton>
+            </Row.Value>
+          </Row>
+        </CardFooter>
+      </Box>
     </SlideTransition>
   )
 }

@@ -23,6 +23,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 const disabled = { opacity: 1 }
+const hover = { color: 'text.base' }
 
 type ChainDropdownProps = {
   assetId?: AssetId
@@ -95,6 +96,7 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
         isDisabled
         variant='ghost'
         _disabled={disabled}
+        _hover={hover}
         {...buttonProps}
       >
         <AssetChainRow className='activeChain' assetId={assetId} />

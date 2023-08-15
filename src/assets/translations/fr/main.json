@@ -641,6 +641,7 @@
     "previewTrade": "Prévisualiser l'échange",
     "rate": "Taux",
     "tradeFrom": "Échanger de",
+    "priceImpact": "Incidence sur le prix",
     "slippage": {
       "maxSlippage": "Glissement/Slippage max.",
       "auto": "Auto",
@@ -661,6 +662,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Les frais de carburant dépassent %{percentage}% du montant de l'échange",
     "confirmDetails": "Confirmer les détails",
     "confirmAndTrade": "Confirmer et échanger",
+    "tradeAnyway": "Échanger quand même",
     "pending": "Échange en attente",
     "complete": "Échange terminé",
     "approveAsset": "Autoriser l'interaction avec %{symbol}",
@@ -684,6 +686,7 @@
     "tooltip": {
       "rate": "C'est le taux estimé pour cette paire d'échange.",
       "noRateAvailable": "Cela est souvent dû à une liquidité très limitée ou inexistante sur la paire d'échange.",
+      "priceImpact": "Un échange de cette taille peut avoir un impact élevé sur le prix compte tenu de la liquidité actuelle du pool. Il peut y avoir une grande différence entre la valeur de votre jeton d'entrée et ce que vous recevrez pour le jeton de sortie",
       "minerFee": "Il s'agit des frais de traitement de la transaction sur la blockchain, ce ne sont pas des frais facturés par ShapeShift.",
       "donation": "Aidez à soutenir ShapeShift et maintenez-nous opérationnels.",
       "protocol": "C'est le protocole avec lequel votre échange est routé.",
@@ -717,6 +720,7 @@
       "insufficientFundsForProtocolFee": "%{symbol} insuffisant sur %{chainName} pour les frais",
       "invalidTradePair": "Paire d'échange invalide : %{sellAssetName} et %{buyAssetName}",
       "invalidTradePairBtnText": "Paire d'échange invalide",
+      "unsupportedTradePair": "Paire d'échange non prise en charge",
       "noLiquidityError": "Liquidités disponibles insuffisantes",
       "overMaxSlippage": "Cette transaction entraînerait un glissement (slippage) de plus de %{slippagePercentage}%. Veuillez négocier un montant inférieur pour obtenir un meilleur prix.",
       "balanceToLow": "Le solde est trop bas. Le montant minimum de transaction pour cette paire est de %{minLimit}",
@@ -742,6 +746,7 @@
       "assetNotSupportedByWallet": "%{assetSymbol} non supporté par le porte-monnaie",
       "noReceiveAddress": "Pas d'adresse de réception pour %{assetSymbol}",
       "tradingNotActive": "Échanges en %{assetSymbol} temporairement interrompus",
+      "tradingNotActiveNoAssetSymbol": "Échanges temporairement interrompus pour cette route",
       "signing": {
         "failed": "Une erreur s'est produite lors de la signature de la transaction",
         "required": "Une transaction signée est requise"
@@ -759,7 +764,8 @@
     "unknownGas": "(inconnu)",
     "receiveAddress": "Adresse de réception",
     "receiveAddressDescription": "Aucune adresse %{chainName} trouvée dans le porte-monnaie connecté. Entrez une adresse manuellement pour continuer.",
-    "addressPlaceholder": "Adresse %{chainName}"
+    "addressPlaceholder": "Adresse %{chainName}",
+    "priceImpactWarning": "En raison de la taille de cette transaction par rapport à la liquidité disponible, l'impact attendu sur le prix de cette échange est de %{priceImpactPercentage} %. Êtes-vous sûr de vouloir faire cet échange ?"
   },
   "modals": {
     "popup": {

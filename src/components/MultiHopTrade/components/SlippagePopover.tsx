@@ -15,7 +15,6 @@ import {
   PopoverTrigger,
 } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import { debounce } from 'lodash'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaSlidersH } from 'react-icons/fa'
@@ -24,7 +23,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { selectSlippagePreferencePercentage } from 'state/slices/swappersSlice/selectors'
+import { selectUserSlippagePercentage } from 'state/slices/swappersSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { selectQuoteOrDefaultSlippagePercentage } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -40,10 +39,12 @@ const focusStyle = { '&[aria-invalid=true]': { borderColor: 'red.500' } }
 
 export const SlippagePopover: FC = () => {
   const defaultSlippagePercentage = useAppSelector(selectQuoteOrDefaultSlippagePercentage)
-  const userSlippagePercentage = useAppSelector(selectSlippagePreferencePercentage)
+  const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
 
   const [slippageType, setSlippageType] = useState<SlippageType>(SlippageType.Auto)
-  const [slippageAmount, setSlippageAmount] = useState(defaultSlippagePercentage)
+  const [slippageAmount, setSlippageAmount] = useState<string | undefined>(
+    defaultSlippagePercentage,
+  )
   const [isInvalid, setIsInvalid] = useState(false)
   const translate = useTranslate()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -52,41 +53,31 @@ export const SlippagePopover: FC = () => {
 
   useEffect(() => {
     // Handles re-opening the slippage popover and/or going back to input step
-    if (userSlippagePercentage) setSlippageType(SlippageType.Custom)
-    else setSlippageType(SlippageType.Auto)
+    if (userSlippagePercentage) {
+      setSlippageType(SlippageType.Custom)
+      setSlippageAmount(userSlippagePercentage)
+    } else setSlippageType(SlippageType.Auto)
     // We only want this to run on mount, not to be reactive
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  const handleDebounce = useCallback(
-    (value: string) => {
-      setSlippageAmount(value)
-      dispatch(swappers.actions.setSlippagePreferencePercentage(value))
-    },
-    [dispatch],
-  )
-  const debounceFnc = useMemo(() => debounce(handleDebounce, 100), [handleDebounce])
 
-  const handleChange = useCallback(
-    (value: string) => {
-      if (bnOrZero(value).gt(maxSlippagePercentage)) {
-        setIsInvalid(true)
-      } else {
-        debounceFnc(value)
-        setIsInvalid(false)
-      }
-      dispatch(swappers.actions.setSlippagePreferencePercentage(value))
-      setSlippageType(SlippageType.Custom)
-    },
-    [debounceFnc, dispatch],
-  )
-
-  useEffect(() => {
-    if (slippageType === SlippageType.Auto) {
-      setSlippageAmount(defaultSlippagePercentage)
+  const handleChange = useCallback((value: string) => {
+    console.log('xxx handleChange', value)
+    if (bnOrZero(value).gt(maxSlippagePercentage)) {
+      setIsInvalid(true)
     } else {
-      setSlippageAmount(userSlippagePercentage ?? defaultSlippagePercentage)
+      setIsInvalid(false)
     }
-  }, [defaultSlippagePercentage, slippageType, userSlippagePercentage])
+    setSlippageAmount(value)
+    setSlippageType(SlippageType.Custom)
+  }, [])
+
+  const handleClose = useCallback(() => {
+    if (slippageType === SlippageType.Custom && !isInvalid)
+      dispatch(swappers.actions.setSlippagePreferencePercentage(slippageAmount))
+    else if (slippageType === SlippageType.Auto)
+      dispatch(swappers.actions.setSlippagePreferencePercentage(undefined))
+  }, [dispatch, isInvalid, slippageAmount, slippageType])
 
   const handleSlippageTypeChange = useCallback(
     (type: SlippageType) => {
@@ -95,10 +86,11 @@ export const SlippagePopover: FC = () => {
         setIsInvalid(false)
       } else {
         inputRef && inputRef.current && inputRef.current.focus()
+        setSlippageAmount(slippageAmount)
       }
       setSlippageType(type)
     },
-    [defaultSlippagePercentage],
+    [defaultSlippagePercentage, slippageAmount],
   )
 
   const isHighSlippage = useMemo(() => bnOrZero(slippageAmount).gt(1), [slippageAmount])
@@ -106,8 +98,10 @@ export const SlippagePopover: FC = () => {
 
   if (!isAdvancedSlippageEnabled) return null
 
+  console.log('xxx handleChange', { slippageAmount, isInvalid })
+
   return (
-    <Popover placement='bottom-end'>
+    <Popover placement='bottom-end' onClose={handleClose}>
       <PopoverTrigger>
         <IconButton aria-label='Trade Settings' icon={<FaSlidersH />} variant='ghost' />
       </PopoverTrigger>
@@ -150,9 +144,7 @@ export const SlippagePopover: FC = () => {
                 <InputGroup variant='filled'>
                   <Input
                     placeholder={slippageAmount}
-                    value={
-                      slippageType === SlippageType.Auto ? slippageAmount : userSlippagePercentage
-                    }
+                    value={slippageAmount}
                     type='number'
                     _focus={focusStyle}
                     onChange={e => handleChange(e.target.value)}

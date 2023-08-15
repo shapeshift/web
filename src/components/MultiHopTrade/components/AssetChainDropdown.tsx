@@ -92,7 +92,9 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
         gap={2}
         size='sm'
         borderRadius='full'
+        color='text.base'
         isDisabled
+        variant='ghost'
         _disabled={disabled}
         {...buttonProps}
       >

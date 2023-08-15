@@ -82,7 +82,17 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
 
   // don't show buy amount if less than min sell amount
   const isSellAmountBelowMinimum = bnOrZero(sellAmountCryptoBaseUnit).lt(minimumCryptoBaseUnit)
-  const buyAmountCryptoBaseUnit = isSellAmountBelowMinimum ? '0' : data.buyAmount
+
+  if (isSellAmountBelowMinimum)
+    return Err(
+      makeSwapErrorRight({
+        message: `[getTradeRate]: Sell amount is below the 0x minimum, cannot get a trade rate from 0x.`,
+        code: SwapErrorType.TRADE_BELOW_MINIMUM,
+        details: { sellAssetId: sellAsset.assetId, buyAssetId: buyAsset.assetId },
+      }),
+    )
+
+  const buyAmountCryptoBaseUnit = data.buyAmount
 
   // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
   // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.

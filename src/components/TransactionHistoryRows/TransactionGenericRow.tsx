@@ -30,7 +30,7 @@ export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => 
 
   if (isLargerThanSm) {
     columns = '1fr 2fr'
-    dateFormat = 'hh:mm A'
+    dateFormat = 'LT'
   }
   if (isLargerThanMd) {
     columns = '1fr 2fr'

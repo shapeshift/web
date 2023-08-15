@@ -270,7 +270,7 @@ export const TradeInput = memo(() => {
             <Heading as='h5' fontSize='md'>
               {translate('navBar.trade')}
             </Heading>
-            {activeSwapperSupportsSlippage && <SlippagePopover />}
+            {(activeSwapperSupportsSlippage || sortedQuotes.length === 0) && <SlippagePopover />}
           </Flex>
           <Stack spacing={2}>
             <Flex alignItems='center' flexDir={flexDir} width='full'>

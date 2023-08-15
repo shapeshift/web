@@ -49,6 +49,8 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
 
   const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetUsdRate)
   const minimumCryptoBaseUnit = toBaseUnit(minimumCryptoHuman, sellAsset.precision)
+  const slippagePercentage =
+    slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Zrx)
 
   const sellAmountCryptoBaseUnit = bnOrZero(sellAmountBeforeFeesCryptoBaseUnit).eq(0)
     ? minimumCryptoBaseUnit
@@ -67,8 +69,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
       takerAddress: receiveAddress,
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
       skipValidation: true,
-      slippagePercentage:
-        slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Zrx),
+      slippagePercentage,
       feeRecipient: getTreasuryAddressFromChainId(buyAsset.chainId), // Where affiliate fees are sent
       buyTokenPercentageFee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
     },
@@ -83,6 +84,10 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   // don't show buy amount if less than min sell amount
   const isSellAmountBelowMinimum = bnOrZero(sellAmountCryptoBaseUnit).lt(minimumCryptoBaseUnit)
   const buyAmountCryptoBaseUnit = isSellAmountBelowMinimum ? '0' : data.buyAmount
+  const slippageAmountCryptoBaseUnit = bnOrZero(buyAmountCryptoBaseUnit).times(slippagePercentage)
+  const buyAmountAfterSlippageCryptoBaseUnit = bnOrZero(buyAmountCryptoBaseUnit)
+    .minus(slippageAmountCryptoBaseUnit)
+    .toPrecision()
 
   // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
   // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
@@ -111,7 +116,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
             networkFeeCryptoBaseUnit,
             protocolFees: {},
           },
-          buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
+          buyAmountBeforeFeesCryptoBaseUnit: buyAmountAfterSlippageCryptoBaseUnit,
           sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
           sources: data.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
         },

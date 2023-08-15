@@ -62,7 +62,6 @@ export const SlippagePopover: FC = () => {
   }, [])
 
   const handleChange = useCallback((value: string) => {
-    console.log('xxx handleChange', value)
     if (bnOrZero(value).gt(maxSlippagePercentage)) {
       setIsInvalid(true)
     } else {
@@ -97,8 +96,6 @@ export const SlippagePopover: FC = () => {
   const isLowSlippage = useMemo(() => bnOrZero(slippageAmount).lt(0.05), [slippageAmount])
 
   if (!isAdvancedSlippageEnabled) return null
-
-  console.log('xxx handleChange', { slippageAmount, isInvalid })
 
   return (
     <Popover placement='bottom-end' onClose={handleClose}>

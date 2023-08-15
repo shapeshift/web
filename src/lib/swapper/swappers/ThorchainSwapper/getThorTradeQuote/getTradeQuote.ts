@@ -113,7 +113,7 @@ export const getThorTradeQuote = async (
   const quote = maybeQuote.unwrap()
   const { fees, expected_amount_out: expectedAmountOutThorBaseUnit } = quote
 
-  const slippagePercentage = bn(quote.slippage_bps).div(1000)
+  const recommendedSlippagePercentage = bn(quote.slippage_bps).div(1000)
 
   const rate = (() => {
     const THOR_PRECISION = 8
@@ -161,10 +161,14 @@ export const getThorTradeQuote = async (
   // Because the expected_amount_out is the amount after fees, we need to add them back on to get the "before fees" amount
   const buyAmountCryptoBaseUnit = (() => {
     const expectedAmountOutThorBaseUnit = quote.expected_amount_out
+    const slippageAmountThorBaseUnit = bnOrZero(expectedAmountOutThorBaseUnit).times(
+      slippageTolerance,
+    )
     // Add back the outbound fees
     const expectedAmountPlusFeesCryptoThorBaseUnit = bn(expectedAmountOutThorBaseUnit)
       .plus(quote.fees.outbound)
       .plus(quote.fees.affiliate)
+      .minus(slippageAmountThorBaseUnit)
 
     return toBaseUnit(
       fromBaseUnit(expectedAmountPlusFeesCryptoThorBaseUnit, THORCHAIN_FIXED_PRECISION),
@@ -188,7 +192,7 @@ export const getThorTradeQuote = async (
 
   const commonQuoteFields = {
     minimumCryptoHuman: minimumSellAssetAmountPaddedCryptoHuman,
-    recommendedSlippage: slippagePercentage.div(100).toString(),
+    recommendedSlippage: recommendedSlippagePercentage.div(100).toString(),
   }
 
   const commonStepFields = {

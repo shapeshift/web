@@ -23,6 +23,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+const disabled = { opacity: 1 }
+
 type ChainDropdownProps = {
   assetId?: AssetId
   onClick: (arg: AssetId) => void
@@ -84,13 +86,14 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
         as={Button}
         justifyContent='flex-end'
         height='auto'
-        px={2}
+        pl={2}
+        pr={3}
         py={2}
         gap={2}
         size='sm'
         borderRadius='full'
         isDisabled
-        rightIcon={<ChevronDownIcon />}
+        _disabled={disabled}
         {...buttonProps}
       >
         <AssetChainRow className='activeChain' assetId={assetId} />

@@ -14,8 +14,8 @@ import type {
   TradeQuote2,
 } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import type { TradeQuoteDeps } from 'lib/swapper/types'
+import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getLifiChainMap } from './utils/getLifiChainMap'
@@ -103,7 +103,18 @@ export const lifiApi: Swapper2Api = {
     //   // Note, this may change if the Li.Fi SDK changes
     //   url: 'https://li.quest/v1/status',
     // })
-    const statusResponse = await getLifi().getStatus(getStatusRequest)
+
+    // don't use lifi sdk here because all status responses are cached, negating the usefulness of polling
+    // i.e don't do `await getLifi().getStatus(getStatusRequest)`
+    const url = new URL('https://li.quest/v1/status')
+    url.search = new URLSearchParams(
+      getStatusRequest as unknown as Record<string, string>,
+    ).toString()
+    const response = await fetch(url, { cache: 'no-store' }) // don't cache!
+
+    if (!response.ok) return createDefaultStatusResponse()
+
+    const statusResponse = await response.json()
 
     const status = (() => {
       switch (statusResponse.status) {

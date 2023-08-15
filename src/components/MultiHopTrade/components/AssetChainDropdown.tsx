@@ -71,9 +71,10 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
 
   const onChange = useCallback((value: string | string[]) => onClick(value as AssetId), [onClick])
 
-  const isDisabled = useMemo(() => {
-    return !assetIds?.length || isLoading || isError
-  }, [assetIds?.length, isError, isLoading])
+  // @TODO: figure out how to do this correctly using coingeck data
+  // const isDisabled = useMemo(() => {
+  //   return !assetIds?.length || isLoading || isError
+  // }, [assetIds?.length, isError, isLoading])
 
   if (!assetId) return null
 
@@ -88,7 +89,7 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
         gap={2}
         size='sm'
         borderRadius='full'
-        isDisabled={isDisabled}
+        isDisabled
         rightIcon={<ChevronDownIcon />}
         {...buttonProps}
       >

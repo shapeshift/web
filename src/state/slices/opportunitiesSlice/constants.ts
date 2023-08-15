@@ -70,6 +70,7 @@ export const foxEthAssetIds = [
   foxEthStakingAssetIdV4,
   foxEthStakingAssetIdV5,
   foxEthStakingAssetIdV6,
+  foxEthStakingAssetIdV7,
 ] as const
 export const foxEthStakingIds = foxEthAssetIds as readonly StakingId[]
 

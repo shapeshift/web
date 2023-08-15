@@ -14,8 +14,8 @@ import type {
   TradeQuote2,
 } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import type { TradeQuoteDeps } from 'lib/swapper/types'
+import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getLifiChainMap } from './utils/getLifiChainMap'
@@ -90,20 +90,28 @@ export const lifiApi: Swapper2Api = {
     const lifiRoute = tradeQuoteMetadata.get(quoteId)
     if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${quoteId}`)
 
-    const getStatusRequest: GetStatusRequest = {
-      txHash,
-      bridge: lifiRoute.steps[0].tool,
-      fromChain: lifiRoute.fromChainId,
-      toChain: lifiRoute.toChainId,
-    }
-
     // getMixPanel()?.track(MixPanelEvents.SwapperApiRequest, {
     //   swapper: SwapperName.LIFI,
     //   method: 'get',
     //   // Note, this may change if the Li.Fi SDK changes
     //   url: 'https://li.quest/v1/status',
     // })
-    const statusResponse = await getLifi().getStatus(getStatusRequest)
+
+    // don't use lifi sdk here because all status responses are cached, negating the usefulness of polling
+    // i.e don't do `await getLifi().getStatus(getStatusRequest)`
+    const url = new URL('https://li.quest/v1/status')
+    const getStatusRequestParams: { [Key in keyof GetStatusRequest]: string } = {
+      txHash,
+      bridge: lifiRoute.steps[0].tool,
+      fromChain: lifiRoute.fromChainId.toString(),
+      toChain: lifiRoute.toChainId.toString(),
+    }
+    url.search = new URLSearchParams(getStatusRequestParams).toString()
+    const response = await fetch(url, { cache: 'no-store' }) // don't cache!
+
+    if (!response.ok) return createDefaultStatusResponse()
+
+    const statusResponse = await response.json()
 
     const status = (() => {
       switch (statusResponse.status) {

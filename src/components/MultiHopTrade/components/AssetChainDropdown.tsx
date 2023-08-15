@@ -1,4 +1,3 @@
-import { ChevronDownIcon } from '@chakra-ui/icons'
 import type { ButtonProps, FlexProps, MenuProps } from '@chakra-ui/react'
 import {
   Button,

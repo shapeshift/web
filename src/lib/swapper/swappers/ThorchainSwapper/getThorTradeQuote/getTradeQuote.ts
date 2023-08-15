@@ -156,7 +156,6 @@ export const getThorTradeQuote = async (
   })()
 
   const commonQuoteFields = {
-    minimumCryptoHuman: '0',
     recommendedSlippage: slippagePercentage.div(100).toString(),
   }
 

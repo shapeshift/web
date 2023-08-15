@@ -204,7 +204,6 @@ export async function getTradeQuote(
     .toString()
 
   return Ok({
-    minimumCryptoHuman: '0',
     steps: steps.unwrap(),
     rate: netRate,
     selectedLifiRoute,

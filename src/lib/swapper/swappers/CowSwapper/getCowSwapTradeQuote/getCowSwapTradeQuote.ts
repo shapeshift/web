@@ -97,7 +97,6 @@ export async function getCowSwapTradeQuote(
   })
 
   const quote: TradeQuote<CowChainId> = {
-    minimumCryptoHuman: '0',
     id: data.id.toString(),
     rate,
     steps: [

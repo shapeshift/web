@@ -70,7 +70,6 @@ export async function getTradeQuote(
     })
 
     return Ok({
-      minimumCryptoHuman: '0',
       rate,
       steps: [
         {

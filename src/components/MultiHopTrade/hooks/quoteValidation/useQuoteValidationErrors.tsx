@@ -17,7 +17,6 @@ import {
   selectFirstHopTradeDeductionCryptoPrecision,
   selectLastHopBuyAsset,
   selectLastHopNetworkFeeCryptoPrecision,
-  selectMinimumSellAmountCryptoBaseUnit,
   selectSellAmountCryptoBaseUnit,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -39,7 +38,6 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
   const firstHopTradeDeductionCryptoPrecision = useAppSelector(
     selectFirstHopTradeDeductionCryptoPrecision,
   )
-  const minimumSellAmountBaseUnit = useAppSelector(selectMinimumSellAmountCryptoBaseUnit)
   const firstHopSellAsset = useAppSelector(selectFirstHopSellAsset)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const receiveAddress = useReceiveAddress()
@@ -71,10 +69,6 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
     .minus(lastHopNetworkFeeCryptoPrecision)
     .gte(0)
 
-  const isBelowMinimumSellAmount =
-    bnOrZero(sellAmountCryptoBaseUnit).gt(0) &&
-    bnOrZero(sellAmountCryptoBaseUnit).lt(minimumSellAmountBaseUnit ?? 0)
-
   const feesExceedsSellAmount =
     bnOrZero(sellAmountCryptoBaseUnit).isGreaterThan(0) &&
     bnOrZero(buyAmountCryptoBaseUnit).isLessThanOrEqualTo(0)
@@ -91,7 +85,6 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
         !firstHopHasSufficientBalanceForGas &&
           ActiveQuoteStatus.InsufficientFirstHopFeeAssetBalance,
         !lastHopHasSufficientBalanceForGas && ActiveQuoteStatus.InsufficientLastHopFeeAssetBalance,
-        isBelowMinimumSellAmount && ActiveQuoteStatus.SellAmountBelowMinimum,
         !receiveAddress && ActiveQuoteStatus.NoReceiveAddress,
         !isTradingActiveOnSellPool && ActiveQuoteStatus.TradingInactiveOnSellChain,
         !isTradingActiveOnBuyPool && ActiveQuoteStatus.TradingInactiveOnBuyChain,
@@ -106,7 +99,6 @@ export const useQuoteValidationErrors = (): ActiveQuoteStatus[] => {
       firstHopHasSufficientBalanceForGas,
       hasSufficientSellAssetBalance,
       insufficientBalanceProtocolFeeMeta,
-      isBelowMinimumSellAmount,
       isTradingActiveOnBuyPool,
       isTradingActiveOnSellPool,
       lastHopHasSufficientBalanceForGas,

@@ -93,7 +93,6 @@ const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
 
 const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   id: '123',
-  minimumCryptoHuman: '0.01621193001101461472',
   rate: '14924.80846543344314936607', // 14942 FOX per WETH
   steps: [
     {
@@ -121,7 +120,6 @@ const expectedTradeQuoteWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
 
 const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
   id: '123',
-  minimumCryptoHuman: '229.09507445589919816724',
   rate: '0.00004995640398295996',
   steps: [
     {
@@ -149,7 +147,6 @@ const expectedTradeQuoteFoxToEth: TradeQuote<KnownChainIds.EthereumMainnet> = {
 
 const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
   id: '123',
-  minimumCryptoHuman: '0.00999000999000999001',
   rate: '1.0003121775396440882',
   steps: [
     {
@@ -177,7 +174,6 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote<KnownChainIds.GnosisMainnet> = {
 
 const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumMainnet> = {
   id: '123',
-  minimumCryptoHuman: '0.01621193001101461472',
   rate: '14716.04718939437523468382', // 14716 FOX per WETH
   steps: [
     {

@@ -86,7 +86,6 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
 
     return Ok({
       rate,
-      minimumCryptoHuman: '0',
       steps: [
         {
           allowanceContract: data.allowanceTarget,
@@ -95,8 +94,8 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
           accountNumber,
           rate,
           feeData: {
-            networkFeeCryptoBaseUnit,
             protocolFees: {},
+            networkFeeCryptoBaseUnit,
           },
           buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
           sellAmountIncludingProtocolFeesCryptoBaseUnit,

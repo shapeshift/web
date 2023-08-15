@@ -131,7 +131,6 @@ export type TradeQuoteStep<C extends ChainId> = TradeBase<C> & {
 }
 
 export type TradeQuote<C extends ChainId = ChainId> = {
-  minimumCryptoHuman: string
   recommendedSlippage?: string
   id?: string
   steps: TradeQuoteStep<C>[]

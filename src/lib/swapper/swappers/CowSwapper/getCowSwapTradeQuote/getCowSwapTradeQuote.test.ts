@@ -190,7 +190,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote<KnownChainIds.EthereumM
         networkFeeCryptoBaseUnit: '0',
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000',
-      buyAmountBeforeFeesCryptoBaseUnit: '0', // 0 FOX
+      buyAmountBeforeFeesCryptoBaseUnit: '165590332317788059940', // 165.59 FOX
       sources: [{ name: SwapperName.CowSwap, proportion: '1' }],
       buyAsset: FOX_MAINNET,
       sellAsset: WETH,

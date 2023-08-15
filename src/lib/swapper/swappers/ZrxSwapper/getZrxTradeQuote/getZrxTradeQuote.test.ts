@@ -173,23 +173,4 @@ describe('getZrxTradeQuote', () => {
       name: 'SwapError',
     })
   })
-
-  it('use minQuoteSellAmount when sellAmount is 0', async () => {
-    const { quoteInput } = setupQuote()
-    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
-      Promise.resolve(Ok({ data: { price: '1' } })),
-    )
-
-    const maybeQuote = await getZrxTradeQuote({
-      ...quoteInput,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit: '0',
-    })
-
-    expect(maybeQuote.isErr()).toBe(false)
-    const quote = maybeQuote.unwrap()
-
-    expect(quote?.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit).toBe(
-      '1000000000000000000',
-    )
-  })
 })

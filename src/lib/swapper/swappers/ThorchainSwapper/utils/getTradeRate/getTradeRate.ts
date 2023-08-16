@@ -8,7 +8,7 @@ import type { SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapError, SwapErrorType } from 'lib/swapper/api'
 import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { createTradeBelowMinimumErr } from 'lib/swapper/utils'
+import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
 
 import type { ThornodeQuoteResponseSuccess } from '../../types'
 import { getPriceRatio } from '../getPriceRatio/getPriceRatio'
@@ -31,7 +31,7 @@ export const getTradeRate = ({
 }): Result<string, SwapErrorRight> => {
   // we can't get a quote for a zero amount so use getPriceRatio between pools instead
   if (bnOrZero(sellAmountCryptoBaseUnit).eq(0)) {
-    return Err(createTradeBelowMinimumErr())
+    return Err(createTradeAmountTooSmallErr())
   }
 
   const buyPoolId = assetIdToPoolAssetId({ assetId: buyAssetId })

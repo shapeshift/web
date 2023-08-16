@@ -174,7 +174,6 @@ export enum SwapErrorType {
   GET_TRADE_TXS_FAILED = 'GET_TRADE_TXS_FAILED',
   TRADE_FAILED = 'TRADE_FAILED',
   RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED = 'RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED',
-  TRADE_BELOW_MINIMUM = 'TRADE_BELOW_MINIMUM',
   // Catch-all for XHRs that can fail
   QUERY_FAILED = 'QUERY_FAILED',
   // Catch-all for missing input e.g AssetId missing when making a request

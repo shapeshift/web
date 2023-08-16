@@ -107,12 +107,12 @@ export const getEnabledSwappers = (
     })
 }
 
-export const createTradeBelowMinimumErr = (details?: {
+export const createTradeAmountTooSmallErr = (details?: {
   minAmountCryptoPrecision: string
   assetId: AssetId
 }) =>
   makeSwapErrorRight({
-    code: SwapErrorType.TRADE_BELOW_MINIMUM,
-    message: 'Sell amount is below the minimum',
+    code: SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL,
+    message: 'Sell amount is too small',
     details,
   })

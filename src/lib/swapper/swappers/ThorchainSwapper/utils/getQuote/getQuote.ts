@@ -18,7 +18,7 @@ import {
   THORCHAIN_FIXED_PRECISION,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { createTradeBelowMinimumErr } from 'lib/swapper/utils'
+import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
 
 import { thorService } from '../thorService'
 
@@ -77,7 +77,7 @@ export const getQuote = async ({
     isError &&
     (/not enough fee/.test(data.error) || /not enough to pay transaction fee/.test(data.error))
   ) {
-    return Err(createTradeBelowMinimumErr())
+    return Err(createTradeAmountTooSmallErr())
   } else if (isError && /trading is halted/.test(data.error)) {
     return Err(
       makeSwapErrorRight({

@@ -181,7 +181,6 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     [
       SwapErrorType.TRADING_HALTED,
       SwapErrorType.UNSUPPORTED_PAIR,
-      SwapErrorType.TRADE_BELOW_MINIMUM,
       SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL,
     ].includes(error.code)
 

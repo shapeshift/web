@@ -25,7 +25,7 @@ import {
   isNativeEvmAsset,
   normalizeIntegerAmount,
 } from 'lib/swapper/swappers/utils/helpers/helpers'
-import { createTradeBelowMinimumErr } from 'lib/swapper/utils'
+import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
 
 export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
@@ -75,7 +75,7 @@ export async function getCowSwapTradeQuote(
       errData?.errorType === 'SellAmountDoesNotCoverFee'
     ) {
       return Err(
-        createTradeBelowMinimumErr({
+        createTradeAmountTooSmallErr({
           assetId: sellAsset.assetId,
           minAmountCryptoPrecision: bn(errData?.data.fee_amount ?? '0x0', 16).toFixed(),
         }),

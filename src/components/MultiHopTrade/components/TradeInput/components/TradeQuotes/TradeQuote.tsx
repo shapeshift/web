@@ -3,13 +3,14 @@ import { useCallback, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
-import { quoteStatusTranslation } from 'components/MultiHopTrade/components/TradeInput/components/TradeQuotes/getQouteErrorTranslation'
+import { quoteStatusTranslation } from 'components/MultiHopTrade/components/TradeInput/components/TradeQuotes/getQuoteErrorTranslation'
 import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { SwapErrorType } from 'lib/swapper/api'
 import type { ApiQuote } from 'state/apis/swappers'
 import {
+  selectAssets,
   selectBuyAsset,
   selectFeeAssetByChainId,
   selectSellAmountCryptoPrecision,
@@ -88,6 +89,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
 
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
+  const assetsById = useAppSelector(selectAssets)
 
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
 
@@ -113,9 +115,9 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
     dispatch(tradeQuoteSlice.actions.setSwapperName(quoteData.swapperName))
   }, [dispatch, quoteData.swapperName])
 
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset?.chainId ?? ''))
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset.chainId ?? ''))
   if (!feeAsset)
-    throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset?.chainId}!`)
+    throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset.chainId}!`)
 
   const quoteDifferenceDecimalPercentage =
     (quoteData.inputOutputRatio / bestInputOutputRatio - 1) * -1
@@ -151,11 +153,11 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       // Add helper to get user-friendly error message from code
       return (
         <Tag size='sm' colorScheme='red'>
-          {translate(quoteStatusTranslation(error))}
+          {translate(...quoteStatusTranslation(error, assetsById))}
         </Tag>
       )
     }
-  }, [quote, hasAmountWithPositiveReceive, isAmountEntered, translate, isBest, error])
+  }, [quote, hasAmountWithPositiveReceive, isAmountEntered, translate, isBest, error, assetsById])
 
   const activeSwapperColor = (() => {
     if (!isTradingActive) return redColor

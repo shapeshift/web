@@ -108,7 +108,7 @@ export const getEnabledSwappers = (
 }
 
 export const createTradeAmountTooSmallErr = (details?: {
-  minAmountCryptoPrecision: string
+  minAmountCryptoBaseUnit: string
   assetId: AssetId
 }) =>
   makeSwapErrorRight({

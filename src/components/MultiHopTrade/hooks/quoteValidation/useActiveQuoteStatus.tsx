@@ -57,8 +57,6 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
         switch (activeQuoteError.code) {
           case SwapErrorType.UNSUPPORTED_PAIR:
             return ActiveQuoteStatus.NoQuotesAvailableForTradePair
-          case SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL:
-            return ActiveQuoteStatus.SellAmountBelowMinimum
           default:
             // We didn't recognize the error, use a generic error message
             return ActiveQuoteStatus.UnknownError
@@ -100,18 +98,6 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
           return 'trade.errors.quoteError'
         case ActiveQuoteStatus.NoQuotesAvailable:
           return 'trade.errors.noQuotesAvailable'
-        case ActiveQuoteStatus.SellAmountBelowMinimum: {
-          const details: { minAmountCryptoPrecision?: string } = activeQuoteError?.details ?? {}
-          const minAmountCryptoPrecision = details.minAmountCryptoPrecision
-
-          if (!minAmountCryptoPrecision || !firstHopSellAsset)
-            return 'trade.errors.amountTooSmallUnknownMinimum'
-
-          const formattedAmount = bnOrZero(minAmountCryptoPrecision).decimalPlaces(6)
-          const minimumAmountUserMessage = `${formattedAmount} ${firstHopSellAsset.symbol}`
-
-          return ['trade.errors.amountTooSmall', { minLimit: minimumAmountUserMessage }]
-        }
         case ActiveQuoteStatus.SellAssetNotNotSupportedByWallet:
           return [
             'trade.errors.assetNotSupportedByWallet',
@@ -147,7 +133,6 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
     firstHopSellAsset,
     translate,
     insufficientBalanceProtocolFeeMeta,
-    activeQuoteError?.details,
   ])
 
   return {

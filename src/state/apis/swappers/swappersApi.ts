@@ -66,21 +66,33 @@ export const swappersApi = createApi({
         // We need to get the freshest state after fetching market data above
         const deps = getDependencies(getState() as ReduxState, getTradeQuoteInput)
 
-        const quotes = await getTradeQuotes(getTradeQuoteInput, enabledSwappers, deps)
+        const quoteResults = await getTradeQuotes(getTradeQuoteInput, enabledSwappers, deps)
 
-        const quotesWithInputOutputRatios = quotes.map(result => {
-          const quote = result && result.isOk() ? result.unwrap() : undefined
-          const error = result && result.isErr() ? result.unwrapErr() : undefined
-          const inputOutputRatio = quote
-            ? getInputOutputRatioFromQuote({
+        const quotesWithInputOutputRatios = quoteResults
+          .map(result => {
+            if (result.isErr()) {
+              const error = result.unwrapErr()
+              return [
+                {
+                  quote: undefined,
+                  error,
+                  inputOutputRatio: -Infinity,
+                  swapperName: result.swapperName,
+                },
+              ]
+            }
+
+            return result.unwrap().map(quote => {
+              const inputOutputRatio = getInputOutputRatioFromQuote({
                 // We need to get the freshest state after fetching market data above
                 state: getState() as ReduxState,
                 quote,
                 swapperName: result.swapperName,
               })
-            : -Infinity
-          return { quote, error, inputOutputRatio, swapperName: result.swapperName }
-        })
+              return { quote, error: undefined, inputOutputRatio, swapperName: result.swapperName }
+            })
+          })
+          .flat()
 
         const orderedQuotes: ApiQuote[] = orderBy(
           quotesWithInputOutputRatios,

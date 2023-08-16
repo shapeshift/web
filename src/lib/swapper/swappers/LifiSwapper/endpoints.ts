@@ -29,7 +29,7 @@ export const lifiApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     { assets }: TradeQuoteDeps,
-  ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
+  ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(
         makeSwapErrorRight({
@@ -61,7 +61,8 @@ export const lifiApi: Swapper2Api = {
       // store the lifi quote metadata for transaction building later
       tradeQuoteMetadata.set(id, selectedLifiRoute)
 
-      return { id, receiveAddress, affiliateBps: undefined, ...tradeQuote }
+      // TODO: upgrade lifi swapper to return multiple quotes
+      return [{ id, receiveAddress, affiliateBps: undefined, ...tradeQuote }]
     })
   },
 

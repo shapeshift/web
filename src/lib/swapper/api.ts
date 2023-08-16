@@ -237,6 +237,6 @@ export type Swapper2Api = {
   getTradeQuote: (
     input: GetTradeQuoteInput,
     deps: TradeQuoteDeps,
-  ) => Promise<Result<TradeQuote2, SwapErrorRight>>
+  ) => Promise<Result<TradeQuote2[], SwapErrorRight>>
   getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx2>
 }

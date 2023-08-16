@@ -26,6 +26,7 @@ import { ManualAddressEntry } from 'components/MultiHopTrade/components/TradeInp
 import { getSwapperSupportsSlippage } from 'components/MultiHopTrade/components/TradeInput/getSwapperSupportsSlippage'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useActiveQuoteStatus } from 'components/MultiHopTrade/hooks/quoteValidation/useActiveQuoteStatus'
+import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
@@ -36,7 +37,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { Asset } from 'lib/asset-service'
-import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvents } from 'lib/mixpanel/types'
 import {
@@ -55,11 +56,9 @@ import {
   selectActiveQuoteError,
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
-  selectBuyAmountBeforeFeesUserCurrency,
   selectFirstHop,
   selectNetReceiveAmountCryptoPrecision,
   selectReceiveBuyAmountUserCurrency,
-  selectSellAmountUserCurrency,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
@@ -95,33 +94,17 @@ export const TradeInput = memo(() => {
   const sellAssetSearch = useModal('sellAssetSearch')
   const buyAsset = useAppSelector(selectBuyAsset)
   const sellAsset = useAppSelector(selectSellAsset)
+  const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact()
+
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
-  const buyAmountBeforeFeesUserCurrency = useAppSelector(selectBuyAmountBeforeFeesUserCurrency)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectReceiveBuyAmountUserCurrency)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
   const sellAmountCryptoPrecision = useAppSelector(selectSellAmountCryptoPrecision)
-  const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
-
-  const priceImpactPercentage = useMemo(() => {
-    if (!sellAmountBeforeFeesUserCurrency || !buyAmountBeforeFeesUserCurrency) return bn('0')
-
-    const tradeDifference = bn(sellAmountBeforeFeesUserCurrency).minus(
-      buyAmountBeforeFeesUserCurrency,
-    )
-
-    return tradeDifference.div(sellAmountBeforeFeesUserCurrency).times(100)
-  }, [sellAmountBeforeFeesUserCurrency, buyAmountBeforeFeesUserCurrency])
-
-  const isModeratePriceImpact = useMemo(() => {
-    if (!priceImpactPercentage) return false
-
-    return bn(priceImpactPercentage).gt(5)
-  }, [priceImpactPercentage])
 
   const hasUserEnteredAmount = useMemo(
     () => bnOrZero(sellAmountCryptoPrecision).gt(0),

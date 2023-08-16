@@ -28,6 +28,7 @@ import { AssetToAsset } from 'components/MultiHopTrade/components/TradeConfirm/A
 import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeConfirm/ReceiveSummary'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
+import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { useTradeExecution } from 'components/MultiHopTrade/hooks/useTradeExecution/useTradeExecution'
 import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
 import { Row } from 'components/Row/Row'
@@ -50,7 +51,6 @@ import {
   selectActiveStepOrDefault,
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
-  selectBuyAmountBeforeFeesUserCurrency,
   selectFirstHop,
   selectFirstHopNetworkFeeCryptoPrecision,
   selectFirstHopSellAsset,
@@ -76,6 +76,7 @@ export const TradeConfirm = () => {
   const mixpanel = getMixPanel()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const alertColor = useColorModeValue('yellow.500', 'yellow.200')
+  const { isModeratePriceImpact, priceImpactPercentage, isHighPriceImpact } = usePriceImpact()
   const [hasMixpanelFired, setHasMixpanelFired] = useState(false)
   const {
     handleSubmit,
@@ -129,7 +130,6 @@ export const TradeConfirm = () => {
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectNetReceiveAmountCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const netBuyAmountUserCurrency = useAppSelector(selectReceiveBuyAmountUserCurrency)
-  const buyAmountBeforeFeesUserCurrency = useAppSelector(selectBuyAmountBeforeFeesUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectSellAmountUserCurrency)
   const networkFeeCryptoHuman = useAppSelector(selectFirstHopNetworkFeeCryptoPrecision)
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
@@ -153,28 +153,6 @@ export const TradeConfirm = () => {
   } = useTradeExecution({ tradeQuote, swapperName })
 
   const txHash = buyTxHash ?? sellTxHash
-
-  const priceImpactPercentage = useMemo(() => {
-    if (!sellAmountBeforeFeesUserCurrency || !buyAmountBeforeFeesUserCurrency) return bn(0)
-
-    const tradeDifference = bn(sellAmountBeforeFeesUserCurrency).minus(
-      buyAmountBeforeFeesUserCurrency,
-    )
-
-    return tradeDifference.div(sellAmountBeforeFeesUserCurrency).times(100)
-  }, [sellAmountBeforeFeesUserCurrency, buyAmountBeforeFeesUserCurrency])
-
-  const isHighPriceImpact = useMemo(() => {
-    if (!priceImpactPercentage) return false
-
-    return priceImpactPercentage.gt(10)
-  }, [priceImpactPercentage])
-
-  const isModeratePriceImpact = useMemo(() => {
-    if (!priceImpactPercentage) return false
-
-    return bn(priceImpactPercentage).gt(5)
-  }, [priceImpactPercentage])
 
   const getSellTxLink = useCallback(
     (sellTxHash: string) =>

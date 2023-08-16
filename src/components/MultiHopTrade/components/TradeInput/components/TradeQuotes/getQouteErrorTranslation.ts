@@ -10,6 +10,9 @@ export const quoteStatusTranslation = (
   switch (code) {
     case SwapErrorType.TRADING_HALTED:
       return 'trade.errors.tradingNotActiveNoAssetSymbol'
+    case SwapErrorType.TRADE_BELOW_MINIMUM:
+    case SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL:
+      return 'trade.errors.amountTooSmallUnknownMinimum'
     case SwapErrorType.UNSUPPORTED_PAIR:
       return 'trade.errors.unsupportedTradePair'
     default:

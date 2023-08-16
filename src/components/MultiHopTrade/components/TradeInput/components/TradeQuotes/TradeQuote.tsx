@@ -177,7 +177,14 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
 
   // TODO: work out for which error codes we want to show a swapper with a human-readable error vs hiding it
   const showSwapperError =
-    error?.code === SwapErrorType.TRADING_HALTED || error?.code === SwapErrorType.UNSUPPORTED_PAIR
+    error?.code &&
+    [
+      SwapErrorType.TRADING_HALTED,
+      SwapErrorType.UNSUPPORTED_PAIR,
+      SwapErrorType.TRADE_BELOW_MINIMUM,
+      SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL,
+    ].includes(error.code)
+
   const showSwapper = !!quote || showSwapperError
 
   return showSwapper ? (

@@ -58,6 +58,7 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
           case SwapErrorType.UNSUPPORTED_PAIR:
             return ActiveQuoteStatus.NoQuotesAvailableForTradePair
           case SwapErrorType.TRADE_BELOW_MINIMUM:
+          case SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL:
             return ActiveQuoteStatus.SellAmountBelowMinimum
           default:
             // We didn't recognize the error, use a generic error message

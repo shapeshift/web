@@ -18,6 +18,7 @@ import { assertUnreachable } from 'lib/utils'
 import { createBuildCustomApiTxInput } from 'lib/utils/evm'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { getQuote } from './getQuote/getQuote'
 
 type GetSignTxFromQuoteArgs = {
   tradeQuote: TradeQuote
@@ -78,6 +79,16 @@ export const getSignTxFromQuote = async ({
     }
 
     case CHAIN_NAMESPACE.CosmosSdk: {
+      const maybeThornodeQuote = await getQuote({
+        sellAsset,
+        buyAssetId: buyAsset.assetId,
+        sellAmountCryptoBaseUnit,
+        receiveAddress,
+        affiliateBps,
+      })
+
+      if (maybeThornodeQuote.isErr()) throw maybeThornodeQuote.unwrapErr()
+
       const cosmosSdkChainAdapter =
         adapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
       const maybeTxData = await getCosmosTxData({
@@ -94,6 +105,7 @@ export const getSignTxFromQuote = async ({
         affiliateBps,
         buyAssetUsdRate,
         feeAssetUsdRate,
+        thornodeQuote: maybeThornodeQuote.unwrap(),
       })
 
       if (maybeTxData.isErr()) throw maybeTxData.unwrapErr()
@@ -102,6 +114,16 @@ export const getSignTxFromQuote = async ({
     }
 
     case CHAIN_NAMESPACE.Utxo: {
+      const maybeThornodeQuote = await getQuote({
+        sellAsset,
+        buyAssetId: buyAsset.assetId,
+        sellAmountCryptoBaseUnit,
+        receiveAddress,
+        affiliateBps,
+      })
+
+      if (maybeThornodeQuote.isErr()) throw maybeThornodeQuote.unwrapErr()
+
       const utxoChainAdapter = adapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
       if (!chainSpecific) throw Error('missing UTXO chainSpecific parameters')
 
@@ -116,6 +138,7 @@ export const getSignTxFromQuote = async ({
         affiliateBps,
         buyAssetUsdRate,
         feeAssetUsdRate,
+        thornodeQuote: maybeThornodeQuote.unwrap(),
       })
 
       if (maybeThorTxInfo.isErr()) throw maybeThorTxInfo.unwrapErr()

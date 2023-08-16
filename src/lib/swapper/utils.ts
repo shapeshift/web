@@ -1,3 +1,4 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
@@ -105,3 +106,13 @@ export const getEnabledSwappers = (
       return !isCrossAccountTrade || swapperSupportsCrossAccountTrade
     })
 }
+
+export const createTradeAmountTooSmallErr = (details?: {
+  minAmountCryptoBaseUnit: string
+  assetId: AssetId
+}) =>
+  makeSwapErrorRight({
+    code: SwapErrorType.TRADE_QUOTE_AMOUNT_TOO_SMALL,
+    message: 'Sell amount is too small',
+    details,
+  })

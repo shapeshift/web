@@ -12,7 +12,8 @@ import type {
   UnsignedTx2,
 } from 'lib/swapper/api'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers/ThorchainSwapper/constants'
-import type { Rates, ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type { ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type { TradeQuoteDeps } from 'lib/swapper/types'
 
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getTradeTxs } from './getTradeTxs/getTradeTxs'
@@ -21,7 +22,7 @@ import { getSignTxFromQuote } from './utils/getSignTxFromQuote'
 export const thorchainApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    rates: Rates,
+    rates: TradeQuoteDeps,
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
     const { receiveAddress, affiliateBps } = input
 

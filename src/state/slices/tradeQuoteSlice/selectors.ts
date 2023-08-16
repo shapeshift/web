@@ -5,7 +5,7 @@ import type { Selector } from 'reselect'
 import { DEFAULT_SWAPPER_DONATION_BPS } from 'components/MultiHopTrade/constants'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { fromBaseUnit } from 'lib/math'
 import type { ProtocolFee, SwapErrorRight, TradeQuote2 } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 import type { ApiQuote } from 'state/apis/swappers'
@@ -416,16 +416,3 @@ export const selectQuoteDonationAmountUsd = createSelector(
     return bnOrZero(donationAmountUserCurrency).div(userCurrencyToUsdRate).toFixed()
   },
 )
-
-export const selectMinimumSellAmountCryptoHuman: Selector<ReduxState, string | undefined> =
-  createSelector(selectActiveQuote, quote => (quote ? quote.minimumCryptoHuman : undefined))
-
-export const selectMinimumSellAmountCryptoBaseUnit: Selector<ReduxState, string | undefined> =
-  createSelector(
-    selectMinimumSellAmountCryptoHuman,
-    selectFirstHopSellAsset,
-    (minimumSellAmountCryptoHuman, firstHopSellAsset) =>
-      minimumSellAmountCryptoHuman && firstHopSellAsset
-        ? toBaseUnit(minimumSellAmountCryptoHuman, firstHopSellAsset.precision)
-        : undefined,
-  )

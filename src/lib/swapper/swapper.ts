@@ -1,5 +1,6 @@
 import type { Asset } from 'lib/asset-service'
 import { AssetService } from 'lib/asset-service'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isFulfilled as isFulfilledPredicate, timeout } from 'lib/utils'
 
 import type { GetTradeQuoteInput, SwapErrorRight, SwapperName, TradeQuote2 } from './api'
@@ -13,6 +14,9 @@ export const getTradeQuotes = async (
   enabledSwappers: SwapperName[],
   deps: TradeQuoteDeps,
 ): Promise<QuoteResult[]> => {
+  if (bnOrZero(getTradeQuoteInput.affiliateBps).lt(0)) return []
+  if (getTradeQuoteInput.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') return []
+
   const quotes = await Promise.allSettled(
     swappers
       .filter(({ swapperName }) => enabledSwappers.includes(swapperName))

@@ -12,6 +12,8 @@ import { getLimit } from 'lib/swapper/swappers/ThorchainSwapper/utils/getLimit/g
 import { makeSwapMemo } from 'lib/swapper/swappers/ThorchainSwapper/utils/makeSwapMemo/makeSwapMemo'
 import { isNativeEvmAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
 
+import type { ThornodeQuoteResponseSuccess } from '../../types'
+
 type GetEvmThorTxInfoArgs = {
   sellAsset: Asset
   buyAsset: Asset
@@ -22,6 +24,7 @@ type GetEvmThorTxInfoArgs = {
   affiliateBps: string
   buyAssetUsdRate: string
   feeAssetUsdRate: string
+  thornodeQuote: ThornodeQuoteResponseSuccess
 }
 
 type GetEvmThorTxInfoReturn = Promise<
@@ -46,6 +49,7 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
   affiliateBps,
   buyAssetUsdRate,
   feeAssetUsdRate,
+  thornodeQuote,
 }) => {
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const { assetReference } = fromAssetId(sellAsset.assetId)
@@ -72,10 +76,9 @@ export const getThorTxInfo: GetBtcThorTxInfo = async ({
     sellAsset,
     slippageTolerance,
     protocolFees,
-    receiveAddress: destinationAddress,
-    affiliateBps,
     buyAssetUsdRate,
     feeAssetUsdRate,
+    thornodeQuote,
   })
 
   return maybeLimit.andThen(limit => {

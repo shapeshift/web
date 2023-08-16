@@ -4,6 +4,7 @@ import { osmosis } from '@shapeshiftoss/chain-adapters'
 import type { CosmosSignTx } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
+import { Err } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { v4 as uuid } from 'uuid'
 import type {
@@ -13,6 +14,7 @@ import type {
   Swapper2Api,
   TradeQuote2,
 } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { SymbolDenomMapping } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 import {
   buildPerformIbcTransferUnsignedTx,
@@ -24,7 +26,11 @@ import { createDefaultStatusResponse } from 'lib/utils/evm'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 
 import { getTradeQuote } from './getTradeQuote/getMultiHopTradeQuote'
-import { COSMOSHUB_TO_OSMOSIS_CHANNEL, OSMOSIS_TO_COSMOSHUB_CHANNEL } from './utils/constants'
+import {
+  COSMOSHUB_TO_OSMOSIS_CHANNEL,
+  OSMOSIS_TO_COSMOSHUB_CHANNEL,
+  SUPPORTED_ASSET_IDS,
+} from './utils/constants'
 import { pollForComplete, pollForCrossChainComplete } from './utils/poll'
 import type { OsmosisSupportedChainId } from './utils/types'
 
@@ -33,12 +39,30 @@ const tradeQuoteMetadata: Map<string, TradeQuote2> = new Map()
 export const osmosisApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    { sellAssetUsdRate }: { sellAssetUsdRate: string },
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
-    const tradeQuoteResult = await getTradeQuote(input, { sellAssetUsdRate })
+    const { receiveAccountNumber, receiveAddress, affiliateBps, sellAsset, buyAsset } = input
+
+    if (!SUPPORTED_ASSET_IDS.includes(sellAsset.assetId)) {
+      return Err(
+        makeSwapErrorRight({
+          message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
+          code: SwapErrorType.UNSUPPORTED_PAIR,
+        }),
+      )
+    }
+
+    if (!SUPPORTED_ASSET_IDS.includes(buyAsset.assetId)) {
+      return Err(
+        makeSwapErrorRight({
+          message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
+          code: SwapErrorType.UNSUPPORTED_PAIR,
+        }),
+      )
+    }
+
+    const tradeQuoteResult = await getTradeQuote(input)
 
     return tradeQuoteResult.map(tradeQuote => {
-      const { receiveAccountNumber, receiveAddress, affiliateBps } = input
       const id = uuid()
       const quote = { id, receiveAddress, receiveAccountNumber, affiliateBps, ...tradeQuote }
       tradeQuoteMetadata.set(id, quote)

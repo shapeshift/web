@@ -9,7 +9,6 @@ export const setupQuote = () => {
   const sellAsset: Asset = { ...FOX_MAINNET }
   const buyAsset: Asset = { ...WETH }
   const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
-    minimumCryptoHuman: '0',
     rate: '1',
     steps: [
       {

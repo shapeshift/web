@@ -277,8 +277,3 @@ export const buildSwapExactAmountInTx = async ({
     sequence,
   }
 }
-
-export const getMinimumCryptoHuman = (sellAssetUsdRate: string): string => {
-  const minimumAmountCryptoHuman = bn(1).dividedBy(bnOrZero(sellAssetUsdRate)).toString()
-  return minimumAmountCryptoHuman
-}

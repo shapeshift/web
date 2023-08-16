@@ -19,7 +19,7 @@ export type SwapErrorRight = {
   message: string
   cause?: unknown
   details?: unknown
-  code?: string
+  code?: SwapErrorType
 }
 
 export const makeSwapErrorRight = ({
@@ -31,7 +31,7 @@ export const makeSwapErrorRight = ({
   message: string
   details?: unknown
   cause?: unknown
-  code?: string
+  code?: SwapErrorType
 }): SwapErrorRight => ({
   name: 'SwapError',
   message,
@@ -131,7 +131,6 @@ export type TradeQuoteStep<C extends ChainId> = TradeBase<C> & {
 }
 
 export type TradeQuote<C extends ChainId = ChainId> = {
-  minimumCryptoHuman: string
   recommendedSlippage?: string
   id?: string
   steps: TradeQuoteStep<C>[]
@@ -175,7 +174,6 @@ export enum SwapErrorType {
   GET_TRADE_TXS_FAILED = 'GET_TRADE_TXS_FAILED',
   TRADE_FAILED = 'TRADE_FAILED',
   RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED = 'RECEIVE_ACCOUNT_NUMBER_NOT_PROVIDED',
-  TRADE_BELOW_MINIMUM = 'TRADE_BELOW_MINIMUM',
   // Catch-all for XHRs that can fail
   QUERY_FAILED = 'QUERY_FAILED',
   // Catch-all for missing input e.g AssetId missing when making a request

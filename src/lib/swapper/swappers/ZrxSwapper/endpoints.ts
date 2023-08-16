@@ -42,13 +42,10 @@ export const zrxApi: Swapper2Api = {
     const isDonationAmountBelowMinimum = sellAmountBeforeFeesUsd.lt(
       getMinimumDonationUsdSellAmountByChainId(sellAsset.chainId),
     )
-    const tradeQuoteResult = await getZrxTradeQuote(
-      {
-        ...(input as GetEvmTradeQuoteInput),
-        affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps,
-      },
-      sellAssetUsdRate,
-    )
+    const tradeQuoteResult = await getZrxTradeQuote({
+      ...(input as GetEvmTradeQuoteInput),
+      affiliateBps: isDonationAmountBelowMinimum ? '0' : affiliateBps,
+    })
 
     return tradeQuoteResult.map(tradeQuote => {
       const id = uuid()
@@ -77,6 +74,7 @@ export const zrxApi: Swapper2Api = {
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
+    // TODO: we should cache the quote in getTradeQuote and use that so we aren't altering amounts when executing the trade
     const maybeZrxQuote = await fetchZrxQuote({
       buyAsset,
       sellAsset,

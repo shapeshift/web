@@ -8,7 +8,7 @@ type TransactionTimeProps = {
   format?: string
 }
 
-export const TransactionTime = ({ blockTime, format = 'hh:mm A' }: TransactionTimeProps) => {
+export const TransactionTime = ({ blockTime, format = 'LT' }: TransactionTimeProps) => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
 
   return (

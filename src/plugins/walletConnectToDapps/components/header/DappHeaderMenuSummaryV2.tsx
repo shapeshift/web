@@ -89,9 +89,7 @@ export const DappHeaderMenuSummaryV2 = () => {
       <VStack px={4} py={1} fontWeight='medium' spacing={2} alignItems='stretch' fontSize='sm'>
         <HStack justifyContent='space-between' spacing={4}>
           <Text translation='plugins.walletConnectToDapps.header.menu.expiry' color='text.subtle' />
-          <RawText>
-            {dayjs.unix(session.expiry).locale(selectedLocale).format('ll hh:mm A')}
-          </RawText>
+          <RawText>{dayjs.unix(session.expiry).locale(selectedLocale).format('ll LT')}</RawText>
         </HStack>
         <HStack justifyContent='space-between' spacing={4} alignItems='flex-start'>
           <Text

@@ -17,7 +17,7 @@ export const TransactionDate = ({ blockTime }: { blockTime: number }) => {
     >
       {dayjs(blockTime * 1000)
         .locale(selectedLocale)
-        .format('MMMM YYYY')}
+        .format('LL')}
     </RawText>
   )
 }

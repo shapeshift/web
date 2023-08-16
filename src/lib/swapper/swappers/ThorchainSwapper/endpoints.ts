@@ -1,5 +1,6 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
+import { Err } from '@sniptt/monads/build'
 import { v4 as uuid } from 'uuid'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -27,29 +28,28 @@ export const thorchainApi: Swapper2Api = {
     const { receiveAddress, affiliateBps } = input
 
     const mapTradeQuoteToTradeQuote2 = (
-      quote: Result<TradeQuote, SwapErrorRight>,
+      quoteResult: Result<TradeQuote[], SwapErrorRight>,
       receiveAddress: string,
       affiliateBps: string | undefined,
       isDonationAmountBelowMinimum?: boolean,
     ): Result<TradeQuote2[], SwapErrorRight> => {
-      const id = uuid()
-      return quote.map<TradeQuote2[]>(quote => [
-        {
-          id,
+      return quoteResult.map<TradeQuote2[]>(quotes => {
+        return quotes.map(quote => ({
+          id: uuid(),
           receiveAddress,
           affiliateBps: isDonationAmountBelowMinimum ? undefined : affiliateBps,
           ...quote,
-        },
-      ])
+        }))
+      })
     }
 
-    return await getThorTradeQuote(input).then(async firstQuote => {
+    return await getThorTradeQuote(input).then(async quoteResult => {
       // If the first quote fails there is no need to check if the donation amount is below the minimum
-      if (firstQuote.isErr())
-        return mapTradeQuoteToTradeQuote2(firstQuote, receiveAddress, affiliateBps)
+      if (quoteResult.isErr()) return Err(quoteResult.unwrapErr())
 
-      const successfulQuote = firstQuote.unwrap()
-      const firstHop = successfulQuote.steps[0]
+      const quotes = quoteResult.unwrap()
+      const firstQuote = quotes[0]
+      const firstHop = firstQuote.steps[0]
       const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
         firstHop.buyAmountBeforeFeesCryptoBaseUnit,
         firstHop.buyAsset.precision,
@@ -71,7 +71,7 @@ export const thorchainApi: Swapper2Api = {
             ...input,
             affiliateBps: '0',
           })
-        : firstQuote
+        : quoteResult
 
       return mapTradeQuoteToTradeQuote2(
         quoteToUse,

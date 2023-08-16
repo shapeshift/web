@@ -171,7 +171,7 @@ export async function getTradeQuote(
           protocolFees,
           networkFeeCryptoBaseUnit,
         },
-        // TODO(woodenfurniture): the rate should be top level not step level
+        // TODO(woodenfurniture):  this step-level key should be a step-level value, rather than the top-level rate.
         // might be better replaced by inputOutputRatio downstream
         rate: estimateRate,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,

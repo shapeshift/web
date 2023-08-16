@@ -101,7 +101,7 @@ export const useActiveQuoteStatus = (): QuoteStatus => {
         case ActiveQuoteStatus.NoQuotesAvailable:
           return 'trade.errors.noQuotesAvailable'
         case ActiveQuoteStatus.SellAmountBelowMinimum: {
-          const details = (activeQuoteError?.details ?? {}) as { minAmountCryptoPrecision?: string }
+          const details: { minAmountCryptoPrecision?: string } = activeQuoteError?.details ?? {}
           const minAmountCryptoPrecision = details.minAmountCryptoPrecision
 
           if (!minAmountCryptoPrecision || !firstHopSellAsset)

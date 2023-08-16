@@ -11,15 +11,15 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import type { FocusEvent, PropsWithChildren } from 'react'
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
 import type { FieldError } from 'react-hook-form'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
 import { Balance } from 'components/DeFi/components/Balance'
 import { PercentOptionsButtonGroup } from 'components/DeFi/components/PercentOptionsButtonGroup'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -28,6 +28,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { colors } from 'theme/colors'
 
 const cryptoInputStyle = { caretColor: colors.blue[200] }
+const buttonProps = { variant: 'unstyled', display: 'flex', height: 'auto' }
+const boxProps = { px: 0, m: 0 }
 
 const CryptoInput = (props: InputProps) => {
   const translate = useTranslate()
@@ -57,6 +59,7 @@ export type TradeAmountInputProps = {
   onChange?: (value: string, isFiat?: boolean) => void
   onMaxClick?: () => Promise<void>
   onPercentOptionClick?: (args: number) => void
+  onAccountIdChange: AccountDropdownProps['onChange']
   isReadOnly?: boolean
   isSendMaxDisabled?: boolean
   cryptoAmount?: string
@@ -80,10 +83,12 @@ const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
 export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
   ({
     assetId,
+    accountId,
     assetSymbol,
     onChange,
     onMaxClick,
     onPercentOptionClick,
+    onAccountIdChange,
     cryptoAmount,
     isReadOnly,
     isSendMaxDisabled,
@@ -93,7 +98,6 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     fiatBalance,
     errors,
     percentOptions = defaultPercentOptions,
-    icons,
     children,
     showInputSkeleton,
     showFiatSkeleton,
@@ -105,7 +109,6 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const {
       number: { localeParts },
     } = useLocaleFormatter()
-    const translate = useTranslate()
     const amountRef = useRef<string | null>(null)
     const [isFiat, toggleIsFiat] = useToggle(false)
     const [isFocused, setIsFocused] = useState(false)
@@ -137,16 +140,19 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       e.target.select()
     }, [])
 
-    const hover = useMemo(
-      () => ({ bg: isReadOnly ? bgColor : focusBg }),
-      [bgColor, focusBg, isReadOnly],
-    )
-
     const handleValueChange = useCallback((values: NumberFormatValues) => {
       // This fires anytime value changes including setting it on max click
       // Store the value in a ref to send when we actually want the onChange to fire
       amountRef.current = values.value
     }, [])
+
+    const oppositeCurrency = useMemo(() => {
+      return isFiat ? (
+        <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
+      ) : (
+        <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
+      )
+    }, [assetSymbol, cryptoAmount, fiatAmount, isFiat])
 
     return (
       <FormControl
@@ -154,53 +160,51 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         borderColor={isFocused ? focusBorder : borderColor}
         bg={isFocused ? focusBg : bgColor}
         borderRadius='xl'
-        _hover={hover}
         isInvalid={!!errors}
         pt={3}
         pb={2}
         {...formControlProps}
       >
-        <Flex justifyContent='space-between' alignItems='center' px={4} width='full' mb={2}>
+        <Flex justifyContent='space-between' alignItems='center' px={6} width='full' mb={2}>
           {label && (
             <Flex alignItems='center'>
               <FormLabel mb={0} fontSize='sm'>
                 {label}
               </FormLabel>
-              {labelPostFix}
             </Flex>
           )}
-
-          {showFiatAmount && (
-            <Button
-              onClick={toggleIsFiat}
-              size='sm'
-              disabled={showFiatSkeleton}
-              fontWeight='medium'
-              variant='link'
-              color='gray.500'
-            >
-              <Skeleton isLoaded={!showFiatSkeleton}>
-                {isFiat ? (
-                  <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
-                ) : (
-                  <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
-                )}
-              </Skeleton>
-            </Button>
+          {balance && assetId && (
+            <AccountDropdown
+              defaultAccountId={accountId}
+              assetId={assetId}
+              onChange={onAccountIdChange}
+              disabled={false}
+              autoSelectHighestBalance
+              buttonProps={buttonProps}
+              boxProps={boxProps}
+              showLabel={false}
+              label={
+                <Balance
+                  cryptoBalance={balance}
+                  fiatBalance={fiatBalance ?? ''}
+                  symbol={assetSymbol}
+                  isFiat={isFiat}
+                  label={'Balance:'}
+                  textAlign='right'
+                />
+              }
+            />
           )}
         </Flex>
-        <Stack direction='row' alignItems='center' px={4}>
-          {icons ? (
-            <PairIcons icons={icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
-          ) : (
-            <AssetIcon assetId={assetId} size='sm' />
-          )}
+        {labelPostFix}
+        <Stack direction='row' alignItems='center' px={6}>
           <Flex gap={2} flex={1} alignItems='center'>
             <Skeleton isLoaded={!showInputSkeleton} width='full'>
               <NumberFormat
                 customInput={CryptoInput}
                 isNumericString={true}
                 disabled={isReadOnly}
+                _disabled={{ opacity: 1, cursor: 'not-allowed' }}
                 suffix={isFiat ? localeParts.postfix : ''}
                 prefix={isFiat ? localeParts.prefix : ''}
                 decimalSeparator={localeParts.decimal}
@@ -219,19 +223,23 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         <Flex
           direction='row'
           gap={2}
-          py={2}
-          px={4}
+          pt={4}
+          pb={2}
+          px={6}
           justifyContent='space-between'
           alignItems='center'
         >
-          {balance && (
-            <Balance
-              cryptoBalance={balance}
-              fiatBalance={fiatBalance ?? ''}
-              symbol={assetSymbol}
-              isFiat={isFiat}
-              label={translate('common.balance')}
-            />
+          {showFiatAmount && (
+            <Button
+              onClick={toggleIsFiat}
+              size='sm'
+              disabled={showFiatSkeleton}
+              fontWeight='medium'
+              variant='link'
+              color='text.subtle'
+            >
+              <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
+            </Button>
           )}
           {onPercentOptionClick && (
             <PercentOptionsButtonGroup

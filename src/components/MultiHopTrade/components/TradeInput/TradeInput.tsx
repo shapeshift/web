@@ -1,17 +1,16 @@
-import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import type { ResponsiveValue } from '@chakra-ui/react'
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import {
   Button,
+  CardFooter,
+  CardHeader,
+  Divider,
   Flex,
   Heading,
   IconButton,
   Stack,
   Tooltip,
-  useColorModeValue,
-  useMediaQuery,
 } from '@chakra-ui/react'
 import { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr/dist/keplr'
-import type { Property } from 'csstype'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -68,7 +67,6 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
@@ -76,9 +74,8 @@ import { PriceImpact } from '../PriceImpact'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 
-const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
-const marginHorizontal = { base: 0, md: -3 }
-const marginVertical = { base: -3, md: 0 }
+const formControlProps = { borderRadius: 0, background: 'transparent', borderWidth: 0 }
+
 const percentOptions = [1]
 
 export const TradeInput = memo(() => {
@@ -91,11 +88,9 @@ export const TradeInput = memo(() => {
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [showTradeQuotes, toggleShowTradeQuotes] = useToggle(false)
   const isKeplr = useMemo(() => wallet instanceof KeplrHDWallet, [wallet])
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const buyAssetSearch = useModal('buyAssetSearch')
   const sellAssetSearch = useModal('sellAssetSearch')
   const buyAsset = useAppSelector(selectBuyAsset)
@@ -265,54 +260,47 @@ export const TradeInput = memo(() => {
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <SlideTransition>
-        <Stack spacing={6} as='form' onSubmit={handleSubmit(onSubmit)}>
-          <Flex alignItems='center' justifyContent='space-between'>
-            <Heading as='h5' fontSize='md'>
-              {translate('navBar.trade')}
-            </Heading>
-            {activeSwapperSupportsSlippage && <SlippagePopover />}
-          </Flex>
-          <Stack spacing={2}>
-            <Flex alignItems='center' flexDir={flexDir} width='full'>
-              <TradeAssetSelect
-                accountId={sellAssetAccountId}
-                onAccountIdChange={setSellAssetAccountId}
-                assetId={sellAsset.assetId}
-                onAssetClick={handleSellAssetClick}
-                label={translate('trade.from')}
-              />
-              <IconButton
-                onClick={handleSwitchAssets}
-                isRound
-                mx={marginHorizontal}
-                my={marginVertical}
-                size='sm'
-                position='relative'
-                borderColor={useColorModeValue('gray.100', 'gray.750')}
-                borderWidth={1}
-                boxShadow={`0 0 0 3px var(${useColorModeValue(
-                  '--chakra-colors-white',
-                  '--chakra-colors-gray-785',
-                )})`}
-                bg={useColorModeValue('white', 'gray.850')}
-                zIndex={1}
-                aria-label='Switch Assets'
-                icon={isLargerThanMd ? <ArrowForwardIcon /> : <ArrowDownIcon />}
-              />
-              <TradeAssetSelect
-                accountId={buyAssetAccountId}
-                assetId={buyAsset.assetId}
-                onAssetClick={handleBuyAssetClick}
-                onAccountIdChange={setBuyAssetAccountId}
-                accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
-                label={translate('trade.to')}
-              />
+        <Stack spacing={0} as='form' onSubmit={handleSubmit(onSubmit)}>
+          <CardHeader px={6}>
+            <Flex alignItems='center' justifyContent='space-between'>
+              <Heading as='h5' fontSize='md'>
+                {translate('navBar.trade')}
+              </Heading>
+              {activeSwapperSupportsSlippage && <SlippagePopover />}
             </Flex>
+          </CardHeader>
+          <Stack spacing={0}>
             <SellAssetInput
               accountId={sellAssetAccountId}
               asset={sellAsset}
-              label={translate('trade.youPay')}
+              label={translate('trade.payWith')}
+              onAccountIdChange={setSellAssetAccountId}
+              labelPostFix={
+                <TradeAssetSelect
+                  accountId={sellAssetAccountId}
+                  onAccountIdChange={setSellAssetAccountId}
+                  assetId={sellAsset.assetId}
+                  onAssetClick={handleSellAssetClick}
+                  label={translate('trade.from')}
+                  onAssetChange={setSellAsset}
+                />
+              }
             />
+            <Flex alignItems='center' justifyContent='center' my={-2}>
+              <Divider />
+              <IconButton
+                onClick={handleSwitchAssets}
+                isRound
+                size='sm'
+                position='relative'
+                variant='outline'
+                borderColor='border.base'
+                zIndex={1}
+                aria-label='Switch Assets'
+                icon={<ArrowDownIcon />}
+              />
+              <Divider />
+            </Flex>
             <TradeAssetInput
               isReadOnly={true}
               accountId={buyAssetAccountId}
@@ -332,52 +320,77 @@ export const TradeInput = memo(() => {
               showFiatSkeleton={isLoading}
               label={translate('trade.youGet')}
               rightRegion={rightRegion}
+              onAccountIdChange={setBuyAssetAccountId}
+              formControlProps={formControlProps}
+              labelPostFix={
+                <TradeAssetSelect
+                  accountId={buyAssetAccountId}
+                  assetId={buyAsset.assetId}
+                  onAssetClick={handleBuyAssetClick}
+                  onAccountIdChange={setBuyAssetAccountId}
+                  accountSelectionDisabled={!swapperSupportsCrossAccountTrade}
+                  label={translate('trade.to')}
+                  onAssetChange={setBuyAsset}
+                />
+              }
             >
               {tradeQuotes}
             </TradeAssetInput>
           </Stack>
-          {hasUserEnteredAmount && (
-            <Stack boxShadow='sm' p={4} borderColor={borderColor} borderRadius='xl' borderWidth={1}>
-              <RateGasRow
-                sellSymbol={sellAsset.symbol}
-                buySymbol={buyAsset.symbol}
-                gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
-                rate={rate}
-                isLoading={isLoading}
-                isError={activeQuoteError !== undefined}
-              />
-
-              {activeQuote ? (
-                <ReceiveSummary
+          <CardFooter
+            borderTopWidth={1}
+            borderColor='border.subtle'
+            flexDir='column'
+            gap={4}
+            px={6}
+            bg='background.surface.raised.accent'
+            borderBottomRadius='xl'
+          >
+            {hasUserEnteredAmount && (
+              <>
+                <RateGasRow
+                  sellSymbol={sellAsset.symbol}
+                  buySymbol={buyAsset.symbol}
+                  gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
+                  rate={rate}
                   isLoading={isLoading}
-                  symbol={buyAsset.symbol}
-                  amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
-                  amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
-                  protocolFees={totalProtocolFees}
-                  shapeShiftFee='0'
-                  slippage={slippageDecimal}
-                  swapperName={activeSwapperName ?? ''}
+                  isError={activeQuoteError !== undefined}
                 />
-              ) : null}
-              {isModeratePriceImpact && (
-                <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
-              )}
-            </Stack>
-          )}
-          {hasUserEnteredAmount && <DonationCheckbox isLoading={isLoading} />}
-          <ManualAddressEntry />
-          <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
-            <Button
-              type='submit'
-              colorScheme={quoteHasError ? 'red' : 'blue'}
-              size='lg-multiline'
-              data-test='trade-form-preview-button'
-              isDisabled={shouldDisablePreviewButton}
-              isLoading={isLoading}
-            >
-              <Text translation={activeQuoteStatus.quoteStatusTranslation} />
-            </Button>
-          </Tooltip>
+
+                {activeQuote ? (
+                  <ReceiveSummary
+                    isLoading={isLoading}
+                    symbol={buyAsset.symbol}
+                    amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
+                    amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
+                    protocolFees={totalProtocolFees}
+                    shapeShiftFee='0'
+                    slippage={slippageDecimal}
+                    swapperName={activeSwapperName ?? ''}
+                  />
+                ) : null}
+                {isModeratePriceImpact && (
+                  <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
+                )}
+              </>
+            )}
+
+            <ManualAddressEntry />
+            <Tooltip label={activeQuoteStatus.error?.message ?? activeQuoteStatus.quoteErrors[0]}>
+              <Button
+                type='submit'
+                colorScheme={quoteHasError ? 'red' : 'blue'}
+                size='lg-multiline'
+                data-test='trade-form-preview-button'
+                isDisabled={shouldDisablePreviewButton}
+                isLoading={isLoading}
+                mx={-2}
+              >
+                <Text translation={activeQuoteStatus.quoteStatusTranslation} />
+              </Button>
+            </Tooltip>
+            {hasUserEnteredAmount && <DonationCheckbox isLoading={isLoading} />}
+          </CardFooter>
         </Stack>
       </SlideTransition>
     </MessageOverlay>

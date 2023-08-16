@@ -24,7 +24,7 @@ export const zrxApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     { sellAssetUsdRate }: { sellAssetUsdRate: string },
-  ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
+  ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
     const {
       sellAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -52,12 +52,14 @@ export const zrxApi: Swapper2Api = {
       const firstHop = tradeQuote.steps[0]
       tradeQuoteMetadata.set(id, { chainId: firstHop.sellAsset.chainId as EvmChainId })
 
-      return {
-        id,
-        receiveAddress,
-        affiliateBps: isDonationAmountBelowMinimum ? undefined : affiliateBps,
-        ...tradeQuote,
-      }
+      return [
+        {
+          id,
+          receiveAddress,
+          affiliateBps: isDonationAmountBelowMinimum ? undefined : affiliateBps,
+          ...tradeQuote,
+        },
+      ]
     })
   },
 

@@ -15,7 +15,7 @@ export type TradeQuoteDeps = {
   runeAssetUsdRate: string
 }
 
-export type QuoteResult = Result<TradeQuote2, SwapErrorRight> & {
+export type QuoteResult = Result<TradeQuote2[], SwapErrorRight> & {
   swapperName: SwapperName
 }
 

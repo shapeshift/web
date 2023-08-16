@@ -23,7 +23,7 @@ export const thorchainApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     rates: TradeQuoteDeps,
-  ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
+  ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
     const { receiveAddress, affiliateBps } = input
 
     const mapTradeQuoteToTradeQuote2 = (
@@ -31,14 +31,16 @@ export const thorchainApi: Swapper2Api = {
       receiveAddress: string,
       affiliateBps: string | undefined,
       isDonationAmountBelowMinimum?: boolean,
-    ): Result<TradeQuote2, SwapErrorRight> => {
+    ): Result<TradeQuote2[], SwapErrorRight> => {
       const id = uuid()
-      return quote.map<TradeQuote2>(quote => ({
-        id,
-        receiveAddress,
-        affiliateBps: isDonationAmountBelowMinimum ? undefined : affiliateBps,
-        ...quote,
-      }))
+      return quote.map<TradeQuote2[]>(quote => [
+        {
+          id,
+          receiveAddress,
+          affiliateBps: isDonationAmountBelowMinimum ? undefined : affiliateBps,
+          ...quote,
+        },
+      ])
     }
 
     return await getThorTradeQuote(input).then(async firstQuote => {

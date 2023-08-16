@@ -47,7 +47,7 @@ export const cowApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     { sellAssetUsdRate, buyAssetUsdRate }: { sellAssetUsdRate: string; buyAssetUsdRate: string },
-  ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
+  ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
     const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInput, {
       sellAssetUsdRate,
       buyAssetUsdRate,
@@ -57,7 +57,7 @@ export const cowApi: Swapper2Api = {
     return tradeQuoteResult.map(tradeQuote => {
       const id = uuid()
       tradeQuoteMetadata.set(id, { chainId: tradeQuote.steps[0].sellAsset.chainId as EvmChainId })
-      return { id, receiveAddress, affiliateBps: undefined, ...tradeQuote }
+      return [{ id, receiveAddress, affiliateBps: undefined, ...tradeQuote }]
     })
   },
 

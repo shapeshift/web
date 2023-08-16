@@ -53,7 +53,7 @@ type ThorTradeQuote =
 
 export const getThorTradeQuote = async (
   input: GetTradeQuoteInput & { wallet?: HDWallet },
-): Promise<Result<ThorTradeQuote, SwapErrorRight>> => {
+): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
     buyAsset,
@@ -177,7 +177,7 @@ export const getThorTradeQuote = async (
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm:
-      return (async (): Promise<Promise<Result<ThorEvmTradeQuote, SwapErrorRight>>> => {
+      return (async (): Promise<Promise<Result<ThorEvmTradeQuote[], SwapErrorRight>>> => {
         const maybeThorTxInfo = await getEvmThorTxInfo({
           sellAsset,
           sellAmountCryptoBaseUnit,
@@ -200,26 +200,28 @@ export const getThorTradeQuote = async (
         if (maybeEvmTxFees.isErr()) return Err(maybeEvmTxFees.unwrapErr())
         const { networkFeeCryptoBaseUnit } = maybeEvmTxFees.unwrap()
 
-        return Ok({
-          ...commonQuoteFields,
-          rate,
-          data,
-          router,
-          steps: [
-            {
-              ...commonStepFields,
-              allowanceContract: router,
-              feeData: {
-                networkFeeCryptoBaseUnit,
-                protocolFees,
+        return Ok([
+          {
+            ...commonQuoteFields,
+            rate,
+            data,
+            router,
+            steps: [
+              {
+                ...commonStepFields,
+                allowanceContract: router,
+                feeData: {
+                  networkFeeCryptoBaseUnit,
+                  protocolFees,
+                },
               },
-            },
-          ],
-        })
+            ],
+          },
+        ])
       })()
 
     case CHAIN_NAMESPACE.Utxo:
-      return (async (): Promise<Result<TradeQuote<ThorUtxoSupportedChainId>, SwapErrorRight>> => {
+      return (async (): Promise<Result<TradeQuote<ThorUtxoSupportedChainId>[], SwapErrorRight>> => {
         const maybeThorTxInfo = await getUtxoThorTxInfo({
           sellAsset,
           xpub: (input as GetUtxoTradeQuoteInput).xpub,
@@ -239,21 +241,23 @@ export const getThorTradeQuote = async (
           protocolFees,
         })
 
-        return Ok({
-          ...commonQuoteFields,
-          rate,
-          steps: [
-            {
-              ...commonStepFields,
-              allowanceContract: '0x0', // not applicable to UTXOs
-              feeData,
-            },
-          ],
-        })
+        return Ok([
+          {
+            ...commonQuoteFields,
+            rate,
+            steps: [
+              {
+                ...commonStepFields,
+                allowanceContract: '0x0', // not applicable to UTXOs
+                feeData,
+              },
+            ],
+          },
+        ])
       })()
     case CHAIN_NAMESPACE.CosmosSdk:
       return (async (): Promise<
-        Result<TradeQuote<ThorCosmosSdkSupportedChainId>, SwapErrorRight>
+        Result<TradeQuote<ThorCosmosSdkSupportedChainId>[], SwapErrorRight>
       > => {
         const getFeeDataInput: Partial<GetFeeDataInput<CosmosSdkChainId>> = {}
 
@@ -261,21 +265,25 @@ export const getThorTradeQuote = async (
           sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
         ).getFeeData(getFeeDataInput)
 
-        return Ok({
-          ...commonQuoteFields,
-          rate,
-          steps: [
-            {
-              ...commonStepFields,
-              allowanceContract: '0x0', // not applicable to cosmos
-              feeData: {
-                networkFeeCryptoBaseUnit: feeData.fast.txFee,
-                protocolFees,
-                chainSpecific: { estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit },
+        return Ok([
+          {
+            ...commonQuoteFields,
+            rate,
+            steps: [
+              {
+                ...commonStepFields,
+                allowanceContract: '0x0', // not applicable to cosmos
+                feeData: {
+                  networkFeeCryptoBaseUnit: feeData.fast.txFee,
+                  protocolFees,
+                  chainSpecific: {
+                    estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit,
+                  },
+                },
               },
-            },
-          ],
-        })
+            ],
+          },
+        ])
       })()
     default:
       return Err(

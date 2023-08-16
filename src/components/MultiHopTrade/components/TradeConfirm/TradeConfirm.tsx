@@ -484,9 +484,11 @@ export const TradeConfirm = () => {
                   </Box>
                 </Row>
               )}
-              {isModeratePriceImpact && (
-                <PriceImpact impactPercentage={bn(priceImpactPercentage).toFixed(2)} />
-              )}
+              <Row px={4}>
+                {isModeratePriceImpact && (
+                  <PriceImpact impactPercentage={bn(priceImpactPercentage).toFixed(2)} />
+                )}
+              </Row>
               <Row px={4}>
                 <HelperTooltip label={translate('trade.tooltip.rate')}>
                   <Row.Label>

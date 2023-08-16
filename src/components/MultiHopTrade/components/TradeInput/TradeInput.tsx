@@ -110,9 +110,9 @@ export const TradeInput = memo(() => {
   const priceImpactPercentage = useMemo(() => {
     if (!sellAmountBeforeFeesUserCurrency || !buyAmountBeforeFeesUserCurrency) return bn('0')
 
-    const tradeDifference = bn(sellAmountBeforeFeesUserCurrency)
-      .minus(buyAmountBeforeFeesUserCurrency)
-      .abs()
+    const tradeDifference = bn(sellAmountBeforeFeesUserCurrency).minus(
+      buyAmountBeforeFeesUserCurrency,
+    )
 
     return tradeDifference.div(sellAmountBeforeFeesUserCurrency).times(100)
   }, [sellAmountBeforeFeesUserCurrency, buyAmountBeforeFeesUserCurrency])

@@ -26,11 +26,14 @@ export const useSupportedAssets = () => {
   useEffect(() => {
     ;(async () => {
       const assetIds = await getSupportedSellAssetIds(enabledSwappers)
-      const filteredAssetIds = [...assetIds].filter(assetId => {
+      const filteredAssetIds = new Set<AssetId>()
+      assetIds.forEach(assetId => {
         const chainId = fromAssetId(assetId).chainId
-        return walletSupportsChain({ chainId, wallet })
+        if (walletSupportsChain({ chainId, wallet })) {
+          filteredAssetIds.add(assetId)
+        }
       })
-      setSupportedSellAssetIds(new Set(filteredAssetIds))
+      setSupportedSellAssetIds(filteredAssetIds)
     })()
   }, [enabledSwappers, sortedAssets, wallet])
 

@@ -67,7 +67,7 @@ export const getThorTradeQuote = async (
   const slippageTolerance =
     slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain)
 
-  const { sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate } = rates
+  const { buyAssetUsdRate, feeAssetUsdRate } = rates
 
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
 
@@ -125,8 +125,6 @@ export const getThorTradeQuote = async (
     return bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed()
   })()
 
-  const buySellAssetRate = bn(buyAssetUsdRate).div(sellAssetUsdRate)
-
   const buyAssetTradeFeeBuyAssetCryptoThorPrecision = bnOrZero(fees.outbound)
 
   const buyAssetTradeFeeBuyAssetCryptoBaseUnit = convertPrecision({
@@ -134,13 +132,6 @@ export const getThorTradeQuote = async (
     inputExponent: THORCHAIN_FIXED_PRECISION,
     outputExponent: buyAsset.precision,
   })
-
-  // donation is denominated in the buy asset from thor but we display it in sell asset for ux reasons
-  const sellAssetTradeFeeCryptoBaseUnit = convertPrecision({
-    value: fees.affiliate,
-    inputExponent: THORCHAIN_FIXED_PRECISION,
-    outputExponent: sellAsset.precision,
-  }).times(buySellAssetRate)
 
   // Because the expected_amount_out is the amount after fees, we need to add them back on to get the "before fees" amount
   const buyAmountCryptoBaseUnit = (() => {
@@ -176,14 +167,6 @@ export const getThorTradeQuote = async (
       amountCryptoBaseUnit: buyAssetTradeFeeBuyAssetCryptoBaseUnit.toString(),
       requiresBalance: false,
       asset: buyAsset,
-    }
-  }
-
-  if (!sellAssetTradeFeeCryptoBaseUnit.isZero()) {
-    protocolFees[sellAsset.assetId] = {
-      amountCryptoBaseUnit: sellAssetTradeFeeCryptoBaseUnit.toString(),
-      requiresBalance: false,
-      asset: sellAsset,
     }
   }
 

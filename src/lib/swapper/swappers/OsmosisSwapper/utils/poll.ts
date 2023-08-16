@@ -20,6 +20,7 @@ export const pollForComplete = ({
     const interval = 5000 // 5 seconds
 
     const poll = function () {
+      // TODO: this should just be a fetch to unchained
       const tx = selectTxById(getState(), txid)
       if (tx?.status === TxStatus.Confirmed) {
         resolve('success')
@@ -59,6 +60,7 @@ export const pollForCrossChainComplete = ({
     const interval = 5000 // 5 seconds
 
     const poll = function () {
+      // TODO: this should just be a fetch to unchained
       const initiatingChainTx = selectTxById(getState(), initiatingChainTxid)
       if (initiatingChainTx && initiatingChainTx.status === TxStatus.Confirmed) {
         // Initiating Tx is successful, now we need to wait for the destination tx to be picked up by validators

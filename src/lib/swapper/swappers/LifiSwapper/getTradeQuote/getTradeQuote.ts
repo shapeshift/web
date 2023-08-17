@@ -10,10 +10,7 @@ import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
-import {
-  LIFI_INTEGRATOR_ID,
-  SELECTED_ROUTE_INDEX,
-} from 'lib/swapper/swappers/LifiSwapper/utils/constants'
+import { LIFI_INTEGRATOR_ID } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
 import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwapper/utils/getIntermediaryTransactionOutputs/getIntermediaryTransactionOutputs'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
@@ -26,7 +23,7 @@ export async function getTradeQuote(
   input: GetEvmTradeQuoteInput & { wallet?: HDWallet },
   lifiChainMap: Map<ChainId, ChainKey>,
   assets: Partial<Record<AssetId, Asset>>,
-): Promise<Result<LifiTradeQuote, SwapErrorRight>> {
+): Promise<Result<LifiTradeQuote[], SwapErrorRight>> {
   const {
     chainId,
     sellAsset,
@@ -120,9 +117,9 @@ export async function getTradeQuote(
 
   if (routesResponse.isErr()) return Err(routesResponse.unwrapErr())
 
-  const selectedLifiRoute = routesResponse.unwrap().routes[SELECTED_ROUTE_INDEX]
+  const { routes } = routesResponse.unwrap()
 
-  if (selectedLifiRoute === undefined) {
+  if (routes.length === 0) {
     return Err(
       makeSwapErrorRight({
         message: 'no route found',
@@ -131,81 +128,82 @@ export async function getTradeQuote(
     )
   }
 
-  // this corresponds to a "hop", so we could map the below code over selectedLifiRoute.steps to
-  // generate a multi-hop quote
-  const steps = await Promise.all(
-    selectedLifiRoute.steps.map(async lifiStep => {
-      // for the rate to be valid, both amounts must be converted to the same precision
-      const estimateRate = convertPrecision({
-        value: selectedLifiRoute.toAmountMin,
-        inputExponent: buyAsset.precision,
-        outputExponent: sellAsset.precision,
-      })
-        .dividedBy(bn(selectedLifiRoute.fromAmount))
-        .toString()
+  return Ok(
+    await Promise.all(
+      await routes.slice(0, 3).map(async selectedLifiRoute => {
+        // this corresponds to a "hop", so we could map the below code over selectedLifiRoute.steps to
+        // generate a multi-hop quote
+        const steps = await Promise.all(
+          selectedLifiRoute.steps.map(async lifiStep => {
+            // for the rate to be valid, both amounts must be converted to the same precision
+            const estimateRate = convertPrecision({
+              value: selectedLifiRoute.toAmountMin,
+              inputExponent: buyAsset.precision,
+              outputExponent: sellAsset.precision,
+            })
+              .dividedBy(bn(selectedLifiRoute.fromAmount))
+              .toString()
 
-      const protocolFees = transformLifiStepFeeData({
-        chainId,
-        lifiStep,
-        assets,
-      })
+            const protocolFees = transformLifiStepFeeData({
+              chainId,
+              lifiStep,
+              assets,
+            })
 
-      const buyAmountCryptoBaseUnit = bnOrZero(selectedLifiRoute.toAmountMin)
-      const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(assets, lifiStep)
+            const buyAmountCryptoBaseUnit = bnOrZero(selectedLifiRoute.toAmountMin)
+            const intermediaryTransactionOutputs = getIntermediaryTransactionOutputs(
+              assets,
+              lifiStep,
+            )
 
-      const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
-        accountNumber,
-        chainId,
-        lifiStep,
-        supportsEIP1559,
-        wallet,
-      })
+            const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
+              accountNumber,
+              chainId,
+              lifiStep,
+              supportsEIP1559,
+              wallet,
+            })
 
-      return {
-        allowanceContract: lifiStep.estimate.approvalAddress,
-        accountNumber,
-        buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
-        buyAsset,
-        intermediaryTransactionOutputs,
-        feeData: {
-          protocolFees,
-          networkFeeCryptoBaseUnit,
-        },
-        // TODO(woodenfurniture):  this step-level key should be a step-level value, rather than the top-level rate.
-        // might be better replaced by inputOutputRatio downstream
-        rate: estimateRate,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        sellAsset,
-        sources: [
-          { name: `${selectedLifiRoute.steps[0].tool} (${SwapperName.LIFI})`, proportion: '1' },
-        ],
-      }
-    }),
+            return {
+              allowanceContract: lifiStep.estimate.approvalAddress,
+              accountNumber,
+              buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit.toString(),
+              buyAsset,
+              intermediaryTransactionOutputs,
+              feeData: {
+                protocolFees,
+                networkFeeCryptoBaseUnit,
+              },
+              // TODO(woodenfurniture):  this step-level key should be a step-level value, rather than the top-level rate.
+              // might be better replaced by inputOutputRatio downstream
+              rate: estimateRate,
+              sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              sellAsset,
+              sources: [
+                {
+                  name: `${selectedLifiRoute.steps[0].tool} (${SwapperName.LIFI})`,
+                  proportion: '1',
+                },
+              ],
+            }
+          }),
+        )
+
+        // The rate for the entire multi-hop swap
+        const netRate = convertPrecision({
+          value: selectedLifiRoute.toAmountMin,
+          inputExponent: buyAsset.precision,
+          outputExponent: sellAsset.precision,
+        })
+          .dividedBy(bn(selectedLifiRoute.fromAmount))
+          .toString()
+
+        return {
+          steps,
+          rate: netRate,
+          selectedLifiRoute,
+        }
+      }),
+    ),
   )
-    .then(result => Ok(result))
-    .catch((e: LifiError) =>
-      Err(
-        makeSwapErrorRight({
-          message: e.message,
-          code: SwapErrorType.TRADE_QUOTE_FAILED,
-        }),
-      ),
-    )
-
-  if (steps.isErr()) return Err(steps.unwrapErr())
-
-  // The rate for the entire multi-hop swap
-  const netRate = convertPrecision({
-    value: selectedLifiRoute.toAmountMin,
-    inputExponent: buyAsset.precision,
-    outputExponent: sellAsset.precision,
-  })
-    .dividedBy(bn(selectedLifiRoute.fromAmount))
-    .toString()
-
-  return Ok({
-    steps: steps.unwrap(),
-    rate: netRate,
-    selectedLifiRoute,
-  })
 }

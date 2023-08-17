@@ -7,6 +7,7 @@ import type {
   MarketDataArgs,
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
+import { _getRelatedAssetIds } from 'state/apis/zerion/zerionApi'
 
 // import { Yearn } from '@yfi/sdk'
 import type { MarketService } from './api'
@@ -93,7 +94,30 @@ export class MarketServiceManager {
         // Swallow error, not every asset will be with every provider.
       }
     }
-    if (!result) return null
+
+    // If we don't find any results, then we look for related assets
+    if (!result) {
+      const relatedAssetIds = await _getRelatedAssetIds(assetId)
+      if (!relatedAssetIds.length) return null
+
+      for (const relatedAssetId of relatedAssetIds) {
+        // Loop through market providers and look for related asset market data.
+        for (let i = 0; i < this.marketProviders.length && !result; i++) {
+          try {
+            result = await this.marketProviders[i].findByAssetId({ assetId: relatedAssetId })
+            if (result) {
+              console.log(`Found data for related asset ID: ${relatedAssetId}`, result)
+              break
+            }
+          } catch (e) {
+            // Swallow error, not every related asset will be with every provider.
+          }
+        }
+
+        if (result) break // Exit the outer loop once a result is found
+      }
+    }
+
     return result
   }
 

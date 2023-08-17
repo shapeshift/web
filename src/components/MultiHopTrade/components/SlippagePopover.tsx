@@ -24,7 +24,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { selectSlippagePreferencePercentage } from 'state/slices/swappersSlice/selectors'
+import { selectUserSlippagePercentage } from 'state/slices/swappersSlice/selectors'
 import { swappers } from 'state/slices/swappersSlice/swappersSlice'
 import { selectQuoteOrDefaultSlippagePercentage } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -40,7 +40,7 @@ const focusStyle = { '&[aria-invalid=true]': { borderColor: 'red.500' } }
 
 export const SlippagePopover: FC = () => {
   const defaultSlippagePercentage = useAppSelector(selectQuoteOrDefaultSlippagePercentage)
-  const userSlippagePercentage = useAppSelector(selectSlippagePreferencePercentage)
+  const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
 
   const [slippageType, setSlippageType] = useState<SlippageType>(SlippageType.Auto)
   const [slippageAmount, setSlippageAmount] = useState(defaultSlippagePercentage)

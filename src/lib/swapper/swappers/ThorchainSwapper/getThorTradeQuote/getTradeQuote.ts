@@ -100,9 +100,8 @@ export const getThorTradeQuote = async (
     slippage_bps: slippageBps,
     fees,
     expected_amount_out: expectedAmountOutThorBaseUnit,
+    memo,
   } = thornodeQuote
-
-  const memo = thornodeQuote.memo
 
   const slippagePercentage = bn(slippageBps).div(1000)
 

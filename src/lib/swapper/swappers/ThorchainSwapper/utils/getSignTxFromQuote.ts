@@ -88,6 +88,8 @@ export const getSignTxFromQuote = async ({
       })
 
       if (maybeThornodeQuote.isErr()) throw maybeThornodeQuote.unwrapErr()
+      const thorchainQuote = maybeThornodeQuote.unwrap()
+      const { memo } = thorchainQuote
 
       const cosmosSdkChainAdapter =
         adapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
@@ -105,7 +107,7 @@ export const getSignTxFromQuote = async ({
         affiliateBps,
         buyAssetUsdRate,
         feeAssetUsdRate,
-        thornodeQuote: maybeThornodeQuote.unwrap(),
+        memo,
       })
 
       if (maybeTxData.isErr()) throw maybeTxData.unwrapErr()

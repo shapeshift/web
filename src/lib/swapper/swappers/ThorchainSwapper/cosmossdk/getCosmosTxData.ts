@@ -9,10 +9,7 @@ import { getConfig } from 'config'
 import type { Asset } from 'lib/asset-service'
 import type { SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
-import type {
-  ThorCosmosSdkSupportedChainId,
-  ThornodeQuoteResponseSuccess,
-} from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type { ThorCosmosSdkSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 
 type GetCosmosTxDataInput = {
@@ -29,21 +26,14 @@ type GetCosmosTxDataInput = {
   affiliateBps: string
   buyAssetUsdRate: string
   feeAssetUsdRate: string
-  thornodeQuote: ThornodeQuoteResponseSuccess
+  memo: string
 }
 
 export const getCosmosTxData = async (
   input: GetCosmosTxDataInput,
 ): Promise<Result<ThorchainSignTx | CosmosSignTx, SwapErrorRight>> => {
-  const {
-    accountNumber,
-    sellAmountCryptoBaseUnit,
-    sellAsset,
-    quote,
-    from,
-    sellAdapter,
-    thornodeQuote,
-  } = input
+  const { accountNumber, sellAmountCryptoBaseUnit, sellAsset, quote, from, sellAdapter, memo } =
+    input
   const fromThorAsset = sellAsset.chainId === KnownChainIds.ThorchainMainnet
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const maybeVault = await (async () => {
@@ -64,8 +54,6 @@ export const getCosmosTxData = async (
         details: { chainId: input.chainId },
       }),
     )
-
-  const memo = thornodeQuote.memo
 
   const maybeBuiltTxResponse = (() => {
     switch (true) {

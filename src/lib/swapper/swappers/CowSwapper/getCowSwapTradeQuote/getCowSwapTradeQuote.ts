@@ -5,12 +5,12 @@ import type { AxiosError } from 'axios'
 import { getConfig } from 'config'
 import { bn } from 'lib/bignumber/bignumber'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 import type { CowChainId, CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
   DEFAULT_APP_DATA,
-  DEFAULT_SOURCE,
   ORDER_KIND_SELL,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
@@ -115,7 +115,7 @@ export async function getCowSwapTradeQuote(
         },
         sellAmountIncludingProtocolFeesCryptoBaseUnit: normalizedSellAmountCryptoBaseUnit,
         buyAmountBeforeFeesCryptoBaseUnit,
-        sources: DEFAULT_SOURCE,
+        source: SwapperName.CowSwap,
         buyAsset,
         sellAsset,
         accountNumber,

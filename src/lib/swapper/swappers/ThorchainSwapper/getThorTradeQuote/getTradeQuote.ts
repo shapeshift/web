@@ -12,6 +12,7 @@ import type {
   GetUtxoTradeQuoteInput,
   ProtocolFee,
   SwapErrorRight,
+  SwapSource,
   TradeQuote,
 } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
@@ -107,11 +108,13 @@ export const getThorTradeQuote = async (
   const perRouteValues = [
     {
       // regular swap
+      isStreaming: false,
       slippageBps: thornodeQuote.slippage_bps,
       expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out,
     },
     {
       // streaming swap
+      isStreaming: true,
       slippageBps: thornodeQuote.streaming_slippage_bps,
       expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out_streaming,
     },
@@ -182,9 +185,12 @@ export const getThorTradeQuote = async (
       })
 
       return Ok(
-        perRouteValues.map(({ slippageBps, expectedAmountOutThorBaseUnit }) => {
+        perRouteValues.map(({ isStreaming, slippageBps, expectedAmountOutThorBaseUnit }) => {
           const rate = getRouteRate(expectedAmountOutThorBaseUnit)
           const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(expectedAmountOutThorBaseUnit)
+          const source: SwapSource = isStreaming
+            ? `${SwapperName.Thorchain} • Streaming`
+            : SwapperName.Thorchain
           return {
             recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
             rate,
@@ -195,7 +201,7 @@ export const getThorTradeQuote = async (
                 rate,
                 sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
                 buyAmountBeforeFeesCryptoBaseUnit,
-                sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
+                source,
                 buyAsset,
                 sellAsset,
                 accountNumber,
@@ -243,7 +249,7 @@ export const getThorTradeQuote = async (
                 rate,
                 sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
                 buyAmountBeforeFeesCryptoBaseUnit,
-                sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
+                source: SwapperName.Thorchain,
                 buyAsset,
                 sellAsset,
                 accountNumber,
@@ -272,7 +278,7 @@ export const getThorTradeQuote = async (
                 rate,
                 sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
                 buyAmountBeforeFeesCryptoBaseUnit,
-                sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
+                source: SwapperName.Thorchain,
                 buyAsset,
                 sellAsset,
                 accountNumber,

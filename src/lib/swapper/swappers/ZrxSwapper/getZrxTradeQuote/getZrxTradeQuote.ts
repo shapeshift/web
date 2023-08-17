@@ -8,7 +8,6 @@ import { getTreasuryAddressFromChainId } from 'lib/swapper/swappers/utils/helper
 import type { ZrxPriceResponse, ZrxSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/types'
 import {
   AFFILIATE_ADDRESS,
-  DEFAULT_SOURCE,
   OPTIMISM_L1_SWAP_GAS_LIMIT,
 } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
 import {
@@ -99,7 +98,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
           },
           buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          sources: data.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
+          source: SwapperName.Zrx,
         },
       ],
     } as TradeQuote<T>) // TODO: remove this cast, it's a recipe for bugs

@@ -98,7 +98,7 @@ export const swappersApi = createApi({
           quotesWithInputOutputRatios,
           ['inputOutputRatio', 'swapperName'],
           ['desc', 'asc'],
-        )
+        ).map((apiQuote, index) => Object.assign(apiQuote, { index }))
 
         return { data: orderedQuotes }
       },

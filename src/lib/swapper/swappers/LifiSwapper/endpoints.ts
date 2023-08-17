@@ -19,11 +19,15 @@ import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getLifiChainMap } from './utils/getLifiChainMap'
+import { getLifiToolsMap } from './utils/getLifiToolsMap'
 import { getUnsignedTx } from './utils/getUnsignedTx/getUnsignedTx'
+import type { LifiTool } from './utils/types'
 
 const tradeQuoteMetadata: Map<string, Route> = new Map()
 
-let lifiChainMapPromise: Promise<Result<Map<ChainId, ChainKey>, SwapErrorRight>> | undefined
+// cached metadata - would need persistent cache with expiry if moved server-side
+let lifiChainMapPromise: Promise<Map<ChainId, ChainKey>> | undefined
+let lifiToolsMapPromise: Promise<Map<string, LifiTool>> | undefined
 
 export const lifiApi: Swapper2Api = {
   getTradeQuote: async (
@@ -38,15 +42,19 @@ export const lifiApi: Swapper2Api = {
         }),
       )
     }
+
     if (lifiChainMapPromise === undefined) lifiChainMapPromise = getLifiChainMap()
+    if (lifiToolsMapPromise === undefined) lifiToolsMapPromise = getLifiToolsMap()
 
-    const maybeLifiChainMap = await lifiChainMapPromise
-
-    if (maybeLifiChainMap.isErr()) return Err(maybeLifiChainMap.unwrapErr())
+    const [lifiChainMap, lifiToolsMap] = await Promise.all([
+      lifiChainMapPromise,
+      lifiToolsMapPromise,
+    ])
 
     const tradeQuoteResult = await getTradeQuote(
       input as GetEvmTradeQuoteInput,
-      maybeLifiChainMap.unwrap(),
+      lifiChainMap,
+      lifiToolsMap,
       assets,
     )
     const { receiveAddress } = input

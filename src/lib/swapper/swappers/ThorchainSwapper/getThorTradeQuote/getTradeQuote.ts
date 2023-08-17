@@ -10,10 +10,8 @@ import type {
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { getConfig } from 'config'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import type { BigNumber } from 'lib/bignumber/bignumber'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type {
@@ -32,11 +30,7 @@ import type {
   ThorEvmSupportedChainId,
   ThorUtxoSupportedChainId,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
-import {
-  THOR_MINIMUM_PADDING,
-  THORCHAIN_FIXED_PRECISION,
-} from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
-import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
+import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
@@ -73,11 +67,10 @@ export const getThorTradeQuote = async (
   const slippageTolerance =
     slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain)
 
-  const { sellAssetUsdRate, buyAssetUsdRate, feeAssetUsdRate } = rates
+  const { buyAssetUsdRate, feeAssetUsdRate } = rates
 
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
 
-  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const chainAdapterManager = getChainAdapterManager()
   const sellAdapter = chainAdapterManager.get(chainId)
   const buyAdapter = chainAdapterManager.get(buyAssetChainId)
@@ -110,10 +103,15 @@ export const getThorTradeQuote = async (
   })
 
   if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
-  const quote = maybeQuote.unwrap()
-  const { fees, expected_amount_out: expectedAmountOutThorBaseUnit } = quote
 
-  const slippagePercentage = bn(quote.slippage_bps).div(1000)
+  const thornodeQuote = maybeQuote.unwrap()
+  const {
+    slippage_bps: slippageBps,
+    fees,
+    expected_amount_out: expectedAmountOutThorBaseUnit,
+  } = thornodeQuote
+
+  const slippagePercentage = bn(slippageBps).div(1000)
 
   const rate = (() => {
     const THOR_PRECISION = 8
@@ -127,23 +125,7 @@ export const getThorTradeQuote = async (
     return bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed()
   })()
 
-  const buySellAssetRate = bn(buyAssetUsdRate).div(sellAssetUsdRate)
-
-  const maybeBuyAssetTradeFeeBuyAssetCryptoThorPrecision = fees
-    ? Ok(bnOrZero(fees.outbound))
-    : (await getInboundAddressDataForChain(daemonUrl, buyAsset.assetId)).andThen<BigNumber>(data =>
-        Ok(bnOrZero(data?.outbound_fee)),
-      )
-
-  const buyAssetTradeFeeBuyAssetCryptoThorPrecision =
-    maybeBuyAssetTradeFeeBuyAssetCryptoThorPrecision.isErr()
-      ? bn(0)
-      : maybeBuyAssetTradeFeeBuyAssetCryptoThorPrecision.unwrap()
-
-  const buyAssetTradeFeeBuyAssetCryptoHuman = fromBaseUnit(
-    buyAssetTradeFeeBuyAssetCryptoThorPrecision,
-    THORCHAIN_FIXED_PRECISION,
-  )
+  const buyAssetTradeFeeBuyAssetCryptoThorPrecision = bnOrZero(fees.outbound)
 
   const buyAssetTradeFeeBuyAssetCryptoBaseUnit = convertPrecision({
     value: buyAssetTradeFeeBuyAssetCryptoThorPrecision,
@@ -151,20 +133,12 @@ export const getThorTradeQuote = async (
     outputExponent: buyAsset.precision,
   })
 
-  // donation is denominated in the buy asset from thor but we display it in sell asset for ux reasons
-  const sellAssetTradeFeeCryptoBaseUnit = convertPrecision({
-    value: fees ? fees.affiliate : '0',
-    inputExponent: THORCHAIN_FIXED_PRECISION,
-    outputExponent: sellAsset.precision,
-  }).times(buySellAssetRate)
-
   // Because the expected_amount_out is the amount after fees, we need to add them back on to get the "before fees" amount
   const buyAmountCryptoBaseUnit = (() => {
-    const expectedAmountOutThorBaseUnit = quote.expected_amount_out
     // Add back the outbound fees
     const expectedAmountPlusFeesCryptoThorBaseUnit = bn(expectedAmountOutThorBaseUnit)
-      .plus(quote.fees.outbound)
-      .plus(quote.fees.affiliate)
+      .plus(fees.outbound)
+      .plus(fees.affiliate)
 
     return toBaseUnit(
       fromBaseUnit(expectedAmountPlusFeesCryptoThorBaseUnit, THORCHAIN_FIXED_PRECISION),
@@ -172,22 +146,7 @@ export const getThorTradeQuote = async (
     )
   })()
 
-  const buyAssetTradeFeeUsd = bn(buyAssetUsdRate)
-    .times(buyAssetTradeFeeBuyAssetCryptoHuman)
-    .toString()
-
-  const minimumSellAssetAmountCryptoHuman = bn(sellAssetUsdRate).isGreaterThan(0)
-    ? bnOrZero(buyAssetTradeFeeUsd).div(sellAssetUsdRate)
-    : bn(0) // We don't have a valid rate for the sell asset, there is no sane minimum
-
-  // minimum is tradeFee padded by an amount to be sure they get something back
-  // usually it will be slightly more than the amount because sellAssetTradeFee is already a high estimate
-  const minimumSellAssetAmountPaddedCryptoHuman = minimumSellAssetAmountCryptoHuman
-    .times(THOR_MINIMUM_PADDING)
-    .toString()
-
   const commonQuoteFields = {
-    minimumCryptoHuman: minimumSellAssetAmountPaddedCryptoHuman,
     recommendedSlippage: slippagePercentage.div(100).toString(),
   }
 
@@ -211,14 +170,6 @@ export const getThorTradeQuote = async (
     }
   }
 
-  if (!sellAssetTradeFeeCryptoBaseUnit.isZero()) {
-    protocolFees[sellAsset.assetId] = {
-      amountCryptoBaseUnit: sellAssetTradeFeeCryptoBaseUnit.toString(),
-      requiresBalance: false,
-      asset: sellAsset,
-    }
-  }
-
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm:
@@ -233,6 +184,7 @@ export const getThorTradeQuote = async (
           affiliateBps,
           buyAssetUsdRate,
           feeAssetUsdRate,
+          thornodeQuote,
         })
 
         if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
@@ -282,6 +234,7 @@ export const getThorTradeQuote = async (
           affiliateBps,
           buyAssetUsdRate,
           feeAssetUsdRate,
+          thornodeQuote,
         })
 
         if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())

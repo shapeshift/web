@@ -2,7 +2,6 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { getTreasuryAddressFromChainId } from 'lib/swapper/swappers/utils/helpers/helpers'
@@ -22,11 +21,8 @@ import { zrxServiceFactory } from 'lib/swapper/swappers/ZrxSwapper/utils/zrxServ
 import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
-import { getMinimumCryptoHuman } from '../getMinimumCryptoHuman/getMinimumCryptoHuman'
-
 export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   input: GetEvmTradeQuoteInput,
-  sellAssetUsdRate: string,
 ): Promise<Result<TradeQuote<T>, SwapErrorRight>> {
   const {
     sellAsset,
@@ -37,8 +33,8 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     chainId,
     supportsEIP1559,
     slippageTolerancePercentage,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
-  const sellAmountBeforeFeesCryptoBaseUnit = input.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
   const assertion = assertValidTrade({ buyAsset, sellAsset, receiveAddress })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
@@ -46,13 +42,6 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   const maybeAdapter = getAdapter(chainId)
   if (maybeAdapter.isErr()) return Err(maybeAdapter.unwrapErr())
   const adapter = maybeAdapter.unwrap()
-
-  const minimumCryptoHuman = getMinimumCryptoHuman(sellAssetUsdRate)
-  const minimumCryptoBaseUnit = toBaseUnit(minimumCryptoHuman, sellAsset.precision)
-
-  const sellAmountCryptoBaseUnit = bnOrZero(sellAmountBeforeFeesCryptoBaseUnit).eq(0)
-    ? minimumCryptoBaseUnit
-    : sellAmountBeforeFeesCryptoBaseUnit
 
   const maybeBaseUrl = baseUrlFromChainId(buyAsset.chainId)
   if (maybeBaseUrl.isErr()) return Err(maybeBaseUrl.unwrapErr())
@@ -63,7 +52,7 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
     params: {
       buyToken: assetToToken(buyAsset),
       sellToken: assetToToken(sellAsset),
-      sellAmount: sellAmountCryptoBaseUnit,
+      sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       takerAddress: receiveAddress,
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
       skipValidation: true,
@@ -77,20 +66,8 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
   if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
   const { data } = maybeZrxPriceResponse.unwrap()
 
-  const useSellAmount = !!sellAmountBeforeFeesCryptoBaseUnit
+  const useSellAmount = !!sellAmountIncludingProtocolFeesCryptoBaseUnit
   const rate = useSellAmount ? data.price : bn(1).div(data.price).toString()
-
-  // don't show buy amount if less than min sell amount
-  const isSellAmountBelowMinimum = bnOrZero(sellAmountCryptoBaseUnit).lt(minimumCryptoBaseUnit)
-
-  if (isSellAmountBelowMinimum)
-    return Err(
-      makeSwapErrorRight({
-        message: `[getTradeRate]: Sell amount is below the 0x minimum, cannot get a trade rate from 0x.`,
-        code: SwapErrorType.TRADE_BELOW_MINIMUM,
-        details: { sellAssetId: sellAsset.assetId, buyAssetId: buyAsset.assetId },
-      }),
-    )
 
   const buyAmountCryptoBaseUnit = data.buyAmount
 
@@ -109,7 +86,6 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
 
     return Ok({
       rate,
-      minimumCryptoHuman,
       steps: [
         {
           allowanceContract: data.allowanceTarget,
@@ -118,11 +94,11 @@ export async function getZrxTradeQuote<T extends ZrxSupportedChainId>(
           accountNumber,
           rate,
           feeData: {
-            networkFeeCryptoBaseUnit,
             protocolFees: {},
+            networkFeeCryptoBaseUnit,
           },
           buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
           sources: data.sources?.filter(s => parseFloat(s.proportion) > 0) || DEFAULT_SOURCE,
         },
       ],

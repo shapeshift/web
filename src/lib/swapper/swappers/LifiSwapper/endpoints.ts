@@ -28,7 +28,7 @@ let lifiChainMapPromise: Promise<Result<Map<ChainId, ChainKey>, SwapErrorRight>>
 export const lifiApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    { assets, sellAssetUsdRate }: TradeQuoteDeps,
+    { assets }: TradeQuoteDeps,
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(
@@ -48,7 +48,6 @@ export const lifiApi: Swapper2Api = {
       input as GetEvmTradeQuoteInput,
       maybeLifiChainMap.unwrap(),
       assets,
-      sellAssetUsdRate,
     )
     const { receiveAddress } = input
 

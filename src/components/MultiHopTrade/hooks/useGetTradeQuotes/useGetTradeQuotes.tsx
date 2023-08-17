@@ -22,7 +22,7 @@ import {
   selectSellAccountId,
   selectSellAmountCryptoPrecision,
   selectSellAsset,
-  selectSlippagePreferencePercentageDecimal,
+  selectUserSlippagePercentageDecimal,
   selectWillDonate,
 } from 'state/slices/selectors'
 import {
@@ -107,7 +107,7 @@ export const useGetTradeQuotes = () => {
   const sellAccountId = useAppSelector(selectSellAccountId)
   const buyAccountId = useAppSelector(selectBuyAccountId)
 
-  const userSlippageTolerancePercentage = useAppSelector(selectSlippagePreferencePercentageDecimal)
+  const userSlippageTolerancePercentage = useAppSelector(selectUserSlippagePercentageDecimal)
 
   const sellAccountMetadata = useMemo(() => {
     return selectPortfolioAccountMetadataByAccountId(store.getState(), {

@@ -50,12 +50,8 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
   }
 }
 
-export const createEmptyEvmTradeQuote = (
-  input: GetTradeQuoteInput,
-  minimumCryptoHuman: string,
-): TradeQuote<EvmChainId> => {
+export const createEmptyEvmTradeQuote = (input: GetTradeQuoteInput): TradeQuote<EvmChainId> => {
   return {
-    minimumCryptoHuman,
     rate: '0',
     steps: [
       {

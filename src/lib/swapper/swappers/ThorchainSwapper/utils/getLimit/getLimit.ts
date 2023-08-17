@@ -21,35 +21,34 @@ import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRun
 import { ALLOWABLE_MARKET_MOVEMENT } from 'lib/swapper/swappers/utils/constants'
 import type { PartialRecord } from 'lib/utils'
 
+import type { ThornodeQuoteResponseSuccess } from '../../types'
+
 export type GetLimitArgs = {
-  receiveAddress: string | undefined
   buyAsset: Asset
   sellAsset: Asset
   sellAmountCryptoBaseUnit: string
   slippageTolerance: string
   protocolFees: PartialRecord<AssetId, ProtocolFee>
-  affiliateBps: string
   buyAssetUsdRate: string
   feeAssetUsdRate: string
+  thornodeQuote: ThornodeQuoteResponseSuccess
 }
 
 export const getLimit = async ({
   sellAsset,
   buyAsset,
-  receiveAddress,
   sellAmountCryptoBaseUnit,
   slippageTolerance,
   protocolFees,
-  affiliateBps,
   buyAssetUsdRate,
   feeAssetUsdRate,
+  thornodeQuote,
 }: GetLimitArgs): Promise<Result<string, SwapErrorRight>> => {
   const maybeTradeRate = await getTradeRate({
     sellAsset,
     buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit,
-    receiveAddress,
-    affiliateBps,
+    thornodeQuote,
   })
 
   const tradeRateBelowMinimum = await getTradeRateBelowMinimum({

@@ -9,6 +9,7 @@ import { getInputOutputRatioFromQuote } from 'state/apis/swappers/helpers/getInp
 import type { ApiQuote } from 'state/apis/swappers/types'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets, selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/selectors'
@@ -47,13 +48,23 @@ export const swappersApi = createApi({
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
   endpoints: build => ({
     getTradeQuote: build.query<ApiQuote[], GetTradeQuoteInput>({
-      queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { getState }) => {
+      queryFn: async (getTradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
         const state = getState() as ReduxState
         const { sendAddress, receiveAddress } = getTradeQuoteInput
         const isCrossAccountTrade = sendAddress !== receiveAddress
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
         const enabledSwappers = getEnabledSwappers(featureFlags, isCrossAccountTrade)
-        const deps = getDependencies(state, getTradeQuoteInput)
+
+        // Await market data fetching thunk, to ensure we can display some USD rate and don't bail in getDependencies above
+        await dispatch(
+          marketApi.endpoints.findByAssetId.initiate(getTradeQuoteInput.sellAsset.assetId),
+        )
+        await dispatch(
+          marketApi.endpoints.findByAssetId.initiate(getTradeQuoteInput.buyAsset.assetId),
+        )
+
+        // We need to get the freshest state after fetching market data above
+        const deps = getDependencies(getState() as ReduxState, getTradeQuoteInput)
 
         const quotes = await getTradeQuotes(getTradeQuoteInput, enabledSwappers, deps)
 
@@ -62,7 +73,8 @@ export const swappersApi = createApi({
           const error = result && result.isErr() ? result.unwrapErr() : undefined
           const inputOutputRatio = quote
             ? getInputOutputRatioFromQuote({
-                state,
+                // We need to get the freshest state after fetching market data above
+                state: getState() as ReduxState,
                 quote,
                 swapperName: result.swapperName,
               })

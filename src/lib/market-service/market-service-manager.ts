@@ -106,7 +106,6 @@ export class MarketServiceManager {
           try {
             result = await this.marketProviders[i].findByAssetId({ assetId: relatedAssetId })
             if (result) {
-              console.log(`Found data for related asset ID: ${relatedAssetId}`, result)
               break
             }
           } catch (e) {
@@ -114,7 +113,7 @@ export class MarketServiceManager {
           }
         }
 
-        if (result) break // Exit the outer loop once a result is found
+        if (result) break
       }
     }
 

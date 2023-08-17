@@ -51,19 +51,20 @@ export const lifiApi: Swapper2Api = {
     )
     const { receiveAddress } = input
 
-    return tradeQuoteResult.map(({ selectedLifiRoute, ...tradeQuote }) => {
-      // TODO: quotes below the minimum arent valid and should not be processed as such
-      // selectedLifiRoute willbe missing for quotes below the minimum
-      if (!selectedLifiRoute) throw Error('missing selectedLifiRoute')
+    return tradeQuoteResult.map(quote =>
+      quote.map(({ selectedLifiRoute, ...tradeQuote }) => {
+        // TODO: quotes below the minimum aren't valid and should not be processed as such
+        // selectedLifiRoute will be missing for quotes below the minimum
+        if (!selectedLifiRoute) throw Error('missing selectedLifiRoute')
 
-      const id = selectedLifiRoute.id
+        const id = selectedLifiRoute.id
 
-      // store the lifi quote metadata for transaction building later
-      tradeQuoteMetadata.set(id, selectedLifiRoute)
+        // store the lifi quote metadata for transaction building later
+        tradeQuoteMetadata.set(id, selectedLifiRoute)
 
-      // TODO: upgrade lifi swapper to return multiple quotes
-      return [{ id, receiveAddress, affiliateBps: undefined, ...tradeQuote }]
-    })
+        return { id, receiveAddress, affiliateBps: undefined, ...tradeQuote }
+      }),
+    )
   },
 
   getUnsignedTx: async ({ from, tradeQuote, stepIndex }: GetUnsignedTxArgs): Promise<ETHSignTx> => {

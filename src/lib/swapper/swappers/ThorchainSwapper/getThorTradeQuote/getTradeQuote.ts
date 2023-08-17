@@ -1,13 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
-import type {
-  CosmosSdkBaseAdapter,
-  CosmosSdkChainId,
-  EvmChainAdapter,
-  GetFeeDataInput,
-  UtxoBaseAdapter,
-} from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
@@ -33,12 +25,15 @@ import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
+import { assertUnreachable } from 'lib/utils'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import {
   convertBasisPointsToDecimalPercentage,
   convertDecimalPercentageToBasisPoints,
 } from 'state/slices/tradeQuoteSlice/utils'
 
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 
 export type ThorEvmTradeQuote = TradeQuote<ThorEvmSupportedChainId> & {
@@ -52,7 +47,7 @@ type ThorTradeQuote =
   | ThorEvmTradeQuote
 
 export const getThorTradeQuote = async (
-  input: GetTradeQuoteInput & { wallet?: HDWallet },
+  input: GetTradeQuoteInput,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
@@ -62,9 +57,10 @@ export const getThorTradeQuote = async (
     chainId,
     receiveAddress,
     affiliateBps,
-    wallet,
     slippageTolerancePercentage,
   } = input
+
+  const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
   const slippageBps = convertDecimalPercentageToBasisPoints(
@@ -106,18 +102,22 @@ export const getThorTradeQuote = async (
   if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
 
   const thornodeQuote = maybeQuote.unwrap()
-  const {
-    slippage_bps: recommendedSlippageBps,
-    fees,
-    expected_amount_out: expectedAmountOutThorBaseUnit,
-    memo,
-  } = thornodeQuote
+  const { fees, memo } = thornodeQuote
 
-  const recommendedSlippageDecimalPercentage = convertBasisPointsToDecimalPercentage(
-    recommendedSlippageBps.toString(),
-  ).toString()
+  const perRouteValues = [
+    {
+      // regular swap
+      slippageBps: thornodeQuote.slippage_bps,
+      expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out,
+    },
+    {
+      // streaming swap
+      slippageBps: thornodeQuote.streaming_slippage_bps,
+      expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out_streaming,
+    },
+  ]
 
-  const rate = (() => {
+  const getRouteRate = (expectedAmountOutThorBaseUnit: string) => {
     const THOR_PRECISION = 8
     const sellAmountCryptoPrecision = baseUnitToPrecision({
       value: sellAmountCryptoBaseUnit,
@@ -127,18 +127,10 @@ export const getThorTradeQuote = async (
     const sellAmountCryptoThorBaseUnit = bn(toBaseUnit(sellAmountCryptoPrecision, THOR_PRECISION))
 
     return bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed()
-  })()
+  }
 
-  const buyAssetTradeFeeBuyAssetCryptoThorPrecision = bnOrZero(fees.outbound)
-
-  const buyAssetTradeFeeBuyAssetCryptoBaseUnit = convertPrecision({
-    value: buyAssetTradeFeeBuyAssetCryptoThorPrecision,
-    inputExponent: THORCHAIN_FIXED_PRECISION,
-    outputExponent: buyAsset.precision,
-  })
-
-  // Because the expected_amount_out is the amount after fees, we need to add them back on to get the "before fees" amount
-  const buyAmountCryptoBaseUnit = (() => {
+  const getRouteBuyAmount = (expectedAmountOutThorBaseUnit: string) => {
+    // Because the expected_amount_out is the amount after fees, we need to add them back on to get the "before fees" amount
     // Add back the outbound fees
     const expectedAmountPlusFeesCryptoThorBaseUnit = bn(expectedAmountOutThorBaseUnit)
       .plus(fees.outbound)
@@ -148,67 +140,65 @@ export const getThorTradeQuote = async (
       fromBaseUnit(expectedAmountPlusFeesCryptoThorBaseUnit, THORCHAIN_FIXED_PRECISION),
       buyAsset.precision,
     )
+  }
+
+  const protocolFees = (() => {
+    const buyAssetTradeFeeBuyAssetCryptoThorPrecision = bnOrZero(fees.outbound)
+
+    const buyAssetTradeFeeBuyAssetCryptoBaseUnit = convertPrecision({
+      value: buyAssetTradeFeeBuyAssetCryptoThorPrecision,
+      inputExponent: THORCHAIN_FIXED_PRECISION,
+      outputExponent: buyAsset.precision,
+    })
+
+    const protocolFees: Record<AssetId, ProtocolFee> = {}
+
+    if (!buyAssetTradeFeeBuyAssetCryptoBaseUnit.isZero()) {
+      protocolFees[buyAsset.assetId] = {
+        amountCryptoBaseUnit: buyAssetTradeFeeBuyAssetCryptoBaseUnit.toString(),
+        requiresBalance: false,
+        asset: buyAsset,
+      }
+    }
+
+    return protocolFees
   })()
 
-  const commonQuoteFields = {
-    recommendedSlippage: recommendedSlippageDecimalPercentage,
-  }
-
-  const commonStepFields = {
-    rate,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-    buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
-    sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
-    buyAsset,
-    sellAsset,
-    accountNumber,
-  }
-
-  const protocolFees: Record<AssetId, ProtocolFee> = {}
-
-  if (!buyAssetTradeFeeBuyAssetCryptoBaseUnit.isZero()) {
-    protocolFees[buyAsset.assetId] = {
-      amountCryptoBaseUnit: buyAssetTradeFeeBuyAssetCryptoBaseUnit.toString(),
-      requiresBalance: false,
-      asset: buyAsset,
-    }
-  }
-
-  const { chainNamespace } = fromAssetId(sellAsset.assetId)
   switch (chainNamespace) {
-    case CHAIN_NAMESPACE.Evm:
-      return (async (): Promise<Promise<Result<ThorEvmTradeQuote[], SwapErrorRight>>> => {
-        const maybeThorTxInfo = await getEvmThorTxInfo({
-          sellAsset,
-          sellAmountCryptoBaseUnit,
-          memo,
-        })
+    case CHAIN_NAMESPACE.Evm: {
+      const maybeThorTxInfo = await getEvmThorTxInfo({
+        sellAsset,
+        sellAmountCryptoBaseUnit,
+        memo,
+      })
 
-        if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
-        const { data, router } = maybeThorTxInfo.unwrap()
+      if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
+      const { data, router } = maybeThorTxInfo.unwrap()
 
-        const maybeEvmTxFees = await getEvmTxFees({
-          accountNumber,
-          adapter: sellAdapter as unknown as EvmChainAdapter,
-          data,
-          supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
-          router,
-          value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
-          wallet,
-        })
+      const sellAdapter = assertGetEvmChainAdapter(sellAsset.chainId)
+      const { networkFeeCryptoBaseUnit } = await getEvmTxFees({
+        adapter: sellAdapter,
+        supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
+      })
 
-        if (maybeEvmTxFees.isErr()) return Err(maybeEvmTxFees.unwrapErr())
-        const { networkFeeCryptoBaseUnit } = maybeEvmTxFees.unwrap()
-
-        return Ok([
-          {
-            ...commonQuoteFields,
+      return Ok(
+        perRouteValues.map(({ slippageBps, expectedAmountOutThorBaseUnit }) => {
+          const rate = getRouteRate(expectedAmountOutThorBaseUnit)
+          const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(expectedAmountOutThorBaseUnit)
+          return {
+            recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
             rate,
             data,
             router,
             steps: [
               {
-                ...commonStepFields,
+                rate,
+                sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+                buyAmountBeforeFeesCryptoBaseUnit,
+                sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
+                buyAsset,
+                sellAsset,
+                accountNumber,
                 allowanceContract: router,
                 feeData: {
                   networkFeeCryptoBaseUnit,
@@ -216,62 +206,76 @@ export const getThorTradeQuote = async (
                 },
               },
             ],
-          },
-        ])
-      })()
+          }
+        }),
+      )
+    }
 
-    case CHAIN_NAMESPACE.Utxo:
-      return (async (): Promise<Result<TradeQuote<ThorUtxoSupportedChainId>[], SwapErrorRight>> => {
-        const maybeThorTxInfo = await getUtxoThorTxInfo({
-          sellAsset,
-          xpub: (input as GetUtxoTradeQuoteInput).xpub,
-          memo,
-        })
+    case CHAIN_NAMESPACE.Utxo: {
+      const maybeThorTxInfo = await getUtxoThorTxInfo({
+        sellAsset,
+        xpub: (input as GetUtxoTradeQuoteInput).xpub,
+        memo,
+      })
+      if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
+      const thorTxInfo = maybeThorTxInfo.unwrap()
+      const { vault, opReturnData, pubkey } = thorTxInfo
 
-        if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
-        const thorTxInfo = maybeThorTxInfo.unwrap()
-        const { vault, opReturnData, pubkey } = thorTxInfo
+      const sellAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
+      const feeData = await getUtxoTxFees({
+        sellAmountCryptoBaseUnit,
+        vault,
+        opReturnData,
+        pubkey,
+        sellAdapter,
+        protocolFees,
+      })
 
-        const feeData = await getUtxoTxFees({
-          sellAmountCryptoBaseUnit,
-          vault,
-          opReturnData,
-          pubkey,
-          sellAdapter: sellAdapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>,
-          protocolFees,
-        })
-
-        return Ok([
-          {
-            ...commonQuoteFields,
+      return Ok(
+        perRouteValues.map(({ slippageBps, expectedAmountOutThorBaseUnit }) => {
+          const rate = getRouteRate(expectedAmountOutThorBaseUnit)
+          const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(expectedAmountOutThorBaseUnit)
+          return {
+            recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
             rate,
             steps: [
               {
-                ...commonStepFields,
+                rate,
+                sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+                buyAmountBeforeFeesCryptoBaseUnit,
+                sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
+                buyAsset,
+                sellAsset,
+                accountNumber,
                 allowanceContract: '0x0', // not applicable to UTXOs
                 feeData,
               },
             ],
-          },
-        ])
-      })()
-    case CHAIN_NAMESPACE.CosmosSdk:
-      return (async (): Promise<
-        Result<TradeQuote<ThorCosmosSdkSupportedChainId>[], SwapErrorRight>
-      > => {
-        const getFeeDataInput: Partial<GetFeeDataInput<CosmosSdkChainId>> = {}
+          }
+        }),
+      )
+    }
 
-        const feeData = await (
-          sellAdapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
-        ).getFeeData(getFeeDataInput)
+    case CHAIN_NAMESPACE.CosmosSdk: {
+      const sellAdapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId)
+      const feeData = await sellAdapter.getFeeData({})
 
-        return Ok([
-          {
-            ...commonQuoteFields,
+      return Ok(
+        perRouteValues.map(({ slippageBps, expectedAmountOutThorBaseUnit }) => {
+          const rate = getRouteRate(expectedAmountOutThorBaseUnit)
+          const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(expectedAmountOutThorBaseUnit)
+          return {
+            recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
             rate,
             steps: [
               {
-                ...commonStepFields,
+                rate,
+                sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+                buyAmountBeforeFeesCryptoBaseUnit,
+                sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
+                buyAsset,
+                sellAsset,
+                accountNumber,
                 allowanceContract: '0x0', // not applicable to cosmos
                 feeData: {
                   networkFeeCryptoBaseUnit: feeData.fast.txFee,
@@ -282,16 +286,12 @@ export const getThorTradeQuote = async (
                 },
               },
             ],
-          },
-        ])
-      })()
-    default:
-      return Err(
-        makeSwapErrorRight({
-          message: '[getThorTradeQuote] - Asset chainId is not supported.',
-          code: SwapErrorType.UNSUPPORTED_CHAIN,
-          details: { chainId },
+          }
         }),
       )
+    }
+
+    default:
+      assertUnreachable(chainNamespace)
   }
 }

@@ -10,7 +10,6 @@ import type {
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -25,7 +24,6 @@ import type {
 import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
 import type {
-  Rates,
   ThorCosmosSdkSupportedChainId,
   ThorEvmSupportedChainId,
   ThorUtxoSupportedChainId,
@@ -50,24 +48,17 @@ type ThorTradeQuote =
 
 export const getThorTradeQuote = async (
   input: GetTradeQuoteInput & { wallet?: HDWallet },
-  rates: Rates,
 ): Promise<Result<ThorTradeQuote, SwapErrorRight>> => {
   const {
     sellAsset,
     buyAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-    slippageTolerancePercentage,
     accountNumber,
     chainId,
     receiveAddress,
     affiliateBps,
     wallet,
   } = input
-
-  const slippageTolerance =
-    slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain)
-
-  const { buyAssetUsdRate, feeAssetUsdRate } = rates
 
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
 
@@ -110,6 +101,8 @@ export const getThorTradeQuote = async (
     fees,
     expected_amount_out: expectedAmountOutThorBaseUnit,
   } = thornodeQuote
+
+  const memo = thornodeQuote.memo
 
   const slippagePercentage = bn(slippageBps).div(1000)
 
@@ -176,15 +169,8 @@ export const getThorTradeQuote = async (
       return (async (): Promise<Promise<Result<ThorEvmTradeQuote, SwapErrorRight>>> => {
         const maybeThorTxInfo = await getEvmThorTxInfo({
           sellAsset,
-          buyAsset,
           sellAmountCryptoBaseUnit,
-          slippageTolerance,
-          destinationAddress: receiveAddress,
-          protocolFees,
-          affiliateBps,
-          buyAssetUsdRate,
-          feeAssetUsdRate,
-          thornodeQuote,
+          memo,
         })
 
         if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
@@ -225,16 +211,8 @@ export const getThorTradeQuote = async (
       return (async (): Promise<Result<TradeQuote<ThorUtxoSupportedChainId>, SwapErrorRight>> => {
         const maybeThorTxInfo = await getUtxoThorTxInfo({
           sellAsset,
-          buyAsset,
-          sellAmountCryptoBaseUnit,
-          slippageTolerance,
-          destinationAddress: receiveAddress,
           xpub: (input as GetUtxoTradeQuoteInput).xpub,
-          protocolFees,
-          affiliateBps,
-          buyAssetUsdRate,
-          feeAssetUsdRate,
-          thornodeQuote,
+          memo,
         })
 
         if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())

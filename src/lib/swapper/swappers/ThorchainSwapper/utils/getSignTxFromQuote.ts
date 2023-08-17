@@ -123,22 +123,16 @@ export const getSignTxFromQuote = async ({
       })
 
       if (maybeThornodeQuote.isErr()) throw maybeThornodeQuote.unwrapErr()
+      const thorchainQuote = maybeThornodeQuote.unwrap()
+      const { memo } = thorchainQuote
 
       const utxoChainAdapter = adapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
       if (!chainSpecific) throw Error('missing UTXO chainSpecific parameters')
 
       const maybeThorTxInfo = await getThorTxInfo({
         sellAsset,
-        buyAsset,
-        sellAmountCryptoBaseUnit,
-        slippageTolerance,
-        destinationAddress: receiveAddress,
         xpub: xpub!,
-        protocolFees: quote.steps[0].feeData.protocolFees,
-        affiliateBps,
-        buyAssetUsdRate,
-        feeAssetUsdRate,
-        thornodeQuote: maybeThornodeQuote.unwrap(),
+        memo,
       })
 
       if (maybeThorTxInfo.isErr()) throw maybeThorTxInfo.unwrapErr()

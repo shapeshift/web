@@ -14,8 +14,6 @@ import type {
   ThornodeQuoteResponseSuccess,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
-import { getLimit } from 'lib/swapper/swappers/ThorchainSwapper/utils/getLimit/getLimit'
-import { makeSwapMemo } from 'lib/swapper/swappers/ThorchainSwapper/utils/makeSwapMemo/makeSwapMemo'
 
 type GetCosmosTxDataInput = {
   accountNumber: number
@@ -39,17 +37,11 @@ export const getCosmosTxData = async (
 ): Promise<Result<ThorchainSignTx | CosmosSignTx, SwapErrorRight>> => {
   const {
     accountNumber,
-    destinationAddress,
     sellAmountCryptoBaseUnit,
     sellAsset,
-    buyAsset,
-    slippageTolerance,
     quote,
     from,
     sellAdapter,
-    affiliateBps,
-    buyAssetUsdRate,
-    feeAssetUsdRate,
     thornodeQuote,
   } = input
   const fromThorAsset = sellAsset.chainId === KnownChainIds.ThorchainMainnet
@@ -73,26 +65,7 @@ export const getCosmosTxData = async (
       }),
     )
 
-  const maybeLimit = await getLimit({
-    buyAsset,
-    sellAmountCryptoBaseUnit,
-    sellAsset,
-    slippageTolerance,
-    protocolFees: quote.steps[0].feeData.protocolFees,
-    buyAssetUsdRate,
-    feeAssetUsdRate,
-    thornodeQuote,
-  })
-
-  if (maybeLimit.isErr()) return Err(maybeLimit.unwrapErr())
-
-  const limit = maybeLimit.unwrap()
-  const memo = makeSwapMemo({
-    buyAssetId: buyAsset.assetId,
-    destinationAddress,
-    limit,
-    affiliateBps,
-  })
+  const memo = thornodeQuote.memo
 
   const maybeBuiltTxResponse = (() => {
     switch (true) {

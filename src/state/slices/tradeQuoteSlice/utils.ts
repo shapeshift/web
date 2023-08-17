@@ -6,13 +6,13 @@ import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { ProtocolFee } from 'lib/swapper/api'
 import type { PartialRecord } from 'lib/utils'
 
-export const convertBasisPointsToDecimalPercentage = (basisPoints: string) =>
+export const convertBasisPointsToDecimalPercentage = (basisPoints: BigNumber.Value) =>
   bnOrZero(basisPoints).div(10000)
 
-export const convertDecimalPercentageToBasisPoints = (decimalPercentage: string) =>
+export const convertDecimalPercentageToBasisPoints = (decimalPercentage: BigNumber.Value) =>
   bnOrZero(decimalPercentage).times(10000)
 
-export const convertBasisPointsToPercentage = (basisPoints: string) =>
+export const convertBasisPointsToPercentage = (basisPoints: BigNumber.Value) =>
   bnOrZero(basisPoints).div(100)
 
 type SumProtocolFeesToDenomArgs = {

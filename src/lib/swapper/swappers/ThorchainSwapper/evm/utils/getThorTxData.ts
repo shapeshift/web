@@ -25,13 +25,11 @@ type GetEvmThorTxInfoReturn = Promise<
   >
 >
 
-type GetBtcThorTxInfo = (args: GetEvmThorTxInfoArgs) => GetEvmThorTxInfoReturn
-
-export const getThorTxInfo: GetBtcThorTxInfo = async ({
+export const getThorTxInfo = async ({
   sellAsset,
   sellAmountCryptoBaseUnit,
   memo,
-}) => {
+}: GetEvmThorTxInfoArgs): GetEvmThorTxInfoReturn => {
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const { assetReference } = fromAssetId(sellAsset.assetId)
 

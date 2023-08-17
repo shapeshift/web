@@ -8,6 +8,7 @@ export type QuoteHelperType = (
 ) => Promise<Result<TradeQuote2, SwapErrorRight>>
 
 export type ApiQuote = {
+  index: number
   quote: TradeQuote2 | undefined
   error: SwapErrorRight | undefined
   swapperName: SwapperName

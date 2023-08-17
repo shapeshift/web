@@ -4,12 +4,11 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import type { GetEvmTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
+import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 import { convertBasisPointsToPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
-import { DEFAULT_SOURCE } from '../utils/constants'
 import { assertValidTrade, getAdapter, getRate } from '../utils/helpers'
 import { oneInchService } from '../utils/oneInchService'
 import type { OneInchQuoteApiInput, OneInchQuoteResponse } from '../utils/types'
@@ -84,7 +83,7 @@ export async function getTradeQuote(
             protocolFees: {},
             networkFeeCryptoBaseUnit,
           },
-          sources: DEFAULT_SOURCE,
+          source: SwapperName.OneInch,
         },
       ],
     })

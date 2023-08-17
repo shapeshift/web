@@ -1,5 +1,4 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { SwapSource } from 'lib/swapper/api'
 
 export const zrxSupportedChainIds = [
   KnownChainIds.EthereumMainnet,
@@ -11,6 +10,11 @@ export const zrxSupportedChainIds = [
 
 export type ZrxSupportedChainId = typeof zrxSupportedChainIds[number]
 
+type ZrxSwapSource = {
+  name: string
+  proportion: string
+}
+
 export type ZrxCommonResponse = {
   price: string
   estimatedGas: string
@@ -19,7 +23,7 @@ export type ZrxCommonResponse = {
   buyAmount: string
   sellAmount: string
   allowanceTarget: string
-  sources: SwapSource[]
+  sources: ZrxSwapSource[]
 }
 
 export type ZrxPriceResponse = ZrxCommonResponse

@@ -8,20 +8,21 @@ import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import type { Asset } from 'lib/asset-service'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
-import type { GetEvmTradeQuoteInput, SwapErrorRight } from 'lib/swapper/api'
+import type { GetEvmTradeQuoteInput, SwapErrorRight, SwapSource } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { LIFI_INTEGRATOR_ID } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
 import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwapper/utils/getIntermediaryTransactionOutputs/getIntermediaryTransactionOutputs'
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
 import { transformLifiStepFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
-import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
+import type { LifiTool, LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
 
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput & { wallet?: HDWallet },
   lifiChainMap: Map<ChainId, ChainKey>,
+  lifiToolsMap: Map<string, LifiTool>,
   assets: Partial<Record<AssetId, Asset>>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> {
   const {
@@ -164,6 +165,11 @@ export async function getTradeQuote(
               wallet,
             })
 
+            const toolInfo = lifiToolsMap.get(lifiStep.tool)
+            const source: SwapSource = toolInfo
+              ? `${SwapperName.LIFI} • ${toolInfo.name}`
+              : SwapperName.LIFI
+
             return {
               allowanceContract: lifiStep.estimate.approvalAddress,
               accountNumber,
@@ -179,12 +185,7 @@ export async function getTradeQuote(
               rate: estimateRate,
               sellAmountIncludingProtocolFeesCryptoBaseUnit,
               sellAsset,
-              sources: [
-                {
-                  name: `${selectedLifiRoute.steps[0].tool} (${SwapperName.LIFI})`,
-                  proportion: '1',
-                },
-              ],
+              source,
             }
           }),
         )

@@ -1,4 +1,5 @@
 import type { TradeQuote2 } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 
 export const lifiQuote: TradeQuote2 = {
   id: '0x5ba393814e096f79f4316615b82462eaaee2cf4e1c935d35624a6390bc932b83',
@@ -40,12 +41,7 @@ export const lifiQuote: TradeQuote2 = {
         explorerAddressLink: 'https://etherscan.io/address/',
         explorerTxLink: 'https://etherscan.io/tx/',
       },
-      sources: [
-        {
-          name: '0x (LI.FI)',
-          proportion: '1',
-        },
-      ],
+      source: `${SwapperName.LIFI} • 0x`,
     },
   ],
 }
@@ -61,12 +57,7 @@ export const thorQuote: TradeQuote2 = {
       rate: '39.23942597524024759752',
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000200',
       buyAmountBeforeFeesCryptoBaseUnit: '1013948034150000000000',
-      sources: [
-        {
-          name: 'THORChain',
-          proportion: '1',
-        },
-      ],
+      source: SwapperName.Thorchain,
       buyAsset: {
         assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
         chainId: 'eip155:1',
@@ -174,12 +165,7 @@ export const oneInchQuote: TradeQuote2 = {
         protocolFees: {},
         networkFeeCryptoBaseUnit: '5746091301638380',
       },
-      sources: [
-        {
-          name: '1INCH',
-          proportion: '1',
-        },
-      ],
+      source: SwapperName.OneInch,
     },
   ],
 }
@@ -216,12 +202,7 @@ export const cowQuote: TradeQuote2 = {
       },
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000200',
       buyAmountBeforeFeesCryptoBaseUnit: '1039167423885457658942',
-      sources: [
-        {
-          name: 'CoW Swap',
-          proportion: '1',
-        },
-      ],
+      source: SwapperName.CowSwap,
       buyAsset: {
         assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
         chainId: 'eip155:1',
@@ -291,12 +272,7 @@ export const zrxQuote: TradeQuote2 = {
       },
       buyAmountBeforeFeesCryptoBaseUnit: '1032086674610991500000',
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000200',
-      sources: [
-        {
-          name: 'Uniswap_V2',
-          proportion: '1',
-        },
-      ],
+      source: SwapperName.Zrx,
     },
   ],
 }

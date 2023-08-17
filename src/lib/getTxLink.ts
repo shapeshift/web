@@ -3,7 +3,7 @@ import type { SwapSource } from 'lib/swapper/api'
 import { SwapperName } from 'lib/swapper/api'
 
 type GetBaseUrl = {
-  name: SwapSource['name'] | Dex | undefined
+  name: SwapSource | Dex | undefined
   defaultExplorerBaseUrl: string
   isOrder?: boolean
 }

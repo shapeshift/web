@@ -60,7 +60,7 @@ const expectedQuoteResponse: ThorEvmTradeQuote = {
         networkFeeCryptoBaseUnit: '400000',
       },
       rate: '144114.94366197183098591549',
-      sources: [{ name: SwapperName.Thorchain, proportion: '1' }],
+      source: SwapperName.Thorchain,
       buyAsset: ETH,
       sellAsset: FOX_MAINNET,
       accountNumber: 0,

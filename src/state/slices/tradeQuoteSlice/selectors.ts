@@ -39,19 +39,24 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
 const selectConfirmedQuote: Selector<ReduxState, TradeQuote2 | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
 
+export const selectActiveQuoteIndex: Selector<ReduxState, number> = createSelector(
+  selectTradeQuoteSlice,
+  tradeQuote => tradeQuote.activeQuoteIndex ?? 0,
+)
+
 export const selectActiveSwapperName: Selector<ReduxState, SwapperName | undefined> =
   createSelector(
-    selectTradeQuoteSlice,
+    selectActiveQuoteIndex,
     selectSwappersApiTradeQuotes,
-    (tradeQuote, apiQuotes) => tradeQuote.activeSwapperName ?? apiQuotes[0]?.swapperName,
+    (activeQuoteIndex, apiQuotes) => apiQuotes[activeQuoteIndex]?.swapperName,
   )
 
 export const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined> =
   createDeepEqualOutputSelector(
     selectSwappersApiTradeQuotes,
-    selectActiveSwapperName,
-    (quotes, activeSwapperName) => {
-      const selectedQuote = quotes.find(quote => quote.swapperName === activeSwapperName)
+    selectActiveQuoteIndex,
+    (quotes, activeQuoteIndex) => {
+      const selectedQuote = quotes[activeQuoteIndex]
       if (selectedQuote?.quote !== undefined) {
         return selectedQuote
       } else {

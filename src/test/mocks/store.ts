@@ -175,7 +175,7 @@ export const mockStore: ReduxState = {
     slippagePreferencePercentage: undefined,
   },
   tradeQuoteSlice: {
-    activeSwapperName: undefined,
+    activeQuoteIndex: undefined,
     confirmedQuote: undefined,
     activeStep: undefined,
   },

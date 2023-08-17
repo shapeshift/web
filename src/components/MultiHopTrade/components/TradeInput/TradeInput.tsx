@@ -266,7 +266,7 @@ export const TradeInput = memo(() => {
               <Heading as='h5' fontSize='md'>
                 {translate('navBar.trade')}
               </Heading>
-              {activeSwapperSupportsSlippage && <SlippagePopover />}
+              {(activeSwapperSupportsSlippage || sortedQuotes.length === 0) && <SlippagePopover />}
             </Flex>
           </CardHeader>
           <Stack spacing={0}>

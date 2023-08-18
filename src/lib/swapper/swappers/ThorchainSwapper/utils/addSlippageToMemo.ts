@@ -3,7 +3,7 @@ import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
 import type { ThornodeQuoteResponseSuccess } from '../types'
 import {
-  DEFAULT_STREAMING_NUM_BLOCKS,
+  DEFAULT_STREAMING_INTERVAL,
   DEFAULT_STREAMING_NUM_SWAPS,
   LIMIT_PART_DELIMITER,
   MEMO_PART_DELIMITER,
@@ -25,7 +25,7 @@ export const addSlippageToMemo = (
   )
 
   const updatedLimitComponent = isStreaming
-    ? [limitWithManualSlippage, DEFAULT_STREAMING_NUM_SWAPS, DEFAULT_STREAMING_NUM_BLOCKS].join(
+    ? [limitWithManualSlippage, DEFAULT_STREAMING_INTERVAL, DEFAULT_STREAMING_NUM_SWAPS].join(
         LIMIT_PART_DELIMITER,
       )
     : [limitWithManualSlippage]

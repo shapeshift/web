@@ -6,5 +6,5 @@ export const THORCHAIN_AFFILIATE_NAME = 'ss'
 export const MEMO_PART_DELIMITER = ':'
 export const POOL_PART_DELIMITER = '.'
 export const LIMIT_PART_DELIMITER = '/'
-export const DEFAULT_STREAMING_NUM_SWAPS = 10 // TODO: calc this based on pool depth https://dev.thorchain.org/thorchain-dev/concepts/streaming-swaps
-export const DEFAULT_STREAMING_NUM_BLOCKS = 0 // let network decide
+export const DEFAULT_STREAMING_NUM_SWAPS = 0 // let network decide, see https://dev.thorchain.org/thorchain-dev/concepts/streaming-swaps
+export const DEFAULT_STREAMING_INTERVAL = 10 // TODO: calc this based on pool depth https://dev.thorchain.org/thorchain-dev/concepts/streaming-swaps

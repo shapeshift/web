@@ -108,13 +108,13 @@ export const getThorTradeQuote = async (
   const perRouteValues = [
     {
       // regular swap
-      isStreaming: false,
+      source: SwapperName.Thorchain,
       slippageBps: thornodeQuote.slippage_bps,
       expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out,
     },
     {
       // streaming swap
-      isStreaming: true,
+      source: `${SwapperName.Thorchain} • Streaming` as SwapSource,
       slippageBps: thornodeQuote.streaming_slippage_bps,
       expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out_streaming,
     },
@@ -185,12 +185,9 @@ export const getThorTradeQuote = async (
       })
 
       return Ok(
-        perRouteValues.map(({ isStreaming, slippageBps, expectedAmountOutThorBaseUnit }) => {
+        perRouteValues.map(({ source, slippageBps, expectedAmountOutThorBaseUnit }) => {
           const rate = getRouteRate(expectedAmountOutThorBaseUnit)
           const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(expectedAmountOutThorBaseUnit)
-          const source: SwapSource = isStreaming
-            ? `${SwapperName.Thorchain} • Streaming`
-            : SwapperName.Thorchain
           return {
             recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
             rate,
@@ -238,7 +235,7 @@ export const getThorTradeQuote = async (
       })
 
       return Ok(
-        perRouteValues.map(({ slippageBps, expectedAmountOutThorBaseUnit }) => {
+        perRouteValues.map(({ source, slippageBps, expectedAmountOutThorBaseUnit }) => {
           const rate = getRouteRate(expectedAmountOutThorBaseUnit)
           const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(expectedAmountOutThorBaseUnit)
           return {
@@ -249,7 +246,7 @@ export const getThorTradeQuote = async (
                 rate,
                 sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
                 buyAmountBeforeFeesCryptoBaseUnit,
-                source: SwapperName.Thorchain,
+                source,
                 buyAsset,
                 sellAsset,
                 accountNumber,
@@ -267,7 +264,7 @@ export const getThorTradeQuote = async (
       const feeData = await sellAdapter.getFeeData({})
 
       return Ok(
-        perRouteValues.map(({ slippageBps, expectedAmountOutThorBaseUnit }) => {
+        perRouteValues.map(({ source, slippageBps, expectedAmountOutThorBaseUnit }) => {
           const rate = getRouteRate(expectedAmountOutThorBaseUnit)
           const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(expectedAmountOutThorBaseUnit)
           return {
@@ -278,7 +275,7 @@ export const getThorTradeQuote = async (
                 rate,
                 sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
                 buyAmountBeforeFeesCryptoBaseUnit,
-                source: SwapperName.Thorchain,
+                source,
                 buyAsset,
                 sellAsset,
                 accountNumber,

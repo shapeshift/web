@@ -26,6 +26,7 @@ const thorChainAssetToChainId: Map<string, ChainId> = new Map([
   ['DOGE', dogeChainId],
   ['GAIA', cosmosChainId],
   ['RUNE', thorchainChainId],
+  ['THOR', thorchainChainId],
 ])
 
 export const isValidMemoAddress = (chainId: ChainId, thorId: string, address: string): boolean => {
@@ -46,6 +47,7 @@ export const isValidMemoAddress = (chainId: ChainId, thorId: string, address: st
     // See https://github.com/shapeshift/lib/blob/6b5c9c8e855ffb68d865cfae8f545e7a819a9667/packages/swapper/src/swappers/thorchain/utils/makeSwapMemo/makeSwapMemo.ts#L10
     // RUNE isn't a pool, it is the native asset of the THORChain network
     case thorId.startsWith('RUNE'):
+    case thorId.startsWith('THOR'):
       return address.startsWith('thor')
     default:
       return false

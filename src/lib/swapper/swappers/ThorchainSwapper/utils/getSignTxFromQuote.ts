@@ -19,6 +19,7 @@ import { createBuildCustomApiTxInput } from 'lib/utils/evm'
 import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { addSlippageToMemo } from './addSlippageToMemo'
 import { getQuote } from './getQuote/getQuote'
 
 type GetSignTxFromQuoteArgs = {
@@ -87,12 +88,11 @@ export const getSignTxFromQuote = async ({
         sellAmountCryptoBaseUnit,
         receiveAddress,
         affiliateBps,
-        slippageBps,
       })
 
       if (maybeThornodeQuote.isErr()) throw maybeThornodeQuote.unwrapErr()
       const thorchainQuote = maybeThornodeQuote.unwrap()
-      const { memo } = thorchainQuote
+      const memo = addSlippageToMemo(thorchainQuote, slippageBps.toString())
 
       const cosmosSdkChainAdapter =
         adapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
@@ -125,12 +125,11 @@ export const getSignTxFromQuote = async ({
         sellAmountCryptoBaseUnit,
         receiveAddress,
         affiliateBps,
-        slippageBps,
       })
 
       if (maybeThornodeQuote.isErr()) throw maybeThornodeQuote.unwrapErr()
       const thorchainQuote = maybeThornodeQuote.unwrap()
-      const { memo } = thorchainQuote
+      const memo = addSlippageToMemo(thorchainQuote, slippageBps.toString())
 
       const utxoChainAdapter = adapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
       if (!chainSpecific) throw Error('missing UTXO chainSpecific parameters')

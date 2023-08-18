@@ -32,7 +32,7 @@ type SumProtocolFeesToDenomArgs = {
  */
 export const subtractBasisPointAmount = (
   value: string,
-  basisPoints: string,
+  basisPoints: BigNumber.Value,
   roundingMode?: BigNumber.RoundingMode,
 ): string => {
   const bigNumValue = bn(value)

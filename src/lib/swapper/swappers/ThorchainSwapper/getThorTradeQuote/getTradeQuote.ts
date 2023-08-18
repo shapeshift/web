@@ -43,10 +43,12 @@ export type ThorEvmTradeQuote = TradeQuote<ThorEvmSupportedChainId> & {
   data: string
 }
 
-type ThorTradeQuote =
+type ThorTradeQuoteSpecificMetadata = { isStreaming: boolean }
+type ThorTradeQuoteBase =
   | TradeQuote<ThorCosmosSdkSupportedChainId>
   | TradeQuote<ThorUtxoSupportedChainId>
   | ThorEvmTradeQuote
+export type ThorTradeQuote = ThorTradeQuoteBase & ThorTradeQuoteSpecificMetadata
 
 export const getThorTradeQuote = async (
   input: GetTradeQuoteInput,

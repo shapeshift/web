@@ -30,7 +30,7 @@ jest.mock('context/PluginProvider/chainAdapterSingleton', () => ({
 }))
 
 describe('getTradeQuote', () => {
-  const apiUrl = 'https://api.1inch.io/v5.0'
+  const apiUrl = 'https://api-shapeshift.1inch.io/v5.0'
   const quoteURL = `${apiUrl}/1/quote`
   const approvalURL = `${apiUrl}/1/approve/spender`
 

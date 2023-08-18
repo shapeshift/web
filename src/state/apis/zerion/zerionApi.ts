@@ -23,7 +23,7 @@ const options = {
 }
 
 // Looks like we're using a useless memoize here as zerionApi.endpoints.getRelatedAssetIds takes care of caching
-// But this is actually useful, we use _getRelatedAssetIds - since related AssetIds never change, this should be memoized
+// But this is actually useful, we use _getRelatedAssetIds outside of RTK - since related AssetIds never change, this should be memoized
 export const _getRelatedAssetIds = memoize(async (assetId: AssetId): Promise<AssetId[]> => {
   const { chainId, assetReference } = fromAssetId(assetId)
 

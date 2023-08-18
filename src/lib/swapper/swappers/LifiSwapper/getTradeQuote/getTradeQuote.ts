@@ -131,7 +131,7 @@ export async function getTradeQuote(
 
   return Ok(
     await Promise.all(
-      await routes.slice(0, 3).map(async selectedLifiRoute => {
+      routes.slice(0, 3).map(async selectedLifiRoute => {
         // this corresponds to a "hop", so we could map the below code over selectedLifiRoute.steps to
         // generate a multi-hop quote
         const steps = await Promise.all(

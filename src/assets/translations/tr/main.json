@@ -641,6 +641,7 @@
     "previewTrade": "Takası Önizleyin",
     "rate": "Oran",
     "tradeFrom": "Buradan Takasla",
+    "priceImpact": "Fiyat Etkisi",
     "slippage": {
       "maxSlippage": "Maks. Kayma",
       "auto": "Otomatik",
@@ -661,6 +662,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Gaz ücreti, ticaret tutarının %{percentage}%'sini aşıyor",
     "confirmDetails": "Ayrıntıları Onaylayın",
     "confirmAndTrade": "Onaylayın ve Takas Yapın",
+    "tradeAnyway": "Yine de Takasla",
     "pending": "İşlem Beklemede",
     "complete": "Takas Tamamlandı",
     "approveAsset": "%{symbol} ile etkileşimi onaylayın",
@@ -684,6 +686,7 @@
     "tooltip": {
       "rate": "Bu, bu işlem çifti için beklenen orandır.",
       "noRateAvailable": "Bunun nedeni genellikle ticaret çiftinde çok sınırlı veya hiç likidite olmamasıdır.",
+      "priceImpact": "Havuzdaki mevcut likidite göz önüne alındığında, bu büyüklükteki bir takasın yüksek bir fiyat etkisi olabilir. Giriş jetonunuzun miktarı ile çıkış jetonunda alacağınız miktar arasında büyük bir fark olabilir.",
       "minerFee": "Bu, blok zincirindeki işlemi işlemek için alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
       "donation": "ShapeShift'i desteklemeye yardımcı olun ve bizi çalışır durumda tutun.",
       "protocol": "Bu, ticaretinizin yönlendirildiği protokoldür.",
@@ -717,6 +720,7 @@
       "insufficientFundsForProtocolFee": "%{chainName} üzerinde ücretler için yetersiz %{symbol}",
       "invalidTradePair": "Geçersiz işlem çifti: %{sellAssetName} ve %{buyAssetName}",
       "invalidTradePairBtnText": "Geçersiz İşlem Çifti",
+      "unsupportedTradePair": "Desteklenmeyen Takas Çifti",
       "noLiquidityError": "Kullanılabilir likidite mevcut değil",
       "overMaxSlippage": "Bu ticaret, %{slippagePercentage}% üzerinde kaymaya neden olur. Lütfen daha iyi bir fiyat için, daha düşük bir miktar işlem yapın",
       "balanceToLow": "Bakiye çok düşük. Bu çift için minimum işlem tutarı %{minLimit}",
@@ -742,6 +746,7 @@
       "assetNotSupportedByWallet": "%{assetSymbol}, cüzdan tarafından desteklenmiyor",
       "noReceiveAddress": "%{assetSymbol} için alım adresi yok",
       "tradingNotActive": "İşlemler %{assetSymbol} için geçici olarak durduruldu",
+      "tradingNotActiveNoAssetSymbol": "Bu rota için takas geçici olarak durduruldu",
       "signing": {
         "failed": "İşlem imzalanırken bir hata oluştu",
         "required": "İmzalanmış bir işlem gerekli"
@@ -759,7 +764,8 @@
     "unknownGas": "(Bilinmeyen)",
     "receiveAddress": "Alıcı Adresi",
     "receiveAddressDescription": "Bağlı cüzdandan hiçbir %{chainName} adresi bulunamadı. Devam etmek için adresi manuel olarak girin.",
-    "addressPlaceholder": "%{chainName} adresi"
+    "addressPlaceholder": "%{chainName} adresi",
+    "priceImpactWarning": "Mevcut likiditeye göre bu işlemin boyutu nedeniyle, bu işlemin beklenen fiyat etkisi %{priceImpactPercentage}% şeklindedir. Takas yapmak istediğinizden emin misiniz?"
   },
   "modals": {
     "popup": {

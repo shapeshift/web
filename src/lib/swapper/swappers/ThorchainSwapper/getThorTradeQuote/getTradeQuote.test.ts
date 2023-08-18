@@ -14,7 +14,7 @@ import type {
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { mockChainAdapterManager } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
-import type { ThorEvmTradeQuote } from './getTradeQuote'
+import type { ThorTradeQuote } from './getTradeQuote'
 import { getThorTradeQuote } from './getTradeQuote'
 
 jest.mock('../evm/utils/getThorTxData')
@@ -43,8 +43,9 @@ jest.mock('config', () => {
   }
 })
 
-const expectedQuoteResponse: ThorEvmTradeQuote[] = [
+const expectedQuoteResponse: ThorTradeQuote[] = [
   {
+    isStreaming: false,
     rate: '144114.94366197183098591549',
     recommendedSlippage: '0.0435',
     data: '0x',
@@ -73,6 +74,7 @@ const expectedQuoteResponse: ThorEvmTradeQuote[] = [
     ],
   },
   {
+    isStreaming: true,
     rate: '158199.45070422535211267606',
     recommendedSlippage: '0.042',
     data: '0x',

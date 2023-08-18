@@ -104,8 +104,18 @@ export class MarketServiceManager {
         // Loop through market providers and look for related asset market data.
         for (let i = 0; i < this.marketProviders.length && !result; i++) {
           try {
-            result = await this.marketProviders[i].findByAssetId({ assetId: relatedAssetId })
-            if (result) {
+            const maybeResult = await this.marketProviders[i].findByAssetId({
+              assetId: relatedAssetId,
+            })
+            if (maybeResult) {
+              // We only need the price as a dumb last resort fallback in case we can't get a related asset's USD rate from any provider
+              // Things like market cap, volume etc would be totally different on diff. chains thus shouldn't be used here
+              result = {
+                price: maybeResult.price,
+                marketCap: '0',
+                volume: '0',
+                changePercent24Hr: 0,
+              }
               break
             }
           } catch (e) {

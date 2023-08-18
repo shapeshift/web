@@ -165,7 +165,15 @@ export async function getTradeQuote(
               wallet,
             })
 
-            const toolInfo = lifiToolsMap.get(lifiStep.tool)
+            const toolInfo = (() => {
+              const _toolInfo = lifiToolsMap.get(lifiStep.tool)
+              if (_toolInfo) return _toolInfo
+
+              const { key, name, logoURI } = lifiStep.toolDetails
+              lifiToolsMap.set(key, { key, name, logoURI })
+              return lifiStep.toolDetails
+            })()
+
             const source: SwapSource = toolInfo
               ? `${SwapperName.LIFI} • ${toolInfo.name}`
               : SwapperName.LIFI

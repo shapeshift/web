@@ -88,6 +88,7 @@ export class MarketServiceManager {
     for (let i = 0; i < this.marketProviders.length && !result; i++) {
       try {
         result = await this.marketProviders[i].findByAssetId({ assetId })
+        if (result) break
       } catch (e) {
         // Swallow error, not every asset will be with every provider.
       }

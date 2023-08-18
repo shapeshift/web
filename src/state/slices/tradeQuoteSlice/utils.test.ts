@@ -1,4 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import BigNumber from 'bignumber.js'
 import { baseUnitToHuman, bn, convertPrecision } from 'lib/bignumber/bignumber'
 import type { ProtocolFee } from 'lib/swapper/api'
 import { BTC, ETH, FOX_MAINNET } from 'lib/swapper/swappers/utils/test-data/assets'
@@ -134,7 +135,11 @@ describe('subtractBasisPoints', () => {
   })
 
   test('should round up correctly', () => {
-    const result = subtractBasisPointAmount('123456789012345678901234567890', '100', true)
+    const result = subtractBasisPointAmount(
+      '123456789012345678901234567890',
+      '100',
+      BigNumber.ROUND_UP,
+    )
     expect(result).toBe('122222221122222222112222222212')
   })
 })

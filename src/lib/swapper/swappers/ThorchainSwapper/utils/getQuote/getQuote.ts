@@ -2,6 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { bchAssetId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import BigNumber from 'bignumber.js'
 import { getConfig } from 'config'
 import qs from 'qs'
 import type { Asset } from 'lib/asset-service'
@@ -17,8 +18,10 @@ import {
   THORCHAIN_AFFILIATE_NAME,
   THORCHAIN_FIXED_PRECISION,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
+import { assertIsValidMemo } from 'lib/swapper/swappers/ThorchainSwapper/utils/makeSwapMemo/assertIsValidMemo'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
+import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
 import { thorService } from '../thorService'
 
@@ -63,7 +66,6 @@ export const getQuote = async ({
     destination: parsedReceiveAddress,
     affiliate_bps: affiliateBps,
     affiliate: THORCHAIN_AFFILIATE_NAME,
-    tolerance_bps: slippageBps,
   })
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const maybeData = (
@@ -97,6 +99,27 @@ export const getQuote = async ({
       }),
     )
   } else {
-    return Ok(data)
+    const memoWithManualSlippage = (() => {
+      const MEMO_PART_DELIMITER = ':'
+      // TODO: Woody you'll need to use expected_amount_out_streaming for streaming swaps
+      const { memo: quotedMemo, expected_amount_out: expectedAmountOut } = data
+      const memoParts = quotedMemo.split(MEMO_PART_DELIMITER)
+
+      const pool = memoParts[1]
+      const address = memoParts[2]
+      const affiliate = memoParts[4]
+      const affiliateBps = memoParts[5]
+
+      const limitWithManualSlippage = subtractBasisPointAmount(
+        expectedAmountOut,
+        slippageBps,
+        BigNumber.ROUND_DOWN,
+      )
+
+      const memo = `s${MEMO_PART_DELIMITER}${pool}${MEMO_PART_DELIMITER}${address}${MEMO_PART_DELIMITER}${limitWithManualSlippage}${MEMO_PART_DELIMITER}${affiliate}${MEMO_PART_DELIMITER}${affiliateBps}`
+      assertIsValidMemo(memo)
+      return memo
+    })()
+    return Ok({ ...data, memo: memoWithManualSlippage })
   }
 }

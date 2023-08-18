@@ -1,7 +1,8 @@
 // Helper function to convert basis points to percentage
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { MarketData } from '@shapeshiftoss/types'
-import { BigNumber, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import type { BigNumber } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import type { ProtocolFee } from 'lib/swapper/api'
 import type { PartialRecord } from 'lib/utils'
 
@@ -26,13 +27,13 @@ type SumProtocolFeesToDenomArgs = {
  *
  * @param value The value to subtract basis points from.
  * @param basisPoints The number of basis points to subtract.
- * @param roundUp Round up the result to the nearest integer.
+ * @param roundingMode
  * @returns The new number that is the input value minus the basis points of the value.
  */
 export const subtractBasisPointAmount = (
   value: string,
   basisPoints: string,
-  roundUp?: boolean,
+  roundingMode?: BigNumber.RoundingMode,
 ): string => {
   const bigNumValue = bn(value)
 
@@ -42,7 +43,7 @@ export const subtractBasisPointAmount = (
 
   // Subtract basis points from the original value
   const resultValue = bigNumValue.minus(subtractValue)
-  return roundUp ? resultValue.toFixed(0, BigNumber.ROUND_UP) : resultValue.toFixed()
+  return roundingMode ? resultValue.toFixed(0, roundingMode) : resultValue.toFixed()
 }
 
 // this converts the collection of protocol fees denominated in various assets to the sum of all of

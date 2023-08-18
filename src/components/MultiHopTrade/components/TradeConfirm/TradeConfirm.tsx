@@ -478,7 +478,9 @@ export const TradeConfirm = () => {
                     <RawText>{`1 ${sellAsset?.symbol ?? ''} = ${firstNonZeroDecimal(
                       bnOrZero(tradeQuoteStep?.rate),
                     )} ${buyAsset?.symbol}`}</RawText>
-                    {!!swapperName && <RawText color='text.subtle'>@{swapperName}</RawText>}
+                    {!!swapperName && (
+                      <RawText color='text.subtle'>@{tradeQuoteStep.source}</RawText>
+                    )}
                   </Box>
                 </Skeleton>
               </Row>

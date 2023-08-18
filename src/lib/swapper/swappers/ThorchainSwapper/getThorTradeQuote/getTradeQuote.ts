@@ -35,6 +35,7 @@ import {
   convertDecimalPercentageToBasisPoints,
 } from 'state/slices/tradeQuoteSlice/utils'
 
+import { addSlippageToMemo } from '../utils/addSlippageToMemo'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
 
 export type ThorEvmTradeQuote = TradeQuote<ThorEvmSupportedChainId> & {
@@ -97,13 +98,12 @@ export const getThorTradeQuote = async (
     sellAmountCryptoBaseUnit,
     receiveAddress,
     affiliateBps,
-    slippageBps,
   })
 
   if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
 
   const thornodeQuote = maybeQuote.unwrap()
-  const { fees, memo } = thornodeQuote
+  const { fees } = thornodeQuote
 
   const perRouteValues = [
     {
@@ -167,12 +167,14 @@ export const getThorTradeQuote = async (
     return protocolFees
   })()
 
+  const updatedMemo = addSlippageToMemo(thornodeQuote, slippageBps.toString())
+
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm: {
       const maybeThorTxInfo = await getEvmThorTxInfo({
         sellAsset,
         sellAmountCryptoBaseUnit,
-        memo,
+        memo: updatedMemo,
       })
 
       if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
@@ -218,7 +220,7 @@ export const getThorTradeQuote = async (
       const maybeThorTxInfo = await getUtxoThorTxInfo({
         sellAsset,
         xpub: (input as GetUtxoTradeQuoteInput).xpub,
-        memo,
+        memo: updatedMemo,
       })
       if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
       const thorTxInfo = maybeThorTxInfo.unwrap()

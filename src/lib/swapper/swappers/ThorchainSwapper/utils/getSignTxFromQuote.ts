@@ -45,7 +45,7 @@ export const getSignTxFromQuote = async ({
   supportsEIP1559,
   slippageTolerancePercentage,
 }: GetSignTxFromQuoteArgs): Promise<UnsignedTx2> => {
-  const { recommendedSlippage } = quote
+  const { isStreaming, recommendedSlippage } = quote
 
   const slippageTolerance = slippageTolerancePercentage ?? recommendedSlippage
   const slippageBps = convertDecimalPercentageToBasisPoints(slippageTolerance).toString()
@@ -55,11 +55,7 @@ export const getSignTxFromQuote = async ({
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
     sellAsset,
     accountNumber,
-    source,
   } = quote.steps[0]
-
-  // TODO: store a flag on the quote
-  const isStreaming = source.endsWith('Streaming')
 
   const chainAdapterManager = getChainAdapterManager()
   const { chainNamespace } = fromAssetId(sellAsset.assetId)

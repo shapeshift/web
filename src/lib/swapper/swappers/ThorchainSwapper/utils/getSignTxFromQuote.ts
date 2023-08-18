@@ -16,6 +16,7 @@ import type {
 import { getThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import { assertUnreachable } from 'lib/utils'
 import { createBuildCustomApiTxInput } from 'lib/utils/evm'
+import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { getQuote } from './getQuote/getQuote'
@@ -46,6 +47,7 @@ export const getSignTxFromQuote = async ({
   const { recommendedSlippage } = quote
 
   const slippageTolerance = slippageTolerancePercentage ?? recommendedSlippage
+  const slippageBps = convertDecimalPercentageToBasisPoints(slippageTolerance).toString()
 
   const {
     buyAsset,
@@ -85,9 +87,12 @@ export const getSignTxFromQuote = async ({
         sellAmountCryptoBaseUnit,
         receiveAddress,
         affiliateBps,
+        slippageBps,
       })
 
       if (maybeThornodeQuote.isErr()) throw maybeThornodeQuote.unwrapErr()
+      const thorchainQuote = maybeThornodeQuote.unwrap()
+      const { memo } = thorchainQuote
 
       const cosmosSdkChainAdapter =
         adapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
@@ -105,7 +110,7 @@ export const getSignTxFromQuote = async ({
         affiliateBps,
         buyAssetUsdRate,
         feeAssetUsdRate,
-        thornodeQuote: maybeThornodeQuote.unwrap(),
+        memo,
       })
 
       if (maybeTxData.isErr()) throw maybeTxData.unwrapErr()
@@ -120,25 +125,20 @@ export const getSignTxFromQuote = async ({
         sellAmountCryptoBaseUnit,
         receiveAddress,
         affiliateBps,
+        slippageBps,
       })
 
       if (maybeThornodeQuote.isErr()) throw maybeThornodeQuote.unwrapErr()
+      const thorchainQuote = maybeThornodeQuote.unwrap()
+      const { memo } = thorchainQuote
 
       const utxoChainAdapter = adapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
       if (!chainSpecific) throw Error('missing UTXO chainSpecific parameters')
 
       const maybeThorTxInfo = await getThorTxInfo({
         sellAsset,
-        buyAsset,
-        sellAmountCryptoBaseUnit,
-        slippageTolerance,
-        destinationAddress: receiveAddress,
         xpub: xpub!,
-        protocolFees: quote.steps[0].feeData.protocolFees,
-        affiliateBps,
-        buyAssetUsdRate,
-        feeAssetUsdRate,
-        thornodeQuote: maybeThornodeQuote.unwrap(),
+        memo,
       })
 
       if (maybeThorTxInfo.isErr()) throw maybeThorTxInfo.unwrapErr()

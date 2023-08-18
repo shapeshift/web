@@ -25,7 +25,6 @@ import type {
 import { makeSwapErrorRight, SwapErrorType, SwapperName } from 'lib/swapper/api'
 import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
 import type {
-  Rates,
   ThorCosmosSdkSupportedChainId,
   ThorEvmSupportedChainId,
   ThorUtxoSupportedChainId,
@@ -34,6 +33,10 @@ import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
+import {
+  convertBasisPointsToDecimalPercentage,
+  convertDecimalPercentageToBasisPoints,
+} from 'state/slices/tradeQuoteSlice/utils'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
@@ -50,26 +53,23 @@ type ThorTradeQuote =
 
 export const getThorTradeQuote = async (
   input: GetTradeQuoteInput & { wallet?: HDWallet },
-  rates: Rates,
 ): Promise<Result<ThorTradeQuote, SwapErrorRight>> => {
   const {
     sellAsset,
     buyAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-    slippageTolerancePercentage,
     accountNumber,
     chainId,
     receiveAddress,
     affiliateBps,
     wallet,
+    slippageTolerancePercentage,
   } = input
 
-  const slippageTolerance =
-    slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain)
-
-  const { buyAssetUsdRate, feeAssetUsdRate } = rates
-
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
+  const slippageBps = convertDecimalPercentageToBasisPoints(
+    slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain),
+  ).toString()
 
   const chainAdapterManager = getChainAdapterManager()
   const sellAdapter = chainAdapterManager.get(chainId)
@@ -100,18 +100,22 @@ export const getThorTradeQuote = async (
     sellAmountCryptoBaseUnit,
     receiveAddress,
     affiliateBps,
+    slippageBps,
   })
 
   if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
 
   const thornodeQuote = maybeQuote.unwrap()
   const {
-    slippage_bps: slippageBps,
+    slippage_bps: recommendedSlippageBps,
     fees,
     expected_amount_out: expectedAmountOutThorBaseUnit,
+    memo,
   } = thornodeQuote
 
-  const slippagePercentage = bn(slippageBps).div(1000)
+  const recommendedSlippageDecimalPercentage = convertBasisPointsToDecimalPercentage(
+    recommendedSlippageBps.toString(),
+  ).toString()
 
   const rate = (() => {
     const THOR_PRECISION = 8
@@ -147,7 +151,7 @@ export const getThorTradeQuote = async (
   })()
 
   const commonQuoteFields = {
-    recommendedSlippage: slippagePercentage.div(100).toString(),
+    recommendedSlippage: recommendedSlippageDecimalPercentage,
   }
 
   const commonStepFields = {
@@ -176,15 +180,8 @@ export const getThorTradeQuote = async (
       return (async (): Promise<Promise<Result<ThorEvmTradeQuote, SwapErrorRight>>> => {
         const maybeThorTxInfo = await getEvmThorTxInfo({
           sellAsset,
-          buyAsset,
           sellAmountCryptoBaseUnit,
-          slippageTolerance,
-          destinationAddress: receiveAddress,
-          protocolFees,
-          affiliateBps,
-          buyAssetUsdRate,
-          feeAssetUsdRate,
-          thornodeQuote,
+          memo,
         })
 
         if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())
@@ -225,16 +222,8 @@ export const getThorTradeQuote = async (
       return (async (): Promise<Result<TradeQuote<ThorUtxoSupportedChainId>, SwapErrorRight>> => {
         const maybeThorTxInfo = await getUtxoThorTxInfo({
           sellAsset,
-          buyAsset,
-          sellAmountCryptoBaseUnit,
-          slippageTolerance,
-          destinationAddress: receiveAddress,
           xpub: (input as GetUtxoTradeQuoteInput).xpub,
-          protocolFees,
-          affiliateBps,
-          buyAssetUsdRate,
-          feeAssetUsdRate,
-          thornodeQuote,
+          memo,
         })
 
         if (maybeThorTxInfo.isErr()) return Err(maybeThorTxInfo.unwrapErr())

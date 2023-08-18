@@ -197,6 +197,7 @@ export const getThorTradeQuote = async (
               const { data, router } = maybeThorTxInfo.unwrap()
 
               return {
+                isStreaming,
                 recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
                 rate,
                 data,
@@ -255,6 +256,7 @@ export const getThorTradeQuote = async (
               })
 
               return {
+                isStreaming,
                 recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
                 rate,
                 steps: [
@@ -282,33 +284,38 @@ export const getThorTradeQuote = async (
       const feeData = await sellAdapter.getFeeData({})
 
       return Ok(
-        perRouteValues.map(({ source, slippageBps, expectedAmountOutThorBaseUnit }) => {
-          const rate = getRouteRate(expectedAmountOutThorBaseUnit)
-          const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(expectedAmountOutThorBaseUnit)
-          return {
-            recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
-            rate,
-            steps: [
-              {
-                rate,
-                sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-                buyAmountBeforeFeesCryptoBaseUnit,
-                source,
-                buyAsset,
-                sellAsset,
-                accountNumber,
-                allowanceContract: '0x0', // not applicable to cosmos
-                feeData: {
-                  networkFeeCryptoBaseUnit: feeData.fast.txFee,
-                  protocolFees,
-                  chainSpecific: {
-                    estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit,
+        perRouteValues.map(
+          ({ source, slippageBps, expectedAmountOutThorBaseUnit, isStreaming }) => {
+            const rate = getRouteRate(expectedAmountOutThorBaseUnit)
+            const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
+              expectedAmountOutThorBaseUnit,
+            )
+            return {
+              isStreaming,
+              recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
+              rate,
+              steps: [
+                {
+                  rate,
+                  sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+                  buyAmountBeforeFeesCryptoBaseUnit,
+                  source,
+                  buyAsset,
+                  sellAsset,
+                  accountNumber,
+                  allowanceContract: '0x0', // not applicable to cosmos
+                  feeData: {
+                    networkFeeCryptoBaseUnit: feeData.fast.txFee,
+                    protocolFees,
+                    chainSpecific: {
+                      estimatedGasCryptoBaseUnit: feeData.fast.chainSpecific.gasLimit,
+                    },
                   },
                 },
-              },
-            ],
-          }
-        }),
+              ],
+            }
+          },
+        ),
       )
     }
 

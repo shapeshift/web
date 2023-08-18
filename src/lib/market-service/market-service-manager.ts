@@ -3,7 +3,6 @@ import type {
   FindAllMarketArgs,
   HistoryData,
   MarketCapResult,
-  MarketData,
   MarketDataArgs,
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
@@ -84,48 +83,44 @@ export class MarketServiceManager {
       }
     }
 
-    let result: MarketData | null = null
-    // Loop through market providers and look for asset market data. Once found, exit loop.
-    for (let i = 0; i < this.marketProviders.length && !result; i++) {
-      try {
-        result = await this.marketProviders[i].findByAssetId({ assetId })
-        if (result) break
-      } catch (e) {
-        // Swallow error, not every asset will be with every provider.
+    const result = await (async () => {
+      // Loop through market providers and look for asset market data. Once found, exit loop.
+      for (const provider of this.marketProviders) {
+        try {
+          const data = await provider.findByAssetId({ assetId })
+          if (data) return data
+        } catch (e) {
+          // Swallow error, not every asset will be with every provider.
+        }
       }
-    }
 
-    // If we don't find any results, then we look for related assets
-    if (!result) {
+      // If we don't find any results, then we look for related assets
       const relatedAssetIds = await _getRelatedAssetIds(assetId)
       if (!relatedAssetIds.length) return null
 
+      // Loop through related assets and look for market data
+      // Once found for any related asset, exit loop.
       for (const relatedAssetId of relatedAssetIds) {
-        // Loop through market providers and look for related asset market data.
-        for (let i = 0; i < this.marketProviders.length && !result; i++) {
+        for (const provider of this.marketProviders) {
           try {
-            const maybeResult = await this.marketProviders[i].findByAssetId({
-              assetId: relatedAssetId,
-            })
+            const maybeResult = await provider.findByAssetId({ assetId: relatedAssetId })
             if (maybeResult) {
-              // We only need the price as a dumb last resort fallback in case we can't get a related asset's USD rate from any provider
-              // Things like market cap, volume etc would be totally different on diff. chains thus shouldn't be used here
-              result = {
+              // We only need the price as a last resort fallback in case we can't get a related asset's USD rate from any provider
+              return {
                 price: maybeResult.price,
                 marketCap: '0',
                 volume: '0',
                 changePercent24Hr: 0,
               }
-              break
             }
           } catch (e) {
             // Swallow error, not every related asset will be with every provider.
           }
         }
-
-        if (result) break
       }
-    }
+
+      return null
+    })()
 
     return result
   }

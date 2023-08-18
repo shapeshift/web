@@ -21,6 +21,7 @@ const options = {
   },
 }
 
+// https://developers.zerion.io
 export const _getRelatedAssetIds = async (assetId: AssetId): Promise<AssetId[]> => {
   const { chainId, assetReference } = fromAssetId(assetId)
 

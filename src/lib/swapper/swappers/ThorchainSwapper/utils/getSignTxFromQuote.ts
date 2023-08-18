@@ -8,7 +8,10 @@ import type {
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { TradeQuote, UnsignedTx2 } from 'lib/swapper/api'
 import { getCosmosTxData } from 'lib/swapper/swappers/ThorchainSwapper/cosmossdk/getCosmosTxData'
-import type { ThorEvmTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import type {
+  ThorEvmTradeQuote,
+  ThorTradeQuote,
+} from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type {
   ThorCosmosSdkSupportedChainId,
   ThorUtxoSupportedChainId,
@@ -45,7 +48,9 @@ export const getSignTxFromQuote = async ({
   supportsEIP1559,
   slippageTolerancePercentage,
 }: GetSignTxFromQuoteArgs): Promise<UnsignedTx2> => {
-  const { isStreaming, recommendedSlippage } = quote
+  // TODO(gomes): TradeQuote<C> should have a chainId property so we can easily discriminate
+  // on ChainId to define additional metadata for a chain-specific TradeQuote
+  const { isStreaming, recommendedSlippage } = quote as ThorTradeQuote
 
   const slippageTolerance = slippageTolerancePercentage ?? recommendedSlippage
   const slippageBps = convertDecimalPercentageToBasisPoints(slippageTolerance).toString()

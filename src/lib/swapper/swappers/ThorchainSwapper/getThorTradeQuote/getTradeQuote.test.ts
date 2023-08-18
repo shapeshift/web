@@ -122,6 +122,7 @@ describe('getTradeQuote', () => {
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
       buyAsset: ETH,
       sellAsset: FOX_MAINNET,
+      slippageTolerancePercentage: '0.04357',
     }
 
     const maybeTradeQuote = await getThorTradeQuote(input)

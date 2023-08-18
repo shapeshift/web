@@ -10,6 +10,7 @@ import type {
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getDefaultSlippagePercentageForSwapper } from 'constants/constants'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { baseUnitToPrecision, bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -32,6 +33,10 @@ import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
+import {
+  convertBasisPointsToDecimalPercentage,
+  convertDecimalPercentageToBasisPoints,
+} from 'state/slices/tradeQuoteSlice/utils'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { getEvmTxFees } from '../utils/txFeeHelpers/evmTxFees/getEvmTxFees'
@@ -58,9 +63,13 @@ export const getThorTradeQuote = async (
     receiveAddress,
     affiliateBps,
     wallet,
+    slippageTolerancePercentage,
   } = input
 
   const { chainId: buyAssetChainId } = fromAssetId(buyAsset.assetId)
+  const slippageBps = convertDecimalPercentageToBasisPoints(
+    slippageTolerancePercentage ?? getDefaultSlippagePercentageForSwapper(SwapperName.Thorchain),
+  ).toString()
 
   const chainAdapterManager = getChainAdapterManager()
   const sellAdapter = chainAdapterManager.get(chainId)
@@ -91,19 +100,22 @@ export const getThorTradeQuote = async (
     sellAmountCryptoBaseUnit,
     receiveAddress,
     affiliateBps,
+    slippageBps,
   })
 
   if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
 
   const thornodeQuote = maybeQuote.unwrap()
   const {
-    slippage_bps: slippageBps,
+    slippage_bps: recommendedSlippageBps,
     fees,
     expected_amount_out: expectedAmountOutThorBaseUnit,
     memo,
   } = thornodeQuote
 
-  const slippagePercentage = bn(slippageBps).div(1000)
+  const recommendedSlippageDecimalPercentage = convertBasisPointsToDecimalPercentage(
+    recommendedSlippageBps.toString(),
+  ).toString()
 
   const rate = (() => {
     const THOR_PRECISION = 8
@@ -139,7 +151,7 @@ export const getThorTradeQuote = async (
   })()
 
   const commonQuoteFields = {
-    recommendedSlippage: slippagePercentage.div(100).toString(),
+    recommendedSlippage: recommendedSlippageDecimalPercentage,
   }
 
   const commonStepFields = {

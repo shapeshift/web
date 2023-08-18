@@ -28,6 +28,7 @@ export const getQuote = async ({
   sellAmountCryptoBaseUnit,
   receiveAddress,
   affiliateBps = '0',
+  slippageBps,
 }: {
   sellAsset: Asset
   buyAssetId: AssetId
@@ -35,6 +36,7 @@ export const getQuote = async ({
   // Receive address is optional for THOR quotes, and will be in case we are getting a quote with a missing manual receive address
   receiveAddress: string | undefined
   affiliateBps: string
+  slippageBps: string
 }): Promise<Result<ThornodeQuoteResponseSuccess, SwapErrorRight>> => {
   const buyPoolId = assetIdToPoolAssetId({ assetId: buyAssetId })
   const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
@@ -61,6 +63,7 @@ export const getQuote = async ({
     destination: parsedReceiveAddress,
     affiliate_bps: affiliateBps,
     affiliate: THORCHAIN_AFFILIATE_NAME,
+    tolerance_bps: slippageBps,
   })
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const maybeData = (

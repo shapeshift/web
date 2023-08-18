@@ -41,9 +41,7 @@ export const thorchainApi: Swapper2Api = {
       }))
     }
 
-    return await getThorTradeQuote({
-      ...input,
-    }).then(async firstQuote => {
+    return await getThorTradeQuote(input).then(async firstQuote => {
       // If the first quote fails there is no need to check if the donation amount is below the minimum
       if (firstQuote.isErr())
         return mapTradeQuoteToTradeQuote2(firstQuote, receiveAddress, affiliateBps)

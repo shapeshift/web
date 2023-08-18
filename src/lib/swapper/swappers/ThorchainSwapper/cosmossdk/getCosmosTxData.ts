@@ -11,8 +11,6 @@ import type { SwapErrorRight, TradeQuote } from 'lib/swapper/api'
 import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import type { ThorCosmosSdkSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
-import { getLimit } from 'lib/swapper/swappers/ThorchainSwapper/utils/getLimit/getLimit'
-import { makeSwapMemo } from 'lib/swapper/swappers/ThorchainSwapper/utils/makeSwapMemo/makeSwapMemo'
 
 type GetCosmosTxDataInput = {
   accountNumber: number
@@ -28,25 +26,14 @@ type GetCosmosTxDataInput = {
   affiliateBps: string
   buyAssetUsdRate: string
   feeAssetUsdRate: string
+  memo: string
 }
 
 export const getCosmosTxData = async (
   input: GetCosmosTxDataInput,
 ): Promise<Result<ThorchainSignTx | CosmosSignTx, SwapErrorRight>> => {
-  const {
-    accountNumber,
-    destinationAddress,
-    sellAmountCryptoBaseUnit,
-    sellAsset,
-    buyAsset,
-    slippageTolerance,
-    quote,
-    from,
-    sellAdapter,
-    affiliateBps,
-    buyAssetUsdRate,
-    feeAssetUsdRate,
-  } = input
+  const { accountNumber, sellAmountCryptoBaseUnit, sellAsset, quote, from, sellAdapter, memo } =
+    input
   const fromThorAsset = sellAsset.chainId === KnownChainIds.ThorchainMainnet
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const maybeVault = await (async () => {
@@ -67,28 +54,6 @@ export const getCosmosTxData = async (
         details: { chainId: input.chainId },
       }),
     )
-
-  const maybeLimit = await getLimit({
-    buyAsset,
-    sellAmountCryptoBaseUnit,
-    sellAsset,
-    slippageTolerance,
-    protocolFees: quote.steps[0].feeData.protocolFees,
-    receiveAddress: destinationAddress,
-    affiliateBps,
-    buyAssetUsdRate,
-    feeAssetUsdRate,
-  })
-
-  if (maybeLimit.isErr()) return Err(maybeLimit.unwrapErr())
-
-  const limit = maybeLimit.unwrap()
-  const memo = makeSwapMemo({
-    buyAssetId: buyAsset.assetId,
-    destinationAddress,
-    limit,
-    affiliateBps,
-  })
 
   const maybeBuiltTxResponse = (() => {
     switch (true) {

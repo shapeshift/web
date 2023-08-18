@@ -66,7 +66,7 @@ export const DappHeaderMenuSummary = () => {
           <RawText>
             {dayjs(walletConnect.connector?.handshakeId / 1000)
               .locale(selectedLocale)
-              .format('ll hh:mm A')}
+              .format('ll LT')}
           </RawText>
         </HStack>
         <HStack justifyContent='space-between' spacing={4}>

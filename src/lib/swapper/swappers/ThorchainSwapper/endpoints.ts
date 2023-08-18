@@ -12,7 +12,8 @@ import type {
   UnsignedTx2,
 } from 'lib/swapper/api'
 import { RUNE_OUTBOUND_TRANSACTION_FEE_CRYPTO_HUMAN } from 'lib/swapper/swappers/ThorchainSwapper/constants'
-import type { Rates, ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type { ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type { TradeQuoteDeps } from 'lib/swapper/types'
 
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getTradeTxs } from './getTradeTxs/getTradeTxs'
@@ -21,7 +22,7 @@ import { getSignTxFromQuote } from './utils/getSignTxFromQuote'
 export const thorchainApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    rates: Rates,
+    rates: TradeQuoteDeps,
   ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
     const { receiveAddress, affiliateBps } = input
 
@@ -40,7 +41,7 @@ export const thorchainApi: Swapper2Api = {
       }))
     }
 
-    return await getThorTradeQuote(input, rates).then(async firstQuote => {
+    return await getThorTradeQuote(input).then(async firstQuote => {
       // If the first quote fails there is no need to check if the donation amount is below the minimum
       if (firstQuote.isErr())
         return mapTradeQuoteToTradeQuote2(firstQuote, receiveAddress, affiliateBps)
@@ -64,7 +65,10 @@ export const thorchainApi: Swapper2Api = {
         If the donation amount is below the minimum,
         we need to fetch a new quote with no affiliate fee
       */
-          await getThorTradeQuote({ ...input, affiliateBps: '0' }, rates)
+          await getThorTradeQuote({
+            ...input,
+            affiliateBps: '0',
+          })
         : firstQuote
 
       return mapTradeQuoteToTradeQuote2(

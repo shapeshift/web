@@ -3,10 +3,8 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
 import { getConfig } from 'config'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
+import { bn } from 'lib/bignumber/bignumber'
 import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from 'lib/swapper/api'
-import { getMinimumCryptoHuman } from 'lib/swapper/swappers/CowSwapper/getMinimumCryptoHuman/getMinimumCryptoHuman'
 import type { CowChainId, CowSwapQuoteResponse } from 'lib/swapper/swappers/CowSwapper/types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
@@ -24,10 +22,10 @@ import {
   getValuesFromQuoteResponse,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import {
-  createEmptyEvmTradeQuote,
   isNativeEvmAsset,
   normalizeIntegerAmount,
 } from 'lib/swapper/swappers/utils/helpers/helpers'
+import { createTradeAmountTooSmallErr } from 'lib/swapper/utils'
 
 export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
@@ -44,17 +42,8 @@ export async function getCowSwapTradeQuote(
     ? fromAssetId(buyAsset.assetId).assetReference
     : COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS
 
-  // TODO: use cow quote error to get actual min sell amount as provided by cowswap instead of hardcoded limit
-  const minimumCryptoHuman = getMinimumCryptoHuman(
-    sellAsset.chainId as CowChainId,
-    sellAssetUsdRate,
-  )
-  const minimumCryptoBaseUnit = toBaseUnit(minimumCryptoHuman, sellAsset.precision)
-
   // making sure we do not have decimals for cowswap api (can happen at least from minQuoteSellAmount)
-  const normalizedSellAmountCryptoBaseUnit = normalizeIntegerAmount(
-    bnOrZero(sellAmount).eq(0) ? minimumCryptoBaseUnit : sellAmount,
-  )
+  const normalizedSellAmountCryptoBaseUnit = normalizeIntegerAmount(sellAmount)
 
   const maybeNetwork = getCowswapNetwork(chainId)
   if (maybeNetwork.isErr()) return Err(maybeNetwork.unwrapErr())
@@ -80,11 +69,17 @@ export async function getCowSwapTradeQuote(
 
   if (maybeQuoteResponse.isErr()) {
     const err = maybeQuoteResponse.unwrapErr()
+    const errData = (err.cause as AxiosError)?.response?.data
     if (
       (err.cause as AxiosError)?.isAxiosError &&
-      (err.cause as AxiosError).response?.data.errorType === 'SellAmountDoesNotCoverFee'
+      errData?.errorType === 'SellAmountDoesNotCoverFee'
     ) {
-      return Ok(createEmptyEvmTradeQuote(input, minimumCryptoHuman))
+      return Err(
+        createTradeAmountTooSmallErr({
+          assetId: sellAsset.assetId,
+          minAmountCryptoBaseUnit: bn(errData?.data.fee_amount ?? '0x0', 16).toFixed(),
+        }),
+      )
     }
     return Err(maybeQuoteResponse.unwrapErr())
   }
@@ -101,12 +96,7 @@ export async function getCowSwapTradeQuote(
     buyAssetUsdRate,
   })
 
-  // don't show buy amount if less than min sell amount
-  const isSellAmountBelowMinimum = bnOrZero(sellAmount).lt(minimumCryptoBaseUnit)
-  const buyAmountCryptoBaseUnit = isSellAmountBelowMinimum ? '0' : buyAmountBeforeFeesCryptoBaseUnit
-
   const quote: TradeQuote<CowChainId> = {
-    minimumCryptoHuman,
     id: data.id.toString(),
     rate,
     steps: [
@@ -124,7 +114,7 @@ export async function getCowSwapTradeQuote(
           },
         },
         sellAmountIncludingProtocolFeesCryptoBaseUnit: normalizedSellAmountCryptoBaseUnit,
-        buyAmountBeforeFeesCryptoBaseUnit: buyAmountCryptoBaseUnit,
+        buyAmountBeforeFeesCryptoBaseUnit,
         sources: DEFAULT_SOURCE,
         buyAsset,
         sellAsset,

@@ -40,9 +40,8 @@ jest.mock('config', () => {
 })
 
 const expectedQuoteResponse: ThorEvmTradeQuote = {
-  minimumCryptoHuman: '149.14668013703712946932',
   rate: '144114.94366197183098591549',
-  recommendedSlippage: '0.04357',
+  recommendedSlippage: '0.0435',
   data: '0x',
   router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
   steps: [
@@ -109,7 +108,7 @@ describe('getTradeQuote', () => {
                   'First output should be to inbound_address, second output should be change back to self, third output should be OP_RETURN, limited to 80 bytes. Do not send below the dust threshold. Do not use exotic spend scripts, locks or address formats (P2WSH with Bech32 address format preferred).',
                 outbound_delay_blocks: 575,
                 outbound_delay_seconds: 6900,
-                slippage_bps: 4357,
+                slippage_bps: 435,
                 warning: 'Do not cache this response. Do not send funds after the expiry.',
                 memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6::ss:0',
               },
@@ -123,14 +122,10 @@ describe('getTradeQuote', () => {
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
       buyAsset: ETH,
       sellAsset: FOX_MAINNET,
+      slippageTolerancePercentage: '0.04357',
     }
 
-    const maybeTradeQuote = await getThorTradeQuote(input, {
-      sellAssetUsdRate: '0.15399605260336216',
-      buyAssetUsdRate: '1595',
-      feeAssetUsdRate: '1595',
-      runeAssetUsdRate: '0.30',
-    })
+    const maybeTradeQuote = await getThorTradeQuote(input)
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedQuoteResponse)
   })

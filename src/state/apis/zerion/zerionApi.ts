@@ -4,6 +4,7 @@ import { FEE_ASSET_IDS, fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 import { getConfig } from 'config'
+import memoize from 'lodash/memoize'
 import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
@@ -21,8 +22,9 @@ const options = {
   },
 }
 
-// https://developers.zerion.io
-export const _getRelatedAssetIds = async (assetId: AssetId): Promise<AssetId[]> => {
+// Looks like we're using a useless memoize here as zerionApi.endpoints.getRelatedAssetIds takes care of caching
+// But this is actually useful, we use _getRelatedAssetIds - since related AssetIds never change, this should be memoized
+export const _getRelatedAssetIds = memoize(async (assetId: AssetId): Promise<AssetId[]> => {
   const { chainId, assetReference } = fromAssetId(assetId)
 
   if (!isEvmChainId(chainId) || FEE_ASSET_IDS.includes(assetId)) return []
@@ -45,8 +47,9 @@ export const _getRelatedAssetIds = async (assetId: AssetId): Promise<AssetId[]> 
     console.error(e)
     throw e
   }
-}
+})
 
+// https://developers.zerion.io
 export const zerionApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'zerionApi',

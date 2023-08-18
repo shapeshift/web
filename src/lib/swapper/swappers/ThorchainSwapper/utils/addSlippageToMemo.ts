@@ -1,21 +1,22 @@
 import { BigNumber } from 'lib/bignumber/bignumber'
-import { isSome } from 'lib/utils'
 import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
 import type { ThornodeQuoteResponseSuccess } from '../types'
+import {
+  DEFAULT_STREAMING_NUM_BLOCKS,
+  DEFAULT_STREAMING_NUM_SWAPS,
+  LIMIT_PART_DELIMITER,
+  MEMO_PART_DELIMITER,
+} from './constants'
 import { assertIsValidMemo } from './makeSwapMemo/assertIsValidMemo'
-
-const MEMO_PART_DELIMITER = ':'
-const STREAMING_DELIMITER = '/'
 
 export const addSlippageToMemo = (
   { memo: quotedMemo, expected_amount_out: expectedAmountOut }: ThornodeQuoteResponseSuccess,
   slippageBps: BigNumber.Value,
+  isStreaming: boolean,
 ) => {
-  const [s, pool, address, originalLimitComponent, affiliate, affiliateBps] =
-    quotedMemo.split(MEMO_PART_DELIMITER)
-  // element 0 is the original limit value, which is undefined - we compute a new one
-  const [, subSwaps, blocks] = originalLimitComponent.split(STREAMING_DELIMITER)
+  // the missing element is the original limit with (optional, missing) streaming parameters
+  const [prefix, pool, address, , affiliate, affiliateBps] = quotedMemo.split(MEMO_PART_DELIMITER)
 
   const limitWithManualSlippage = subtractBasisPointAmount(
     expectedAmountOut,
@@ -23,11 +24,13 @@ export const addSlippageToMemo = (
     BigNumber.ROUND_DOWN,
   )
 
-  const updatedLimitComponent = [limitWithManualSlippage, subSwaps, blocks]
-    .filter(isSome) // filtering out streaming components if not present
-    .join(STREAMING_DELIMITER)
+  const updatedLimitComponent = isStreaming
+    ? [limitWithManualSlippage, DEFAULT_STREAMING_NUM_SWAPS, DEFAULT_STREAMING_NUM_BLOCKS].join(
+        LIMIT_PART_DELIMITER,
+      )
+    : [limitWithManualSlippage]
 
-  const memo = [s, pool, address, updatedLimitComponent, affiliate, affiliateBps].join(
+  const memo = [prefix, pool, address, updatedLimitComponent, affiliate, affiliateBps].join(
     MEMO_PART_DELIMITER,
   )
 

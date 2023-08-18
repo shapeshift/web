@@ -641,6 +641,7 @@
     "previewTrade": "Vista previa del intercambio",
     "rate": "Tasa",
     "tradeFrom": "Intercambia desde",
+    "priceImpact": "Impacto en precio",
     "slippage": {
       "maxSlippage": "Deslizamiento Máx",
       "auto": "Auto",
@@ -661,6 +662,7 @@
     "gasFeeExceedsTradeAmountThreshold": "La tarifa de gas excede el %{percentage}% del monto comercial",
     "confirmDetails": "Confirmar Detalles",
     "confirmAndTrade": "Confirmar e Intercambiar",
+    "tradeAnyway": "Comerciar de todos modos",
     "pending": "Intercambio Pendiente",
     "complete": "Intercambio Completado",
     "approveAsset": "Aprobar la interacción con %{symbol}",
@@ -684,6 +686,7 @@
     "tooltip": {
       "rate": "Esta es la tasa esperada para este intercambio.",
       "noRateAvailable": "Esto a menudo se debe a una liquidez muy limitada o nula en el par comercial.",
+      "priceImpact": "Un intercambio de este tamaño puede tener un alto impacto en el precio dada la liquidez actual en el pool. Puede haber una gran diferencia entre la cantidad de su token y lo que recibirá",
       "minerFee": "Esta es la tarifa para procesar la transacción en la blockchain, no es una tarifa cobrada por ShapeShift.",
       "donation": "Ayude a ShapeShift mantenerse en funcionamiento.",
       "protocol": "Este es el protocolo donde se enruta su intercambio.",
@@ -717,6 +720,7 @@
       "insufficientFundsForProtocolFee": "%{symbol} insuficiente en %{chainName} para las tarifas",
       "invalidTradePair": "Par comercial no válido: %{sellAssetName} y %{buyAssetName}",
       "invalidTradePairBtnText": "Par de intercambio no válido",
+      "unsupportedTradePair": "Par No Compatible",
       "noLiquidityError": "No hay suficiente liquidez disponible",
       "overMaxSlippage": "Este comercio daría como resultado más de %{slippagePercentage}% deslizamiento. Intercambie una cantidad menor por un mejor precio",
       "balanceToLow": "Saldo demasiado bajo. El monto mínimo de operación para este par es %{minLimit}",
@@ -742,6 +746,7 @@
       "assetNotSupportedByWallet": "%{assetSymbol} no es compatible con la billetera",
       "noReceiveAddress": "Sin dirección de recepción para %{assetSymbol}",
       "tradingNotActive": "Operaciones temporalmente interrumpidas para %{assetSymbol}",
+      "tradingNotActiveNoAssetSymbol": "Intercambios detenidos temporalmente en esta ruta",
       "signing": {
         "failed": "Ocurrió un error al firmar la transacción",
         "required": "Se requiere una transacción firmada"
@@ -759,7 +764,8 @@
     "unknownGas": "(desconocido)",
     "receiveAddress": "Dirección de recepción",
     "receiveAddressDescription": "No dirección %{chainName} en billetera conectada. Introduzca manualmente para continuar",
-    "addressPlaceholder": "Dirección %{chainName}"
+    "addressPlaceholder": "Dirección %{chainName}",
+    "priceImpactWarning": "Debido al tamaño de la operación en relación a la liquidez disponible, el impacto de precio esperado es %{priceImpactPercentage}%. ¿Estás seguro quieres operar?"
   },
   "modals": {
     "popup": {

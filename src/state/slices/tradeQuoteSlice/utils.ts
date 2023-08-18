@@ -43,7 +43,7 @@ export const subtractBasisPointAmount = (
 
   // Subtract basis points from the original value
   const resultValue = bigNumValue.minus(subtractValue)
-  return roundingMode ? resultValue.toFixed(0, roundingMode) : resultValue.toFixed()
+  return roundingMode !== undefined ? resultValue.toFixed(0, roundingMode) : resultValue.toFixed()
 }
 
 // this converts the collection of protocol fees denominated in various assets to the sum of all of

@@ -14,6 +14,7 @@ import type {
   ThornodeQuoteResponseSuccess,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import {
+  DEFAULT_STREAMING_INTERVAL,
   THORCHAIN_AFFILIATE_NAME,
   THORCHAIN_FIXED_PRECISION,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
@@ -61,6 +62,7 @@ export const getQuote = async ({
     destination: parsedReceiveAddress,
     affiliate_bps: affiliateBps,
     affiliate: THORCHAIN_AFFILIATE_NAME,
+    streaming_interval: DEFAULT_STREAMING_INTERVAL,
   })
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const maybeData = (

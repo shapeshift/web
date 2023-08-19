@@ -15,7 +15,7 @@ jest.mock('../utils/oneInchService', () => {
 })
 
 describe('getApprovalAddress', () => {
-  const apiUrl = 'https://api.1inch.io/v5.0'
+  const apiUrl = 'https://api-shapeshift.1inch.io/v5.0'
 
   it('returns the correct address for the given chainId', async () => {
     ;(oneInchService.get as jest.Mock<unknown>).mockReturnValueOnce(

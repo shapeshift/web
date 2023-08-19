@@ -177,3 +177,20 @@ export const VALID_ASSET_NAMESPACE: ValidAssetNamespace = Object.freeze({
     ASSET_NAMESPACE.slip44,
   ],
 })
+
+// We should prob change this once we add more chains
+export const FEE_ASSET_IDS = [
+  ethAssetId,
+  btcAssetId,
+  bchAssetId,
+  cosmosAssetId,
+  osmosisAssetId,
+  thorchainAssetId,
+  dogeAssetId,
+  ltcAssetId,
+  avalancheAssetId,
+  optimismAssetId,
+  bscAssetId,
+  polygonAssetId,
+  gnosisAssetId,
+]

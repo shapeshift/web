@@ -148,7 +148,7 @@ const validators = {
   REACT_APP_FEATURE_READ_ONLY_ASSETS: bool({ default: false }),
   REACT_APP_FEATURE_ONE_INCH: bool({ default: false }),
   REACT_APP_ONE_INCH_API_URL: url({
-    default: 'https://api.1inch.io/v5.0',
+    default: 'https://api-shapeshift.1inch.io/v5.0',
   }),
   REACT_APP_FEATURE_COVALENT_JAYPEGS: bool({ default: false }),
   REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY: str(),

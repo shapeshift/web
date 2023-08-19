@@ -3,10 +3,10 @@ import type {
   FindAllMarketArgs,
   HistoryData,
   MarketCapResult,
-  MarketData,
   MarketDataArgs,
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
+import { _getRelatedAssetIds } from 'state/apis/zerion/zerionApi'
 
 // import { Yearn } from '@yfi/sdk'
 import type { MarketService } from './api'
@@ -83,16 +83,45 @@ export class MarketServiceManager {
       }
     }
 
-    let result: MarketData | null = null
-    // Loop through market providers and look for asset market data. Once found, exit loop.
-    for (let i = 0; i < this.marketProviders.length && !result; i++) {
-      try {
-        result = await this.marketProviders[i].findByAssetId({ assetId })
-      } catch (e) {
-        // Swallow error, not every asset will be with every provider.
+    const result = await (async () => {
+      // Loop through market providers and look for asset market data. Once found, exit loop.
+      for (const provider of this.marketProviders) {
+        try {
+          const data = await provider.findByAssetId({ assetId })
+          if (data) return data
+        } catch (e) {
+          // Swallow error, not every asset will be with every provider.
+        }
       }
-    }
-    if (!result) return null
+
+      // If we don't find any results, then we look for related assets
+      const relatedAssetIds = await _getRelatedAssetIds(assetId)
+      if (!relatedAssetIds.length) return null
+
+      // Loop through related assets and look for market data
+      // Once found for any related asset, exit loop.
+      for (const relatedAssetId of relatedAssetIds) {
+        for (const provider of this.marketProviders) {
+          try {
+            const maybeResult = await provider.findByAssetId({ assetId: relatedAssetId })
+            if (maybeResult) {
+              // We only need the price as a last resort fallback in case we can't get a related asset's USD rate from any provider
+              return {
+                price: maybeResult.price,
+                marketCap: '0',
+                volume: '0',
+                changePercent24Hr: 0,
+              }
+            }
+          } catch (e) {
+            // Swallow error, not every related asset will be with every provider.
+          }
+        }
+      }
+
+      return null
+    })()
+
     return result
   }
 

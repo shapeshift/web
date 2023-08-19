@@ -1,23 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import {
-  avalancheAssetId,
-  bchAssetId,
-  bscAssetId,
-  btcAssetId,
-  cosmosAssetId,
-  dogeAssetId,
-  ethAssetId,
-  foxyAssetId,
-  fromAccountId,
-  fromAssetId,
-  gnosisAssetId,
-  ltcAssetId,
-  optimismAssetId,
-  osmosisAssetId,
-  polygonAssetId,
-  thorchainAssetId,
-} from '@shapeshiftoss/caip'
+import { FEE_ASSET_IDS, foxyAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
@@ -91,23 +74,6 @@ import type {
 } from './portfolioSliceCommon'
 import { AssetEquityType } from './portfolioSliceCommon'
 import { findAccountsByAssetId } from './utils'
-
-// We should prob change this once we add more chains
-export const FEE_ASSET_IDS = [
-  ethAssetId,
-  btcAssetId,
-  bchAssetId,
-  cosmosAssetId,
-  osmosisAssetId,
-  thorchainAssetId,
-  dogeAssetId,
-  ltcAssetId,
-  avalancheAssetId,
-  optimismAssetId,
-  bscAssetId,
-  polygonAssetId,
-  gnosisAssetId,
-]
 
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(
   selectWalletAccountIds,

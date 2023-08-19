@@ -1,32 +1,36 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { cosmosChainId, fromAccountId, osmosisChainId, toAccountId } from '@shapeshiftoss/caip'
+import { cosmosChainId, fromAccountId, osmosisChainId } from '@shapeshiftoss/caip'
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { IbcMetadata } from '@shapeshiftoss/unchained-client/src/cosmossdk'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { SwapError, SwapErrorType } from 'lib/swapper/api'
-import type { ReduxState } from 'state/reducer'
-import { selectTxById, selectTxsByFilter } from 'state/slices/selectors'
+import { deserializeTxIndex } from 'state/slices/txHistorySlice/utils'
 
-// TODO: leverage chain-adapters websockets
-export const pollForComplete = ({
-  txid,
-  getState,
-}: {
-  txid: string
-  getState: () => ReduxState
-}): Promise<string> => {
+import type { OsmosisSupportedChainId } from './types'
+
+export const pollForComplete = ({ txid }: { txid: string }): Promise<string> => {
   return new Promise((resolve, reject) => {
     const timeout = 300000 // 5 mins
     const startTime = Date.now()
     const interval = 5000 // 5 seconds
 
-    const poll = function () {
-      // TODO: this should just be a fetch to unchained
-      const tx = selectTxById(getState(), txid)
+    const poll = async function () {
+      const { accountId, txid: txHash } = deserializeTxIndex(txid)
+      const { account: pubkey } = fromAccountId(accountId)
+      const { chainId } = fromAccountId(accountId)
+      const chainAdapter = getChainAdapterManager().get(
+        chainId,
+      ) as ChainAdapter<OsmosisSupportedChainId>
+      const txHistory = await chainAdapter.getTxHistory({ pubkey })
+
+      const tx = txHistory.transactions.find(tx => tx.txid === txHash)
+
       if (tx?.status === TxStatus.Confirmed) {
         resolve('success')
       } else if (Date.now() - startTime > timeout) {
         reject(
-          new SwapError(`Couldnt find tx ${txid}`, {
+          new SwapError(`Couldn't find tx ${txid}`, {
             code: SwapErrorType.RESPONSE_ERROR,
           }),
         )
@@ -34,6 +38,7 @@ export const pollForComplete = ({
         setTimeout(poll, interval)
       }
     }
+
     poll()
   })
 }
@@ -43,50 +48,53 @@ export const pollForComplete = ({
 // 2. MsgRecvPacket on the receiving chain i.e receive on destination chain from source chain
 // While 1. can simply be polled for (which we do on the method above),
 // the destination Tx needs to be picked by validators on the destination chain, and we don't know anything about said Tx in advance
-// TODO(gomes): Now that we're relying on Txhistory Txs, we could make this a usePoll hook, reactive on the TxHistory slice?
+
 export const pollForCrossChainComplete = ({
   initiatingChainTxid,
   initiatingChainAccountId,
-  getState,
 }: {
   initiatingChainAccountId: AccountId
   initiatingChainTxid: string
-  // Injecting this since we can't avoid circular dependencies when calling this from OsmosisSwapper/endpoints
-  getState: () => ReduxState
 }): Promise<string> => {
   return new Promise((resolve, reject) => {
     const timeout = 300000 // 5 mins
     const startTime = Date.now()
     const interval = 5000 // 5 seconds
 
-    const poll = function () {
-      // TODO: this should just be a fetch to unchained
-      const initiatingChainTx = selectTxById(getState(), initiatingChainTxid)
-      if (initiatingChainTx && initiatingChainTx.status === TxStatus.Confirmed) {
-        // Initiating Tx is successful, now we need to wait for the destination tx to be picked up by validators
+    const poll = async function () {
+      const { accountId: initiatingAccountId, txid: initiatingTxid } =
+        deserializeTxIndex(initiatingChainTxid)
+      const { account: pubkey } = fromAccountId(initiatingAccountId)
+      const { chainId: initiatingChainId } = fromAccountId(initiatingAccountId)
+      const initiatingChainAdapter = getChainAdapterManager().get(
+        initiatingChainId,
+      ) as ChainAdapter<OsmosisSupportedChainId>
+      const initiatingChainTxHistory = await initiatingChainAdapter.getTxHistory({ pubkey })
+      const initiatingChainTx = initiatingChainTxHistory.transactions.find(
+        tx => tx.txid === initiatingTxid,
+      )
 
+      if (initiatingChainTx && initiatingChainTx.status === TxStatus.Confirmed) {
         const initiatingChainId = fromAccountId(initiatingChainAccountId).chainId
         const initiatingChainSequence = (initiatingChainTx.data as IbcMetadata | undefined)
           ?.sequence
         const destinationChainAddress = (initiatingChainTx.data as IbcMetadata | undefined)
           ?.ibcDestination
 
-        // None of these two should ever happen but it may - a confirmed MsgTransfer Tx contains an initiating sequence and a destination address
-        // if we don't parse them, we have bigger problems at unchained-client level
         if (!initiatingChainSequence) throw new Error('sequence not found in initiating Tx')
         if (!destinationChainAddress) throw new Error('ibcDestination not found in initiating Tx')
 
         const destinationChainId =
           initiatingChainId === cosmosChainId ? osmosisChainId : cosmosChainId
-        const destinationChainAccountId = toAccountId({
-          chainId: destinationChainId,
-          account: destinationChainAddress,
+
+        const destinationChainAdapter = getChainAdapterManager().get(
+          destinationChainId,
+        ) as ChainAdapter<OsmosisSupportedChainId>
+        const destinationChainTxHistory = await destinationChainAdapter.getTxHistory({
+          pubkey: destinationChainAddress,
         })
 
-        const destinationAccountTxs = selectTxsByFilter(getState(), {
-          accountId: destinationChainAccountId,
-        })
-        const maybeFoundTx = destinationAccountTxs.some(
+        const maybeFoundTx = destinationChainTxHistory.transactions.some(
           tx => (tx.data as IbcMetadata | undefined)?.sequence === initiatingChainSequence,
         )
 
@@ -97,7 +105,7 @@ export const pollForCrossChainComplete = ({
         }
       } else if (Date.now() - startTime > timeout) {
         reject(
-          new SwapError(`Couldnt find tx ${initiatingChainTxid}`, {
+          new SwapError(`Couldn't find tx ${initiatingChainTxid}`, {
             code: SwapErrorType.RESPONSE_ERROR,
           }),
         )
@@ -105,6 +113,7 @@ export const pollForCrossChainComplete = ({
         setTimeout(poll, interval)
       }
     }
+
     poll()
   })
 }

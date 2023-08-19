@@ -50,7 +50,6 @@ export class TradeExecution {
     buyAssetUsdRate,
     feeAssetUsdRate,
     slippageTolerancePercentageDecimal,
-    getState,
   }: TradeExecutionInput) {
     try {
       const maybeSwapper = swappers.find(swapper => swapper.swapperName === swapperName)
@@ -99,7 +98,6 @@ export class TradeExecution {
             stepIndex,
             quoteSellAssetAccountId,
             quoteBuyAssetAccountId,
-            getState,
           })
 
           const payload: StatusArgs = { stepIndex, status, message, buyTxHash }

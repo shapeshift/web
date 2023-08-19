@@ -17,7 +17,7 @@ import {
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { store, useAppDispatch, useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useAccountIds } from '../useAccountIds'
 
@@ -125,7 +125,6 @@ export const useTradeExecution = ({
         buyAssetUsdRate,
         feeAssetUsdRate,
         slippageTolerancePercentageDecimal,
-        getState: store.getState,
       })
     })
   }, [

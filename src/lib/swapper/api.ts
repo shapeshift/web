@@ -7,7 +7,6 @@ import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { Asset } from 'lib/asset-service'
 import type { PartialRecord } from 'lib/utils'
-import type { ReduxState } from 'state/reducer'
 import type { AccountMetadata } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import type { TradeQuoteDeps } from './types'
@@ -218,7 +217,6 @@ export type CheckTradeStatusInput = {
   stepIndex: number
   quoteSellAssetAccountId?: AccountId
   quoteBuyAssetAccountId?: AccountId
-  getState: () => ReduxState
 }
 
 export type Swapper2 = {

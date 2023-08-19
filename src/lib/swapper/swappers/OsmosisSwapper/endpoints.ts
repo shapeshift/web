@@ -188,7 +188,6 @@ export const osmosisApi: Swapper2Api = {
     stepIndex,
     quoteSellAssetAccountId,
     quoteBuyAssetAccountId,
-    getState,
   }): Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }> => {
     try {
       const quote = tradeQuoteMetadata.get(quoteId)
@@ -211,7 +210,6 @@ export const osmosisApi: Swapper2Api = {
         const pollResult = await pollForCrossChainComplete({
           initiatingChainTxid,
           initiatingChainAccountId: stepSellAssetAccountId,
-          getState,
         })
         const status = pollResult === 'success' ? TxStatus.Confirmed : TxStatus.Failed
 
@@ -233,7 +231,6 @@ export const osmosisApi: Swapper2Api = {
 
         const pollResult = await pollForComplete({
           txid,
-          getState,
         })
 
         const status = pollResult === 'success' ? TxStatus.Confirmed : TxStatus.Failed

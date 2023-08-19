@@ -19,6 +19,7 @@ export type ThornodePoolResponse = {
 
 export type ThornodeQuoteResponseSuccess = {
   expected_amount_out: string
+  expected_amount_out_streaming: string
   expiry: string
   fees: {
     affiliate: string
@@ -32,6 +33,7 @@ export type ThornodeQuoteResponseSuccess = {
   outbound_delay_seconds: number
   router: string
   slippage_bps: number
+  streaming_slippage_bps: number
   warning: string
 }
 

@@ -20,9 +20,12 @@ type GetThorTxInfoReturn = Promise<
     SwapErrorRight
   >
 >
-type GetThorTxInfo = (args: GetThorTxInfoArgs) => GetThorTxInfoReturn
 
-export const getThorTxInfo: GetThorTxInfo = async ({ sellAsset, xpub, memo }) => {
+export const getThorTxInfo = async ({
+  sellAsset,
+  xpub,
+  memo,
+}: GetThorTxInfoArgs): GetThorTxInfoReturn => {
   const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
   const maybeInboundAddress = await getInboundAddressDataForChain(
     daemonUrl,

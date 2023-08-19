@@ -21,7 +21,7 @@ export const getTradeQuotes = async (
     swappers
       .filter(({ swapperName }) => enabledSwappers.includes(swapperName))
       .map(({ swapperName, swapper }) =>
-        timeout<TradeQuote2, SwapErrorRight>(
+        timeout<TradeQuote2[], SwapErrorRight>(
           swapper.getTradeQuote(getTradeQuoteInput, deps),
           QUOTE_TIMEOUT_MS,
           QUOTE_TIMEOUT_ERROR,

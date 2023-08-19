@@ -162,7 +162,7 @@ export const useGetTradeQuotes = () => {
           if (isEqualExceptAffiliateBpsAndSlippage(tradeQuoteInput, updatedTradeQuoteInput)) {
             return
           } else {
-            dispatch(tradeQuoteSlice.actions.resetSwapperName())
+            dispatch(tradeQuoteSlice.actions.resetActiveQuoteIndex())
           }
         }
       })()
@@ -170,7 +170,7 @@ export const useGetTradeQuotes = () => {
       // if the quote input args changed, reset the selected swapper and update the trade quote args
       if (tradeQuoteInput !== skipToken) {
         setTradeQuoteInput(skipToken)
-        dispatch(tradeQuoteSlice.actions.resetSwapperName())
+        dispatch(tradeQuoteSlice.actions.resetActiveQuoteIndex())
       }
     }
   }, [

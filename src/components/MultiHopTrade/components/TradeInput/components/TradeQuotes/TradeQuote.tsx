@@ -112,8 +112,8 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   )
 
   const handleQuoteSelection = useCallback(() => {
-    dispatch(tradeQuoteSlice.actions.setSwapperName(quoteData.swapperName))
-  }, [dispatch, quoteData.swapperName])
+    dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(quoteData.index))
+  }, [dispatch, quoteData.index])
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset.chainId ?? ''))
   if (!feeAsset)
@@ -236,7 +236,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       <Flex justifyContent='space-between' alignItems='center'>
         <Flex gap={2} alignItems='center'>
           <SwapperIcon swapperName={quoteData.swapperName} />
-          <RawText>{quoteData.swapperName}</RawText>
+          <RawText>{quote?.steps[0].source ?? quoteData.swapperName}</RawText>
         </Flex>
         {quote && (
           <Amount.Crypto

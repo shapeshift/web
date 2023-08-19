@@ -157,21 +157,21 @@ export const TradeConfirm = () => {
   const getSellTxLink = useCallback(
     (sellTxHash: string) =>
       getTxLink({
-        name: tradeQuoteStep?.sources[0]?.name,
+        name: tradeQuoteStep?.source,
         defaultExplorerBaseUrl: tradeQuoteStep?.sellAsset.explorerTxLink ?? '',
         tradeId: sellTxHash,
       }),
-    [tradeQuoteStep?.sellAsset.explorerTxLink, tradeQuoteStep?.sources],
+    [tradeQuoteStep?.sellAsset.explorerTxLink, tradeQuoteStep?.source],
   )
 
   const getBuyTxLink = useCallback(
     (buyTxHash: string) =>
       getTxLink({
-        name: lastStep?.sources[0]?.name,
+        name: lastStep?.source,
         defaultExplorerBaseUrl: lastStep?.buyAsset.explorerTxLink ?? '',
         txId: buyTxHash,
       }),
-    [lastStep?.buyAsset.explorerTxLink, lastStep?.sources],
+    [lastStep?.buyAsset.explorerTxLink, lastStep?.source],
   )
 
   const txLink = useMemo(() => {
@@ -478,7 +478,12 @@ export const TradeConfirm = () => {
                     <RawText>{`1 ${sellAsset?.symbol ?? ''} = ${firstNonZeroDecimal(
                       bnOrZero(tradeQuoteStep?.rate),
                     )} ${buyAsset?.symbol}`}</RawText>
-                    {!!swapperName && <RawText color='text.subtle'>@{swapperName}</RawText>}
+                    {!!swapperName && (
+                      // This works because we currently only support Li.Fi trades with a single hop,
+                      // and Osmosis uses Osmosis as a source for its two hops
+                      // TODO(woodenfurniture): ensure we show the swapper name, not the first hop source, when we support multi-hop trades
+                      <RawText color='text.subtle'>@{tradeQuoteStep.source}</RawText>
+                    )}
                   </Box>
                 </Skeleton>
               </Row>

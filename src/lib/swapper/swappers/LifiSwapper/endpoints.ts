@@ -19,17 +19,21 @@ import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getLifiChainMap } from './utils/getLifiChainMap'
+import { getLifiToolsMap } from './utils/getLifiToolsMap'
 import { getUnsignedTx } from './utils/getUnsignedTx/getUnsignedTx'
+import type { LifiTool } from './utils/types'
 
 const tradeQuoteMetadata: Map<string, Route> = new Map()
 
-let lifiChainMapPromise: Promise<Result<Map<ChainId, ChainKey>, SwapErrorRight>> | undefined
+// cached metadata - would need persistent cache with expiry if moved server-side
+let lifiChainMapPromise: Promise<Map<ChainId, ChainKey>> | undefined
+let lifiToolsMapPromise: Promise<Map<string, LifiTool>> | undefined
 
 export const lifiApi: Swapper2Api = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     { assets }: TradeQuoteDeps,
-  ): Promise<Result<TradeQuote2, SwapErrorRight>> => {
+  ): Promise<Result<TradeQuote2[], SwapErrorRight>> => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(
         makeSwapErrorRight({
@@ -38,31 +42,37 @@ export const lifiApi: Swapper2Api = {
         }),
       )
     }
+
     if (lifiChainMapPromise === undefined) lifiChainMapPromise = getLifiChainMap()
+    if (lifiToolsMapPromise === undefined) lifiToolsMapPromise = getLifiToolsMap()
 
-    const maybeLifiChainMap = await lifiChainMapPromise
-
-    if (maybeLifiChainMap.isErr()) return Err(maybeLifiChainMap.unwrapErr())
+    const [lifiChainMap, lifiToolsMap] = await Promise.all([
+      lifiChainMapPromise,
+      lifiToolsMapPromise,
+    ])
 
     const tradeQuoteResult = await getTradeQuote(
       input as GetEvmTradeQuoteInput,
-      maybeLifiChainMap.unwrap(),
+      lifiChainMap,
+      lifiToolsMap,
       assets,
     )
     const { receiveAddress } = input
 
-    return tradeQuoteResult.map(({ selectedLifiRoute, ...tradeQuote }) => {
-      // TODO: quotes below the minimum arent valid and should not be processed as such
-      // selectedLifiRoute willbe missing for quotes below the minimum
-      if (!selectedLifiRoute) throw Error('missing selectedLifiRoute')
+    return tradeQuoteResult.map(quote =>
+      quote.map(({ selectedLifiRoute, ...tradeQuote }) => {
+        // TODO: quotes below the minimum aren't valid and should not be processed as such
+        // selectedLifiRoute will be missing for quotes below the minimum
+        if (!selectedLifiRoute) throw Error('missing selectedLifiRoute')
 
-      const id = selectedLifiRoute.id
+        const id = selectedLifiRoute.id
 
-      // store the lifi quote metadata for transaction building later
-      tradeQuoteMetadata.set(id, selectedLifiRoute)
+        // store the lifi quote metadata for transaction building later
+        tradeQuoteMetadata.set(id, selectedLifiRoute)
 
-      return { id, receiveAddress, affiliateBps: undefined, ...tradeQuote }
-    })
+        return { id, receiveAddress, affiliateBps: undefined, ...tradeQuote }
+      }),
+    )
   },
 
   getUnsignedTx: async ({ from, tradeQuote, stepIndex }: GetUnsignedTxArgs): Promise<ETHSignTx> => {

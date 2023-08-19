@@ -117,7 +117,7 @@ export type TradeBase<C extends ChainId> = {
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   feeData: QuoteFeeData<C>
   rate: string
-  sources: SwapSource[]
+  source: SwapSource
   buyAsset: Asset
   sellAsset: Asset
   accountNumber: number
@@ -137,10 +137,7 @@ export type TradeQuote<C extends ChainId = ChainId> = {
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
 }
 
-export type SwapSource = {
-  name: SwapperName | string
-  proportion: string
-}
+export type SwapSource = SwapperName | `${SwapperName} • ${string}`
 
 export enum SwapperName {
   Thorchain = 'THORChain',
@@ -237,6 +234,6 @@ export type Swapper2Api = {
   getTradeQuote: (
     input: GetTradeQuoteInput,
     deps: TradeQuoteDeps,
-  ) => Promise<Result<TradeQuote2, SwapErrorRight>>
+  ) => Promise<Result<TradeQuote2[], SwapErrorRight>>
   getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx2>
 }

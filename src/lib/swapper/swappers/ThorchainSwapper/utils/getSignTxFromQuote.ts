@@ -8,7 +8,10 @@ import type {
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { TradeQuote, UnsignedTx2 } from 'lib/swapper/api'
 import { getCosmosTxData } from 'lib/swapper/swappers/ThorchainSwapper/cosmossdk/getCosmosTxData'
-import type { ThorEvmTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import type {
+  ThorEvmTradeQuote,
+  ThorTradeQuote,
+} from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type {
   ThorCosmosSdkSupportedChainId,
   ThorUtxoSupportedChainId,
@@ -19,6 +22,7 @@ import { createBuildCustomApiTxInput } from 'lib/utils/evm'
 import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { addSlippageToMemo } from './addSlippageToMemo'
 import { getQuote } from './getQuote/getQuote'
 
 type GetSignTxFromQuoteArgs = {
@@ -44,7 +48,9 @@ export const getSignTxFromQuote = async ({
   supportsEIP1559,
   slippageTolerancePercentage,
 }: GetSignTxFromQuoteArgs): Promise<UnsignedTx2> => {
-  const { recommendedSlippage } = quote
+  // TODO(gomes): TradeQuote<C> should have a chainId property so we can easily discriminate
+  // on ChainId to define additional metadata for a chain-specific TradeQuote
+  const { isStreaming, recommendedSlippage } = quote as ThorTradeQuote
 
   const slippageTolerance = slippageTolerancePercentage ?? recommendedSlippage
   const slippageBps = convertDecimalPercentageToBasisPoints(slippageTolerance).toString()
@@ -87,12 +93,11 @@ export const getSignTxFromQuote = async ({
         sellAmountCryptoBaseUnit,
         receiveAddress,
         affiliateBps,
-        slippageBps,
       })
 
       if (maybeThornodeQuote.isErr()) throw maybeThornodeQuote.unwrapErr()
       const thorchainQuote = maybeThornodeQuote.unwrap()
-      const { memo } = thorchainQuote
+      const memo = addSlippageToMemo(thorchainQuote, slippageBps, isStreaming)
 
       const cosmosSdkChainAdapter =
         adapter as unknown as CosmosSdkBaseAdapter<ThorCosmosSdkSupportedChainId>
@@ -125,12 +130,11 @@ export const getSignTxFromQuote = async ({
         sellAmountCryptoBaseUnit,
         receiveAddress,
         affiliateBps,
-        slippageBps,
       })
 
       if (maybeThornodeQuote.isErr()) throw maybeThornodeQuote.unwrapErr()
       const thorchainQuote = maybeThornodeQuote.unwrap()
-      const { memo } = thorchainQuote
+      const memo = addSlippageToMemo(thorchainQuote, slippageBps, isStreaming)
 
       const utxoChainAdapter = adapter as unknown as UtxoBaseAdapter<ThorUtxoSupportedChainId>
       if (!chainSpecific) throw Error('missing UTXO chainSpecific parameters')

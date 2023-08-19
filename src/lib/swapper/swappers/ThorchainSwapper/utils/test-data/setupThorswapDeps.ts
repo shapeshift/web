@@ -18,6 +18,7 @@ export const mockChainAdapterManager: ChainAdapterManager = new Map([
       getAddress: jest.fn(() => Promise.resolve('0xthisIsMyAddress')),
       getFeeData: jest.fn(() => feeData),
       getFeeAssetId: jest.fn(() => ethAssetId),
+      getChainId: jest.fn(() => KnownChainIds.EthereumMainnet),
       getGasFeeData: jest.fn(
         (): evm.GasFeeDataEstimate => ({
           [FeeDataKey.Slow]: {

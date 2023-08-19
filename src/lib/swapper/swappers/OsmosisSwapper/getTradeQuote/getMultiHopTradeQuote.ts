@@ -12,11 +12,10 @@ import type {
   TradeQuote,
   TradeQuoteStep,
 } from 'lib/swapper/api'
+import { SwapperName } from 'lib/swapper/api'
 import { getRateInfo } from 'lib/swapper/swappers/OsmosisSwapper/utils/helpers'
 import type { OsmosisSupportedChainId } from 'lib/swapper/swappers/OsmosisSwapper/utils/types'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
-
-import { DEFAULT_SOURCE } from '../utils/constants'
 
 export const getTradeQuote = async (
   input: GetTradeQuoteInput,
@@ -135,7 +134,7 @@ export const getTradeQuote = async (
     buyAmountBeforeFeesCryptoBaseUnit: sellAssetIsOnOsmosisNetwork
       ? buyAmountCryptoBaseUnit // OSMO -> ATOM, the ATOM on OSMO before fees is the same as the ATOM buy amount intent
       : sellAmountIncludingProtocolFeesCryptoBaseUnit, // ATOM -> ATOM, the ATOM on OSMO before fees is the same as the sold ATOM amount
-    sources: DEFAULT_SOURCE,
+    source: SwapperName.Osmosis,
   }
 
   const secondStep: TradeQuoteStep<OsmosisSupportedChainId> = {
@@ -158,7 +157,7 @@ export const getTradeQuote = async (
           .minus(firstHopFeeData.fast.txFee)
           .toString(),
     buyAmountBeforeFeesCryptoBaseUnit: bnOrZero(buyAmountCryptoBaseUnit).toString(),
-    sources: DEFAULT_SOURCE,
+    source: SwapperName.Osmosis,
   }
 
   return Ok({

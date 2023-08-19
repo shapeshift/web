@@ -6,6 +6,7 @@ describe('getTradeRate', () => {
   it('should calculate a correct rate for trading ETH to FOX', async () => {
     const thornodeQuote: ThornodeQuoteResponseSuccess = {
       expected_amount_out: '1575048772',
+      expected_amount_out_streaming: '1575048772',
       expiry: '1681129306',
       fees: {
         affiliate: '0',
@@ -20,6 +21,7 @@ describe('getTradeRate', () => {
       outbound_delay_seconds: 2196,
       router: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
       slippage_bps: 879,
+      streaming_slippage_bps: 879,
       warning: 'Do not cache this response. Do not send funds after the expiry.',
     }
 
@@ -37,6 +39,7 @@ describe('getTradeRate', () => {
   it('should calculate a correct rate for trading FOX to ETH', async () => {
     const thornodeQuote: ThornodeQuoteResponseSuccess = {
       expected_amount_out: '1168571',
+      expected_amount_out_streaming: '1168571',
       expiry: '1681132574',
       fees: {
         affiliate: '0',
@@ -51,6 +54,7 @@ describe('getTradeRate', () => {
       outbound_delay_seconds: 0,
       router: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
       slippage_bps: 1,
+      streaming_slippage_bps: 1,
       warning: 'Do not cache this response. Do not send funds after the expiry.',
     }
 
@@ -68,6 +72,7 @@ describe('getTradeRate', () => {
   it('should calculate a correct rate for trading FOX to BTC', async () => {
     const thornodeQuote: ThornodeQuoteResponseSuccess = {
       expected_amount_out: '75710',
+      expected_amount_out_streaming: '75710',
       expiry: '1681132683',
       fees: {
         affiliate: '0',
@@ -82,6 +87,7 @@ describe('getTradeRate', () => {
       outbound_delay_seconds: 0,
       router: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
       slippage_bps: 1,
+      streaming_slippage_bps: 1,
       warning: 'Do not cache this response. Do not send funds after the expiry.',
     }
 
@@ -99,6 +105,7 @@ describe('getTradeRate', () => {
   it('should calculate a correct rate for trading BTC to FOX', async () => {
     const thornodeQuote: ThornodeQuoteResponseSuccess = {
       expected_amount_out: '261454522054192',
+      expected_amount_out_streaming: '261454522054192',
       expiry: '1681132269',
       fees: {
         affiliate: '0',
@@ -113,6 +120,7 @@ describe('getTradeRate', () => {
       outbound_delay_blocks: 575,
       outbound_delay_seconds: 6900,
       slippage_bps: 4357,
+      streaming_slippage_bps: 4357,
       warning: 'Do not cache this response. Do not send funds after the expiry.',
     }
 
@@ -130,6 +138,7 @@ describe('getTradeRate', () => {
   it('should ignore affiliate fees when calculating the rate', async () => {
     const thornodeQuote: ThornodeQuoteResponseSuccess = {
       expected_amount_out: '1575048772',
+      expected_amount_out_streaming: '1575048772',
       expiry: '1681129306',
       fees: {
         affiliate: '390000',
@@ -144,6 +153,7 @@ describe('getTradeRate', () => {
       outbound_delay_seconds: 2196,
       router: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
       slippage_bps: 879,
+      streaming_slippage_bps: 879,
       warning: 'Do not cache this response. Do not send funds after the expiry.',
     }
 

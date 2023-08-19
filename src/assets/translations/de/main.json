@@ -641,6 +641,7 @@
     "previewTrade": "Vorschau des Handels",
     "rate": "Kurs",
     "tradeFrom": "Handel ab",
+    "priceImpact": "Preisauswirkungen",
     "slippage": {
       "maxSlippage": "Maximaler Slippage",
       "auto": "Automatisch",
@@ -661,6 +662,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Die Gasgebühr übersteigt %{percentage}% des Handelsbetrags",
     "confirmDetails": "Einzelheiten bestätigen",
     "confirmAndTrade": "Bestätigen und Handeln",
+    "tradeAnyway": "Trotzdem handeln",
     "pending": "Handel ausstehend",
     "complete": "Handel abgeschlossen",
     "approveAsset": "Interaktion mit %{symbol} genehmigen",
@@ -684,6 +686,7 @@
     "tooltip": {
       "rate": "Dies ist die erwartete Rate für dieses Handelspaar.",
       "noRateAvailable": "Dies ist häufig auf eine sehr begrenzte oder keine Liquidität des Handelspaars zurückzuführen.",
+      "priceImpact": "Ein Swap dieser Größenordnung kann angesichts der aktuellen Liquidität im Pool erhebliche Auswirkungen auf den Preis haben. Es kann einen großen Unterschied zwischen der Menge Ihres Eingabe-Tokens und dem, was Sie als Ausgabe-Token erhalten, geben",
       "minerFee": "Dies ist die Gebühr für die Verarbeitung der Transaktion auf der Blockchain, dies ist keine Gebühr, die von ShapeShift erhoben wird.",
       "donation": "Unterstützen Sie ShapeShift und halten Sie uns am Laufen.",
       "protocol": "Dies ist das Protokoll, über das Ihr Handel geleitet wird.",
@@ -717,6 +720,7 @@
       "insufficientFundsForProtocolFee": "Nicht genügend %{symbol} auf %{chainName} für Gebühren",
       "invalidTradePair": "Ungültiges Handelspaar: %{sellAssetName} und %{buyAssetName}",
       "invalidTradePairBtnText": "Ungültiges Handelspaar",
+      "unsupportedTradePair": "Nicht unterstütztes Handelspaar",
       "noLiquidityError": "Nicht genügend Liquidität vorhanden",
       "overMaxSlippage": "Dieser Handel würde zu einer Marktabweichung von über %{slippagePercentage} % führen. Bitte tauschen Sie einen geringeren Betrag gegen einen besseren Preis",
       "balanceToLow": "Guthaben zu niedrig. Der minimale Handelsbetrag für dieses Paar beträgt %{minLimit}",
@@ -742,6 +746,7 @@
       "assetNotSupportedByWallet": "%{assetSymbol} wird nicht von Ihrer Wallet unterstützt",
       "noReceiveAddress": "Keine Empfangsadresse für %{assetSymbol}",
       "tradingNotActive": "Handel von %{assetSymbol}  vorübergehend angehalten",
+      "tradingNotActiveNoAssetSymbol": "Der Handel auf dieser Route wurde vorübergehend eingestellt",
       "signing": {
         "failed": "Beim Signieren der Transaktion ist ein Fehler aufgetreten",
         "required": "Eine unterzeichnete Transaktion ist erforderlich"
@@ -759,7 +764,8 @@
     "unknownGas": "(unbekannt)",
     "receiveAddress": "Empfangsadresse ",
     "receiveAddressDescription": "Keine %{chainName}-Adresse in verbundener Wallet gefunden. Geben Sie die Adresse manuell ein, um fortzufahren.",
-    "addressPlaceholder": "%{chainName} Adresse"
+    "addressPlaceholder": "%{chainName} Adresse",
+    "priceImpactWarning": "Aufgrund der Größe dieses Handels im Verhältnis zur verfügbaren Liquidität beträgt die erwartete Preisauswirkung dieses Handels %{priceImpactPercentage}%. Sind Sie sicher, dass Sie handeln möchten?"
   },
   "modals": {
     "popup": {

@@ -641,6 +641,7 @@
     "previewTrade": "Попередній перегляд торгівлі",
     "rate": "Курс",
     "tradeFrom": "Обміняти з",
+    "priceImpact": "Вплив на ціну",
     "slippage": {
       "maxSlippage": "Максимальне прослизання",
       "auto": "Автоматичне",
@@ -661,6 +662,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Комісія за газ перевищує %{percentage}% від суми торгівлі",
     "confirmDetails": "Підтвердити дані",
     "confirmAndTrade": "Підтвердити та обміняти",
+    "tradeAnyway": "Все одно обміняти",
     "pending": "Торгівля в очікуванні",
     "complete": "Угода завершена",
     "approveAsset": "Схвалити взаємодію з %{symbol}",
@@ -684,6 +686,7 @@
     "tooltip": {
       "rate": "Це очікуваний курс для даної торгової пари.",
       "noRateAvailable": "Часто це пов'язано з дуже обмеженою ліквідністю або її відсутністю по торговій парі.",
+      "priceImpact": "Обмін такого розміру може мати великий вплив на ціну, враховуючи поточну ліквідність в пулі. Може бути велика різниця між сумою вашого вхідного токена і тим, що ви отримаєте у вихідному токені",
       "minerFee": "Це комісія за обробку транзакції на блокчейні, це не комісія, яку стягує ShapeShift.",
       "donation": "Підтримайте ShapeShift і допоможіть нам продовжувати працювати.",
       "protocol": "Це протокол, за яким ваша торгівля маршрутизується ShapeShift.",
@@ -717,6 +720,7 @@
       "insufficientFundsForProtocolFee": "Недостатньо %{symbol} на %{chainName} для оплати комісій",
       "invalidTradePair": "Невірна торгова пара: %{sellAssetName} та %{buyAssetName}",
       "invalidTradePairBtnText": "Невірна торгова пара",
+      "unsupportedTradePair": "Непідтримувана торговельна пара",
       "noLiquidityError": "Недостатня ліквідність",
       "overMaxSlippage": "Ця торгівля призвела б до того, що понад %{slippagePercentage}% прослизання. Будь ласка, обміняйте меншу суму за кращою ціною",
       "balanceToLow": "Занадто низький баланс. Мінімальна сума угоди по даній парі становить %{minLimit}",
@@ -742,6 +746,7 @@
       "assetNotSupportedByWallet": "%{assetSymbol} не підтримується гаманцем",
       "noReceiveAddress": "Відсутня адреса отримання для %{assetSymbol}",
       "tradingNotActive": "Торги тимчасово зупинені для %{assetSymbol}",
+      "tradingNotActiveNoAssetSymbol": "Торгівля за цим маршрутом тимчасово припинена",
       "signing": {
         "failed": "Виникла помилка при підписанні угоди",
         "required": "Необхідно підписати угоду"
@@ -759,7 +764,8 @@
     "unknownGas": "(невідомо)",
     "receiveAddress": "Адреса отримувача",
     "receiveAddressDescription": "Не знайдено %{chainName} \nадресу з підключеного гаманця. Для продовження введіть адресу вручну..",
-    "addressPlaceholder": "%{chainName} адреса"
+    "addressPlaceholder": "%{chainName} адреса",
+    "priceImpactWarning": "Враховуючи розмір цієї угоди відносно наявної ліквідності, очікуваний вплив на ціну цієї угоди становить %{priceImpactPercentage}%. Ви впевнені, що хочете обміняти?"
   },
   "modals": {
     "popup": {

@@ -221,6 +221,10 @@ export type CheckTradeStatusInput = {
   getState: () => ReduxState
 }
 
+// a result containing all routes that were successfully generated, or an error in the case where
+// no routes could be generated
+type TradeQuoteResult = Result<TradeQuote2[], SwapErrorRight>
+
 export type Swapper2 = {
   filterAssetIdsBySellable: (assets: Asset[]) => Promise<AssetId[]>
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => Promise<AssetId[]>
@@ -231,9 +235,6 @@ export type Swapper2Api = {
   checkTradeStatus: (
     input: CheckTradeStatusInput,
   ) => Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }>
-  getTradeQuote: (
-    input: GetTradeQuoteInput,
-    deps: TradeQuoteDeps,
-  ) => Promise<Result<TradeQuote2[], SwapErrorRight>>
+  getTradeQuote: (input: GetTradeQuoteInput, deps: TradeQuoteDeps) => Promise<TradeQuoteResult>
   getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx2>
 }

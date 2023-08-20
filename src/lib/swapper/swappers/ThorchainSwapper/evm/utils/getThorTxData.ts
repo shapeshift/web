@@ -1,10 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { Result } from '@sniptt/monads'
-import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import type { Asset } from 'lib/asset-service'
-import type { SwapErrorRight } from 'lib/swapper/api'
-import { makeSwapErrorRight, SwapErrorType } from 'lib/swapper/api'
 import { deposit } from 'lib/swapper/swappers/ThorchainSwapper/evm/routerCalldata'
 import { getInboundAddressDataForChain } from 'lib/swapper/swappers/ThorchainSwapper/utils/getInboundAddressDataForChain'
 import { isNativeEvmAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
@@ -15,15 +11,10 @@ type GetEvmThorTxInfoArgs = {
   memo: string
 }
 
-type GetEvmThorTxInfoReturn = Promise<
-  Result<
-    {
-      data: string
-      router: string
-    },
-    SwapErrorRight
-  >
->
+type GetEvmThorTxInfoReturn = Promise<{
+  data: string
+  router: string
+}>
 
 export const getThorTxInfo = async ({
   sellAsset,
@@ -34,20 +25,15 @@ export const getThorTxInfo = async ({
   const { assetReference } = fromAssetId(sellAsset.assetId)
 
   const maybeInboundAddress = await getInboundAddressDataForChain(daemonUrl, sellAsset.assetId)
-  if (maybeInboundAddress.isErr()) return Err(maybeInboundAddress.unwrapErr())
+  if (maybeInboundAddress.isErr()) throw maybeInboundAddress.unwrapErr()
   const inboundAddress = maybeInboundAddress.unwrap()
 
   const router = inboundAddress.router
   const vault = inboundAddress.address
 
-  if (!router)
-    return Err(
-      makeSwapErrorRight({
-        message: `[getPriceRatio]: No router found for ${sellAsset.assetId}`,
-        code: SwapErrorType.RESPONSE_ERROR,
-        details: { inboundAddress: maybeInboundAddress },
-      }),
-    )
+  if (!router) {
+    throw Error(`No router found for ${sellAsset.assetId} at inbound address ${inboundAddress}`)
+  }
 
   const data = deposit(
     router,
@@ -59,5 +45,5 @@ export const getThorTxInfo = async ({
     memo,
   )
 
-  return Ok({ data, router })
+  return { data, router }
 }

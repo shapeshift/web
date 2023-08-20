@@ -76,13 +76,6 @@ export type InboundAddressResponse = {
   outbound_fee: string
 }
 
-export type Rates = {
-  sellAssetUsdRate: string
-  buyAssetUsdRate: string
-  feeAssetUsdRate: string
-  runeAssetUsdRate: string
-}
-
 export type ThorUtxoSupportedChainId =
   | KnownChainIds.BitcoinMainnet
   | KnownChainIds.DogecoinMainnet

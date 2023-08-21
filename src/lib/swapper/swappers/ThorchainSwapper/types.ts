@@ -36,6 +36,8 @@ export type ThornodeQuoteResponseSuccess = {
   streaming_slippage_bps: number
   warning: string
   streaming_swap_seconds: number | undefined
+  inbound_confirmation_seconds: number | undefined
+  // total number of seconds a swap is expected to take (inbound conf + streaming swap + outbound delay)
   total_swap_seconds: number | undefined
 }
 

@@ -114,9 +114,9 @@ export const getThorTradeQuote = async (
       slippageBps: thornodeQuote.slippage_bps,
       expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out,
       isStreaming: false,
-      estimatedExecutionTimeMs: thornodeQuote.total_swap_seconds
-        ? 1000 * thornodeQuote.total_swap_seconds
-        : undefined,
+      estimatedExecutionTimeMs:
+        1000 *
+        (thornodeQuote.inbound_confirmation_seconds ?? 0 + thornodeQuote.outbound_delay_seconds),
     },
     {
       // streaming swap
@@ -124,8 +124,8 @@ export const getThorTradeQuote = async (
       slippageBps: thornodeQuote.streaming_slippage_bps,
       expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out_streaming,
       isStreaming: true,
-      estimatedExecutionTimeMs: thornodeQuote.streaming_swap_seconds
-        ? 1000 * thornodeQuote.streaming_swap_seconds
+      estimatedExecutionTimeMs: thornodeQuote.total_swap_seconds
+        ? 1000 * thornodeQuote.total_swap_seconds
         : undefined,
     },
   ]

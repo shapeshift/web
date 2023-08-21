@@ -35,6 +35,10 @@ export type ThornodeQuoteResponseSuccess = {
   slippage_bps: number
   streaming_slippage_bps: number
   warning: string
+  streaming_swap_seconds: number | undefined
+  inbound_confirmation_seconds: number | undefined
+  // total number of seconds a swap is expected to take (inbound conf + streaming swap + outbound delay)
+  total_swap_seconds: number | undefined
 }
 
 type ThornodeQuoteResponseError = { error: string }
@@ -74,13 +78,6 @@ export type InboundAddressResponse = {
   chain_lp_actions_paused: boolean
   outbound_tx_size: string
   outbound_fee: string
-}
-
-export type Rates = {
-  sellAssetUsdRate: string
-  buyAssetUsdRate: string
-  feeAssetUsdRate: string
-  runeAssetUsdRate: string
 }
 
 export type ThorUtxoSupportedChainId =

@@ -131,6 +131,7 @@ export type TradeQuoteStep<C extends ChainId> = TradeBase<C> & {
 
 export type TradeQuote<C extends ChainId = ChainId> = {
   recommendedSlippage?: string
+  estimatedExecutionTimeMs: number | undefined
   id?: string
   steps: TradeQuoteStep<C>[]
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
@@ -194,8 +195,6 @@ export type GetUnsignedTxArgs = {
   accountMetadata?: AccountMetadata
   stepIndex: number
   supportsEIP1559: boolean
-  buyAssetUsdRate: string
-  feeAssetUsdRate: string
   slippageTolerancePercentageDecimal: string
 } & FromOrXpub
 
@@ -219,6 +218,10 @@ export type CheckTradeStatusInput = {
   quoteBuyAssetAccountId?: AccountId
 }
 
+// a result containing all routes that were successfully generated, or an error in the case where
+// no routes could be generated
+type TradeQuoteResult = Result<TradeQuote2[], SwapErrorRight>
+
 export type Swapper2 = {
   filterAssetIdsBySellable: (assets: Asset[]) => Promise<AssetId[]>
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => Promise<AssetId[]>
@@ -229,9 +232,6 @@ export type Swapper2Api = {
   checkTradeStatus: (
     input: CheckTradeStatusInput,
   ) => Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }>
-  getTradeQuote: (
-    input: GetTradeQuoteInput,
-    deps: TradeQuoteDeps,
-  ) => Promise<Result<TradeQuote2[], SwapErrorRight>>
+  getTradeQuote: (input: GetTradeQuoteInput, deps: TradeQuoteDeps) => Promise<TradeQuoteResult>
   getUnsignedTx(input: GetUnsignedTxArgs): Promise<UnsignedTx2>
 }

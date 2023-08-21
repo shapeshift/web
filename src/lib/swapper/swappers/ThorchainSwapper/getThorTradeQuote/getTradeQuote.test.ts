@@ -27,8 +27,6 @@ jest.mock('../utils/thorService', () => {
   }
 })
 
-const mockOk = Ok as jest.MockedFunction<typeof Ok>
-
 jest.mock('context/PluginProvider/chainAdapterSingleton', () => {
   return {
     getChainAdapterManager: () => mockChainAdapterManager,
@@ -50,6 +48,7 @@ const expectedQuoteResponse: ThorTradeQuote[] = [
     recommendedSlippage: '0.0435',
     data: '0x',
     router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
+    estimatedExecutionTimeMs: 600000,
     steps: [
       {
         allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
@@ -79,6 +78,7 @@ const expectedQuoteResponse: ThorTradeQuote[] = [
     recommendedSlippage: '0.042',
     data: '0x',
     router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
+    estimatedExecutionTimeMs: 1600000,
     steps: [
       {
         allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
@@ -106,7 +106,7 @@ const expectedQuoteResponse: ThorTradeQuote[] = [
 
 describe('getTradeQuote', () => {
   ;(getThorTxInfo as jest.Mock<unknown>).mockReturnValue(
-    Promise.resolve(mockOk({ data: '0x', router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976' })),
+    Promise.resolve({ data: '0x', router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976' }),
   )
 
   const { quoteInput } = setupQuote()
@@ -146,6 +146,9 @@ describe('getTradeQuote', () => {
               warning: 'Do not cache this response. Do not send funds after the expiry.',
               memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6::ss:0',
               router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
+              streaming_swap_seconds: 400,
+              total_swap_seconds: 1600,
+              inbound_confirmation_seconds: 600,
             },
           }
           return Promise.resolve(Ok(mockThorQuote))

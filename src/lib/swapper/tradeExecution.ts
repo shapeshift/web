@@ -47,8 +47,6 @@ export class TradeExecution {
     quoteBuyAssetAccountId,
     wallet,
     supportsEIP1559,
-    buyAssetUsdRate,
-    feeAssetUsdRate,
     slippageTolerancePercentageDecimal,
   }: TradeExecutionInput) {
     try {
@@ -74,8 +72,6 @@ export class TradeExecution {
           accountMetadata,
           stepIndex,
           supportsEIP1559,
-          buyAssetUsdRate,
-          feeAssetUsdRate,
           slippageTolerancePercentageDecimal,
         },
       )

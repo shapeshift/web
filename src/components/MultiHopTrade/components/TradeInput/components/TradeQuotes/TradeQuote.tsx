@@ -1,12 +1,13 @@
 import { Card, Flex, Tag, useColorModeValue } from '@chakra-ui/react'
+import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useMemo } from 'react'
-import { FaGasPump } from 'react-icons/fa'
+import { FaGasPump, FaRegClock } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { quoteStatusTranslation } from 'components/MultiHopTrade/components/TradeInput/components/TradeQuotes/getQuoteErrorTranslation'
 import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
 import { RawText } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { SwapErrorType } from 'lib/swapper/api'
 import type { ApiQuote } from 'state/apis/swappers'
 import {
@@ -29,7 +30,7 @@ type TradeQuoteLoadedProps = {
   isActive: boolean
   isBest: boolean
   quoteData: ApiQuote
-  bestInputOutputRatio: number
+  bestBuyAmountBeforeFeesCryptoBaseUnit: string
 }
 
 /*
@@ -73,7 +74,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   isActive,
   isBest,
   quoteData,
-  bestInputOutputRatio,
+  bestBuyAmountBeforeFeesCryptoBaseUnit,
 }) => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -119,8 +120,14 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
   if (!feeAsset)
     throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset.chainId}!`)
 
-  const quoteDifferenceDecimalPercentage =
-    (quoteData.inputOutputRatio / bestInputOutputRatio - 1) * -1
+  // the difference percentage is on the gross receive amount only
+  const quoteDifferenceDecimalPercentage = useMemo(() => {
+    if (!quote) return Infinity
+    const lastStep = quote.steps[quote.steps.length - 1]
+    return bn(bestBuyAmountBeforeFeesCryptoBaseUnit)
+      .minus(lastStep.buyAmountBeforeFeesCryptoBaseUnit)
+      .dividedBy(bestBuyAmountBeforeFeesCryptoBaseUnit)
+  }, [bestBuyAmountBeforeFeesCryptoBaseUnit, quote])
 
   const isAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
   const hasNegativeRatio =
@@ -198,7 +205,7 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       _active={isDisabled ? undefined : activeProps}
       borderRadius='lg'
       flexDir='column'
-      gap={4}
+      gap={2}
       width='full'
       px={4}
       py={2}
@@ -209,15 +216,41 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
       opacity={isDisabled ? 0.4 : 1}
     >
       <Flex justifyContent='space-between' alignItems='center'>
-        <Flex gap={2}>
-          {tag}
-          {!isBest && hasAmountWithPositiveReceive && (
-            <Tag size='sm' colorScheme='red' variant='xs-subtle'>
-              <Amount.Percent value={quoteDifferenceDecimalPercentage} suffix='more expensive' />
-            </Tag>
-          )}
+        <Flex gap={2}>{tag}</Flex>
+        <Flex gap={2} alignItems='center'>
+          <SwapperIcon swapperName={quoteData.swapperName} />
+          <RawText>{quote?.steps[0].source ?? quoteData.swapperName}</RawText>
         </Flex>
-        {quote && (
+      </Flex>
+      {quote && (
+        <Flex justifyContent='space-between' alignItems='center'>
+          <Flex gap={2} alignItems='center'>
+            <Amount.Crypto
+              value={hasAmountWithPositiveReceive ? totalReceiveAmountCryptoPrecision : '0'}
+              symbol={buyAsset?.symbol ?? ''}
+              color={isBest ? greenColor : 'inherit'}
+            />
+            {!isBest && hasAmountWithPositiveReceive && (
+              <Amount.Percent
+                value={-quoteDifferenceDecimalPercentage}
+                prefix='('
+                suffix=')'
+                autoColor
+              />
+            )}
+          </Flex>
+        </Flex>
+      )}
+      {quote && (
+        <Flex justifyContent='left' alignItems='left' gap={8}>
+          {quote.estimatedExecutionTimeMs !== undefined && (
+            <Flex gap={2} alignItems='center'>
+              <RawText color='gray.500'>
+                <FaRegClock />
+              </RawText>
+              {prettyMilliseconds(quote.estimatedExecutionTimeMs)}
+            </Flex>
+          )}
           <Flex gap={2} alignItems='center'>
             <RawText color='gray.500'>
               <FaGasPump />
@@ -231,21 +264,8 @@ export const TradeQuoteLoaded: React.FC<TradeQuoteLoadedProps> = ({
               )
             }
           </Flex>
-        )}
-      </Flex>
-      <Flex justifyContent='space-between' alignItems='center'>
-        <Flex gap={2} alignItems='center'>
-          <SwapperIcon swapperName={quoteData.swapperName} />
-          <RawText>{quote?.steps[0].source ?? quoteData.swapperName}</RawText>
         </Flex>
-        {quote && (
-          <Amount.Crypto
-            value={hasAmountWithPositiveReceive ? totalReceiveAmountCryptoPrecision : '0'}
-            symbol={buyAsset?.symbol ?? ''}
-            color={isBest ? greenColor : 'inherit'}
-          />
-        )}
-      </Flex>
+      )}
     </Card>
   ) : null
 }

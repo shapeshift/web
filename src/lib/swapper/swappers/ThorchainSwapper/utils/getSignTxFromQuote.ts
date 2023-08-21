@@ -30,8 +30,6 @@ type GetSignTxFromQuoteArgs = {
   receiveAddress: string
   affiliateBps?: string
   chainSpecific?: utxo.BuildTxInput
-  buyAssetUsdRate: string
-  feeAssetUsdRate: string
   supportsEIP1559: boolean
   slippageTolerancePercentage: string
 } & ({ from: string; xpub?: never } | { from?: never; xpub: string })
@@ -41,8 +39,6 @@ export const getSignTxFromQuote = async ({
   receiveAddress,
   affiliateBps = '0',
   chainSpecific,
-  buyAssetUsdRate,
-  feeAssetUsdRate,
   from,
   xpub,
   supportsEIP1559,
@@ -113,8 +109,6 @@ export const getSignTxFromQuote = async ({
         destinationAddress: receiveAddress,
         quote: quote as TradeQuote<ThorCosmosSdkSupportedChainId>,
         affiliateBps,
-        buyAssetUsdRate,
-        feeAssetUsdRate,
         memo,
       })
 

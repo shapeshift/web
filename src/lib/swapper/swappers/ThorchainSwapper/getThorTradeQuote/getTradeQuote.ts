@@ -26,7 +26,7 @@ import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper
 import { getQuote } from 'lib/swapper/swappers/ThorchainSwapper/utils/getQuote/getQuote'
 import { getUtxoTxFees } from 'lib/swapper/swappers/ThorchainSwapper/utils/txFeeHelpers/utxoTxFees/getUtxoTxFees'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
-import { assertUnreachable } from 'lib/utils'
+import { assertUnreachable, isFulfilled, isRejected } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
@@ -114,6 +114,9 @@ export const getThorTradeQuote = async (
       slippageBps: thornodeQuote.slippage_bps,
       expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out,
       isStreaming: false,
+      estimatedExecutionTimeMs:
+        1000 *
+        (thornodeQuote.inbound_confirmation_seconds ?? 0 + thornodeQuote.outbound_delay_seconds),
     },
     {
       // streaming swap
@@ -121,6 +124,9 @@ export const getThorTradeQuote = async (
       slippageBps: thornodeQuote.streaming_slippage_bps,
       expectedAmountOutThorBaseUnit: thornodeQuote.expected_amount_out_streaming,
       isStreaming: true,
+      estimatedExecutionTimeMs: thornodeQuote.total_swap_seconds
+        ? 1000 * thornodeQuote.total_swap_seconds
+        : undefined,
     },
   ]
 
@@ -179,106 +185,143 @@ export const getThorTradeQuote = async (
         supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
       })
 
-      return Ok(
-        await Promise.all(
-          perRouteValues.map(
-            async ({ source, slippageBps, expectedAmountOutThorBaseUnit, isStreaming }) => {
-              const rate = getRouteRate(expectedAmountOutThorBaseUnit)
-              const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
-                expectedAmountOutThorBaseUnit,
-              )
+      const maybeRoutes = await Promise.allSettled(
+        perRouteValues.map(
+          async ({
+            source,
+            slippageBps,
+            expectedAmountOutThorBaseUnit,
+            isStreaming,
+            estimatedExecutionTimeMs,
+          }) => {
+            const rate = getRouteRate(expectedAmountOutThorBaseUnit)
+            const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
+              expectedAmountOutThorBaseUnit,
+            )
 
-              const updatedMemo = addSlippageToMemo(thornodeQuote, inputSlippageBps, isStreaming)
-              const maybeThorTxInfo = await getEvmThorTxInfo({
-                sellAsset,
-                sellAmountCryptoBaseUnit,
-                memo: updatedMemo,
-              })
+            const updatedMemo = addSlippageToMemo(thornodeQuote, inputSlippageBps, isStreaming)
+            const { data, router } = await getEvmThorTxInfo({
+              sellAsset,
+              sellAmountCryptoBaseUnit,
+              memo: updatedMemo,
+            })
 
-              if (maybeThorTxInfo.isErr()) throw maybeThorTxInfo.unwrapErr()
-              const { data, router } = maybeThorTxInfo.unwrap()
-
-              return {
-                isStreaming,
-                recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
-                rate,
-                data,
-                router,
-                steps: [
-                  {
-                    rate,
-                    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-                    buyAmountBeforeFeesCryptoBaseUnit,
-                    source,
-                    buyAsset,
-                    sellAsset,
-                    accountNumber,
-                    allowanceContract: router,
-                    feeData: {
-                      networkFeeCryptoBaseUnit,
-                      protocolFees,
-                    },
+            return {
+              isStreaming,
+              estimatedExecutionTimeMs,
+              recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
+              rate,
+              data,
+              router,
+              steps: [
+                {
+                  rate,
+                  sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+                  buyAmountBeforeFeesCryptoBaseUnit,
+                  source,
+                  buyAsset,
+                  sellAsset,
+                  accountNumber,
+                  allowanceContract: router,
+                  feeData: {
+                    networkFeeCryptoBaseUnit,
+                    protocolFees,
                   },
-                ],
-              }
-            },
-          ),
+                },
+              ],
+            }
+          },
         ),
       )
+
+      const routes = maybeRoutes.filter(isFulfilled).map(maybeRoute => maybeRoute.value)
+
+      // if no routes succeeded, return failure from swapper
+      if (!routes.length)
+        return Err(
+          makeSwapErrorRight({
+            message: 'Unable to create any routes',
+            code: SwapErrorType.TRADE_QUOTE_FAILED,
+            cause: maybeRoutes.filter(isRejected).map(maybeRoute => maybeRoute.reason),
+          }),
+        )
+
+      // otherwise, return all that succeeded
+      return Ok(routes)
     }
 
     case CHAIN_NAMESPACE.Utxo: {
-      return Ok(
-        await Promise.all(
-          perRouteValues.map(
-            async ({ source, slippageBps, expectedAmountOutThorBaseUnit, isStreaming }) => {
-              const rate = getRouteRate(expectedAmountOutThorBaseUnit)
-              const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
-                expectedAmountOutThorBaseUnit,
-              )
+      const maybeRoutes = await Promise.allSettled(
+        perRouteValues.map(
+          async ({
+            source,
+            slippageBps,
+            expectedAmountOutThorBaseUnit,
+            isStreaming,
+            estimatedExecutionTimeMs,
+          }) => {
+            const rate = getRouteRate(expectedAmountOutThorBaseUnit)
+            const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
+              expectedAmountOutThorBaseUnit,
+            )
 
-              const updatedMemo = addSlippageToMemo(thornodeQuote, inputSlippageBps, isStreaming)
-              const maybeThorTxInfo = await getUtxoThorTxInfo({
-                sellAsset,
-                xpub: (input as GetUtxoTradeQuoteInput).xpub,
-                memo: updatedMemo,
-              })
-              if (maybeThorTxInfo.isErr()) throw maybeThorTxInfo.unwrapErr()
-              const thorTxInfo = maybeThorTxInfo.unwrap()
-              const { vault, opReturnData, pubkey } = thorTxInfo
+            const updatedMemo = addSlippageToMemo(thornodeQuote, inputSlippageBps, isStreaming)
+            const maybeThorTxInfo = await getUtxoThorTxInfo({
+              sellAsset,
+              xpub: (input as GetUtxoTradeQuoteInput).xpub,
+              memo: updatedMemo,
+            })
+            if (maybeThorTxInfo.isErr()) throw maybeThorTxInfo.unwrapErr()
+            const thorTxInfo = maybeThorTxInfo.unwrap()
+            const { vault, opReturnData, pubkey } = thorTxInfo
 
-              const sellAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-              const feeData = await getUtxoTxFees({
-                sellAmountCryptoBaseUnit,
-                vault,
-                opReturnData,
-                pubkey,
-                sellAdapter,
-                protocolFees,
-              })
+            const sellAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
+            const feeData = await getUtxoTxFees({
+              sellAmountCryptoBaseUnit,
+              vault,
+              opReturnData,
+              pubkey,
+              sellAdapter,
+              protocolFees,
+            })
 
-              return {
-                isStreaming,
-                recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
-                rate,
-                steps: [
-                  {
-                    rate,
-                    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-                    buyAmountBeforeFeesCryptoBaseUnit,
-                    source,
-                    buyAsset,
-                    sellAsset,
-                    accountNumber,
-                    allowanceContract: '0x0', // not applicable to UTXOs
-                    feeData,
-                  },
-                ],
-              }
-            },
-          ),
+            return {
+              isStreaming,
+              estimatedExecutionTimeMs,
+              recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
+              rate,
+              steps: [
+                {
+                  rate,
+                  sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+                  buyAmountBeforeFeesCryptoBaseUnit,
+                  source,
+                  buyAsset,
+                  sellAsset,
+                  accountNumber,
+                  allowanceContract: '0x0', // not applicable to UTXOs
+                  feeData,
+                },
+              ],
+            }
+          },
         ),
       )
+
+      const routes = maybeRoutes.filter(isFulfilled).map(maybeRoute => maybeRoute.value)
+
+      // if no routes succeeded, return failure from swapper
+      if (!routes.length)
+        return Err(
+          makeSwapErrorRight({
+            message: 'Unable to create any routes',
+            code: SwapErrorType.TRADE_QUOTE_FAILED,
+            cause: maybeRoutes.filter(isRejected).map(maybeRoute => maybeRoute.reason),
+          }),
+        )
+
+      // otherwise, return all that succeeded
+      return Ok(routes)
     }
 
     case CHAIN_NAMESPACE.CosmosSdk: {
@@ -287,13 +330,20 @@ export const getThorTradeQuote = async (
 
       return Ok(
         perRouteValues.map(
-          ({ source, slippageBps, expectedAmountOutThorBaseUnit, isStreaming }) => {
+          ({
+            source,
+            slippageBps,
+            expectedAmountOutThorBaseUnit,
+            isStreaming,
+            estimatedExecutionTimeMs,
+          }) => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(
               expectedAmountOutThorBaseUnit,
             )
             return {
               isStreaming,
+              estimatedExecutionTimeMs,
               recommendedSlippage: convertBasisPointsToDecimalPercentage(slippageBps).toString(),
               rate,
               steps: [

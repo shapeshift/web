@@ -88,8 +88,6 @@ export const thorchainApi: Swapper2Api = {
     from,
     xpub,
     supportsEIP1559,
-    buyAssetUsdRate,
-    feeAssetUsdRate,
     slippageTolerancePercentageDecimal,
   }): Promise<UnsignedTx2> => {
     const { receiveAddress, affiliateBps } = tradeQuote
@@ -112,9 +110,7 @@ export const thorchainApi: Swapper2Api = {
       receiveAddress,
       affiliateBps,
       chainSpecific,
-      buyAssetUsdRate,
       ...fromOrXpub,
-      feeAssetUsdRate,
       supportsEIP1559,
       slippageTolerancePercentage: slippageTolerancePercentageDecimal,
     })
@@ -122,7 +118,11 @@ export const thorchainApi: Swapper2Api = {
 
   checkTradeStatus: async ({
     txHash,
-  }): Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }> => {
+  }): Promise<{
+    status: TxStatus
+    buyTxHash: string | undefined
+    message: string | undefined
+  }> => {
     try {
       // thorchain swapper uses txId to get tx status (not trade ID)
       const { buyTxId: buyTxHash } = await getTradeTxs(txHash)

@@ -11,6 +11,7 @@ export const setupQuote = () => {
   const buyAsset: Asset = { ...WETH }
   const tradeQuote: TradeQuote<KnownChainIds.EthereumMainnet> = {
     rate: '1',
+    estimatedExecutionTimeMs: undefined,
     steps: [
       {
         allowanceContract: 'allowanceContractAddress',

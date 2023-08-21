@@ -15,14 +15,13 @@ import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwap
 import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
 import { transformLifiStepFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
-import type { LifiTool, LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
+import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
 
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput & { wallet?: HDWallet },
   lifiChainMap: Map<ChainId, ChainKey>,
-  lifiToolsMap: Map<string, LifiTool>,
   assets: Partial<Record<AssetId, Asset>>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> {
   const {
@@ -165,18 +164,7 @@ export async function getTradeQuote(
               wallet,
             })
 
-            const toolInfo = (() => {
-              const _toolInfo = lifiToolsMap.get(lifiStep.tool)
-              if (_toolInfo) return _toolInfo
-
-              const { key, name, logoURI } = lifiStep.toolDetails
-              lifiToolsMap.set(key, { key, name, logoURI })
-              return lifiStep.toolDetails
-            })()
-
-            const source: SwapSource = toolInfo
-              ? `${SwapperName.LIFI} • ${toolInfo.name}`
-              : SwapperName.LIFI
+            const source: SwapSource = `${SwapperName.LIFI} • ${lifiStep.toolDetails.name}`
 
             return {
               allowanceContract: lifiStep.estimate.approvalAddress,
@@ -207,9 +195,15 @@ export async function getTradeQuote(
           .dividedBy(bn(selectedLifiRoute.fromAmount))
           .toString()
 
+        const estimatedExecutionTimeMs = selectedLifiRoute.steps.reduce(
+          (acc, step) => acc + 1000 * step.estimate.executionDuration,
+          0,
+        )
+
         return {
           steps,
           rate: netRate,
+          estimatedExecutionTimeMs,
           selectedLifiRoute,
         }
       }),
